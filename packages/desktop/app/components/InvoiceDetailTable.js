@@ -52,7 +52,7 @@ const InvoiceLineActionDropdown = React.memo(({ row }) => {
   return (
     <>
       <InvoiceLineItemModal
-        title="Edit invoice line item"
+        title="Edit item"
         actionText="Save"
         open={invoiceLineModalOpen}
         invoiceId={row.invoiceId}
@@ -229,17 +229,17 @@ const INVOICE_LINE_COLUMNS = [
   { key: 'orderedBy', title: 'Ordered by', sortable: false, accessor: getDisplayName },
   {
     key: 'originalPrice',
-    title: 'Original price',
+    title: 'Unit price',
     sortable: false,
     accessor: row => `$${row.invoiceLineType.price}`,
   },
   {
     key: 'percentageChange',
-    title: 'Percentage change',
+    title: '% (-/+)',
     sortable: false,
     accessor: getPercentageChange,
   },
-  { key: 'price', title: 'Price', sortable: false, accessor: getInvoiceInlinePrice },
+  { key: 'price', title: 'Total', sortable: false, accessor: getInvoiceInlinePrice },
 ];
 
 const INVOICE_PRICE_CHANGE_ACTION_COLUMN = {
@@ -264,10 +264,10 @@ const INVOICE_PRICE_CHANGE_COLUMNS = [
     accessor: getInvoicePriceChangeCategory,
   },
   { key: 'orderedBy', title: 'Ordered by', sortable: false, accessor: getDisplayName },
-  { key: 'originalPrice', title: 'Original price', sortable: false, accessor: () => '' },
+  { key: 'originalPrice', title: 'Unit price', sortable: false, accessor: () => '' },
   {
     key: 'percentageChange',
-    title: 'Percentage change',
+    title: '% (-/+)',
     sortable: false,
     accessor: getPercentageChange,
   },
@@ -316,7 +316,7 @@ export const InvoiceDetailTable = React.memo(({ invoice }) => {
           ...INVOICE_PRICE_CHANGE_COLUMNS,
           {
             key: 'price',
-            title: 'Price',
+            title: 'Total',
             sortable: false,
             accessor: ({ percentageChange }) => {
               const priceChange = (percentageChange || 0) * invoiceLinesTotal;

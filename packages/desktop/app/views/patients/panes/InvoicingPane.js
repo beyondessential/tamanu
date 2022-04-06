@@ -101,8 +101,8 @@ export const InvoicingPane = React.memo(({ encounter }) => {
               Add item
             </Button>
             <InvoiceLineItemModal
-              title="Add invoice line item"
-              actionText="Create"
+              title="Add item"
+              actionText="Add"
               open={invoiceLineModalOpen}
               invoiceId={invoice.id}
               onClose={() => setInvoiceLineModalOpen(false)}
