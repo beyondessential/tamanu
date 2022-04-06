@@ -4,7 +4,7 @@ import {
   createDummyPatient,
   randomReferenceId,
 } from 'shared/demoData/patients';
-import { fakePatient } from 'shared/test-helpers/fake';
+import { fakeEncounter, fakePatient, fakeStringFields, fakeUser } from 'shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
 
 describe('Patient', () => {
@@ -193,12 +193,14 @@ describe('Patient', () => {
 
   describe('Death', () => {
     it('should mark a patient as dead', async () => {
-      const { Patient } = models;
+      const { Patient, User } = models;
       const { id } = await Patient.create(fakePatient('alive-1'));
+      const { id: phyId } = await User.create({ ...fakeUser(), role: 'practitioner' });
 
       const dod = new Date();
       const result = await app.post(`/v1/patient/${id}/death`).send({
         date: dod,
+        physician: { id: phyId },
       });
       expect(result).toHaveSucceeded();
 
@@ -207,16 +209,18 @@ describe('Patient', () => {
     });
 
     it('should not mark a dead patient as dead', async () => {
-      const { Patient } = models;
+      const { Patient, User } = models;
       const { id } = await Patient.create(fakePatient('dead-1'));
+      const { id: phyId } = await User.create({ ...fakeUser(), role: 'practitioner' });
 
       const result = await app.post(`/v1/patient/${id}/death`).send({
         date: new Date(),
+        physician: { id: phyId },
       });
       expect(result).not.toHaveSucceeded();
     });
 
-    it('should reject with no date', async () => {
+    it('should reject with no data', async () => {
       const { Patient } = models;
       const { id } = await Patient.create(fakePatient('alive-2'));
 
@@ -224,7 +228,7 @@ describe('Patient', () => {
       expect(result).not.toHaveSucceeded();
     });
 
-    it('should reject with an invalid date', async () => {
+    it('should reject with invalid data', async () => {
       const { Patient } = models;
       const { id } = await Patient.create(fakePatient('alive-3'));
 
@@ -232,6 +236,29 @@ describe('Patient', () => {
         date: 'this is not a date',
       });
       expect(result).not.toHaveSucceeded();
+    });
+
+    it('should mark active encounters as discharged', async () => {
+      const { Department, Encounter, Facility, Location, Patient, User } = models;
+      const { id } = await Patient.create(fakePatient('alive-4'));
+      const { id: phyId } = await User.create({ ...fakeUser(), role: 'practitioner' });
+      const { id: facilityId } = await Facility.create(fakeStringFields('facility', ['code', 'name']));
+      const { id: departmentId } = await Department.create({ ...fakeStringFields('dept', ['code', 'name']), facilityId });
+      const { id: locationId } = await Location.create({ ...fakeStringFields('loc', ['code', 'name']), facilityId });
+      const { id: encId } = await Encounter.create({ ...fakeEncounter(), departmentId, locationId, patientId: id, examinerId: phyId, endDate: null });
+
+      const result = await app.post(`/v1/patient/${id}/death`).send({
+        date: new Date(),
+        physician: { id: phyId },
+      });
+      expect(result).toHaveSucceeded();
+
+      const encounter = await Encounter.findByPk(encId);
+      expect(encounter.endDate).toBeTruthy();
+      
+      const discharge = await encounter.getDischarge();
+      expect(discharge).toBeTruthy();
+      expect(discharge.dischargerId).toEqual(phyId);
     });
 
     test.todo('should reject marking as dead with insufficient permissions');

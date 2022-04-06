@@ -40,7 +40,7 @@ export const InvoicePriceChangeItemForm = ({
           />
           <Field
             name="percentageChange"
-            label="Percentage change (-/+)"
+            label="Discount/markup % (-/+)"
             required
             component={NumberField}
           />
