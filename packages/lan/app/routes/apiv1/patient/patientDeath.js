@@ -30,42 +30,32 @@ patientDeath.post(
       .oneOf(['yes', 'no']);
 
     const schema = yup.object().shape({
-      timeOfDeath: yup.date().required(),
-      clinicianId: yup.string().required(),
-      facilityId: yup.string(),
-
+      ageOfMother: yup.number(),
+      birthWeight: yup.number(),
       causeOfDeath: yup.string().required(),
-      causeOfDeathInterval: yup.number().default(0),
-
       causeOfDeath2: yup.string(),
       causeOfDeath2Interval: yup.number().default(0),
-
+      causeOfDeathInterval: yup.number().default(0),
+      clinicianId: yup.string().required(),
       contributingConditions: yup.string(),
       contributingConditionsInterval: yup.number().default(0),
-
-      surgeryInLast4Weeks: yesNoUnknown,
+      deathWithin24HoursOfBirth: yesNo,
+      facilityId: yup.string(),
+      fetalOrInfant: yesNo.default('no'),
       lastSurgeryDate: yup.date(),
       lastSurgeryReason: yup.string(),
-
-      pregnant: yesNoUnknown,
-      pregnancyContribute: yesNoUnknown,
-
-      fetalOrInfant: yesNo.default('no'),
-      stillborn: yesNoUnknown,
-      birthWeight: yup.number(),
-      deathWithin24HoursOfBirth: yesNo,
-      numberOfHoursSurvivedSinceBirth: yup.number(),
-
-      ageOfMother: yup.number(),
+      mannerOfDeath: yup.string().required(),
+      mannerOfDeathDate: yup.date(),
+      mannerOfDeathLocation: yup.string(), // actually "external cause"
+      mannerOfDeathOther: yup.string(),
       motherExistingCondition: yup.string(),
       numberOfCompletedPregnancyWeeks: yup.number(),
-
-      mannerOfDeath: yup.string().required(),
-
-      // actually "external cause"
-      mannerOfDeathLocation: yup.string(),
-      mannerOfDeathDate: yup.date(),
-      mannerOfDeathOther: yup.string(),
+      numberOfHoursSurvivedSinceBirth: yup.number(),
+      pregnancyContribute: yesNoUnknown,
+      pregnant: yesNoUnknown,
+      stillborn: yesNoUnknown,
+      surgeryInLast4Weeks: yesNoUnknown,
+      timeOfDeath: yup.date().required(),
     });
 
     const body = await schema.validate(req.body);
