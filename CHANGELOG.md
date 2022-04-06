@@ -27,6 +27,29 @@ responses for patients in covid lab test certificates
 
 - (left blank)
 
+## v1.14.1
+
+### Manual steps required after upgrade ⚙
+- Add an entry for `questionCodeIds.passport` and `questionCodeIds.nationalityId` in the config to look up survey
+responses for patients in covid lab test certificates
+- Add entry for certificate notifications such as `notifications.certificates.labTestCategoryIds: ["labTestCategory-COVID", "labTestCategory-COVIDRAT"]`
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
+- (left blank)
+
+### Bug fixes 🐛
+
+- (left blank)
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
 ## v1.14.0
 
 ### Manual steps required after upgrade ⚙
