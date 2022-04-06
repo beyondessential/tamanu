@@ -302,7 +302,7 @@ export const InvoiceDetailTable = React.memo(({ invoice }) => {
         endpoint={`invoices/${invoice.id}/lineItems`}
         columns={[
           ...INVOICE_LINE_COLUMNS,
-          ...(isInvoiceEditable(invoice.status) ? [INVOICE_LINE_ACTION_COLUMN] : []),
+          ...(isInvoiceEditable(invoice) ? [INVOICE_LINE_ACTION_COLUMN] : []),
         ]}
         noDataMessage="No invoice line items found"
         allowExport={false}
@@ -326,7 +326,7 @@ export const InvoiceDetailTable = React.memo(({ invoice }) => {
               return priceChange > 0 ? `+$${priceChange}` : `-$${-priceChange}`;
             },
           },
-          ...(isInvoiceEditable(invoice.status) ? [INVOICE_PRICE_CHANGE_ACTION_COLUMN] : []),
+          ...(isInvoiceEditable(invoice) ? [INVOICE_PRICE_CHANGE_ACTION_COLUMN] : []),
         ]}
         noDataMessage="No additional price change found"
         allowExport={false}

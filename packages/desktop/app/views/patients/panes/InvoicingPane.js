@@ -91,7 +91,7 @@ export const InvoicingPane = React.memo(({ encounter }) => {
     <>
       <InvoiceTopBar>
         <InvoiceHeading>Invoice number: {invoice.displayId}</InvoiceHeading>
-        {isInvoiceEditable(invoice.status) ? (
+        {isInvoiceEditable(invoice) ? (
           <ActionsPane>
             <Button
               onClick={() => setInvoiceLineModalOpen(true)}
