@@ -53,7 +53,7 @@ export const DateDisplay = ({
     parts.push(formatTime(date));
   }
   return (
-    <StyledAbbr {...props} title={formatLong(date)}>
+    <StyledAbbr {...props} title={formatLong(date)} data-test-class="date-display-abbr">
       {parts.join(' ')}
     </StyledAbbr>
   );
