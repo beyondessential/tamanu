@@ -18,30 +18,19 @@ const ETHNICITY_PREFIX_BY_ID = {
 const query = `
 with
   cte_oldest_date as (
-    SELECT case
-      when :from_date is null then oldest_date
-      when oldest_date <= :from_date then :from_date
-      else oldest_date 
-    end as oldest_date
-    from (
-      SELECT case
-        WHEN col1 <= col2 THEN col1
-        ELSE              col2
-      END AS oldest_date FROM (
+    SELECT
+      greatest(:from_date::date, least(oldest_sr, oldest_encounter)) oldest_date
+    FROM (
       select
-        (select min(sr.end_time) from survey_responses sr) as col1,
-        (select min(e.start_date) from encounters e) as col2
-      ) old_date_options_table
-  ) oldest_data_date
+        (select min(sr.end_time) from survey_responses sr) oldest_sr,
+        (select min(e.start_date) from encounters e) oldest_encounter
+    ) old_date_options_table
   ),
   cte_newest_date as (
-    SELECT case
-      when :to_date is null then now()
-      else :to_date
-    end as newest_date
+    SELECT least(:to_date::date, now()) newest_date
   ),
   cte_dates as (
-    select generate_series(cte_oldest_date.oldest_date, cte_newest_date.newest_date, '1 day')::date date from cte_oldest_date join cte_newest_date on true
+    select generate_series(oldest_date, newest_date, '1 day')::date date from cte_oldest_date cross join cte_newest_date
   ),
   cte_patient as (
     select
@@ -304,7 +293,7 @@ const transformResultsForDate = (date, resultsForDate) => {
   );
 
   return {
-    date: date,
+    date,
     ...Object.entries(dataByDemographic).reduce(
       (acc, [demographicKey, data]) => ({
         ...acc,
