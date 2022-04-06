@@ -42,6 +42,7 @@ with
       (SELECT id
         FROM patient_additional_data
         WHERE patient_id = p.id
+        order by ethnicity_id asc, medical_area_id asc, nursing_zone_id asc, division_id asc, village_id asc, updated_at desc
         LIMIT 1)
     where 
       coalesce(medical_area_id, '-') = coalesce(:medical_area, medical_area_id, '-')
