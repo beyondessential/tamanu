@@ -114,15 +114,15 @@ export const InvoiceDetailForm = ({
             <ButtonRow>
               {isInvoiceEditable(invoice) ? (
                 <>
-                  <Button variant="contained" onClick={onCancel}>
-                    Cancel Invoice
+                  <Button variant="outlined" onClick={onCancel} color="primary">
+                    Cancel
                   </Button>
                   <Button
-                    variant="contained"
+                    variant="outlined"
                     onClick={() => setFinaliseInvoiceModalOpen(true)}
                     color="primary"
                   >
-                    Finalise Invoice
+                    Finalise
                   </Button>
                 </>
               ) : null}
