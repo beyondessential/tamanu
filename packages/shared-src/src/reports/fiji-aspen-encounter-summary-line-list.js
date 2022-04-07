@@ -34,7 +34,8 @@ with
 			json_agg(
 				json_build_object(
 					'note_type', note_type,
-					'content', "content"
+					'content', "content",
+					'note_date', "date"
 				) 
 			) aggregated_notes
 		from notes
@@ -172,9 +173,17 @@ with
 	encounter_notes_info as (
 	-- Note this will include non-encounter notes - but they won't join anywhere because we use uuids
 		select
-			record_id as encounter_id,
-			aggregated_notes "Notes"
-		from notes_info
+			record_id encounter_id,
+			json_agg(
+				json_build_object(
+					'note_type', note_type,
+					'content', "content",
+					'note_date', "date"
+				) 
+			) "Notes"
+		from notes
+		where note_type != 'system'
+		group by record_id
 	),
 	note_history as (
 		select
