@@ -1,8 +1,8 @@
 import { lookup } from 'mime-types';
 import fs, { promises as asyncFs } from 'fs';
 import { InvalidParameterError, RemoteCallFailedError } from 'shared/errors';
-import { WebRemote } from '~/sync';
-import { getUploadedData } from '~/admin/getUploadedData';
+import { WebRemote } from '../sync';
+import { getUploadedData } from '../admin/getUploadedData';
 
 // Helper function for uploading one file to the sync server
 // req: express request, maxFileSize: integer (size in bytes)

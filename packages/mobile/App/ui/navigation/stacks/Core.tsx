@@ -13,16 +13,15 @@ import { SelectFacilityScreen } from '~/ui/navigation/screens/signup/SelectFacil
 
 const Stack = createStackNavigator();
 
-function getSignInFlowRoute() {
+function getSignInFlowRoute(): string {
   const authCtx = useContext(AuthContext);
   const { facilityId } = useFacility();
   if (!authCtx.isUserAuthenticated()) {
     return Routes.SignUpStack.Index;
   } else if (!facilityId) {
     return Routes.SignUpStack.SelectFacility;
-  } else {
-    return Routes.HomeStack.Index;
   }
+  return Routes.HomeStack.Index;
 }
 
 export const Core: FunctionComponent<any> = () => {

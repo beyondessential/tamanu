@@ -6,13 +6,15 @@ describe('PatientDocumentMetadata', () => {
   let baseApp;
   let models;
   let app;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
   });
+  afterAll(() => ctx.close());
 
   it('should get a list of all documents from a patient', async () => {
     const patient = await models.Patient.create(await createDummyPatient(models));

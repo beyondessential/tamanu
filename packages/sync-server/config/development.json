@@ -15,6 +15,7 @@
   },
   "localisation": {
     "data": {
+      "timeZone": "UTC",
       "country": {
         "name": "Utopia",
         "alpha-2": "UT",

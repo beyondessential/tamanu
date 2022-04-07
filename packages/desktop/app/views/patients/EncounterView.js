@@ -31,7 +31,7 @@ import { VitalsTable } from '../../components/VitalsTable';
 import { connectRoutedModal } from '../../components/Modal';
 import { NoteModal } from '../../components/NoteModal';
 import { NoteTable } from '../../components/NoteTable';
-import { TopBar, DateDisplay, TopBarHeading } from '../../components';
+import { TopBar, DateDisplay, TopBarHeading, SuggesterSelectField } from '../../components';
 import { DocumentsPane, InvoicingPane } from './panes';
 import { DropdownButton } from '../../components/DropdownButton';
 import { FormGrid } from '../../components/FormGrid';
@@ -294,6 +294,12 @@ const EncounterInfoPane = React.memo(({ disabled, encounter }) => (
   <FormGrid columns={3}>
     <DateInput disabled={disabled} value={encounter.startDate} label="Arrival date" />
     <DateInput disabled={disabled} value={encounter.endDate} label="Discharge date" />
+    <SuggesterSelectField
+      disabled
+      label="Patient type"
+      field={{ name: 'patientBillingTypeId', value: encounter.patientBillingTypeId }}
+      endpoint="patientBillingType"
+    />
     <TextInput disabled={disabled} value={getDepartmentName(encounter)} label="Department" />
     <TextInput disabled={disabled} value={getLocationName(encounter)} label="Location" />
     <SelectInput
@@ -314,7 +320,7 @@ const EncounterInfoPane = React.memo(({ disabled, encounter }) => (
       disabled={disabled}
       value={encounter.reasonForEncounter}
       label="Reason for encounter"
-      style={{ gridColumn: 'span 3' }}
+      style={{ gridColumn: 'span 2' }}
     />
   </FormGrid>
 ));

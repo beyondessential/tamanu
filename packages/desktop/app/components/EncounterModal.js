@@ -1,20 +1,18 @@
 import React, { useCallback } from 'react';
-
 import { REFERRAL_STATUSES } from 'shared/constants';
+import { useDispatch } from 'react-redux';
+
 import { Modal } from './Modal';
-import { Suggester } from '../utils/suggester';
-
-import { connectApi } from '../api/connectApi';
 import { viewPatientEncounter } from '../store/patient';
-
 import { EncounterForm } from '../forms/EncounterForm';
 import { useEncounter } from '../contexts/Encounter';
 import { useApi } from '../api';
 
-const DumbEncounterModal = React.memo(
-  ({ open, onClose, patientId, loadAndViewPatientEncounter, referral, ...rest }) => {
+export const EncounterModal = React.memo(
+  ({ open, onClose, patientId, referral, patientBillingTypeId, ...props }) => {
     const { createEncounter } = useEncounter();
     const api = useApi();
+    const dispatch = useDispatch();
 
     const onCreateEncounter = useCallback(
       async data => {
@@ -26,23 +24,22 @@ const DumbEncounterModal = React.memo(
         if (referral) {
           await api.put(`referral/${referral.id}`, { status: REFERRAL_STATUSES.COMPLETED });
         }
-        loadAndViewPatientEncounter();
+
+        dispatch(viewPatientEncounter(patientId));
         onClose();
       },
-      [patientId, api, createEncounter, loadAndViewPatientEncounter, onClose, referral],
+      [dispatch, patientId, api, createEncounter, onClose, referral],
     );
 
     return (
       <Modal title="Check-in" open={open} onClose={onClose}>
-        <EncounterForm onSubmit={onCreateEncounter} onCancel={onClose} {...rest} />
+        <EncounterForm
+          onSubmit={onCreateEncounter}
+          onCancel={onClose}
+          patientBillingTypeId={patientBillingTypeId}
+          {...props}
+        />
       </Modal>
     );
   },
 );
-
-export const EncounterModal = connectApi((api, dispatch, { patientId }) => ({
-  locationSuggester: new Suggester(api, 'location'),
-  practitionerSuggester: new Suggester(api, 'practitioner'),
-  departmentSuggester: new Suggester(api, 'department'),
-  loadAndViewPatientEncounter: () => dispatch(viewPatientEncounter(patientId)),
-}))(DumbEncounterModal);

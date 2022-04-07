@@ -1,7 +1,7 @@
 import { keyBy, groupBy, uniqWith, isEqual, upperFirst } from 'lodash';
 import { Op } from 'sequelize';
 import moment from 'moment';
-import { generateReportFromQueryData } from '../utilities';
+import { generateReportFromQueryData, getAnswers } from '../utilities';
 import {
   transformAndRemoveDuplicatedAnswersPerDate,
   getPatientById,
@@ -9,7 +9,6 @@ import {
   getSurveyGroupKey,
   getFormDataElements,
   getReferralDataElements,
-  getAnswers,
   getPerPatientPerSurveyPerDatePerElementKey,
   getCachedAnswer,
   parametersToAnswerSqlWhere,

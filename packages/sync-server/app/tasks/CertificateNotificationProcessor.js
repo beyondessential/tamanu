@@ -12,11 +12,9 @@ import { log } from 'shared/services/logging';
 import { ScheduledTask } from 'shared/tasks';
 import { makeVaccineCertificate, makeCovidTestCertificate } from '../utils/makePatientCertificate';
 import { getLocalisation } from '../localisation';
-import {
-  createProofOfVaccination,
-  VdsNcDocument,
-  generateUVCIForPatient,
-} from '../integrations/VdsNc';
+import { createVdsNcVaccinationData, VdsNcDocument } from '../integrations/VdsNc';
+import { createEuDccVaccinationData, HCERTPack } from '../integrations/EuDcc';
+import { generateUVCI } from 'shared/utils/uvci';
 
 export class CertificateNotificationProcessor extends ScheduledTask {
   constructor(context) {
@@ -34,6 +32,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
     const { models } = this.context.store;
     const { CertificateNotification, PatientCommunication, Patient } = models;
     const vdsEnabled = config.integrations.vdsNc.enabled;
+    const euDccEnabled = config.integrations.euDcc.enabled;
     const localisation = await getLocalisation();
 
     const queuedNotifications = await CertificateNotification.findAll({
@@ -60,48 +59,86 @@ export class CertificateNotificationProcessor extends ScheduledTask {
         const requireSigning = notification.get('requireSigning');
         const type = notification.get('type');
         const printedBy = notification.get('createdBy');
+        
+        const countryCode = (await getLocalisation()).country['alpha-2'];
 
         log.info(
           `Processing certificate notification: id=${notification.id} patient=${patientId} type=${type} requireSigning=${requireSigning}`,
         );
 
         let template;
-        let vdsData = null;
+        let qrData = null;
         let pdf = null;
 
         switch (type) {
-          case ICAO_DOCUMENT_TYPES.PROOF_OF_VACCINATION.JSON:
+          case ICAO_DOCUMENT_TYPES.PROOF_OF_VACCINATION.JSON: {
             template = 'vaccineCertificateEmail';
+            const latestVax = await models.AdministeredVaccine.lastVaccinationForPatient(
+              patient.id,
+            );
+            const latestCovidVax = await models.AdministeredVaccine.lastVaccinationForPatient(
+              patient.id,
+              ['COVID-19 AZ', 'COVID-19 Pfizer'],
+            );
 
-            if (requireSigning && vdsEnabled) {
-              log.debug('Generating VDS data for proof of vaccination');
-              const povData = await createProofOfVaccination(patient.id, { models });
-              const uniqueProofId = await generateUVCIForPatient(patient.id);
-              const vdsDoc = new VdsNcDocument(type, povData, uniqueProofId);
-              vdsDoc.models = models;
-              await vdsDoc.sign();
-              vdsData = await vdsDoc.intoVDS();
+            let uvci;
+            if (requireSigning) {
+              if (euDccEnabled) {
+                log.debug('Generating EU DCC data for proof of vaccination');
+                if (latestCovidVax) {
+                  uvci = await generateUVCI(latestCovidVax.id, { format: 'eudcc', countryCode });
+
+                  const povData = await createEuDccVaccinationData(latestCovidVax.id, {
+                    models,
+                  });
+
+                  qrData = await HCERTPack(povData, { models });
+                } else {
+                  log.warn(
+                    'EU DCC signing requested but certificate contains no Covid vaccination data',
+                  );
+                }
+              } else if (vdsEnabled) {
+                log.debug('Generating VDS data for proof of vaccination');
+                uvci = await generateUVCI(latestCovidVax.id, { format: 'icao', countryCode });
+
+                const povData = await createVdsNcVaccinationData(patient.id, { models });
+                const vdsDoc = new VdsNcDocument(type, povData, uvci);
+                vdsDoc.models = models;
+                await vdsDoc.sign();
+
+                qrData = await vdsDoc.intoVDS();
+              } else {
+                log.error('Signing is required but neither EU DCC nor VDS is enabled');
+              }
             }
 
-            log.debug('Making vax PDF');
-            pdf = await makeVaccineCertificate(patient, printedBy, models, vdsData);
-            break;
+            // As fallback, generate ICAO flavour from last (not necessarily covid) vaccine
+            if (!uvci) uvci = await generateUVCI(latestVax.id, { format: 'icao', countryCode });
 
-          case ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING.JSON:
+            pdf = await makeVaccineCertificate(patient, printedBy, models, uvci, qrData);
+            break;
+          }
+
+          case ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING.JSON: {
+            // let uvci;
+
             template = 'covidTestCertificateEmail';
-            if (false && requireSigning && vdsEnabled) {
+            if (requireSigning && vdsEnabled) {
               // log.debug('Generating VDS data for proof of testing');
-              // const potData = await createProofOfTesting(labTestId ???, { models });
-              // const uniqueProofId = await patient.getIcaoUTCI()???;
-              // const vdsDoc = new Document(type, potData, uniqueProofId);
+              // uvci = await generateUVCI(latestCovidVax.id, { format: 'icao', countryCode });
+              // const povData = await createVdsNcTestData(patient.id, { models });
+              // const vdsDoc = new VdsNcDocument(type, povData, uvci);
               // vdsDoc.models = models;
               // await vdsDoc.sign();
-              // vdsData = await vdsDoc.intoVDS();
+              // qrData = await vdsDoc.intoVDS();
             }
 
             log.debug('Making test PDF');
-            pdf = await makeCovidTestCertificate(patient, printedBy, models, vdsData);
+            pdf = await makeCovidTestCertificate(patient, printedBy, models, qrData);
             break;
+          }
+
           default:
             throw new Error(`Unknown certificate type ${type}`);
         }
