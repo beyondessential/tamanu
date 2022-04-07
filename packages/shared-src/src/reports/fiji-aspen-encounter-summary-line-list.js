@@ -149,6 +149,98 @@ with
 			record_id as encounter_id,
 			aggregated_notes "Notes"
 		from notes_info
+	),
+	note_history as (
+		select
+			record_id encounter_id,
+			matched_vals[1] place,
+			matched_vals[2] "from",
+			matched_vals[3] "to",
+			date
+		from notes n,
+			lateral (select regexp_matches("content", 'Changed (.*) from (.*) to (.*)') matched_vals) matched_vals,
+			lateral (select matched_vals[1] place) place,
+			lateral (select matched_vals[2] "from") "from",
+			lateral (select matched_vals[3] "to") "to"
+		where note_type = 'system'
+		and record_type = 'encounter'
+		and "content" ~ 'Changed (.*) from (.*) to (.*)'
+	),
+	department_info as (
+		select 
+			e.id encounter_id,
+			case when count("from") = 0
+				then json_build_array(json_build_object(
+					'department', d.name,
+					'assigned_time', e.start_date
+				))
+				else json_build_array(
+					json_build_object(
+						'department', first_from, --first "from" from note
+						'assigned_time', e.start_date
+					),
+					json_agg(
+						json_build_object(
+							'department', "to",
+							'assigned_time', nh.date
+						) ORDER BY nh.date
+					)
+				)
+			end department_history
+		from encounters e
+		left join departments d on e.department_id = d.id
+		left join note_history nh
+		on nh.encounter_id = e.id
+		left join (
+			select
+				nh2.encounter_id enc_id,
+				"from" first_from,
+				date
+			from note_history nh2
+			order by date
+			limit 1
+		) first_from
+		on e.id = first_from.enc_id
+		where place = 'department' or place is null
+		group by e.id, d.name, e.start_date, first_from
+	),
+	location_info as (
+		select 
+			e.id encounter_id,
+			case when count("from") = 0
+				then json_build_array(json_build_object(
+					'location', l.name,
+					'assigned_time', e.start_date
+				))
+				else json_build_array(
+					json_build_object(
+						'location', first_from, --first "from" from note
+						'assigned_time', e.start_date
+					),
+					json_agg(
+						json_build_object(
+							'location', "to",
+							'assigned_time', nh.date
+						) ORDER BY nh.date
+					)
+				)
+			end location_history
+		from encounters e
+		left join locations l on e.location_id = l.id
+		left join note_history nh
+		on nh.encounter_id = e.id
+		left join (
+			select
+				nh2.encounter_id enc_id,
+				"from" first_from,
+				date
+			from note_history nh2
+			order by date
+			limit 1
+		) first_from
+		on e.id = first_from.enc_id
+		where place = 'location' or place is null
+		group by e.id, l.name, e.start_date, first_from
 	)
 select
 	p.display_id "Patient ID",
@@ -177,6 +269,8 @@ select
 		when '3' then  'Non-urgent'
 		else t.score
 	end "Triage category",
+	di2.department_history "Department",
+	li.location_history "Location",
 	e.reason_for_encounter "Reason for encounter",
 	di."Diagnosis",
 	mi."Medications",
@@ -196,6 +290,8 @@ left join lab_request_info lri on lri.encounter_id = e.id
 left join imaging_info ii on ii.encounter_id = e.id
 left join encounter_notes_info ni on ni.encounter_id = e.id
 left join triages t on t.encounter_id = e.id
+left join location_info li on li.encounter_id = e.id
+left join department_info di2 on di2.encounter_id = e.id
 where e.end_date is not null
 --and json_array_length("Lab requests" -> 0 -> 'tests') > 1
 and coalesce(billing.id, '-') like coalesce(:billing_type, '%%')
