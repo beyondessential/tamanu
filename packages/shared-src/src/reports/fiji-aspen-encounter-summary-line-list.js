@@ -126,12 +126,12 @@ with
 		group by encounter_id
 	),
 	encounter_notes_info as (
-		-- Note this will include non-encounter notes - but they won't join anywhere because we use uuids
-			select
-				record_id as encounter_id,
-				aggregated_notes "Notes"
-			from notes_info
-		)
+	-- Note this will include non-encounter notes - but they won't join anywhere because we use uuids
+		select
+			record_id as encounter_id,
+			aggregated_notes "Notes"
+		from notes_info
+	)
 select
 	p.display_id "Patient ID",
 	p.first_name "First name",
