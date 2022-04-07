@@ -3,6 +3,28 @@
 ## vNEXT
 
 ### Manual steps required after upgrade ⚙
+
+- (left blank)
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
+- (left blank)
+
+### Bug fixes 🐛
+
+- (left blank)
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
+## v1.15.0
+
+### Manual steps required after upgrade ⚙
 - Add an entry for `questionCodeIds.passport` and `questionCodeIds.nationalityId` in the config to look up survey
 responses for patients in covid lab test certificates
 - Delete any override to config's `log.consoleLevel` (it has a new default)
