@@ -127,6 +127,9 @@ describe('Fiji statistical report for phis summary', () => {
     const expectedPatient3 = await models.Patient.create(
       await createDummyPatient(models, { dateOfBirth: moment.utc().subtract(20, 'years') }),
     );
+    const expectedPatient4 = await models.Patient.create(
+      await createDummyPatient(models, { dateOfBirth: moment.utc().subtract(20, 'years') }),
+    );
     await models.PatientAdditionalData.create({
       patientId: expectedPatient3.id,
       ethnicityId: ETHNICITY_IDS.ITAUKEI,
@@ -200,6 +203,7 @@ describe('Fiji statistical report for phis summary', () => {
         diagnosisId: diabetesDiagnosis.id,
         encounterId: diagnosisEncounter1.id,
         date: moment.utc('2020-05-02'),
+        certainty: 'suspected',
       }),
     );
 
@@ -245,6 +249,7 @@ describe('Fiji statistical report for phis summary', () => {
         diagnosisId: diabetesDiagnosis.id,
         encounterId: diagnosisEncounter2.id,
         date: moment.utc('2020-05-02'),
+        certainty: 'suspected',
       }),
     );
 
@@ -253,6 +258,7 @@ describe('Fiji statistical report for phis summary', () => {
         diagnosisId: hypertensionDiagnosis.id,
         encounterId: diagnosisEncounter2.id,
         date: moment.utc('2020-05-02'),
+        certainty: 'suspected',
       }),
     );
 
@@ -287,6 +293,7 @@ describe('Fiji statistical report for phis summary', () => {
         diagnosisId: hypertensionDiagnosis.id,
         encounterId: diagnosisEncounter3.id,
         date: moment.utc('2020-05-02'),
+        certainty: 'suspected',
       }),
     );
 
@@ -302,6 +309,7 @@ describe('Fiji statistical report for phis summary', () => {
         diagnosisId: diabetesDiagnosis.id,
         encounterId: diagnosisEncounter4.id,
         date: moment.utc('2020-05-02'),
+        certainty: 'suspected',
       }),
     );
 
@@ -325,6 +333,28 @@ describe('Fiji statistical report for phis summary', () => {
         diagnosisId: hypertensionDiagnosis.id,
         encounterId: diagnosisEncounter5.id,
         date: moment.utc('2020-05-03'),
+        certainty: 'suspected',
+      }),
+    );
+    /**
+     * Patient 4:
+     *
+     * 2020-05-02: Diagnosed with diabetes (but it's disproven)
+     *
+     */
+    const diagnosisEncounter6 = await models.Encounter.create(
+      await createDummyEncounter(models, {
+        startDate: moment.utc('2020-05-02'),
+        patientId: expectedPatient4.id,
+      }),
+    );
+
+    await models.EncounterDiagnosis.create(
+      await createDummyEncounterDiagnosis(models, {
+        diagnosisId: diabetesDiagnosis.id,
+        encounterId: diagnosisEncounter6.id,
+        date: moment.utc('2020-05-02'),
+        certainty: 'disproven',
       }),
     );
   });
