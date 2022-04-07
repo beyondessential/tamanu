@@ -171,7 +171,7 @@ export const AppointmentsCalendar = () => {
               activeFilter={activeFilter}
               filterValue={filterValue}
               appointmentType={appointmentType}
-              appointmentUpdated={updateCalendar}
+              onAppointmentUpdated={updateCalendar}
             />
           </CalendarContainer>
         </RightContainer>
