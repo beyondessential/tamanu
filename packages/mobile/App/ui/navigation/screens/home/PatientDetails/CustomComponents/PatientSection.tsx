@@ -19,10 +19,7 @@ export const PatientSection = ({
       justifyContent="space-between"
       alignItems="center"
       background={theme.colors.WHITE}
-      paddingTop={10}
-      paddingBottom={10}
-      paddingLeft={20}
-      paddingRight={20}
+      padding={20}
     >
       <SectionHeader h1>{title.toUpperCase()}</SectionHeader>
       {onEdit && <EditButton sectionTitle={title} onPress={onEdit} />}
