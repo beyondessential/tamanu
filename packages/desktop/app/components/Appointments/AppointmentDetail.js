@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { format } from 'date-fns';
 import Select from 'react-select';
-import Tooltip from 'react-tooltip';
 import { APPOINTMENT_STATUSES } from 'shared/constants';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { InvertedDisplayIdLabel } from '../DisplayIdLabel';
@@ -150,7 +149,7 @@ const FirstRow = styled(Section)`
   column-gap: 2rem;
 `;
 
-export const AppointmentDetail = ({ appointment, updated }) => {
+export const AppointmentDetail = ({ appointment, onUpdated }) => {
   const api = useApi();
   const { id, type, status, clinician, patient, location } = appointment;
   const [statusOption, setStatusOption] = useState(
@@ -169,7 +168,7 @@ export const AppointmentDetail = ({ appointment, updated }) => {
     await api.put(`appointments/${id}`, {
       status: newValue,
     });
-    updated();
+    onUpdated();
   };
   return (
     <Container>
@@ -223,8 +222,7 @@ export const AppointmentDetail = ({ appointment, updated }) => {
         }}
         appointment={appointment}
         onSuccess={() => {
-          Tooltip.hide();
-          updated();
+          onUpdated();
         }}
       />
       <CancelAppointmentModal
@@ -237,8 +235,6 @@ export const AppointmentDetail = ({ appointment, updated }) => {
           setCancelConfirmed(true);
           try {
             await updateAppointmentStatus(APPOINTMENT_STATUSES.CANCELLED);
-            // hide the tooltip if cancelling appointment
-            Tooltip.hide();
           } catch (e) {
             // eslint-disable-next-line no-console
             console.error(e);

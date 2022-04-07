@@ -52,7 +52,7 @@ const InvoiceLineActionDropdown = React.memo(({ row }) => {
   return (
     <>
       <InvoiceLineItemModal
-        title="Edit invoice line item"
+        title="Edit item"
         actionText="Save"
         open={invoiceLineModalOpen}
         invoiceId={row.invoiceId}
@@ -229,17 +229,17 @@ const INVOICE_LINE_COLUMNS = [
   { key: 'orderedBy', title: 'Ordered by', sortable: false, accessor: getDisplayName },
   {
     key: 'originalPrice',
-    title: 'Original price',
+    title: 'Unit price',
     sortable: false,
     accessor: row => `$${row.invoiceLineType.price}`,
   },
   {
     key: 'percentageChange',
-    title: 'Percentage change',
+    title: '% (-/+)',
     sortable: false,
     accessor: getPercentageChange,
   },
-  { key: 'price', title: 'Price', sortable: false, accessor: getInvoiceInlinePrice },
+  { key: 'price', title: 'Total', sortable: false, accessor: getInvoiceInlinePrice },
 ];
 
 const INVOICE_PRICE_CHANGE_ACTION_COLUMN = {
@@ -264,14 +264,18 @@ const INVOICE_PRICE_CHANGE_COLUMNS = [
     accessor: getInvoicePriceChangeCategory,
   },
   { key: 'orderedBy', title: 'Ordered by', sortable: false, accessor: getDisplayName },
-  { key: 'originalPrice', title: 'Original price', sortable: false, accessor: () => '' },
+  { key: 'originalPrice', title: 'Unit price', sortable: false, accessor: () => '' },
   {
     key: 'percentageChange',
-    title: 'Percentage change',
+    title: '% (-/+)',
     sortable: false,
     accessor: getPercentageChange,
   },
 ];
+
+const DiscountHeading = styled.h4`
+  margin: 1rem;
+`;
 
 export const InvoiceDetailTable = React.memo(({ invoice }) => {
   const [invoiceLineItems, setInvoiceLineItems] = useState([]);
@@ -298,21 +302,21 @@ export const InvoiceDetailTable = React.memo(({ invoice }) => {
         endpoint={`invoices/${invoice.id}/lineItems`}
         columns={[
           ...INVOICE_LINE_COLUMNS,
-          ...(isInvoiceEditable(invoice.status) ? [INVOICE_LINE_ACTION_COLUMN] : []),
+          ...(isInvoiceEditable(invoice) ? [INVOICE_LINE_ACTION_COLUMN] : []),
         ]}
         noDataMessage="No invoice line items found"
         allowExport={false}
         onDataFetched={updateLineItems}
       />
       <InvoiceTotal>Sub-Total: ${invoiceLinesTotal}</InvoiceTotal>
-      <h4 style={{ margin: '1rem' }}>Discounts</h4>
+      <DiscountHeading>Discounts / Mark-ups</DiscountHeading>
       <DataFetchingTable
         endpoint={`invoices/${invoice.id}/priceChangeItems`}
         columns={[
           ...INVOICE_PRICE_CHANGE_COLUMNS,
           {
             key: 'price',
-            title: 'Price',
+            title: 'Total',
             sortable: false,
             accessor: ({ percentageChange }) => {
               const priceChange = (percentageChange || 0) * invoiceLinesTotal;
@@ -322,7 +326,7 @@ export const InvoiceDetailTable = React.memo(({ invoice }) => {
               return priceChange > 0 ? `+$${priceChange}` : `-$${-priceChange}`;
             },
           },
-          ...(isInvoiceEditable(invoice.status) ? [INVOICE_PRICE_CHANGE_ACTION_COLUMN] : []),
+          ...(isInvoiceEditable(invoice) ? [INVOICE_PRICE_CHANGE_ACTION_COLUMN] : []),
         ]}
         noDataMessage="No additional price change found"
         allowExport={false}

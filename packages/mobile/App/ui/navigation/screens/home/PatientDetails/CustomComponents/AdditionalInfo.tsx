@@ -91,7 +91,7 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
   } else if (loading) {
     additionalFields = <LoadingScreen />;
   } else if (additionalDataRes) {
-    additionalFields = <FieldRowDisplay fields={fields} fieldsPerRow={2} />;
+    additionalFields = <FieldRowDisplay fields={fields} />;
   }
   return (
     <PatientSection
