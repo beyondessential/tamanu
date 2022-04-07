@@ -58,9 +58,18 @@ with
 	procedure_info as (
 		select
 			encounter_id,
-			string_agg(proc.name || ', ' || proc.code, ';') as "Procedures"
-		from "procedures" p2 
-		left join reference_data proc ON proc.id = p2.procedure_type_id
+			string_agg(
+				'{__name: "' || proc.name || 
+				'", __code: "' || proc.code || 
+				'", __date: "' || to_char(date, 'yyyy-dd-mm') ||
+				'", __location: "' || loc.name ||
+				'", __notes: "' || p.note ||
+				'", __notes: "' || completed_note ||
+				'"}',
+				'__|procedures_separator|__') as "Procedures"
+		from "procedures" p
+		left join reference_data proc ON proc.id = procedure_type_id
+		left join locations loc on loc.id = location_id
 		group by encounter_id 
 	),
 	medications_info as (
