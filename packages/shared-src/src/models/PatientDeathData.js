@@ -8,40 +8,21 @@ export class PatientDeathData extends Model {
     super.init(
       {
         id: primaryKey,
-        manner: {
-          type: Sequelize.STRING,
-          allowNull: false,
-        },
-
-        recentSurgery: Sequelize.STRING, // yes/no/unknown/null
-        lastSurgeryDate: Sequelize.DATE,
-
+        birthWeight: { type: Sequelize.INTEGER, unsigned: true },
+        carrierAge: { type: Sequelize.INTEGER, unsigned: true },
+        carrierPregnancyWeeks: { type: Sequelize.INTEGER, unsigned: true },
         externalCauseDate: Sequelize.DATE,
         externalCauseLocation: Sequelize.STRING,
         externalCauseNotes: Sequelize.TEXT,
-
-        wasPregnant: Sequelize.STRING, // yes/no/unknown/null
-        pregnancyContributed: Sequelize.STRING, // yes/no/unknown/null
-
         fetalOrInfant: Sequelize.BOOLEAN, // true/false/null
+        hoursSurvivedSinceBirth: { type: Sequelize.INTEGER, unsigned: true },
+        lastSurgeryDate: Sequelize.DATE,
+        manner: { type: Sequelize.STRING, allowNull: false },
+        pregnancyContributed: Sequelize.STRING, // yes/no/unknown/null
+        recentSurgery: Sequelize.STRING, // yes/no/unknown/null
         stillborn: Sequelize.STRING, // yes/no/unknown/null
-        birthWeight: {
-          type: Sequelize.INTEGER,
-          unsigned: true,
-        },
+        wasPregnant: Sequelize.STRING, // yes/no/unknown/null
         withinDayOfBirth: Sequelize.BOOLEAN,
-        hoursSurvivedSinceBirth: {
-          type: Sequelize.INTEGER,
-          unsigned: true,
-        },
-        carrierAge: {
-          type: Sequelize.INTEGER,
-          unsigned: true,
-        },
-        carrierPregnancyWeeks: {
-          type: Sequelize.INTEGER,
-          unsigned: true,
-        },
       },
       {
         ...options,
@@ -68,7 +49,7 @@ export class PatientDeathData extends Model {
               );
             }
           },
-          ynuFields() {
+          yesNoUnknownFields() {
             if (this.deletedAt) return;
             for (const field of [
               'recentSurgery',
