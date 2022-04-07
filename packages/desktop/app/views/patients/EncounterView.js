@@ -487,7 +487,7 @@ export const EncounterView = () => {
   return (
     <TwoColumnDisplay>
       <PatientInfoPane patient={patient} disabled={disabled} />
-      <div>
+      <div style={{ overflow: 'hidden' }}>
         <TopBar>
           <div>
             <TopBarHeading>{getHeaderText(encounter)}</TopBarHeading>
