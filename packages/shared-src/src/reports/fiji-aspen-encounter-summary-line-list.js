@@ -160,8 +160,7 @@ with
 			where note->>'note_type' = 'abc' --cross join ok here as only 1 record will be matched
 			group by record_id
 		) area_notes
-		on area_notes.record_id = ir.id 
-		where ir.id = 'CP9YNUPX'
+		on area_notes.record_id = ir.id
 	),
 	imaging_info as (
 		select
