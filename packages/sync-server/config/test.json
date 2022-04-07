@@ -49,7 +49,7 @@
   },
   "notifications": {
     "certificates": {
-      "labTestCategoryIds": ["labTestCategory-COVID"]
+      "labTestCategoryId": "labTestCategory-COVID"
     }
   }
 }

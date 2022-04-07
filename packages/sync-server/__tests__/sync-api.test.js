@@ -286,9 +286,7 @@ describe('Sync API', () => {
 
       // assert
       expect(firstCursor.split(';')[1]).toEqual(earlierIdRecord.id);
-      expectDeepSyncRecordsMatch([earlierIdRecord], firstRecords, {
-        nullableDateFields: ['dateOfDeath'],
-      });
+      expectDeepSyncRecordsMatch([earlierIdRecord], firstRecords, { nullableDateFields: ['dateOfDeath'] });
       expect(secondCursor.split(';')[1]).toEqual(laterIdRecord.id);
       expectDeepSyncRecordsMatch([laterIdRecord], secondRecords, {
         nullableDateFields: ['dateOfDeath'],
@@ -664,7 +662,7 @@ describe('Sync API', () => {
         expect(result).toHaveSucceeded();
         expect(result.body).toHaveProperty('count', 1);
         const getResult = await app.get('/v1/sync/patient?since=0', 0);
-        const { records } = getResult.body;
+        const records = getResult.body.records;
         expect(records).toHaveProperty('length', 1);
         record = records[0];
       });
@@ -724,8 +722,8 @@ describe('Sync API', () => {
     beforeEach(() => {
       // Mock the hook functions, we don't actually need to call them
       // we just want to confirm the hook is triggered correctly from a sync
-      jest.spyOn(hooks, 'createLabRequestUpdateNotification').mockReturnValue('test');
-      jest.spyOn(hooks, 'createLabRequestCreateNotification').mockReturnValue('test');
+      jest.spyOn(hooks, 'createSingleLabRequestNotification').mockReturnValue('test');
+      jest.spyOn(hooks, 'createMultiLabRequestNotifications').mockReturnValue('test');
     });
     afterEach(() => {
       jest.clearAllMocks();
@@ -748,7 +746,7 @@ describe('Sync API', () => {
       await app.post(`/v1/sync/patient%2F${patientId}%2Fencounter?since=0`).send(syncEncounter);
 
       // assert
-      expect(hooks.createLabRequestUpdateNotification).toHaveBeenCalled();
+      expect(hooks.createSingleLabRequestNotification).toHaveBeenCalled();
     });
 
     it('labRequests afterBulkCreate hook triggered from sync', async () => {
@@ -762,7 +760,7 @@ describe('Sync API', () => {
         .send(convertFromDbRecord(encounter));
 
       // assert
-      expect(hooks.createLabRequestCreateNotification).toHaveBeenCalled();
+      expect(hooks.createMultiLabRequestNotifications).toHaveBeenCalled();
     });
   });
 });

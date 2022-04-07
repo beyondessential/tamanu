@@ -2,8 +2,8 @@ import config from 'config';
 
 import { createReferralNotification } from 'shared/tasks/CreateReferralNotification';
 import {
-  createLabRequestUpdateNotification,
-  createLabRequestCreateNotification,
+  createSingleLabRequestNotification,
+  createMultiLabRequestNotifications,
 } from 'shared/tasks/CreateLabRequestNotifications';
 
 export async function addHooks(store) {
@@ -19,19 +19,20 @@ export async function addHooks(store) {
     }
     if (config.notifications.certificates) {
       // Create certificate notifications for published results
-      if (config.notifications.certificates.labTestCategoryIds) {
+      if (config.notifications.certificates.labTestCategoryId) {
         store.models.LabRequest.addHook(
-          'afterBulkCreate', // Sync trigger bulk create action, even if it's only for one entry
+          'afterBulkCreate', // Sync triggers bulk actions, even if it's only for one entry
           'create published test results notification hook',
           labRequests => {
-            createLabRequestCreateNotification(labRequests, store.models);
+            createMultiLabRequestNotifications(labRequests, store.models);
           },
         );
         store.models.LabRequest.addHook(
-          'afterUpdate',
+          'afterBulkUpdate',
           'create published test results notification hook',
           labRequest => {
-            createLabRequestUpdateNotification(labRequest, store.models);
+            // Sync triggers a bulk action, but we filter the update by id so it's always for a single entry
+            createSingleLabRequestNotification(labRequest.attributes, store.models);
           },
         );
       }
