@@ -24,45 +24,6 @@ const ETHNICITY_IDS = {
   OTHERS: 'ethnicity-others',
 };
 
-const PROPERTY_LIST = [
-  'date',
-  'total_cvd_responses',
-  'total_snaps',
-  'u30_diabetes',
-  'o30_diabetes',
-  'u30_hypertension',
-  'o30_hypertension',
-  'u30_dual',
-  'o30_dual',
-  'itaukei_cvd_responses',
-  'itaukei_snaps',
-  'itaukei_u30_diabetes',
-  'itaukei_o30_diabetes',
-  'itaukei_u30_hypertension',
-  'itaukei_o30_hypertension',
-  'itaukei_u30_dual',
-  'itaukei_o30_dual',
-  'fid_cvd_responses',
-  'fid_snaps',
-  'fid_u30_diabetes',
-  'fid_o30_diabetes',
-  'fid_u30_hypertension',
-  'fid_o30_hypertension',
-  'fid_u30_dual',
-  'fid_o30_dual',
-  'others_cvd_responses',
-  'others_snaps',
-  'others_u30_diabetes',
-  'others_o30_diabetes',
-  'others_u30_hypertension',
-  'others_o30_hypertension',
-  'others_u30_dual',
-  'others_o30_dual',
-];
-const PROPERTY_TO_EXCEL_INDEX = PROPERTY_LIST.reduce((acc, prop, i) => ({ ...acc, [prop]: i }), {});
-
-const getProperty = (result, row, prop) => result.body[row][PROPERTY_TO_EXCEL_INDEX[prop]];
-
 describe('Fiji statistical report for phis summary', () => {
   let baseApp = null;
   let app = null;
@@ -385,89 +346,80 @@ describe('Fiji statistical report for phis summary', () => {
         .post('/v1/reports/fiji-statistical-report-for-phis-summary')
         .send({});
       expect(result).toHaveSucceeded();
-      expect(result.body).toHaveLength(3);
-
-      /** *****2020-05-02******** */
-      const expectedDetails1 = {
-        date: '02-05-2020',
-        total_cvd_responses: 3,
-        total_snaps: 2,
-        u30_diabetes: 0,
-        o30_diabetes: 1,
-        u30_hypertension: 0,
-        o30_hypertension: 0,
-        u30_dual: 2,
-        o30_dual: 0,
-        itaukei_cvd_responses: 1,
-        itaukei_snaps: 1,
-        itaukei_u30_diabetes: 0,
-        itaukei_o30_diabetes: 0,
-        itaukei_u30_hypertension: 0,
-        itaukei_o30_hypertension: 0,
-        itaukei_u30_dual: 1,
-        itaukei_o30_dual: 0,
-        fid_cvd_responses: 0,
-        fid_snaps: 0,
-        fid_u30_diabetes: 0,
-        fid_o30_diabetes: 0,
-        fid_u30_hypertension: 0,
-        fid_o30_hypertension: 0,
-        fid_u30_dual: 0,
-        fid_o30_dual: 0,
-        others_cvd_responses: 1,
-        others_snaps: 1,
-        others_u30_diabetes: 0,
-        others_o30_diabetes: 0,
-        others_u30_hypertension: 0,
-        others_o30_hypertension: 0,
-        others_u30_dual: 1,
-        others_o30_dual: 0,
-      };
-      for (const entry of Object.entries(expectedDetails1)) {
-        const [key, expectedValue] = entry;
-        expect(getProperty(result, 1, key)).toBe(expectedValue);
-      }
-
-      /** *****2020-05-03******** */
-      const expectedDetails2 = {
-        date: '03-05-2020',
-        total_cvd_responses: 0,
-        total_snaps: 1,
-        u30_diabetes: 0,
-        o30_diabetes: 0,
-        u30_hypertension: 1,
-        o30_hypertension: 0,
-        u30_dual: 0,
-        o30_dual: 0,
-        itaukei_cvd_responses: 0,
-        itaukei_snaps: 0,
-        itaukei_u30_diabetes: 0,
-        itaukei_o30_diabetes: 0,
-        itaukei_u30_hypertension: 1,
-        itaukei_o30_hypertension: 0,
-        itaukei_u30_dual: 0,
-        itaukei_o30_dual: 0,
-        fid_cvd_responses: 0,
-        fid_snaps: 0,
-        fid_u30_diabetes: 0,
-        fid_o30_diabetes: 0,
-        fid_u30_hypertension: 0,
-        fid_o30_hypertension: 0,
-        fid_u30_dual: 0,
-        fid_o30_dual: 0,
-        others_cvd_responses: 0,
-        others_snaps: 0,
-        others_u30_diabetes: 0,
-        others_o30_diabetes: 0,
-        others_u30_hypertension: 0,
-        others_o30_hypertension: 0,
-        others_u30_dual: 0,
-        others_o30_dual: 0,
-      };
-      for (const entry of Object.entries(expectedDetails2)) {
-        const [key, expectedValue] = entry;
-        expect(getProperty(result, 2, key)).toBe(expectedValue);
-      }
+      expect(result.body).toMatchTabularReport([
+        {
+          /** *****2020-05-02******** */
+          Date: '02-05-2020',
+          'Number of CVD screenings': 3,
+          'Number of individuals that have received SNAP counselling': 2,
+          'Number of new diabetes cases for individuals under 30': 0,
+          'Number of new diabetes cases for individuals above 30': 1,
+          'Number of new hypertension cases for individuals under 30': 0,
+          'Number of new hypertension cases for individuals above 30': 0,
+          'Number of new dual diabetes and hypertension cases for individuals under 30': 2,
+          'Number of new dual diabetes and hypertension cases for individuals above 30': 0,
+          'Number of CVD screenings by Itaukei': 1,
+          'Number of individuals that have received SNAP counselling by Itaukei': 1,
+          'Number of new diabetes cases for individuals under 30 by Itaukei': 0,
+          'Number of new diabetes cases for individuals above 30 by Itaukei': 0,
+          'Number of new hypertension cases for individuals under 30 by Itaukei': 0,
+          'Number of new hypertension cases for individuals above 30 by Itaukei': 0,
+          'Number of new dual diabetes and hypertension cases for individuals under 30 by Itaukei': 1,
+          'Number of new dual diabetes and hypertension cases for individuals above 30 by Itaukei': 0,
+          'Number of CVD screenings by Fijian of Indian descent': 0,
+          'Number of individuals that have received SNAP counselling by Fijian of Indian descent': 0,
+          'Number of new diabetes cases for individuals under 30 by Fijian of Indian descent': 0,
+          'Number of new diabetes cases for individuals above 30 by Fijian of Indian descent': 0,
+          'Number of new hypertension cases for individuals under 30 by Fijian of Indian descent': 0,
+          'Number of new hypertension cases for individuals above 30 by Fijian of Indian descent': 0,
+          'Number of new dual diabetes and hypertension cases for individuals under 30 by Fijian of Indian descent': 0,
+          'Number of new dual diabetes and hypertension cases for individuals above 30 by Fijian of Indian descent': 0,
+          'Number of CVD screenings by ethnicity Other': 1,
+          'Number of individuals that have received SNAP counselling by ethnicity Other': 1,
+          'Number of new diabetes cases for individuals under 30 by ethnicity Other': 0,
+          'Number of new diabetes cases for individuals above 30 by ethnicity Other': 0,
+          'Number of new hypertension cases for individuals under 30 by ethnicity Other': 0,
+          'Number of new hypertension cases for individuals above 30 by ethnicity Other': 0,
+          'Number of new dual diabetes and hypertension cases for individuals under 30 by ethnicity Other': 1,
+          'Number of new dual diabetes and hypertension cases for individuals above 30 by ethnicity Other': 0,
+        },
+        {
+          /** *****2020-05-03******** */
+          Date: '03-05-2020',
+          'Number of CVD screenings': 0,
+          'Number of individuals that have received SNAP counselling': 1,
+          'Number of new diabetes cases for individuals under 30': 0,
+          'Number of new diabetes cases for individuals above 30': 0,
+          'Number of new hypertension cases for individuals under 30': 1,
+          'Number of new hypertension cases for individuals above 30': 0,
+          'Number of new dual diabetes and hypertension cases for individuals under 30': 0,
+          'Number of new dual diabetes and hypertension cases for individuals above 30': 0,
+          'Number of CVD screenings by Itaukei': 0,
+          'Number of individuals that have received SNAP counselling by Itaukei': 0,
+          'Number of new diabetes cases for individuals under 30 by Itaukei': 0,
+          'Number of new diabetes cases for individuals above 30 by Itaukei': 0,
+          'Number of new hypertension cases for individuals under 30 by Itaukei': 1,
+          'Number of new hypertension cases for individuals above 30 by Itaukei': 0,
+          'Number of new dual diabetes and hypertension cases for individuals under 30 by Itaukei': 0,
+          'Number of new dual diabetes and hypertension cases for individuals above 30 by Itaukei': 0,
+          'Number of CVD screenings by Fijian of Indian descent': 0,
+          'Number of individuals that have received SNAP counselling by Fijian of Indian descent': 0,
+          'Number of new diabetes cases for individuals under 30 by Fijian of Indian descent': 0,
+          'Number of new diabetes cases for individuals above 30 by Fijian of Indian descent': 0,
+          'Number of new hypertension cases for individuals under 30 by Fijian of Indian descent': 0,
+          'Number of new hypertension cases for individuals above 30 by Fijian of Indian descent': 0,
+          'Number of new dual diabetes and hypertension cases for individuals under 30 by Fijian of Indian descent': 0,
+          'Number of new dual diabetes and hypertension cases for individuals above 30 by Fijian of Indian descent': 0,
+          'Number of CVD screenings by ethnicity Other': 0,
+          'Number of individuals that have received SNAP counselling by ethnicity Other': 0,
+          'Number of new diabetes cases for individuals under 30 by ethnicity Other': 0,
+          'Number of new diabetes cases for individuals above 30 by ethnicity Other': 0,
+          'Number of new hypertension cases for individuals under 30 by ethnicity Other': 0,
+          'Number of new hypertension cases for individuals above 30 by ethnicity Other': 0,
+          'Number of new dual diabetes and hypertension cases for individuals under 30 by ethnicity Other': 0,
+          'Number of new dual diabetes and hypertension cases for individuals above 30 by ethnicity Other': 0,
+        },
+      ]);
     });
 
     it('should return correct data after filtering', async () => {
@@ -477,8 +429,6 @@ describe('Fiji statistical report for phis summary', () => {
         },
       });
       expect(result).toHaveSucceeded();
-      expect(result.body).toHaveLength(3);
-
       /**
        * Should only return data for patient 3:
        *
@@ -491,87 +441,80 @@ describe('Fiji statistical report for phis summary', () => {
        * 2020-05-03: Diagnosed with hypertension
        */
 
-      /** *****2020-05-02******** */
-      const expectedDetails1 = {
-        date: '02-05-2020',
-        total_cvd_responses: 1,
-        total_snaps: 1,
-        u30_diabetes: 0,
-        o30_diabetes: 0,
-        u30_hypertension: 0,
-        o30_hypertension: 0,
-        u30_dual: 1,
-        o30_dual: 0,
-        itaukei_cvd_responses: 1,
-        itaukei_snaps: 1,
-        itaukei_u30_diabetes: 0,
-        itaukei_o30_diabetes: 0,
-        itaukei_u30_hypertension: 0,
-        itaukei_o30_hypertension: 0,
-        itaukei_u30_dual: 1,
-        itaukei_o30_dual: 0,
-        fid_cvd_responses: 0,
-        fid_snaps: 0,
-        fid_u30_diabetes: 0,
-        fid_o30_diabetes: 0,
-        fid_u30_hypertension: 0,
-        fid_o30_hypertension: 0,
-        fid_u30_dual: 0,
-        fid_o30_dual: 0,
-        others_cvd_responses: 0,
-        others_snaps: 0,
-        others_u30_diabetes: 0,
-        others_o30_diabetes: 0,
-        others_u30_hypertension: 0,
-        others_o30_hypertension: 0,
-        others_u30_dual: 0,
-        others_o30_dual: 0,
-      };
-      for (const entry of Object.entries(expectedDetails1)) {
-        const [key, expectedValue] = entry;
-        expect(getProperty(result, 1, key)).toBe(expectedValue);
-      }
-
-      /** *****2020-05-03******** */
-      const expectedDetails2 = {
-        date: '03-05-2020',
-        total_cvd_responses: 0,
-        total_snaps: 0,
-        u30_diabetes: 0,
-        o30_diabetes: 0,
-        u30_hypertension: 1,
-        o30_hypertension: 0,
-        u30_dual: 0,
-        o30_dual: 0,
-        itaukei_cvd_responses: 0,
-        itaukei_snaps: 0,
-        itaukei_u30_diabetes: 0,
-        itaukei_o30_diabetes: 0,
-        itaukei_u30_hypertension: 1,
-        itaukei_o30_hypertension: 0,
-        itaukei_u30_dual: 0,
-        itaukei_o30_dual: 0,
-        fid_cvd_responses: 0,
-        fid_snaps: 0,
-        fid_u30_diabetes: 0,
-        fid_o30_diabetes: 0,
-        fid_u30_hypertension: 0,
-        fid_o30_hypertension: 0,
-        fid_u30_dual: 0,
-        fid_o30_dual: 0,
-        others_cvd_responses: 0,
-        others_snaps: 0,
-        others_u30_diabetes: 0,
-        others_o30_diabetes: 0,
-        others_u30_hypertension: 0,
-        others_o30_hypertension: 0,
-        others_u30_dual: 0,
-        others_o30_dual: 0,
-      };
-      for (const entry of Object.entries(expectedDetails2)) {
-        const [key, expectedValue] = entry;
-        expect(getProperty(result, 2, key)).toBe(expectedValue);
-      }
+      expect(result.body).toMatchTabularReport([
+        {
+          /** *****2020-05-02******** */
+          Date: '02-05-2020',
+          'Number of CVD screenings': 1,
+          'Number of individuals that have received SNAP counselling': 1,
+          'Number of new diabetes cases for individuals under 30': 0,
+          'Number of new diabetes cases for individuals above 30': 0,
+          'Number of new hypertension cases for individuals under 30': 0,
+          'Number of new hypertension cases for individuals above 30': 0,
+          'Number of new dual diabetes and hypertension cases for individuals under 30': 1,
+          'Number of new dual diabetes and hypertension cases for individuals above 30': 0,
+          'Number of CVD screenings by Itaukei': 1,
+          'Number of individuals that have received SNAP counselling by Itaukei': 1,
+          'Number of new diabetes cases for individuals under 30 by Itaukei': 0,
+          'Number of new diabetes cases for individuals above 30 by Itaukei': 0,
+          'Number of new hypertension cases for individuals under 30 by Itaukei': 0,
+          'Number of new hypertension cases for individuals above 30 by Itaukei': 0,
+          'Number of new dual diabetes and hypertension cases for individuals under 30 by Itaukei': 1,
+          'Number of new dual diabetes and hypertension cases for individuals above 30 by Itaukei': 0,
+          'Number of CVD screenings by Fijian of Indian descent': 0,
+          'Number of individuals that have received SNAP counselling by Fijian of Indian descent': 0,
+          'Number of new diabetes cases for individuals under 30 by Fijian of Indian descent': 0,
+          'Number of new diabetes cases for individuals above 30 by Fijian of Indian descent': 0,
+          'Number of new hypertension cases for individuals under 30 by Fijian of Indian descent': 0,
+          'Number of new hypertension cases for individuals above 30 by Fijian of Indian descent': 0,
+          'Number of new dual diabetes and hypertension cases for individuals under 30 by Fijian of Indian descent': 0,
+          'Number of new dual diabetes and hypertension cases for individuals above 30 by Fijian of Indian descent': 0,
+          'Number of CVD screenings by ethnicity Other': 0,
+          'Number of individuals that have received SNAP counselling by ethnicity Other': 0,
+          'Number of new diabetes cases for individuals under 30 by ethnicity Other': 0,
+          'Number of new diabetes cases for individuals above 30 by ethnicity Other': 0,
+          'Number of new hypertension cases for individuals under 30 by ethnicity Other': 0,
+          'Number of new hypertension cases for individuals above 30 by ethnicity Other': 0,
+          'Number of new dual diabetes and hypertension cases for individuals under 30 by ethnicity Other': 0,
+          'Number of new dual diabetes and hypertension cases for individuals above 30 by ethnicity Other': 0,
+        },
+        {
+          /** *****2020-05-03******** */
+          Date: '03-05-2020',
+          'Number of CVD screenings': 0,
+          'Number of individuals that have received SNAP counselling': 0,
+          'Number of new diabetes cases for individuals under 30': 0,
+          'Number of new diabetes cases for individuals above 30': 0,
+          'Number of new hypertension cases for individuals under 30': 1,
+          'Number of new hypertension cases for individuals above 30': 0,
+          'Number of new dual diabetes and hypertension cases for individuals under 30': 0,
+          'Number of new dual diabetes and hypertension cases for individuals above 30': 0,
+          'Number of CVD screenings by Itaukei': 0,
+          'Number of individuals that have received SNAP counselling by Itaukei': 0,
+          'Number of new diabetes cases for individuals under 30 by Itaukei': 0,
+          'Number of new diabetes cases for individuals above 30 by Itaukei': 0,
+          'Number of new hypertension cases for individuals under 30 by Itaukei': 1,
+          'Number of new hypertension cases for individuals above 30 by Itaukei': 0,
+          'Number of new dual diabetes and hypertension cases for individuals under 30 by Itaukei': 0,
+          'Number of new dual diabetes and hypertension cases for individuals above 30 by Itaukei': 0,
+          'Number of CVD screenings by Fijian of Indian descent': 0,
+          'Number of individuals that have received SNAP counselling by Fijian of Indian descent': 0,
+          'Number of new diabetes cases for individuals under 30 by Fijian of Indian descent': 0,
+          'Number of new diabetes cases for individuals above 30 by Fijian of Indian descent': 0,
+          'Number of new hypertension cases for individuals under 30 by Fijian of Indian descent': 0,
+          'Number of new hypertension cases for individuals above 30 by Fijian of Indian descent': 0,
+          'Number of new dual diabetes and hypertension cases for individuals under 30 by Fijian of Indian descent': 0,
+          'Number of new dual diabetes and hypertension cases for individuals above 30 by Fijian of Indian descent': 0,
+          'Number of CVD screenings by ethnicity Other': 0,
+          'Number of individuals that have received SNAP counselling by ethnicity Other': 0,
+          'Number of new diabetes cases for individuals under 30 by ethnicity Other': 0,
+          'Number of new diabetes cases for individuals above 30 by ethnicity Other': 0,
+          'Number of new hypertension cases for individuals under 30 by ethnicity Other': 0,
+          'Number of new hypertension cases for individuals above 30 by ethnicity Other': 0,
+          'Number of new dual diabetes and hypertension cases for individuals under 30 by ethnicity Other': 0,
+          'Number of new dual diabetes and hypertension cases for individuals above 30 by ethnicity Other': 0,
+        },
+      ]);
     });
   });
 });
