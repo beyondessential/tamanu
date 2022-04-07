@@ -130,17 +130,43 @@ with
 		join reference_data drug on drug.id = sv.vaccine_id 
 		group by encounter_id
 	),
+	single_image_info as (
+		select
+			ir.encounter_id,
+			json_build_object(
+				'name', image_type.name,
+				'area_to_be_imaged', area_notes.aggregated_notes,
+				'notes', non_area_notes.aggregated_notes
+			) "data"
+		from imaging_requests ir
+		join reference_data image_type on image_type.id = ir.imaging_type_id
+		left join (
+			select 
+				record_id,
+				json_agg(note) aggregated_notes
+			from notes_info
+			cross join json_array_elements(aggregated_notes) note
+			where note->>'note_type' != 'abc' --cross join ok here as only 1 record will be matched
+			group by record_id
+		) non_area_notes
+		on non_area_notes.record_id = ir.id 
+		left join (
+			select 
+				record_id,
+				string_agg(note->>'content', 'ERROR - SHOULD ONLY BE ONE AREA TO BE IMAGED') aggregated_notes
+			from notes_info
+			cross join json_array_elements(aggregated_notes) note
+			where note->>'note_type' = 'abc' --cross join ok here as only 1 record will be matched
+			group by record_id
+		) area_notes
+		on area_notes.record_id = ir.id 
+		where ir.id = 'CP9YNUPX'
+	),
 	imaging_info as (
 		select
 			encounter_id,
-			json_agg(
-				json_build_object(
-					'name', image_type.name,
-					'notes', 'TODO'
-				) 
-			) "Imaging requests"
-		from imaging_requests ir
-		join reference_data image_type on image_type.id = ir.imaging_type_id 
+			json_agg("data") "Imaging requests"
+		from single_image_info
 		group by encounter_id
 	),
 	encounter_notes_info as (
