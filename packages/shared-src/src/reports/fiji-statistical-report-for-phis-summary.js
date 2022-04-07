@@ -36,7 +36,7 @@ with
     select
       p.id,
       coalesce(ethnicity_id, '-') as ethnicity_id, -- join on NULL = NULL returns no rows
-      (date_of_birth + interval '30 year') > CURRENT_DATE as under_30
+      date_of_birth
     from patients p
     left JOIN patient_additional_data AS additional_data ON additional_data.id =
       (SELECT id
@@ -55,12 +55,17 @@ with
       ethnicity_id,
       under_30
     from cte_patient
+    cross join (
+      select true under_30
+      UNION ALL 
+      select false under_30
+    ) both_bool_options
   ),
   cte_cvd_responses as (
     select
       1 as exist,
       ethnicity_id,
-      under_30,
+      (date_of_birth + interval '30 year') > sr.end_time::date as under_30,
       sr.end_time::date as date,
       count(*) as enc_n
     from -- Only selects the last cvd survey response per patient/date_group
@@ -88,7 +93,7 @@ with
     select
       1 as exist,
       ethnicity_id,
-      under_30,
+      (date_of_birth + interval '30 year') > snap_response.end_time::date as under_30,
       snap_response.end_time::date as date,
       count(*) as snap_n
     FROM
@@ -108,7 +113,7 @@ with
       join encounters diagnosis_encounter
       on ed.encounter_id = diagnosis_encounter.id
       WHERE rd.code IN ('icd10-E11') and certainty not in ('disproven','error')
- ),
+  ),
   cte_hypertension_diagnoses as (
     select 1 as exist, diagnosis_encounter.start_date::date as diagnosis_date, patient_id from encounter_diagnoses ed
       join reference_data rd 
@@ -120,13 +125,7 @@ with
   cte_diagnoses as (
     select 
       cp.id,
-      case when 
-        cdd.diagnosis_date is null 
-      then 
-        chd.diagnosis_date
-      else
-        cdd.diagnosis_date
-      end as date,
+      coalesce(cdd.diagnosis_date, chd.diagnosis_date) date,
       max(cdd.exist) as a,
       max(chd.exist) as b
     from cte_patient cp
@@ -142,7 +141,7 @@ with
     select
       1 as exist,
       ethnicity_id,
-      under_30,
+      (date_of_birth + interval '30 year') > date as under_30,
       date,
       count(case when a is not null and b is null then 1 end) as diabetes_n,
       count(case when a is null and b is not null then 1 end) as hypertension_n,
