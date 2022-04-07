@@ -27,24 +27,7 @@ const reportColumnTemplate = FIELDS.map(field => ({
 }));
 
 const query = `
-with 
-	billing_type as (
-		select 
-			patient_id,
-			max(patient_billing_type_id) patient_billing_type_id
-		from patient_additional_data adc
-		group by patient_id
-	),
-	patients_considered as (
-		select
-			id, 
-			display_id,
-			first_name,
-			last_name,
-			date_of_birth,
-			sex 
-		from patients
-	),
+with
 	notes_info as (
 		select
 			record_id,
@@ -202,10 +185,9 @@ select
 	lri."Lab requests",
 	ii."Imaging requests",
 	ni."Notes"
-from patients_considered p
+from patients p
 join encounters e on e.patient_id = p.id
-left join billing_type bt on bt.patient_id = p.id
-left join reference_data billing on billing.id = bt.patient_billing_type_id
+left join reference_data billing on billing.id = e.patient_billing_type_id
 left join medications_info mi on e.id = mi.encounter_id
 left join vaccine_info vi on e.id = vi.encounter_id
 left join diagnosis_info di on e.id = di.encounter_id
