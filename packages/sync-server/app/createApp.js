@@ -1,9 +1,8 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import morgan from 'morgan';
 import compression from 'compression';
 
-import { log } from 'shared/services/logging';
+import { getLoggingMiddleware } from 'shared/services/logging';
 
 import { constructPermission } from 'shared/permissions/middleware';
 import { routes } from './routes';
@@ -16,8 +15,6 @@ import { versionCompatibility } from './middleware/versionCompatibility';
 
 import { version } from '../package.json';
 
-const isDevelopment = process.env.NODE_ENV === 'development';
-
 export function createApp(ctx) {
   const { store, emailService } = ctx;
 
@@ -28,13 +25,7 @@ export function createApp(ctx) {
   app.use(bodyParser.json({ limit: '50mb' }));
   app.use(bodyParser.urlencoded({ extended: true }));
 
-  app.use(
-    morgan(isDevelopment ? 'dev' : 'tiny', {
-      stream: {
-        write: message => log.info(message),
-      },
-    }),
-  );
+  app.use(getLoggingMiddleware());
 
   app.use((req, res, next) => {
     res.setHeader('X-Runtime', 'Tamanu Sync Server'); // TODO: deprecated

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { generateUVCI } from 'shared/utils/uvci';
 
-import { Certificate, Spacer, Table } from './Print/Certificate';
+import { Certificate, Table } from './Print/Certificate';
 import { DateDisplay } from './DateDisplay';
 import { useApi } from '../api';
 import { useLocalisation } from '../contexts/Localisation';
@@ -36,33 +36,23 @@ const getUVCI = (getLocalisation, { immunisations }) => {
     return '';
   }
 
-  const format = getLocalisation('uvci.format');
+  const format = getLocalisation('previewUvciFormat');
 
   // Ensure that the records are sorted desc by date
   const latestVaccination = immunisations
     .slice()
     .sort((a, b) => Date.parse(b.date) - Date.parse(a.date))[0];
 
-  return generateUVCI(latestVaccination.id, format, {
+  return generateUVCI(latestVaccination.id, {
+    format,
     countryCode: getLocalisation('country.alpha-2'),
   });
 };
 
 export const ImmunisationCertificate = ({ patient, immunisations }) => {
-  const [hasEditedRecord, setHasEditedRecord] = useState(false);
   const [watermark, setWatermark] = useState('');
   const [watermarkType, setWatermarkType] = useState('');
   const api = useApi();
-
-  useEffect(() => {
-    if (!immunisations) {
-      return;
-    }
-    setHasEditedRecord(
-      immunisations.findIndex(immunisation => immunisation.createdAt !== immunisation.updatedAt) !==
-        -1,
-    );
-  }, [immunisations]);
 
   useEffect(() => {
     (async () => {
@@ -115,10 +105,7 @@ export const ImmunisationCertificate = ({ patient, immunisations }) => {
         <tbody>
           {immunisations.map(immunisation => (
             <tr key={immunisation.id}>
-              <td>
-                {immunisation.scheduledVaccine?.label}
-                {immunisation.createdAt !== immunisation.updatedAt ? ' *' : ''}
-              </td>
+              <td>{immunisation.scheduledVaccine?.label}</td>
               <td>{immunisation.scheduledVaccine?.vaccine?.name}</td>
               <td>{immunisation.scheduledVaccine?.schedule}</td>
               {countryName && <td>{countryName}</td>}
@@ -131,15 +118,6 @@ export const ImmunisationCertificate = ({ patient, immunisations }) => {
           ))}
         </tbody>
       </Table>
-      {hasEditedRecord ? (
-        <>
-          <Spacer />
-          <sup>
-            * This vaccine record has been updated by a user and this is the most recent record
-          </sup>
-          <Spacer />
-        </>
-      ) : null}
     </Certificate>
   );
 };

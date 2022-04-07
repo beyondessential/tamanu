@@ -24,9 +24,10 @@ describe('Incomplete Referrals report', () => {
   let expectedDiagnosis1 = null;
   let expectedDiagnosis2 = null;
   let encounter = null;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
@@ -63,6 +64,7 @@ describe('Incomplete Referrals report', () => {
       }),
     );
   });
+  afterAll(() => ctx.close());
 
   it('should reject creating a diagnoses report with insufficient permissions', async () => {
     const noPermsApp = await baseApp.asRole('base');
