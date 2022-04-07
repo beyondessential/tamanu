@@ -220,7 +220,8 @@ with
 						) ORDER BY nh.date
 					)
 				)
-			end department_history
+			end department_history,
+			json_agg(d2.id) dept_id_list
 		from encounters e
 		left join departments d on e.department_id = d.id
 		left join note_history nh
@@ -235,6 +236,8 @@ with
 			limit 1
 		) first_from
 		on e.id = first_from.enc_id
+		left join departments d2 -- note: this may contain duplicates
+		on d2.name = nh."to" or d2.name = nh."from" or d2.id = d.id
 		where place = 'department' or place is null
 		group by e.id, d.name, e.start_date, first_from
 	),
@@ -258,7 +261,8 @@ with
 						) ORDER BY nh.date
 					)
 				)
-			end location_history
+			end location_history,
+			json_agg(l2.id) loc_id_list
 		from encounters e
 		left join locations l on e.location_id = l.id
 		left join note_history nh
@@ -273,6 +277,8 @@ with
 			limit 1
 		) first_from
 		on e.id = first_from.enc_id
+		left join locations l2 -- note: this may contain duplicates
+		on l2.name = nh."to" or l2.name = nh."from" or l2.id = l.id
 		where place = 'location' or place is null
 		group by e.id, l.name, e.start_date, first_from
 	)
@@ -333,6 +339,8 @@ left join department_info di2 on di2.encounter_id = e.id
 where e.end_date is not null
 --and json_array_length("Lab requests" -> 0 -> 'tests') > 1
 and coalesce(billing.id, '-') like coalesce(:billing_type, '%%')
+and CASE WHEN :department_id IS NOT NULL THEN dept_id_list::jsonb ? :department_id ELSE true end 
+and CASE WHEN :location_id IS NOT NULL THEN loc_id_list::jsonb ? :location_id ELSE true end 
 AND CASE WHEN :from_date IS NOT NULL THEN e.start_date::date >= :from_date::date ELSE true END
 AND CASE WHEN :to_date IS NOT NULL THEN e.start_date::date <= :to_date::date ELSE true END
 order by e.start_date desc;
