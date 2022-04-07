@@ -77,6 +77,7 @@ with
 			string_agg(diagnosis.name || ', ' || diagnosis.code || ',  ' || case when is_primary then 'primary' else 'secondary' end || ', ' || certainty, ';') as "Diagnosis"
 		from encounter_diagnoses ed
 		join reference_data diagnosis on diagnosis.id = ed.diagnosis_id
+		where certainty not in ('disproven', 'error')
 		group by encounter_id
 	),
 	vaccine_info as (
