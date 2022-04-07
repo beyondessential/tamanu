@@ -66,7 +66,7 @@ with
 	medications_info as (
 		select
 			encounter_id,
-			string_agg(medication.name, ';') as "Medications"
+			string_agg(medication.name || case when discontinued then ' (discontinued, reason: ' || discontinuing_reason || ')' else '' end, '__|medications_separator|__') as "Medications"
 		from encounter_medications em
 		join reference_data medication on medication.id = em.medication_id
 		group by encounter_id
