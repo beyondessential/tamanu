@@ -25,6 +25,7 @@ const ETHNICITY_IDS = {
 };
 
 describe('Fiji statistical report for phis summary', () => {
+  let ctx = null;
   let baseApp = null;
   let app = null;
   let village1 = null;
@@ -32,7 +33,7 @@ describe('Fiji statistical report for phis summary', () => {
   let medicalArea = null;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     const { models } = ctx;
 
     await models.Referral.truncate({ cascade: true });
@@ -320,8 +321,10 @@ describe('Fiji statistical report for phis summary', () => {
     );
   });
 
+  afterAll(() => ctx.close());
+
   describe('checks permissions', () => {
-    it('should reject creating an assistive technology device line list report with insufficient permissions', async () => {
+    it('should reject creating a report with insufficient permissions', async () => {
       const noPermsApp = await baseApp.asRole('base');
       const result = await noPermsApp.post(
         `/v1/reports/fiji-statistical-report-for-phis-summary`,
