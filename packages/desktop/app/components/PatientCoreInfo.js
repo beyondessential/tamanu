@@ -110,7 +110,9 @@ const HealthIdDisplay = memo(({ patient }) => (
     <HealthIdLabelText>
       <LocalisedText path="fields.displayId.longLabel" />
     </HealthIdLabelText>
-    <InvertedDisplayIdLabel>{patient.displayId}</InvertedDisplayIdLabel>
+    <InvertedDisplayIdLabel data-test-class="display-id-label">
+      {patient.displayId}
+    </InvertedDisplayIdLabel>
   </HealthIdContainer>
 ));
 
