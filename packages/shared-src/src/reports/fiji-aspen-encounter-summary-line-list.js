@@ -1,7 +1,7 @@
 import { generateReportFromQueryData } from './utilities';
 
 const FIELDS = [
-  'NHN',
+  'Patient ID',
   'First name',
   'Last name',
   'Date of birth',
@@ -103,7 +103,7 @@ with
 		group by record_id
 	)
 select
-	p.display_id "NHN",
+	p.display_id "Patient ID",
 	p.first_name "First name",
 	p.last_name "Last name",
 	to_char(p.date_of_birth, 'YYYY-MM-DD') "Date of birth",
