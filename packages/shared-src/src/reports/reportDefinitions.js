@@ -275,8 +275,8 @@ export const REPORT_DEFINITIONS = [
         name: 'nursingZone',
         suggesterEndpoint: 'nursingZone',
       },
-    ]
-  }
+    ],
+  },
   {
     name: 'Fiji Aspen encounter summary - Line list',
     id: 'fiji-aspen-encounter-summary-line-list',
