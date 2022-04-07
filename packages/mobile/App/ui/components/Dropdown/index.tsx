@@ -20,7 +20,7 @@ export interface DropdownProps extends BaseInputProps {
   value?: string | string[];
 }
 
-const INPUT_GROUP_STYLE = { borderColor: theme.colors.ERROR, borderWidth: 1 };
+const INPUT_GROUP_ERROR_STYLE = { borderColor: theme.colors.ERROR, borderWidth: 1 };
 const DROPDOWN_MENU_SUBSECTION_DEFAULT_STYLE = { paddingLeft: 12 };
 const DROPDOWN_MENU_SUBSECTION_ERROR_STYLE = {
   paddingLeft: 12,
