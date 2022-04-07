@@ -125,6 +125,12 @@ select
 		when 'surveyResponse' then 'Survey response'
 		else e.encounter_type
 	end "Encounter type",
+	case t.score
+		when '1' then  'Emergency'
+		when '2' then  'Priority'
+		when '3' then  'Non-urgent'
+		else t.score
+	end "Triage category",
 	e.reason_for_encounter "Reason for encounter",
 	di."Diagnosis",
 	mi."Medications",
@@ -144,6 +150,7 @@ left join procedure_info pi on e.id = pi.encounter_id
 left join lab_request_info lri on lri.encounter_id = e.id
 left join imaging_info ii on ii.encounter_id = e.id
 left join notes_info ni on ni.encounter_id = e.id
+left join triages t on t.encounter_id = e.id
 where e.end_date is not null
 and coalesce(billing.id, '-') like coalesce(:billing_type, '%%')
 AND CASE WHEN :from_date IS NOT NULL THEN e.start_date::date >= :from_date::date ELSE true END
