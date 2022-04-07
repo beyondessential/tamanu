@@ -45,14 +45,33 @@ with
 			sex 
 		from patients
 	),
+	notes_info as (
+		select
+			record_id,
+			string_agg(note_type || CHR(58) || ' ' || "content" , ';') aggregated_notes
+		from notes
+		group by record_id
+	),
+	lab_test_info as (
+		select 
+			lab_request_id,
+			string_agg('"' || ltt.name || '"', ',') tests
+		from lab_tests lt
+		join lab_test_types ltt on ltt.id = lt.lab_test_type_id 
+		group by lab_request_id 
+	),
 	lab_request_info as (
 		select 
 			encounter_id,
-			string_agg(ltt.name, ';') as "Lab requests"
+			string_agg(
+				'{__tests: "' || '[' || tests || ']' || 
+				'", __notes: "' || aggregated_notes  || 
+				'"}',
+				'__|lab_request_separator|__') "Lab requests"
 		from lab_requests lr
-		join lab_tests lt on lt.lab_request_id = lr.id
-		join lab_test_types ltt 
-		on ltt.id = lt.lab_test_type_id
+		join lab_test_info lti
+		on lti.lab_request_id  = lr.id
+		left join notes_info ni on ni.record_id = lr.id
 		group by encounter_id
 	),
 	procedure_info as (
@@ -106,13 +125,13 @@ with
 		join reference_data image_type on image_type.id = ir.imaging_type_id 
 		group by encounter_id
 	),
-	notes_info as (
-		select
-			record_id as encounter_id,
-			string_agg(n.note_type || CHR(58) || ' ' || n."content" , ';') as "Notes"
-		from notes n
-		group by record_id
-	)
+	encounter_notes_info as (
+		-- Note this will include non-encounter notes - but they won't join anywhere because we use uuids
+			select
+				record_id as encounter_id,
+				aggregated_notes "Notes"
+			from notes_info
+		)
 select
 	p.display_id "Patient ID",
 	p.first_name "First name",
@@ -158,7 +177,7 @@ left join diagnosis_info di on e.id = di.encounter_id
 left join procedure_info pi on e.id = pi.encounter_id
 left join lab_request_info lri on lri.encounter_id = e.id
 left join imaging_info ii on ii.encounter_id = e.id
-left join notes_info ni on ni.encounter_id = e.id
+left join encounter_notes_info ni on ni.encounter_id = e.id
 left join triages t on t.encounter_id = e.id
 where e.end_date is not null
 and coalesce(billing.id, '-') like coalesce(:billing_type, '%%')
