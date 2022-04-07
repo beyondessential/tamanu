@@ -295,6 +295,10 @@ select
 		when '3' then  'Non-urgent'
 		else t.score
 	end "Triage category",
+	case when t.closed_time is null 
+		then age(t.triage_time)
+		else age(t.closed_time, t.triage_time)
+	end "Time seen following triage/Wait time",
 	di2.department_history "Department",
 	li.location_history "Location",
 	e.reason_for_encounter "Reason for encounter",
