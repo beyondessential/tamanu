@@ -73,13 +73,13 @@ describe('Fiji statistical report for phis summary', () => {
     const expectedPatient1 = await models.Patient.create(
       await createDummyPatient(models, {
         villageId: village1,
-        dateOfBirth: moment.utc().subtract(50, 'years'),
+        dateOfBirth: new Date(1950, 1, 1),
       }),
     );
     const expectedPatient2 = await models.Patient.create(
       await createDummyPatient(models, {
         villageId: village2,
-        dateOfBirth: moment.utc().subtract(20, 'years'),
+        dateOfBirth: new Date(2010, 1, 1),
       }),
     );
     await models.PatientAdditionalData.create({
@@ -87,10 +87,10 @@ describe('Fiji statistical report for phis summary', () => {
       ethnicityId: ETHNICITY_IDS.OTHERS,
     });
     const expectedPatient3 = await models.Patient.create(
-      await createDummyPatient(models, { dateOfBirth: moment.utc().subtract(20, 'years') }),
+      await createDummyPatient(models, { dateOfBirth: new Date(2010, 1, 1) }),
     );
     const expectedPatient4 = await models.Patient.create(
-      await createDummyPatient(models, { dateOfBirth: moment.utc().subtract(20, 'years') }),
+      await createDummyPatient(models, { dateOfBirth: new Date(2010, 1, 1) }),
     );
     await models.PatientAdditionalData.create({
       patientId: expectedPatient3.id,
@@ -120,6 +120,8 @@ describe('Fiji statistical report for phis summary', () => {
      * 2019-05-02: Had a non-CVD survey response submitted
      *
      * 2019-05-03: Had a CVD survey response submitted - marked 'ineligble' - SNAP councilling
+     *
+     * 1960-05-02: Diagnosed with diabetes - SHOULD count as <30
      *
      * 2020-05-02: Diagnosed with diabetes
      * 2020-05-02: 1pm: Had a CVD screening - no SNAP councilling
@@ -151,6 +153,23 @@ describe('Fiji statistical report for phis summary', () => {
         'pde-FijCVD021': 'Ineligible',
       },
     });
+
+    // 1960-05-02: Diagnosed with diabetes
+    const diagnosisEncounter0 = await models.Encounter.create(
+      await createDummyEncounter(models, {
+        startDate: moment.utc('1960-05-02'),
+        patientId: expectedPatient1.id,
+      }),
+    );
+
+    await models.EncounterDiagnosis.create(
+      await createDummyEncounterDiagnosis(models, {
+        diagnosisId: diabetesDiagnosis.id,
+        encounterId: diagnosisEncounter0.id,
+        date: moment.utc('1960-05-02'),
+        certainty: 'suspected',
+      }),
+    );
 
     // 2020-05-02: Diagnosed with diabetes
     const diagnosisEncounter1 = await models.Encounter.create(
@@ -341,7 +360,7 @@ describe('Fiji statistical report for phis summary', () => {
         .send({});
       expect(result).toHaveSucceeded();
       // 2nd row, 1st column (2A) should have the most recent date in it.
-      expect(result.body[1][0]).toBe('02-05-2020');
+      expect(result.body[1][0]).toBe('02-05-1960');
     });
 
     it('should return latest data per patient and latest data per patient per date', async () => {
@@ -349,7 +368,44 @@ describe('Fiji statistical report for phis summary', () => {
         .post('/v1/reports/fiji-statistical-report-for-phis-summary')
         .send({});
       expect(result).toHaveSucceeded();
+
       expect(result.body).toMatchTabularReport([
+        {
+          /** *****1960-05-02******** */
+          Date: '02-05-1960',
+          'Number of CVD screenings': 0,
+          'Number of individuals that have received SNAP counselling': 0,
+          'Number of new diabetes cases for individuals under 30': 1,
+          'Number of new diabetes cases for individuals above 30': 0,
+          'Number of new hypertension cases for individuals under 30': 0,
+          'Number of new hypertension cases for individuals above 30': 0,
+          'Number of new dual diabetes and hypertension cases for individuals under 30': 0,
+          'Number of new dual diabetes and hypertension cases for individuals above 30': 0,
+          'Number of CVD screenings by Itaukei': 0,
+          'Number of individuals that have received SNAP counselling by Itaukei': 0,
+          'Number of new diabetes cases for individuals under 30 by Itaukei': 0,
+          'Number of new diabetes cases for individuals above 30 by Itaukei': 0,
+          'Number of new hypertension cases for individuals under 30 by Itaukei': 0,
+          'Number of new hypertension cases for individuals above 30 by Itaukei': 0,
+          'Number of new dual diabetes and hypertension cases for individuals under 30 by Itaukei': 0,
+          'Number of new dual diabetes and hypertension cases for individuals above 30 by Itaukei': 0,
+          'Number of CVD screenings by Fijian of Indian descent': 0,
+          'Number of individuals that have received SNAP counselling by Fijian of Indian descent': 0,
+          'Number of new diabetes cases for individuals under 30 by Fijian of Indian descent': 0,
+          'Number of new diabetes cases for individuals above 30 by Fijian of Indian descent': 0,
+          'Number of new hypertension cases for individuals under 30 by Fijian of Indian descent': 0,
+          'Number of new hypertension cases for individuals above 30 by Fijian of Indian descent': 0,
+          'Number of new dual diabetes and hypertension cases for individuals under 30 by Fijian of Indian descent': 0,
+          'Number of new dual diabetes and hypertension cases for individuals above 30 by Fijian of Indian descent': 0,
+          'Number of CVD screenings by ethnicity Other': 0,
+          'Number of individuals that have received SNAP counselling by ethnicity Other': 0,
+          'Number of new diabetes cases for individuals under 30 by ethnicity Other': 0,
+          'Number of new diabetes cases for individuals above 30 by ethnicity Other': 0,
+          'Number of new hypertension cases for individuals under 30 by ethnicity Other': 0,
+          'Number of new hypertension cases for individuals above 30 by ethnicity Other': 0,
+          'Number of new dual diabetes and hypertension cases for individuals under 30 by ethnicity Other': 0,
+          'Number of new dual diabetes and hypertension cases for individuals above 30 by ethnicity Other': 0,
+        },
         {
           /** *****2020-05-02******** */
           Date: '02-05-2020',
