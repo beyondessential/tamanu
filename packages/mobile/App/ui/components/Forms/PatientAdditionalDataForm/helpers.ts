@@ -20,6 +20,8 @@ export const plainFields = [
   'primaryContactNumber',
   'secondaryContactNumber',
   'streetVillage',
+  'emergencyContactName',
+  'emergencyContactNumber',
 ];
 
 // All PatientAdditionalData select fields sorted alphabetically
@@ -29,8 +31,6 @@ export const selectFields = [
   'maritalStatus',
   'socialMedia',
   'title',
-  'emergencyContactName',
-  'emergencyContactNumber',
 ];
 
 // All PatientAdditionalData relation ID fields sorted alphabetically

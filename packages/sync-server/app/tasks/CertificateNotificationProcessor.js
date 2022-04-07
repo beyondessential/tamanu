@@ -14,6 +14,7 @@ import { makeVaccineCertificate, makeCovidTestCertificate } from '../utils/makeP
 import { getLocalisation } from '../localisation';
 import { createVdsNcVaccinationData, VdsNcDocument } from '../integrations/VdsNc';
 import { createEuDccVaccinationData, HCERTPack } from '../integrations/EuDcc';
+import { generateUVCI } from 'shared/utils/uvci';
 
 export class CertificateNotificationProcessor extends ScheduledTask {
   constructor(context) {

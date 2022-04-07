@@ -38,7 +38,7 @@ export const GeneralInfo = ({
       title="General Information"
       onEdit={isEditable ? onEdit : undefined}
     >
-      <FieldRowDisplay fields={fields} fieldsPerRow={2} />
+      <FieldRowDisplay fields={fields} />
     </PatientSection>
   );
 };

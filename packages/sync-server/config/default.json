@@ -15,7 +15,7 @@
   },
   "log": {
     "path": "",
-    "consoleLevel": "default",
+    "consoleLevel": "http",
     "color": true
   },
   "sync": {
@@ -422,7 +422,7 @@
           "healthFacility": "State level"
         }
       },
-      
+
       // The time zone setting is currently only used for Vaccine Certificates
       "timeZone": null,
 
@@ -431,7 +431,7 @@
       // does *not* affect which format is used for the actual PDF certificate when
       // generated in the sync server. Can be: `icao` or `eudcc`.
       "previewUvciFormat": "icao",
-      
+
       "sync": {
         "syncAllEncountersForTheseScheduledVaccines": []
       },
@@ -483,8 +483,7 @@
   },
   "notifications": {
     "certificates": {
-      // Add a lab test category to automatically email test certs for that category
-      "labTestCategoryId": null
+      "labTestCategoryIds": []
     }
   }
 }

@@ -23,7 +23,7 @@ import {
 
 const PATIENT_SEARCH_ENDPOINT = 'patient';
 
-const BASE_COLUMNS = [
+const LISTING_COLUMNS = [
   markedForSync,
   displayId,
   firstName,
@@ -32,15 +32,18 @@ const BASE_COLUMNS = [
   village,
   sex,
   dateOfBirth,
+  status,
 ];
 
-const BASE_COLUMNS_ON_PATIENT = BASE_COLUMNS.map(column => ({
-  ...column,
-  sortable: false,
-}));
-
-const LISTING_COLUMNS = [...BASE_COLUMNS, status];
-const INPATIENT_COLUMNS = [...BASE_COLUMNS_ON_PATIENT, location, department];
+const INPATIENT_COLUMNS = [markedForSync, displayId, firstName, lastName, sex, dateOfBirth]
+  .map(column => ({
+    ...column,
+    sortable: false,
+  }))
+  // the above columns are not sortable due to backend query
+  // https://github.com/beyondessential/tamanu/pull/2029#issuecomment-1090981599
+  // location and department should be sortable
+  .concat([location, department]);
 
 const StyledDataTable = styled(DataFetchingTable)`
   margin: 24px;
