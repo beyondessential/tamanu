@@ -99,9 +99,10 @@ describe('Patient search', () => {
   let departments = null;
   let baseApp = null;
   let models = null;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
 
@@ -134,6 +135,7 @@ describe('Patient search', () => {
       }),
     );
   });
+  afterAll(() => ctx.close());
 
   it('should error if user has insufficient permissions', async () => {
     const response = await baseApp.get('/v1/patient').query({
@@ -350,6 +352,13 @@ describe('Patient search', () => {
       });
       expect(sorted).toEqual(base);
     };
+
+    it('sorts unicode in the expected order', () => {
+      expect('Böhm' > 'Brunet').toBe(true);
+      expect('Brunet' > 'Böhm').toBe(false);
+      expect('Böhm' < 'Brunet').toBe(false);
+      expect('Brunet' < 'Böhm').toBe(true);
+    });
 
     it('should sort by surname by default', async () => {
       const response = await app.get('/v1/patient');

@@ -30,7 +30,7 @@ const renderSearchBar = ({ submitForm, clearForm }) => (
   <FormGrid columns={3}>
     <Field name="type" placeholder="Type" component={TextField} />
     <Field name="documentOwner" placeholder="Owner" component={TextField} />
-    <Field name="departmentId" placeholder="Department" component={TextField} />
+    <Field name="departmentName" placeholder="Department" component={TextField} />
     <ButtonRow>
       <Button color="primary" variant="contained" onClick={submitForm} type="submit">
         <PaddedSearchIcon />

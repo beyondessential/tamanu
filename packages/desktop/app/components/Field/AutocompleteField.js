@@ -153,16 +153,14 @@ class BaseAutocomplete extends Component {
       anchorEl={this.anchorEl}
       open={!!option.children}
       placement="bottom-start"
-      modifiers={[
-        {
-          name: 'preventOverflow',
-          enabled: true,
-        },
-        {
-          name: 'flip',
+      modifiers={{
+        preventOverflow: {
           enabled: false,
         },
-      ]}
+        flip: {
+          enabled: false,
+        },
+      }}
       disablePortal
     >
       <SuggestionsList {...option.containerProps}>{option.children}</SuggestionsList>

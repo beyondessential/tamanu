@@ -1,13 +1,11 @@
 import React from 'react';
 
 import { useLocalisation } from '../contexts/Localisation';
-import { useApi } from '../api';
-import { Suggester } from '../utils/suggester';
-import { FormGrid } from '../components/FormGrid';
-import { ButtonRow } from '../components/ButtonRow';
-import { Button } from '../components/Button';
-
+import { useSuggester } from '../api';
 import {
+  FormGrid,
+  ButtonRow,
+  Button,
   Form,
   LocalisedField,
   DateField,
@@ -15,8 +13,8 @@ import {
   TextField,
   RadioField,
   SelectField,
-} from '../components/Field';
-
+  SuggesterSelectField,
+} from '../components';
 import {
   sexOptions,
   bloodOptions,
@@ -27,8 +25,7 @@ import {
 } from '../constants';
 
 export const PrimaryDetailsGroup = () => {
-  const api = useApi();
-  const villageSuggester = new Suggester(api, 'village');
+  const villageSuggester = useSuggester('village');
   const { getLocalisation } = useLocalisation();
   let filteredSexOptions = sexOptions;
   if (getLocalisation('features.hideOtherSex') === true) {
@@ -50,23 +47,28 @@ export const PrimaryDetailsGroup = () => {
         inline
         required
       />
+      <LocalisedField
+        name="email"
+        component={TextField}
+        type="email"
+        defaultLabel="Email address"
+      />
     </>
   );
 };
 
 export const SecondaryDetailsGroup = () => {
-  const api = useApi();
-  const countrySuggester = new Suggester(api, 'country');
-  const divisionSuggester = new Suggester(api, 'division');
-  const ethnicitySuggester = new Suggester(api, 'ethnicity');
-  const medicalAreaSuggester = new Suggester(api, 'medicalArea');
-  const nationalitySuggester = new Suggester(api, 'nationality');
-  const nursingZoneSuggester = new Suggester(api, 'nursingZone');
-  const occupationSuggester = new Suggester(api, 'occupation');
-  const settlementSuggester = new Suggester(api, 'settlement');
-  const subdivisionSuggester = new Suggester(api, 'subdivision');
-  const religionSuggester = new Suggester(api, 'religion');
-  const patientBillingTypeSuggester = new Suggester(api, 'patientBillingType');
+  const countrySuggester = useSuggester('country');
+  const divisionSuggester = useSuggester('division');
+  const ethnicitySuggester = useSuggester('ethnicity');
+  const medicalAreaSuggester = useSuggester('medicalArea');
+  const nationalitySuggester = useSuggester('nationality');
+  const nursingZoneSuggester = useSuggester('nursingZone');
+  const occupationSuggester = useSuggester('occupation');
+  const settlementSuggester = useSuggester('settlement');
+  const subdivisionSuggester = useSuggester('subdivision');
+  const religionSuggester = useSuggester('religion');
+
   return (
     <>
       <LocalisedField name="birthCertificate" component={TextField} />
@@ -139,8 +141,8 @@ export const SecondaryDetailsGroup = () => {
       />
       <LocalisedField
         name="patientBillingTypeId"
-        component={AutocompleteField}
-        suggester={patientBillingTypeSuggester}
+        endpoint="patientBillingType"
+        component={SuggesterSelectField}
       />
       <LocalisedField name="emergencyContactName" component={TextField} />
       <LocalisedField name="emergencyContactNumber" component={TextField} type="tel" />

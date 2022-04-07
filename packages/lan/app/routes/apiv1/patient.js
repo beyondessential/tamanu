@@ -2,18 +2,19 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes, Op } from 'sequelize';
 import { isEqual } from 'lodash';
-
+import { getPatientAdditionalData } from 'shared/utils';
 import { NotFoundError } from 'shared/errors';
-import { simpleGetList, permissionCheckingRouter, runPaginatedQuery } from './crudHelpers';
 
-import { renameObjectKeys } from '~/utils/renameObjectKeys';
+import { simpleGetList, permissionCheckingRouter, runPaginatedQuery } from './crudHelpers';
+import { renameObjectKeys } from '../../utils/renameObjectKeys';
 import { createPatientFilters } from '../../utils/patientFilters';
 import { patientVaccineRoutes } from './patient/patientVaccine';
 import { patientDocumentMetadataRoutes } from './patient/patientDocumentMetadata';
+import { patientInvoiceRoutes } from './patient/patientInvoice';
 
+import { patientDeath } from './patient/patientDeath';
 import { patientProfilePicture } from './patient/patientProfilePicture';
 import { activeCovid19PatientsHandler } from '../../routeHandlers';
-
 import { getOrderClause } from '../../database/utils';
 
 const patientRoute = express.Router();
@@ -54,6 +55,7 @@ patientRoute.put(
   '/:id',
   asyncHandler(async (req, res) => {
     const {
+      db,
       models: { Patient, PatientAdditionalData },
       params,
     } = req;
@@ -61,24 +63,27 @@ patientRoute.put(
     const patient = await Patient.findByPk(params.id);
     if (!patient) throw new NotFoundError();
     req.checkPermission('write', patient);
-    await patient.update(requestBodyToRecord(req.body));
 
-    const patientAdditionalData = await PatientAdditionalData.findOne({
-      where: { patientId: patient.id },
-    });
+    await db.transaction(async () => {
+      await patient.update(requestBodyToRecord(req.body));
 
-    if (!patientAdditionalData) {
-      // Do not try to create patient additional data if all we're trying to update is markedForSync = true to
-      // sync down patient because PatientAdditionalData will be automatically synced down along with Patient
-      if (!isEqual(req.body, { markedForSync: true })) {
-        await PatientAdditionalData.create({
-          ...requestBodyToRecord(req.body),
-          patientId: patient.id,
-        });
+      const patientAdditionalData = await PatientAdditionalData.findOne({
+        where: { patientId: patient.id },
+      });
+
+      if (!patientAdditionalData) {
+        // Do not try to create patient additional data if all we're trying to update is markedForSync = true to
+        // sync down patient because PatientAdditionalData will be automatically synced down along with Patient
+        if (!isEqual(req.body, { markedForSync: true })) {
+          await PatientAdditionalData.create({
+            ...requestBodyToRecord(req.body),
+            patientId: patient.id,
+          });
+        }
+      } else {
+        await patientAdditionalData.update(requestBodyToRecord(req.body));
       }
-    } else {
-      await patientAdditionalData.update(requestBodyToRecord(req.body));
-    }
+    });
 
     res.send(dbRecordToResponse(patient));
   }),
@@ -94,16 +99,15 @@ patientRoute.post(
     req.checkPermission('create', 'Patient');
     const patientData = requestBodyToRecord(req.body);
 
-    await db.transaction(async () => {
-      const patientRecord = await Patient.create(patientData);
-
+    const patientRecord = await db.transaction(async () => {
+      const createdPatient = await Patient.create(patientData);
       await PatientAdditionalData.create({
         ...patientData,
-        patientId: patientRecord.id,
+        patientId: createdPatient.id,
       });
-
-      res.send(dbRecordToResponse(patientRecord));
+      return createdPatient;
     });
+    res.send(dbRecordToResponse(patientRecord));
   }),
 );
 
@@ -138,6 +142,7 @@ patientRelations.get(
 );
 
 patientRelations.use(patientProfilePicture);
+patientRelations.use(patientDeath);
 
 patientRelations.get(
   '/:id/referrals',
@@ -188,6 +193,7 @@ patientRelations.get(
   asyncHandler(async (req, res) => {
     const { db, models, params, query } = req;
     const patientId = params.id;
+    const { surveyId, surveyType = 'programs' } = query;
     const { count, data } = await runPaginatedQuery(
       db,
       models.SurveyResponse,
@@ -201,12 +207,13 @@ patientRelations.get(
             ON (survey_responses.survey_id = surveys.id)
         WHERE
           encounters.patient_id = :patientId
-        AND
-          surveys.survey_type = 'programs'
+          AND surveys.survey_type = :surveyType
+          ${surveyId ? 'AND surveys.id = :surveyId' : ''}
       `,
       `
         SELECT
           survey_responses.*,
+          surveys.id as survey_id,
           surveys.name as survey_name,
           encounters.examiner_id,
           users.display_name as assessor_name,
@@ -223,10 +230,10 @@ patientRelations.get(
             ON (programs.id = surveys.program_id)
         WHERE
           encounters.patient_id = :patientId
-        AND
-          surveys.survey_type = 'programs'
+          AND surveys.survey_type = :surveyType
+          ${surveyId ? 'AND surveys.id = :surveyId' : ''}
       `,
-      { patientId },
+      { patientId, surveyId, surveyType },
       query,
     );
 
@@ -307,7 +314,7 @@ patientRoute.get(
       offset: page * rowsPerPage,
     });
 
-    const count = lastEncounterMedications.count;
+    const { count } = lastEncounterMedications;
     const data = lastEncounterMedications.rows.map(x => x.forResponse());
 
     res.send({
@@ -418,6 +425,13 @@ patientRoute.get(
           patients.*,
           encounters.id AS encounter_id,
           encounters.encounter_type,
+          CASE
+            WHEN patients.date_of_death IS NOT NULL THEN 'deceased'
+            WHEN encounters.encounter_type = 'emergency' THEN 'emergency'
+            WHEN encounters.encounter_type = 'clinic' THEN 'outpatient'
+            WHEN encounters.encounter_type IS NOT NULL THEN 'inpatient'
+            ELSE NULL
+          END AS patient_status,
           department.id AS department_id,
           department.name AS department_name,
           location.id AS location_id,
@@ -455,3 +469,48 @@ patientRoute.get('/program/activeCovid19Patients', asyncHandler(activeCovid19Pat
 
 patientRoute.use(patientVaccineRoutes);
 patientRoute.use(patientDocumentMetadataRoutes);
+
+patientRoute.use(patientInvoiceRoutes);
+
+patientRoute.get(
+  '/:id/passportNumber',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'Patient');
+    const passportNumber = await getPatientAdditionalData(req.models, req.params.id, 'passport');
+    res.json(passportNumber);
+  }),
+);
+
+patientRoute.get(
+  '/:id/nationality',
+  asyncHandler(async (req, res) => {
+    const nationalityId = await getPatientAdditionalData(
+      req.models,
+      req.params.id,
+      'nationalityId',
+    );
+
+    if (!nationalityId) {
+      res.send('');
+      return;
+    }
+
+    const nationalityRecord = await req.models.ReferenceData.findByPk(nationalityId);
+    res.json(nationalityRecord?.dataValues?.name);
+  }),
+);
+
+patientRoute.get(
+  '/:id/covidLabTests',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'Patient');
+
+    const { models, params } = req;
+    const { Patient } = models;
+
+    const patient = await Patient.findByPk(params.id);
+    const labTests = await patient.getCovidLabTests();
+
+    res.json({ data: labTests, count: labTests.length });
+  }),
+);

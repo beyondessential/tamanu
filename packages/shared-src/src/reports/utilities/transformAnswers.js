@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { keyBy } from 'lodash';
+import { keyBy, groupBy } from 'lodash';
 
 const MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE = {
   User: 'displayName',
@@ -32,13 +32,14 @@ const convertBinaryToYesNo = answer => {
   }
 };
 
-const convertDateAnswer = answer => (answer ? moment(answer).format('DD-MM-YYYY') : '');
+const convertDateAnswer = (answer, { dateFormat = 'DD-MM-YYYY' }) =>
+  answer ? moment(answer).format(dateFormat) : '';
 
-const getAnswerBody = async (models, componentConfig, type, answer) => {
+const getAnswerBody = async (models, componentConfig, type, answer, transformConfig) => {
   switch (type) {
     case 'Date':
     case 'SubmissionDate':
-      return convertDateAnswer(answer);
+      return convertDateAnswer(answer, transformConfig);
     case 'Checkbox':
       return convertBinaryToYesNo(answer);
     case 'Autocomplete':
@@ -48,12 +49,17 @@ const getAnswerBody = async (models, componentConfig, type, answer) => {
   }
 };
 
-export const transformAnswers = async (models, surveyResponseAnswers, surveyComponents) => {
+export const transformAnswers = async (
+  models,
+  surveyResponseAnswers,
+  surveyComponents,
+  transformConfig = {},
+) => {
   const autocompleteComponents = surveyComponents
     .filter(c => c.dataElement.dataValues.type === 'Autocomplete')
     .map(({ dataElementId, config: componentConfig }) => [
       dataElementId,
-      JSON.parse(componentConfig),
+      componentConfig ? JSON.parse(componentConfig) : {},
     ]);
   const autocompleteComponentMap = new Map(autocompleteComponents);
   const dataElementIdToComponent = keyBy(surveyComponents, component => component.dataElementId);
@@ -72,11 +78,11 @@ export const transformAnswers = async (models, surveyResponseAnswers, surveyComp
     const surveyResponseId = answer.surveyResponse?.id;
     const patientId = answer.surveyResponse?.encounter?.patientId;
     const responseEndTime = answer.surveyResponse?.endTime;
-    const dataElementId = answer.dataElementId;
+    const { dataElementId } = answer;
     const type =
       dataElementIdToComponent[dataElementId]?.dataElement?.dataValues?.type || 'unknown';
     const componentConfig = autocompleteComponentMap.get(dataElementId);
-    const body = await getAnswerBody(models, componentConfig, type, answer.body);
+    const body = await getAnswerBody(models, componentConfig, type, answer.body, transformConfig);
     const answerObject = {
       surveyId,
       surveyResponseId,
@@ -89,4 +95,20 @@ export const transformAnswers = async (models, surveyResponseAnswers, surveyComp
   }
 
   return transformedAnswers;
+};
+
+export const takeMostRecentAnswers = answers => {
+  const answersPerElement = groupBy(answers, a => {
+    return `${a.patientId}|${a.surveyId}|${a.dataElementId}`;
+  });
+
+  const results = [];
+  for (const [_, groupedAnswers] of Object.entries(answersPerElement)) {
+    const sortedLatestToOldestAnswers = groupedAnswers.sort((a1, a2) =>
+      moment(a2.responseEndTime).diff(moment(a1.responseEndTime)),
+    );
+    results.push(sortedLatestToOldestAnswers[0]);
+  }
+
+  return results;
 };

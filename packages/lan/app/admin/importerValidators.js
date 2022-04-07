@@ -1,11 +1,16 @@
 import * as yup from 'yup';
 import { ValidationError } from 'yup';
 
-import { PROGRAM_DATA_ELEMENT_TYPE_VALUES } from 'shared/constants';
+import {
+  ENCOUNTER_TYPES,
+  INJECTION_SITE_OPTIONS,
+  PROGRAM_DATA_ELEMENT_TYPE_VALUES,
+  VACCINE_STATUS,
+} from 'shared/constants';
 import { ForeignKeyStore } from './ForeignKeyStore';
 
 const safeIdRegex = /^[A-Za-z0-9-]+$/;
-const safeCodeRegex = /^[A-Za-z0-9-.\/]+$/;
+const safeCodeRegex = /^[A-Za-z0-9-./]+$/;
 
 const fieldTypes = {
   id: yup.string().matches(safeIdRegex, 'id must not have spaces or punctuation other than -'),
@@ -52,13 +57,13 @@ const facilitySchema = baseSchema.shape({
 const departmentSchema = baseSchema.shape({
   code: fieldTypes.code.required(),
   name: fieldTypes.name.required(),
-  facilityId: yup.string(),
+  facilityId: yup.string().required(),
 });
 
 const locationSchema = baseSchema.shape({
   code: fieldTypes.code.required(),
   name: fieldTypes.name.required(),
-  facilityId: yup.string(),
+  facilityId: yup.string().required(),
 });
 
 const LAB_TEST_RESULT_TYPES = ['Number', 'Select', 'FreeText'];
@@ -77,6 +82,8 @@ const labTestTypeSchema = baseSchema.shape({
 });
 
 const jsonString = () =>
+  // The template curly two lines down is valid in a yup message
+  // eslint-disable-next-line no-template-curly-in-string
   yup.string().test('is-json', '${path} is not valid JSON', value => {
     if (!value) return true;
     try {
@@ -124,6 +131,47 @@ const surveySchema = baseSchema.shape({
     .string()
     .required()
     .oneOf(['programs', 'referral', 'obsolete']),
+  isSensitive: yup.boolean().required(),
+});
+
+const encounterSchema = baseSchema.shape({
+  // contains only what's needed for administeredVaccine imports, extend as neccesary
+  encounterType: yup.string().oneOf(Object.values(ENCOUNTER_TYPES)),
+  startDate: yup.date().required(),
+  endDate: yup.date(),
+  reasonForEncounter: yup.string(),
+  administeredVaccines: yup
+    .array()
+    .of(
+      yup
+        .object({
+          recordType: yup
+            .string()
+            .oneOf(['administeredVaccine'])
+            .required(),
+          data: baseSchema.shape({
+            batch: yup.string(),
+            consent: yup.boolean().required(),
+            status: yup
+              .string()
+              .oneOf(Object.values(VACCINE_STATUS)) // TODO
+              .required(),
+            reason: yup.string(),
+            // TODO: what does this actually do?
+            // location: yup.string(),
+            injectionSite: yup.string().oneOf(Object.values(INJECTION_SITE_OPTIONS)),
+            date: yup.date().required(),
+            scheduledVaccineId: yup.string().required(),
+          }),
+        })
+        .required(),
+    )
+    .required(),
+  // relationships
+  locationId: yup.string().required(),
+  departmentId: yup.string().required(),
+  examinerId: yup.string().required(),
+  patientId: yup.string().required(),
 });
 
 const validationSchemas = {
@@ -139,6 +187,7 @@ const validationSchemas = {
   surveyScreenComponent: surveyScreenComponentSchema,
   programDataElement: programDataElementSchema,
   scheduledVaccine: scheduledVaccineSchema,
+  encounter: encounterSchema,
 };
 
 // TODO: allow referencedata relations to specify reference data type
@@ -167,15 +216,15 @@ class ForeignKeyLinker {
   }
 
   link(record) {
-    const { data, recordType } = record;
-    const schema = foreignKeySchemas[recordType];
+    const { data, recordType: parentRecordType } = record;
+    const schema = foreignKeySchemas[parentRecordType];
 
     if (!schema) return;
 
-    for (const [field, recordType] of Object.entries(schema)) {
+    for (const [field, childRecordType] of Object.entries(schema)) {
       const search = data[field];
       if (!search) continue;
-      const found = this.fkStore.findRecord(recordType, search);
+      const found = this.fkStore.findRecord(childRecordType, search);
       const foundId = found?.data?.id;
       if (!foundId) {
         throw new ValidationError(`matching record from ${found.sheet}:${found.row} has no id`);

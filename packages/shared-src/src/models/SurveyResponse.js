@@ -109,6 +109,9 @@ export class SurveyResponse extends Model {
   }
 
   static async createWithAnswers(data) {
+    if (!this.sequelize.isInsideTransaction()) {
+      throw new Error('SurveyResponse.createWithAnswers must always run inside a transaction!');
+    }
     const { models } = this.sequelize;
     const { answers, actions, surveyId, patientId, encounterId, ...responseData } = data;
 

@@ -48,5 +48,4 @@ export class Facility extends Model {
       through: 'UserFacility',
     });
   }
-
 }

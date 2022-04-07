@@ -1,16 +1,17 @@
-FROM node:12.16.3 as base_image
+FROM node:12.20.2 as base_image
 RUN dpkg --add-architecture i386
 RUN apt-get update
 RUN apt-get install -y -q --no-install-recommends \
-        apt-transport-https \
+        apt-transport-https
+RUN apt-get install -y -q --no-install-recommends \
         build-essential \
+        jq \
         msitools \
+        unzip \
         wine32 \
         wine \
         wixl \
-        zip \
-        unzip
-
+        zip
 FROM base_image
 ENV PACKAGES_DIR=/tamanu/packages \
     DEPLOY_DIR=/tamanu/deploy \

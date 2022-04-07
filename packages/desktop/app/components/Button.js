@@ -57,6 +57,16 @@ export const OutlinedButton = props => (
   <StyledOutlinedButton variant="outlined" color="primary" {...props} />
 );
 
+const StyledLargeButton = styled(StyledButton)`
+  font-size: 15px;
+  line-height: 18px;
+  padding: 13px 25px;
+`;
+
+export const LargeButton = props => (
+  <StyledLargeButton variant="contained" color="primary" {...props} />
+);
+
 export const ClearButton = props => (
   <Button variant="outlined" {...props}>
     Clear

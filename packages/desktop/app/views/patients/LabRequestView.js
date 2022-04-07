@@ -19,7 +19,8 @@ import {
   DateTimeInput,
   AutocompleteField,
 } from '../../components/Field';
-import { ConfirmCancelRow, ButtonRow } from '../../components/ButtonRow';
+import { ConfirmCancelRow } from '../../components/ButtonRow';
+import { ConfirmModal } from '../../components/ConfirmModal';
 
 import { LAB_REQUEST_STATUS_LABELS } from '../../constants';
 
@@ -209,16 +210,16 @@ const DeleteRequestButton = ({ labRequestId, updateLabReq }) => {
       <DeleteButton variant="outlined" onClick={openModal} style={{ marginRight: '0.5rem' }}>
         Delete
       </DeleteButton>
-      <Modal open={isModalOpen} onClose={closeModal} title="Delete lab request">
-        <h3>WARNING: This action is irreversible!</h3>
-        <p>Are you sure you want to delete this lab request?</p>
-        <ButtonRow>
-          <Button variant="contained" onClick={closeModal}>
-            Cancel
-          </Button>
-          <DeleteButton onClick={deleteLabRequest}>Delete</DeleteButton>
-        </ButtonRow>
-      </Modal>
+      <ConfirmModal
+        title="Delete lab request"
+        open={isModalOpen}
+        text="WARNING: This action is irreversible!"
+        subText="Are you sure you want to delete this lab request?"
+        onCancel={closeModal}
+        onConfirm={deleteLabRequest}
+        ConfirmButton={DeleteButton}
+        confirmButtonText="Delete"
+      />
     </>
   );
 };

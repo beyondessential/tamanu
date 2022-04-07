@@ -44,10 +44,7 @@ describe('VPS integration - DiagnosticReport', () => {
       labTestCategoryId: labTestCategory.id,
       name: chance.pickone(
         isRDT
-          ? [
-              'AgRDT Negative, no further testing needed',
-              'AgRDT Positve, no further testing needed',
-            ]
+          ? ['AgRDT Negative, no further testing needed', 'AgRDT Positive']
           : [
               'COVID-19 Nasopharyngeal Swab',
               'COVID-19 Nasal Swab',
@@ -59,6 +56,7 @@ describe('VPS integration - DiagnosticReport', () => {
     const labTestMethod = await ReferenceData.create({
       ...fake(ReferenceData),
       type: 'labTestMethod',
+      code: isRDT ? 'RDT' : chance.pickone(['GeneXpert', 'RTPCR']),
     });
     const labTest = await LabTest.create({
       ...fake(LabTest),
@@ -96,10 +94,12 @@ describe('VPS integration - DiagnosticReport', () => {
       } = await createLabTestHierarchy(patient);
 
       const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
-      const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Aresult`;
+      const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Aresult&_include=DiagnosticReport%3Aresult.device%3ADevice`;
 
       // act
-      const response = await app.get(path);
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveSucceeded();
@@ -194,6 +194,13 @@ describe('VPS integration - DiagnosticReport', () => {
                 display: `${patient.firstName} ${patient.lastName}`,
                 reference: `Patient/${patient.id}`,
               },
+              device: {
+                reference: `Device/${labTestMethod.id}`,
+                display: expect.toBeOneOf([
+                  'COVID Gene-Xpert Testing Device',
+                  'COVID RT-PCR Testing Device',
+                ]),
+              },
               valueCodeableConcept: {
                 coding: [
                   {
@@ -203,6 +210,17 @@ describe('VPS integration - DiagnosticReport', () => {
                   },
                 ],
               },
+            },
+          },
+          {
+            resource: {
+              resourceType: 'Device',
+              id: labTestMethod.id,
+              text: expect.toBeOneOf([
+                'COVID Gene-Xpert Testing Device',
+                'COVID RT-PCR Testing Device',
+              ]),
+              manufacturer: expect.toBeOneOf(['Cepheid', 'TIB MOLBIOL']),
             },
           },
         ],
@@ -225,10 +243,15 @@ describe('VPS integration - DiagnosticReport', () => {
       const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
 
       // act
-      const response1 = await app.get(path);
+      const response1 = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
+
       const nextUrl = response1.body.link.find(l => l.relation === 'next')?.url;
       const [, nextPath] = nextUrl.match(/^.*(\/v1\/integration\/fijiVps\/.*)$/);
-      const response2 = await app.get(nextPath);
+      const response2 = await app
+        .get(nextPath)
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
       // assert
       expect(response1).toHaveSucceeded();
@@ -268,7 +291,9 @@ describe('VPS integration - DiagnosticReport', () => {
       const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
 
       // act
-      const response = await app.get(path);
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveSucceeded();
@@ -300,10 +325,12 @@ describe('VPS integration - DiagnosticReport', () => {
       await labRequest.save();
 
       const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
-      const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Aresult`;
+      const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Aresult&_include=DiagnosticReport%3Aresult.device%3ADevice`;
 
       // act
-      const response = await app.get(path);
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveSucceeded();
@@ -325,6 +352,11 @@ describe('VPS integration - DiagnosticReport', () => {
               resourceType: 'Observation',
             },
           },
+          {
+            resource: {
+              resourceType: 'Device',
+            },
+          },
         ],
       });
     });
@@ -333,13 +365,15 @@ describe('VPS integration - DiagnosticReport', () => {
       // arrange
       const { Patient } = ctx.store.models;
       const patient = await Patient.create(fake(Patient));
-      const { labTest } = await createLabTestHierarchy(patient, { isRDT: true });
+      const { labTest, labTestMethod } = await createLabTestHierarchy(patient, { isRDT: true });
 
       const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
-      const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Aresult`;
+      const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Aresult&_include=DiagnosticReport%3Aresult.device%3ADevice`;
 
       // act
-      const response = await app.get(path);
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveSucceeded();
@@ -369,6 +403,14 @@ describe('VPS integration - DiagnosticReport', () => {
               },
             },
           },
+          {
+            resource: {
+              id: labTestMethod.id,
+              resourceType: 'Device',
+              manufacturer: 'Unknown',
+              text: 'Unknown',
+            },
+          },
         ],
       });
     });
@@ -387,7 +429,9 @@ describe('VPS integration - DiagnosticReport', () => {
       const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
 
       // act
-      const response = await app.get(path);
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveSucceeded();
@@ -412,7 +456,9 @@ describe('VPS integration - DiagnosticReport', () => {
       const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=issued&_page=-1&_count=101&status=invalid-status&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Asomething-invalid`;
 
       // act
-      const response = await app.get(path);
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveRequestError(422);
@@ -423,7 +469,7 @@ describe('VPS integration - DiagnosticReport', () => {
             '_count must be less than or equal to 20',
             '_page must be greater than or equal to 0',
             '_sort must be one of the following values: -issued',
-            '_include[0] must be one of the following values: DiagnosticReport:result',
+            '_include[0] must be one of the following values: DiagnosticReport:result, DiagnosticReport:result.device:Device',
             'status must be one of the following values: final',
           ],
         },
@@ -438,7 +484,9 @@ describe('VPS integration - DiagnosticReport', () => {
       const path = `/v1/integration/fijiVps/DiagnosticReport`;
 
       // act
-      const response = await app.get(path);
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveRequestError(422);

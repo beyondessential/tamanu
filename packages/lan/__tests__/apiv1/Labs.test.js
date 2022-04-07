@@ -8,15 +8,17 @@ describe('Labs', () => {
   let app = null;
   let baseApp = null;
   let models = null;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
     const patient = await models.Patient.create(await createDummyPatient(models));
     patientId = patient.id;
     app = await baseApp.asRole('practitioner');
   });
+  afterAll(() => ctx.close());
 
   it('should record a lab request', async () => {
     const labRequest = await randomLabRequest(models, { patientId });

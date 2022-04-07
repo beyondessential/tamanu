@@ -1,31 +1,30 @@
 import multiparty from 'multiparty';
 
+import { tmpdir } from 'shared/utils';
+
 async function getMultipartData(req) {
-  const form = new multiparty.Form();
-  
+  const form = new multiparty.Form({ uploadDir: await tmpdir() });
+
   return new Promise((resolve, reject) => {
-    form.parse(req, function(err, fields, files) {
-      if(err) {
+    form.parse(req, (err, fields, files) => {
+      if (err) {
         reject(err);
       } else {
-        const {
-          jsonData,
-          ...otherFields
-        } = fields;
+        const { jsonData, ...otherFields } = fields;
 
         try {
           const parsedData = jsonData ? JSON.parse(jsonData) : {};
 
           const fileInfo = files.file
             ? { file: files.file[0].path, deleteFileAfterImport: true }
-            : { };
-            
-          resolve({ 
-            ...parsedData, 
-            ...otherFields, 
+            : {};
+
+          resolve({
+            ...parsedData,
+            ...otherFields,
             ...fileInfo,
           });
-        } catch(e) {
+        } catch (e) {
           reject(e);
         }
       }
@@ -39,7 +38,7 @@ export async function getUploadedData(req) {
     .trim()
     .toLowerCase();
 
-  switch(contentType) {
+  switch (contentType) {
     case 'multipart/form-data':
       return getMultipartData(req);
     case 'application/json':
@@ -48,4 +47,3 @@ export async function getUploadedData(req) {
       throw new Error(`Couldn't understand content type ${contentType}`);
   }
 }
-

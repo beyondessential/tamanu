@@ -1,12 +1,14 @@
 import config from 'config';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { isArray } from 'lodash';
 
 import {
-  patientToHL7Patient,
+  hl7StatusToLabRequestStatus,
+  labTestToHL7Device,
   labTestToHL7DiagnosticReport,
   labTestToHL7Observation,
-  hl7StatusToLabRequestStatus,
+  patientToHL7Patient,
 } from '../../hl7fhir';
 import * as schema from './schema';
 import {
@@ -16,15 +18,28 @@ import {
   addPaginationToWhere,
   decodeIdentifier,
 } from './conversion';
+import { requireClientHeaders } from '../../middleware/requireClientHeaders';
 
 // TODO (TAN-943): fix auth to throw an error if X-Tamanu-Client and X-Tamanu-Version aren't set
 
 export const routes = express.Router();
 
+if (config.integrations.fijiVps.requireClientHeaders) {
+  routes.use(requireClientHeaders);
+}
+
 function getHL7Link(baseUrl, params) {
   const query = Object.entries(params)
     .filter(([, v]) => v !== null && v !== undefined)
-    .map(p => p.map(str => encodeURIComponent(str)).join('='))
+    .map(([k, v]) => {
+      const encodedKey = encodeURIComponent(k);
+      const toPair = val => `${encodedKey}=${encodeURIComponent(val)}`;
+      if (isArray(v)) {
+        return v.map(toPair);
+      }
+      return [toPair(v)];
+    })
+    .flat()
     .join('&');
   return [baseUrl, query].filter(c => c).join('?');
 }
@@ -173,6 +188,9 @@ routes.get(
         const includedResources = [];
         if (_include && _include.includes(schema.DIAGNOSTIC_REPORT_INCLUDES.RESULT)) {
           includedResources.push(labTestToHL7Observation(labTest));
+        }
+        if (_include && _include.includes(schema.DIAGNOSTIC_REPORT_INCLUDES.DEVICE)) {
+          includedResources.push(labTestToHL7Device(labTest));
         }
         return {
           mainResource: {

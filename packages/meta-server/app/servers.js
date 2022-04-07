@@ -9,37 +9,39 @@ import { getUrl, getBool, getMilliseconds } from './render/cell';
 
 export const serversRouter = express.Router();
 
+// Note: Order here matters - it'll be the order they're displayed
+// Servers are ordered first by type, then alphabetically.
 const servers = [
   // live servers
+  { name: 'Aspen Medical Fiji', type: 'live', host: 'https://syncba.aspenmedical.com.fj' },
   { name: 'Fiji', type: 'live', host: 'https://sync.tamanu-fiji.org' },
   { name: 'Fiji NCD', type: 'live', host: 'https://sync-ncd-pilot.tamanu-fiji.org' },
   { name: 'Fiji Tourism', type: 'live', host: 'https://sync-tourism.tamanu-fiji.org' },
-  {
-    name: 'Motivation Australia - Iraq',
-    type: 'live',
-    host: 'https://motivation-sync-iraq.tamanu.io',
-  },
+  { name: 'Kiribati', type: 'live', host: 'https://sync.tamanu-kiribati.org' },
   {
     name: 'Motivation Australia - Papua New Guinea',
     type: 'live',
     host: 'https://motivation-sync-png.tamanu.io',
   },
-  {
-    name: 'Motivation Australia - India',
-    type: 'live',
-    host: 'https://motivation-sync-india.tamanu.io',
-  },
   { name: 'Nauru', type: 'live', host: 'https://sync.tamanu-nauru.org' },
+  { name: 'Palau', type: 'live', host: 'https://sync.tamanu-palau.org' },
   { name: 'Samoa', type: 'live', host: 'https://tamanu-sync.health.gov.ws' },
+  { name: 'Tuvalu', type: 'live', host: 'https://sync.tamanu-tuvalu.org' },
 
   // demo servers
   { name: 'Demo', type: 'demo', host: 'https://sync-demo.tamanu.io' },
+  { name: 'Demo (Aspen)', type: 'demo', host: 'https://aspen-demo-sync.tamanu-fiji.org' },
   { name: 'Demo (Fiji)', type: 'demo', host: 'https://sync-demo.tamanu-fiji.org' },
+  { name: 'Demo (Fiji Tourism)', type: 'demo', host: 'https://sync.demo-tourism.tamanu-fiji.org' },
+  { name: 'Demo (Kiribati)', type: 'demo', host: 'https://sync-demo.tamanu-kiribati.org' },
   { name: 'Demo (Nauru)', type: 'demo', host: 'https://sync-demo-nauru.tamanu.io' },
+  { name: 'Demo (Palau)', type: 'demo', host: 'https://sync-demo-palau.tamanu.io' },
+  { name: 'Demo (Samoa)', type: 'demo', host: 'https://sync-samoa-demo.tamanu.io' },
   { name: 'Demo (Tuvalu)', type: 'demo', host: 'https://sync-demo-tuvalu.tamanu.io' },
 
   // development servers
   { name: 'Dev', type: 'dev', host: 'https://sync-dev.tamanu.io' },
+  { name: 'Fiji VPS/VRS UAT', type: 'dev', host: 'https://sync-uat-fiji-vps.tamanu.io' },
   { name: 'Staging', type: 'dev', host: 'https://sync-staging.tamanu.io' },
   { name: 'Stress testing', type: 'dev', host: 'https://sync-stress-test.tamanu.io' },
 ];

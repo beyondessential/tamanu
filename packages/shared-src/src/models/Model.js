@@ -18,6 +18,8 @@ const MARKED_FOR_PUSH_MODELS = [
   'PatientIssue',
   'ReportRequest',
   'UserFacility',
+  'DocumentMetadata',
+  'CertificateNotification',
 ];
 
 export class Model extends sequelize.Model {
@@ -54,6 +56,7 @@ export class Model extends sequelize.Model {
     // into
     // { id: 12345, field: 'value', referenceObject: { id: 23456, name: 'object' } }
 
+    const { models } = this.sequelize;
     const values = Object.entries(this.dataValues)
       .filter(([key, val]) => val !== null)
       .reduce(
@@ -64,7 +67,7 @@ export class Model extends sequelize.Model {
         {},
       );
 
-    const references = this.constructor.getListReferenceAssociations();
+    const references = this.constructor.getListReferenceAssociations(models);
 
     if (!references) return values;
 
@@ -111,7 +114,8 @@ export class Model extends sequelize.Model {
   static getFullReferenceAssociations() {
     // List of relations when fetching just this model
     // (eg to display in a detailed view)
-    return this.getListReferenceAssociations();
+    const { models } = this.sequelize;
+    return this.getListReferenceAssociations(models);
   }
 
   static async findByIds(ids) {
