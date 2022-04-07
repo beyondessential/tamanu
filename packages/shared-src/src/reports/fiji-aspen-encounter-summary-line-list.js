@@ -48,14 +48,24 @@ with
 	notes_info as (
 		select
 			record_id,
-			string_agg(note_type || CHR(58) || ' ' || "content" , ';') aggregated_notes
+			json_agg(
+				json_build_object(
+					'note_type', note_type,
+					'content', "content"
+				) 
+			) aggregated_notes
 		from notes
 		group by record_id
 	),
 	lab_test_info as (
 		select 
 			lab_request_id,
-			string_agg('"' || ltt.name || '"', ',') tests
+			json_agg(
+				json_build_object(
+					'name', ltt.name,
+					'notes', 'TODO'
+				)
+			) tests
 		from lab_tests lt
 		join lab_test_types ltt on ltt.id = lt.lab_test_type_id 
 		group by lab_request_id 
@@ -63,11 +73,11 @@ with
 	lab_request_info as (
 		select 
 			encounter_id,
-			string_agg(
-				'{__tests: "' || '[' || tests || ']' || 
-				'", __notes: "' || aggregated_notes  || 
-				'"}',
-				'__|lab_request_separator|__') "Lab requests"
+			json_agg(
+				json_build_object(
+					'tests', tests,
+					'notes', to_json(aggregated_notes)
+				)) "Lab requests"
 		from lab_requests lr
 		join lab_test_info lti
 		on lti.lab_request_id  = lr.id
@@ -77,15 +87,16 @@ with
 	procedure_info as (
 		select
 			encounter_id,
-			string_agg(
-				'{__name: "' || proc.name || 
-				'", __code: "' || proc.code || 
-				'", __date: "' || to_char(date, 'yyyy-dd-mm') ||
-				'", __location: "' || loc.name ||
-				'", __notes: "' || p.note ||
-				'", __notes: "' || completed_note ||
-				'"}',
-				'__|procedures_separator|__') as "Procedures"
+			json_agg(
+				json_build_object(
+					'name', proc.name,
+					'code', proc.code,
+					'date', to_char(date, 'yyyy-dd-mm'),
+					'location', loc.name,
+					'notes', p.note,
+					'completed_notes', completed_note
+				) 
+			) "Procedures"
 		from "procedures" p
 		left join reference_data proc ON proc.id = procedure_type_id
 		left join locations loc on loc.id = location_id
@@ -94,7 +105,13 @@ with
 	medications_info as (
 		select
 			encounter_id,
-			string_agg(medication.name || case when discontinued then ' (discontinued, reason: ' || discontinuing_reason || ')' else '' end, '__|medications_separator|__') as "Medications"
+			json_agg(
+				json_build_object(
+					'name', medication.name,
+					'discontinued', coalesce(discontinued, false),
+					'discontinuing_reason', discontinuing_reason
+				) 
+			) "Medications"
 		from encounter_medications em
 		join reference_data medication on medication.id = em.medication_id
 		group by encounter_id
@@ -102,7 +119,14 @@ with
 	diagnosis_info as (
 		select
 			encounter_id,
-			string_agg(diagnosis.name || ', ' || diagnosis.code || ',  ' || case when is_primary then 'primary' else 'secondary' end || ', ' || certainty, ';') as "Diagnosis"
+			json_agg(
+				json_build_object(
+					'name', diagnosis.name,
+					'code', diagnosis.code,
+					'is_primary', case when is_primary then 'primary' else 'secondary' end,
+					'certainty', certainty
+				) 
+			) "Diagnosis"
 		from encounter_diagnoses ed
 		join reference_data diagnosis on diagnosis.id = ed.diagnosis_id
 		where certainty not in ('disproven', 'error')
@@ -111,7 +135,13 @@ with
 	vaccine_info as (
 		select
 			encounter_id,
-			string_agg(drug.name || ', ' || sv.label || ',  ' || sv.schedule, ';') as "Vaccinations"
+			json_agg(
+				json_build_object(
+					'name', drug.name,
+					'label', sv.label,
+					'schedule', sv.schedule
+				) 
+			) "Vaccinations"
 		from administered_vaccines av
 		join scheduled_vaccines sv on sv.id = av.scheduled_vaccine_id 
 		join reference_data drug on drug.id = sv.vaccine_id 
@@ -120,7 +150,12 @@ with
 	imaging_info as (
 		select
 			encounter_id,
-			string_agg(image_type.name, ';') as "Imaging requests"
+			json_agg(
+				json_build_object(
+					'name', image_type.name,
+					'notes', 'TODO'
+				) 
+			) "Imaging requests"
 		from imaging_requests ir
 		join reference_data image_type on image_type.id = ir.imaging_type_id 
 		group by encounter_id
@@ -180,6 +215,7 @@ left join imaging_info ii on ii.encounter_id = e.id
 left join encounter_notes_info ni on ni.encounter_id = e.id
 left join triages t on t.encounter_id = e.id
 where e.end_date is not null
+--and json_array_length("Lab requests" -> 0 -> 'tests') > 1
 and coalesce(billing.id, '-') like coalesce(:billing_type, '%%')
 AND CASE WHEN :from_date IS NOT NULL THEN e.start_date::date >= :from_date::date ELSE true END
 AND CASE WHEN :to_date IS NOT NULL THEN e.start_date::date <= :to_date::date ELSE true END
