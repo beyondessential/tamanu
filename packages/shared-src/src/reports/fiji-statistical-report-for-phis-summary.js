@@ -117,7 +117,7 @@ with
       on ed.encounter_id = diagnosis_encounter.id
       WHERE rd.code in ('icd10-I10') and certainty not in ('disproven','error')
   ),
-  abc as (
+  cte_diagnoses as (
     select 
       cp.id,
       case when 
@@ -138,7 +138,7 @@ with
     where cdd.diagnosis_date is not null or chd.diagnosis_date is not null
     group by cp.id, date
   ),
-  cte_diagnoses as (
+  cte_aggregated_diagnoses as (
     select
       1 as exist,
       ethnicity_id,
@@ -147,9 +147,9 @@ with
       count(case when a is not null and b is null then 1 end) as diabetes_n,
       count(case when a is null and b is not null then 1 end) as hypertension_n,
       count(case when a is not null and b is not null then 1 end) as dual_n
-    FROM abc
+    FROM cte_diagnoses
     join cte_patient cp
-    on cp.id = abc.id
+    on cp.id = cte_diagnoses.id
     group by ethnicity_id, under_30, date
   )
 select
@@ -171,7 +171,7 @@ left join cte_snaps cs on
   cs.date = cd.date
 and cs.ethnicity_id = cao.ethnicity_id
 and cs.under_30 = cao.under_30
-left join cte_diagnoses cdg on 
+left join cte_aggregated_diagnoses cdg on 
   cdg.date = cd.date
 and cdg.ethnicity_id = cao.ethnicity_id
 and cdg.under_30 = cao.under_30
