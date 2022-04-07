@@ -347,7 +347,7 @@ order by e.start_date desc;
 `;
 
 const getData = async (sequelize, parameters) => {
-  const { fromDate, toDate, patientBillingType } = parameters;
+  const { fromDate, toDate, patientBillingType, department, location } = parameters;
 
   return sequelize.query(query, {
     type: sequelize.QueryTypes.SELECT,
@@ -355,6 +355,8 @@ const getData = async (sequelize, parameters) => {
       from_date: fromDate ?? null,
       to_date: toDate ?? null,
       billing_type: patientBillingType ?? null,
+      department_id: department ?? null,
+      location_id: location ?? null,
     },
   });
 };

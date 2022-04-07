@@ -262,6 +262,18 @@ export const REPORT_DEFINITIONS = [
         name: 'patientBillingType',
         suggesterEndpoint: 'patientBillingType',
       },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Department',
+        name: 'department',
+        suggesterEndpoint: 'department',
+      },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Location',
+        name: 'location',
+        suggesterEndpoint: 'location',
+      },
     ],
   },
 ];
