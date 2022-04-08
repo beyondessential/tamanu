@@ -476,7 +476,7 @@ function getHeaderText({ encounterType }) {
 
 const GridColumnContainer = styled.div`
   // set min-width to 0 to stop the grid column getting bigger than it's parent
-  // as grid column children default to min-width: auto
+  // as grid column children default to min-width: auto @see https://www.w3.org/TR/css3-grid-layout/#min-size-auto
   min-width: 0;
 `;
 
