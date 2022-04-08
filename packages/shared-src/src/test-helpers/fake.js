@@ -211,6 +211,14 @@ const IGNORED_FIELDS = [
 ];
 
 const MODEL_SPECIFIC_OVERRIDES = {
+  Facility: () => ({
+    email: chance.email(),
+    contactNumber: chance.phone(),
+    streetAddress: `${chance.natural({ max: 999 })} ${chance.street()}`,
+    cityTown: chance.city(),
+    division: chance.province({ full: true }),
+    type: chance.pickone(['hospital', 'clinic']),
+  }),
   Patient: () => {
     const sex = chance.pickone(['male', 'female', 'other']);
     let nameGender;
@@ -258,6 +266,11 @@ const MODEL_SPECIFIC_OVERRIDES = {
     passport: chance.character() + chance.natural({ min: 10000000, max: 99999999 }).toString(),
     emergencyContactName: chance.name(),
     emergencyContactNumber: chance.phone(),
+  }),
+  User: () => ({
+    email: chance.email(),
+    displayName: chance.name(),
+    role: 'practitioner',
   }),
   Survey: () => ({
     isSensitive: false,
