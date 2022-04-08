@@ -95,7 +95,6 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
   }
   return (
     <PatientSection
-      hasSeparator
       title="Additional Information"
       onEdit={isEditable ? editInfo : undefined}
     >

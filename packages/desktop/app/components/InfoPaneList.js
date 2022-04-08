@@ -45,7 +45,7 @@ const AddIcon = styled(MUIAddIcon)`
 `;
 
 const AddButton = memo(({ onClick }) => (
-  <AddButtonSection onClick={onClick}>
+  <AddButtonSection onClick={onClick} data-test-class="add-button-section">
     <AddText>Add</AddText>
     <AddIcon fontSize="small" />
   </AddButtonSection>
