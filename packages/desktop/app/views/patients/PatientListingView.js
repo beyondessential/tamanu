@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { connect } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 
 import { viewPatient } from '../../store/patient';
@@ -51,76 +51,76 @@ const StyledDataTable = styled(DataFetchingTable)`
   margin: 24px;
 `;
 
-const PatientTable = connect()(
-  ({ onViewPatient, showInpatientDetails, dispatch, fetchOptions, ...props }) => {
-    const [searchParameters, setSearchParameters] = useState({});
-    const api = useApi();
-    const INPATIENT_SEARCH_FIELDS = useMemo(
-      () => [
-        'displayId',
-        'firstName',
-        'lastName',
-        'dateOfBirthExact',
-        [
-          'locationId',
-          {
-            placeholder: 'Location',
-            suggester: new Suggester(api, 'location'),
-            component: AutocompleteField,
-          },
-        ],
-        [
-          'departmentId',
-          {
-            placeholder: 'Department',
-            suggester: new Suggester(api, 'department'),
-            component: AutocompleteField,
-          },
-        ],
-        [
-          'clinicianId',
-          {
-            placeholder: 'Clinician',
-            suggester: new Suggester(api, 'practitioner'),
-            component: AutocompleteField,
-          },
-        ],
+const PatientTable = ({ onViewPatient, showInpatientDetails, fetchOptions, ...props }) => {
+  const [searchParameters, setSearchParameters] = useState({});
+  const api = useApi();
+  const dispatch = useDispatch();
+  const INPATIENT_SEARCH_FIELDS = useMemo(
+    () => [
+      'displayId',
+      'firstName',
+      'lastName',
+      'dateOfBirthExact',
+      [
+        'locationId',
+        {
+          placeholder: 'Location',
+          suggester: new Suggester(api, 'location'),
+          component: AutocompleteField,
+        },
       ],
-      [],
-    );
-    const columns = showInpatientDetails ? INPATIENT_COLUMNS : LISTING_COLUMNS;
-    const fetchOptionsWithSearchParameters = { ...searchParameters, ...fetchOptions };
-    return (
-      <>
-        <PatientSearchBar
-          onSearch={setSearchParameters}
-          fields={showInpatientDetails ? INPATIENT_SEARCH_FIELDS : undefined}
-        />
-        <StyledDataTable
-          columns={columns}
-          noDataMessage="No patients found"
-          onRowClick={row => {
-            if (onViewPatient) {
-              onViewPatient(row.id);
-            } else {
-              dispatch(viewPatient(row.id));
-            }
-          }}
-          rowStyle={({ patientStatus }) =>
-            patientStatus === 'deceased' ? '& > td:not(:first-child) { color: #ed333a; }' : ''
+      [
+        'departmentId',
+        {
+          placeholder: 'Department',
+          suggester: new Suggester(api, 'department'),
+          component: AutocompleteField,
+        },
+      ],
+      [
+        'clinicianId',
+        {
+          placeholder: 'Clinician',
+          suggester: new Suggester(api, 'practitioner'),
+          component: AutocompleteField,
+        },
+      ],
+    ],
+    [],
+  );
+  const columns = showInpatientDetails ? INPATIENT_COLUMNS : LISTING_COLUMNS;
+  const fetchOptionsWithSearchParameters = { ...searchParameters, ...fetchOptions };
+  return (
+    <>
+      <PatientSearchBar
+        onSearch={setSearchParameters}
+        fields={showInpatientDetails ? INPATIENT_SEARCH_FIELDS : undefined}
+      />
+      <StyledDataTable
+        columns={columns}
+        noDataMessage="No patients found"
+        onRowClick={row => {
+          if (onViewPatient) {
+            onViewPatient(row.id);
+          } else {
+            dispatch(viewPatient(row.id));
           }
-          fetchOptions={fetchOptionsWithSearchParameters}
-          endpoint={PATIENT_SEARCH_ENDPOINT}
-          {...props}
-        />
-      </>
-    );
-  },
-);
+        }}
+        rowStyle={({ patientStatus }) =>
+          patientStatus === 'deceased' ? '& > td:not(:first-child) { color: #ed333a; }' : ''
+        }
+        fetchOptions={fetchOptionsWithSearchParameters}
+        endpoint={PATIENT_SEARCH_ENDPOINT}
+        {...props}
+      />
+    </>
+  );
+};
 
-const NewPatientButton = connect()(({ onCreateNewPatient, dispatch }) => {
+const NewPatientButton = ({ onCreateNewPatient }) => {
   const [isCreatingPatient, setCreatingPatient] = useState(false);
   const [isBirth, setIsBirth] = useState(false);
+  const dispatch = useDispatch();
   const hideModal = useCallback(() => setCreatingPatient(false), [setCreatingPatient]);
 
   const showNewPatient = useCallback(() => {
@@ -158,7 +158,7 @@ const NewPatientButton = connect()(({ onCreateNewPatient, dispatch }) => {
       />
     </>
   );
-});
+};
 
 export const PatientListingView = ({ onViewPatient }) => {
   return (
