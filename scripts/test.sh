@@ -1,9 +1,6 @@
 #!/bin/bash
 set -euo pipefail
 
-echo "Building shared"
-yarn run build-shared
-
 echo "Running tests"
 for workspace in shared-src lan sync-server meta-server; do
   echo "=== Running tests in $workspace"
