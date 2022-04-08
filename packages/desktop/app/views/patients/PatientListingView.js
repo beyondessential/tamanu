@@ -1,9 +1,9 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 
 import { viewPatient } from '../../store/patient';
-import { TopBar, PageContainer, DataFetchingTable } from '../../components';
+import { TopBar, PageContainer, DataFetchingTable, AutocompleteField } from '../../components';
 import { DropdownButton } from '../../components/DropdownButton';
 import { PatientSearchBar, NewPatientModal } from './components';
 
@@ -20,6 +20,8 @@ import {
   location,
   department,
 } from './columns';
+import { Suggester } from '../../utils/suggester';
+import { useApi } from '../../api';
 
 const PATIENT_SEARCH_ENDPOINT = 'patient';
 
@@ -49,22 +51,74 @@ const StyledDataTable = styled(DataFetchingTable)`
   margin: 24px;
 `;
 
-const PatientTable = React.memo(({ onViewPatient, showInpatientDetails, ...props }) => {
-  const columns = showInpatientDetails ? INPATIENT_COLUMNS : LISTING_COLUMNS;
-  return (
-    <StyledDataTable
-      columns={columns}
-      noDataMessage="No patients found"
-      onRowClick={row => onViewPatient(row.id)}
-      rowStyle={({ patientStatus }) =>
-        patientStatus === 'deceased' ? '& > td:not(:first-child) { color: #ed333a; }' : ''
-      }
-      {...props}
-    />
-  );
-});
+const PatientTable = connect()(
+  ({ onViewPatient, showInpatientDetails, dispatch, fetchOptions, ...props }) => {
+    const [searchParameters, setSearchParameters] = useState({});
+    const api = useApi();
+    const INPATIENT_SEARCH_FIELDS = useMemo(
+      () => [
+        'displayId',
+        'firstName',
+        'lastName',
+        'dateOfBirthExact',
+        [
+          'locationId',
+          {
+            placeholder: 'Location',
+            suggester: new Suggester(api, 'location'),
+            component: AutocompleteField,
+          },
+        ],
+        [
+          'departmentId',
+          {
+            placeholder: 'Department',
+            suggester: new Suggester(api, 'department'),
+            component: AutocompleteField,
+          },
+        ],
+        [
+          'clinicianId',
+          {
+            placeholder: 'Clinician',
+            suggester: new Suggester(api, 'practitioner'),
+            component: AutocompleteField,
+          },
+        ],
+      ],
+      [],
+    );
+    const columns = showInpatientDetails ? INPATIENT_COLUMNS : LISTING_COLUMNS;
+    const fetchOptionsWithSearchParameters = { ...searchParameters, ...fetchOptions };
+    return (
+      <>
+        <PatientSearchBar
+          onSearch={setSearchParameters}
+          fields={showInpatientDetails ? INPATIENT_SEARCH_FIELDS : undefined}
+        />
+        <StyledDataTable
+          columns={columns}
+          noDataMessage="No patients found"
+          onRowClick={row => {
+            if (onViewPatient) {
+              onViewPatient(row.id);
+            } else {
+              dispatch(viewPatient(row.id));
+            }
+          }}
+          rowStyle={({ patientStatus }) =>
+            patientStatus === 'deceased' ? '& > td:not(:first-child) { color: #ed333a; }' : ''
+          }
+          fetchOptions={fetchOptionsWithSearchParameters}
+          endpoint={PATIENT_SEARCH_ENDPOINT}
+          {...props}
+        />
+      </>
+    );
+  },
+);
 
-const NewPatientButton = React.memo(({ onCreateNewPatient }) => {
+const NewPatientButton = connect()(({ onCreateNewPatient, dispatch }) => {
   const [isCreatingPatient, setCreatingPatient] = useState(false);
   const [isBirth, setIsBirth] = useState(false);
   const hideModal = useCallback(() => setCreatingPatient(false), [setCreatingPatient]);
@@ -78,14 +132,6 @@ const NewPatientButton = React.memo(({ onCreateNewPatient }) => {
     setCreatingPatient(true);
     setIsBirth(true);
   }, []);
-
-  const onCreate = useCallback(
-    newPatient => {
-      setCreatingPatient(false);
-      onCreateNewPatient(newPatient.id);
-    },
-    [onCreateNewPatient],
-  );
 
   return (
     <>
@@ -101,60 +147,40 @@ const NewPatientButton = React.memo(({ onCreateNewPatient }) => {
         isBirth={isBirth}
         open={isCreatingPatient}
         onCancel={hideModal}
-        onCreateNewPatient={onCreate}
+        onCreateNewPatient={newPatient => {
+          setCreatingPatient(false);
+          if (onCreateNewPatient) {
+            onCreateNewPatient(newPatient.id);
+          } else {
+            dispatch(viewPatient(newPatient.id));
+          }
+        }}
       />
     </>
   );
 });
 
-const selectPatientConnector = connect(null, dispatch => ({
-  onViewPatient: id => dispatch(viewPatient(id)),
-}));
-
-export const DumbPatientListingView = ({ onViewPatient }) => {
-  const [searchParameters, setSearchParameters] = useState({});
-
+export const PatientListingView = ({ onViewPatient }) => {
   return (
     <PageContainer>
       <TopBar title="Patient listing">
         <NewPatientButton onCreateNewPatient={onViewPatient} />
       </TopBar>
-      <PatientSearchBar onSearch={setSearchParameters} />
-      <PatientTable
-        endpoint={PATIENT_SEARCH_ENDPOINT}
-        fetchOptions={searchParameters}
-        onViewPatient={onViewPatient}
-      />
+      <PatientTable onViewPatient={onViewPatient} />
     </PageContainer>
   );
 };
 
-export const PatientListingView = selectPatientConnector(DumbPatientListingView);
-
-export const AdmittedPatientsView = selectPatientConnector(
-  React.memo(({ onViewPatient }) => (
-    <PageContainer>
-      <TopBar title="Admitted patient listing" />
-      <PatientTable
-        fetchOptions={{ inpatient: 1 }}
-        onViewPatient={onViewPatient}
-        endpoint={PATIENT_SEARCH_ENDPOINT}
-        showInpatientDetails
-      />
-    </PageContainer>
-  )),
+export const AdmittedPatientsView = () => (
+  <PageContainer>
+    <TopBar title="Admitted patient listing" />
+    <PatientTable fetchOptions={{ inpatient: 1 }} showInpatientDetails />
+  </PageContainer>
 );
 
-export const OutpatientsView = selectPatientConnector(
-  React.memo(({ onViewPatient }) => (
-    <PageContainer>
-      <TopBar title="Outpatient listing" />
-      <PatientTable
-        fetchOptions={{ outpatient: 1 }}
-        onViewPatient={onViewPatient}
-        endpoint={PATIENT_SEARCH_ENDPOINT}
-        showInpatientDetails
-      />
-    </PageContainer>
-  )),
+export const OutpatientsView = () => (
+  <PageContainer>
+    <TopBar title="Outpatient listing" />
+    <PatientTable fetchOptions={{ outpatient: 1 }} showInpatientDetails />
+  </PageContainer>
 );
