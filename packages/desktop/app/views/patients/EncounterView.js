@@ -474,6 +474,10 @@ function getHeaderText({ encounterType }) {
   }
 }
 
+const GridColumnContainer = styled.div`
+  min-width: 0; // set min-width: auto to stop the grid column getting bigger than it's parent
+`;
+
 export const EncounterView = () => {
   const { getLocalisation } = useLocalisation();
   const patient = useSelector(state => state.patient);
@@ -487,7 +491,7 @@ export const EncounterView = () => {
   return (
     <TwoColumnDisplay>
       <PatientInfoPane patient={patient} disabled={disabled} />
-      <div style={{ overflow: 'hidden' }}>
+      <GridColumnContainer>
         <TopBar>
           <div>
             <TopBarHeading>{getHeaderText(encounter)}</TopBarHeading>
@@ -524,7 +528,7 @@ export const EncounterView = () => {
           encounter={encounter}
           disabled={disabled}
         />
-      </div>
+      </GridColumnContainer>
     </TwoColumnDisplay>
   );
 };
