@@ -36,7 +36,11 @@ async function findExistingComment(prNumber, header) {
     },
   );
 
-  return comments.data.find(c => c.body.startsWith(`### ${header}`));
+  const myself = await request('GET /user', { headers });
+
+  return comments.data.find(
+    c => c.user.id === myself.data.id && c.body.startsWith(`### ${header}`),
+  );
 }
 
 async function updateComment(id, markdown) {
