@@ -15,8 +15,8 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
 
   const handleDischarge = useCallback(
     async data => {
-      writeAndViewEncounter(encounter.id, data);
-      dispatch(viewPatient(patient.id));
+      await writeAndViewEncounter(encounter.id, data);
+      await dispatch(viewPatient(patient.id));
       onClose();
     },
     [writeAndViewEncounter, encounter.id, dispatch, patient.id, onClose],
