@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { Modal } from './Modal';
@@ -13,11 +13,14 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
   const { encounter, writeAndViewEncounter } = useEncounter();
   const practitionerSuggester = useSuggester('practitioner');
 
-  const handleDischarge = async data => {
-    writeAndViewEncounter(encounter.id, data);
-    dispatch(viewPatient(patient.id));
-    onClose();
-  };
+  const handleDischarge = useCallback(
+    async data => {
+      writeAndViewEncounter(encounter.id, data);
+      dispatch(viewPatient(patient.id));
+      onClose();
+    },
+    [writeAndViewEncounter, encounter.id, dispatch, patient.id, onClose],
+  );
 
   return (
     <Modal title="Discharge" open={open} onClose={onClose}>
