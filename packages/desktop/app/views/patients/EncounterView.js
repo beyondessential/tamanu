@@ -475,7 +475,9 @@ function getHeaderText({ encounterType }) {
 }
 
 const GridColumnContainer = styled.div`
-  min-width: 0; // set min-width: auto to stop the grid column getting bigger than it's parent
+  // set min-width to 0 to stop the grid column getting bigger than it's parent
+  // as it defaults to auto
+  min-width: 0;
 `;
 
 export const EncounterView = () => {
