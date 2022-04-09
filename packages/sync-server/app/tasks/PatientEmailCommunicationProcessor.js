@@ -44,7 +44,7 @@ export class PatientEmailCommunicationProcessor extends ScheduledTask {
       log.info(`At address       : ${toAddress}`);
       try {
         const result = await this.context.emailService.sendEmail({
-          to: toAddress,
+          to: toAddress?.trim(),
           from: config.mailgun.from,
           subject: emailPlain.subject,
           text: emailPlain.content,
