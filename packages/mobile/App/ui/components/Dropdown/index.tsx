@@ -20,17 +20,24 @@ export interface DropdownProps extends BaseInputProps {
   value?: string | string[];
 }
 
-const INPUT_GROUP_ERROR_STYLE = { borderColor: theme.colors.ERROR, borderWidth: 1 };
-const DROPDOWN_MENU_SUBSECTION_DEFAULT_STYLE = { paddingLeft: 12 };
-const DROPDOWN_MENU_SUBSECTION_ERROR_STYLE = {
-  paddingLeft: 12,
-  borderRadius: 3,
-  borderColor: theme.colors.ERROR,
-  borderWidth: 1,
+const DEFAULT_STYLE_PROPS = {
+  styleDropdownMenuSubsection: {
+    paddingLeft: 12,
+  },
 };
-const getDropdownMenuSubsectionStyle = (error): {} => {
-  if (error) return DROPDOWN_MENU_SUBSECTION_ERROR_STYLE;
-  return DROPDOWN_MENU_SUBSECTION_DEFAULT_STYLE;
+
+const ERROR_STYLE_PROPS = {
+  textColor: theme.colors.ERROR,
+  styleInputGroup: {
+    borderColor: theme.colors.ERROR,
+    borderWidth: 1,
+  },
+  styleDropdownMenuSubsection: {
+    paddingLeft: 12,
+    borderRadius: 3,
+    borderColor: theme.colors.ERROR,
+    borderWidth: 1,
+  },
 };
 
 export const Dropdown = React.memo(
@@ -77,14 +84,12 @@ export const Dropdown = React.memo(
           selectedItemIconColor={theme.colors.PRIMARY_MAIN}
           itemTextColor="#000"
           searchInputStyle={{ color: theme.colors.PRIMARY_MAIN }}
-          styleInputGroup={error ? INPUT_GROUP_ERROR_STYLE : null}
-          styleDropdownMenuSubsection={getDropdownMenuSubsectionStyle(error)}
           styleMainWrapper={{ zIndex: 999 }}
           submitButtonColor={theme.colors.SAFE}
           submitButtonText="Confirm selection"
           textInputProps={filterable ? {} : { editable: false, autoFocus: false }}
           searchIcon={filterable ? undefined : null}
-          textColor={error ? theme.colors.ERROR : null}
+          {...(error ? ERROR_STYLE_PROPS : DEFAULT_STYLE_PROPS)}
         />
       </StyledView>
     );
