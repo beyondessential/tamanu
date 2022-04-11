@@ -37,7 +37,7 @@ describe('Admissions report', () => {
     );
     app = await baseApp.asRole('practitioner');
     expectedLocation = await findOneOrCreate(ctx, models.Location, { name: 'Clinic' });
-    wrongLocation = await randomRecord(models, 'Location');
+    wrongLocation = await findOneOrCreate(ctx, models.Location, { name: 'Not-Clinic' });
     expectedDepartment1 = await findOneOrCreate(ctx, models.Department, { name: 'Radiology' });
     expectedDepartment2 = await findOneOrCreate(ctx, models.Department, { name: 'Cardiology' });
     expectedExaminer = await randomRecord(models, 'User');
