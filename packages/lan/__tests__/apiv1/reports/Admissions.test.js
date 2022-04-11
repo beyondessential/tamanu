@@ -33,7 +33,11 @@ describe('Admissions report', () => {
     models = ctx.models;
     expectedVillage = await randomReferenceData(models, 'village');
     expectedPatient = await models.Patient.create(
-      await createDummyPatient(models, { villageId: expectedVillage.id }),
+      await createDummyPatient(models, {
+        villageId: expectedVillage.id,
+        // Just shy of 2 years old
+        dateOfBirth: subDays(new Date(), 365 * 2 - 5),
+      }),
     );
     app = await baseApp.asRole('practitioner');
     expectedLocation = await findOneOrCreate(ctx, models.Location, { name: 'Clinic' });
@@ -173,7 +177,7 @@ describe('Admissions report', () => {
           Sex: expectedPatient.sex,
           Village: expectedVillage.name,
           'Date of Birth': format(expectedPatient.dateOfBirth, 'dd/MM/yyyy'),
-          Age: format(expectedPatient.dateOfBirth, 'dd/MM/yyyy'),
+          Age: 1,
           'Patient Type': 'Charity',
           'Admitting Doctor/Nurse': expectedExaminer.displayName,
           'Admission Date': '20/02/2021 9:07:26 AM',
