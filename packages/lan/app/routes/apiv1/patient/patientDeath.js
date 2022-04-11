@@ -7,6 +7,103 @@ import * as yup from 'yup';
 
 export const patientDeath = express.Router();
 
+function exportCause(cause) {
+  return {
+    id: cause.id,
+    conditionId: cause.conditionId,
+    timeAfterOnset: cause.timeAfterOnset,
+  };
+}
+
+patientDeath.get(
+  '/:id/death',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'Patient');
+    req.checkPermission('read', 'PatientDeath');
+
+    const {
+      db,
+      models: { Discharge, Patient, PatientDeathData, DeathCause },
+      params: { id: patientId },
+    } = req;
+
+    const patient = await Patient.findByPk(patientId);
+    if (!patient) throw new NotFoundError('Patient not found');
+    if (!patient.dateOfDeath) {
+      res.status(404).send({
+        dateOfDeath: null,
+      });
+      return;
+    }
+
+    const deathData = await patient.getPatientDeathData();
+    const primaryCause = await DeathCause.findByPk(deathData.primaryCauseId);
+    const secondaryCause = await DeathCause.findByPk(deathData.secondaryCauseId);
+    const contributingCauses = await DeathCause.findAll({
+      where: {
+        patientDeathDataId: deathData.id,
+        id: { [Op.notIn]: [deathData.primaryCauseId, deathData.secondaryCauseId] },
+      },
+    });
+
+    res.send({
+      patientId: patient.id,
+      patientDeathDataId: deathData.id,
+      clinicianId: deathData.clinicianId,
+      facilityId: deathData.facilityId,
+
+      dateOfBirth: patient.dateOfBirth,
+      dateOfDeath: patient.dateOfDeath,
+
+      manner: deathData.manner,
+      causes: {
+        primary: primaryCause ? exportCause(primaryCause) : null,
+        secondary: secondaryCause ? exportCause(secondaryCause) : null,
+        contributing: (contributingCauses ?? []).map(exportCause),
+        external:
+          deathData.externalCauseDate ||
+          deathData.externalCauseLocation ||
+          deathData.externalCauseNotes
+            ? {
+                date: deathData.externalCauseDate,
+                location: deathData.externalCauseLocation,
+                notes: deathData.externalCauseNotes,
+              }
+            : null,
+      },
+
+      recentSurgery:
+        deathData.recentSurgery === 'yes'
+          ? {
+              date: deathData.lastSurgeryDate,
+              reason: deathData.lastSurgeryReasonId,
+            }
+          : deathData.recentSurgery,
+
+      pregnancy:
+        deathData.wasPregnant === 'yes'
+          ? {
+              contributed: deathData.pregnancyContributed,
+            }
+          : deathData.wasPregnant,
+
+      fetalOrInfant: deathData.fetalOrInfant
+        ? {
+            birthWeight: deathData.birthWeight,
+            carrier: {
+              age: deathData.carrierAge,
+              existingConditionId: deathData.carrierExistingConditionId,
+              weeksPregnant: deathData.carrierPregnancyWeeks,
+            },
+            hoursSurvivedSinceBirth: deathData.hoursSurvivedSinceBirth,
+            stillborn: deathData.stillborn,
+            withinDayOfBirth: deathData.withinDayOfBirth,
+          }
+        : false,
+    });
+  }),
+);
+
 patientDeath.post(
   '/:id/death',
   asyncHandler(async (req, res) => {
@@ -80,7 +177,7 @@ patientDeath.post(
         externalCauseLocation: body.mannerOfDeathLocation,
         externalCauseNotes: body.mannerOfDeathOther,
         facilityId: body.facilityId,
-        fetalOrInfant: body.fetalOrInfant,
+        fetalOrInfant: body.fetalOrInfant === 'yes',
         hoursSurvivedSinceBirth: body.numberOfHoursSurvivedSinceBirth,
         lastSurgeryDate: body.surgeryInLast4Weeks === 'yes' ? body.lastSurgeryDate : null,
         lastSurgeryReasonId: body.lastSurgeryReason,
@@ -90,7 +187,9 @@ patientDeath.post(
         recentSurgery: body.surgeryInLast4Weeks,
         stillborn: body.stillborn,
         wasPregnant: body.pregnant,
-        withinDayOfBirth: body.deathWithin24HoursOfBirth,
+        withinDayOfBirth: body.deathWithin24HoursOfBirth
+          ? body.deathWithin24HoursOfBirth === 'yes'
+          : null,
       });
 
       const primaryCause = await DeathCause.create({
