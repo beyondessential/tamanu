@@ -41,7 +41,7 @@ const Text = styled.p`
 export const IdInput = ({ value, name, onChange, regenerateId }) => {
   return (
     <IdControl>
-      <Id>{value || ''}</Id>
+      <Id data-test-class="id-field-div">{value || ''}</Id>
       <RegenerateId onClick={() => onChange({ target: { value: regenerateId(), name } })}>
         <Autorenew />
         <Text>Regenerate</Text>
