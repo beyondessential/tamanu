@@ -17,7 +17,7 @@ async function run(folder: string, request: string): Promise<void> {
   console.log('request signature is valid');
 
   const ca = new CA(folder);
-  await ca.openReadOnly();
+  await ca.openReadOnly(); // checks integrity
 
   await confirm('Proceed?');
 
