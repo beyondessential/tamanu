@@ -22,6 +22,7 @@ describe('Admissions report', () => {
   let expectedDiagnosis1 = null;
   let expectedDiagnosis2 = null;
   let expectedVillage = null;
+  let expectedBillingType = null;
   let baseApp = null;
   let models = null;
   let ctx;
@@ -50,6 +51,10 @@ describe('Admissions report', () => {
       code: 'L74.4',
       name: 'Anhidrosis',
     });
+    expectedBillingType = await findOneOrCreate(ctx, models.ReferenceData, {
+      type: 'patientBillingType',
+      name: 'Charity',
+    });
   });
   afterAll(() => ctx.close());
 
@@ -72,6 +77,7 @@ describe('Admissions report', () => {
         locationId: expectedLocation.id,
         departmentId: expectedDepartment1.id,
         examinerId: expectedExaminer.id,
+        patientBillingTypeId: expectedBillingType.id,
       };
       // expected result
       const expectedEncounter = await models.Encounter.create(
@@ -167,6 +173,8 @@ describe('Admissions report', () => {
           Sex: expectedPatient.sex,
           Village: expectedVillage.name,
           'Date of Birth': format(expectedPatient.dateOfBirth, 'dd/MM/yyyy'),
+          Age: format(expectedPatient.dateOfBirth, 'dd/MM/yyyy'),
+          'Patient Type': 'Charity',
           'Admitting Doctor/Nurse': expectedExaminer.displayName,
           'Admission Date': '20/02/2021 9:07:26 AM',
           'Discharge Date': '21/02/2021',
