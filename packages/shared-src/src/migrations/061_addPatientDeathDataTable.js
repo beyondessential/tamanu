@@ -39,22 +39,6 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      primary_cause_id: {
-        type: Sequelize.STRING,
-        references: {
-          model: 'death_causes',
-          key: 'id',
-        },
-        allowNull: true,
-      },
-      secondary_cause_id: {
-        type: Sequelize.STRING,
-        references: {
-          model: 'death_causes',
-          key: 'id',
-        },
-        allowNull: true,
-      },
 
       recent_surgery: {
         type: Sequelize.STRING,

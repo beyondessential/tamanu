@@ -76,10 +76,12 @@ export class PatientDeathData extends Model {
     this.belongsTo(models.DeathCause, {
       foreignKey: 'primaryCauseId',
       as: 'primaryCause',
+      constraints: false,
     });
     this.belongsTo(models.DeathCause, {
       foreignKey: 'secondaryCauseId',
       as: 'secondaryCause',
+      constraints: false,
     });
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'lastSurgeryReasonId',
@@ -93,6 +95,7 @@ export class PatientDeathData extends Model {
     // for "contributing" death causes but also includes the primary/secondary
     this.hasMany(models.DeathCause, {
       foreignKey: 'patientDeathDataId',
+      constraints: false,
     });
   }
 }
