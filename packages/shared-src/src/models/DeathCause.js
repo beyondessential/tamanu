@@ -17,10 +17,10 @@ export class DeathCause extends Model {
         ...options,
         syncConfig: { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
         validate: {
-          mustHavePatient() {
+          mustHavePatientDeathData() {
             if (this.deletedAt) return;
-            if (!this.patientId) {
-              throw new InvalidOperationError('Cause of death must have a patient.');
+            if (!this.patientDeathDataId) {
+              throw new InvalidOperationError('Cause of death must be attached to a PatientDeathData object.');
             }
           },
           mustHaveCondition() {
@@ -35,8 +35,8 @@ export class DeathCause extends Model {
   }
 
   static initRelations(models) {
-    this.belongsTo(models.Patient, {
-      foreignKey: 'patientId',
+    this.belongsTo(models.PatientDeathData, {
+      foreignKey: 'patientDeathDataId',
     });
 
     this.belongsTo(models.ReferenceData, {

@@ -16,10 +16,10 @@ module.exports = {
         allowNull: false,
       },
 
-      patient_id: {
+      patient_death_data_id: {
         type: Sequelize.STRING,
         references: {
-          model: 'patients',
+          model: 'patient_death_data',
           key: 'id',
         },
         allowNull: false,

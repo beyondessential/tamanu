@@ -70,29 +70,7 @@ patientDeath.post(
     await transactionOnPostgres(db, async () => {
       await patient.update({ dateOfDeath: body.timeOfDeath });
 
-      const primaryCause = await DeathCause.create({
-        patientId: patient.id,
-        conditionId: body.causeOfDeath,
-        timeAfterOnset: body.causeOfDeathInterval,
-      });
-
-      if (body.causeOfDeath2) {
-        await DeathCause.create({
-          patientId: patient.id,
-          conditionId: body.causeOfDeath2,
-          timeAfterOnset: body.causeOfDeath2Interval,
-        });
-      }
-
-      if (body.contributingConditions) {
-        await DeathCause.create({
-          patientId: patient.id,
-          conditionId: body.contributingConditions,
-          timeAfterOnset: body.contributingConditionsInterval,
-        });
-      }
-
-      await PatientDeathData.create({
+      const deathData = await PatientDeathData.create({
         birthWeight: body.birthWeight,
         carrierAge: body.ageOfMother,
         carrierExistingConditionId: body.motherExistingCondition,
@@ -109,12 +87,41 @@ patientDeath.post(
         manner: body.mannerOfDeath,
         patientId: patient.id,
         pregnancyContributed: body.pregnancyContribute,
-        primaryCauseId: primaryCause.id,
         recentSurgery: body.surgeryInLast4Weeks,
         stillborn: body.stillborn,
         wasPregnant: body.pregnant,
         withinDayOfBirth: body.deathWithin24HoursOfBirth,
       });
+
+      const primaryCause = await DeathCause.create({
+        patientDeathDataId: deathData.id,
+        conditionId: body.causeOfDeath,
+        timeAfterOnset: body.causeOfDeathInterval,
+      });
+
+      await PatientDeathData.update({
+        primaryCauseId: primaryCause.id,
+      });
+
+      if (body.causeOfDeath2) {
+        const secondaryCause = await DeathCause.create({
+          patientDeathDataId: deathData.id,
+          conditionId: body.causeOfDeath2,
+          timeAfterOnset: body.causeOfDeath2Interval,
+        });
+
+        await PatientDeathData.update({
+          secondaryCauseId: secondaryCause.id,
+        });
+      }
+
+      if (body.contributingConditions) {
+        await DeathCause.create({
+          patientDeathDataId: deathData.id,
+          conditionId: body.contributingConditions,
+          timeAfterOnset: body.contributingConditionsInterval,
+        });
+      }
 
       const activeEncounters = await patient.getEncounters({
         where: {

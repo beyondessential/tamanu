@@ -41,14 +41,6 @@ export class PatientDeathData extends Model {
               throw new InvalidOperationError('Patient death data must have a clinician.');
             }
           },
-          mustHavePrimaryCause() {
-            if (this.deletedAt) return;
-            if (!this.primaryCauseId) {
-              throw new InvalidOperationError(
-                'Patient death data must have a primary cause of death.',
-              );
-            }
-          },
           yesNoUnknownFields() {
             if (this.deletedAt) return;
             for (const field of [
@@ -85,6 +77,10 @@ export class PatientDeathData extends Model {
       foreignKey: 'primaryCauseId',
       as: 'primaryCause',
     });
+    this.belongsTo(models.DeathCause, {
+      foreignKey: 'secondaryCauseId',
+      as: 'secondaryCause',
+    });
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'lastSurgeryReasonId',
       as: 'lastSurgeryReason',
@@ -92,6 +88,11 @@ export class PatientDeathData extends Model {
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'carrierExistingConditionId',
       as: 'carrierExistingCondition',
+    });
+
+    // for "contributing" death causes but also includes the primary/secondary
+    this.hasMany(models.DeathCause, {
+      foreignKey: 'patientDeathDataId',
     });
   }
 }

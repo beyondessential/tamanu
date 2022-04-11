@@ -62,10 +62,6 @@ export class Patient extends Model {
       foreignKey: 'villageId',
       as: 'village',
     });
-
-    this.hasMany(models.DeathCause, {
-      foreignKey: 'patientId',
-    });
   }
 
   static async getSyncIds() {
