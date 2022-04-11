@@ -172,7 +172,7 @@ async function queryAdmissionsData(models, parameters) {
     departmentHistory: getPlaceHistoryFromNotes(departmentChangeNotes, result, 'department'),
   }));
 
-  const filteredResults = filterResults(models, resultsWithHistory, parameters);
+  const filteredResults = await filterResults(models, resultsWithHistory, parameters);
 
   return filteredResults.map(result => ({
     ...result,
