@@ -39,6 +39,9 @@ mobile:
     dockerfile: Dockerfile
   encrypted_dockercfg_path: packages/mobile/dockercfg.encrypted
 
+test:
+  image: healthcheck/postgres
+
 dockercfg-generator:
   image: codeship/aws-ecr-dockercfg-generator
   add_docker: true
