@@ -4,6 +4,7 @@ import asyncHandler from 'express-async-handler';
 import { InvalidOperationError, NotFoundError } from 'shared/errors';
 import { User } from 'shared/models/User';
 import * as yup from 'yup';
+import { Op } from 'sequelize';
 
 export const patientDeath = express.Router();
 
@@ -22,8 +23,7 @@ patientDeath.get(
     req.checkPermission('read', 'PatientDeath');
 
     const {
-      db,
-      models: { Discharge, Patient, PatientDeathData, DeathCause },
+      models: { Patient, DeathCause },
       params: { id: patientId },
     } = req;
 
@@ -247,7 +247,7 @@ patientDeath.post(
 async function transactionOnPostgres(db, transaction) {
   if (config.db.sqlitePath) {
     return transaction();
-  } else {
-    return db.transaction(transaction);
   }
+
+  return db.transaction(transaction);
 }
