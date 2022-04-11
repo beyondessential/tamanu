@@ -252,6 +252,32 @@ export const REPORT_DEFINITIONS = [
     ],
   },
   {
+    name: 'Fiji Statistical Report for PHIS - Summary',
+    id: 'fiji-statistical-report-for-phis-summary',
+    allFacilities: true,
+    parameters: [
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Division',
+        name: 'division',
+        suggesterEndpoint: 'division',
+      },
+      { parameterField: 'VillageField' },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Medical Area',
+        name: 'medicalArea',
+        suggesterEndpoint: 'medicalArea',
+      },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Nursing Zone',
+        name: 'nursingZone',
+        suggesterEndpoint: 'nursingZone',
+      },
+    ],
+  },
+  {
     name: 'Fiji Aspen encounter summary - Line list',
     id: 'fiji-aspen-encounter-summary-line-list',
     allFacilities: false,
