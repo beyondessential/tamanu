@@ -1,10 +1,6 @@
 import config from 'config';
 
 import { createReferralNotification } from 'shared/tasks/CreateReferralNotification';
-import {
-  createLabRequestUpdateNotification,
-  createLabRequestCreateNotification,
-} from 'shared/tasks/CreateLabRequestNotifications';
 
 export async function addHooks(store) {
   if (config.notifications) {
