@@ -182,9 +182,9 @@ describe('Admissions report', () => {
           'Admitting Doctor/Nurse': expectedExaminer.displayName,
           'Admission Date': '20/02/2021 9:07:26 AM',
           'Discharge Date': '21/02/2021',
-          Location: 'Clinic (Location change: 20/02/21 9:07 AM)',
+          Location: 'Clinic (Location assigned: 20/02/21 9:07 AM)',
           Department:
-            'Radiology (Department change: 20/02/21 9:07 AM); Cardiology (Department change: 20/02/21 11:10 AM)',
+            'Radiology (Department assigned: 20/02/21 9:07 AM); Cardiology (Department assigned: 20/02/21 11:10 AM)',
           'Primary diagnoses': 'H60.5 Acute bacterial otitis externa; L74.4 Anhidrosis',
           'Secondary diagnoses': 'H60.5 Acute bacterial otitis externa',
         },
