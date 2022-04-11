@@ -325,7 +325,7 @@ describe('Patient', () => {
       expect(discharge.dischargerId).toEqual(clinicianId);
     });
 
-    // When new permissions land
-    test.todo('should reject marking as dead with insufficient permissions');
+    test.todo('should return no death data for alive patient');
+    test.todo('should return death data for deceased patient');
   });
 });

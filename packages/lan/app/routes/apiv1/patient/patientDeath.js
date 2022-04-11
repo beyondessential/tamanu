@@ -198,7 +198,7 @@ patientDeath.post(
         timeAfterOnset: body.causeOfDeathInterval,
       });
 
-      await PatientDeathData.update({
+      await deathData.update({
         primaryCauseId: primaryCause.id,
       });
 
@@ -209,7 +209,7 @@ patientDeath.post(
           timeAfterOnset: body.causeOfDeath2Interval,
         });
 
-        await PatientDeathData.update({
+        await deathData.update({
           secondaryCauseId: secondaryCause.id,
         });
       }
