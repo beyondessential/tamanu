@@ -14,8 +14,8 @@ const reportColumnTemplate = [
   { title: 'Admitting Doctor/Nurse', accessor: data => data.examiner?.displayName },
   { title: 'Admission Date', accessor: data => format(data.startDate, 'dd/MM/yyyy h:mm:ss a') },
   { title: 'Discharge Date', accessor: data => format(data.endDate, 'dd/MM/yyyy') },
-  { title: 'Location', accessor: data => data.locationHistory },
-  { title: 'Department', accessor: data => data.departmentHistory },
+  { title: 'Location', accessor: data => data.locationHistoryString },
+  { title: 'Department', accessor: data => data.departmentHistoryString },
   { title: 'Primary diagnoses', accessor: data => data.primaryDiagnoses },
   { title: 'Secondary diagnoses', accessor: data => data.secondaryDiagnoses },
 ];
@@ -25,15 +25,13 @@ function parametersToSqlWhere(parameters) {
     fromDate = subDays(new Date(), 30).toISOString(),
     toDate,
     practitioner,
-    location,
-    department,
+    // location, -- handled elsewhere
+    // department, -- handled elsewhere
   } = parameters;
 
   return {
     encounterType: ENCOUNTER_TYPES.ADMISSION,
     ...(practitioner && { examinerId: practitioner }),
-    ...(department && { departmentId: department }),
-    ...(location && { locationId: location }),
     startDate: {
       [Op.gte]: fromDate,
       ...(toDate && { [Op.lte]: toDate }),
@@ -88,10 +86,7 @@ const getPlaceHistoryFromNotes = (changeNotes, encounterData, placeType) => {
   if (!relevantNotes.length) {
     const { [placeType]: place, startDate } = encounterData;
     const { name: placeName } = place;
-    return `${placeName} (${upperFirst(placeType)} change: ${format(
-      startDate,
-      'dd/MM/yy h:mm a',
-    )})`;
+    return [{ to: placeName, date: startDate }];
   }
 
   const matcher = patternsForPlaceTypes[placeType];
@@ -112,13 +107,15 @@ const getPlaceHistoryFromNotes = (changeNotes, encounterData, placeType) => {
     }),
   ];
 
-  return history
+  return history;
+};
+const formatPlaceHistory = (history, placeType) =>
+  history
     .map(
       ({ to, date }) =>
         `${to} (${upperFirst(placeType)} change: ${format(date, 'dd/MM/yy h:mm a')})`,
     )
     .join('; ');
-};
 
 async function queryAdmissionsData(models, parameters) {
   const results = (
@@ -149,17 +146,42 @@ async function queryAdmissionsData(models, parameters) {
   const encounterIds = results.map(({ id }) => id);
   const { locationChangeNotes, departmentChangeNotes } = await getAllNotes(models, encounterIds);
 
-  return results.map(result => ({
-    ...result,
-    locationHistory: getPlaceHistoryFromNotes(locationChangeNotes, result, 'location'),
-    departmentHistory: getPlaceHistoryFromNotes(departmentChangeNotes, result, 'department'),
-    primaryDiagnoses: stringifyDiagnoses(result.diagnoses, true),
-    secondaryDiagnoses: stringifyDiagnoses(result.diagnoses, false),
-  }));
+  const { location, department } = parameters;
+  const { name: requiredLocation } = (await models.Location.findByPk(location)) ?? {};
+  const { name: requiredDepartment } = (await models.Department.findByPk(department)) ?? {};
+
+  // const encounterIdsMatchingLocation = ['hi'];
+  // const encounterIdsMatchingDepartment = ['hi'];
+
+  return results
+    .map(result => ({
+      ...result,
+      locationHistory: getPlaceHistoryFromNotes(locationChangeNotes, result, 'location'),
+      departmentHistory: getPlaceHistoryFromNotes(departmentChangeNotes, result, 'department'),
+    }))
+    .filter(
+      result =>
+        !requiredLocation || result.locationHistory.map(({ to }) => to).includes(requiredLocation),
+    )
+    .filter(
+      result =>
+        !requiredDepartment ||
+        result.departmentHistory.map(({ to }) => to).includes(requiredDepartment),
+    )
+    .map(result => ({
+      ...result,
+      locationHistoryString: formatPlaceHistory(result.locationHistory, 'location'),
+      departmentHistoryString: formatPlaceHistory(result.departmentHistory, 'department'),
+      primaryDiagnoses: stringifyDiagnoses(result.diagnoses, true),
+      secondaryDiagnoses: stringifyDiagnoses(result.diagnoses, false),
+      requiredLocation,
+      requiredDepartment,
+    }));
 }
 
 export async function dataGenerator({ models }, parameters) {
   const queryResults = await queryAdmissionsData(models, parameters);
+  console.log(queryResults);
   return generateReportFromQueryData(queryResults, reportColumnTemplate);
 }
 
