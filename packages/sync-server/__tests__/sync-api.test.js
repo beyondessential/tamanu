@@ -15,7 +15,6 @@ import {
 } from 'shared/test-helpers';
 
 import { convertFromDbRecord, convertToDbRecord } from 'sync-server/app/convertDbRecord';
-import * as hooks from 'shared/tasks/CreateLabRequestNotifications';
 import { createTestContext } from './utilities';
 import { SUPPORTED_CLIENT_VERSIONS } from '../app/middleware/versionCompatibility';
 
