@@ -3,7 +3,8 @@ import styled, { css } from 'styled-components';
 import { ENCOUNTER_TYPES } from 'shared/constants';
 import { Box, Typography } from '@material-ui/core';
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
-import { Notification, DateDisplay, LargeButton, Button } from '../../../components';
+import { Notification, DateDisplay, LargeButton } from '../../../components';
+import { DeathCertificateModal } from '../../../components/DeathCertificateModal';
 
 const PATIENT_STATUS = {
   INPATIENT: 'inpatient',
@@ -126,42 +127,40 @@ export const PatientEncounterSummary = ({
 }) => {
   if (patient.dateOfDeath) {
     // Todo: Complete patient landing screen for deceased patients once api for death workflow is done @see WAITM-31
-    return (
-      <Container>
-        <Notification message="This patient has a date of death recorded, but the patient death workflow is not yet supported in Tamanu Desktop. Please contact your system administrator for more information." />
-      </Container>
-    );
-
     // return (
-    //   <Container patientStatus={PATIENT_STATUS.DECEASED}>
-    //     <Header>
-    //       <Box display="flex" justifyContent="space-between" alignItems="center" flex="1">
-    //         <BoldTitle variant="h3">Deceased</BoldTitle>
-    //         <Button variant="contained" color="primary">
-    //           View death certificate
-    //         </Button>
-    //       </Box>
-    //     </Header>
-    //     <Content>
-    //       <ContentItem>
-    //         <ContentLabel>Location of death:</ContentLabel>
-    //         <ContentText>Fiji National Hospital</ContentText>
-    //       </ContentItem>
-    //       <ContentItem>
-    //         <ContentLabel>Clinician:</ContentLabel>
-    //         <ContentText>Dr Jane Brown</ContentText>
-    //       </ContentItem>
-    //       <ContentItem>
-    //         <ContentLabel>Underlying condition causing death:</ContentLabel>
-    //         <ContentText>Diabetes</ContentText>
-    //       </ContentItem>
-    //       <ContentItem>
-    //         <ContentLabel>Date of death:</ContentLabel>
-    //         <ContentText>23/11/2021</ContentText>
-    //       </ContentItem>
-    //     </Content>
+    //   <Container>
+    //     <Notification message="This patient has a date of death recorded, but the patient death workflow is not yet supported in Tamanu Desktop. Please contact your system administrator for more information." />
     //   </Container>
     // );
+
+    return (
+      <Container patientStatus={PATIENT_STATUS.DECEASED}>
+        <Header patientStatus={PATIENT_STATUS.DECEASED}>
+          <Box display="flex" justifyContent="space-between" alignItems="center" flex="1">
+            <BoldTitle variant="h3">Deceased</BoldTitle>
+            <DeathCertificateModal patient={patient} />
+          </Box>
+        </Header>
+        <Content>
+          <ContentItem>
+            <ContentLabel>Location of death:</ContentLabel>
+            <ContentText>Fiji National Hospital</ContentText>
+          </ContentItem>
+          <ContentItem>
+            <ContentLabel>Clinician:</ContentLabel>
+            <ContentText>Dr Jane Brown</ContentText>
+          </ContentItem>
+          <ContentItem>
+            <ContentLabel>Underlying condition causing death:</ContentLabel>
+            <ContentText>Diabetes</ContentText>
+          </ContentItem>
+          <ContentItem>
+            <ContentLabel>Date of death:</ContentLabel>
+            <ContentText>23/11/2021</ContentText>
+          </ContentItem>
+        </Content>
+      </Container>
+    );
   }
 
   if (!encounter) {
