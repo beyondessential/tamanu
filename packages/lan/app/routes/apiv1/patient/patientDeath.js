@@ -23,7 +23,7 @@ patientDeath.get(
     req.checkPermission('read', 'PatientDeath');
 
     const {
-      models: { Patient, DeathCause },
+      models: { DeathCause, Patient, PatientDeathData },
       params: { id: patientId },
     } = req;
 
@@ -36,14 +36,27 @@ patientDeath.get(
       return;
     }
 
-    const deathData = await patient.getPatientDeathData();
-    const primaryCause = await DeathCause.findByPk(deathData.primaryCauseId);
-    const secondaryCause = await DeathCause.findByPk(deathData.secondaryCauseId);
-    const contributingCauses = await DeathCause.findAll({
-      where: {
-        patientDeathDataId: deathData.id,
-        id: { [Op.notIn]: [deathData.primaryCauseId, deathData.secondaryCauseId] },
-      },
+    const deathData = await PatientDeathData.findOne({
+      where: { patientId },
+      include: [
+        {
+          model: DeathCause,
+          as: 'primaryCause',
+        },
+        {
+          model: DeathCause,
+          as: 'secondaryCause',
+        },
+        {
+          model: DeathCause,
+          as: 'contributingCauses',
+          where: {
+            id: {
+              [Op.notIn]: ['$primaryCause.id$', '$secondaryCause.id$'],
+            },
+          },
+        },
+      ],
     });
 
     res.send({
@@ -57,9 +70,9 @@ patientDeath.get(
 
       manner: deathData.manner,
       causes: {
-        primary: primaryCause ? exportCause(primaryCause) : null,
-        secondary: secondaryCause ? exportCause(secondaryCause) : null,
-        contributing: (contributingCauses ?? []).map(exportCause),
+        primary: deathData.primaryCause ? exportCause(deathData.primaryCause) : null,
+        secondary: deathData.secondaryCause ? exportCause(deathData.secondaryCause) : null,
+        contributing: (deathData.contributingCauses ?? []).map(exportCause),
         external:
           deathData.externalCauseDate ||
           deathData.externalCauseLocation ||

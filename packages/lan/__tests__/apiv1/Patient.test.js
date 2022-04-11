@@ -326,6 +326,42 @@ describe('Patient', () => {
     });
 
     test.todo('should return no death data for alive patient');
-    test.todo('should return death data for deceased patient');
+    it('should return death data for deceased patient', async () => {
+      const { Patient } = models;
+      const { id } = await Patient.create(fakePatient('alive-1'));
+      const { clinicianId, facilityId, cond1Id, cond2Id } = commons;
+
+      const dod = new Date('2021-09-01T00:00:00.000Z');
+      await app.post(`/v1/patient/${id}/death`).send({
+        clinicianId,
+        facilityId,
+        timeOfDeath: dod,
+        causeOfDeath: cond1Id,
+        causeOfDeathInterval: 100,
+        causeOfDeath2: cond2Id,
+        causeOfDeath2Interval: 120,
+        otherContributingConditions: cond2Id,
+        otherContributingConditionsInterval: 400,
+        surgeryInLast4Weeks: 'yes',
+        lastSurgeryDate: '2021-08-02T20:52:00.000Z',
+        lastSurgeryReason: cond1Id,
+        pregnant: 'no',
+        mannerOfDeath: 'Accident',
+        mannerOfDeathDate: '2021-08-31T12:00:00.000Z',
+        fetalOrInfant: 'yes',
+        stillborn: 'unknown',
+        birthWeight: 120,
+        numberOfCompletedPregnancyWeeks: 30,
+        ageOfMother: 21,
+        motherExistingCondition: cond1Id,
+        deathWithin24HoursOfBirth: 'yes',
+        numberOfHoursSurvivedSinceBirth: 12,
+      });
+
+      const result = await app.get(`/v1/patient/${id}/death`);
+
+      expect(result).toHaveSucceeded();
+      expect(result.body.dateOfDeath).toEqual(dod.toISOString());
+    });
   });
 });

@@ -95,6 +95,7 @@ export class PatientDeathData extends Model {
     // for "contributing" death causes but also includes the primary/secondary
     this.hasMany(models.DeathCause, {
       foreignKey: 'patientDeathDataId',
+      as: 'contributingCauses',
       constraints: false,
     });
   }
