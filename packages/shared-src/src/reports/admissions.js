@@ -119,7 +119,7 @@ const formatPlaceHistory = (history, placeType) =>
   history
     .map(
       ({ to, date }) =>
-        `${to} (${upperFirst(placeType)} change: ${format(date, 'dd/MM/yy h:mm a')})`,
+        `${to} (${upperFirst(placeType)} assigned: ${format(date, 'dd/MM/yy h:mm a')})`,
     )
     .join('; ');
 
