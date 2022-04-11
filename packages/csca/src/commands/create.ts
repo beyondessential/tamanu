@@ -6,16 +6,30 @@ import CA from '../ca';
 import { Profile, signerDefaultValidityDays, signerExtensions, signerWorkingDays } from '../ca/profile';
 import { ConfigFile, period } from '../ca/Config';
 import { CRL_URL_BASE, CSCA_PKUP, CSCA_VALIDITY } from '../ca/constants';
+import prompts from 'prompts';
 
-function lookupCountry(name: string): undefined | Country {
+function countryScore(country: Country, name: string): number {
   const nameRx = new RegExp(name, 'i');
-  return COUNTRIES.find(c => nameRx.test(c.name.common)
-    || nameRx.test(c.name.official)
-    || nameRx.test(c.cca2)
-    || nameRx.test(c.cca3)
-    || nameRx.test(c.cioc)
-    || Object.values(c.name.native).some(n => nameRx.test(n.common)
-      || nameRx.test(n.official)));
+  let score = 0;
+
+  if (nameRx.test(country.name.common)) score += 1;
+  if (nameRx.test(country.name.official)) score += 1;
+  if (nameRx.test(country.cca2)) score += 1;
+  if (nameRx.test(country.cca3)) score += 1;
+  if (nameRx.test(country.cioc)) score += 1;
+
+  for (const { common, official } of Object.values(country.name.native)) {
+    if (nameRx.test(common)) score += 1;
+    if (nameRx.test(official)) score += 1;
+  }
+
+  return score;
+}
+
+function lookupCountries(name: string): Country[] {
+  const matching = COUNTRIES.filter(c => countryScore(c, name) > 0);
+  matching.sort((a, b) => countryScore(b, name) - countryScore(a, name));
+  return matching;
 }
 
 function makeCAConfig(
@@ -72,7 +86,33 @@ async function run(countryName: string, options: {
   profile: string;
 }): Promise<void> {
   console.debug(`Looking up country info for ${countryName}`);
-  const country = lookupCountry(countryName);
+  const countries = lookupCountries(countryName);
+  let country: Country | undefined;
+  switch (countries.length) {
+    case 0:
+      console.warn(`Warning: no country found for ${countryName}, falling back to options`);
+      break;
+
+    case 1:
+      country = countries[0];
+      break;
+
+    default: {
+      const { value } = await prompts({
+        type: 'select',
+        name: 'value',
+        message: `Multiple countries found for ${countryName}, please select one`,
+        choices: countries.map(c => ({
+          title: c.name.common,
+          description: c.name.official,
+          value: c,
+        })),
+      });
+
+      country = value;
+    }
+  }
+
   const alpha3 = options.alpha3 || country?.cca3;
   const alpha2 = options.alpha2 || country?.cca2;
 
