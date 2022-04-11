@@ -24,7 +24,7 @@ export const REPORT_DEFINITIONS = [
     ],
   },
   {
-    name: 'Admissions history - Line list',
+    name: 'Admissions - Line list',
     id: 'admissions',
     parameters: [
       { parameterField: 'PractitionerField' },
