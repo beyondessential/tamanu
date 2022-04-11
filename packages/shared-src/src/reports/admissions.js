@@ -117,6 +117,26 @@ const formatPlaceHistory = (history, placeType) =>
     )
     .join('; ');
 
+const filterResults = async (models, results, parameters) => {
+  const { location, department } = parameters;
+  const { name: requiredLocation } = (await models.Location.findByPk(location)) ?? {};
+  const { name: requiredDepartment } = (await models.Department.findByPk(department)) ?? {};
+
+  const locationFilteredResults = requiredLocation
+    ? results.filter(result =>
+        result.locationHistory.map(({ to }) => to).includes(requiredLocation),
+      )
+    : results;
+
+  const departmentFilteredResults = requiredDepartment
+    ? locationFilteredResults.filter(result =>
+        result.departmentHistory.map(({ to }) => to).includes(requiredDepartment),
+      )
+    : locationFilteredResults;
+
+  return departmentFilteredResults;
+};
+
 async function queryAdmissionsData(models, parameters) {
   const results = (
     await models.Encounter.findAll({
@@ -146,42 +166,25 @@ async function queryAdmissionsData(models, parameters) {
   const encounterIds = results.map(({ id }) => id);
   const { locationChangeNotes, departmentChangeNotes } = await getAllNotes(models, encounterIds);
 
-  const { location, department } = parameters;
-  const { name: requiredLocation } = (await models.Location.findByPk(location)) ?? {};
-  const { name: requiredDepartment } = (await models.Department.findByPk(department)) ?? {};
+  const resultsWithHistory = results.map(result => ({
+    ...result,
+    locationHistory: getPlaceHistoryFromNotes(locationChangeNotes, result, 'location'),
+    departmentHistory: getPlaceHistoryFromNotes(departmentChangeNotes, result, 'department'),
+  }));
 
-  // const encounterIdsMatchingLocation = ['hi'];
-  // const encounterIdsMatchingDepartment = ['hi'];
+  const filteredResults = filterResults(models, resultsWithHistory, parameters);
 
-  return results
-    .map(result => ({
-      ...result,
-      locationHistory: getPlaceHistoryFromNotes(locationChangeNotes, result, 'location'),
-      departmentHistory: getPlaceHistoryFromNotes(departmentChangeNotes, result, 'department'),
-    }))
-    .filter(
-      result =>
-        !requiredLocation || result.locationHistory.map(({ to }) => to).includes(requiredLocation),
-    )
-    .filter(
-      result =>
-        !requiredDepartment ||
-        result.departmentHistory.map(({ to }) => to).includes(requiredDepartment),
-    )
-    .map(result => ({
-      ...result,
-      locationHistoryString: formatPlaceHistory(result.locationHistory, 'location'),
-      departmentHistoryString: formatPlaceHistory(result.departmentHistory, 'department'),
-      primaryDiagnoses: stringifyDiagnoses(result.diagnoses, true),
-      secondaryDiagnoses: stringifyDiagnoses(result.diagnoses, false),
-      requiredLocation,
-      requiredDepartment,
-    }));
+  return filteredResults.map(result => ({
+    ...result,
+    locationHistoryString: formatPlaceHistory(result.locationHistory, 'location'),
+    departmentHistoryString: formatPlaceHistory(result.departmentHistory, 'department'),
+    primaryDiagnoses: stringifyDiagnoses(result.diagnoses, true),
+    secondaryDiagnoses: stringifyDiagnoses(result.diagnoses, false),
+  }));
 }
 
 export async function dataGenerator({ models }, parameters) {
   const queryResults = await queryAdmissionsData(models, parameters);
-  console.log(queryResults);
   return generateReportFromQueryData(queryResults, reportColumnTemplate);
 }
 
