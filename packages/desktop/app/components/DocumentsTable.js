@@ -11,7 +11,8 @@ import { useElectron } from '../contexts/Electron';
 import { useApi } from '../api';
 import { notify, notifySuccess, notifyError } from '../utils';
 
-const ActionDropdown = React.memo(({ row, onDownload, onClickDelete }) => {
+const ActionDropdown = React.memo(({ row, onDownload }) => {
+  // { row, onDownload, onClickDelete }
   const actions = [
     {
       label: 'Download',
@@ -55,7 +56,7 @@ export const DocumentsTable = React.memo(
     const onConfirmDelete = useCallback(() => {
       // Only perform deletion if there is internet connection
       if (canInvokeDocumentAction()) {
-        console.log('Delete document TBD', selectedDocumentId);
+        console.log('Delete document TBD', selectedDocumentId); // eslint-disable-line no-console
       }
 
       // Close modal either way
@@ -98,8 +99,8 @@ export const DocumentsTable = React.memo(
     );
 
     // Define columns inside component to pass callbacks to getActions
-    const COLUMNS = useMemo(() => {
-      return [
+    const COLUMNS = useMemo(
+      () => [
         { key: 'name', title: 'Name' },
         { key: 'type', title: 'Type', accessor: getType },
         { key: 'documentUploadedAt', title: 'Upload', accessor: getUploadedDate },
@@ -120,8 +121,9 @@ export const DocumentsTable = React.memo(
           dontCallRowInput: true,
           sortable: false,
         },
-      ];
-    }, [onDownload, onClickDelete]);
+      ],
+      [onDownload, onClickDelete],
+    );
 
     return (
       <>

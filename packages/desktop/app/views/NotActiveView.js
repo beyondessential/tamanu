@@ -24,12 +24,10 @@ const InvisibleSyncButton = connectApi(api => ({
   },
 }))(InvisibleButton);
 
-export const NotActiveView = React.memo(() => {
-  return (
-    <>
-      <TopBar title="Not active yet" />
-      <Notification message="This section is not activated yet." />
-      <InvisibleSyncButton />
-    </>
-  );
-});
+export const NotActiveView = React.memo(() => (
+  <>
+    <TopBar title="Not active yet" />
+    <Notification message="This section is not activated yet." />
+    <InvisibleSyncButton />
+  </>
+));

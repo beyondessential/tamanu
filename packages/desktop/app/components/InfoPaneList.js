@@ -78,9 +78,12 @@ const AddEditForm = connectApi(
       dispatch(reloadPatient(patient.id));
       onClose();
     },
-    ...Object.fromEntries(Object.entries(suggesters).map(
-      ([key, options = {}]) => [`${key}Suggester`, new Suggester(api, key, options)]
-    ))
+    ...Object.fromEntries(
+      Object.entries(suggesters).map(([key, options = {}]) => [
+        `${key}Suggester`,
+        new Suggester(api, key, options),
+      ]),
+    ),
   }),
 )(
   memo(({ Form, item, onClose, ...restOfProps }) => (

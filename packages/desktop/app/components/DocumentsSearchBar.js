@@ -43,11 +43,9 @@ const renderSearchBar = ({ submitForm, clearForm }) => (
   </FormGrid>
 );
 
-export const DocumentsSearchBar = ({ setSearchParameters }) => {
-  return (
-    <StyledDiv>
-      <Label>Documents search</Label>
-      <Form onSubmit={values => setSearchParameters(values)} render={renderSearchBar} />
-    </StyledDiv>
-  );
-};
+export const DocumentsSearchBar = ({ setSearchParameters }) => (
+  <StyledDiv>
+    <Label>Documents search</Label>
+    <Form onSubmit={values => setSearchParameters(values)} render={renderSearchBar} />
+  </StyledDiv>
+);
