@@ -16,7 +16,7 @@ const convertAutocompleteAnswer = async (models, componentConfig, answer) => {
     return answer;
   }
 
-  return result[MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE[componentConfig.source]];
+  return result[MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE[componentConfig.source] || 'name'];
 };
 
 const convertBinaryToYesNo = answer => {
