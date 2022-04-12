@@ -111,9 +111,10 @@ const DataFetchingTriageStatisticsCard = memo(({ priorityLevel, fetchData }) => 
     p => parseInt(p.score, 10) === priorityLevel && p.encounterType === 'triage',
   );
   const timeSinceTriage = triageTime => Math.round(new Date() - new Date(triageTime));
-  const summedWaitTime = priorityLevelData.reduce((prev, curr) => {
-    return prev + timeSinceTriage(curr.triageTime);
-  }, 0);
+  const summedWaitTime = priorityLevelData.reduce(
+    (prev, curr) => prev + timeSinceTriage(curr.triageTime),
+    0,
+  );
   const averageWaitTime = summedWaitTime / priorityLevelData.length || 0;
 
   return (

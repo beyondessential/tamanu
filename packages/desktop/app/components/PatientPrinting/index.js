@@ -31,20 +31,18 @@ const PRINT_OPTIONS = {
   },
 };
 
-const PrintOptionList = ({ setCurrentlyPrinting }) => {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'row' }}>
-      {Object.entries(PRINT_OPTIONS).map(([type, { label, icon }]) => (
-        <PrintOption
-          key={type}
-          label={label}
-          onPress={() => setCurrentlyPrinting(type)}
-          icon={icon}
-        />
-      ))}
-    </div>
-  );
-};
+const PrintOptionList = ({ setCurrentlyPrinting }) => (
+  <div style={{ display: 'flex', flexDirection: 'row' }}>
+    {Object.entries(PRINT_OPTIONS).map(([type, { label, icon }]) => (
+      <PrintOption
+        key={type}
+        label={label}
+        onPress={() => setCurrentlyPrinting(type)}
+        icon={icon}
+      />
+    ))}
+  </div>
+);
 
 const PrintOptionButton = styled(Button)`
   background: ${Colors.white};

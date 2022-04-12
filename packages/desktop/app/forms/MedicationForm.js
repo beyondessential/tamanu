@@ -30,8 +30,8 @@ const drugRouteOptions = [
   { label: 'Vaginal', value: 'vaginal' },
 ];
 
-const validationSchema = readOnly => {
-  return !readOnly
+const validationSchema = readOnly =>
+  !readOnly
     ? yup.object().shape({
         medicationId: foreignKey('Medication must be selected'),
         prescriberId: foreignKey('Prescriber must be selected'),
@@ -43,15 +43,12 @@ const validationSchema = readOnly => {
         date: yup.date().required(),
         endDate: yup.date(),
         note: yup.string(),
-        quantity: yup
-          .number()
-          .integer(),
+        quantity: yup.number().integer(),
       })
     : yup.object().shape({
         discontinuingReason: yup.string(),
         discontinuingClinicianId: foreignKey('Clinician must be selected'),
       });
-};
 
 export const MedicationForm = React.memo(
   ({

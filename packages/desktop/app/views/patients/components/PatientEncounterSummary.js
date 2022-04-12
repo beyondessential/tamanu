@@ -3,7 +3,7 @@ import styled, { css } from 'styled-components';
 import { ENCOUNTER_TYPES } from 'shared/constants';
 import { Box, Typography } from '@material-ui/core';
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
-import { Notification, DateDisplay, LargeButton, Button } from '../../../components';
+import { Notification, DateDisplay, LargeButton } from '../../../components';
 
 const PATIENT_STATUS = {
   INPATIENT: 'inpatient',
