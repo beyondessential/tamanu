@@ -135,7 +135,7 @@ const PatientDeathSummary = React.memo(({ patient }) => {
 
   return (
     <Container patientStatus={PATIENT_STATUS.DECEASED}>
-      <Header>
+      <Header patientStatus={PATIENT_STATUS.DECEASED}>
         <Box display="flex" justifyContent="space-between" alignItems="center" flex="1">
           <BoldTitle variant="h3">Deceased</BoldTitle>
           <Button variant="contained" color="primary" disabled>
