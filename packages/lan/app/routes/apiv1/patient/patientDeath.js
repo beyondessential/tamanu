@@ -2,7 +2,6 @@ import config from 'config';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { InvalidOperationError, NotFoundError } from 'shared/errors';
-import { User } from 'shared/models/User';
 import * as yup from 'yup';
 
 export const patientDeath = express.Router();
@@ -137,7 +136,7 @@ patientDeath.post(
 
     const {
       db,
-      models: { Discharge, Patient, PatientDeathData, DeathCause },
+      models: { Discharge, Patient, PatientDeathData, DeathCause, User },
       params: { id: patientId },
     } = req;
 
