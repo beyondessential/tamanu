@@ -273,6 +273,7 @@ describe('PatientDocumentMetadata', () => {
 
     const result = await app.post(`/v1/patient/${patient.id}/documentMetadata`).send({
       name: 'test document',
+      type: 'application/pdf',
       documentOwner: 'someone',
       note: 'some note',
     });
