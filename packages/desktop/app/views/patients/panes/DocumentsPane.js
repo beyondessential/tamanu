@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Typography } from '@material-ui/core';
 import { promises as asyncFs } from 'fs';
-import { lookup } from 'mime-types';
+import { lookup as lookupMimeType } from 'mime-types';
 
 import { DocumentsTable } from '../../../components/DocumentsTable';
 import { Button } from '../../../components/Button';
@@ -95,7 +95,7 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
       try {
         // Read and inject document creation date and type to metadata sent
         const { birthtime } = await asyncFs.stat(file);
-        const type = lookup(file);
+        const type = lookupMimeType(file);
         await api.postWithFileUpload(endpoint, file, {
           ...data,
           type,
