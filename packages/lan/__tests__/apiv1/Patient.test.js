@@ -328,7 +328,7 @@ describe('Patient', () => {
     test.todo('should return no death data for alive patient');
     it('should return death data for deceased patient', async () => {
       const { Patient } = models;
-      const { id } = await Patient.create(fakePatient('alive-1'));
+      const { id, dateOfBirth } = await Patient.create(fakePatient('alive-1'));
       const { clinicianId, facilityId, cond1Id, cond2Id } = commons;
 
       const dod = new Date('2021-09-01T00:00:00.000Z');
@@ -362,6 +362,53 @@ describe('Patient', () => {
 
       expect(result).toHaveSucceeded();
       expect(result.body.dateOfDeath).toEqual(dod.toISOString());
+      expect(result.body).toMatchObject({
+        patientId: id,
+        clinicianId,
+        facilityId,
+
+        dateOfBirth: dateOfBirth.toISOString(),
+        dateOfDeath: dod.toISOString(),
+
+        manner: 'Accident',
+        causes: {
+          primary: {
+            conditionId: cond1Id,
+            timeAfterOnset: 100,
+          },
+          secondary: {
+            conditionId: cond2Id,
+            timeAfterOnset: 120,
+          },
+          contributing: [
+            {
+              conditionId: cond2Id,
+              timeAfterOnset: 400,
+            },
+          ],
+          external: {
+            date: '2021-08-31T12:00:00.000Z',
+          },
+        },
+
+        recentSurgery: {
+          date: '2021-08-02T20:52:00.000Z',
+          reasonId: cond1Id,
+        },
+
+        pregnancy: 'no',
+        fetalOrInfant: {
+          birthWeight: 120,
+          carrier: {
+            age: 21,
+            existingConditionId: cond1Id,
+            weeksPregnant: 30,
+          },
+          hoursSurvivedSinceBirth: 12,
+          stillborn: 'unknown',
+          withinDayOfBirth: true,
+        },
+      });
     });
   });
 });

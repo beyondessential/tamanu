@@ -31,6 +31,8 @@ patientDeath.get(
     if (!patient) throw new NotFoundError('Patient not found');
     if (!patient.dateOfDeath) {
       res.status(404).send({
+        patientId: patient.id,
+        dateOfBirth: patient.dateOfBirth,
         dateOfDeath: null,
       });
       return;
@@ -50,14 +52,14 @@ patientDeath.get(
         {
           model: DeathCause,
           as: 'contributingCauses',
-          where: {
-            id: {
-              [Op.notIn]: ['$primaryCause.id$', '$secondaryCause.id$'],
-            },
-          },
         },
       ],
     });
+
+    const contributingCauses =
+      deathData.contributingCauses?.filter(
+        c => ![deathData.primaryCause?.id, deathData.secondaryCause?.id].includes(c.id),
+      ) ?? [];
 
     res.send({
       patientId: patient.id,
@@ -72,7 +74,7 @@ patientDeath.get(
       causes: {
         primary: deathData.primaryCause ? exportCause(deathData.primaryCause) : null,
         secondary: deathData.secondaryCause ? exportCause(deathData.secondaryCause) : null,
-        contributing: (deathData.contributingCauses ?? []).map(exportCause),
+        contributing: contributingCauses.map(exportCause),
         external:
           deathData.externalCauseDate ||
           deathData.externalCauseLocation ||
@@ -89,7 +91,7 @@ patientDeath.get(
         deathData.recentSurgery === 'yes'
           ? {
               date: deathData.lastSurgeryDate,
-              reason: deathData.lastSurgeryReasonId,
+              reasonId: deathData.lastSurgeryReasonId,
             }
           : deathData.recentSurgery,
 
@@ -147,8 +149,8 @@ patientDeath.post(
       causeOfDeath2Interval: yup.number().default(0),
       causeOfDeathInterval: yup.number().default(0),
       clinicianId: yup.string().required(),
-      contributingConditions: yup.string(),
-      contributingConditionsInterval: yup.number().default(0),
+      otherContributingConditions: yup.string(),
+      otherContributingConditionsInterval: yup.number().default(0),
       deathWithin24HoursOfBirth: yesNo,
       facilityId: yup.string(),
       fetalOrInfant: yesNo.default('no'),
@@ -227,11 +229,11 @@ patientDeath.post(
         });
       }
 
-      if (body.contributingConditions) {
+      if (body.otherContributingConditions) {
         await DeathCause.create({
           patientDeathDataId: deathData.id,
-          conditionId: body.contributingConditions,
-          timeAfterOnset: body.contributingConditionsInterval,
+          conditionId: body.otherContributingConditions,
+          timeAfterOnset: body.otherContributingConditionsInterval,
         });
       }
 
