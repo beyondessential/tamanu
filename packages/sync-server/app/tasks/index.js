@@ -20,7 +20,7 @@ export async function startScheduledTasks(context) {
   ];
 
   
-  if (config.integrations.automaticLabTestResultPublisher.enabled) {
+  if (config.schedules.automaticLabTestResultPublisher.enabled) {
     taskClasses.push(AutomaticLabTestResultPublisher);
   }
 

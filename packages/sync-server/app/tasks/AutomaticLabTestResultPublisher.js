@@ -11,7 +11,7 @@ export class AutomaticLabTestResultPublisher extends ScheduledTask {
   }
 
   constructor(context) {
-    const { schedule, results } = config.integrations.automaticLabTestResultPublisher;
+    const { schedule, results } = config.schedules.automaticLabTestResultPublisher;
     super(schedule, log);
     this.results = results;
     this.models = context.store.models;
