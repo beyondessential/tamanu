@@ -1,3 +1,5 @@
+/* eslint-disable import/export */
+
 export * from './aefiSurvey';
 export * from './allergies';
 export * from './carePlan';
