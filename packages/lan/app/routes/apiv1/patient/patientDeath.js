@@ -4,7 +4,6 @@ import asyncHandler from 'express-async-handler';
 import { InvalidOperationError, NotFoundError } from 'shared/errors';
 import { User } from 'shared/models/User';
 import * as yup from 'yup';
-import { Op } from 'sequelize';
 
 export const patientDeath = express.Router();
 

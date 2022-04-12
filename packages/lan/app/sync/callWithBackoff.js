@@ -22,6 +22,7 @@ export const callWithBackoff = async (
   let attempt = 0;
   const overallStartMs = Date.now();
 
+  /* eslint-disable no-constant-condition */
   while (true) {
     attempt += 1;
     const attemptStartMs = Date.now();

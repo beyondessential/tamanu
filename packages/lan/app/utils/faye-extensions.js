@@ -1,10 +1,13 @@
 export const outgoing = ({ database, message, callback }) => {
+  const msg = message;
+
   const clientId = database.getSetting('CLIENT_ID');
   const clientSecret = database.getSetting('CLIENT_SECRET');
   if (clientId !== '' && clientSecret !== '') {
-    message.ext = { clientId, clientSecret };
+    msg.ext = { clientId, clientSecret };
   } else {
-    message.error = 'invalid request';
+    msg.error = 'invalid request';
   }
-  callback(message);
+
+  callback(msg);
 };
