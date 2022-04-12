@@ -2,7 +2,6 @@ import { createTestContext } from './utilities';
 import { AutomaticLabTestResultPublisher } from '../app/tasks/AutomaticLabTestResultPublisher';
 import { createDummyPatient } from 'shared/demoData/patients';
 import { LAB_REQUEST_STATUSES } from 'shared/constants';
-import { result } from 'lodash';
 
 const testConfig = {
   "enabled": true,

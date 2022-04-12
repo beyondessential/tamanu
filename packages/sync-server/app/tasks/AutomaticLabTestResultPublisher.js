@@ -1,5 +1,5 @@
 import config from 'config';
-import { LAB_REQUEST_STATUSES, LAB_TEST_STATUSES } from 'shared/constants';
+import { LAB_REQUEST_STATUSES } from 'shared/constants';
 
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
@@ -27,7 +27,7 @@ export class AutomaticLabTestResultPublisher extends ScheduledTask {
       where: {
         result: '',
         labTestTypeId: labTestIds,
-        '$labRequest.status$': LAB_TEST_STATUSES.RECEPTION_PENDING,
+        '$labRequest.status$': LAB_REQUEST_STATUSES.RECEPTION_PENDING,
       },
       include: ['labTestType', 'labRequest'],
       limit: this.limit,
