@@ -22,6 +22,16 @@
 
 - (left blank)
 
+## v1.14.2
+
+### Features ⭐
+
+- Add task to automatically result + publish some lab tests
+
+### Bug fixes 🐛
+
+- Fix issue that was causing lab tests and requests to revert some fields
+
 ## v1.14.1
 
 ### Manual steps required after upgrade ⚙
