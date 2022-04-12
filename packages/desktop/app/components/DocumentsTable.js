@@ -11,7 +11,8 @@ import { useElectron } from '../contexts/Electron';
 import { useApi } from '../api';
 import { notify, notifySuccess, notifyError } from '../utils';
 
-const ActionDropdown = React.memo(({ row, onDownload }) => {
+// eslint-disable-next-line no-unused-vars
+const ActionDropdown = React.memo(({ row, onDownload, onClickDelete }) => {
   // { row, onDownload, onClickDelete }
   const actions = [
     {
