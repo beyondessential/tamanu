@@ -1,5 +1,5 @@
-import { importData } from '~/admin/importDataDefinition';
-import { preprocessRecordSet } from '~/admin/preprocessRecordSet';
+import { importData } from '../app/admin/importDataDefinition';
+import { preprocessRecordSet } from '../app/admin/preprocessRecordSet';
 import { createTestContext } from './utilities';
 
 const TEST_DATA_PATH = './__tests__/importers/test_definitions.xlsx';
@@ -88,6 +88,16 @@ describe('Data definition import', () => {
   it('should import lab test type records', () => {
     const { records } = resultInfo.stats;
     expect(records).toHaveProperty('labTestType', 10);
+  });
+
+  it('should import scheduled vaccine records', () => {
+    const { records } = resultInfo.stats;
+    expect(records).toHaveProperty('scheduledVaccine', 1);
+  });
+
+  it('should import administered vaccine records', () => {
+    const { records } = resultInfo.stats;
+    expect(records).toHaveProperty('encounter:administeredVaccine', 2);
   });
 
   it('should report an error if an FK search comes up empty', () => {

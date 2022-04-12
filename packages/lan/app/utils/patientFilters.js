@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { makeFilter } from '~/utils/query';
+import { makeFilter } from './query';
 
 export const createPatientFilters = filterParams => {
   const filters = [

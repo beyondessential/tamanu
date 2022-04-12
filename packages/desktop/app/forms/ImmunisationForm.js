@@ -150,19 +150,20 @@ export const ImmunisationForm = React.memo(
                 required
               />
             </FullWidthCol>
-            <Field
-              name="category"
-              label="Category"
-              value={category}
-              component={RadioField}
-              style={{ gridColumn: '1/-1' }}
-              options={VaccineScheduleOptions}
-              onChange={e => {
-                setCategory(e.target.value);
-                setVaccineLabel(null);
-              }}
-              required
-            />
+            <FullWidthCol>
+              <Field
+                name="category"
+                label="Category"
+                value={category}
+                component={RadioField}
+                options={VaccineScheduleOptions}
+                onChange={e => {
+                  setCategory(e.target.value);
+                  setVaccineLabel(null);
+                }}
+                required
+              />
+            </FullWidthCol>
             <FullWidthCol>
               <Field
                 name="vaccineLabel"

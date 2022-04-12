@@ -13,6 +13,7 @@ export const serversRouter = express.Router();
 // Servers are ordered first by type, then alphabetically.
 const servers = [
   // live servers
+  { name: 'Aspen Medical Fiji', type: 'live', host: 'https://syncba.aspenmedical.com.fj' },
   { name: 'Fiji', type: 'live', host: 'https://sync.tamanu-fiji.org' },
   { name: 'Fiji NCD', type: 'live', host: 'https://sync-ncd-pilot.tamanu-fiji.org' },
   { name: 'Fiji Tourism', type: 'live', host: 'https://sync-tourism.tamanu-fiji.org' },
@@ -21,11 +22,6 @@ const servers = [
     name: 'Motivation Australia - Papua New Guinea',
     type: 'live',
     host: 'https://motivation-sync-png.tamanu.io',
-  },
-  {
-    name: 'Motivation Australia - India',
-    type: 'live',
-    host: 'https://motivation-sync-india.tamanu.io',
   },
   { name: 'Nauru', type: 'live', host: 'https://sync.tamanu-nauru.org' },
   { name: 'Palau', type: 'live', host: 'https://sync.tamanu-palau.org' },

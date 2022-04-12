@@ -1,15 +1,29 @@
 import React, { ReactElement } from 'react';
-import { Button } from '/components/Button';
-import { theme } from '/styled/theme';
-import { TouchableProps } from '/interfaces/TouchableProps';
+import { StyledTouchableOpacity } from '/styled/common';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { PencilIcon } from '/components/Icons';
 
-export const EditButton = ({ onPress }: TouchableProps): ReactElement => (
-  <Button
-    textColor={theme.colors.TEXT_SUPER_DARK}
-    backgroundColor="#EEEEEE"
-    width={62}
-    height={34}
-    buttonText="Edit"
+interface EditButtonProps {
+  sectionTitle: string;
+  onPress: () => void;
+}
+
+const createTestID = (sectionTitle: string): string => {
+  const lowercaseSectionTitle = sectionTitle.toLowerCase();
+
+  // Adds 'edit' prefix and replaces spaces for hyphens
+  return `edit-${lowercaseSectionTitle.replace(/ /g, '-')}`;
+};
+
+export const EditButton = ({ sectionTitle, onPress }: EditButtonProps): ReactElement => (
+  <StyledTouchableOpacity
+    testID={createTestID(sectionTitle)}
+    accessibilityLabel={`Edit ${sectionTitle}`}
     onPress={onPress}
-  />
+  >
+    <PencilIcon
+      height={screenPercentageToDP('2.5', Orientation.Height)}
+      width={screenPercentageToDP('2.5', Orientation.Height)}
+    />
+  </StyledTouchableOpacity>
 );

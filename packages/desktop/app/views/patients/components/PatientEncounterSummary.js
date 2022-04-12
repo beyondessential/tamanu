@@ -1,10 +1,9 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { ENCOUNTER_TYPES } from 'shared/constants';
 import { Box, Typography } from '@material-ui/core';
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
-import { LargeButton, Button } from '../../../components/Button';
-import { DateDisplay } from '../../../components/DateDisplay';
+import { Notification, DateDisplay, LargeButton, Button } from '../../../components';
 
 const PATIENT_STATUS = {
   INPATIENT: 'inpatient',
@@ -16,41 +15,54 @@ const PATIENT_STATUS = {
 const PATIENT_STATUS_COLORS = {
   [PATIENT_STATUS.INPATIENT]: Colors.safe, // Green
   [PATIENT_STATUS.OUTPATIENT]: Colors.secondary, // Yellow
-  [PATIENT_STATUS.EMERGENCY]: Colors.alert, // Red
+  [PATIENT_STATUS.EMERGENCY]: Colors.orange, // Orange
   [PATIENT_STATUS.DECEASED]: Colors.midText, // grey
   [undefined]: Colors.primary, // Blue
 };
 
 const ENCOUNTER_TYPE_TO_STATUS = {
   [ENCOUNTER_TYPES.ADMISSION]: PATIENT_STATUS.INPATIENT,
-  [ENCOUNTER_TYPES.CLINIC]: PATIENT_STATUS.INPATIENT,
+  [ENCOUNTER_TYPES.CLINIC]: PATIENT_STATUS.OUTPATIENT,
   [ENCOUNTER_TYPES.IMAGING]: PATIENT_STATUS.OUTPATIENT,
   [ENCOUNTER_TYPES.OBSERVATION]: PATIENT_STATUS.OUTPATIENT,
   [ENCOUNTER_TYPES.EMERGENCY]: PATIENT_STATUS.EMERGENCY,
   [ENCOUNTER_TYPES.TRIAGE]: PATIENT_STATUS.EMERGENCY,
 };
 
-const Container = styled.div`
-  margin: 1rem;
+const Border = css`
   border: 1px solid ${Colors.outline};
-  border-left: 5px solid ${props => PATIENT_STATUS_COLORS[props.patientStatus]};
-  border-radius: 5px;
-  background: ${Colors.white};
+  border-left: 10px solid ${props => PATIENT_STATUS_COLORS[props.patientStatus]};
+  border-radius: 10px;
 `;
 
-const NoVisitContainer = styled(Container)`
+const Container = styled.div`
+  ${Border};
+  margin: 1rem;
+  background: ${Colors.white};
+  transition: color 0.2s ease;
+
+  &:hover {
+    cursor: pointer;
+    background: ${Colors.offWhite};
+  }
+`;
+
+const NoVisitContainer = styled.div`
+  ${Border};
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 30px;
+  background: ${Colors.white};
+  margin: 1rem;
+  padding: 28px 30px;
 `;
 
 const Header = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
-  padding: 16px 20px 16px 16px;
-  border-bottom: 1px solid ${Colors.outline};
+  padding: 18px 20px 18px 16px;
+  border-bottom: 1px solid ${props => PATIENT_STATUS_COLORS[props.patientStatus]};
 `;
 
 const Content = styled.div`
@@ -113,38 +125,43 @@ export const PatientEncounterSummary = ({
   encounter,
 }) => {
   if (patient.dateOfDeath) {
+    // Todo: Complete patient landing screen for deceased patients once api for death workflow is done @see WAITM-31
     return (
-      <Container patientStatus={PATIENT_STATUS.DECEASED}>
-        <Header>
-          <Box display="flex">
-            <BoldTitle variant="h3">Deceased</BoldTitle>
-          </Box>
-          <Box>
-            <Button variant="contained" color="primary">
-              View death certificate
-            </Button>
-          </Box>
-        </Header>
-        <Content>
-          <ContentItem>
-            <ContentLabel>Location of death:</ContentLabel>
-            <ContentText>Fiji National Hospital</ContentText>
-          </ContentItem>
-          <ContentItem>
-            <ContentLabel>Clinician:</ContentLabel>
-            <ContentText>Dr Jane Brown</ContentText>
-          </ContentItem>
-          <ContentItem>
-            <ContentLabel>Underlying condition causing death:</ContentLabel>
-            <ContentText>Diabetes</ContentText>
-          </ContentItem>
-          <ContentItem>
-            <ContentLabel>Date of death:</ContentLabel>
-            <ContentText>23/11/2021</ContentText>
-          </ContentItem>
-        </Content>
+      <Container>
+        <Notification message="This patient has a date of death recorded, but the patient death workflow is not yet supported in Tamanu Desktop. Please contact your system administrator for more information." />
       </Container>
     );
+
+    // return (
+    //   <Container patientStatus={PATIENT_STATUS.DECEASED}>
+    //     <Header>
+    //       <Box display="flex" justifyContent="space-between" alignItems="center" flex="1">
+    //         <BoldTitle variant="h3">Deceased</BoldTitle>
+    //         <Button variant="contained" color="primary">
+    //           View death certificate
+    //         </Button>
+    //       </Box>
+    //     </Header>
+    //     <Content>
+    //       <ContentItem>
+    //         <ContentLabel>Location of death:</ContentLabel>
+    //         <ContentText>Fiji National Hospital</ContentText>
+    //       </ContentItem>
+    //       <ContentItem>
+    //         <ContentLabel>Clinician:</ContentLabel>
+    //         <ContentText>Dr Jane Brown</ContentText>
+    //       </ContentItem>
+    //       <ContentItem>
+    //         <ContentLabel>Underlying condition causing death:</ContentLabel>
+    //         <ContentText>Diabetes</ContentText>
+    //       </ContentItem>
+    //       <ContentItem>
+    //         <ContentLabel>Date of death:</ContentLabel>
+    //         <ContentText>23/11/2021</ContentText>
+    //       </ContentItem>
+    //     </Content>
+    //   </Container>
+    // );
   }
 
   if (!encounter) {
@@ -163,17 +180,10 @@ export const PatientEncounterSummary = ({
   const patientStatus = ENCOUNTER_TYPE_TO_STATUS[encounterType];
 
   return (
-    <Container patientStatus={patientStatus}>
-      <Header>
-        <Box display="flex">
-          <BoldTitle variant="h3">Type:</BoldTitle>
-          <Title variant="h3">{ENCOUNTER_OPTIONS_BY_VALUE[encounterType].label}</Title>
-        </Box>
-        <Box>
-          <Button variant="contained" color="primary" onClick={() => viewEncounter(id)}>
-            View
-          </Button>
-        </Box>
+    <Container patientStatus={patientStatus} onClick={() => viewEncounter(id)}>
+      <Header patientStatus={patientStatus}>
+        <BoldTitle variant="h3">Type:</BoldTitle>
+        <Title variant="h3">{ENCOUNTER_OPTIONS_BY_VALUE[encounterType].label}</Title>
       </Header>
       <Content>
         <ContentItem>

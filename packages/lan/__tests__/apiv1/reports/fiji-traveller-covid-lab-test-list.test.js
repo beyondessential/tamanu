@@ -1,17 +1,14 @@
-import { randomLabRequest } from 'shared/demoData/labRequests';
-import {
-  createDummyEncounter,
-  createDummyPatient,
-  randomReferenceId,
-} from 'shared/demoData/patients';
+import { createDummyEncounter } from 'shared/demoData/patients';
 import { createTestContext } from '../../utilities';
-import { Op } from 'sequelize';
+import {
+  createCovidTestForPatient,
+  createLabTests,
+  createPatient,
+} from './covid-swab-lab-test-report-utils';
 
 const REPORT_URL = '/v1/reports/fiji-traveller-covid-lab-test-list';
 const PROGRAM_ID = 'program-fijicovidtourism';
 const SURVEY_ID = 'program-fijicovidtourism-fijicovidtravform';
-const LAB_CATEGORY_ID = 'labTestCategory-COVID';
-const LAB_METHOD_ID = 'labTestMethod-SWAB';
 
 const REPORT_COLUMNS = [
   'Patient first name',
@@ -42,7 +39,6 @@ const REPORT_COLUMNS = [
   'Name of person conducting the test',
   'International traveller or non-international traveller',
   'Hotel or international border worker',
-  'Travel Details',
   'Passport number',
   'Nationality on passport',
   'Purpose of test for international traveller',
@@ -56,15 +52,12 @@ const REPORT_COLUMNS = [
   'Reason for test',
 ];
 
+/**
+ * dataRow should start at 1, row 0 contains header names
+ */
 function getDataForColumn(report, columnName, dataRow) {
   const columnIndex = REPORT_COLUMNS.findIndex(c => c === columnName);
-  // dataRow should start at 1, row 0 contains header names
   return report[dataRow][columnIndex];
-}
-
-async function createPatient(models) {
-  const villageId = await randomReferenceId(models, 'village');
-  return await models.Patient.create(await createDummyPatient(models, { villageId }));
 }
 
 async function createTravellerSurvey(models) {
@@ -157,58 +150,6 @@ async function createTravellerSurvey(models) {
   ]);
 }
 
-async function createLabTests(models) {
-  const existingCategories = await models.ReferenceData.findAll({
-    where: {
-      id: LAB_CATEGORY_ID,
-    },
-  });
-  if (!existingCategories.length) {
-    await models.ReferenceData.create({
-      type: 'labTestCategory',
-      id: LAB_CATEGORY_ID,
-      code: 'COVID-19',
-      name: 'COVID-19',
-    });
-  }
-  const existingMethods = await models.ReferenceData.findAll({
-    where: {
-      id: LAB_METHOD_ID,
-    },
-  });
-  if (!existingMethods.length) {
-    await models.ReferenceData.create({
-      type: 'labTestMethod',
-      id: LAB_METHOD_ID,
-      code: 'METHOD-SWAB',
-      name: 'Swab',
-    });
-  }
-}
-
-async function createCovidTestForPatient(models, patient, testDate) {
-  if (!testDate) {
-    testDate = new Date().toISOString();
-  }
-  const encounter = await models.Encounter.create(
-    await createDummyEncounter(models, { patientId: patient.id }),
-  );
-  const labRequestData = await randomLabRequest(models, {
-    labTestCategoryId: LAB_CATEGORY_ID,
-    patientId: patient.id,
-    requestedDate: testDate,
-    encounterId: encounter.id,
-  });
-  const labRequest = await models.LabRequest.create(labRequestData);
-  await models.LabTest.create({
-    labTestTypeId: labRequestData.labTestTypeIds[0],
-    labRequestId: labRequest.id,
-    date: testDate,
-    labTestMethodId: LAB_METHOD_ID,
-  });
-  return labRequest;
-}
-
 async function createFormAnswerForPatient(app, models, patient, formData) {
   if (!formData.formDate) {
     formData.formDate = new Date().toISOString();
@@ -237,6 +178,7 @@ describe('Fiji traveller covid lab test report', () => {
   beforeAll(async () => {
     testContext = await createTestContext();
   });
+  afterAll(() => testContext.close());
 
   it('should reject creating a report with insufficient permissions', async () => {
     const noPermsApp = await testContext.baseApp.asRole('base');
@@ -310,7 +252,6 @@ describe('Fiji traveller covid lab test report', () => {
 
     it('should return results for multiple patients', async () => {
       const testBrand = 'Rapid Test';
-      const timePart = 'T00:00:00.000Z';
       await createCovidTestForPatient(testContext.models, expectedPatient1);
       await createFormAnswerForPatient(app, testContext.models, expectedPatient1, {
         testBrand,

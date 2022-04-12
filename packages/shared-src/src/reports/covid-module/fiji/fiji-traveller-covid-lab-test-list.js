@@ -21,7 +21,7 @@ const SURVEY_QUESTION_CODES = {
   arrivalDate: 'pde-FijCOVRDT010',
   originCountry: 'pde-FijCOVRDT012',
   arrivalFlight: 'pde-FijCOVRDT011',
-  departureDate: 'pde-pde-FijCOVRDT013',
+  departureDate: 'pde-FijCOVRDT013',
   departureFlight: 'pde-FijCOVRDT014',
   departureDestination: 'pde-FijCOVRDT015',
   rapidTestsBrand: 'pde-FijCOVRDT003b',
@@ -69,7 +69,11 @@ const reportColumnTemplate = [
   { title: 'Testing laboratory', accessor: data => data.testingLaboratory },
   { title: 'Testing date', accessor: data => data.testingDate },
   // from survey
-  { title: 'Name of the facility where test is being conducted (hotel, resort or private testing facility)',  accessor: data => data.testFacility },
+  {
+    title:
+      'Name of the facility where test is being conducted (hotel, resort or private testing facility)',
+    accessor: data => data.testFacility,
+  },
   { title: 'Address in Fiji', accessor: data => data.fijiAddress },
   { title: 'Sub-division of address', accessor: data => data.subDivisionAddress },
   { title: 'Phone contact', accessor: data => data.phone },
@@ -78,9 +82,11 @@ const reportColumnTemplate = [
   { title: 'Date of first symptom', accessor: data => data.firstSymptomDate },
   { title: 'Symptoms', accessor: data => data.symptoms },
   { title: 'Name of person conducting the test', accessor: data => data.personConductingTest },
-  { title: 'International traveller or non-international traveller', accessor: data => data.internationalTraveller },
+  {
+    title: 'International traveller or non-international traveller',
+    accessor: data => data.internationalTraveller,
+  },
   { title: 'Hotel or international border worker', accessor: data => data.hotelBorderWorker },
-  { title: 'Travel Details', accessor: data => data.travelDetails },
   { title: 'Passport number', accessor: data => data.passport },
   { title: 'Nationality on passport', accessor: data => data.passportNationality },
   { title: 'Purpose of test for international traveller', accessor: data => data.testPurpose },
@@ -91,7 +97,7 @@ const reportColumnTemplate = [
   { title: 'Departure flight number or vessel name', accessor: data => data.departureFlight },
   { title: 'Destination', accessor: data => data.departureDestination },
   { title: 'Brand of Rapid Antigen Test', accessor: data => data.rapidTestsBrand },
-  { title: 'Reason for test', accessor: data => data.reasonForTest }
+  { title: 'Reason for test', accessor: data => data.reasonForTest },
 ];
 
 export const dataGenerator = async ({ models }, parameters = {}) => {

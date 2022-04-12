@@ -18,6 +18,7 @@ import * as fijiCovidSwabLabTestList from './covid-module/fiji/fiji-covid-swab-l
 import * as fijiTravellerCovidLabTestList from './covid-module/fiji/fiji-traveller-covid-lab-test-list';
 import * as palauCovidSwabLabTestList from './covid-module/palau/palau-covid-swab-lab-test-list';
 import * as kiribatiCovidSwabLabTestList from './covid-module/kiribati/kiribati-covid-swab-lab-test-list';
+import * as samoaCovidSwabLabTestList from './covid-module/samoa/samoa-covid-swab-lab-test-list';
 import * as covidSwabLabTestsSummary from './covid-module/covid-swab-lab-tests-summary';
 import * as indiaAssistiveTechnologyDeviceLineList from './india-assistive-technology-device-line-list';
 import * as iraqAssistiveTechnologyDeviceLineList from './iraq-assistive-technology-device-line-list';
@@ -27,6 +28,7 @@ import * as fijiRecentAttendanceList from './fiji-recent-attendance-list';
 import * as fijiNcdPrimaryScreeningLineList from './fiji-ncd-primary-screening/fiji-ncd-primary-screening-line-list';
 import * as fijiNcdPrimaryScreeningPendingReferralsLineList from './fiji-ncd-primary-screening/fiji-ncd-primary-screening-pending-referrals-line-list';
 import * as fijiNcdPrimaryScreeningSummary from './fiji-ncd-primary-screening/fiji-ncd-primary-screening-summary';
+import * as fijiStatisticalReportForPhisSummary from './fiji-statistical-report-for-phis-summary';
 
 export function getReportModule(reportType) {
   switch (reportType) {
@@ -72,6 +74,8 @@ export function getReportModule(reportType) {
       return palauCovidSwabLabTestList;
     case 'kiribati-covid-swab-lab-test-list':
       return kiribatiCovidSwabLabTestList;
+    case 'samoa-covid-swab-lab-test-list':
+      return samoaCovidSwabLabTestList;
     case 'covid-swab-lab-tests-summary':
       return covidSwabLabTestsSummary;
     case 'india-assistive-technology-device-line-list':
@@ -90,6 +94,8 @@ export function getReportModule(reportType) {
       return fijiNcdPrimaryScreeningPendingReferralsLineList;
     case 'fiji-ncd-primary-screening-summary':
       return fijiNcdPrimaryScreeningSummary;
+    case 'fiji-statistical-report-for-phis-summary':
+      return fijiStatisticalReportForPhisSummary;
   }
 }
 

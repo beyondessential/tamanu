@@ -26,7 +26,21 @@ export const REPORT_DEFINITIONS = [
   {
     name: 'Admissions Report',
     id: 'admissions',
-    parameters: [{ parameterField: 'PractitionerField' }],
+    parameters: [
+      { parameterField: 'PractitionerField' },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Location',
+        name: 'location',
+        suggesterEndpoint: 'location',
+      },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Department',
+        name: 'department',
+        suggesterEndpoint: 'department',
+      },
+    ],
   },
   {
     name: 'Vaccine - Line list',
@@ -108,6 +122,12 @@ export const REPORT_DEFINITIONS = [
     name: 'Kiribati COVID-19 Test - Line list',
     id: 'kiribati-covid-swab-lab-test-list',
     allFacilities: true,
+  },
+  {
+    name: 'Samoa COVID-19 Test - Line list',
+    id: 'samoa-covid-swab-lab-test-list',
+    allFacilities: true,
+    parameters: [{ parameterField: 'VillageField' }, { parameterField: 'LabTestLaboratoryField' }],
   },
   {
     name: 'COVID-19 Tests - Summary',
@@ -232,6 +252,32 @@ export const REPORT_DEFINITIONS = [
     ],
   },
   {
+    name: 'Fiji Statistical Report for PHIS - Summary',
+    id: 'fiji-statistical-report-for-phis-summary',
+    allFacilities: true,
+    parameters: [
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Division',
+        name: 'division',
+        suggesterEndpoint: 'division',
+      },
+      { parameterField: 'VillageField' },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Medical Area',
+        name: 'medicalArea',
+        suggesterEndpoint: 'medicalArea',
+      },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Nursing Zone',
+        name: 'nursingZone',
+        suggesterEndpoint: 'nursingZone',
+      },
+    ],
+  },
+  {
     name: 'Fiji Aspen encounter summary - Line list',
     id: 'fiji-aspen-encounter-summary-line-list',
     allFacilities: false,
@@ -241,6 +287,18 @@ export const REPORT_DEFINITIONS = [
         label: 'Patient Billing Type',
         name: 'patientBillingType',
         suggesterEndpoint: 'patientBillingType',
+      },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Department',
+        name: 'department',
+        suggesterEndpoint: 'department',
+      },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Location',
+        name: 'location',
+        suggesterEndpoint: 'location',
       },
     ],
   },

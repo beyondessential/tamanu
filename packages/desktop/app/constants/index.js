@@ -41,6 +41,7 @@ export const Colors = {
   primaryDark: '#2f4358',
   secondary: '#ffcc24',
   alert: '#f76853',
+  orange: '#f17f16',
   safe: '#47ca80',
   darkestText: '#444444',
   darkText: '#666666',
@@ -364,18 +365,6 @@ export const LOCAL_STORAGE_KEYS = {
   LOCALISATION: 'localisation',
   SERVER: 'server',
   REMEMBER_EMAIL: 'remember-email',
-};
-
-export const VACCINE_STATUS = {
-  UNKNOWN: 'UNKNOWN',
-  GIVEN: 'GIVEN',
-  NOT_GIVEN: 'NOT_GIVEN',
-  SCHEDULED: 'SCHEDULED',
-  MISSED: 'MISSED',
-  DUE: 'DUE',
-  UPCOMING: 'UPCOMING',
-  OVERDUE: 'OVERDUE',
-  RECORDED_IN_ERROR: 'RECORDED_IN_ERROR',
 };
 
 export const REPORT_DATA_SOURCES = {

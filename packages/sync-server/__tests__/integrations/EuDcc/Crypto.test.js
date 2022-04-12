@@ -6,7 +6,7 @@ import {
   loadCertificateIntoSigner,
   newKeypairAndCsr,
   TestCSCA,
-} from 'sync-server/app/integrations/VdsNc';
+} from 'sync-server/app/integrations/Signer';
 import { expect } from 'chai';
 import { getLocalisation } from 'sync-server/app/localisation';
 
