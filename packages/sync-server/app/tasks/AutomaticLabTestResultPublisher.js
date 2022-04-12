@@ -19,10 +19,10 @@ export class AutomaticLabTestResultPublisher extends ScheduledTask {
 
   async run() {
 
-    // get relevant codes from config
+    // get relevant ids from config
     const labTestIds = Object.keys(this.results);
 
-    // get all pending lab tests with a relevant code
+    // get all pending lab tests with a relevant id
     const tests = await models.LabTestType.findAll({
       where: {
         status: LAB_TEST_STATUSES.RECEPTION_PENDING,
@@ -41,10 +41,6 @@ export class AutomaticLabTestResultPublisher extends ScheduledTask {
       `Auto-publishing ${count} lab tests...`,
     );
 
-    // for each one:
-    // - set its values
-    // - then publish it through script (to make sure the email gets triggered)
-    
     for (const test of tests) {
       try {
         await transaction(async () => {
@@ -66,11 +62,9 @@ export class AutomaticLabTestResultPublisher extends ScheduledTask {
 
           log.info(`Auto-published lab request ${labRequest.id} (${labRquest.displayId})`);
         });
-      } catch(e) {
+      } catch (e) {
         log.error(`Couldn't auto-publish lab request ${labRequest.id} (${labRquest.displayId})`, e);
       }
     }
-
-    log.info('AutomaticLabTestResultPublisher finished running');
   }
 }
