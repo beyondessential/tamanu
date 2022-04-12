@@ -114,7 +114,7 @@
     "signerWorkingPeriodChecker": {
       "schedule": "0 1 * * *"
     },
-    "automaticLabTestPublisher": {
+    "automaticLabTestResultPublisher": {
       "enabled": false,
       "schedule": "*/15 * * * *",
       "limit": 300,
