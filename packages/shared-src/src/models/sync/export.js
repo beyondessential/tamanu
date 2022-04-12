@@ -2,6 +2,7 @@ import { Sequelize, Op } from 'sequelize';
 import { without } from 'lodash';
 import { propertyPathsToTree } from './metadata';
 import { getSyncCursorFromRecord, syncCursorToWhereCondition } from './cursor';
+import { SYNC_CLS_NAMESPACE } from './clsNamespace';
 
 export const createExportPlan = (sequelize, channel) => {
   return sequelize.channelRouter(channel, (model, params, channelRoute) => {
@@ -40,46 +41,49 @@ const createExportPlanInner = (model, relationTree, query) => {
 };
 
 export const executeExportPlan = async (plan, { since, limit = 100 }) => {
-  const { syncClientMode } = plan.model;
+  return SYNC_CLS_NAMESPACE.runAndReturn(() => {
+    SYNC_CLS_NAMESPACE.set('isExporting', true);
+    const { syncClientMode } = plan.model;
 
-  // add clauses to where query
-  const whereClauses = [];
-  if (plan.query.where) {
-    whereClauses.push(plan.query.where);
-  }
-  if (syncClientMode) {
-    // only push marked records in server mode
-    whereClauses.push({
-      // records that were marked by the client (e.g. SyncManager)
-      // done to avoid a race condition when setting markedForPush
-      isPushing: true,
-    });
-  }
-  if (since) {
-    whereClauses.push(syncCursorToWhereCondition(since));
-  }
+    // add clauses to where query
+    const whereClauses = [];
+    if (plan.query.where) {
+      whereClauses.push(plan.query.where);
+    }
+    if (syncClientMode) {
+      // only push marked records in server mode
+      whereClauses.push({
+        // records that were marked by the client (e.g. SyncManager)
+        // done to avoid a race condition when setting markedForPush
+        isPushing: true,
+      });
+    }
+    if (since) {
+      whereClauses.push(syncCursorToWhereCondition(since));
+    }
 
-  // build options
-  const options = {
-    order: [
-      // order by clause must remain consistent for the sync cursor to work - don't change!
-      ['updated_at', 'ASC'],
-      ['id', 'ASC'],
-    ],
-    where: {
-      [Op.and]: whereClauses,
-    },
-    include: plan.query.include,
-  };
-  if (!syncClientMode) {
-    // load deleted records in server mode
-    options.paranoid = false;
-  }
-  if (limit) {
-    options.limit = limit;
-  }
+    // build options
+    const options = {
+      order: [
+        // order by clause must remain consistent for the sync cursor to work - don't change!
+        ['updated_at', 'ASC'],
+        ['id', 'ASC'],
+      ],
+      where: {
+        [Op.and]: whereClauses,
+      },
+      include: plan.query.include,
+    };
+    if (!syncClientMode) {
+      // load deleted records in server mode
+      options.paranoid = false;
+    }
+    if (limit) {
+      options.limit = limit;
+    }
 
-  return executeExportPlanInner(plan, options);
+    return executeExportPlanInner(plan, options);
+  });
 };
 
 const executeExportPlanInner = async (plan, options) => {

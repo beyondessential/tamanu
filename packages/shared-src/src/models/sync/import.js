@@ -1,6 +1,7 @@
 import { Sequelize, Op } from 'sequelize';
 import { chunk, flatten, without, pick, pickBy } from 'lodash';
 import { propertyPathsToTree } from './metadata';
+import { SYNC_CLS_NAMESPACE } from './clsNamespace';
 
 // SQLite < v3.32 has a hard limit of 999 bound parameters per query
 // see https://www.sqlite.org/limits.html for more
@@ -51,32 +52,35 @@ const createImportPlanInner = (model, relationTree, validateRecord) => {
 export const executeImportPlan = async (plan, syncRecords) => {
   const { model, validateRecord } = plan;
 
-  return model.sequelize.transaction(async () => {
-    // split records into create, update, delete
-    const idsForDelete = syncRecords.filter(r => r.isDeleted).map(r => r.data.id);
-    const idsForUpsert = syncRecords.filter(r => !r.isDeleted && r.data.id).map(r => r.data.id);
-    const existing = await model.findByIds(idsForUpsert);
-    const existingIdSet = new Set(existing.map(e => e.id));
-    const recordsForCreate = syncRecords
-      .filter(r => !r.isDeleted && !existingIdSet.has(r.data.id))
-      .map(({ data }) => {
-        validateRecord(data, null);
-        return data;
-      });
-    const recordsForUpdate = syncRecords
-      .filter(r => !r.isDeleted && existingIdSet.has(r.data.id))
-      .map(({ data }) => {
-        validateRecord(data, null);
-        return data;
-      });
+  return SYNC_CLS_NAMESPACE.runAndReturn(() => {
+    SYNC_CLS_NAMESPACE.set('isImporting', true);
+    return model.sequelize.transaction(async () => {
+      // split records into create, update, delete
+      const idsForDelete = syncRecords.filter(r => r.isDeleted).map(r => r.data.id);
+      const idsForUpsert = syncRecords.filter(r => !r.isDeleted && r.data.id).map(r => r.data.id);
+      const existing = await model.findByIds(idsForUpsert);
+      const existingIdSet = new Set(existing.map(e => e.id));
+      const recordsForCreate = syncRecords
+        .filter(r => !r.isDeleted && !existingIdSet.has(r.data.id))
+        .map(({ data }) => {
+          validateRecord(data, null);
+          return data;
+        });
+      const recordsForUpdate = syncRecords
+        .filter(r => !r.isDeleted && existingIdSet.has(r.data.id))
+        .map(({ data }) => {
+          validateRecord(data, null);
+          return data;
+        });
 
-    // run each import process
-    const createSuccessCount = await executeCreates(plan, recordsForCreate);
-    const updateSuccessCount = await executeUpdates(plan, recordsForUpdate);
-    const deleteSuccessCount = await executeDeletes(plan, idsForDelete);
+      // run each import process
+      const createSuccessCount = await executeCreates(plan, recordsForCreate);
+      const updateSuccessCount = await executeUpdates(plan, recordsForUpdate);
+      const deleteSuccessCount = await executeDeletes(plan, idsForDelete);
 
-    // return count of successes
-    return createSuccessCount + updateSuccessCount + deleteSuccessCount;
+      // return count of successes
+      return createSuccessCount + updateSuccessCount + deleteSuccessCount;
+    });
   });
 };
 
