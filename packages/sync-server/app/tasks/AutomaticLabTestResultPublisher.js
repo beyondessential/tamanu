@@ -14,6 +14,7 @@ export class AutomaticLabTestResultPublisher extends ScheduledTask {
     const { schedule, results } = (overrideConfig || config);
     super(schedule, log);
     this.results = results;
+    this.limit = config.limit;
     this.models = context.store.models;
   }
 
@@ -29,6 +30,7 @@ export class AutomaticLabTestResultPublisher extends ScheduledTask {
         labTestTypeId: labTestIds,
       },
       include: ['labTestType', 'labRequest'],
+      limit: this.limit,
     });
 
     const count = tests.length;
@@ -46,7 +48,7 @@ export class AutomaticLabTestResultPublisher extends ScheduledTask {
       try {
         // transaction just exists on any model, nothing specific to LabTest happening on this line
         await this.models.LabTest.sequelize.transaction(async () => {
-
+          // get the appropriate result info for this test
           var resultData = this.results[labTestType.id];
 
           // update test with result + method ID

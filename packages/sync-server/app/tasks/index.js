@@ -19,7 +19,6 @@ export async function startScheduledTasks(context) {
     CertificateNotificationProcessor,
   ];
 
-  
   if (config.schedules.automaticLabTestResultPublisher.enabled) {
     taskClasses.push(AutomaticLabTestResultPublisher);
   }

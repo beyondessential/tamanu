@@ -117,6 +117,7 @@
     "automaticLabTestPublisher": {
       "enabled": false,
       "schedule": "*/15 * * * *",
+      "limit": 300,
       "results": {
         "labTestType-RATPositive": {
           "labTestMethodId": "labTestMethod-RAT",
