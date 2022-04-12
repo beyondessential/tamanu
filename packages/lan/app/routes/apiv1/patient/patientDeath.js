@@ -243,13 +243,7 @@ patientDeath.post(
         },
       });
       for (const encounter of activeEncounters) {
-        await Discharge.create({
-          encounterId: encounter.id,
-          dischargerId: doc.id,
-        });
-        await encounter.update({
-          endDate: body.timeOfDeath,
-        });
+        await encounter.dischargeWithDischarger(doc, body.timeOfDeath);
       }
     });
 
