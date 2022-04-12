@@ -325,7 +325,20 @@ describe('Patient', () => {
       expect(discharge.dischargerId).toEqual(clinicianId);
     });
 
-    test.todo('should return no death data for alive patient');
+    it('should return no death data for alive patient', async () => {
+      const { Patient } = models;
+      const { id, dateOfBirth } = await Patient.create(fakePatient('alive-1'));
+      
+      const result = await app.get(`/v1/patient/${id}/death`);
+
+      expect(result).toHaveStatus(404);
+      expect(result.body).toMatchObject({
+        patientId: id,
+        dateOfBirth: dateOfBirth.toISOString(),
+        dateOfDeath: null,
+      });
+    });
+
     it('should return death data for deceased patient', async () => {
       const { Patient } = models;
       const { id, dateOfBirth } = await Patient.create(fakePatient('alive-1'));
