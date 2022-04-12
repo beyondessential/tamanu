@@ -10,8 +10,8 @@ export class AutomaticLabTestResultPublisher extends ScheduledTask {
     return 'AutomaticLabTestResultPublisher';
   }
 
-  constructor(context) {
-    const { schedule, results } = config.schedules.automaticLabTestResultPublisher;
+  constructor(context, overrideConfig = null) {
+    const { schedule, results } = (overrideConfig || config);
     super(schedule, log);
     this.results = results;
     this.models = context.store.models;
@@ -23,10 +23,10 @@ export class AutomaticLabTestResultPublisher extends ScheduledTask {
     const labTestIds = Object.keys(this.results);
 
     // get all pending lab tests with a relevant id
-    const tests = await models.LabTestType.findAll({
+    const tests = await this.models.LabTest.findAll({
       where: {
         status: LAB_TEST_STATUSES.RECEPTION_PENDING,
-        ['labTestType.id']: [labTestIds],
+        labTestTypeId: labTestIds,
       },
       include: ['labTestType', 'labRequest'],
     });
@@ -42,28 +42,29 @@ export class AutomaticLabTestResultPublisher extends ScheduledTask {
     );
 
     for (const test of tests) {
+      const { labRequest, labTestType } = test;
       try {
-        await transaction(async () => {
-          const { labRequest, labTestType } = test;
+        // transaction just exists on any model, nothing specific to LabTest happening on this line
+        await this.models.LabTest.sequelize.transaction(async () => {
 
           var resultData = this.results[labTestType.id];
 
           // update test with result + method ID
           await test.update({
-            labTestMethodId: resultData.methodId,
+            labTestMethodId: resultData.labTestMethodId,
             result: resultData.result,
             completedDate: new Date(),
           });
 
-          // publish the report
+          // publish the lab request (where it will be picked up by certificate notification if relevant)
           await labRequest.update({
             status: LAB_REQUEST_STATUSES.PUBLISHED,
           });
 
-          log.info(`Auto-published lab request ${labRequest.id} (${labRquest.displayId})`);
+          log.info(`Auto-published lab request ${labRequest.id} (${labRequest.displayId})`);
         });
       } catch (e) {
-        log.error(`Couldn't auto-publish lab request ${labRequest.id} (${labRquest.displayId})`, e);
+        log.error(`Couldn't auto-publish lab request ${labRequest.id} (${labRequest.displayId})`, e);
       }
     }
   }

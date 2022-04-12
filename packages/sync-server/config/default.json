@@ -119,11 +119,11 @@
       "schedule": "*/15 * * * *",
       "results": {
         "labTestType-RATPositive": {
-          "methodCode": "labTestMethod-RAT",
+          "labTestMethodId": "labTestMethod-RAT",
           "result": "Positive"
         },
         "labTestType-RATNegative": {
-          "methodCode": "labTestMethod-RAT",
+          "labTestMethodId": "labTestMethod-RAT",
           "result": "Negative"
         }
       }
