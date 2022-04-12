@@ -15,6 +15,7 @@ export class AutomaticLabTestResultPublisher extends ScheduledTask {
     this.results = results;
     this.limit = config.limit;
     this.models = context.store.models;
+    this.lastRunCount = 0;
   }
 
   async run() {
@@ -24,20 +25,21 @@ export class AutomaticLabTestResultPublisher extends ScheduledTask {
     // get all pending lab tests with a relevant id
     const tests = await this.models.LabTest.findAll({
       where: {
-        status: LAB_TEST_STATUSES.RECEPTION_PENDING,
+        result: '',
         labTestTypeId: labTestIds,
+        '$labRequest.status$': LAB_TEST_STATUSES.RECEPTION_PENDING,
       },
       include: ['labTestType', 'labRequest'],
       limit: this.limit,
     });
 
-    const count = tests.length;
-    if (count === 0) {
+    this.lastRunCount = tests.length;
+    if (this.lastRunCount === 0) {
       log.info('No lab tests to publish.');
       return;
     }
 
-    log.info(`Auto-publishing ${count} lab tests...`);
+    log.info(`Auto-publishing ${this.lastRunCount} lab tests...`);
 
     for (const test of tests) {
       const { labRequest, labTestType } = test;

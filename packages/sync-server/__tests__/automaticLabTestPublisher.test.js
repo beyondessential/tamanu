@@ -90,7 +90,7 @@ describe('Lab test publisher', () => {
     expect(updatedLabTest.labRequest).toHaveProperty('status', LAB_REQUEST_STATUSES.PUBLISHED);
   });
 
-  it('Should publish a positive result', async () => {
+  it('Should publish a negative result', async () => {
     const { labTest, labRequest } = await makeLabRequest('labTestType-RATNegative');
     expect(labTest).toHaveProperty('result', '');
     expect(labTest).toHaveProperty('labTestMethodId', null);
@@ -100,6 +100,21 @@ describe('Lab test publisher', () => {
 
     const updatedLabTest = await models.LabTest.findByPk(labTest.id, { include: ['labRequest'] });
     expect(updatedLabTest).toHaveProperty('result', 'Negative');
+    expect(updatedLabTest).toHaveProperty('labTestMethodId', 'labTestMethod-RAT');
+    expect(updatedLabTest.labRequest).toHaveProperty('status', LAB_REQUEST_STATUSES.PUBLISHED);
+  });
+
+  it('Should exclude results once published', async () => {
+    const { labTest, labRequest } = await makeLabRequest('labTestType-RATPositive');
+    expect(labTest).toHaveProperty('result', '');
+    expect(labTest).toHaveProperty('labTestMethodId', null);
+    expect(labRequest).toHaveProperty('status', LAB_REQUEST_STATUSES.RECEPTION_PENDING);
+
+    await publisher.run();
+    expect(publisher).toHaveProperty('lastRunCount', 1);
+
+    const updatedLabTest = await models.LabTest.findByPk(labTest.id, { include: ['labRequest'] });
+    expect(updatedLabTest).toHaveProperty('result', 'Positive');
     expect(updatedLabTest).toHaveProperty('labTestMethodId', 'labTestMethod-RAT');
     expect(updatedLabTest.labRequest).toHaveProperty('status', LAB_REQUEST_STATUSES.PUBLISHED);
   });
@@ -114,6 +129,20 @@ describe('Lab test publisher', () => {
 
     const updatedLabTest = await models.LabTest.findByPk(labTest.id, { include: ['labRequest'] });
     expect(updatedLabTest).toHaveProperty('result', '');
+    expect(updatedLabTest).toHaveProperty('labTestMethodId', null);
+    expect(updatedLabTest.labRequest).toHaveProperty('status', LAB_REQUEST_STATUSES.RECEPTION_PENDING);
+  });
+
+  it('Should ignore a lab test that already has a result', async () => {
+    const { labTest, labRequest } = await makeLabRequest('labTestType-RATPositive');
+    await labTest.update({
+      result: 'Positive'
+    });
+    
+    await publisher.run();
+
+    const updatedLabTest = await models.LabTest.findByPk(labTest.id, { include: ['labRequest'] });
+    expect(updatedLabTest).toHaveProperty('result', 'Positive');
     expect(updatedLabTest).toHaveProperty('labTestMethodId', null);
     expect(updatedLabTest.labRequest).toHaveProperty('status', LAB_REQUEST_STATUSES.RECEPTION_PENDING);
   });
