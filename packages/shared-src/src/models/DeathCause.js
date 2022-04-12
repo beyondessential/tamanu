@@ -20,7 +20,9 @@ export class DeathCause extends Model {
           mustHavePatientDeathData() {
             if (this.deletedAt) return;
             if (!this.patientDeathDataId) {
-              throw new InvalidOperationError('Cause of death must be attached to a PatientDeathData object.');
+              throw new InvalidOperationError(
+                'Cause of death must be attached to a PatientDeathData object.',
+              );
             }
           },
           mustHaveCondition() {

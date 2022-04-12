@@ -1,11 +1,11 @@
 import config from 'config';
+import * as roles from 'shared/roles';
 import { buildAbility } from './buildAbility';
 import { Permission } from '../models';
 
 //---------------------------------------------------------
 // "Hardcoded" permissions version -- safe to delete once all deployments
 // have been migrated to database version.
-import * as roles from 'shared/roles';
 
 function getHardcodedPermissions(roleIds) {
   const permissions = roles[roleIds];

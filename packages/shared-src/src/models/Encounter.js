@@ -323,7 +323,7 @@ export class Encounter extends Model {
       });
     }
   }
-  
+
   async dischargeWithDischarger(discharger, endDate) {
     if (this.endDate) throw new Error(`Encounter ${this.id} already discharged`);
 
