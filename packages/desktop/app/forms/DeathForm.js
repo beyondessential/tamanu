@@ -115,7 +115,7 @@ const DoubleConfirmScreen = ({ onStepBack, submitForm, onCancel }) => {
       onStepBack={() => {
         setDischargeConfirmed(false);
       }}
-      onContinue={submitForm}
+      submitForm={submitForm}
       onCancel={onCancel}
     />
   );

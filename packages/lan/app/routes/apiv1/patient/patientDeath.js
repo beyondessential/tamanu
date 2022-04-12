@@ -4,14 +4,13 @@ import asyncHandler from 'express-async-handler';
 import { InvalidOperationError, NotFoundError } from 'shared/errors';
 import { User } from 'shared/models/User';
 import * as yup from 'yup';
-import { Op } from 'sequelize';
 
 export const patientDeath = express.Router();
 
 function exportCause(cause) {
   return {
     id: cause.id,
-    conditionId: cause.conditionId,
+    condition: cause.condition,
     timeAfterOnset: cause.timeAfterOnset,
   };
 }
@@ -23,7 +22,7 @@ patientDeath.get(
     req.checkPermission('read', 'PatientDeath');
 
     const {
-      models: { DeathCause, Patient, PatientDeathData },
+      models: { DeathCause, Patient, PatientDeathData, User, Facility },
       params: { id: patientId },
     } = req;
 
@@ -42,16 +41,27 @@ patientDeath.get(
       where: { patientId },
       include: [
         {
+          model: User,
+          as: 'clinician',
+        },
+        {
+          model: Facility,
+          as: 'facility',
+        },
+        {
           model: DeathCause,
           as: 'primaryCause',
+          include: ['condition'],
         },
         {
           model: DeathCause,
           as: 'secondaryCause',
+          include: ['condition'],
         },
         {
           model: DeathCause,
           as: 'contributingCauses',
+          include: ['condition'],
         },
       ],
     });
@@ -64,8 +74,8 @@ patientDeath.get(
     res.send({
       patientId: patient.id,
       patientDeathDataId: deathData.id,
-      clinicianId: deathData.clinicianId,
-      facilityId: deathData.facilityId,
+      clinician: deathData.clinician,
+      facility: deathData.facility,
 
       dateOfBirth: patient.dateOfBirth,
       dateOfDeath: patient.dateOfDeath,
