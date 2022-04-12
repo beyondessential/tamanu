@@ -24,7 +24,7 @@ const testConfig = {
 };
 
 describe('Lab test publisher', () => {
-  
+
   let ctx;
   let models;
   let publisher;
@@ -40,7 +40,7 @@ describe('Lab test publisher', () => {
       encounterId: encounter.id,
       displayId: `${Math.random()}`,
     });
-    if(!await models.LabTestType.findByPk(testType)) {
+    if (!await models.LabTestType.findByPk(testType)) {
       await models.LabTestType.create({
         id: testType,
         name: testType,
@@ -60,7 +60,7 @@ describe('Lab test publisher', () => {
     models = ctx.store.models;
     publisher = new AutomaticLabTestResultPublisher(ctx, testConfig);
     patient = await models.Patient.create(createDummyPatient());
-    
+
     // set up reference data
     testCategory = await models.ReferenceData.create({
       type: 'labTestCategory',
@@ -81,7 +81,7 @@ describe('Lab test publisher', () => {
     expect(labTest).toHaveProperty('result', '');
     expect(labTest).toHaveProperty('labTestMethodId', null);
     expect(labRequest).toHaveProperty('status', LAB_REQUEST_STATUSES.RECEPTION_PENDING);
-    
+
     await publisher.run();
 
     const updatedLabTest = await models.LabTest.findByPk(labTest.id, { include: ['labRequest'] });
