@@ -75,6 +75,8 @@ describe('Lab test publisher', () => {
     });
   });
 
+  afterAll(() => ctx.close());
+
   it('Should publish a positive result', async () => {
     const { labTest, labRequest } = await makeLabRequest('labTestType-RATPositive');
     expect(labTest).toHaveProperty('result', '');
