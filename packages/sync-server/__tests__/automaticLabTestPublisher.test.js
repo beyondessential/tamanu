@@ -143,21 +143,27 @@ describe('Lab test publisher', () => {
     const updatedLabTest = await models.LabTest.findByPk(labTest.id, { include: ['labRequest'] });
     expect(updatedLabTest).toHaveProperty('result', '');
     expect(updatedLabTest).toHaveProperty('labTestMethodId', null);
-    expect(updatedLabTest.labRequest).toHaveProperty('status', LAB_REQUEST_STATUSES.RECEPTION_PENDING);
+    expect(updatedLabTest.labRequest).toHaveProperty(
+      'status',
+      LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+    );
   });
 
   it('Should ignore a lab test that already has a result', async () => {
-    const { labTest, labRequest } = await makeLabRequest('labTestType-RATPositive');
+    const { labTest } = await makeLabRequest('labTestType-RATPositive');
     await labTest.update({
-      result: 'Positive'
+      result: 'Positive',
     });
-    
+
     await publisher.run();
 
     const updatedLabTest = await models.LabTest.findByPk(labTest.id, { include: ['labRequest'] });
     expect(updatedLabTest).toHaveProperty('result', 'Positive');
     expect(updatedLabTest).toHaveProperty('labTestMethodId', null);
-    expect(updatedLabTest.labRequest).toHaveProperty('status', LAB_REQUEST_STATUSES.RECEPTION_PENDING);
+    expect(updatedLabTest.labRequest).toHaveProperty(
+      'status',
+      LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+    );
   });
 
   it('Should error with an invalid method', async () => {
@@ -172,7 +178,9 @@ describe('Lab test publisher', () => {
     const updatedLabTest = await models.LabTest.findByPk(labTest.id, { include: ['labRequest'] });
     expect(updatedLabTest).toHaveProperty('result', '');
     expect(updatedLabTest).toHaveProperty('labTestMethodId', null);
-    expect(updatedLabTest.labRequest).toHaveProperty('status', LAB_REQUEST_STATUSES.RECEPTION_PENDING);
+    expect(updatedLabTest.labRequest).toHaveProperty(
+      'status',
+      LAB_REQUEST_STATUSES.RECEPTION_PENDING,
+    );
   });
-
 });
