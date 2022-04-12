@@ -15,7 +15,6 @@ import {
 } from 'shared/test-helpers';
 
 import { convertFromDbRecord, convertToDbRecord } from 'sync-server/app/convertDbRecord';
-import * as hooks from 'shared/tasks/CreateLabRequestNotifications';
 import { createTestContext } from './utilities';
 import { SUPPORTED_CLIENT_VERSIONS } from '../app/middleware/versionCompatibility';
 
@@ -707,52 +706,6 @@ describe('Sync API', () => {
 
       // TODO: add this once auth is implemented
       it.todo("returns a 403 if the user isn't authenticated");
-    });
-  });
-
-  describe('Sync hooks', () => {
-    beforeEach(() => {
-      // Mock the hook functions, we don't actually need to call them
-      // we just want to confirm the hook is triggered correctly from a sync
-      jest.spyOn(hooks, 'createLabRequestUpdateNotification').mockReturnValue('test');
-      jest.spyOn(hooks, 'createLabRequestCreateNotification').mockReturnValue('test');
-    });
-    afterEach(() => {
-      jest.clearAllMocks();
-    });
-    const patientId = uuidv4();
-    it('labRequests afterBulkUpdate hook triggered from sync', async () => {
-      // arrange
-      await ctx.store.models.Encounter.destroy({ where: {}, force: true });
-      const encounterToInsert = await buildNestedEncounter(ctx.store, patientId);
-      await ctx.store.models.Encounter.create(encounterToInsert);
-      await upsertAssociations(ctx.store.models.Encounter, encounterToInsert);
-
-      // act
-      const getResult = await app.get(`/v1/sync/patient%2F${patientId}%2Fencounter?since=0`);
-      const syncEncounter = getResult.body.records.find(
-        ({ data }) => data.id === encounterToInsert.id,
-      );
-      syncEncounter.data.labRequests[0].data.status = 'verified';
-
-      await app.post(`/v1/sync/patient%2F${patientId}%2Fencounter?since=0`).send(syncEncounter);
-
-      // assert
-      expect(hooks.createLabRequestUpdateNotification).toHaveBeenCalled();
-    });
-
-    it('labRequests afterBulkCreate hook triggered from sync', async () => {
-      // arrange
-      await ctx.store.models.Encounter.destroy({ where: {}, force: true });
-      const encounter = await buildNestedEncounter(ctx.store, patientId);
-
-      // act
-      await app
-        .post(`/v1/sync/patient%2F${patientId}%2Fencounter?since=0`)
-        .send(convertFromDbRecord(encounter));
-
-      // assert
-      expect(hooks.createLabRequestCreateNotification).toHaveBeenCalled();
     });
   });
 });
