@@ -269,7 +269,7 @@ class TableComponent extends React.Component {
                   <DownloadDataButton exportName={exportName} columns={columns} data={data} />
                 </TableCell>
               ) : null}
-              {page !== null && this.renderPaginator()}
+              {page !== null ? this.renderPaginator() : <TableCell colSpan={columns.length} />}
             </TableRow>
           </StyledTableFooter>
         </StyledTable>
