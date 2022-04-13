@@ -1,5 +1,4 @@
 import config from 'config';
-import moment from 'moment';
 import { Op } from 'sequelize';
 
 import { ScheduledTask } from 'shared/tasks';
@@ -12,8 +11,9 @@ export class DeceasedPatientDischarger extends ScheduledTask {
   }
 
   constructor(context) {
-    this.config = config.schedules.outpatientDischarger;
-    super(this.config.schedule, log);
+    const conf = config.schedules.outpatientDischarger;
+    super(conf.schedule, log);
+    this.config = conf;
     this.models = context.store.models;
   }
 
@@ -60,7 +60,9 @@ export class DeceasedPatientDischarger extends ScheduledTask {
 
         const discharger = await patientDeathData.getClinician();
         await encounter.dischargeWithDischarger(discharger, patient.dateOfDeath);
-        log.info(`Auto-closed encounter with id ${encounter.id} (discharger=${discharger.id}, dod=${patient.dateOfDeath})`);
+        log.info(
+          `Auto-closed encounter with id ${encounter.id} (discharger=${discharger.id}, dod=${patient.dateOfDeath})`,
+        );
       }
 
       await sleepAsync(batchSleepAsyncDurationInMilliseconds);
