@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Typography } from '@material-ui/core';
 import { promises as asyncFs } from 'fs';
+import { lookup as lookupMimeType } from 'mime-types';
 
 import { DocumentsTable } from '../../../components/DocumentsTable';
 import { Button } from '../../../components/Button';
@@ -92,9 +93,14 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
 
       setIsSubmitting(true);
       try {
-        // Read and inject document creation date to metadata sent
+        // Read and inject document creation date and type to metadata sent
         const { birthtime } = await asyncFs.stat(file);
-        await api.postWithFileUpload(endpoint, file, { ...data, documentCreatedAt: birthtime });
+        const type = lookupMimeType(file);
+        await api.postWithFileUpload(endpoint, file, {
+          ...data,
+          type,
+          documentCreatedAt: birthtime,
+        });
         handleClose();
         setRefreshCount(refreshCount + 1);
       } catch (error) {
