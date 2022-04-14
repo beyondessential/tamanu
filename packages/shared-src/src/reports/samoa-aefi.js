@@ -25,6 +25,7 @@ function parametersToSqlWhere(parameters) {
         default:
           break;
       }
+      /* eslint-enable no-param-reassign */
       return where;
     }, {});
 
@@ -93,7 +94,7 @@ export async function dataGenerator({ models }, parameters = {}) {
       );
       const answersByDataElementId = survey.answers.reduce(
         (allAnswers, answer) => {
-          /* eslint-disable no-param-reassign */
+          // eslint-disable-next-line no-param-reassign
           allAnswers[answer.dataElementId] = answer.body;
           return allAnswers;
         },
