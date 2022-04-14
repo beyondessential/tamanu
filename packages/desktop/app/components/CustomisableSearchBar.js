@@ -94,7 +94,13 @@ const SearchInputContainer = styled.div`
   }
 `;
 
-export const CustomisableSearchBar = ({ title, onSearch, fields, initialValues = {} }) => {
+export const CustomisableSearchBar = ({
+  title,
+  onSearch,
+  fields,
+  initialValues = {},
+  shouldRenderScanFingerprint = true,
+}) => {
   const { getLocalisation } = useLocalisation();
 
   const fieldElements = useMemo(
@@ -160,10 +166,12 @@ export const CustomisableSearchBar = ({ title, onSearch, fields, initialValues =
           initialValues={initialValues}
         />
       </Section>
-      <RightSection>
-        <ScanFingerprintButton />
-        <ScanFingerprintLabel>Scan fingerprint</ScanFingerprintLabel>
-      </RightSection>
+      {shouldRenderScanFingerprint ? (
+        <RightSection>
+          <ScanFingerprintButton />
+          <ScanFingerprintLabel>Scan fingerprint</ScanFingerprintLabel>
+        </RightSection>
+      ) : null}
     </Container>
   );
 };

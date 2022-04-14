@@ -116,9 +116,11 @@ describe('Sync API', () => {
 
     const NUM_CHANNELS_TO_TEST = 1000;
     const ALLOWABLE_TIME = 2000;
+    const NUM_RUNS = 5;
     it(`handles ${NUM_CHANNELS_TO_TEST} channels in under ${ALLOWABLE_TIME}ms`, async () => {
       // arrange
-      jest.setTimeout(120 * 1000);
+      // twice the allowable time, plus 100ms per insert for record creation
+      jest.setTimeout(ALLOWABLE_TIME * NUM_RUNS * 2 + NUM_CHANNELS_TO_TEST * 100);
       const { Patient, PatientIssue } = ctx.store.models;
 
       const patients = [];
@@ -135,14 +137,22 @@ describe('Sync API', () => {
       const idsObj = patientChannels.reduce((memo, channel) => ({ ...memo, [channel]: '0' }), {});
 
       // act
-      const startMs = Date.now();
-      const result = await app.post('/v1/sync/channels').send(idsObj);
-      const elapsedMs = Date.now() - startMs;
+      const run = async () => {
+        const startMs = Date.now();
+        const result = await app.post('/v1/sync/channels').send(idsObj);
+        const endMs = Date.now();
+        expect(result).toHaveSucceeded();
+        expect(result.body.channelsWithChanges).toEqual(patientChannels);
+        return endMs - startMs;
+      };
+      const times = [];
+      for (let i = 0; i < NUM_RUNS; i++) {
+        times.push(await run());
+      }
 
       // assert
-      expect(result).toHaveSucceeded();
-      expect(result.body.channelsWithChanges).toEqual(patientChannels);
-      expect(elapsedMs).toBeLessThan(ALLOWABLE_TIME);
+      const avgTime = times.reduce((a, b) => a + b) / NUM_RUNS;
+      expect(avgTime).toBeLessThan(ALLOWABLE_TIME);
     });
   });
 

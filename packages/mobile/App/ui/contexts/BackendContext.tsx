@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, ReactElement } from 'react';
 import RnBgTask from 'react-native-bg-thread';
 import { Backend } from '~/services/backend';
 
@@ -8,7 +8,7 @@ export const BackendContext = React.createContext<Backend>(undefined);
 
 const backend = new Backend();
 
-export const BackendProvider = ({ Component }): JSX.Element => {
+export const BackendProvider = ({ Component }): ReactElement => {
   const [initialised, setInitialised] = useState(false);
 
   useEffect(() => {

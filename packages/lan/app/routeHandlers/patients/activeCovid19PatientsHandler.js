@@ -1,9 +1,10 @@
 import { QueryTypes } from 'sequelize';
 import { arrayToDbString } from 'shared/utils';
 import { DIAGNOSIS_CERTAINTY, ENCOUNTER_TYPES } from 'shared/constants';
-import { renameObjectKeys } from '~/utils/renameObjectKeys';
-import { makeFilter } from '~/utils/query';
+import { renameObjectKeys } from '../../utils/renameObjectKeys';
+import { makeFilter } from '../../utils/query';
 import { createPatientFilters } from '../../utils/patientFilters';
+
 const sortKeys = {
   displayId: 'patients.display_id',
   lastName: 'UPPER(patients.last_name)',
@@ -17,10 +18,7 @@ const sortKeys = {
 const COVID_19_VIRUS_IDENTIFIED = 'icd10-U07-1';
 const COVID_19_VIRUS_NOT_IDENTIFIED = 'icd10-U07-2';
 const COVID_19_DIAGNOSES = [COVID_19_VIRUS_IDENTIFIED, COVID_19_VIRUS_NOT_IDENTIFIED];
-const DIAGNOSIS_CERTAINTIES_TO_HIDE = [
-  DIAGNOSIS_CERTAINTY.DISPROVEN,
-  DIAGNOSIS_CERTAINTY.ERROR,
-]
+const DIAGNOSIS_CERTAINTIES_TO_HIDE = [DIAGNOSIS_CERTAINTY.DISPROVEN, DIAGNOSIS_CERTAINTY.ERROR];
 const SURVEY_ID = 'program-fijicovid19-fijicovidpatientsurvey';
 const CLINICAL_STATUS_DATA_ELEMENT_ID = 'pde-COVClinicalStatus';
 

@@ -17,7 +17,7 @@ export const FamilyHistory = (props: FamilyHistoryProps): ReactElement => (
     <StyledView marginTop={20}>
       <RowView alignItems="center" justifyContent="space-between">
         <SectionHeader h1>Family History</SectionHeader>
-        <EditButton onPress={props.onEdit} />
+        <EditButton sectionTitle="Family History" onPress={props.onEdit} />
       </RowView>
       {props.familyHistory.data.length > 0
         && props.familyHistory.data.map((condition: string) => (

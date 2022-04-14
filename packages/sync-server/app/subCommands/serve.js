@@ -30,9 +30,10 @@ function getRoutes(router, prefix = '') {
 }
 
 const serve = async ({ skipMigrationCheck }) => {
+  log.info(`Starting sync server version ${version}.`);
+
   const context = await new ApplicationContext().init();
   const { store } = context;
-  log.info(`Starting sync server version ${version}.`);
 
   if (config.db.migrateOnStartup) {
     await store.sequelize.migrate('up');

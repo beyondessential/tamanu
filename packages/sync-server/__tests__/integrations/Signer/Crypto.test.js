@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-expressions */
 
 import { createTestContext } from 'sync-server/__tests__/utilities';
-import { fakeABtoRealAB, newKeypairAndCsr } from 'sync-server/app/integrations/VdsNc';
+import { fakeABtoRealAB, newKeypairAndCsr } from 'sync-server/app/integrations/Signer';
 import { Crypto } from 'node-webcrypto-ossl';
 import {
   BitString,
@@ -185,6 +185,7 @@ describe('VDS-NC: Signer cryptography', () => {
     //         OBJECT IDENTIFIER (public key type)
     //         OBJECT IDENTIFIER (public key curve)
     //       BIT STRING (public key)
+    //     [0] ATTRIBUTES (empty)
     //   SEQUENCE
     //     OBJECT IDENTIFIER (signature algorithm)
     //   BIT STRING (signature)
@@ -197,7 +198,7 @@ describe('VDS-NC: Signer cryptography', () => {
     expect(reqbody).to.be.instanceOf(Sequence);
     expect(reqsignalg).to.be.instanceOf(Sequence);
     expect(reqsigndat).to.be.instanceOf(BitString);
-    expect(reqbody.valueBlock.value).to.have.lengthOf(3);
+    expect(reqbody.valueBlock.value).to.have.lengthOf(4);
     expect(reqsignalg.valueBlock.value).to.have.lengthOf(1);
     const [reqver, reqsubj, reqkey] = reqbody.valueBlock.value;
     expect(reqver).to.be.instanceOf(Integer);

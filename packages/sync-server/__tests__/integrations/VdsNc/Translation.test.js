@@ -1,7 +1,10 @@
 import { expect } from 'chai';
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
-import { createProofOfTest, createProofOfVaccination } from '../../../app/integrations/VdsNc';
+import {
+  createVdsNcTestData,
+  createVdsNcVaccinationData,
+} from '../../../app/integrations/VdsNc';
 
 describe('VDS: Proof of Vaccination', () => {
   let ctx;
@@ -30,7 +33,7 @@ describe('VDS: Proof of Vaccination', () => {
     await patient.reload();
 
     // Act
-    const msg = await createProofOfVaccination(patient.id, {
+    const msg = await createVdsNcVaccinationData(patient.id, {
       models: ctx.store.models,
       countryCode: 'UTO',
     });
@@ -113,7 +116,7 @@ describe('VDS: Proof of Vaccination', () => {
     });
 
     // Act
-    const msg = await createProofOfVaccination(patient.id, {
+    const msg = await createVdsNcVaccinationData(patient.id, {
       models: ctx.store.models,
       countryCode: 'UTO',
     });
@@ -293,7 +296,7 @@ describe('VDS: Proof of Vaccination', () => {
     });
 
     // Act
-    const msg = await createProofOfVaccination(patient.id, {
+    const msg = await createVdsNcVaccinationData(patient.id, {
       models: ctx.store.models,
       countryCode: 'UTO',
     });
@@ -432,7 +435,10 @@ describe('VDS: Proof of Test', () => {
     });
 
     // Act
-    const msg = await createProofOfTest(test.id, { models: ctx.store.models, countryCode: 'UTO' });
+    const msg = await createVdsNcTestData(test.id, {
+      models: ctx.store.models,
+      countryCode: 'UTO',
+    });
 
     // Assert
     expect(msg).to.deep.equal({

@@ -2,12 +2,12 @@
 
 import { createTestContext } from 'sync-server/__tests__/utilities';
 import { fake } from 'shared/test-helpers/fake';
+import { VdsNcDocument } from 'sync-server/app/integrations/VdsNc';
 import {
-  VdsNcDocument,
   loadCertificateIntoSigner,
   newKeypairAndCsr,
   TestCSCA,
-} from 'sync-server/app/integrations/VdsNc';
+} from 'sync-server/app/integrations/Signer';
 import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
 import { generateICAOFormatUVCI } from 'shared/utils/uvci/icao';
 import crypto from 'crypto';
