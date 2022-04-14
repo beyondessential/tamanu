@@ -10,11 +10,11 @@ import {
 } from 'shared/constants';
 import { log } from 'shared/services/logging';
 import { ScheduledTask } from 'shared/tasks';
+import { generateUVCI } from 'shared/utils/uvci';
 import { makeVaccineCertificate, makeCovidTestCertificate } from '../utils/makePatientCertificate';
 import { getLocalisation } from '../localisation';
 import { createVdsNcVaccinationData, VdsNcDocument } from '../integrations/VdsNc';
 import { createEuDccVaccinationData, HCERTPack } from '../integrations/EuDcc';
-import { generateUVCI } from 'shared/utils/uvci';
 
 export class CertificateNotificationProcessor extends ScheduledTask {
   constructor(context) {
@@ -59,7 +59,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
         const requireSigning = notification.get('requireSigning');
         const type = notification.get('type');
         const printedBy = notification.get('createdBy');
-        
+
         const countryCode = (await getLocalisation()).country['alpha-2'];
 
         log.info(

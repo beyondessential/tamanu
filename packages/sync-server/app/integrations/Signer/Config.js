@@ -2,13 +2,11 @@ import config from 'config';
 import * as yup from 'yup';
 
 const CN_SCHEMA_VDS_NC = yup
-      .string()
-      .length(2)
-      .uppercase();
+  .string()
+  .length(2)
+  .uppercase();
 
-const CN_SCHEMA_EU_DCC = yup
-      .string()
-      .min(1);
+const CN_SCHEMA_EU_DCC = yup.string().min(1);
 
 const SCHEMA = yup
   .object()

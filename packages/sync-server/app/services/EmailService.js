@@ -2,7 +2,7 @@ import config from 'config';
 import mailgun from 'mailgun-js';
 import { COMMUNICATION_STATUSES } from 'shared/constants';
 
-const { apiKey, domain, toAddressOverride } = config.mailgun;
+const { apiKey, domain } = config.mailgun;
 
 export class EmailService {
   constructor() {
