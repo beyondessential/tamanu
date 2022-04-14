@@ -106,7 +106,7 @@ export class SenaitePoller extends ScheduledTask {
       objects.forEach(o => {
         const matching = findSenaiteItem(o);
         if (matching) {
-          /* eslint-disable no-param-reassign */
+          // eslint-disable-next-line no-param-reassign
           o.senaiteId = matching.uid;
         }
       });
@@ -134,7 +134,6 @@ export class SenaitePoller extends ScheduledTask {
     }
   }
 
-  /* eslint-disable no-param-reassign */
   async createLabRequest(labRequest) {
     const labRequestRealmId = labRequest._id;
     const url = `${BASE_URL}/analysisrequests/ajax_ar_add/submit`;
@@ -189,7 +188,9 @@ export class SenaitePoller extends ScheduledTask {
     log.debug('Senaite LabRequest: CREATED', createdRequest.url);
 
     this.database.write(() => {
+      // eslint-disable-next-line no-param-reassign
       labRequest.senaiteId = createdRequest.uid;
+      // eslint-disable-next-line no-param-reassign
       labRequest.sampleId = sampleId;
     });
   }
@@ -259,7 +260,10 @@ export class SenaitePoller extends ScheduledTask {
               senaiteResult.status,
               `(${senaiteResult.result})`,
             );
+
+            // eslint-disable-next-line no-param-reassign
             realmTest.result = senaiteResult.result;
+            // eslint-disable-next-line no-param-reassign
             realmTest.status = senaiteResult.status;
           }
         }
