@@ -11,27 +11,25 @@ const ISSUE_TYPES = [
   { value: PATIENT_ISSUE_TYPES.WARNING, label: 'Warning' },
 ];
 
-export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => {
-  return (
-    <Form
-      onSubmit={onSubmit}
-      render={({ submitForm }) => (
-        <FormGrid columns={1}>
-          <Field name="type" label="Type" component={SelectField} options={ISSUE_TYPES} />
-          <Field name="note" label="Notes" component={TextField} multiline rows={2} />
-          <Field name="date" label="Date recorded" component={DateField} required />
-          <ConfirmCancelRow onCancel={onCancel} onConfirm={submitForm} />
-        </FormGrid>
-      )}
-      initialValues={{
-        date: new Date(),
-        type: 'issue',
-        ...editedObject,
-      }}
-      validationSchema={yup.object().shape({
-        note: yup.string().required(),
-        date: yup.date().required(),
-      })}
-    />
-  );
-};
+export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => (
+  <Form
+    onSubmit={onSubmit}
+    render={({ submitForm }) => (
+      <FormGrid columns={1}>
+        <Field name="type" label="Type" component={SelectField} options={ISSUE_TYPES} />
+        <Field name="note" label="Notes" component={TextField} multiline rows={2} />
+        <Field name="date" label="Date recorded" component={DateField} required />
+        <ConfirmCancelRow onCancel={onCancel} onConfirm={submitForm} />
+      </FormGrid>
+    )}
+    initialValues={{
+      date: new Date(),
+      type: 'issue',
+      ...editedObject,
+    }}
+    validationSchema={yup.object().shape({
+      note: yup.string().required(),
+      date: yup.date().required(),
+    })}
+  />
+);

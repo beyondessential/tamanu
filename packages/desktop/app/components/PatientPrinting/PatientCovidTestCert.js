@@ -157,15 +157,13 @@ export const PatientCovidTestCert = ({ patient }) => {
             </tr>
           </thead>
           <tbody>
-            {rows.map(row => {
-              return (
-                <tr key={row.rowId}>
-                  {row.cells.map(({ key, value }) => (
-                    <td key={key}>{value}</td>
-                  ))}
-                </tr>
-              );
-            })}
+            {rows.map(row => (
+              <tr key={row.rowId}>
+                {row.cells.map(({ key, value }) => (
+                  <td key={key}>{value}</td>
+                ))}
+              </tr>
+            ))}
           </tbody>
         </Table>
       </Certificate>
