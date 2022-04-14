@@ -1,4 +1,3 @@
-
 const TARGETS = [
   { table: 'encounters', type: 'location' },
   { table: 'encounters', type: 'department' },
@@ -7,20 +6,23 @@ const TARGETS = [
 
 // helper function to ensure ref data records point to the right kind of data
 async function sanitiseForeignKeys(query, table, target) {
-  const column = `${target}_id`; 
+  const column = `${target}_id`;
 
   // find any records that have an erroneous foreign key
   // (eg a location_id that points to a department)
-  const [records] = await query.sequelize.query(`
+  const [records] = await query.sequelize.query(
+    `
     SELECT ${table}.id
       FROM ${table}
       JOIN reference_data ON ${column} = reference_data.id
       WHERE reference_data.type <> :type;
-  `, {
-    replacements: {
-      type: target,
-    }
-  });
+  `,
+    {
+      replacements: {
+        type: target,
+      },
+    },
+  );
 
   // bail early if there aren't any; job's done!
   if (!records.length) return;
@@ -28,32 +30,38 @@ async function sanitiseForeignKeys(query, table, target) {
   // pick any valid record off the pile for the appropriate data type
   // to use as a replacement (this will be a destructive operation but
   // these fields are all dummy data even when they're healthy)
-  const [validRecords] = await query.sequelize.query(`
+  const [validRecords] = await query.sequelize.query(
+    `
     SELECT id
       FROM reference_data 
       WHERE type = :type
       LIMIT 1
-  `, { replacements: { type: target } });
+  `,
+    { replacements: { type: target } },
+  );
 
   const validFkey = validRecords[0].id;
-  
+
   // set the erroneous records to use a valid id so the rest of the migration
   // can continue without error
-  const updates = await query.sequelize.query(`
+  await query.sequelize.query(
+    `
     UPDATE ${table}
       SET ${column} = :validFkey
       WHERE id IN (:ids)
-  `, {
-    replacements: {
-      validFkey,
-      ids: records.map(x => x.id),
-    }
-  });
+  `,
+    {
+      replacements: {
+        validFkey,
+        ids: records.map(x => x.id),
+      },
+    },
+  );
 }
 
 // helper function to move a FK constraint to point at a different column/table
 async function switchConstraint(query, table, target, up) {
-  const column = `${target}_id`;                // eg location_id
+  const column = `${target}_id`; // eg location_id
   const constraint = `${table}_${column}_fkey`; // eg encounter_location_id_fkey
 
   // remove existing constraint

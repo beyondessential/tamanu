@@ -1,5 +1,7 @@
+/* eslint-disable no-param-reassign, camelcase, no-unused-vars */
+
 import moment from 'moment';
-import { groupBy, keyBy } from 'lodash';
+import { groupBy } from 'lodash';
 
 import { generateReportFromQueryData } from './utilities';
 
@@ -260,7 +262,7 @@ const makeDemographicsKey = (ethnicity, under30) =>
  * Then, the results for all entries in those arrays are summed
  *
  */
-const transformResultsForDate = (date, resultsForDate) => {
+const transformResultsForDate = (thisDate, resultsForDate) => {
   const groupableResults = resultsForDate.map(
     ({ ethnicity_id, under_30, date, ...summableKeys }) => ({
       groupingKey: makeDemographicsKey(ethnicity_id, under_30),
@@ -292,7 +294,7 @@ const transformResultsForDate = (date, resultsForDate) => {
   );
 
   return {
-    date,
+    date: thisDate,
     ...Object.entries(dataByDemographic).reduce(
       (acc, [demographicKey, data]) => ({
         ...acc,

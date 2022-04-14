@@ -42,5 +42,4 @@ export class Department extends Model {
       foreignKey: 'facilityId',
     });
   }
-
 }

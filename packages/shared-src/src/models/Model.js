@@ -58,7 +58,7 @@ export class Model extends sequelize.Model {
 
     const { models } = this.sequelize;
     const values = Object.entries(this.dataValues)
-      .filter(([key, val]) => val !== null)
+      .filter(([_key, val]) => val !== null) // eslint-disable-line no-unused-vars
       .reduce(
         (obj, [key, val]) => ({
           ...obj,
