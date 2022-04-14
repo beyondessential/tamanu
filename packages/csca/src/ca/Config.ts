@@ -38,6 +38,11 @@ export default class Config extends AuthenticatedFile {
     const config = await this.load();
     return config.issuance;
   }
+
+  public async getCrlFilename(): Promise<string> {
+    const config = await this.load();
+    return config.crl.filename;
+  }
 }
 
 export interface ConfigFile {

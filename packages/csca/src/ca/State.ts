@@ -169,6 +169,20 @@ export default class State extends AuthenticatedFile {
     return undefined;
   }
 
+  public async revokedCertificates(): Promise<CertificateIndexEntry[]> {
+    const state = await this.load();
+
+    const list = [];
+    for (const [serial, entry] of state.index.entries()) {
+      if (entry.revocationDate) {
+        const fullSerial = Buffer.from(serial, 'hex');
+        list.push(new CertificateIndexEntry(fullSerial, entry));
+      }
+    }
+
+    return list;
+  }
+
   /**
    * @internal Do not use outside of CA classes (e.g. directly from commands).
    */

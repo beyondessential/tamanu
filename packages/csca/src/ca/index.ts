@@ -20,6 +20,7 @@ import {
 } from './keys';
 import Certificate from './Certificate';
 import { ComputedExtension, ExtensionName } from './certificateExtensions';
+import Crl from './Crl';
 
 const MASTER_KEY_DERIVATION_ROUNDS = 10_000;
 const MASTER_KEY_DERIVATION_SALT = Buffer.from(
@@ -235,6 +236,14 @@ export default class CA {
     if (!root.asIndexEntry().isUsable) {
       throw new Error('CA is not usable: out of working period');
     }
+  }
+
+  private async generateCrl(): Promise<void> {
+    const key = await this.privateKey();
+    const root = await this.root();
+    const filename = await this.config(key).getCrlFilename();
+    const state = this.state(key);
+    const crl = await Crl.fromState(this.join(filename), key, root, state);
   }
 
   public async issueFromRequest(request: Pkcs10CertificateRequest): Promise<Certificate> {
