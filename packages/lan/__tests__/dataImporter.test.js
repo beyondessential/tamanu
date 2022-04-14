@@ -1,5 +1,6 @@
 import { importData } from '../app/admin/importDataDefinition';
 import { preprocessRecordSet } from '../app/admin/preprocessRecordSet';
+import { validateRecordSet } from '../app/admin/importerValidators';
 import { sendRecordGroups } from '../app/admin/createDataImporterEndpoint';
 import { createTestContext } from './utilities';
 import { WebRemote } from '../app/sync/WebRemote';
@@ -126,6 +127,32 @@ describe('Data definition import', () => {
       const response = await nonAdminApp.post('/v1/admin/importData');
       expect(response).toBeForbidden();
     });
+  });
+  it('should check for duplicate records', async () => {
+    const records = [
+      {
+        sheet: 'facilities',
+        row: 2,
+        recordType: 'facility',
+        data: {
+          id: 'facility-TamanuHealthCentre',
+          code: 'TamanuHealthCentre',
+          name: 'Tamanu Health Centre',
+        },
+      },
+      {
+        sheet: 'facilities',
+        row: 3,
+        recordType: 'facility',
+        data: {
+          id: 'facility-TamanuHealthCentre',
+          code: 'TamanuHealthCentre',
+          name: 'Tamanu Health Centre',
+        },
+      },
+    ];
+    const results = await validateRecordSet(records);
+    expect(results).toEqual({ errors: [], records });
   });
 });
 
