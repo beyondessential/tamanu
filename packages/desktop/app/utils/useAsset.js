@@ -4,9 +4,8 @@ import { useApi } from '../api';
 export const useAsset = assetName => {
   const api = useApi();
 
-  console.log('api', api);
-  const [asset, setAsset] = useState('');
-  const [assetType, setAssetType] = useState('');
+  const [asset, setAsset] = useState(null);
+  const [assetType, setAssetType] = useState(null);
 
   useEffect(() => {
     api.get(`asset/${assetName}`).then(response => {
