@@ -265,7 +265,7 @@ export class SenaitePoller extends ScheduledTask {
         }
       });
 
-      /* eslint-disable no-param-reassign */
+      // eslint-disable-next-line no-param-reassign
       realmLabRequest.status = results.status;
     });
   }
