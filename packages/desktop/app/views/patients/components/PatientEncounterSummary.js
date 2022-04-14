@@ -43,7 +43,7 @@ const Container = styled.div`
   transition: color 0.2s ease;
 
   ${props =>
-    props.onClick
+    props.clickable
       ? css`
           &:hover {
             cursor: pointer;
@@ -194,7 +194,7 @@ export const PatientEncounterSummary = ({
   const patientStatus = ENCOUNTER_TYPE_TO_STATUS[encounterType];
 
   return (
-    <Container patientStatus={patientStatus} onClick={() => viewEncounter(id)}>
+    <Container patientStatus={patientStatus} onClick={() => viewEncounter(id)} clickable>
       <Header patientStatus={patientStatus}>
         <BoldTitle variant="h3">Type:</BoldTitle>
         <Title variant="h3">{ENCOUNTER_OPTIONS_BY_VALUE[encounterType].label}</Title>
