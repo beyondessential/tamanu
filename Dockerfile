@@ -22,3 +22,5 @@ ENV PACKAGES_DIR=/tamanu/packages \
     SYNC_SERVER_ROOT=/tamanu/packages/sync-server
 COPY . .tmp/
 WORKDIR /tamanu
+RUN /.tmp/scripts/copy_files.sh
+ENTRYPOINT [ "/bin/sh" ]
