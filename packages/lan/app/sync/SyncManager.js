@@ -79,7 +79,7 @@ export class SyncManager {
     let limit = INITIAL_PULL_LIMIT;
     log.info(`SyncManager.pullAndImport: syncing ${channel} (last: ${cursor})`);
 
-    /* eslint-disable no-constant-condition */
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       // pull
       log.debug(
