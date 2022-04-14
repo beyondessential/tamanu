@@ -2,7 +2,7 @@
   type: serial
   encrypted_dockercfg_path: dockercfg.encrypted
   steps:
-    - name: prepare ci state
+    - name: setup ci state
       service: app
       command: /pre/scripts/setup_ci.sh
     - name: install dependencies
