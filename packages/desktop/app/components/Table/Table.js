@@ -261,20 +261,15 @@ class TableComponent extends React.Component {
       return null;
     }
 
-    // An extra empty cell is needed to fill in blank space when there is no paginator.
-    // However, if there is only one column we don't want the extra empty cell as it will
-    // mess up the table display.
-    const extraEmptyCell = columns.length === 1 ? null : <TableCell colSpan={columns.length} />;
-
     return (
       <StyledTableFooter>
         <TableRow>
           {allowExport ? (
-            <TableCell>
+            <TableCell colSpan={page !== null ? 1 : columns.length}>
               <DownloadDataButton exportName={exportName} columns={columns} data={data} />
             </TableCell>
           ) : null}
-          {page !== null ? this.renderPaginator() : extraEmptyCell}
+          {page !== null && this.renderPaginator()}
         </TableRow>
       </StyledTableFooter>
     );
