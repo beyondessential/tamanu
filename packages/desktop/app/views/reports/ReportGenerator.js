@@ -15,15 +15,13 @@ const SuccessMessageContainer = styled(Grid)`
   background-color: ${green[50]};
 `;
 
-const SuccessfulSubmitMessage = ({ resetForm }) => {
-  return (
-    <SuccessMessageContainer>
-      <Button variant="outlined" color="primary" onClick={resetForm}>
-        Generate another report
-      </Button>
-    </SuccessMessageContainer>
-  );
-};
+const SuccessfulSubmitMessage = ({ resetForm }) => (
+  <SuccessMessageContainer>
+    <Button variant="outlined" color="primary" onClick={resetForm}>
+      Generate another report
+    </Button>
+  </SuccessMessageContainer>
+);
 
 export const ReportGenerator = () => {
   const [formState, setFormState] = useState('initial');

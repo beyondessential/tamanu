@@ -19,8 +19,7 @@ async function loadSigner({ signerCertificate }) {
     throw new Error('No pending signer, did you do this already?');
   }
 
-  const pendingSigner = pending[0];
-  await pendingSigner.update(signerData);
+  await pending.update(signerData);
   const start = moment(signerData.workingPeriodStart).format('YYYY-MM-DD');
   const end = moment(signerData.workingPeriodEnd).format('YYYY-MM-DD');
   log.info(`Loaded Signer (${start} - ${end})`);

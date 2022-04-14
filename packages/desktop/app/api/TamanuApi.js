@@ -54,7 +54,7 @@ const fetchOrThrowIfUnavailable = async (url, config) => {
 function safeGetStoredJSON(key) {
   try {
     return JSON.parse(localStorage.getItem(key));
-  } catch(e) {
+  } catch (e) {
     return {};
   }
 }

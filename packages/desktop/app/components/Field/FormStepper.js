@@ -45,20 +45,16 @@ const StyledStepButton = styled(StepButton)`
   }
 `;
 
-export const FormStepper = ({ screenIndex, handleStep, screens }) => {
-  return (
-    <StyledStepper nonLinear activeStep={screenIndex} connector={null}>
-      {screens.map(({ key }, index) => {
-        return (
-          <StyledStep key={key}>
-            <StyledStepButton
-              onClick={handleStep(index)}
-              icon={null}
-              $isActive={screenIndex >= index}
-            />
-          </StyledStep>
-        );
-      })}
-    </StyledStepper>
-  );
-};
+export const FormStepper = ({ screenIndex, handleStep, screens }) => (
+  <StyledStepper nonLinear activeStep={screenIndex} connector={null}>
+    {screens.map(({ key }, index) => (
+      <StyledStep key={key}>
+        <StyledStepButton
+          onClick={handleStep(index)}
+          icon={null}
+          $isActive={screenIndex >= index}
+        />
+      </StyledStep>
+    ))}
+  </StyledStepper>
+);

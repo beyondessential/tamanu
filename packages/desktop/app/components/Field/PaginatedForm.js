@@ -45,10 +45,10 @@ const DefaultSuccessScreen = ({ onClose }) => (
   </div>
 );
 
-const getVisibleQuestions = (questionComponents, values) => {
+const getVisibleQuestions = (questionComponents, values) =>
   // Adapt the questionComponents from react elements to the survey config objects which the
   // checkVisibility util expects
-  return questionComponents.filter(c =>
+  questionComponents.filter(c =>
     checkVisibility(
       {
         visibilityCriteria: JSON.stringify(c.props.visibilityCriteria),
@@ -60,8 +60,6 @@ const getVisibleQuestions = (questionComponents, values) => {
       })),
     ),
   );
-};
-
 const FormScreen = ({ screenComponent, values, onStepForward, onStepBack, isLast }) => {
   const { children } = screenComponent.props;
   const questionComponents = React.Children.toArray(children);

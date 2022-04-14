@@ -31,9 +31,7 @@ const HiddenInput = styled(TextInput)`
   }
 `;
 
-const HiddenField = props => {
-  return <HiddenInput {...props} type="hidden" />;
-};
+const HiddenField = props => <HiddenInput {...props} type="hidden" />;
 
 const UNIT_OPTIONS = [
   { unit: 'minutes', minutes: 1 },
