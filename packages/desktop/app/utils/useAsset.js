@@ -4,15 +4,15 @@ import { useApi } from '../api';
 export const useAsset = assetName => {
   const api = useApi();
 
-  const [asset, setAsset] = useState(null);
-  const [assetType, setAssetType] = useState(null);
+  const [assetData, setAssetData] = useState(null);
+  const [assetDataType, setAssetDataType] = useState(null);
 
   useEffect(() => {
     api.get(`asset/${assetName}`).then(response => {
-      setAsset(Buffer.from(response.data).toString('base64'));
-      setAssetType(response.type);
+      setAssetData(Buffer.from(response.data).toString('base64'));
+      setAssetDataType(response.type);
     });
   }, [api, assetName]);
 
-  return [asset, assetType];
+  return `data:${assetDataType};base64,${assetData}`;
 };
