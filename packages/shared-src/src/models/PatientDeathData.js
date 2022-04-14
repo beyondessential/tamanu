@@ -66,10 +66,12 @@ export class PatientDeathData extends Model {
 
     this.belongsTo(models.User, {
       foreignKey: 'clinicianId',
+      as: 'clinician',
     });
 
     this.belongsTo(models.Facility, {
       foreignKey: 'facilityId',
+      as: 'facility',
     });
 
     // conceptually "hasOne" but we want the foreign key to be here
