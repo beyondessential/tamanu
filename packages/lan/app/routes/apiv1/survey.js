@@ -24,7 +24,7 @@ survey.get(
     const { models } = req;
     req.checkPermission('list', 'Survey');
     const surveys = await models.Survey.findAll({
-      where: { surveyType: req.query.type }
+      where: { surveyType: req.query.type },
     });
 
     res.send({ surveys });
