@@ -6,9 +6,10 @@ describe('Scheduled Vaccine', () => {
   let app = null;
   let scheduledVaccine1 = null;
   let scheduledVaccine2 = null;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     const models = ctx.models;
     baseApp = ctx.baseApp;
     app = await baseApp.asRole('practitioner');
@@ -28,6 +29,7 @@ describe('Scheduled Vaccine', () => {
       }),
     );
   });
+  afterAll(() => ctx.close());
 
   it('should reject with insufficient permissions', async () => {
     const noPermsApp = await baseApp.asRole('base');

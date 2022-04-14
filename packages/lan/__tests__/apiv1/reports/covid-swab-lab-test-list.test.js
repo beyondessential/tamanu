@@ -378,9 +378,10 @@ describe('Covid swab lab test list', () => {
   let labRequest2 = null;
   let labRequest3 = null;
   let labRequest4 = null;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     const { models } = ctx;
     baseApp = ctx.baseApp;
     village1 = await randomReferenceId(models, 'village');
@@ -403,6 +404,7 @@ describe('Covid swab lab test list', () => {
       expectedPatient2,
     );
   });
+  afterAll(() => ctx.close());
 
   describe('checks permissions', () => {
     it('should reject creating a report with insufficient permissions', async () => {

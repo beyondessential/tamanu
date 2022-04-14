@@ -3,11 +3,9 @@ import { log } from 'shared/services/logging';
 import { Signer } from 'shared/models';
 import { depem, base64UrlEncode } from 'shared/utils';
 import { canonicalize } from 'json-canonicalize';
-import config from 'config';
+import { issueVdsNcSignature } from './Crypto';
 
 export class VdsNcDocument {
-  config = config.integrations.signer;
-
   models = { Signer };
 
   isSigned = false;
@@ -77,8 +75,7 @@ export class VdsNcDocument {
     this.signer = signer;
 
     const data = this.getMessageToSign();
-    const { keySecret } = this.config;
-    const { algorithm, signature } = await signer.issueSignature(data, keySecret);
+    const { algorithm, signature } = await issueVdsNcSignature(data, { models: this.models });
     this.algorithm = algorithm;
     this.signature = signature;
     this.isSigned = true;

@@ -1,7 +1,12 @@
 import * as yup from 'yup';
 import { ValidationError } from 'yup';
 
-import { PROGRAM_DATA_ELEMENT_TYPE_VALUES } from 'shared/constants';
+import {
+  ENCOUNTER_TYPES,
+  INJECTION_SITE_OPTIONS,
+  PROGRAM_DATA_ELEMENT_TYPE_VALUES,
+  VACCINE_STATUS,
+} from 'shared/constants';
 import { ForeignKeyStore } from './ForeignKeyStore';
 
 const safeIdRegex = /^[A-Za-z0-9-]+$/;
@@ -52,13 +57,13 @@ const facilitySchema = baseSchema.shape({
 const departmentSchema = baseSchema.shape({
   code: fieldTypes.code.required(),
   name: fieldTypes.name.required(),
-  facilityId: yup.string(),
+  facilityId: yup.string().required(),
 });
 
 const locationSchema = baseSchema.shape({
   code: fieldTypes.code.required(),
   name: fieldTypes.name.required(),
-  facilityId: yup.string(),
+  facilityId: yup.string().required(),
 });
 
 const LAB_TEST_RESULT_TYPES = ['Number', 'Select', 'FreeText'];
@@ -129,6 +134,46 @@ const surveySchema = baseSchema.shape({
   isSensitive: yup.boolean().required(),
 });
 
+const encounterSchema = baseSchema.shape({
+  // contains only what's needed for administeredVaccine imports, extend as neccesary
+  encounterType: yup.string().oneOf(Object.values(ENCOUNTER_TYPES)),
+  startDate: yup.date().required(),
+  endDate: yup.date(),
+  reasonForEncounter: yup.string(),
+  administeredVaccines: yup
+    .array()
+    .of(
+      yup
+        .object({
+          recordType: yup
+            .string()
+            .oneOf(['administeredVaccine'])
+            .required(),
+          data: baseSchema.shape({
+            batch: yup.string(),
+            consent: yup.boolean().required(),
+            status: yup
+              .string()
+              .oneOf(Object.values(VACCINE_STATUS)) // TODO
+              .required(),
+            reason: yup.string(),
+            // TODO: what does this actually do?
+            // location: yup.string(),
+            injectionSite: yup.string().oneOf(Object.values(INJECTION_SITE_OPTIONS)),
+            date: yup.date().required(),
+            scheduledVaccineId: yup.string().required(),
+          }),
+        })
+        .required(),
+    )
+    .required(),
+  // relationships
+  locationId: yup.string().required(),
+  departmentId: yup.string().required(),
+  examinerId: yup.string().required(),
+  patientId: yup.string().required(),
+});
+
 const validationSchemas = {
   base: baseSchema,
   referenceData: referenceDataSchema,
@@ -142,6 +187,7 @@ const validationSchemas = {
   surveyScreenComponent: surveyScreenComponentSchema,
   programDataElement: programDataElementSchema,
   scheduledVaccine: scheduledVaccineSchema,
+  encounter: encounterSchema,
 };
 
 // TODO: allow referencedata relations to specify reference data type

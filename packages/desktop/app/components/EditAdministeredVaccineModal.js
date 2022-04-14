@@ -1,12 +1,13 @@
 import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
 
+import { VACCINE_STATUS } from 'shared/constants';
+
 import { Modal } from './Modal';
 
 import { connectApi } from '../api/connectApi';
 import { reloadPatient } from '../store/patient';
 
-import { VACCINE_STATUS } from '../constants';
 import { ContentPane } from './ContentPane';
 import { DeleteButton } from './Button';
 import { TextInput } from './Field';

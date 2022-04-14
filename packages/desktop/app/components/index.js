@@ -4,6 +4,8 @@ export * from './ButtonRow';
 export * from './DateDisplay';
 export * from './Dialog';
 export * from './Field';
+export * from './FormGrid';
+export * from './FormTooltip';
 export * from './Layout';
 export * from './Modal';
 export * from './Notification';

@@ -2,7 +2,7 @@ import { keyBy } from 'lodash';
 import { Op } from 'sequelize';
 import moment from 'moment';
 import { REFERRAL_STATUSES } from '../../constants';
-import { generateReportFromQueryData } from '../utilities';
+import { generateReportFromQueryData, getAnswers} from '../utilities';
 import {
   transformAndRemoveDuplicatedAnswersPerDate,
   getPatientById,
@@ -10,7 +10,6 @@ import {
   getSurveyGroupKey,
   getFormDataElements,
   getReferralDataElements,
-  getAnswers,
   getPerPatientPerSurveyPerDatePerElementKey,
   getCachedAnswer,
   parametersToAnswerSqlWhere,

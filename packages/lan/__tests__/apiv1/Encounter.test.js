@@ -12,14 +12,16 @@ describe('Encounter', () => {
   let app = null;
   let baseApp = null;
   let models = null;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
     patient = await models.Patient.create(await createDummyPatient(models));
     app = await baseApp.asRole('practitioner');
   });
+  afterAll(() => ctx.close());
 
   it('should reject reading an encounter with insufficient permissions', async () => {
     const noPermsApp = await baseApp.asRole('base');
@@ -669,6 +671,7 @@ describe('Encounter', () => {
 
         const result = await app.post(`/v1/encounter/${encounter.id}/documentMetadata`).send({
           name: 'test document',
+          type: 'application/pdf',
           documentOwner: 'someone',
           note: 'some note',
         });

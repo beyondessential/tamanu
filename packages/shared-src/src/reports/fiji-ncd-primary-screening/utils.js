@@ -2,7 +2,7 @@ import { groupBy, keyBy } from 'lodash';
 import { Op } from 'sequelize';
 import moment from 'moment';
 
-import { transformAnswers } from '../utilities/transformAnswers';
+import { transformAnswers } from '../utilities';
 
 import {
   CVD_SURVEY_IDS,
@@ -95,9 +95,11 @@ export const getCachedAnswer = (
 export const getSurveyGroupKey = surveyId => {
   if (CVD_SURVEY_IDS.includes(surveyId)) {
     return CVD_SURVEY_GROUP_KEY;
-  } else if (BREAST_CANCER_SURVEY_IDS.includes(surveyId)) {
+  }
+  if (BREAST_CANCER_SURVEY_IDS.includes(surveyId)) {
     return BREAST_CANCER_SURVEY_GROUP_KEY;
-  } else if (CERVICAL_CANCER_SURVEY_IDS.includes(surveyId)) {
+  }
+  if (CERVICAL_CANCER_SURVEY_IDS.includes(surveyId)) {
     return CERVICAL_CANCER_SURVEY_GROUP_KEY;
   }
   // should never happen
@@ -139,29 +141,6 @@ export const getReferralDataElements = surveyGroupKey => {
       return CERVICAL_CANCER_PRIMARY_SCREENING_REFERRAL_DATA_ELEMENT_IDS;
   }
 };
-
-export const getAnswers = async (models, where) =>
-  models.SurveyResponseAnswer.findAll({
-    where: {
-      ...where,
-      body: {
-        [Op.not]: '',
-      },
-    },
-    include: [
-      {
-        model: models.SurveyResponse,
-        as: 'surveyResponse',
-        include: [
-          {
-            model: models.Encounter,
-            as: 'encounter',
-          },
-        ],
-      },
-    ],
-    order: [[{ model: models.SurveyResponse, as: 'surveyResponse' }, 'end_time', 'ASC']],
-  });
 
 /**
  * Have to query patients separately instead of joining with encounters because

@@ -67,7 +67,10 @@ describe('getSyncable', () => {
     }
   });
 
+  const ALLOWABLE_TIME = 5000;
+  const NUM_RUNS = 5;
   it('completes in less than 5s with 30k patients and 3k encounters', async () => {
+    jest.setTimeout(ALLOWABLE_TIME * NUM_RUNS + 5000);
     const user = fakeUser();
     await Database.models.User.insert(user);
 
@@ -96,13 +99,16 @@ describe('getSyncable', () => {
 
     // act
     let syncablePatients: Patient[];
-
-    const nanoseconds = await time(async () => {
-      syncablePatients = await Database.models.Patient.getSyncable();
-    });
+    const times = [];
+    for (let i = 0; i < NUM_RUNS; i++) {
+      times.push(await time(async () => {
+        syncablePatients = await Database.models.Patient.getSyncable();
+      }));
+    }
 
     // assert
-    const milliseconds = nanoseconds / BigInt(1e+6);
+    const avg = times.reduce((a, b) => a + b) / BigInt(NUM_RUNS);
+    const milliseconds = avg / BigInt(1e+6);
     expect(milliseconds).toBeLessThan(5000);
     expect(syncablePatients.length).toBeGreaterThanOrEqual(30000);
 

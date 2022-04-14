@@ -1,5 +1,6 @@
 import React from 'react';
 import { chunk } from 'lodash';
+import { isTablet } from 'react-native-device-info';
 
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { StyledView, RowView } from '~/ui/styled/common';
@@ -9,16 +10,15 @@ import { InformationBox } from '~/ui/navigation/screens/home/PatientDetails/Cust
 interface FieldRowDisplayProps {
   fields: string[][];
   header?: string;
-  fieldsPerRow: number;
 }
 
 export const FieldRowDisplay = ({
   fields,
   header,
-  fieldsPerRow,
 }: FieldRowDisplayProps): JSX.Element => {
   const { getString, getBool } = useLocalisation();
   const visibleFields = fields.filter(([name]) => getBool(`fields.${name}.hidden`) !== true);
+  const fieldsPerRow = isTablet() ? 2 : 1;
   const rows = chunk(visibleFields, fieldsPerRow);
 
   return (
