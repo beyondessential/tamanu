@@ -11,6 +11,8 @@ RUN dpkg --add-architecture i386 \
         wine \
         wixl \
         zip \
+    && yarn config set workspaces-experimental true \
+    && yarn config set workspaces-nohoist-experimental true \
     && mkdir /pre /tamanu
 WORKDIR /pre
 
