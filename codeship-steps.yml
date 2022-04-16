@@ -2,24 +2,28 @@
   type: serial
   encrypted_dockercfg_path: dockercfg.encrypted
   steps:
-    - name: setup ci state
-      service: app
-      command: /pre/scripts/setup_ci.sh
+    - name: copy files
+      service: app-without-db
+      command: /pre/scripts/copy_files.sh
     - name: install dependencies
-      service: app
+      service: app-without-db
       command: scripts/build_shared.sh
     - name: run migrations
-      service: app
+      service: app-with-db
       command: scripts/apply_and_revert_sync_server_migrations.sh
     - name: run tests
       type: serial
       steps:
-        - name: app test
-          service: app
+        - name: test app
+          service: app-with-db
           command: ./scripts/test.sh
-        - name: mobile test
+        - name: test mobile
           service: mobile
           command: "yarn test:coverage"
+    - name: fix ssh for builds
+      tag: ^(master$|dev$|staging$|ci-)
+      service: app-without-db
+      command: /pre/scripts/fix_ssh.sh
     - name: build packages
       tag: ^(master$|dev$|staging$|ci-)
       type: parallel
@@ -29,31 +33,31 @@
           type: serial
           steps:
             - name: build_and_pack_lan_installer
-              service: app
+              service: app-without-db
               tag: ^(master$|dev$|staging$|ci-)
               command: ./scripts/build_lan.sh
             - name: build_lan_release
               tag: ^(master$|dev$|staging$|ci-)
-              service: app
+              service: app-without-db
               command: ./scripts/build_package_release.sh lan
         - name: build_and_pack_desktop_installer
-          service: app
+          service: app-without-db
           tag: ^(master$|dev$|staging$|ci-)
           command: ./scripts/build_desktop.sh build-only
         - name: build_sync_release
           tag: ^(master$|dev$|staging$|ci-)
-          service: app
+          service: app-without-db
           command: ./scripts/build_package_release.sh sync-server
         - name: build_meta_release
           tag: ^(master$|dev$|staging$|ci-)
-          service: app
+          service: app-without-db
           command: ./scripts/build_package_release.sh meta-server
     - name: push and deploy
       tag: ^(master$|dev$|staging$|ci-|release-desktop-)
       type: parallel
       steps:
         - name: build_and_release_desktop_installer
-          service: app
+          service: app-without-db
           tag: ^(release-desktop-)
           command: ./scripts/build_desktop.sh build-and-release
         - name: push_artefacts_to_s3
