@@ -12,6 +12,7 @@ import {
   GeneralName,
   CRLNumber,
   id_ce_cRLNumber,
+  RevokedCertificate,
 } from '@peculiar/asn1-x509';
 import {
   AuthorityKeyIdentifierExtension,
@@ -57,6 +58,11 @@ export default class Crl {
 
     const serial = readSerial(await state.nextCrlSerial());
 
+    const revokedCertificates = revokedCerts.length ? revokedCerts.map(cert => new RevokedCertificate({
+      revocationDate: new Time(cert.revocationDate!),
+      userCertificate: cert.serial,
+    })) : undefined;
+
     // Doc 9303-12 defines the CRL profile in §7.1.4:
     // - Version 2
     // - Signature algo on the tbsCertList and outer CertList must match
@@ -80,6 +86,7 @@ export default class Crl {
       issuer,
       thisUpdate: new Time(now),
       nextUpdate: new Time(next),
+      revokedCertificates,
       crlExtensions: [
         new Extension({
           critical: false,
