@@ -134,4 +134,24 @@ export default class Crl {
 
     return new Crl(path);
   }
+
+  private async read(): Promise<TBSCertList> {
+    const der = await fs.readFile(this.path);
+    const certList = AsnConvert.parse(der, CertificateList);
+    // check signature
+    // return tbsCertList
+  }
+
+  public async date(): Promise<Date> {
+    const crl = await this.read();
+    return crl.thisUpdate.getTime();
+  }
+
+  public async serial(): Promise<Buffer> {
+    const crl = await this.read();
+    const numext = crl.crlExtensions?.find(ext => ext.extnID === id_ce_cRLNumber);
+    if (!numext) throw new Error('CRL missing CRLNumber extension');
+    const num = AsnConvert.parse(numext.extnValue, CRLNumber);
+    return Buffer.from(num.value.toString(16), 'hex');
+  }
 }

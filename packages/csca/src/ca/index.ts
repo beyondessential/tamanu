@@ -238,12 +238,25 @@ export default class CA {
     }
   }
 
-  private async generateCrl(): Promise<void> {
+  public async generateCrl(): Promise<Crl> {
     const key = await this.privateKey();
     const root = await this.root();
     const filename = await this.config(key).getCrlFilename();
     const state = this.state(key);
+
+    console.debug('generate crl');
     const crl = await Crl.fromState(this.join(filename), key, root, state);
+
+    console.debug('add to log');
+    await this.log(key).generateCrl(crl);
+
+    return crl;
+  }
+
+  public async revokedCertificates(): Promise<CertificateIndexEntry[]> {
+    const key = await this.publicKey();
+    const state = this.state(key);
+    return state.revokedCertificates();
   }
 
   public async issueFromRequest(request: Pkcs10CertificateRequest): Promise<Certificate> {

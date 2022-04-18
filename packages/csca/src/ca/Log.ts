@@ -4,11 +4,13 @@ import { join } from 'path';
 import AuthenticatedFile from './AuthenticatedFile';
 import Certificate from './Certificate';
 import { ConfigFile } from './Config';
+import Crl from './Crl';
 
 export enum Operation {
-  Create = 'creation',
+  Creation = 'creation',
   Issuance = 'issuance',
   Revocation = 'revocation',
+  CrlGeneration = 'crl-generation',
 }
 
 export interface LogMetadata {
@@ -53,7 +55,7 @@ export default class Log extends AuthenticatedFile {
   public async create(config: ConfigFile): Promise<void> {
     await this.append({
       ts: new Date(),
-      op: Operation.Create,
+      op: Operation.Creation,
       metadata: localMetadata(),
       data: config,
     });
@@ -74,6 +76,15 @@ export default class Log extends AuthenticatedFile {
       op: Operation.Revocation,
       metadata: localMetadata(),
       data: { serial: serial.toString('hex'), revocationDate: date },
+    });
+  }
+
+  public async generateCrl(crl: Crl): Promise<void> {
+    await this.append({
+      ts: new Date(),
+      op: Operation.CrlGeneration,
+      metadata: localMetadata(),
+      data: { serial: (await crl.serial()).toString('hex'), date: await crl.date() },
     });
   }
 }
