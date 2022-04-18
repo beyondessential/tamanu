@@ -122,6 +122,9 @@ export default class Crl {
       signature,
     });
 
+    const der = AsnConvert.serialize(certList);
+    await fs.writeFile(path, Buffer.from(der));
+
     return new Crl(path);
   }
 }
