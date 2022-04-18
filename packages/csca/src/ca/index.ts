@@ -201,10 +201,9 @@ export default class CA {
     await this.log(key).check();
 
     await this.root().then(cert => cert.check(key));
+    await this.crl().then(crl => crl.check());
 
-    // TODO: check signature on CRL
-
-    // console.debug('check integrity: OK');
+    // console.debug('check integrity: OK'); // re-enable when switching to configurable logging
   }
 
   /**
@@ -236,6 +235,12 @@ export default class CA {
     if (!root.asIndexEntry().isUsable) {
       throw new Error('CA is not usable: out of working period');
     }
+  }
+
+  public async crl(): Promise<Crl> {
+    const key = await this.publicKey();
+    const filename = await this.config(key).getCrlFilename();
+    return new Crl(this.join(filename), key);
   }
 
   public async generateCrl(): Promise<Crl> {

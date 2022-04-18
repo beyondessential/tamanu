@@ -150,6 +150,10 @@ export default class Crl {
     return certList.tbsCertList;
   }
 
+  public async check(): Promise<void> {
+    await this.read();
+  }
+
   public async date(): Promise<Date> {
     const crl = await this.read();
     return crl.thisUpdate.getTime();
