@@ -33,9 +33,11 @@ function asAki(ext: X509Extension | undefined): AuthorityKeyIdentifierExtension 
 
 export default class Crl {
   private path: string;
+  private key: CryptoKey;
 
-  constructor(path: string) {
+  constructor(path: string, key: CryptoKey) {
     this.path = path;
+    this.key = key;
   }
 
   /** @internal public only for CA use, do not use directly */
@@ -132,14 +134,20 @@ export default class Crl {
     const der = AsnConvert.serialize(certList);
     await fs.writeFile(path, Buffer.from(der));
 
-    return new Crl(path);
+    return new Crl(path, key);
   }
 
   private async read(): Promise<TBSCertList> {
     const der = await fs.readFile(this.path);
     const certList = AsnConvert.parse(der, CertificateList);
-    // check signature
-    // return tbsCertList
+
+    console.debug('verify crl signature');
+    const signingAlgorithm = this.key.algorithm as HashedAlgorithm;
+    const tbs = AsnConvert.serialize(certList.tbsCertList);
+    const valid = await crypto.subtle.verify(signingAlgorithm, this.key, certList.signature, tbs);
+    if (!valid) throw new Error('CRL signature is invalid');
+
+    return certList.tbsCertList;
   }
 
   public async date(): Promise<Date> {
