@@ -164,7 +164,8 @@ export default class CA {
     console.debug('write root certificate');
     await root.write(this.join('ca.crt'));
 
-    // TODO: crl
+    console.debug('generate first crl')
+    await this.generateCrl();
   }
 
   private config(key: CryptoKey, newfile?: boolean): Config {
