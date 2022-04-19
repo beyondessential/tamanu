@@ -18,7 +18,6 @@ function formatForSenaite(datetime) {
 }
 
 export class SenaitePoller extends ScheduledTask {
-
   getName() {
     return 'SenaitePoller';
   }
@@ -42,7 +41,7 @@ export class SenaitePoller extends ScheduledTask {
   async getAllItems(endpoint) {
     // traverse pagination to get all items
     let body = await this.apiRequest(endpoint);
-    let items = body.items;
+    let { items } = body;
     while (body.next) {
       body = await this.request(body.next);
       items = [...items, ...body.items];
@@ -73,7 +72,7 @@ export class SenaitePoller extends ScheduledTask {
     try {
       return JSON.parse(rawbody);
     } catch (e) {
-      console.error(rawbody);
+      log.error(rawbody);
       throw e;
     }
   }
@@ -87,7 +86,7 @@ export class SenaitePoller extends ScheduledTask {
           throw new Error('Senaite authentication failed');
         }
 
-        console.log('Logged in to Senaite');
+        log.info('Logged in to Senaite');
       })();
     }
 
@@ -107,6 +106,7 @@ export class SenaitePoller extends ScheduledTask {
       objects.forEach(o => {
         const matching = findSenaiteItem(o);
         if (matching) {
+          // eslint-disable-next-line no-param-reassign
           o.senaiteId = matching.uid;
         }
       });
@@ -126,7 +126,7 @@ export class SenaitePoller extends ScheduledTask {
       try {
         await this.createLabRequest(labRequest);
       } catch (e) {
-        console.error(e);
+        log.error(e);
         this.database.write(() => {
           labRequest.status = SENAITE_ERROR_STATUS;
         });
@@ -138,7 +138,7 @@ export class SenaitePoller extends ScheduledTask {
     const labRequestRealmId = labRequest._id;
     const url = `${BASE_URL}/analysisrequests/ajax_ar_add/submit`;
 
-    console.log('CREATING', labRequestRealmId);
+    log.debug('Senaite LabRequest: CREATING', labRequestRealmId);
 
     // get analyses that have associated senaite IDs
     const testIDs = labRequest.tests.map(x => x.type.senaiteId).filter(x => x);
@@ -152,14 +152,14 @@ export class SenaitePoller extends ScheduledTask {
     // generate string of the format 0dddddddd
     const sampleId = `000000000${Math.floor(Math.random() * 99999999)}`.slice(-9);
 
-    const result = await new Promise((resolve, reject) => {
+    await new Promise((resolve, reject) => {
       const request = post(
         {
           url,
           jar: this.jar,
           rejectUnauthorized: false,
         },
-        (err, response, body) => (err ? reject(err) : resolve(body)),
+        (err, _response, body) => (err ? reject(err) : resolve(body)),
       );
 
       // append form data to the request
@@ -185,10 +185,12 @@ export class SenaitePoller extends ScheduledTask {
       throw new Error('Could not get senaite ID for new lab request');
     }
 
-    console.log('CREATED', createdRequest.url);
+    log.debug('Senaite LabRequest: CREATED', createdRequest.url);
 
     this.database.write(() => {
+      // eslint-disable-next-line no-param-reassign
       labRequest.senaiteId = createdRequest.uid;
+      // eslint-disable-next-line no-param-reassign
       labRequest.sampleId = sampleId;
     });
   }
@@ -241,16 +243,16 @@ export class SenaitePoller extends ScheduledTask {
     const { senaiteId } = realmLabRequest;
     const results = await this.fetchLabRequestInfo(senaiteId);
 
-    console.log('Updating tests for', realmLabRequest._id);
+    log.debug('Updating tests for', realmLabRequest._id);
     this.database.write(() => {
-      realmLabRequest.tests.map(realmTest => {
+      realmLabRequest.tests.forEach(realmTest => {
         const senaiteResult = results.tests.find(x => x.serviceId === realmTest.type.senaiteId);
         if (senaiteResult) {
           if (
             realmTest.status !== senaiteResult.status ||
             realmTest.result !== senaiteResult.result
           ) {
-            console.log(
+            log.debug(
               'Updated',
               realmTest.type.name,
               realmTest.status,
@@ -258,12 +260,16 @@ export class SenaitePoller extends ScheduledTask {
               senaiteResult.status,
               `(${senaiteResult.result})`,
             );
+
+            // eslint-disable-next-line no-param-reassign
             realmTest.result = senaiteResult.result;
+            // eslint-disable-next-line no-param-reassign
             realmTest.status = senaiteResult.status;
           }
         }
       });
 
+      // eslint-disable-next-line no-param-reassign
       realmLabRequest.status = results.status;
     });
   }
