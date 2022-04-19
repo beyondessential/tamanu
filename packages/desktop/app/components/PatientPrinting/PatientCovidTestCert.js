@@ -6,7 +6,7 @@ import { Modal } from '../Modal';
 import { useApi } from '../../api';
 import { useLocalisation } from '../../contexts/Localisation';
 import { EmailButton } from '../Email/EmailButton';
-import { PDFViewer, printPDF } from '../PDFViewer';
+import { PDFViewer, printPDF } from './PDFViewer';
 import { getCurrentUser } from '../../store';
 import { useCertificate } from '../../utils/useCertificate';
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Typography, Box } from '@material-ui/core';
-import { PrintLetterhead } from '../Print/Letterhead';
+import { PrintLetterhead } from './Letterhead';
 import { DateDisplay } from '../DateDisplay';
 
 const PatientDetailsHeader = styled(Typography)`

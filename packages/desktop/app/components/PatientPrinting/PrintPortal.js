@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import styled from 'styled-components';
 import { createPortal } from 'react-dom';
 
 export const PrintPortal = React.memo(({ children }) => {
@@ -15,9 +14,3 @@ export const PrintPortal = React.memo(({ children }) => {
 
   return createPortal(children, el);
 });
-
-export const LetterPage = styled.div`
-  background: white;
-  width: 8.5in;
-  height: 11in;
-`;

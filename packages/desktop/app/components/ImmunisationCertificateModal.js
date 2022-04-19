@@ -7,7 +7,7 @@ import { useApi } from '../api';
 import { EmailButton } from './Email/EmailButton';
 import { useCertificate } from '../utils/useCertificate';
 import { getCurrentUser } from '../store';
-import { PDFViewer, printPDF } from './PDFViewer';
+import { PDFViewer, printPDF } from './PatientPrinting/PDFViewer';
 import { useLocalisation } from '../contexts/Localisation';
 
 export const ImmunisationCertificateModal = ({ open, onClose, patient }) => {
