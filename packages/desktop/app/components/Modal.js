@@ -87,16 +87,18 @@ export const Modal = memo(
     open = false,
     onClose,
     printable = false,
-    printablePDF = false,
+    onPrint = null,
     additionalActions,
     ...props
   }) => {
     const { printPage } = useElectron();
 
-    const printPDF = () => {
-      console.log('print pdf');
-      const iframe = document.getElementById('frameId');
-      iframe.contentWindow.print();
+    const handlePrint = () => {
+      if (onPrint) {
+        onPrint();
+      }
+
+      printPage();
     };
 
     return (
@@ -109,18 +111,7 @@ export const Modal = memo(
               <StyledButton
                 color="primary"
                 variant="outlined"
-                onClick={() => printPage()}
-                startIcon={<PrintIcon />}
-                size="small"
-              >
-                Print
-              </StyledButton>
-            )}
-            {printablePDF && (
-              <StyledButton
-                color="primary"
-                variant="outlined"
-                onClick={() => printPDF()}
+                onClick={handlePrint}
                 startIcon={<PrintIcon />}
                 size="small"
               >

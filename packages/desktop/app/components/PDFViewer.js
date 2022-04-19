@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
 import { usePDF } from '@react-pdf/renderer';
 
+const IFRAME_ID = 'frameId';
+
 export const PDFViewer = ({ children }) => {
   const [instance, updateInstance] = usePDF({ document: children });
 
@@ -11,10 +13,15 @@ export const PDFViewer = ({ children }) => {
   return (
     <iframe
       src={`${instance.url}#toolbar=0`}
-      title="vaccine-certificate"
-      id="frameId"
-      width={800}
+      title="tamanu-pdf-document"
+      id={IFRAME_ID}
+      width={790}
       height={1000}
     />
   );
+};
+
+export const printPDF = () => {
+  const iframe = document.getElementById(IFRAME_ID);
+  iframe.contentWindow.print();
 };

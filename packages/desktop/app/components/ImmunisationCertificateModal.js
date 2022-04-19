@@ -7,7 +7,7 @@ import { useApi } from '../api';
 import { EmailButton } from './Email/EmailButton';
 import { useCertificate } from '../utils/useCertificate';
 import { getCurrentUser } from '../store';
-import { PDFViewer } from './ImmunisationCertificate';
+import { PDFViewer, printPDF } from './ImmunisationCertificate';
 import { useLocalisation } from '../contexts/Localisation';
 
 export const ImmunisationCertificateModal = ({ open, onClose, patient }) => {
@@ -44,7 +44,8 @@ export const ImmunisationCertificateModal = ({ open, onClose, patient }) => {
       open={open}
       onClose={onClose}
       width="md"
-      printablePDF
+      printable
+      onPrint={printPDF}
       additionalActions={<EmailButton onEmail={createImmunisationCertificateNotification} />}
     >
       <PDFViewer>
