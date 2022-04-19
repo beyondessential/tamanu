@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize';
+import { Sequelize, Op } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
 import { Encounter } from './Encounter';
@@ -71,7 +71,10 @@ export class AdministeredVaccine extends Model {
     };
 
     if (vaccineLabels.length) {
-      query.where['$scheduledVaccine.label$'] = vaccineLabels;
+      query.where['$scheduledVaccine.label$'] = {
+        [Op.in]: vaccineLabels
+      };
+
       query.include.push({
         model: ScheduledVaccine,
         as: 'scheduledVaccine',
