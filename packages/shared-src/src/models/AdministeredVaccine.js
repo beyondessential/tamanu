@@ -55,7 +55,7 @@ export class AdministeredVaccine extends Model {
     });
   }
 
-  static async lastVaccinationForPatient(patientId, vaccineLabels = []) {
+  static async lastVaccinationForPatient(patientId, vaccineIds = []) {
     const query = {
       where: {
         '$encounter.patient_id$': patientId,
@@ -70,9 +70,9 @@ export class AdministeredVaccine extends Model {
       ],
     };
 
-    if (vaccineLabels.length) {
-      query.where['$scheduledVaccine.label$'] = {
-        [Op.in]: vaccineLabels
+    if (vaccineIds.length) {
+      query.where['$scheduledVaccine.vaccine_id$'] = {
+        [Op.in]: vaccineIds,
       };
 
       query.include.push({

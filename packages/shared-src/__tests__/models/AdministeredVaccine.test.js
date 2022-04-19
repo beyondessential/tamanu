@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 import { fake, fakePatient, fakeUser } from 'shared/test-helpers';
 import { initDb } from '../initDb';
-import { sleepAsync } from 'shared/utils/sleepAsync';
 import { add } from 'date-fns';
+import { fakeReferenceData } from 'shared/test-helpers/fake';
 
 describe('AdministeredVaccine.lastVaccinationForPatient', () => {
   let models;
@@ -13,13 +13,37 @@ describe('AdministeredVaccine.lastVaccinationForPatient', () => {
   beforeAll(async () => {
     context = await initDb({ testMode: true });
     models = context.models;
-    const { Patient, Encounter, Department, Location, User, Facility } = models;
+    const { Patient, Encounter, Department, Location, User, Facility, ReferenceData } = models;
 
     const examiner = await User.create(fakeUser());
     await Patient.create({ ...fakePatient(), id: patientId });
     const fact = await Facility.create({ ...fake(Facility) });
     const dept = await Department.create({ ...fake(Department), facilityId: fact.id });
     const loc = await Location.create({ ...fake(Location), facilityId: fact.id });
+
+    await ReferenceData.create({
+      ...fakeReferenceData(),
+      id: 'drug-Placebo',
+      code: 'Placebo',
+      type: 'drug',
+      name: 'Placebo',
+    });
+
+    await ReferenceData.create({
+      ...fakeReferenceData(),
+      id: 'drug-COVAX',
+      code: 'COVAX',
+      type: 'drug',
+      name: 'COVAX',
+    });
+
+    await ReferenceData.create({
+      ...fakeReferenceData(),
+      id: 'drug-COVID-19-Astra-Zeneca',
+      code: 'COVID-19-AZ',
+      type: 'drug',
+      name: 'COVID-19 AZ',
+    });
 
     await Encounter.create({
       ...fake(Encounter),
@@ -31,7 +55,7 @@ describe('AdministeredVaccine.lastVaccinationForPatient', () => {
       locationId: loc.id,
     });
   });
-  
+
   afterEach(async () => {
     await models.AdministeredVaccine.truncate();
   });
@@ -41,11 +65,12 @@ describe('AdministeredVaccine.lastVaccinationForPatient', () => {
       // Arrange
       const { AdministeredVaccine, ScheduledVaccine } = models;
       const scheduledVaccineId = uuidv4();
-      const now = new Date;
-      
+      const now = new Date();
+
       await ScheduledVaccine.create({
         ...fake(ScheduledVaccine),
         id: scheduledVaccineId,
+        vaccineId: 'drug-Placebo',
       });
 
       await AdministeredVaccine.create({
@@ -56,7 +81,6 @@ describe('AdministeredVaccine.lastVaccinationForPatient', () => {
         scheduledVaccineId,
         encounterId,
       });
-
 
       const vax = await AdministeredVaccine.create({
         ...fake(AdministeredVaccine),
@@ -69,21 +93,21 @@ describe('AdministeredVaccine.lastVaccinationForPatient', () => {
 
       // Act
       const result = await AdministeredVaccine.lastVaccinationForPatient(patientId);
-      
+
       // Assert
       expect(result).toBeTruthy();
       expect(result.id).toEqual(vax.id);
     });
-    
+
     it('should return nothing if there are no vax', async () => {
       // Arrange
       const { AdministeredVaccine, ScheduledVaccine } = models;
       const scheduledVaccineId = uuidv4();
-      const now = new Date();
 
       await ScheduledVaccine.create({
         ...fake(ScheduledVaccine),
         id: scheduledVaccineId,
+        vaccineId: 'drug-Placebo',
       });
 
       // Act
@@ -105,12 +129,13 @@ describe('AdministeredVaccine.lastVaccinationForPatient', () => {
       await ScheduledVaccine.create({
         ...fake(ScheduledVaccine),
         id: scheduledVaccineId,
+        vaccineId: 'drug-Placebo',
       });
 
       await ScheduledVaccine.create({
         ...fake(ScheduledVaccine),
         id: covidScheduledVaccineId,
-        label: 'COVID-19 AZ',
+        vaccineId: 'drug-COVID-19-Astra-Zeneca',
       });
 
       await AdministeredVaccine.create({
@@ -139,7 +164,7 @@ describe('AdministeredVaccine.lastVaccinationForPatient', () => {
         scheduledVaccineId: covidScheduledVaccineId,
         encounterId,
       });
-      
+
       await AdministeredVaccine.create({
         ...fake(AdministeredVaccine),
         id: 'last',
@@ -150,13 +175,15 @@ describe('AdministeredVaccine.lastVaccinationForPatient', () => {
       });
 
       // Act
-      const result = await AdministeredVaccine.lastVaccinationForPatient(patientId, ['COVID-19 AZ']);
+      const result = await AdministeredVaccine.lastVaccinationForPatient(patientId, [
+        'drug-COVID-19-Astra-Zeneca',
+      ]);
 
       // Assert
       expect(result).toBeTruthy();
       expect(result.id).toEqual(vax.id);
     });
-    
+
     it('should return nothing when no COVID19 vax are present', async () => {
       // Arrange
       const { AdministeredVaccine, ScheduledVaccine } = models;
@@ -166,43 +193,7 @@ describe('AdministeredVaccine.lastVaccinationForPatient', () => {
       await ScheduledVaccine.create({
         ...fake(ScheduledVaccine),
         id: scheduledVaccineId,
-      });
-
-      await AdministeredVaccine.create({
-        ...fake(AdministeredVaccine),
-        id: 'first',
-        status: 'GIVEN',
-        date: add(now, { minutes: 1 }),
-        scheduledVaccineId,
-        encounterId,
-      });
-
-      await AdministeredVaccine.create({
-        ...fake(AdministeredVaccine),
-        id: 'last',
-        status: 'GIVEN',
-        date: add(now, { minutes: 2 }),
-        scheduledVaccineId,
-        encounterId,
-      });
-
-      // Act
-      const result = await AdministeredVaccine.lastVaccinationForPatient(patientId, ['COVID-19 AZ']);
-
-      // Assert
-      expect(result).toBeNull();
-    });
-    
-    it('should return nothing when only COVAX is present', async () => {
-      // Arrange
-      const { AdministeredVaccine, ScheduledVaccine } = models;
-      const scheduledVaccineId = uuidv4();
-      const now = new Date();
-
-      await ScheduledVaccine.create({
-        ...fake(ScheduledVaccine),
-        id: scheduledVaccineId,
-        label: 'COVAX',
+        vaccineId: 'drug-Placebo',
       });
 
       await AdministeredVaccine.create({
@@ -225,7 +216,46 @@ describe('AdministeredVaccine.lastVaccinationForPatient', () => {
 
       // Act
       const result = await AdministeredVaccine.lastVaccinationForPatient(patientId, [
-        'COVID-19 AZ',
+        'drug-COVID-19-Astra-Zeneca',
+      ]);
+
+      // Assert
+      expect(result).toBeNull();
+    });
+
+    it('should return nothing when only COVAX is present', async () => {
+      // Arrange
+      const { AdministeredVaccine, ScheduledVaccine } = models;
+      const scheduledVaccineId = uuidv4();
+      const now = new Date();
+
+      await ScheduledVaccine.create({
+        ...fake(ScheduledVaccine),
+        id: scheduledVaccineId,
+        vaccineId: 'drug-COVAX',
+      });
+
+      await AdministeredVaccine.create({
+        ...fake(AdministeredVaccine),
+        id: 'first',
+        status: 'GIVEN',
+        date: add(now, { minutes: 1 }),
+        scheduledVaccineId,
+        encounterId,
+      });
+
+      await AdministeredVaccine.create({
+        ...fake(AdministeredVaccine),
+        id: 'last',
+        status: 'GIVEN',
+        date: add(now, { minutes: 2 }),
+        scheduledVaccineId,
+        encounterId,
+      });
+
+      // Act
+      const result = await AdministeredVaccine.lastVaccinationForPatient(patientId, [
+        'drug-COVID-19-Astra-Zeneca',
       ]);
 
       // Assert
