@@ -1,12 +1,10 @@
 import React, { useEffect, useCallback, useState } from 'react';
 import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
 import { VaccineCertificate } from 'shared/utils';
-import { useSelector } from 'react-redux';
 import { Modal } from './Modal';
 import { useApi } from '../api';
 import { EmailButton } from './Email/EmailButton';
 import { useCertificate } from '../utils/useCertificate';
-import { getCurrentUser } from '../store';
 import { PDFViewer, printPDF } from './PatientPrinting/PDFViewer';
 import { useLocalisation } from '../contexts/Localisation';
 
@@ -14,9 +12,7 @@ export const ImmunisationCertificateModal = ({ open, onClose, patient }) => {
   const api = useApi();
   const [immunisations, setImmunisations] = useState([]);
   const { getLocalisation } = useLocalisation();
-  const { watermark, logo, footerImg } = useCertificate();
-  const currentUser = useSelector(getCurrentUser);
-  const currentUserDisplayName = currentUser ? currentUser.displayName : '';
+  const { watermark, logo, footerImg, printedBy } = useCertificate();
 
   useEffect(() => {
     api.get(`patient/${patient.id}/administeredVaccines`).then(response => {
@@ -31,10 +27,10 @@ export const ImmunisationCertificateModal = ({ open, onClose, patient }) => {
         requireSigning: true,
         patientId: patient.id,
         forwardAddress: data.email,
-        createdBy: currentUserDisplayName,
+        createdBy: printedBy,
       });
     },
-    [api, patient, currentUserDisplayName],
+    [api, patient, printedBy],
   );
 
   return (
@@ -54,7 +50,7 @@ export const ImmunisationCertificateModal = ({ open, onClose, patient }) => {
           watermarkSrc={watermark}
           logoSrc={logo}
           signingSrc={footerImg}
-          printedBy={currentUserDisplayName}
+          printedBy={printedBy}
           getLocalisation={getLocalisation}
         />
       </PDFViewer>

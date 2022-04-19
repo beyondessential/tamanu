@@ -32,9 +32,7 @@ const Footnote = styled(Typography)`
   font-style: italic;
 `;
 
-const Base64Image = ({ data, mediaType = 'image/jpeg', ...props }) => (
-  <img {...props} src={`data:${mediaType};base64,${data}`} alt="" />
-);
+const Base64Image = ({ data, ...props }) => <img {...props} src={data} />;
 
 const SizedBase64Image = styled(Base64Image)`
   width: 100%;
@@ -45,8 +43,8 @@ const SizedBase64Image = styled(Base64Image)`
 
 const CertificateWrapper = styled.div`
   ${props =>
-    props.watermark && props.watermarkType
-      ? `background: linear-gradient(rgb(243, 245, 247,.9), rgb(243, 245, 247,.9)), url("data:${props.watermarkType};base64,${props.watermark}");
+    props.watermarkSrc
+      ? `background: linear-gradient(rgb(243, 245, 247,.9), rgb(243, 245, 247,.9)), url("${props.watermarkSrc}");
       background-repeat: no-repeat;
       background-attachment: scroll;
       background-position: center;
@@ -75,23 +73,13 @@ const Line = ({ text }) => {
 export const DeathCertificate = ({ patientData, certificateData }) => {
   const { firstName, lastName, dateOfBirth, sex, timeOfDeath, causeOfDeath } = patientData;
 
-  const {
-    title,
-    subTitle,
-    logo,
-    logoType,
-    watermark,
-    watermarkType,
-    footerImg,
-    footerImgType,
-    printedBy,
-  } = certificateData;
+  const { title, subTitle, logo, watermark, footerImg, printedBy } = certificateData;
 
   const dateOfPrinting = new Date();
 
   return (
-    <CertificateWrapper watermark={watermark} watermarkType={watermarkType}>
-      <PrintLetterhead title={title} subTitle={subTitle} logo={logo} logoType={logoType} />
+    <CertificateWrapper watermarkSrc={watermark}>
+      <PrintLetterhead title={title} subTitle={subTitle} logoSrc={logo} />
       <PatientDetailsHeader>Cause of death certificate</PatientDetailsHeader>
       <PatientDetailsSection>
         <Text>
@@ -185,7 +173,7 @@ export const DeathCertificate = ({ patientData, certificateData }) => {
           <DateDisplay date={new Date()} />
         </Text>
       </Grid>
-      {footerImg ? <SizedBase64Image data={footerImg} mediaType={footerImgType} /> : null}
+      {footerImg && <SizedBase64Image data={footerImg} />}
     </CertificateWrapper>
   );
 };

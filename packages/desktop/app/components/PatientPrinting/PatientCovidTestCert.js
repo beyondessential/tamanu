@@ -15,9 +15,7 @@ export const PatientCovidTestCert = ({ patient }) => {
   const [labs, setLabs] = useState([]);
   const { getLocalisation } = useLocalisation();
   const api = useApi();
-  const { watermark, logo, footerImg } = useCertificate();
-  const currentUser = useSelector(getCurrentUser);
-  const currentUserDisplayName = currentUser ? currentUser.displayName : '';
+  const { watermark, logo, footerImg, printedBy } = useCertificate();
 
   useEffect(() => {
     api.get(`patient/${patient.id}/covidLabTests`).then(response => {
@@ -32,10 +30,10 @@ export const PatientCovidTestCert = ({ patient }) => {
         requireSigning: false,
         patientId: patient.id,
         forwardAddress: data.email,
-        createdBy: currentUserDisplayName,
+        createdBy: printedBy,
       });
     },
-    [api, patient, currentUserDisplayName],
+    [api, patient, printedBy],
   );
 
   return (
@@ -50,13 +48,12 @@ export const PatientCovidTestCert = ({ patient }) => {
       <PDFViewer id="test-certificate">
         <CovidLabCertificate
           patient={patient}
-          createdBy={currentUserDisplayName}
           labs={labs}
           watermarkSrc={watermark}
           signingSrc={footerImg}
           logoSrc={logo}
           getLocalisation={getLocalisation}
-          printedBy={currentUserDisplayName}
+          printedBy={printedBy}
         />
       </PDFViewer>
     </Modal>

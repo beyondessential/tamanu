@@ -17,9 +17,9 @@ const HeaderText = styled.div`
   text-align: center;
 `;
 
-export const PrintLetterhead = ({ title, subTitle, logo, logoType }) => (
+export const PrintLetterhead = ({ title, subTitle, logoSrc }) => (
   <Header>
-    {logo && <LogoImage src={`data:${logoType};base64,${logo}`} />}
+    {logoSrc && <LogoImage src={logoSrc} />}
     <HeaderText>
       <h3>{title}</h3>
       <p>
