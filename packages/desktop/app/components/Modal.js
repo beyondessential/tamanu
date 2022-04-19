@@ -87,17 +87,25 @@ export const Modal = memo(
     open = false,
     onClose,
     printable = false,
+    printablePDF = false,
     additionalActions,
     ...props
   }) => {
     const { printPage } = useElectron();
+
+    const printPDF = () => {
+      console.log('print pdf');
+      const iframe = document.getElementById('frameId');
+      iframe.contentWindow.print();
+    };
+
     return (
       <Dialog fullWidth maxWidth={width} classes={classes} open={open} onClose={onClose} {...props}>
         <ModalTitle>
           <VerticalCenteredText>{title}</VerticalCenteredText>
           <div>
             {additionalActions}
-            {printable ? (
+            {printable && (
               <StyledButton
                 color="primary"
                 variant="outlined"
@@ -107,7 +115,18 @@ export const Modal = memo(
               >
                 Print
               </StyledButton>
-            ) : null}
+            )}
+            {printablePDF && (
+              <StyledButton
+                color="primary"
+                variant="outlined"
+                onClick={() => printPDF()}
+                startIcon={<PrintIcon />}
+                size="small"
+              >
+                Print
+              </StyledButton>
+            )}
             <IconButton onClick={onClose}>
               <CloseIcon />
             </IconButton>

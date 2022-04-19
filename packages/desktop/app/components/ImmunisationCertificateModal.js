@@ -1,16 +1,19 @@
 import React, { useEffect, useCallback, useState } from 'react';
 import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
+import { VaccineCertificate } from 'shared/utils';
 import { useSelector } from 'react-redux';
 import { Modal } from './Modal';
 import { useApi } from '../api';
 import { EmailButton } from './Email/EmailButton';
 import { useCertificate } from '../utils/useCertificate';
 import { getCurrentUser } from '../store';
-import { ImmunisationCertificate } from './ImmunisationCertificate';
+import { PDFViewer } from './ImmunisationCertificate';
+import { useLocalisation } from '../contexts/Localisation';
 
 export const ImmunisationCertificateModal = ({ open, onClose, patient }) => {
   const api = useApi();
   const [immunisations, setImmunisations] = useState();
+  const { getLocalisation } = useLocalisation();
   const { watermark, logo, footerImg } = useCertificate();
   const currentUser = useSelector(getCurrentUser);
   const currentUserDisplayName = currentUser ? currentUser.displayName : '';
@@ -41,16 +44,19 @@ export const ImmunisationCertificateModal = ({ open, onClose, patient }) => {
       open={open}
       onClose={onClose}
       width="md"
-      printable
+      printablePDF
       additionalActions={<EmailButton onEmail={createImmunisationCertificateNotification} />}
     >
-      <ImmunisationCertificate
-        patient={patient}
-        immunisations={immunisations}
-        watermark={watermark}
-        footerImg={footerImg}
-        logo={logo}
-      />
+      <PDFViewer>
+        <VaccineCertificate
+          patient={patient}
+          vaccinations={immunisations}
+          watermarkSrc={watermark}
+          logoSrc={logo}
+          signingSrc={footerImg}
+          getLocalisation={getLocalisation}
+        />
+      </PDFViewer>
     </Modal>
   );
 };
