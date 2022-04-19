@@ -7,7 +7,7 @@ import { BadAuthenticationError } from 'shared/errors';
 import { log } from 'shared/services/logging';
 import { getPermissionsForRoles } from 'shared/permissions/rolesToPermissions';
 
-import { WebRemote } from '~/sync';
+import { WebRemote } from '../sync';
 
 const { tokenDuration, secret } = config.auth;
 

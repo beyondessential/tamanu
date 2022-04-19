@@ -37,16 +37,16 @@ export const getClient = () => {
   return localStorage.getItem('clientId');
 };
 
-export const notify = (message, { type = 'error', autoClose = null, ...props } = {}) => {
+export const notify = (message, props) => {
   if (message !== false) {
-    toast(prepareToastMessage(message), { type, autoClose, ...props });
+    toast(prepareToastMessage(message), props);
   } else {
     toast.dismiss();
   }
 };
 
 export const notifySuccess = (msg, props) => notify(msg, { ...props, type: 'success' });
-export const notifyError = notify;
+export const notifyError = (msg, props) => notify(msg, { ...props, type: 'error' });
 
 export const flattenRequest = (object, deep = true) => {
   try {

@@ -1,7 +1,6 @@
 import express from 'express';
-import config from 'config';
 
-import { importProgram } from '~/admin/importProgram';
+import { importProgram } from '../../admin/importProgram';
 import { importData } from '../../admin/importDataDefinition';
 import { createDataImporterEndpoint } from '../../admin/createDataImporterEndpoint';
 

@@ -21,7 +21,7 @@ export const PatientSection = ({
     <StyledView>
       <RowView justifyContent="space-between">
         <SectionHeader h1>{title}</SectionHeader>
-        {onEdit && <EditButton onPress={onEdit} />}
+        {onEdit && <EditButton sectionTitle={title} onPress={onEdit} />}
       </RowView>
       {children}
     </StyledView>

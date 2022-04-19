@@ -73,14 +73,14 @@ export const InvoiceLineItemModal = ({
               component={AutocompleteField}
               suggester={practitionerSuggester}
             />
-            <Field name="price" label="Price" required disabled component={NumberField} />
+            <Field name="price" label="Price ($)" required disabled component={NumberField} />
             <Field
               name="percentageChange"
-              label="Percentage change (-/+)"
+              label="Discount/markup % (-/+)"
               component={NumberField}
             />
             <ButtonRow>
-              <Button variant="contained" onClick={onClose}>
+              <Button variant="outlined" onClick={onClose} color="primary">
                 Cancel
               </Button>
               <Button variant="contained" onClick={submitForm} color="primary">

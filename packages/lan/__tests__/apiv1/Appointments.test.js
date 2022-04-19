@@ -9,14 +9,16 @@ describe('Appointments', () => {
   let userApp;
   let patient;
   let appointment;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
     userApp = await baseApp.asRole('practitioner');
     patient = await models.Patient.create(await createDummyPatient(models));
   });
+  afterAll(() => ctx.close());
   it('should create a new appointment', async () => {
     const result = await userApp.post('/v1/appointments').send({
       patientId: patient.id,

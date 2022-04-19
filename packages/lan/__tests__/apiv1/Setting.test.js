@@ -6,12 +6,14 @@ describe('Setting', () => {
   let baseApp = null;
   let admin = null;
   let practitioner = null;
+  let ctx;
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     baseApp = ctx.baseApp;
     admin = await baseApp.asRole('admin');
     practitioner = await baseApp.asRole('practitioner');
   });
+  afterAll(() => ctx.close());
 
   describe('permissions', () => {
     it('should prevent users without sufficient permissions from creating setting', async () => {

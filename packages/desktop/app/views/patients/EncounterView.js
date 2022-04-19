@@ -31,7 +31,7 @@ import { VitalsTable } from '../../components/VitalsTable';
 import { connectRoutedModal } from '../../components/Modal';
 import { NoteModal } from '../../components/NoteModal';
 import { NoteTable } from '../../components/NoteTable';
-import { TopBar, DateDisplay, TopBarHeading } from '../../components';
+import { TopBar, DateDisplay, TopBarHeading, SuggesterSelectField } from '../../components';
 import { DocumentsPane, InvoicingPane } from './panes';
 import { DropdownButton } from '../../components/DropdownButton';
 import { FormGrid } from '../../components/FormGrid';
@@ -294,15 +294,21 @@ const EncounterInfoPane = React.memo(({ disabled, encounter }) => (
   <FormGrid columns={3}>
     <DateInput disabled={disabled} value={encounter.startDate} label="Arrival date" />
     <DateInput disabled={disabled} value={encounter.endDate} label="Discharge date" />
+    <SuggesterSelectField
+      disabled
+      label="Patient type"
+      field={{ name: 'patientBillingTypeId', value: encounter.patientBillingTypeId }}
+      endpoint="patientBillingType"
+    />
     <TextInput disabled={disabled} value={getDepartmentName(encounter)} label="Department" />
-    <TextInput disabled={disabled} value={getLocationName(encounter)} label="Location" />
     <SelectInput
       disabled={disabled}
       value={encounter.encounterType}
       label="Encounter type"
       options={encounterOptions}
     />
-    <TextInput disabled={disabled} value={getExaminerName(encounter)} label="Doctor/nurse" />
+    <TextInput disabled={disabled} value={getExaminerName(encounter)} label="Doctor/Nurse" />
+    <TextInput disabled={disabled} value={getLocationName(encounter)} label="Location" />
     {encounter.plannedLocation && (
       <TextInput
         disabled={disabled}
@@ -314,7 +320,7 @@ const EncounterInfoPane = React.memo(({ disabled, encounter }) => (
       disabled={disabled}
       value={encounter.reasonForEncounter}
       label="Reason for encounter"
-      style={{ gridColumn: 'span 3' }}
+      style={{ gridColumn: 'span 2' }}
     />
   </FormGrid>
 ));
@@ -468,6 +474,12 @@ function getHeaderText({ encounterType }) {
   }
 }
 
+const GridColumnContainer = styled.div`
+  // set min-width to 0 to stop the grid column getting bigger than it's parent
+  // as grid column children default to min-width: auto @see https://www.w3.org/TR/css3-grid-layout/#min-size-auto
+  min-width: 0;
+`;
+
 export const EncounterView = () => {
   const { getLocalisation } = useLocalisation();
   const patient = useSelector(state => state.patient);
@@ -481,7 +493,7 @@ export const EncounterView = () => {
   return (
     <TwoColumnDisplay>
       <PatientInfoPane patient={patient} disabled={disabled} />
-      <div>
+      <GridColumnContainer>
         <TopBar>
           <div>
             <TopBarHeading>{getHeaderText(encounter)}</TopBarHeading>
@@ -518,7 +530,7 @@ export const EncounterView = () => {
           encounter={encounter}
           disabled={disabled}
         />
-      </div>
+      </GridColumnContainer>
     </TwoColumnDisplay>
   );
 };

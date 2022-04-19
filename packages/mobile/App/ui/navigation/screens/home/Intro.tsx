@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, ReactElement } from 'react';
 import { useSelector } from 'react-redux';
 
 //Components
@@ -7,18 +7,17 @@ import {
   StyledText,
   StyledView,
   CenterView,
-} from '/styled/common';
-import { AppIntro1Icon, AppIntro2Icon, AppIntro3Icon } from '/components/Icons';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { theme } from '/styled/theme';
-import { StepMarker } from '/components/StepMarker';
-import { Button } from '/components/Button';
+} from '../../../styled/common';
+import { theme } from '../../../styled/theme';
+import { AppIntro1Icon, AppIntro2Icon, AppIntro3Icon } from '../../../components/Icons';
+import { StepMarker } from '../../../components/StepMarker';
+import { Button } from '../../../components/Button';
 //helpers
-import { authUserSelector } from '~/ui/helpers/selectors';
-import { disableAndroidBackButton } from '/helpers/android';
+import { authUserSelector } from '../../../helpers/selectors';
+import { screenPercentageToDP, Orientation } from '../../../helpers/screen';
+import { disableAndroidBackButton } from '../../../helpers/android';
 // Props
-import { NavigationProp } from '@react-navigation/native';
-import { IntroScreenProps } from '/interfaces/screens/HomeStack';
+import { IntroScreenProps } from '../../../interfaces/Screens/HomeStack/IntroProps';
 
 export interface IntroRouteProps {
   message: string;
@@ -27,14 +26,7 @@ export interface IntroRouteProps {
   step: number;
 }
 
-interface IntroProps {
-  navigation: NavigationProp<any>;
-  route: {
-    params: IntroRouteProps;
-  };
-}
-
-export const Intro = (props: IntroScreenProps): JSX.Element => {
+export const Intro = (props: IntroScreenProps): ReactElement => {
   const { navigation, route } = props;
   const { title, message, step, nextRoute } = route.params;
   const user = useSelector(authUserSelector);
