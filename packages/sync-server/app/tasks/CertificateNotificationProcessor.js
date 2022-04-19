@@ -128,7 +128,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
             );
             const latestCovidVax = await models.AdministeredVaccine.lastVaccinationForPatient(
               patient.id,
-              ['COVID-19 AZ', 'COVID-19 Pfizer'],
+              ['drug-COVID-19-Astra-Zeneca', 'drug-COVID-19-Pfizer'],
             );
 
             let uvci;
