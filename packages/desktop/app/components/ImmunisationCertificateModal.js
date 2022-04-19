@@ -7,23 +7,22 @@ import { useApi } from '../api';
 import { EmailButton } from './Email/EmailButton';
 import { useCertificate } from '../utils/useCertificate';
 import { getCurrentUser } from '../store';
-import { PDFViewer, printPDF } from './ImmunisationCertificate';
+import { PDFViewer, printPDF } from './PDFViewer';
 import { useLocalisation } from '../contexts/Localisation';
 
 export const ImmunisationCertificateModal = ({ open, onClose, patient }) => {
   const api = useApi();
-  const [immunisations, setImmunisations] = useState();
+  const [immunisations, setImmunisations] = useState([]);
   const { getLocalisation } = useLocalisation();
   const { watermark, logo, footerImg } = useCertificate();
   const currentUser = useSelector(getCurrentUser);
   const currentUserDisplayName = currentUser ? currentUser.displayName : '';
 
   useEffect(() => {
-    (async () => {
-      const response = await api.get(`patient/${patient.id}/administeredVaccines`);
+    api.get(`patient/${patient.id}/administeredVaccines`).then(response => {
       setImmunisations(response.data);
-    })();
-  }, [api, patient]);
+    });
+  }, [api, patient.id]);
 
   const createImmunisationCertificateNotification = useCallback(
     data => {
@@ -45,16 +44,17 @@ export const ImmunisationCertificateModal = ({ open, onClose, patient }) => {
       onClose={onClose}
       width="md"
       printable
-      onPrint={printPDF}
+      onPrint={() => printPDF('vaccine-certificate')}
       additionalActions={<EmailButton onEmail={createImmunisationCertificateNotification} />}
     >
-      <PDFViewer>
+      <PDFViewer id="vaccine-certificate">
         <VaccineCertificate
           patient={patient}
           vaccinations={immunisations}
           watermarkSrc={watermark}
           logoSrc={logo}
           signingSrc={footerImg}
+          printedBy={currentUserDisplayName}
           getLocalisation={getLocalisation}
         />
       </PDFViewer>
