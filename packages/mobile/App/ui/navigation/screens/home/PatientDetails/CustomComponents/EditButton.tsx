@@ -1,5 +1,6 @@
 import React, { ReactElement } from 'react';
 import { StyledTouchableOpacity } from '/styled/common';
+import { kebabCase } from 'lodash';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { PencilIcon } from '/components/Icons';
 
@@ -8,16 +9,9 @@ interface EditButtonProps {
   onPress: () => void;
 }
 
-const createTestID = (sectionTitle: string): string => {
-  const lowercaseSectionTitle = sectionTitle.toLowerCase();
-
-  // Adds 'edit' prefix and replaces spaces for hyphens
-  return `edit-${lowercaseSectionTitle.replace(/ /g, '-')}`;
-};
-
 export const EditButton = ({ sectionTitle, onPress }: EditButtonProps): ReactElement => (
   <StyledTouchableOpacity
-    testID={createTestID(sectionTitle)}
+    testID={`edit-${kebabCase(sectionTitle)}`}
     accessibilityLabel={`Edit ${sectionTitle}`}
     onPress={onPress}
   >
