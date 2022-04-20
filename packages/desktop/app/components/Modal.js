@@ -87,27 +87,37 @@ export const Modal = memo(
     open = false,
     onClose,
     printable = false,
+    onPrint = null,
     additionalActions,
     ...props
   }) => {
     const { printPage } = useElectron();
+
+    const handlePrint = () => {
+      if (onPrint) {
+        onPrint();
+      }
+
+      printPage();
+    };
+
     return (
       <Dialog fullWidth maxWidth={width} classes={classes} open={open} onClose={onClose} {...props}>
         <ModalTitle>
           <VerticalCenteredText>{title}</VerticalCenteredText>
           <div>
             {additionalActions}
-            {printable ? (
+            {printable && (
               <StyledButton
                 color="primary"
                 variant="outlined"
-                onClick={() => printPage()}
+                onClick={handlePrint}
                 startIcon={<PrintIcon />}
                 size="small"
               >
                 Print
               </StyledButton>
-            ) : null}
+            )}
             <IconButton onClick={onClose}>
               <CloseIcon />
             </IconButton>
