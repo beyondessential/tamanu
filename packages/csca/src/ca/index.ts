@@ -1,6 +1,7 @@
 import { promises as fs } from 'fs';
 import { join } from 'path';
 
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import prompts from 'prompts';
 import { Pkcs10CertificateRequest } from '@peculiar/x509';
 
@@ -257,6 +258,34 @@ export default class CA {
     await this.log(key).generateCrl(crl);
 
     return crl;
+  }
+
+  public async uploadCrl(credentials: {
+    accessKeyId: string;
+    secretAccessKey: string;
+  }): Promise<void> {
+    const key = await this.publicKey();
+    const config = this.config(key);
+    const { name: bucket, region } = await config.getCrlS3Bucket();
+    const filename = await config.getCrlFilename();
+
+    const client = new S3Client({
+      region,
+      credentials,
+    });
+
+    const crl = await this.crl();
+    const body = await crl.asBuffer();
+
+    const command = new PutObjectCommand({
+      Bucket: bucket,
+      Key: filename,
+      Body: body,
+    });
+
+    console.debug('upload crl', { bucket, filename });
+    const response = await client.send(command);
+    console.debug('upload crl: done', { etag: response.ETag, version: response.VersionId });
   }
 
   public async revokedCertificates(): Promise<CertificateIndexEntry[]> {

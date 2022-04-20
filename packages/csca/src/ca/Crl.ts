@@ -166,4 +166,9 @@ export default class Crl {
     const num = AsnConvert.parse(numext.extnValue, CRLNumber);
     return Buffer.from(num.value.toString(16), 'hex');
   }
+
+  public async asBuffer(): Promise<Buffer> {
+    await this.read(); // verify signature
+    return fs.readFile(this.path);
+  }
 }

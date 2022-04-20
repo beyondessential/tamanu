@@ -43,6 +43,11 @@ export default class Config extends AuthenticatedFile {
     const config = await this.load();
     return config.crl.filename;
   }
+
+  public async getCrlS3Bucket(): Promise<S3Bucket> {
+    const config = await this.load();
+    return config.crl.bucket;
+  }
 }
 
 export interface ConfigFile {

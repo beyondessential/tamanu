@@ -1,4 +1,5 @@
 import { Command } from 'commander';
+
 import CA from '../ca';
 import { confirm } from '../utils';
 
@@ -46,7 +47,7 @@ async function run(
   const crl = await ca.generateCrl();
   console.log('Generated CRL number:', (await crl.serial()).toString('hex'));
 
-  // upload new CRL
+  await ca.uploadCrl({ accessKeyId: awsAccessKey, secretAccessKey: awsAccessSecret });
 }
 
 export default new Command('crl-upload')
