@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useSelector } from 'react-redux';
 import { CovidLabCertificate } from 'shared/utils';
 import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
 import { Modal } from '../Modal';
@@ -7,10 +6,9 @@ import { useApi } from '../../api';
 import { useLocalisation } from '../../contexts/Localisation';
 import { EmailButton } from '../Email/EmailButton';
 import { PDFViewer, printPDF } from './PDFViewer';
-import { getCurrentUser } from '../../store';
 import { useCertificate } from '../../utils/useCertificate';
 
-export const PatientCovidTestCert = ({ patient }) => {
+export const CovidTestCertificateModal = ({ patient }) => {
   const [open, setOpen] = useState(true);
   const [labs, setLabs] = useState([]);
   const { getLocalisation } = useLocalisation();
@@ -33,7 +31,7 @@ export const PatientCovidTestCert = ({ patient }) => {
         createdBy: printedBy,
       });
     },
-    [api, patient, printedBy],
+    [api, patient.id, printedBy],
   );
 
   return (

@@ -6,10 +6,9 @@ import { CovidLabCertificate, VaccineCertificate } from 'shared/utils';
 import { PDFViewer } from '@react-pdf/renderer';
 import { DeathCertificate } from '../app/components/PatientPrinting/DeathCertificate';
 import SigningImage from './assets/signing-image.png';
-import Watermark from './assets/watermark.png';
-import Logo from './assets/tamanu-logo.png';
+import Watermark from './assets/tamanu-watermark.png';
+import Logo from './assets/tamanu-logo-blue.png';
 import { Modal } from '../app/components/Modal';
-import { useAsset } from '../app/utils/useAsset';
 
 const dummyPatient = createDummyPatient();
 const dummyAdditionalData = createDummyPatientAdditionalData();
@@ -98,7 +97,7 @@ const certificateData = {
 
 storiesOf('Certificates', module).add('DeathCertificate', () => {
   return (
-    <Modal title="Record patient death" open>
+    <Modal title="Record patient death" open width="md">
       <DeathCertificate
         patientData={{ ...patient, timeOfDeath: new Date(), causeOfDeath: 'Diabetes' }}
         certificateData={certificateData}
