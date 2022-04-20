@@ -27,7 +27,7 @@ export const PatientDetailsSection = ({ patient, getLocalisation, vdsSrc, extraF
       <Col style={{ width: '80%' }}>
         <Row>
           {detailsToDisplay.map(({ key, label: defaultLabel, accessor }) => {
-            const value = (accessor ? accessor(patient) : patient[key]) || '';
+            const value = (accessor ? accessor(patient, getLocalisation) : patient[key]) || '';
             const label = getLocalisation(`fields.${key}.shortLabel`) || defaultLabel;
 
             return (
