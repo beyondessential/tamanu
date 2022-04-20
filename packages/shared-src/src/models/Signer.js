@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import { canonicalize } from 'json-canonicalize';
 import { Sequelize, Op } from 'sequelize';
 import { Model } from './Model';
+import { depem } from 'shared/utils/encodings';
 
 export class Signer extends Model {
   static init({ primaryKey, ...options }) {
@@ -25,11 +26,11 @@ export class Signer extends Model {
         },
 
         privateKey: {
-          type: Sequelize.BLOB, // PKCS8 DER
+          type: Sequelize.TEXT, // PKCS8 PEM
           allowNull: true,
         },
         publicKey: {
-          type: Sequelize.BLOB, // SPKI DER
+          type: Sequelize.TEXT, // SPKI PEM
           allowNull: false,
         },
 
@@ -142,8 +143,8 @@ export class Signer extends Model {
     }
 
     const privateKey = crypto.createPrivateKey({
-      key: Buffer.from(this.privateKey),
-      format: 'der',
+      key: this.privateKey,
+      format: 'pem',
       type: 'pkcs8',
     });
 

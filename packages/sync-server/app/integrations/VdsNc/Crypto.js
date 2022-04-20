@@ -80,20 +80,9 @@ export async function newKeypairAndCsr() {
   await csr.sign(privateKey, 'SHA-256');
   const packedCsr = Buffer.from(await csr.toSchema().toBER(false));
 
-  const privateNodeKey = nodeCrypto.createPrivateKey({
-    key: new Uint8Array(await webcrypto.subtle.exportKey('pkcs8', privateKey)),
-    format: 'der',
-    type: 'pkcs8',
-  });
-
   return {
-    publicKey: fakeABtoRealAB(await webcrypto.subtle.exportKey('spki', publicKey)),
-    privateKey: fakeABtoRealAB(
-      privateNodeKey.export({
-        type: 'pkcs8',
-        format: 'der',
-      }).buffer,
-    ),
+    publicKey: pem(await webcrypto.subtle.exportKey('spki', publicKey), 'PUBLIC KEY'),
+    privateKey: pem(await webcrypto.subtle.exportKey('pkcs8', privateKey), 'PRIVATE KEY'),
     request: pem(packedCsr, 'CERTIFICATE REQUEST'),
   };
 }

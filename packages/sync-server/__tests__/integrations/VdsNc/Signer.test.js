@@ -46,7 +46,7 @@ describe('VDS-NC: Signer cryptography', () => {
     //     OBJECT IDENTIFIER (curve name)
     //   BIT STRING (public key)
     //
-    const pubasn = fromBER(publicKey);
+    const pubasn = fromBER(depem(publicKey, 'PUBLIC KEY'));
     expect(pubasn.result.error).to.be.empty;
     expect(pubasn.result).to.be.instanceOf(Sequence);
     expect(pubasn.result.valueBlock.value).to.have.lengthOf(2);
@@ -81,7 +81,7 @@ describe('VDS-NC: Signer cryptography', () => {
     //           OCTET STRING (encryption IV)
     //   OCTET STRING (encrypted private key)
     //
-    const privasn = fromBER(privateKey);
+    const privasn = fromBER(depem(privateKey, 'PRIVATE KEY'));
     expect(privasn.result.error).to.be.empty;
     expect(privasn.result).to.be.instanceOf(Sequence);
     expect(privasn.result.valueBlock.value).to.have.lengthOf(2);
@@ -123,8 +123,8 @@ describe('VDS-NC: Signer cryptography', () => {
 
     // Decrypt the private key
     const realKey = crypto.createPrivateKey({
-      key: Buffer.from(privateKey),
-      format: 'der',
+      key: privateKey,
+      format: 'pem',
       type: 'pkcs8',
     });
 
@@ -223,7 +223,7 @@ describe('VDS-NC: Signer cryptography', () => {
     expect(reqsignalgoid.toString()).to.equal('OBJECT IDENTIFIER : 1.2.840.10045.4.3.2'); // ecdsaWithSHA256
 
     // Check that the embedded public key is the same as the one generated
-    const pubasn = fromBER(publicKey);
+    const pubasn = fromBER(depem(publicKey, 'PUBLIC KEY'));
     expect([...new Uint8Array(reqkeydat.valueBlock.valueHex)]).to.deep.equal([
       ...new Uint8Array(pubasn.result.valueBlock.value[1].valueBlock.valueHex),
     ]);
@@ -252,8 +252,8 @@ describe('VDS-NC: Signer cryptography', () => {
 
     // Act
     const newSigner = await Signer.create({
-      publicKey: Buffer.from(publicKey),
-      privateKey: Buffer.from(privateKey),
+      publicKey,
+      privateKey,
       request,
       countryCode: 'UTO',
     });
@@ -261,13 +261,13 @@ describe('VDS-NC: Signer cryptography', () => {
     // Assert
     const signer = await Signer.findByPk(newSigner.id);
     expect(signer).to.exist;
-    expect(signer.publicKey).to.deep.equal(Buffer.from(publicKey));
-    expect(signer.privateKey).to.deep.equal(Buffer.from(privateKey));
+    expect(signer.publicKey).to.equal(publicKey);
+    expect(signer.privateKey).to.equal(privateKey);
 
-    // Check we can decrypt the key
+    // Check we can load the key
     crypto.createPrivateKey({
       key: signer.privateKey,
-      format: 'der',
+      format: 'pem',
       type: 'pkcs8',
     });
   });

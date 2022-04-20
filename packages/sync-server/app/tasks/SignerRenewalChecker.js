@@ -71,8 +71,8 @@ export class SignerRenewalChecker extends ScheduledTask {
       log.info('Generating new signer CSR');
       const { publicKey, privateKey, request } = await newKeypairAndCsr();
       const newSigner = await Signer.create({
-        publicKey: Buffer.from(publicKey),
-        privateKey: Buffer.from(privateKey),
+        publicKey,
+        privateKey,
         request,
         countryCode: (await getLocalisation()).country['alpha-3'],
       });

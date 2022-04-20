@@ -26,8 +26,8 @@ describe('VDS-NC: Document cryptography', () => {
 
     const { Signer } = ctx.store.models;
     const signer = await Signer.create({
-      publicKey: Buffer.from(publicKey),
-      privateKey: Buffer.from(privateKey),
+      publicKey,
+      privateKey,
       request,
       countryCode: (await getLocalisation()).country['alpha-3'],
     });
@@ -74,7 +74,7 @@ describe('VDS-NC: Document cryptography', () => {
     // And verify the signature
     const publicKey = crypto.createPublicKey({
       key: signer.publicKey,
-      format: 'der',
+      format: 'pem',
       type: 'spki',
     });
     const verifier = crypto.createVerify('SHA256');
@@ -187,7 +187,7 @@ describe('VDS-NC: Document cryptography', () => {
     // And verify the signature
     const publicKey = crypto.createPublicKey({
       key: signer.publicKey,
-      format: 'der',
+      format: 'pem',
       type: 'spki',
     });
     const verifier = crypto.createVerify('SHA256');
