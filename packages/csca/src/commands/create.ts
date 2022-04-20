@@ -1,12 +1,12 @@
 import { Command } from 'commander';
 import COUNTRIES from 'world-countries';
 import type { Country } from 'world-countries';
+import prompts from 'prompts';
 import { enumFromStringValue, enumValues, confirm } from '../utils';
 import CA from '../ca';
 import { Profile, signerDefaultValidityDays, signerExtensions, signerWorkingDays } from '../ca/profile';
 import { ConfigFile, period } from '../ca/Config';
 import { CRL_URL_BASE, CSCA_PKUP, CSCA_VALIDITY } from '../ca/constants';
-import prompts from 'prompts';
 
 function countryScore(country: Country, name: string): number {
   const nameRx = new RegExp(name, 'i');

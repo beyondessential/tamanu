@@ -181,7 +181,7 @@ export default class State extends AuthenticatedFile {
     const list = [];
     for (const [serial, entry] of state.index.entries()) {
       const fullSerial = Buffer.from(serial, 'hex');
-      const cert = new CertificateIndexEntry(fullSerial, entry)
+      const cert = new CertificateIndexEntry(fullSerial, entry);
       if (!cert.isExpired && cert.isRevoked) list.push(cert);
     }
 

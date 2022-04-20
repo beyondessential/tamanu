@@ -1,3 +1,5 @@
+/* eslint-disable camelcase, @typescript-eslint/camelcase */
+
 import { promises as fs } from 'fs';
 
 import {
@@ -29,6 +31,7 @@ import crypto from '../crypto';
 
 function asAki(ext: X509Extension | undefined): AuthorityKeyIdentifierExtension | undefined {
   if (ext instanceof AuthorityKeyIdentifierExtension) return ext;
+  return undefined;
 }
 
 export default class Crl {
@@ -60,10 +63,15 @@ export default class Crl {
 
     const serial = readSerial(await state.nextCrlSerial());
 
-    const revokedCertificates = revokedCerts.length ? revokedCerts.map(cert => new RevokedCertificate({
-      revocationDate: new Time(cert.revocationDate!),
-      userCertificate: cert.serial,
-    })) : undefined;
+    const revokedCertificates = revokedCerts.length
+      ? revokedCerts.map(
+        cert => new RevokedCertificate({
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          revocationDate: new Time(cert.revocationDate!),
+          userCertificate: cert.serial,
+        }),
+      )
+      : undefined;
 
     // Doc 9303-12 defines the CRL profile in §7.1.4:
     // - Version 2
@@ -82,6 +90,36 @@ export default class Crl {
     //   - no other extensions
     //   - note: unlike the Cert, we're building the CRL with the asn1-x509 lib,
     //     so it's not at all the same API >:(
+
+    const keyIdentifier = asAki(
+      ca.x509.extensions.find(ext => ext.type === id_ce_authorityKeyIdentifier),
+    )?.keyId;
+    if (!keyIdentifier) throw new Error('CSCA missing AuthorityKeyIdentifier extension');
+
+    const crlAki = new Extension({
+      critical: false,
+      extnID: id_ce_authorityKeyIdentifier,
+      extnValue: new OctetString(
+        AsnConvert.serialize(
+          new AuthorityKeyIdentifier({
+            keyIdentifier: new OctetString(Buffer.from(keyIdentifier, 'hex')),
+            authorityCertIssuer: [
+              new GeneralName({
+                directoryName: AsnConvert.parse(ca.x509.subjectName.toArrayBuffer(), Name),
+              }),
+            ],
+            authorityCertSerialNumber: ca.serial,
+          }),
+        ),
+      ),
+    });
+
+    const crlNumber = new Extension({
+      critical: false,
+      extnID: id_ce_cRLNumber,
+      extnValue: new OctetString(AsnConvert.serialize(new CRLNumber(serial))),
+    });
+
     const tbsCertList = new TBSCertList({
       version: Version.v2,
       signature: signatureAlgorithm,
@@ -89,36 +127,7 @@ export default class Crl {
       thisUpdate: new Time(now),
       nextUpdate: new Time(next),
       revokedCertificates,
-      crlExtensions: [
-        new Extension({
-          critical: false,
-          extnID: id_ce_authorityKeyIdentifier,
-          extnValue: new OctetString(
-            AsnConvert.serialize(
-              new AuthorityKeyIdentifier({
-                keyIdentifier: new OctetString(
-                  Buffer.from(
-                    asAki(ca.x509.extensions.find(ext => ext.type === id_ce_authorityKeyIdentifier))
-                      ?.keyId!,
-                    'hex',
-                  ),
-                ),
-                authorityCertIssuer: [
-                  new GeneralName({
-                    directoryName: AsnConvert.parse(ca.x509.subjectName.toArrayBuffer(), Name),
-                  }),
-                ],
-                authorityCertSerialNumber: ca.serial,
-              }),
-            ),
-          ),
-        }),
-        new Extension({
-          critical: false,
-          extnID: id_ce_cRLNumber,
-          extnValue: new OctetString(AsnConvert.serialize(new CRLNumber(serial))),
-        }),
-      ],
+      crlExtensions: [crlAki, crlNumber],
     });
 
     const signingAlgorithm = key.algorithm as HashedAlgorithm;
