@@ -90,7 +90,7 @@ export const CovidLabCertificate = ({
             <P>Printed by: {printedBy}</P>
           </Col>
           <Col>
-            <P>Printing date: {getDisplayDate()}</P>
+            <P>Printing date: {getDisplayDate(null, null, getLocalisation)}</P>
           </Col>
         </Row>
       </Box>
