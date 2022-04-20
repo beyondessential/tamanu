@@ -1,4 +1,5 @@
-FROM node:12.20.2 as base
+ARG node_version
+FROM node:$node_version as base
 RUN dpkg --add-architecture i386 \
     && apt update \
     && apt install -y \

@@ -1,32 +1,52 @@
-app-without-db:
-  cached: true
-  default_cache_branch: dev
-  build:
-    # image name needs to be the same across both app- variants
-    # otherwise the image busts its own cache and we lose the advantage
-    image: tamanu-app
-    context: .
-    dockerfile: Dockerfile
-  encrypted_env_file: codeship.env.encrypted
-  volumes:
-    - ./.tmp:/tamanu
-    - ./.ssh:/root/.ssh
-  environment:
-    ELECTRON_CONFIG_CACHE: "$HOME/cache/electron"
+# not an actual service, just a place to put yaml templates
+definitions:
+  image: scratch
+  _defs:
+    app-base: &app-base
+      cached: true
+      default_cache_branch: dev
+      encrypted_env_file: codeship.env.encrypted
+      volumes:
+        - ./.tmp:/tamanu
+        - ./.ssh:/root/.ssh
+      environment:
+        ELECTRON_CONFIG_CACHE: "$HOME/cache/electron"
 
-app-with-db:
-  cached: true
-  default_cache_branch: dev
+    app-db-env: &app-db-env
+      ELECTRON_CONFIG_CACHE: "$HOME/cache/electron"
+      NODE_CONFIG: '{"db":{"name":"postgres","host":"postgres","username":"postgres","password":"postgres"}}'
+
+app-12-nodb: &app-12
+  <<: *app-base
   build:
-    image: tamanu-app
     context: .
     dockerfile: Dockerfile
-  encrypted_env_file: codeship.env.encrypted
-  volumes:
-    - ./.tmp:/tamanu
-  environment:
-    ELECTRON_CONFIG_CACHE: "$HOME/cache/electron"
-    NODE_CONFIG: '{"db":{"name":"postgres","host":"postgres","username":"postgres","password":"postgres"}}'
+    # image name needs to be the same across all app-V- variants
+    # otherwise the image busts its own cache and we lose the advantage
+    image: tamanu-app-12
+    args:
+      node_version: 12.20.2
+
+app-12-db:
+  <<: *app-12
+  environment: *app-db-env
+  depends_on:
+    - postgres
+
+app-14-nodb: &app-14
+  <<: *app-base
+  build:
+    context: .
+    dockerfile: Dockerfile
+    # image name needs to be the same across all app-V- variants
+    # otherwise the image busts its own cache and we lose the advantage
+    image: tamanu-app-14
+    args:
+      node_version: 14.19.1
+
+app-14-db:
+  <<: *app-14
+  environment: *app-db-env
   depends_on:
     - postgres
 
