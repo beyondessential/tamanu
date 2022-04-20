@@ -126,7 +126,6 @@ describe('VDS-NC: Signer cryptography', () => {
       key: Buffer.from(privateKey),
       format: 'der',
       type: 'pkcs8',
-      passphrase: Buffer.from(config.integrations.signer.keySecret, 'base64'),
     });
 
     // realKey: Walk through the expected ASN.1 structure
@@ -270,8 +269,6 @@ describe('VDS-NC: Signer cryptography', () => {
       key: signer.privateKey,
       format: 'der',
       type: 'pkcs8',
-      cipher: 'aes-256-cbc',
-      passphrase: Buffer.from(config.integrations.signer.keySecret, 'base64'),
     });
   });
 });

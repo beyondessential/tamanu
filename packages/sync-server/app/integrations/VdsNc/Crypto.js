@@ -51,7 +51,7 @@ export async function newKeypairAndCsr() {
     ['sign', 'verify'],
   );
 
-  const { keySecret, commonName } = config.integrations.signer;
+  const { commonName } = config.integrations.signer;
 
   const countryCode = (await getLocalisation()).country['alpha-2'];
 
@@ -80,7 +80,6 @@ export async function newKeypairAndCsr() {
   await csr.sign(privateKey, 'SHA-256');
   const packedCsr = Buffer.from(await csr.toSchema().toBER(false));
 
-  const passphrase = Buffer.from(keySecret, 'base64');
   const privateNodeKey = nodeCrypto.createPrivateKey({
     key: new Uint8Array(await webcrypto.subtle.exportKey('pkcs8', privateKey)),
     format: 'der',
@@ -93,8 +92,6 @@ export async function newKeypairAndCsr() {
       privateNodeKey.export({
         type: 'pkcs8',
         format: 'der',
-        cipher: 'aes-256-cbc',
-        passphrase,
       }).buffer,
     ),
     request: pem(packedCsr, 'CERTIFICATE REQUEST'),

@@ -6,20 +6,6 @@ const SCHEMA = yup
   .shape({
     enabled: yup.boolean().default(false),
 
-    keySecret: yup
-      .string()
-      .required()
-      .test(
-        'is-base64',
-        'keySecret must be Base64 data',
-        value => Buffer.from(value, 'base64').toString('base64') === value,
-      )
-      .test(
-        'at-least-32-bytes',
-        'keySecret must be at least 32 bytes of data',
-        value => Buffer.from(value, 'base64').length >= 32,
-      ),
-
     commonName: yup
       .string()
       .length(2)

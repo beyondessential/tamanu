@@ -134,16 +134,10 @@
       "requireClientHeaders": true
     },
     "vdsNc": {
-      "enabled": false
+      "enabled": true
     },
     "signer": {
-      "enabled": false,
-
-      // Encryption key for ICAO Signer key material (stored in DB).
-      // This must be unique per country/installation AND NEVER CHANGED.
-      // It must be at least 32 bytes of random data in Base64.
-      // $ openssl rand -base64 32
-      "keySecret": null,
+      "enabled": true,
 
       // For VDS-NC: exactly 2 letters, must be unique in country, ref 9303-13 §2.2.1(a)
       "commonName": "TA",

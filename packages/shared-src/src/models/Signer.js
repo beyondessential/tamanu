@@ -25,8 +25,7 @@ export class Signer extends Model {
         },
 
         privateKey: {
-          // encrypted with integrations.signer.keySecret
-          type: Sequelize.BLOB, // PKCS8 DER in PKCS5 DER
+          type: Sequelize.BLOB, // PKCS8 DER
           allowNull: true,
         },
         publicKey: {
@@ -135,10 +134,9 @@ export class Signer extends Model {
    *
    * @internal
    * @param {object} data Arbitrary data to sign.
-   * @param {string} keySecret Encryption key/phrase for the private key (integrations.signer.keySecret).
    * @returns {Promise<{ algorithm: string, signature: Buffer }>} The signature and algorithm.
    */
-  async issueSignature(data, keySecret) {
+  async issueSignature(data) {
     if (!this.isActive()) {
       throw new Error('Cannot issue signature from this signer');
     }
@@ -147,7 +145,6 @@ export class Signer extends Model {
       key: Buffer.from(this.privateKey),
       format: 'der',
       type: 'pkcs8',
-      passphrase: Buffer.from(keySecret, 'base64'),
     });
 
     const canonData = Buffer.from(canonicalize(data), 'utf8');

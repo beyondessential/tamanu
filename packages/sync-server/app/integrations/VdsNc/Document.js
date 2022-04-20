@@ -77,8 +77,7 @@ export class VdsNcDocument {
     this.signer = signer;
 
     const data = this.getMessageToSign();
-    const { keySecret } = this.config;
-    const { algorithm, signature } = await signer.issueSignature(data, keySecret);
+    const { algorithm, signature } = await signer.issueSignature(data);
     this.algorithm = algorithm;
     this.signature = signature;
     this.isSigned = true;
