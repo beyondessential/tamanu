@@ -6,18 +6,15 @@ definitions:
       cached: true
       default_cache_branch: dev
       encrypted_env_file: codeship.env.encrypted
-      volumes:
-        - ./.tmp:/tamanu
-        - ./.ssh:/root/.ssh
-      environment:
+      environment: &app-env
         ELECTRON_CONFIG_CACHE: "$HOME/cache/electron"
-
-    app-db-env: &app-db-env
-      ELECTRON_CONFIG_CACHE: "$HOME/cache/electron"
-      NODE_CONFIG: '{"db":{"name":"postgres","host":"postgres","username":"postgres","password":"postgres"}}'
 
 app-12-nodb: &app-12
   <<: *app-base
+  volumes:
+    - ./.tmp-12:/tamanu
+    # app-12-nodb is used for building packages, so needs:
+    - ./.ssh:/root/.ssh
   build:
     context: .
     dockerfile: Dockerfile
@@ -29,12 +26,16 @@ app-12-nodb: &app-12
 
 app-12-db:
   <<: *app-12
-  environment: *app-db-env
+  environment:
+    <<: *app-env
+    NODE_CONFIG: '{"db":{"name":"tamanu-12","host":"postgres","username":"postgres","password":"postgres"}}'
   depends_on:
     - postgres
 
 app-14-nodb: &app-14
   <<: *app-base
+  volumes:
+    - ./.tmp-14:/tamanu
   build:
     context: .
     dockerfile: Dockerfile
@@ -46,7 +47,9 @@ app-14-nodb: &app-14
 
 app-14-db:
   <<: *app-14
-  environment: *app-db-env
+  environment:
+    <<: *app-env
+    NODE_CONFIG: '{"db":{"name":"tamanu-14","host":"postgres","username":"postgres","password":"postgres"}}'
   depends_on:
     - postgres
 
@@ -58,7 +61,7 @@ awsdeployment:
   cached: true
   default_cache_branch: dev
   volumes:
-    - ./.tmp:/tamanu
+    - ./.tmp-12:/tamanu
     - ./.ssh:/root/.ssh
 
 postgres:
