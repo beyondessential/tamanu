@@ -69,15 +69,6 @@ export default {
     modules: [path.join(__dirname, 'app'), 'node_modules'],
     alias: {
       Shared: path.resolve(__dirname, '../shared/'),
-      'aws-sdk': path.resolve(__dirname, 'moduleMock.js'),
-      config: path.resolve(__dirname, 'moduleMock.js'),
-      child_process: path.resolve(__dirname, 'moduleMock.js'),
-      dns: path.resolve(__dirname, 'moduleMock.js'),
-      'pg-hstore': path.resolve(__dirname, 'moduleMock.js'),
-      'pg-native': path.resolve(__dirname, 'moduleMock.js'),
-      yargs: path.resolve(__dirname, 'moduleMock.js'),
-      'node-gyp': path.resolve(__dirname, 'moduleMock.js'),
-      'node-pre-gyp': path.resolve(__dirname, 'moduleMock.js'),
     },
   },
 
