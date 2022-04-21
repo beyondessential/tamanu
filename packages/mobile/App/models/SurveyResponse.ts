@@ -19,6 +19,7 @@ import {
   getStringValue,
   getResultValue,
   isCalculated,
+  FieldTypes,
 } from '~/ui/helpers/fields';
 
 import { runCalculations } from '~/ui/helpers/calculations';
@@ -28,6 +29,8 @@ import { Survey } from './Survey';
 import { Encounter } from './Encounter';
 import { SurveyResponseAnswer } from './SurveyResponseAnswer';
 import { Referral } from './Referral';
+import { Patient } from './Patient';
+import { PatientAdditionalData } from './PatientAdditionalData';
 
 @Entity('survey_response')
 export class SurveyResponse extends BaseModel implements ISurveyResponse {
@@ -133,24 +136,40 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       });
 
       setNote('Attaching answers...');
-      const findDataElement = (code: string): IProgramDataElement => {
-        const component = components.find(c => c.dataElement.code === code);
-        if (!component) return null;
-        return component.dataElement;
-      };
 
       for (const a of Object.entries(finalValues)) {
         const [dataElementCode, value] = a;
-        const dataElement = findDataElement(dataElementCode);
-        if (dataElement === null) {
+        const component = components.find(c => c.dataElement.code === dataElementCode);
+        if (!component) {
           // better to fail entirely than save partial data
-          throw new Error(`no data element for code: ${dataElementCode}`);
+          throw new Error(`no screen component for code: ${dataElementCode}, cannot match to data element`);
         }
+        const { dataElement } = component;
 
         if (isCalculated(dataElement.type) && value !== 0 && !value) {
           // calculated values will always be in the answer object - but we
           // shouldn't save null answers
           continue;
+        }
+
+        if (dataElement.type === FieldTypes.PATIENT_DATA) {
+          const questionConfig = component.getConfigObject();
+          if (questionConfig.writeToPatient) {
+            Patient.updateValues(patientId, { [questionConfig.writeToPatient]: value });
+          }
+          if (questionConfig.writeToAdditionalData) {
+            const additionalData = await PatientAdditionalData.getRepository().findOne({
+              where: {
+                patientId: patientId,
+              },
+            });
+            PatientAdditionalData.updateValues(
+              additionalData.id,
+              {
+                [questionConfig.writeToAdditionalData]: value,
+              },
+            );
+          }
         }
 
         const body = getStringValue(dataElement.type, value);
