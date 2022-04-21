@@ -14,3 +14,12 @@
 /packages/sync-server/app/sync.js       @stretchkennedy @mcccclean
 /packages/sync-server/app/database/     @stretchkennedy @mcccclean
 /packages/mobile/App/services/sync/     @stretchkennedy @mcccclean
+
+#
+# Félix currently owns VDS-NC/EU-DCC/Signer and CSCA.
+# Same reasoning, but it's not core to Tamanu.
+#
+/packages/csca/                                           @passcod
+/packages/sync-server/integrations/EuDcc                  @passcod
+/packages/sync-server/integrations/Signer                 @passcod
+/packages/sync-server/integrations/VdsNc                  @passcod
