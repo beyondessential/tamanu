@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import PrintIcon from '@material-ui/icons/Print';
 
-import { PrintPortal } from '../../components/PatientPrinting/PrintPortal';
+import { PrintPortal, PrintLetterhead } from '../../components/PatientPrinting';
 import { LocalisedText } from '../../components/LocalisedText';
 import { useApi } from '../../api';
 import { BackButton, Button } from '../../components/Button';
@@ -12,7 +12,6 @@ import { DateDisplay } from '../../components/DateDisplay';
 import { TopBar } from '../../components';
 import { useEncounter } from '../../contexts/Encounter';
 import { useElectron } from '../../contexts/Electron';
-import { PrintLetterhead } from '../../components/PatientPrinting/Letterhead';
 import { Colors } from '../../constants';
 
 const SummaryPageContainer = styled.div`

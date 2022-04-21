@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback, useState } from 'react';
 import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
-import { VaccineCertificate } from 'shared/utils';
+import { VaccineCertificate } from 'shared/utils/patientCertificates';
 import { Modal } from './Modal';
 import { useApi } from '../api';
 import { EmailButton } from './Email/EmailButton';
@@ -30,7 +30,7 @@ export const ImmunisationCertificateModal = ({ open, onClose, patient }) => {
         createdBy: printedBy,
       });
     },
-    [api, patient, printedBy],
+    [api, patient.id, printedBy],
   );
 
   return (

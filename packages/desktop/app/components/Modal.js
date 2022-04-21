@@ -94,6 +94,8 @@ export const Modal = memo(
     const { printPage } = useElectron();
 
     const handlePrint = () => {
+      // If a custom print handler has been passed use that. For example for printing the contents
+      // of an iframe. Otherwise use the default electron print page
       if (onPrint) {
         onPrint();
       }
