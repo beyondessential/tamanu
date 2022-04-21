@@ -119,6 +119,12 @@ export const REPORT_DEFINITIONS = [
     allFacilities: true,
   },
   {
+    name: 'Palau COVID-19 Case Report - Line list',
+    id: 'palau-covid-case-report-line-list',
+    allFacilities: true,
+    parameters: [{ parameterField: 'VillageField', label: 'Hamlet' }],
+  },
+  {
     name: 'Kiribati COVID-19 Test - Line list',
     id: 'kiribati-covid-swab-lab-test-list',
     allFacilities: true,
