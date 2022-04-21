@@ -31,6 +31,13 @@ const Footnote = styled(Typography)`
   font-style: italic;
 `;
 
+const DataImage = styled(({ data, ...props }) => <img {...props} src={data} alt="" />)`
+  width: 100%;
+  height: 100%;
+  object-fit: scale-down;
+  object-position: 0 0;
+`;
+
 const FormLineContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -69,7 +76,7 @@ const FormLine = ({ children, helperText }) => {
 
 export const DeathCertificate = React.memo(({ patientData, certificateData }) => {
   const { firstName, lastName, dateOfBirth, sex, causes, dateOfDeath, facility } = patientData;
-  const { title, subTitle, logo, watermark, printedBy } = certificateData;
+  const { title, subTitle, logo, watermark, printedBy, deathCertFooterImg } = certificateData;
   const causeOfDeath = causes?.primary?.condition?.name;
   const dateOfPrinting = new Date();
 
@@ -153,17 +160,23 @@ export const DeathCertificate = React.memo(({ patientData, certificateData }) =>
         disease, injury, or complication that caused death.
       </Footnote>
       <Box my={4}>
-        <FormLine>
-          <StrongText>Authorised by (print name):</StrongText>
-        </FormLine>
-        <Grid mt={4}>
-          <FormLine>
-            <StrongText>Signed:</StrongText>
-          </FormLine>
-          <FormLine>
-            <StrongText>Date: </StrongText>
-          </FormLine>
-        </Grid>
+        {deathCertFooterImg ? (
+          <DataImage data={deathCertFooterImg} />
+        ) : (
+          <>
+            <FormLine>
+              <StrongText>Authorised by (print name):</StrongText>
+            </FormLine>
+            <Grid mt={4}>
+              <FormLine>
+                <StrongText>Signed:</StrongText>
+              </FormLine>
+              <FormLine>
+                <StrongText>Date: </StrongText>
+              </FormLine>
+            </Grid>
+          </>
+        )}
       </Box>
     </CertificateWrapper>
   );
