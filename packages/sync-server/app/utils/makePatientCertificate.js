@@ -57,7 +57,7 @@ export const makeVaccineCertificate = async (patient, printedBy, models, uvci, q
       <VaccineCertificate
         patient={patientData}
         printedBy={printedBy}
-        extraPatientFields={[{ key: 'uvci', label: 'UVCI', accessor: () => uvci }]}
+        uvci={uvci}
         vaccinations={vaccinations}
         signingSrc={signingImage?.data}
         watermarkSrc={watermark?.data}
