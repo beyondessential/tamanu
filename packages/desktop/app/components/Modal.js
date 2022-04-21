@@ -29,7 +29,6 @@ const Dialog = styled(MuiDialog)`
 
   @media print {
     .MuiPaper-root {
-      background: rgb(243, 245, 247, 0.9);
       -webkit-print-color-adjust: exact;
     }
 
@@ -47,6 +46,10 @@ const ModalContent = styled.div`
 
 const ModalContainer = styled.div`
   background: ${Colors.background};
+
+  @media print {
+    background: none;
+  }
 `;
 
 export const FullWidthRow = styled.div`

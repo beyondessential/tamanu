@@ -7,26 +7,7 @@ import {
   LocalisedCertificateLabel as LocalisedLabel,
   CertificateLabel as Label,
 } from './CertificateLabels';
-
-const CertificateWrapper = styled.div`
-  padding: 10px 20px;
-
-  ${props =>
-    props.watermarkSrc
-      ? `background: linear-gradient(rgb(243, 245, 247,.9), rgb(243, 245, 247,.9)), url("${props.watermarkSrc}");
-      background-repeat: no-repeat;
-      background-position: center;
-      background-size: 70%;`
-      : ''}
-`;
-
-const Title = styled(Typography)`
-  font-size: 18px;
-  line-height: 21px;
-  font-weight: bold;
-  margin-bottom: 40px;
-  text-align: center;
-`;
+import { CertificateWrapper } from './CertificateWrapper';
 
 const Grid = styled(Box)`
   display: grid;
@@ -35,7 +16,7 @@ const Grid = styled(Box)`
 `;
 
 const Text = styled(Typography)`
-  font-size: 14px;
+  font-size: 12px;
 `;
 
 const StrongText = styled(Text)`
@@ -44,8 +25,8 @@ const StrongText = styled(Text)`
 
 const Footnote = styled(Typography)`
   margin-top: 10px;
-  font-weight: 500;
-  font-size: 12px;
+  font-weight: 400;
+  font-size: 11px;
   line-height: 15px;
   font-style: italic;
 `;
@@ -62,7 +43,7 @@ const FormLineInner = styled.div`
   align-items: flex-end;
   justify-content: space-between;
   margin-bottom: 10px;
-  min-height: 40px;
+  min-height: 30px;
 
   hr {
     flex: 1;
@@ -94,8 +75,12 @@ export const DeathCertificate = React.memo(({ patientData, certificateData }) =>
 
   return (
     <CertificateWrapper watermarkSrc={watermark}>
-      <PrintLetterhead title={title} subTitle={subTitle} logoSrc={logo} />
-      <Title variant="h3">Cause of death certificate</Title>
+      <PrintLetterhead
+        title={title}
+        subTitle={subTitle}
+        logoSrc={logo}
+        pageTitle="Cause of death certificate"
+      />
       <Grid mb={2}>
         <LocalisedLabel name="firstName">{firstName}</LocalisedLabel>
         <LocalisedLabel name="lastName">{lastName}</LocalisedLabel>
@@ -171,7 +156,7 @@ export const DeathCertificate = React.memo(({ patientData, certificateData }) =>
         <FormLine>
           <StrongText>Authorised by (print name):</StrongText>
         </FormLine>
-        <Grid mt={5}>
+        <Grid mt={4}>
           <FormLine>
             <StrongText>Signed:</StrongText>
           </FormLine>

@@ -4,7 +4,7 @@ import { Typography } from '@material-ui/core';
 import { LocalisedText } from '../LocalisedText';
 
 const Text = styled(Typography)`
-  font-size: 14px;
+  font-size: 12px;
   margin-bottom: 20px;
 `;
 
