@@ -1,14 +1,11 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
-
 import { useLocalisation } from '../../contexts/Localisation';
 import { useElectron } from '../../contexts/Electron';
-
 import { SEX_VALUE_INDEX } from '../../constants';
 import { DateDisplay } from '../DateDisplay';
 import { PatientBarcode } from './PatientBarcode';
-
-import { PrintPortal } from '../Print';
+import { PrintPortal } from './PrintPortal';
 
 const cardDimensions = {
   width: 85.6,
