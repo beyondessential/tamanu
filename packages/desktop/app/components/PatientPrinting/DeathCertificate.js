@@ -79,7 +79,7 @@ export const DeathCertificate = React.memo(({ patientData, certificateData }) =>
         title={title}
         subTitle={subTitle}
         logoSrc={logo}
-        pageTitle="Cause of death certificate"
+        pageTitle="Cause of Death Certificate"
       />
       <Grid mb={2}>
         <LocalisedLabel name="firstName">{firstName}</LocalisedLabel>
