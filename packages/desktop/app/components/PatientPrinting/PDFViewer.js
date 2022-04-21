@@ -1,8 +1,6 @@
 import React, { useEffect } from 'react';
 import { usePDF } from '@react-pdf/renderer';
 
-const IFRAME_ID = 'frameId';
-
 // @react-pdf/renderer ships with it's own version of PDFViewer. However it is a bit flaky because
 // it doesn't include updateInstance in the useEffect dependencies. Also it is convenient to set
 // width, height and toolbar settings in one place
@@ -25,7 +23,7 @@ export const PDFViewer = ({ id, children, props }) => {
   );
 };
 
-export const printPDF = () => {
-  const iframe = document.getElementById(IFRAME_ID);
+export const printPDF = elementId => {
+  const iframe = document.getElementById(elementId);
   iframe.contentWindow.print();
 };

@@ -14,5 +14,9 @@ export const useAsset = assetName => {
     });
   }, [api, assetName]);
 
+  if (!assetData) {
+    return null;
+  }
+
   return `data:${assetDataType};base64,${assetData}`;
 };
