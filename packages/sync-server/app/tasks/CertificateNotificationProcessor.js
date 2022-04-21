@@ -109,7 +109,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
         const requireSigning = notification.get('requireSigning');
         const type = notification.get('type');
         const printedBy = notification.get('createdBy');
-        
+
         const countryCode = (await getLocalisation()).country['alpha-2'];
 
         log.info(
@@ -163,8 +163,12 @@ export class CertificateNotificationProcessor extends ScheduledTask {
               }
             }
 
-            // As fallback, generate ICAO flavour from last (not necessarily covid) vaccine
-            if (!uvci) uvci = await generateUVCI(latestVax.id, { format: 'icao', countryCode });
+            // As fallback, generate from last (not necessarily covid) vaccine
+            if (!uvci)
+              uvci = await generateUVCI(latestVax.id, {
+                format: euDccEnabled ? 'eudcc' : 'icao',
+                countryCode,
+              });
 
             pdf = await makeVaccineCertificate(patient, printedBy, models, uvci, qrData);
             break;
