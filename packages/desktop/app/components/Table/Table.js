@@ -257,7 +257,7 @@ class TableComponent extends React.Component {
     const { page, exportName, columns, data, allowExport } = this.props;
 
     // Footer is empty, don't render anything
-    if (!page && !allowExport) {
+    if (page === null && !allowExport) {
       return null;
     }
 
