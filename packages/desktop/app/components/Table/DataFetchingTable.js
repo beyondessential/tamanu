@@ -31,7 +31,7 @@ export const DataFetchingTable = memo(
     const api = useApi();
 
     // This callback will be passed to table cell accessors so they can force a table refresh
-    const handleTableRefresh = useCallback(() => {
+    const refreshTable = useCallback(() => {
       setForcedRefreshCount(prevCount => prevCount + 1);
     }, []);
 
@@ -119,7 +119,7 @@ export const DataFetchingTable = memo(
         className={className}
         exportName={exportName}
         customSort={customSort}
-        onTableRefresh={handleTableRefresh}
+        refreshTable={refreshTable}
         rowStyle={rowStyle}
         allowExport={allowExport}
       />

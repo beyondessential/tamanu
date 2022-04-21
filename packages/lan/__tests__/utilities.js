@@ -1,18 +1,20 @@
 import supertest from 'supertest';
 import Chance from 'chance';
+import http from 'http';
 
 import { seedDepartments, seedFacilities, seedLocations, seedLabTests } from 'shared/demoData';
 
 import { createApp } from 'lan/app/createApp';
-import { initDatabase } from 'lan/app/database';
+import { initDatabase, closeDatabase } from 'lan/app/database';
 import { getToken } from 'lan/app/middleware/auth';
 
 import { allSeeds } from './seed';
 import { deleteAllTestIds } from './setupUtilities';
 
-import { SyncManager } from '~/sync';
-import { WebRemote } from '~/sync/WebRemote';
-jest.mock('~/sync/WebRemote');
+import { SyncManager } from '../app/sync/SyncManager';
+import { WebRemote } from '../app/sync/WebRemote';
+
+jest.mock('../app/sync/WebRemote');
 jest.mock('../app/utils/uploadAttachment');
 
 const chance = new Chance();
@@ -69,6 +71,88 @@ export function extendExpect(expect) {
         pass,
       };
     },
+    toMatchTabularReport(receivedReport, expectedData) {
+      /**
+       * Usage:
+       *  expect(reportData).toMatchTabularReport(
+       *    reportColumnTemplate, // TODO: should we pass this - or rely on object ordering?
+       *    [
+       *      {
+       *        Date: '2020-02-18',
+       *        "Number of patients screened": 12,
+       *      },
+       *    ],
+       *  );
+       *
+       */
+      if (this.isNot || this.promise) {
+        throw new Error('toMatchTabularReport does not support promises or "not" yet');
+      }
+      const [receivedHeadings, ...receivedData] = receivedReport;
+
+      const buildErrorMessage = errorList => () =>
+        `${this.utils.matcherHint(
+          'toMatchTabularReport',
+          undefined,
+          undefined,
+          {},
+        )}\n${errorList.join('\n')}`;
+
+      if (expectedData.length === 0) {
+        return {
+          pass: receivedData.length === 0,
+          message: buildErrorMessage([
+            `Expected an empty report, received: ${receivedData.length} rows`,
+          ]),
+        };
+      }
+      // Note: this line requires that the keys in `expectedData` are ordered
+      const propertyList = Object.keys(expectedData[0]);
+
+      if (!this.equals(receivedHeadings, propertyList)) {
+        return {
+          pass: false,
+          message: buildErrorMessage([
+            `Incorrect columns,\nReceived: ${receivedHeadings}\nExpected: ${propertyList}`,
+          ]),
+        };
+      }
+
+      let pass = true;
+      const errors = [];
+
+      if (receivedData.length !== expectedData.length) {
+        pass = false;
+        errors.push(
+          `Incorrect number of rows: Received: ${receivedData.length}, Expected: ${expectedData.length}`,
+        );
+        // No point continuing - there's nothing to test
+        if (receivedData.length === 0) return { pass, message: buildErrorMessage(errors) };
+      }
+
+      const keyToIndex = propertyList.reduce((acc, prop, i) => ({ ...acc, [prop]: i }), {});
+      const getProperty = (row, prop) => row[keyToIndex[prop]];
+
+      expectedData.forEach((expectedRow, i) => {
+        const receivedRow = receivedData[i];
+        Object.entries(expectedRow).forEach(([key, expectedValue]) => {
+          const receivedValue = getProperty(receivedRow, key);
+          if (receivedValue !== expectedValue) {
+            errors.push(
+              `Row: ${i}, Key: ${key},  Expected: ${this.utils.printExpected(
+                expectedValue,
+              )}, Received: ${this.utils.printReceived(receivedValue)}`,
+            );
+            pass = false;
+          }
+        });
+      });
+
+      return {
+        pass,
+        message: buildErrorMessage(errors),
+      };
+    },
   });
 }
 
@@ -96,8 +180,8 @@ export async function createTestContext() {
   await seedLocations(models);
 
   const expressApp = createApp(dbResult);
-
-  const baseApp = supertest(expressApp);
+  const appServer = http.createServer(expressApp);
+  const baseApp = supertest(appServer);
 
   baseApp.asUser = async user => {
     const agent = supertest.agent(expressApp);
@@ -126,5 +210,10 @@ export async function createTestContext() {
 
   context.syncManager = new SyncManager(context);
 
-  return context;
+  const close = async () => {
+    await new Promise(resolve => appServer.close(resolve));
+    await closeDatabase();
+  };
+
+  return { ...context, close };
 }

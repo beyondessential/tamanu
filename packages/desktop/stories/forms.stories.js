@@ -17,6 +17,7 @@ import { TriageForm } from '../app/forms/TriageForm';
 import { VitalsForm } from '../app/forms/VitalsForm';
 import { ProcedureForm } from '../app/forms/ProcedureForm';
 import { AllergyForm } from '../app/forms/AllergyForm';
+import { ImmunisationForm } from '../app/forms/ImmunisationForm';
 import { AppointmentForm } from '../app/forms/AppointmentForm';
 import { OngoingConditionForm } from '../app/forms/OngoingConditionForm';
 import { DischargeForm } from '../app/forms/DischargeForm';
@@ -31,6 +32,8 @@ import { NoteForm } from '../app/forms/NoteForm';
 import { createDummySuggester, mapToSuggestions } from './utils';
 import { TestSelectorInput } from '../app/components/TestSelector';
 import { Modal } from '../app/components/Modal';
+
+import '@fortawesome/fontawesome-free/css/all.css';
 
 const PATIENTS = new Array(20).fill(0).map(x => createDummyPatient());
 
@@ -68,6 +71,25 @@ storiesOf('Forms', module).add('DeathForm', () => {
     </Modal>
   );
 });
+
+const getScheduledVaccines = () => {
+  return [];
+};
+
+storiesOf('Forms', module).add('ImmunisationForm', () => (
+  <Modal title="Give vaccine" open>
+    <ImmunisationForm
+      onSubmit={action('submit')}
+      onCancel={action('cancel')}
+      practitionerSuggester={practitionerSuggester}
+      icd10Suggester={icd10Suggester}
+      vaccineSuggester={icd10Suggester}
+      departmentSuggester={icd10Suggester}
+      getScheduledVaccines={getScheduledVaccines}
+      locationSuggester={locationSuggester}
+    />
+  </Modal>
+));
 
 storiesOf('Forms/LoginForm', module).add('broken', () => (
   <div>Login view unstorybookable until ServerDetectingField can be separated out</div>

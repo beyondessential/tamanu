@@ -3,7 +3,7 @@ import { Op } from 'sequelize';
 import { NotFoundError } from 'shared/errors';
 import { INVOICE_LINE_ITEM_STATUSES } from 'shared/constants';
 import { permissionCheckingRouter, simpleGet, simpleGetList, simplePut } from '../crudHelpers';
-import { renameObjectKeys } from '~/utils/renameObjectKeys';
+import { renameObjectKeys } from '../../../utils/renameObjectKeys';
 import { getPotentialInvoiceLineItems } from './getPotentialInvoiceLineItems';
 
 export const invoiceLineItemsRoute = permissionCheckingRouter('read', 'Invoice');

@@ -6,8 +6,8 @@ import { QueryTypes } from 'sequelize';
 import { NOTE_RECORD_TYPES } from 'shared/models/Note';
 import { NotFoundError, InvalidOperationError } from 'shared/errors';
 import { REFERENCE_TYPES, LAB_REQUEST_STATUSES } from 'shared/constants';
-import { makeFilter, makeSimpleTextFilterFactory } from '~/utils/query';
-import { renameObjectKeys } from '~/utils/renameObjectKeys';
+import { makeFilter, makeSimpleTextFilterFactory } from '../../utils/query';
+import { renameObjectKeys } from '../../utils/renameObjectKeys';
 import { simpleGet, simplePut, simpleGetList, permissionCheckingRouter } from './crudHelpers';
 
 export const labRequest = express.Router();
