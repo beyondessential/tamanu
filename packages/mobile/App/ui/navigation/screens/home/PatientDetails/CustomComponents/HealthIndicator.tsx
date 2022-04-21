@@ -12,14 +12,13 @@ export const HealthIdentificationRow = ({
   <RowView height={45}>
     <StyledView
       justifyContent="center"
-      flex={3}
+      flex={2}
       background={theme.colors.MAIN_SUPER_DARK}
     >
       <StyledText
         marginLeft={20}
-        fontSize={screenPercentageToDP(1.45, Orientation.Height)}
-        fontWeight="bold"
-        color={theme.colors.SECONDARY_MAIN}
+        fontWeight={500}
+        color={theme.colors.WHITE}
       >
         <LocalisedText path="fields.displayId.longLabel" />
       </StyledText>
@@ -29,7 +28,7 @@ export const HealthIdentificationRow = ({
       justifyContent="center"
       flex={1}
     >
-      <StyledText fontWeight="bold" color={theme.colors.MAIN_SUPER_DARK}>
+      <StyledText fontWeight={500} color={theme.colors.MAIN_SUPER_DARK}>
         {patientId}
       </StyledText>
     </CenterView>
