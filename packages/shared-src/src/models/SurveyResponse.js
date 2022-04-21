@@ -1,19 +1,20 @@
 import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
+import { ACTION_DATA_ELEMENT_TYPES } from 'shared/constants';
 import { Model } from './Model';
 import { runCalculations } from '../utils/calculations';
 import { getStringValue, getResultValue } from '../utils/fields';
 
-const handleSurveyResponseActions = async (models, actions, questions, patientId) => {
+const handleSurveyResponseActions = async (models, actions, questions, answers, patientId) => {
   const actionQuestions = questions
-    .filter(q => q.dataElement.type === 'PatientIssue')
+    .filter(q => ACTION_DATA_ELEMENT_TYPES.includes(q.dataElement.type))
     .filter(({ dataElement }) => Object.keys(actions).includes(dataElement.id));
 
   for (const question of actionQuestions) {
     const { dataElement, config: configString } = question;
+    const config = JSON.parse(configString) || {};
     switch (dataElement.type) {
       case 'PatientIssue': {
-        const config = JSON.parse(configString) || {};
         if (!config.issueNote || !config.issueType)
           throw new InvalidOperationError(
             `Ill-configured PatientIssue with config: ${configString}`,
@@ -23,6 +24,27 @@ const handleSurveyResponseActions = async (models, actions, questions, patientId
           type: config.issueType,
           note: config.issueNote,
         });
+        break;
+      }
+      case 'PatientData': {
+        const patient = await models.Patient.findOne({
+          where: { id: patientId },
+          include: [
+            {
+              model: models.PatientAdditionalData,
+              as: 'additionalData',
+            },
+          ],
+        });
+        const additionalData = patient.additionalData?.[0];
+        if (config.writeToPatient) {
+          patient[config.writeToPatient] = answers[dataElement.id];
+          await patient.save();
+        }
+        if (config.writeToAdditionalData) {
+          additionalData[config.writeToAdditionalData] = answers[dataElement.id];
+          await additionalData.save();
+        }
         break;
       }
       default:
@@ -123,7 +145,7 @@ export class SurveyResponse extends Model {
 
     const questions = await models.SurveyScreenComponent.getComponentsForSurvey(surveyId);
 
-    await handleSurveyResponseActions(models, actions, questions, patientId);
+    await handleSurveyResponseActions(models, actions, questions, answers, patientId);
 
     const calculatedAnswers = runCalculations(questions, answers);
     const finalAnswers = {

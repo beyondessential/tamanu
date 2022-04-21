@@ -14,8 +14,9 @@ import {
   NumberField,
   ReadOnlyTextField,
   UnsupportedPhotoField,
+  TextField,
 } from 'desktop/app/components/Field';
-import { PROGRAM_DATA_ELEMENT_TYPES } from 'shared-src/src/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES, ACTION_DATA_ELEMENT_TYPES } from 'shared-src/src/constants';
 import { joinNames } from './user';
 
 const InstructionField = ({ label, helperText }) => (
@@ -40,7 +41,7 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_LINK]: SurveyResponseSelectField,
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_RESULT]: null,
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER]: null,
-  [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA]: ReadOnlyTextField,
+  [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA]: TextField, // TODO: Pick based on data type?
   [PROGRAM_DATA_ELEMENT_TYPES.USER_DATA]: ReadOnlyTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION]: InstructionField,
   [PROGRAM_DATA_ELEMENT_TYPES.PHOTO]: UnsupportedPhotoField,
@@ -229,7 +230,7 @@ export const getAnswersFromData = (data, survey) =>
 export const getActionsFromData = (data, survey) =>
   Object.entries(data).reduce((acc, [key]) => {
     const component = survey.components.find(({ dataElement }) => dataElement.id === key);
-    if (component?.dataElement?.type === 'PatientIssue') {
+    if (ACTION_DATA_ELEMENT_TYPES.includes(component?.dataElement?.type)) {
       if (checkVisibility(component, data, survey.components)) {
         acc[key] = true;
       }
