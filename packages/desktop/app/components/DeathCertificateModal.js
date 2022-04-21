@@ -4,9 +4,9 @@ import { Modal } from './Modal';
 import { Button } from './Button';
 import { useCertificate } from '../utils/useCertificate';
 
-export const DeathCertificateModal = ({ patient }) => {
+export const DeathCertificateModal = ({ patient, deathData }) => {
   const [isOpen, setIsOpen] = useState();
-  const patientData = { ...patient };
+  const patientData = { ...patient, ...deathData };
 
   const certificateData = useCertificate();
 

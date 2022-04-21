@@ -6,8 +6,8 @@ import { CovidLabCertificate, VaccineCertificate } from 'shared/utils/patientCer
 import { PDFViewer } from '@react-pdf/renderer';
 import { DeathCertificate } from '../app/components/PatientPrinting/DeathCertificate';
 import SigningImage from './assets/signing-image.png';
-import Watermark from './assets/tamanu-watermark.png';
-import Logo from './assets/tamanu-logo-blue.png';
+import Watermark from './assets/watermark.png';
+import Logo from './assets/tamanu-logo.png';
 import { Modal } from '../app/components';
 
 const dummyPatient = createDummyPatient();

@@ -21,8 +21,8 @@ const LogoImage = styled.img`
   position: absolute;
   top: -5px;
   left: -10px;
-  width: auto;
-  height: 70px;
+  height: auto;
+  width: 90px;
 `;
 
 const HeaderText = styled.div`

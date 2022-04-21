@@ -137,8 +137,8 @@ const PatientDeathSummary = React.memo(({ patient }) => {
     <Container patientStatus={PATIENT_STATUS.DECEASED}>
       <Header patientStatus={PATIENT_STATUS.DECEASED}>
         <Box display="flex" justifyContent="space-between" alignItems="center" flex="1">
-          <BoldTitle variant="h3">Deceased 123</BoldTitle>
-          <DeathCertificateModal patient={patient} />
+          <BoldTitle variant="h3">Deceased</BoldTitle>
+          <DeathCertificateModal patient={patient} deathData={deathData} />
         </Box>
       </Header>
       <Content>
