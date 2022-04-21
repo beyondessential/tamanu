@@ -98,9 +98,9 @@ export const Modal = memo(
       // of an iframe. Otherwise use the default electron print page
       if (onPrint) {
         onPrint();
+      } else {
+        printPage();
       }
-
-      printPage();
     };
 
     return (
