@@ -34,13 +34,8 @@ module.exports = async ({ config }) => {
 
   config.resolve.alias = {
     ...config.resolve.alias,
-    'aws-sdk': path.resolve(__dirname, 'moduleMock.js'),
-    config: path.resolve(__dirname, 'moduleMock.js'),
-    child_process: path.resolve(__dirname, 'moduleMock.js'),
-    dns: path.resolve(__dirname, 'moduleMock.js'),
-    'pg-hstore': path.resolve(__dirname, 'moduleMock.js'),
-    'pg-native': path.resolve(__dirname, 'moduleMock.js'),
     yargs: path.resolve(__dirname, 'moduleMock.js'),
+    child_process: path.resolve(__dirname, 'moduleMock.js'),
   };
 
   return config;

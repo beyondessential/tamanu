@@ -2,13 +2,13 @@ import React, { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
 import { storiesOf } from '@storybook/react';
 import { createDummyPatient, createDummyPatientAdditionalData } from 'shared/demoData';
-import { CovidLabCertificate, VaccineCertificate } from 'shared/utils';
+import { CovidLabCertificate, VaccineCertificate } from 'shared/utils/patientCertificates';
 import { PDFViewer } from '@react-pdf/renderer';
 import { DeathCertificate } from '../app/components/PatientPrinting/DeathCertificate';
 import SigningImage from './assets/signing-image.png';
 import Watermark from './assets/tamanu-watermark.png';
 import Logo from './assets/tamanu-logo-blue.png';
-import { Modal } from '../app/components/Modal';
+import { Modal } from '../app/components';
 
 const dummyPatient = createDummyPatient();
 const dummyAdditionalData = createDummyPatientAdditionalData();
