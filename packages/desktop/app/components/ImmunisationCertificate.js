@@ -7,6 +7,7 @@ import { useApi } from '../api';
 import { useLocalisation } from '../contexts/Localisation';
 
 const ASSET_NAME = 'vaccine-certificate-watermark';
+const COVID_VACCINE_IDS = ['drug-COVID-19-Astra-Zeneca', 'drug-COVID-19-Pfizer'];
 
 const renderFooter = getLocalisation => {
   const contactEmail = getLocalisation('templates.vaccineCertificate.emailAddress');
@@ -38,10 +39,15 @@ const getUVCI = (getLocalisation, { immunisations }) => {
 
   const format = getLocalisation('previewUvciFormat');
 
+  const hasCovidVax = immunisations
+    .slice()
+    .some(v => COVID_VACCINE_IDS.includes(v.vaccineId));
+
   // Ensure that the records are sorted desc by date
   const latestVaccination = immunisations
     .slice()
-    .sort((a, b) => Date.parse(b.date) - Date.parse(a.date))[0];
+    .sort((a, b) => Date.parse(b.date) - Date.parse(a.date))
+    .filter(v => (hasCovidVax ? COVID_VACCINE_IDS.includes(v.vaccineId) : true))[0];
 
   return generateUVCI(latestVaccination.id, {
     format,
