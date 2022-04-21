@@ -27,38 +27,35 @@ async function createPalauSurveys(models) {
   });
 
   await models.ProgramDataElement.bulkCreate([
-    { id: 'pde-PalauCOVCase2', code: 'PalauCOVCase2', name: 'Name' },
-    { id: 'pde-PalauCOVCase3', code: 'PalauCOVCase3', name: 'Case report date' },
-    { id: 'pde-PalauCOVCase4', code: 'PalauCOVCase4', name: 'Interview date' },
-    { id: 'pde-PalauCOVCase6', code: 'PalauCOVCase6', name: 'Passport number' },
-    { id: 'pde-PalauCOVCase6a', code: 'PalauCOVCase6a', name: 'Nationality' },
-    { id: 'pde-PalauCOVCase7', code: 'PalauCOVCase7', name: 'Phone number' },
-    { id: 'pde-PalauCOVCase8', code: 'PalauCOVCase8', name: 'Current street address' },
-    { id: 'pde-PalauCOVCase10', code: 'PalauCOVCase10', name: 'Healthcare worker' },
+    { id: 'pde-PalauCOVCase2', code: 'PalauCOVCase2' },
+    { id: 'pde-PalauCOVCase3', code: 'PalauCOVCase3' },
+    { id: 'pde-PalauCOVCase4', code: 'PalauCOVCase4' },
+    { id: 'pde-PalauCOVCase6', code: 'PalauCOVCase6' },
+    { id: 'pde-PalauCOVCase6a', code: 'PalauCOVCase6a' },
+    { id: 'pde-PalauCOVCase7', code: 'PalauCOVCase7' },
+    { id: 'pde-PalauCOVCase8', code: 'PalauCOVCase8' },
+    { id: 'pde-PalauCOVCase10', code: 'PalauCOVCase10' },
     {
       id: 'pde-PalauCOVCase11',
       code: 'PalauCOVCase11',
-      name: 'If healthcare worker, which facility',
     },
-    { id: 'pde-PalauCOVCase13', code: 'PalauCOVCase13', name: 'Full name' },
-    { id: 'pde-PalauCOVCase9', code: 'PalauCOVCase9', name: 'City/Hamlet' },
-    { id: 'pde-PalauCOVCase14', code: 'PalauCOVCase14', name: 'Relationship to case' },
+    { id: 'pde-PalauCOVCase13', code: 'PalauCOVCase13' },
+    { id: 'pde-PalauCOVCase9', code: 'PalauCOVCase9' },
+    { id: 'pde-PalauCOVCase14', code: 'PalauCOVCase14' },
     {
       id: 'pde-PalauCOVCase16',
       code: 'PalauCOVCase16',
-      name: 'Hospitalization required for COVID-19',
     },
-    { id: 'pde-PalauCOVCase18', code: 'PalauCOVCase18', name: 'Vaccination status' },
-    { id: 'pde-PalauCOVCase20', code: 'PalauCOVCase20', name: 'Booster/third dose date' },
+    { id: 'pde-PalauCOVCase18', code: 'PalauCOVCase18' },
+    { id: 'pde-PalauCOVCase20', code: 'PalauCOVCase20' },
     {
       id: 'pde-PalauCOVCase27',
       code: 'PalauCOVCase27',
-      name: 'Exposures out of Palau in the last 14 days',
     },
-    { id: 'pde-PalauCOVCase28', code: 'PalauCOVCase28', name: 'Date of arrival in Palau' },
-    { id: 'pde-PalauCOVCase31', code: 'PalauCOVCase31', name: 'Risk factors' },
-    { id: 'pde-PalauCOVCase33', code: 'PalauCOVCase33', name: 'Day 0 sample collected' },
-    { id: 'pde-PalauCOVCase36', code: 'PalauCOVCase36', name: 'Symptomatic' },
+    { id: 'pde-PalauCOVCase28', code: 'PalauCOVCase28' },
+    { id: 'pde-PalauCOVCase31', code: 'PalauCOVCase31' },
+    { id: 'pde-PalauCOVCase33', code: 'PalauCOVCase33' },
+    { id: 'pde-PalauCOVCase36', code: 'PalauCOVCase36' },
   ]);
 
   await models.SurveyScreenComponent.bulkCreate([
@@ -85,11 +82,11 @@ async function createPalauSurveys(models) {
   ]);
 
   await models.ProgramDataElement.bulkCreate([
-    { id: 'pde-PalauCOVCaseFUp02', code: 'PalauCOVCaseFUp02', name: 'Date Follow Up Sample Taken' },
-    { id: 'pde-PalauCOVCaseFUp04', code: 'PalauCOVCaseFUp04', name: 'Symptomatic' },
-    { id: 'pde-PalauCOVCaseFUp06', code: 'PalauCOVCaseFUp06', name: 'Patient outcome' },
-    { id: 'pde-PalauCOVCaseFUp07', code: 'PalauCOVCaseFUp07', name: 'Date symptoms resolved' },
-    { id: 'pde-PalauCOVCaseFUp08', code: 'PalauCOVCaseFUp08', name: 'Date of death' },
+    { id: 'pde-PalauCOVCaseFUp02', code: 'PalauCOVCaseFUp02' },
+    { id: 'pde-PalauCOVCaseFUp04', code: 'PalauCOVCaseFUp04' },
+    { id: 'pde-PalauCOVCaseFUp06', code: 'PalauCOVCaseFUp06' },
+    { id: 'pde-PalauCOVCaseFUp07', code: 'PalauCOVCaseFUp07' },
+    { id: 'pde-PalauCOVCaseFUp08', code: 'PalauCOVCaseFUp08' },
   ]);
 
   await models.SurveyScreenComponent.bulkCreate([
@@ -208,9 +205,9 @@ describe('Palau covid case report tests', () => {
       expect(reportResult.body).toHaveLength(3);
       // survey responses are sorted latest first
       // patient 1 has interview date later than patient 2
-      expect(reportResult.body[1][0]).toBe(expectedPatient1.firstName);
-      expect(reportResult.body[1][28]).toBe('Resolved');
-      expect(reportResult.body[2][0]).toBe(expectedPatient2.firstName);
+      expect(reportResult.body[1][8]).toBe(expectedPatient1.firstName);
+      expect(reportResult.body[1][33]).toBe('Resolved');
+      expect(reportResult.body[2][8]).toBe(expectedPatient2.firstName);
     });
     it('should not include survey responses without initial form', async () => {
       const patient = await createPatient(testContext.models);
@@ -255,9 +252,9 @@ describe('Palau covid case report tests', () => {
       expect(reportResult.body).toHaveLength(3);
       // survey responses are sorted latest first
       // patient 1 has interview date later than patient 2
-      expect(reportResult.body[1][0]).toBe(expectedPatient1.firstName);
-      expect(reportResult.body[1][28]).toBe(null);
-      expect(reportResult.body[2][0]).toBe(expectedPatient2.firstName);
+      expect(reportResult.body[1][8]).toBe(expectedPatient1.firstName);
+      expect(reportResult.body[1][33]).toBe(null);
+      expect(reportResult.body[2][8]).toBe(expectedPatient2.firstName);
     });
   });
 });

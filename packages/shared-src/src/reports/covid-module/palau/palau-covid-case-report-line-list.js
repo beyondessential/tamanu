@@ -8,54 +8,61 @@ const INITIAL_SURVEY_ID = 'program-palaucovid19-palaucovidinitialcasereportform'
 const FOLLOW_UP_SURVEY_ID = 'program-palaucovid19-palaucovidfollowupcasereport';
 
 const reportColumnTemplate = [
-  { title: 'Patient first name', accessor: data => data.patient.firstName },
-  { title: 'Patient last name', accessor: data => data.patient.lastName },
-  { title: 'DOB', accessor: data => data.patient.dateOfBirth },
-  { title: 'Sex', accessor: data => data.patient.sex },
-  { title: 'Patient ID', accessor: data => data.patient.displayId },
-  { title: 'Hamlet', accessor: data => data.patient.village?.name },
-  { title: 'Nationality', accessor: data => data.patient.additionalData?.[0]?.nationality?.name },
-
-  // initial survey
-  // instruction case investigator
-  { title: 'Name', accessor: data => data['pde-PalauCOVCase2'] },
+  { title: 'Case ID', accessor: data => data['pde-PalauCOVCase6'] },
+  { title: 'Case investigator', accessor: data => data['pde-PalauCOVCase2'] },
+  { title: 'EpiWeek', accessor: data => data['pde-PalauCOVCase33'] },
   { title: 'Case report date', accessor: data => data['pde-PalauCOVCase3'] },
   { title: 'Interview date', accessor: data => data['pde-PalauCOVCase4'] },
-  // instruction case identification
+  { title: 'Hospital No.', accessor: data => data.patient.displayId },
   { title: 'Passport number', accessor: data => data['pde-PalauCOVCase6'] },
-  { title: 'Phone number', accessor: data => data['pde-PalauCOVCase7'] },
-  { title: 'Current street address', accessor: data => data['pde-PalauCOVCase8'] },
-  { title: 'City/Hamlet', accessor: data => data['pde-PalauCOVCase9'] },
-  { title: 'Is the patient a healthcare worker?', accessor: data => data['pde-PalauCOVCase10'] },
+  { title: 'Last name', accessor: data => data.patient.lastName },
+  { title: 'First name', accessor: data => data.patient.firstName },
+  { title: 'Middle name', accessor: data => data.patient.middleName },
+  { title: 'DOB', accessor: data => data.patient.dateOfBirth },
   {
-    title: 'If yes, indicate facility',
+    title: 'Age',
+    accessor: data => {
+      const dateOfBirthMoment = data.patient.dateOfBirth ?? moment(data.patient.dateOfBirth);
+      const dateOfBirth = dateOfBirthMoment ? moment(dateOfBirthMoment).format('DD-MM-YYYY') : '';
+      const age = dateOfBirthMoment ? moment().diff(dateOfBirthMoment, 'years') : '';
+      return age;
+    },
+  },
+  { title: 'Sex', accessor: data => data.patient.sex },
+  { title: 'Nationality', accessor: data => data => data['pde-PalauCOVCase6a'] },
+  { title: 'Street address', accessor: data => data['pde-PalauCOVCase8'] },
+  { title: 'City/Hamlet', accessor: data => data['pde-PalauCOVCase9'] },
+  { title: 'State', accessor: data => data['pde-PalauCOVCase9a'] },
+  { title: 'Phone number 1', accessor: data => data['pde-PalauCOVCase7'] },
+  { title: 'Phone number 2', accessor: data => data['pde-PalauCOVCase7a'] },
+  { title: 'Healthcare worker', accessor: data => data['pde-PalauCOVCase10'] },
+  {
+    title: 'If HCW, specify HCF',
     accessor: data => data['pde-PalauCOVCase11'],
   },
-  { title: 'Full name (Respondant)', accessor: data => data['pde-PalauCOVCase13'] },
-  { title: 'Relationship to case (Respondant)', accessor: data => data['pde-PalauCOVCase14'] },
+  { title: 'Respondant name', accessor: data => data['pde-PalauCOVCase13'] },
+  { title: 'Respondant relationship to case', accessor: data => data['pde-PalauCOVCase14'] },
   {
-    title: 'Hospitalization required for COVID-19',
+    title: 'Hospitalization required',
     accessor: data => data['pde-PalauCOVCase16'],
   },
   { title: 'Vaccination status', accessor: data => data['pde-PalauCOVCase18'] },
   { title: 'Booster/third dose date', accessor: data => data['pde-PalauCOVCase20'] },
   {
-    title: 'Has the patient been exposed out of Palau in the last 14 days?',
+    title: 'Has the case traveled in the past 14 days',
     accessor: data => data['pde-PalauCOVCase27'],
   },
-  { title: 'If yes, list date of arrival in Palau', accessor: data => data['pde-PalauCOVCase28'] },
+  { title: 'Arrival date in Palau', accessor: data => data['pde-PalauCOVCase28'] },
   { title: 'Risk factors', accessor: data => data['pde-PalauCOVCase31'] },
-  // instruction high risk
-  // instruction lab testing
   { title: 'Day 0 sample collected', accessor: data => data['pde-PalauCOVCase33'] },
-  { title: 'Is the patient symptomatic?', accessor: data => data['pde-PalauCOVCase36'] },
+  { title: 'Symptomatic on day 0', accessor: data => data['pde-PalauCOVCase36'] },
 
   // follow up survey
-  { title: 'Follow up sample collected', accessor: data => data['pde-PalauCOVCaseFUp02'] },
-  { title: 'Symptomatic', accessor: data => data['pde-PalauCOVCaseFUp04'] },
+  { title: 'Day 5 sample collected', accessor: data => data['pde-PalauCOVCaseFUp02'] },
+  { title: 'Symptomatic on day 5', accessor: data => data['pde-PalauCOVCaseFUp04'] },
   { title: 'Patient outcome', accessor: data => data['pde-PalauCOVCaseFUp06'] },
-  { title: 'Date symptoms resolved', accessor: data => data['pde-PalauCOVCaseFUp07'] },
-  { title: 'Date of death', accessor: data => data['pde-PalauCOVCaseFUp08'] },
+  { title: 'If recovered, date', accessor: data => data['pde-PalauCOVCaseFUp07'] },
+  { title: 'If dead, date', accessor: data => data['pde-PalauCOVCaseFUp08'] },
 ];
 
 const WILLIAM_HOROTO_IDS = [
@@ -172,7 +179,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
       .map(([patientId, patientSurveyResponses]) => {
         // create a row for each initial survey response
         return patientSurveyResponses.map((surveyResponse, index) => {
-          // find the corresponding follow up survey for each initial survey 
+          // find the corresponding follow up survey for each initial survey
 
           // only select follow up surveys after the current initial survey
           const followUpSurveyResponseFromDate = moment(surveyResponse.endTime).startOf('day');
@@ -180,18 +187,15 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
           // if there are more than 1 initial surveys (index > 0)
           // only select follow up survey before the later initial survey
           const followUpSurveyResponseBeforeTime =
-            index === 0
-              ? moment()
-              : moment(patientSurveyResponses[index - 1].endTime);
-          const followUpSurvey = followUpSurveyResponsesByPatient[
-            patientId
-          ]?.find(followUpSurveyResponse =>
-            moment(followUpSurveyResponse.endTime).isBetween(
-              followUpSurveyResponseFromDate,
-              followUpSurveyResponseBeforeTime,
-              undefined,
-              '[)', // from inclusive, end exclusive
-            ),
+            index === 0 ? moment() : moment(patientSurveyResponses[index - 1].endTime);
+          const followUpSurvey = followUpSurveyResponsesByPatient[patientId]?.find(
+            followUpSurveyResponse =>
+              moment(followUpSurveyResponse.endTime).isBetween(
+                followUpSurveyResponseFromDate,
+                followUpSurveyResponseBeforeTime,
+                undefined,
+                '[)', // from inclusive, end exclusive
+              ),
           );
           async function transform() {
             const resultResponse = surveyResponse;
