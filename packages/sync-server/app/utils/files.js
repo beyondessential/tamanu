@@ -18,7 +18,7 @@ export function removeFile(filePath) {
 }
 
 const stringifyIfNonDateObject = val =>
-  typeof val === 'object' && !(val instanceof Date) && !(val === null) ? JSON.stringify(val) : val;
+  typeof val === 'object' && !(val instanceof Date) && val !== null ? JSON.stringify(val) : val;
 
 export async function writeToSpreadsheet(data, filePath, bookType) {
   const book = XLSX.utils.book_new();
