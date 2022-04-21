@@ -84,6 +84,7 @@ export const Certificate = ({
   watermarkType,
   primaryDetailsFields,
   customAccessors = {},
+  uvci = null,
   children,
 }) => {
   const [footerImg, setFooterImg] = useState('');
@@ -123,6 +124,12 @@ export const Certificate = ({
           );
         })}
       </TwoColumnContainer>
+      {uvci && (
+        <p>
+          <span>UVCI: </span>
+          <span>{uvci}</span>
+        </p>
+      )}
       <Spacer />
       {children}
       <Spacer />

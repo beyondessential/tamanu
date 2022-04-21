@@ -22,6 +22,28 @@
 
 - (left blank)
 
+## v1.15.1
+
+### Manual steps required after upgrade ⚙
+
+- (left blank)
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
+- (left blank)
+
+### Bug fixes 🐛
+
+- Fix some bugs to do with vaccine certificates
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
 ## v1.15.0
 
 ### Manual steps required after upgrade ⚙
