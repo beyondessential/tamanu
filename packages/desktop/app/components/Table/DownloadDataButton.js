@@ -1,17 +1,46 @@
 import React, { isValidElement } from 'react';
-import ReactDOMServer from 'react-dom/server';
+import * as ReactDOM from 'react-dom';
 import { Button } from '@material-ui/core';
 import SaveAltIcon from '@material-ui/icons/SaveAlt';
 import styled from 'styled-components';
-import cheerio from 'cheerio';
 import XLSX from 'xlsx';
-
-import { useElectron } from '../../contexts/Electron';
+import { Provider } from 'react-redux';
+import { createStore } from 'redux';
+import { useElectron, DummyElectronProvider } from '../../contexts/Electron';
 
 const PaddedDownloadIcon = styled(SaveAltIcon)`
   padding: 5px;
   font-size: 42px;
 `;
+
+// Create a dummy redux store, otherwise some components will throw an error
+// that can't be catched.
+const dummyStore = createStore(() => {});
+
+/*
+  Previously, we used ReactDOMServer.renderToString() but this brought
+  problems with the app styling, with base styles being injected and
+  overwriting our custom ones. To get around this and taking advantage
+  of being run in the client, we can render directly to a DOM node and
+  read the HTML from there.
+*/
+function getTextFromComponent(component) {
+  // Create unattached node and render component inside it
+  const container = document.createElement('div');
+  ReactDOM.render(
+    <Provider store={dummyStore}>
+      <DummyElectronProvider>{component}</DummyElectronProvider>
+    </Provider>,
+    container,
+  );
+
+  // Extract the text from it
+  const scrappedText = container.textContent;
+
+  // Unmount the component to let the injected styles clean themselves
+  ReactDOM.unmountComponentAtNode(container);
+  return scrappedText;
+}
 
 function getHeaderValue(column) {
   if (!column.title) {
@@ -22,7 +51,7 @@ function getHeaderValue(column) {
   }
   if (typeof column.title === 'object') {
     if (isValidElement(column.title)) {
-      return cheerio.load(ReactDOMServer.renderToString(column.title)).text();
+      return getTextFromComponent(column.title);
     }
   }
   return column.key;
@@ -46,10 +75,10 @@ export function DownloadDataButton({ exportName, columns, data }) {
 
             if (c.accessor) {
               const value = c.accessor(d);
-              // render react element and get the text value with cheerio
+              // Assume it's a react element
               if (typeof value === 'object') {
                 if (isValidElement(value)) {
-                  dx[headerValue] = cheerio.load(ReactDOMServer.renderToString(value)).text();
+                  dx[headerValue] = getTextFromComponent(value);
                 } else {
                   dx[headerValue] = d[c.key];
                 }
