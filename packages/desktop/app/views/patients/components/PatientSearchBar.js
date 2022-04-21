@@ -5,7 +5,7 @@ import SpellcheckIcon from '@material-ui/icons/Spellcheck';
 import moment from 'moment';
 
 import { CustomisableSearchBar } from '../../../components/CustomisableSearchBar';
-import { DateField, AutocompleteField } from '../../../components';
+import { DateField, AutocompleteField, CheckField, Field } from '../../../components';
 import { useApi } from '../../../api';
 import { Suggester } from '../../../utils/suggester';
 
@@ -89,6 +89,9 @@ export const PatientSearchBar = ({ onSearch, fields = DEFAULT_FIELDS, ...props }
     <CustomisableSearchBar
       title="Search for patients"
       fields={searchFields}
+      renderCheckField={
+        <Field name="includeDeceased" label="Include deceased patients" component={CheckField} />
+      }
       onSearch={handleSearch}
       {...props}
     />
