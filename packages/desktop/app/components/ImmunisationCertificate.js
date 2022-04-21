@@ -71,6 +71,8 @@ export const ImmunisationCertificate = ({ patient, immunisations }) => {
   const countryName = getLocalisation('country.name');
   const healthFacility = getLocalisation('templates.vaccineCertificate.healthFacility');
 
+  const uvci = getUVCI(getLocalisation, { immunisations });
+
   return (
     <Certificate
       patient={patient}
@@ -78,7 +80,7 @@ export const ImmunisationCertificate = ({ patient, immunisations }) => {
       watermark={watermark}
       watermarkType={watermarkType}
       footer={renderFooter(getLocalisation)}
-      customAccessors={{ UVCI: () => getUVCI(getLocalisation, { immunisations }) }}
+      uvci={uvci}
       primaryDetailsFields={[
         'firstName',
         'lastName',
@@ -87,7 +89,6 @@ export const ImmunisationCertificate = ({ patient, immunisations }) => {
         'displayId',
         'nationalityId',
         'passport',
-        'UVCI',
       ]}
     >
       <Table>
