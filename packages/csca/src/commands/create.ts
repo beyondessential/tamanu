@@ -140,6 +140,7 @@ async function run(countryName: string, options: {
   await confirm('Proceed?');
 
   await ca.create(config);
+  await ca.archive();
 }
 
 export default new Command('create')

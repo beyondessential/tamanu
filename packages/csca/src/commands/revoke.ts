@@ -50,17 +50,8 @@ async function run(
 
   await ca.openReadWrite();
   await ca.revokeCertificate(serial, date);
-  console.log('Certificate revoked');
-
-  const { value } = await prompts({
-    type: 'confirm',
-    name: 'value',
-    message: 'Upload CRL?',
-  });
-
-  if (!value) return;
-
-  console.log('TODO: upload CRL');
+  console.log('Certificate revoked. Remember to upload the CRL!');
+  await ca.archive();
 }
 
 export default new Command('revoke')

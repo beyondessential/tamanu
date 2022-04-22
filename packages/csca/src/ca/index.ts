@@ -1,9 +1,10 @@
-import { promises as fs } from 'fs';
-import { join } from 'path';
+import { promises as fs, createWriteStream } from 'fs';
+import { join, basename } from 'path';
 
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import prompts from 'prompts';
 import { Pkcs10CertificateRequest } from '@peculiar/x509';
+import archiver from 'archiver';
 
 import Config, { ConfigFile, period } from './Config';
 import { keyPairFromPrivate, fsExists } from '../utils';
@@ -358,5 +359,39 @@ export default class CA {
     const key = await this.privateKey();
     await this.state(key).indexRevocation(serial, date);
     await this.log(key).revoke(serial, date);
+  }
+
+  public async archive(): Promise<string> {
+    const dir = basename(this.path);
+    const target = `${dir}_${
+      new Date()
+        .toISOString()
+        .replace(/:/g, '-')
+        .replace('T', '_')
+        .split('.')[0]
+    }.zip`;
+
+    return new Promise((resolve, reject) => {
+      const zip = createWriteStream(target);
+      const arc = archiver('zip', {
+        zlib: { level: 9 },
+        comment: `${dir} Health CSCA - Managed by BES`,
+      });
+
+      arc.on('error', reject);
+      arc.on('warning', err => {
+        console.warn(err);
+      });
+
+      zip.on('error', reject);
+      zip.on('close', () => {
+        console.debug('saved state to archive', { target });
+        resolve(target);
+      });
+
+      arc.directory(this.path, dir);
+      arc.pipe(zip);
+      arc.finalize();
+    });
   }
 }

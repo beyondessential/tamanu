@@ -48,6 +48,7 @@ async function run(
   console.log('Generated CRL number:', (await crl.serial()).toString('hex'));
 
   await ca.uploadCrl({ accessKeyId: awsAccessKey, secretAccessKey: awsAccessSecret });
+  await ca.archive();
 }
 
 export default new Command('crl-upload')

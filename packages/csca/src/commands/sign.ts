@@ -27,6 +27,8 @@ async function run(folder: string, request: string): Promise<void> {
   const destPath = request.replace(new RegExp(`${extname(request).replace('.', '\\.')}$`), '.crt');
   console.log('writing certificate to', destPath);
   await cert.write(destPath);
+
+  await ca.archive();
 }
 
 export default new Command('sign')
