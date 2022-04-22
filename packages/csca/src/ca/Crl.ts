@@ -65,12 +65,13 @@ export default class Crl {
 
     const revokedCertificates = revokedCerts.length
       ? revokedCerts.map(
-        cert => new RevokedCertificate({
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          revocationDate: new Time(cert.revocationDate!),
-          userCertificate: cert.serial,
-        }),
-      )
+          cert =>
+            new RevokedCertificate({
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              revocationDate: new Time(cert.revocationDate!),
+              userCertificate: cert.serial,
+            }),
+        )
       : undefined;
 
     // Doc 9303-12 defines the CRL profile in §7.1.4:
@@ -130,9 +131,15 @@ export default class Crl {
       crlExtensions: [crlAki, crlNumber],
     });
 
-    const signingAlgorithm = key.algorithm as HashedAlgorithm;
     const tbs = AsnConvert.serialize(tbsCertList);
-    const signature = await crypto.subtle.sign(signingAlgorithm, key, tbs);
+    const signature = await crypto.subtle.sign(
+      {
+        name: 'ECDSA',
+        hash: 'SHA-256',
+      },
+      key,
+      tbs,
+    );
 
     const certList = new CertificateList({
       tbsCertList,
@@ -151,9 +158,16 @@ export default class Crl {
     const certList = AsnConvert.parse(der, CertificateList);
 
     console.debug('verify crl signature');
-    const signingAlgorithm = this.key.algorithm as HashedAlgorithm;
     const tbs = AsnConvert.serialize(certList.tbsCertList);
-    const valid = await crypto.subtle.verify(signingAlgorithm, this.key, certList.signature, tbs);
+    const valid = await crypto.subtle.verify(
+      {
+        name: 'ECDSA',
+        hash: 'SHA-256',
+      },
+      this.key,
+      certList.signature,
+      tbs,
+    );
     if (!valid) throw new Error('CRL signature is invalid');
 
     return certList.tbsCertList;
