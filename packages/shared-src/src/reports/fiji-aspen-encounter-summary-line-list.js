@@ -8,9 +8,14 @@ const FIELDS = [
   'Age',
   'Sex',
   'Patient billing type',
+  'Encounter ID',
   'Encounter start date',
   'Encounter end date',
   'Encounter type',
+  'Triage category',
+  'Time seen following triage/Wait time',
+  'Department',
+  'Location',
   'Reason for encounter',
   'Diagnosis',
   'Medications',
@@ -337,7 +342,6 @@ left join triages t on t.encounter_id = e.id
 left join location_info li on li.encounter_id = e.id
 left join department_info di2 on di2.encounter_id = e.id
 where e.end_date is not null
---and json_array_length("Lab requests" -> 0 -> 'tests') > 1
 and coalesce(billing.id, '-') like coalesce(:billing_type, '%%')
 and CASE WHEN :department_id IS NOT NULL THEN dept_id_list::jsonb ? :department_id ELSE true end 
 and CASE WHEN :location_id IS NOT NULL THEN loc_id_list::jsonb ? :location_id ELSE true end 
