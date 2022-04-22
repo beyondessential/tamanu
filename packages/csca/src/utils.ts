@@ -78,3 +78,10 @@ export async function fsExists(path: string): Promise<boolean> {
     return false;
   }
 }
+
+export function numberToBuffer(num: number): Buffer {
+  let numHex = num.toString(16);
+  const numHexLen = numHex.length;
+  numHex = numHex.padStart(numHexLen % 2 === 0 ? numHexLen : numHexLen + 1, '0');
+  return Buffer.from(numHex, 'hex');
+}

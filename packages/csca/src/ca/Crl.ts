@@ -28,6 +28,7 @@ import { add } from 'date-fns';
 import Certificate from './Certificate';
 import State, { readSerial } from './State';
 import crypto from '../crypto';
+import { numberToBuffer } from '../utils';
 
 function asAki(ext: X509Extension | undefined): AuthorityKeyIdentifierExtension | undefined {
   if (ext instanceof AuthorityKeyIdentifierExtension) return ext;
@@ -187,7 +188,7 @@ export default class Crl {
     const numext = crl.crlExtensions?.find(ext => ext.extnID === id_ce_cRLNumber);
     if (!numext) throw new Error('CRL missing CRLNumber extension');
     const num = AsnConvert.parse(numext.extnValue, CRLNumber);
-    return Buffer.from(num.value.toString(16), 'hex');
+    return numberToBuffer(num.value);
   }
 
   public async asBuffer(): Promise<Buffer> {

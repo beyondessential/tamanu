@@ -1,5 +1,5 @@
 import { join } from 'path';
-import { padBufferStart, truncateToSeconds } from '../utils';
+import { numberToBuffer, padBufferStart, truncateToSeconds } from '../utils';
 
 import AuthenticatedFile from './AuthenticatedFile';
 import Certificate from './Certificate';
@@ -95,12 +95,7 @@ function incrementSerial(serial: Buffer): [Buffer, Buffer] {
   const next = serial.readUInt32BE(offset) + 1;
   serial.writeUInt32BE(next, offset);
 
-  let nextHex = next.toString(16);
-  const nextHexLen = nextHex.length;
-  nextHex = nextHex.padStart(nextHexLen % 2 === 0 ? nextHexLen : nextHexLen + 1, '0');
-  const minimallyPadded = Buffer.from(nextHex, 'hex');
-
-  return [serial, minimallyPadded];
+  return [serial, numberToBuffer(next)];
 }
 
 export default class State extends AuthenticatedFile {
