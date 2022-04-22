@@ -76,12 +76,22 @@ export class CertificateIndexEntry {
 
 /** @internal utility for CRL */
 export function readSerial(serial: Buffer): number {
-  const offset = serial.byteLength - 4;
-  return serial.readUInt32BE(offset);
+  switch (serial.byteLength) {
+    case 1:
+      return serial.readUInt8(0);
+    case 2:
+      return serial.readUInt16BE(0);
+    case 3:
+      return serial.readUInt16BE(0) * 0x100 + serial.readUInt8(2);
+    default: {
+      const offset = Math.max(0, serial.byteLength - 4);
+      return serial.readUInt32BE(offset);
+    }
+  }
 }
 
 function incrementSerial(serial: Buffer): [Buffer, Buffer] {
-  const offset = serial.byteLength - 4;
+  const offset = Math.max(0, serial.byteLength - 4);
   const next = serial.readUInt32BE(offset) + 1;
   serial.writeUInt32BE(next, offset);
 
