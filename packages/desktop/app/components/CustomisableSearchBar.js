@@ -131,7 +131,7 @@ export const CustomisableSearchBar = ({
     ({ submitForm, clearForm }) => (
       <>
         <SearchInputContainer>{fieldElements}</SearchInputContainer>
-        <Box display="flex" alignItems="center" justifyContent="space-between" pt={2}>
+        <Box display="flex" alignItems="center" justifyContent="space-between" mt={2}>
           {renderCheckField}
           <Box marginLeft="auto">
             <LargeOutlineButton style={{ marginRight: 12 }} onClick={clearForm}>

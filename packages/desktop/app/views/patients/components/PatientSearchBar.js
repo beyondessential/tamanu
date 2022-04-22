@@ -90,7 +90,7 @@ export const PatientSearchBar = ({ onSearch, fields = DEFAULT_FIELDS, ...props }
       title="Search for patients"
       fields={searchFields}
       renderCheckField={
-        <Field name="includeDeceased" label="Include deceased patients" component={CheckField} />
+        <Field name="deceased" label="Include deceased patients" component={CheckField} />
       }
       onSearch={handleSearch}
       {...props}

@@ -1,12 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
-import SearchIcon from '@material-ui/icons/Search';
 import Typography from '@material-ui/core/Typography';
+import Box from '@material-ui/core/Box';
 
-import { Button } from './Button';
 import { ButtonRow } from './ButtonRow';
 import { Form, Field, TextField } from './Field';
 import { FormGrid } from './FormGrid';
+import { Button, LargeButton, LargeOutlineButton } from './Button';
 
 const Container = styled.div`
   padding: 1rem 2rem 1rem 2rem;
@@ -28,25 +28,22 @@ const HeaderBar = styled.div`
   }
 `;
 
-const PaddedSearchIcon = styled(SearchIcon)`
-  padding-right: 3px;
-`;
-
 const renderSearchBar = ({ submitForm, clearForm }) => (
-  <FormGrid columns={3}>
-    <Field name="type" placeholder="Type" component={TextField} />
-    <Field name="documentOwner" placeholder="Owner" component={TextField} />
-    <Field name="departmentName" placeholder="Department" component={TextField} />
-    <ButtonRow>
-      <Button onClick={clearForm} variant="outlined" color="primary">
+  <>
+    <FormGrid columns={3}>
+      <Field name="type" placeholder="Type" component={TextField} />
+      <Field name="documentOwner" placeholder="Owner" component={TextField} />
+      <Field name="departmentName" placeholder="Department" component={TextField} />
+    </FormGrid>
+    <Box display="flex" alignItems="center" justifyContent="flex-end" mt={2}>
+      <LargeOutlineButton onClick={clearForm} style={{ marginRight: 12 }}>
         Clear search
-      </Button>
-      <Button color="primary" variant="contained" onClick={submitForm} type="submit">
-        <PaddedSearchIcon />
+      </LargeOutlineButton>
+      <LargeButton onClick={submitForm} type="submit">
         Search
-      </Button>
-    </ButtonRow>
-  </FormGrid>
+      </LargeButton>
+    </Box>
+  </>
 );
 
 export const DocumentsSearchBar = ({ setSearchParameters, onAddDocument }) => (
