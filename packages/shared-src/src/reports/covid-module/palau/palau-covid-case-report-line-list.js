@@ -3,6 +3,7 @@ import { Op } from 'sequelize';
 import moment from 'moment';
 import { generateReportFromQueryData } from '../../utilities';
 import { transformAnswers } from '../../utilities/transformAnswers';
+import { getAgeFromDate } from '../../../utils/date';
 
 const INITIAL_SURVEY_ID = 'program-palaucovid19-palaucovidinitialcasereportform';
 const FOLLOW_UP_SURVEY_ID = 'program-palaucovid19-palaucovidfollowupcasereport';
@@ -22,10 +23,7 @@ const reportColumnTemplate = [
   {
     title: 'Age',
     accessor: data => {
-      const dateOfBirthMoment = data.patient.dateOfBirth ?? moment(data.patient.dateOfBirth);
-      const dateOfBirth = dateOfBirthMoment ? moment(dateOfBirthMoment).format('DD-MM-YYYY') : '';
-      const age = dateOfBirthMoment ? moment().diff(dateOfBirthMoment, 'years') : '';
-      return age;
+      return data.patient.dateOfBirth ? getAgeFromDate(data.patient.dateOfBirth) : '';
     },
   },
   { title: 'Sex', accessor: data => data.patient.sex },
