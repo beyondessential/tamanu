@@ -180,14 +180,28 @@ const fieldsSchema = yup
 const rootLocalisationSchema = yup
   .object({
     country: {
-      name: yup.string().min(1).required(),
-      'alpha-2': yup.string().uppercase().length(2).required(),
-      'alpha-3': yup.string().uppercase().length(3).required(),
+      name: yup
+        .string()
+        .min(1)
+        .required(),
+      'alpha-2': yup
+        .string()
+        .uppercase()
+        .length(2)
+        .required(),
+      'alpha-3': yup
+        .string()
+        .uppercase()
+        .length(3)
+        .required(),
     },
     fields: fieldsSchema,
     templates: templatesSchema,
     timeZone: yup.string().nullable(),
-    previewUvciFormat: yup.string().required().oneOf(['eudcc', 'icao']),
+    previewUvciFormat: yup
+      .string()
+      .required()
+      .oneOf(['eudcc', 'icao']),
     features: yup
       .object({
         editPatientDetailsOnMobile: yup.boolean().required(),

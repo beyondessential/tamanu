@@ -91,5 +91,6 @@ export const InvoicesTable = React.memo(({ patient, searchParameters }) => (
     columns={COLUMNS}
     noDataMessage="No invoices found"
     fetchOptions={searchParameters}
+    allowExport={false}
   />
 ));

@@ -207,20 +207,37 @@ describe('Patient', () => {
         ...fakeStringFields('loc', ['code', 'name']),
         facilityId,
       });
-      const { id: cond1Id } = await ReferenceData.create({
+      const cond1 = await ReferenceData.create({
         id: 'ref/icd10/K07.9',
         type: 'icd10',
         code: 'K07.9',
         name: 'Dentofacial anomaly',
       });
-      const { id: cond2Id } = await ReferenceData.create({
+      const cond2 = await ReferenceData.create({
         id: 'ref/icd10/A51.3',
         type: 'icd10',
         code: 'A51.3',
         name: 'Secondary syphilis of skin',
       });
 
-      commons = { clinicianId, facilityId, departmentId, locationId, cond1Id, cond2Id };
+      commons = {
+        clinicianId,
+        facilityId,
+        departmentId,
+        locationId,
+        cond1Id: cond1.id,
+        cond2Id: cond2.id,
+        cond1: {
+          ...cond1.dataValues,
+          createdAt: cond1.createdAt.toISOString(),
+          updatedAt: cond1.updatedAt.toISOString(),
+        },
+        cond2: {
+          ...cond2.dataValues,
+          createdAt: cond2.createdAt.toISOString(),
+          updatedAt: cond2.updatedAt.toISOString(),
+        },
+      };
     });
 
     it('should mark a patient as dead', async () => {
@@ -328,7 +345,7 @@ describe('Patient', () => {
     it('should return no death data for alive patient', async () => {
       const { Patient } = models;
       const { id, dateOfBirth } = await Patient.create(fakePatient('alive-1'));
-      
+
       const result = await app.get(`/v1/patient/${id}/death`);
 
       expect(result).toHaveStatus(404);
@@ -342,7 +359,7 @@ describe('Patient', () => {
     it('should return death data for deceased patient', async () => {
       const { Patient } = models;
       const { id, dateOfBirth } = await Patient.create(fakePatient('alive-1'));
-      const { clinicianId, facilityId, cond1Id, cond2Id } = commons;
+      const { clinicianId, facilityId, cond1, cond2, cond1Id, cond2Id } = commons;
 
       const dod = new Date('2021-09-01T00:00:00.000Z');
       await app.post(`/v1/patient/${id}/death`).send({
@@ -375,27 +392,25 @@ describe('Patient', () => {
 
       expect(result).toHaveSucceeded();
       expect(result.body.dateOfDeath).toEqual(dod.toISOString());
+
       expect(result.body).toMatchObject({
         patientId: id,
-        clinicianId,
-        facilityId,
-
         dateOfBirth: dateOfBirth.toISOString(),
         dateOfDeath: dod.toISOString(),
 
         manner: 'Accident',
         causes: {
           primary: {
-            conditionId: cond1Id,
+            condition: cond1,
             timeAfterOnset: 100,
           },
           secondary: {
-            conditionId: cond2Id,
+            condition: cond2,
             timeAfterOnset: 120,
           },
           contributing: [
             {
-              conditionId: cond2Id,
+              condition: cond2,
               timeAfterOnset: 400,
             },
           ],

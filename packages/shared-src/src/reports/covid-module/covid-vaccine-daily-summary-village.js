@@ -1,3 +1,5 @@
+/* eslint-disable no-param-reassign */
+
 import { Op } from 'sequelize';
 import config from 'config';
 import moment from 'moment';

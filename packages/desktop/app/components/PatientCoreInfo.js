@@ -84,10 +84,10 @@ const HealthIdLabelText = styled.div`
   font-size: 12px;
 `;
 
-const CoreInfoCell = memo(({ path, children }) => {
+const CoreInfoCell = memo(({ path, children, testId }) => {
   const { getLocalisation } = useLocalisation();
   return (
-    <CoreInfoCellContainer>
+    <CoreInfoCellContainer data-test-id={testId}>
       <CoreInfoLabel>{getLocalisation(path)}</CoreInfoLabel>
       <CoreInfoValue>{children}</CoreInfoValue>
     </CoreInfoCellContainer>
@@ -122,16 +122,18 @@ export const CoreInfoDisplay = memo(({ patient }) => (
       <NameHeader>Patient details</NameHeader>
       <NameContainer>
         <FirstNameRow>
-          <NameText>{patient.firstName}</NameText>
+          <NameText data-test-id="core-info-patient-first-name">{patient.firstName}</NameText>
           <PatientInitialsIcon patient={patient} />
         </FirstNameRow>
-        <NameText>{patient.lastName}</NameText>
+        <NameText data-test-id="core-info-patient-last-name">{patient.lastName}</NameText>
         {patient.death && <DeceasedIndicator death={patient.death} />}
       </NameContainer>
     </NameSection>
     <CoreInfoSection>
-      <CoreInfoCell path="fields.sex.shortLabel">{patient.sex}</CoreInfoCell>
-      <CoreInfoCell path="fields.dateOfBirth.shortLabel">
+      <CoreInfoCell path="fields.sex.shortLabel" testId="core-info-patient-sex">
+        {patient.sex}
+      </CoreInfoCell>
+      <CoreInfoCell path="fields.dateOfBirth.shortLabel" testId="core-info-patient-dob">
         <DateDisplay date={patient.dateOfBirth} />
       </CoreInfoCell>
     </CoreInfoSection>

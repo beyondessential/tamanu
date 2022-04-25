@@ -1,5 +1,5 @@
-import { getPatientSurveyResponseAnswer } from './getPatientSurveyResponseAnswer';
 import config from 'config';
+import { getPatientSurveyResponseAnswer } from './getPatientSurveyResponseAnswer';
 
 /**
  * Helper function to get patient additional data.

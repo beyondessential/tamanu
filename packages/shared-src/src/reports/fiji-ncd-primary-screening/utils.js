@@ -161,7 +161,7 @@ export const removeDuplicatedReferralsPerDate = referrals => {
   });
 
   const results = [];
-  for (const [_, groupedAnswers] of Object.entries(referralByPatientAndDate)) {
+  for (const groupedAnswers of Object.values(referralByPatientAndDate)) {
     const sortedLatestToOldestReferrals = groupedAnswers.sort((r1, r2) =>
       moment(r2.initiatingEncounter.startDate).diff(moment(r1.initiatingEncounter.startDate)),
     );
@@ -178,7 +178,7 @@ export const removeDuplicatedAnswersPerDate = answers => {
   });
 
   const results = [];
-  for (const [_, groupedAnswers] of Object.entries(answersPerElement)) {
+  for (const groupedAnswers of Object.values(answersPerElement)) {
     const sortedLatestToOldestAnswers = groupedAnswers.sort((a1, a2) =>
       moment(a2.responseEndTime).diff(moment(a1.responseEndTime)),
     );

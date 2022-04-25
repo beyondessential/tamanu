@@ -253,8 +253,30 @@ class TableComponent extends React.Component {
     );
   }
 
+  renderFooter() {
+    const { page, exportName, columns, data, allowExport } = this.props;
+
+    // Footer is empty, don't render anything
+    if (page === null && !allowExport) {
+      return null;
+    }
+
+    return (
+      <StyledTableFooter>
+        <TableRow>
+          {allowExport ? (
+            <TableCell colSpan={page !== null ? 1 : columns.length}>
+              <DownloadDataButton exportName={exportName} columns={columns} data={data} />
+            </TableCell>
+          ) : null}
+          {page !== null && this.renderPaginator()}
+        </TableRow>
+      </StyledTableFooter>
+    );
+  }
+
   render() {
-    const { page, className, exportName, columns, data, allowExport } = this.props;
+    const { className } = this.props;
     return (
       <StyledTableContainer className={className}>
         <StyledTable>
@@ -262,16 +284,7 @@ class TableComponent extends React.Component {
             <TableRow>{this.renderHeaders()}</TableRow>
           </StyledTableHead>
           <TableBody>{this.renderBodyContent()}</TableBody>
-          <StyledTableFooter>
-            <TableRow>
-              {allowExport ? (
-                <TableCell>
-                  <DownloadDataButton exportName={exportName} columns={columns} data={data} />
-                </TableCell>
-              ) : null}
-              {page !== null && this.renderPaginator()}
-            </TableRow>
-          </StyledTableFooter>
+          {this.renderFooter()}
         </StyledTable>
       </StyledTableContainer>
     );
