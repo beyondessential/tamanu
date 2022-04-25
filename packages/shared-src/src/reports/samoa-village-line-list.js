@@ -156,7 +156,6 @@ const getTransformedAnswers = async (models, surveyResponseAnswers, surveyCompon
   const dateDataElementIds = surveyComponents
     .filter(c => ['Date', 'SubmissionDate'].includes(c.dataElement.dataValues.type))
     .map(component => component.dataElementId);
-  console.log(dateDataElementIds);
   const autocompleteComponentMap = new Map(autocompleteComponents);
 
   // Transform Autocomplete answers from: ReferenceData.id to ReferenceData.name
@@ -189,7 +188,6 @@ const getTransformedAnswers = async (models, surveyResponseAnswers, surveyCompon
         if (!componentConfig) {
           return returnObj;
         }
-        // console.log(models, componentConfig);
         const result = await models[componentConfig.source]?.findByPk(body);
         if (!result) {
           return returnObj;
@@ -242,7 +240,6 @@ const getKey = (patientId, dataElementId) => `${patientId}|${dataElementId}`;
 const getLatestAnswerPerDataElement = transformedAnswers => {
   const seenSurveyResponseIds = new Set();
   // const surveyResponses = transformedAnswers.map(a => a.surveyResponse);
-  // console.log(surveyResponses);
   const surveyResponses = transformedAnswers
     .map(a => a.surveyResponse)
     .filter(({ id }) => {
@@ -269,15 +266,11 @@ const getLatestAnswerPerDataElement = transformedAnswers => {
   );
   const result = {};
   for (const [key, groupedAnswers] of Object.entries(groupedTransformAnswers)) {
-    if (key.includes('$result')) {
-      console.log(key, groupedAnswers);
-    }
     const sortedLatestToOldestAnswers = groupedAnswers.sort((a1, a2) =>
       moment(a2.responseEndTime).diff(moment(a1.responseEndTime)),
     );
     result[key] = sortedLatestToOldestAnswers[0];
   }
-  // console.log(result);
   return result;
 };
 
@@ -308,13 +301,6 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
   });
   const referralBySurveyResponseId = keyBy(referrals, 'surveyResponseId');
 
-  console.log(
-    'latestAnswerPerDataElement',
-    Object.values(latestAnswerPerDataElement).filter(
-      ({ dataElementId }) => dataElementId === '$result',
-    ),
-  );
-
   for (const [patientId, patient] of Object.entries(patientById)) {
     const dateOfBirthMoment = patient.dateOfBirth ?? moment(patient.dateOfBirth);
     const dateOfBirth = patient.dateOfBirth ? formatDate(patient.dateOfBirth) : '';
@@ -331,11 +317,6 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
     let surveyResponseId;
     Object.entries(SURVEY_DATA_ELEMENT_IDS).forEach(([dataElementId, _]) => {
       const latestAnswer = latestAnswerPerDataElement[getKey(patientId, dataElementId)];
-      if (dataElementId === '$result') {
-        console.log(getKey(patientId, dataElementId));
-
-        console.log(latestAnswer);
-      }
       recordData[dataElementId] = latestAnswer?.body;
       surveyResponseId = latestAnswer?.surveyResponseId;
     });

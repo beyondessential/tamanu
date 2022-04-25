@@ -254,7 +254,6 @@ const getKey = (patientId, dataElementId) => `${patientId}|${dataElementId}`;
 const getLatestAnswerPerDataElement = transformedAnswers => {
   const seenSurveyResponseIds = new Set();
   // const surveyResponses = transformedAnswers.map(a => a.surveyResponse);
-  // console.log(surveyResponses);
   const surveyResponses = transformedAnswers
     .map(a => a.surveyResponse)
     .filter(({ id }) => {
