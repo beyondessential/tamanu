@@ -110,7 +110,7 @@ const parametersToSurveyResponseSqlWhere = (parameters, surveyId) => {
   return whereClause;
 };
 
-const getLatestSurveyResponses = async (models, parameters, surveyId) => {
+const getSurveyResponses = async (models, parameters, surveyId) => {
   return await models.SurveyResponse.findAll({
     where: parametersToSurveyResponseSqlWhere(parameters, surveyId),
     include: [
@@ -142,7 +142,7 @@ const getLatestSurveyResponses = async (models, parameters, surveyId) => {
 };
 
 export const dataGenerator = async ({ models }, parameters = {}) => {
-  const initialSurveyResponses = await getLatestSurveyResponses(
+  const initialSurveyResponses = await getSurveyResponses(
     models,
     parameters,
     INITIAL_SURVEY_ID,
@@ -161,7 +161,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
     FOLLOW_UP_SURVEY_ID,
   );
 
-  const followupSurveyResponses = await getLatestSurveyResponses(
+  const followupSurveyResponses = await getSurveyResponses(
     models,
     parameters,
     FOLLOW_UP_SURVEY_ID,
