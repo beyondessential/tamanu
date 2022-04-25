@@ -109,7 +109,7 @@ export default class CA {
     const root = await Certificate.createRoot(
       {
         subject: config.subject,
-        serial: Buffer.from(crypto.getRandomValues(new Uint8Array(16))),
+        serial: Buffer.from(crypto.getRandomValues(new Uint8Array(4))),
         validityPeriod: config.validityPeriod,
         workingPeriod: config.workingPeriod,
         extensions: [
