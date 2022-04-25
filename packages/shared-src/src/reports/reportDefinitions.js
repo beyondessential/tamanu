@@ -5,6 +5,16 @@ export const REPORT_DEFINITIONS = [
     parameters: [{ parameterField: 'VillageField' }, { parameterField: 'PractitionerField' }],
   },
   {
+    name: 'samoa-school-nurse-line-list',
+    id: 'samoa-school-nurse-line-list',
+    parameters: [],
+  },
+  {
+    name: 'samoa-village-line-list',
+    id: 'samoa-village-line-list',
+    parameters: [],
+  },
+  {
     name: 'Recent Diagnoses',
     id: 'recent-diagnoses',
     parameters: [

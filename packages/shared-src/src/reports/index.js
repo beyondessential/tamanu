@@ -29,6 +29,8 @@ import * as fijiNcdPrimaryScreeningLineList from './fiji-ncd-primary-screening/f
 import * as fijiNcdPrimaryScreeningPendingReferralsLineList from './fiji-ncd-primary-screening/fiji-ncd-primary-screening-pending-referrals-line-list';
 import * as fijiNcdPrimaryScreeningSummary from './fiji-ncd-primary-screening/fiji-ncd-primary-screening-summary';
 import * as fijiStatisticalReportForPhisSummary from './fiji-statistical-report-for-phis-summary';
+import * as samoaSchoolNurseLineList from './samoa-school-nurse-line-list';
+import * as samoaVillageLineList from './samoa-village-line-list';
 
 export function getReportModule(reportType) {
   switch (reportType) {
@@ -36,6 +38,10 @@ export function getReportModule(reportType) {
       return null;
     case 'admissions':
       return admissions;
+    case 'samoa-school-nurse-line-list':
+      return samoaSchoolNurseLineList;
+    case 'samoa-village-line-list':
+      return samoaVillageLineList;
     case 'incomplete-referrals':
       return incompleteReferrals;
     case 'recent-diagnoses':
