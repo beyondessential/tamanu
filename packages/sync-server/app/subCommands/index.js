@@ -4,5 +4,6 @@ export { serveCommand } from './serve';
 export { setupCommand } from './setup';
 export { calculateSurveyResultsCommand } from './calculateSurveyResults';
 export { removeDuplicatedPatientAdditionalDataCommand } from './removeDuplicatedPatientAdditionalData';
-export { loadIcaoSignerCommand } from './loadIcaoSigner';
+export { loadSignerCommand } from './loadSigner';
 export { userCommand } from './user';
+export { saveCertificateRequestCommand } from './saveCertificateRequest';

@@ -1,31 +1,66 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
+import { withStyles } from '@material-ui/core/styles';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
 import CancelIcon from '@material-ui/icons/Cancel';
+import Tooltip from '@material-ui/core/Tooltip';
 import { Colors } from '../../constants';
 import { PatientNameDisplay } from '../PatientNameDisplay';
+import { AppointmentDetail } from './AppointmentDetail';
 
-export const Appointment = props => {
-  const {
-    appointment: { id, startTime, patient, status },
-  } = props;
+const StyledTooltip = withStyles(() => ({
+  tooltip: {
+    backgroundColor: Colors.white,
+    color: Colors.darkestText,
+    fontSize: '0.9em',
+    padding: '0.75em 1em',
+    border: `1px solid ${Colors.outline}`,
+    maxWidth: 500,
+  },
+  arrow: {
+    color: Colors.outline,
+  },
+  popper: {
+    zIndex: 1200, // make it less than the dialog, which is 1300
+  },
+}))(Tooltip);
+
+export const Appointment = ({ appointment, onUpdated }) => {
+  const { startTime, patient, status } = appointment;
+  const [detailOpen, setDetailOpen] = useState(false);
+
+  const closeDetail = () => setDetailOpen(false);
 
   return (
-    <StyledAppointment className={`status-${status}`} data-tip={id} data-for="appointment-details">
-      <div>
+    <StyledTooltip
+      arrow
+      open={detailOpen}
+      onClose={closeDetail}
+      disableHoverListener
+      disableFocusListener
+      disableTouchListener
+      interactive
+      title={<AppointmentDetail appointment={appointment} onUpdated={onUpdated} />}
+    >
+      <StyledAppointment
+        className={`status-${status}`}
+        onClick={() => setDetailOpen(open => !open)}
+      >
         <div>
-          <PatientNameDisplay patient={patient} />
+          <div>
+            <PatientNameDisplay patient={patient} />
+          </div>
+          <div>{moment(startTime).format('h:mm a')}</div>
         </div>
-        <div>{moment(startTime).format('h:mm a')}</div>
-      </div>
-      <div className="icon">
-        {status === 'Confirmed' && <RadioButtonUncheckedIcon />}
-        {status === 'Arrived' && <CheckCircleIcon />}
-        {status === 'No-show' && <CancelIcon />}
-      </div>
-    </StyledAppointment>
+        <div className="icon">
+          {status === 'Confirmed' && <RadioButtonUncheckedIcon />}
+          {status === 'Arrived' && <CheckCircleIcon />}
+          {status === 'No-show' && <CancelIcon />}
+        </div>
+      </StyledAppointment>
+    </StyledTooltip>
   );
 };
 

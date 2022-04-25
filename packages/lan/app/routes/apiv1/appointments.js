@@ -4,7 +4,7 @@ import { startOfDay } from 'date-fns';
 import { Op } from 'sequelize';
 import config from 'config';
 import { simplePost, simplePut } from './crudHelpers';
-import { escapePatternWildcard } from '~/utils/query';
+import { escapePatternWildcard } from '../../utils/query';
 
 export const appointments = express.Router();
 

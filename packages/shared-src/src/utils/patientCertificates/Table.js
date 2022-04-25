@@ -55,7 +55,7 @@ export const Table = ({ data, columns, getLocalisation }) => {
         <TR key={i}>
           {visibleColumns.map(({ accessor, key, customStyles }) => (
             <TD key={key} customStyles={customStyles}>
-              {accessor ? accessor(row) : row[key]}
+              {accessor ? accessor(row, getLocalisation) : row[key]}
             </TD>
           ))}
         </TR>

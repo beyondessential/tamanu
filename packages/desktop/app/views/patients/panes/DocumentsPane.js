@@ -1,11 +1,10 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Typography } from '@material-ui/core';
 import { promises as asyncFs } from 'fs';
+import { lookup as lookupMimeType } from 'mime-types';
 
 import { DocumentsTable } from '../../../components/DocumentsTable';
-import { Button } from '../../../components/Button';
 import { ConfirmCancelRow } from '../../../components/ButtonRow';
-import { ContentPane } from '../../../components/ContentPane';
 import { DocumentModal } from '../../../components/DocumentModal';
 import { DocumentsSearchBar } from '../../../components/DocumentsSearchBar';
 import { Modal } from '../../../components/Modal';
@@ -46,6 +45,16 @@ const MODAL_STATES = {
   ALERT_NO_SPACE_OPEN: 'alert_no_space',
 };
 
+// Checking connection is done in two places for documents (uploading, downloading).
+// TODO: implement more robust solution since navigator.onLine isn't completely
+// reliable and might give false positives
+const hasInternetConnection = () => {
+  if (navigator.onLine) {
+    return true;
+  }
+  return false;
+};
+
 export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = false }) => {
   const [modalStatus, setModalStatus] = useState(MODAL_STATES.CLOSED);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -56,6 +65,16 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
     ? `encounter/${encounter.id}/documentMetadata`
     : `patient/${patient.id}/documentMetadata`;
 
+  // Allows to check internet connection and set error modal from child components
+  const canInvokeDocumentAction = useCallback(() => {
+    if (!hasInternetConnection) {
+      setModalStatus(MODAL_STATES.ALERT_NO_INTERNET_OPEN);
+      return false;
+    }
+
+    return true;
+  }, []);
+
   const handleClose = useCallback(() => {
     // Prevent user from navigating away if we're submitting a document
     if (!isSubmitting) {
@@ -65,27 +84,32 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
 
   const handleSubmit = useCallback(
     async ({ file, ...data }) => {
+      // Modal error will be set and shouldn't try to submit
+      if (!canInvokeDocumentAction()) {
+        return;
+      }
+
       setIsSubmitting(true);
       try {
-        // Read and inject document creation date to metadata sent
+        // Read and inject document creation date and type to metadata sent
         const { birthtime } = await asyncFs.stat(file);
-        await api.postWithFileUpload(endpoint, file, { ...data, documentCreatedAt: birthtime });
+        const type = lookupMimeType(file);
+        await api.postWithFileUpload(endpoint, file, {
+          ...data,
+          type,
+          documentCreatedAt: birthtime,
+        });
         handleClose();
         setRefreshCount(refreshCount + 1);
+      } catch (error) {
+        // Assume that if submission fails is because of lack of storage
+        setModalStatus(MODAL_STATES.ALERT_NO_SPACE_OPEN);
       } finally {
         setIsSubmitting(false);
       }
     },
-    [refreshCount, api, endpoint, handleClose],
+    [refreshCount, api, endpoint, handleClose, canInvokeDocumentAction],
   );
-
-  // Placeholder action callback, remove eslint disable when hooking up
-  // eslint-disable-next-line no-unused-vars
-  const handleDownload = useCallback(() => {
-    // TODO: Get document and download, if it fails, open alert
-    // try { } catch (error) { setModalStatus(MODAL_STATES.ALERT_OPEN) }
-    setModalStatus(MODAL_STATES.ALERT_OPEN);
-  }, []);
 
   useEffect(() => {
     function handleBeforeUnload(event) {
@@ -123,21 +147,18 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
         open={modalStatus === MODAL_STATES.ALERT_NO_SPACE_OPEN}
         onClose={handleClose}
       />
-      {showSearchBar && <DocumentsSearchBar setSearchParameters={setSearchParameters} />}
+      {showSearchBar && (
+        <DocumentsSearchBar
+          setSearchParameters={setSearchParameters}
+          onAddDocument={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}
+        />
+      )}
       <DocumentsTable
         endpoint={endpoint}
         searchParameters={searchParameters}
         refreshCount={refreshCount}
+        canInvokeDocumentAction={canInvokeDocumentAction}
       />
-      <ContentPane>
-        <Button
-          onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}
-          variant="contained"
-          color="primary"
-        >
-          Add document
-        </Button>
-      </ContentPane>
     </div>
   );
 });

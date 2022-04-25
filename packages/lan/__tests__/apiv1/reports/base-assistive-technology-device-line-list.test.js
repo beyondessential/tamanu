@@ -14,9 +14,10 @@ describe('Assistive technology device line list', () => {
   let expectedPatient2 = null;
   let village1 = null;
   let village2 = null;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     const models = ctx.models;
 
     await models.SurveyResponseAnswer.truncate({ cascade: true });
@@ -171,6 +172,7 @@ describe('Assistive technology device line list', () => {
       },
     });
   });
+  afterAll(() => ctx.close());
 
   describe('checks permissions', () => {
     it('should reject creating an assistive technology device line list report with insufficient permissions', async () => {

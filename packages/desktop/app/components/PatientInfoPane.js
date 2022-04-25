@@ -127,7 +127,7 @@ const RecordDeathSection = memo(({ patient, readonly }) => {
       <Button
         variant="contained"
         color="primary"
-        disabled={patient.dateOfDeath || readonly}
+        disabled={!!patient.dateOfDeath || readonly}
         onClick={openModal}
       >
         Record death

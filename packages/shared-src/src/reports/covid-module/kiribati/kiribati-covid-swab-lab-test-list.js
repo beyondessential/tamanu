@@ -33,18 +33,17 @@ const reportColumnTemplate = [
   { title: 'Priority', accessor: data => data.priority },
   { title: 'Testing laboratory', accessor: data => data.testingLaboratory },
   { title: 'Testing date', accessor: data => data.testingDate },
-  ...Object.entries(SURVEY_QUESTION_CODES).map(([name, code]) => ({
+  ...Object.keys(SURVEY_QUESTION_CODES).map(name => ({
     title: name,
     accessor: data => data[name],
   })),
 ];
 
-export const dataGenerator = async ({ models }, parameters = {}) => {
-  return baseDataGenerator({ models }, parameters, {
+export const dataGenerator = async ({ models }, parameters = {}) =>
+  baseDataGenerator({ models }, parameters, {
     surveyId: SURVEY_ID,
     surveyQuestionCodes: SURVEY_QUESTION_CODES,
     reportColumnTemplate,
   });
-};
 
 export const permission = 'LabTest';

@@ -101,7 +101,5 @@ const DumbCarePlanNoteDisplay = ({
 );
 
 export const CarePlanNoteDisplay = connectApi(api => ({
-  deleteNote: async noteId => {
-    return api.delete(`note/${noteId}`);
-  },
+  deleteNote: async noteId => api.delete(`note/${noteId}`),
 }))(DumbCarePlanNoteDisplay);

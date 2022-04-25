@@ -1,19 +1,19 @@
 const Sequelize = require('sequelize');
 const Utils = require('sequelize/lib/utils');
 
+// ===
 // some utility functions that mean I can just copypaste model
 // definitions over rather than changing table and field names by hand
-//
 const underscoreObject = obj => {
   const translated = {};
-  Object.keys(obj).map(k => {
+  Object.keys(obj).forEach(k => {
     translated[Utils.underscore(k)] = obj[k];
   });
   return translated;
-}
+};
 
 const makeTableName = name => {
-  if(name.toLowerCase() === 'referencedata') return 'reference_data';
+  if (name.toLowerCase() === 'referencedata') return 'reference_data';
   const underscored = Utils.pluralize(Utils.underscore(name));
   return underscored.replace(/^_/, '');
 };
@@ -21,9 +21,9 @@ const makeTableName = name => {
 const foreignKey = table => ({
   type: Sequelize.STRING,
   references: {
-    model: makeTableName(table), 
+    model: makeTableName(table),
     key: 'id',
-  }
+  },
 });
 
 const BASE_FIELDS = {
@@ -40,13 +40,13 @@ const BASE_FIELDS = {
   updatedAt: {
     type: Sequelize.DATE,
     defaultValue: Sequelize.NOW,
-  }, 
+  },
   deletedAt: {
     type: Sequelize.DATE,
     defaultValue: Sequelize.NOW,
-  }
+  },
 };
-////
+// =/=
 
 const models = [
   'referenceData',
@@ -83,7 +83,8 @@ const models = [
   'syncMetadata',
   'note',
 ].map(k => {
-  const module = require(`./000_initial/${k}`)
+  // eslint-disable-next-line global-require, import/no-dynamic-require
+  const module = require(`./000_initial/${k}`);
   const { fields, options } = module({ Sequelize, foreignKey });
   return {
     name: makeTableName(k),
@@ -96,26 +97,18 @@ const models = [
 });
 
 module.exports = {
-  up: async (query) => {
+  up: async query => {
     await query.sequelize.transaction(async transaction => {
       for (const t of models) {
-        await query.createTable(
-          t.name,
-          t.fields,
-          t.options,
-          { transaction },
-        );
-      };
+        await query.createTable(t.name, t.fields, t.options, { transaction });
+      }
     });
   },
-  down: async (query) => {
+  down: async query => {
     await query.sequelize.transaction(async transaction => {
       const reversed = [...models].reverse();
       for (const t of reversed) {
-        await query.dropTable(
-          t.name, 
-          { transaction },
-        );
+        await query.dropTable(t.name, { transaction });
       }
     });
   },

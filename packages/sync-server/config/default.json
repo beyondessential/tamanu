@@ -15,7 +15,8 @@
   },
   "log": {
     "path": "",
-    "consoleLevel": "info"
+    "consoleLevel": "http",
+    "color": true
   },
   "sync": {
     "concurrentChannelChecks": 8
@@ -94,13 +95,19 @@
       "schedule": "*/30 * * * * *",
       "limit": 10
     },
+    "deceasedPatientDischarger": {
+      // once an hour
+      "schedule": "29 * * * *",
+      "batchSize": 100,
+      "batchSleepAsyncDurationInMilliseconds": 50
+    },
     "certificateNotificationProcessor": {
-      // every 30seconds /!\
+      // every 30 seconds /!\
       "schedule": "*/30 * * * * *",
       "limit": 10
     },
     "reportRequestProcessor": {
-       // every 30 seconds /!\
+      // every 30 seconds /!\
       "schedule": "*/30 * * * * *",
       "limit": 10
     },
@@ -133,6 +140,10 @@
       "enabled": false,
       "requireClientHeaders": true
     },
+    "euDcc": {
+      "enabled": false,
+      "issuer": null // Responsible org for vax cert issuance, e.g. 'Ministry of Health of the Tamanu Republic'. If null defaults to the facility name.
+    },
     "vdsNc": {
       "enabled": false
     },
@@ -145,8 +156,12 @@
       // $ openssl rand -base64 32
       "keySecret": null,
 
-      // For VDS-NC: exactly 2 letters, must be unique in country, ref 9303-13 §2.2.1(a)
+      // For VDS-NC: exactly 2 uppercase letters/numbers, must be unique in country, ref 9303-13 §2.2.1(a)
+      // For EU DCC: at least 1 character, must be unique in country, should be descriptive
       "commonName": "TA",
+
+      // For EU DCC only: the name of the issuing organisation (provider/O of the DSC)
+      // "provider": "Tamanu",
 
       // Email address for CSCA signing contact
       "sendRequestTo": "admin@tamanu.io"
@@ -160,12 +175,8 @@
     // the labResultWidget and timeZone keys are here for legacy reasons
     // don't put anything else in the top level of localisation unless it relates to localisation itself
     "labResultWidget": {
-      "categoryWhitelist": [
-        "labTestCategory-COVID"
-      ],
-      "testTypeWhitelist": [
-        "labTestType-COVID"
-      ]
+      "categoryWhitelist": ["labTestCategory-COVID"],
+      "testTypeWhitelist": ["labTestType-COVID"]
     },
     "data": {
       "country": {
@@ -180,12 +191,12 @@
           "hidden": false
         },
         "emergencyContactName": {
-          "shortLabel": "Emergency Contact Name",
-          "longLabel": "Emergency Contact Name"
+          "shortLabel": "Emergency contact name",
+          "longLabel": "Emergency contact name"
         },
         "emergencyContactNumber": {
-          "shortLabel": "Emergency Contact Number",
-          "longLabel": "Emergency Contact Number"
+          "shortLabel": "Emergency contact number",
+          "longLabel": "Emergency contact number"
         },
         "markedForSync": {
           "shortLabel": "Sync",
@@ -417,15 +428,20 @@
           "healthFacility": "State level"
         }
       },
+
       // The time zone setting is currently only used for Vaccine Certificates
       "timeZone": null,
+
+      // UVCI format for vaccine certificate *previews* on Desktop.
+      // This should match whichever of integrations.euDcc or .vdsNc is enabled, and
+      // does *not* affect which format is used for the actual PDF certificate when
+      // generated in the sync server. Can be: `icao` or `eudcc`.
+      "previewUvciFormat": "icao",
+
       "sync": {
         "syncAllEncountersForTheseScheduledVaccines": []
       },
-      "disabledReports": [],
-      "uvci": {
-        "format": "icao"
-      }
+      "disabledReports": []
     }
   },
   "reports": {
@@ -437,7 +453,7 @@
       "surveyId": "605b114261f76a3684009d5a"
     }
   },
-  "reportProcess" : {
+  "reportProcess": {
     // Report process timeout in 2 hours.
     "timeOutDurationSeconds": 7200,
     "runInChildProcess": true,
@@ -465,6 +481,15 @@
     "freeSpaceRequired": {
       "gigabytesForUploadingDocuments": 16
     }
+  },
+  "questionCodeIds": {
+    "passport": null,
+    "nationalityId": null,
+    "email": null
+  },
+  "notifications": {
+    "certificates": {
+      "labTestCategoryIds": []
+    }
   }
 }
-

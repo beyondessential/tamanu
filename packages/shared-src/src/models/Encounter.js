@@ -139,15 +139,12 @@ export class Encounter extends Model {
       {
         id: primaryKey,
         encounterType: Sequelize.STRING(31),
-
         startDate: {
           type: Sequelize.DATE,
           allowNull: false,
         },
         endDate: Sequelize.DATE,
-
         reasonForEncounter: Sequelize.TEXT,
-
         deviceId: Sequelize.TEXT,
       },
       {
@@ -260,6 +257,11 @@ export class Encounter extends Model {
       as: 'documents',
     });
 
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'patientBillingTypeId',
+      as: 'patientBillingType',
+    });
+
     // this.hasMany(models.Procedure);
     // this.hasMany(models.Report);
   }
@@ -322,10 +324,21 @@ export class Encounter extends Model {
     }
   }
 
+  async dischargeWithDischarger(discharger, endDate) {
+    if (this.endDate) throw new Error(`Encounter ${this.id} already discharged`);
+
+    const { Discharge } = this.sequelize.models;
+    await Discharge.create({
+      encounterId: this.id,
+      dischargerId: discharger.id,
+    });
+    await this.update({ endDate });
+  }
+
   async update(data) {
     const { Department, Location } = this.sequelize.models;
 
-    return this.sequelize.transaction(async () => {
+    const updateEncounter = async () => {
       if (data.endDate && !this.endDate) {
         await this.onDischarge(data.endDate, data.dischargeNote);
       }
@@ -361,6 +374,16 @@ export class Encounter extends Model {
       }
 
       return super.update(data);
+    };
+
+    if (this.sequelize.isInsideTransaction()) {
+      return updateEncounter();
+    }
+
+    // If the update is not already in a transaction, wrap it in one
+    // Having nested transactions can cause bugs in postgres so only conditionally wrap
+    return this.sequelize.transaction(async () => {
+      await updateEncounter();
     });
   }
 }

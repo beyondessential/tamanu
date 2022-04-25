@@ -89,6 +89,7 @@ describe('Referrals', () => {
       answers[q.id] = getRandomAnswer(q);
     });
   });
+  afterAll(() => ctx.close());
 
   it('should record a referral request', async () => {
     const { departmentId, locationId } = encounter;

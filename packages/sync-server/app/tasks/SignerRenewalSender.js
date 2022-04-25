@@ -1,6 +1,6 @@
 import config from 'config';
+import { format } from 'date-fns';
 import { Op, Sequelize } from 'sequelize';
-import moment from 'moment';
 import { get } from 'lodash';
 
 import { ScheduledTask } from 'shared/tasks';
@@ -47,7 +47,9 @@ export class SignerRenewalSender extends ScheduledTask {
 
     const localisation = await getLocalisation();
 
-    log.info(`Emailing ${pending.length} CSR(s) to ${config.integrations.signer.sendSignerRequestTo}`);
+    log.info(
+      `Emailing ${pending.length} CSR(s) to ${config.integrations.signer.sendSignerRequestTo}`,
+    );
     for (const signer of pending) {
       try {
         await emailService.sendEmail({
@@ -56,7 +58,7 @@ export class SignerRenewalSender extends ScheduledTask {
           subject: get(localisation, 'signerRenewalEmail.subject'),
           content: get(localisation, 'signerRenewalEmail.body'),
           attachment: {
-            filename: `Tamanu_${moment(signer.createdAt).format('YYYY-MM-DD')}.csr`,
+            filename: `Tamanu_${format(signer.createdAt, 'yyyy-MM-dd')}.csr`,
             data: Buffer.from(signer.request),
           },
         });

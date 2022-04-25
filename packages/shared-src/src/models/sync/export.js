@@ -3,13 +3,12 @@ import { without } from 'lodash';
 import { propertyPathsToTree } from './metadata';
 import { getSyncCursorFromRecord, syncCursorToWhereCondition } from './cursor';
 
-export const createExportPlan = (sequelize, channel) => {
-  return sequelize.channelRouter(channel, (model, params, channelRoute) => {
+export const createExportPlan = (sequelize, channel) =>
+  sequelize.channelRouter(channel, (model, params, channelRoute) => {
     const relationTree = propertyPathsToTree(model.syncConfig.includedRelations);
     const { where, include } = channelRoute.queryFromParams(params);
     return createExportPlanInner(model, relationTree, { where, include });
   });
-};
 
 const createExportPlanInner = (model, relationTree, query) => {
   // generate nested association exporters

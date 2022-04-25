@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { REPORT_REQUEST_STATUS_VALUES, SYNC_DIRECTIONS } from 'shared/constants';
-import { Model } from './Model';
 import { log } from 'shared/services/logging';
+import { Model } from './Model';
 
 export class ReportRequest extends Model {
   static init({ primaryKey, ...options }) {

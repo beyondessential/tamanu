@@ -1,52 +1,51 @@
-import { Op } from 'sequelize';
 import config from 'config';
+import { getPatientSurveyResponseAnswer } from '../utils';
 import { ICAO_DOCUMENT_TYPES, LAB_REQUEST_STATUSES } from '../constants';
 
-async function fetchMostRecentEmailAddress(patientId, models) {
-  const questionId = config?.questionCodeIds?.email;
-  if (!questionId) {
-    return null;
-  }
+async function createLabRequestNotification(labRequest, models) {
+  const encounter = await models.Encounter.findByPk(labRequest.encounterId);
 
-  // Find the most recent non-empty answer to the question
-  const answer = await models.SurveyResponseAnswer.findOne({
-    include: {
-      model: models.SurveyResponse,
-      as: 'surveyResponse',
-      include: { model: models.Encounter, where: { patientId }, as: 'encounter' },
+  const questionId = config?.questionCodeIds?.email;
+  const emailAddress = await getPatientSurveyResponseAnswer(
+    models,
+    encounter.patientId,
+    questionId,
+  );
+
+  // Bulk create action sets off a hook to send these out
+  await models.CertificateNotification.bulkCreate([
+    {
+      type: ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING.JSON,
+      requiresSigning: false,
+      patientId: encounter.patientId,
+      // If forward address is null, the communication service will attempt to use the patient.email field
+      forwardAddress: emailAddress,
+      // TODO: attach lab test
     },
-    where: {
-      data_element_id: questionId,
-      [Op.not]: [{ body: '' }],
-    },
-    order: [[{ model: models.SurveyResponse, as: 'surveyResponse' }, 'end_time', 'DESC']],
-  });
-  return answer?.body;
+  ]);
 }
 
-export async function createSingleLabRequestNotification(labRequest, models) {
+export async function createLabRequestUpdateNotification(labRequest, models) {
   if (
-    labRequest.labTestCategoryId === config?.notifications?.certificates?.labTestCategoryId &&
+    labRequest._changed.status &&
+    config?.notifications?.certificates?.labTestCategoryIds?.includes(
+      labRequest.labTestCategoryId,
+    ) &&
     labRequest.status === LAB_REQUEST_STATUSES.PUBLISHED
   ) {
-    const encounter = await models.Encounter.findByPk(labRequest.encounterId);
-
-    // Bulk create action sets off a hook to send these out
-    await models.CertificateNotification.bulkCreate([
-      {
-        type: ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING.JSON,
-        requiresSigning: false,
-        patientId: encounter.patientId,
-        // If forward address is null, the communication service will attempt to use the patient.email field
-        forwardAddress: await fetchMostRecentEmailAddress(encounter.patientId, models),
-        // TODO: attach lab test
-      },
-    ]);
+    await createLabRequestNotification(labRequest, models);
   }
 }
 
-export async function createMultiLabRequestNotifications(labRequests, models) {
-  for (const request of labRequests) {
-    await createSingleLabRequestNotification(request, models);
+export async function createLabRequestCreateNotification(labRequests, models) {
+  for (const labRequest of labRequests) {
+    if (
+      config?.notifications?.certificates?.labTestCategoryIds?.includes(
+        labRequest.labTestCategoryId,
+      ) &&
+      labRequest.status === LAB_REQUEST_STATUSES.PUBLISHED
+    ) {
+      await createLabRequestNotification(labRequest, models);
+    }
   }
 }

@@ -69,6 +69,7 @@ patientVaccineRoutes.get(
         if (!allVaccines[vaccineSchedule.label]) {
           const { administered, ...rest } = vaccineSchedule;
           rest.schedules = [];
+          // eslint-disable-next-line no-param-reassign
           allVaccines[vaccineSchedule.label] = rest;
         }
         allVaccines[vaccineSchedule.label].schedules.push({

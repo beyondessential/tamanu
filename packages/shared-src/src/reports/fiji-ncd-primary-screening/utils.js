@@ -2,7 +2,7 @@ import { groupBy, keyBy } from 'lodash';
 import { Op } from 'sequelize';
 import moment from 'moment';
 
-import { transformAnswers } from '../utilities/transformAnswers';
+import { transformAnswers } from '../utilities';
 
 import {
   CVD_SURVEY_IDS,
@@ -95,9 +95,11 @@ export const getCachedAnswer = (
 export const getSurveyGroupKey = surveyId => {
   if (CVD_SURVEY_IDS.includes(surveyId)) {
     return CVD_SURVEY_GROUP_KEY;
-  } else if (BREAST_CANCER_SURVEY_IDS.includes(surveyId)) {
+  }
+  if (BREAST_CANCER_SURVEY_IDS.includes(surveyId)) {
     return BREAST_CANCER_SURVEY_GROUP_KEY;
-  } else if (CERVICAL_CANCER_SURVEY_IDS.includes(surveyId)) {
+  }
+  if (CERVICAL_CANCER_SURVEY_IDS.includes(surveyId)) {
     return CERVICAL_CANCER_SURVEY_GROUP_KEY;
   }
   // should never happen
@@ -140,29 +142,6 @@ export const getReferralDataElements = surveyGroupKey => {
   }
 };
 
-export const getAnswers = async (models, where) =>
-  models.SurveyResponseAnswer.findAll({
-    where: {
-      ...where,
-      body: {
-        [Op.not]: '',
-      },
-    },
-    include: [
-      {
-        model: models.SurveyResponse,
-        as: 'surveyResponse',
-        include: [
-          {
-            model: models.Encounter,
-            as: 'encounter',
-          },
-        ],
-      },
-    ],
-    order: [[{ model: models.SurveyResponse, as: 'surveyResponse' }, 'end_time', 'ASC']],
-  });
-
 /**
  * Have to query patients separately instead of joining with encounters because
  * there's a weird bug in sequelize that if you have too many nested levels of include,
@@ -182,7 +161,7 @@ export const removeDuplicatedReferralsPerDate = referrals => {
   });
 
   const results = [];
-  for (const [_, groupedAnswers] of Object.entries(referralByPatientAndDate)) {
+  for (const groupedAnswers of Object.values(referralByPatientAndDate)) {
     const sortedLatestToOldestReferrals = groupedAnswers.sort((r1, r2) =>
       moment(r2.initiatingEncounter.startDate).diff(moment(r1.initiatingEncounter.startDate)),
     );
@@ -199,7 +178,7 @@ export const removeDuplicatedAnswersPerDate = answers => {
   });
 
   const results = [];
-  for (const [_, groupedAnswers] of Object.entries(answersPerElement)) {
+  for (const groupedAnswers of Object.values(answersPerElement)) {
     const sortedLatestToOldestAnswers = groupedAnswers.sort((a1, a2) =>
       moment(a2.responseEndTime).diff(moment(a1.responseEndTime)),
     );

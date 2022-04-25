@@ -1,3 +1,5 @@
+/* eslint-disable no-param-reassign */
+
 import { Op } from 'sequelize';
 import { subDays } from 'date-fns';
 import { generateReportFromQueryData } from '../utilities';
@@ -80,7 +82,7 @@ async function queryCovidVaccineListData(models, parameters) {
     where: parametersToSqlWhere(parameters),
   });
   const administeredVaccines = result.map(r => r.get({ plain: true }));
-  const patients = administeredVaccines.reduce(function(acc, vaccine) {
+  const patients = administeredVaccines.reduce((acc, vaccine) => {
     if (!vaccine.encounter?.patientId) {
       return acc;
     }

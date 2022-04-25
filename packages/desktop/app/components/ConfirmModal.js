@@ -21,21 +21,19 @@ export const ConfirmModal = ({
   ConfirmButton = OutlinedButton,
   confirmButtonText = 'Confirm',
   cancelButtonText = 'Cancel',
-}) => {
-  return (
-    <Modal width={width} title={title} open={open} onClose={onCancel}>
-      <Content>
-        <h3>{text}</h3>
-        <p>{subText}</p>
-      </Content>
-      <ButtonRow>
-        <Button variant="contained" onClick={onCancel}>
-          {cancelButtonText}
-        </Button>
-        <ConfirmButton variant="contained" onClick={onConfirm}>
-          {confirmButtonText}
-        </ConfirmButton>
-      </ButtonRow>
-    </Modal>
-  );
-};
+}) => (
+  <Modal width={width} title={title} open={open} onClose={onCancel}>
+    <Content>
+      <h3>{text}</h3>
+      <p>{subText}</p>
+    </Content>
+    <ButtonRow>
+      <Button variant="contained" onClick={onCancel}>
+        {cancelButtonText}
+      </Button>
+      <ConfirmButton variant="contained" onClick={onConfirm}>
+        {confirmButtonText}
+      </ConfirmButton>
+    </ButtonRow>
+  </Modal>
+);

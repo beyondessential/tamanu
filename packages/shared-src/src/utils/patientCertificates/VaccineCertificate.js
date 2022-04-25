@@ -13,11 +13,7 @@ const columns = [
     key: 'vaccine',
     title: 'Vaccine',
     customStyles: { minWidth: 30 },
-    accessor: ({ scheduledVaccine, createdAt, updatedAt }) => {
-      const label = scheduledVaccine?.label;
-      const star = createdAt !== updatedAt ? ' *' : '';
-      return `${label}${star}`;
-    },
+    accessor: ({ scheduledVaccine }) => scheduledVaccine?.label,
   },
   {
     key: 'vaccineBrand',
@@ -44,7 +40,7 @@ const columns = [
   {
     key: 'date',
     title: 'Date',
-    accessor: ({ date }) => getDisplayDate(date),
+    accessor: ({ date }, getLocalisation) => getDisplayDate(date, null, getLocalisation),
   },
   {
     key: 'batch',
@@ -65,7 +61,6 @@ export const VaccineCertificate = ({
   getLocalisation,
   extraPatientFields,
 }) => {
-  const hasEditedRecord = vaccinations.findIndex(v => v.createdAt !== v.updatedAt) !== -1;
   const contactEmail = getLocalisation('templates.vaccineCertificate.emailAddress');
   const contactNumber = getLocalisation('templates.vaccineCertificate.contactNumber');
   const healthFacility = getLocalisation('templates.vaccineCertificate.healthFacility');
@@ -87,11 +82,6 @@ export const VaccineCertificate = ({
         />
         <Box mb={20}>
           <Table data={data} columns={columns} getLocalisation={getLocalisation} />
-          {hasEditedRecord && (
-            <P mt={10} style={{ fontSize: 10 }}>
-              * This vaccine record has been updated by a user and this is the most recent record
-            </P>
-          )}
         </Box>
         <Box>
           <Row>
@@ -99,7 +89,7 @@ export const VaccineCertificate = ({
               <P>Printed by: {printedBy}</P>
             </Col>
             <Col>
-              <P>Printing date: {getDisplayDate()}</P>
+              <P>Printing date: {getDisplayDate(undefined, undefined, getLocalisation)}</P>
             </Col>
           </Row>
         </Box>

@@ -1,15 +1,23 @@
 import React, { ReactElement } from 'react';
-import { Button } from '/components/Button';
-import { theme } from '/styled/theme';
-import { TouchableProps } from '/interfaces/TouchableProps';
+import { StyledTouchableOpacity } from '/styled/common';
+import { kebabCase } from 'lodash';
+import { screenPercentageToDP, Orientation } from '/helpers/screen';
+import { PencilIcon } from '/components/Icons';
 
-export const EditButton = ({ onPress }: TouchableProps): ReactElement => (
-  <Button
-    textColor={theme.colors.TEXT_SUPER_DARK}
-    backgroundColor="#EEEEEE"
-    width={62}
-    height={34}
-    buttonText="Edit"
+interface EditButtonProps {
+  sectionTitle: string;
+  onPress: () => void;
+}
+
+export const EditButton = ({ sectionTitle, onPress }: EditButtonProps): ReactElement => (
+  <StyledTouchableOpacity
+    testID={`edit-${kebabCase(sectionTitle)}`}
+    accessibilityLabel={`Edit ${sectionTitle}`}
     onPress={onPress}
-  />
+  >
+    <PencilIcon
+      height={screenPercentageToDP('2.5', Orientation.Height)}
+      width={screenPercentageToDP('2.5', Orientation.Height)}
+    />
+  </StyledTouchableOpacity>
 );
