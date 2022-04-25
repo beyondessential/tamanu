@@ -87,27 +87,39 @@ export const Modal = memo(
     open = false,
     onClose,
     printable = false,
+    onPrint = null,
     additionalActions,
     ...props
   }) => {
     const { printPage } = useElectron();
+
+    const handlePrint = () => {
+      // If a custom print handler has been passed use that. For example for printing the contents
+      // of an iframe. Otherwise use the default electron print page
+      if (onPrint) {
+        onPrint();
+      } else {
+        printPage();
+      }
+    };
+
     return (
       <Dialog fullWidth maxWidth={width} classes={classes} open={open} onClose={onClose} {...props}>
         <ModalTitle>
           <VerticalCenteredText>{title}</VerticalCenteredText>
           <div>
             {additionalActions}
-            {printable ? (
+            {printable && (
               <StyledButton
                 color="primary"
                 variant="outlined"
-                onClick={() => printPage()}
+                onClick={handlePrint}
                 startIcon={<PrintIcon />}
                 size="small"
               >
                 Print
               </StyledButton>
-            ) : null}
+            )}
             <IconButton onClick={onClose}>
               <CloseIcon />
             </IconButton>

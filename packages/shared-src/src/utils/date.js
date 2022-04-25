@@ -1,4 +1,4 @@
-import { differenceInCalendarYears } from 'date-fns';
+import { differenceInYears } from 'date-fns';
 
 // NB: If you're trying to format a date as a string:
 // - if you're storing it or communicating with it, you should keep it as a
@@ -11,5 +11,5 @@ import { differenceInCalendarYears } from 'date-fns';
  * @returns {number}
  */
 export function getAgeFromDate(date) {
-  return differenceInCalendarYears(new Date(), new Date(date));
+  return differenceInYears(new Date(), new Date(date));
 }
