@@ -1,9 +1,10 @@
+import { subDays } from 'date-fns';
 import { groupBy } from 'lodash';
-import { Op } from 'sequelize';
 import moment from 'moment';
+import { Op } from 'sequelize';
+import { getAgeFromDate } from '../../../utils/date';
 import { generateReportFromQueryData } from '../../utilities';
 import { transformAnswers } from '../../utilities/transformAnswers';
-import { getAgeFromDate } from '../../../utils/date';
 
 const INITIAL_SURVEY_ID = 'program-palaucovid19-palaucovidinitialcasereportform';
 const FOLLOW_UP_SURVEY_ID = 'program-palaucovid19-palaucovidfollowupcasereport';
@@ -71,6 +72,10 @@ const WILLIAM_HOROTO_IDS = [
 ];
 
 const parametersToSurveyResponseSqlWhere = (parameters, surveyId) => {
+  if (!parameters.fromDate) {
+    parameters.fromDate = subDays(new Date(), 30).toISOString();
+  }
+
   const defaultWhereClause = {
     surveyId,
     '$encounter->patient.id$': {
@@ -142,11 +147,7 @@ const getSurveyResponses = async (models, parameters, surveyId) => {
 };
 
 export const dataGenerator = async ({ models }, parameters = {}) => {
-  const initialSurveyResponses = await getSurveyResponses(
-    models,
-    parameters,
-    INITIAL_SURVEY_ID,
-  );
+  const initialSurveyResponses = await getSurveyResponses(models, parameters, INITIAL_SURVEY_ID);
 
   const initialSurveyResponsesByPatient = groupBy(
     initialSurveyResponses,
@@ -161,11 +162,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
     FOLLOW_UP_SURVEY_ID,
   );
 
-  const followupSurveyResponses = await getSurveyResponses(
-    models,
-    parameters,
-    FOLLOW_UP_SURVEY_ID,
-  );
+  const followupSurveyResponses = await getSurveyResponses(models, parameters, FOLLOW_UP_SURVEY_ID);
 
   const followUpSurveyResponsesByPatient = groupBy(
     followupSurveyResponses,
