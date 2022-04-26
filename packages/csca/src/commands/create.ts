@@ -153,5 +153,5 @@ export default new Command('create')
   .option('-n, --shortname <name>', 'override the short name of the CSCA (e.g. TamanuHealthCSCA)')
   .option('-N, --fullname <name>', 'override the full name of the CSCA (e.g. "Kingdom of Tamanu Health CSCA")')
   .option('-p, --provider <name>', 'override the provider (O/org field) of the CSCA', 'BES')
-  .option('-d, --dept-org <name>', 'provide the department/organization (OU/org-unit field) of the CSCA (optional, e.g. the full name of the ministry of health)')
+  .option('-D, --dept-org <name>', 'provide the department/organization (OU/org-unit field) of the CSCA (optional, e.g. the full name of the ministry of health)')
   .action(run);
