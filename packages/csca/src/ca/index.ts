@@ -166,6 +166,12 @@ export default class CA {
     console.debug('write root certificate');
     await root.write(this.join('ca.crt'));
 
+    console.debug('add root to index');
+    await this.state(keyPair.privateKey).indexNewCertificate(root);
+
+    console.debug('add root to log');
+    await this.log(keyPair.privateKey).issue(root);
+
     console.debug('generate first crl');
     await this.generateCrl();
   }
