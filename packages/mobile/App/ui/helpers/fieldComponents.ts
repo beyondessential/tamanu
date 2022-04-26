@@ -30,7 +30,7 @@ export const FieldByType = {
   [FieldTypes.SURVEY_LINK]: SurveyLink,
   [FieldTypes.SURVEY_RESULT]: SurveyResult,
   [FieldTypes.SURVEY_ANSWER]: SurveyAnswerField,
-  [FieldTypes.PATIENT_DATA]: ReadOnlyField,
+  [FieldTypes.PATIENT_DATA]: TextField,
   [FieldTypes.USER_DATA]: ReadOnlyField,
   [FieldTypes.PHOTO]: UploadPhoto,
   [FieldTypes.INSTRUCTION]: null,

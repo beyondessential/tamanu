@@ -158,11 +158,11 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
             Patient.updateValues(patientId, { [questionConfig.writeToPatient]: value });
           }
           if (questionConfig.writeToAdditionalData) {
-            const additionalData = await PatientAdditionalData.getRepository().findOne({
-              where: {
-                patientId: patientId,
-              },
-            });
+            // find doesn't work with ManyToOne fields so we need to use a QueryBuilder
+            const additionalData = await PatientAdditionalData.getRepository()
+              .createQueryBuilder('patient_additional_data')
+              .where('patient_additional_data.patientId = :patientId', { patientId })
+              .getOne();
             PatientAdditionalData.updateValues(
               additionalData.id,
               {
