@@ -8,6 +8,8 @@ import { Profile, signerDefaultValidityDays, signerExtensions, signerWorkingDays
 import { ConfigFile, period } from '../ca/Config';
 import { CRL_URL_BASE, CSCA_PKUP, CSCA_VALIDITY } from '../ca/constants';
 
+const DEFAULT_SERIAL = 'CC000001';
+
 function countryScore(country: Country, name: string): number {
   const nameRx = new RegExp(name, 'i');
   let score = 0;
@@ -84,6 +86,7 @@ async function run(countryName: string, options: {
   provider: string;
   deptOrg?: string;
   profile: string;
+  serial?: string;
 }): Promise<void> {
   console.debug(`Looking up country info for ${countryName}`);
   const countries = lookupCountries(countryName);
@@ -136,10 +139,12 @@ async function run(countryName: string, options: {
   }
 
   const config = makeCAConfig(shortname, fullname, alpha2, alpha3, profile, provider, deptOrg);
+  const serial = Buffer.from(options.serial || DEFAULT_SERIAL, 'hex');
   console.info('CSCA Config:', JSON.stringify(config, null, 2));
+  console.info('CSCA Serial', serial.toString('hex'));
   await confirm('Proceed?');
 
-  await ca.create(config);
+  await ca.create(config, serial);
   await ca.archive();
 }
 
@@ -154,4 +159,5 @@ export default new Command('create')
   .option('-N, --fullname <name>', 'override the full name of the CSCA (e.g. "Kingdom of Tamanu Health CSCA")')
   .option('-p, --provider <name>', 'override the provider (O/org field) of the CSCA', 'BES')
   .option('-D, --dept-org <name>', 'provide the department/organization (OU/org-unit field) of the CSCA (optional, e.g. the full name of the ministry of health)')
+  .option('-S, --serial <hexnumber>', `override the serial number of the CSCA (optional, defaults to ${DEFAULT_SERIAL}, must not start with 0)`)
   .action(run);

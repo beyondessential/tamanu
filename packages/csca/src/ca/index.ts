@@ -79,7 +79,7 @@ export default class CA {
     return fsExists(this.path);
   }
 
-  public async create(config: ConfigFile): Promise<void> {
+  public async create(config: ConfigFile, serial: Buffer): Promise<void> {
     const masterKey = await this.askPassphrase(true);
 
     for (const dir of ['.', 'certs']) {
@@ -109,7 +109,7 @@ export default class CA {
     const root = await Certificate.createRoot(
       {
         subject: config.subject,
-        serial: Buffer.from(crypto.getRandomValues(new Uint8Array(4))),
+        serial,
         validityPeriod: config.validityPeriod,
         workingPeriod: config.workingPeriod,
         extensions: [
