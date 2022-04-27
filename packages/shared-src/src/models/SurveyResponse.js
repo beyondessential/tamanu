@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
-import { ACTION_DATA_ELEMENT_TYPES } from 'shared/constants';
+import { ACTION_DATA_ELEMENT_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from 'shared/constants';
 import { Model } from './Model';
 import { runCalculations } from '../utils/calculations';
 import { getStringValue, getResultValue } from '../utils/fields';
@@ -14,7 +14,7 @@ const handleSurveyResponseActions = async (models, actions, questions, answers, 
     const { dataElement, config: configString } = question;
     const config = JSON.parse(configString) || {};
     switch (dataElement.type) {
-      case 'PatientIssue': {
+      case PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE: {
         if (!config.issueNote || !config.issueType)
           throw new InvalidOperationError(
             `Ill-configured PatientIssue with config: ${configString}`,
@@ -26,7 +26,7 @@ const handleSurveyResponseActions = async (models, actions, questions, answers, 
         });
         break;
       }
-      case 'PatientData': {
+      case PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA: {
         const patient = await models.Patient.findOne({
           where: { id: patientId },
           include: [
@@ -36,12 +36,18 @@ const handleSurveyResponseActions = async (models, actions, questions, answers, 
             },
           ],
         });
-        const additionalData = patient.additionalData?.[0];
+        const additionalData = patient?.additionalData?.[0];
         if (config.writeToPatient) {
+          if (!patient) {
+            throw new Error(`Unable to find patient for id ${patientId}`);
+          }
           patient[config.writeToPatient] = answers[dataElement.id];
           await patient.save();
         }
         if (config.writeToAdditionalData) {
+          if (!additionalData) {
+            throw new Error(`Unable to find additionalData for patientId ${patientId}`);
+          }
           additionalData[config.writeToAdditionalData] = answers[dataElement.id];
           await additionalData.save();
         }
