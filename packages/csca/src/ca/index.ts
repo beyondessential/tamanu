@@ -356,7 +356,7 @@ export default class CA {
   public async readIndex(serial: Buffer): Promise<CertificateIndexEntry> {
     const key = await this.publicKey();
     const state = this.state(key);
-    const entry = await state.fromSerial(serial);
+    const entry = await state.fromSerialNumber(serial);
     if (!entry) throw new Error(`No such serial: 0x${serial.toString('hex')}`);
     return entry;
   }

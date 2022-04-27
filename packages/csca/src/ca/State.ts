@@ -75,7 +75,7 @@ export class CertificateIndexEntry {
 }
 
 /** @internal utility for CRL */
-export function readSerial(serial: Buffer): number {
+export function readSerialNumber(serial: Buffer): number {
   switch (serial.byteLength) {
     case 1:
       return serial.readUInt8(0);
@@ -90,7 +90,7 @@ export function readSerial(serial: Buffer): number {
   }
 }
 
-function incrementSerial(serial: Buffer): [Buffer, Buffer] {
+function incrementSerialNumber(serial: Buffer): [Buffer, Buffer] {
   const offset = Math.max(0, serial.byteLength - 4);
   const next = serial.readUInt32BE(offset) + 1;
   serial.writeUInt32BE(next, offset);
@@ -158,7 +158,7 @@ export default class State extends AuthenticatedFile {
 
   public async nextCrlSerial(): Promise<Buffer> {
     const state = await this.load();
-    const [serial, next] = incrementSerial(state.crlSerial);
+    const [serial, next] = incrementSerialNumber(state.crlSerial);
     state.crlSerial = serial;
     await this.write(state);
     return next;
@@ -166,13 +166,13 @@ export default class State extends AuthenticatedFile {
 
   public async nextIssuanceSerial(): Promise<Buffer> {
     const state = await this.load();
-    const [serial, next] = incrementSerial(state.issuanceSerial);
+    const [serial, next] = incrementSerialNumber(state.issuanceSerial);
     state.issuanceSerial = serial;
     await this.write(state);
     return next;
   }
 
-  public async fromSerial(serial: Buffer): Promise<CertificateIndexEntry | undefined> {
+  public async fromSerialNumber(serial: Buffer): Promise<CertificateIndexEntry | undefined> {
     const state = await this.load();
     const fullSerial = padBufferStart(serial, state.issuanceSerial.byteLength);
     const entry = state.index.get(fullSerial.toString('hex'));
@@ -200,7 +200,7 @@ export default class State extends AuthenticatedFile {
     cert: Certificate,
     overrides?: Partial<IndexEntry>,
   ): Promise<void> {
-    if (await this.fromSerial(cert.serial)) {
+    if (await this.fromSerialNumber(cert.serial)) {
       throw new Error('Certificate already exists in index');
     }
 
@@ -214,7 +214,7 @@ export default class State extends AuthenticatedFile {
    * @internal Do not use outside of CA classes (e.g. directly from commands).
    */
   public async indexRevocation(serial: Buffer, date?: Date): Promise<void> {
-    const entry = await this.fromSerial(serial);
+    const entry = await this.fromSerialNumber(serial);
     if (!entry) {
       throw new Error('Certificate does not exist in index');
     }

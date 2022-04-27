@@ -26,7 +26,7 @@ import { AsnConvert, OctetString } from '@peculiar/asn1-schema';
 import { add } from 'date-fns';
 
 import Certificate from './Certificate';
-import State, { readSerial } from './State';
+import State, { readSerialNumber } from './State';
 import crypto from '../crypto';
 import { numberToBuffer } from '../utils';
 
@@ -62,7 +62,7 @@ export default class Crl {
     const now = new Date();
     const next = add(now, { days: 90 });
 
-    const serial = readSerial(await state.nextCrlSerial());
+    const serial = readSerialNumber(await state.nextCrlSerial());
 
     const revokedCertificates = revokedCerts.length
       ? revokedCerts.map(
