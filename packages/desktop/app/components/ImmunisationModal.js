@@ -20,21 +20,19 @@ const DumbImmunisationModal = React.memo(
     departmentSuggester,
     getScheduledVaccines,
     locationSuggester,
-  }) => {
-    return (
-      <Modal title="Give vaccine" open={open} onClose={onClose}>
-        <ImmunisationForm
-          onSubmit={onCreateImmunisation}
-          onCancel={onClose}
-          practitionerSuggester={practitionerSuggester}
-          vaccineSuggester={vaccineSuggester}
-          departmentSuggester={departmentSuggester}
-          getScheduledVaccines={getScheduledVaccines}
-          locationSuggester={locationSuggester}
-        />
-      </Modal>
-    );
-  },
+  }) => (
+    <Modal title="Give vaccine" open={open} onClose={onClose}>
+      <ImmunisationForm
+        onSubmit={onCreateImmunisation}
+        onCancel={onClose}
+        practitionerSuggester={practitionerSuggester}
+        vaccineSuggester={vaccineSuggester}
+        departmentSuggester={departmentSuggester}
+        getScheduledVaccines={getScheduledVaccines}
+        locationSuggester={locationSuggester}
+      />
+    </Modal>
+  ),
 );
 
 export const ImmunisationModal = connectApi((api, dispatch, { patientId }) => ({

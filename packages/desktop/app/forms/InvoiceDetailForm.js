@@ -112,17 +112,17 @@ export const InvoiceDetailForm = ({
             <Field name="admissionType" label="Admission type" disabled component={TextField} />
             <Field name="receiptNumber" label="Receipt number" component={TextField} />
             <ButtonRow>
-              {isInvoiceEditable(invoice.status) ? (
+              {isInvoiceEditable(invoice) ? (
                 <>
-                  <Button variant="contained" onClick={onCancel}>
-                    Cancel Invoice
+                  <Button variant="outlined" onClick={onCancel} color="primary">
+                    Cancel
                   </Button>
                   <Button
-                    variant="contained"
+                    variant="outlined"
                     onClick={() => setFinaliseInvoiceModalOpen(true)}
                     color="primary"
                   >
-                    Finalise Invoice
+                    Finalise
                   </Button>
                 </>
               ) : null}

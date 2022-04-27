@@ -191,6 +191,9 @@ export const practitioner = [
   { verb: 'create', noun: 'InvoicePriceChangeType' },
 
   { verb: 'create', noun: 'CertificateNotification' },
+
+  { verb: 'read', noun: 'PatientDeath' },
+  { verb: 'create', noun: 'PatientDeath' },
 ];
 
 export const admin = [

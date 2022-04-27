@@ -57,6 +57,7 @@ export async function newKeypairAndCsr() {
 
   const csr = new CertificationRequest();
   csr.version = 0;
+  csr.attributes = [];
   csr.subject.typesAndValues.push(
     new AttributeTypeAndValue({
       type: X502_OIDS.COUNTRY_NAME,
@@ -303,7 +304,8 @@ export class TestCSCA {
 
     const validityPeriodStart = workingPeriodStart;
     const validityPeriodEnd = add(workingPeriodEnd, {
-      days: 365 * 10 + 2 });
+      days: 365 * 10 + 2,
+    });
 
     const cert = new Certificate();
     cert.version = 2;

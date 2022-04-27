@@ -3,7 +3,7 @@ import asyncHandler from 'express-async-handler';
 import moment from 'moment';
 import { log } from 'shared/services/logging';
 import { NotFoundError, ForbiddenError } from 'shared/errors';
-import { loadCertificateIntoSigner } from '../VdsNc';
+import { loadCertificateIntoSigner } from './Crypto';
 
 export const routes = express.Router();
 

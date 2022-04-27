@@ -47,7 +47,9 @@ export class SignerRenewalSender extends ScheduledTask {
 
     const localisation = await getLocalisation();
 
-    log.info(`Emailing ${pending.length} CSR(s) to ${config.integrations.signer.sendSignerRequestTo}`);
+    log.info(
+      `Emailing ${pending.length} CSR(s) to ${config.integrations.signer.sendSignerRequestTo}`,
+    );
     for (const signer of pending) {
       try {
         await emailService.sendEmail({

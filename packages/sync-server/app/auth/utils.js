@@ -15,12 +15,12 @@ export const getToken = async (user, expiry) => {
   return jwt.sign(
     {
       userId: user.id,
-    }, 
+    },
     JWT_SECRET,
-     { expiresIn: expiry }
+    { expiresIn: expiry },
   );
 };
 
-export const verifyToken = (token) => {
+export const verifyToken = token => {
   return jwt.verify(token, JWT_SECRET);
 };

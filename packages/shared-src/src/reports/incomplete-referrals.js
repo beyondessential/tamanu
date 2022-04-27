@@ -1,3 +1,5 @@
+/* eslint-disable no-param-reassign */
+
 import { Op } from 'sequelize';
 import { generateReportFromQueryData } from './utilities';
 

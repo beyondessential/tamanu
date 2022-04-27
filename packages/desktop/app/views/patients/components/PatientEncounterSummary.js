@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled, { css } from 'styled-components';
 import { ENCOUNTER_TYPES } from 'shared/constants';
 import { Box, Typography } from '@material-ui/core';
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
-import { Notification, DateDisplay, LargeButton, Button } from '../../../components';
+import { DateDisplay, LargeButton, Button } from '../../../components';
+import { useApi } from '../../../api';
 
 const PATIENT_STATUS = {
   INPATIENT: 'inpatient',
@@ -41,10 +42,15 @@ const Container = styled.div`
   background: ${Colors.white};
   transition: color 0.2s ease;
 
-  &:hover {
-    cursor: pointer;
-    background: ${Colors.offWhite};
-  }
+  ${props =>
+    props.clickable
+      ? css`
+          &:hover {
+            cursor: pointer;
+            background: ${Colors.offWhite};
+          }
+        `
+      : null}
 `;
 
 const NoVisitContainer = styled.div`
@@ -68,7 +74,7 @@ const Header = styled.div`
 const Content = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
-  padding: 8px 20px 8px 16px;
+  padding: 12px 20px 12px 16px;
 `;
 
 const ContentItem = styled.div`
@@ -117,6 +123,50 @@ const ButtonRow = styled(Box)`
   }
 `;
 
+const PatientDeathSummary = React.memo(({ patient }) => {
+  const [deathData, setDeathData] = useState(null);
+  const api = useApi();
+
+  useEffect(() => {
+    api.get(`patient/${patient.id}/death`).then(response => {
+      setDeathData(response);
+    });
+  }, [api, patient.id]);
+
+  return (
+    <Container patientStatus={PATIENT_STATUS.DECEASED}>
+      <Header patientStatus={PATIENT_STATUS.DECEASED}>
+        <Box display="flex" justifyContent="space-between" alignItems="center" flex="1">
+          <BoldTitle variant="h3">Deceased</BoldTitle>
+          <Button variant="contained" color="primary" disabled>
+            View death certificate
+          </Button>
+        </Box>
+      </Header>
+      <Content>
+        <ContentItem>
+          <ContentLabel>Location of death:</ContentLabel>
+          <ContentText>{deathData?.location?.name || 'Unknown'}</ContentText>
+        </ContentItem>
+        <ContentItem>
+          <ContentLabel>Clinician:</ContentLabel>
+          <ContentText>{deathData?.clinician?.displayName}</ContentText>
+        </ContentItem>
+        <ContentItem style={{ gridColumn: '1/-1' }}>
+          <ContentLabel>Underlying condition causing death:</ContentLabel>
+          <ContentText>{deathData?.causes?.primary?.condition.name}</ContentText>
+        </ContentItem>
+        <ContentItem>
+          <ContentLabel>Date of death:</ContentLabel>
+          <ContentText>
+            <DateDisplay date={deathData?.dateOfDeath} />
+          </ContentText>
+        </ContentItem>
+      </Content>
+    </Container>
+  );
+});
+
 export const PatientEncounterSummary = ({
   patient,
   viewEncounter,
@@ -125,43 +175,7 @@ export const PatientEncounterSummary = ({
   encounter,
 }) => {
   if (patient.dateOfDeath) {
-    // Todo: Complete patient landing screen for deceased patients once api for death workflow is done @see WAITM-31
-    return (
-      <Container>
-        <Notification message="This patient has a date of death recorded, but the patient death workflow is not yet supported in Tamanu Desktop. Please contact your system administrator for more information." />
-      </Container>
-    );
-
-    // return (
-    //   <Container patientStatus={PATIENT_STATUS.DECEASED}>
-    //     <Header>
-    //       <Box display="flex" justifyContent="space-between" alignItems="center" flex="1">
-    //         <BoldTitle variant="h3">Deceased</BoldTitle>
-    //         <Button variant="contained" color="primary">
-    //           View death certificate
-    //         </Button>
-    //       </Box>
-    //     </Header>
-    //     <Content>
-    //       <ContentItem>
-    //         <ContentLabel>Location of death:</ContentLabel>
-    //         <ContentText>Fiji National Hospital</ContentText>
-    //       </ContentItem>
-    //       <ContentItem>
-    //         <ContentLabel>Clinician:</ContentLabel>
-    //         <ContentText>Dr Jane Brown</ContentText>
-    //       </ContentItem>
-    //       <ContentItem>
-    //         <ContentLabel>Underlying condition causing death:</ContentLabel>
-    //         <ContentText>Diabetes</ContentText>
-    //       </ContentItem>
-    //       <ContentItem>
-    //         <ContentLabel>Date of death:</ContentLabel>
-    //         <ContentText>23/11/2021</ContentText>
-    //       </ContentItem>
-    //     </Content>
-    //   </Container>
-    // );
+    return <PatientDeathSummary patient={patient} />;
   }
 
   if (!encounter) {
@@ -180,7 +194,7 @@ export const PatientEncounterSummary = ({
   const patientStatus = ENCOUNTER_TYPE_TO_STATUS[encounterType];
 
   return (
-    <Container patientStatus={patientStatus} onClick={() => viewEncounter(id)}>
+    <Container patientStatus={patientStatus} onClick={() => viewEncounter(id)} clickable>
       <Header patientStatus={patientStatus}>
         <BoldTitle variant="h3">Type:</BoldTitle>
         <Title variant="h3">{ENCOUNTER_OPTIONS_BY_VALUE[encounterType].label}</Title>

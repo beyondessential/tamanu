@@ -34,11 +34,10 @@ export const GeneralInfo = ({
 
   return (
     <PatientSection
-      hasSeparator={false}
       title="General Information"
       onEdit={isEditable ? onEdit : undefined}
     >
-      <FieldRowDisplay fields={fields} fieldsPerRow={2} />
+      <FieldRowDisplay fields={fields} />
     </PatientSection>
   );
 };

@@ -1,20 +1,25 @@
 import React, { useCallback } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+
 import { Modal } from './Modal';
-import { Suggester } from '../utils/suggester';
-
-import { connectApi } from '../api/connectApi';
-
+import { useSuggester } from '../api';
 import { DischargeForm } from '../forms/DischargeForm';
 import { useEncounter } from '../contexts/Encounter';
+import { viewPatient } from '../store';
 
-const DumbDischargeModal = React.memo(({ open, practitionerSuggester, onClose }) => {
-  const { writeAndViewEncounter, encounter } = useEncounter();
+export const DischargeModal = React.memo(({ open, onClose }) => {
+  const dispatch = useDispatch();
+  const patient = useSelector(state => state.patient);
+  const { encounter, writeAndViewEncounter } = useEncounter();
+  const practitionerSuggester = useSuggester('practitioner');
+
   const handleDischarge = useCallback(
     async data => {
       await writeAndViewEncounter(encounter.id, data);
+      await dispatch(viewPatient(patient.id));
       onClose();
     },
-    [encounter, writeAndViewEncounter, onClose],
+    [writeAndViewEncounter, encounter.id, dispatch, patient.id, onClose],
   );
 
   return (
@@ -28,7 +33,3 @@ const DumbDischargeModal = React.memo(({ open, practitionerSuggester, onClose })
     </Modal>
   );
 });
-
-export const DischargeModal = connectApi(api => ({
-  practitionerSuggester: new Suggester(api, 'practitioner'),
-}))(DumbDischargeModal);

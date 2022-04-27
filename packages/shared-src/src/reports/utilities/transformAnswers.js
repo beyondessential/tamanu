@@ -3,7 +3,6 @@ import { keyBy, groupBy } from 'lodash';
 
 const MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE = {
   User: 'displayName',
-  ReferenceData: 'name',
 };
 
 const convertAutocompleteAnswer = async (models, componentConfig, answer) => {
@@ -16,7 +15,7 @@ const convertAutocompleteAnswer = async (models, componentConfig, answer) => {
     return answer;
   }
 
-  return result[MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE[componentConfig.source]];
+  return result[MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE[componentConfig.source] || 'name'];
 };
 
 const convertBinaryToYesNo = answer => {
@@ -98,12 +97,13 @@ export const transformAnswers = async (
 };
 
 export const takeMostRecentAnswers = answers => {
-  const answersPerElement = groupBy(answers, a => {
-    return `${a.patientId}|${a.surveyId}|${a.dataElementId}`;
-  });
+  const answersPerElement = groupBy(
+    answers,
+    a => `${a.patientId}|${a.surveyId}|${a.dataElementId}`,
+  );
 
   const results = [];
-  for (const [_, groupedAnswers] of Object.entries(answersPerElement)) {
+  for (const groupedAnswers of Object.values(answersPerElement)) {
     const sortedLatestToOldestAnswers = groupedAnswers.sort((a1, a2) =>
       moment(a2.responseEndTime).diff(moment(a1.responseEndTime)),
     );

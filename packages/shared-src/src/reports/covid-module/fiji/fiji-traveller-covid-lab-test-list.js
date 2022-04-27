@@ -100,12 +100,11 @@ const reportColumnTemplate = [
   { title: 'Reason for test', accessor: data => data.reasonForTest },
 ];
 
-export const dataGenerator = async ({ models }, parameters = {}) => {
-  return baseDataGenerator({ models }, parameters, {
+export const dataGenerator = async ({ models }, parameters = {}) =>
+  baseDataGenerator({ models }, parameters, {
     surveyId: SURVEY_ID,
     surveyQuestionCodes: SURVEY_QUESTION_CODES,
     reportColumnTemplate,
   });
-};
 
 export const permission = 'LabTest';

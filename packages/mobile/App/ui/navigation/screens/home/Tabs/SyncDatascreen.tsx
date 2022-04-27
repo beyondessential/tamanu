@@ -1,17 +1,16 @@
 import React, { ReactElement, useCallback, useContext, useEffect, useState } from 'react';
 import { activateKeepAwake, deactivateKeepAwake } from '@sayem314/react-native-keep-awake';
-import { CenterView, StyledText, StyledView } from '/styled/common';
-import { theme } from '/styled/theme';
-import { Button } from '/components/Button';
 import moment from 'moment/src/moment';
-import { Orientation, screenPercentageToDP, setStatusBar } from '~/ui/helpers/screen';
-import { BackendContext } from '~/ui/contexts/BackendContext';
-import { SyncManager } from '~/services/sync';
-import { CircularProgress } from '/components/CircularProgress';
+import { CenterView, StyledText, StyledView } from '../../../../styled/common';
+import { theme } from '../../../../styled/theme';
+import { Orientation, screenPercentageToDP, setStatusBar } from '../../../../helpers/screen';
+import { BackendContext } from '../../../../contexts/BackendContext';
+import { SyncManager } from '../../../../../services/sync';
+import { Button } from '../../../../components/Button';
+import { CircularProgress } from '../../../../components/CircularProgress';
+import { SyncErrorDisplay } from '../../../../components/SyncErrorDisplay';
 
-import { SyncErrorDisplay } from '~/ui/components/SyncErrorDisplay';
-
-export const SyncDataScreen = (props): ReactElement => {
+export const SyncDataScreen = (): ReactElement => {
   const backend = useContext(BackendContext);
   const syncManager: SyncManager = backend.syncManager;
 
@@ -20,15 +19,15 @@ export const SyncDataScreen = (props): ReactElement => {
   const [isSyncing, setIsSyncing] = useState(syncManager.isSyncing);
   const [progress, setProgress] = useState(syncManager.progress);
   const [channelName, setChannelName] = useState('');
-  const [formattedLastSyncTime, setFormattedLastSyncTime] = useState(formatLastSyncTime(syncManager.lastSyncTime));
+  const [formattedLastSyncTime, setFormattedLastSyncTime] = useState(
+    formatLastSyncTime(syncManager.lastSyncTime),
+  );
 
   setStatusBar('light-content', theme.colors.MAIN_SUPER_DARK);
 
   const manualSync = useCallback(() => {
     syncManager.runScheduledSync();
   }, []);
-
-  const errorDisplayAvailable = true;
 
   useEffect(() => {
     const handler = (action, event) => {
@@ -47,7 +46,10 @@ export const SyncDataScreen = (props): ReactElement => {
           break;
         case 'channelSyncStarted': {
           const channel = event;
-          const prettyChannel = channel.split(/(?=[A-Z])/).join(' ').toLowerCase(); // e.g. scheduledVaccine -> scheduled vaccine
+          const prettyChannel = channel
+            .split(/(?=[A-Z])/)
+            .join(' ')
+            .toLowerCase(); // e.g. scheduledVaccine -> scheduled vaccine
           setChannelName(prettyChannel);
           break;
         }
@@ -81,7 +83,7 @@ export const SyncDataScreen = (props): ReactElement => {
           fontSize={screenPercentageToDP(2.55, Orientation.Height)}
           textAlign="center"
         >
-          {isSyncing ? (`Syncing ${channelName} data`) : 'Up to date'}
+          {isSyncing ? `Syncing ${channelName} data` : 'Up to date'}
         </StyledText>
         {!isSyncing && formattedLastSyncTime ? (
           <>
@@ -111,22 +113,19 @@ export const SyncDataScreen = (props): ReactElement => {
             {progress}%
           </StyledText>
         )}
-        {isSyncing ? null
-          : (
-            <Button
-              onPress={manualSync}
-              width={160}
-              outline
-              textColor={theme.colors.WHITE}
-              borderColor={theme.colors.WHITE}
-              buttonText="Manual Sync"
-              marginTop={20}
-            />
-          )
-        }
+        {isSyncing ? null : (
+          <Button
+            onPress={manualSync}
+            width={160}
+            outline
+            textColor={theme.colors.WHITE}
+            borderColor={theme.colors.WHITE}
+            buttonText="Manual Sync"
+            marginTop={20}
+          />
+        )}
         <SyncErrorDisplay />
       </StyledView>
     </CenterView>
   );
 };
-

@@ -15,7 +15,7 @@
   },
   "log": {
     "path": "",
-    "consoleLevel": "default",
+    "consoleLevel": "http",
     "color": true
   },
   "sync": {
@@ -95,8 +95,14 @@
       "schedule": "*/30 * * * * *",
       "limit": 10
     },
+    "deceasedPatientDischarger": {
+      // once an hour
+      "schedule": "29 * * * *",
+      "batchSize": 100,
+      "batchSleepAsyncDurationInMilliseconds": 50
+    },
     "certificateNotificationProcessor": {
-      // every 30seconds /!\
+      // every 30 seconds /!\
       "schedule": "*/30 * * * * *",
       "limit": 10
     },
@@ -422,7 +428,7 @@
           "healthFacility": "State level"
         }
       },
-      
+
       // The time zone setting is currently only used for Vaccine Certificates
       "timeZone": null,
 
@@ -431,7 +437,7 @@
       // does *not* affect which format is used for the actual PDF certificate when
       // generated in the sync server. Can be: `icao` or `eudcc`.
       "previewUvciFormat": "icao",
-      
+
       "sync": {
         "syncAllEncountersForTheseScheduledVaccines": []
       },
@@ -483,8 +489,7 @@
   },
   "notifications": {
     "certificates": {
-      // Add a lab test category to automatically email test certs for that category
-      "labTestCategoryId": null
+      "labTestCategoryIds": []
     }
   }
 }

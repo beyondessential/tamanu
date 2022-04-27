@@ -1,6 +1,6 @@
 {
   "name": "shared-src",
-  "version": "1.14.0",
+  "version": "1.15.0",
   "description": "Common code across Tamanu packages",
   "main": "index.js",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -14,7 +14,9 @@
     "build": "yarn run clean && yarn run compile",
     "build-watch": "yarn run compile --watch",
     "test": "NODE_ENV=test jest",
-    "test-coverage": "yarn test --coverage"
+    "test-coverage": "yarn test --coverage",
+    "lint": "eslint src",
+    "lint-stats": "eslint src --format ../scripts/eslint-stats.js"
   },
   "private": true,
   "devDependencies": {
@@ -23,6 +25,7 @@
     "@babel/preset-env": "^7.3.4",
     "@beyondessential/eslint-config-js": "^1.1.0",
     "babel-jest": "^27.5.1",
+    "eslint": "^5.15.2",
     "jest": "^27.5.1",
     "sinon": "^11.1.2"
   },

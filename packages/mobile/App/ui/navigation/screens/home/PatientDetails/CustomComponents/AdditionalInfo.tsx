@@ -1,13 +1,13 @@
 import React, { ReactElement, useState, useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 
-import { FieldRowDisplay } from '~/ui/components/FieldRowDisplay';
+import { FieldRowDisplay } from '../../../../../components/FieldRowDisplay';
+import { ErrorScreen } from '../../../../../components/ErrorScreen';
+import { LoadingScreen } from '../../../../../components/LoadingScreen';
 import { PatientSection } from './PatientSection';
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
-import { IPatient, IPatientAdditionalData } from '~/types';
-import { useBackend } from '~/ui/hooks';
-import { ErrorScreen } from '~/ui/components/ErrorScreen';
-import { LoadingScreen } from '~/ui/components/LoadingScreen';
+import { useLocalisation } from '../../../../../contexts/LocalisationContext';
+import { IPatient, IPatientAdditionalData } from '../../../../../../types';
+import { useBackend } from '../../../../../hooks';
 
 interface AdditionalInfoProps {
   onEdit: (additionalInfo: IPatientAdditionalData) => void;
@@ -91,11 +91,10 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
   } else if (loading) {
     additionalFields = <LoadingScreen />;
   } else if (additionalDataRes) {
-    additionalFields = <FieldRowDisplay fields={fields} fieldsPerRow={2} />;
+    additionalFields = <FieldRowDisplay fields={fields} />;
   }
   return (
     <PatientSection
-      hasSeparator
       title="Additional Information"
       onEdit={isEditable ? editInfo : undefined}
     >
