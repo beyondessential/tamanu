@@ -28,7 +28,11 @@ const getUpdatedAtTimestamp = ({ updatedAt }) => new Date(updatedAt).valueOf();
 // TODO: add exhaustive tests for sync API for each channel
 
 describe('Sync API', () => {
-  const fakeSyncRecordPatient = () => convertFromDbRecord(fake(ctx.models.Patient));
+  const fakeSyncRecordPatient = overrides =>
+    convertFromDbRecord({
+      ...fake(ctx.store.models.Patient),
+      ...overrides,
+    });
   let oldestPatient;
   let secondOldestPatient;
   let referenceData;
@@ -256,7 +260,7 @@ describe('Sync API', () => {
       const updatedAt = makeUpdatedAt(5);
       await Promise.all(
         [0, 1].map(async () => {
-          const p = fake(ctx.models.Patient);
+          const p = fake(ctx.store.models.Patient);
           await ctx.store.models.Patient.upsert(p);
           await unsafeSetUpdatedAt(ctx.store.sequelize, {
             table: 'patients',
@@ -391,7 +395,7 @@ describe('Sync API', () => {
         // instantiate 20 records
         records = new Array(TOTAL_RECORDS)
           .fill(0)
-          .map((zero, i) => fakeSyncRecordPatient());
+          .map((zero, i) => fakeSyncRecordPatient({ firstName: `test-limits-${i}` }));
 
         // import in series so there's a predictable order to test against
         await Promise.all(records.map(r => ctx.store.models.Patient.upsert(convertToDbRecord(r))));
@@ -666,7 +670,7 @@ describe('Sync API', () => {
         const getResult = await app.get('/v1/sync/patient?since=0', 0);
         const { records } = getResult.body;
         expect(records).toHaveProperty('length', 1);
-        record = records[0];
+        [record] = records;
       });
 
       it('should add a flag to deleted records', async () => {
