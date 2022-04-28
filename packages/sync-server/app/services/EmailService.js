@@ -1,16 +1,17 @@
 import config from 'config';
 import mailgun from 'mailgun-js';
 import { COMMUNICATION_STATUSES } from 'shared/constants';
+import { log } from 'shared/services/logging';
 import { createReadStream } from 'fs';
 
 const { apiKey, domain } = config.mailgun;
 
 async function getReadStreamSafe(path) {
   return new Promise((resolve, reject) => {
-    // Mailgun doesn't do any error handling internally, so we 
+    // Mailgun doesn't do any error handling internally, so we
     // take charge of opening the attachment, and just pass the
     // stream to mailgun instead of the path.
-   
+
     const readStream = createReadStream(path);
 
     // Don't return the stream until it's actually successfully opened
@@ -51,14 +52,14 @@ export class EmailService {
       };
     }
 
-    let attachmentStream = undefined;
+    let attachmentStream;
     if (attachment) {
       try {
         // pass mailgun a readable stream instead of the path
-        attachment = await getReadStreamSafe(attachment);
-      } catch(e) {
-        log.error("Could not read attachment for email", e);
-        return { 
+        attachmentStream = await getReadStreamSafe(attachment);
+      } catch (e) {
+        log.error('Could not read attachment for email', e);
+        return {
           status: COMMUNICATION_STATUSES.ERROR,
           error: 'Attachment missing or unreadable',
         };
@@ -68,7 +69,7 @@ export class EmailService {
     try {
       const emailResult = await this.mailgunService.messages().send({
         ...email,
-        attachment: attachmentStream,  
+        attachment: attachmentStream,
       });
       return { status: COMMUNICATION_STATUSES.SENT, result: emailResult };
     } catch (e) {
