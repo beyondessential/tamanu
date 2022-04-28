@@ -301,14 +301,14 @@ const EncounterInfoPane = React.memo(({ disabled, encounter }) => (
       endpoint="patientBillingType"
     />
     <TextInput disabled={disabled} value={getDepartmentName(encounter)} label="Department" />
-    <TextInput disabled={disabled} value={getLocationName(encounter)} label="Location" />
     <SelectInput
       disabled={disabled}
       value={encounter.encounterType}
       label="Encounter type"
       options={encounterOptions}
     />
-    <TextInput disabled={disabled} value={getExaminerName(encounter)} label="Doctor/nurse" />
+    <TextInput disabled={disabled} value={getExaminerName(encounter)} label="Doctor/Nurse" />
+    <TextInput disabled={disabled} value={getLocationName(encounter)} label="Location" />
     {encounter.plannedLocation && (
       <TextInput
         disabled={disabled}

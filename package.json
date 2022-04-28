@@ -1,6 +1,6 @@
 {
   "name": "tamanu",
-  "version": "1.15.0",
+  "version": "1.15.1",
   "description": "This repo contains all the packages for Tamanu",
   "main": "index.js",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -9,10 +9,10 @@
   "license": "SEE LICENSE IN license",
   "scripts": {
     "build-shared": "yarn workspace shared-src run build && yarn install",
-    "build": "yarn build-shared && concurrently \"yarn workspace sync-server run build\" \"yarn workspace lan run build\" \"yarn workspace desktop run build\" \"yarn workspace meta-server run build\"",
-    "test": "yarn run build-shared && yarn workspace shared-src run test && yarn workspace lan run test && yarn workspace sync-server run test && yarn workspace meta-server run test",
-    "test-coverage": "yarn run build-shared && yarn workspace shared-src run test-coverage && yarn workspace lan run test-coverage && yarn workspace sync-server run test-coverage && yarn workspace meta-server run test-coverage",
-    "lint-all": "yarn workspace shared-src run lint && yarn workspace lan run lint && yarn workspace sync-server run lint && yarn workspace meta-server run lint && yarn workspace desktop run lint",
+    "build": "yarn build-shared && concurrently \"yarn workspace sync-server run build\" \"yarn workspace lan run build\" \"yarn workspace desktop run build\" \"yarn workspace meta-server run build\" \"yarn workspace csca run build\"",
+    "test": "yarn run build-shared && yarn workspace shared-src run test && yarn workspace lan run test && yarn workspace sync-server run test && yarn workspace meta-server run test && yarn workspace csca test",
+    "test-coverage": "yarn run build-shared && yarn workspace shared-src run test-coverage && yarn workspace lan run test-coverage && yarn workspace sync-server run test-coverage && yarn workspace meta-server run test-coverage && yarn workspace csca test",
+    "lint-all": "yarn workspace shared-src run lint && yarn workspace lan run lint && yarn workspace sync-server run lint && yarn workspace meta-server run lint && yarn workspace desktop run lint && yarn workspace csca run lint",
     "upgrade-lint-rules": "yarn workspaces run yarn upgrade @beyondessential/eslint-config-js --latest",
     "desktop-start-dev": "yarn workspace desktop run start-dev",
     "watch-shared-and": "node scripts/watch-shared-and.js",
@@ -38,6 +38,7 @@
   "private": true,
   "workspaces": {
     "packages": [
+      "packages/csca",
       "packages/scripts",
       "packages/qr-tester",
       "packages/desktop",

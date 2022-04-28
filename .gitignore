@@ -39,6 +39,7 @@ coverage
 .tmp
 .keys
 .tmp
+*.csca
 
 # Docker
 /dockercfg

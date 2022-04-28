@@ -22,6 +22,28 @@
 
 - (left blank)
 
+## v1.15.1
+
+### Manual steps required after upgrade ⚙
+
+- (left blank)
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
+- (left blank)
+
+### Bug fixes 🐛
+
+- Fix some bugs to do with vaccine certificates
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
 ## v1.15.0
 
 ### Manual steps required after upgrade ⚙
@@ -48,6 +70,16 @@ responses for patients in covid lab test certificates
 ### Infrastructure and maintenance 🛠
 
 - (left blank)
+
+## v1.14.2
+
+### Features ⭐
+
+- Add task to automatically result + publish some lab tests
+
+### Bug fixes 🐛
+
+- Fix issue that was causing lab tests and requests to revert some fields
 
 ## v1.14.1
 

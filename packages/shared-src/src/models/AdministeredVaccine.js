@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize';
+import { Sequelize, Op } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
 import { Encounter } from './Encounter';
@@ -59,7 +59,7 @@ export class AdministeredVaccine extends Model {
     });
   }
 
-  static async lastVaccinationForPatient(patientId, vaccineLabels = []) {
+  static async lastVaccinationForPatient(patientId, vaccineIds = []) {
     const query = {
       where: {
         '$encounter.patient_id$': patientId,
@@ -74,8 +74,11 @@ export class AdministeredVaccine extends Model {
       ],
     };
 
-    if (vaccineLabels.length) {
-      query.where['$scheduledVaccine.label$'] = vaccineLabels;
+    if (vaccineIds.length) {
+      query.where['$scheduledVaccine.vaccine_id$'] = {
+        [Op.in]: vaccineIds,
+      };
+
       query.include.push({
         model: ScheduledVaccine,
         as: 'scheduledVaccine',

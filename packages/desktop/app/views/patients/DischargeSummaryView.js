@@ -86,7 +86,7 @@ const ProceduresList = ({ procedures }) => {
 
   return procedures.map(procedure => (
     <li>
-      {procedure.description} (<Label>CPT Code: </Label> {procedure.cptCode})
+      {procedure.procedureType.name} (<Label>CPT Code: </Label> {procedure.procedureType.code})
     </li>
   ));
 };
