@@ -48,11 +48,11 @@ const A4Page = styled.div`
 
 const LabelPage = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, 2.5935in);
-  grid-template-rows: repeat(10, 1in);
-  grid-column-gap: 0.14in;
-  margin-left: 0.2198in;
-  margin-top: 0.5in;
+  grid-template-columns: repeat(3, 64mm);
+  grid-template-rows: repeat(10, 26.7mm);
+  grid-column-gap: 3.01mm;
+  padding-left: 6.4mm;
+  padding-top: 15.09mm;
 `;
 
 export const PatientStickerLabelPage = ({ patient }) => {
