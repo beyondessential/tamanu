@@ -58,6 +58,7 @@ export const VaccineCertificate = ({
   watermarkSrc,
   vdsSrc,
   logoSrc,
+  uvci,
   getLocalisation,
   extraPatientFields,
 }) => {
@@ -79,6 +80,7 @@ export const VaccineCertificate = ({
           getLocalisation={getLocalisation}
           certificateId={certificateId}
           extraFields={extraPatientFields}
+          uvci={uvci}
         />
         <Box mb={20}>
           <Table data={data} columns={columns} getLocalisation={getLocalisation} />

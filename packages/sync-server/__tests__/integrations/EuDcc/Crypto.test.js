@@ -40,8 +40,9 @@ describe('EU DCC: HCERT Formatting', () => {
         integer: 12345,
       },
     };
-    const packedData = await HCERTPack(testMessageData, ctx.store.models);
-    const verifiedData = await HCERTVerify(packedData, ctx.store.models);
+    const { models } = ctx.store;
+    const packedData = await HCERTPack(testMessageData, { models });
+    const verifiedData = await HCERTVerify(packedData, { models });
 
     // Packed data matches format HC1:[base45 character set]
     expect(packedData).to.match(/^HC1:[0-9A-Z $%*+-./:]*/);
