@@ -22,6 +22,28 @@
 
 - (left blank)
 
+## v1.15.2
+
+### Manual steps required after upgrade ⚙
+
+- (left blank)
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
+- Updated patient suggester to search for displayId and full name
+
+### Bug fixes 🐛
+
+- Fixed migration that could fail under certain conditions
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
 ## v1.15.1
 
 ### Manual steps required after upgrade ⚙
