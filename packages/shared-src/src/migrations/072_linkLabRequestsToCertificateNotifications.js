@@ -20,6 +20,7 @@ module.exports = {
       INNER JOIN encounters
         ON lab_requests.encounter_id = encounters.id
       WHERE lab_requests.status = 'published'
+      ON CONFLICT DO NOTHING
     `);
   },
   down: async query => {
