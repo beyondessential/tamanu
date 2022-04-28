@@ -3,6 +3,7 @@ import { Redirect } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import PrintIcon from '@material-ui/icons/Print';
+import Box from '@material-ui/core/Box';
 
 import { PrintPortal, PrintLetterhead } from '../../components/PatientPrinting';
 import { LocalisedText } from '../../components/LocalisedText';
@@ -250,7 +251,9 @@ export const DischargeSummaryView = React.memo(() => {
       </NavContainer>
       <SummaryPage encounter={encounter} discharge={discharge} />
       <PrintPortal>
-        <SummaryPage encounter={encounter} discharge={discharge} />
+        <Box p={5}>
+          <SummaryPage encounter={encounter} discharge={discharge} />
+        </Box>
       </PrintPortal>
     </>
   );
