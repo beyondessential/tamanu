@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { SEX_VALUE_INDEX } from '../../constants';
 import { useElectron } from '../../contexts/Electron';
 
-import { PrintPortal, LetterPage } from '../Print';
+import { PrintPortal } from '../Print';
 import { DateDisplay } from '../DateDisplay';
 
 import { PatientBarcode } from './PatientBarcode';
@@ -35,6 +35,12 @@ export const PatientStickerLabel = ({ patient }) => (
   </Sticker>
 );
 
+const A4Page = styled.div`
+  background: white;
+  width: 8.3in;
+  height: 11.7in;
+`;
+
 const LabelPage = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 2.5935in);
@@ -52,13 +58,13 @@ export const PatientStickerLabelPage = ({ patient }) => {
 
   return (
     <PrintPortal>
-      <LetterPage>
+      <A4Page>
         <LabelPage>
           {[...Array(30).keys()].map(x => (
             <PatientStickerLabel key={`label-${x}`} patient={patient} />
           ))}
         </LabelPage>
-      </LetterPage>
+      </A4Page>
     </PrintPortal>
   );
 };
