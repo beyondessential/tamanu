@@ -1,3 +1,4 @@
+import { format } from 'date-fns';
 import { baseDataGenerator } from '../covid-swab-lab-test-list';
 
 const SURVEY_ID = 'program-kiribaticovid19-kiribaticovidtestregistration';
@@ -33,6 +34,14 @@ const reportColumnTemplate = [
   { title: 'Priority', accessor: data => data.priority },
   { title: 'Testing laboratory', accessor: data => data.testingLaboratory },
   { title: 'Testing date', accessor: data => data.testingDate },
+  {
+    title: 'Sample collection date',
+    accessor: data => format(new Date(data.sampleTime), 'dd-MM-yyyy'),
+  },
+  {
+    title: 'Sample collection time',
+    accessor: data => format(new Date(data.sampleTime), 'hh:mm a'),
+  },
   ...Object.keys(SURVEY_QUESTION_CODES).map(name => ({
     title: name,
     accessor: data => data[name],
