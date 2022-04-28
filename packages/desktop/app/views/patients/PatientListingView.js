@@ -62,6 +62,14 @@ const PatientTable = ({ onViewPatient, showInpatientDetails, fetchOptions, ...pr
       'lastName',
       'dateOfBirthExact',
       [
+        'facilityId',
+        {
+          placeholder: 'Facility',
+          suggester: new Suggester(api, 'facility'),
+          component: AutocompleteField,
+        },
+      ],
+      [
         'locationId',
         {
           placeholder: 'Location',
