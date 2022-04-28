@@ -25,6 +25,10 @@ export const createPatientFilters = filterParams => {
       `UPPER(patients.cultural_name) LIKE UPPER(:culturalName)`,
       ({ culturalName }) => ({ culturalName: `${culturalName}%` }),
     ),
+    makeFilter(
+      !filterParams.deceased || filterParams.deceased === 'false',
+      `patients.date_of_death IS NULL`,
+    ),
     // For age filter
     makeFilter(
       filterParams.ageMax,
