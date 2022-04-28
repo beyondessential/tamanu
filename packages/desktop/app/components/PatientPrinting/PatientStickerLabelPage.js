@@ -6,6 +6,7 @@ import { useElectron } from '../../contexts/Electron';
 import { PrintPortal } from './PrintPortal';
 import { DateDisplay } from '../DateDisplay';
 import { PatientBarcode } from './PatientBarcode';
+import { useLocalisation } from '../../contexts/Localisation';
 
 const Sticker = styled.div`
   font-family: monospace;
@@ -47,36 +48,41 @@ const LetterPage = styled.div`
 `;
 */
 
-const A4Page = styled.div`
+const Page = styled.div`
   background: white;
-  width: 8.3in;
-  height: 11.7in;
+  width: ${p => p.pageWidth};
+  height: ${p => p.pageHeight};
 `;
 
+// The margin properties are set as padding
+// to actually get the desired effect.
 const LabelPage = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, 64mm);
-  grid-template-rows: repeat(10, 26.7mm);
-  grid-column-gap: 3.01mm;
-  padding-left: 6.4mm;
-  padding-top: 15.09mm;
+  padding-top: ${p => p.pageMarginTop};
+  padding-left: ${p => p.pageMarginLeft};
+  grid-template-columns: repeat(${p => p.columnTotal}, ${p => p.columnWidth});
+  grid-template-rows: repeat(${p => p.rowTotal}, ${p => p.rowHeight});
+  grid-column-gap: ${p => p.columnGap};
+  grid-row-gap: ${p => p.rowGap};
 `;
 
 export const PatientStickerLabelPage = ({ patient }) => {
   const { printPage } = useElectron();
+  const { getLocalisation } = useLocalisation();
+  const measures = getLocalisation('printMeasures.stickerLabelPage');
   useEffect(() => {
     printPage();
   });
 
   return (
     <PrintPortal>
-      <A4Page>
-        <LabelPage>
+      <Page {...measures}>
+        <LabelPage {...measures}>
           {[...Array(30).keys()].map(x => (
             <PatientStickerLabel key={`label-${x}`} patient={patient} />
           ))}
         </LabelPage>
-      </A4Page>
+      </Page>
     </PrintPortal>
   );
 };
