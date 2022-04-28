@@ -177,7 +177,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
           // find the corresponding follow up survey for each initial survey
 
           // only select follow up surveys after the current initial survey
-          const followUpSurveyResponseFromDate = moment(surveyResponse.endTime);
+          const followUpSurveyResponseFromDate = moment(surveyResponse.endTime).startOf('day');
           // only select follow up survey before current time for latest initial survey
           // if there are more than 1 initial surveys (index > 0)
           // only select follow up survey before the later initial survey
