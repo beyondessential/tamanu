@@ -41,7 +41,7 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_LINK]: SurveyResponseSelectField,
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_RESULT]: null,
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER]: null,
-  [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA]: TextField, // TODO: Pick based on data type?
+  [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA]: ReadOnlyTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.USER_DATA]: ReadOnlyTextField,
   [PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION]: InstructionField,
   [PROGRAM_DATA_ELEMENT_TYPES.PHOTO]: UnsupportedPhotoField,
@@ -49,8 +49,12 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: InstructionField,
 };
 
-export function getComponentForQuestionType(type) {
-  const component = QUESTION_COMPONENTS[type];
+export function getComponentForQuestionType(type, { writeToPatient: { fieldType } }) {
+  let component = QUESTION_COMPONENTS[type];
+  if (type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA && fieldType) {
+    // PatientData specifically can overwrite field type if we are writing back to patient record
+    component = QUESTION_COMPONENTS[fieldType];
+  }
   if (component === undefined) {
     return LimitedTextField;
   }

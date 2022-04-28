@@ -27,29 +27,33 @@ const handleSurveyResponseActions = async (models, actions, questions, answers, 
         break;
       }
       case PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA: {
-        const patient = await models.Patient.findOne({
-          where: { id: patientId },
-          include: [
-            {
-              model: models.PatientAdditionalData,
-              as: 'additionalData',
-            },
-          ],
-        });
-        const additionalData = patient?.additionalData?.[0];
         if (config.writeToPatient) {
-          if (!patient) {
-            throw new Error(`Unable to find patient for id ${patientId}`);
+          if (!config.writeToPatient.fieldName) {
+            throw new Error('No fieldName defined for writeToPatient config');
           }
-          patient[config.writeToPatient] = answers[dataElement.id];
-          await patient.save();
-        }
-        if (config.writeToAdditionalData) {
-          if (!additionalData) {
-            throw new Error(`Unable to find additionalData for patientId ${patientId}`);
+          const patient = await models.Patient.findOne({
+            where: { id: patientId },
+            include: [
+              {
+                model: models.PatientAdditionalData,
+                as: 'additionalData',
+              },
+            ],
+          });
+          const additionalData = patient?.additionalData?.[0];
+          if (config.writeToPatient.isAdditionalDataField) {
+            if (!additionalData) {
+              throw new Error(`Unable to find additionalData for patientId ${patientId}`);
+            }
+            additionalData[config.writeToPatient.fieldName] = answers[dataElement.id];
+            await additionalData.save();
+          } else {
+            if (!patient) {
+              throw new Error(`Unable to find patient for id ${patientId}`);
+            }
+            patient[config.writeToPatient.fieldName] = answers[dataElement.id];
+            await patient.save();
           }
-          additionalData[config.writeToAdditionalData] = answers[dataElement.id];
-          await additionalData.save();
         }
         break;
       }

@@ -155,20 +155,26 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
         if (dataElement.type === FieldTypes.PATIENT_DATA) {
           const questionConfig = component.getConfigObject();
           if (questionConfig.writeToPatient) {
-            Patient.updateValues(patientId, { [questionConfig.writeToPatient]: value });
-          }
-          if (questionConfig.writeToAdditionalData) {
-            // find doesn't work with ManyToOne fields so we need to use a QueryBuilder
-            const additionalData = await PatientAdditionalData.getRepository()
-              .createQueryBuilder('patient_additional_data')
-              .where('patient_additional_data.patientId = :patientId', { patientId })
-              .getOne();
-            PatientAdditionalData.updateValues(
-              additionalData.id,
-              {
-                [questionConfig.writeToAdditionalData]: value,
-              },
-            );
+            if (questionConfig.writeToPatient.isAdditionalDataField) {
+              // find doesn't work with ManyToOne fields so we need to use a QueryBuilder
+              const additionalData = await PatientAdditionalData.getRepository()
+                .createQueryBuilder('patient_additional_data')
+                .where('patient_additional_data.patientId = :patientId', { patientId })
+                .getOne();
+              if (!additionalData) {
+                throw new Error('Can not find additionalData record for patient');
+              }
+              PatientAdditionalData.updateValues(
+                additionalData.id,
+                {
+                  [questionConfig.writeToPatient.fieldName]: value,
+                },
+              );
+            } else {
+              // Surveys are called from the patient
+              // so we know patientId is pointing to a real record
+              Patient.updateValues(patientId, { [questionConfig.writeToPatient.fieldName]: value });
+            }
           }
         }
 
