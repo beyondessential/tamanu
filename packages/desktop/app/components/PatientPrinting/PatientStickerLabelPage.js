@@ -40,14 +40,6 @@ export const PatientStickerLabel = ({ patient }) => (
   </Sticker>
 );
 
-/*
-const LetterPage = styled.div`
-  background: white;
-  width: 8.5in;
-  height: 11in;
-`;
-*/
-
 const Page = styled.div`
   background: white;
   width: ${p => p.pageWidth};
