@@ -17,22 +17,25 @@ labRequest.get('/:id', simpleGet('LabRequest'));
 labRequest.put(
   '/:id',
   asyncHandler(async (req, res) => {
-    const { models, params } = req;
+    const { models, params, db } = req;
     const { userId, ...rest } = req.body;
     req.checkPermission('read', 'LabRequest');
     const object = await models.LabRequest.findByPk(params.id);
     if (!object) throw new NotFoundError();
     req.checkPermission('write', object);
-    await object.update(rest);
 
-    if (rest.status) {
-      if (!userId) throw new InvalidOperationError('No user found for LabRequest status change.');
-      await models.LabRequestLog.create({
-        status: rest.status,
-        labRequestId: params.id,
-        updatedById: userId,
-      });
-    }
+    await db.transaction(async () => {
+      await object.update(rest);
+
+      if (rest.status) {
+        if (!userId) throw new InvalidOperationError('No user found for LabRequest status change.');
+        await models.LabRequestLog.create({
+          status: rest.status,
+          labRequestId: params.id,
+          updatedById: userId,
+        });
+      }
+    });
 
     res.send(object);
   }),
