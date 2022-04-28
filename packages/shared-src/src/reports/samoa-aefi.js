@@ -5,6 +5,7 @@ function parametersToSqlWhere(parameters) {
   const whereClause = Object.entries(parameters)
     .filter(([, val]) => val)
     .reduce((where, [key, value]) => {
+      /* eslint-disable no-param-reassign */
       switch (key) {
         case 'village':
           where['$encounter.patient.village_id$'] = value;
@@ -24,6 +25,7 @@ function parametersToSqlWhere(parameters) {
         default:
           break;
       }
+      /* eslint-enable no-param-reassign */
       return where;
     }, {});
 
@@ -92,6 +94,7 @@ export async function dataGenerator({ models }, parameters = {}) {
       );
       const answersByDataElementId = survey.answers.reduce(
         (allAnswers, answer) => {
+          // eslint-disable-next-line no-param-reassign
           allAnswers[answer.dataElementId] = answer.body;
           return allAnswers;
         },

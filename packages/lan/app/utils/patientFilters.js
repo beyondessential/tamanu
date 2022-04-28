@@ -78,6 +78,7 @@ export const createPatientFilters = filterParams => {
     makeFilter(filterParams.departmentId, `department.id = :departmentId`),
     makeFilter(filterParams.inpatient, `encounters.encounter_type = 'admission'`),
     makeFilter(filterParams.outpatient, `encounters.encounter_type = 'clinic'`),
+    makeFilter(filterParams.clinicianId, `encounters.examiner_id = :clinicianId`),
   ].filter(f => f);
 
   return filters;

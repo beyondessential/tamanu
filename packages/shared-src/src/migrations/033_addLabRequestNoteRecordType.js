@@ -6,7 +6,7 @@ module.exports = {
     // so if it fails we can just ignore it
     try {
       await query.sequelize.query("ALTER TYPE enum_notes_record_type ADD VALUE 'LabRequest'");
-    } catch(e) {
+    } catch (e) {
       if (e instanceof DatabaseError) {
         if (e.message.match(`already exists`)) {
           return;
@@ -16,7 +16,7 @@ module.exports = {
       throw e;
     }
   },
-  down: async query => {
+  down: async () => {
     // no down migration - it's unsafe to delete enums
   },
 };

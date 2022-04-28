@@ -14,7 +14,7 @@ export const AllergiesList = ({
   allergies: { data },
 }: Allergies): ReactElement => (
   <StyledView>
-    <PatientSection hasSeparator title="Allergies" onEdit={onEdit}>
+    <PatientSection title="Allergies" onEdit={onEdit}>
       {data.length > 0
         && data.map((condition: string) => (
           <RowView key={condition} alignItems="center" marginTop={10}>

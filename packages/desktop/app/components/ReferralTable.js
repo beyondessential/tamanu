@@ -157,6 +157,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
         endpoint={`patient/${patientId}/referrals`}
         noDataMessage="No referrals found"
         onRowClick={onSelectReferral}
+        allowExport={false}
       />
     </>
   );

@@ -21,14 +21,12 @@ const MarkPatientForSyncIcon = styled(Loop)`
   padding-bottom: 1rem;
 `;
 
-const DumbMarkPatientForSync = ({ onMarkPatientForSync }) => {
-  return (
-    <MarkPatientForSyncButton onClick={onMarkPatientForSync}>
-      <MarkPatientForSyncIcon />
-      Sync patient records
-    </MarkPatientForSyncButton>
-  );
-};
+const DumbMarkPatientForSync = ({ onMarkPatientForSync }) => (
+  <MarkPatientForSyncButton onClick={onMarkPatientForSync}>
+    <MarkPatientForSyncIcon />
+    Sync patient records
+  </MarkPatientForSyncButton>
+);
 
 export const MarkPatientForSync = connectApi((api, dispatch) => ({
   onMarkPatientForSync: () => {

@@ -95,8 +95,14 @@
       "schedule": "*/30 * * * * *",
       "limit": 10
     },
+    "deceasedPatientDischarger": {
+      // once an hour
+      "schedule": "29 * * * *",
+      "batchSize": 100,
+      "batchSleepAsyncDurationInMilliseconds": 50
+    },
     "certificateNotificationProcessor": {
-      // every 30seconds /!\
+      // every 30 seconds /!\
       "schedule": "*/30 * * * * *",
       "limit": 10
     },

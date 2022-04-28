@@ -4,9 +4,7 @@ import { promises as asyncFs } from 'fs';
 import { lookup as lookupMimeType } from 'mime-types';
 
 import { DocumentsTable } from '../../../components/DocumentsTable';
-import { Button } from '../../../components/Button';
 import { ConfirmCancelRow } from '../../../components/ButtonRow';
-import { ContentPane } from '../../../components/ContentPane';
 import { DocumentModal } from '../../../components/DocumentModal';
 import { DocumentsSearchBar } from '../../../components/DocumentsSearchBar';
 import { Modal } from '../../../components/Modal';
@@ -149,22 +147,18 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
         open={modalStatus === MODAL_STATES.ALERT_NO_SPACE_OPEN}
         onClose={handleClose}
       />
-      {showSearchBar && <DocumentsSearchBar setSearchParameters={setSearchParameters} />}
+      {showSearchBar && (
+        <DocumentsSearchBar
+          setSearchParameters={setSearchParameters}
+          onAddDocument={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}
+        />
+      )}
       <DocumentsTable
         endpoint={endpoint}
         searchParameters={searchParameters}
         refreshCount={refreshCount}
         canInvokeDocumentAction={canInvokeDocumentAction}
       />
-      <ContentPane>
-        <Button
-          onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}
-          variant="contained"
-          color="primary"
-        >
-          Add document
-        </Button>
-      </ContentPane>
     </div>
   );
 });

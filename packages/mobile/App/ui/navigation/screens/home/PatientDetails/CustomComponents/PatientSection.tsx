@@ -1,29 +1,29 @@
 import React, { PropsWithChildren, ReactElement } from 'react';
-import { Separator } from '/components/Separator';
 import { StyledView, RowView } from '/styled/common';
 import { SectionHeader } from '/components/SectionHeader';
 import { EditButton } from './EditButton';
+import { theme } from '/styled/theme';
 
 interface PatientDetailSectionProps {
-  hasSeparator: boolean;
   title: string;
   onEdit?: () => void;
 }
 
 export const PatientSection = ({
-  hasSeparator = false,
   title,
   onEdit,
   children,
 }: PropsWithChildren<PatientDetailSectionProps>): ReactElement => (
   <StyledView>
-    {hasSeparator && <Separator width="100%" marginBottom={20} marginTop={20} />}
-    <StyledView>
-      <RowView justifyContent="space-between">
-        <SectionHeader h1>{title}</SectionHeader>
-        {onEdit && <EditButton sectionTitle={title} onPress={onEdit} />}
-      </RowView>
-      {children}
-    </StyledView>
+    <RowView
+      justifyContent="space-between"
+      alignItems="center"
+      background={theme.colors.WHITE}
+      padding={20}
+    >
+      <SectionHeader h1>{title.toUpperCase()}</SectionHeader>
+      {onEdit && <EditButton sectionTitle={title} onPress={onEdit} />}
+    </RowView>
+    {children}
   </StyledView>
 );

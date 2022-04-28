@@ -245,7 +245,7 @@ export class WebRemote {
       }
     }
 
-    log.debug(
+    log.info(
       `WebRemote.fetchChannelsWithChanges: Channel check finished. Found ${channelsWithPendingChanges.length} channels with pending changes.`,
     );
     return channelsWithPendingChanges;

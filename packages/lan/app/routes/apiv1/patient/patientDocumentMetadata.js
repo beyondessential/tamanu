@@ -67,7 +67,7 @@ patientDocumentMetadataRoutes.get(
     const documentMetadataItems = await models.DocumentMetadata.findAndCountAll({
       where: {
         [Op.and]: [
-          {[Op.or]: [{ patientId }, { encounterId: { [Op.in]: encounterIds } }]},
+          { [Op.or]: [{ patientId }, { encounterId: { [Op.in]: encounterIds } }] },
           documentFilters,
         ],
       },

@@ -27,11 +27,7 @@ export async function startScheduledTasks(context) {
     taskClasses.push(VRSActionRetrier);
   }
   if (config.integrations.signer.enabled) {
-    taskClasses.push(
-      SignerWorkingPeriodChecker,
-      SignerRenewalChecker,
-      SignerRenewalSender,
-    );
+    taskClasses.push(SignerWorkingPeriodChecker, SignerRenewalChecker, SignerRenewalSender);
   }
 
   const reportSchedulers = await getReportSchedulers(context);

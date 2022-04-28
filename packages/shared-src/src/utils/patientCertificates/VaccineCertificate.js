@@ -40,7 +40,7 @@ const columns = [
   {
     key: 'date',
     title: 'Date',
-    accessor: ({ date }) => getDisplayDate(date),
+    accessor: ({ date }, getLocalisation) => getDisplayDate(date, null, getLocalisation),
   },
   {
     key: 'batch',
@@ -91,7 +91,7 @@ export const VaccineCertificate = ({
               <P>Printed by: {printedBy}</P>
             </Col>
             <Col>
-              <P>Printing date: {getDisplayDate()}</P>
+              <P>Printing date: {getDisplayDate(undefined, undefined, getLocalisation)}</P>
             </Col>
           </Row>
         </Box>

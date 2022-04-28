@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import PrintIcon from '@material-ui/icons/Print';
 import Box from '@material-ui/core/Box';
 
-import { PrintPortal } from '../../components/Print';
+import { PrintPortal, PrintLetterhead } from '../../components/PatientPrinting';
 import { LocalisedText } from '../../components/LocalisedText';
 import { useApi } from '../../api';
 import { BackButton, Button } from '../../components/Button';
@@ -13,7 +13,6 @@ import { DateDisplay } from '../../components/DateDisplay';
 import { TopBar } from '../../components';
 import { useEncounter } from '../../contexts/Encounter';
 import { useElectron } from '../../contexts/Electron';
-import { PrintLetterhead } from '../../components/Print/Letterhead';
 import { Colors } from '../../constants';
 
 const SummaryPageContainer = styled.div`

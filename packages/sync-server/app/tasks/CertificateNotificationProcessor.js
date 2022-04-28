@@ -11,11 +11,11 @@ import {
 import { log } from 'shared/services/logging';
 import { ScheduledTask } from 'shared/tasks';
 import { getPatientSurveyResponseAnswer } from 'shared/utils';
+import { generateUVCI } from 'shared/utils/uvci';
 import { makeVaccineCertificate, makeCovidTestCertificate } from '../utils/makePatientCertificate';
 import { getLocalisation } from '../localisation';
 import { createVdsNcVaccinationData, VdsNcDocument } from '../integrations/VdsNc';
 import { createEuDccVaccinationData, HCERTPack } from '../integrations/EuDcc';
-import { generateUVCI } from 'shared/utils/uvci';
 
 export class CertificateNotificationProcessor extends ScheduledTask {
   constructor(context) {
