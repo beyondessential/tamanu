@@ -46,6 +46,6 @@ export const PrintLetterhead = ({ title, subTitle, logoSrc, pageTitle }) => (
         <Typography variant="h3">{subTitle}</Typography>
       </HeaderText>
     </Header>
-    {PageTitle && <PageTitle variant="h3">{pageTitle}</PageTitle>}
+    {pageTitle && <PageTitle variant="h3">{pageTitle}</PageTitle>}
   </>
 );

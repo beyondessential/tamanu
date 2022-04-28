@@ -144,7 +144,7 @@ export const DeathCertificate = React.memo(({ patientData, certificateData }) =>
         <Grid borderTop={1} px={3} pt={2} pb={3}>
           <Box maxWidth="240px">
             <StrongText>
-              I<br />
+              II<br />
               Other significant conditions contributing to the death but not related to the disease
               or condition causing it.
             </StrongText>
@@ -156,7 +156,7 @@ export const DeathCertificate = React.memo(({ patientData, certificateData }) =>
         </Grid>
       </Box>
       <Footnote>
-        This does not mean the mode of dying, e.g heart failure, respiratory failure. It means the
+        * This does not mean the mode of dying, e.g heart failure, respiratory failure. It means the
         disease, injury, or complication that caused death.
       </Footnote>
       <Box my={4}>

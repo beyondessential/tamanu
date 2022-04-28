@@ -99,7 +99,7 @@ storiesOf('Certificates', module).add('DeathCertificate', () => {
   return (
     <Modal title="Record patient death" open width="md">
       <DeathCertificate
-        patientData={{ ...patient, timeOfDeath: new Date(), causeOfDeath: 'Diabetes' }}
+        patientData={{ ...patient, timeOfDeath: new Date(), causes: { primary: { condition: { name: 'Diabetes' }}}}}
         certificateData={certificateData}
       />
     </Modal>
