@@ -29,6 +29,7 @@ import * as fijiNcdPrimaryScreeningLineList from './fiji-ncd-primary-screening/f
 import * as fijiNcdPrimaryScreeningPendingReferralsLineList from './fiji-ncd-primary-screening/fiji-ncd-primary-screening-pending-referrals-line-list';
 import * as fijiNcdPrimaryScreeningSummary from './fiji-ncd-primary-screening/fiji-ncd-primary-screening-summary';
 import * as fijiStatisticalReportForPhisSummary from './fiji-statistical-report-for-phis-summary';
+import * as palauCovidCaseReportLineList from './covid-module/palau/palau-covid-case-report-line-list';
 
 export function getReportModule(reportType) {
   switch (reportType) {
@@ -96,6 +97,8 @@ export function getReportModule(reportType) {
       return fijiNcdPrimaryScreeningSummary;
     case 'fiji-statistical-report-for-phis-summary':
       return fijiStatisticalReportForPhisSummary;
+    case 'palau-covid-case-report-line-list':
+      return palauCovidCaseReportLineList;
   }
 }
 
