@@ -30,6 +30,8 @@ version packages/shared-src/package.json
 version packages/shared-src/shared.package.json
 version packages/meta-server/package.json
 version packages/scripts/package.json
+version packages/qr-tester/package.json
+version packages/csca/package.json
 
 echo "Updating changelog"
 template=scripts/changelog_template.md
