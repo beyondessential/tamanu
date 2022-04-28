@@ -177,6 +177,24 @@ const fieldsSchema = yup
   .required()
   .noUnknown();
 
+const printMeasuresSchema = yup
+  .object({
+    stickerLabelPage: yup.object({
+      pageWidth: yup.string().required(),
+      pageHeight: yup.string().required(),
+      pageMarginTop: yup.string().required(),
+      pageMarginLeft: yup.string().required(),
+      columnTotal: yup.number().required(),
+      columnWidth: yup.string().required(),
+      columnGap: yup.string().required(),
+      rowTotal: yup.number().required(),
+      rowHeight: yup.string().required(),
+      rowGap: yup.string().required(),
+    })
+  })
+  .required()
+  .noUnknown();
+
 const rootLocalisationSchema = yup
   .object({
     country: {
@@ -216,6 +234,7 @@ const rootLocalisationSchema = yup
       })
       .required()
       .noUnknown(),
+    printMeasures: printMeasuresSchema,
     sync: yup
       .object({
         syncAllEncountersForTheseScheduledVaccines: yup.array(yup.string().required()).defined(),
