@@ -1,36 +1,35 @@
-import { createTestContext } from './utilities';
-import { AutomaticLabTestResultPublisher } from '../app/tasks/AutomaticLabTestResultPublisher';
 import { createDummyPatient } from 'shared/demoData/patients';
 import { LAB_REQUEST_STATUSES } from 'shared/constants';
+import { createTestContext } from './utilities';
+import { AutomaticLabTestResultPublisher } from '../app/tasks/AutomaticLabTestResultPublisher';
 
 const testConfig = {
-  "enabled": true,
-  "schedule": "0 0 0 0 0",
-  "results": {
-    "labTestType-RATPositive": {
-      "labTestMethodId": "labTestMethod-RAT",
-      "result": "Positive"
+  enabled: true,
+  schedule: '0 0 0 0 0',
+  results: {
+    'labTestType-RATPositive': {
+      labTestMethodId: 'labTestMethod-RAT',
+      result: 'Positive',
     },
-    "labTestType-RATNegative": {
-      "labTestMethodId": "labTestMethod-RAT",
-      "result": "Negative"
+    'labTestType-RATNegative': {
+      labTestMethodId: 'labTestMethod-RAT',
+      result: 'Negative',
     },
-    "labTestType-InvalidMethod": {
-      "labTestMethodId": "labTestMethod-Invalid",
-      "result": "Positive"
-    }
-  }
+    'labTestType-InvalidMethod': {
+      labTestMethodId: 'labTestMethod-Invalid',
+      result: 'Positive',
+    },
+  },
 };
 
 describe('Lab test publisher', () => {
-
   let ctx;
   let models;
   let publisher;
   let testCategory;
   let patient;
 
-  const makeLabRequest = async (testType) => {
+  const makeLabRequest = async testType => {
     const encounter = await models.Encounter.create({
       patientId: patient.id,
       startDate: new Date(),
@@ -39,7 +38,7 @@ describe('Lab test publisher', () => {
       encounterId: encounter.id,
       displayId: `${Math.random()}`,
     });
-    if (!await models.LabTestType.findByPk(testType)) {
+    if (!(await models.LabTestType.findByPk(testType))) {
       await models.LabTestType.create({
         id: testType,
         name: testType,
