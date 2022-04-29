@@ -25,7 +25,7 @@ labRequest.put(
     req.checkPermission('write', labRequest);
 
     await db.transaction(async () => {
-      if (labRequestData.status !== labRequest.status) {
+      if (labRequestData.status && labRequestData.status !== labRequest.status) {
         if (!userId) throw new InvalidOperationError('No user found for LabRequest status change.');
         await models.LabRequestLog.create({
           status: labRequestData.status,
