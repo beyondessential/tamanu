@@ -5,6 +5,8 @@ import { fake } from 'shared/test-helpers';
 import { ENCOUNTER_TYPES } from 'shared/constants';
 
 import { initDatabase, closeDatabase } from '../../database';
+import * as programData from './program.json';
+import { importProgram } from './program';
 
 const chance = new Chance();
 
@@ -92,6 +94,12 @@ export const generateFiji = async ({ patientCount }) => {
       );
       setupData.scheduleIds.push(scheduledVaccine.id);
     }
+
+    // surveys
+    const { program, survey, questions } = await importProgram(store.models, programData);
+    setupData.program = program;
+    setupData.survey = survey;
+    setupData.questions = questions;
   };
 
   const insertVaccination = async (patientId, scheduledVaccineId) => {
