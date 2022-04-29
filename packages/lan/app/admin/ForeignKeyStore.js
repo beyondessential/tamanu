@@ -88,7 +88,7 @@ export class ForeignKeyStore {
     const found = this.records.find(r => {
       if (
         r.recordType !== recordType ||
-        (r.recordType === 'referenceData' && r.data.type !== recordType)
+        (r.recordType === 'referenceData' && r.data.type === recordType)
       ) {
         return false;
       }
