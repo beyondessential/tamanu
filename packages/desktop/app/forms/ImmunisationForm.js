@@ -7,7 +7,6 @@ import * as yup from 'yup';
 import { INJECTION_SITE_OPTIONS } from 'shared/constants';
 import { OuterLabelFieldWrapper } from '../components/Field/OuterLabelFieldWrapper';
 import { ConfirmCancelRow } from '../components/ButtonRow';
-import { FormGrid } from '../components/FormGrid';
 import {
   Form,
   Field,
@@ -25,6 +24,17 @@ const VaccineScheduleOptions = [
   { value: 'Catchup', label: 'Catch-up' },
   { value: 'Campaign', label: 'Campaign' },
 ];
+
+const ThreeTwoGrid = styled.div`
+  display: grid;
+
+  margin-top: 0.3rem;
+  grid-column-gap: 0.7rem;
+  grid-row-gap: 1.2rem;
+
+  grid-template-columns: 3fr 2fr;
+  align-items: start;
+`;
 
 const ControlLabel = styled(FormControlLabel)`
   margin: 0;
@@ -140,7 +150,7 @@ export const ImmunisationForm = React.memo(
             .required(),
         })}
         render={({ submitForm }) => (
-          <FormGrid>
+          <ThreeTwoGrid>
             <FullWidthCol>
               <OuterLabelFieldWrapper label="Consent" style={{ marginBottom: '5px' }} required />
               <Field
@@ -164,27 +174,26 @@ export const ImmunisationForm = React.memo(
                 required
               />
             </FullWidthCol>
+            <Field
+              name="vaccineLabel"
+              label="Vaccine"
+              value={vaccineLabel}
+              component={SelectField}
+              options={vaccineOptions}
+              onChange={e => setVaccineLabel(e.target.value)}
+              required
+            />
+            <Field name="batch" label="Batch" component={TextField} />
             <FullWidthCol>
-              <Field
-                name="vaccineLabel"
-                label="Vaccine"
-                value={vaccineLabel}
-                component={SelectField}
-                options={vaccineOptions}
-                onChange={e => setVaccineLabel(e.target.value)}
-                required
-              />
-            </FullWidthCol>
-            {administeredOptions.length > 0 && (
-              <div>
-                <OuterLabelFieldWrapper label="Administered schedule" />
-                {administeredOptions.map(option => (
-                  <AdministeredVaccineSchedule option={option} />
-                ))}
-              </div>
-            )}
-            {scheduleOptions.length > 0 && (
-              <FullWidthCol>
+              {administeredOptions.length > 0 && (
+                <div>
+                  <OuterLabelFieldWrapper label="Administered schedule" />
+                  {administeredOptions.map(option => (
+                    <AdministeredVaccineSchedule option={option} />
+                  ))}
+                </div>
+              )}
+              {scheduleOptions.length > 0 && (
                 <Field
                   name="scheduledVaccineId"
                   label="Available schedule"
@@ -193,8 +202,9 @@ export const ImmunisationForm = React.memo(
                   options={scheduleOptions}
                   required
                 />
-              </FullWidthCol>
-            )}
+              )}
+            </FullWidthCol>
+
             <Field name="date" label="Date" component={DateField} required />
             <Field
               name="examinerId"
@@ -226,13 +236,23 @@ export const ImmunisationForm = React.memo(
               component={AutocompleteField}
               suggester={departmentSuggester}
             />
-            <Field name="batch" label="Batch" component={TextField} />
+            <Field
+              disabled
+              name="recorderId"
+              label="Recorded By"
+              component={SelectField}
+              options={[{
+                label: 'User Name',
+                value: '123',
+              }]}
+              value="123"
+            />
             <ConfirmCancelRow
               onConfirm={submitForm}
               confirmDisabled={scheduleOptions.length === 0}
               onCancel={onCancel}
             />
-          </FormGrid>
+          </ThreeTwoGrid>
         )}
       />
     );
