@@ -1,4 +1,5 @@
 import React, { useMemo, useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -7,6 +8,7 @@ import * as yup from 'yup';
 import { INJECTION_SITE_OPTIONS } from 'shared/constants';
 import { OuterLabelFieldWrapper } from '../components/Field/OuterLabelFieldWrapper';
 import { ConfirmCancelRow } from '../components/ButtonRow';
+import { getCurrentUser } from '../store/auth';
 import {
   Form,
   Field,
@@ -116,6 +118,8 @@ export const ImmunisationForm = React.memo(
       () => findVaccinesByAdministeredStatus(selectedVaccine, false),
       [selectedVaccine],
     );
+
+    const currentUser = useSelector(getCurrentUser);
 
     useEffect(() => {
       const fetchScheduledVaccines = async () => {
@@ -241,11 +245,13 @@ export const ImmunisationForm = React.memo(
               name="recorderId"
               label="Recorded By"
               component={SelectField}
-              options={[{
-                label: 'User Name',
-                value: '123',
-              }]}
-              value="123"
+              options={[
+                {
+                  label: currentUser.displayName,
+                  value: currentUser.id,
+                },
+              ]}
+              value={currentUser.id}
             />
             <ConfirmCancelRow
               onConfirm={submitForm}
