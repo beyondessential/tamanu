@@ -124,6 +124,7 @@ patientVaccineRoutes.post(
         patientId: req.params.id,
         locationId: req.body.locationId,
         examinerId: req.body.examinerId,
+        recorderId: req.body.recorderId,
         departmentId: req.body.departmentId,
       });
       encounterId = newEncounter.get('id');
