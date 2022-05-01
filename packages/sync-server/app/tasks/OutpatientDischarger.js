@@ -43,7 +43,7 @@ export class OutpatientDischarger extends ScheduledTask {
       return;
     }
 
-    const { batchSize, batchSleepAsyncDurationInMilliseconds } = this.config.batchSize;
+    const { batchSize, batchSleepAsyncDurationInMilliseconds } = this.config;
     const batchCount = Math.ceil(oldEncountersCount / batchSize);
 
     log.info(
