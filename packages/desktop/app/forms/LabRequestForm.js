@@ -28,6 +28,7 @@ import { Button } from '../components/Button';
 import { ButtonRow } from '../components/ButtonRow';
 import { DateDisplay } from '../components/DateDisplay';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
+import { DropdownButton } from '../components/DropdownButton';
 
 function getEncounterTypeLabel(type) {
   return encounterOptions.find(x => x.value === type).label;
@@ -118,12 +119,14 @@ export class LabRequestForm extends React.PureComponent {
           <Button variant="contained" onClick={onCancel}>
             Cancel
           </Button>
-          <Button variant="contained" onClick={submitForm} color="primary">
-            Finalise and print
-          </Button>
-          <Button variant="contained" onClick={submitForm} color="primary">
-            Finalise and close
-          </Button>
+          <DropdownButton
+            color="primary"
+            variant="contained"
+            actions={[
+              { label: 'Finalise', onClick: submitForm },
+              { label: 'Finalise & print', onClick: submitForm },
+            ]}
+          />
         </ButtonRow>
       </FormGrid>
     );
