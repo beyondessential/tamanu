@@ -42,7 +42,9 @@ export const Appointment = ({ appointment, onUpdated }) => {
       disableFocusListener
       disableTouchListener
       interactive
-      title={<AppointmentDetail appointment={appointment} onUpdated={onUpdated} />}
+      title={
+        <AppointmentDetail appointment={appointment} onUpdated={onUpdated} onClose={closeDetail} />
+      }
     >
       <StyledAppointment
         className={`status-${status}`}

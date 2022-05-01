@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { format } from 'date-fns';
 import Select from 'react-select';
+import CloseIcon from '@material-ui/icons/Close';
+import { IconButton } from '@material-ui/core';
 import { APPOINTMENT_STATUSES } from 'shared/constants';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { InvertedDisplayIdLabel } from '../DisplayIdLabel';
@@ -147,7 +149,12 @@ const FirstRow = styled(Section)`
   column-gap: 2rem;
 `;
 
-export const AppointmentDetail = ({ appointment, onUpdated }) => {
+const CloseButtonSection = styled.div`
+  display: flex;
+  justify-content: flex-end;
+`;
+
+export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
   const api = useApi();
   const { id, type, status, clinician, patient, location } = appointment;
   const [statusOption, setStatusOption] = useState(
