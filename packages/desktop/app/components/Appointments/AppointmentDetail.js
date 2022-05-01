@@ -132,7 +132,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   row-gap: 0.5rem;
-  padding: 1rem 0;
+  padding: 0.2rem 0 1rem;
 `;
 
 const Section = styled.div`
@@ -152,6 +152,10 @@ const FirstRow = styled(Section)`
 const CloseButtonSection = styled.div`
   display: flex;
   justify-content: flex-end;
+`;
+
+const StyledIconButton = styled(IconButton)`
+  padding: 0;
 `;
 
 export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
@@ -177,6 +181,11 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
   };
   return (
     <Container>
+      <CloseButtonSection>
+        <StyledIconButton onClick={onClose}>
+          <CloseIcon />
+        </StyledIconButton>
+      </CloseButtonSection>
       {errorMessage && <Section>{errorMessage}</Section>}
       <FirstRow>
         <div>
