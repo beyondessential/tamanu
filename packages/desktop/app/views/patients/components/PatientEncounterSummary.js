@@ -3,7 +3,7 @@ import styled, { css } from 'styled-components';
 import { ENCOUNTER_TYPES } from 'shared/constants';
 import { Box, Typography } from '@material-ui/core';
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
-import { DateDisplay, LargeButton, Button } from '../../../components';
+import { DateDisplay, LargeButton, DeathCertificateModal } from '../../../components';
 import { useApi } from '../../../api';
 
 const PATIENT_STATUS = {
@@ -138,9 +138,7 @@ const PatientDeathSummary = React.memo(({ patient }) => {
       <Header patientStatus={PATIENT_STATUS.DECEASED}>
         <Box display="flex" justifyContent="space-between" alignItems="center" flex="1">
           <BoldTitle variant="h3">Deceased</BoldTitle>
-          <Button variant="contained" color="primary" disabled>
-            View death certificate
-          </Button>
+          <DeathCertificateModal patient={patient} deathData={deathData} />
         </Box>
       </Header>
       <Content>
