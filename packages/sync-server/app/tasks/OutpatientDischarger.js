@@ -44,6 +44,13 @@ export class OutpatientDischarger extends ScheduledTask {
     }
 
     const { batchSize, batchSleepAsyncDurationInMilliseconds } = this.config;
+
+    // Make sure these exist, else they will prevent the script from working
+    if (!batchSize || !batchSleepAsyncDurationInMilliseconds) {
+      log.error('Stopping the OutpatientDischarger because it is missing the config.');
+      return;
+    }
+
     const batchCount = Math.ceil(oldEncountersCount / batchSize);
 
     log.info(
