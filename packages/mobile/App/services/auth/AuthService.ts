@@ -8,6 +8,7 @@ import { readConfig, writeConfig } from '~/services/config';
 import {
   AuthenticationError,
   invalidUserCredentialsMessage,
+  OutdatedVersionError,
 } from './error';
 import {ResetPasswordFormModel} from "/interfaces/forms/ResetPasswordFormProps";
 import {ChangePasswordFormModel} from "/interfaces/forms/ChangePasswordFormProps";
@@ -23,7 +24,7 @@ export class AuthService {
     this.models = models;
     this.syncSource = syncSource;
     this.syncSource.emitter.on('error', (err) => {
-      if (err instanceof AuthenticationError) {
+      if (err instanceof AuthenticationError || err instanceof OutdatedVersionError) {
         this.emitter.emit('authError', err);
       }
     });
