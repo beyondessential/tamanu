@@ -14,7 +14,7 @@ export class InvalidCredentialsError extends Error {
 
 export class OutdatedVersionError extends Error {
   updateUrl: string;
-  constructor(updateUrl) {
+  constructor(updateUrl: string) {
     super('Your Tamanu mobile app is out of date. Please download and install the latest version to continue using Tamanu.');
     this.updateUrl = updateUrl;
   }
