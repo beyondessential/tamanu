@@ -29,8 +29,8 @@ describe('Lab request logs', () => {
     expect(response).toHaveRequestError();
 
     // Errored request should not have updated status
-    const log = await models.LabRequest.findByPk(requestId);
-    expect(log).toHaveProperty('status', LAB_REQUEST_STATUSES.RECEPTION_PENDING);
+    const labRequest = await models.LabRequest.findByPk(requestId);
+    expect(labRequest).toHaveProperty('status', LAB_REQUEST_STATUSES.RECEPTION_PENDING);
   });
 
   it('should create a lab request log when updating a labs status', async () => {
