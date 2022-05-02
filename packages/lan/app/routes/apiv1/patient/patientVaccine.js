@@ -104,36 +104,21 @@ patientVaccineRoutes.post(
       res.status(400).send({ error: { message: 'scheduledVaccineId is required' } });
     }
 
-    let encounterId;
-    const existingEncounter = await req.models.Encounter.findOne({
-      where: {
-        endDate: {
-          [Op.is]: null,
-        },
-        patientId: req.params.id,
-      },
+    const encounter = await req.models.Encounter.create({
+      encounterType: ENCOUNTER_TYPES.CLINIC,
+      startDate: req.body.date,
+      endDate: req.body.date,
+      patientId: req.params.id,
+      locationId: req.body.locationId,
+      examinerId: req.body.examinerId,
+      recorderId: req.body.recorderId,
+      departmentId: req.body.departmentId,
     });
-
-    if (existingEncounter) {
-      encounterId = existingEncounter.get('id');
-    } else {
-      const newEncounter = await req.models.Encounter.create({
-        encounterType: ENCOUNTER_TYPES.CLINIC,
-        startDate: req.body.date,
-        endDate: req.body.date,
-        patientId: req.params.id,
-        locationId: req.body.locationId,
-        examinerId: req.body.examinerId,
-        recorderId: req.body.recorderId,
-        departmentId: req.body.departmentId,
-      });
-      encounterId = newEncounter.get('id');
-    }
 
     const newRecord = await req.models.AdministeredVaccine.create({
       status: 'GIVEN',
       ...req.body,
-      encounterId,
+      encounterId: encounter.id,
     });
     res.send(newRecord);
   }),
