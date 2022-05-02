@@ -1,6 +1,19 @@
-```
+import { generateReportFromQueryData } from './utilities';
 
+const PATIENT_FIELDS = ['Patient ID', 'First name', 'Last name', 'Date of birth', 'Age', 'Sex'];
 
+const getReportColumnTemplate = surveyFields => [
+  ...PATIENT_FIELDS.map(field => ({
+    title: field,
+    accessor: data => data[field],
+  })),
+  ...surveyFields.map(field => ({
+    title: field,
+    accessor: data[field],
+  })),
+];
+
+const sql = `
 with 
 	responses_with_answers as (
 		select
@@ -33,6 +46,35 @@ left join reference_data rd on rd.id = p.village_id
 join surveys s on s.id = sr.survey_id
 where sr.survey_id  = 'program-samoancdscreening-sampenkapsur' 
 and sr.deleted_at is null
--- and p.deleted_at is null
 and p.display_id != 'QCJL976947'
-```;
+`;
+
+const getData = async (sequelize, parameters) => {
+  const { fromDate, toDate, patientBillingType, department, location } = parameters;
+
+  return sequelize.query(query, {
+    type: sequelize.QueryTypes.SELECT,
+    replacements: {
+      from_date: fromDate ?? null,
+      to_date: toDate ?? null,
+      billing_type: patientBillingType ?? null,
+      department_id: department ?? null,
+      location_id: location ?? null,
+    },
+  });
+};
+
+export const dataGenerator = async ({ sequelize, models }, parameters = {}) => {
+  const { surveyId } = parameters;
+
+  if (!surveyId) throw new Error('parameter "survey" must be supplied');
+
+  const survey = models.Survey.findByPk;
+
+  const results = await getData(sequelize, parameters);
+
+  const reportColumnTemplate = getReportColumnTemplate();
+  return generateReportFromQueryData(results);
+};
+
+export const permission = 'Encounter';
