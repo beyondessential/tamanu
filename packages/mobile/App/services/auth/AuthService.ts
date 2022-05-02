@@ -10,8 +10,8 @@ import {
   invalidUserCredentialsMessage,
   OutdatedVersionError,
 } from './error';
-import {ResetPasswordFormModel} from "/interfaces/forms/ResetPasswordFormProps";
-import {ChangePasswordFormModel} from "/interfaces/forms/ChangePasswordFormProps";
+import { ResetPasswordFormModel } from "/interfaces/forms/ResetPasswordFormProps";
+import { ChangePasswordFormModel } from "/interfaces/forms/ChangePasswordFormProps";
 
 export class AuthService {
   models: typeof MODELS_MAP;
