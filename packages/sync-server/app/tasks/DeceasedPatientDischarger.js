@@ -18,15 +18,19 @@ export class DeceasedPatientDischarger extends ScheduledTask {
   }
 
   async run() {
-    const { Encounter } = this.models;
+    const { Encounter, Patient } = this.models;
 
     const query = {
       where: {
         endDate: null,
-        patient: {
-          dateOfDeath: { [Op.not]: null },
-        },
+        '$patient.date_of_death$': { [Op.not]: null },
       },
+      include: [
+        {
+          model: Patient,
+          as: 'patient',
+        },
+      ],
     };
 
     const toProcess = await Encounter.count(query);
