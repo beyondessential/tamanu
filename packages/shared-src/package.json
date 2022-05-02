@@ -10,7 +10,7 @@
   "scripts": {
     "clean": "rm -rf ../shared",
     "prepare": "mkdir -p ../shared && cp -n shared.package.json ../shared/package.json || true",
-    "compile": "yarn run prepare && yarn run babel --root-mode upward --out-dir ../shared src",
+    "compile": "yarn run prepare && yarn run babel --extensions '.js,.ts,.tsx' --root-mode upward --out-dir ../shared src",
     "build": "yarn run clean && yarn run compile",
     "build-watch": "yarn run compile --watch",
     "test": "NODE_ENV=test jest",
@@ -23,6 +23,7 @@
     "@babel/cli": "^7.8.4",
     "@babel/core": "^7.9.6",
     "@babel/preset-env": "^7.3.4",
+    "@babel/preset-typescript": "^7.16.7",
     "@beyondessential/eslint-config-js": "^1.1.0",
     "babel-jest": "^27.5.1",
     "eslint": "^5.15.2",
