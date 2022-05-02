@@ -17,6 +17,7 @@ export class RequestQueueTimeoutError extends BaseError {}
 export class RequestQueueExceededError extends BaseError {}
 export class InsufficientStorageError extends BaseError {}
 export class InvalidClientHeadersError extends BaseError {}
+export class InvalidConfigError extends BaseError {}
 
 export function getCodeForErrorName(name) {
   switch (name) {
