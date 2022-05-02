@@ -76,7 +76,7 @@ describe('Admissions report', () => {
       const baseEncounterData = {
         encounterType: ENCOUNTER_TYPES.ADMISSION,
         startDate: new Date(2021, 1, 20, 9, 7, 26), // Months are 0 indexed so this is Feburary
-        endDate: new Date(2021, 1, 21, 1, 0), // Months are 0 indexed so this is Feburary
+        endDate: new Date(2021, 1, 21, 1, 0, 11, 3, 7), // Months are 0 indexed so this is Feburary
         patientId: expectedPatient.dataValues.id,
         locationId: expectedLocation.id,
         departmentId: expectedDepartment1.id,
@@ -181,7 +181,7 @@ describe('Admissions report', () => {
           'Patient Type': 'Charity',
           'Admitting Doctor/Nurse': expectedExaminer.displayName,
           'Admission Date': '20/02/2021 9:07:26 AM',
-          'Discharge Date': '21/02/2021',
+          'Discharge Date': '21/02/2021 11:03:07 AM',
           Location: 'Clinic (Location assigned: 20/02/21 9:07 AM)',
           Department:
             'Radiology (Department assigned: 20/02/21 9:07 AM); Cardiology (Department assigned: 20/02/21 11:10 AM)',
