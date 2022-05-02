@@ -27,6 +27,10 @@ describe('Lab request logs', () => {
     const status = LAB_REQUEST_STATUSES.TO_BE_VERIFIED;
     const response = await app.put(`/v1/labRequest/${requestId}`).send({ status });
     expect(response).toHaveRequestError();
+
+    // Errored request should not have updated status
+    const labRequest = await models.LabRequest.findByPk(requestId);
+    expect(labRequest).toHaveProperty('status', LAB_REQUEST_STATUSES.RECEPTION_PENDING);
   });
 
   it('should create a lab request log when updating a labs status', async () => {
