@@ -11,11 +11,8 @@ module.exports = {
     ...baseConfig.plugins,
     new NodemonPlugin({
       delay: 500,
-      watch: [
-        './dist',
-        './config',
-        '../shared',
-      ],
+      watch: ['./dist', './config', '../shared'],
+      args: process.env.TAMANU_ARGS ? process.env.TAMANU_ARGS.split(' ') : null,
     }),
   ],
 };
