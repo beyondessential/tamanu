@@ -34,7 +34,7 @@ export const ModalInfo = ({
       <Button
         backgroundColor="green"
         onPress={onFollowPrompt}
-        textColor={theme.colors.TEXT_SOFT}
+        textColor={theme.colors.WHITE}
         buttonText={buttonPrompt}
         marginTop={5}
       />
