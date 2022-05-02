@@ -81,8 +81,13 @@ export class PatientDeathData extends Model {
       constraints: false,
     });
     this.belongsTo(models.DeathCause, {
-      foreignKey: 'secondaryCauseId',
-      as: 'secondaryCause',
+      foreignKey: 'antecedentCause1Id',
+      as: 'antecedentCause1',
+      constraints: false,
+    });
+    this.belongsTo(models.DeathCause, {
+      foreignKey: 'antecedentCause2Id',
+      as: 'antecedentCause2',
       constraints: false,
     });
     this.belongsTo(models.ReferenceData, {
