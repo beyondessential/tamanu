@@ -5,6 +5,7 @@ import { createDummyPatient, createDummyPatientAdditionalData } from 'shared/dem
 import { CovidLabCertificate, VaccineCertificate } from 'shared/utils/patientCertificates';
 import { PDFViewer } from '@react-pdf/renderer';
 import { DeathCertificate } from '../app/components/PatientPrinting/DeathCertificate';
+import { LabRequestPrintout } from '../app/components/PatientPrinting/LabRequestPrintout';
 import SigningImage from './assets/signing-image.png';
 import Watermark from './assets/watermark.png';
 import Logo from './assets/tamanu-logo.png';
@@ -79,6 +80,11 @@ const getLocalisation = key => {
     'templates.letterhead.subTitle': 'PO Box 12345, Melbourne, Australia',
     'templates.vaccineCertificate.emailAddress': 'tamanu@health.govt',
     'templates.vaccineCertificate.contactNumber': '123456',
+
+    'fields.firstName.longLabel': 'First Name',
+    'fields.lastName.longLabel': 'Last Name',
+    'fields.dateOfBirth.longLabel': 'Date of Birth',
+    'fields.sex.longLabel': 'Sex',
   };
   return config[key];
 };
@@ -99,7 +105,11 @@ storiesOf('Certificates', module).add('DeathCertificate', () => {
   return (
     <Modal title="Record patient death" open width="md">
       <DeathCertificate
-        patientData={{ ...patient, timeOfDeath: new Date(), causes: { primary: { condition: { name: 'Diabetes' }}}}}
+        patientData={{
+          ...patient,
+          timeOfDeath: new Date(),
+          causes: { primary: { condition: { name: 'Diabetes' } } },
+        }}
         certificateData={certificateData}
       />
     </Modal>
@@ -213,5 +223,21 @@ storiesOf('Certificates', module).add('VaccineCertificate', () => {
         getLocalisation={getLocalisation}
       />
     </PDFViewer>
+  );
+});
+
+storiesOf('Certificates', module).add('LabRequestPrintout', () => {
+  return (
+    <Modal title="Record patient death" open width="md">
+      <LabRequestPrintout
+        labRequestData={{ displayId: 'ASDF123', requestedDate: '10/10/10' }}
+        patientData={{
+          ...patient,
+          timeOfDeath: new Date(),
+          causes: { primary: { condition: { name: 'Diabetes' } } },
+        }}
+        certificateData={certificateData}
+      />
+    </Modal>
   );
 });

@@ -32,6 +32,9 @@ import { LabRequestAuditPane } from '../../components/LabRequestAuditPane';
 import { useLabRequest } from '../../contexts/LabRequest';
 import { useApi, useSuggester } from '../../api';
 
+import { LabRequestPrintout } from '../../components/PatientPrinting/LabRequestPrintout';
+import { useCertificate } from '../../utils/useCertificate';
+
 const makeRangeStringAccessor = sex => ({ labTestType }) => {
   const max = sex === 'male' ? labTestType.maleMax : labTestType.femaleMax;
   const min = sex === 'male' ? labTestType.maleMin : labTestType.femaleMin;
@@ -224,6 +227,29 @@ const DeleteRequestButton = ({ labRequestId, updateLabReq }) => {
   );
 };
 
+const PrintRequestButton = ({ labRequest, patient }) => {
+  const [isModalOpen, setModalOpen] = useState(false);
+  const openModal = useCallback(() => setModalOpen(true), []);
+  const closeModal = useCallback(() => setModalOpen(false), []);
+
+  const certificateData = useCertificate();
+
+  return (
+    <>
+      <Button variant="outlined" onClick={openModal} style={{ marginRight: '0.5rem' }}>
+        Print Lab Request
+      </Button>
+      <Modal title="Lab Request" open={isModalOpen} onClose={closeModal} width="md" printable>
+        <LabRequestPrintout
+          labRequestData={labRequest}
+          patientData={patient}
+          certificateData={certificateData}
+        />
+      </Modal>
+    </>
+  );
+};
+
 const LabRequestInfoPane = ({ labRequest }) => (
   <FormGrid columns={3}>
     <TextInput value={labRequest.displayId} label="Request ID" />
@@ -253,7 +279,9 @@ export const DumbLabRequestView = React.memo(({ patient }) => {
       <div>
         <TopBar title="Lab request">
           <div>
+            {/* TODO: Put these into a DropdownButton */}
             <DeleteRequestButton labRequestId={labRequest.id} updateLabReq={updateLabReq} />
+            <PrintRequestButton labRequest={labRequest} patient={patient} />
             <ChangeLabStatusButton status={labRequest.status} updateLabReq={updateLabReq} />
             <ChangeLaboratoryButton
               laboratory={labRequest.laboratory}
