@@ -76,7 +76,7 @@ describe('Admissions report', () => {
       const baseEncounterData = {
         encounterType: ENCOUNTER_TYPES.ADMISSION,
         startDate: new Date(2021, 1, 20, 9, 7, 26), // Months are 0 indexed so this is Feburary
-        endDate: new Date(2021, 1, 21, 1, 0, 11, 3, 7), // Months are 0 indexed so this is Feburary
+        endDate: new Date(2021, 1, 21, 11, 3, 7), // Months are 0 indexed so this is Feburary
         patientId: expectedPatient.dataValues.id,
         locationId: expectedLocation.id,
         departmentId: expectedDepartment1.id,
