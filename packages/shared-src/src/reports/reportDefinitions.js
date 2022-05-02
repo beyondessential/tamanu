@@ -308,4 +308,9 @@ export const REPORT_DEFINITIONS = [
       },
     ],
   },
+  {
+    name: 'Generic Survey Export - Line List',
+    id: 'generic-survey-export-line-list',
+    parameters: [],
+  },
 ];
