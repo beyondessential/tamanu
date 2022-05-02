@@ -65,7 +65,8 @@ export class DeceasedPatientDischarger extends ScheduledTask {
           continue;
         }
 
-        const patientDeathData = await patient.getPatientDeathData();
+        const [patientDeathData] = await patient.getDeathData();
+
         if (!patientDeathData) {
           log.warn(`Deceased patient ${patient.id} has no death data! Skipping...`);
           continue;
