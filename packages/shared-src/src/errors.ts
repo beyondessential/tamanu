@@ -1,5 +1,5 @@
 class BaseError extends Error {
-  constructor(message) {
+  constructor(message?: string) {
     super(message);
     this.name = this.constructor.name;
   }
@@ -19,7 +19,7 @@ export class InsufficientStorageError extends BaseError {}
 export class InvalidClientHeadersError extends BaseError {}
 export class InvalidConfigError extends BaseError {}
 
-export function getCodeForErrorName(name) {
+export function getCodeForErrorName(name: string): number {
   switch (name) {
     case 'InvalidClientHeadersError':
       return 400;
