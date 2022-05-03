@@ -2,7 +2,7 @@ import * as yup from 'yup';
 import config from 'config';
 import { isArray } from 'lodash';
 
-import { decodeIdentifier } from './conversion';
+import { decodeIdentifier } from './utils';
 
 export const IDENTIFIER_NAMESPACE = config.hl7.dataDictionaries.patientDisplayId;
 const MAX_RECORDS = 20;
