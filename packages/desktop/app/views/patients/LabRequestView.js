@@ -171,8 +171,6 @@ const ChangeLaboratoryModal = ({ laboratory, updateLabReq, open, onClose }) => {
 
 const DeleteRequestModal = ({ labRequestId, updateLabReq, open, onClose }) => {
   const dispatch = useDispatch();
-  const api = useApi();
-  const [hasTests, setHasTests] = useState(true); // default to true to hide delete button at first
   const deleteLabRequest = useCallback(async () => {
     await updateLabReq({
       status: 'deleted',
@@ -181,19 +179,6 @@ const DeleteRequestModal = ({ labRequestId, updateLabReq, open, onClose }) => {
     dispatch(push('/patients/encounter'));
   }, [updateLabReq, onClose, dispatch]);
 
-  // show delete button if no test has results
-  useEffect(() => {
-    (async () => {
-      const { data: tests } = await api.get(`/labRequest/${labRequestId}/tests`);
-      const testsWithResults = tests.filter(t => t.result);
-      if (!testsWithResults.length) {
-        setHasTests(false);
-      }
-    })();
-  }, [api, labRequestId, setHasTests]);
-  if (hasTests) {
-    return null;
-  }
   return (
     <>
       <ConfirmModal
@@ -232,12 +217,29 @@ const LabRequestActionDropdown = ({ labRequest, patient, updateLabReq }) => {
   const [labModalOpen, setLabModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
+  const api = useApi();
+  const [hasTests, setHasTests] = useState(true); // default to true to hide delete button at first
+
+  // show delete button if no test has results
+  useEffect(() => {
+    (async () => {
+      const { data: tests } = await api.get(`/labRequest/${labRequest.id}/tests`);
+      const testsWithResults = tests.filter(t => t.result);
+      if (!testsWithResults.length) {
+        setHasTests(false);
+      }
+    })();
+  }, [api, labRequest, setHasTests]);
+
   const actions = [
     { label: 'Change status', onClick: () => setStatusModalOpen(true) },
     { label: 'Print lab request', onClick: () => setPrintModalOpen(true) },
     { label: 'Change laboratory', onClick: () => setLabModalOpen(true) },
-    { label: 'Delete', onClick: () => setDeleteModalOpen(true) },
   ];
+
+  if (!hasTests) {
+    actions.push({ label: 'Delete', onClick: () => setDeleteModalOpen(true) });
+  }
 
   return (
     <>

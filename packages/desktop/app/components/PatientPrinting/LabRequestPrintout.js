@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { Typography, Box } from '@material-ui/core';
@@ -9,6 +9,7 @@ import { DateDisplay } from '../DateDisplay';
 import { PatientBarcode } from './PatientBarcode';
 
 import { GridTable } from './GridTable';
+import { useApi } from '../../api';
 
 const Text = styled(Typography)`
   font-size: 14px;
@@ -19,22 +20,56 @@ const RowContainer = styled.div`
   justify-content: space-between;
 `;
 
-const getTableData = labRequestData => ({
-  'Request number': labRequestData.displayId,
-  'Order date': labRequestData.requestedDate,
-  Facility: labRequestData.labTestLaboratoryId,
-  Department: '',
-  'Requested by': '',
-  'Sample time': '',
-  Priority: '',
-  'Test type': '',
-  'Test requested': '',
-});
+const LabRequestTable = ({ labRequestData }) => {
+  const api = useApi();
+  const [tests, setTests] = useState([]);
+  const {
+    displayId,
+    requestedDate,
+    sampleTime,
+    laboratory,
+    requestedBy,
+    priority,
+    category,
+  } = labRequestData;
+
+  useEffect(() => {
+    (async () => {
+      const res = await api.get(`labRequest/${labRequestData.id}/tests`);
+      setTests(res.data);
+    })();
+  }, [api, labRequestData.id]);
+
+  return (
+    <GridTable
+      data={{
+        'Request number': displayId,
+        'Order date': requestedDate,
+        Facility: laboratory?.name,
+        Department: '',
+        'Requested by': requestedBy?.displayName,
+        'Sample time': sampleTime,
+        Priority: priority?.name,
+        'Test type': category?.name,
+        'Test requested': tests.map(test => test.labTestType?.name).join(', '),
+      }}
+    />
+  );
+};
 
 export const LabRequestPrintout = React.memo(({ labRequestData, patientData, certificateData }) => {
+  const api = useApi();
+  const [notes, setNotes] = useState([]);
   const { firstName, lastName, dateOfBirth, sex } = patientData;
   const { title, subTitle, logo } = certificateData;
-  const tableData = getTableData(labRequestData);
+
+  useEffect(() => {
+    (async () => {
+      const res = await api.get(`labRequest/${labRequestData.id}/notes`);
+      setNotes(res.data);
+    })();
+  }, [api, labRequestData.id]);
+
   return (
     <CertificateWrapper>
       {/* TODO: Right align header text */}
@@ -50,9 +85,11 @@ export const LabRequestPrintout = React.memo(({ labRequestData, patientData, cer
         </div>
         <PatientBarcode patient={patientData} />
       </RowContainer>
-      <GridTable data={tableData} />
+      <LabRequestTable labRequestData={labRequestData} />
       <Text>Notes:</Text>
-      <Box border={1} height={75} />
+      <Box border={1} height={75}>
+        {notes.map(note => note.content)}
+      </Box>
     </CertificateWrapper>
   );
 });
