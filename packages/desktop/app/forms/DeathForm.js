@@ -83,8 +83,8 @@ const BaseConfirmScreen = ({
 const ConfirmScreen = ({ onStepBack, submitForm, onCancel }) => (
   <BaseConfirmScreen
     heading="Confirm death record"
-    text="This action is irreversible. This should only be done under
-      the direction of the responsible clinician. Do you wish to proceed?"
+    text="This action is irreversible. This should only be done under the direction
+      of the responsible clinician. Do you wish to record the death of this patient?"
     continueButtonText="Record death"
     onStepBack={onStepBack}
     onContinue={submitForm}
