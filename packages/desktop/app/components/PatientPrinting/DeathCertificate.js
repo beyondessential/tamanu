@@ -117,23 +117,22 @@ export const DeathCertificate = React.memo(({ patientData, certificateData }) =>
       />
       <Grid mb={2}>
         <LocalisedLabel name="firstName">{firstName}</LocalisedLabel>
-        <LocalisedLabel name="lastName">{lastName}</LocalisedLabel>
-        <Label name="DOB">
-          <DateDisplay date={dateOfBirth} showDate={false} showExplicitDate />
-        </Label>
-        <LocalisedLabel name="sex">{sex}</LocalisedLabel>
         <Label name="Date of death">
           <DateDisplay date={dateOfDeath} showDate={false} showExplicitDate />
         </Label>
-        <Label name="Place of death">{facility?.name}</Label>
+        <LocalisedLabel name="lastName">{lastName}</LocalisedLabel>
         <Label name="Time of death">
           <DateDisplay date={dateOfDeath} showDate={false} showTime />
         </Label>
-        <Label name="Cause of death">{causeOfDeath}</Label>
-        <Label name="Printed by">{printedBy}</Label>
+        <Label name="DOB">
+          <DateDisplay date={dateOfBirth} showDate={false} showExplicitDate />
+        </Label>
         <Label name="Date of printing">
           <DateDisplay date={dateOfPrinting} showDate={false} showExplicitDate />
         </Label>
+        <LocalisedLabel name="sex">{sex}</LocalisedLabel>
+        <Label name="Printed by">{printedBy}</Label>
+        <Label name="Place of death">{facility?.name}</Label>
       </Grid>
       <Box border={1}>
         <Grid px={3} py={2}>
