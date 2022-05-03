@@ -13,7 +13,7 @@ import { log } from './logging';
 
 import { migrate, assertUpToDate } from './migrations';
 import * as models from '../models';
-import { initSyncClientModeHooks } from '../models/sync';
+import { initSyncHooks } from '../models/sync';
 
 // this allows us to use transaction callbacks without manually managing a transaction handle
 // https://sequelize.org/master/manual/transactions.html#automatically-pass-transactions-to-all-queries
@@ -169,9 +169,7 @@ export async function initDatabase(dbOptions) {
   });
 
   // init global sync hooks that live in shared-src
-  if (syncClientMode) {
-    initSyncClientModeHooks(models);
-  }
+  initSyncHooks(models);
 
   // router to convert channelRoutes (e.g. `[patient/:patientId/issue]`) to a model + params
   // (e.g. PatientIssue + { patientId: 'abc123', route: '...' })
