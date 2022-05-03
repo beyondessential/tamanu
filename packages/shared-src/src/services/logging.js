@@ -68,7 +68,7 @@ export const log = winston.createLogger({
 
 // Middleware for logging http requests
 function getStatusColor(status) {
-  switch (status[0]) {
+  switch (status && status[0]) {
     case '5':
       return COLORS.red;
     case '4':
