@@ -178,8 +178,14 @@ export const DeathForm = React.memo(
         SummaryScreen={patient.currentEncounter ? DoubleConfirmScreen : ConfirmScreen}
         validationSchema={yup.object().shape({
           causeOfDeath: yup.string().required(),
-          causeOfDeathInterval: yup.string().required(),
-          clinicianId: yup.string().required(),
+          causeOfDeathInterval: yup
+            .string()
+            .required()
+            .label('Time between onset and death'),
+          clinicianId: yup
+            .string()
+            .required()
+            .label('Attending clinician'),
           lastSurgeryDate: yup
             .date()
             .max(yup.ref('timeOfDeath'), "Date of last surgery can't be after time of death"),
