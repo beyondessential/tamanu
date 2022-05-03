@@ -144,7 +144,7 @@ export function patientHandler() {
 }
 
 export function diagnosticReportHandler() {
-  asyncHandler(async (req, res) => {
+  return asyncHandler(async (req, res) => {
     const payload = await getHL7Payload({
       req,
       querySchema: schema.diagnosticReport.query,
