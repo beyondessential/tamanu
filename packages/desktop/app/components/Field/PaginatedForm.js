@@ -143,7 +143,7 @@ export const PaginatedForm = ({
     <Form
       onSubmit={onSubmitForm}
       validationSchema={validationSchema}
-      render={({ submitForm, values }) => {
+      render={({ submitForm, values, setValues }) => {
         if (screenIndex <= maxIndex) {
           const screenComponent = formScreens.find((screen, i) =>
             i === screenIndex ? screen : null,
@@ -167,8 +167,24 @@ export const PaginatedForm = ({
           );
         }
 
+        const submitVisibleValues = event => {
+          const visibleFields = getVisibleQuestions(
+            formScreens.map(s => React.Children.toArray(s.props.children)).flat(),
+            values,
+          ).map(q => q.props.name);
+          const visibleValues = Object.fromEntries(
+            Object.entries(values).filter(key => visibleFields.includes(key)),
+          );
+          setValues(visibleValues);
+          submitForm(event);
+        };
+
         return (
-          <SummaryScreen onStepBack={onStepBack} submitForm={submitForm} onCancel={onCancel} />
+          <SummaryScreen
+            onStepBack={onStepBack}
+            submitForm={submitVisibleValues}
+            onCancel={onCancel}
+          />
         );
       }}
     />
