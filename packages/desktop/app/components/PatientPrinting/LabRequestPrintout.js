@@ -20,6 +20,15 @@ const RowContainer = styled.div`
   justify-content: space-between;
 `;
 
+const NotesBox = styled(Box)`
+  padding-left: 0.5rem;
+  padding-top: 0.5rem;
+  border: 1px solid black;
+  height: 75px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+`;
+
 const LabRequestTable = ({ labRequestData }) => {
   const api = useApi();
   const [tests, setTests] = useState([]);
@@ -46,7 +55,7 @@ const LabRequestTable = ({ labRequestData }) => {
         'Request number': displayId,
         'Order date': requestedDate,
         Facility: laboratory?.name,
-        Department: '',
+        Department: '', // TODO: Fetch department from encounter
         'Requested by': requestedBy?.displayName,
         'Sample time': sampleTime,
         Priority: priority?.name,
@@ -87,9 +96,8 @@ export const LabRequestPrintout = React.memo(({ labRequestData, patientData, cer
       </RowContainer>
       <LabRequestTable labRequestData={labRequestData} />
       <Text>Notes:</Text>
-      <Box border={1} height={75}>
-        {notes.map(note => note.content)}
-      </Box>
+      <NotesBox>{notes.map(note => note.content)}</NotesBox>
+      <div />
     </CertificateWrapper>
   );
 });
