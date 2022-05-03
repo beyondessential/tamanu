@@ -1,5 +1,4 @@
 import { Op } from 'sequelize';
-import { toBase64, fromBase64 } from './base64';
 
 export function hl7SortToTamanu(hl7Sort) {
   // hl7Sort can be quite complicated, we only support a single field `issued` in `-` order
@@ -57,4 +56,12 @@ export function addPaginationToWhere(where, after) {
       },
     ],
   };
+}
+
+export function toBase64(obj) {
+  return Buffer.from(JSON.stringify(obj), 'binary').toString('base64');
+}
+
+export function fromBase64(str) {
+  return JSON.parse(Buffer.from(str, 'base64').toString('binary'));
 }
