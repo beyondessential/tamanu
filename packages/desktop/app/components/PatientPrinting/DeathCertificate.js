@@ -65,8 +65,8 @@ const FormLineInner = styled.div`
 const FormFieldUnderline = styled(Text)`
   border-bottom: 1px solid black;
   width: 100%;
-  margin: 0 0 0 10px;
-  font-size: 14px;
+  margin: 0 15px 0 10px;
+  font-size: 15px;
 `;
 
 const UnderlinedFormHelper = styled(Text)`
