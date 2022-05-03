@@ -103,6 +103,8 @@ patientVaccineRoutes.post(
     if (!req.body.scheduledVaccineId) {
       res.status(400).send({ error: { message: 'scheduledVaccineId is required' } });
     }
+    
+    const scheduledVaccine = await req.models.ScheduledVaccine.findByPk(req.body.scheduledVaccineId);
 
     const encounter = await req.models.Encounter.create({
       encounterType: ENCOUNTER_TYPES.CLINIC,
@@ -110,9 +112,10 @@ patientVaccineRoutes.post(
       endDate: req.body.date,
       patientId: req.params.id,
       locationId: req.body.locationId,
-      examinerId: req.body.examinerId,
+      examinerId: req.body.examinerId ?? req.body.recorderId,
       recorderId: req.body.recorderId,
       departmentId: req.body.departmentId,
+      reasonForEncounter: `Administered ${scheduledVaccine.category} vaccine ${scheduledVaccine.label} (${scheduledVaccine.schedule})`,
     });
 
     const newRecord = await req.models.AdministeredVaccine.create({
