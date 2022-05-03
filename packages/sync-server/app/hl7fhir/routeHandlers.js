@@ -126,7 +126,7 @@ async function getHL7Payload({ req, querySchema, model, getWhere, getInclude, bu
   };
 }
 
-export async function patientHandler() {
+export function patientHandler() {
   return asyncHandler(async (req, res) => {
     const { Patient } = req.store.models;
     const payload = await getHL7Payload({
@@ -143,7 +143,7 @@ export async function patientHandler() {
   });
 }
 
-export async function diagnosticReportHandler() {
+export function diagnosticReportHandler() {
   asyncHandler(async (req, res) => {
     const payload = await getHL7Payload({
       req,
