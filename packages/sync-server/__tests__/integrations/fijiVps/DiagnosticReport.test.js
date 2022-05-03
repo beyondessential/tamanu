@@ -2,7 +2,7 @@ import Chance from 'chance';
 
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
-import { IDENTIFIER_NAMESPACE } from '../../../app/integrations/fiji-vps/schema';
+import { IDENTIFIER_NAMESPACE } from '../../../app/hl7fhir/schema';
 
 const chance = new Chance();
 
