@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useState } from 'react';
+import React, { useMemo, useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
@@ -121,6 +121,14 @@ export const ImmunisationForm = React.memo(
 
     const currentUser = useSelector(getCurrentUser);
 
+    const onSubmitWithRecorder = useCallback(
+      data => onSubmit({
+        ...data,
+        recorderId: currentUser.id,
+      }),
+      [onSubmit, currentUser],
+    );
+
     useEffect(() => {
       const fetchScheduledVaccines = async () => {
         if (!category) {
@@ -143,7 +151,7 @@ export const ImmunisationForm = React.memo(
 
     return (
       <Form
-        onSubmit={onSubmit}
+        onSubmit={onSubmitWithRecorder}
         initialValues={{
           date: new Date(),
         }}
@@ -215,7 +223,6 @@ export const ImmunisationForm = React.memo(
               label="Given by"
               component={AutocompleteField}
               suggester={practitionerSuggester}
-              required
             />
             <Field
               name="locationId"
