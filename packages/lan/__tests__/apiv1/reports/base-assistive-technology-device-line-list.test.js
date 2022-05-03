@@ -1,6 +1,5 @@
 import moment from 'moment';
-import { createDummyPatient, randomReferenceId } from 'shared/demoData/patients';
-import { randomReferenceIds } from '../../../../shared-src/src/demoData/patients';
+import { createDummyPatient, randomReferenceIds } from 'shared/demoData/patients';
 import { createTestContext } from '../../utilities';
 
 const PROGRAM_ID = 'program-assistivetechnologyproject';
