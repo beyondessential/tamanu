@@ -83,9 +83,9 @@ const BaseConfirmScreen = ({
 const ConfirmScreen = ({ onStepBack, submitForm, onCancel }) => (
   <BaseConfirmScreen
     heading="Confirm death record"
-    text="This action is irreversible. Are you sure you want to record the death of a patient? This
-      should only be done under the direction of the responsible clinician. Do you wish to proceed?"
-    continueButtonText="Record Death"
+    text="This action is irreversible. This should only be done under
+      the direction of the responsible clinician. Do you wish to proceed?"
+    continueButtonText="Record death"
     onStepBack={onStepBack}
     onContinue={submitForm}
     onCancel={onCancel}
@@ -99,8 +99,8 @@ const DoubleConfirmScreen = ({ onStepBack, submitForm, onCancel }) => {
     return (
       <BaseConfirmScreen
         heading="Patient will be auto-discharged and locked"
-        text="This patient has an active encounter. After recording their death, the patient record will be
-      locked. Please ensure that all encounter details are up-to-date and correct before proceeding."
+        text="This patient has an active encounter. Please ensure that all
+          encounter details are up-to-date and correct before proceeding."
         continueButtonText="Continue"
         onStepBack={onStepBack}
         onContinue={() => {
