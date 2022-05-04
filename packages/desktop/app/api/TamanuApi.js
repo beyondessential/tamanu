@@ -1,4 +1,3 @@
-import faye from 'faye';
 import { promises } from 'fs';
 import qs from 'qs';
 
@@ -85,7 +84,6 @@ export class TamanuApi {
     this.onAuthFailure = null;
     this.authHeader = null;
     this.onVersionIncompatible = null;
-    this.pendingSubscriptions = [];
     this.user = null;
 
     const host = window.localStorage.getItem(HOST);
@@ -97,11 +95,6 @@ export class TamanuApi {
   setHost(host) {
     this.host = host;
     this.prefix = `${host}/v1`;
-    this.fayeClient = new faye.Client(`${host}/faye`);
-    this.pendingSubscriptions.forEach(({ recordType, changeType, callback }) =>
-      this.subscribeToChanges(recordType, changeType, callback),
-    );
-    this.pendingSubscriptions = [];
 
     // save host in local storage
     window.localStorage.setItem(HOST, host);
@@ -255,18 +248,5 @@ export class TamanuApi {
 
   async delete(endpoint, query) {
     return this.fetch(endpoint, query, { method: 'DELETE' });
-  }
-
-  /**
-   * @param {*} changeType  Currently one of save, remove, wipe, or * for all
-   */
-  subscribeToChanges(recordType, changeType, callback) {
-    // until the faye client has been set up, push any subscriptions into an array
-    if (!this.fayeClient) {
-      this.pendingSubscriptions.push({ recordType, changeType, callback });
-    } else {
-      const channel = `/${recordType}${changeType ? `/${changeType}` : '/*'}`;
-      this.fayeClient.subscribe(channel, callback);
-    }
   }
 }
