@@ -158,8 +158,7 @@ type FakeOptions = {
 };
 
 const fakeDate = () => new Date(random(0, Date.now()));
-const fakeString = ({ propertyName, entityMetadata }, id: string) =>
-  `${entityMetadata.name}.${propertyName}.${id}`;
+const fakeString = ({ propertyName, entityMetadata }, id: string) => `${entityMetadata.name}.${propertyName}.${id}`;
 const fakeNumber = () => random(0, 10);
 const FIELD_HANDLERS = {
   String: fakeString,
@@ -191,9 +190,7 @@ export const fake = (model: typeof BaseModel, { relations = [] }: FakeOptions = 
     } else if (FIELD_HANDLERS[typeId]) {
       record[column.propertyName] = FIELD_HANDLERS[typeId](column, id);
     } else {
-      throw new Error(
-        `Could not fake field ${model.name}.${column.propertyName} of type ${typeId}`,
-      );
+      throw new Error(`Could not fake field ${model.name}.${column.propertyName} of type ${typeId}`);
     }
   }
 
@@ -214,25 +211,18 @@ export const fake = (model: typeof BaseModel, { relations = [] }: FakeOptions = 
       throw new Error(`Relation ${model.name}.${relationName} doesn't exist`);
     }
     if (relation.relationType === 'one-to-many') {
-      const childRecord = fake(relation.type as typeof BaseModel, {
-        relations: childRelationNames,
-      });
-      record[relationName] = [
-        {
-          ...childRecord,
-          [`${relation.inverseSidePropertyPath}Id`]: record.id,
-        },
-      ];
-    } else if (relation.relationType === 'many-to-one') {
-      const childRecord = fake(relation.type as typeof BaseModel, {
-        relations: childRelationNames,
-      });
+      const childRecord = fake(relation.type as typeof BaseModel, { relations: childRelationNames });
+      record[relationName] = [{
+        ...childRecord,
+        [`${relation.inverseSidePropertyPath}Id`]: record.id,
+      }];
+    }
+    else if (relation.relationType === 'many-to-one') {
+      const childRecord = fake(relation.type as typeof BaseModel, { relations: childRelationNames });
       record[relationName] = childRecord;
     } else {
       // at the moment, we only handle some types of relations - if you need something different, implement it!
-      throw new Error(
-        `Could not fake relation ${model.name}.${relationName} (unsupported type ${relation?.relationType})`,
-      );
+      throw new Error(`Could not fake relation ${model.name}.${relationName} (unsupported type ${relation?.relationType})`);
     }
   }
 
