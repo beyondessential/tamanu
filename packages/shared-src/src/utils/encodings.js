@@ -62,3 +62,21 @@ export function base64UrlDecode(input) {
   // see https://nodejs.org/dist/latest-v14.x/docs/api/buffer.html#buffer_buffers_and_character_encodings
   return Buffer.from(input.replace(/-/g, '+').replace(/_/g, '/'), 'base64');
 }
+
+/**
+ * Encodes Base64 string string to JSON.
+ * @param {string} base64str
+ * @returns {*} JSON
+ */
+export function jsonFromBase64(base64str) {
+  return JSON.parse(Buffer.from(base64str, 'base64').toString('binary'));
+}
+
+/**
+ * Creates a JSON object with the input and converts it to a Base64 string.
+ * @param {object} obj
+ * @returns {string} Base64 string
+ */
+export function jsonToBase64(obj) {
+  return Buffer.from(JSON.stringify(obj), 'binary').toString('base64');
+}
