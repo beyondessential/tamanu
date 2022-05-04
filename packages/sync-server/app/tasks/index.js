@@ -2,6 +2,7 @@ import config from 'config';
 
 import { PatientEmailCommunicationProcessor } from './PatientEmailCommunicationProcessor';
 import { OutpatientDischarger } from './OutpatientDischarger';
+import { DeceasedPatientDischarger } from './DeceasedPatientDischarger';
 import { ReportRequestProcessor } from './ReportRequestProcessor';
 import { ReportRequestScheduler } from './ReportRequestScheduler';
 import { VRSActionRetrier } from './VRSActionRetrier';
@@ -14,6 +15,7 @@ import { AutomaticLabTestResultPublisher } from './AutomaticLabTestResultPublish
 export async function startScheduledTasks(context) {
   const taskClasses = [
     OutpatientDischarger,
+    DeceasedPatientDischarger,
     PatientEmailCommunicationProcessor,
     ReportRequestProcessor,
     CertificateNotificationProcessor,

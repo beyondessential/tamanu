@@ -6,10 +6,6 @@ import { differenceInYears } from 'date-fns';
 // - if you're displaying it to a user, you should use the DateDisplay component
 //   instead, it'll help keep date rendering consistent throughout the app
 
-/**
- * @param date Date
- * @returns {number}
- */
-export function getAgeFromDate(date) {
+export function getAgeFromDate(date: Date): number {
   return differenceInYears(new Date(), new Date(date));
 }

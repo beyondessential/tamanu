@@ -200,7 +200,9 @@ describe('Palau covid case report tests', () => {
         phoneNumber: '555-444-3333',
       });
 
-      const reportResult = await app.post(REPORT_URL).send({});
+      const reportResult = await app
+        .post(REPORT_URL)
+        .send({ parameters: { fromDate: new Date(2022, 3, 1, 4) } });
       expect(reportResult).toHaveSucceeded();
       expect(reportResult.body).toHaveLength(3);
       // survey responses are sorted latest first
@@ -247,7 +249,9 @@ describe('Palau covid case report tests', () => {
         phoneNumber: '555-444-3333',
       });
 
-      const reportResult = await app.post(REPORT_URL).send({});
+      const reportResult = await app
+        .post(REPORT_URL)
+        .send({ parameters: { fromDate: new Date(2022, 3, 1, 4) } });
       expect(reportResult).toHaveSucceeded();
       expect(reportResult.body).toHaveLength(3);
       // survey responses are sorted latest first
