@@ -1,6 +1,6 @@
 import calculateLuhnModN from 'calculate-luhn-mod-n';
 
-export function generateEUDCCFormatUVCI(vaccinationId, countryCode) {
+export function generateEUDCCFormatUVCI(vaccinationId: string, countryCode: string): string {
   // UVCI id is required to be uppercase alphanumeric
   // Use the uuid of the vaccination record, drop the dashes
   const id = vaccinationId.replace(/-/g, '').toUpperCase();

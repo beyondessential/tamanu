@@ -14,7 +14,7 @@
 
 const HASH_LENGTH = 12;
 
-export function generateICAOFormatUVCI(uuid) {
+export function generateICAOFormatUVCI(uuid: string): string {
   const dashLessUuid = uuid.replace(/-/g, '');
 
   // Need to slice the initial uuid so that this number doesn't come out so big that it displays in scientific notation
