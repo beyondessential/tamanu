@@ -81,7 +81,6 @@ export const LabRequestPrintout = React.memo(({ labRequestData, patientData, cer
 
   return (
     <CertificateWrapper>
-      {/* TODO: Right align header text */}
       <PrintLetterhead title={title} subTitle={subTitle} logoSrc={logo} pageTitle="Lab Request" />
       <RowContainer>
         <div>

@@ -5,7 +5,7 @@ import { Typography } from '@material-ui/core';
 const Header = styled.div`
   position: relative;
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
   align-items: center;
   margin-bottom: 10px;
 
@@ -26,7 +26,7 @@ const LogoImage = styled.img`
 `;
 
 const HeaderText = styled.div`
-  text-align: center;
+  text-align: right;
 `;
 
 const PageTitle = styled(Typography)`
@@ -34,7 +34,7 @@ const PageTitle = styled(Typography)`
   line-height: 21px;
   font-weight: bold;
   margin-bottom: 36px;
-  text-align: center;
+  text-align: right;
 `;
 
 export const PrintLetterhead = ({ title, subTitle, logoSrc, pageTitle }) => (
