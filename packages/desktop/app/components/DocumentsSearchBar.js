@@ -3,15 +3,16 @@ import styled from 'styled-components';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
 
-import { ButtonRow } from './ButtonRow';
 import { Form, Field, TextField } from './Field';
 import { FormGrid } from './FormGrid';
-import { Button, LargeButton, LargeOutlineButton } from './Button';
+import { LargeButton, LargeOutlineButton } from './Button';
+import { Colors } from '../constants';
 
 const Container = styled.div`
-  padding: 1rem 2rem 1rem 2rem;
+  padding: 2rem;
   border-radius: 3px 3px 0 0;
   background-color: #ffffff;
+  border-bottom: 1px solid ${Colors.outline};
 `;
 
 const HeaderBar = styled.div`
@@ -46,13 +47,10 @@ const renderSearchBar = ({ submitForm, clearForm }) => (
   </>
 );
 
-export const DocumentsSearchBar = ({ setSearchParameters, onAddDocument }) => (
+export const DocumentsSearchBar = ({ setSearchParameters }) => (
   <Container>
     <HeaderBar>
       <Typography variant="h3">Documents search</Typography>
-      <Button onClick={onAddDocument} variant="contained" color="primary">
-        Add document
-      </Button>
     </HeaderBar>
     <Form onSubmit={values => setSearchParameters(values)} render={renderSearchBar} />
   </Container>
