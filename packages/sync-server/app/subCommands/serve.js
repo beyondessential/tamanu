@@ -6,7 +6,6 @@ import { log } from 'shared/services/logging';
 import { createApp } from '../createApp';
 import { ApplicationContext } from '../ApplicationContext';
 import { version } from '../serverInfo';
-import { setupEnv } from '../env';
 
 const { port } = config;
 
@@ -20,13 +19,7 @@ export const serve = async ({ skipMigrationCheck }) => {
   const context = await new ApplicationContext().init();
   const { store } = context;
 
-  if (config.db.migrateOnStartup) {
-    await store.sequelize.migrate('up');
-  } else {
-    await store.sequelize.assertUpToDate({ skipMigrationCheck });
-  }
-
-  setupEnv();
+  await store.sequelize.assertUpToDate({ skipMigrationCheck });
 
   const app = createApp(context);
 

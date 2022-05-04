@@ -8,6 +8,7 @@ import { log } from 'shared/services/logging';
 import { version } from './package.json';
 
 import * as cmd from './app/subCommands';
+import { setupEnv } from './app/env';
 
 async function run() {
   program
@@ -18,7 +19,8 @@ async function run() {
   for (const [key, command] of Object.entries(cmd).filter(([key, _]) => /^\w+Command$/.test(key))) {
     program.addCommand(command, { isDefault: key === 'serveCommand' });
   }
-
+  
+  setupEnv();
   await program.parseAsync(process.argv);
 }
 

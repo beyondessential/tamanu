@@ -3,7 +3,6 @@ import { Command } from 'commander';
 import { log } from 'shared/services/logging';
 
 import { ApplicationContext } from '../ApplicationContext';
-import { setupEnv } from '../env';
 import { startScheduledTasks } from '../tasks';
 import { version } from '../../package.json';
 
@@ -14,8 +13,6 @@ export const tasks = async ({ skipMigrationCheck }) => {
   const { store } = context;
 
   await store.sequelize.assertUpToDate({ skipMigrationCheck });
-
-  setupEnv();
 
   const stopScheduledTasks = await startScheduledTasks(context);
   for (const sig of ['SIGINT', 'SIGTERM']) {
