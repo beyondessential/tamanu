@@ -13,7 +13,7 @@ import { Button } from '../../../components/Button';
 
 import { useApi } from '../../../api';
 
-// Similar to ContentPane but
+// Similar to ContentPane but content is aligned to the right
 const PaneButtonContainer = styled.div`
   margin: 24px;
   display: flex;
