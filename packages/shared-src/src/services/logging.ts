@@ -2,6 +2,7 @@ import winston from 'winston'; // actual log output
 import morgan from 'morgan'; // logging middleware for http requests
 import config from 'config';
 // import chalk from 'chalk';
+import type { IncomingMessage, ServerResponse } from 'http';
 
 // defensive destructure to allow for testing shared-src directly
 const {
@@ -11,12 +12,13 @@ const {
 } = config?.log || {};
 
 /*
-const colorise = color 
-  ? (hex) => chalk.hex(hex) 
+const colorise = color
+  ? (hex) => chalk.hex(hex)
   : (ignoredHex) => (text => text);
 */
 // TEMP: Disable chalk & its import as it seems to not run correctly on AWS
-const colorise = () => text => text;
+type ColorFn = (text: string) => string;
+const colorise = (_ignored: string): ColorFn => (text: string): string => text;
 
 const COLORS = {
   grey: colorise('999'),
@@ -67,7 +69,7 @@ export const log = winston.createLogger({
 });
 
 // Middleware for logging http requests
-function getStatusColor(status) {
+function getStatusColor(status?: string): ColorFn {
   switch (status && status[0]) {
     case '5':
       return COLORS.red;
@@ -82,7 +84,11 @@ function getStatusColor(status) {
   }
 }
 
-const httpFormatter = (tokens, req, res) => {
+const httpFormatter = (
+  tokens: morgan.TokenIndexer<IncomingMessage, ServerResponse>,
+  req: IncomingMessage,
+  res: ServerResponse,
+): string => {
   const methodColor = req.method === 'GET' ? COLORS.green : COLORS.yellow;
   const status = tokens.status(req, res);
   const statusColor = getStatusColor(status);
