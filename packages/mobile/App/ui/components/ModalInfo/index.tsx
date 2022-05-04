@@ -30,7 +30,7 @@ export const ModalInfo = ({
   if (!isVisible) return null;
 
   const action = (buttonPrompt && onFollowPrompt) ? (
-    <React.Fragment>
+    <>
       <Button
         backgroundColor="green"
         onPress={onFollowPrompt}
@@ -44,15 +44,15 @@ export const ModalInfo = ({
         textColor={theme.colors.TEXT_DARK}
         buttonText="Dismiss"
       />
-    </React.Fragment>
+    </>
   ) : (
-      <Button
-        backgroundColor="transparent"
-        onPress={dismissModal}
-        textColor={theme.colors.TEXT_DARK}
-        buttonText="OK"
-      />
-    );
+    <Button
+      backgroundColor="transparent"
+      onPress={dismissModal}
+      textColor={theme.colors.TEXT_DARK}
+      buttonText="OK"
+    />
+  );
 
   return (
     <StyledSafeAreaView
@@ -74,6 +74,7 @@ export const ModalInfo = ({
         borderRadius={5}
       >
         <StyledText
+          color={theme.colors.TEXT_DARK}
           fontSize={screenPercentageToDP(1.57, Orientation.Height)}
           textAlign="center"
         >
