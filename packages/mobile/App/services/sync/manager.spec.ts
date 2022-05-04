@@ -224,14 +224,14 @@ describe('SyncManager', () => {
       const { syncManager, mockedSource } = createManager();
 
       let startFetch: () => void | null = null;
-      const startFetchPromise = new Promise(resolve => {
+      const startFetchPromise = new Promise<void>(resolve => {
         startFetch = resolve;
       });
       let finishFetch: () => void | null = null;
       mockedSource
         .uploadRecords
         .mockImplementationOnce(async () => {
-          const finishFetchPromise = new Promise(resolve => {
+          const finishFetchPromise = new Promise<void>(resolve => {
             finishFetch = resolve;
           });
           startFetch();
