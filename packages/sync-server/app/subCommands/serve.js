@@ -11,24 +11,6 @@ import { setupEnv } from '../env';
 
 const { port } = config;
 
-function getRoutes(router, prefix = '') {
-  const getRouteName = ({ regexp }) =>
-    regexp
-      .toString()
-      .replace(/\\\//g, '/')
-      .replace(/^\/\^(.*)\/i$/, '$1')
-      .replace('/?(?=/|$)', '');
-  let routes = [];
-  router.stack.forEach(middleware => {
-    if (middleware.route) {
-      routes.push(`${prefix}${middleware.route.path.replace(/(\$|\/)$/, '')}`);
-    } else if (middleware.name === 'router') {
-      routes = [...routes, ...getRoutes(middleware.handle, `${prefix}${getRouteName(middleware)}`)];
-    }
-  });
-  return routes;
-}
-
 const serve = async ({ skipMigrationCheck }) => {
   log.info(`Starting sync server version ${version}.`);
 
@@ -48,13 +30,6 @@ const serve = async ({ skipMigrationCheck }) => {
   setupEnv();
 
   const app = createApp(context);
-
-  if (process.env.PRINT_ROUTES === 'true') {
-    // console instead of log.info is fine here because the aim is to output the
-    // routes without wrapping, supressing, or transporting the output
-    // eslint-disable-next-line no-console
-    console.log(getRoutes(app._router).join('\n'));
-  }
 
   const server = app.listen(port, () => {
     log.info(`Server is running on port ${port}!`);
