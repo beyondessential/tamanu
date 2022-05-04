@@ -44,7 +44,7 @@ export class Form extends React.PureComponent {
     handleSubmit,
     isSubmitting,
     setSubmitting,
-    values,
+    getValues,
     ...rest
   }) => async event => {
     event.preventDefault();
@@ -58,7 +58,8 @@ export class Form extends React.PureComponent {
     setSubmitting(true);
 
     // validation phase
-    const formErrors = await validateForm();
+    const values = getValues();
+    const formErrors = await validateForm(values);
     if (Object.entries(formErrors).length) {
       this.setErrors(formErrors);
       setSubmitting(false);
@@ -85,14 +86,23 @@ export class Form extends React.PureComponent {
     isValid,
     isSubmitting,
     submitForm: originalSubmitForm,
+    setValues: originalSetValues,
     ...formProps
   }) => {
+    let { values } = formProps;
+
     // we need this func for nested forms
     // as the original submitForm() will trigger validation automatically
     const submitForm = this.createSubmissionHandler({
       isSubmitting,
+      getValues: () => values,
       ...formProps,
     });
+
+    const setValues = newValues => {
+      values = newValues;
+      originalSetValues(newValues);
+    };
 
     const { render } = this.props;
 
@@ -100,6 +110,7 @@ export class Form extends React.PureComponent {
       <form onSubmit={submitForm} noValidate>
         {render({
           ...formProps,
+          setValues,
           isValid,
           isSubmitting,
           submitForm,
