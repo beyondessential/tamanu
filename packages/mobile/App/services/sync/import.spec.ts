@@ -19,14 +19,7 @@ import {
   fakeUser,
 } from '/root/tests/helpers/fake';
 
-import {
-  createImportPlan,
-  executeImportPlan,
-  ImportFailure,
-  ImportPlan,
-  mapFields,
-  getRelationIdsFieldMapping,
-} from './import';
+import { createImportPlan, executeImportPlan, ImportFailure, ImportPlan, mapFields, getRelationIdsFieldMapping } from './import';
 import { SyncRecord, SyncRecordData } from './source';
 import { ReferenceDataType } from '~/types';
 
@@ -39,10 +32,7 @@ type SyncRecordOverrides = {
 
 const convertRelationIds = (model, data) => mapFields(getRelationIdsFieldMapping(model), data);
 
-const generateSyncRecord = async (
-  fake,
-  overrides: SyncRecordOverrides = {},
-): Promise<SyncRecord> => ({
+const generateSyncRecord = async (fake, overrides: SyncRecordOverrides = {}): Promise<SyncRecord> => ({
   ...overrides,
   data: {
     ...(await fake()),
@@ -50,11 +40,18 @@ const generateSyncRecord = async (
   },
 });
 
-const generateSyncRecords = (fake, overrides?, count = RECORDS_PER_TEST): Promise<SyncRecord[]> =>
-  Promise.all(new Array(count).fill(0).map(() => generateSyncRecord(fake, overrides)));
+const generateSyncRecords = (
+  fake,
+  overrides?,
+  count = RECORDS_PER_TEST,
+): Promise<SyncRecord[]> => Promise.all(
+  new Array(count)
+    .fill(0)
+    .map(() => generateSyncRecord(fake, overrides))
+);
 
-const syncRecordsToRows = (syncRecords, overrides = {}): BaseModel[] =>
-  syncRecords.map(sr => ({
+const syncRecordsToRows = (syncRecords, overrides = {}): BaseModel[] => syncRecords
+  .map(sr => ({
     ...sr.data,
     createdAt: expect.any(Date),
     updatedAt: expect.any(Date),
@@ -110,26 +107,20 @@ describe('ImportPlan', () => {
     [ScheduledVaccine, fakeScheduledVaccine],
     [Survey, fakeSurvey],
     [ProgramDataElement, fakeProgramDataElement],
-    [
-      SurveyScreenComponent,
-      async () => {
-        const survey = fakeSurvey();
-        await Survey.create(survey).save();
-        const ssc = fakeSurveyScreenComponent();
-        ssc.surveyId = survey.id;
-        return ssc;
-      },
-    ],
-    [
-      Patient,
-      async () => {
-        const village = fakeReferenceData(ReferenceDataType.Village);
-        await ReferenceData.create(village).save();
-        const patient = fakePatient();
-        patient.villageId = village.id;
-        return patient;
-      },
-    ],
+    [SurveyScreenComponent, async () => {
+      const survey = fakeSurvey();
+      await Survey.create(survey).save();
+      const ssc = fakeSurveyScreenComponent();
+      ssc.surveyId = survey.id;
+      return ssc;
+    }],
+    [Patient, async () => {
+      const village = fakeReferenceData(ReferenceDataType.Village);
+      await ReferenceData.create(village).save();
+      const patient = fakePatient();
+      patient.villageId = village.id;
+      return patient;
+    }],
   ];
 
   describe('Per model tests', () => {
@@ -152,22 +143,19 @@ describe('ImportPlan', () => {
 
           // assert
           const rows = await findPlainObjectRowsById(model, recordIds);
-          expect(sortRowsById(rows)).toEqual(
-            sortRowsById(
-              syncRecordsToRows(records, {
-                markedForUpload: false,
-              }),
-            ),
-          );
+          expect(sortRowsById(rows)).toEqual(sortRowsById(syncRecordsToRows(
+            records,
+            {
+              markedForUpload: false,
+            },
+          )));
         });
 
         it('deletes models when it receives tombstones', async () => {
           // arrange
           const records = await generateSyncRecords(fake, { isDeleted: true });
           const recordIds = records.map(r => r.data.id);
-          for (const chunkOfRows of chunkRows(
-            records.map(r => convertRelationIds(model, r.data)),
-          )) {
+          for (const chunkOfRows of chunkRows(records.map(r => convertRelationIds(model, r.data)))) {
             await model.insert(chunkOfRows);
           }
           const oldRows = await findPlainObjectRowsById(model, recordIds);
@@ -185,12 +173,8 @@ describe('ImportPlan', () => {
           // arrange
           const records = await generateSyncRecords(fake);
           const recordIds = records.map(r => r.data.id);
-          const newRecords = await Promise.all(
-            recordIds.map(id => generateSyncRecord(fake, { data: { id } })),
-          );
-          for (const chunkOfRows of chunkRows(
-            records.map(r => convertRelationIds(model, r.data)),
-          )) {
+          const newRecords = await Promise.all(recordIds.map(id => generateSyncRecord(fake, { data: { id } })));
+          for (const chunkOfRows of chunkRows(records.map(r => convertRelationIds(model, r.data)))) {
             await model.insert(chunkOfRows);
           }
           const oldRows = await findPlainObjectRowsById(model, recordIds);
@@ -201,13 +185,12 @@ describe('ImportPlan', () => {
 
           // assert
           const rows = await findPlainObjectRowsById(model, recordIds);
-          expect(sortRowsById(rows)).toEqual(
-            sortRowsById(
-              syncRecordsToRows(newRecords, {
-                markedForUpload: false, // currently last-write-wins
-              }),
-            ),
-          );
+          expect(sortRowsById(rows)).toEqual(sortRowsById(syncRecordsToRows(
+            newRecords,
+            {
+              markedForUpload: false, // currently last-write-wins
+            },
+          )));
         });
       });
     });
@@ -227,13 +210,10 @@ describe('ImportPlan', () => {
       const recordsToUpdateOld = await generateSyncRecords(fakePatient, {}, recordsPerVerb);
       const recordIdsToUpdate = recordsToUpdateOld.map(r => r.data.id);
       const recordsToUpdateNew = await Promise.all(
-        recordIdsToUpdate.map(id => generateSyncRecord(fakePatient, { data: { id } })),
+        recordIdsToUpdate
+          .map(id => generateSyncRecord(fakePatient, { data: { id } }))
       );
-      const recordsToDelete = await generateSyncRecords(
-        fakePatient,
-        { isDeleted: true },
-        recordsPerVerb,
-      );
+      const recordsToDelete = await generateSyncRecords(fakePatient, { isDeleted: true }, recordsPerVerb);
       const allRecordsForImport = [...recordsToCreate, ...recordsToUpdateNew, ...recordsToDelete];
       shuffleArrayInPlace(allRecordsForImport); // mix up to test it pulls them apart correctly
       const allRecordIds = allRecordsForImport.map(r => r.data.id);
@@ -250,9 +230,10 @@ describe('ImportPlan', () => {
 
       // assert
       const rows = await findPlainObjectRowsById(Patient, allRecordIds);
-      const expectedRows = syncRecordsToRows([...recordsToCreate, ...recordsToUpdateNew], {
-        markedForUpload: false,
-      });
+      const expectedRows = syncRecordsToRows(
+        [...recordsToCreate, ...recordsToUpdateNew],
+        { markedForUpload: false },
+      );
       expect(sortRowsById(rows)).toEqual(sortRowsById(expectedRows));
     });
 
@@ -276,7 +257,10 @@ describe('ImportPlan', () => {
       // assert
       const rows = await findPlainObjectRowsById(Patient, recordIds);
       const expectedSuccesses = records.filter(r => !failureIds.includes(r.data.id));
-      const expectedRows = syncRecordsToRows([...expectedSuccesses], { markedForUpload: false });
+      const expectedRows = syncRecordsToRows(
+        [...expectedSuccesses],
+        { markedForUpload: false },
+      );
       expect(sortRowsById(rows)).toEqual(sortRowsById(expectedRows));
 
       const expectedFailures = failureIds.map(id => ({ error: expect.any(String), recordId: id }));
@@ -286,9 +270,7 @@ describe('ImportPlan', () => {
     it('returns all sync records as failures if delete throws an error', async () => {
       // mock delete to throw an error, because there is no legitimate delete error case
       const realDelete = Patient.delete;
-      Patient.delete = jest.fn(() => {
-        throw new Error('Mock error');
-      });
+      Patient.delete = jest.fn(() => { throw new Error('Mock error'); });
 
       // arrange
       const recordCount = 10;
@@ -322,7 +304,8 @@ describe('ImportPlan', () => {
       const recordsToUpdateOld = await generateSyncRecords(fakePatient, {}, recordCount);
       const recordIdsToUpdate = recordsToUpdateOld.map(r => r.data.id);
       const recordsToUpdateNew = await Promise.all(
-        recordIdsToUpdate.map(id => generateSyncRecord(fakePatient, { data: { id } })),
+        recordIdsToUpdate
+          .map(id => generateSyncRecord(fakePatient, { data: { id } }))
       );
       failureIndexes.forEach(i => {
         recordsToUpdateNew[i].data.displayId = null; // displayId has a not null constraint
