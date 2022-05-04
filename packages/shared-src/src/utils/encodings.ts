@@ -4,7 +4,7 @@
  * @param {string} banner Uppercase string for the BEGIN/END banners
  * @returns {string} PEM document
  */
-export function pem(data, banner) {
+export function pem(data: Buffer, banner: string): string {
   return `-----BEGIN ${banner}-----\n${data
     .toString('base64')
     .match(/.{1,64}/g)
@@ -18,7 +18,7 @@ export function pem(data, banner) {
  * @returns {Buffer} DER data
  * @throws {Error} if the banners are not present or not correct
  */
-export function depem(pemString, expectedBanner) {
+export function depem(pemString: string, expectedBanner: string): Buffer {
   const text = pemString.trim();
 
   const beginRx = /^-{5}\s*BEGIN ?([^-]+)?-{5}\r?\n/;
@@ -42,7 +42,7 @@ export function depem(pemString, expectedBanner) {
  * @param {string|Buffer|ArrayBuffer} input
  * @returns {string}
  */
-export function base64UrlEncode(input) {
+export function base64UrlEncode(input: string | Buffer | ArrayBuffer): string {
   // TODO: deprecate once we upgrade to Node v14!
   // see https://nodejs.org/dist/latest-v14.x/docs/api/buffer.html#buffer_buffers_and_character_encodings
   return Buffer.from(input)
@@ -57,7 +57,7 @@ export function base64UrlEncode(input) {
  * @param {string} input
  * @returns {Buffer}
  */
-export function base64UrlDecode(input) {
+export function base64UrlDecode(input: string): Buffer {
   // TODO: deprecate once we upgrade to Node v14!
   // see https://nodejs.org/dist/latest-v14.x/docs/api/buffer.html#buffer_buffers_and_character_encodings
   return Buffer.from(input.replace(/-/g, '+').replace(/_/g, '/'), 'base64');
