@@ -65,18 +65,14 @@ export function base64UrlDecode(input: string): Buffer {
 
 /**
  * Encodes Base64 string string to JSON.
- * @param {string} base64str
- * @returns {*} JSON
  */
-export function jsonFromBase64(base64str) {
+export function jsonFromBase64(base64str: string): any {
   return JSON.parse(Buffer.from(base64str, 'base64').toString('binary'));
 }
 
 /**
  * Creates a JSON object with the input and converts it to a Base64 string.
- * @param {object} obj
- * @returns {string} Base64 string
  */
-export function jsonToBase64(obj) {
+export function jsonToBase64(obj: any): string {
   return Buffer.from(JSON.stringify(obj), 'binary').toString('base64');
 }
