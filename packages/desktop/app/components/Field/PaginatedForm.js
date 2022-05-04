@@ -168,12 +168,14 @@ export const PaginatedForm = ({
         }
 
         const submitVisibleValues = event => {
-          const visibleFields = getVisibleQuestions(
-            formScreens.map(s => React.Children.toArray(s.props.children)).flat(),
-            values,
-          ).map(q => q.props.name);
+          const visibleFields = new Set(
+            getVisibleQuestions(
+              formScreens.map(s => React.Children.toArray(s.props.children)).flat(),
+              values,
+            ).map(q => q.props.name),
+          );
           const visibleValues = Object.fromEntries(
-            Object.entries(values).filter(key => visibleFields.includes(key)),
+            Object.entries(values).filter(([key]) => visibleFields.has(key)),
           );
           setValues(visibleValues);
           submitForm(event);
