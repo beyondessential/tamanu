@@ -79,19 +79,15 @@ describe('SyncManager', () => {
         survey.programId = program.id;
 
         const { syncManager, mockedSource } = createManager();
-        mockedSource.downloadRecords.mockReturnValueOnce(
-          Promise.resolve({
-            count: 1,
-            records: [{ data: survey }],
-            cursor: 'finished-sync-1',
-          }),
-        );
-        mockedSource.downloadRecords.mockReturnValueOnce(
-          Promise.resolve({
-            count: 0,
-            records: [],
-          }),
-        );
+        mockedSource.downloadRecords.mockReturnValueOnce(Promise.resolve({
+          count: 1,
+          records: [{ data: survey }],
+          cursor: 'finished-sync-1',
+        }));
+        mockedSource.downloadRecords.mockReturnValueOnce(Promise.resolve({
+          count: 0,
+          records: [],
+        }));
         // act
         await syncManager.downloadAndImport(Survey, 'survey', '0');
 
@@ -162,38 +158,28 @@ describe('SyncManager', () => {
             },
           },
         ];
-        mockedSource.downloadRecords.mockReturnValueOnce(
-          Promise.resolve({
-            count: 1,
-            records,
-            cursor: 'finished-sync-1',
-          }),
-        );
-        mockedSource.downloadRecords.mockReturnValueOnce(
-          Promise.resolve({
-            count: null,
-            records: [],
-          }),
-        );
+        mockedSource.downloadRecords.mockReturnValueOnce(Promise.resolve({
+          count: 1,
+          records,
+          cursor: 'finished-sync-1',
+        }));
+        mockedSource.downloadRecords.mockReturnValueOnce(Promise.resolve({
+          count: null,
+          records: [],
+        }));
         await syncManager.downloadAndImport(models.Encounter, channel, '0');
 
         // assert
         expect(mockedSource.downloadRecords).toHaveBeenCalledTimes(2);
 
-        expect(mockedSource.downloadRecords).toHaveBeenCalledWith(
-          channel,
-          '0',
-          expect.any(Number),
-          { noCount: false },
-        ); // first sync starts from '0'
-        expect(mockedSource.downloadRecords).toHaveBeenCalledWith(
-          channel,
-          'finished-sync-1',
-          expect.any(Number),
-          { noCount: true },
-        ); // subsequent uses cursor
+        expect(mockedSource.downloadRecords)
+          .toHaveBeenCalledWith(channel, '0', expect.any(Number), { noCount: false }); // first sync starts from '0'
+        expect(mockedSource.downloadRecords)
+          .toHaveBeenCalledWith(channel, 'finished-sync-1', expect.any(Number), { noCount: true }); // subsequent uses cursor
 
-        expect(await models.Encounter.findOne({ id: encounter.id })).toMatchObject(encounter);
+        expect(
+          await models.Encounter.findOne({ id: encounter.id }),
+        ).toMatchObject(encounter);
 
         expect(
           await models.AdministeredVaccine.findOne({ id: administeredVaccine.id }),
@@ -202,7 +188,9 @@ describe('SyncManager', () => {
           encounterId: encounter.id,
         });
 
-        expect(await models.SurveyResponse.findOne({ id: surveyResponse.id })).toMatchObject({
+        expect(
+          await models.SurveyResponse.findOne({ id: surveyResponse.id }),
+        ).toMatchObject({
           ...surveyResponse,
           encounterId: encounter.id,
         });
@@ -240,7 +228,8 @@ describe('SyncManager', () => {
         startFetch = resolve;
       });
       let finishFetch: () => void | null = null;
-      mockedSource.uploadRecords
+      mockedSource
+        .uploadRecords
         .mockImplementationOnce(async () => {
           const finishFetchPromise = new Promise(resolve => {
             finishFetch = resolve;
@@ -251,8 +240,8 @@ describe('SyncManager', () => {
         })
         .mockImplementation(() => ({
           data: {
-            requestedAt: Date.now(),
-          },
+            requestedAt: Date.now()
+          }
         }));
 
       // act
@@ -446,15 +435,8 @@ describe('SyncManager', () => {
       // assert
       expect(mockedSource.fetchChannelsWithChanges).toBeCalledTimes(1);
       expect(mockedSource.downloadRecords).toBeCalledTimes(2);
-      expect(mockedSource.downloadRecords).toHaveBeenCalledWith('user', '0', expect.any(Number), {
-        noCount: false,
-      });
-      expect(mockedSource.downloadRecords).toHaveBeenCalledWith(
-        'patient',
-        '0',
-        expect.any(Number),
-        { noCount: false },
-      );
+      expect(mockedSource.downloadRecords).toHaveBeenCalledWith('user', '0', expect.any(Number), { noCount: false });
+      expect(mockedSource.downloadRecords).toHaveBeenCalledWith('patient', '0', expect.any(Number), { noCount: false });
     });
 
     it('includes subchannels of patients marked for sync', async () => {
@@ -472,9 +454,10 @@ describe('SyncManager', () => {
       expect(syncablePatients.length).toEqual(1);
       expect(syncablePatients[0].id).toEqual(patient.id);
 
-      const records = await Promise.all(
-        models.map(model => fake(model, { relations: model.includedSyncRelations })),
-      );
+      const records = await Promise.all(models.map(model => fake(
+        model,
+        { relations: model.includedSyncRelations },
+      )));
 
       mockedSource.fetchChannelsWithChanges.mockResolvedValueOnce([
         `patient/${patient.id}/encounter`,
@@ -499,22 +482,19 @@ describe('SyncManager', () => {
       // assert
       expect(mockedSource.fetchChannelsWithChanges).toBeCalledTimes(1);
       const receivedArgs = mockedSource.fetchChannelsWithChanges.mock.calls[0];
-      expect(receivedArgs[0].map(({ channel }) => channel)).toEqual(
-        expect.arrayContaining([`patient/${patient.id}/encounter`, `patient/${patient.id}/issue`]),
-      );
-      await Promise.all(
-        records.map(async (record, i) => {
-          const model = models[i];
-          const dbRecords = await model.find({
-            where: { patient: { id: patient.id } },
-            relations: model.includedSyncRelations,
-          });
-          expect(dbRecords).toMatchObject([record]);
-        }),
-      );
-      expect(await readConfig(`pullCursor.patient/${patient.id}/encounter`)).toEqual(
-        'finished-sync-1',
-      );
+      expect(receivedArgs[0].map(({ channel }) => channel)).toEqual(expect.arrayContaining([
+        `patient/${patient.id}/encounter`,
+        `patient/${patient.id}/issue`,
+      ]));
+      await Promise.all(records.map(async (record, i) => {
+        const model = models[i];
+        const dbRecords = await model.find({
+          where: { patient: { id: patient.id } },
+          relations: model.includedSyncRelations,
+        });
+        expect(dbRecords).toMatchObject([record]);
+      }));
+      expect(await readConfig(`pullCursor.patient/${patient.id}/encounter`)).toEqual('finished-sync-1');
       expect(await readConfig(`pullCursor.patient/${patient.id}/issue`)).toEqual('finished-sync-1');
       expect(mockedSource.downloadRecords).toBeCalledTimes(records.length * 2);
       expect(mockedSource.uploadRecords).toBeCalledTimes(1);
