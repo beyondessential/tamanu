@@ -32,6 +32,7 @@ const NotesBox = styled(Box)`
 const LabRequestTable = ({ labRequestData }) => {
   const api = useApi();
   const [tests, setTests] = useState([]);
+  const [encounter, setEncounter] = useState([]);
   const {
     displayId,
     requestedDate,
@@ -49,13 +50,20 @@ const LabRequestTable = ({ labRequestData }) => {
     })();
   }, [api, labRequestData.id]);
 
+  useEffect(() => {
+    (async () => {
+      const res = await api.get(`encounter/${labRequestData.encounterId}`);
+      setEncounter(res);
+    })();
+  }, [api, labRequestData.encounterId]);
+
   return (
     <GridTable
       data={{
         'Request number': displayId,
         'Order date': requestedDate,
         Facility: laboratory?.name,
-        Department: '', // TODO: Fetch department from encounter
+        Department: encounter.department?.name,
         'Requested by': requestedBy?.displayName,
         'Sample time': sampleTime,
         Priority: priority?.name,
