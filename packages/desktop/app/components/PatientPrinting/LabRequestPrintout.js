@@ -69,7 +69,7 @@ const LabRequestTable = ({ labRequestData }) => {
 export const LabRequestPrintout = React.memo(({ labRequestData, patientData, certificateData }) => {
   const api = useApi();
   const [notes, setNotes] = useState([]);
-  const { firstName, lastName, dateOfBirth, sex } = patientData;
+  const { firstName, lastName, dateOfBirth, sex, displayId } = patientData;
   const { title, subTitle, logo } = certificateData;
 
   useEffect(() => {
@@ -91,7 +91,10 @@ export const LabRequestPrintout = React.memo(({ labRequestData, patientData, cer
           </LocalisedLabel>
           <LocalisedLabel name="sex">{sex}</LocalisedLabel>
         </div>
-        <PatientBarcode patient={patientData} />
+        <div>
+          <LocalisedLabel name="displayId">{displayId}</LocalisedLabel>
+          <PatientBarcode patient={patientData} barWidth={2} barHeight={75} />
+        </div>
       </RowContainer>
       <LabRequestTable labRequestData={labRequestData} />
       <Text>Notes:</Text>
