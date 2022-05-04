@@ -20,7 +20,7 @@ const Header = styled.div`
 const LogoImage = styled.img`
   position: absolute;
   top: -5px;
-  left: -10px;
+  left: 0px;
   height: auto;
   width: 90px;
 `;
