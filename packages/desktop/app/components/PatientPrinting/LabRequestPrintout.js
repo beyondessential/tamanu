@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import moment from 'moment';
 import styled from 'styled-components';
 
 import { Typography, Box } from '@material-ui/core';
@@ -61,11 +62,11 @@ const LabRequestTable = ({ labRequestData }) => {
     <GridTable
       data={{
         'Request number': displayId,
-        'Order date': requestedDate,
+        'Request date': requestedDate ? moment(requestedDate).format('DD/MM/YYYY') : null,
         Facility: laboratory?.name,
         Department: encounter.department?.name,
         'Requested by': requestedBy?.displayName,
-        'Sample time': sampleTime,
+        'Sample time': sampleTime ? moment(sampleTime).format('DD/MM/YYYY hh:mm a') : null,
         Priority: priority?.name,
         'Test type': category?.name,
         'Test requested': tests.map(test => test.labTestType?.name).join(', '),
