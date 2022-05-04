@@ -10,8 +10,9 @@
   "scripts": {
     "clean": "rm -rf ../shared",
     "prepare": "mkdir -p ../shared && cp -n shared.package.json ../shared/package.json || true",
-    "compile": "yarn run prepare && yarn run babel --extensions '.js,.ts,.tsx' --root-mode upward --out-dir ../shared src",
-    "build": "yarn run clean && yarn run compile && yarn run tsc --build tsconfig.json",
+    "compile-js": "yarn run babel --extensions '.js,.ts,.tsx' --root-mode upward --out-dir ../shared src",
+    "compile-ts": "yarn run tsc --build tsconfig.json && rm -v ../shared/types/*.d.js && cp -v src/types/*.d.ts ../shared/types/",
+    "build": "yarn run clean && yarn run prepare && yarn run compile-js && yarn run compile-ts",
     "build-watch": "yarn run compile --watch",
     "test": "NODE_ENV=test jest",
     "test-coverage": "yarn test --coverage",
