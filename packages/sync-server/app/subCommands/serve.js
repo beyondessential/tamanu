@@ -4,14 +4,13 @@ import { Command } from 'commander';
 import { log } from 'shared/services/logging';
 
 import { createApp } from '../createApp';
-import { startScheduledTasks } from '../tasks';
 import { ApplicationContext } from '../ApplicationContext';
 import { version } from '../serverInfo';
 import { setupEnv } from '../env';
 
 const { port } = config;
 
-const serve = async ({ skipMigrationCheck }) => {
+export const serve = async ({ skipMigrationCheck }) => {
   log.info(`Starting sync server version ${version}.`);
 
   log.info(`Process info`, {
@@ -34,24 +33,16 @@ const serve = async ({ skipMigrationCheck }) => {
   const server = app.listen(port, () => {
     log.info(`Server is running on port ${port}!`);
   });
-  process.on('SIGTERM', () => {
-    log.info('Received SIGTERM, closing HTTP server');
-    server.close();
-  });
-
-  // only execute tasks on the first worker process
-  // NODE_APP_INSTANCE is set by PM2; if it's not present, assume this process is the first
-  const isFirstProcess = !process.env.NODE_APP_INSTANCE || process.env.NODE_APP_INSTANCE === '0';
-  if (isFirstProcess) {
-    const stopScheduledTasks = await startScheduledTasks(context);
-    process.on('SIGTERM', () => {
-      log.info('Received SIGTERM, stopping scheduled tasks');
-      stopScheduledTasks();
+  
+  for (const sig of ['SIGINT', 'SIGTERM']) {
+    process.on(sig, () => {
+      log.info(`Received ${sig}, closing HTTP server`);
+      server.close();
     });
   }
 };
 
 export const serveCommand = new Command('serve')
-  .description('Start the Tamanu sync-server')
+  .description('Start the Tamanu sync server')
   .option('--skipMigrationCheck', 'skip the migration check on startup')
   .action(serve);
