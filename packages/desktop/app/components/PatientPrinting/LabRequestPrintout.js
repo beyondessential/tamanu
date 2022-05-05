@@ -8,7 +8,7 @@ export const LabRequestPrintout = React.memo(({ labRequestData, patientData, cer
   const api = useApi();
   const [notes, setNotes] = useState([]);
   const [tests, setTests] = useState([]);
-  const [encounter, setEncounter] = useState([]);
+  const [encounter, setEncounter] = useState();
 
   const {
     displayId,
