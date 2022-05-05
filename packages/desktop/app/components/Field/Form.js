@@ -99,6 +99,8 @@ export class Form extends React.PureComponent {
       ...formProps,
     });
 
+    // if setValues is called, we need to update the values that the submission handler uses so that
+    // it can be called immediately afterwards (i.e. setValues has a synchronous effect)
     const setValues = newValues => {
       values = newValues;
       originalSetValues(newValues);
