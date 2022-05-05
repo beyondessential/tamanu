@@ -1,3 +1,5 @@
+/* eslint-disable import/no-unresolved, import/extensions */
+
 import { subDays } from 'date-fns';
 import { groupBy } from 'lodash';
 import moment from 'moment';
@@ -28,7 +30,7 @@ const reportColumnTemplate = [
     },
   },
   { title: 'Sex', accessor: data => data.patient.sex },
-  { title: 'Nationality', accessor: data => data => data['pde-PalauCOVCase6a'] },
+  { title: 'Nationality', accessor: data => data['pde-PalauCOVCase6a'] },
   { title: 'Street address', accessor: data => data['pde-PalauCOVCase8'] },
   { title: 'City/Hamlet', accessor: data => data['pde-PalauCOVCase9'] },
   { title: 'State', accessor: data => data['pde-PalauCOVCase9a'] },
@@ -73,6 +75,7 @@ const WILLIAM_HOROTO_IDS = [
 
 const parametersToSurveyResponseSqlWhere = (parameters, surveyId) => {
   if (!parameters.fromDate) {
+    // eslint-disable-next-line no-param-reassign
     parameters.fromDate = subDays(new Date(), 30).toISOString();
   }
 
@@ -87,6 +90,7 @@ const parametersToSurveyResponseSqlWhere = (parameters, surveyId) => {
     return defaultWhereClause;
   }
 
+  /* eslint-disable no-param-reassign */
   const whereClause = Object.entries(parameters)
     .filter(([, val]) => val)
     .reduce((where, [key, value]) => {
@@ -111,12 +115,13 @@ const parametersToSurveyResponseSqlWhere = (parameters, surveyId) => {
       }
       return where;
     }, defaultWhereClause);
+  /* eslint-enable no-param-reassign */
 
   return whereClause;
 };
 
 const getSurveyResponses = async (models, parameters, surveyId) => {
-  return await models.SurveyResponse.findAll({
+  return models.SurveyResponse.findAll({
     where: parametersToSurveyResponseSqlWhere(parameters, surveyId),
     include: [
       {
@@ -197,6 +202,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
             resultResponse.initialSurveyResponseAnswers = await transformAnswers(
               models,
               surveyResponse.answers.map(a => {
+                // eslint-disable-next-line no-param-reassign
                 a.surveyResponse = surveyResponse;
                 return a;
               }),
@@ -209,6 +215,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
               resultResponse.followUpSurveyResponseAnswers = await transformAnswers(
                 models,
                 followUpSurvey.answers.map(a => {
+                  // eslint-disable-next-line no-param-reassign
                   a.surveyResponse = followUpSurvey;
                   return a;
                 }),

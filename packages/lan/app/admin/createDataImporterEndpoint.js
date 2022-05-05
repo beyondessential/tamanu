@@ -2,6 +2,8 @@ import asyncHandler from 'express-async-handler';
 import { unlink } from 'fs';
 import config from 'config';
 
+import { log } from 'shared/services/logging';
+
 import { getUploadedData } from './getUploadedData';
 import { sendSyncRequest } from './sendSyncRequest';
 
@@ -33,10 +35,16 @@ export async function sendRecordGroups(recordGroups) {
   const remote = new WebRemote();
   for (const [recordType, recordsForGroup] of recordGroups) {
     const recordsByChannel = groupBy(recordsForGroup, 'channel');
+    const total = recordsForGroup.length;
+    let completed = 0;
+    log.debug(`sendRecordGroups: sending ${total} records`);
     for (const [maybeChannel, recordsForChannel] of recordsByChannel) {
       const channel = maybeChannel || getChannelFromRecordType(recordType);
       await sendSyncRequest(remote, channel, recordsForChannel);
+      completed += recordsForChannel.length;
+      log.debug(`sendRecordGroups: sent ${completed} of ${total}`);
     }
+    log.debug(`sendRecordGroups: finished sending ${total} records`);
   }
 }
 

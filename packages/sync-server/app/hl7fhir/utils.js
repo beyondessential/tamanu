@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { toBase64, fromBase64 } from './base64';
+import { jsonFromBase64, jsonToBase64 } from 'shared/utils/encodings';
 
 export function hl7SortToTamanu(hl7Sort) {
   // hl7Sort can be quite complicated, we only support a single field `issued` in `-` order
@@ -28,12 +28,12 @@ export function toSearchId({ after, ...params }) {
       id: after.id,
     };
   }
-  return toBase64(result);
+  return jsonToBase64(result);
 }
 
 export function fromSearchId(cursor) {
   // leave it to parseQuery to validate params
-  return fromBase64(cursor);
+  return jsonFromBase64(cursor);
 }
 
 export function addPaginationToWhere(where, after) {

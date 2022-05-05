@@ -85,7 +85,6 @@
     "express-async-handler": "^1.1.4",
     "express-session": "^1.15.6",
     "express-validator": "^6.5.0",
-    "faye": "^1.2.4",
     "follow": "^1.1.0",
     "json-canonicalize": "^1.0.4",
     "jsonwebtoken": "^8.4.0",
