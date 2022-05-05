@@ -126,7 +126,7 @@ const DumbImagingRequestInfoPane = React.memo(
                 (external link)
               </Button>
               {dirty && (
-                <Button variant="outlined" color="primary" type="submit">
+                <Button variant="contained" color="primary" type="submit">
                   Save
                 </Button>
               )}
