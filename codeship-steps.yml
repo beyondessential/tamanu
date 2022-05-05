@@ -11,13 +11,13 @@
     - name: run migrations
       service: app-with-db
       command: scripts/apply_and_revert_sync_server_migrations.sh
-    - name: run tests
+    - name: test
       type: serial
       steps:
-        - name: test app
+        - name: the desktop app and servers
           service: app-with-db
           command: ./scripts/test.sh
-        - name: test mobile
+        - name: the mobile app
           service: mobile
           command: "yarn test:coverage"
     - name: fix ssh for builds
