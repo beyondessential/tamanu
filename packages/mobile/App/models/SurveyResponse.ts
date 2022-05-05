@@ -154,7 +154,7 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
 
         if (dataElement.type === FieldTypes.PATIENT_DATA) {
           const questionConfig = component.getConfigObject();
-          if (questionConfig.writeToPatient) {
+          if (questionConfig.writeToPatient && questionConfig.writeToPatient.fieldName) {
             if (questionConfig.writeToPatient.isAdditionalDataField) {
               // find doesn't work with ManyToOne fields so we need to use a QueryBuilder
               const additionalData = await PatientAdditionalData.getRepository()
