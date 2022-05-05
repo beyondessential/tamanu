@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
@@ -23,6 +23,10 @@ import {
 import { useApi } from '../../api';
 import { Suggester } from '../../utils/suggester';
 
+import { ImagingRequestPrintout } from '../../components/PatientPrinting/ImagingRequestPrintout';
+import { Modal } from '../../components/Modal';
+import { useCertificate } from '../../utils/useCertificate';
+
 const BackLink = connect(null, dispatch => ({
   onClick: () => dispatch(push('/patients/encounter')),
 }))(({ onClick }) => <Button onClick={onClick}>&lt; Back to encounter information</Button>);
@@ -32,6 +36,29 @@ const statusOptions = [
   { value: 'in_progress', label: 'In progress' },
   { value: 'completed', label: 'Completed' },
 ];
+
+const PrintButton = ({ imagingRequest }) => {
+  const certificateData = useCertificate();
+  const [isModalOpen, setModalOpen] = useState(false); // TODO: useParams
+  const openModal = useCallback(() => setModalOpen(true), []);
+  const closeModal = useCallback(() => setModalOpen(false), []);
+
+  return (
+    <>
+      <Modal title="Imaging Request" open={isModalOpen} onClose={closeModal} width="md" printable>
+        <ImagingRequestPrintout imagingRequest={imagingRequest} certificateData={certificateData} />
+      </Modal>
+      <Button
+        variant="outlined"
+        color="primary"
+        onClick={openModal}
+        style={{ marginRight: '0.5rem' }}
+      >
+        Print request
+      </Button>
+    </>
+  );
+};
 
 const DumbImagingRequestInfoPane = React.memo(
   ({ imagingRequest, onSubmit, practitionerSuggester, locationSuggester }) => (
@@ -154,7 +181,11 @@ export const DumbImagingRequestView = React.memo(({ imagingRequest, patient }) =
     <TwoColumnDisplay>
       <PatientInfoPane patient={patient} />
       <div>
-        <TopBar title="Imaging request" />
+        <TopBar title="Imaging request">
+          <div>
+            <PrintButton imagingRequest={imagingRequest} />
+          </div>
+        </TopBar>
         <BackLink />
         <ContentPane>
           <DumbImagingRequestInfoPane
