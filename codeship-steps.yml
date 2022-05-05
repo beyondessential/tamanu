@@ -2,31 +2,30 @@
   type: serial
   encrypted_dockercfg_path: dockercfg.encrypted
   steps:
-    - name: copy_files
-      service: app
-      command: /.tmp/scripts/copy_files.sh
-    - name: reinstate_ssh
-      service: app
-      command: ./scripts/fix_ssh.sh
-    - name: install_dependencies
-      service: app
-      command: ./scripts/install.sh
-    - name: build_shared
-      service: app
-      command: ./scripts/build_shared.sh
-    - name: apply_and_revert_sync_server_migrations
-      service: app
-      command: ./scripts/apply_and_revert_sync_server_migrations.sh
-    - name: test
+    - name: copy files
+      service: app-without-db
+      command: /pre/scripts/copy_files.sh
+    - name: install dependencies
+      service: app-without-db
+      command: scripts/build_shared.sh
+    - name: run migrations
+      service: app-with-db
+      command: scripts/apply_and_revert_sync_server_migrations.sh
+    - name: run tests
       type: serial
       steps:
-        - name: app-test
-          service: app
+        - name: test app
+          service: app-with-db
           command: ./scripts/test.sh
-        - name: mobile-test
+        - name: test mobile
           service: mobile
           command: "yarn test:coverage"
-    - name: build
+    - name: fix ssh for builds
+      tag: ^(master$|dev$|staging$|ci-)
+      service: app-without-db
+      command: /pre/scripts/fix_ssh.sh
+    - name: build packages
+      tag: ^(master$|dev$|staging$|ci-)
       type: parallel
       steps:
         # the following steps are run in serial so they don't overlap
@@ -34,30 +33,31 @@
           type: serial
           steps:
             - name: build_and_pack_lan_installer
-              service: app
+              service: app-without-db
               tag: ^(master$|dev$|staging$|ci-)
               command: ./scripts/build_lan.sh
             - name: build_lan_release
               tag: ^(master$|dev$|staging$|ci-)
-              service: app
+              service: app-without-db
               command: ./scripts/build_package_release.sh lan
         - name: build_and_pack_desktop_installer
-          service: app
+          service: app-without-db
           tag: ^(master$|dev$|staging$|ci-)
           command: ./scripts/build_desktop.sh build-only
         - name: build_sync_release
           tag: ^(master$|dev$|staging$|ci-)
-          service: app
+          service: app-without-db
           command: ./scripts/build_package_release.sh sync-server
         - name: build_meta_release
           tag: ^(master$|dev$|staging$|ci-)
-          service: app
+          service: app-without-db
           command: ./scripts/build_package_release.sh meta-server
-    - name: push_and_deploy
+    - name: push and deploy
+      tag: ^(master$|dev$|staging$|ci-|release-desktop-)
       type: parallel
       steps:
         - name: build_and_release_desktop_installer
-          service: app
+          service: app-without-db
           tag: ^(release-desktop-)
           command: ./scripts/build_desktop.sh build-and-release
         - name: push_artefacts_to_s3
@@ -67,7 +67,8 @@
         # the following serial steps are a fix for a bug where version names can
         # collide if an application is deployed in parallel
         # see https://github.com/codeship-library/aws-utilities/issues/115
-        - name: deploy_sync
+        - name: deploy sync
+          tag: ^(master$|dev$|staging$|ci-)
           type: serial
           steps:
             - name: deploy_sync_dev_environment
@@ -90,7 +91,8 @@
               tag: ^(master$)
               service: awsdeployment
               command: ./scripts/deploy_sync.sh demo-palau
-        - name: deploy_lan
+        - name: deploy lan
+          tag: ^(master$|dev$|staging$|ci-)
           type: serial
           steps:
             - name: deploy_lan_dev_environment
@@ -109,7 +111,8 @@
               tag: ^(master$)
               service: awsdeployment
               command: ./scripts/deploy_lan.sh demo-nauru
-        - name: deploy_meta
+        - name: deploy meta
+          tag: ^(dev$|ci-)
           type: serial
           steps:
             - name: deploy_meta_dev_environment
