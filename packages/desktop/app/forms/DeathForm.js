@@ -197,6 +197,7 @@ export const DeathForm = React.memo(
             .min(patient.dateOfBirth, "Time of death can't be before date of birth")
             .required(),
         })}
+        initialValues={{ outsideHealthFacility: false }}
       >
         <StyledFormGrid columns={2}>
           <FieldWithTooltip
@@ -268,7 +269,7 @@ export const DeathForm = React.memo(
             required
           />
           <Field
-            name="deathOutsideHealthFacility"
+            name="outsideHealthFacility"
             label="Died outside health facility"
             component={CheckField}
             style={{ gridColumn: '1/-1', marginBottom: '10px', marginTop: '5px' }}

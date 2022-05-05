@@ -23,6 +23,7 @@ export class PatientDeathData extends Model {
         stillborn: Sequelize.STRING, // yes/no/unknown/null
         wasPregnant: Sequelize.STRING, // yes/no/unknown/null
         withinDayOfBirth: Sequelize.BOOLEAN,
+        outsideHealthFacility: Sequelize.BOOLEAN,
       },
       {
         ...options,

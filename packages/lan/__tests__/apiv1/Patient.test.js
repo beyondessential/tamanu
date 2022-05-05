@@ -261,6 +261,7 @@ describe('Patient', () => {
       const result = await app.post(`/v1/patient/${id}/death`).send({
         clinicianId,
         facilityId,
+        outsideHealthFacility: false,
         timeOfDeath: dod,
         causeOfDeath: cond1Id,
         causeOfDeathInterval: 100,
@@ -379,6 +380,7 @@ describe('Patient', () => {
       await app.post(`/v1/patient/${id}/death`).send({
         clinicianId,
         facilityId,
+        outsideHealthFacility: false,
         timeOfDeath: dod,
         causeOfDeath: cond1Id,
         causeOfDeathInterval: 100,

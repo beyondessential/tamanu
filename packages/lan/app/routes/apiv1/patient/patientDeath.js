@@ -85,6 +85,7 @@ patientDeath.get(
       patientDeathDataId: deathData.id,
       clinician: deathData.clinician,
       facility: deathData.facility,
+      outsideHealthFacility: deathData.outsideHealthFacility,
 
       dateOfBirth: patient.dateOfBirth,
       dateOfDeath: patient.dateOfDeath,
@@ -147,7 +148,7 @@ patientDeath.post(
 
     const {
       db,
-      models: { Discharge, Patient, PatientDeathData, DeathCause, User },
+      models: { Patient, PatientDeathData, DeathCause, User },
       params: { id: patientId },
     } = req;
 
@@ -175,6 +176,7 @@ patientDeath.post(
       otherContributingConditionsInterval: yup.number().default(0),
       deathWithin24HoursOfBirth: yesNo,
       facilityId: yup.string(),
+      outsideHealthFacility: yup.boolean().default(false),
       fetalOrInfant: yesNo.default('no'),
       lastSurgeryDate: yup.date(),
       lastSurgeryReason: yup.string(),
@@ -214,6 +216,7 @@ patientDeath.post(
         externalCauseLocation: body.mannerOfDeathLocation,
         externalCauseNotes: body.mannerOfDeathOther,
         facilityId: body.facilityId,
+        outsideHealthFacility: body.outsideHealthFacility,
         fetalOrInfant: body.fetalOrInfant === 'yes',
         hoursSurvivedSinceBirth: body.numberOfHoursSurvivedSinceBirth,
         lastSurgeryDate: body.surgeryInLast4Weeks === 'yes' ? body.lastSurgeryDate : null,

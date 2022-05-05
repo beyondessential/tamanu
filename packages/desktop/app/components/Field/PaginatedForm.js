@@ -122,6 +122,7 @@ export const PaginatedForm = ({
   SummaryScreen = DefaultSummaryScreen,
   SuccessScreen = DefaultSuccessScreen,
   validationSchema,
+  initialValues,
 }) => {
   const [formState, setFormState] = useState(FORM_STATES.IDLE);
   const { onStepBack, onStepForward, handleStep, screenIndex } = usePaginatedForm(children);
@@ -143,6 +144,7 @@ export const PaginatedForm = ({
     <Form
       onSubmit={onSubmitForm}
       validationSchema={validationSchema}
+      initialValues={initialValues}
       render={({ submitForm, values, setValues }) => {
         if (screenIndex <= maxIndex) {
           const screenComponent = formScreens.find((screen, i) =>
