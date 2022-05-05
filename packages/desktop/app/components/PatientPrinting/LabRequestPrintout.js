@@ -7,9 +7,9 @@ import { SimplePrintout } from './SimplePrintout';
 export const LabRequestPrintout = React.memo(({ labRequestData, patientData, certificateData }) => {
   const api = useApi();
   const [notes, setNotes] = useState([]);
-
   const [tests, setTests] = useState([]);
   const [encounter, setEncounter] = useState([]);
+
   const {
     displayId,
     requestedDate,

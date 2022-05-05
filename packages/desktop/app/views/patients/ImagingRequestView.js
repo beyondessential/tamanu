@@ -37,7 +37,7 @@ const statusOptions = [
   { value: 'completed', label: 'Completed' },
 ];
 
-const PrintButton = ({ imagingRequest }) => {
+const PrintButton = ({ imagingRequest, patient }) => {
   const certificateData = useCertificate();
   const [isModalOpen, setModalOpen] = useState(false); // TODO: useParams
   const openModal = useCallback(() => setModalOpen(true), []);
@@ -46,7 +46,11 @@ const PrintButton = ({ imagingRequest }) => {
   return (
     <>
       <Modal title="Imaging Request" open={isModalOpen} onClose={closeModal} width="md" printable>
-        <ImagingRequestPrintout imagingRequest={imagingRequest} certificateData={certificateData} />
+        <ImagingRequestPrintout
+          imagingRequestData={imagingRequest}
+          patientData={patient}
+          certificateData={certificateData}
+        />
       </Modal>
       <Button
         variant="outlined"
@@ -183,7 +187,7 @@ export const DumbImagingRequestView = React.memo(({ imagingRequest, patient }) =
       <div>
         <TopBar title="Imaging request">
           <div>
-            <PrintButton imagingRequest={imagingRequest} />
+            <PrintButton imagingRequest={imagingRequest} patient={patient} />
           </div>
         </TopBar>
         <BackLink />
