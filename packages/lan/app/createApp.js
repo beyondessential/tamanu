@@ -17,7 +17,6 @@ export function createApp({ sequelize, models, syncManager }) {
   app.use(bodyParser.urlencoded({ extended: true }));
 
   app.use((req, res, next) => {
-    res.setHeader('X-Runtime', 'Tamanu LAN Server'); // TODO: deprecated
     res.setHeader('X-Tamanu-Server', 'Tamanu LAN Server');
     res.setHeader('X-Version', version);
     next();

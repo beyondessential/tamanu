@@ -36,7 +36,7 @@
 
 ### Tweaks ⚖️
 
-- (left blank)
+- Completely drop deprecated `X-Runtime` header.
 
 ### Bug fixes 🐛
 

@@ -21,7 +21,6 @@ export function createApp() {
   app.use(bodyParser.urlencoded({ extended: true }));
 
   app.use((req, res, next) => {
-    res.setHeader('X-Runtime', 'Tamanu Metadata Server'); // TODO: deprecated
     res.setHeader('X-Tamanu-Server', 'Tamanu Metadata Server');
     res.setHeader('X-Version', version);
     next();

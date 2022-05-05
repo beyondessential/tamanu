@@ -80,8 +80,7 @@ const getStatuses = () => {
             `Expected body to include '{"index":true}' but got ${await result.blob()}`,
           );
         }
-        // TODO: deprecate X-Runtime
-        const serverType = result.headers.get('X-Tamanu-Server') || result.headers.get('X-Runtime');
+        const serverType = result.headers.get('X-Tamanu-Server');
         if (serverType !== EXPECTED_SERVER_TYPE) {
           throw new Error(
             `Expected X-Tamanu-Server header to be '${EXPECTED_SERVER_TYPE}' but got ${serverType}`,
