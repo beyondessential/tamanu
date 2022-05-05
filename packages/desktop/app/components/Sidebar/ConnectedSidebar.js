@@ -3,7 +3,8 @@ import { push } from 'connected-react-router';
 
 import { items } from './config';
 import { checkAbility } from '../../utils/ability';
-import { SidebarWithPrograms } from './SidebarWithPrograms';
+import { Sidebar } from './Sidebar';
+import { FacilitySidebar } from './FacilitySidebar';
 import { logout } from '../../store/auth';
 import { getCurrentRoute } from '../../store/router';
 
@@ -25,4 +26,5 @@ const mapDispatchToProps = dispatch => ({
   onLogout: () => dispatch(logout()),
 });
 
-export const ConnectedSidebar = connect(mapStateToProps, mapDispatchToProps)(SidebarWithPrograms);
+export const ConnectedFacilitySidebar = connect(mapStateToProps, mapDispatchToProps)(FacilitySidebar);
+export const ConnectedSyncSidebar = connect(mapStateToProps, mapDispatchToProps)(Sidebar);

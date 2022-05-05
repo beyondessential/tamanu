@@ -19,6 +19,7 @@ import {
   ImmunisationRoutes,
 } from './routes';
 import { NotActiveView } from './views';
+import { ConnectedFacilitySidebar, ConnectedSyncSidebar } from './components/Sidebar';
 
 export const RoutingApp = () => {
   const isSyncServer = useSelector(state => state.auth?.server?.type === SERVER_TYPES.SYNC);
@@ -26,7 +27,7 @@ export const RoutingApp = () => {
 };
 
 export const RoutingFacilityApp = React.memo(() => (
-  <App>
+  <App sidebarComponent={ConnectedFacilitySidebar}>
     <Switch>
       <Redirect exact path="/" to="/patients" />
       <Route path="/patients" component={PatientsRoutes} />
@@ -41,22 +42,22 @@ export const RoutingFacilityApp = React.memo(() => (
       <Route path="/reports" component={ReportsRoutes} />
       <Route path="/immunisations" component={ImmunisationRoutes} />
       {/*
-       * TODO fix this hack. For some reason, having an empty object within this switch fixes a bug
-       * where none of the app contents would render in a production build.
-       */}
+      * TODO fix this hack. For some reason, having an empty object within this switch fixes a bug
+      * where none of the app contents would render in a production build.
+      */}
     </Switch>
   </App>
 ));
 
 export const RoutingAdminApp = React.memo(() => (
-  <App>
+  <App sidebarComponent={ConnectedSyncSidebar}>
     <Switch>
       {/* <Redirect exact path="/" to="/admin" /> */}
       <Route path="/" component={NotActiveView} />
       {/*
-       * TODO fix this hack. For some reason, having an empty object within this switch fixes a bug
-       * where none of the app contents would render in a production build.
-       */}
+      * TODO fix this hack. For some reason, having an empty object within this switch fixes a bug
+      * where none of the app contents would render in a production build.
+      */}
     </Switch>
   </App>
 ));
