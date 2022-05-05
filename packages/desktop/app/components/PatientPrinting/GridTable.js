@@ -33,7 +33,7 @@ export const GridTable = ({ data }) => {
   return (
     <Table>
       {Object.entries(data).map(([key, value]) => (
-        <Row>
+        <Row key={key}>
           <Cell>
             <StrongText>{key}</StrongText>
           </Cell>
