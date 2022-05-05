@@ -1,7 +1,7 @@
 import { promises } from 'fs';
 import qs from 'qs';
 
-import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
+import { VERSION_COMPATIBILITY_ERRORS, SERVER_NAMES } from 'shared/constants';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 
 const { HOST, TOKEN, LOCALISATION, SERVER } = LOCAL_STORAGE_KEYS;
@@ -120,8 +120,14 @@ export class TamanuApi {
 
   async login(host, email, password) {
     this.setHost(host);
-    const response = await this.post('login', { email, password });
-    const { token, localisation, server } = response;
+    const response = await this.post('login', { email, password }, { returnResponse: true });
+    const serverType = response.headers.get('X-Tamanu-Server');
+    if (![SERVER_NAMES.LAN, SERVER_NAMES.SYNC].includes(serverType)) {
+      throw new Error(`Tamanu server type '${serverType}' is not supported.`);
+    }
+
+    const { token, localisation, server = {} } = await response.json();
+    server.type = serverType;
     saveToLocalStorage({ token, localisation, server });
     this.setToken(token);
     this.lastRefreshed = Date.now();
@@ -160,7 +166,7 @@ export class TamanuApi {
     if (!this.host) {
       throw new Error("TamanuApi can't be used until the host is set");
     }
-    const { headers, ...otherConfig } = config;
+    const { headers, returnResponse = false, ...otherConfig } = config;
     const queryString = qs.stringify(query || {});
     const url = `${this.prefix}/${endpoint}${query ? `?${queryString}` : ''}`;
     const response = await fetchOrThrowIfUnavailable(url, {
@@ -179,7 +185,11 @@ export class TamanuApi {
         this.refreshToken();
       }
 
-      return response.json();
+      if (returnResponse) {
+        return response;
+      } else {
+        return response.json();
+      }
     }
 
     const { error } = await getResponseJsonSafely(response);
