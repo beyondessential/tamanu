@@ -367,3 +367,9 @@ export const VACCINE_STATUS = {
   OVERDUE: 'OVERDUE',
   RECORDED_IN_ERROR: 'RECORDED_IN_ERROR',
 };
+
+export const SERVER_TYPES = {
+  LAN: 'Tamanu LAN Server',
+  META: 'Tamanu Metadata Server',
+  SYNC: 'Tamanu Sync Server',
+};
