@@ -1,5 +1,9 @@
 import React from 'react';
 import { Switch, Route, Redirect } from 'react-router';
+import { useSelector } from 'react-redux';
+
+import { SERVER_NAMES } from 'shared/constants';
+
 import { App } from './App';
 import {
   PatientsRoutes,
@@ -14,8 +18,14 @@ import {
   ReportsRoutes,
   ImmunisationRoutes,
 } from './routes';
+import { NotActiveView } from './views';
 
-export const RoutingApp = React.memo(() => (
+export const RoutingApp = () => {
+  const isSyncServer = useSelector(state => state.auth?.server?.type === SERVER_NAMES.SYNC);
+  return isSyncServer ? <RoutingAdminApp /> : <RoutingFacilityApp />;
+};
+
+export const RoutingFacilityApp = React.memo(() => (
   <App>
     <Switch>
       <Redirect exact path="/" to="/patients" />
@@ -30,6 +40,19 @@ export const RoutingApp = React.memo(() => (
       <Route path="/referrals" component={ReferralsRoutes} />
       <Route path="/reports" component={ReportsRoutes} />
       <Route path="/immunisations" component={ImmunisationRoutes} />
+      {/*
+       * TODO fix this hack. For some reason, having an empty object within this switch fixes a bug
+       * where none of the app contents would render in a production build.
+       */}
+    </Switch>
+  </App>
+));
+
+export const RoutingAdminApp = React.memo(() => (
+  <App>
+    <Switch>
+      {/* <Redirect exact path="/" to="/admin" /> */}
+      <Route path="/" component={NotActiveView} />
       {/*
        * TODO fix this hack. For some reason, having an empty object within this switch fixes a bug
        * where none of the app contents would render in a production build.
