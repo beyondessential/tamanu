@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import { push } from 'connected-react-router';
 
-import { items } from './config';
+import { facilityItems, syncItems } from './config';
 import { checkAbility } from '../../utils/ability';
 import { Sidebar } from './Sidebar';
 import { FacilitySidebar } from './FacilitySidebar';
@@ -16,15 +16,17 @@ const permissionCheck = (child, parent) => {
   return checkAbility(ability);
 };
 
-function mapStateToProps(state) {
-  const currentPath = getCurrentRoute(state);
-  return { currentPath, items, permissionCheck };
-}
-
 const mapDispatchToProps = dispatch => ({
   onPathChanged: newPath => dispatch(push(newPath)),
   onLogout: () => dispatch(logout()),
 });
 
-export const ConnectedFacilitySidebar = connect(mapStateToProps, mapDispatchToProps)(FacilitySidebar);
-export const ConnectedSyncSidebar = connect(mapStateToProps, mapDispatchToProps)(Sidebar);
+export const ConnectedFacilitySidebar = connect(state => {
+  const currentPath = getCurrentRoute(state);
+  return { currentPath, items: facilityItems, permissionCheck };
+}, mapDispatchToProps)(FacilitySidebar);
+
+export const ConnectedSyncSidebar = connect(state => {
+  const currentPath = getCurrentRoute(state);
+  return { currentPath, items: syncItems, permissionCheck };
+}, mapDispatchToProps)(Sidebar);

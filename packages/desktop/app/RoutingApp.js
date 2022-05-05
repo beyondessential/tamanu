@@ -18,8 +18,8 @@ import {
   ReportsRoutes,
   ImmunisationRoutes,
 } from './routes';
-import { NotActiveView } from './views';
 import { ConnectedFacilitySidebar, ConnectedSyncSidebar } from './components/Sidebar';
+import { TopBar, Notification } from './components';
 
 export const RoutingApp = () => {
   const isSyncServer = useSelector(state => state.auth?.server?.type === SERVER_TYPES.SYNC);
@@ -53,7 +53,7 @@ export const RoutingAdminApp = React.memo(() => (
   <App sidebarComponent={ConnectedSyncSidebar}>
     <Switch>
       {/* <Redirect exact path="/" to="/admin" /> */}
-      <Route path="/" component={NotActiveView} />
+      <Route path="/" component={AdminPlaceholder} />
       {/*
       * TODO fix this hack. For some reason, having an empty object within this switch fixes a bug
       * where none of the app contents would render in a production build.
@@ -61,3 +61,12 @@ export const RoutingAdminApp = React.memo(() => (
     </Switch>
   </App>
 ));
+
+export const AdminPlaceholder = React.memo(() => {
+  const user = useSelector(state => state.auth?.user);
+
+  return <>
+    <TopBar title="New sync admin panel" />
+    <Notification message={`Successfully logged in as ${user.displayName}`} />
+  </>;
+});
