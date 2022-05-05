@@ -293,10 +293,9 @@ describe('Patient', () => {
 
     it('should not mark a dead patient as dead', async () => {
       const { Patient } = models;
-      const { id } = await Patient.create({
-        ...fake(Patient),
-        dateOfDeath: new Date(random(patientData.dateOfBirth.getTime(), Date.now())),
-      });
+      const patientData = fake(Patient);
+      patientData.dateOfDeath = new Date(random(patientData.dateOfBirth.getTime(), Date.now()));
+      const { id } = await Patient.create(patientData);
       const { clinicianId, facilityId, cond1Id } = commons;
 
       const result = await app.post(`/v1/patient/${id}/death`).send({
