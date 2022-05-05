@@ -1,7 +1,7 @@
 import { promises } from 'fs';
 import qs from 'qs';
 
-import { VERSION_COMPATIBILITY_ERRORS, SERVER_NAMES } from 'shared/constants';
+import { VERSION_COMPATIBILITY_ERRORS, SERVER_TYPES } from 'shared/constants';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 
 const { HOST, TOKEN, LOCALISATION, SERVER } = LOCAL_STORAGE_KEYS;
@@ -122,7 +122,7 @@ export class TamanuApi {
     this.setHost(host);
     const response = await this.post('login', { email, password }, { returnResponse: true });
     const serverType = response.headers.get('X-Tamanu-Server');
-    if (![SERVER_NAMES.LAN, SERVER_NAMES.SYNC].includes(serverType)) {
+    if (![SERVER_TYPES.LAN, SERVER_TYPES.SYNC].includes(serverType)) {
       throw new Error(`Tamanu server type '${serverType}' is not supported.`);
     }
 
@@ -213,11 +213,11 @@ export class TamanuApi {
     throw new Error(error?.message || response.status);
   }
 
-  async get(endpoint, query) {
-    return this.fetch(endpoint, query, { method: 'GET' });
+  async get(endpoint, query, options = {}) {
+    return this.fetch(endpoint, query, { method: 'GET', ...options });
   }
 
-  async postWithFileUpload(endpoint, filePath, body) {
+  async postWithFileUpload(endpoint, filePath, body, options = {}) {
     const fileData = await promises.readFile(filePath);
     const blob = new Blob([fileData]);
 
@@ -233,30 +233,33 @@ export class TamanuApi {
     return this.fetch(endpoint, null, {
       method: 'POST',
       body: formData,
+      ...options,
     });
   }
 
-  async post(endpoint, body) {
+  async post(endpoint, body, options = {}) {
     return this.fetch(endpoint, null, {
       method: 'POST',
       body: body && JSON.stringify(body),
       headers: {
         'Content-Type': 'application/json',
       },
+      ...options,
     });
   }
 
-  async put(endpoint, body) {
+  async put(endpoint, body, options = {}) {
     return this.fetch(endpoint, null, {
       method: 'PUT',
       body: body && JSON.stringify(body),
       headers: {
         'Content-Type': 'application/json',
       },
+      ...options,
     });
   }
 
-  async delete(endpoint, query) {
-    return this.fetch(endpoint, query, { method: 'DELETE' });
+  async delete(endpoint, query, options = {}) {
+    return this.fetch(endpoint, query, { method: 'DELETE', ...options });
   }
 }

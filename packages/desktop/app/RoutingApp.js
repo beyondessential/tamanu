@@ -2,7 +2,7 @@ import React from 'react';
 import { Switch, Route, Redirect } from 'react-router';
 import { useSelector } from 'react-redux';
 
-import { SERVER_NAMES } from 'shared/constants';
+import { SERVER_TYPES } from 'shared/constants';
 
 import { App } from './App';
 import {
@@ -21,7 +21,7 @@ import {
 import { NotActiveView } from './views';
 
 export const RoutingApp = () => {
-  const isSyncServer = useSelector(state => state.auth?.server?.type === SERVER_NAMES.SYNC);
+  const isSyncServer = useSelector(state => state.auth?.server?.type === SERVER_TYPES.SYNC);
   return isSyncServer ? <RoutingAdminApp /> : <RoutingFacilityApp />;
 };
 
