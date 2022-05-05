@@ -257,16 +257,17 @@ export const DeathForm = React.memo(
             required
           />
           <Field
-            name="facilityId"
-            label="Facility"
-            component={AutocompleteField}
-            suggester={facilitySuggester}
-          />
-          <Field
             name="timeOfDeath"
             label="Date/Time"
             component={props => <DateTimeField {...props} InputProps={{}} />}
             required
+          />
+          <Field
+            name="facilityId"
+            label="Facility"
+            component={AutocompleteField}
+            suggester={facilitySuggester}
+            visibilityCriteria={{ outsideHealthFacility: [false] }}
           />
           <Field
             name="outsideHealthFacility"
