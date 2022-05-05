@@ -1,29 +1,11 @@
-app-without-db:
+app:
+  build: .
+  encrypted_env_file: codeship.env.encrypted
   cached: true
   default_cache_branch: dev
-  build:
-    # image name needs to be the same across both app- variants
-    # otherwise the image busts its own cache and we lose the advantage
-    image: tamanu-app
-    context: .
-    dockerfile: Dockerfile
-  encrypted_env_file: codeship.env.encrypted
   volumes:
     - ./.tmp:/tamanu
     - ./.ssh:/root/.ssh
-  environment:
-    ELECTRON_CONFIG_CACHE: "$HOME/cache/electron"
-
-app-with-db:
-  cached: true
-  default_cache_branch: dev
-  build:
-    image: tamanu-app
-    context: .
-    dockerfile: Dockerfile
-  encrypted_env_file: codeship.env.encrypted
-  volumes:
-    - ./.tmp:/tamanu
   environment:
     ELECTRON_CONFIG_CACHE: "$HOME/cache/electron"
     NODE_CONFIG: '{"db":{"name":"postgres","host":"postgres","username":"postgres","password":"postgres"}}'
@@ -32,7 +14,6 @@ app-with-db:
 
 awsdeployment:
   build:
-    image: tamanu-deploy
     dockerfile: Dockerfile.deploy
   encrypted_env_file: codeship.env.encrypted
   cached: true
@@ -42,10 +23,7 @@ awsdeployment:
     - ./.ssh:/root/.ssh
 
 postgres:
-  build:
-    image: tamanu-postgres
-    context: .
-    dockerfile: packages/shared-src/docker/postgres/Dockerfile
+  image: healthcheck/postgres
   cached: true
   default_cache_branch: dev
   environment:
