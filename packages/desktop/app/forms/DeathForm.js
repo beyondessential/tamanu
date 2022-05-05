@@ -267,7 +267,6 @@ export const DeathForm = React.memo(
             label="Facility"
             component={AutocompleteField}
             suggester={facilitySuggester}
-            visibilityCriteria={{ outsideHealthFacility: [false] }}
           />
           <Field
             name="outsideHealthFacility"
