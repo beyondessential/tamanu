@@ -98,7 +98,10 @@ export function checkVisibility(component, values, allComponents) {
         return false;
       }
 
-      return answersEnablingFollowUp.includes(value);
+      if (Array.isArray(answersEnablingFollowUp)) {
+        return answersEnablingFollowUp.includes(value);
+      }
+      return answersEnablingFollowUp === value;
     };
 
     return conjunction === 'and'
