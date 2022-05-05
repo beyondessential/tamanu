@@ -38,7 +38,7 @@ const UNIT_OPTIONS = [
   { unit: 'hours', minutes: 1 * 60 },
   { unit: 'days', minutes: 1 * 60 * 24 },
   { unit: 'weeks', minutes: 1 * 60 * 24 * 7 },
-  { unit: 'months', minutes: 1 * 60 * 24 * 7 * 30 },
+  { unit: 'months', minutes: 1 * 60 * 24 * 30 },
 ];
 
 export const TimeWithUnitInput = ({
