@@ -1,9 +1,14 @@
 import React, { useState } from 'react';
+import styled from 'styled-components';
 
 import { TopBar, PageContainer, DataFetchingTable } from '../../components';
 import { DateDisplay } from '../../components/DateDisplay';
 import { NewAppointmentButton } from '../../components/Appointments/NewAppointmentButton';
 import { AppointmentsSearchBar } from '../../components/Appointments/AppointmentsSearchBar';
+
+const CapitalisedValue = styled.span`
+  text-transform: capitalize;
+`;
 
 const COLUMNS = [
   {
@@ -12,10 +17,22 @@ const COLUMNS = [
     accessor: row => <DateDisplay date={row.startTime} showTime />,
   },
   {
+    key: 'displayId',
+    accessor: row => row.patient.displayId,
+  },
+  {
     key: 'patientName',
     title: 'Patient',
     accessor: row => `${row.patient.firstName} ${row.patient.lastName}`,
     sortable: false,
+  },
+  {
+    key: 'sex',
+    accessor: row => <CapitalisedValue>{row.patient.sex}</CapitalisedValue>,
+  },
+  {
+    key: 'dateOfBirth',
+    accessor: row => <DateDisplay date={row.patient.dateOfBirth} />,
   },
   {
     key: 'clinicianId',
