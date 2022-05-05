@@ -8,7 +8,7 @@ import { changePassword } from './changePassword';
 import { resetPassword } from './resetPassword';
 import { login } from './login';
 
-import { userMiddleware } from './userMiddleware';
+import { userMiddleware, userInfo } from './userMiddleware';
 
 export const authModule = express.Router();
 
@@ -17,6 +17,7 @@ authModule.use('/changePassword', changePassword);
 authModule.post('/login', login);
 
 authModule.use(userMiddleware);
+authModule.get('/user/me', userInfo);
 
 authModule.get('/permissions', asyncHandler(getPermissions));
 authModule.get(
