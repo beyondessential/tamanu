@@ -1,9 +1,18 @@
 #!/bin/bash
+echo "Copying files to /tamanu"
 
-set -euo pipefail
+# ensure target directory is clean & exists
+rm -rf ./deploy
+mkdir -p deploy
 
-echo "Clean runtime dir"
-rm -rf /tamanu/* || true
-
-echo "Copy files to runtime dir"
-cp -r --reflink=auto /pre/* /pre/.*{rc,ignore} /tamanu/
+# set up repo
+rm -rf /tamanu/scripts
+mkdir -p /tamanu
+cd /.tmp
+mv packages/ /tamanu/.
+mv scripts/ /tamanu/.
+mv .git /tamanu/.
+mv package.json /tamanu/.
+mv yarn.lock /tamanu/.
+mv babel.config.js /tamanu/.
+rm -rf /.tmp
