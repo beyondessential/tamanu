@@ -4,6 +4,51 @@
 
 ### Manual steps required after upgrade ⚙
 
+- Regenerate the server secret to log all mobile users out, so they get prompted to upgrade (only needs to be done once per server)
+  - This means generating a long random string using e.g. LastPass or some other secure tool and setting `config.auth.secret` to that string
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
+- (left blank)
+
+### Bug fixes 🐛
+
+- Fix bug where users with an outdated version weren't logged out properly
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
+## v1.15.2
+
+### Manual steps required after upgrade ⚙
+
+- (left blank)
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
+- Updated patient suggester to search for displayId and full name
+
+### Bug fixes 🐛
+
+- Fixed migration that could fail under certain conditions
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
+## v1.15.1
+
+### Manual steps required after upgrade ⚙
+
 - (left blank)
 
 ### Features ⭐
@@ -16,7 +61,7 @@
 
 ### Bug fixes 🐛
 
-- (left blank)
+- Fix some bugs to do with vaccine certificates
 
 ### Infrastructure and maintenance 🛠
 
@@ -48,6 +93,16 @@ responses for patients in covid lab test certificates
 ### Infrastructure and maintenance 🛠
 
 - (left blank)
+
+## v1.14.2
+
+### Features ⭐
+
+- Add task to automatically result + publish some lab tests
+
+### Bug fixes 🐛
+
+- Fix issue that was causing lab tests and requests to revert some fields
 
 ## v1.14.1
 

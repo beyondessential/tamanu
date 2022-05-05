@@ -2,14 +2,23 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Typography } from '@material-ui/core';
 import { promises as asyncFs } from 'fs';
 import { lookup as lookupMimeType } from 'mime-types';
+import styled from 'styled-components';
 
 import { DocumentsTable } from '../../../components/DocumentsTable';
 import { ConfirmCancelRow } from '../../../components/ButtonRow';
 import { DocumentModal } from '../../../components/DocumentModal';
 import { DocumentsSearchBar } from '../../../components/DocumentsSearchBar';
 import { Modal } from '../../../components/Modal';
+import { Button } from '../../../components/Button';
 
 import { useApi } from '../../../api';
+
+// Similar to ContentPane but content is aligned to the right
+const PaneButtonContainer = styled.div`
+  margin: 24px;
+  display: flex;
+  justify-content: flex-end;
+`;
 
 const AlertNoInternetModal = React.memo(({ open, onClose }) => (
   <Modal title="No internet connection detected" open={open} onClose={onClose}>
@@ -147,12 +156,16 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
         open={modalStatus === MODAL_STATES.ALERT_NO_SPACE_OPEN}
         onClose={handleClose}
       />
-      {showSearchBar && (
-        <DocumentsSearchBar
-          setSearchParameters={setSearchParameters}
-          onAddDocument={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}
-        />
-      )}
+      {showSearchBar && <DocumentsSearchBar setSearchParameters={setSearchParameters} />}
+      <PaneButtonContainer>
+        <Button
+          onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}
+          variant="contained"
+          color="primary"
+        >
+          Add document
+        </Button>
+      </PaneButtonContainer>
       <DocumentsTable
         endpoint={endpoint}
         searchParameters={searchParameters}

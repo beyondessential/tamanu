@@ -269,6 +269,7 @@ const getLabTestRecords = async (
         additionalDataEthnicity: patientAdditionalData?.ethnicity?.name,
         additionalDataNationality: patientAdditionalData?.nationality?.name,
         additionalDataPassportNumber: patientAdditionalData?.passport,
+        sampleTime: labRequest?.sampleTime,
       };
       Object.entries(surveyQuestionCodes).forEach(([key, dataElement]) => {
         labTestRecord[key] = getLatestPatientAnswerInDateRange(

@@ -120,6 +120,21 @@
     },
     "signerWorkingPeriodChecker": {
       "schedule": "0 1 * * *"
+    },
+    "automaticLabTestResultPublisher": {
+      "enabled": false,
+      "schedule": "*/15 * * * *",
+      "limit": 300,
+      "results": {
+        "labTestType-RATPositive": {
+          "labTestMethodId": "labTestMethod-RAT",
+          "result": "Positive"
+        },
+        "labTestType-RATNegative": {
+          "labTestMethodId": "labTestMethod-RAT",
+          "result": "Negative"
+        }
+      }
     }
   },
   "integrations": {

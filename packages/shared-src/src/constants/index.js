@@ -358,6 +358,7 @@ export const CERTIFICATE_NOTIFICATION_STATUSES = {
   QUEUED: 'Queued',
   PROCESSED: 'Processed',
   ERROR: 'Error',
+  IGNORE: 'Ignore',
 };
 
 export const VACCINE_STATUS = {

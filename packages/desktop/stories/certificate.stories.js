@@ -2,12 +2,13 @@ import React, { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
 import { storiesOf } from '@storybook/react';
 import { createDummyPatient, createDummyPatientAdditionalData } from 'shared/demoData';
-// Todo: Fix calculateLuhnModN dependency in shared/eudcc.js which seems to be breaking storybook
-// import { CovidLabCertificate, VaccineCertificate } from 'shared/utils';
+import { CovidLabCertificate, VaccineCertificate } from 'shared/utils/patientCertificates';
 import { PDFViewer } from '@react-pdf/renderer';
+import { DeathCertificate } from '../app/components/PatientPrinting/DeathCertificate';
 import SigningImage from './assets/signing-image.png';
 import Watermark from './assets/watermark.png';
 import Logo from './assets/tamanu-logo.png';
+import { Modal } from '../app/components';
 
 const dummyPatient = createDummyPatient();
 const dummyAdditionalData = createDummyPatientAdditionalData();
@@ -81,6 +82,29 @@ const getLocalisation = key => {
   };
   return config[key];
 };
+
+const certificateData = {
+  title: 'Tamanu Ministry of Health & Medical Services',
+  subTitle: 'PS Box 123456, Melbourne, Australia',
+  logo: Logo,
+  logoType: 'image/png',
+  watermark: Watermark,
+  watermarkType: 'image/png',
+  footerImg: SigningImage,
+  footerImgType: 'image/png',
+  printedBy: 'Initial Admin',
+};
+
+storiesOf('Certificates', module).add('DeathCertificate', () => {
+  return (
+    <Modal title="Record patient death" open width="md">
+      <DeathCertificate
+        patientData={{ ...patient, timeOfDeath: new Date(), causes: { primary: { condition: { name: 'Diabetes' }}}}}
+        certificateData={certificateData}
+      />
+    </Modal>
+  );
+});
 
 storiesOf('Certificates', module).add('CovidLabCertificate', () => (
   <PDFViewer width={800} height={1000} showToolbar={false}>

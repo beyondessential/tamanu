@@ -185,7 +185,7 @@ describe('Certificate', () => {
     await createVaccines();
     const patientRecord = await models.Patient.findByPk(patient.id);
     const printedBy = 'Initial Admin';
-    const result = await makeVaccineCertificate(patientRecord, printedBy, models, [{ foo: 'bar' }]);
+    const result = await makeVaccineCertificate(patientRecord, printedBy, models, 'TEST UVCI', [{ foo: 'bar' }]);
     expect(result.status).toEqual('success');
   });
 });
