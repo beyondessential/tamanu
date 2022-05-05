@@ -28,12 +28,12 @@ RUN for pkg in $(ls pkgs); do if test -s pkgs/$pkg/package.json; then mkdir -p p
 # Assemble the packages source plus the yarn cache
 # Cache optimisation: COPYs in order of least to most likely to change
 FROM base as final
-ENV PACKAGES_DIR=/tamanu/packages \
-    DEPLOY_DIR=/tamanu/deploy \
+ENV DEPLOY_DIR=/tamanu/deploy \
     DESKTOP_RELEASE_DIR=/tamanu/packages/desktop/release \
-    LAN_RELEASE_DIR=/tamanu/packages/lan/release \
     DESKTOP_ROOT=/tamanu/packages/desktop \
+    LAN_RELEASE_DIR=/tamanu/packages/lan/release \
     LAN_ROOT=/tamanu/packages/lan \
+    PACKAGES_DIR=/tamanu/packages \
     SYNC_SERVER_ROOT=/tamanu/packages/sync-server
 
 # Download the dependencies into the yarn cache
