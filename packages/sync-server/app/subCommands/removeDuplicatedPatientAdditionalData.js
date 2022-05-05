@@ -1,61 +1,80 @@
 import { Command } from 'commander';
+import { Sequelize, QueryTypes } from 'sequelize';
 
 import { log } from 'shared/services/logging';
+import { PatientAdditionalData } from 'shared/models';
 
 import { initDatabase } from '../database';
 
 const METADATA_COLUMNS = [
   'id',
-  'created_at',
-  'updated_at',
-  'deleted_at',
-  'patient_id',
-  'marked_for_push',
-  'pushed_at',
-  'pulled_at',
-  'is_pushing',
-  'merged_into_id',
+  'createdAt',
+  'updatedAt',
+  'deletedAt',
+  'patientId',
+  'markedForPush',
+  'pushedAt',
+  'pulledAt',
+  'isPushing',
+  'mergedIntoId',
 ];
 
-async function reconcilePatient(store, patientId) {
+export async function reconcilePatient(sequelize, patientId) {
   // find all the records for this patient
-  const [patientAdditionalDataRecords] = await store.sequelize.query(`
+  const patientAdditionalDataRecords = await sequelize.query(`
     SELECT *
     FROM patient_additional_data
     WHERE deleted_at IS NULL AND patient_id = :patientId
     ORDER BY updated_at;
   `, {
-    replacements: { patientId }
+    model: PatientAdditionalData,
+    type: QueryTypes.SELECT,
+    mapToModel: true,
+    replacements: { patientId },
   });
 
   // get all the records that have actual data against them
   const checkedRecords = patientAdditionalDataRecords.map(record => ({
     record,
-    hasData: Object.keys(record).some(col =>
-        !METADATA_COLUMNS.includes(col) &&
-        record[col] !== null &&
-        record[col] !== undefined &&
-        record[col] !== '',
-    ),
+    canonical: false,
+    hasData: Object.keys(record.dataValues).some(col => {
+        if (METADATA_COLUMNS.includes(col)) return false;
+        const value = record[col];
+        if (value === undefined || value === null || value === '') return false;
+        return true;
+      }),
   }));
 
   // figure out the canonical record - the first one with data if there is one, otherwise just go with the first one
   const canonicalRecord = checkedRecords.find(x => x.hasData) || checkedRecords[0];
+  canonicalRecord.canonical = true;
 
   // delete the ones we can 
-  const toDelete = checkedRecords.filter(record => record !== canonicalRecord && !record.hasData);
-  log.info(`Merging ${count} records`, { patientId, canonicalId: canonicalRecord.record.id });
+  const toDelete = checkedRecords.filter(record => !record.canonical && !record.hasData);
+  log.info(`Merging ${toDelete.length} records`, { patientId, canonicalId: canonicalRecord.record.id });
   for (const checkedRecord of toDelete) {
+    /*
     await checkedRecord.record.update({
-      deletedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
-      updatedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
       mergedIntoId: canonicalRecord.record.id,
     });
+    */
+    const oldUpdated = checkedRecord.record.updatedAt;
+    await checkedRecord.record.update({
+      deletedAt: new Date(),
+      updatedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
+      title: 'jjqq',
+    });
+    if (checkedRecord.record.updatedAt == oldUpdated) {
+      throw new Error("updatedAt not updated");
+    }
+    if (!checkedRecord.record.deletedAt) {
+      throw new Error("deletedAt not deleted");
+    }
   }
 
   // warn if there are any OTHER records with data, which will need to be resolved manually
   // TODO: more intelligent merge logic
-  const unmergeable = checkedRecords.filter(record => record !== canonicalRecord && record.hasData);
+  const unmergeable = checkedRecords.filter(record => !record.canonical && record.hasData);
   if (unmergeable.length > 0) {
     log.warn(`Patient ${patientId} has ${unmergeable.length} unmergeable PatientAdditionalData records`);
   }
@@ -67,9 +86,9 @@ async function reconcilePatient(store, patientId) {
   };
 }
 
-async function removeDuplicatedPatientAdditionalData(store) {
+export async function removeDuplicatedPatientAdditionalData(sequelize) {
   
-  const [patientIdsCountData] = await store.sequelize.query(`
+  const [patientIdsCountData] = await sequelize.query(`
       SELECT COUNT(*)
       FROM (
         SELECT patient_id
@@ -98,7 +117,7 @@ async function removeDuplicatedPatientAdditionalData(store) {
   for (let i = 0; i < batchCount; i++) {
     
     // fetch the next list of patients
-    const [patients] = await store.sequelize.query(`
+    const [patients] = await sequelize.query(`
       SELECT patient_id
         FROM (
           SELECT patient_id
@@ -140,7 +159,7 @@ async function removeDuplicatedPatientAdditionalData(store) {
 
 async function runRemoverCommand() {
   const store = await initDatabase({ testMode: false });
-  const tallies = await removeDuplicatedPatientAdditionalData(store);
+  const tallies = await removeDuplicatedPatientAdditionalData(store.sequelize);
   log.info('Finished merging records.', tallies);
   process.exit(0);
 }
