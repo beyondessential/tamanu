@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
+import { useParams } from 'react-router-dom';
 
 import { Button, DeleteButton } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
@@ -212,10 +213,11 @@ const PrintModal = ({ labRequest, patient, open, onClose }) => {
 };
 
 const LabRequestActionDropdown = ({ labRequest, patient, updateLabReq }) => {
-  const [statusModalOpen, setStatusModalOpen] = useState(false);
-  const [printModalOpen, setPrintModalOpen] = useState(false);
-  const [labModalOpen, setLabModalOpen] = useState(false);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const { modal } = useParams();
+  const [statusModalOpen, setStatusModalOpen] = useState(modal === 'status');
+  const [printModalOpen, setPrintModalOpen] = useState(modal === 'print');
+  const [labModalOpen, setLabModalOpen] = useState(modal === 'laboratory');
+  const [deleteModalOpen, setDeleteModalOpen] = useState(modal === 'delete');
 
   const api = useApi();
   const [hasTests, setHasTests] = useState(true); // default to true to hide delete button at first

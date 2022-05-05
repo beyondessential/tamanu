@@ -124,7 +124,13 @@ export class LabRequestForm extends React.PureComponent {
             variant="contained"
             actions={[
               { label: 'Finalise', onClick: submitForm },
-              { label: 'Finalise & print', onClick: submitForm },
+              {
+                label: 'Finalise & print',
+                onClick: data => {
+                  values.isPrinting = true;
+                  submitForm(data);
+                },
+              },
             ]}
           />
         </ButtonRow>

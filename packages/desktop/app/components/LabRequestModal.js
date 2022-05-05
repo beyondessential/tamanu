@@ -8,19 +8,23 @@ import { Modal } from './Modal';
 import { ConnectedLabRequestForm } from '../forms/LabRequestForm';
 import { ALPHABET_FOR_ID } from '../constants';
 
-export const LabRequestModal = ({ open, onClose, onSaved, encounter }) => {
+export const LabRequestModal = ({ open, onClose, onSaved, onPrint, encounter }) => {
   const api = useApi();
   const practitionerSuggester = new Suggester(api, 'practitioner');
 
   return (
     <Modal width="md" title="New lab request" open={open} onClose={onClose}>
       <ConnectedLabRequestForm
-        onSubmit={async data => {
-          await api.post(`labRequest`, {
+        onSubmit={async ({ isPrinting, ...data }) => {
+          const newRequest = await api.post(`labRequest`, {
             ...data,
             encounterId: encounter.id,
           });
-          onSaved();
+          if (isPrinting) {
+            onPrint(newRequest.id);
+          } else {
+            onSaved();
+          }
         }}
         onCancel={onClose}
         encounter={encounter}
