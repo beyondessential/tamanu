@@ -55,21 +55,27 @@ const DumbImagingRequestInfoPane = React.memo(
         <Form>
           <FormGrid columns={3}>
             <TextInput value={imagingRequest.id} label="Request ID" disabled />
-            <TextInput value={imagingRequest.imagingType?.name} label="Request type" />
-            <TextInput value={imagingRequest.urgent ? 'Urgent' : 'Standard'} label="Urgency" />
+            <TextInput value={imagingRequest.imagingType?.name} label="Request type" disabled />
+            <TextInput
+              value={imagingRequest.urgent ? 'Urgent' : 'Standard'}
+              label="Urgency"
+              disabled
+            />
             <Field name="status" label="Status" component={SelectField} options={statusOptions} />
-            <DateInput value={imagingRequest.requestedDate} label="Requested date" />
+            <DateInput value={imagingRequest.requestedDate} label="Requested date" disabled />
             <TextInput
               multiline
               value={imagingRequest.areaToBeImaged}
               label="Area to be imaged"
               style={{ gridColumn: '1 / -1', minHeight: '60px' }}
+              disabled
             />
             <TextInput
               multiline
               value={imagingRequest.note}
               label="Notes"
               style={{ gridColumn: '1 / -1', minHeight: '60px' }}
+              disabled
             />
             {(values.status === IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS ||
               values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED) && (
