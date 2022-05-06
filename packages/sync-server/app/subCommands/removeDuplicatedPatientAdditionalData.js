@@ -53,23 +53,16 @@ export async function reconcilePatient(sequelize, patientId) {
   const toDelete = checkedRecords.filter(record => !record.canonical && !record.hasData);
   log.info(`Merging ${toDelete.length} records`, { patientId, canonicalId: canonicalRecord.record.id });
   for (const checkedRecord of toDelete) {
-    /*
-    await checkedRecord.record.update({
+    await PatientAdditionalData.update({
       mergedIntoId: canonicalRecord.record.id,
-    });
-    */
-    const oldUpdated = checkedRecord.record.updatedAt;
-    await checkedRecord.record.update({
-      deletedAt: new Date(),
+      deletedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
       updatedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
-      title: 'jjqq',
+      title: 'test',
+    }, {
+      where: {
+        id: checkedRecord.record.id,
+      }
     });
-    if (checkedRecord.record.updatedAt == oldUpdated) {
-      throw new Error("updatedAt not updated");
-    }
-    if (!checkedRecord.record.deletedAt) {
-      throw new Error("deletedAt not deleted");
-    }
   }
 
   // warn if there are any OTHER records with data, which will need to be resolved manually
