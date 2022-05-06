@@ -24,7 +24,7 @@ const StyledTooltip = withStyles(() => ({
   },
   popper: {
     zIndex: 1200, // make it less than the dialog, which is 1300
-  }
+  },
 }))(Tooltip);
 
 export const Appointment = ({ appointment, onUpdated }) => {

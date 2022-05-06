@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useApi } from 'desktop/app/api';
 import { reloadPatient } from 'desktop/app/store/patient';
 import { SurveyView } from 'desktop/app/views/programs/SurveyView';
-import { DumbPatientListingView } from 'desktop/app/views/patients/PatientListingView';
+import { PatientListingView } from 'desktop/app/views';
 import { FormGrid } from 'desktop/app/components/FormGrid';
 import { SURVEY_TYPES } from 'shared/constants';
 
@@ -91,7 +91,7 @@ export const ReferralsView = () => {
   const dispatch = useDispatch();
   if (!patient.id) {
     return (
-      <DumbPatientListingView
+      <PatientListingView
         onViewPatient={id => {
           dispatch(reloadPatient(id));
         }}

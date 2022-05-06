@@ -45,42 +45,40 @@ export const LoginForm = React.memo(
       }
     };
 
-    const renderForm = ({ setFieldValue }) => {
-      return (
-        <FormGrid columns={1}>
-          <div>{errorMessage}</div>
-          <Field name="email" type="email" label="Email" required component={TextField} />
-          <Field name="password" label="Password" type="password" required component={TextField} />
-          <RememberMeAdvancedRow>
-            <Field name="rememberMe" label="Remember me" component={CheckField} />
-            <AdvancedButtonSpan>
-              Advanced
-              {isAdvancedExpanded ? (
-                <MinusIconButton
-                  onClick={() => setAdvancedExpanded(false)}
-                  styles={{ padding: '0px' }}
-                />
-              ) : (
-                <PlusIconButton onClick={() => setAdvancedExpanded(true)} />
-              )}
-            </AdvancedButtonSpan>
-          </RememberMeAdvancedRow>
-          <Collapse in={isAdvancedExpanded}>
-            <Field
-              name="host"
-              label="LAN server address"
-              required
-              component={ServerDetectingField}
-              setFieldValue={setFieldValue}
-            />
-          </Collapse>
-          <LoginButton fullWidth variant="contained" color="primary" type="submit">
-            Login to your account
-          </LoginButton>
-          <Button onClick={onNavToResetPassword}>Forgot your password?</Button>
-        </FormGrid>
-      );
-    };
+    const renderForm = ({ setFieldValue }) => (
+      <FormGrid columns={1}>
+        <div>{errorMessage}</div>
+        <Field name="email" type="email" label="Email" required component={TextField} />
+        <Field name="password" label="Password" type="password" required component={TextField} />
+        <RememberMeAdvancedRow>
+          <Field name="rememberMe" label="Remember me" component={CheckField} />
+          <AdvancedButtonSpan>
+            Advanced
+            {isAdvancedExpanded ? (
+              <MinusIconButton
+                onClick={() => setAdvancedExpanded(false)}
+                styles={{ padding: '0px' }}
+              />
+            ) : (
+              <PlusIconButton onClick={() => setAdvancedExpanded(true)} />
+            )}
+          </AdvancedButtonSpan>
+        </RememberMeAdvancedRow>
+        <Collapse in={isAdvancedExpanded}>
+          <Field
+            name="host"
+            label="LAN server address"
+            required
+            component={ServerDetectingField}
+            setFieldValue={setFieldValue}
+          />
+        </Collapse>
+        <LoginButton fullWidth variant="contained" color="primary" type="submit">
+          Login to your account
+        </LoginButton>
+        <Button onClick={onNavToResetPassword}>Forgot your password?</Button>
+      </FormGrid>
+    );
 
     return (
       <Form

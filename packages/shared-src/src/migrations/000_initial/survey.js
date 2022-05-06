@@ -5,8 +5,6 @@ module.exports = ({ Sequelize, foreignKey }) => ({
     programId: foreignKey('Program'),
   },
   options: {
-    indexes: [
-      { fields: ['code'], unique: true },
-    ]
-  }
+    indexes: [{ fields: ['code'], unique: true }],
+  },
 });

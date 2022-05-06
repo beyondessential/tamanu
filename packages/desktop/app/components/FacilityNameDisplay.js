@@ -3,6 +3,6 @@ import { useFacility } from '../contexts/Facility';
 
 export const FacilityNameDisplay = () => {
   const facilityInfo = useFacility();
-  const name = facilityInfo.name;
+  const { name } = facilityInfo;
   return <div>{name}</div>;
 };

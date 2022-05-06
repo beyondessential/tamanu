@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, ReactElement } from 'react';
+import { useNavigation } from '@react-navigation/native';
 import {
   screenPercentageToDP,
   Orientation,
-} from '/helpers/screen';
-import { theme } from '/styled/theme';
-import { useNavigation } from '@react-navigation/native';
+} from '../../helpers/screen';
+import { Suggester, BaseModelSubclass } from '../../helpers/suggester';
+import { theme } from '../../styled/theme';
 import { Button } from '../Button';
-import { Suggester, BaseModelSubclass } from '~/ui/helpers/suggester';
 
 interface AutocompleteModalFieldProps {
   value?: string;
@@ -24,7 +24,7 @@ export const AutocompleteModalField = ({
   suggester,
   modalRoute,
   marginTop,
-}: AutocompleteModalFieldProps): JSX.Element => {
+}: AutocompleteModalFieldProps): ReactElement => {
   const navigation = useNavigation();
   const [label, setLabel] = useState(placeholder);
   const onPress = (selectedItem): void => {

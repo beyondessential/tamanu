@@ -1,7 +1,7 @@
 import React from 'react';
 import { inRange } from 'lodash';
 
-import { getAgeFromDate } from 'shared-src/src/utils/date';
+import { getAgeFromDate } from 'shared/utils';
 import {
   LimitedTextField,
   MultilineTextField,
@@ -15,7 +15,7 @@ import {
   ReadOnlyTextField,
   UnsupportedPhotoField,
 } from 'desktop/app/components/Field';
-import { PROGRAM_DATA_ELEMENT_TYPES } from 'shared-src/src/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES } from 'shared/constants';
 import { joinNames } from './user';
 
 const InstructionField = ({ label, helperText }) => (
@@ -98,7 +98,10 @@ export function checkVisibility(component, values, allComponents) {
         return false;
       }
 
-      return answersEnablingFollowUp.includes(value);
+      if (Array.isArray(answersEnablingFollowUp)) {
+        return answersEnablingFollowUp.includes(value);
+      }
+      return answersEnablingFollowUp === value;
     };
 
     return conjunction === 'and'

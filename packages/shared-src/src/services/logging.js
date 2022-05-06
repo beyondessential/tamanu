@@ -7,7 +7,7 @@ import config from 'config';
 const {
   path,
   consoleLevel,
-  color,
+  // color,
 } = config?.log || {};
 
 /*
@@ -16,7 +16,7 @@ const colorise = color
   : (ignoredHex) => (text => text);
 */
 // TEMP: Disable chalk & its import as it seems to not run correctly on AWS
-const colorise = (ignoredHex) => (text => text);
+const colorise = () => text => text;
 
 const COLORS = {
   grey: colorise('999'),
@@ -28,13 +28,14 @@ const COLORS = {
 
 // additional parameters to log.info etc will be serialised and logged using this formatter
 const additionalDataFormatter = (obj = {}) => {
-  if (typeof obj !== "object") {
+  if (typeof obj !== 'object') {
     return `${obj}`;
   }
+
   return Object.entries(obj)
     .map(([key, value]) => `${key}=${value}`)
     .join(' ');
-}
+};
 
 // formatter for all logging:
 // 2022-03-25T06:52:30.003Z info: My console message! additionalItem=additionalValue
@@ -42,9 +43,9 @@ const logFormat = winston.format.printf(({ level, message, timestamp, ...rest })
   const restString = additionalDataFormatter(rest);
   if (restString === '') {
     return `${COLORS.grey(timestamp)} ${level}: ${message}`;
-  } else {
-    return `${COLORS.grey(timestamp)} ${level}: ${message} ${COLORS.grey(restString)}`;
   }
+
+  return `${COLORS.grey(timestamp)} ${level}: ${message} ${COLORS.grey(restString)}`;
 });
 
 export const log = winston.createLogger({
@@ -55,7 +56,7 @@ export const log = winston.createLogger({
     path ? new winston.transports.File({ filename: `${path}/combined.log` }) : null,
     new winston.transports.Console({
       format: winston.format.combine(
-        winston.format.colorize(), 
+        winston.format.colorize(),
         winston.format.timestamp(),
         logFormat,
       ),
@@ -65,14 +66,19 @@ export const log = winston.createLogger({
   ].filter(t => !!t),
 });
 
-// Middleware for logging http requests 
+// Middleware for logging http requests
 function getStatusColor(status) {
-  switch(status[0]) {
-    case '5': return COLORS.red;
-    case '4': return COLORS.yellow;
-    case '3': return COLORS.green;
-    case '2': return COLORS.blue;
-    default: return COLORS.yellow;
+  switch (status && status[0]) {
+    case '5':
+      return COLORS.red;
+    case '4':
+      return COLORS.yellow;
+    case '3':
+      return COLORS.green;
+    case '2':
+      return COLORS.blue;
+    default:
+      return COLORS.yellow;
   }
 }
 
@@ -80,6 +86,7 @@ const httpFormatter = (tokens, req, res) => {
   const methodColor = req.method === 'GET' ? COLORS.green : COLORS.yellow;
   const status = tokens.status(req, res);
   const statusColor = getStatusColor(status);
+
   return [
     COLORS.grey(tokens['remote-addr'](req, res)),
     methodColor(tokens.method(req, res)),
@@ -93,15 +100,12 @@ const httpFormatter = (tokens, req, res) => {
 };
 
 export function getLoggingMiddleware() {
-  return morgan(
-    httpFormatter,
-    {
-      stream: {
-        write: message => {
-          // strip whitespace (morgan appends a \n, but winston will too!)
-          log.http(message.trim());
-        }
+  return morgan(httpFormatter, {
+    stream: {
+      write: message => {
+        // strip whitespace (morgan appends a \n, but winston will too!)
+        log.http(message.trim());
       },
-    }
-  );
+    },
+  });
 }
