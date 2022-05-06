@@ -30,7 +30,7 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
   const authState = useSelector(authSelector);
 
   const [modalVisible, setModalVisible] = useState(false);
-  const [modalContent, setModalContent] = useState({ message: '' });
+  const [modalContent, setModalContent] = useState<ModalContent>({ message: '' });
 
 
   /*
@@ -104,7 +104,7 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
             </StyledText>
           </StyledView>
           <SignInForm
-            onError={(error): void => {
+            onError={(error: Error): void => {
               if (error instanceof OutdatedVersionError) {
                 showErrorModal({
                   message: error.message,

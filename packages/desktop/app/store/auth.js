@@ -184,6 +184,4 @@ const actionHandlers = {
 export const authReducer = createStatePreservingReducer(defaultState, actionHandlers);
 
 const getUserSelector = state => state.auth?.user;
-export const useCurrentUser = () => {
-  return useSelector(getUserSelector);
-};
+export const useCurrentUser = () => useSelector(getUserSelector);

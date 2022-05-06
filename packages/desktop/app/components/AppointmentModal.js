@@ -16,19 +16,17 @@ const DumbAppointmentModal = React.memo(
     facilitySuggester,
     onClose,
     onCreateAppointment,
-  }) => {
-    return (
-      <Modal title="New appointment" open={open} onClose={onClose}>
-        <AppointmentForm
-          onSubmit={onCreateAppointment}
-          onCancel={onClose}
-          locationSuggester={locationSuggester}
-          facilitySuggester={facilitySuggester}
-          practitionerSuggester={practitionerSuggester}
-        />
-      </Modal>
-    );
-  },
+  }) => (
+    <Modal title="New appointment" open={open} onClose={onClose}>
+      <AppointmentForm
+        onSubmit={onCreateAppointment}
+        onCancel={onClose}
+        locationSuggester={locationSuggester}
+        facilitySuggester={facilitySuggester}
+        practitionerSuggester={practitionerSuggester}
+      />
+    </Modal>
+  ),
 );
 
 export const AppointmentModal = connectApi((api, dispatch, { patientId }) => ({

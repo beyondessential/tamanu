@@ -92,16 +92,14 @@ const PatientInfo = ({ patient }) => {
   );
 };
 
-const AppointmentTime = ({ startTime, endTime }) => {
-  return (
-    <span>
-      {format(new Date(startTime), 'ccc dd LLL')}
-      {' - '}
-      {format(new Date(startTime), 'h:mm aaa')}
-      {endTime && ` - ${format(new Date(endTime), 'h:mm aaa')}`}
-    </span>
-  );
-};
+const AppointmentTime = ({ startTime, endTime }) => (
+  <span>
+    {format(new Date(startTime), 'ccc dd LLL')}
+    {' - '}
+    {format(new Date(startTime), 'h:mm aaa')}
+    {endTime && ` - ${format(new Date(endTime), 'h:mm aaa')}`}
+  </span>
+);
 
 const Row = styled.div`
   display: flex;

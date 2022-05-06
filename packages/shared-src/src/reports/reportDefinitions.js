@@ -24,7 +24,7 @@ export const REPORT_DEFINITIONS = [
     ],
   },
   {
-    name: 'Admissions Report',
+    name: 'Admissions - Line list',
     id: 'admissions',
     parameters: [
       { parameterField: 'PractitionerField' },
@@ -117,6 +117,12 @@ export const REPORT_DEFINITIONS = [
     name: 'Palau COVID-19 Test - Line list',
     id: 'palau-covid-swab-lab-test-list',
     allFacilities: true,
+  },
+  {
+    name: 'Palau COVID-19 Case Report - Line list',
+    id: 'palau-covid-case-report-line-list',
+    allFacilities: true,
+    parameters: [{ parameterField: 'VillageField' }],
   },
   {
     name: 'Kiribati COVID-19 Test - Line list',
@@ -252,6 +258,32 @@ export const REPORT_DEFINITIONS = [
     ],
   },
   {
+    name: 'Fiji Statistical Report for PHIS - Summary',
+    id: 'fiji-statistical-report-for-phis-summary',
+    allFacilities: true,
+    parameters: [
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Division',
+        name: 'division',
+        suggesterEndpoint: 'division',
+      },
+      { parameterField: 'VillageField' },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Medical Area',
+        name: 'medicalArea',
+        suggesterEndpoint: 'medicalArea',
+      },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Nursing Zone',
+        name: 'nursingZone',
+        suggesterEndpoint: 'nursingZone',
+      },
+    ],
+  },
+  {
     name: 'Fiji Aspen encounter summary - Line list',
     id: 'fiji-aspen-encounter-summary-line-list',
     allFacilities: false,
@@ -261,6 +293,18 @@ export const REPORT_DEFINITIONS = [
         label: 'Patient Billing Type',
         name: 'patientBillingType',
         suggesterEndpoint: 'patientBillingType',
+      },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Department',
+        name: 'department',
+        suggesterEndpoint: 'department',
+      },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Location',
+        name: 'location',
+        suggesterEndpoint: 'location',
       },
     ],
   },

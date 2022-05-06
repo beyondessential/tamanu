@@ -56,9 +56,7 @@ function DumbPatientCarePlanDetails({ getNotes, item }) {
         if (notes.length > 1) {
           // display the latest note first
           setSubsequentNotes(
-            notes.slice(1).sort((a, b) => {
-              return moment(a.date).isBefore(b.date) ? 1 : -1;
-            }),
+            notes.slice(1).sort((a, b) => (moment(a.date).isBefore(b.date) ? 1 : -1)),
           );
         }
       }
@@ -113,7 +111,5 @@ function DumbPatientCarePlanDetails({ getNotes, item }) {
 }
 
 export const PatientCarePlanDetails = connectApi(api => ({
-  getNotes: async patientCarePlanId => {
-    return api.get(`patientCarePlan/${patientCarePlanId}/notes`);
-  },
+  getNotes: async patientCarePlanId => api.get(`patientCarePlan/${patientCarePlanId}/notes`),
 }))(DumbPatientCarePlanDetails);

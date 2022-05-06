@@ -4,7 +4,8 @@
 
 ### Manual steps required after upgrade ⚙
 
-- (left blank)
+- Regenerate the server secret to log all mobile users out, so they get prompted to upgrade (only needs to be done once per server)
+  - This means generating a long random string using e.g. LastPass or some other secure tool and setting `config.auth.secret` to that string
 
 ### Features ⭐
 
@@ -16,7 +17,7 @@
 
 ### Bug fixes 🐛
 
-- (left blank)
+- Fix bug where users with an outdated version weren't logged out properly
 
 ### Infrastructure and maintenance 🛠
 

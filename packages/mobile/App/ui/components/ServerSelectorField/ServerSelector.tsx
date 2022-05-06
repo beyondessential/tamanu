@@ -4,9 +4,9 @@ import { useNetInfo } from '@react-native-community/netinfo';
 import { SelectOption } from '../Dropdown';
 import { AndroidPicker } from '../Dropdown/Picker.android';
 import { InputContainer } from '../TextField/styles';
-import { StyledText, StyledView } from '/styled/common';
-import { theme } from '~/ui/styled/theme';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { StyledText, StyledView } from '../../styled/common';
+import { theme } from '../../styled/theme';
+import { Orientation, screenPercentageToDP } from '../../helpers/screen';
 
 const META_SERVER = __DEV__
   ? 'https://meta-dev.tamanu.io'
@@ -66,6 +66,7 @@ export const ServerSelector = ({ onChange, label, value }): ReactElement => {
       >
         <InputContainer>
           <StyledText
+            color={theme.colors.TEXT_DARK}
             paddingTop={screenPercentageToDP(0.66, Orientation.Height)}
             paddingLeft={screenPercentageToDP(1.5, Orientation.Width)}
             style={{ fontSize: screenPercentageToDP(1.8, Orientation.Height) }}

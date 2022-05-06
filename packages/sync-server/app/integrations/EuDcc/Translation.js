@@ -82,10 +82,6 @@ export async function createEuDccVaccinationData(administeredVaccineId, { models
     throw new Error(`No vaccination found with id=${administeredVaccineId}`);
   }
 
-  if (!['COVID-19 AZ', 'COVID-19 Pfizer'].includes(vaccination.scheduledVaccine.label)) {
-    throw new Error('Vaccination is not a COVID-19 vaccine');
-  }
-
   if (vaccination.status !== 'GIVEN') {
     throw new Error('Vaccination is not given');
   }

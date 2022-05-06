@@ -1,24 +1,24 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
-import { useSelector } from 'react-redux';
+import { VaccineCertificate } from 'shared/utils/patientCertificates';
 import { Modal } from './Modal';
 import { useApi } from '../api';
-import { ImmunisationCertificate } from './ImmunisationCertificate';
 import { EmailButton } from './Email/EmailButton';
-import { getCurrentUser } from '../store';
+import { useCertificate } from '../utils/useCertificate';
+import { PDFViewer, printPDF } from './PatientPrinting/PDFViewer';
+import { useLocalisation } from '../contexts/Localisation';
 
 export const ImmunisationCertificateModal = ({ open, onClose, patient }) => {
   const api = useApi();
-  const [immunisations, setImmunisations] = React.useState();
-  const currentUser = useSelector(getCurrentUser);
-  const currentUserDisplayName = currentUser ? currentUser.displayName : '';
+  const [immunisations, setImmunisations] = useState([]);
+  const { getLocalisation } = useLocalisation();
+  const { watermark, logo, footerImg, printedBy } = useCertificate();
 
   useEffect(() => {
-    (async () => {
-      const response = await api.get(`patient/${patient.id}/administeredVaccines`);
+    api.get(`patient/${patient.id}/administeredVaccines`).then(response => {
       setImmunisations(response.data);
-    })();
-  }, [api, patient]);
+    });
+  }, [api, patient.id]);
 
   const createImmunisationCertificateNotification = useCallback(
     data => {
@@ -27,13 +27,12 @@ export const ImmunisationCertificateModal = ({ open, onClose, patient }) => {
         requireSigning: true,
         patientId: patient.id,
         forwardAddress: data.email,
-        createdBy: currentUserDisplayName,
+        createdBy: printedBy,
       });
     },
-    [api, patient, currentUserDisplayName],
+    [api, patient.id, printedBy],
   );
 
-  const certificate = <ImmunisationCertificate patient={patient} immunisations={immunisations} />;
   return (
     <Modal
       title="Vaccination Certificate"
@@ -41,9 +40,20 @@ export const ImmunisationCertificateModal = ({ open, onClose, patient }) => {
       onClose={onClose}
       width="md"
       printable
+      onPrint={() => printPDF('vaccine-certificate')}
       additionalActions={<EmailButton onEmail={createImmunisationCertificateNotification} />}
     >
-      {certificate}
+      <PDFViewer id="vaccine-certificate">
+        <VaccineCertificate
+          patient={patient}
+          vaccinations={immunisations}
+          watermarkSrc={watermark}
+          logoSrc={logo}
+          signingSrc={footerImg}
+          printedBy={printedBy}
+          getLocalisation={getLocalisation}
+        />
+      </PDFViewer>
     </Modal>
   );
 };

@@ -4,8 +4,8 @@ import { Button } from 'react-native-paper';
 import { NavigationProp } from '@react-navigation/native';
 import Autocomplete from 'react-native-autocomplete-input';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { theme } from '~/ui/styled/theme';
-import { Suggester } from '~/ui/helpers/suggester';
+import { theme } from '../../styled/theme';
+import { Suggester } from '../../helpers/suggester';
 
 const styles = StyleSheet.create({
   container: {
@@ -15,10 +15,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   lightItemText: {
+    color: theme.colors.TEXT_DARK,
     backgroundColor: theme.colors.WHITE,
     padding: 12,
   },
   darkItemText: {
+    color: theme.colors.TEXT_DARK,
     backgroundColor: theme.colors.LIGHT_GREY,
     padding: 12,
   },
@@ -64,7 +66,6 @@ export const AutocompleteModalScreen = ({
     navigation.goBack();
   }, []);
 
-  let useDarkBackground = true;
   return (
     <View style={styles.container}>
       <Autocomplete
@@ -74,8 +75,8 @@ export const AutocompleteModalScreen = ({
         autoFocus
         flatListProps={{
           keyExtractor: item => item.value,
-          renderItem: ({ item, index }): JSX.Element => {
-            const useDarkBackground = index % 2 == 0;
+          renderItem: ({ item, index }): ReactElement => {
+            const useDarkBackground = index % 2 === 0;
             return (
               <TouchableOpacity onPress={(): void => onSelectItem(item)}>
                 <Text style={useDarkBackground ? styles.darkItemText : styles.lightItemText}>

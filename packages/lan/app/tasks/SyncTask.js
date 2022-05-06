@@ -6,7 +6,7 @@ import { log } from 'shared/services/logging';
 export class SyncTask extends ScheduledTask {
   context = null;
 
-  getName() { 
+  getName() {
     return 'SyncTask';
   }
 

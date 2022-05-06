@@ -43,6 +43,7 @@ const administeredVaccineTransformer = () => ({
     recordType: 'administeredVaccine',
     data: {
       id: administeredVaccineId,
+      encounterId,
       date,
       reason,
       consent: ['true', 'yes', 't', 'y'].some(v => v === consent?.toLowerCase()),
