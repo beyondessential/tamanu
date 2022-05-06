@@ -6,7 +6,7 @@ export const importProgram = async (
   const { id: programId } = program;
 
   const survey = await Survey.upsert({
-    id: `${programId}-${survey.code}`,
+    id: `${programId}-${surveyData.code}`,
     programId,
     ...surveyData,
   });
