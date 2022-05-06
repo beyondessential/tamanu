@@ -7,7 +7,7 @@ import { readConfig, writeConfig } from '~/services/config';
 const TEST_LOCALISATION_OVERRIDES = {}; // add values to this to test localisation in development
 const CONFIG_KEY = 'localisation';
 
-const isArrayOfStrings = (value: unknown) => Array.isArray(value) && value.every(item => typeof item === 'string');
+const isArrayOfStrings = (value: unknown): boolean => Array.isArray(value) && value.every(item => typeof item === 'string');
 
 export class LocalisationService {
   auth: AuthService;
@@ -24,24 +24,24 @@ export class LocalisationService {
     this._readLocalisationsFromConfig();
   }
 
-  async _readLocalisationsFromConfig() {
+  async _readLocalisationsFromConfig(): Promise<void> {
     const strLocalisation = await readConfig(CONFIG_KEY);
     this._setLocalisationsWithoutWritingConfig(JSON.parse(strLocalisation));
   }
 
-  _setLocalisationsWithoutWritingConfig(localisations: object) {
+  _setLocalisationsWithoutWritingConfig(localisations: object): void {
     this.localisations = localisations;
-    this.emitter.emit('changed', this.localisations);
+    this.emitter.emit('localisationChanged', this.localisations);
   }
 
-  async setLocalisations(localisations: object) {
+  async setLocalisations(localisations: object): Promise<void> {
     // make sure we can stringify before setting localisation
     const jsonLocalisation = JSON.stringify(localisations);
     this._setLocalisationsWithoutWritingConfig(localisations);
     await writeConfig(CONFIG_KEY, jsonLocalisation);
   }
 
-  getLocalisation(path: string) {
+  getLocalisation(path: string): any {
     const mergedLocalisations = { ...this.localisations, ...TEST_LOCALISATION_OVERRIDES };
     return get(mergedLocalisations, path);
   }
