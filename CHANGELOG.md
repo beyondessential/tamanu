@@ -45,6 +45,13 @@
 
 - (left blank)
 
+## v1.15.3
+
+### Tweaks ⚖️
+
+- Updated dimensions of patient sticker sheet
+- Add close button to appointment details modal
+
 ## v1.15.2
 
 ### Manual steps required after upgrade ⚙
