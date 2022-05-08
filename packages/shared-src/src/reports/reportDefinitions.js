@@ -30,6 +30,12 @@ export const REPORT_DEFINITIONS = [
       { parameterField: 'PractitionerField' },
       {
         parameterField: 'ParameterAutocompleteField',
+        label: 'Patient Billing Type',
+        name: 'location',
+        suggesterEndpoint: 'location',
+      },
+      {
+        parameterField: 'ParameterAutocompleteField',
         label: 'Location',
         name: 'location',
         suggesterEndpoint: 'location',
