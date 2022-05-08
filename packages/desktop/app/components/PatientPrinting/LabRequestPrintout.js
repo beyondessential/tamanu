@@ -33,7 +33,7 @@ const NotesBox = styled(Box)`
 const LabRequestTable = ({ labRequestData }) => {
   const api = useApi();
   const [tests, setTests] = useState([]);
-  const [encounter, setEncounter] = useState([]);
+  const [encounter, setEncounter] = useState();
   const {
     displayId,
     requestedDate,
@@ -64,7 +64,7 @@ const LabRequestTable = ({ labRequestData }) => {
         'Request number': displayId,
         'Request date': requestedDate ? moment(requestedDate).format('DD/MM/YYYY') : null,
         Facility: laboratory?.name,
-        Department: encounter.department?.name,
+        Department: encounter?.department?.name,
         'Requested by': requestedBy?.displayName,
         'Sample time': sampleTime ? moment(sampleTime).format('DD/MM/YYYY hh:mm a') : null,
         Priority: priority?.name,

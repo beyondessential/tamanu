@@ -127,8 +127,8 @@ export class LabRequestForm extends React.PureComponent {
               {
                 label: 'Finalise & print',
                 onClick: data => {
-                  values.isPrinting = true;
-                  submitForm(data);
+                  const isPrinting = true;
+                  submitForm(data, isPrinting);
                 },
               },
             ]}
