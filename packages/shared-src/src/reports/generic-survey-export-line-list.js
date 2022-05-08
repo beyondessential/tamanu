@@ -12,7 +12,7 @@ with
       ) "answers"
     from survey_response_answers sra
     where body <> '' -- Doesn't really matter, just could save some memory
-    and sra.deleted_at is null
+    --and sra.deleted_at is null
     and data_element_id is not null
     group by response_id 
   )
@@ -34,7 +34,7 @@ left join patients p on p.id = e.patient_id
 left join reference_data rd on rd.id = p.village_id
 join surveys s on s.id = sr.survey_id
 where sr.survey_id  = :survey_id 
-and sr.deleted_at is null
+--and sr.deleted_at is null
 `;
 
 /**
@@ -68,7 +68,11 @@ const getData = async (sequelize, parameters) => {
 };
 
 export const dataGenerator = async ({ sequelize, models }, parameters = {}) => {
-  if (!parameters.surveyId) throw new Error('parameter "surveyId" must be supplied');
+  console.log(parameters);
+  const { surveyId } = parameters;
+  if (!surveyId) {
+    throw new Error('parameter "surveyId" must be supplied');
+  }
 
   const results = await getData(sequelize, parameters);
 

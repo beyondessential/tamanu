@@ -1,29 +1,47 @@
 import { createDummyEncounter } from 'shared/demoData/patients';
 import { createTestContext } from '../../utilities';
 import { createPatient } from './covid-swab-lab-test-report-utils';
-import { createPalauSurveys } from './palau-covid-case-report-line-list.test';
 
 const REPORT_URL = '/v1/reports/generic-survey-export-line-list';
-// const PROGRAM_ID = 'program-palaucovid19';
-// const INITIAL_SURVEY_ID = 'program-palaucovid19-palaucovidinitialcasereportform';
-// const FOLLOW_UP_SURVEY_ID = 'program-palaucovid19-palaucovidfollowupcasereport';
-const timePart = 'T00:00:00.000Z';
+const PROGRAM_ID = 'test-program-id';
+const SURVEY_ID = 'test-survey-id';
 
-const createDummySurvey = async (app, models) => {};
+const createDummySurvey = async models => {
+  await models.Program.create({
+    id: PROGRAM_ID,
+    name: 'Test program',
+  });
 
-const submitSurveyForPatient = async (app, models, patient, date, formData) => {
+  await models.Survey.create({
+    id: SURVEY_ID,
+    name: 'Test survey',
+    programId: PROGRAM_ID,
+  });
+
+  await models.ProgramDataElement.bulkCreate([
+    { id: 'pde-Test1', code: 'Test1', name: 'Test Question 1' },
+    { id: 'pde-Test2', code: 'Test2', name: 'Test Question 2' },
+  ]);
+
+  await models.SurveyScreenComponent.bulkCreate([
+    { dataElementId: 'pde-Test1', surveyId: SURVEY_ID },
+    { dataElementId: 'pde-Test2', surveyId: SURVEY_ID },
+  ]);
+};
+
+const submitSurveyForPatient = async (app, models, patient) => {
   const encounter = await models.Encounter.create(
     await createDummyEncounter(models, { patientId: patient.id }),
   );
   return await app.post('/v1/surveyResponse').send({
-    surveyId: INITIAL_SURVEY_ID,
-    startTime: date,
+    surveyId: SURVEY_ID,
+    startTime: new Date(),
     patientId: patient.id,
-    endTime: date,
-    encounterId: encounter.id,
-    locationId: encounter.locationId,
-    departmentId: encounter.departmentId,
-    answers: formData.answers,
+    endTime: new Date(),
+    answers: {
+      'pde-Test1': 'Data point 1',
+      'pde-Test2': 'Data point 2',
+    },
   });
 };
 
@@ -40,7 +58,7 @@ describe('Generic survey export', () => {
     expect(result).toBeForbidden();
   });
 
-  describe('Palau covid-19', () => {
+  describe('Basic test', () => {
     let app = null;
     let expectedPatient1 = null;
     let expectedPatient2 = null;
@@ -48,13 +66,38 @@ describe('Generic survey export', () => {
     beforeAll(async () => {
       const { models, baseApp } = testContext;
       app = await baseApp.asRole('practitioner');
-      await createPalauSurveys(models);
+      await createDummySurvey(models);
       expectedPatient1 = await createPatient(models);
       expectedPatient2 = await createPatient(models);
     });
 
     beforeEach(async () => {
       await testContext.models.SurveyResponse.destroy({ where: {} });
+    });
+
+    it('should return basic data for a survey', async () => {
+      await submitSurveyForPatient(app, testContext.models, expectedPatient1);
+
+      const result = await app.post(REPORT_URL).send({
+        parameters: {
+          surveyId: SURVEY_ID,
+          // location: expectedLocation.id,
+          // department: expectedDepartment1.id, // Historical department filtered for
+        },
+      });
+      expect(result).toHaveSucceeded();
+      expect(result.body).toMatchTabularReport([
+        {
+          'First name': expectedPatient1.firstName,
+          'Last name': expectedPatient1.lastName,
+          'Patient ID': expectedPatient1.displayId,
+          Sex: expectedPatient1.sex,
+          'Date of Birth': 'asd',
+          Age: 1,
+          'Test Question 1': 'Data point 1',
+          'Test Question 2': 'Data point 2',
+        },
+      ]);
     });
   });
 });
