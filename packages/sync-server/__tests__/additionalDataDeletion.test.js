@@ -73,6 +73,9 @@ describe('Lab test publisher', () => {
     const updatedNull = await loadEvenIfDeleted(nullData);
     expect(updatedNull.deletedAt).toBeTruthy();
     expect(updatedNull).toHaveProperty('mergedIntoId', realData.id);
+
+    // clean up after ourselves so as to not mess with the later test
+    await realData2.destroy();
   });
 
   it('Should merge a null record into one with data even if the null one is older', async () => {
@@ -100,7 +103,42 @@ describe('Lab test publisher', () => {
   });
 
   it('Should find patients which require merging', async () => {
-    
+    const makePatientAdditionals = async (nullAmount, realAmount) => {
+      const patient = await models.Patient.create(createDummyPatient());
+      const records = [];
+      for (let i = 0; i < nullAmount; ++i) { 
+        records.push({ patientId: patient.id });
+      }
+      for (let i = 0; i < realAmount; ++i) { 
+        records.push({ patientId: patient.id, passport: `${Math.random()}` });
+      }
+      await Promise.all(records.map(x => models.PatientAdditionalData.create(x)));
+    };
+
+    await Promise.all([
+      // a few patients who should be ignored entirely
+      makePatientAdditionals(0, 1),
+      makePatientAdditionals(0, 1),
+      makePatientAdditionals(1, 0),
+      makePatientAdditionals(1, 0),
+
+      // a few with some deletions
+      makePatientAdditionals(1, 1),
+      makePatientAdditionals(2, 1),
+      makePatientAdditionals(3, 1),
+
+      // one with an unmergeable duplicate and a mergeable duplicate
+      makePatientAdditionals(1, 2),
+      
+      // one with only unmergeables
+      makePatientAdditionals(0, 2),
+    ]);
+
+    const tallies = await removeDuplicatedPatientAdditionalData(ctx.store.sequelize);
+    expect(tallies).toHaveProperty('patients', 3 + 1 + 1);
+    expect(tallies).toHaveProperty('deleted', (1 + 2 + 3) + 1);
+    expect(tallies).toHaveProperty('unmergeable', 2);
+    expect(tallies).toHaveProperty('errors', 0);
   });
 
 });

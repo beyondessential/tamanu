@@ -133,11 +133,11 @@ export async function removeDuplicatedPatientAdditionalData(sequelize) {
     for (const patient of patients) {
       const patientId = patient.patient_id;
       try {
-        const result = await reconcilePatient(store, patientId);
-        tallies.deleted += result.deleted;
-        tallies.unmergeable += result.unmergeable;
+        const { deleted, unmergeable } = await reconcilePatient(sequelize, patientId);
+        tallies.deleted += deleted;
+        tallies.unmergeable += unmergeable;
       } catch(e) {
-        log.error('Error encountered when reconciling data', { patientId });
+        log.error('Error encountered when reconciling data', { patientId, error: e });
         tallies.errors += 1;
       }
       tallies.patients += 1;
