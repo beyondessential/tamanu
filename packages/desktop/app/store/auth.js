@@ -28,8 +28,12 @@ export const login = (host, email, password) => async (dispatch, getState, { api
   dispatch({ type: LOGIN_START });
 
   try {
-    const { user, token, localisation, server } = await api.login(host, email, password);
-    dispatch({ type: LOGIN_SUCCESS, user, token, localisation, server });
+    const { user, token, localisation, server, permissions } = await api.login(
+      host,
+      email,
+      password,
+    );
+    dispatch({ type: LOGIN_SUCCESS, user, token, localisation, server, permissions });
   } catch (error) {
     dispatch({ type: LOGIN_FAILURE, error: error.message });
   }
@@ -87,6 +91,7 @@ export const checkIsLoggedIn = state => !!getCurrentUser(state);
 const defaultState = {
   loading: false,
   user: null,
+  ability: null,
   error: null,
   token: null,
   localisation: null,
@@ -113,6 +118,7 @@ const actionHandlers = {
   [LOGIN_SUCCESS]: action => ({
     loading: false,
     user: action.user,
+    ability: action.permissions,
     error: defaultState.error,
     token: action.token,
     localisation: action.localisation,
