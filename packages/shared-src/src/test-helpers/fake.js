@@ -275,6 +275,9 @@ const MODEL_SPECIFIC_OVERRIDES = {
   Survey: () => ({
     isSensitive: false,
   }),
+  Encounter: () => ({
+    encounterType: sample(ENCOUNTER_TYPE_VALUES),
+  }),
 };
 
 export const fake = (model, passedOverrides = {}) => {
