@@ -28,7 +28,10 @@ export const PatientsRoutes = React.memo(({ match }) => (
 
       <Route path={`${match.path}/view`} component={PatientView} />
       <Route path={`${match.path}/encounter/labRequest/:modal?`} component={LabRequestView} />
-      <Route path={`${match.path}/encounter/imagingRequest`} component={ImagingRequestView} />
+      <Route
+        path={`${match.path}/encounter/imagingRequest/:modal?`}
+        component={ImagingRequestView}
+      />
       <Route path={`${match.path}/encounter/summary`} component={DischargeSummaryView} />
       <Route path={`${match.path}/encounter`} component={EncounterView} />
       <NotActiveView />

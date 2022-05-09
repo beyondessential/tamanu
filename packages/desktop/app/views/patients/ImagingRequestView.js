@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
+import { useParams } from 'react-router-dom';
 
 import { Form, Formik } from 'formik';
 
@@ -38,8 +39,10 @@ const statusOptions = [
 ];
 
 const PrintButton = ({ imagingRequest, patient }) => {
+  const { modal } = useParams();
+  console.log('modal', modal);
   const certificateData = useCertificate();
-  const [isModalOpen, setModalOpen] = useState(false); // TODO: useParams
+  const [isModalOpen, setModalOpen] = useState(modal === 'print');
   const openModal = useCallback(() => setModalOpen(true), []);
   const closeModal = useCallback(() => setModalOpen(false), []);
 
