@@ -11,8 +11,8 @@ export const SUPPORTED_CLIENT_VERSIONS = {
     max: '1.16.0', // note that higher patch versions will be allowed to connect
   },
   'Tamanu Desktop': {
-    min: '1.15.0',
-    max: '1.15.2', // note that higher patch versions will be allowed to connect
+    min: '1.16.0',
+    max: '1.16.0', // note that higher patch versions will be allowed to connect
   },
   'Tamanu Mobile': {
     min: '1.16.0',
