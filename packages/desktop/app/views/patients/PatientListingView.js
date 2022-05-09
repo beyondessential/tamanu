@@ -103,6 +103,7 @@ const PatientTable = ({ onViewPatient, showInpatientDetails, fetchOptions, ...pr
       <PatientSearchBar
         onSearch={setSearchParameters}
         fields={showInpatientDetails ? INPATIENT_SEARCH_FIELDS : undefined}
+        showDeceasedPatientsCheckbox={!showInpatientDetails}
       />
       <StyledDataTable
         columns={columns}

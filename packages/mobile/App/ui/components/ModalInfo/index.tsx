@@ -11,6 +11,7 @@ type ModalInfoProps = {
   buttonPrompt?: string;
   buttonUrl?: string;
   onVisibilityChange: (value: boolean) => void;
+  onFollowPrompt?: () => void;
   screenPosition?: string | number;
 };
 
@@ -29,22 +30,22 @@ export const ModalInfo = ({
   if (!isVisible) return null;
 
   const action = (buttonPrompt && onFollowPrompt) ? (
-      <React.Fragment>
-        <Button
-          backgroundColor="green"
-          onPress={onFollowPrompt}
-          textColor={theme.colors.TEXT_LIGHT}
-          buttonText={buttonPrompt}
-          marginTop={5}
-        />
-        <Button
-          backgroundColor="transparent"
-          onPress={dismissModal}
-          textColor={theme.colors.TEXT_DARK}
-          buttonText="Dismiss"
-        />
-      </React.Fragment>
-    ) : (
+    <React.Fragment>
+      <Button
+        backgroundColor="green"
+        onPress={onFollowPrompt}
+        textColor={theme.colors.WHITE}
+        buttonText={buttonPrompt}
+        marginTop={5}
+      />
+      <Button
+        backgroundColor="transparent"
+        onPress={dismissModal}
+        textColor={theme.colors.TEXT_DARK}
+        buttonText="Dismiss"
+      />
+    </React.Fragment>
+  ) : (
       <Button
         backgroundColor="transparent"
         onPress={dismissModal}
@@ -78,7 +79,7 @@ export const ModalInfo = ({
         >
           {message}
         </StyledText>
-        { action }
+        {action}
       </StyledView>
     </StyledSafeAreaView>
   );

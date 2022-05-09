@@ -219,6 +219,12 @@ describe('Patient', () => {
         code: 'A51.3',
         name: 'Secondary syphilis of skin',
       });
+      const cond3 = await ReferenceData.create({
+        id: 'ref/icd10/R41.0',
+        type: 'icd10',
+        code: 'R41.0',
+        name: 'Confusion',
+      });
 
       commons = {
         clinicianId,
@@ -227,6 +233,7 @@ describe('Patient', () => {
         locationId,
         cond1Id: cond1.id,
         cond2Id: cond2.id,
+        cond3Id: cond3.id,
         cond1: {
           ...cond1.dataValues,
           createdAt: cond1.createdAt.toISOString(),
@@ -237,23 +244,31 @@ describe('Patient', () => {
           createdAt: cond2.createdAt.toISOString(),
           updatedAt: cond2.updatedAt.toISOString(),
         },
+        cond3: {
+          ...cond3.dataValues,
+          createdAt: cond3.createdAt.toISOString(),
+          updatedAt: cond3.updatedAt.toISOString(),
+        },
       };
     });
 
     it('should mark a patient as dead', async () => {
       const { Patient } = models;
       const { id } = await Patient.create(fakePatient('alive-1'));
-      const { clinicianId, facilityId, cond1Id, cond2Id } = commons;
+      const { clinicianId, facilityId, cond1Id, cond2Id, cond3Id } = commons;
 
       const dod = new Date('2021-09-01T00:00:00.000Z');
       const result = await app.post(`/v1/patient/${id}/death`).send({
         clinicianId,
         facilityId,
+        outsideHealthFacility: false,
         timeOfDeath: dod,
         causeOfDeath: cond1Id,
         causeOfDeathInterval: 100,
-        causeOfDeath2: cond2Id,
-        causeOfDeath2Interval: 120,
+        antecedentCause1: cond2Id,
+        antecedentCause1Interval: 120,
+        antecedentCause2: cond3Id,
+        antecedentCause2Interval: 150,
         otherContributingConditions: cond2Id,
         otherContributingConditionsInterval: 400,
         surgeryInLast4Weeks: 'yes',
@@ -359,17 +374,20 @@ describe('Patient', () => {
     it('should return death data for deceased patient', async () => {
       const { Patient } = models;
       const { id, dateOfBirth } = await Patient.create(fakePatient('alive-1'));
-      const { clinicianId, facilityId, cond1, cond2, cond1Id, cond2Id } = commons;
+      const { clinicianId, facilityId, cond1, cond2, cond3, cond1Id, cond2Id, cond3Id } = commons;
 
       const dod = new Date('2021-09-01T00:00:00.000Z');
       await app.post(`/v1/patient/${id}/death`).send({
         clinicianId,
         facilityId,
+        outsideHealthFacility: false,
         timeOfDeath: dod,
         causeOfDeath: cond1Id,
         causeOfDeathInterval: 100,
-        causeOfDeath2: cond2Id,
-        causeOfDeath2Interval: 120,
+        antecedentCause1: cond2Id,
+        antecedentCause1Interval: 120,
+        antecedentCause2: cond3Id,
+        antecedentCause2Interval: 150,
         otherContributingConditions: cond2Id,
         otherContributingConditionsInterval: 400,
         surgeryInLast4Weeks: 'yes',
@@ -404,9 +422,13 @@ describe('Patient', () => {
             condition: cond1,
             timeAfterOnset: 100,
           },
-          secondary: {
+          antecedent1: {
             condition: cond2,
             timeAfterOnset: 120,
+          },
+          antecedent2: {
+            condition: cond3,
+            timeAfterOnset: 150,
           },
           contributing: [
             {

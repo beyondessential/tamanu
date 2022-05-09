@@ -23,12 +23,12 @@ export function depem(pemString, expectedBanner) {
 
   const beginRx = /^-{5}\s*BEGIN ?([^-]+)?-{5}\r?\n/;
   const endRx = /\r?\n-{5}\s*END ?([^-]+)?-{5}$/;
-  
-  const beginMatch = text.match(beginRx);  
+
+  const beginMatch = text.match(beginRx);
   if (!beginMatch || beginMatch[1] !== expectedBanner) {
     throw new Error(`Missing start banner on PEM, expected '-----BEGIN ${expectedBanner}-----'`);
   }
-  
+
   const endMatch = text.match(endRx);
   if (!endMatch || endMatch[1] !== expectedBanner) {
     throw new Error(`Missing end banner on PEM, expected '-----END ${expectedBanner}-----'`);
@@ -61,4 +61,22 @@ export function base64UrlDecode(input) {
   // TODO: deprecate once we upgrade to Node v14!
   // see https://nodejs.org/dist/latest-v14.x/docs/api/buffer.html#buffer_buffers_and_character_encodings
   return Buffer.from(input.replace(/-/g, '+').replace(/_/g, '/'), 'base64');
+}
+
+/**
+ * Encodes Base64 string string to JSON.
+ * @param {string} base64str
+ * @returns {*} JSON
+ */
+export function jsonFromBase64(base64str) {
+  return JSON.parse(Buffer.from(base64str, 'base64').toString('binary'));
+}
+
+/**
+ * Creates a JSON object with the input and converts it to a Base64 string.
+ * @param {object} obj
+ * @returns {string} Base64 string
+ */
+export function jsonToBase64(obj) {
+  return Buffer.from(JSON.stringify(obj), 'binary').toString('base64');
 }
