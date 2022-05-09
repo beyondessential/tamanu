@@ -4,7 +4,8 @@
 
 ### Manual steps required after upgrade ⚙
 
-- (left blank)
+- Set `enablePatientDeaths` in sync-server config (if required)
+  - `localisation.data.features.enablePatientDeaths`
 
 ### Features ⭐
 
