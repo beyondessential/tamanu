@@ -22,6 +22,9 @@ export function createApp() {
   app.use(bodyParser.urlencoded({ extended: true }));
 
   app.use((req, res, next) => {
+    // TODO: deprecated, remove when all servers have moved on
+    res.setHeader('X-Runtime', SERVER_TYPES.META);
+
     res.setHeader('X-Tamanu-Server', SERVER_TYPES.META);
     res.setHeader('X-Version', version);
     next();
