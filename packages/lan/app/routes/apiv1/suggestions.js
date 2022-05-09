@@ -127,6 +127,7 @@ REFERENCE_TYPE_VALUES.map(typeName =>
 createNameSuggester('department');
 createNameSuggester('location');
 createNameSuggester('facility');
+createNameSuggester('survey');
 createSuggester(
   'invoiceLineTypes',
   'InvoiceLineType',

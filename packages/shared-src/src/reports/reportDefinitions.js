@@ -311,6 +311,14 @@ export const REPORT_DEFINITIONS = [
   {
     name: 'Generic Survey Export - Line List',
     id: 'generic-survey-export-line-list',
-    parameters: [],
+    parameters: [
+      { parameterField: 'VillageField' },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Survey',
+        name: 'surveyId',
+        suggesterEndpoint: 'survey',
+      },
+    ],
   },
 ];

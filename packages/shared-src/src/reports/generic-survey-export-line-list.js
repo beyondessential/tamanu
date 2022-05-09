@@ -2,6 +2,7 @@ import { generateReportFromQueryData } from './utilities';
 
 const PATIENT_FIELDS = ['Patient ID', 'First name', 'Last name', 'Date of birth', 'Age', 'Sex'];
 
+// Uncomment deleted_at checks once Tan-1421 is complete, see https://linear.app/bes/issue/TAN-1456/update-existing-sql-reports-to-support-deleted-at
 const query = `
 with 
   responses_with_answers as (
@@ -12,7 +13,7 @@ with
       ) "answers"
     from survey_response_answers sra
     where body <> '' -- Doesn't really matter, just could save some memory
-    --and sra.deleted_at is null
+    -- and sra.deleted_at is null 
     and data_element_id is not null
     group by response_id 
   )
@@ -24,7 +25,7 @@ select
   p.sex "Sex",
   p.display_id "Patient ID",
   rd.name as village,
-  to_char(sr.end_time::date, 'yyyy-mm-dd') endtime,
+  to_char(sr.end_time, 'YYYY-MM-DD HH24' || CHR(58) || 'MI') "Submission Time",
   s.name,
   answers
 from survey_responses sr
@@ -34,6 +35,9 @@ left join patients p on p.id = e.patient_id
 left join reference_data rd on rd.id = p.village_id
 join surveys s on s.id = sr.survey_id
 where sr.survey_id  = :survey_id 
+and CASE WHEN :village_id IS NOT NULL THEN p.village_id = :village_id ELSE true end 
+and CASE WHEN :from_date IS NOT NULL THEN sr.end_time::date >= :from_date::date ELSE true END
+and CASE WHEN :to_date IS NOT NULL THEN sr.end_time::date <= :to_date::date ELSE true END
 --and sr.deleted_at is null
 `;
 
@@ -52,7 +56,7 @@ where sr.survey_id  = :survey_id
  * },
  */
 const getData = async (sequelize, parameters) => {
-  const { surveyId, fromDate, toDate, patientBillingType, department, location } = parameters;
+  const { surveyId, fromDate, toDate, village } = parameters;
 
   return sequelize.query(query, {
     type: sequelize.QueryTypes.SELECT,
@@ -60,9 +64,7 @@ const getData = async (sequelize, parameters) => {
       survey_id: surveyId,
       from_date: fromDate ?? null,
       to_date: toDate ?? null,
-      billing_type: patientBillingType ?? null,
-      department_id: department ?? null,
-      location_id: location ?? null,
+      village_id: village ?? null,
     },
   });
 };
