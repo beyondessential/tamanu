@@ -18,7 +18,7 @@
         - name: the desktop app and servers
           service: app-without-db
           command: scripts/lint.sh pr-lints
-        # - TODO: mobile lints
+        # - TODO(WAITM-215): mobile lints
     - name: test
       type: serial
       steps:
