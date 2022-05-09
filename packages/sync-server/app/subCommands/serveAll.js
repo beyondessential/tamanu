@@ -8,7 +8,7 @@ import { ApplicationContext } from '../ApplicationContext';
 import { serve } from './serve';
 import { tasks } from './tasks';
 
-export const dev = async ({ skipMigrationCheck }) => {
+export const serveAll = async ({ skipMigrationCheck }) => {
   log.info(`Starting sync server and tasks runner version ${version}.`);
 
   if (config.db.migrateOnStartup) {
@@ -19,7 +19,7 @@ export const dev = async ({ skipMigrationCheck }) => {
   return Promise.race([serve({ skipMigrationCheck }), tasks({ skipMigrationCheck })]);
 };
 
-export const devCommand = new Command('dev')
+export const serveAllCommand = new Command('serveAll')
   .description('Start the Tamanu sync server and tasks runner')
   .option('--skipMigrationCheck', 'skip the migration check on startup')
-  .action(dev);
+  .action(serveAll);
