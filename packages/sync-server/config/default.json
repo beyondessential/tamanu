@@ -450,8 +450,9 @@
       // UVCI format for vaccine certificate *previews* on Desktop.
       // This should match whichever of integrations.euDcc or .vdsNc is enabled, and
       // does *not* affect which format is used for the actual PDF certificate when
-      // generated in the sync server. Can be: `icao` or `eudcc`.
-      "previewUvciFormat": "icao",
+      // generated in the sync server. Can be `tamanu` or `icao` or `eudcc`.
+      // `tamanu` implies that the signing integrations are not enabled.
+      "previewUvciFormat": "tamanu",
 
       // IDs of the COVID-19 vaccines to use for the COVID-19 vaccine certificates.
       // This is tightly-bound to the source, you can't really *add* IDs to this list,

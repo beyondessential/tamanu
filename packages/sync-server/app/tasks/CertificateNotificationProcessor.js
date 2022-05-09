@@ -165,11 +165,12 @@ export class CertificateNotificationProcessor extends ScheduledTask {
             }
 
             // As fallback, generate from last (not necessarily covid) vaccine
-            if (!uvci)
+            if (!uvci) {
               uvci = await generateUVCI(latestVax.id, {
-                format: euDccEnabled ? 'eudcc' : 'icao',
+                format: 'tamanu',
                 countryCode,
               });
+            }
 
             pdf = await makeVaccineCertificate(patient, printedBy, models, uvci, qrData);
             break;

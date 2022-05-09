@@ -28,6 +28,8 @@
 
 - Regenerate the server secret to log all mobile users out, so they get prompted to upgrade (only needs to be done once per server)
   - This means generating a long random string using e.g. LastPass or some other secure tool and setting `config.auth.secret` to that string
+- Set `previewUvciFormat` in sync-server config (if required)
+  - `localisation.data.previewUvciFormat`
 
 ### Features ⭐
 
