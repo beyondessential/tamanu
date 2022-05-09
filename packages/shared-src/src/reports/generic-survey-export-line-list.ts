@@ -1,6 +1,23 @@
-import { generateReportFromQueryData } from './utilities';
+import { generateReportFromQueryData, columnTemplateType } from './utilities';
+import { Sequelize } from 'sequelize';
 
-const PATIENT_FIELDS = ['Patient ID', 'First name', 'Last name', 'Date of birth', 'Age', 'Sex'];
+type parametersType = {
+  surveyId?: string;
+  fromDate?: string;
+  toDate?: string;
+  village?: string;
+};
+
+const COMMON_FIELDS = [
+  'Patient ID',
+  'First name',
+  'Last name',
+  'Date of birth',
+  'Age',
+  'Sex',
+  'Village',
+  'Submission Time',
+];
 
 // Uncomment deleted_at checks once Tan-1421 is complete, see https://linear.app/bes/issue/TAN-1456/update-existing-sql-reports-to-support-deleted-at
 const query = `
@@ -24,15 +41,15 @@ select
   extract(year from age(p.date_of_birth)) "Age",
   p.sex "Sex",
   p.display_id "Patient ID",
-  rd.name as village,
-  to_char(sr.end_time, 'YYYY-MM-DD HH24' || CHR(58) || 'MI') "Submission Time",
+  vil."name" as "Village",
+  to_char(sr.end_time, 'YYYY-MM-DD HH24' || CHR(58) || 'MI') "Submission Time", -- Need to use "|| CHR(58)" here or else sequelize thinks "<colon>MI" is a variable (it even replaces in comments!!)
   s.name,
   answers
 from survey_responses sr
 left join responses_with_answers a on sr.id = a.response_id 
 left join encounters e on e.id = sr.encounter_id
 left join patients p on p.id = e.patient_id
-left join reference_data rd on rd.id = p.village_id
+left join reference_data vil on vil.id = p.village_id
 join surveys s on s.id = sr.survey_id
 where sr.survey_id  = :survey_id 
 and CASE WHEN :village_id IS NOT NULL THEN p.village_id = :village_id ELSE true end 
@@ -55,7 +72,7 @@ and CASE WHEN :to_date IS NOT NULL THEN sr.end_time::date <= :to_date::date ELSE
  *   }
  * },
  */
-const getData = async (sequelize, parameters) => {
+const getData = async (sequelize: Sequelize, parameters: parametersType) => {
   const { surveyId, fromDate, toDate, village } = parameters;
 
   return sequelize.query(query, {
@@ -68,9 +85,13 @@ const getData = async (sequelize, parameters) => {
     },
   });
 };
-
-export const dataGenerator = async ({ sequelize, models }, parameters = {}) => {
-  console.log(parameters);
+type z = {
+  dataElement: {
+    name: string;
+    id: string;
+  }
+}
+export const dataGenerator = async ({ sequelize, models }, parameters: parametersType = {}) => {
   const { surveyId } = parameters;
   if (!surveyId) {
     throw new Error('parameter "surveyId" must be supplied');
@@ -78,17 +99,21 @@ export const dataGenerator = async ({ sequelize, models }, parameters = {}) => {
 
   const results = await getData(sequelize, parameters);
 
-  const components = await models.SurveyScreenComponent.getAnswerComponentsForSurveys(surveyId);
+  const components: z[] = await models.SurveyScreenComponent.getAnswerComponentsForSurveys(surveyId);
 
-  const reportColumnTemplate = [
-    ...PATIENT_FIELDS.map(field => ({
+  const x = components.map(({ dataElement }) => ({
+    title: dataElement.name,
+    // accessor: (data, x) => data.answers[dataElement.id],
+  }));
+  const y: columnTemplateType[] = x;
+  const a: columnTemplateType[] = [{}];
+  const reportColumnTemplate: columnTemplateType[] = [
+    ...COMMON_FIELDS.map(field => ({
       title: field,
       accessor: data => data[field],
     })),
-    ...components.map(({ dataElement }) => ({
-      title: dataElement.name,
-      accessor: data => data.answers[dataElement.id],
-    })),
+    ...y,
+    ...a
   ];
   return generateReportFromQueryData(results, reportColumnTemplate);
 };
