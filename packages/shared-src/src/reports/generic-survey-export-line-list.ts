@@ -85,12 +85,7 @@ const getData = async (sequelize: Sequelize, parameters: parametersType) => {
     },
   });
 };
-type z = {
-  dataElement: {
-    name: string;
-    id: string;
-  }
-}
+
 export const dataGenerator = async ({ sequelize, models }, parameters: parametersType = {}) => {
   const { surveyId } = parameters;
   if (!surveyId) {
@@ -99,21 +94,17 @@ export const dataGenerator = async ({ sequelize, models }, parameters: parameter
 
   const results = await getData(sequelize, parameters);
 
-  const components: z[] = await models.SurveyScreenComponent.getAnswerComponentsForSurveys(surveyId);
+  const components = await models.SurveyScreenComponent.getAnswerComponentsForSurveys(surveyId);
 
-  const x = components.map(({ dataElement }) => ({
-    title: dataElement.name,
-    // accessor: (data, x) => data.answers[dataElement.id],
-  }));
-  const y: columnTemplateType[] = x;
-  const a: columnTemplateType[] = [{}];
-  const reportColumnTemplate: columnTemplateType[] = [
+  const reportColumnTemplate = [
     ...COMMON_FIELDS.map(field => ({
       title: field,
       accessor: data => data[field],
     })),
-    ...y,
-    ...a
+    ...components.map(({ dataElement }) => ({
+      title: dataElement.name,
+      accessor: data => data.answers[dataElement.id],
+    })),
   ];
   return generateReportFromQueryData(results, reportColumnTemplate);
 };
