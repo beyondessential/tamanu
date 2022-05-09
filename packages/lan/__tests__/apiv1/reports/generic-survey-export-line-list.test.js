@@ -19,11 +19,18 @@ const createDummySurvey = async models => {
   });
 
   await models.ProgramDataElement.bulkCreate([
-    { id: 'pde-Test1', code: 'Test1', name: 'Test Question 1' },
-    { id: 'pde-Test2', code: 'Test2', name: 'Test Question 2' },
+    {
+      id: 'pde-Should not show',
+      code: 'NoShow',
+      name: 'This is an instruction',
+      type: 'Instruction',
+    },
+    { id: 'pde-Test1', code: 'Test1', name: 'Test Question 1', type: 'Not Instruction' },
+    { id: 'pde-Test2', code: 'Test2', name: 'Test Question 2', type: 'Not Instruction' },
   ]);
 
   await models.SurveyScreenComponent.bulkCreate([
+    { dataElementId: 'pde-Should not show', surveyId: SURVEY_ID },
     { dataElementId: 'pde-Test1', surveyId: SURVEY_ID },
     { dataElementId: 'pde-Test2', surveyId: SURVEY_ID },
   ]);
@@ -88,12 +95,14 @@ describe('Generic survey export', () => {
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchTabularReport([
         {
+          'Patient ID': expectedPatient1.displayId,
           'First name': expectedPatient1.firstName,
           'Last name': expectedPatient1.lastName,
-          'Patient ID': expectedPatient1.displayId,
-          Sex: expectedPatient1.sex,
-          'Date of Birth': 'asd',
+          'Date of birth': 'asd',
           Age: 1,
+          Sex: expectedPatient1.sex,
+          Village: 'asd',
+          'Submission Time': 'asd',
           'Test Question 1': 'Data point 1',
           'Test Question 2': 'Data point 2',
         },
