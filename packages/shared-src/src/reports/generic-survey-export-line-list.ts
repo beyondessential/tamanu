@@ -72,7 +72,7 @@ and CASE WHEN :to_date IS NOT NULL THEN sr.end_time::date <= :to_date::date ELSE
  *   }
  * },
  */
-const getData = async (sequelize: Sequelize, parameters: parametersType) => {
+const getData = async (sequelize, parameters: parametersType) => {
   const { surveyId, fromDate, toDate, village } = parameters;
 
   return sequelize.query(query, {
