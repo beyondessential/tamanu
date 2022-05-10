@@ -16,7 +16,7 @@ export default class Config extends AuthenticatedFile {
   }
 
   private async write(config: ConfigFile): Promise<void> {
-    await this.writeFile(Buffer.from(JSON.stringify(config, null, 2), 'utf-8'));
+    await this.writeFile(Buffer.from(JSON.stringify(config), 'utf-8'));
   }
 
   public async create(config: ConfigFile): Promise<void> {
