@@ -37,12 +37,12 @@ const createDummySurvey = async models => {
   ]);
 };
 
-const submitSurveyForPatient = (app, models, patient) =>
+const submitSurveyForPatient = (app, patient, date) =>
   app.post('/v1/surveyResponse').send({
     surveyId: SURVEY_ID,
-    startTime: new Date(Date.UTC(2022, 4, 10, 3, 57)),
+    startTime: date,
     patientId: patient.id,
-    endTime: new Date(Date.UTC(2022, 4, 10, 4, 26)),
+    endTime: date,
     answers: {
       'pde-Test1': 'Data point 1',
       'pde-Test2': 'Data point 2',
@@ -92,8 +92,21 @@ describe('Generic survey export', () => {
       expect(result).toHaveStatus(500);
     });
 
+    it('should default to filtering for 30 days of data', async () => {
+      await submitSurveyForPatient(app, expectedPatient, subDays(new Date(), 35));
+
+      const result = await app.post(REPORT_URL).send({
+        parameters: {
+          surveyId: SURVEY_ID,
+        },
+      });
+      expect(result).toHaveSucceeded();
+      expect(result.body).toMatchTabularReport([]);
+    });
+
     it('should return no data if filtering for a different village', async () => {
-      await submitSurveyForPatient(app, testContext.models, expectedPatient);
+      const date = subDays(new Date(), 25);
+      await submitSurveyForPatient(app, expectedPatient, date);
 
       const result = await app.post(REPORT_URL).send({
         parameters: {
@@ -106,8 +119,17 @@ describe('Generic survey export', () => {
     });
 
     it('should return basic data for a survey', async () => {
-      await submitSurveyForPatient(app, testContext.models, expectedPatient);
-
+      const date = subDays(new Date(), 25);
+      // Not entirely sure why this works
+      // https://stackoverflow.com/a/66672462
+      const expectedDate = new Date(
+        date.getUTCFullYear(),
+        date.getUTCMonth(),
+        date.getUTCDate(),
+        date.getUTCHours(),
+        date.getUTCMinutes(),
+      );
+      await submitSurveyForPatient(app, expectedPatient, date);
       const result = await app.post(REPORT_URL).send({
         parameters: {
           surveyId: SURVEY_ID,
@@ -124,7 +146,7 @@ describe('Generic survey export', () => {
           Age: 1,
           Sex: expectedPatient.sex,
           Village: expectedVillage.name,
-          'Submission Time': '2022-05-10 04:26',
+          'Submission Time': format(expectedDate, 'yyyy-MM-dd kk:mm'),
           'Test Question 1': 'Data point 1',
           'Test Question 2': 'Data point 2',
         },
