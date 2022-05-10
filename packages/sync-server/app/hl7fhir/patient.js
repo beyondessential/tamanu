@@ -1,5 +1,8 @@
 import config from 'config';
 import { format } from 'date-fns';
+import { Op } from 'sequelize';
+
+import { stringTypeModifiers, getParamAndModifier, getOperator, getQueryObject } from './utils';
 
 function patientName(patient, additional) {
   const official = {
@@ -83,4 +86,80 @@ export function patientToHL7Patient(patient, additional) {
     address: patientAddress(patient, additional),
     telecom: patientTelecom(patient, additional),
   };
+}
+
+// HL7 Patient resource mapping to Tamanu.
+// (only supported params are in)
+const hl7PatientFields = {
+  given: {
+    fieldName: 'firstName',
+    columnName: 'first_name',
+    supportedModifiers: stringTypeModifiers,
+  },
+  family: {
+    fieldName: 'lastName',
+    columnName: 'last_name',
+    supportedModifiers: stringTypeModifiers,
+  },
+  gender: {
+    fieldName: 'sex',
+    columnName: 'sex',
+    supportedModifiers: [],
+    caseSensitive: true,
+  },
+  birthdate: {
+    fieldName: 'dateOfBirth',
+    columnName: 'date_of_birth',
+    supportedModifiers: [],
+    caseSensitive: true,
+  },
+  // TODO: address should match a bunch of other fields
+  address: {
+    fieldName: 'additionalData.cityTown',
+    columnName: 'additionalData.city_town',
+    supportedModifiers: stringTypeModifiers,
+  },
+  'address-city': {
+    fieldName: 'additionalData.cityTown',
+    columnName: 'additionalData.city_town',
+    supportedModifiers: stringTypeModifiers,
+  },
+  // TODO: telecom could also be email or other phones
+  telecom: {
+    fieldName: 'additionalData.primaryContactNumber',
+    columnName: 'additionalData.primary_contact_number',
+    supportedModifiers: stringTypeModifiers,
+  },
+};
+
+// Receives query and returns a sequelize where clause.
+// Assumes that query already passed validation.
+export function getPatientWhereClause(displayId, query = {}) {
+  const filters = [];
+
+  // Handle search by ID separately
+  if (displayId) {
+    filters.push({ displayId });
+  }
+
+  // Create a filter for each query param
+  Object.entries(query).forEach(([key, value]) => {
+    const [parameter, modifier] = getParamAndModifier(key);
+
+    // Ignore adding filters for unknown parameters
+    if (parameter in hl7PatientFields === false) {
+      return;
+    }
+
+    const { fieldName, columnName, supportedModifiers, caseSensitive } = hl7PatientFields[
+      parameter
+    ];
+    const operator = getOperator(modifier, supportedModifiers);
+    const queryObject = getQueryObject(columnName, value, operator, modifier, caseSensitive);
+    filters.push({ [fieldName]: queryObject });
+  });
+
+  // Wrap all filters with explicit "AND" if they exist,
+  // otherwise return empty object
+  return filters.length > 0 ? { [Op.and]: filters } : {};
 }
