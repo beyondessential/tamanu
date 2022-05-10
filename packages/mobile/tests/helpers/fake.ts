@@ -72,9 +72,10 @@ export const fakeSurvey = (): ISurvey => ({
   isSensitive: false,
 });
 
-// @ts-expect-error import.spec.ts tests do not allow
-// for getConfigObject and getOptions properties
-// TODO: either mark these properties as optional on ISurvey or fix import tests
+// @ts-expect-error
+// The tests in import.spec.ts tests break if getConfigObject or getOptions are present, but these are
+// required by ISurveyScreenComponent. The checks in import.spec.ts will need to be updated to ignore
+// these keys before this function can be typed correctly.
 export const fakeSurveyScreenComponent = (): ISurveyScreenComponent => ({
   id: `survey-screen-component-${uuidv4()}`,
   dataElementId: null,
