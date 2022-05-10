@@ -133,7 +133,7 @@ export function patientHandler() {
       req,
       querySchema: schema.patient.query,
       model: Patient,
-      getWhere: displayId => ({ displayId }),
+      getWhere: displayId => (displayId ? { displayId } : {}),
       getInclude: () => [{ association: 'additionalData' }],
       bundleId: 'patients',
       toHL7: patient => ({ mainResource: patientToHL7Patient(patient, patient.additionalData[0]) }),
