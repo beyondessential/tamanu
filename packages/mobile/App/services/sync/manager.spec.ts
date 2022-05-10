@@ -27,7 +27,7 @@ import {
 jest.mock('./source');
 const MockedWebSyncSource = <jest.Mock<WebSyncSource>>WebSyncSource;
 
-jest.mock('~/services/localisation/LocalisationService');
+jest.mock('~/services/localisation');
 const MockedLocalisationService = <jest.Mock<LocalisationService>>LocalisationService;
 
 const createManager = (): ({
