@@ -89,7 +89,12 @@ const getData = async (sequelize, parameters: parametersType) => {
 export const dataGenerator = async ({ sequelize, models }, parameters: parametersType = {}) => {
   const { surveyId } = parameters;
   if (!surveyId) {
-    throw new Error('parameter "surveyId" must be supplied');
+    throw new Error('parameter "survey" must be supplied');
+  }
+  const { isSensitive } = await models.Survey.findByPk(surveyId);
+  if (isSensitive) {
+    throw new Error('Cannot export a survey marked as "sensitive"');
+
   }
 
   const results = await getData(sequelize, parameters);

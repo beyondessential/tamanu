@@ -6,6 +6,7 @@ import { createTestContext } from '../../utilities';
 const REPORT_URL = '/v1/reports/generic-survey-export-line-list';
 const PROGRAM_ID = 'test-program-id';
 const SURVEY_ID = 'test-survey-id';
+const SENSITIVE_SURVEY_ID = 'test-survey-id-sensitive';
 
 const createDummySurvey = async models => {
   await models.Program.create({
@@ -88,6 +89,22 @@ describe('Generic survey export', () => {
     it('should return an error if no surveyId is sent', async () => {
       const result = await app.post(REPORT_URL).send({
         parameters: {},
+      });
+      expect(result).toHaveStatus(500);
+    });
+
+    it('should return an error if trying to access a sensitive survey', async () => {
+      await testContext.models.Survey.create({
+        id: SENSITIVE_SURVEY_ID,
+        name: 'Test survey (sensitive)',
+        programId: PROGRAM_ID,
+        isSensitive: true,
+      });
+
+      const result = await app.post(REPORT_URL).send({
+        parameters: {
+          surveyId: SENSITIVE_SURVEY_ID,
+        },
       });
       expect(result).toHaveStatus(500);
     });
