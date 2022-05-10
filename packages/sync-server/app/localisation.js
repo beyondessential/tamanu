@@ -201,7 +201,11 @@ const rootLocalisationSchema = yup
     previewUvciFormat: yup
       .string()
       .required()
-      .oneOf(['eudcc', 'icao']),
+      .oneOf(['tamanu', 'eudcc', 'icao']),
+    covidVaccines: yup
+      .array()
+      .of(yup.string())
+      .required(),
     features: yup
       .object({
         editPatientDetailsOnMobile: yup.boolean().required(),
