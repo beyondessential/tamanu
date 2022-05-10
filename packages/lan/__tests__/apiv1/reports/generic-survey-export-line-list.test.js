@@ -36,11 +36,8 @@ const createDummySurvey = async models => {
   ]);
 };
 
-const submitSurveyForPatient = async (app, models, patient) => {
-  const encounter = await models.Encounter.create(
-    await createDummyEncounter(models, { patientId: patient.id }),
-  );
-  return await app.post('/v1/surveyResponse').send({
+const submitSurveyForPatient = (app, models, patient) =>
+  app.post('/v1/surveyResponse').send({
     surveyId: SURVEY_ID,
     startTime: new Date(),
     patientId: patient.id,
@@ -50,7 +47,6 @@ const submitSurveyForPatient = async (app, models, patient) => {
       'pde-Test2': 'Data point 2',
     },
   });
-};
 
 describe('Generic survey export', () => {
   let testContext = null;
@@ -67,15 +63,13 @@ describe('Generic survey export', () => {
 
   describe('Basic test', () => {
     let app = null;
-    let expectedPatient1 = null;
-    let expectedPatient2 = null;
+    let expectedPatient = null;
 
     beforeAll(async () => {
       const { models, baseApp } = testContext;
       app = await baseApp.asRole('practitioner');
       await createDummySurvey(models);
-      expectedPatient1 = await createPatient(models);
-      expectedPatient2 = await createPatient(models);
+      expectedPatient = await fake(models.Patient);
     });
 
     beforeEach(async () => {
@@ -98,7 +92,7 @@ describe('Generic survey export', () => {
           'Patient ID': expectedPatient1.displayId,
           'First name': expectedPatient1.firstName,
           'Last name': expectedPatient1.lastName,
-          'Date of birth': 'asd',
+          'Date of birth': expectedPatient1.dob,
           Age: 1,
           Sex: expectedPatient1.sex,
           Village: 'asd',
