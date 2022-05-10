@@ -8,6 +8,15 @@ export enum Profile {
 }
 
 /**
+ * Add some amount of days to periods to pre-empt leap days.
+ *
+ * Always apply this as the final step.
+ */
+export function addLeaps(days: number): number {
+  return days + (days >= 365 ? Math.ceil(days / 365 / 4) : 0);
+}
+
+/**
  * Working time of issued signer certificates (BSC) is derived from the issuance profile.
  *
  * - VDS: 3 months + some margin = 96 days
