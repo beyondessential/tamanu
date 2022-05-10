@@ -30,10 +30,12 @@ const sharedQuery = yup.object({
     .number()
     .integer()
     .min(0)
+    .default(0)
     .required(),
   _sort: yup
     .string()
     .oneOf(['-issued'])
+    .default('-issued')
     .required(),
   after: yup
     .object({

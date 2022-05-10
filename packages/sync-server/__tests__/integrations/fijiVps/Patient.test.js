@@ -189,8 +189,6 @@ describe('VPS integration - Patient', () => {
           errors: [
             'subject:identifier must be in the format "<namespace>|<id>"',
             'subject:identifier is a required field',
-            '_page is a required field',
-            '_sort is a required field',
           ],
         },
       });
