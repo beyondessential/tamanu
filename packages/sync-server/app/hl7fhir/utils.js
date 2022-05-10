@@ -97,9 +97,9 @@ export function getOperator(modifier, supportedModifiers) {
 }
 
 // Helper function to deal with case insensitive searches for strings
-export function getQueryObject(columnName, value, operator, modifier) {
-  // Only exact should be case insensitive
-  if (modifier === 'exact' || typeof value !== 'string') {
+export function getQueryObject(columnName, value, operator, modifier, caseSensitive) {
+  // Exact fields should be case sensitive
+  if (modifier === 'exact' || typeof value !== 'string' || caseSensitive) {
     return { [operator]: value };
   }
 
