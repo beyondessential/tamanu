@@ -7,5 +7,5 @@
  */
 export function generateDefaultFormatUVCI(vaccinationId, countryCode) {
   const id = Buffer.from(vaccinationId.replace(/-/g, ''), 'hex').toString('base64').replace(/=/g, '');
-  return `TM1${countryCode}/${id}`;
+  return `TAMANU1/${countryCode}/${id}`;
 }
