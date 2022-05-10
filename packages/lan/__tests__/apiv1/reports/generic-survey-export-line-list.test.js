@@ -1,6 +1,7 @@
-import { createDummyEncounter } from 'shared/demoData/patients';
+import { randomReferenceData } from 'shared/demoData/patients';
+import { fake } from 'shared/test-helpers';
+import { subDays, format } from 'date-fns';
 import { createTestContext } from '../../utilities';
-import { createPatient } from './covid-swab-lab-test-report-utils';
 
 const REPORT_URL = '/v1/reports/generic-survey-export-line-list';
 const PROGRAM_ID = 'test-program-id';
@@ -39,9 +40,9 @@ const createDummySurvey = async models => {
 const submitSurveyForPatient = (app, models, patient) =>
   app.post('/v1/surveyResponse').send({
     surveyId: SURVEY_ID,
-    startTime: new Date(),
+    startTime: new Date(Date.UTC(2022, 4, 10, 3, 57)),
     patientId: patient.id,
-    endTime: new Date(),
+    endTime: new Date(Date.UTC(2022, 4, 10, 4, 26)),
     answers: {
       'pde-Test1': 'Data point 1',
       'pde-Test2': 'Data point 2',
@@ -64,12 +65,19 @@ describe('Generic survey export', () => {
   describe('Basic test', () => {
     let app = null;
     let expectedPatient = null;
+    let expectedVillage = null;
 
     beforeAll(async () => {
       const { models, baseApp } = testContext;
       app = await baseApp.asRole('practitioner');
       await createDummySurvey(models);
-      expectedPatient = await fake(models.Patient);
+      expectedVillage = await randomReferenceData(models, 'village');
+      expectedPatient = await models.Patient.create(
+        await fake(models.Patient, {
+          villageId: expectedVillage.id,
+          dateOfBirth: subDays(new Date(), 370),
+        }),
+      );
     });
 
     beforeEach(async () => {
@@ -77,7 +85,7 @@ describe('Generic survey export', () => {
     });
 
     it('should return basic data for a survey', async () => {
-      await submitSurveyForPatient(app, testContext.models, expectedPatient1);
+      await submitSurveyForPatient(app, testContext.models, expectedPatient);
 
       const result = await app.post(REPORT_URL).send({
         parameters: {
@@ -89,14 +97,14 @@ describe('Generic survey export', () => {
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchTabularReport([
         {
-          'Patient ID': expectedPatient1.displayId,
-          'First name': expectedPatient1.firstName,
-          'Last name': expectedPatient1.lastName,
-          'Date of birth': expectedPatient1.dob,
+          'Patient ID': expectedPatient.displayId,
+          'First name': expectedPatient.firstName,
+          'Last name': expectedPatient.lastName,
+          'Date of birth': format(expectedPatient.dateOfBirth, 'yyyy-MM-dd'),
           Age: 1,
-          Sex: expectedPatient1.sex,
-          Village: 'asd',
-          'Submission Time': 'asd',
+          Sex: expectedPatient.sex,
+          Village: expectedVillage.name,
+          'Submission Time': '2022-05-10 04:26',
           'Test Question 1': 'Data point 1',
           'Test Question 2': 'Data point 2',
         },
