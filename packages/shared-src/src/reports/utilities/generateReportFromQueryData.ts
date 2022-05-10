@@ -1,9 +1,12 @@
-export type columnTemplateType = { 
-  title: string, 
-  accessor: (data: object) => string | number | object | boolean
+type columnTemplateType = {
+  title: string;
+  accessor: (data: Object) => string | number | Object | boolean;
 };
 
-export const generateReportFromQueryData = (queryData: object[], columnTemplate: columnTemplateType[]) => [
+export const generateReportFromQueryData = (
+  queryData: Object[],
+  columnTemplate: columnTemplateType[],
+) => [
   columnTemplate.map(c => c.title),
   ...queryData.map(r =>
     columnTemplate.map(c => {
