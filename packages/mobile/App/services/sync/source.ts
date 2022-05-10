@@ -44,6 +44,7 @@ export interface LoginResponse {
   token: string;
   user: IUser;
   localisation: object;
+  permissions: [];
 }
 
 export interface SyncSource {

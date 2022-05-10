@@ -24,6 +24,7 @@ type AuthProviderProps = WithAuthStoreProps & {
 
 interface AuthContextData {
   user: IUser;
+  ability: any[];
   signIn: (params: SyncConnectionParameters) => Promise<void>;
   signOut: () => void;
   isUserAuthenticated: () => boolean;
@@ -47,6 +48,7 @@ const Provider = ({
 }: PropsWithChildren<AuthProviderProps>): ReactElement => {
   const checkFirstSession = (): boolean => props.isFirstTime;
   const [user, setUserData] = useState();
+  const [ability, setAbility] = useState([]);
   const [resetPasswordLastEmailUsed, setResetPasswordLastEmailUsed] = useState('');
 
   const setUserFirstSignIn = (): void => {
@@ -61,6 +63,7 @@ const Provider = ({
     const { localPassword, ...userData } = usr;
     setUser(userData);
     setUserData(userData);
+    setAbility(backend.permissions.data);
     setSignedInStatus(true);
   };
 
@@ -142,6 +145,7 @@ const Provider = ({
         isUserAuthenticated,
         checkFirstSession,
         user,
+        ability,
         requestResetPassword,
         resetPasswordLastEmailUsed,
         changePassword,

@@ -76,7 +76,7 @@ export class AuthService {
     // create the sync source and log in to it
     this.syncSource.connect(server);
     console.log(`Getting token from ${server}`);
-    const { user, token, localisation } = await this.syncSource.login(
+    const { user, token, localisation, permissions } = await this.syncSource.login(
       params.email,
       params.password,
     );
@@ -91,7 +91,7 @@ export class AuthService {
     // kick off a local save
     const userData = await this.saveLocalUser(user, params.password);
 
-    const result = { user: userData, token, localisation };
+    const result = { user: userData, token, localisation, permissions };
     this.emitter.emit('remoteSignIn', result);
     return result;
   }

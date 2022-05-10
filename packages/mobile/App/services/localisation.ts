@@ -1,44 +1,36 @@
 import mitt from 'mitt';
 import { get } from 'lodash';
 
-import { AuthService } from '~/services/auth';
-import { readConfig, writeConfig } from '~/services/config';
+import { LocalDataService } from './localData';
+import { AuthService } from './auth';
 
 const TEST_LOCALISATION_OVERRIDES = {}; // add values to this to test localisation in development
-const CONFIG_KEY = 'localisation';
 
-const isArrayOfStrings = (value: unknown): boolean => Array.isArray(value) && value.every(item => typeof item === 'string');
+const isArrayOfStrings = (value: unknown): boolean => Array.isArray(value) && value.every((item) => typeof item === 'string');
 
-export class LocalisationService {
-  auth: AuthService;
+export class LocalisationService extends LocalDataService {
+  static CONFIG_KEY = 'localisation';
 
   emitter = mitt();
 
   localisations: object;
 
   constructor(auth: AuthService) {
-    this.auth = auth;
-    this.auth.emitter.on('remoteSignIn', ({ localisation }) => {
-      this.setLocalisations(localisation);
-    });
-    this._readLocalisationsFromConfig();
+    super(auth);
+    this._setLocalisations(this._readDataFromConfig());
   }
 
-  async _readLocalisationsFromConfig(): Promise<void> {
-    const strLocalisation = await readConfig(CONFIG_KEY);
-    this._setLocalisationsWithoutWritingConfig(JSON.parse(strLocalisation));
+  getData(payload: any): object {
+    return payload.localisation;
   }
 
-  _setLocalisationsWithoutWritingConfig(localisations: object): void {
+  dataCallback(localisation: object): void {
+    this._setLocalisations(localisation);
+  }
+
+  _setLocalisations(localisations: object): void {
     this.localisations = localisations;
     this.emitter.emit('localisationChanged', this.localisations);
-  }
-
-  async setLocalisations(localisations: object): Promise<void> {
-    // make sure we can stringify before setting localisation
-    const jsonLocalisation = JSON.stringify(localisations);
-    this._setLocalisationsWithoutWritingConfig(localisations);
-    await writeConfig(CONFIG_KEY, jsonLocalisation);
   }
 
   getLocalisation(path: string): any {
