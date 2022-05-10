@@ -1,13 +1,18 @@
 import * as yup from 'yup';
 import config from 'config';
 import { isArray } from 'lodash';
+import moment from 'moment';
 
-import { decodeIdentifier } from './utils';
+import { decodeIdentifier, getParamAndModifier } from './utils';
 
 export const IDENTIFIER_NAMESPACE = config.hl7.dataDictionaries.patientDisplayId;
 const MAX_RECORDS = 20;
 
-const sharedQuery = yup.object({
+// List of all the fixed name parameters that we support
+const baseParameters = {
+  // TODO: remove subject:identifier after the fiji VPS is good without it.
+  // Patients don't have a subject parameter,
+  // this is just for backwards compatibility.
   'subject:identifier': yup
     .string()
     .test(
@@ -44,10 +49,61 @@ const sharedQuery = yup.object({
     })
     .nullable()
     .default(null),
-});
+  // TODO: remove status after the fiji VPS is good without it.
+  // Patients don't have a status parameter,
+  // this is just for backwards compatibility.
+  status: yup.string(),
+};
 
+const patientParameters = {
+  given: yup.string(),
+  family: yup.string(),
+  gender: yup.string().oneOf(['male', 'female', 'other']),
+  // eslint-disable-next-line no-template-curly-in-string
+  birthdate: yup.string().test('is-valid-date', 'Invalid date/time format: ${value}', value => {
+    // Only these formats should be valid for a date in HL7 FHIR:
+    // https://www.hl7.org/fhir/datatypes.html#date
+    return moment(value, ['YYYY', 'YYYY-MM', 'YYYY-MM-DD'], true).isValid();
+  }),
+  address: yup.string(),
+  'address-city': yup.string(),
+  telecom: yup.string(),
+};
+
+// Yup schema that will match any type but will fail to validate.
+// Useful for rejecting params with a more meaningful error message.
+const errorSchema = yup
+  .mixed()
+  // eslint-disable-next-line no-template-curly-in-string
+  .test('no-test-force-error', 'Parameter ${path} is unknown or not supported.', () => false);
+
+// Returns an object with patient parameters found in the query
+// as keys and yup validation schema for each field as values.
+const getPatientParameters = queryParams => {
+  const parameters = {};
+
+  Object.keys(queryParams).forEach(key => {
+    if (key in baseParameters === false) {
+      // Parse parameter only
+      const [param] = getParamAndModifier(key);
+
+      // Assign known parameter validation or use a schema that will fail
+      parameters[key] = patientParameters[param] || errorSchema;
+    }
+  });
+
+  return parameters;
+};
+
+// Use lazy evaluation because the parameters might include
+// suffixes that modify the query. (parameter:suffix=value)
 export const patient = {
-  query: sharedQuery,
+  query: yup.lazy(params =>
+    yup.object({
+      ...getPatientParameters(params),
+      ...baseParameters,
+    }),
+  ),
 };
 
 export const DIAGNOSTIC_REPORT_INCLUDES = {
@@ -56,7 +112,8 @@ export const DIAGNOSTIC_REPORT_INCLUDES = {
 };
 
 export const diagnosticReport = {
-  query: sharedQuery.shape({
+  query: yup.object({
+    ...baseParameters,
     // This will overwrite the sharedQuery validation for this field,
     // making it required for DiagnosticReport route.
     // Only kept for backwards compatibility.
@@ -74,7 +131,7 @@ export const diagnosticReport = {
     _include: yup
       .array()
       .of(yup.string().oneOf(Object.values(DIAGNOSTIC_REPORT_INCLUDES)))
-      .transform((value, originalValue) => {
+      .transform((_, originalValue) => {
         if (isArray(originalValue)) {
           return originalValue;
         }
