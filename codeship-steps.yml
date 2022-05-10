@@ -11,12 +11,27 @@
     - name: run migrations
       service: app-with-db
       command: scripts/apply_and_revert_sync_server_migrations.sh
+    - name: lint (on PR branches)
+      type: parallel
+      exclude: ^(master$|dev$|staging$|ci-)
+      steps:
+        - name: the desktop app and servers
+          service: app-without-db
+          command: scripts/lint.sh pr-lints
+        # - TODO(WAITM-215): mobile lints
     - name: test
       type: serial
       steps:
         - name: the desktop app and servers
           service: app-with-db
-          command: ./scripts/test.sh
+          type: parallel
+          steps:
+            - name: on main branches
+              command: scripts/test.sh
+              tag: ^(master$|dev$|staging$|ci-)
+            - name: on PR branches
+              command: scripts/test.sh pr-coverage
+              exclude: ^(master$|dev$|staging$|ci-)
         - name: the mobile app
           service: mobile
           command: "yarn test:coverage"
