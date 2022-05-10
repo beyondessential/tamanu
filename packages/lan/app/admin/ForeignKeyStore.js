@@ -1,5 +1,30 @@
 import { ValidationError } from 'yup';
 
+// TODO: allow referencedata relations to specify reference data type
+// so that for eg a village and facility with the same name don't get confused
+const foreignKeySchemas = {
+  department: {
+    field: 'facility',
+    recordType: 'facility',
+  },
+  location: {
+    field: 'facility',
+    recordType: 'facility',
+  },
+  patient: {
+    field: 'village',
+    recordType: 'referenceData',
+  },
+  labTestType: {
+    field: 'labTestCategory',
+    recordType: 'referenceData',
+  },
+  scheduledVaccine: {
+    field: 'vaccine',
+    recordType: 'referenceData',
+  },
+};
+
 export class ForeignKeyStore {
   // Records should be an array of sync records, ie:
   // { recordType: 'foo', data: { id: 'bar', ...otherData }, ...otherMetadata }
@@ -8,7 +33,7 @@ export class ForeignKeyStore {
     this.recordsById = this.getRecordsById(records);
   }
 
-  getRecordsById = records => {
+  getRecordsById(records) {
     const recordsById = {};
     records.forEach(record => {
       const { id } = record.data;
@@ -16,15 +41,11 @@ export class ForeignKeyStore {
     });
 
     return recordsById;
-  };
-
-  getRecord(recordId) {
-    return this.recordsById[recordId];
   }
 
   assertUniqueId(record) {
     const { data } = record;
-    const existing = this.getRecord(data.id);
+    const existing = this.recordsById[data.id];
     if (existing !== record) {
       throw new ValidationError(
         `id ${data.id} is already being used at ${existing.sheet}:${existing.row}`,
@@ -76,5 +97,23 @@ export class ForeignKeyStore {
     if (found) return found;
 
     throw new ValidationError(`could not find a ${recordType} called "${search}"`);
+  }
+
+  linkByForeignKey(record) {
+    const { data, recordType: parentRecordType } = record;
+    const schema = foreignKeySchemas[parentRecordType];
+
+    if (!schema) return;
+    const { field, recordType } = schema;
+
+    const search = data[field];
+    if (!search) return;
+    const found = this.findRecord(recordType, search);
+    const foundId = found?.data?.id;
+    if (!foundId) {
+      throw new ValidationError(`matching record from ${found.sheet}:${found.row} has no id`);
+    }
+    data[`${field}Id`] = foundId;
+    delete data[field];
   }
 }

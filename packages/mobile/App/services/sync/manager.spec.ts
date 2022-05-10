@@ -30,11 +30,11 @@ const MockedWebSyncSource = <jest.Mock<WebSyncSource>>WebSyncSource;
 jest.mock('~/services/localisation/LocalisationService');
 const MockedLocalisationService = <jest.Mock<LocalisationService>>LocalisationService;
 
-const createManager = (): ({
+const createManager = (): {
   emittedEvents: { action: string | symbol; event: any }[];
   syncManager: SyncManager;
   mockedSource: any;
-}) => {
+} => {
   // mock WebSyncSource and MockedLocalisationServoce
   MockedWebSyncSource.mockClear();
   MockedLocalisationService.mockClear();
@@ -130,10 +130,8 @@ describe('SyncManager', () => {
         encounter.examinerId = user.id;
         const administeredVaccine = fakeAdministeredVaccine();
         administeredVaccine.scheduledVaccineId = scheduledVaccine.id;
-        const surveyResponse = fakeSurveyResponse();
-        surveyResponse.surveyId = survey.id;
-        const answer = fakeSurveyResponseAnswer();
-        answer.dataElementId = programDataElement.id;
+        const surveyResponse = fakeSurveyResponse(survey);
+        const answer = fakeSurveyResponseAnswer(surveyResponse.id, programDataElement);
 
         const { syncManager, mockedSource } = createManager();
         const records = [
@@ -197,12 +195,14 @@ describe('SyncManager', () => {
           encounterId: encounter.id,
         });
 
-        expect(
-          await models.SurveyResponseAnswer.findOne({ id: answer.id }),
-        ).toMatchObject({
+        const answerWithoutDataElement = {
           ...answer,
-          responseId: surveyResponse.id,
-        });
+        };
+        delete answerWithoutDataElement.dataElement;
+
+        expect(await models.SurveyResponseAnswer.findOne({ id: answer.id })).toMatchObject(
+          answerWithoutDataElement,
+        );
       };
 
       it('downloads and imports an encounter nested under a patient', async () => {
@@ -224,14 +224,14 @@ describe('SyncManager', () => {
       const { syncManager, mockedSource } = createManager();
 
       let startFetch: () => void | null = null;
-      const startFetchPromise = new Promise(resolve => {
+      const startFetchPromise = new Promise<void>(resolve => {
         startFetch = resolve;
       });
       let finishFetch: () => void | null = null;
       mockedSource
         .uploadRecords
         .mockImplementationOnce(async () => {
-          const finishFetchPromise = new Promise(resolve => {
+          const finishFetchPromise = new Promise<void>(resolve => {
             finishFetch = resolve;
           });
           startFetch();
@@ -318,12 +318,12 @@ describe('SyncManager', () => {
         const survey = fakeSurvey();
         await Database.models.Survey.createAndSaveOne(survey);
 
-        const surveyResponse = fakeSurveyResponse();
+        const surveyResponse = fakeSurveyResponse(survey);
         surveyResponse.encounter = encounter.id;
         surveyResponse.survey = survey.id;
         await Database.models.SurveyResponse.createAndSaveOne(surveyResponse);
 
-        const answer = fakeSurveyResponseAnswer();
+        const answer = fakeSurveyResponseAnswer(surveyResponse.id, programDataElement);
         answer.response = surveyResponse.id;
         answer.dataElement = programDataElement.id;
         await Database.models.SurveyResponseAnswer.createAndSaveOne(answer);
@@ -360,6 +360,7 @@ describe('SyncManager', () => {
                     data: {
                       ...answer,
                       responseId: surveyResponse.id,
+                      dataElement: programDataElement,
                       dataElementId: programDataElement.id,
                     },
                   },
@@ -385,7 +386,7 @@ describe('SyncManager', () => {
     it('only runs one sync at a time', async () => {
       // arrange
       const { syncManager, mockedSource } = createManager();
-      let resolveFirstFetchChannels: ((value: string[]) => void);
+      let resolveFirstFetchChannels: (value: string[]) => void;
       const firstFetchChannelsPromise = new Promise(resolve => {
         resolveFirstFetchChannels = resolve;
       });

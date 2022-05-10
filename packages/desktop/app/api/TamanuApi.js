@@ -126,7 +126,7 @@ export class TamanuApi {
       throw new Error(`Tamanu server type '${serverType}' is not supported.`);
     }
 
-    const { token, localisation, server = {} } = await response.json();
+    const { token, localisation, server = {}, permissions } = await response.json();
     server.type = serverType;
     saveToLocalStorage({ token, localisation, server });
     this.setToken(token);
@@ -134,7 +134,7 @@ export class TamanuApi {
 
     const user = await this.get('user/me');
     this.user = user;
-    return { user, token, localisation, server };
+    return { user, token, localisation, server, permissions };
   }
 
   async requestPasswordReset(host, email) {
