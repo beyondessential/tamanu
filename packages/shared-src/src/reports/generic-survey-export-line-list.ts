@@ -1,5 +1,5 @@
-import { generateReportFromQueryData, columnTemplateType } from './utilities';
-import { Sequelize } from 'sequelize';
+import { subDays } from 'date-fns';
+import { generateReportFromQueryData } from './utilities';
 
 type parametersType = {
   surveyId?: string;
@@ -73,7 +73,7 @@ and CASE WHEN :to_date IS NOT NULL THEN sr.end_time::date <= :to_date::date ELSE
  * },
  */
 const getData = async (sequelize, parameters: parametersType) => {
-  const { surveyId, fromDate, toDate, village } = parameters;
+  const { surveyId, fromDate = subDays(new Date(), 30), toDate, village } = parameters;
 
   return sequelize.query(query, {
     type: sequelize.QueryTypes.SELECT,
