@@ -15,7 +15,7 @@ import {
   ReadOnlyTextField,
   UnsupportedPhotoField,
 } from 'desktop/app/components/Field';
-import { PROGRAM_DATA_ELEMENT_TYPES } from 'shared/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES, ACTION_DATA_ELEMENT_TYPES } from 'shared-src/src/constants';
 import { joinNames } from './user';
 
 const InstructionField = ({ label, helperText }) => (
@@ -48,8 +48,12 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: InstructionField,
 };
 
-export function getComponentForQuestionType(type) {
-  const component = QUESTION_COMPONENTS[type];
+export function getComponentForQuestionType(type, { writeToPatient: { fieldType } }) {
+  let component = QUESTION_COMPONENTS[type];
+  if (type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA && fieldType) {
+    // PatientData specifically can overwrite field type if we are writing back to patient record
+    component = QUESTION_COMPONENTS[fieldType];
+  }
   if (component === undefined) {
     return LimitedTextField;
   }
@@ -232,7 +236,7 @@ export const getAnswersFromData = (data, survey) =>
 export const getActionsFromData = (data, survey) =>
   Object.entries(data).reduce((acc, [key]) => {
     const component = survey.components.find(({ dataElement }) => dataElement.id === key);
-    if (component?.dataElement?.type === 'PatientIssue') {
+    if (ACTION_DATA_ELEMENT_TYPES.includes(component?.dataElement?.type)) {
       if (checkVisibility(component, data, survey.components)) {
         acc[key] = true;
       }
