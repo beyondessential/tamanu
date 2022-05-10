@@ -3,7 +3,6 @@ import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import 'typeface-roboto';
 
-import { ConnectedSidebar } from './components/Sidebar';
 import { checkIsLoggedIn } from './store/auth';
 import { getCurrentRoute } from './store/router';
 import { LoginView } from './views';
@@ -24,7 +23,7 @@ const AppContentsContainer = styled.div`
   grid-column: 2 / -1;
 `;
 
-export function App({ children }) {
+export function App({ children, sidebar }) {
   const isUserLoggedIn = useSelector(checkIsLoggedIn);
   const currentRoute = useSelector(getCurrentRoute);
   if (!isUserLoggedIn) {
@@ -33,7 +32,7 @@ export function App({ children }) {
 
   return (
     <AppContainer>
-      <ConnectedSidebar />
+      {sidebar}
       <ErrorBoundary errorKey={currentRoute}>
         <AppContentsContainer>
           {children}

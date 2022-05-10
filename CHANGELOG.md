@@ -21,7 +21,7 @@
 
 ### Infrastructure and maintenance 🛠
 
-- (left blank)
+- Drop deprecated `X-Runtime` header (except in meta server).
 
 ## v1.16.0
 

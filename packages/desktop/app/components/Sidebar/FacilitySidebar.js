@@ -11,7 +11,7 @@ const ACTIVE_COVID_19_PROGRAM = {
 };
 const fetchPrograms = async () => [DUMMY_PROGRAM, ACTIVE_COVID_19_PROGRAM];
 
-export const SidebarWithPrograms = memo(({ items, ...restOfProps }) => {
+export const FacilitySidebar = memo(({ items, ...restOfProps }) => {
   const [programs, setPrograms] = useState([]);
 
   useEffect(() => {
