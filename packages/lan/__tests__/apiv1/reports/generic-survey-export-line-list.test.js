@@ -1,4 +1,4 @@
-import { randomReferenceData } from 'shared/demoData/patients';
+import { randomReferenceDataObjects } from 'shared/demoData/patients';
 import { fake } from 'shared/test-helpers';
 import { subDays, format } from 'date-fns';
 import { createTestContext } from '../../utilities';
@@ -66,12 +66,13 @@ describe('Generic survey export', () => {
     let app = null;
     let expectedPatient = null;
     let expectedVillage = null;
+    let unexpectedVillage = null;
 
     beforeAll(async () => {
       const { models, baseApp } = testContext;
       app = await baseApp.asRole('practitioner');
       await createDummySurvey(models);
-      expectedVillage = await randomReferenceData(models, 'village');
+      [expectedVillage, unexpectedVillage] = await randomReferenceDataObjects(models, 'village', 2);
       expectedPatient = await models.Patient.create(
         await fake(models.Patient, {
           villageId: expectedVillage.id,
@@ -84,14 +85,33 @@ describe('Generic survey export', () => {
       await testContext.models.SurveyResponse.destroy({ where: {} });
     });
 
+    it('should return an error if no surveyId is sent', async () => {
+      const result = await app.post(REPORT_URL).send({
+        parameters: {},
+      });
+      expect(result).toHaveStatus(500);
+    });
+
+    it('should return no data if filtering for a different village', async () => {
+      await submitSurveyForPatient(app, testContext.models, expectedPatient);
+
+      const result = await app.post(REPORT_URL).send({
+        parameters: {
+          surveyId: SURVEY_ID,
+          village: unexpectedVillage.id,
+        },
+      });
+      expect(result).toHaveSucceeded();
+      expect(result.body).toMatchTabularReport([]);
+    });
+
     it('should return basic data for a survey', async () => {
       await submitSurveyForPatient(app, testContext.models, expectedPatient);
 
       const result = await app.post(REPORT_URL).send({
         parameters: {
           surveyId: SURVEY_ID,
-          // location: expectedLocation.id,
-          // department: expectedDepartment1.id, // Historical department filtered for
+          village: expectedVillage.id,
         },
       });
       expect(result).toHaveSucceeded();
