@@ -1,13 +1,6 @@
 import { subDays } from 'date-fns';
 import { generateReportFromQueryData } from './utilities';
 
-type parametersType = {
-  surveyId?: string;
-  fromDate?: string;
-  toDate?: string;
-  village?: string;
-};
-
 const COMMON_FIELDS = [
   'Patient ID',
   'First name',
@@ -72,7 +65,7 @@ and CASE WHEN :to_date IS NOT NULL THEN sr.end_time::date <= :to_date::date ELSE
  *   }
  * },
  */
-const getData = async (sequelize, parameters: parametersType) => {
+const getData = async (sequelize, parameters) => {
   const { surveyId, fromDate = subDays(new Date(), 30), toDate, village } = parameters;
 
   return sequelize.query(query, {
@@ -86,7 +79,7 @@ const getData = async (sequelize, parameters: parametersType) => {
   });
 };
 
-export const dataGenerator = async ({ sequelize, models }, parameters: parametersType = {}) => {
+export const dataGenerator = async ({ sequelize, models }, parameters = {}) => {
   const { surveyId } = parameters;
   if (!surveyId) {
     throw new Error('parameter "survey" must be supplied');
