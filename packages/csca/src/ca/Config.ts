@@ -1,6 +1,7 @@
 import { join } from 'path';
 
 import { add } from 'date-fns';
+import * as yup from 'yup';
 
 import AuthenticatedFile from './AuthenticatedFile';
 import { Extension } from './certificateExtensions';
@@ -47,6 +48,14 @@ export default class Config extends AuthenticatedFile {
   public async getCrlS3Bucket(): Promise<S3Bucket> {
     const config = await this.load();
     return config.crl.bucket;
+  }
+
+  public async export(): Promise<ConfigFile> {
+    return this.load();
+  }
+
+  public async validateAndImport(config: any): Promise<void> {
+    return this.write(await validate(config));
   }
 }
 
@@ -225,7 +234,7 @@ const SCHEMA = yup.object({
     .required(),
 });
 
-async function validate(config: object): Promise<ConfigFile> {
+export async function validate(config: object): Promise<ConfigFile> {
   const conf = await SCHEMA.validate(config);
   if (conf.issuance.validityPeriodDays < conf.issuance.workingPeriodDays) {
     throw new Error('validityPeriodDays must be greater than or equal to workingPeriodDays');
