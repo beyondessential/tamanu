@@ -134,6 +134,26 @@ describe('VPS integration - Patient', () => {
         entry: [],
       });
     });
+
+    it('returns a list of patients when passed no query params', async () => {
+      // arrange
+      const { Patient, PatientAdditionalData } = ctx.store.models;
+      const patient = await Patient.create(fake(Patient));
+      await PatientAdditionalData.create({
+        ...fake(PatientAdditionalData),
+        patientId: patient.id,
+      });
+      const path = `/v1/integration/fijiVps/Patient`;
+
+      // act
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
+
+      // assert
+      expect(response).toHaveSucceeded();
+      expect(response.body.total).toBe(2);
+    });
   });
 
   describe('failure', () => {
