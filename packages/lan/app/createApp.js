@@ -1,6 +1,8 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import compression from 'compression';
+
+import { SERVER_TYPES } from 'shared/constants';
 import { getLoggingMiddleware } from 'shared/services/logging';
 
 import routes from './routes';
@@ -17,8 +19,7 @@ export function createApp({ sequelize, models, syncManager }) {
   app.use(bodyParser.urlencoded({ extended: true }));
 
   app.use((req, res, next) => {
-    res.setHeader('X-Runtime', 'Tamanu LAN Server'); // TODO: deprecated
-    res.setHeader('X-Tamanu-Server', 'Tamanu LAN Server');
+    res.setHeader('X-Tamanu-Server', SERVER_TYPES.LAN);
     res.setHeader('X-Version', version);
     next();
   });

@@ -2,13 +2,7 @@ import { Op } from 'sequelize';
 import { v4 as uuidv4 } from 'uuid';
 
 import { REFERENCE_TYPES } from 'shared/constants';
-import {
-  fakeProgram,
-  fakeSurvey,
-  fakePatient,
-  buildNestedEncounter,
-  upsertAssociations,
-} from 'shared/test-helpers';
+import { fake, buildNestedEncounter, upsertAssociations } from 'shared/test-helpers';
 
 import { createTestContext } from '../utilities';
 
@@ -102,10 +96,12 @@ describe('SyncManager', () => {
 
     it('handles foreign key constraints in deleted models', async () => {
       // arrange
-      const program = fakeProgram();
+      const { Program, Survey } = ctx.models;
+
+      const program = fake(Program);
       await ctx.models.Program.create(program);
 
-      const survey = fakeSurvey();
+      const survey = fake(Survey);
       survey.programId = program.id;
       await ctx.models.Survey.create(survey);
 
@@ -147,7 +143,7 @@ describe('SyncManager', () => {
       const { Patient } = models;
 
       // arrange
-      const oldPatient = await Patient.create(fakePatient());
+      const oldPatient = await Patient.create(fake(Patient));
 
       let startFetch = null;
       const startFetchPromise = new Promise(resolve => {
@@ -201,8 +197,9 @@ describe('SyncManager', () => {
 
     it('exports pages of records and pushes them', async () => {
       // arrange
-      const record = fakePatient();
-      await ctx.models.Patient.create(record);
+      const { Patient } = ctx.models;
+      const record = fake(Patient);
+      await Patient.create(record);
       ctx.remote.push.mockResolvedValueOnce({
         count: 1,
         requestedAt: 1234,
@@ -226,15 +223,17 @@ describe('SyncManager', () => {
     });
 
     it('marks created records for push', async () => {
-      const record = fakePatient();
-      await ctx.models.Patient.create(record);
+      const { Patient } = ctx.models;
+      const record = fake(Patient);
+      await Patient.create(record);
       expect(await getRecord(record)).toHaveProperty('markedForPush', true);
     });
 
     it('marks updated records for push', async () => {
       // arrange
-      const record = fakePatient();
-      await ctx.models.Patient.create(record);
+      const { Patient } = ctx.models;
+      const record = fake(Patient);
+      await Patient.create(record);
       await ctx.models.Patient.update({ markedForPush: false }, { where: { id: record.id } });
       expect(await getRecord(record)).toHaveProperty('markedForPush', false);
 
@@ -248,7 +247,7 @@ describe('SyncManager', () => {
 
   describe('encounters on channels other than patient', () => {
     it('pushes them', async () => {
-      //// arrange
+      // * arrange
       const patientId = uuidv4();
 
       // unrelated encounter
@@ -268,17 +267,15 @@ describe('SyncManager', () => {
       vaccineEncounter.labRequests = [];
       await ctx.models.Encounter.create(vaccineEncounter);
       await upsertAssociations(ctx.models.Encounter, vaccineEncounter);
-      jest
-        .spyOn(ctx.models.UserLocalisationCache, 'getLocalisation')
-        .mockImplementation(() =>
-          Promise.resolve({
-            sync: {
-              syncAllEncountersForTheseScheduledVaccines: vaccineEncounter.administeredVaccines.map(
-                v => v.scheduledVaccineId,
-              ),
-            },
-          }),
-        );
+      jest.spyOn(ctx.models.UserLocalisationCache, 'getLocalisation').mockImplementation(() =>
+        Promise.resolve({
+          sync: {
+            syncAllEncountersForTheseScheduledVaccines: vaccineEncounter.administeredVaccines.map(
+              v => v.scheduledVaccineId,
+            ),
+          },
+        }),
+      );
 
       // unmark patient
       await ctx.models.Patient.update(
@@ -286,10 +283,10 @@ describe('SyncManager', () => {
         { where: { id: patientId } },
       );
 
-      //// act
+      // * act
       await ctx.syncManager.exportAndPush(ctx.models.Encounter);
 
-      //// assert
+      // * assert
       const pushedChannels = ctx.remote.push.mock.calls.map(([ch]) => ch);
       expect(pushedChannels).toContain('labRequest/all/encounter');
       vaccineEncounter.administeredVaccines.forEach(v => {
@@ -313,15 +310,13 @@ describe('SyncManager', () => {
         count: 0,
       });
       const scheduledVaccineId = 'obviously-fake';
-      jest
-        .spyOn(ctx.models.UserLocalisationCache, 'getLocalisation')
-        .mockImplementation(() =>
-          Promise.resolve({
-            sync: {
-              syncAllEncountersForTheseScheduledVaccines: [scheduledVaccineId],
-            },
-          }),
-        );
+      jest.spyOn(ctx.models.UserLocalisationCache, 'getLocalisation').mockImplementation(() =>
+        Promise.resolve({
+          sync: {
+            syncAllEncountersForTheseScheduledVaccines: [scheduledVaccineId],
+          },
+        }),
+      );
 
       // act
       await ctx.syncManager.pullAndImport(ctx.models.Encounter);

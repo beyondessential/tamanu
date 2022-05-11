@@ -10,9 +10,13 @@ interface SurveyQuestionProps {
   patient: any;
 }
 
-function getField(type: string): Element {
-  const field = FieldByType[type];
+function getField(type: string, { writeToPatient: { fieldType = '' } = {} } = {}): Element {
+  let field = FieldByType[type];
 
+  if (type === FieldTypes.PATIENT_DATA && fieldType) {
+    // PatientData specifically can overwrite field type if we are writing back to patient records
+    field = FieldByType[fieldType];
+  }
   if (field || field === null) return field;
   return (): Element => <StyledText>{`No field type ${type}`}</StyledText>;
 }
@@ -22,10 +26,10 @@ export const SurveyQuestion = ({
   patient,
 }: SurveyQuestionProps): ReactElement => {
   const { dataElement } = component;
-  const fieldInput: any = getField(dataElement.type);
+  const config = component && component.getConfigObject();
+  const fieldInput: any = getField(dataElement.type, config);
   if (!fieldInput) return null;
   const isMultiline = dataElement.type === FieldTypes.MULTILINE;
-  const config = component && component.getConfigObject();
 
   return (
     <StyledView marginTop={10}>

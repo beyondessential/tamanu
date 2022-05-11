@@ -110,7 +110,8 @@ export class CertificateNotificationProcessor extends ScheduledTask {
         const type = notification.get('type');
         const printedBy = notification.get('createdBy');
 
-        const countryCode = (await getLocalisation()).country['alpha-2'];
+        const { country, covidVaccines } = await getLocalisation();
+        const countryCode = country['alpha-2'];
 
         log.info(
           `Processing certificate notification: id=${notification.id} patient=${patientId} type=${type} requireSigning=${requireSigning}`,
@@ -128,7 +129,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
             );
             const latestCovidVax = await models.AdministeredVaccine.lastVaccinationForPatient(
               patient.id,
-              ['drug-COVID-19-Astra-Zeneca', 'drug-COVID-19-Pfizer'],
+              covidVaccines,
             );
 
             let uvci;
@@ -164,11 +165,12 @@ export class CertificateNotificationProcessor extends ScheduledTask {
             }
 
             // As fallback, generate from last (not necessarily covid) vaccine
-            if (!uvci)
+            if (!uvci) {
               uvci = await generateUVCI(latestVax.id, {
-                format: euDccEnabled ? 'eudcc' : 'icao',
+                format: 'tamanu',
                 countryCode,
               });
+            }
 
             pdf = await makeVaccineCertificate(patient, printedBy, models, uvci, qrData);
             break;

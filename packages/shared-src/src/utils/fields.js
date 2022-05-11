@@ -72,7 +72,10 @@ export function checkVisibilityCriteria(component, allComponents, values) {
         return givenValues.includes(answersEnablingFollowUp);
       }
 
-      return answersEnablingFollowUp.includes(value);
+      if (Array.isArray(answersEnablingFollowUp)) {
+        return answersEnablingFollowUp.includes(value);
+      }
+      return answersEnablingFollowUp === value;
     };
 
     return conjunction === 'and'

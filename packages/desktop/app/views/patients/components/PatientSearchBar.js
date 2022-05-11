@@ -46,10 +46,10 @@ export const PatientSearchBar = ({
           InputProps: {
             endAdornment: (
               <InputAdornment position="end">
-                <Tooltip title="Toggle EXACT search by ID">
+                <Tooltip title="Exact term search">
                   <SpellcheckIcon
                     style={{ cursor: 'pointer' }}
-                    aria-label="Toggle exact search by ID"
+                    aria-label="Exact term search"
                     onClick={toggleSearchIdExact}
                     color={displayIdExact ? '' : 'disabled'}
                   />
