@@ -79,6 +79,7 @@ describe('VDS: Proof of Vaccination', () => {
 
     const azVaxDrug = await ReferenceData.create({
       ...fake(ReferenceData),
+      id: 'drug-COVID-19-Astra-Zeneca',
       type: 'vaccine',
       name: 'ChAdOx1-S',
     });
@@ -177,12 +178,14 @@ describe('VDS: Proof of Vaccination', () => {
 
     const azVaxDrug = await ReferenceData.create({
       ...fake(ReferenceData),
+      id: 'drug-COVID-19-Astra-Zeneca',
       type: 'vaccine',
       name: 'ChAdOx1-S',
     });
 
     const pfVaxDrug = await ReferenceData.create({
       ...fake(ReferenceData),
+      id: 'drug-COVID-19-Pfizer',
       type: 'vaccine',
       name: 'Comirnaty',
     });
