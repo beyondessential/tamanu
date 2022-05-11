@@ -69,13 +69,13 @@ export class ForeignKeyStore {
     by hand, so that a data entrant can just type the names of villages or
     facilities without having to copy+paste IDs everywhere.
   */
-  findRecord(recordType, search, searchField = 'name') {
+  findRecord(searchValue, recordType, searchField = 'name') {
     // don't run an empty search, if a relation is mandatory
     // it should be set in the schema
-    if (!search) return null;
+    if (!searchValue) return null;
 
-    // if a record with exactly `search` as its id is found, use it
-    const byId = this.recordsById[search];
+    // if a record with exactly `searchValue` as its id is found, use it
+    const byId = this.recordsById[searchValue];
     if (byId) {
       return byId;
     }
@@ -89,7 +89,7 @@ export class ForeignKeyStore {
       ) {
         return false;
       }
-      return r.data[searchField].toLowerCase() === search.toLowerCase();
+      return r.data[searchField].toLowerCase() === searchValue.toLowerCase();
     });
     if (found) return found;
     return null;
@@ -102,16 +102,16 @@ export class ForeignKeyStore {
     if (!schema) return;
     const { field, recordType } = schema;
 
-    const search = data[field];
-    if (!search) return;
-    const found = this.findRecord(recordType, search);
+    const searchValue = data[field];
+    if (!searchValue) return;
+    const found = this.findRecord(searchValue, recordType);
     if (!found) {
-      throw new ValidationError(`could not find a ${recordType} called "${search}"`);
+      throw new ValidationError(`could not find a ${recordType} called "${searchValue}"`);
     }
     // make sure the found record is of the right type
     if (found.recordType !== recordType) {
       throw new ValidationError(
-        `linked ${recordType} for ${field} ${search} was of type ${found.recordType}`,
+        `linked ${recordType} for ${field} ${searchValue} was of type ${found.recordType}`,
       );
     }
     const foundId = found?.data?.id;
