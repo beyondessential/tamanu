@@ -62,6 +62,17 @@ const FormLineInner = styled.div`
   }
 `;
 
+const FormFieldUnderline = styled(Text)`
+  border-bottom: 1px solid black;
+  width: 100%;
+  margin: 0 15px 0 10px;
+  font-size: 15px;
+`;
+
+const UnderlinedFormHelper = styled(Text)`
+  font-weight: 500;
+`;
+
 const FormLine = ({ children, helperText }) => {
   return (
     <FormLineContainer>
@@ -74,10 +85,26 @@ const FormLine = ({ children, helperText }) => {
   );
 };
 
+const UnderlinedFormField = ({ label, children, helperText }) => {
+  return (
+    <FormLineContainer>
+      <FormLineInner>
+        <Text>{label}</Text>
+        <FormFieldUnderline>{children}</FormFieldUnderline>
+      </FormLineInner>
+      <UnderlinedFormHelper>{helperText}</UnderlinedFormHelper>
+    </FormLineContainer>
+  );
+};
+
+const getCauseName = cause => cause?.condition?.name;
+
 export const DeathCertificate = React.memo(({ patientData, certificateData }) => {
   const { firstName, lastName, dateOfBirth, sex, causes, dateOfDeath, facility } = patientData;
   const { title, subTitle, logo, watermark, printedBy, deathCertFooterImg } = certificateData;
-  const causeOfDeath = causes?.primary?.condition?.name;
+  const causeOfDeath = getCauseName(causes?.primary);
+  const antecedentCause1 = getCauseName(causes?.antecedent1);
+  const antecedentCause2 = getCauseName(causes?.antecedent2);
   const dateOfPrinting = new Date();
 
   return (
@@ -90,23 +117,22 @@ export const DeathCertificate = React.memo(({ patientData, certificateData }) =>
       />
       <Grid mb={2}>
         <LocalisedLabel name="firstName">{firstName}</LocalisedLabel>
-        <LocalisedLabel name="lastName">{lastName}</LocalisedLabel>
-        <Label name="DOB">
-          <DateDisplay date={dateOfBirth} showDate={false} showExplicitDate />
-        </Label>
-        <LocalisedLabel name="sex">{sex}</LocalisedLabel>
         <Label name="Date of death">
           <DateDisplay date={dateOfDeath} showDate={false} showExplicitDate />
         </Label>
-        <Label name="Place of death">{facility?.name}</Label>
+        <LocalisedLabel name="lastName">{lastName}</LocalisedLabel>
         <Label name="Time of death">
           <DateDisplay date={dateOfDeath} showDate={false} showTime />
         </Label>
-        <Label name="Cause of death">{causeOfDeath}</Label>
-        <Label name="Printed by">{printedBy}</Label>
+        <Label name="DOB">
+          <DateDisplay date={dateOfBirth} showDate={false} showExplicitDate />
+        </Label>
         <Label name="Date of printing">
           <DateDisplay date={dateOfPrinting} showDate={false} showExplicitDate />
         </Label>
+        <LocalisedLabel name="sex">{sex}</LocalisedLabel>
+        <Label name="Printed by">{printedBy}</Label>
+        <Label name="Place of death">{facility?.name}</Label>
       </Grid>
       <Box border={1}>
         <Grid px={3} py={2}>
@@ -117,41 +143,42 @@ export const DeathCertificate = React.memo(({ patientData, certificateData }) =>
             </StrongText>
             <br />
             <br />
+
             <StrongText>Antecedent causes</StrongText>
             <Text>
-              Morbid conditions, if any, giving rise to the above cause, stating the underlying
-              condition last
+              Morbid conditions, giving rise to the above cause, stating the underlying condition
+              last
             </Text>
           </Box>
           <Box>
             <Box>
-              <FormLine helperText="due to (or as a consequence of)">
-                <Text>(a)</Text>
-              </FormLine>
+              <UnderlinedFormField label="(a)" helperText="due to (or as a consequence of)">
+                {causeOfDeath}
+              </UnderlinedFormField>
             </Box>
             <Box>
-              <FormLine helperText="due to (or as a consequence of)">
-                <Text>(b)</Text>
-              </FormLine>
+              <UnderlinedFormField label="(b)" helperText="due to (or as a consequence of)">
+                {antecedentCause1}
+              </UnderlinedFormField>
             </Box>
             <Box>
-              <FormLine helperText="due to (or as a consequence of)">
-                <Text>(c)</Text>
-              </FormLine>
+              <UnderlinedFormField label="(c)">{antecedentCause2}</UnderlinedFormField>
             </Box>
           </Box>
         </Grid>
         <Grid borderTop={1} px={3} pt={2} pb={3}>
           <Box maxWidth="240px">
             <StrongText>
-              II<br />
+              II
+              <br />
               Other significant conditions contributing to the death but not related to the disease
               or condition causing it.
             </StrongText>
           </Box>
           <Box>
-            <FormLine />
-            <FormLine />
+            {causes?.contributing?.map(cause => (
+              <UnderlinedFormField>{getCauseName(cause)}</UnderlinedFormField>
+            ))}
           </Box>
         </Grid>
       </Box>

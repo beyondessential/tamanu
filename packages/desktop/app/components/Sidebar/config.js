@@ -23,7 +23,7 @@ export const submenuIcons = {
   immunisations: 'fa fa-syringe',
 };
 
-export const items = [
+export const facilityItems = [
   {
     key: 'patients',
     label: 'Patients',
@@ -255,3 +255,5 @@ export const items = [
     ],
   },
 ];
+
+export const syncItems = [];

@@ -23,6 +23,7 @@ export class PatientDeathData extends Model {
         stillborn: Sequelize.STRING, // yes/no/unknown/null
         wasPregnant: Sequelize.STRING, // yes/no/unknown/null
         withinDayOfBirth: Sequelize.BOOLEAN,
+        outsideHealthFacility: Sequelize.BOOLEAN,
       },
       {
         ...options,
@@ -81,8 +82,13 @@ export class PatientDeathData extends Model {
       constraints: false,
     });
     this.belongsTo(models.DeathCause, {
-      foreignKey: 'secondaryCauseId',
-      as: 'secondaryCause',
+      foreignKey: 'antecedentCause1Id',
+      as: 'antecedentCause1',
+      constraints: false,
+    });
+    this.belongsTo(models.DeathCause, {
+      foreignKey: 'antecedentCause2Id',
+      as: 'antecedentCause2',
       constraints: false,
     });
     this.belongsTo(models.ReferenceData, {

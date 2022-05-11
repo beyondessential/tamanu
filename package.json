@@ -1,6 +1,6 @@
 {
   "name": "tamanu",
-  "version": "1.15.2",
+  "version": "1.16.0",
   "description": "This repo contains all the packages for Tamanu",
   "main": "index.js",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -13,6 +13,7 @@
     "test": "yarn run build-shared && yarn workspace shared-src run test && yarn workspace lan run test && yarn workspace sync-server run test && yarn workspace meta-server run test && yarn workspace csca test",
     "test-coverage": "yarn run build-shared && yarn workspace shared-src run test-coverage && yarn workspace lan run test-coverage && yarn workspace sync-server run test-coverage && yarn workspace meta-server run test-coverage && yarn workspace csca test",
     "lint-all": "yarn workspace shared-src run lint && yarn workspace lan run lint && yarn workspace sync-server run lint && yarn workspace meta-server run lint && yarn workspace desktop run lint && yarn workspace csca run lint",
+    "lint-fix": "yarn workspace shared-src run lint --fix; yarn workspace lan run lint --fix; yarn workspace sync-server run lint --fix; yarn workspace meta-server run lint --fix; yarn workspace desktop run lint --fix; yarn workspace csca run lint --fix",
     "upgrade-lint-rules": "yarn workspaces run yarn upgrade @beyondessential/eslint-config-js --latest",
     "desktop-start-dev": "yarn workspace desktop run start-dev",
     "watch-shared-and": "node scripts/watch-shared-and.js",
@@ -59,6 +60,7 @@
     ]
   },
   "devDependencies": {
+    "@octokit/request": "^5.6.3",
     "eslint-config-prettier": "^4.3.0",
     "eslint-plugin-prettier": "^3.1.0",
     "eslint-plugin-react-hooks": "^4.3.0",

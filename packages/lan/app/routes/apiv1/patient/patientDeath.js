@@ -54,7 +54,12 @@ patientDeath.get(
         },
         {
           model: DeathCause,
-          as: 'secondaryCause',
+          as: 'antecedentCause1',
+          include: ['condition'],
+        },
+        {
+          model: DeathCause,
+          as: 'antecedentCause2',
           include: ['condition'],
         },
         {
@@ -67,7 +72,12 @@ patientDeath.get(
 
     const contributingCauses =
       deathData.contributingCauses?.filter(
-        c => ![deathData.primaryCause?.id, deathData.secondaryCause?.id].includes(c.id),
+        c =>
+          ![
+            deathData.primaryCause?.id,
+            deathData.antecedentCause1?.id,
+            deathData.antecedentCause2?.id,
+          ].includes(c.id),
       ) ?? [];
 
     res.send({
@@ -75,6 +85,7 @@ patientDeath.get(
       patientDeathDataId: deathData.id,
       clinician: deathData.clinician,
       facility: deathData.facility,
+      outsideHealthFacility: deathData.outsideHealthFacility,
 
       dateOfBirth: patient.dateOfBirth,
       dateOfDeath: patient.dateOfDeath,
@@ -82,7 +93,8 @@ patientDeath.get(
       manner: deathData.manner,
       causes: {
         primary: deathData.primaryCause ? exportCause(deathData.primaryCause) : null,
-        secondary: deathData.secondaryCause ? exportCause(deathData.secondaryCause) : null,
+        antecedent1: deathData.antecedentCause1 ? exportCause(deathData.antecedentCause1) : null,
+        antecedent2: deathData.antecedentCause2 ? exportCause(deathData.antecedentCause2) : null,
         contributing: contributingCauses.map(exportCause),
         external:
           deathData.externalCauseDate ||
@@ -136,7 +148,7 @@ patientDeath.post(
 
     const {
       db,
-      models: { Discharge, Patient, PatientDeathData, DeathCause, User },
+      models: { Patient, PatientDeathData, DeathCause, User },
       params: { id: patientId },
     } = req;
 
@@ -154,14 +166,17 @@ patientDeath.post(
       ageOfMother: yup.number(),
       birthWeight: yup.number(),
       causeOfDeath: yup.string().required(),
-      causeOfDeath2: yup.string(),
-      causeOfDeath2Interval: yup.number().default(0),
       causeOfDeathInterval: yup.number().default(0),
+      antecedentCause1: yup.string(),
+      antecedentCause1Interval: yup.number().default(0),
+      antecedentCause2: yup.string(),
+      antecedentCause2Interval: yup.number().default(0),
       clinicianId: yup.string().required(),
       otherContributingConditions: yup.string(),
       otherContributingConditionsInterval: yup.number().default(0),
       deathWithin24HoursOfBirth: yesNo,
       facilityId: yup.string(),
+      outsideHealthFacility: yup.boolean().default(false),
       fetalOrInfant: yesNo.default('no'),
       lastSurgeryDate: yup.date(),
       lastSurgeryReason: yup.string(),
@@ -201,6 +216,7 @@ patientDeath.post(
         externalCauseLocation: body.mannerOfDeathLocation,
         externalCauseNotes: body.mannerOfDeathOther,
         facilityId: body.facilityId,
+        outsideHealthFacility: body.outsideHealthFacility,
         fetalOrInfant: body.fetalOrInfant === 'yes',
         hoursSurvivedSinceBirth: body.numberOfHoursSurvivedSinceBirth,
         lastSurgeryDate: body.surgeryInLast4Weeks === 'yes' ? body.lastSurgeryDate : null,
@@ -226,15 +242,27 @@ patientDeath.post(
         primaryCauseId: primaryCause.id,
       });
 
-      if (body.causeOfDeath2) {
-        const secondaryCause = await DeathCause.create({
+      if (body.antecedentCause1) {
+        const antecedentCause1 = await DeathCause.create({
           patientDeathDataId: deathData.id,
-          conditionId: body.causeOfDeath2,
-          timeAfterOnset: body.causeOfDeath2Interval,
+          conditionId: body.antecedentCause1,
+          timeAfterOnset: body.antecedentCause1Interval,
         });
 
         await deathData.update({
-          secondaryCauseId: secondaryCause.id,
+          antecedentCause1Id: antecedentCause1.id,
+        });
+      }
+
+      if (body.antecedentCause2) {
+        const antecedentCause2 = await DeathCause.create({
+          patientDeathDataId: deathData.id,
+          conditionId: body.antecedentCause2,
+          timeAfterOnset: body.antecedentCause2Interval,
+        });
+
+        await deathData.update({
+          antecedentCause2Id: antecedentCause2.id,
         });
       }
 

@@ -162,6 +162,11 @@ export const PROGRAM_DATA_ELEMENT_TYPES = {
 };
 export const PROGRAM_DATA_ELEMENT_TYPE_VALUES = Object.values(PROGRAM_DATA_ELEMENT_TYPES);
 
+export const ACTION_DATA_ELEMENT_TYPES = [
+  PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE,
+  PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA,
+];
+
 export const REPORT_REQUEST_STATUSES = {
   RECEIVED: 'Received',
   PROCESSING: 'Processing',
@@ -366,4 +371,10 @@ export const VACCINE_STATUS = {
   UPCOMING: 'UPCOMING',
   OVERDUE: 'OVERDUE',
   RECORDED_IN_ERROR: 'RECORDED_IN_ERROR',
+};
+
+export const SERVER_TYPES = {
+  LAN: 'Tamanu LAN Server',
+  META: 'Tamanu Metadata Server',
+  SYNC: 'Tamanu Sync Server',
 };

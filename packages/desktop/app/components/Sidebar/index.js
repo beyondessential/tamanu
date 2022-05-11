@@ -1,2 +1,2 @@
-export { ConnectedSidebar } from './ConnectedSidebar';
+export * from './ConnectedSidebar';
 export { Sidebar } from './Sidebar';

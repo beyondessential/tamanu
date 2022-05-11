@@ -31,12 +31,14 @@ function parametersToSqlWhere(parameters) {
     fromDate = subDays(new Date(), 30).toISOString(),
     toDate,
     practitioner,
+    patientBillingType,
     // location, -- handled elsewhere
     // department, -- handled elsewhere
   } = parameters;
 
   return {
     encounterType: ENCOUNTER_TYPES.ADMISSION,
+    ...(patientBillingType && { patientBillingTypeId: patientBillingType }),
     ...(practitioner && { examinerId: practitioner }),
     startDate: {
       [Op.gte]: fromDate,

@@ -39,7 +39,6 @@ import { SelectInput, DateInput, TextInput } from '../../components/Field';
 import { encounterOptions, ENCOUNTER_OPTIONS_BY_VALUE, Colors } from '../../constants';
 import { useEncounter } from '../../contexts/Encounter';
 import { useLocalisation } from '../../contexts/Localisation';
-import { useLabRequest } from '../../contexts/LabRequest';
 import { viewImagingRequest } from '../../store/imagingRequest';
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
@@ -136,24 +135,10 @@ const ProcedurePane = React.memo(({ encounter, readonly }) => {
 
 const LabsPane = React.memo(({ encounter, readonly }) => {
   const [modalOpen, setModalOpen] = useState(false);
-  const { loadEncounter } = useEncounter();
-  const { loadLabRequest } = useLabRequest();
 
   return (
     <div>
-      <LabRequestModal
-        open={modalOpen}
-        encounter={encounter}
-        onClose={() => setModalOpen(false)}
-        onSaved={async () => {
-          setModalOpen(false);
-          await loadEncounter(encounter.id);
-        }}
-        onPrint={async id => {
-          setModalOpen(false);
-          await loadLabRequest(id, 'print');
-        }}
-      />
+      <LabRequestModal open={modalOpen} encounter={encounter} onClose={() => setModalOpen(false)} />
       <LabRequestsTable encounterId={encounter.id} />
       <ContentPane>
         <Button

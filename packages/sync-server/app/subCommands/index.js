@@ -1,9 +1,10 @@
+export { calculateSurveyResultsCommand } from './calculateSurveyResults';
+export { generateCommand } from './generate';
+export { loadSignerCommand } from './loadSigner';
 export { migrateCommand } from './migrate';
+export { removeDuplicatedPatientAdditionalDataCommand } from './removeDuplicatedPatientAdditionalData';
 export { reportCommand } from './report';
+export { saveCertificateRequestCommand } from './saveCertificateRequest';
 export { serveCommand } from './serve';
 export { setupCommand } from './setup';
-export { calculateSurveyResultsCommand } from './calculateSurveyResults';
-export { removeDuplicatedPatientAdditionalDataCommand } from './removeDuplicatedPatientAdditionalData';
-export { loadSignerCommand } from './loadSigner';
 export { userCommand } from './user';
-export { saveCertificateRequestCommand } from './saveCertificateRequest';

@@ -190,54 +190,8 @@ const validationSchemas = {
   encounter: encounterSchema,
 };
 
-// TODO: allow referencedata relations to specify reference data type
-// so that for eg a village and facility with the same name don't get confused
-const foreignKeySchemas = {
-  department: {
-    facility: 'facility',
-  },
-  location: {
-    facility: 'facility',
-  },
-  patient: {
-    village: 'referenceData',
-  },
-  labTestType: {
-    labTestCategory: 'referenceData',
-  },
-  scheduledVaccine: {
-    vaccine: 'referenceData',
-  },
-};
-
-class ForeignKeyLinker {
-  constructor(fkStore) {
-    this.fkStore = fkStore;
-  }
-
-  link(record) {
-    const { data, recordType: parentRecordType } = record;
-    const schema = foreignKeySchemas[parentRecordType];
-
-    if (!schema) return;
-
-    for (const [field, childRecordType] of Object.entries(schema)) {
-      const search = data[field];
-      if (!search) continue;
-      const found = this.fkStore.findRecord(childRecordType, search);
-      const foundId = found?.data?.id;
-      if (!foundId) {
-        throw new ValidationError(`matching record from ${found.sheet}:${found.row} has no id`);
-      }
-      data[`${field}Id`] = foundId;
-      delete data[field];
-    }
-  }
-}
-
 export async function validateRecordSet(records) {
   const fkStore = new ForeignKeyStore(records);
-  const fkLinker = new ForeignKeyLinker(fkStore);
 
   const validate = async record => {
     const { recordType, data } = record;
@@ -249,7 +203,7 @@ export async function validateRecordSet(records) {
       fkStore.assertUniqueId(record);
 
       // populate all FKs for this data object
-      fkLinker.link(record);
+      fkStore.linkByForeignKey(record);
 
       const validatedData = await schema.validate(data);
 
