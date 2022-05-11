@@ -208,7 +208,7 @@ describe('Palau covid case report tests', () => {
       // survey responses are sorted latest first
       // patient 1 has interview date later than patient 2
       expect(reportResult.body[1][8]).toBe(expectedPatient1.firstName);
-      expect(reportResult.body[1][33]).toBe('Resolved');
+      expect(reportResult.body[1][34]).toBe('Resolved');
       expect(reportResult.body[2][8]).toBe(expectedPatient2.firstName);
     });
     it('should not include survey responses without initial form', async () => {
@@ -258,7 +258,7 @@ describe('Palau covid case report tests', () => {
       // survey responses are sorted latest first
       // patient 1 has interview date later than patient 2
       expect(reportResult.body[1][8]).toBe(expectedPatient1.firstName);
-      expect(reportResult.body[1][33]).toBe(null);
+      expect(reportResult.body[1][34]).toBe(null);
       expect(reportResult.body[2][8]).toBe(expectedPatient2.firstName);
     });
 
@@ -296,7 +296,7 @@ describe('Palau covid case report tests', () => {
       // survey responses are sorted latest first
       // patient 1 has interview date later than patient 2
       expect(reportResult.body[1][8]).toBe(expectedPatient1.firstName);
-      expect(reportResult.body[1][33]).toBe('Resolved');
+      expect(reportResult.body[1][34]).toBe('Resolved');
     });
   });
 });

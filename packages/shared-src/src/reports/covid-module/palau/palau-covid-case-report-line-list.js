@@ -57,6 +57,7 @@ const reportColumnTemplate = [
   { title: 'Risk factors', accessor: data => data['pde-PalauCOVCase31'] },
   { title: 'Day 0 sample collected', accessor: data => data['pde-PalauCOVCase33'] },
   { title: 'Symptomatic on day 0', accessor: data => data['pde-PalauCOVCase36'] },
+  { title: 'Reinfection', accessor: data => data['pde-PalauCOVCase37'] },
 
   // follow up survey
   { title: 'Day 5 sample collected', accessor: data => data['pde-PalauCOVCaseFUp02'] },
