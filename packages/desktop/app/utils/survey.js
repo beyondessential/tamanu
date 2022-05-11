@@ -1,7 +1,7 @@
 import React from 'react';
 import { inRange } from 'lodash';
 
-import { getAgeFromDate } from 'shared/utils';
+import { getAgeFromDate } from 'shared/utils/date';
 import {
   LimitedTextField,
   MultilineTextField,
