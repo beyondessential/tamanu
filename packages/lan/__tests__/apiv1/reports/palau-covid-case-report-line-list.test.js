@@ -223,6 +223,7 @@ describe('Palau covid case report tests', () => {
       expect(reportResult).toHaveSucceeded();
       expect(reportResult.body).toHaveLength(1);
     });
+
     it('should not include follow up survey before initial survey', async () => {
       await submitInitialFormForPatient(app, testContext.models, expectedPatient1, {
         investigator: 'Test',
@@ -259,6 +260,43 @@ describe('Palau covid case report tests', () => {
       expect(reportResult.body[1][8]).toBe(expectedPatient1.firstName);
       expect(reportResult.body[1][33]).toBe(null);
       expect(reportResult.body[2][8]).toBe(expectedPatient2.firstName);
+    });
+
+    it('should return only one line per patient', async () => {
+      await submitInitialFormForPatient(app, testContext.models, expectedPatient1, {
+        investigator: 'Test',
+        caseDate: '2022-04-10' + timePart,
+        interviewDate: '2022-04-10' + timePart,
+        passportNumber: 'A123450',
+        nationality: 'country-Australia',
+        phoneNumber: '123-123-1234',
+      });
+
+      await submitFollowUpFormForPatient(app, testContext.models, expectedPatient1, {
+        sampleDate: '2022-04-15' + timePart,
+        symptomatic: 'No',
+        patientOutcome: 'Resolved',
+        dateResolved: '2022-04-16' + timePart,
+      });
+
+      await submitInitialFormForPatient(app, testContext.models, expectedPatient1, {
+        investigator: 'Test 2',
+        caseDate: '2022-04-02' + timePart,
+        interviewDate: '2022-04-02' + timePart,
+        passportNumber: 'B92384848',
+        nationality: 'country-Australia',
+        phoneNumber: '555-444-3333',
+      });
+
+      const reportResult = await app
+        .post(REPORT_URL)
+        .send({ parameters: { fromDate: new Date(2022, 3, 1, 4) } });
+      expect(reportResult).toHaveSucceeded();
+      expect(reportResult.body).toHaveLength(2);
+      // survey responses are sorted latest first
+      // patient 1 has interview date later than patient 2
+      expect(reportResult.body[1][8]).toBe(expectedPatient1.firstName);
+      expect(reportResult.body[1][33]).toBe('Resolved');
     });
   });
 });
