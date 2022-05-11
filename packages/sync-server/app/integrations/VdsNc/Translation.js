@@ -39,7 +39,8 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
     ScheduledVaccine,
   } = models;
 
-  const countryCode = (await getLocalisation()).country['alpha-3'];
+  const { country, covidVaccines } = await getLocalisation();
+  const countryCode = country['alpha-3'];
 
   const { firstName, lastName, dateOfBirth, sex } = await Patient.findOne({
     where: { id: patientId },
@@ -48,7 +49,7 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
   const vaccinations = await AdministeredVaccine.findAll({
     where: {
       '$encounter.patient_id$': patientId,
-      '$scheduledVaccine.label$': ['COVID-19 AZ', 'COVID-19 Pfizer'],
+      '$scheduledVaccine.vaccine_id$': covidVaccines,
       status: 'GIVEN',
     },
     include: [
