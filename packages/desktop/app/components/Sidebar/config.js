@@ -256,5 +256,4 @@ export const facilityItems = [
   },
 ];
 
-export const syncItems = [
-];
+export const syncItems = [];

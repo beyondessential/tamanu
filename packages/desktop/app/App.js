@@ -23,7 +23,7 @@ const AppContentsContainer = styled.div`
   grid-column: 2 / -1;
 `;
 
-export function App({ children, sidebar }) {
+export function App({ sidebar, children }) {
   const isUserLoggedIn = useSelector(checkIsLoggedIn);
   const currentRoute = useSelector(getCurrentRoute);
   if (!isUserLoggedIn) {

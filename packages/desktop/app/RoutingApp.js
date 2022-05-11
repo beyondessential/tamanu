@@ -18,7 +18,10 @@ import {
   ReportsRoutes,
   ImmunisationRoutes,
 } from './routes';
-import { ConnectedFacilitySidebar, ConnectedSyncSidebar } from './components/Sidebar';
+import {
+  ConnectedFacilitySidebar,
+  ConnectedSyncSidebar,
+} from './components/Sidebar/ConnectedSidebar';
 import { TopBar, Notification } from './components';
 
 export const RoutingApp = () => {
@@ -27,7 +30,7 @@ export const RoutingApp = () => {
 };
 
 export const RoutingFacilityApp = React.memo(() => (
-  <App sidebarComponent={ConnectedFacilitySidebar}>
+  <App sidebar={<ConnectedFacilitySidebar />}>
     <Switch>
       <Redirect exact path="/" to="/patients" />
       <Route path="/patients" component={PatientsRoutes} />
@@ -42,22 +45,22 @@ export const RoutingFacilityApp = React.memo(() => (
       <Route path="/reports" component={ReportsRoutes} />
       <Route path="/immunisations" component={ImmunisationRoutes} />
       {/*
-      * TODO fix this hack. For some reason, having an empty object within this switch fixes a bug
-      * where none of the app contents would render in a production build.
-      */}
+       * TODO fix this hack. For some reason, having an empty object within this switch fixes a bug
+       * where none of the app contents would render in a production build.
+       */}
     </Switch>
   </App>
 ));
 
 export const RoutingAdminApp = React.memo(() => (
-  <App sidebarComponent={ConnectedSyncSidebar}>
+  <App sidebar={<ConnectedSyncSidebar />}>
     <Switch>
       {/* <Redirect exact path="/" to="/admin" /> */}
       <Route path="/" component={AdminPlaceholder} />
       {/*
-      * TODO fix this hack. For some reason, having an empty object within this switch fixes a bug
-      * where none of the app contents would render in a production build.
-      */}
+       * TODO fix this hack. For some reason, having an empty object within this switch fixes a bug
+       * where none of the app contents would render in a production build.
+       */}
     </Switch>
   </App>
 ));
@@ -65,8 +68,10 @@ export const RoutingAdminApp = React.memo(() => (
 export const AdminPlaceholder = React.memo(() => {
   const user = useSelector(state => state.auth?.user);
 
-  return <>
-    <TopBar title="New sync admin panel" />
-    <Notification message={`Successfully logged in as ${user.displayName}`} />
-  </>;
+  return (
+    <>
+      <TopBar title="New sync admin panel" />
+      <Notification message={`Successfully logged in as ${user.displayName}`} />
+    </>
+  );
 });
