@@ -48,7 +48,7 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE]: InstructionField,
 };
 
-export function getComponentForQuestionType(type, { writeToPatient: { fieldType } }) {
+export function getComponentForQuestionType(type, { writeToPatient: { fieldType } = {} }) {
   let component = QUESTION_COMPONENTS[type];
   if (type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA && fieldType) {
     // PatientData specifically can overwrite field type if we are writing back to patient record
