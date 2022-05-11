@@ -1,5 +1,8 @@
 import React from 'react';
 import { Document, Page } from '@react-pdf/renderer';
+
+import { generateUVCI } from 'shared/utils/uvci';
+
 import { Table } from './Table';
 import { styles, Col, Box, Row, Watermark } from './Layout';
 import { PatientDetailsSection } from './PatientDetailsSection';
@@ -7,7 +10,6 @@ import { SigningSection } from './SigningSection';
 import { H3, P } from './Typography';
 import { LetterheadSection } from './LetterheadSection';
 import { getDisplayDate } from './getDisplayDate';
-import { generateUVCI } from 'shared/utils/uvci';
 
 const columns = [
   {
