@@ -2,7 +2,7 @@
   "name": "qr-tester",
   "version": "1.16.0",
   "description": "BES QR Code Tester App / Website",
-  "author": "",
+  "author": "BES <admin@tamanu.io>",
   "license": "UNLICENSED",
   "scripts": {
     "build": "mkdir -p www/vendor && npm run build:jsonc && npm run build:jsrsasign && npm run build:schema",

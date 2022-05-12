@@ -2,6 +2,7 @@
   "name": "tamanuapp",
   "version": "1.16.34",
   "private": true,
+  "author": "BES <admin@tamanu.io>",
   "scripts": {
     "android": "npx react-native run-android",
     "build:ios": "react-native bundle --entry-file='index.js' --bundle-output='./ios/main.jsbundle' --dev=false --platform='ios'",
