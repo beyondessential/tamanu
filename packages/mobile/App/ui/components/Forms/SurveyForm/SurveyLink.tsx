@@ -29,17 +29,22 @@ export const SurveyLink = ({ patient, config, name }): ReactElement => {
   }, [patient, source]);
 
   if (!surveyResponse) {
-    return <Text>Survey (id: {source}) not submitted for patient.</Text>;
+    return (
+      <Text accessibilityComponentType={undefined} accessibilityTraits={undefined}>
+        Survey (id: {source}) not submitted for patient.
+      </Text>
+    );
   }
 
   return (
     <Field
       component={TextField}
       label="Attached screening form"
-      value={`${surveyResponse.survey.name} (${format(
-        surveyResponse.endTime,
-        'dd-MM-yyyy',
-      )})`}
+      value={`${
+        typeof surveyResponse.survey === 'string'
+          ? surveyResponse.survey
+          : surveyResponse.survey.name
+      } (${format(surveyResponse.endTime, 'dd-MM-yyyy')})`}
       disabled
       name={name}
     />

@@ -1,5 +1,4 @@
 import React, { useCallback, ReactElement } from 'react';
-import { Not } from 'typeorm';
 import { FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { FullView } from '/styled/common';
@@ -14,6 +13,7 @@ import { IPatient, SurveyTypes } from '~/types';
 import { joinNames } from '/helpers/user';
 import { useBackendEffect } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
+import { Survey } from '~/models/Survey';
 
 interface ProgramListScreenProps {
   selectedPatient: IPatient;
@@ -30,7 +30,7 @@ const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
     navigation.goBack();
   }, []);
 
-  const onNavigateToSurvey = (survey): any => {
+  const onNavigateToSurvey = (survey: Survey)=> {
     navigation.navigate(Routes.HomeStack.ProgramStack.ProgramTabs.Index, {
       surveyId: survey.id,
       surveyName: survey.name,
@@ -57,14 +57,13 @@ const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
           }}
           showsVerticalScrollIndicator={false}
           data={surveys && surveys.filter(x => x.programId !== 'program-hidden_forms')} // TODO: hack until we can delete surveys from server
-          keyExtractor={(item): string => item.title}
+          keyExtractor={(item): string => item.id}
           renderItem={({ item }): ReactElement => (
             <MenuOptionButton
               key={item.id}
               title={item.name}
               onPress={(): void => onNavigateToSurvey(item)}
               fontWeight={500}
-              textColor={theme.colors.TEXT_SUPER_DARK}
             />
           )}
           ItemSeparatorComponent={Separator}

@@ -156,6 +156,12 @@ export const VaccineStatusCells: VaccineStatusCellsType = {
     color: theme.colors.TEXT_SOFT,
     text: 'UPCOMING',
   },
+  [VaccineStatus.RECORDED_IN_ERROR]: {
+    Icon: Icons.EmptyCircleIcon,
+    background: ColorHelper.halfTransparency(theme.colors.PRIMARY_MAIN),
+    color: theme.colors.TEXT_SOFT,
+    text: 'RECORDED IN ERROR',
+  },
 };
 
 export const PhoneMask = { mask: '9999 9999 999' };

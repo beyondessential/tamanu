@@ -63,12 +63,12 @@ export const VaccineForm = ({
       validationSchema={Yup.object().shape(
         (status === VaccineStatus.GIVEN
           ? {
-              date: Yup.date().required(),
-              consent: Yup.boolean().oneOf([true]).required(),
-            }
+            date: Yup.date().required(),
+            consent: Yup.boolean().oneOf([true]).required(),
+          }
           : {
-              date: Yup.date().required(),
-            }) as { date: Yup.DateSchema; consent?: Yup.BooleanSchema },
+            date: Yup.date().required(),
+          }) as { date: Yup.DateSchema; consent?: Yup.BooleanSchema },
       )}
       initialValues={createInitialValues({ ...initialValues, status })}
     >
