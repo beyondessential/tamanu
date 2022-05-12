@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { customAlphabet } from 'nanoid';
 
 import { useApi } from '../api';
@@ -11,28 +11,27 @@ import { ALPHABET_FOR_ID } from '../constants';
 // generates 8 character id (while excluding 0, O, I, 1 and L)
 const configureCustomRequestId = () => customAlphabet(ALPHABET_FOR_ID, 8);
 
-export const ImagingRequestModal = ({ open, onClose, onSaved, onPrint, encounter }) => {
+export const ImagingRequestModal = ({ open, onClose, encounter }) => {
   const api = useApi();
   const practitionerSuggester = new Suggester(api, 'practitioner');
   const imagingTypeSuggester = new Suggester(api, 'imagingType');
   const generateDisplayId = configureCustomRequestId();
+  const [requestId, setRequestId] = useState();
 
   return (
     <Modal width="md" title="New imaging request" open={open} onClose={onClose}>
       <ImagingRequestForm
-        onSubmit={async (data, isPrinting = false) => {
+        onSubmit={async data => {
           const newRequest = await api.post(`imagingRequest`, {
             ...data,
             encounterId: encounter.id,
           });
-          if (isPrinting) {
-            onPrint(newRequest.id);
-          } else {
-            onSaved();
-          }
+          setRequestId(newRequest.id);
+          onClose();
         }}
         onCancel={onClose}
         encounter={encounter}
+        requestId={requestId}
         practitionerSuggester={practitionerSuggester}
         imagingTypeSuggester={imagingTypeSuggester}
         generateId={generateDisplayId}
