@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Typography, Box } from '@material-ui/core';
 import { PrintLetterhead } from './PrintLetterhead';
 import { CertificateWrapper } from './CertificateWrapper';
-import { LocalisedCertificateLabel as LocalisedLabel } from './CertificateLabels';
+import { LocalisedCertificateLabel } from './CertificateLabels';
 import { DateDisplay } from '../DateDisplay';
 import { PatientBarcode } from './PatientBarcode';
 
@@ -28,6 +28,12 @@ const NotesBox = styled(Box)`
   overflow: hidden;
 `;
 
+const LocalisedLabel = ({ name, children }) => (
+  <LocalisedCertificateLabel margin="9px" name={name}>
+    {children}
+  </LocalisedCertificateLabel>
+);
+
 export const SimplePrintout = React.memo(({ patientData, tableData, notes, certificateData }) => {
   const { firstName, lastName, dateOfBirth, sex, displayId } = patientData;
   const { pageTitle, title, subTitle, logo } = certificateData;
@@ -46,7 +52,7 @@ export const SimplePrintout = React.memo(({ patientData, tableData, notes, certi
         </div>
         <div>
           <LocalisedLabel name="displayId">{displayId}</LocalisedLabel>
-          <PatientBarcode patient={patientData} barWidth={2} barHeight={75} />
+          <PatientBarcode patient={patientData} barWidth={2} barHeight={60} mmeargin={0} />
         </div>
       </RowContainer>
       <GridTable data={tableData} />
