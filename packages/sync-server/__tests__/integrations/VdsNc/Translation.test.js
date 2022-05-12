@@ -1,10 +1,7 @@
 import { expect } from 'chai';
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
-import {
-  createVdsNcTestData,
-  createVdsNcVaccinationData,
-} from '../../../app/integrations/VdsNc';
+import { createVdsNcTestData, createVdsNcVaccinationData } from '../../../app/integrations/VdsNc';
 
 describe('VDS: Proof of Vaccination', () => {
   let ctx;
@@ -13,7 +10,32 @@ describe('VDS: Proof of Vaccination', () => {
     ctx = await createTestContext();
   });
 
-  afterAll(() => ctx.close());
+  beforeEach(async () => {
+    const { ReferenceData } = ctx.store.models;
+
+    ctx.azVaxDrug = await ReferenceData.create({
+      ...fake(ReferenceData),
+      id: 'drug-COVID-19-Astra-Zeneca',
+      type: 'vaccine',
+      name: 'ChAdOx1-S',
+    });
+
+    ctx.pfVaxDrug = await ReferenceData.create({
+      ...fake(ReferenceData),
+      id: 'drug-COVID-19-Pfizer',
+      type: 'vaccine',
+      name: 'Comirnaty',
+    });
+  });
+
+  afterEach(async () => {
+    await ctx.pfVaxDrug.destroy();
+    await ctx.azVaxDrug.destroy();
+  });
+
+  afterAll(async () => {
+    await ctx.close();
+  });
 
   it('fetches data for a non-vaccinated patient', async () => {
     // Arrange
@@ -58,10 +80,10 @@ describe('VDS: Proof of Vaccination', () => {
       Encounter,
       Facility,
       Location,
-      ReferenceData,
       ScheduledVaccine,
       AdministeredVaccine,
     } = ctx.store.models;
+    const { azVaxDrug } = ctx;
 
     const patient = await Patient.create({
       ...fake(Patient),
@@ -76,13 +98,6 @@ describe('VDS: Proof of Vaccination', () => {
       passport: 'A2345678',
     });
     await patient.reload();
-
-    const azVaxDrug = await ReferenceData.create({
-      ...fake(ReferenceData),
-      id: 'drug-COVID-19-Astra-Zeneca',
-      type: 'vaccine',
-      name: 'ChAdOx1-S',
-    });
 
     const scheduledAz = await ScheduledVaccine.create({
       ...fake(ScheduledVaccine),
@@ -157,10 +172,10 @@ describe('VDS: Proof of Vaccination', () => {
       Encounter,
       Facility,
       Location,
-      ReferenceData,
       ScheduledVaccine,
       AdministeredVaccine,
     } = ctx.store.models;
+    const { azVaxDrug, pfVaxDrug } = ctx;
 
     const patient = await Patient.create({
       ...fake(Patient),
@@ -175,20 +190,6 @@ describe('VDS: Proof of Vaccination', () => {
       passport: 'A0101001',
     });
     await patient.reload();
-
-    const azVaxDrug = await ReferenceData.create({
-      ...fake(ReferenceData),
-      id: 'drug-COVID-19-Astra-Zeneca',
-      type: 'vaccine',
-      name: 'ChAdOx1-S',
-    });
-
-    const pfVaxDrug = await ReferenceData.create({
-      ...fake(ReferenceData),
-      id: 'drug-COVID-19-Pfizer',
-      type: 'vaccine',
-      name: 'Comirnaty',
-    });
 
     const scheduledPf1 = await ScheduledVaccine.create({
       ...fake(ScheduledVaccine),
