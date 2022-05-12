@@ -20,7 +20,6 @@ import {
   AuthorityKeyIdentifierExtension,
   EcAlgorithm,
   Extension as X509Extension,
-  HashedAlgorithm,
 } from '@peculiar/x509';
 import { AsnConvert, OctetString } from '@peculiar/asn1-schema';
 import { add } from 'date-fns';
@@ -66,13 +65,12 @@ export default class Crl {
 
     const revokedCertificates = revokedCerts.length
       ? revokedCerts.map(
-          cert =>
-            new RevokedCertificate({
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              revocationDate: new Time(cert.revocationDate!),
-              userCertificate: cert.serial,
-            }),
-        )
+        cert => new RevokedCertificate({
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          revocationDate: new Time(cert.revocationDate!),
+          userCertificate: cert.serial,
+        }),
+      )
       : undefined;
 
     // Doc 9303-12 defines the CRL profile in §7.1.4:

@@ -94,7 +94,7 @@ const PatientTable = ({ onViewPatient, showInpatientDetails, fetchOptions, ...pr
         },
       ],
     ],
-    [],
+    [api],
   );
   const columns = showInpatientDetails ? INPATIENT_COLUMNS : LISTING_COLUMNS;
   const fetchOptionsWithSearchParameters = { ...searchParameters, ...fetchOptions };
