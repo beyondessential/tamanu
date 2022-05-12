@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
-import { screenPercentageToDP, Orientation } from '~/ui/helpers/screen';
-import { RowView, FullView, StyledText } from '~/ui/styled/common';
-import { theme } from '/styled/theme';
+import { screenPercentageToDP, Orientation } from '../../../../../../helpers/screen';
+import { RowView, FullView, StyledText } from '../../../../../../styled/common';
+import { theme } from '../../../../../../styled/theme';
 
 export type SummaryInfo = {
   encounterDate: string;
@@ -21,6 +21,7 @@ export const SummaryBoard: FC<Props> = ({ todayData }) => (
   >
     <FullView justifyContent="center" alignItems="center">
       <StyledText
+        color={theme.colors.TEXT_DARK}
         fontSize={screenPercentageToDP(3.4, Orientation.Height)}
         fontWeight="bold"
       >
@@ -35,12 +36,14 @@ export const SummaryBoard: FC<Props> = ({ todayData }) => (
     </FullView>
     <FullView justifyContent="center" alignItems="center">
       <StyledText
+        color={theme.colors.TEXT_DARK}
         fontSize={screenPercentageToDP(3.4, Orientation.Height)}
         fontWeight="bold"
       >
         {todayData?.totalSurveys || 0}
       </StyledText>
       <StyledText
+        color={theme.colors.TEXT_MID}
         fontSize={screenPercentageToDP(1.7, Orientation.Height)}
       >
         Screenings completed today

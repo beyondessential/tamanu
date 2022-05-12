@@ -12,13 +12,12 @@ export const chunkRows = rows => {
   return chunk(rows, rowsPerChunk);
 };
 
-export const createImportPlan = (sequelize, channel) => {
-  return sequelize.channelRouter(channel, (model, params, channelRoute) => {
+export const createImportPlan = (sequelize, channel) =>
+  sequelize.channelRouter(channel, (model, params, channelRoute) => {
     const relationTree = propertyPathsToTree(model.syncConfig.includedRelations);
     const validateRecord = record => channelRoute.validate(record, params);
     return createImportPlanInner(model, relationTree, validateRecord);
   });
-};
 
 const createImportPlanInner = (model, relationTree, validateRecord) => {
   // columns
@@ -122,9 +121,9 @@ const executeCreates = async (importPlan, records) => {
     // bulk create of children later
     return { ...data, id: importPlan.model.generateId() };
   });
-  return executeUpdateOrCreates(importPlan, recordsWithIds, model => async rows => {
-    return model.bulkCreate(rows);
-  });
+  return executeUpdateOrCreates(importPlan, recordsWithIds, model => async rows =>
+    model.bulkCreate(rows),
+  );
 };
 
 const executeUpdates = async (importPlan, records) =>

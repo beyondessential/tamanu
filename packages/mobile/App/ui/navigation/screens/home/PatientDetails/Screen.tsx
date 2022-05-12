@@ -107,12 +107,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
         <HealthIdentificationRow patientId={selectedPatient.displayId} />
       </StyledSafeAreaView>
       <FullView>
-        <StyledScrollView
-          background={theme.colors.BACKGROUND_GREY}
-          paddingLeft={20}
-          paddingRight={20}
-          paddingTop={20}
-        >
+        <StyledScrollView background={theme.colors.BACKGROUND_GREY}>
           <GeneralInfo patient={selectedPatient} onEdit={onEditPatient} />
           <AdditionalInfo patient={selectedPatient} onEdit={editPatientAdditionalData} />
           {/* Not functional yet
@@ -132,7 +127,13 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
           <AllergiesList onEdit={onEditField} allergies={allergies} />
           */}
           <PatientIssues onEdit={onEditPatientIssues} patientId={selectedPatient.id} />
-          <Button marginBottom={40} onPress={onRecordDeath} buttonText="Record patient death" />
+          <Button
+            paddingLeft={20}
+            paddingRight={20}
+            marginBottom={40}
+            onPress={onRecordDeath}
+            buttonText="Record patient death"
+          />
         </StyledScrollView>
       </FullView>
     </FullView>

@@ -85,13 +85,12 @@ const COLUMNS = [
   { key: 'view', title: 'Actions', accessor: getViewButton },
 ];
 
-export const InvoicesTable = React.memo(({ patient, searchParameters }) => {
-  return (
-    <DataFetchingTable
-      endpoint={`patient/${patient.id}/invoices`}
-      columns={COLUMNS}
-      noDataMessage="No invoices found"
-      fetchOptions={searchParameters}
-    />
-  );
-});
+export const InvoicesTable = React.memo(({ patient, searchParameters }) => (
+  <DataFetchingTable
+    endpoint={`patient/${patient.id}/invoices`}
+    columns={COLUMNS}
+    noDataMessage="No invoices found"
+    fetchOptions={searchParameters}
+    allowExport={false}
+  />
+));

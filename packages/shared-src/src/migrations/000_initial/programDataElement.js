@@ -28,7 +28,7 @@ const PROGRAM_DATA_ELEMENT_TYPE_VALUES = [
   'CodeGenerator',
 ];
 
-module.exports = ({ Sequelize, foreignKey }) => ({
+module.exports = ({ Sequelize }) => ({
   fields: {
     code: Sequelize.STRING,
     name: Sequelize.STRING,
@@ -38,8 +38,6 @@ module.exports = ({ Sequelize, foreignKey }) => ({
     type: Sequelize.ENUM(PROGRAM_DATA_ELEMENT_TYPE_VALUES),
   },
   options: {
-    indexes: [
-      { fields: ['code'], unique: true },
-    ]
-  }
+    indexes: [{ fields: ['code'], unique: true }],
+  },
 });

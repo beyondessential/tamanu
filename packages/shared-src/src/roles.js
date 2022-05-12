@@ -192,6 +192,7 @@ export const practitioner = [
 
   { verb: 'create', noun: 'CertificateNotification' },
 
+  { verb: 'read', noun: 'PatientDeath' },
   { verb: 'create', noun: 'PatientDeath' },
 ];
 

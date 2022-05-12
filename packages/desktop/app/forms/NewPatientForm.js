@@ -4,7 +4,6 @@ import * as yup from 'yup';
 import Collapse from '@material-ui/core/Collapse';
 
 import { useLocalisation } from '../contexts/Localisation';
-import { foreignKey, optionalForeignKey } from '../utils/validation';
 import { Form, Field } from '../components/Field';
 import { IdField } from '../components/Field/IdField';
 import { FormGrid } from '../components/FormGrid';

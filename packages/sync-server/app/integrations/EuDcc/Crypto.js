@@ -8,9 +8,9 @@ import { promisify } from 'util';
 import base45 from 'base45-js';
 import { Certificate } from 'pkijs';
 import { depem } from 'shared/utils';
+import { add, getUnixTime } from 'date-fns';
 import { fakeABtoRealAB } from '../Signer';
 import { getLocalisation } from '../../localisation';
-import { add, getUnixTime } from 'date-fns';
 
 const deflate = promisify(deflateCallback);
 const inflate = promisify(inflateCallback);
@@ -53,7 +53,7 @@ function extractKeyD(keyData) {
  *
  *  @returns The HCERT encoded data
  */
-export async function HCERTPack(messageData, models) {
+export async function HCERTPack(messageData, { models }) {
   log.info('HCERT Packing message data');
   const signer = await models.Signer.findActive();
   if (!signer) {
@@ -102,10 +102,10 @@ export async function HCERTPack(messageData, models) {
  * @internal Only used for testing. Makes an assumption that the active
  * signer is the right one, but for production use we should really look
  * for the right signer from the kid.
- * 
+ *
  * @returns The decoded HCERT data
  */
-export async function HCERTVerify(packedData, models) {
+export async function HCERTVerify(packedData, { models }) {
   log.info('Verifying HCERT message');
   const signer = await models.Signer.findActive();
 

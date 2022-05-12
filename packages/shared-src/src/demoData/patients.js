@@ -95,7 +95,7 @@ export async function createDummyEncounter(models, { current, ...overrides } = {
 
   return {
     encounterType: chance.pick(Object.values(ENCOUNTER_TYPES)),
-    startDate: startDate,
+    startDate,
     endDate: current ? undefined : endDate,
     reasonForEncounter: chance.sentence({ words: chance.integer({ min: 4, max: 8 }) }),
     locationId: await randomRecordId(models, 'Location'),

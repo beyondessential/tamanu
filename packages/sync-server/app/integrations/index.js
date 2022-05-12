@@ -45,7 +45,10 @@ export function checkIntegrationsConfig() {
   checkSignerConfig();
   checkVdsNcConfig();
 
-  if ((config.integrations.euDcc.enabled || config.integrations.vdsNc.enabled) && !config.integrations.signer.enabled) {
+  if (
+    (config.integrations.euDcc.enabled || config.integrations.vdsNc.enabled) &&
+    !config.integrations.signer.enabled
+  ) {
     throw new Error('euDcc and vdsNc integrations require the signer integration to be enabled');
   }
 

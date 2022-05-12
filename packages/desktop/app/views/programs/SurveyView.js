@@ -13,7 +13,7 @@ import {
   getFormInitialValues,
   getConfigObject,
 } from 'desktop/app/utils';
-import { runCalculations } from 'shared-src/src/utils/calculations';
+import { runCalculations } from 'shared/utils/calculations';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 import { PatientDisplay } from './PatientDisplay';
 

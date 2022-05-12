@@ -1,47 +1,65 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
-
 import { SEX_VALUE_INDEX } from '../../constants';
 import { useElectron } from '../../contexts/Electron';
 
-import { PrintPortal, LetterPage } from '../Print';
+import { PrintPortal } from './PrintPortal';
 import { DateDisplay } from '../DateDisplay';
-
 import { PatientBarcode } from './PatientBarcode';
 
 const Sticker = styled.div`
   font-family: monospace;
   display: flex;
-  flex-direction: row;
-  padding: 0.2rem;
+  flex-direction: column;
+  padding: 2mm;
+  justify-content: center;
+`;
+
+const RowContainer = styled.div`
+  display: flex;
 `;
 
 export const PatientStickerLabel = ({ patient }) => (
   <Sticker>
-    <div>
-      <PatientBarcode patient={patient} width="128px" height="35px" />
+    <RowContainer>
       <div>
-        <strong>{patient.displayId}</strong>
+        <PatientBarcode patient={patient} width="128px" height="22px" margin="2mm" />
+        <div>
+          <strong>{patient.displayId}</strong>
+        </div>
       </div>
-      <div>{`${patient.firstName} ${patient.lastName}`}</div>
-      {patient.culturalName && <div>{`(${patient.culturalName})`}</div>}
-    </div>
-    <div>
-      <div>{SEX_VALUE_INDEX[patient.sex].label}</div>
       <div>
-        <DateDisplay date={patient.dateOfBirth} showDuration />
+        <div>{SEX_VALUE_INDEX[patient.sex].label}</div>
+        <div>
+          <DateDisplay date={patient.dateOfBirth} />
+        </div>
       </div>
-    </div>
+    </RowContainer>
+    <div>{`${patient.firstName} ${patient.lastName}`}</div>
   </Sticker>
 );
 
+/*
+const LetterPage = styled.div`
+  background: white;
+  width: 8.5in;
+  height: 11in;
+`;
+*/
+
+const A4Page = styled.div`
+  background: white;
+  width: 8.3in;
+  height: 11.7in;
+`;
+
 const LabelPage = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, 2.5935in);
-  grid-template-rows: repeat(10, 1in);
-  grid-column-gap: 0.14in;
-  margin-left: 0.2198in;
-  margin-top: 0.5in;
+  grid-template-columns: repeat(3, 64mm);
+  grid-template-rows: repeat(10, 26.7mm);
+  grid-column-gap: 3.01mm;
+  padding-left: 6.4mm;
+  padding-top: 15.09mm;
 `;
 
 export const PatientStickerLabelPage = ({ patient }) => {
@@ -52,13 +70,13 @@ export const PatientStickerLabelPage = ({ patient }) => {
 
   return (
     <PrintPortal>
-      <LetterPage>
+      <A4Page>
         <LabelPage>
           {[...Array(30).keys()].map(x => (
             <PatientStickerLabel key={`label-${x}`} patient={patient} />
           ))}
         </LabelPage>
-      </LetterPage>
+      </A4Page>
     </PrintPortal>
   );
 };
