@@ -48,7 +48,7 @@ export const DocumentForm = ({ actionText, onSubmit, onCancel, editedObject }) =
       />
       <Field name="note" label="Note" component={TextField} style={{ gridColumn: '1 / -1' }} />
       <ButtonRow>
-        <Button variant="contained" onClick={onCancel}>
+        <Button variant="outlined" onClick={onCancel} color="primary">
           Cancel
         </Button>
         <Button variant="contained" onClick={submitForm} color="primary">

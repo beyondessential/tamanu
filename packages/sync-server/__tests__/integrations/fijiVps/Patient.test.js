@@ -2,7 +2,7 @@ import { format } from 'date-fns';
 
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
-import { IDENTIFIER_NAMESPACE } from '../../../app/integrations/fiji-vps/schema';
+import { IDENTIFIER_NAMESPACE } from '../../../app/hl7fhir/schema';
 
 describe('VPS integration - Patient', () => {
   let ctx;

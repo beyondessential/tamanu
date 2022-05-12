@@ -142,7 +142,7 @@ export class Signer extends Model {
       this.privateKey
     );
   }
-  
+
   decryptPrivateKey(keySecret) {
     return crypto.createPrivateKey({
       key: Buffer.from(this.privateKey),

@@ -97,12 +97,13 @@ export const transformAnswers = async (
 };
 
 export const takeMostRecentAnswers = answers => {
-  const answersPerElement = groupBy(answers, a => {
-    return `${a.patientId}|${a.surveyId}|${a.dataElementId}`;
-  });
+  const answersPerElement = groupBy(
+    answers,
+    a => `${a.patientId}|${a.surveyId}|${a.dataElementId}`,
+  );
 
   const results = [];
-  for (const [_, groupedAnswers] of Object.entries(answersPerElement)) {
+  for (const groupedAnswers of Object.values(answersPerElement)) {
     const sortedLatestToOldestAnswers = groupedAnswers.sort((a1, a2) =>
       moment(a2.responseEndTime).diff(moment(a1.responseEndTime)),
     );

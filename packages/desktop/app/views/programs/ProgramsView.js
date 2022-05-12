@@ -19,7 +19,7 @@ import {
   ProgramsPaneHeading,
 } from 'desktop/app/views/programs/ProgramsPane';
 import { LoadingIndicator } from 'desktop/app/components/LoadingIndicator';
-import { DumbPatientListingView } from 'desktop/app/views/patients/PatientListingView';
+import { PatientListingView } from 'desktop/app/views';
 import { getAnswersFromData, getActionsFromData } from '../../utils';
 
 const SurveyFlow = ({ patient, currentUser }) => {
@@ -127,7 +127,7 @@ export const ProgramsView = () => {
   const patient = useSelector(state => state.patient);
   const currentUser = useSelector(getCurrentUser);
   if (!patient.id) {
-    return <DumbPatientListingView onViewPatient={id => dispatch(reloadPatient(id))} />;
+    return <PatientListingView onViewPatient={id => dispatch(reloadPatient(id))} />;
   }
 
   return <SurveyFlow patient={patient} currentUser={currentUser} />;

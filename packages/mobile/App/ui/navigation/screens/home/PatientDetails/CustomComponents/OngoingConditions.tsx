@@ -12,7 +12,7 @@ interface OnGoingConditionsProps extends OnGoingConditionsDataProps {
 export const OnGoingConditions = (
   props: OnGoingConditionsProps,
 ): ReactElement => (
-  <PatientSection onEdit={props.onEdit} title="Ongoing Conditions" hasSeparator>
+  <PatientSection onEdit={props.onEdit} title="Ongoing Conditions">
     {props.ongoingConditions.data.map((condition: string) => (
       <RowView key={condition} alignItems="center" marginTop={10}>
         <Dot />

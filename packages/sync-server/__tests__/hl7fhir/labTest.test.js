@@ -11,7 +11,7 @@ import {
   labTestToHL7DiagnosticReport,
   labTestToHL7Device,
   hl7StatusToLabRequestStatus,
-} from '../../app/hl7fhir';
+} from '../../app/hl7fhir/labTest';
 
 async function prepopulate(models) {
   // test category

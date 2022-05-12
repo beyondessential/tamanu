@@ -64,7 +64,7 @@ export const PatientIssues = ({ onEdit, patientId }: PatientIssuesProps): ReactE
   }
   return (
     <StyledView marginBottom={40}>
-      <PatientSection hasSeparator title="Other patient issues" onEdit={onEdit}>
+      <PatientSection title="Other patient issues" onEdit={onEdit}>
         {patientIssuesContent}
       </PatientSection>
     </StyledView>
