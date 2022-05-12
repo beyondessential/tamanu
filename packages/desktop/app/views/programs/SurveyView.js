@@ -13,7 +13,7 @@ import {
   getFormInitialValues,
   getConfigObject,
 } from 'desktop/app/utils';
-import { runCalculations } from 'shared/utils';
+import { runCalculations } from 'shared/utils/calculations';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 import { PatientDisplay } from './PatientDisplay';
 
@@ -30,9 +30,10 @@ const SurveyQuestion = ({ component, patient }) => {
     text: componentText,
   } = component;
   const { defaultText, type, defaultOptions, id } = dataElement;
+  const configObject = getConfigObject(id, componentConfig);
   const text = componentText || defaultText;
   const options = mapOptionsToValues(componentOptions || defaultOptions);
-  const FieldComponent = getComponentForQuestionType(type);
+  const FieldComponent = getComponentForQuestionType(type, configObject);
 
   if (!FieldComponent) return <Text>{text}</Text>;
 
@@ -43,7 +44,7 @@ const SurveyQuestion = ({ component, patient }) => {
       patient={patient}
       name={id}
       options={options}
-      config={getConfigObject(id, componentConfig)}
+      config={configObject}
       helperText={detail}
     />
   );

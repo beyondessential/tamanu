@@ -3,8 +3,9 @@ import bodyParser from 'body-parser';
 import compression from 'compression';
 
 import { getLoggingMiddleware } from 'shared/services/logging';
-
 import { constructPermission } from 'shared/permissions/middleware';
+import { SERVER_TYPES } from 'shared/constants';
+
 import { routes } from './routes';
 import { authModule } from './auth';
 import { publicRoutes } from './publicRoutes';
@@ -28,8 +29,7 @@ export function createApp(ctx) {
   app.use(getLoggingMiddleware());
 
   app.use((req, res, next) => {
-    res.setHeader('X-Runtime', 'Tamanu Sync Server'); // TODO: deprecated
-    res.setHeader('X-Tamanu-Server', 'Tamanu Sync Server');
+    res.setHeader('X-Tamanu-Server', SERVER_TYPES.SYNC);
     res.setHeader('X-Version', version);
     next();
   });

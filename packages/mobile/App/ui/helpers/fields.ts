@@ -174,7 +174,10 @@ export function checkVisibilityCriteria(
         return givenValues.includes(answersEnablingFollowUp);
       }
 
-      return answersEnablingFollowUp.includes(values[questionId]);
+      if (Array.isArray(answersEnablingFollowUp)) {
+        return answersEnablingFollowUp.includes(value);
+      }
+      return answersEnablingFollowUp === value;
     };
 
     return conjunction === 'and'

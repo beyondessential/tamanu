@@ -39,8 +39,6 @@ import { SelectInput, DateInput, TextInput } from '../../components/Field';
 import { encounterOptions, ENCOUNTER_OPTIONS_BY_VALUE, Colors } from '../../constants';
 import { useEncounter } from '../../contexts/Encounter';
 import { useLocalisation } from '../../contexts/Localisation';
-import { useLabRequest } from '../../contexts/LabRequest';
-import { viewImagingRequest } from '../../store/imagingRequest';
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
@@ -136,24 +134,10 @@ const ProcedurePane = React.memo(({ encounter, readonly }) => {
 
 const LabsPane = React.memo(({ encounter, readonly }) => {
   const [modalOpen, setModalOpen] = useState(false);
-  const { loadEncounter } = useEncounter();
-  const { loadLabRequest } = useLabRequest();
 
   return (
     <div>
-      <LabRequestModal
-        open={modalOpen}
-        encounter={encounter}
-        onClose={() => setModalOpen(false)}
-        onSaved={async () => {
-          setModalOpen(false);
-          await loadEncounter(encounter.id);
-        }}
-        onPrint={async id => {
-          setModalOpen(false);
-          await loadLabRequest(id, 'print');
-        }}
-      />
+      <LabRequestModal open={modalOpen} encounter={encounter} onClose={() => setModalOpen(false)} />
       <LabRequestsTable encounterId={encounter.id} />
       <ContentPane>
         <Button
@@ -169,43 +153,30 @@ const LabsPane = React.memo(({ encounter, readonly }) => {
   );
 });
 
-const ImagingPane = connect(null, dispatch => ({
-  onNavigateToImagingRequests: id => dispatch(viewImagingRequest(id, 'print')),
-}))(
-  React.memo(({ onNavigateToImagingRequests, encounter, readonly }) => {
-    const [modalOpen, setModalOpen] = useState(false);
-    const { loadEncounter } = useEncounter();
+const ImagingPane = React.memo(({ encounter, readonly }) => {
+  const [modalOpen, setModalOpen] = useState(false);
 
-    return (
-      <div>
-        <ImagingRequestModal
-          open={modalOpen}
-          encounter={encounter}
-          onClose={() => setModalOpen(false)}
-          onSaved={async () => {
-            setModalOpen(false);
-            await loadEncounter(encounter.id);
-          }}
-          onPrint={async id => {
-            setModalOpen(false);
-            onNavigateToImagingRequests(id);
-          }}
-        />
-        <ImagingRequestsTable encounterId={encounter.id} />
-        <ContentPane>
-          <Button
-            onClick={() => setModalOpen(true)}
-            variant="contained"
-            color="primary"
-            disabled={readonly}
-          >
-            New imaging request
-          </Button>
-        </ContentPane>
-      </div>
-    );
-  }),
-);
+  return (
+    <div>
+      <ImagingRequestModal
+        open={modalOpen}
+        encounter={encounter}
+        onClose={() => setModalOpen(false)}
+      />
+      <ImagingRequestsTable encounterId={encounter.id} />
+      <ContentPane>
+        <Button
+          onClick={() => setModalOpen(true)}
+          variant="contained"
+          color="primary"
+          disabled={readonly}
+        >
+          New imaging request
+        </Button>
+      </ContentPane>
+    </div>
+  );
+});
 
 const MedicationPane = React.memo(({ encounter, readonly }) => {
   const [modalOpen, setModalOpen] = useState(false);
