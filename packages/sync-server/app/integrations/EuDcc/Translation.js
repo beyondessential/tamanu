@@ -16,7 +16,7 @@ const DISEASE_AGENT_CODE = '840539006';
 const VACCINE_CODE = 'J07BX03';
 
 const DRUG_TO_PRODUCT = {
-  'drug-COVID-19-Astra-Zeneca': 'EU/1/20/1529',
+  'drug-COVID-19-Astra-Zeneca': 'EU/1/21/1529',
   'drug-COVID-19-Pfizer': 'EU/1/20/1528',
 };
 
