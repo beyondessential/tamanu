@@ -13,6 +13,13 @@ describe('Lab test publisher', () => {
     models = ctx.store.models;
   });
 
+  beforeEach(async () => {
+    await models.PatientAdditionalData.destroy({ 
+      truncate: true,
+      cascade: true,
+    });
+  });
+
   afterAll(() => ctx.close());
 
   const loadEvenIfDeleted = async (record) => {
@@ -73,9 +80,6 @@ describe('Lab test publisher', () => {
     const updatedNull = await loadEvenIfDeleted(nullData);
     expect(updatedNull.deletedAt).toBeTruthy();
     expect(updatedNull).toHaveProperty('mergedIntoId', realData.id);
-
-    // clean up after ourselves so as to not mess with the later test
-    await realData2.destroy();
   });
 
   it('Should merge a null record into one with data even if the null one is older', async () => {

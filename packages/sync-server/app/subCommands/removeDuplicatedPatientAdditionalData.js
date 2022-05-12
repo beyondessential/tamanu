@@ -50,43 +50,49 @@ export async function reconcilePatient(sequelize, patientId) {
 
   // figure out the canonical record - the first one with data if there is one, otherwise just go with the first one
   const canonicalRecord = checkedRecords.find(x => x.hasData) || checkedRecords[0];
+
+  // Perhaps overly paranoid, but worth checking in case there's a race condition between
+  // querying the patient in the batch and querying their addtl data records here
+  if (!canonicalRecord) {
+    throw new Error(`No canonical record found for patientId ${patientId}`);
+  }
+
   canonicalRecord.canonical = true;
 
   // delete the ones we can
-  const toDelete = checkedRecords.filter(record => !record.canonical && !record.hasData);
-  log.info(`Merging ${toDelete.length} records`, {
+  const idsToDelete = checkedRecords
+    .filter(record => !record.canonical && !record.hasData)
+    .map(record => record.record.id);
+  log.info(`Merging ${idsToDelete.length} records`, {
     patientId,
     canonicalId: canonicalRecord.record.id,
   });
-  for (const checkedRecord of toDelete) {
-    await PatientAdditionalData.update(
-      {
-        mergedIntoId: canonicalRecord.record.id,
-        deletedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
-        updatedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
-        title: 'test',
+  await PatientAdditionalData.update(
+    {
+      mergedIntoId: canonicalRecord.record.id,
+      deletedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
+      updatedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
+    },
+    {
+      where: {
+        id: idsToDelete,
       },
-      {
-        where: {
-          id: checkedRecord.record.id,
-        },
-      },
-    );
-  }
+    },
+  );
 
   // warn if there are any OTHER records with data, which will need to be resolved manually
   // TODO: more intelligent merge logic
   const unmergeable = checkedRecords.filter(record => !record.canonical && record.hasData);
   if (unmergeable.length > 0) {
     log.warn(
-      `Patient ${patientId} has ${unmergeable.length} unmergeable PatientAdditionalData records`,
+      `Patient ${patientId} has ${unmergeable.length} PatientAdditionalData records that need manual reconciliation`,
     );
   }
 
   // return some tallies for reporting
   return {
     unmergeable: unmergeable.length,
-    deleted: toDelete.length,
+    deleted: idsToDelete.length,
   };
 }
 
