@@ -115,14 +115,12 @@ const hl7PatientFields = {
     fieldName: 'sex',
     columnName: 'sex',
     supportedModifiers: [],
-    caseSensitive: true,
   },
   birthdate: {
     parameterType: hl7ParameterTypes.date,
     fieldName: 'dateOfBirth',
     columnName: 'date_of_birth',
     supportedModifiers: [],
-    caseSensitive: true,
   },
   // TODO: address should match a bunch of other fields
   address: {
@@ -140,7 +138,7 @@ const hl7PatientFields = {
   // TODO: telecom could also be email or other phones
   telecom: {
     parameterType: hl7ParameterTypes.token,
-    fieldName: 'additionalData.primaryContactNumber',
+    fieldName: '$additionalData.primary_contact_number$',
     columnName: 'additionalData.primary_contact_number',
     supportedModifiers: [],
   },
@@ -165,10 +163,10 @@ export function getPatientWhereClause(displayId, query = {}) {
       return;
     }
 
-    const { fieldName, columnName, parameterType, caseSensitive } = hl7PatientFields[parameter];
+    const { fieldName, columnName, parameterType } = hl7PatientFields[parameter];
     const defaultOperator = getDefaultOperator(parameterType);
     const operator = modifier ? modifiers[parameterType][modifier] : defaultOperator;
-    const queryObject = getQueryObject(columnName, value, operator, modifier, caseSensitive);
+    const queryObject = getQueryObject(columnName, value, operator, modifier, parameterType);
     filters.push({ [fieldName]: queryObject });
   });
 

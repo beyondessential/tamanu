@@ -111,15 +111,15 @@ export function getDefaultOperator(type) {
 }
 
 // Helper function to deal with case insensitive searches for strings
-export function getQueryObject(columnName, value, operator, modifier, caseSensitive) {
-  // Exact fields should be case sensitive
-  if (modifier === 'exact' || typeof value !== 'string' || caseSensitive) {
-    return { [operator]: value };
+export function getQueryObject(columnName, value, operator, modifier, parameterType) {
+  // String searches should be case insensitive unless the modifier is "exact"
+  if (parameterType === hl7ParameterTypes.string && modifier !== 'exact') {
+    // Perform case insensitive search by using SQL function UPPER
+    // and modifying the string to be uppercase.
+    return Sequelize.where(Sequelize.fn('upper', Sequelize.col(columnName)), {
+      [operator]: value.toUpperCase(),
+    });
   }
 
-  // Perform case insensitive search by using SQL function UPPER
-  // and modifying the string to be uppercase.
-  return Sequelize.where(Sequelize.fn('upper', Sequelize.col(columnName)), {
-    [operator]: value.toUpperCase(),
-  });
+  return { [operator]: value };
 }
