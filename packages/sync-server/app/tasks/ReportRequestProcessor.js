@@ -121,7 +121,7 @@ export class ReportRequestProcessor extends ScheduledTask {
     return this.context.store.models.ReportRequest.count({
       where: {
         status: REPORT_REQUEST_STATUSES.RECEIVED,
-      }
+      },
     });
   }
 

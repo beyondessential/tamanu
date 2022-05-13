@@ -92,10 +92,10 @@ export class CertificateNotificationProcessor extends ScheduledTask {
     const count = await CertificateNotification.count({
       where: {
         status: CERTIFICATE_NOTIFICATION_STATUSES.QUEUED,
-      }
+      },
     });
     log.info(`Queue status: ${this.getName()}`, { count });
-    
+
     const queuedNotifications = await CertificateNotification.findAll({
       where: {
         status: CERTIFICATE_NOTIFICATION_STATUSES.QUEUED,
