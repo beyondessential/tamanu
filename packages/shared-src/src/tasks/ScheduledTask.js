@@ -30,8 +30,8 @@ export class ScheduledTask {
 
     const runId = uuid();
     this.log.info(`ScheduledTask: ${name}: Running`, { id: runId });
+    const start = Date.now();
     try {
-      const start = Date.now();
       this.currentlyRunningTask = this.run();
       await this.currentlyRunningTask;
       const durationMs = Date.now() - start;

@@ -11,7 +11,7 @@ const colorise = color
   : (ignoredHex) => (text => text);
 */
 // TEMP: Disable chalk & its import as it seems to not run correctly on AWS
-const colorise = (_ignoredColor) => text => text;
+const colorise = () => text => text;
 
 export const COLORS = {
   grey: colorise('999'),

@@ -1,7 +1,7 @@
 import morgan from 'morgan'; // logging middleware for http requests
 
 import { COLORS } from './color';
-import { log } from './index';
+import { log } from './log';
 
 // Middleware for logging http requests
 function getStatusColor(status) {
