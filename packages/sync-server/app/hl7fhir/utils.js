@@ -67,14 +67,14 @@ export function getParamAndModifier(fullParam) {
 
 // Prefixes supported by Tamanu with the corresponding
 // sequelize operators.
-// TODO: remove eslint line when adding support to prefixes
-// eslint-disable-next-line no-unused-vars
+/*
 const prefixes = {
   eq: Op.eq,
   co: Op.substring,
   sw: Op.startsWith,
   ew: Op.endsWith,
 };
+*/
 
 // Modifiers supported by Tamanu with the corresponding
 // sequelize operator.
