@@ -6,7 +6,7 @@ const version = '1.xx.0'; // TODO: how to fetch version from shared?!
 
 const honeyApi = new Libhoney({
   writeKey: config.honeycomb.apiKey,
-  dataset: "initial-test",
+  dataset: config.honeycomb.dataset,
   disabled: !(config.honeycomb.apiKey && config.honeycomb.enabled),
 });
 
