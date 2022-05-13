@@ -76,10 +76,23 @@ const prefixes = {
 };
 */
 
+// All of the HL7 search parameter types
+export const hl7ParameterTypes = {
+  number: 'number',
+  date: 'date',
+  string: 'string',
+  token: 'token',
+  reference: 'reference',
+  composite: 'composite',
+  quantity: 'quantity',
+  uri: 'uri',
+  special: 'special',
+};
+
 // Modifiers supported by Tamanu with the corresponding
 // sequelize operator. Classified by HL7 search parameter type.
-const modifiers = {
-  string: {
+export const modifiers = {
+  [hl7ParameterTypes.string]: {
     contains: Op.substring,
     'starts-with': Op.startsWith,
     'ends-with': Op.endsWith,
@@ -89,10 +102,9 @@ const modifiers = {
 
 export const stringTypeModifiers = Object.keys(modifiers.string);
 
-// Helper function that returns a sequelize operator or equality by default
-export function getOperator(modifier, supportedModifiers) {
-  if (modifier && supportedModifiers.includes(modifier) && modifier in modifiers.string) {
-    return modifiers.string[modifier];
+export function getDefaultOperator(type) {
+  if (type === hl7ParameterTypes.string) {
+    return Op.startsWith;
   }
 
   return Op.eq;

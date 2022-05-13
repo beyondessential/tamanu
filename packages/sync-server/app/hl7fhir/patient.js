@@ -2,7 +2,14 @@ import config from 'config';
 import { format } from 'date-fns';
 import { Op } from 'sequelize';
 
-import { stringTypeModifiers, getParamAndModifier, getOperator, getQueryObject } from './utils';
+import {
+  stringTypeModifiers,
+  getParamAndModifier,
+  getQueryObject,
+  getDefaultOperator,
+  modifiers,
+  hl7ParameterTypes,
+} from './utils';
 
 function patientName(patient, additional) {
   const official = {
@@ -92,22 +99,26 @@ export function patientToHL7Patient(patient, additional) {
 // (only supported params are in)
 const hl7PatientFields = {
   given: {
+    parameterType: hl7ParameterTypes.string,
     fieldName: 'firstName',
     columnName: 'first_name',
     supportedModifiers: stringTypeModifiers,
   },
   family: {
+    parameterType: hl7ParameterTypes.string,
     fieldName: 'lastName',
     columnName: 'last_name',
     supportedModifiers: stringTypeModifiers,
   },
   gender: {
+    parameterType: hl7ParameterTypes.token,
     fieldName: 'sex',
     columnName: 'sex',
     supportedModifiers: [],
     caseSensitive: true,
   },
   birthdate: {
+    parameterType: hl7ParameterTypes.date,
     fieldName: 'dateOfBirth',
     columnName: 'date_of_birth',
     supportedModifiers: [],
@@ -115,20 +126,23 @@ const hl7PatientFields = {
   },
   // TODO: address should match a bunch of other fields
   address: {
+    parameterType: hl7ParameterTypes.string,
     fieldName: 'additionalData.cityTown',
     columnName: 'additionalData.city_town',
     supportedModifiers: stringTypeModifiers,
   },
   'address-city': {
+    parameterType: hl7ParameterTypes.string,
     fieldName: 'additionalData.cityTown',
     columnName: 'additionalData.city_town',
     supportedModifiers: stringTypeModifiers,
   },
   // TODO: telecom could also be email or other phones
   telecom: {
+    parameterType: hl7ParameterTypes.token,
     fieldName: 'additionalData.primaryContactNumber',
     columnName: 'additionalData.primary_contact_number',
-    supportedModifiers: stringTypeModifiers,
+    supportedModifiers: [],
   },
 };
 
@@ -151,10 +165,9 @@ export function getPatientWhereClause(displayId, query = {}) {
       return;
     }
 
-    const { fieldName, columnName, supportedModifiers, caseSensitive } = hl7PatientFields[
-      parameter
-    ];
-    const operator = getOperator(modifier, supportedModifiers);
+    const { fieldName, columnName, parameterType, caseSensitive } = hl7PatientFields[parameter];
+    const defaultOperator = getDefaultOperator(parameterType);
+    const operator = modifier ? modifiers[parameterType][modifier] : defaultOperator;
     const queryObject = getQueryObject(columnName, value, operator, modifier, caseSensitive);
     filters.push({ [fieldName]: queryObject });
   });
