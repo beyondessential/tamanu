@@ -30,12 +30,15 @@ export class ScheduledTask {
 
     const runId = uuid();
     this.log.info(`ScheduledTask: ${name}: Running`, { id: runId });
+    const start = Date.now();
     try {
       this.currentlyRunningTask = this.run();
       await this.currentlyRunningTask;
-      this.log.info(`ScheduledTask: ${name}: Succeeded`, { id: runId });
+      const durationMs = Date.now() - start;
+      this.log.info(`ScheduledTask: ${name}: Succeeded`, { id: runId, durationMs });
     } catch (e) {
-      this.log.error(`ScheduledTask: ${name}: Failed`, { id: runId });
+      const durationMs = Date.now() - start;
+      this.log.error(`ScheduledTask: ${name}: Failed`, { id: runId, durationMs });
       this.log.error(e.stack);
     } finally {
       this.currentlyRunningTask = null;
