@@ -25,9 +25,9 @@ if (__DEV__) {
 }  
 
 
-// @ts-expect-error
+// @ts-ignore
 reactotron.onCustomCommand('test', () => console.tron.log('This is an example'));
-// @ts-expect-error
+// @ts-ignore
 console.tron = reactotron;
 
 export default reactotron

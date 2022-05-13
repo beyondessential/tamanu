@@ -99,7 +99,7 @@ export const userRolesOptions = [
 ];
 
 type VaccineStatusCellsType = {
-  [key in VaccineStatus]: {
+  [key in VaccineStatus]?: {
     Icon: (props: Record<string, any>) => React.ReactElement;
     background: string;
     color: string;
@@ -155,12 +155,6 @@ export const VaccineStatusCells: VaccineStatusCellsType = {
     background: ColorHelper.halfTransparency(theme.colors.PRIMARY_MAIN),
     color: theme.colors.TEXT_SOFT,
     text: 'UPCOMING',
-  },
-  [VaccineStatus.RECORDED_IN_ERROR]: {
-    Icon: Icons.EmptyCircleIcon,
-    background: ColorHelper.halfTransparency(theme.colors.PRIMARY_MAIN),
-    color: theme.colors.TEXT_SOFT,
-    text: 'RECORDED IN ERROR',
   },
 };
 

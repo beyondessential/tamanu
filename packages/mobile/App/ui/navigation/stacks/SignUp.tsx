@@ -1,8 +1,5 @@
 import React, { ReactElement } from 'react';
-import {
-  createStackNavigator,
-  TransitionPresets,
-} from '@react-navigation/stack';
+import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
 // helpers
 import { Routes } from '/helpers/routes';
 // Screens
@@ -11,6 +8,10 @@ import { RegisterAccountStep1Container } from '../screens/signup/RegisterAccount
 import { RegisterAccountStep2Container } from '../screens/signup/RegisterAccountScreenStep2';
 import { RegisterAccountStep3Container } from '../screens/signup/RegisterAccountScreenStep3';
 import { SignIn } from '../screens/signup/SignIn';
+/*
+import { ResetPassword } from '../screens/signup/ResetPassword';
+import { ChangePassword } from '../screens/signup/ChangePassword';
+*/
 // Contexts
 import { RegisterAccountProvider } from '../../contexts/RegisterAccountContext';
 
@@ -38,11 +39,22 @@ export const SignUpStack = (): ReactElement => (
         name={Routes.SignUpStack.RegisterAccountStep3}
         component={RegisterAccountStep3Container}
       />
+      <Stack.Screen 
+        name={Routes.SignUpStack.SignIn} 
+        component={SignIn} options={TransitionStyle} 
+      />
+      {/*
       <Stack.Screen
-        name={Routes.SignUpStack.SignIn}
-        component={SignIn}
+        name={Routes.SignUpStack.ResetPassword}
+        component={ResetPassword}
         options={TransitionStyle}
       />
+      <Stack.Screen
+        name={Routes.SignUpStack.ChangePassword}
+        component={ChangePassword}
+        options={TransitionStyle}
+      />
+      */}
     </Stack.Navigator>
   </RegisterAccountProvider>
 );

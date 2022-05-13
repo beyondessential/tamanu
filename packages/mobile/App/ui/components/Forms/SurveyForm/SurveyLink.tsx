@@ -15,10 +15,7 @@ export const SurveyLink = ({ patient, config, name }): ReactElement => {
 
   useEffect(() => {
     (async (): Promise<void> => {
-      const responses = await models.SurveyResponse.getForPatient(
-        patient.id,
-        source,
-      );
+      const responses = await models.SurveyResponse.getForPatient(patient.id, source);
       if (responses.length === 0) {
         return;
       }
@@ -36,15 +33,15 @@ export const SurveyLink = ({ patient, config, name }): ReactElement => {
     );
   }
 
+  const attachedScreeningValue = `${
+    typeof surveyResponse.survey === 'string' ? surveyResponse.survey : surveyResponse.survey.name
+  } (${format(surveyResponse.endTime, 'dd-MM-yyyy')})`;
+
   return (
     <Field
       component={TextField}
       label="Attached screening form"
-      value={`${
-        typeof surveyResponse.survey === 'string'
-          ? surveyResponse.survey
-          : surveyResponse.survey.name
-      } (${format(surveyResponse.endTime, 'dd-MM-yyyy')})`}
+      value={attachedScreeningValue}
       disabled
       name={name}
     />
