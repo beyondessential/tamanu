@@ -2,6 +2,7 @@ import winston from 'winston'; // actual log output
 import config from 'config';
 
 import { localTransport } from './console';
+import { honeycombTransport } from './honeycomb';
 export * from './http';
 
 // defensive destructure to allow for testing shared-src directly
@@ -17,6 +18,7 @@ export const log = winston.createLogger({
     path ? new winston.transports.File({ filename: `${path}/error.log`, level: 'error' }) : null,
     path ? new winston.transports.File({ filename: `${path}/combined.log` }) : null,
     localTransport,
+    honeycombTransport,
   ].filter(t => !!t),
 });
 
