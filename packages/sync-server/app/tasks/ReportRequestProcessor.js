@@ -117,6 +117,14 @@ export class ReportRequestProcessor extends ScheduledTask {
     await reportRunner.run();
   }
 
+  async countQueue() {
+    return this.context.store.models.ReportRequest.count({
+      where: {
+        status: REPORT_REQUEST_STATUSES.RECEIVED,
+      }
+    });
+  }
+
   async runReports() {
     const localisation = await getLocalisation();
     const requests = await this.context.store.models.ReportRequest.findAll({

@@ -15,8 +15,19 @@ export class PatientEmailCommunicationProcessor extends ScheduledTask {
     return 'PatientEmailCommunicationProcessor';
   }
 
+  async countQueue() {
+    const { PatientCommunication } = this.context.store.models;
+    return PatientCommunication.count({
+      where: {
+        status: COMMUNICATION_STATUSES.QUEUED,
+        channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
+      }
+    });
+  }
+
   async run() {
     const { Patient, PatientCommunication } = this.context.store.models;
+    
     const emailsToBeSent = await PatientCommunication.findAll({
       where: {
         status: COMMUNICATION_STATUSES.QUEUED,

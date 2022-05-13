@@ -1,4 +1,4 @@
-import { v4 as uuid } from 'uuid';
+import shortid from 'shortid';
 import { scheduleJob } from 'node-schedule';
 
 export class ScheduledTask {
@@ -20,6 +20,11 @@ export class ScheduledTask {
     throw new Error('Not implemented');
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  async countQueue() {
+    return null;
+  }
+
   async runImmediately() {
     const name = this.getName();
 
@@ -28,7 +33,18 @@ export class ScheduledTask {
       return;
     }
 
-    const runId = uuid();
+    const count = await this.countQueue();
+    if (count === null) {
+      // Not a queue-based task (countQueue was not overridden)
+    } else if (count === 0) {
+      // Nothing to do, don't even run
+      this.log.info(`ScheduledTask: ${name}: Nothing to do`);
+      return;
+    } else {
+      this.log.info(`Queue status: ${name}`, { count });
+    }
+
+    const runId = shortid();
     this.log.info(`ScheduledTask: ${name}: Running`, { id: runId });
     const start = Date.now();
     try {

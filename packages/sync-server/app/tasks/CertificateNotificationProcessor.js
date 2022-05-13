@@ -87,6 +87,15 @@ export class CertificateNotificationProcessor extends ScheduledTask {
 
     await this.processPublishedLabRequests();
 
+    // Don't go via the countQueue logic as we need to run processPublishedLabRequests
+    // before we can count it
+    const count = await CertificateNotification.count({
+      where: {
+        status: CERTIFICATE_NOTIFICATION_STATUSES.QUEUED,
+      }
+    });
+    log.info(`Queue status: ${this.getName()}`, { count });
+    
     const queuedNotifications = await CertificateNotification.findAll({
       where: {
         status: CERTIFICATE_NOTIFICATION_STATUSES.QUEUED,
@@ -94,6 +103,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
       order: [['createdAt', 'ASC']], // process in order received
       limit: this.config.limit,
     });
+
     if (queuedNotifications.length > 0) {
       log.info(`Starting: ${this.getName()} task with ${queuedNotifications.length} to process`);
     } else {
