@@ -52,7 +52,7 @@ export const SimplePrintout = React.memo(({ patientData, tableData, notes, certi
         </div>
         <div>
           <LocalisedLabel name="displayId">{displayId}</LocalisedLabel>
-          <PatientBarcode patient={patientData} barWidth={2} barHeight={60} mmeargin={0} />
+          <PatientBarcode patient={patientData} barWidth={2} barHeight={60} margin={0} />
         </div>
       </RowContainer>
       <GridTable data={tableData} />
