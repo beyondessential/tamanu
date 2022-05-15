@@ -3,12 +3,11 @@ import { format } from 'date-fns';
 import { Op } from 'sequelize';
 
 import {
-  stringTypeModifiers,
   getParamAndModifier,
   getQueryObject,
   getDefaultOperator,
   modifiers,
-  hl7ParameterTypes,
+  hl7PatientFields,
 } from './utils';
 
 function patientName(patient, additional) {
@@ -94,55 +93,6 @@ export function patientToHL7Patient(patient, additional) {
     telecom: patientTelecom(patient, additional),
   };
 }
-
-// HL7 Patient resource mapping to Tamanu.
-// (only supported params are in)
-const hl7PatientFields = {
-  given: {
-    parameterType: hl7ParameterTypes.string,
-    fieldName: 'firstName',
-    columnName: 'first_name',
-    supportedModifiers: stringTypeModifiers,
-  },
-  family: {
-    parameterType: hl7ParameterTypes.string,
-    fieldName: 'lastName',
-    columnName: 'last_name',
-    supportedModifiers: stringTypeModifiers,
-  },
-  gender: {
-    parameterType: hl7ParameterTypes.token,
-    fieldName: 'sex',
-    columnName: 'sex',
-    supportedModifiers: [],
-  },
-  birthdate: {
-    parameterType: hl7ParameterTypes.date,
-    fieldName: 'dateOfBirth',
-    columnName: 'date_of_birth',
-    supportedModifiers: [],
-  },
-  // TODO: address should match a bunch of other fields
-  address: {
-    parameterType: hl7ParameterTypes.string,
-    fieldName: 'additionalData.cityTown',
-    columnName: 'additionalData.city_town',
-    supportedModifiers: stringTypeModifiers,
-  },
-  'address-city': {
-    parameterType: hl7ParameterTypes.string,
-    fieldName: 'additionalData.cityTown',
-    columnName: 'additionalData.city_town',
-    supportedModifiers: stringTypeModifiers,
-  },
-  // TODO: telecom could also be email or other phones
-  telecom: {
-    parameterType: hl7ParameterTypes.token,
-    fieldName: '$additionalData.primary_contact_number$',
-    columnName: 'additionalData.primary_contact_number',
-    supportedModifiers: [],
-  },
-};
 
 // Receives query and returns a sequelize where clause.
 // Assumes that query already passed validation.
