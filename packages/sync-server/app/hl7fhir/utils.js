@@ -1,4 +1,6 @@
 import { Sequelize, Op } from 'sequelize';
+import * as yup from 'yup';
+import moment from 'moment';
 import { jsonFromBase64, jsonToBase64 } from 'shared/utils/encodings';
 
 export function hl7SortToTamanu(hl7Sort) {
@@ -132,24 +134,36 @@ export const hl7PatientFields = {
     fieldName: 'firstName',
     columnName: 'first_name',
     supportedModifiers: stringTypeModifiers,
+    validationSchema: yup.string(),
   },
   family: {
     parameterType: hl7ParameterTypes.string,
     fieldName: 'lastName',
     columnName: 'last_name',
     supportedModifiers: stringTypeModifiers,
+    validationSchema: yup.string(),
   },
   gender: {
     parameterType: hl7ParameterTypes.token,
     fieldName: 'sex',
     columnName: 'sex',
     supportedModifiers: [],
+    validationSchema: yup.string().oneOf(['male', 'female', 'other']),
   },
   birthdate: {
     parameterType: hl7ParameterTypes.date,
     fieldName: 'dateOfBirth',
     columnName: 'date_of_birth',
     supportedModifiers: [],
+    validationSchema: yup
+      .string()
+      // eslint-disable-next-line no-template-curly-in-string
+      .test('is-valid-date', 'Invalid date/time format: ${value}', value => {
+        if (!value) return true;
+        // Only these formats should be valid for a date in HL7 FHIR:
+        // https://www.hl7.org/fhir/datatypes.html#date
+        return moment(value, ['YYYY', 'YYYY-MM', 'YYYY-MM-DD'], true).isValid();
+      }),
   },
   // TODO: address should match a bunch of other fields
   address: {
@@ -157,12 +171,14 @@ export const hl7PatientFields = {
     fieldName: 'additionalData.cityTown',
     columnName: 'additionalData.city_town',
     supportedModifiers: stringTypeModifiers,
+    validationSchema: yup.string(),
   },
   'address-city': {
     parameterType: hl7ParameterTypes.string,
     fieldName: 'additionalData.cityTown',
     columnName: 'additionalData.city_town',
     supportedModifiers: stringTypeModifiers,
+    validationSchema: yup.string(),
   },
   // TODO: telecom could also be email or other phones
   telecom: {
@@ -170,5 +186,6 @@ export const hl7PatientFields = {
     fieldName: '$additionalData.primary_contact_number$',
     columnName: 'additionalData.primary_contact_number',
     supportedModifiers: [],
+    validationSchema: yup.string(),
   },
 };

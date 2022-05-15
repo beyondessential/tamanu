@@ -1,9 +1,8 @@
 import * as yup from 'yup';
 import config from 'config';
 import { isArray } from 'lodash';
-import moment from 'moment';
 
-import { decodeIdentifier, getParamAndModifier } from './utils';
+import { decodeIdentifier, hl7PatientFields } from './utils';
 
 export const IDENTIFIER_NAMESPACE = config.hl7.dataDictionaries.patientDisplayId;
 const MAX_RECORDS = 20;
@@ -55,55 +54,38 @@ const baseParameters = {
   status: yup.string(),
 };
 
-const patientParameters = {
-  given: yup.string(),
-  family: yup.string(),
-  gender: yup.string().oneOf(['male', 'female', 'other']),
-  // eslint-disable-next-line no-template-curly-in-string
-  birthdate: yup.string().test('is-valid-date', 'Invalid date/time format: ${value}', value => {
-    // Only these formats should be valid for a date in HL7 FHIR:
-    // https://www.hl7.org/fhir/datatypes.html#date
-    return moment(value, ['YYYY', 'YYYY-MM', 'YYYY-MM-DD'], true).isValid();
-  }),
-  address: yup.string(),
-  'address-city': yup.string(),
-  telecom: yup.string(),
-};
-
-// Yup schema that will match any type but will fail to validate.
-// Useful for rejecting params with a more meaningful error message.
-const errorSchema = yup
-  .mixed()
-  // eslint-disable-next-line no-template-curly-in-string
-  .test('no-test-force-error', 'Parameter ${path} is unknown or not supported.', () => false);
-
-// Returns an object with patient parameters found in the query
-// as keys and yup validation schema for each field as values.
-const getPatientParameters = queryParams => {
+// Returns an object with patient parameters as keys
+// and yup validation schema for each field as values.
+const getPatientParameters = () => {
   const parameters = {};
 
-  Object.keys(queryParams).forEach(key => {
-    if (key in baseParameters === false) {
-      // Parse parameter only
-      const [param] = getParamAndModifier(key);
+  Object.entries(hl7PatientFields).forEach(([paramName, paramConfig]) => {
+    const { supportedModifiers = [], validationSchema } = paramConfig;
 
-      // Assign known parameter validation or use a schema that will fail
-      parameters[key] = patientParameters[param] || errorSchema;
+    if (!validationSchema) {
+      throw new Error(`The key ${paramName} from hl7PatientFields needs a validationSchema key.`);
     }
+
+    // Add the parameter without suffix
+    parameters[paramName] = validationSchema;
+
+    // Add the paramater with all the supported modifiers
+    supportedModifiers.forEach(modifier => {
+      const suffixedName = `${paramName}:${modifier}`;
+      parameters[suffixedName] = validationSchema;
+    });
   });
 
   return parameters;
 };
 
-// Use lazy evaluation because the parameters might include
+// Generate schema dynamically because the parameters might include
 // suffixes that modify the query. (parameter:suffix=value)
 export const patient = {
-  query: yup.lazy(params =>
-    yup.object({
-      ...getPatientParameters(params),
-      ...baseParameters,
-    }),
-  ),
+  query: yup.object({
+    ...getPatientParameters(),
+    ...baseParameters,
+  }),
 };
 
 export const DIAGNOSTIC_REPORT_INCLUDES = {

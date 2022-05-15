@@ -108,7 +108,7 @@ export function getPatientWhereClause(displayId, query = {}) {
   Object.entries(query).forEach(([key, value]) => {
     const [parameter, modifier] = getParamAndModifier(key);
 
-    // Ignore adding filters for unknown parameters
+    // Only create filter if the parameter is a supported patient field
     if (parameter in hl7PatientFields === false) {
       return;
     }
