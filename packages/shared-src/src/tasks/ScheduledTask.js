@@ -32,6 +32,7 @@ export class ScheduledTask {
     for (const subtask of this.subtasks) {
       const outcome = await subtask.runImmediately();
       if (!outcome) {
+        // We expect the subtask will have caught & logged all its own errors
         this.log.info(`ScheduledTask: ${name}: Not running (subtask failed)`);
         return false;
       }
@@ -42,15 +43,19 @@ export class ScheduledTask {
       return false;
     }
 
-    const count = await this.countQueue();
-    if (count === null) {
-      // Not a queue-based task (countQueue was not overridden)
-    } else if (count === 0) {
-      // Nothing to do, don't even run
-      this.log.info(`ScheduledTask: ${name}: Nothing to do`);
-      return true;
-    } else {
-      this.log.info(`Queue status: ${name}`, { count });
+    try {
+      const queueCount = await this.countQueue();
+      if (queueCount === null) {
+        // Not a queue-based task (countQueue was not overridden)
+      } else if (queueCount === 0) {
+        // Nothing to do, don't even run
+        this.log.info(`ScheduledTask: ${name}: Nothing to do`, { queueCount });
+        return true;
+      } else {
+        this.log.info(`Queue status: ${name}`, { queueCount });
+      }
+    } catch (e) {
+      this.log.error(`Error counting queue: ${name}`, e);
     }
 
     const runId = shortid();

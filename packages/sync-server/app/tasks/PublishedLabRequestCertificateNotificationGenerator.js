@@ -18,11 +18,19 @@ export class PublishedLabRequestCertificateNotificationGenerator extends Schedul
   }
 
   async countQueue() {
-    return this.context.store.models.LabRequest.count({
+    const { CertificateNotification, LabRequest } = this.context.store.models;
+    return LabRequest.count({
       where: {
         status: 'published',
         '$certificate_notification.id$': null,
       },
+      include: [
+        {
+          model: CertificateNotification,
+          as: 'certificate_notification',
+          required: false,
+        },
+      ]
     });
   }
 
