@@ -1,5 +1,14 @@
 import config from 'config';
 import { format } from 'date-fns';
+import { Op } from 'sequelize';
+
+import {
+  getParamAndModifier,
+  getQueryObject,
+  getDefaultOperator,
+  modifiers,
+  hl7PatientFields,
+} from './utils';
 
 function patientName(patient, additional) {
   const official = {
@@ -83,4 +92,35 @@ export function patientToHL7Patient(patient, additional) {
     address: patientAddress(patient, additional),
     telecom: patientTelecom(patient, additional),
   };
+}
+
+// Receives query and returns a sequelize where clause.
+// Assumes that query already passed validation.
+export function getPatientWhereClause(displayId, query = {}) {
+  const filters = [];
+
+  // Handle search by ID separately
+  if (displayId) {
+    filters.push({ displayId });
+  }
+
+  // Create a filter for each query param
+  Object.entries(query).forEach(([key, value]) => {
+    const [parameter, modifier] = getParamAndModifier(key);
+
+    // Only create filter if the parameter is a supported patient field
+    if (parameter in hl7PatientFields === false) {
+      return;
+    }
+
+    const { fieldName, columnName, parameterType } = hl7PatientFields[parameter];
+    const defaultOperator = getDefaultOperator(parameterType);
+    const operator = modifier ? modifiers[parameterType][modifier] : defaultOperator;
+    const queryObject = getQueryObject(columnName, value, operator, modifier, parameterType);
+    filters.push({ [fieldName]: queryObject });
+  });
+
+  // Wrap all filters with explicit "AND" if they exist,
+  // otherwise return empty object
+  return filters.length > 0 ? { [Op.and]: filters } : {};
 }

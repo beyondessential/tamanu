@@ -1,9 +1,10 @@
-import { Database } from '~/infra/db';
-import { SyncManager, WebSyncSource } from '~/services/sync';
-import { AuthService } from '~/services/auth';
-import { LocalisationService } from '~/services/localisation';
-import { AuthenticationError } from '~/services/auth/error';
-import { MODELS_MAP } from '~/models/modelsMap';
+import { Database } from '../infra/db';
+import { SyncManager, WebSyncSource } from './sync';
+import { AuthService } from './auth';
+import { AuthenticationError } from './auth/error';
+import { LocalisationService } from './localisation';
+import { PermissionsService } from './permissions';
+import { MODELS_MAP } from '../models/modelsMap';
 
 const SYNC_PERIOD_MINUTES = 5;
 
@@ -24,6 +25,8 @@ export class Backend {
 
   localisation: LocalisationService;
 
+  permissions: PermissionsService;
+
   interval: number;
 
   constructor() {
@@ -32,6 +35,7 @@ export class Backend {
     this.syncSource = new WebSyncSource();
     this.auth = new AuthService(models, this.syncSource);
     this.localisation = new LocalisationService(this.auth);
+    this.permissions = new PermissionsService(this.auth);
     this.syncManager = new SyncManager(this.syncSource, this.localisation);
   }
 
@@ -41,13 +45,13 @@ export class Backend {
     await this.startSyncService();
   }
 
-  async startSyncService() {
+  async startSyncService(): Promise<void> {
     if (this.interval) {
       return; // already started
     }
     await this.syncManager.waitForEnd();
 
-    const run = async () => {
+    const run = async (): Promise<void> => {
       try {
         await this.syncManager.runScheduledSync();
       } catch (e) {
