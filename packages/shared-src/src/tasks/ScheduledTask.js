@@ -56,6 +56,7 @@ export class ScheduledTask {
       }
     } catch (e) {
       this.log.error(`Error counting queue: ${name}`, e);
+      return false;
     }
 
     const runId = shortid();
