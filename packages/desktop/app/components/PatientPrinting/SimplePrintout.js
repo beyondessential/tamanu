@@ -28,7 +28,14 @@ const NotesBox = styled(Box)`
   overflow: hidden;
 `;
 
-const LocalisedLabel = ({ name, children }) => (
+export const NotesSection = ({ notes }) => (
+  <>
+    <Text>Notes:</Text>
+    <NotesBox>{notes.map(note => note.content)}</NotesBox>
+  </>
+);
+
+export const LocalisedLabel = ({ name, children }) => (
   <LocalisedCertificateLabel margin="9px" name={name}>
     {children}
   </LocalisedCertificateLabel>
@@ -56,8 +63,7 @@ export const SimplePrintout = React.memo(({ patientData, tableData, notes, certi
         </div>
       </RowContainer>
       <GridTable data={tableData} />
-      <Text>Notes:</Text>
-      <NotesBox>{notes.map(note => note.content)}</NotesBox>
+      <NotesSection notes={notes} />
       <div />
     </CertificateWrapper>
   );
