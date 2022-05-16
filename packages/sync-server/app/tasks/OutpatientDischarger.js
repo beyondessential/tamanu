@@ -21,7 +21,23 @@ export class OutpatientDischarger extends ScheduledTask {
     this.models = context.store.models;
 
     // run once on startup (in case the server was down when it was scheduled)
-    this.run();
+    this.runImmediately();
+  }
+
+  async countQueue() {
+    const startOfToday = moment()
+      .startOf('day')
+      .toDate();
+
+    const where = {
+      encounterType: 'clinic',
+      endDate: null,
+      startDate: {
+        [Op.lt]: startOfToday,
+      },
+    };
+
+    return this.models.Encounter.count({ where });
   }
 
   async run() {
@@ -38,12 +54,6 @@ export class OutpatientDischarger extends ScheduledTask {
     };
 
     const oldEncountersCount = await this.models.Encounter.count({ where });
-
-    if (oldEncountersCount === 0) {
-      log.info('No old clinic encounters. Stopping OutpatientDischarger...');
-      return;
-    }
-
     const { batchSize, batchSleepAsyncDurationInMilliseconds } = this.config;
 
     // Make sure these exist, else they will prevent the script from working

@@ -134,6 +134,26 @@ describe('VPS integration - Patient', () => {
         entry: [],
       });
     });
+
+    it('returns a list of patients when passed no query params', async () => {
+      // arrange
+      const { Patient, PatientAdditionalData } = ctx.store.models;
+      const patient = await Patient.create(fake(Patient));
+      await PatientAdditionalData.create({
+        ...fake(PatientAdditionalData),
+        patientId: patient.id,
+      });
+      const path = `/v1/integration/fijiVps/Patient`;
+
+      // act
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
+
+      // assert
+      expect(response).toHaveSucceeded();
+      expect(response.body.total).toBe(2);
+    });
   });
 
   describe('failure', () => {
@@ -162,35 +182,6 @@ describe('VPS integration - Patient', () => {
             '_count must be a `number` type, but the final value was: `NaN` (cast from the value `"x"`).',
             '_page must be a `number` type, but the final value was: `NaN` (cast from the value `"z"`).',
             '_sort must be one of the following values: -issued',
-          ],
-        },
-      });
-    });
-
-    it('returns a 422 error when passed no query params', async () => {
-      // arrange
-      const { Patient, PatientAdditionalData } = ctx.store.models;
-      const patient = await Patient.create(fake(Patient));
-      await PatientAdditionalData.create({
-        ...fake(PatientAdditionalData),
-        patientId: patient.id,
-      });
-      const path = `/v1/integration/fijiVps/Patient`;
-
-      // act
-      const response = await app
-        .get(path)
-        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
-
-      // assert
-      expect(response).toHaveRequestError(422);
-      expect(response.body).toMatchObject({
-        error: {
-          errors: [
-            'subject:identifier must be in the format "<namespace>|<id>"',
-            'subject:identifier is a required field',
-            '_page is a required field',
-            '_sort is a required field',
           ],
         },
       });
