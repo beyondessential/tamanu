@@ -5,7 +5,7 @@ import { log } from 'shared/services/logging';
 import { ScheduledTask } from 'shared/tasks';
 import { getPatientSurveyResponseAnswer } from 'shared/utils';
 
-export class PublishedLabRequestCertificateNotificationGenerator extends ScheduledTask {
+export class LabRequestNotificationGenerator extends ScheduledTask {
   constructor(context) {
     const conf = config.schedules.certificateNotificationProcessor;
     super(null, log);
@@ -14,7 +14,7 @@ export class PublishedLabRequestCertificateNotificationGenerator extends Schedul
   }
 
   getName() {
-    return 'PublishedLabRequestCertificateNotificationGenerator';
+    return 'LabRequestNotificationGenerator';
   }
 
   async countQueue() {
