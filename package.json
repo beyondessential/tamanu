@@ -31,7 +31,8 @@
     "meta-test": "yarn run build-shared && yarn workspace meta-server run test",
     "meta-start-dev": "yarn run watch-shared-and meta-server start-dev",
     "meta-test-watch": "yarn run watch-shared-and meta-server test-watch",
-    "meta-start": "yarn run meta-start-dev"
+    "meta-start": "yarn run meta-start-dev",
+    "build-report": "yarn build-shared && yarn workspace sync-server build && yarn workspace sync-server start report"
   },
   "engines": {
     "node": "^12.16.0"
