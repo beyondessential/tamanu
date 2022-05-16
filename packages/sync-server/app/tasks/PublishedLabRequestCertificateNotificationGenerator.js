@@ -1,9 +1,6 @@
 import config from 'config';
 
-import {
-  ICAO_DOCUMENT_TYPES,
-  CERTIFICATE_NOTIFICATION_STATUSES,
-} from 'shared/constants';
+import { ICAO_DOCUMENT_TYPES, CERTIFICATE_NOTIFICATION_STATUSES } from 'shared/constants';
 import { log } from 'shared/services/logging';
 import { ScheduledTask } from 'shared/tasks';
 import { getPatientSurveyResponseAnswer } from 'shared/utils';
@@ -21,11 +18,11 @@ export class PublishedLabRequestCertificateNotificationGenerator extends Schedul
   }
 
   async countQueue() {
-    return await this.context.store.models.LabRequest.count({
+    return this.context.store.models.LabRequest.count({
       where: {
         status: 'published',
         '$certificate_notification.id$': null,
-      }
+      },
     });
   }
 

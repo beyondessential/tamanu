@@ -24,9 +24,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
     super(conf.schedule, log);
     this.config = conf;
     this.context = context;
-    this.subtasks = [
-      new PublishedLabRequestCertificateNotificationGenerator(context),
-    ];
+    this.subtasks = [new PublishedLabRequestCertificateNotificationGenerator(context)];
   }
 
   getName() {
@@ -34,7 +32,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
   }
 
   async countQueue() {
-    return await CertificateNotification.count({
+    return this.context.store.models.CertificateNotification.count({
       where: {
         status: CERTIFICATE_NOTIFICATION_STATUSES.QUEUED,
       },
@@ -69,15 +67,12 @@ export class CertificateNotificationProcessor extends ScheduledTask {
         const { country, covidVaccines } = await getLocalisation();
         const countryCode = country['alpha-2'];
 
-        log.info(
-          'Processing certificate notification',
-          {
-            id: notification.id,
-            patient: patientId,
-            type,
-            requireSigning
-          }
-        );
+        log.info('Processing certificate notification', {
+          id: notification.id,
+          patient: patientId,
+          type,
+          requireSigning,
+        });
 
         let template;
         let qrData = null;
@@ -187,11 +182,9 @@ export class CertificateNotificationProcessor extends ScheduledTask {
       }
     }
 
-    log.info(
-      'Done: certificate notification sync-hook task.', {
-        attempted: queuedNotifications.length,
-        processed: processed
-      }
-    );
+    log.info('Done: certificate notification sync-hook task.', {
+      attempted: queuedNotifications.length,
+      processed,
+    });
   }
 }
