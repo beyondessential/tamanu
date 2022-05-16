@@ -1,4 +1,4 @@
-import { validateRecordSet } from '../app/admin/importerValidators';
+import { validateRecordSet } from '../app/admin/validateRecordSet';
 
 describe('validateRecordSet', () => {
   it('should check for duplicate records', async () => {
