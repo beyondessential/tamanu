@@ -5,10 +5,7 @@ import { localTransport } from './console';
 import { honeycombTransport } from './honeycomb';
 
 // defensive destructure to allow for testing shared-src directly
-const {
-  path,
-} = config?.log || {};
-
+const { path } = config?.log || {};
 
 export const log = winston.createLogger({
   level: 'info',
@@ -20,4 +17,3 @@ export const log = winston.createLogger({
     honeycombTransport,
   ].filter(t => !!t),
 });
-

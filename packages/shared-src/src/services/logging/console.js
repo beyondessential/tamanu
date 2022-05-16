@@ -4,9 +4,7 @@ import config from 'config';
 import { COLORS } from './color';
 
 // defensive destructure to allow for testing shared-src directly
-const {
-  consoleLevel,
-} = config?.log || {};
+const { consoleLevel } = config?.log || {};
 
 // additional parameters to log.info etc will be serialised and logged using this formatter
 const additionalDataFormatter = (obj = {}) => {
@@ -31,11 +29,7 @@ const logFormat = winston.format.printf(({ level, message, timestamp, ...rest })
 });
 
 export const localTransport = new winston.transports.Console({
-  format: winston.format.combine(
-    winston.format.colorize(),
-    winston.format.timestamp(),
-    logFormat,
-  ),
+  format: winston.format.combine(winston.format.colorize(), winston.format.timestamp(), logFormat),
   level: consoleLevel || 'info',
   silent: !consoleLevel,
 });
