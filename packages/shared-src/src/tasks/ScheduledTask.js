@@ -13,6 +13,7 @@ export class ScheduledTask {
     this.job = null;
     this.log = log;
     this.currentlyRunningTask = null;
+    this.subtasks = [];
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -28,9 +29,17 @@ export class ScheduledTask {
   async runImmediately() {
     const name = this.getName();
 
+    for (const subtask of this.subtasks) {
+      const outcome = await subtask.runImmediately();
+      if (!outcome) {
+        this.log.info(`ScheduledTask: ${name}: Not running (subtask failed)`);
+        return false;
+      }
+    }
+
     if (this.currentlyRunningTask) {
       this.log.info(`ScheduledTask: ${name}: Not running (previous task still running)`);
-      return;
+      return false;
     }
 
     const count = await this.countQueue();
@@ -39,7 +48,7 @@ export class ScheduledTask {
     } else if (count === 0) {
       // Nothing to do, don't even run
       this.log.info(`ScheduledTask: ${name}: Nothing to do`);
-      return;
+      return true;
     } else {
       this.log.info(`Queue status: ${name}`, { count });
     }
@@ -52,16 +61,23 @@ export class ScheduledTask {
       await this.currentlyRunningTask;
       const durationMs = Date.now() - start;
       this.log.info(`ScheduledTask: ${name}: Succeeded`, { id: runId, durationMs });
+      return true;
     } catch (e) {
       const durationMs = Date.now() - start;
       this.log.error(`ScheduledTask: ${name}: Failed`, { id: runId, durationMs });
       this.log.error(e.stack);
+      return false;
     } finally {
       this.currentlyRunningTask = null;
     }
   }
 
   beginPolling() {
+    if (!this.schedule) {
+      this.log.error(`ScheduledTask: ${this.getName()} began polling without a schedule assigned`);
+      return;
+    }
+
     if (!this.job) {
       const name = this.getName();
       this.log.info(`ScheduledTask: ${name}: Scheduled for ${this.schedule}`);
