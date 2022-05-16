@@ -59,7 +59,7 @@ export async function createEuDccVaccinationData(administeredVaccineId, { models
             include: [
               {
                 model: Facility,
-                as: 'Facility',
+                as: 'facility',
               },
             ],
           },
@@ -96,7 +96,7 @@ export async function createEuDccVaccinationData(administeredVaccineId, { models
     encounter: {
       patient,
       location: {
-        Facility: { name: facilityName },
+        facility: { name: facilityName },
       },
     },
   } = vaccination;
