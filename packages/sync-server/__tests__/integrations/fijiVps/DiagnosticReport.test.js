@@ -469,8 +469,8 @@ describe('VPS integration - DiagnosticReport', () => {
             '_count must be less than or equal to 20',
             '_page must be greater than or equal to 0',
             '_sort must be one of the following values: -issued',
-            '_include[0] must be one of the following values: DiagnosticReport:result, DiagnosticReport:result.device:Device',
             'status must be one of the following values: final',
+            '_include[0] must be one of the following values: DiagnosticReport:result, DiagnosticReport:result.device:Device',
           ],
         },
       });
@@ -495,8 +495,6 @@ describe('VPS integration - DiagnosticReport', () => {
           errors: [
             'subject:identifier must be in the format "<namespace>|<id>"',
             'subject:identifier is a required field',
-            '_page is a required field',
-            '_sort is a required field',
           ],
         },
       });
