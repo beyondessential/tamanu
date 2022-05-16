@@ -3,20 +3,46 @@ import { ValidationError } from 'yup';
 import { ForeignKeyStore } from './ForeignKeyStore';
 import { schemas } from './importSchemas';
 
+const includesRelations = {
+  facility: ['department', 'location'],
+};
+
 export async function validateRecordSet(records) {
   const fkStore = new ForeignKeyStore(records);
 
   const validate = async record => {
     const { recordType, data } = record;
+    const { id } = data;
     const schema = schemas[recordType] || schemas.base;
 
     try {
-      // perform id duplicate check outside of schemas as it relies on consistent
-      // object identities, which yup's validation does not guarantee
-      fkStore.assertUniqueId(record);
+      if (!id) {
+        throw new ValidationError('record has no id');
+      }
+      // perform id duplicate check outside of schemas as it relies on
+      // consistent object identities, which yup's validation
+      // does not guarantee
+      const existing = fkStore.recordsById[id];
+      if (existing !== record) {
+        throw new ValidationError(
+          `id ${id} is already being used at ${existing.sheet}:${existing.row}`,
+        );
+      }
 
       // populate all FKs for this data object
       fkStore.linkByForeignKey(record);
+
+      // this assumes that the included records has a foreign key field
+      // pointing to the parent record
+      // i.e. a department record already has a "facilityId" field
+      if (includesRelations[recordType]) {
+        for (const recordTypeToBeIncluded of includesRelations[recordType]) {
+          const foundRecord = fkStore.findRecord(id, recordTypeToBeIncluded, `${recordType}Id`);
+          if (!foundRecord) {
+            throw new ValidationError(`record has no ${recordTypeToBeIncluded}`);
+          }
+        }
+      }
 
       const validatedData = await schema.validate(data);
 

@@ -105,7 +105,10 @@ describe('Data definition import', () => {
   });
 
   it('should report an error if an FK search comes up empty', () => {
-    expectError('patient', 'could not find a referenceData called "village-nowhere"');
+    expectError(
+      'patient',
+      'could not find a record of type referenceData called "village-nowhere"',
+    );
   });
 
   it('should report an error if an FK is of the wrong type', () => {

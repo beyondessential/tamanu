@@ -30,31 +30,13 @@ export class ForeignKeyStore {
   // { recordType: 'foo', data: { id: 'bar', ...otherData }, ...otherMetadata }
   constructor(records) {
     this.records = records;
-    this.recordsById = this.getRecordsById(records);
-  }
-
-  getRecordsById(records) {
-    const recordsById = {};
+    this.recordsById = {};
     records.forEach(record => {
       const {
         data: { id },
       } = record;
-      recordsById[id] = recordsById[id] || record;
+      this.recordsById[id] = this.recordsById[id] || record;
     });
-
-    return recordsById;
-  }
-
-  assertUniqueId(record) {
-    const {
-      data: { id },
-    } = record;
-    const existing = this.recordsById[id];
-    if (existing !== record) {
-      throw new ValidationError(
-        `id ${id} is already being used at ${existing.sheet}:${existing.row}`,
-      );
-    }
   }
 
   /* This function
@@ -76,7 +58,7 @@ export class ForeignKeyStore {
 
     // if a record with exactly `searchValue` as its id is found, use it
     const byId = this.recordsById[searchValue];
-    if (byId) {
+    if (byId && byId.recordType === recordType) {
       return byId;
     }
 
@@ -106,19 +88,11 @@ export class ForeignKeyStore {
     if (!searchValue) return;
     const found = this.findRecord(searchValue, recordType);
     if (!found) {
-      throw new ValidationError(`could not find a ${recordType} called "${searchValue}"`);
-    }
-    // make sure the found record is of the right type
-    if (found.recordType !== recordType) {
       throw new ValidationError(
-        `linked ${recordType} for ${field} ${searchValue} was of type ${found.recordType}`,
+        `could not find a record of type ${recordType} called "${searchValue}"`,
       );
     }
-    const foundId = found?.data?.id;
-    if (!foundId) {
-      throw new ValidationError(`matching record from ${found.sheet}:${found.row} has no id`);
-    }
-    data[`${field}Id`] = foundId;
+    data[`${field}Id`] = found.data.id;
     delete data[field];
   }
 }

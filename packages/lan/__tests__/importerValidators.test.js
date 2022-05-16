@@ -4,18 +4,39 @@ describe('validateRecordSet', () => {
   it('should check for duplicate records', async () => {
     const records = [
       {
-        sheet: 'facilities',
+        sheet: 'allergies',
         row: 2,
-        recordType: 'facility',
+        recordType: 'allergy',
         data: {
-          id: 'facility-TamanuHealthCentre',
-          code: 'TamanuHealthCentre',
-          name: 'Tamanu Health Centre',
+          id: 'allergy-peanuts',
+          code: 'peanuts',
+          name: 'Peanuts',
         },
       },
       {
-        sheet: 'facilities',
+        sheet: 'allergies',
         row: 3,
+        recordType: 'allergy',
+        data: {
+          id: 'allergy-peanuts',
+          code: 'peanuts',
+          name: 'Peanuts',
+        },
+      },
+    ];
+    const results = await validateRecordSet(records);
+    expect(results.errors).toEqual([
+      {
+        ...records[1],
+        errors: ['id allergy-peanuts is already being used at allergies:2'],
+      },
+    ]);
+  });
+  it('should include dependent records', async () => {
+    const records = [
+      {
+        sheet: 'facilities',
+        row: 2,
         recordType: 'facility',
         data: {
           id: 'facility-TamanuHealthCentre',
@@ -27,8 +48,8 @@ describe('validateRecordSet', () => {
     const results = await validateRecordSet(records);
     expect(results.errors).toEqual([
       {
-        ...records[1],
-        errors: ['id facility-TamanuHealthCentre is already being used at facilities:2'],
+        ...records[0],
+        errors: ['record has no department'],
       },
     ]);
   });
