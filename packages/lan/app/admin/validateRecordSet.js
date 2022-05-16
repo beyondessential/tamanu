@@ -1,7 +1,7 @@
 import { ValidationError } from 'yup';
 
 import { ForeignKeyStore } from './ForeignKeyStore';
-import { schemas } from './importSchemas';
+import * as schemas from './importSchemas';
 
 const includesRelations = {
   facility: ['department', 'location'],
