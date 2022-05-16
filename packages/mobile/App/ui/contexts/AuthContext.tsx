@@ -57,10 +57,10 @@ const Provider = ({
 
   const isUserAuthenticated = (): boolean => props.token !== null && props.user !== null;
 
-  const signInAs = (usr): void => {
+  const signInAs = (authenticatedUser): void => {
     // Destructure the local password out of the user object - it only needs to be in
     // the database, we don't need or want to store it in app state as well.
-    const { localPassword, ...userData } = usr;
+    const { localPassword, ...userData } = authenticatedUser;
     setUser(userData);
     setUserData(userData);
     setAbility(backend.permissions.data);
