@@ -2,7 +2,7 @@ import Transport from 'winston-transport';
 import Libhoney from 'libhoney';
 import config from 'config';
 
-import { version } from '../../../package.json';
+import { version } from '../../package.json';
 
 const serverInfo = {
   serverType: config?.canonicalHostName ? 'sync' : 'lan',
