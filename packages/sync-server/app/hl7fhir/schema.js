@@ -109,7 +109,7 @@ export const diagnosticReport = {
   query: yup
     .object({
       ...baseParameters,
-      // This will overwrite the sharedQuery validation for this field,
+      // This will overwrite the validation in baseParameters for this field,
       // making it required for DiagnosticReport route.
       // Only kept for backwards compatibility.
       'subject:identifier': yup

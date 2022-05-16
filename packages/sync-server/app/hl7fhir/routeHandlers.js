@@ -46,6 +46,9 @@ function parseQuery(unsafeQuery, querySchema) {
   if (searchId) {
     values = fromSearchId(searchId);
   }
+  // Needs stripUnknown to be false because otherwise yup will
+  // remove those fields before validation occurs. We want to throw
+  // an error message when the query has unsupported parameters.
   return querySchema.validate(values, { stripUnknown: false, abortEarly: false });
 }
 
