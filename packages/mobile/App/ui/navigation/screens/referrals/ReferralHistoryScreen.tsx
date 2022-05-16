@@ -39,6 +39,7 @@ export const ReferralHistoryScreen = (): ReactElement => {
 
           return (
             <List.Accordion
+              key={`${survey.id}-${startTime}`}
               title={`${survey.name} (${format(startTime, DateFormats.DDMMYY)})`}
               left={(props): ReactElement => (
                 <List.Icon {...props} icon="clipboard-plus-outline" />

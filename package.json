@@ -31,7 +31,9 @@
     "meta-test": "yarn run build-shared && yarn workspace meta-server run test",
     "meta-start-dev": "yarn run watch-shared-and meta-server start-dev",
     "meta-test-watch": "yarn run watch-shared-and meta-server test-watch",
-    "meta-start": "yarn run meta-start-dev"
+    "meta-start": "yarn run meta-start-dev",
+    "mobile-start-dev": "yarn workspace tamanuapp run start",
+    "mobile-android": "yarn workspace tamanuapp run android"
   },
   "engines": {
     "node": "^12.16.0"
@@ -48,7 +50,8 @@
       "packages/sync-server",
       "packages/meta-server",
       "packages/shared",
-      "packages/shared-src"
+      "packages/shared-src",
+      "packages/mobile"
     ],
     "nohoist": [
       "**/webpack",

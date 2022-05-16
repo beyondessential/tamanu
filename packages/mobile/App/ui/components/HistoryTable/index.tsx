@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { DataTable } from 'react-native-paper';
 import MultilineCell from './MultilineCell';
 import { HistoryTableRows } from '~/ui/interfaces/HistoryTable';
@@ -11,14 +11,14 @@ import { HistoryTableRows } from '~/ui/interfaces/HistoryTable';
 export const HistoryTable = ({ data, rows }: {
   data: { [key: string]: any };
   rows: HistoryTableRows;
-}): JSX.Element => (
+}): ReactElement => (
   <DataTable style={{ paddingHorizontal: 10 }}>
-    {Object.entries(rows).map(([key, row]): JSX.Element => {
+    {Object.entries(rows).map(([key, row]): ReactElement => {
       const cellValue = row.accessor
         ? row.accessor(data[key])
         : ((data[key] === null || data[key] === undefined) || '');
       return (
-        <DataTable.Row>
+        <DataTable.Row key={key}>
           <MultilineCell>{row.name}</MultilineCell>
           <MultilineCell>{cellValue}</MultilineCell>
         </DataTable.Row>

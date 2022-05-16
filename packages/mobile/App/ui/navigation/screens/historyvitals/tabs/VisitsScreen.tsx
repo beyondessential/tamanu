@@ -10,26 +10,23 @@ import { useBackendEffect } from '~/ui/hooks';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { withPatient } from '~/ui/containers/Patient';
-import { IDiagnosis, Certainty, IEncounter } from '~/types';
+import { IDiagnosis } from '~/types';
 
 const DEFAULT_FIELD_VAL = 'N/A';
-
-const CERTAINTY_NAMES = Object.entries(Certainty).reduce((acc, [k, v]) => ({ ...acc, [v]: k }), {});
 
 const visitsHistoryRows = {
   labRequest: {
     name: 'Test results',
-    accessor: () => DEFAULT_FIELD_VAL,
+    accessor: (): string => DEFAULT_FIELD_VAL,
   },
   diagnoses: {
     name: 'Diagnosis',
-    accessor: (diagnoses: IDiagnosis[]) => diagnoses
-      .map(d => `${d.diagnosis?.name} (${d.certainty})`)
-      .join('\n\n') || DEFAULT_FIELD_VAL,
+    accessor: (diagnoses: IDiagnosis[]): string => diagnoses.map((d) => `${d.diagnosis?.name} (${d.certainty})`).join('\n\n')
+      || DEFAULT_FIELD_VAL,
   },
   reasonForEncounter: {
     name: 'Treatment notes',
-    accessor: () => DEFAULT_FIELD_VAL,
+    accessor: (): string => DEFAULT_FIELD_VAL,
   },
 };
 
@@ -52,14 +49,12 @@ export const DumbVisistsScreen = ({ selectedPatient }): ReactElement => {
   return (
     <StyledSafeAreaView flex={1}>
       <FullView background={theme.colors.BACKGROUND_GREY}>
-        {data ? <PatientHistoryAccordion dataArray={data} rows={visitsHistoryRows} /> : <LoadingScreen />}
-        <StyledView
-          position="absolute"
-          zIndex={2}
-          width="100%"
-          alignItems="center"
-          bottom={30}
-        >
+        {data ? (
+          <PatientHistoryAccordion dataArray={data} rows={visitsHistoryRows} />
+        ) : (
+          <LoadingScreen />
+        )}
+        <StyledView position="absolute" zIndex={2} width="100%" alignItems="center" bottom={30}>
           <Button
             width={screenPercentageToDP(60.82, Orientation.Width)}
             backgroundColor={`${theme.colors.MAIN_SUPER_DARK}`}
@@ -68,15 +63,9 @@ export const DumbVisistsScreen = ({ selectedPatient }): ReactElement => {
             onPress={navigateToHistoryFilters}
             buttonText={activeFilters.count ? `Filters: ${activeFilters.count}` : 'Filters'}
           >
-            <StyledView
-              marginRight={screenPercentageToDP(1.21, Orientation.Height)}
-            >
+            <StyledView marginRight={screenPercentageToDP(1.21, Orientation.Height)}>
               <FilterIcon
-                fill={
-                  activeFilters.count > 0
-                    ? theme.colors.SECONDARY_MAIN
-                    : theme.colors.WHITE
-                }
+                fill={activeFilters.count > 0 ? theme.colors.SECONDARY_MAIN : theme.colors.WHITE}
                 height={screenPercentageToDP(2.43, Orientation.Height)}
               />
             </StyledView>
