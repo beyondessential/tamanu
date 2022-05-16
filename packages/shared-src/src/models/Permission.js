@@ -22,9 +22,9 @@ export class Permission extends Model {
         ...options,
         syncConfig: { syncDirection: SYNC_DIRECTIONS.PULL_ONLY },
         hooks: {
-          afterSave: (instance, options) => {
+          afterSave() {
             resetPermissionCache();
-          }
+          },
         },
       },
     );
@@ -42,7 +42,7 @@ export class Permission extends Model {
     return {
       verb,
       noun,
-      ... objectId ? { objectId } : undefined,
+      ...(objectId ? { objectId } : undefined),
     };
   }
 }

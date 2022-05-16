@@ -22,6 +22,82 @@
 
 - (left blank)
 
+## v1.16.0
+
+### Manual steps required after upgrade ⚙
+
+- Regenerate the server secret to log all mobile users out, so they get prompted to upgrade (only needs to be done once per server)
+  - This means generating a long random string using e.g. LastPass or some other secure tool and setting `config.auth.secret` to that string
+- Set `previewUvciFormat` in sync-server config (if required)
+  - `localisation.data.previewUvciFormat`
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
+- (left blank)
+
+### Bug fixes 🐛
+
+- Fix bug where users with an outdated version weren't logged out properly
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
+## v1.15.3
+
+### Tweaks ⚖️
+
+- Updated dimensions of patient sticker sheet
+- Add close button to appointment details modal
+
+## v1.15.2
+
+### Manual steps required after upgrade ⚙
+
+- (left blank)
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
+- Updated patient suggester to search for displayId and full name
+
+### Bug fixes 🐛
+
+- Fixed migration that could fail under certain conditions
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
+## v1.15.1
+
+### Manual steps required after upgrade ⚙
+
+- (left blank)
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
+- (left blank)
+
+### Bug fixes 🐛
+
+- Fix some bugs to do with vaccine certificates
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
 ## v1.15.0
 
 ### Manual steps required after upgrade ⚙

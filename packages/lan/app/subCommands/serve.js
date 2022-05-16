@@ -8,7 +8,6 @@ import { initDatabase, performDatabaseIntegrityChecks } from '../database';
 import { addPatientMarkForSyncHook, SyncManager, WebRemote } from '../sync';
 import { createApp } from '../createApp';
 import { startScheduledTasks } from '../tasks';
-import { startDataChangePublisher } from '../DataChangePublisher';
 import { listenForServerQueries } from '../discovery';
 
 import { version } from '../../package.json';
@@ -46,8 +45,6 @@ async function serve({ skipMigrationCheck }) {
   startScheduledTasks(context);
 
   addPatientMarkForSyncHook(context);
-
-  startDataChangePublisher(server, context);
 }
 
 export const serveCommand = new Command('serve')

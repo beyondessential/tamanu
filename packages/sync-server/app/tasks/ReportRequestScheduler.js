@@ -10,7 +10,6 @@ import { ReportRequest } from 'shared/models';
  * Runs on a schedule
  */
 export class ReportRequestScheduler extends ScheduledTask {
-
   getName() {
     return `ReportRequestScheduler for ${this.options.reportType}`;
   }
@@ -35,5 +34,4 @@ export class ReportRequestScheduler extends ScheduledTask {
 
     await ReportRequest.create(newReportRequest);
   }
-
 }

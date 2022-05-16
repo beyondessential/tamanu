@@ -2,6 +2,8 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
 
+import { NotFoundError } from 'shared/errors';
+
 export const setting = express.Router();
 
 setting.get(
@@ -28,8 +30,8 @@ setting.get(
         },
       },
     });
-    const settingMap = settings.reduce((map, setting) => {
-      return { ...map, [setting.get('settingName')]: setting.get('settingContent') };
+    const settingMap = settings.reduce((map, stg) => {
+      return { ...map, [stg.get('settingName')]: stg.get('settingContent') };
     }, {});
     res.send(settingMap);
   }),
@@ -45,12 +47,12 @@ setting.get(
       params: { name },
     } = req;
 
-    const setting = await Setting.findOne({
+    const stg = await Setting.findOne({
       where: {
         settingName: name,
       },
     });
-    res.send(setting);
+    res.send(stg);
   }),
 );
 
@@ -64,15 +66,15 @@ setting.put(
     } = req;
 
     req.checkPermission('read', 'Setting');
-    const setting = await Setting.findOne({
+    const stg = await Setting.findOne({
       where: {
         settingName: name,
       },
     });
-    if (!setting) throw new NotFoundError();
+    if (!stg) throw new NotFoundError();
     req.checkPermission('write', 'Setting');
-    await setting.update(body);
-    res.send(setting);
+    await stg.update(body);
+    res.send(stg);
   }),
 );
 
@@ -86,7 +88,7 @@ setting.post(
       body,
     } = req;
 
-    const setting = await Setting.create(body);
-    res.send(setting);
+    const stg = await Setting.create(body);
+    res.send(stg);
   }),
 );

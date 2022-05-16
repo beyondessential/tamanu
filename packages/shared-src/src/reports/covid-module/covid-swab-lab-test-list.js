@@ -1,4 +1,4 @@
-import { keyBy, groupBy } from 'lodash';
+import { groupBy } from 'lodash';
 import { Op } from 'sequelize';
 import moment from 'moment';
 import { generateReportFromQueryData } from '../utilities';
@@ -75,8 +75,8 @@ const parametersToSurveyResponseSqlWhere = (parameters, { surveyId }) => {
   return whereClause;
 };
 
-const getLabTests = async (models, parameters) => {
-  return models.LabTest.findAll({
+const getLabTests = async (models, parameters) =>
+  models.LabTest.findAll({
     include: [
       {
         model: models.LabRequest,
@@ -118,7 +118,6 @@ const getLabTests = async (models, parameters) => {
     where: parametersToLabTestSqlWhere(parameters),
     order: [['date', 'ASC']],
   });
-};
 
 const getFijiCovidAnswers = async (models, parameters, { surveyId }) => {
   // Use the latest survey responses per patient above to get the corresponding answers
@@ -270,6 +269,7 @@ const getLabTestRecords = async (
         additionalDataEthnicity: patientAdditionalData?.ethnicity?.name,
         additionalDataNationality: patientAdditionalData?.nationality?.name,
         additionalDataPassportNumber: patientAdditionalData?.passport,
+        sampleTime: labRequest?.sampleTime,
       };
       Object.entries(surveyQuestionCodes).forEach(([key, dataElement]) => {
         labTestRecord[key] = getLatestPatientAnswerInDateRange(

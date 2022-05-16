@@ -5,7 +5,7 @@ import { Permission } from '../models';
 //---------------------------------------------------------
 // "Hardcoded" permissions version -- safe to delete once all deployments
 // have been migrated to database version.
-import * as roles from 'shared/roles';
+import * as roles from 'shared/roles'; // eslint-disable-line import/order
 
 function getHardcodedPermissions(roleIds) {
   const permissions = roles[roleIds];

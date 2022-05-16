@@ -17,7 +17,13 @@ const PATIENT_FIELDS = [
   { key: 'nationality', label: 'Nationality', accessor: getNationality },
 ];
 
-export const PatientDetailsSection = ({ patient, getLocalisation, vdsSrc, extraFields = [] }) => {
+export const PatientDetailsSection = ({
+  patient,
+  getLocalisation,
+  vdsSrc,
+  extraFields = [],
+  uvci,
+}) => {
   const detailsToDisplay = [
     ...PATIENT_FIELDS.filter(({ key }) => getLocalisation(`fields.${key}.hidden`) !== true),
     ...extraFields,
@@ -27,7 +33,7 @@ export const PatientDetailsSection = ({ patient, getLocalisation, vdsSrc, extraF
       <Col style={{ width: '80%' }}>
         <Row>
           {detailsToDisplay.map(({ key, label: defaultLabel, accessor }) => {
-            const value = (accessor ? accessor(patient) : patient[key]) || '';
+            const value = (accessor ? accessor(patient, getLocalisation) : patient[key]) || '';
             const label = getLocalisation(`fields.${key}.shortLabel`) || defaultLabel;
 
             return (
@@ -37,6 +43,11 @@ export const PatientDetailsSection = ({ patient, getLocalisation, vdsSrc, extraF
             );
           })}
         </Row>
+        {uvci && (
+          <Row>
+            <P>UVCI: {uvci}</P>
+          </Row>
+        )}
       </Col>
       <Col style={{ width: '20%' }}>{vdsSrc && <VDSImage src={vdsSrc} />}</Col>
     </Row>

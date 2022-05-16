@@ -10,15 +10,15 @@ import {
   StyledView,
   StyledScrollView,
   StyledText,
-} from '/styled/common';
-import { theme } from '/styled/theme';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { SelectOption } from '.';
+} from '../../styled/common';
+import { theme } from '../../styled/theme';
+import { screenPercentageToDP, Orientation } from '../../helpers/screen';
+import { SelectOption } from './';
 
 interface AndroidPickerProps {
   options: SelectOption[];
   open: boolean;
-  onChange: Function;
+  onChange: (option: SelectOption) => void;
   closeModal: () => void;
   label?: string;
 }
@@ -74,7 +74,7 @@ export const AndroidPicker = ({
                   width="100%"
                   height={screenPercentageToDP('4.86%', Orientation.Height)}
                 >
-                  <StyledText>{item.label}</StyledText>
+                  <StyledText color={theme.colors.TEXT_DARK}>{item.label}</StyledText>
                 </StyledView>
               </TouchableOpacity>
               <StyledView

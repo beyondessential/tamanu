@@ -24,7 +24,7 @@ const StyledTooltip = withStyles(() => ({
   },
   popper: {
     zIndex: 1200, // make it less than the dialog, which is 1300
-  }
+  },
 }))(Tooltip);
 
 export const Appointment = ({ appointment, onUpdated }) => {
@@ -42,7 +42,9 @@ export const Appointment = ({ appointment, onUpdated }) => {
       disableFocusListener
       disableTouchListener
       interactive
-      title={<AppointmentDetail appointment={appointment} onUpdated={onUpdated} />}
+      title={
+        <AppointmentDetail appointment={appointment} onUpdated={onUpdated} onClose={closeDetail} />
+      }
     >
       <StyledAppointment
         className={`status-${status}`}

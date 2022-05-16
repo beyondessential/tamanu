@@ -1,7 +1,7 @@
 import config from 'config';
 import nodeCrypto from 'crypto';
 import { add } from 'date-fns';
-import { Crypto } from 'node-webcrypto-ossl';
+import { Crypto } from '@peculiar/webcrypto';
 import {
   fromBER,
   Integer,
@@ -304,7 +304,8 @@ export class TestCSCA {
 
     const validityPeriodStart = workingPeriodStart;
     const validityPeriodEnd = add(workingPeriodEnd, {
-      days: 365 * 10 + 2 });
+      days: 365 * 10 + 2,
+    });
 
     const cert = new Certificate();
     cert.version = 2;

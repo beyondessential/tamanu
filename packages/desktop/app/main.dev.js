@@ -92,8 +92,7 @@ app.on('ready', async () => {
     if (process.env.START_MINIMIZED) {
       mainWindow.minimize();
     } else {
-      mainWindow.show();
-      mainWindow.focus();
+      mainWindow.showInactive();
     }
   });
 

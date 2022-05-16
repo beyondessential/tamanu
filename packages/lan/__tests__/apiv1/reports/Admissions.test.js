@@ -22,6 +22,7 @@ describe('Admissions report', () => {
   let expectedDiagnosis1 = null;
   let expectedDiagnosis2 = null;
   let expectedVillage = null;
+  let expectedBillingType = null;
   let baseApp = null;
   let models = null;
   let ctx;
@@ -32,11 +33,15 @@ describe('Admissions report', () => {
     models = ctx.models;
     expectedVillage = await randomReferenceData(models, 'village');
     expectedPatient = await models.Patient.create(
-      await createDummyPatient(models, { villageId: expectedVillage.id }),
+      await createDummyPatient(models, {
+        villageId: expectedVillage.id,
+        // Just shy of 2 years old
+        dateOfBirth: subDays(new Date(), 365 * 2 - 5),
+      }),
     );
     app = await baseApp.asRole('practitioner');
     expectedLocation = await findOneOrCreate(ctx, models.Location, { name: 'Clinic' });
-    wrongLocation = await randomRecord(models, 'Location');
+    wrongLocation = await findOneOrCreate(ctx, models.Location, { name: 'Not-Clinic' });
     expectedDepartment1 = await findOneOrCreate(ctx, models.Department, { name: 'Radiology' });
     expectedDepartment2 = await findOneOrCreate(ctx, models.Department, { name: 'Cardiology' });
     expectedExaminer = await randomRecord(models, 'User');
@@ -49,6 +54,10 @@ describe('Admissions report', () => {
       type: 'icd10',
       code: 'L74.4',
       name: 'Anhidrosis',
+    });
+    expectedBillingType = await findOneOrCreate(ctx, models.ReferenceData, {
+      type: 'patientBillingType',
+      name: 'Charity',
     });
   });
   afterAll(() => ctx.close());
@@ -67,11 +76,12 @@ describe('Admissions report', () => {
       const baseEncounterData = {
         encounterType: ENCOUNTER_TYPES.ADMISSION,
         startDate: new Date(2021, 1, 20, 9, 7, 26), // Months are 0 indexed so this is Feburary
-        endDate: new Date(2021, 1, 21, 1, 0), // Months are 0 indexed so this is Feburary
+        endDate: new Date(2021, 1, 21, 11, 3, 7), // Months are 0 indexed so this is Feburary
         patientId: expectedPatient.dataValues.id,
         locationId: expectedLocation.id,
         departmentId: expectedDepartment1.id,
         examinerId: expectedExaminer.id,
+        patientBillingTypeId: expectedBillingType.id,
       };
       // expected result
       const expectedEncounter = await models.Encounter.create(
@@ -155,8 +165,7 @@ describe('Admissions report', () => {
         parameters: {
           fromDate: new Date(2021, 1, 1),
           location: expectedLocation.id,
-          // TODO: the report should still fetch with the below filter enabled
-          // department: expectedDepartment1.id, // Historical department filtered for
+          department: expectedDepartment1.id, // Historical department filtered for
         },
       });
       expect(result).toHaveSucceeded();
@@ -168,12 +177,14 @@ describe('Admissions report', () => {
           Sex: expectedPatient.sex,
           Village: expectedVillage.name,
           'Date of Birth': format(expectedPatient.dateOfBirth, 'dd/MM/yyyy'),
+          Age: 1,
+          'Patient Type': 'Charity',
           'Admitting Doctor/Nurse': expectedExaminer.displayName,
           'Admission Date': '20/02/2021 9:07:26 AM',
-          'Discharge Date': '21/02/2021',
-          Location: 'Clinic (Location change: 20/02/21 9:07 AM)',
+          'Discharge Date': '21/02/2021 11:03:07 AM',
+          Location: 'Clinic (Location assigned: 20/02/21 9:07 AM)',
           Department:
-            'Radiology (Department change: 20/02/21 9:07 AM); Cardiology (Department change: 20/02/21 11:10 AM)',
+            'Radiology (Department assigned: 20/02/21 9:07 AM); Cardiology (Department assigned: 20/02/21 11:10 AM)',
           'Primary diagnoses': 'H60.5 Acute bacterial otitis externa; L74.4 Anhidrosis',
           'Secondary diagnoses': 'H60.5 Acute bacterial otitis externa',
         },

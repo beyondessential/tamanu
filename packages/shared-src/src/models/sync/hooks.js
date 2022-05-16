@@ -1,5 +1,8 @@
+import { log } from 'shared/services/logging';
 import { shouldPush } from './directions';
 import { ensurePathsAreExhaustive } from './metadata';
+
+const shouldMark = model => model.syncClientMode && shouldPush(model);
 
 const addHooksToNested = model => {
   // for every relation defined in includedRelations, including intermediates
@@ -20,17 +23,25 @@ const addHooksToNested = model => {
     const leafModel = associations[associations.length - 1].target;
 
     const reversedAssociations = associations.reverse();
-    leafModel.addHook('beforeSave', 'markRootForPush', async rawRecord => {
-      let currentRecord = rawRecord;
+    leafModel.addHook('beforeSave', 'markRootWhenChildChanged', async rawRecord => {
       // walk backward through the associations and find the parent at each level
+      let currentRecord = rawRecord;
       for (const { source, foreignKey } of reversedAssociations) {
         currentRecord = await source.findByPk(currentRecord[foreignKey]);
         if (!currentRecord) {
+          log.warn(`markRootForPush: no parent matching ${foreignKey}`);
           return;
         }
       }
+
       // mark the parent record for push
-      currentRecord.markedForPush = true;
+      const currentModel = currentRecord.constructor;
+      log.debug(`markRootForPush: marking ${currentModel.name}[${currentRecord.id}]`);
+      // always set updatedAt, but only mark for push on client
+      currentRecord.changed('updatedAt', true);
+      if (shouldMark(currentModel)) {
+        currentRecord.markedForPush = true;
+      }
       await currentRecord.save();
     });
   }
@@ -38,11 +49,10 @@ const addHooksToNested = model => {
 
 const syncSpecificColumns = ['markedForPush', 'isPushing', 'markedForSync', 'pushedAt', 'pulledAt'];
 
-export const initSyncClientModeHooks = models => {
-  Object.values(models)
-    .filter(model => model.syncClientMode && shouldPush(model))
-    .forEach(model => {
-      // add hook to model itself
+export const initSyncHooks = models => {
+  Object.values(models).forEach(model => {
+    // add hook to model itself
+    if (shouldMark(model)) {
       model.addHook('beforeSave', 'markForPush', record => {
         const changedFields = record?.changed() || [];
 
@@ -60,8 +70,9 @@ export const initSyncClientModeHooks = models => {
         // eslint-disable-next-line no-param-reassign
         record.markedForPush = true;
       });
+    }
 
-      // add hook to nested sync relations
-      addHooksToNested(model);
-    });
+    // add hook to nested sync relations
+    addHooksToNested(model);
+  });
 };

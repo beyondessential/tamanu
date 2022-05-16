@@ -56,14 +56,12 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
     setEncounterMedication(medication);
   }, []);
 
-  const rowStyle = useCallback(({ discontinued }) =>
+  const rowStyle = ({ discontinued }) =>
     discontinued
       ? `
-    color: red;
-    text-decoration: line-through;
-  `
-      : '',
-  );
+        color: red;
+        text-decoration: line-through;`
+      : '';
 
   return (
     <div>
