@@ -101,7 +101,7 @@ const getLabTests = async (models, parameters) =>
               {
                 model: models.Location,
                 as: 'location',
-                include: ['Facility'],
+                include: ['facility'],
               },
             ],
           },
@@ -275,7 +275,7 @@ const getLabTestRecords = async (
         additionalDataNationality: patientAdditionalData?.nationality?.name,
         additionalDataPassportNumber: patientAdditionalData?.passport,
         sampleTime: labRequest?.sampleTime,
-        facilityName: encounter?.location?.Facility?.name,
+        facilityName: encounter?.location?.facility?.name,
       };
       Object.entries(surveyQuestionCodes).forEach(([key, dataElement]) => {
         labTestRecord[key] = getLatestPatientAnswerInDateRange(
