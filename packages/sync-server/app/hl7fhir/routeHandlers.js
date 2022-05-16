@@ -46,7 +46,7 @@ function parseQuery(unsafeQuery, querySchema) {
   if (searchId) {
     values = fromSearchId(searchId);
   }
-  return querySchema.validate(values, { stripUnknown: true, abortEarly: false });
+  return querySchema.validate(values, { stripUnknown: false, abortEarly: false });
 }
 
 async function getHL7Payload({ req, querySchema, model, getWhere, getInclude, bundleId, toHL7 }) {

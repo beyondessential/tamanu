@@ -82,10 +82,19 @@ const getPatientParameters = () => {
 // Generate schema dynamically because the parameters might include
 // suffixes that modify the query. (parameter:suffix=value)
 export const patient = {
-  query: yup.object({
-    ...getPatientParameters(),
-    ...baseParameters,
-  }),
+  query: yup
+    .object({
+      ...getPatientParameters(),
+      ...baseParameters,
+    })
+    .noUnknown(true, obj => {
+      // Get all params from the object being validated
+      const params = Object.keys(obj.originalValue);
+
+      // Return list of unknown params
+      const unknownParams = params.filter(param => param in patient.fields === false);
+      return `Unknown or unsupported parameters: ${unknownParams.join(', ')}`;
+    }),
 };
 
 export const DIAGNOSTIC_REPORT_INCLUDES = {
