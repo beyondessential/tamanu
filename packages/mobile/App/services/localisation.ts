@@ -24,7 +24,7 @@ export class LocalisationService extends LocalDataService {
     return payload.localisation;
   }
 
-  dataCallback(localisation: object): void {
+  onDataReceived(localisation: object): void {
     this._setLocalisations(localisation);
   }
 

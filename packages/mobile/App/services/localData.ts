@@ -17,7 +17,7 @@ export class LocalDataService {
       const data = this.extractDataFromPayload(payload);
       // write to config first to make sure it is stringifiable
       this._writeDataToConfig(data);
-      this.dataCallback(data);
+      this.onDataReceived(data);
     });
   }
 
@@ -25,8 +25,8 @@ export class LocalDataService {
     throw new Error('Child of LocalDataService needs to implement its own extractDataFromPayload method');
   }
 
-  dataCallback(_data: any): void {
-    // do nothing here
+  onDataReceived(_data: any): void {
+    // do nothing on the parent class
   }
 
   async _readDataFromConfig(): Promise<any> {
