@@ -1,3 +1,4 @@
+import { format } from 'date-fns';
 import { baseDataGenerator } from '../covid-swab-lab-test-list';
 
 const SURVEY_ID = 'program-fijicovidtourism-fijicovidtravform';
@@ -63,6 +64,14 @@ const reportColumnTemplate = [
   },
   { title: 'Result', accessor: data => data.result },
   { title: 'Requested by', accessor: data => data.requestedBy },
+  {
+    title: 'Date of sample',
+    accessor: data => format(new Date(data.sampleTime), 'dd-MM-yyyy'),
+  },
+  {
+    title: 'Time of sample',
+    accessor: data => format(new Date(data.sampleTime), 'hh:mm a'),
+  },
   { title: 'Requested date', accessor: data => data.requestedDate },
   { title: 'Submitted date', accessor: data => data.submittedDate },
   { title: 'Priority', accessor: data => data.priority },

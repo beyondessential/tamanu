@@ -23,6 +23,8 @@ const REPORT_COLUMNS = [
   'Status',
   'Result',
   'Requested by',
+  'Date of sample',
+  'Time of sample',
   'Requested date',
   'Submitted date',
   'Priority',
