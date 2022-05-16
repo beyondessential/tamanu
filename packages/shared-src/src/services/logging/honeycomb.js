@@ -2,21 +2,24 @@ import Transport from 'winston-transport';
 import Libhoney from 'libhoney';
 import config from 'config';
 
-const version = '1.xx.0'; // TODO: how to fetch version from shared?!
-
-const honeyApi = new Libhoney({
-  writeKey: config.honeycomb.apiKey,
-  dataset: config.honeycomb.dataset,
-  disabled: !(config.honeycomb.apiKey && config.honeycomb.enabled),
-});
+import { version } from '../../../package.json';
 
 const serverInfo = {
-  serverType: config.canonicalHostName ? 'sync' : 'lan',
-  syncHost: config.canonicalHostName,
-  facilityId: config.serverFacilityId,
+  serverType: config?.canonicalHostName ? 'sync' : 'lan',
+  syncHost: config?.canonicalHostName,
+  facilityId: config?.serverFacilityId,
   node_env: process.env.NODE_ENV,
   version,
 };
+
+const { apiKey, dataset, enabled } = config?.honeycomb || {};
+
+const honeyApi = new Libhoney({
+  writeKey: apiKey,
+  dataset: dataset,
+  disabled: !(apiKey && enabled),
+});
+
 
 class HoneycombTransport extends Transport {
   log(info, callback) {
