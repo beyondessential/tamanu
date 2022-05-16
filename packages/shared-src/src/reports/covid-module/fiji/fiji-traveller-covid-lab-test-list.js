@@ -64,6 +64,7 @@ const reportColumnTemplate = [
   },
   { title: 'Result', accessor: data => data.result },
   { title: 'Requested by', accessor: data => data.requestedBy },
+  { title: 'Facility of user', accessor: data => data.facilityName },
   {
     title: 'Date of sample',
     accessor: data => format(new Date(data.sampleTime), 'dd-MM-yyyy'),
