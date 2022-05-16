@@ -14,15 +14,15 @@ export class LocalDataService {
   constructor(auth: AuthService) {
     this.auth = auth;
     this.auth.emitter.on('remoteSignIn', (payload) => {
-      const data = this.getData(payload);
+      const data = this.extractDataFromPayload(payload);
       // write to config first to make sure it is stringifiable
       this._writeDataToConfig(data);
       this.dataCallback(data);
     });
   }
 
-  getData(_payload: any): any {
-    throw new Error('Child of LocalDataService needs to implement its own getData');
+  extractDataFromPayload(_payload: any): any {
+    throw new Error('Child of LocalDataService needs to implement its own extractDataFromPayload method');
   }
 
   dataCallback(_data: any): void {

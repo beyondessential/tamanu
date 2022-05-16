@@ -20,7 +20,7 @@ export class LocalisationService extends LocalDataService {
     this._setLocalisations(this._readDataFromConfig());
   }
 
-  getData(payload: any): object {
+  extractDataFromPayload(payload: any): object {
     return payload.localisation;
   }
 
