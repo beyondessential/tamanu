@@ -111,7 +111,7 @@ export class ForeignKeyStore {
     // make sure the found record is of the right type
     if (found.recordType !== recordType) {
       throw new ValidationError(
-        `linked ${recordType} for ${search} was of type ${found.recordType}`,
+        `linked ${recordType} for ${field} ${search} was of type ${found.recordType}`,
       );
     }
     const foundId = found?.data?.id;

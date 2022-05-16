@@ -109,7 +109,7 @@ describe('Data definition import', () => {
   });
 
   it('should report an error if an FK is of the wrong type', () => {
-    expectError('patient', 'linked referenceData for');
+    expectError('patient', 'linked referenceData for village');
   });
 
   describe('Importer permissions', () => {
