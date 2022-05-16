@@ -13,11 +13,12 @@ export class LocalDataService {
 
   constructor(auth: AuthService) {
     this.auth = auth;
+    this._readDataFromConfig();
     this.auth.emitter.on('remoteSignIn', (payload) => {
-      const data = this.extractDataFromPayload(payload);
+      this.data = this.extractDataFromPayload(payload);
       // write to config first to make sure it is stringifiable
-      this._writeDataToConfig(data);
-      this.onDataReceived(data);
+      this._writeDataToConfig();
+      this.onDataLoaded();
     });
   }
 
@@ -25,17 +26,18 @@ export class LocalDataService {
     throw new Error('Child of LocalDataService needs to implement its own extractDataFromPayload method');
   }
 
-  onDataReceived(_data: any): void {
+  onDataLoaded(): void {
     // do nothing on the parent class
   }
 
   async _readDataFromConfig(): Promise<any> {
     const strData = await readConfig((this.constructor as typeof LocalDataService).CONFIG_KEY);
-    return JSON.parse(strData);
+    this.data = JSON.parse(strData);
+    this.onDataLoaded();
   }
 
-  async _writeDataToConfig(data: any): Promise<void> {
-    const strData = JSON.stringify(data);
+  async _writeDataToConfig(): Promise<void> {
+    const strData = JSON.stringify(this.data);
     await writeConfig((this.constructor as typeof LocalDataService).CONFIG_KEY, strData);
   }
 }

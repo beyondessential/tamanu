@@ -2,7 +2,6 @@ import mitt from 'mitt';
 import { get } from 'lodash';
 
 import { LocalDataService } from './localData';
-import { AuthService } from './auth';
 
 const TEST_LOCALISATION_OVERRIDES = {}; // add values to this to test localisation in development
 
@@ -15,26 +14,16 @@ export class LocalisationService extends LocalDataService {
 
   localisations: object;
 
-  constructor(auth: AuthService) {
-    super(auth);
-    this._setLocalisations(this._readDataFromConfig());
-  }
-
   extractDataFromPayload(payload: any): object {
     return payload.localisation;
   }
 
-  onDataReceived(localisation: object): void {
-    this._setLocalisations(localisation);
-  }
-
-  _setLocalisations(localisations: object): void {
-    this.localisations = localisations;
-    this.emitter.emit('localisationChanged', this.localisations);
+  onDataLoaded(): void {
+    this.emitter.emit('localisationChanged');
   }
 
   getLocalisation(path: string): any {
-    const mergedLocalisations = { ...this.localisations, ...TEST_LOCALISATION_OVERRIDES };
+    const mergedLocalisations = { ...this.data, ...TEST_LOCALISATION_OVERRIDES };
     return get(mergedLocalisations, path);
   }
 
