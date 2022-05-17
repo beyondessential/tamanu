@@ -67,17 +67,6 @@ export function getParamAndModifier(fullParam) {
   return fullParam.split(':', 2);
 }
 
-// Prefixes supported by Tamanu with the corresponding
-// sequelize operators.
-/*
-const prefixes = {
-  eq: Op.eq,
-  co: Op.substring,
-  sw: Op.startsWith,
-  ew: Op.endsWith,
-};
-*/
-
 // All of the HL7 search parameter types
 export const hl7ParameterTypes = {
   number: 'number',
@@ -89,6 +78,17 @@ export const hl7ParameterTypes = {
   quantity: 'quantity',
   uri: 'uri',
   special: 'special',
+};
+
+// Prefixes supported by Tamanu with the corresponding
+// sequelize operators. Classified by HL7 search parameter type.
+const prefixes = {
+  [hl7ParameterTypes.string]: {
+    eq: Op.eq,
+    co: Op.substring,
+    sw: Op.startsWith,
+    ew: Op.endsWith,
+  },
 };
 
 // Modifiers supported by Tamanu with the corresponding
