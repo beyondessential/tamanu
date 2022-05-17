@@ -136,6 +136,7 @@ export const hl7PatientFields = {
     fieldName: 'firstName',
     columnName: 'first_name',
     supportedModifiers: stringTypeModifiers,
+    supportedPrefixes: stringTypePrefixes,
     validationSchema: yup.string(),
   },
   family: {
@@ -143,6 +144,7 @@ export const hl7PatientFields = {
     fieldName: 'lastName',
     columnName: 'last_name',
     supportedModifiers: stringTypeModifiers,
+    supportedPrefixes: stringTypePrefixes,
     validationSchema: yup.string(),
   },
   gender: {
@@ -150,6 +152,7 @@ export const hl7PatientFields = {
     fieldName: 'sex',
     columnName: 'sex',
     supportedModifiers: [],
+    supportedPrefixes: [],
     validationSchema: yup.string().oneOf(['male', 'female', 'other']),
   },
   birthdate: {
@@ -157,6 +160,7 @@ export const hl7PatientFields = {
     fieldName: 'dateOfBirth',
     columnName: 'date_of_birth',
     supportedModifiers: [],
+    supportedPrefixes: [],
     validationSchema: yup
       .string()
       // eslint-disable-next-line no-template-curly-in-string
@@ -173,6 +177,7 @@ export const hl7PatientFields = {
     fieldName: 'additionalData.cityTown',
     columnName: 'additionalData.city_town',
     supportedModifiers: stringTypeModifiers,
+    supportedPrefixes: stringTypePrefixes,
     validationSchema: yup.string(),
   },
   'address-city': {
@@ -180,6 +185,7 @@ export const hl7PatientFields = {
     fieldName: 'additionalData.cityTown',
     columnName: 'additionalData.city_town',
     supportedModifiers: stringTypeModifiers,
+    supportedPrefixes: stringTypePrefixes,
     validationSchema: yup.string(),
   },
   // TODO: telecom could also be email or other phones
@@ -188,6 +194,7 @@ export const hl7PatientFields = {
     fieldName: '$additionalData.primary_contact_number$',
     columnName: 'additionalData.primary_contact_number',
     supportedModifiers: [],
+    supportedPrefixes: [],
     validationSchema: yup.string(),
   },
 };
