@@ -75,7 +75,35 @@ describe('HL7 Patient', () => {
     expect(patients.length).toBe(1);
   });
 
-  it('Should ignore unknown query params', () => {
+  it('Should handle _filter param in the query', async () => {
+    // Patient created in previous test
+    const query = {
+      _filter: 'given co oh and family sw do and telecom eq 0123456 and gender eq male',
+    };
+    const whereClause = getPatientWhereClause(null, query);
+    const patients = await models.Patient.findAll({
+      where: whereClause,
+      include: [{ association: 'additionalData' }],
+    });
+    expect(patients.length).toBe(1);
+  });
+
+  it('Should handle a combination of params and _filter param in the query', async () => {
+    // Patient created in previous test
+    const query = {
+      'given:contains': 'oh',
+      'family:starts-with': 'do',
+      _filter: 'telecom eq 0123456 and gender eq male',
+    };
+    const whereClause = getPatientWhereClause(null, query);
+    const patients = await models.Patient.findAll({
+      where: whereClause,
+      include: [{ association: 'additionalData' }],
+    });
+    expect(patients.length).toBe(1);
+  });
+
+  it('Should ignore query params that are not patient fields', () => {
     const query = { foo: 'bar', given: 'john' };
     const displayId = 'test-display-id-123456';
     const whereClause = getPatientWhereClause(displayId, query);
