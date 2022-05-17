@@ -198,3 +198,115 @@ export const hl7PatientFields = {
     validationSchema: yup.string(),
   },
 };
+
+// Parser utility for HL7 FHIR _filter parameter.
+// Divides expressions around logic operators.
+// Returns an object with two arrays:
+// expressions (strings) and logic (sequelize operators).
+export function getExpressionsAndLogic(_filter) {
+  const expressions = _filter.split(/ and | or /);
+  const logicStrings = _filter.match(/ and | or /g) || [];
+
+  // Logic operators can only be ' and ' || ' or ', replace them with sequelize operators
+  const logicOperators = logicStrings.map(str => {
+    if (str === ' and ') return Op.and;
+    if (str === ' or ') return Op.or;
+    throw new Error(`Cannot convert operator ${str} when parsing _filter parameter.`);
+  });
+
+  return { expressions, logic: logicOperators };
+}
+
+// Gets a group of filters and nests them according to
+// the query logic, avoiding unnecessary nests.
+export function nestFilters(filters, logic, index = 0) {
+  // If logic is empty, recursion will be infinite. Also,
+  // filters.length should equal logic.length + 1 to work properly.
+  if (logic.length === 0 || logic.length + 1 !== filters.length) {
+    throw new Error('Function nestFilters called with bad arguments');
+  }
+
+  // Use local copy of index to be able to reassign it
+  let currentIndex = index;
+
+  // Look ahead and include all filters with the same logic operator
+  const currentOp = logic[currentIndex];
+  const content = [];
+  for (; currentIndex <= logic.length - 1; currentIndex++) {
+    // Include current filter to content
+    content.push(filters[currentIndex]);
+
+    // Stop if the next logic operator doesn't match
+    const nextOp = logic[currentIndex + 1];
+    if (currentOp !== nextOp) {
+      break;
+    }
+  }
+
+  // Base case: last element
+  if (currentIndex === logic.length - 1) {
+    // Filters length is equal to logic length + 1
+    content.push(filters[logic.length]);
+  } else {
+    // Include nested elements to content
+    content.push(nestFilters(filters, logic, currentIndex + 1));
+  }
+
+  return { [currentOp]: content };
+}
+
+// This function parses and validates the _filter param. Returns null if _filter
+// is undefined. If its valid, it will return a sequelize where clause,
+// otherwise will throw a ValidationError.
+export function getFilterFromParam(_filter, resourceFields = {}) {
+  // Nothing to parse
+  if (_filter === undefined) {
+    return null;
+  }
+
+  const filters = [];
+  const invalidExpressions = [];
+  const { expressions, logic } = getExpressionsAndLogic(_filter);
+
+  // Convert all expressions to filters
+  expressions.forEach(expression => {
+    // Parse expression: separated by any number of whitespace
+    // or default to empty array (to be able to destructure it)
+    const [parameter, prefix, value] = expression.match(/".+"|\S+/g) || [];
+
+    // Get parameter options or default to empty object (to be able to destructure it)
+    const parameterOptions = resourceFields[parameter] || {};
+    const { fieldName, supportedPrefixes, parameterType } = parameterOptions;
+
+    // Make sure expression is valid and keep track of invalid ones
+    if (
+      !parameter ||
+      !prefix ||
+      !value ||
+      parameter in resourceFields === false ||
+      supportedPrefixes.includes(prefix) === false ||
+      prefix in prefixes[parameterType] === false
+    ) {
+      invalidExpressions.push(`"${expression}"`);
+      return;
+    }
+
+    // Get actual operator and strip value of double quotes (") wrapper if it exists
+    const operator = prefixes[parameterType][prefix];
+    const unquotedValue = value.match(/^".+"$/) ? value.replace(/"/g, '') : value;
+
+    // Create and add filter
+    filters.push({ [fieldName]: { [operator]: unquotedValue } });
+  });
+
+  // Query should fail if any expression is invalid
+  if (invalidExpressions.length !== 0) {
+    throw new yup.ValidationError(
+      `Invalid expressions in _filter: ${invalidExpressions.join(', ')}`,
+    );
+  }
+
+  // Nest filters if there is any filtering logic, otherwise
+  // we can assume we only have one filter and should return that.
+  return logic.length === 0 ? filters[0] : nestFilters(filters, logic);
+}
