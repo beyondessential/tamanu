@@ -115,6 +115,14 @@ describe('HL7FHIR module utils', () => {
           ],
           logic: [Op.or],
         },
+        {
+          str: 'given co and and family co and',
+          expressions: [
+            ['given', 'co', 'and'],
+            ['family', 'co', 'and'],
+          ],
+          logic: [Op.and],
+        },
       ];
 
       testCases.forEach(test => {
