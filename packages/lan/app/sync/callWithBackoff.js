@@ -20,13 +20,21 @@ export const callWithBackoff = async (
   let lastN = 0;
   let secondLastN = 0;
   let attempt = 0;
+  const overallStartMs = Date.now();
 
+  // eslint-disable-next-line no-constant-condition
   while (true) {
     attempt += 1;
+    const attemptStartMs = Date.now();
     try {
       log.debug(`callWithBackoff: attempt ${attempt}/${maxAttempts}: started`);
       const result = await fn();
-      log.debug(`callWithBackoff: attempt ${attempt}/${maxAttempts}: succeeded`);
+      const now = Date.now();
+      const attemptMs = now - attemptStartMs;
+      const totalMs = now - overallStartMs;
+      log.debug(
+        `callWithBackoff: attempt ${attempt}/${maxAttempts}: succeeded (attempt took ${attemptMs}ms, total time ${totalMs}ms)`,
+      );
       return result;
     } catch (e) {
       // throw if we've exceeded our maximum retries

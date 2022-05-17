@@ -1,8 +1,8 @@
 import compareVersions from 'semver-compare';
 import semverDiff from 'semver-diff';
-import { VERSION_COMPATIBILITY_ERRORS } from '../constants';
-
 import config from 'config';
+import { VERSION_COMPATIBILITY_ERRORS } from '../constants';
+import { log } from '../services/logging';
 
 const respondWithError = (res, error) => {
   res.status(400).json({ error });
@@ -11,7 +11,7 @@ const respondWithError = (res, error) => {
 function getUpdateInformation(req) {
   if (!config.updateUrls) return {};
 
-  const clientType = req.header('X-Runtime') || '';
+  const clientType = req.header('X-Tamanu-Client') || req.header('X-Runtime') || '';
   if (clientType.includes('Tamanu Mobile')) {
     return {
       updateUrl: config.updateUrls.mobile,
@@ -48,7 +48,7 @@ export const buildVersionCompatibilityCheck = (min, max) => (req, res, next) => 
   }
   if (max && compareVersions(clientVersion, max) > 0) {
     if (semverDiff(max, clientVersion) === 'patch') {
-      console.error(
+      log.error(
         `Allowing client v${clientVersion} with higher patch than max supported v${max} to connect`,
       );
       next();

@@ -5,13 +5,15 @@ describe('Suggestions', () => {
   let userApp = null;
   let baseApp = null;
   let models = null;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
     userApp = await baseApp.asRole('practitioner');
   });
+  afterAll(() => ctx.close());
 
   describe('Patients', () => {
     test.todo('should not get patients without permission');

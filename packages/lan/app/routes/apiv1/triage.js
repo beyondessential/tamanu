@@ -4,7 +4,7 @@ import { QueryTypes } from 'sequelize';
 
 import { InvalidParameterError } from 'shared/errors';
 
-import { renameObjectKeys } from '~/utils/renameObjectKeys';
+import { renameObjectKeys } from '../../utils/renameObjectKeys';
 
 import { simpleGet, simplePut } from './crudHelpers';
 

@@ -7,6 +7,17 @@ export const OPERATIONS = {
   DELETE: 'DELETE',
 };
 
+// allow either native date objects or ISO 8601 strings
+const transformDate = (_, d) => {
+  if (d instanceof Date) {
+    return d;
+  }
+  if (d === null || d === undefined) {
+    return d;
+  }
+  return parseISO(d);
+};
+
 export const remoteRequest = {
   patientCreated: yup
     .object({
@@ -18,7 +29,7 @@ export const remoteRequest = {
       created_datetime: yup
         .date()
         .required()
-        .transform((_, d) => parseISO(d)),
+        .transform(transformDate),
     })
     .required(),
 };
@@ -46,27 +57,56 @@ export const remoteResponse = {
       .object({
         // Patient fields
         individual_refno: yup.string().required(),
-        fname: yup.string(),
-        lname: yup.string(),
-        dob: yup.date().transform((_, d) => parseISO(d)),
+        fname: yup.string().nullable(),
+        lname: yup.string().nullable(),
+        dob: yup
+          .date()
+          .transform(transformDate)
+          .nullable(),
         sex: yup
           .string()
           .required()
           .oneOf(['male', 'female', 'other'])
           .transform(g => g.toLowerCase()),
-        sub_division: yup.string(),
-        email: yup.string(),
+        sub_division: yup.string().nullable(),
+        email: yup.string().nullable(),
 
         // PatientAdditionalData fields
-        phone: yup.string(),
+        phone: yup.string().nullable(),
 
         // PatientVRSData fields
-        id_type: yup.string(),
-        identifier: yup.string(),
+        id_type: yup.string().required(),
+        identifier: yup.string().required(),
       })
       .required(),
   }),
   acknowledge: yup.object({
-    response: yup.bool().required(),
+    response: yup
+      .boolean()
+      .required()
+      .oneOf([true]),
+  }),
+  fetchAllPendingActions: yup.object({
+    response: yup
+      .string()
+      .required()
+      .oneOf(['success']),
+    data: yup
+      .array(
+        yup
+          .object({
+            Id: yup.string().required(),
+            Operation: yup
+              .string()
+              .required()
+              .oneOf(Object.keys(OPERATIONS)),
+            CreatedDateTime: yup
+              .date()
+              .required()
+              .transform(transformDate),
+          })
+          .required(),
+      )
+      .required(),
   }),
 };

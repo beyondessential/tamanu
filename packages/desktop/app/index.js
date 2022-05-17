@@ -9,14 +9,14 @@ import { createHashHistory } from 'history';
 
 import Root from './Root';
 import './fonts.scss';
+import './react-toastify.scss';
 
 import { createReducers } from './createReducers';
 import { API } from './api/singletons';
-import { startDataChangeResponder } from './DataChangeResponder';
 
 import { registerYup } from './utils/errorMessages';
 
-import { checkAuth, authFailure, versionIncompatible } from './store/auth';
+import { restoreSession, authFailure, versionIncompatible } from './store/auth';
 
 function initStore(api) {
   const history = createHashHistory();
@@ -58,10 +58,8 @@ function start() {
   // const api = new TamanuApi(version);
   const { store, history } = initStore(API);
 
-  // set up data change responder to trigger reloads when relevant data changes server-side
-  startDataChangeResponder(API, store);
-
-  store.dispatch(checkAuth());
+  // attempt to restore session from local storage
+  store.dispatch(restoreSession());
 
   API.setAuthFailureHandler(() => {
     store.dispatch(authFailure());

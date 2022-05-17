@@ -6,6 +6,7 @@ import { Table } from './Table';
 import { SurveyResultBadge } from './SurveyResultBadge';
 import { ViewPhotoLink } from './ViewPhotoLink';
 import { connectApi } from '../api/connectApi';
+import { Button } from './Button';
 
 const convertBinaryToYesNo = value => {
   switch (value) {
@@ -26,6 +27,8 @@ const COLUMNS = [
     key: 'value',
     title: 'Value',
     accessor: ({ answer, type }) => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const [surveyLink, setSurveyLink] = useState(null);
       switch (type) {
         case 'Result':
           return <SurveyResultBadge resultText={answer} />;
@@ -39,6 +42,18 @@ const COLUMNS = [
           return <DateDisplay date={answer} />;
         case 'Date':
           return <DateDisplay date={answer} />;
+        case 'SurveyLink':
+          return (
+            <>
+              <Button onClick={() => setSurveyLink(answer)} variant="contained" color="primary">
+                Show Survey
+              </Button>
+              <SurveyResponseDetailsModal
+                surveyResponseId={surveyLink}
+                onClose={() => setSurveyLink(null)}
+              />
+            </>
+          );
         default:
           return answer;
       }

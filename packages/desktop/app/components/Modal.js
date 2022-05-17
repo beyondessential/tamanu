@@ -29,7 +29,6 @@ const Dialog = styled(MuiDialog)`
 
   @media print {
     .MuiPaper-root {
-      background: rgb(243, 245, 247, 0.9);
       -webkit-print-color-adjust: exact;
     }
 
@@ -47,6 +46,10 @@ const ModalContent = styled.div`
 
 const ModalContainer = styled.div`
   background: ${Colors.background};
+
+  @media print {
+    background: none;
+  }
 `;
 
 export const FullWidthRow = styled.div`
@@ -73,6 +76,10 @@ const VerticalCenteredText = styled.span`
   align-items: center;
 `;
 
+const StyledButton = styled(Button)`
+  margin-left: 8px;
+`;
+
 export const Modal = memo(
   ({
     title,
@@ -83,25 +90,39 @@ export const Modal = memo(
     open = false,
     onClose,
     printable = false,
+    onPrint = null,
+    additionalActions,
     ...props
   }) => {
     const { printPage } = useElectron();
+
+    const handlePrint = () => {
+      // If a custom print handler has been passed use that. For example for printing the contents
+      // of an iframe. Otherwise use the default electron print page
+      if (onPrint) {
+        onPrint();
+      } else {
+        printPage();
+      }
+    };
+
     return (
       <Dialog fullWidth maxWidth={width} classes={classes} open={open} onClose={onClose} {...props}>
         <ModalTitle>
           <VerticalCenteredText>{title}</VerticalCenteredText>
           <div>
-            {printable ? (
-              <Button
+            {additionalActions}
+            {printable && (
+              <StyledButton
                 color="primary"
                 variant="outlined"
-                onClick={() => printPage()}
+                onClick={handlePrint}
                 startIcon={<PrintIcon />}
                 size="small"
               >
                 Print
-              </Button>
-            ) : null}
+              </StyledButton>
+            )}
             <IconButton onClick={onClose}>
               <CloseIcon />
             </IconButton>

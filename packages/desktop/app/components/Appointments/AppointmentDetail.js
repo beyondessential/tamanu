@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { format } from 'date-fns';
 import Select from 'react-select';
-import Tooltip from 'react-tooltip';
+import CloseIcon from '@material-ui/icons/Close';
+import { IconButton } from '@material-ui/core';
 import { APPOINTMENT_STATUSES } from 'shared/constants';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { InvertedDisplayIdLabel } from '../DisplayIdLabel';
@@ -91,16 +92,14 @@ const PatientInfo = ({ patient }) => {
   );
 };
 
-const AppointmentTime = ({ startTime, endTime }) => {
-  return (
-    <span>
-      {format(new Date(startTime), 'ccc dd LLL')}
-      {' - '}
-      {format(new Date(startTime), 'h:mm aaa')}
-      {endTime && ` - ${format(new Date(endTime), 'h:mm aaa')}`}
-    </span>
-  );
-};
+const AppointmentTime = ({ startTime, endTime }) => (
+  <span>
+    {format(new Date(startTime), 'ccc dd LLL')}
+    {' - '}
+    {format(new Date(startTime), 'h:mm aaa')}
+    {endTime && ` - ${format(new Date(endTime), 'h:mm aaa')}`}
+  </span>
+);
 
 const Row = styled.div`
   display: flex;
@@ -133,7 +132,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   row-gap: 0.5rem;
-  padding: 1rem 0;
+  padding: 0.2rem 0 1rem;
 `;
 
 const Section = styled.div`
@@ -150,7 +149,16 @@ const FirstRow = styled(Section)`
   column-gap: 2rem;
 `;
 
-export const AppointmentDetail = ({ appointment, updated }) => {
+const CloseButtonSection = styled.div`
+  display: flex;
+  justify-content: flex-end;
+`;
+
+const StyledIconButton = styled(IconButton)`
+  padding: 0;
+`;
+
+export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
   const api = useApi();
   const { id, type, status, clinician, patient, location } = appointment;
   const [statusOption, setStatusOption] = useState(
@@ -169,10 +177,15 @@ export const AppointmentDetail = ({ appointment, updated }) => {
     await api.put(`appointments/${id}`, {
       status: newValue,
     });
-    updated();
+    onUpdated();
   };
   return (
     <Container>
+      <CloseButtonSection>
+        <StyledIconButton onClick={onClose}>
+          <CloseIcon />
+        </StyledIconButton>
+      </CloseButtonSection>
       {errorMessage && <Section>{errorMessage}</Section>}
       <FirstRow>
         <div>
@@ -223,8 +236,7 @@ export const AppointmentDetail = ({ appointment, updated }) => {
         }}
         appointment={appointment}
         onSuccess={() => {
-          Tooltip.hide();
-          updated();
+          onUpdated();
         }}
       />
       <CancelAppointmentModal
@@ -237,8 +249,6 @@ export const AppointmentDetail = ({ appointment, updated }) => {
           setCancelConfirmed(true);
           try {
             await updateAppointmentStatus(APPOINTMENT_STATUSES.CANCELLED);
-            // hide the tooltip if cancelling appointment
-            Tooltip.hide();
           } catch (e) {
             // eslint-disable-next-line no-console
             console.error(e);

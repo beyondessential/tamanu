@@ -31,7 +31,7 @@ describe('HL7 LOINC', () => {
     const result = labTestTypeToLOINCCode({
       name: chance.pickone([
         'AgRDT Negative, no further testing needed',
-        'AgRDT Positve, no further testing needed',
+        'AgRDT Positive',
       ]),
     });
     expect(result).toEqual({

@@ -1,6 +1,10 @@
-import { importData } from '~/admin/importDataDefinition';
-import { preprocessRecordSet } from '~/admin/preprocessRecordSet';
+import { importData } from '../app/admin/importDataDefinition';
+import { preprocessRecordSet } from '../app/admin/preprocessRecordSet';
+import { sendRecordGroups } from '../app/admin/createDataImporterEndpoint';
 import { createTestContext } from './utilities';
+import { WebRemote } from '../app/sync/WebRemote';
+
+jest.mock('../app/sync/WebRemote');
 
 const TEST_DATA_PATH = './__tests__/importers/test_definitions.xlsx';
 
@@ -90,6 +94,16 @@ describe('Data definition import', () => {
     expect(records).toHaveProperty('labTestType', 10);
   });
 
+  it('should import scheduled vaccine records', () => {
+    const { records } = resultInfo.stats;
+    expect(records).toHaveProperty('scheduledVaccine', 1);
+  });
+
+  it('should import administered vaccine records', () => {
+    const { records } = resultInfo.stats;
+    expect(records).toHaveProperty('encounter:administeredVaccine', 2);
+  });
+
   it('should report an error if an FK search comes up empty', () => {
     expectError('patient', 'could not find a referenceData called "village-nowhere"');
   });
@@ -99,12 +113,66 @@ describe('Data definition import', () => {
   });
 
   describe('Importer permissions', () => {
+    let ctx;
+    beforeAll(async () => {
+      ctx = await createTestContext();
+    });
+    afterAll(() => ctx.close());
+
     it('Should forbid an import by a non-admin', async () => {
-      const { baseApp } = await createTestContext();
+      const { baseApp } = ctx;
       const nonAdminApp = await baseApp.asRole('practitioner');
 
       const response = await nonAdminApp.post('/v1/admin/importData');
       expect(response).toBeForbidden();
+    });
+  });
+});
+
+describe('sendRecordGroups', () => {
+  const fetchMock = jest
+    .spyOn(WebRemote.prototype, 'fetch')
+    .mockImplementation(() => Promise.resolve({ error: null }));
+
+  it('splits recordGroups by channel and sends them', async () => {
+    // arrange
+    const recordGroups = [
+      // test reference data channel override
+      ['referenceData', [{ id: 'ref123' }]],
+      // test channel grouping
+      [
+        'encounter',
+        [
+          { channel: 'patient/pat123/encounter', id: 'enc123' },
+          { channel: 'patient/pat123/encounter', id: 'enc456' },
+          { channel: 'patient/pat456/encounter', id: 'enc789' },
+        ],
+      ],
+      // test records without a channel
+      ['patient', [{ id: 'pat123' }]],
+      // test chunking
+      ['user', [{ id: 'u1' }, { id: 'u2' }, { id: 'u3' }, { id: 'u4' }]],
+    ];
+
+    // act
+    await sendRecordGroups(recordGroups);
+
+    // assert
+    [
+      ['reference', ['ref123']],
+      ['patient/pat123/encounter', ['enc123', 'enc456']],
+      ['patient/pat456/encounter', ['enc789']],
+      ['patient', ['pat123']],
+      ['user', ['u1', 'u2', 'u3']],
+      ['user', ['u4']],
+    ].forEach(([channel, ids]) => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        `sync/${encodeURIComponent(channel)}`,
+        expect.objectContaining({
+          method: 'POST',
+          body: expect.arrayContaining(ids.map(id => expect.objectContaining({ id }))),
+        }),
+      );
     });
   });
 });

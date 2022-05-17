@@ -52,9 +52,10 @@ describe('Fiji NCD Primary Screening line list', () => {
   const subdivision = null;
   let medicalArea = null;
   let nursingZone = null;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     const models = ctx.models;
 
     await models.Referral.truncate({ cascade: true });
@@ -157,6 +158,7 @@ describe('Fiji NCD Primary Screening line list', () => {
       resultText: undefined,
     });
   });
+  afterAll(() => ctx.close());
 
   describe('checks permissions', () => {
     it('should reject creating a report request with insufficient permissions', async () => {

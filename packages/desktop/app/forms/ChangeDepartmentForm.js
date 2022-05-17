@@ -7,14 +7,12 @@ import { useEncounter } from '../contexts/Encounter';
 
 export const ChangeDepartmentForm = ({ onCancel, departmentSuggester, onSubmit }) => {
   const { encounter } = useEncounter();
-  const renderForm = ({ submitForm }) => {
-    return (
-      <FormGrid columns={1}>
-        <Field name="departmentId" component={AutocompleteField} suggester={departmentSuggester} />
-        <ConfirmCancelRow onConfirm={submitForm} confirmText="Save" onCancel={onCancel} />
-      </FormGrid>
-    );
-  };
+  const renderForm = ({ submitForm }) => (
+    <FormGrid columns={1}>
+      <Field name="departmentId" component={AutocompleteField} suggester={departmentSuggester} />
+      <ConfirmCancelRow onConfirm={submitForm} confirmText="Save" onCancel={onCancel} />
+    </FormGrid>
+  );
 
   return (
     <Form

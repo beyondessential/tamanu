@@ -19,6 +19,12 @@ export function fakeStringFields(prefix, fields) {
 
 export function fakePatient(prefix = 'test-') {
   const id = uuidv4();
+
+  const dateOfBirth = new Date(random(0, Date.now()));
+  const dateOfDeath = prefix.startsWith('dead')
+    ? new Date(random(dateOfBirth.getTime(), Date.now()))
+    : null;
+
   return {
     ...fakeStringFields(`${prefix}patient_${id}_`, [
       'id',
@@ -29,7 +35,8 @@ export function fakePatient(prefix = 'test-') {
       'displayId',
     ]),
     sex: sample(['male', 'female', 'other']),
-    dateOfBirth: new Date(random(0, Date.now())),
+    dateOfBirth,
+    dateOfDeath,
     email: null,
     villageId: null,
   };
@@ -56,6 +63,7 @@ export function fakeSurvey(prefix = 'test-') {
   return {
     programId: null,
     surveyType: 'programs',
+    isSensitive: false,
     ...fakeStringFields(`${prefix}survey_${id}_`, ['id', 'code', 'name']),
   };
 }
@@ -117,7 +125,7 @@ export function fakeAdministeredVaccine(prefix = 'test-', scheduledVaccineId) {
   const id = uuidv4();
   return {
     encounterId: null,
-    scheduledVaccineId: scheduledVaccineId,
+    scheduledVaccineId,
     date: new Date(random(0, Date.now())),
     ...fakeStringFields(`${prefix}administeredVaccine_${id}_`, [
       'id',
@@ -230,7 +238,7 @@ export const fake = (model, overrides = {}) => {
   const overrideFields = Object.keys(overrides);
 
   for (const [name, attribute] of Object.entries(model.tableAttributes)) {
-    const type = attribute.type;
+    const { type } = attribute;
 
     if (overrideFields.includes(attribute.fieldName)) {
       record[name] = overrides[attribute.fieldName];

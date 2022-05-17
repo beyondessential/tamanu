@@ -10,7 +10,8 @@ import { EncounterModal } from './EncounterModal';
 import { useEncounter } from '../contexts/Encounter';
 import { useApi } from '../api';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
-import { WarningModal } from './WarningModal';
+import { DeleteButton } from './Button';
+import { ConfirmModal } from './ConfirmModal';
 
 const ACTION_MODAL_STATES = {
   CLOSED: 'closed',
@@ -73,12 +74,16 @@ const ActionDropdown = React.memo(({ row, refreshTable }) => {
         patientId={row.initiatingEncounter.patientId}
         referral={row}
       />
-      <WarningModal
+      <ConfirmModal
         open={openModal === ACTION_MODAL_STATES.WARNING_OPEN}
         title="Cancel referral"
-        text="Are you sure you want to cancel this referral?"
+        text="WARNING: This action is irreversible!"
+        subText="Are you sure you want to cancel this referral?"
+        cancelButtonText="No"
+        confirmButtonText="Yes"
+        ConfirmButton={DeleteButton}
         onConfirm={onCancelReferral}
-        onClose={onCloseModal}
+        onCancel={onCloseModal}
       />
     </>
   );
@@ -125,8 +130,8 @@ const getDate = ({ initiatingEncounter }) => <DateDisplay date={initiatingEncoun
 const getReferralType = ({ surveyResponse: { survey } }) => survey.name;
 const getReferralBy = ({ surveyResponse }) => <ReferralBy surveyResponse={surveyResponse} />;
 const getStatus = ({ status }) => REFERRAL_STATUS_LABELS[status] || 'Unknown';
-const getActions = ({ onTableRefresh, ...row }) => (
-  <ActionDropdown refreshTable={onTableRefresh} row={row} />
+const getActions = ({ refreshTable, ...row }) => (
+  <ActionDropdown refreshTable={refreshTable} row={row} />
 );
 
 const columns = [
@@ -152,6 +157,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
         endpoint={`patient/${patientId}/referrals`}
         noDataMessage="No referrals found"
         onRowClick={onSelectReferral}
+        allowExport={false}
       />
     </>
   );

@@ -7,7 +7,7 @@ import { getResponseJsonSafely } from 'shared/utils';
 import { log } from 'shared/services/logging';
 import { fetchWithTimeout } from 'shared/utils/fetchWithTimeout';
 
-import { version } from '~/../package.json';
+import { version } from '../../package.json';
 import { callWithBackoff } from './callWithBackoff';
 
 const API_VERSION = 'v1';
@@ -72,7 +72,7 @@ export class WebRemote {
     const url = `${this.host}/${API_VERSION}/${endpoint}`;
     log.debug(`[sync] ${method} ${url}`);
 
-    return await callWithBackoff(async () => {
+    return callWithBackoff(async () => {
       if (config.debugging.requestFailureRate) {
         if (Math.random() < config.debugging.requestFailureRate) {
           // intended to cause some % of requests to fail, to simulate a flaky connection
@@ -115,7 +115,9 @@ export class WebRemote {
           // handle version incompatibility
           if (response.status === 400 && error) {
             const versionIncompatibleMessage = getVersionIncompatibleMessage(error, response);
-            if (versionIncompatibleMessage) throw new InvalidOperationError(versionIncompatibleMessage);
+            if (versionIncompatibleMessage) {
+              throw new InvalidOperationError(versionIncompatibleMessage);
+            }
           }
 
           const errorMessage = error ? error.message : 'no error message given';
@@ -134,10 +136,12 @@ export class WebRemote {
       } catch (e) {
         // TODO: import AbortError from node-fetch once we're on v3.0
         if (e.name === 'AbortError') {
-          throw new RemoteTimeoutError(`Server failed to respond within ${this.timeout}ms - ${url}`);
+          throw new RemoteTimeoutError(
+            `Server failed to respond within ${this.timeout}ms - ${url}`,
+          );
         }
         throw e;
-      };
+      }
     }, backoff);
   }
 
@@ -185,7 +189,10 @@ export class WebRemote {
 
   async fetchChannelsWithChanges(channelsToCheck) {
     const algorithmConfig = config.sync.channelsWithChanges.algorithm;
-    const maxErrors = Math.max(algorithmConfig.maxErrorRate * channelsToCheck.length, algorithmConfig.maxErrorsFloor)
+    const maxErrors = Math.max(
+      algorithmConfig.maxErrorRate * channelsToCheck.length,
+      algorithmConfig.maxErrorsFloor,
+    );
 
     let batchSize = algorithmConfig.initialBatchSize;
 
@@ -238,7 +245,7 @@ export class WebRemote {
       }
     }
 
-    log.debug(
+    log.info(
       `WebRemote.fetchChannelsWithChanges: Channel check finished. Found ${channelsWithPendingChanges.length} channels with pending changes.`,
     );
     return channelsWithPendingChanges;

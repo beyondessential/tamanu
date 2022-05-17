@@ -4,7 +4,6 @@ import * as yup from 'yup';
 import Collapse from '@material-ui/core/Collapse';
 
 import { useLocalisation } from '../contexts/Localisation';
-import { foreignKey, optionalForeignKey } from '../utils/validation';
 import { Form, Field } from '../components/Field';
 import { IdField } from '../components/Field/IdField';
 import { FormGrid } from '../components/FormGrid';
@@ -100,17 +99,9 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
           .string()
           .oneOf(sexValues)
           .required(),
-
-        mother: isBirth
-          ? foreignKey('Mother must be selected')
-          : optionalForeignKey('Mother must be a valid patient'),
-        homeClinic: isBirth && yup.string().required(),
-
-        father: optionalForeignKey('Father must be a valid patient'),
+        email: yup.string().email(),
         religion: yup.string(),
         occupation: yup.string(),
-        externalId: yup.string(),
-        patientType: yup.string(),
       })}
     />
   );

@@ -18,7 +18,7 @@ function formatDuration(date) {
   return moment(date).from(moment(), true);
 }
 
-function formatTime(date) {
+export function formatTime(date) {
   return moment(date).format('hh:mm a');
 }
 
@@ -53,7 +53,7 @@ export const DateDisplay = ({
     parts.push(formatTime(date));
   }
   return (
-    <StyledAbbr {...props} title={formatLong(date)}>
+    <StyledAbbr {...props} title={formatLong(date)} data-test-class="date-display-abbr">
       {parts.join(' ')}
     </StyledAbbr>
   );

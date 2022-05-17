@@ -1,11 +1,10 @@
-import faye from 'faye';
 import { promises } from 'fs';
 import qs from 'qs';
 
 import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 
-const { HOST, TOKEN, LOCALISATION } = LOCAL_STORAGE_KEYS;
+const { HOST, TOKEN, LOCALISATION, SERVER } = LOCAL_STORAGE_KEYS;
 
 const getResponseJsonSafely = async response => {
   try {
@@ -51,28 +50,32 @@ const fetchOrThrowIfUnavailable = async (url, config) => {
   }
 };
 
-function getLocalToken() {
-  return localStorage.getItem(TOKEN);
+function safeGetStoredJSON(key) {
+  try {
+    return JSON.parse(localStorage.getItem(key));
+  } catch (e) {
+    return {};
+  }
 }
 
-function saveLocalToken(token) {
+function restoreFromLocalStorage() {
+  const token = localStorage.getItem(TOKEN);
+  const localisation = safeGetStoredJSON(LOCALISATION);
+  const server = safeGetStoredJSON(SERVER);
+
+  return { token, localisation, server };
+}
+
+function saveToLocalStorage({ token, localisation, server }) {
   localStorage.setItem(TOKEN, token);
-}
-
-function clearLocalToken() {
-  localStorage.removeItem(TOKEN);
-}
-
-function getLocalLocalisation() {
-  return JSON.parse(localStorage.getItem(LOCALISATION));
-}
-
-function saveLocalLocalisation(localisation) {
   localStorage.setItem(LOCALISATION, JSON.stringify(localisation));
+  localStorage.setItem(SERVER, JSON.stringify(server));
 }
 
-function clearLocalLocalisation() {
+function clearLocalStorage() {
+  localStorage.removeItem(TOKEN);
   localStorage.removeItem(LOCALISATION);
+  localStorage.removeItem(SERVER);
 }
 
 export class TamanuApi {
@@ -81,8 +84,8 @@ export class TamanuApi {
     this.onAuthFailure = null;
     this.authHeader = null;
     this.onVersionIncompatible = null;
-    this.pendingSubscriptions = [];
     this.user = null;
+
     const host = window.localStorage.getItem(HOST);
     if (host) {
       this.setHost(host);
@@ -92,11 +95,6 @@ export class TamanuApi {
   setHost(host) {
     this.host = host;
     this.prefix = `${host}/v1`;
-    this.fayeClient = new faye.Client(`${host}/faye`);
-    this.pendingSubscriptions.forEach(({ recordType, changeType, callback }) =>
-      this.subscribeToChanges(recordType, changeType, callback),
-    );
-    this.pendingSubscriptions = [];
 
     // save host in local storage
     window.localStorage.setItem(HOST, host);
@@ -110,29 +108,27 @@ export class TamanuApi {
     this.onVersionIncompatible = handler;
   }
 
-  async checkAuth() {
-    const token = getLocalToken();
+  async restoreSession() {
+    const { token, localisation, server } = restoreFromLocalStorage();
     if (!token) {
-      throw new Error('Not authenticated');
+      throw new Error('No stored session found.');
     }
     this.setToken(token);
-    const localisation = getLocalLocalisation();
     const user = await this.get('user/me');
-    return { user, token, localisation };
+    return { user, token, localisation, server };
   }
 
   async login(host, email, password) {
     this.setHost(host);
     const response = await this.post('login', { email, password });
-    const { token, localisation } = response;
-    saveLocalToken(token);
-    saveLocalLocalisation(localisation);
+    const { token, localisation, server } = response;
+    saveToLocalStorage({ token, localisation, server });
     this.setToken(token);
     this.lastRefreshed = Date.now();
 
     const user = await this.get('user/me');
     this.user = user;
-    return { user, token, localisation };
+    return { user, token, localisation, server };
   }
 
   async requestPasswordReset(host, email) {
@@ -190,8 +186,7 @@ export class TamanuApi {
 
     // handle auth expiring
     if ([401, 403].includes(response.status) && this.onAuthFailure) {
-      clearLocalToken();
-      clearLocalLocalisation();
+      clearLocalStorage();
       this.onAuthFailure('Your session has expired. Please log in again.');
     }
 
@@ -253,18 +248,5 @@ export class TamanuApi {
 
   async delete(endpoint, query) {
     return this.fetch(endpoint, query, { method: 'DELETE' });
-  }
-
-  /**
-   * @param {*} changeType  Currently one of save, remove, wipe, or * for all
-   */
-  subscribeToChanges(recordType, changeType, callback) {
-    // until the faye client has been set up, push any subscriptions into an array
-    if (!this.fayeClient) {
-      this.pendingSubscriptions.push({ recordType, changeType, callback });
-    } else {
-      const channel = `/${recordType}${changeType ? `/${changeType}` : '/*'}`;
-      this.fayeClient.subscribe(channel, callback);
-    }
   }
 }

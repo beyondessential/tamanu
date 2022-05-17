@@ -1,6 +1,7 @@
 import config from 'config';
 
 import { SqlWrapper } from './wrapper/sqlWrapper';
+import { addHooks } from './hooks';
 
 let existingConnection = null;
 
@@ -22,6 +23,8 @@ export async function initDatabase({ testMode = false }) {
     await store.sequelize.drop();
     await store.sequelize.sync();
   }
+
+  await addHooks(store);
 
   existingConnection = store;
   return existingConnection;

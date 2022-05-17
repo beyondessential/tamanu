@@ -2,11 +2,13 @@ import { createTestContext } from '../utilities';
 
 describe('ReportRequest', () => {
   let baseApp = null;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     baseApp = ctx.baseApp;
   });
+  afterAll(() => ctx.close());
 
   it('should reject reading a patient with insufficient permissions', async () => {
     const noPermsApp = await baseApp.asRole('base');

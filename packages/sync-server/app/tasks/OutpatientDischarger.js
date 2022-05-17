@@ -5,6 +5,7 @@ import { Op } from 'sequelize';
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
 import { sleepAsync } from 'shared/utils';
+import { InvalidConfigError } from 'shared/errors';
 
 // As well as the sync import auto-discharging old encounters on the way in, we also need a daily
 // task to clean up any that synced in on the same day as they were created
@@ -14,7 +15,9 @@ export class OutpatientDischarger extends ScheduledTask {
   }
 
   constructor(context) {
-    super(config.schedules.outpatientDischarger.schedule, log);
+    const conf = config.schedules.outpatientDischarger;
+    super(conf.schedule, log);
+    this.config = conf;
     this.models = context.store.models;
 
     // run once on startup (in case the server was down when it was scheduled)
@@ -41,10 +44,16 @@ export class OutpatientDischarger extends ScheduledTask {
       return;
     }
 
-    const batchSize = config.schedules.outpatientDischarger.batchSize;
+    const { batchSize, batchSleepAsyncDurationInMilliseconds } = this.config;
+
+    // Make sure these exist, else they will prevent the script from working
+    if (!batchSize || !batchSleepAsyncDurationInMilliseconds) {
+      throw new InvalidConfigError(
+        'batchSize and batchSleepAsyncDurationInMilliseconds must be set for OutpatientDischarger',
+      );
+    }
+
     const batchCount = Math.ceil(oldEncountersCount / batchSize);
-    const batchSleepAsyncDurationInMilliseconds =
-      config.schedules.outpatientDischarger.batchSleepAsyncDurationInMilliseconds;
 
     log.info(
       `Auto-closing ${oldEncountersCount} clinic encounters in ${batchCount} batches (${batchSize} records per batch)`,

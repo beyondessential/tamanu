@@ -22,6 +22,269 @@
 
 - (left blank)
 
+## v1.16.0
+
+### Manual steps required after upgrade ⚙
+
+- Regenerate the server secret to log all mobile users out, so they get prompted to upgrade (only needs to be done once per server)
+  - This means generating a long random string using e.g. LastPass or some other secure tool and setting `config.auth.secret` to that string
+- Set `previewUvciFormat` in sync-server config (if required)
+  - `localisation.data.previewUvciFormat`
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
+- (left blank)
+
+### Bug fixes 🐛
+
+- Fix bug where users with an outdated version weren't logged out properly
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
+## v1.15.3
+
+### Tweaks ⚖️
+
+- Updated dimensions of patient sticker sheet
+- Add close button to appointment details modal
+
+## v1.15.2
+
+### Manual steps required after upgrade ⚙
+
+- (left blank)
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
+- Updated patient suggester to search for displayId and full name
+
+### Bug fixes 🐛
+
+- Fixed migration that could fail under certain conditions
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
+## v1.15.1
+
+### Manual steps required after upgrade ⚙
+
+- (left blank)
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
+- (left blank)
+
+### Bug fixes 🐛
+
+- Fix some bugs to do with vaccine certificates
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
+## v1.15.0
+
+### Manual steps required after upgrade ⚙
+- Add an entry for `questionCodeIds.passport` and `questionCodeIds.nationalityId` in the config to look up survey
+responses for patients in covid lab test certificates
+- Delete any override to config's `log.consoleLevel` (it has a new default)
+- If the console output is full of `\e[He[2J` garbage output, set `log.color` to `false` and let the devs know (it's unexpected but possible)
+- The `localisation.data.country` section is now required to be filled in.
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
+- Improved console output (color coding, timestamps, originating IP addresses, new log level for http requests)
+  - For reference, the logging levels in order are: error, warn, info (old default), http (new default), verbose, debug, silly
+- `loadIcaoSigner` sync-server sub-command was renamed to `loadSigner`
+
+### Bug fixes 🐛
+
+- (left blank)
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
+## v1.14.2
+
+### Features ⭐
+
+- Add task to automatically result + publish some lab tests
+
+### Bug fixes 🐛
+
+- Fix issue that was causing lab tests and requests to revert some fields
+
+## v1.14.1
+
+### Manual steps required after upgrade ⚙
+- Add an entry for `questionCodeIds.passport` and `questionCodeIds.nationalityId` in the config to look up survey
+responses for patients in covid lab test certificates
+- Add entry for certificate notifications such as `notifications.certificates.labTestCategoryIds: ["labTestCategory-COVID", "labTestCategory-COVIDRAT"]`
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
+- (left blank)
+
+### Bug fixes 🐛
+
+- (left blank)
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
+## v1.14.0
+
+### Manual steps required after upgrade ⚙
+
+- Change `vaccineCertificateFooter` key in the config to `vaccineCertificate` refer to default.json
+- Consider adding `fiji-aspen-encounter-summary-line-list` to disabledReports
+- A server with invalid localisation will now exit: fix the localisation (preferred), or set `localisation.allowInvalidLocalisation` to `true` (if there's a good reason why it's invalid)
+- Add a `localisation.data.country` section to the config with country name and ISO 3166 codes
+- VDS Signer integration config structure has changed, refer to default.json
+
+### Features ⭐
+
+- Add new report `fiji-aspen-encounter-summary-line-list`
+
+- EU DCC integration. To enable:
+  - Configure the `signer` integration.
+  - Enable the `euDcc` integration.
+
+### Tweaks ⚖️
+
+- Tweaked localisation to prepare for loading it from the db
+- "VDS" scheduled tasks were renamed to "Signer", `schedules` config keys have changed in consequence
+- Hid the "Forgot your password?" page and link
+
+### Bug fixes 🐛
+
+- (left blank)
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
+## v1.13.2
+
+### Bug fixes 🐛
+
+- Fix issue that was causing sync attempts to fail unpredictably
+
+## v1.13.1
+
+### Manual steps required after upgrade ⚙
+
+- (left blank)
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
+- (left blank)
+
+### Bug fixes 🐛
+
+- (left blank)
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
+## v1.13.0
+
+### Manual steps required after upgrade ⚙
+
+- (left blank)
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
+- Moved migrations to subcommands (e.g. what was `node ./app.bundle.js migrate --up` now becomes `node app.bundle.js migrate up`)
+- Migrated argument parsing from argparse to commander.js
+
+### Bug fixes 🐛
+
+- Fixed temp folders not already existing on Windows hosts in lan (was already fixed in sync)
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
+## v1.12.4
+
+### Manual steps required after upgrade ⚙
+
+- (left blank)
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
+- Small tweaks to `kiribati-covid-swab-lab-test-list`
+
+### Bug fixes 🐛
+
+- (left blank)
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
+## v1.12.3
+
+### Manual steps required after upgrade ⚙
+
+- Consider adding `kiribati-covid-swab-lab-test-list` to disabledReports.
+
+### Features ⭐
+
+- New report for Kiribati.
+
+### Tweaks ⚖️
+
+- (left blank)
+
+### Bug fixes 🐛
+
+- (left blank)
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
 ## v1.12.2
 
 ### Manual steps required after upgrade ⚙
@@ -77,6 +340,7 @@
 ### Features ⭐
 
 - Central server has the ability to check available disk space based on current config.
+- Lan servers will auto-discontinue medications after their end date is due (based on facility).
 - Replace the bottom half of certificates with a configurable image
 
 ### Tweaks ⚖️

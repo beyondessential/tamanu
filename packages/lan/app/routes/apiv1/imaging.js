@@ -241,13 +241,13 @@ globalImagingRequests.get(
     });
 
     // Extract and normalize data calling a base model method
-    const count = databaseResponse.count;
-    const rows = databaseResponse.rows;
+    const { count } = databaseResponse;
+    const { rows } = databaseResponse;
     const data = rows.map(x => x.forResponse());
 
     res.send({
-      count: count,
-      data: data,
+      count,
+      data,
     });
   }),
 );

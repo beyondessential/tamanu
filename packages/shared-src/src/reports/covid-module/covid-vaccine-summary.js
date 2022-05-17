@@ -1,3 +1,5 @@
+/* eslint-disable no-param-reassign */
+
 import { Op } from 'sequelize';
 import { differenceInYears, subDays } from 'date-fns';
 
@@ -65,7 +67,7 @@ async function queryCovidVaccineSummaryData(models, parameters) {
   const administeredVaccines = result.map(r => r.get({ plain: true }));
   const today = new Date();
   const countBySheet = administeredVaccines.reduce(
-    function(acc, vaccine) {
+    (acc, vaccine) => {
       if (!vaccine.encounter?.patientId) {
         return acc;
       }
@@ -84,20 +86,20 @@ async function queryCovidVaccineSummaryData(models, parameters) {
       if (acc.female[villageName] === undefined) {
         acc.female[villageName] = 0;
       }
-      acc[sex][villageName] = acc[sex][villageName] + 1;
+      acc[sex][villageName] += 1;
 
       const patientAge = differenceInYears(today, dateOfBirth);
       if (acc.over65[villageName] === undefined) {
         acc.over65[villageName] = 0;
       }
       if (patientAge > 65) {
-        acc.over65[villageName] = acc.over65[villageName] + 1;
+        acc.over65[villageName] += 1;
       }
 
       if (acc.total[villageName] === undefined) {
         acc.total[villageName] = 0;
       }
-      acc.total[villageName] = acc.total[villageName] + 1;
+      acc.total[villageName] += 1;
 
       return acc;
     },
@@ -123,17 +125,17 @@ async function queryCovidVaccineSummaryData(models, parameters) {
 }
 
 async function generateCovidVaccineSummaryReport({ models }, parameters) {
-  return await queryCovidVaccineSummaryData(models, parameters);
+  return queryCovidVaccineSummaryData(models, parameters);
 }
 
 export async function generateCovidVaccineSummaryDose1Report(context, parameters) {
   parameters.schedule = 'Dose 1';
-  return await generateCovidVaccineSummaryReport(context, parameters);
+  return generateCovidVaccineSummaryReport(context, parameters);
 }
 
 export async function generateCovidVaccineSummaryDose2Report(context, parameters) {
   parameters.schedule = 'Dose 2';
-  return await generateCovidVaccineSummaryReport(context, parameters);
+  return generateCovidVaccineSummaryReport(context, parameters);
 }
 
 export const permission = 'PatientVaccine';

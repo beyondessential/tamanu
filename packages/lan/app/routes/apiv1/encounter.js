@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
 import { NotFoundError } from 'shared/errors';
-import { LAB_REQUEST_STATUSES, DOCUMENT_SIZE_LIMIT } from 'shared/constants';
+import { LAB_REQUEST_STATUSES, DOCUMENT_SIZE_LIMIT, INVOICE_STATUSES } from 'shared/constants';
 import { NOTE_RECORD_TYPES } from 'shared/models/Note';
 import { uploadAttachment } from '../../utils/uploadAttachment';
 
@@ -13,6 +13,7 @@ import {
   simpleGetList,
   permissionCheckingRouter,
   runPaginatedQuery,
+  paginatedGetList,
 } from './crudHelpers';
 
 export const encounter = express.Router();
@@ -23,44 +24,39 @@ encounter.post('/$', simplePost('Encounter'));
 encounter.put(
   '/:id',
   asyncHandler(async (req, res) => {
-    const { models, params } = req;
+    const { db, models, params } = req;
     const { referralId, id } = params;
     req.checkPermission('read', 'Encounter');
     const object = await models.Encounter.findByPk(id);
     if (!object) throw new NotFoundError();
     req.checkPermission('write', object);
 
-    if (req.body.discharge) {
-      req.checkPermission('write', 'Discharge');
-      await models.Discharge.create({
-        ...req.body.discharge,
-        encounterId: id,
-      });
+    await db.transaction(async () => {
+      if (req.body.discharge) {
+        req.checkPermission('write', 'Discharge');
+        await models.Discharge.create({
+          ...req.body.discharge,
+          encounterId: id,
+        });
 
-      // Update medications that were marked for discharge and ensure
-      // only isDischarge, quantity and repeats fields are edited
-      const medications = req.body.medications || {};
-      Object.entries(medications).forEach(async ([medicationId, medicationValues]) => {
-        const { isDischarge, quantity, repeats } = medicationValues;
-        if (isDischarge) {
-          const medication = await models.EncounterMedication.findByPk(medicationId);
-
-          try {
+        // Update medications that were marked for discharge and ensure
+        // only isDischarge, quantity and repeats fields are edited
+        const medications = req.body.medications || {};
+        for (const [medicationId, medicationValues] of Object.entries(medications)) {
+          const { isDischarge, quantity, repeats } = medicationValues;
+          if (isDischarge) {
+            const medication = await models.EncounterMedication.findByPk(medicationId);
             await medication.update({ isDischarge, quantity, repeats });
-          } catch (e) {
-            console.error(
-              `Couldn't update medication with id ${medicationId} when discharging. ${e.name} : ${e.message}`,
-            );
           }
         }
-      });
-    }
+      }
 
-    if (referralId) {
-      const referral = await models.Referral.findByPk(referralId);
-      referral.update({ encounterId: id });
-    }
-    await object.update(req.body);
+      if (referralId) {
+        const referral = await models.Referral.findByPk(referralId);
+        await referral.update({ encounterId: id });
+      }
+      await object.update(req.body);
+    });
 
     res.send(object);
   }),
@@ -131,12 +127,21 @@ encounterRelations.get(
   }),
 );
 encounterRelations.get('/:id/referral', simpleGetList('Referral', 'encounterId'));
-encounterRelations.get('/:id/documentMetadata', simpleGetList('DocumentMetadata', 'encounterId'));
+encounterRelations.get(
+  '/:id/documentMetadata',
+  paginatedGetList('DocumentMetadata', 'encounterId'),
+);
 encounterRelations.get('/:id/imagingRequests', simpleGetList('ImagingRequest', 'encounterId'));
 encounterRelations.get(
   '/:id/notes',
   simpleGetList('Note', 'recordId', {
     additionalFilters: { recordType: NOTE_RECORD_TYPES.ENCOUNTER },
+  }),
+);
+encounterRelations.get(
+  '/:id/invoice',
+  simpleGetHasOne('Invoice', 'encounterId', {
+    additionalFilters: { status: { [Op.ne]: INVOICE_STATUSES.CANCELLED } },
   }),
 );
 

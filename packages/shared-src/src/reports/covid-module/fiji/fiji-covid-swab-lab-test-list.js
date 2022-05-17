@@ -67,6 +67,7 @@ const reportColumnTemplate = [
   { title: 'Result', accessor: data => data.result },
   { title: 'Requested by', accessor: data => data.requestedBy },
   { title: 'Requested date', accessor: data => data.requestedDate },
+  { title: 'Submitted date', accessor: data => data.submittedDate },
   { title: 'Priority', accessor: data => data.priority },
   { title: 'Testing laboratory', accessor: data => data.testingLaboratory },
   { title: 'Testing date', accessor: data => data.testingDate },
@@ -104,12 +105,11 @@ const reportColumnTemplate = [
   { title: 'Details of high risk primary contact', accessor: data => data.highRiskDetails },
 ];
 
-export const dataGenerator = async ({ models }, parameters = {}) => {
-  return baseDataGenerator({ models }, parameters, {
+export const dataGenerator = async ({ models }, parameters = {}) =>
+  baseDataGenerator({ models }, parameters, {
     surveyId: SURVEY_ID,
     surveyQuestionCodes: SURVEY_QUESTION_CODES,
     reportColumnTemplate,
   });
-};
 
 export const permission = 'LabTest';

@@ -2,7 +2,7 @@ import { format } from 'date-fns';
 
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
-import { IDENTIFIER_NAMESPACE } from '../../../app/integrations/fiji-vps/schema';
+import { IDENTIFIER_NAMESPACE } from '../../../app/hl7fhir/schema';
 
 describe('VPS integration - Patient', () => {
   let ctx;
@@ -27,7 +27,9 @@ describe('VPS integration - Patient', () => {
       const path = `/v1/integration/fijiVps/Patient?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
 
       // act
-      const response = await app.get(path);
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveSucceeded();
@@ -109,7 +111,9 @@ describe('VPS integration - Patient', () => {
       const path = `/v1/integration/fijiVps/Patient?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
 
       // act
-      const response = await app.get(path);
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveSucceeded();
@@ -145,7 +149,9 @@ describe('VPS integration - Patient', () => {
       const path = `/v1/integration/fijiVps/Patient?_sort=id&_page=z&_count=x&status=initial&subject%3Aidentifier=${id}`;
 
       // act
-      const response = await app.get(path);
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveRequestError(422);
@@ -172,7 +178,9 @@ describe('VPS integration - Patient', () => {
       const path = `/v1/integration/fijiVps/Patient`;
 
       // act
-      const response = await app.get(path);
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
       // assert
       expect(response).toHaveRequestError(422);

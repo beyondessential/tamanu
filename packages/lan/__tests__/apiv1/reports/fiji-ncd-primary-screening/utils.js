@@ -6,6 +6,8 @@ const BREAST_CANCER_REFERRAL_SURVEY_ID = 'program-fijincdprimaryscreening-fijibr
 const CERVICAL_CANCER_FORM_SURVEY_ID = 'program-fijincdprimaryscreening-fijicervicalprimaryscreen';
 const CERVICAL_CANCER_REFERRAL_SURVEY_ID = 'program-fijincdprimaryscreening-fijicervicalscreenref';
 
+const SNAP_FORM_SURVEY_ID = 'program-fijincdprimaryscreening-fijisnapassessform';
+
 export const createCVDFormSurveyResponse = async (app, patient, surveyDate, overrides = {}) => {
   const { answerOverrides = {} } = overrides;
   await app.post('/v1/surveyResponse').send({
@@ -82,6 +84,18 @@ export const createBreastCancerReferral = async (app, patient, referralDate) => 
   });
 };
 
+export const createSNAPFormSurveyResponse = async (app, patient, surveyDate, overrides = {}) => {
+  const { answerOverrides = {}, ...otherOverrides } = overrides;
+  await app.post('/v1/surveyResponse').send({
+    surveyId: SNAP_FORM_SURVEY_ID,
+    startTime: surveyDate,
+    patientId: patient.id,
+    endTime: surveyDate,
+    answers: answerOverrides,
+    ...otherOverrides,
+  });
+};
+
 export const setupProgramAndSurvey = async models => {
   await models.Program.create({
     id: PROGRAM_ID,
@@ -94,6 +108,7 @@ export const setupProgramAndSurvey = async models => {
     { id: 'pde-FijCVD007', code: 'FijCVD007', name: 'FijCVD007' },
     { id: 'pde-FijCVD010', code: 'FijCVD010', name: 'FijCVD010' },
     { id: 'pde-FijCVD021', code: 'FijCVD021', name: 'FijCVD021' },
+    { id: 'pde-FijCVD038', code: 'FijCVD038', name: 'FijCVD038' },
     { id: 'pde-FijCVDRisk334', code: 'FijCVDRisk334', name: 'FijCVDRisk334' },
 
     { id: 'pde-FijCVDRef2a', code: 'FijCVDRef2a', name: 'FijCVDRef2a' },
@@ -123,6 +138,8 @@ export const setupProgramAndSurvey = async models => {
     { id: 'pde-FijCCRef04', code: 'FijCCRef04', name: 'FijCCRef04' },
     { id: 'pde-FijCCRef06', code: 'FijCCRef06', name: 'FijCCRef06' },
     { id: 'pde-FijCCRef07', code: 'FijCCRef07', name: 'FijCCRef07' },
+
+    { id: 'pde-FijSNAP13', code: 'FijSNAP13', name: 'FijSNAP13' },
   ]);
 
   await models.Survey.bulkCreate([
@@ -156,6 +173,11 @@ export const setupProgramAndSurvey = async models => {
       name: CERVICAL_CANCER_REFERRAL_SURVEY_ID,
       programId: PROGRAM_ID,
     },
+    {
+      id: SNAP_FORM_SURVEY_ID,
+      name: SNAP_FORM_SURVEY_ID,
+      programId: PROGRAM_ID,
+    },
   ]);
 
   await models.SurveyScreenComponent.bulkCreate([
@@ -164,6 +186,7 @@ export const setupProgramAndSurvey = async models => {
     { dataElementId: 'pde-FijCVD007', surveyId: CVD_PRIMARY_FORM_SURVEY_ID },
     { dataElementId: 'pde-FijCVD010', surveyId: CVD_PRIMARY_FORM_SURVEY_ID },
     { dataElementId: 'pde-FijCVD021', surveyId: CVD_PRIMARY_FORM_SURVEY_ID },
+    { dataElementId: 'pde-FijCVD038', surveyId: CVD_PRIMARY_FORM_SURVEY_ID },
     { dataElementId: 'pde-FijCVDRisk334', surveyId: CVD_PRIMARY_FORM_SURVEY_ID },
 
     { dataElementId: 'pde-FijCVDRef2a', surveyId: CVD_PRIMARY_REFERRAL_SURVEY_ID },
@@ -193,5 +216,7 @@ export const setupProgramAndSurvey = async models => {
     { dataElementId: 'pde-FijCCRef04', surveyId: CERVICAL_CANCER_REFERRAL_SURVEY_ID },
     { dataElementId: 'pde-FijCCRef06', surveyId: CERVICAL_CANCER_REFERRAL_SURVEY_ID },
     { dataElementId: 'pde-FijCCRef07', surveyId: CERVICAL_CANCER_REFERRAL_SURVEY_ID },
+
+    { dataElementId: 'pde-FijSNAP13', surveyId: SNAP_FORM_SURVEY_ID },
   ]);
 };

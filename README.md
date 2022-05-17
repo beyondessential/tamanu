@@ -10,9 +10,10 @@
 | [lan](packages/lan) | [lan runbook](https://beyond-essential.slab.com/posts/todo-tamanu-lan-runbook-ezljl0qk) | The local server, which the app communicates with |
 | [meta-server](packages/meta-server) | [meta-server runbook](https://beyond-essential.slab.com/posts/todo-tamanu-meta-server-runbook-0zbgw7m7) | The metadata server, which serves information about app versions and known sync-server installations |
 | [desktop](packages/desktop) | [desktop runbook](https://beyond-essential.slab.com/posts/todo-tamanu-desktop-runbook-i2bmy57c) | The main Electron app |
-| [mobile](https://github.com/beyondessential/tamanu-mobile/) | [mobile runbook](https://beyond-essential.slab.com/posts/todo-tamanu-mobile-runbook-8vj8qceu) | The mobile app (in [a separate repository](https://github.com/beyondessential/tamanu)) |
+| [mobile](packages/mobile) | [mobile runbook](https://beyond-essential.slab.com/posts/todo-tamanu-mobile-runbook-8vj8qceu) | The mobile app  |
 | [shared-src](packages/shared-src) | N/A | Shared code among Tamanu components |
 | [shared](packages/shared) | N/A | The build output of the `shared-src` module (ignored by version control) |
+| [csca](packages/csca) | [csca runbook](https://beyond-essential.slab.com/posts/csca-runbook-be1td5ml), [signer runbook](https://beyond-essential.slab.com/posts/signer-runbook-hcws6er3) | A tool to create and manage a CSCA / ICAO eMRTD PKI |
 
 The latest version for each Tamanu service (Local Area Network Server, Desktop Client & Mobile Client) can be retrieved with a HTTP GET request via their respective public API routes:
 
@@ -126,6 +127,7 @@ brew install postgres
 brew services start postgres
 createdb tamanu-sync
 yarn install
+yarn workspace sync-server setup-dev
 yarn sync-start-dev
 ```
 
@@ -135,8 +137,20 @@ Install the [PostgreSQL server](https://www.postgresql.org/download/windows/). O
 
 ```bash
 yarn install
+yarn workspace sync-server setup-dev
 yarn sync-start-dev
 ```
+
+#### Linux
+
+Install PostgreSQL from your package manager, and create a new database `tamanu-sync`, then run:
+
+```bash
+yarn install
+yarn workspace sync-server setup-dev
+yarn sync-start-dev
+```
+
 </details>
 
 ## Integrations

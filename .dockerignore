@@ -1,0 +1,5 @@
+packages/mobile
+**/node_modules
+node_modules
+.ssh
+.tmp

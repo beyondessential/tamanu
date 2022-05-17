@@ -1,4 +1,5 @@
 import { Sequelize } from 'sequelize';
+import { INVOICE_LINE_ITEM_STATUSES } from 'shared/constants';
 import { Model } from './Model';
 
 export class InvoiceLineItem extends Model {
@@ -8,6 +9,11 @@ export class InvoiceLineItem extends Model {
         id: primaryKey,
         percentageChange: Sequelize.DECIMAL,
         dateGenerated: Sequelize.DATE,
+        status: {
+          type: Sequelize.STRING,
+          allowNull: false,
+          defaultValue: INVOICE_LINE_ITEM_STATUSES.ACTIVE,
+        },
       },
       options,
     );

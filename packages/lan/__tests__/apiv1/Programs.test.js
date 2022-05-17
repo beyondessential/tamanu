@@ -75,12 +75,14 @@ function createDummySurveyResponse(survey) {
 }
 
 async function submitMultipleSurveyResponses(survey, overrides, amount = 7) {
-  return Promise.all(
-    new Array(amount).fill(0).map(() =>
-      models.SurveyResponse.createWithAnswers({
-        ...createDummySurveyResponse(survey),
-        ...overrides,
-      }),
+  return models.SurveyResponse.sequelize.transaction(() =>
+    Promise.all(
+      new Array(amount).fill(0).map(() =>
+        models.SurveyResponse.createWithAnswers({
+          ...createDummySurveyResponse(survey),
+          ...overrides,
+        }),
+      ),
     ),
   );
 }
@@ -96,9 +98,10 @@ describe('Programs', () => {
   let testSurvey2;
   let testSurvey3;
   let testReferralSurvey;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
     app = await baseApp.asRole('admin');
@@ -117,6 +120,7 @@ describe('Programs', () => {
       surveyType: SURVEY_TYPES.REFERRAL,
     });
   });
+  afterAll(() => ctx.close());
 
   it('should list available programs', async () => {
     const result = await app.get(`/v1/program`);
@@ -269,26 +273,6 @@ describe('Programs', () => {
       result2.body.data.forEach(checkResult);
     });
 
-    it('should NOT list survey responses of type referral when fetching programResponses', async () => {
-      const { examinerId, departmentId, locationId } = await createDummyEncounter(models);
-      const patient = await models.Patient.create(await createDummyPatient(models));
-
-      // populate responses
-      const responses = await submitMultipleSurveyResponses(testReferralSurvey, {
-        patientId: patient.id,
-        examinerId,
-        departmentId,
-        locationId,
-      });
-
-      const programResponses = await app.get(
-        `/v1/patient/${patient.id}/programResponses?rowsPerPage=100`,
-      );
-
-      expect(programResponses).toHaveSucceeded();
-      expect(programResponses.body.count).toEqual(0);
-    });
-
     it('should use an already-open encounter if one exists', async () => {
       const patient = await models.Patient.create(await createDummyPatient(models));
       const existingEncounter = await models.Encounter.create({
@@ -335,6 +319,43 @@ describe('Programs', () => {
 
       expect(encounter.startDate).toBeDefined();
       expect(encounter.endDate).toBeDefined();
+    });
+
+    describe('Fetching survey responses for a patient', () => {
+      let patientId = null;
+
+      beforeAll(async () => {
+        const { examinerId, departmentId, locationId } = await createDummyEncounter(models);
+        const patient = await models.Patient.create(await createDummyPatient(models));
+        patientId = patient.id;
+
+        const commonParams = { patientId, examinerId, departmentId, locationId };
+
+        // populate responses
+        await submitMultipleSurveyResponses(testReferralSurvey, commonParams);
+
+        await submitMultipleSurveyResponses(testSurvey, commonParams, 1);
+        await submitMultipleSurveyResponses(testSurvey2, commonParams, 1);
+      });
+
+      it('should NOT list survey responses of type referral when fetching programResponses', async () => {
+        const programResponses = await app.get(
+          `/v1/patient/${patientId}/programResponses?rowsPerPage=100`,
+        );
+
+        expect(programResponses).toHaveSucceeded();
+        expect(programResponses.body.count).toEqual(2);
+      });
+
+      it('should NOT list survey responses of type referral when fetching programResponses', async () => {
+        const programResponses = await app.get(
+          `/v1/patient/${patientId}/programResponses?surveyId=${testSurvey2.id}`,
+        );
+
+        expect(programResponses).toHaveSucceeded();
+        expect(programResponses.body.count).toEqual(1);
+        expect(programResponses.body.data[0]).toHaveProperty('surveyId', testSurvey2.id);
+      });
     });
 
     // TODO: this is not actually true - a default department is assigned

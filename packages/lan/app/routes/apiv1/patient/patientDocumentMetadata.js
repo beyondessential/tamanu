@@ -4,18 +4,32 @@ import { Op } from 'sequelize';
 import { DOCUMENT_SIZE_LIMIT } from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
 import { uploadAttachment } from '../../../utils/uploadAttachment';
+import { mapQueryFilters, getCaseInsensitiveFilter, getOrderClause } from '../../../database/utils';
+
+// Object used to map field names to database column names
+const SNAKE_CASE_COLUMN_NAMES = {
+  type: 'type',
+  documentOwner: 'document_owner',
+  name: 'department.name',
+};
+
+// Filtering functions for sequelize queries
+const caseInsensitiveFilter = getCaseInsensitiveFilter(SNAKE_CASE_COLUMN_NAMES);
 
 export const patientDocumentMetadataRoutes = express.Router();
 
+// Route used on DocumentsTable component
 patientDocumentMetadataRoutes.get(
   '/:id/documentMetadata',
   asyncHandler(async (req, res) => {
-    const { models, params } = req;
     req.checkPermission('list', 'DocumentMetadata');
     req.checkPermission('list', 'Encounter');
-    const patientId = params.id;
+
+    const { models, params, query } = req;
+    const { order = 'ASC', orderBy, rowsPerPage = 10, page = 0, offset, ...filterParams } = query;
 
     // Get all encounter IDs for this patient
+    const patientId = params.id;
     const patientEncounters = await models.Encounter.findAll({
       where: {
         patientId,
@@ -26,12 +40,41 @@ patientDocumentMetadataRoutes.get(
     // Convert into an array of strings for querying
     const encounterIds = patientEncounters.map(obj => obj.id);
 
+    // Create filters
+    const documentFilters = mapQueryFilters(filterParams, [
+      { key: 'type', operator: Op.substring, mapFn: caseInsensitiveFilter },
+      { key: 'documentOwner', operator: Op.startsWith, mapFn: caseInsensitiveFilter },
+    ]);
+    const departmentFilters = mapQueryFilters(filterParams, [
+      {
+        key: 'departmentName',
+        alias: 'name',
+        operator: Op.startsWith,
+        mapFn: caseInsensitiveFilter,
+      },
+    ]);
+
+    // Require it when search has field, otherwise documents
+    // without a specified department won't appear
+    const departmentInclude = {
+      association: 'department',
+      where: departmentFilters,
+      required: (filterParams.departmentName && true) || false,
+    };
+
     // Get all document metadata associated with the patient or any encounter
-    // that the patient may have had.
+    // that the patient may have had. Also apply filters from search bar.
     const documentMetadataItems = await models.DocumentMetadata.findAndCountAll({
       where: {
-        [Op.or]: [{ patientId }, { encounterId: { [Op.in]: encounterIds } }],
+        [Op.and]: [
+          { [Op.or]: [{ patientId }, { encounterId: { [Op.in]: encounterIds } }] },
+          documentFilters,
+        ],
       },
+      order: orderBy ? getOrderClause(order, orderBy) : undefined,
+      include: [departmentInclude],
+      limit: rowsPerPage,
+      offset: offset || page * rowsPerPage,
     });
 
     res.send({

@@ -28,10 +28,7 @@ export class Department extends Model {
         ...options,
         validate,
         syncConfig: { syncDirection: SYNC_DIRECTIONS.PULL_ONLY },
-        indexes: [
-          { unique: true, fields: ['code'] },
-          { unique: true, fields: ['name'] },
-        ],
+        indexes: [{ unique: true, fields: ['code'] }],
       },
     );
   }
@@ -45,5 +42,4 @@ export class Department extends Model {
       foreignKey: 'facilityId',
     });
   }
-
 }

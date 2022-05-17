@@ -10,14 +10,16 @@ import {
 } from 'shared/models/sync';
 import { log } from 'shared/services/logging';
 
-const { readOnly } = config.sync;
+const { readOnly, dynamicLimiter } = config.sync;
 
-const EXPORT_LIMIT = 100;
-const INITIAL_PULL_LIMIT = 100;
-const MIN_PULL_LIMIT = 1;
-const MAX_PULL_LIMIT = 10000;
-const OPTIMAL_PULL_TIME_PER_PAGE = 2000; // aim for 2 seconds per page
-const MAX_LIMIT_CHANGE_PER_BATCH = 0.2; // max 20% increase from batch to batch, or it is too jumpy
+const {
+  exportLimit: EXPORT_LIMIT,
+  initialPullLimit: INITIAL_PULL_LIMIT,
+  minPullLimit: MIN_PULL_LIMIT,
+  maxPullLimit: MAX_PULL_LIMIT,
+  optimalPullTimePerPageMs: OPTIMAL_PULL_TIME_PER_PAGE,
+  maxLimitChangePerBatch: MAX_LIMIT_CHANGE_PER_BATCH,
+} = dynamicLimiter;
 
 // Set the current page size based on how long the previous page took to complete.
 const calculateDynamicLimit = (currentLimit, pullTime) => {
@@ -60,6 +62,7 @@ export class SyncManager {
         ? channels // waste of effort to check which need pulling if there's only 1, just pull
         : await this.context.remote.fetchChannelsWithChanges(channelsWithCursors);
     const channelsToPullSet = new Set(channelsToPull);
+    log.info(`SyncManager.pullAndImport: found ${channelsToPull.length} channels to pull`);
     for (const { channel, cursor } of channelsWithCursors) {
       if (channelsToPullSet.has(channel)) {
         await this.pullAndImportChannel(model, channel, cursor);
@@ -75,7 +78,9 @@ export class SyncManager {
 
     let cursor = initialCursor;
     let limit = INITIAL_PULL_LIMIT;
-    log.info(`SyncManager.pullAndImport: syncing ${channel} (last: ${cursor})`);
+    log.debug(`SyncManager.pullAndImport: syncing ${channel} (last: ${cursor})`);
+
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       // pull
       log.debug(
@@ -215,6 +220,8 @@ export class SyncManager {
         models.InvoiceLineItem,
         models.InvoicePriceChangeType,
         models.InvoicePriceChangeItem,
+
+        models.CertificateNotification,
 
         // models.LabRequestLog,
         models.DocumentMetadata,

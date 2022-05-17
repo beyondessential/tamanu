@@ -1,8 +1,7 @@
 import { log } from 'shared/services/logging';
 
 export async function checkConfig(config, context) {
-
-  // check surveys 
+  // check surveys
   const { department, location } = config.survey.defaultCodes;
   const ensureExists = async (modelName, code) => {
     const found = await context.models[modelName].findOne({ where: { code } });
@@ -12,5 +11,4 @@ export async function checkConfig(config, context) {
   };
   await ensureExists('Department', department);
   await ensureExists('Location', location);
-  
 }

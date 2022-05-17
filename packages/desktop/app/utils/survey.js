@@ -1,7 +1,7 @@
 import React from 'react';
 import { inRange } from 'lodash';
 
-import { getAgeFromDate } from 'shared-src/src/utils/date';
+import { getAgeFromDate } from 'shared/utils/date';
 import {
   LimitedTextField,
   MultilineTextField,
@@ -10,11 +10,12 @@ import {
   DateField,
   NullableBooleanField,
   SurveyQuestionAutocomplete,
+  SurveyResponseSelectField,
   NumberField,
   ReadOnlyTextField,
   UnsupportedPhotoField,
 } from 'desktop/app/components/Field';
-import { PROGRAM_DATA_ELEMENT_TYPES } from 'shared-src/src/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES } from 'shared/constants';
 import { joinNames } from './user';
 
 const InstructionField = ({ label, helperText }) => (
@@ -36,7 +37,7 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.BINARY]: NullableBooleanField,
   [PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX]: NullableBooleanField,
   [PROGRAM_DATA_ELEMENT_TYPES.CALCULATED]: ReadOnlyTextField,
-  [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_LINK]: null,
+  [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_LINK]: SurveyResponseSelectField,
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_RESULT]: null,
   [PROGRAM_DATA_ELEMENT_TYPES.SURVEY_ANSWER]: null,
   [PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA]: ReadOnlyTextField,
@@ -97,7 +98,10 @@ export function checkVisibility(component, values, allComponents) {
         return false;
       }
 
-      return answersEnablingFollowUp.includes(value);
+      if (Array.isArray(answersEnablingFollowUp)) {
+        return answersEnablingFollowUp.includes(value);
+      }
+      return answersEnablingFollowUp === value;
     };
 
     return conjunction === 'and'

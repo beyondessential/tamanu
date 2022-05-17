@@ -45,22 +45,31 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
   const [isOpen, setModalOpen] = useState(false);
   const [encounterMedication, setEncounterMedication] = useState(null);
   const { loadEncounter } = useEncounter();
+
+  const onClose = useCallback(() => setModalOpen(false), [setModalOpen]);
+  const onSaved = useCallback(async () => {
+    await loadEncounter(encounterId);
+  }, [loadEncounter, encounterId]);
+
   const onMedicationSelect = useCallback(async medication => {
     setModalOpen(true);
     setEncounterMedication(medication);
   }, []);
+
+  const rowStyle = ({ discontinued }) =>
+    discontinued
+      ? `
+        color: red;
+        text-decoration: line-through;`
+      : '';
 
   return (
     <div>
       <MedicationModal
         open={isOpen}
         encounterId={encounterId}
-        onClose={() => {
-          setModalOpen(false);
-        }}
-        onSaved={async () => {
-          await loadEncounter(encounterId);
-        }}
+        onClose={onClose}
+        onSaved={onSaved}
         medication={encounterMedication}
         readOnly
       />
@@ -68,6 +77,7 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
         columns={MEDICATION_COLUMNS}
         endpoint={`encounter/${encounterId}/medications`}
         onRowClick={onMedicationSelect}
+        rowStyle={rowStyle}
       />
     </div>
   );

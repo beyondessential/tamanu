@@ -17,6 +17,7 @@ const fieldSchema = yup
     hidden: yup.boolean().required(),
   })
   .default({}) // necessary to stop yup throwing hard-to-debug errors
+  .required()
   .noUnknown();
 
 const unhideableFieldSchema = yup
@@ -24,6 +25,7 @@ const unhideableFieldSchema = yup
     shortLabel: yup.string().required(),
     longLabel: yup.string().required(),
   })
+  .required()
   .noUnknown();
 
 const UNHIDEABLE_FIELDS = [
@@ -32,18 +34,21 @@ const UNHIDEABLE_FIELDS = [
   'firstName',
   'lastName',
   'dateOfBirth',
+  'dateOfDeath',
   'age',
   'ageRange',
   'dateOfBirthFrom',
   'dateOfBirthTo',
   'dateOfBirthExact',
   'emergencyContactName',
-  'emergencyContactNumber'
+  'emergencyContactNumber',
 ];
 
 const HIDEABLE_FIELDS = [
+  'countryName',
   'culturalName',
   'sex',
+  'email',
   'villageName',
   'villageId',
   'bloodType',
@@ -74,15 +79,83 @@ const HIDEABLE_FIELDS = [
   'patientBillingTypeId',
 ];
 
-const templatesSchema = yup.object({
-  letterhead: yup
-    .object({
-      title: yup.string(),
-      subTitle: yup.string(),
-    })
-    .default({})
-    .noUnknown(),
-});
+const templatesSchema = yup
+  .object({
+    letterhead: yup
+      .object({
+        title: yup.string(),
+        subTitle: yup.string(),
+      })
+      .default({})
+      .required()
+      .noUnknown(),
+
+    signerRenewalEmail: yup
+      .object()
+      .shape({
+        subject: yup
+          .string()
+          .trim()
+          .min(1)
+          .required(),
+        body: yup
+          .string()
+          .trim()
+          .min(1)
+          .required(),
+      })
+      .required()
+      .noUnknown(),
+
+    vaccineCertificateEmail: yup
+      .object()
+      .shape({
+        subject: yup
+          .string()
+          .trim()
+          .min(1)
+          .required(),
+        body: yup
+          .string()
+          .trim()
+          .min(1)
+          .required(),
+      })
+      .required()
+      .noUnknown(),
+
+    covidTestCertificateEmail: yup
+      .object()
+      .shape({
+        subject: yup
+          .string()
+          .trim()
+          .min(1)
+          .required(),
+        body: yup
+          .string()
+          .trim()
+          .min(1)
+          .required(),
+      })
+      .required()
+      .noUnknown(),
+
+    vaccineCertificate: yup
+      .object({
+        emailAddress: yup.string().trim(),
+        contactNumber: yup.string().trim(),
+        healthFacility: yup
+          .string()
+          .trim()
+          .min(1)
+          .required(),
+      })
+      .required()
+      .noUnknown(),
+  })
+  .required()
+  .noUnknown();
 
 const fieldsSchema = yup
   .object({
@@ -101,39 +174,82 @@ const fieldsSchema = yup
       {},
     ),
   })
+  .required()
   .noUnknown();
 
 const rootLocalisationSchema = yup
   .object({
+    country: {
+      name: yup
+        .string()
+        .min(1)
+        .required(),
+      'alpha-2': yup
+        .string()
+        .uppercase()
+        .length(2)
+        .required(),
+      'alpha-3': yup
+        .string()
+        .uppercase()
+        .length(3)
+        .required(),
+    },
     fields: fieldsSchema,
     templates: templatesSchema,
-    features: {
-      editPatientDetailsOnMobile: yup.boolean().required(),
-      enableInvoicing: yup.boolean().required(),
-      hideOtherSex: yup.boolean().required(),
-    },
-    sync: {
-      syncAllEncountersForTheseScheduledVaccines: yup.array(yup.string().required()).defined(),
-    },
+    timeZone: yup.string().nullable(),
+    previewUvciFormat: yup
+      .string()
+      .required()
+      .oneOf(['tamanu', 'eudcc', 'icao']),
+    covidVaccines: yup
+      .array()
+      .of(yup.string())
+      .required(),
+    features: yup
+      .object({
+        editPatientDetailsOnMobile: yup.boolean().required(),
+        enableInvoicing: yup.boolean().required(),
+        hideOtherSex: yup.boolean().required(),
+        registerNewPatient: yup.boolean().required(),
+        enablePatientDeaths: yup.boolean().required(),
+      })
+      .required()
+      .noUnknown(),
+    sync: yup
+      .object({
+        syncAllEncountersForTheseScheduledVaccines: yup.array(yup.string().required()).defined(),
+      })
+      .required()
+      .noUnknown(),
     disabledReports: yup.array(yup.string().required()).defined(),
   })
   .required()
   .noUnknown();
 
-// TODO: once localisation is persisted in the db, validate on save, not load
-const localisation = defaultsDeep(config.localisation.data);
-rootLocalisationSchema
-  .validate(localisation, { strict: true, abortEarly: false })
-  .then(() => {
+// TODO: once localisation is persisted in the db, dynamically reload this
+const unvalidatedLocalisation = defaultsDeep(config.localisation.data);
+const localisationPromise = rootLocalisationSchema
+  .validate(unvalidatedLocalisation, { strict: true, abortEarly: false })
+  .then(l => {
     log.info('Localisation validated successfully.');
+    return l;
   })
   .catch(e => {
     const errors = e.inner.map(inner => `\n  - ${inner.message}`);
     log.error(
       `Error(s) validating localisation (check localisation.data in your config):${errors}`,
     );
+    if (!config.localisation.allowInvalid) {
+      process.exit(1);
+    }
   });
 
+// this is asynchronous to help with a later move to more complicated localisation logic
 export const getLocalisation = async () => {
+  if (config.localisation.allowInvalid) {
+    return unvalidatedLocalisation;
+  }
+  const localisation = await localisationPromise;
   return localisation;
 };
