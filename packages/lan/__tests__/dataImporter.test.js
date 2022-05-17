@@ -37,7 +37,7 @@ describe('Data definition import', () => {
   };
 
   it('should flag records with missing ids', () => {
-    expectError('referenceData', 'id is a required field');
+    expectError('referenceData', 'record has no id');
   });
 
   it('should flag records with invalid ids', () => {
@@ -112,7 +112,10 @@ describe('Data definition import', () => {
   });
 
   it('should report an error if an FK is of the wrong type', () => {
-    expectError('patient', 'linked referenceData for village');
+    expectError(
+      'patient',
+      'could not find a record of type referenceData called "2ecb58ca-8b2b-42e8-9c18-fd06c09653e1"',
+    );
   });
 
   describe('Importer permissions', () => {
