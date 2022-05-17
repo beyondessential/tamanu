@@ -32,7 +32,7 @@ export const generateFiji = async ({ patientCount }) => {
   const setupData = {
     villageIds: [],
     examinerIds: [],
-    locationAndDepartmentIds: [],
+    facDepLoc: [],
     scheduleIds: [],
   };
 
@@ -58,15 +58,15 @@ export const generateFiji = async ({ patientCount }) => {
     // facilities/departments/locations
     for (let i = 0; i < NUM_FACILITIES; i++) {
       const facility = await Facility.create(fake(Facility));
-      const location = await Location.create({
-        ...fake(Location),
-        facilityId: facility.id,
-      });
       const department = await Department.create({
         ...fake(Department),
         facilityId: facility.id,
       });
-      setupData.locationAndDepartmentIds.push([location.id, department.id]);
+      const location = await Location.create({
+        ...fake(Location),
+        facilityId: facility.id,
+      });
+      setupData.facDepLoc.push([facility.id, location.id, department.id]);
     }
 
     // scheduled vaccines (taken from Fiji reference data)
