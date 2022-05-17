@@ -210,16 +210,43 @@ export const hl7PatientFields = {
 // Parser utility for HL7 FHIR _filter parameter.
 // Divides expressions around logic operators.
 // Returns an object with two arrays:
-// expressions (strings) and logic (sequelize operators).
+// expressions (arrays of strings) and logic (sequelize operators).
 export function getExpressionsAndLogic(_filter) {
-  const expressions = _filter.split(/ and | or /);
-  const logicStrings = _filter.match(/ and | or /g) || [];
+  const expressions = [];
+  const logicStrings = [];
 
-  // Logic operators can only be ' and ' || ' or ', replace them with sequelize operators
+  // Split _filter string into lexemes (separated by any amount of whitespace)
+  // Note: whitespace is permitted inside quotes
+  const lexemes = _filter.match(/".+"|\S+/g) || [];
+
+  // Each expression has a max of three lexemes
+  // (parameter - operator - value) for now
+  let currentExpression = [];
+
+  // Classify lexemes into expressions and logic operators
+  lexemes.forEach((lexeme, i) => {
+    // This has to be a logic operator if we only support
+    // expressions with a max of 3 lexemes.
+    if ((i + 1) % 4 === 0) {
+      logicStrings.push(lexeme);
+      return;
+    }
+
+    // Assume lexeme is part of current expression
+    currentExpression.push(lexeme);
+
+    // Insert current expression and reset it
+    if (currentExpression.length === 3 || i === lexemes.length - 1) {
+      expressions.push(currentExpression);
+      currentExpression = [];
+    }
+  });
+
+  // Logic operators can only be 'and' || 'or', replace them with sequelize operators
   const logicOperators = logicStrings.map(str => {
-    if (str === ' and ') return Op.and;
-    if (str === ' or ') return Op.or;
-    throw new Error(`Cannot convert operator ${str} when parsing _filter parameter.`);
+    if (str === 'and') return Op.and;
+    if (str === 'or') return Op.or;
+    return null;
   });
 
   return { expressions, logic: logicOperators };
@@ -276,11 +303,9 @@ export function getFilterFromParam(_filter, resourceFields = {}) {
   const invalidExpressions = [];
   const { expressions, logic } = getExpressionsAndLogic(_filter);
 
-  // Convert all expressions to filters
+  // Convert all expressions to sequelize filters
   expressions.forEach(expression => {
-    // Parse expression: separated by any number of whitespace
-    // or default to empty array (to be able to destructure it)
-    const [parameter, prefix, value] = expression.match(/".+"|\S+/g) || [];
+    const [parameter, prefix, value] = expression;
 
     // Get parameter options or default to empty object (to be able to destructure it)
     const parameterOptions = resourceFields[parameter] || {};
@@ -295,7 +320,7 @@ export function getFilterFromParam(_filter, resourceFields = {}) {
       supportedPrefixes.includes(prefix) === false ||
       prefix in prefixes[parameterType] === false
     ) {
-      invalidExpressions.push(`"${expression}"`);
+      invalidExpressions.push(`"${expression.join(' ')}"`);
       return;
     }
 
@@ -313,6 +338,11 @@ export function getFilterFromParam(_filter, resourceFields = {}) {
     throw new yup.ValidationError(
       `Invalid expressions in _filter: ${invalidExpressions.join(', ')}`,
     );
+  }
+
+  // Query should fail if any logic filter is null or if no expressions were found
+  if (logic.includes(null) || expressions.length === 0) {
+    throw new yup.ValidationError(`Invalid string in _filter: "${_filter}"`);
   }
 
   // Nest filters if there is any filtering logic, otherwise
