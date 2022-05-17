@@ -83,15 +83,23 @@ export const hl7ParameterTypes = {
 // Prefixes supported by Tamanu with the corresponding
 // sequelize operators. Classified by HL7 search parameter type.
 const prefixes = {
+  [hl7ParameterTypes.date]: {
+    eq: Op.eq,
+  },
   [hl7ParameterTypes.string]: {
     eq: Op.eq,
     co: Op.substring,
     sw: Op.startsWith,
     ew: Op.endsWith,
   },
+  [hl7ParameterTypes.token]: {
+    eq: Op.eq,
+  },
 };
 
+const dateTypePrefixes = Object.keys(prefixes[hl7ParameterTypes.date]);
 const stringTypePrefixes = Object.keys(prefixes[hl7ParameterTypes.string]);
+const tokenTypePrefixes = Object.keys(prefixes[hl7ParameterTypes.token]);
 
 // Modifiers supported by Tamanu with the corresponding
 // sequelize operator. Classified by HL7 search parameter type.
@@ -152,7 +160,7 @@ export const hl7PatientFields = {
     fieldName: 'sex',
     columnName: 'sex',
     supportedModifiers: [],
-    supportedPrefixes: [],
+    supportedPrefixes: tokenTypePrefixes,
     validationSchema: yup.string().oneOf(['male', 'female', 'other']),
   },
   birthdate: {
@@ -160,7 +168,7 @@ export const hl7PatientFields = {
     fieldName: 'dateOfBirth',
     columnName: 'date_of_birth',
     supportedModifiers: [],
-    supportedPrefixes: [],
+    supportedPrefixes: dateTypePrefixes,
     validationSchema: yup
       .string()
       // eslint-disable-next-line no-template-curly-in-string
@@ -194,7 +202,7 @@ export const hl7PatientFields = {
     fieldName: '$additionalData.primary_contact_number$',
     columnName: 'additionalData.primary_contact_number',
     supportedModifiers: [],
-    supportedPrefixes: [],
+    supportedPrefixes: tokenTypePrefixes,
     validationSchema: yup.string(),
   },
 };
