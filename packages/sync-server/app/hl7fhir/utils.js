@@ -284,7 +284,7 @@ export function getFilterFromParam(_filter, resourceFields = {}) {
 
     // Get parameter options or default to empty object (to be able to destructure it)
     const parameterOptions = resourceFields[parameter] || {};
-    const { fieldName, supportedPrefixes, parameterType } = parameterOptions;
+    const { fieldName, columnName, supportedPrefixes, parameterType } = parameterOptions;
 
     // Make sure expression is valid and keep track of invalid ones
     if (
@@ -304,7 +304,8 @@ export function getFilterFromParam(_filter, resourceFields = {}) {
     const unquotedValue = value.match(/^".+"$/) ? value.replace(/"/g, '') : value;
 
     // Create and add filter
-    filters.push({ [fieldName]: { [operator]: unquotedValue } });
+    const queryObject = getQueryObject(columnName, unquotedValue, operator, null, parameterType);
+    filters.push({ [fieldName]: queryObject });
   });
 
   // Query should fail if any expression is invalid
