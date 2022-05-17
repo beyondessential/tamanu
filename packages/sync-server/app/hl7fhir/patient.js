@@ -8,6 +8,7 @@ import {
   getDefaultOperator,
   modifiers,
   hl7PatientFields,
+  getFilterFromParam,
 } from './utils';
 
 function patientName(patient, additional) {
@@ -102,6 +103,12 @@ export function getPatientWhereClause(displayId, query = {}) {
   // Handle search by ID separately
   if (displayId) {
     filters.push({ displayId });
+  }
+
+  // Parse the _filter param and add it to the list of filters
+  const filterParamObj = getFilterFromParam(query._filter, hl7PatientFields);
+  if (filterParamObj !== null) {
+    filters.push(filterParamObj);
   }
 
   // Create a filter for each query param

@@ -52,6 +52,9 @@ const baseParameters = {
   // Patients don't have a status parameter,
   // this is just for backwards compatibility.
   status: yup.string(),
+  // _filter requires parsing, validation will be performed later.
+  // We need it here to preserve it after initial validation
+  _filter: yup.string(),
 };
 
 // Returns an object with patient parameters as keys
