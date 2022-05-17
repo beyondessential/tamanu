@@ -40,7 +40,6 @@ const statusOptions = [
 
 const PrintButton = ({ imagingRequest, patient }) => {
   const { modal } = useParams();
-  console.log('modal', modal);
   const certificateData = useCertificate();
   const [isModalOpen, setModalOpen] = useState(modal === 'print');
   const openModal = useCallback(() => setModalOpen(true), []);
