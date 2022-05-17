@@ -7,3 +7,4 @@ export { DocumentsPane } from './DocumentsPane';
 export { ProgramsPane } from './ProgramsPane';
 export { ReferralPane } from './ReferralPane';
 export { InvoicingPane } from './InvoicingPane';
+export { InvoicesPane } from './InvoicesPane';

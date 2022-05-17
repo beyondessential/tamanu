@@ -27,7 +27,7 @@ const ICD11_COVID19_DISEASE = 'RA01.0';
 const MOMENT_FORMAT_ISODATE = 'YYYY-MM-DD';
 const MOMENT_FORMAT_RFC3339 = 'YYYY-MM-DDTHH:mm:ssZ';
 
-export const createProofOfVaccination = async (patientId, { models }) => {
+export const createVdsNcVaccinationData = async (patientId, { models }) => {
   const {
     Patient,
     PatientAdditionalData,
@@ -137,7 +137,7 @@ export const createProofOfVaccination = async (patientId, { models }) => {
   };
 };
 
-export const createProofOfTest = async (labTestId, { models }) => {
+export const createVdsNcTestData = async (labTestId, { models }) => {
   const {
     Patient,
     PatientAdditionalData,

@@ -10,8 +10,9 @@ import {
   setupCommand,
   calculateSurveyResultsCommand,
   removeDuplicatedPatientAdditionalDataCommand,
-  loadIcaoSignerCommand,
+  loadSignerCommand,
   userCommand,
+  saveCertificateRequestCommand,
 } from './app/subCommands';
 
 async function run() {
@@ -26,8 +27,9 @@ async function run() {
   program.addCommand(setupCommand);
   program.addCommand(calculateSurveyResultsCommand);
   program.addCommand(removeDuplicatedPatientAdditionalDataCommand);
-  program.addCommand(loadIcaoSignerCommand);
+  program.addCommand(loadSignerCommand);
   program.addCommand(userCommand);
+  program.addCommand(saveCertificateRequestCommand);
 
   await program.parseAsync(process.argv);
 }

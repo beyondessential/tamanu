@@ -1,18 +1,56 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useState, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 
-import { PatientAdditionalDataProps } from '/interfaces/PatientDetails';
-import { FieldRowDisplay } from '~/ui/components/FieldRowDisplay';
+import { FieldRowDisplay } from '../../../../../components/FieldRowDisplay';
+import { ErrorScreen } from '../../../../../components/ErrorScreen';
+import { LoadingScreen } from '../../../../../components/LoadingScreen';
 import { PatientSection } from './PatientSection';
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { useLocalisation } from '../../../../../contexts/LocalisationContext';
+import { IPatient, IPatientAdditionalData } from '../../../../../../types';
+import { useBackend } from '../../../../../hooks';
 
-interface AdditionalInfoProps extends PatientAdditionalDataProps {
-  onEdit: () => void;
+interface AdditionalInfoProps {
+  onEdit: (additionalInfo: IPatientAdditionalData) => void;
+  patient: IPatient;
 }
 
-export const AdditionalInfo = ({
-  onEdit,
-  patientAdditionalData: data,
-}: AdditionalInfoProps): ReactElement => {
+export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactElement => {
+  const backend = useBackend();
+  const [additionalDataRes, setAdditionalDataRes] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  useFocusEffect(
+    useCallback(() => {
+      let mounted = true;
+      (async (): Promise<void> => {
+        const { models } = backend;
+        try {
+          const result = await models.PatientAdditionalData.find({
+            where: { patient: { id: patient.id } },
+          });
+          if (!mounted) {
+            return;
+          }
+          setAdditionalDataRes(result);
+          setLoading(false);
+        } catch (err) {
+          if (!mounted) {
+            return;
+          }
+          setError(err);
+          setLoading(false);
+        }
+      })();
+      return (): void => {
+        mounted = false;
+      };
+    }, [backend, patient.id]),
+  );
+
+  const data = additionalDataRes && additionalDataRes[0];
+  function editInfo(): void {
+    onEdit(data);
+  }
   const fields = [
     ['birthCertificate', data?.birthCertificate],
     ['drivingLicense', data?.drivingLicense],
@@ -39,19 +77,28 @@ export const AdditionalInfo = ({
     ['educationalLevel', data?.educationalLevel],
     ['religionId', data?.religion?.name],
     ['patientBillingTypeId', data?.patientBillingType?.name],
+    ['emergencyContactName', data?.emergencyContactName],
+    ['emergencyContactNumber', data?.emergencyContactNumber],
   ];
 
   // Check if patient additional data should be editable
   const { getBool } = useLocalisation();
   const isEditable = getBool('features.editPatientDetailsOnMobile');
 
+  let additionalFields = null;
+  if (error) {
+    additionalFields = <ErrorScreen error={error} />;
+  } else if (loading) {
+    additionalFields = <LoadingScreen />;
+  } else if (additionalDataRes) {
+    additionalFields = <FieldRowDisplay fields={fields} />;
+  }
   return (
     <PatientSection
-      hasSeparator
       title="Additional Information"
-      onEdit={isEditable ? onEdit : undefined}
+      onEdit={isEditable ? editInfo : undefined}
     >
-      <FieldRowDisplay fields={fields} fieldsPerRow={2} />
+      {additionalFields}
     </PatientSection>
   );
 };

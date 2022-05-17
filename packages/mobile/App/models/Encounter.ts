@@ -10,7 +10,7 @@ import {
 } from 'typeorm/browser';
 import { startOfDay, addHours, subDays } from 'date-fns';
 import { getUniqueId } from 'react-native-device-info';
-import { BaseModel, FindMarkedForUploadOptions } from './BaseModel';
+import { BaseModel, FindMarkedForUploadOptions, IdRelation } from './BaseModel';
 import { IEncounter, EncounterType } from '~/types';
 import { Patient } from './Patient';
 import { Diagnosis } from './Diagnosis';
@@ -26,6 +26,7 @@ import { Location } from './Location';
 import { Referral } from './Referral';
 import { LabRequest } from './LabRequest';
 import { readConfig } from '~/services/config';
+import { ReferenceData, ReferenceDataRelation } from '~/models/ReferenceData';
 
 const TIME_OFFSET = 3;
 
@@ -44,7 +45,11 @@ export class Encounter extends BaseModel implements IEncounter {
   reasonForEncounter?: string;
 
   @Index()
-  @ManyToOne(() => Patient, patient => patient.encounters, { eager: true })
+  @ManyToOne(
+    () => Patient,
+    patient => patient.encounters,
+    { eager: true },
+  )
   patient: Patient;
 
   @RelationId(({ patient }) => patient)
@@ -69,36 +74,67 @@ export class Encounter extends BaseModel implements IEncounter {
   @RelationId(({ department }) => department)
   departmentId: string;
 
+  @ReferenceDataRelation()
+  patientBillingType?: ReferenceData;
+
+  @IdRelation()
+  patientBillingTypeId?: string | null;
+
   @ManyToOne(() => Location)
   location: Location;
 
   @RelationId(({ location }) => location)
   locationId: string;
 
-  @OneToMany(() => LabRequest, (labRequest) => labRequest.encounter)
+  @OneToMany(
+    () => LabRequest,
+    labRequest => labRequest.encounter,
+  )
   labRequests: LabRequest[];
 
-  @OneToMany(() => Diagnosis, (diagnosis) => diagnosis.encounter, {
-    eager: true,
-  })
+  @OneToMany(
+    () => Diagnosis,
+    diagnosis => diagnosis.encounter,
+    {
+      eager: true,
+    },
+  )
   diagnoses: Diagnosis[];
 
-  @OneToMany(() => Medication, ({ encounter }) => encounter)
+  @OneToMany(
+    () => Medication,
+    ({ encounter }) => encounter,
+  )
   medications: Medication[];
 
-  @OneToMany(() => Referral, referral => referral.initiatingEncounter)
+  @OneToMany(
+    () => Referral,
+    referral => referral.initiatingEncounter,
+  )
   initiatedReferrals: Referral[];
 
-  @OneToMany(() => Referral, referral => referral.completingEncounter)
+  @OneToMany(
+    () => Referral,
+    referral => referral.completingEncounter,
+  )
   completedReferrals: Referral[];
 
-  @OneToMany(() => AdministeredVaccine, administeredVaccine => administeredVaccine.encounter)
+  @OneToMany(
+    () => AdministeredVaccine,
+    administeredVaccine => administeredVaccine.encounter,
+  )
   administeredVaccines: AdministeredVaccine[];
 
-  @OneToMany(() => SurveyResponse, surveyResponse => surveyResponse.encounter)
+  @OneToMany(
+    () => SurveyResponse,
+    surveyResponse => surveyResponse.encounter,
+  )
   surveyResponses: SurveyResponse[];
 
-  @OneToMany(() => Vitals, ({ encounter }) => encounter)
+  @OneToMany(
+    () => Vitals,
+    ({ encounter }) => encounter,
+  )
   vitals: Vitals[];
 
   static async getOrCreateCurrentEncounter(
@@ -201,9 +237,7 @@ export class Encounter extends BaseModel implements IEncounter {
     }
   }
 
-  static async findMarkedForUpload(
-    opts: FindMarkedForUploadOptions,
-  ): Promise<BaseModel[]> {
+  static async findMarkedForUpload(opts: FindMarkedForUploadOptions): Promise<BaseModel[]> {
     const patientId = (opts.channel.match(/^patient\/(.*)\/encounter$/) || [])[1];
     const scheduledVaccineId = (opts.channel.match(/^scheduledVaccine\/(.*)\/encounter/) || [])[1];
     if (patientId) {
@@ -215,13 +249,11 @@ export class Encounter extends BaseModel implements IEncounter {
     if (scheduledVaccineId) {
       const records = await this.findMarkedForUploadQuery(opts)
         .innerJoinAndSelect('Encounter.administeredVaccines', 'AdministeredVaccine')
-        .andWhere(
-          'AdministeredVaccine.scheduledVaccineId = :scheduledVaccineId',
-          { scheduledVaccineId },
-        )
+        .andWhere('AdministeredVaccine.scheduledVaccineId = :scheduledVaccineId', {
+          scheduledVaccineId,
+        })
         .getMany();
       return records as BaseModel[];
-
     }
 
     throw new Error(`Could not extract marked for upload from ${opts.channel}`);

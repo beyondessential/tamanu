@@ -1,12 +1,12 @@
-import React, { ReactElement, useState, useEffect } from 'react';
+import React, { ReactElement, useState, useEffect, useCallback } from 'react';
 import { useNetInfo } from '@react-native-community/netinfo';
 
 import { SelectOption } from '../Dropdown';
 import { AndroidPicker } from '../Dropdown/Picker.android';
 import { InputContainer } from '../TextField/styles';
-import { StyledText, StyledView } from '/styled/common';
-import { theme } from '~/ui/styled/theme';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { StyledText, StyledView } from '../../styled/common';
+import { theme } from '../../styled/theme';
+import { Orientation, screenPercentageToDP } from '../../helpers/screen';
 
 const META_SERVER = __DEV__
   ? 'https://meta-dev.tamanu.io'
@@ -33,6 +33,7 @@ const fetchServers = async (): Promise<SelectOption[]> => {
 export const ServerSelector = ({ onChange, label, value }): ReactElement => {
   const [options, setOptions] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
+  const [displayValue, setDisplayValue] = useState('');
   const netInfo = useNetInfo();
 
   useEffect(() => {
@@ -43,6 +44,11 @@ export const ServerSelector = ({ onChange, label, value }): ReactElement => {
       }
     })();
   }, [netInfo.isInternetReachable]);
+
+  const onServerSelected = useCallback((server) => {
+    setDisplayValue(server ? server.label : '');
+    onChange(server?.value);
+  }, [onChange]);
 
   if (!netInfo.isInternetReachable) {
     return (
@@ -60,19 +66,20 @@ export const ServerSelector = ({ onChange, label, value }): ReactElement => {
       >
         <InputContainer>
           <StyledText
+            color={theme.colors.TEXT_DARK}
             paddingTop={screenPercentageToDP(0.66, Orientation.Height)}
             paddingLeft={screenPercentageToDP(1.5, Orientation.Width)}
             style={{ fontSize: screenPercentageToDP(1.8, Orientation.Height) }}
             onPress={(): void => setModalOpen(true)}
           >
-            {value || label}
+            {displayValue || label}
           </StyledText>
         </InputContainer>
       </StyledView>
       <AndroidPicker
         label={label}
         options={options}
-        onChange={onChange}
+        onChange={onServerSelected}
         open={modalOpen}
         closeModal={(): void => setModalOpen(false)}
       />

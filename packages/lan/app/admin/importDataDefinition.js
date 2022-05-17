@@ -1,7 +1,9 @@
 import { readFile, utils } from 'xlsx';
-import { log } from 'shared/services/logging';
-
 import { getJsDateFromExcel } from 'excel-date-to-js';
+import moment from 'moment';
+
+import { log } from 'shared/services/logging';
+import { ENCOUNTER_TYPES } from 'shared/constants';
 
 const sanitise = string => string.trim().replace(/[^A-Za-z0-9]+/g, '');
 
@@ -20,6 +22,52 @@ const referenceDataTransformer = type => item => {
       ...item,
       code: typeof code === 'number' ? `${code}` : code,
       type,
+    },
+  };
+};
+
+const administeredVaccineTransformer = () => ({
+  encounterId,
+  administeredVaccineId,
+  date: excelDate,
+  reason,
+  consent,
+  locationId,
+  departmentId,
+  examinerId,
+  patientId,
+  ...data
+}) => {
+  const date = excelDate ? getJsDateFromExcel(excelDate) : null;
+  const administeredVaccine = {
+    recordType: 'administeredVaccine',
+    data: {
+      id: administeredVaccineId,
+      encounterId,
+      date,
+      reason,
+      consent: ['true', 'yes', 't', 'y'].some(v => v === consent?.toLowerCase()),
+      ...data,
+    },
+  };
+  const startDate = date ? moment(date).startOf('day') : null;
+  const endDate = date ? moment(date).endOf('day') : null;
+  return {
+    recordType: 'encounter',
+    channel: `patient/${encodeURIComponent(patientId)}/encounter`,
+    data: {
+      id: encounterId,
+      encounterType: ENCOUNTER_TYPES.CLINIC,
+      startDate,
+      endDate,
+      reasonForEncounter: reason,
+      administeredVaccines: [administeredVaccine],
+
+      // relationships
+      locationId,
+      departmentId,
+      examinerId,
+      patientId,
     },
   };
 };
@@ -98,6 +146,7 @@ const transformers = [
   makeTransformer('vaccineSchedules', recordTransformer('scheduledVaccine')),
   makeTransformer('invoiceLineTypes', recordTransformer('invoiceLineType')),
   makeTransformer('invoicePriceChangeTypes', recordTransformer('invoicePriceChangeType')),
+  makeTransformer('administeredVaccines', administeredVaccineTransformer()), // should go below patients, users, departments, locations
   makeTransformer('roles', null),
 ];
 

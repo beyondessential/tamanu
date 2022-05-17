@@ -1,6 +1,6 @@
 {
   "name": "tamanuapp",
-  "version": "1.14.32",
+  "version": "1.16.34",
   "private": true,
   "scripts": {
     "android": "npx react-native run-android",
@@ -117,8 +117,8 @@
     "@types/styled-components": "^5.1.0",
     "@types/styled-system": "^5.1.4",
     "@types/yup": "^0.26.27",
-    "@typescript-eslint/eslint-plugin": "^2.14.0",
-    "@typescript-eslint/parser": "^2.14.0",
+    "@typescript-eslint/eslint-plugin": "^5.16.0",
+    "@typescript-eslint/parser": "^5.16.0",
     "babel-jest": "^26.6.3",
     "babel-loader": "^8.0.6",
     "babel-plugin-module-resolver": "^4.0.0",

@@ -130,8 +130,8 @@ const getDate = ({ initiatingEncounter }) => <DateDisplay date={initiatingEncoun
 const getReferralType = ({ surveyResponse: { survey } }) => survey.name;
 const getReferralBy = ({ surveyResponse }) => <ReferralBy surveyResponse={surveyResponse} />;
 const getStatus = ({ status }) => REFERRAL_STATUS_LABELS[status] || 'Unknown';
-const getActions = ({ onTableRefresh, ...row }) => (
-  <ActionDropdown refreshTable={onTableRefresh} row={row} />
+const getActions = ({ refreshTable, ...row }) => (
+  <ActionDropdown refreshTable={refreshTable} row={row} />
 );
 
 const columns = [
@@ -157,6 +157,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
         endpoint={`patient/${patientId}/referrals`}
         noDataMessage="No referrals found"
         onRowClick={onSelectReferral}
+        allowExport={false}
       />
     </>
   );

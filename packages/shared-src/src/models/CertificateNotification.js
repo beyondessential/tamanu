@@ -35,5 +35,11 @@ export class CertificateNotification extends Model {
       foreignKey: 'labTestId',
       as: 'labTest',
     });
+
+    // For automated emails
+    this.belongsTo(models.LabRequest, {
+      foreignKey: 'labRequestId',
+      as: 'labRequest',
+    });
   }
 }

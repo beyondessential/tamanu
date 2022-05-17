@@ -12,10 +12,9 @@ import {
   VaccineCertificate,
   getPatientSurveyResponseAnswer,
 } from 'shared/utils';
-import { generateUVCIForPatient } from '../integrations/VdsNc';
 import { getLocalisation } from '../localisation';
 
-export const makeVaccineCertificate = async (patient, printedBy, models, vdsData = null) => {
+export const makeVaccineCertificate = async (patient, printedBy, models, uvci, qrData = null) => {
   const localisation = await getLocalisation();
   const getLocalisationData = key => get(localisation, key);
 
@@ -44,7 +43,7 @@ export const makeVaccineCertificate = async (patient, printedBy, models, vdsData
     },
   });
 
-  const vds = vdsData ? await QRCode.toDataURL(vdsData) : null;
+  const vds = qrData ? await QRCode.toDataURL(qrData) : null;
 
   try {
     const vaccinations = await patient.getAdministeredVaccines();
@@ -53,13 +52,12 @@ export const makeVaccineCertificate = async (patient, printedBy, models, vdsData
       include: models.PatientAdditionalData.getFullReferenceAssociations(),
     });
     const patientData = { ...patient.dataValues, additionalData: additionalData?.dataValues };
-    const uvci = await generateUVCIForPatient(patient.id);
 
     await ReactPDF.render(
       <VaccineCertificate
         patient={patientData}
         printedBy={printedBy}
-        extraPatientFields={[{ key: 'uvci', label: 'UVCI', accessor: () => uvci }]}
+        uvci={uvci}
         vaccinations={vaccinations}
         signingSrc={signingImage?.data}
         watermarkSrc={watermark?.data}

@@ -19,9 +19,10 @@ describe('Recent Diagnoses report', () => {
   let expectedDiagnosis = null;
   let wrongDiagnosis = null;
   let expectedLocation = null;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
@@ -30,6 +31,7 @@ describe('Recent Diagnoses report', () => {
     [expectedDiagnosis, wrongDiagnosis] = await randomReferenceIds(models, 'icd10', 2);
     expectedLocation = await randomRecordId(models, 'Location');
   });
+  afterAll(() => ctx.close());
 
   it('should reject creating a diagnoses report with insufficient permissions', async () => {
     const noPermsApp = await baseApp.asRole('base');
@@ -39,8 +41,8 @@ describe('Recent Diagnoses report', () => {
 
   describe('returns data based on supplied parameters', () => {
     beforeEach(async () => {
-      await models.EncounterDiagnosis.destroy({ where: {}, truncate: true });
-      await models.Encounter.destroy({ where: {}, truncate: true });
+      await models.EncounterDiagnosis.destroy({ where: {}, truncate: true, cascade: true });
+      await models.Encounter.destroy({ where: {}, truncate: true, cascade: true });
     });
 
     it('should return only requested diagnoses', async () => {

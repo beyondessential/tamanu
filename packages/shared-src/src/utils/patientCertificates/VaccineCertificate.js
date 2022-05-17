@@ -7,17 +7,14 @@ import { SigningSection } from './SigningSection';
 import { H3, P } from './Typography';
 import { LetterheadSection } from './LetterheadSection';
 import { getDisplayDate } from './getDisplayDate';
+import { generateUVCI } from 'shared/utils/uvci';
 
 const columns = [
   {
     key: 'vaccine',
     title: 'Vaccine',
     customStyles: { minWidth: 30 },
-    accessor: ({ scheduledVaccine, createdAt, updatedAt }) => {
-      const label = scheduledVaccine?.label;
-      const star = createdAt !== updatedAt ? ' *' : '';
-      return `${label}${star}`;
-    },
+    accessor: ({ scheduledVaccine }) => scheduledVaccine?.label,
   },
   {
     key: 'vaccineBrand',
@@ -44,7 +41,7 @@ const columns = [
   {
     key: 'date',
     title: 'Date',
-    accessor: ({ date }) => getDisplayDate(date),
+    accessor: ({ date }, getLocalisation) => getDisplayDate(date, undefined, getLocalisation),
   },
   {
     key: 'batch',
@@ -52,6 +49,16 @@ const columns = [
     accessor: ({ batch }) => batch,
   },
 ];
+
+function getUvciFromVaccinations(vaccinations, format, countryCode, covidVaccines) {
+  const vaxes =
+    format === 'tamanu'
+      ? vaccinations
+      : vaccinations.filter(vax => covidVaccines.includes(vax.scheduledVaccine.vaccine.id));
+
+  vaxes.sort((a, b) => +a.date - +b.date);
+  return generateUVCI(vaxes[0]?.id, { format, countryCode });
+}
 
 export const VaccineCertificate = ({
   patient,
@@ -62,14 +69,18 @@ export const VaccineCertificate = ({
   watermarkSrc,
   vdsSrc,
   logoSrc,
+  uvci,
   getLocalisation,
   extraPatientFields,
 }) => {
-  const hasEditedRecord = vaccinations.findIndex(v => v.createdAt !== v.updatedAt) !== -1;
   const contactEmail = getLocalisation('templates.vaccineCertificate.emailAddress');
   const contactNumber = getLocalisation('templates.vaccineCertificate.contactNumber');
   const healthFacility = getLocalisation('templates.vaccineCertificate.healthFacility');
+  const countryCode = getLocalisation('country.alpha-3');
   const countryName = getLocalisation('country.name');
+  const uvciFormat = getLocalisation('previewUvciFormat');
+  const covidVaccines = getLocalisation('covidVaccines');
+
   const data = vaccinations.map(vaccination => ({ ...vaccination, countryName, healthFacility }));
 
   return (
@@ -84,14 +95,12 @@ export const VaccineCertificate = ({
           getLocalisation={getLocalisation}
           certificateId={certificateId}
           extraFields={extraPatientFields}
+          uvci={
+            uvci || getUvciFromVaccinations(vaccinations, uvciFormat, countryCode, covidVaccines)
+          }
         />
         <Box mb={20}>
           <Table data={data} columns={columns} getLocalisation={getLocalisation} />
-          {hasEditedRecord && (
-            <P mt={10} style={{ fontSize: 10 }}>
-              * This vaccine record has been updated by a user and this is the most recent record
-            </P>
-          )}
         </Box>
         <Box>
           <Row>
@@ -99,7 +108,7 @@ export const VaccineCertificate = ({
               <P>Printed by: {printedBy}</P>
             </Col>
             <Col>
-              <P>Printing date: {getDisplayDate()}</P>
+              <P>Printing date: {getDisplayDate(undefined, undefined, getLocalisation)}</P>
             </Col>
           </Row>
         </Box>

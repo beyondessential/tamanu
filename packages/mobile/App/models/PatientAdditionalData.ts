@@ -50,6 +50,12 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
   @Column({ nullable: true })
   passport?: string;
 
+  @Column({ nullable: true })
+  emergencyContactName?: string;
+
+  @Column({ nullable: true })
+  emergencyContactNumber?: string;
+
   @ReferenceDataRelation()
   nationality?: ReferenceData;
   @RelationId(({ nationality }) => nationality)

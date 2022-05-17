@@ -68,35 +68,33 @@ export const CovidLabCertificate = ({
   logoSrc,
   getLocalisation,
   printedBy,
-}) => {
-  return (
-    <Document>
-      <Page size="A4" style={styles.page}>
-        {watermarkSrc && <Watermark src={watermarkSrc} />}
-        <LetterheadSection getLocalisation={getLocalisation} logoSrc={logoSrc} />
-        <Box mb={0}>
-          <H3>Covid-19 Test History</H3>
-          <PatientDetailsSection
-            patient={patient}
-            vdsSrc={vdsSrc}
-            getLocalisation={getLocalisation}
-          />
-        </Box>
-        <Box mb={30}>
-          <Table data={labs} columns={columns} getLocalisation={getLocalisation} />
-        </Box>
-        <Box>
-          <Row>
-            <Col>
-              <P>Printed by: {printedBy}</P>
-            </Col>
-            <Col>
-              <P>Printing date: {getDisplayDate()}</P>
-            </Col>
-          </Row>
-        </Box>
-        <SigningSection signingSrc={signingSrc} />
-      </Page>
-    </Document>
-  );
-};
+}) => (
+  <Document>
+    <Page size="A4" style={styles.page}>
+      {watermarkSrc && <Watermark src={watermarkSrc} />}
+      <LetterheadSection getLocalisation={getLocalisation} logoSrc={logoSrc} />
+      <Box mb={0}>
+        <H3>Covid-19 Test History</H3>
+        <PatientDetailsSection
+          patient={patient}
+          vdsSrc={vdsSrc}
+          getLocalisation={getLocalisation}
+        />
+      </Box>
+      <Box mb={30}>
+        <Table data={labs} columns={columns} getLocalisation={getLocalisation} />
+      </Box>
+      <Box>
+        <Row>
+          <Col>
+            <P>Printed by: {printedBy}</P>
+          </Col>
+          <Col>
+            <P>Printing date: {getDisplayDate(undefined, undefined, getLocalisation)}</P>
+          </Col>
+        </Row>
+      </Box>
+      <SigningSection signingSrc={signingSrc} />
+    </Page>
+  </Document>
+);

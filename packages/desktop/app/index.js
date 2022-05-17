@@ -9,10 +9,10 @@ import { createHashHistory } from 'history';
 
 import Root from './Root';
 import './fonts.scss';
+import './react-toastify.scss';
 
 import { createReducers } from './createReducers';
 import { API } from './api/singletons';
-import { startDataChangeResponder } from './DataChangeResponder';
 
 import { registerYup } from './utils/errorMessages';
 
@@ -57,9 +57,6 @@ function start() {
   // TODO: Switch to use api when we get rid of API singleton
   // const api = new TamanuApi(version);
   const { store, history } = initStore(API);
-
-  // set up data change responder to trigger reloads when relevant data changes server-side
-  startDataChangeResponder(API, store);
 
   // attempt to restore session from local storage
   store.dispatch(restoreSession());

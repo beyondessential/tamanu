@@ -15,7 +15,8 @@
   },
   "log": {
     "path": "",
-    "consoleLevel": "info"
+    "consoleLevel": "http",
+    "color": true
   },
   "sync": {
     "concurrentChannelChecks": 8
@@ -94,8 +95,14 @@
       "schedule": "*/30 * * * * *",
       "limit": 10
     },
+    "deceasedPatientDischarger": {
+      // once an hour
+      "schedule": "29 * * * *",
+      "batchSize": 100,
+      "batchSleepAsyncDurationInMilliseconds": 50
+    },
     "certificateNotificationProcessor": {
-      // every 30seconds /!\
+      // every 30 seconds /!\
       "schedule": "*/30 * * * * *",
       "limit": 10
     },
@@ -113,6 +120,21 @@
     },
     "signerWorkingPeriodChecker": {
       "schedule": "0 1 * * *"
+    },
+    "automaticLabTestResultPublisher": {
+      "enabled": false,
+      "schedule": "*/15 * * * *",
+      "limit": 300,
+      "results": {
+        "labTestType-RATPositive": {
+          "labTestMethodId": "labTestMethod-RAT",
+          "result": "Positive"
+        },
+        "labTestType-RATNegative": {
+          "labTestMethodId": "labTestMethod-RAT",
+          "result": "Negative"
+        }
+      }
     }
   },
   "integrations": {
@@ -133,6 +155,10 @@
       "enabled": false,
       "requireClientHeaders": true
     },
+    "euDcc": {
+      "enabled": false,
+      "issuer": null // Responsible org for vax cert issuance, e.g. 'Ministry of Health of the Tamanu Republic'. If null defaults to the facility name.
+    },
     "vdsNc": {
       "enabled": false
     },
@@ -145,8 +171,12 @@
       // $ openssl rand -base64 32
       "keySecret": null,
 
-      // For VDS-NC: exactly 2 letters, must be unique in country, ref 9303-13 §2.2.1(a)
+      // For VDS-NC: exactly 2 uppercase letters/numbers, must be unique in country, ref 9303-13 §2.2.1(a)
+      // For EU DCC: at least 1 character, must be unique in country, should be descriptive
       "commonName": "TA",
+
+      // For EU DCC only: the name of the issuing organisation (provider/O of the DSC)
+      // "provider": "Tamanu",
 
       // Email address for CSCA signing contact
       "sendRequestTo": "admin@tamanu.io"
@@ -176,12 +206,12 @@
           "hidden": false
         },
         "emergencyContactName": {
-          "shortLabel": "Emergency Contact Name",
-          "longLabel": "Emergency Contact Name"
+          "shortLabel": "Emergency contact name",
+          "longLabel": "Emergency contact name"
         },
         "emergencyContactNumber": {
-          "shortLabel": "Emergency Contact Number",
-          "longLabel": "Emergency Contact Number"
+          "shortLabel": "Emergency contact number",
+          "longLabel": "Emergency contact number"
         },
         "markedForSync": {
           "shortLabel": "Sync",
@@ -413,15 +443,27 @@
           "healthFacility": "State level"
         }
       },
+
       // The time zone setting is currently only used for Vaccine Certificates
       "timeZone": null,
+
+      // UVCI format for vaccine certificate *previews* on Desktop.
+      // This should match whichever of integrations.euDcc or .vdsNc is enabled, and
+      // does *not* affect which format is used for the actual PDF certificate when
+      // generated in the sync server. Can be `tamanu` or `icao` or `eudcc`.
+      // `tamanu` implies that the signing integrations are not enabled.
+      "previewUvciFormat": "tamanu",
+
+      // IDs of the COVID-19 vaccines to use for the COVID-19 vaccine certificates.
+      // This is tightly-bound to the source, you can't really *add* IDs to this list,
+      // but you can *remove* some if needed. The list is here so it can be shared
+      // between the sync server and the desktop.
+      "covidVaccines": ["drug-COVID-19-Astra-Zeneca", "drug-COVID-19-Pfizer"],
+
       "sync": {
         "syncAllEncountersForTheseScheduledVaccines": []
       },
-      "disabledReports": [],
-      "uvci": {
-        "format": "icao"
-      }
+      "disabledReports": []
     }
   },
   "reports": {
@@ -464,6 +506,12 @@
   },
   "questionCodeIds": {
     "passport": null,
-    "nationalityId": null
+    "nationalityId": null,
+    "email": null
+  },
+  "notifications": {
+    "certificates": {
+      "labTestCategoryIds": []
+    }
   }
 }

@@ -1,7 +1,7 @@
 import { createDummyPatient, createDummyPatientAdditionalData } from 'shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
-import { patientToHL7Patient } from '../../app/hl7fhir';
+import { patientToHL7Patient } from '../../app/hl7fhir/patient';
 
 import { validate } from './hl7utilities';
 

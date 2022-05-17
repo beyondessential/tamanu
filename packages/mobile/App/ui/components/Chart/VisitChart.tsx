@@ -1,12 +1,12 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo, useMemo, ReactElement } from 'react';
 import { StyleSheet } from 'react-native';
 import { BarChart, YAxis } from 'react-native-svg-charts';
 import { G, Line } from 'react-native-svg';
-import { DateFormats } from '/helpers/constants';
-import { StyledView, StyledText, RowView } from '/styled/common';
-import { theme } from '/styled/theme';
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { format, parseISO } from 'date-fns';
+import { DateFormats } from '../../helpers/constants';
+import { Orientation, screenPercentageToDP } from '../../helpers/screen';
+import { StyledView, StyledText, RowView } from '../../styled/common';
+import { theme } from '../../styled/theme';
 import { BarChartData } from '../../interfaces/BarChartProps';
 
 interface CustomGridProps {
@@ -14,22 +14,21 @@ interface CustomGridProps {
   data: any[];
 }
 
-const CustomGrid = ({ x, data }: CustomGridProps): JSX.Element => (
+const CustomGrid = ({ x, data }: CustomGridProps): ReactElement => (
   <G>
-    {data &&
-      data.map(
-        (_, index: number) =>
-          index % 7 === 0 && (
-            <Line
-              strokeDasharray="4, 4"
-              key={data[index].date.toString()}
-              y1="0%"
-              y2="100%"
-              x1={x && x(index) - 2}
-              x2={x && x(index) - 2}
-              stroke={theme.colors.TEXT_DARK}
-            />
-          )
+    {data
+      && data.map(
+        (_, index: number) => index % 7 === 0 && (
+          <Line
+            strokeDasharray="4, 4"
+            key={data[index].date.toString()}
+            y1="0%"
+            y2="100%"
+            x1={x && x(index) - 2}
+            x2={x && x(index) - 2}
+            stroke={theme.colors.TEXT_DARK}
+          />
+        ),
       )}
   </G>
 );
@@ -59,13 +58,12 @@ interface DateRangeLabelsProps {
 
 const DateRangeLabels = memo(({ data }: DateRangeLabelsProps) => {
   const dateIntervalArray = useMemo(
-    () =>
-      DateRangeIndexes.map((dateRange, index) => ({
-        start: data[dateRange.startDate].date,
-        end: data[dateRange.endDate].date,
-        key: index,
-      })),
-    [data]
+    () => DateRangeIndexes.map((dateRange, index) => ({
+      start: data[dateRange.startDate].date,
+      end: data[dateRange.endDate].date,
+      key: index,
+    })),
+    [data],
   );
 
   return (
@@ -80,6 +78,7 @@ const DateRangeLabels = memo(({ data }: DateRangeLabelsProps) => {
     >
       {dateIntervalArray.map((dateInterval) => (
         <StyledText
+          color={theme.colors.TEXT_DARK}
           key={dateInterval.key}
           width="100%"
           height={screenPercentageToDP('3.03', Orientation.Height)}
@@ -124,16 +123,18 @@ export const VisitChart = ({ visitData }: BarChartProps): JSX.Element => {
   const lastData = visitData.data[visitData.data.length - 1];
   const firstData = visitData.data[0];
 
-  const oneMonthAgoFormatted = parseISO(lastData.date).getFullYear()
-    === parseISO(firstData.date).getFullYear()
+  const oneMonthAgoFormatted = parseISO(lastData.date).getFullYear() === parseISO(firstData.date).getFullYear()
     ? format(parseISO(firstData.date), DateFormats.DAY_MONTH)
     : format(parseISO(firstData.date), DateFormats.DAY_MONTH_YEAR_SHORT);
   const todayFormatted = format(parseISO(lastData.date), DateFormats.DAY_MONTH_YEAR_SHORT);
 
-  const { max, min } = visitData.data.reduce((accum, item) => ({
-    max: accum.max < item.value ? item.value : accum.max,
-    min: accum.min > item.value ? item.value : accum.min,
-  }), { max: 0, min: 0 });
+  const { max, min } = visitData.data.reduce(
+    (accum, item) => ({
+      max: accum.max < item.value ? item.value : accum.max,
+      min: accum.min > item.value ? item.value : accum.min,
+    }),
+    { max: 0, min: 0 },
+  );
 
   const numTicks = max - min;
   return (
@@ -186,9 +187,7 @@ export const VisitChart = ({ visitData }: BarChartProps): JSX.Element => {
           <StyledView flex={1}>
             <BarChart
               style={styles.barChartStyles}
-              yAccessor={({ item }: { item: BarChartData }): number =>
-                item.value
-              }
+              yAccessor={({ item }: { item: BarChartData }): number => item.value}
               animate
               data={visitData.data}
               svg={barStyle}

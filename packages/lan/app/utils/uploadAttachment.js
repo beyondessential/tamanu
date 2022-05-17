@@ -1,8 +1,7 @@
-import { lookup } from 'mime-types';
 import fs, { promises as asyncFs } from 'fs';
 import { InvalidParameterError, RemoteCallFailedError } from 'shared/errors';
-import { WebRemote } from '~/sync';
-import { getUploadedData } from '~/admin/getUploadedData';
+import { WebRemote } from '../sync';
+import { getUploadedData } from '../admin/getUploadedData';
 
 // Helper function for uploading one file to the sync server
 // req: express request, maxFileSize: integer (size in bytes)
@@ -12,8 +11,7 @@ export const uploadAttachment = async (req, maxFileSize) => {
   // req.checkPermission('write', 'Attachment'); ??
 
   // Read request and extract file, stats and metadata
-  const { file, deleteFileAfterImport, ...metadata } = await getUploadedData(req);
-  const type = lookup(file);
+  const { file, deleteFileAfterImport, type, ...metadata } = await getUploadedData(req);
   const { size } = fs.statSync(file);
   const fileData = await asyncFs.readFile(file, { encoding: 'base64' });
 

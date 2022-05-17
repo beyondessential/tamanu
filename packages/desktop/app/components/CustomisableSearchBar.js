@@ -1,10 +1,10 @@
 import React, { memo, useMemo, useCallback } from 'react';
 import styled from 'styled-components';
 import FingerprintIcon from '@material-ui/icons/Fingerprint';
-import SearchIcon from '@material-ui/icons/Search';
+import Box from '@material-ui/core/Box';
 
 import { useLocalisation } from '../contexts/Localisation';
-import { Button } from './Button';
+import { LargeButton, LargeOutlineButton } from './Button';
 import { Form, Field, TextField } from './Field';
 import { Colors } from '../constants';
 
@@ -45,10 +45,6 @@ const SectionLabel = styled.div`
   font-weight: 500;
   color: ${Colors.primary};
   margin-bottom: 5px;
-`;
-
-const PaddedSearchIcon = styled(SearchIcon)`
-  padding-right: 3px;
 `;
 
 const Section = styled.div`
@@ -94,7 +90,14 @@ const SearchInputContainer = styled.div`
   }
 `;
 
-export const CustomisableSearchBar = ({ title, onSearch, fields, initialValues = {} }) => {
+export const CustomisableSearchBar = ({
+  title,
+  onSearch,
+  fields,
+  renderCheckField,
+  initialValues = {},
+  shouldRenderScanFingerprint = true,
+}) => {
   const { getLocalisation } = useLocalisation();
 
   const fieldElements = useMemo(
@@ -126,28 +129,22 @@ export const CustomisableSearchBar = ({ title, onSearch, fields, initialValues =
 
   const renderSearchBar = useCallback(
     ({ submitForm, clearForm }) => (
-      <div>
+      <>
         <SearchInputContainer>{fieldElements}</SearchInputContainer>
-        <Button
-          style={{ marginTop: 10 }}
-          color="primary"
-          variant="contained"
-          onClick={submitForm}
-          type="submit"
-        >
-          <PaddedSearchIcon />
-          Search
-        </Button>
-        <Button
-          style={{ marginTop: 10, marginLeft: '1rem' }}
-          onClick={clearForm}
-          variant="outlined"
-        >
-          Clear search
-        </Button>
-      </div>
+        <Box display="flex" alignItems="center" justifyContent="space-between" mt={2}>
+          {renderCheckField}
+          <Box marginLeft="auto">
+            <LargeOutlineButton style={{ marginRight: 12 }} onClick={clearForm}>
+              Clear Search
+            </LargeOutlineButton>
+            <LargeButton onClick={submitForm} type="submit">
+              Search
+            </LargeButton>
+          </Box>
+        </Box>
+      </>
     ),
-    [fieldElements],
+    [fieldElements, renderCheckField],
   );
 
   return (
@@ -160,10 +157,12 @@ export const CustomisableSearchBar = ({ title, onSearch, fields, initialValues =
           initialValues={initialValues}
         />
       </Section>
-      <RightSection>
-        <ScanFingerprintButton />
-        <ScanFingerprintLabel>Scan fingerprint</ScanFingerprintLabel>
-      </RightSection>
+      {shouldRenderScanFingerprint ? (
+        <RightSection>
+          <ScanFingerprintButton />
+          <ScanFingerprintLabel>Scan fingerprint</ScanFingerprintLabel>
+        </RightSection>
+      ) : null}
     </Container>
   );
 };

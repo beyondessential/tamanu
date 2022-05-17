@@ -2,7 +2,7 @@ import { keyBy } from 'lodash';
 import { Op } from 'sequelize';
 import moment from 'moment';
 import { REFERRAL_STATUSES } from '../../constants';
-import { generateReportFromQueryData } from '../utilities';
+import { generateReportFromQueryData, getAnswers } from '../utilities';
 import {
   transformAndRemoveDuplicatedAnswersPerDate,
   getPatientById,
@@ -10,7 +10,6 @@ import {
   getSurveyGroupKey,
   getFormDataElements,
   getReferralDataElements,
-  getAnswers,
   getPerPatientPerSurveyPerDatePerElementKey,
   getCachedAnswer,
   parametersToAnswerSqlWhere,
@@ -120,11 +119,11 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
   // For each referral, pull most recent corresponding screening details (on the same date date)
   for (const referral of sortedReferrals) {
     const referralSurveyResponse = referral.surveyResponse;
-    const patientId = referral.initiatingEncounter.patientId;
+    const { patientId } = referral.initiatingEncounter;
     const patient = patientById[patientId];
     const patientAdditionalData = patient.additionalData?.[0];
     const referralDate = moment(referralSurveyResponse.endTime).format('DD-MM-YYYY');
-    const surveyId = referralSurveyResponse.surveyId;
+    const { surveyId } = referralSurveyResponse;
     const surveyGroupKey = getSurveyGroupKey(surveyId);
     const dateOfBirthMoment = patient.dateOfBirth ?? moment(patient.dateOfBirth);
     const age = dateOfBirthMoment ? moment().diff(dateOfBirthMoment, 'years') : '';
@@ -133,7 +132,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
       firstName: patient.firstName,
       lastName: patient.lastName,
       displayId: patient.displayId,
-      age: age,
+      age,
       gender: patient.sex,
       ethnicity: patientAdditionalData?.ethnicity?.name,
       contactNumber: patientAdditionalData?.primaryContactNumber,

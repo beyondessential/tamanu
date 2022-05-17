@@ -24,13 +24,43 @@ export const REPORT_DEFINITIONS = [
     ],
   },
   {
-    name: 'Admissions Report',
+    name: 'Admissions - Line list',
     id: 'admissions',
-    parameters: [{ parameterField: 'PractitionerField' }],
+    parameters: [
+      { parameterField: 'PractitionerField' },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Patient Billing Type',
+        name: 'patientBillingType',
+        suggesterEndpoint: 'patientBillingType',
+      },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Location',
+        name: 'location',
+        suggesterEndpoint: 'location',
+      },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Department',
+        name: 'department',
+        suggesterEndpoint: 'department',
+      },
+    ],
   },
   {
     name: 'Vaccine - Line list',
     id: 'vaccine-list',
+    parameters: [
+      { parameterField: 'VillageField' },
+      { parameterField: 'VaccineCategoryField' },
+      { parameterField: 'VaccineField' },
+    ],
+  },
+  {
+    name: 'Tuvalu Vaccine - Line list with consent',
+    id: 'tuvalu-vaccine-list',
+    allFacilities: true,
     parameters: [
       { parameterField: 'VillageField' },
       { parameterField: 'VaccineCategoryField' },
@@ -84,14 +114,32 @@ export const REPORT_DEFINITIONS = [
     parameters: [{ parameterField: 'VillageField' }, { parameterField: 'LabTestLaboratoryField' }],
   },
   {
+    name: 'Fiji Traveller COVID-19 Tests - Line list',
+    id: 'fiji-traveller-covid-lab-test-list',
+    allFacilities: true,
+    parameters: [{ parameterField: 'LabTestLaboratoryField' }],
+  },
+  {
     name: 'Palau COVID-19 Test - Line list',
     id: 'palau-covid-swab-lab-test-list',
     allFacilities: true,
   },
   {
+    name: 'Palau COVID-19 Case Report - Line list',
+    id: 'palau-covid-case-report-line-list',
+    allFacilities: true,
+    parameters: [{ parameterField: 'VillageField' }],
+  },
+  {
     name: 'Kiribati COVID-19 Test - Line list',
     id: 'kiribati-covid-swab-lab-test-list',
     allFacilities: true,
+  },
+  {
+    name: 'Samoa COVID-19 Test - Line list',
+    id: 'samoa-covid-swab-lab-test-list',
+    allFacilities: true,
+    parameters: [{ parameterField: 'VillageField' }, { parameterField: 'LabTestLaboratoryField' }],
   },
   {
     name: 'COVID-19 Tests - Summary',
@@ -216,6 +264,32 @@ export const REPORT_DEFINITIONS = [
     ],
   },
   {
+    name: 'Fiji Statistical Report for PHIS - Summary',
+    id: 'fiji-statistical-report-for-phis-summary',
+    allFacilities: true,
+    parameters: [
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Division',
+        name: 'division',
+        suggesterEndpoint: 'division',
+      },
+      { parameterField: 'VillageField' },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Medical Area',
+        name: 'medicalArea',
+        suggesterEndpoint: 'medicalArea',
+      },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Nursing Zone',
+        name: 'nursingZone',
+        suggesterEndpoint: 'nursingZone',
+      },
+    ],
+  },
+  {
     name: 'Fiji Aspen encounter summary - Line list',
     id: 'fiji-aspen-encounter-summary-line-list',
     allFacilities: false,
@@ -225,6 +299,18 @@ export const REPORT_DEFINITIONS = [
         label: 'Patient Billing Type',
         name: 'patientBillingType',
         suggesterEndpoint: 'patientBillingType',
+      },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Department',
+        name: 'department',
+        suggesterEndpoint: 'department',
+      },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Location',
+        name: 'location',
+        suggesterEndpoint: 'location',
       },
     ],
   },

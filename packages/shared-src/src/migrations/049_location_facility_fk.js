@@ -1,4 +1,3 @@
-
 module.exports = {
   up: async query => {
     await query.sequelize.query(`

@@ -75,12 +75,14 @@ function createDummySurveyResponse(survey) {
 }
 
 async function submitMultipleSurveyResponses(survey, overrides, amount = 7) {
-  return Promise.all(
-    new Array(amount).fill(0).map(() =>
-      models.SurveyResponse.createWithAnswers({
-        ...createDummySurveyResponse(survey),
-        ...overrides,
-      }),
+  return models.SurveyResponse.sequelize.transaction(() =>
+    Promise.all(
+      new Array(amount).fill(0).map(() =>
+        models.SurveyResponse.createWithAnswers({
+          ...createDummySurveyResponse(survey),
+          ...overrides,
+        }),
+      ),
     ),
   );
 }
@@ -96,9 +98,10 @@ describe('Programs', () => {
   let testSurvey2;
   let testSurvey3;
   let testReferralSurvey;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
     app = await baseApp.asRole('admin');
@@ -117,6 +120,7 @@ describe('Programs', () => {
       surveyType: SURVEY_TYPES.REFERRAL,
     });
   });
+  afterAll(() => ctx.close());
 
   it('should list available programs', async () => {
     const result = await app.get(`/v1/program`);
@@ -317,8 +321,7 @@ describe('Programs', () => {
       expect(encounter.endDate).toBeDefined();
     });
 
-    describe("Fetching survey responses for a patient", () => {
-  
+    describe('Fetching survey responses for a patient', () => {
       let patientId = null;
 
       beforeAll(async () => {
@@ -326,12 +329,7 @@ describe('Programs', () => {
         const patient = await models.Patient.create(await createDummyPatient(models));
         patientId = patient.id;
 
-        var commonParams = {
-          patientId,
-          examinerId,
-          departmentId,
-          locationId,
-        };
+        const commonParams = { patientId, examinerId, departmentId, locationId };
 
         // populate responses
         await submitMultipleSurveyResponses(testReferralSurvey, commonParams);
@@ -350,7 +348,6 @@ describe('Programs', () => {
       });
 
       it('should NOT list survey responses of type referral when fetching programResponses', async () => {
-        
         const programResponses = await app.get(
           `/v1/patient/${patientId}/programResponses?surveyId=${testSurvey2.id}`,
         );

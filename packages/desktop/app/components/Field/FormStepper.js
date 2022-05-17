@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Step, StepButton, Stepper } from '@material-ui/core';
-import { Colors } from '../../constants';
 
 const StyledStepper = styled(Stepper)`
   margin: -18px -32px 30px;
@@ -19,28 +18,43 @@ const StyledStep = styled(Step)`
   }
 `;
 
+const BUTTON_PADDING = 15;
+
 const StyledStepButton = styled(StepButton)`
-  background: ${props => (props.$isActive ? props.theme.palette.primary.main : Colors.midText)};
-  border-radius: 0;
-  height: 6px;
-  padding: 0;
-  margin: 0;
+  position: relative;
+
+  // Make the clickable area bigger than the visible button
+  padding: ${BUTTON_PADDING}px 0;
+  margin: -${BUTTON_PADDING}px 0;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  &:after {
+    position: absolute;
+    content: '';
+    top: 50%;
+    transform: translateY(-50%);
+    left: 0;
+    right: 0;
+    background: ${props =>
+      props.$isActive ? props.theme.palette.primary.main : props.theme.palette.text.secondary};
+    height: 6px;
+  }
 `;
 
-export const FormStepper = ({ screenIndex, handleStep, screens }) => {
-  return (
-    <StyledStepper nonLinear activeStep={screenIndex} connector={null}>
-      {screens.map(({ key }, index) => {
-        return (
-          <StyledStep key={key}>
-            <StyledStepButton
-              onClick={handleStep(index)}
-              icon={null}
-              $isActive={screenIndex >= index}
-            />
-          </StyledStep>
-        );
-      })}
-    </StyledStepper>
-  );
-};
+export const FormStepper = ({ screenIndex, handleStep, screens }) => (
+  <StyledStepper nonLinear activeStep={screenIndex} connector={null}>
+    {screens.map(({ key }, index) => (
+      <StyledStep key={key}>
+        <StyledStepButton
+          onClick={handleStep(index)}
+          icon={null}
+          $isActive={screenIndex >= index}
+        />
+      </StyledStep>
+    ))}
+  </StyledStepper>
+);

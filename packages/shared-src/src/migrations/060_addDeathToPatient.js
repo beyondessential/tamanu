@@ -11,7 +11,7 @@ module.exports = {
     });
   },
   down: async query => {
-    await query.removeIndex('patients', ['date_of_death']),
+    await query.removeIndex('patients', ['date_of_death']);
     await query.removeColumn('patients', 'date_of_death');
   },
 };

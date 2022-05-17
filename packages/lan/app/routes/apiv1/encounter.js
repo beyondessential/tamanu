@@ -24,44 +24,39 @@ encounter.post('/$', simplePost('Encounter'));
 encounter.put(
   '/:id',
   asyncHandler(async (req, res) => {
-    const { models, params } = req;
+    const { db, models, params } = req;
     const { referralId, id } = params;
     req.checkPermission('read', 'Encounter');
     const object = await models.Encounter.findByPk(id);
     if (!object) throw new NotFoundError();
     req.checkPermission('write', object);
 
-    if (req.body.discharge) {
-      req.checkPermission('write', 'Discharge');
-      await models.Discharge.create({
-        ...req.body.discharge,
-        encounterId: id,
-      });
+    await db.transaction(async () => {
+      if (req.body.discharge) {
+        req.checkPermission('write', 'Discharge');
+        await models.Discharge.create({
+          ...req.body.discharge,
+          encounterId: id,
+        });
 
-      // Update medications that were marked for discharge and ensure
-      // only isDischarge, quantity and repeats fields are edited
-      const medications = req.body.medications || {};
-      Object.entries(medications).forEach(async ([medicationId, medicationValues]) => {
-        const { isDischarge, quantity, repeats } = medicationValues;
-        if (isDischarge) {
-          const medication = await models.EncounterMedication.findByPk(medicationId);
-
-          try {
+        // Update medications that were marked for discharge and ensure
+        // only isDischarge, quantity and repeats fields are edited
+        const medications = req.body.medications || {};
+        for (const [medicationId, medicationValues] of Object.entries(medications)) {
+          const { isDischarge, quantity, repeats } = medicationValues;
+          if (isDischarge) {
+            const medication = await models.EncounterMedication.findByPk(medicationId);
             await medication.update({ isDischarge, quantity, repeats });
-          } catch (e) {
-            console.error(
-              `Couldn't update medication with id ${medicationId} when discharging. ${e.name} : ${e.message}`,
-            );
           }
         }
-      });
-    }
+      }
 
-    if (referralId) {
-      const referral = await models.Referral.findByPk(referralId);
-      referral.update({ encounterId: id });
-    }
-    await object.update(req.body);
+      if (referralId) {
+        const referral = await models.Referral.findByPk(referralId);
+        await referral.update({ encounterId: id });
+      }
+      await object.update(req.body);
+    });
 
     res.send(object);
   }),

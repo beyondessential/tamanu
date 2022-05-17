@@ -1,21 +1,23 @@
-
 module.exports = {
   up: async query => {
-    // populate facilities   
-    await query.sequelize.query(`
+    // populate facilities
+    await query.sequelize.query(
+      `
       INSERT INTO facilities
         (id, name, code, updated_at, created_at, type, division)
         SELECT id, name, code, now()::timestamptz(3), now()::timestamptz(3), :type, :division
           FROM reference_data
           WHERE reference_data.type = 'facility';
-    `, {
-      // leaving type and division as empty strings as they will require
-      // a reimport anyway
-      replacements: {
-        type: '',
-        division: '',
-      }
-    });
+    `,
+      {
+        // leaving type and division as empty strings as they will require
+        // a reimport anyway
+        replacements: {
+          type: '',
+          division: '',
+        },
+      },
+    );
 
     // departments and locations need a facility attached, but we won't know
     // which until we do a reimport. so, just use whichever facility for now
@@ -32,31 +34,37 @@ module.exports = {
 
     const facilityId = records[0].id;
 
-    // populate departments   
-    await query.sequelize.query(`
+    // populate departments
+    await query.sequelize.query(
+      `
       INSERT INTO departments
         (id, name, code, updated_at, created_at, facility_id)
         SELECT id, name, code, now()::timestamptz(3), now()::timestamptz(3), :facilityId
           FROM reference_data
           WHERE reference_data.type = 'department';
-    `, {
-      replacements: {
-        facilityId,
-      }
-    });
+    `,
+      {
+        replacements: {
+          facilityId,
+        },
+      },
+    );
 
-    // populate locations   
-    await query.sequelize.query(`
+    // populate locations
+    await query.sequelize.query(
+      `
       INSERT INTO locations
         (id, name, code, updated_at, created_at, facility_id)
         SELECT id, name, code, now()::timestamptz(3), now()::timestamptz(3), :facilityId
           FROM reference_data
           WHERE reference_data.type = 'location';
-    `, {
-      replacements: {
-        facilityId,
-      }
-    });
+    `,
+      {
+        replacements: {
+          facilityId,
+        },
+      },
+    );
   },
   down: async query => {
     await query.sequelize.query(`DELETE FROM locations;`);

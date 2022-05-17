@@ -1,12 +1,6 @@
-import React, {
-  ReactElement,
-  useMemo,
-  useCallback,
-  useState,
-  useEffect,
-} from 'react';
+import React, { ReactElement, useMemo, useCallback, useState, useEffect } from 'react';
 import { compose } from 'redux';
-import { useIsFocused } from '@react-navigation/core';
+import { useFocusEffect } from '@react-navigation/core';
 import { setStatusBar } from '/helpers/screen';
 import { Popup } from 'popup-ui';
 import { IPatientIssue, PatientIssueType } from '/types/IPatientIssue';
@@ -19,7 +13,7 @@ import { Routes } from '/helpers/routes';
 import { theme } from '/styled/theme';
 // Containers
 import { withPatient } from '/containers/Patient';
-import { useBackend, useBackendEffect } from '~/ui/hooks';
+import { useBackend } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 
 interface IPopup {
@@ -69,7 +63,6 @@ const PatientHomeContainer = ({
   navigation,
   selectedPatient,
 }: PatientHomeScreenProps): ReactElement => {
-  const isFocused = useIsFocused(); // reload issues whenever the page is focused
   const [errorMessage, setErrorMessage] = useState();
   const visitTypeButtons = useMemo(
     () => [
@@ -138,16 +131,31 @@ const PatientHomeContainer = ({
     }
   }, [selectedPatient]);
 
-  const [patientIssues] = useBackendEffect(
-    ({ models: _models }) => {
-      if (isFocused) {
-        return _models.PatientIssue.find({
-          order: { recordedDate: 'ASC' },
-          where: { patient: { id: selectedPatient.id } },
-        });
-      }
-    },
-    [isFocused, selectedPatient.id],
+  const [patientIssues, setPatientIssues] = useState(null);
+  useFocusEffect(
+    useCallback(() => {
+      let mounted = true;
+      (async (): Promise<void> => {
+        try {
+          const result = await models.PatientIssue.find({
+            order: { recordedDate: 'ASC' },
+            where: { patient: { id: selectedPatient.id } },
+          });
+          if (!mounted) {
+            return;
+          }
+          setPatientIssues(result);
+        } catch (err) {
+          if (!mounted) {
+            return;
+          }
+          setErrorMessage(err.message);
+        }
+      })();
+      return (): void => {
+        mounted = false;
+      };
+    }, [models, selectedPatient.id]),
   );
 
   setStatusBar('light-content', theme.colors.PRIMARY_MAIN);

@@ -1,7 +1,7 @@
 import { getToken, remoteLogin } from 'lan/app/middleware/auth';
 import Chance from 'chance';
 import { pick } from 'lodash';
-import { WebRemote } from '~/sync/WebRemote';
+import { WebRemote } from '../../app/sync/WebRemote';
 import { createTestContext } from '../utilities';
 
 const chance = new Chance();
@@ -17,15 +17,17 @@ describe('User', () => {
   let baseApp = null;
   let models = null;
   let remote = null;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
     remote = ctx.remote;
     WebRemote.mockImplementation(() => remote);
     adminApp = await baseApp.asRole('admin');
   });
+  afterAll(() => ctx.close());
 
   describe('auth', () => {
     let authUser = null;

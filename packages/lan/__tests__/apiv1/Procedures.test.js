@@ -16,9 +16,10 @@ describe('Procedures', () => {
   let encounter = null;
   let baseApp = null;
   let models = null;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
     patient = await models.Patient.create(await createDummyPatient(models));
@@ -29,6 +30,7 @@ describe('Procedures', () => {
       reasonForEncounter: 'vitals test',
     });
   });
+  afterAll(() => ctx.close());
 
   it('should record a procedure', async () => {
     const result = await app.post('/v1/procedure').send({

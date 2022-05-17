@@ -13,23 +13,7 @@ const defaultMapper = ({ name, code, id }) => ({ name, code, id });
 
 const defaultLimit = 25;
 
-// Add a new suggester for a particular model at the given endpoint.
-// Records will be filtered based on the whereSql parameter. The user's search term
-// will be passed to the sql query as ":search" - see the existing suggestion
-// endpoints for usage examples.
-function createSuggester(endpoint, modelName, whereSql, mapper = defaultMapper) {
-  suggestions.get(
-    `/${endpoint}/:id`,
-    asyncHandler(async (req, res) => {
-      const { models, params } = req;
-      req.checkPermission('list', modelName);
-      const record = await models[modelName].findByPk(params.id);
-      if (!record) throw new NotFoundError();
-      req.checkPermission('read', record);
-      res.send(mapper(record));
-    }),
-  );
-
+function createSuggesterRoute(endpoint, modelName, whereSql, mapper = defaultMapper) {
   suggestions.get(
     `/${endpoint}`,
     asyncHandler(async (req, res) => {
@@ -66,11 +50,71 @@ function createSuggester(endpoint, modelName, whereSql, mapper = defaultMapper) 
   );
 }
 
+// this exists so a control can look up the associated information of a given suggester endpoint
+// when it's already been given an id so that it's guaranteed to have the same structure as the
+// options endpoint
+function createSuggesterLookupRoute(endpoint, modelName, whereSql, mapper = defaultMapper) {
+  suggestions.get(
+    `/${endpoint}/:id`,
+    asyncHandler(async (req, res) => {
+      const { models, params } = req;
+      req.checkPermission('list', modelName);
+      const record = await models[modelName].findByPk(params.id);
+      if (!record) throw new NotFoundError();
+      req.checkPermission('read', record);
+      res.send(mapper(record));
+    }),
+  );
+}
+
+function createAllRecordsSuggesterRoute(endpoint, modelName, whereSql, mapper = defaultMapper) {
+  suggestions.get(
+    `/${endpoint}/all`,
+    asyncHandler(async (req, res) => {
+      req.checkPermission('list', modelName);
+      const { models } = req;
+      const model = models[modelName];
+      const results = await model.sequelize.query(
+        `
+      SELECT *
+      FROM "${model.tableName}"
+      WHERE ${whereSql}
+      LIMIT :limit
+    `,
+        {
+          replacements: {
+            limit: defaultLimit,
+          },
+          type: QueryTypes.SELECT,
+          model,
+          mapToModel: true,
+        },
+      );
+
+      const listing = results.map(mapper);
+      res.send(listing);
+    }),
+  );
+}
+
+// Add a new suggester for a particular model at the given endpoint.
+// Records will be filtered based on the whereSql parameter. The user's search term
+// will be passed to the sql query as ":search" - see the existing suggestion
+// endpoints for usage examples.
+function createSuggester(endpoint, modelName, whereSql, mapper) {
+  createSuggesterLookupRoute(endpoint, modelName, whereSql, mapper);
+  createSuggesterRoute(endpoint, modelName, whereSql, mapper);
+}
+
 const createNameSuggester = (endpoint, modelName = pascal(endpoint)) =>
   createSuggester(endpoint, modelName, 'LOWER(name) LIKE LOWER(:search)', ({ id, name }) => ({
     id,
     name,
   }));
+
+REFERENCE_TYPE_VALUES.map(typeName =>
+  createAllRecordsSuggesterRoute(typeName, 'ReferenceData', `type = '${typeName}'`),
+);
 
 REFERENCE_TYPE_VALUES.map(typeName =>
   createSuggester(
@@ -103,6 +147,6 @@ createSuggester(
 createSuggester(
   'patient',
   'Patient',
-  'LOWER(first_name) LIKE LOWER(:search) OR LOWER(first_name) LIKE LOWER(:search) OR LOWER(last_name) LIKE LOWER(:search) OR LOWER(cultural_name) LIKE LOWER(:search)',
+  "LOWER(first_name || ' ' || last_name) LIKE LOWER(:search) OR LOWER(cultural_name) LIKE LOWER(:search) OR LOWER(display_id) LIKE LOWER(:search)",
   patient => patient,
 );

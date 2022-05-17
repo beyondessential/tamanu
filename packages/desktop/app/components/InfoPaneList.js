@@ -2,6 +2,7 @@ import React, { memo, useState, useCallback } from 'react';
 import styled from 'styled-components';
 import MUIAddIcon from '@material-ui/icons/Add';
 import { Collapse } from '@material-ui/core';
+import { kebabCase } from 'lodash';
 import { connectApi } from '../api';
 import { Suggester } from '../utils/suggester';
 import { reloadPatient } from '../store/patient';
@@ -45,7 +46,7 @@ const AddIcon = styled(MUIAddIcon)`
 `;
 
 const AddButton = memo(({ onClick }) => (
-  <AddButtonSection onClick={onClick}>
+  <AddButtonSection onClick={onClick} data-test-class="add-button-section">
     <AddText>Add</AddText>
     <AddIcon fontSize="small" />
   </AddButtonSection>
@@ -78,9 +79,12 @@ const AddEditForm = connectApi(
       dispatch(reloadPatient(patient.id));
       onClose();
     },
-    ...Object.fromEntries(Object.entries(suggesters).map(
-      ([key, options = {}]) => [`${key}Suggester`, new Suggester(api, key, options)]
-    ))
+    ...Object.fromEntries(
+      Object.entries(suggesters).map(([key, options = {}]) => [
+        `${key}Suggester`,
+        new Suggester(api, key, options),
+      ]),
+    ),
   }),
 )(
   memo(({ Form, item, onClose, ...restOfProps }) => (
@@ -140,7 +144,7 @@ export const InfoPaneList = memo(
     const EditForm = CustomEditForm || AddEditForm;
     return (
       <>
-        <TitleContainer>
+        <TitleContainer data-test-id={`info-pane-${kebabCase(title)}`}>
           <TitleText>{title}</TitleText>
           {readonly ? null : <AddButton onClick={handleAddButtonClick} />}
         </TitleContainer>
