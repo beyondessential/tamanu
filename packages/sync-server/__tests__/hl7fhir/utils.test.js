@@ -7,6 +7,7 @@ import {
   nestFilters,
   getFilterFromParam,
   hl7ParameterTypes,
+  getQueryObject,
 } from '../../app/hl7fhir/utils';
 
 describe('HL7FHIR module utils', () => {
@@ -150,10 +151,7 @@ describe('HL7FHIR module utils', () => {
     it('Should return a valid sequelize where clause with one expression', async () => {
       const testStr = 'given eq zxy';
       const filter = getFilterFromParam(testStr, testFields);
-      expect(filter).toEqual({
-        firstName: { [Op.eq]: 'zxy' },
-      });
-      expect(filter.firstName[Op.eq]).toBe('zxy');
+      expect(filter.firstName).toBeTruthy();
 
       // Look up something, if the where clause was invalid,
       // it would throw an error instead.
@@ -164,9 +162,8 @@ describe('HL7FHIR module utils', () => {
     it('Should return a valid sequelize where clause with more than one expression', async () => {
       const testStr = 'given eq zxy and family eq abc';
       const filter = getFilterFromParam(testStr, testFields);
-      expect(filter).toEqual({
-        [Op.and]: [{ firstName: { [Op.eq]: 'zxy' } }, { lastName: { [Op.eq]: 'abc' } }],
-      });
+      expect(filter[Op.and][0].firstName).toBeTruthy();
+      expect(filter[Op.and][1].lastName).toBeTruthy();
 
       // Look up something, if the where clause was invalid,
       // it would throw an error instead.
@@ -181,10 +178,12 @@ describe('HL7FHIR module utils', () => {
       const value = '"pet"';
       const testStr = `${parameter} ${prefix} ${value}`;
       const filter = getFilterFromParam(testStr, testFields);
-      expect(filter).toEqual({
-        firstName: { [Op.substring]: 'pet' },
-      });
-      expect(filter.firstName[Op.substring]).toBe('pet');
+
+      // Get properties
+      const { columnName, parameterType } = testFields[parameter];
+      // Notice that value passed to getQueryObject is already stripped.
+      const queryObject = getQueryObject(columnName, 'pet', Op.substring, null, parameterType);
+      expect(filter.firstName).toEqual(queryObject);
     });
 
     it('Should throw a ValidationError if _filter contains unsupported or unknown expressions', () => {
