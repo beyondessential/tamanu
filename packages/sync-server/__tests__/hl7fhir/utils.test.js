@@ -47,7 +47,7 @@ describe('HL7FHIR module utils', () => {
         // that destructuring will suffice with the others.
         if (i === 0) {
           expect(testObj).toMatchObject({
-            expressions: [''],
+            expressions: [],
             logic: [],
           });
         }
@@ -58,11 +58,14 @@ describe('HL7FHIR module utils', () => {
       });
     });
 
-    it('Should return strings inside expressions array', () => {
+    it('Should return arrays of strings inside expressions array', () => {
       const testStr = 'given eq john and telecom eq 123456';
       const { expressions } = getExpressionsAndLogic(testStr);
       expressions.forEach(expression => {
-        expect(typeof expression).toBe('string');
+        expect(Array.isArray(expression)).toBe(true);
+        expression.forEach(lexeme => {
+          expect(typeof lexeme).toBe('string');
+        });
       });
     });
 
@@ -76,27 +79,40 @@ describe('HL7FHIR module utils', () => {
       const testCases = [
         {
           str: 'given eq "peter" and birthdate eq 2014-10-10',
-          expressions: ['given eq "peter"', 'birthdate eq 2014-10-10'],
+          expressions: [
+            ['given', 'eq', '"peter"'],
+            ['birthdate', 'eq', '2014-10-10'],
+          ],
           logic: [Op.and],
         },
         {
           str: 'code eq http://loinc.org|1234-5',
-          expressions: ['code eq http://loinc.org|1234-5'],
+          expressions: [['code', 'eq', 'http://loinc.org|1234-5']],
           logic: [],
         },
         {
           str: 'given co u and family co lar or telecom eq 123456',
-          expressions: ['given co u', 'family co lar', 'telecom eq 123456'],
+          expressions: [
+            ['given', 'co', 'u'],
+            ['family', 'co', 'lar'],
+            ['telecom', 'eq', '123456'],
+          ],
           logic: [Op.and, Op.or],
         },
         {
           str: 'name co "abc def" and telecom eq 123456',
-          expressions: ['name co "abc def"', 'telecom eq 123456'],
+          expressions: [
+            ['name', 'co', '"abc def"'],
+            ['telecom', 'eq', '123456'],
+          ],
           logic: [Op.and],
         },
         {
           str: 'name co "and or" or telecom eq 123456',
-          expressions: ['name co "and or"', 'telecom eq 123456'],
+          expressions: [
+            ['name', 'co', '"and or"'],
+            ['telecom', 'eq', '123456'],
+          ],
           logic: [Op.or],
         },
       ];
