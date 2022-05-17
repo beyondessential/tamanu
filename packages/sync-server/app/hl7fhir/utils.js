@@ -91,6 +91,8 @@ const prefixes = {
   },
 };
 
+const stringTypePrefixes = Object.keys(prefixes[hl7ParameterTypes.string]);
+
 // Modifiers supported by Tamanu with the corresponding
 // sequelize operator. Classified by HL7 search parameter type.
 export const modifiers = {
@@ -102,7 +104,7 @@ export const modifiers = {
   },
 };
 
-export const stringTypeModifiers = Object.keys(modifiers.string);
+const stringTypeModifiers = Object.keys(modifiers[hl7ParameterTypes.string]);
 
 export function getDefaultOperator(type) {
   if (type === hl7ParameterTypes.string) {
