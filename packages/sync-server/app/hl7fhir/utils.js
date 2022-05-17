@@ -217,7 +217,7 @@ export function getExpressionsAndLogic(_filter) {
 
   // Split _filter string into lexemes (separated by any amount of whitespace)
   // Note: whitespace is permitted inside quotes
-  const lexemes = _filter.match(/".+"|\S+/g) || [];
+  const lexemes = _filter.match(/".+?"|\S+/g) || [];
 
   // Each expression has a max of three lexemes
   // (parameter - operator - value) for now
