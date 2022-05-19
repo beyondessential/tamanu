@@ -62,7 +62,7 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
             include: [
               {
                 model: Facility,
-                as: 'Facility',
+                as: 'facility',
               },
             ],
           },
@@ -99,7 +99,7 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
       },
       encounter: {
         location: {
-          Facility: { name: facility },
+          facility: { name: facility },
         },
       },
     } = dose;
@@ -180,7 +180,7 @@ export const createVdsNcTestData = async (labTestId, { models }) => {
               {
                 model: Location,
                 as: 'location',
-                include: ['Facility'],
+                include: ['facility'],
               },
             ],
           },
@@ -192,7 +192,7 @@ export const createVdsNcTestData = async (labTestId, { models }) => {
   const { labTestMethod: method, labRequest: request } = test;
 
   const {
-    location: { Facility: facility },
+    location: { facility },
     patient: {
       firstName,
       lastName,
