@@ -5,7 +5,7 @@ import config from 'config';
 import { log } from 'shared/services/logging';
 import { createMigrationInterface } from 'shared/services/migrations';
 
-import { version } from '../serverInfo';
+import { version } from './serverInfo';
 import { canUploadAttachment } from './utils/getFreeDiskSpace';
 
 export const healthRoutes = express.Router();
