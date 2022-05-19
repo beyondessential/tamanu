@@ -18,6 +18,11 @@
     "consoleLevel": "http",
     "color": true
   },
+  "honeycomb": {
+    "apiKey": "",
+    "dataset": "tamanu-general",
+    "enabled": true
+  },
   "sync": {
     "concurrentChannelChecks": 8
   },
