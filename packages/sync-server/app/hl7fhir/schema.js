@@ -2,7 +2,12 @@ import * as yup from 'yup';
 import config from 'config';
 import { isArray } from 'lodash';
 
-import { decodeIdentifier, hl7PatientFields } from './utils';
+import {
+  decodeIdentifier,
+  hl7PatientFields,
+  sortableHL7PatientFields,
+  getSortParameterName,
+} from './utils';
 
 export const IDENTIFIER_NAMESPACE = config.hl7.dataDictionaries.patientDisplayId;
 const MAX_RECORDS = 20;
@@ -96,6 +101,24 @@ export const patient = {
     .object({
       ...getPatientParameters(),
       ...baseParameters,
+      // Overwrite sort for patient resource
+      _sort: yup
+        .string()
+        .test('is-supported-sort', 'Unsupported or unknown parameters in _sort', value => {
+          // Sorts are separated by commas, no whitespace
+          const sorts = value.split(',');
+          // Faster to check if one is invalid
+          const isInvalid = sorts.some(sort => {
+            // Ignore default value
+            if (sort === '-issued') return false;
+            // Sort might have a "-" at the beginning, we should ignore it here
+            const parameter = getSortParameterName(sort);
+            return sortableHL7PatientFields.includes(parameter) === false;
+          });
+          return !isInvalid;
+        })
+        .default('-issued')
+        .required(),
     })
     .noUnknown(true, noUnknownValidationMessage),
 };
