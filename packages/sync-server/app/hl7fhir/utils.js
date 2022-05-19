@@ -3,15 +3,36 @@ import * as yup from 'yup';
 import moment from 'moment';
 import { jsonFromBase64, jsonToBase64 } from 'shared/utils/encodings';
 
-export function hl7SortToTamanu(hl7Sort) {
-  // hl7Sort can be quite complicated, we only support a single field `issued` in `-` order
-  if (hl7Sort === '-issued') {
-    return [
-      ['createdAt', 'DESC'],
-      ['id', 'DESC'],
-    ];
-  }
-  throw new Error(`Unrecognised sort order: ${hl7Sort}`);
+export function getSortParameterName(sort) {
+  return sort[0] === '-' ? sort.slice(1) : sort;
+}
+
+export function hl7SortToTamanu(hl7Sort, modelName) {
+  // Sorts are a comma separated list of parameters
+  const sorts = hl7Sort.split(',');
+
+  // Create list of Tamanu sorts
+  const tamanuSorts = sorts.map(sort => {
+    // Default value for the field
+    if (sort === '-issued') return ['createdAt', 'DESC'];
+    // Parse patient parameters
+    if (modelName === 'Patient') {
+      // Sort might have a "-" at the beginning
+      const parameter = getSortParameterName(sort);
+      if (sortableHL7PatientFields.includes(parameter)) {
+        const direction = sort[0] === '-' ? 'DESC' : 'ASC';
+        const { fieldName } = hl7PatientFields[parameter];
+        return [fieldName, direction];
+      }
+    }
+    // Something went terribly wrong
+    throw new Error(`Unrecognised sort parameter in: ${hl7Sort}`);
+  });
+
+  // Always sort by descending ID last
+  tamanuSorts.push(['id', 'DESC']);
+
+  return tamanuSorts;
 }
 
 export function decodeIdentifier(identifier) {
