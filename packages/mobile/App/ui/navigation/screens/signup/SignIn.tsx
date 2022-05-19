@@ -32,7 +32,6 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalContent, setModalContent] = useState<ModalContent>({ message: '' });
 
-
   /*
   const onNavigateToForgotPassword = useCallback(() => {
     console.log('onNavigateToForgotPassword...');

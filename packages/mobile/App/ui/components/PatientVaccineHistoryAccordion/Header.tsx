@@ -1,12 +1,9 @@
-import React, { FunctionComponent } from 'react';
+import React, { FunctionComponent, ReactElement } from 'react';
 import { SvgProps } from 'react-native-svg';
-import { StyledView, RowView, StyledText, ColumnView } from '/styled/common';
+import { StyledView, RowView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
-import { formatDate } from '/helpers/date';
-import { DateFormats, HeaderIcons } from '/helpers/constants';
 import * as Icons from '../Icons';
 import { Separator } from '../Separator';
-import { EncounterType, IEncounter } from '~/types';
 
 interface IconProps {
   IconComponent: FunctionComponent<SvgProps>;
@@ -14,7 +11,7 @@ interface IconProps {
   height: number;
 }
 
-const StatusIcon = ({ IconComponent, ...rest }: IconProps): JSX.Element => (
+const StatusIcon = ({ IconComponent, ...rest }: IconProps): ReactElement => (
   <IconComponent {...rest} />
 );
 
@@ -24,12 +21,12 @@ interface HeaderRightIconContainerProps {
 
 const HeaderRightIconContainer = ({
   isActive,
-}: HeaderRightIconContainerProps): JSX.Element => (
+}: HeaderRightIconContainerProps): ReactElement => (
   <StyledView>
     <StatusIcon
       height={12}
       IconComponent={isActive ? Icons.ArrowUpIcon : Icons.ArrowDownIcon}
-      fill={theme.colors.WHITE}
+      fill={isActive ? theme.colors.WHITE : theme.colors.TEXT_DARK}
     />
   </StyledView>
 );
@@ -38,7 +35,7 @@ export const Header = (
   section: any,
   index: number,
   isActive: boolean,
-): JSX.Element => (
+): ReactElement => (
   <StyledView>
     <RowView
       width="100%"
@@ -50,7 +47,7 @@ export const Header = (
       paddingLeft={20}
       paddingRight={20}
     >
-      <StyledText fontWeight="bold">{section.title}</StyledText>
+      <StyledText color={isActive ? theme.colors.WHITE : theme.colors.TEXT_DARK} fontWeight="bold">{section.title}</StyledText>
       <HeaderRightIconContainer isActive={isActive} />
     </RowView>
     <Separator />

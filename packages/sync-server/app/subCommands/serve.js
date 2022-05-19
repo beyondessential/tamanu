@@ -6,7 +6,7 @@ import { log } from 'shared/services/logging';
 import { createApp } from '../createApp';
 import { startScheduledTasks } from '../tasks';
 import { ApplicationContext } from '../ApplicationContext';
-import { version } from '../../package.json';
+import { version } from '../serverInfo';
 import { setupEnv } from '../env';
 
 const { port } = config;
@@ -31,6 +31,10 @@ function getRoutes(router, prefix = '') {
 
 const serve = async ({ skipMigrationCheck }) => {
   log.info(`Starting sync server version ${version}.`);
+
+  log.info(`Process info`, {
+    execArgs: process.execArgs || "<empty>",
+  });
 
   const context = await new ApplicationContext().init();
   const { store } = context;

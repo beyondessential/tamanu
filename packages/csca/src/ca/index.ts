@@ -367,6 +367,23 @@ export default class CA {
     await this.log(key).revoke(serial, date);
   }
 
+  public async exportConfig(pretty: boolean = true): Promise<string> {
+    const key = await this.publicKey();
+    const config = await this.config(key).export();
+    return JSON.stringify(config, null, pretty ? '\t' : undefined);
+  }
+
+  public async validateAndImportConfig(newConfig: any): Promise<void> {
+    const key = await this.privateKey();
+    const config = this.config(key);
+
+    console.debug('write config');
+    await config.validateAndImport(newConfig);
+
+    console.debug('add to log');
+    await this.log(key).reconfig(await config.export());
+  }
+
   public async archive(): Promise<string> {
     const dir = basename(this.path);
     const target = `${dir}_${
