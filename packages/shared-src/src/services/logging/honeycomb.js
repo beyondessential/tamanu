@@ -2,14 +2,11 @@ import Transport from 'winston-transport';
 import Libhoney from 'libhoney';
 import config from 'config';
 
-import { version } from '../../package.json';
-
 const serverInfo = {
-  serverType: config?.canonicalHostName ? 'sync' : 'lan',
   syncHost: config?.canonicalHostName,
   facilityId: config?.serverFacilityId,
   node_env: process.env.NODE_ENV,
-  version,
+  ...global.serverInfo,
 };
 
 const { apiKey, dataset, enabled } = config?.honeycomb || {};
@@ -19,7 +16,6 @@ const honeyApi = new Libhoney({
   dataset: dataset,
   disabled: !(apiKey && enabled),
 });
-
 
 class HoneycombTransport extends Transport {
   log(info, callback) {

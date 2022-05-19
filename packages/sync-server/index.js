@@ -1,7 +1,9 @@
+// serverInfo must be imported before any shared modules
+// so that it can set globals
+import { version } from './app/serverInfo';
+
 import { program } from 'commander';
 import { log } from 'shared/services/logging';
-
-import { version } from './package.json';
 
 import {
   serveCommand,
