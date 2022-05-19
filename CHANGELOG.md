@@ -9,7 +9,8 @@
 
 ### Features ⭐
 
-- (left blank)
+- Logs updated with various pieces of additional diagnostic info
+- Logs can now be sent to Honeycomb for central viewing/querying
 
 ### Tweaks ⚖️
 
