@@ -5,7 +5,7 @@ import config from 'config';
 const serverInfo = {
   syncHost: config?.canonicalHostName,
   facilityId: config?.serverFacilityId,
-  node_env: process.env.NODE_ENV,
+  nodeEnv: process.env.NODE_ENV,
   ...global.serverInfo,
 };
 
