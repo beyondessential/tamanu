@@ -135,6 +135,7 @@ export const hl7PatientFields = {
     columnName: 'first_name',
     supportedModifiers: stringTypeModifiers,
     validationSchema: yup.string(),
+    sortable: true,
   },
   family: {
     parameterType: hl7ParameterTypes.string,
@@ -142,6 +143,7 @@ export const hl7PatientFields = {
     columnName: 'last_name',
     supportedModifiers: stringTypeModifiers,
     validationSchema: yup.string(),
+    sortable: true,
   },
   gender: {
     parameterType: hl7ParameterTypes.token,
@@ -149,6 +151,7 @@ export const hl7PatientFields = {
     columnName: 'sex',
     supportedModifiers: [],
     validationSchema: yup.string().oneOf(['male', 'female', 'other']),
+    sortable: false,
   },
   birthdate: {
     parameterType: hl7ParameterTypes.date,
@@ -164,6 +167,7 @@ export const hl7PatientFields = {
         // https://www.hl7.org/fhir/datatypes.html#date
         return moment(value, ['YYYY', 'YYYY-MM', 'YYYY-MM-DD'], true).isValid();
       }),
+    sortable: true,
   },
   // TODO: address should match a bunch of other fields
   address: {
@@ -172,6 +176,7 @@ export const hl7PatientFields = {
     columnName: 'additionalData.city_town',
     supportedModifiers: stringTypeModifiers,
     validationSchema: yup.string(),
+    sortable: true,
   },
   'address-city': {
     parameterType: hl7ParameterTypes.string,
@@ -179,6 +184,7 @@ export const hl7PatientFields = {
     columnName: 'additionalData.city_town',
     supportedModifiers: stringTypeModifiers,
     validationSchema: yup.string(),
+    sortable: true,
   },
   // TODO: telecom could also be email or other phones
   telecom: {
@@ -187,5 +193,10 @@ export const hl7PatientFields = {
     columnName: 'additionalData.primary_contact_number',
     supportedModifiers: [],
     validationSchema: yup.string(),
+    sortable: true,
   },
 };
+
+export const sortableHL7PatientFields = Object.keys(hl7PatientFields).filter(
+  field => hl7PatientFields[field].sortable,
+);
