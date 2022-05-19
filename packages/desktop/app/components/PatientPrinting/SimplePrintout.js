@@ -22,6 +22,7 @@ const RowContainer = styled.div`
 const NotesBox = styled(Box)`
   padding-left: 0.5rem;
   padding-top: 0.5rem;
+  margin-bottom: 16px;
   border: 1px solid black;
   height: 75px;
   text-overflow: ellipsis;
@@ -64,7 +65,6 @@ export const SimplePrintout = React.memo(({ patientData, tableData, notes, certi
       </RowContainer>
       <GridTable data={tableData} />
       <NotesSection notes={notes} />
-      <div />
     </CertificateWrapper>
   );
 });
