@@ -32,7 +32,6 @@ export const PrescriptionPrintout = React.memo(({ prescriptionData, certificateD
   const [patientAdditionalData, setPatientAdditionalData] = useState({});
   const [village, setVillage] = useState({});
 
-  // TODO: Move these to a higher level
   useEffect(() => {
     (async () => {
       if (prescriptionData.encounterId) {
