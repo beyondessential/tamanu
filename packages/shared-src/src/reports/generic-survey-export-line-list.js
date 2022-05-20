@@ -31,7 +31,7 @@ select
   p.first_name "First name",
   p.last_name "Last name",
   to_char(p.date_of_birth::date, 'yyyy-mm-dd') "Date of birth",
-  extract(year from age(p.date_of_birth)) "Age",
+  extract(year from age(p.date_of_birth))::integer "Age",
   p.sex "Sex",
   p.display_id "Patient ID",
   vil."name" as "Village",
