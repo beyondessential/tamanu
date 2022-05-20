@@ -13,10 +13,12 @@ import { listenForServerQueries } from '../discovery';
 import { version } from '../serverInfo';
 
 async function serve({ skipMigrationCheck }) {
-  log.info(`Starting facility server version ${version}`, { serverFacilityId: config.serverFacilityId});
+  log.info(`Starting facility server version ${version}`, {
+    serverFacilityId: config.serverFacilityId,
+  });
 
   log.info(`Process info`, {
-    execArgs: process.execArgs || "<empty>",
+    execArgs: process.execArgs || '<empty>',
   });
 
   const context = await initDatabase();

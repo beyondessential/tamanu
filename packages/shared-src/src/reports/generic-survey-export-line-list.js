@@ -87,7 +87,6 @@ export const dataGenerator = async ({ sequelize, models }, parameters = {}) => {
   const { isSensitive } = await models.Survey.findByPk(surveyId);
   if (isSensitive) {
     throw new Error('Cannot export a survey marked as "sensitive"');
-
   }
 
   const results = await getData(sequelize, parameters);
