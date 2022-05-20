@@ -5,18 +5,8 @@ import { version } from './app/serverInfo';
 import { program } from 'commander';
 import { log } from 'shared/services/logging';
 
-import {
-  serveCommand,
-  migrateCommand,
-  reportCommand,
-  setupCommand,
-  calculateSurveyResultsCommand,
-  removeDuplicatedPatientAdditionalDataCommand,
-  loadSignerCommand,
-  userCommand,
-  saveCertificateRequestCommand,
-  generateCommand,
-} from './app/subCommands';
+import * as cmd from './app/subCommands';
+import { setupEnv } from './app/env';
 
 async function run() {
   program
@@ -24,17 +14,11 @@ async function run() {
     .description('Tamanu sync-server')
     .name('node app.bundle.js');
 
-  program.addCommand(serveCommand, { isDefault: true });
-  program.addCommand(calculateSurveyResultsCommand);
-  program.addCommand(generateCommand);
-  program.addCommand(loadSignerCommand);
-  program.addCommand(migrateCommand);
-  program.addCommand(removeDuplicatedPatientAdditionalDataCommand);
-  program.addCommand(reportCommand);
-  program.addCommand(saveCertificateRequestCommand);
-  program.addCommand(setupCommand);
-  program.addCommand(userCommand);
+  for (const [key, command] of Object.entries(cmd).filter(([key, _]) => /^\w+Command$/.test(key))) {
+    program.addCommand(command, { isDefault: key === 'serveCommand' });
+  }
 
+  setupEnv();
   await program.parseAsync(process.argv);
 }
 
