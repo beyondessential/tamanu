@@ -216,7 +216,7 @@ export const MedicationForm = React.memo(
                     </Button>
                     <div />
                     <Button variant="outlined" color="primary" onClick={onCancel}>
-                      Cancel
+                      Close
                     </Button>
                     <Button
                       variant="contained"
