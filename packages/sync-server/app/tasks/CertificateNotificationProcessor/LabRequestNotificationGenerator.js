@@ -30,7 +30,7 @@ export class LabRequestNotificationGenerator extends ScheduledTask {
           as: 'certificate_notification',
           required: false,
         },
-      ]
+      ],
     });
   }
 

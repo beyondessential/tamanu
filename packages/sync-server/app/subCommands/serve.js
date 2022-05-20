@@ -13,7 +13,7 @@ export const serve = async ({ skipMigrationCheck }) => {
   log.info(`Starting sync server version ${version}.`);
 
   log.info(`Process info`, {
-    execArgs: process.execArgs || "<empty>",
+    execArgs: process.execArgs || '<empty>',
   });
 
   const context = await new ApplicationContext().init();
@@ -26,7 +26,7 @@ export const serve = async ({ skipMigrationCheck }) => {
   const server = app.listen(port, () => {
     log.info(`Server is running on port ${port}!`);
   });
-  
+
   for (const sig of ['SIGINT', 'SIGTERM']) {
     process.on(sig, () => {
       log.info(`Received ${sig}, closing HTTP server`);

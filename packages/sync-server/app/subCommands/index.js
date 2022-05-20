@@ -1,5 +1,4 @@
 export * from './calculateSurveyResults';
-export * from './dev';
 export * from './generate';
 export * from './loadSigner';
 export * from './migrate';
