@@ -6,6 +6,7 @@ import { log } from 'shared/services/logging';
 import * as fijiVrs from './fiji-vrs';
 import * as fijiVps from './fiji-vps';
 import * as signer from './Signer';
+import * as mSupply from './mSupply';
 
 import { checkEuDccConfig } from './EuDcc';
 import { checkSignerConfig } from './Signer';
@@ -15,6 +16,7 @@ const integrations = {
   fijiVrs,
   fijiVps,
   signer,
+  mSupply,
 };
 
 export const integrationRoutes = express.Router();
