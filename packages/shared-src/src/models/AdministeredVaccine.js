@@ -57,6 +57,26 @@ export class AdministeredVaccine extends Model {
       foreignKey: 'scheduledVaccineId',
       as: 'scheduledVaccine',
     });
+
+    this.belongsTo(models.User, {
+      foreignKey: 'giverId',
+      as: 'giver',
+    });
+
+    this.belongsTo(models.User, {
+      foreignKey: 'recorderId',
+      as: 'recorder',
+    });
+
+    this.belongsTo(models.Location, {
+      foreignKey: 'locationId',
+      as: 'location',
+    });
+
+    this.belongsTo(models.Department, {
+      foreignKey: 'departmentId',
+      as: 'department',
+    });
   }
 
   static async lastVaccinationForPatient(patientId, vaccineIds = []) {

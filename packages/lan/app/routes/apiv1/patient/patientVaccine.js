@@ -103,25 +103,36 @@ patientVaccineRoutes.post(
     if (!req.body.scheduledVaccineId) {
       res.status(400).send({ error: { message: 'scheduledVaccineId is required' } });
     }
-    
-    const scheduledVaccine = await req.models.ScheduledVaccine.findByPk(req.body.scheduledVaccineId);
 
-    const encounter = await req.models.Encounter.create({
-      encounterType: ENCOUNTER_TYPES.CLINIC,
-      startDate: req.body.date,
-      endDate: req.body.date,
-      patientId: req.params.id,
-      locationId: req.body.locationId,
-      examinerId: req.body.examinerId ?? req.body.recorderId,
-      recorderId: req.body.recorderId,
-      departmentId: req.body.departmentId,
-      reasonForEncounter: `Administered ${scheduledVaccine.category} vaccine ${scheduledVaccine.label} (${scheduledVaccine.schedule})`,
+    let encounterId;
+    const existingEncounter = await req.models.Encounter.findOne({
+      where: {
+        endDate: {
+          [Op.is]: null,
+        },
+        patientId: req.params.id,
+      },
     });
+
+    if (existingEncounter) {
+      encounterId = existingEncounter.get('id');
+    } else {
+      const newEncounter = await req.models.Encounter.create({
+        encounterType: ENCOUNTER_TYPES.CLINIC,
+        startDate: req.body.date,
+        endDate: req.body.date,
+        patientId: req.params.id,
+        locationId: req.body.locationId,
+        examinerId: req.body.giverId ?? req.body.recorderId,
+        departmentId: req.body.departmentId,
+      });
+      encounterId = newEncounter.get('id');
+    }
 
     const newRecord = await req.models.AdministeredVaccine.create({
       status: 'GIVEN',
       ...req.body,
-      encounterId: encounter.id,
+      encounterId,
     });
     res.send(newRecord);
   }),

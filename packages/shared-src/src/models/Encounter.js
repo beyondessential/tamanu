@@ -160,7 +160,6 @@ export class Encounter extends Model {
       'vitals',
       'department',
       'examiner',
-      'recorder',
       {
         association: 'location',
         include: ['facility'],
@@ -187,11 +186,6 @@ export class Encounter extends Model {
     this.belongsTo(models.User, {
       foreignKey: 'examinerId',
       as: 'examiner',
-    });
-
-    this.belongsTo(models.User, {
-      foreignKey: 'recorderId',
-      as: 'recorder',
     });
 
     this.belongsTo(models.Location, {
