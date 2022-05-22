@@ -4,18 +4,17 @@ import { extname, join } from 'path';
 
 import { Command } from 'commander';
 import { Pkcs10CertificateRequest } from '@peculiar/x509';
+import { execFileSync } from 'child_process';
 import CA from '../ca';
 import crypto from '../crypto';
 import { confirm } from '../utils';
-import { execFileSync } from 'child_process';
 import { validate } from '../ca/Config';
 
 async function run(folder: string, config?: string): Promise<void> {
   const ca = new CA(folder);
   await ca.openReadOnly();
 
-  const configFile =
-    config || join(await fs.mkdtemp(join(tmpdir(), 'csca-reconfig-')), 'config.json');
+  const configFile = config || join(await fs.mkdtemp(join(tmpdir(), 'csca-reconfig-')), 'config.json');
 
   if (!config) {
     // Write existing config to tempfile

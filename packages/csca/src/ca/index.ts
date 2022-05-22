@@ -367,7 +367,7 @@ export default class CA {
     await this.log(key).revoke(serial, date);
   }
 
-  public async exportConfig(pretty: boolean = true): Promise<string> {
+  public async exportConfig(pretty = true): Promise<string> {
     const key = await this.publicKey();
     const config = await this.config(key).export();
     return JSON.stringify(config, null, pretty ? '\t' : undefined);

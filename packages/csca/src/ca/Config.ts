@@ -211,12 +211,10 @@ const SCHEMA = yup.object({
 
             critical: yup.boolean().default(false),
 
-            value: yup.lazy((value: any) =>
-              (typeof value === 'string' && value === 'computed'
-                ? yup.string().matches(/^computed$/)
-                : yup.array()
-              ).required(),
-            ),
+            value: yup.lazy((value: any) => (typeof value === 'string' && value === 'computed'
+              ? yup.string().matches(/^computed$/)
+              : yup.array()
+            ).required()),
           })
           .required(),
       ),

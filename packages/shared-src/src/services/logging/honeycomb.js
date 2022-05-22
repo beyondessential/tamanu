@@ -13,7 +13,7 @@ const { apiKey, dataset, enabled } = config?.honeycomb || {};
 
 const honeyApi = new Libhoney({
   writeKey: apiKey,
-  dataset: dataset,
+  dataset,
   disabled: !(apiKey && enabled),
 });
 
