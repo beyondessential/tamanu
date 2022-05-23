@@ -12,6 +12,9 @@ import {
 export const IDENTIFIER_NAMESPACE = config.hl7.dataDictionaries.patientDisplayId;
 const MAX_RECORDS = 20;
 
+// Explicitly set with the direction sign
+const sortableHL7BaseFields = ['-issued', 'issued'];
+
 // List of all the fixed name parameters that we support
 const baseParameters = {
   // TODO: remove subject:identifier after the fiji VPS is good without it.
@@ -43,7 +46,7 @@ const baseParameters = {
     .required(),
   _sort: yup
     .string()
-    .oneOf(['-issued', 'issued'])
+    .oneOf(sortableHL7BaseFields)
     .default('-issued')
     .required(),
   after: yup
@@ -109,8 +112,8 @@ export const patient = {
           const sorts = value.split(',');
           // Faster to check if one is invalid
           const isInvalid = sorts.some(sort => {
-            // Ignore default value
-            if (sort === '-issued') return false;
+            // Ignore base fields
+            if (sortableHL7BaseFields.includes(sort)) return false;
             // Sort might have a "-" at the beginning, we should ignore it here
             const parameter = getSortParameterName(sort);
             return sortableHL7PatientFields.includes(parameter) === false;
