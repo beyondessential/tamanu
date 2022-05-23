@@ -83,9 +83,9 @@ const BaseConfirmScreen = ({
 const ConfirmScreen = ({ onStepBack, submitForm, onCancel }) => (
   <BaseConfirmScreen
     heading="Confirm death record"
-    text="This action is irreversible. Are you sure you want to record the death of a patient? This
-      should only be done under the direction of the responsible clinician. Do you wish to proceed?"
-    continueButtonText="Record Death"
+    text="This action is irreversible. This should only be done under the direction
+      of the responsible clinician. Do you wish to record the death of this patient?"
+    continueButtonText="Record death"
     onStepBack={onStepBack}
     onContinue={submitForm}
     onCancel={onCancel}
@@ -99,8 +99,8 @@ const DoubleConfirmScreen = ({ onStepBack, submitForm, onCancel }) => {
     return (
       <BaseConfirmScreen
         heading="Patient will be auto-discharged and locked"
-        text="This patient has an active encounter. After recording their death, the patient record will be
-      locked. Please ensure that all encounter details are up-to-date and correct before proceeding."
+        text="This patient has an active encounter. Please ensure that all
+          encounter details are up-to-date and correct before proceeding."
         continueButtonText="Continue"
         onStepBack={onStepBack}
         onContinue={() => {
@@ -178,8 +178,14 @@ export const DeathForm = React.memo(
         SummaryScreen={patient.currentEncounter ? DoubleConfirmScreen : ConfirmScreen}
         validationSchema={yup.object().shape({
           causeOfDeath: yup.string().required(),
-          causeOfDeathInterval: yup.string().required(),
-          clinicianId: yup.string().required(),
+          causeOfDeathInterval: yup
+            .string()
+            .required()
+            .label('Time between onset and death'),
+          clinicianId: yup
+            .string()
+            .required()
+            .label('Attending clinician'),
           lastSurgeryDate: yup
             .date()
             .max(yup.ref('timeOfDeath'), "Date of last surgery can't be after time of death"),
@@ -191,6 +197,7 @@ export const DeathForm = React.memo(
             .min(patient.dateOfBirth, "Time of death can't be before date of birth")
             .required(),
         })}
+        initialValues={{ outsideHealthFacility: false }}
       >
         <StyledFormGrid columns={2}>
           <FieldWithTooltip
@@ -208,13 +215,24 @@ export const DeathForm = React.memo(
             required
           />
           <Field
-            name="causeOfDeath2"
+            name="antecedentCause1"
             label="Due to (or as a consequence of)"
             component={AutocompleteField}
             suggester={icd10Suggester}
           />
           <Field
-            name="causeOfDeath2Interval"
+            name="antecedentCause1Interval"
+            label="Time between onset and death"
+            component={TimeWithUnitField}
+          />
+          <Field
+            name="antecedentCause2"
+            label="Due to (or as a consequence of)"
+            component={AutocompleteField}
+            suggester={icd10Suggester}
+          />
+          <Field
+            name="antecedentCause2Interval"
             label="Time between onset and death"
             component={TimeWithUnitField}
           />
@@ -239,19 +257,19 @@ export const DeathForm = React.memo(
             required
           />
           <Field
-            name="facilityId"
-            label="Facility"
-            component={AutocompleteField}
-            suggester={facilitySuggester}
-          />
-          <Field
             name="timeOfDeath"
             label="Date/Time"
             component={props => <DateTimeField {...props} InputProps={{}} />}
             required
           />
           <Field
-            name="deathOutsideHealthFacility"
+            name="facilityId"
+            label="Facility"
+            component={AutocompleteField}
+            suggester={facilitySuggester}
+          />
+          <Field
+            name="outsideHealthFacility"
             label="Died outside health facility"
             component={CheckField}
             style={{ gridColumn: '1/-1', marginBottom: '10px', marginTop: '5px' }}

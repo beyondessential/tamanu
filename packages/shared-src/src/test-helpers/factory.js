@@ -6,7 +6,6 @@ import {
   fakeEncounter,
   fakeEncounterDiagnosis,
   fakeEncounterMedication,
-  fakePatient,
   fakeProgramDataElement,
   fakeReferenceData,
   fakeScheduledVaccine,
@@ -21,14 +20,15 @@ import {
 // TODO: generic
 
 export const buildEncounter = async (ctx, patientId, optionalEncounterId) => {
-  const patient = fakePatient();
+  const { Patient, User } = ctx.models;
+  const patient = fake(Patient);
   if (patientId) {
     patient.id = patientId;
   }
-  await ctx.models.Patient.upsert(patient);
+  await Patient.upsert(patient);
 
   const examiner = fakeUser('examiner');
-  await ctx.models.User.upsert(examiner);
+  await User.upsert(examiner);
 
   const encounter = fakeEncounter();
   if (optionalEncounterId !== undefined) {

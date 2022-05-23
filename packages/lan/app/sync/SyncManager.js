@@ -62,6 +62,7 @@ export class SyncManager {
         ? channels // waste of effort to check which need pulling if there's only 1, just pull
         : await this.context.remote.fetchChannelsWithChanges(channelsWithCursors);
     const channelsToPullSet = new Set(channelsToPull);
+    log.info(`SyncManager.pullAndImport: found ${channelsToPull.length} channels to pull`);
     for (const { channel, cursor } of channelsWithCursors) {
       if (channelsToPullSet.has(channel)) {
         await this.pullAndImportChannel(model, channel, cursor);
@@ -77,7 +78,7 @@ export class SyncManager {
 
     let cursor = initialCursor;
     let limit = INITIAL_PULL_LIMIT;
-    log.info(`SyncManager.pullAndImport: syncing ${channel} (last: ${cursor})`);
+    log.debug(`SyncManager.pullAndImport: syncing ${channel} (last: ${cursor})`);
 
     // eslint-disable-next-line no-constant-condition
     while (true) {

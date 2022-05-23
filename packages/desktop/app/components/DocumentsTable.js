@@ -134,6 +134,7 @@ export const DocumentsTable = React.memo(
           noDataMessage="No documents found"
           fetchOptions={searchParameters}
           refreshCount={refreshCount}
+          allowExport={false}
         />
         <ConfirmModal
           open={selectedDocumentId !== null}

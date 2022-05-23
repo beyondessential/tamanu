@@ -27,6 +27,9 @@ build
 test.*.hl7.json
 benchmarks/graphs
 coverage
+lint-summary.json
+coverage.md
+lints.md
 
 # Local config files
 **/config/local.*
@@ -39,6 +42,7 @@ coverage
 .tmp
 .keys
 .tmp
+*.csca
 
 # Docker
 /dockercfg

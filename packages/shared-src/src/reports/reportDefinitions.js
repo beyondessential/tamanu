@@ -34,10 +34,16 @@ export const REPORT_DEFINITIONS = [
     ],
   },
   {
-    name: 'Admissions Report',
+    name: 'Admissions - Line list',
     id: 'admissions',
     parameters: [
       { parameterField: 'PractitionerField' },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Patient Billing Type',
+        name: 'patientBillingType',
+        suggesterEndpoint: 'patientBillingType',
+      },
       {
         parameterField: 'ParameterAutocompleteField',
         label: 'Location',
@@ -127,6 +133,12 @@ export const REPORT_DEFINITIONS = [
     name: 'Palau COVID-19 Test - Line list',
     id: 'palau-covid-swab-lab-test-list',
     allFacilities: true,
+  },
+  {
+    name: 'Palau COVID-19 Case Report - Line list',
+    id: 'palau-covid-case-report-line-list',
+    allFacilities: true,
+    parameters: [{ parameterField: 'VillageField' }],
   },
   {
     name: 'Kiribati COVID-19 Test - Line list',
@@ -309,6 +321,19 @@ export const REPORT_DEFINITIONS = [
         label: 'Location',
         name: 'location',
         suggesterEndpoint: 'location',
+      },
+    ],
+  },
+  {
+    name: 'Generic Survey Export - Line List',
+    id: 'generic-survey-export-line-list',
+    parameters: [
+      { parameterField: 'VillageField' },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Survey',
+        name: 'surveyId',
+        suggesterEndpoint: 'survey',
       },
     ],
   },

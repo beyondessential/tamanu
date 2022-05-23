@@ -30,7 +30,7 @@ export class FamilyHistoryForm extends React.PureComponent {
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
-        <Field name="notes" label="Notes" component={TextField} multiline rows={2} />
+        <Field name="note" label="Notes" component={TextField} multiline rows={2} />
         <ConfirmCancelRow onConfirm={submitForm} onCancel={onCancel} confirmText={buttonText} />
       </FormGrid>
     );

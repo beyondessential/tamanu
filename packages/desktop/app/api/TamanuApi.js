@@ -1,8 +1,7 @@
-import faye from 'faye';
 import { promises } from 'fs';
 import qs from 'qs';
 
-import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
+import { VERSION_COMPATIBILITY_ERRORS, SERVER_TYPES } from 'shared/constants';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 
 const { HOST, TOKEN, LOCALISATION, SERVER } = LOCAL_STORAGE_KEYS;
@@ -85,7 +84,6 @@ export class TamanuApi {
     this.onAuthFailure = null;
     this.authHeader = null;
     this.onVersionIncompatible = null;
-    this.pendingSubscriptions = [];
     this.user = null;
 
     const host = window.localStorage.getItem(HOST);
@@ -97,11 +95,6 @@ export class TamanuApi {
   setHost(host) {
     this.host = host;
     this.prefix = `${host}/v1`;
-    this.fayeClient = new faye.Client(`${host}/faye`);
-    this.pendingSubscriptions.forEach(({ recordType, changeType, callback }) =>
-      this.subscribeToChanges(recordType, changeType, callback),
-    );
-    this.pendingSubscriptions = [];
 
     // save host in local storage
     window.localStorage.setItem(HOST, host);
@@ -127,15 +120,21 @@ export class TamanuApi {
 
   async login(host, email, password) {
     this.setHost(host);
-    const response = await this.post('login', { email, password });
-    const { token, localisation, server } = response;
+    const response = await this.post('login', { email, password }, { returnResponse: true });
+    const serverType = response.headers.get('X-Tamanu-Server');
+    if (![SERVER_TYPES.LAN, SERVER_TYPES.SYNC].includes(serverType)) {
+      throw new Error(`Tamanu server type '${serverType}' is not supported.`);
+    }
+
+    const { token, localisation, server = {}, permissions } = await response.json();
+    server.type = serverType;
     saveToLocalStorage({ token, localisation, server });
     this.setToken(token);
     this.lastRefreshed = Date.now();
 
     const user = await this.get('user/me');
     this.user = user;
-    return { user, token, localisation, server };
+    return { user, token, localisation, server, permissions };
   }
 
   async requestPasswordReset(host, email) {
@@ -167,7 +166,7 @@ export class TamanuApi {
     if (!this.host) {
       throw new Error("TamanuApi can't be used until the host is set");
     }
-    const { headers, ...otherConfig } = config;
+    const { headers, returnResponse = false, ...otherConfig } = config;
     const queryString = qs.stringify(query || {});
     const url = `${this.prefix}/${endpoint}${query ? `?${queryString}` : ''}`;
     const response = await fetchOrThrowIfUnavailable(url, {
@@ -186,6 +185,9 @@ export class TamanuApi {
         this.refreshToken();
       }
 
+      if (returnResponse) {
+        return response;
+      }
       return response.json();
     }
 
@@ -210,11 +212,11 @@ export class TamanuApi {
     throw new Error(error?.message || response.status);
   }
 
-  async get(endpoint, query) {
-    return this.fetch(endpoint, query, { method: 'GET' });
+  async get(endpoint, query, options = {}) {
+    return this.fetch(endpoint, query, { method: 'GET', ...options });
   }
 
-  async postWithFileUpload(endpoint, filePath, body) {
+  async postWithFileUpload(endpoint, filePath, body, options = {}) {
     const fileData = await promises.readFile(filePath);
     const blob = new Blob([fileData]);
 
@@ -230,43 +232,33 @@ export class TamanuApi {
     return this.fetch(endpoint, null, {
       method: 'POST',
       body: formData,
+      ...options,
     });
   }
 
-  async post(endpoint, body) {
+  async post(endpoint, body, options = {}) {
     return this.fetch(endpoint, null, {
       method: 'POST',
       body: body && JSON.stringify(body),
       headers: {
         'Content-Type': 'application/json',
       },
+      ...options,
     });
   }
 
-  async put(endpoint, body) {
+  async put(endpoint, body, options = {}) {
     return this.fetch(endpoint, null, {
       method: 'PUT',
       body: body && JSON.stringify(body),
       headers: {
         'Content-Type': 'application/json',
       },
+      ...options,
     });
   }
 
-  async delete(endpoint, query) {
-    return this.fetch(endpoint, query, { method: 'DELETE' });
-  }
-
-  /**
-   * @param {*} changeType  Currently one of save, remove, wipe, or * for all
-   */
-  subscribeToChanges(recordType, changeType, callback) {
-    // until the faye client has been set up, push any subscriptions into an array
-    if (!this.fayeClient) {
-      this.pendingSubscriptions.push({ recordType, changeType, callback });
-    } else {
-      const channel = `/${recordType}${changeType ? `/${changeType}` : '/*'}`;
-      this.fayeClient.subscribe(channel, callback);
-    }
+  async delete(endpoint, query, options = {}) {
+    return this.fetch(endpoint, query, { method: 'DELETE', ...options });
   }
 }

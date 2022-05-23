@@ -31,6 +31,8 @@ import * as fijiNcdPrimaryScreeningSummary from './fiji-ncd-primary-screening/fi
 import * as fijiStatisticalReportForPhisSummary from './fiji-statistical-report-for-phis-summary';
 import * as samoaSchoolNurseLineList from './samoa-school-nurse-line-list';
 import * as samoaVillageLineList from './samoa-village-line-list';
+import * as palauCovidCaseReportLineList from './covid-module/palau/palau-covid-case-report-line-list';
+import * as genericSurveyExportLineList from './generic-survey-export-line-list';
 
 export function getReportModule(reportType) {
   switch (reportType) {
@@ -102,6 +104,10 @@ export function getReportModule(reportType) {
       return fijiNcdPrimaryScreeningSummary;
     case 'fiji-statistical-report-for-phis-summary':
       return fijiStatisticalReportForPhisSummary;
+    case 'palau-covid-case-report-line-list':
+      return palauCovidCaseReportLineList;
+    case 'generic-survey-export-line-list':
+      return genericSurveyExportLineList;
   }
 }
 

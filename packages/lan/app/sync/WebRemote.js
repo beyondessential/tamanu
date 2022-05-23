@@ -7,7 +7,7 @@ import { getResponseJsonSafely } from 'shared/utils';
 import { log } from 'shared/services/logging';
 import { fetchWithTimeout } from 'shared/utils/fetchWithTimeout';
 
-import { version } from '../../package.json';
+import { version } from '../serverInfo';
 import { callWithBackoff } from './callWithBackoff';
 
 const API_VERSION = 'v1';
@@ -245,7 +245,7 @@ export class WebRemote {
       }
     }
 
-    log.debug(
+    log.info(
       `WebRemote.fetchChannelsWithChanges: Channel check finished. Found ${channelsWithPendingChanges.length} channels with pending changes.`,
     );
     return channelsWithPendingChanges;

@@ -1,5 +1,9 @@
 import React from 'react';
 import { Switch, Route, Redirect } from 'react-router';
+import { useSelector } from 'react-redux';
+
+import { SERVER_TYPES } from 'shared/constants';
+
 import { App } from './App';
 import {
   PatientsRoutes,
@@ -14,9 +18,19 @@ import {
   ReportsRoutes,
   ImmunisationRoutes,
 } from './routes';
+import {
+  ConnectedFacilitySidebar,
+  ConnectedSyncSidebar,
+} from './components/Sidebar/ConnectedSidebar';
+import { TopBar, Notification } from './components';
 
-export const RoutingApp = React.memo(() => (
-  <App>
+export const RoutingApp = () => {
+  const isSyncServer = useSelector(state => state.auth?.server?.type === SERVER_TYPES.SYNC);
+  return isSyncServer ? <RoutingAdminApp /> : <RoutingFacilityApp />;
+};
+
+export const RoutingFacilityApp = React.memo(() => (
+  <App sidebar={<ConnectedFacilitySidebar />}>
     <Switch>
       <Redirect exact path="/" to="/patients" />
       <Route path="/patients" component={PatientsRoutes} />
@@ -37,3 +51,27 @@ export const RoutingApp = React.memo(() => (
     </Switch>
   </App>
 ));
+
+export const RoutingAdminApp = React.memo(() => (
+  <App sidebar={<ConnectedSyncSidebar />}>
+    <Switch>
+      {/* <Redirect exact path="/" to="/admin" /> */}
+      <Route path="/" component={AdminPlaceholder} />
+      {/*
+       * TODO fix this hack. For some reason, having an empty object within this switch fixes a bug
+       * where none of the app contents would render in a production build.
+       */}
+    </Switch>
+  </App>
+));
+
+export const AdminPlaceholder = React.memo(() => {
+  const user = useSelector(state => state.auth?.user);
+
+  return (
+    <>
+      <TopBar title="New sync admin panel" />
+      <Notification message={`Successfully logged in as ${user.displayName}`} />
+    </>
+  );
+});

@@ -53,7 +53,7 @@ function extractKeyD(keyData) {
  *
  *  @returns The HCERT encoded data
  */
-export async function HCERTPack(messageData, models) {
+export async function HCERTPack(messageData, { models }) {
   log.info('HCERT Packing message data');
   const signer = await models.Signer.findActive();
   if (!signer) {
@@ -105,7 +105,7 @@ export async function HCERTPack(messageData, models) {
  *
  * @returns The decoded HCERT data
  */
-export async function HCERTVerify(packedData, models) {
+export async function HCERTVerify(packedData, { models }) {
   log.info('Verifying HCERT message');
   const signer = await models.Signer.findActive();
 

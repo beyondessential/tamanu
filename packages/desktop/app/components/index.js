@@ -2,6 +2,7 @@ export * from './TopBar';
 export * from './Button';
 export * from './ButtonRow';
 export * from './DateDisplay';
+export * from './DeathCertificateModal';
 export * from './Dialog';
 export * from './Field';
 export * from './FormGrid';

@@ -3,6 +3,7 @@ import { Redirect } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import PrintIcon from '@material-ui/icons/Print';
+import Box from '@material-ui/core/Box';
 
 import { PrintPortal, PrintLetterhead } from '../../components/PatientPrinting';
 import { LocalisedText } from '../../components/LocalisedText';
@@ -13,14 +14,11 @@ import { TopBar } from '../../components';
 import { useEncounter } from '../../contexts/Encounter';
 import { useElectron } from '../../contexts/Electron';
 import { Colors } from '../../constants';
+import { useCertificate } from '../../utils/useCertificate';
 
 const SummaryPageContainer = styled.div`
-  position: relative;
   margin: 0 auto;
   max-width: 830px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 `;
 
 const Label = styled.span`
@@ -36,23 +34,19 @@ const StyledBackButton = styled(BackButton)`
 const Content = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
-  margin: 0 50px;
   grid-column-gap: 100px;
-  width: 100%;
 `;
 
 const Header = styled.section`
   display: grid;
   grid-template-columns: 1fr 1fr;
-  margin: 50px 50px 20px 50px;
   grid-column-gap: 100px;
-  width: 100%;
+  margin: 50px 0 20px 0;
 `;
 
 const HorizontalLine = styled.div`
-  margin: 20px 50px;
+  margin: 20px 0;
   border-top: 1px solid ${Colors.primaryDark};
-  width: 100%;
 `;
 
 const ListColumn = styled.div`
@@ -92,7 +86,7 @@ const ProceduresList = ({ procedures }) => {
 
   return procedures.map(procedure => (
     <li>
-      {procedure.description} (<Label>CPT Code: </Label> {procedure.cptCode})
+      {procedure.procedureType.name} (<Label>CPT Code: </Label> {procedure.procedureType.code})
     </li>
   ));
 };
@@ -116,6 +110,8 @@ const MedicationsList = ({ medications }) => {
 };
 
 const SummaryPage = React.memo(({ encounter, discharge }) => {
+  const { title, subTitle, logo } = useCertificate();
+
   const patient = useSelector(state => state.patient);
 
   const {
@@ -134,7 +130,12 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
 
   return (
     <SummaryPageContainer>
-      <PrintLetterhead />
+      <PrintLetterhead
+        title={title}
+        subTitle={subTitle}
+        logoSrc={logo}
+        pageTitle="Patient Discharge Summary"
+      />
       <Header>
         <h4>
           <Label>Patient name: </Label>
@@ -207,7 +208,6 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
           <Label>Discharge planning notes:</Label>
           <div style={{ whiteSpace: 'pre-wrap' }}>{discharge?.note}</div>
         </div>
-        <div />
       </Content>
     </SummaryPageContainer>
   );
@@ -250,7 +250,9 @@ export const DischargeSummaryView = React.memo(() => {
       </NavContainer>
       <SummaryPage encounter={encounter} discharge={discharge} />
       <PrintPortal>
-        <SummaryPage encounter={encounter} discharge={discharge} />
+        <Box p={5}>
+          <SummaryPage encounter={encounter} discharge={discharge} />
+        </Box>
       </PrintPortal>
     </>
   );

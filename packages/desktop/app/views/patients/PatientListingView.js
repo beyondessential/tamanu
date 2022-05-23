@@ -62,6 +62,14 @@ const PatientTable = ({ onViewPatient, showInpatientDetails, fetchOptions, ...pr
       'lastName',
       'dateOfBirthExact',
       [
+        'facilityId',
+        {
+          placeholder: 'Facility',
+          suggester: new Suggester(api, 'facility'),
+          component: AutocompleteField,
+        },
+      ],
+      [
         'locationId',
         {
           placeholder: 'Location',
@@ -86,7 +94,7 @@ const PatientTable = ({ onViewPatient, showInpatientDetails, fetchOptions, ...pr
         },
       ],
     ],
-    [],
+    [api],
   );
   const columns = showInpatientDetails ? INPATIENT_COLUMNS : LISTING_COLUMNS;
   const fetchOptionsWithSearchParameters = { ...searchParameters, ...fetchOptions };
@@ -95,6 +103,7 @@ const PatientTable = ({ onViewPatient, showInpatientDetails, fetchOptions, ...pr
       <PatientSearchBar
         onSearch={setSearchParameters}
         fields={showInpatientDetails ? INPATIENT_SEARCH_FIELDS : undefined}
+        showDeceasedPatientsCheckbox={!showInpatientDetails}
       />
       <StyledDataTable
         columns={columns}

@@ -1,19 +1,20 @@
 import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
+import { ACTION_DATA_ELEMENT_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from 'shared/constants';
 import { Model } from './Model';
 import { runCalculations } from '../utils/calculations';
 import { getStringValue, getResultValue } from '../utils/fields';
 
-const handleSurveyResponseActions = async (models, actions, questions, patientId) => {
+const handleSurveyResponseActions = async (models, actions, questions, answers, patientId) => {
   const actionQuestions = questions
-    .filter(q => q.dataElement.type === 'PatientIssue')
+    .filter(q => ACTION_DATA_ELEMENT_TYPES.includes(q.dataElement.type))
     .filter(({ dataElement }) => Object.keys(actions).includes(dataElement.id));
 
   for (const question of actionQuestions) {
     const { dataElement, config: configString } = question;
+    const config = JSON.parse(configString) || {};
     switch (dataElement.type) {
-      case 'PatientIssue': {
-        const config = JSON.parse(configString) || {};
+      case PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE: {
         if (!config.issueNote || !config.issueType)
           throw new InvalidOperationError(
             `Ill-configured PatientIssue with config: ${configString}`,
@@ -23,6 +24,37 @@ const handleSurveyResponseActions = async (models, actions, questions, patientId
           type: config.issueType,
           note: config.issueNote,
         });
+        break;
+      }
+      case PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA: {
+        if (config.writeToPatient) {
+          if (!config.writeToPatient.fieldName) {
+            throw new Error('No fieldName defined for writeToPatient config');
+          }
+          const patient = await models.Patient.findOne({
+            where: { id: patientId },
+            include: [
+              {
+                model: models.PatientAdditionalData,
+                as: 'additionalData',
+              },
+            ],
+          });
+          const additionalData = patient?.additionalData?.[0];
+          if (config.writeToPatient.isAdditionalDataField) {
+            if (!additionalData) {
+              throw new Error(`Unable to find additionalData for patientId ${patientId}`);
+            }
+            additionalData[config.writeToPatient.fieldName] = answers[dataElement.id];
+            await additionalData.save();
+          } else {
+            if (!patient) {
+              throw new Error(`Unable to find patient for id ${patientId}`);
+            }
+            patient[config.writeToPatient.fieldName] = answers[dataElement.id];
+            await patient.save();
+          }
+        }
         break;
       }
       default:
@@ -123,7 +155,7 @@ export class SurveyResponse extends Model {
 
     const questions = await models.SurveyScreenComponent.getComponentsForSurvey(surveyId);
 
-    await handleSurveyResponseActions(models, actions, questions, patientId);
+    await handleSurveyResponseActions(models, actions, questions, answers, patientId);
 
     const calculatedAnswers = runCalculations(questions, answers);
     const finalAnswers = {

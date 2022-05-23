@@ -16,7 +16,7 @@ const DISEASE_AGENT_CODE = '840539006';
 const VACCINE_CODE = 'J07BX03';
 
 const DRUG_TO_PRODUCT = {
-  'drug-COVID-19-Astra-Zeneca': 'EU/1/20/1529',
+  'drug-COVID-19-Astra-Zeneca': 'EU/1/21/1529',
   'drug-COVID-19-Pfizer': 'EU/1/20/1528',
 };
 
@@ -59,7 +59,7 @@ export async function createEuDccVaccinationData(administeredVaccineId, { models
             include: [
               {
                 model: Facility,
-                as: 'Facility',
+                as: 'facility',
               },
             ],
           },
@@ -82,10 +82,6 @@ export async function createEuDccVaccinationData(administeredVaccineId, { models
     throw new Error(`No vaccination found with id=${administeredVaccineId}`);
   }
 
-  if (!['COVID-19 AZ', 'COVID-19 Pfizer'].includes(vaccination.scheduledVaccine.label)) {
-    throw new Error('Vaccination is not a COVID-19 vaccine');
-  }
-
   if (vaccination.status !== 'GIVEN') {
     throw new Error('Vaccination is not given');
   }
@@ -100,7 +96,7 @@ export async function createEuDccVaccinationData(administeredVaccineId, { models
     encounter: {
       patient,
       location: {
-        Facility: { name: facilityName },
+        facility: { name: facilityName },
       },
     },
   } = vaccination;

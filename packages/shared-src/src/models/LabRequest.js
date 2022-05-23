@@ -114,6 +114,11 @@ export class LabRequest extends Model {
       foreignKey: 'labRequestId',
       as: 'tests',
     });
+
+    this.hasMany(models.CertificateNotification, {
+      foreignKey: 'labRequestId',
+      as: 'certificate_notification',
+    });
   }
 
   static getListReferenceAssociations() {

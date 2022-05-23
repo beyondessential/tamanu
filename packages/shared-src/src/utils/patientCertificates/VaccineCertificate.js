@@ -1,5 +1,8 @@
 import React from 'react';
 import { Document, Page } from '@react-pdf/renderer';
+
+import { generateUVCI } from 'shared/utils/uvci';
+
 import { Table } from './Table';
 import { styles, Col, Box, Row, Watermark } from './Layout';
 import { PatientDetailsSection } from './PatientDetailsSection';
@@ -40,7 +43,7 @@ const columns = [
   {
     key: 'date',
     title: 'Date',
-    accessor: ({ date }, getLocalisation) => getDisplayDate(date, null, getLocalisation),
+    accessor: ({ date }, getLocalisation) => getDisplayDate(date, undefined, getLocalisation),
   },
   {
     key: 'batch',
@@ -48,6 +51,16 @@ const columns = [
     accessor: ({ batch }) => batch,
   },
 ];
+
+function getUvciFromVaccinations(vaccinations, format, countryCode, covidVaccines) {
+  const vaxes =
+    format === 'tamanu'
+      ? vaccinations
+      : vaccinations.filter(vax => covidVaccines.includes(vax.scheduledVaccine.vaccine.id));
+
+  vaxes.sort((a, b) => +a.date - +b.date);
+  return generateUVCI(vaxes[0]?.id, { format, countryCode });
+}
 
 export const VaccineCertificate = ({
   patient,
@@ -58,13 +71,18 @@ export const VaccineCertificate = ({
   watermarkSrc,
   vdsSrc,
   logoSrc,
+  uvci,
   getLocalisation,
   extraPatientFields,
 }) => {
   const contactEmail = getLocalisation('templates.vaccineCertificate.emailAddress');
   const contactNumber = getLocalisation('templates.vaccineCertificate.contactNumber');
   const healthFacility = getLocalisation('templates.vaccineCertificate.healthFacility');
+  const countryCode = getLocalisation('country.alpha-3');
   const countryName = getLocalisation('country.name');
+  const uvciFormat = getLocalisation('previewUvciFormat');
+  const covidVaccines = getLocalisation('covidVaccines');
+
   const data = vaccinations.map(vaccination => ({ ...vaccination, countryName, healthFacility }));
 
   return (
@@ -79,6 +97,9 @@ export const VaccineCertificate = ({
           getLocalisation={getLocalisation}
           certificateId={certificateId}
           extraFields={extraPatientFields}
+          uvci={
+            uvci || getUvciFromVaccinations(vaccinations, uvciFormat, countryCode, covidVaccines)
+          }
         />
         <Box mb={20}>
           <Table data={data} columns={columns} getLocalisation={getLocalisation} />

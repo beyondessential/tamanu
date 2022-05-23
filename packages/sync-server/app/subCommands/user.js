@@ -34,9 +34,7 @@ export const changePassword = async ({ email }) => {
   }
 };
 
-export const userCommand = new Command('user');
-
-userCommand
+export const userCommand = new Command('user')
   .command('changePassword')
   .requiredOption('-e, --email <email>') // this is an option to allow e.g. --id in future
   .action(changePassword);
