@@ -184,11 +184,10 @@ export class ReportRequestProcessor extends ScheduledTask {
           status: REPORT_REQUEST_STATUSES.PROCESSED,
         });
       } catch (e) {
-        log.error(`ReportRequestProcessorError - Failed to generate report, ${e.message}`);
-        log.error(e.stack);
+        log.error(`${e.stack}\nReportRequestProcessorError - Failed to generate report`);
         await request.update({
           status: REPORT_REQUEST_STATUSES.ERROR,
-          error: e.message,
+          error: e.stack,
         });
       }
     }
