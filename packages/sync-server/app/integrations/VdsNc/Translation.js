@@ -53,6 +53,16 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
     },
     include: [
       {
+        model: Location,
+        as: 'location',
+        include: [
+          {
+            model: Facility,
+            as: 'facility',
+          },
+        ],
+      },
+      {
         model: Encounter,
         as: 'encounter',
         include: [
@@ -93,16 +103,21 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
     const {
       batch,
       date,
+      location: {
+        facility: { name: vaccineFacilityName },
+      },
       scheduledVaccine: {
         schedule,
         vaccine: { name: label },
       },
       encounter: {
         location: {
-          facility: { name: facility },
+          facility: { name: encounterFacilityName },
         },
       },
     } = dose;
+    
+    const facilityName = vaccineFacilityName ?? encounterFacilityName;
 
     const event = {
       dvc: moment(date)
@@ -111,7 +126,7 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
       seq: SCHEDULE_TO_SEQUENCE[schedule] ?? SEQUENCE_MAX + 1,
       ctr: countryCode,
       lot: batch || 'Unknown', // If batch number was not recorded, we add a indicative string value to complete ICAO validation
-      adm: facility,
+      adm: facilityName,
     };
 
     if (vaccines.has(label)) {

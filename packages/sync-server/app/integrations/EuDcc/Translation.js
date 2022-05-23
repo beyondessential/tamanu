@@ -46,6 +46,16 @@ export async function createEuDccVaccinationData(administeredVaccineId, { models
   const vaccination = await AdministeredVaccine.findByPk(administeredVaccineId, {
     include: [
       {
+        model: Location,
+        as: 'location',
+        include: [
+          {
+            model: Facility,
+            as: 'facility',
+          },
+        ],
+      },
+      {
         model: Encounter,
         as: 'encounter',
         include: [
@@ -89,6 +99,9 @@ export async function createEuDccVaccinationData(administeredVaccineId, { models
   const {
     id,
     date,
+    location: {
+      facility: { name: vaccineFacilityName },
+    },
     scheduledVaccine: {
       schedule,
       vaccine: { id: vaccineId },
@@ -96,10 +109,12 @@ export async function createEuDccVaccinationData(administeredVaccineId, { models
     encounter: {
       patient,
       location: {
-        facility: { name: facilityName },
+        facility: { name: encounterFacilityName },
       },
     },
   } = vaccination;
+  
+  const facilityName = vaccineFacilityName ?? encounterFacilityName;
 
   if (!Object.keys(DRUG_TO_PRODUCT).includes(vaccineId)) {
     throw new Error(`Unsupported vaccine: ${vaccineId}`);
