@@ -43,7 +43,7 @@ export async function up(query: QueryInterface) {
     type: STRING,
     allowNull: true,
     references: {
-      model: 'deparments',
+      model: 'departments',
       key: 'id',
     },
   });
