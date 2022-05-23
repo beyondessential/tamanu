@@ -25,10 +25,6 @@ export async function up(query: QueryInterface) {
     SET administered_vaccines.recorder_id = encounters.examiner_id,
         administered_vaccines.giver_id    = encounters.examiner_id
   `);
-  await query.changeColumn('administered_vaccines', 'recorder_id', {
-    type: STRING,
-    allowNull: false,
-  });
 
   await query.removeColumn('administered_vaccines', 'location');
   await query.addColumn('administered_vaccines', 'location_id', {
