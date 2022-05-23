@@ -73,4 +73,44 @@ describe('Suggestions', () => {
     expect(body).toBeInstanceOf(Array);
     expect(body.length).toBeGreaterThan(0);
   });
+
+  it('should get suggestions for a survey', async () => {
+    const programId = 'all-survey-program-id';
+    const obsoleteSurveyId = 'obsolete-survey-id';
+    await models.Program.create({
+      id: programId,
+      name: 'Program',
+    });
+
+    await models.Survey.bulkCreate([
+      {
+        id: 'obsolete-survey-id',
+        programId,
+        name: 'XX - Obsolete Survey',
+      },
+      {
+        id: 'referral-survey-id',
+        programId,
+        name: 'XX - Referral Survey',
+      },
+      {
+        id: 'program-survey-id',
+        programId,
+        name: 'XX - Program Survey',
+      },
+      {
+        id: 'program-survey-id',
+        programId,
+        name: 'ZZ - Program Survey',
+      },
+    ]);
+
+    const result = await userApp.get('/v1/suggestions/survey?q=X');
+    expect(result).toHaveSucceeded();
+    const { body } = result;
+    expect(body).toBeInstanceOf(Array);
+    expect(body.length).toBe(2);
+    const idArray = body.map(({ id }) => id);
+    expect(idArray).not.toContain(obsoleteSurveyId);
+  });
 });
