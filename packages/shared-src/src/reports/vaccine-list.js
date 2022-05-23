@@ -119,11 +119,11 @@ export async function queryCovidVaccineListData(models, parameters) {
       status,
       batch,
       scheduledVaccine: { schedule, label: vaccineName },
-      giver: { displayName: giverName },
-      recorder: { displayName: recorderName },
+      giver,
+      recorder,
     } = vaccine;
 
-    const vaccinator = giverName ?? recorderName ?? examinerName;
+    const vaccinator = giver?.displayName ?? recorder?.displayName ?? examinerName;
 
     const record = {
       patientId,
