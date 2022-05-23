@@ -83,6 +83,14 @@ export async function queryCovidVaccineListData(models, parameters) {
         model: models.ScheduledVaccine,
         as: 'scheduledVaccine',
       },
+      {
+        model: models.User,
+        as: 'giver',
+      },
+      {
+        model: models.User,
+        as: 'recorder',
+      },
     ],
     where: parametersToSqlWhere(parameters),
     order: [
@@ -111,7 +119,11 @@ export async function queryCovidVaccineListData(models, parameters) {
       status,
       batch,
       scheduledVaccine: { schedule, label: vaccineName },
+      giver: { displayName: giverName },
+      recorder: { displayName: recorderName },
     } = vaccine;
+
+    const vaccinator = giverName ?? recorderName ?? examinerName;
 
     const record = {
       patientId,
@@ -125,7 +137,7 @@ export async function queryCovidVaccineListData(models, parameters) {
       vaccineStatus: status === 'GIVEN' ? 'Yes' : 'No',
       vaccineDate: moment(date).format('DD-MM-YYYY'),
       batch: status === 'GIVEN' ? batch : '',
-      vaccinator: status === 'GIVEN' ? examinerName : '',
+      vaccinator: status === 'GIVEN' ? vaccinator : '',
     };
 
     reportData.push(record);
