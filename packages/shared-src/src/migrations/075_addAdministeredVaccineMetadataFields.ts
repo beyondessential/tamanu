@@ -20,7 +20,8 @@ export async function up(query: QueryInterface) {
   });
   await query.sequelize.query(`
     UPDATE administered_vaccines
-    JOIN encounters ON administered_vaccines.encounter_id = encounters.id
+    FROM encounters
+    WHERE administered_vaccines.encounter_id = encounters.id
     SET administered_vaccines.recorder_id = encounters.examiner_id,
         administered_vaccines.giver_id    = encounters.examiner_id
   `);
