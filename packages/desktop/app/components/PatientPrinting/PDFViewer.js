@@ -16,6 +16,8 @@ export const PDFViewer = ({ id, children, props }) => {
   useEffect(() => {
     updateInstance();
   }, [updateInstance, children]);
+  
+  if (!instance.url) return null;
 
   return (
     <FullIframe
