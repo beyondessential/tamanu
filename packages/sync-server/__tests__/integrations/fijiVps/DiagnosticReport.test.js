@@ -453,7 +453,7 @@ describe('VPS integration - DiagnosticReport', () => {
       await createLabTestHierarchy(patient);
 
       const id = encodeURIComponent(`https://wrong.com/this-is-wrong|${patient.displayId}`);
-      const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=issued&_page=-1&_count=101&status=invalid-status&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Asomething-invalid`;
+      const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=deceased&_page=-1&_count=101&status=invalid-status&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Asomething-invalid`;
 
       // act
       const response = await app
@@ -468,7 +468,7 @@ describe('VPS integration - DiagnosticReport', () => {
             'subject:identifier must be in the format "<namespace>|<id>"',
             '_count must be less than or equal to 20',
             '_page must be greater than or equal to 0',
-            '_sort must be one of the following values: -issued',
+            '_sort must be one of the following values: -issued, issued',
             'status must be one of the following values: final',
             '_include[0] must be one of the following values: DiagnosticReport:result, DiagnosticReport:result.device:Device',
           ],

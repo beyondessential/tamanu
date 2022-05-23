@@ -43,7 +43,7 @@ const baseParameters = {
     .required(),
   _sort: yup
     .string()
-    .oneOf(['-issued'])
+    .oneOf(['-issued', 'issued'])
     .default('-issued')
     .required(),
   after: yup

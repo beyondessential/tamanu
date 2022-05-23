@@ -13,14 +13,16 @@ export function hl7SortToTamanu(hl7Sort, modelName) {
 
   // Create list of Tamanu sorts
   const tamanuSorts = sorts.map(sort => {
-    // Default value for the field
-    if (sort === '-issued') return ['createdAt', 'DESC'];
+    // Allow a "-" at the beginning to reverse sort
+    const parameter = getSortParameterName(sort);
+    const direction = sort[0] === '-' ? 'DESC' : 'ASC';
+
+    // Base parameters
+    if (parameter === 'issued') return ['createdAt', direction];
+
     // Parse patient parameters
     if (modelName === 'Patient') {
-      // Sort might have a "-" at the beginning
-      const parameter = getSortParameterName(sort);
       if (sortableHL7PatientFields.includes(parameter)) {
-        const direction = sort[0] === '-' ? 'DESC' : 'ASC';
         const { fieldName } = hl7PatientFields[parameter];
         return [fieldName, direction];
       }
