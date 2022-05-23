@@ -99,9 +99,7 @@ export async function createEuDccVaccinationData(administeredVaccineId, { models
   const {
     id,
     date,
-    location: {
-      facility: { name: vaccineFacilityName },
-    },
+    location,
     scheduledVaccine: {
       schedule,
       vaccine: { id: vaccineId },
@@ -114,7 +112,7 @@ export async function createEuDccVaccinationData(administeredVaccineId, { models
     },
   } = vaccination;
 
-  const facilityName = vaccineFacilityName ?? encounterFacilityName;
+  const facilityName = location?.facility?.name ?? encounterFacilityName;
 
   if (!Object.keys(DRUG_TO_PRODUCT).includes(vaccineId)) {
     throw new Error(`Unsupported vaccine: ${vaccineId}`);

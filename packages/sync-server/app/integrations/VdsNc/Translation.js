@@ -103,9 +103,7 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
     const {
       batch,
       date,
-      location: {
-        facility: { name: vaccineFacilityName },
-      },
+      location,
       scheduledVaccine: {
         schedule,
         vaccine: { name: label },
@@ -117,7 +115,7 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
       },
     } = dose;
 
-    const facilityName = vaccineFacilityName ?? encounterFacilityName;
+    const facilityName = location?.facility?.name ?? encounterFacilityName;
 
     const event = {
       dvc: moment(date)
