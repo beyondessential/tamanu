@@ -125,16 +125,23 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
   ];
 
   const validate = (values: object): object => {
-    const errors = {};
+    const hasAtLeastOneReading = !Object.entries(values).some(([key, value]) => {
+      // Only check fields containing a vital reading
+      if (requiresOneOfFields.includes(key) === false) {
+        return false;
+      }
 
-    const requiredFieldFilter = (val: string) => requiresOneOfFields.includes(val);
-    const valueFields = Object.keys(values).filter(requiredFieldFilter);
+      // Check if value is truthy (not 0 or empty string)
+      return !!value;
+    });
 
-    if (valueFields.length === 0) {
-      errors['form'] = 'At least one vital must be recorded.';
+    if (hasAtLeastOneReading) {
+      return {
+        form: 'At least one vital must be recorded.',
+      };
     }
 
-    return errors;
+    return {};
   };
 
   const navigateToHistory = useCallback(() => {
