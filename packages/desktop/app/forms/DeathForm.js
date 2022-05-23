@@ -3,7 +3,11 @@ import * as yup from 'yup';
 import { Typography } from '@material-ui/core';
 import styled from 'styled-components';
 import moment from 'moment';
+import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
+import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline';
 import MuiBox from '@material-ui/core/Box';
+import IconButton from '@material-ui/core/IconButton';
+import { generate } from 'shortid';
 import { FormGrid } from '../components/FormGrid';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import {
@@ -165,6 +169,11 @@ const mannerOfDeathVisibilityCriteria = {
 
 export const DeathForm = React.memo(
   ({ onCancel, onSubmit, patient, practitionerSuggester, icd10Suggester, facilitySuggester }) => {
+    const [otherConditions, setOtherConditions] = useState([
+      {
+        id: generate(),
+      },
+    ]);
     const patientYearsOld = moment().diff(patient.dateOfBirth, 'years');
     const isAdultFemale = patient.sex === 'female' && patientYearsOld >= 12;
 
@@ -237,17 +246,47 @@ export const DeathForm = React.memo(
             component={TimeWithUnitField}
           />
           <FormSeparatorLine />
-          <Field
-            name="otherContributingConditions"
-            label="Other contributing conditions"
-            component={AutocompleteField}
-            suggester={icd10Suggester}
-          />
-          <Field
-            name="otherContributingConditionsInterval"
-            label="Time between onset and death"
-            component={TimeWithUnitField}
-          />
+          {otherConditions.map((condition, index) => {
+            return (
+              <React.Fragment key={condition.id}>
+                <Field
+                  name={`otherContributingConditions[${index}][cause]`}
+                  label="Other contributing conditions"
+                  component={TextField}
+                  suggester={icd10Suggester}
+                />
+                <MuiBox display="flex" alignItems="flexEnd">
+                  <Field
+                    name={`otherContributingConditions[${index}][interval]`}
+                    label="Time between onset and death"
+                    component={TimeWithUnitField}
+                  />
+                  {index > 0 && (
+                    <IconButton
+                      onClick={() => {
+                        setOtherConditions(currentConditions =>
+                          currentConditions.filter(x => condition.id !== x.id),
+                        );
+                      }}
+                    >
+                      <RemoveCircleOutlineIcon />
+                    </IconButton>
+                  )}
+                </MuiBox>
+              </React.Fragment>
+            );
+          })}
+          {otherConditions.length < 6 && (
+            <Button
+              startIcon={<AddCircleOutlineIcon />}
+              color="primary"
+              onClick={() => {
+                setOtherConditions(currentConditions => [...currentConditions, { id: generate() }]);
+              }}
+            >
+              Add additional
+            </Button>
+          )}
           <FormSeparatorLine />
           <Field
             name="clinicianId"
