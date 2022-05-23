@@ -1,4 +1,5 @@
 import { createTestContext } from '../utilities';
+import { InvalidParameterError } from 'shared/errors';
 
 import { hl7SortToTamanu, sortableHL7PatientFields } from '../../app/hl7fhir/utils';
 
@@ -13,21 +14,25 @@ describe('HL7FHIR module utils', () => {
   afterAll(() => ctx.close());
 
   describe('hl7SortToTamanu', () => {
-    it('Allows -issued sort for DiagnosticReport', () => {
+    it('Allows -issued (descending) sort for DiagnosticReport', () => {
       const tamanuSort = hl7SortToTamanu('-issued', 'LabTest');
       expect(tamanuSort).toEqual([
         ['createdAt', 'DESC'],
         ['id', 'DESC'],
       ]);
+    });
 
-      ['identifier', 'deceased', '-issued,identifier'].forEach(sort => {
-        expect(() => hl7SortToTamanu(sort, 'LabTest')).toThrow();
-      });
+    it('Allows issued (ascending) sort for DiagnosticReport', () => {
+      const tamanuSort = hl7SortToTamanu('issued', 'LabTest');
+      expect(tamanuSort).toEqual([
+        ['createdAt', 'ASC'],
+        ['id', 'DESC'],
+      ]);
     });
 
     it('Throws an error if a parameter is unrecognized/unsupported', () => {
       ['subject', 'result', 'given,status', 'something, misguided'].forEach(sort => {
-        expect(() => hl7SortToTamanu(sort, 'Patient')).toThrow();
+        expect(() => hl7SortToTamanu(sort, 'Patient')).toThrow(InvalidParameterError);
       });
     });
 

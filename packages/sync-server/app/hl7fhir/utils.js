@@ -2,6 +2,7 @@ import { Sequelize, Op } from 'sequelize';
 import * as yup from 'yup';
 import moment from 'moment';
 import { jsonFromBase64, jsonToBase64 } from 'shared/utils/encodings';
+import { InvalidParameterError } from 'shared/errors';
 
 export function getSortParameterName(sort) {
   return sort[0] === '-' ? sort.slice(1) : sort;
@@ -28,7 +29,7 @@ export function hl7SortToTamanu(hl7Sort, modelName) {
       }
     }
     // Something went terribly wrong
-    throw new Error(`Unrecognised sort parameter in: ${hl7Sort}`);
+    throw new InvalidParameterError(`Unrecognised sort parameter in: ${hl7Sort}`);
   });
 
   // Always sort by descending ID last
