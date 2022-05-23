@@ -2,12 +2,8 @@ import * as yup from 'yup';
 import config from 'config';
 import { isArray } from 'lodash';
 
-import {
-  decodeIdentifier,
-  hl7PatientFields,
-  sortableHL7PatientFields,
-  getSortParameterName,
-} from './utils';
+import { decodeIdentifier, getSortParameterName } from './utils';
+import { hl7PatientFields, sortableHL7PatientFields } from './hl7PatientFields';
 
 export const IDENTIFIER_NAMESPACE = config.hl7.dataDictionaries.patientDisplayId;
 const MAX_RECORDS = 20;

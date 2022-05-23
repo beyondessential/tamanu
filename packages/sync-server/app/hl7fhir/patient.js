@@ -6,9 +6,9 @@ import {
   getParamAndModifier,
   getQueryObject,
   getDefaultOperator,
-  modifiers,
-  hl7PatientFields,
 } from './utils';
+import { modifiers } from './hl7Parameters';
+import { hl7PatientFields } from './hl7PatientFields';
 
 function patientName(patient, additional) {
   const official = {
