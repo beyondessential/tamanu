@@ -3,13 +3,10 @@ import * as yup from 'yup';
 import { Typography } from '@material-ui/core';
 import styled from 'styled-components';
 import moment from 'moment';
-import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
-import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline';
 import MuiBox from '@material-ui/core/Box';
-import IconButton from '@material-ui/core/IconButton';
 import { generate } from 'shortid';
-import { FormGrid } from '../components/FormGrid';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
+import { ArrayField } from '../components/Field/ArrayField';
 import {
   Button,
   OutlinedButton,
@@ -25,6 +22,7 @@ import {
   SelectField,
   TimeWithUnitField,
   PaginatedForm,
+  FormGrid,
 } from '../components';
 
 const binaryOptions = [
@@ -169,11 +167,6 @@ const mannerOfDeathVisibilityCriteria = {
 
 export const DeathForm = React.memo(
   ({ onCancel, onSubmit, patient, practitionerSuggester, icd10Suggester, facilitySuggester }) => {
-    const [otherConditions, setOtherConditions] = useState([
-      {
-        id: generate(),
-      },
-    ]);
     const patientYearsOld = moment().diff(patient.dateOfBirth, 'years');
     const isAdultFemale = patient.sex === 'female' && patientYearsOld >= 12;
 
@@ -185,28 +178,35 @@ export const DeathForm = React.memo(
         onSubmit={onSubmit}
         onCancel={onCancel}
         SummaryScreen={patient.currentEncounter ? DoubleConfirmScreen : ConfirmScreen}
-        validationSchema={yup.object().shape({
-          causeOfDeath: yup.string().required(),
-          causeOfDeathInterval: yup
-            .string()
-            .required()
-            .label('Time between onset and death'),
-          clinicianId: yup
-            .string()
-            .required()
-            .label('Attending clinician'),
-          lastSurgeryDate: yup
-            .date()
-            .max(yup.ref('timeOfDeath'), "Date of last surgery can't be after time of death"),
-          mannerOfDeathDate: yup
-            .date()
-            .max(yup.ref('timeOfDeath'), "Manner of death date can't be after time of death"),
-          timeOfDeath: yup
-            .date()
-            .min(patient.dateOfBirth, "Time of death can't be before date of birth")
-            .required(),
-        })}
-        initialValues={{ outsideHealthFacility: false }}
+        // validationSchema={yup.object().shape({
+        //   causeOfDeath: yup.string().required(),
+        //   causeOfDeathInterval: yup
+        //     .string()
+        //     .required()
+        //     .label('Time between onset and death'),
+        //   clinicianId: yup
+        //     .string()
+        //     .required()
+        //     .label('Attending clinician'),
+        //   lastSurgeryDate: yup
+        //     .date()
+        //     .max(yup.ref('timeOfDeath'), "Date of last surgery can't be after time of death"),
+        //   mannerOfDeathDate: yup
+        //     .date()
+        //     .max(yup.ref('timeOfDeath'), "Manner of death date can't be after time of death"),
+        //   timeOfDeath: yup
+        //     .date()
+        //     .min(patient.dateOfBirth, "Time of death can't be before date of birth")
+        //     .required(),
+        // })}
+        initialValues={{
+          outsideHealthFacility: false,
+          otherContributingConditions: [
+            {
+              id: generate(),
+            },
+          ],
+        }}
       >
         <StyledFormGrid columns={2}>
           <FieldWithTooltip
@@ -246,47 +246,13 @@ export const DeathForm = React.memo(
             component={TimeWithUnitField}
           />
           <FormSeparatorLine />
-          {otherConditions.map((condition, index) => {
-            return (
-              <React.Fragment key={condition.id}>
-                <Field
-                  name={`otherContributingConditions[${index}][cause]`}
-                  label="Other contributing conditions"
-                  component={TextField}
-                  suggester={icd10Suggester}
-                />
-                <MuiBox display="flex" alignItems="flexEnd">
-                  <Field
-                    name={`otherContributingConditions[${index}][interval]`}
-                    label="Time between onset and death"
-                    component={TimeWithUnitField}
-                  />
-                  {index > 0 && (
-                    <IconButton
-                      onClick={() => {
-                        setOtherConditions(currentConditions =>
-                          currentConditions.filter(x => condition.id !== x.id),
-                        );
-                      }}
-                    >
-                      <RemoveCircleOutlineIcon />
-                    </IconButton>
-                  )}
-                </MuiBox>
-              </React.Fragment>
-            );
-          })}
-          {otherConditions.length < 6 && (
-            <Button
-              startIcon={<AddCircleOutlineIcon />}
-              color="primary"
-              onClick={() => {
-                setOtherConditions(currentConditions => [...currentConditions, { id: generate() }]);
-              }}
-            >
-              Add additional
-            </Button>
-          )}
+          <Field
+            name="otherContributingConditions"
+            label="Other contributing conditions"
+            component={ArrayField}
+            icd10Suggester={icd10Suggester}
+          />
+
           <FormSeparatorLine />
           <Field
             name="clinicianId"
