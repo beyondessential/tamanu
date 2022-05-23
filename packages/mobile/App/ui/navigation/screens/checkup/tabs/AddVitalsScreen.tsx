@@ -98,7 +98,7 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
     [],
   );
 
-  const validationSchema = Yup.object().shape({
+  const readingFields = {
     weight: Yup.number(),
     height: Yup.number(),
     sbp: Yup.number(),
@@ -108,20 +108,14 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
     temperature: Yup.number(),
     spO2: Yup.number(),
     avpu: Yup.string(), // AVPUType
+  };
+
+  const validationSchema = Yup.object().shape({
+    ...readingFields,
     comment: Yup.string(),
   });
 
-  const requiresOneOfFields = [
-    'weight',
-    'height',
-    'sbp',
-    'dbp',
-    'heartRate',
-    'respiratoryRate',
-    'temperature',
-    'spO2',
-    'avpu',
-  ];
+  const requiresOneOfFields = Object.keys(readingFields);
 
   const validate = (values: object): object => {
     const hasAtLeastOneReading = !Object.entries(values).some(([key, value]) => {
