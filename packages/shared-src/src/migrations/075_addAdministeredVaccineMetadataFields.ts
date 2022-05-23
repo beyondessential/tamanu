@@ -39,7 +39,7 @@ export async function up(query: QueryInterface) {
       key: 'id',
     },
   });
-  await query.addColumn('administered_vaccines', 'deparment_id', {
+  await query.addColumn('administered_vaccines', 'department_id', {
     type: STRING,
     allowNull: true,
     references: {
