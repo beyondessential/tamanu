@@ -1,7 +1,8 @@
 import { createTestContext } from '../utilities';
 import { InvalidParameterError } from 'shared/errors';
 
-import { hl7SortToTamanu, sortableHL7PatientFields } from '../../app/hl7fhir/utils';
+import { hl7SortToTamanu } from '../../app/hl7fhir/utils';
+import { sortableHL7PatientFields } from '../../app/hl7fhir/hl7PatientFields';
 
 describe('HL7FHIR module utils', () => {
   let models;
