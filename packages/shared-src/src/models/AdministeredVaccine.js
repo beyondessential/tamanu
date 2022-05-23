@@ -16,7 +16,6 @@ export class AdministeredVaccine extends Model {
           allowNull: false,
         },
         reason: Sequelize.STRING,
-        location: Sequelize.STRING,
         injectionSite: Sequelize.STRING, // conceptually enum(INJECTION_SITE_OPTIONS)
         date: {
           type: Sequelize.DATE,

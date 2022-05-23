@@ -29,6 +29,7 @@ export async function up(query: QueryInterface) {
     allowNull: false,
   });
 
+  await query.removeColumn('administered_vaccines', 'location');
   await query.addColumn('administered_vaccines', 'location_id', {
     type: STRING,
     allowNull: true,
@@ -52,4 +53,9 @@ export async function down(query: QueryInterface) {
   await query.removeColumn('administered_vaccines', 'location_id');
   await query.removeColumn('administered_vaccines', 'recorder_id');
   await query.removeColumn('administered_vaccines', 'giver_id');
+
+  await query.addColumn('administered_vaccines', 'location', {
+    type: STRING,
+    allowNull: true,
+  });
 }
