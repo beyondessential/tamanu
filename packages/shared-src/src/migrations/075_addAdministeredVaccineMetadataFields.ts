@@ -20,10 +20,10 @@ export async function up(query: QueryInterface) {
   });
   await query.sequelize.query(`
     UPDATE administered_vaccines
+    SET recorder_id = encounters.examiner_id,
+        giver_id    = encounters.examiner_id
     FROM encounters
     WHERE administered_vaccines.encounter_id = encounters.id
-    SET administered_vaccines.recorder_id = encounters.examiner_id,
-        administered_vaccines.giver_id    = encounters.examiner_id
   `);
 
   await query.removeColumn('administered_vaccines', 'location');
