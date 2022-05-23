@@ -49,7 +49,7 @@ export const hl7PatientFields = {
   // TODO: address should match a bunch of other fields
   address: {
     parameterType: hl7ParameterTypes.string,
-    fieldName: 'additionalData.cityTown',
+    fieldName: '$additionalData.city_town$',
     columnName: 'additionalData.city_town',
     supportedModifiers: stringTypeModifiers,
     validationSchema: yup.string(),
@@ -57,7 +57,7 @@ export const hl7PatientFields = {
   },
   'address-city': {
     parameterType: hl7ParameterTypes.string,
-    fieldName: 'additionalData.cityTown',
+    fieldName: '$additionalData.city_town$',
     columnName: 'additionalData.city_town',
     supportedModifiers: stringTypeModifiers,
     validationSchema: yup.string(),
