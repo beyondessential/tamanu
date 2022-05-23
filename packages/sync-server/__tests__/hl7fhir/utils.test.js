@@ -20,7 +20,7 @@ describe('HL7FHIR module utils', () => {
         ['id', 'DESC'],
       ]);
 
-      ['identifier', 'issued', '-issued,identifier'].forEach(sort => {
+      ['identifier', 'deceased', '-issued,identifier'].forEach(sort => {
         expect(() => hl7SortToTamanu(sort, 'LabTest')).toThrow();
       });
     });
