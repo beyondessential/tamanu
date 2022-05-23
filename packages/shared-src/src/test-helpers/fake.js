@@ -110,7 +110,6 @@ export function fakeAdministeredVaccine(prefix = 'test-', scheduledVaccineId) {
       'batch',
       'status',
       'reason',
-      'location',
     ]),
   };
 }
