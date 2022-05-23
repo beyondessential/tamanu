@@ -112,6 +112,8 @@ const executeExportPlanInner = async (plan, options) => {
           where: {
             [foreignKey]: dbRecord.id,
           },
+          // use same paranoid value from parent export plan
+          paranoid: options.paranoid,
         };
         const { records: innerRecords } = await executeExportPlanInner(
           associationPlan,
