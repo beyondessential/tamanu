@@ -5,6 +5,7 @@ import styled from 'styled-components';
 const FullIframe = styled.iframe`
   width: 100%;
   height: 100%;
+  min-height: 50vh;
 `;
 
 // @react-pdf/renderer ships with its own version of PDFViewer. However it is a bit flaky because
