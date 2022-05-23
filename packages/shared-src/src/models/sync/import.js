@@ -175,19 +175,24 @@ const executeUpdateOrCreates = async (
         if (!childrenOfRecord) {
           return [];
         }
-        return childrenOfRecord.map(({ data: childData }) => {
-          relationPlan.validateRecord(childData, data);
-          return childData;
+        return childrenOfRecord.map(childRecord => {
+          // Only validate records to create/update
+          if (!childRecord.isDeleted) {
+            relationPlan.validateRecord(childRecord.data, data);
+          }
+          return childRecord;
         });
       }),
     );
     if (childRecords && childRecords.length > 0) {
-      const existing = await relationPlan.model.findByIds(childRecords.map(r => r.id));
+      const existing = await relationPlan.model.findByIds(childRecords.map(r => r.data.id));
       const existingIdSet = new Set(existing.map(e => e.id));
-      const recordsForCreate = childRecords.filter(r => !existingIdSet.has(r.id));
-      const recordsForUpdate = childRecords.filter(r => existingIdSet.has(r.id));
+      const recordsForCreate = childRecords.filter(r => !r.isDeleted && !existingIdSet.has(r.data.id)).map(r => r.data);
+      const recordsForUpdate = childRecords.filter(r => !r.isDeleted && existingIdSet.has(r.data.id)).map(r => r.data);
+      const idsForDelete = childRecords.filter(r => r.isDeleted).map(r => r.data.id);
       await executeCreates(relationPlan, recordsForCreate);
       await executeUpdates(relationPlan, recordsForUpdate);
+      await executeDeletes(relationPlan, idsForDelete);
     }
   }
 
