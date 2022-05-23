@@ -122,10 +122,11 @@ export const ImmunisationForm = React.memo(
     const currentUser = useSelector(getCurrentUser);
 
     const onSubmitWithRecorder = useCallback(
-      data => onSubmit({
-        ...data,
-        recorderId: currentUser.id,
-      }),
+      data =>
+        onSubmit({
+          ...data,
+          recorderId: currentUser.id,
+        }),
       [onSubmit, currentUser],
     );
 

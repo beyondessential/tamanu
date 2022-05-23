@@ -105,12 +105,7 @@ export function fakeAdministeredVaccine(prefix = 'test-', scheduledVaccineId) {
     encounterId: null,
     scheduledVaccineId,
     date: new Date(random(0, Date.now())),
-    ...fakeStringFields(`${prefix}administeredVaccine_${id}_`, [
-      'id',
-      'batch',
-      'status',
-      'reason',
-    ]),
+    ...fakeStringFields(`${prefix}administeredVaccine_${id}_`, ['id', 'batch', 'status', 'reason']),
   };
 }
 

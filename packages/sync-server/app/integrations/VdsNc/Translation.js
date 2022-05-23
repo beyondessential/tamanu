@@ -116,7 +116,7 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
         },
       },
     } = dose;
-    
+
     const facilityName = vaccineFacilityName ?? encounterFacilityName;
 
     const event = {

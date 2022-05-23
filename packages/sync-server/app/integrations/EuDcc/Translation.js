@@ -113,7 +113,7 @@ export async function createEuDccVaccinationData(administeredVaccineId, { models
       },
     },
   } = vaccination;
-  
+
   const facilityName = vaccineFacilityName ?? encounterFacilityName;
 
   if (!Object.keys(DRUG_TO_PRODUCT).includes(vaccineId)) {
