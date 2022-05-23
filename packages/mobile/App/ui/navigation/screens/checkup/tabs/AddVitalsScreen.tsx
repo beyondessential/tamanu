@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useRef, ReactElement } from 'react';
+import React, { useCallback, ReactElement } from 'react';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { compose } from 'redux';
@@ -98,19 +98,18 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
     [],
   );
 
-  const validationSchema
-    = Yup.object().shape({
-      weight: Yup.number(),
-      height: Yup.number(),
-      sbp: Yup.number(),
-      dbp: Yup.number(),
-      heartRate: Yup.number(),
-      respiratoryRate: Yup.number(),
-      temperature: Yup.number(),
-      spO2: Yup.number(),
-      avpu: Yup.string(), // AVPUType
-      comment: Yup.string(),
-    });
+  const validationSchema = Yup.object().shape({
+    weight: Yup.number(),
+    height: Yup.number(),
+    sbp: Yup.number(),
+    dbp: Yup.number(),
+    heartRate: Yup.number(),
+    respiratoryRate: Yup.number(),
+    temperature: Yup.number(),
+    spO2: Yup.number(),
+    avpu: Yup.string(), // AVPUType
+    comment: Yup.string(),
+  });
 
   const requiresOneOfFields = [
     'weight',
@@ -148,7 +147,7 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
     navigation.reset({
       index: 0,
       routes: [{ name: Routes.HomeStack.CheckUpStack.CheckUpTabs.ViewHistory }],
-    })
+    });
   }, []);
 
   const user = useSelector(authUserSelector);
