@@ -1,53 +1,57 @@
 import React from 'react';
 import styled from 'styled-components';
-import SearchIcon from '@material-ui/icons/Search';
+import Typography from '@material-ui/core/Typography';
+import Box from '@material-ui/core/Box';
 
-import { Button } from './Button';
-import { ButtonRow } from './ButtonRow';
 import { Form, Field, TextField } from './Field';
 import { FormGrid } from './FormGrid';
+import { LargeButton, LargeOutlineButton } from './Button';
+import { Colors } from '../constants';
 
-const StyledDiv = styled.div`
-  margin: 1rem;
-  padding: 16px;
-  border: 1px solid #dedede;
+const Container = styled.div`
+  padding: 2rem;
   border-radius: 3px 3px 0 0;
   background-color: #ffffff;
+  border-bottom: 1px solid ${Colors.outline};
 `;
 
-const Label = styled.div`
+const HeaderBar = styled.div`
   font-size: 16px;
   font-weight: 500;
-  color: ${props => props.theme.palette.primary.main};
-  margin-bottom: 5px;
-`;
-
-const PaddedSearchIcon = styled(SearchIcon)`
-  padding-right: 3px;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  h3 {
+    font-size: 1rem;
+    font-weight: 500;
+    color: ${props => props.theme.palette.text.primary};
+  }
 `;
 
 const renderSearchBar = ({ submitForm, clearForm }) => (
-  <FormGrid columns={3}>
-    <Field name="type" placeholder="Type" component={TextField} />
-    <Field name="documentOwner" placeholder="Owner" component={TextField} />
-    <Field name="departmentName" placeholder="Department" component={TextField} />
-    <ButtonRow>
-      <Button color="primary" variant="contained" onClick={submitForm} type="submit">
-        <PaddedSearchIcon />
-        Search
-      </Button>
-      <Button onClick={clearForm} variant="outlined">
+  <>
+    <FormGrid columns={3}>
+      <Field name="type" placeholder="Type" component={TextField} />
+      <Field name="documentOwner" placeholder="Owner" component={TextField} />
+      <Field name="departmentName" placeholder="Department" component={TextField} />
+    </FormGrid>
+    <Box display="flex" alignItems="center" justifyContent="flex-end" mt={2}>
+      <LargeOutlineButton onClick={clearForm} style={{ marginRight: 12 }}>
         Clear search
-      </Button>
-    </ButtonRow>
-  </FormGrid>
+      </LargeOutlineButton>
+      <LargeButton onClick={submitForm} type="submit">
+        Search
+      </LargeButton>
+    </Box>
+  </>
 );
 
-export const DocumentsSearchBar = ({ setSearchParameters }) => {
-  return (
-    <StyledDiv>
-      <Label>Documents search</Label>
-      <Form onSubmit={values => setSearchParameters(values)} render={renderSearchBar} />
-    </StyledDiv>
-  );
-};
+export const DocumentsSearchBar = ({ setSearchParameters }) => (
+  <Container>
+    <HeaderBar>
+      <Typography variant="h3">Documents search</Typography>
+    </HeaderBar>
+    <Form onSubmit={values => setSearchParameters(values)} render={renderSearchBar} />
+  </Container>
+);

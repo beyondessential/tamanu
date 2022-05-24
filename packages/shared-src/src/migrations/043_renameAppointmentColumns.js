@@ -6,5 +6,5 @@ module.exports = {
   down: async query => {
     await query.renameColumn('appointments', 'start_time', 'startTime');
     await query.renameColumn('appointments', 'end_time', 'endTime');
-  }
+  },
 };

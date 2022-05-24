@@ -71,6 +71,20 @@ export function extendExpect(expect) {
         pass,
       };
     },
+    toHaveStatus(response, status) {
+      const { statusCode } = response;
+      const pass = statusCode === status;
+      if (pass) {
+        return {
+          message: () => `Expected status code ${status}, got ${statusCode}.`,
+          pass,
+        };
+      }
+      return {
+        message: () => `Expected status code ${status}, got ${statusCode}. ${formatError(response)}`,
+        pass,
+      };
+    },
     toMatchTabularReport(receivedReport, expectedData) {
       /**
        * Usage:

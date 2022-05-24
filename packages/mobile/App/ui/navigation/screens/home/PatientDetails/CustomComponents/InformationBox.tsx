@@ -16,6 +16,7 @@ export const InformationBox = ({
     <StyledText
       fontSize={screenPercentageToDP(1.7, Orientation.Height)}
       fontWeight={500}
+      color={theme.colors.TEXT_DARK}
     >
       {title}
     </StyledText>

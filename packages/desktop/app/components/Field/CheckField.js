@@ -24,6 +24,7 @@ const ControlLabel = styled(FormControlLabel)`
   .MuiTypography-root {
     font-size: 16px;
     line-height: 18px;
+    color: ${props => props.theme.palette.text.secondary};
   }
 `;
 

@@ -10,6 +10,9 @@ export * from './PatientIssue';
 export * from './PatientAdditionalData';
 export * from './PatientVRSData';
 
+export * from './PatientDeathData';
+export * from './DeathCause';
+
 export * from './Encounter';
 export * from './Discharge';
 export * from './Triage';

@@ -39,8 +39,8 @@ const parametersToSurveyResponseSqlWhere = (parameters, surveyIds) => {
   return whereClause;
 };
 
-const getAnswers = async (models, parameters, surveyIds) => {
-  return models.SurveyResponseAnswer.findAll({
+const getAnswers = async (models, parameters, surveyIds) =>
+  models.SurveyResponseAnswer.findAll({
     where: {
       ...parametersToSurveyResponseSqlWhere(parameters, surveyIds),
       body: {
@@ -67,7 +67,6 @@ const getAnswers = async (models, parameters, surveyIds) => {
     ],
     order: [[{ model: models.SurveyResponse, as: 'surveyResponse' }, 'end_time', 'ASC']],
   });
-};
 
 const getPerPatientPerDateAnswerKey = (patientId, dataElementId, responseDate) =>
   `${patientId}|${dataElementId}|${responseDate}`;
@@ -186,8 +185,8 @@ export const dataGenerator = async (
       const recordData = {
         clientId: patient.displayId,
         gender: patient.sex,
-        dateOfBirth: dateOfBirth,
-        age: age,
+        dateOfBirth,
+        age,
       };
 
       // Get the answers for data elements that we need to show latest PER PATIENT

@@ -1,7 +1,8 @@
 import { INVOICE_STATUSES, INVOICE_PAYMENT_STATUSES } from 'shared/constants';
 
 export const isInvoiceEditable = invoice =>
-  ![INVOICE_STATUSES.FINALISED, INVOICE_STATUSES.CANCELLED].includes(invoice.status) && invoice.paymentStatus === INVOICE_PAYMENT_STATUSES.UNPAID;
+  ![INVOICE_STATUSES.FINALISED, INVOICE_STATUSES.CANCELLED].includes(invoice.status) &&
+  invoice.paymentStatus === INVOICE_PAYMENT_STATUSES.UNPAID;
 
 export const calculateInvoiceTotal = (invoiceLines, invoicePriceChanges) => {
   const total = calculateInvoiceLinesTotal(invoiceLines);

@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import MuiTextField from '@material-ui/core/TextField';
+import PublishIcon from '@material-ui/icons/Publish';
 import { Button } from '../Button';
 import { useElectron } from '../../contexts/Electron';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
@@ -10,8 +11,16 @@ import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 const FieldButtonRow = styled.div`
   width: 100%;
   display: grid;
-  grid-template-columns: auto min-content;
-  grid-gap: 0.5rem;
+  margin-top: 0.5rem;
+  grid-template-columns: max-content auto;
+  grid-gap: 1rem;
+  &.has-value {
+    grid-template-columns: auto max-content;
+  }
+`;
+
+const HintText = styled.div`
+  font-size: 0.9em;
 `;
 
 export const FILTER_EXCEL = { name: 'Microsoft Excel files (.xlsx)', extensions: ['xlsx'] };
@@ -35,11 +44,27 @@ export const FileChooserInput = ({ value = '', label, name, filters, onChange, .
 
   return (
     <OuterLabelFieldWrapper label={label} {...props}>
-      <FieldButtonRow>
-        <MuiTextField readOnly variant="outlined" value={value} />
-        <Button onClick={browseForFile} variant="contained">
-          Browse
-        </Button>
+      <FieldButtonRow className={value ? 'has-value' : ''}>
+        {value ? (
+          <>
+            <MuiTextField readOnly value={value} variant="outlined" />
+            <Button onClick={browseForFile} variant="outlined">
+              <PublishIcon />
+              <span style={{ marginLeft: '0.5rem' }}>Change selection</span>
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button onClick={browseForFile} variant="outlined" color="primary">
+              Choose file
+            </Button>
+            <HintText>
+              Max 10 MB
+              <br />
+              Supported file types: {filters.map(filter => filter.name).join(', ')}
+            </HintText>
+          </>
+        )}
       </FieldButtonRow>
     </OuterLabelFieldWrapper>
   );
