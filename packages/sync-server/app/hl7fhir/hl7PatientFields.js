@@ -1,7 +1,7 @@
 import * as yup from 'yup';
-import moment from 'moment';
 
 import { hl7ParameterTypes, stringTypeModifiers } from './hl7Parameters';
+import { parseHL7Date } from './utils';
 
 // HL7 Patient resource mapping to Tamanu.
 // (only supported params are in)
@@ -40,9 +40,7 @@ export const hl7PatientFields = {
       // eslint-disable-next-line no-template-curly-in-string
       .test('is-valid-date', 'Invalid date/time format: ${value}', value => {
         if (!value) return true;
-        // Only these formats should be valid for a date in HL7 FHIR:
-        // https://www.hl7.org/fhir/datatypes.html#date
-        return moment(value, ['YYYY', 'YYYY-MM', 'YYYY-MM-DD'], true).isValid();
+        return parseHL7Date(value).isValid();
       }),
     sortable: true,
   },
