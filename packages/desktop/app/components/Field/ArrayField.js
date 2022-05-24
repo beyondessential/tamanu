@@ -16,7 +16,13 @@ const AddButton = styled(Button)`
 const RemoveButton = styled(IconButton)`
   position: relative;
   align-self: flex-end;
-  top: 3px;
+  margin-right: -8px;
+  top: -1px;
+  padding: 8px;
+
+  .MuiSvgIcon-root {
+    font-size: 20px;
+  }
 `;
 
 export const ArrayField = ({ field, renderField, maxFields = 4 }) => {
