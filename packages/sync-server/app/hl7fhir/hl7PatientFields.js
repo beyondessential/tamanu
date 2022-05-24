@@ -1,11 +1,22 @@
 import * as yup from 'yup';
 
 import { hl7ParameterTypes, stringTypeModifiers } from './hl7Parameters';
-import { parseHL7Date } from './utils';
+import { parseHL7Date, isValidIdentifier } from './utils';
 
 // HL7 Patient resource mapping to Tamanu.
 // (only supported params are in)
 export const hl7PatientFields = {
+  identifier: {
+    parameterType: hl7ParameterTypes.token,
+    fieldName: 'displayId',
+    columnName: 'display_id',
+    supportedModifiers: [],
+    validationSchema: yup.string().test(
+      'is-correct-format-and-namespace',
+      'identifier must be in the format "<namespace>|<id>',
+      isValidIdentifier,
+    ),
+  },
   given: {
     parameterType: hl7ParameterTypes.string,
     fieldName: 'firstName',
