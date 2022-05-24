@@ -110,6 +110,9 @@ export function getDefaultOperator(type) {
   if (type === hl7ParameterTypes.string) {
     return Op.startsWith;
   }
+  if (type === hl7ParameterTypes.date) {
+    return Op.between;
+  }
 
   return Op.eq;
 }
@@ -125,6 +128,18 @@ export function getQueryObject(columnName, value, operator, modifier, parameterT
     });
   }
 
+  // Dates with eq modifier or no modifier should be looked up as a range
+  if (parameterType === hl7ParameterTypes.date && ['eq', undefined].includes(modifier)) {
+    // Get moment object and time unit from date
+    const queriedDate = parseHL7Date(value);
+    const timeUnit = getSmallestTimeUnit(value);
+
+    // Create and return range
+    const startDate = queriedDate.startOf(timeUnit);
+    const endDate = queriedDate.endOf(timeUnit);
+    return { [operator]: [startDate, endDate] };
+  }
+
   return { [operator]: value };
 }
 
@@ -133,4 +148,19 @@ export function parseHL7Date(dateString) {
   // Only these formats should be valid for a date in HL7 FHIR:
   // https://www.hl7.org/fhir/datatypes.html#date
   return moment.utc(dateString, ['YYYY', 'YYYY-MM', 'YYYY-MM-DD'], true);
+}
+
+// Returns the smallest time unit used on the date string format.
+// Only supports HL7 formats.
+export function getSmallestTimeUnit(dateString) {
+  switch (dateString.length) {
+    case 4:
+      return 'year';
+    case 7:
+      return 'month';
+    case 10:
+      return 'day';
+    default:
+      throw new InvalidParameterError(`Invalid date/time format: ${dateString}`);
+  }
 }
