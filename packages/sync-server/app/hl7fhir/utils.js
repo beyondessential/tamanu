@@ -1,10 +1,13 @@
 import { Sequelize, Op } from 'sequelize';
+import config from 'config';
 import moment from 'moment';
 import { jsonFromBase64, jsonToBase64 } from 'shared/utils/encodings';
 import { InvalidParameterError } from 'shared/errors';
 
 import { hl7ParameterTypes } from './hl7Parameters';
 import { hl7PatientFields, sortableHL7PatientFields } from './hl7PatientFields';
+
+export const IDENTIFIER_NAMESPACE = config.hl7.dataDictionaries.patientDisplayId;
 
 export function getSortParameterName(sort) {
   return sort[0] === '-' ? sort.slice(1) : sort;
@@ -46,6 +49,16 @@ export function decodeIdentifier(identifier) {
   }
   const [namespace, ...idPieces] = identifier.split('|');
   return [namespace || null, idPieces.join('|') || null];
+}
+
+// Used to validate HL7 identifiers that require a namespace
+// This should run inside a yup.test()
+export function isValidIdentifier(value) {
+  // Yup will always run a test for the parameter, even when it's undefined
+  if (!value) return true;
+
+  const [namespace, displayId] = decodeIdentifier(value);
+  return namespace === IDENTIFIER_NAMESPACE && !!displayId;
 }
 
 export function toSearchId({ after, ...params }) {

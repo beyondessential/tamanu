@@ -1,24 +1,13 @@
 import * as yup from 'yup';
-import config from 'config';
 import { isArray } from 'lodash';
 
-import { decodeIdentifier, getSortParameterName } from './utils';
+import { isValidIdentifier, getSortParameterName } from './utils';
 import { hl7PatientFields, sortableHL7PatientFields } from './hl7PatientFields';
 
-export const IDENTIFIER_NAMESPACE = config.hl7.dataDictionaries.patientDisplayId;
 const MAX_RECORDS = 20;
 
 // Explicitly set with the direction sign
 const sortableHL7BaseFields = ['-issued', 'issued'];
-
-// Used to validate HL7 identifiers that require a namespace
-export function isValidIdentifier(value) {
-  // Yup will always run a test for the parameter, even when it's undefined
-  if (!value) return true;
-
-  const [namespace, displayId] = decodeIdentifier(value);
-  return namespace === IDENTIFIER_NAMESPACE && !!displayId;
-}
 
 // List of all the fixed name parameters that we support
 const baseParameters = {
