@@ -493,7 +493,6 @@ describe('VPS integration - DiagnosticReport', () => {
       expect(response.body).toMatchObject({
         error: {
           errors: [
-            'subject:identifier must be in the format "<namespace>|<id>"',
             'subject:identifier is a required field',
           ],
         },
