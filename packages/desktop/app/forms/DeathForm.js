@@ -4,10 +4,8 @@ import { Typography } from '@material-ui/core';
 import styled from 'styled-components';
 import moment from 'moment';
 import MuiBox from '@material-ui/core/Box';
-import { generate } from 'shortid';
-import { FormSeparatorLine } from '../components/FormSeparatorLine';
-import { ArrayField } from '../components/Field/ArrayField';
 import {
+  ArrayField,
   Button,
   OutlinedButton,
   Field,
@@ -23,6 +21,7 @@ import {
   TimeWithUnitField,
   PaginatedForm,
   FormGrid,
+  FormSeparatorLine,
 } from '../components';
 
 const binaryOptions = [
@@ -178,34 +177,29 @@ export const DeathForm = React.memo(
         onSubmit={onSubmit}
         onCancel={onCancel}
         SummaryScreen={patient.currentEncounter ? DoubleConfirmScreen : ConfirmScreen}
-        // validationSchema={yup.object().shape({
-        //   causeOfDeath: yup.string().required(),
-        //   causeOfDeathInterval: yup
-        //     .string()
-        //     .required()
-        //     .label('Time between onset and death'),
-        //   clinicianId: yup
-        //     .string()
-        //     .required()
-        //     .label('Attending clinician'),
-        //   lastSurgeryDate: yup
-        //     .date()
-        //     .max(yup.ref('timeOfDeath'), "Date of last surgery can't be after time of death"),
-        //   mannerOfDeathDate: yup
-        //     .date()
-        //     .max(yup.ref('timeOfDeath'), "Manner of death date can't be after time of death"),
-        //   timeOfDeath: yup
-        //     .date()
-        //     .min(patient.dateOfBirth, "Time of death can't be before date of birth")
-        //     .required(),
-        // })}
+        validationSchema={yup.object().shape({
+          causeOfDeath: yup.string().required(),
+          causeOfDeathInterval: yup
+            .string()
+            .required()
+            .label('Time between onset and death'),
+          clinicianId: yup
+            .string()
+            .required()
+            .label('Attending clinician'),
+          lastSurgeryDate: yup
+            .date()
+            .max(yup.ref('timeOfDeath'), "Date of last surgery can't be after time of death"),
+          mannerOfDeathDate: yup
+            .date()
+            .max(yup.ref('timeOfDeath'), "Manner of death date can't be after time of death"),
+          timeOfDeath: yup
+            .date()
+            .min(patient.dateOfBirth, "Time of death can't be before date of birth")
+            .required(),
+        })}
         initialValues={{
           outsideHealthFacility: false,
-          otherContributingConditions: [
-            {
-              id: generate(),
-            },
-          ],
         }}
       >
         <StyledFormGrid columns={2}>
@@ -251,8 +245,25 @@ export const DeathForm = React.memo(
             label="Other contributing conditions"
             component={ArrayField}
             icd10Suggester={icd10Suggester}
+            renderField={(index, DeleteButton) => (
+              <>
+                <Field
+                  name={`otherContributingConditions[${index}].cause`}
+                  label="Other contributing condition"
+                  component={AutocompleteField}
+                  suggester={icd10Suggester}
+                />
+                <MuiBox display="flex" alignItems="center">
+                  <Field
+                    name={`otherContributingConditions[${index}].interval`}
+                    label="Time between onset and death"
+                    component={TimeWithUnitField}
+                  />
+                  {index > 0 && DeleteButton}
+                </MuiBox>
+              </>
+            )}
           />
-
           <FormSeparatorLine />
           <Field
             name="clinicianId"
