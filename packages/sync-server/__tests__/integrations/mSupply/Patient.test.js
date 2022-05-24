@@ -2,7 +2,7 @@ import { format } from 'date-fns';
 
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
-import { IDENTIFIER_NAMESPACE } from '../../../app/hl7fhir/schema';
+import { IDENTIFIER_NAMESPACE } from '../../../app/hl7fhir/utils';
 
 describe('mSupply integration - Patient', () => {
   let ctx;
@@ -182,7 +182,7 @@ describe('mSupply integration - Patient', () => {
             'subject:identifier must be in the format "<namespace>|<id>"',
             '_count must be a `number` type, but the final value was: `NaN` (cast from the value `"x"`).',
             '_page must be a `number` type, but the final value was: `NaN` (cast from the value `"z"`).',
-            '_sort must be one of the following values: -issued',
+            'Unsupported or unknown parameters in _sort',
           ],
         },
       });
