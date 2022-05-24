@@ -1,4 +1,5 @@
 import { Sequelize, Op } from 'sequelize';
+import moment from 'moment';
 import { jsonFromBase64, jsonToBase64 } from 'shared/utils/encodings';
 import { InvalidParameterError } from 'shared/errors';
 
@@ -112,4 +113,11 @@ export function getQueryObject(columnName, value, operator, modifier, parameterT
   }
 
   return { [operator]: value };
+}
+
+// The date string will be parsed in UTC and return a moment
+export function parseHL7Date(dateString) {
+  // Only these formats should be valid for a date in HL7 FHIR:
+  // https://www.hl7.org/fhir/datatypes.html#date
+  return moment.utc(dateString, ['YYYY', 'YYYY-MM', 'YYYY-MM-DD'], true);
 }
