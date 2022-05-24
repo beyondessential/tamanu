@@ -130,13 +130,10 @@ export function getQueryObject(columnName, value, operator, modifier, parameterT
 
   // Dates with eq modifier or no modifier should be looked up as a range
   if (parameterType === hl7ParameterTypes.date && ['eq', undefined].includes(modifier)) {
-    // Get moment object and time unit from date
-    const queriedDate = parseHL7Date(value);
-    const timeUnit = getSmallestTimeUnit(value);
-
     // Create and return range
-    const startDate = queriedDate.startOf(timeUnit);
-    const endDate = queriedDate.endOf(timeUnit);
+    const timeUnit = getSmallestTimeUnit(value);
+    const startDate = parseHL7Date(value).startOf(timeUnit);
+    const endDate = parseHL7Date(value).endOf(timeUnit);
     return { [operator]: [startDate, endDate] };
   }
 
