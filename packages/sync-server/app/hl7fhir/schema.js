@@ -11,6 +11,15 @@ const MAX_RECORDS = 20;
 // Explicitly set with the direction sign
 const sortableHL7BaseFields = ['-issued', 'issued'];
 
+// Used to validate HL7 identifiers that require a namespace
+export function isValidIdentifier(value) {
+  // Yup will always run a test for the parameter, even when it's undefined
+  if (!value) return true;
+
+  const [namespace, displayId] = decodeIdentifier(value);
+  return namespace === IDENTIFIER_NAMESPACE && !!displayId;
+}
+
 // List of all the fixed name parameters that we support
 const baseParameters = {
   // TODO: remove subject:identifier after the fiji VPS is good without it.
@@ -21,11 +30,7 @@ const baseParameters = {
     .test(
       'is-correct-format-and-namespace',
       'subject:identifier must be in the format "<namespace>|<id>"',
-      value => {
-        if (!value) return true;
-        const [namespace, displayId] = decodeIdentifier(value);
-        return namespace === IDENTIFIER_NAMESPACE && !!displayId;
-      },
+      isValidIdentifier,
     ),
   _count: yup
     .number()
@@ -139,10 +144,7 @@ export const diagnosticReport = {
         .test(
           'is-correct-format-and-namespace',
           'subject:identifier must be in the format "<namespace>|<id>"',
-          value => {
-            const [namespace, displayId] = decodeIdentifier(value);
-            return namespace === IDENTIFIER_NAMESPACE && !!displayId;
-          },
+          isValidIdentifier,
         )
         .required(),
       _include: yup
