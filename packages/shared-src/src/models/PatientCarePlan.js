@@ -20,6 +20,15 @@ export class PatientCarePlan extends Model {
     this.belongsTo(models.Patient, { foreignKey: 'patientId' });
     this.belongsTo(models.ReferenceData, { foreignKey: 'carePlanId', as: 'carePlan' });
     this.belongsTo(models.User, { foreignKey: 'examinerId', as: 'examiner' });
+
+    this.hasMany(models.Note, {
+      foreignKey: 'recordId',
+      as: 'notes',
+      constraints: false,
+      scope: {
+        recordType: this.getModelName(),
+      },
+    });
   }
 
   static getListReferenceAssociations() {

@@ -262,6 +262,15 @@ export class Encounter extends Model {
       as: 'patientBillingType',
     });
 
+    this.hasMany(models.Note, {
+      foreignKey: 'recordId',
+      as: 'notes',
+      constraints: false,
+      scope: {
+        recordType: this.getModelName(),
+      },
+    });
+
     // this.hasMany(models.Procedure);
     // this.hasMany(models.Report);
   }

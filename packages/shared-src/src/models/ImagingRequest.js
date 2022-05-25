@@ -98,5 +98,14 @@ export class ImagingRequest extends Model {
       foreignKey: 'locationId',
       as: 'location',
     });
+
+    this.hasMany(models.Note, {
+      foreignKey: 'recordId',
+      as: 'notes',
+      constraints: false,
+      scope: {
+        recordType: this.getModelName(),
+      },
+    });
   }
 }

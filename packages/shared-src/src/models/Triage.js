@@ -36,6 +36,15 @@ export class Triage extends Model {
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'secondaryComplaintId',
     });
+
+    this.hasMany(models.Note, {
+      foreignKey: 'recordId',
+      as: 'notes',
+      constraints: false,
+      scope: {
+        recordType: this.getModelName(),
+      },
+    });
   }
 
   static async create(data) {

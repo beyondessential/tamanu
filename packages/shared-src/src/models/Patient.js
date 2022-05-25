@@ -62,6 +62,15 @@ export class Patient extends Model {
       foreignKey: 'villageId',
       as: 'village',
     });
+
+    this.hasMany(models.Note, {
+      foreignKey: 'recordId',
+      as: 'notes',
+      constraints: false,
+      scope: {
+        recordType: this.getModelName(),
+      },
+    });
   }
 
   static async getSyncIds() {
