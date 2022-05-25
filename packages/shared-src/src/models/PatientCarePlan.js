@@ -26,7 +26,7 @@ export class PatientCarePlan extends Model {
       as: 'notes',
       constraints: false,
       scope: {
-        recordType: this.getModelName(),
+        recordType: this.name,
       },
     });
   }
