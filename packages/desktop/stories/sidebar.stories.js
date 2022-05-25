@@ -1,17 +1,24 @@
 import React from 'react';
-
+import styled from 'styled-components';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { facilityItems } from '../app/components/Sidebar/config';
 import { Sidebar } from '../app/components/Sidebar';
 
+const Container = styled.div`
+  display: grid;
+  height: 860px;
+  width: 280px;
+  grid-template-columns: 1fr 4fr;
+`;
+
 storiesOf('Sidebar', module).add('Sidebar', () => (
-  <div style={{ maxWidth: '25rem' }}>
+  <Container>
     <Sidebar
       currentPath="/test/abc"
       onPathChanged={action('path')}
       onLogout={action('logout')}
       items={facilityItems}
     />
-  </div>
+  </Container>
 ));

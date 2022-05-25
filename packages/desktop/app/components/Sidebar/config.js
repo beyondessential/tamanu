@@ -71,9 +71,8 @@ export const facilityItems = [
         ability: { action: 'read' },
       },
       {
-        label: 'Add appointment',
+        label: 'New appointment',
         path: '/appointments/appointment/new',
-        icon: submenuIcons.new,
         ability: { action: 'create' },
       },
     ],
@@ -96,9 +95,8 @@ export const facilityItems = [
         ability: { action: 'read' },
       },
       {
-        label: 'New request',
+        label: 'New Request',
         path: '/medication/request',
-        icon: submenuIcons.new,
         ability: { action: 'create' },
       },
       {
@@ -126,9 +124,8 @@ export const facilityItems = [
         ability: { action: 'read' },
       },
       {
-        label: 'New request',
+        label: 'New Request',
         path: '/imaging/request',
-        icon: submenuIcons.new,
         ability: { action: 'create' },
       },
     ],
@@ -153,7 +150,6 @@ export const facilityItems = [
       {
         label: 'New request',
         path: '/labs/edit/new',
-        icon: submenuIcons.new,
         ability: { action: 'create' },
       },
     ],
