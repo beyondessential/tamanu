@@ -81,7 +81,7 @@ function patientTelecom(patient, additional) {
     }));
 }
 
-export function patientToHL7Patient(patient, additional) {
+export function patientToHL7Patient(patient, additional = {}) {
   return {
     resourceType: 'Patient',
     active: true, // currently unused in Tamanu, always true
