@@ -28,6 +28,7 @@ import Certificate from './Certificate';
 import State, { readSerialNumber } from './State';
 import crypto from '../crypto';
 import { numberToBuffer } from '../utils';
+import { ecdsaWebSigToBER } from '../ext/EcdsaSig';
 
 function asAki(ext: X509Extension | undefined): AuthorityKeyIdentifierExtension | undefined {
   if (ext instanceof AuthorityKeyIdentifierExtension) return ext;
@@ -131,14 +132,14 @@ export default class Crl {
     });
 
     const tbs = AsnConvert.serialize(tbsCertList);
-    const signature = await crypto.subtle.sign(
+    const signature = ecdsaWebSigToBER(await crypto.subtle.sign(
       {
         name: 'ECDSA',
         hash: 'SHA-256',
       },
       key,
       tbs,
-    );
+    ));
 
     const certList = new CertificateList({
       tbsCertList,
