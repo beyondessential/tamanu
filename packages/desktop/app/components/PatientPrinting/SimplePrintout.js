@@ -57,7 +57,7 @@ export const SimplePrintout = React.memo(({ patientData, tableData, notes, certi
       </RowContainer>
       <GridTable data={tableData} />
       <Text>Notes:</Text>
-      <NotesBox>{notes.map(note => note.content)}</NotesBox>
+      <NotesBox>{notes.map(note => note.content).join(' ')}</NotesBox>
       <div />
     </CertificateWrapper>
   );
