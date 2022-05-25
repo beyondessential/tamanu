@@ -90,17 +90,6 @@ export class Model extends sequelize.Model {
     return this.constructor.name;
   }
 
-  getNotes(limit = undefined) {
-    const { Note } = this.sequelize.models;
-    return Note.findAll({
-      where: {
-        recordType: this.getModelName(),
-        recordId: this.id,
-      },
-      limit,
-    });
-  }
-
   static getListReferenceAssociations() {
     // List of relations to include when fetching this model
     // as part of a list (eg to display in a table)

@@ -298,9 +298,10 @@ export class Encounter extends Model {
   }
 
   async addSystemNote(content) {
-    const { Note } = this.sequelize.models;
-
-    const note = await Note.createForRecord(this, NOTE_TYPES.SYSTEM, content);
+    const note = await this.createNote({
+      noteType: NOTE_TYPES.SYSTEM,
+      content,
+    });
 
     return note;
   }
