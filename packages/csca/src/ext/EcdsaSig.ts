@@ -47,3 +47,11 @@ export function ecdsaWebSigToBER(websig: ArrayBuffer): ArrayBuffer {
 
   return AsnConvert.serialize(sig);
 }
+
+/**
+ * Extract a WebCrypto-style ECDSA signature from a BER-style one.
+ */
+export function ecdsaBERToWebSig(bersig: ArrayBuffer): ArrayBuffer {
+  const sig = AsnParser.parse(bersig, EcdsaSignature);
+  return Buffer.concat([new Uint8Array(sig.r), new Uint8Array(sig.s)]);
+}

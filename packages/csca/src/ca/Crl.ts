@@ -28,7 +28,7 @@ import Certificate from './Certificate';
 import State, { readSerialNumber } from './State';
 import crypto from '../crypto';
 import { numberToBuffer } from '../utils';
-import { ecdsaWebSigToBER } from '../ext/EcdsaSig';
+import { ecdsaWebSigToBER, ecdsaBERToWebSig } from '../ext/EcdsaSig';
 
 function asAki(ext: X509Extension | undefined): AuthorityKeyIdentifierExtension | undefined {
   if (ext instanceof AuthorityKeyIdentifierExtension) return ext;
@@ -165,7 +165,7 @@ export default class Crl {
         hash: 'SHA-256',
       },
       this.key,
-      certList.signature,
+      ecdsaBERToWebSig(certList.signature),
       tbs,
     );
     if (!valid) throw new Error('CRL signature is invalid');
