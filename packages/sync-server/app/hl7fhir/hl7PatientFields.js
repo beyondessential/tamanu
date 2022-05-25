@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
 import { hl7ParameterTypes, stringTypeModifiers } from './hl7Parameters';
-import { parseHL7Date, isValidIdentifier } from './utils';
+import { parseHL7Date, isValidIdentifier, decodeIdentifier } from './utils';
 
 // HL7 Patient resource mapping to Tamanu.
 // (only supported params are in)
@@ -16,6 +16,10 @@ export const hl7PatientFields = {
       'identifier must be in the format "<namespace>|<id>',
       isValidIdentifier,
     ),
+    getValue: value => {
+      const [_, identifier] = decodeIdentifier(value);
+      return identifier;
+    },
   },
   given: {
     parameterType: hl7ParameterTypes.string,
