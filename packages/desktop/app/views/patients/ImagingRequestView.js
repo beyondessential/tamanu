@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
@@ -39,11 +39,25 @@ const statusOptions = [
 ];
 
 const PrintButton = ({ imagingRequest, patient }) => {
+  const api = useApi();
   const { modal } = useParams();
   const certificateData = useCertificate();
   const [isModalOpen, setModalOpen] = useState(modal === 'print');
   const openModal = useCallback(() => setModalOpen(true), []);
   const closeModal = useCallback(() => setModalOpen(false), []);
+  const [encounter, setEncounter] = useState();
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    setIsLoading(true);
+    if (!imagingRequest.loading) {
+      (async () => {
+        const res = await api.get(`encounter/${imagingRequest.encounterId}`);
+        setEncounter(res);
+      })();
+      setIsLoading(false);
+    }
+  }, [api, imagingRequest.encounterId, imagingRequest.loading]);
 
   return (
     <>
@@ -51,7 +65,9 @@ const PrintButton = ({ imagingRequest, patient }) => {
         <ImagingRequestPrintout
           imagingRequestData={imagingRequest}
           patientData={patient}
+          encounterData={encounter}
           certificateData={certificateData}
+          isLoading={isLoading}
         />
       </Modal>
       <Button

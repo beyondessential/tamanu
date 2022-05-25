@@ -1,14 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import moment from 'moment';
 
-import { useApi } from '../../api';
 import { SimplePrintout } from './SimplePrintout';
+import { LoadingIndicator } from '../LoadingIndicator';
 
 export const ImagingRequestPrintout = React.memo(
-  ({ imagingRequestData, patientData, certificateData }) => {
-    const api = useApi();
-    const [encounter, setEncounter] = useState();
-
+  ({ imagingRequestData, patientData, encounterData, certificateData, isLoading }) => {
     const {
       id,
       requestedDate,
@@ -19,12 +16,9 @@ export const ImagingRequestPrintout = React.memo(
       note,
     } = imagingRequestData;
 
-    useEffect(() => {
-      (async () => {
-        const res = await api.get(`encounter/${imagingRequestData.encounterId}`);
-        setEncounter(res);
-      })();
-    }, [api, imagingRequestData.encounterId]);
+    if (isLoading) {
+      return <LoadingIndicator />;
+    }
 
     return (
       <SimplePrintout
@@ -34,8 +28,8 @@ export const ImagingRequestPrintout = React.memo(
         tableData={{
           'Request code': id,
           'Request date': requestedDate ? moment(requestedDate).format('DD/MM/YYYY') : null,
-          Facility: encounter?.location?.Facility?.name,
-          Department: encounter?.department?.name,
+          Facility: encounterData?.location?.Facility?.name,
+          Department: encounterData?.department?.name,
           'Requested by': requestedBy?.displayName,
           Urgent: urgent ? 'Yes' : 'No',
           'Request type': imagingType?.name,

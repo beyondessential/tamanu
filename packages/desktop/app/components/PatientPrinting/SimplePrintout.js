@@ -32,7 +32,7 @@ const NotesBox = styled(Box)`
 export const NotesSection = ({ notes }) => (
   <>
     <Text>Notes:</Text>
-    <NotesBox>{notes.map(note => note.content)}</NotesBox>
+    <NotesBox>{notes.map(note => note.content).join(' ')}</NotesBox>
   </>
 );
 
