@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Divider, List } from '@material-ui/core';
+import { ListItem, ListItemText, Divider, List, Collapse } from '@material-ui/core';
+import { grey } from '@material-ui/core/colors';
 import { TamanuLogoWhite } from '../TamanuLogo';
 import { version } from '../../../package.json';
-import { LogoutItem } from './LogoutItem';
-import { SecondarySidebarItem } from './SecondarySidebarItem';
-import { PrimarySidebarItem } from './PrimarySidebarItem';
 import { FacilityNameDisplay } from '../FacilityNameDisplay';
 import { Colors } from '../../constants';
+import { administrationIcon, logoutIcon } from '../../constants/images';
+import { Translated } from '../Translated';
 
 const Container = styled.div`
   background: ${Colors.primaryDark};
@@ -20,6 +20,54 @@ const Container = styled.div`
     color: ${Colors.white};
   }
 `;
+
+const SidebarPrimaryIcon = styled.img`
+  width: 2.2em;
+  height: 2.2em;
+  border: none;
+`;
+
+const SidebarItemText = styled(ListItemText)`
+  color: ${grey[100]};
+  padding-left: 15px;
+  font-size: 1.05rem;
+
+  &::first-letter {
+    text-transform: uppercase;
+  }
+`;
+
+const PrimarySidebarItem = ({ icon, label, children, selected, onClick }) => (
+  <>
+    <ListItem button onClick={onClick} selected={selected} data-test-class="primary-sidebar-item">
+      <SidebarPrimaryIcon src={icon || administrationIcon} />
+      <SidebarItemText disableTypography primary={label} />
+    </ListItem>
+    <Collapse in={selected} timeout="auto" unmountOnExit>
+      <List component="div" disablePadding>
+        {children}
+      </List>
+    </Collapse>
+  </>
+);
+
+const StyledListItem = styled(ListItem)`
+  padding: 2px 0 2px 32px;
+`;
+
+const SecondarySidebarItem = ({ path, icon, label, isCurrent, disabled, onClick }) => (
+  <StyledListItem
+    button
+    to={path}
+    disabled={disabled}
+    selected={isCurrent}
+    onClick={onClick}
+    data-test-class="secondary-sidebar-item"
+  >
+    <i className={icon} />
+    <SidebarItemText disableTypography primary={label} />
+  </StyledListItem>
+);
 
 const AdditionalInfo = styled.div`
   flex-grow: 0;
@@ -85,7 +133,10 @@ export const Sidebar = ({
       </List>
       <div>
         <Divider />
-        <LogoutItem onClick={handleLogout} />
+        <ListItem button onClick={handleLogout} data-test-id="siderbar-logout-item">
+          <SidebarPrimaryIcon src={logoutIcon} />
+          <SidebarItemText disableTypography primary={<Translated id="logout" />} />
+        </ListItem>
       </div>
       <AdditionalInfo>
         <div>Version {version}</div>
