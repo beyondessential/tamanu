@@ -1,16 +1,12 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
-import Divider from '@material-ui/core/Divider';
-import MuiList from '@material-ui/core/List';
-
+import { Divider, List } from '@material-ui/core';
 import { TamanuLogoWhite } from '../TamanuLogo';
 import { version } from '../../../package.json';
-
 import { LogoutItem } from './LogoutItem';
 import { SecondarySidebarItem } from './SecondarySidebarItem';
 import { PrimarySidebarItem } from './PrimarySidebarItem';
 import { FacilityNameDisplay } from '../FacilityNameDisplay';
-
 import { Colors } from '../../constants';
 
 const Container = styled.div`
@@ -38,68 +34,63 @@ const Logo = styled(TamanuLogoWhite)`
   margin: 24px 0 10px 20px;
 `;
 
-export class Sidebar extends Component {
-  constructor() {
-    super();
-    this.state = {
-      selectedParentItem: '',
-    };
-  }
+export const Sidebar = ({
+  currentPath,
+  items,
+  onPathChanged,
+  onLogout,
+  permissionCheck = () => true,
+}) => {
+  const [selectedParentItem, setSelectedParentItem] = useState('');
 
-  onLogout = () => {
-    const { onLogout } = this.props;
+  const handleLogout = () => {
     if (onLogout) {
       onLogout();
     }
   };
 
-  clickedParentItem = ({ key }) => {
-    const { selectedParentItem } = this.state;
+  const clickedParentItem = ({ key }) => {
     if (selectedParentItem === key) {
-      this.setState({ selectedParentItem: '' });
+      setSelectedParentItem('');
     } else {
-      this.setState({ selectedParentItem: key });
+      setSelectedParentItem(key);
     }
   };
 
-  render() {
-    const { selectedParentItem } = this.state;
-    const { currentPath, items, onPathChanged, permissionCheck = () => true } = this.props;
-    return (
-      <Container>
-        <Logo size="140px" />
-        <MuiList component="nav">
-          {items.map(item => (
-            <PrimarySidebarItem
-              icon={item.icon}
-              label={item.label}
-              key={item.key}
-              selected={selectedParentItem === item.key}
-              onClick={() => this.clickedParentItem(item)}
-            >
-              {item.children.map(child => (
-                <SecondarySidebarItem
-                  key={child.path}
-                  path={child.path}
-                  isCurrent={currentPath === child.path}
-                  icon={child.icon}
-                  label={child.label}
-                  disabled={!permissionCheck(child, item)}
-                  onClick={() => onPathChanged(child.path)}
-                />
-              ))}
-            </PrimarySidebarItem>
-          ))}
-        </MuiList>
-        <div>
-          <Divider />
-          <LogoutItem onClick={this.onLogout} />
-        </div>
-        <AdditionalInfo>
-          <div>Version {version}</div>
-          <FacilityNameDisplay />
-        </AdditionalInfo>
-      </Container>
-    );
-  }
-}
+  return (
+    <Container>
+      <Logo size="140px" />
+      <List component="nav">
+        {items.map(item => (
+          <PrimarySidebarItem
+            icon={item.icon}
+            label={item.label}
+            key={item.key}
+            selected={selectedParentItem === item.key}
+            onClick={() => clickedParentItem(item)}
+          >
+            {item.children.map(child => (
+              <SecondarySidebarItem
+                key={child.path}
+                path={child.path}
+                isCurrent={currentPath === child.path}
+                icon={child.icon}
+                label={child.label}
+                disabled={!permissionCheck(child, item)}
+                onClick={() => onPathChanged(child.path)}
+              />
+            ))}
+          </PrimarySidebarItem>
+        ))}
+      </List>
+      <div>
+        <Divider />
+        <LogoutItem onClick={handleLogout} />
+      </div>
+      <AdditionalInfo>
+        <div>Version {version}</div>
+        <FacilityNameDisplay />
+      </AdditionalInfo>
+    </Container>
+  );
+};

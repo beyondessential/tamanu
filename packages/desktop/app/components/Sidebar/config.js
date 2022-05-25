@@ -34,25 +34,21 @@ export const facilityItems = [
       {
         label: 'All patients',
         path: '/patients',
-        icon: submenuIcons.table,
         ability: { action: 'read' },
       },
       {
         label: 'Inpatients',
         path: '/patients/admitted',
-        icon: submenuIcons.table,
         ability: { action: 'read' },
       },
       {
         label: 'Emergency patients',
         path: '/patients/triage',
-        icon: submenuIcons.table,
         ability: { action: 'read' },
       },
       {
         label: 'Outpatients',
         path: '/patients/outpatient',
-        icon: submenuIcons.table,
         ability: { action: 'read' },
       },
     ],
@@ -67,13 +63,11 @@ export const facilityItems = [
       {
         label: 'Upcoming appointments',
         path: '/appointments',
-        icon: submenuIcons.table,
         ability: { action: 'read' },
       },
       {
         label: 'Appointments calendar',
         path: '/appointments/calendar',
-        icon: submenuIcons.calendar,
         ability: { action: 'read' },
       },
       {
@@ -94,13 +88,11 @@ export const facilityItems = [
       {
         label: 'Requests',
         path: '/medication/requests',
-        icon: submenuIcons.table,
         ability: { action: 'read' },
       },
       {
         label: 'Completed',
         path: '/medication/completed',
-        icon: submenuIcons.table,
         ability: { action: 'read' },
       },
       {
@@ -112,7 +104,6 @@ export const facilityItems = [
       {
         label: 'Dispense',
         path: '/medication/dispense',
-        icon: submenuIcons.action,
         ability: { action: 'create' },
       },
     ],
@@ -127,13 +118,11 @@ export const facilityItems = [
       {
         label: 'Requests',
         path: '/imaging',
-        icon: submenuIcons.table,
         ability: { action: 'read' },
       },
       {
         label: 'Completed',
         path: '/imaging/completed',
-        icon: submenuIcons.table,
         ability: { action: 'read' },
       },
       {
@@ -154,13 +143,11 @@ export const facilityItems = [
       {
         label: 'Requests',
         path: '/labs',
-        icon: submenuIcons.table,
         ability: { action: 'read' },
       },
       {
         label: 'Completed',
         path: '/labs/completed',
-        icon: submenuIcons.table,
         ability: { action: 'read' },
       },
       {
@@ -181,34 +168,28 @@ export const facilityItems = [
       {
         label: 'Settings',
         path: '/admin/settings',
-        icon: submenuIcons.cog,
       },
       {
         label: 'Users',
         path: '/admin/users',
-        icon: submenuIcons.users,
         ability: { action: 'read', subject: 'user' },
       },
       {
         label: 'Locations',
         path: '/admin/locations',
-        icon: submenuIcons.location,
         ability: { action: 'read', subject: 'location' },
       },
       {
         label: 'Permissions',
         path: '/admin/permissions',
-        icon: submenuIcons.permissions,
         ability: { action: 'read', subject: 'userRole' },
       },
       {
         label: 'Programs',
-        icon: submenuIcons.table,
         path: '/admin/programs',
       },
       {
         label: 'Data import',
-        icon: submenuIcons.table,
         path: '/admin/refdata',
       },
     ],
@@ -231,7 +212,6 @@ export const facilityItems = [
       {
         label: 'Report generator',
         path: `/reports/`,
-        icon: submenuIcons.report,
       },
     ],
   },
@@ -245,12 +225,10 @@ export const facilityItems = [
       {
         label: 'Immunisation register',
         path: `/immunisations/`,
-        icon: submenuIcons.immunisations,
       },
       {
         label: 'COVID campaign',
         path: `/immunisations/covid`,
-        icon: submenuIcons.immunisations,
       },
     ],
   },
