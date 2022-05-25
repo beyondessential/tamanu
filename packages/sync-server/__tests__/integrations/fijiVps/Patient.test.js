@@ -182,7 +182,7 @@ describe('VPS integration - Patient', () => {
             'subject:identifier must be in the format "<namespace>|<id>"',
             '_count must be a `number` type, but the final value was: `NaN` (cast from the value `"x"`).',
             '_page must be a `number` type, but the final value was: `NaN` (cast from the value `"z"`).',
-            '_sort must be one of the following values: -issued',
+            'Unsupported or unknown parameters in _sort',
           ],
         },
       });
