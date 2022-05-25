@@ -17,7 +17,7 @@ describe('VPS integration - Patient', () => {
     it('fetches a patient', async () => {
       // arrange
       const { Patient, PatientAdditionalData } = ctx.store.models;
-      const patient = await Patient.create(fake(Patient));
+      const patient = await Patient.create(fake(Patient, { dateOfDeath: new Date() }));
       const additionalData = await PatientAdditionalData.create({
         ...fake(PatientAdditionalData),
         patientId: patient.id,
@@ -59,6 +59,7 @@ describe('VPS integration - Patient', () => {
               },
             ],
             birthDate: format(patient.dateOfBirth, 'yyyy-MM-dd'),
+            deceasedDateTime: format(patient.dateOfDeath, "yyyy-MM-dd'T'HH:mm:ssXXX"),
             gender: patient.sex,
             identifier: [
               {
