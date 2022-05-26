@@ -2,7 +2,7 @@ import Chance from 'chance';
 
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
-import { IDENTIFIER_NAMESPACE } from '../../../app/hl7fhir/schema';
+import { IDENTIFIER_NAMESPACE } from '../../../app/hl7fhir/utils';
 
 const chance = new Chance();
 
@@ -493,7 +493,6 @@ describe('VPS integration - DiagnosticReport', () => {
       expect(response.body).toMatchObject({
         error: {
           errors: [
-            'subject:identifier must be in the format "<namespace>|<id>"',
             'subject:identifier is a required field',
           ],
         },
