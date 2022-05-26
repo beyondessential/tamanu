@@ -11,7 +11,10 @@ export class PatientCarePlan extends Model {
       },
       {
         ...options,
-        syncConfig: initSyncForModelNestedUnderPatient(this, 'carePlan'),
+        syncConfig: {
+          ...initSyncForModelNestedUnderPatient(this, 'carePlan'),
+          includedRelations: ['notes'],
+        },
       },
     );
   }
