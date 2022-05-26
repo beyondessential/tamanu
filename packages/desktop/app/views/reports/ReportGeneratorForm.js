@@ -96,6 +96,13 @@ async function validateCommaSeparatedEmails(emails) {
   return '';
 }
 
+const buildParameterFieldValidation = ({ validation, name, required }) => {
+  if (validation) return validation;
+  if (required) return Yup.mixed().required(`${name} is a required field`);
+
+  return Yup.mixed();
+};
+
 const ErrorMessageContainer = styled(Grid)`
   padding: ${MUI_SPACING_UNIT * 2}px ${MUI_SPACING_UNIT * 3}px;
   background-color: ${red[50]};
@@ -226,9 +233,13 @@ const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
       onSubmit={submitRequestReport}
       validationSchema={Yup.object().shape({
         reportType: Yup.string().required('Report type is required'),
-        ...parameters
-          .filter(field => field.validation)
-          .reduce((schema, field) => ({ ...schema, [field.name]: field.validation }), {}),
+        ...parameters.reduce(
+          (schema, field) => ({
+            ...schema,
+            [field.name]: buildParameterFieldValidation(field),
+          }),
+          {},
+        ),
       })}
       render={({ values }) => (
         <>
