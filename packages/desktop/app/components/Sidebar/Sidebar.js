@@ -1,14 +1,26 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { ListItem, ListItemText, Divider, List, Collapse } from '@material-ui/core';
+import {
+  ListItem,
+  ListItemText,
+  List,
+  Collapse,
+  Divider,
+  Box,
+  Typography,
+  Avatar,
+  Button,
+} from '@material-ui/core';
+import { ExpandMore } from '@material-ui/icons';
 import { TamanuLogoWhite } from '../TamanuLogo';
-import { version } from '../../../package.json';
-import { FacilityNameDisplay } from '../FacilityNameDisplay';
 import { Colors } from '../../constants';
-import { administrationIcon, logoutIcon } from '../../constants/images';
+import { administrationIcon } from '../../constants/images';
+import { version } from '../../../package.json';
 import { Translated } from '../Translated';
 
 const Container = styled.div`
+  display: flex;
+  flex-direction: column;
   background: ${Colors.primaryDark};
   min-width: 260px;
   padding: 0 15px;
@@ -20,11 +32,29 @@ const Container = styled.div`
   }
 `;
 
+const Logo = styled(TamanuLogoWhite)`
+  margin: 24px 0 14px 18px;
+`;
+
 const PrimaryListItem = styled(ListItem)`
   border-radius: 4px;
+  padding-right: 10px;
+
+  .MuiSvgIcon-root {
+    position: relative;
+    top: -1px;
+    opacity: 0.9;
+    font-size: 22px;
+    transform: rotate(0deg);
+    transition: transform 0.2s ease;
+  }
 
   &.Mui-selected {
     background: none;
+
+    .MuiSvgIcon-root {
+      transform: rotate(180deg);
+    }
   }
 
   &:hover,
@@ -40,18 +70,11 @@ const SidebarPrimaryIcon = styled.img`
 `;
 
 const PrimaryItemText = styled(ListItemText)`
-  color: white;
   padding-left: 10px;
-
-  //font-size: 1.05rem;
   font-size: 14px;
   line-height: 18px;
   font-weight: 500;
   letter-spacing: 0;
-
-  &::first-letter {
-    text-transform: uppercase;
-  }
 `;
 
 const PrimarySidebarItem = ({ icon, label, children, selected, onClick }) => (
@@ -64,6 +87,7 @@ const PrimarySidebarItem = ({ icon, label, children, selected, onClick }) => (
     >
       <SidebarPrimaryIcon src={icon || administrationIcon} />
       <PrimaryItemText disableTypography primary={label} />
+      <ExpandMore />
     </PrimaryListItem>
     <Collapse in={selected} timeout="auto" unmountOnExit>
       <List component="div" style={{ padding: '0 0 4px 0' }}>
@@ -77,25 +101,29 @@ const SecondaryListItem = styled(ListItem)`
   padding: 0 0 2px 48px;
   border-radius: 4px;
 
-  &:hover {
+  &:hover,
+  &.Mui-selected,
+  &.Mui-selected:hover {
     background: rgba(255, 255, 255, 0.15);
   }
 `;
 
 const SecondaryItemText = styled(ListItemText)`
-  color: white;
-
   font-size: 14px;
   line-height: 18px;
   font-weight: 400;
   letter-spacing: 0;
-
-  &::first-letter {
-    text-transform: uppercase;
-  }
 `;
 
-const SecondarySidebarItem = ({ path, label, isCurrent, disabled, onClick }) => (
+const Dot = styled.div`
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: ${props => props.$color};
+  margin-right: 14px;
+`;
+
+const SecondarySidebarItem = ({ path, label, isCurrent, disabled, onClick, color }) => (
   <SecondaryListItem
     button
     to={path}
@@ -104,22 +132,67 @@ const SecondarySidebarItem = ({ path, label, isCurrent, disabled, onClick }) => 
     onClick={onClick}
     data-test-class="secondary-sidebar-item"
   >
+    {color && <Dot $color={color} />}
     <SecondaryItemText disableTypography primary={label} />
   </SecondaryListItem>
 );
 
-const AdditionalInfo = styled.div`
-  flex-grow: 0;
-  display: flex;
-  flex-direction: column;
-  color: ${Colors.softText};
-  margin: 0.7rem;
-  font-size: 0.8rem;
+const Footer = styled.div`
+  margin-top: auto;
+  padding-bottom: 20px;
+  padding-right: 18px;
 `;
 
-const Logo = styled(TamanuLogoWhite)`
-  margin: 24px 0 10px 18px;
+const StyledDivider = styled(Divider)`
+  background-color: rgba(255, 255, 255, 0.2);
+  margin-bottom: 14px;
+  margin-left: 16px;
 `;
+
+const UserName = styled(Typography)`
+  font-weight: 500;
+  font-size: 14px;
+  margin-bottom: 5px;
+  line-height: 18px;
+`;
+
+const Facility = styled(Typography)`
+  font-weight: 400;
+  font-size: 11px;
+  line-height: 15px;
+`;
+
+const StyledAvatar = styled(Avatar)`
+  background: #e7b091;
+  font-weight: 500;
+  font-size: 16px;
+  margin-right: 12px;
+  margin-top: 5px;
+  text-transform: uppercase;
+`;
+
+const Version = styled.div`
+  color: ${Colors.softText};
+  font-size: 9px;
+  line-height: 15px;
+  font-weight: 400;
+  margin-top: 6px;
+`;
+
+const LogoutButton = styled(Button)`
+  font-weight: 400;
+  font-size: 11px;
+  line-height: 15px;
+  color: white;
+  text-transform: none;
+  text-decoration: underline;
+`;
+
+const getInitials = string =>
+  string
+    .match(/\b(\w)/g)
+    .slice(0, 2)
+    .join('');
 
 export const Sidebar = ({
   currentPath,
@@ -127,7 +200,10 @@ export const Sidebar = ({
   onPathChanged,
   onLogout,
   permissionCheck = () => true,
+  currentUser,
+  facilityName,
 }) => {
+  const initials = getInitials(currentUser.displayName);
   const [selectedParentItem, setSelectedParentItem] = useState('');
 
   const handleLogout = () => {
@@ -161,7 +237,7 @@ export const Sidebar = ({
                 key={child.path}
                 path={child.path}
                 isCurrent={currentPath === child.path}
-                icon={child.icon}
+                color={child.color}
                 label={child.label}
                 disabled={!permissionCheck(child, item)}
                 onClick={() => onPathChanged(child.path)}
@@ -170,17 +246,27 @@ export const Sidebar = ({
           </PrimarySidebarItem>
         ))}
       </List>
-      <div>
-        <Divider />
-        <ListItem button onClick={handleLogout} data-test-id="siderbar-logout-item">
-          <SidebarPrimaryIcon src={logoutIcon} />
-          <PrimaryItemText disableTypography primary={<Translated id="logout" />} />
-        </ListItem>
-      </div>
-      <AdditionalInfo>
-        <div>Version {version}</div>
-        <FacilityNameDisplay />
-      </AdditionalInfo>
+      <Footer>
+        <StyledDivider />
+        <Box display="flex" color="white">
+          <StyledAvatar>{initials}</StyledAvatar>
+          <Box flex={1}>
+            <UserName>{currentUser?.displayName}</UserName>
+            {facilityName && <Facility>{facilityName}</Facility>}
+            <Box display="flex" justifyContent="space-between">
+              <Version>Version {version}</Version>
+              <LogoutButton
+                type="button"
+                onClick={handleLogout}
+                id="logout"
+                data-test-id="siderbar-logout-item"
+              >
+                <Translated id="logout" />
+              </LogoutButton>
+            </Box>
+          </Box>
+        </Box>
+      </Footer>
     </Container>
   );
 };

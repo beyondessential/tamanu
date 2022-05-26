@@ -19,6 +19,8 @@ storiesOf('Sidebar', module).add('Sidebar', () => (
       onPathChanged={action('path')}
       onLogout={action('logout')}
       items={facilityItems}
+      facilityName="Etta Clinic"
+      currentUser={{ displayName: 'Catherine Jennings' }}
     />
   </Container>
 ));

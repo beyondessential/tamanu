@@ -8,6 +8,7 @@ import {
   scheduleIcon,
   vaccineIcon,
 } from '../../constants/images';
+import { Colors } from '../../constants';
 
 export const submenuIcons = {
   action: 'fa fa-chevron-circle-right',
@@ -33,21 +34,25 @@ export const facilityItems = [
     children: [
       {
         label: 'All patients',
+        color: '#7EB3E7',
         path: '/patients',
         ability: { action: 'read' },
       },
       {
         label: 'Inpatients',
+        color: Colors.safe,
         path: '/patients/admitted',
         ability: { action: 'read' },
       },
       {
-        label: 'Emergency patients',
+        label: 'Emergency Patients',
+        color: '#F9BA5B',
         path: '/patients/triage',
         ability: { action: 'read' },
       },
       {
         label: 'Outpatients',
+        color: Colors.orange,
         path: '/patients/outpatient',
         ability: { action: 'read' },
       },
@@ -61,17 +66,17 @@ export const facilityItems = [
     ability: { subject: 'appointment' },
     children: [
       {
-        label: 'Upcoming appointments',
+        label: 'Upcoming Appointments',
         path: '/appointments',
         ability: { action: 'read' },
       },
       {
-        label: 'Appointments calendar',
+        label: 'Appointments Calendar',
         path: '/appointments/calendar',
         ability: { action: 'read' },
       },
       {
-        label: 'New appointment',
+        label: 'New Appointment',
         path: '/appointments/appointment/new',
         ability: { action: 'create' },
       },
@@ -148,7 +153,7 @@ export const facilityItems = [
         ability: { action: 'read' },
       },
       {
-        label: 'New request',
+        label: 'New Request',
         path: '/labs/edit/new',
         ability: { action: 'create' },
       },
@@ -185,7 +190,7 @@ export const facilityItems = [
         path: '/admin/programs',
       },
       {
-        label: 'Data import',
+        label: 'Data Import',
         path: '/admin/refdata',
       },
     ],
@@ -206,7 +211,7 @@ export const facilityItems = [
     ability: { action: 'read', subject: 'report' },
     children: [
       {
-        label: 'Report generator',
+        label: 'Report Generator',
         path: `/reports/`,
       },
     ],
@@ -219,11 +224,11 @@ export const facilityItems = [
     ability: { action: 'read' },
     children: [
       {
-        label: 'Immunisation register',
+        label: 'Immunisation Register',
         path: `/immunisations/`,
       },
       {
-        label: 'COVID campaign',
+        label: 'COVID Campaign',
         path: `/immunisations/covid`,
       },
     ],
