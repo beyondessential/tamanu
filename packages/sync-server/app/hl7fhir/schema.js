@@ -1,11 +1,9 @@
 import * as yup from 'yup';
-import config from 'config';
 import { isArray } from 'lodash';
 
-import { decodeIdentifier, getSortParameterName } from './utils';
+import { isValidIdentifier, getSortParameterName } from './utils';
 import { hl7PatientFields, sortableHL7PatientFields } from './hl7PatientFields';
 
-export const IDENTIFIER_NAMESPACE = config.hl7.dataDictionaries.patientDisplayId;
 const MAX_RECORDS = 20;
 
 // Explicitly set with the direction sign
@@ -21,11 +19,7 @@ const baseParameters = {
     .test(
       'is-correct-format-and-namespace',
       'subject:identifier must be in the format "<namespace>|<id>"',
-      value => {
-        if (!value) return true;
-        const [namespace, displayId] = decodeIdentifier(value);
-        return namespace === IDENTIFIER_NAMESPACE && !!displayId;
-      },
+      isValidIdentifier,
     ),
   _count: yup
     .number()
@@ -139,10 +133,7 @@ export const diagnosticReport = {
         .test(
           'is-correct-format-and-namespace',
           'subject:identifier must be in the format "<namespace>|<id>"',
-          value => {
-            const [namespace, displayId] = decodeIdentifier(value);
-            return namespace === IDENTIFIER_NAMESPACE && !!displayId;
-          },
+          isValidIdentifier,
         )
         .required(),
       _include: yup

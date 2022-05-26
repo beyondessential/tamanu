@@ -1,11 +1,26 @@
 import * as yup from 'yup';
-import moment from 'moment';
 
 import { hl7ParameterTypes, stringTypeModifiers } from './hl7Parameters';
+import { parseHL7Date, isValidIdentifier, decodeIdentifier } from './utils';
 
 // HL7 Patient resource mapping to Tamanu.
 // (only supported params are in)
 export const hl7PatientFields = {
+  identifier: {
+    parameterType: hl7ParameterTypes.token,
+    fieldName: 'displayId',
+    columnName: 'display_id',
+    supportedModifiers: [],
+    validationSchema: yup.string().test(
+      'is-correct-format-and-namespace',
+      'identifier must be in the format "<namespace>|<id>"',
+      isValidIdentifier,
+    ),
+    getValue: value => {
+      const [_, identifier] = decodeIdentifier(value);
+      return identifier;
+    },
+  },
   given: {
     parameterType: hl7ParameterTypes.string,
     fieldName: 'firstName',
@@ -40,16 +55,14 @@ export const hl7PatientFields = {
       // eslint-disable-next-line no-template-curly-in-string
       .test('is-valid-date', 'Invalid date/time format: ${value}', value => {
         if (!value) return true;
-        // Only these formats should be valid for a date in HL7 FHIR:
-        // https://www.hl7.org/fhir/datatypes.html#date
-        return moment(value, ['YYYY', 'YYYY-MM', 'YYYY-MM-DD'], true).isValid();
+        return parseHL7Date(value).isValid();
       }),
     sortable: true,
   },
   // TODO: address should match a bunch of other fields
   address: {
     parameterType: hl7ParameterTypes.string,
-    fieldName: 'additionalData.cityTown',
+    fieldName: '$additionalData.city_town$',
     columnName: 'additionalData.city_town',
     supportedModifiers: stringTypeModifiers,
     validationSchema: yup.string(),
@@ -57,7 +70,7 @@ export const hl7PatientFields = {
   },
   'address-city': {
     parameterType: hl7ParameterTypes.string,
-    fieldName: 'additionalData.cityTown',
+    fieldName: '$additionalData.city_town$',
     columnName: 'additionalData.city_town',
     supportedModifiers: stringTypeModifiers,
     validationSchema: yup.string(),
