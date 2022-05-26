@@ -163,7 +163,7 @@ describe('Generic survey export', () => {
           Age: 1,
           Sex: expectedPatient.sex,
           Village: expectedVillage.name,
-          'Submission Time': format(expectedDate, 'yyyy-MM-dd kk:mm'),
+          'Submission Time': format(expectedDate, 'yyyy-MM-dd HH:mm'),
           'Test Question 1': 'Data point 1',
           'Test Question 2': 'Data point 2',
         },

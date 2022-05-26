@@ -1,17 +1,46 @@
 import { Sequelize, Op } from 'sequelize';
-import * as yup from 'yup';
+import config from 'config';
 import moment from 'moment';
 import { jsonFromBase64, jsonToBase64 } from 'shared/utils/encodings';
+import { InvalidParameterError } from 'shared/errors';
 
-export function hl7SortToTamanu(hl7Sort) {
-  // hl7Sort can be quite complicated, we only support a single field `issued` in `-` order
-  if (hl7Sort === '-issued') {
-    return [
-      ['createdAt', 'DESC'],
-      ['id', 'DESC'],
-    ];
-  }
-  throw new Error(`Unrecognised sort order: ${hl7Sort}`);
+import { hl7ParameterTypes } from './hl7Parameters';
+import { hl7PatientFields, sortableHL7PatientFields } from './hl7PatientFields';
+
+export const IDENTIFIER_NAMESPACE = config.hl7.dataDictionaries.patientDisplayId;
+
+export function getSortParameterName(sort) {
+  return sort[0] === '-' ? sort.slice(1) : sort;
+}
+
+export function hl7SortToTamanu(hl7Sort, modelName) {
+  // Sorts are a comma separated list of parameters
+  const sorts = hl7Sort.split(',');
+
+  // Create list of Tamanu sorts
+  const tamanuSorts = sorts.map(sort => {
+    // Allow a "-" at the beginning to reverse sort
+    const parameter = getSortParameterName(sort);
+    const direction = sort[0] === '-' ? 'DESC' : 'ASC';
+
+    // Base parameters
+    if (parameter === 'issued') return ['createdAt', direction];
+
+    // Parse patient parameters
+    if (modelName === 'Patient') {
+      if (sortableHL7PatientFields.includes(parameter)) {
+        const { fieldName } = hl7PatientFields[parameter];
+        return [fieldName, direction];
+      }
+    }
+    // Something went terribly wrong
+    throw new InvalidParameterError(`Unrecognised sort parameter in: ${hl7Sort}`);
+  });
+
+  // Always sort by descending ID last
+  tamanuSorts.push(['id', 'DESC']);
+
+  return tamanuSorts;
 }
 
 export function decodeIdentifier(identifier) {
@@ -20,6 +49,16 @@ export function decodeIdentifier(identifier) {
   }
   const [namespace, ...idPieces] = identifier.split('|');
   return [namespace || null, idPieces.join('|') || null];
+}
+
+// Used to validate HL7 identifiers that require a namespace
+// This should run inside a yup.test()
+export function isValidIdentifier(value) {
+  // Yup will always run a test for the parameter, even when it's undefined
+  if (!value) return true;
+
+  const [namespace, displayId] = decodeIdentifier(value);
+  return namespace === IDENTIFIER_NAMESPACE && !!displayId;
 }
 
 export function toSearchId({ after, ...params }) {
@@ -67,46 +106,12 @@ export function getParamAndModifier(fullParam) {
   return fullParam.split(':', 2);
 }
 
-// Prefixes supported by Tamanu with the corresponding
-// sequelize operators.
-/*
-const prefixes = {
-  eq: Op.eq,
-  co: Op.substring,
-  sw: Op.startsWith,
-  ew: Op.endsWith,
-};
-*/
-
-// All of the HL7 search parameter types
-export const hl7ParameterTypes = {
-  number: 'number',
-  date: 'date',
-  string: 'string',
-  token: 'token',
-  reference: 'reference',
-  composite: 'composite',
-  quantity: 'quantity',
-  uri: 'uri',
-  special: 'special',
-};
-
-// Modifiers supported by Tamanu with the corresponding
-// sequelize operator. Classified by HL7 search parameter type.
-export const modifiers = {
-  [hl7ParameterTypes.string]: {
-    contains: Op.substring,
-    'starts-with': Op.startsWith,
-    'ends-with': Op.endsWith,
-    exact: Op.eq,
-  },
-};
-
-export const stringTypeModifiers = Object.keys(modifiers.string);
-
 export function getDefaultOperator(type) {
   if (type === hl7ParameterTypes.string) {
     return Op.startsWith;
+  }
+  if (type === hl7ParameterTypes.date) {
+    return Op.between;
   }
 
   return Op.eq;
@@ -123,69 +128,36 @@ export function getQueryObject(columnName, value, operator, modifier, parameterT
     });
   }
 
+  // Dates with eq modifier or no modifier should be looked up as a range
+  if (parameterType === hl7ParameterTypes.date && ['eq', undefined].includes(modifier)) {
+    // Create and return range
+    const timeUnit = getSmallestTimeUnit(value);
+    const startDate = parseHL7Date(value).startOf(timeUnit);
+    const endDate = parseHL7Date(value).endOf(timeUnit);
+    return { [operator]: [startDate, endDate] };
+  }
+
   return { [operator]: value };
 }
 
-// HL7 Patient resource mapping to Tamanu.
-// (only supported params are in)
-export const hl7PatientFields = {
-  given: {
-    parameterType: hl7ParameterTypes.string,
-    fieldName: 'firstName',
-    columnName: 'first_name',
-    supportedModifiers: stringTypeModifiers,
-    validationSchema: yup.string(),
-  },
-  family: {
-    parameterType: hl7ParameterTypes.string,
-    fieldName: 'lastName',
-    columnName: 'last_name',
-    supportedModifiers: stringTypeModifiers,
-    validationSchema: yup.string(),
-  },
-  gender: {
-    parameterType: hl7ParameterTypes.token,
-    fieldName: 'sex',
-    columnName: 'sex',
-    supportedModifiers: [],
-    validationSchema: yup.string().oneOf(['male', 'female', 'other']),
-  },
-  birthdate: {
-    parameterType: hl7ParameterTypes.date,
-    fieldName: 'dateOfBirth',
-    columnName: 'date_of_birth',
-    supportedModifiers: [],
-    validationSchema: yup
-      .string()
-      // eslint-disable-next-line no-template-curly-in-string
-      .test('is-valid-date', 'Invalid date/time format: ${value}', value => {
-        if (!value) return true;
-        // Only these formats should be valid for a date in HL7 FHIR:
-        // https://www.hl7.org/fhir/datatypes.html#date
-        return moment(value, ['YYYY', 'YYYY-MM', 'YYYY-MM-DD'], true).isValid();
-      }),
-  },
-  // TODO: address should match a bunch of other fields
-  address: {
-    parameterType: hl7ParameterTypes.string,
-    fieldName: 'additionalData.cityTown',
-    columnName: 'additionalData.city_town',
-    supportedModifiers: stringTypeModifiers,
-    validationSchema: yup.string(),
-  },
-  'address-city': {
-    parameterType: hl7ParameterTypes.string,
-    fieldName: 'additionalData.cityTown',
-    columnName: 'additionalData.city_town',
-    supportedModifiers: stringTypeModifiers,
-    validationSchema: yup.string(),
-  },
-  // TODO: telecom could also be email or other phones
-  telecom: {
-    parameterType: hl7ParameterTypes.token,
-    fieldName: '$additionalData.primary_contact_number$',
-    columnName: 'additionalData.primary_contact_number',
-    supportedModifiers: [],
-    validationSchema: yup.string(),
-  },
-};
+// The date string will be parsed in UTC and return a moment
+export function parseHL7Date(dateString) {
+  // Only these formats should be valid for a date in HL7 FHIR:
+  // https://www.hl7.org/fhir/datatypes.html#date
+  return moment.utc(dateString, ['YYYY', 'YYYY-MM', 'YYYY-MM-DD'], true);
+}
+
+// Returns the smallest time unit used on the date string format.
+// Only supports HL7 formats.
+export function getSmallestTimeUnit(dateString) {
+  switch (dateString.length) {
+    case 4:
+      return 'year';
+    case 7:
+      return 'month';
+    case 10:
+      return 'day';
+    default:
+      throw new InvalidParameterError(`Invalid date/time format: ${dateString}`);
+  }
+}
