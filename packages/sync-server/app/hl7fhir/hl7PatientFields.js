@@ -3,7 +3,10 @@ import { InvalidParameterError } from 'shared/errors';
 import * as yup from 'yup';
 
 import { hl7ParameterTypes, stringTypeModifiers } from './hl7Parameters';
-import { parseHL7Date, isValidIdentifier, decodeIdentifier } from './utils';
+
+// Import directly from file instead of index to avoid dependency cycle
+import { isValidIdentifier, decodeIdentifier } from './utils/identifier';
+import { parseHL7Date } from './utils/search';
 
 // HL7 Patient resource mapping to Tamanu.
 // (only supported params are in)
