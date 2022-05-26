@@ -221,6 +221,7 @@ const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
       initialValues={{
         reportType: '',
         emails: currentUser.email,
+        ...parameters.reduce((acc, { name }) => ({ ...acc, [name]: null }), {}),
       }}
       onSubmit={submitRequestReport}
       validationSchema={Yup.object().shape({
