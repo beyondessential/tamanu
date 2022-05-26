@@ -96,8 +96,7 @@ async function validateCommaSeparatedEmails(emails) {
   return '';
 }
 
-const buildParameterFieldValidation = ({ validation, name, required }) => {
-  if (validation) return validation;
+const buildParameterFieldValidation = ({ name, required }) => {
   if (required) return Yup.mixed().required(`${name} is a required field`);
 
   return Yup.mixed();
