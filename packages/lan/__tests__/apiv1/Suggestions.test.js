@@ -1,3 +1,4 @@
+import { SURVEY_TYPES } from 'shared/constants';
 import { createTestContext } from '../utilities';
 import { testDiagnoses } from '../seed';
 
@@ -84,9 +85,10 @@ describe('Suggestions', () => {
 
     await models.Survey.bulkCreate([
       {
-        id: 'obsolete-survey-id',
+        id: obsoleteSurveyId,
         programId,
         name: 'XX - Obsolete Survey',
+        surveyType: SURVEY_TYPES.OBSOLETE,
       },
       {
         id: 'referral-survey-id',
@@ -99,7 +101,7 @@ describe('Suggestions', () => {
         name: 'XX - Program Survey',
       },
       {
-        id: 'program-survey-id',
+        id: 'program-survey-id-2',
         programId,
         name: 'ZZ - Program Survey',
       },
