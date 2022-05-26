@@ -2,11 +2,7 @@ import config from 'config';
 import { format } from 'date-fns';
 import { Op } from 'sequelize';
 
-import {
-  getParamAndModifier,
-  getQueryObject,
-  getDefaultOperator,
-} from './utils';
+import { getParamAndModifier, getQueryObject, getDefaultOperator } from './utils';
 import { modifiers } from './hl7Parameters';
 import { hl7PatientFields } from './hl7PatientFields';
 
@@ -117,11 +113,19 @@ export function getPatientWhereClause(displayId, query = {}) {
       return;
     }
 
-    const { fieldName, columnName, parameterType, getValue, getOperator } = hl7PatientFields[parameter];
+    const { fieldName, columnName, parameterType, getValue, getOperator } = hl7PatientFields[
+      parameter
+    ];
     const defaultOperator = getOperator ? getOperator(value) : getDefaultOperator(parameterType);
     const operator = modifier ? modifiers[parameterType][modifier] : defaultOperator;
     const extractedValue = getValue ? getValue(value) : value;
-    const queryObject = getQueryObject(columnName, extractedValue, operator, modifier, parameterType);
+    const queryObject = getQueryObject(
+      columnName,
+      extractedValue,
+      operator,
+      modifier,
+      parameterType,
+    );
     filters.push({ [fieldName]: queryObject });
   });
 

@@ -13,13 +13,15 @@ export const hl7PatientFields = {
     fieldName: 'displayId',
     columnName: 'display_id',
     supportedModifiers: [],
-    validationSchema: yup.string().test(
-      'is-correct-format-and-namespace',
-      'identifier must be in the format "<namespace>|<id>"',
-      isValidIdentifier,
-    ),
+    validationSchema: yup
+      .string()
+      .test(
+        'is-correct-format-and-namespace',
+        'identifier must be in the format "<namespace>|<id>"',
+        isValidIdentifier,
+      ),
     getValue: value => {
-      const [_, identifier] = decodeIdentifier(value);
+      const [, identifier] = decodeIdentifier(value);
       return identifier;
     },
   },

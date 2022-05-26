@@ -291,7 +291,7 @@ describe('mSupply integration - Patient', () => {
       ]);
 
       const cityTown = 'luxembourg';
-      const [a, b, c] = await Promise.all([
+      await Promise.all([
         PatientAdditionalData.create({
           ...fake(PatientAdditionalData, { cityTown }),
           patientId: patientOne.id,
@@ -416,7 +416,8 @@ describe('mSupply integration - Patient', () => {
         Patient.create(fake(Patient, { firstName: 'Alice', lastName, dateOfBirth })),
       ]);
 
-      const path = `/v1/integration/mSupply/Patient?given:contains=${firstName.slice(1, 3)}&family=${lastName}&birthdate=${dateString}`;
+      const slicedName = firstName.slice(1, 3);
+      const path = `/v1/integration/mSupply/Patient?given:contains=${slicedName}&family=${lastName}&birthdate=${dateString}`;
       const response = await app
         .get(path)
         .set({ 'X-Tamanu-Client': 'mSupply', 'X-Version': '0.0.1' });

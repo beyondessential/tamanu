@@ -492,9 +492,7 @@ describe('VPS integration - DiagnosticReport', () => {
       expect(response).toHaveRequestError(422);
       expect(response.body).toMatchObject({
         error: {
-          errors: [
-            'subject:identifier is a required field',
-          ],
+          errors: ['subject:identifier is a required field'],
         },
       });
     });
