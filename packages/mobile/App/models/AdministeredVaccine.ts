@@ -3,6 +3,7 @@ import { BaseModel } from './BaseModel';
 import { IAdministeredVaccine, InjectionSiteType } from '~/types';
 import { Encounter } from './Encounter';
 import { ScheduledVaccine } from './ScheduledVaccine';
+import { User } from './User';
 import { VaccineStatus } from '~/ui/helpers/patient';
 
 @Entity('administered_vaccine')
@@ -28,6 +29,7 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   @Column()
   date: Date;
 
+
   @ManyToOne(
     () => Encounter,
     encounter => encounter.administeredVaccines,
@@ -37,6 +39,7 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   @RelationId(({ encounter }: AdministeredVaccine) => encounter)
   encounterId: string;
 
+
   @ManyToOne(
     () => ScheduledVaccine,
     scheduledVaccine => scheduledVaccine.administeredVaccines,
@@ -45,6 +48,27 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
 
   @RelationId(({ scheduledVaccine }: AdministeredVaccine) => scheduledVaccine)
   scheduledVaccineId: string;
+
+
+  @ManyToOne(
+    () => User,
+    user => user.givenVaccines,
+  )
+  giver: User;
+
+  @RelationId(({ giver }: AdministeredVaccine) => giver)
+  giverId: string;
+
+
+  @ManyToOne(
+    () => User,
+    user => user.recordedVaccines,
+  )
+  recorder: User;
+
+  @RelationId(({ recorder }: AdministeredVaccine) => recorder)
+  recorderId: string;
+
 
   @BeforeInsert()
   @BeforeUpdate()

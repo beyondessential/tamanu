@@ -1,6 +1,7 @@
 import { ID } from './ID';
 import { IScheduledVaccine } from './IScheduledVaccine';
 import { IEncounter } from './IEncounter';
+import { IUser } from './IUser';
 
 export interface IAdministeredVaccine {
   id: ID;
@@ -9,6 +10,10 @@ export interface IAdministeredVaccine {
   reason?: string;
   scheduledVaccine?: IScheduledVaccine | string;
   scheduledVaccineId?: string;
+  giver?: IUser | string;
+  giverId?: string;
+  recorder?: IUser | string;
+  recorderId?: string;
   encounter?: IEncounter | string;
   batch?: string;
   status: string;
