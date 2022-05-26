@@ -42,7 +42,8 @@ describe('Sync API', () => {
   beforeAll(async () => {
     ctx = await createTestContext();
     app = await ctx.baseApp.asRole('practitioner');
-    oldestPatient = { ...fakeSyncRecordPatient(), updatedAt: makeUpdatedAt(20) };
+    // The sync api joins patients to notes but the faker doesn't include them so we add it here for a later comparison
+    oldestPatient = { ...fakeSyncRecordPatient({ notes: [] }), updatedAt: makeUpdatedAt(20) };
     secondOldestPatient = {
       ...fakeSyncRecordPatient(),
       updatedAt: makeUpdatedAt(10),
