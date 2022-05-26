@@ -21,8 +21,10 @@ import { Translated } from '../Translated';
 const Container = styled.div`
   display: flex;
   flex-direction: column;
+  flex: 1;
   background: ${Colors.primaryDark};
   min-width: 260px;
+  max-width: 320px;
   padding: 0 15px;
   box-shadow: 1px 0 4px rgba(0, 0, 0, 0.15);
   color: ${Colors.white};
