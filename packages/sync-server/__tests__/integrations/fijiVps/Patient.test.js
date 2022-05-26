@@ -2,7 +2,7 @@ import { format } from 'date-fns';
 
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
-import { IDENTIFIER_NAMESPACE } from '../../../app/hl7fhir/schema';
+import { IDENTIFIER_NAMESPACE } from '../../../app/hl7fhir/utils';
 
 describe('VPS integration - Patient', () => {
   let ctx;
@@ -17,7 +17,7 @@ describe('VPS integration - Patient', () => {
     it('fetches a patient', async () => {
       // arrange
       const { Patient, PatientAdditionalData } = ctx.store.models;
-      const patient = await Patient.create(fake(Patient));
+      const patient = await Patient.create(fake(Patient, { dateOfDeath: new Date() }));
       const additionalData = await PatientAdditionalData.create({
         ...fake(PatientAdditionalData),
         patientId: patient.id,
@@ -59,6 +59,7 @@ describe('VPS integration - Patient', () => {
               },
             ],
             birthDate: format(patient.dateOfBirth, 'yyyy-MM-dd'),
+            deceasedDateTime: format(patient.dateOfDeath, "yyyy-MM-dd'T'HH:mm:ssXXX"),
             gender: patient.sex,
             identifier: [
               {
@@ -181,7 +182,7 @@ describe('VPS integration - Patient', () => {
             'subject:identifier must be in the format "<namespace>|<id>"',
             '_count must be a `number` type, but the final value was: `NaN` (cast from the value `"x"`).',
             '_page must be a `number` type, but the final value was: `NaN` (cast from the value `"z"`).',
-            '_sort must be one of the following values: -issued',
+            'Unsupported or unknown parameters in _sort',
           ],
         },
       });

@@ -77,7 +77,8 @@ async function getHL7Payload({ req, querySchema, model, getWhere, getInclude, bu
       include,
       limit: _count,
       offset,
-      order: hl7SortToTamanu(_sort),
+      order: hl7SortToTamanu(_sort, model.name),
+      subQuery: false,
     }),
     model.count({
       where: baseWhere,
@@ -87,6 +88,7 @@ async function getHL7Payload({ req, querySchema, model, getWhere, getInclude, bu
       where: afterWhere,
       include,
       limit: _count + 1, // we can stop once we've found n+1 remaining records
+      subQuery: false,
     }),
   ]);
 

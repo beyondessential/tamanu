@@ -185,6 +185,10 @@
 
       // Email address for CSCA signing contact
       "sendRequestTo": "admin@tamanu.io"
+    },
+    "mSupply": {
+      "enabled": false,
+      "requireClientHeaders": true
     }
   },
   // on the sync-server, don't read these values from config!

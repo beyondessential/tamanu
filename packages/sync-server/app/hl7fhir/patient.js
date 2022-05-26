@@ -6,9 +6,9 @@ import {
   getParamAndModifier,
   getQueryObject,
   getDefaultOperator,
-  modifiers,
-  hl7PatientFields,
 } from './utils';
+import { modifiers } from './hl7Parameters';
+import { hl7PatientFields } from './hl7PatientFields';
 
 function patientName(patient, additional) {
   const official = {
@@ -81,7 +81,7 @@ function patientTelecom(patient, additional) {
     }));
 }
 
-export function patientToHL7Patient(patient, additional) {
+export function patientToHL7Patient(patient, additional = {}) {
   return {
     resourceType: 'Patient',
     active: true, // currently unused in Tamanu, always true
@@ -91,6 +91,10 @@ export function patientToHL7Patient(patient, additional) {
     gender: patient.sex,
     address: patientAddress(patient, additional),
     telecom: patientTelecom(patient, additional),
+    // Only add deceasedDateTime key if the patient is deceased
+    ...(patient.dateOfDeath && {
+      deceasedDateTime: format(patient.dateOfDeath, "yyyy-MM-dd'T'HH:mm:ssXXX"),
+    }),
   };
 }
 
@@ -113,10 +117,11 @@ export function getPatientWhereClause(displayId, query = {}) {
       return;
     }
 
-    const { fieldName, columnName, parameterType } = hl7PatientFields[parameter];
+    const { fieldName, columnName, parameterType, getValue } = hl7PatientFields[parameter];
     const defaultOperator = getDefaultOperator(parameterType);
     const operator = modifier ? modifiers[parameterType][modifier] : defaultOperator;
-    const queryObject = getQueryObject(columnName, value, operator, modifier, parameterType);
+    const extractedValue = getValue ? getValue(value) : value;
+    const queryObject = getQueryObject(columnName, extractedValue, operator, modifier, parameterType);
     filters.push({ [fieldName]: queryObject });
   });
 
