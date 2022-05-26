@@ -1,7 +1,12 @@
+import { Op } from 'sequelize';
+import { InvalidParameterError } from 'shared/errors';
 import * as yup from 'yup';
 
 import { hl7ParameterTypes, stringTypeModifiers } from './hl7Parameters';
-import { parseHL7Date, isValidIdentifier, decodeIdentifier } from './utils';
+
+// Import directly from file instead of index to avoid dependency cycle
+import { isValidIdentifier, decodeIdentifier } from './utils/identifier';
+import { parseHL7Date } from './utils/search';
 
 // HL7 Patient resource mapping to Tamanu.
 // (only supported params are in)
@@ -11,13 +16,15 @@ export const hl7PatientFields = {
     fieldName: 'displayId',
     columnName: 'display_id',
     supportedModifiers: [],
-    validationSchema: yup.string().test(
-      'is-correct-format-and-namespace',
-      'identifier must be in the format "<namespace>|<id>"',
-      isValidIdentifier,
-    ),
+    validationSchema: yup
+      .string()
+      .test(
+        'is-correct-format-and-namespace',
+        'identifier must be in the format "<namespace>|<id>"',
+        isValidIdentifier,
+      ),
     getValue: value => {
-      const [_, identifier] = decodeIdentifier(value);
+      const [, identifier] = decodeIdentifier(value);
       return identifier;
     },
   },
@@ -84,6 +91,23 @@ export const hl7PatientFields = {
     supportedModifiers: [],
     validationSchema: yup.string(),
     sortable: true,
+  },
+  deceased: {
+    parameterType: hl7ParameterTypes.token,
+    fieldName: 'dateOfDeath',
+    columnName: 'date_of_death',
+    supportedModifiers: [],
+    validationSchema: yup.string().oneOf(['true', 'false']),
+    getValue: () => null,
+    getOperator: value => {
+      if (value === 'true') {
+        return Op.not;
+      }
+      if (value === 'false') {
+        return Op.is;
+      }
+      throw new InvalidParameterError(`Invalid value for deceased parameter: ${value}`);
+    },
   },
 };
 
