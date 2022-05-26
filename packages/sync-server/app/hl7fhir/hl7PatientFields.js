@@ -1,3 +1,5 @@
+import { Op } from 'sequelize';
+import { InvalidParameterError } from 'shared/errors';
 import * as yup from 'yup';
 
 import { hl7ParameterTypes, stringTypeModifiers } from './hl7Parameters';
@@ -84,6 +86,23 @@ export const hl7PatientFields = {
     supportedModifiers: [],
     validationSchema: yup.string(),
     sortable: true,
+  },
+  deceased: {
+    parameterType: hl7ParameterTypes.token,
+    fieldName: 'dateOfDeath',
+    columnName: 'date_of_death',
+    supportedModifiers: [],
+    validationSchema: yup.string().oneOf(['true', 'false']),
+    getValue: () => null,
+    getOperator: value => {
+      if (value === 'true') {
+        return Op.not;
+      }
+      if (value === 'false') {
+        return Op.is;
+      }
+      throw new InvalidParameterError(`Invalid value for deceased parameter: ${value}`);
+    },
   },
 };
 
