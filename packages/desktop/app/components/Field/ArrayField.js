@@ -33,6 +33,8 @@ export const ArrayField = ({ field, renderField, maxFields = 4 }) => {
       {({ remove }) => (
         <>
           {fields.map(({ id }, index) => {
+            // Create the button for removing fields from the array but leave it to the
+            // implementor to place the button on the page
             const DeleteButton = (
               <RemoveButton
                 color="primary"
@@ -48,6 +50,7 @@ export const ArrayField = ({ field, renderField, maxFields = 4 }) => {
             return <React.Fragment key={id}>{renderField(index, DeleteButton)}</React.Fragment>;
           })}
 
+          {/* Render the button to add another field below the array of fields */}
           {fields.length < maxFields && (
             <AddButton
               startIcon={<AddCircleOutline />}

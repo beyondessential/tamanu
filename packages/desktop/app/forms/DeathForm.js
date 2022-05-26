@@ -244,7 +244,6 @@ export const DeathForm = React.memo(
             name="otherContributingConditions"
             label="Other contributing conditions"
             component={ArrayField}
-            icd10Suggester={icd10Suggester}
             renderField={(index, DeleteButton) => (
               <>
                 <Field
