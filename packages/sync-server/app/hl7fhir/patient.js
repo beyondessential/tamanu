@@ -117,8 +117,8 @@ export function getPatientWhereClause(displayId, query = {}) {
       return;
     }
 
-    const { fieldName, columnName, parameterType, getValue } = hl7PatientFields[parameter];
-    const defaultOperator = getDefaultOperator(parameterType);
+    const { fieldName, columnName, parameterType, getValue, getOperator } = hl7PatientFields[parameter];
+    const defaultOperator = getOperator ? getOperator(value) : getDefaultOperator(parameterType);
     const operator = modifier ? modifiers[parameterType][modifier] : defaultOperator;
     const extractedValue = getValue ? getValue(value) : value;
     const queryObject = getQueryObject(columnName, extractedValue, operator, modifier, parameterType);
