@@ -13,7 +13,7 @@ export const hl7PatientFields = {
     supportedModifiers: [],
     validationSchema: yup.string().test(
       'is-correct-format-and-namespace',
-      'identifier must be in the format "<namespace>|<id>',
+      'identifier must be in the format "<namespace>|<id>"',
       isValidIdentifier,
     ),
     getValue: value => {
