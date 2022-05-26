@@ -82,7 +82,14 @@ export function VaccineFormGiven(): JSX.Element {
       </RowView>
       <StyledView width="100%">
         <FormSectionHeading text="Given by" />
-        <CurrentUserField name="examiner" />
+        <Field
+          component={AutocompleteModalField}
+          placeholder="Select practitioner"
+          suggester={userSuggester}
+          modalRoute={Routes.Autocomplete.Modal}
+          name="giverId"
+          marginTop={0}
+        />
       </StyledView>
       <StyledView width="100%">
         <FormSectionHeading text="Recorded by" />
