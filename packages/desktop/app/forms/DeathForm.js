@@ -242,7 +242,6 @@ export const DeathForm = React.memo(
           <FormSeparatorLine />
           <Field
             name="otherContributingConditions"
-            label="Other contributing conditions"
             component={ArrayField}
             renderField={(index, DeleteButton) => (
               <>

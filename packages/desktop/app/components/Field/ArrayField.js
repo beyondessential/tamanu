@@ -25,8 +25,14 @@ const RemoveButton = styled(IconButton)`
   }
 `;
 
-export const ArrayField = ({ field, renderField, maxFields = 4 }) => {
-  const [fields, setFields] = useState([{ id: generate() }]);
+export const ArrayField = ({ form, field, renderField, maxFields = 4 }) => {
+  const data = form.values[field.name];
+  // If there are initial values, generate the same number of fields in the ui,
+  // otherwise just display one field
+  const initialState =
+    data?.length > 0 ? data.map(() => ({ id: generate() })) : [{ id: generate() }];
+
+  const [fields, setFields] = useState(initialState);
 
   return (
     <FieldArray name={field.name} validateOnChange={false}>
