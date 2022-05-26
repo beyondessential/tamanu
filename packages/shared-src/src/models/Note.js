@@ -85,7 +85,7 @@ export class Note extends Model {
     NOTE_RECORD_TYPE_VALUES.forEach(modelName => {
       this.belongsTo(models[modelName], {
         foreignKey: 'recordId',
-        contraints: false,
+        constraints: false,
       });
     });
   }
