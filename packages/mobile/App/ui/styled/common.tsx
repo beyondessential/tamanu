@@ -16,10 +16,12 @@ import {
   textAlign,
   boxShadow,
   zIndex,
-  height,
   minHeight,
-  width,
+  minWidth,
+  maxHeight,
   maxWidth,
+  height,
+  width,
   justifyContent,
   alignItems,
 } from 'styled-system';
@@ -59,8 +61,10 @@ interface TextProps {
 }
 export interface SpacingProps {
   minHeight?: string | number | Value<number>;
-  height?: string | number | Value<number>;
+  minWidth?: string | number | Value<number>;
+  maxHeight?: string | number | Value<number>;
   maxWidth?: string | number | Value<number>;
+  height?: string | number | Value<number>;
   width?: string | number | Value<number>;
   padding?: string | number | number[];
   paddingTop?: number | string;
@@ -143,6 +147,8 @@ export const StyledView = styled.View<StyledViewProps>`
   ${alignItems}
   ${height}
   ${minHeight}
+  ${minWidth}
+  ${maxHeight}
   ${maxWidth}
 `;
 
