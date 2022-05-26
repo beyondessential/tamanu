@@ -131,7 +131,7 @@ createNameSuggester('facility');
 createSuggester(
   'survey',
   'Survey',
-  `LOWER(name) LIKE LOWER(:search) AND type <> '${SURVEY_TYPES.OBSOLETE}'`,
+  `LOWER(name) LIKE LOWER(:search) AND survey_type <> '${SURVEY_TYPES.OBSOLETE}'`,
   ({ id, name }) => ({ id, name }),
 );
 
