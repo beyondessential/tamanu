@@ -10,7 +10,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { DecisionSupportModal } from './components/DecisionSupportModal';
 
 const AppContainer = styled.div`
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   background: #f7f9fb;
 `;
