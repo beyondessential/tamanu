@@ -92,12 +92,13 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
             <StyledText
               color={theme.colors.WHITE}
               fontSize={screenPercentageToDP(2.6, Orientation.Height)}
+              fontWeight={500}
             >
               {joinNames(selectedPatient)}
             </StyledText>
             <StyledText
               color={theme.colors.WHITE}
-              fontSize={screenPercentageToDP(1.8, Orientation.Height)}
+              fontSize={screenPercentageToDP(2, Orientation.Height)}
             >
               {`${getGender(selectedPatient.sex)}, `}
               {`${getAgeFromDate(new Date(selectedPatient.dateOfBirth))} years old`}

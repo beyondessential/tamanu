@@ -17,6 +17,7 @@ export const HealthIdentificationRow = ({
     >
       <StyledText
         marginLeft={20}
+        fontSize={screenPercentageToDP(2, Orientation.Height)}
         fontWeight={500}
         color={theme.colors.WHITE}
       >
