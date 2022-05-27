@@ -10,21 +10,7 @@ import {
 } from '../../constants/images';
 import { Colors } from '../../constants';
 
-export const submenuIcons = {
-  action: 'fa fa-chevron-circle-right',
-  calendar: 'fa fa-calendar',
-  cog: 'fa fa-cog',
-  location: 'fa fa-location-arrow',
-  new: 'fa fa-plus',
-  permissions: 'fa fa-lock',
-  report: 'fa fa-chevron-circle-right',
-  search: 'fa fa-search',
-  table: 'fa fa-th-list',
-  users: 'fa fa-users',
-  immunisations: 'fa fa-syringe',
-};
-
-export const facilityItems = [
+export const FACILITY_MENU_ITEMS = [
   {
     key: 'patients',
     label: 'Patients',
@@ -205,7 +191,6 @@ export const facilityItems = [
       {
         label: 'Active COVID-19 patients',
         path: `/programs/active-covid-19-program/patients`,
-        icon: submenuIcons.action,
       },
     ],
   },
@@ -241,4 +226,4 @@ export const facilityItems = [
   },
 ];
 
-export const syncItems = [];
+export const SYNC_MENU_ITEMS = [];

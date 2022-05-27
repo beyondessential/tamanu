@@ -1,22 +1,17 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import {
-  ListItem,
-  ListItemText,
-  List,
-  Collapse,
-  Divider,
-  Box,
-  Typography,
-  Avatar,
-  Button,
-} from '@material-ui/core';
-import { ExpandMore } from '@material-ui/icons';
+import { useDispatch, useSelector } from 'react-redux';
+import { push } from 'connected-react-router';
+import { List, Divider, Box, Typography, Avatar, Button } from '@material-ui/core';
 import { TamanuLogoWhite } from '../TamanuLogo';
 import { Colors } from '../../constants';
-import { administrationIcon } from '../../constants/images';
 import { version } from '../../../package.json';
 import { Translated } from '../Translated';
+import { PrimarySidebarItem } from './PrimarySidebarItem';
+import { SecondarySidebarItem } from './SecondarySidebarItem';
+import { getCurrentRoute } from '../../store/router';
+import { checkAbility } from '../../utils/ability';
+import { useAuth } from '../../contexts/Auth';
 
 const Container = styled.div`
   display: flex;
@@ -37,107 +32,6 @@ const Container = styled.div`
 const Logo = styled(TamanuLogoWhite)`
   margin: 24px 0 14px 18px;
 `;
-
-const PrimaryListItem = styled(ListItem)`
-  border-radius: 4px;
-  padding-right: 10px;
-
-  .MuiSvgIcon-root {
-    position: relative;
-    top: -1px;
-    opacity: 0.9;
-    font-size: 22px;
-    transform: rotate(0deg);
-    transition: transform 0.2s ease;
-  }
-
-  &.Mui-selected {
-    background: none;
-
-    .MuiSvgIcon-root {
-      transform: rotate(180deg);
-    }
-  }
-
-  &:hover,
-  &.Mui-selected:hover {
-    background: rgba(255, 255, 255, 0.15);
-  }
-`;
-
-const SidebarPrimaryIcon = styled.img`
-  width: 22px;
-  height: 22px;
-  border: none;
-`;
-
-const PrimaryItemText = styled(ListItemText)`
-  padding-left: 10px;
-  font-size: 14px;
-  line-height: 18px;
-  font-weight: 500;
-  letter-spacing: 0;
-`;
-
-const PrimarySidebarItem = ({ icon, label, children, selected, onClick }) => (
-  <>
-    <PrimaryListItem
-      button
-      onClick={onClick}
-      selected={selected}
-      data-test-class="primary-sidebar-item"
-    >
-      <SidebarPrimaryIcon src={icon || administrationIcon} />
-      <PrimaryItemText disableTypography primary={label} />
-      <ExpandMore />
-    </PrimaryListItem>
-    <Collapse in={selected} timeout="auto" unmountOnExit>
-      <List component="div" style={{ padding: '0 0 4px 0' }}>
-        {children}
-      </List>
-    </Collapse>
-  </>
-);
-
-const SecondaryListItem = styled(ListItem)`
-  padding: 0 0 2px 48px;
-  border-radius: 4px;
-
-  &:hover,
-  &.Mui-selected,
-  &.Mui-selected:hover {
-    background: rgba(255, 255, 255, 0.15);
-  }
-`;
-
-const SecondaryItemText = styled(ListItemText)`
-  font-size: 14px;
-  line-height: 18px;
-  font-weight: 400;
-  letter-spacing: 0;
-`;
-
-const Dot = styled.div`
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: ${props => props.$color};
-  margin-right: 14px;
-`;
-
-const SecondarySidebarItem = ({ path, label, isCurrent, disabled, onClick, color }) => (
-  <SecondaryListItem
-    button
-    to={path}
-    disabled={disabled}
-    selected={isCurrent}
-    onClick={onClick}
-    data-test-class="secondary-sidebar-item"
-  >
-    {color && <Dot $color={color} />}
-    <SecondaryItemText disableTypography primary={label} />
-  </SecondaryListItem>
-);
 
 const Footer = styled.div`
   margin-top: auto;
@@ -185,7 +79,7 @@ const LogoutButton = styled(Button)`
   font-weight: 400;
   font-size: 11px;
   line-height: 15px;
-  color: white;
+  color: ${Colors.white};
   text-transform: none;
   text-decoration: underline;
 `;
@@ -196,23 +90,21 @@ const getInitials = string =>
     .slice(0, 2)
     .join('');
 
-export const Sidebar = ({
-  currentPath,
-  items,
-  onPathChanged,
-  onLogout,
-  permissionCheck = () => true,
-  currentUser,
-  facilityName,
-}) => {
-  const initials = getInitials(currentUser.displayName);
-  const [selectedParentItem, setSelectedParentItem] = useState('');
+const permissionCheck = (child, parent) => {
+  const ability = { ...child.ability, ...parent.ability };
+  if (!ability.subject || !ability.action) {
+    return true;
+  }
+  return checkAbility(ability);
+};
 
-  const handleLogout = () => {
-    if (onLogout) {
-      onLogout();
-    }
-  };
+export const Sidebar = React.memo(({ items }) => {
+  const [selectedParentItem, setSelectedParentItem] = useState('');
+  const { facility, currentUser, onLogout } = useAuth();
+  const currentPath = useSelector(getCurrentRoute);
+  const dispatch = useDispatch();
+
+  const onPathChanged = newPath => dispatch(push(newPath));
 
   const clickedParentItem = ({ key }) => {
     if (selectedParentItem === key) {
@@ -221,6 +113,8 @@ export const Sidebar = ({
       setSelectedParentItem(key);
     }
   };
+
+  const initials = getInitials(currentUser.displayName);
 
   return (
     <Container>
@@ -254,12 +148,12 @@ export const Sidebar = ({
           <StyledAvatar>{initials}</StyledAvatar>
           <Box flex={1}>
             <UserName>{currentUser?.displayName}</UserName>
-            {facilityName && <Facility>{facilityName}</Facility>}
+            {facility?.name && <Facility>{facility.name}</Facility>}
             <Box display="flex" justifyContent="space-between">
               <Version>Version {version}</Version>
               <LogoutButton
                 type="button"
-                onClick={handleLogout}
+                onClick={onLogout}
                 id="logout"
                 data-test-id="siderbar-logout-item"
               >
@@ -271,4 +165,4 @@ export const Sidebar = ({
       </Footer>
     </Container>
   );
-};
+});
