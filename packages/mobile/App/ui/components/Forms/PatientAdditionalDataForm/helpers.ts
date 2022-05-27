@@ -8,7 +8,7 @@ import {
   maritalStatusOptions,
   socialMediaOptions,
   titleOptions
-} from '~/ui/helpers/constants';
+} from '~/ui/helpers/additionalData';
 
 // All PatientAdditionalData plain fields sorted alphabetically
 export const plainFields = [
