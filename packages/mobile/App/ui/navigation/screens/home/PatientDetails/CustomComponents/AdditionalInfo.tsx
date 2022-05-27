@@ -47,58 +47,85 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
     }, [backend, patient.id]),
   );
 
+  // Display general error
+  if (error) {
+    return <ErrorScreen error={error} />;
+  }
+
   const data = additionalDataRes && additionalDataRes[0];
   function editInfo(): void {
     onEdit(data);
   }
-  const fields = [
+
+  const identificationFields = [
     ['birthCertificate', data?.birthCertificate],
     ['drivingLicense', data?.drivingLicense],
     ['passport', data?.passport],
-    ['bloodType', data?.bloodType],
-    ['title', data?.title],
-    ['placeOfBirth', data?.placeOfBirth],
-    ['countryOfBirthId', data?.countryOfBirth?.name],
-    ['maritalStatus', data?.maritalStatus],
+  ];
+
+  const contactFields = [
     ['primaryContactNumber', data?.primaryContactNumber],
     ['secondaryContactNumber', data?.secondaryContactNumber],
+    ['emergencyContactName', data?.emergencyContactName],
+    ['emergencyContactNumber', data?.emergencyContactNumber],
+  ];
+
+  const personalFields = [
+    ['title', data?.title],
+    ['maritalStatus', data?.maritalStatus],
+    ['bloodType', data?.bloodType],
+    ['placeOfBirth', data?.placeOfBirth],
+    ['countryOfBirthId', data?.countryOfBirth?.name],
+    ['nationalityId', data?.nationality?.name],
+    ['ethnicityId', data?.ethnicity?.name],
+    ['religionId', data?.religion?.name],
+    ['educationalLevel', data?.educationalLevel],
+    ['occupationId', data?.occupation?.name],
     ['socialMedia', data?.socialMedia],
-    ['settlementId', data?.settlement?.name],
+    ['patientBillingTypeId', data?.patientBillingType?.name],
+  ];
+
+  const otherFields = [
     ['streetVillage', data?.streetVillage],
     ['cityTown', data?.cityTown],
     ['subdivisionId', data?.subdivision?.name],
     ['divisionId', data?.division?.name],
     ['countryId', data?.country?.name],
+    ['settlementId', data?.settlement?.name],
     ['medicalAreaId', data?.medicalArea?.name],
     ['nursingZoneId', data?.nursingZone?.name],
-    ['nationalityId', data?.nationality?.name],
-    ['ethnicityId', data?.ethnicity?.name],
-    ['occupationId', data?.occupation?.name],
-    ['educationalLevel', data?.educationalLevel],
-    ['religionId', data?.religion?.name],
-    ['patientBillingTypeId', data?.patientBillingType?.name],
-    ['emergencyContactName', data?.emergencyContactName],
-    ['emergencyContactNumber', data?.emergencyContactNumber],
+  ];
+
+  const sections = [
+    { title: 'Identification information', fields: identificationFields },
+    { title: 'Contact information', fields: contactFields },
+    { title: 'Personal information', fields: personalFields },
+    { title: 'Other information', fields: otherFields },
   ];
 
   // Check if patient additional data should be editable
   const { getBool } = useLocalisation();
   const isEditable = getBool('features.editPatientDetailsOnMobile');
 
-  let additionalFields = null;
-  if (error) {
-    additionalFields = <ErrorScreen error={error} />;
-  } else if (loading) {
-    additionalFields = <LoadingScreen />;
-  } else if (additionalDataRes) {
-    additionalFields = <FieldRowDisplay fields={fields} />;
-  }
   return (
-    <PatientSection
-      title="Additional Information"
-      onEdit={isEditable ? editInfo : undefined}
-    >
-      {additionalFields}
-    </PatientSection>
+    <>
+      {sections.map(({ title, fields }) => {
+        let content;
+        if (loading) {
+          content = <LoadingScreen />;
+        } else {
+          content = <FieldRowDisplay fields={fields} />;
+        }
+
+        return (
+          <PatientSection
+            title={title}
+            onEdit={isEditable ? editInfo : undefined}
+          >
+            {content}
+          </PatientSection>
+        );
+      })}
+    </>
   );
 };
