@@ -9,7 +9,7 @@ export const HealthIdentificationRow = ({
 }: {
   patientId: string;
 }): ReactElement => (
-  <RowView height={45}>
+  <RowView height={50}>
     <StyledView
       justifyContent="center"
       flex={2}

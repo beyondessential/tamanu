@@ -71,7 +71,13 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
   return (
     <FullView>
       <StyledSafeAreaView background={theme.colors.PRIMARY_MAIN}>
-        <RowView justifyContent="flex-start" alignItems="center" padding={15}>
+        <RowView
+          justifyContent="flex-start"
+          alignItems="center"
+          paddingTop={20}
+          paddingLeft={15}
+          paddingBottom={20}
+        >
           <StyledTouchableOpacity onPress={onNavigateBack}>
             <ArrowLeftIcon size={screenPercentageToDP(3, Orientation.Height)} />
           </StyledTouchableOpacity>
