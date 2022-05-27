@@ -255,6 +255,33 @@ describe('mSupply integration - Patient', () => {
       expect(response.body.total).toBe(2);
     });
 
+    it('filters patients by being deceased or not (deceased)', async () => {
+      const { Patient } = ctx.store.models;
+      await Promise.all([
+        Patient.create(fake(Patient)),
+        Patient.create(fake(Patient)),
+        Patient.create(fake(Patient, { dateOfDeath: moment.utc() })),
+      ]);
+
+      // Query deceased=true
+      const pathTrue = '/v1/integration/mSupply/Patient?deceased=true';
+      const responseTrue = await app
+        .get(pathTrue)
+        .set({ 'X-Tamanu-Client': 'mSupply', 'X-Version': '0.0.1' });
+
+      expect(responseTrue).toHaveSucceeded();
+      expect(responseTrue.body.total).toBe(1);
+
+      // Query deceased=false
+      const pathFalse = '/v1/integration/mSupply/Patient?deceased=false';
+      const responseFalse = await app
+        .get(pathFalse)
+        .set({ 'X-Tamanu-Client': 'mSupply', 'X-Version': '0.0.1' });
+
+      expect(responseFalse).toHaveSucceeded();
+      expect(responseFalse.body.total).toBe(2);
+    });
+
     it('filters patients by additionalData.cityTown (address-city)', async () => {
       const { Patient, PatientAdditionalData } = ctx.store.models;
       const [patientOne, patientTwo, patientThree] = await Promise.all([
@@ -264,7 +291,7 @@ describe('mSupply integration - Patient', () => {
       ]);
 
       const cityTown = 'luxembourg';
-      const [a, b, c] = await Promise.all([
+      await Promise.all([
         PatientAdditionalData.create({
           ...fake(PatientAdditionalData, { cityTown }),
           patientId: patientOne.id,
@@ -389,7 +416,8 @@ describe('mSupply integration - Patient', () => {
         Patient.create(fake(Patient, { firstName: 'Alice', lastName, dateOfBirth })),
       ]);
 
-      const path = `/v1/integration/mSupply/Patient?given:contains=${firstName.slice(1, 3)}&family=${lastName}&birthdate=${dateString}`;
+      const slicedName = firstName.slice(1, 3);
+      const path = `/v1/integration/mSupply/Patient?given:contains=${slicedName}&family=${lastName}&birthdate=${dateString}`;
       const response = await app
         .get(path)
         .set({ 'X-Tamanu-Client': 'mSupply', 'X-Version': '0.0.1' });

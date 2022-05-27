@@ -201,7 +201,13 @@ export const facilityItems = [
     path: '/programs',
     icon: programsIcon,
     ability: { action: 'read', subject: 'program' },
-    children: [],
+    children: [
+      {
+        label: 'Active COVID-19 patients',
+        path: `/programs/active-covid-19-program/patients`,
+        icon: submenuIcons.action,
+      },
+    ],
   },
   {
     key: 'reports',
