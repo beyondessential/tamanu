@@ -582,7 +582,9 @@ describe('Sync API', () => {
         markedForSync,
         ...data
       } = foundRecord;
-      expect(data).toEqual(record.data);
+      // Drop the notes before the comparison since foundRecord won't include them
+      const { notes, ...comparisonData } = record.data;
+      expect(data).toEqual(comparisonData);
     });
 
     const patientId = uuidv4();
