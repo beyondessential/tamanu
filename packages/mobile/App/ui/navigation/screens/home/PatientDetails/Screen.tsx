@@ -71,39 +71,40 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
   return (
     <FullView>
       <StyledSafeAreaView background={theme.colors.PRIMARY_MAIN}>
-        <StyledView background={theme.colors.PRIMARY_MAIN} height={170}>
-          <RowView justifyContent="space-between">
-            <StyledTouchableOpacity padding={20} onPress={onNavigateBack}>
-              <ArrowLeftIcon
-                height={screenPercentageToDP(2.43, Orientation.Height)}
-                width={screenPercentageToDP(2.43, Orientation.Height)}
-              />
-            </StyledTouchableOpacity>
-          </RowView>
-          <RowView paddingLeft={screenPercentageToDP(4.86, Orientation.Width)}>
+        <RowView
+          justifyContent="flex-start"
+          alignItems="center"
+          paddingTop={20}
+          paddingLeft={15}
+          paddingBottom={20}
+        >
+          <StyledTouchableOpacity onPress={onNavigateBack}>
+            <ArrowLeftIcon size={screenPercentageToDP(3, Orientation.Height)} />
+          </StyledTouchableOpacity>
+          <StyledView marginLeft={15}>
             <UserAvatar
-              size={screenPercentageToDP(7.29, Orientation.Height)}
+              size={screenPercentageToDP(6, Orientation.Height)}
               displayName={joinNames(selectedPatient)}
               sex={selectedPatient.sex}
             />
-            <StyledView alignItems="flex-start" marginLeft={10}>
-              <StyledText
-                color={theme.colors.WHITE}
-                fontSize={screenPercentageToDP(3.4, Orientation.Height)}
-                fontWeight="bold"
-              >
-                {joinNames(selectedPatient)}
-              </StyledText>
-              <StyledText
-                color={theme.colors.WHITE}
-                fontSize={screenPercentageToDP(1.94, Orientation.Height)}
-              >
-                {getGender(selectedPatient.sex)},{' '}
-                {getAgeFromDate(new Date(selectedPatient.dateOfBirth))} years old
-              </StyledText>
-            </StyledView>
-          </RowView>
-        </StyledView>
+          </StyledView>
+          <StyledView alignItems="flex-start" marginLeft={12}>
+            <StyledText
+              color={theme.colors.WHITE}
+              fontSize={screenPercentageToDP(2.6, Orientation.Height)}
+              fontWeight={500}
+            >
+              {joinNames(selectedPatient)}
+            </StyledText>
+            <StyledText
+              color={theme.colors.WHITE}
+              fontSize={screenPercentageToDP(2, Orientation.Height)}
+            >
+              {`${getGender(selectedPatient.sex)}, `}
+              {`${getAgeFromDate(new Date(selectedPatient.dateOfBirth))} years old`}
+            </StyledText>
+          </StyledView>
+        </RowView>
         <HealthIdentificationRow patientId={selectedPatient.displayId} />
       </StyledSafeAreaView>
       <FullView>
