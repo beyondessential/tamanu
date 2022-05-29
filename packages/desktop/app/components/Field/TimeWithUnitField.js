@@ -11,12 +11,11 @@ const FieldWrapper = styled.div`
 
 const MainField = styled(NumberInput)`
   flex: 1;
+  margin-right: 6px;
 `;
 
 const Select = styled(TextInput)`
-  width: 95px;
-  margin-left: -2px;
-  margin-right: -2px;
+  width: 98px;
 
   .MuiSvgIcon-root {
     color: ${props => props.theme.palette.grey['400']};
