@@ -1,9 +1,7 @@
 import React, { memo } from 'react';
 import styled from 'styled-components';
-import { grey } from '@material-ui/core/colors';
 import { Typography } from '@material-ui/core';
 
-import { useLocalisation } from '../contexts/Localisation';
 import { LocalisedText } from './LocalisedText';
 import { DateDisplay } from './DateDisplay';
 import { PatientInitialsIcon } from './PatientInitialsIcon';
@@ -11,7 +9,7 @@ import { Colors } from '../constants';
 
 const NameSection = styled.div`
   margin-bottom: 20px;
-  padding: 1rem;
+  padding: 25px 35px 15px 25px;
 `;
 
 const NameHeader = styled(Typography)`
@@ -19,12 +17,13 @@ const NameHeader = styled(Typography)`
   color: ${props => props.theme.palette.text.tertiary};
   font-size: 11px;
   line-height: 15px;
-  padding-bottom: 10px;
+  margin-bottom: 20px;
 `;
 
 const NameText = styled(Typography)`
   font-size: 24px;
   line-height: 32px;
+  text-transform: capitalize;
 `;
 
 const NameContainer = styled.div`
@@ -35,55 +34,56 @@ const NameContainer = styled.div`
 
 const CoreInfoSection = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  border-top: 1px solid ${grey[300]};
-  border-bottom: 1px solid ${grey[300]};
+  grid-template-columns: 2fr 3.5fr;
+  border-bottom: 1px solid #ebebeb;
+  border-top: 1px solid #ebebeb;
+  padding-left: 10px;
 `;
 
 const CoreInfoCellContainer = styled.div`
   :first-of-type {
-    border-right: 1px solid ${grey[300]};
+    border-right: 1px solid #ebebeb;
   }
 
-  padding: 10px 10px;
+  padding: 10px 15px;
 `;
 
-const CoreInfoLabel = styled.div`
-  color: ${grey[400]};
+const CoreInfoLabel = styled(Typography)`
+  color: ${props => props.theme.palette.text.tertiary};
   font-size: 14px;
+  line-height: 18px;
 `;
 
-const CoreInfoValue = styled.div`
-  color: ${grey[600]};
-  font-size: 16px;
-  margin-top: 5px;
-  font-weight: bold;
+const CoreInfoValue = styled(Typography)`
+  color: ${props => props.theme.palette.text.secondary};
+  font-size: 14px;
+  line-height: 18px;
+  font-weight: 500;
   text-transform: capitalize;
 `;
 
-const CoreInfoCell = memo(({ path, children, testId }) => {
-  const { getLocalisation } = useLocalisation();
-  return (
-    <CoreInfoCellContainer data-test-id={testId}>
-      <CoreInfoLabel>{getLocalisation(path)}</CoreInfoLabel>
-      <CoreInfoValue>{children}</CoreInfoValue>
-    </CoreInfoCellContainer>
-  );
-});
+const CoreInfoCell = ({ path, children, testId }) => (
+  <CoreInfoCellContainer data-test-id={testId}>
+    <CoreInfoLabel>
+      <LocalisedText path={path} />
+    </CoreInfoLabel>
+    <CoreInfoValue>{children}</CoreInfoValue>
+  </CoreInfoCellContainer>
+);
 
 const DeceasedText = styled.div`
   opacity: 0.8;
 `;
 
-const DeceasedIndicator = memo(({ death }) => (
+const DeceasedIndicator = ({ death }) => (
   <DeceasedText>
     <span>Deceased, </span>
     <DateDisplay date={death.date} />
   </DeceasedText>
-));
+);
 
 const HealthIdContainer = styled.div`
-  padding: 15px 10px 10px;
+  padding: 20px 10px 12px;
 `;
 
 const HealthId = styled.div`
@@ -103,6 +103,17 @@ const HealthIdText = styled(Typography)`
   font-size: 14px;
   line-height: 18px;
 `;
+
+const HealthIdDisplay = ({ displayId }) => (
+  <HealthIdContainer>
+    <HealthId>
+      <HealthIdText>
+        <LocalisedText path="fields.displayId.longLabel" />
+      </HealthIdText>
+      <HealthIdText data-test-class="display-id-label">{displayId}</HealthIdText>
+    </HealthId>
+  </HealthIdContainer>
+);
 
 export const CoreInfoDisplay = memo(({ patient }) => (
   <>
@@ -125,14 +136,6 @@ export const CoreInfoDisplay = memo(({ patient }) => (
         <DateDisplay date={patient.dateOfBirth} />
       </CoreInfoCell>
     </CoreInfoSection>
-    <HealthIdContainer>
-      <HealthId>
-        <HealthIdText>
-          National Health Number
-          {/*<LocalisedText path="fields.displayId.longLabel" />*/}
-        </HealthIdText>
-        <HealthIdText data-test-class="display-id-label">{patient.displayId}</HealthIdText>
-      </HealthId>
-    </HealthIdContainer>
+    <HealthIdDisplay displayId={patient.displayId} />
   </>
 ));

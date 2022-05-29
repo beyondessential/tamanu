@@ -49,8 +49,11 @@ const DataList = styled.ul`
 
 const ListItem = styled.li`
   display: block;
-  margin: 0.5rem 0;
+  margin: 6px 0;
   cursor: pointer;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 18px;
 `;
 
 const FormContainer = styled.div`
@@ -147,7 +150,6 @@ export const InfoPaneList = memo(
           )}
         </TitleContainer>
         <DataList>
-          {addForm}
           {items.map(item => {
             const { id } = item;
             const name = getName(item);
@@ -192,6 +194,7 @@ export const InfoPaneList = memo(
               </React.Fragment>
             );
           })}
+          {addForm}
         </DataList>
       </>
     );
