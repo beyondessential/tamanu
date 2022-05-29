@@ -5,11 +5,14 @@ import { PatientAdditionalDataFields } from './PatientAdditionalDataFields';
 import { patientAdditionalDataValidationSchema, getInitialValues } from './helpers';
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { Routes } from '~/ui/helpers/routes';
+import { FormSectionHeading } from '../FormSectionHeading';
+import { additionalDataSections } from '~/ui/helpers/additionalData';
 
 export const PatientAdditionalDataForm = ({
   patientId,
   additionalData,
   navigation,
+  sectionTitle,
 }): ReactElement => {
   const scrollViewRef = useRef();
   // After save/update, the model will mark itself for upload and the
@@ -38,18 +41,24 @@ export const PatientAdditionalDataForm = ({
     [navigation],
   );
 
+  // Get the actual additional data section object
+  const section = additionalDataSections.find(({ title }) => title === sectionTitle);
+  const { fields } = section;
+
   return (
     <Form
-      initialValues={getInitialValues(additionalData)}
+      initialValues={getInitialValues(additionalData, fields)}
       validationSchema={patientAdditionalDataValidationSchema}
       onSubmit={onCreateOrEditAdditionalData}
     >
       {({ handleSubmit, isSubmitting }): ReactElement => (
         <FormScreenView scrollViewRef={scrollViewRef}>
+          <FormSectionHeading text={sectionTitle} />
           <PatientAdditionalDataFields
             handleSubmit={handleSubmit}
             isSubmitting={isSubmitting}
             navigation={navigation}
+            fields={fields}
           />
         </FormScreenView>
       )}
