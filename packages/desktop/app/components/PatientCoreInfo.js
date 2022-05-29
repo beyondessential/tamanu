@@ -1,51 +1,43 @@
 import React, { memo } from 'react';
 import styled from 'styled-components';
 import { grey } from '@material-ui/core/colors';
+import { Typography } from '@material-ui/core';
 
 import { useLocalisation } from '../contexts/Localisation';
 import { LocalisedText } from './LocalisedText';
 import { DateDisplay } from './DateDisplay';
 import { PatientInitialsIcon } from './PatientInitialsIcon';
 import { Colors } from '../constants';
-import { InvertedDisplayIdLabel } from './DisplayIdLabel';
 
 const NameSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
   margin-bottom: 20px;
   padding: 1rem;
 `;
 
-const NameHeader = styled.div`
+const NameHeader = styled(Typography)`
   align-self: flex-start;
-  color: grey;
-  font-size: 14px;
+  color: ${props => props.theme.palette.text.tertiary};
+  font-size: 11px;
+  line-height: 15px;
   padding-bottom: 10px;
 `;
 
-const NameText = styled.span`
-  font-size: 30px;
+const NameText = styled(Typography)`
+  font-size: 24px;
+  line-height: 32px;
 `;
 
-const FirstNameRow = styled.span`
+const NameContainer = styled.div`
   display: flex;
   justify-content: space-between;
-  width: 100%;
-`;
-
-const NameContainer = styled.span`
-  display: flex;
-  flex-direction: column;
-  align-self: flex-start;
-  width: 100%;
+  align-items: center;
 `;
 
 const CoreInfoSection = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
   border-top: 1px solid ${grey[300]};
+  border-bottom: 1px solid ${grey[300]};
 `;
 
 const CoreInfoCellContainer = styled.div`
@@ -69,21 +61,6 @@ const CoreInfoValue = styled.div`
   text-transform: capitalize;
 `;
 
-const HealthIdContainer = styled.div`
-  background: ${Colors.primary};
-  color: ${Colors.secondary};
-  font-weight: 600;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
-`;
-
-const HealthIdLabelText = styled.div`
-  font-size: 12px;
-`;
-
 const CoreInfoCell = memo(({ path, children, testId }) => {
   const { getLocalisation } = useLocalisation();
   return (
@@ -105,27 +82,38 @@ const DeceasedIndicator = memo(({ death }) => (
   </DeceasedText>
 ));
 
-const HealthIdDisplay = memo(({ patient }) => (
-  <HealthIdContainer>
-    <HealthIdLabelText>
-      <LocalisedText path="fields.displayId.longLabel" />
-    </HealthIdLabelText>
-    <InvertedDisplayIdLabel data-test-class="display-id-label">
-      {patient.displayId}
-    </InvertedDisplayIdLabel>
-  </HealthIdContainer>
-));
+const HealthIdContainer = styled.div`
+  padding: 15px 10px 10px;
+`;
+
+const HealthId = styled.div`
+  background: ${props => props.theme.palette.primary.main};
+  color: ${Colors.white};
+  font-weight: 600;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-radius: 3px;
+`;
+
+const HealthIdText = styled(Typography)`
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 18px;
+`;
 
 export const CoreInfoDisplay = memo(({ patient }) => (
   <>
     <NameSection>
-      <NameHeader>Patient details</NameHeader>
+      <NameHeader>Patient Details</NameHeader>
       <NameContainer>
-        <FirstNameRow>
+        <div>
           <NameText data-test-id="core-info-patient-first-name">{patient.firstName}</NameText>
-          <PatientInitialsIcon patient={patient} />
-        </FirstNameRow>
-        <NameText data-test-id="core-info-patient-last-name">{patient.lastName}</NameText>
+          <NameText data-test-id="core-info-patient-last-name">{patient.lastName}</NameText>
+        </div>
+        <PatientInitialsIcon patient={patient} />
         {patient.death && <DeceasedIndicator death={patient.death} />}
       </NameContainer>
     </NameSection>
@@ -137,6 +125,14 @@ export const CoreInfoDisplay = memo(({ patient }) => (
         <DateDisplay date={patient.dateOfBirth} />
       </CoreInfoCell>
     </CoreInfoSection>
-    <HealthIdDisplay patient={patient} />
+    <HealthIdContainer>
+      <HealthId>
+        <HealthIdText>
+          National Health Number
+          {/*<LocalisedText path="fields.displayId.longLabel" />*/}
+        </HealthIdText>
+        <HealthIdText data-test-class="display-id-label">{patient.displayId}</HealthIdText>
+      </HealthId>
+    </HealthIdContainer>
   </>
 ));

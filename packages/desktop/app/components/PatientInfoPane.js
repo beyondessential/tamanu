@@ -146,8 +146,7 @@ const Container = styled.div`
 `;
 
 const ListsSection = styled.div`
-  margin-top: 15px;
-  padding: 20px;
+  padding: 5px 20px;
 `;
 
 const Buttons = styled(ButtonRow)`
