@@ -47,3 +47,44 @@ export const educationalAttainmentOptions = [
   { value: 'University completed', label: 'University completed' },
   { value: 'Post grad completed', label: 'Post grad completed' },
 ];
+
+const additionalDataFields = {
+  identification: ['birthCertificate', 'drivingLicense', 'passport'],
+  contact: [
+    'primaryContactNumber',
+    'secondaryContactNumber',
+    'emergencyContactName',
+    'emergencyContactNumber'
+  ],
+  personal: [
+    'title',
+    'maritalStatus',
+    'bloodType',
+    'placeOfBirth',
+    'countryOfBirthId',
+    'nationalityId',
+    'ethnicityId',
+    'religionId',
+    'educationalLevel',
+    'occupationId',
+    'socialMedia',
+    'patientBillingTypeId'
+  ],
+  other: [
+    'streetVillage',
+    'cityTown',
+    'subdivisionId',
+    'divisionId',
+    'countryId',
+    'settlementId',
+    'medicalAreaId',
+    'nursingZoneId'
+  ],
+};
+
+export const additionalDataSections = [
+  { title: 'Identification information', fields: additionalDataFields.identification },
+  { title: 'Contact information', fields: additionalDataFields.contact },
+  { title: 'Personal information', fields: additionalDataFields.personal },
+  { title: 'Other information', fields: additionalDataFields.other },
+];
