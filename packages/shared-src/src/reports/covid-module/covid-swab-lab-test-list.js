@@ -98,6 +98,11 @@ const getLabTests = async (models, parameters) =>
                   'village',
                 ],
               },
+              {
+                model: models.Location,
+                as: 'location',
+                include: ['facility'],
+              },
             ],
           },
           { model: models.ReferenceData, as: 'category' },
@@ -270,6 +275,7 @@ const getLabTestRecords = async (
         additionalDataNationality: patientAdditionalData?.nationality?.name,
         additionalDataPassportNumber: patientAdditionalData?.passport,
         sampleTime: labRequest?.sampleTime,
+        facilityName: encounter?.location?.facility?.name,
       };
       Object.entries(surveyQuestionCodes).forEach(([key, dataElement]) => {
         labTestRecord[key] = getLatestPatientAnswerInDateRange(
@@ -292,7 +298,7 @@ const getLabTestRecords = async (
 export const baseDataGenerator = async (
   { models },
   parameters = {},
-  { surveyId, reportColumnTemplate, surveyQuestionCodes, dateFormat = 'DD-MM-YYYY' },
+  { surveyId, reportColumnTemplate, surveyQuestionCodes, dateFormat = 'DD/MM/YYYY' },
 ) => {
   const labTests = await getLabTests(models, parameters);
   const answers = await getFijiCovidAnswers(models, parameters, { surveyId });

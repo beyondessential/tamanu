@@ -8,6 +8,7 @@ import Crl from './Crl';
 
 export enum Operation {
   Creation = 'creation',
+  Reconfiguration = 'reconfiguration',
   Issuance = 'issuance',
   Revocation = 'revocation',
   CrlGeneration = 'crl-generation',
@@ -56,6 +57,15 @@ export default class Log extends AuthenticatedFile {
     await this.append({
       ts: new Date(),
       op: Operation.Creation,
+      metadata: localMetadata(),
+      data: config,
+    });
+  }
+
+  public async reconfig(config: ConfigFile): Promise<void> {
+    await this.append({
+      ts: new Date(),
+      op: Operation.Reconfiguration,
       metadata: localMetadata(),
       data: config,
     });

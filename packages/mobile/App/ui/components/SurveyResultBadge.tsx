@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { StyledView, StyledText } from '~/ui/styled/common';
 import { theme } from '~/ui/styled/theme';
 
@@ -31,7 +31,7 @@ function separateColorText(
   };
 }
 
-export const SurveyResultBadge = ({ resultText }): JSX.Element => {
+export const SurveyResultBadge = ({ resultText }): ReactElement => {
   const { color, strippedResultText } = separateColorText(resultText);
   return (
     <StyledView

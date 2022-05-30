@@ -5,6 +5,7 @@ export * from './DateDisplay';
 export * from './DeathCertificateModal';
 export * from './Dialog';
 export * from './Field';
+export * from './FormSeparatorLine';
 export * from './FormGrid';
 export * from './FormTooltip';
 export * from './Layout';

@@ -2,7 +2,7 @@ import { get } from 'lodash';
 
 import { compareModelPriority } from 'shared/models/sync/order';
 
-import { validateRecordSet } from './importerValidators';
+import { validateRecordSet } from './validateRecordSet';
 
 function groupRecordsByType(records) {
   return records.reduce(

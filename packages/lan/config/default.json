@@ -12,6 +12,11 @@
     "consoleLevel": "http",
     "color": true
   },
+  "honeycomb": {
+    "apiKey": "",
+    "dataset": "tamanu-general",
+    "enabled": true
+  },
   "sync": {
     "schedule": "*/1 * * * *",
     "host": "https://sync-dev.tamanu.io",

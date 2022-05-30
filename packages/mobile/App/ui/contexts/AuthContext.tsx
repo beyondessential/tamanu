@@ -1,4 +1,12 @@
-import React, { createContext, PropsWithChildren, ReactElement, useContext, useEffect, useState, RefObject } from 'react';
+import React, {
+  createContext,
+  PropsWithChildren,
+  ReactElement,
+  useContext,
+  useEffect,
+  useState,
+  RefObject,
+} from 'react';
 import { NavigationContainerRef } from '@react-navigation/native';
 import NetInfo from '@react-native-community/netinfo';
 import { compose } from 'redux';
@@ -7,16 +15,16 @@ import { WithAuthStoreProps } from '~/ui/store/ducks/auth';
 import { Routes } from '~/ui/helpers/routes';
 import { BackendContext } from '~/ui/contexts/BackendContext';
 import { IUser, SyncConnectionParameters } from '~/types';
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { ResetPasswordFormModel } from '/interfaces/forms/ResetPasswordFormProps';
-import {ChangePasswordFormModel} from "/interfaces/forms/ChangePasswordFormProps";
+import { ChangePasswordFormModel } from '/interfaces/forms/ChangePasswordFormProps';
 
 type AuthProviderProps = WithAuthStoreProps & {
   navRef: RefObject<NavigationContainerRef>;
-}
+};
 
 interface AuthContextData {
   user: IUser;
+  ability: any[];
   signIn: (params: SyncConnectionParameters) => Promise<void>;
   signOut: () => void;
   isUserAuthenticated: () => boolean;
@@ -40,6 +48,7 @@ const Provider = ({
 }: PropsWithChildren<AuthProviderProps>): ReactElement => {
   const checkFirstSession = (): boolean => props.isFirstTime;
   const [user, setUserData] = useState();
+  const [ability, setAbility] = useState([]);
   const [resetPasswordLastEmailUsed, setResetPasswordLastEmailUsed] = useState('');
 
   const setUserFirstSignIn = (): void => {
@@ -48,25 +57,26 @@ const Provider = ({
 
   const isUserAuthenticated = (): boolean => props.token !== null && props.user !== null;
 
-  const signInAs = (user) => {
+  const signInAs = (authenticatedUser): void => {
     // Destructure the local password out of the user object - it only needs to be in
     // the database, we don't need or want to store it in app state as well.
-    const { localPassword, ...userData } = user;
+    const { localPassword, ...userData } = authenticatedUser;
     setUser(userData);
     setUserData(userData);
+    setAbility(backend.permissions.data);
     setSignedInStatus(true);
   };
 
   const backend = useContext(BackendContext);
   const localSignIn = async (params: SyncConnectionParameters): Promise<void> => {
-    const user = await backend.auth.localSignIn(params);
-    signInAs(user);
+    const usr = await backend.auth.localSignIn(params);
+    signInAs(usr);
   };
 
   const remoteSignIn = async (params: SyncConnectionParameters): Promise<void> => {
-    const { user, token } = await backend.auth.remoteSignIn(params);
+    const { user: usr, token } = await backend.auth.remoteSignIn(params);
     setToken(token);
-    signInAs(user);
+    signInAs(usr);
   };
 
   const signIn = async (params: SyncConnectionParameters): Promise<void> => {
@@ -116,7 +126,7 @@ const Provider = ({
 
   // sign user out if an auth error was thrown
   useEffect(() => {
-    const handler = (err: Error) => {
+    const handler = (err: Error): void => {
       console.log(`signing out user with token ${props.token}: received auth error:`, err);
       signOut();
     };
@@ -135,6 +145,7 @@ const Provider = ({
         isUserAuthenticated,
         checkFirstSession,
         user,
+        ability,
         requestResetPassword,
         resetPasswordLastEmailUsed,
         changePassword,
