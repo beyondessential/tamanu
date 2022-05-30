@@ -1,16 +1,11 @@
 import React, { memo } from 'react';
+import { ActivityIndicator } from "react-native";
 import { FullView, CenterView } from '~/ui/styled/common';
-import { CircularProgress } from '~/ui/components/CircularProgress';
 
-interface Props {
-  progress?: number;
-  text?: string;
-}
-
-export const LoadingScreen: React.FC<Props> = memo(({ progress = 100 }) => (
+export const LoadingScreen: React.FC = memo(() => (
   <FullView padding={12} justifyContent="center" alignItems="center">
     <CenterView>
-      <CircularProgress progress={progress} />
+      <ActivityIndicator size="large" />
     </CenterView>
   </FullView>
 ));
