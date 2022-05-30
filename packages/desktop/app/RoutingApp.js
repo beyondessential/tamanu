@@ -18,7 +18,7 @@ import {
   ReportsRoutes,
   ImmunisationRoutes,
 } from './routes';
-import { ConnectedSidebar, facilityItems, syncItems } from './components/Sidebar';
+import { Sidebar, FACILITY_MENU_ITEMS, SYNC_MENU_ITEMS } from './components/Sidebar';
 import { TopBar, Notification } from './components';
 
 export const RoutingApp = () => {
@@ -27,7 +27,7 @@ export const RoutingApp = () => {
 };
 
 export const RoutingFacilityApp = React.memo(() => (
-  <App sidebar={<ConnectedSidebar items={facilityItems} />}>
+  <App sidebar={<Sidebar items={FACILITY_MENU_ITEMS} />}>
     <Switch>
       <Redirect exact path="/" to="/patients" />
       <Route path="/patients" component={PatientsRoutes} />
@@ -50,7 +50,7 @@ export const RoutingFacilityApp = React.memo(() => (
 ));
 
 export const RoutingAdminApp = React.memo(() => (
-  <App sidebar={<ConnectedSidebar items={syncItems} />}>
+  <App sidebar={<Sidebar items={SYNC_MENU_ITEMS} />}>
     <Switch>
       {/* <Redirect exact path="/" to="/admin" /> */}
       <Route path="/" component={AdminPlaceholder} />
