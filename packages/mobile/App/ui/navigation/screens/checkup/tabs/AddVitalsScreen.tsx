@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useRef, ReactElement } from 'react';
+import React, { useCallback, ReactElement } from 'react';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { compose } from 'redux';
@@ -98,50 +98,50 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
     [],
   );
 
-  const validationSchema
-    = Yup.object().shape({
-      weight: Yup.number(),
-      height: Yup.number(),
-      sbp: Yup.number(),
-      dbp: Yup.number(),
-      heartRate: Yup.number(),
-      respiratoryRate: Yup.number(),
-      temperature: Yup.number(),
-      spO2: Yup.number(),
-      avpu: Yup.string(), // AVPUType
-      comment: Yup.string(),
-    });
+  const readingFields = {
+    weight: Yup.number(),
+    height: Yup.number(),
+    sbp: Yup.number(),
+    dbp: Yup.number(),
+    heartRate: Yup.number(),
+    respiratoryRate: Yup.number(),
+    temperature: Yup.number(),
+    spO2: Yup.number(),
+    avpu: Yup.string(), // AVPUType
+  };
 
-  const requiresOneOfFields = [
-    'weight',
-    'height',
-    'sbp',
-    'dbp',
-    'heartRate',
-    'respiratoryRate',
-    'temperature',
-    'spO2',
-    'avpu',
-  ];
+  const validationSchema = Yup.object().shape({
+    ...readingFields,
+    comment: Yup.string(),
+  });
+
+  const requiresOneOfFields = Object.keys(readingFields);
 
   const validate = (values: object): object => {
-    const errors = {};
+    const hasAtLeastOneReading = !Object.entries(values).some(([key, value]) => {
+      // Only check fields containing a vital reading
+      if (requiresOneOfFields.includes(key) === false) {
+        return false;
+      }
 
-    const requiredFieldFilter = (val: string) => requiresOneOfFields.includes(val);
-    const valueFields = Object.keys(values).filter(requiredFieldFilter);
+      // Check if value is truthy (not 0 or empty string)
+      return !!value;
+    });
 
-    if (valueFields.length === 0) {
-      errors['form'] = 'At least one vital must be recorded.';
+    if (hasAtLeastOneReading) {
+      return {
+        form: 'At least one vital must be recorded.',
+      };
     }
 
-    return errors;
+    return {};
   };
 
   const navigateToHistory = useCallback(() => {
     navigation.reset({
       index: 0,
       routes: [{ name: Routes.HomeStack.CheckUpStack.CheckUpTabs.ViewHistory }],
-    })
+    });
   }, []);
 
   const user = useSelector(authUserSelector);

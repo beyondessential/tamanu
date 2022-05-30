@@ -1,45 +1,26 @@
 import React from 'react';
-
+import styled from 'styled-components';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-
+import { FACILITY_MENU_ITEMS } from '../app/components/Sidebar/config';
 import { Sidebar } from '../app/components/Sidebar';
 
+const Container = styled.div`
+  display: grid;
+  height: 860px;
+  width: 280px;
+  grid-template-columns: 1fr 4fr;
+`;
+
 storiesOf('Sidebar', module).add('Sidebar', () => (
-  <div style={{ maxWidth: '25rem' }}>
+  <Container>
     <Sidebar
       currentPath="/test/abc"
       onPathChanged={action('path')}
       onLogout={action('logout')}
-      items={[
-        {
-          key: 'cars',
-          label: 'Cars',
-          children: [
-            { label: 'Sedan', path: 'sedan' },
-            { label: 'Semi-trailer', path: 'van' },
-            { label: 'Racecar', path: 'ute' },
-          ],
-        },
-        {
-          key: 'bikes',
-          label: 'Bikes',
-          children: [
-            { label: 'Fixie', path: 'fixie' },
-            { label: 'Mountain bike', path: 'mountain' },
-          ],
-        },
-        {
-          key: 'public',
-          label: 'Public transport',
-          children: [
-            { label: 'Train', path: 'train' },
-            { label: 'Monorail', path: 'monorail' },
-            { label: 'Bus', path: 'bus' },
-            { label: 'Futuristic transport tube', path: 'tube' },
-          ],
-        },
-      ]}
+      items={FACILITY_MENU_ITEMS}
+      facilityName="Etta Clinic"
+      currentUser={{ displayName: 'Catherine Jennings' }}
     />
-  </div>
+  </Container>
 ));

@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState, ReactElement } from 'react';
 import Accordion from 'react-native-collapsible/Accordion';
 import { StyledScrollView } from '/styled/common';
 import { Header } from './Header';
@@ -7,7 +6,7 @@ import { Content } from './Content';
 
 export const PatientVaccineHistoryAccordion = ({
   dataArray,
-}): JSX.Element => {
+}): ReactElement => {
   const [activeSections, setActiveSections] = useState<number[]>([]);
 
   const updateSections = (newActiveSection: number[]): void => {

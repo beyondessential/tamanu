@@ -1,5 +1,10 @@
 import config from 'config';
 import { format } from 'date-fns';
+import { Op } from 'sequelize';
+
+import { getParamAndModifier, getQueryObject, getDefaultOperator } from './utils';
+import { modifiers } from './hl7Parameters';
+import { hl7PatientFields } from './hl7PatientFields';
 
 function patientName(patient, additional) {
   const official = {
@@ -72,7 +77,7 @@ function patientTelecom(patient, additional) {
     }));
 }
 
-export function patientToHL7Patient(patient, additional) {
+export function patientToHL7Patient(patient, additional = {}) {
   return {
     resourceType: 'Patient',
     active: true, // currently unused in Tamanu, always true
@@ -82,5 +87,49 @@ export function patientToHL7Patient(patient, additional) {
     gender: patient.sex,
     address: patientAddress(patient, additional),
     telecom: patientTelecom(patient, additional),
+    // Only add deceasedDateTime key if the patient is deceased
+    ...(patient.dateOfDeath && {
+      deceasedDateTime: format(patient.dateOfDeath, "yyyy-MM-dd'T'HH:mm:ssXXX"),
+    }),
   };
+}
+
+// Receives query and returns a sequelize where clause.
+// Assumes that query already passed validation.
+export function getPatientWhereClause(displayId, query = {}) {
+  const filters = [];
+
+  // Handle search by ID separately
+  if (displayId) {
+    filters.push({ displayId });
+  }
+
+  // Create a filter for each query param
+  Object.entries(query).forEach(([key, value]) => {
+    const [parameter, modifier] = getParamAndModifier(key);
+
+    // Only create filter if the parameter is a supported patient field
+    if (parameter in hl7PatientFields === false) {
+      return;
+    }
+
+    const { fieldName, columnName, parameterType, getValue, getOperator } = hl7PatientFields[
+      parameter
+    ];
+    const defaultOperator = getOperator ? getOperator(value) : getDefaultOperator(parameterType);
+    const operator = modifier ? modifiers[parameterType][modifier] : defaultOperator;
+    const extractedValue = getValue ? getValue(value) : value;
+    const queryObject = getQueryObject(
+      columnName,
+      extractedValue,
+      operator,
+      modifier,
+      parameterType,
+    );
+    filters.push({ [fieldName]: queryObject });
+  });
+
+  // Wrap all filters with explicit "AND" if they exist,
+  // otherwise return empty object
+  return filters.length > 0 ? { [Op.and]: filters } : {};
 }

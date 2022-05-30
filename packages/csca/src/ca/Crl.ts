@@ -20,7 +20,6 @@ import {
   AuthorityKeyIdentifierExtension,
   EcAlgorithm,
   Extension as X509Extension,
-  HashedAlgorithm,
 } from '@peculiar/x509';
 import { AsnConvert, OctetString } from '@peculiar/asn1-schema';
 import { add } from 'date-fns';
@@ -29,6 +28,7 @@ import Certificate from './Certificate';
 import State, { readSerialNumber } from './State';
 import crypto from '../crypto';
 import { numberToBuffer } from '../utils';
+import { ecdsaWebSigToBER, ecdsaBERToWebSig } from '../ext/EcdsaSig';
 
 function asAki(ext: X509Extension | undefined): AuthorityKeyIdentifierExtension | undefined {
   if (ext instanceof AuthorityKeyIdentifierExtension) return ext;
@@ -66,13 +66,12 @@ export default class Crl {
 
     const revokedCertificates = revokedCerts.length
       ? revokedCerts.map(
-          cert =>
-            new RevokedCertificate({
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              revocationDate: new Time(cert.revocationDate!),
-              userCertificate: cert.serial,
-            }),
-        )
+        cert => new RevokedCertificate({
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          revocationDate: new Time(cert.revocationDate!),
+          userCertificate: cert.serial,
+        }),
+      )
       : undefined;
 
     // Doc 9303-12 defines the CRL profile in §7.1.4:
@@ -133,14 +132,14 @@ export default class Crl {
     });
 
     const tbs = AsnConvert.serialize(tbsCertList);
-    const signature = await crypto.subtle.sign(
+    const signature = ecdsaWebSigToBER(await crypto.subtle.sign(
       {
         name: 'ECDSA',
         hash: 'SHA-256',
       },
       key,
       tbs,
-    );
+    ));
 
     const certList = new CertificateList({
       tbsCertList,
@@ -166,7 +165,7 @@ export default class Crl {
         hash: 'SHA-256',
       },
       this.key,
-      certList.signature,
+      ecdsaBERToWebSig(certList.signature),
       tbs,
     );
     if (!valid) throw new Error('CRL signature is invalid');

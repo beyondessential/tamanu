@@ -1,6 +1,6 @@
 /* eslint-disable import/no-unresolved, import/extensions */
 
-import { subDays } from 'date-fns';
+import { subDays, format } from 'date-fns';
 import { groupBy } from 'lodash';
 import moment from 'moment';
 import { Op } from 'sequelize';
@@ -22,7 +22,7 @@ const reportColumnTemplate = [
   { title: 'Last name', accessor: data => data.patient.lastName },
   { title: 'First name', accessor: data => data.patient.firstName },
   { title: 'Middle name', accessor: data => data.patient.middleName },
-  { title: 'DOB', accessor: data => data.patient.dateOfBirth },
+  { title: 'DOB', accessor: data => format(data.patient.dateOfBirth, 'DD/MM/YYYY') },
   {
     title: 'Age',
     accessor: data => {
@@ -57,6 +57,7 @@ const reportColumnTemplate = [
   { title: 'Risk factors', accessor: data => data['pde-PalauCOVCase31'] },
   { title: 'Day 0 sample collected', accessor: data => data['pde-PalauCOVCase33'] },
   { title: 'Symptomatic on day 0', accessor: data => data['pde-PalauCOVCase36'] },
+  { title: 'Reinfection', accessor: data => data['pde-PalauCOVCase37'] },
 
   // follow up survey
   { title: 'Day 5 sample collected', accessor: data => data['pde-PalauCOVCaseFUp02'] },
@@ -175,63 +176,48 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
   );
 
   const transformedSurveyResponses = await Promise.all(
-    Object.entries(initialSurveyResponsesByPatient)
-      .map(([patientId, patientSurveyResponses]) => {
-        // create a row for each initial survey response
-        return patientSurveyResponses.map((surveyResponse, index) => {
-          // find the corresponding follow up survey for each initial survey
-
-          // only select follow up surveys after the current initial survey
-          const followUpSurveyResponseFromDate = moment(surveyResponse.endTime).startOf('day');
-          // only select follow up survey before current time for latest initial survey
-          // if there are more than 1 initial surveys (index > 0)
-          // only select follow up survey before the later initial survey
-          const followUpSurveyResponseBeforeTime =
-            index === 0 ? moment() : moment(patientSurveyResponses[index - 1].endTime);
-          const followUpSurvey = followUpSurveyResponsesByPatient[patientId]?.find(
-            followUpSurveyResponse =>
-              moment(followUpSurveyResponse.endTime).isBetween(
-                followUpSurveyResponseFromDate,
-                followUpSurveyResponseBeforeTime,
-                undefined,
-                '[)', // from inclusive, end exclusive
-              ),
+    Object.entries(initialSurveyResponsesByPatient).map(([patientId, patientSurveyResponses]) => {
+      // only take the latest initial survey response
+      const surveyResponse = patientSurveyResponses[0];
+      // only select follow up surveys after the current initial survey
+      const followUpSurveyResponseFromDate = moment(surveyResponse.endTime).startOf('day');
+      const followUpSurvey = followUpSurveyResponsesByPatient[patientId]?.find(
+        followUpSurveyResponse =>
+          !moment(followUpSurveyResponse.endTime).isBefore(followUpSurveyResponseFromDate),
+      );
+      async function transform() {
+        const resultResponse = surveyResponse;
+        resultResponse.initialSurveyResponseAnswers = await transformAnswers(
+          models,
+          surveyResponse.answers.map(a => {
+            // eslint-disable-next-line no-param-reassign
+            a.surveyResponse = surveyResponse;
+            return a;
+          }),
+          initialSurveyComponents,
+          {
+            dateFormat: 'DD/MM/YYYY',
+          },
+        );
+        if (followUpSurvey) {
+          resultResponse.followUpSurveyResponseAnswers = await transformAnswers(
+            models,
+            followUpSurvey.answers.map(a => {
+              // eslint-disable-next-line no-param-reassign
+              a.surveyResponse = followUpSurvey;
+              return a;
+            }),
+            followUpSurveyComponents,
+            {
+              dateFormat: 'DD/MM/YYYY',
+            },
           );
-          async function transform() {
-            const resultResponse = surveyResponse;
-            resultResponse.initialSurveyResponseAnswers = await transformAnswers(
-              models,
-              surveyResponse.answers.map(a => {
-                // eslint-disable-next-line no-param-reassign
-                a.surveyResponse = surveyResponse;
-                return a;
-              }),
-              initialSurveyComponents,
-              {
-                dateFormat: 'DD-MM-YYYY',
-              },
-            );
-            if (followUpSurvey) {
-              resultResponse.followUpSurveyResponseAnswers = await transformAnswers(
-                models,
-                followUpSurvey.answers.map(a => {
-                  // eslint-disable-next-line no-param-reassign
-                  a.surveyResponse = followUpSurvey;
-                  return a;
-                }),
-                followUpSurveyComponents,
-                {
-                  dateFormat: 'DD-MM-YYYY',
-                },
-              );
-            }
+        }
 
-            return resultResponse;
-          }
-          return transform();
-        });
-      })
-      .flat(),
+        return resultResponse;
+      }
+      return transform();
+    }),
   );
 
   const reportData = transformedSurveyResponses.map(row => {

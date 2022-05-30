@@ -1,6 +1,7 @@
 module.exports = {
   apps: [{
     name: "tamanu-meta-server",
+    exec_mode: "fork",
     instances: 1,
     script: "./dist/app.bundle.js",
     env: {

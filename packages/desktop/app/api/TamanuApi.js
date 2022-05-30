@@ -187,9 +187,8 @@ export class TamanuApi {
 
       if (returnResponse) {
         return response;
-      } else {
-        return response.json();
       }
+      return response.json();
     }
 
     const { error } = await getResponseJsonSafely(response);

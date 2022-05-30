@@ -162,7 +162,7 @@ export class Encounter extends Model {
       'examiner',
       {
         association: 'location',
-        include: ['Facility'],
+        include: ['facility'],
       },
     ];
   }

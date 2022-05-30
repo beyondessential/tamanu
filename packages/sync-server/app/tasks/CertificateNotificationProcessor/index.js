@@ -10,12 +10,16 @@ import {
 } from 'shared/constants';
 import { log } from 'shared/services/logging';
 import { ScheduledTask } from 'shared/tasks';
-import { getPatientSurveyResponseAnswer } from 'shared/utils';
 import { generateUVCI } from 'shared/utils/uvci';
-import { makeVaccineCertificate, makeCovidTestCertificate } from '../utils/makePatientCertificate';
-import { getLocalisation } from '../localisation';
-import { createVdsNcVaccinationData, VdsNcDocument } from '../integrations/VdsNc';
-import { createEuDccVaccinationData, HCERTPack } from '../integrations/EuDcc';
+import {
+  makeVaccineCertificate,
+  makeCovidTestCertificate,
+} from '../../utils/makePatientCertificate';
+import { getLocalisation } from '../../localisation';
+import { createVdsNcVaccinationData, VdsNcDocument } from '../../integrations/VdsNc';
+import { createEuDccVaccinationData, HCERTPack } from '../../integrations/EuDcc';
+
+import { LabRequestNotificationGenerator } from './LabRequestNotificationGenerator';
 
 export class CertificateNotificationProcessor extends ScheduledTask {
   constructor(context) {
@@ -23,59 +27,19 @@ export class CertificateNotificationProcessor extends ScheduledTask {
     super(conf.schedule, log);
     this.config = conf;
     this.context = context;
+    this.subtasks = [new LabRequestNotificationGenerator(context)];
   }
 
   getName() {
     return 'CertificateNotificationProcessor';
   }
 
-  async processPublishedLabRequests() {
-    const { models } = this.context.store;
-    const { CertificateNotification, Encounter, LabRequest } = models;
-    const categories = config.notifications.certificates.labTestCategoryIds;
-    const questionId = config.questionCodeIds?.email;
-
-    // Find all published requests that don't have associated certificate notifications
-    const newlyPublished = await LabRequest.findAll({
+  async countQueue() {
+    return this.context.store.models.CertificateNotification.count({
       where: {
-        status: 'published',
-        '$certificate_notification.id$': null,
+        status: CERTIFICATE_NOTIFICATION_STATUSES.QUEUED,
       },
-      include: [
-        {
-          model: CertificateNotification,
-          as: 'certificate_notification',
-          required: false,
-        },
-        {
-          model: Encounter,
-          as: 'encounter',
-          required: true,
-        },
-      ],
     });
-
-    // Create a certificate notification for each
-    for (const labRequest of newlyPublished) {
-      const emailAddress = await getPatientSurveyResponseAnswer(
-        models,
-        labRequest.encounter.patientId,
-        questionId,
-      );
-
-      await CertificateNotification.create({
-        type: ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING.JSON,
-        requiresSigning: false,
-        patientId: labRequest.encounter.patientId,
-        // If forward address is null, the communication service will attempt to use the patient.email field
-        forwardAddress: emailAddress,
-        // Queue up emails for white listed categories
-        status: categories.includes(labRequest.labTestCategoryId)
-          ? CERTIFICATE_NOTIFICATION_STATUSES.QUEUED
-          : CERTIFICATE_NOTIFICATION_STATUSES.IGNORE,
-        labRequestId: labRequest.id,
-      });
-    }
   }
 
   async run() {
@@ -85,8 +49,6 @@ export class CertificateNotificationProcessor extends ScheduledTask {
     const euDccEnabled = config.integrations.euDcc.enabled;
     const localisation = await getLocalisation();
 
-    await this.processPublishedLabRequests();
-
     const queuedNotifications = await CertificateNotification.findAll({
       where: {
         status: CERTIFICATE_NOTIFICATION_STATUSES.QUEUED,
@@ -94,11 +56,6 @@ export class CertificateNotificationProcessor extends ScheduledTask {
       order: [['createdAt', 'ASC']], // process in order received
       limit: this.config.limit,
     });
-    if (queuedNotifications.length > 0) {
-      log.info(`Starting: ${this.getName()} task with ${queuedNotifications.length} to process`);
-    } else {
-      return;
-    }
 
     let processed = 0;
     for (const notification of queuedNotifications) {
@@ -113,9 +70,12 @@ export class CertificateNotificationProcessor extends ScheduledTask {
         const { country, covidVaccines } = await getLocalisation();
         const countryCode = country['alpha-2'];
 
-        log.info(
-          `Processing certificate notification: id=${notification.id} patient=${patientId} type=${type} requireSigning=${requireSigning}`,
-        );
+        log.info('Processing certificate notification', {
+          id: notification.id,
+          patient: patientId,
+          type,
+          requireSigning,
+        });
 
         let template;
         let qrData = null;
@@ -225,8 +185,9 @@ export class CertificateNotificationProcessor extends ScheduledTask {
       }
     }
 
-    log.info(
-      `Done: certificate notification sync-hook task. attempted=${queuedNotifications.length} processed=${processed}`,
-    );
+    log.info('Done: certificate notification sync-hook task.', {
+      attempted: queuedNotifications.length,
+      processed,
+    });
   }
 }

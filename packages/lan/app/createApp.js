@@ -9,7 +9,7 @@ import routes from './routes';
 import errorHandler from './middleware/errorHandler';
 import { versionCompatibility } from './middleware/versionCompatibility';
 
-import { version } from '../package.json';
+import { version } from './serverInfo';
 
 export function createApp({ sequelize, models, syncManager }) {
   // Init our app

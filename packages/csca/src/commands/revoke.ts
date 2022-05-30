@@ -1,6 +1,5 @@
 import { Command } from 'commander';
 import { parseDate } from 'chrono-node';
-import prompts from 'prompts';
 
 import CA from '../ca';
 import Certificate from '../ca/Certificate';
