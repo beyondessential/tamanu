@@ -9,7 +9,8 @@
 
 ### Features ⭐
 
-- (left blank)
+- Logs updated with various pieces of additional diagnostic info
+- Logs can now be sent to Honeycomb for central viewing/querying
 
 ### Tweaks ⚖️
 
@@ -38,7 +39,7 @@
 
 ### Tweaks ⚖️
 
-- (left blank)
+- Scheduled tasks are now split into a separate command, so `pm2 scale` works up and down now. A new PM2 process will appear: `tamanu-tasks-runner` (only one instance should run at all times).
 
 ### Bug fixes 🐛
 

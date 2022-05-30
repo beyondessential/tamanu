@@ -172,8 +172,7 @@ patientDeath.post(
       antecedentCause2: yup.string(),
       antecedentCause2Interval: yup.number().default(0),
       clinicianId: yup.string().required(),
-      otherContributingConditions: yup.string(),
-      otherContributingConditionsInterval: yup.number().default(0),
+      otherContributingConditions: yup.array().of(yup.object()),
       deathWithin24HoursOfBirth: yesNo,
       facilityId: yup.string(),
       outsideHealthFacility: yup.boolean().default(false),
@@ -267,11 +266,13 @@ patientDeath.post(
       }
 
       if (body.otherContributingConditions) {
-        await DeathCause.create({
-          patientDeathDataId: deathData.id,
-          conditionId: body.otherContributingConditions,
-          timeAfterOnset: body.otherContributingConditionsInterval,
-        });
+        for (const condition of body.otherContributingConditions) {
+          await DeathCause.create({
+            patientDeathDataId: deathData.id,
+            conditionId: condition.cause,
+            timeAfterOnset: condition.interval,
+          });
+        }
       }
 
       const activeEncounters = await patient.getEncounters({

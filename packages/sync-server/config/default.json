@@ -18,6 +18,11 @@
     "consoleLevel": "http",
     "color": true
   },
+  "honeycomb": {
+    "apiKey": "",
+    "dataset": "tamanu-general",
+    "enabled": true
+  },
   "sync": {
     "concurrentChannelChecks": 8
   },
@@ -180,6 +185,10 @@
 
       // Email address for CSCA signing contact
       "sendRequestTo": "admin@tamanu.io"
+    },
+    "mSupply": {
+      "enabled": false,
+      "requireClientHeaders": true
     }
   },
   // on the sync-server, don't read these values from config!

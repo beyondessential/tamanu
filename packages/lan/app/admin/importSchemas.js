@@ -1,13 +1,10 @@
 import * as yup from 'yup';
-import { ValidationError } from 'yup';
-
 import {
   ENCOUNTER_TYPES,
   INJECTION_SITE_OPTIONS,
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
   VACCINE_STATUS,
 } from 'shared/constants';
-import { ForeignKeyStore } from './ForeignKeyStore';
 
 const safeIdRegex = /^[A-Za-z0-9-]+$/;
 const safeCodeRegex = /^[A-Za-z0-9-./]+$/;
@@ -20,30 +17,30 @@ const fieldTypes = {
   name: yup.string().max(255),
 };
 
-const baseSchema = yup.object().shape({
+export const base = yup.object().shape({
   id: fieldTypes.id.required(),
 });
 
-const referenceDataSchema = baseSchema.shape({
+export const referenceData = base.shape({
   type: yup.string().required(),
   code: fieldTypes.code.required(),
   name: yup.string().required(),
 });
 
-const patientSchema = baseSchema.shape({
+export const patient = base.shape({
   villageId: yup.string(),
   firstName: yup.string().required(),
   lastName: yup.string().required(),
   dateOfBirth: yup.date().required(),
 });
 
-const userSchema = baseSchema.shape({
+export const user = base.shape({
   email: yup.string().required(),
   displayName: yup.string().required(),
   password: yup.string().required(),
 });
 
-const facilitySchema = baseSchema.shape({
+export const facility = base.shape({
   code: fieldTypes.code.required(),
   name: fieldTypes.name.required(),
   email: yup.string(),
@@ -54,13 +51,13 @@ const facilitySchema = baseSchema.shape({
   type: yup.string(),
 });
 
-const departmentSchema = baseSchema.shape({
+export const department = base.shape({
   code: fieldTypes.code.required(),
   name: fieldTypes.name.required(),
   facilityId: yup.string().required(),
 });
 
-const locationSchema = baseSchema.shape({
+export const location = base.shape({
   code: fieldTypes.code.required(),
   name: fieldTypes.name.required(),
   facilityId: yup.string().required(),
@@ -68,7 +65,7 @@ const locationSchema = baseSchema.shape({
 
 const LAB_TEST_RESULT_TYPES = ['Number', 'Select', 'FreeText'];
 const rangeRegex = /^[0-9.]+, [0-9.]+$/;
-const labTestTypeSchema = baseSchema.shape({
+export const labTestType = base.shape({
   name: yup.string().required(),
   labTestCategoryId: yup.string().required(),
   resultType: yup
@@ -94,7 +91,7 @@ const jsonString = () =>
     }
   });
 
-const programDataElementSchema = baseSchema.shape({
+export const programDataElement = base.shape({
   indicator: yup.string(),
   type: yup
     .string()
@@ -103,7 +100,7 @@ const programDataElementSchema = baseSchema.shape({
   defaultOptions: jsonString(),
 });
 
-const surveyScreenComponentSchema = baseSchema.shape({
+export const surveyScreenComponent = base.shape({
   visibilityCriteria: jsonString(),
   validationCriteria: jsonString(),
   config: jsonString(),
@@ -116,7 +113,7 @@ const surveyScreenComponentSchema = baseSchema.shape({
   dataElementId: yup.string().required(),
 });
 
-const scheduledVaccineSchema = baseSchema.shape({
+export const scheduledVaccine = base.shape({
   category: yup.string().required(),
   label: yup.string().required(),
   schedule: yup.string().required(),
@@ -126,7 +123,7 @@ const scheduledVaccineSchema = baseSchema.shape({
   vaccineId: yup.string().required(),
 });
 
-const surveySchema = baseSchema.shape({
+export const survey = base.shape({
   surveyType: yup
     .string()
     .required()
@@ -134,7 +131,7 @@ const surveySchema = baseSchema.shape({
   isSensitive: yup.boolean().required(),
 });
 
-const encounterSchema = baseSchema.shape({
+export const encounter = base.shape({
   // contains only what's needed for administeredVaccine imports, extend as neccesary
   encounterType: yup.string().oneOf(Object.values(ENCOUNTER_TYPES)),
   startDate: yup.date().required(),
@@ -149,7 +146,7 @@ const encounterSchema = baseSchema.shape({
             .string()
             .oneOf(['administeredVaccine'])
             .required(),
-          data: baseSchema.shape({
+          data: base.shape({
             batch: yup.string(),
             consent: yup.boolean().required(),
             status: yup
@@ -173,61 +170,3 @@ const encounterSchema = baseSchema.shape({
   examinerId: yup.string().required(),
   patientId: yup.string().required(),
 });
-
-const validationSchemas = {
-  base: baseSchema,
-  referenceData: referenceDataSchema,
-  patient: patientSchema,
-  user: userSchema,
-  facility: facilitySchema,
-  department: departmentSchema,
-  location: locationSchema,
-  labTestType: labTestTypeSchema,
-  survey: surveySchema,
-  surveyScreenComponent: surveyScreenComponentSchema,
-  programDataElement: programDataElementSchema,
-  scheduledVaccine: scheduledVaccineSchema,
-  encounter: encounterSchema,
-};
-
-export async function validateRecordSet(records) {
-  const fkStore = new ForeignKeyStore(records);
-
-  const validate = async record => {
-    const { recordType, data } = record;
-    const schema = validationSchemas[recordType] || validationSchemas.base;
-
-    try {
-      // perform id duplicate check outside of schemas as it relies on consistent
-      // object identities, which yup's validation does not guarantee
-      fkStore.assertUniqueId(record);
-
-      // populate all FKs for this data object
-      fkStore.linkByForeignKey(record);
-
-      const validatedData = await schema.validate(data);
-
-      return {
-        ...record,
-        data: validatedData,
-      };
-    } catch (e) {
-      if (!(e instanceof ValidationError)) throw e;
-
-      return {
-        ...record,
-        errors: e.errors,
-      };
-    }
-  };
-
-  // validate all records and then group them by status
-  const validatedRecords = await Promise.all(records.map(validate));
-  const goodRecords = validatedRecords.filter(x => !x.errors).filter(x => x);
-  const badRecords = validatedRecords.filter(x => x.errors);
-
-  return {
-    records: goodRecords,
-    errors: badRecords,
-  };
-}

@@ -14,7 +14,7 @@ import { defaultErrorHandler } from './middleware/errorHandler';
 import { loadshedder } from './middleware/loadshedder';
 import { versionCompatibility } from './middleware/versionCompatibility';
 
-import { version } from '../package.json';
+import { version } from './serverInfo';
 
 export function createApp(ctx) {
   const { store, emailService } = ctx;
