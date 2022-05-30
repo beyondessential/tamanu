@@ -9,7 +9,6 @@ import { CertificateWrapper } from './CertificateWrapper';
 import { DateDisplay } from '../DateDisplay';
 import { PatientBarcode } from './PatientBarcode';
 import { GridTable } from './GridTable';
-import { LoadingIndicator } from '../LoadingIndicator';
 
 const RowContainer = styled.div`
   display: flex;
@@ -26,7 +25,7 @@ const SignatureBox = styled(Box)`
 `;
 
 export const PrescriptionPrintout = React.memo(
-  ({ patientData, prescriptionData, encounterData, certificateData, isLoading }) => {
+  ({ patientData, prescriptionData, encounterData, certificateData }) => {
     const {
       firstName,
       lastName,
@@ -49,10 +48,6 @@ export const PrescriptionPrintout = React.memo(
       date,
       note,
     } = prescriptionData;
-
-    if (isLoading) {
-      return <LoadingIndicator />;
-    }
 
     return (
       <CertificateWrapper>

@@ -2,10 +2,9 @@ import React from 'react';
 import moment from 'moment';
 
 import { SimplePrintout } from './SimplePrintout';
-import { LoadingIndicator } from '../LoadingIndicator';
 
 export const ImagingRequestPrintout = React.memo(
-  ({ imagingRequestData, patientData, encounterData, certificateData, isLoading }) => {
+  ({ imagingRequestData, patientData, encounterData, certificateData }) => {
     const {
       id,
       requestedDate,
@@ -15,10 +14,6 @@ export const ImagingRequestPrintout = React.memo(
       areaToBeImaged,
       note,
     } = imagingRequestData;
-
-    if (isLoading) {
-      return <LoadingIndicator />;
-    }
 
     return (
       <SimplePrintout

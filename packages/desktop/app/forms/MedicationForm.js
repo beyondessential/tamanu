@@ -18,6 +18,7 @@ import {
 } from '../components/Field';
 import { Modal } from '../components/Modal';
 import { useCertificate } from '../utils/useCertificate';
+import { LoadingIndicator } from '../components/LoadingIndicator';
 import { PrescriptionPrintout } from '../components/PatientPrinting/PrescriptionPrintout';
 import { useApi } from '../api';
 
@@ -124,13 +125,16 @@ const PrintModal = ({ medication, open, onClose }) => {
   return (
     <>
       <Modal title="Prescription" open={open} onClose={onClose} width="md" printable>
-        <PrescriptionPrintout
-          patientData={{ ...patient, additionalData, village }}
-          prescriptionData={medication}
-          encounterData={encounter}
-          certificateData={certificateData}
-          isLoading={encounterLoading || patientLoading || additionalDataLoading || villageLoading}
-        />
+        {encounterLoading || patientLoading || additionalDataLoading || villageLoading ? (
+          <LoadingIndicator />
+        ) : (
+          <PrescriptionPrintout
+            patientData={{ ...patient, additionalData, village }}
+            prescriptionData={medication}
+            encounterData={encounter}
+            certificateData={certificateData}
+          />
+        )}
       </Modal>
     </>
   );

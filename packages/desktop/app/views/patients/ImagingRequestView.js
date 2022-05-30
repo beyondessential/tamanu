@@ -62,13 +62,16 @@ const PrintButton = ({ imagingRequest, patient }) => {
   return (
     <>
       <Modal title="Imaging Request" open={isModalOpen} onClose={closeModal} width="md" printable>
-        <ImagingRequestPrintout
-          imagingRequestData={imagingRequest}
-          patientData={patient}
-          encounterData={encounter}
-          certificateData={certificateData}
-          isLoading={isLoading}
-        />
+        {isLoading ? (
+          <LoadingIndicator />
+        ) : (
+          <ImagingRequestPrintout
+            imagingRequestData={imagingRequest}
+            patientData={patient}
+            encounterData={encounter}
+            certificateData={certificateData}
+          />
+        )}
       </Modal>
       <Button
         variant="outlined"
