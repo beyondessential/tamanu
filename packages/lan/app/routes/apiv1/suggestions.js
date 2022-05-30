@@ -13,6 +13,8 @@ const defaultMapper = ({ name, code, id }) => ({ name, code, id });
 
 const defaultLimit = 25;
 
+// users.sort((a, b) => a.firstname.localeCompare(b.firstname))
+
 function makeSearchResults(results, searchValue) {
   const anyMatches = [];
   const primaryMatches = [];
@@ -27,11 +29,14 @@ function makeSearchResults(results, searchValue) {
     }
 
     if (primaryMatches.length === defaultLimit) {
-      return primaryMatches;
+      return primaryMatches.sort((a, b) => a.name.localeCompare(b.name));
     }
   }
 
-  return [...primaryMatches, ...anyMatches].slice(0, defaultLimit);
+  return [
+    ...primaryMatches.sort((a, b) => a.name.localeCompare(b.name)),
+    ...anyMatches.sort((a, b) => a.name.localeCompare(b.name)),
+  ].slice(0, defaultLimit);
 }
 
 function createSuggesterRoute(endpoint, modelName, whereSql, mapper = defaultMapper) {
@@ -42,10 +47,10 @@ function createSuggesterRoute(endpoint, modelName, whereSql, mapper = defaultMap
       const { models, query } = req;
       const search = (query.q || '').trim().toLowerCase();
 
-      if (!search) {
-        res.send([]);
-        return;
-      }
+      // if (!search) {
+      //   res.send([]);
+      //   return;
+      // }
 
       const model = models[modelName];
       const results = await model.sequelize.query(
@@ -66,7 +71,7 @@ function createSuggesterRoute(endpoint, modelName, whereSql, mapper = defaultMap
 
       const foo = results.map(mapper);
       const bar = makeSearchResults(foo, search);
-      console.log('--- LISTING ---', bar);
+      // console.log('--- LISTING ---', bar);
 
       res.send(bar);
     }),

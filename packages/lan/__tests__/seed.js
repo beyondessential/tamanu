@@ -62,5 +62,5 @@ export const allSeeds = [
   ...testImagingTypes,
   ...testVillages,
   ...testAllergies,
-  ...CARE_PLANS
+  ...CARE_PLANS,
 ];
