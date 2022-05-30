@@ -68,7 +68,7 @@ export const generateFiji = async ({ patientCount }) => {
         ...fake(Location),
         facilityId: facility.id,
       });
-      setupData.facDepLoc.push([facility.id, location.id, department.id]);
+      setupData.facDepLoc.push([facility.id, department.id, location.id]);
     }
 
     // scheduled vaccines (taken from Fiji reference data)
@@ -105,7 +105,7 @@ export const generateFiji = async ({ patientCount }) => {
   };
 
   const insertEncounter = async patientId => {
-    const [, locationId, departmentId] = chance.pickone(setupData.facDepLoc);
+    const [, departmentId, locationId] = chance.pickone(setupData.facDepLoc);
     const encounter = await Encounter.create({
       ...fake(Encounter),
       type: ENCOUNTER_TYPES.CLINIC,
