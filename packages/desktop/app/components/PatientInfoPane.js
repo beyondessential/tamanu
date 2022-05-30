@@ -134,9 +134,10 @@ const RecordDeathSection = memo(({ patient, readonly }) => {
 const PrintSection = memo(({ patient }) => <PatientPrintDetailsModal patient={patient} />);
 
 const Container = styled.div`
+  position: relative;
   background: ${Colors.white};
   min-height: 100vh;
-  border-right: 1px solid ${Colors.outline};
+  box-shadow: 1px 0 3px rgba(0, 0, 0, 0.1);
 `;
 
 const ListsSection = styled.div`
