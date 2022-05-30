@@ -15,7 +15,7 @@ async function run() {
     .name('node app.bundle.js');
 
   for (const [key, command] of Object.entries(cmd).filter(([key, _]) => /^\w+Command$/.test(key))) {
-    program.addCommand(command, { isDefault: key === 'serveAllCommand' });
+    program.addCommand(command, { isDefault: key === 'migrateCommand' });
   }
 
   setupEnv();

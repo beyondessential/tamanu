@@ -1,4 +1,3 @@
-const { customAlphabet } = require('nanoid');
 const { v4: uuidv4 } = require('uuid');
 const { readFile, utils } = require('xlsx');
 const moment = require('moment');
@@ -9,6 +8,8 @@ const {
   addMinutesToDate,
   generateDisplayId,
   LAB_REQUEST_STATUSES,
+  ENCOUNTER_TYPES,
+  asyncSleep
 } = require('./utils');
 
 const BASE_URL = 'https://sync-dev.tamanu.io';
@@ -45,26 +46,49 @@ const importExcelSheet = () => {
 
 const getLabRequests = async () => {
   const data = importExcelSheet();
+  // const adminUserId = 'b5ee86e8-23a2-4c1a-be15-0bbb3aaef047'; // Initial Admin
+  const adminUserId = 'dummy-user'; // for dev
 
-  const adminUserId = 'b5ee86e8-23a2-4c1a-be15-0bbb3aaef047'; // Initial Admin
-
-  const requests = {
-    records: data.map(({ patientId, positive, timeOfEverything }) => {
+  return data.map(({ patientId, positive, timeOfEverything, phone, isolationVillage }) => {
       const encounterId = uuidv4();
       const labRequestId = uuidv4();
       const surveyResponseId = uuidv4();
 
+      const answers = [];
+      if (phone) {
+        answers.push({
+          data: {
+            // id: uuidv4(),
+            dataElementId: 'pde-samcovidsamp02',
+            responseId: surveyResponseId,
+            body: phone,
+          },
+        });
+      }
+      if (isolationVillage) {
+        answers.push({
+          data: {
+            // id: uuidv4(),
+            dataElementId: 'pde-samcovidsamp03',
+            responseId: surveyResponseId,
+            body: `village-${isolationVillage.replace(' ', '')}`,
+          },
+        });
+      }
+
       return {
-        data: {
+        patientId,
+        data: [ {data: {
           id: encounterId,
           patientId,
-          userId: adminUserId,
-          endDate: null,
           encounterType: ENCOUNTER_TYPES.CLINIC, // TODO
-          departmentId: 'location-GeneralClinic',
-          locationId: 'department-GeneralClinic',
+          locationId: 'location-GeneralClinic',
+          departmentId: 'department-GeneralClinic',
           deviceId: 'manual_import',
           reasonForEncounter: 'Imported lab request',
+          examinerId: adminUserId,
+          startDate: timeOfEverything,
+          endDate: addMinutesToDate(timeOfEverything, 60),
 
           labRequests: [
             {
@@ -80,7 +104,8 @@ const getLabRequests = async () => {
                 // References
                 encounterId,
                 requestedById: adminUserId,
-                labTestCategoryId: 'labTestCategory-COVIDRAT',
+                // labTestCategoryId: 'labTestCategory-COVIDRAT',
+                labTestCategoryId: 'labTestCategory-COVID',
                 labTestPriorityId: null,
                 labTestLaboratoryId: null,
 
@@ -93,7 +118,8 @@ const getLabRequests = async () => {
                     labTestMethodId: 'labTestMethod-RDT',
                     result: positive ? 'Positive' : 'Negative',
                     // status: 'reception_pending' is default
-                    date: addMinutesToDate(timeOfEverything, 90), // Dates are all over the place in the db...
+                    completedDate: addMinutesToDate(timeOfEverything, 120),
+                    date: addMinutesToDate(timeOfEverything, 120),
                   },
                 ],
               },
@@ -104,66 +130,36 @@ const getLabRequests = async () => {
               data: {
                 id: surveyResponseId,
                 encounterId,
-                answers: [
-                  {
-                    // NEED TO FILL WITH INFO
-                    data: {
-                      // id: uuidv4(),
-                      responseId: surveyResponseId,
-                    },
-                  },
-                ],
+                surveyId: 'program-samoacovid19-samcovidsampcollectionv2',
+                startTime: addMinutesToDate(timeOfEverything, -10),
+                endTime: addMinutesToDate(timeOfEverything, -5),
+                answers,
               },
             },
           ],
-        },
+        }}],
       };
-    }),
-  };
-  return requests;
+    });
 };
 
-async function postEverything(data) {
-  const { nonLabRequestFields, ...restOfLabRequest } = data;
-  const { patientId, userId, timeOfEverything, testResult, method } = nonLabRequestFields;
-
-  const encounter = await createEncounter({
-    patientId,
-    examinerId: userId,
-    startDate: timeOfEverything,
-    endDate: addMinutesToDate(timeOfEverything, 60),
+async function postEverything({ patientId, data }, headers) {
+  const response = await fetch(`${BASE_URL}/v1/sync/patient%2F${patientId}%2Fencounter`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(data),
   });
-
-  console.log(encounter);
-  const labRequest = await postLabRequest({
-    ...restOfLabRequest,
-    encounterId: encounter.id,
-  });
-
-  // console.log(labRequest);
-
-  const labTest = (await getLabTests(labRequest.id))[0];
-  console.log(labTest.id);
-
-  // console.log(labTest);
-  const test2 = await putLabTest(labTest.id, {
-    result: testResult,
-    labTestMethodId: method,
-    completedDate: addMinutesToDate(timeOfEverything, 120),
-    date: addMinutesToDate(timeOfEverything, 120),
-  });
-
-  console.log(test2);
+  console.log(response);
+  console.log(await response.json());
 }
 
 (async () => {
   const headers = await getHeaders(BASE_URL);
-  const labRequests = await getLabRequests();
-  console.log(labRequests);
-  // for (const labRequest of labRequests) {
-  //   await postEverything(labRequest);
-  //   await asyncSleep(SLEEP_TIME);
-  // }
+  const nestedEncounters = await getLabRequests();
+  console.log(JSON.stringify(nestedEncounters[0].data, undefined, 2));
+  for(const request of nestedEncounters){
+    await postEverything(request, headers);
+    await asyncSleep(100);
+  }
 })()
   .then(() => {
     console.log('success!');

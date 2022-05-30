@@ -1,5 +1,5 @@
-@token=fake-token
-@server=http://localhost:4000
+@token=.eyJ1c2VySWQiOiI2YjEyNjlmZi0yNDQzLTQzODEtYTUzMi1kZGQ0OGZiZDUwMjAiLCJpYXQiOjE2NTM4ODI0MDEsImV4cCI6MTY1Mzg4NjAwMX0.SAXk8OPIrSXnbcjIEw3ck9LrC8DlBXseBC9PDvye3lw
+@server=https://sync-dev.tamanu.io
 @since=0
 
 ### Log in
@@ -7,7 +7,7 @@ POST {{server}}/v1/login
 Content-Type: application/json
 
 {
-    "email": "lan-kiribati@tamanu.io",
+    "email": "admin@tamanu.io",
     "password": ""
 }
 
@@ -20,17 +20,77 @@ GET {{server}}/v1/sync/user?since={{since}}
 Authorization: Bearer {{token}}
 
 ### Create an account
+# swap locaiont/dept
 # The server will hash the password if provided
-POST {{server}}/v1/sync/user
+POST {{server}}/v1/sync/patient%2Fcebdd9a4-2744-4ad2-9919-98dc0b15464c%2Fencounter
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
-[{
-    "data": {
-        "email": "my.email@domain.com",
-        "password": "open-sesame",
-        "displayName": "Test User",
-        "role": "practitioner"
+[{"data": {
+    "id": "101ed2af-e1cf-46c4-b7a0-67cad0fb1370",
+    "patientId": "cebdd9a4-2744-4ad2-9919-98dc0b15464c",
+    "encounterType": "clinic",
+    "locationId": "location-GeneralClinic",
+    "departmentId": "department-GeneralClinic",
+    "deviceId": "manual_import",
+    "reasonForEncounter": "Imported lab request",
+    "examinerId": "dummy-user",
+    "startDate": "2022-04-08T01:00:00.000Z",
+    "endDate": "2022-04-08T02:00:00.000Z",
+    "labRequests": [
+        {
+        "data": {
+            "id": "1604e349-b0c1-4a35-b7aa-fdc51ce04505",
+            "sampleTime": "2022-04-08T01:00:00.000Z",
+            "requestedDate": "2022-04-08T02:00:00.000Z",
+            "specimenAttached": false,
+            "status": "published",
+            "displayId": "3QQHWRM",
+            "encounterId": "101ed2af-e1cf-46c4-b7a0-67cad0fb1370",
+            "requestedById": "dummy-user",
+            "labTestCategoryId": "labTestCategory-COVID",
+            "labTestPriorityId": null,
+            "labTestLaboratoryId": null,
+            "labTests": [
+            {
+                "labRequestId": "1604e349-b0c1-4a35-b7aa-fdc51ce04505",
+                "labTestTypeId": "labTestType-COVIDRapidantigentestpositive",
+                "labTestMethodId": "labTestMethod-RDT",
+                "result": "Positive",
+                "completedDate": "2022-04-08T03:00:00.000Z",
+                "date": "2022-04-08T03:00:00.000Z"
+            }
+            ]
+        }
+        }
+    ],
+    "surveyResponses": [
+        {
+        "data": {
+            "id": "78712202-0712-4224-84f0-69c1d8faded9",
+            "encounterId": "101ed2af-e1cf-46c4-b7a0-67cad0fb1370",
+            "surveyId": "program-samoacovid19-samcovidsampcollectionv2",
+            "startTime": "2022-04-08T00:50:00.000Z",
+            "endTime": "2022-04-08T00:55:00.000Z",
+            "answers": [
+            {
+                "data": {
+                "dataElementId": "pde-samcovidsamp02",
+                "responseId": "78712202-0712-4224-84f0-69c1d8faded9",
+                "body": 1234567
+                }
+            },
+            {
+                "data": {
+                "dataElementId": "pde-samcovidsamp03",
+                "responseId": "78712202-0712-4224-84f0-69c1d8faded9",
+                "body": "village-Alafua"
+                }
+            }
+            ]
+        }
+        }
+    ]
     }
 }]
 

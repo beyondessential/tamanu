@@ -1,4 +1,5 @@
 const fetch = require('node-fetch');
+const { customAlphabet } = require('nanoid');
 
 const BASE_HEADERS = {
   'Content-Type': 'application/json',
@@ -75,4 +76,6 @@ module.exports = {
   addMinutesToDate,
   generateDisplayId,
   LAB_REQUEST_STATUSES,
+  ENCOUNTER_TYPES,
+  asyncSleep
 };
