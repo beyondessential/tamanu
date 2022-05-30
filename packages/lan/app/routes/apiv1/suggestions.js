@@ -13,6 +13,27 @@ const defaultMapper = ({ name, code, id }) => ({ name, code, id });
 
 const defaultLimit = 25;
 
+function makeSearchResults(results, searchValue) {
+  const anyMatches = [];
+  const primaryMatches = [];
+
+  for (const result of results) {
+    const candidate = result.name.toLowerCase();
+
+    if (candidate.startsWith(searchValue)) {
+      primaryMatches.push(result); // Matches start
+    } else if (candidate.substring(1).indexOf(searchValue) > -1) {
+      anyMatches.push(result); // Matches anywhere
+    }
+
+    if (primaryMatches.length === defaultLimit) {
+      return primaryMatches;
+    }
+  }
+
+  return [...primaryMatches, ...anyMatches].slice(0, defaultLimit);
+}
+
 function createSuggesterRoute(endpoint, modelName, whereSql, mapper = defaultMapper) {
   suggestions.get(
     `/${endpoint}`,
@@ -20,6 +41,7 @@ function createSuggesterRoute(endpoint, modelName, whereSql, mapper = defaultMap
       req.checkPermission('list', modelName);
       const { models, query } = req;
       const search = (query.q || '').trim().toLowerCase();
+
       if (!search) {
         res.send([]);
         return;
@@ -31,12 +53,10 @@ function createSuggesterRoute(endpoint, modelName, whereSql, mapper = defaultMap
       SELECT *
       FROM "${model.tableName}"
       WHERE ${whereSql}
-      LIMIT :limit
     `,
         {
           replacements: {
             search: `%${search}%`,
-            limit: defaultLimit,
           },
           type: QueryTypes.SELECT,
           model,
@@ -44,8 +64,11 @@ function createSuggesterRoute(endpoint, modelName, whereSql, mapper = defaultMap
         },
       );
 
-      const listing = results.map(mapper);
-      res.send(listing);
+      const foo = results.map(mapper);
+      const bar = makeSearchResults(foo, search);
+      console.log('--- LISTING ---', bar);
+
+      res.send(bar);
     }),
   );
 }
