@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-import { facilityItems } from '../app/components/Sidebar/config';
+import { FACILITY_MENU_ITEMS } from '../app/components/Sidebar/config';
 import { Sidebar } from '../app/components/Sidebar';
 
 const Container = styled.div`
@@ -18,7 +18,7 @@ storiesOf('Sidebar', module).add('Sidebar', () => (
       currentPath="/test/abc"
       onPathChanged={action('path')}
       onLogout={action('logout')}
-      items={facilityItems}
+      items={FACILITY_MENU_ITEMS}
       facilityName="Etta Clinic"
       currentUser={{ displayName: 'Catherine Jennings' }}
     />
