@@ -57,7 +57,6 @@ export const PatientAdditionalDataForm = ({
           <PatientAdditionalDataFields
             handleSubmit={handleSubmit}
             isSubmitting={isSubmitting}
-            navigation={navigation}
             fields={fields}
           />
         </FormScreenView>

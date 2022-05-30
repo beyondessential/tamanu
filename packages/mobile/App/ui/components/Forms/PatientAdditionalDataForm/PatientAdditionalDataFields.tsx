@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import { useNavigation } from '@react-navigation/native';
 import { StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { Button } from '../../Button';
@@ -19,14 +20,14 @@ import {
   getSuggester,
 } from './helpers';
 
-const getPlainField = (fieldName: string): ReactElement => (
+const PlainField = ({ fieldName }): ReactElement => (
   // Outter styled view to momentarily add distance between fields
   <StyledView key={fieldName} paddingTop={15}>
     <LocalisedField name={fieldName} component={TextField} />
   </StyledView>
 );
 
-const getSelectField = (fieldName: string): ReactElement => (
+const SelectField = ({ fieldName }): ReactElement => (
   <LocalisedField
     key={fieldName}
     name={fieldName}
@@ -35,7 +36,10 @@ const getSelectField = (fieldName: string): ReactElement => (
   />
 );
 
-const getRelationField = (fieldName: string, models, getString, navigation): ReactElement => {
+const RelationField = ({ fieldName }): ReactElement => {
+  const { models } = useBackend();
+  const { getString } = useLocalisation();
+  const navigation = useNavigation();
   const { type, placeholder } = relationIdFieldsProperties[fieldName];
   const localisedPlaceholder = getString(`fields.${fieldName}.longLabel`, placeholder);
   const suggester = getSuggester(models, type);
@@ -53,38 +57,36 @@ const getRelationField = (fieldName: string, models, getString, navigation): Rea
   );
 };
 
+function getComponentForField(fieldName: string): React.FC<{ fieldName: string}> {
+  if (plainFields.includes(fieldName)) {
+    return PlainField;
+  }
+  if (selectFields.includes(fieldName)) {
+    return SelectField;
+  }
+  if (relationIdFields.includes(fieldName)) {
+    return RelationField;
+  }
+  // Shouldn't happen
+  throw new Error(`Unexpected field ${fieldName} for patient additional data.`);
+}
+
 export const PatientAdditionalDataFields = ({
   handleSubmit,
   isSubmitting,
-  navigation,
   fields,
-}): ReactElement => {
-  const { models } = useBackend();
-  const { getString } = useLocalisation();
-
-  return (
-    <StyledView justifyContent="space-between">
-      {fields.map(fieldName => {
-        if (plainFields.includes(fieldName)) {
-          return getPlainField(fieldName);
-        }
-        if (selectFields.includes(fieldName)) {
-          return getSelectField(fieldName);
-        }
-        if (relationIdFields.includes(fieldName)) {
-          return getRelationField(fieldName, models, getString, navigation);
-        }
-        // Shouldn't happen, but info is only valuable to us
-        console.error(`Unexpected field ${fieldName} for patient additional data.`);
-        return null;
-      })}
-      <Button
-        backgroundColor={theme.colors.PRIMARY_MAIN}
-        onPress={handleSubmit}
-        loadingAction={isSubmitting}
-        buttonText="Save"
-        marginTop={10}
-      />
-    </StyledView>
-  );
-};
+}): ReactElement => (
+  <StyledView justifyContent="space-between">
+    {fields.map(fieldName => {
+      const Component = getComponentForField(fieldName);
+      return <Component fieldName={fieldName} key={fieldName} />;
+    })}
+    <Button
+      backgroundColor={theme.colors.PRIMARY_MAIN}
+      onPress={handleSubmit}
+      loadingAction={isSubmitting}
+      buttonText="Save"
+      marginTop={10}
+    />
+  </StyledView>
+);
