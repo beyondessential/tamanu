@@ -298,7 +298,7 @@ const getLabTestRecords = async (
 export const baseDataGenerator = async (
   { models },
   parameters = {},
-  { surveyId, reportColumnTemplate, surveyQuestionCodes, dateFormat = 'DD-MM-YYYY' },
+  { surveyId, reportColumnTemplate, surveyQuestionCodes, dateFormat = 'DD/MM/YYYY' },
 ) => {
   const labTests = await getLabTests(models, parameters);
   const answers = await getFijiCovidAnswers(models, parameters, { surveyId });
