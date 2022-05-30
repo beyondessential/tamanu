@@ -98,7 +98,7 @@ const reportColumnTemplate = [
     title: 'Village',
     accessor: data => data.village,
   },
-  // { title: 'CVD risk level', accessor: data => data.cvdRiskLevel },
+  { title: 'Referral Date', accessor: data => data.referralDate },
 
   // {
   //   title: 'Reason for referral',

@@ -3,10 +3,15 @@ import { Op } from 'sequelize';
 import moment from 'moment';
 import { generateReportFromQueryData } from './utilities';
 
-const ADD_MOBILITY_PRODUCT_SURVEY_CODE = 'program-samoancdscreening-sampensnpass';
-const SELF_CARE_PRODUCT_SURVEY_CODE = 'program-samoancdscreening-sampensnpref';
+const ADD_MOBILITY_PRODUCT_SURVEY_CODE = 'program-samoancdscreening-sampensnpass'; // this was called 'School Nurse Program Assessment'
+const SELF_CARE_PRODUCT_SURVEY_CODE = 'program-samoancdscreening-sampensnpref'; // Aislinn called this 'School Nurse Program Referral'
+const CONSENT_SURVEY_CODE = 'program-samoancdscreening-sampensnpcon'; // Aislinn called this 'School Nurse Program Consent'
 
-const SURVEY_CODES = [ADD_MOBILITY_PRODUCT_SURVEY_CODE, SELF_CARE_PRODUCT_SURVEY_CODE];
+const SURVEY_CODES = [
+  ADD_MOBILITY_PRODUCT_SURVEY_CODE,
+  SELF_CARE_PRODUCT_SURVEY_CODE,
+  CONSENT_SURVEY_CODE,
+];
 
 const SURVEY_DATA_ELEMENT_IDS = {
   screeningDate: 'pde-samsnpASS3',
@@ -26,6 +31,7 @@ const SURVEY_DATA_ELEMENT_IDS = {
   fillerDesignation: 'pde-samsnpASS36',
   referralBy: 'pde-ReferredBy',
   referralFillerDesignation: 'pde-samsnpREF-7',
+  consentProvided: 'pde-Consentform01',
 };
 
 const reportColumnTemplate = [
@@ -115,6 +121,10 @@ const reportColumnTemplate = [
   {
     title: 'Designation of person completing form',
     accessor: data => data.referralFillerDesignation,
+  },
+  {
+    title: 'Consent Provided',
+    accessor: data => data.consentProvided,
   },
 ];
 
@@ -288,7 +298,8 @@ const getLatestAnswerPerDataElement = transformedAnswers => {
   return result;
 };
 
-export const dataGenerator = async ({ models }, parameters = {}) => {
+export const dataGenerator = async ({ models }, parameteras = {}) => {
+  // const parameters = { fromDate: '06/01/2021', toDate: '05/24/2022' };
   const answers = await getAnswers(models, parameters);
   const components = await models.SurveyScreenComponent.getComponentsForSurveys(SURVEY_CODES);
   const transformedAnswers = await getTransformedAnswers(models, answers, components);
