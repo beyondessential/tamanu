@@ -21,9 +21,9 @@ export const PatientSection = ({
   const [isOpen, setIsOpen] = useState(false);
   const toggleSection = (): void => {
     setIsOpen(prevValue => !prevValue);
-  }
+  };
 
-  const OverlapeddButton = onEdit ? (
+  const overlappedButton = onEdit ? (
     <StyledView alignItems="flex-end">
       <StyledView position="absolute" paddingTop={10} paddingRight={20}>
         <EditButton sectionTitle={title} onPress={onEdit} />
@@ -33,7 +33,7 @@ export const PatientSection = ({
 
   const content = !isClosable || isOpen ? (
     <>
-      {OverlapeddButton}
+      {overlappedButton}
       {children}
     </>
   ) : null;
