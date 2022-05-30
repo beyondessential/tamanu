@@ -2,7 +2,7 @@ import Chance from 'chance';
 
 const chance = new Chance();
 
-export const insertSurveyAnswer = async (
+export const insertSurveyResponse = async (
   { SurveyResponse, SurveyResponseAnswer },
   setupData,
   { encounterId },
@@ -70,7 +70,6 @@ const generateAnswers = ({ villageIds, facDepLoc }) => {
       'Medical Center',
     ])}`;
   }
-  const ethnicity = ''; // TODO
   const address = `${chance.address()} ${chance.city()}`;
 
   // screen 2
@@ -97,7 +96,7 @@ const generateAnswers = ({ villageIds, facDepLoc }) => {
   let listOfSymptoms;
   let otherSymptoms;
   if (hasSymptoms) {
-    dateOfFirstSymptom = chance.date({ year: chance.pickone([2021, 2022]) });
+    dateOfFirstSymptom = chance.date({ year: chance.pickone([2021, 2022]) }).toISOString();
     const possibleSymptoms = [
       'Cough',
       'Runny nose/Nasal congestion/Sneezing',
@@ -130,7 +129,6 @@ const generateAnswers = ({ villageIds, facDepLoc }) => {
     publicOrPrivate,
     publicHealthFacility,
     privateHealthFacility,
-    ethnicity,
     address,
 
     // screen 2
@@ -143,7 +141,7 @@ const generateAnswers = ({ villageIds, facDepLoc }) => {
     // screen 3
     hasSymptoms,
     dateOfFirstSymptom,
-    listOfSymptoms,
+    listOfSymptoms: listOfSymptoms.join(', '),
     otherSymptoms,
     isHighRisk,
     isContactHighRisk,

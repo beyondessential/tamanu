@@ -5,8 +5,10 @@ import { fake } from 'shared/test-helpers';
 import { ENCOUNTER_TYPES } from 'shared/constants';
 
 import { initDatabase, closeDatabase } from '../../database';
+// TODO: import this from the spreadsheet once possible
 import * as programData from './program.json';
 import { importProgram } from './program';
+import { insertSurveyResponse } from './insertSurveyResponse';
 
 const chance = new Chance();
 
@@ -102,9 +104,8 @@ export const generateFiji = async ({ patientCount }) => {
     setupData.questions = questions;
   };
 
-  const insertVaccination = async (patientId, scheduledVaccineId) => {
-    // create encounter
-    const [locationId, departmentId] = chance.pickone(setupData.locationAndDepartmentIds);
+  const insertEncounter = async patientId => {
+    const [, locationId, departmentId] = chance.pickone(setupData.facDepLoc);
     const encounter = await Encounter.create({
       ...fake(Encounter),
       type: ENCOUNTER_TYPES.CLINIC,
@@ -113,8 +114,11 @@ export const generateFiji = async ({ patientCount }) => {
       locationId,
       departmentId,
     });
+    return encounter;
+  };
 
-    // create vaccination
+  const insertVaccination = async (patientId, scheduledVaccineId) => {
+    const encounter = await insertEncounter(patientId);
     await AdministeredVaccine.create({
       ...fake(AdministeredVaccine),
       encounterId: encounter.id,
@@ -136,6 +140,12 @@ export const generateFiji = async ({ patientCount }) => {
     }
     if (doses >= 2) {
       await insertVaccination(patient.id, setupData.scheduleIds[1]);
+    }
+
+    // survey responses
+    for (let i = 0; i < chance.integer({ min: 0, max: 4 }); i++) {
+      const { id: encounterId } = await insertEncounter(patient.id);
+      await insertSurveyResponse(store.sequelize.models, setupData, { encounterId });
     }
   };
 
