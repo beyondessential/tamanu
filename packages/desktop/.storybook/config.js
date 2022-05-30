@@ -1,12 +1,13 @@
 import React from 'react';
+import { Provider } from 'react-redux';
 import { configure, addDecorator, storiesOf } from '@storybook/react';
-
-import { ThemeProvider } from 'styled-components';
-import { Colors } from '../app/constants';
-
-import styled from 'styled-components';
+import styled, { ThemeProvider } from 'styled-components';
 import { CssBaseline } from '@material-ui/core';
 import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
+
+import { API } from '../app/api/singletons';
+import { initStore } from '../app/store';
+import { Colors } from '../app/constants';
 import { theme } from '../app/theme';
 import { DummyElectronProvider } from '../app/contexts/Electron';
 
@@ -18,11 +19,13 @@ function loadStories() {
     .sort()
     .forEach(filename => {
       try {
-        req(filename)
-      } catch(e) {
+        req(filename);
+      } catch (e) {
         storiesOf('ERROR DURING IMPORT', module).add(filename, () => (
           <div>
-            <div><strong>{e.toString()}</strong></div>
+            <div>
+              <strong>{e.toString()}</strong>
+            </div>
             <pre>{e.stack}</pre>
           </div>
         ));
@@ -59,15 +62,19 @@ addDecorator((story, context, info) => {
   );
 });
 
+const { store } = initStore(API);
+
 addDecorator(story => (
-  <StylesProvider injectFirst>
-    <MuiThemeProvider theme={theme}>
-      <ThemeProvider theme={theme}>
-        <DummyElectronProvider >
-          <CssBaseline />
-          {story()}
-        </DummyElectronProvider >
-      </ThemeProvider>
-    </MuiThemeProvider>
-  </StylesProvider>
+  <Provider store={store}>
+    <StylesProvider injectFirst>
+      <MuiThemeProvider theme={theme}>
+        <ThemeProvider theme={theme}>
+          <DummyElectronProvider>
+            <CssBaseline />
+            {story()}
+          </DummyElectronProvider>
+        </ThemeProvider>
+      </MuiThemeProvider>
+    </StylesProvider>
+  </Provider>
 ));
