@@ -80,16 +80,14 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
 
   return (
     <>
-      {sections.map(({ title, fields, onEditCallback }) => {
-        return (
-          <PatientSection
-            title={title}
-            onEdit={isEditable ? onEditCallback : undefined}
-          >
-            {loading ? <LoadingScreen /> : <FieldRowDisplay fields={fields} />}
-          </PatientSection>
-        );
-      })}
+      {sections.map(({ title, fields, onEditCallback }) => (
+        <PatientSection
+          title={title}
+          onEdit={isEditable ? onEditCallback : undefined}
+        >
+          {loading ? <LoadingScreen /> : <FieldRowDisplay fields={fields} />}
+        </PatientSection>
+      ))}
     </>
   );
 };
