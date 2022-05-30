@@ -50,11 +50,12 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
   }, [navigation, selectedPatient]);
 
   const editPatientAdditionalData = useCallback(
-    (additionalData) => {
+    (additionalData, sectionTitle) => {
       navigation.navigate(Routes.HomeStack.PatientDetailsStack.EditPatientAdditionalData, {
         patientId: selectedPatient.id,
         patientName: joinNames(selectedPatient),
         additionalDataJSON: JSON.stringify(additionalData),
+        sectionTitle,
       });
     },
     [navigation, selectedPatient],
