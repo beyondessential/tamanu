@@ -63,6 +63,11 @@ export const location = base.shape({
   facilityId: yup.string().required(),
 });
 
+export const permission = yup.object().shape({
+  verb: yup.string().required(),
+  noun: yup.string().required(),
+});
+
 const LAB_TEST_RESULT_TYPES = ['Number', 'Select', 'FreeText'];
 const rangeRegex = /^[0-9.]+, [0-9.]+$/;
 export const labTestType = base.shape({

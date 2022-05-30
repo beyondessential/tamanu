@@ -104,6 +104,22 @@ const patientDataTransformer = item => {
   return transformers;
 };
 
+const permissionTransformer = item => {
+  const { verb, noun, objectId, note, ...roles } = item;
+  // Any non-empty value in the role cell would mean the role
+  // is enabled for the permission
+  return Object.keys(roles).map(role => ({
+    recordType: 'permission',
+    recordId: `${role}-${verb}-${noun}-${objectId}`,
+    data: {
+      verb,
+      noun,
+      objectId,
+      role,
+    },
+  }));
+};
+
 const makeTransformer = (sheetName, transformer) => {
   if (Array.isArray(transformer)) {
     return transformer.map(t => ({ sheetName, transformer: t }));
@@ -154,7 +170,10 @@ const transformers = [
   makeTransformer('invoiceLineTypes', recordTransformer('invoiceLineType')),
   makeTransformer('invoicePriceChangeTypes', recordTransformer('invoicePriceChangeType')),
   makeTransformer('administeredVaccines', administeredVaccineTransformer()), // should go below patients, users, departments, locations
-  makeTransformer('roles', null),
+  makeTransformer('roles', recordTransformer('role')),
+  makeTransformer('permissions', permissionTransformer),
+  makeTransformer('reports', permissionTransformer),
+  makeTransformer('surveys', permissionTransformer),
 ];
 
 export async function importData({ file, whitelist = [] }) {
