@@ -29,7 +29,7 @@ export class ParamConfig {
     this.mustMatchRecord = mustMatchRecord;
   }
 
-  validate(record, paramsObject) {
+  validateParam(record, paramsObject) {
     const { name } = this;
     const value = paramsObject[name];
     if (!value) {
