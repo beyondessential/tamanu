@@ -20,7 +20,9 @@ export const VillageSection = (): ReactElement => {
   const { getString } = useLocalisation();
 
   const villageSuggester = new Suggester(
-    models.ReferenceData, // ReferenceData clearly inherits from a class which has id, plus it implements an interface with id...
+    // ReferenceData clearly inherits from a class
+    // which has id, plus it implements an interface with id...
+    models.ReferenceData,
     {
       where: {
         type: ReferenceDataType.Village,
