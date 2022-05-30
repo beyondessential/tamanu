@@ -23,20 +23,20 @@ export const PatientSection = ({
     setIsOpen(prevValue => !prevValue);
   }
 
-  const OverlapeddButton = (
+  const OverlapeddButton = onEdit ? (
     <StyledView alignItems="flex-end">
       <StyledView position="absolute" paddingTop={10} paddingRight={20}>
         <EditButton sectionTitle={title} onPress={onEdit} />
       </StyledView>
     </StyledView>
-  );
+  ) : null;
 
-  const content = (
+  const content = !isClosable || isOpen ? (
     <>
-      {onEdit && OverlapeddButton}
+      {OverlapeddButton}
       {children}
     </>
-  );
+  ) : null;
 
   return (
     <StyledView>
@@ -49,7 +49,7 @@ export const PatientSection = ({
         <SectionHeader h1>{title}</SectionHeader>
         {isClosable && <ArrowButton isOpen={isOpen} sectionTitle={title} onPress={toggleSection} />}
       </RowView>
-      {!isClosable || isOpen ? content : null}
+      {content}
     </StyledView>
   );
 };
