@@ -8,7 +8,11 @@ export class CertifiableVaccine extends Model {
     super.init(
       {
         id: primaryKey,
-        icd11Code: {
+        icd11DrugCode: {
+          type: Sequelize.STRING,
+          allowNull: false,
+        },
+        icd11DiseaseCode: {
           type: Sequelize.STRING,
           allowNull: false,
         },

@@ -38,7 +38,11 @@ export async function up(query: QueryInterface) {
         key: 'id',
       },
     },
-    icd11_code: {
+    icd11_drug_code: {
+      type: STRING,
+      allowNull: false,
+    },
+    icd11_disease_code: {
       type: STRING,
       allowNull: false,
     },

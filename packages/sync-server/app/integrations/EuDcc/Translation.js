@@ -95,9 +95,8 @@ export async function createEuDccVaccinationData(administeredVaccineId, { models
     ],
   });
 
-  if (!certVax.usableForEuDcc()) {
-    throw new Error('Vaccination is not usable for EU DCC');
-  }
+  if (!certVax) throw new Error('Vaccine is not certifiable');
+  if (!certVax.usableForEuDcc()) throw new Error('Vaccination is not usable for EU DCC');
 
   const { timeZone, country } = await getLocalisation();
 
@@ -115,7 +114,7 @@ export async function createEuDccVaccinationData(administeredVaccineId, { models
     [EUDCC_CERTIFICATE_TYPES.VACCINATION]: [
       {
         tg: certVax.atcCode,
-        vp: certVax.icd11Code,
+        vp: certVax.icd11DrugCode,
         mp: certVax.euProductCode,
         ma: certVax.manufacturer.code,
         dn: SCHEDULE_TO_SEQUENCE[schedule],
