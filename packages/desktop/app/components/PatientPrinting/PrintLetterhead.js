@@ -30,7 +30,7 @@ const HeaderText = styled.div`
 `;
 
 const PageTitle = styled(Typography)`
-  font-size: 16px;
+  font-size: 18px;
   line-height: 21px;
   font-weight: bold;
   margin-bottom: 36px;
