@@ -3,8 +3,7 @@ import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
 import { debounce } from 'lodash';
-import { MenuItem, Popper, Paper, Typography } from '@material-ui/core';
-import InputAdornment from '@material-ui/core/InputAdornment';
+import { MenuItem, Popper, Paper, Typography, InputAdornment } from '@material-ui/core';
 import Search from '@material-ui/icons/Search';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { Colors } from '../../constants';
@@ -19,16 +18,41 @@ const SuggestionsContainer = styled(Popper)`
     position: relative;
   }
   .react-autosuggest__suggestions-container {
-    max-height: 300px;
+    max-height: 210px;
     overflow-y: auto;
   }
 `;
 
 const SuggestionsList = styled(Paper)`
-  ul {
+  box-shadow: none;
+  border: 1px solid ${Colors.outline};
+  border-radius: 0 0 3px 3px;
+
+  .react-autosuggest__suggestions-list {
     margin: 0;
     padding: 0;
     list-style-type: none;
+
+    .MuiButtonBase-root {
+      padding: 12px 12px 12px 20px;
+
+      .MuiTypography-root {
+        font-size: 14px;
+        line-height: 18px;
+      }
+
+      &:hover {
+        background: #f3f5f7;
+      }
+    }
+  }
+`;
+
+const Icon = styled(InputAdornment)`
+  .MuiSvgIcon-root {
+    color: ${props => props.theme.palette.text.secondary};
+    font-size: 20px;
+    margin-right: 14px;
   }
 `;
 
@@ -119,7 +143,7 @@ class BaseAutocomplete extends Component {
   renderContainer = option => (
     <SuggestionsContainer
       anchorEl={this.autocompleteContainerRef?.current}
-      open
+      open={!!option.children}
       placement="bottom-start"
       modifiers={{
         preventOverflow: {
@@ -147,14 +171,9 @@ class BaseAutocomplete extends Component {
           variant="outlined"
           InputProps={{
             endAdornment: (
-              <InputAdornment
-                position="end"
-                style={{
-                  paddingRight: '14px',
-                }}
-              >
-                <Search style={{ opacity: 0.5 }} />
-              </InputAdornment>
+              <Icon position="end">
+                <Search />
+              </Icon>
             ),
             style: {
               paddingRight: 0,
