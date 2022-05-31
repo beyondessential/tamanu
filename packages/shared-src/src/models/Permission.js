@@ -26,6 +26,28 @@ export class Permission extends Model {
             resetPermissionCache();
           },
         },
+        indexes: [
+          {
+            name: 'permissions_role_id_noun_verb',
+            unique: true,
+            fields: ['role_id', 'noun', 'verb'],
+            where: {
+              object_id: {
+                [Sequelize.Op.eq]: null,
+              },
+            },
+          },
+          {
+            name: 'permissions_role_id_noun_verb_objectId',
+            unique: true,
+            fields: ['role_id', 'noun', 'verb', 'object_id'],
+            where: {
+              object_id: {
+                [Sequelize.Op.ne]: null,
+              },
+            },
+          },
+        ],
       },
     );
   }
