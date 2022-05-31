@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
+import { debounce } from 'lodash';
 import { MenuItem, Popper, Paper, Typography } from '@material-ui/core';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import Search from '@material-ui/icons/Search';
@@ -11,12 +12,7 @@ import { StyledTextField } from './TextField';
 
 const SuggestionsContainer = styled(Popper)`
   z-index: 9999;
-  width: ${props => {
-    // if (props.anchorEl) {
-    //   console.log('anchor el', props.anchorEl.offsetWidth);
-    // }
-    return props.anchorEl ? `${props.anchorEl.offsetWidth}px` : `${0}`;
-  }};
+  width: ${props => (props.anchorEl ? `${props.anchorEl.offsetWidth}px` : `${0}`)};
 
   // react auto suggest does not take a style or class prop so the only way to style it is to wrap it
   .react-autosuggest__container {
@@ -40,6 +36,7 @@ class BaseAutocomplete extends Component {
   constructor() {
     super();
     this.autocompleteContainerRef = React.createRef();
+    this.debouncedFetchOptions = debounce(this.fetchOptions, 100);
 
     this.state = {
       suggestions: [],
@@ -95,19 +92,18 @@ class BaseAutocomplete extends Component {
 
   handleInputChange = (event, { newValue }) => {
     if (!newValue) {
-      console.log('no values');
       // when deleting field contents, clear the selection
       this.handleSuggestionChange({ value: undefined, label: '' });
     }
-    // if (typeof newValue !== 'undefined' && true) {
-    this.setState(prevState => {
-      const newSuggestion = prevState.suggestions.find(suggest => suggest.value === newValue);
-      if (!newSuggestion) {
-        return { displayedValue: newValue };
-      }
-      return { displayedValue: newSuggestion.label };
-    });
-    // }
+    if (typeof newValue !== 'undefined') {
+      this.setState(prevState => {
+        const newSuggestion = prevState.suggestions.find(suggest => suggest.value === newValue);
+        if (!newSuggestion) {
+          return { displayedValue: newValue };
+        }
+        return { displayedValue: newSuggestion.label };
+      });
+    }
   };
 
   clearOptions = () => {
@@ -186,8 +182,9 @@ class BaseAutocomplete extends Component {
 
     return (
       <Autosuggest
+        alwaysRenderSuggestions
         suggestions={suggestions}
-        onSuggestionsFetchRequested={this.fetchOptions}
+        onSuggestionsFetchRequested={this.debouncedFetchOptions}
         onSuggestionsClearRequested={this.clearOptions}
         renderSuggestionsContainer={this.renderContainer}
         getSuggestionValue={this.handleSuggestionChange}
