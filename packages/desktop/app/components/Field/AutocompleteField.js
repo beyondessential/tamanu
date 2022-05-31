@@ -52,7 +52,6 @@ const Icon = styled(InputAdornment)`
   .MuiSvgIcon-root {
     color: ${props => props.theme.palette.text.secondary};
     font-size: 20px;
-    margin-right: 14px;
   }
 `;
 
@@ -175,10 +174,6 @@ class BaseAutocomplete extends Component {
                 <Search />
               </Icon>
             ),
-            style: {
-              paddingRight: 0,
-              background: Colors.white,
-            },
           }}
           fullWidth
           {...other}
