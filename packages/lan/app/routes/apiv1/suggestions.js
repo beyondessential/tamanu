@@ -11,7 +11,13 @@ const defaultLimit = 25;
 
 const defaultMapper = ({ name, code, id }) => ({ name, code, id });
 
-function createSuggesterRoute(endpoint, modelName, whereSql, mapper = defaultMapper, key = 'name') {
+function createSuggesterRoute(
+  endpoint,
+  modelName,
+  whereSql,
+  mapper = defaultMapper,
+  searchColumn = 'name',
+) {
   suggestions.get(
     `/${endpoint}`,
     asyncHandler(async (req, res) => {
@@ -25,7 +31,7 @@ function createSuggesterRoute(endpoint, modelName, whereSql, mapper = defaultMap
       SELECT *
       FROM "${model.tableName}"
       WHERE ${whereSql}
-      ORDER BY POSITION('${searchQuery}' in ${key}), ${key}
+      ORDER BY POSITION('${searchQuery}' in ${searchColumn}), ${searchColumn}
       LIMIT :limit
     `,
         {
@@ -95,9 +101,9 @@ function createAllRecordsSuggesterRoute(endpoint, modelName, whereSql, mapper = 
 // Records will be filtered based on the whereSql parameter. The user's search term
 // will be passed to the sql query as ":search" - see the existing suggestion
 // endpoints for usage examples.
-function createSuggester(endpoint, modelName, whereSql, mapper, key) {
+function createSuggester(endpoint, modelName, whereSql, mapper, searchColumn) {
   createSuggesterLookupRoute(endpoint, modelName, whereSql, mapper);
-  createSuggesterRoute(endpoint, modelName, whereSql, mapper, key);
+  createSuggesterRoute(endpoint, modelName, whereSql, mapper, searchColumn);
 }
 
 const createNameSuggester = (endpoint, modelName = pascal(endpoint)) =>
@@ -144,6 +150,7 @@ createSuggester(
     id,
     name: displayName,
   }),
+  'display_name',
 );
 
 createSuggester(
@@ -151,5 +158,5 @@ createSuggester(
   'Patient',
   "LOWER(first_name || ' ' || last_name) LIKE LOWER(:search) OR LOWER(cultural_name) LIKE LOWER(:search) OR LOWER(display_id) LIKE LOWER(:search)",
   patient => patient,
-  'lastName',
+  'last_name',
 );
