@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
+import { useParams } from 'react-router-dom';
 
 import { Button, DeleteButton } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
@@ -31,6 +32,10 @@ import { LabRequestNoteForm } from '../../forms/LabRequestNoteForm';
 import { LabRequestAuditPane } from '../../components/LabRequestAuditPane';
 import { useLabRequest } from '../../contexts/LabRequest';
 import { useApi, useSuggester } from '../../api';
+
+import { LabRequestPrintout } from '../../components/PatientPrinting/LabRequestPrintout';
+import { useCertificate } from '../../utils/useCertificate';
+import { DropdownButton } from '../../components/DropdownButton';
 
 const makeRangeStringAccessor = sex => ({ labTestType }) => {
   const max = sex === 'male' ? labTestType.maleMax : labTestType.femaleMax;
@@ -102,15 +107,12 @@ const BackLink = () => {
     </Button>
   );
 };
-const ChangeLabStatusButton = ({ status: currentStatus, updateLabReq }) => {
+const ChangeLabStatusModal = ({ status: currentStatus, updateLabReq, open, onClose }) => {
   const [status, setStatus] = useState(currentStatus);
-  const [isModalOpen, setModalOpen] = useState(false);
-  const openModal = useCallback(() => setModalOpen(true), [setModalOpen]);
-  const closeModal = useCallback(() => setModalOpen(false), [setModalOpen]);
   const updateLabStatus = useCallback(async () => {
     await updateLabReq({ status });
-    closeModal();
-  }, [updateLabReq, status, closeModal]);
+    onClose();
+  }, [updateLabReq, status, onClose]);
   const labStatuses = useMemo(
     () => [
       { value: 'reception_pending', label: 'Reception pending' },
@@ -123,10 +125,7 @@ const ChangeLabStatusButton = ({ status: currentStatus, updateLabReq }) => {
   );
   return (
     <>
-      <Button variant="outlined" onClick={openModal} style={{ marginRight: '0.5rem' }}>
-        Change status
-      </Button>
-      <Modal open={isModalOpen} onClose={closeModal} title="Change lab request status">
+      <Modal open={open} onClose={onClose} title="Change lab request status">
         <FormGrid columns={1}>
           <SelectInput
             label="Status"
@@ -135,31 +134,25 @@ const ChangeLabStatusButton = ({ status: currentStatus, updateLabReq }) => {
             value={status}
             onChange={({ target: { value } }) => setStatus(value)}
           />
-          <ConfirmCancelRow onConfirm={updateLabStatus} confirmText="Save" onCancel={closeModal} />
+          <ConfirmCancelRow onConfirm={updateLabStatus} confirmText="Save" onCancel={onClose} />
         </FormGrid>
       </Modal>
     </>
   );
 };
 
-const ChangeLaboratoryButton = ({ laboratory, updateLabReq }) => {
-  const [isModalOpen, setModalOpen] = useState(false);
+const ChangeLaboratoryModal = ({ laboratory, updateLabReq, open, onClose }) => {
   const [lab, setLab] = useState(laboratory);
-  const openModal = useCallback(() => setModalOpen(true), []);
-  const closeModal = useCallback(() => setModalOpen(false), []);
   const laboratorySuggester = useSuggester('labTestLaboratory');
   const updateLab = useCallback(async () => {
     await updateLabReq({
       labTestLaboratoryId: lab,
     });
-    closeModal();
-  }, [updateLabReq, lab, closeModal]);
+    onClose();
+  }, [updateLabReq, lab, onClose]);
   return (
     <>
-      <Button variant="outlined" onClick={openModal}>
-        Change laboratory
-      </Button>
-      <Modal open={isModalOpen} onClose={closeModal} title="Change lab request laboratory">
+      <Modal open={open} onClose={onClose} title="Change lab request laboratory">
         <FormGrid columns={1}>
           <AutocompleteField
             label="Laboratory"
@@ -170,56 +163,151 @@ const ChangeLaboratoryButton = ({ laboratory, updateLabReq }) => {
               setLab(value);
             }}
           />
-          <ConfirmCancelRow onConfirm={updateLab} confirmText="Save" onCancel={closeModal} />
+          <ConfirmCancelRow onConfirm={updateLab} confirmText="Save" onCancel={onClose} />
         </FormGrid>
       </Modal>
     </>
   );
 };
 
-const DeleteRequestButton = ({ labRequestId, updateLabReq }) => {
+const DeleteRequestModal = ({ labRequestId, updateLabReq, open, onClose }) => {
   const dispatch = useDispatch();
-  const [isModalOpen, setModalOpen] = useState(false);
-  const openModal = useCallback(() => setModalOpen(true), [setModalOpen]);
-  const closeModal = useCallback(() => setModalOpen(false), [setModalOpen]);
-  const api = useApi();
-  const [hasTests, setHasTests] = useState(true); // default to true to hide delete button at first
   const deleteLabRequest = useCallback(async () => {
     await updateLabReq({
       status: 'deleted',
     });
-    closeModal();
+    onClose();
     dispatch(push('/patients/encounter'));
-  }, [updateLabReq, closeModal, dispatch]);
+  }, [updateLabReq, onClose, dispatch]);
+
+  return (
+    <>
+      <ConfirmModal
+        title="Delete lab request"
+        open={open}
+        text="WARNING: This action is irreversible!"
+        subText="Are you sure you want to delete this lab request?"
+        onCancel={onClose}
+        onConfirm={deleteLabRequest}
+        ConfirmButton={DeleteButton}
+        confirmButtonText="Delete"
+      />
+    </>
+  );
+};
+
+const PrintModal = ({ labRequest, patient, open, onClose }) => {
+  const api = useApi();
+  const certificateData = useCertificate();
+  const [notes, setNotes] = useState([]);
+  const [tests, setTests] = useState([]);
+  const [encounter, setEncounter] = useState({});
+  const [notesLoading, setNotesLoading] = useState(false);
+  const [testsLoading, setTestsLoading] = useState(false);
+  const [encounterLoading, setEncounterLoading] = useState(false);
+
+  useEffect(() => {
+    setEncounterLoading(true);
+    (async () => {
+      const res = await api.get(`encounter/${labRequest.encounterId}`);
+      setEncounter(res);
+    })();
+    setEncounterLoading(false);
+  }, [api, labRequest.encounterId]);
+
+  useEffect(() => {
+    setTestsLoading(true);
+    (async () => {
+      const res = await api.get(`labRequest/${labRequest.id}/tests`);
+      setTests(res.data);
+    })();
+    setTestsLoading(false);
+  }, [api, labRequest.id]);
+  useEffect(() => {
+    setNotesLoading(true);
+    (async () => {
+      const res = await api.get(`labRequest/${labRequest.id}/notes`);
+      setNotes(res.data);
+    })();
+    setNotesLoading(false);
+  }, [api, labRequest.id]);
+
+  return (
+    <>
+      <Modal title="Lab Request" open={open} onClose={onClose} width="md" printable>
+        {encounterLoading || testsLoading || notesLoading ? (
+          <LoadingIndicator />
+        ) : (
+          <LabRequestPrintout
+            labRequestData={{ ...labRequest, tests, notes }}
+            patientData={patient}
+            encounterData={encounter}
+            certificateData={certificateData}
+          />
+        )}
+      </Modal>
+    </>
+  );
+};
+
+const LabRequestActionDropdown = ({ labRequest, patient, updateLabReq }) => {
+  const { modal } = useParams();
+  const [statusModalOpen, setStatusModalOpen] = useState(modal === 'status');
+  const [printModalOpen, setPrintModalOpen] = useState(modal === 'print');
+  const [labModalOpen, setLabModalOpen] = useState(modal === 'laboratory');
+  const [deleteModalOpen, setDeleteModalOpen] = useState(modal === 'delete');
+
+  const api = useApi();
+  const [hasTests, setHasTests] = useState(true); // default to true to hide delete button at first
 
   // show delete button if no test has results
   useEffect(() => {
     (async () => {
-      const { data: tests } = await api.get(`/labRequest/${labRequestId}/tests`);
+      const { data: tests } = await api.get(`/labRequest/${labRequest.id}/tests`);
       const testsWithResults = tests.filter(t => t.result);
       if (!testsWithResults.length) {
         setHasTests(false);
       }
     })();
-  }, [api, labRequestId, setHasTests]);
-  if (hasTests) {
-    return null;
+  }, [api, labRequest, setHasTests]);
+
+  const actions = [
+    { label: 'Change status', onClick: () => setStatusModalOpen(true) },
+    { label: 'Print lab request', onClick: () => setPrintModalOpen(true) },
+    { label: 'Change laboratory', onClick: () => setLabModalOpen(true) },
+  ];
+
+  if (!hasTests) {
+    actions.push({ label: 'Delete', onClick: () => setDeleteModalOpen(true) });
   }
+
   return (
     <>
-      <DeleteButton variant="outlined" onClick={openModal} style={{ marginRight: '0.5rem' }}>
-        Delete
-      </DeleteButton>
-      <ConfirmModal
-        title="Delete lab request"
-        open={isModalOpen}
-        text="WARNING: This action is irreversible!"
-        subText="Are you sure you want to delete this lab request?"
-        onCancel={closeModal}
-        onConfirm={deleteLabRequest}
-        ConfirmButton={DeleteButton}
-        confirmButtonText="Delete"
+      <ChangeLabStatusModal
+        status={labRequest.status}
+        updateLabReq={updateLabReq}
+        open={statusModalOpen}
+        onClose={() => setStatusModalOpen(false)}
       />
+      <PrintModal
+        labRequest={labRequest}
+        patient={patient}
+        open={printModalOpen}
+        onClose={() => setPrintModalOpen(false)}
+      />
+      <DeleteRequestModal
+        labRequestId={labRequest.id}
+        updateLabReq={updateLabReq}
+        open={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+      />
+      <ChangeLaboratoryModal
+        laboratory={labRequest.laboratory}
+        updateLabReq={updateLabReq}
+        open={labModalOpen}
+        onClose={() => setLabModalOpen(false)}
+      />
+      <DropdownButton color="primary" actions={actions} />
     </>
   );
 };
@@ -253,10 +341,9 @@ export const DumbLabRequestView = React.memo(({ patient }) => {
       <div>
         <TopBar title="Lab request">
           <div>
-            <DeleteRequestButton labRequestId={labRequest.id} updateLabReq={updateLabReq} />
-            <ChangeLabStatusButton status={labRequest.status} updateLabReq={updateLabReq} />
-            <ChangeLaboratoryButton
-              laboratory={labRequest.laboratory}
+            <LabRequestActionDropdown
+              labRequest={labRequest}
+              patient={patient}
               updateLabReq={updateLabReq}
             />
           </div>
