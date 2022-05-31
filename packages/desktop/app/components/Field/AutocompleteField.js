@@ -42,7 +42,7 @@ const SuggestionsList = styled(Paper)`
       }
 
       &:hover {
-        background: #f3f5f7;
+        background: ${Colors.hoverGrey};
       }
     }
   }

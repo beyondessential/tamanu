@@ -29,7 +29,7 @@ describe('Suggestions', () => {
       expect(result).toHaveSucceeded();
       const { body } = result;
       expect(body).toBeInstanceOf(Array);
-      expect(body.length).toEqual(25);
+      expect(body.length).toEqual(limit);
     });
 
     it('should get a full list of diagnoses with a general query', async () => {
@@ -144,10 +144,10 @@ describe('Suggestions', () => {
       expect(body.length).toBeGreaterThan(0);
 
       expect(firstResult.name).toEqual('Constipation');
-      expect(lastResult.name).toEqual('Unconscious');
+      expect(lastResult.name).toEqual('Chronic constipation');
     });
 
-    it('should return results alphabetically', async () => {
+    it('should return results alphabetically when the position of the search query is the same', async () => {
       const testData = splitIds(`
       Acute viral gastroenteritis	A09.9
       Acute myeloid leukaemia	C92.0

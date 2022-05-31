@@ -11,35 +11,7 @@ const defaultLimit = 25;
 
 const defaultMapper = ({ name, code, id }) => ({ name, code, id });
 
-const alphabeticalList = (list, key) => list.sort((a, b) => a[key].localeCompare(b[key]));
-
-const filterAndSortResults = (results, searchValue, key = 'name') => {
-  const anyMatches = [];
-  const primaryMatches = [];
-
-  console.log(results, key);
-
-  for (const result of results) {
-    const candidate = result[key].toLowerCase();
-
-    if (candidate.startsWith(searchValue)) {
-      primaryMatches.push(result); // Matches start
-    } else if (candidate.substring(1).indexOf(searchValue) > -1) {
-      anyMatches.push(result); // Matches anywhere
-    }
-
-    if (primaryMatches.length === defaultLimit) {
-      return alphabeticalList(primaryMatches, key);
-    }
-  }
-
-  return [...alphabeticalList(primaryMatches, key), ...alphabeticalList(anyMatches, key)].slice(
-    0,
-    defaultLimit,
-  );
-};
-
-function createSuggesterRoute(endpoint, modelName, whereSql, mapper = defaultMapper, key) {
+function createSuggesterRoute(endpoint, modelName, whereSql, mapper = defaultMapper, key = 'name') {
   suggestions.get(
     `/${endpoint}`,
     asyncHandler(async (req, res) => {
@@ -53,10 +25,13 @@ function createSuggesterRoute(endpoint, modelName, whereSql, mapper = defaultMap
       SELECT *
       FROM "${model.tableName}"
       WHERE ${whereSql}
+      ORDER BY POSITION('${searchQuery}' in ${key}), ${key}
+      LIMIT :limit
     `,
         {
           replacements: {
             search: `%${searchQuery}%`,
+            limit: defaultLimit,
           },
           type: QueryTypes.SELECT,
           model,
@@ -64,7 +39,7 @@ function createSuggesterRoute(endpoint, modelName, whereSql, mapper = defaultMap
         },
       );
 
-      res.send(filterAndSortResults(results.map(mapper), searchQuery, key));
+      res.send(results.map(mapper));
     }),
   );
 }
