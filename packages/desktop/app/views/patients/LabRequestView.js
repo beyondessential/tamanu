@@ -235,13 +235,16 @@ const PrintModal = ({ labRequest, patient, open, onClose }) => {
   return (
     <>
       <Modal title="Lab Request" open={open} onClose={onClose} width="md" printable>
-        <LabRequestPrintout
-          labRequestData={{ ...labRequest, tests, notes }}
-          patientData={patient}
-          encounterData={encounter}
-          certificateData={certificateData}
-          isLoading={encounterLoading || testsLoading || notesLoading}
-        />
+        {encounterLoading || testsLoading || notesLoading ? (
+          <LoadingIndicator />
+        ) : (
+          <LabRequestPrintout
+            labRequestData={{ ...labRequest, tests, notes }}
+            patientData={patient}
+            encounterData={encounter}
+            certificateData={certificateData}
+          />
+        )}
       </Modal>
     </>
   );

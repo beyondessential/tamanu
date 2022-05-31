@@ -22,13 +22,21 @@ const RowContainer = styled.div`
 const NotesBox = styled(Box)`
   padding-left: 0.5rem;
   padding-top: 0.5rem;
+  margin-bottom: 16px;
   border: 1px solid black;
   height: 75px;
   text-overflow: ellipsis;
   overflow: hidden;
 `;
 
-const LocalisedLabel = ({ name, children }) => (
+export const NotesSection = ({ notes }) => (
+  <>
+    <Text>Notes:</Text>
+    <NotesBox>{notes.map(note => note.content).join(' ')}</NotesBox>
+  </>
+);
+
+export const LocalisedLabel = ({ name, children }) => (
   <LocalisedCertificateLabel margin="9px" name={name}>
     {children}
   </LocalisedCertificateLabel>
@@ -56,9 +64,7 @@ export const SimplePrintout = React.memo(({ patientData, tableData, notes, certi
         </div>
       </RowContainer>
       <GridTable data={tableData} />
-      <Text>Notes:</Text>
-      <NotesBox>{notes.map(note => note.content).join(' ')}</NotesBox>
-      <div />
+      <NotesSection notes={notes} />
     </CertificateWrapper>
   );
 });
