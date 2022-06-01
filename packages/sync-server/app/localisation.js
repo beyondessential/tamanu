@@ -190,7 +190,7 @@ const printMeasuresSchema = yup
       rowTotal: yup.number().required(),
       rowHeight: yup.string().required(),
       rowGap: yup.string().required(),
-    })
+    }),
   })
   .required()
   .noUnknown();
