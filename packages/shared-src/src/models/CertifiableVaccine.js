@@ -33,7 +33,7 @@ export class CertifiableVaccine extends Model {
       {
         ...options,
         // This is essentially reference/imported data
-        syncConfig: { syncDirection: SYNC_DIRECTIONS.PUSH_ONLY },
+        syncConfig: { syncDirection: SYNC_DIRECTIONS.PULL_ONLY },
         validate: {
           mustHaveVaccine() {
             if (!this.deletedAt && !this.vaccineId) {
