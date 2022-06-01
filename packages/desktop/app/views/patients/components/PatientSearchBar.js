@@ -8,6 +8,7 @@ import { CustomisableSearchBar } from '../../../components/CustomisableSearchBar
 import { DateField, AutocompleteField, CheckField, Field } from '../../../components';
 import { useApi } from '../../../api';
 import { Suggester } from '../../../utils/suggester';
+import { FingerprintButton } from '../../../components/FingerprintButton';
 
 const DEFAULT_FIELDS = [
   'firstName',
@@ -94,6 +95,7 @@ export const PatientSearchBar = ({
     <CustomisableSearchBar
       title="Search for patients"
       fields={searchFields}
+      RightSection={FingerprintButton}
       renderCheckField={
         showDeceasedPatientsCheckbox ? (
           <Field name="deceased" label="Include deceased patients" component={CheckField} />

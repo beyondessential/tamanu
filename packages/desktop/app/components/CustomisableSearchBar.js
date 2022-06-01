@@ -1,6 +1,5 @@
-import React, { memo, useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import styled from 'styled-components';
-import FingerprintIcon from '@material-ui/icons/Fingerprint';
 import Box from '@material-ui/core/Box';
 
 import { useLocalisation } from '../contexts/Localisation';
@@ -15,31 +14,6 @@ const Container = styled.div`
   background: ${Colors.white};
 `;
 
-const ScanFingerprintIcon = styled(FingerprintIcon)`
-  color: ${Colors.secondary};
-`;
-
-const ScanFingerprintButtonContainer = styled.div`
-  text-align: center;
-  margin: auto;
-
-  svg {
-    font-size: 46px;
-  }
-`;
-
-const ScanFingerprintButton = memo(() => (
-  <ScanFingerprintButtonContainer>
-    <ScanFingerprintIcon fontSize="large" />
-  </ScanFingerprintButtonContainer>
-));
-
-const ScanFingerprintLabel = styled.div`
-  font-size: 12px;
-  text-align: center;
-  color: ${Colors.primary};
-`;
-
 const SectionLabel = styled.div`
   font-size: 16px;
   font-weight: 500;
@@ -51,43 +25,10 @@ const Section = styled.div`
   padding: 24px;
 `;
 
-const RightSection = styled(Section)`
-  border-left: 1px solid ${Colors.outline};
-`;
-
 const SearchInputContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 2fr);
-  grid-row-gap: 10px;
-
-  .MuiInputBase-input {
-    padding-top: 16px;
-    padding-bottom: 16px;
-  }
-
-  fieldset {
-    border-radius: 0;
-    border-right: none;
-  }
-
-  > :first-child,
-  > :nth-child(5n) {
-    fieldset {
-      border-radius: 4px 0 0 4px;
-    }
-  }
-
-  > :nth-child(4n),
-  > :last-child {
-    fieldset {
-      border-right: 1px solid ${Colors.outline};
-      border-radius: 0 4px 4px 0;
-    }
-  }
-
-  button {
-    border-radius: 0;
-  }
+  gap: 10px 10px;
 `;
 
 export const CustomisableSearchBar = ({
@@ -96,7 +37,7 @@ export const CustomisableSearchBar = ({
   fields,
   renderCheckField,
   initialValues = {},
-  shouldRenderScanFingerprint = true,
+  RightSection = null,
 }) => {
   const { getLocalisation } = useLocalisation();
 
@@ -110,18 +51,21 @@ export const CustomisableSearchBar = ({
               placeholder,
               localisationLabel = 'longLabel',
               component = TextField,
+              label,
               ...fieldProps
             } = {},
-          ]) =>
-            getLocalisation(`fields.${key}.hidden`) === true ? null : (
+          ]) => {
+            return getLocalisation(`fields.${key}.hidden`) === true ? null : (
               <Field
                 name={key}
                 key={key}
-                placeholder={getLocalisation(`fields.${key}.${localisationLabel}`) || placeholder}
+                placeholder={placeholder}
+                label={getLocalisation(`fields.${key}.${localisationLabel}`) || label}
                 component={component}
                 {...fieldProps}
               />
-            ),
+            );
+          },
         )
         .filter(c => c),
     [getLocalisation, fields],
@@ -157,12 +101,7 @@ export const CustomisableSearchBar = ({
           initialValues={initialValues}
         />
       </Section>
-      {shouldRenderScanFingerprint ? (
-        <RightSection>
-          <ScanFingerprintButton />
-          <ScanFingerprintLabel>Scan fingerprint</ScanFingerprintLabel>
-        </RightSection>
-      ) : null}
+      {RightSection && <RightSection />}
     </Container>
   );
 };
