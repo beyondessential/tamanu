@@ -454,8 +454,8 @@
       },
       "printMeasures": {
         "stickerLabelPage": {
-          "pageWidth": "8.3in",
-          "pageHeight": "11.7in",
+          "pageWidth": "210mm",
+          "pageHeight": "297mm",
           "pageMarginTop": "15.09mm",
           "pageMarginLeft": "6.4mm",
           "columnTotal": 3,
