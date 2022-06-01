@@ -1,13 +1,14 @@
 import React from 'react';
 import { startOfDay } from 'date-fns';
 import { CustomisableSearchBar } from '../CustomisableSearchBar';
-import { StyledSelectField, DateTimeField, AutocompleteField } from '../Field';
-import { Suggester } from '../../utils/suggester';
+import { DateTimeField, AutocompleteField, LocalisedField, SelectField } from '../Field';
 import { appointmentTypeOptions, appointmentStatusOptions } from '../../constants';
-import { useApi } from '../../api';
+import { useSuggester } from '../../api';
 
 export const AppointmentsSearchBar = ({ onSearch }) => {
-  const api = useApi();
+  const practitionerSuggester = useSuggester('practitioner');
+  const locationSuggester = useSuggester('location');
+
   return (
     <CustomisableSearchBar
       title="Search appointments"
@@ -21,48 +22,39 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
           ...queries,
         });
       }}
-      fields={[
-        ['firstName'],
-        ['lastName'],
-        [
-          'clinicianId',
-          {
-            placeholder: 'Clinician',
-            suggester: new Suggester(api, 'practitioner'),
-            component: AutocompleteField,
-          },
-        ],
-        [
-          'locationId',
-          {
-            placeholder: 'Location',
-            suggester: new Suggester(api, 'location'),
-            component: AutocompleteField,
-          },
-        ],
-        [
-          'type',
-          {
-            placeholder: 'Appointment Type',
-            component: StyledSelectField,
-            options: appointmentTypeOptions,
-          },
-        ],
-        [
-          'status',
-          {
-            placeholder: 'Appointment Status',
-            component: StyledSelectField,
-            options: appointmentStatusOptions,
-          },
-        ],
-        ['after', { component: DateTimeField, placeholder: 'Start from' }],
-        ['before', { component: DateTimeField, placeholder: 'Until' }],
-        ['displayId'],
-      ]}
       initialValues={{
         after: startOfDay(new Date()),
       }}
-    />
+    >
+      <LocalisedField name="firstName" />
+      <LocalisedField name="lastName" />
+      <LocalisedField
+        name="clinicianId"
+        defaultLabel="Clinician"
+        component={AutocompleteField}
+        suggester={practitionerSuggester}
+      />
+      <LocalisedField
+        name="locationId"
+        defaultLabel="Location"
+        component={AutocompleteField}
+        suggester={locationSuggester}
+      />
+      <LocalisedField
+        name="type"
+        defaultLabel="Appointment Type"
+        component={SelectField}
+        options={appointmentTypeOptions}
+      />
+      <LocalisedField
+        name="status"
+        defaultLabel="Appointment Status"
+        component={SelectField}
+        options={appointmentStatusOptions}
+      />
+      <LocalisedField name="after" defaultLabel="Start from" component={DateTimeField} />
+      <LocalisedField name="before" defaultLabel="Until" component={DateTimeField} />
+      <LocalisedField name="displayId" />
+    </CustomisableSearchBar>
   );
 };

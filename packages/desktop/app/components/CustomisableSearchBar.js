@@ -1,10 +1,8 @@
-import React, { useMemo, useCallback } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import Box from '@material-ui/core/Box';
-
-import { useLocalisation } from '../contexts/Localisation';
 import { LargeButton, LargeOutlineButton } from './Button';
-import { Form, Field, TextField } from './Field';
+import { Form } from './Field';
 import { Colors } from '../constants';
 
 const Container = styled.div`
@@ -34,74 +32,35 @@ const SearchInputContainer = styled.div`
 export const CustomisableSearchBar = ({
   title,
   onSearch,
-  fields,
+  children,
   renderCheckField,
   initialValues = {},
   RightSection = null,
-}) => {
-  const { getLocalisation } = useLocalisation();
-
-  const fieldElements = useMemo(
-    () =>
-      fields
-        .map(
-          ([
-            key,
-            {
-              placeholder,
-              localisationLabel = 'longLabel',
-              component = TextField,
-              label,
-              ...fieldProps
-            } = {},
-          ]) => {
-            return getLocalisation(`fields.${key}.hidden`) === true ? null : (
-              <Field
-                name={key}
-                key={key}
-                placeholder={placeholder}
-                label={getLocalisation(`fields.${key}.${localisationLabel}`) || label}
-                component={component}
-                {...fieldProps}
-              />
-            );
-          },
-        )
-        .filter(c => c),
-    [getLocalisation, fields],
-  );
-
-  const renderSearchBar = useCallback(
-    ({ submitForm, clearForm }) => (
-      <>
-        <SearchInputContainer>{fieldElements}</SearchInputContainer>
-        <Box display="flex" alignItems="center" justifyContent="space-between" mt={2}>
-          {renderCheckField}
-          <Box marginLeft="auto">
-            <LargeOutlineButton style={{ marginRight: 12 }} onClick={clearForm}>
-              Clear Search
-            </LargeOutlineButton>
-            <LargeButton onClick={submitForm} type="submit">
-              Search
-            </LargeButton>
-          </Box>
-        </Box>
-      </>
-    ),
-    [fieldElements, renderCheckField],
-  );
-
-  return (
-    <Container>
-      <Section>
-        <SectionLabel>{title}</SectionLabel>
-        <Form
-          onSubmit={values => onSearch(values)}
-          render={renderSearchBar}
-          initialValues={initialValues}
-        />
-      </Section>
-      {RightSection && <RightSection />}
-    </Container>
-  );
-};
+}) => (
+  <Container>
+    <Section>
+      <SectionLabel>{title}</SectionLabel>
+      <Form
+        onSubmit={values => onSearch(values)}
+        render={({ submitForm, clearForm }) => (
+          <>
+            <SearchInputContainer>{children}</SearchInputContainer>
+            <Box display="flex" alignItems="center" justifyContent="space-between" mt={2}>
+              {renderCheckField}
+              <Box marginLeft="auto">
+                <LargeOutlineButton style={{ marginRight: 12 }} onClick={clearForm}>
+                  Clear Search
+                </LargeOutlineButton>
+                <LargeButton onClick={submitForm} type="submit">
+                  Search
+                </LargeButton>
+              </Box>
+            </Box>
+          </>
+        )}
+        initialValues={initialValues}
+      />
+    </Section>
+    {RightSection && <RightSection />}
+  </Container>
+);
