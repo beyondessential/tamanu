@@ -1,11 +1,13 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-
-import { ImmunisationSearchBar, PatientSearchBar } from '../app/views/patients/components';
-import { LabRequestsSearchBar } from '../app/components/LabRequestsSearchBar';
-import { AppointmentsSearchBar } from '../app/components/Appointments/AppointmentsSearchBar';
-import { ImagingRequestsSearchBar } from '../app/components/ImagingRequestsSearchBar';
+import {
+  PatientSearchBar,
+  ImmunisationSearchBar,
+  ImagingRequestsSearchBar,
+  AppointmentsSearchBar,
+  LabRequestsSearchBar,
+} from '../app/components/SearchBar';
 
 import { DumbLocalisationProvider } from '../app/contexts/Localisation';
 

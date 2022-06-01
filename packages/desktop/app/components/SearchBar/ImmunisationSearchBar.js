@@ -1,7 +1,7 @@
 import React from 'react';
-import { CustomisableSearchBar } from '../../../components/CustomisableSearchBar';
-import { useSuggester } from '../../../api';
-import { AutocompleteField, LocalisedField } from '../../../components';
+import { CustomisableSearchBar } from './CustomisableSearchBar';
+import { useSuggester } from '../../api';
+import { AutocompleteField, LocalisedField } from '../Field';
 
 export const ImmunisationSearchBar = ({ onSearch }) => {
   const villageSuggester = useSuggester('village');

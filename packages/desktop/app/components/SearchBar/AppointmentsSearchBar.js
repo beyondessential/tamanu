@@ -1,6 +1,6 @@
 import React from 'react';
 import { startOfDay } from 'date-fns';
-import { CustomisableSearchBar } from '../CustomisableSearchBar';
+import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { DateTimeField, AutocompleteField, LocalisedField, SelectField } from '../Field';
 import { appointmentTypeOptions, appointmentStatusOptions } from '../../constants';
 import { useSuggester } from '../../api';

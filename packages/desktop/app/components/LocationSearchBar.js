@@ -56,7 +56,7 @@ const renderSearchBar = ({ placeholder, submitForm }) => (
   </SearchInputContainer>
 );
 
-export const SearchBar = memo(({ onSearch }) => {
+export const LocationSearchBar = memo(({ onSearch }) => {
   // We can't use onSearch directly as formik will call it with an unwanted second param
   const handleSearch = useCallback(newParams => onSearch(newParams), [onSearch]);
 

@@ -1,8 +1,8 @@
 import React from 'react';
 import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
-import { DateField, LocalisedField, SelectField } from './Field';
+import { DateField, LocalisedField, SelectField } from '../Field';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
-import { IMAGING_REQUEST_STATUS_LABELS } from '../constants';
+import { IMAGING_REQUEST_STATUS_LABELS } from '../../constants';
 
 const STATUS_OPTIONS = Object.values(IMAGING_REQUEST_STATUS_TYPES).map(s => ({
   label: IMAGING_REQUEST_STATUS_LABELS[s],

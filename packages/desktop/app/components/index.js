@@ -13,7 +13,7 @@ export * from './Modal';
 export * from './Notification';
 export * from './PageContainer';
 export * from './Preloader';
-export * from './SearchBar';
+export * from './LocationSearchBar';
 export * from './Table';
 export * from './TamanuLogo';
 export * from './ImmunisationsTable';

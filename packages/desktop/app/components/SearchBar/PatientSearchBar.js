@@ -3,12 +3,11 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import Tooltip from '@material-ui/core/Tooltip';
 import SpellcheckIcon from '@material-ui/icons/Spellcheck';
 import moment from 'moment';
-
-import { CustomisableSearchBar } from '../../../components/CustomisableSearchBar';
-import { DateField, AutocompleteField, CheckField, Field } from '../../../components';
-import { useApi } from '../../../api';
-import { Suggester } from '../../../utils/suggester';
-import { FingerprintButton } from '../../../components/FingerprintButton';
+import { CustomisableSearchBar } from './CustomisableSearchBar';
+import { DateField, AutocompleteField, CheckField, Field } from '../Field';
+import { useApi } from '../../api';
+import { Suggester } from '../../utils/suggester';
+import { FingerprintButton } from '../FingerprintButton';
 
 const DEFAULT_FIELDS = [
   'firstName',
