@@ -7,37 +7,52 @@ import MuiToolbar from '@material-ui/core/Toolbar';
 import MuiTypography from '@material-ui/core/Typography';
 import { Colors } from '../constants';
 
-const Typography = styled(MuiTypography)`
+const TopBarHeading = styled(MuiTypography)`
   flex-grow: 1;
-  font-size: 30px;
-  font-weight: 400;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 32px;
+  letter-spacing: 0;
+  color: ${props => props.theme.palette.text.primary};
 `;
 
-export const TopBarHeading = props => <Typography variant="h3" color="inherit" {...props} />;
+const SmallTopBarHeading = styled(TopBarHeading)`
+  font-size: 20px;
+  line-height: 28px;
+  margin-bottom: 2px;
+`;
+
+const TopBarSubHeading = styled(MuiTypography)`
+  font-size: 16px;
+  line-height: 21px;
+  font-weight: 400;
+  color: ${props => props.theme.palette.text.secondary};
+`;
 
 const AppBar = styled(MuiAppBar)`
   flex-grow: 1;
   background-color: ${Colors.white};
   box-shadow: 0 1px 0 ${grey[300]};
-  padding: 12px 0;
+  padding: 16px 0;
+  z-index: 1;
 `;
 
 const Toolbar = styled(MuiToolbar)`
-  display: grid;
-  grid-template-columns: auto max-content;
-
-  button {
-    width: max-content;
-  }
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 `;
 
-export const TopBar = React.memo(({ title, children, className }) => (
-  <AppBar position="relative" color="inherit">
+export const TopBar = React.memo(({ title, subTitle, children, className }) => (
+  <AppBar position="relative">
     <Toolbar className={className}>
-      {title && (
-        <TopBarHeading variant="h3" color="inherit">
-          {title}
-        </TopBarHeading>
+      {subTitle ? (
+        <div>
+          <SmallTopBarHeading variant="h2">{title}</SmallTopBarHeading>
+          <TopBarSubHeading variant="h4">{subTitle}</TopBarSubHeading>
+        </div>
+      ) : (
+        <TopBarHeading variant="h1">{title}</TopBarHeading>
       )}
       {children}
     </Toolbar>
@@ -45,9 +60,10 @@ export const TopBar = React.memo(({ title, children, className }) => (
 ));
 
 TopBar.propTypes = {
-  title: PropTypes.string,
+  title: PropTypes.string.isRequired,
+  subTitle: PropTypes.string,
 };
 
 TopBar.defaultProps = {
-  title: null,
+  subTitle: null,
 };
