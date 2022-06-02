@@ -17,8 +17,9 @@ export const PatientSection = ({
   isClosable = false,
   children,
 }: PropsWithChildren<PatientDetailSectionProps>): ReactElement => {
-  // Closable sections should be closed by default
-  const [isOpen, setIsOpen] = useState(false);
+  // Closable sections should be closed by default. Modifying the
+  // state won't be possible for unclosable sections.
+  const [isOpen, setIsOpen] = useState(!isClosable);
   const toggleSection = (): void => {
     setIsOpen(prevValue => !prevValue);
   };
@@ -31,7 +32,7 @@ export const PatientSection = ({
     </StyledView>
   ) : null;
 
-  const content = !isClosable || isOpen ? (
+  const content = isOpen ? (
     <>
       {overlappedButton}
       {children}
