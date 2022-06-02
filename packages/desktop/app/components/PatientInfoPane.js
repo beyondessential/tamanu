@@ -2,8 +2,7 @@ import React, { memo, useCallback, useState } from 'react';
 import styled from 'styled-components';
 
 import { PATIENT_ISSUE_TYPES } from 'shared/constants';
-import { Button } from './Button';
-import { ButtonRow } from './ButtonRow';
+import { OutlinedButton } from './Button';
 
 import { InfoPaneList } from './InfoPaneList';
 import { CoreInfoDisplay } from './PatientCoreInfo';
@@ -124,14 +123,9 @@ const RecordDeathSection = memo(({ patient, readonly }) => {
 
   return (
     <>
-      <Button
-        variant="contained"
-        color="primary"
-        disabled={!!patient.dateOfDeath || readonly}
-        onClick={openModal}
-      >
+      <OutlinedButton disabled={!!patient.dateOfDeath || readonly} onClick={openModal}>
         Record death
-      </Button>
+      </OutlinedButton>
       <DeathModal disabled={readonly} open={isModalOpen} onClose={closeModal} patient={patient} />
     </>
   );
@@ -140,18 +134,29 @@ const RecordDeathSection = memo(({ patient, readonly }) => {
 const PrintSection = memo(({ patient }) => <PatientPrintDetailsModal patient={patient} />);
 
 const Container = styled.div`
+  position: relative;
   background: ${Colors.white};
   min-height: 100vh;
-  border-right: 1px solid ${Colors.outline};
+  box-shadow: 1px 0 3px rgba(0, 0, 0, 0.1);
+  z-index: 10;
 `;
 
 const ListsSection = styled.div`
-  margin-top: 15px;
-  padding: 20px;
+  padding: 5px 25px;
 `;
 
-const Buttons = styled(ButtonRow)`
-  margin-top: 30px;
+const Buttons = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+
+  > button {
+    margin-right: 10px;
+
+    &:last-child {
+      margin: 0;
+    }
+  }
 `;
 
 export const PatientInfoPane = memo(({ patient, readonly }) => {
@@ -168,8 +173,8 @@ export const PatientInfoPane = memo(({ patient, readonly }) => {
         <PatientIssuesDisplay patient={patient} readonly={readonly} />
         <CarePlanDisplay patient={patient} readonly={readonly} />
         <Buttons>
-          <PrintSection patient={patient} readonly={readonly} />
           {patientDeathsEnabled && <RecordDeathSection patient={patient} readonly={readonly} />}
+          <PrintSection patient={patient} readonly={readonly} />
         </Buttons>
       </ListsSection>
     </Container>

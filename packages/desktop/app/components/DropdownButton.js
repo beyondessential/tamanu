@@ -22,7 +22,7 @@ const TextTransformedButton = styled(Button)`
 
 // mostly cribbed from the mui example at https://material-ui.com/components/buttons/#split-button
 
-export const DropdownButton = React.memo(({ actions, color, dropdownColor, ...props }) => {
+export const DropdownButton = React.memo(({ actions, color, dropdownColor, variant, ...props }) => {
   const [open, setOpen] = React.useState(false);
   const anchorRef = React.useRef(null);
 
@@ -47,7 +47,7 @@ export const DropdownButton = React.memo(({ actions, color, dropdownColor, ...pr
 
   if (!mainAction) {
     return (
-      <TextTransformedButton {...props} variant="outlined" color={color} disabled>
+      <TextTransformedButton {...props} variant={variant} color={color} disabled>
         No action
       </TextTransformedButton>
     );
@@ -57,7 +57,7 @@ export const DropdownButton = React.memo(({ actions, color, dropdownColor, ...pr
     return (
       <TextTransformedButton
         {...props}
-        variant="outlined"
+        variant={variant}
         color={color}
         onClick={event => handleClick(event, 0)}
       >
@@ -68,7 +68,7 @@ export const DropdownButton = React.memo(({ actions, color, dropdownColor, ...pr
 
   return (
     <span {...props}>
-      <ButtonGroup variant="outlined" color={color} ref={anchorRef} aria-label="split button">
+      <ButtonGroup variant={variant} color={color} ref={anchorRef} aria-label="split button">
         <TextTransformedButton onClick={event => handleClick(event, 0)}>
           {mainAction.label}
         </TextTransformedButton>

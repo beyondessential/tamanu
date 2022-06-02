@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
+import { useParams } from 'react-router-dom';
 
 import { Form, Formik } from 'formik';
 
@@ -23,6 +24,10 @@ import {
 import { useApi } from '../../api';
 import { Suggester } from '../../utils/suggester';
 
+import { ImagingRequestPrintout } from '../../components/PatientPrinting/ImagingRequestPrintout';
+import { Modal } from '../../components/Modal';
+import { useCertificate } from '../../utils/useCertificate';
+
 const BackLink = connect(null, dispatch => ({
   onClick: () => dispatch(push('/patients/encounter')),
 }))(({ onClick }) => <Button onClick={onClick}>&lt; Back to encounter information</Button>);
@@ -32,6 +37,53 @@ const statusOptions = [
   { value: 'in_progress', label: 'In progress' },
   { value: 'completed', label: 'Completed' },
 ];
+
+const PrintButton = ({ imagingRequest, patient }) => {
+  const api = useApi();
+  const { modal } = useParams();
+  const certificateData = useCertificate();
+  const [isModalOpen, setModalOpen] = useState(modal === 'print');
+  const openModal = useCallback(() => setModalOpen(true), []);
+  const closeModal = useCallback(() => setModalOpen(false), []);
+  const [encounter, setEncounter] = useState();
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    setIsLoading(true);
+    if (!imagingRequest.loading) {
+      (async () => {
+        const res = await api.get(`encounter/${imagingRequest.encounterId}`);
+        setEncounter(res);
+      })();
+      setIsLoading(false);
+    }
+  }, [api, imagingRequest.encounterId, imagingRequest.loading]);
+
+  return (
+    <>
+      <Modal title="Imaging Request" open={isModalOpen} onClose={closeModal} width="md" printable>
+        {isLoading ? (
+          <LoadingIndicator />
+        ) : (
+          <ImagingRequestPrintout
+            imagingRequestData={imagingRequest}
+            patientData={patient}
+            encounterData={encounter}
+            certificateData={certificateData}
+          />
+        )}
+      </Modal>
+      <Button
+        variant="outlined"
+        color="primary"
+        onClick={openModal}
+        style={{ marginRight: '0.5rem' }}
+      >
+        Print request
+      </Button>
+    </>
+  );
+};
 
 const DumbImagingRequestInfoPane = React.memo(
   ({ imagingRequest, onSubmit, practitionerSuggester, locationSuggester }) => (
@@ -55,21 +107,27 @@ const DumbImagingRequestInfoPane = React.memo(
         <Form>
           <FormGrid columns={3}>
             <TextInput value={imagingRequest.id} label="Request ID" disabled />
-            <TextInput value={imagingRequest.imagingType?.name} label="Request type" />
-            <TextInput value={imagingRequest.urgent ? 'Urgent' : 'Standard'} label="Urgency" />
+            <TextInput value={imagingRequest.imagingType?.name} label="Request type" disabled />
+            <TextInput
+              value={imagingRequest.urgent ? 'Urgent' : 'Standard'}
+              label="Urgency"
+              disabled
+            />
             <Field name="status" label="Status" component={SelectField} options={statusOptions} />
-            <DateInput value={imagingRequest.requestedDate} label="Requested date" />
+            <DateInput value={imagingRequest.requestedDate} label="Requested date" disabled />
             <TextInput
               multiline
               value={imagingRequest.areaToBeImaged}
               label="Area to be imaged"
               style={{ gridColumn: '1 / -1', minHeight: '60px' }}
+              disabled
             />
             <TextInput
               multiline
               value={imagingRequest.note}
               label="Notes"
               style={{ gridColumn: '1 / -1', minHeight: '60px' }}
+              disabled
             />
             {(values.status === IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS ||
               values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED) && (
@@ -120,7 +178,7 @@ const DumbImagingRequestInfoPane = React.memo(
                 (external link)
               </Button>
               {dirty && (
-                <Button variant="outlined" color="primary" type="submit">
+                <Button variant="contained" color="primary" type="submit">
                   Save
                 </Button>
               )}
@@ -148,7 +206,11 @@ export const DumbImagingRequestView = React.memo(({ imagingRequest, patient }) =
     <TwoColumnDisplay>
       <PatientInfoPane patient={patient} />
       <div>
-        <TopBar title="Imaging request" />
+        <TopBar title="Imaging request">
+          <div>
+            <PrintButton imagingRequest={imagingRequest} patient={patient} />
+          </div>
+        </TopBar>
         <BackLink />
         <ContentPane>
           <DumbImagingRequestInfoPane

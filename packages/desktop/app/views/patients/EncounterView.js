@@ -2,9 +2,6 @@ import React, { useState } from 'react';
 import { connect, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
-import CalendarIcon from '@material-ui/icons/CalendarToday';
-import SubjectIcon from '@material-ui/icons/Subject';
-
 import { ENCOUNTER_TYPES } from 'shared/constants';
 import { Button, BackButton } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
@@ -31,14 +28,15 @@ import { VitalsTable } from '../../components/VitalsTable';
 import { connectRoutedModal } from '../../components/Modal';
 import { NoteModal } from '../../components/NoteModal';
 import { NoteTable } from '../../components/NoteTable';
-import { TopBar, DateDisplay, TopBarHeading, SuggesterSelectField } from '../../components';
+import { TopBar, SuggesterSelectField } from '../../components';
 import { DocumentsPane, InvoicingPane } from './panes';
 import { DropdownButton } from '../../components/DropdownButton';
 import { FormGrid } from '../../components/FormGrid';
 import { SelectInput, DateInput, TextInput } from '../../components/Field';
-import { encounterOptions, ENCOUNTER_OPTIONS_BY_VALUE, Colors } from '../../constants';
+import { encounterOptions, ENCOUNTER_OPTIONS_BY_VALUE } from '../../constants';
 import { useEncounter } from '../../contexts/Encounter';
 import { useLocalisation } from '../../contexts/Localisation';
+import { useAuth } from '../../contexts/Auth';
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
@@ -134,19 +132,10 @@ const ProcedurePane = React.memo(({ encounter, readonly }) => {
 
 const LabsPane = React.memo(({ encounter, readonly }) => {
   const [modalOpen, setModalOpen] = useState(false);
-  const { loadEncounter } = useEncounter();
 
   return (
     <div>
-      <LabRequestModal
-        open={modalOpen}
-        encounter={encounter}
-        onClose={() => setModalOpen(false)}
-        onSaved={async () => {
-          setModalOpen(false);
-          await loadEncounter(encounter.id);
-        }}
-      />
+      <LabRequestModal open={modalOpen} encounter={encounter} onClose={() => setModalOpen(false)} />
       <LabRequestsTable encounterId={encounter.id} />
       <ContentPane>
         <Button
@@ -164,7 +153,6 @@ const LabsPane = React.memo(({ encounter, readonly }) => {
 
 const ImagingPane = React.memo(({ encounter, readonly }) => {
   const [modalOpen, setModalOpen] = useState(false);
-  const { loadEncounter } = useEncounter();
 
   return (
     <div>
@@ -172,10 +160,6 @@ const ImagingPane = React.memo(({ encounter, readonly }) => {
         open={modalOpen}
         encounter={encounter}
         onClose={() => setModalOpen(false)}
-        onSaved={async () => {
-          setModalOpen(false);
-          await loadEncounter(encounter.id);
-        }}
       />
       <ImagingRequestsTable encounterId={encounter.id} />
       <ContentPane>
@@ -430,33 +414,6 @@ const EncounterActions = ({ encounter }) => (
   </>
 );
 
-const AdmissionInfoRow = styled.div`
-  display: flex;
-  font-size: 14px;
-  text-transform: capitalize;
-  color: ${Colors.midText};
-  margin-top: 3px;
-
-  span:first-child {
-    margin-right: 10px;
-  }
-`;
-
-const AdmissionInfoLabel = styled.span`
-  color: ${Colors.darkText};
-  font-weight: 500;
-`;
-
-const AdmissionInfo = styled.span`
-  svg {
-    vertical-align: sub;
-    width: 16px;
-    height: 16px;
-    color: ${Colors.outline};
-    margin-right: 3px;
-  }
-`;
-
 function getHeaderText({ encounterType }) {
   switch (encounterType) {
     case ENCOUNTER_TYPES.TRIAGE:
@@ -464,13 +421,13 @@ function getHeaderText({ encounterType }) {
     case ENCOUNTER_TYPES.OBSERVATION:
       return 'Active ED patient';
     case ENCOUNTER_TYPES.EMERGENCY:
-      return 'Emergency short stay';
+      return 'Emergency Short Stay';
     case ENCOUNTER_TYPES.ADMISSION:
-      return 'Hospital admission';
+      return 'Hospital Admission';
     case ENCOUNTER_TYPES.CLINIC:
     case ENCOUNTER_TYPES.IMAGING:
     default:
-      return 'Patient encounter';
+      return 'Patient Encounter';
   }
 }
 
@@ -484,6 +441,7 @@ export const EncounterView = () => {
   const { getLocalisation } = useLocalisation();
   const patient = useSelector(state => state.patient);
   const { encounter, isLoadingEncounter } = useEncounter();
+  const { facility } = useAuth();
   const [currentTab, setCurrentTab] = React.useState('vitals');
   const disabled = encounter?.endDate || patient.death;
 
@@ -494,22 +452,7 @@ export const EncounterView = () => {
     <TwoColumnDisplay>
       <PatientInfoPane patient={patient} disabled={disabled} />
       <GridColumnContainer>
-        <TopBar>
-          <div>
-            <TopBarHeading>{getHeaderText(encounter)}</TopBarHeading>
-            <AdmissionInfoRow>
-              <AdmissionInfo>
-                <SubjectIcon />
-                <AdmissionInfoLabel>Type: </AdmissionInfoLabel>
-                <span>{`${encounter.encounterType}`}</span>
-              </AdmissionInfo>
-              <AdmissionInfo>
-                <CalendarIcon />
-                <AdmissionInfoLabel>Arrival: </AdmissionInfoLabel>
-                <DateDisplay date={encounter.startDate} />
-              </AdmissionInfo>
-            </AdmissionInfoRow>
-          </div>
+        <TopBar title={getHeaderText(encounter)} subTitle={facility?.name}>
           <EncounterActions encounter={encounter} />
         </TopBar>
         <ContentPane>

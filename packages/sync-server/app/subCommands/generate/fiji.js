@@ -5,8 +5,10 @@ import { fake } from 'shared/test-helpers';
 import { ENCOUNTER_TYPES } from 'shared/constants';
 
 import { initDatabase, closeDatabase } from '../../database';
+// TODO (TAN-1529): import this from the spreadsheet once possible
 import * as programData from './program.json';
 import { importProgram } from './program';
+import { insertSurveyResponse } from './insertSurveyResponse';
 
 const chance = new Chance();
 
@@ -32,7 +34,7 @@ export const generateFiji = async ({ patientCount }) => {
   const setupData = {
     villageIds: [],
     examinerIds: [],
-    locationAndDepartmentIds: [],
+    facDepLoc: [],
     scheduleIds: [],
   };
 
@@ -58,15 +60,15 @@ export const generateFiji = async ({ patientCount }) => {
     // facilities/departments/locations
     for (let i = 0; i < NUM_FACILITIES; i++) {
       const facility = await Facility.create(fake(Facility));
-      const location = await Location.create({
-        ...fake(Location),
-        facilityId: facility.id,
-      });
       const department = await Department.create({
         ...fake(Department),
         facilityId: facility.id,
       });
-      setupData.locationAndDepartmentIds.push([location.id, department.id]);
+      const location = await Location.create({
+        ...fake(Location),
+        facilityId: facility.id,
+      });
+      setupData.facDepLoc.push([facility.id, department.id, location.id]);
     }
 
     // scheduled vaccines (taken from Fiji reference data)
@@ -102,9 +104,8 @@ export const generateFiji = async ({ patientCount }) => {
     setupData.questions = questions;
   };
 
-  const insertVaccination = async (patientId, scheduledVaccineId) => {
-    // create encounter
-    const [locationId, departmentId] = chance.pickone(setupData.locationAndDepartmentIds);
+  const insertEncounter = async patientId => {
+    const [, departmentId, locationId] = chance.pickone(setupData.facDepLoc);
     const encounter = await Encounter.create({
       ...fake(Encounter),
       type: ENCOUNTER_TYPES.CLINIC,
@@ -113,8 +114,11 @@ export const generateFiji = async ({ patientCount }) => {
       locationId,
       departmentId,
     });
+    return encounter;
+  };
 
-    // create vaccination
+  const insertVaccination = async (patientId, scheduledVaccineId) => {
+    const encounter = await insertEncounter(patientId);
     await AdministeredVaccine.create({
       ...fake(AdministeredVaccine),
       encounterId: encounter.id,
@@ -136,6 +140,12 @@ export const generateFiji = async ({ patientCount }) => {
     }
     if (doses >= 2) {
       await insertVaccination(patient.id, setupData.scheduleIds[1]);
+    }
+
+    // survey responses
+    for (let i = 0; i < chance.integer({ min: 0, max: 4 }); i++) {
+      const { id: encounterId } = await insertEncounter(patient.id);
+      await insertSurveyResponse(store.sequelize.models, setupData, { encounterId });
     }
   };
 
