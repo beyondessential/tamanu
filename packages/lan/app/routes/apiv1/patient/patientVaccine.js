@@ -142,8 +142,8 @@ patientVaccineRoutes.get(
   '/:id/administeredVaccines',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'PatientVaccine');
-    
-    const patient = await req.models.findByPk(req.params.id);
+
+    const patient = await req.models.Patient.findByPk(req.params.id);
     const results = await patient.getAdministeredVaccines();
 
     // TODO: enable pagination for this endpoint

@@ -37,9 +37,7 @@ export class CertifiableVaccine extends Model {
         validate: {
           mustHaveVaccine() {
             if (!this.deletedAt && !this.vaccineId) {
-              throw new InvalidOperationError(
-                'A certifiable vaccine must have a vaccine.',
-              );
+              throw new InvalidOperationError('A certifiable vaccine must have a vaccine.');
             }
           },
         },

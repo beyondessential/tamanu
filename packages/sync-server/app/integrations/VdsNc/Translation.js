@@ -109,7 +109,7 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
         {
           model: ReferenceData,
           as: 'manufacturer',
-        }
+        },
       ],
     });
     if (!certVax) throw new Error('Vaccine is not certifiable');

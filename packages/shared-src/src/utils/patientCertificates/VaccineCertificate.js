@@ -53,10 +53,7 @@ const columns = [
 ];
 
 function getUvciFromVaccinations(vaccinations, format, countryCode) {
-  const vaxes =
-    format === 'tamanu'
-      ? vaccinations
-      : vaccinations.filter(vax => vax.certifiable);
+  const vaxes = format === 'tamanu' ? vaccinations : vaccinations.filter(vax => vax.certifiable);
 
   vaxes.sort((a, b) => +a.date - +b.date);
   return generateUVCI(vaxes[0]?.id, { format, countryCode });

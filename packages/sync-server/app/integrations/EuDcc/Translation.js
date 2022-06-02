@@ -24,7 +24,7 @@ export async function createEuDccVaccinationData(administeredVaccineId, { models
     ScheduledVaccine,
     CertifiableVaccine,
   } = models;
-  
+
   const vaccination = await AdministeredVaccine.findByPk(administeredVaccineId, {
     include: [
       {
@@ -91,7 +91,7 @@ export async function createEuDccVaccinationData(administeredVaccineId, { models
       {
         model: ReferenceData,
         as: 'manufacturer',
-      }
+      },
     ],
   });
 
