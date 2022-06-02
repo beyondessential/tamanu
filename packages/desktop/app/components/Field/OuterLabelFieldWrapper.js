@@ -3,6 +3,13 @@ import styled from 'styled-components';
 
 import { Colors } from '../../constants';
 
+const Container = styled.div`
+  .select-field input {
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+  }
+`;
+
 const OuterLabel = styled.div`
   display: inline-block;
   margin-bottom: 4px;
@@ -20,7 +27,7 @@ const OuterLabelRequired = styled.span`
 
 export const OuterLabelFieldWrapper = React.memo(
   React.forwardRef(({ children, required, label, style, className }, ref) => (
-    <div style={style} className={className} ref={ref}>
+    <Container style={style} className={className} ref={ref}>
       {label && (
         <OuterLabel>
           {label}
@@ -28,6 +35,6 @@ export const OuterLabelFieldWrapper = React.memo(
         </OuterLabel>
       )}
       {children}
-    </div>
+    </Container>
   )),
 );

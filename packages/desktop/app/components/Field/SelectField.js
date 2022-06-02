@@ -51,6 +51,7 @@ export const SelectInput = ({
         options={options}
         menuPlacement="auto"
         menuPosition="fixed"
+        className="select-field"
         menuShouldBlockScroll="true"
         {...props}
       />

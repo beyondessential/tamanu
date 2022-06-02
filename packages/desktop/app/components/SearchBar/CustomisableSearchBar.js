@@ -6,8 +6,9 @@ import { Form } from '../Field';
 import { Colors } from '../../constants';
 
 const Container = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 120px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   border: 1px solid ${Colors.outline};
   background: ${Colors.white};
 `;
