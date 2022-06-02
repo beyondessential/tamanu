@@ -144,7 +144,7 @@ describe('Suggestions', () => {
       expect(body.length).toBeGreaterThan(0);
 
       expect(firstResult.name).toEqual('Constipation');
-      expect(lastResult.name).toEqual('Chronic constipation');
+      expect(lastResult.name).toEqual('Unconscious');
     });
 
     it('should return results alphabetically when the position of the search query is the same', async () => {
