@@ -74,6 +74,7 @@ export const hl7PatientFields = {
     supportedModifiers: stringTypeModifiers,
     validationSchema: yup.string(),
     sortable: true,
+    sortArguments: ['additionalData', 'cityTown'],
   },
   'address-city': {
     parameterType: hl7ParameterTypes.string,
@@ -82,6 +83,7 @@ export const hl7PatientFields = {
     supportedModifiers: stringTypeModifiers,
     validationSchema: yup.string(),
     sortable: true,
+    sortArguments: ['additionalData', 'cityTown'],
   },
   // TODO: telecom could also be email or other phones
   telecom: {
@@ -91,6 +93,7 @@ export const hl7PatientFields = {
     supportedModifiers: [],
     validationSchema: yup.string(),
     sortable: true,
+    sortArguments: ['additionalData', 'primaryContactNumber'],
   },
   deceased: {
     parameterType: hl7ParameterTypes.token,

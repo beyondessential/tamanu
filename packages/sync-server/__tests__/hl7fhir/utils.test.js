@@ -1,5 +1,5 @@
-import { createTestContext } from '../utilities';
 import { InvalidParameterError } from 'shared/errors';
+import { createTestContext } from '../utilities';
 
 import { hl7SortToTamanu } from '../../app/hl7fhir/utils';
 import { sortableHL7PatientFields } from '../../app/hl7fhir/hl7PatientFields';
@@ -42,7 +42,7 @@ describe('HL7FHIR module utils', () => {
         const tamanuSort = hl7SortToTamanu(sort, 'Patient');
         expect(Array.isArray(tamanuSort)).toBe(true);
         tamanuSort.forEach(item => {
-          expect(item).toMatchObject([expect.any(String), expect.any(String)]);
+          expect(Array.isArray(item)).toBe(true);
         });
       });
     });

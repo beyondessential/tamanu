@@ -22,8 +22,9 @@ export function hl7SortToTamanu(hl7Sort, modelName) {
     // Parse patient parameters
     if (modelName === 'Patient') {
       if (sortableHL7PatientFields.includes(parameter)) {
-        const { fieldName } = hl7PatientFields[parameter];
-        return [fieldName, direction];
+        const { fieldName, sortArguments } = hl7PatientFields[parameter];
+        const args = sortArguments || [fieldName];
+        return [...args, direction];
       }
     }
     // Something went terribly wrong
