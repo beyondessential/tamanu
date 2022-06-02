@@ -172,7 +172,7 @@ export const PatientInfoPane = memo(({ patient, readonly }) => {
         <PatientIssuesDisplay patient={patient} readonly={readonly} />
         <CarePlanDisplay patient={patient} readonly={readonly} />
         <Buttons>
-          {!patientDeathsEnabled && <RecordDeathSection patient={patient} readonly={readonly} />}
+          {patientDeathsEnabled && <RecordDeathSection patient={patient} readonly={readonly} />}
           <PrintSection patient={patient} readonly={readonly} />
         </Buttons>
       </ListsSection>
