@@ -828,7 +828,7 @@ describe('mSupply integration - Patient', () => {
         patientId: patient.id,
       });
       const id = encodeURIComponent(`not-the-right-identifier|${patient.displayId}`);
-      const path = `/v1/integration/mSupply/Patient?_sort=id&_page=z&_count=x&status=initial&subject%3Aidentifier=${id}`;
+      const path = `/v1/integration/mSupply/Patient?_sort=id&_page=z&_count=x&subject%3Aidentifier=${id}`;
 
       // act
       const response = await app
@@ -845,6 +845,30 @@ describe('mSupply integration - Patient', () => {
             '_page must be a `number` type, but the final value was: `NaN` (cast from the value `"z"`).',
             'Unsupported or unknown parameters in _sort',
           ],
+        },
+      });
+    });
+
+    it('returns a 422 if there are any unknown patient params', async () => {
+      // arrange
+      const { Patient, PatientAdditionalData } = ctx.store.models;
+      const patient = await Patient.create(fake(Patient));
+      await PatientAdditionalData.create({
+        ...fake(PatientAdditionalData),
+        patientId: patient.id,
+      });
+      const path = `/v1/integration/mSupply/Patient?whatever=something`;
+
+      // act
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'mSupply', 'X-Version': '0.0.1' });
+
+      // assert
+      expect(response).toHaveRequestError(422);
+      expect(response.body).toMatchObject({
+        error: {
+          errors: ['Unknown or unsupported parameters: whatever'],
         },
       });
     });
