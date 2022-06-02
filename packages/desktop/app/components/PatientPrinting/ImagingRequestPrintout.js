@@ -21,13 +21,13 @@ export const ImagingRequestPrintout = React.memo(
         notes={[{ content: note }]}
         certificateData={{ ...certificateData, pageTitle: 'Imaging Request' }}
         tableData={{
-          'Request code': id,
+          'Request ID': id,
           'Request date': requestedDate ? moment(requestedDate).format('DD/MM/YYYY') : null,
           Facility: encounterData?.location?.Facility?.name,
           Department: encounterData?.department?.name,
           'Requested by': requestedBy?.displayName,
           Urgent: urgent ? 'Yes' : 'No',
-          'Request type': imagingType?.name,
+          'Imaging type': imagingType?.name,
           'Area to be imaged': areaToBeImaged,
         }}
       />
