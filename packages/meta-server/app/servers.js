@@ -16,9 +16,9 @@ const servers = [
   // live servers
   { name: 'Aspen Medical Fiji', type: 'live', host: 'https://syncba.aspenmedical.com.fj' },
   { name: 'Fiji', type: 'live', host: 'https://sync.tamanu-fiji.org' },
+  { name: 'Fiji MDA', type: 'live', host: 'https://sync-mda.tamanu-fiji.org' },
   { name: 'Fiji NCD', type: 'live', host: 'https://sync-ncd-pilot.tamanu-fiji.org' },
   { name: 'Fiji Tourism', type: 'live', host: 'https://sync-tourism.tamanu-fiji.org' },
-  { name: 'Fiji MDA', type: 'live', host: 'https://sync-mda.tamanu-fiji.org' },
   { name: 'Kiribati', type: 'live', host: 'https://sync.tamanu-kiribati.org' },
   {
     name: 'Motivation Australia - Papua New Guinea',
