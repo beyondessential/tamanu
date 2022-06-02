@@ -2,28 +2,28 @@ import { pascal } from 'case';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
-
 import { NotFoundError } from 'shared/errors';
-
 import { SURVEY_TYPES, REFERENCE_TYPE_VALUES, INVOICE_LINE_TYPES } from 'shared/constants';
 
 export const suggestions = express.Router();
 
-const defaultMapper = ({ name, code, id }) => ({ name, code, id });
-
 const defaultLimit = 25;
 
-function createSuggesterRoute(endpoint, modelName, whereSql, mapper = defaultMapper) {
+const defaultMapper = ({ name, code, id }) => ({ name, code, id });
+
+function createSuggesterRoute(
+  endpoint,
+  modelName,
+  whereSql,
+  mapper = defaultMapper,
+  searchColumn = 'name',
+) {
   suggestions.get(
     `/${endpoint}`,
     asyncHandler(async (req, res) => {
       req.checkPermission('list', modelName);
       const { models, query } = req;
-      const search = (query.q || '').trim().toLowerCase();
-      if (!search) {
-        res.send([]);
-        return;
-      }
+      const searchQuery = (query.q || '').trim().toLowerCase();
 
       const model = models[modelName];
       const results = await model.sequelize.query(
@@ -31,11 +31,12 @@ function createSuggesterRoute(endpoint, modelName, whereSql, mapper = defaultMap
       SELECT *
       FROM "${model.tableName}"
       WHERE ${whereSql}
+      ORDER BY POSITION('${searchQuery}' in ${searchColumn}) > 1, ${searchColumn}
       LIMIT :limit
     `,
         {
           replacements: {
-            search: `%${search}%`,
+            search: `%${searchQuery}%`,
             limit: defaultLimit,
           },
           type: QueryTypes.SELECT,
@@ -44,8 +45,7 @@ function createSuggesterRoute(endpoint, modelName, whereSql, mapper = defaultMap
         },
       );
 
-      const listing = results.map(mapper);
-      res.send(listing);
+      res.send(results.map(mapper));
     }),
   );
 }
@@ -101,9 +101,9 @@ function createAllRecordsSuggesterRoute(endpoint, modelName, whereSql, mapper = 
 // Records will be filtered based on the whereSql parameter. The user's search term
 // will be passed to the sql query as ":search" - see the existing suggestion
 // endpoints for usage examples.
-function createSuggester(endpoint, modelName, whereSql, mapper) {
+function createSuggester(endpoint, modelName, whereSql, mapper, searchColumn) {
   createSuggesterLookupRoute(endpoint, modelName, whereSql, mapper);
-  createSuggesterRoute(endpoint, modelName, whereSql, mapper);
+  createSuggesterRoute(endpoint, modelName, whereSql, mapper, searchColumn);
 }
 
 const createNameSuggester = (endpoint, modelName = pascal(endpoint)) =>
@@ -150,6 +150,7 @@ createSuggester(
     id,
     name: displayName,
   }),
+  'display_name',
 );
 
 createSuggester(
@@ -157,4 +158,5 @@ createSuggester(
   'Patient',
   "LOWER(first_name || ' ' || last_name) LIKE LOWER(:search) OR LOWER(cultural_name) LIKE LOWER(:search) OR LOWER(display_id) LIKE LOWER(:search)",
   patient => patient,
+  'last_name',
 );
