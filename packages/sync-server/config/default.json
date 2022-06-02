@@ -452,6 +452,20 @@
           "healthFacility": "State level"
         }
       },
+      "printMeasures": {
+        "stickerLabelPage": {
+          "pageWidth": "210mm",
+          "pageHeight": "297mm",
+          "pageMarginTop": "15.09mm",
+          "pageMarginLeft": "6.4mm",
+          "columnTotal": 3,
+          "columnWidth": "64mm",
+          "columnGap": "3.01mm",
+          "rowTotal": 10,
+          "rowHeight": "26.7mm",
+          "rowGap": "0"
+        }
+      },
 
       // The time zone setting is currently only used for Vaccine Certificates
       "timeZone": null,

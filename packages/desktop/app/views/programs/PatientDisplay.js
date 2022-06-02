@@ -1,10 +1,9 @@
 import React, { useCallback } from 'react';
-
 import { useSelector, useDispatch } from 'react-redux';
 import { Typography } from '@material-ui/core';
 
-import { clearPatient, viewPatient } from 'desktop/app/store/patient';
-import { OutlinedButton, Button } from 'desktop/app/components/Button';
+import { viewPatient } from 'desktop/app/store/patient';
+import { Button } from 'desktop/app/components/Button';
 import { PatientNameDisplay } from 'desktop/app/components/PatientNameDisplay';
 import { history } from 'desktop/app/utils/utils';
 import styled from 'styled-components';
@@ -19,25 +18,22 @@ const Header = styled.div`
   box-shadow: 0 1px 0 ${Colors.outline};
 `;
 
-const FlexRow = styled.div`
-  display: flex;
-  align-items: baseline;
-  justify-content: flex-start;
-  column-gap: 0.5rem;
-`;
-
 const Heading = styled(Typography)`
   font-weight: 500;
   font-size: 24px;
   line-height: 28px;
+
+  &:hover {
+    cursor: pointer;
+  }
 `;
 
-const LightText = styled(Typography)`
-  position: relative;
+const LightText = styled.span`
+  vertical-align: middle;
   font-size: 13px;
   line-height: 15px;
   color: ${props => props.theme.palette.text.tertiary};
-  top: -2px;
+  margin-left: 5px;
 `;
 
 export const PatientDisplay = ({ surveyCompleted = false }) => {
@@ -60,24 +56,19 @@ export const PatientDisplay = ({ surveyCompleted = false }) => {
 
   return (
     <Header>
-      <FlexRow>
-        <Heading variant="h3">
-          <div tabIndex="0" role="button" onClick={onViewPatient} onKeyUp={onViewPatientKeyUp}>
-            <PatientNameDisplay patient={patient} />
-          </div>
-        </Heading>
-        <LightText>{`(${patient.displayId})`}</LightText>
-      </FlexRow>
-      <FlexRow>
-        {shouldShowCancel && <Button onClick={history.goBack}>Cancel</Button>}
-        <OutlinedButton
-          onClick={() => {
-            dispatch(clearPatient());
-          }}
+      <div>
+        <Heading
+          variant="h3"
+          tabIndex="0"
+          role="button"
+          onClick={onViewPatient}
+          onKeyUp={onViewPatientKeyUp}
         >
-          Change patient
-        </OutlinedButton>
-      </FlexRow>
+          <PatientNameDisplay patient={patient} />
+          <LightText>({patient.displayId})</LightText>
+        </Heading>
+      </div>
+      {shouldShowCancel && <Button onClick={history.goBack}>Cancel</Button>}
     </Header>
   );
 };
