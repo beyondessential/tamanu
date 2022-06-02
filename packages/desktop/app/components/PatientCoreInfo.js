@@ -1,131 +1,130 @@
 import React, { memo } from 'react';
 import styled from 'styled-components';
-import { grey } from '@material-ui/core/colors';
+import { Typography } from '@material-ui/core';
 
-import { useLocalisation } from '../contexts/Localisation';
 import { LocalisedText } from './LocalisedText';
 import { DateDisplay } from './DateDisplay';
 import { PatientInitialsIcon } from './PatientInitialsIcon';
 import { Colors } from '../constants';
-import { InvertedDisplayIdLabel } from './DisplayIdLabel';
 
 const NameSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
   margin-bottom: 20px;
-  padding: 1rem;
+  padding: 25px 35px 15px 25px;
 `;
 
-const NameHeader = styled.div`
+const NameHeader = styled(Typography)`
   align-self: flex-start;
-  color: grey;
-  font-size: 14px;
-  padding-bottom: 10px;
+  color: ${props => props.theme.palette.text.tertiary};
+  font-size: 11px;
+  line-height: 15px;
+  margin-bottom: 20px;
 `;
 
-const NameText = styled.span`
-  font-size: 30px;
+const NameText = styled(Typography)`
+  font-size: 24px;
+  line-height: 32px;
+  text-transform: capitalize;
 `;
 
-const FirstNameRow = styled.span`
+const NameContainer = styled.div`
   display: flex;
   justify-content: space-between;
-  width: 100%;
-`;
-
-const NameContainer = styled.span`
-  display: flex;
-  flex-direction: column;
-  align-self: flex-start;
-  width: 100%;
+  align-items: center;
 `;
 
 const CoreInfoSection = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  border-top: 1px solid ${grey[300]};
+  grid-template-columns: 2fr 3.5fr;
+  border-bottom: 1px solid #ebebeb;
+  border-top: 1px solid #ebebeb;
+  padding-left: 10px;
 `;
 
 const CoreInfoCellContainer = styled.div`
   :first-of-type {
-    border-right: 1px solid ${grey[300]};
+    border-right: 1px solid #ebebeb;
   }
 
-  padding: 10px 10px;
+  padding: 10px 15px;
 `;
 
-const CoreInfoLabel = styled.div`
-  color: ${grey[400]};
+const CoreInfoLabel = styled(Typography)`
+  color: ${props => props.theme.palette.text.tertiary};
   font-size: 14px;
+  line-height: 18px;
 `;
 
-const CoreInfoValue = styled.div`
-  color: ${grey[600]};
-  font-size: 16px;
-  margin-top: 5px;
-  font-weight: bold;
+const CoreInfoValue = styled(Typography)`
+  color: ${props => props.theme.palette.text.secondary};
+  font-size: 14px;
+  line-height: 18px;
+  font-weight: 500;
   text-transform: capitalize;
 `;
 
-const HealthIdContainer = styled.div`
-  background: ${Colors.primary};
-  color: ${Colors.secondary};
-  font-weight: 600;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
-`;
-
-const HealthIdLabelText = styled.div`
-  font-size: 12px;
-`;
-
-const CoreInfoCell = memo(({ path, children, testId }) => {
-  const { getLocalisation } = useLocalisation();
-  return (
-    <CoreInfoCellContainer data-test-id={testId}>
-      <CoreInfoLabel>{getLocalisation(path)}</CoreInfoLabel>
-      <CoreInfoValue>{children}</CoreInfoValue>
-    </CoreInfoCellContainer>
-  );
-});
+const CoreInfoCell = ({ path, children, testId }) => (
+  <CoreInfoCellContainer data-test-id={testId}>
+    <CoreInfoLabel>
+      <LocalisedText path={path} />
+    </CoreInfoLabel>
+    <CoreInfoValue>{children}</CoreInfoValue>
+  </CoreInfoCellContainer>
+);
 
 const DeceasedText = styled.div`
   opacity: 0.8;
 `;
 
-const DeceasedIndicator = memo(({ death }) => (
+const DeceasedIndicator = ({ death }) => (
   <DeceasedText>
     <span>Deceased, </span>
     <DateDisplay date={death.date} />
   </DeceasedText>
-));
+);
 
-const HealthIdDisplay = memo(({ patient }) => (
+const HealthIdContainer = styled.div`
+  padding: 20px 10px 12px;
+`;
+
+const HealthId = styled.div`
+  background: ${props => props.theme.palette.primary.main};
+  color: ${Colors.white};
+  font-weight: 600;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-radius: 3px;
+`;
+
+const HealthIdText = styled(Typography)`
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 18px;
+`;
+
+const HealthIdDisplay = ({ displayId }) => (
   <HealthIdContainer>
-    <HealthIdLabelText>
-      <LocalisedText path="fields.displayId.longLabel" />
-    </HealthIdLabelText>
-    <InvertedDisplayIdLabel data-test-class="display-id-label">
-      {patient.displayId}
-    </InvertedDisplayIdLabel>
+    <HealthId>
+      <HealthIdText>
+        <LocalisedText path="fields.displayId.longLabel" />
+      </HealthIdText>
+      <HealthIdText data-test-class="display-id-label">{displayId}</HealthIdText>
+    </HealthId>
   </HealthIdContainer>
-));
+);
 
 export const CoreInfoDisplay = memo(({ patient }) => (
   <>
     <NameSection>
-      <NameHeader>Patient details</NameHeader>
+      <NameHeader>Patient Details</NameHeader>
       <NameContainer>
-        <FirstNameRow>
+        <div>
           <NameText data-test-id="core-info-patient-first-name">{patient.firstName}</NameText>
-          <PatientInitialsIcon patient={patient} />
-        </FirstNameRow>
-        <NameText data-test-id="core-info-patient-last-name">{patient.lastName}</NameText>
+          <NameText data-test-id="core-info-patient-last-name">{patient.lastName}</NameText>
+        </div>
+        <PatientInitialsIcon patient={patient} />
         {patient.death && <DeceasedIndicator death={patient.death} />}
       </NameContainer>
     </NameSection>
@@ -137,6 +136,6 @@ export const CoreInfoDisplay = memo(({ patient }) => (
         <DateDisplay date={patient.dateOfBirth} />
       </CoreInfoCell>
     </CoreInfoSection>
-    <HealthIdDisplay patient={patient} />
+    <HealthIdDisplay displayId={patient.displayId} />
   </>
 ));
