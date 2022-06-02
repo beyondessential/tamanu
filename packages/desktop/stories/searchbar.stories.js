@@ -2,12 +2,13 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import {
+  AllPatientsSearchBar,
   PatientSearchBar,
   ImmunisationSearchBar,
   ImagingRequestsSearchBar,
   AppointmentsSearchBar,
   LabRequestsSearchBar,
-} from '../app/components/SearchBar';
+} from '../app/components';
 
 import { DumbLocalisationProvider } from '../app/contexts/Localisation';
 
@@ -78,6 +79,7 @@ storiesOf('SearchBar', module)
       {story()}
     </DumbLocalisationProvider>
   ))
+  .add('AllPatientSearchBar', () => <AllPatientsSearchBar onSearch={action('search')} />)
   .add('PatientSearchBar', () => <PatientSearchBar onSearch={action('search')} />)
   .add('LabRequestsSearchBar', () => <LabRequestsSearchBar onSearch={action('search')} />)
   .add('AppointmentsSearchBar', () => <AppointmentsSearchBar onSearch={action('search')} />)

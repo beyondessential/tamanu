@@ -14,6 +14,7 @@ export * from './Notification';
 export * from './PageContainer';
 export * from './Preloader';
 export * from './LocationSearchBar';
+export * from './SearchBar';
 export * from './Table';
 export * from './TamanuLogo';
 export * from './ImmunisationsTable';

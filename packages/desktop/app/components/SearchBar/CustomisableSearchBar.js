@@ -1,9 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 import Box from '@material-ui/core/Box';
-import { LargeButton, LargeOutlineButton } from './Button';
-import { Form } from './Field';
-import { Colors } from '../constants';
+import { LargeButton, LargeOutlineButton } from '../Button';
+import { Form } from '../Field';
+import { Colors } from '../../constants';
 
 const Container = styled.div`
   display: grid;
