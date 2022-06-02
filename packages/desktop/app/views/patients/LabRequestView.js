@@ -312,7 +312,7 @@ const LabRequestActionDropdown = ({ labRequest, patient, updateLabReq }) => {
   );
 };
 
-const LabRequestInfoPane = ({ labRequest }) => (
+const LabRequestInfoPane = ({ labRequest, updateLabReq }) => (
   <FormGrid columns={3}>
     <TextInput value={labRequest.displayId} label="Request ID" />
     <TextInput value={(labRequest.category || {}).name} label="Request type" />
@@ -322,7 +322,11 @@ const LabRequestInfoPane = ({ labRequest }) => (
     <TextInput value={(labRequest.laboratory || {}).name} label="Laboratory" />
     <DateInput value={labRequest.requestedDate} label="Requested date" />
     <DateTimeInput value={labRequest.sampleTime} label="Sample date" />
-    <LabRequestNoteForm labRequest={labRequest} />
+    <LabRequestNoteForm
+      labRequest={labRequest}
+      // Don't actually change any data, just trigger the update to refresh the render
+      refreshLabReq={() => updateLabReq({ id: labRequest.id })}
+    />
   </FormGrid>
 );
 
@@ -350,7 +354,7 @@ export const DumbLabRequestView = React.memo(({ patient }) => {
         </TopBar>
         <BackLink />
         <ContentPane>
-          <LabRequestInfoPane labRequest={labRequest} />
+          <LabRequestInfoPane labRequest={labRequest} updateLabReq={updateLabReq} />
         </ContentPane>
         <ResultsPane labRequest={labRequest} patient={patient} />
         <LabRequestAuditPane labRequest={labRequest} />
