@@ -18,6 +18,7 @@ export * from './UnsupportedPhotoField';
 // fancy fields
 export * from './ArrayField';
 export * from './AutocompleteField';
+export * from './DisplayIdField';
 
 // form helpers
 export * from './Form';

@@ -16,11 +16,12 @@ const Container = styled.div`
 const SectionLabel = styled.div`
   font-size: 16px;
   font-weight: 500;
-  color: ${Colors.primary};
+  color: ${props => props.theme.palette.text.primary};
   margin-bottom: 5px;
 `;
 
 const Section = styled.div`
+  flex: 1;
   padding: 24px;
 `;
 

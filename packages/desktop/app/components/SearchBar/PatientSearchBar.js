@@ -1,6 +1,6 @@
 import React from 'react';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
-import { AutocompleteField, CheckField, Field, LocalisedField } from '../Field';
+import { AutocompleteField, CheckField, Field, LocalisedField, DisplayIdField } from '../Field';
 import { useSuggester } from '../../api';
 import { FingerprintButton } from '../FingerprintButton';
 
@@ -18,7 +18,7 @@ export const PatientSearchBar = React.memo(({ onSearch }) => {
       }
       onSearch={onSearch}
     >
-      <LocalisedField name="displayId" />
+      <DisplayIdField />
       <LocalisedField name="firstName" />
       <LocalisedField name="lastName" />
       <LocalisedField name="dateOfBirthExact" />
