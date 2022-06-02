@@ -31,7 +31,7 @@ function createSuggesterRoute(
       SELECT *
       FROM "${model.tableName}"
       WHERE ${whereSql}
-      ORDER BY POSITION('${searchQuery}' in ${searchColumn}), ${searchColumn}
+      ORDER BY POSITION('${searchQuery}' in ${searchColumn}) > 1, ${searchColumn}
       LIMIT :limit
     `,
         {
