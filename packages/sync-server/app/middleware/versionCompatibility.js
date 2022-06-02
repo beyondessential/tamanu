@@ -1,4 +1,4 @@
-import { buildVersionCompatibilityCheck } from 'shared/utils';
+import { buildVersionCompatibilityCheck } from 'shared/utils/buildVersionCompatibilityCheck';
 import { InvalidClientHeadersError } from 'shared/errors';
 
 // If a new version of the mobile app is being released in conjunction with an update to the sync

@@ -1,14 +1,21 @@
 import compareVersions from 'semver-compare';
 import semverDiff from 'semver-diff';
 import config from 'config';
+import { Request, Response } from 'express';
+
 import { VERSION_COMPATIBILITY_ERRORS } from '../constants';
 import { log } from '../services/logging';
 
-const respondWithError = (res, error) => {
+interface CompatError {
+  message: string;
+  name: string;
+}
+
+const respondWithError = (res: Response, error: CompatError) => {
   res.status(400).json({ error });
 };
 
-function getUpdateInformation(req) {
+function getUpdateInformation(req: Request) {
   if (!config.updateUrls) return {};
 
   const clientType = req.header('X-Tamanu-Client') || req.header('X-Runtime') || '';
@@ -21,7 +28,7 @@ function getUpdateInformation(req) {
   return {};
 }
 
-export const buildVersionCompatibilityCheck = (min, max) => (req, res, next) => {
+export const buildVersionCompatibilityCheck = (min: string | null, max: string | null) => (req: Request, res: Response, next: () => void) => {
   // include the min/max supported clients with any response
   if (min) {
     res.setHeader('X-Min-Client-Version', min);

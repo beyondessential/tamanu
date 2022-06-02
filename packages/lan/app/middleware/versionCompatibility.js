@@ -1,4 +1,4 @@
-import { buildVersionCompatibilityCheck } from 'shared/utils';
+import { buildVersionCompatibilityCheck } from 'shared/utils/buildVersionCompatibilityCheck';
 
 // If a new version of the desktop app is being released in conjunction with an update to the LAN
 // server, set MIN_CLIENT_VERSION to reflect that, and desktop users will be logged out until they

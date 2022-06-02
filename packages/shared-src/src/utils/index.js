@@ -1,4 +1,4 @@
-export * from './buildVersionCompatibilityCheck';
+export * from 'shared/utils/buildVersionCompatibilityCheck';
 export * from './tupaia';
 export * from './getResponseJsonSafely';
 export * from './getPatientAdditionalData';
