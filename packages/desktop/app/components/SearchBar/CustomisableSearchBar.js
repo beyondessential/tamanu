@@ -24,13 +24,13 @@ const SectionLabel = styled.div`
 
 const Section = styled.div`
   flex: 1;
-  padding: 24px;
+  padding: 16px 24px 28px;
 `;
 
 const SearchInputContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 2fr);
-  gap: 10px 10px;
+  gap: 9px;
 `;
 
 export const CustomisableSearchBar = ({
@@ -60,7 +60,12 @@ export const CustomisableSearchBar = ({
         render={({ submitForm, clearForm }) => (
           <>
             <SearchInputContainer>{children}</SearchInputContainer>
-            <Box display="flex" alignItems="center" justifyContent="space-between" mt={2}>
+            <Box
+              display="flex"
+              alignItems="center"
+              justifyContent="space-between"
+              style={{ marginTop: 20 }}
+            >
               {renderCheckField}
               <Box marginLeft="auto">
                 <LargeOutlineButton style={{ marginRight: 12 }} onClick={clearForm}>

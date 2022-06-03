@@ -1,8 +1,15 @@
 import React from 'react';
+import styled from 'styled-components';
 import { Tooltip, InputAdornment, Checkbox } from '@material-ui/core';
 import SpellcheckIcon from '@material-ui/icons/Spellcheck';
 import { LocalisedField } from './LocalisedField';
 import { Field } from './Field';
+
+const FieldContainer = styled(LocalisedField)`
+  .MuiOutlinedInput-adornedEnd {
+    padding-right: 0;
+  }
+`;
 
 const CheckField = ({ field, ...props }) => (
   <Tooltip title="Exact term search">
@@ -20,11 +27,11 @@ const CheckField = ({ field, ...props }) => (
 );
 
 export const DisplayIdField = () => (
-  <LocalisedField
+  <FieldContainer
     name="displayId"
     InputProps={{
       endAdornment: (
-        <InputAdornment position="end">
+        <InputAdornment position="end" style={{ marginLeft: 1 }}>
           <Field name="displayIdExact" component={CheckField} />
         </InputAdornment>
       ),

@@ -7,6 +7,7 @@ import {
   Field,
   LocalisedField,
   DisplayIdField,
+  DOBFields,
 } from '../Field';
 import { useSuggester } from '../../api';
 
@@ -24,9 +25,7 @@ export const CovidPatientsSearchBar = React.memo(({ onSearch }) => {
       <LocalisedField name="lastName" />
       <LocalisedField name="villageId" component={AutocompleteField} suggester={villageSuggester} />
       <DisplayIdField />
-      <Field name="dateOfBirthExact" component={DateField} label="DOB" />
-      <Field name="dateOfBirthFrom" component={DateField} label="DOB from" />
-      <Field name="dateOfBirthTo" component={DateField} label="DOB to" />
+      <DOBFields />
       <Field name="clinicalStatus" component={DateField} label="Clinical status" />
     </CustomisableSearchBar>
   );

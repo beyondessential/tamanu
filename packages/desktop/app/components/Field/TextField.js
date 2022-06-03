@@ -13,17 +13,24 @@ export const StyledTextField = styled(MuiTextField)`
   // The actual input field
   .MuiInputBase-input {
     color: ${Colors.darkestText};
-    padding: 12px 12px;
+    padding: 13px 12px 13px 15px;
     font-size: 15px;
     line-height: 18px;
     ${props => (props.style?.minHeight ? `min-height: ${props.style.minHeight}` : '')};
     ${props => (props.style?.padding ? `padding: ${props.style.padding}` : '')};
+
+    &::placeholder {
+      color: ${Colors.softText};
+      opacity: 1;
+    }
   }
 
   // helper text
   .MuiFormHelperText-root {
-    margin-left: 2px;
-    margin-top: 2px;
+    font-weight: 500;
+    font-size: 11px;
+    line-height: 15px;
+    margin: 4px 15px;
     letter-spacing: 0;
   }
 
@@ -34,8 +41,7 @@ export const StyledTextField = styled(MuiTextField)`
 
   // Focused state
   .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
-    border: 1px solid #67a6e3;
-    box-shadow: 0 0 4px rgba(50, 102, 153, 0.25);
+    border: 1px solid ${props => props.theme.palette.primary.main};
   }
 
   .MuiFormLabel-root.Mui-focused {
