@@ -32,7 +32,7 @@ export class Patient extends Model {
       },
       {
         ...options,
-        syncConfig: { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
+        syncConfig: { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, includedRelations: ['notes'] },
         indexes: [
           { fields: ['date_of_death'] },
           { fields: ['display_id'] },
@@ -61,6 +61,15 @@ export class Patient extends Model {
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'villageId',
       as: 'village',
+    });
+
+    this.hasMany(models.Note, {
+      foreignKey: 'recordId',
+      as: 'notes',
+      constraints: false,
+      scope: {
+        recordType: this.name,
+      },
     });
   }
 

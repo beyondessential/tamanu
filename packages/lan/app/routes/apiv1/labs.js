@@ -193,11 +193,7 @@ labRequest.post(
       throw new NotFoundError();
     }
     req.checkPermission('write', lab);
-    const createdNote = await models.Note.create({
-      ...body,
-      recordId: id,
-      recordType: 'LabRequest',
-    });
+    const createdNote = await lab.createNote(body);
 
     res.send(createdNote);
   }),
