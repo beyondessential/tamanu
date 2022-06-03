@@ -23,7 +23,7 @@ export const LabRequestPrintout = React.memo(
         notes={notes}
         certificateData={{ ...certificateData, pageTitle: 'Lab Request' }}
         tableData={{
-          'Request number': displayId,
+          'Test ID': displayId,
           'Request date': requestedDate ? moment(requestedDate).format('DD/MM/YYYY') : null,
           Facility: laboratory?.name,
           Department: encounterData?.department?.name,

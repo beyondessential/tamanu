@@ -114,7 +114,7 @@ const DumbImagingRequestInfoPane = React.memo(
               disabled
             />
             <Field name="status" label="Status" component={SelectField} options={statusOptions} />
-            <DateInput value={imagingRequest.requestedDate} label="Requested date" disabled />
+            <DateInput value={imagingRequest.requestedDate} label="Request date" disabled />
             <TextInput
               multiline
               value={imagingRequest.areaToBeImaged}
