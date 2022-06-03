@@ -109,7 +109,7 @@ export class Patient extends Model {
     });
 
     for (const result of results) {
-      if (certifiableVaccineIds.include(result.scheduledVaccine.vaccineId)) {
+      if (certifiableVaccineIds.includes(result.scheduledVaccine.vaccineId)) {
         result.certifiable = true;
       }
     }

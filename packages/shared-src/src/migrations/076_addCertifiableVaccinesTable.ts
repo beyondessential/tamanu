@@ -50,6 +50,10 @@ export async function up(query: QueryInterface) {
       type: STRING,
       allowNull: false,
     },
+    target_snomed_code: {
+      type: STRING,
+      allowNull: true,
+    },
     eu_product_code: {
       type: STRING,
       allowNull: true,

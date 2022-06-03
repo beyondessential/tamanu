@@ -113,8 +113,8 @@ export async function createEuDccVaccinationData(administeredVaccineId, { models
     dob,
     [EUDCC_CERTIFICATE_TYPES.VACCINATION]: [
       {
-        tg: certVax.atcCode,
-        vp: certVax.icd11DrugCode,
+        tg: certVax.targetSnomedCode,
+        vp: certVax.atcCode,
         mp: certVax.euProductCode,
         ma: certVax.manufacturer.code,
         dn: SCHEDULE_TO_SEQUENCE[schedule],

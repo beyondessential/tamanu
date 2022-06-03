@@ -20,6 +20,11 @@ export class CertifiableVaccine extends Model {
           type: Sequelize.STRING,
           allowNull: false,
         },
+        // SNOMED CT code for targeted disease or agent
+        targetSnomedCode: {
+          type: Sequelize.STRING,
+          allowNull: true,
+        },
         euProductCode: {
           type: Sequelize.STRING,
           allowNull: true,
@@ -71,6 +76,10 @@ export class CertifiableVaccine extends Model {
   }
 
   usableForEuDcc() {
-    return this.euProductCode !== null && this.manufacturerId !== null;
+    return (
+      this.euProductCode !== null &&
+      this.targetedDiseaseSnomedCode !== null &&
+      this.manufacturerId !== null
+    );
   }
 }
