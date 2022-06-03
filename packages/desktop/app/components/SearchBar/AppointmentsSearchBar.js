@@ -1,7 +1,13 @@
 import React from 'react';
 import { startOfDay } from 'date-fns';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
-import { DateTimeField, AutocompleteField, LocalisedField, SelectField } from '../Field';
+import {
+  DateTimeField,
+  AutocompleteField,
+  LocalisedField,
+  SelectField,
+  DisplayIdField,
+} from '../Field';
 import { appointmentTypeOptions, appointmentStatusOptions } from '../../constants';
 import { useSuggester } from '../../api';
 
@@ -54,7 +60,7 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
       />
       <LocalisedField name="after" defaultLabel="Start from" component={DateTimeField} />
       <LocalisedField name="before" defaultLabel="Until" component={DateTimeField} />
-      <LocalisedField name="displayId" />
+      <DisplayIdField />
     </CustomisableSearchBar>
   );
 };

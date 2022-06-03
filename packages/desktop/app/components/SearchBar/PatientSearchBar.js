@@ -2,7 +2,6 @@ import React from 'react';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { AutocompleteField, CheckField, Field, LocalisedField, DisplayIdField } from '../Field';
 import { useSuggester } from '../../api';
-import { FingerprintButton } from '../FingerprintButton';
 
 export const PatientSearchBar = React.memo(({ onSearch }) => {
   const facilitySuggester = useSuggester('facility');
@@ -11,17 +10,16 @@ export const PatientSearchBar = React.memo(({ onSearch }) => {
   const practitionerSuggester = useSuggester('practitioner');
   return (
     <CustomisableSearchBar
-      title="Search for patients"
-      RightSection={FingerprintButton}
+      title="Search for Patients"
       renderCheckField={
         <Field name="deceased" label="Include deceased patients" component={CheckField} />
       }
       onSearch={onSearch}
     >
-      <DisplayIdField />
       <LocalisedField name="firstName" />
       <LocalisedField name="lastName" />
-      <LocalisedField name="dateOfBirthExact" />
+      <Field name="dateOfBirthExact" label="DOB" />
+      <DisplayIdField />
       <LocalisedField
         name="facilityId"
         defaultLabel="Facility"

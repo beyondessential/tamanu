@@ -9,6 +9,7 @@ import {
   InvoicesSearchBar,
   AppointmentsSearchBar,
   LabRequestsSearchBar,
+  CovidPatientsSearchBar,
 } from '../app/components';
 
 import { DumbLocalisationProvider } from '../app/contexts/Localisation';
@@ -81,10 +82,10 @@ storiesOf('SearchBar', module)
     </DumbLocalisationProvider>
   ))
   .add('AllPatientSearchBar', () => <AllPatientsSearchBar onSearch={action('search')} />)
-  .add('PatientSearchBar', () => <PatientSearchBar onSearch={action('search')} />)
-  .add('LabRequestsSearchBar', () => <LabRequestsSearchBar onSearch={action('search')} />)
   .add('AppointmentsSearchBar', () => <AppointmentsSearchBar onSearch={action('search')} />)
+  .add('CovidPatientsSearchBar', () => <CovidPatientsSearchBar onSearch={action('search')} />)
   .add('ImagingRequestsSearchBar', () => <ImagingRequestsSearchBar onSearch={action('search')} />)
   .add('ImmunisationSearchBar', () => <ImmunisationSearchBar onSearch={action('search')} />)
   .add('InvoicesSearchBar', () => <InvoicesSearchBar onSearch={action('search')} />)
-  .add('LabRequestsSearchBar', () => <LabRequestsSearchBar onSearch={action('search')} />);
+  .add('LabRequestsSearchBar', () => <LabRequestsSearchBar onSearch={action('search')} />)
+  .add('PatientSearchBar', () => <PatientSearchBar onSearch={action('search')} />);

@@ -120,7 +120,7 @@ export class Form extends React.PureComponent {
             clearForm: () => formProps.resetForm({}),
           })}
         </form>
-        <pre>{JSON.stringify(values, null, 2)}</pre>
+        {/*<pre>{JSON.stringify(values, null, 2)}</pre>*/}
       </>
     );
   };
