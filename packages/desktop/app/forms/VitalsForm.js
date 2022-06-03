@@ -64,8 +64,18 @@ export class VitalsForm extends React.PureComponent {
         validate={values => {
           const errors = {};
 
-          // All readings are either numbers or strings
-          if (!Object.values(values).some(x => x && ['number', 'string'].includes(typeof x))) {
+          const mustHaveOneOf = [
+            'temperature',
+            'height',
+            'weight',
+            'sbp',
+            'dbp',
+            'heartRate',
+            'respiratoryRate',
+            'spo2',
+            'avpu',
+          ];
+          if (!mustHaveOneOf.some(x => values[x])) {
             errors.form = 'At least one recording must be entered.';
           }
 
