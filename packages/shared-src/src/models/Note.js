@@ -81,5 +81,18 @@ export class Note extends Model {
       foreignKey: 'onBehalfOfId',
       as: 'onBehalfOf',
     });
+
+    NOTE_RECORD_TYPE_VALUES.forEach(modelName => {
+      this.belongsTo(models[modelName], {
+        foreignKey: 'recordId',
+        constraints: false,
+      });
+    });
+  }
+
+  getParentRecord(options) {
+    if (!this.recordType) return Promise.resolve(null);
+    const parentGetter = `get${this.recordType}`;
+    return this[parentGetter](options);
   }
 }

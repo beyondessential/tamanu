@@ -28,8 +28,10 @@ const getUpdatedAtTimestamp = ({ updatedAt }) => new Date(updatedAt).valueOf();
 // TODO: add exhaustive tests for sync API for each channel
 
 describe('Sync API', () => {
+  // The sync api joins patients to notes but the faker doesn't include them so we add it here for a later comparison
   const fakeSyncRecordPatient = overrides =>
     convertFromDbRecord({
+      notes: [],
       ...fake(ctx.store.models.Patient),
       ...overrides,
     });
@@ -580,7 +582,9 @@ describe('Sync API', () => {
         markedForSync,
         ...data
       } = foundRecord;
-      expect(data).toEqual(record.data);
+      // Drop the notes before the comparison since foundRecord won't include them
+      const { notes, ...comparisonData } = record.data;
+      expect(data).toEqual(comparisonData);
     });
 
     const patientId = uuidv4();

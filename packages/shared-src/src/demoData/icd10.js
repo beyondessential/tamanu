@@ -1,6 +1,6 @@
 import { splitIds } from './utilities';
 
-const buildDiagnosis = ({ _id, name: nameAndCode }) => {
+export const buildDiagnosis = ({ _id, name: nameAndCode }) => {
   const [name, code] = nameAndCode.split(/\t/);
   return { _id, name, code, type: 'icd10' };
 };

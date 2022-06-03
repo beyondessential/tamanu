@@ -279,17 +279,19 @@ export const MedicationForm = React.memo(
             </FormGrid>
           )}
         />
-        <PrescriptionPrintModal
-          medication={submittedMedication || medication}
-          open={printModalOpen}
-          onClose={() => {
-            if (awaitingPrint) {
-              onSaved();
-            }
-            setAwaitingPrint(false);
-            setPrintModalOpen(false);
-          }}
-        />
+        {(submittedMedication || medication) && (
+          <PrescriptionPrintModal
+            medication={submittedMedication || medication}
+            open={printModalOpen}
+            onClose={() => {
+              if (awaitingPrint) {
+                onSaved();
+              }
+              setAwaitingPrint(false);
+              setPrintModalOpen(false);
+            }}
+          />
+        )}
       </>
     );
   },

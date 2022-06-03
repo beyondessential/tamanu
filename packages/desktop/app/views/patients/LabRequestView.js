@@ -312,7 +312,7 @@ const LabRequestActionDropdown = ({ labRequest, patient, updateLabReq }) => {
   );
 };
 
-const LabRequestInfoPane = ({ labRequest }) => (
+const LabRequestInfoPane = ({ labRequest, refreshLabRequest }) => (
   <FormGrid columns={3}>
     <TextInput value={labRequest.displayId} label="Request ID" />
     <TextInput value={(labRequest.category || {}).name} label="Request type" />
@@ -322,18 +322,22 @@ const LabRequestInfoPane = ({ labRequest }) => (
     <TextInput value={(labRequest.laboratory || {}).name} label="Laboratory" />
     <DateInput value={labRequest.requestedDate} label="Requested date" />
     <DateTimeInput value={labRequest.sampleTime} label="Sample date" />
-    <LabRequestNoteForm labRequest={labRequest} />
+    <LabRequestNoteForm labRequest={labRequest} refreshLabRequest={refreshLabRequest} />
   </FormGrid>
 );
 
 export const DumbLabRequestView = React.memo(({ patient }) => {
-  const { isLoading, labRequest, updateLabRequest } = useLabRequest();
+  const { isLoading, labRequest, updateLabRequest, loadLabRequest } = useLabRequest();
   const updateLabReq = useCallback(
     async data => {
       await updateLabRequest(labRequest.id, data);
     },
     [labRequest, updateLabRequest],
   );
+  const refreshLabRequest = useCallback(async () => {
+    await loadLabRequest(labRequest.id);
+  }, [labRequest.id, loadLabRequest]);
+
   if (isLoading) return <LoadingIndicator />;
   return (
     <TwoColumnDisplay>
@@ -350,7 +354,7 @@ export const DumbLabRequestView = React.memo(({ patient }) => {
         </TopBar>
         <BackLink />
         <ContentPane>
-          <LabRequestInfoPane labRequest={labRequest} />
+          <LabRequestInfoPane labRequest={labRequest} refreshLabRequest={refreshLabRequest} />
         </ContentPane>
         <ResultsPane labRequest={labRequest} patient={patient} />
         <LabRequestAuditPane labRequest={labRequest} />

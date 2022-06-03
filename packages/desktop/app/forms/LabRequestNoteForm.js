@@ -32,7 +32,7 @@ const AddNoteButton = styled(AddButton)`
   align-self: flex-end;
 `;
 
-export const LabRequestNoteForm = ({ labRequest }) => {
+export const LabRequestNoteForm = ({ labRequest, refreshLabReq }) => {
   const api = useApi();
   const [notes, setNotes] = useState([]);
 
@@ -51,8 +51,9 @@ export const LabRequestNoteForm = ({ labRequest }) => {
         noteType: NOTE_TYPES.OTHER,
       });
       setNotes([newNote, ...notes]);
+      refreshLabReq();
     },
-    [notes, labRequest.id, api],
+    [notes, labRequest.id, api, refreshLabReq],
   );
 
   const renderForm = useCallback(

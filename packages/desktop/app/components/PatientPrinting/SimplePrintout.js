@@ -9,6 +9,7 @@ import { DateDisplay } from '../DateDisplay';
 import { PatientBarcode } from './PatientBarcode';
 
 import { GridTable } from './GridTable';
+import { capitaliseFirstLetter } from '../../utils/capitalise';
 
 const Text = styled(Typography)`
   font-size: 14px;
@@ -56,7 +57,7 @@ export const SimplePrintout = React.memo(({ patientData, tableData, notes, certi
           <LocalisedLabel name="dateOfBirth">
             <DateDisplay date={dateOfBirth} showDate={false} showExplicitDate />
           </LocalisedLabel>
-          <LocalisedLabel name="sex">{sex}</LocalisedLabel>
+          <LocalisedLabel name="sex">{capitaliseFirstLetter(sex)}</LocalisedLabel>
         </div>
         <div>
           <LocalisedLabel name="displayId">{displayId}</LocalisedLabel>
