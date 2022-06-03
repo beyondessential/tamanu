@@ -312,7 +312,7 @@ const LabRequestActionDropdown = ({ labRequest, patient, updateLabReq }) => {
   );
 };
 
-const LabRequestInfoPane = ({ labRequest, updateLabReq }) => (
+const LabRequestInfoPane = ({ labRequest, refreshLabReq }) => (
   <FormGrid columns={3}>
     <TextInput value={labRequest.displayId} label="Request ID" />
     <TextInput value={(labRequest.category || {}).name} label="Request type" />
@@ -322,22 +322,22 @@ const LabRequestInfoPane = ({ labRequest, updateLabReq }) => (
     <TextInput value={(labRequest.laboratory || {}).name} label="Laboratory" />
     <DateInput value={labRequest.requestedDate} label="Requested date" />
     <DateTimeInput value={labRequest.sampleTime} label="Sample date" />
-    <LabRequestNoteForm
-      labRequest={labRequest}
-      // Don't actually change any data, just trigger the update to refresh the render
-      refreshLabReq={() => updateLabReq({ id: labRequest.id })}
-    />
+    <LabRequestNoteForm labRequest={labRequest} refreshLabReq={refreshLabReq} />
   </FormGrid>
 );
 
 export const DumbLabRequestView = React.memo(({ patient }) => {
-  const { isLoading, labRequest, updateLabRequest } = useLabRequest();
+  const { isLoading, labRequest, updateLabRequest, loadLabRequest } = useLabRequest();
   const updateLabReq = useCallback(
     async data => {
       await updateLabRequest(labRequest.id, data);
     },
     [labRequest, updateLabRequest],
   );
+  const refreshLabReq = useCallback(async () => {
+    await loadLabRequest(labRequest.id);
+  }, [labRequest.id, loadLabRequest]);
+
   if (isLoading) return <LoadingIndicator />;
   return (
     <TwoColumnDisplay>
@@ -354,7 +354,7 @@ export const DumbLabRequestView = React.memo(({ patient }) => {
         </TopBar>
         <BackLink />
         <ContentPane>
-          <LabRequestInfoPane labRequest={labRequest} updateLabReq={updateLabReq} />
+          <LabRequestInfoPane labRequest={labRequest} refreshLabReq={refreshLabReq} />
         </ContentPane>
         <ResultsPane labRequest={labRequest} patient={patient} />
         <LabRequestAuditPane labRequest={labRequest} />
