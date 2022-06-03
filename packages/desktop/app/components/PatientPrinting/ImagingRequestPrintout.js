@@ -23,7 +23,7 @@ export const ImagingRequestPrintout = React.memo(
         tableData={{
           'Request ID': id,
           'Request date': requestedDate ? moment(requestedDate).format('DD/MM/YYYY') : null,
-          Facility: encounterData?.location?.Facility?.name,
+          Facility: encounterData?.location?.facility?.name,
           Department: encounterData?.department?.name,
           'Requested by': requestedBy?.displayName,
           Urgent: urgent ? 'Yes' : 'No',
