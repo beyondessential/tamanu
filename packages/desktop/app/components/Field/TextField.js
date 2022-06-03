@@ -28,10 +28,9 @@ export const StyledTextField = styled(MuiTextField)`
   // helper text
   .MuiFormHelperText-root {
     font-weight: 500;
-    font-size: 11px;
+    font-size: 12px;
     line-height: 15px;
-    margin: 4px 15px;
-    letter-spacing: 0;
+    margin: 4px 2px 2px;
   }
 
   // Hover state

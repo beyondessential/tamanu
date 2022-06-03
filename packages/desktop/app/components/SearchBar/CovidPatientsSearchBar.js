@@ -1,7 +1,6 @@
 import React from 'react';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import {
-  DateField,
   AutocompleteField,
   CheckField,
   Field,
@@ -26,7 +25,7 @@ export const CovidPatientsSearchBar = React.memo(({ onSearch }) => {
       <LocalisedField name="villageId" component={AutocompleteField} suggester={villageSuggester} />
       <DisplayIdField />
       <DOBFields />
-      <Field name="clinicalStatus" component={DateField} label="Clinical status" />
+      <Field name="clinicalStatus" label="Clinical status" />
     </CustomisableSearchBar>
   );
 });

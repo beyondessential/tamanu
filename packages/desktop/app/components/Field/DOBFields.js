@@ -4,7 +4,9 @@ import { DateField } from './DateField';
 import { Field } from './Field';
 
 const JoinedField = styled(Field)`
-  &:after {
+  position: relative;
+
+  .MuiInputBase-root:after {
     position: absolute;
     top: 50%;
     left: 100%;
@@ -14,9 +16,11 @@ const JoinedField = styled(Field)`
     content: '';
   }
 `;
+
 export const DOBFields = () => (
   <>
     <JoinedField name="dateOfBirthFrom" component={DateField} label="DOB from" />
     <Field name="dateOfBirthTo" component={DateField} label="DOB to" />
+    <Field name="dateOfBirthExact" component={DateField} label="DOB" />
   </>
 );
