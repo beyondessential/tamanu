@@ -2,6 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 
 import { findRouteObject, permissionCheckingRouter, simpleGetList } from './crudHelpers';
+import { getFilteredListByPermission } from '../../utils/getFilteredListByPermission';
 
 export const survey = express.Router();
 
@@ -21,13 +22,14 @@ survey.get(
 survey.get(
   '/$',
   asyncHandler(async (req, res) => {
-    const { models } = req;
+    const { models, ability } = req;
     req.checkPermission('list', 'Survey');
     const surveys = await models.Survey.findAll({
       where: { surveyType: req.query.type },
     });
+    const filteredSurveys = getFilteredListByPermission(ability, surveys, 'submit');
 
-    res.send({ surveys });
+    res.send({ surveys: filteredSurveys });
   }),
 );
 
