@@ -88,7 +88,7 @@ export function extendExpect(expect) {
       };
     },
     toMatchTabularReport(...params) {
-      return toMatchTabularReport(toMatchTabularReport, ...params); 
+      return toMatchTabularReport(this, ...params);
     },
   });
 }
