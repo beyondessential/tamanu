@@ -372,7 +372,6 @@ describe('Palau covid case report tests', () => {
           {
             'First name': expectedPatient2.firstName,
           },
-          {},
         ],
         { partialMatching: true },
       );
