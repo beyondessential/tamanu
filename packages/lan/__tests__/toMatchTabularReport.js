@@ -73,7 +73,7 @@ export const toMatchTabularReport = (
   // Note: this line requires that the keys in `expectedData` are ordered
   const expectedHeaders = Object.keys(expectedData[0]);
 
-  const keyToIndex = expectedHeaders.reduce((acc, prop, i) => ({ ...acc, [prop]: i }), {});
+  const keyToIndex = receivedHeadings.reduce((acc, prop, i) => ({ ...acc, [prop]: i }), {});
   const getProperty = (row, prop) => row[keyToIndex[prop]];
 
   if (expectContextThis.isNot || expectContextThis.promise) {
