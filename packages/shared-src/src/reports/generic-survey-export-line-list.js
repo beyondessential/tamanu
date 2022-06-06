@@ -113,7 +113,6 @@ export const dataGenerator = async ({ sequelize, models }, parameters = {}) => {
 
   const components = await models.SurveyScreenComponent.getAnswerComponentsForSurveys(surveyId);
 
-  console.log(results);
   const reportColumnTemplate = [
     ...COMMON_FIELDS.map(field => ({
       title: field,

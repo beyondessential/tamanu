@@ -186,13 +186,11 @@ describe('Generic survey export', () => {
 
       await submitSurveyForPatient(app, expectedPatient, date);
 
-      console.log(await testContext.models.SurveyResponse.findAll());
       const [response] = await testContext.models.SurveyResponse.findAll({
         where: { surveyId: SURVEY_ID },
       });
       response.result = 17;
       response.resultText = 'Seventeen';
-      console.log(response);
       await response.save();
 
       const result = await app.post(REPORT_URL).send({
