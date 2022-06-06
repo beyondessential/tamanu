@@ -32,8 +32,8 @@ function createSuggesterRoute(
       const { dialect } = model.sequelize.options;
       const positionQuery =
         dialect === 'sqlite'
-          ? `INSTR(${searchColumn}, :positionMatch)`
-          : `POSITION(:positionMatch in ${searchColumn})`;
+          ? `INSTR(${searchColumn}, :positionMatch) > 1`
+          : `POSITION(:positionMatch in ${searchColumn}) > 1`;
 
       const results = await model.sequelize.query(
         `
