@@ -83,7 +83,7 @@ function noUnknownValidationMessage(obj) {
   const params = Object.keys(obj.originalValue);
 
   // Return list of unknown params
-  const unknownParams = params.filter(param => param in patient.fields === false);
+  const unknownParams = params.filter(param => param in patient.query.fields === false);
   return `Unknown or unsupported parameters: ${unknownParams.join(', ')}`;
 }
 

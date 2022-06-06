@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react';
+import { useNavigation } from '@react-navigation/native';
 import { StyledView } from '/styled/common';
 import { theme } from '/styled/theme';
 import { Button } from '../../Button';
@@ -19,56 +20,73 @@ import {
   getSuggester,
 } from './helpers';
 
+const PlainField = ({ fieldName }): ReactElement => (
+  // Outter styled view to momentarily add distance between fields
+  <StyledView key={fieldName} paddingTop={15}>
+    <LocalisedField name={fieldName} component={TextField} />
+  </StyledView>
+);
+
+const SelectField = ({ fieldName }): ReactElement => (
+  <LocalisedField
+    key={fieldName}
+    name={fieldName}
+    options={selectFieldsOptions[fieldName]}
+    component={Dropdown}
+  />
+);
+
+const RelationField = ({ fieldName }): ReactElement => {
+  const { models } = useBackend();
+  const { getString } = useLocalisation();
+  const navigation = useNavigation();
+  const { type, placeholder } = relationIdFieldsProperties[fieldName];
+  const localisedPlaceholder = getString(`fields.${fieldName}.longLabel`, placeholder);
+  const suggester = getSuggester(models, type);
+
+  return (
+    <LocalisedField
+      key={fieldName}
+      component={AutocompleteModalField}
+      placeholder={`Search for ${localisedPlaceholder}`}
+      navigation={navigation}
+      suggester={suggester}
+      modalRoute={Routes.Autocomplete.Modal}
+      name={fieldName}
+    />
+  );
+};
+
+function getComponentForField(fieldName: string): React.FC<{ fieldName: string}> {
+  if (plainFields.includes(fieldName)) {
+    return PlainField;
+  }
+  if (selectFields.includes(fieldName)) {
+    return SelectField;
+  }
+  if (relationIdFields.includes(fieldName)) {
+    return RelationField;
+  }
+  // Shouldn't happen
+  throw new Error(`Unexpected field ${fieldName} for patient additional data.`);
+}
+
 export const PatientAdditionalDataFields = ({
   handleSubmit,
   isSubmitting,
-  navigation,
-}): ReactElement => {
-  const { models } = useBackend();
-  const { getString } = useLocalisation();
-
-  return (
-    <StyledView justifyContent="space-between">
-      {plainFields.map((fieldName, i) => (
-        // Outter styled view to momentarily add distance between fields
-        <StyledView key={fieldName} marginTop={i === 0 ? 0 : 15}>
-          <LocalisedField name={fieldName} component={TextField} />
-        </StyledView>
-      ))}
-      <StyledView marginTop={7}>
-        {selectFields.map(fieldName => (
-          <LocalisedField
-            key={fieldName}
-            name={fieldName}
-            options={selectFieldsOptions[fieldName]}
-            component={Dropdown}
-          />
-        ))}
-      </StyledView>
-      {relationIdFields.map(fieldName => {
-        const { type, placeholder } = relationIdFieldsProperties[fieldName];
-        const localisedPlaceholder = getString(`fields.${fieldName}.longLabel`, placeholder);
-        const suggester = getSuggester(models, type);
-
-        return (
-          <LocalisedField
-            key={fieldName}
-            component={AutocompleteModalField}
-            placeholder={`Search for ${localisedPlaceholder}`}
-            navigation={navigation}
-            suggester={suggester}
-            modalRoute={Routes.Autocomplete.Modal}
-            name={fieldName}
-          />
-        );
-      })}
-      <Button
-        backgroundColor={theme.colors.PRIMARY_MAIN}
-        onPress={handleSubmit}
-        loadingAction={isSubmitting}
-        buttonText="Save"
-        marginTop={10}
-      />
-    </StyledView>
-  );
-};
+  fields,
+}): ReactElement => (
+  <StyledView justifyContent="space-between">
+    {fields.map(fieldName => {
+      const Component = getComponentForField(fieldName);
+      return <Component fieldName={fieldName} key={fieldName} />;
+    })}
+    <Button
+      backgroundColor={theme.colors.PRIMARY_MAIN}
+      onPress={handleSubmit}
+      loadingAction={isSubmitting}
+      buttonText="Save"
+      marginTop={10}
+    />
+  </StyledView>
+);

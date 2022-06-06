@@ -25,7 +25,7 @@ export const BackendProvider = ({ Component }): ReactElement => {
   }, [backend]);
 
   if (!initialised) {
-    return <LoadingScreen text="Connecting to database..." />;
+    return <LoadingScreen />;
   }
 
   return (

@@ -10,17 +10,14 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { DecisionSupportModal } from './components/DecisionSupportModal';
 
 const AppContainer = styled.div`
-  height: 100vh;
-  display: grid;
+  min-height: 100vh;
+  display: flex;
   background: #f7f9fb;
-  grid-template-columns: 1fr 4fr;
 `;
 
 const AppContentsContainer = styled.div`
   overflow-x: hidden;
-  flex-grow: 1;
-  grid-row: 2 / -1;
-  grid-column: 2 / -1;
+  flex: 4;
 `;
 
 export function App({ sidebar, children }) {

@@ -50,17 +50,21 @@ export class Encounter extends Model {
         'medications',
         'labRequests',
         'labRequests.tests',
+        'labRequests.notes',
         'imagingRequests',
+        'imagingRequests.notes',
         'procedures',
         'initiatedReferrals',
         'completedReferrals',
         'vitals',
         'discharge',
         'triages',
+        'triages.notes',
         'invoice',
         'invoice.invoiceLineItems',
         'invoice.invoicePriceChangeItems',
         'documents',
+        'notes',
       ],
       ...nestedSyncConfig,
       channelRoutes: [
@@ -262,6 +266,15 @@ export class Encounter extends Model {
       as: 'patientBillingType',
     });
 
+    this.hasMany(models.Note, {
+      foreignKey: 'recordId',
+      as: 'notes',
+      constraints: false,
+      scope: {
+        recordType: this.name,
+      },
+    });
+
     // this.hasMany(models.Procedure);
     // this.hasMany(models.Report);
   }
@@ -289,9 +302,10 @@ export class Encounter extends Model {
   }
 
   async addSystemNote(content) {
-    const { Note } = this.sequelize.models;
-
-    const note = await Note.createForRecord(this, NOTE_TYPES.SYSTEM, content);
+    const note = await this.createNote({
+      noteType: NOTE_TYPES.SYSTEM,
+      content,
+    });
 
     return note;
   }
