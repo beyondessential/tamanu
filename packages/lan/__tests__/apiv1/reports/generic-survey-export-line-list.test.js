@@ -144,7 +144,8 @@ describe('Generic survey export', () => {
       expect(result.body).toMatchTabularReport([]);
     });
 
-    it('should return data ordered by date', async () => {
+    // unskip after this PR is merged: https://github.com/beyondessential/tamanu/pull/2302
+    it.skip('should return data ordered by date', async () => {
       const date1 = subDays(new Date(), 25);
       const date2 = subDays(new Date(), 25);
       const date3 = subDays(new Date(), 25);
@@ -184,6 +185,16 @@ describe('Generic survey export', () => {
       const expectedDate = getExpectedDate(date);
 
       await submitSurveyForPatient(app, expectedPatient, date);
+
+      console.log(await testContext.models.SurveyResponse.findAll());
+      const [response] = await testContext.models.SurveyResponse.findAll({
+        where: { surveyId: SURVEY_ID },
+      });
+      response.result = 17;
+      response.resultText = 'Seventeen';
+      console.log(response);
+      await response.save();
+
       const result = await app.post(REPORT_URL).send({
         parameters: {
           surveyId: SURVEY_ID,
@@ -203,6 +214,8 @@ describe('Generic survey export', () => {
           'Submission Time': format(expectedDate, 'yyyy-MM-dd HH:mm'),
           'Test Question 1': 'Data point 1',
           'Test Question 2': 'Data point 2',
+          Result: '17',
+          'Result (text)': 'Seventeen',
         },
       ]);
     });
