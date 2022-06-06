@@ -29,15 +29,15 @@ const failForMismatchingHeadings = (receivedHeadings, expectedHeaders) => ({
 const testReportLength = (receivedData, expectedData) => {
   return {
     pass: receivedData.length === expectedData.length,
-    errors: [
+    errors: [ // Don't set this if it passes!! TODO
       `Incorrect number of rows: Received: ${receivedData.length}, Expected: ${expectedData.length}`,
     ],
   }
 }
 
-const testReportContentLine = (expectedRow, index) => {
+const testReportContentLine = (expectContextThis, getProperty, expectedRow, receivedRow, index) => {
   const receivedRow = receivedData[i];
-
+  const errors = [];
   Object.entries(expectedRow).forEach(([key, expectedValue]) => {
     const receivedValue = getProperty(receivedRow, key);
     if (receivedValue !== expectedValue && expectedValue !== MATCH_ANY) {
@@ -46,9 +46,9 @@ const testReportContentLine = (expectedRow, index) => {
           expectedValue,
         )}, Received: ${expectContextThis.utils.printReceived(receivedValue)}`,
       );
-      pass = false;
     }
   });
+  return errors;
 }
 
 export const toMatchTabularReport = (expectContextThis, receivedReport, expectedData, { partialMatching = false }) => {
@@ -87,14 +87,14 @@ export const toMatchTabularReport = (expectContextThis, receivedReport, expected
     return failForMismatchingHeadings(receivedHeadings, expectedHeaders);
   }
 
-  const { pass, errors } = testReportLength(receivedData, expectedData);
+  const errors = testReportLength(receivedData, expectedData);
 
-  expectedData.forEach( => {
-    
+  expectedData.forEach((expectedRow, index) => {
+    errors.push(testReportContentLine(expectContextThis, getProperty, expectedRow, receivedRow, index))
   });
 
   return {
-    pass,
+    pass: !errors.length,
     message: buildErrorMessage(errors),
   };
 },
