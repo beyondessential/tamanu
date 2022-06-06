@@ -8,6 +8,15 @@ const PROGRAM_ID = 'test-program-id';
 const SURVEY_ID = 'test-survey-id';
 const SENSITIVE_SURVEY_ID = 'test-survey-id-sensitive';
 
+const getExpectedDate = date =>
+  new Date(
+    date.getUTCFullYear(),
+    date.getUTCMonth(),
+    date.getUTCDate(),
+    date.getUTCHours(),
+    date.getUTCMinutes(),
+  );
+
 const createDummySurvey = async models => {
   await models.Program.create({
     id: PROGRAM_ID,
@@ -135,17 +144,45 @@ describe('Generic survey export', () => {
       expect(result.body).toMatchTabularReport([]);
     });
 
+    it('should return data ordered by date', async () => {
+      const date1 = subDays(new Date(), 25);
+      const date2 = subDays(new Date(), 25);
+      const date3 = subDays(new Date(), 25);
+      // Submit in a different order just in case
+      await submitSurveyForPatient(app, expectedPatient, date2);
+      await submitSurveyForPatient(app, expectedPatient, date3);
+      await submitSurveyForPatient(app, expectedPatient, date1);
+
+      const result = await app.post(REPORT_URL).send({
+        parameters: {
+          surveyId: SURVEY_ID,
+          village: unexpectedVillage.id,
+        },
+      });
+      expect(result).toHaveSucceeded();
+      expect(result.body).toMatchTabularReport(
+        [
+          {
+            'Submission Time': format(getExpectedDate(date1), 'yyyy-MM-dd HH:mm'),
+          },
+          {
+            'Submission Time': format(getExpectedDate(date2), 'yyyy-MM-dd HH:mm'),
+          },
+          {
+            'Submission Time': format(getExpectedDate(date3), 'yyyy-MM-dd HH:mm'),
+          },
+        ],
+        { partialMatch: true },
+      );
+    });
+
     it('should return basic data for a survey', async () => {
       const date = subDays(new Date(), 25);
       // Not entirely sure why this works
       // https://stackoverflow.com/a/66672462
-      const expectedDate = new Date(
-        date.getUTCFullYear(),
-        date.getUTCMonth(),
-        date.getUTCDate(),
-        date.getUTCHours(),
-        date.getUTCMinutes(),
-      );
+
+      const expectedDate = getExpectedDate(date);
+
       await submitSurveyForPatient(app, expectedPatient, date);
       const result = await app.post(REPORT_URL).send({
         parameters: {
