@@ -1,7 +1,5 @@
 const { v4: uuidv4 } = require('uuid');
 const { readFile, utils } = require('xlsx');
-const moment = require('moment');
-const _ = require('lodash');
 const fetch = require('node-fetch');
 const {
   getHeaders,
@@ -9,10 +7,10 @@ const {
   generateDisplayId,
   LAB_REQUEST_STATUSES,
   ENCOUNTER_TYPES,
-  asyncSleep
+  asyncSleep,
 } = require('./utils');
 
-const BASE_URL = 'https://sync-dev.tamanu.io';
+const BASE_URL = 'https://sync-dev.tamanu.io'; // TOCHANGE
 
 const FILE =
   '/mnt/c/Users/locke/Data/BE/Data/Tamanu/Samoa data import 11-04-2022/Matched by Nikita/To be imported.xlsx';
@@ -47,99 +45,103 @@ const importExcelSheet = () => {
 const getLabRequests = async () => {
   const data = importExcelSheet();
   // const adminUserId = 'b5ee86e8-23a2-4c1a-be15-0bbb3aaef047'; // Initial Admin
-  const adminUserId = 'dummy-user'; // for dev
+  const adminUserId = 'dummy-user'; // for dev // TOCHANGE
 
   return data.map(({ patientId, positive, timeOfEverything, phone, isolationVillage }) => {
-      const encounterId = uuidv4();
-      const labRequestId = uuidv4();
-      const surveyResponseId = uuidv4();
+    const encounterId = uuidv4();
+    const labRequestId = uuidv4();
+    const surveyResponseId = uuidv4();
 
-      const answers = [];
-      if (phone) {
-        answers.push({
+    const answers = [];
+    if (phone) {
+      answers.push({
+        data: {
+          // id: uuidv4(),
+          dataElementId: 'pde-samcovidsamp02',
+          responseId: surveyResponseId,
+          body: phone,
+        },
+      });
+    }
+    if (isolationVillage) {
+      answers.push({
+        data: {
+          // id: uuidv4(),
+          dataElementId: 'pde-samcovidsamp03',
+          responseId: surveyResponseId,
+          body: `village-${isolationVillage.replace(' ', '')}`,
+        },
+      });
+    }
+
+    return {
+      patientId,
+      data: [
+        {
           data: {
-            // id: uuidv4(),
-            dataElementId: 'pde-samcovidsamp02',
-            responseId: surveyResponseId,
-            body: phone,
-          },
-        });
-      }
-      if (isolationVillage) {
-        answers.push({
-          data: {
-            // id: uuidv4(),
-            dataElementId: 'pde-samcovidsamp03',
-            responseId: surveyResponseId,
-            body: `village-${isolationVillage.replace(' ', '')}`,
-          },
-        });
-      }
+            id: encounterId,
+            patientId,
+            encounterType: ENCOUNTER_TYPES.CLINIC, // TODO
+            locationId: 'location-GeneralClinic',
+            departmentId: 'department-GeneralClinic',
+            deviceId: 'manual_import',
+            reasonForEncounter: 'Imported lab request',
+            examinerId: adminUserId,
+            startDate: timeOfEverything,
+            endDate: addMinutesToDate(timeOfEverything, 60),
 
-      return {
-        patientId,
-        data: [ {data: {
-          id: encounterId,
-          patientId,
-          encounterType: ENCOUNTER_TYPES.CLINIC, // TODO
-          locationId: 'location-GeneralClinic',
-          departmentId: 'department-GeneralClinic',
-          deviceId: 'manual_import',
-          reasonForEncounter: 'Imported lab request',
-          examinerId: adminUserId,
-          startDate: timeOfEverything,
-          endDate: addMinutesToDate(timeOfEverything, 60),
+            labRequests: [
+              {
+                data: {
+                  // Base LabRequest fields
+                  id: labRequestId,
+                  sampleTime: addMinutesToDate(timeOfEverything, 0),
+                  requestedDate: addMinutesToDate(timeOfEverything, 60),
+                  specimenAttached: false,
+                  status: LAB_REQUEST_STATUSES.PUBLISHED,
+                  displayId: generateDisplayId(),
 
-          labRequests: [
-            {
-              data: {
-                // Base LabRequest fields
-                id: labRequestId,
-                sampleTime: addMinutesToDate(timeOfEverything, 0),
-                requestedDate: addMinutesToDate(timeOfEverything, 60),
-                specimenAttached: false,
-                status: LAB_REQUEST_STATUSES.PUBLISHED,
-                displayId: generateDisplayId(),
+                  // References
+                  encounterId,
+                  requestedById: adminUserId,
+                  // labTestCategoryId: 'labTestCategory-COVIDRAT', // TOCHANGE
+                  labTestCategoryId: 'labTestCategory-COVID',
+                  labTestPriorityId: null,
+                  labTestLaboratoryId: null,
 
-                // References
-                encounterId,
-                requestedById: adminUserId,
-                // labTestCategoryId: 'labTestCategory-COVIDRAT',
-                labTestCategoryId: 'labTestCategory-COVID',
-                labTestPriorityId: null,
-                labTestLaboratoryId: null,
-
-                labTests: [
-                  {
-                    labRequestId,
-                    labTestTypeId: positive
-                      ? 'labTestType-COVIDRapidantigentestpositive'
-                      : 'labTestType-COVIDRapidantigentestnegative',
-                    labTestMethodId: 'labTestMethod-RDT',
-                    result: positive ? 'Positive' : 'Negative',
-                    // status: 'reception_pending' is default
-                    completedDate: addMinutesToDate(timeOfEverything, 120),
-                    date: addMinutesToDate(timeOfEverything, 120),
-                  },
-                ],
+                  labTests: [
+                    {
+                      labRequestId,
+                      labTestTypeId: positive
+                        ? 'labTestType-COVIDRapidantigentestpositive'
+                        : 'labTestType-COVIDRapidantigentestnegative',
+                      labTestMethodId: 'labTestMethod-RDT',
+                      result: positive ? 'Positive' : 'Negative',
+                      // status: 'reception_pending' is default
+                      completedDate: addMinutesToDate(timeOfEverything, 120),
+                      date: addMinutesToDate(timeOfEverything, 120),
+                    },
+                  ],
+                },
               },
-            },
-          ],
-          surveyResponses: [
-            {
-              data: {
-                id: surveyResponseId,
-                encounterId,
-                surveyId: 'program-samoacovid19-samcovidsampcollectionv2',
-                startTime: addMinutesToDate(timeOfEverything, -10),
-                endTime: addMinutesToDate(timeOfEverything, -5),
-                answers,
+            ],
+            surveyResponses: [
+              {
+                data: {
+                  id: surveyResponseId,
+                  encounterId,
+                  surveyId: 'program-samoacovid19-samcovidsampcollectionv2',
+                  startTime: addMinutesToDate(timeOfEverything, -10),
+                  endTime: addMinutesToDate(timeOfEverything, -5),
+                  answers,
+                },
               },
-            },
-          ],
-        }}],
-      };
-    });
+            ],
+          },
+        },
+      ],
+    };
+  });
 };
 
 async function postEverything({ patientId, data }, headers) {
@@ -156,7 +158,7 @@ async function postEverything({ patientId, data }, headers) {
   const headers = await getHeaders(BASE_URL);
   const nestedEncounters = await getLabRequests();
   console.log(JSON.stringify(nestedEncounters[0].data, undefined, 2));
-  for(const request of nestedEncounters){
+  for (const request of nestedEncounters) {
     await postEverything(request, headers);
     await asyncSleep(100);
   }
