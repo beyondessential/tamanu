@@ -153,6 +153,16 @@ const templatesSchema = yup
       })
       .required()
       .noUnknown(),
+
+    covidTestCertificate: yup
+      .object({
+        laboratoryName: yup
+          .string()
+          .trim()
+          .required(),
+      })
+      .required()
+      .noUnknown(),
   })
   .required()
   .noUnknown();
