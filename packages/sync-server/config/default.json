@@ -1,4 +1,5 @@
 {
+  "misguidedChange": true,
   "port": 3000,
   // this should be set to the external address of the server, e.g. "https://sync-dev.tamanu.io"
   "canonicalHostName": "http://localhost:3000",
