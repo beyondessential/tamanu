@@ -26,17 +26,29 @@ function createSuggesterRoute(
       const searchQuery = (query.q || '').trim().toLowerCase();
 
       const model = models[modelName];
+
+      // TODO: when removing support for sqlite, just move
+      // the postgres half of this into the main query
+      const { dialect } = model.sequelize.options;
+      const positionQuery =
+        dialect === 'sqlite'
+          ? `INSTR(${searchColumn}, :positionMatch) > 1`
+          : `POSITION(:positionMatch in ${searchColumn}) > 1`;
+
       const results = await model.sequelize.query(
         `
-      SELECT *
-      FROM "${model.tableName}"
-      WHERE ${whereSql}
-      ORDER BY POSITION('${searchQuery}' in ${searchColumn}) > 1, ${searchColumn}
-      LIMIT :limit
-    `,
+          SELECT *
+          FROM "${model.tableName}"
+          WHERE ${whereSql}
+          ORDER BY
+            ${positionQuery},
+            ${searchColumn}
+          LIMIT :limit
+        `,
         {
           replacements: {
             search: `%${searchQuery}%`,
+            positionMatch: searchQuery,
             limit: defaultLimit,
           },
           type: QueryTypes.SELECT,
