@@ -73,11 +73,13 @@ export const practitioner = [
   { verb: 'read', noun: 'Program' },
   { verb: 'create', noun: 'Program' },
   { verb: 'write', noun: 'Program' },
+  { verb: 'submit', noun: 'Program' },
 
   { verb: 'list', noun: 'Survey' },
   { verb: 'read', noun: 'Survey' },
   { verb: 'create', noun: 'Survey' },
   { verb: 'write', noun: 'Survey' },
+  { verb: 'submit', noun: 'Survey' },
 
   { verb: 'create', noun: 'SurveyResponse' },
   { verb: 'list', noun: 'SurveyResponse' },
