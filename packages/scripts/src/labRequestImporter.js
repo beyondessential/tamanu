@@ -76,12 +76,12 @@ const getLabRequests = async () => {
 
     return {
       patientId,
-      data: [
+      patientData: [
         {
           data: {
             id: encounterId,
             patientId,
-            encounterType: ENCOUNTER_TYPES.CLINIC, // TODO
+            encounterType: ENCOUNTER_TYPES.CLINIC,
             locationId: 'location-GeneralClinic',
             departmentId: 'department-GeneralClinic',
             deviceId: 'manual_import',
@@ -95,8 +95,8 @@ const getLabRequests = async () => {
                 data: {
                   // Base LabRequest fields
                   id: labRequestId,
-                  sampleTime: addMinutesToDate(timeOfEverything, 0),
-                  requestedDate: addMinutesToDate(timeOfEverything, 60),
+                  sampleTime: addMinutesToDate(timeOfEverything, 15),
+                  requestedDate: addMinutesToDate(timeOfEverything, 20),
                   specimenAttached: false,
                   status: LAB_REQUEST_STATUSES.PUBLISHED,
                   displayId: generateDisplayId(),
@@ -118,8 +118,8 @@ const getLabRequests = async () => {
                       labTestMethodId: 'labTestMethod-RDT',
                       result: positive ? 'Positive' : 'Negative',
                       // status: 'reception_pending' is default
-                      completedDate: addMinutesToDate(timeOfEverything, 120),
-                      date: addMinutesToDate(timeOfEverything, 120),
+                      completedDate: addMinutesToDate(timeOfEverything, 50),
+                      date: addMinutesToDate(timeOfEverything, 40),
                     },
                   ],
                 },
@@ -131,8 +131,8 @@ const getLabRequests = async () => {
                   id: surveyResponseId,
                   encounterId,
                   surveyId: 'program-samoacovid19-samcovidsampcollectionv2',
-                  startTime: addMinutesToDate(timeOfEverything, -10),
-                  endTime: addMinutesToDate(timeOfEverything, -5),
+                  startTime: addMinutesToDate(timeOfEverything, 5),
+                  endTime: addMinutesToDate(timeOfEverything, 10),
                   answers,
                 },
               },
@@ -140,15 +140,28 @@ const getLabRequests = async () => {
           },
         },
       ],
-    };
+    },
+    // certificateNotificationData: [
+    //   {
+    //     data: {
+    //       id: primaryKey,
+    //       createdBy: Sequelize.STRING,
+    //       type: Sequelize.STRING,
+    //       forwardAddress: Sequelize.STRING,
+    //       requireSigning: Sequelize.BOOLEAN,
+    //       status: Sequelize.STRING,
+    //       error: Sequelize.TEXT,
+    //     },
+    //   }
+    // ]
   });
 };
 
-async function postEverything({ patientId, data }, headers) {
+async function postEverything({ patientId, patientData }, headers) {
   const response = await fetch(`${BASE_URL}/v1/sync/patient%2F${patientId}%2Fencounter`, {
     method: 'POST',
     headers,
-    body: JSON.stringify(data),
+    body: JSON.stringify(patientData),
   });
   console.log(response);
   console.log(await response.json());
