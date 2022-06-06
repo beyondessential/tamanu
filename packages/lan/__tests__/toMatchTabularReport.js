@@ -16,7 +16,7 @@ const testEmptyReport = (buildErrorMessage, receivedData) => {
   };
 };
 
-const failForMismatchingHeadings = (receivedHeadings, expectedHeaders) => ({
+const failForMismatchingHeadings = (buildErrorMessage, receivedHeadings, expectedHeaders) => ({
   pass: false,
   message: buildErrorMessage([
     `Incorrect columns,\nReceived: ${receivedHeadings}\nExpected: ${expectedHeaders}`,
@@ -70,17 +70,12 @@ export const toMatchTabularReport = (
   const { partialMatching = false } = options;
   const buildErrorMessage = buildBuildErrorMessage(expectContextThis);
   const [receivedHeadings, ...receivedData] = receivedReport;
-  // Note: this line requires that the keys in `expectedData` are ordered
-  const expectedHeaders = Object.keys(expectedData[0]);
-
-  const keyToIndex = receivedHeadings.reduce((acc, prop, i) => ({ ...acc, [prop]: i }), {});
-  const getProperty = (row, prop) => row[keyToIndex[prop]];
 
   if (expectContextThis.isNot || expectContextThis.promise) {
     throw new Error('toMatchTabularReport does not support promises or "not" yet');
   }
 
-  if (expectedData.length === 0) return testEmptyReport();
+  if (expectedData.length === 0) return testEmptyReport(buildErrorMessage, receivedData);
   if (receivedData.length === 0)
     return {
       pass: false,
@@ -89,8 +84,14 @@ export const toMatchTabularReport = (
       ),
     };
 
+  // Note: this line requires that the keys in `expectedData` are ordered
+  const expectedHeaders = Object.keys(expectedData[0]);
+
+  const keyToIndex = receivedHeadings.reduce((acc, prop, i) => ({ ...acc, [prop]: i }), {});
+  const getProperty = (row, prop) => row[keyToIndex[prop]];
+
   if (!partialMatching && !expectContextThis.equals(receivedHeadings, expectedHeaders)) {
-    return failForMismatchingHeadings(receivedHeadings, expectedHeaders);
+    return failForMismatchingHeadings(buildErrorMessage, receivedHeadings, expectedHeaders);
   }
 
   const errors = testReportLength(receivedData, expectedData);
