@@ -367,7 +367,7 @@ describe('Palau covid case report tests', () => {
         [
           {
             'First name': expectedPatient1.firstName,
-            'Day 5 sample collected': null, //
+            'Day 5 sample collected': null,
           },
           {
             'First name': expectedPatient2.firstName,
@@ -407,9 +407,16 @@ describe('Palau covid case report tests', () => {
         .send({ parameters: { fromDate: new Date(2022, 3, 1, 4) } });
       expect(reportResult).toHaveSucceeded();
       expect(reportResult.body).toHaveLength(2);
-      expect(reportResult.body[1][1]).toBe('Test 2');
-      expect(reportResult.body[1][8]).toBe(expectedPatient1.firstName);
-      expect(reportResult.body[1][34]).toBe('Resolved');
+      expect(reportResult.body).toMatchTabularReport(
+        [
+          {
+            'Case investigator': 'Test 2',
+            'First name': expectedPatient1.firstName,
+            'Patient outcome': 'Resolved',
+          },
+        ],
+        { partialMatching: true },
+      );
     });
   });
 });
