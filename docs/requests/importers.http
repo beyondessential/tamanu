@@ -104,6 +104,6 @@ Content-Type: application/json
 Content-Disposition: form-data; name="file"; filename="import.xlsx"
 Content-Type: application/vnd.ms-excel
 
-< /mnt/c/Users/locke/Downloads/Tamanu Kiribati - Reference Data Workbook (1).xlsx
-# < /mnt/c/Users/locke/Data/BE/Data/hi.xlsx
+< C:\path\to\my\dataDefinition.xlsx
+# < /mnt/c/Users/path/to/dataDefinition.xlsx
 --{{boundary}}--

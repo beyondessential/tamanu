@@ -5,11 +5,6 @@ const MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE = {
   User: 'displayName',
 };
 
-// const MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE = {
-//   User: 'displayName',
-//   ReferenceData: 'name',
-// };
-
 const convertAutocompleteAnswer = async (models, componentConfig, answer) => {
   if (!componentConfig) {
     return answer;
