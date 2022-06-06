@@ -8,6 +8,7 @@ import { createApp } from 'lan/app/createApp';
 import { initDatabase, closeDatabase } from 'lan/app/database';
 import { getToken } from 'lan/app/middleware/auth';
 
+import { toMatchTabularReport } from './toMatchTabularReport';
 import { allSeeds } from './seed';
 import { deleteAllTestIds } from './setupUtilities';
 
@@ -81,91 +82,13 @@ export function extendExpect(expect) {
         };
       }
       return {
-        message: () => `Expected status code ${status}, got ${statusCode}. ${formatError(response)}`,
+        message: () =>
+          `Expected status code ${status}, got ${statusCode}. ${formatError(response)}`,
         pass,
       };
     },
-    toMatchTabularReport(receivedReport, expectedData) {
-      /**
-       * Usage:
-       *  expect(reportData).toMatchTabularReport(
-       *    reportColumnTemplate, // TODO: should we pass this - or rely on object ordering?
-       *    [
-       *      {
-       *        Date: '2020-02-18',
-       *        "Number of patients screened": 12,
-       *      },
-       *    ],
-       *  );
-       *
-       */
-      if (this.isNot || this.promise) {
-        throw new Error('toMatchTabularReport does not support promises or "not" yet');
-      }
-      const [receivedHeadings, ...receivedData] = receivedReport;
-
-      const buildErrorMessage = errorList => () =>
-        `${this.utils.matcherHint(
-          'toMatchTabularReport',
-          undefined,
-          undefined,
-          {},
-        )}\n${errorList.join('\n')}`;
-
-      if (expectedData.length === 0) {
-        return {
-          pass: receivedData.length === 0,
-          message: buildErrorMessage([
-            `Expected an empty report, received: ${receivedData.length} rows`,
-          ]),
-        };
-      }
-      // Note: this line requires that the keys in `expectedData` are ordered
-      const propertyList = Object.keys(expectedData[0]);
-
-      if (!this.equals(receivedHeadings, propertyList)) {
-        return {
-          pass: false,
-          message: buildErrorMessage([
-            `Incorrect columns,\nReceived: ${receivedHeadings}\nExpected: ${propertyList}`,
-          ]),
-        };
-      }
-
-      let pass = true;
-      const errors = [];
-
-      if (receivedData.length !== expectedData.length) {
-        pass = false;
-        errors.push(
-          `Incorrect number of rows: Received: ${receivedData.length}, Expected: ${expectedData.length}`,
-        );
-        // No point continuing - there's nothing to test
-        if (receivedData.length === 0) return { pass, message: buildErrorMessage(errors) };
-      }
-
-      const keyToIndex = propertyList.reduce((acc, prop, i) => ({ ...acc, [prop]: i }), {});
-      const getProperty = (row, prop) => row[keyToIndex[prop]];
-
-      expectedData.forEach((expectedRow, i) => {
-        const receivedRow = receivedData[i];
-        Object.entries(expectedRow).forEach(([key, expectedValue]) => {
-          const receivedValue = getProperty(receivedRow, key);
-          if (receivedValue !== expectedValue) {
-            errors.push(
-              `Row: ${i}, Key: ${key},  Expected: ${this.utils.printExpected(
-                expectedValue,
-              )}, Received: ${this.utils.printReceived(receivedValue)}`,
-            );
-            pass = false;
-          }
-        });
-      });
-
-      return {
-        pass,
-        message: buildErrorMessage(errors),
-      };
+    toMatchTabularReport(...params) {
+      return toMatchTabularReport(toMatchTabularReport, ...params);
     },
   });
 }

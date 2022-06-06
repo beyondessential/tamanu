@@ -1,5 +1,6 @@
 import { createDummyEncounter } from 'shared/demoData/patients';
 import { createTestContext } from '../../utilities';
+import { MATCH_ANY } from '../../toMatchTabularReport';
 import { createPatient } from './covid-swab-lab-test-report-utils';
 
 const REPORT_URL = '/v1/reports/palau-covid-case-report-line-list';
@@ -28,6 +29,7 @@ async function createPalauSurveys(models) {
 
   await models.ProgramDataElement.bulkCreate([
     { id: 'pde-PalauCOVCase2', code: 'PalauCOVCase2' },
+    { id: 'pde-PalauCOVCase2a', code: 'PalauCOVCase2a' },
     { id: 'pde-PalauCOVCase3', code: 'PalauCOVCase3' },
     { id: 'pde-PalauCOVCase4', code: 'PalauCOVCase4' },
     { id: 'pde-PalauCOVCase6', code: 'PalauCOVCase6' },
@@ -60,6 +62,7 @@ async function createPalauSurveys(models) {
 
   await models.SurveyScreenComponent.bulkCreate([
     { dataElementId: 'pde-PalauCOVCase2', surveyId: INITIAL_SURVEY_ID },
+    { dataElementId: 'pde-PalauCOVCase2a', surveyId: INITIAL_SURVEY_ID },
     { dataElementId: 'pde-PalauCOVCase3', surveyId: INITIAL_SURVEY_ID },
     { dataElementId: 'pde-PalauCOVCase4', surveyId: INITIAL_SURVEY_ID },
     { dataElementId: 'pde-PalauCOVCase6', surveyId: INITIAL_SURVEY_ID },
@@ -112,6 +115,7 @@ async function submitInitialFormForPatient(app, models, patient, formData) {
     departmentId: encounter.departmentId,
     answers: {
       'pde-PalauCOVCase2': formData.investigator,
+      'pde-PalauCOVCase2a': formData.investigatorOther,
       'pde-PalauCOVCase3': formData.caseDate,
       'pde-PalauCOVCase4': formData.interviewDate,
       'pde-PalauCOVCase6': formData.passportNumber,
@@ -175,49 +179,152 @@ describe('Palau covid case report tests', () => {
     });
 
     it('should return data correctly for each patient', async () => {
-      await submitInitialFormForPatient(app, testContext.models, expectedPatient1, {
+      const initialFormData1 = {
         investigator: 'Test',
-        caseDate: '2022-04-10' + timePart,
-        interviewDate: '2022-04-10' + timePart,
+        investigatorOther: 'Test (other)',
+        caseDate: `2022-04-10${timePart}`,
+        interviewDate: `2022-04-10${timePart}`,
         passportNumber: 'A123450',
         nationality: 'country-Australia',
         phoneNumber: '123-123-1234',
-      });
+      };
+      await submitInitialFormForPatient(
+        app,
+        testContext.models,
+        expectedPatient1,
+        initialFormData1,
+      );
 
-      await submitFollowUpFormForPatient(app, testContext.models, expectedPatient1, {
-        sampleDate: '2022-04-15' + timePart,
+      const followUpFormData1 = {
+        sampleDate: `2022-04-15${timePart}`,
         symptomatic: 'No',
         patientOutcome: 'Resolved',
-        dateResolved: '2022-04-16' + timePart,
-      });
+        dateResolved: `2022-04-16${timePart}`,
+      };
+      await submitFollowUpFormForPatient(
+        app,
+        testContext.models,
+        expectedPatient1,
+        followUpFormData1,
+      );
 
-      await submitInitialFormForPatient(app, testContext.models, expectedPatient2, {
+      const initialFormData2 = {
         investigator: 'Test 2',
-        caseDate: '2022-04-02' + timePart,
-        interviewDate: '2022-04-02' + timePart,
+        // investigatorOther: not answered - should be blank,
+        caseDate: `2022-04-02${timePart}`,
+        interviewDate: `2022-04-02${timePart}`,
         passportNumber: 'B92384848',
         nationality: 'country-Australia',
         phoneNumber: '555-444-3333',
-      });
+      };
+      await submitInitialFormForPatient(
+        app,
+        testContext.models,
+        expectedPatient2,
+        initialFormData2,
+      );
 
       const reportResult = await app
         .post(REPORT_URL)
         .send({ parameters: { fromDate: new Date(2022, 3, 1, 4) } });
       expect(reportResult).toHaveSucceeded();
-      expect(reportResult.body).toHaveLength(3);
-      // survey responses are sorted latest first
-      // patient 1 has interview date later than patient 2
-      expect(reportResult.body[1][8]).toBe(expectedPatient1.firstName);
-      expect(reportResult.body[1][34]).toBe('Resolved');
-      expect(reportResult.body[2][8]).toBe(expectedPatient2.firstName);
+      expect(reportResult.body).toMatchTabularReport([
+        // survey responses are sorted latest first
+        // patient 1 has interview date later than patient 2
+        {
+          'Case ID': initialFormData1.passportNumber,
+          'Case investigator': initialFormData1.investigator,
+          'Case investigator (If other)': initialFormData1.investigatorOther,
+          EpiWeek: null,
+          'Case report date': initialFormData1.caseDate,
+          'Interview date': initialFormData1.interviewDate,
+          'Hospital No.': expectedPatient1.displayId,
+          'Passport number': initialFormData1.passportNumber,
+          'Last name': expectedPatient1.lastName,
+          'First name': expectedPatient1.firstName,
+          'Middle name': expectedPatient1.middleName,
+          DOB: MATCH_ANY,
+          Age: MATCH_ANY,
+          Sex: expectedPatient1.sex,
+          Nationality: initialFormData1.nationality,
+          'Street address': null,
+          'City/Hamlet': null,
+          State: null,
+          'Phone number 1': initialFormData1.phoneNumber,
+          'Phone number 2': null,
+          'Healthcare worker': null,
+          'If HCW, specify HCF': null,
+          'Respondant name': null,
+          'Respondant relationship to case': null,
+          'Hospitalization required': null,
+          'Vaccination status': null,
+          'Booster/third dose date': null,
+          'Has the case traveled in the past 14 days': null,
+          'Arrival date in Palau': null,
+          'Risk factors': null,
+          'Day 0 sample collected': null,
+          'Symptomatic on day 0': null,
+          Reinfection: null,
+
+          // follow up survey
+          'Day 5 sample collected': followUpFormData1.sampleDate,
+          'Symptomatic on day 5': followUpFormData1.symptomatic,
+          'Patient outcome': followUpFormData1.patientOutcome,
+          'If recovered, date': followUpFormData1.dateResolved,
+          'If dead, date': null,
+        },
+        {
+          'Case ID': initialFormData2.passportNumber,
+          'Case investigator': initialFormData2.investigator,
+          'Case investigator (If other)': null,
+          EpiWeek: null,
+          'Case report date': initialFormData2.caseDate,
+          'Interview date': initialFormData2.interviewDate,
+          'Hospital No.': expectedPatient2.displayId,
+          'Passport number': initialFormData2.passportNumber,
+          'Last name': expectedPatient2.lastName,
+          'First name': expectedPatient2.firstName,
+          'Middle name': expectedPatient2.middleName,
+          DOB: MATCH_ANY,
+          Age: MATCH_ANY,
+          Sex: expectedPatient2.sex,
+          Nationality: initialFormData2.nationality,
+          'Street address': null,
+          'City/Hamlet': null,
+          State: null,
+          'Phone number 1': initialFormData2.phoneNumber,
+          'Phone number 2': null,
+          'Healthcare worker': null,
+          'If HCW, specify HCF': null,
+          'Respondant name': null,
+          'Respondant relationship to case': null,
+          'Hospitalization required': null,
+          'Vaccination status': null,
+          'Booster/third dose date': null,
+          'Has the case traveled in the past 14 days': null,
+          'Arrival date in Palau': null,
+          'Risk factors': null,
+          'Day 0 sample collected': null,
+          'Symptomatic on day 0': null,
+          Reinfection: null,
+
+          // follow up survey
+          'Day 5 sample collected': null,
+          'Symptomatic on day 5': null,
+          'Patient outcome': null,
+          'If recovered, date': null,
+          'If dead, date': null,
+        },
+      ]);
     });
+
     it('should not include survey responses without initial form', async () => {
       const patient = await createPatient(testContext.models);
       await submitFollowUpFormForPatient(app, testContext.models, patient, {
-        sampleDate: '2022-04-17' + timePart,
+        sampleDate: `2022-04-17${timePart}`,
         symptomatic: 'Yes',
         patientOutcome: 'Unresolved',
-        dateResolved: '2022-04-18' + timePart,
+        dateResolved: `2022-04-18${timePart}`,
       });
       const reportResult = await app.post(REPORT_URL).send({});
       expect(reportResult).toHaveSucceeded();
@@ -227,24 +334,24 @@ describe('Palau covid case report tests', () => {
     it('should not include follow up survey before initial survey', async () => {
       await submitInitialFormForPatient(app, testContext.models, expectedPatient1, {
         investigator: 'Test',
-        caseDate: '2022-04-10' + timePart,
-        interviewDate: '2022-04-10' + timePart,
+        caseDate: `2022-04-10${timePart}`,
+        interviewDate: `2022-04-10${timePart}`,
         passportNumber: 'A123450',
         nationality: 'country-Australia',
         phoneNumber: '123-123-1234',
       });
 
       await submitFollowUpFormForPatient(app, testContext.models, expectedPatient1, {
-        sampleDate: '2022-04-01' + timePart,
+        sampleDate: `2022-04-01${timePart}`,
         symptomatic: 'No',
         patientOutcome: 'Resolved',
-        dateResolved: '2022-04-16' + timePart,
+        dateResolved: `2022-04-16${timePart}`,
       });
 
       await submitInitialFormForPatient(app, testContext.models, expectedPatient2, {
         investigator: 'Test 2',
-        caseDate: '2022-04-02' + timePart,
-        interviewDate: '2022-04-02' + timePart,
+        caseDate: `2022-04-02${timePart}`,
+        interviewDate: `2022-04-02${timePart}`,
         passportNumber: 'B92384848',
         nationality: 'country-Australia',
         phoneNumber: '555-444-3333',
@@ -254,37 +361,46 @@ describe('Palau covid case report tests', () => {
         .post(REPORT_URL)
         .send({ parameters: { fromDate: new Date(2022, 3, 1, 4) } });
       expect(reportResult).toHaveSucceeded();
-      expect(reportResult.body).toHaveLength(3);
-      // survey responses are sorted latest first
-      // patient 1 has interview date later than patient 2
-      expect(reportResult.body[1][8]).toBe(expectedPatient1.firstName);
-      expect(reportResult.body[1][34]).toBe(null);
-      expect(reportResult.body[2][8]).toBe(expectedPatient2.firstName);
+      expect(reportResult.body).toMatchTabularReport(
+        // survey responses are sorted latest first
+        // patient 1 has interview date later than patient 2
+        [
+          {
+            'First name': expectedPatient1.firstName,
+            'Day 5 sample collected': null, //
+          },
+          {
+            'First name': expectedPatient2.firstName,
+          },
+          {},
+        ],
+        { partialMatching: true },
+      );
     });
 
     it('should return only one line per patient', async () => {
       await submitInitialFormForPatient(app, testContext.models, expectedPatient1, {
         investigator: 'Test',
-        caseDate: '2022-04-02' + timePart,
-        interviewDate: '2022-04-02' + timePart,
+        caseDate: `2022-04-02${timePart}`,
+        interviewDate: `2022-04-02${timePart}`,
         passportNumber: 'B92384848',
         nationality: 'country-Australia',
         phoneNumber: '555-444-3333',
       });
       await submitInitialFormForPatient(app, testContext.models, expectedPatient1, {
         investigator: 'Test 2',
-        caseDate: '2022-04-10' + timePart,
-        interviewDate: '2022-04-10' + timePart,
+        caseDate: `2022-04-10${timePart}`,
+        interviewDate: `2022-04-10${timePart}`,
         passportNumber: 'A123450',
         nationality: 'country-Australia',
         phoneNumber: '123-123-1234',
       });
 
       await submitFollowUpFormForPatient(app, testContext.models, expectedPatient1, {
-        sampleDate: '2022-04-15' + timePart,
+        sampleDate: `2022-04-15${timePart}`,
         symptomatic: 'No',
         patientOutcome: 'Resolved',
-        dateResolved: '2022-04-16' + timePart,
+        dateResolved: `2022-04-16${timePart}`,
       });
 
       const reportResult = await app
