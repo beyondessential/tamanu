@@ -5,12 +5,45 @@ import { createEuDccVaccinationData } from '../../../app/integrations/EuDcc';
 
 describe('EU DCC: Vaccination', () => {
   let ctx;
+  const data = {};
 
   beforeAll(async () => {
     ctx = await createTestContext();
+    const { ReferenceData, CertifiableVaccine } = ctx.store.models;
+
+    data.vaxDrug = await ReferenceData.create({
+      ...fake(ReferenceData),
+      type: 'vaccine',
+      name: 'Comirnaty',
+    });
+
+    data.vaxManu = await ReferenceData.create({
+      ...fake(ReferenceData),
+      type: 'manufacturer',
+      name: 'BioNTech Manufacturing GmbH',
+      code: 'ORG-100030215',
+    });
+
+    data.certVax = await CertifiableVaccine.create({
+      ...fake(CertifiableVaccine),
+      vaccineId: data.vaxDrug.id,
+      manufacturerId: data.vaxManu.id,
+      icd11DrugCode: 'XM68M6',
+      icd11DiseaseCode: 'RA01.0',
+      atcCode: 'J07BX03',
+      targetSnomedCode: '840539006',
+      euProductCode: 'EU/1/20/1528',
+      maximumDosage: 3,
+    });
   });
 
-  afterAll(() => ctx.close());
+  afterAll(async () => {
+    await data.certVax.destroy();
+    await data.vaxManu.destroy();
+    await data.vaxDrug.destroy();
+
+    await ctx.close();
+  });
 
   it('translates a vaccine to EU DCC format', async () => {
     // Arrange
@@ -19,7 +52,6 @@ describe('EU DCC: Vaccination', () => {
       Encounter,
       Facility,
       Location,
-      ReferenceData,
       ScheduledVaccine,
       AdministeredVaccine,
     } = ctx.store.models;
@@ -32,18 +64,11 @@ describe('EU DCC: Vaccination', () => {
       sex: 'female',
     });
 
-    const vaxDrug = await ReferenceData.create({
-      ...fake(ReferenceData),
-      id: 'drug-COVID-19-Pfizer',
-      type: 'drug',
-      name: 'COVID-19 Pfizer',
-    });
-
     const scheduledVax = await ScheduledVaccine.create({
       ...fake(ScheduledVaccine),
       label: 'COVID-19 AZ',
       schedule: 'Dose 1',
-      vaccineId: vaxDrug.id,
+      vaccineId: data.vaxDrug.id,
     });
 
     const facility = await Facility.create({

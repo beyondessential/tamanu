@@ -44,10 +44,12 @@ export class CertificateNotificationProcessor extends ScheduledTask {
 
   async run() {
     const { models } = this.context.store;
-    const { CertificateNotification, PatientCommunication, Patient } = models;
+    const { CertificateNotification, CertifiableVaccine, PatientCommunication, Patient } = models;
     const vdsEnabled = config.integrations.vdsNc.enabled;
     const euDccEnabled = config.integrations.euDcc.enabled;
     const localisation = await getLocalisation();
+
+    const certifiableVaccineIds = await CertifiableVaccine.allVaccineIds(euDccEnabled);
 
     const queuedNotifications = await CertificateNotification.findAll({
       where: {
@@ -67,7 +69,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
         const type = notification.get('type');
         const printedBy = notification.get('createdBy');
 
-        const { country, covidVaccines } = await getLocalisation();
+        const { country } = await getLocalisation();
         const countryCode = country['alpha-2'];
 
         log.info('Processing certificate notification', {
@@ -89,7 +91,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
             );
             const latestCovidVax = await models.AdministeredVaccine.lastVaccinationForPatient(
               patient.id,
-              covidVaccines,
+              certifiableVaccineIds,
             );
 
             let uvci;
