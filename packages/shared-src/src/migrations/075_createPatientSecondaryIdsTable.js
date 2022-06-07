@@ -57,6 +57,14 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: false,
       },
+      type_id: {
+        type: Sequelize.STRING,
+        references: {
+          model: 'reference_data',
+          key: 'id',
+        },
+        allowNull: false,
+      },
       patient_id: {
         type: Sequelize.STRING,
         references: {
