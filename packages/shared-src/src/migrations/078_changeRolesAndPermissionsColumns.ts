@@ -1,4 +1,4 @@
-import { STRING, QueryInterface } from 'sequelize';
+import { QueryInterface } from 'sequelize';
 
 export async function up(query: QueryInterface) {
   await query.renameColumn('roles', 'createdAt', 'created_at');
@@ -11,17 +11,22 @@ export async function up(query: QueryInterface) {
   await query.renameColumn('permissions', 'objectId', 'object_id');
   await query.renameColumn('permissions', 'roleId', 'role_id');
 
-  await query.changeColumn('permissions', 'role_id', {
-    type: STRING,
+  await query.addConstraint('permissions', ['role_id'], {
+    type: 'foreign key',
+    name: 'permissions_role_id_fkey',
     references: {
-      model: 'roles',
-      key: 'id',
+      table: 'roles',
+      field: 'id',
     },
-    allowNull: false,
+    // Postgres defaults, which seem to match our database at the moment of writing this
+    onDelete: 'NO ACTION',
+    onUpdate: 'NO ACTION',
   });
 }
 
 export async function down(query: QueryInterface) {
+  await query.removeConstraint('permissions', 'permissions_role_id_fkey');
+
   await query.renameColumn('roles', 'created_at', 'createdAt');
   await query.renameColumn('roles', 'updated_at', 'updatedAt');
   await query.renameColumn('roles', 'deleted_at', 'deletedAt');
@@ -31,9 +36,4 @@ export async function down(query: QueryInterface) {
   await query.renameColumn('permissions', 'deleted_at', 'deletedAt');
   await query.renameColumn('permissions', 'object_id', 'objectId');
   await query.renameColumn('permissions', 'role_id', 'roleId');
-
-  await query.changeColumn('permissions', 'roleId', {
-    type: STRING,
-    allowNull: false,
-  });
 }
