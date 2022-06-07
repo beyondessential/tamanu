@@ -1,6 +1,5 @@
 export const MATCH_ANY = '**MATCH_ANY**';
 
-// const test
 const buildBuildErrorMessage = expectContextThis => errorList => () =>
   `${expectContextThis.utils.matcherHint(
     'toMatchTabularReport',
@@ -29,8 +28,8 @@ const testReportLength = (receivedData, expectedData) => {
   return pass
     ? []
     : [
-        `Incorrect number of rows: Received: ${receivedData.length}, Expected: ${expectedData.length}`,
-      ];
+      `Incorrect number of rows: Received: ${receivedData.length}, Expected: ${expectedData.length}`,
+    ];
 };
 
 const testReportContentLine = (expectContextThis, getProperty, expectedRow, receivedRow, index) => {
