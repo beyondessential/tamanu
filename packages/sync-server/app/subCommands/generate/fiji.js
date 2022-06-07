@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { fake } from 'shared/test-helpers';
+import moment from 'moment';
 import { ENCOUNTER_TYPES, REFERENCE_TYPES } from 'shared/constants';
 
 import { initDatabase, closeDatabase } from '../../database';
@@ -152,16 +153,23 @@ export const generateFiji = async ({ patientCount }) => {
       await insertVaccination(patient.id, setupData.scheduleIds[1]);
     }
 
-    // survey responses
-    for (let i = 0; i < chance.integer({ min: 0, max: 4 }); i++) {
+    // lab tests
+    const testDates = [];
+    for (let i = 0; i < chance.integer({ min: 0, max: 3 }); i++) {
       const { id: encounterId } = await insertEncounter(patient.id);
-      await insertSurveyResponse(store.sequelize.models, setupData, { encounterId });
+      const test = await insertLabTest(store.sequelize.models, setupData, { encounterId });
+      testDates.push(test.date);
     }
 
-    // lab tests
-    for (let i = 0; i < chance.integer({ min: 0, max: 8 }); i++) {
-      const { id: encounterId } = await insertEncounter(patient.id);
-      await insertLabTest(store.sequelize.models, setupData, { encounterId });
+    // survey responses
+    for (const testDate of testDates) {
+      for (let i = 0; i < chance.integer({ min: 0, max: 2 }); i++) {
+        const { id: encounterId } = await insertEncounter(patient.id);
+        const startTime = moment(testDate)
+          .add(chance.integer({ min: 1, max: 6 }), 'days')
+          .add(chance.integer({ min: 1, max: 12 }), 'hours');
+        await insertSurveyResponse(store.sequelize.models, setupData, { encounterId, startTime });
+      }
     }
   };
 

@@ -11,8 +11,9 @@ export const insertLabTest = async ({ LabTest, LabRequest }, setupData, { encoun
     ),
     encounterId,
   });
-  await LabTest.create({
+  return LabTest.create({
     ...fake(LabTest),
     labRequestId: labRequest.id,
+    date: chance.date({ year: chance.integer({ min: 1970, max: 2021 }) }),
   });
 };
