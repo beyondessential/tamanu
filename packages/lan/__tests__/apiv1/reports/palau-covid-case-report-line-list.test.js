@@ -373,6 +373,7 @@ describe('Palau covid case report tests', () => {
             'First name': expectedPatient2.firstName,
           },
         ],
+        // Note: this means that keys not specified above will not be tested
         { partialMatching: true },
       );
     });
@@ -415,6 +416,7 @@ describe('Palau covid case report tests', () => {
             'Patient outcome': 'Resolved',
           },
         ],
+        // Note: this means that keys not specified above will not be tested
         { partialMatching: true },
       );
     });
