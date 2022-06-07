@@ -33,10 +33,6 @@ function patientName(patient, additional) {
 function patientIds(patient, additional) {
   return [
     {
-      use: 'usual',
-      value: patient.id,
-    },
-    {
       use: 'official',
       value: patient.displayId,
       assigner: config.hl7.assigners.patientDisplayId,
@@ -80,6 +76,7 @@ function patientTelecom(patient, additional) {
 export function patientToHL7Patient(patient, additional = {}) {
   return {
     resourceType: 'Patient',
+    id: patient.id,
     active: true, // currently unused in Tamanu, always true
     identifier: patientIds(patient, additional),
     name: patientName(patient, additional),
