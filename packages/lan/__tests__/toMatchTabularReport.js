@@ -22,15 +22,12 @@ const failForMismatchingHeadings = (buildErrorMessage, receivedHeadings, expecte
   ]),
 });
 
-const testReportLength = (receivedData, expectedData) => {
-  const pass = receivedData.length === expectedData.length;
-
-  return pass
+const testReportLength = (receivedData, expectedData) =>
+  receivedData.length === expectedData.length
     ? []
     : [
       `Incorrect number of rows: Received: ${receivedData.length}, Expected: ${expectedData.length}`,
     ];
-};
 
 const testReportContentLine = (expectContextThis, getProperty, expectedRow, receivedRow, index) => {
   const errors = [];
@@ -75,13 +72,6 @@ export const toMatchTabularReport = (
   }
 
   if (expectedData.length === 0) return testEmptyReport(buildErrorMessage, receivedData);
-  if (receivedData.length === 0)
-    return {
-      pass: false,
-      message: buildErrorMessage(
-        `Incorrect number of rows: Received: ${receivedData.length}, Expected: ${expectedData.length}`,
-      ),
-    };
 
   // Note: this line requires that the keys in `expectedData` are ordered
   const expectedHeaders = Object.keys(expectedData[0]);
@@ -97,6 +87,9 @@ export const toMatchTabularReport = (
 
   expectedData.forEach((expectedRow, index) => {
     const receivedRow = receivedData[index];
+    // No sense in testing content if it doesn't exist
+    if (!receivedRow) return;
+
     const lineErrors = testReportContentLine(
       expectContextThis,
       getProperty,
