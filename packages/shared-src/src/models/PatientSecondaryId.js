@@ -11,8 +11,8 @@ export class PatientSecondaryId extends Model {
           type: Sequelize.STRING,
           allowNull: false,
         },
-        isHistorical: {
-          type: Sequelize.BOOLEAN,
+        visibilityStatus: {
+          type: Sequelize.TEXT,
           allowNull: false,
         },
       },

@@ -53,8 +53,8 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      is_historical: {
-        type: Sequelize.BOOLEAN,
+      visibility_status: {
+        type: Sequelize.TEXT,
         allowNull: false,
       },
       patient_id: {
