@@ -4,15 +4,13 @@
     "name": "COVID-19",
     "code": "fijicovid19"
   },
-  "survey": [
-    {
-      "code": "fijicovidsampcollection",
-      "name": "COVID-19 Sample Collection Form",
-      "surveyType": "programs",
-      "status": "publish",
-      "isSensitive": false
-    }
-  ],
+  "survey": {
+    "code": "fijicovidsampcollection",
+    "name": "COVID-19 Sample Collection Form",
+    "surveyType": "programs",
+    "status": "publish",
+    "isSensitive": false
+  },
   "questions": [
     {
       "calculation": "",

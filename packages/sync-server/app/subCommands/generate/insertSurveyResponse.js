@@ -5,7 +5,10 @@ export const insertSurveyResponse = async (
   setupData,
   { encounterId },
 ) => {
-  const response = await SurveyResponse.create({ encounterId });
+  const response = await SurveyResponse.create({
+    encounterId,
+    surveyId: setupData.survey.id,
+  });
 
   const answers = generateAnswers(setupData);
   for (const [readableName, answer] of Object.entries(answers)) {
