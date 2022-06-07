@@ -1,12 +1,13 @@
 import { v4 as uuidv4 } from 'uuid';
 import { fake } from 'shared/test-helpers';
-import { ENCOUNTER_TYPES } from 'shared/constants';
+import { ENCOUNTER_TYPES, REFERENCE_TYPES } from 'shared/constants';
 
 import { initDatabase, closeDatabase } from '../../database';
 // TODO (TAN-1529): import this from the spreadsheet once possible
 import * as programData from './program.json';
 import { importProgram } from './program';
 import { insertSurveyResponse } from './insertSurveyResponse';
+import { insertLabTest } from './insertLabTest';
 import { chance, seed } from './chance';
 
 const REPORT_INTERVAL_MS = 100;
@@ -99,6 +100,18 @@ export const generateFiji = async ({ patientCount }) => {
     setupData.program = program;
     setupData.survey = survey;
     setupData.questions = questions;
+
+    // lab test categories
+    const [covidCategory] = await ReferenceData.upsert(
+      {
+        id: 'labTestCategory-COVID',
+        code: 'COVID',
+        name: 'COVID-19 Swab',
+        type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
+      },
+      { returning: true },
+    );
+    setupData.labTestCategories = [covidCategory.id]; // report specifies multiple but workbook only has one
   };
 
   const insertEncounter = async patientId => {
@@ -143,6 +156,12 @@ export const generateFiji = async ({ patientCount }) => {
     for (let i = 0; i < chance.integer({ min: 0, max: 4 }); i++) {
       const { id: encounterId } = await insertEncounter(patient.id);
       await insertSurveyResponse(store.sequelize.models, setupData, { encounterId });
+    }
+
+    // lab tests
+    for (let i = 0; i < chance.integer({ min: 0, max: 8 }); i++) {
+      const { id: encounterId } = await insertEncounter(patient.id);
+      await insertLabTest(store.sequelize.models, setupData, { encounterId });
     }
   };
 
