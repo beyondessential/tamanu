@@ -76,14 +76,14 @@ export const toMatchTabularReport = (
   // Note: this line requires that the keys in `expectedData` are ordered
   const expectedHeaders = Object.keys(expectedData[0]);
 
-  const keyToIndex = receivedHeadings.reduce((acc, prop, i) => ({ ...acc, [prop]: i }), {});
-  const getProperty = (row, prop) => row[keyToIndex[prop]];
-
   if (!partialMatching && !expectContextThis.equals(receivedHeadings, expectedHeaders)) {
     return failForMismatchingHeadings(buildErrorMessage, receivedHeadings, expectedHeaders);
   }
 
   const errors = testReportLength(receivedData, expectedData);
+
+  const keyToIndex = receivedHeadings.reduce((acc, prop, i) => ({ ...acc, [prop]: i }), {});
+  const getProperty = (row, prop) => row[keyToIndex[prop]];
 
   expectedData.forEach((expectedRow, index) => {
     const receivedRow = receivedData[index];
