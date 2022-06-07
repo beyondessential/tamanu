@@ -438,7 +438,7 @@
       "type": "Autocomplete",
       "visibilityCriteria": "{\"FijCOVSamp53\": \"Public\"}",
       "name": "Public health facility",
-      "config": "{\"source\": \"facility\"}",
+      "config": "{\"source\": \"Facility\"}",
       "detail": "",
       "optionColors": "",
       "detailLabel": "",
