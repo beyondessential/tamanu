@@ -33,7 +33,7 @@ function patientName(patient, additional) {
 function patientIds(patient, additional) {
   return [
     {
-      use: 'official',
+      use: 'usual',
       value: patient.displayId,
       assigner: config.hl7.assigners.patientDisplayId,
       system: config.hl7.dataDictionaries.patientDisplayId,
