@@ -1,6 +1,4 @@
 import { v4 as uuidv4 } from 'uuid';
-import Chance from 'chance';
-
 import { fake } from 'shared/test-helpers';
 import { ENCOUNTER_TYPES } from 'shared/constants';
 
@@ -9,8 +7,7 @@ import { initDatabase, closeDatabase } from '../../database';
 import * as programData from './program.json';
 import { importProgram } from './program';
 import { insertSurveyResponse } from './insertSurveyResponse';
-
-const chance = new Chance();
+import { chance, seed } from './chance';
 
 const REPORT_INTERVAL_MS = 100;
 const NUM_VILLAGES = 50;
@@ -160,7 +157,7 @@ export const generateFiji = async ({ patientCount }) => {
 
     // perform the generation
     await store.sequelize.transaction(async () => {
-      process.stdout.write('Creating/upserting setup data...\n');
+      process.stdout.write(`Creating/upserting setup data (seed=${seed})...\n`);
       await upsertSetupData();
 
       // report progress regularly but don't spam the console

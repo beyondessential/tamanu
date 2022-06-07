@@ -1,6 +1,4 @@
-import Chance from 'chance';
-
-const chance = new Chance();
+import { chance } from './chance';
 
 export const insertSurveyResponse = async (
   { SurveyResponse, SurveyResponseAnswer },
