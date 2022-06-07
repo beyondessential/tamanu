@@ -8,6 +8,8 @@ const PROGRAM_ID = 'test-program-id';
 const SURVEY_ID = 'test-survey-id';
 const SENSITIVE_SURVEY_ID = 'test-survey-id-sensitive';
 
+// Not entirely sure why this works
+// https://stackoverflow.com/a/66672462
 const getExpectedDate = date =>
   new Date(
     date.getUTCFullYear(),
@@ -179,8 +181,6 @@ describe('Generic survey export', () => {
 
     it('should return basic data for a survey', async () => {
       const date = subDays(new Date(), 25);
-      // Not entirely sure why this works
-      // https://stackoverflow.com/a/66672462
 
       const expectedDate = getExpectedDate(date);
 
