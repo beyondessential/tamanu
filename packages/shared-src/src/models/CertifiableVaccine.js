@@ -8,23 +8,27 @@ export class CertifiableVaccine extends Model {
     super.init(
       {
         id: primaryKey,
+        // ICD11 code for the vaccine type
         icd11DrugCode: {
           type: Sequelize.STRING,
           allowNull: false,
         },
+        // ICD11 code for the targeted disease
         icd11DiseaseCode: {
           type: Sequelize.STRING,
           allowNull: false,
         },
-        atcCode: {
+        // SNOMED CT or ATC code for the vaccine type
+        vaccineCode: {
           type: Sequelize.STRING,
           allowNull: false,
         },
-        // SNOMED CT code for targeted disease or agent
-        targetSnomedCode: {
+        // SNOMED CT or ATC code for targeted disease
+        targetCode: {
           type: Sequelize.STRING,
           allowNull: true,
         },
+        // EU authorisation code for the vaccine product
         euProductCode: {
           type: Sequelize.STRING,
           allowNull: true,
@@ -76,10 +80,6 @@ export class CertifiableVaccine extends Model {
   }
 
   usableForEuDcc() {
-    return (
-      this.euProductCode !== null &&
-      this.targetedDiseaseSnomedCode !== null &&
-      this.manufacturerId !== null
-    );
+    return this.euProductCode !== null && this.targetCode !== null && this.manufacturerId !== null;
   }
 }

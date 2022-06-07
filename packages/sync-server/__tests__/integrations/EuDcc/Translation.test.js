@@ -30,8 +30,8 @@ describe('EU DCC: Vaccination', () => {
       manufacturerId: data.vaxManu.id,
       icd11DrugCode: 'XM68M6',
       icd11DiseaseCode: 'RA01.0',
-      atcCode: 'J07BX03',
-      targetSnomedCode: '840539006',
+      vaccineCode: 'J07BX03',
+      targetCode: '840539006',
       euProductCode: 'EU/1/20/1528',
       maximumDosage: 3,
     });
