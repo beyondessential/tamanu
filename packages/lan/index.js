@@ -1,11 +1,16 @@
 // serverInfo must be imported before any shared modules
 // so that it can set globals
-import { version } from './app/serverInfo';
 
 import { program } from 'commander';
 import { log } from 'shared/services/logging';
+import { version } from './app/serverInfo';
 
-import { serveCommand, migrateCommand, reportCommand } from './app/subCommands';
+import {
+  serveCommand,
+  migrateCommand,
+  reportCommand,
+  testSettingsCommand,
+} from './app/subCommands';
 
 async function run() {
   program
@@ -16,6 +21,7 @@ async function run() {
   program.addCommand(serveCommand, { isDefault: true });
   program.addCommand(reportCommand);
   program.addCommand(migrateCommand);
+  program.addCommand(testSettingsCommand);
 
   await program.parseAsync(process.argv);
 }
