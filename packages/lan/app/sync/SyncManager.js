@@ -7,6 +7,7 @@ import {
   executeImportPlan,
   createExportPlan,
   executeExportPlan,
+  MODEL_DEPENDENCY_ORDER,
 } from 'shared/models/sync';
 import { log } from 'shared/services/logging';
 
@@ -185,47 +186,7 @@ export class SyncManager {
       log.info(`SyncManager.runSync.run: began sync run`);
       const { models } = this.context;
 
-      // ordered array because some models depend on others
-      const modelsToSync = [
-        models.ReferenceData,
-        models.User,
-        models.Asset,
-        models.Facility,
-        models.Department,
-        models.Location,
-
-        models.ScheduledVaccine,
-
-        models.Program,
-        models.Survey,
-        models.ProgramDataElement,
-        models.SurveyScreenComponent,
-
-        models.Patient,
-        models.PatientAllergy,
-        models.PatientCarePlan,
-        models.PatientCondition,
-        models.PatientFamilyHistory,
-        models.PatientIssue,
-        models.PatientAdditionalData,
-
-        models.LabTestType,
-        models.Encounter,
-        models.ReportRequest,
-        models.Location,
-        models.UserFacility,
-
-        models.Invoice,
-        models.InvoiceLineType,
-        models.InvoiceLineItem,
-        models.InvoicePriceChangeType,
-        models.InvoicePriceChangeItem,
-
-        models.CertificateNotification,
-
-        // models.LabRequestLog,
-        models.DocumentMetadata,
-      ];
+      const modelsToSync = MODEL_DEPENDENCY_ORDER.map(name => models[name]);
 
       for (const model of modelsToSync) {
         if (!readOnly && shouldPush(model)) {
