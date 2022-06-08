@@ -26,6 +26,7 @@ export class Permission extends Model {
             resetPermissionCache();
           },
         },
+        // creating partial indexes as objectId can be null
         indexes: [
           {
             name: 'permissions_role_id_noun_verb',
