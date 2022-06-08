@@ -262,13 +262,13 @@ export const MedicationForm = React.memo(
                         label: 'Finalise',
                         onClick: data => {
                           submitForm(data);
-                          onSaved(); // onSaved also closes the modal
                         },
                       },
                       {
                         label: 'Finalise & print',
                         onClick: data => {
-                          submitForm(data);
+                          // Submit form, but don't close modal
+                          submitForm(data, false);
                           setAwaitingPrint(true);
                         },
                       },
