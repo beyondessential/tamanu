@@ -22,6 +22,7 @@ export const MODEL_DEPENDENCY_ORDER = [
   'Vitals',
   'Triage',
 
+  'CertifiableVaccine',
   'ScheduledVaccine',
   'AdministeredVaccine',
 
