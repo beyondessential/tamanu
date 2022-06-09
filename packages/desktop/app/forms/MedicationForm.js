@@ -94,6 +94,11 @@ export const MedicationForm = React.memo(
       <>
         <Form
           onSubmit={onSubmit}
+          onSuccess={() => {
+            if (!awaitingPrint) {
+              onSaved();
+            }
+          }}
           initialValues={{
             note: medication?.note ?? '',
             route: medication?.route ?? '',
@@ -261,15 +266,15 @@ export const MedicationForm = React.memo(
                       {
                         label: 'Finalise',
                         onClick: data => {
+                          setAwaitingPrint(false);
                           submitForm(data);
                         },
                       },
                       {
                         label: 'Finalise & print',
                         onClick: data => {
-                          // Submit form, but don't close modal
-                          submitForm(data, false);
                           setAwaitingPrint(true);
+                          submitForm(data);
                         },
                       },
                     ]}
