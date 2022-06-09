@@ -117,9 +117,6 @@ export const Sidebar = React.memo(({ items }) => {
 
   const initials = getInitials(currentUser.displayName);
 
-  console.log('currentPath', currentPath);
-  console.log('selectedParentItem', selectedParentItem);
-
   return (
     <Container>
       <Logo size="126px" />
