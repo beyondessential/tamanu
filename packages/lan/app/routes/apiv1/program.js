@@ -1,13 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { getFilteredListByPermission } from 'shared/utils/getFilteredListByPermission';
-import {
-  simpleGet,
-  simplePut,
-  simplePost,
-  simpleGetList,
-  permissionCheckingRouter,
-} from './crudHelpers';
+import { simpleGet, simplePut, simplePost, permissionCheckingRouter } from './crudHelpers';
 
 export const program = express.Router();
 
@@ -19,7 +13,25 @@ program.get(
   '/$',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Program');
-    simpleGetList('Program')(req, res);
+    const { models, ability } = req;
+    const records = await models.Program.findAll({
+      include: [{ association: 'surveys' }],
+    });
+
+    // Don't include programs that don't have any permitted survey to submit
+    const filteredRecords = records.filter(({ surveys }) => {
+      const hasAtLeastOnePermittedSurvey = surveys.some(survey => {
+        return ability.can('submit', survey);
+      });
+
+      return hasAtLeastOnePermittedSurvey;
+    });
+    const data = filteredRecords.map(x => x.forResponse());
+
+    res.send({
+      count: data.length,
+      data,
+    });
   }),
 );
 
