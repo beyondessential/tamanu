@@ -84,6 +84,7 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
         <PatientSection
           title={title}
           onEdit={isEditable ? onEditCallback : undefined}
+          isClosable
         >
           {loading ? <LoadingScreen /> : <FieldRowDisplay fields={fields} />}
         </PatientSection>

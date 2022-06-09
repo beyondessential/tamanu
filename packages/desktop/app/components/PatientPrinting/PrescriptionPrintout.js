@@ -9,6 +9,7 @@ import { CertificateWrapper } from './CertificateWrapper';
 import { DateDisplay } from '../DateDisplay';
 import { PatientBarcode } from './PatientBarcode';
 import { GridTable } from './GridTable';
+import { capitaliseFirstLetter } from '../../utils/capitalise';
 
 const RowContainer = styled.div`
   display: flex;
@@ -38,16 +39,7 @@ export const PrescriptionPrintout = React.memo(
     const { streetVillage } = additionalData;
     const { name: villageName } = village;
     const { title, subTitle, logo } = certificateData;
-    const {
-      prescriber,
-      medication,
-      route,
-      prescription,
-      quantity,
-      repeats,
-      date,
-      note,
-    } = prescriptionData;
+    const { prescriber, medication, route, prescription, quantity, date, note } = prescriptionData;
 
     return (
       <CertificateWrapper>
@@ -64,7 +56,7 @@ export const PrescriptionPrintout = React.memo(
             <LocalisedLabel name="dateOfBirth">
               <DateDisplay date={dateOfBirth} showDate={false} showExplicitDate />
             </LocalisedLabel>
-            <LocalisedLabel name="sex">{sex}</LocalisedLabel>
+            <LocalisedLabel name="sex">{capitaliseFirstLetter(sex)}</LocalisedLabel>
             <LocalisedLabel name="streetVillage">{streetVillage}</LocalisedLabel>
           </div>
           <div>
@@ -78,12 +70,12 @@ export const PrescriptionPrintout = React.memo(
             Date: date ? moment(date).format('DD/MM/YYYY') : null,
             Prescriber: prescriber?.displayName,
             'Prescriber ID': '', // We don't currently store this in the db, add it later
-            Facility: encounterData?.location?.Facility?.name,
+            Facility: encounterData?.location?.facility?.name,
             Medication: medication.name,
             Instructions: prescription,
             Route: route,
             Quantity: quantity,
-            Repeats: repeats,
+            Repeats: '', // There isn't a separate saved value for repeats currently
           }}
         />
         <NotesSection notes={[{ content: note }]} />

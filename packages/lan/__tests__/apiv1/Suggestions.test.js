@@ -125,12 +125,12 @@ describe('Suggestions', () => {
 
     it('should return results that start with the query first', async () => {
       const testData = splitIds(`
-      Acute bacterial infection	A49.9
-      Chronic constipation	K59.0
-      Constipation	K59.0
-      Simple constipation	K59.0
-      Unconscious	R40.2
-    `).map(buildDiagnosis);
+        Acute bacterial infection	A49.9
+        Chronic constipation	K59.0
+        Constipation	K59.0
+        Simple constipation	K59.0
+        Unconscious	R40.2
+      `).map(buildDiagnosis);
 
       await models.ReferenceData.bulkCreate(testData);
 
@@ -149,17 +149,17 @@ describe('Suggestions', () => {
 
     it('should return results alphabetically when the position of the search query is the same', async () => {
       const testData = splitIds(`
-      Acute viral gastroenteritis	A09.9
-      Acute myeloid leukaemia	C92.0
-      Acute bronchiolitis	J21.9
-      Acute stress disorder	F43.0
-      Acute vulvitis	N76.2
-      Acute gout attack	M10.9
-      Acute tubular necrosis	N17.0
-      Acute axillary lymphadenitis	L04.2
-      Acute mastitis	N61
-      Acute bronchitis	J20.9
-    `).map(buildDiagnosis);
+        Acute viral gastroenteritis	A09.9
+        Acute myeloid leukaemia	C92.0
+        Acute bronchiolitis	J21.9
+        Acute stress disorder	F43.0
+        Acute vulvitis	N76.2
+        Acute gout attack	M10.9
+        Acute tubular necrosis	N17.0
+        Acute axillary lymphadenitis	L04.2
+        Acute mastitis	N61
+        Acute bronchitis	J20.9
+      `).map(buildDiagnosis);
 
       await models.ReferenceData.bulkCreate(testData);
 

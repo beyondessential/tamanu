@@ -14,6 +14,7 @@ const FOLLOW_UP_SURVEY_ID = 'program-palaucovid19-palaucovidfollowupcasereport';
 const reportColumnTemplate = [
   { title: 'Case ID', accessor: data => data['pde-PalauCOVCase6'] },
   { title: 'Case investigator', accessor: data => data['pde-PalauCOVCase2'] },
+  { title: 'Case investigator (If other)', accessor: data => data['pde-PalauCOVCase2a'] },
   { title: 'EpiWeek', accessor: data => data['pde-PalauCOVCase33'] },
   { title: 'Case report date', accessor: data => data['pde-PalauCOVCase3'] },
   { title: 'Interview date', accessor: data => data['pde-PalauCOVCase4'] },

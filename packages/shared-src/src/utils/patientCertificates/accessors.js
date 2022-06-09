@@ -12,7 +12,8 @@ export const getTimeOfSwab = ({ sampleTime }, getLocalisation) =>
 export const getDOB = ({ dateOfBirth }, getLocalisation) =>
   dateOfBirth ? getDisplayDate(dateOfBirth, 'Do MMM YYYY', getLocalisation) : 'Unknown';
 
-export const getLaboratory = ({ laboratory }) => laboratory?.name || 'Unknown';
+export const getLaboratory = ({ laboratory }, getLocalisation) =>
+  laboratory?.name || getLocalisation('templates.covidTestCertificate.laboratoryName');
 
 export const getLabMethod = ({ labTestMethod }) => labTestMethod?.name || 'Unknown';
 

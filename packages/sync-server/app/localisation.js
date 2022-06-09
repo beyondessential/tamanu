@@ -153,6 +153,16 @@ const templatesSchema = yup
       })
       .required()
       .noUnknown(),
+
+    covidTestCertificate: yup
+      .object({
+        laboratoryName: yup
+          .string()
+          .trim()
+          .required(),
+      })
+      .required()
+      .noUnknown(),
   })
   .required()
   .noUnknown();
@@ -242,10 +252,6 @@ const rootLocalisationSchema = yup
       .string()
       .required()
       .oneOf(['tamanu', 'eudcc', 'icao']),
-    covidVaccines: yup
-      .array()
-      .of(yup.string())
-      .required(),
     features: yup
       .object({
         editPatientDetailsOnMobile: yup.boolean().required(),
