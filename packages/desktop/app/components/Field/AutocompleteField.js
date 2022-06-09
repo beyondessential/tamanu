@@ -133,6 +133,13 @@ class BaseAutocomplete extends Component {
     this.setState({ suggestions: [] });
   };
 
+  onKeyDown = event => {
+    // prevent enter button submitting the whole form
+    if (event.keyCode === 13) {
+      event.preventDefault();
+    }
+  };
+
   renderSuggestion = (suggestion, { isHighlighted }) => (
     <MenuItem selected={isHighlighted} component="div">
       <Typography variant="body2">{suggestion.label}</Typography>
@@ -205,6 +212,7 @@ class BaseAutocomplete extends Component {
           name,
           placeholder,
           value: displayedValue,
+          onKeyDown: this.onKeyDown,
           onChange: this.handleInputChange,
         }}
       />
