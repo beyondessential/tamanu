@@ -3,6 +3,7 @@ import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 
 import { InvalidParameterError } from 'shared/errors';
+import { NOTE_TYPES } from 'shared/constants';
 
 import { renameObjectKeys } from '../../utils/renameObjectKeys';
 
@@ -17,7 +18,7 @@ triage.post(
   '/$',
   asyncHandler(async (req, res) => {
     const { models } = req;
-    const { vitals } = req.body;
+    const { vitals, notes } = req.body;
 
     req.checkPermission('create', 'Triage');
     if (vitals) {
@@ -30,6 +31,13 @@ triage.post(
       await models.Vitals.create({
         ...vitals,
         encounterId: triageRecord.encounterId,
+      });
+    }
+
+    if (notes) {
+      await triageRecord.createNote({
+        noteType: NOTE_TYPES.OTHER,
+        content: notes,
       });
     }
 
