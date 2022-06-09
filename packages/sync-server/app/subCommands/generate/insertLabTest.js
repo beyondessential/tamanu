@@ -1,5 +1,5 @@
 import { fake } from 'shared/test-helpers';
-import { LAB_REQUEST_STATUSES } from 'shared/constants';
+import { LAB_TEST_STATUSES, LAB_REQUEST_STATUSES } from 'shared/constants';
 import { chance } from './chance';
 
 export const insertLabTest = async ({ LabTest, LabRequest }, setupData, { encounterId }) => {
@@ -15,5 +15,6 @@ export const insertLabTest = async ({ LabTest, LabRequest }, setupData, { encoun
     ...fake(LabTest),
     labRequestId: labRequest.id,
     date: chance.date({ year: chance.integer({ min: 1970, max: 2021 }) }),
+    status: LAB_TEST_STATUSES.RECEPTION_PENDING, // LabTest.status isn't set in prod
   });
 };
