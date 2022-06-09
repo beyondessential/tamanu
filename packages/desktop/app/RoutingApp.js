@@ -36,7 +36,6 @@ export const RoutingFacilityApp = React.memo(() => (
       <Route path="/medication" component={MedicationRoutes} />
       <Route path="/labs" component={LabsRoutes} />
       <Route path="/invoices" component={BillingRoutes} />
-      <Route path="/admin" component={AdministrationRoutes} />
       <Route path="/programs" component={ProgramsRoutes} />
       <Route path="/referrals" component={ReferralsRoutes} />
       <Route path="/reports" component={ReportsRoutes} />
@@ -54,6 +53,7 @@ export const RoutingAdminApp = React.memo(() => (
     <Switch>
       {/* <Redirect exact path="/" to="/admin" /> */}
       <Route path="/" component={AdminPlaceholder} />
+      <Route path="/admin" component={AdministrationRoutes} />
       {/*
        * TODO fix this hack. For some reason, having an empty object within this switch fixes a bug
        * where none of the app contents would render in a production build.
