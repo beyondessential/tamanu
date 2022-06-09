@@ -15,7 +15,11 @@ const URGENCY_OPTIONS = [
 ];
 
 export const ImagingRequestsSearchBar = ({ setSearchParameters }) => (
-  <CustomisableSearchBar title="Search imaging requests" onSearch={setSearchParameters}>
+  <CustomisableSearchBar
+    title="Search imaging requests"
+    onSearch={setSearchParameters}
+    initialValues={{ displayIdExact: true }}
+  >
     <LocalisedField name="firstName" />
     <LocalisedField name="lastName" />
     <DisplayIdField />

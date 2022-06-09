@@ -30,6 +30,7 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
       }}
       initialValues={{
         after: startOfDay(new Date()),
+        displayIdExact: true,
       }}
     >
       <LocalisedField name="firstName" />

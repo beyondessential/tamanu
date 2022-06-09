@@ -112,16 +112,19 @@ export class Form extends React.PureComponent {
     const { render } = this.props;
 
     return (
-      <form onSubmit={submitForm} noValidate>
-        {render({
-          ...formProps,
-          setValues,
-          isValid,
-          isSubmitting,
-          submitForm,
-          clearForm: () => formProps.resetForm({}),
-        })}
-      </form>
+      <div>
+        <form onSubmit={submitForm} noValidate>
+          {render({
+            ...formProps,
+            setValues,
+            isValid,
+            isSubmitting,
+            submitForm,
+            clearForm: () => formProps.resetForm({}),
+          })}
+        </form>
+        <pre>{JSON.stringify(values, null, 2)}</pre>
+      </div>
     );
   };
 

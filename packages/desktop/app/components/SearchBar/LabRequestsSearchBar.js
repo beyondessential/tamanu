@@ -14,7 +14,7 @@ export const LabRequestsSearchBar = () => {
   return (
     <CustomisableSearchBar
       title="Search lab requests"
-      initialValues={searchParameters}
+      initialValues={{ displayIdExact: true, ...searchParameters }}
       onSearch={setSearchParameters}
     >
       <LocalisedField name="firstName" />

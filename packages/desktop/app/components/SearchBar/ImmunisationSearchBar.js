@@ -7,7 +7,11 @@ export const ImmunisationSearchBar = ({ onSearch }) => {
   const villageSuggester = useSuggester('village');
 
   return (
-    <CustomisableSearchBar title="Search for Patients" onSearch={onSearch}>
+    <CustomisableSearchBar
+      title="Search for Patients"
+      onSearch={onSearch}
+      initialValues={{ displayIdExact: true }}
+    >
       <DisplayIdField />
       <LocalisedField name="firstName" />
       <LocalisedField name="lastName" />

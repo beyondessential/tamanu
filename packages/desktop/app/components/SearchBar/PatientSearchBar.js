@@ -15,6 +15,7 @@ export const PatientSearchBar = React.memo(({ onSearch }) => {
         <Field name="deceased" label="Include deceased patients" component={CheckField} />
       }
       onSearch={onSearch}
+      initialValues={{ displayIdExact: true }}
     >
       <LocalisedField name="firstName" />
       <LocalisedField name="lastName" />
