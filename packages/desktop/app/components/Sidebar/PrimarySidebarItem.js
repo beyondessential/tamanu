@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { ExpandMore } from '@material-ui/icons';
-import { Collapse, List, ListItem, ListItemText } from '@material-ui/core';
+import { Collapse, List, ListItem, ListItemText, Divider } from '@material-ui/core';
 import { administrationIcon } from '../../constants/images';
 
 const PrimaryListItem = styled(ListItem)`
@@ -14,7 +14,6 @@ const PrimaryListItem = styled(ListItem)`
     opacity: 0.9;
     font-size: 22px;
     transform: rotate(0deg);
-    transition: transform 0.2s ease;
   }
 
   &.Mui-selected {
@@ -24,6 +23,8 @@ const PrimaryListItem = styled(ListItem)`
       transform: rotate(180deg);
     }
   }
+
+  background: ${props => (props.$highlighted ? 'rgba(255, 255, 255, 0.15)' : '')};
 
   &:hover,
   &.Mui-selected:hover {
@@ -49,12 +50,32 @@ const StyledList = styled(List)`
   padding: 0 0 4px 0;
 `;
 
-export const PrimarySidebarItem = ({ icon, label, children, selected, onClick }) => (
+const ListDivider = styled(Divider)`
+  background-color: rgba(255, 255, 255, 0.2);
+  margin: 2px 10px 2px 16px;
+`;
+
+/**
+ *
+ * selected: the list item has been clicked by the user and is open
+ * highlighted: the list item should be highlighted
+ */
+export const PrimarySidebarItem = ({
+  icon,
+  label,
+  children,
+  selected,
+  highlighted,
+  onClick,
+  divider,
+}) => (
   <>
+    {divider && <ListDivider />}
     <PrimaryListItem
       button
       onClick={onClick}
       selected={selected}
+      $highlighted={highlighted}
       data-test-class="primary-sidebar-item"
     >
       <SidebarPrimaryIcon src={icon || administrationIcon} />
