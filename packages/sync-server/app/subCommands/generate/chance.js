@@ -1,8 +1,8 @@
 import Chance from 'chance';
 import crypto from 'crypto';
 
-// for some reason this isn't the same as Number.MAX_SAFE_INTEGER
-const MAX_SAFE_CRYPTO_INTEGER = 281474976710655;
+// see https://github.com/nodejs/node/blob/v12.22.1/lib/internal/crypto/random.js#L125
+const RAND_MAX = 0xffff_ffff_ffff;
 
-export const seed = crypto.randomInt(MAX_SAFE_CRYPTO_INTEGER);
+export const seed = crypto.randomInt(RAND_MAX);
 export const chance = new Chance(seed);
