@@ -3,7 +3,7 @@ import { fake } from 'shared/test-helpers';
 import moment from 'moment';
 import { ENCOUNTER_TYPES, REFERENCE_TYPES } from 'shared/constants';
 
-import { initDatabase, closeDatabase } from '../../database';
+import { initDatabase, closeDatabase } from '../../../database';
 // TODO (TAN-1529): import this from the spreadsheet once possible
 import * as programData from './program.json';
 import { importProgram } from './program';
