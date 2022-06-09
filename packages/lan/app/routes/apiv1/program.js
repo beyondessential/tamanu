@@ -1,7 +1,13 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
-import { simpleGet, simplePut, simplePost, permissionCheckingRouter } from './crudHelpers';
+import {
+  simpleGet,
+  simplePut,
+  simplePost,
+  simpleGetList,
+  permissionCheckingRouter,
+} from './crudHelpers';
 import { getFilteredListByPermission } from '../../utils/getFilteredListByPermission';
 
 export const program = express.Router();
@@ -14,15 +20,7 @@ program.get(
   '/$',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'Program');
-    const { models, ability } = req;
-    const records = await models.Program.findAll();
-    const filteredRecords = getFilteredListByPermission(ability, records, 'submit');
-    const data = filteredRecords.map(x => x.forResponse());
-
-    res.send({
-      count: data.length,
-      data,
-    });
+    simpleGetList('Program')(req, res);
   }),
 );
 
