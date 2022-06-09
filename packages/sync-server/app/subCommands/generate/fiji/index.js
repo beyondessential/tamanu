@@ -1,6 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 import { fake } from 'shared/test-helpers';
 import moment from 'moment';
+import asyncPool from 'tiny-async-pool';
+
 import { ENCOUNTER_TYPES, REFERENCE_TYPES } from 'shared/constants';
 
 import { initDatabase, closeDatabase } from '../../../database';
@@ -15,6 +17,14 @@ const REPORT_INTERVAL_MS = 100;
 const NUM_VILLAGES = 50;
 const NUM_EXAMINERS = 10;
 const NUM_FACILITIES = 20;
+const CONCURRENT_PATIENT_INSERTS = 4;
+
+// memory-efficient iterable over a range
+function* range(n) {
+  for (let i = 0; i < n; i++) {
+    yield i;
+  }
+}
 
 export const generateFiji = async ({ patientCount }) => {
   const store = await initDatabase({ testMode: false });
@@ -175,11 +185,12 @@ export const generateFiji = async ({ patientCount }) => {
 
   let intervalId;
   try {
-    let i = 0;
+    let complete = 0;
 
     const reportProgress = () => {
       // \r works because the length of this is guaranteed to always grow longer or stay the same
-      process.stdout.write(`Generating patient ${i}/${patientCount}...\r`);
+      const pct = ((complete / patientCount) * 100).toFixed(2);
+      process.stdout.write(`\rGenerating patient ${complete}/${patientCount} (${pct}%)...`);
     };
 
     // perform the generation
@@ -192,10 +203,10 @@ export const generateFiji = async ({ patientCount }) => {
       reportProgress();
 
       // generate patients
-      for (i = 0; i < patientCount; i++) {
+      await asyncPool(CONCURRENT_PATIENT_INSERTS, range(patientCount), async () => {
         await insertPatientData();
-      }
-
+        complete++;
+      });
       // finish up
       clearInterval(intervalId);
       reportProgress();
