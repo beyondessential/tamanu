@@ -25,7 +25,7 @@ export async function startScheduledTasks(context) {
   if (config.schedules.automaticLabTestResultPublisher.enabled) {
     taskClasses.push(AutomaticLabTestResultPublisher);
   }
-  
+
   if (config.schedules.duplicateAdditionalDataDeleter.enabled) {
     taskClasses.push(DuplicateAdditionalDataDeleter);
   }

@@ -60,22 +60,24 @@ export async function reconcilePatient(sequelize, patientId) {
   const idsToDelete = checkedRecords
     .filter(record => !record.canonical && !record.hasData)
     .map(record => record.record.id);
-  log.info(`Merging ${idsToDelete.length} records`, {
-    patientId,
-    canonicalId: canonicalRecord.record.id,
-  });
-  await PatientAdditionalData.update(
-    {
-      mergedIntoId: canonicalRecord.record.id,
-      deletedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
-      updatedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
-    },
-    {
-      where: {
-        id: idsToDelete,
+  if (idsToDelete.length > 0) {
+    log.info(`Merging ${idsToDelete.length} records`, {
+      patientId,
+      canonicalId: canonicalRecord.record.id,
+    });
+    await PatientAdditionalData.update(
+      {
+        mergedIntoId: canonicalRecord.record.id,
+        deletedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
+        updatedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
       },
-    },
-  );
+      {
+        where: {
+          id: idsToDelete,
+        },
+      },
+    );
+  }
 
   // warn if there are any OTHER records with data, which will need to be resolved manually
   // TODO: more intelligent merge logic
@@ -113,7 +115,7 @@ export async function removeDuplicatedPatientAdditionalData(sequelize) {
   const batchSize = 1000;
   const batchCount = Math.ceil(patientIdsCount / batchSize);
 
-  log.info(`Starting removal of duplicate PatientAdditionalData`, { batchCount });
+  log.info(`Starting removal of duplicate PatientAdditionalData`, { batchCount, total: patientIdsCount });
 
   let cursor = '';
   const tallies = {

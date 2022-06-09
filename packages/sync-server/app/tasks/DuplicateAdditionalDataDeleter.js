@@ -9,14 +9,13 @@ import {
 
 export class DuplicateAdditionalDataDeleter extends ScheduledTask {
   getName() {
-    return 'DuplicateAdditionalDataDeleterDischarger';
+    return 'DuplicateAdditionalDataDeleter';
   }
 
   constructor(context) {
     const conf = config.schedules.duplicateAdditionalDataDeleter;
     super(conf.schedule, log);
-    this.config = conf;
-    this.models = context.store.models;
+    this.sequelize = context.store.sequelize;
   }
 
   async countQueue() {
