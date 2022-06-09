@@ -21,7 +21,11 @@ export const FormGroup = ({
       <SectionHeader h3>{sectionName}</SectionHeader>
     </StyledView>
     <StyledView justifyContent="space-between">
-      {children}
+      {React.Children.map(children, child => (
+        <StyledView paddingBottom={10}>
+          {child}
+        </StyledView>
+      ))}
     </StyledView>
   </StyledView>
 );
