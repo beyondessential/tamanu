@@ -1,8 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-
+import { getFilteredListByPermission } from 'shared/utils/getFilteredListByPermission';
 import { findRouteObject, permissionCheckingRouter, simpleGetList } from './crudHelpers';
-import { getFilteredListByPermission } from '../../utils/getFilteredListByPermission';
 
 export const survey = express.Router();
 

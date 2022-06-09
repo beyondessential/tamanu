@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-
+import { getFilteredListByPermission } from 'shared/utils/getFilteredListByPermission';
 import {
   simpleGet,
   simplePut,
@@ -8,7 +8,6 @@ import {
   simpleGetList,
   permissionCheckingRouter,
 } from './crudHelpers';
-import { getFilteredListByPermission } from '../../utils/getFilteredListByPermission';
 
 export const program = express.Router();
 
