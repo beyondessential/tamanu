@@ -8,7 +8,7 @@ import { initDatabase, closeDatabase } from '../../../database';
 import * as programData from './program.json';
 import { importProgram } from './program';
 import { insertSurveyResponse } from './insertSurveyResponse';
-import { insertLabTest } from './insertLabTest';
+import { insertCovidTest } from './insertCovidTest';
 import { chance, seed } from './chance';
 
 const REPORT_INTERVAL_MS = 100;
@@ -112,7 +112,7 @@ export const generateFiji = async ({ patientCount }) => {
       },
       { returning: true },
     );
-    setupData.labTestCategories = [covidCategory.id]; // report specifies multiple but workbook only has one
+    setupData.covidTestCategories = [covidCategory.id]; // report specifies multiple but workbook only has one
   };
 
   const insertEncounter = async patientId => {
@@ -157,7 +157,7 @@ export const generateFiji = async ({ patientCount }) => {
     const testDates = [];
     for (let i = 0; i < chance.integer({ min: 0, max: 3 }); i++) {
       const { id: encounterId } = await insertEncounter(patient.id);
-      const test = await insertLabTest(store.sequelize.models, setupData, { encounterId });
+      const test = await insertCovidTest(store.sequelize.models, setupData, { encounterId });
       testDates.push(test.date);
     }
 

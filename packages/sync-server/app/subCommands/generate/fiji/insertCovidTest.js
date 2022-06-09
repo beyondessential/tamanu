@@ -2,10 +2,10 @@ import { fake } from 'shared/test-helpers';
 import { LAB_TEST_STATUSES, LAB_REQUEST_STATUSES } from 'shared/constants';
 import { chance } from './chance';
 
-export const insertLabTest = async ({ LabTest, LabRequest }, setupData, { encounterId }) => {
+export const insertCovidTest = async ({ LabTest, LabRequest }, setupData, { encounterId }) => {
   const labRequest = await LabRequest.create({
     ...fake(LabRequest),
-    labTestCategoryId: chance.pickone(setupData.labTestCategories),
+    labTestCategoryId: chance.pickone(setupData.covidTestCategories),
     status: chance.pickone(
       Object.values(LAB_REQUEST_STATUSES).filter(s => s !== LAB_REQUEST_STATUSES.DELETED),
     ),
