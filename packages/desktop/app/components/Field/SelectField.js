@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import Select from 'react-select';
 import styled from 'styled-components';
 import { Colors } from '../../constants';
-
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
 
@@ -31,11 +30,16 @@ export const SelectInput = ({
       borderColor: state.isFocused ? Colors.primary : Colors.outline,
       boxShadow: 'none',
       borderRadius: '3px',
-      paddingTop: '4px',
-      paddingBottom: '2px',
+      paddingTop: '5px',
+      paddingBottom: '3px',
       paddingLeft: '5px',
-      color: Colors.softText,
     }),
+    dropdownIndicator: provided => ({
+      ...provided,
+      color: Colors.midText,
+      padding: '4px 16px 6px 6px',
+    }),
+    placeholder: provided => ({ ...provided, color: Colors.softText }),
     indicatorSeparator: () => ({ display: 'none' }),
     menu: provided => ({
       ...provided,
@@ -75,7 +79,6 @@ export const SelectInput = ({
         menuPlacement="auto"
         menuPosition="fixed"
         styles={customStyles}
-        className="select-field"
         menuShouldBlockScroll="true"
         placeholder="Select"
         {...props}
