@@ -115,7 +115,10 @@ export async function removeDuplicatedPatientAdditionalData(sequelize) {
   const batchSize = 1000;
   const batchCount = Math.ceil(patientIdsCount / batchSize);
 
-  log.info(`Starting removal of duplicate PatientAdditionalData`, { batchCount, total: patientIdsCount });
+  log.info(`Starting removal of duplicate PatientAdditionalData`, {
+    batchCount,
+    total: patientIdsCount,
+  });
 
   let cursor = '';
   const tallies = {
