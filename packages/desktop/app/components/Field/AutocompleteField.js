@@ -58,7 +58,7 @@ const Icon = styled(InputAdornment)`
 class BaseAutocomplete extends Component {
   constructor() {
     super();
-    this.autocompleteContainerRef = React.createRef();
+    this.anchorEl = React.createRef();
     this.debouncedFetchOptions = debounce(this.fetchOptions, 100);
 
     this.state = {
@@ -133,6 +133,13 @@ class BaseAutocomplete extends Component {
     this.setState({ suggestions: [] });
   };
 
+  onKeyDown = event => {
+    // prevent enter button submitting the whole form
+    if (event.keyCode === 13) {
+      event.preventDefault();
+    }
+  };
+
   renderSuggestion = (suggestion, { isHighlighted }) => (
     <MenuItem selected={isHighlighted} component="div">
       <Typography variant="body2">{suggestion.label}</Typography>
@@ -141,34 +148,26 @@ class BaseAutocomplete extends Component {
 
   renderContainer = option => (
     <SuggestionsContainer
-      anchorEl={this.autocompleteContainerRef?.current}
+      anchorEl={this.anchorEl}
       open={!!option.children}
       placement="bottom-start"
-      modifiers={{
-        preventOverflow: {
-          enabled: false,
-        },
-        flip: {
-          enabled: false,
-        },
-      }}
     >
       <SuggestionsList {...option.containerProps}>{option.children}</SuggestionsList>
     </SuggestionsContainer>
   );
 
+  setAnchorRefForPopper = ref => {
+    this.anchorEl = ref;
+  };
+
   renderInputComponent = inputProps => {
     const { label, required, className, ...other } = inputProps;
     return (
-      <OuterLabelFieldWrapper
-        label={label}
-        required={required}
-        className={className}
-        ref={this.autocompleteContainerRef}
-      >
+      <OuterLabelFieldWrapper label={label} required={required} className={className}>
         <StyledTextField
           variant="outlined"
           InputProps={{
+            ref: this.setAnchorRefForPopper,
             endAdornment: (
               <Icon position="end">
                 <Search />
@@ -213,6 +212,7 @@ class BaseAutocomplete extends Component {
           name,
           placeholder,
           value: displayedValue,
+          onKeyDown: this.onKeyDown,
           onChange: this.handleInputChange,
         }}
       />

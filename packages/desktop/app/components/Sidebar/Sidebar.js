@@ -16,13 +16,14 @@ import { useAuth } from '../../contexts/Auth';
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  flex: 1;
   background: ${Colors.primaryDark};
   min-width: 260px;
-  max-width: 320px;
+  max-width: 280px;
   padding: 0 15px;
   box-shadow: 1px 0 4px rgba(0, 0, 0, 0.15);
   color: ${Colors.white};
+  overflow: auto;
+  height: 100vh;
 
   i {
     color: ${Colors.white};
@@ -124,7 +125,9 @@ export const Sidebar = React.memo(({ items }) => {
           <PrimarySidebarItem
             icon={item.icon}
             label={item.label}
+            divider={item.divider}
             key={item.key}
+            highlighted={currentPath.includes(item.path) && selectedParentItem !== item.key}
             selected={selectedParentItem === item.key}
             onClick={() => clickedParentItem(item)}
           >
