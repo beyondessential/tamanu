@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
-import { fake } from 'shared/test-helpers';
 import moment from 'moment';
 import asyncPool from 'tiny-async-pool';
 
+import { fake } from 'shared/test-helpers';
 import { ENCOUNTER_TYPES, REFERENCE_TYPES } from 'shared/constants';
 
 import { initDatabase, closeDatabase } from '../../../database';
@@ -19,14 +19,14 @@ const NUM_EXAMINERS = 10;
 const NUM_FACILITIES = 20;
 const CONCURRENT_PATIENT_INSERTS = 4;
 
-// memory-efficient iterable over a range
-function* range(n) {
-  for (let i = 0; i < n; i++) {
-    yield i;
-  }
+function range(n) {
+  return Array(n)
+    .fill()
+    .map((_, i) => i);
 }
 
-export const generateFiji = async ({ patientCount }) => {
+export const generateFiji = async ({ patientCount: patientCountStr }) => {
+  const patientCount = Number.parseInt(patientCountStr, 10);
   const store = await initDatabase({ testMode: false });
   const {
     Patient,
@@ -194,25 +194,25 @@ export const generateFiji = async ({ patientCount }) => {
     };
 
     // perform the generation
-    await store.sequelize.transaction(async () => {
-      process.stdout.write(`Creating/upserting setup data (seed=${seed})...\n`);
-      await upsertSetupData();
+    process.stdout.write(`Creating/upserting setup data (seed=${seed})...\n`);
+    await upsertSetupData();
 
-      // report progress regularly but don't spam the console
-      intervalId = setInterval(reportProgress, REPORT_INTERVAL_MS);
-      reportProgress();
+    // report progress regularly but don't spam the console
+    intervalId = setInterval(reportProgress, REPORT_INTERVAL_MS);
+    reportProgress();
 
-      // generate patients
-      await asyncPool(CONCURRENT_PATIENT_INSERTS, range(patientCount), async () => {
+    // generate patients
+    await asyncPool(CONCURRENT_PATIENT_INSERTS, range(patientCount), async () => {
+      await store.sequelize.transaction(async () => {
         await insertPatientData();
-        complete++;
       });
-      // finish up
-      clearInterval(intervalId);
-      reportProgress();
-      process.stdout.write('\nCommitting transaction...\n');
+      complete++;
     });
-    process.stdout.write('Complete\n');
+
+    // finish up
+    clearInterval(intervalId);
+    reportProgress();
+    process.stdout.write('\nComplete\n');
   } finally {
     clearInterval(intervalId);
     await closeDatabase();
