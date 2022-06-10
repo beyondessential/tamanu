@@ -140,6 +140,10 @@
           "result": "Negative"
         }
       }
+    },
+    "duplicateAdditionalDataDeleter": {
+      "enabled": false,
+      "schedule": "0 * * * *"
     }
   },
   "integrations": {
