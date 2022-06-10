@@ -78,7 +78,7 @@ const FormSubmitActionDropdown = ({ requestId, encounter, submitForm }) => {
     { label: 'Finalise & print', onClick: finaliseAndPrint },
   ];
 
-  return <DropdownButton color="primary" variant="contained" actions={actions} />;
+  return <DropdownButton actions={actions} />;
 };
 
 export class LabRequestForm extends React.PureComponent {

@@ -32,7 +32,7 @@ const ActionDropdown = React.memo(({ row, onDownload, onClickDelete }) => {
     */
   ];
 
-  return <DropdownButton color="primary" actions={actions} />;
+  return <DropdownButton actions={actions} />;
 });
 
 const getType = ({ type }) => {

@@ -9,7 +9,11 @@ import { DropdownButton } from '../app/components/DropdownButton';
 
 storiesOf('Buttons/ButtonRow', module)
   .add('Default', () => <Button variant="contained">Button</Button>)
-  .add('Primary', () => <Button variant="contained" color="primary">Button</Button>)
+  .add('Primary', () => (
+    <Button variant="contained" color="primary">
+      Button
+    </Button>
+  ))
   .add('Outlined', () => <OutlinedButton>Button</OutlinedButton>)
   .add('ConfirmCancel', () => (
     <ConfirmCancelRow onConfirm={action('confirm')} onCancel={action('confirm')} />
@@ -52,7 +56,7 @@ storiesOf('Buttons/DropdownButton', module)
     <DropdownButton
       color="primary"
       actions={[
-        { label: 'Plier', onClick: action('plier') },
+        { label: 'Discharge', onClick: action('plier') },
         { label: 'Etendre', onClick: action('etendre') },
         { label: 'Relever', onClick: action('relever') },
         { label: 'Glisser', onClick: action('glisser') },
@@ -60,21 +64,10 @@ storiesOf('Buttons/DropdownButton', module)
     />
   ))
   .add('Only one action', () => (
-    <DropdownButton color="primary" actions={[{ label: 'Plier', onClick: action('plier') }]} />
+    <DropdownButton actions={[{ label: 'Plier', onClick: action('plier') }]} />
   ))
-  .add('No actions', () => <DropdownButton color="primary" actions={[]} />)
-  .add('With split color', () => (
-    <DropdownButton
-      color="primary"
-      dropdownColor="secondary"
-      actions={[
-        { label: 'Plier', onClick: action('plier') },
-        { label: 'Etendre', onClick: action('etendre') },
-        { label: 'Relever', onClick: action('relever') },
-        { label: 'Glisser', onClick: action('glisser') },
-      ]}
-    />
-  ))
+  .add('No actions', () => <DropdownButton actions={[]} />)
+
   .add('In button row', () => (
     <ButtonRow>
       <Button onClick={action('other')} variant="contained">
