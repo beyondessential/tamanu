@@ -1,6 +1,6 @@
 import { createTestContext } from './utilities';
 import { createDummyPatient } from 'shared/demoData/patients';
-import { reconcilePatient, removeDuplicatedPatientAdditionalData } from '../app/subCommands/removeDuplicatedPatientAdditionalData';
+import { reconcilePatient, removeDuplicatedPatientAdditionalData } from '../app/utils/removeDuplicatedPatientAdditionalData';
 import { QueryTypes } from 'sequelize';
 
 describe('Lab test publisher', () => {
