@@ -170,5 +170,5 @@ createSuggester(
   'Patient',
   "LOWER(first_name || ' ' || last_name) LIKE LOWER(:search) OR LOWER(cultural_name) LIKE LOWER(:search) OR LOWER(display_id) LIKE LOWER(:search)",
   patient => patient,
-  'last_name',
+  'first_name',
 );
