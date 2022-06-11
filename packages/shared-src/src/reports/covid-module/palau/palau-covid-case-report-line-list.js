@@ -23,7 +23,7 @@ const reportColumnTemplate = [
   { title: 'Last name', accessor: data => data.patient.lastName },
   { title: 'First name', accessor: data => data.patient.firstName },
   { title: 'Middle name', accessor: data => data.patient.middleName },
-  { title: 'DOB', accessor: data => format(data.patient.dateOfBirth, 'DD/MM/YYYY') },
+  { title: 'DOB', accessor: data => format(data.patient.dateOfBirth, 'dd/MM/yyyy') },
   {
     title: 'Age',
     accessor: data => {
@@ -197,7 +197,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
           }),
           initialSurveyComponents,
           {
-            dateFormat: 'DD/MM/YYYY',
+            dateFormat: 'dd/MM/yyyy',
           },
         );
         if (followUpSurvey) {
@@ -210,7 +210,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
             }),
             followUpSurveyComponents,
             {
-              dateFormat: 'DD/MM/YYYY',
+              dateFormat: 'dd/MM/yyyy',
             },
           );
         }
