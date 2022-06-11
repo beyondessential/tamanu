@@ -31,7 +31,7 @@ const convertBinaryToYesNo = answer => {
   }
 };
 
-const convertDateAnswer = (answer, { dateFormat = 'dd-MM-yyyy' }) =>
+const convertDateAnswer = (answer, { dateFormat = 'DD-MM-YYYY' }) =>
   answer ? moment(answer).format(dateFormat) : '';
 
 const getAnswerBody = async (models, componentConfig, type, answer, transformConfig) => {

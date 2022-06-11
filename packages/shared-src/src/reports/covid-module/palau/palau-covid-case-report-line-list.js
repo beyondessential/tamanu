@@ -197,7 +197,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
           }),
           initialSurveyComponents,
           {
-            dateFormat: 'dd/MM/yyyy',
+            dateFormat: 'DD/MM/YYYY',
           },
         );
         if (followUpSurvey) {
@@ -210,7 +210,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
             }),
             followUpSurveyComponents,
             {
-              dateFormat: 'dd/MM/yyyy',
+              dateFormat: 'DD/MM/YYYY',
             },
           );
         }
