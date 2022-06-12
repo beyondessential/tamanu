@@ -53,7 +53,7 @@ const columns = [
 ];
 
 function getUvciFromVaccinations(vaccinations, format, countryCode) {
-  const vaxes = vaxes.some(v => v.certifiable)
+  const vaxes = vaccinations.some(v => v.certifiable)
     ? vaccinations.filter(v => v.certifiable)
     : vaccinations;
 
