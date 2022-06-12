@@ -52,15 +52,6 @@ const columns = [
   },
 ];
 
-function getUvciFromVaccinations(vaccinations, format, countryCode) {
-  const vaxes = vaccinations.some(v => v.certifiable)
-    ? vaccinations.filter(v => v.certifiable)
-    : vaccinations;
-
-  vaxes.sort((a, b) => +a.date - +b.date);
-  return generateUVCI(vaxes[0]?.id, { format, countryCode });
-}
-
 export const VaccineCertificate = ({
   patient,
   printedBy,
@@ -82,7 +73,18 @@ export const VaccineCertificate = ({
   const uvciFormat = getLocalisation('previewUvciFormat');
 
   const data = vaccinations.map(vaccination => ({ ...vaccination, countryName, healthFacility }));
-  const actualUvci = uvci || getUvciFromVaccinations(vaccinations, uvciFormat, countryCode);
+  let actualUvci;
+  if (vaccinations.some(v => v.certifiable)) {
+    if (uvci) {
+      actualUvci = uvci;
+    } else {
+      const vaxes = vaccinations.filter(v => v.certifiable);
+      vaxes.sort((a, b) => +a.date - +b.date);
+      actualUvci = generateUVCI(vaxes[0]?.id, { format: uvciFormat, countryCode });
+    }
+  } else {
+    actualUvci = null;
+  }
 
   return (
     <Document>
