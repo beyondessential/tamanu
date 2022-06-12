@@ -1,15 +1,46 @@
-import React, { useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
 import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
-import Paper from '@material-ui/core/Paper';
-import MuiPopper from '@material-ui/core/Popper';
+import MuiPaper from '@material-ui/core/Paper';
 import MenuItem from '@material-ui/core/MenuItem';
-import MenuList from '@material-ui/core/MenuList';
+import MuiMenuList from '@material-ui/core/MenuList';
+import { Colors } from '../constants';
+
+const Container = styled.div`
+  position: relative;
+  display: inline-block;
+`;
+
+const Paper = styled(MuiPaper)`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 2px;
+`;
+
+const MenuList = styled(MuiMenuList)`
+  margin: 2px 0;
+  padding: 0;
+
+  .MuiListItem-root {
+    padding: 6px 6px 6px 12px;
+    font-size: 12px;
+    line-height: 15px;
+    white-space: initial;
+
+    &:hover {
+      background: ${Colors.background};
+    }
+  }
+`;
 
 const MainButton = styled(Button)`
+  flex: 1;
+  border-radius: 3px;
   text-transform: capitalize;
   font-size: 14px;
   line-height: 18px;
@@ -17,12 +48,14 @@ const MainButton = styled(Button)`
   letter-spacing: 0;
 
   &.MuiButtonBase-root.MuiButton-root {
+    box-shadow: none;
     border: none;
   }
 `;
 
 const MenuButton = styled(Button)`
   padding: 8px 8px 8px 0;
+  border-radius: 3px;
 
   .MuiButton-label {
     border-left: 1px solid white;
@@ -35,30 +68,20 @@ const MenuButton = styled(Button)`
   }
 `;
 
-const Popper = styled(MuiPopper)`
-  width: 100%;
-`;
-
-// mostly cribbed from the mui example at https://material-ui.com/components/buttons/#split-button
-
 export const DropdownButton = React.memo(({ actions, ...props }) => {
-  const [open, setOpen] = React.useState(false);
-  const anchorRef = React.useRef(null);
+  const [open, setOpen] = useState(false);
 
   function handleClick(event, index) {
     setOpen(false);
     actions[index].onClick(event);
   }
 
-  const handleToggle = useCallback(() => {
-    setOpen(prevOpen => !prevOpen);
+  const handleToggle = useCallback(event => {
+    event.stopPropagation();
+    setOpen(prev => !prev);
   }, []);
 
-  const handleClose = useCallback(event => {
-    if (anchorRef.current && anchorRef.current.contains(event.target)) {
-      return;
-    }
-
+  const handleClose = useCallback(() => {
     setOpen(false);
   }, []);
 
@@ -86,13 +109,12 @@ export const DropdownButton = React.memo(({ actions, ...props }) => {
   }
 
   return (
-    <div>
+    <Container>
       <ButtonGroup
         variant="contained"
         color="primary"
         disableElevation
-        ref={anchorRef}
-        aria-label="split button"
+        style={{ width: '100%' }}
         {...props}
       >
         <MainButton onClick={event => handleClick(event, 0)}>{mainAction.label}</MainButton>
@@ -100,14 +122,8 @@ export const DropdownButton = React.memo(({ actions, ...props }) => {
           <KeyboardArrowDownIcon />
         </MenuButton>
       </ButtonGroup>
-      <Popper
-        open={open}
-        anchorEl={anchorRef.current}
-        transition
-        disablePortal
-        style={{ zIndex: 10 }}
-      >
-        <Paper>
+      {open && (
+        <Paper elevation={0} variant="outlined">
           <ClickAwayListener onClickAway={handleClose}>
             <MenuList>
               {otherActions.map((action, index) => (
@@ -122,7 +138,7 @@ export const DropdownButton = React.memo(({ actions, ...props }) => {
             </MenuList>
           </ClickAwayListener>
         </Paper>
-      </Popper>
-    </div>
+      )}
+    </Container>
   );
 });
