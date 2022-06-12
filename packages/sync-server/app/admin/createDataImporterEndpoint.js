@@ -3,8 +3,8 @@ import { unlink } from 'fs';
 import config from 'config';
 
 import { log } from 'shared/services/logging';
+import { getUploadedData } from 'shared/utils/getUploadedData';
 
-import { getUploadedData } from './getUploadedData';
 import { sendSyncRequest } from './sendSyncRequest';
 
 import { preprocessRecordSet } from './preprocessRecordSet';
