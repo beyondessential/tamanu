@@ -105,6 +105,14 @@ export class Patient extends Model {
           as: 'scheduledVaccine',
           include: models.ScheduledVaccine.getListReferenceAssociations(),
         },
+        {
+          model: models.User,
+          as: 'giver',
+        },
+        {
+          model: models.User,
+          as: 'recorder',
+        },
       ],
     });
 
