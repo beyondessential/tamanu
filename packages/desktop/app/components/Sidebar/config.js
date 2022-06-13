@@ -8,22 +8,9 @@ import {
   scheduleIcon,
   vaccineIcon,
 } from '../../constants/images';
+import { Colors } from '../../constants';
 
-export const submenuIcons = {
-  action: 'fa fa-chevron-circle-right',
-  calendar: 'fa fa-calendar',
-  cog: 'fa fa-cog',
-  location: 'fa fa-location-arrow',
-  new: 'fa fa-plus',
-  permissions: 'fa fa-lock',
-  report: 'fa fa-chevron-circle-right',
-  search: 'fa fa-search',
-  table: 'fa fa-th-list',
-  users: 'fa fa-users',
-  immunisations: 'fa fa-syringe',
-};
-
-export const facilityItems = [
+export const FACILITY_MENU_ITEMS = [
   {
     key: 'patients',
     label: 'Patients',
@@ -33,26 +20,26 @@ export const facilityItems = [
     children: [
       {
         label: 'All patients',
+        color: '#7EB3E7',
         path: '/patients',
-        icon: submenuIcons.table,
         ability: { action: 'read' },
       },
       {
         label: 'Inpatients',
+        color: Colors.safe,
         path: '/patients/admitted',
-        icon: submenuIcons.table,
         ability: { action: 'read' },
       },
       {
         label: 'Emergency patients',
+        color: Colors.orange,
         path: '/patients/triage',
-        icon: submenuIcons.table,
         ability: { action: 'read' },
       },
       {
         label: 'Outpatients',
+        color: '#F9BA5B',
         path: '/patients/outpatient',
-        icon: submenuIcons.table,
         ability: { action: 'read' },
       },
     ],
@@ -67,19 +54,16 @@ export const facilityItems = [
       {
         label: 'Upcoming appointments',
         path: '/appointments',
-        icon: submenuIcons.table,
         ability: { action: 'read' },
       },
       {
         label: 'Appointments calendar',
         path: '/appointments/calendar',
-        icon: submenuIcons.calendar,
         ability: { action: 'read' },
       },
       {
-        label: 'Add appointment',
+        label: 'New appointment',
         path: '/appointments/appointment/new',
-        icon: submenuIcons.new,
         ability: { action: 'create' },
       },
     ],
@@ -94,25 +78,21 @@ export const facilityItems = [
       {
         label: 'Requests',
         path: '/medication/requests',
-        icon: submenuIcons.table,
         ability: { action: 'read' },
       },
       {
         label: 'Completed',
         path: '/medication/completed',
-        icon: submenuIcons.table,
         ability: { action: 'read' },
       },
       {
         label: 'New request',
         path: '/medication/request',
-        icon: submenuIcons.new,
         ability: { action: 'create' },
       },
       {
         label: 'Dispense',
         path: '/medication/dispense',
-        icon: submenuIcons.action,
         ability: { action: 'create' },
       },
     ],
@@ -127,19 +107,16 @@ export const facilityItems = [
       {
         label: 'Requests',
         path: '/imaging',
-        icon: submenuIcons.table,
         ability: { action: 'read' },
       },
       {
         label: 'Completed',
         path: '/imaging/completed',
-        icon: submenuIcons.table,
         ability: { action: 'read' },
       },
       {
         label: 'New request',
         path: '/imaging/request',
-        icon: submenuIcons.new,
         ability: { action: 'create' },
       },
     ],
@@ -154,84 +131,17 @@ export const facilityItems = [
       {
         label: 'Requests',
         path: '/labs',
-        icon: submenuIcons.table,
         ability: { action: 'read' },
       },
       {
         label: 'Completed',
         path: '/labs/completed',
-        icon: submenuIcons.table,
         ability: { action: 'read' },
       },
       {
         label: 'New request',
         path: '/labs/edit/new',
-        icon: submenuIcons.new,
         ability: { action: 'create' },
-      },
-    ],
-  },
-  {
-    key: 'admin',
-    label: 'Administration',
-    path: '/admin',
-    icon: administrationIcon,
-    ability: { subject: 'user', action: 'read' },
-    children: [
-      {
-        label: 'Settings',
-        path: '/admin/settings',
-        icon: submenuIcons.cog,
-      },
-      {
-        label: 'Users',
-        path: '/admin/users',
-        icon: submenuIcons.users,
-        ability: { action: 'read', subject: 'user' },
-      },
-      {
-        label: 'Locations',
-        path: '/admin/locations',
-        icon: submenuIcons.location,
-        ability: { action: 'read', subject: 'location' },
-      },
-      {
-        label: 'Permissions',
-        path: '/admin/permissions',
-        icon: submenuIcons.permissions,
-        ability: { action: 'read', subject: 'userRole' },
-      },
-      {
-        label: 'Programs',
-        icon: submenuIcons.table,
-        path: '/admin/programs',
-      },
-      {
-        label: 'Data import',
-        icon: submenuIcons.table,
-        path: '/admin/refdata',
-      },
-    ],
-  },
-  {
-    key: 'programs',
-    label: 'Programs',
-    path: '/programs',
-    icon: programsIcon,
-    ability: { action: 'read', subject: 'program' },
-    children: [],
-  },
-  {
-    key: 'reports',
-    label: 'Reports',
-    path: '/reports',
-    icon: scheduleIcon,
-    ability: { action: 'read', subject: 'report' },
-    children: [
-      {
-        label: 'Report generator',
-        path: `/reports/`,
-        icon: submenuIcons.report,
       },
     ],
   },
@@ -245,15 +155,76 @@ export const facilityItems = [
       {
         label: 'Immunisation register',
         path: `/immunisations/`,
-        icon: submenuIcons.immunisations,
       },
       {
         label: 'COVID campaign',
         path: `/immunisations/covid`,
-        icon: submenuIcons.immunisations,
+      },
+    ],
+  },
+  {
+    key: 'programs',
+    label: 'Programs',
+    path: '/programs',
+    icon: programsIcon,
+    ability: { action: 'read', subject: 'program' },
+    children: [
+      {
+        label: 'Active COVID-19 patients',
+        path: `/programs/active-covid-19-program/patients`,
+      },
+    ],
+  },
+  {
+    key: 'reports',
+    label: 'Reports',
+    path: '/reports',
+    icon: scheduleIcon,
+    ability: { action: 'read', subject: 'report' },
+    children: [
+      {
+        label: 'Report generator',
+        path: `/reports/`,
+      },
+    ],
+  },
+  {
+    key: 'admin',
+    label: 'Administration',
+    path: '/admin',
+    icon: administrationIcon,
+    divider: true,
+    ability: { subject: 'user', action: 'read' },
+    children: [
+      {
+        label: 'Settings',
+        path: '/admin/settings',
+      },
+      {
+        label: 'Users',
+        path: '/admin/users',
+        ability: { action: 'read', subject: 'user' },
+      },
+      {
+        label: 'Locations',
+        path: '/admin/locations',
+        ability: { action: 'read', subject: 'location' },
+      },
+      {
+        label: 'Permissions',
+        path: '/admin/permissions',
+        ability: { action: 'read', subject: 'userRole' },
+      },
+      {
+        label: 'Programs',
+        path: '/admin/programs',
+      },
+      {
+        label: 'Data import',
+        path: '/admin/refdata',
       },
     ],
   },
 ];
 
-export const syncItems = [];
+export const SYNC_MENU_ITEMS = [];

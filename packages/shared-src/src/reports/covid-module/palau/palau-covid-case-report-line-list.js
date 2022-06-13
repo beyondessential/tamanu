@@ -1,6 +1,6 @@
 /* eslint-disable import/no-unresolved, import/extensions */
 
-import { subDays } from 'date-fns';
+import { subDays, format } from 'date-fns';
 import { groupBy } from 'lodash';
 import moment from 'moment';
 import { Op } from 'sequelize';
@@ -14,6 +14,7 @@ const FOLLOW_UP_SURVEY_ID = 'program-palaucovid19-palaucovidfollowupcasereport';
 const reportColumnTemplate = [
   { title: 'Case ID', accessor: data => data['pde-PalauCOVCase6'] },
   { title: 'Case investigator', accessor: data => data['pde-PalauCOVCase2'] },
+  { title: 'Case investigator (If other)', accessor: data => data['pde-PalauCOVCase2a'] },
   { title: 'EpiWeek', accessor: data => data['pde-PalauCOVCase33'] },
   { title: 'Case report date', accessor: data => data['pde-PalauCOVCase3'] },
   { title: 'Interview date', accessor: data => data['pde-PalauCOVCase4'] },
@@ -22,7 +23,7 @@ const reportColumnTemplate = [
   { title: 'Last name', accessor: data => data.patient.lastName },
   { title: 'First name', accessor: data => data.patient.firstName },
   { title: 'Middle name', accessor: data => data.patient.middleName },
-  { title: 'DOB', accessor: data => data.patient.dateOfBirth },
+  { title: 'DOB', accessor: data => format(data.patient.dateOfBirth, 'dd/MM/yyyy') },
   {
     title: 'Age',
     accessor: data => {
@@ -196,7 +197,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
           }),
           initialSurveyComponents,
           {
-            dateFormat: 'DD-MM-YYYY',
+            dateFormat: 'DD/MM/YYYY',
           },
         );
         if (followUpSurvey) {
@@ -209,7 +210,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
             }),
             followUpSurveyComponents,
             {
-              dateFormat: 'DD-MM-YYYY',
+              dateFormat: 'DD/MM/YYYY',
             },
           );
         }

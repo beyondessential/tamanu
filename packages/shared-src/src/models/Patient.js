@@ -32,7 +32,7 @@ export class Patient extends Model {
       },
       {
         ...options,
-        syncConfig: { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
+        syncConfig: { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, includedRelations: ['notes'] },
         indexes: [
           { fields: ['date_of_death'] },
           { fields: ['display_id'] },
@@ -62,6 +62,15 @@ export class Patient extends Model {
       foreignKey: 'villageId',
       as: 'village',
     });
+
+    this.hasMany(models.Note, {
+      foreignKey: 'recordId',
+      as: 'notes',
+      constraints: false,
+      scope: {
+        recordType: this.name,
+      },
+    });
   }
 
   static async getSyncIds() {
@@ -75,7 +84,8 @@ export class Patient extends Model {
 
   async getAdministeredVaccines(queryOptions) {
     const { models } = this.sequelize;
-    return models.AdministeredVaccine.findAll({
+    const certifiableVaccineIds = await models.CertifiableVaccine.allVaccineIds();
+    const results = await models.AdministeredVaccine.findAll({
       raw: true,
       nest: true,
       ...queryOptions,
@@ -97,6 +107,14 @@ export class Patient extends Model {
         },
       ],
     });
+
+    for (const result of results) {
+      if (certifiableVaccineIds.includes(result.scheduledVaccine.vaccineId)) {
+        result.certifiable = true;
+      }
+    }
+
+    return results;
   }
 
   async getCovidLabTests(queryOptions) {

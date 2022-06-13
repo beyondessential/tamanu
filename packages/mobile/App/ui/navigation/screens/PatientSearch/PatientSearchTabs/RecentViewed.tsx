@@ -46,7 +46,7 @@ const Screen = ({
   }
 
   if (!recentlyViewedPatients || !recentlyViewedPatients.length) {
-    return <LoadingScreen text="Loading patients..." />;
+    return <LoadingScreen />;
   }
 
   return (

@@ -2,13 +2,9 @@ import config from 'config';
 import { format } from 'date-fns';
 import { Op } from 'sequelize';
 
-import {
-  getParamAndModifier,
-  getQueryObject,
-  getDefaultOperator,
-  modifiers,
-  hl7PatientFields,
-} from './utils';
+import { getParamAndModifier, getQueryObject, getDefaultOperator } from './utils';
+import { modifiers } from './hl7Parameters';
+import { hl7PatientFields } from './hl7PatientFields';
 
 function patientName(patient, additional) {
   const official = {
@@ -38,10 +34,6 @@ function patientIds(patient, additional) {
   return [
     {
       use: 'usual',
-      value: patient.id,
-    },
-    {
-      use: 'official',
       value: patient.displayId,
       assigner: config.hl7.assigners.patientDisplayId,
       system: config.hl7.dataDictionaries.patientDisplayId,
@@ -81,9 +73,10 @@ function patientTelecom(patient, additional) {
     }));
 }
 
-export function patientToHL7Patient(patient, additional) {
+export function patientToHL7Patient(patient, additional = {}) {
   return {
     resourceType: 'Patient',
+    id: patient.id,
     active: true, // currently unused in Tamanu, always true
     identifier: patientIds(patient, additional),
     name: patientName(patient, additional),
@@ -91,6 +84,10 @@ export function patientToHL7Patient(patient, additional) {
     gender: patient.sex,
     address: patientAddress(patient, additional),
     telecom: patientTelecom(patient, additional),
+    // Only add deceasedDateTime key if the patient is deceased
+    ...(patient.dateOfDeath && {
+      deceasedDateTime: format(patient.dateOfDeath, "yyyy-MM-dd'T'HH:mm:ssXXX"),
+    }),
   };
 }
 
@@ -113,10 +110,19 @@ export function getPatientWhereClause(displayId, query = {}) {
       return;
     }
 
-    const { fieldName, columnName, parameterType } = hl7PatientFields[parameter];
-    const defaultOperator = getDefaultOperator(parameterType);
+    const { fieldName, columnName, parameterType, getValue, getOperator } = hl7PatientFields[
+      parameter
+    ];
+    const defaultOperator = getOperator ? getOperator(value) : getDefaultOperator(parameterType);
     const operator = modifier ? modifiers[parameterType][modifier] : defaultOperator;
-    const queryObject = getQueryObject(columnName, value, operator, modifier, parameterType);
+    const extractedValue = getValue ? getValue(value) : value;
+    const queryObject = getQueryObject(
+      columnName,
+      extractedValue,
+      operator,
+      modifier,
+      parameterType,
+    );
     filters.push({ [fieldName]: queryObject });
   });
 

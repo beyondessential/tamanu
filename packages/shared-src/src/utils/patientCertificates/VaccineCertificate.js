@@ -52,16 +52,6 @@ const columns = [
   },
 ];
 
-function getUvciFromVaccinations(vaccinations, format, countryCode, covidVaccines) {
-  const vaxes =
-    format === 'tamanu'
-      ? vaccinations
-      : vaccinations.filter(vax => covidVaccines.includes(vax.scheduledVaccine.vaccine.id));
-
-  vaxes.sort((a, b) => +a.date - +b.date);
-  return generateUVCI(vaxes[0]?.id, { format, countryCode });
-}
-
 export const VaccineCertificate = ({
   patient,
   printedBy,
@@ -81,9 +71,20 @@ export const VaccineCertificate = ({
   const countryCode = getLocalisation('country.alpha-3');
   const countryName = getLocalisation('country.name');
   const uvciFormat = getLocalisation('previewUvciFormat');
-  const covidVaccines = getLocalisation('covidVaccines');
 
   const data = vaccinations.map(vaccination => ({ ...vaccination, countryName, healthFacility }));
+  let actualUvci;
+  if (vaccinations.some(v => v.certifiable)) {
+    if (uvci) {
+      actualUvci = uvci;
+    } else {
+      const vaxes = vaccinations.filter(v => v.certifiable);
+      vaxes.sort((a, b) => +a.date - +b.date);
+      actualUvci = generateUVCI(vaxes[0]?.id, { format: uvciFormat, countryCode });
+    }
+  } else {
+    actualUvci = null;
+  }
 
   return (
     <Document>
@@ -97,9 +98,7 @@ export const VaccineCertificate = ({
           getLocalisation={getLocalisation}
           certificateId={certificateId}
           extraFields={extraPatientFields}
-          uvci={
-            uvci || getUvciFromVaccinations(vaccinations, uvciFormat, countryCode, covidVaccines)
-          }
+          uvci={actualUvci}
         />
         <Box mb={20}>
           <Table data={data} columns={columns} getLocalisation={getLocalisation} />

@@ -6,11 +6,15 @@
 
 - Set `enablePatientDeaths` in sync-server config (if required)
   - `localisation.data.features.enablePatientDeaths`
+- Remove `localisation.data.covidVaccines`
+- Import Certifiable Vaccines (if required) data
 
 ### Features ⭐
 
 - Logs updated with various pieces of additional diagnostic info
 - Logs can now be sent to Honeycomb for central viewing/querying
+- Added printing options for lab requests, imaging requests, and prescriptions
+- Vaccines that can have a QR code (VDS-NC or EU DCC) are now configured via the Certifiable Vaccines imported data, rather than being hardcoded
 
 ### Tweaks ⚖️
 

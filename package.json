@@ -8,7 +8,7 @@
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "SEE LICENSE IN license",
   "scripts": {
-    "build-shared": "yarn workspace shared-src run build && yarn install",
+    "build-shared": "yarn workspace shared-src run build && yarn install --frozen-lockfile",
     "build": "yarn build-shared && concurrently \"yarn workspace sync-server run build\" \"yarn workspace lan run build\" \"yarn workspace desktop run build\" \"yarn workspace meta-server run build\" \"yarn workspace csca run build\"",
     "test": "yarn run build-shared && yarn workspace shared-src run test && yarn workspace lan run test && yarn workspace sync-server run test && yarn workspace meta-server run test && yarn workspace csca test",
     "test-coverage": "yarn run build-shared && yarn workspace shared-src run test-coverage && yarn workspace lan run test-coverage && yarn workspace sync-server run test-coverage && yarn workspace meta-server run test-coverage && yarn workspace csca test",
@@ -32,9 +32,7 @@
     "meta-start-dev": "yarn run watch-shared-and meta-server start-dev",
     "meta-test-watch": "yarn run watch-shared-and meta-server test-watch",
     "meta-start": "yarn run meta-start-dev",
-    "build-report": "yarn build-shared && yarn workspace sync-server build && yarn workspace sync-server start report",
-    "mobile-start-dev": "yarn workspace tamanuapp run start",
-    "mobile-android": "yarn workspace tamanuapp run android"
+    "build-report": "yarn build-shared && yarn workspace sync-server build && yarn workspace sync-server start report"
   },
   "engines": {
     "node": "^12.16.0"
@@ -51,8 +49,7 @@
       "packages/sync-server",
       "packages/meta-server",
       "packages/shared",
-      "packages/shared-src",
-      "packages/mobile"
+      "packages/shared-src"
     ],
     "nohoist": [
       "**/webpack",

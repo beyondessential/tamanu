@@ -23,3 +23,10 @@
 /packages/sync-server/integrations/EuDcc                  @passcod
 /packages/sync-server/integrations/Signer                 @passcod
 /packages/sync-server/integrations/VdsNc                  @passcod
+
+# 
+# Nick's a code owner of the default config files just to make sure that
+# he's across any changes that might need to be made to any particular server.
+# 
+/packages/sync-server/config/default.json   @nick-beyondessential
+/packages/lan/config/default.json           @nick-beyondessential

@@ -11,6 +11,7 @@ import { SignerRenewalChecker } from './SignerRenewalChecker';
 import { SignerRenewalSender } from './SignerRenewalSender';
 import { CertificateNotificationProcessor } from './CertificateNotificationProcessor';
 import { AutomaticLabTestResultPublisher } from './AutomaticLabTestResultPublisher';
+import { DuplicateAdditionalDataDeleter } from './DuplicateAdditionalDataDeleter';
 
 export async function startScheduledTasks(context) {
   const taskClasses = [
@@ -23,6 +24,10 @@ export async function startScheduledTasks(context) {
 
   if (config.schedules.automaticLabTestResultPublisher.enabled) {
     taskClasses.push(AutomaticLabTestResultPublisher);
+  }
+
+  if (config.schedules.duplicateAdditionalDataDeleter.enabled) {
+    taskClasses.push(DuplicateAdditionalDataDeleter);
   }
 
   if (config.integrations.fijiVrs.enabled) {
