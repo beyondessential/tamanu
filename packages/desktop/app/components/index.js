@@ -13,6 +13,7 @@ export * from './Layout';
 export * from './Modal';
 export * from './Notification';
 export * from './PageContainer';
+export * from './Paper';
 export * from './Preloader';
 export * from './SearchBar';
 export * from './Table';

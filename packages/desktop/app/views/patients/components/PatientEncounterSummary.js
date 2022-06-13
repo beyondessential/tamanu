@@ -42,6 +42,8 @@ const Container = styled.div`
   background: ${Colors.white};
   transition: color 0.2s ease;
 
+  filter: drop-shadow(2px 2px 25px rgba(0, 0, 0, 0.1));
+
   ${props =>
     props.clickable
       ? css`

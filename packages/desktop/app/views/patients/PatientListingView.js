@@ -3,7 +3,13 @@ import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 
 import { viewPatient } from '../../store/patient';
-import { TopBar, PageContainer, DataFetchingTable, AutocompleteField } from '../../components';
+import {
+  TopBar,
+  PageContainer,
+  DataFetchingTable,
+  Paper,
+  AutocompleteField,
+} from '../../components';
 import { DropdownButton } from '../../components/DropdownButton';
 import { PatientSearchBar, NewPatientModal } from './components';
 

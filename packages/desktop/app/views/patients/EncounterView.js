@@ -4,7 +4,7 @@ import { push } from 'connected-react-router';
 import styled from 'styled-components';
 import { Divider } from '@material-ui/core';
 import { ENCOUNTER_TYPES } from 'shared/constants';
-import { Button, BackButton, TopBar, connectRoutedModal } from '../../components';
+import { Button, BackButton, TopBar, connectRoutedModal, Paper } from '../../components';
 import { ContentPane } from '../../components/ContentPane';
 import { DiagnosisView } from '../../components/DiagnosisView';
 import { DischargeModal } from '../../components/DischargeModal';
@@ -220,6 +220,27 @@ const BackButtonRow = styled.div`
   border-bottom: 1px solid ${Colors.softOutline};
 `;
 
+const StyledTabDisplay = styled(TabDisplay)`
+  margin: 20px;
+  padding: 20px;
+  filter: drop-shadow(2px 2px 25px rgba(0, 0, 0, 0.1));
+  border-radius: 3px;
+  border: 1px solid ${Colors.outline};
+  background: white;
+
+  .MuiButtonBase-root.MuiTabScrollButton-root.MuiTabs-scrollButtons.Mui-disabled {
+    display: none;
+  }
+
+  .MuiTabs-root {
+    padding: 0 20px;
+  }
+
+  .MuiTabs-scroller {
+    border-bottom: 1px solid #ebebeb;
+  }
+`;
+
 export const EncounterView = () => {
   const { getLocalisation } = useLocalisation();
   const patient = useSelector(state => state.patient);
@@ -253,7 +274,7 @@ export const EncounterView = () => {
             disabled={disabled}
           />
         </ContentPane>
-        <TabDisplay
+        <StyledTabDisplay
           tabs={visibleTabs}
           currentTab={currentTab}
           onTabSelect={setCurrentTab}
