@@ -109,10 +109,6 @@ export class Patient extends Model {
           model: models.User,
           as: 'giver',
         },
-        {
-          model: models.User,
-          as: 'recorder',
-        },
       ],
     });
 
