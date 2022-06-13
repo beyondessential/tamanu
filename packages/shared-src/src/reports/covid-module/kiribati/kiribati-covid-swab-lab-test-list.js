@@ -36,7 +36,7 @@ const reportColumnTemplate = [
   { title: 'Testing date', accessor: data => data.testingDate },
   {
     title: 'Sample collection date',
-    accessor: data => format(new Date(data.sampleTime), 'dd/MM/yyyy'),
+    accessor: data => format(new Date(data.sampleTime), 'yyyy/MM/dd'),
   },
   {
     title: 'Sample collection time',
