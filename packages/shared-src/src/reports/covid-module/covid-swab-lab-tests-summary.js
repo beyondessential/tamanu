@@ -50,7 +50,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
   const reportColumnTemplate = [
     {
       title: 'Date',
-      accessor: data => format(data.testDate, 'dd/MM/yyyy'),
+      accessor: data => format(data.testDate, 'yyyy/MM/dd'),
     },
     {
       title: 'Total tests',

@@ -4,7 +4,7 @@ import { Op } from 'sequelize';
 import { subDays, format } from 'date-fns';
 import { generateReportFromQueryData } from '../utilities';
 
-const DATE_FORMAT = 'dd/MM/yyyy';
+const DATE_FORMAT = 'yyyy/MM/dd';
 
 const reportColumnTemplate = [
   {
