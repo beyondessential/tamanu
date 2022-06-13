@@ -7,6 +7,7 @@ export { ImagingPane } from './ImagingPane';
 export { LabsPane } from './LabsPane';
 export { PatientMedicationPane } from './PatientMedicationPane';
 export { EncounterMedicationPane } from './EncounterMedicationPane';
+export { EncounterInfoPane } from './EncounterInfoPane';
 export { NotesPane } from './NotesPane';
 export { ProcedurePane } from './ProcedurePane';
 export { ProgramsPane } from './ProgramsPane';

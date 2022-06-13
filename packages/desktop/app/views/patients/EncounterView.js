@@ -3,17 +3,7 @@ import { connect, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
 import { ENCOUNTER_TYPES } from 'shared/constants';
-import {
-  Button,
-  BackButton,
-  TopBar,
-  SuggesterSelectField,
-  SelectInput,
-  DateInput,
-  TextInput,
-  connectRoutedModal,
-  FormGrid,
-} from '../../components';
+import { Button, BackButton, TopBar, connectRoutedModal } from '../../components';
 import { ContentPane } from '../../components/ContentPane';
 import { DiagnosisView } from '../../components/DiagnosisView';
 import { DischargeModal } from '../../components/DischargeModal';
@@ -34,9 +24,10 @@ import {
   DocumentsPane,
   ProgramsPane,
   InvoicingPane,
+  EncounterInfoPane,
 } from './panes';
 import { DropdownButton } from '../../components/DropdownButton';
-import { encounterOptions, ENCOUNTER_OPTIONS_BY_VALUE } from '../../constants';
+import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../constants';
 import { useEncounter } from '../../contexts/Encounter';
 import { useLocalisation } from '../../contexts/Localisation';
 import { useAuth } from '../../contexts/Auth';
@@ -93,45 +84,6 @@ const TABS = [
     condition: getLocalisation => getLocalisation('features.enableInvoicing'),
   },
 ];
-
-const getDepartmentName = ({ department }) => (department ? department.name : 'Unknown');
-const getLocationName = ({ location }) => (location ? location.name : 'Unknown');
-const getExaminerName = ({ examiner }) => (examiner ? examiner.displayName : 'Unknown');
-
-const EncounterInfoPane = React.memo(({ disabled, encounter }) => (
-  <FormGrid columns={3}>
-    <DateInput disabled={disabled} value={encounter.startDate} label="Arrival date" />
-    <DateInput disabled={disabled} value={encounter.endDate} label="Discharge date" />
-    <SuggesterSelectField
-      disabled
-      label="Patient type"
-      field={{ name: 'patientBillingTypeId', value: encounter.patientBillingTypeId }}
-      endpoint="patientBillingType"
-    />
-    <TextInput disabled={disabled} value={getDepartmentName(encounter)} label="Department" />
-    <SelectInput
-      disabled={disabled}
-      value={encounter.encounterType}
-      label="Encounter type"
-      options={encounterOptions}
-    />
-    <TextInput disabled={disabled} value={getExaminerName(encounter)} label="Doctor/Nurse" />
-    <TextInput disabled={disabled} value={getLocationName(encounter)} label="Location" />
-    {encounter.plannedLocation && (
-      <TextInput
-        disabled={disabled}
-        value={encounter.plannedLocation.name}
-        label="Planned location"
-      />
-    )}
-    <TextInput
-      disabled={disabled}
-      value={encounter.reasonForEncounter}
-      label="Reason for encounter"
-      style={{ gridColumn: 'span 2' }}
-    />
-  </FormGrid>
-));
 
 const RoutedDischargeModal = connectRoutedModal('/patients/encounter', 'discharge')(DischargeModal);
 const RoutedChangeEncounterTypeModal = connectRoutedModal(
