@@ -48,6 +48,7 @@ export const Colors = {
   midText: '#888888',
   softText: '#b8b8b8',
   outline: '#dedede',
+  softOutline: '#ebebeb',
   background: '#f3f5f7',
   white: '#ffffff',
   offWhite: '#fafafa',

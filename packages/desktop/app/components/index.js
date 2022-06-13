@@ -1,6 +1,7 @@
 export * from './TopBar';
 export * from './Button';
 export * from './ButtonRow';
+export * from './Card';
 export * from './DateDisplay';
 export * from './DeathCertificateModal';
 export * from './Dialog';

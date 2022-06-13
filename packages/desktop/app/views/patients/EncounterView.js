@@ -2,6 +2,7 @@ import React from 'react';
 import { connect, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
+import { Divider } from '@material-ui/core';
 import { ENCOUNTER_TYPES } from 'shared/constants';
 import { Button, BackButton, TopBar, connectRoutedModal } from '../../components';
 import { ContentPane } from '../../components/ContentPane';
@@ -27,7 +28,7 @@ import {
   EncounterInfoPane,
 } from './panes';
 import { DropdownButton } from '../../components/DropdownButton';
-import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../constants';
+import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../constants';
 import { useEncounter } from '../../contexts/Encounter';
 import { useLocalisation } from '../../contexts/Localisation';
 import { useAuth } from '../../contexts/Auth';
@@ -213,6 +214,12 @@ const GridColumnContainer = styled.div`
   min-width: 0;
 `;
 
+const BackButtonRow = styled.div`
+  background: white;
+  padding: 18px 0 12px 24px;
+  border-bottom: 1px solid ${Colors.softOutline};
+`;
+
 export const EncounterView = () => {
   const { getLocalisation } = useLocalisation();
   const patient = useSelector(state => state.patient);
@@ -224,17 +231,21 @@ export const EncounterView = () => {
   if (!encounter || isLoadingEncounter || patient.loading) return <LoadingIndicator />;
 
   const visibleTabs = TABS.filter(tab => !tab.condition || tab.condition(getLocalisation));
+
   return (
     <TwoColumnDisplay>
       <PatientInfoPane patient={patient} disabled={disabled} />
       <GridColumnContainer>
+        <BackButtonRow>
+          <BackButton to="/patients/view" />
+        </BackButtonRow>
         <TopBar title={getHeaderText(encounter)} subTitle={facility?.name}>
           <EncounterActions encounter={encounter} />
         </TopBar>
         <ContentPane>
-          <BackButton to="/patients/view" />
           <EncounterInfoPane disabled encounter={encounter} />
         </ContentPane>
+        <Divider />
         <ContentPane>
           <DiagnosisView
             encounter={encounter}
