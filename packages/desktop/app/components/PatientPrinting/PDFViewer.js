@@ -17,17 +17,10 @@ export const PDFViewer = ({ id, children, props }) => {
   useEffect(() => {
     updateInstance();
   }, [updateInstance, children]);
-  
+
   if (!instance.url) return null;
 
-  return (
-    <FullIframe
-      src={`${instance.url}#toolbar=0`}
-      title={id}
-      id={id}
-      {...props}
-    />
-  );
+  return <FullIframe src={`${instance.url}#toolbar=0`} title={id} id={id} {...props} />;
 };
 
 export const printPDF = elementId => {

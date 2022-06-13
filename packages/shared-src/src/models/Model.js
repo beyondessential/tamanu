@@ -20,6 +20,8 @@ const MARKED_FOR_PUSH_MODELS = [
   'UserFacility',
   'DocumentMetadata',
   'CertificateNotification',
+  'PatientDeathData',
+  'DeathCause',
 ];
 
 export class Model extends sequelize.Model {
@@ -88,17 +90,6 @@ export class Model extends sequelize.Model {
 
   getModelName() {
     return this.constructor.name;
-  }
-
-  getNotes(limit = undefined) {
-    const { Note } = this.sequelize.models;
-    return Note.findAll({
-      where: {
-        recordType: this.getModelName(),
-        recordId: this.id,
-      },
-      limit,
-    });
   }
 
   static getListReferenceAssociations() {

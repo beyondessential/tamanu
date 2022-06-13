@@ -70,6 +70,7 @@ export const AutocompleteModalScreen = ({
     <View style={styles.container}>
       <Autocomplete
         placeholder="Search..."
+        placeholderTextColor={theme.colors.TEXT_DARK}
         data={displayedOptions}
         onChangeText={setSearchTerm}
         autoFocus
@@ -85,6 +86,9 @@ export const AutocompleteModalScreen = ({
               </TouchableOpacity>
             );
           },
+        }}
+        style={{
+          color: theme.colors.TEXT_DARK,
         }}
       />
       <Button mode="contained" style={styles.backButton} onPress={onNavigateBack}>

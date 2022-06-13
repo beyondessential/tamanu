@@ -17,15 +17,15 @@ export const LabRequestProvider = ({ store, children }) => {
 
   const api = useApi();
 
-  const viewLabRequest = () => {
-    store.dispatch(push('/patients/encounter/labRequest'));
+  const viewLabRequest = modal => {
+    store.dispatch(push(`/patients/encounter/labRequest/${modal}`));
   };
 
-  const loadLabRequest = async labRequestId => {
+  const loadLabRequest = async (labRequestId, modal = '') => {
     setIsLoading(true);
     const data = await api.get(`labRequest/${labRequestId}`);
     setLabRequest({ ...data });
-    viewLabRequest();
+    viewLabRequest(modal);
     window.labRequest = labRequest;
     setIsLoading(false);
   };

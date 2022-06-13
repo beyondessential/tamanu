@@ -140,6 +140,10 @@
           "result": "Negative"
         }
       }
+    },
+    "duplicateAdditionalDataDeleter": {
+      "enabled": false,
+      "schedule": "0 * * * *"
     }
   },
   "integrations": {
@@ -450,6 +454,23 @@
           "emailAddress": "tamanu@health.gov",
           "contactNumber": "12345",
           "healthFacility": "State level"
+        },
+        "covidTestCertificate": {
+          "laboratoryName": "Approved test provider"
+        }
+      },
+      "printMeasures": {
+        "stickerLabelPage": {
+          "pageWidth": "210mm",
+          "pageHeight": "297mm",
+          "pageMarginTop": "15.09mm",
+          "pageMarginLeft": "6.4mm",
+          "columnTotal": 3,
+          "columnWidth": "64mm",
+          "columnGap": "3.01mm",
+          "rowTotal": 10,
+          "rowHeight": "26.7mm",
+          "rowGap": "0"
         }
       },
 
@@ -462,12 +483,6 @@
       // generated in the sync server. Can be `tamanu` or `icao` or `eudcc`.
       // `tamanu` implies that the signing integrations are not enabled.
       "previewUvciFormat": "tamanu",
-
-      // IDs of the COVID-19 vaccines to use for the COVID-19 vaccine certificates.
-      // This is tightly-bound to the source, you can't really *add* IDs to this list,
-      // but you can *remove* some if needed. The list is here so it can be shared
-      // between the sync server and the desktop.
-      "covidVaccines": ["drug-COVID-19-Astra-Zeneca", "drug-COVID-19-Pfizer"],
 
       "sync": {
         "syncAllEncountersForTheseScheduledVaccines": []

@@ -2,11 +2,7 @@ import config from 'config';
 import { format } from 'date-fns';
 import { Op } from 'sequelize';
 
-import {
-  getParamAndModifier,
-  getQueryObject,
-  getDefaultOperator,
-} from './utils';
+import { getParamAndModifier, getQueryObject, getDefaultOperator } from './utils';
 import { modifiers } from './hl7Parameters';
 import { hl7PatientFields } from './hl7PatientFields';
 
@@ -38,10 +34,6 @@ function patientIds(patient, additional) {
   return [
     {
       use: 'usual',
-      value: patient.id,
-    },
-    {
-      use: 'official',
       value: patient.displayId,
       assigner: config.hl7.assigners.patientDisplayId,
       system: config.hl7.dataDictionaries.patientDisplayId,
@@ -84,6 +76,7 @@ function patientTelecom(patient, additional) {
 export function patientToHL7Patient(patient, additional = {}) {
   return {
     resourceType: 'Patient',
+    id: patient.id,
     active: true, // currently unused in Tamanu, always true
     identifier: patientIds(patient, additional),
     name: patientName(patient, additional),
@@ -117,11 +110,19 @@ export function getPatientWhereClause(displayId, query = {}) {
       return;
     }
 
-    const { fieldName, columnName, parameterType, getValue } = hl7PatientFields[parameter];
-    const defaultOperator = getDefaultOperator(parameterType);
+    const { fieldName, columnName, parameterType, getValue, getOperator } = hl7PatientFields[
+      parameter
+    ];
+    const defaultOperator = getOperator ? getOperator(value) : getDefaultOperator(parameterType);
     const operator = modifier ? modifiers[parameterType][modifier] : defaultOperator;
     const extractedValue = getValue ? getValue(value) : value;
-    const queryObject = getQueryObject(columnName, extractedValue, operator, modifier, parameterType);
+    const queryObject = getQueryObject(
+      columnName,
+      extractedValue,
+      operator,
+      modifier,
+      parameterType,
+    );
     filters.push({ [fieldName]: queryObject });
   });
 

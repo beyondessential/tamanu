@@ -10,6 +10,7 @@ export const MedicationModal = ({ open, onClose, onSaved, encounterId, medicatio
   const practitionerSuggester = new Suggester(api, 'practitioner');
   const drugSuggester = new Suggester(api, 'drug');
   const [shouldDiscontinue, setShouldDiscontinue] = useState(false);
+  const [submittedMedication, setSubmittedMedication] = useState(null);
   const onDiscontinue = () => {
     setShouldDiscontinue(true);
   };
@@ -24,21 +25,17 @@ export const MedicationModal = ({ open, onClose, onSaved, encounterId, medicatio
 
     setShouldDiscontinue(false);
     onClose();
-
-    if (onSaved) {
-      onSaved();
-    }
   };
 
   const onSaveSubmit = async data => {
-    await api.post('medication', {
+    const medicationSubmission = await api.post('medication', {
       ...data,
       encounterId,
     });
+    // The return from the post doesn't include the joined tables like medication and prescriber
+    const newMedication = await api.get(`medication/${medicationSubmission.id}`);
 
-    if (onSaved) {
-      onSaved();
-    }
+    setSubmittedMedication(newMedication);
   };
 
   return (
@@ -50,10 +47,12 @@ export const MedicationModal = ({ open, onClose, onSaved, encounterId, medicatio
       <MedicationForm
         onSubmit={readOnly ? onDiscontinueSubmit : onSaveSubmit}
         medication={medication}
+        submittedMedication={submittedMedication}
         onCancel={() => {
           setShouldDiscontinue(false);
           onClose();
         }}
+        onSaved={onSaved}
         readOnly={readOnly}
         practitionerSuggester={practitionerSuggester}
         onDiscontinue={onDiscontinue}

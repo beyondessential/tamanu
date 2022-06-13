@@ -62,15 +62,12 @@ describe('mSupply integration - Patient', () => {
             birthDate: format(patient.dateOfBirth, 'yyyy-MM-dd'),
             deceasedDateTime: format(patient.dateOfDeath, "yyyy-MM-dd'T'HH:mm:ssXXX"),
             gender: patient.sex,
+            id: patient.id,
             identifier: [
-              {
-                use: 'usual',
-                value: patient.id,
-              },
               {
                 assigner: 'Tamanu',
                 system: 'http://tamanu.io/data-dictionary/application-reference-number.html',
-                use: 'official',
+                use: 'usual',
                 value: patient.displayId,
               },
               {
@@ -155,6 +152,397 @@ describe('mSupply integration - Patient', () => {
       // assert
       expect(response).toHaveSucceeded();
       expect(response.body.total).toBe(2);
+    });
+  });
+
+  describe('sorts correctly', () => {
+    beforeEach(async () => {
+      const { Patient, PatientAdditionalData } = ctx.store.models;
+      await Patient.destroy({ where: {} });
+      await PatientAdditionalData.destroy({ where: {} });
+    });
+
+    it('sorts by firstName ascending (given)', async () => {
+      const { Patient } = ctx.store.models;
+      await Promise.all([
+        Patient.create(fake(Patient, { firstName: 'Alice' })),
+        Patient.create(fake(Patient, { firstName: 'Bob' })),
+        Patient.create(fake(Patient, { firstName: 'Charlie' })),
+      ]);
+
+      const path = `/v1/integration/mSupply/Patient?_sort=given`;
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'mSupply', 'X-Version': '0.0.1' });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.total).toBe(3);
+      expect(response.body.entry[0].name[0].given[0]).toBe('Alice');
+      expect(response.body.entry[1].name[0].given[0]).toBe('Bob');
+      expect(response.body.entry[2].name[0].given[0]).toBe('Charlie');
+    });
+
+    it('sorts by firstName descending (-given)', async () => {
+      const { Patient } = ctx.store.models;
+      await Promise.all([
+        Patient.create(fake(Patient, { firstName: 'Alice' })),
+        Patient.create(fake(Patient, { firstName: 'Bob' })),
+        Patient.create(fake(Patient, { firstName: 'Charlie' })),
+      ]);
+
+      const path = `/v1/integration/mSupply/Patient?_sort=-given`;
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'mSupply', 'X-Version': '0.0.1' });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.total).toBe(3);
+      expect(response.body.entry[0].name[0].given[0]).toBe('Charlie');
+      expect(response.body.entry[1].name[0].given[0]).toBe('Bob');
+      expect(response.body.entry[2].name[0].given[0]).toBe('Alice');
+    });
+
+    it('sorts by lastName ascending (family)', async () => {
+      const { Patient } = ctx.store.models;
+      await Promise.all([
+        Patient.create(fake(Patient, { lastName: 'Adams' })),
+        Patient.create(fake(Patient, { lastName: 'Brown' })),
+        Patient.create(fake(Patient, { lastName: 'Carter' })),
+      ]);
+
+      const path = `/v1/integration/mSupply/Patient?_sort=family`;
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'mSupply', 'X-Version': '0.0.1' });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.total).toBe(3);
+      expect(response.body.entry[0].name[0].family).toBe('Adams');
+      expect(response.body.entry[1].name[0].family).toBe('Brown');
+      expect(response.body.entry[2].name[0].family).toBe('Carter');
+    });
+
+    it('sorts by lastName descending (-family)', async () => {
+      const { Patient } = ctx.store.models;
+      await Promise.all([
+        Patient.create(fake(Patient, { lastName: 'Adams' })),
+        Patient.create(fake(Patient, { lastName: 'Brown' })),
+        Patient.create(fake(Patient, { lastName: 'Carter' })),
+      ]);
+
+      const path = `/v1/integration/mSupply/Patient?_sort=-family`;
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'mSupply', 'X-Version': '0.0.1' });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.total).toBe(3);
+      expect(response.body.entry[0].name[0].family).toBe('Carter');
+      expect(response.body.entry[1].name[0].family).toBe('Brown');
+      expect(response.body.entry[2].name[0].family).toBe('Adams');
+    });
+
+    it('sorts by dateOfBirth ascending (birthdate)', async () => {
+      const { Patient } = ctx.store.models;
+      await Promise.all([
+        Patient.create(fake(Patient, { dateOfBirth: moment('1984-10-20') })),
+        Patient.create(fake(Patient, { dateOfBirth: moment('1985-02-20') })),
+        Patient.create(fake(Patient, { dateOfBirth: moment('1985-03-20') })),
+        Patient.create(fake(Patient, { dateOfBirth: moment('1985-03-21') })),
+      ]);
+
+      const path = `/v1/integration/mSupply/Patient?_sort=birthdate`;
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'mSupply', 'X-Version': '0.0.1' });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.total).toBe(4);
+      expect(response.body.entry[0].birthDate).toBe('1984-10-20');
+      expect(response.body.entry[1].birthDate).toBe('1985-02-20');
+      expect(response.body.entry[2].birthDate).toBe('1985-03-20');
+      expect(response.body.entry[3].birthDate).toBe('1985-03-21');
+    });
+
+    it('sorts by dateOfBirth descending (-birthdate)', async () => {
+      const { Patient } = ctx.store.models;
+      await Promise.all([
+        Patient.create(fake(Patient, { dateOfBirth: moment('1984-10-20') })),
+        Patient.create(fake(Patient, { dateOfBirth: moment('1985-02-20') })),
+        Patient.create(fake(Patient, { dateOfBirth: moment('1985-03-20') })),
+        Patient.create(fake(Patient, { dateOfBirth: moment('1985-03-21') })),
+      ]);
+
+      const path = `/v1/integration/mSupply/Patient?_sort=-birthdate`;
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'mSupply', 'X-Version': '0.0.1' });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.total).toBe(4);
+      expect(response.body.entry[0].birthDate).toBe('1985-03-21');
+      expect(response.body.entry[1].birthDate).toBe('1985-03-20');
+      expect(response.body.entry[2].birthDate).toBe('1985-02-20');
+      expect(response.body.entry[3].birthDate).toBe('1984-10-20');
+    });
+
+    it('sorts by additionalData.cityTown ascending (address)', async () => {
+      const { Patient, PatientAdditionalData } = ctx.store.models;
+      const [patientOne, patientTwo, patientThree] = await Promise.all([
+        Patient.create(fake(Patient)),
+        Patient.create(fake(Patient)),
+        Patient.create(fake(Patient)),
+      ]);
+
+      await Promise.all([
+        PatientAdditionalData.create({
+          ...fake(PatientAdditionalData, { cityTown: 'Amsterdam' }),
+          patientId: patientOne.id,
+        }),
+        PatientAdditionalData.create({
+          ...fake(PatientAdditionalData, { cityTown: 'Berlin' }),
+          patientId: patientTwo.id,
+        }),
+        PatientAdditionalData.create({
+          ...fake(PatientAdditionalData, { cityTown: 'Cabo' }),
+          patientId: patientThree.id,
+        }),
+      ]);
+
+      const path = `/v1/integration/mSupply/Patient?_sort=address`;
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'mSupply', 'X-Version': '0.0.1' });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.total).toBe(3);
+      expect(response.body.entry[0].address[0].city).toBe('Amsterdam');
+      expect(response.body.entry[1].address[0].city).toBe('Berlin');
+      expect(response.body.entry[2].address[0].city).toBe('Cabo');
+    });
+
+    it('sorts by additionalData.cityTown descending (-address)', async () => {
+      const { Patient, PatientAdditionalData } = ctx.store.models;
+      const [patientOne, patientTwo, patientThree] = await Promise.all([
+        Patient.create(fake(Patient)),
+        Patient.create(fake(Patient)),
+        Patient.create(fake(Patient)),
+      ]);
+
+      await Promise.all([
+        PatientAdditionalData.create({
+          ...fake(PatientAdditionalData, { cityTown: 'Amsterdam' }),
+          patientId: patientOne.id,
+        }),
+        PatientAdditionalData.create({
+          ...fake(PatientAdditionalData, { cityTown: 'Berlin' }),
+          patientId: patientTwo.id,
+        }),
+        PatientAdditionalData.create({
+          ...fake(PatientAdditionalData, { cityTown: 'Cabo' }),
+          patientId: patientThree.id,
+        }),
+      ]);
+
+      const path = `/v1/integration/mSupply/Patient?_sort=-address`;
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'mSupply', 'X-Version': '0.0.1' });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.total).toBe(3);
+      expect(response.body.entry[0].address[0].city).toBe('Cabo');
+      expect(response.body.entry[1].address[0].city).toBe('Berlin');
+      expect(response.body.entry[2].address[0].city).toBe('Amsterdam');
+    });
+
+    it('sorts by additionalData.cityTown ascending (address-city)', async () => {
+      const { Patient, PatientAdditionalData } = ctx.store.models;
+      const [patientOne, patientTwo, patientThree] = await Promise.all([
+        Patient.create(fake(Patient)),
+        Patient.create(fake(Patient)),
+        Patient.create(fake(Patient)),
+      ]);
+
+      await Promise.all([
+        PatientAdditionalData.create({
+          ...fake(PatientAdditionalData, { cityTown: 'Amsterdam' }),
+          patientId: patientOne.id,
+        }),
+        PatientAdditionalData.create({
+          ...fake(PatientAdditionalData, { cityTown: 'Berlin' }),
+          patientId: patientTwo.id,
+        }),
+        PatientAdditionalData.create({
+          ...fake(PatientAdditionalData, { cityTown: 'Cabo' }),
+          patientId: patientThree.id,
+        }),
+      ]);
+
+      const path = `/v1/integration/mSupply/Patient?_sort=address-city`;
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'mSupply', 'X-Version': '0.0.1' });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.total).toBe(3);
+      expect(response.body.entry[0].address[0].city).toBe('Amsterdam');
+      expect(response.body.entry[1].address[0].city).toBe('Berlin');
+      expect(response.body.entry[2].address[0].city).toBe('Cabo');
+    });
+
+    it('sorts by additionalData.cityTown descending (-address-city)', async () => {
+      const { Patient, PatientAdditionalData } = ctx.store.models;
+      const [patientOne, patientTwo, patientThree] = await Promise.all([
+        Patient.create(fake(Patient)),
+        Patient.create(fake(Patient)),
+        Patient.create(fake(Patient)),
+      ]);
+
+      await Promise.all([
+        PatientAdditionalData.create({
+          ...fake(PatientAdditionalData, { cityTown: 'Amsterdam' }),
+          patientId: patientOne.id,
+        }),
+        PatientAdditionalData.create({
+          ...fake(PatientAdditionalData, { cityTown: 'Berlin' }),
+          patientId: patientTwo.id,
+        }),
+        PatientAdditionalData.create({
+          ...fake(PatientAdditionalData, { cityTown: 'Cabo' }),
+          patientId: patientThree.id,
+        }),
+      ]);
+
+      const path = `/v1/integration/mSupply/Patient?_sort=-address-city`;
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'mSupply', 'X-Version': '0.0.1' });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.total).toBe(3);
+      expect(response.body.entry[0].address[0].city).toBe('Cabo');
+      expect(response.body.entry[1].address[0].city).toBe('Berlin');
+      expect(response.body.entry[2].address[0].city).toBe('Amsterdam');
+    });
+
+    it('sorts by additionalData.primaryContactNumber ascending (telecom)', async () => {
+      const { Patient, PatientAdditionalData } = ctx.store.models;
+      const [patientOne, patientTwo, patientThree] = await Promise.all([
+        Patient.create(fake(Patient)),
+        Patient.create(fake(Patient)),
+        Patient.create(fake(Patient)),
+      ]);
+
+      await Promise.all([
+        PatientAdditionalData.create({
+          ...fake(PatientAdditionalData, { primaryContactNumber: '123456781' }),
+          patientId: patientOne.id,
+        }),
+        PatientAdditionalData.create({
+          ...fake(PatientAdditionalData, { primaryContactNumber: '123456782' }),
+          patientId: patientTwo.id,
+        }),
+        PatientAdditionalData.create({
+          ...fake(PatientAdditionalData, { primaryContactNumber: '123456783' }),
+          patientId: patientThree.id,
+        }),
+      ]);
+
+      const path = `/v1/integration/mSupply/Patient?_sort=telecom`;
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'mSupply', 'X-Version': '0.0.1' });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.total).toBe(3);
+      expect(response.body.entry[0].telecom[0].value).toBe('123456781');
+      expect(response.body.entry[1].telecom[0].value).toBe('123456782');
+      expect(response.body.entry[2].telecom[0].value).toBe('123456783');
+    });
+
+    it('sorts by additionalData.primaryContactNumber descending (-telecom)', async () => {
+      const { Patient, PatientAdditionalData } = ctx.store.models;
+      const [patientOne, patientTwo, patientThree] = await Promise.all([
+        Patient.create(fake(Patient)),
+        Patient.create(fake(Patient)),
+        Patient.create(fake(Patient)),
+      ]);
+
+      await Promise.all([
+        PatientAdditionalData.create({
+          ...fake(PatientAdditionalData, { primaryContactNumber: '123456781' }),
+          patientId: patientOne.id,
+        }),
+        PatientAdditionalData.create({
+          ...fake(PatientAdditionalData, { primaryContactNumber: '123456782' }),
+          patientId: patientTwo.id,
+        }),
+        PatientAdditionalData.create({
+          ...fake(PatientAdditionalData, { primaryContactNumber: '123456783' }),
+          patientId: patientThree.id,
+        }),
+      ]);
+
+      const path = `/v1/integration/mSupply/Patient?_sort=-telecom`;
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'mSupply', 'X-Version': '0.0.1' });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.total).toBe(3);
+      expect(response.body.entry[0].telecom[0].value).toBe('123456783');
+      expect(response.body.entry[1].telecom[0].value).toBe('123456782');
+      expect(response.body.entry[2].telecom[0].value).toBe('123456781');
+    });
+
+    it('sorts by multiple fields', async () => {
+      const { Patient, PatientAdditionalData } = ctx.store.models;
+      const [patientOne, patientTwo, patientThree, patientFour, patientFive] = await Promise.all([
+        Patient.create(fake(Patient, { firstName: 'Alice', lastName: 'Adams' })),
+        Patient.create(fake(Patient, { firstName: 'Alice', lastName: 'Adams' })),
+        Patient.create(fake(Patient, { firstName: 'Alice', lastName: 'Baker' })),
+        Patient.create(fake(Patient, { firstName: 'Bob', lastName: 'Adams' })),
+        Patient.create(fake(Patient, { firstName: 'Bob', lastName: 'Baker' })),
+      ]);
+
+      await Promise.all([
+        PatientAdditionalData.create({
+          ...fake(PatientAdditionalData, { primaryContactNumber: '123456781' }),
+          patientId: patientOne.id,
+        }),
+        PatientAdditionalData.create({
+          ...fake(PatientAdditionalData, { primaryContactNumber: '123456782' }),
+          patientId: patientTwo.id,
+        }),
+        PatientAdditionalData.create({
+          ...fake(PatientAdditionalData, { primaryContactNumber: '123456783' }),
+          patientId: patientThree.id,
+        }),
+        PatientAdditionalData.create({
+          ...fake(PatientAdditionalData, { primaryContactNumber: '123456784' }),
+          patientId: patientFour.id,
+        }),
+        PatientAdditionalData.create({
+          ...fake(PatientAdditionalData, { primaryContactNumber: '123456785' }),
+          patientId: patientFive.id,
+        }),
+      ]);
+
+      // Sort by firstName ascending, lastName descending, primaryContactNumber ascending
+      const path = `/v1/integration/mSupply/Patient?_sort=given,-family,telecom`;
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'mSupply', 'X-Version': '0.0.1' });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.total).toBe(5);
+      // Numbers don't repeat so everything else should be in place
+      expect(response.body.entry[0].telecom[0].value).toBe('123456783');
+      expect(response.body.entry[1].telecom[0].value).toBe('123456781');
+      expect(response.body.entry[2].telecom[0].value).toBe('123456782');
+      expect(response.body.entry[3].telecom[0].value).toBe('123456785');
+      expect(response.body.entry[4].telecom[0].value).toBe('123456784');
     });
   });
 
@@ -255,6 +643,33 @@ describe('mSupply integration - Patient', () => {
       expect(response.body.total).toBe(2);
     });
 
+    it('filters patients by being deceased or not (deceased)', async () => {
+      const { Patient } = ctx.store.models;
+      await Promise.all([
+        Patient.create(fake(Patient)),
+        Patient.create(fake(Patient)),
+        Patient.create(fake(Patient, { dateOfDeath: moment.utc() })),
+      ]);
+
+      // Query deceased=true
+      const pathTrue = '/v1/integration/mSupply/Patient?deceased=true';
+      const responseTrue = await app
+        .get(pathTrue)
+        .set({ 'X-Tamanu-Client': 'mSupply', 'X-Version': '0.0.1' });
+
+      expect(responseTrue).toHaveSucceeded();
+      expect(responseTrue.body.total).toBe(1);
+
+      // Query deceased=false
+      const pathFalse = '/v1/integration/mSupply/Patient?deceased=false';
+      const responseFalse = await app
+        .get(pathFalse)
+        .set({ 'X-Tamanu-Client': 'mSupply', 'X-Version': '0.0.1' });
+
+      expect(responseFalse).toHaveSucceeded();
+      expect(responseFalse.body.total).toBe(2);
+    });
+
     it('filters patients by additionalData.cityTown (address-city)', async () => {
       const { Patient, PatientAdditionalData } = ctx.store.models;
       const [patientOne, patientTwo, patientThree] = await Promise.all([
@@ -264,7 +679,7 @@ describe('mSupply integration - Patient', () => {
       ]);
 
       const cityTown = 'luxembourg';
-      const [a, b, c] = await Promise.all([
+      await Promise.all([
         PatientAdditionalData.create({
           ...fake(PatientAdditionalData, { cityTown }),
           patientId: patientOne.id,
@@ -389,7 +804,8 @@ describe('mSupply integration - Patient', () => {
         Patient.create(fake(Patient, { firstName: 'Alice', lastName, dateOfBirth })),
       ]);
 
-      const path = `/v1/integration/mSupply/Patient?given:contains=${firstName.slice(1, 3)}&family=${lastName}&birthdate=${dateString}`;
+      const slicedName = firstName.slice(1, 3);
+      const path = `/v1/integration/mSupply/Patient?given:contains=${slicedName}&family=${lastName}&birthdate=${dateString}`;
       const response = await app
         .get(path)
         .set({ 'X-Tamanu-Client': 'mSupply', 'X-Version': '0.0.1' });
@@ -409,7 +825,7 @@ describe('mSupply integration - Patient', () => {
         patientId: patient.id,
       });
       const id = encodeURIComponent(`not-the-right-identifier|${patient.displayId}`);
-      const path = `/v1/integration/mSupply/Patient?_sort=id&_page=z&_count=x&status=initial&subject%3Aidentifier=${id}`;
+      const path = `/v1/integration/mSupply/Patient?_sort=id&_page=z&_count=x&subject%3Aidentifier=${id}`;
 
       // act
       const response = await app
@@ -426,6 +842,30 @@ describe('mSupply integration - Patient', () => {
             '_page must be a `number` type, but the final value was: `NaN` (cast from the value `"z"`).',
             'Unsupported or unknown parameters in _sort',
           ],
+        },
+      });
+    });
+
+    it('returns a 422 if there are any unknown patient params', async () => {
+      // arrange
+      const { Patient, PatientAdditionalData } = ctx.store.models;
+      const patient = await Patient.create(fake(Patient));
+      await PatientAdditionalData.create({
+        ...fake(PatientAdditionalData),
+        patientId: patient.id,
+      });
+      const path = `/v1/integration/mSupply/Patient?whatever=something`;
+
+      // act
+      const response = await app
+        .get(path)
+        .set({ 'X-Tamanu-Client': 'mSupply', 'X-Version': '0.0.1' });
+
+      // assert
+      expect(response).toHaveRequestError(422);
+      expect(response.body).toMatchObject({
+        error: {
+          errors: ['Unknown or unsupported parameters: whatever'],
         },
       });
     });
