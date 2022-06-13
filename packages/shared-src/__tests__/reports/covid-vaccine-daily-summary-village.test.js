@@ -1,6 +1,5 @@
 import sinon from 'sinon';
 import moment from 'moment';
-import { format, parseISO } from 'date-fns';
 import { dataGenerator } from '../../src/reports/covid-module/covid-vaccine-daily-summary-village';
 
 jest.mock('config', () => ({
@@ -138,8 +137,12 @@ describe('covid-vaccine-daily-summary-village', () => {
         return [
           entity_code,
           timestamp,
-          format(parseISO('2021-10-10T00:00:00+11:00'), 'yyyy/MM/dd HH:mm:ss'), // mocked now
-          format(parseISO('2021-10-10T00:00:00+11:00'), 'yyyy/MM/dd HH:mm:ss'), // mocked now
+          moment('2021-10-10T00:00:00+11:00')
+            .format('YYYY/MM/DD HH:mm:ss'),
+          // .format('YYYY/MM/DD HH:mm:ss'), // mocked now
+          moment('2021-10-10T00:00:00+11:00')
+            .format('YYYY/MM/DD HH:mm:ss'),
+          // .format('YYYY/MM/DD HH:mm:ss'), // mocked now
           ...Object.values(covidDataPointValues),
         ];
       }),
