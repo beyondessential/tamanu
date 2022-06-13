@@ -1,4 +1,3 @@
-export { AppointmentPane } from './AppointmentPane';
 export { ConnectedPatientDetailsForm } from './DetailsPane';
 export { HistoryPane } from './HistoryPane';
 export { ImmunisationsPane } from './ImmunisationsPane';
