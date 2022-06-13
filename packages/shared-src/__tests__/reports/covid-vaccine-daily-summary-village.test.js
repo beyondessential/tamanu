@@ -191,10 +191,10 @@ describe('covid-vaccine-daily-summary-village', () => {
 
   it('groups by date and village', async () => {
     const models = mockModels([
-      mockRow(1, '2021/01/01 01:02 AM', undefined, 'Village_A'),
-      mockRow(2, '2021/01/01 01:02 AM', undefined, 'Village_A'),
-      mockRow(3, '2021/01/02 01:02 AM', undefined, 'Village_A'),
-      mockRow(4, '2021/01/01 01:02 AM', undefined, 'Village_B'),
+      mockRow(1, '2021/01/01 01:02:03', undefined, 'Village_A'),
+      mockRow(2, '2021/01/01 01:02:03', undefined, 'Village_A'),
+      mockRow(3, '2021/01/02 01:02:03', undefined, 'Village_A'),
+      mockRow(4, '2021/01/01 01:02:03', undefined, 'Village_B'),
     ]);
 
     const report = await dataGenerator(
@@ -413,8 +413,8 @@ describe('covid-vaccine-daily-summary-village', () => {
   it('only considers given vaccines', async () => {
     const models = mockModels([
       // Same patient, same Dose 1, different days
-      mockRow(1, '2021/01/01 01:02 AM', undefined, undefined, undefined, undefined, 'GIVEN'),
-      mockRow(2, '2021/01/01 01:02 AM', undefined, undefined, undefined, undefined, 'NOT_GIVEN'),
+      mockRow(1, '2021/01/01 01:02:03', undefined, undefined, undefined, undefined, 'GIVEN'),
+      mockRow(2, '2021/01/01 01:02:03', undefined, undefined, undefined, undefined, 'NOT_GIVEN'),
     ]);
 
     const report = await dataGenerator(
