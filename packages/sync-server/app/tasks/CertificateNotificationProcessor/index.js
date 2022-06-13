@@ -72,12 +72,14 @@ export class CertificateNotificationProcessor extends ScheduledTask {
         const { country } = await getLocalisation();
         const countryCode = country['alpha-2'];
 
-        log.info('Processing certificate notification', {
+        const sublog = log.child({
           id: notification.id,
           patient: patientId,
           type,
           requireSigning,
         });
+
+        sublog.info('Processing certificate notification');
 
         let template;
         let qrData = null;
@@ -86,34 +88,29 @@ export class CertificateNotificationProcessor extends ScheduledTask {
         switch (type) {
           case ICAO_DOCUMENT_TYPES.PROOF_OF_VACCINATION.JSON: {
             template = 'vaccineCertificateEmail';
-            const latestVax = await models.AdministeredVaccine.lastVaccinationForPatient(
-              patient.id,
-            );
-            const latestCovidVax = await models.AdministeredVaccine.lastVaccinationForPatient(
+            const latestCertifiableVax = await models.AdministeredVaccine.lastVaccinationForPatient(
               patient.id,
               certifiableVaccineIds,
             );
 
             let uvci;
-            if (requireSigning) {
+            if (requireSigning && latestCertifiableVax) {
               if (euDccEnabled) {
-                log.debug('Generating EU DCC data for proof of vaccination');
-                if (latestCovidVax) {
-                  uvci = await generateUVCI(latestCovidVax.id, { format: 'eudcc', countryCode });
+                sublog.debug('Generating EU DCC data for proof of vaccination', { vax: latestCertifiableVax.id });
+                
+                uvci = await generateUVCI(latestCertifiableVax.id, { format: 'eudcc', countryCode });
 
-                  const povData = await createEuDccVaccinationData(latestCovidVax.id, {
-                    models,
-                  });
+                const povData = await createEuDccVaccinationData(latestCertifiableVax.id, {
+                  models,
+                });
 
-                  qrData = await HCERTPack(povData, { models });
-                } else {
-                  log.warn(
-                    'EU DCC signing requested but certificate contains no Covid vaccination data',
-                  );
-                }
+                qrData = await HCERTPack(povData, { models });
               } else if (vdsEnabled) {
-                log.debug('Generating VDS data for proof of vaccination');
-                uvci = await generateUVCI(latestCovidVax.id, { format: 'icao', countryCode });
+                sublog.debug('Generating VDS data for proof of vaccination', {
+                  vax: latestCertifiableVax.id,
+                });
+
+                uvci = await generateUVCI(latestCertifiableVax.id, { format: 'icao', countryCode });
 
                 const povData = await createVdsNcVaccinationData(patient.id, { models });
                 const vdsDoc = new VdsNcDocument(type, povData, uvci);
@@ -121,19 +118,14 @@ export class CertificateNotificationProcessor extends ScheduledTask {
                 await vdsDoc.sign();
 
                 qrData = await vdsDoc.intoVDS();
+              } else if (requireSigning) {
+                sublog.warn('Signing is required but certificate contains no certifiable vaccines');
               } else {
-                log.error('Signing is required but neither EU DCC nor VDS is enabled');
+                sublog.error('Signing is required but neither EU DCC nor VDS is enabled');
               }
             }
 
-            // As fallback, generate from last (not necessarily covid) vaccine
-            if (!uvci) {
-              uvci = await generateUVCI(latestVax.id, {
-                format: 'tamanu',
-                countryCode,
-              });
-            }
-
+            sublog.info('Generating certificate PDF', { uvci });
             pdf = await makeVaccineCertificate(patient, printedBy, models, uvci, qrData);
             break;
           }
@@ -143,7 +135,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
 
             template = 'covidTestCertificateEmail';
             if (requireSigning && vdsEnabled) {
-              // log.debug('Generating VDS data for proof of testing');
+              // sublog.debug('Generating VDS data for proof of testing');
               // uvci = await generateUVCI(latestCovidVax.id, { format: 'icao', countryCode });
               // const povData = await createVdsNcTestData(patient.id, { models });
               // const vdsDoc = new VdsNcDocument(type, povData, uvci);
@@ -152,7 +144,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
               // qrData = await vdsDoc.intoVDS();
             }
 
-            log.debug('Making test PDF');
+            sublog.info('Generating certificate PDF', { uvci });
             pdf = await makeCovidTestCertificate(patient, printedBy, models, qrData);
             break;
           }
@@ -161,9 +153,9 @@ export class CertificateNotificationProcessor extends ScheduledTask {
             throw new Error(`Unknown certificate type ${type}`);
         }
 
-        log.debug('Creating communication record');
+        sublog.debug('Creating communication record');
         // build the email notification
-        await PatientCommunication.create({
+        const comm = await PatientCommunication.create({
           type: PATIENT_COMMUNICATION_TYPES.CERTIFICATE,
           channel: PATIENT_COMMUNICATION_CHANNELS.EMAIL,
           subject: get(localisation, `templates.${template}.subject`),
@@ -173,13 +165,14 @@ export class CertificateNotificationProcessor extends ScheduledTask {
           destination: notification.get('forwardAddress'),
           attachment: pdf.filePath,
         });
+        sublog.info('Done processing certificate notification', { emailId: comm.id });
 
         processed += 1;
         await notification.update({
           status: CERTIFICATE_NOTIFICATION_STATUSES.PROCESSED,
         });
       } catch (error) {
-        log.error('Failed to process certificate notification', { id, error });
+        sublog.error('Failed to process certificate notification', { error });
         await notification.update({
           status: CERTIFICATE_NOTIFICATION_STATUSES.ERROR,
           error: error.message,
@@ -187,7 +180,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
       }
     }
 
-    log.info('Done: certificate notification sync-hook task.', {
+    log.info('Done with certificate notification task', {
       attempted: queuedNotifications.length,
       processed,
     });
