@@ -96,9 +96,14 @@ export class CertificateNotificationProcessor extends ScheduledTask {
             let uvci;
             if (requireSigning && latestCertifiableVax) {
               if (euDccEnabled) {
-                sublog.debug('Generating EU DCC data for proof of vaccination', { vax: latestCertifiableVax.id });
-                
-                uvci = await generateUVCI(latestCertifiableVax.id, { format: 'eudcc', countryCode });
+                sublog.debug('Generating EU DCC data for proof of vaccination', {
+                  vax: latestCertifiableVax.id,
+                });
+
+                uvci = await generateUVCI(latestCertifiableVax.id, {
+                  format: 'eudcc',
+                  countryCode,
+                });
 
                 const povData = await createEuDccVaccinationData(latestCertifiableVax.id, {
                   models,
@@ -125,7 +130,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
               }
             }
 
-            sublog.info('Generating certificate PDF', { uvci });
+            sublog.info('Generating vax certificate PDF', { uvci });
             pdf = await makeVaccineCertificate(patient, printedBy, models, uvci, qrData);
             break;
           }
@@ -144,7 +149,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
               // qrData = await vdsDoc.intoVDS();
             }
 
-            sublog.info('Generating certificate PDF', { uvci });
+            sublog.info('Generating test certificate PDF');
             pdf = await makeCovidTestCertificate(patient, printedBy, models, qrData);
             break;
           }
@@ -172,7 +177,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
           status: CERTIFICATE_NOTIFICATION_STATUSES.PROCESSED,
         });
       } catch (error) {
-        sublog.error('Failed to process certificate notification', { error });
+        log.error('Failed to process certificate notification', { id, error });
         await notification.update({
           status: CERTIFICATE_NOTIFICATION_STATUSES.ERROR,
           error: error.message,
