@@ -1,5 +1,6 @@
 import sinon from 'sinon';
 import moment from 'moment';
+import { format, parseISO } from 'date-fns';
 import { dataGenerator } from '../../src/reports/covid-module/covid-vaccine-daily-summary-village';
 
 jest.mock('config', () => ({
@@ -137,8 +138,8 @@ describe('covid-vaccine-daily-summary-village', () => {
         return [
           entity_code,
           timestamp,
-          '2021-10-10T00:00:00+11:00', // mocked now
-          '2021-10-10T00:00:00+11:00', // mocked now
+          format(parseISO('2021-10-10T00:00:00+11:00'), 'yyyy/MM/dd HH:mm:ss'), // mocked now
+          format(parseISO('2021-10-10T00:00:00+11:00'), 'yyyy/MM/dd HH:mm:ss'), // mocked now
           ...Object.values(covidDataPointValues),
         ];
       }),
@@ -183,17 +184,17 @@ describe('covid-vaccine-daily-summary-village', () => {
 
     expect(report).toEqual(
       expect.objectContaining(
-        getExpectedDataArray([['VIL_A', '2021-01-01 23:59:59', { COVIDVac2: 2, COVIDVac4: 2 }]]),
+        getExpectedDataArray([['VIL_A', '2021/01/01 23:59:59', { COVIDVac2: 2, COVIDVac4: 2 }]]),
       ),
     );
   });
 
   it('groups by date and village', async () => {
     const models = mockModels([
-      mockRow(1, '2021-01-01T01:02:03.000Z', undefined, 'Village_A'),
-      mockRow(2, '2021-01-01T01:02:03.000Z', undefined, 'Village_A'),
-      mockRow(3, '2021-01-02T01:02:03.000Z', undefined, 'Village_A'),
-      mockRow(4, '2021-01-01T01:02:03.000Z', undefined, 'Village_B'),
+      mockRow(1, '2021/01/01 01:02 AM', undefined, 'Village_A'),
+      mockRow(2, '2021/01/01 01:02 AM', undefined, 'Village_A'),
+      mockRow(3, '2021/01/02 01:02 AM', undefined, 'Village_A'),
+      mockRow(4, '2021/01/01 01:02 AM', undefined, 'Village_B'),
     ]);
 
     const report = await dataGenerator(
@@ -205,9 +206,9 @@ describe('covid-vaccine-daily-summary-village', () => {
     expect(report).toEqual(
       expect.objectContaining(
         getExpectedDataArray([
-          ['VIL_A', '2021-01-01 23:59:59', { COVIDVac2: 2, COVIDVac4: 2 }],
-          ['VIL_A', '2021-01-02 23:59:59', { COVIDVac2: 1, COVIDVac4: 1 }],
-          ['VIL_B', '2021-01-01 23:59:59', { COVIDVac2: 1, COVIDVac4: 1 }],
+          ['VIL_A', '2021/01/01 23:59:59', { COVIDVac2: 2, COVIDVac4: 2 }],
+          ['VIL_A', '2021/01/02 23:59:59', { COVIDVac2: 1, COVIDVac4: 1 }],
+          ['VIL_B', '2021/01/01 23:59:59', { COVIDVac2: 1, COVIDVac4: 1 }],
         ]),
       ),
     );
@@ -243,8 +244,8 @@ describe('covid-vaccine-daily-summary-village', () => {
 
     expect(report).toEqual(
       getExpectedDataArray([
-        ['VIL_A', '2000-01-01 23:59:59', { COVIDVac2: 2, COVIDVac3: 1, COVIDVac4: 2 }],
-        ['VIL_B', '2000-01-01 23:59:59', { COVIDVac6: 2, COVIDVac7: 1, COVIDVac8: 2 }],
+        ['VIL_A', '2000/01/01 23:59:59', { COVIDVac2: 2, COVIDVac3: 1, COVIDVac4: 2 }],
+        ['VIL_B', '2000/01/01 23:59:59', { COVIDVac6: 2, COVIDVac7: 1, COVIDVac8: 2 }],
       ]),
     );
   });
@@ -262,10 +263,10 @@ describe('covid-vaccine-daily-summary-village', () => {
 
     expect(report).toEqual(
       getExpectedDataArray([
-        ['VIL_A', '2021-01-01 23:59:59', { COVIDVac2: 1, COVIDVac4: 1 }],
+        ['VIL_A', '2021/01/01 23:59:59', { COVIDVac2: 1, COVIDVac4: 1 }],
         [
           'VIL_A',
-          '2021-01-02 23:59:59',
+          '2021/01/02 23:59:59',
           {
             COVIDVac1: null,
             COVIDVac2: null,
@@ -295,7 +296,7 @@ describe('covid-vaccine-daily-summary-village', () => {
         ],
         [
           'VIL_B',
-          '2021-01-01 23:59:59',
+          '2021/01/01 23:59:59',
           {
             COVIDVac1: null,
             COVIDVac2: null,
@@ -325,7 +326,7 @@ describe('covid-vaccine-daily-summary-village', () => {
         ],
         [
           'VIL_B',
-          '2021-01-02 23:59:59',
+          '2021/01/02 23:59:59',
           {
             COVIDVac1: null,
             COVIDVac2: null,
@@ -373,10 +374,10 @@ describe('covid-vaccine-daily-summary-village', () => {
     expect(report).toEqual(
       expect.objectContaining(
         getExpectedDataArray([
-          ['VIL_A', '2021-01-01 23:59:59', { COVIDVac2: 1, COVIDVac4: 1 }],
+          ['VIL_A', '2021/01/01 23:59:59', { COVIDVac2: 1, COVIDVac4: 1 }],
           [
             'VIL_A',
-            '2021-01-02 23:59:59',
+            '2021/01/02 23:59:59',
             {
               COVIDVac1: null,
               COVIDVac2: null,
@@ -412,16 +413,8 @@ describe('covid-vaccine-daily-summary-village', () => {
   it('only considers given vaccines', async () => {
     const models = mockModels([
       // Same patient, same Dose 1, different days
-      mockRow(1, '2021-01-01T01:02:03.000Z', undefined, undefined, undefined, undefined, 'GIVEN'),
-      mockRow(
-        2,
-        '2021-01-01T01:02:03.000Z',
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        'NOT_GIVEN',
-      ),
+      mockRow(1, '2021/01/01 01:02 AM', undefined, undefined, undefined, undefined, 'GIVEN'),
+      mockRow(2, '2021/01/01 01:02 AM', undefined, undefined, undefined, undefined, 'NOT_GIVEN'),
     ]);
 
     const report = await dataGenerator(
@@ -432,7 +425,7 @@ describe('covid-vaccine-daily-summary-village', () => {
 
     expect(report).toEqual(
       expect.objectContaining(
-        getExpectedDataArray([['VIL_A', '2021-01-01 23:59:59', { COVIDVac2: 1, COVIDVac4: 1 }]]),
+        getExpectedDataArray([['VIL_A', '2021/01/01 23:59:59', { COVIDVac2: 1, COVIDVac4: 1 }]]),
       ),
     );
   });
@@ -462,7 +455,7 @@ describe('covid-vaccine-daily-summary-village', () => {
     expect(report).toEqual(
       expect.objectContaining(
         getExpectedDataArray([
-          ['VIL_A', '2021-01-01 23:59:59', { COVIDVac13: 1, COVIDVac14: 1, COVIDVac16: 2 }],
+          ['VIL_A', '2021/01/01 23:59:59', { COVIDVac13: 1, COVIDVac14: 1, COVIDVac16: 2 }],
         ]),
       ),
     );

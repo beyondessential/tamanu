@@ -10,9 +10,12 @@ import { generateReportFromQueryData } from '../utilities';
 
 const reportColumnTemplate = [
   { title: 'entity_code', accessor: data => data.tupaiaEntityCode },
-  { title: 'timestamp', accessor: data => format(parseISO(data.data_time), 'yyyy/MM/dd HH:mm a') },
-  { title: 'start_time', accessor: data => format(parseISO(data.start_time), 'yyyy/MM/dd HH:mm a') },
-  { title: 'end_time', accessor: data => format(parseISO(data.end_time), 'yyyy/MM/dd HH:mm a') },
+  { title: 'timestamp', accessor: data => format(parseISO(data.data_time), 'yyyy/MM/dd HH:mm:ss') },
+  {
+    title: 'start_time',
+    accessor: data => format(parseISO(data.start_time), 'yyyy/MM/dd HH:mm:ss'),
+  },
+  { title: 'end_time', accessor: data => format(parseISO(data.end_time), 'yyyy/MM/dd HH:mm:ss') },
   { title: 'COVIDVac1', accessor: data => data.COVIDVac1 },
   { title: 'COVIDVac2', accessor: data => data.COVIDVac2 },
   { title: 'COVIDVac3', accessor: data => data.COVIDVac3 },
