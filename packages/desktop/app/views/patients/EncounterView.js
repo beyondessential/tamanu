@@ -1,225 +1,47 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { connect, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
 import { ENCOUNTER_TYPES } from 'shared/constants';
-import { Button, BackButton } from '../../components/Button';
+import {
+  Button,
+  BackButton,
+  TopBar,
+  SuggesterSelectField,
+  SelectInput,
+  DateInput,
+  TextInput,
+  connectRoutedModal,
+  FormGrid,
+} from '../../components';
 import { ContentPane } from '../../components/ContentPane';
 import { DiagnosisView } from '../../components/DiagnosisView';
 import { DischargeModal } from '../../components/DischargeModal';
 import { MoveModal } from '../../components/MoveModal';
 import { ChangeEncounterTypeModal } from '../../components/ChangeEncounterTypeModal';
 import { ChangeDepartmentModal } from '../../components/ChangeDepartmentModal';
-import { LabRequestModal } from '../../components/LabRequestModal';
-import { LabRequestsTable } from '../../components/LabRequestsTable';
-import { DataFetchingProgramsTable } from '../../components/ProgramResponsesTable';
-import { ImagingRequestModal } from '../../components/ImagingRequestModal';
-import { ImagingRequestsTable } from '../../components/ImagingRequestsTable';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientInfoPane } from '../../components/PatientInfoPane';
 import { TabDisplay } from '../../components/TabDisplay';
 import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
-import { VitalsModal } from '../../components/VitalsModal';
-import { MedicationModal } from '../../components/MedicationModal';
-import { EncounterMedicationTable } from '../../components/MedicationTable';
-import { ProcedureModal } from '../../components/ProcedureModal';
-import { ProcedureTable } from '../../components/ProcedureTable';
-import { VitalsTable } from '../../components/VitalsTable';
-import { connectRoutedModal } from '../../components/Modal';
-import { NoteModal } from '../../components/NoteModal';
-import { NoteTable } from '../../components/NoteTable';
-import { TopBar, SuggesterSelectField } from '../../components';
-import { DocumentsPane, InvoicingPane } from './panes';
+import {
+  VitalsPane,
+  NotesPane,
+  ProcedurePane,
+  LabsPane,
+  ImagingPane,
+  EncounterMedicationPane,
+  DocumentsPane,
+  ProgramsPane,
+  InvoicingPane,
+} from './panes';
 import { DropdownButton } from '../../components/DropdownButton';
-import { FormGrid } from '../../components/FormGrid';
-import { SelectInput, DateInput, TextInput } from '../../components/Field';
 import { encounterOptions, ENCOUNTER_OPTIONS_BY_VALUE } from '../../constants';
 import { useEncounter } from '../../contexts/Encounter';
 import { useLocalisation } from '../../contexts/Localisation';
 import { useAuth } from '../../contexts/Auth';
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
-
-const VitalsPane = React.memo(({ encounter, readonly }) => {
-  const [modalOpen, setModalOpen] = useState(false);
-  const { loadEncounter } = useEncounter();
-
-  return (
-    <div>
-      <VitalsModal
-        open={modalOpen}
-        encounterId={encounter.id}
-        onClose={() => setModalOpen(false)}
-        onSaved={async () => {
-          setModalOpen(false);
-          await loadEncounter(encounter.id);
-        }}
-      />
-      <VitalsTable />
-      <ContentPane>
-        <Button
-          onClick={() => setModalOpen(true)}
-          variant="contained"
-          color="primary"
-          disabled={readonly}
-        >
-          Record vitals
-        </Button>
-      </ContentPane>
-    </div>
-  );
-});
-
-const NotesPane = React.memo(({ encounter, readonly }) => {
-  const [modalOpen, setModalOpen] = useState(false);
-  const { loadEncounter } = useEncounter();
-
-  return (
-    <div>
-      <NoteModal
-        open={modalOpen}
-        encounterId={encounter.id}
-        onClose={() => setModalOpen(false)}
-        onSaved={async () => {
-          setModalOpen(false);
-          await loadEncounter(encounter.id);
-        }}
-      />
-      <NoteTable encounterId={encounter.id} />
-      <ContentPane>
-        <Button
-          onClick={() => setModalOpen(true)}
-          variant="contained"
-          color="primary"
-          disabled={readonly}
-        >
-          New note
-        </Button>
-      </ContentPane>
-    </div>
-  );
-});
-
-const ProcedurePane = React.memo(({ encounter, readonly }) => {
-  const [editedProcedure, setEditedProcedure] = useState(null);
-  const { loadEncounter } = useEncounter();
-
-  return (
-    <div>
-      <ProcedureModal
-        editedProcedure={editedProcedure}
-        encounterId={encounter.id}
-        onClose={() => setEditedProcedure(null)}
-        onSaved={async () => {
-          setEditedProcedure(null);
-          await loadEncounter(encounter.id);
-        }}
-      />
-      <ProcedureTable encounterId={encounter.id} onItemClick={item => setEditedProcedure(item)} />
-      <ContentPane>
-        <Button
-          onClick={() => setEditedProcedure({})}
-          variant="contained"
-          color="primary"
-          disabled={readonly}
-        >
-          New procedure
-        </Button>
-      </ContentPane>
-    </div>
-  );
-});
-
-const LabsPane = React.memo(({ encounter, readonly }) => {
-  const [modalOpen, setModalOpen] = useState(false);
-
-  return (
-    <div>
-      <LabRequestModal open={modalOpen} encounter={encounter} onClose={() => setModalOpen(false)} />
-      <LabRequestsTable encounterId={encounter.id} />
-      <ContentPane>
-        <Button
-          onClick={() => setModalOpen(true)}
-          variant="contained"
-          color="primary"
-          disabled={readonly}
-        >
-          New lab request
-        </Button>
-      </ContentPane>
-    </div>
-  );
-});
-
-const ImagingPane = React.memo(({ encounter, readonly }) => {
-  const [modalOpen, setModalOpen] = useState(false);
-
-  return (
-    <div>
-      <ImagingRequestModal
-        open={modalOpen}
-        encounter={encounter}
-        onClose={() => setModalOpen(false)}
-      />
-      <ImagingRequestsTable encounterId={encounter.id} />
-      <ContentPane>
-        <Button
-          onClick={() => setModalOpen(true)}
-          variant="contained"
-          color="primary"
-          disabled={readonly}
-        >
-          New imaging request
-        </Button>
-      </ContentPane>
-    </div>
-  );
-});
-
-const MedicationPane = React.memo(({ encounter, readonly }) => {
-  const [modalOpen, setModalOpen] = useState(false);
-  const { loadEncounter } = useEncounter();
-
-  return (
-    <div>
-      <MedicationModal
-        open={modalOpen}
-        encounterId={encounter.id}
-        onClose={() => setModalOpen(false)}
-        onSaved={async () => {
-          setModalOpen(false);
-          await loadEncounter(encounter.id);
-        }}
-      />
-      <EncounterMedicationTable encounterId={encounter.id} />
-      <ContentPane>
-        <Button
-          onClick={() => setModalOpen(true)}
-          variant="contained"
-          color="primary"
-          disabled={readonly}
-        >
-          New prescription
-        </Button>
-      </ContentPane>
-    </div>
-  );
-});
-
-const ProgramsPane = connect(null, dispatch => ({
-  onNavigateToPrograms: () => dispatch(push('/programs')),
-}))(
-  React.memo(({ onNavigateToPrograms, encounter }) => (
-    <div>
-      <DataFetchingProgramsTable encounterId={encounter.id} />
-      <ContentPane>
-        <Button onClick={onNavigateToPrograms} variant="contained" color="primary">
-          New survey
-        </Button>
-      </ContentPane>
-    </div>
-  )),
-);
 
 const TABS = [
   {
@@ -250,12 +72,14 @@ const TABS = [
   {
     label: 'Medication',
     key: 'medication',
-    render: props => <MedicationPane {...props} />,
+    render: props => <EncounterMedicationPane {...props} />,
   },
   {
     label: 'Programs',
     key: 'programs',
-    render: props => <ProgramsPane {...props} />,
+    render: ({ encounter, ...props }) => (
+      <ProgramsPane endpoint={`encounter/${encounter.Id}/programResponses`} {...props} />
+    ),
   },
   {
     label: 'Documents',

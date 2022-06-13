@@ -9,9 +9,9 @@ import { DataFetchingProgramsTable } from '../../../components/ProgramResponsesT
 export const ProgramsPane = connect(null, dispatch => ({
   onNavigateToPrograms: () => dispatch(push('/programs')),
 }))(
-  React.memo(({ onNavigateToPrograms, patient }) => (
+  React.memo(({ onNavigateToPrograms, endpoint }) => (
     <div>
-      <DataFetchingProgramsTable patientId={patient.id} />
+      <DataFetchingProgramsTable endpoint={endpoint} />
       <ContentPane>
         <Button onClick={onNavigateToPrograms} variant="contained" color="primary">
           New survey
