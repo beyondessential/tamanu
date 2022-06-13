@@ -19,9 +19,6 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   @Column({ type: 'varchar', nullable: true })
   injectionSite?: InjectionSiteType;
 
-  @Column({ nullable: true })
-  location?: string;
-
   @Column({ nullable: true, default: true })
   consent: boolean;
 
