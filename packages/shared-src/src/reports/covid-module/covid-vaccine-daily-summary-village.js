@@ -5,13 +5,14 @@ import config from 'config';
 import moment from 'moment';
 import { keyBy } from 'lodash';
 import { DATA_TIME_FORMAT } from '@tupaia/api-client';
+import { format } from 'date-fns';
 import { generateReportFromQueryData } from '../utilities';
 
 const reportColumnTemplate = [
   { title: 'entity_code', accessor: data => data.tupaiaEntityCode },
-  { title: 'timestamp', accessor: data => data.data_time },
-  { title: 'start_time', accessor: data => data.start_time },
-  { title: 'end_time', accessor: data => data.end_time },
+  { title: 'timestamp', accessor: data => format(data.data_time, 'dd/MM/yyyy HH:mm:ss') },
+  { title: 'start_time', accessor: data => format(data.start_time, 'dd/MM/yyyy HH:mm:ss') },
+  { title: 'end_time', accessor: data => format(data.end_time, 'dd/MM/yyyy HH:mm:ss') },
   { title: 'COVIDVac1', accessor: data => data.COVIDVac1 },
   { title: 'COVIDVac2', accessor: data => data.COVIDVac2 },
   { title: 'COVIDVac3', accessor: data => data.COVIDVac3 },
