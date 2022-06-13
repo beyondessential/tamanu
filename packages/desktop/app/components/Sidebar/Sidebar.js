@@ -99,6 +99,16 @@ const permissionCheck = (child, parent) => {
   return checkAbility(ability);
 };
 
+// currentPath - the current route. eg. /programs/covid-19/patients
+// menuItemPath - the configured routes that are displayed in the sidebar. eg /patients
+const isHighlighted = (currentPath, menuItemPath, sectionIsOpen) => {
+  // remove leading slashes to get a like for like comparison
+  const sectionPath = currentPath.replace(/^\/|\/$/g, '').split('/')[0];
+  const itemPath = menuItemPath.replace(/^\/|\/$/g, '');
+  // If the section is open, the child menu item is highlighted and the top level menu item is not
+  return sectionPath === itemPath && !sectionIsOpen;
+};
+
 export const Sidebar = React.memo(({ items }) => {
   const [selectedParentItem, setSelectedParentItem] = useState('');
   const { facility, currentUser, onLogout } = useAuth();
@@ -127,7 +137,7 @@ export const Sidebar = React.memo(({ items }) => {
             label={item.label}
             divider={item.divider}
             key={item.key}
-            highlighted={currentPath.includes(item.path) && selectedParentItem !== item.key}
+            highlighted={isHighlighted(currentPath, item.path, selectedParentItem === item.key)}
             selected={selectedParentItem === item.key}
             onClick={() => clickedParentItem(item)}
           >
