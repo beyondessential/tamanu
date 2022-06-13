@@ -42,7 +42,7 @@ export const NewVaccineTabComponent = ({
     async (values: VaccineFormValues): Promise<void> => {
       if (isSubmitting) return;
       setSubmitting(true);
-      const { scheduledVaccineId, ...otherValues } = values;
+      const { scheduledVaccineId, giverId, recorderId, ...otherValues } = values;
       const encounter = await models.Encounter.getOrCreateCurrentEncounter(
         selectedPatient.id,
         user.id,
@@ -51,6 +51,8 @@ export const NewVaccineTabComponent = ({
         ...otherValues,
         id: administeredVaccine?.id,
         scheduledVaccine: scheduledVaccineId,
+        giver: giverId,
+        recorder: recorderId,
         encounter: encounter.id,
       });
 
