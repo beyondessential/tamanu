@@ -39,12 +39,6 @@ const TABS = [
     render: props => <ConnectedPatientDetailsForm {...props} />,
   },
   {
-    label: 'Appointments',
-    key: 'appointments',
-    icon: 'fa fa-user-md',
-    // render: props => <AppointmentPane {...props} />,
-  },
-  {
     label: 'Referrals',
     key: 'Referrals',
     icon: 'fa fa-hospital',
