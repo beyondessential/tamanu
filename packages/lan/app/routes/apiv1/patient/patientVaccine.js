@@ -123,7 +123,7 @@ patientVaccineRoutes.post(
         endDate: req.body.date,
         patientId: req.params.id,
         locationId: req.body.locationId,
-        examinerId: req.body.examinerId,
+        examinerId: req.body.giverId ?? req.body.recorderId,
         departmentId: req.body.departmentId,
       });
       encounterId = newEncounter.get('id');

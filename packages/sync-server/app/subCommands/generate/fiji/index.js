@@ -1,23 +1,32 @@
 import { v4 as uuidv4 } from 'uuid';
-import Chance from 'chance';
+import moment from 'moment';
+import asyncPool from 'tiny-async-pool';
 
 import { fake } from 'shared/test-helpers';
-import { ENCOUNTER_TYPES } from 'shared/constants';
+import { ENCOUNTER_TYPES, REFERENCE_TYPES } from 'shared/constants';
 
-import { initDatabase, closeDatabase } from '../../database';
+import { initDatabase, closeDatabase } from '../../../database';
 // TODO (TAN-1529): import this from the spreadsheet once possible
 import * as programData from './program.json';
 import { importProgram } from './program';
 import { insertSurveyResponse } from './insertSurveyResponse';
-
-const chance = new Chance();
+import { insertCovidTest } from './insertCovidTest';
+import { chance, seed } from './chance';
 
 const REPORT_INTERVAL_MS = 100;
 const NUM_VILLAGES = 50;
 const NUM_EXAMINERS = 10;
 const NUM_FACILITIES = 20;
+const CONCURRENT_PATIENT_INSERTS = 4;
 
-export const generateFiji = async ({ patientCount }) => {
+function range(n) {
+  return Array(n)
+    .fill()
+    .map((_, i) => i);
+}
+
+export const generateFiji = async ({ patientCount: patientCountStr }) => {
+  const patientCount = Number.parseInt(patientCountStr, 10);
   const store = await initDatabase({ testMode: false });
   const {
     Patient,
@@ -102,6 +111,18 @@ export const generateFiji = async ({ patientCount }) => {
     setupData.program = program;
     setupData.survey = survey;
     setupData.questions = questions;
+
+    // lab test categories
+    const [covidCategory] = await ReferenceData.upsert(
+      {
+        id: 'labTestCategory-COVID',
+        code: 'COVID',
+        name: 'COVID-19 Swab',
+        type: REFERENCE_TYPES.LAB_TEST_CATEGORY,
+      },
+      { returning: true },
+    );
+    setupData.covidTestCategories = [covidCategory.id]; // report specifies multiple but workbook only has one
   };
 
   const insertEncounter = async patientId => {
@@ -142,42 +163,56 @@ export const generateFiji = async ({ patientCount }) => {
       await insertVaccination(patient.id, setupData.scheduleIds[1]);
     }
 
-    // survey responses
-    for (let i = 0; i < chance.integer({ min: 0, max: 4 }); i++) {
+    // lab tests
+    const testDates = [];
+    for (let i = 0; i < chance.integer({ min: 0, max: 3 }); i++) {
       const { id: encounterId } = await insertEncounter(patient.id);
-      await insertSurveyResponse(store.sequelize.models, setupData, { encounterId });
+      const test = await insertCovidTest(store.sequelize.models, setupData, { encounterId });
+      testDates.push(test.date);
+    }
+
+    // survey responses
+    for (const testDate of testDates) {
+      for (let i = 0; i < chance.integer({ min: 0, max: 2 }); i++) {
+        const { id: encounterId } = await insertEncounter(patient.id);
+        const startTime = moment(testDate)
+          .add(chance.integer({ min: 1, max: 6 }), 'days')
+          .add(chance.integer({ min: 1, max: 12 }), 'hours');
+        await insertSurveyResponse(store.sequelize.models, setupData, { encounterId, startTime });
+      }
     }
   };
 
   let intervalId;
   try {
-    let i = 0;
+    let complete = 0;
 
     const reportProgress = () => {
       // \r works because the length of this is guaranteed to always grow longer or stay the same
-      process.stdout.write(`Generating patient ${i}/${patientCount}...\r`);
+      const pct = ((complete / patientCount) * 100).toFixed(2);
+      process.stdout.write(`\rGenerating patient ${complete}/${patientCount} (${pct}%)...`);
     };
 
     // perform the generation
-    await store.sequelize.transaction(async () => {
-      process.stdout.write('Creating/upserting setup data...\n');
-      await upsertSetupData();
+    process.stdout.write(`Creating/upserting setup data (seed=${seed})...\n`);
+    await upsertSetupData();
 
-      // report progress regularly but don't spam the console
-      intervalId = setInterval(reportProgress, REPORT_INTERVAL_MS);
-      reportProgress();
+    // report progress regularly but don't spam the console
+    intervalId = setInterval(reportProgress, REPORT_INTERVAL_MS);
+    reportProgress();
 
-      // generate patients
-      for (i = 0; i < patientCount; i++) {
+    // generate patients
+    await asyncPool(CONCURRENT_PATIENT_INSERTS, range(patientCount), async () => {
+      await store.sequelize.transaction(async () => {
         await insertPatientData();
-      }
-
-      // finish up
-      clearInterval(intervalId);
-      reportProgress();
-      process.stdout.write('\nCommitting transaction...\n');
+      });
+      complete++;
     });
-    process.stdout.write('Complete\n');
+
+    // finish up
+    clearInterval(intervalId);
+    reportProgress();
+    process.stdout.write('\nComplete\n');
   } finally {
     clearInterval(intervalId);
     await closeDatabase();

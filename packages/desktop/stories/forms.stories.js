@@ -18,7 +18,6 @@ import { VitalsForm } from '../app/forms/VitalsForm';
 import { ProcedureForm } from '../app/forms/ProcedureForm';
 import { AllergyForm } from '../app/forms/AllergyForm';
 import { ImmunisationForm } from '../app/forms/ImmunisationForm';
-import { AppointmentForm } from '../app/forms/AppointmentForm';
 import { OngoingConditionForm } from '../app/forms/OngoingConditionForm';
 import { DischargeForm } from '../app/forms/DischargeForm';
 import { NewPatientForm } from '../app/forms/NewPatientForm';
@@ -141,16 +140,6 @@ storiesOf('Forms', module).add('ProcedureForm', () => (
     practitionerSuggester={practitionerSuggester}
     procedureSuggester={createDummySuggester(['CPT 1', 'CPT 2', 'CPT 3', 'CPT 4'])}
     anesthesiaSuggester={createDummySuggester(['Anesthesia 1', 'Anesthesia 2', 'Anesthesia 3'])}
-  />
-));
-
-storiesOf('Forms', module).add('AppointmentForm', () => (
-  <AppointmentForm
-    onSubmit={action('submit')}
-    onCancel={action('cancel')}
-    facilitySuggester={facilitySuggester}
-    locationSuggester={locationSuggester}
-    practitionerSuggester={practitionerSuggester}
   />
 ));
 

@@ -4,6 +4,28 @@
 
 ### Manual steps required after upgrade ⚙
 
+- (left blank)
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
+- (left blank)
+
+### Bug fixes 🐛
+
+- (left blank)
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
+## v1.17.0
+
+### Manual steps required after upgrade ⚙
+
 - Set `enablePatientDeaths` in sync-server config (if required)
   - `localisation.data.features.enablePatientDeaths`
 - Remove `localisation.data.covidVaccines`
@@ -27,6 +49,12 @@
 ### Infrastructure and maintenance 🛠
 
 - Drop deprecated `X-Runtime` header (except in meta server).
+
+## v1.16.1
+
+### Bug fixes 🐛
+
+- Fix issue that was causing mobile sync to break after editing patient details
 
 ## v1.16.0
 

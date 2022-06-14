@@ -2,9 +2,9 @@ import config from 'config';
 
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
-import { 
+import {
   countAffectedPatients,
-  removeDuplicatedPatientAdditionalData
+  removeDuplicatedPatientAdditionalData,
 } from '../utils/removeDuplicatedPatientAdditionalData';
 
 export class DuplicateAdditionalDataDeleter extends ScheduledTask {
