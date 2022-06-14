@@ -128,7 +128,7 @@ const getLabTests = async (models, parameters) =>
     nest: true,
   });
 
-const getFijiCovidAnswers = async (models, parameters, { surveyId }) => {
+const getFijiCovidAnswers = async (models, parameters, { surveyId, dateFormat }) => {
   // Use the latest survey responses per patient above to get the corresponding answers
   const answers = await models.SurveyResponseAnswer.findAll({
     where: parametersToSurveyResponseSqlWhere(parameters, { surveyId }),
@@ -155,7 +155,13 @@ const getFijiCovidAnswers = async (models, parameters, { surveyId }) => {
     nest: true,
   });
 
-  return answers;
+  const components = await models.SurveyScreenComponent.getComponentsForSurvey(surveyId);
+
+  const transformedAnswers = await transformAnswers(models, answers, components, {
+    dateFormat,
+  });
+
+  return transformedAnswers;
 };
 
 // Find latest survey response within date range using the answers.
@@ -312,12 +318,10 @@ export const baseDataGenerator = async (
   { surveyId, reportColumnTemplate, surveyQuestionCodes, dateFormat = 'YYYY/MM/DD' },
 ) => {
   const labTests = await getLabTests(models, parameters);
-  const answers = await getFijiCovidAnswers(models, parameters, { surveyId });
-  const components = await models.SurveyScreenComponent.getComponentsForSurvey(surveyId);
-  const transformedAnswers = await transformAnswers(models, answers, components, {
+  const transformedAnswers = await getFijiCovidAnswers(models, parameters, {
+    surveyId,
     dateFormat,
   });
-
   const reportData = await getLabTestRecords(labTests, transformedAnswers, parameters, {
     surveyQuestionCodes,
     dateFormat,
