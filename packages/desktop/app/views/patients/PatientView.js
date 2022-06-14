@@ -15,7 +15,7 @@ import {
   ConnectedPatientDetailsForm,
   HistoryPane,
   ImmunisationsPane,
-  MedicationsPane,
+  PatientMedicationPane,
   DocumentsPane,
   ProgramsPane,
   ReferralPane,
@@ -48,7 +48,9 @@ const TABS = [
     label: 'Programs',
     key: 'Programs',
     icon: 'fa fa-hospital',
-    render: props => <ProgramsPane {...props} />,
+    render: ({ patient, ...props }) => (
+      <ProgramsPane endpoint={`patient/${patient.Id}/programResponses`} {...props} />
+    ),
   },
   {
     label: 'Documents',
@@ -66,7 +68,7 @@ const TABS = [
     label: 'Medication',
     key: 'medication',
     icon: 'fa fa-medkit',
-    render: props => <MedicationsPane {...props} />,
+    render: props => <PatientMedicationPane {...props} />,
   },
   {
     label: 'Invoices',
