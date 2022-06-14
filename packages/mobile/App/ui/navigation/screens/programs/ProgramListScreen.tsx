@@ -1,4 +1,4 @@
-import React, { useCallback, ReactElement } from 'react';
+import React, { useCallback, ReactElement, useContext } from 'react';
 import { FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { FullView } from '/styled/common';
@@ -14,6 +14,7 @@ import { joinNames } from '/helpers/user';
 import { useBackendEffect } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { Survey } from '~/models/Survey';
+import AuthContext from '~/ui/contexts/AuthContext';
 
 interface ProgramListScreenProps {
   selectedPatient: IPatient;
@@ -21,6 +22,7 @@ interface ProgramListScreenProps {
 
 const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
   const navigation = useNavigation();
+  const { ability } = useContext(AuthContext);
 
   const [surveys, error] = useBackendEffect(({ models }) => models.Survey.find({
     surveyType: SurveyTypes.Programs,
@@ -28,7 +30,8 @@ const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
 
   const filteredSurveys = surveys?.filter(x => {
     const isProgramVisible = x.programId !== 'program-hidden_forms'; // TODO: hack until we can delete surveys from server
-    return isProgramVisible;
+    const hasPermission = ability.can('submit', x);
+    return isProgramVisible && hasPermission;
   });
 
   const goBack = useCallback(() => {

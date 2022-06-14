@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useContext } from 'react';
 import { FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { FullView } from '/styled/common';
@@ -9,13 +9,21 @@ import { Routes } from '/helpers/routes';
 import { SurveyTypes } from '~/types';
 import { useBackendEffect } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
+import AuthContext from '~/ui/contexts/AuthContext';
 
 export const ReferralFormListScreen = (): ReactElement => {
   const navigation = useNavigation();
+  const { ability } = useContext(AuthContext);
 
   const [surveys, error] = useBackendEffect(({ models }) => models.Survey.find({
     surveyType: SurveyTypes.Referral,
   }));
+
+  const filteredSurveys = surveys?.filter(x => {
+    const isProgramVisible = x.programId !== 'program-hidden_forms'; // TODO: hack until we can delete surveys from server
+    const hasPermission = ability.can('submit', x);
+    return isProgramVisible && hasPermission;
+  });
 
   const onNavigateToSurvey = (survey): any => {
     navigation.navigate(
@@ -41,7 +49,7 @@ export const ReferralFormListScreen = (): ReactElement => {
             backgroundColor: theme.colors.BACKGROUND_GREY,
           }}
           showsVerticalScrollIndicator={false}
-          data={surveys}
+          data={filteredSurveys}
           keyExtractor={(item): string => item.id}
           renderItem={({ item }): ReactElement => (
             <MenuOptionButton
