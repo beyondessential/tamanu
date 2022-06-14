@@ -90,11 +90,11 @@ imagingRequest.put(
     }
     // Else, create a new one only if it has content
     else if (req.body.note) {
-      const newNoteObject = await await imagingRequestObject.addRelatedNote(
-        NOTE_TYPES.OTHER,
-        req.body.note,
-        req.user.id,
-      );
+      const newNoteObject = await imagingRequestObject.createNote({
+        noteType: NOTE_TYPES.OTHER,
+        content: req.body.note,
+        authorId: req.user.id,
+      });
       noteContent = newNoteObject.content;
     }
 
@@ -105,11 +105,11 @@ imagingRequest.put(
     }
     // Else, create a new one only if it has content
     else if (req.body.areaToBeImaged) {
-      const newAreaNoteObject = await imagingRequestObject.addRelatedNote(
-        NOTE_TYPES.AREA_TO_BE_IMAGED,
-        req.body.areaToBeImaged,
-        req.user.id,
-      );
+      const newAreaNoteObject = await imagingRequestObject.createNote({
+        noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
+        content: req.body.areaToBeImaged,
+        authorId: req.user.id,
+      });
       areaNoteContent = newAreaNoteObject.content;
     }
 
@@ -139,11 +139,11 @@ imagingRequest.post(
 
     // Only create a note if it has content
     if (req.body.note) {
-      const newNote = await newImagingRequest.addRelatedNote(
-        NOTE_TYPES.OTHER,
-        req.body.note,
-        req.user.id,
-      );
+      const newNote = await newImagingRequest.createNote({
+        noteType: NOTE_TYPES.OTHER,
+        content: req.body.note,
+        authorId: req.user.id,
+      });
 
       // Update note content for response with saved data
       noteContent = newNote.content;
@@ -151,11 +151,11 @@ imagingRequest.post(
 
     // Only create an area to be imaged note if it has content
     if (req.body.areaToBeImaged) {
-      const newAreaNote = await newImagingRequest.addRelatedNote(
-        NOTE_TYPES.AREA_TO_BE_IMAGED,
-        req.body.areaToBeImaged,
-        req.user.id,
-      );
+      const newAreaNote = await newImagingRequest.createNote({
+        noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
+        content: req.body.areaToBeImaged,
+        authorId: req.user.id,
+      });
 
       // Update area to be imaged content for response with saved data
       areaNoteContent = newAreaNote.content;

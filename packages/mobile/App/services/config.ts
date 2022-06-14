@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export function clear() {
+export function clear(): Promise<void> {
   console.log('Clearing config');
   return AsyncStorage.clear();
 }

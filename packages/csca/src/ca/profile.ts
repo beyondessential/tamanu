@@ -8,6 +8,15 @@ export enum Profile {
 }
 
 /**
+ * Add some amount of days to periods to pre-empt leap days.
+ *
+ * Always apply this as the final step.
+ */
+export function addLeaps(days: number): number {
+  return days + (days >= 365 ? Math.ceil(days / 365 / 4) : 0);
+}
+
+/**
  * Working time of issued signer certificates (BSC) is derived from the issuance profile.
  *
  * - VDS: 3 months + some margin = 96 days
@@ -27,15 +36,15 @@ export function signerWorkingDays(profile: Profile): number {
 /**
  * Default validity of issued signer certificates (BSC) is derived from the issuance profile.
  *
- * - VDS: 10 years (for maximum flexibility) + 2 leap days
- * - EUDCC: 1 year (recommendation from the spec)
+ * - VDS: working + 10 years (for maximum flexibility)
+ * - EUDCC: working + 1 year (recommendation from the spec)
  */
 export function signerDefaultValidityDays(profile: Profile): number {
   switch (profile) {
     case Profile.VDS:
-      return 10 * 365 + 2;
+      return signerWorkingDays(profile) + 10 * 365;
     case Profile.EUDCC:
-      return 365;
+      return signerWorkingDays(profile) + 365;
     default:
       throw new Error('Unknown profile');
   }

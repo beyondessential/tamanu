@@ -13,16 +13,12 @@ const SCHEDULE_TO_SEQUENCE = {
   'Dose 2': 2,
   Booster: 3,
 };
-const SEQUENCE_MAX = Math.max(...Object.values(SCHEDULE_TO_SEQUENCE));
 
 const METHOD_CODE = {
   GeneXpert: 'antigen',
   RTPCR: 'molecular(PCR)',
   RDT: 'antigen',
 };
-
-const ICD11_COVID19_VACCINE = 'XM68M6';
-const ICD11_COVID19_DISEASE = 'RA01.0';
 
 const MOMENT_FORMAT_ISODATE = 'YYYY-MM-DD';
 const MOMENT_FORMAT_RFC3339 = 'YYYY-MM-DDTHH:mm:ssZ';
@@ -37,6 +33,7 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
     Facility,
     Location,
     ScheduledVaccine,
+    CertifiableVaccine,
   } = models;
 
   const countryCode = (await getLocalisation()).country['alpha-3'];
@@ -53,6 +50,16 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
     },
     include: [
       {
+        model: Location,
+        as: 'location',
+        include: [
+          {
+            model: Facility,
+            as: 'facility',
+          },
+        ],
+      },
+      {
         model: Encounter,
         as: 'encounter',
         include: [
@@ -62,7 +69,7 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
             include: [
               {
                 model: Facility,
-                as: 'Facility',
+                as: 'facility',
               },
             ],
           },
@@ -93,25 +100,41 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
     const {
       batch,
       date,
+      location,
       scheduledVaccine: {
         schedule,
-        vaccine: { name: label },
+        vaccine: { name: label, id: vaccineId },
       },
       encounter: {
         location: {
-          Facility: { name: facility },
+          facility: { name: encounterFacilityName },
         },
       },
     } = dose;
+
+    const facilityName = location?.facility?.name ?? encounterFacilityName;
+
+    const certVax = await CertifiableVaccine.findOne({
+      where: {
+        vaccineId,
+      },
+      include: [
+        {
+          model: ReferenceData,
+          as: 'manufacturer',
+        },
+      ],
+    });
+    if (!certVax) throw new Error('Vaccine is not certifiable');
 
     const event = {
       dvc: moment(date)
         .utc()
         .format(MOMENT_FORMAT_ISODATE),
-      seq: SCHEDULE_TO_SEQUENCE[schedule] ?? SEQUENCE_MAX + 1,
+      seq: SCHEDULE_TO_SEQUENCE[schedule],
       ctr: countryCode,
       lot: batch || 'Unknown', // If batch number was not recorded, we add a indicative string value to complete ICAO validation
-      adm: facility,
+      adm: facilityName,
     };
 
     if (vaccines.has(label)) {
@@ -120,9 +143,9 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
       vaccines.set(label, vax);
     } else {
       vaccines.set(label, {
-        des: ICD11_COVID19_VACCINE,
+        des: certVax.icd11DrugCode,
         nam: label,
-        dis: ICD11_COVID19_DISEASE,
+        dis: certVax.icd11DiseaseCode,
         vd: [event],
       });
     }
@@ -180,7 +203,7 @@ export const createVdsNcTestData = async (labTestId, { models }) => {
               {
                 model: Location,
                 as: 'location',
-                include: ['Facility'],
+                include: ['facility'],
               },
             ],
           },
@@ -192,7 +215,7 @@ export const createVdsNcTestData = async (labTestId, { models }) => {
   const { labTestMethod: method, labRequest: request } = test;
 
   const {
-    location: { Facility: facility },
+    location: { facility },
     patient: {
       firstName,
       lastName,

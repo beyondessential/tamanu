@@ -6,8 +6,8 @@ import { DateDisplay } from './DateDisplay';
 const getSchedule = record => record.scheduledVaccine?.schedule || 'Unknown';
 const getVaccineName = record => record.scheduledVaccine?.label || 'Unknown';
 const getDate = ({ date }) => <DateDisplay date={date} />;
-const getAdministerer = record => record.encounter?.examiner?.displayName || 'Unknown';
-const getFacility = record => record.encounter?.location?.name || '';
+const getGiver = record => record.giver?.displayName || record.encounter?.examiner?.displayName || 'Unknown';
+const getFacility = record => record.location?.name || record.encounter?.location?.name || '';
 const getInjectionSite = ({ injectionSite }) => injectionSite || 'Unknown';
 const getBatch = ({ batch }) => batch || 'Unknown';
 
@@ -15,7 +15,7 @@ const columns = [
   { key: 'schedule', title: 'Schedule', accessor: getSchedule },
   { key: 'vaccine', title: 'Vaccine', accessor: getVaccineName },
   { key: 'date', title: 'Date', accessor: getDate },
-  { key: 'givenBy', title: 'Given by', accessor: getAdministerer },
+  { key: 'givenBy', title: 'Given by', accessor: getGiver },
   { key: 'facility', title: 'Facility', accessor: getFacility },
   { key: 'injectionSite', title: 'Injection site', accessor: getInjectionSite },
   { key: 'batch', title: 'Batch', accessor: getBatch },

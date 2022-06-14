@@ -73,11 +73,7 @@ encounter.post(
       throw new NotFoundError();
     }
     req.checkPermission('write', owner);
-    const createdNote = await models.Note.create({
-      recordId: id,
-      recordType: 'Encounter',
-      ...body,
-    });
+    const createdNote = await owner.createNote(body);
 
     res.send(createdNote);
   }),

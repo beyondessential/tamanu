@@ -21,13 +21,14 @@ import {
 
 import { createImportPlan, executeImportPlan, ImportFailure, ImportPlan, mapFields, getRelationIdsFieldMapping } from './import';
 import { SyncRecord, SyncRecordData } from './source';
+import { ReferenceDataType } from '~/types';
 
 const RECORDS_PER_TEST = 100;
 
 type SyncRecordOverrides = {
   isDeleted?: boolean;
   data?: object;
-}
+};
 
 const convertRelationIds = (model, data) => mapFields(getRelationIdsFieldMapping(model), data);
 
@@ -114,7 +115,7 @@ describe('ImportPlan', () => {
       return ssc;
     }],
     [Patient, async () => {
-      const village = fakeReferenceData();
+      const village = fakeReferenceData(ReferenceDataType.Village);
       await ReferenceData.create(village).save();
       const patient = fakePatient();
       patient.villageId = village.id;

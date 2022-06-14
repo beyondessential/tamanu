@@ -1,6 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
+import { SERVER_TYPES } from 'shared/constants';
 import { log } from 'shared/services/logging';
 import { fetchWithTimeout } from 'shared/utils/fetchWithTimeout';
 
@@ -15,6 +16,7 @@ const servers = [
   // live servers
   { name: 'Aspen Medical Fiji', type: 'live', host: 'https://syncba.aspenmedical.com.fj' },
   { name: 'Fiji', type: 'live', host: 'https://sync.tamanu-fiji.org' },
+  { name: 'Fiji MDA', type: 'live', host: 'https://sync-mda.tamanu-fiji.org' },
   { name: 'Fiji NCD', type: 'live', host: 'https://sync-ncd-pilot.tamanu-fiji.org' },
   { name: 'Fiji Tourism', type: 'live', host: 'https://sync-tourism.tamanu-fiji.org' },
   { name: 'Kiribati', type: 'live', host: 'https://sync.tamanu-kiribati.org' },
@@ -62,7 +64,7 @@ serversRouter.get('/readable', (req, res) => {
 
 const getStatuses = () => {
   const STATUS_CHECK_TIMEOUT_MS = 10 * 1000;
-  const EXPECTED_SERVER_TYPE = 'Tamanu Sync Server';
+  const EXPECTED_SERVER_TYPE = SERVER_TYPES.SYNC;
 
   return Promise.all(
     servers.map(async ({ name, host, type }) => {
@@ -80,7 +82,8 @@ const getStatuses = () => {
             `Expected body to include '{"index":true}' but got ${await result.blob()}`,
           );
         }
-        // TODO: deprecate X-Runtime
+
+        // TODO: remove deprecated X-Runtime check once all servers have moved on
         const serverType = result.headers.get('X-Tamanu-Server') || result.headers.get('X-Runtime');
         if (serverType !== EXPECTED_SERVER_TYPE) {
           throw new Error(

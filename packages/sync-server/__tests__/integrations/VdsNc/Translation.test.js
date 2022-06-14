@@ -8,12 +8,58 @@ import {
 
 describe('VDS: Proof of Vaccination', () => {
   let ctx;
+  const data = {};
 
   beforeAll(async () => {
     ctx = await createTestContext();
+    const { ReferenceData, CertifiableVaccine } = ctx.store.models;
+
+    data.azVaxDrug = await ReferenceData.create({
+      ...fake(ReferenceData),
+      type: 'vaccine',
+      name: 'ChAdOx1-S',
+    });
+
+    data.pfVaxDrug = await ReferenceData.create({
+      ...fake(ReferenceData),
+      type: 'vaccine',
+      name: 'Comirnaty',
+    });
+
+    data.azCertVax = await CertifiableVaccine.create({
+      ...fake(CertifiableVaccine),
+      vaccineId: data.azVaxDrug.id,
+      icd11DrugCode: 'XM68M6',
+      icd11DiseaseCode: 'RA01.0',
+      maximumDosage: 3,
+    });
+
+    data.pfCertVax = await CertifiableVaccine.create({
+      ...fake(CertifiableVaccine),
+      vaccineId: data.pfVaxDrug.id,
+      icd11DrugCode: 'XM68M6',
+      icd11DiseaseCode: 'RA01.0',
+      maximumDosage: 3,
+    });
   });
 
-  afterAll(() => ctx.close());
+  afterAll(async () => {
+    const { ReferenceData, CertifiableVaccine } = ctx.store.models;
+    
+    await CertifiableVaccine.destroy({
+      where: {
+        id: [data.azCertVax.id, data.pfCertVax.id],
+      }
+    });
+    
+    await ReferenceData.destroy({
+      where: {
+        id: [data.azVaxDrug.id, data.pfVaxDrug.id],
+      },
+    });
+    
+    await ctx.close();
+  });
 
   it('fetches data for a non-vaccinated patient', async () => {
     // Arrange
@@ -58,7 +104,6 @@ describe('VDS: Proof of Vaccination', () => {
       Encounter,
       Facility,
       Location,
-      ReferenceData,
       ScheduledVaccine,
       AdministeredVaccine,
     } = ctx.store.models;
@@ -77,17 +122,11 @@ describe('VDS: Proof of Vaccination', () => {
     });
     await patient.reload();
 
-    const azVaxDrug = await ReferenceData.create({
-      ...fake(ReferenceData),
-      type: 'vaccine',
-      name: 'ChAdOx1-S',
-    });
-
     const scheduledAz = await ScheduledVaccine.create({
       ...fake(ScheduledVaccine),
       label: 'COVID-19 AZ',
       schedule: 'Dose 1',
-      vaccineId: azVaxDrug.id,
+      vaccineId: data.azVaxDrug.id,
     });
 
     const facility = await Facility.create({
@@ -156,7 +195,6 @@ describe('VDS: Proof of Vaccination', () => {
       Encounter,
       Facility,
       Location,
-      ReferenceData,
       ScheduledVaccine,
       AdministeredVaccine,
     } = ctx.store.models;
@@ -175,44 +213,25 @@ describe('VDS: Proof of Vaccination', () => {
     });
     await patient.reload();
 
-    const azVaxDrug = await ReferenceData.create({
-      ...fake(ReferenceData),
-      type: 'vaccine',
-      name: 'ChAdOx1-S',
-    });
-
-    const pfVaxDrug = await ReferenceData.create({
-      ...fake(ReferenceData),
-      type: 'vaccine',
-      name: 'Comirnaty',
-    });
-
     const scheduledPf1 = await ScheduledVaccine.create({
       ...fake(ScheduledVaccine),
       label: 'COVID-19 Pfizer',
       schedule: 'Dose 1',
-      vaccineId: pfVaxDrug.id,
+      vaccineId: data.pfVaxDrug.id,
     });
 
     const scheduledPf2 = await ScheduledVaccine.create({
       ...fake(ScheduledVaccine),
       label: 'COVID-19 Pfizer',
       schedule: 'Dose 2',
-      vaccineId: pfVaxDrug.id,
+      vaccineId: data.pfVaxDrug.id,
     });
 
     const scheduledAz3 = await ScheduledVaccine.create({
       ...fake(ScheduledVaccine),
       label: 'COVID-19 AZ',
       schedule: 'Booster',
-      vaccineId: azVaxDrug.id,
-    });
-
-    const scheduledAz4 = await ScheduledVaccine.create({
-      ...fake(ScheduledVaccine),
-      label: 'COVID-19 AZ',
-      schedule: 'Extra Booster',
-      vaccineId: azVaxDrug.id,
+      vaccineId: data.azVaxDrug.id,
     });
 
     const location1 = await Location.create({
@@ -280,21 +299,6 @@ describe('VDS: Proof of Vaccination', () => {
       date: new Date(Date.parse('24 December 2021, UTC')),
     });
 
-    await AdministeredVaccine.create({
-      ...fake(AdministeredVaccine),
-      status: 'GIVEN',
-      scheduledVaccineId: scheduledAz4.id,
-      encounterId: (
-        await Encounter.create({
-          ...fake(Encounter),
-          patientId: patient.id,
-          locationId: location2.id,
-        })
-      ).id,
-      batch: '004',
-      date: new Date(Date.parse('22 February 2022, UTC')),
-    });
-
     // Act
     const msg = await createVdsNcVaccinationData(patient.id, {
       models: ctx.store.models,
@@ -342,13 +346,6 @@ describe('VDS: Proof of Vaccination', () => {
               dvc: '2021-12-24',
               lot: '003',
               seq: 3,
-            },
-            {
-              adm: 'Utopia Bureau',
-              ctr: 'UTO',
-              dvc: '2022-02-22',
-              lot: '004',
-              seq: 4,
             },
           ],
         },

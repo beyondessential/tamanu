@@ -17,6 +17,7 @@
     "e2e:build": "detox build --configuration ios.sim.debug",
     "test:e2e": "detox test --configuration ios.sim.debug",
     "lint": "eslint --fix .",
+    "typecheck": "tsc --project tsconfig.json",
     "storybook": "cat storybook/script-usage-instructions.md && (adb reverse tcp:7007 tcp:7007 || true) && start-storybook",
     "prestorybook": "rnstl",
     "postinstall": "npx jetify",

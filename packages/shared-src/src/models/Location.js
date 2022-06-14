@@ -48,6 +48,7 @@ export class Location extends Model {
 
     this.belongsTo(models.Facility, {
       foreignKey: 'facilityId',
+      as: 'facility',
     });
   }
 }

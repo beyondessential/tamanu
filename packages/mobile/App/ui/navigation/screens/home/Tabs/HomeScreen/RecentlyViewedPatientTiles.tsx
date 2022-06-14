@@ -53,7 +53,7 @@ export const RecentlyViewedPatientTiles = (): ReactElement | null => {
 
   const recentPatients = recentlyViewedPatients.length > 0
     ? recentlyViewedPatients.map(
-      patient => <PatientCardContainer displayedPatient={patient} />,
+      patient => <PatientCardContainer key={patient.id} displayedPatient={patient} />,
     )
     : <NoPatientsCard />;
 

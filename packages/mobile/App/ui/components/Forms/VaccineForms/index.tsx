@@ -29,7 +29,9 @@ export type VaccineFormValues = {
   batch?: string;
   injectionSite?: InjectionSiteType;
   scheduledVaccineId?: string;
-  status: VaccineStatus;
+  giverId?: string;
+  recorderId?: string;
+  status: string | VaccineStatus;
 };
 
 interface VaccineForm {
@@ -59,16 +61,14 @@ export const VaccineForm = ({
     <Form
       onSubmit={onSubmit}
       validationSchema={Yup.object().shape(
-        status === VaccineStatus.GIVEN
+        (status === VaccineStatus.GIVEN
           ? {
               date: Yup.date().required(),
-              consent: Yup.boolean()
-                .oneOf([true])
-                .required(),
+              consent: Yup.boolean().oneOf([true]).required(),
             }
           : {
               date: Yup.date().required(),
-            },
+            }) as { date: Yup.DateSchema; consent?: Yup.BooleanSchema },
       )}
       initialValues={createInitialValues({ ...initialValues, status })}
     >
