@@ -16,18 +16,24 @@ export function VisitButtonList(): JSX.Element {
         type={VisitTypes.CLINIC}
         selected={selectedType === VisitTypes.CLINIC}
         onPress={setType}
+        title=""
+        subtitle=""
       />
       <VisitTypeButton
         Icon={HeaderIcons[VisitTypes.HOSPITAL]}
         type={VisitTypes.HOSPITAL}
         selected={selectedType === VisitTypes.HOSPITAL}
         onPress={setType}
+        title=""
+        subtitle=""
       />
       <VisitTypeButton
         Icon={HeaderIcons[VisitTypes.VISIT]}
         type={VisitTypes.VISIT}
         selected={selectedType === VisitTypes.VISIT}
         onPress={setType}
+        title=""
+        subtitle=""
       />
     </RowView>
   );

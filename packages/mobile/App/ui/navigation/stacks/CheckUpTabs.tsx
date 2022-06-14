@@ -13,6 +13,7 @@ const Tabs = createTopTabNavigator();
 
 type NewProgramEntryTabsProps = {
   navigation: NavigationProp<any>;
+  selectedPatient: IPatient;
 };
 
 const getPatientName = (

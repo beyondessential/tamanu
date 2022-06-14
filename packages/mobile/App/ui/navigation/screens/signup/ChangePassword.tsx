@@ -1,9 +1,4 @@
-import React, {
-  FunctionComponent, ReactElement,
-  useCallback,
-  useContext,
-  useState,
-} from 'react';
+import React, { FunctionComponent, ReactElement, useCallback, useContext, useState } from 'react';
 import { KeyboardAvoidingView, StatusBar } from 'react-native';
 import {
   StyledView,
@@ -92,7 +87,9 @@ export const ChangePassword: FunctionComponent<any> = ({ navigation }: ChangePas
         margin={screenPercentageToDP(2.43, Orientation.Width)}
         style={{ backgroundColor: theme.colors.BACKGROUND_GREY }}
       >
-        <StyledText fontSize={screenPercentageToDP('1.94', Orientation.Height)}>Your password has been updated</StyledText>
+        <StyledText fontSize={screenPercentageToDP('1.94', Orientation.Height)}>
+          Your password has been updated
+        </StyledText>
       </ColumnView>
       <Button
         marginTop={20}
@@ -131,8 +128,8 @@ export const ChangePassword: FunctionComponent<any> = ({ navigation }: ChangePas
               Reset Password
             </StyledText>
           </StyledView>
-          { success && renderSuccess() }
-          { !success && renderForm() }
+          {success && renderSuccess()}
+          {!success && renderForm()}
         </KeyboardAvoidingView>
       </StyledSafeAreaView>
     </FullView>
