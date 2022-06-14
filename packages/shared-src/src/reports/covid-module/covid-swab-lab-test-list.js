@@ -140,12 +140,6 @@ const getFijiCovidAnswers = async (models, parameters, { surveyId, dateFormat })
           {
             model: models.Encounter,
             as: 'encounter',
-            include: [
-              {
-                model: models.Patient,
-                as: 'patient',
-              },
-            ],
           },
         ],
         order: [['end_time', 'ASC']],
