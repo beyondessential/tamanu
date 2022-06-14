@@ -1,6 +1,7 @@
 import { promises } from 'fs';
 import qs from 'qs';
 
+import { buildAbility } from 'shared/permissions/buildAbility';
 import { VERSION_COMPATIBILITY_ERRORS, SERVER_TYPES } from 'shared/constants';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 
@@ -134,7 +135,9 @@ export class TamanuApi {
 
     const user = await this.get('user/me');
     this.user = user;
-    return { user, token, localisation, server, permissions };
+
+    const ability = buildAbility(permissions);
+    return { user, token, localisation, server, ability };
   }
 
   async requestPasswordReset(host, email) {
