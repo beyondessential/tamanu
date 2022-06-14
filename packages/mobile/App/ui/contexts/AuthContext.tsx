@@ -48,6 +48,7 @@ const Provider = ({
   navRef,
   ...props
 }: PropsWithChildren<AuthProviderProps>): ReactElement => {
+  const backend = useContext(BackendContext);
   const checkFirstSession = (): boolean => props.isFirstTime;
   const [user, setUserData] = useState();
   const [ability, setAbility] = useState(null);
@@ -74,7 +75,6 @@ const Provider = ({
     setSignedInStatus(true);
   };
 
-  const backend = useContext(BackendContext);
   const localSignIn = async (params: SyncConnectionParameters): Promise<void> => {
     const usr = await backend.auth.localSignIn(params);
     signInAs(usr);
