@@ -12,6 +12,8 @@ const WILLIAM_HOROTO_IDS = [
   'cebdd9a4-2744-4ad2-9919-98dc0b15464c', // Dev - for testing purposes
 ];
 
+const YIELD_EVERY_N_LOOPS = 100;
+
 const yieldControl = () => new Promise(resolve => setTimeout(resolve, 20));
 
 const parametersToLabTestSqlWhere = parameters => {
@@ -209,10 +211,16 @@ const getLabTestRecords = async (
   );
 
   const results = [];
+  let totalLoops = 0;
 
   for (const [patientId, patientLabTests] of Object.entries(labTestsByPatientId)) {
     // lab tests were already sorted by 'date' ASC in the sql.
     for (let i = 0; i < patientLabTests.length; i++) {
+      totalLoops++;
+      if (totalLoops % YIELD_EVERY_N_LOOPS === 0) {
+        await yieldControl();
+      }
+
       const labTest = patientLabTests[i];
       const currentLabTestDate = moment(labTest.date).startOf('day');
 
@@ -292,7 +300,6 @@ const getLabTestRecords = async (
       });
 
       results.push(labTestRecord);
-      await yieldControl();
     }
   }
 
