@@ -122,6 +122,8 @@ const getLabTests = async (models, parameters) =>
     ],
     where: parametersToLabTestSqlWhere(parameters),
     order: [['date', 'ASC']],
+    raw: true,
+    nest: true,
   });
 
 const getFijiCovidAnswers = async (models, parameters, { surveyId }) => {
@@ -147,6 +149,8 @@ const getFijiCovidAnswers = async (models, parameters, { surveyId }) => {
         order: [['end_time', 'ASC']],
       },
     ],
+    raw: true,
+    nest: true,
   });
 
   return answers;
