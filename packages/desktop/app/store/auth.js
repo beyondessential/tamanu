@@ -17,8 +17,8 @@ const CHANGE_PASSWORD_FAILURE = 'CHANGE_PASSWORD_FAILURE';
 
 export const restoreSession = () => async (dispatch, getState, { api }) => {
   try {
-    const { user, token, localisation, server } = await api.restoreSession();
-    dispatch({ type: LOGIN_SUCCESS, user, token, localisation, server });
+    const { user, token, localisation, server, ability } = await api.restoreSession();
+    dispatch({ type: LOGIN_SUCCESS, user, token, localisation, server, ability });
   } catch (e) {
     // no action required -- this just means we haven't logged in
   }
