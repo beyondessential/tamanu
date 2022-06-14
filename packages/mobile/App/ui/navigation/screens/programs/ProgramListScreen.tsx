@@ -26,6 +26,11 @@ const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
     surveyType: SurveyTypes.Programs,
   }));
 
+  const filteredSurveys = surveys?.filter(x => {
+    const isProgramVisible = x.programId !== 'program-hidden_forms'; // TODO: hack until we can delete surveys from server
+    return isProgramVisible;
+  });
+
   const goBack = useCallback(() => {
     navigation.goBack();
   }, []);
@@ -56,7 +61,7 @@ const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
             backgroundColor: theme.colors.BACKGROUND_GREY,
           }}
           showsVerticalScrollIndicator={false}
-          data={surveys && surveys.filter(x => x.programId !== 'program-hidden_forms')} // TODO: hack until we can delete surveys from server
+          data={filteredSurveys}
           keyExtractor={(item): string => item.id}
           renderItem={({ item }): ReactElement => (
             <MenuOptionButton
