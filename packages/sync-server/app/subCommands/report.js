@@ -16,7 +16,7 @@ async function report(options) {
     setInterval(() => {
       const used = process.memoryUsage().heapUsed / 1024 / 1024;
       // eslint-disable-next-line no-console
-      console.log(`Heap: ${used} MB`);
+      console.log(`Heap: ${used} MiB`);
     }, REPORT_HEAP_INTERVAL_MS);
   }
 
