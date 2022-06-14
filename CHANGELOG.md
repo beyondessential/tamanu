@@ -4,6 +4,28 @@
 
 ### Manual steps required after upgrade ⚙
 
+- (left blank)
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
+- (left blank)
+
+### Bug fixes 🐛
+
+- (left blank)
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
+## v1.17.0
+
+### Manual steps required after upgrade ⚙
+
 - Set `enablePatientDeaths` in sync-server config (if required)
   - `localisation.data.features.enablePatientDeaths`
 - Remove `localisation.data.covidVaccines`
