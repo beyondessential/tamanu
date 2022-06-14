@@ -1,16 +1,20 @@
-import Chance from 'chance';
-
-const chance = new Chance();
+import moment from 'moment';
+import { chance } from './chance';
 
 export const insertSurveyResponse = async (
   { SurveyResponse, SurveyResponseAnswer },
   setupData,
-  { encounterId },
+  { encounterId, startTime },
 ) => {
-  const response = await SurveyResponse.create({ encounterId });
+  const response = await SurveyResponse.create({
+    encounterId,
+    surveyId: setupData.survey.id,
+    startTime,
+    endTime: moment(startTime).add(10, 'minutes'),
+  });
 
-  const answers = generateAnswers(setupData);
-  for (const [readableName, answer] of Object.entries(answers)) {
+  const readableAnswers = generateAnswers(setupData);
+  for (const [readableName, answer] of Object.entries(readableAnswers)) {
     const code = humanReadableQuestionsToCode[readableName];
     await SurveyResponseAnswer.create({
       responseId: response.id,
@@ -19,6 +23,7 @@ export const insertSurveyResponse = async (
       dataElementId: `pde-${code}`,
     });
   }
+  return response;
 };
 
 const humanReadableQuestionsToCode = {
