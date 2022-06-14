@@ -28,6 +28,12 @@
 
 - Drop deprecated `X-Runtime` header (except in meta server).
 
+## v1.16.1
+
+### Bug fixes 🐛
+
+- Fix issue that was causing mobile sync to break after editing patient details
+
 ## v1.16.0
 
 ### Manual steps required after upgrade ⚙
