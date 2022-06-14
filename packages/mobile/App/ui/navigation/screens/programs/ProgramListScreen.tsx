@@ -28,9 +28,9 @@ const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
     surveyType: SurveyTypes.Programs,
   }));
 
-  const filteredSurveys = surveys?.filter(x => {
-    const isProgramVisible = x.programId !== 'program-hidden_forms'; // TODO: hack until we can delete surveys from server
-    const hasPermission = ability.can('submit', x);
+  const filteredSurveys = surveys?.filter(survey => {
+    const isProgramVisible = survey.programId !== 'program-hidden_forms'; // TODO: hack until we can delete surveys from server
+    const hasPermission = ability.can('submit', survey);
     return isProgramVisible && hasPermission;
   });
 
@@ -38,7 +38,7 @@ const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
     navigation.goBack();
   }, []);
 
-  const onNavigateToSurvey = (survey: Survey)=> {
+  const onNavigateToSurvey = (survey: Survey): void => {
     navigation.navigate(Routes.HomeStack.ProgramStack.ProgramTabs.Index, {
       surveyId: survey.id,
       surveyName: survey.name,

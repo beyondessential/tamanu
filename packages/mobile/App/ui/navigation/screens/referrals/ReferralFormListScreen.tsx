@@ -19,9 +19,9 @@ export const ReferralFormListScreen = (): ReactElement => {
     surveyType: SurveyTypes.Referral,
   }));
 
-  const filteredSurveys = surveys?.filter(x => {
-    const isProgramVisible = x.programId !== 'program-hidden_forms'; // TODO: hack until we can delete surveys from server
-    const hasPermission = ability.can('submit', x);
+  const filteredSurveys = surveys?.filter(survey => {
+    const isProgramVisible = survey.programId !== 'program-hidden_forms'; // TODO: hack until we can delete surveys from server
+    const hasPermission = ability.can('submit', survey);
     return isProgramVisible && hasPermission;
   });
 
