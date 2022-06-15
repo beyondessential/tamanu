@@ -335,6 +335,7 @@ export const DeathForm = React.memo(
             label="What was the manner of death?"
             component={SelectField}
             options={mannerOfDeathOptions}
+            required
           />
           <Field
             name="mannerOfDeathDate"
