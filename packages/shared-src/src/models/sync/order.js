@@ -17,8 +17,9 @@ export const MODEL_DEPENDENCY_ORDER = [
   'PatientIssue',
   'PatientAdditionalData',
 
-  'DeathCause',
-  'PatientDeathData',
+  // Temporarily remove death data models from sync as sync cannot handle the foreign key cycle
+  // 'DeathCause',
+  // 'PatientDeathData',
 
   'EncounterDiagnosis',
   'EncounterMedication',
