@@ -1,5 +1,6 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
+import PropTypes from 'prop-types';
 import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
@@ -12,6 +13,67 @@ import { Colors } from '../constants';
 const Container = styled.div`
   position: relative;
   display: inline-block;
+`;
+
+const MainButton = styled(Button)`
+  flex: 1;
+  border-radius: 3px;
+  text-transform: capitalize;
+  font-size: 14px;
+  line-height: 18px;
+  padding: 8px 13px;
+  letter-spacing: 0;
+
+  &.MuiButton-sizeLarge {
+    padding: 10px 19px;
+  }
+
+  &.MuiButton-sizeSmall {
+    padding: 6px 16px 6px 8px;
+  }
+
+  &.MuiButton-outlinedPrimary {
+    border-color: ${props => props.theme.palette.primary.main};
+    border-right-color: transparent;
+  }
+
+  &.MuiButton-containedPrimary {
+    border-color: transparent;
+  }
+`;
+
+const MenuButton = styled(Button)`
+  padding: 8px 8px 8px 0;
+  border-radius: 3px;
+
+  &.MuiButton-sizeLarge {
+    padding: 10px 10px 10px 0;
+  }
+
+  &.MuiButton-sizeSmall {
+    padding: 4px 4px 4px 0;
+  }
+
+  &.MuiButton-outlinedPrimary {
+    border-color: ${props => props.theme.palette.primary.main};
+    border-left: none;
+
+    .MuiButton-label {
+      border-left: 1px solid ${props => props.theme.palette.primary.main};
+    }
+  }
+
+  &.MuiButton-containedPrimary {
+    .MuiButton-label {
+      border-left: 1px solid white;
+    }
+  }
+
+  .MuiSvgIcon-root {
+    width: 28px;
+    height: auto;
+    padding-left: 6px;
+  }
 `;
 
 const Paper = styled(MuiPaper)`
@@ -38,37 +100,7 @@ const MenuList = styled(MuiMenuList)`
   }
 `;
 
-const MainButton = styled(Button)`
-  flex: 1;
-  border-radius: 3px;
-  text-transform: capitalize;
-  font-size: 14px;
-  line-height: 18px;
-  padding: 8px 13px;
-  letter-spacing: 0;
-
-  &.MuiButtonBase-root.MuiButton-root {
-    box-shadow: none;
-    border: none;
-  }
-`;
-
-const MenuButton = styled(Button)`
-  padding: 8px 8px 8px 0;
-  border-radius: 3px;
-
-  .MuiButton-label {
-    border-left: 1px solid white;
-  }
-
-  .MuiSvgIcon-root {
-    width: 28px;
-    height: auto;
-    padding-left: 6px;
-  }
-`;
-
-export const DropdownButton = React.memo(({ actions, ...props }) => {
+export const DropdownButton = React.memo(({ variant, size, actions, ...props }) => {
   const [open, setOpen] = useState(false);
 
   function handleClick(event, index) {
@@ -76,14 +108,14 @@ export const DropdownButton = React.memo(({ actions, ...props }) => {
     actions[index].onClick(event);
   }
 
-  const handleToggle = useCallback(event => {
+  const handleToggle = event => {
     event.stopPropagation();
     setOpen(prev => !prev);
-  }, []);
+  };
 
-  const handleClose = useCallback(() => {
+  const handleClose = () => {
     setOpen(false);
-  }, []);
+  };
 
   const [mainAction, ...otherActions] = actions;
 
@@ -99,8 +131,10 @@ export const DropdownButton = React.memo(({ actions, ...props }) => {
     return (
       <MainButton
         {...props}
-        variant="contained"
+        variant={variant}
+        size={size}
         color="primary"
+        disableElevation
         onClick={event => handleClick(event, 0)}
       >
         {mainAction.label}
@@ -111,7 +145,8 @@ export const DropdownButton = React.memo(({ actions, ...props }) => {
   return (
     <Container>
       <ButtonGroup
-        variant="contained"
+        variant={variant}
+        size={size}
         color="primary"
         disableElevation
         style={{ width: '100%' }}
@@ -142,3 +177,13 @@ export const DropdownButton = React.memo(({ actions, ...props }) => {
     </Container>
   );
 });
+
+DropdownButton.propTypes = {
+  variant: PropTypes.string,
+  size: PropTypes.string,
+};
+
+DropdownButton.defaultProps = {
+  variant: 'contained',
+  size: 'medium',
+};
