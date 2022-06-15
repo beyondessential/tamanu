@@ -1,9 +1,4 @@
-import React, {
-  FunctionComponent, ReactElement,
-  useCallback,
-  useContext,
-  useState,
-} from 'react';
+import React, { FunctionComponent, ReactElement, useCallback, useContext, useState } from 'react';
 import { KeyboardAvoidingView, StatusBar } from 'react-native';
 import {
   StyledView,
@@ -102,9 +97,20 @@ export const ResetPassword: FunctionComponent<any> = ({ navigation }: ResetPassw
         margin={screenPercentageToDP(2.43, Orientation.Width)}
         style={{ backgroundColor: theme.colors.BACKGROUND_GREY }}
       >
-        <StyledText fontSize={screenPercentageToDP('1.94', Orientation.Height)}>An email with instructions has been sent to:</StyledText>
-        <StyledText fontSize={screenPercentageToDP('1.94', Orientation.Height)} fontWeight="bold" marginTop="10" marginBottom="10">{resetPasswordEmail}</StyledText>
-        <StyledText fontSize={screenPercentageToDP('1.94', Orientation.Height)}>If you do not receive this email within a few minutes please try again.</StyledText>
+        <StyledText fontSize={screenPercentageToDP('1.94', Orientation.Height)}>
+          An email with instructions has been sent to:
+        </StyledText>
+        <StyledText
+          fontSize={screenPercentageToDP('1.94', Orientation.Height)}
+          fontWeight="bold"
+          marginTop="10"
+          marginBottom="10"
+        >
+          {resetPasswordEmail}
+        </StyledText>
+        <StyledText fontSize={screenPercentageToDP('1.94', Orientation.Height)}>
+          If you do not receive this email within a few minutes please try again.
+        </StyledText>
       </ColumnView>
       <Button
         marginTop={20}
@@ -167,8 +173,8 @@ export const ResetPassword: FunctionComponent<any> = ({ navigation }: ResetPassw
               Reset Password
             </StyledText>
           </StyledView>
-          { success && renderSuccess() }
-          { !success && renderForm() }
+          {success && renderSuccess()}
+          {!success && renderForm()}
         </KeyboardAvoidingView>
       </StyledSafeAreaView>
     </FullView>

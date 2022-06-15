@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-
-import { TopBar, PageContainer } from '../components';
-import { ImagingRequestsSearchBar } from '../components/ImagingRequestsSearchBar';
+import { TopBar, PageContainer, ImagingRequestsSearchBar } from '../components';
 import { ImagingRequestsTable } from '../components/ImagingRequestsTable';
 
 export const ImagingRequestListingView = React.memo(() => {
