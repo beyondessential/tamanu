@@ -6,7 +6,7 @@ import { DateDisplay } from './DateDisplay';
 const getSchedule = record => record.scheduledVaccine?.schedule || 'Unknown';
 const getVaccineName = record => record.scheduledVaccine?.label || 'Unknown';
 const getDate = ({ date }) => <DateDisplay date={date} />;
-const getGiver = record => record.giver?.displayName || record.encounter?.examiner?.displayName || 'Unknown';
+const getGiver = record => record.givenBy || record.encounter?.examiner?.displayName || 'Unknown';
 const getFacility = record => record.location?.name || record.encounter?.location?.name || '';
 const getInjectionSite = ({ injectionSite }) => injectionSite || 'Unknown';
 const getBatch = ({ batch }) => batch || 'Unknown';
