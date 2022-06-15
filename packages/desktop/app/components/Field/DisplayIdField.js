@@ -9,6 +9,10 @@ const FieldContainer = styled(LocalisedField)`
   .MuiOutlinedInput-adornedEnd {
     padding-right: 0;
   }
+
+  .MuiInputAdornment-positionEnd {
+    margin-left: 1px;
+  }
 `;
 
 const CheckField = ({ field, ...props }) => (
@@ -17,7 +21,7 @@ const CheckField = ({ field, ...props }) => (
       icon={<SpellcheckIcon color="disabled" />}
       checkedIcon={<SpellcheckIcon />}
       name={field.name}
-      checked={field.value || false}
+      checked={!!field.value}
       onChange={field.onChange}
       value="checked"
       color="primary"
@@ -31,7 +35,7 @@ export const DisplayIdField = () => (
     name="displayId"
     InputProps={{
       endAdornment: (
-        <InputAdornment position="end" style={{ marginLeft: 1 }}>
+        <InputAdornment position="end">
           <Field name="displayIdExact" component={CheckField} />
         </InputAdornment>
       ),
