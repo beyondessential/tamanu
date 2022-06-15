@@ -146,8 +146,7 @@ describe('Generic survey export', () => {
       expect(result.body).toMatchTabularReport([]);
     });
 
-    // unskip after this PR is merged: https://github.com/beyondessential/tamanu/pull/2302
-    it.skip('should return data ordered by date', async () => {
+    it('should return data ordered by date', async () => {
       const date1 = subDays(new Date(), 25);
       const date2 = subDays(new Date(), 25);
       const date3 = subDays(new Date(), 25);
