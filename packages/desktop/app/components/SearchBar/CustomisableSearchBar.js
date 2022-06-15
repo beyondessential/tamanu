@@ -7,11 +7,9 @@ import { Form } from '../Field';
 import { Colors } from '../../constants';
 
 const Container = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border: 1px solid ${Colors.outline};
+  border-bottom: 1px solid ${Colors.outline};
   background: ${Colors.white};
+  padding: 16px 24px 28px;
 `;
 
 const SectionLabel = styled.div`
@@ -20,11 +18,6 @@ const SectionLabel = styled.div`
   color: ${props => props.theme.palette.text.primary};
   margin-bottom: 10px;
   letter-spacing: 0;
-`;
-
-const Section = styled.div`
-  flex: 1;
-  padding: 16px 24px 28px;
 `;
 
 const SearchInputContainer = styled.div`
@@ -39,48 +32,44 @@ export const CustomisableSearchBar = ({
   children,
   renderCheckField,
   initialValues = {},
-  RightSection = null,
 }) => (
   <Container>
-    <Section>
-      <SectionLabel>{title}</SectionLabel>
-      <Form
-        onSubmit={values => {
-          const params = values;
-          // if filtering by date of birth exact, send the formatted date
-          // to the server instead of the date object
-          if (params.dateOfBirthExact) {
-            params.dateOfBirthExact = moment(params.dateOfBirthExact)
-              .utc()
-              .format('YYYY-MM-DD');
-          }
+    <SectionLabel>{title}</SectionLabel>
+    <Form
+      onSubmit={values => {
+        const params = values;
+        // if filtering by date of birth exact, send the formatted date
+        // to the server instead of the date object
+        if (params.dateOfBirthExact) {
+          params.dateOfBirthExact = moment(params.dateOfBirthExact)
+            .utc()
+            .format('YYYY-MM-DD');
+        }
 
-          onSearch(params);
-        }}
-        render={({ submitForm, clearForm }) => (
-          <>
-            <SearchInputContainer>{children}</SearchInputContainer>
-            <Box
-              display="flex"
-              alignItems="center"
-              justifyContent="space-between"
-              style={{ marginTop: 20 }}
-            >
-              {renderCheckField}
-              <Box marginLeft="auto">
-                <LargeOutlineButton style={{ marginRight: 12 }} onClick={clearForm}>
-                  Clear Search
-                </LargeOutlineButton>
-                <LargeButton onClick={submitForm} type="submit">
-                  Search
-                </LargeButton>
-              </Box>
+        onSearch(params);
+      }}
+      render={({ submitForm, clearForm }) => (
+        <>
+          <SearchInputContainer>{children}</SearchInputContainer>
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+            style={{ marginTop: 20 }}
+          >
+            {renderCheckField}
+            <Box marginLeft="auto">
+              <LargeOutlineButton style={{ marginRight: 12 }} onClick={clearForm}>
+                Clear Search
+              </LargeOutlineButton>
+              <LargeButton onClick={submitForm} type="submit">
+                Search
+              </LargeButton>
             </Box>
-          </>
-        )}
-        initialValues={initialValues}
-      />
-    </Section>
-    {RightSection && <RightSection />}
+          </Box>
+        </>
+      )}
+      initialValues={initialValues}
+    />
   </Container>
 );
