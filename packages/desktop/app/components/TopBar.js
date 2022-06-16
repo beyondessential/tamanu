@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { grey } from '@material-ui/core/colors';
-import MuiAppBar from '@material-ui/core/AppBar';
 import MuiToolbar from '@material-ui/core/Toolbar';
 import MuiTypography from '@material-ui/core/Typography';
 import { Colors } from '../constants';
@@ -29,12 +28,14 @@ const TopBarSubHeading = styled(MuiTypography)`
   color: ${props => props.theme.palette.text.secondary};
 `;
 
-const AppBar = styled(MuiAppBar)`
+const AppBar = styled.div`
   flex-grow: 1;
   background-color: ${Colors.white};
   box-shadow: 0 1px 0 ${grey[300]};
   padding: 16px 0;
   z-index: 1;
+  border-bottom: 1px solid ${props => props.theme.palette.grey[400]};
+  position: relative;
 `;
 
 const Toolbar = styled(MuiToolbar)`
@@ -44,7 +45,7 @@ const Toolbar = styled(MuiToolbar)`
 `;
 
 export const TopBar = React.memo(({ title, subTitle, children, className }) => (
-  <AppBar position="relative">
+  <AppBar>
     <Toolbar className={className}>
       {subTitle ? (
         <div>
@@ -52,7 +53,7 @@ export const TopBar = React.memo(({ title, subTitle, children, className }) => (
           <TopBarSubHeading variant="h4">{subTitle}</TopBarSubHeading>
         </div>
       ) : (
-        <TopBarHeading variant="h1">{title}</TopBarHeading>
+        title && <TopBarHeading variant="h1">{title}</TopBarHeading>
       )}
       {children}
     </Toolbar>
@@ -60,10 +61,11 @@ export const TopBar = React.memo(({ title, subTitle, children, className }) => (
 ));
 
 TopBar.propTypes = {
-  title: PropTypes.string.isRequired,
+  title: PropTypes.string,
   subTitle: PropTypes.string,
 };
 
 TopBar.defaultProps = {
+  title: null,
   subTitle: null,
 };
