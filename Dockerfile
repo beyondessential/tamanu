@@ -1,4 +1,4 @@
-FROM node:12.20.2 as base
+FROM node:16.15.1 as base
 RUN dpkg --add-architecture i386 \
     && apt update \
     && apt install -y \
