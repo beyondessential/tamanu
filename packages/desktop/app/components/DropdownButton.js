@@ -29,7 +29,8 @@ const MainButton = styled(Button)`
   }
 
   &.MuiButton-sizeSmall {
-    padding: 6px 16px 6px 8px;
+    padding: 7px 10px 7px 10px;
+    line-height: 16px;
   }
 
   &.MuiButton-outlinedPrimary {
@@ -43,7 +44,7 @@ const MainButton = styled(Button)`
 `;
 
 const MenuButton = styled(Button)`
-  padding: 8px 8px 8px 0;
+  padding: 8px 7px 8px 0;
   border-radius: 3px;
 
   &.MuiButton-sizeLarge {
@@ -51,7 +52,7 @@ const MenuButton = styled(Button)`
   }
 
   &.MuiButton-sizeSmall {
-    padding: 4px 4px 4px 0;
+    padding: 6px 8px 6px 0;
   }
 
   &.MuiButton-outlinedPrimary {
