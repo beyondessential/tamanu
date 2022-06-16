@@ -51,8 +51,7 @@ export const RoutingFacilityApp = React.memo(() => (
 export const RoutingAdminApp = React.memo(() => (
   <App sidebar={<Sidebar items={SYNC_MENU_ITEMS} />}>
     <Switch>
-      {/* <Redirect exact path="/" to="/admin" /> */}
-      <Route path="/" component={AdminPlaceholder} />
+      <Redirect exact path="/" to="/admin" />
       <Route path="/admin" component={AdministrationRoutes} />
       {/*
        * TODO fix this hack. For some reason, having an empty object within this switch fixes a bug
