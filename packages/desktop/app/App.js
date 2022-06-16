@@ -10,14 +10,14 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { DecisionSupportModal } from './components/DecisionSupportModal';
 
 const AppContainer = styled.div`
-  min-height: 100vh;
   display: flex;
   background: #f7f9fb;
 `;
 
 const AppContentsContainer = styled.div`
-  overflow-x: hidden;
-  flex: 4;
+  height: 100vh;
+  overflow: auto;
+  flex: 1;
 `;
 
 export function App({ sidebar, children }) {

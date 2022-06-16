@@ -94,6 +94,11 @@ export const MedicationForm = React.memo(
       <>
         <Form
           onSubmit={onSubmit}
+          onSuccess={() => {
+            if (!awaitingPrint) {
+              onSaved();
+            }
+          }}
           initialValues={{
             note: medication?.note ?? '',
             route: medication?.route ?? '',
@@ -122,7 +127,7 @@ export const MedicationForm = React.memo(
               </div>
               <Field
                 name="prescription"
-                label="Prescription"
+                label="Instructions"
                 component={TextField}
                 required={!readOnly}
                 disabled={readOnly}
@@ -261,15 +266,15 @@ export const MedicationForm = React.memo(
                       {
                         label: 'Finalise',
                         onClick: data => {
+                          setAwaitingPrint(false);
                           submitForm(data);
-                          onSaved(); // onSaved also closes the modal
                         },
                       },
                       {
                         label: 'Finalise & print',
                         onClick: data => {
-                          submitForm(data);
                           setAwaitingPrint(true);
+                          submitForm(data);
                         },
                       },
                     ]}

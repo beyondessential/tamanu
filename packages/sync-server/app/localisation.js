@@ -252,10 +252,6 @@ const rootLocalisationSchema = yup
       .string()
       .required()
       .oneOf(['tamanu', 'eudcc', 'icao']),
-    covidVaccines: yup
-      .array()
-      .of(yup.string())
-      .required(),
     features: yup
       .object({
         editPatientDetailsOnMobile: yup.boolean().required(),

@@ -2,7 +2,10 @@ import { Entity, Column, ManyToOne, BeforeUpdate, BeforeInsert, RelationId } fro
 import { BaseModel } from './BaseModel';
 import { IAdministeredVaccine, InjectionSiteType } from '~/types';
 import { Encounter } from './Encounter';
+import { Location } from './Location';
+import { Department } from './Department';
 import { ScheduledVaccine } from './ScheduledVaccine';
+import { User } from './User';
 import { VaccineStatus } from '~/ui/helpers/patient';
 
 @Entity('administered_vaccine')
@@ -19,14 +22,12 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   @Column({ type: 'varchar', nullable: true })
   injectionSite?: InjectionSiteType;
 
-  @Column({ nullable: true })
-  location?: string;
-
   @Column({ nullable: true, default: true })
   consent: boolean;
 
   @Column()
   date: Date;
+
 
   @ManyToOne(
     () => Encounter,
@@ -37,6 +38,7 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   @RelationId(({ encounter }: AdministeredVaccine) => encounter)
   encounterId: string;
 
+
   @ManyToOne(
     () => ScheduledVaccine,
     scheduledVaccine => scheduledVaccine.administeredVaccines,
@@ -45,6 +47,47 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
 
   @RelationId(({ scheduledVaccine }: AdministeredVaccine) => scheduledVaccine)
   scheduledVaccineId: string;
+
+
+  @ManyToOne(
+    () => User,
+    user => user.givenVaccines,
+  )
+  giver: User;
+
+  @RelationId(({ giver }: AdministeredVaccine) => giver)
+  giverId: string;
+
+
+  @ManyToOne(
+    () => User,
+    user => user.recordedVaccines,
+  )
+  recorder: User;
+
+  @RelationId(({ recorder }: AdministeredVaccine) => recorder)
+  recorderId: string;
+
+
+  @ManyToOne(
+    () => Location,
+    loc => loc.administeredVaccines,
+  )
+  location: Location;
+
+  @RelationId(({ location }: AdministeredVaccine) => location)
+  locationId: string;
+
+
+  @ManyToOne(
+    () => Department,
+    dep => dep.administeredVaccines,
+  )
+  department: Department;
+
+  @RelationId(({ department }: AdministeredVaccine) => department)
+  departmentId: string;
+
 
   @BeforeInsert()
   @BeforeUpdate()

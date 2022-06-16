@@ -12,7 +12,7 @@ module.exports = {
     new NodemonPlugin({
       delay: 500,
       watch: ['./dist', './config', '../shared'],
-      args: ['serveAll', ...(process.env.TAMANU_ARGS ? process.env.TAMANU_ARGS.split(' ') : [])],
+      args: process.env.TAMANU_ARGS ? process.env.TAMANU_ARGS.split(' ') : [],
     }),
   ],
 };

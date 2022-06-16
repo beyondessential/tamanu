@@ -5,7 +5,7 @@ import { QueryTypes } from 'sequelize';
 
 import { NOTE_RECORD_TYPES } from 'shared/models/Note';
 import { NotFoundError, InvalidOperationError } from 'shared/errors';
-import { REFERENCE_TYPES, LAB_REQUEST_STATUSES } from 'shared/constants';
+import { REFERENCE_TYPES, LAB_REQUEST_STATUSES, NOTE_TYPES } from 'shared/constants';
 import { makeFilter, makeSimpleTextFilterFactory } from '../../utils/query';
 import { renameObjectKeys } from '../../utils/renameObjectKeys';
 import { simpleGet, simplePut, simpleGetList, permissionCheckingRouter } from './crudHelpers';
@@ -45,8 +45,15 @@ labRequest.post(
   '/$',
   asyncHandler(async (req, res) => {
     const { models } = req;
+    const { note } = req.body;
     req.checkPermission('create', 'LabRequest');
     const object = await models.LabRequest.createWithTests(req.body);
+    if (note) {
+      object.createNote({
+        noteType: NOTE_TYPES.OTHER,
+        content: note,
+      });
+    }
     res.send(object);
   }),
 );

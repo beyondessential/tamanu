@@ -8,9 +8,9 @@ import {
 export const LAB_CATEGORY_ID = 'labTestCategory-COVID';
 export const LAB_METHOD_ID = 'labTestMethod-SWAB';
 
-export async function createPatient(models) {
+export async function createPatient(models, overrides) {
   const villageId = await randomReferenceId(models, 'village');
-  return await models.Patient.create(await createDummyPatient(models, { villageId }));
+  return await models.Patient.create(await createDummyPatient(models, { villageId, ...overrides }));
 }
 
 export async function createLabTests(models) {

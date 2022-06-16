@@ -39,6 +39,7 @@ export * from './SurveyResponseAnswer';
 
 export * from './Referral';
 export * from './Immunisation';
+export * from './CertifiableVaccine';
 export * from './ScheduledVaccine';
 export * from './AdministeredVaccine';
 

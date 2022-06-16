@@ -115,6 +115,7 @@ const makeTransformer = (sheetName, transformer) => {
 const transformers = [
   makeTransformer('facilities', recordTransformer('facility')),
   makeTransformer('villages', referenceDataTransformer('village')),
+  makeTransformer('manufacturers', referenceDataTransformer('manufacturer')),
   makeTransformer('drugs', referenceDataTransformer('drug')),
   makeTransformer('allergies', referenceDataTransformer('allergy')),
   makeTransformer('departments', recordTransformer('department')),
@@ -143,6 +144,7 @@ const transformers = [
   makeTransformer('users', recordTransformer('user')),
   makeTransformer('patients', patientDataTransformer),
   makeTransformer('labTestTypes', recordTransformer('labTestType')),
+  makeTransformer('certifiableVaccines', recordTransformer('certifiableVaccine')),
   makeTransformer('vaccineSchedules', recordTransformer('scheduledVaccine')),
   makeTransformer('invoiceLineTypes', recordTransformer('invoiceLineType')),
   makeTransformer('invoicePriceChangeTypes', recordTransformer('invoicePriceChangeType')),

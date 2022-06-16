@@ -65,7 +65,7 @@ const DISPENSED_MEDICATION_COLUMNS = [
   },
 ];
 
-export const MedicationsPane = React.memo(({ patient }) => (
+export const PatientMedicationPane = React.memo(({ patient }) => (
   <ContentPane>
     <OuterLabelFieldWrapper label="Most recent discharge medications">
       <DataFetchingTable

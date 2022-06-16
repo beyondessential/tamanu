@@ -206,6 +206,7 @@ const vaccinations = [
       updatedAt: '2022-01-23T21:56:27.437Z',
       vaccineId: 'drug-COVID-19-Pfizer',
     },
+    certifiable: true,
   },
 ];
 
@@ -228,7 +229,6 @@ storiesOf('Certificates', module).add('VaccineCertificate', () => {
         signingSrc={SigningImage}
         logoSrc={Logo}
         vdsSrc={vdsSrc}
-        extraPatientFields={[{ key: 'uvci', label: 'UVCI', accessor: () => 'x1235y12345' }]}
         getLocalisation={getLocalisation}
       />
     </PDFViewer>

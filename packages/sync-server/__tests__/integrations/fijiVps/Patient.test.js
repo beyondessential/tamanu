@@ -61,15 +61,12 @@ describe('VPS integration - Patient', () => {
             birthDate: format(patient.dateOfBirth, 'yyyy-MM-dd'),
             deceasedDateTime: format(patient.dateOfDeath, "yyyy-MM-dd'T'HH:mm:ssXXX"),
             gender: patient.sex,
+            id: patient.id,
             identifier: [
-              {
-                use: 'usual',
-                value: patient.id,
-              },
               {
                 assigner: 'Tamanu',
                 system: 'http://tamanu.io/data-dictionary/application-reference-number.html',
-                use: 'official',
+                use: 'usual',
                 value: patient.displayId,
               },
               {

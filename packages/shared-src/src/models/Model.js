@@ -20,6 +20,8 @@ const MARKED_FOR_PUSH_MODELS = [
   'UserFacility',
   'DocumentMetadata',
   'CertificateNotification',
+  'PatientDeathData',
+  'DeathCause',
 ];
 
 export class Model extends sequelize.Model {

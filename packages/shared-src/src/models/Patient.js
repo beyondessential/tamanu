@@ -84,7 +84,8 @@ export class Patient extends Model {
 
   async getAdministeredVaccines(queryOptions) {
     const { models } = this.sequelize;
-    return models.AdministeredVaccine.findAll({
+    const certifiableVaccineIds = await models.CertifiableVaccine.allVaccineIds();
+    const results = await models.AdministeredVaccine.findAll({
       raw: true,
       nest: true,
       ...queryOptions,
@@ -104,8 +105,24 @@ export class Patient extends Model {
           as: 'scheduledVaccine',
           include: models.ScheduledVaccine.getListReferenceAssociations(),
         },
+        {
+          model: models.User,
+          as: 'giver',
+        },
+        {
+          model: models.Location,
+          as: 'location',
+        },
       ],
     });
+
+    for (const result of results) {
+      if (certifiableVaccineIds.includes(result.scheduledVaccine.vaccineId)) {
+        result.certifiable = true;
+      }
+    }
+
+    return results;
   }
 
   async getCovidLabTests(queryOptions) {

@@ -42,13 +42,12 @@ export const ReferralFormListScreen = (): ReactElement => {
           }}
           showsVerticalScrollIndicator={false}
           data={surveys}
-          keyExtractor={(item): string => item.title}
+          keyExtractor={(item): string => item.id}
           renderItem={({ item }): ReactElement => (
             <MenuOptionButton
               title={item.name}
               onPress={(): void => onNavigateToSurvey(item)}
               fontWeight={500}
-              textColor={theme.colors.TEXT_SUPER_DARK}
             />
           )}
           ItemSeparatorComponent={Separator}

@@ -16,13 +16,14 @@ import { useAuth } from '../../contexts/Auth';
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  flex: 1;
   background: ${Colors.primaryDark};
   min-width: 260px;
-  max-width: 320px;
+  max-width: 280px;
   padding: 0 15px;
   box-shadow: 1px 0 4px rgba(0, 0, 0, 0.15);
   color: ${Colors.white};
+  overflow: auto;
+  height: 100vh;
 
   i {
     color: ${Colors.white};
@@ -98,6 +99,16 @@ const permissionCheck = (child, parent) => {
   return checkAbility(ability);
 };
 
+// currentPath - the current route. eg. /programs/covid-19/patients
+// menuItemPath - the configured routes that are displayed in the sidebar. eg /patients
+const isHighlighted = (currentPath, menuItemPath, sectionIsOpen) => {
+  // remove leading slashes to get a like for like comparison
+  const sectionPath = currentPath.replace(/^\/|\/$/g, '').split('/')[0];
+  const itemPath = menuItemPath.replace(/^\/|\/$/g, '');
+  // If the section is open, the child menu item is highlighted and the top level menu item is not
+  return sectionPath === itemPath && !sectionIsOpen;
+};
+
 export const Sidebar = React.memo(({ items }) => {
   const [selectedParentItem, setSelectedParentItem] = useState('');
   const { facility, currentUser, onLogout } = useAuth();
@@ -124,7 +135,9 @@ export const Sidebar = React.memo(({ items }) => {
           <PrimarySidebarItem
             icon={item.icon}
             label={item.label}
+            divider={item.divider}
             key={item.key}
+            highlighted={isHighlighted(currentPath, item.path, selectedParentItem === item.key)}
             selected={selectedParentItem === item.key}
             onClick={() => clickedParentItem(item)}
           >
