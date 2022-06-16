@@ -106,3 +106,4 @@ export function getReportModule(reportType) {
 }
 
 export { REPORT_DEFINITIONS } from './reportDefinitions';
+export { REPORT_OBJECTS } from './reportObjects';

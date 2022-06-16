@@ -1,6 +1,6 @@
 import React, { ReactElement, useCallback, useContext, useEffect, useState } from 'react';
 import { activateKeepAwake, deactivateKeepAwake } from '@sayem314/react-native-keep-awake';
-import moment from 'moment/src/moment';
+import moment from 'moment';
 import { CenterView, StyledText, StyledView } from '../../../../styled/common';
 import { theme } from '../../../../styled/theme';
 import { Orientation, screenPercentageToDP, setStatusBar } from '../../../../helpers/screen';

@@ -28,6 +28,16 @@ export async function createEuDccVaccinationData(administeredVaccineId, { models
   const vaccination = await AdministeredVaccine.findByPk(administeredVaccineId, {
     include: [
       {
+        model: Location,
+        as: 'location',
+        include: [
+          {
+            model: Facility,
+            as: 'facility',
+          },
+        ],
+      },
+      {
         model: Encounter,
         as: 'encounter',
         include: [
@@ -71,6 +81,7 @@ export async function createEuDccVaccinationData(administeredVaccineId, { models
   const {
     id,
     date,
+    location,
     scheduledVaccine: {
       schedule,
       vaccine: { id: vaccineId },
@@ -78,10 +89,12 @@ export async function createEuDccVaccinationData(administeredVaccineId, { models
     encounter: {
       patient,
       location: {
-        facility: { name: facilityName },
+        facility: { name: encounterFacilityName },
       },
     },
   } = vaccination;
+
+  const facilityName = location?.facility?.name ?? encounterFacilityName;
 
   const certVax = await CertifiableVaccine.findOne({
     where: {

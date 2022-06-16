@@ -27,7 +27,7 @@ export class ScheduledVaccine extends BaseModel implements IScheduledVaccine {
   @ReferenceDataRelation()
   vaccine: ReferenceData
   @RelationId(({ vaccine }) => vaccine)
-  vaccineId?: string;
+  vaccineId: string;
 
   @OneToMany(() => AdministeredVaccine, administeredVaccine => administeredVaccine.scheduledVaccine)
   administeredVaccines: AdministeredVaccine[];

@@ -10,7 +10,12 @@ const convertAutocompleteAnswer = async (models, componentConfig, answer) => {
     return answer;
   }
 
-  const result = await models[componentConfig.source].findByPk(answer);
+  const model = models[componentConfig.source];
+  if (!model) {
+    throw new Error(`no model for componentConfig ${JSON.stringify(componentConfig)}`);
+  }
+
+  const result = await model.findByPk(answer);
   if (!result) {
     return answer;
   }
@@ -81,6 +86,7 @@ export const transformAnswers = async (
     const type =
       dataElementIdToComponent[dataElementId]?.dataElement?.dataValues?.type || 'unknown';
     const componentConfig = autocompleteComponentMap.get(dataElementId);
+
     const body = await getAnswerBody(models, componentConfig, type, answer.body, transformConfig);
     const answerObject = {
       surveyId,

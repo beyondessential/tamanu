@@ -31,14 +31,14 @@ export const FACILITY_MENU_ITEMS = [
         ability: { action: 'read' },
       },
       {
-        label: 'Emergency Patients',
-        color: '#F9BA5B',
+        label: 'Emergency patients',
+        color: Colors.orange,
         path: '/patients/triage',
         ability: { action: 'read' },
       },
       {
         label: 'Outpatients',
-        color: Colors.orange,
+        color: '#F9BA5B',
         path: '/patients/outpatient',
         ability: { action: 'read' },
       },
@@ -52,17 +52,17 @@ export const FACILITY_MENU_ITEMS = [
     ability: { subject: 'appointment' },
     children: [
       {
-        label: 'Upcoming Appointments',
+        label: 'Upcoming appointments',
         path: '/appointments',
         ability: { action: 'read' },
       },
       {
-        label: 'Appointments Calendar',
+        label: 'Appointments calendar',
         path: '/appointments/calendar',
         ability: { action: 'read' },
       },
       {
-        label: 'New Appointment',
+        label: 'New appointment',
         path: '/appointments/appointment/new',
         ability: { action: 'create' },
       },
@@ -86,7 +86,7 @@ export const FACILITY_MENU_ITEMS = [
         ability: { action: 'read' },
       },
       {
-        label: 'New Request',
+        label: 'New request',
         path: '/medication/request',
         ability: { action: 'create' },
       },
@@ -115,7 +115,7 @@ export const FACILITY_MENU_ITEMS = [
         ability: { action: 'read' },
       },
       {
-        label: 'New Request',
+        label: 'New request',
         path: '/imaging/request',
         ability: { action: 'create' },
       },
@@ -139,9 +139,26 @@ export const FACILITY_MENU_ITEMS = [
         ability: { action: 'read' },
       },
       {
-        label: 'New Request',
+        label: 'New request',
         path: '/labs/edit/new',
         ability: { action: 'create' },
+      },
+    ],
+  },
+  {
+    key: 'immunisations',
+    label: 'Immunisation',
+    path: '/immunisations',
+    icon: vaccineIcon,
+    ability: { action: 'read' },
+    children: [
+      {
+        label: 'Immunisation register',
+        path: `/immunisations/`,
+      },
+      {
+        label: 'COVID campaign',
+        path: `/immunisations/covid`,
       },
     ],
   },
@@ -166,25 +183,45 @@ export const FACILITY_MENU_ITEMS = [
     ability: { action: 'read', subject: 'report' },
     children: [
       {
-        label: 'Report Generator',
+        label: 'Report generator',
         path: `/reports/`,
       },
     ],
   },
   {
-    key: 'immunisations',
-    label: 'Immunisation',
-    path: '/immunisations',
-    icon: vaccineIcon,
-    ability: { action: 'read' },
+    key: 'admin',
+    label: 'Administration',
+    path: '/admin',
+    icon: administrationIcon,
+    divider: true,
+    ability: { subject: 'user', action: 'read' },
     children: [
       {
-        label: 'Immunisation Register',
-        path: `/immunisations/`,
+        label: 'Settings',
+        path: '/admin/settings',
       },
       {
-        label: 'COVID Campaign',
-        path: `/immunisations/covid`,
+        label: 'Users',
+        path: '/admin/users',
+        ability: { action: 'read', subject: 'user' },
+      },
+      {
+        label: 'Locations',
+        path: '/admin/locations',
+        ability: { action: 'read', subject: 'location' },
+      },
+      {
+        label: 'Permissions',
+        path: '/admin/permissions',
+        ability: { action: 'read', subject: 'userRole' },
+      },
+      {
+        label: 'Programs',
+        path: '/admin/programs',
+      },
+      {
+        label: 'Data import',
+        path: '/admin/refdata',
       },
     ],
   },

@@ -37,7 +37,7 @@ export const ResetPasswordFields = ({
         component={TextField}
         label="Email"
       />
-      <ServerSelector />
+      {/* <ServerSelector /> */}
     </StyledView>
     <Button
       marginTop={20}

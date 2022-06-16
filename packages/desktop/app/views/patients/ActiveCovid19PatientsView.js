@@ -8,10 +8,14 @@ import Paper from '@material-ui/core/Paper';
 import { useApi } from '../../api';
 import { viewPatient } from '../../store/patient';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
-import { TopBar, PageContainer, DataFetchingTable } from '../../components';
-import { DateDisplay } from '../../components/DateDisplay';
+import {
+  TopBar,
+  CovidPatientsSearchBar,
+  PageContainer,
+  DataFetchingTable,
+  DateDisplay,
+} from '../../components';
 import { CLINICAL_STATUSES, CLINICAL_COLORS_BY_STATUS, Colors } from '../../constants';
-import { PatientSearchBar } from './components';
 
 const getClinicalStatusCellColor = ({ clinicalStatus }) =>
   CLINICAL_COLORS_BY_STATUS[clinicalStatus];
@@ -176,6 +180,7 @@ export const ActiveCovid19PatientsView = React.memo(() => {
   const [data, setData] = useState([]);
   const [searchParameters, setSearchParameters] = useState({});
   const [patientsByClinicalStatus, setPatientsByClinicalStatus] = useState({});
+
   useEffect(() => {
     (async () => {
       const activeCovid19PatientsData = await api.get(ENDPOINT);
@@ -184,21 +189,10 @@ export const ActiveCovid19PatientsView = React.memo(() => {
     })();
   }, [api]);
 
-  const fields = [
-    'firstName',
-    'lastName',
-    'villageId',
-    'displayId',
-    'dateOfBirthFrom',
-    'dateOfBirthTo',
-    'dateOfBirthExact',
-    ['clinicalStatus', { placeholder: 'Clinical status' }],
-  ];
-
   return (
     <PageContainer>
       <TopBar title="Active COVID-19 patients" />
-      <PatientSearchBar onSearch={setSearchParameters} fields={fields} />
+      <CovidPatientsSearchBar onSearch={setSearchParameters} />
       <StatisticsRow>
         <PatientsSummaryCard
           title={CLINICAL_STATUSES.CRITICAL}

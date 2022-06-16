@@ -1,10 +1,11 @@
 import { promises } from 'fs';
 import qs from 'qs';
 
+import { buildAbility } from 'shared/permissions/buildAbility';
 import { VERSION_COMPATIBILITY_ERRORS, SERVER_TYPES } from 'shared/constants';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 
-const { HOST, TOKEN, LOCALISATION, SERVER } = LOCAL_STORAGE_KEYS;
+const { HOST, TOKEN, LOCALISATION, SERVER, PERMISSIONS } = LOCAL_STORAGE_KEYS;
 
 const getResponseJsonSafely = async response => {
   try {
@@ -62,20 +63,23 @@ function restoreFromLocalStorage() {
   const token = localStorage.getItem(TOKEN);
   const localisation = safeGetStoredJSON(LOCALISATION);
   const server = safeGetStoredJSON(SERVER);
+  const permissions = safeGetStoredJSON(PERMISSIONS);
 
-  return { token, localisation, server };
+  return { token, localisation, server, permissions };
 }
 
-function saveToLocalStorage({ token, localisation, server }) {
+function saveToLocalStorage({ token, localisation, server, permissions }) {
   localStorage.setItem(TOKEN, token);
   localStorage.setItem(LOCALISATION, JSON.stringify(localisation));
   localStorage.setItem(SERVER, JSON.stringify(server));
+  localStorage.setItem(PERMISSIONS, JSON.stringify(permissions));
 }
 
 function clearLocalStorage() {
   localStorage.removeItem(TOKEN);
   localStorage.removeItem(LOCALISATION);
   localStorage.removeItem(SERVER);
+  localStorage.removeItem(PERMISSIONS);
 }
 
 export class TamanuApi {
@@ -109,13 +113,14 @@ export class TamanuApi {
   }
 
   async restoreSession() {
-    const { token, localisation, server } = restoreFromLocalStorage();
+    const { token, localisation, server, permissions } = restoreFromLocalStorage();
     if (!token) {
       throw new Error('No stored session found.');
     }
     this.setToken(token);
     const user = await this.get('user/me');
-    return { user, token, localisation, server };
+    const ability = buildAbility(permissions);
+    return { user, token, localisation, server, ability };
   }
 
   async login(host, email, password) {
@@ -128,13 +133,15 @@ export class TamanuApi {
 
     const { token, localisation, server = {}, permissions } = await response.json();
     server.type = serverType;
-    saveToLocalStorage({ token, localisation, server });
+    saveToLocalStorage({ token, localisation, server, permissions });
     this.setToken(token);
     this.lastRefreshed = Date.now();
 
     const user = await this.get('user/me');
     this.user = user;
-    return { user, token, localisation, server, permissions };
+
+    const ability = buildAbility(permissions);
+    return { user, token, localisation, server, ability };
   }
 
   async requestPasswordReset(host, email) {

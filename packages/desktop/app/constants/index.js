@@ -366,6 +366,7 @@ export const LOCAL_STORAGE_KEYS = {
   LOCALISATION: 'localisation',
   SERVER: 'server',
   REMEMBER_EMAIL: 'remember-email',
+  PERMISSIONS: 'permissions',
 };
 
 export const REPORT_DATA_SOURCES = {

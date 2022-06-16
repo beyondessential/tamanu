@@ -210,4 +210,6 @@ export const admin = [
 
   { verb: 'read', noun: 'Signer' },
   { verb: 'write', noun: 'Signer' },
+
+  { verb: 'run', noun: 'Report' },
 ];

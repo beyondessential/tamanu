@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-
-import { TopBar, PageContainer, DataFetchingTable } from '../../components';
+import { TopBar, PageContainer, DataFetchingTable, PatientSearchBar } from '../../components';
 import {
   displayId,
   firstName,
@@ -11,7 +10,7 @@ import {
   dateOfBirth,
   vaccinationStatus,
 } from './columns';
-import { PatientSearchBar, PatientImmunisationsModal } from './components';
+import { PatientImmunisationsModal } from './components';
 
 const COLUMNS = [
   displayId,

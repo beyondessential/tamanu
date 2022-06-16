@@ -127,7 +127,7 @@ export const MedicationForm = React.memo(
               </div>
               <Field
                 name="prescription"
-                label="Prescription"
+                label="Instructions"
                 component={TextField}
                 required={!readOnly}
                 disabled={readOnly}
