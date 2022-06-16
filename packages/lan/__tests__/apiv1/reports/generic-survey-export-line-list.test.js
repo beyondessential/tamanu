@@ -158,7 +158,6 @@ describe('Generic survey export', () => {
       const result = await app.post(REPORT_URL).send({
         parameters: {
           surveyId: SURVEY_ID,
-          village: unexpectedVillage.id,
         },
       });
       expect(result).toHaveSucceeded();
