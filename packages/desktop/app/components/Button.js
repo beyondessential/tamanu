@@ -150,6 +150,12 @@ export const NewButton = ({ children, ...props }) => (
   </Button>
 );
 
+export const ViewButton = props => (
+  <Button variant="contained" color="primary" {...props}>
+    View
+  </Button>
+);
+
 const StyledTextButton = styled(Button)`
   font-size: 16px;
   text-transform: capitalize;
