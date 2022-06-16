@@ -174,7 +174,7 @@ describe('Generic survey export', () => {
             'Submission Time': format(getExpectedDate(date3), 'yyyy-MM-dd HH:mm'),
           },
         ],
-        { partialMatch: true },
+        { partialMatching: true },
       );
     });
 
