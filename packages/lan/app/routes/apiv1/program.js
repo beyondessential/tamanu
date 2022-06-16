@@ -19,13 +19,9 @@ program.get(
     });
 
     // Don't include programs that don't have any permitted survey to submit
-    const filteredRecords = records.filter(({ surveys }) => {
-      const hasAtLeastOnePermittedSurvey = surveys.some(survey => {
-        return ability.can('submit', survey);
-      });
-
-      return hasAtLeastOnePermittedSurvey;
-    });
+    const canSubmit = survey => ability.can('submit', survey);
+    const hasAnySurveys = program => program.surveys.some(canSubmit);
+    const filteredRecords = records.filter(hasAnySurveys);
     const data = filteredRecords.map(x => x.forResponse());
 
     res.send({
