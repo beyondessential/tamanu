@@ -1,14 +1,11 @@
-const NodemonPlugin = require('nodemon-webpack-plugin');
-const baseConfig = require('./webpack.config');
+import baseConfig from '../common-configs/webpack.config.mjs';
+import NodemonPlugin from 'nodemon-webpack-plugin';
 
-module.exports = {
+export default {
   ...baseConfig,
   devtool: 'eval',
-  target: 'node',
   mode: 'development',
-  watch: true,
   plugins: [
-    ...baseConfig.plugins,
     new NodemonPlugin({
       delay: 500,
       watch: ['./dist', './config', '../shared'],
