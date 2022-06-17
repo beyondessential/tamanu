@@ -1,18 +1,19 @@
 import express from 'express';
 
-import { importProgram } from '../../admin/importProgram';
-import { importData } from '../../admin/importDataDefinition';
-import { createDataImporterEndpoint } from '../../admin/createDataImporterEndpoint';
+import { importProgram } from './importProgram';
+import { importData } from './importDataDefinition';
+import { createDataImporterEndpoint } from './createDataImporterEndpoint';
 
-export const admin = express.Router();
+export const adminRoutes = express.Router();
 
-admin.use((req, res, next) => {
-  req.checkPermission('write', 'User');
-  req.checkPermission('write', 'ReferenceData');
-  req.checkPermission('write', 'Program');
-  req.checkPermission('write', 'Survey');
+adminRoutes.use((req, res, next) => {
+  // req.checkPermission isn't implemented on sync-server yet
+  // req.checkPermission('write', 'User');
+  // req.checkPermission('write', 'ReferenceData');
+  // req.checkPermission('write', 'Program');
+  // req.checkPermission('write', 'Survey');
   next();
 });
 
-admin.post('/importProgram', createDataImporterEndpoint(importProgram));
-admin.post('/importData', createDataImporterEndpoint(importData));
+adminRoutes.post('/importProgram', createDataImporterEndpoint(importProgram));
+adminRoutes.post('/importData', createDataImporterEndpoint(importData));
