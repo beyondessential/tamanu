@@ -15,7 +15,7 @@ export const chunkRows = rows => {
 export const createImportPlan = (sequelize, channel) =>
   sequelize.channelRouter(channel, (model, params, channelRoute) => {
     const relationTree = propertyPathsToTree(model.syncConfig.includedRelations);
-    const validateRecord = record => channelRoute.validateChannel(record, params);
+    const validateRecord = record => channelRoute.validateRecordParams(record, params);
     return createImportPlanInner(model, relationTree, validateRecord);
   });
 
