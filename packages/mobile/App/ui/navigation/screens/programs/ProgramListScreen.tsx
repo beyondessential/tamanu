@@ -1,4 +1,4 @@
-import React, { useCallback, ReactElement, useContext } from 'react';
+import React, { useCallback, ReactElement } from 'react';
 import { FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { FullView } from '/styled/common';
@@ -14,7 +14,7 @@ import { joinNames } from '/helpers/user';
 import { useBackendEffect } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { Survey } from '~/models/Survey';
-import AuthContext from '~/ui/contexts/AuthContext';
+import { useAuth } from '~/ui/contexts/AuthContext';
 
 interface ProgramListScreenProps {
   selectedPatient: IPatient;
@@ -22,7 +22,7 @@ interface ProgramListScreenProps {
 
 const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
   const navigation = useNavigation();
-  const { ability } = useContext(AuthContext);
+  const { ability } = useAuth();
 
   const [surveys, error] = useBackendEffect(({ models }) => models.Survey.find({
     surveyType: SurveyTypes.Programs,

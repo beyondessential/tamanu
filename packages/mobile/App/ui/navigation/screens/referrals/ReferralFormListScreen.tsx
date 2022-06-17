@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement } from 'react';
 import { FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { FullView } from '/styled/common';
@@ -9,11 +9,11 @@ import { Routes } from '/helpers/routes';
 import { SurveyTypes } from '~/types';
 import { useBackendEffect } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
-import AuthContext from '~/ui/contexts/AuthContext';
+import { useAuth } from '~/ui/contexts/AuthContext';
 
 export const ReferralFormListScreen = (): ReactElement => {
   const navigation = useNavigation();
-  const { ability } = useContext(AuthContext);
+  const { ability } = useAuth();
 
   const [surveys, error] = useBackendEffect(({ models }) => models.Survey.find({
     surveyType: SurveyTypes.Referral,

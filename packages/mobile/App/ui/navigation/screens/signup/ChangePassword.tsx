@@ -1,10 +1,9 @@
-import React, { FunctionComponent, ReactElement, useCallback, useContext, useState } from 'react';
+import React, { FunctionComponent, ReactElement, useCallback, useState } from 'react';
 import { KeyboardAvoidingView, StatusBar } from 'react-native';
 import {
   StyledView,
   StyledSafeAreaView,
   FullView,
-  RowView,
   ColumnView,
   StyledTouchableOpacity,
   StyledText,
@@ -15,12 +14,12 @@ import { ChangePasswordForm } from '/components/Forms/ChangePasswordForm/ChangeP
 import { Routes } from '/helpers/routes';
 import { ModalInfo } from '/components/ModalInfo';
 import { ChangePasswordFormModel } from '~/ui/interfaces/forms/ChangePasswordFormProps';
-import AuthContext from '~/ui/contexts/AuthContext';
+import { useAuth } from '~/ui/contexts/AuthContext';
 import { Button } from '/components/Button';
 import { ChangePasswordProps } from '/interfaces/Screens/SignUp/ChangePasswordProps';
 
 export const ChangePassword: FunctionComponent<any> = ({ navigation }: ChangePasswordProps) => {
-  const authCtx = useContext(AuthContext);
+  const authCtx = useAuth();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
