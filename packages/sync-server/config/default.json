@@ -458,7 +458,15 @@
       // This is tightly-bound to the source, you can't really *add* IDs to this list,
       // but you can *remove* some if needed. The list is here so it can be shared
       // between the sync server and the desktop.
-      "covidVaccines": ["drug-COVID-19-Astra-Zeneca", "drug-COVID-19-Pfizer"],
+      "covidVaccines": [
+        "drug-COVID-19-Astra-Zeneca", // Samoa, Nauru
+        "drug-COVID-19-Astra-ZenecaBooster", // Nauru
+        "drug-COVID-19-Pfizer", // Samoa, Nauru
+        "drug-COVID-19-PfizerBooster", // Nauru
+        "drug-COVID-19-Moderna", // Samoa
+        "drug-COVID-19-AZ", // Tuvalu
+        "drug-COVID-19Pfizer" // Tuvalu
+      ],
 
       "sync": {
         "syncAllEncountersForTheseScheduledVaccines": []
