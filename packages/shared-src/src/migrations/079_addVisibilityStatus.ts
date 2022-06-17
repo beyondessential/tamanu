@@ -17,6 +17,7 @@ export async function up(query: QueryInterface) {
       {
         type: Sequelize.TEXT,
         defaultValue: 'current',
+        allowNull: false,
       },
     );
   }
