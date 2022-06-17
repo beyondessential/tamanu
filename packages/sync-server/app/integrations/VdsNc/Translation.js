@@ -55,7 +55,13 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
   const vaccinations = await AdministeredVaccine.findAll({
     where: {
       '$encounter.patient_id$': patientId,
-      '$scheduledVaccine.label$': ['COVID-19 AZ', 'COVID-19 Pfizer'],
+      '$scheduledVaccine.label$': [
+        'COVID-19 AZ', // Samoa
+        'COVID-19-AstraZeneca', // Nauru
+        'COVID-19-AZ', // Tuvalu
+        'COVID-19 Moderna', // Samoa
+        'COVID-19 Pfizer', // Samoa, Nauru, Tuvalu
+      ],
       status: 'GIVEN',
     },
     include: [
