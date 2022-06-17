@@ -3,6 +3,6 @@ module.exports = {
     '^.+\\.js$': '<rootDir>/jest.babel.js',
   },
   testRegex: '(\\.|/)(test|spec)\\.[jt]sx?$',
-  testEnvironment: 'node',
+  testEnvironment: 'jest-environment-node-single-context',
   collectCoverageFrom: ['app/**/*.js'],
 };
