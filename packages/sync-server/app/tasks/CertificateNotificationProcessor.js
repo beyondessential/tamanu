@@ -217,7 +217,7 @@ export class CertificateNotificationProcessor extends ScheduledTask {
           status: CERTIFICATE_NOTIFICATION_STATUSES.PROCESSED,
         });
       } catch (error) {
-        log.error(`Failed to process certificate notification id=${notification.id}: ${error}`);
+        log.error(`Failed to process certificate notification id=${notification.id}: ${error}\n${error.stack}`);
         await notification.update({
           status: CERTIFICATE_NOTIFICATION_STATUSES.ERROR,
           error: error.message,
