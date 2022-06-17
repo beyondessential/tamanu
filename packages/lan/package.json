@@ -31,7 +31,7 @@
     "eslint": "^5.15.2",
     "eslint-import-resolver-webpack": "^0.11.0",
     "eslint-plugin-import": "^2.22.1",
-    "jest": "^27.5.1",
+    "jest": "^28.1.1",
     "mocha": "^5.2.0",
     "nodemon": "^1.17.3",
     "nodemon-webpack-plugin": "^4.0.8",
@@ -42,7 +42,6 @@
     "webpack-node-externals": "^3.0.0"
   },
   "dependencies": {
-    "core-js": "^3.23.1",
     "@casl/ability": "^4.1.0",
     "@react-pdf/renderer": "^2.1.1",
     "abort-controller": "^3.0.0",
@@ -59,6 +58,7 @@
     "compression": "^1.7.2",
     "config": "^3.0.1",
     "connect-flash": "^0.1.1",
+    "core-js": "^3.23.1",
     "date-fns": "^2.19.0",
     "excel-date-to-js": "^1.0.6",
     "express": "^4.16.2",
