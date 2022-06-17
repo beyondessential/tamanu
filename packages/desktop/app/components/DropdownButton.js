@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
-import Button from '@material-ui/core/Button';
-import ButtonGroup from '@material-ui/core/ButtonGroup';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
-import ClickAwayListener from '@material-ui/core/ClickAwayListener';
-import Paper from '@material-ui/core/Paper';
-import MenuItem from '@material-ui/core/MenuItem';
-import MuiPopper from '@material-ui/core/Popper';
-import MuiMenuList from '@material-ui/core/MenuList';
+import {
+  Button,
+  ButtonGroup,
+  ClickAwayListener,
+  Paper,
+  MenuItem,
+  Popper as MuiPopper,
+  MenuList as MuiMenuList,
+} from '@material-ui/core';
 import { Colors } from '../constants';
 
 const Container = styled.div`
@@ -102,7 +104,7 @@ const MenuList = styled(MuiMenuList)`
 
 export const DropdownButton = React.memo(({ variant, size, actions, ...props }) => {
   const [anchorEl, setAnchorEl] = useState(null);
-  const anchorRef = React.useRef(null);
+  const anchorRef = useRef(null);
 
   function handleClick(event, index) {
     actions[index].onClick(event);
@@ -117,14 +119,6 @@ export const DropdownButton = React.memo(({ variant, size, actions, ...props }) 
   };
 
   const [mainAction, ...otherActions] = actions;
-
-  if (!mainAction) {
-    return (
-      <MainButton {...props} variant="contained" color="primary" disabled>
-        No action
-      </MainButton>
-    );
-  }
 
   if (otherActions.length === 0) {
     return (
@@ -141,7 +135,7 @@ export const DropdownButton = React.memo(({ variant, size, actions, ...props }) 
     );
   }
 
-  const open = Boolean(anchorEl);
+  const isOpen = Boolean(anchorEl);
 
   return (
     <Container ref={anchorRef}>
@@ -158,7 +152,7 @@ export const DropdownButton = React.memo(({ variant, size, actions, ...props }) 
           <KeyboardArrowDownIcon />
         </MenuButton>
       </ButtonGroup>
-      <Popper open={open} anchorEl={anchorEl} placement="bottom-start">
+      <Popper open={isOpen} anchorEl={anchorEl} placement="bottom-start">
         <Paper elevation={0} variant="outlined">
           <ClickAwayListener onClickAway={handleClose}>
             <MenuList>
@@ -180,6 +174,12 @@ export const DropdownButton = React.memo(({ variant, size, actions, ...props }) 
 });
 
 DropdownButton.propTypes = {
+  actions: PropTypes.arrayOf(
+    PropTypes.shape({
+      label: PropTypes.string,
+      onClick: PropTypes.func,
+    }),
+  ).isRequired,
   variant: PropTypes.string,
   size: PropTypes.string,
 };
