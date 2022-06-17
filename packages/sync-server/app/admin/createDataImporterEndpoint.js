@@ -5,10 +5,9 @@ import config from 'config';
 import { log } from 'shared/services/logging';
 import { getUploadedData } from 'shared/utils/getUploadedData';
 
-import { sendSyncRequest } from './sendSyncRequest';
+import { createImportPlan, executeImportPlan } from 'shared/models/sync';
 
 import { preprocessRecordSet } from './preprocessRecordSet';
-import { WebRemote } from '../sync/WebRemote';
 
 // we can't use the lodash groupBy, because this needs to handle `undefined`
 function groupBy(array, key) {
@@ -31,26 +30,29 @@ function getChannelFromRecordType(recordType) {
   return recordType;
 }
 
-export async function sendRecordGroups(recordGroups) {
-  const remote = new WebRemote();
+export async function importRecordGroups(sequelize, recordGroups) {
   for (const [recordType, recordsForGroup] of recordGroups) {
     const recordsByChannel = groupBy(recordsForGroup, 'channel');
     const total = recordsForGroup.length;
     let completed = 0;
-    log.debug(`sendRecordGroups: sending ${total} records`);
+    log.debug(`importRecordGroups: importing ${total} records`);
     for (const [maybeChannel, recordsForChannel] of recordsByChannel) {
       const channel = maybeChannel || getChannelFromRecordType(recordType);
-      await sendSyncRequest(remote, channel, recordsForChannel);
+
+      const plan = createImportPlan(sequelize, channel);
+      executeImportPlan(plan, recordsForChannel);
+
       completed += recordsForChannel.length;
-      log.debug(`sendRecordGroups: sent ${completed} of ${total}`);
+      log.debug(`importRecordGroups: imported ${completed} of ${total}`);
     }
-    log.debug(`sendRecordGroups: finished sending ${total} records`);
+    log.debug(`importRecordGroups: finished importing ${total} records`);
   }
 }
 
 export function createDataImporterEndpoint(importer) {
   return asyncHandler(async (req, res) => {
     const start = Date.now();
+    const { store } = req;
 
     // read uploaded data
     const {
@@ -97,7 +99,7 @@ export function createDataImporterEndpoint(importer) {
     }
 
     // send to sync server in batches
-    await sendRecordGroups(recordGroups);
+    await importRecordGroups(store.sequelize, recordGroups);
 
     sendResult({ sentData: true });
   });

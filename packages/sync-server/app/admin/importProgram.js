@@ -170,13 +170,13 @@ export function importProgram({ file, whitelist }) {
 
   // detect if we're importing to home server
   const { homeServer = '', country } = programMetadata;
-  const { host } = config.sync;
+  const { canonicalHostName: host } = config;
 
   // ignore slashes when comparing servers - easiest way to account for trailing slashes that may or may not be present
   const importingToHome = !homeServer || homeServer.replace('/', '') === host.replace('/', '');
 
   if (!importingToHome) {
-    if (!host.match(/(dev|demo|staging)/)) {
+    if (!host.match(/(localhost|dev|demo|staging)/)) {
       throw new Error(
         `This workbook can only be imported to ${homeServer} or a non-production (dev/demo/staging) server. (nb: current server is ${host})`,
       );

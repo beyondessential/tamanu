@@ -1,12 +1,11 @@
 import express from 'express';
 
-import { createDataImporterEndpoint } from '../../admin/createDataImporterEndpoint';
+import { importData } from './importDataDefinition';
+import { importPermissions } from './importPermissions';
+import { importProgram } from './importProgram';
+import { createDataImporterEndpoint } from './createDataImporterEndpoint';
 
-import { importProgram } from '../../admin/importProgram';
-import { importData } from '../../admin/importDataDefinition';
-import { importPermissions } from '../../admin/importPermissions';
-
-export const admin = express.Router();
+export const adminRoutes = express.Router();
 
 admin.use((req, res, next) => {
   req.checkPermission('write', 'User');
@@ -18,6 +17,6 @@ admin.use((req, res, next) => {
   next();
 });
 
-admin.post('/importProgram', createDataImporterEndpoint(importProgram));
-admin.post('/importData', createDataImporterEndpoint(importData));
-admin.post('/importPermissions', createDataImporterEndpoint(importPermissions));
+adminRoutes.post('/importData', createDataImporterEndpoint(importData));
+adminRoutes.post('/importPermissions', createDataImporterEndpoint(importPermissions));
+adminRoutes.post('/importProgram', createDataImporterEndpoint(importProgram));
