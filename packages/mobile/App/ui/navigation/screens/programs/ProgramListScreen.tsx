@@ -28,11 +28,7 @@ const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
     surveyType: SurveyTypes.Programs,
   }));
 
-  const filteredSurveys = surveys?.filter(survey => {
-    const isProgramVisible = survey.programId !== 'program-hidden_forms'; // TODO: hack until we can delete surveys from server
-    const hasPermission = ability.can('submit', survey);
-    return isProgramVisible && hasPermission;
-  });
+  const filteredSurveys = surveys?.filter(survey => survey.shouldShowInList(ability));
 
   const goBack = useCallback(() => {
     navigation.goBack();
