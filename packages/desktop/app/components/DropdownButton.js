@@ -5,8 +5,9 @@ import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
-import MuiPaper from '@material-ui/core/Paper';
+import Paper from '@material-ui/core/Paper';
 import MenuItem from '@material-ui/core/MenuItem';
+import MuiPopper from '@material-ui/core/Popper';
 import MuiMenuList from '@material-ui/core/MenuList';
 import { Colors } from '../constants';
 
@@ -77,12 +78,10 @@ const MenuButton = styled(Button)`
   }
 `;
 
-const Paper = styled(MuiPaper)`
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
+const Popper = styled(MuiPopper)`
   margin-top: 2px;
+  z-index: 9999;
+  min-width: ${props => (props.anchorEl ? `${props.anchorEl.offsetWidth}px` : `${0}`)};
 `;
 
 const MenuList = styled(MuiMenuList)`
@@ -91,8 +90,8 @@ const MenuList = styled(MuiMenuList)`
 
   .MuiListItem-root {
     padding: 6px 6px 6px 12px;
-    font-size: 12px;
-    line-height: 15px;
+    font-size: 14px;
+    line-height: 1.4;
     white-space: initial;
 
     &:hover {
@@ -102,20 +101,19 @@ const MenuList = styled(MuiMenuList)`
 `;
 
 export const DropdownButton = React.memo(({ variant, size, actions, ...props }) => {
-  const [open, setOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const anchorRef = React.useRef(null);
 
   function handleClick(event, index) {
-    setOpen(false);
     actions[index].onClick(event);
   }
 
-  const handleToggle = event => {
-    event.stopPropagation();
-    setOpen(prev => !prev);
+  const handleToggle = () => {
+    setAnchorEl(anchorEl ? null : anchorRef.current);
   };
 
   const handleClose = () => {
-    setOpen(false);
+    setAnchorEl(null);
   };
 
   const [mainAction, ...otherActions] = actions;
@@ -143,8 +141,10 @@ export const DropdownButton = React.memo(({ variant, size, actions, ...props }) 
     );
   }
 
+  const open = Boolean(anchorEl);
+
   return (
-    <Container>
+    <Container ref={anchorRef}>
       <ButtonGroup
         variant={variant}
         size={size}
@@ -158,7 +158,7 @@ export const DropdownButton = React.memo(({ variant, size, actions, ...props }) 
           <KeyboardArrowDownIcon />
         </MenuButton>
       </ButtonGroup>
-      {open && (
+      <Popper open={open} anchorEl={anchorEl} placement="bottom-start">
         <Paper elevation={0} variant="outlined">
           <ClickAwayListener onClickAway={handleClose}>
             <MenuList>
@@ -174,7 +174,7 @@ export const DropdownButton = React.memo(({ variant, size, actions, ...props }) 
             </MenuList>
           </ClickAwayListener>
         </Paper>
-      )}
+      </Popper>
     </Container>
   );
 });
