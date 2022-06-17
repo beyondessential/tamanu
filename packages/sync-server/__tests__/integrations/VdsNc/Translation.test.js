@@ -211,7 +211,7 @@ describe('VDS: Proof of Vaccination', () => {
     const scheduledAz4 = await ScheduledVaccine.create({
       ...fake(ScheduledVaccine),
       label: 'COVID-19 AZ',
-      schedule: 'Extra Booster',
+      schedule: 'Dose 4',
       vaccineId: azVaxDrug.id,
     });
 
