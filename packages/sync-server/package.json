@@ -34,7 +34,7 @@
     "@babel/preset-env": "^7.17.12",
     "@beyondessential/eslint-config-js": "^1.1.0",
     "ajv": "^8.6.3",
-    "babel-jest": "^27.5.1",
+    "babel-jest": "^28.1.1",
     "babel-loader": "^8.2.5",
     "chai": "^4.1.2",
     "eslint": "^5.15.2",
