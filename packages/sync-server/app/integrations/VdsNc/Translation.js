@@ -51,7 +51,10 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
   const { firstName, lastName, dateOfBirth, sex } = await Patient.findOne({
     where: { id: patientId },
   });
-  const { passport } = await PatientAdditionalData.findOne({ where: { patientId } });
+
+  const pad = await PatientAdditionalData.findOne({ where: { patientId } });
+  const passport = pad?.passport;
+
   const vaccinations = await AdministeredVaccine.findAll({
     where: {
       '$encounter.patient_id$': patientId,
