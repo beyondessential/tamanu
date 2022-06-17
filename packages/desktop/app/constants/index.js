@@ -428,8 +428,3 @@ export const INVOICE_PAYMENT_STATUS_OPTIONS = [
   { label: 'Unpaid', value: INVOICE_PAYMENT_STATUSES.UNPAID },
   { label: 'Paid', value: INVOICE_PAYMENT_STATUSES.PAID },
 ];
-
-export const VISIBILITY_STATUSES = {
-  CURRENT: 'current',
-  HISTORICAL: 'historical',
-};
