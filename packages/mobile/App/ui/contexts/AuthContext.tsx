@@ -171,4 +171,5 @@ const Provider = ({
 };
 
 export const AuthProvider = compose(withAuth)(Provider);
+export const useAuth = (): AuthContextData => useContext(AuthContext);
 export default AuthContext;

@@ -9,13 +9,17 @@ import { Routes } from '/helpers/routes';
 import { SurveyTypes } from '~/types';
 import { useBackendEffect } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
+import { useAuth } from '~/ui/contexts/AuthContext';
 
 export const ReferralFormListScreen = (): ReactElement => {
   const navigation = useNavigation();
+  const { ability } = useAuth();
 
   const [surveys, error] = useBackendEffect(({ models }) => models.Survey.find({
     surveyType: SurveyTypes.Referral,
   }));
+
+  const filteredSurveys = surveys?.filter(survey => survey.shouldShowInList(ability));
 
   const onNavigateToSurvey = (survey): any => {
     navigation.navigate(
@@ -41,7 +45,7 @@ export const ReferralFormListScreen = (): ReactElement => {
             backgroundColor: theme.colors.BACKGROUND_GREY,
           }}
           showsVerticalScrollIndicator={false}
-          data={surveys}
+          data={filteredSurveys}
           keyExtractor={(item): string => item.id}
           renderItem={({ item }): ReactElement => (
             <MenuOptionButton

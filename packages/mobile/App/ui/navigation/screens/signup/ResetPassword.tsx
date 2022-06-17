@@ -1,10 +1,9 @@
-import React, { FunctionComponent, ReactElement, useCallback, useContext, useState } from 'react';
+import React, { FunctionComponent, ReactElement, useCallback, useState } from 'react';
 import { KeyboardAvoidingView, StatusBar } from 'react-native';
 import {
   StyledView,
   StyledSafeAreaView,
   FullView,
-  RowView,
   ColumnView,
   StyledTouchableOpacity,
   StyledText,
@@ -16,11 +15,11 @@ import { ResetPasswordProps } from '/interfaces/Screens/SignUp/ResetPasswordProp
 import { Routes } from '/helpers/routes';
 import { ModalInfo } from '/components/ModalInfo';
 import { ResetPasswordFormModel } from '~/ui/interfaces/forms/ResetPasswordFormProps';
-import AuthContext from '~/ui/contexts/AuthContext';
+import { useAuth } from '~/ui/contexts/AuthContext';
 import { Button } from '/components/Button';
 
 export const ResetPassword: FunctionComponent<any> = ({ navigation }: ResetPasswordProps) => {
-  const authCtx = useContext(AuthContext);
+  const authCtx = useAuth();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
