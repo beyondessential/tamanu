@@ -1,6 +1,6 @@
 import { Sequelize, ValidationError } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
-import { REFERENCE_TYPE_VALUES, SYNC_DIRECTIONS } from 'shared/constants';
+import { REFERENCE_TYPE_VALUES, SYNC_DIRECTIONS, VISIBILITY_STATUSES } from 'shared/constants';
 import { Model } from './Model';
 
 export class ReferenceData extends Model {
@@ -18,6 +18,11 @@ export class ReferenceData extends Model {
         },
         name: {
           type: Sequelize.TEXT,
+          allowNull: false,
+        },
+        visibilityStatus: {
+          type: Sequelize.TEXT,
+          default: VISIBILITY_STATUSES.CURRENT,
           allowNull: false,
         },
       },

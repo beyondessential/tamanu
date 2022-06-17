@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS } from 'shared/constants';
+import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from 'shared/constants';
 import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
 
@@ -21,6 +21,11 @@ export class Location extends Model {
         },
         name: {
           type: Sequelize.STRING,
+          allowNull: false,
+        },
+        visibilityStatus: {
+          type: Sequelize.TEXT,
+          default: VISIBILITY_STATUSES.CURRENT,
           allowNull: false,
         },
       },
