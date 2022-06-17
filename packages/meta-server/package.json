@@ -17,10 +17,10 @@
     "lint-stats": "eslint app --format ../scripts/eslint-stats.js"
   },
   "devDependencies": {
-    "@babel/core": "^7.3.4",
-    "@babel/plugin-proposal-class-properties": "^7.3.4",
-    "@babel/plugin-proposal-export-default-from": "^7.2.0",
-    "@babel/preset-env": "^7.3.4",
+    "@babel/core": "^7.17.12",
+    "@babel/plugin-proposal-class-properties": "^7.17.12",
+    "@babel/plugin-proposal-export-default-from": "^7.17.12",
+    "@babel/preset-env": "^7.17.12",
     "@beyondessential/eslint-config-js": "^1.1.0",
     "babel-jest": "^27.5.1",
     "babel-loader": "^8.0.5",
