@@ -22,6 +22,28 @@
 
 - (left blank)
 
+## v1.16.2
+
+### Manual steps required after upgrade ⚙
+
+- (left blank)
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
+- (left blank)
+
+### Bug fixes 🐛
+
+- Added support for Moderna to VDS
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
 ## v1.16.1
 
 ### Bug fixes 🐛
