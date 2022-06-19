@@ -188,43 +188,6 @@ export const FACILITY_MENU_ITEMS = [
       },
     ],
   },
-  {
-    key: 'admin',
-    label: 'Administration',
-    path: '/admin',
-    icon: administrationIcon,
-    divider: true,
-    ability: { subject: 'user', action: 'read' },
-    children: [
-      {
-        label: 'Settings',
-        path: '/admin/settings',
-      },
-      {
-        label: 'Users',
-        path: '/admin/users',
-        ability: { action: 'read', subject: 'user' },
-      },
-      {
-        label: 'Locations',
-        path: '/admin/locations',
-        ability: { action: 'read', subject: 'location' },
-      },
-      {
-        label: 'Permissions',
-        path: '/admin/permissions',
-        ability: { action: 'read', subject: 'userRole' },
-      },
-      {
-        label: 'Programs',
-        path: '/admin/programs',
-      },
-      {
-        label: 'Data import',
-        path: '/admin/refdata',
-      },
-    ],
-  },
 ];
 
 export const SYNC_MENU_ITEMS = [
