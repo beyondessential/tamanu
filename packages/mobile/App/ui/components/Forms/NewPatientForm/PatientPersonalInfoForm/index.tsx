@@ -1,4 +1,4 @@
-import React, { useCallback, ReactElement } from 'react';
+import React, { ReactElement, useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { compose } from 'redux';
 import { Formik } from 'formik';
@@ -54,13 +54,9 @@ const getInitialValues = (isEdit: boolean, patient): {} => {
   };
 };
 
-export const FormComponent = ({
-  selectedPatient,
-  setSelectedPatient,
-  isEdit,
-}): ReactElement => {
+export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): ReactElement => {
   const navigation = useNavigation();
-  const onCreateNewPatient = useCallback(async (values) => {
+  const onCreateNewPatient = useCallback(async values => {
     // submit form to server for new patient
     const newPatient = await Patient.createAndSaveOne({
       ...values,
@@ -76,22 +72,25 @@ export const FormComponent = ({
     navigation.navigate(Routes.HomeStack.RegisterPatientStack.NewPatient);
   }, []);
 
-  const onEditPatient = useCallback(async (values) => {
-    // Update patient values (helper function uses .save()
-    // so it will mark the record for upload).
-    await Patient.updateValues(selectedPatient.id, values);
+  const onEditPatient = useCallback(
+    async values => {
+      // Update patient values (helper function uses .save()
+      // so it will mark the record for upload).
+      await Patient.updateValues(selectedPatient.id, values);
 
-    // Loading the instance is necessary to get all of the fields
-    // from the relations that were updated, not just their IDs.
-    const editedPatient = await Patient.findOne(selectedPatient.id);
+      // Loading the instance is necessary to get all of the fields
+      // from the relations that were updated, not just their IDs.
+      const editedPatient = await Patient.findOne(selectedPatient.id);
 
-    // Mark patient for sync and update redux state
-    await Patient.markForSync(editedPatient.id);
-    setSelectedPatient(editedPatient);
+      // Mark patient for sync and update redux state
+      await Patient.markForSync(editedPatient.id);
+      setSelectedPatient(editedPatient);
 
-    // Navigate back to patient details
-    navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index);
-  }, [navigation]);
+      // Navigate back to patient details
+      navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index);
+    },
+    [navigation],
+  );
 
   return (
     <FullView padding={10}>
@@ -110,10 +109,7 @@ export const FormComponent = ({
         initialValues={getInitialValues(isEdit, selectedPatient)}
       >
         {({ handleSubmit }): JSX.Element => (
-          <KeyboardAvoidingView
-            style={styles.KeyboardAvoidingView}
-            behavior="padding"
-          >
+          <KeyboardAvoidingView style={styles.KeyboardAvoidingView} behavior="padding">
             <ScrollView
               style={styles.ScrollView}
               contentContainerStyle={styles.ScrollViewContentContainer}
@@ -130,4 +126,6 @@ export const FormComponent = ({
   );
 };
 
-export const PatientPersonalInfoForm = compose(withPatient)(FormComponent);
+export const PatientPersonalInfoForm = compose<React.FC<{ isEdit?: boolean }>>(withPatient)(
+  FormComponent,
+);

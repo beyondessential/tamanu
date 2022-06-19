@@ -1,8 +1,5 @@
 import React, { ReactElement } from 'react';
-import {
-  createStackNavigator,
-  TransitionPresets,
-} from '@react-navigation/stack';
+import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
 // helpers
 import { Routes } from '/helpers/routes';
 // Screens
@@ -42,10 +39,9 @@ export const SignUpStack = (): ReactElement => (
         name={Routes.SignUpStack.RegisterAccountStep3}
         component={RegisterAccountStep3Container}
       />
-      <Stack.Screen
-        name={Routes.SignUpStack.SignIn}
-        component={SignIn}
-        options={TransitionStyle}
+      <Stack.Screen 
+        name={Routes.SignUpStack.SignIn} 
+        component={SignIn} options={TransitionStyle} 
       />
       {/*
       <Stack.Screen

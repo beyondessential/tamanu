@@ -1,34 +1,46 @@
 import React from 'react';
-import { StyledView, RowView } from '/styled/common';
-import { getOrientation, SCREEN_ORIENTATION } from '/helpers/screen';
+import { StyledView } from '/styled/common';
 import { DateField } from '../../DateField/DateField';
 import { Field } from '../FormField';
 import { TextField } from '../../TextField/TextField';
 import { CurrentUserField } from '../../CurrentUserField/CurrentUserField';
 import { FormSectionHeading } from '../FormSectionHeading';
+import { AutocompleteModalField } from '../../AutocompleteModal/AutocompleteModalField';
+import { Routes } from '~/ui/helpers/routes';
+import { Suggester } from '~/ui/helpers/suggester';
+import { useBackend } from '~/ui/hooks';
 
 export function VaccineFormNotGiven(): JSX.Element {
-  return getOrientation() === SCREEN_ORIENTATION.PORTRAIT ? (
-    <StyledView>
-      <FormSectionHeading text="Information" />
-      <Field component={DateField} name="date" label="Date" />
-      <Field component={TextField} name="reason" label="Reason" />
-      <CurrentUserField name="examiner" label="Examiner" />
-    </StyledView>
-  ) : (
+  const { models } = useBackend();
+  const userSuggester = new Suggester(
+    models.User,
+    {
+      column: 'displayName',
+    },
+    user => ({ label: user.displayName, value: user.id }),
+  );
+
+  return (
     <StyledView paddingTop={10}>
-      <FormSectionHeading text="Information" />
-      <RowView marginTop={10}>
-        <Field component={DateField} name="date" label="Date" />
-      </RowView>
-      <RowView marginTop={10} justifyContent="space-between">
-        <StyledView width="49%">
-          <Field component={TextField} name="reason" label="Reason" />
-        </StyledView>
-        <StyledView width="49%">
-          <CurrentUserField name="examiner" label="Examiner" />
-        </StyledView>
-      </RowView>
+      <FormSectionHeading text="Date" />
+      <Field component={DateField} name="date" label="Date" />
+      <FormSectionHeading text="Reason" />
+      <Field component={TextField} name="reason" label="Reason" />
+      <StyledView width="100%">
+        <FormSectionHeading text="Given by" />
+        <Field
+          component={AutocompleteModalField}
+          placeholder="Select practitioner"
+          suggester={userSuggester}
+          modalRoute={Routes.Autocomplete.Modal}
+          name="giverId"
+          marginTop={0}
+        />
+      </StyledView>
+      <StyledView width="100%">
+        <FormSectionHeading text="Recorded by" />
+        <CurrentUserField name="recorderId" />
+      </StyledView>
     </StyledView>
   );
 }

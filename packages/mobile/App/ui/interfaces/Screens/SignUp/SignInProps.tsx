@@ -1,5 +1,5 @@
-import { NavigationProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 
 export interface SignInProps {
-    navigation: NavigationProp<any>;
+    navigation: StackNavigationProp<any>;
 }

@@ -1,5 +1,6 @@
 import { Sequelize, Op } from 'sequelize';
 import { groupBy } from 'lodash';
+import { format } from 'date-fns';
 import { generateReportFromQueryData } from '../utilities';
 
 const parametersToSqlWhere = parameters => {
@@ -49,7 +50,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
   const reportColumnTemplate = [
     {
       title: 'Date',
-      accessor: data => data.testDate,
+      accessor: data => format(data.testDate, 'yyyy/MM/dd'),
     },
     {
       title: 'Total tests',

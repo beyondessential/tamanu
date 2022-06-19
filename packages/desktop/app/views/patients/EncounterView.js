@@ -4,7 +4,7 @@ import { push } from 'connected-react-router';
 import styled from 'styled-components';
 import { Divider } from '@material-ui/core';
 import { ENCOUNTER_TYPES } from 'shared/constants';
-import { Button, BackButton, TopBar, connectRoutedModal, Paper } from '../../components';
+import { Button, BackButton, TopBar, connectRoutedModal } from '../../components';
 import { ContentPane } from '../../components/ContentPane';
 import { DiagnosisView } from '../../components/DiagnosisView';
 import { DischargeModal } from '../../components/DischargeModal';

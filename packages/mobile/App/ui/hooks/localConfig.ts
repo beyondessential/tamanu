@@ -1,6 +1,5 @@
-import { IPatient } from '~/types';
-import { useBackendEffect, ResultArray } from '.';
+import { useBackendEffect } from '.';
 
-export const useRecentlyViewedPatients = (): ResultArray<IPatient[]> => useBackendEffect(
-  async ({ models }): Promise<string[]> => models.Patient.findRecentlyViewed(),
+export const useRecentlyViewedPatients = () => useBackendEffect(
+  async ({ models }) => models.Patient.findRecentlyViewed(),
 );
