@@ -188,28 +188,6 @@ export const FACILITY_MENU_ITEMS = [
       },
     ],
   },
-  {
-    key: 'admin',
-    label: 'Administration',
-    path: '/admin',
-    icon: administrationIcon,
-    divider: true,
-    ability: { subject: 'user', action: 'read' },
-    children: [
-      {
-        label: 'Permissions',
-        path: '/admin/permissions',
-      },
-      {
-        label: 'Programs',
-        path: '/admin/programs',
-      },
-      {
-        label: 'Data import',
-        path: '/admin/data-import',
-      },
-    ],
-  },
 ];
 
 export const SYNC_MENU_ITEMS = [
