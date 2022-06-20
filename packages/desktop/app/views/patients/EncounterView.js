@@ -220,19 +220,13 @@ const BackButtonRow = styled.div`
 `;
 
 const StyledTabDisplay = styled(TabDisplay)`
-  margin: 20px;
-  padding: 20px;
   filter: drop-shadow(2px 2px 25px rgba(0, 0, 0, 0.1));
-  border-radius: 3px;
+  border-radius: 5px;
   border: 1px solid ${Colors.outline};
   background: white;
 
-  .MuiButtonBase-root.MuiTabScrollButton-root.MuiTabs-scrollButtons.Mui-disabled {
-    display: none;
-  }
-
   .MuiTabs-root {
-    padding: 0 20px;
+    margin-left: -12px;
   }
 
   .MuiTabs-scroller {
@@ -273,13 +267,15 @@ export const EncounterView = () => {
             disabled={disabled}
           />
         </ContentPane>
-        <StyledTabDisplay
-          tabs={visibleTabs}
-          currentTab={currentTab}
-          onTabSelect={setCurrentTab}
-          encounter={encounter}
-          disabled={disabled}
-        />
+        <ContentPane>
+          <StyledTabDisplay
+            tabs={visibleTabs}
+            currentTab={currentTab}
+            onTabSelect={setCurrentTab}
+            encounter={encounter}
+            disabled={disabled}
+          />
+        </ContentPane>
       </GridColumnContainer>
     </TwoColumnDisplay>
   );

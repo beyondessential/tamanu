@@ -8,6 +8,7 @@ export const Card = styled.div`
   box-shadow: 2px 2px 25px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
   padding: 18px 30px 24px;
+  border: 1px solid ${Colors.outline};
 `;
 
 export const CardHeader = styled.div`
