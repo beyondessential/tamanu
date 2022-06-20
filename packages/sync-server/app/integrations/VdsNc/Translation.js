@@ -35,7 +35,6 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
     Patient,
     PatientAdditionalData,
     ReferenceData,
-    AdministeredVaccine,
     Encounter,
     Facility,
     Location,
@@ -45,25 +44,16 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
 
   const countryCode = (await getLocalisation()).country['alpha-3'];
 
-  const { firstName, lastName, dateOfBirth, sex } = await Patient.findOne({
+  const patient = await Patient.findOne({
     where: { id: patientId },
   });
 
+  const { firstName, lastName, dateOfBirth, sex } = patient;
   const pad = await PatientAdditionalData.findOne({ where: { patientId } });
   const passport = pad?.passport;
 
-  const vaccinations = await AdministeredVaccine.findAll({
-    where: {
-      '$encounter.patient_id$': patientId,
-      '$scheduledVaccine.label$': [
-        'COVID-19 AZ', // Samoa
-        'COVID-19-AstraZeneca', // Nauru
-        'COVID-19-AZ', // Tuvalu
-        'COVID-19 Moderna', // Samoa
-        'COVID-19 Pfizer', // Samoa, Nauru, Tuvalu
-      ],
-      status: 'GIVEN',
-    },
+  const vaccinations = await patient.getAdministeredVaccines({
+    order: [['date', 'ASC']],
     include: [
       {
         model: Location,
@@ -103,6 +93,9 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
       },
     ],
   });
+
+  if (vaccinations.length === 0)
+    throw new Error('Patient does not have any certifiable vaccinations');
 
   const pidDoc = passport
     ? {
