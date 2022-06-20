@@ -7,7 +7,6 @@ import mkdirp from 'mkdirp';
 import { COMMUNICATION_STATUSES } from 'shared/constants';
 import { getReportModule } from 'shared/reports';
 import { log } from 'shared/services/logging';
-import { createTupaiaApiClient, translateReportDataToSurveyResponses } from 'shared/utils';
 
 import { removeFile, createZippedSpreadsheet, writeToSpreadsheet } from '../utils/files';
 import { getLocalisation } from '../localisation';
