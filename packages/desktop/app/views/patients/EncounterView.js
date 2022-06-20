@@ -4,8 +4,7 @@ import { push } from 'connected-react-router';
 import styled from 'styled-components';
 import { Divider } from '@material-ui/core';
 import { ENCOUNTER_TYPES } from 'shared/constants';
-import { Button, BackButton, TopBar, connectRoutedModal } from '../../components';
-import { ContentPane } from '../../components/ContentPane';
+import { Button, BackButton, TopBar, connectRoutedModal, ContentPane } from '../../components';
 import { DiagnosisView } from '../../components/DiagnosisView';
 import { DischargeModal } from '../../components/DischargeModal';
 import { MoveModal } from '../../components/MoveModal';
@@ -23,7 +22,7 @@ import {
   ImagingPane,
   EncounterMedicationPane,
   DocumentsPane,
-  ProgramsPane,
+  EncounterProgramsPane,
   InvoicingPane,
   EncounterInfoPane,
 } from './panes';
@@ -70,7 +69,7 @@ const TABS = [
     label: 'Programs',
     key: 'programs',
     render: ({ encounter, ...props }) => (
-      <ProgramsPane endpoint={`encounter/${encounter.Id}/programResponses`} {...props} />
+      <EncounterProgramsPane endpoint={`encounter/${encounter.Id}/programResponses`} {...props} />
     ),
   },
   {
@@ -264,7 +263,7 @@ export const EncounterView = () => {
           <EncounterActions encounter={encounter} />
         </TopBar>
         <ContentPane>
-          <EncounterInfoPane disabled encounter={encounter} />
+          <EncounterInfoPane encounter={encounter} />
         </ContentPane>
         <Divider />
         <ContentPane>

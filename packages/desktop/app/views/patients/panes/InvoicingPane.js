@@ -13,6 +13,7 @@ import { Button } from '../../../components/Button';
 import { ContentPane } from '../../../components/ContentPane';
 
 import { Colors } from '../../../constants';
+import { TabPane } from '../components';
 
 const EmptyPane = styled(ContentPane)`
   text-align: center;
@@ -148,7 +149,9 @@ export const InvoicingPane = React.memo(({ encounter }) => {
           </ActionsPane>
         ) : null}
       </InvoiceTopBar>
-      <InvoiceDetailTable invoice={invoice} />
+      <TabPane>
+        <InvoiceDetailTable invoice={invoice} />
+      </TabPane>
     </>
   );
 });

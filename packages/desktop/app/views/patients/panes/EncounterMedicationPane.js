@@ -2,15 +2,15 @@ import React, { useState } from 'react';
 import { useEncounter } from '../../../contexts/Encounter';
 import { MedicationModal } from '../../../components/MedicationModal';
 import { EncounterMedicationTable } from '../../../components/MedicationTable';
-import { ContentPane } from '../../../components/ContentPane';
-import { Button } from '../../../components';
+import { Button, TableButtonRow } from '../../../components';
+import { TabPane } from '../components';
 
 export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const { loadEncounter } = useEncounter();
 
   return (
-    <div>
+    <TabPane>
       <MedicationModal
         open={modalOpen}
         encounterId={encounter.id}
@@ -20,8 +20,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
           await loadEncounter(encounter.id);
         }}
       />
-      <EncounterMedicationTable encounterId={encounter.id} />
-      <ContentPane>
+      <TableButtonRow variant="small">
         <Button
           onClick={() => setModalOpen(true)}
           variant="contained"
@@ -30,7 +29,8 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
         >
           New prescription
         </Button>
-      </ContentPane>
-    </div>
+      </TableButtonRow>
+      <EncounterMedicationTable encounterId={encounter.id} />
+    </TabPane>
   );
 });

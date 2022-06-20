@@ -64,12 +64,10 @@ const StyledTableRow = styled(TableRow)`
 `;
 
 const StyledTableContainer = styled.div`
-  margin: 1rem;
   overflow: auto;
   border-radius: 5px;
   background: white;
   border: 1px solid ${Colors.outline};
-
   ${props => (props.$elevated ? PaperStyles : null)};
 `;
 

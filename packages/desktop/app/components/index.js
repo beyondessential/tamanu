@@ -18,6 +18,7 @@ export * from './Preloader';
 export * from './LocationSearchBar';
 export * from './SearchBar';
 export * from './Table';
+export * from './ContentPane';
 export * from './TamanuLogo';
 export * from './ImmunisationsTable';
 export * from './LocalisedText';

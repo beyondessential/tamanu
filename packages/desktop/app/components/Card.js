@@ -8,8 +8,6 @@ export const Card = styled.div`
   box-shadow: 2px 2px 25px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
   padding: 18px 30px 24px;
-
-  //width: 788px;
 `;
 
 export const CardHeader = styled.div`
@@ -23,7 +21,7 @@ export const CardBody = styled.div`
 
 const CardCell = styled.div`
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   padding: 11px 0;
 `;
 

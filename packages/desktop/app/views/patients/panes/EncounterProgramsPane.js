@@ -1,19 +1,20 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
-import { ContentPane, TableButtonRow, Button } from '../../../components';
+import { TableButtonRow, Button } from '../../../components';
 import { DataFetchingProgramsTable } from '../../../components/ProgramResponsesTable';
+import { TabPane } from '../components';
 
-export const ProgramsPane = React.memo(({ endpoint }) => {
+export const EncounterProgramsPane = React.memo(({ endpoint }) => {
   const dispatch = useDispatch();
   return (
-    <ContentPane>
+    <TabPane>
       <TableButtonRow variant="small">
         <Button onClick={() => dispatch(push('/programs'))} variant="contained" color="primary">
           New survey
         </Button>
       </TableButtonRow>
       <DataFetchingProgramsTable endpoint={endpoint} />
-    </ContentPane>
+    </TabPane>
   );
 });

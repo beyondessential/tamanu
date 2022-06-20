@@ -1,21 +1,20 @@
 import React, { useState } from 'react';
 import { ImagingRequestModal } from '../../../components/ImagingRequestModal';
 import { ImagingRequestsTable } from '../../../components/ImagingRequestsTable';
-import { ContentPane } from '../../../components/ContentPane';
-import { Button } from '../../../components';
+import { TableButtonRow, Button } from '../../../components';
+import { TabPane } from '../components';
 
 export const ImagingPane = React.memo(({ encounter, readonly }) => {
   const [modalOpen, setModalOpen] = useState(false);
 
   return (
-    <div>
+    <TabPane>
       <ImagingRequestModal
         open={modalOpen}
         encounter={encounter}
         onClose={() => setModalOpen(false)}
       />
-      <ImagingRequestsTable encounterId={encounter.id} />
-      <ContentPane>
+      <TableButtonRow variant="small">
         <Button
           onClick={() => setModalOpen(true)}
           variant="contained"
@@ -24,7 +23,8 @@ export const ImagingPane = React.memo(({ encounter, readonly }) => {
         >
           New imaging request
         </Button>
-      </ContentPane>
-    </div>
+      </TableButtonRow>
+      <ImagingRequestsTable encounterId={encounter.id} />
+    </TabPane>
   );
 });

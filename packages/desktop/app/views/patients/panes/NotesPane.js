@@ -2,15 +2,15 @@ import React, { useState } from 'react';
 import { useEncounter } from '../../../contexts/Encounter';
 import { NoteModal } from '../../../components/NoteModal';
 import { NoteTable } from '../../../components/NoteTable';
-import { ContentPane } from '../../../components/ContentPane';
-import { Button } from '../../../components';
+import { Button, TableButtonRow } from '../../../components';
+import { TabPane } from '../components';
 
 export const NotesPane = React.memo(({ encounter, readonly }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const { loadEncounter } = useEncounter();
 
   return (
-    <div>
+    <TabPane>
       <NoteModal
         open={modalOpen}
         encounterId={encounter.id}
@@ -20,8 +20,7 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
           await loadEncounter(encounter.id);
         }}
       />
-      <NoteTable encounterId={encounter.id} />
-      <ContentPane>
+      <TableButtonRow variant="small">
         <Button
           onClick={() => setModalOpen(true)}
           variant="contained"
@@ -30,7 +29,8 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
         >
           New note
         </Button>
-      </ContentPane>
-    </div>
+      </TableButtonRow>
+      <NoteTable encounterId={encounter.id} />
+    </TabPane>
   );
 });

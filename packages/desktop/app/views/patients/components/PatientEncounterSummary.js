@@ -38,7 +38,6 @@ const Border = css`
 
 const Container = styled.div`
   ${Border};
-  margin: 1rem;
   background: ${Colors.white};
   transition: color 0.2s ease;
 

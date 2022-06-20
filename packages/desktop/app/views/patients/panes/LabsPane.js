@@ -1,17 +1,16 @@
 import React, { useState } from 'react';
 import { LabRequestModal } from '../../../components/LabRequestModal';
 import { LabRequestsTable } from '../../../components/LabRequestsTable';
-import { ContentPane } from '../../../components/ContentPane';
-import { Button } from '../../../components';
+import { TableButtonRow, Button } from '../../../components';
+import { TabPane } from '../components';
 
 export const LabsPane = React.memo(({ encounter, readonly }) => {
   const [modalOpen, setModalOpen] = useState(false);
 
   return (
-    <div>
+    <TabPane>
       <LabRequestModal open={modalOpen} encounter={encounter} onClose={() => setModalOpen(false)} />
-      <LabRequestsTable encounterId={encounter.id} />
-      <ContentPane>
+      <TableButtonRow variant="small">
         <Button
           onClick={() => setModalOpen(true)}
           variant="contained"
@@ -20,7 +19,8 @@ export const LabsPane = React.memo(({ encounter, readonly }) => {
         >
           New lab request
         </Button>
-      </ContentPane>
-    </div>
+      </TableButtonRow>
+      <LabRequestsTable encounterId={encounter.id} />
+    </TabPane>
   );
 });

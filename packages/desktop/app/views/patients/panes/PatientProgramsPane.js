@@ -4,7 +4,7 @@ import { push } from 'connected-react-router';
 import { ContentPane, TableButtonRow, Button } from '../../../components';
 import { DataFetchingProgramsTable } from '../../../components/ProgramResponsesTable';
 
-export const ProgramsPane = React.memo(({ endpoint }) => {
+export const PatientProgramsPane = React.memo(({ endpoint }) => {
   const dispatch = useDispatch();
   return (
     <ContentPane>
