@@ -12,6 +12,13 @@ const SCHEDULE_TO_SEQUENCE = {
   'Dose 1': 1,
   'Dose 2': 2,
   Booster: 3,
+  'Dose 3': 3,
+  'Dose 4': 4,
+  'Dose 5': 5,
+  'Dose 6': 6,
+  'Dose 7': 7,
+  'Dose 8': 8,
+  'Dose 9': 9,
 };
 
 const METHOD_CODE = {
@@ -41,11 +48,20 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
   const { firstName, lastName, dateOfBirth, sex } = await Patient.findOne({
     where: { id: patientId },
   });
-  const { passport } = await PatientAdditionalData.findOne({ where: { patientId } });
+
+  const pad = await PatientAdditionalData.findOne({ where: { patientId } });
+  const passport = pad?.passport;
+
   const vaccinations = await AdministeredVaccine.findAll({
     where: {
       '$encounter.patient_id$': patientId,
-      '$scheduledVaccine.label$': ['COVID-19 AZ', 'COVID-19 Pfizer'],
+      '$scheduledVaccine.label$': [
+        'COVID-19 AZ', // Samoa
+        'COVID-19-AstraZeneca', // Nauru
+        'COVID-19-AZ', // Tuvalu
+        'COVID-19 Moderna', // Samoa
+        'COVID-19 Pfizer', // Samoa, Nauru, Tuvalu
+      ],
       status: 'GIVEN',
     },
     include: [
