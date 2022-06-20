@@ -29,7 +29,7 @@ export type VaccineFormValues = {
   batch?: string;
   injectionSite?: InjectionSiteType;
   scheduledVaccineId?: string;
-  giverId?: string;
+  givenBy?: string;
   recorderId?: string;
   status: string | VaccineStatus;
 };

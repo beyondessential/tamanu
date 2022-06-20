@@ -9,6 +9,13 @@ const SCHEDULE_TO_SEQUENCE = {
   'Dose 1': 1,
   'Dose 2': 2,
   Booster: 3,
+  'Dose 3': 3,
+  'Dose 4': 4,
+  'Dose 5': 5,
+  'Dose 6': 6,
+  'Dose 7': 7,
+  'Dose 8': 8,
+  'Dose 9': 9,
 };
 
 const MOMENT_FORMAT_ISODATE = 'YYYY-MM-DD';

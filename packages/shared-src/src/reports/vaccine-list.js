@@ -85,10 +85,6 @@ export async function queryCovidVaccineListData(models, parameters) {
       },
       {
         model: models.User,
-        as: 'giver',
-      },
-      {
-        model: models.User,
         as: 'recorder',
       },
     ],
@@ -119,11 +115,10 @@ export async function queryCovidVaccineListData(models, parameters) {
       status,
       batch,
       scheduledVaccine: { schedule, label: vaccineName },
-      giver,
       recorder,
     } = vaccine;
 
-    const vaccinator = giver?.displayName ?? recorder?.displayName ?? examinerName;
+    const vaccinator = vaccine.givenBy ?? recorder?.displayName ?? examinerName;
 
     const record = {
       patientId,
