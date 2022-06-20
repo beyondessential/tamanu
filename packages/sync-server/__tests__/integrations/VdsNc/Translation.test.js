@@ -61,7 +61,7 @@ describe('VDS: Proof of Vaccination', () => {
     await ctx.close();
   });
 
-  it('fetches data for a non-vaccinated patient', async () => {
+  it('errors for a non-vaccinated patient', async () => {
     // Arrange
     const { Patient, PatientAdditionalData } = ctx.store.models;
     const patient = await Patient.create({
@@ -79,21 +79,14 @@ describe('VDS: Proof of Vaccination', () => {
     await patient.reload();
 
     // Act
-    const msg = await createVdsNcVaccinationData(patient.id, {
+    const result = await createVdsNcVaccinationData(patient.id, {
       models: ctx.store.models,
       countryCode: 'UTO',
-    });
+    }).then(resolved => ({ resolved }), rejected => ({ rejected }));
 
     // Assert
-    expect(msg).to.deep.equal({
-      pid: {
-        n: 'Katonivere Wiliam',
-        dob: '1964-04-20',
-        i: 'A1234567',
-        sex: 'M',
-      },
-      ve: [],
-    });
+    expect(result.resolved).to.be.undefined;
+    expect(result.rejected).to.exist.and.be.an.instanceOf(Error);
   });
 
   it('fetches data for a vaccinated patient', async () => {
@@ -230,7 +223,7 @@ describe('VDS: Proof of Vaccination', () => {
     const scheduledAz3 = await ScheduledVaccine.create({
       ...fake(ScheduledVaccine),
       label: 'COVID-19 AZ',
-      schedule: 'Booster',
+      schedule: 'Dose 3',
       vaccineId: data.azVaxDrug.id,
     });
 
