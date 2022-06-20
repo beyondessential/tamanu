@@ -7,4 +7,4 @@ EB_ENV="${3:?Must pass an EB environment}"
 S3_PATH="${4:?Must pass an S3 path}"
 
 codeship_aws eb_deploy "$CODE_PATH" "$EB_APP" "$EB_ENV" "$S3_PATH" ||
-    ./eb_wait_until_healthy.sh "$EB_APP" "$EB_ENV"
+    "$(dirname $0)/eb_wait_until_healthy.sh" "$EB_APP" "$EB_ENV"
