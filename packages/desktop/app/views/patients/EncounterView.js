@@ -12,9 +12,7 @@ import { MoveModal } from '../../components/MoveModal';
 import { ChangeEncounterTypeModal } from '../../components/ChangeEncounterTypeModal';
 import { ChangeDepartmentModal } from '../../components/ChangeDepartmentModal';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { PatientInfoPane } from '../../components/PatientInfoPane';
 import { TabDisplay } from '../../components/TabDisplay';
-import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import {
   VitalsPane,
   NotesPane,
@@ -143,19 +141,6 @@ const EncounterActionDropdown = ({ encounter }) => {
       onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.ADMISSION),
       condition: () => isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.ADMISSION),
     },
-
-    // Removed as unused seemingly onCancelLocationChange and onFinalizeLocationChange was never passed to component
-    // {
-    //   label: 'Finalise location change',
-    //   condition: () => encounter.plannedLocation,
-    //   onClick: onFinaliseLocationChange,
-    // },
-    // {
-    //   label: 'Cancel location change',
-    //   condition: () => encounter.plannedLocation,
-    //   onClick: () => onCancelLocationChange,
-    // },
-
     {
       label: 'Discharge without being seen',
       onClick: onDischargeOpen,
@@ -226,31 +211,28 @@ export const EncounterView = () => {
 
   const visibleTabs = TABS.filter(tab => !tab.condition || tab.condition(getLocalisation));
   return (
-    <TwoColumnDisplay>
-      <PatientInfoPane patient={patient} disabled={disabled} />
-      <GridColumnContainer>
-        <TopBar title={getHeaderText(encounter)} subTitle={facility?.name}>
-          <EncounterActions encounter={encounter} />
-        </TopBar>
-        <ContentPane>
-          <BackButton to={`/patients/${params.category}/${encounter.patientId}`} />
-          <EncounterInfoPane disabled encounter={encounter} />
-        </ContentPane>
-        <ContentPane>
-          <DiagnosisView
-            encounter={encounter}
-            isTriage={getIsTriage(encounter)}
-            disabled={disabled}
-          />
-        </ContentPane>
-        <TabDisplay
-          tabs={visibleTabs}
-          currentTab={currentTab}
-          onTabSelect={setCurrentTab}
+    <GridColumnContainer>
+      <TopBar title={getHeaderText(encounter)} subTitle={facility?.name}>
+        <EncounterActions encounter={encounter} />
+      </TopBar>
+      <ContentPane>
+        <BackButton to={`/patients/${params.category}/${encounter.patientId}`} />
+        <EncounterInfoPane disabled encounter={encounter} />
+      </ContentPane>
+      <ContentPane>
+        <DiagnosisView
           encounter={encounter}
+          isTriage={getIsTriage(encounter)}
           disabled={disabled}
         />
-      </GridColumnContainer>
-    </TwoColumnDisplay>
+      </ContentPane>
+      <TabDisplay
+        tabs={visibleTabs}
+        currentTab={currentTab}
+        onTabSelect={setCurrentTab}
+        encounter={encounter}
+        disabled={disabled}
+      />
+    </GridColumnContainer>
   );
 };

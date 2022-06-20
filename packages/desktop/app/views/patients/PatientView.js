@@ -1,11 +1,9 @@
 import React from 'react';
-import { connect } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 import { TabDisplay } from '../../components/TabDisplay';
-import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientAlert } from '../../components/PatientAlert';
-import { PatientInfoPane } from '../../components/PatientInfoPane';
 import { EncounterModal } from '../../components/EncounterModal';
 import { TriageModal } from '../../components/TriageModal';
 import { connectRoutedModal } from '../../components/Modal';
@@ -22,8 +20,8 @@ import {
   InvoicesPane,
 } from './panes';
 
-const RoutedEncounterModal = connectRoutedModal('/patients/view', 'checkin')(EncounterModal);
-const RoutedTriageModal = connectRoutedModal('/patients/view', 'triage')(TriageModal);
+const RoutedEncounterModal = connectRoutedModal('/patients/all/:patientId', 'checkin')(EncounterModal);
+const RoutedTriageModal = connectRoutedModal('/patients/all/:patientId', 'triage')(TriageModal);
 
 const TABS = [
   {
@@ -79,8 +77,10 @@ const TABS = [
   },
 ];
 
-export const DumbPatientView = React.memo(({ patient, loading }) => {
+export const PatientView = () => {
   const { getLocalisation } = useLocalisation();
+  const patient = useSelector(state => state.patient);
+  const loading = useSelector(state => state.load);
   const [currentTab, setCurrentTab] = React.useState('history');
   const disabled = !!patient.death;
 
@@ -91,16 +91,13 @@ export const DumbPatientView = React.memo(({ patient, loading }) => {
   return (
     <>
       <PatientAlert alerts={patient.alerts} />
-      <TwoColumnDisplay>
-        <PatientInfoPane patient={patient} disabled={disabled} />
-        <TabDisplay
-          tabs={visibleTabs}
-          currentTab={currentTab}
-          onTabSelect={setCurrentTab}
-          patient={patient}
-          disabled={disabled}
-        />
-      </TwoColumnDisplay>
+      <TabDisplay
+        tabs={visibleTabs}
+        currentTab={currentTab}
+        onTabSelect={setCurrentTab}
+        patient={patient}
+        disabled={disabled}
+      />
       <RoutedEncounterModal
         patientId={patient.id}
         patientBillingTypeId={patient.additionalData?.patientBillingTypeId}
@@ -109,9 +106,4 @@ export const DumbPatientView = React.memo(({ patient, loading }) => {
       <RoutedTriageModal patient={patient} />
     </>
   );
-});
-
-export const PatientView = connect(state => ({
-  loading: state.patient.loading,
-  patient: state.patient,
-}))(DumbPatientView);
+};

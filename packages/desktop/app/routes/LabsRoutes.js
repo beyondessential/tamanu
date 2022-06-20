@@ -8,7 +8,6 @@ export const LabsRoutes = React.memo(({ match }) => (
   <Switch>
     <Redirect exact path={match.path} to={`${match.path}/all`} />
     <Route path={`${match.path}/all`} component={LabRequestListingView} />
-    {/* Placeholder Routes visible in submenu */}
     <Route path={`${match.path}/completed`} component={NotActiveView} />
     <Route path={`${match.path}/new`} component={NotActiveView} />
   </Switch>

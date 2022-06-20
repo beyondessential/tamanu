@@ -12,7 +12,7 @@ export const ProgramsPane = React.memo(({ endpoint }) => {
     <div>
       <DataFetchingProgramsTable endpoint={endpoint} />
       <ContentPane>
-        <Button onClick={() => dispatch(push('/programs'))} variant="contained" color="primary">
+        <Button onClick={() => dispatch(push('/programs/new'))} variant="contained" color="primary">
           New survey
         </Button>
       </ContentPane>

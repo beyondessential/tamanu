@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { connect, useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
 import { useParams } from 'react-router-dom';
@@ -9,8 +9,6 @@ import { Form, Formik } from 'formik';
 import { Button } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { PatientInfoPane } from '../../components/PatientInfoPane';
-import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { TopBar } from '../../components/TopBar';
 import { ButtonRow } from '../../components/ButtonRow';
 import { FormGrid } from '../../components/FormGrid';
@@ -27,10 +25,6 @@ import { Suggester } from '../../utils/suggester';
 import { ImagingRequestPrintout } from '../../components/PatientPrinting/ImagingRequestPrintout';
 import { Modal } from '../../components/Modal';
 import { useCertificate } from '../../utils/useCertificate';
-
-const BackLink = connect(null, dispatch => ({
-  onClick: () => dispatch(push('/patients/encounter')),
-}))(({ onClick }) => <Button onClick={onClick}>&lt; Back to encounter information</Button>);
 
 const statusOptions = [
   { value: 'pending', label: 'Pending' },
@@ -85,7 +79,7 @@ const PrintButton = ({ imagingRequest, patient }) => {
   );
 };
 
-const DumbImagingRequestInfoPane = React.memo(
+const ImagingRequestInfoPane = React.memo(
   ({ imagingRequest, onSubmit, practitionerSuggester, locationSuggester }) => (
     <Formik
       // Only submit specific fields for update
@@ -190,45 +184,44 @@ const DumbImagingRequestInfoPane = React.memo(
   ),
 );
 
-export const DumbImagingRequestView = React.memo(({ imagingRequest, patient }) => {
+export const ImagingRequestView = () => {
   const api = useApi();
   const params = useParams();
   const dispatch = useDispatch();
+  const imagingRequest = useSelector(state => state.imagingRequest);
+  const patient = useSelector(state => state.patient);
   const practitionerSuggester = new Suggester(api, 'practitioner');
   const locationSuggester = new Suggester(api, 'location');
 
   const onSubmit = data => {
     api.put(`imagingRequest/${imagingRequest.id}`, { ...data });
     dispatch(
-      push(`/patients/${params.category}/${patient.id}/encounter/${imagingRequest.encounterId}`),
+      push(`/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}`),
     );
   };
 
+  const onBack = () =>
+    dispatch(
+      push(`/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}`),
+    );
+
   if (patient.loading) return <LoadingIndicator />;
   return (
-    <TwoColumnDisplay>
-      <PatientInfoPane patient={patient} />
-      <div>
-        <TopBar title="Imaging request">
-          <div>
-            <PrintButton imagingRequest={imagingRequest} patient={patient} />
-          </div>
-        </TopBar>
-        <BackLink />
-        <ContentPane>
-          <DumbImagingRequestInfoPane
-            imagingRequest={imagingRequest}
-            onSubmit={onSubmit}
-            practitionerSuggester={practitionerSuggester}
-            locationSuggester={locationSuggester}
-          />
-        </ContentPane>
-      </div>
-    </TwoColumnDisplay>
+    <div>
+      <TopBar title="Imaging request">
+        <div>
+          <PrintButton imagingRequest={imagingRequest} patient={patient} />
+        </div>
+      </TopBar>
+      <Button onClick={onBack}>&lt; Back to encounter information</Button>
+      <ContentPane>
+        <ImagingRequestInfoPane
+          imagingRequest={imagingRequest}
+          onSubmit={onSubmit}
+          practitionerSuggester={practitionerSuggester}
+          locationSuggester={locationSuggester}
+        />
+      </ContentPane>
+    </div>
   );
-});
-
-export const ImagingRequestView = connect(state => ({
-  imagingRequest: state.imagingRequest,
-  patient: state.patient,
-}))(DumbImagingRequestView);
+};

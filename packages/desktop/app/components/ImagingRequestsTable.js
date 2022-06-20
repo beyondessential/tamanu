@@ -2,13 +2,14 @@ import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
 
+import { useParams } from 'react-router-dom';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 
 import { IMAGING_REQUEST_STATUS_LABELS, IMAGING_REQUEST_COLORS } from '../constants';
 import { viewImagingRequest } from '../store/imagingRequest';
 import { PatientNameDisplay } from './PatientNameDisplay';
-import { viewPatientEncounter } from '../store/patient';
+import { reloadPatient } from '../store/patient';
 import { useEncounter } from '../contexts/Encounter';
 
 const StatusLabel = styled.div`
@@ -44,6 +45,7 @@ const globalColumns = [
 
 export const ImagingRequestsTable = React.memo(({ encounterId, searchParameters }) => {
   const dispatch = useDispatch();
+  const params = useParams();
   const { loadEncounter } = useEncounter();
 
   const selectImagingRequest = useCallback(
@@ -52,10 +54,16 @@ export const ImagingRequestsTable = React.memo(({ encounterId, searchParameters 
       if (encounter) {
         await loadEncounter(encounter.id);
       }
-      dispatch(viewPatientEncounter(encounter.patient.id, encounter.id));
-      dispatch(viewImagingRequest(encounter.patient.id, encounter.id, imagingRequest.id));
+      dispatch(reloadPatient(params.patientId || encounter.patientId));
+      dispatch(
+        viewImagingRequest(
+          params.patientId || encounter.patientId,
+          params.encounterId || encounter.id,
+          imagingRequest.id,
+        ),
+      );
     },
-    [loadEncounter, dispatch],
+    [loadEncounter, dispatch, params.patientId, params.encounterId],
   );
 
   return (

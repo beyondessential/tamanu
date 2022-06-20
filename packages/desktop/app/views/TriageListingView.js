@@ -2,9 +2,9 @@ import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
 import Paper from '@material-ui/core/Paper';
-import { connect } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
-import { viewPatientEncounter } from '../store/patient';
+import { reloadPatient } from '../store/patient';
 import { TopBar, PageContainer, DataFetchingTable } from '../components';
 import { TriageStatisticsCard } from '../components/TriageStatisticsCard';
 import { DateDisplay } from '../components/DateDisplay';
@@ -121,14 +121,16 @@ const COLUMNS = [
   { key: 'locationName', title: 'Location' },
 ];
 
-const DumbTriageTable = React.memo(({ onViewEncounter, ...props }) => {
+const TriageTable = React.memo(({ onViewEncounter, ...props }) => {
+  const dispatch = useDispatch();
   const { loadEncounter } = useEncounter();
+
   const viewEncounter = useCallback(
     async triage => {
       await loadEncounter(triage.encounterId);
-      onViewEncounter(triage);
+      dispatch(reloadPatient(triage.patientId));
     },
-    [loadEncounter, onViewEncounter],
+    [loadEncounter, dispatch],
   );
 
   return (
@@ -141,10 +143,6 @@ const DumbTriageTable = React.memo(({ onViewEncounter, ...props }) => {
     />
   );
 });
-
-const TriageTable = connect(null, dispatch => ({
-  onViewEncounter: triage => dispatch(viewPatientEncounter(triage.patientId, triage.encounterId)),
-}))(DumbTriageTable);
 
 export const TriageListingView = React.memo(() => (
   <PageContainer>

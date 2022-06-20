@@ -1,9 +1,9 @@
 import React, { useCallback } from 'react';
-import { connect } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 import { DataFetchingTable } from './Table';
 
-import { viewPatientEncounter } from '../store/patient';
+import { reloadPatient } from '../store/patient';
 import { useEncounter } from '../contexts/Encounter';
 import { useLabRequest } from '../contexts/LabRequest';
 
@@ -18,6 +18,7 @@ import {
   getRequestId,
   getLaboratory,
 } from '../utils/lab';
+import { useParams } from 'react-router-dom';
 
 const encounterColumns = [
   { key: 'requestId', title: 'Request ID', sortable: false, accessor: getRequestId },
@@ -39,19 +40,22 @@ const globalColumns = [
   ...encounterColumns,
 ];
 
-const DumbLabRequestsTable = React.memo(({ encounterId, viewPatient }) => {
+export const LabRequestsTable = React.memo(({ encounterId }) => {
+  const params = useParams();
+  const dispatch = useDispatch();
   const { loadEncounter } = useEncounter();
   const { loadLabRequest, searchParameters } = useLabRequest();
+
   const selectLab = useCallback(
     async lab => {
       if (!encounterId) {
         // no encounter, likely on the labs page
         await loadEncounter(lab.encounterId);
       }
-      if (lab.patientId) viewPatient(lab);
-      loadLabRequest(lab.id);
+      if (lab.patientId) dispatch(reloadPatient(lab.patientId, lab.encounterId));
+      loadLabRequest(params.patientId || lab.patientId, lab.encounterId, lab.id);
     },
-    [encounterId, loadEncounter, viewPatient, loadLabRequest],
+    [encounterId, dispatch, loadEncounter, loadLabRequest, params.patientId],
   );
 
   return (
@@ -64,7 +68,3 @@ const DumbLabRequestsTable = React.memo(({ encounterId, viewPatient }) => {
     />
   );
 });
-
-export const LabRequestsTable = connect(null, dispatch => ({
-  viewPatient: lab => dispatch(viewPatientEncounter(lab.patientId, lab.encounterId)),
-}))(DumbLabRequestsTable);

@@ -1,6 +1,7 @@
 import React, { useContext, createContext, useState } from 'react';
 import { push } from 'connected-react-router';
 
+import { useParams } from 'react-router-dom';
 import { useApi } from '../api';
 
 const LabRequestContext = createContext({
@@ -17,15 +18,19 @@ export const LabRequestProvider = ({ store, children }) => {
 
   const api = useApi();
 
-  const viewLabRequest = modal => {
-    store.dispatch(push(`/patients/encounter/labRequest/${modal}`));
+  const viewLabRequest = (patientId, encounterId, labRequestId, modal) => {
+    store.dispatch(
+      push(
+        `/patients/all/${patientId}/encounter/${encounterId}/lab-request/${labRequestId}/${modal}`,
+      ),
+    );
   };
 
-  const loadLabRequest = async (labRequestId, modal = '') => {
+  const loadLabRequest = async (patientId, encounterId, labRequestId, modal = '') => {
     setIsLoading(true);
     const data = await api.get(`labRequest/${labRequestId}`);
     setLabRequest({ ...data });
-    viewLabRequest(modal);
+    viewLabRequest(patientId, encounterId, labRequestId, modal);
     window.labRequest = labRequest;
     setIsLoading(false);
   };

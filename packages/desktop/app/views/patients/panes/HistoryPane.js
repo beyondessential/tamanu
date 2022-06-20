@@ -1,10 +1,10 @@
 import React, { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
+import { useParams } from 'react-router-dom';
 import { useEncounter } from '../../../contexts/Encounter';
 import { PatientEncounterSummary } from '../components/PatientEncounterSummary';
 import { PatientHistory } from '../../../components/PatientHistory';
-import { useParams } from 'react-router-dom';
 
 export const HistoryPane = React.memo(({ disabled }) => {
   const dispatch = useDispatch();
@@ -23,8 +23,10 @@ export const HistoryPane = React.memo(({ disabled }) => {
     [loadEncounter, params.category],
   );
 
-  const onOpenCheckin = () => dispatch(push('/patients/view/checkin'));
-  const onOpenTriage = () => dispatch(push('/patients/view/triage'));
+  const onOpenCheckin = () =>
+    dispatch(push(`/patients/${params.category}/${params.patientId}/checkin`));
+  const onOpenTriage = () =>
+    dispatch(push(`/patients/${params.category}/${params.patientId}/triage`));
 
   return (
     <>

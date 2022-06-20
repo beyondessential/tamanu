@@ -9,7 +9,6 @@ export const MedicationRoutes = React.memo(({ match }) => (
     <Switch>
       <Redirect exact from={match.path} to={`${match.path}/all`} />
       <Route path={`${match.path}/all`} component={MedicationListingView} />
-      {/* Placeholder routes visible in submenu */}
       <Route path={`${match.path}/new`} component={NotActiveView} />
       <Route path={`${match.path}/completed`} component={NotActiveView} />
       <Route path={`${match.path}/dispense`} component={NotActiveView} />

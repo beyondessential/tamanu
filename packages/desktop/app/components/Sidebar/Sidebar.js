@@ -146,7 +146,6 @@ export const Sidebar = React.memo(({ items }) => {
                 <SecondarySidebarItem
                   key={child.path}
                   path={child.path}
-                  // WARNING DO we wanna do this for patient categories
                   isCurrent={currentPath.includes(child.path)}
                   color={child.color}
                   label={child.label}

@@ -239,7 +239,7 @@ export const DischargeSummaryView = React.memo(() => {
       <TopBar title="Patient Discharge Summary" />
       <NavContainer>
         <StyledBackButton
-          to={`/patients/${params.category}/${encounter.patientId}/encounter/${encounter.id}`}
+          to={`/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}`}
         />
         <Button
           variant="outlined"

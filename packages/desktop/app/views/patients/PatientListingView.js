@@ -25,6 +25,7 @@ import {
   location,
   department,
 } from './columns';
+import { useParams } from 'react-router-dom';
 
 const PATIENT_SEARCH_ENDPOINT = 'patient';
 
@@ -78,6 +79,7 @@ const PatientTable = ({ onViewPatient, columns, fetchOptions, searchParameters, 
 };
 
 const NewPatientButton = ({ onCreateNewPatient }) => {
+  const params = useParams();
   const [isCreatingPatient, setCreatingPatient] = useState(false);
   const [isBirth, setIsBirth] = useState(false);
   const dispatch = useDispatch();
@@ -110,9 +112,9 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
         onCreateNewPatient={newPatient => {
           setCreatingPatient(false);
           if (onCreateNewPatient) {
-            onCreateNewPatient(newPatient.id);
+            onCreateNewPatient(newPatient.id, params.category);
           } else {
-            dispatch(viewPatient(newPatient.id));
+            dispatch(viewPatient(newPatient.id, params.category));
           }
         }}
       />

@@ -1,6 +1,5 @@
 import React, { useState, useContext } from 'react';
 import { push } from 'connected-react-router';
-import { useParams } from 'react-router-dom';
 import { useApi } from '../api';
 
 const EncounterContext = React.createContext({
@@ -57,11 +56,11 @@ export const EncounterProvider = ({ store, children }) => {
   };
 
   // create, fetch and set encounter then navigate to encounter view.
-  const createEncounter = async data => {
+  const createEncounter = async (data, patientCategory = 'all') => {
     setIsLoadingEncounter(true);
     const createdEncounter = await api.post(`encounter`, data);
     await loadEncounter(createdEncounter.id);
-    viewEncounter();
+    viewEncounter(createdEncounter.patientId, createdEncounter.id, patientCategory);
     setIsLoadingEncounter(false);
     return createdEncounter;
   };

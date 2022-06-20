@@ -1,13 +1,11 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { connect, useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 import { useParams } from 'react-router-dom';
 
 import { Button, DeleteButton } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { PatientInfoPane } from '../../components/PatientInfoPane';
-import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { DataFetchingTable } from '../../components/Table';
 import { ManualLabResultModal } from '../../components/ManualLabResultModal';
 
@@ -95,18 +93,6 @@ const ResultsPane = React.memo(({ labRequest, patient }) => {
   );
 });
 
-const BackLink = () => {
-  const dispatch = useDispatch();
-  return (
-    <Button
-      onClick={() => {
-        dispatch(push('/patients/encounter'));
-      }}
-    >
-      &lt; Back to encounter information
-    </Button>
-  );
-};
 const ChangeLabStatusModal = ({ status: currentStatus, updateLabReq, open, onClose }) => {
   const [status, setStatus] = useState(currentStatus);
   const updateLabStatus = useCallback(async () => {
@@ -170,7 +156,7 @@ const ChangeLaboratoryModal = ({ laboratory, updateLabReq, open, onClose }) => {
   );
 };
 
-const DeleteRequestModal = ({ labRequestId, updateLabReq, open, onClose }) => {
+const DeleteRequestModal = ({ updateLabReq, open, onClose }) => {
   const dispatch = useDispatch();
   const deleteLabRequest = useCallback(async () => {
     await updateLabReq({
@@ -326,8 +312,12 @@ const LabRequestInfoPane = ({ labRequest, refreshLabRequest }) => (
   </FormGrid>
 );
 
-export const DumbLabRequestView = React.memo(({ patient }) => {
+export const LabRequestView = () => {
   const { isLoading, labRequest, updateLabRequest, loadLabRequest } = useLabRequest();
+  const patient = useSelector(state => state.patient);
+  const params = useParams();
+  const dispatch = useDispatch();
+
   const updateLabReq = useCallback(
     async data => {
       await updateLabRequest(labRequest.id, data);
@@ -338,31 +328,29 @@ export const DumbLabRequestView = React.memo(({ patient }) => {
     await loadLabRequest(labRequest.id);
   }, [labRequest.id, loadLabRequest]);
 
+  const onBack = () =>
+    dispatch(
+      push(`/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}`),
+    );
+
   if (isLoading) return <LoadingIndicator />;
   return (
-    <TwoColumnDisplay>
-      <PatientInfoPane patient={patient} />
-      <div>
-        <TopBar title="Lab request">
-          <div>
-            <LabRequestActionDropdown
-              labRequest={labRequest}
-              patient={patient}
-              updateLabReq={updateLabReq}
-            />
-          </div>
-        </TopBar>
-        <BackLink />
-        <ContentPane>
-          <LabRequestInfoPane labRequest={labRequest} refreshLabRequest={refreshLabRequest} />
-        </ContentPane>
-        <ResultsPane labRequest={labRequest} patient={patient} />
-        <LabRequestAuditPane labRequest={labRequest} />
-      </div>
-    </TwoColumnDisplay>
+    <div>
+      <TopBar title="Lab request">
+        <div>
+          <LabRequestActionDropdown
+            labRequest={labRequest}
+            patient={patient}
+            updateLabReq={updateLabReq}
+          />
+        </div>
+      </TopBar>
+      <Button onClick={onBack}>&lt; Back to encounter information</Button>
+      <ContentPane>
+        <LabRequestInfoPane labRequest={labRequest} refreshLabRequest={refreshLabRequest} />
+      </ContentPane>
+      <ResultsPane labRequest={labRequest} patient={patient} />
+      <LabRequestAuditPane labRequest={labRequest} />
+    </div>
   );
-});
-
-export const LabRequestView = connect(state => ({
-  patient: state.patient,
-}))(DumbLabRequestView);
+};
