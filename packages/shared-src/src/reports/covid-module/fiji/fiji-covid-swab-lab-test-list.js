@@ -1,3 +1,4 @@
+import { format } from 'date-fns';
 import { baseDataGenerator } from '../covid-swab-lab-test-list';
 
 const SURVEY_ID = 'program-fijicovid19-fijicovidsampcollection';
@@ -91,8 +92,14 @@ const reportColumnTemplate = [
   { title: 'Date of first symptom', accessor: data => data.dateOfFirstSymptom },
   { title: 'Symptoms', accessor: data => data.symptoms },
   { title: 'Vaccinated', accessor: data => data.vaccinated },
-  { title: 'Date of 1st dose', accessor: data => data.dateOf1stDose },
-  { title: 'Date of 2nd dose', accessor: data => data.dateOf2ndDose },
+  {
+    title: 'Date of 1st dose',
+    accessor: data => format(new Date(data.dateOf1stDose), 'yyyy/MM/dd'),
+  },
+  {
+    title: 'Date of 2nd dose',
+    accessor: data => format(new Date(data.dateOf2ndDose), 'yyyy/MM/dd'),
+  },
 
   {
     title: 'Patient is at a higher risk of developing severe COVID-19',
