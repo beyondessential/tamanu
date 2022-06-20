@@ -33,7 +33,7 @@ const ENCOUNTER_TYPE_TO_STATUS = {
 const Border = css`
   border: 1px solid ${Colors.outline};
   border-left: 10px solid ${props => PATIENT_STATUS_COLORS[props.patientStatus]};
-  border-radius: 10px;
+  border-radius: 5px;
 `;
 
 const Container = styled.div`

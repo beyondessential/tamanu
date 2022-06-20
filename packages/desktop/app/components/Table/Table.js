@@ -16,7 +16,7 @@ import {
   TableFooter,
   TablePagination,
 } from '@material-ui/core';
-import { Paper } from '../Paper';
+import { Paper, PaperStyles } from '../Paper';
 import { DownloadDataButton } from './DownloadDataButton';
 import { useLocalisation } from '../../contexts/Localisation';
 import { ErrorBoundary } from '../ErrorBoundary';
@@ -63,9 +63,14 @@ const StyledTableRow = styled(TableRow)`
   ${p => (p.$rowStyle ? p.$rowStyle : '')}
 `;
 
-const StyledTableContainer = styled(Paper)`
+const StyledTableContainer = styled.div`
   margin: 1rem;
   overflow: auto;
+  border-radius: 5px;
+  background: white;
+  border: 1px solid ${Colors.outline};
+
+  ${props => (props.$elevated ? PaperStyles : null)};
 `;
 
 const StyledTableCellContent = styled.div`
@@ -281,9 +286,9 @@ class TableComponent extends React.Component {
   }
 
   render() {
-    const { className } = this.props;
+    const { className, elevated } = this.props;
     return (
-      <StyledTableContainer className={className}>
+      <StyledTableContainer className={className} $elevated={elevated}>
         <StyledTable>
           <StyledTableHead>
             <TableRow>{this.renderHeaders()}</TableRow>
@@ -325,6 +330,7 @@ TableComponent.propTypes = {
   refreshTable: PropTypes.func,
   rowStyle: PropTypes.func,
   allowExport: PropTypes.bool,
+  elevated: PropTypes.bool,
 };
 
 TableComponent.defaultProps = {
@@ -338,6 +344,7 @@ TableComponent.defaultProps = {
   orderBy: null,
   order: 'asc',
   page: null,
+  elevated: true,
   onRowClick: null,
   rowsPerPage: DEFAULT_ROWS_PER_PAGE_OPTIONS[0],
   rowsPerPageOptions: DEFAULT_ROWS_PER_PAGE_OPTIONS,
