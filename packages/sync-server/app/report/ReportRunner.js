@@ -19,7 +19,6 @@ export class ReportRunner {
     this.recipients = recipients;
     this.store = store;
     this.emailService = emailService;
-    this.tupaiaApiClient = null;
   }
 
   async validate(reportModule, reportDataGenerator) {
@@ -49,15 +48,9 @@ export class ReportRunner {
 
     let reportData = null;
     try {
-      if (reportModule.needsTupaiaApiClient) {
-        if (!this.tupaiaApiClient) {
-          this.tupaiaApiClient = createTupaiaApiClient();
-        }
-      }
-
       log.info(`ReportRunner - Running report "${this.reportName}"`);
 
-      reportData = await reportDataGenerator(this.store, this.parameters, this.tupaiaApiClient);
+      reportData = await reportDataGenerator(this.store, this.parameters);
 
       log.info(`ReportRunner - Running report "${this.reportName}" finished`);
     } catch (e) {
@@ -80,10 +73,6 @@ export class ReportRunner {
     let sent = false;
     if (this.recipients.email) {
       await this.sendReportToEmail(reportData);
-      sent = true;
-    }
-    if (this.recipients.tupaia) {
-      await this.sendReportToTupaia(reportData);
       sent = true;
     }
     if (this.recipients.s3) {
@@ -161,29 +150,6 @@ export class ReportRunner {
     } finally {
       if (zipFile) await removeFile(zipFile);
     }
-  }
-
-  /**
-   * @param request ReportRequest
-   * @param reportData []
-   * @returns {Promise<void>}
-   */
-  async sendReportToTupaia(reportData) {
-    const reportConfig = config.reports?.[this.reportName];
-
-    if (!reportConfig) {
-      throw new Error('ReportRunner - Report not configured');
-    }
-
-    const { surveyId } = reportConfig;
-
-    const translated = translateReportDataToSurveyResponses(surveyId, reportData);
-
-    if (!this.tupaiaApiClient) {
-      this.tupaiaApiClient = createTupaiaApiClient();
-    }
-
-    await this.tupaiaApiClient.meditrak.createSurveyResponses(translated);
   }
 
   /**
