@@ -4,7 +4,13 @@ import { push } from 'connected-react-router';
 import styled from 'styled-components';
 import { Divider } from '@material-ui/core';
 import { ENCOUNTER_TYPES } from 'shared/constants';
-import { Button, BackButton, TopBar, connectRoutedModal, ContentPane } from '../../components';
+import {
+  Button,
+  BackButton,
+  EncounterTopBar,
+  connectRoutedModal,
+  ContentPane,
+} from '../../components';
 import { DiagnosisView } from '../../components/DiagnosisView';
 import { DischargeModal } from '../../components/DischargeModal';
 import { MoveModal } from '../../components/MoveModal';
@@ -253,9 +259,9 @@ export const EncounterView = () => {
         <BackButtonRow>
           <BackButton to="/patients/view" />
         </BackButtonRow>
-        <TopBar title={getHeaderText(encounter)} subTitle={facility?.name}>
+        <EncounterTopBar title={getHeaderText(encounter)} subTitle={facility?.name}>
           <EncounterActions encounter={encounter} />
-        </TopBar>
+        </EncounterTopBar>
         <ContentPane>
           <EncounterInfoPane encounter={encounter} />
         </ContentPane>

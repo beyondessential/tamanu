@@ -2,12 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { grey } from '@material-ui/core/colors';
-import MuiAppBar from '@material-ui/core/AppBar';
-import MuiToolbar from '@material-ui/core/Toolbar';
-import MuiTypography from '@material-ui/core/Typography';
+import { Box, Typography, Toolbar } from '@material-ui/core';
 import { Colors } from '../constants';
+import { CardItem } from './Card';
 
-const TopBarHeading = styled(MuiTypography)`
+const TopBarHeading = styled(Typography)`
   flex-grow: 1;
   font-size: 24px;
   font-weight: 500;
@@ -22,40 +21,41 @@ const SmallTopBarHeading = styled(TopBarHeading)`
   margin-bottom: 2px;
 `;
 
-const TopBarSubHeading = styled(MuiTypography)`
+const TopBarSubHeading = styled(Typography)`
   font-size: 16px;
   line-height: 21px;
   font-weight: 400;
   color: ${props => props.theme.palette.text.secondary};
 `;
 
-const AppBar = styled(MuiAppBar)`
+const AppBar = styled.div`
   flex-grow: 1;
   background-color: ${Colors.white};
   box-shadow: 0 1px 0 ${grey[300]};
   padding: 16px 0;
   z-index: 1;
+  border-bottom: 1px solid ${props => props.theme.palette.grey[400]};
 `;
 
-const Toolbar = styled(MuiToolbar)`
+const Bar = styled(Toolbar)`
   display: flex;
   align-items: center;
   justify-content: space-between;
 `;
 
 export const TopBar = React.memo(({ title, subTitle, children, className }) => (
-  <AppBar position="relative">
-    <Toolbar className={className}>
+  <AppBar>
+    <Bar className={className}>
       {subTitle ? (
         <div>
           <SmallTopBarHeading variant="h2">{title}</SmallTopBarHeading>
           <TopBarSubHeading variant="h4">{subTitle}</TopBarSubHeading>
         </div>
       ) : (
-        <TopBarHeading variant="h1">{title}</TopBarHeading>
+        title && <TopBarHeading variant="h1">{title}</TopBarHeading>
       )}
       {children}
-    </Toolbar>
+    </Bar>
   </AppBar>
 ));
 
@@ -66,4 +66,18 @@ TopBar.propTypes = {
 
 TopBar.defaultProps = {
   subTitle: null,
+};
+
+export const EncounterTopBar = ({ title, subTitle, children }) => {
+  return (
+    <TopBar title={title} subTitle={subTitle}>
+      <Box display="flex" flex="1">
+        <Box>
+          <CardItem label="Arrival date" value="24/01/2022" />
+          <CardItem label="Doctor/Nurse" value="Dr Jane Smith" />
+        </Box>
+        {children}
+      </Box>
+    </TopBar>
+  );
 };
