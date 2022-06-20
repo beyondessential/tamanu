@@ -1,5 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { push } from 'connected-react-router';
+import { useParams } from 'react-router-dom';
 import { useApi } from '../api';
 
 const EncounterContext = React.createContext({
@@ -27,19 +28,23 @@ export const EncounterProvider = ({ store, children }) => {
   };
 
   // navigate to the root encounter view which reads from encounter state.
-  const viewEncounter = () => {
-    store.dispatch(push(`/patients/encounter/`));
+  const viewEncounter = (patientId, encounterId, patientCategory) => {
+    store.dispatch(push(`/patients/${patientCategory}/${patientId}/encounter/${encounterId}/`));
   };
 
   // get encounter data from the sync server and save it to state.
-  const loadEncounter = async (encounterId, navigateToEncounter = false) => {
+  const loadEncounter = async (
+    encounterId,
+    navigateToEncounter = false,
+    patientCategory = 'all',
+  ) => {
     setIsLoadingEncounter(true);
     const data = await api.get(`encounter/${encounterId}`);
     const { data: diagnoses } = await api.get(`encounter/${encounterId}/diagnoses`);
     const { data: procedures } = await api.get(`encounter/${encounterId}/procedures`);
     const { data: medications } = await api.get(`encounter/${encounterId}/medications`);
     setEncounterData({ ...data, diagnoses, procedures, medications });
-    if (navigateToEncounter) viewEncounter();
+    if (navigateToEncounter) viewEncounter(data.patientId, encounterId, patientCategory);
     setIsLoadingEncounter(false);
     window.encounter = encounter;
   };

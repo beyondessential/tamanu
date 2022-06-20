@@ -7,9 +7,18 @@ const IMAGING_LOAD_START = 'IMAGING_LOAD_START';
 const IMAGING_LOAD_ERROR = 'IMAGING_LOAD_ERROR';
 const IMAGING_LOAD_FINISH = 'IMAGING_LOAD_FINISH';
 
-export const viewImagingRequest = (id, modal = '') => async dispatch => {
-  dispatch(reloadImagingRequest(id));
-  dispatch(push(`/patients/encounter/imagingRequest/${modal}`));
+export const viewImagingRequest = (
+  patientId,
+  encounterId,
+  imagingRequestId,
+  modal = '',
+) => async dispatch => {
+  dispatch(reloadImagingRequest(imagingRequestId));
+  dispatch(
+    push(
+      `/patients/all/${patientId}/encounter/${encounterId}/imaging-request/${imagingRequestId}/${modal}`,
+    ),
+  );
 };
 
 export const reloadImagingRequest = id => async (dispatch, getState, { api }) => {

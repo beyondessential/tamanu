@@ -21,19 +21,19 @@ export const FACILITY_MENU_ITEMS = [
       {
         label: 'All patients',
         color: '#7EB3E7',
-        path: '/patients',
+        path: '/patients/all',
         ability: { action: 'read' },
       },
       {
         label: 'Inpatients',
         color: Colors.safe,
-        path: '/patients/admitted',
+        path: '/patients/inpatient',
         ability: { action: 'read' },
       },
       {
         label: 'Emergency patients',
         color: Colors.orange,
-        path: '/patients/triage',
+        path: '/patients/emergency',
         ability: { action: 'read' },
       },
       {

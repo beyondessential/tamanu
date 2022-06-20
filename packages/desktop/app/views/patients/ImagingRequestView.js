@@ -192,13 +192,16 @@ const DumbImagingRequestInfoPane = React.memo(
 
 export const DumbImagingRequestView = React.memo(({ imagingRequest, patient }) => {
   const api = useApi();
+  const params = useParams();
   const dispatch = useDispatch();
   const practitionerSuggester = new Suggester(api, 'practitioner');
   const locationSuggester = new Suggester(api, 'location');
 
   const onSubmit = data => {
     api.put(`imagingRequest/${imagingRequest.id}`, { ...data });
-    dispatch(push('/patients/encounter'));
+    dispatch(
+      push(`/patients/${params.category}/${patient.id}/encounter/${imagingRequest.encounterId}`),
+    );
   };
 
   if (patient.loading) return <LoadingIndicator />;

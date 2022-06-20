@@ -1,8 +1,9 @@
 import React from 'react';
-import { connect, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
 import { ENCOUNTER_TYPES } from 'shared/constants';
+import { useParams } from 'react-router-dom';
 import { Button, BackButton, TopBar, connectRoutedModal } from '../../components';
 import { ContentPane } from '../../components/ContentPane';
 import { DiagnosisView } from '../../components/DiagnosisView';
@@ -85,6 +86,7 @@ const TABS = [
   },
 ];
 
+// TODO - WHAT IS Routed modal
 const RoutedDischargeModal = connectRoutedModal('/patients/encounter', 'discharge')(DischargeModal);
 const RoutedChangeEncounterTypeModal = connectRoutedModal(
   '/patients/encounter',
@@ -96,89 +98,87 @@ const RoutedChangeDepartmentModal = connectRoutedModal(
 )(ChangeDepartmentModal);
 const RoutedMoveModal = connectRoutedModal('/patients/encounter', 'move')(MoveModal);
 
-const EncounterActionDropdown = connect(null, dispatch => ({
-  onDischargeOpen: () => dispatch(push('/patients/encounter/discharge')),
-  onChangeEncounterType: newType => dispatch(push(`/patients/encounter/changeType/${newType}`)),
-  onViewSummary: () => dispatch(push('/patients/encounter/summary')),
-  onChangeLocation: () => dispatch(push('/patients/encounter/move')),
-  onChangeDepartment: () => dispatch(push('/patients/encounter/changeDepartment')),
-}))(
-  ({
-    encounter,
-    onDischargeOpen,
-    onChangeEncounterType,
-    onChangeLocation,
-    onCancelLocationChange,
-    onFinaliseLocationChange,
-    onChangeDepartment,
-    onViewSummary,
-  }) => {
-    if (encounter.endDate) {
-      return (
-        <Button variant="outlined" color="primary" onClick={onViewSummary}>
-          View discharge summary
-        </Button>
-      );
-    }
+const EncounterActionDropdown = ({ encounter }) => {
+  const dispatch = useDispatch();
+  const params = useParams();
+  const onChangeEncounterType = type => dispatch(push(`/patients/encounter/changeType/${type}`));
+  const onChangeLocation = () => dispatch(push('/patients/encounter/move'));
+  const onDischargeOpen = () => dispatch(push('/patients/encounter/discharge'));
+  const onChangeDepartment = () => dispatch(push('/patients/encounter/changeDepartment'));
+  const onViewSummary = () =>
+    dispatch(
+      push(`/patients/${params.category}/${encounter.patientId}/encounter/${encounter.id}/summary`),
+    );
 
-    const progression = {
-      [ENCOUNTER_TYPES.TRIAGE]: 0,
-      [ENCOUNTER_TYPES.OBSERVATION]: 1,
-      [ENCOUNTER_TYPES.EMERGENCY]: 2,
-      [ENCOUNTER_TYPES.ADMISSION]: 3,
-    };
-    const isProgressionForward = (currentState, nextState) =>
-      progression[nextState] > progression[currentState];
-    const actions = [
-      {
-        label: 'Move to active ED care',
-        onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.OBSERVATION),
-        condition: () => isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.OBSERVATION),
-      },
-      {
-        label: 'Move to emergency short stay',
-        onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.EMERGENCY),
-        condition: () => isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.EMERGENCY),
-      },
-      {
-        label: 'Admit to hospital',
-        onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.ADMISSION),
-        condition: () => isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.ADMISSION),
-      },
-      {
-        label: 'Finalise location change',
-        condition: () => encounter.plannedLocation,
-        onClick: onFinaliseLocationChange,
-      },
-      {
-        label: 'Cancel location change',
-        condition: () => encounter.plannedLocation,
-        onClick: onCancelLocationChange,
-      },
-      {
-        label: 'Discharge without being seen',
-        onClick: onDischargeOpen,
-        condition: () => encounter.encounterType === ENCOUNTER_TYPES.TRIAGE,
-      },
-      {
-        label: 'Discharge',
-        onClick: onDischargeOpen,
-        condition: () => encounter.encounterType !== ENCOUNTER_TYPES.TRIAGE,
-      },
-      {
-        label: 'Change department',
-        onClick: onChangeDepartment,
-      },
-      {
-        label: 'Change location',
-        condition: () => !encounter.plannedLocation,
-        onClick: onChangeLocation,
-      },
-    ].filter(action => !action.condition || action.condition());
+  if (encounter.endDate) {
+    return (
+      <Button variant="outlined" color="primary" onClick={onViewSummary}>
+        View discharge summary
+      </Button>
+    );
+  }
 
-    return <DropdownButton variant="outlined" actions={actions} />;
-  },
-);
+  const progression = {
+    [ENCOUNTER_TYPES.TRIAGE]: 0,
+    [ENCOUNTER_TYPES.OBSERVATION]: 1,
+    [ENCOUNTER_TYPES.EMERGENCY]: 2,
+    [ENCOUNTER_TYPES.ADMISSION]: 3,
+  };
+  const isProgressionForward = (currentState, nextState) =>
+    progression[nextState] > progression[currentState];
+
+  const actions = [
+    {
+      label: 'Move to active ED care',
+      onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.OBSERVATION),
+      condition: () => isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.OBSERVATION),
+    },
+    {
+      label: 'Move to emergency short stay',
+      onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.EMERGENCY),
+      condition: () => isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.EMERGENCY),
+    },
+    {
+      label: 'Admit to hospital',
+      onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.ADMISSION),
+      condition: () => isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.ADMISSION),
+    },
+
+    // Removed as unused seemingly onCancelLocationChange and onFinalizeLocationChange was never passed to component
+    // {
+    //   label: 'Finalise location change',
+    //   condition: () => encounter.plannedLocation,
+    //   onClick: onFinaliseLocationChange,
+    // },
+    // {
+    //   label: 'Cancel location change',
+    //   condition: () => encounter.plannedLocation,
+    //   onClick: () => onCancelLocationChange,
+    // },
+
+    {
+      label: 'Discharge without being seen',
+      onClick: onDischargeOpen,
+      condition: () => encounter.encounterType === ENCOUNTER_TYPES.TRIAGE,
+    },
+    {
+      label: 'Discharge',
+      onClick: onDischargeOpen,
+      condition: () => encounter.encounterType !== ENCOUNTER_TYPES.TRIAGE,
+    },
+    {
+      label: 'Change department',
+      onClick: onChangeDepartment,
+    },
+    {
+      label: 'Change location',
+      condition: () => !encounter.plannedLocation,
+      onClick: onChangeLocation,
+    },
+  ].filter(action => !action.condition || action.condition());
+
+  return <DropdownButton variant="outlined" actions={actions} />;
+};
 
 const EncounterActions = ({ encounter }) => (
   <>
@@ -215,6 +215,7 @@ const GridColumnContainer = styled.div`
 
 export const EncounterView = () => {
   const { getLocalisation } = useLocalisation();
+  const params = useParams();
   const patient = useSelector(state => state.patient);
   const { encounter, isLoadingEncounter } = useEncounter();
   const { facility } = useAuth();
@@ -232,7 +233,7 @@ export const EncounterView = () => {
           <EncounterActions encounter={encounter} />
         </TopBar>
         <ContentPane>
-          <BackButton to="/patients/view" />
+          <BackButton to={`/patients/${params.category}/${encounter.patientId}`} />
           <EncounterInfoPane disabled encounter={encounter} />
         </ContentPane>
         <ContentPane>

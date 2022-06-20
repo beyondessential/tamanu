@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Redirect } from 'react-router-dom';
+import { Redirect, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import PrintIcon from '@material-ui/icons/Print';
@@ -215,6 +215,7 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
 
 export const DischargeSummaryView = React.memo(() => {
   const api = useApi();
+  const params = useParams();
   const [discharge, setDischarge] = useState(null);
   const { encounter } = useEncounter();
   const { printPage } = useElectron();
@@ -230,14 +231,16 @@ export const DischargeSummaryView = React.memo(() => {
 
   // If there is no encounter loaded then this screen can't be displayed
   if (!encounter?.id) {
-    return <Redirect to="/patients/view" />;
+    return <Redirect to="/patients/all" />;
   }
 
   return (
     <>
       <TopBar title="Patient Discharge Summary" />
       <NavContainer>
-        <StyledBackButton to="/patients/encounter" />
+        <StyledBackButton
+          to={`/patients/${params.category}/${encounter.patientId}/encounter/${encounter.id}`}
+        />
         <Button
           variant="outlined"
           color="primary"

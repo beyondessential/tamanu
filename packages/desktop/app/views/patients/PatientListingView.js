@@ -54,7 +54,7 @@ const StyledDataTable = styled(DataFetchingTable)`
   margin: 24px;
 `;
 
-const PatientTable = ({ onViewPatient, columns, fetchOptions, searchParameters }) => {
+const PatientTable = ({ onViewPatient, columns, fetchOptions, searchParameters, category }) => {
   const dispatch = useDispatch();
   const fetchOptionsWithSearchParameters = { ...searchParameters, ...fetchOptions };
   return (
@@ -63,9 +63,9 @@ const PatientTable = ({ onViewPatient, columns, fetchOptions, searchParameters }
       noDataMessage="No patients found"
       onRowClick={row => {
         if (onViewPatient) {
-          onViewPatient(row.id);
+          onViewPatient(row.id, category);
         } else {
-          dispatch(viewPatient(row.id));
+          dispatch(viewPatient(row.id, category));
         }
       }}
       rowStyle={({ patientStatus }) =>
@@ -129,6 +129,7 @@ export const PatientListingView = ({ onViewPatient }) => {
       </TopBar>
       <AllPatientsSearchBar onSearch={setSearchParameters} />
       <PatientTable
+        category="all"
         onViewPatient={onViewPatient}
         searchParameters={searchParameters}
         columns={LISTING_COLUMNS}
@@ -144,6 +145,7 @@ export const AdmittedPatientsView = () => {
       <TopBar title="Admitted patient listing" />
       <PatientSearchBar onSearch={setSearchParameters} />
       <PatientTable
+        category="inpatient"
         fetchOptions={{ inpatient: 1 }}
         searchParameters={searchParameters}
         columns={INPATIENT_COLUMNS}
@@ -159,6 +161,7 @@ export const OutpatientsView = () => {
       <TopBar title="Outpatient listing" />
       <PatientSearchBar onSearch={setSearchParameters} />
       <PatientTable
+        category="outpatient"
         fetchOptions={{ outpatient: 1 }}
         searchParameters={searchParameters}
         columns={INPATIENT_COLUMNS}

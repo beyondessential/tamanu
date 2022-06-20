@@ -16,9 +16,9 @@ export const clearPatient = () => ({
   type: PATIENT_CLEAR,
 });
 
-export const viewPatient = (id, modal = '') => async dispatch => {
+export const viewPatient = (id, category = 'all') => async dispatch => {
   dispatch(reloadPatient(id));
-  dispatch(push(`/patients/view/${modal}`));
+  dispatch(push(`/patients/${category}/${id}`));
 };
 
 export const reloadPatient = id => async (dispatch, getState, { api }) => {

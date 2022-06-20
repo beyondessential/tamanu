@@ -4,9 +4,11 @@ import { push } from 'connected-react-router';
 import { useEncounter } from '../../../contexts/Encounter';
 import { PatientEncounterSummary } from '../components/PatientEncounterSummary';
 import { PatientHistory } from '../../../components/PatientHistory';
+import { useParams } from 'react-router-dom';
 
 export const HistoryPane = React.memo(({ disabled }) => {
   const dispatch = useDispatch();
+  const params = useParams();
   const patient = useSelector(state => state.patient);
   const { currentEncounter } = patient;
 
@@ -15,10 +17,10 @@ export const HistoryPane = React.memo(({ disabled }) => {
   const onViewEncounter = useCallback(
     id => {
       (async () => {
-        await loadEncounter(id, true);
+        await loadEncounter(id, true, params.category);
       })();
     },
-    [loadEncounter],
+    [loadEncounter, params.category],
   );
 
   const onOpenCheckin = () => dispatch(push('/patients/view/checkin'));

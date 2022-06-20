@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, Switch } from 'react-router-dom';
+import { Redirect, Route, Switch } from 'react-router-dom';
 
 import {
   PatientListingView,
@@ -14,18 +14,44 @@ import {
   OutpatientsView,
 } from '../views';
 
+// patients/all/:patientId/encounter/:encounterId/lab-request
+// patients/emergency/**/*
+// patients/inpatients/**/*
+// patients/outpatients/**/*
+
+// .../:patientId/programs
+
 export const PatientsRoutes = React.memo(({ match }) => (
   <Switch>
-    <Route exact path={match.path} component={PatientListingView} />
-    <Route path={`${match.path}/triage`} component={TriageListingView} />
-    <Route path={`${match.path}/admitted`} component={AdmittedPatientsView} />
+    <Redirect exact path={match.path} to={`${match.path}/all`} />
+
+    <Route
+      path={`${match.path}/:category(all|emergency|inpatient|outpatient)/:patientId/encounter/:encounterId/imaging-request/:imagingRequestId/:modal?`}
+      component={ImagingRequestView}
+    />
+    <Route
+      path={`${match.path}/:category(all|emergency|inpatient|outpatient)/:patientId/encounter/:encounterId/summary`}
+      component={DischargeSummaryView}
+    />
+    <Route
+      path={`${match.path}/:category(all|emergency|inpatient|outpatient)/:patientId/encounter/:encounterId`}
+      component={EncounterView}
+    />
+    <Route
+      path={`${match.path}/:category(all|emergency|inpatient|outpatient)/:patientId`}
+      component={PatientView}
+    />
+
+
+    <Route path={`${match.path}/all`} component={PatientListingView} />
+    <Route path={`${match.path}/emergency`} component={TriageListingView} />
+    <Route path={`${match.path}/inpatient`} component={AdmittedPatientsView} />
     <Route path={`${match.path}/outpatient`} component={OutpatientsView} />
-    <Route path={`${match.path}/new`} component={NotActiveView} />
-    <Route path={`${match.path}/view`} component={PatientView} />
+
+
+
     <Route path={`${match.path}/encounter/labRequest/:modal?`} component={LabRequestView} />
-    <Route path={`${match.path}/encounter/imagingRequest/:modal?`} component={ImagingRequestView} />
-    <Route path={`${match.path}/encounter/summary`} component={DischargeSummaryView} />
-    <Route path={`${match.path}/encounter`} component={EncounterView} />
+    {/* <Route path={`${match.path}/encounter/imagingRequest/:modal?`} component={ImagingRequestView} /> */}
     <NotActiveView />
   </Switch>
 ));
