@@ -6,13 +6,6 @@
   "log": {
     "consoleLevel": "debug"
   },
-  "tupaiaApiClient": {
-    "auth": {
-      "username": "tamanu-server@tupaia.org",
-      "password": ""
-    },
-    "environment": "dev"
-  },
   "localisation": {
     "data": {
       "timeZone": "UTC",
