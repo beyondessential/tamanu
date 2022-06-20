@@ -7,7 +7,7 @@ import { ContentPane } from '../../../components/ContentPane';
 import { ReferralTable } from '../../../components/ReferralTable';
 
 export const ReferralPane = connect(null, dispatch => ({
-  onNavigateToReferrals: () => dispatch(push('/referrals')),
+  onNavigateToReferrals: () => dispatch(push('/referrals/new')),
 }))(
   React.memo(({ onNavigateToReferrals, patient }) => (
     <div>
