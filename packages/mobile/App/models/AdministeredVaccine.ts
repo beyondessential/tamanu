@@ -28,6 +28,9 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   @Column()
   date: Date;
 
+  @Column({ nullable: true })
+  givenBy?: string;
+
 
   @ManyToOne(
     () => Encounter,
@@ -47,16 +50,6 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
 
   @RelationId(({ scheduledVaccine }: AdministeredVaccine) => scheduledVaccine)
   scheduledVaccineId: string;
-
-
-  @ManyToOne(
-    () => User,
-    user => user.givenVaccines,
-  )
-  giver: User;
-
-  @RelationId(({ giver }: AdministeredVaccine) => giver)
-  giverId: string;
 
 
   @ManyToOne(

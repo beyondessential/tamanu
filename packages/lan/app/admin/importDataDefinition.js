@@ -141,6 +141,7 @@ const transformers = [
   makeTransformer('labTestLaboratory', referenceDataTransformer('labTestLaboratory')),
   makeTransformer('labTestMethods', referenceDataTransformer('labTestMethod')),
   makeTransformer('additionalInvoiceLines', referenceDataTransformer('additionalInvoiceLine')),
+  makeTransformer('manufacturers', referenceDataTransformer('manufacturer')),
   makeTransformer('users', recordTransformer('user')),
   makeTransformer('patients', patientDataTransformer),
   makeTransformer('labTestTypes', recordTransformer('labTestType')),

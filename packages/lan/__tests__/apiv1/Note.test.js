@@ -24,6 +24,7 @@ describe('Note', () => {
   let baseApp = null;
   let models = null;
   let ctx;
+  let testUser;
 
   beforeAll(async () => {
     ctx = await createTestContext();
@@ -31,6 +32,12 @@ describe('Note', () => {
     models = ctx.models;
     patient = await models.Patient.create(await createDummyPatient(models));
     app = await baseApp.asRole('practitioner');
+    testUser = await models.User.create({
+      email: 'testemail@something.com',
+      displayName: 'display name for the test user',
+      password: 'abcdefg123456',
+      role: 'practitioner',
+    });
   });
   afterAll(() => ctx.close());
 
@@ -91,12 +98,13 @@ describe('Note', () => {
       expect(note.recordId).toEqual(encounter.id);
     });
 
-    it('should edit a note', async () => {
+    it('should edit a note if its by the same user', async () => {
       const note = await models.Note.create({
         content: chance.paragraph(),
         recordId: encounter.id,
         recordType: NOTE_RECORD_TYPES.ENCOUNTER,
         noteType: NOTE_TYPES.SYSTEM,
+        authorId: app.user.id,
       });
 
       const response = await app.put(`/v1/note/${note.id}`).send({
@@ -148,6 +156,50 @@ describe('Note', () => {
 
         expect(response).toBeForbidden();
       });
+
+      it('should forbid editing a note if the author does not match request user', async () => {
+        const note = await models.Note.create({
+          content: chance.paragraph(),
+          recordId: encounter.id,
+          recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+          noteType: NOTE_TYPES.SYSTEM,
+          authorId: testUser.id,
+        });
+
+        const response = await app.put(`/v1/note/${note.id}`).send({
+          content: 'updated',
+        });
+
+        expect(response).toBeForbidden();
+      });
+    });
+  });
+
+  describe('PatientCarePlan notes', () => {
+    let patientCarePlan = null;
+
+    beforeAll(async () => {
+      patientCarePlan = await models.PatientCarePlan.create({
+        patientId: patient.id,
+      });
+    });
+
+    it('should allow editing a patient care plan note regardless of the author', async () => {
+      const note = await models.Note.create({
+        content: chance.paragraph(),
+        recordId: patientCarePlan.id,
+        recordType: NOTE_RECORD_TYPES.PATIENT_CARE_PLAN,
+        noteType: NOTE_TYPES.TREATMENT_PLAN,
+        authorId: testUser.id,
+      });
+
+      const response = await app.put(`/v1/note/${note.id}`).send({
+        content: 'updated',
+      });
+
+      expect(response).toHaveSucceeded();
+      expect(response.body.id).toEqual(note.id);
+      expect(response.body.content).toEqual('updated');
     });
   });
 });

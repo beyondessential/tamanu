@@ -32,7 +32,7 @@ const ModalContent = React.memo(({ open, onClose, onMarkRecordedInError, vaccine
     injectionSite,
     scheduledVaccine: { label, schedule },
     recorder,
-    giver,
+    givenBy,
     location,
     encounter,
   } = vaccineRecord;
@@ -65,7 +65,7 @@ const ModalContent = React.memo(({ open, onClose, onMarkRecordedInError, vaccine
             value={location?.name || encounter?.location?.name}
             label="Facility"
           />
-          {giver && <TextInput disabled value={giver.displayName} label="Giver" />}
+          {givenBy && <TextInput disabled value={givenBy} label="Giver" />}
           <TextInput disabled value={recorder?.displayName || encounter?.examiner?.displayName} label="Recorder" />
         </FormGrid>
         <Button onClick={() => setConfirmDelete(true)} variant="contained" color="primary">
