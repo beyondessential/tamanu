@@ -30,6 +30,7 @@
   - `localisation.data.features.enablePatientDeaths`
 - Remove `localisation.data.covidVaccines`
 - Import Certifiable Vaccines (if required) data
+- (Samoa sync) Remove removeDuplicatedPatientAdditionalData scheduled task  
 
 ### Features ⭐
 
