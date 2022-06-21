@@ -326,6 +326,7 @@ export const DeathForm = React.memo(
               inline
               component={RadioField}
               options={binaryUnknownOptions}
+              visibilityCriteria={{ pregnant: 'yes' }}
             />
           </StyledFormGrid>
         ) : null}
