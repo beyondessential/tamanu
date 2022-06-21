@@ -46,7 +46,7 @@ const Bar = styled(Toolbar)`
 
 export const TopBar = React.memo(({ title, subTitle, children, className }) => (
   <AppBar>
-    <Toolbar className={className}>
+    <Bar className={className}>
       {subTitle ? (
         <div>
           <SmallTopBarHeading variant="h2">{title}</SmallTopBarHeading>
