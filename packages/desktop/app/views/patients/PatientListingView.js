@@ -96,7 +96,6 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
   return (
     <>
       <DropdownButton
-        color="primary"
         actions={[
           { label: 'Create new patient', onClick: showNewPatient },
           { label: 'Register birth', onClick: showNewBirth },

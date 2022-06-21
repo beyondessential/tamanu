@@ -176,7 +176,7 @@ const EncounterActionDropdown = connect(null, dispatch => ({
       },
     ].filter(action => !action.condition || action.condition());
 
-    return <DropdownButton variant="outlined" actions={actions} />;
+    return <DropdownButton actions={actions} />;
   },
 );
 

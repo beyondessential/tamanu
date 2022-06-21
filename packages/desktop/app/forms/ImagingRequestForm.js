@@ -67,7 +67,7 @@ const FormSubmitActionDropdown = connect(null, dispatch => ({
       { label: 'Finalise & print', onClick: finaliseAndPrint },
     ];
 
-    return <DropdownButton color="primary" variant="contained" actions={actions} />;
+    return <DropdownButton actions={actions} />;
   }),
 );
 

@@ -77,7 +77,7 @@ const InvoiceLineActionDropdown = React.memo(({ row }) => {
           await loadEncounter(encounter.id);
         }}
       />
-      <DropdownButton color="primary" actions={actions} />
+      <DropdownButton actions={actions} />
     </>
   );
 });
@@ -101,7 +101,7 @@ const InvoicePriceChangeActionDropdown = React.memo(({ row }) => {
 
   return (
     <>
-      <DropdownButton color="primary" actions={actions} />
+      <DropdownButton actions={actions} />
       <InvoicePriceChangeItemModal
         title="Edit additional price change item"
         actionText="Save"
