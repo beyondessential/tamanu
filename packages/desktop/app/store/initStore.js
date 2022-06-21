@@ -9,7 +9,7 @@ import { authReducer } from './auth';
 import { optionsReducer } from './options';
 import { imagingRequestReducer } from './imagingRequest';
 import { patientReducer } from './patient';
-import { decisionSupportReducer } from './decisionSupport';
+import { specialModalsReducer } from './specialModals';
 
 export const createReducers = history => ({
   router: connectRouter(history),
@@ -17,7 +17,7 @@ export const createReducers = history => ({
   patient: patientReducer,
   options: optionsReducer,
   imagingRequest: imagingRequestReducer,
-  decisionSupport: decisionSupportReducer,
+  specialModals: specialModalsReducer,
 });
 
 export function initStore(api) {

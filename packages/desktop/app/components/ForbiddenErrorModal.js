@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import Typography from '@material-ui/core/Typography';
 
-import { getErrorMessage, removeForbiddenError } from '../store/decisionSupport';
+import { getErrorMessage, removeForbiddenError } from '../store/specialModals';
 import { Modal } from './Modal';
 import { ModalActionRow } from './ModalActionRow';
 

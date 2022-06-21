@@ -23,8 +23,8 @@ export const removeForbiddenError = () => ({
 
 // selectors
 
-export const getCurrentDecisionSupport = state => state.decisionSupport.messages[0];
-export const getErrorMessage = state => state.decisionSupport.errorMessage;
+export const getCurrentDecisionSupport = state => state.specialModals.messages[0];
+export const getErrorMessage = state => state.specialModals.errorMessage;
 
 // reducers
 
@@ -52,4 +52,4 @@ const handlers = {
   }),
 };
 
-export const decisionSupportReducer = createStatePreservingReducer(defaultState, handlers);
+export const specialModalsReducer = createStatePreservingReducer(defaultState, handlers);
