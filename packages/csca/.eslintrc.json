@@ -4,8 +4,7 @@
   "plugins": ["@typescript-eslint"],
   "extends": [
     "plugin:@typescript-eslint/recommended",
-    "@beyondessential/eslint-config-beyondessential",
-    "@beyondessential/eslint-config-ts"
+    "@beyondessential/eslint-config-beyondessential"
   ],
   "env": {
     "jest": true,

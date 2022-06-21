@@ -1,12 +1,12 @@
+import { Op } from 'sequelize';
 import { createDummyPatient, createDummyPatientAdditionalData } from 'shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
-import { patientToHL7Patient } from '../../app/hl7fhir/patient';
+import { patientToHL7Patient, getPatientWhereClause } from '../../app/hl7fhir/patient';
 
 import { validate } from './hl7utilities';
 
 describe('HL7 Patient', () => {
-
   let models;
   let ctx;
 
@@ -22,7 +22,7 @@ describe('HL7 Patient', () => {
     const patient = await models.Patient.create(patientData);
     const additional = await models.PatientAdditionalData.create({
       patientId: patient.id,
-      ...await createDummyPatientAdditionalData(),
+      ...(await createDummyPatientAdditionalData()),
     });
 
     const hl7 = patientToHL7Patient(patient, additional || {});
@@ -38,4 +38,49 @@ describe('HL7 Patient', () => {
     expect(result).toEqual(true);
   });
 
+  it('Should output a valid sequelize where clause', async () => {
+    const patientData = await createDummyPatient(models, {
+      firstName: 'John',
+      lastName: 'Doe',
+      sex: 'male',
+    });
+    const patient = await models.Patient.create(patientData);
+    await models.PatientAdditionalData.create({
+      patientId: patient.id,
+      ...(await createDummyPatientAdditionalData()),
+      primaryContactNumber: '0123456',
+    });
+    const query = { given: 'john', family: 'doe', telecom: '0123456', gender: 'male' };
+    const whereClause = getPatientWhereClause(null, query);
+    const patients = await models.Patient.findAll({
+      where: whereClause,
+      include: [{ association: 'additionalData' }],
+    });
+    expect(patients.length).toBe(1);
+  });
+
+  it('Should handle modifiers in the query', async () => {
+    // Patient created in previous test
+    const query = {
+      'given:contains': 'oh',
+      'family:starts-with': 'do',
+      telecom: '0123456',
+      gender: 'male',
+    };
+    const whereClause = getPatientWhereClause(null, query);
+    const patients = await models.Patient.findAll({
+      where: whereClause,
+      include: [{ association: 'additionalData' }],
+    });
+    expect(patients.length).toBe(1);
+  });
+
+  it('Should ignore unknown query params', () => {
+    const query = { foo: 'bar', given: 'john' };
+    const displayId = 'test-display-id-123456';
+    const whereClause = getPatientWhereClause(displayId, query);
+    const filters = whereClause[Op.and];
+    const keys = filters.map(obj => Object.keys(obj)[0]);
+    expect(keys).toMatchObject(['displayId', 'firstName']);
+  });
 });

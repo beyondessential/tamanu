@@ -9,8 +9,15 @@ const BarcodeFrame = styled.div`
   overflow: hidden;
 `;
 
-export const PatientBarcode = ({ patient, width, height, margin = '1rem' }) => (
+export const PatientBarcode = ({
+  patient,
+  width,
+  height,
+  margin = '1rem',
+  barWidth = 1,
+  barHeight = 35,
+}) => (
   <BarcodeFrame width={width} height={height} margin={margin}>
-    <Barcode value={patient.displayId} width={1} height={35} margin={0} />
+    <Barcode value={patient.displayId} width={barWidth} height={barHeight} margin={0} />
   </BarcodeFrame>
 );

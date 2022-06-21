@@ -1,9 +1,18 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
-import { NotFoundError, InappropriateEndpointError } from 'shared/errors';
+import { NotFoundError, InappropriateEndpointError, ForbiddenError } from 'shared/errors';
+import { NOTE_RECORD_TYPES } from 'shared/models/Note';
 
 export const note = express.Router();
+
+// A user can only modify an encounter note if they author it
+function canModifyNote(noteObject, user) {
+  if (noteObject.recordType !== NOTE_RECORD_TYPES.ENCOUNTER) {
+    return true;
+  }
+  return noteObject.authorId === user.id;
+}
 
 note.put(
   '/:id',
@@ -13,6 +22,10 @@ note.put(
     const editedNote = await models.Note.findByPk(params.id);
     if (!editedNote) {
       throw new NotFoundError();
+    }
+
+    if (canModifyNote(editedNote, req.user) === false) {
+      throw new ForbiddenError('Cannot edit a note created by another user.');
     }
 
     req.checkPermission('write', editedNote.recordType);
@@ -41,6 +54,10 @@ note.delete(
     const noteToBeDeleted = await req.models.Note.findByPk(req.params.id);
     if (!noteToBeDeleted) {
       throw new NotFoundError();
+    }
+
+    if (canModifyNote(noteToBeDeleted, req.user) === false) {
+      throw new ForbiddenError('Cannot delete a note created by another user.');
     }
 
     req.checkPermission('write', noteToBeDeleted.recordType);

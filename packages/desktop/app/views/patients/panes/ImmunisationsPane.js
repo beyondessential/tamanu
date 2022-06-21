@@ -1,6 +1,7 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
+import { useApi } from '../../../api';
 import { Button } from '../../../components/Button';
 import { ContentPane } from '../../../components/ContentPane';
 import { EditAdministeredVaccineModal } from '../../../components/EditAdministeredVaccineModal';
@@ -14,14 +15,23 @@ const ButtonSpacer = styled.div`
 `;
 
 export const ImmunisationsPane = React.memo(({ patient, readonly }) => {
-  const [isAdministerModalOpen, setIsAdministerModalOpen] = React.useState(false);
-  const [isCertificateModalOpen, setIsCertificateModalOpen] = React.useState(false);
-  const [isEditAdministeredModalOpen, setIsEditAdministeredModalOpen] = React.useState(false);
-  const [vaccineData, setVaccineData] = React.useState();
+  const [isAdministerModalOpen, setIsAdministerModalOpen] = useState(false);
+  const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false);
+  const [isEditAdministeredModalOpen, setIsEditAdministeredModalOpen] = useState(false);
+  const [vaccineData, setVaccineData] = useState();
+  const [hasVaccines, setHasVaccines] = useState();
+
   const onOpenEditModal = useCallback(async row => {
     setIsEditAdministeredModalOpen(true);
     setVaccineData(row);
   }, []);
+
+  const api = useApi();
+  useEffect(() => {
+    api.get(`patient/${patient.id}/administeredVaccines`).then(response => {
+      setHasVaccines(response.data.length > 0);
+    });
+  }, [api, patient.id]);
 
   return (
     <div>
@@ -52,7 +62,12 @@ export const ImmunisationsPane = React.memo(({ patient, readonly }) => {
           Give vaccine
         </Button>
         <ButtonSpacer />
-        <Button onClick={() => setIsCertificateModalOpen(true)} variant="outlined" color="primary">
+        <Button
+          onClick={() => setIsCertificateModalOpen(true)}
+          variant="outlined"
+          color="primary"
+          disabled={!hasVaccines}
+        >
           View certificate
         </Button>
       </ContentPane>

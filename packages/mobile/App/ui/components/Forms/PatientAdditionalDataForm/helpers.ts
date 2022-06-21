@@ -8,7 +8,7 @@ import {
   maritalStatusOptions,
   socialMediaOptions,
   titleOptions
-} from '~/ui/helpers/constants';
+} from '~/ui/helpers/additionalData';
 
 // All PatientAdditionalData plain fields sorted alphabetically
 export const plainFields = [
@@ -157,17 +157,14 @@ export const patientAdditionalDataValidationSchema = Yup.object().shape({
 });
 
 // Strip off unwanted fields from additional data and only keep specified ones
-export const getInitialValues = (data): {} => {
+export const getInitialValues = (data, fields): {} => {
   if (!data) {
     return {};
   }
 
-  // Get all fields in the form
-  const allFields = [...plainFields, ...selectFields, ...relationIdFields];
-
-  // Copy values from data
+  // Copy values from data only in the specified fields
   const values = {};
-  allFields.forEach(fieldName => {
+  fields.forEach(fieldName => {
     values[fieldName] = data[fieldName];
   });
 

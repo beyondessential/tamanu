@@ -51,7 +51,7 @@ export class Referral extends BaseModel implements IReferral {
   ): Promise<Referral> {
     // typeORM is extremely unhappy if you take away this
     // transactionalEntityManager param even if it's unused.
-    await getConnection().transaction(async (transactionalEntityManager) => {
+    return getConnection().transaction(async (transactionalEntityManager) => {
       const response = await SurveyResponse.submit(
         patientId,
         userId,

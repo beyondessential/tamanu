@@ -15,7 +15,6 @@ export const dropdownSize = {
   distanceFromPlaceholder: -32,
 };
 
-
 export enum SCREEN_ORIENTATION {
   PORTRAIT = 'portrait',
   LANDSCAPE = 'landscape',
@@ -26,21 +25,18 @@ export enum Orientation {
   Height = 'height',
 }
 
-export function screenPercentageToDP(
+export const screenPercentageToDP = (
   value: string | number,
   orientation: Orientation,
-): number {
-  return orientation === Orientation.Width
+): number =>
+  orientation === Orientation.Width
     ? widthPercentageToDP(value)
     : heightPercentageToDP(value);
-}
 
-export const getOrientation = (): SCREEN_ORIENTATION => {
-  if (Dimensions.get('window').width < Dimensions.get('window').height) {
-    return SCREEN_ORIENTATION.PORTRAIT;
-  }
-  return SCREEN_ORIENTATION.LANDSCAPE;
-};
+export const getOrientation = (): SCREEN_ORIENTATION =>
+  Dimensions.get('window').width < Dimensions.get('window').height
+    ? SCREEN_ORIENTATION.PORTRAIT
+    : SCREEN_ORIENTATION.LANDSCAPE;
 
 export const scrollTo = (
   scrollViewRef: any,
@@ -53,17 +49,18 @@ export const scrollTo = (
 
 export const calculateVerticalPositions = (
   fieldList: string[], inputOffset = 65,
-): VerticalPosition => {
-  let verticalOffset = 0;
-  return fieldList.reduce<VerticalPosition>((acc, cur, index) => {
-    acc[cur] = {
-      x: 0,
-      y: index === 0 ? 0 : verticalOffset + 35,
-    };
-    verticalOffset += inputOffset;
-    return acc;
-  }, {});
-};
+): VerticalPosition =>
+  fieldList.reduce<{ pos: VerticalPosition, off: number }>(
+    (acc, cur, index) => {
+      acc.pos[cur] = {
+        x: 0,
+        y: index === 0 ? 0 : acc.off + 35,
+      };
+      acc.off += inputOffset;
+      return acc;
+    },
+    { pos: {}, off: 0 }
+  ).pos;
 
 export const calculateDropdownPosition = (
   placeholderPosition: number, 
@@ -84,7 +81,6 @@ export const calculateDropdownPosition = (
   }
   return initialPosition;
 };
-
 
 export const setStatusBar = (barStyle: 'light-content' | 'dark-content', backgroundColor: string): void => useFocusEffect(
   useCallback(() => {

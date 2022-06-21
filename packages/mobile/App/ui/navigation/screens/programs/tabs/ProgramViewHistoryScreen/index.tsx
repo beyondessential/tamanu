@@ -2,14 +2,14 @@ import React, { ReactElement } from 'react';
 import { theme } from '/styled/theme';
 import { FlatList } from 'react-native';
 
-import { SurveyResponseScreenProps } from '/interfaces/screens/ProgramsStack/SurveyResponseScreen';
-import { Routes } from '/helpers/routes';
-import { ErrorScreen } from '/components/ErrorScreen';
-import { LoadingScreen } from '/components/LoadingScreen';
-import { Separator } from '/components/Separator';
-import { SurveyResponseLink } from '/components/SurveyResponseLink';
+import { SurveyResponseScreenProps } from '../../../../../interfaces/Screens/ProgramsStack/SurveyResponseScreen';
+import { Routes } from '../../../../../helpers/routes';
+import { ErrorScreen } from '../../../../../components/ErrorScreen';
+import { LoadingScreen } from '../../../../../components/LoadingScreen';
+import { Separator } from '../../../../../components/Separator';
+import { SurveyResponseLink } from '../../../../../components/SurveyResponseLink';
 
-import { useBackendEffect } from '~/ui/hooks';
+import { useBackendEffect } from '../../../../../hooks';
 
 export const ProgramViewHistoryScreen = ({
   route,

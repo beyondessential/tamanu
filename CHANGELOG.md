@@ -22,6 +22,34 @@
 
 - (left blank)
 
+## v1.17.0
+
+### Manual steps required after upgrade ⚙
+
+- Set `enablePatientDeaths` in sync-server config (if required)
+  - `localisation.data.features.enablePatientDeaths`
+- Remove `localisation.data.covidVaccines`
+- Import Certifiable Vaccines (if required) data
+
+### Features ⭐
+
+- Logs updated with various pieces of additional diagnostic info
+- Logs can now be sent to Honeycomb for central viewing/querying
+- Added printing options for lab requests, imaging requests, and prescriptions
+- Vaccines that can have a QR code (VDS-NC or EU DCC) are now configured via the Certifiable Vaccines imported data, rather than being hardcoded
+
+### Tweaks ⚖️
+
+- (left blank)
+
+### Bug fixes 🐛
+
+- (left blank)
+
+### Infrastructure and maintenance 🛠
+
+- Drop deprecated `X-Runtime` header (except in meta server).
+
 ## v1.16.2
 
 ### Manual steps required after upgrade ⚙
@@ -65,7 +93,7 @@
 
 ### Tweaks ⚖️
 
-- (left blank)
+- Scheduled tasks are now split into a separate command, so `pm2 scale` works up and down now. A new PM2 process will appear: `tamanu-tasks-runner` (only one instance should run at all times).
 
 ### Bug fixes 🐛
 

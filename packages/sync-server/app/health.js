@@ -1,11 +1,12 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import config from 'config';
+import { isObject } from 'lodash';
 
 import { log } from 'shared/services/logging';
 import { createMigrationInterface } from 'shared/services/migrations';
 
-import { version } from '../package.json';
+import { version } from './serverInfo';
 import { canUploadAttachment } from './utils/getFreeDiskSpace';
 
 export const healthRoutes = express.Router();
@@ -23,7 +24,7 @@ function uptime() {
 // (to use with sanitising the config object)
 function recurse(object, cb, prefix = '') {
   return Object.entries(object).reduce((state, [k, v]) => {
-    if (typeof v === 'object') {
+    if (isObject(v)) {
       return { ...state, [k]: recurse(v, cb, `${prefix}${k}.`) };
     }
     return { ...state, [k]: cb(`${prefix}${k}`, v) };
