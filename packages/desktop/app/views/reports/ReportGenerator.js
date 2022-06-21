@@ -1,14 +1,10 @@
+import React, { useState } from 'react';
 import { Grid } from '@material-ui/core';
 import { green } from '@material-ui/core/colors';
-import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Button, PageContainer, TopBar } from '../../components';
+import { Button, PageContainer, TopBar, ContentPane } from '../../components';
 import { MUI_SPACING_UNIT } from '../../constants';
 import { ReportGeneratorForm } from './ReportGeneratorForm';
-
-const PageContent = styled.div`
-  padding: 24px;
-`;
 
 const SuccessMessageContainer = styled(Grid)`
   padding: ${MUI_SPACING_UNIT * 2}px ${MUI_SPACING_UNIT * 3}px;
@@ -29,7 +25,7 @@ export const ReportGenerator = () => {
   return (
     <PageContainer>
       <TopBar title="Report generator" />
-      <PageContent>
+      <ContentPane>
         {formState === 'initial' && (
           <ReportGeneratorForm
             onSuccessfulSubmit={() => {
@@ -44,7 +40,7 @@ export const ReportGenerator = () => {
             }}
           />
         )}
-      </PageContent>
+      </ContentPane>
     </PageContainer>
   );
 };

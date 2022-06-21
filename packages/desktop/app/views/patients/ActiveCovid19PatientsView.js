@@ -3,8 +3,6 @@ import { useDispatch } from 'react-redux';
 import { groupBy } from 'lodash';
 import styled from 'styled-components';
 import People from '@material-ui/icons/People';
-import Paper from '@material-ui/core/Paper';
-
 import { useApi } from '../../api';
 import { viewPatient } from '../../store/patient';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
@@ -14,6 +12,7 @@ import {
   PageContainer,
   DataFetchingTable,
   DateDisplay,
+  ContentPane,
 } from '../../components';
 import { CLINICAL_STATUSES, CLINICAL_COLORS_BY_STATUS, Colors } from '../../constants';
 
@@ -99,40 +98,10 @@ const PeopleIcon = styled(People)`
   padding-right: 5px;
 `;
 
-const StatisticsRow = styled(Paper)`
+const StatisticsRow = styled.div`
   display: flex;
-  margin: 16px 16px 0 16px;
-  width: fit-content;
-
-  > div {
-    &:first-child {
-      div:first-of-type {
-        border-top-left-radius: 3px;
-      }
-      div:last-of-type {
-        border-bottom-left-radius: 3px;
-      }
-    }
-
-    &:last-child {
-      div:first-of-type {
-        border-top-right-radius: 3px;
-      }
-      div:last-of-type {
-        border-bottom-right-radius: 3px;
-      }
-    }
-
-    &:last-child {
-      border-radius: 0 3px 3px 0;
-    }
-
-    &:not(:last-of-type) {
-      div:last-child {
-        border-right: none;
-      }
-    }
-  }
+  margin: 16px 0 30px;
+  filter: drop-shadow(2px 2px 25px rgba(0, 0, 0, 0.1));
 `;
 
 const ENDPOINT = 'patient/program/activeCovid19Patients';
@@ -146,7 +115,6 @@ export const PatientsSummaryCard = ({ clinicalStatus, title, numberOfPatients = 
         <PeopleIcon />
         <Title>{title}</Title>
       </Header>
-
       <BottomContainer>
         <Content>
           <PatientText color={colorTheme}>{numberOfPatients}</PatientText>
@@ -193,24 +161,26 @@ export const ActiveCovid19PatientsView = React.memo(() => {
     <PageContainer>
       <TopBar title="Active COVID-19 patients" />
       <CovidPatientsSearchBar onSearch={setSearchParameters} />
-      <StatisticsRow>
-        <PatientsSummaryCard
-          title={CLINICAL_STATUSES.CRITICAL}
-          clinicalStatus={CLINICAL_STATUSES.CRITICAL}
-          numberOfPatients={patientsByClinicalStatus[CLINICAL_STATUSES.CRITICAL]?.length || 0}
-        />
-        <PatientsSummaryCard
-          title={CLINICAL_STATUSES.LOW_RISK}
-          clinicalStatus={CLINICAL_STATUSES.LOW_RISK}
-          numberOfPatients={patientsByClinicalStatus[CLINICAL_STATUSES.LOW_RISK]?.length || 0}
-        />
-        <PatientsSummaryCard
-          title={CLINICAL_STATUSES.NEEDS_REVIEW}
-          clinicalStatus={CLINICAL_STATUSES.NEEDS_REVIEW}
-          numberOfPatients={patientsByClinicalStatus[CLINICAL_STATUSES.NEEDS_REVIEW]?.length || 0}
-        />
-      </StatisticsRow>
-      <ActiveCovid19PatientsTable data={data} fetchOptions={searchParameters} />
+      <ContentPane>
+        <StatisticsRow>
+          <PatientsSummaryCard
+            title={CLINICAL_STATUSES.CRITICAL}
+            clinicalStatus={CLINICAL_STATUSES.CRITICAL}
+            numberOfPatients={patientsByClinicalStatus[CLINICAL_STATUSES.CRITICAL]?.length || 0}
+          />
+          <PatientsSummaryCard
+            title={CLINICAL_STATUSES.LOW_RISK}
+            clinicalStatus={CLINICAL_STATUSES.LOW_RISK}
+            numberOfPatients={patientsByClinicalStatus[CLINICAL_STATUSES.LOW_RISK]?.length || 0}
+          />
+          <PatientsSummaryCard
+            title={CLINICAL_STATUSES.NEEDS_REVIEW}
+            clinicalStatus={CLINICAL_STATUSES.NEEDS_REVIEW}
+            numberOfPatients={patientsByClinicalStatus[CLINICAL_STATUSES.NEEDS_REVIEW]?.length || 0}
+          />
+        </StatisticsRow>
+        <ActiveCovid19PatientsTable data={data} fetchOptions={searchParameters} />
+      </ContentPane>
     </PageContainer>
   );
 });

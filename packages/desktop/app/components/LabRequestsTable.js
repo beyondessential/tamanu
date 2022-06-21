@@ -61,6 +61,7 @@ const DumbLabRequestsTable = React.memo(({ encounterId, viewPatient }) => {
       noDataMessage="No lab requests found"
       onRowClick={selectLab}
       fetchOptions={searchParameters}
+      elevated={false}
     />
   );
 });
