@@ -1,5 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import moment from 'moment';
 import { Op } from 'sequelize';
 import { NOTE_TYPES } from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
@@ -209,8 +210,30 @@ globalImagingRequests.get(
         operator: Op.eq,
         mapFn: urgencyTextToBooleanFilter,
       },
-      { key: 'requestedDateFrom', alias: 'requestedDate', operator: Op.gte },
-      { key: 'requestedDateTo', alias: 'requestedDate', operator: Op.lte },
+      {
+        key: 'requestedDateFrom',
+        alias: 'requestedDate',
+        operator: Op.gte,
+        mapFn: (fieldName, operator, value) => ({
+          [fieldName]: {
+            [operator]: moment(value)
+              .startOf('day')
+              .toISOString(),
+          },
+        }),
+      },
+      {
+        key: 'requestedDateTo',
+        alias: 'requestedDate',
+        operator: Op.lte,
+        mapFn: (fieldName, operator, value) => ({
+          [fieldName]: {
+            [operator]: moment(value)
+              .endOf('day')
+              .toISOString(),
+          },
+        }),
+      },
     ]);
 
     // Associations to include on query

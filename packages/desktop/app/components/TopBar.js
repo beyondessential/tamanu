@@ -33,6 +33,8 @@ const AppBar = styled.div`
   background-color: ${Colors.white};
   padding: 16px 0;
   z-index: 1;
+  border-bottom: 1px solid ${props => props.theme.palette.grey[400]};
+  position: relative;
   border-bottom: 1px solid ${Colors.softOutline};
 `;
 
@@ -44,7 +46,7 @@ const Bar = styled(Toolbar)`
 
 export const TopBar = React.memo(({ title, subTitle, children, className }) => (
   <AppBar>
-    <Bar className={className}>
+    <Toolbar className={className}>
       {subTitle ? (
         <div>
           <SmallTopBarHeading variant="h2">{title}</SmallTopBarHeading>
@@ -59,12 +61,13 @@ export const TopBar = React.memo(({ title, subTitle, children, className }) => (
 ));
 
 TopBar.propTypes = {
-  title: PropTypes.string.isRequired,
+  title: PropTypes.string,
   subTitle: PropTypes.string,
   className: PropTypes.string,
 };
 
 TopBar.defaultProps = {
+  title: null,
   subTitle: null,
   className: '',
 };

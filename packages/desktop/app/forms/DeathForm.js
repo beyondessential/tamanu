@@ -326,6 +326,7 @@ export const DeathForm = React.memo(
               inline
               component={RadioField}
               options={binaryUnknownOptions}
+              visibilityCriteria={{ pregnant: 'yes' }}
             />
           </StyledFormGrid>
         ) : null}
@@ -335,6 +336,7 @@ export const DeathForm = React.memo(
             label="What was the manner of death?"
             component={SelectField}
             options={mannerOfDeathOptions}
+            required
           />
           <Field
             name="mannerOfDeathDate"

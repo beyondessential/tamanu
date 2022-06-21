@@ -11,11 +11,11 @@ import { getImagingTypes, loadOptions } from '../store/options';
 import {
   Form,
   Field,
-  DateField,
   AutocompleteField,
   TextField,
   CheckField,
   TextInput,
+  DateTimeField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { Button } from '../components/Button';
@@ -67,7 +67,7 @@ const FormSubmitActionDropdown = connect(null, dispatch => ({
       { label: 'Finalise & print', onClick: finaliseAndPrint },
     ];
 
-    return <DropdownButton color="primary" variant="contained" actions={actions} />;
+    return <DropdownButton actions={actions} />;
   }),
 );
 
@@ -92,7 +92,12 @@ class DumbImagingRequestForm extends React.PureComponent {
     return (
       <FormGrid>
         <Field name="id" label="Imaging request code" disabled component={TextField} />
-        <Field name="requestedDate" label="Order date" required component={DateField} />
+        <Field
+          name="requestedDate"
+          label="Order date and time"
+          required
+          component={DateTimeField}
+        />
         <TextInput label="Supervising doctor" disabled value={examinerLabel} />
         <Field
           name="requestedById"
