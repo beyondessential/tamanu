@@ -2,7 +2,7 @@ import React from 'react';
 import { connect, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
-import { Divider } from '@material-ui/core';
+import { Divider, Box } from '@material-ui/core';
 import { ENCOUNTER_TYPES } from 'shared/constants';
 import {
   Button,
@@ -219,10 +219,15 @@ const GridColumnContainer = styled.div`
   min-width: 0;
 `;
 
-const BackButtonRow = styled.div`
+// Todo: Remove when breadcrumbs are added
+const BreadcrumbsPlaceholder = styled.div`
   background: white;
-  padding: 18px 0 12px 24px;
+  padding: 12px 0 6px 20px;
   border-bottom: 1px solid ${Colors.softOutline};
+
+  .MuiButton-root {
+    font-size: 12px;
+  }
 `;
 
 const StyledTabDisplay = styled(TabDisplay)`
@@ -256,17 +261,21 @@ export const EncounterView = () => {
     <TwoColumnDisplay>
       <PatientInfoPane patient={patient} disabled={disabled} />
       <GridColumnContainer>
-        <BackButtonRow>
+        <BreadcrumbsPlaceholder>
           <BackButton to="/patients/view" />
-        </BackButtonRow>
-        <EncounterTopBar title={getHeaderText(encounter)} subTitle={facility?.name}>
+        </BreadcrumbsPlaceholder>
+        <EncounterTopBar
+          title={getHeaderText(encounter)}
+          subTitle={facility?.name}
+          encounter={encounter}
+        >
           <EncounterActions encounter={encounter} />
         </EncounterTopBar>
         <ContentPane>
           <EncounterInfoPane encounter={encounter} />
-        </ContentPane>
-        <Divider />
-        <ContentPane>
+          <Box mt={4} mb={4}>
+            <Divider />
+          </Box>
           <DiagnosisView
             encounter={encounter}
             isTriage={getIsTriage(encounter)}

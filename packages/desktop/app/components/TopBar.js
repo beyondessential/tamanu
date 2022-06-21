@@ -1,10 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { grey } from '@material-ui/core/colors';
-import { Box, Typography, Toolbar } from '@material-ui/core';
+import { Typography, Toolbar } from '@material-ui/core';
+import { DateDisplay } from './DateDisplay';
 import { Colors } from '../constants';
-import { CardItem } from './Card';
 
 const TopBarHeading = styled(Typography)`
   flex-grow: 1;
@@ -26,15 +25,15 @@ const TopBarSubHeading = styled(Typography)`
   line-height: 21px;
   font-weight: 400;
   color: ${props => props.theme.palette.text.secondary};
+  min-width: 250px;
 `;
 
 const AppBar = styled.div`
   flex-grow: 1;
   background-color: ${Colors.white};
-  box-shadow: 0 1px 0 ${grey[300]};
   padding: 16px 0;
   z-index: 1;
-  border-bottom: 1px solid ${props => props.theme.palette.grey[400]};
+  border-bottom: 1px solid ${Colors.softOutline};
 `;
 
 const Bar = styled(Toolbar)`
@@ -62,22 +61,70 @@ export const TopBar = React.memo(({ title, subTitle, children, className }) => (
 TopBar.propTypes = {
   title: PropTypes.string.isRequired,
   subTitle: PropTypes.string,
+  className: PropTypes.string,
 };
 
 TopBar.defaultProps = {
   subTitle: null,
+  className: '',
 };
 
-export const EncounterTopBar = ({ title, subTitle, children }) => {
-  return (
-    <TopBar title={title} subTitle={subTitle}>
-      <Box display="flex" flex="1">
-        <Box>
-          <CardItem label="Arrival date" value="24/01/2022" />
-          <CardItem label="Doctor/Nurse" value="Dr Jane Smith" />
-        </Box>
-        {children}
-      </Box>
-    </TopBar>
-  );
+const Container = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  flex: 1;
+  padding-left: 15px;
+  border-left: 1px solid ${Colors.softOutline};
+`;
+
+const Cell = styled.div`
+  display: flex;
+  align-items: flex-start;
+  padding-top: 4px;
+  padding-bottom: 4px;
+`;
+
+const Label = styled(Typography)`
+  font-size: 16px;
+  line-height: 21px;
+  color: ${props => props.theme.palette.text.tertiary};
+`;
+
+const Value = styled(Label)`
+  font-weight: 500;
+  color: ${props => props.theme.palette.text.secondary};
+  margin-left: 5px;
+`;
+
+export const EncounterTopBar = ({ title, subTitle, encounter, children }) => (
+  <TopBar title={title} subTitle={subTitle}>
+    <Container>
+      <div>
+        <Cell>
+          <Label>Arrival Date:</Label>
+          <Value>
+            <DateDisplay date={encounter.startDate} />
+          </Value>
+        </Cell>
+        <Cell>
+          <Label>Doctor/Nurse:</Label>
+          <Value>{encounter.examiner?.displayName || 'Unknown'}</Value>
+        </Cell>
+      </div>
+      {children}
+    </Container>
+  </TopBar>
+);
+
+EncounterTopBar.propTypes = {
+  title: PropTypes.string.isRequired,
+  encounter: PropTypes.shape({ startDate: PropTypes.string, examiner: PropTypes.object })
+    .isRequired,
+  subTitle: PropTypes.string,
+};
+
+EncounterTopBar.defaultProps = {
+  subTitle: null,
 };

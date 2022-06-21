@@ -3,7 +3,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 
 import { DumbTriageStatisticsCard } from '../app/components/TriageStatisticsCard';
-import { Card, CardBody, CardHeader, CardItem } from '../app/components';
+import { Card, CardBody, CardHeader, CardDivider, CardItem } from '../app/components';
 
 storiesOf('Cards', module).add('TriageStatisticsCard', () => (
   <DumbTriageStatisticsCard
@@ -20,6 +20,7 @@ storiesOf('Cards', module).add('EncounterInfoCard', () => (
       <CardItem label="Planned move" value="ED Bed 2" />
     </CardHeader>
     <CardBody>
+      <CardDivider />
       <CardItem label="Department" value="Cardiology" />
       <CardItem label="Patient type" value="Private" />
       <CardItem label="Location" value="ED Bed 1" />
