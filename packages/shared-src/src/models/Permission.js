@@ -39,7 +39,7 @@ export class Permission extends Model {
             },
           },
           {
-            name: 'permissions_role_id_noun_verb_objectId',
+            name: 'permissions_role_id_noun_verb_object_id',
             unique: true,
             fields: ['role_id', 'noun', 'verb', 'object_id'],
             where: {

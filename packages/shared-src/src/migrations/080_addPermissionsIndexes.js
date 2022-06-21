@@ -13,7 +13,7 @@ module.exports = {
       },
     });
     await query.addIndex('permissions', {
-      name: 'permissions_role_id_noun_verb_objectId',
+      name: 'permissions_role_id_noun_verb_object_id',
       unique: true,
       fields: ['role_id', 'noun', 'verb', 'object_id'],
       where: {
@@ -24,7 +24,7 @@ module.exports = {
     });
   },
   down: async query => {
-    await query.removeIndex('permissions', 'permissions_role_id_noun_verb_objectId');
+    await query.removeIndex('permissions', 'permissions_role_id_noun_verb_object_id');
     await query.removeIndex('permissions', 'permissions_role_id_noun_verb');
   },
 };
