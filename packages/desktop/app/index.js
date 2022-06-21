@@ -36,6 +36,9 @@ function start() {
   // const api = new TamanuApi(version);
   const { store, history } = initStore(API);
 
+  // Save the store inside TamanuApi to be able to dispatch from it
+  API.appStore = store;
+
   // attempt to restore session from local storage
   store.dispatch(restoreSession());
 

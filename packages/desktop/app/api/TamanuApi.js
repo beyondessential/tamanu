@@ -89,6 +89,7 @@ export class TamanuApi {
     this.authHeader = null;
     this.onVersionIncompatible = null;
     this.user = null;
+    this.appStore = null;
 
     const host = window.localStorage.getItem(HOST);
     if (host) {
