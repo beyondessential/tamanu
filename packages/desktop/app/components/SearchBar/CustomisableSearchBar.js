@@ -9,7 +9,7 @@ import { Colors } from '../../constants';
 const Container = styled.div`
   border-bottom: 1px solid ${Colors.outline};
   background: ${Colors.white};
-  padding: 16px 24px 28px;
+  padding: 16px 30px 28px;
 `;
 
 const SectionLabel = styled.div`
