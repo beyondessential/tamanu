@@ -230,21 +230,6 @@ const BreadcrumbsPlaceholder = styled.div`
   }
 `;
 
-const StyledTabDisplay = styled(TabDisplay)`
-  filter: drop-shadow(2px 2px 25px rgba(0, 0, 0, 0.1));
-  border-radius: 5px;
-  border: 1px solid ${Colors.outline};
-  background: white;
-
-  .MuiTabs-root {
-    margin-left: -12px;
-  }
-
-  .MuiTabs-scroller {
-    border-bottom: 1px solid #ebebeb;
-  }
-`;
-
 export const EncounterView = () => {
   const { getLocalisation } = useLocalisation();
   const patient = useSelector(state => state.patient);
@@ -283,7 +268,7 @@ export const EncounterView = () => {
           />
         </ContentPane>
         <ContentPane>
-          <StyledTabDisplay
+          <TabDisplay
             tabs={visibleTabs}
             currentTab={currentTab}
             onTabSelect={setCurrentTab}
