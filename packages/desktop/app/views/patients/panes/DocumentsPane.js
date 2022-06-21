@@ -2,23 +2,15 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Typography } from '@material-ui/core';
 import { promises as asyncFs } from 'fs';
 import { lookup as lookupMimeType } from 'mime-types';
-import styled from 'styled-components';
-
 import { DocumentsTable } from '../../../components/DocumentsTable';
 import { ConfirmCancelRow } from '../../../components/ButtonRow';
 import { DocumentModal } from '../../../components/DocumentModal';
 import { DocumentsSearchBar } from '../../../components/DocumentsSearchBar';
 import { Modal } from '../../../components/Modal';
 import { Button } from '../../../components/Button';
-
 import { useApi } from '../../../api';
-
-// Similar to ContentPane but content is aligned to the right
-const PaneButtonContainer = styled.div`
-  margin: 24px;
-  display: flex;
-  justify-content: flex-end;
-`;
+import { TabPane } from '../components';
+import { ContentPane, TableButtonRow } from '../../../components';
 
 const AlertNoInternetModal = React.memo(({ open, onClose }) => (
   <Modal title="No internet connection detected" open={open} onClose={onClose}>
@@ -64,7 +56,7 @@ const hasInternetConnection = () => {
   return false;
 };
 
-export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = false }) => {
+export const DocumentsPane = React.memo(({ encounter, patient }) => {
   const [modalStatus, setModalStatus] = useState(MODAL_STATES.CLOSED);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchParameters, setSearchParameters] = useState({});
@@ -138,8 +130,8 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
     };
   }, [isSubmitting]);
 
-  return (
-    <div>
+  const Modals = () => (
+    <>
       <DocumentModal
         open={modalStatus === MODAL_STATES.DOCUMENT_OPEN}
         onClose={handleClose}
@@ -156,22 +148,44 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
         open={modalStatus === MODAL_STATES.ALERT_NO_SPACE_OPEN}
         onClose={handleClose}
       />
-      {showSearchBar && <DocumentsSearchBar setSearchParameters={setSearchParameters} />}
-      <PaneButtonContainer>
-        <Button
-          onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}
-          variant="contained"
-          color="primary"
-        >
-          Add document
-        </Button>
-      </PaneButtonContainer>
-      <DocumentsTable
-        endpoint={endpoint}
-        searchParameters={searchParameters}
-        refreshCount={refreshCount}
-        canInvokeDocumentAction={canInvokeDocumentAction}
-      />
-    </div>
+    </>
+  );
+
+  if (encounter?.id) {
+    return (
+      <>
+        <Modals />
+        <TabPane>
+          <TableButtonRow variant="small">
+            <Button onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}>Add document</Button>
+          </TableButtonRow>
+          <DocumentsTable
+            endpoint={endpoint}
+            searchParameters={searchParameters}
+            refreshCount={refreshCount}
+            canInvokeDocumentAction={canInvokeDocumentAction}
+            elevated={false}
+          />
+        </TabPane>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <Modals />
+      <DocumentsSearchBar setSearchParameters={setSearchParameters} />
+      <ContentPane>
+        <TableButtonRow variant="small">
+          <Button onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}>Add document</Button>
+        </TableButtonRow>
+        <DocumentsTable
+          endpoint={endpoint}
+          searchParameters={searchParameters}
+          refreshCount={refreshCount}
+          canInvokeDocumentAction={canInvokeDocumentAction}
+        />
+      </ContentPane>
+    </>
   );
 });

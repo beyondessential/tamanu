@@ -28,7 +28,7 @@ import {
   ImagingPane,
   EncounterMedicationPane,
   DocumentsPane,
-  ProgramsPane,
+  EncounterProgramsPane,
   InvoicingPane,
   EncounterInfoPane,
 } from './panes';
@@ -75,7 +75,7 @@ const TABS = [
     label: 'Programs',
     key: 'programs',
     render: ({ encounter, ...props }) => (
-      <ProgramsPane endpoint={`encounter/${encounter.Id}/programResponses`} {...props} />
+      <EncounterProgramsPane endpoint={`encounter/${encounter.Id}/programResponses`} {...props} />
     ),
   },
   {
