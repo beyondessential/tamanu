@@ -10,9 +10,7 @@ export const ReferralPane = connect(null, dispatch => ({
   React.memo(({ onNavigateToReferrals, patient }) => (
     <ContentPane>
       <TableButtonRow variant="small">
-        <Button onClick={onNavigateToReferrals} variant="contained" color="primary">
-          New Referral
-        </Button>
+        <Button onClick={onNavigateToReferrals}>New Referral</Button>
       </TableButtonRow>
       <ReferralTable patientId={patient.id} />
     </ContentPane>

@@ -21,12 +21,7 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
         }}
       />
       <TableButtonRow variant="small">
-        <Button
-          onClick={() => setModalOpen(true)}
-          variant="contained"
-          color="primary"
-          disabled={readonly}
-        >
+        <Button onClick={() => setModalOpen(true)} disabled={readonly}>
           New prescription
         </Button>
       </TableButtonRow>

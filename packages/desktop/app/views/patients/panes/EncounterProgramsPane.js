@@ -10,9 +10,7 @@ export const EncounterProgramsPane = React.memo(({ endpoint }) => {
   return (
     <TabPane>
       <TableButtonRow variant="small">
-        <Button onClick={() => dispatch(push('/programs'))} variant="contained" color="primary">
-          New survey
-        </Button>
+        <Button onClick={() => dispatch(push('/programs'))}>New survey</Button>
       </TableButtonRow>
       <DataFetchingProgramsTable endpoint={endpoint} />
     </TabPane>

@@ -81,9 +81,7 @@ export const InvoicingPane = React.memo(({ encounter }) => {
   if (!invoice) {
     return (
       <EmptyPane>
-        <Button variant="contained" color="primary" onClick={createInvoice}>
-          Create Invoice
-        </Button>
+        <Button onClick={createInvoice}>Create Invoice</Button>
       </EmptyPane>
     );
   }
@@ -94,13 +92,7 @@ export const InvoicingPane = React.memo(({ encounter }) => {
         <InvoiceHeading>Invoice number: {invoice.displayId}</InvoiceHeading>
         {isInvoiceEditable(invoice) ? (
           <ActionsPane>
-            <Button
-              onClick={() => setInvoiceLineModalOpen(true)}
-              variant="contained"
-              color="primary"
-            >
-              Add item
-            </Button>
+            <Button onClick={() => setInvoiceLineModalOpen(true)}>Add item</Button>
             <InvoiceLineItemModal
               title="Add item"
               actionText="Add"
@@ -112,11 +104,7 @@ export const InvoicingPane = React.memo(({ encounter }) => {
                 loadEncounter(encounter.id);
               }}
             />
-            <Button
-              onClick={() => setInvoicePriceChangeModalOpen(true)}
-              variant="outlined"
-              color="primary"
-            >
+            <Button onClick={() => setInvoicePriceChangeModalOpen(true)} variant="outlined">
               Add price change
             </Button>
             <InvoicePriceChangeItemModal
@@ -130,11 +118,7 @@ export const InvoicingPane = React.memo(({ encounter }) => {
                 await loadEncounter(encounter.id);
               }}
             />
-            <Button
-              onClick={() => setPotentialLineItemsModalOpen(true)}
-              variant="outlined"
-              color="primary"
-            >
+            <Button onClick={() => setPotentialLineItemsModalOpen(true)} variant="outlined">
               Populate invoice
             </Button>
             <PotentialInvoiceLineItemsModal

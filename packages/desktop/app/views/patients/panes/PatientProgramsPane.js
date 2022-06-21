@@ -9,9 +9,7 @@ export const PatientProgramsPane = React.memo(({ endpoint }) => {
   return (
     <ContentPane>
       <TableButtonRow variant="small">
-        <Button onClick={() => dispatch(push('/programs'))} variant="contained" color="primary">
-          New survey
-        </Button>
+        <Button onClick={() => dispatch(push('/programs'))}>New survey</Button>
       </TableButtonRow>
       <DataFetchingProgramsTable endpoint={endpoint} />
     </ContentPane>

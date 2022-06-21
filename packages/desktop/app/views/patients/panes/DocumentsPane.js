@@ -157,13 +157,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         <Modals />
         <TabPane>
           <TableButtonRow variant="small">
-            <Button
-              onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}
-              variant="contained"
-              color="primary"
-            >
-              Add document
-            </Button>
+            <Button onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}>Add document</Button>
           </TableButtonRow>
           <DocumentsTable
             endpoint={endpoint}
@@ -182,13 +176,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
       <DocumentsSearchBar setSearchParameters={setSearchParameters} />
       <ContentPane>
         <TableButtonRow variant="small">
-          <Button
-            onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}
-            variant="contained"
-            color="primary"
-          >
-            Add document
-          </Button>
+          <Button onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}>Add document</Button>
         </TableButtonRow>
         <DocumentsTable
           endpoint={endpoint}

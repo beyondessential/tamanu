@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { isEmpty } from 'lodash';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
@@ -47,6 +48,20 @@ export const Button = ({ children, isSubmitting, disabled, ...props }) => {
       {children}
     </StyledButton>
   );
+};
+
+Button.propTypes = {
+  isSubmitting: PropTypes.bool,
+  disabled: PropTypes.bool,
+  variant: PropTypes.PropTypes.oneOf(['contained', 'outlined', 'text']),
+  color: PropTypes.PropTypes.oneOf(['primary', 'secondary']),
+};
+
+Button.defaultProps = {
+  isSubmitting: false,
+  disabled: false,
+  variant: 'contained',
+  color: 'primary',
 };
 
 const StyledOutlinedButton = styled(StyledButton)`
