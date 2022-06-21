@@ -54,16 +54,11 @@ export const ImagingRequestsTable = React.memo(({ encounterId, searchParameters 
       if (encounter) {
         await loadEncounter(encounter.id);
       }
-      dispatch(reloadPatient(params.patientId || encounter.patientId));
-      dispatch(
-        viewImagingRequest(
-          params.patientId || encounter.patientId,
-          params.encounterId || encounter.id,
-          imagingRequest.id,
-        ),
-      );
+      const patientId = params.patientId || encounter.patientId;
+      dispatch(reloadPatient(patientId));
+      dispatch(viewImagingRequest(patientId, encounterId, imagingRequest.id));
     },
-    [loadEncounter, dispatch, params.patientId, params.encounterId],
+    [loadEncounter, dispatch, params.patientId, encounterId],
   );
 
   return (

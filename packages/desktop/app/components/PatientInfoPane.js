@@ -182,4 +182,4 @@ export const PatientInfoPane = () => {
       </ListsSection>
     </Container>
   );
-}
+};

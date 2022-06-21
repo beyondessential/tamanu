@@ -131,31 +131,29 @@ export const Sidebar = React.memo(({ items }) => {
     <Container>
       <Logo size="126px" />
       <List component="nav">
-        {items.map(item => {
-          return (
-            <PrimarySidebarItem
-              icon={item.icon}
-              label={item.label}
-              divider={item.divider}
-              key={item.key}
-              highlighted={isHighlighted(currentPath, item.path, selectedParentItem === item.key)}
-              selected={selectedParentItem === item.key}
-              onClick={() => clickedParentItem(item)}
-            >
-              {item.children.map(child => (
-                <SecondarySidebarItem
-                  key={child.path}
-                  path={child.path}
-                  isCurrent={currentPath.includes(child.path)}
-                  color={child.color}
-                  label={child.label}
-                  disabled={!permissionCheck(child, item)}
-                  onClick={() => onPathChanged(child.path)}
-                />
-              ))}
-            </PrimarySidebarItem>
-          );
-        })}
+        {items.map(item => (
+          <PrimarySidebarItem
+            icon={item.icon}
+            label={item.label}
+            divider={item.divider}
+            key={item.key}
+            highlighted={isHighlighted(currentPath, item.path, selectedParentItem === item.key)}
+            selected={selectedParentItem === item.key}
+            onClick={() => clickedParentItem(item)}
+          >
+            {item.children.map(child => (
+              <SecondarySidebarItem
+                key={child.path}
+                path={child.path}
+                isCurrent={currentPath.includes(child.path)}
+                color={child.color}
+                label={child.label}
+                disabled={!permissionCheck(child, item)}
+                onClick={() => onPathChanged(child.path)}
+              />
+            ))}
+          </PrimarySidebarItem>
+        ))}
       </List>
       <Footer>
         <StyledDivider />

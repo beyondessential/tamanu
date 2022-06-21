@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
+import { useParams } from 'react-router-dom';
 
 import { DataFetchingTable } from './Table';
 
@@ -18,7 +19,6 @@ import {
   getRequestId,
   getLaboratory,
 } from '../utils/lab';
-import { useParams } from 'react-router-dom';
 
 const encounterColumns = [
   { key: 'requestId', title: 'Request ID', sortable: false, accessor: getRequestId },
@@ -53,7 +53,8 @@ export const LabRequestsTable = React.memo(({ encounterId }) => {
         await loadEncounter(lab.encounterId);
       }
       if (lab.patientId) dispatch(reloadPatient(lab.patientId, lab.encounterId));
-      loadLabRequest(params.patientId || lab.patientId, lab.encounterId, lab.id);
+      const patientId = params.patientId || lab.patientId;
+      loadLabRequest(patientId, lab.encounterId, lab.id);
     },
     [encounterId, dispatch, loadEncounter, loadLabRequest, params.patientId],
   );

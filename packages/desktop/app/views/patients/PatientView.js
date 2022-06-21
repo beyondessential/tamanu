@@ -19,9 +19,7 @@ import {
   ReferralPane,
   InvoicesPane,
 } from './panes';
-
-const RoutedEncounterModal = connectRoutedModal('/patients/all/:patientId', 'checkin')(EncounterModal);
-const RoutedTriageModal = connectRoutedModal('/patients/all/:patientId', 'triage')(TriageModal);
+import { useParams } from 'react-router-dom';
 
 const TABS = [
   {
@@ -78,15 +76,25 @@ const TABS = [
 ];
 
 export const PatientView = () => {
+  const params = useParams();
   const { getLocalisation } = useLocalisation();
   const patient = useSelector(state => state.patient);
-  const loading = useSelector(state => state.load);
+  const loading = useSelector(state => state.loading);
   const [currentTab, setCurrentTab] = React.useState('history');
   const disabled = !!patient.death;
 
   if (loading) return <LoadingIndicator />;
 
   const visibleTabs = TABS.filter(tab => !tab.condition || tab.condition(getLocalisation));
+
+  const RoutedEncounterModal = connectRoutedModal(
+    `/patients/${params.category}/${params.patientId}`,
+    'checkin',
+  )(EncounterModal);
+  const RoutedTriageModal = connectRoutedModal(
+    `/patients/${params.category}/${params.patientId}`,
+    'triage',
+  )(TriageModal);
 
   return (
     <>

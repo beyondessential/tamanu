@@ -84,18 +84,6 @@ const TABS = [
   },
 ];
 
-// TODO - WHAT IS Routed modal
-const RoutedDischargeModal = connectRoutedModal('/patients/encounter', 'discharge')(DischargeModal);
-const RoutedChangeEncounterTypeModal = connectRoutedModal(
-  '/patients/encounter',
-  'changeType',
-)(ChangeEncounterTypeModal);
-const RoutedChangeDepartmentModal = connectRoutedModal(
-  '/patients/encounter',
-  'changeDepartment',
-)(ChangeDepartmentModal);
-const RoutedMoveModal = connectRoutedModal('/patients/encounter', 'move')(MoveModal);
-
 const EncounterActionDropdown = ({ encounter }) => {
   const dispatch = useDispatch();
   const params = useParams();
@@ -141,6 +129,16 @@ const EncounterActionDropdown = ({ encounter }) => {
       onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.ADMISSION),
       condition: () => isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.ADMISSION),
     },
+    // {
+    //   label: 'Finalise location change',
+    //   condition: () => encounter.plannedLocation,
+    //   onClick: onFinaliseLocationChange,
+    // },
+    // {
+    //   label: 'Cancel location change',
+    //   condition: () => encounter.plannedLocation,
+    //   onClick: onCancelLocationChange,
+    // },
     {
       label: 'Discharge without being seen',
       onClick: onDischargeOpen,
@@ -165,15 +163,35 @@ const EncounterActionDropdown = ({ encounter }) => {
   return <DropdownButton variant="outlined" actions={actions} />;
 };
 
-const EncounterActions = ({ encounter }) => (
-  <>
-    <EncounterActionDropdown encounter={encounter} />
-    <RoutedDischargeModal encounter={encounter} />
-    <RoutedChangeEncounterTypeModal encounter={encounter} />
-    <RoutedChangeDepartmentModal encounter={encounter} />
-    <RoutedMoveModal encounter={encounter} />
-  </>
-);
+const EncounterActions = ({ encounter }) => {
+  const params = useParams();
+  const RoutedDischargeModal = connectRoutedModal(
+    `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}`,
+    'discharge',
+  )(DischargeModal);
+  const RoutedChangeEncounterTypeModal = connectRoutedModal(
+    `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}`,
+    'changeType',
+  )(ChangeEncounterTypeModal);
+  const RoutedChangeDepartmentModal = connectRoutedModal(
+    `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}`,
+    'changeDepartment',
+  )(ChangeDepartmentModal);
+  const RoutedMoveModal = connectRoutedModal(
+    `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}`,
+    'move',
+  )(MoveModal);
+
+  return (
+    <>
+      <EncounterActionDropdown encounter={encounter} />
+      <RoutedDischargeModal encounter={encounter} />
+      <RoutedChangeEncounterTypeModal encounter={encounter} />
+      <RoutedChangeDepartmentModal encounter={encounter} />
+      <RoutedMoveModal encounter={encounter} />
+    </>
+  );
+};
 
 function getHeaderText({ encounterType }) {
   switch (encounterType) {

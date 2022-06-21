@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import { useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 
@@ -25,7 +26,6 @@ import {
   location,
   department,
 } from './columns';
-import { useParams } from 'react-router-dom';
 
 const PATIENT_SEARCH_ENDPOINT = 'patient';
 

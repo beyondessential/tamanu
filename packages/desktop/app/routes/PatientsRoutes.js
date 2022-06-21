@@ -12,7 +12,7 @@ import { PatientRoutes } from './PatientRoutes';
 export const PatientsRoutes = React.memo(({ match }) => (
   <Switch>
     <Route
-      path={`${match.path}/:category(all|emergency|inpatient|outpatient)/:patientId`}
+      path={`${match.path}/:category(all|emergency|inpatient|outpatient)/:patientId/:modal?`}
       component={PatientRoutes}
     />
     <Route path={`${match.path}/all`} component={PatientListingView} />

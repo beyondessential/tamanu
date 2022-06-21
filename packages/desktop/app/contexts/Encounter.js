@@ -27,23 +27,19 @@ export const EncounterProvider = ({ store, children }) => {
   };
 
   // navigate to the root encounter view which reads from encounter state.
-  const viewEncounter = (patientId, encounterId, patientCategory) => {
-    store.dispatch(push(`/patients/${patientCategory}/${patientId}/encounter/${encounterId}/`));
+  const viewEncounter = (patientId, encounterId, category) => {
+    store.dispatch(push(`/patients/${category}/${patientId}/encounter/${encounterId}/`));
   };
 
   // get encounter data from the sync server and save it to state.
-  const loadEncounter = async (
-    encounterId,
-    navigateToEncounter = false,
-    patientCategory = 'all',
-  ) => {
+  const loadEncounter = async (encounterId, navigateToEncounter = false, category = 'all') => {
     setIsLoadingEncounter(true);
     const data = await api.get(`encounter/${encounterId}`);
     const { data: diagnoses } = await api.get(`encounter/${encounterId}/diagnoses`);
     const { data: procedures } = await api.get(`encounter/${encounterId}/procedures`);
     const { data: medications } = await api.get(`encounter/${encounterId}/medications`);
     setEncounterData({ ...data, diagnoses, procedures, medications });
-    if (navigateToEncounter) viewEncounter(data.patientId, encounterId, patientCategory);
+    if (navigateToEncounter) viewEncounter(data.patientId, encounterId, category);
     setIsLoadingEncounter(false);
     window.encounter = encounter;
   };
@@ -56,11 +52,11 @@ export const EncounterProvider = ({ store, children }) => {
   };
 
   // create, fetch and set encounter then navigate to encounter view.
-  const createEncounter = async (data, patientCategory = 'all') => {
+  const createEncounter = async (data, category = 'all') => {
     setIsLoadingEncounter(true);
     const createdEncounter = await api.post(`encounter`, data);
     await loadEncounter(createdEncounter.id);
-    viewEncounter(createdEncounter.patientId, createdEncounter.id, patientCategory);
+    viewEncounter(createdEncounter.patientId, createdEncounter.id, category);
     setIsLoadingEncounter(false);
     return createdEncounter;
   };
