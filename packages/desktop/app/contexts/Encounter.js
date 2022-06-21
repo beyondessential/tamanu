@@ -45,10 +45,10 @@ export const EncounterProvider = ({ store, children }) => {
   };
 
   // write, fetch and set encounter then navigate to encounter view.
-  const writeAndViewEncounter = async (encounterId, data) => {
+  const writeAndViewEncounter = async (patientId, encounterId, data, category = 'all') => {
     await saveEncounter(encounterId, data);
     await loadEncounter(encounterId);
-    viewEncounter();
+    viewEncounter(patientId, encounterId, category);
   };
 
   // create, fetch and set encounter then navigate to encounter view.

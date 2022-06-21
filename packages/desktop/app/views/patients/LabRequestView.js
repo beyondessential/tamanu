@@ -320,13 +320,13 @@ export const LabRequestView = () => {
 
   const updateLabReq = useCallback(
     async data => {
-      await updateLabRequest(labRequest.id, data);
+      await updateLabRequest(patient.id, params.encounterId, labRequest.id, data, params.category);
     },
-    [labRequest, updateLabRequest],
+    [labRequest, updateLabRequest, patient.id, params.encounterId, params.category],
   );
   const refreshLabRequest = useCallback(async () => {
-    await loadLabRequest(labRequest.id);
-  }, [labRequest.id, loadLabRequest]);
+    await loadLabRequest(patient.id, params.encounterId, labRequest.id, '', params.category);
+  }, [labRequest.id, loadLabRequest, patient.id, params.encounterId, params.category]);
 
   const onBack = () =>
     dispatch(

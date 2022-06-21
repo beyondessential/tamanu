@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { connect } from 'react-redux';
 
+import { useParams } from 'react-router-dom';
 import { foreignKey } from '../utils/validation';
 import { encounterOptions } from '../constants';
 import {
@@ -50,6 +51,7 @@ function filterTestTypes(testTypes, { labTestCategoryId }) {
 }
 
 const FormSubmitActionDropdown = ({ requestId, encounter, submitForm }) => {
+  const params = useParams();
   const { loadEncounter } = useEncounter();
   const { loadLabRequest } = useLabRequest();
   const [awaitingPrintRedirect, setAwaitingPrintRedirect] = useState();
@@ -58,10 +60,23 @@ const FormSubmitActionDropdown = ({ requestId, encounter, submitForm }) => {
   useEffect(() => {
     (async () => {
       if (awaitingPrintRedirect && requestId) {
-        await loadLabRequest(requestId, 'print');
+        await loadLabRequest(
+          params.patientId,
+          params.encounterId,
+          requestId,
+          'print',
+          params.category,
+        );
       }
     })();
-  }, [requestId, awaitingPrintRedirect, loadLabRequest]);
+  }, [
+    requestId,
+    awaitingPrintRedirect,
+    loadLabRequest,
+    params.patientId,
+    params.encounterId,
+    params.category,
+  ]);
 
   const finalise = async data => {
     await submitForm(data);

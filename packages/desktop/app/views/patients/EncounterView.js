@@ -87,10 +87,28 @@ const TABS = [
 const EncounterActionDropdown = ({ encounter }) => {
   const dispatch = useDispatch();
   const params = useParams();
-  const onChangeEncounterType = type => dispatch(push(`/patients/encounter/changeType/${type}`));
-  const onChangeLocation = () => dispatch(push('/patients/encounter/move'));
-  const onDischargeOpen = () => dispatch(push('/patients/encounter/discharge'));
-  const onChangeDepartment = () => dispatch(push('/patients/encounter/changeDepartment'));
+  const onChangeEncounterType = type =>
+    dispatch(
+      push(
+        `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}/changeType/${type}`,
+      ),
+    );
+  const onChangeLocation = () =>
+    dispatch(
+      push(`/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}/move`),
+    );
+  const onDischargeOpen = () =>
+    dispatch(
+      push(
+        `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}/discharge`,
+      ),
+    );
+  const onChangeDepartment = () =>
+    dispatch(
+      push(
+        `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}/changeDepartment`,
+      ),
+    );
   const onViewSummary = () =>
     dispatch(
       push(`/patients/${params.category}/${encounter.patientId}/encounter/${encounter.id}/summary`),
@@ -187,7 +205,7 @@ const EncounterActions = ({ encounter }) => {
       <EncounterActionDropdown encounter={encounter} />
       <RoutedDischargeModal encounter={encounter} />
       <RoutedChangeEncounterTypeModal encounter={encounter} />
-      <RoutedChangeDepartmentModal encounter={encounter} />
+      <RoutedChangeDepartmentModal />
       <RoutedMoveModal encounter={encounter} />
     </>
   );

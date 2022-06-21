@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import { useEncounter } from '../contexts/Encounter';
+import { useParams } from 'react-router-dom';
 
 import { Form, Field, AutocompleteField } from './Field';
 import { ConfirmCancelRow } from './ButtonRow';
@@ -7,26 +8,32 @@ import { FormGrid } from './FormGrid';
 import { Modal } from './Modal';
 import { Suggester } from '../utils/suggester';
 
-import { connectApi } from '../api/connectApi';
+import { useApi } from '../api';
 
-export const MoveModal = connectApi(api => ({
-  locationSuggester: new Suggester(api, 'location'),
-}))(({ open, onClose, encounter, ...rest }) => {
+export const MoveModal = ({ open, onClose, encounter }) => {
+  const params = useParams();
+  const api = useApi();
+  const locationSuggester = new Suggester(api, 'location');
   const { writeAndViewEncounter } = useEncounter();
   const movePatient = useCallback(
     async data => {
-      await writeAndViewEncounter(encounter.id, data);
+      await writeAndViewEncounter(params.patientId, encounter.id, data, params.category);
       onClose();
     },
-    [encounter, writeAndViewEncounter, onClose],
+    [encounter, writeAndViewEncounter, onClose, params.patientId, params.category],
   );
 
   return (
     <Modal title="Move patient" open={open} onClose={onClose}>
-      <MoveForm onClose={onClose} onSubmit={movePatient} encounter={encounter} {...rest} />
+      <MoveForm
+        onClose={onClose}
+        onSubmit={movePatient}
+        encounter={encounter}
+        locationSuggester={locationSuggester}
+      />
     </Modal>
   );
-});
+};
 
 const MoveForm = ({ onSubmit, onClose, encounter, locationSuggester }) => {
   const renderForm = useCallback(

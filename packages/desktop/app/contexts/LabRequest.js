@@ -1,7 +1,5 @@
 import React, { useContext, createContext, useState } from 'react';
 import { push } from 'connected-react-router';
-
-import { useParams } from 'react-router-dom';
 import { useApi } from '../api';
 
 const LabRequestContext = createContext({
@@ -18,35 +16,41 @@ export const LabRequestProvider = ({ store, children }) => {
 
   const api = useApi();
 
-  const viewLabRequest = (patientId, encounterId, labRequestId, modal) => {
+  const viewLabRequest = (patientId, encounterId, labRequestId, modal, category) => {
     store.dispatch(
       push(
-        `/patients/all/${patientId}/encounter/${encounterId}/lab-request/${labRequestId}/${modal}`,
+        `/patients/${category}/${patientId}/encounter/${encounterId}/lab-request/${labRequestId}/${modal}`,
       ),
     );
   };
 
-  const loadLabRequest = async (patientId, encounterId, labRequestId, modal = '') => {
+  const loadLabRequest = async (
+    patientId,
+    encounterId,
+    labRequestId,
+    modal = '',
+    category = 'all',
+  ) => {
     setIsLoading(true);
     const data = await api.get(`labRequest/${labRequestId}`);
     setLabRequest({ ...data });
-    viewLabRequest(patientId, encounterId, labRequestId, modal);
+    viewLabRequest(patientId, encounterId, labRequestId, modal, category);
     window.labRequest = labRequest;
     setIsLoading(false);
   };
 
-  const updateLabRequest = async (labRequestId, data) => {
+  const updateLabRequest = async (patientId, encounterId, labRequestId, data, category) => {
     const update = { ...data };
     if (data.status) {
       update.userId = api.user.id;
     }
     await api.put(`labRequest/${labRequestId}`, update);
-    await loadLabRequest(labRequestId);
+    await loadLabRequest(patientId, encounterId, labRequestId, '', category);
   };
 
-  const updateLabTest = async (labRequestId, labTestId, data) => {
+  const updateLabTest = async (patientId, encounterId, labRequestId, labTestId, data, category) => {
     await api.put(`labTest/${labTestId}`, data);
-    await loadLabRequest(labRequestId);
+    await loadLabRequest(patientId, encounterId, labRequestId, '', category);
   };
 
   return (

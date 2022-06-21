@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useParams } from 'react-router-dom';
 
 import { Modal } from './Modal';
 import { useSuggester } from '../api';
@@ -9,17 +10,18 @@ import { viewPatient } from '../store';
 
 export const DischargeModal = React.memo(({ open, onClose }) => {
   const dispatch = useDispatch();
+  const params = useParams();
   const patient = useSelector(state => state.patient);
   const { encounter, writeAndViewEncounter } = useEncounter();
   const practitionerSuggester = useSuggester('practitioner');
 
   const handleDischarge = useCallback(
     async data => {
-      await writeAndViewEncounter(encounter.id, data);
+      await writeAndViewEncounter(patient.id, encounter.id, data, params.category);
       await dispatch(viewPatient(patient.id));
       onClose();
     },
-    [writeAndViewEncounter, encounter.id, dispatch, patient.id, onClose],
+    [writeAndViewEncounter, encounter.id, dispatch, patient.id, onClose, params.category],
   );
 
   return (
