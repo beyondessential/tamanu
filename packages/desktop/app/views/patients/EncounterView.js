@@ -2,9 +2,15 @@ import React from 'react';
 import { connect, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
+import { Divider, Box } from '@material-ui/core';
 import { ENCOUNTER_TYPES } from 'shared/constants';
-import { Button, BackButton, TopBar, connectRoutedModal } from '../../components';
-import { ContentPane } from '../../components/ContentPane';
+import {
+  Button,
+  BackButton,
+  EncounterTopBar,
+  connectRoutedModal,
+  ContentPane,
+} from '../../components';
 import { DiagnosisView } from '../../components/DiagnosisView';
 import { DischargeModal } from '../../components/DischargeModal';
 import { MoveModal } from '../../components/MoveModal';
@@ -27,7 +33,7 @@ import {
   EncounterInfoPane,
 } from './panes';
 import { DropdownButton } from '../../components/DropdownButton';
-import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../constants';
+import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../constants';
 import { useEncounter } from '../../contexts/Encounter';
 import { useLocalisation } from '../../contexts/Localisation';
 import { useAuth } from '../../contexts/Auth';
@@ -213,6 +219,32 @@ const GridColumnContainer = styled.div`
   min-width: 0;
 `;
 
+// Todo: Remove when breadcrumbs are added
+const BreadcrumbsPlaceholder = styled.div`
+  background: white;
+  padding: 12px 0 6px 20px;
+  border-bottom: 1px solid ${Colors.softOutline};
+
+  .MuiButton-root {
+    font-size: 12px;
+  }
+`;
+
+const StyledTabDisplay = styled(TabDisplay)`
+  filter: drop-shadow(2px 2px 25px rgba(0, 0, 0, 0.1));
+  border-radius: 5px;
+  border: 1px solid ${Colors.outline};
+  background: white;
+
+  .MuiTabs-root {
+    margin-left: -12px;
+  }
+
+  .MuiTabs-scroller {
+    border-bottom: 1px solid #ebebeb;
+  }
+`;
+
 export const EncounterView = () => {
   const { getLocalisation } = useLocalisation();
   const patient = useSelector(state => state.patient);
@@ -224,31 +256,41 @@ export const EncounterView = () => {
   if (!encounter || isLoadingEncounter || patient.loading) return <LoadingIndicator />;
 
   const visibleTabs = TABS.filter(tab => !tab.condition || tab.condition(getLocalisation));
+
   return (
     <TwoColumnDisplay>
       <PatientInfoPane patient={patient} disabled={disabled} />
       <GridColumnContainer>
-        <TopBar title={getHeaderText(encounter)} subTitle={facility?.name}>
-          <EncounterActions encounter={encounter} />
-        </TopBar>
-        <ContentPane>
+        <BreadcrumbsPlaceholder>
           <BackButton to="/patients/view" />
-          <EncounterInfoPane disabled encounter={encounter} />
-        </ContentPane>
+        </BreadcrumbsPlaceholder>
+        <EncounterTopBar
+          title={getHeaderText(encounter)}
+          subTitle={facility?.name}
+          encounter={encounter}
+        >
+          <EncounterActions encounter={encounter} />
+        </EncounterTopBar>
         <ContentPane>
+          <EncounterInfoPane encounter={encounter} />
+          <Box mt={4} mb={4}>
+            <Divider />
+          </Box>
           <DiagnosisView
             encounter={encounter}
             isTriage={getIsTriage(encounter)}
             disabled={disabled}
           />
         </ContentPane>
-        <TabDisplay
-          tabs={visibleTabs}
-          currentTab={currentTab}
-          onTabSelect={setCurrentTab}
-          encounter={encounter}
-          disabled={disabled}
-        />
+        <ContentPane>
+          <StyledTabDisplay
+            tabs={visibleTabs}
+            currentTab={currentTab}
+            onTabSelect={setCurrentTab}
+            encounter={encounter}
+            disabled={disabled}
+          />
+        </ContentPane>
       </GridColumnContainer>
     </TwoColumnDisplay>
   );
