@@ -11,6 +11,7 @@ export const clearPatient = () => ({
   type: PATIENT_CLEAR,
 });
 
+// TRY REMOVE THIS
 export const viewPatient = (id, category = 'all') => async dispatch => {
   await dispatch(reloadPatient(id));
   dispatch(push(`/patients/${category}/${id}`));

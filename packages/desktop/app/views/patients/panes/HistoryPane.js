@@ -17,16 +17,15 @@ export const HistoryPane = React.memo(({ disabled }) => {
   const onViewEncounter = useCallback(
     id => {
       (async () => {
-        await loadEncounter(id, true, params.category);
+        await loadEncounter(id);
+        dispatch(push(`/patients/${params.category}/${patient.id}/encounter/${id}/`));
       })();
     },
-    [loadEncounter, params.category],
+    [loadEncounter, params.category, patient.id, dispatch],
   );
 
-  const onOpenCheckin = () =>
-    dispatch(push(`/patients/${params.category}/${params.patientId}/checkin`));
-  const onOpenTriage = () =>
-    dispatch(push(`/patients/${params.category}/${params.patientId}/triage`));
+  const onOpenCheckin = () => dispatch(push(`/patients/${params.category}/${patient.id}/checkin`));
+  const onOpenTriage = () => dispatch(push(`/patients/${params.category}/${patient.id}/triage`));
 
   return (
     <>

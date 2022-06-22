@@ -3,6 +3,7 @@ import { REFERRAL_STATUSES } from 'shared/constants';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 
+import { push } from 'connected-react-router';
 import { Modal } from './Modal';
 import { reloadPatient } from '../store/patient';
 import { EncounterForm } from '../forms/EncounterForm';
@@ -18,19 +19,17 @@ export const EncounterModal = React.memo(
 
     const onCreateEncounter = useCallback(
       async data => {
-        await createEncounter(
-          {
-            patientId,
-            referralId: referral?.id,
-            ...data,
-          },
-          params.category,
-        );
+        const encounter = await createEncounter({
+          patientId,
+          referralId: referral?.id,
+          ...data,
+        });
         if (referral) {
           await api.put(`referral/${referral.id}`, { status: REFERRAL_STATUSES.COMPLETED });
         }
 
         dispatch(reloadPatient(patientId));
+        dispatch(push(`/patients/${params.category}/${patientId}/encounter/${encounter.id}/`));
         onClose();
       },
       [dispatch, patientId, api, createEncounter, onClose, referral, params.category],

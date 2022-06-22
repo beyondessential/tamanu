@@ -1,5 +1,4 @@
 import React, { useState, useContext } from 'react';
-import { push } from 'connected-react-router';
 import { useApi } from '../api';
 
 const EncounterContext = React.createContext({
@@ -10,12 +9,11 @@ const EncounterContext = React.createContext({
   writeAndViewEncounter: () => {},
   loadEncounter: () => {},
   createEncounter: () => {},
-  viewEncounter: () => {},
 });
 
 export const useEncounter = () => useContext(EncounterContext);
 
-export const EncounterProvider = ({ store, children }) => {
+export const EncounterProvider = ({ children }) => {
   const [isLoadingEncounter, setIsLoadingEncounter] = useState(false);
   const [encounter, setEncounterData] = useState(null);
 
@@ -26,37 +24,29 @@ export const EncounterProvider = ({ store, children }) => {
     await api.put(`encounter/${encounterId}`, data);
   };
 
-  // navigate to the root encounter view which reads from encounter state.
-  const viewEncounter = (patientId, encounterId, category) => {
-    store.dispatch(push(`/patients/${category}/${patientId}/encounter/${encounterId}/`));
-  };
-
   // get encounter data from the sync server and save it to state.
-  const loadEncounter = async (encounterId, navigateToEncounter = false, category = 'all') => {
+  const loadEncounter = async encounterId => {
     setIsLoadingEncounter(true);
     const data = await api.get(`encounter/${encounterId}`);
     const { data: diagnoses } = await api.get(`encounter/${encounterId}/diagnoses`);
     const { data: procedures } = await api.get(`encounter/${encounterId}/procedures`);
     const { data: medications } = await api.get(`encounter/${encounterId}/medications`);
     setEncounterData({ ...data, diagnoses, procedures, medications });
-    if (navigateToEncounter) viewEncounter(data.patientId, encounterId, category);
     setIsLoadingEncounter(false);
     window.encounter = encounter;
   };
 
-  // write, fetch and set encounter then navigate to encounter view.
-  const writeAndViewEncounter = async (patientId, encounterId, data, category = 'all') => {
+  // write, fetch and set encounter.
+  const writeAndViewEncounter = async (encounterId, data) => {
     await saveEncounter(encounterId, data);
     await loadEncounter(encounterId);
-    viewEncounter(patientId, encounterId, category);
   };
 
   // create, fetch and set encounter then navigate to encounter view.
-  const createEncounter = async (data, category = 'all') => {
+  const createEncounter = async data => {
     setIsLoadingEncounter(true);
     const createdEncounter = await api.post(`encounter`, data);
     await loadEncounter(createdEncounter.id);
-    viewEncounter(createdEncounter.patientId, createdEncounter.id, category);
     setIsLoadingEncounter(false);
     return createdEncounter;
   };
