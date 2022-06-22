@@ -3,14 +3,13 @@ import { useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import { useEncounter } from '../contexts/Encounter';
+import { useApi } from '../api';
 
 import { Form, Field, AutocompleteField } from './Field';
 import { ConfirmCancelRow } from './ButtonRow';
 import { FormGrid } from './FormGrid';
 import { Modal } from './Modal';
 import { Suggester } from '../utils/suggester';
-
-import { useApi } from '../api';
 
 export const MoveModal = ({ open, onClose, encounter }) => {
   const params = useParams();
@@ -21,7 +20,7 @@ export const MoveModal = ({ open, onClose, encounter }) => {
   const movePatient = useCallback(
     async data => {
       await writeAndViewEncounter(encounter.id, data);
-      dispatch(push(`/patients/${params.category}/${params.patientId}/encounter/${encounter.id}/`));
+      dispatch(push(`/patients/${params.category}/${params.patientId}/encounter/${encounter.id}`));
       onClose();
     },
     [encounter, writeAndViewEncounter, onClose, params.patientId, params.category, dispatch],

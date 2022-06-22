@@ -2,11 +2,13 @@ import React, { useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Typography } from '@material-ui/core';
 
-import { viewPatient } from 'desktop/app/store/patient';
+import { reloadPatient } from 'desktop/app/store/patient';
 import { Button } from 'desktop/app/components/Button';
 import { PatientNameDisplay } from 'desktop/app/components/PatientNameDisplay';
 import { history } from 'desktop/app/utils/utils';
 import styled from 'styled-components';
+import { useParams } from 'react-router-dom';
+import { push } from 'connected-react-router';
 import { Colors } from '../../constants';
 
 const Header = styled.div`
@@ -37,13 +39,15 @@ const LightText = styled.span`
 `;
 
 export const PatientDisplay = ({ surveyCompleted = false }) => {
+  const params = useParams();
   const patient = useSelector(state => state.patient);
   const shouldShowCancel = !surveyCompleted;
   const dispatch = useDispatch();
 
-  const onViewPatient = useCallback(() => {
-    dispatch(viewPatient(patient.id));
-  }, [patient.id, dispatch]);
+  const onViewPatient = useCallback(async () => {
+    await dispatch(reloadPatient(patient.id));
+    dispatch(push(`/patients/${params.category}/${patient.id}`));
+  }, [patient.id, dispatch, params.category]);
 
   const onViewPatientKeyUp = useCallback(
     e => {

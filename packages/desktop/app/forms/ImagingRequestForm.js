@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import shortid from 'shortid';
 import { connect, useDispatch } from 'react-redux';
-
 import { push } from 'connected-react-router';
 import { useParams } from 'react-router-dom';
+
 import { foreignKey } from '../utils/validation';
 import { encounterOptions } from '../constants';
 import { getImagingTypes, loadOptions } from '../store/options';
@@ -26,6 +26,7 @@ import { DateDisplay } from '../components/DateDisplay';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { DropdownButton } from '../components/DropdownButton';
 import { useEncounter } from '../contexts/Encounter';
+import { reloadImagingRequest } from '../store';
 
 function getEncounterTypeLabel(type) {
   return encounterOptions.find(x => x.value === type).label;
@@ -47,7 +48,8 @@ const FormSubmitActionDropdown = React.memo(({ requestId, encounter, submitForm 
   useEffect(() => {
     (async () => {
       if (awaitingPrintRedirect && requestId) {
-        await dispatch(
+        await dispatch(reloadImagingRequest(requestId));
+        dispatch(
           push(
             `/patients/${params.category}/${params.patientId}/encounter/${encounter.id}/imaging-request/${requestId}/print`,
           ),

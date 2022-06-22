@@ -1,9 +1,9 @@
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
+import { useParams } from 'react-router-dom';
 import { push } from 'connected-react-router';
 
-import { useParams } from 'react-router-dom';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 
@@ -11,6 +11,7 @@ import { IMAGING_REQUEST_STATUS_LABELS, IMAGING_REQUEST_COLORS } from '../consta
 import { PatientNameDisplay } from './PatientNameDisplay';
 import { reloadPatient } from '../store/patient';
 import { useEncounter } from '../contexts/Encounter';
+import { reloadImagingRequest } from '../store';
 
 const StatusLabel = styled.div`
   background: ${p => p.color};
@@ -53,12 +54,14 @@ export const ImagingRequestsTable = React.memo(({ encounterId, searchParameters 
       const { encounter } = imagingRequest;
       if (encounter) {
         await loadEncounter(encounter.id);
+        await dispatch(reloadPatient(patientId));
       }
+      await dispatch(reloadImagingRequest(imagingRequest.id));
       const patientId = params.patientId || encounter.patientId;
-      dispatch(reloadPatient(patientId));
+      const category = params.category || 'all';
       dispatch(
         push(
-          `/patients/${params.category}/${patientId}/encounter/${encounterId}/imaging-request/${imagingRequest.id}`,
+          `/patients/${category}/${patientId}/encounter/${encounterId}/imaging-request/${imagingRequest.id}`,
         ),
       );
     },

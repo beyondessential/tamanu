@@ -1,5 +1,3 @@
-import { push } from 'connected-react-router';
-
 // actions
 const PATIENT_LOAD_START = 'PATIENT_LOAD_START';
 const PATIENT_LOAD_ERROR = 'PATIENT_LOAD_ERROR';
@@ -10,12 +8,6 @@ const PATIENT_SYNCING = 'PATIENT_SYNCING';
 export const clearPatient = () => ({
   type: PATIENT_CLEAR,
 });
-
-// TRY REMOVE THIS
-export const viewPatient = (id, category = 'all') => async dispatch => {
-  await dispatch(reloadPatient(id));
-  dispatch(push(`/patients/${category}/${id}`));
-};
 
 export const reloadPatient = id => async (dispatch, getState, { api }) => {
   dispatch({ type: PATIENT_LOAD_START, id });

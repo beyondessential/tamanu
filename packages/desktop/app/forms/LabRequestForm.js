@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { connect, useDispatch } from 'react-redux';
-
 import { useParams } from 'react-router-dom';
 import { push } from 'connected-react-router';
+
 import { foreignKey } from '../utils/validation';
 import { encounterOptions } from '../constants';
 import {
@@ -13,6 +13,8 @@ import {
   getLabTestPriorities,
   loadOptions,
 } from '../store/options';
+import { useLabRequest } from '../contexts/LabRequest';
+import { useEncounter } from '../contexts/Encounter';
 
 import {
   Form,
@@ -31,9 +33,6 @@ import { ButtonRow } from '../components/ButtonRow';
 import { DateDisplay } from '../components/DateDisplay';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { DropdownButton } from '../components/DropdownButton';
-
-import { useLabRequest } from '../contexts/LabRequest';
-import { useEncounter } from '../contexts/Encounter';
 
 function getEncounterTypeLabel(type) {
   return encounterOptions.find(x => x.value === type).label;

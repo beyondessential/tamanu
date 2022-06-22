@@ -1,12 +1,15 @@
 import React from 'react';
+import { useParams } from 'react-router-dom';
+import { push } from 'connected-react-router';
 import { useDispatch, useSelector } from 'react-redux';
-import { viewPatient } from '../store/patient';
+import { reloadPatient } from '../store/patient';
 import { Modal } from './Modal';
 import { DeathForm } from '../forms/DeathForm';
 import { useApi, useSuggester } from '../api';
 
 export const DeathModal = React.memo(({ open, onClose }) => {
   const api = useApi();
+  const params = useParams();
   const dispatch = useDispatch();
   const patient = useSelector(state => state.patient);
   const icd10Suggester = useSuggester('icd10');
@@ -18,7 +21,8 @@ export const DeathModal = React.memo(({ open, onClose }) => {
     await api.post(`patient/${patientId}/death`, data);
 
     onClose();
-    dispatch(viewPatient(patientId));
+    await dispatch(reloadPatient(patientId));
+    dispatch(push(`patients/${params.category}/${patientId}`));
   };
 
   return (

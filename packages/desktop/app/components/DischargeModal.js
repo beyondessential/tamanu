@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-
 import { push } from 'connected-react-router';
+
 import { Modal } from './Modal';
 import { useSuggester } from '../api';
 import { DischargeForm } from '../forms/DischargeForm';

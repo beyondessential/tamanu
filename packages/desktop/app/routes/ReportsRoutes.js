@@ -4,7 +4,7 @@ import { ReportGenerator } from '../views';
 
 export const ReportsRoutes = ({ match }) => (
   <Switch>
-    <Redirect exact from={match.path} to={`${match.path}/new`} />
     <Route path={`${match.path}/new`} component={ReportGenerator} />
+    <Redirect from="*" to={`${match.path}/new`} />
   </Switch>
 );

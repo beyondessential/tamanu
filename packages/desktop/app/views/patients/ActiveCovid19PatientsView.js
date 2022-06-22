@@ -4,9 +4,10 @@ import { groupBy } from 'lodash';
 import styled from 'styled-components';
 import People from '@material-ui/icons/People';
 import Paper from '@material-ui/core/Paper';
+import { push } from 'connected-react-router';
 
 import { useApi } from '../../api';
-import { viewPatient } from '../../store/patient';
+import { reloadPatient } from '../../store/patient';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 import {
   TopBar,
@@ -162,7 +163,10 @@ const PriorityDisplay = React.memo(({ clinicalStatus }) => (
 
 const ActiveCovid19PatientsTable = React.memo(({ data, ...props }) => {
   const dispatch = useDispatch();
-  const handleViewPatient = id => dispatch(viewPatient(id));
+  const handleViewPatient = async id => {
+    await dispatch(reloadPatient(id));
+    dispatch(push(`patients/all/${id}`));
+  };
 
   return (
     <DataFetchingTable

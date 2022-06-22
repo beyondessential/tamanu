@@ -2,9 +2,10 @@ import React, { useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
-import { Modal } from './Modal';
 
+import { Modal } from './Modal';
 import { ManualLabResultForm } from '../forms/ManualLabResultForm';
+
 import { useLabRequest } from '../contexts/LabRequest';
 
 export const ManualLabResultModal = ({ labTest, onClose, open }) => {

@@ -4,7 +4,7 @@ import { Redirect, Route, Switch } from 'react-router-dom';
 
 export const ReferralsRoutes = React.memo(({ match }) => (
   <Switch>
-    <Redirect exact from={match.path} to={`${match.path}/new`} />
     <Route path={`${match.path}/new`} component={ReferralsView} />
+    <Redirect from="*" to={`${match.path}/new`} />
   </Switch>
 ));

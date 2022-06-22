@@ -15,10 +15,17 @@ export const PatientsRoutes = React.memo(({ match }) => (
       path={`${match.path}/:category(all|emergency|inpatient|outpatient)/:patientId/:modal?`}
       component={PatientRoutes}
     />
-    <Route path={`${match.path}/all`} component={PatientListingView} />
-    <Route path={`${match.path}/emergency`} component={TriageListingView} />
-    <Route path={`${match.path}/inpatient`} component={AdmittedPatientsView} />
-    <Route path={`${match.path}/outpatient`} component={OutpatientsView} />
-    <Redirect exact path="*" to={`${match.path}/all`} />
+    <Route
+      path={`${match.path}/:category(all|emergency|inpatient|outpatient)`}
+      render={props =>
+        ({
+          all: <PatientListingView />,
+          emergency: <TriageListingView />,
+          inpatient: <AdmittedPatientsView />,
+          outpatient: <OutpatientsView />,
+        }[props.match.params.category])
+      }
+    />
+    <Redirect exact from="*" to={`${match.path}/all`} />
   </Switch>
 ));

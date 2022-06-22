@@ -7,10 +7,10 @@ import { ImagingRequestListingView } from '../views/ImagingRequestListingView';
 export const ImagingRoutes = React.memo(({ match }) => (
   <div>
     <Switch>
-      <Redirect exact from={match.path} to={`${match.path}/all`} />
       <Route path={`${match.path}/all`} component={ImagingRequestListingView} />
       <Route path={`${match.path}/new`} component={NotActiveView} />
       <Route path={`${match.path}/completed`} component={NotActiveView} />
+      <Redirect from="*" to={`${match.path}/all`} />
     </Switch>
   </div>
 ));

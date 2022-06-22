@@ -4,6 +4,8 @@ import moment from 'moment';
 import Paper from '@material-ui/core/Paper';
 import { useDispatch } from 'react-redux';
 
+import { push } from 'connected-react-router';
+import { useParams } from 'react-router-dom';
 import { reloadPatient } from '../store/patient';
 import { TopBar, PageContainer, DataFetchingTable } from '../components';
 import { TriageStatisticsCard } from '../components/TriageStatisticsCard';
@@ -122,15 +124,19 @@ const COLUMNS = [
 ];
 
 const TriageTable = React.memo(({ onViewEncounter, ...props }) => {
+  const params = useParams();
   const dispatch = useDispatch();
   const { loadEncounter } = useEncounter();
 
   const viewEncounter = useCallback(
     async triage => {
       await loadEncounter(triage.encounterId);
-      dispatch(reloadPatient(triage.patientId));
+      await dispatch(reloadPatient(triage.patientId));
+      dispatch(
+        push(`/patients/${params.category}/${triage.patientId}/encounter/${triage.encounterId}`),
+      );
     },
-    [loadEncounter, dispatch],
+    [loadEncounter, dispatch, params.category],
   );
 
   return (

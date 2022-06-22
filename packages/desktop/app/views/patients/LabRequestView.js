@@ -157,14 +157,17 @@ const ChangeLaboratoryModal = ({ laboratory, updateLabReq, open, onClose }) => {
 };
 
 const DeleteRequestModal = ({ updateLabReq, open, onClose }) => {
+  const params = useParams();
   const dispatch = useDispatch();
   const deleteLabRequest = useCallback(async () => {
     await updateLabReq({
       status: 'deleted',
     });
     onClose();
-    dispatch(push('/patients/encounter'));
-  }, [updateLabReq, onClose, dispatch]);
+    dispatch(
+      push(`/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}`),
+    );
+  }, [updateLabReq, onClose, dispatch, params.category, params.patientId, params.encounterId]);
 
   return (
     <>

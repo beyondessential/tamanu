@@ -2,13 +2,13 @@ import React, { useCallback } from 'react';
 import { REFERRAL_STATUSES } from 'shared/constants';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
-
 import { push } from 'connected-react-router';
+import { useApi } from '../api';
+
 import { Modal } from './Modal';
 import { reloadPatient } from '../store/patient';
 import { EncounterForm } from '../forms/EncounterForm';
 import { useEncounter } from '../contexts/Encounter';
-import { useApi } from '../api';
 
 export const EncounterModal = React.memo(
   ({ open, onClose, patientId, referral, patientBillingTypeId, ...props }) => {

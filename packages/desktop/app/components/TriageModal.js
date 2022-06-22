@@ -3,15 +3,15 @@ import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { push } from 'connected-react-router';
-
+import { useApi } from '../api';
 import { useLocalisation } from '../contexts/Localisation';
+
 import { Modal } from './Modal';
 import { Suggester } from '../utils/suggester';
 import { Colors } from '../constants';
 import { TriageForm } from '../forms/TriageForm';
 import { DisplayIdLabel } from './DisplayIdLabel';
 import { DateDisplay } from './DateDisplay';
-import { useApi } from '../api';
 
 const PatientDetails = styled.div`
   padding: 15px;

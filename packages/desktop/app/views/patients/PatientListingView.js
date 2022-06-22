@@ -3,7 +3,8 @@ import { useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 
-import { viewPatient } from '../../store/patient';
+import { push } from 'connected-react-router';
+import { reloadPatient } from '../../store/patient';
 import {
   TopBar,
   PageContainer,
@@ -55,20 +56,24 @@ const StyledDataTable = styled(DataFetchingTable)`
   margin: 24px;
 `;
 
-const PatientTable = ({ onViewPatient, columns, fetchOptions, searchParameters, category }) => {
+const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
+  const params = useParams();
   const dispatch = useDispatch();
   const fetchOptionsWithSearchParameters = { ...searchParameters, ...fetchOptions };
+
+  const handleViewPatient = async row => {
+    await dispatch(reloadPatient(row.id));
+    console.log(params);
+    console.log(row.id, `patients/${params.category}/${row.id}`);
+    console.log('handeling bb');
+    dispatch(push(`/patients/${params.category}/${row.id}`));
+  };
+
   return (
     <StyledDataTable
       columns={columns}
       noDataMessage="No patients found"
-      onRowClick={row => {
-        if (onViewPatient) {
-          onViewPatient(row.id, category);
-        } else {
-          dispatch(viewPatient(row.id, category));
-        }
-      }}
+      onRowClick={handleViewPatient}
       rowStyle={({ patientStatus }) =>
         patientStatus === 'deceased' ? '& > td:not(:first-child) { color: #ed333a; }' : ''
       }
@@ -95,6 +100,16 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
     setIsBirth(true);
   }, []);
 
+  const handleCreateNewPatient = async newPatient => {
+    setCreatingPatient(false);
+    if (onCreateNewPatient) {
+      onCreateNewPatient(newPatient.id);
+    } else {
+      await dispatch(reloadPatient(newPatient.id));
+    }
+    dispatch(push(`patients/${params.category}/${newPatient.id}`));
+  };
+
   return (
     <>
       <DropdownButton
@@ -109,14 +124,7 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
         isBirth={isBirth}
         open={isCreatingPatient}
         onCancel={hideModal}
-        onCreateNewPatient={newPatient => {
-          setCreatingPatient(false);
-          if (onCreateNewPatient) {
-            onCreateNewPatient(newPatient.id, params.category);
-          } else {
-            dispatch(viewPatient(newPatient.id, params.category));
-          }
-        }}
+        onCreateNewPatient={handleCreateNewPatient}
       />
     </>
   );
@@ -131,7 +139,6 @@ export const PatientListingView = ({ onViewPatient }) => {
       </TopBar>
       <AllPatientsSearchBar onSearch={setSearchParameters} />
       <PatientTable
-        category="all"
         onViewPatient={onViewPatient}
         searchParameters={searchParameters}
         columns={LISTING_COLUMNS}
@@ -147,7 +154,6 @@ export const AdmittedPatientsView = () => {
       <TopBar title="Admitted patient listing" />
       <PatientSearchBar onSearch={setSearchParameters} />
       <PatientTable
-        category="inpatient"
         fetchOptions={{ inpatient: 1 }}
         searchParameters={searchParameters}
         columns={INPATIENT_COLUMNS}
@@ -163,7 +169,6 @@ export const OutpatientsView = () => {
       <TopBar title="Outpatient listing" />
       <PatientSearchBar onSearch={setSearchParameters} />
       <PatientTable
-        category="outpatient"
         fetchOptions={{ outpatient: 1 }}
         searchParameters={searchParameters}
         columns={INPATIENT_COLUMNS}
