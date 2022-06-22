@@ -14,7 +14,7 @@ export const ChangeEncounterTypeModal = React.memo(({ open, encounter, onClose, 
   const changeEncounterType = useCallback(
     async data => {
       await writeAndViewEncounter(encounter.id, data);
-      dispatch(push(`/patients/${params.category}/${params.patientId}/encounter/${encounter.id}/`));
+      dispatch(push(`/patients/${params.category}/${params.patientId}/encounter/${encounter.id}`));
       onClose();
     },
     [encounter, onClose, writeAndViewEncounter, params.category, params.patientId, dispatch],

@@ -19,7 +19,7 @@ export const ChangeDepartmentModal = React.memo(({ open, onClose }) => {
     async data => {
       const { encounter, writeAndViewEncounter } = encounterCtx;
       await writeAndViewEncounter(encounter.id, data);
-      dispatch(push(`/patients/${params.category}/${params.patientId}/encounter/${encounter.id}/`));
+      dispatch(push(`/patients/${params.category}/${params.patientId}/encounter/${encounter.id}`));
     },
     [encounterCtx, params.category, params.patientId, dispatch],
   );

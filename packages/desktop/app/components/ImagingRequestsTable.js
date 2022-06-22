@@ -1,13 +1,13 @@
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import { useDispatch } from 'react-redux';
+import { push } from 'connected-react-router';
 
 import { useParams } from 'react-router-dom';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 
 import { IMAGING_REQUEST_STATUS_LABELS, IMAGING_REQUEST_COLORS } from '../constants';
-import { viewImagingRequest } from '../store/imagingRequest';
 import { PatientNameDisplay } from './PatientNameDisplay';
 import { reloadPatient } from '../store/patient';
 import { useEncounter } from '../contexts/Encounter';
@@ -56,9 +56,13 @@ export const ImagingRequestsTable = React.memo(({ encounterId, searchParameters 
       }
       const patientId = params.patientId || encounter.patientId;
       dispatch(reloadPatient(patientId));
-      dispatch(viewImagingRequest(patientId, encounterId, imagingRequest.id));
+      dispatch(
+        push(
+          `/patients/${params.category}/${patientId}/encounter/${encounterId}/imaging-request/${imagingRequest.id}`,
+        ),
+      );
     },
-    [loadEncounter, dispatch, params.patientId, encounterId],
+    [loadEncounter, dispatch, params.patientId, params.category, encounterId],
   );
 
   return (

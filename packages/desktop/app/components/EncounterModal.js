@@ -29,7 +29,7 @@ export const EncounterModal = React.memo(
         }
 
         dispatch(reloadPatient(patientId));
-        dispatch(push(`/patients/${params.category}/${patientId}/encounter/${encounter.id}/`));
+        dispatch(push(`/patients/${params.category}/${patientId}/encounter/${encounter.id}`));
         onClose();
       },
       [dispatch, patientId, api, createEncounter, onClose, referral, params.category],

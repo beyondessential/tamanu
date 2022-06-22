@@ -59,7 +59,7 @@ export const LabRequestsTable = React.memo(({ encounterId }) => {
       dispatch(
         push(
           `/patients/${params.category}/${patientId}/encounter/${encounterId ||
-            lab.encounterId}/lab-request/${lab.id}/`,
+            lab.encounterId}/lab-request/${lab.id}`,
         ),
       );
     },

@@ -4,6 +4,8 @@ import * as yup from 'yup';
 import shortid from 'shortid';
 import { connect, useDispatch } from 'react-redux';
 
+import { push } from 'connected-react-router';
+import { useParams } from 'react-router-dom';
 import { foreignKey } from '../utils/validation';
 import { encounterOptions } from '../constants';
 import { getImagingTypes, loadOptions } from '../store/options';
@@ -23,7 +25,6 @@ import { ButtonRow } from '../components/ButtonRow';
 import { DateDisplay } from '../components/DateDisplay';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { DropdownButton } from '../components/DropdownButton';
-import { viewImagingRequest } from '../store/imagingRequest';
 import { useEncounter } from '../contexts/Encounter';
 
 function getEncounterTypeLabel(type) {
@@ -38,6 +39,7 @@ function getEncounterLabel(encounter) {
 
 const FormSubmitActionDropdown = React.memo(({ requestId, encounter, submitForm }) => {
   const dispatch = useDispatch();
+  const params = useParams();
   const { loadEncounter } = useEncounter();
   const [awaitingPrintRedirect, setAwaitingPrintRedirect] = useState();
 
@@ -45,10 +47,14 @@ const FormSubmitActionDropdown = React.memo(({ requestId, encounter, submitForm 
   useEffect(() => {
     (async () => {
       if (awaitingPrintRedirect && requestId) {
-        await dispatch(viewImagingRequest(encounter.patientId, encounter.id, requestId, 'print'));
+        await dispatch(
+          push(
+            `/patients/${params.category}/${params.patientId}/encounter/${encounter.id}/imaging-request/${requestId}/print`,
+          ),
+        );
       }
     })();
-  }, [requestId, awaitingPrintRedirect, dispatch, encounter.id, encounter.patientId]);
+  }, [requestId, awaitingPrintRedirect, dispatch, encounter.id, params.patientId, params.category]);
 
   const finalise = async data => {
     await submitForm(data);
