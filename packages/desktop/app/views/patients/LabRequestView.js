@@ -320,13 +320,23 @@ export const LabRequestView = () => {
 
   const updateLabReq = useCallback(
     async data => {
-      await updateLabRequest(patient.id, params.encounterId, labRequest.id, data, params.category);
+      await updateLabRequest(labRequest.id, data);
+      await dispatch(
+        push(
+          `/patients/${params.category}/${patient.id}/encounter/${params.encounterId}/lab-request/${labRequest.id}/`,
+        ),
+      );
     },
-    [labRequest, updateLabRequest, patient.id, params.encounterId, params.category],
+    [labRequest, updateLabRequest, patient.id, params.encounterId, params.category, dispatch],
   );
   const refreshLabRequest = useCallback(async () => {
-    await loadLabRequest(patient.id, params.encounterId, labRequest.id, '', params.category);
-  }, [labRequest.id, loadLabRequest, patient.id, params.encounterId, params.category]);
+    await loadLabRequest(labRequest.id);
+    dispatch(
+      push(
+        `/patients/${params.category}/${patient.id}/encounter/${params.encounterId}/lab-request/${labRequest.id}/`,
+      ),
+    );
+  }, [labRequest.id, loadLabRequest, patient.id, params.encounterId, params.category, dispatch]);
 
   const onBack = () =>
     dispatch(

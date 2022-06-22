@@ -2,6 +2,7 @@ import React, { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 
+import { push } from 'connected-react-router';
 import { DataFetchingTable } from './Table';
 
 import { reloadPatient } from '../store/patient';
@@ -52,11 +53,17 @@ export const LabRequestsTable = React.memo(({ encounterId }) => {
         // no encounter, likely on the labs page
         await loadEncounter(lab.encounterId);
       }
-      if (lab.patientId) dispatch(reloadPatient(lab.patientId, lab.encounterId));
+      if (lab.patientId) dispatch(reloadPatient(lab.patientId));
       const patientId = params.patientId || lab.patientId;
-      loadLabRequest(patientId, lab.encounterId, lab.id);
+      await loadLabRequest(lab.id);
+      dispatch(
+        push(
+          `/patients/${params.category}/${patientId}/encounter/${encounterId ||
+            lab.encounterId}/lab-request/${lab.id}/`,
+        ),
+      );
     },
-    [encounterId, dispatch, loadEncounter, loadLabRequest, params.patientId],
+    [encounterId, dispatch, loadEncounter, loadLabRequest, params.patientId, params.category],
   );
 
   return (
