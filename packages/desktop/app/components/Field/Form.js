@@ -126,7 +126,7 @@ export class Form extends React.PureComponent {
   };
 
   render() {
-    const { onSubmit, showInlineErrorsOnly, ...props } = this.props;
+    const { onSubmit, showInlineErrorsOnly, disabled, ...props } = this.props;
     const { validationErrors, isErrorDialogVisible } = this.state;
 
     // read children from additional props rather than destructuring so
@@ -142,12 +142,12 @@ export class Form extends React.PureComponent {
           validateOnChange={false}
           validateOnBlur={false}
           initialStatus={{
-            page: 1,
+            disabled,
           }}
           {...props}
           render={this.renderFormContents}
         />
-
+        
         <Dialog
           isVisible={isErrorDialogVisible}
           onClose={this.hideErrorDialog}
@@ -166,11 +166,13 @@ Form.propTypes = {
   render: PropTypes.func.isRequired,
   showInlineErrorsOnly: PropTypes.bool,
   initialValues: PropTypes.shape({}),
+  disabled: PropTypes.bool,
 };
 
 Form.defaultProps = {
   showInlineErrorsOnly: false,
   onError: null,
   onSuccess: null,
+  disabled: false,
   initialValues: {},
 };

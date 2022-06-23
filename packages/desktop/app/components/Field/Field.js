@@ -5,11 +5,12 @@ import { FormTooltip } from '../FormTooltip';
 import { TextField } from './TextField';
 
 export const Field = formikConnect(
-  ({ formik: { errors }, name, component = TextField, helperText, ...props }) => (
+  ({ formik: { errors, status }, name, component = TextField, helperText, disabled, ...props }) => (
     <FormikField
       {...props}
       component={component}
       error={!!getIn(errors, name)}
+      disabled={status.disabled || disabled}
       helperText={getIn(errors, name) || helperText}
       name={name}
     />
