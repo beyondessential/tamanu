@@ -1,8 +1,10 @@
 import express from 'express';
 
+import { createDataImporterEndpoint } from '../../admin/createDataImporterEndpoint';
+
 import { importProgram } from '../../admin/importProgram';
 import { importData } from '../../admin/importDataDefinition';
-import { createDataImporterEndpoint } from '../../admin/createDataImporterEndpoint';
+import { importPermissions } from '../../admin/importPermissions';
 
 export const admin = express.Router();
 
@@ -16,3 +18,4 @@ admin.use((req, res, next) => {
 
 admin.post('/importProgram', createDataImporterEndpoint(importProgram));
 admin.post('/importData', createDataImporterEndpoint(importData));
+admin.post('/importPermissions', createDataImporterEndpoint(importPermissions));
