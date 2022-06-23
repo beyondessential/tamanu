@@ -4,7 +4,6 @@ import {
   buildNestedEncounter,
   expectDeepSyncRecordMatch,
   fake,
-  fakePatient,
   fakeUser,
   unsafeSetUpdatedAt,
   upsertAssociations,
@@ -28,17 +27,18 @@ describe('export', () => {
       beforeAll(async () => {
         context = await initDb({ syncClientMode });
         models = context.models;
-        await models.Patient.create({ ...fakePatient(), id: patientId });
-        await models.User.create({ ...fakeUser(), id: userId });
-        await models.Facility.create({ ...fake(models.Facility), id: facilityId });
-        await models.ScheduledVaccine.create({
-          ...fake(models.ScheduledVaccine),
+        const { Patient, User, Facility, ScheduledVaccine } = models;
+        await Patient.create({ ...fake(Patient), id: patientId });
+        await User.create({ ...fakeUser(), id: userId });
+        await Facility.create({ ...fake(Facility), id: facilityId });
+        await ScheduledVaccine.create({
+          ...fake(ScheduledVaccine),
           id: scheduledVaccineId,
         });
       });
 
       const testCases = [
-        ['Patient', fakePatient],
+        ['Patient', () => fake(models.Patient)],
         [
           'Encounter',
           () => buildNestedEncounter(context, patientId),

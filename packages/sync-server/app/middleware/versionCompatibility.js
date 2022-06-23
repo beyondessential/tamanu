@@ -7,12 +7,16 @@ import { InvalidClientHeadersError } from 'shared/errors';
 // not supported.
 export const SUPPORTED_CLIENT_VERSIONS = {
   'Tamanu LAN Server': {
-    min: '1.16.0',
-    max: '1.16.0', // note that higher patch versions will be allowed to connect
+    min: '1.17.0',
+    max: '1.17.0', // note that higher patch versions will be allowed to connect
+  },
+  'Tamanu Desktop': {
+    min: '1.17.0',
+    max: '1.17.0', // note that higher patch versions will be allowed to connect
   },
   'Tamanu Mobile': {
-    min: '1.16.0',
-    max: '1.16.99', // note that higher patch versions will be allowed to connect
+    min: '1.17.36',
+    max: '1.17.99', // note that higher patch versions will be allowed to connect
   },
   'fiji-vps': {
     min: null,
@@ -22,11 +26,14 @@ export const SUPPORTED_CLIENT_VERSIONS = {
     min: null,
     max: null,
   },
+  mSupply: {
+    min: null,
+    max: null,
+  },
 };
 
 export const versionCompatibility = (req, res, next) => {
-  // TODO: X-Runtime is deprecated
-  const clientType = req.header('X-Tamanu-Client') || req.header('X-Runtime');
+  const clientType = req.header('X-Tamanu-Client');
 
   if (!clientType) {
     // a thirdparty tool (or internal test suite) is using the API; ignore version checking

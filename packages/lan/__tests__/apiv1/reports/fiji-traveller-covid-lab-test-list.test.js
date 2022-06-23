@@ -23,6 +23,9 @@ const REPORT_COLUMNS = [
   'Status',
   'Result',
   'Requested by',
+  'Facility of user',
+  'Date of sample',
+  'Time of sample',
   'Requested date',
   'Submitted date',
   'Priority',
@@ -225,22 +228,22 @@ describe('Fiji traveller covid lab test report', () => {
       await createCovidTestForPatient(
         testContext.models,
         expectedPatient1,
-        '2022-03-01' + timePart,
+        `2022-03-01${timePart}`,
       );
       await createFormAnswerForPatient(app, testContext.models, expectedPatient1, {
-        formDate: '2022-03-01' + timePart,
+        formDate: `2022-03-01${timePart}`,
         testBrand,
         testReason: 'first test',
       });
       await createFormAnswerForPatient(app, testContext.models, expectedPatient1, {
-        formDate: '2022-03-02' + timePart,
+        formDate: `2022-03-02${timePart}`,
         testBrand,
         testReason: 'second test',
       });
       await createCovidTestForPatient(
         testContext.models,
         expectedPatient1,
-        '2022-03-03' + timePart,
+        `2022-03-03${timePart}`,
       );
       const reportResult = await app.post(REPORT_URL).send({});
       expect(reportResult).toHaveSucceeded();

@@ -44,6 +44,7 @@ export interface LoginResponse {
   token: string;
   user: IUser;
   localisation: object;
+  permissions: [];
 }
 
 export interface SyncSource {
@@ -120,7 +121,7 @@ export class WebSyncSource implements SyncSource {
 
   emitter = mitt();
 
-  connect(host: string) {
+  connect(host: string): void {
     this.host = host;
   }
 
@@ -191,11 +192,11 @@ export class WebSyncSource implements SyncSource {
     });
   }
 
-  setToken(token: string) {
+  setToken(token: string): void {
     this.token = token;
   }
 
-  clearToken() {
+  clearToken(): void {
     this.token = null;
   }
 

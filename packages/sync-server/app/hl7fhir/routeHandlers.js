@@ -2,7 +2,7 @@ import config from 'config';
 import asyncHandler from 'express-async-handler';
 import { isArray } from 'lodash';
 
-import { patientToHL7Patient } from './patient';
+import { patientToHL7Patient, getPatientWhereClause } from './patient';
 import {
   hl7StatusToLabRequestStatus,
   labTestToHL7Device,
@@ -46,7 +46,20 @@ function parseQuery(unsafeQuery, querySchema) {
   if (searchId) {
     values = fromSearchId(searchId);
   }
-  return querySchema.validate(values, { stripUnknown: true, abortEarly: false });
+  /*
+  Validation notes:
+
+  - stripUnknown needs to be false because otherwise yup will
+  remove those fields before validation occurs. We want to throw
+  an error message when the query has unsupported parameters.
+
+  - abortEarly needs to be false because we want to return a list of
+  all errors found.
+
+  - We can't validate schema strictly because we want defaults for
+  required fields and possibly type coercion.
+  */
+  return querySchema.validate(values, { stripUnknown: false, abortEarly: false });
 }
 
 async function getHL7Payload({ req, querySchema, model, getWhere, getInclude, bundleId, toHL7 }) {
@@ -54,7 +67,7 @@ async function getHL7Payload({ req, querySchema, model, getWhere, getInclude, bu
   const [, displayId] = decodeIdentifier(query['subject:identifier']);
   const { _count, _page, _sort, after } = query;
   const offset = _count * _page;
-  const baseWhere = getWhere(displayId);
+  const baseWhere = getWhere(displayId, query);
   const afterWhere = addPaginationToWhere(baseWhere, after);
   const include = getInclude(displayId, query);
 
@@ -64,7 +77,8 @@ async function getHL7Payload({ req, querySchema, model, getWhere, getInclude, bu
       include,
       limit: _count,
       offset,
-      order: hl7SortToTamanu(_sort),
+      order: hl7SortToTamanu(_sort, model.name),
+      subQuery: false,
     }),
     model.count({
       where: baseWhere,
@@ -74,6 +88,7 @@ async function getHL7Payload({ req, querySchema, model, getWhere, getInclude, bu
       where: afterWhere,
       include,
       limit: _count + 1, // we can stop once we've found n+1 remaining records
+      subQuery: false,
     }),
   ]);
 
@@ -133,7 +148,7 @@ export function patientHandler() {
       req,
       querySchema: schema.patient.query,
       model: Patient,
-      getWhere: displayId => ({ displayId }),
+      getWhere: getPatientWhereClause,
       getInclude: () => [{ association: 'additionalData' }],
       bundleId: 'patients',
       toHL7: patient => ({ mainResource: patientToHL7Patient(patient, patient.additionalData[0]) }),

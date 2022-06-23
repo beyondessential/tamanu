@@ -60,6 +60,7 @@ const Screen = ({ selectedPatient }: ProgramListScreenProps): ReactElement => {
           keyExtractor={(item): string => item.title}
           renderItem={({ item }): ReactElement => (
             <MenuOptionButton
+              key={item.id}
               title={item.name}
               onPress={(): void => onNavigateToSurvey(item)}
               fontWeight={500}

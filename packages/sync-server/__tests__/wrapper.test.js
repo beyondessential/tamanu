@@ -2,7 +2,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { omit } from 'lodash';
 import { initDatabase, closeDatabase } from 'sync-server/app/database';
 import {
-  fakePatient,
   fakeProgram,
   fakeProgramDataElement,
   fakeReferenceData,
@@ -35,7 +34,7 @@ describe('sqlWrapper', () => {
 
   const userId = uuidv4();
   const rootTestCases = [
-    ['patient', fakePatient],
+    ['patient', () => fake(store.models.Patient)],
     ['program', fakeProgram],
     ['programDataElement', fakeProgramDataElement],
     ['reference', fakeReferenceData],
@@ -70,7 +69,8 @@ describe('sqlWrapper', () => {
 
   const patientId = uuidv4();
   beforeAll(async () => {
-    await store.models.Patient.create({ ...fakePatient(), id: patientId });
+    const { Patient } = store.models;
+    await Patient.create({ ...fake(Patient), id: patientId });
   });
 
   const nestedPatientTestCases = [
