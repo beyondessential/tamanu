@@ -63,9 +63,6 @@ const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
 
   const handleViewPatient = async row => {
     await dispatch(reloadPatient(row.id));
-    console.log(params);
-    console.log(row.id, `patients/${params.category}/${row.id}`);
-    console.log('handeling bb');
     dispatch(push(`/patients/${params.category}/${row.id}`));
   };
 

@@ -52,12 +52,12 @@ export const ImagingRequestsTable = React.memo(({ encounterId, searchParameters 
   const selectImagingRequest = useCallback(
     async imagingRequest => {
       const { encounter } = imagingRequest;
+      const patientId = params.patientId || encounter.patientId;
       if (encounter) {
         await loadEncounter(encounter.id);
         await dispatch(reloadPatient(patientId));
       }
       await dispatch(reloadImagingRequest(imagingRequest.id));
-      const patientId = params.patientId || encounter.patientId;
       const category = params.category || 'all';
       dispatch(
         push(

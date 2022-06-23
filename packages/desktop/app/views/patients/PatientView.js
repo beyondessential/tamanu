@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
+import { useParams } from 'react-router-dom';
+import { PanoramaFishEyeOutlined } from '@material-ui/icons';
 import { TabDisplay } from '../../components/TabDisplay';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientAlert } from '../../components/PatientAlert';
@@ -19,7 +21,6 @@ import {
   ReferralPane,
   InvoicesPane,
 } from './panes';
-import { useParams } from 'react-router-dom';
 
 const TABS = [
   {
@@ -75,6 +76,9 @@ const TABS = [
   },
 ];
 
+const getConnectRoutedModal = ({ category, patientId }, suffix) =>
+  connectRoutedModal(`/patients/${category}/${patientId}`, suffix);
+
 export const PatientView = () => {
   const params = useParams();
   const { getLocalisation } = useLocalisation();
@@ -83,18 +87,17 @@ export const PatientView = () => {
   const [currentTab, setCurrentTab] = React.useState('history');
   const disabled = !!patient.death;
 
+  const RoutedEncounterModal = useMemo(() => getConnectRoutedModal(params, 'checkin'), [params])(
+    EncounterModal,
+  );
+
+  const RoutedTriageModal = useMemo(() => getConnectRoutedModal(params, 'triage'), [params])(
+    TriageModal,
+  );
+
   if (loading) return <LoadingIndicator />;
 
   const visibleTabs = TABS.filter(tab => !tab.condition || tab.condition(getLocalisation));
-
-  const RoutedEncounterModal = connectRoutedModal(
-    `/patients/${params.category}/${params.patientId}`,
-    'checkin',
-  )(EncounterModal);
-  const RoutedTriageModal = connectRoutedModal(
-    `/patients/${params.category}/${params.patientId}`,
-    'triage',
-  )(TriageModal);
 
   return (
     <>
