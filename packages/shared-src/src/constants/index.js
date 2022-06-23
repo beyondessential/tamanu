@@ -131,6 +131,7 @@ export const REFERENCE_TYPES = {
   SOCIAL_MEDIA_PLATFORM: 'socialMediaPlatform',
   PATIENT_BILLING_TYPE: 'patientBillingType',
   MANUFACTURER: 'manufacturer',
+  SECONDARY_ID_TYPE: 'secondaryIdType',
 };
 
 export const REFERENCE_TYPE_VALUES = Object.values(REFERENCE_TYPES);
