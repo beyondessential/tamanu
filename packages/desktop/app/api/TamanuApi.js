@@ -90,12 +90,16 @@ export class TamanuApi {
     this.authHeader = null;
     this.onVersionIncompatible = null;
     this.user = null;
-    this.appStore = null;
+    this.reduxStore = null;
 
     const host = window.localStorage.getItem(HOST);
     if (host) {
       this.setHost(host);
     }
+  }
+
+  setReduxStore(store) {
+    this.reduxStore = store;
   }
 
   setHost(host) {
@@ -203,8 +207,8 @@ export class TamanuApi {
     const { error } = await getResponseJsonSafely(response);
 
     // handle forbidden error and trigger catch all modal
-    if (response.status === 403 && error && this.appStore) {
-      return this.appStore.dispatch(setForbiddenError(error));
+    if (response.status === 403 && error && this.reduxStore) {
+      return this.reduxStore.dispatch(setForbiddenError(error));
     }
 
     // handle auth expiring
