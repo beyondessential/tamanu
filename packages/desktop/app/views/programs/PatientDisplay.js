@@ -7,7 +7,6 @@ import { Button } from 'desktop/app/components/Button';
 import { PatientNameDisplay } from 'desktop/app/components/PatientNameDisplay';
 import { history } from 'desktop/app/utils/utils';
 import styled from 'styled-components';
-import { useParams } from 'react-router-dom';
 import { push } from 'connected-react-router';
 import { Colors } from '../../constants';
 
@@ -39,15 +38,14 @@ const LightText = styled.span`
 `;
 
 export const PatientDisplay = ({ surveyCompleted = false }) => {
-  const params = useParams();
   const patient = useSelector(state => state.patient);
   const shouldShowCancel = !surveyCompleted;
   const dispatch = useDispatch();
 
   const onViewPatient = useCallback(async () => {
     await dispatch(reloadPatient(patient.id));
-    dispatch(push(`/patients/${params.category}/${patient.id}`));
-  }, [patient.id, dispatch, params.category]);
+    dispatch(push(`/patients/all/${patient.id}`));
+  }, [patient.id, dispatch]);
 
   const onViewPatientKeyUp = useCallback(
     e => {

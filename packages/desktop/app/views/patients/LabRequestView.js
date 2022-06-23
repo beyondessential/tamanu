@@ -326,7 +326,7 @@ export const LabRequestView = () => {
       await updateLabRequest(labRequest.id, data);
       await dispatch(
         push(
-          `/patients/${params.category}/${patient.id}/encounter/${params.encounterId}/lab-request/${labRequest.id}/`,
+          `/patients/${params.category}/${patient.id}/encounter/${params.encounterId}/lab-request/${labRequest.id}`,
         ),
       );
     },
@@ -336,7 +336,7 @@ export const LabRequestView = () => {
     await loadLabRequest(labRequest.id);
     dispatch(
       push(
-        `/patients/${params.category}/${patient.id}/encounter/${params.encounterId}/lab-request/${labRequest.id}/`,
+        `/patients/${params.category}/${patient.id}/encounter/${params.encounterId}/lab-request/${labRequest.id}`,
       ),
     );
   }, [labRequest.id, loadLabRequest, patient.id, params.encounterId, params.category, dispatch]);

@@ -18,7 +18,7 @@ export const HistoryPane = React.memo(({ disabled }) => {
     id => {
       (async () => {
         await loadEncounter(id);
-        dispatch(push(`/patients/${params.category}/${patient.id}/encounter/${id}/`));
+        dispatch(push(`/patients/${params.category}/${patient.id}/encounter/${id}`));
       })();
     },
     [loadEncounter, params.category, patient.id, dispatch],

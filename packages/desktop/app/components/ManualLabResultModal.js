@@ -23,7 +23,7 @@ export const ManualLabResultModal = ({ labTest, onClose, open }) => {
       });
       dispatch(
         push(
-          `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}/lab-request/${labRequest.id}/`,
+          `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}/lab-request/${labRequest.id}`,
         ),
       );
       onClose();

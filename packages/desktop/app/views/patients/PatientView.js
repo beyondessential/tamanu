@@ -1,8 +1,7 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
 import { useParams } from 'react-router-dom';
-import { PanoramaFishEyeOutlined } from '@material-ui/icons';
 import { TabDisplay } from '../../components/TabDisplay';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientAlert } from '../../components/PatientAlert';
@@ -21,6 +20,9 @@ import {
   ReferralPane,
   InvoicesPane,
 } from './panes';
+
+const getConnectRoutedModal = ({ category, patientId }, suffix) =>
+  connectRoutedModal(`/patients/${category}/${patientId}`, suffix);
 
 const TABS = [
   {
@@ -75,9 +77,6 @@ const TABS = [
     condition: getLocalisation => getLocalisation('features.enableInvoicing'),
   },
 ];
-
-const getConnectRoutedModal = ({ category, patientId }, suffix) =>
-  connectRoutedModal(`/patients/${category}/${patientId}`, suffix);
 
 export const PatientView = () => {
   const params = useParams();

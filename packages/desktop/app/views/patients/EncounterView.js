@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
@@ -30,6 +30,9 @@ import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../constants';
 import { useEncounter } from '../../contexts/Encounter';
 import { useLocalisation } from '../../contexts/Localisation';
 import { useAuth } from '../../contexts/Auth';
+
+const getConnectRoutedModal = ({ category, patientId, encounterId }, suffix) =>
+  connectRoutedModal(`/patients/${category}/${patientId}/encounter/${encounterId}`, suffix);
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
@@ -183,22 +186,22 @@ const EncounterActionDropdown = ({ encounter }) => {
 
 const EncounterActions = ({ encounter }) => {
   const params = useParams();
-  const RoutedDischargeModal = connectRoutedModal(
-    `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}`,
-    'discharge',
-  )(DischargeModal);
-  const RoutedChangeEncounterTypeModal = connectRoutedModal(
-    `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}`,
-    'changeType',
+
+  const RoutedDischargeModal = useMemo(() => getConnectRoutedModal(params, 'discharge'), [params])(
+    DischargeModal,
+  );
+
+  const RoutedChangeEncounterTypeModal = useMemo(
+    () => getConnectRoutedModal(params, 'changeType'),
+    [params],
   )(ChangeEncounterTypeModal);
-  const RoutedChangeDepartmentModal = connectRoutedModal(
-    `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}`,
-    'changeDepartment',
+
+  const RoutedChangeDepartmentModal = useMemo(
+    () => getConnectRoutedModal(params, 'changeDepartment'),
+    [params],
   )(ChangeDepartmentModal);
-  const RoutedMoveModal = connectRoutedModal(
-    `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}`,
-    'move',
-  )(MoveModal);
+
+  const RoutedMoveModal = useMemo(() => getConnectRoutedModal(params, 'move'), [params])(MoveModal);
 
   return (
     <>
