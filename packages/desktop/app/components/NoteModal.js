@@ -5,14 +5,13 @@ import { Suggester } from '../utils/suggester';
 
 import { Modal } from './Modal';
 import { NoteForm } from '../forms/NoteForm';
-import { useAuth } from '../contexts/Auth';
 
 export const NoteModal = ({ open, onClose, onSaved, encounterId, noteId, editedObject }) => {
   const api = useApi();
   const practitionerSuggester = new Suggester(api, 'practitioner');
-  const { currentUser } = useAuth();
-  // Only allow users to modify notes created by themselves
-  const isReadOnly = !!editedObject?.authorId && currentUser.id !== editedObject.authorId;
+  // Don't allow users to modify encounter notes
+  // (currently this component only manages those)
+  const isReadOnly = !!editedObject?.id;
 
   return (
     <Modal title="Note" open={open} onClose={onClose}>

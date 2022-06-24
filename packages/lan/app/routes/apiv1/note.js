@@ -6,12 +6,9 @@ import { NOTE_RECORD_TYPES } from 'shared/models/Note';
 
 export const note = express.Router();
 
-// A user can only modify an encounter note if they author it
-function canModifyNote(noteObject, user) {
-  if (noteObject.recordType !== NOTE_RECORD_TYPES.ENCOUNTER) {
-    return true;
-  }
-  return noteObject.authorId === user.id;
+// Encounter notes cannot be edited
+function canModifyNote(noteObject) {
+  return noteObject.recordType !== NOTE_RECORD_TYPES.ENCOUNTER;
 }
 
 note.put(
@@ -24,8 +21,8 @@ note.put(
       throw new NotFoundError();
     }
 
-    if (canModifyNote(editedNote, req.user) === false) {
-      throw new ForbiddenError('Cannot edit a note created by another user.');
+    if (canModifyNote(editedNote) === false) {
+      throw new ForbiddenError('Cannot edit encounter notes.');
     }
 
     req.checkPermission('write', editedNote.recordType);
@@ -56,8 +53,8 @@ note.delete(
       throw new NotFoundError();
     }
 
-    if (canModifyNote(noteToBeDeleted, req.user) === false) {
-      throw new ForbiddenError('Cannot delete a note created by another user.');
+    if (canModifyNote(noteToBeDeleted) === false) {
+      throw new ForbiddenError('Cannot delete encounter notes.');
     }
 
     req.checkPermission('write', noteToBeDeleted.recordType);
