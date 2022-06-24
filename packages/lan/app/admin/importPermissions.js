@@ -19,19 +19,24 @@ const permissionTransformer = item => {
   const { verb, noun, objectId = null, note, ...roles } = item;
   // Any non-empty value in the role cell would mean the role
   // is enabled for the permission
-  return Object.keys(roles)
-    .filter(role => roles[role].toLowerCase().trim())
-    .map(role => ({
-      recordType: 'permission',
-      data: {
-        id: `${role}-${verb}-${noun}-${objectId || 'any'}`.toLowerCase(),
-        _yCell: roles[role].toLowerCase().trim(), // only used for validation
-        verb,
-        noun,
-        objectId,
-        role,
-      },
-    }));
+  return Object.entries(roles)
+    .map(([role, yCell]) => [role, yCell.toLowerCase().trim()])
+    .filter(([role, yCell]) => yCell)
+    .map(([role, yCell]) => {
+      const id = `${role}-${verb}-${noun}-${objectId || 'any'}`.toLowerCase();
+      return {
+        recordType: 'permission',
+        recordId: id,
+        data: {
+          _yCell: roles[role].toLowerCase().trim(), // only used for validation
+          id,
+          verb,
+          noun,
+          objectId,
+          role,
+        },
+      };
+    });
 };
 
 export async function importPermissions({ file }) {
