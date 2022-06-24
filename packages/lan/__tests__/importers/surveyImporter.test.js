@@ -1,6 +1,6 @@
 import { cloneDeep } from 'lodash';
-import { importProgram } from '../app/admin/importProgram';
-import { preprocessRecordSet } from '../app/admin/preprocessRecordSet';
+import { importProgram } from '../../app/admin/importProgram';
+import { preprocessRecordSet } from '../../app/admin/preprocessRecordSet';
 
 const TEST_PROGRAMS_PATH = './__tests__/importers/test_programs.xlsx';
 

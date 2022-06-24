@@ -1,10 +1,10 @@
-import { importData } from '../app/admin/importDataDefinition';
-import { preprocessRecordSet } from '../app/admin/preprocessRecordSet';
-import { sendRecordGroups } from '../app/admin/createDataImporterEndpoint';
-import { createTestContext } from './utilities';
-import { WebRemote } from '../app/sync/WebRemote';
+import { importData } from '../../app/admin/importDataDefinition';
+import { preprocessRecordSet } from '../../app/admin/preprocessRecordSet';
+import { sendRecordGroups } from '../../app/admin/createDataImporterEndpoint';
+import { createTestContext } from '../utilities';
+import { WebRemote } from '../../app/sync/WebRemote';
 
-jest.mock('../app/sync/WebRemote');
+jest.mock('../../app/sync/WebRemote');
 
 const TEST_DATA_PATH = './__tests__/importers/test_definitions.xlsx';
 
