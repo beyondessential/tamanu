@@ -17,7 +17,7 @@ export const PermissionsAdminView = memo(() => {
 
   return (
     <Container>
-      <h1>Data admin</h1>
+      <h1>Permissions admin</h1>
       <DataDocumentUploadForm onSubmit={onSubmit} />
     </Container>
   );
