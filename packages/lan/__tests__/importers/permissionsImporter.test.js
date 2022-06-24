@@ -48,28 +48,28 @@ describe('Importing permissions', () => {
     });
 
     it('Should forbid permissions with a matrix cell other than "y"', async () => {
-      const wrongLetter = yErrors.find(x => x.recordId.includes('FailDueToWrongLetter'));
+      const wrongLetter = yErrors.find(x => x.data.noun === 'FailDueToWrongLetter');
       expect(wrongLetter).toBeTruthy();
     });
     
     it('Should not allow multiple ys', async () => {
-      const twoLetters = yErrors.find(x => x.recordId.includes('FailDueToTwoLetters'));
+      const twoLetters = yErrors.find(x => x.data.noun === 'FailDueToTwoLetters');
       expect(twoLetters).toBeTruthy(); 
     });
     
     it('Should ignore permissions with a matrix cell with just a space', async () => {
       // shouldn't be a record OR an error, just ignored
-      const found = importedPermissions.some(x => x.recordId.includes('FailDueToSpace'));
+      const found = importedPermissions.some(x => x.data.noun === 'FailDueToSpace');
       expect(found).toEqual(false);                  
     });
 
     it('Should not be case-sensitive about the Ys', async () => {
-      const found = importedPermissions.some(x => x.recordId.includes('SucceedEvenThoughCapitalY'));
+      const found = importedPermissions.some(x => x.data.noun === 'SucceedEvenThoughCapitalY');
       expect(found).toEqual(true);            
     });
     
     it('Should ignore whitespace in the y cell', async () => {
-      const found = importedPermissions.some(x => x.recordId.includes('SucceedEvenThoughSpace'));
+      const found = importedPermissions.some(x => x.data.noun === 'SucceedEvenThoughSpace');
       expect(found).toEqual(true);      
     });
   });

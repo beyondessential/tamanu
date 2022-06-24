@@ -28,7 +28,7 @@ const permissionTransformer = item => {
         recordType: 'permission',
         recordId: id,
         data: {
-          _yCell: roles[role].toLowerCase().trim(), // only used for validation
+          _yCell: yCell, // only used for validation
           id,
           verb,
           noun,
