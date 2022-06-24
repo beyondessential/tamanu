@@ -23,7 +23,7 @@ describe('Importing permissions', () => {
   it('Should import some permissions', async () => {
     const { records } = resultInfo.stats;
     expect(records).toHaveProperty('role', 3);
-    expect(records).toHaveProperty('permission', 34);
+    expect(records).toHaveProperty('permission', 35);
   });
 
   describe('Permissions validation', () => {
@@ -45,6 +45,14 @@ describe('Importing permissions', () => {
     let yErrors = null;
     beforeAll(() => {
       yErrors = findErrors('permission', `permissions matrix must only use the letter y`);
+    });
+
+    it('Should delete a permission with a Y cell set to N', async () => {
+      const found = importedPermissions.find(x => x.data.noun === 'ToBeDeleted');
+      expect(found.data).toHaveProperty('deletedAt');
+
+      const otherFound = importedPermissions.find(x => x.data.noun !== 'ToBeDeleted');
+      expect(otherFound.data).not.toHaveProperty('deletedAt');
     });
 
     it('Should forbid permissions with a matrix cell other than "y"', async () => {
