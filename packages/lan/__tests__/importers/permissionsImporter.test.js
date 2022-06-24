@@ -23,7 +23,7 @@ describe('Importing permissions', () => {
   it('Should import some permissions', async () => {
     const { records } = resultInfo.stats;
     expect(records).toHaveProperty('role', 3);
-    // expect(records).toHaveProperty('permission', 34);
+    expect(records).toHaveProperty('permission', 34);
   });
 
   describe('Permissions validation', () => {
