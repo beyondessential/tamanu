@@ -64,6 +64,7 @@ export const location = base.shape({
 });
 
 export const permission = yup.object().shape({
+  _yCell: yup.string().oneOf(['y'], 'permissions matrix must only use the letter y'),  // validation-only, not stored in the database anywhere
   verb: yup.string().required(),
   noun: yup.string().required(),
 });

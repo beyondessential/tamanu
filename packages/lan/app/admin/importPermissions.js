@@ -4,7 +4,7 @@ import { log } from 'shared/services/logging';
 
 const sanitise = string => string.trim().replace(/[^A-Za-z0-9]+/g, '');
 
-const roleTransformer = type => item => {
+const roleTransformer = item => {
   // ignore "note" column
   const { note, ...rest } = item;
   return {
@@ -16,15 +16,16 @@ const roleTransformer = type => item => {
 };
 
 const permissionTransformer = item => {
-  const { verb, noun, objectId, note, ...roles } = item;
+  const { verb, noun, objectId = null, note, ...roles } = item;
   // Any non-empty value in the role cell would mean the role
   // is enabled for the permission
   return Object.keys(roles)
-    .filter(role => roles[role].toLowerCase().trim() === 'y')
+    .filter(role => roles[role].toLowerCase().trim())
     .map(role => ({
       recordType: 'permission',
-      recordId: `${role}-${verb}-${noun}-${objectId}`,
+      recordId: `${role}-${verb}-${noun}-${objectId || '*'}`,
       data: {
+        _yCell: roles[role].toLowerCase().trim(),
         verb,
         noun,
         objectId,
@@ -47,10 +48,9 @@ export async function importPermissions({ file }) {
   );
 
   // set up the importer
-  const importSheet = sheetName => {
-    const sheet = sheets[sheetName.toLowerCase()];
+  const importSheet = (sheetName, transformer) => {
+    const sheet = sheets[sheetName];
     const data = utils.sheet_to_json(sheet);
-    const transformer = sheetName === 'roles' ? roleTransformer : permissionTransformer;
 
     return data
       .filter(item => Object.values(item).some(x => x))
@@ -68,29 +68,11 @@ export async function importPermissions({ file }) {
       .flat();
   };
 
-  // TODO turn the sheets into records based on 
-  // - role: role transformer
-  // - anything else: record transformer
+  const { roles, ...permissionSheets } = sheets;
+  const roleRecords = importSheet('roles', roleTransformer);
+  const permissionRecords = Object.keys(permissionSheets)
+    .map(sheet => importSheet(sheet, permissionTransformer))
+    .flat();
 
-  // figure out which transformers we're actually using
-  /*
-  const activeTransformers = transformers.filter(({ sheetName, transformer }) => {
-    if (!transformer) return false;
-    if (whitelist.length > 0 && !lowercaseWhitelist.includes(sheetName.toLowerCase())) {
-      return false;
-    }
-    const sheet = sheets[sheetName.toLowerCase()];
-    if (!sheet) return false;
-
-    return true;
-  });
-
-  // restructure the parsed data to sync record format
-  return activeTransformers
-    .map(({ sheetName, transformer }) => importSheet(sheetName, transformer))
-    .flat()
-    .filter(x => x);
-  */
-
-  return [];
+  return [...roleRecords, ...permissionRecords];
 }
