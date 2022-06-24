@@ -23,8 +23,8 @@ const permissionTransformer = item => {
     .filter(role => roles[role].toLowerCase().trim())
     .map(role => ({
       recordType: 'permission',
-      recordId: `${role}-${verb}-${noun}-${objectId || '*'}`,
       data: {
+        id: `${role}-${verb}-${noun}-${objectId || 'any'}`.toLowerCase(),
         _yCell: roles[role].toLowerCase().trim(), // only used for validation
         verb,
         noun,
