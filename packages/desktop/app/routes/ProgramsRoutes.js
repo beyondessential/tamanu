@@ -2,12 +2,10 @@ import React from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 
 import { ActiveCovid19PatientsView } from '../views';
-import { ProgramsView } from '../views/programs/ProgramsView';
 
 export const ProgramsRoutes = React.memo(({ match }) => (
   <div>
     <Switch>
-      <Route exact path={`${match.path}/new`} component={ProgramsView} />
       <Route
         path={`${match.path}/active-covid-19-patients`}
         component={ActiveCovid19PatientsView}
