@@ -1,7 +1,5 @@
 import React, { useState, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
-import styled from 'styled-components';
-
 import { viewPatient } from '../../store/patient';
 import {
   TopBar,
@@ -9,6 +7,7 @@ import {
   DataFetchingTable,
   AllPatientsSearchBar,
   PatientSearchBar,
+  ContentPane,
 } from '../../components';
 import { DropdownButton } from '../../components/DropdownButton';
 import { NewPatientModal } from './components';
@@ -50,15 +49,11 @@ const INPATIENT_COLUMNS = [markedForSync, displayId, firstName, lastName, sex, d
   // location and department should be sortable
   .concat([location, department]);
 
-const StyledDataTable = styled(DataFetchingTable)`
-  margin: 24px;
-`;
-
 const PatientTable = ({ onViewPatient, columns, fetchOptions, searchParameters }) => {
   const dispatch = useDispatch();
   const fetchOptionsWithSearchParameters = { ...searchParameters, ...fetchOptions };
   return (
-    <StyledDataTable
+    <DataFetchingTable
       columns={columns}
       noDataMessage="No patients found"
       onRowClick={row => {
@@ -127,11 +122,13 @@ export const PatientListingView = ({ onViewPatient }) => {
         <NewPatientButton onCreateNewPatient={onViewPatient} />
       </TopBar>
       <AllPatientsSearchBar onSearch={setSearchParameters} />
-      <PatientTable
-        onViewPatient={onViewPatient}
-        searchParameters={searchParameters}
-        columns={LISTING_COLUMNS}
-      />
+      <ContentPane>
+        <PatientTable
+          onViewPatient={onViewPatient}
+          searchParameters={searchParameters}
+          columns={LISTING_COLUMNS}
+        />
+      </ContentPane>
     </PageContainer>
   );
 };
@@ -142,11 +139,13 @@ export const AdmittedPatientsView = () => {
     <PageContainer>
       <TopBar title="Admitted patient listing" />
       <PatientSearchBar onSearch={setSearchParameters} />
-      <PatientTable
-        fetchOptions={{ inpatient: 1 }}
-        searchParameters={searchParameters}
-        columns={INPATIENT_COLUMNS}
-      />
+      <ContentPane>
+        <PatientTable
+          fetchOptions={{ inpatient: 1 }}
+          searchParameters={searchParameters}
+          columns={INPATIENT_COLUMNS}
+        />
+      </ContentPane>
     </PageContainer>
   );
 };
@@ -157,11 +156,13 @@ export const OutpatientsView = () => {
     <PageContainer>
       <TopBar title="Outpatient listing" />
       <PatientSearchBar onSearch={setSearchParameters} />
-      <PatientTable
-        fetchOptions={{ outpatient: 1 }}
-        searchParameters={searchParameters}
-        columns={INPATIENT_COLUMNS}
-      />
+      <ContentPane>
+        <PatientTable
+          fetchOptions={{ outpatient: 1 }}
+          searchParameters={searchParameters}
+          columns={INPATIENT_COLUMNS}
+        />
+      </ContentPane>
     </PageContainer>
   );
 };

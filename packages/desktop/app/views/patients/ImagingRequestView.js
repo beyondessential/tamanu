@@ -73,12 +73,7 @@ const PrintButton = ({ imagingRequest, patient }) => {
           />
         )}
       </Modal>
-      <Button
-        variant="outlined"
-        color="primary"
-        onClick={openModal}
-        style={{ marginRight: '0.5rem' }}
-      >
+      <Button variant="outlined" onClick={openModal} style={{ marginRight: '0.5rem' }}>
         Print request
       </Button>
     </>
@@ -163,7 +158,6 @@ const DumbImagingRequestInfoPane = React.memo(
             {/* Needs custom styling to properly display view image button to the left */}
             <ButtonRow style={{ gridTemplateColumns: '8rem auto 8rem' }}>
               <Button
-                variant="contained"
                 color="secondary"
                 style={{
                   gridColumn: '1 / span 1',
@@ -181,11 +175,7 @@ const DumbImagingRequestInfoPane = React.memo(
                 <br />
                 (external link)
               </Button>
-              {dirty && (
-                <Button variant="contained" color="primary" type="submit">
-                  Save
-                </Button>
-              )}
+              {dirty && <Button type="submit">Save</Button>}
             </ButtonRow>
           </FormGrid>
         </Form>

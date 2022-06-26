@@ -241,6 +241,21 @@ const BreadcrumbsPlaceholder = styled.div`
   }
 `;
 
+const StyledTabDisplay = styled(TabDisplay)`
+  filter: drop-shadow(2px 2px 25px rgba(0, 0, 0, 0.1));
+  border-radius: 5px;
+  border: 1px solid ${Colors.outline};
+  background: white;
+
+  .MuiTabs-root {
+    margin-left: -12px;
+  }
+
+  .MuiTabs-scroller {
+    border-bottom: 1px solid #ebebeb;
+  }
+`;
+
 export const EncounterView = () => {
   const query = useUrlSearchParams();
   const { getLocalisation } = useLocalisation();
@@ -280,7 +295,7 @@ export const EncounterView = () => {
           />
         </ContentPane>
         <ContentPane>
-          <TabDisplay
+          <StyledTabDisplay
             tabs={visibleTabs}
             currentTab={currentTab}
             onTabSelect={setCurrentTab}

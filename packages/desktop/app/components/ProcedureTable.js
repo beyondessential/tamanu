@@ -17,5 +17,6 @@ export const ProcedureTable = React.memo(({ encounterId, onItemClick }) => (
     columns={COLUMNS}
     endpoint={`encounter/${encounterId}/procedures`}
     onRowClick={row => onItemClick(row)}
+    elevated={false}
   />
 ));

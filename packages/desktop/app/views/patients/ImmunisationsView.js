@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import { TopBar, PageContainer, DataFetchingTable, PatientSearchBar } from '../../components';
+import {
+  TopBar,
+  PageContainer,
+  DataFetchingTable,
+  PatientSearchBar,
+  ContentPane,
+} from '../../components';
 import {
   displayId,
   firstName,
@@ -53,7 +59,9 @@ export const ImmunisationsView = () => {
       />
       <TopBar title="Immunisation register" />
       <PatientSearchBar onSearch={setSearchParameters} />
-      <PatientImmunisationsTable onPatientSelect={onRowClick} fetchOptions={searchParameters} />
+      <ContentPane>
+        <PatientImmunisationsTable onPatientSelect={onRowClick} fetchOptions={searchParameters} />
+      </ContentPane>
     </PageContainer>
   );
 };

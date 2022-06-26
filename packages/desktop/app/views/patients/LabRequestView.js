@@ -79,7 +79,7 @@ const ResultsPane = React.memo(({ labRequest, patient }) => {
   const sexAppropriateColumns = columns(patient.sex);
 
   return (
-    <div>
+    <>
       <ManualLabResultModal
         open={isModalOpen}
         labRequest={labRequest}
@@ -91,7 +91,7 @@ const ResultsPane = React.memo(({ labRequest, patient }) => {
         endpoint={`labRequest/${labRequest.id}/tests`}
         onRowClick={openModal}
       />
-    </div>
+    </>
   );
 });
 
@@ -344,20 +344,22 @@ export const DumbLabRequestView = React.memo(({ patient }) => {
       <PatientInfoPane patient={patient} />
       <div>
         <TopBar title="Lab request">
-          <div>
-            <LabRequestActionDropdown
-              labRequest={labRequest}
-              patient={patient}
-              updateLabReq={updateLabReq}
-            />
-          </div>
+          <LabRequestActionDropdown
+            labRequest={labRequest}
+            patient={patient}
+            updateLabReq={updateLabReq}
+          />
         </TopBar>
         <BackLink />
         <ContentPane>
           <LabRequestInfoPane labRequest={labRequest} refreshLabRequest={refreshLabRequest} />
         </ContentPane>
-        <ResultsPane labRequest={labRequest} patient={patient} />
-        <LabRequestAuditPane labRequest={labRequest} />
+        <ContentPane>
+          <ResultsPane labRequest={labRequest} patient={patient} />
+        </ContentPane>
+        <ContentPane>
+          <LabRequestAuditPane labRequest={labRequest} />
+        </ContentPane>
       </div>
     </TwoColumnDisplay>
   );

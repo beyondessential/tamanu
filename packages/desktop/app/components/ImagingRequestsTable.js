@@ -64,6 +64,7 @@ const DumbImagingRequestsTable = React.memo(
         noDataMessage="No imaging requests found"
         onRowClick={selectImagingRequest}
         fetchOptions={searchParameters}
+        elevated={false}
       />
     );
   },
