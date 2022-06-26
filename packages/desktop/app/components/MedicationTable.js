@@ -1,10 +1,12 @@
 import React, { useCallback, useState } from 'react';
+import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { useEncounter } from '../contexts/Encounter';
 import { MedicationModal } from './MedicationModal';
 import { reloadPatient } from '../store';
+import { ENCOUNTER_TAB_NAMES } from '../views/patients/EncounterView';
 
 const getMedicationName = ({ medication }) => medication.name;
 
@@ -92,7 +94,8 @@ export const DataFetchingMedicationTable = () => {
   const onMedicationSelect = useCallback(
     async medication => {
       await dispatch(reloadPatient(medication.encounter.patientId));
-      await loadEncounter(medication.encounter.id, true);
+      await loadEncounter(medication.encounter.id);
+      dispatch(push(`/patients/encounter?tab=${ENCOUNTER_TAB_NAMES.MEDICATION}`));
     },
     [loadEncounter, dispatch],
   );

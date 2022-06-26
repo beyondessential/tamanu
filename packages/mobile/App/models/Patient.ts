@@ -5,6 +5,7 @@ import { readConfig } from '~/services/config';
 import { BaseModel, IdRelation } from './BaseModel';
 import { Encounter } from './Encounter';
 import { PatientIssue } from './PatientIssue';
+import { PatientSecondaryId } from './PatientSecondaryId';
 import { IPatient, IPatientAdditionalData } from '~/types';
 import { formatDateForQuery } from '~/infra/db/helpers';
 import { PatientAdditionalData } from './PatientAdditionalData';
@@ -60,6 +61,9 @@ export class Patient extends BaseModel implements IPatient {
 
   @OneToMany(() => PatientIssue, issue => issue.patient)
   issues: PatientIssue[]
+
+  @OneToMany(() => PatientSecondaryId, secondaryId => secondaryId.patient)
+  secondaryIds: PatientSecondaryId[]
 
   static shouldExport = true;
 
