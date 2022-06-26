@@ -6,6 +6,5 @@ export { LabsRoutes } from './LabsRoutes';
 export { BillingRoutes } from './BillingRoutes';
 export { AdministrationRoutes } from './AdministrationRoutes';
 export { ProgramsRoutes } from './ProgramsRoutes';
-export { ReferralsRoutes } from './ReferralsRoutes';
 export { ReportsRoutes } from './ReportsRoutes';
 export { ImmunisationRoutes } from './ImmunisationRoutes';
