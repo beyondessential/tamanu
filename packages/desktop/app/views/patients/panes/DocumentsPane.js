@@ -151,31 +151,14 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
     </>
   );
 
-  if (encounter?.id) {
-    return (
-      <>
-        <Modals />
-        <TabPane>
-          <TableButtonRow variant="small">
-            <Button onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}>Add document</Button>
-          </TableButtonRow>
-          <DocumentsTable
-            endpoint={endpoint}
-            searchParameters={searchParameters}
-            refreshCount={refreshCount}
-            canInvokeDocumentAction={canInvokeDocumentAction}
-            elevated={false}
-          />
-        </TabPane>
-      </>
-    );
-  }
+  const isFromEncounter = !!encounter?.id;
+  const PaneWrapper = isFromEncounter ? TabPane : ContentPane;
 
   return (
     <>
       <Modals />
-      <DocumentsSearchBar setSearchParameters={setSearchParameters} />
-      <ContentPane>
+      {isFromEncounter && <DocumentsSearchBar setSearchParameters={setSearchParameters} />}
+      <PaneWrapper>
         <TableButtonRow variant="small">
           <Button onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}>Add document</Button>
         </TableButtonRow>
@@ -185,7 +168,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
           refreshCount={refreshCount}
           canInvokeDocumentAction={canInvokeDocumentAction}
         />
-      </ContentPane>
+      </PaneWrapper>
     </>
   );
 });
