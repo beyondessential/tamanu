@@ -37,44 +37,54 @@ import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../constants';
 import { useEncounter } from '../../contexts/Encounter';
 import { useLocalisation } from '../../contexts/Localisation';
 import { useAuth } from '../../contexts/Auth';
-import useQuery from '../../utils/useQuery';
+import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
+
+export const ENCOUNTER_TAB_NAMES = {
+  VITALS: 'vitals',
+  NOTES: 'notes',
+  PROCEDURES: 'procedures',
+  LABS: 'labs',
+  IMAGING: 'imaging',
+  MEDICATION: 'medication',
+  PROGRAMS: 'programs',
+};
 
 const TABS = [
   {
     label: 'Vitals',
-    key: 'vitals',
+    key: ENCOUNTER_TAB_NAMES.VITALS,
     render: props => <VitalsPane {...props} />,
   },
   {
     label: 'Notes',
-    key: 'notes',
+    key: ENCOUNTER_TAB_NAMES.NOTES,
     render: props => <NotesPane {...props} />,
   },
   {
     label: 'Procedures',
-    key: 'procedures',
+    key: ENCOUNTER_TAB_NAMES.PROCEDURES,
     render: props => <ProcedurePane {...props} />,
   },
   {
     label: 'Labs',
-    key: 'labs',
+    key: ENCOUNTER_TAB_NAMES.LABS,
     render: props => <LabsPane {...props} />,
   },
   {
     label: 'Imaging',
-    key: 'imaging',
+    key: ENCOUNTER_TAB_NAMES.IMAGING,
     render: props => <ImagingPane {...props} />,
   },
   {
     label: 'Medication',
-    key: 'medication',
+    key: ENCOUNTER_TAB_NAMES.MEDICATION,
     render: props => <EncounterMedicationPane {...props} />,
   },
   {
     label: 'Programs',
-    key: 'programs',
+    key: ENCOUNTER_TAB_NAMES.PROGRAMS,
     render: ({ encounter, ...props }) => (
       <ProgramsPane endpoint={`encounter/${encounter.Id}/programResponses`} {...props} />
     ),
@@ -232,7 +242,7 @@ const BreadcrumbsPlaceholder = styled.div`
 `;
 
 export const EncounterView = () => {
-  const query = useQuery();
+  const query = useUrlSearchParams();
   const { getLocalisation } = useLocalisation();
   const patient = useSelector(state => state.patient);
   const { encounter, isLoadingEncounter } = useEncounter();
