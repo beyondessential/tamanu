@@ -151,6 +151,7 @@ const transformers = [
   makeTransformer('invoicePriceChangeTypes', recordTransformer('invoicePriceChangeType')),
   makeTransformer('administeredVaccines', administeredVaccineTransformer()), // should go below patients, users, departments, locations
   makeTransformer('roles', null),
+  makeTransformer('secondaryIdType', referenceDataTransformer('secondaryIdType')),
 ];
 
 export async function importData({ file, whitelist = [] }) {

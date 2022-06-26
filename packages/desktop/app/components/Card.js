@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
 import { Colors } from '../constants';
+import { PropTypes } from 'prop-types';
 
 export const Card = styled.div`
   background: white;
@@ -59,3 +60,13 @@ export const CardItem = ({ label, value, ...props }) => (
     <CardValue>{value}</CardValue>
   </CardCell>
 );
+
+CardItem.propTypes = {
+  label: PropTypes.string,
+  value: PropTypes.string,
+};
+
+CardItem.defaultProps = {
+  label: null,
+  value: null,
+};

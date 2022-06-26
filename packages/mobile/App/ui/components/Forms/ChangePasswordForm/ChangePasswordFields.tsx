@@ -51,7 +51,7 @@ export const ChangePasswordFields = ({
         label="New Password"
         secure
       />
-      {/* <ServerSelector /> */}
+      <Field name="server" component={ServerSelector} label="Select a country" />
     </StyledView>
     <Button
       marginTop={20}
