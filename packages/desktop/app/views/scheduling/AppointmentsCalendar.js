@@ -30,6 +30,7 @@ const DateHeader = styled.div`
 const DateDisplay = styled.span`
   margin-left: 1rem;
   font-size: 1.2em;
+  color: ${Colors.darkText};
 `;
 
 const DateNav = styled.div`

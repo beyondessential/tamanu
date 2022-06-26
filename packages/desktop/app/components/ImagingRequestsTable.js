@@ -29,14 +29,14 @@ const getDisplayName = ({ requestedBy }) => (requestedBy || {}).displayName || '
 const getPatientName = ({ encounter }) => <PatientNameDisplay patient={encounter.patient} />;
 const getStatus = ({ status }) => <StatusDisplay status={status} />;
 const getRequestType = ({ imagingType }) => (imagingType || {}).name || 'Unknown';
-const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} />;
+const getDate = ({ requestedDate }) => <DateDisplay date={requestedDate} showTime />;
 
 const encounterColumns = [
   { key: 'id', title: 'Request ID' },
   { key: 'imagingType', title: 'Type', accessor: getRequestType, sortable: false },
   { key: 'status', title: 'Status', accessor: getStatus },
   { key: 'displayName', title: 'Requested by', accessor: getDisplayName, sortable: false },
-  { key: 'requestedDate', title: 'Date', accessor: getDate },
+  { key: 'requestedDate', title: 'Date & time', accessor: getDate },
 ];
 
 const globalColumns = [

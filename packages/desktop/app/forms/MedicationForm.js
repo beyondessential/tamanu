@@ -260,8 +260,6 @@ export const MedicationForm = React.memo(
                     Cancel
                   </Button>
                   <DropdownButton
-                    variant="contained"
-                    color="primary"
                     actions={[
                       {
                         label: 'Finalise',

@@ -13,11 +13,11 @@ import { TopBar } from '../../components/TopBar';
 import { ButtonRow } from '../../components/ButtonRow';
 import { FormGrid } from '../../components/FormGrid';
 import {
-  DateInput,
   TextInput,
   SelectField,
   Field,
   AutocompleteField,
+  DateTimeInput,
 } from '../../components/Field';
 import { useApi } from '../../api';
 import { Suggester } from '../../utils/suggester';
@@ -108,7 +108,11 @@ const ImagingRequestInfoPane = React.memo(
               disabled
             />
             <Field name="status" label="Status" component={SelectField} options={statusOptions} />
-            <DateInput value={imagingRequest.requestedDate} label="Request date" disabled />
+            <DateTimeInput
+              value={imagingRequest.requestedDate}
+              label="Request date and time"
+              disabled
+            />
             <TextInput
               multiline
               value={imagingRequest.areaToBeImaged}

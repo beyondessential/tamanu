@@ -8,6 +8,17 @@ const PROGRAM_ID = 'test-program-id';
 const SURVEY_ID = 'test-survey-id';
 const SENSITIVE_SURVEY_ID = 'test-survey-id-sensitive';
 
+// Not entirely sure why this works
+// https://stackoverflow.com/a/66672462
+const getExpectedDate = date =>
+  new Date(
+    date.getUTCFullYear(),
+    date.getUTCMonth(),
+    date.getUTCDate(),
+    date.getUTCHours(),
+    date.getUTCMinutes(),
+  );
+
 const createDummySurvey = async models => {
   await models.Program.create({
     id: PROGRAM_ID,
@@ -135,18 +146,51 @@ describe('Generic survey export', () => {
       expect(result.body).toMatchTabularReport([]);
     });
 
+    it('should return data ordered by date', async () => {
+      const date1 = subDays(new Date(), 25);
+      const date2 = subDays(new Date(), 25);
+      const date3 = subDays(new Date(), 25);
+      // Submit in a different order just in case
+      await submitSurveyForPatient(app, expectedPatient, date2);
+      await submitSurveyForPatient(app, expectedPatient, date3);
+      await submitSurveyForPatient(app, expectedPatient, date1);
+
+      const result = await app.post(REPORT_URL).send({
+        parameters: {
+          surveyId: SURVEY_ID,
+        },
+      });
+      expect(result).toHaveSucceeded();
+      expect(result.body).toMatchTabularReport(
+        [
+          {
+            'Submission Time': format(getExpectedDate(date1), 'yyyy-MM-dd HH:mm'),
+          },
+          {
+            'Submission Time': format(getExpectedDate(date2), 'yyyy-MM-dd HH:mm'),
+          },
+          {
+            'Submission Time': format(getExpectedDate(date3), 'yyyy-MM-dd HH:mm'),
+          },
+        ],
+        { partialMatching: true },
+      );
+    });
+
     it('should return basic data for a survey', async () => {
       const date = subDays(new Date(), 25);
-      // Not entirely sure why this works
-      // https://stackoverflow.com/a/66672462
-      const expectedDate = new Date(
-        date.getUTCFullYear(),
-        date.getUTCMonth(),
-        date.getUTCDate(),
-        date.getUTCHours(),
-        date.getUTCMinutes(),
-      );
+
+      const expectedDate = getExpectedDate(date);
+
       await submitSurveyForPatient(app, expectedPatient, date);
+
+      const [response] = await testContext.models.SurveyResponse.findAll({
+        where: { surveyId: SURVEY_ID },
+      });
+      response.result = 17;
+      response.resultText = 'Seventeen';
+      await response.save();
+
       const result = await app.post(REPORT_URL).send({
         parameters: {
           surveyId: SURVEY_ID,
@@ -166,6 +210,8 @@ describe('Generic survey export', () => {
           'Submission Time': format(expectedDate, 'yyyy-MM-dd HH:mm'),
           'Test Question 1': 'Data point 1',
           'Test Question 2': 'Data point 2',
+          Result: '17',
+          'Result (text)': 'Seventeen',
         },
       ]);
     });

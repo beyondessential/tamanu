@@ -58,6 +58,11 @@ export class Patient extends Model {
       as: 'deathData',
     });
 
+    // this one is actually a hasMany
+    this.hasMany(models.PatientSecondaryId, {
+      foreignKey: 'patientId',
+      as: 'secondaryIds',
+    });
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'villageId',
       as: 'village',
@@ -82,38 +87,45 @@ export class Patient extends Model {
     return patients.map(({ id }) => id);
   }
 
-  async getAdministeredVaccines(queryOptions) {
+  async getAdministeredVaccines(queryOptions = {}) {
     const { models } = this.sequelize;
     const certifiableVaccineIds = await models.CertifiableVaccine.allVaccineIds();
-    const results = await models.AdministeredVaccine.findAll({
-      raw: true,
-      nest: true,
-      ...queryOptions,
-      where: {
-        '$encounter.patient_id$': this.id,
-        status: 'GIVEN',
-      },
-      order: [['date', 'DESC']],
-      include: [
+
+    const { where: optWhere = {}, include = [], ...optRest } = queryOptions;
+
+    if (include.length === 0) {
+      include.push(
         {
           model: models.Encounter,
           as: 'encounter',
           include: models.Encounter.getFullReferenceAssociations(),
         },
         {
-          model: models.ScheduledVaccine,
-          as: 'scheduledVaccine',
-          include: models.ScheduledVaccine.getListReferenceAssociations(),
-        },
-        {
-          model: models.User,
-          as: 'giver',
-        },
-        {
           model: models.Location,
           as: 'location',
         },
-      ],
+      );
+    }
+
+    if (!include.some(i => i.as === 'scheduledVaccine')) {
+      include.push({
+        model: models.ScheduledVaccine,
+        as: 'scheduledVaccine',
+        include: models.ScheduledVaccine.getListReferenceAssociations(),
+      });
+    }
+
+    const results = await models.AdministeredVaccine.findAll({
+      order: [['date', 'DESC']],
+      ...optRest,
+      raw: true,
+      nest: true,
+      include,
+      where: {
+        ...optWhere,
+        '$encounter.patient_id$': this.id,
+        status: 'GIVEN',
+      },
     });
 
     for (const result of results) {

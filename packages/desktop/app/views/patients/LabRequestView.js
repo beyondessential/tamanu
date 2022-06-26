@@ -296,7 +296,7 @@ const LabRequestActionDropdown = ({ labRequest, patient, updateLabReq }) => {
         open={labModalOpen}
         onClose={() => setLabModalOpen(false)}
       />
-      <DropdownButton color="primary" actions={actions} />
+      <DropdownButton actions={actions} />
     </>
   );
 };
