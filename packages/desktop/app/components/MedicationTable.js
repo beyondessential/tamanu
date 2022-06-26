@@ -5,6 +5,7 @@ import { DateDisplay } from './DateDisplay';
 import { useEncounter } from '../contexts/Encounter';
 import { MedicationModal } from './MedicationModal';
 import { reloadPatient } from '../store';
+import { push } from 'connected-react-router';
 
 const getMedicationName = ({ medication }) => medication.name;
 
@@ -91,7 +92,8 @@ export const DataFetchingMedicationTable = () => {
   const onMedicationSelect = useCallback(
     async medication => {
       await dispatch(reloadPatient(medication.encounter.patientId));
-      await loadEncounter(medication.encounter.id, true);
+      await loadEncounter(medication.encounter.id);
+      dispatch(push('/patients/encounter?tab=medication'));
     },
     [loadEncounter, dispatch],
   );

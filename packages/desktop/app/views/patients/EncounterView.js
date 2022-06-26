@@ -37,6 +37,7 @@ import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../constants';
 import { useEncounter } from '../../contexts/Encounter';
 import { useLocalisation } from '../../contexts/Localisation';
 import { useAuth } from '../../contexts/Auth';
+import useQuery from '../../utils/useQuery';
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
@@ -231,11 +232,12 @@ const BreadcrumbsPlaceholder = styled.div`
 `;
 
 export const EncounterView = () => {
+  const query = useQuery();
   const { getLocalisation } = useLocalisation();
   const patient = useSelector(state => state.patient);
   const { encounter, isLoadingEncounter } = useEncounter();
   const { facility } = useAuth();
-  const [currentTab, setCurrentTab] = React.useState('vitals');
+  const [currentTab, setCurrentTab] = React.useState(query.get('tab') || 'vitals');
   const disabled = encounter?.endDate || patient.death;
 
   if (!encounter || isLoadingEncounter || patient.loading) return <LoadingIndicator />;
