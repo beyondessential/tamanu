@@ -1,25 +1,22 @@
 import React, { useCallback } from 'react';
-import { useParams } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { push } from 'connected-react-router';
 import { useSuggester } from '../api';
 import { useEncounter } from '../contexts/Encounter';
+import { usePatientNavigation } from '../utils/usePatientNavigation';
 
 import { ChangeDepartmentForm } from '../forms/ChangeDepartmentForm';
 import { Modal } from './Modal';
 
 export const ChangeDepartmentModal = React.memo(({ open, onClose }) => {
-  const params = useParams();
-  const dispatch = useDispatch();
+  const { navigateToEncounter } = usePatientNavigation();
   const departmentSuggester = useSuggester('department');
   const encounterCtx = useEncounter();
   const onSubmit = useCallback(
     async data => {
       const { encounter, writeAndViewEncounter } = encounterCtx;
       await writeAndViewEncounter(encounter.id, data);
-      dispatch(push(`/patients/${params.category}/${params.patientId}/encounter/${encounter.id}`));
+      navigateToEncounter(encounter.id);
     },
-    [encounterCtx, params.category, params.patientId, dispatch],
+    [encounterCtx, navigateToEncounter],
   );
 
   return (
