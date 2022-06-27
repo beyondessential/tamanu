@@ -1,5 +1,5 @@
 import config from 'config';
-import { buildAbility } from './buildAbility';
+import { buildAbility, buildAdminAbility } from './buildAbility';
 import { Permission } from '../models';
 
 //---------------------------------------------------------
@@ -70,13 +70,16 @@ export async function getAbilityForUser(user) {
     return buildAbility([]);
   }
 
+  if (user.role === 'admin') {
+    return buildAdminAbility();
+  }
+
   const permissions = await getPermissionsForRoles(user.role);
   const ability = buildAbility([
     ...permissions,
-    // a user can always read and write themselves -- this is
+    // a user can always read themselves -- this is
     // separate to the role system as it's cached per-role, not per-user
     { verb: 'read', noun: 'User', objectId: user.id },
-    { verb: 'write', noun: 'User', objectId: user.id },
   ]);
 
   return ability;

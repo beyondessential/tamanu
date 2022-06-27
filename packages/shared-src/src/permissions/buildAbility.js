@@ -14,6 +14,13 @@ export function buildAbility(permissions, options = {}) {
   return build(options);
 }
 
+export function buildAdminAbility() {
+  return {
+    can: () => true,
+    cannot: () => false,
+  };
+}
+
 // allows us to pass in objects with a "type" key
 // (in production - and by default - subject type will be derived
 // from the class name, in the same way that sequelize does it)
