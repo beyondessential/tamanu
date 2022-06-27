@@ -26,7 +26,7 @@ const permissionTransformer = item => {
       const id = `${role}-${verb}-${noun}-${objectId || 'any'}`.toLowerCase();
 
       // set deletedAt if the cell is marked N
-      const deleted = (yCell === 'n') ? { deletedAt: new Date() } : {};
+      const deletedAt = (yCell === 'n') ? new Date() : null;
  
       return {
         recordType: 'permission',
@@ -38,7 +38,7 @@ const permissionTransformer = item => {
           noun,
           objectId,
           role,
-          ...deleted,
+          deletedAt,
         },
       };
     });

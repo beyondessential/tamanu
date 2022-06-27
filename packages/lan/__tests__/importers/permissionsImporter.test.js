@@ -51,8 +51,11 @@ describe('Importing permissions', () => {
       const found = importedPermissions.find(x => x.data.noun === 'ToBeDeleted');
       expect(found.data).toHaveProperty('deletedAt');
 
-      const otherFound = importedPermissions.find(x => x.data.noun !== 'ToBeDeleted');
-      expect(otherFound.data).not.toHaveProperty('deletedAt');
+      // all others should be null
+      const otherFound = importedPermissions.filter(x => x.data.noun !== 'ToBeDeleted');
+      otherFound.forEach(record => {
+        expect(record.data).toHaveProperty('deletedAt', null);
+      });
     });
 
     it('Should forbid permissions with a matrix cell other than "y"', async () => {
