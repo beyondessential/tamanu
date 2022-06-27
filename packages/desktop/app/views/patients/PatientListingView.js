@@ -27,7 +27,7 @@ import {
   location,
   department,
 } from './columns';
-import { usePatientLink } from '../../utils/usePatientLink';
+import { usePatientNavigation } from '../../utils/usePatientNavigation';
 
 const PATIENT_SEARCH_ENDPOINT = 'patient';
 
@@ -54,13 +54,13 @@ const INPATIENT_COLUMNS = [markedForSync, displayId, firstName, lastName, sex, d
   .concat([location, department]);
 
 const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
-  const { pushPatientLink } = usePatientLink();
+  const { navigateToPatient } = usePatientNavigation();
   const dispatch = useDispatch();
   const fetchOptionsWithSearchParameters = { ...searchParameters, ...fetchOptions };
 
   const handleViewPatient = async row => {
     await dispatch(reloadPatient(row.id));
-    pushPatientLink(row.id);
+    navigateToPatient(row.id);
   };
 
   return (
