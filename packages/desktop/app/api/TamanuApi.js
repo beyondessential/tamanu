@@ -1,7 +1,7 @@
 import { promises } from 'fs';
 import qs from 'qs';
 
-import { buildAbility, buildAdminAbility } from 'shared/permissions/buildAbility';
+import { buildAbilityForUser } from 'shared/permissions/buildAbility';
 import { VERSION_COMPATIBILITY_ERRORS, SERVER_TYPES } from 'shared/constants';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 import { setForbiddenError } from '../store';
@@ -125,9 +125,9 @@ export class TamanuApi {
     }
     this.setToken(token);
     const user = await this.get('user/me');
-    const ability = user.role === 'admin'
-      ? buildAdminAbility()
-      : buildAbility(permissions);
+    
+    const ability = buildAbilityForUser(user, permissions);
+    
     return { user, token, localisation, server, ability };
   }
 
@@ -148,9 +148,7 @@ export class TamanuApi {
     const user = await this.get('user/me');
     this.user = user;
 
-    const ability = user.role === 'admin'
-      ? buildAdminAbility()
-      : buildAbility(permissions);
+    const ability = buildAbilityForUser(user, permissions);
     return { user, token, localisation, server, ability };
   }
 

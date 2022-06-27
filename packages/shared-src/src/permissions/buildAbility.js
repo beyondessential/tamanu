@@ -21,6 +21,19 @@ export function buildAdminAbility() {
   };
 }
 
+export function buildAbilityForUser(user, permissions) {
+  if (user.role === 'admin') {
+    return buildAdminAbility();
+  }
+
+  return buildAbility([
+    ...permissions,
+    // a user can always read themselves -- this is
+    // separate to the role system as it's cached per-role, not per-user
+    { verb: 'read', noun: 'User', objectId: user.id },
+  ]);
+}
+
 // allows us to pass in objects with a "type" key
 // (in production - and by default - subject type will be derived
 // from the class name, in the same way that sequelize does it)
