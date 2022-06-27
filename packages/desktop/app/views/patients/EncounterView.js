@@ -69,7 +69,7 @@ const TABS = [
     label: 'Programs',
     key: 'programs',
     render: ({ encounter, ...props }) => (
-      <ProgramsPane endpoint={`encounter/${encounter.Id}/programResponses`} {...props} />
+      <ProgramsPane endpoint={`encounter/${encounter.id}/programResponses`} {...props} />
     ),
   },
   {
