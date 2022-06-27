@@ -1,19 +1,18 @@
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
-import Paper from '@material-ui/core/Paper';
 import { useDispatch } from 'react-redux';
-
 import { push } from 'connected-react-router';
 import { useParams } from 'react-router-dom';
+import { useEncounter } from '../contexts/Encounter';
+import { capitaliseFirstLetter } from '../utils/capitalise';
 import { reloadPatient } from '../store/patient';
-import { TopBar, PageContainer, DataFetchingTable } from '../components';
+import { TRIAGE_COLORS_BY_LEVEL } from '../constants';
+
+import { TopBar, PageContainer, DataFetchingTable, ContentPane } from '../components';
 import { TriageStatisticsCard } from '../components/TriageStatisticsCard';
 import { DateDisplay } from '../components/DateDisplay';
 import { LiveDurationDisplay } from '../components/LiveDurationDisplay';
-import { TRIAGE_COLORS_BY_LEVEL } from '../constants';
-import { capitaliseFirstLetter } from '../utils/capitalise';
-import { useEncounter } from '../contexts/Encounter';
 
 const PriorityText = styled.span`
   color: white;
@@ -24,40 +23,10 @@ const PriorityText = styled.span`
   text-align: center;
 `;
 
-const StatisticsRow = styled(Paper)`
+const StatisticsRow = styled.div`
   display: flex;
-  margin: 16px 16px 0 16px;
-  width: fit-content;
-
-  > div {
-    &:first-child {
-      div:first-of-type {
-        border-top-left-radius: 3px;
-      }
-      div:last-of-type {
-        border-bottom-left-radius: 3px;
-      }
-    }
-
-    &:last-child {
-      div:first-of-type {
-        border-top-right-radius: 3px;
-      }
-      div:last-of-type {
-        border-bottom-right-radius: 3px;
-      }
-    }
-
-    &:last-child {
-      border-radius: 0 3px 3px 0;
-    }
-
-    &:not(:last-of-type) {
-      div:last-child {
-        border-right: none;
-      }
-    }
-  }
+  margin: 16px 0 30px 0;
+  filter: drop-shadow(2px 2px 25px rgba(0, 0, 0, 0.1));
 `;
 
 const ADMITTED_PRIORITY = {
@@ -153,11 +122,13 @@ const TriageTable = React.memo(({ onViewEncounter, ...props }) => {
 export const TriageListingView = React.memo(() => (
   <PageContainer>
     <TopBar title="Emergency department" />
-    <StatisticsRow>
-      <TriageStatisticsCard priorityLevel={1} />
-      <TriageStatisticsCard priorityLevel={2} />
-      <TriageStatisticsCard priorityLevel={3} />
-    </StatisticsRow>
-    <TriageTable />
+    <ContentPane>
+      <StatisticsRow>
+        <TriageStatisticsCard priorityLevel={1} />
+        <TriageStatisticsCard priorityLevel={2} />
+        <TriageStatisticsCard priorityLevel={3} />
+      </StatisticsRow>
+      <TriageTable />
+    </ContentPane>
   </PageContainer>
 ));

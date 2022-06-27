@@ -82,6 +82,7 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
         endpoint={`encounter/${encounterId}/medications`}
         onRowClick={onMedicationSelect}
         rowStyle={rowStyle}
+        elevated={false}
       />
     </div>
   );

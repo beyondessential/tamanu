@@ -75,6 +75,7 @@ export const ImagingRequestsTable = React.memo(({ encounterId, searchParameters 
       noDataMessage="No imaging requests found"
       onRowClick={selectImagingRequest}
       fetchOptions={searchParameters}
+      elevated={false}
     />
   );
 });

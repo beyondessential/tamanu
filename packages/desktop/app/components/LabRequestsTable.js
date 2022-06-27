@@ -73,6 +73,7 @@ export const LabRequestsTable = React.memo(({ encounterId }) => {
       noDataMessage="No lab requests found"
       onRowClick={selectLab}
       fetchOptions={searchParameters}
+      elevated={false}
     />
   );
 });
