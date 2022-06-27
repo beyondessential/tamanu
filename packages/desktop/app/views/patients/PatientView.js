@@ -49,7 +49,7 @@ const TABS = [
     key: 'Programs',
     icon: 'fa fa-hospital',
     render: ({ patient, ...props }) => (
-      <ProgramsPane endpoint={`patient/${patient.Id}/programResponses`} {...props} />
+      <ProgramsPane endpoint={`patient/${patient.id}/programResponses`} {...props} />
     ),
   },
   {
