@@ -10,6 +10,8 @@ export const admin = express.Router();
 
 admin.use((req, res, next) => {
   req.checkPermission('write', 'User');
+  req.checkPermission('write', 'Role');
+  req.checkPermission('write', 'Permission');
   req.checkPermission('write', 'ReferenceData');
   req.checkPermission('write', 'Program');
   req.checkPermission('write', 'Survey');
