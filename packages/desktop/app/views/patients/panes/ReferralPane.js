@@ -4,8 +4,7 @@ import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 
-import { Button } from '../../../components/Button';
-import { ContentPane } from '../../../components/ContentPane';
+import { TableButtonRow, Button, ContentPane } from '../../../components';
 import { ReferralTable } from '../../../components/ReferralTable';
 
 export const ReferralPane = React.memo(({ patient }) => {
@@ -14,13 +13,11 @@ export const ReferralPane = React.memo(({ patient }) => {
   const handleNewReferral = () =>
     dispatch(push(`/patients/${params.category}/${params.patientId}/referrals/new`));
   return (
-    <div>
+    <ContentPane>
+      <TableButtonRow variant="small">
+        <Button onClick={handleNewReferral}>New Referral</Button>
+      </TableButtonRow>
       <ReferralTable patientId={patient.id} />
-      <ContentPane>
-        <Button onClick={handleNewReferral} variant="contained" color="primary">
-          New referral
-        </Button>
-      </ContentPane>
-    </div>
+    </ContentPane>
   );
 });
