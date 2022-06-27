@@ -9,6 +9,8 @@ const WILLIAM_HOROTO_IDS = [
   'f4a0e3f0-54da-4fc9-a73e-1b72c9ca92a5', // Kiribati
   '4d719b6f-af55-42ac-99b3-5a27cadaab2b', // Palau
   '2d574680-e0fc-4956-a37e-121ccb434995', // Fiji
+  'e8a51fc9-28fd-4284-8d00-9ef87bd8d855', // Nauru // TFAI897159
+  'c11229a7-b95c-4416-a3ad-560cd75d8f21', // Nauru // RQCO669542
   'cebdd9a4-2744-4ad2-9919-98dc0b15464c', // Dev - for testing purposes
 ];
 
