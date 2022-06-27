@@ -121,6 +121,10 @@ describe('Nauru covid case report tests', () => {
         models,
         expectedPatient,
         new Date(2022, 3, 10, 5),
+        {
+          laboratoryOfficer: 'Officer Number 8',
+          result: 'Positive',
+        },
       );
 
       const labTestType = await models.LabTestType.findByPk(labTest.labTestTypeId);
@@ -149,7 +153,7 @@ describe('Nauru covid case report tests', () => {
           Priority: null,
           'Testing laboratory': null,
           'Testing date': format(labTest.completedDate, 'yyyy/MM/dd'),
-          'Laboratory officer': null,
+          'Laboratory officer': 'Officer Number 8',
           'Sample collection time': null,
           'Patient contact number': '435355781',
           'Test location': 'Community',

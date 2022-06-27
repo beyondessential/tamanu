@@ -45,7 +45,7 @@ export async function createLabTests(models) {
   }
 }
 
-export async function createCovidTestForPatient(models, patient, testDate) {
+export async function createCovidTestForPatient(models, patient, testDate, testOverrides) {
   if (!testDate) {
     testDate = new Date().toISOString();
   }
@@ -65,7 +65,7 @@ export async function createCovidTestForPatient(models, patient, testDate) {
     date: testDate,
     completedDate: testDate,
     labTestMethodId: LAB_METHOD_ID,
-    result: 'Positive',
+    ...testOverrides,
   });
   return { labRequest, labTest };
 }
