@@ -1,24 +1,29 @@
 import React from 'react';
 import styled from 'styled-components';
-import CircularProgress from '@material-ui/core/CircularProgress';
-
+import { CircularProgress, Typography, Box } from '@material-ui/core';
 import { Modal } from './Modal';
 import { DocumentForm } from '../forms/DocumentForm';
 
-const StyledDiv = styled.div`
+const Container = styled(Box)`
+  padding: 40px 0;
   text-align: center;
+
+  .MuiTypography-root {
+    margin-top: 40px;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 21px;
+    color: ${props => props.theme.palette.text.secondary};
+  }
 `;
 
 export const DocumentModal = ({ title, actionText, open, onClose, onSubmit, isSubmitting }) => (
   <Modal width="md" title={title} open={open} onClose={onClose}>
     {isSubmitting ? (
-      <StyledDiv>
+      <Container>
         <CircularProgress size="5rem" />
-        <p>
-          Your document is now uploading. You cannot navigate away from this screen while this
-          process is happening - thanks for your patience, it is usually completed quickly.
-        </p>
-      </StyledDiv>
+        <Typography>Please wait while we upload your document</Typography>
+      </Container>
     ) : (
       <DocumentForm
         actionText={actionText}
