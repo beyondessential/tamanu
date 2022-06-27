@@ -3,11 +3,16 @@ import {
   createDummyPatient,
   randomReferenceData,
 } from 'shared/demoData/patients';
-import {
-  randomRecord,
-} from 'shared/demoData/utilities';
+import { randomRecord } from 'shared/demoData/utilities';
+import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_LABELS } from 'shared/constants';
+import { format } from 'date-fns';
 import { createTestContext } from '../../../utilities';
-import { createCovidTestForPatient, createLabTests } from './covid-swab-lab-test-report-utils';
+import {
+  createCovidTestForPatient,
+  createLabTests,
+  LAB_METHOD_NAME,
+  LAB_CATEGORY_NAME,
+} from './covid-swab-lab-test-report-utils';
 
 const REPORT_URL = '/v1/reports/nauru-covid-swab-lab-test-list';
 const PROGRAM_ID = 'program-naurucovid19';
@@ -32,7 +37,11 @@ async function createNauruSurveys(models) {
     { id: 'pde-NauCOVTest005', code: 'NauCOVTest005' },
     { id: 'pde-NauCOVTest006', code: 'NauCOVTest006' },
     { id: 'pde-NauCOVTest007', code: 'NauCOVTest007' },
-    { id: 'pde-NauCOVTest008', code: 'NauCOVTest008' },
+    {
+      id: 'pde-NauCOVTest008',
+      code: 'NauCOVTest008',
+      type: 'Autocomplete',
+    },
   ]);
 
   await models.SurveyScreenComponent.bulkCreate([
@@ -41,7 +50,7 @@ async function createNauruSurveys(models) {
     { dataElementId: 'pde-NauCOVTest005', surveyId: SURVEY_ID },
     { dataElementId: 'pde-NauCOVTest006', surveyId: SURVEY_ID },
     { dataElementId: 'pde-NauCOVTest007', surveyId: SURVEY_ID },
-    { dataElementId: 'pde-NauCOVTest008', surveyId: SURVEY_ID },
+    { dataElementId: 'pde-NauCOVTest008', surveyId: SURVEY_ID, config: '{"source": "Facility"}', },
   ]);
 }
 
@@ -103,16 +112,18 @@ describe('Nauru covid case report tests', () => {
         'pde-NauCOVTest002': 435355781, // 'Patient contact number'
         'pde-NauCOVTest003': 'Community', // 'Test location'
         'pde-NauCOVTest005': 'Yes', // 'Does patient have symptoms'
-        'pde-NauCOVTest006': new Date(2022, 3, 5), // 'If Yes, date of first symptom onset'
+        'pde-NauCOVTest006': 'dateOfFirstSymptom', // 'If Yes, date of first symptom onset'
         'pde-NauCOVTest007': 'Loss of smell or taste', // Symptoms
         'pde-NauCOVTest008': facility.id, // 'Health Clinic'
       });
 
-      const labRequest = await createCovidTestForPatient(
+      const { labRequest, labTest } = await createCovidTestForPatient(
         models,
         expectedPatient,
         new Date(2022, 3, 10, 5),
       );
+
+      const labTestType = await models.LabTestType.findByPk(labTest.labTestTypeId);
 
       const reportResult = await app
         .post(REPORT_URL)
@@ -122,24 +133,30 @@ describe('Nauru covid case report tests', () => {
         {
           'Patient first name': expectedPatient.firstName,
           'Patient last name': expectedPatient.lastName,
-          DOB: expectedPatient.dob,
+          DOB: format(expectedPatient.dateOfBirth, 'yyyy/MM/dd'),
           Sex: expectedPatient.sex,
           'Patient ID': expectedPatient.displayId,
           'Home sub-division': village.name,
           'Lab request ID': labRequest.displayId,
-          'Lab request type': labRequest.type,
-          'Lab test type': labRequest.tests?.[0],
-          'Lab test method': labRequest,
-          Status: labRequest.status,
-          Result: labRequest.result,
-          'Requested by': labRequest.requestedBy,
-          'Requested date': labRequest.requestedDate,
-          'Submitted date': null,
+          'Lab request type': LAB_CATEGORY_NAME,
+          'Lab test type': labTestType.name,
+          'Lab test method': LAB_METHOD_NAME,
+          Status: LAB_REQUEST_STATUS_LABELS[LAB_REQUEST_STATUSES.RECEPTION_PENDING],
+          Result: 'Positive',
+          'Requested by': null,
+          'Requested date': format(labRequest.requestedDate, 'yyyy/MM/dd'),
+          'Submitted date': format(labTest.date, 'yyyy/MM/dd'),
           Priority: null,
           'Testing laboratory': null,
-          'Testing date': null,
+          'Testing date': format(labTest.completedDate, 'yyyy/MM/dd'),
           'Laboratory officer': null,
           'Sample collection time': null,
+          'Patient contact number': '435355781',
+          'Test location': 'Community',
+          'Does patient have symptoms': 'Yes',
+          'If Yes, date of first symptom onset': 'dateOfFirstSymptom',
+          Symptoms: 'Loss of smell or taste',
+          'Health Clinic': facility.name,
         },
       ]);
     });
