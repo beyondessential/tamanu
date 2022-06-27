@@ -22,7 +22,7 @@ const MarkPatientForSyncIcon = styled(Loop)`
 `;
 
 const DumbMarkPatientForSync = ({ onMarkPatientForSync }) => (
-  <MarkPatientForSyncButton onClick={onMarkPatientForSync}>
+  <MarkPatientForSyncButton onClick={onMarkPatientForSync} variant="text" color="default">
     <MarkPatientForSyncIcon />
     Sync patient records
   </MarkPatientForSyncButton>
