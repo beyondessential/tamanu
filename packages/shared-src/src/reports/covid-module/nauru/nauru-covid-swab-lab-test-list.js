@@ -60,6 +60,10 @@ const reportColumnTemplate = [
     title: 'Sample collection time',
     accessor: data => data.x,
   },
+  ...Object.keys(SURVEY_QUESTION_CODES).map(name => ({
+    title: name,
+    accessor: data => data[name],
+  })),
 ];
 
 export const dataGenerator = async ({ models }, parameters = {}) =>
