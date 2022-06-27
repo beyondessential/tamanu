@@ -1,5 +1,5 @@
 import config from 'config';
-import { buildAbilityForUser } from './buildAbility';
+import { buildAbility, buildAbilityForUser } from './buildAbility';
 import { Permission } from '../models';
 
 //---------------------------------------------------------
