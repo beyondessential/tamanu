@@ -12,6 +12,7 @@ const TopBarHeading = styled(Typography)`
   line-height: 32px;
   letter-spacing: 0;
   color: ${props => props.theme.palette.text.primary};
+  min-width: 250px;
 `;
 
 const SmallTopBarHeading = styled(TopBarHeading)`
@@ -25,7 +26,6 @@ const TopBarSubHeading = styled(Typography)`
   line-height: 21px;
   font-weight: 400;
   color: ${props => props.theme.palette.text.secondary};
-  min-width: 250px;
 `;
 
 const AppBar = styled.div`
