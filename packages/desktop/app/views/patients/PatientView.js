@@ -16,7 +16,7 @@ import {
   ImmunisationsPane,
   PatientMedicationPane,
   DocumentsPane,
-  ProgramsPane,
+  PatientProgramsPane,
   ReferralPane,
   InvoicesPane,
 } from './panes';
@@ -48,7 +48,7 @@ const TABS = [
     key: 'Programs',
     icon: 'fa fa-hospital',
     render: ({ patient, ...props }) => (
-      <ProgramsPane endpoint={`patient/${patient.Id}/programResponses`} {...props} />
+      <PatientProgramsPane endpoint={`patient/${patient.id}/programResponses`} {...props} />
     ),
   },
   {

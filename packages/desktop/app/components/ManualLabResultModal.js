@@ -1,17 +1,13 @@
 import React, { useCallback } from 'react';
-import { useParams } from 'react-router-dom';
-import { push } from 'connected-react-router';
-import { useDispatch } from 'react-redux';
+import { useLabRequest } from '../contexts/LabRequest';
+import { usePatientNavigation } from '../utils/usePatientNavigation';
 
 import { Modal } from './Modal';
 import { ManualLabResultForm } from '../forms/ManualLabResultForm';
 
-import { useLabRequest } from '../contexts/LabRequest';
-
 export const ManualLabResultModal = ({ labTest, onClose, open }) => {
   const { updateLabTest, labRequest } = useLabRequest();
-  const params = useParams();
-  const dispatch = useDispatch();
+  const { navigateToLabRequest } = usePatientNavigation();
   const onSubmit = useCallback(
     async ({ result, completedDate, laboratoryOfficer, labTestMethodId, verification }) => {
       await updateLabTest(labRequest.id, labTest.id, {
@@ -21,23 +17,10 @@ export const ManualLabResultModal = ({ labTest, onClose, open }) => {
         verification,
         labTestMethodId,
       });
-      dispatch(
-        push(
-          `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}/lab-request/${labRequest.id}`,
-        ),
-      );
+      navigateToLabRequest(labRequest.id);
       onClose();
     },
-    [
-      labRequest,
-      labTest,
-      onClose,
-      updateLabTest,
-      params.patientId,
-      params.encounterId,
-      params.category,
-      dispatch,
-    ],
+    [labRequest, labTest, onClose, updateLabTest, navigateToLabRequest],
   );
 
   return (

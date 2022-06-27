@@ -1,10 +1,10 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { push } from 'connected-react-router';
+import { Form, Formik } from 'formik';
+import { useSelector } from 'react-redux';
 import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
 import { useParams } from 'react-router-dom';
-
-import { Form, Formik } from 'formik';
+import { useCertificate } from '../../utils/useCertificate';
+import { usePatientNavigation } from '../../utils/usePatientNavigation';
 
 import { Button } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
@@ -19,12 +19,10 @@ import {
   AutocompleteField,
   DateTimeInput,
 } from '../../components/Field';
-import { useApi } from '../../api';
-import { Suggester } from '../../utils/suggester';
+import { useApi, useSuggester } from '../../api';
 
 import { ImagingRequestPrintout } from '../../components/PatientPrinting/ImagingRequestPrintout';
 import { Modal } from '../../components/Modal';
-import { useCertificate } from '../../utils/useCertificate';
 
 const statusOptions = [
   { value: 'pending', label: 'Pending' },
@@ -180,24 +178,18 @@ const ImagingRequestInfoPane = React.memo(
 
 export const ImagingRequestView = () => {
   const api = useApi();
-  const params = useParams();
-  const dispatch = useDispatch();
+  const { navigateToEncounter } = usePatientNavigation();
   const imagingRequest = useSelector(state => state.imagingRequest);
   const patient = useSelector(state => state.patient);
-  const practitionerSuggester = new Suggester(api, 'practitioner');
-  const locationSuggester = new Suggester(api, 'location');
+  const practitionerSuggester = useSuggester('practitioner');
+  const locationSuggester = useSuggester('location');
 
   const onSubmit = data => {
     api.put(`imagingRequest/${imagingRequest.id}`, { ...data });
-    dispatch(
-      push(`/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}`),
-    );
+    navigateToEncounter();
   };
 
-  const onBack = () =>
-    dispatch(
-      push(`/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}`),
-    );
+  const onBack = () => navigateToEncounter();
 
   if (patient.loading) return <LoadingIndicator />;
   return (

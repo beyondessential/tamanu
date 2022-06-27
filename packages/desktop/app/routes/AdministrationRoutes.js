@@ -12,7 +12,7 @@ export const AdministrationRoutes = React.memo(({ match }) => (
       <Route path={`${match.path}/users`} component={NotActiveView} />
       <Route path={`${match.path}/locations`} component={NotActiveView} />
       <Route path={`${match.path}/permissions`} component={NotActiveView} />
-      <Redirect from="*" to={`${match.path}/programs`} />
+      <Redirect to={`${match.path}/programs`} />
     </Switch>
   </div>
 ));

@@ -14,7 +14,6 @@ const getDepartmentName = ({ department }) => (department ? department.name : 'U
 const getLocationName = ({ location }) => (location ? location.name : 'Unknown');
 const getEncounterType = ({ encounterType }) =>
   encounterType ? ENCOUNTER_OPTIONS_BY_VALUE[encounterType]?.label : 'Unknown';
-const getReasonForEncounter = ({ encounter }) => (encounter ? encounter.reasonForEncounter : null);
 
 export const EncounterInfoPane = React.memo(({ encounter }) => {
   const patientTypeData = useReferenceData(encounter.patientBillingTypeId);
@@ -38,7 +37,7 @@ export const EncounterInfoPane = React.memo(({ encounter }) => {
         <CardItem
           style={{ gridColumn: '1/-1' }}
           label="Reason for encounter"
-          value={getReasonForEncounter(encounter)}
+          value={encounter.reasonForEncounter}
         />
       </CardBody>
     </Card>

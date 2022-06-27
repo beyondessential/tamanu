@@ -1,29 +1,24 @@
 import React, { useCallback } from 'react';
-import { useParams } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { push } from 'connected-react-router';
 import { useEncounter } from '../contexts/Encounter';
-import { useApi } from '../api';
+import { useSuggester } from '../api';
+import { usePatientNavigation } from '../utils/usePatientNavigation';
 
 import { Form, Field, AutocompleteField } from './Field';
 import { ConfirmCancelRow } from './ButtonRow';
 import { FormGrid } from './FormGrid';
 import { Modal } from './Modal';
-import { Suggester } from '../utils/suggester';
 
 export const MoveModal = ({ open, onClose, encounter }) => {
-  const params = useParams();
-  const dispatch = useDispatch();
-  const api = useApi();
-  const locationSuggester = new Suggester(api, 'location');
+  const { navigateToEncounter } = usePatientNavigation();
+  const locationSuggester = useSuggester('location');
   const { writeAndViewEncounter } = useEncounter();
   const movePatient = useCallback(
     async data => {
       await writeAndViewEncounter(encounter.id, data);
-      dispatch(push(`/patients/${params.category}/${params.patientId}/encounter/${encounter.id}`));
+      navigateToEncounter(encounter.id);
       onClose();
     },
-    [encounter, writeAndViewEncounter, onClose, params.patientId, params.category, dispatch],
+    [encounter, writeAndViewEncounter, onClose, navigateToEncounter],
   );
 
   return (

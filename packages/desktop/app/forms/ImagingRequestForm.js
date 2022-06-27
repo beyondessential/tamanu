@@ -3,12 +3,13 @@ import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import shortid from 'shortid';
 import { connect, useDispatch } from 'react-redux';
-import { push } from 'connected-react-router';
-import { useParams } from 'react-router-dom';
+import { usePatientNavigation } from '../utils/usePatientNavigation';
+import { useEncounter } from '../contexts/Encounter';
 
 import { foreignKey } from '../utils/validation';
 import { encounterOptions } from '../constants';
 import { getImagingTypes, loadOptions } from '../store/options';
+import { reloadImagingRequest } from '../store';
 
 import {
   Form,
@@ -25,8 +26,6 @@ import { ButtonRow } from '../components/ButtonRow';
 import { DateDisplay } from '../components/DateDisplay';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { DropdownButton } from '../components/DropdownButton';
-import { useEncounter } from '../contexts/Encounter';
-import { reloadImagingRequest } from '../store';
 
 function getEncounterTypeLabel(type) {
   return encounterOptions.find(x => x.value === type).label;
@@ -40,8 +39,8 @@ function getEncounterLabel(encounter) {
 
 const FormSubmitActionDropdown = React.memo(({ requestId, encounter, submitForm }) => {
   const dispatch = useDispatch();
-  const params = useParams();
   const { loadEncounter } = useEncounter();
+  const { navigateToImagingRequest } = usePatientNavigation();
   const [awaitingPrintRedirect, setAwaitingPrintRedirect] = useState();
 
   // Transition to print page as soon as we have the generated id
@@ -49,14 +48,10 @@ const FormSubmitActionDropdown = React.memo(({ requestId, encounter, submitForm 
     (async () => {
       if (awaitingPrintRedirect && requestId) {
         await dispatch(reloadImagingRequest(requestId));
-        dispatch(
-          push(
-            `/patients/${params.category}/${params.patientId}/encounter/${encounter.id}/imaging-request/${requestId}/print`,
-          ),
-        );
+        navigateToImagingRequest(requestId);
       }
     })();
-  }, [requestId, awaitingPrintRedirect, dispatch, encounter.id, params.patientId, params.category]);
+  }, [requestId, awaitingPrintRedirect, dispatch, navigateToImagingRequest]);
 
   const finalise = async data => {
     await submitForm(data);

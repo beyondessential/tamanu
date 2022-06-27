@@ -1,15 +1,10 @@
 import React, { memo, useCallback } from 'react';
 import styled from 'styled-components';
-
+import { ContentPane } from '../../components';
 import { useApi } from '../../api';
 import { CheckArrayInput } from '../../components/Field/CheckArrayInput';
 import { DataDocumentUploadForm } from './DataDocumentUploadForm';
-
 import { Field } from '../../components/Field';
-
-const Container = styled.div`
-  padding: 32px;
-`;
 
 export const ReferenceDataAdminView = memo(() => {
   const api = useApi();
@@ -65,9 +60,9 @@ export const ReferenceDataAdminView = memo(() => {
   );
 
   return (
-    <Container>
+    <ContentPane>
       <h1>Data admin</h1>
       <DataDocumentUploadForm onSubmit={onSubmit} additionalFields={whitelist} />
-    </Container>
+    </ContentPane>
   );
 });

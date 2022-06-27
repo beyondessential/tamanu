@@ -1,15 +1,14 @@
 import React, { useCallback } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { push } from 'connected-react-router';
-import { useParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { usePatientNavigation } from '../../../utils/usePatientNavigation';
 import { useEncounter } from '../../../contexts/Encounter';
+
 import { ContentPane } from '../../../components';
 import { PatientEncounterSummary } from '../components/PatientEncounterSummary';
 import { PatientHistory } from '../../../components/PatientHistory';
 
 export const HistoryPane = React.memo(({ disabled }) => {
-  const dispatch = useDispatch();
-  const params = useParams();
+  const { navigateToEncounter, navigateToPatient } = usePatientNavigation();
   const patient = useSelector(state => state.patient);
   const { currentEncounter } = patient;
 
@@ -19,14 +18,14 @@ export const HistoryPane = React.memo(({ disabled }) => {
     id => {
       (async () => {
         await loadEncounter(id);
-        dispatch(push(`/patients/${params.category}/${patient.id}/encounter/${id}`));
+        navigateToEncounter(id);
       })();
     },
-    [loadEncounter, params.category, patient.id, dispatch],
+    [loadEncounter, navigateToEncounter],
   );
 
-  const onOpenCheckin = () => dispatch(push(`/patients/${params.category}/${patient.id}/checkin`));
-  const onOpenTriage = () => dispatch(push(`/patients/${params.category}/${patient.id}/triage`));
+  const onOpenCheckin = () => navigateToPatient(patient.id, 'checkin');
+  const onOpenTriage = () => navigateToPatient(patient.id, 'triage');
 
   return (
     <>

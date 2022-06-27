@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-import { connect, useDispatch } from 'react-redux';
-import { useParams } from 'react-router-dom';
-import { push } from 'connected-react-router';
+import { connect } from 'react-redux';
 
 import { foreignKey } from '../utils/validation';
 import { encounterOptions } from '../constants';
@@ -15,6 +13,7 @@ import {
 } from '../store/options';
 import { useLabRequest } from '../contexts/LabRequest';
 import { useEncounter } from '../contexts/Encounter';
+import { usePatientNavigation } from '../utils/usePatientNavigation';
 
 import {
   Form,
@@ -51,8 +50,7 @@ function filterTestTypes(testTypes, { labTestCategoryId }) {
 }
 
 const FormSubmitActionDropdown = ({ requestId, encounter, submitForm }) => {
-  const params = useParams();
-  const dispatch = useDispatch();
+  const { navigateToLabRequest } = usePatientNavigation();
   const { loadEncounter } = useEncounter();
   const { loadLabRequest } = useLabRequest();
   const [awaitingPrintRedirect, setAwaitingPrintRedirect] = useState();
@@ -62,22 +60,10 @@ const FormSubmitActionDropdown = ({ requestId, encounter, submitForm }) => {
     (async () => {
       if (awaitingPrintRedirect && requestId) {
         await loadLabRequest(requestId);
-        dispatch(
-          push(
-            `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}/lab-request/${requestId}/print`,
-          ),
-        );
+        navigateToLabRequest(requestId, 'print');
       }
     })();
-  }, [
-    requestId,
-    awaitingPrintRedirect,
-    loadLabRequest,
-    params.patientId,
-    params.encounterId,
-    params.category,
-    dispatch,
-  ]);
+  }, [requestId, awaitingPrintRedirect, loadLabRequest, navigateToLabRequest]);
 
   const finalise = async data => {
     await submitForm(data);

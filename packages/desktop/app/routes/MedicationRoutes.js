@@ -11,7 +11,7 @@ export const MedicationRoutes = React.memo(({ match }) => (
       <Route path={`${match.path}/new`} component={NotActiveView} />
       <Route path={`${match.path}/completed`} component={NotActiveView} />
       <Route path={`${match.path}/dispense`} component={NotActiveView} />
-      <Redirect from="*" to={`${match.path}/all`} />
+      <Redirect to={`${match.path}/all`} />
     </Switch>
   </div>
 ));

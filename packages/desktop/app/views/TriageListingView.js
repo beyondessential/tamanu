@@ -2,9 +2,8 @@ import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
 import { useDispatch } from 'react-redux';
-import { push } from 'connected-react-router';
-import { useParams } from 'react-router-dom';
 import { useEncounter } from '../contexts/Encounter';
+import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { capitaliseFirstLetter } from '../utils/capitalise';
 import { reloadPatient } from '../store/patient';
 import { TRIAGE_COLORS_BY_LEVEL } from '../constants';
@@ -93,19 +92,17 @@ const COLUMNS = [
 ];
 
 const TriageTable = React.memo(({ onViewEncounter, ...props }) => {
-  const params = useParams();
   const dispatch = useDispatch();
   const { loadEncounter } = useEncounter();
+  const { navigateToEncounter } = usePatientNavigation();
 
   const viewEncounter = useCallback(
     async triage => {
       await loadEncounter(triage.encounterId);
       await dispatch(reloadPatient(triage.patientId));
-      dispatch(
-        push(`/patients/${params.category}/${triage.patientId}/encounter/${triage.encounterId}`),
-      );
+      navigateToEncounter(triage.encounterId);
     },
-    [loadEncounter, dispatch, params.category],
+    [loadEncounter, dispatch, navigateToEncounter],
   );
 
   return (
