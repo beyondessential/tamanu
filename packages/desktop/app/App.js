@@ -20,6 +20,17 @@ const AppContentsContainer = styled.div`
   flex: 1;
 `;
 
+const Hash = styled.div`
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 9999999;
+  background: transparent;
+  padding: 1rem;
+  width: 400px;
+  pointer-events: none;
+`;
+
 export function App({ sidebar, children }) {
   const isUserLoggedIn = useSelector(checkIsLoggedIn);
   const currentRoute = useSelector(getCurrentRoute);
@@ -29,6 +40,9 @@ export function App({ sidebar, children }) {
 
   return (
     <AppContainer>
+      {/** REMOVE REMOVE REMOVE REMOVE */}
+      <Hash>{window.location.hash}</Hash>
+      {/** WARNING WARNING WARNING WARNING */}
       {sidebar}
       <ErrorBoundary errorKey={currentRoute}>
         <AppContentsContainer>
