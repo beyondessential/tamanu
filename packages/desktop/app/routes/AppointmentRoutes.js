@@ -10,6 +10,6 @@ export const AppointmentRoutes = React.memo(({ match }) => (
     <Route path={`${match.path}/all`} component={AppointmentListingView} />
     <Route path={`${match.path}/calendar`} component={AppointmentsCalendar} />
     <Route path={`${match.path}/new`} component={NewAppointmentView} />
-    <Redirect from="*" to={`${match.path}/all`} />
+    <Redirect to={`${match.path}/all`} />
   </Switch>
 ));

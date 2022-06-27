@@ -10,7 +10,7 @@ export const ProgramsRoutes = React.memo(({ match }) => (
         path={`${match.path}/active-covid-19-patients`}
         component={ActiveCovid19PatientsView}
       />
-      <Redirect from="*" to={`${match.path}/active-covid-19-patients`} />
+      <Redirect to={`${match.path}/active-covid-19-patients`} />
     </Switch>
   </div>
 ));

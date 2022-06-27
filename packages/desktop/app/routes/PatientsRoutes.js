@@ -36,6 +36,6 @@ export const PatientsRoutes = React.memo(({ match }) => (
         }[props.match.params.category])
       }
     />
-    <Redirect exact from="*" to={`${match.path}/all`} />
+    <Redirect to={`${match.path}/all`} />
   </Switch>
 ));

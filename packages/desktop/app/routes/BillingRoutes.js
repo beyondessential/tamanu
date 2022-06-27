@@ -17,7 +17,7 @@ export const BillingRoutes = React.memo(({ match }) => (
       <Route exact path={`${match.path}/pricing/procedure`} component={NotActiveView} />
       <Route exact path={`${match.path}/pricing/ward`} component={NotActiveView} />
       <Route exact path={`${match.path}/pricing/profiles`} component={NotActiveView} />
-      <Redirect from="*" to={match.path} />
+      <Redirect to={match.path} />
     </Switch>
   </div>
 ));

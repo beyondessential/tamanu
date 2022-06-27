@@ -28,7 +28,7 @@ export const PatientRoutes = React.memo(({ match }) => (
         path={`${match.path}/encounter/:encounterId/summary`}
         component={DischargeSummaryView}
       />
-      <Redirect from="*" to={match.path} />
+      <Redirect to={match.path} />
     </Switch>
   </TwoColumnDisplay>
 ));
