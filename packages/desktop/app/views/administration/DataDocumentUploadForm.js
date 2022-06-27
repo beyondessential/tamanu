@@ -98,11 +98,20 @@ export const DataDocumentUploadForm = memo(({ onSubmit, onReceiveResult, additio
     [additionalFields],
   );
 
-  const user = useCurrentUser();
-  const isAdmin = user?.role === 'admin';
+  const { ability } = useAuth();
 
-  if (!isAdmin) {
-    return <Notification message="Data uploads are available to admin users only." />;
+  // TODO: finer grained access to uploads
+  const permissions = [
+    ability.can('write', 'User'),
+    ability.can('write', 'Role'),
+    ability.can('write', 'Permission'),
+    ability.can('write', 'ReferenceData'),
+    ability.can('write', 'Program'),
+    ability.can('write', 'Survey')
+  ];
+
+  if (permissions.some(x => !x)) {
+    return <Notification message="You do not have permission to perform data document uploads." />;
   }
 
   return (
