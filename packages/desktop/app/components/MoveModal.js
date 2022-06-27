@@ -3,19 +3,17 @@ import { useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { push } from 'connected-react-router';
 import { useEncounter } from '../contexts/Encounter';
-import { useApi } from '../api';
+import { useSuggester } from '../api';
 
 import { Form, Field, AutocompleteField } from './Field';
 import { ConfirmCancelRow } from './ButtonRow';
 import { FormGrid } from './FormGrid';
 import { Modal } from './Modal';
-import { Suggester } from '../utils/suggester';
 
 export const MoveModal = ({ open, onClose, encounter }) => {
   const params = useParams();
   const dispatch = useDispatch();
-  const api = useApi();
-  const locationSuggester = new Suggester(api, 'location');
+  const locationSuggester = useSuggester('location');
   const { writeAndViewEncounter } = useEncounter();
   const movePatient = useCallback(
     async data => {

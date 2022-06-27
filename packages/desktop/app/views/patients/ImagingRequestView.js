@@ -19,8 +19,7 @@ import {
   AutocompleteField,
   DateTimeInput,
 } from '../../components/Field';
-import { useApi } from '../../api';
-import { Suggester } from '../../utils/suggester';
+import { useApi, useSuggester } from '../../api';
 
 import { ImagingRequestPrintout } from '../../components/PatientPrinting/ImagingRequestPrintout';
 import { Modal } from '../../components/Modal';
@@ -184,8 +183,8 @@ export const ImagingRequestView = () => {
   const dispatch = useDispatch();
   const imagingRequest = useSelector(state => state.imagingRequest);
   const patient = useSelector(state => state.patient);
-  const practitionerSuggester = new Suggester(api, 'practitioner');
-  const locationSuggester = new Suggester(api, 'location');
+  const practitionerSuggester = useSuggester('practitioner');
+  const locationSuggester = useSuggester('location');
 
   const onSubmit = data => {
     api.put(`imagingRequest/${imagingRequest.id}`, { ...data });

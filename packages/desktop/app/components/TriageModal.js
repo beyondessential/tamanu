@@ -3,11 +3,10 @@ import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { push } from 'connected-react-router';
-import { useApi } from '../api';
+import { useApi, useSuggester } from '../api';
 import { useLocalisation } from '../contexts/Localisation';
 
 import { Modal } from './Modal';
-import { Suggester } from '../utils/suggester';
 import { Colors } from '../constants';
 import { TriageForm } from '../forms/TriageForm';
 import { DisplayIdLabel } from './DisplayIdLabel';
@@ -56,9 +55,9 @@ export const TriageModal = React.memo(({ open, patient, onClose }) => {
   const api = useApi();
   const dispatch = useDispatch();
   const params = useParams();
-  const practitionerSuggester = new Suggester(api, 'practitioner');
-  const locationSuggester = new Suggester(api, 'location');
-  const triageComplaintSuggester = new Suggester(api, 'triageReason');
+  const practitionerSuggester = useSuggester('practitioner');
+  const locationSuggester = useSuggester('location');
+  const triageComplaintSuggester = useSuggester('triageReason');
 
   const onSubmit = async data => {
     await api.post('triage', {
