@@ -1,6 +1,6 @@
 import { baseDataGenerator } from '../covid-swab-lab-test-list';
 
-const SURVEY_ID = 'program-fijicovid19-fijicovidsampcollection';
+const SURVEY_ID = 'program-naurucovid19-naurucovidtestregistration';
 
 const SURVEY_QUESTION_CODES = {
   'Patient contact number': 'pde-NauCOVTest002',
