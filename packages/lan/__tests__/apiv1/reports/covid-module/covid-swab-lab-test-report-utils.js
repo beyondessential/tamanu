@@ -8,6 +8,9 @@ import {
 export const LAB_CATEGORY_ID = 'labTestCategory-COVID';
 export const LAB_METHOD_ID = 'labTestMethod-SWAB';
 
+export const LAB_CATEGORY_NAME = 'COVID-19';
+export const LAB_METHOD_NAME = 'Swab';
+
 export async function createPatient(models, overrides) {
   const villageId = await randomReferenceId(models, 'village');
   return await models.Patient.create(await createDummyPatient(models, { villageId, ...overrides }));
@@ -24,7 +27,7 @@ export async function createLabTests(models) {
       type: 'labTestCategory',
       id: LAB_CATEGORY_ID,
       code: 'COVID-19',
-      name: 'COVID-19',
+      name: LAB_CATEGORY_NAME,
     });
   }
   const existingMethods = await models.ReferenceData.findAll({
@@ -37,7 +40,7 @@ export async function createLabTests(models) {
       type: 'labTestMethod',
       id: LAB_METHOD_ID,
       code: 'METHOD-SWAB',
-      name: 'Swab',
+      name: LAB_METHOD_NAME,
     });
   }
 }
@@ -56,11 +59,13 @@ export async function createCovidTestForPatient(models, patient, testDate) {
     encounterId: encounter.id,
   });
   const labRequest = await models.LabRequest.create(labRequestData);
-  await models.LabTest.create({
+  const labTest = await models.LabTest.create({
     labTestTypeId: labRequestData.labTestTypeIds[0],
     labRequestId: labRequest.id,
     date: testDate,
+    completedDate: testDate,
     labTestMethodId: LAB_METHOD_ID,
+    result: 'Positive',
   });
-  return labRequest;
+  return { labRequest, labTest };
 }
