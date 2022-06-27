@@ -10,6 +10,9 @@ import {
   LabRequestView,
 } from '../views';
 
+import { ProgramsView } from '../views/programs/ProgramsView';
+import { ReferralsView } from '../views/referrals/ReferralsView';
+
 export const PatientRoutes = React.memo(({ match }) => (
   <TwoColumnDisplay>
     <PatientInfoPane />
@@ -28,6 +31,8 @@ export const PatientRoutes = React.memo(({ match }) => (
         path={`${match.path}/encounter/:encounterId/summary`}
         component={DischargeSummaryView}
       />
+      <Route path={`${match.path}/referrals/new`} component={ReferralsView} />
+      <Route path={`${match.path}/programs/new`} component={ProgramsView} />
       <Redirect to={match.path} />
     </Switch>
   </TwoColumnDisplay>
