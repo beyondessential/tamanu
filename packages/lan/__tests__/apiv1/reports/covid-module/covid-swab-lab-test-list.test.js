@@ -6,7 +6,7 @@ import {
 } from 'shared/demoData/patients';
 import { randomLabRequest } from 'shared/demoData';
 import { LAB_REQUEST_STATUSES } from 'shared/constants';
-import { createTestContext } from '../../utilities';
+import { createTestContext } from '../../../utilities';
 
 const PROGRAM_ID = 'program-fijicovid19';
 const FIJI_SAMP_SURVEY_ID = 'program-fijicovid19-fijicovidsampcollection';
