@@ -12,8 +12,8 @@ export const usePatientNavigation = () => {
     navigate(
       generatePath('/patients/:category/:patientId/:modal?', {
         patientId,
-        modal,
         ...params,
+        modal,
       }),
     );
 
@@ -21,8 +21,8 @@ export const usePatientNavigation = () => {
     navigate(
       generatePath('/patients/:category/:patientId/encounter/:encounterId/:modal?', {
         encounterId,
-        modal,
         ...params,
+        modal,
       }),
     );
 
@@ -32,8 +32,8 @@ export const usePatientNavigation = () => {
         '/patients/:category/:patientId/encounter/:encounterId/lab-request/:labRequestId/:modal?',
         {
           labRequestId,
-          modal,
           ...params,
+          modal,
         },
       ),
     );
@@ -44,8 +44,8 @@ export const usePatientNavigation = () => {
         '/patients/:category/:patientId/encounter/:encounterId/lab-request/:imagingRequestId/:modal?',
         {
           imagingRequestId,
-          modal,
           ...params,
+          modal,
         },
       ),
     );

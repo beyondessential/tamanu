@@ -1,10 +1,14 @@
 import React, { useMemo } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { push } from 'connected-react-router';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Divider, Box } from '@material-ui/core';
 import { ENCOUNTER_TYPES } from 'shared/constants';
 import { useParams } from 'react-router-dom';
+import { useEncounter } from '../../contexts/Encounter';
+import { useLocalisation } from '../../contexts/Localisation';
+import { useAuth } from '../../contexts/Auth';
+import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
+import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import {
   Button,
   BackButton,
@@ -33,10 +37,6 @@ import {
 } from './panes';
 import { DropdownButton } from '../../components/DropdownButton';
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../constants';
-import { useEncounter } from '../../contexts/Encounter';
-import { useLocalisation } from '../../contexts/Localisation';
-import { useAuth } from '../../contexts/Auth';
-import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 
 const getConnectRoutedModal = ({ category, patientId, encounterId }, suffix) =>
   connectRoutedModal(`/patients/${category}/${patientId}/encounter/${encounterId}`, suffix);
@@ -105,34 +105,12 @@ const TABS = [
 ];
 
 const EncounterActionDropdown = ({ encounter }) => {
-  const dispatch = useDispatch();
-  const params = useParams();
-  const onChangeEncounterType = type =>
-    dispatch(
-      push(
-        `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}/changeType/${type}`,
-      ),
-    );
-  const onChangeLocation = () =>
-    dispatch(
-      push(`/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}/move`),
-    );
-  const onDischargeOpen = () =>
-    dispatch(
-      push(
-        `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}/discharge`,
-      ),
-    );
-  const onChangeDepartment = () =>
-    dispatch(
-      push(
-        `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}/changeDepartment`,
-      ),
-    );
-  const onViewSummary = () =>
-    dispatch(
-      push(`/patients/${params.category}/${encounter.patientId}/encounter/${encounter.id}/summary`),
-    );
+  const { navigateToEncounter } = usePatientNavigation();
+  const onChangeEncounterType = type => navigateToEncounter(encounter.id, `changeType/${type}`);
+  const onChangeLocation = () => navigateToEncounter(encounter.id, 'move');
+  const onDischargeOpen = () => navigateToEncounter(encounter.id, 'discharge');
+  const onChangeDepartment = () => navigateToEncounter(encounter.id, 'changeDepartment');
+  const onViewSummary = () => navigateToEncounter(encounter.id, 'summary');
 
   if (encounter.endDate) {
     return (

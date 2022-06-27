@@ -1,9 +1,8 @@
 import React, { useState, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-
-import { push } from 'connected-react-router';
+import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { reloadPatient } from '../../store/patient';
+
 import {
   TopBar,
   PageContainer,
@@ -27,7 +26,6 @@ import {
   location,
   department,
 } from './columns';
-import { usePatientNavigation } from '../../utils/usePatientNavigation';
 
 const PATIENT_SEARCH_ENDPOINT = 'patient';
 
@@ -78,7 +76,7 @@ const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
 };
 
 const NewPatientButton = ({ onCreateNewPatient }) => {
-  const params = useParams();
+  const { navigateToPatient } = usePatientNavigation();
   const [isCreatingPatient, setCreatingPatient] = useState(false);
   const [isBirth, setIsBirth] = useState(false);
   const dispatch = useDispatch();
@@ -101,7 +99,7 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
     } else {
       await dispatch(reloadPatient(newPatient.id));
     }
-    dispatch(push(`/patients/${params.category}/${newPatient.id}`));
+    navigateToPatient(newPatient.id);
   };
 
   return (
