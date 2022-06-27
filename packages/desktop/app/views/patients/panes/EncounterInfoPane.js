@@ -14,7 +14,7 @@ const getDepartmentName = ({ department }) => (department ? department.name : 'U
 const getLocationName = ({ location }) => (location ? location.name : 'Unknown');
 const getEncounterType = ({ encounterType }) =>
   encounterType ? ENCOUNTER_OPTIONS_BY_VALUE[encounterType]?.label : 'Unknown';
-const getReasonForEncounter = ({ encounter }) => (encounter ? encounter.reasonForEncounter : null);
+const getReasonForEncounter = ({ reasonForEncounter }) => reasonForEncounter ?? null;
 
 export const EncounterInfoPane = React.memo(({ encounter }) => {
   const patientTypeData = useReferenceData(encounter.patientBillingTypeId);
