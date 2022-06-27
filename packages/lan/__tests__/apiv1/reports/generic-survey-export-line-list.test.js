@@ -187,7 +187,7 @@ describe('Generic survey export', () => {
       const [response] = await testContext.models.SurveyResponse.findAll({
         where: { surveyId: SURVEY_ID },
       });
-      response.result = 17;
+      response.result = 807; // This is irrelevant
       response.resultText = 'Seventeen';
       await response.save();
 
@@ -210,7 +210,6 @@ describe('Generic survey export', () => {
           'Submission Time': format(expectedDate, 'yyyy-MM-dd HH:mm'),
           'Test Question 1': 'Data point 1',
           'Test Question 2': 'Data point 2',
-          Result: '17',
           'Result (text)': 'Seventeen',
         },
       ]);
