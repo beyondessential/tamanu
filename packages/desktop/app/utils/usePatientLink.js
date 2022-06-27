@@ -1,46 +1,65 @@
+import { push } from 'connected-react-router';
+import { useDispatch } from 'react-redux';
 import { generatePath, useParams } from 'react-router-dom';
 
 export const usePatientLink = () => {
   const params = useParams();
+  const dispatch = useDispatch();
 
-  const getPatientLink = (patientId, modal) =>
-    generatePath('/patients/:category/:patientId/:modal?', {
-      patientId,
-      modal,
-      ...params,
-    });
-
-  const getEncounterLink = (encounterId, modal) =>
-    generatePath('/patients/:category/:patientId/encounter/:encounterId/:modal?', {
-      encounterId,
-      modal,
-      ...params,
-    });
-
-  const getLabRequestLink = (labRequestId, modal) =>
-    generatePath(
-      '/patients/:category/:patientId/encounter/:encounterId/lab-request/:labRequestId/:modal?',
-      {
-        labRequestId,
-        modal,
-        ...params,
-      },
+  const pushPatientLink = (patientId, modal) =>
+    dispatch(
+      push(
+        generatePath('/patients/:category/:patientId/:modal?', {
+          patientId,
+          modal,
+          ...params,
+        }),
+      ),
     );
 
-  const getImagingRequestLink = (imagingRequestId, modal) =>
-    generatePath(
-      '/patients/:category/:patientId/encounter/:encounterId/lab-request/:imagingRequestId/:modal?',
-      {
-        imagingRequestId,
-        modal,
-        ...params,
-      },
+  const pushEncounterLink = (encounterId, modal) =>
+    dispatch(
+      push(
+        generatePath('/patients/:category/:patientId/encounter/:encounterId/:modal?', {
+          encounterId,
+          modal,
+          ...params,
+        }),
+      ),
+    );
+
+  const pushLabRequestLink = (labRequestId, modal) =>
+    dispatch(
+      push(
+        generatePath(
+          '/patients/:category/:patientId/encounter/:encounterId/lab-request/:labRequestId/:modal?',
+          {
+            labRequestId,
+            modal,
+            ...params,
+          },
+        ),
+      ),
+    );
+
+  const pushImagingRequestLink = (imagingRequestId, modal) =>
+    dispatch(
+      push(
+        generatePath(
+          '/patients/:category/:patientId/encounter/:encounterId/lab-request/:imagingRequestId/:modal?',
+          {
+            imagingRequestId,
+            modal,
+            ...params,
+          },
+        ),
+      ),
     );
 
   return {
-    getPatientLink,
-    getEncounterLink,
-    getLabRequestLink,
-    getImagingRequestLink,
+    pushPatientLink,
+    pushEncounterLink,
+    pushLabRequestLink,
+    pushImagingRequestLink,
   };
 };
