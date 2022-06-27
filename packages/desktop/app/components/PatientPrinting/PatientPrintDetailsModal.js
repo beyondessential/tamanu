@@ -60,6 +60,7 @@ const PrintOption = ({ label, icon, onPress }) => {
 
   return (
     <PrintOptionButton
+      color="default"
       onClick={onPress}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
