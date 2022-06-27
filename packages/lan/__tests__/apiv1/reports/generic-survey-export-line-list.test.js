@@ -210,7 +210,7 @@ describe('Generic survey export', () => {
           'Submission Time': format(expectedDate, 'yyyy-MM-dd HH:mm'),
           'Test Question 1': 'Data point 1',
           'Test Question 2': 'Data point 2',
-          'Result (text)': 'Seventeen',
+          'Result': 'Seventeen',
         },
       ]);
     });
