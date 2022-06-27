@@ -134,7 +134,7 @@ const ActiveCovid19PatientsTable = React.memo(({ data, ...props }) => {
   const dispatch = useDispatch();
   const handleViewPatient = async id => {
     await dispatch(reloadPatient(id));
-    dispatch(push(`patients/all/${id}`));
+    dispatch(push(`/patients/all/${id}`));
   };
 
   return (

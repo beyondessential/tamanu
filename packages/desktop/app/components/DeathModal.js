@@ -22,7 +22,7 @@ export const DeathModal = React.memo(({ open, onClose }) => {
 
     onClose();
     await dispatch(reloadPatient(patientId));
-    dispatch(push(`patients/${params.category}/${patientId}`));
+    dispatch(push(`/patients/${params.category}/${patientId}`));
   };
 
   return (

@@ -100,7 +100,7 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
     } else {
       await dispatch(reloadPatient(newPatient.id));
     }
-    dispatch(push(`patients/${params.category}/${newPatient.id}`));
+    dispatch(push(`/patients/${params.category}/${newPatient.id}`));
   };
 
   return (
