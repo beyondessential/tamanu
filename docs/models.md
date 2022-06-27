@@ -12,7 +12,7 @@ Metadata for an attached document (for eg an image or a pdf). Actual attachment 
 
 ### Discharge
 
-Details of a discharge from a hospital admission. Most encounter types are closed by simply setting an endDate, this model is simply to attach additional discharge information. 
+Details of a discharge from a hospital admission. Most encounter types are closed by simply setting an endDate, this model is simply to attach additional discharge information.
 
 ### Encounter
 
@@ -63,7 +63,7 @@ Holds most of a patient's non-encounter data (for eg contact information, social
 
 ### PatientAllergy
 
-A allergy recorded for a patient (for eg peanuts or penicillin). 
+A allergy recorded for a patient (for eg peanuts or penicillin).
 
 ### PatientCarePlan
 
@@ -136,10 +136,6 @@ A survey response answer represents an answer to a single question (program data
 ### SurveyScreenComponent
 
 Represents metadata for a question on a survey (for eg, position within the survey, any survey-specific overrides). The actual contents of the question (question type, text, etc) is stored in ProgramDataElement.
-
-### ChannelSyncPullCursor
-
-Utility table to track the sync cursor for a channel. Not directly related to any patient or medical information, other than UUID.
 
 ### Triage
 

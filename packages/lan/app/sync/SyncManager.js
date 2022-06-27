@@ -186,14 +186,6 @@ export class SyncManager {
     log.debug(`SyncManager.exportAndPush: reached end of channel`, { channel });
   }
 
-  getChannelPullCursors(channels) {
-    return this.context.models.ChannelSyncPullCursor.getCursors(channels);
-  }
-
-  async setChannelPullCursor(channel, pullCursor) {
-    await this.context.models.ChannelSyncPullCursor.upsert({ channel, pullCursor });
-  }
-
   async runSync(patientId = null) {
     if (!config.sync.enabled) {
       log.warn('SyncManager.runSync: sync is disabled');
