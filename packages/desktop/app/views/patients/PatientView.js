@@ -2,14 +2,12 @@ import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 
 import { useParams } from 'react-router-dom';
-import { TabDisplay } from '../../components/TabDisplay';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientAlert } from '../../components/PatientAlert';
 import { EncounterModal } from '../../components/EncounterModal';
 import { TriageModal } from '../../components/TriageModal';
 import { connectRoutedModal } from '../../components/Modal';
-import { useLocalisation } from '../../contexts/Localisation';
-
+import { PATIENT_TAB_VALUES } from '../../constants/patientNavigation';
 import {
   ConnectedPatientDetailsForm,
   HistoryPane,
@@ -20,70 +18,30 @@ import {
   ReferralPane,
   InvoicesPane,
 } from './panes';
+import { usePatientTabs } from '../../contexts/PatientTabs';
+
+const TabContent = ({ value, ...props }) => {
+  const Content = {
+    [PATIENT_TAB_VALUES.HISTORY]: HistoryPane,
+    [PATIENT_TAB_VALUES.DETAILS]: ConnectedPatientDetailsForm,
+    [PATIENT_TAB_VALUES.REFERRALS]: ReferralPane,
+    [PATIENT_TAB_VALUES.PROGRAMS]: PatientProgramsPane,
+    [PATIENT_TAB_VALUES.DOCUMENT]: DocumentsPane,
+    [PATIENT_TAB_VALUES.IMMUNISATION]: ImmunisationsPane,
+    [PATIENT_TAB_VALUES.MEDICATION]: PatientMedicationPane,
+    [PATIENT_TAB_VALUES.INVOICES]: InvoicesPane,
+  }[value];
+  return <Content {...props} />;
+};
 
 const getConnectRoutedModal = ({ category, patientId }, suffix) =>
   connectRoutedModal(`/patients/${category}/${patientId}`, suffix);
 
-const TABS = [
-  {
-    label: 'History',
-    key: 'history',
-    icon: 'fa fa-calendar-day',
-    render: () => <HistoryPane />,
-  },
-  {
-    label: 'Details',
-    key: 'details',
-    icon: 'fa fa-info-circle',
-    render: props => <ConnectedPatientDetailsForm {...props} />,
-  },
-  {
-    label: 'Referrals',
-    key: 'Referrals',
-    icon: 'fa fa-hospital',
-    render: props => <ReferralPane {...props} />,
-  },
-  {
-    label: 'Programs',
-    key: 'Programs',
-    icon: 'fa fa-hospital',
-    render: ({ patient, ...props }) => (
-      <PatientProgramsPane endpoint={`patient/${patient.id}/programResponses`} {...props} />
-    ),
-  },
-  {
-    label: 'Documents',
-    key: 'documents',
-    icon: 'fa fa-file-medical-alt',
-    render: props => <DocumentsPane {...props} showSearchBar />,
-  },
-  {
-    label: 'Immunisation',
-    key: 'a',
-    icon: 'fa fa-syringe',
-    render: props => <ImmunisationsPane {...props} />,
-  },
-  {
-    label: 'Medication',
-    key: 'medication',
-    icon: 'fa fa-medkit',
-    render: props => <PatientMedicationPane {...props} />,
-  },
-  {
-    label: 'Invoices',
-    key: 'invoices',
-    icon: 'fa fa-cash-register',
-    render: props => <InvoicesPane {...props} />,
-    condition: getLocalisation => getLocalisation('features.enableInvoicing'),
-  },
-];
-
 export const PatientView = () => {
+  const { currentTab } = usePatientTabs();
   const params = useParams();
-  const { getLocalisation } = useLocalisation();
   const patient = useSelector(state => state.patient);
   const loading = useSelector(state => state.loading);
-  const [currentTab, setCurrentTab] = React.useState('history');
   const disabled = !!patient.death;
 
   const RoutedEncounterModal = useMemo(() => getConnectRoutedModal(params, 'checkin'), [params])(
@@ -96,18 +54,10 @@ export const PatientView = () => {
 
   if (loading) return <LoadingIndicator />;
 
-  const visibleTabs = TABS.filter(tab => !tab.condition || tab.condition(getLocalisation));
-
   return (
     <>
       <PatientAlert alerts={patient.alerts} />
-      <TabDisplay
-        tabs={visibleTabs}
-        currentTab={currentTab}
-        onTabSelect={setCurrentTab}
-        patient={patient}
-        disabled={disabled}
-      />
+      <TabContent value={currentTab} patient={patient} disabled={disabled} />
       <RoutedEncounterModal
         patientId={patient.id}
         patientBillingTypeId={patient.additionalData?.patientBillingTypeId}

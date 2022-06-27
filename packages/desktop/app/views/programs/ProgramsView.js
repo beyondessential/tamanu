@@ -122,9 +122,9 @@ export const ProgramsView = () => {
   const dispatch = useDispatch();
   const patient = useSelector(state => state.patient);
   const currentUser = useSelector(getCurrentUser);
-  if (!patient.id) {
-    return <PatientListingView onViewPatient={id => dispatch(reloadPatient(id))} />;
-  }
-
-  return <SurveyFlow patient={patient} currentUser={currentUser} />;
+  return patient.id ? (
+    <SurveyFlow patient={patient} currentUser={currentUser} />
+  ) : (
+    <PatientListingView onViewPatient={id => dispatch(reloadPatient(id))} />
+  );
 };

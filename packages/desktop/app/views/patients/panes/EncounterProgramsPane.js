@@ -6,7 +6,7 @@ import { TableButtonRow, Button } from '../../../components';
 import { DataFetchingProgramsTable } from '../../../components/ProgramResponsesTable';
 import { TabPane } from '../components';
 
-export const EncounterProgramsPane = React.memo(({ endpoint }) => {
+export const EncounterProgramsPane = React.memo(({ encounter }) => {
   const dispatch = useDispatch();
   const params = useParams();
 
@@ -18,7 +18,7 @@ export const EncounterProgramsPane = React.memo(({ endpoint }) => {
       <TableButtonRow variant="small">
         <Button onClick={handleNewSurvey}>New survey</Button>
       </TableButtonRow>
-      <DataFetchingProgramsTable endpoint={endpoint} />
+      <DataFetchingProgramsTable endpoint={`encounter/${encounter.id}/programResponses`} />
     </TabPane>
   );
 });

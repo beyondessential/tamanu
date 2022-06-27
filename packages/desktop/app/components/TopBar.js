@@ -31,10 +31,11 @@ const TopBarSubHeading = styled(Typography)`
 const AppBar = styled.div`
   flex-grow: 1;
   background-color: ${Colors.white};
+  position: sticky;
+  top: 0;
   padding: 16px 0;
   z-index: 1;
   border-bottom: 1px solid ${props => props.theme.palette.grey[400]};
-  position: relative;
   border-bottom: 1px solid ${Colors.softOutline};
 `;
 

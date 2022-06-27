@@ -5,7 +5,7 @@ import { push } from 'connected-react-router';
 import { ContentPane, TableButtonRow, Button } from '../../../components';
 import { DataFetchingProgramsTable } from '../../../components/ProgramResponsesTable';
 
-export const PatientProgramsPane = React.memo(({ endpoint }) => {
+export const PatientProgramsPane = React.memo(({ patient }) => {
   const dispatch = useDispatch();
   const params = useParams();
 
@@ -17,7 +17,7 @@ export const PatientProgramsPane = React.memo(({ endpoint }) => {
       <TableButtonRow variant="small">
         <Button onClick={handleNewSurvey}>New survey</Button>
       </TableButtonRow>
-      <DataFetchingProgramsTable endpoint={endpoint} />
+      <DataFetchingProgramsTable endpoint={`patient/${patient.id}/programResponses`} />
     </ContentPane>
   );
 });

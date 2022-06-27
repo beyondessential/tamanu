@@ -35,8 +35,10 @@ const Breadcrumb = ({ onClick, children }) => (
   </BreadcrumbLink>
 );
 
-const getBreadcrumbFromRoute = ({ navigateTo, title }) => (
-  <Breadcrumb onClick={navigateTo}>{title}</Breadcrumb>
+const getBreadcrumbFromRoute = ({ navigateTo, title, path }) => (
+  <Breadcrumb key={`breadcrumb-${path}`} onClick={navigateTo}>
+    {title}
+  </Breadcrumb>
 );
 
 export const PatientBreadcrumbs = ({ patientRoutes }) => {

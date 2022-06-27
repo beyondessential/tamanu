@@ -5,8 +5,9 @@ import { PatientInfoPane } from '../components/PatientInfoPane';
 import { getPatientNameAsString } from '../components/PatientNameDisplay';
 import { PatientNavigation } from '../components/PatientNavigation';
 import { TwoColumnDisplay } from '../components/TwoColumnDisplay';
-import { PATIENT_PATHS } from '../constants/patientPaths';
+import { PATIENT_PATHS } from '../constants/patientNavigation';
 import { useEncounter } from '../contexts/Encounter';
+import { PatientTabProvider } from '../contexts/PatientTabs';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import {
   DischargeSummaryView,
@@ -84,13 +85,17 @@ export const PatientRoutes = React.memo(() => {
   return (
     <TwoColumnDisplay>
       <PatientInfoPane />
-      <div style={{ overflow: 'hidden' }}>
-        <PatientNavigation patientRoutes={patientRoutes} />
-        <Switch>
-          {patientRoutes.map(route => (
-            <RouteWithSubRoutes key={`route-${route.path}`} {...route} />
-          ))}
-        </Switch>
+      {/* Using contain:strict along with overflow: auto here allows sticky navigation section
+      to have correct scrollable behavior in relation to the patient info pane and switch components */}
+      <div style={{ contain: 'strict', overflow: 'auto' }}>
+        <PatientTabProvider>
+          <PatientNavigation patientRoutes={patientRoutes} />
+          <Switch>
+            {patientRoutes.map(route => (
+              <RouteWithSubRoutes key={`route-${route.path}`} {...route} />
+            ))}
+          </Switch>
+        </PatientTabProvider>
       </div>
     </TwoColumnDisplay>
   );
