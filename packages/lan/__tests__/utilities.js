@@ -1,18 +1,22 @@
 import supertest from 'supertest';
 import Chance from 'chance';
+import http from 'http';
 
-import { seedLabTests } from 'shared/demoData/labTestTypes';
+import { seedDepartments, seedFacilities, seedLocations, seedLabTests } from 'shared/demoData';
 
 import { createApp } from 'lan/app/createApp';
-import { initDatabase } from 'lan/app/database';
+import { initDatabase, closeDatabase } from 'lan/app/database';
 import { getToken } from 'lan/app/middleware/auth';
 
+import { toMatchTabularReport } from './toMatchTabularReport';
 import { allSeeds } from './seed';
 import { deleteAllTestIds } from './setupUtilities';
 
-import { SyncManager } from '~/sync';
-import { WebRemote } from '~/sync/WebRemote';
-jest.mock('~/sync/WebRemote');
+import { SyncManager } from '../app/sync/SyncManager';
+import { WebRemote } from '../app/sync/WebRemote';
+
+jest.mock('../app/sync/WebRemote');
+jest.mock('../app/utils/uploadAttachment');
 
 const chance = new Chance();
 
@@ -68,6 +72,24 @@ export function extendExpect(expect) {
         pass,
       };
     },
+    toHaveStatus(response, status) {
+      const { statusCode } = response;
+      const pass = statusCode === status;
+      if (pass) {
+        return {
+          message: () => `Expected status code ${status}, got ${statusCode}.`,
+          pass,
+        };
+      }
+      return {
+        message: () =>
+          `Expected status code ${status}, got ${statusCode}. ${formatError(response)}`,
+        pass,
+      };
+    },
+    toMatchTabularReport(receivedReport, expectedData, options) {
+      return toMatchTabularReport(this, receivedReport, expectedData, options);
+    },
   });
 }
 
@@ -86,12 +108,17 @@ export async function createTestContext() {
   const tasks = allSeeds
     .map(d => ({ code: d.name, ...d }))
     .map(d => models.ReferenceData.create(d));
-  await seedLabTests(models);
   await Promise.all(tasks);
 
-  const expressApp = createApp(dbResult);
+  // Order here is important, as some models depend on others
+  await seedLabTests(models);
+  await seedFacilities(models);
+  await seedDepartments(models);
+  await seedLocations(models);
 
-  const baseApp = supertest(expressApp);
+  const expressApp = createApp(dbResult);
+  const appServer = http.createServer(expressApp);
+  const baseApp = supertest(appServer);
 
   baseApp.asUser = async user => {
     const agent = supertest.agent(expressApp);
@@ -120,5 +147,10 @@ export async function createTestContext() {
 
   context.syncManager = new SyncManager(context);
 
-  return context;
+  const close = async () => {
+    await new Promise(resolve => appServer.close(resolve));
+    await closeDatabase();
+  };
+
+  return { ...context, close };
 }

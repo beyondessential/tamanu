@@ -4,6 +4,7 @@ import { initSyncForModelNestedUnderPatient } from './sync';
 
 export class PatientAdditionalData extends Model {
   static init({ primaryKey, ...options }) {
+    const nestedSyncConfig = initSyncForModelNestedUnderPatient(this, 'additionalData');
     super.init(
       {
         id: primaryKey,
@@ -20,10 +21,20 @@ export class PatientAdditionalData extends Model {
         birthCertificate: Sequelize.STRING,
         drivingLicense: Sequelize.STRING,
         passport: Sequelize.STRING,
+        emergencyContactName: Sequelize.STRING,
+        emergencyContactNumber: Sequelize.STRING,
       },
       {
         ...options,
-        syncConfig: initSyncForModelNestedUnderPatient(this, 'additionalData'),
+        syncConfig: {
+          ...nestedSyncConfig,
+          channelRoutes: [
+            ...nestedSyncConfig.channelRoutes,
+            {
+              route: 'import/patientAdditionalData',
+            },
+          ],
+        },
       },
     );
   }
@@ -32,6 +43,11 @@ export class PatientAdditionalData extends Model {
     this.belongsTo(models.Patient, {
       foreignKey: 'patientId',
       as: 'patient',
+    });
+
+    this.belongsTo(models.PatientAdditionalData, {
+      foreignKey: 'mergedIntoId',
+      as: 'mergedInto',
     });
 
     this.belongsTo(models.User, {
@@ -60,6 +76,6 @@ export class PatientAdditionalData extends Model {
   }
 
   static getFullReferenceAssociations() {
-    return ['countryOfBirth'];
+    return ['countryOfBirth', 'nationality'];
   }
 }

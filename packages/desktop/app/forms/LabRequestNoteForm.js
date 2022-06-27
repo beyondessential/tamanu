@@ -32,7 +32,7 @@ const AddNoteButton = styled(AddButton)`
   align-self: flex-end;
 `;
 
-export const LabRequestNoteForm = ({ labRequest }) => {
+export const LabRequestNoteForm = ({ labRequest, refreshLabRequest }) => {
   const api = useApi();
   const [notes, setNotes] = useState([]);
 
@@ -41,7 +41,7 @@ export const LabRequestNoteForm = ({ labRequest }) => {
       const res = await api.get(`labRequest/${labRequest.id}/notes`);
       setNotes(res.data);
     })();
-  }, []);
+  }, [api, labRequest.id]);
 
   const saveNote = useCallback(
     async ({ content }) => {
@@ -51,11 +51,12 @@ export const LabRequestNoteForm = ({ labRequest }) => {
         noteType: NOTE_TYPES.OTHER,
       });
       setNotes([newNote, ...notes]);
+      refreshLabRequest();
     },
-    [notes],
+    [notes, labRequest.id, api, refreshLabRequest],
   );
 
-  const renderForm = React.useCallback(
+  const renderForm = useCallback(
     ({ submitForm }) => (
       <StyledFormGrid columns={1}>
         <NotesInput label="Note" name="content" component={TextField} />

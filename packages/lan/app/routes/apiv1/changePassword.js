@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { WebRemote } from '~/sync';
+import { WebRemote } from '../../sync';
 
 export const changePassword = express.Router();
 

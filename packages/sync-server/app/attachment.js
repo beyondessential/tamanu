@@ -1,6 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { ForbiddenError } from 'shared/errors';
+import { ForbiddenError, InsufficientStorageError } from 'shared/errors';
+import { canUploadAttachment } from './utils/getFreeDiskSpace';
 
 export const attachmentRoutes = express.Router();
 
@@ -23,5 +24,31 @@ attachmentRoutes.get(
       res.setHeader('Content-Length', attachment.size);
       res.send(Buffer.from(attachment.data));
     }
+  }),
+);
+
+attachmentRoutes.post(
+  '/$',
+  asyncHandler(async (req, res) => {
+    const canUpload = await canUploadAttachment();
+
+    if (!canUpload) {
+      throw new InsufficientStorageError(
+        'Document cannot be uploaded due to lack of storage space.',
+      );
+    }
+
+    const { Attachment } = req.store.models;
+    const { type, size, data } = Attachment.sanitizeForSyncServer(req.body);
+    const attachment = await Attachment.create({
+      type,
+      size,
+      data,
+    });
+
+    // Send only the ID to be able to link it to metadata
+    res.send({
+      attachmentId: attachment.id,
+    });
   }),
 );

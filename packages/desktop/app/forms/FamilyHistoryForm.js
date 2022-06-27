@@ -9,12 +9,6 @@ import { ConfirmCancelRow } from '../components/ButtonRow';
 import { foreignKey } from '../utils/validation';
 
 export class FamilyHistoryForm extends React.PureComponent {
-  static propTypes = {
-    onSubmit: PropTypes.func.isRequired,
-    onCancel: PropTypes.func.isRequired,
-    editedObject: PropTypes.shape({}),
-  };
-
   renderForm = ({ submitForm }) => {
     const { onCancel, icd10Suggester, practitionerSuggester, editedObject } = this.props;
     const buttonText = editedObject ? 'Save' : 'Add';
@@ -36,7 +30,7 @@ export class FamilyHistoryForm extends React.PureComponent {
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
-        <Field name="notes" label="Notes" component={TextField} multiline rows={2} />
+        <Field name="note" label="Notes" component={TextField} multiline rows={2} />
         <ConfirmCancelRow onConfirm={submitForm} onCancel={onCancel} confirmText={buttonText} />
       </FormGrid>
     );
@@ -61,3 +55,13 @@ export class FamilyHistoryForm extends React.PureComponent {
     );
   }
 }
+
+FamilyHistoryForm.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+  editedObject: PropTypes.shape({}),
+};
+
+FamilyHistoryForm.defaultProps = {
+  editedObject: null,
+};

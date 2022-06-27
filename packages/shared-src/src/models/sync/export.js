@@ -3,13 +3,12 @@ import { without } from 'lodash';
 import { propertyPathsToTree } from './metadata';
 import { getSyncCursorFromRecord, syncCursorToWhereCondition } from './cursor';
 
-export const createExportPlan = (sequelize, channel) => {
-  return sequelize.channelRouter(channel, (model, params, channelRoute) => {
+export const createExportPlan = (sequelize, channel) =>
+  sequelize.channelRouter(channel, (model, params, channelRoute) => {
     const relationTree = propertyPathsToTree(model.syncConfig.includedRelations);
     const { where, include } = channelRoute.queryFromParams(params);
     return createExportPlanInner(model, relationTree, { where, include });
   });
-};
 
 const createExportPlanInner = (model, relationTree, query) => {
   // generate nested association exporters
@@ -49,7 +48,11 @@ export const executeExportPlan = async (plan, { since, limit = 100 }) => {
   }
   if (syncClientMode) {
     // only push marked records in server mode
-    whereClauses.push({ markedForPush: true });
+    whereClauses.push({
+      // records that were marked by the client (e.g. SyncManager)
+      // done to avoid a race condition when setting markedForPush
+      isPushing: true,
+    });
   }
   if (since) {
     whereClauses.push(syncCursorToWhereCondition(since));

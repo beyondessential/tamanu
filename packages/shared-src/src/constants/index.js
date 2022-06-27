@@ -50,6 +50,8 @@ export const NOTE_TYPES = {
   SYSTEM: 'system',
   OTHER: 'other',
   TREATMENT_PLAN: 'treatmentPlan',
+  AREA_TO_BE_IMAGED: 'areaToBeImaged',
+  RESULT_DESCRIPTION: 'resultDescription',
 };
 
 export const PATIENT_ISSUE_TYPES = {
@@ -83,6 +85,7 @@ export const OPERATION_PLAN_STATUSES = {
 
 export const IMAGING_REQUEST_STATUS_TYPES = {
   PENDING: 'pending',
+  IN_PROGRESS: 'in_progress',
   COMPLETED: 'completed',
 };
 
@@ -106,9 +109,6 @@ export const REFERENCE_TYPES = {
   LAB_TEST_PRIORITY: 'labTestPriority',
   LAB_TEST_LABORATORY: 'labTestLaboratory',
   LAB_TEST_METHOD: 'labTestMethod',
-  FACILITY: 'facility',
-  LOCATION: 'location',
-  DEPARTMENT: 'department',
   VACCINE: 'vaccine',
   VILLAGE: 'village',
   CARE_PLAN: 'carePlan',
@@ -130,6 +130,7 @@ export const REFERENCE_TYPES = {
   BLOOD_TYPE: 'bloodType',
   SOCIAL_MEDIA_PLATFORM: 'socialMediaPlatform',
   PATIENT_BILLING_TYPE: 'patientBillingType',
+  MANUFACTURER: 'manufacturer',
 };
 
 export const REFERENCE_TYPE_VALUES = Object.values(REFERENCE_TYPES);
@@ -162,8 +163,14 @@ export const PROGRAM_DATA_ELEMENT_TYPES = {
 };
 export const PROGRAM_DATA_ELEMENT_TYPE_VALUES = Object.values(PROGRAM_DATA_ELEMENT_TYPES);
 
+export const ACTION_DATA_ELEMENT_TYPES = [
+  PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE,
+  PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA,
+];
+
 export const REPORT_REQUEST_STATUSES = {
   RECEIVED: 'Received',
+  PROCESSING: 'Processing',
   PROCESSED: 'Processed',
   ERROR: 'Error',
 };
@@ -190,6 +197,7 @@ export const PATIENT_COMMUNICATION_CHANNELS_VALUES = Object.values(PATIENT_COMMU
 
 export const PATIENT_COMMUNICATION_TYPES = {
   REFERRAL_CREATED: 'Referral created',
+  CERTIFICATE: 'Certificate',
 };
 
 export const PATIENT_COMMUNICATION_TYPES_VALUES = Object.values(PATIENT_COMMUNICATION_TYPES);
@@ -258,4 +266,116 @@ export const APPOINTMENT_STATUSES = {
   ARRIVED: 'Arrived',
   NO_SHOW: 'No-show',
   CANCELLED: 'Cancelled',
+};
+
+export const REFERRAL_STATUSES = {
+  PENDING: 'pending',
+  CANCELLED: 'cancelled',
+  COMPLETED: 'completed',
+};
+
+// Size in bytes
+export const DOCUMENT_SIZE_LIMIT = 10000000;
+
+export const ICAO_DOCUMENT_TYPES = {
+  PROOF_OF_TESTING: {
+    DOCTYPE: 'NT',
+    JSON: 'icao.test',
+  },
+  PROOF_OF_VACCINATION: {
+    DOCTYPE: 'NV',
+    JSON: 'icao.vacc',
+  },
+};
+
+export const EUDCC_CERTIFICATE_TYPES = {
+  VACCINATION: 'v',
+  TEST: 't',
+  RECOVERY: 'r',
+};
+
+export const EUDCC_SCHEMA_VERSION = '1.3.0';
+
+export const X502_OIDS = {
+  COMMON_NAME: '2.5.4.3',
+  COUNTRY_NAME: '2.5.4.6',
+  BASIC_CONSTRAINTS: '2.5.29.19',
+  KEY_USAGE: '2.5.29.15',
+  PRIVATE_KEY_USAGE_PERIOD: '2.5.29.16', // "PKUP"
+  EXTENDED_KEY_USAGE: '2.5.29.37', // "EKU"
+  KEY_IDENTIFIER: '2.5.29.14', // "SKI"
+  AUTHORITY_KEY_IDENTIFIER: '2.5.29.35', // "AKI"
+  DOCUMENT_TYPE: '2.23.136.1.1.6.2',
+  EKU_VDS_NC: '2.23.136.1.1.14.2',
+  EKU_EU_DCC_TEST: '1.3.6.1.4.1.1847.2021.1.1',
+  EKU_EU_DCC_VACCINATION: '1.3.6.1.4.1.1847.2021.1.2',
+  EKU_EU_DCC_RECOVERY: '1.3.6.1.4.1.1847.2021.1.3',
+};
+
+export const INVOICE_STATUSES = {
+  CANCELLED: 'cancelled',
+  IN_PROGRESS: 'in_progress',
+  FINALISED: 'finalised',
+};
+
+export const INVOICE_PAYMENT_STATUSES = {
+  UNPAID: 'unpaid',
+  PAID: 'paid',
+};
+
+export const INVOICE_LINE_TYPES = {
+  PROCEDURE_TYPE: 'procedureType',
+  IMAGING_TYPE: 'imagingType',
+  LAB_TEST_TYPE: 'labTestType',
+  ADDITIONAL: 'additionalInvoiceLine',
+};
+
+export const INVOICE_LINE_TYPE_LABELS = {
+  [INVOICE_LINE_TYPES.PROCEDURE_TYPE]: 'Procedure',
+  [INVOICE_LINE_TYPES.IMAGING_TYPE]: 'Imaging',
+  [INVOICE_LINE_TYPES.LAB_TEST_TYPE]: 'Lab test',
+  [INVOICE_LINE_TYPES.ADDITIONAL]: 'Additional',
+};
+
+export const INVOICE_LINE_ITEM_STATUSES = {
+  ACTIVE: 'active',
+  DELETED: 'deleted',
+};
+
+export const INVOICE_PRICE_CHANGE_TYPES = {
+  PATIENT_BILLING_TYPE: 'patientBillingType',
+};
+
+export const INVOICE_PRICE_CHANGE_TYPE_LABELS = {
+  [INVOICE_PRICE_CHANGE_TYPES.PATIENT_BILLING_TYPE]: 'Patient Type',
+};
+
+export const INVOICE_PRICE_CHANGE_ITEM_STATUSES = {
+  ACTIVE: 'active',
+  DELETED: 'deleted',
+};
+
+export const CERTIFICATE_NOTIFICATION_STATUSES = {
+  QUEUED: 'Queued',
+  PROCESSED: 'Processed',
+  ERROR: 'Error',
+  IGNORE: 'Ignore',
+};
+
+export const VACCINE_STATUS = {
+  UNKNOWN: 'UNKNOWN',
+  GIVEN: 'GIVEN',
+  NOT_GIVEN: 'NOT_GIVEN',
+  SCHEDULED: 'SCHEDULED',
+  MISSED: 'MISSED',
+  DUE: 'DUE',
+  UPCOMING: 'UPCOMING',
+  OVERDUE: 'OVERDUE',
+  RECORDED_IN_ERROR: 'RECORDED_IN_ERROR',
+};
+
+export const SERVER_TYPES = {
+  LAN: 'Tamanu LAN Server',
+  META: 'Tamanu Metadata Server',
+  SYNC: 'Tamanu Sync Server',
 };

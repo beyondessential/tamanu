@@ -35,7 +35,7 @@ export const SyncHealthNotificationComponent = () => {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [api]);
 
   // We only set a message if the server is unhealthy, so as long as message is undefined,
   // we don't need to render a warning.

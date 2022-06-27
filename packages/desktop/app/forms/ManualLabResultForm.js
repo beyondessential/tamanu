@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 
 import * as yup from 'yup';
 import {
@@ -13,7 +13,7 @@ import {
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { capitaliseFirstLetter } from '../utils/capitalise';
-import { useSuggester } from '../api/singletons';
+import { useSuggester } from '../api';
 
 function getComponentForTest(questionType, options) {
   if (options && options.length) return SelectField;
@@ -41,7 +41,7 @@ export const ManualLabResultForm = ({ onSubmit, onClose, labTest }) => {
   const component = getComponentForTest(questionType, options);
   const methodSuggester = useSuggester('labTestMethod');
 
-  const renderForm = React.useCallback(
+  const renderForm = useCallback(
     ({ submitForm }) => (
       <FormGrid columns={1}>
         <Field
@@ -64,7 +64,7 @@ export const ManualLabResultForm = ({ onSubmit, onClose, labTest }) => {
         <ConfirmCancelRow onConfirm={submitForm} onCancel={onClose} />
       </FormGrid>
     ),
-    [labTest, onClose, component],
+    [onClose, component, methodSuggester, options],
   );
 
   return (

@@ -1,28 +1,16 @@
 import Chance from 'chance';
 import moment from 'moment';
 
-import { generateId } from '../utils/generateId';
 import { ENCOUNTER_TYPES } from '../constants';
+import { generateId } from '../utils/generateId';
+import { TIME_INTERVALS, randomDate, randomRecordId } from './utilities';
 
-const HOUR = 1000 * 60 * 60;
-const DAY = HOUR * 24;
+const { HOUR } = TIME_INTERVALS;
 
 const chance = new Chance();
 
-function randomDate(minDaysAgo = 1, maxDaysAgo = 365) {
-  const ago = chance.natural({ min: DAY * minDaysAgo, max: DAY * maxDaysAgo });
-  return new Date(Date.now() - ago);
-}
-
-function randomDateBetween(start, end) {
-  return new Date(chance.natural({ min: start.getTime(), max: end.getTime() }));
-}
-
 export async function randomUser(models) {
-  const obj = await models.User.findOne({
-    order: models.ReferenceData.sequelize.random(),
-  });
-  return obj.id;
+  return randomRecordId(models, 'User');
 }
 
 export async function randomReferenceId(models, type) {
@@ -93,7 +81,7 @@ export async function createDummyTriage(models, overrides) {
     closedTime: null,
     chiefComplaintId: await randomReferenceId(models, 'triageReason'),
     secondaryComplaintId: chance.bool() ? null : await randomReferenceId(models, 'triageReason'),
-    locationId: await randomReferenceId(models, 'location'),
+    locationId: await randomRecordId(models, 'Location'),
     practitionerId: await randomUser(models),
     ...overrides,
   };
@@ -107,17 +95,17 @@ export async function createDummyEncounter(models, { current, ...overrides } = {
 
   return {
     encounterType: chance.pick(Object.values(ENCOUNTER_TYPES)),
-    startDate: startDate,
+    startDate,
     endDate: current ? undefined : endDate,
     reasonForEncounter: chance.sentence({ words: chance.integer({ min: 4, max: 8 }) }),
-    locationId: await randomReferenceId(models, 'location'),
-    departmentId: await randomReferenceId(models, 'department'),
+    locationId: await randomRecordId(models, 'Location'),
+    departmentId: await randomRecordId(models, 'Department'),
     examinerId: await randomUser(models),
     ...overrides,
   };
 }
 
-export async function createDummyPatient(models, overrides = {}) {
+export function createDummyPatient(models, overrides = {}) {
   const gender = overrides.sex || chance.pick(['male', 'female']);
   const title = overrides.title || chance.pick(['Mr', 'Mrs', 'Ms']);
   return {
@@ -132,6 +120,26 @@ export async function createDummyPatient(models, overrides = {}) {
   };
 }
 
+const randomDigits = length => chance.string({ length, pool: '0123456789' });
+
+function randomPhoneNumber() {
+  return `04${randomDigits(2)} ${randomDigits(3)} ${randomDigits(3)}`;
+}
+
+export function createDummyPatientAdditionalData() {
+  return {
+    placeOfBirth: chance.city(),
+    bloodType: chance.pick(['A+', 'B+', 'A-', 'B-', 'AB+', 'AB-', 'O+', 'O-']),
+    primaryContactNumber: randomPhoneNumber(),
+    secondaryContactNumber: randomPhoneNumber(),
+    maritalStatus: chance.pick(['Single', 'Married', 'Defacto']),
+    cityTown: chance.city(),
+    streetVillage: `${Math.floor(Math.random() * 200)} ${chance.street({ short_suffix: true })}`,
+    drivingLicense: randomDigits(10),
+    passport: randomDigits(10),
+  };
+}
+
 export async function createDummyEncounterDiagnosis(models, overrides = {}) {
   const duration = chance.natural({
     min: HOUR,
@@ -143,6 +151,28 @@ export async function createDummyEncounterDiagnosis(models, overrides = {}) {
     certainty: chance.bool() ? 'suspected' : 'confirmed',
     isPrimary: chance.bool(),
     diagnosisId: await randomReferenceId(models, 'icd10'),
+    ...overrides,
+  };
+}
+
+// Needs a manually created encounter to be linked with
+export async function createDummyEncounterMedication(models, overrides = {}) {
+  return {
+    date: new Date(),
+    endDate: new Date(Date.now() + HOUR),
+    prescription: chance.sentence({ words: chance.integer({ min: 4, max: 8 }) }),
+    note: chance.sentence({ words: chance.integer({ min: 4, max: 8 }) }),
+    indication: chance.sentence({ words: chance.integer({ min: 4, max: 8 }) }),
+    route: chance.word(),
+    qtyMorning: chance.integer({ min: 0, max: 3 }),
+    qtyLunch: chance.integer({ min: 0, max: 3 }),
+    qtyEvening: chance.integer({ min: 0, max: 3 }),
+    qtyNight: chance.integer({ min: 0, max: 3 }),
+    quantity: chance.integer({ min: 0, max: 3 }),
+    repeats: 0,
+    isDischarge: false,
+    prescriberId: await randomUser(models),
+    medicationId: await randomReferenceId(models, 'drug'),
     ...overrides,
   };
 }

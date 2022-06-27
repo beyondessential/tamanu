@@ -2,7 +2,17 @@ import moment from 'moment';
 import { padStart, capitalize } from 'lodash';
 
 import { createValueIndex } from 'shared/utils/valueIndex';
-import { ENCOUNTER_TYPES, IMAGING_REQUEST_STATUS_TYPES, NOTE_TYPES } from 'shared/constants';
+import {
+  ENCOUNTER_TYPES,
+  IMAGING_REQUEST_STATUS_TYPES,
+  NOTE_TYPES,
+  APPOINTMENT_TYPES,
+  APPOINTMENT_STATUSES,
+  REFERRAL_STATUSES,
+  INVOICE_STATUSES,
+  INVOICE_PAYMENT_STATUSES,
+} from 'shared/constants';
+
 import {
   medicationIcon,
   administrationIcon,
@@ -31,6 +41,7 @@ export const Colors = {
   primaryDark: '#2f4358',
   secondary: '#ffcc24',
   alert: '#f76853',
+  orange: '#f17f16',
   safe: '#47ca80',
   darkestText: '#444444',
   darkText: '#666666',
@@ -42,6 +53,7 @@ export const Colors = {
   offWhite: '#fafafa',
   brightBlue: '#67A6E3',
   searchTintColor: '#d2dae3',
+  hoverGrey: '#f3f5f7',
 };
 
 export const MAX_AUTO_COMPLETE_ITEMS = {
@@ -76,12 +88,20 @@ export const LAB_REQUEST_COLORS = {
 export const IMAGING_REQUEST_STATUS_LABELS = {
   [IMAGING_REQUEST_STATUS_TYPES.PENDING]: 'Pending',
   [IMAGING_REQUEST_STATUS_TYPES.COMPLETED]: 'Completed',
+  [IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS]: 'In progress',
 };
 
 export const IMAGING_REQUEST_COLORS = {
-  [IMAGING_REQUEST_STATUS_TYPES.PENDING]: '#aaf',
+  [IMAGING_REQUEST_STATUS_TYPES.PENDING]: '#faa',
   [IMAGING_REQUEST_STATUS_TYPES.COMPLETED]: '#afa',
+  [IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS]: '#aaf',
   unknown: '#333',
+};
+
+export const REFERRAL_STATUS_LABELS = {
+  [REFERRAL_STATUSES.PENDING]: 'Pending',
+  [REFERRAL_STATUSES.CANCELLED]: 'Cancelled',
+  [REFERRAL_STATUSES.COMPLETED]: 'Completed',
 };
 
 export const columnStyle = {
@@ -121,15 +141,6 @@ export const momentSimpleCalender = {
 };
 
 export const timeFormat = 'hh:mm a';
-
-export const pageSizes = {
-  patients: 10,
-  pregnancies: 5,
-  surveyResponses: 5,
-  medicationRequests: 10,
-  appointments: 10,
-  patientLabRequests: 5,
-};
 
 // Generate time picker select options
 export const timeSelectOptions = {
@@ -276,13 +287,6 @@ export const operativePlanStatusList = Object.values(operativePlanStatuses).map(
   label: capitalize(status),
 }));
 
-export const appointmentStatusList = [
-  { value: 'attended', label: 'Attended' },
-  { value: 'scheduled', label: 'Scheduled' },
-  { value: 'canceled', label: 'Canceled' },
-  { value: 'missed', label: 'Missed' },
-];
-
 export const bloodOptions = [
   { value: 'A+', label: 'A+' },
   { value: 'A-', label: 'A-' },
@@ -360,22 +364,65 @@ export const LOCAL_STORAGE_KEYS = {
   HOST: 'host',
   TOKEN: 'apiToken',
   LOCALISATION: 'localisation',
+  SERVER: 'server',
   REMEMBER_EMAIL: 'remember-email',
-};
-
-export const VACCINE_STATUS = {
-  UNKNOWN: 'UNKNOWN',
-  GIVEN: 'GIVEN',
-  NOT_GIVEN: 'NOT_GIVEN',
-  SCHEDULED: 'SCHEDULED',
-  MISSED: 'MISSED',
-  DUE: 'DUE',
-  UPCOMING: 'UPCOMING',
-  OVERDUE: 'OVERDUE',
-  RECORDED_IN_ERROR: 'RECORDED_IN_ERROR',
 };
 
 export const REPORT_DATA_SOURCES = {
   THIS_FACILITY: 'thisFacility',
   ALL_FACILITIES: 'allFacilities',
 };
+
+export const CLINICAL_STATUSES = {
+  CRITICAL: 'Critical',
+  NEEDS_REVIEW: 'Needs review',
+  LOW_RISK: 'Low risk',
+};
+
+export const CLINICAL_COLORS_BY_STATUS = {
+  [CLINICAL_STATUSES.CRITICAL]: Colors.alert,
+  [CLINICAL_STATUSES.NEEDS_REVIEW]: Colors.secondary,
+  [CLINICAL_STATUSES.LOW_RISK]: Colors.safe,
+};
+
+export const appointmentTypeOptions = Object.values(APPOINTMENT_TYPES).map(type => ({
+  label: type,
+  value: type,
+}));
+
+export const appointmentStatusOptions = Object.values(APPOINTMENT_STATUSES).map(status => ({
+  label: status,
+  value: status,
+}));
+
+export const ALPHABET_FOR_ID =
+  // this is absolutely fine and the concat isn't useless
+  // eslint-disable-next-line no-useless-concat
+  'ABCDEFGH' + /* I */ 'JK' + /* L */ 'MN' + /* O */ 'PQRSTUVWXYZ' + /* 01 */ '23456789';
+export const INVOICE_STATUS_OPTIONS = [
+  { label: 'Cancelled', value: INVOICE_STATUSES.CANCELLED },
+  { label: 'In progress', value: INVOICE_STATUSES.IN_PROGRESS },
+  { label: 'Finalised', value: INVOICE_STATUSES.FINALISED },
+];
+
+export const INVOICE_STATUS_LABELS = {
+  [INVOICE_STATUSES.CANCELLED]: 'Cancelled',
+  [INVOICE_STATUSES.IN_PROGRESS]: 'In progress',
+  [INVOICE_STATUSES.FINALISED]: 'Finalised',
+};
+
+export const INVOICE_STATUS_COLORS = {
+  [INVOICE_STATUSES.CANCELLED]: '#FFCC24',
+  [INVOICE_STATUSES.IN_PROGRESS]: '#F76853',
+  [INVOICE_STATUSES.FINALISED]: '#47CA80',
+};
+
+export const INVOICE_PAYMENT_STATUS_LABELS = {
+  [INVOICE_PAYMENT_STATUSES.UNPAID]: 'Unpaid',
+  [INVOICE_PAYMENT_STATUSES.PAID]: 'Paid',
+};
+
+export const INVOICE_PAYMENT_STATUS_OPTIONS = [
+  { label: 'Unpaid', value: INVOICE_PAYMENT_STATUSES.UNPAID },
+  { label: 'Paid', value: INVOICE_PAYMENT_STATUSES.PAID },
+];

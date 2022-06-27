@@ -1,5 +1,4 @@
 module.exports = ({ Sequelize }) => ({
-
   name: 'User',
 
   fields: {

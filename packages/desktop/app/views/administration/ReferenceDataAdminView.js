@@ -1,20 +1,21 @@
-import React, { memo, useState, useCallback } from 'react';
+import React, { memo, useCallback } from 'react';
 import styled from 'styled-components';
 
 import { useApi } from '../../api';
 import { CheckArrayInput } from '../../components/Field/CheckArrayInput';
 import { DataDocumentUploadForm } from './DataDocumentUploadForm';
 
+import { Field } from '../../components/Field';
+
 const Container = styled.div`
   padding: 32px;
 `;
 
-import { Field } from '../../components/Field';
-
 export const ReferenceDataAdminView = memo(() => {
   const api = useApi();
   const onSubmit = useCallback(
-    ({ file, ...data }) => api.postWithFileUpload('admin/importData', file, data)
+    ({ file, ...data }) => api.postWithFileUpload('admin/importData', file, data),
+    [api],
   );
 
   const whitelist = (
@@ -49,10 +50,16 @@ export const ReferenceDataAdminView = memo(() => {
         { value: 'labTestPriorities', label: 'labTestPriority' },
         { value: 'labTestLaboratory', label: 'labTestLaboratory' },
         { value: 'labTestMethods', label: 'labTestMethod' },
+        { value: 'additionalInvoiceLines', label: 'additionalInvoiceLine' },
+        { value: 'manufacturers', label: 'manufacturer' },
         { value: 'users', label: 'user' },
         { value: 'patients', label: 'patient' },
         { value: 'labTestTypes', label: 'labTestType' },
+        { value: 'certifiableVaccines', label: 'certifiableVaccine' },
         { value: 'vaccineSchedules', label: 'scheduledVaccine' },
+        { value: 'invoiceLineTypes', label: 'invoiceLineType' },
+        { value: 'invoicePriceChangeTypes', label: 'invoicePriceChangeType' },
+        { value: 'administeredVaccines', label: 'administeredVaccine' },
       ]}
     />
   );
@@ -60,10 +67,7 @@ export const ReferenceDataAdminView = memo(() => {
   return (
     <Container>
       <h1>Data admin</h1>
-      <DataDocumentUploadForm
-        onSubmit={onSubmit}
-        additionalFields={whitelist}
-      />
+      <DataDocumentUploadForm onSubmit={onSubmit} additionalFields={whitelist} />
     </Container>
   );
 });

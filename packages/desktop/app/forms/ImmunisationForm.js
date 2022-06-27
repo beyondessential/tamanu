@@ -1,12 +1,14 @@
-import React, { useCallback, useState } from 'react';
+import React, { useMemo, useCallback, useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
+import * as yup from 'yup';
 
-import { INJECTION_SITE_OPTIONS } from 'shared/constants'
+import { INJECTION_SITE_OPTIONS } from 'shared/constants';
 import { OuterLabelFieldWrapper } from '../components/Field/OuterLabelFieldWrapper';
 import { ConfirmCancelRow } from '../components/ButtonRow';
-import { FormGrid } from '../components/FormGrid';
+import { getCurrentUser } from '../store/auth';
 import {
   Form,
   Field,
@@ -15,14 +17,26 @@ import {
   DateField,
   RadioField,
   SelectField,
+  CheckField,
 } from '../components/Field';
 import { Colors } from '../constants';
 
 const VaccineScheduleOptions = [
   { value: 'Routine', label: 'Routine' },
-  { value: 'Catchup', label: 'Catch-Up' },
+  { value: 'Catchup', label: 'Catch-up' },
   { value: 'Campaign', label: 'Campaign' },
 ];
+
+const ThreeTwoGrid = styled.div`
+  display: grid;
+
+  margin-top: 0.3rem;
+  grid-column-gap: 0.7rem;
+  grid-row-gap: 1.2rem;
+
+  grid-template-columns: 3fr 2fr;
+  align-items: start;
+`;
 
 const ControlLabel = styled(FormControlLabel)`
   margin: 0;
@@ -60,11 +74,23 @@ const AdministeredCheckbox = styled(Checkbox)`
   }
 `;
 
-function AdministeredVaccineSchedule(props) {
-  return (
-    <ControlLabel control={<AdministeredCheckbox checked disabled />} label={props.option.label} />
-  );
-}
+const FullWidthCol = styled.div`
+  grid-column: 1/-1;
+`;
+
+const AdministeredVaccineSchedule = ({ option }) => (
+  <ControlLabel control={<AdministeredCheckbox checked disabled />} label={option.label} />
+);
+
+const findVaccinesByAdministeredStatus = (vaccine, administered) =>
+  vaccine
+    ? vaccine.schedules
+        .filter(s => s.administered === administered)
+        .map(s => ({
+          value: s.scheduledVaccineId,
+          label: s.schedule,
+        }))
+    : [];
 
 export const ImmunisationForm = React.memo(
   ({
@@ -78,107 +104,122 @@ export const ImmunisationForm = React.memo(
     const [vaccineOptions, setVaccineOptions] = useState([]);
     const [category, setCategory] = useState();
     const [vaccineLabel, setVaccineLabel] = useState();
-    const [administeredOptions, setAdministeredOptions] = useState([]);
-    const [scheduleOptions, setScheduleOptions] = useState([]);
-    const scheduledVaccinesToOptions = useCallback(
-      async scheduledCategory => {
-        try {
-          setAdministeredOptions([]);
-          setScheduleOptions([]);
-          const availableScheduledVaccines = await getScheduledVaccines({ category });
-          setVaccineOptions(
-            availableScheduledVaccines.map(vaccine => ({
-              label: vaccine.label,
-              value: vaccine.label,
-              schedules: vaccine.schedules,
-            })),
-          );
-        } catch (e) {
-          setVaccineOptions([]);
-        }
-      },
-      [setVaccineOptions, setScheduleOptions, setAdministeredOptions],
+
+    const selectedVaccine = useMemo(() => vaccineOptions.find(v => v.label === vaccineLabel), [
+      vaccineLabel,
+      vaccineOptions,
+    ]);
+
+    const administeredOptions = useMemo(
+      () => findVaccinesByAdministeredStatus(selectedVaccine, true),
+      [selectedVaccine],
     );
+    const scheduleOptions = useMemo(
+      () => findVaccinesByAdministeredStatus(selectedVaccine, false),
+      [selectedVaccine],
+    );
+
+    const currentUser = useSelector(getCurrentUser);
+
+    const onSubmitWithRecorder = useCallback(
+      data =>
+        onSubmit({
+          ...data,
+          recorderId: currentUser.id,
+        }),
+      [onSubmit, currentUser],
+    );
+
+    useEffect(() => {
+      const fetchScheduledVaccines = async () => {
+        if (!category) {
+          setVaccineOptions([]);
+          return;
+        }
+        const availableScheduledVaccines = await getScheduledVaccines({ category });
+        setVaccineOptions(
+          availableScheduledVaccines.map(vaccine => ({
+            label: vaccine.label,
+            value: vaccine.label,
+            schedules: vaccine.schedules,
+          })),
+        );
+      };
+
+      // eslint-disable-next-line no-console
+      fetchScheduledVaccines().catch(err => console.error(err));
+    }, [category, getScheduledVaccines]);
+
     return (
       <Form
-        onSubmit={onSubmit}
+        onSubmit={onSubmitWithRecorder}
         initialValues={{
           date: new Date(),
         }}
+        validationSchema={yup.object().shape({
+          consent: yup
+            .boolean()
+            .oneOf([true])
+            .required(),
+        })}
         render={({ submitForm }) => (
-          <FormGrid>
-            <Field
-              name="category"
-              label="Category"
-              value={category}
-              component={RadioField}
-              style={{ gridColumn: '1/-1' }}
-              options={VaccineScheduleOptions}
-              onChange={e => {
-                setCategory(e.target.value);
-                scheduledVaccinesToOptions(e.target.value);
-              }}
-              required
-            />
-            <div style={{ gridColumn: '1/-1' }}>
+          <ThreeTwoGrid>
+            <FullWidthCol>
+              <OuterLabelFieldWrapper label="Consent" style={{ marginBottom: '5px' }} required />
               <Field
-                name="vaccineLabel"
-                label="Vaccine"
-                value={vaccineLabel}
-                component={SelectField}
-                options={vaccineOptions}
+                name="consent"
+                label="Do you have consent from the recipient/parent/guardian to give this vaccine and record in Tamanu?"
+                component={CheckField}
+                required
+              />
+            </FullWidthCol>
+            <FullWidthCol>
+              <Field
+                name="category"
+                label="Category"
+                value={category}
+                component={RadioField}
+                options={VaccineScheduleOptions}
                 onChange={e => {
-                  const label = e.target.value;
-                  setVaccineLabel(label);
-                  const vaccine = vaccineOptions.find(v => v.label === label);
-                  if (vaccine) {
-                    setAdministeredOptions(
-                      vaccine.schedules
-                        .filter(s => s.administered)
-                        .map(s => ({
-                          value: s.scheduledVaccineId,
-                          label: s.schedule,
-                        })),
-                    );
-                    setScheduleOptions(
-                      vaccine.schedules
-                        .filter(s => !s.administered)
-                        .map(s => ({
-                          value: s.scheduledVaccineId,
-                          label: s.schedule,
-                        })),
-                    );
-                  }
+                  setCategory(e.target.value);
+                  setVaccineLabel(null);
                 }}
                 required
               />
-            </div>
-
-            <div>
-              <OuterLabelFieldWrapper label="Administered Schedule" />
-              {administeredOptions.map(option => (
-                <AdministeredVaccineSchedule option={option} />
-              ))}
-            </div>
-
-            <div style={{ gridColumn: '1/-1' }}>
-              <Field
-                name="scheduledVaccineId"
-                label="Available Schedule"
-                inline
-                component={RadioField}
-                options={scheduleOptions}
-                required
-              />
-            </div>
-            <Field name="date" label="Date" component={DateField} required />
+            </FullWidthCol>
             <Field
-              name="examinerId"
-              label="Given by"
-              component={AutocompleteField}
-              suggester={practitionerSuggester}
+              name="vaccineLabel"
+              label="Vaccine"
+              value={vaccineLabel}
+              component={SelectField}
+              options={vaccineOptions}
+              onChange={e => setVaccineLabel(e.target.value)}
               required
             />
+            <Field name="batch" label="Batch" component={TextField} />
+            <FullWidthCol>
+              {administeredOptions.length > 0 && (
+                <div>
+                  <OuterLabelFieldWrapper label="Administered schedule" />
+                  {administeredOptions.map(option => (
+                    <AdministeredVaccineSchedule option={option} />
+                  ))}
+                </div>
+              )}
+              {scheduleOptions.length > 0 && (
+                <Field
+                  name="scheduledVaccineId"
+                  label="Available schedule"
+                  inline
+                  component={RadioField}
+                  options={scheduleOptions}
+                  required
+                />
+              )}
+            </FullWidthCol>
+
+            <Field name="date" label="Date" component={DateField} required />
+            <Field name="givenBy" label="Given by" component={TextField} />
             <Field
               name="locationId"
               label="Location"
@@ -188,9 +229,12 @@ export const ImmunisationForm = React.memo(
             />
             <Field
               name="injectionSite"
-              label="Injection Site"
+              label="Injection site"
               component={SelectField}
-              options={Object.values(INJECTION_SITE_OPTIONS).map(site => ({ label: site, value: site }))}
+              options={Object.values(INJECTION_SITE_OPTIONS).map(site => ({
+                label: site,
+                value: site,
+              }))}
             />
             <Field
               name="departmentId"
@@ -199,13 +243,25 @@ export const ImmunisationForm = React.memo(
               component={AutocompleteField}
               suggester={departmentSuggester}
             />
-            <Field name="batch" label="Batch" component={TextField} />
+            <Field
+              disabled
+              name="recorderId"
+              label="Recorded By"
+              component={SelectField}
+              options={[
+                {
+                  label: currentUser.displayName,
+                  value: currentUser.id,
+                },
+              ]}
+              value={currentUser.id}
+            />
             <ConfirmCancelRow
               onConfirm={submitForm}
               confirmDisabled={scheduleOptions.length === 0}
               onCancel={onCancel}
             />
-          </FormGrid>
+          </ThreeTwoGrid>
         )}
       />
     );

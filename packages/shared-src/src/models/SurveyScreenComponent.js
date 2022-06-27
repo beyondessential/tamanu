@@ -1,6 +1,7 @@
 import { Sequelize, Op } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { parseOrNull } from 'shared/utils/parse-or-null';
+import { log } from 'shared/services/logging';
 import { Model } from './Model';
 
 export class SurveyScreenComponent extends Model {
@@ -54,6 +55,18 @@ export class SurveyScreenComponent extends Model {
     return this.getComponentsForSurveys([surveyId]);
   }
 
+  static getAnswerComponentsForSurveys(surveyId) {
+    return this.findAll({
+      where: {
+        surveyId,
+        '$dataElement.type$': {
+          [Op.not]: 'Instruction',
+        },
+      },
+      include: this.getListReferenceAssociations(),
+    }).map(c => c.forResponse());
+  }
+
   getOptions() {
     try {
       const optionString = this.options || this.dataElement?.defaultOptions || '';
@@ -63,7 +76,7 @@ export class SurveyScreenComponent extends Model {
       const optionArray = JSON.parse(optionString);
       return Object.entries(optionArray).map(([label, value]) => ({ label, value }));
     } catch (e) {
-      console.error(e);
+      log.error(e);
       return [];
     }
   }

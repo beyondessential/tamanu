@@ -1,20 +1,19 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { QueryTypes, Op } from 'sequelize';
-import { ENCOUNTER_TYPES } from 'shared/constants';
-import { WebRemote } from '~/sync';
+import { QueryTypes } from 'sequelize';
+import { WebRemote } from '../../../sync';
 
 export const patientProfilePicture = express.Router();
 
 patientProfilePicture.get(
   '/:id/profilePicture',
   asyncHandler(async (req, res) => {
-    const { models, params } = req;
+    const { params } = req;
 
     // what we want is:
     // - the answer body
     // - of a programdataelement with code 'ProfilePhoto'
-    // - on a surveyresponse 
+    // - on a surveyresponse
     // - attached to an encounter
     // - with this patient
     const photoCode = 'ProfilePhoto';
@@ -50,7 +49,7 @@ patientProfilePicture.get(
     }
 
     // the body of a ProfilePhoto survey answer is an attachment id
-    let attachmentId = result[0].body;
+    const attachmentId = result[0].body;
 
     // load the attachment from the remote
     const remote = new WebRemote();

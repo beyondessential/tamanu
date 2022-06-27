@@ -11,9 +11,10 @@ describe('Imaging requests', () => {
   let app = null;
   let baseApp = null;
   let models = null;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
@@ -23,6 +24,7 @@ describe('Imaging requests', () => {
       patientId: patient.id,
     });
   });
+  afterAll(() => ctx.close());
 
   it('should record an imaging request', async () => {
     const result = await app.post('/v1/imagingRequest').send({

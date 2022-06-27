@@ -3,6 +3,7 @@ import asyncHandler from 'express-async-handler';
 import { REPORT_REQUEST_STATUSES } from 'shared/constants';
 import { getReportModule } from 'shared/reports';
 import { assertReportEnabled } from '../../utils/assertReportEnabled';
+
 export const reportRequest = express.Router();
 
 reportRequest.post(
@@ -33,7 +34,9 @@ reportRequest.post(
 
     const newReportRequest = {
       reportType: body.reportType,
-      recipients: body.emailList.join(','),
+      recipients: JSON.stringify({
+        email: body.emailList,
+      }),
       status: REPORT_REQUEST_STATUSES.RECEIVED,
       requestedByUserId: user.id,
       parameters: JSON.stringify(body.parameters),

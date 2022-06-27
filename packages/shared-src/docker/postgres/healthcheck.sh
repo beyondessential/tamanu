@@ -1,7 +1,6 @@
 #!/bin/bash
-set -euo pipefail
+set -euxo pipefail
 
-for n in tamanu-lan tamanu-sync; do
-    psql "$n" -c '' || exit 1
+for db in tamanu-lan tamanu-sync; do
+    psql "$db" -U postgres -c 'SELECT 1;'
 done
-exit 0

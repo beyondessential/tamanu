@@ -41,9 +41,12 @@ export class RequestQueue {
   // `release` function, otherwise the queue will be blocked!
   async acquire() {
     const logEvent = eventName => {
-      log.debug(
-        `RequestQueue.acquire(): ${eventName}: queue=${this.queueName} queued=${this.queuedRequests.length}/${this.maxQueuedRequests} active=${this.activeRequestCount}/${this.maxActiveRequests} timeout=${this.queueTimeout}ms`,
-      );
+      log.debug(`RequestQueue.acquire(): ${eventName}`, {
+        queue: this.queueName,
+        queued: `${this.queuedRequests.length}/${this.maxQueuedRequests}`,
+        active: `${this.activeRequestCount}/${this.maxActiveRequests}`,
+        timeout: `${this.queueTimeout}ms`,
+      });
     };
 
     // attempt to queue requests once active request pool is full

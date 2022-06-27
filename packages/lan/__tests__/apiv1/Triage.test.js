@@ -2,8 +2,9 @@ import {
   createDummyPatient,
   createDummyEncounter,
   createDummyTriage,
+  randomRecordId,
   randomReferenceId,
-} from 'shared/demoData/patients';
+} from 'shared/demoData';
 import { ENCOUNTER_TYPES } from 'shared/constants';
 import { createTestContext } from '../utilities';
 
@@ -11,20 +12,22 @@ describe('Triage', () => {
   let app = null;
   let baseApp = null;
   let models = null;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
   });
+  afterAll(() => ctx.close());
 
   it('should admit a patient to triage', async () => {
     const encounterPatient = await models.Patient.create(await createDummyPatient(models));
     const response = await app.post('/v1/triage').send(
       await createDummyTriage(models, {
         patientId: encounterPatient.id,
-        departmentId: await randomReferenceId(models, 'department'),
+        departmentId: await randomRecordId(models, 'Department'),
       }),
     );
     expect(response).toHaveSucceeded();
@@ -49,7 +52,7 @@ describe('Triage', () => {
     const response = await app.post('/v1/triage').send(
       await createDummyTriage(models, {
         patientId: encounterPatient.id,
-        departmentId: await randomReferenceId(models, 'department'),
+        departmentId: await randomRecordId(models, 'Department'),
       }),
     );
     expect(response).toHaveRequestError();
@@ -69,7 +72,7 @@ describe('Triage', () => {
     const response = await app.post('/v1/triage').send(
       await createDummyTriage(models, {
         patientId: encounterPatient.id,
-        departmentId: await randomReferenceId(models, 'department'),
+        departmentId: await randomRecordId(models, 'Department'),
       }),
     );
     expect(response).toHaveSucceeded();
@@ -80,7 +83,7 @@ describe('Triage', () => {
     const createdTriage = await models.Triage.create(
       await createDummyTriage(models, {
         patientId: encounterPatient.id,
-        departmentId: await randomReferenceId(models, 'department'),
+        departmentId: await randomRecordId(models, 'Department'),
       }),
     );
     const createdEncounter = await models.Encounter.findByPk(createdTriage.encounterId);
@@ -99,7 +102,7 @@ describe('Triage', () => {
     const createdTriage = await models.Triage.create(
       await createDummyTriage(models, {
         patientId: encounterPatient.id,
-        departmentId: await randomReferenceId(models, 'department'),
+        departmentId: await randomRecordId(models, 'Department'),
       }),
     );
     const createdEncounter = await models.Encounter.findByPk(createdTriage.encounterId);
@@ -120,7 +123,7 @@ describe('Triage', () => {
         patientId: encounterPatient.id,
         chiefComplaintId: await randomReferenceId(models, 'triageReason'),
         secondaryComplaintId: null,
-        departmentId: await randomReferenceId(models, 'department'),
+        departmentId: await randomRecordId(models, 'Department'),
       }),
     );
     const reason = await models.ReferenceData.findByPk(createdTriage.chiefComplaintId);
@@ -136,7 +139,7 @@ describe('Triage', () => {
         patientId: encounterPatient.id,
         chiefComplaintId: await randomReferenceId(models, 'triageReason'),
         secondaryComplaintId: await randomReferenceId(models, 'triageReason'),
-        departmentId: await randomReferenceId(models, 'department'),
+        departmentId: await randomRecordId(models, 'Department'),
       }),
     );
     const chiefReason = await models.ReferenceData.findByPk(createdTriage.chiefComplaintId);

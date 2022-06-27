@@ -1,3 +1,5 @@
+/* eslint-disable no-param-reassign */
+
 import { Op } from 'sequelize';
 import { differenceInYears, subDays } from 'date-fns';
 import { generateReportFromQueryData } from './utilities';
@@ -10,9 +12,7 @@ const reportColumnTemplate = [
   { title: 'National Health Number', accessor: data => data.Encounter.patient.displayId },
   {
     title: 'Age',
-    accessor: data => {
-      return differenceInYears(new Date(), data.Encounter.patient.dateOfBirth);
-    },
+    accessor: data => differenceInYears(new Date(), data.Encounter.patient.dateOfBirth),
   },
   { title: 'Sex', accessor: data => data.Encounter.patient.sex },
   {
@@ -30,9 +30,9 @@ const reportColumnTemplate = [
 ];
 
 function parametersToSqlWhere(parameters) {
-  if (!parameters.fromDate) {
-    parameters.fromDate = subDays(new Date(), 30).toISOString();
-  }
+  // eslint-disable-next-line no-param-reassign
+  parameters.fromDate = parameters.fromDate || subDays(new Date(), 30).toISOString();
+
   const whereClause = Object.entries(parameters)
     .filter(([, val]) => val)
     .reduce(
@@ -81,7 +81,7 @@ async function queryDiagnosesData(models, parameters) {
             include: [{ model: models.ReferenceData, as: 'village' }],
           },
           { model: models.User, as: 'examiner' },
-          { model: models.ReferenceData, as: 'department' },
+          { model: models.Department, as: 'department' },
         ],
       },
       { model: models.ReferenceData, as: 'Diagnosis' },
@@ -91,7 +91,7 @@ async function queryDiagnosesData(models, parameters) {
   return result;
 }
 
-export async function dataGenerator(models, parameters) {
+export async function dataGenerator({ models }, parameters) {
   const queryResults = await queryDiagnosesData(models, parameters);
   return generateReportFromQueryData(queryResults, reportColumnTemplate);
 }

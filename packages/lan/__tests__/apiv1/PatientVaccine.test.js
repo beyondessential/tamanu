@@ -12,16 +12,17 @@ describe('PatientVaccine', () => {
   let scheduled1 = null;
   let scheduled2 = null;
   let scheduled3 = null;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
     patient = await models.Patient.create(await createDummyPatient(models));
     patient2 = await models.Patient.create(await createDummyPatient(models));
-    await models.ScheduledVaccine.truncate();
-    await models.AdministeredVaccine.truncate();
+    await models.ScheduledVaccine.truncate({ cascade: true });
+    await models.AdministeredVaccine.truncate({ cascade: true });
 
     // create 3 scheduled vaccines, 2 routine and 1 campaign
     scheduled1 = await models.ScheduledVaccine.create(
@@ -53,6 +54,7 @@ describe('PatientVaccine', () => {
       }),
     );
   });
+  afterAll(() => ctx.close());
 
   it('should reject with insufficient permissions', async () => {
     const noPermsApp = await baseApp.asRole('base');

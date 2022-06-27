@@ -3,8 +3,8 @@ module.exports = ({ Sequelize, foreignKey }) => ({
     reportType: { type: Sequelize.STRING, allowNull: false },
     recipients: { type: Sequelize.TEXT, allowNull: false },
     parameters: Sequelize.TEXT,
-    status: { 
-      type: Sequelize.ENUM(['Received', 'Processed']), 
+    status: {
+      type: Sequelize.ENUM(['Received', 'Processed']),
       defaultValue: 'Processed',
       allowNull: false,
     },

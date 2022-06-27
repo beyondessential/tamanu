@@ -17,3 +17,8 @@ export const makeSimpleTextFilterFactory = params => (paramKey, sqlField) => {
     }),
   };
 };
+
+// Escape wildcard characters _, % and backslash in pattern match
+export const escapePatternWildcard = value => {
+  return value.replace(/[_%\\]/g, '\\$1');
+};

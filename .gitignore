@@ -17,17 +17,19 @@ package-lock.json
 *.log
 *.gz
 
-# Coveralls
-coverage
-
-# Benchmarking
-benchmarks/graphs
-
 # Build targets
 release
 dev
 deploy
 build
+
+# Test artefacts
+test.*.hl7.json
+benchmarks/graphs
+coverage
+lint-summary.json
+coverage.md
+lints.md
 
 # Local config files
 **/config/local.*
@@ -40,8 +42,16 @@ build
 .tmp
 .keys
 .tmp
+*.csca
 
-.idea
+# Docker
 /dockercfg
-
 /docker-volumes/
+
+# IDEs
+.idea
+
+# Output
+/packages/sync-server/tamanu-reports/
+
+packages/shared

@@ -21,12 +21,8 @@ import { noteTypes } from '../constants';
 const selectableNoteTypes = noteTypes.filter(x => !x.hideFromDropdown);
 
 export class NoteForm extends React.PureComponent {
-  static propTypes = {
-    onSubmit: PropTypes.func.isRequired,
-  };
-
   renderForm = ({ submitForm }) => {
-    const { practitionerSuggester, onCancel } = this.props;
+    const { practitionerSuggester, onCancel, isReadOnly = false } = this.props;
     return (
       <FormGrid columns={1}>
         <Field
@@ -35,6 +31,7 @@ export class NoteForm extends React.PureComponent {
           required
           component={SelectField}
           options={selectableNoteTypes}
+          disabled={isReadOnly}
         />
         <Field
           name="authorId"
@@ -42,11 +39,22 @@ export class NoteForm extends React.PureComponent {
           required
           component={AutocompleteField}
           suggester={practitionerSuggester}
+          disabled={isReadOnly}
         />
-        <Field name="priority" label="Priority" component={CheckField} />
-        <Field name="content" label="Note" required component={TextField} multiline rows={6} />
-        <Field name="date" label="Date & time" component={DateTimeField} />
-        <ConfirmCancelRow onConfirm={submitForm} confirmText="Save" onCancel={onCancel} />
+        <Field name="priority" label="Priority" component={CheckField} disabled={isReadOnly} />
+        <Field
+          name="content"
+          label="Note"
+          required
+          component={TextField}
+          multiline
+          rows={6}
+          disabled={isReadOnly}
+        />
+        <Field name="date" label="Date & time" component={DateTimeField} disabled={isReadOnly} />
+        {!isReadOnly && (
+          <ConfirmCancelRow onConfirm={submitForm} confirmText="Save" onCancel={onCancel} />
+        )}
       </FormGrid>
     );
   };
@@ -68,3 +76,7 @@ export class NoteForm extends React.PureComponent {
     );
   }
 }
+
+NoteForm.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+};

@@ -30,7 +30,7 @@ export class ParamConfig {
   }
 
   validate(record, paramsObject) {
-    const name = this.name;
+    const { name } = this;
     const value = paramsObject[name];
     if (!value) {
       if (this.isRequired === true) {

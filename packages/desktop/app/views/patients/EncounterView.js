@@ -1,10 +1,7 @@
-import React from 'react';
-import { connect } from 'react-redux';
+import React, { useState } from 'react';
+import { connect, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 import styled from 'styled-components';
-import CalendarIcon from '@material-ui/icons/CalendarToday';
-import SubjectIcon from '@material-ui/icons/Subject';
-
 import { ENCOUNTER_TYPES } from 'shared/constants';
 import { Button, BackButton } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
@@ -15,7 +12,7 @@ import { ChangeEncounterTypeModal } from '../../components/ChangeEncounterTypeMo
 import { ChangeDepartmentModal } from '../../components/ChangeDepartmentModal';
 import { LabRequestModal } from '../../components/LabRequestModal';
 import { LabRequestsTable } from '../../components/LabRequestsTable';
-import { DataFetchingSurveyResponsesTable } from '../../components/SurveyResponsesTable';
+import { DataFetchingProgramsTable } from '../../components/ProgramResponsesTable';
 import { ImagingRequestModal } from '../../components/ImagingRequestModal';
 import { ImagingRequestsTable } from '../../components/ImagingRequestsTable';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -31,23 +28,33 @@ import { VitalsTable } from '../../components/VitalsTable';
 import { connectRoutedModal } from '../../components/Modal';
 import { NoteModal } from '../../components/NoteModal';
 import { NoteTable } from '../../components/NoteTable';
-import { TopBar, DateDisplay } from '../../components';
-
+import { TopBar, SuggesterSelectField } from '../../components';
+import { DocumentsPane, InvoicingPane } from './panes';
 import { DropdownButton } from '../../components/DropdownButton';
-
 import { FormGrid } from '../../components/FormGrid';
 import { SelectInput, DateInput, TextInput } from '../../components/Field';
-import { encounterOptions, ENCOUNTER_OPTIONS_BY_VALUE, Colors } from '../../constants';
+import { encounterOptions, ENCOUNTER_OPTIONS_BY_VALUE } from '../../constants';
 import { useEncounter } from '../../contexts/Encounter';
+import { useLocalisation } from '../../contexts/Localisation';
+import { useAuth } from '../../contexts/Auth';
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
 const VitalsPane = React.memo(({ encounter, readonly }) => {
-  const [modalOpen, setModalOpen] = React.useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const { loadEncounter } = useEncounter();
 
   return (
     <div>
-      {modalOpen && <VitalsModal encounterId={encounter.id} onClose={() => setModalOpen(false)} />}
+      <VitalsModal
+        open={modalOpen}
+        encounterId={encounter.id}
+        onClose={() => setModalOpen(false)}
+        onSaved={async () => {
+          setModalOpen(false);
+          await loadEncounter(encounter.id);
+        }}
+      />
       <VitalsTable />
       <ContentPane>
         <Button
@@ -64,11 +71,20 @@ const VitalsPane = React.memo(({ encounter, readonly }) => {
 });
 
 const NotesPane = React.memo(({ encounter, readonly }) => {
-  const [modalOpen, setModalOpen] = React.useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const { loadEncounter } = useEncounter();
 
   return (
     <div>
-      <NoteModal open={modalOpen} encounterId={encounter.id} onClose={() => setModalOpen(false)} />
+      <NoteModal
+        open={modalOpen}
+        encounterId={encounter.id}
+        onClose={() => setModalOpen(false)}
+        onSaved={async () => {
+          setModalOpen(false);
+          await loadEncounter(encounter.id);
+        }}
+      />
       <NoteTable encounterId={encounter.id} />
       <ContentPane>
         <Button
@@ -84,8 +100,38 @@ const NotesPane = React.memo(({ encounter, readonly }) => {
   );
 });
 
+const ProcedurePane = React.memo(({ encounter, readonly }) => {
+  const [editedProcedure, setEditedProcedure] = useState(null);
+  const { loadEncounter } = useEncounter();
+
+  return (
+    <div>
+      <ProcedureModal
+        editedProcedure={editedProcedure}
+        encounterId={encounter.id}
+        onClose={() => setEditedProcedure(null)}
+        onSaved={async () => {
+          setEditedProcedure(null);
+          await loadEncounter(encounter.id);
+        }}
+      />
+      <ProcedureTable encounterId={encounter.id} onItemClick={item => setEditedProcedure(item)} />
+      <ContentPane>
+        <Button
+          onClick={() => setEditedProcedure({})}
+          variant="contained"
+          color="primary"
+          disabled={readonly}
+        >
+          New procedure
+        </Button>
+      </ContentPane>
+    </div>
+  );
+});
+
 const LabsPane = React.memo(({ encounter, readonly }) => {
-  const [modalOpen, setModalOpen] = React.useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
 
   return (
     <div>
@@ -106,7 +152,7 @@ const LabsPane = React.memo(({ encounter, readonly }) => {
 });
 
 const ImagingPane = React.memo(({ encounter, readonly }) => {
-  const [modalOpen, setModalOpen] = React.useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
 
   return (
     <div>
@@ -131,7 +177,8 @@ const ImagingPane = React.memo(({ encounter, readonly }) => {
 });
 
 const MedicationPane = React.memo(({ encounter, readonly }) => {
-  const [modalOpen, setModalOpen] = React.useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const { loadEncounter } = useEncounter();
 
   return (
     <div>
@@ -139,6 +186,10 @@ const MedicationPane = React.memo(({ encounter, readonly }) => {
         open={modalOpen}
         encounterId={encounter.id}
         onClose={() => setModalOpen(false)}
+        onSaved={async () => {
+          setModalOpen(false);
+          await loadEncounter(encounter.id);
+        }}
       />
       <EncounterMedicationTable encounterId={encounter.id} />
       <ContentPane>
@@ -155,37 +206,12 @@ const MedicationPane = React.memo(({ encounter, readonly }) => {
   );
 });
 
-const ProcedurePane = React.memo(({ encounter, readonly }) => {
-  const [editedProcedure, setEditedProcedure] = React.useState(null);
-
-  return (
-    <div>
-      <ProcedureModal
-        editedProcedure={editedProcedure}
-        encounterId={encounter.id}
-        onClose={() => setEditedProcedure(null)}
-      />
-      <ProcedureTable encounterId={encounter.id} onItemClick={item => setEditedProcedure(item)} />
-      <ContentPane>
-        <Button
-          onClick={() => setEditedProcedure({})}
-          variant="contained"
-          color="primary"
-          disabled={readonly}
-        >
-          New procedure
-        </Button>
-      </ContentPane>
-    </div>
-  );
-});
-
 const ProgramsPane = connect(null, dispatch => ({
   onNavigateToPrograms: () => dispatch(push('/programs')),
 }))(
   React.memo(({ onNavigateToPrograms, encounter }) => (
     <div>
-      <DataFetchingSurveyResponsesTable encounterId={encounter.id} />
+      <DataFetchingProgramsTable encounterId={encounter.id} />
       <ContentPane>
         <Button onClick={onNavigateToPrograms} variant="contained" color="primary">
           New survey
@@ -234,6 +260,13 @@ const TABS = [
   {
     label: 'Documents',
     key: 'documents',
+    render: props => <DocumentsPane {...props} />,
+  },
+  {
+    label: 'Invoicing',
+    key: 'invoicing',
+    render: props => <InvoicingPane {...props} />,
+    condition: getLocalisation => getLocalisation('features.enableInvoicing'),
   },
 ];
 
@@ -241,36 +274,40 @@ const getDepartmentName = ({ department }) => (department ? department.name : 'U
 const getLocationName = ({ location }) => (location ? location.name : 'Unknown');
 const getExaminerName = ({ examiner }) => (examiner ? examiner.displayName : 'Unknown');
 
-const EncounterInfoPane = React.memo(({ disabled, encounter }) => {
-  return (
-    <FormGrid columns={3}>
-      <DateInput disabled={disabled} value={encounter.startDate} label="Arrival date" />
-      <DateInput disabled={disabled} value={encounter.endDate} label="Discharge date" />
-      <TextInput disabled={disabled} value={getDepartmentName(encounter)} label="Department" />
-      <TextInput disabled={disabled} value={getLocationName(encounter)} label="Location" />
-      <SelectInput
-        disabled={disabled}
-        value={encounter.encounterType}
-        label="Encounter type"
-        options={encounterOptions}
-      />
-      <TextInput disabled={disabled} value={getExaminerName(encounter)} label="Doctor/nurse" />
-      {encounter.plannedLocation && (
-        <TextInput
-          disabled={disabled}
-          value={encounter.plannedLocation.name}
-          label="Planned location"
-        />
-      )}
+const EncounterInfoPane = React.memo(({ disabled, encounter }) => (
+  <FormGrid columns={3}>
+    <DateInput disabled={disabled} value={encounter.startDate} label="Arrival date" />
+    <DateInput disabled={disabled} value={encounter.endDate} label="Discharge date" />
+    <SuggesterSelectField
+      disabled
+      label="Patient type"
+      field={{ name: 'patientBillingTypeId', value: encounter.patientBillingTypeId }}
+      endpoint="patientBillingType"
+    />
+    <TextInput disabled={disabled} value={getDepartmentName(encounter)} label="Department" />
+    <SelectInput
+      disabled={disabled}
+      value={encounter.encounterType}
+      label="Encounter type"
+      options={encounterOptions}
+    />
+    <TextInput disabled={disabled} value={getExaminerName(encounter)} label="Doctor/Nurse" />
+    <TextInput disabled={disabled} value={getLocationName(encounter)} label="Location" />
+    {encounter.plannedLocation && (
       <TextInput
         disabled={disabled}
-        value={encounter.reasonForEncounter}
-        label="Reason for encounter"
-        style={{ gridColumn: 'span 3' }}
+        value={encounter.plannedLocation.name}
+        label="Planned location"
       />
-    </FormGrid>
-  );
-});
+    )}
+    <TextInput
+      disabled={disabled}
+      value={encounter.reasonForEncounter}
+      label="Reason for encounter"
+      style={{ gridColumn: 'span 2' }}
+    />
+  </FormGrid>
+));
 
 const RoutedDischargeModal = connectRoutedModal('/patients/encounter', 'discharge')(DischargeModal);
 const RoutedChangeEncounterTypeModal = connectRoutedModal(
@@ -368,40 +405,14 @@ const EncounterActionDropdown = connect(null, dispatch => ({
 );
 
 const EncounterActions = ({ encounter }) => (
-  <React.Fragment>
+  <>
     <EncounterActionDropdown encounter={encounter} />
     <RoutedDischargeModal encounter={encounter} />
     <RoutedChangeEncounterTypeModal encounter={encounter} />
     <RoutedChangeDepartmentModal encounter={encounter} />
     <RoutedMoveModal encounter={encounter} />
-  </React.Fragment>
+  </>
 );
-
-const AdmissionInfoRow = styled.div`
-  display: flex;
-  font-size: 14px;
-  text-transform: capitalize;
-  color: ${Colors.midText};
-
-  span:first-child {
-    margin-right: 10px;
-  }
-`;
-
-const AdmissionInfoLabel = styled.span`
-  color: ${Colors.darkText};
-  font-weight: 500;
-`;
-
-const AdmissionInfo = styled.span`
-  svg {
-    vertical-align: sub;
-    width: 16px;
-    height: 16px;
-    color: ${Colors.outline};
-    margin-right: 3px;
-  }
-`;
 
 function getHeaderText({ encounterType }) {
   switch (encounterType) {
@@ -410,38 +421,39 @@ function getHeaderText({ encounterType }) {
     case ENCOUNTER_TYPES.OBSERVATION:
       return 'Active ED patient';
     case ENCOUNTER_TYPES.EMERGENCY:
-      return 'Emergency short stay';
+      return 'Emergency Short Stay';
     case ENCOUNTER_TYPES.ADMISSION:
-      return 'Hospital admission';
+      return 'Hospital Admission';
     case ENCOUNTER_TYPES.CLINIC:
     case ENCOUNTER_TYPES.IMAGING:
     default:
-      return 'Patient encounter';
+      return 'Patient Encounter';
   }
 }
 
-export const DumbEncounterView = ({ patient, encounter }) => {
-  const [currentTab, setCurrentTab] = React.useState('vitals');
-  const disabled = encounter.endDate || patient.death;
+const GridColumnContainer = styled.div`
+  // set min-width to 0 to stop the grid column getting bigger than it's parent
+  // as grid column children default to min-width: auto @see https://www.w3.org/TR/css3-grid-layout/#min-size-auto
+  min-width: 0;
+`;
 
+export const EncounterView = () => {
+  const { getLocalisation } = useLocalisation();
+  const patient = useSelector(state => state.patient);
+  const { encounter, isLoadingEncounter } = useEncounter();
+  const { facility } = useAuth();
+  const [currentTab, setCurrentTab] = React.useState('vitals');
+  const disabled = encounter?.endDate || patient.death;
+
+  if (!encounter || isLoadingEncounter || patient.loading) return <LoadingIndicator />;
+
+  const visibleTabs = TABS.filter(tab => !tab.condition || tab.condition(getLocalisation));
   return (
     <TwoColumnDisplay>
       <PatientInfoPane patient={patient} disabled={disabled} />
-      <div>
-        <TopBar title={getHeaderText(encounter)}>
+      <GridColumnContainer>
+        <TopBar title={getHeaderText(encounter)} subTitle={facility?.name}>
           <EncounterActions encounter={encounter} />
-          <AdmissionInfoRow>
-            <AdmissionInfo>
-              <SubjectIcon />
-              <AdmissionInfoLabel>Type: </AdmissionInfoLabel>
-              <span>{`${encounter.encounterType}`}</span>
-            </AdmissionInfo>
-            <AdmissionInfo>
-              <CalendarIcon />
-              <AdmissionInfoLabel>Arrival: </AdmissionInfoLabel>
-              <DateDisplay date={encounter.startDate} />
-            </AdmissionInfo>
-          </AdmissionInfoRow>
         </TopBar>
         <ContentPane>
           <BackButton to="/patients/view" />
@@ -455,23 +467,13 @@ export const DumbEncounterView = ({ patient, encounter }) => {
           />
         </ContentPane>
         <TabDisplay
-          tabs={TABS}
+          tabs={visibleTabs}
           currentTab={currentTab}
           onTabSelect={setCurrentTab}
           encounter={encounter}
           disabled={disabled}
         />
-      </div>
+      </GridColumnContainer>
     </TwoColumnDisplay>
   );
 };
-
-export const EncounterView = connect(state => ({
-  patient: state.patient,
-}))(({ patient }) => {
-  const { encounter, isLoadingEncounter } = useEncounter();
-
-  if (!encounter || isLoadingEncounter || patient.loading) return <LoadingIndicator />;
-
-  return <DumbEncounterView encounter={encounter} patient={patient} />;
-});

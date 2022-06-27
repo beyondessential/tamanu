@@ -4,8 +4,9 @@ import {
   randomReferenceId,
   createDummyEncounterDiagnosis,
   randomReferenceData,
+  randomRecordId,
   randomReferenceIds,
-} from 'shared/demoData/patients';
+} from 'shared/demoData';
 import { subDays } from 'date-fns';
 import { createTestContext } from '../../utilities';
 import { ENCOUNTER_TYPES } from 'shared/constants';
@@ -18,17 +19,19 @@ describe('Recent Diagnoses report', () => {
   let expectedDiagnosis = null;
   let wrongDiagnosis = null;
   let expectedLocation = null;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
     const villageId = await randomReferenceId(models, 'village');
     patient1 = await models.Patient.create(await createDummyPatient(models, { villageId }));
     [expectedDiagnosis, wrongDiagnosis] = await randomReferenceIds(models, 'icd10', 2);
-    expectedLocation = await randomReferenceId(models, 'location');
+    expectedLocation = await randomRecordId(models, 'Location');
   });
+  afterAll(() => ctx.close());
 
   it('should reject creating a diagnoses report with insufficient permissions', async () => {
     const noPermsApp = await baseApp.asRole('base');
@@ -38,8 +41,8 @@ describe('Recent Diagnoses report', () => {
 
   describe('returns data based on supplied parameters', () => {
     beforeEach(async () => {
-      await models.EncounterDiagnosis.destroy({ where: {}, truncate: true });
-      await models.Encounter.destroy({ where: {}, truncate: true });
+      await models.EncounterDiagnosis.destroy({ where: {}, truncate: true, cascade: true });
+      await models.Encounter.destroy({ where: {}, truncate: true, cascade: true });
     });
 
     it('should return only requested diagnoses', async () => {

@@ -1,5 +1,3 @@
-"use strict";
-
 const Sequelize = require('sequelize');
 
 const DIAGNOSIS_CERTAINTY = {
@@ -28,22 +26,22 @@ module.exports = {
       type: Sequelize.STRING,
       references: {
         model: 'encounters',
-        key: 'id'
-      }
+        key: 'id',
+      },
     });
     await query.addColumn('referrals', 'completing_encounter_id', {
       type: Sequelize.STRING,
       references: {
         model: 'encounters',
-        key: 'id'
-      }
+        key: 'id',
+      },
     });
     await query.addColumn('referrals', 'survey_response_id', {
       type: Sequelize.STRING,
       references: {
         model: 'survey_responses',
-        key: 'id'
-      }
+        key: 'id',
+      },
     });
 
     // remove unused table
@@ -57,42 +55,42 @@ module.exports = {
     await query.addColumn('referrals', 'date', {
       type: Sequelize.DATE,
       allowNull: false,
-      defaultValue: Sequelize.NOW
+      defaultValue: Sequelize.NOW,
     });
     await query.addColumn('referrals', 'encounter_id', {
       type: Sequelize.STRING,
       references: {
         model: 'encounter',
-        key: 'id'
-      }
+        key: 'id',
+      },
     });
     await query.addColumn('referrals', 'patient_id', {
       type: Sequelize.STRING,
       references: {
         model: 'patient',
-        key: 'id'
-      }
+        key: 'id',
+      },
     });
     await query.addColumn('referrals', 'referred_by_id', {
       type: Sequelize.STRING,
       references: {
         model: 'user',
-        key: 'id'
-      }
+        key: 'id',
+      },
     });
     await query.addColumn('referrals', 'referred_to_department_id', {
       type: Sequelize.STRING,
       references: {
         model: 'reference_data',
-        key: 'id'
-      }
+        key: 'id',
+      },
     });
     await query.addColumn('referrals', 'referred_to_facility_id', {
       type: Sequelize.STRING,
       references: {
         model: 'reference_data',
-        key: 'id'
-      }
+        key: 'id',
+      },
     });
     await query.createTable('referral_diagnoses');
     await query.addColumn('referral_diagnoses', 'certainty', {
@@ -103,15 +101,15 @@ module.exports = {
       type: Sequelize.STRING,
       references: {
         model: 'referral',
-        key: 'id'
-      }
+        key: 'id',
+      },
     });
     await query.addColumn('referral_diagnoses', 'diagnosis_id', {
       type: Sequelize.STRING,
       references: {
         model: 'reference_data',
-        key: 'id'
-      }
+        key: 'id',
+      },
     });
-  }
+  },
 };

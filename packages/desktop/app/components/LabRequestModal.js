@@ -1,46 +1,35 @@
-import React, { useCallback } from 'react';
+import React, { useState } from 'react';
 import { customAlphabet } from 'nanoid';
 
-import { Modal } from './Modal';
+import { useApi } from '../api';
 import { Suggester } from '../utils/suggester';
-import { useEncounter } from '../contexts/Encounter';
 
-import { connectApi } from '../api/connectApi';
-
+import { Modal } from './Modal';
 import { ConnectedLabRequestForm } from '../forms/LabRequestForm';
+import { ALPHABET_FOR_ID } from '../constants';
 
-const ALPHABET_FOR_ID =
-  'ABCDEFGH' + /*I*/ 'JK' + /*L*/ 'MN' + /*O*/ 'PQRSTUVWXYZ' + /*01*/ '23456789';
+export const LabRequestModal = ({ open, onClose, encounter }) => {
+  const api = useApi();
+  const practitionerSuggester = new Suggester(api, 'practitioner');
+  const [requestId, setRequestId] = useState();
 
-const DumbLabRequestModal = React.memo(
-  ({ open, encounter, practitionerSuggester, onClose, onSubmit }) => {
-    const { loadEncounter } = useEncounter();
-    const submitLabRequest = useCallback(async data => {
-      await onSubmit(data);
-      await loadEncounter(encounter.id);
-      onClose();
-    }, []);
-
-    return (
-      <Modal width="md" title="New lab request" open={open} onClose={onClose}>
-        <ConnectedLabRequestForm
-          onSubmit={submitLabRequest}
-          onCancel={onClose}
-          encounter={encounter}
-          practitionerSuggester={practitionerSuggester}
-          generateDisplayId={customAlphabet(ALPHABET_FOR_ID, 7)}
-        />
-      </Modal>
-    );
-  },
-);
-
-export const LabRequestModal = connectApi((api, dispatch, { encounter }) => ({
-  onSubmit: async data => {
-    await api.post(`labRequest`, {
-      ...data,
-      encounterId: encounter.id,
-    });
-  },
-  practitionerSuggester: new Suggester(api, 'practitioner'),
-}))(DumbLabRequestModal);
+  return (
+    <Modal width="md" title="New lab request" open={open} onClose={onClose}>
+      <ConnectedLabRequestForm
+        onSubmit={async data => {
+          const newRequest = await api.post(`labRequest`, {
+            ...data,
+            encounterId: encounter.id,
+          });
+          setRequestId(newRequest.id);
+          onClose();
+        }}
+        onCancel={onClose}
+        encounter={encounter}
+        requestId={requestId}
+        practitionerSuggester={practitionerSuggester}
+        generateDisplayId={customAlphabet(ALPHABET_FOR_ID, 7)}
+      />
+    </Modal>
+  );
+};

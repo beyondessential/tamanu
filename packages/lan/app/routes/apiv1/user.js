@@ -3,6 +3,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 
 import { ForbiddenError } from 'shared/errors';
+import { getPermissions } from 'shared/permissions/middleware';
 import {
   simpleGet,
   simplePut,
@@ -24,12 +25,14 @@ user.get(
   }),
 );
 
+user.get('/permissions', asyncHandler(getPermissions));
+
 user.get(
   '/current-facility',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'User');
     const userFacilities = await req.models.UserFacility.findAll({
-      where: { facilityId: config.currentFacilityId },
+      where: { facilityId: config.serverFacilityId },
       include: [
         {
           model: req.models.User,

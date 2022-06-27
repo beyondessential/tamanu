@@ -1,6 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
+import { SERVER_TYPES } from 'shared/constants';
 import { log } from 'shared/services/logging';
 import { fetchWithTimeout } from 'shared/utils/fetchWithTimeout';
 
@@ -9,30 +10,42 @@ import { getUrl, getBool, getMilliseconds } from './render/cell';
 
 export const serversRouter = express.Router();
 
+// Note: Order here matters - it'll be the order they're displayed
+// Servers are ordered first by type, then alphabetically.
 const servers = [
-  { name: 'Dev', type: 'dev', host: 'https://sync-dev.tamanu.io' },
-  { name: 'Demo', type: 'live', host: 'https://sync-demo.tamanu.io' },
-  { name: 'Staging', type: 'dev', host: 'https://sync-staging.tamanu.io' },
-  { name: 'Demo (Nauru)', type: 'live', host: 'https://sync-demo-nauru.tamanu.io' },
-  { name: 'Stress testing', type: 'dev', host: 'https://sync-stress-test.tamanu.io' },
+  // live servers
+  { name: 'Aspen Medical Fiji', type: 'live', host: 'https://syncba.aspenmedical.com.fj' },
   { name: 'Fiji', type: 'live', host: 'https://sync.tamanu-fiji.org' },
-  { name: 'Samoa', type: 'live', host: 'https://tamanu-sync.health.gov.ws' },
-  {
-    name: 'Motivation Australia - Iraq',
-    type: 'live',
-    host: 'https://motivation-sync-iraq.tamanu.io',
-  },
+  { name: 'Fiji MDA', type: 'live', host: 'https://sync-mda.tamanu-fiji.org' },
+  { name: 'Fiji NCD', type: 'live', host: 'https://sync-ncd-pilot.tamanu-fiji.org' },
+  { name: 'Fiji Tourism', type: 'live', host: 'https://sync-tourism.tamanu-fiji.org' },
+  { name: 'Kiribati', type: 'live', host: 'https://sync.tamanu-kiribati.org' },
   {
     name: 'Motivation Australia - Papua New Guinea',
     type: 'live',
     host: 'https://motivation-sync-png.tamanu.io',
   },
-  {
-    name: 'Motivation Australia - India',
-    type: 'live',
-    host: 'https://motivation-sync-india.tamanu.io',
-  },
   { name: 'Nauru', type: 'live', host: 'https://sync.tamanu-nauru.org' },
+  { name: 'Palau', type: 'live', host: 'https://sync.tamanu-palau.org' },
+  { name: 'Samoa', type: 'live', host: 'https://tamanu-sync.health.gov.ws' },
+  { name: 'Tuvalu', type: 'live', host: 'https://sync.tamanu-tuvalu.org' },
+
+  // demo servers
+  { name: 'Demo', type: 'demo', host: 'https://sync-demo.tamanu.io' },
+  { name: 'Demo (Aspen)', type: 'demo', host: 'https://aspen-demo-sync.tamanu-fiji.org' },
+  { name: 'Demo (Fiji)', type: 'demo', host: 'https://sync-demo.tamanu-fiji.org' },
+  { name: 'Demo (Fiji Tourism)', type: 'demo', host: 'https://sync.demo-tourism.tamanu-fiji.org' },
+  { name: 'Demo (Kiribati)', type: 'demo', host: 'https://sync-demo.tamanu-kiribati.org' },
+  { name: 'Demo (Nauru)', type: 'demo', host: 'https://sync-demo-nauru.tamanu.io' },
+  { name: 'Demo (Palau)', type: 'demo', host: 'https://sync-demo-palau.tamanu.io' },
+  { name: 'Demo (Samoa)', type: 'demo', host: 'https://sync-samoa-demo.tamanu.io' },
+  { name: 'Demo (Tuvalu)', type: 'demo', host: 'https://sync-demo-tuvalu.tamanu.io' },
+
+  // development servers
+  { name: 'Dev', type: 'dev', host: 'https://sync-dev.tamanu.io' },
+  { name: 'Fiji VPS/VRS UAT', type: 'dev', host: 'https://sync-uat-fiji-vps.tamanu.io' },
+  { name: 'Staging', type: 'dev', host: 'https://sync-staging.tamanu.io' },
+  { name: 'Stress testing', type: 'dev', host: 'https://sync-stress-test.tamanu.io' },
 ];
 
 serversRouter.get('/', (req, res) => {
@@ -51,11 +64,11 @@ serversRouter.get('/readable', (req, res) => {
 
 const getStatuses = () => {
   const STATUS_CHECK_TIMEOUT_MS = 10 * 1000;
-  const EXPECTED_RUNTIME = 'Tamanu Sync Server';
+  const EXPECTED_SERVER_TYPE = SERVER_TYPES.SYNC;
 
   return Promise.all(
-    servers.map(async ({ name, host }) => {
-      const status = { name, host };
+    servers.map(async ({ name, host, type }) => {
+      const status = { name, host, type };
       try {
         // collect results
         const startTime = Date.now();
@@ -69,10 +82,12 @@ const getStatuses = () => {
             `Expected body to include '{"index":true}' but got ${await result.blob()}`,
           );
         }
-        const runtime = result.headers.get('X-Runtime');
-        if (runtime !== EXPECTED_RUNTIME) {
+
+        // TODO: remove deprecated X-Runtime check once all servers have moved on
+        const serverType = result.headers.get('X-Tamanu-Server') || result.headers.get('X-Runtime');
+        if (serverType !== EXPECTED_SERVER_TYPE) {
           throw new Error(
-            `Expected X-Runtime header to be '${EXPECTED_RUNTIME}' but got ${runtime}`,
+            `Expected X-Tamanu-Server header to be '${EXPECTED_SERVER_TYPE}' but got ${serverType}`,
           );
         }
 
@@ -106,6 +121,7 @@ serversRouter.get(
           { key: 'name' },
           { key: 'success', getter: getBool },
           { key: 'version' },
+          { key: 'type' },
           { key: 'host', getter: getUrl },
           { key: 'latency', getter: getMilliseconds },
           { key: 'error' },

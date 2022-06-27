@@ -8,8 +8,8 @@ const appVersions = {
   lan: '0.0.1',
 };
 
-['desktop', 'mobile', 'lan'].map(appType => {
-  versionRouter.get(`/${appType}`, (req, res) => {
+['desktop', 'mobile', 'lan'].forEach(appType => {
+  versionRouter.get(`/${appType}`, (_req, res) => {
     res.send({
       appType,
       version: appVersions[appType],

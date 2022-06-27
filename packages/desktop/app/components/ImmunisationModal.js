@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { VACCINE_STATUS } from 'shared/constants';
+
 import { Modal } from './Modal';
 import { Suggester } from '../utils/suggester';
 
@@ -7,7 +9,6 @@ import { connectApi } from '../api/connectApi';
 import { reloadPatient } from '../store/patient';
 
 import { ImmunisationForm } from '../forms/ImmunisationForm';
-import { VACCINE_STATUS } from '../constants';
 
 const DumbImmunisationModal = React.memo(
   ({
@@ -19,21 +20,19 @@ const DumbImmunisationModal = React.memo(
     departmentSuggester,
     getScheduledVaccines,
     locationSuggester,
-  }) => {
-    return (
-      <Modal title="New vaccine" open={open} onClose={onClose}>
-        <ImmunisationForm
-          onSubmit={onCreateImmunisation}
-          onCancel={onClose}
-          practitionerSuggester={practitionerSuggester}
-          vaccineSuggester={vaccineSuggester}
-          departmentSuggester={departmentSuggester}
-          getScheduledVaccines={getScheduledVaccines}
-          locationSuggester={locationSuggester}
-        />
-      </Modal>
-    );
-  },
+  }) => (
+    <Modal title="Give vaccine" open={open} onClose={onClose}>
+      <ImmunisationForm
+        onSubmit={onCreateImmunisation}
+        onCancel={onClose}
+        practitionerSuggester={practitionerSuggester}
+        vaccineSuggester={vaccineSuggester}
+        departmentSuggester={departmentSuggester}
+        getScheduledVaccines={getScheduledVaccines}
+        locationSuggester={locationSuggester}
+      />
+    </Modal>
+  ),
 );
 
 export const ImmunisationModal = connectApi((api, dispatch, { patientId }) => ({

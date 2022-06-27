@@ -21,7 +21,7 @@ const parametersToSqlWhere = parameters => {
   return whereClause;
 };
 
-export const dataGenerator = async (models, parameters = {}) => {
+export const dataGenerator = async ({ models }, parameters = {}) => {
   const reportColumnTemplate = [
     { title: 'Date registered', accessor: data => data.dateCreated },
     { title: 'Registered by', accessor: data => data.registeredByName },
@@ -68,6 +68,7 @@ export const dataGenerator = async (models, parameters = {}) => {
       },
       {
         model: models.PatientAdditionalData,
+        as: 'additionalData',
         include: [
           {
             model: models.ReferenceData,
@@ -118,7 +119,7 @@ export const dataGenerator = async (models, parameters = {}) => {
 
     const villageName = dataValues.village?.dataValues?.name ?? null;
 
-    const additionalData = dataValues.PatientAdditionalData[0]?.dataValues ?? null;
+    const additionalData = dataValues.additionalData[0]?.dataValues ?? null;
     const countryOfBirth = additionalData?.countryOfBirth?.dataValues?.name ?? null;
     const nationalityName = additionalData?.nationality?.dataValues?.name ?? null;
     const ethnicityName = additionalData?.ethnicity?.dataValues?.name ?? null;

@@ -4,8 +4,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 
 const LoadingIconContainer = styled.div`
   display: grid;
-  position: absolute;
-  width: 100vw;
+  width: 100%;
   height: 100vh;
   background: ${props => props.backgroundColor || '#cecece'};
   opacity: 0.5;

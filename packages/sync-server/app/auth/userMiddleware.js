@@ -44,3 +44,11 @@ export const userMiddleware = asyncHandler(async (req, res, next) => {
 
   next();
 });
+
+export const userInfo = asyncHandler(async (req, res) => {
+  if (!req.user) {
+    throw new ForbiddenError();
+  }
+
+  res.send(req.user);
+});

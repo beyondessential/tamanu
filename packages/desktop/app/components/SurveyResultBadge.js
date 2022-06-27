@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Colors } from '../constants';
 
 const COLORS = {
   green: '#83d452',
@@ -15,42 +16,28 @@ const ColoredBadge = styled.div`
   text-align: center;
 `;
 
-// TODO: read color coding string from survey instead of hardcoded
-const CODING_STRING = 'green 10 yellow 20 orange 30 red 40 deepred';
-
-function parseThresholdString(s) {
-  const colors = [];
-  const thresholds = [];
-
-  const parts = s
-    .split(' ')
-    .map(x => x.trim())
-    .filter(x => x);
-  colors.push(parts.shift());
-  while (parts.length > 0) {
-    const threshold = parseFloat(parts.shift());
-    const color = parts.shift();
-    colors.push(color);
-    thresholds.push(threshold);
-  }
-
-  return { colors, thresholds };
-}
-
-function getColorForValue(result, thresholdString) {
-  const { colors, thresholds } = parseThresholdString(thresholdString);
-  for (let i = 0; i < thresholds.length; ++i) {
-    if (result < thresholds[i]) {
-      return colors[i];
+function separateColorText(resultText) {
+  for (const [key, color] of Object.entries(COLORS)) {
+    // only match colors at the end that follow a result
+    // "90% GREEN" -> "90%"
+    // "blue ribbon" -> "blue ribbon"
+    // "reduced risk" -> "reduced risk"
+    const re = RegExp(` ${key}$`, 'i');
+    if (resultText.match(re)) {
+      const strippedResultText = resultText.replace(re, '').trim();
+      return { color, strippedResultText };
     }
   }
-  return colors[colors.length - 1];
+  return {
+    color: Colors.white,
+    strippedResultText: resultText,
+  };
 }
 
-export const SurveyResultBadge = ({ result }) => {
-  if (!result && result !== 0) {
+export const SurveyResultBadge = ({ resultText }) => {
+  if (!resultText) {
     return null;
   }
-  const colorName = getColorForValue(result, CODING_STRING);
-  return <ColoredBadge color={COLORS[colorName]}>{`${result.toFixed(2)}%`}</ColoredBadge>;
+  const { color, strippedResultText } = separateColorText(resultText);
+  return <ColoredBadge color={color}>{strippedResultText}</ColoredBadge>;
 };

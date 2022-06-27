@@ -36,7 +36,7 @@ export const VitalsTable = React.memo(() => {
     ...readings
       .sort((a, b) => b.dateRecorded.localeCompare(a.dateRecorded))
       .map(r => ({
-        title: <DateDisplay date={r.dateRecorded} />,
+        title: <DateDisplay showTime date={r.dateRecorded} />,
         key: r.dateRecorded,
       })),
   ];

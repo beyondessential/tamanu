@@ -1,26 +1,19 @@
 import React from 'react';
-
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-
-import { Button } from '../app/components/Button';
-
-import { TopBar } from '../app/components/TopBar';
+import { TopBar, Button } from '../app/components';
 
 storiesOf('TopBar', module)
-  .add('Plain', () => <TopBar title="Title" />)
+  .add('With title', () => <TopBar title="Patient listing" />)
   .add('With button', () => (
-    <TopBar title="With button">
+    <TopBar title="Lab requests">
       <Button color="primary" variant="contained" onClick={action('save')}>
         Save
       </Button>
     </TopBar>
   ))
-  .add('With two buttons', () => (
-    <TopBar title="With two buttons">
-      <Button variant="outlined" onClick={action('cancel')}>
-        Cancel
-      </Button>
+  .add('With subtitle', () => (
+    <TopBar title="Hospital Admission" subTitle="Etta Clinic">
       <Button color="primary" variant="contained" onClick={action('save')}>
         Save
       </Button>

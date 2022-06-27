@@ -14,16 +14,14 @@ patientCarePlan.post(
   '/$',
   asyncHandler(async (req, res) => {
     const {
-      models: { PatientCarePlan, Note },
+      models: { PatientCarePlan },
     } = req;
     req.checkPermission('create', 'PatientCarePlan');
     if (!req.body.content) {
       throw new InvalidParameterError('Content is a required field');
     }
     const newCarePlan = await PatientCarePlan.create(req.body);
-    await Note.create({
-      recordId: newCarePlan.get('id'),
-      recordType: NOTE_RECORD_TYPES.PATIENT_CARE_PLAN,
+    await newCarePlan.createNote({
       date: req.body.date,
       content: req.body.content,
       noteType: NOTE_TYPES.TREATMENT_PLAN,

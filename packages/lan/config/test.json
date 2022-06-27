@@ -1,15 +1,16 @@
 {
   "db": {
-    "name": "test",
-    "sqlitePath": "/tmp/tamanu-test.db"
+    "name": "tamanu-lan-test",
+    "sqlitePath": null,
+    "migrateOnStartup": true
   },
   "log": {
     "consoleLevel": null
   },
   "survey": {
     "defaultCodes": {
-      "department": "General",
-      "location": "Ward-1"
+      "department": "Emergency",
+      "location": "Bed 1"
     }
   },
   "sync": {

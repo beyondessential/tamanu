@@ -1,4 +1,4 @@
-import { splitIds } from './splitIds';
+import { splitIds } from './utilities';
 
 export const DRUGS = splitIds(`
   Asparaginase 10,000 iu in vial powder for injection

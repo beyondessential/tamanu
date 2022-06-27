@@ -3,14 +3,7 @@ import * as yup from 'yup';
 import styled from 'styled-components';
 import Collapse from '@material-ui/core/Collapse';
 import { FormGrid } from '../components/FormGrid';
-import {
-  Button,
-  Field,
-  Form,
-  MinusIconButton,
-  PlusIconButton,
-  TextField,
-} from '../components';
+import { Button, Field, Form, MinusIconButton, PlusIconButton, TextField } from '../components';
 import { ServerDetectingField, getSavedServer } from '../components/Field/ServerDetectingField';
 
 const PrimaryButton = styled(Button)`
@@ -44,49 +37,47 @@ export const ChangePasswordForm = React.memo(
     const needsServer = !getSavedServer();
     const [isAdvancedExpanded, setAdvancedExpanded] = useState(needsServer);
 
-    const renderForm = ({ setFieldValue }) => {
-      return (
-        <FormGrid columns={1}>
-          <h3>Reset Password</h3>
-          <div>Please enter the reset code you have received in your email</div>
-          <div>{errorMessage}</div>
-          <Field name="token" type="text" label="Reset Code" required component={TextField} />
+    const renderForm = ({ setFieldValue }) => (
+      <FormGrid columns={1}>
+        <h3>Reset Password</h3>
+        <div>Please enter the reset code you have received in your email</div>
+        <div>{errorMessage}</div>
+        <Field name="token" type="text" label="Reset Code" required component={TextField} />
+        <Field
+          name="newPassword"
+          type="password"
+          label="Enter a new password"
+          required
+          component={TextField}
+        />
+        <AdvancedRow>
+          <AdvancedButtonSpan>
+            Advanced
+            {isAdvancedExpanded ? (
+              <MinusIconButton
+                onClick={() => setAdvancedExpanded(false)}
+                styles={{ padding: '0px' }}
+              />
+            ) : (
+              <PlusIconButton onClick={() => setAdvancedExpanded(true)} />
+            )}
+          </AdvancedButtonSpan>
+        </AdvancedRow>
+        <Collapse in={isAdvancedExpanded}>
           <Field
-            name="newPassword"
-            type="password"
-            label="Enter a new password"
+            name="host"
+            label="LAN server address"
             required
-            component={TextField}
+            component={ServerDetectingField}
+            setFieldValue={setFieldValue}
           />
-          <AdvancedRow>
-            <AdvancedButtonSpan>
-              Advanced
-              {isAdvancedExpanded ? (
-                <MinusIconButton
-                  onClick={() => setAdvancedExpanded(false)}
-                  styles={{ padding: '0px' }}
-                />
-              ) : (
-                <PlusIconButton onClick={() => setAdvancedExpanded(true)} />
-              )}
-            </AdvancedButtonSpan>
-          </AdvancedRow>
-          <Collapse in={isAdvancedExpanded}>
-            <Field
-              name="host"
-              label="LAN Server Address"
-              required
-              component={ServerDetectingField}
-              setFieldValue={setFieldValue}
-            />
-          </Collapse>
-          <PrimaryButton fullWidth variant="contained" color="primary" type="submit">
-            Change Password
-          </PrimaryButton>
-          <Button onClick={onNavToResetPassword}>Back</Button>
-        </FormGrid>
-      );
-    };
+        </Collapse>
+        <PrimaryButton fullWidth variant="contained" color="primary" type="submit">
+          Change Password
+        </PrimaryButton>
+        <Button onClick={onNavToResetPassword}>Back</Button>
+      </FormGrid>
+    );
 
     if (success) {
       return (

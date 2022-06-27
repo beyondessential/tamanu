@@ -6,7 +6,6 @@ import {
   fakeEncounter,
   fakeEncounterDiagnosis,
   fakeEncounterMedication,
-  fakePatient,
   fakeProgramDataElement,
   fakeReferenceData,
   fakeScheduledVaccine,
@@ -21,20 +20,15 @@ import {
 // TODO: generic
 
 export const buildEncounter = async (ctx, patientId, optionalEncounterId) => {
-  const patient = fakePatient();
+  const { Patient, User } = ctx.models;
+  const patient = fake(Patient);
   if (patientId) {
     patient.id = patientId;
   }
-  await ctx.models.Patient.upsert(patient);
+  await Patient.upsert(patient);
 
   const examiner = fakeUser('examiner');
-  await ctx.models.User.upsert(examiner);
-
-  const location = fakeReferenceData('location');
-  await ctx.models.ReferenceData.upsert(location);
-
-  const department = fakeReferenceData('department');
-  await ctx.models.ReferenceData.upsert(department);
+  await User.upsert(examiner);
 
   const encounter = fakeEncounter();
   if (optionalEncounterId !== undefined) {
@@ -42,8 +36,9 @@ export const buildEncounter = async (ctx, patientId, optionalEncounterId) => {
   }
   encounter.patientId = patient.id;
   encounter.examinerId = examiner.id;
-  encounter.locationId = location.id;
-  encounter.departmentId = department.id;
+  encounter.patientBillingTypeId = null;
+  encounter.locationId = await findOrCreateId(ctx, ctx.models.Location);
+  encounter.departmentId = await findOrCreateId(ctx, ctx.models.Department);
 
   return encounter;
 };
@@ -173,3 +168,29 @@ export const upsertAssociations = async (model, record) => {
     }
   }
 };
+
+const addAssociations = async (ctx, model, record) => {
+  const newRecord = { ...record };
+
+  for (const association of Object.values(model.associations)) {
+    const { associationType, foreignKey, target } = association;
+    if (associationType === 'BelongsTo') {
+      newRecord[foreignKey] = await findOrCreateId(ctx, target);
+    }
+  }
+
+  return newRecord;
+};
+
+export const findOneOrCreate = async (ctx, model, where, insertOverrides) => {
+  const existingRecord = await model.findOne({ where });
+  if (existingRecord) {
+    return existingRecord;
+  }
+
+  const overrides = { ...where, ...insertOverrides };
+  const values = await addAssociations(ctx, model, fake(model, overrides));
+  return model.create(values);
+};
+
+const findOrCreateId = async (ctx, model) => (await findOneOrCreate(ctx, model)).id;

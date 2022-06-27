@@ -1,16 +1,21 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { QueryTypes } from 'sequelize';
+import { QueryTypes, Op } from 'sequelize';
 import { isEqual } from 'lodash';
-import moment from 'moment';
-
+import { getPatientAdditionalData } from 'shared/utils';
 import { NotFoundError } from 'shared/errors';
-import { simpleGetList, permissionCheckingRouter, runPaginatedQuery } from './crudHelpers';
 
-import { renameObjectKeys } from '~/utils/renameObjectKeys';
-import { makeFilter } from '~/utils/query';
+import { simpleGetList, permissionCheckingRouter, runPaginatedQuery } from './crudHelpers';
+import { renameObjectKeys } from '../../utils/renameObjectKeys';
+import { createPatientFilters } from '../../utils/patientFilters';
 import { patientVaccineRoutes } from './patient/patientVaccine';
+import { patientDocumentMetadataRoutes } from './patient/patientDocumentMetadata';
+import { patientInvoiceRoutes } from './patient/patientInvoice';
+
+import { patientDeath } from './patient/patientDeath';
 import { patientProfilePicture } from './patient/patientProfilePicture';
+import { activeCovid19PatientsHandler } from '../../routeHandlers';
+import { getOrderClause } from '../../database/utils';
 
 const patientRoute = express.Router();
 export { patientRoute as patient };
@@ -50,6 +55,7 @@ patientRoute.put(
   '/:id',
   asyncHandler(async (req, res) => {
     const {
+      db,
       models: { Patient, PatientAdditionalData },
       params,
     } = req;
@@ -57,24 +63,27 @@ patientRoute.put(
     const patient = await Patient.findByPk(params.id);
     if (!patient) throw new NotFoundError();
     req.checkPermission('write', patient);
-    await patient.update(requestBodyToRecord(req.body));
 
-    const patientAdditionalData = await PatientAdditionalData.findOne({
-      where: { patientId: patient.id },
-    });
+    await db.transaction(async () => {
+      await patient.update(requestBodyToRecord(req.body));
 
-    if (!patientAdditionalData) {
-      // Do not try to create patient additional data if all we're trying to update is markedForSync = true to 
-      // sync down patient because PatientAdditionalData will be automatically synced down along with Patient
-      if (!isEqual(req.body, { markedForSync: true })) {
-        await PatientAdditionalData.create({
-          ...requestBodyToRecord(req.body),
-          patientId: patient.id,
-        });
+      const patientAdditionalData = await PatientAdditionalData.findOne({
+        where: { patientId: patient.id },
+      });
+
+      if (!patientAdditionalData) {
+        // Do not try to create patient additional data if all we're trying to update is markedForSync = true to
+        // sync down patient because PatientAdditionalData will be automatically synced down along with Patient
+        if (!isEqual(req.body, { markedForSync: true })) {
+          await PatientAdditionalData.create({
+            ...requestBodyToRecord(req.body),
+            patientId: patient.id,
+          });
+        }
+      } else {
+        await patientAdditionalData.update(requestBodyToRecord(req.body));
       }
-    } else {
-      await patientAdditionalData.update(requestBodyToRecord(req.body));
-    }
+    });
 
     res.send(dbRecordToResponse(patient));
   }),
@@ -90,16 +99,15 @@ patientRoute.post(
     req.checkPermission('create', 'Patient');
     const patientData = requestBodyToRecord(req.body);
 
-    await db.transaction(async () => {
-      const patientRecord = await Patient.create(patientData);
-
+    const patientRecord = await db.transaction(async () => {
+      const createdPatient = await Patient.create(patientData);
       await PatientAdditionalData.create({
         ...patientData,
-        patientId: patientRecord.id,
+        patientId: createdPatient.id,
       });
-
-      res.send(dbRecordToResponse(patientRecord));
+      return createdPatient;
     });
+    res.send(dbRecordToResponse(patientRecord));
   }),
 );
 
@@ -124,16 +132,26 @@ patientRelations.get(
 
     req.checkPermission('read', 'Patient');
 
-    const additionalData = await models.PatientAdditionalData.findOne({
+    const additionalDataRecord = await models.PatientAdditionalData.findOne({
       where: { patientId: params.id },
       include: models.PatientAdditionalData.getFullReferenceAssociations(),
     });
 
-    res.send(additionalData || {});
+    // Lookup survey responses for passport and nationality to fill patient additional data
+    // Todo: Remove when WAITM-243 is complete
+    const passport = await getPatientAdditionalData(models, params.id, 'passport');
+    const nationalityId = await getPatientAdditionalData(models, params.id, 'nationalityId');
+    const nationality = nationalityId
+      ? await models.ReferenceData.findByPk(nationalityId)
+      : undefined;
+
+    const recordData = additionalDataRecord ? additionalDataRecord.toJSON() : {};
+    res.send({ ...recordData, passport, nationality, nationalityId });
   }),
 );
 
 patientRelations.use(patientProfilePicture);
+patientRelations.use(patientDeath);
 
 patientRelations.get(
   '/:id/referrals',
@@ -157,6 +175,19 @@ patientRelations.get(
             {
               association: 'answers',
             },
+            {
+              association: 'survey',
+              include: [
+                {
+                  association: 'components',
+                  include: [
+                    {
+                      association: 'dataElement',
+                    },
+                  ],
+                },
+              ],
+            },
           ],
         },
       ],
@@ -167,10 +198,11 @@ patientRelations.get(
 );
 
 patientRelations.get(
-  '/:id/surveyResponses',
+  '/:id/programResponses',
   asyncHandler(async (req, res) => {
     const { db, models, params, query } = req;
     const patientId = params.id;
+    const { surveyId, surveyType = 'programs' } = query;
     const { count, data } = await runPaginatedQuery(
       db,
       models.SurveyResponse,
@@ -180,12 +212,17 @@ patientRelations.get(
           survey_responses
           LEFT JOIN encounters
             ON (survey_responses.encounter_id = encounters.id)
+          LEFT JOIN surveys
+            ON (survey_responses.survey_id = surveys.id)
         WHERE
           encounters.patient_id = :patientId
+          AND surveys.survey_type = :surveyType
+          ${surveyId ? 'AND surveys.id = :surveyId' : ''}
       `,
       `
         SELECT
           survey_responses.*,
+          surveys.id as survey_id,
           surveys.name as survey_name,
           encounters.examiner_id,
           users.display_name as assessor_name,
@@ -202,8 +239,10 @@ patientRelations.get(
             ON (programs.id = surveys.program_id)
         WHERE
           encounters.patient_id = :patientId
+          AND surveys.survey_type = :surveyType
+          ${surveyId ? 'AND surveys.id = :surveyId' : ''}
       `,
-      { patientId },
+      { patientId, surveyId, surveyType },
       query,
     );
 
@@ -237,6 +276,60 @@ patientRoute.get(
 
     // explicitly send as json (as it might be null)
     res.json(currentEncounter);
+  }),
+);
+
+patientRoute.get(
+  '/:id/lastDischargedEncounter/medications',
+  asyncHandler(async (req, res) => {
+    const {
+      models: { Encounter, EncounterMedication },
+      params,
+      query,
+    } = req;
+
+    const { order = 'ASC', orderBy, rowsPerPage = 10, page = 0 } = query;
+
+    req.checkPermission('read', 'Patient');
+    req.checkPermission('read', 'Encounter');
+    req.checkPermission('list', 'EncounterMedication');
+
+    const lastDischargedEncounter = await Encounter.findOne({
+      where: {
+        patientId: params.id,
+        endDate: { [Op.not]: null },
+      },
+      order: [['endDate', 'DESC']],
+    });
+
+    // Return empty values if there isn't a discharged encounter
+    if (!lastDischargedEncounter) {
+      res.send({
+        count: 0,
+        data: [],
+      });
+      return;
+    }
+
+    // Find and return all associated encounter medications
+    const lastEncounterMedications = await EncounterMedication.findAndCountAll({
+      where: { encounterId: lastDischargedEncounter.id, isDischarge: true },
+      include: [
+        ...EncounterMedication.getFullReferenceAssociations(),
+        { association: 'encounter', include: [{ association: 'location' }] },
+      ],
+      order: orderBy ? getOrderClause(order, orderBy) : undefined,
+      limit: rowsPerPage,
+      offset: page * rowsPerPage,
+    });
+
+    const { count } = lastEncounterMedications;
+    const data = lastEncounterMedications.rows.map(x => x.forResponse());
+
+    res.send({
+      count,
+      data,
+    });
   }),
 );
 
@@ -289,74 +382,7 @@ patientRoute.get(
         filterParams[k] = parseFloat(filterParams[k]);
       });
 
-    const filters = [
-      makeFilter(
-        filterParams.displayId,
-        `UPPER(patients.display_id) LIKE UPPER(:displayId)`,
-        ({ displayId }) => ({ displayId: `%${displayId}%` }),
-      ),
-      makeFilter(
-        filterParams.firstName,
-        `UPPER(patients.first_name) LIKE UPPER(:firstName)`,
-        ({ firstName }) => ({ firstName: `${firstName}%` }),
-      ),
-      makeFilter(
-        filterParams.lastName,
-        `UPPER(patients.last_name) LIKE UPPER(:lastName)`,
-        ({ lastName }) => ({ lastName: `${lastName}%` }),
-      ),
-      makeFilter(
-        filterParams.culturalName,
-        `UPPER(patients.cultural_name) LIKE UPPER(:culturalName)`,
-        ({ culturalName }) => ({ culturalName: `${culturalName}%` }),
-      ),
-      // For age filter
-      makeFilter(filterParams.ageMax, `patients.date_of_birth >= :dobMin`, ({ ageMax }) => ({
-        dobMin: moment()
-          .startOf('day')
-          .subtract(ageMax + 1, 'years')
-          .add(1, 'day')
-          .toDate(),
-      })),
-      makeFilter(filterParams.ageMin, `patients.date_of_birth <= :dobMax`, ({ ageMin }) => ({
-        dobMax: moment()
-          .subtract(ageMin, 'years')
-          .endOf('day')
-          .toDate(),
-      })),
-      // For DOB filter
-      makeFilter(
-        filterParams.dateOfBirthFrom,
-        `DATE(patients.date_of_birth) >= :dateOfBirthFrom`,
-        ({ dateOfBirthFrom }) => ({
-          dateOfBirthFrom: moment(dateOfBirthFrom)
-            .startOf('day')
-            .toISOString(),
-        }),
-      ),
-      makeFilter(
-        filterParams.dateOfBirthTo,
-        `DATE(patients.date_of_birth) <= :dateOfBirthTo`,
-        ({ dateOfBirthTo }) => ({
-          dateOfBirthTo: moment(dateOfBirthTo)
-            .endOf('day')
-            .toISOString(),
-        }),
-      ),
-      makeFilter(
-        filterParams.dateOfBirthExact,
-        `DATE(patients.date_of_birth) = :dateOfBirthExact`,
-        ({ dateOfBirthExact }) => ({
-          dateOfBirthExact,
-        }),
-      ),
-      makeFilter(filterParams.villageId, `patients.village_id = :villageId`),
-      makeFilter(filterParams.locationId, `location.id = :locationId`),
-      makeFilter(filterParams.departmentId, `department.id = :departmentId`),
-      makeFilter(filterParams.inpatient, `encounters.encounter_type = 'admission'`),
-      makeFilter(filterParams.outpatient, `encounters.encounter_type = 'clinic'`),
-    ].filter(f => f);
-
+    const filters = createPatientFilters(filterParams);
     const whereClauses = filters.map(f => f.sql).join(' AND ');
 
     const from = `
@@ -370,10 +396,10 @@ patientRoute.get(
           ON patients.id = recent_encounter_by_patient.patient_id
         LEFT JOIN encounters
           ON (patients.id = encounters.patient_id AND recent_encounter_by_patient.most_recent_open_encounter = encounters.start_date)
-        LEFT JOIN reference_data AS department
-          ON (department.type = 'department' AND department.id = encounters.department_id)
-        LEFT JOIN reference_data AS location
-          ON (location.type = 'location' AND location.id = encounters.location_id)
+        LEFT JOIN departments AS department
+          ON (department.id = encounters.department_id)
+        LEFT JOIN locations AS location
+          ON (location.id = encounters.location_id)
         LEFT JOIN reference_data AS village
           ON (village.type = 'village' AND village.id = patients.village_id)
       ${whereClauses && `WHERE ${whereClauses}`}
@@ -408,6 +434,13 @@ patientRoute.get(
           patients.*,
           encounters.id AS encounter_id,
           encounters.encounter_type,
+          CASE
+            WHEN patients.date_of_death IS NOT NULL THEN 'deceased'
+            WHEN encounters.encounter_type = 'emergency' THEN 'emergency'
+            WHEN encounters.encounter_type = 'clinic' THEN 'outpatient'
+            WHEN encounters.encounter_type IS NOT NULL THEN 'inpatient'
+            ELSE NULL
+          END AS patient_status,
           department.id AS department_id,
           department.name AS department_name,
           location.id AS location_id,
@@ -441,4 +474,24 @@ patientRoute.get(
   }),
 );
 
+patientRoute.get('/program/activeCovid19Patients', asyncHandler(activeCovid19PatientsHandler));
+
 patientRoute.use(patientVaccineRoutes);
+patientRoute.use(patientDocumentMetadataRoutes);
+
+patientRoute.use(patientInvoiceRoutes);
+
+patientRoute.get(
+  '/:id/covidLabTests',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'Patient');
+
+    const { models, params } = req;
+    const { Patient } = models;
+
+    const patient = await Patient.findByPk(params.id);
+    const labTests = await patient.getCovidLabTests();
+
+    res.json({ data: labTests, count: labTests.length });
+  }),
+);

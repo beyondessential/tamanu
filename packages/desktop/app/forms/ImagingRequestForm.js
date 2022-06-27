@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import shortid from 'shortid';
@@ -12,10 +12,8 @@ import {
   Form,
   Field,
   DateField,
-  SelectField,
   AutocompleteField,
   TextField,
-  DateTimeField,
   CheckField,
   TextInput,
 } from '../components/Field';
@@ -24,6 +22,9 @@ import { Button } from '../components/Button';
 import { ButtonRow } from '../components/ButtonRow';
 import { DateDisplay } from '../components/DateDisplay';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
+import { DropdownButton } from '../components/DropdownButton';
+import { viewImagingRequest } from '../store/imagingRequest';
+import { useEncounter } from '../contexts/Encounter';
 
 function getEncounterTypeLabel(type) {
   return encounterOptions.find(x => x.value === type).label;
@@ -35,16 +36,42 @@ function getEncounterLabel(encounter) {
   return `${encounterDate} (${encounterTypeLabel})`;
 }
 
+const FormSubmitActionDropdown = connect(null, dispatch => ({
+  onNavigateToImagingRequests: id => dispatch(viewImagingRequest(id, 'print')),
+}))(
+  React.memo(({ onNavigateToImagingRequests, requestId, encounter, submitForm }) => {
+    const { loadEncounter } = useEncounter();
+    const [awaitingPrintRedirect, setAwaitingPrintRedirect] = useState();
+
+    // Transition to print page as soon as we have the generated id
+    useEffect(() => {
+      (async () => {
+        if (awaitingPrintRedirect && requestId) {
+          await onNavigateToImagingRequests(requestId);
+        }
+      })();
+    }, [requestId, awaitingPrintRedirect, onNavigateToImagingRequests]);
+
+    const finalise = async data => {
+      await submitForm(data);
+      await loadEncounter(encounter.id);
+    };
+    const finaliseAndPrint = async data => {
+      await submitForm(data);
+      // We can't transition pages until the imaging req is fully submitted
+      setAwaitingPrintRedirect(true);
+    };
+
+    const actions = [
+      { label: 'Finalise', onClick: finalise },
+      { label: 'Finalise & print', onClick: finaliseAndPrint },
+    ];
+
+    return <DropdownButton color="primary" variant="contained" actions={actions} />;
+  }),
+);
+
 class DumbImagingRequestForm extends React.PureComponent {
-  static propTypes = {
-    onSubmit: PropTypes.func.isRequired,
-    onMount: PropTypes.func,
-  };
-
-  static defaultProps = {
-    onMount: null,
-  };
-
   componentDidMount() {
     const { onMount } = this.props;
     if (onMount) onMount();
@@ -55,8 +82,8 @@ class DumbImagingRequestForm extends React.PureComponent {
       practitionerSuggester,
       imagingTypeSuggester,
       onCancel,
-      imagingTypes,
       encounter = {},
+      requestId,
     } = this.props;
     const { examiner = {} } = encounter;
     const examinerLabel = examiner.displayName;
@@ -87,6 +114,14 @@ class DumbImagingRequestForm extends React.PureComponent {
           suggester={imagingTypeSuggester}
         />
         <Field
+          name="areaToBeImaged"
+          label="Area to be imaged"
+          component={TextField}
+          multiline
+          style={{ gridColumn: '1 / -1' }}
+          rows={3}
+        />
+        <Field
           name="note"
           label="Notes"
           component={TextField}
@@ -98,12 +133,11 @@ class DumbImagingRequestForm extends React.PureComponent {
           <Button variant="contained" onClick={onCancel}>
             Cancel
           </Button>
-          <Button variant="contained" onClick={submitForm} color="primary">
-            Finalise and print
-          </Button>
-          <Button variant="contained" onClick={submitForm} color="primary">
-            Finalise and close
-          </Button>
+          <FormSubmitActionDropdown
+            requestId={requestId}
+            encounter={encounter}
+            submitForm={submitForm}
+          />
         </ButtonRow>
       </FormGrid>
     );
@@ -129,6 +163,15 @@ class DumbImagingRequestForm extends React.PureComponent {
     );
   }
 }
+
+DumbImagingRequestForm.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+  onMount: PropTypes.func,
+};
+
+DumbImagingRequestForm.defaultProps = {
+  onMount: null,
+};
 
 export const ImagingRequestForm = connect(
   state => ({

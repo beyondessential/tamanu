@@ -25,9 +25,14 @@ export class ImagingRequest extends Model {
           defaultValue: Sequelize.NOW,
         },
 
-        note: {
+        results: {
           type: Sequelize.STRING,
-          allowNull: true,
+          defaultValue: '',
+        },
+
+        urgent: {
+          type: Sequelize.BOOLEAN,
+          defaultValue: false,
         },
       },
       {
@@ -71,6 +76,25 @@ export class ImagingRequest extends Model {
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'imagingTypeId',
       as: 'imagingType',
+    });
+
+    this.belongsTo(models.User, {
+      foreignKey: 'completedById',
+      as: 'completedBy',
+    });
+
+    this.belongsTo(models.Location, {
+      foreignKey: 'locationId',
+      as: 'location',
+    });
+
+    this.hasMany(models.Note, {
+      foreignKey: 'recordId',
+      as: 'notes',
+      constraints: false,
+      scope: {
+        recordType: this.name,
+      },
     });
   }
 }

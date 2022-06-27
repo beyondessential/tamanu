@@ -19,17 +19,18 @@ describe('AEFI report', () => {
   let scheduledVaccine1 = null;
   let scheduledVaccine2 = null;
   let village;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     const models = ctx.models;
     baseApp = ctx.baseApp;
     village = await randomReferenceId(models, 'village');
 
-    await models.Survey.truncate();
-    await models.Program.truncate();
-    await models.Program.truncate();
-    await models.ProgramDataElement.truncate();
+    await models.Survey.truncate({ cascade: true });
+    await models.Program.truncate({ cascade: true });
+    await models.Program.truncate({ cascade: true });
+    await models.ProgramDataElement.truncate({ cascade: true });
 
     expectedPatient = await models.Patient.create(
       await createDummyPatient(models, { villageId: village }),
@@ -109,6 +110,7 @@ describe('AEFI report', () => {
       }),
     );
   });
+  afterAll(() => ctx.close());
 
   it('should reject creating an aefi report with insufficient permissions', async () => {
     const noPermsApp = await baseApp.asRole('base');

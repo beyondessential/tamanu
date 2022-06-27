@@ -36,10 +36,19 @@ export class Triage extends Model {
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'secondaryComplaintId',
     });
+
+    this.hasMany(models.Note, {
+      foreignKey: 'recordId',
+      as: 'notes',
+      constraints: false,
+      scope: {
+        recordType: this.name,
+      },
+    });
   }
 
   static async create(data) {
-    const { Encounter, ReferenceData } = this.sequelize.models;
+    const { Department, Encounter, ReferenceData } = this.sequelize.models;
 
     const existingEncounter = await Encounter.findOne({
       where: {
@@ -64,9 +73,7 @@ export class Triage extends Model {
       .join(' and ');
     const reasonForEncounter = `Presented at emergency department with ${reasonsText}`;
 
-    const department = await ReferenceData.findOne({
-      where: { code: 'Emergency', type: 'department' },
-    });
+    const department = await Department.findOne({ where: { name: 'Emergency' } });
 
     return this.sequelize.transaction(async () => {
       const encounter = await Encounter.create({

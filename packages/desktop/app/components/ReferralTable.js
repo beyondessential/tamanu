@@ -1,41 +1,67 @@
 import React, { useState, useCallback, useEffect } from 'react';
 
+import { REFERRAL_STATUSES } from 'shared/constants';
+import { REFERRAL_STATUS_LABELS } from '../constants';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { DropdownButton } from './DropdownButton';
 
 import { EncounterModal } from './EncounterModal';
 import { useEncounter } from '../contexts/Encounter';
-import { useReferral } from '../contexts/Referral';
-import { ReferralDetailsModal } from './ReferralDetailsModal';
-import { connectApi } from '../api';
+import { useApi } from '../api';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
+import { DeleteButton } from './Button';
+import { ConfirmModal } from './ConfirmModal';
 
-const ActionDropdown = React.memo(({ row }) => {
-  const [open, setOpen] = useState(false);
+const ACTION_MODAL_STATES = {
+  CLOSED: 'closed',
+  WARNING_OPEN: 'warning',
+  ENCOUNTER_OPEN: 'encounter',
+};
+
+const ActionDropdown = React.memo(({ row, refreshTable }) => {
+  const [openModal, setOpenModal] = useState(ACTION_MODAL_STATES.CLOSED);
   const { loadEncounter } = useEncounter();
+  const api = useApi();
+
+  // Modal callbacks
+  const onCloseModal = useCallback(() => setOpenModal(ACTION_MODAL_STATES.CLOSED), []);
+  const onCancelReferral = useCallback(async () => {
+    await api.put(`referral/${row.id}`, { status: REFERRAL_STATUSES.CANCELLED });
+    onCloseModal();
+    refreshTable();
+  }, [row, api, onCloseModal, refreshTable]);
+
+  // Actions callbacks
   const onViewEncounter = useCallback(async () => {
     loadEncounter(row.encounterId, true);
-  }, [row]);
-  const onCancelReferral = useCallback(async () => {
-    console.log('TODO: Delete referral object');
-  }, [row]);
+  }, [row, loadEncounter]);
+  const onCompleteReferral = useCallback(async () => {
+    await api.put(`referral/${row.id}`, { status: REFERRAL_STATUSES.COMPLETED });
+    refreshTable();
+  }, [row, api, refreshTable]);
 
   const actions = [
     {
       label: 'Admit',
-      condition: () => !row.encounterId && !row.cancelled,
-      onClick: () => setOpen(true),
+      condition: () => row.status === REFERRAL_STATUSES.PENDING,
+      onClick: () => setOpenModal(ACTION_MODAL_STATES.ENCOUNTER_OPEN),
     },
+    // Worth keeping around to address in proper linear card
     {
       label: 'View',
-      condition: () => !!row.encounterId,
+      condition: () => !!row.encounterId, // always false, field no longer exists.
       onClick: onViewEncounter,
     },
     {
-      label: 'Cancel referral',
-      condition: () => !row.encounterId && !row.cancelled,
-      onClick: onCancelReferral,
+      label: 'Complete',
+      condition: () => row.status === REFERRAL_STATUSES.PENDING,
+      onClick: onCompleteReferral,
+    },
+    {
+      label: 'Cancel',
+      condition: () => row.status === REFERRAL_STATUSES.PENDING,
+      onClick: () => setOpenModal(ACTION_MODAL_STATES.WARNING_OPEN),
     },
   ].filter(action => !action.condition || action.condition());
 
@@ -43,72 +69,75 @@ const ActionDropdown = React.memo(({ row }) => {
     <>
       <DropdownButton color="primary" actions={actions} />
       <EncounterModal
-        open={open}
-        onClose={() => setOpen(false)}
-        patientId={row.patientId}
+        open={openModal === ACTION_MODAL_STATES.ENCOUNTER_OPEN}
+        onClose={onCloseModal}
+        patientId={row.initiatingEncounter.patientId}
         referral={row}
+      />
+      <ConfirmModal
+        open={openModal === ACTION_MODAL_STATES.WARNING_OPEN}
+        title="Cancel referral"
+        text="WARNING: This action is irreversible!"
+        subText="Are you sure you want to cancel this referral?"
+        cancelButtonText="No"
+        confirmButtonText="Yes"
+        ConfirmButton={DeleteButton}
+        onConfirm={onCancelReferral}
+        onCancel={onCloseModal}
       />
     </>
   );
 });
 
-const ReferenceDataDisplay = React.memo(({ id, fetchReferenceData }) => {
-  const [name, setName] = useState('Unknown');
+const fieldNames = ['Referring doctor', 'Referral completed by'];
+const ReferralBy = ({ surveyResponse: { survey, answers } }) => {
+  const api = useApi();
+  const [name, setName] = useState('N/A');
 
   useEffect(() => {
     (async () => {
-      const result = await fetchReferenceData(encodeURIComponent(id));
-      if (result) setName(result.name);
+      const referralByComponent = survey.components.find(({ dataElement }) =>
+        fieldNames.includes(dataElement.name),
+      );
+      if (!referralByComponent) {
+        return;
+      }
+      const referralByAnswer = answers.find(
+        ({ dataElementId }) => dataElementId === referralByComponent.dataElementId,
+      );
+      if (!referralByAnswer) {
+        setName('');
+        return;
+      }
+
+      try {
+        const user = await api.get(`user/${encodeURIComponent(referralByAnswer.body)}`);
+        setName(user.displayName);
+      } catch (e) {
+        if (e.message === '404') {
+          setName(referralByAnswer.body);
+        } else {
+          setName('Unknown');
+        }
+      }
     })();
-  }, [id]);
+  }, [survey, answers, api]);
 
   return name;
-});
-const ConnectedReferenceDataDisplay = connectApi(api => ({
-  fetchReferenceData: id => api.get(`referenceData/${id}`),
-}))(ReferenceDataDisplay);
-
-const ReferringDoctorDisplay = React.memo(
-  ({ surveyResponse: { surveyId, answers }, fetchUser, fetchSurvey }) => {
-    const [name, setName] = useState('Unknown');
-
-    useEffect(() => {
-      (async () => {
-        const survey = await fetchSurvey(encodeURIComponent(surveyId));
-        const referringDoctorComponent = survey.components.find(
-          ({ dataElement }) => dataElement.name === 'Referring doctor',
-        );
-        const referringDoctorAnswer = answers.find(
-          ({ dataElementId }) => dataElementId === referringDoctorComponent.dataElementId,
-        );
-        const result = await fetchUser(encodeURIComponent(referringDoctorAnswer.body));
-        if (result) setName(result.displayName);
-      })();
-    }, [surveyId]);
-
-    return name;
-  },
-);
-const ConnectedReferringDoctorDisplay = connectApi(api => ({
-  fetchUser: id => api.get(`user/${id}`),
-  fetchSurvey: id => api.get(`survey/${id}`),
-}))(ReferringDoctorDisplay);
+};
 
 const getDate = ({ initiatingEncounter }) => <DateDisplay date={initiatingEncounter.startDate} />;
-const getDepartment = ({ initiatingEncounter }) => (
-  <ConnectedReferenceDataDisplay id={initiatingEncounter.departmentId} />
+const getReferralType = ({ surveyResponse: { survey } }) => survey.name;
+const getReferralBy = ({ surveyResponse }) => <ReferralBy surveyResponse={surveyResponse} />;
+const getStatus = ({ status }) => REFERRAL_STATUS_LABELS[status] || 'Unknown';
+const getActions = ({ refreshTable, ...row }) => (
+  <ActionDropdown refreshTable={refreshTable} row={row} />
 );
-const getDisplayName = ({ surveyResponse }) => (
-  <ConnectedReferringDoctorDisplay surveyResponse={surveyResponse} />
-);
-const getStatus = ({ completingEncounter }) => (completingEncounter ? 'Complete' : 'Pending');
-
-const getActions = row => <ActionDropdown row={row} />;
 
 const columns = [
   { key: 'date', title: 'Referral date', accessor: getDate },
-  { key: 'department', title: 'Department', accessor: getDepartment },
-  { key: 'referredBy', title: 'Referring doctor', accessor: getDisplayName },
+  { key: 'department', title: 'Referral type', accessor: getReferralType },
+  { key: 'referredBy', title: 'Referral completed by', accessor: getReferralBy },
   { key: 'status', title: 'Status', accessor: getStatus },
   { key: 'actions', title: 'Actions', accessor: getActions, dontCallRowInput: true },
 ];
@@ -128,6 +157,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
         endpoint={`patient/${patientId}/referrals`}
         noDataMessage="No referrals found"
         onRowClick={onSelectReferral}
+        allowExport={false}
       />
     </>
   );

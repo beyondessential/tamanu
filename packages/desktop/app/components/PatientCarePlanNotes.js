@@ -41,14 +41,14 @@ function EditableNoteDisplay({ onSuccessfulSubmit, onNoteDeleted, ...rest }) {
   );
 }
 
-function DumbPatientCarePlanDetails(props) {
+function DumbPatientCarePlanDetails({ getNotes, item }) {
   const [firstNote, setFirstNote] = useState();
   const [subsequentNotes, setSubsequentNotes] = useState([]);
   const [resetForm, setResetForm] = useState(0);
   const [reloadNotes, setReloadNotes] = useState(0);
 
   useEffect(() => {
-    props.getNotes(props.item.id).then(notes => {
+    getNotes(item.id).then(notes => {
       if (notes.length) {
         // first note is the main care plan
         setFirstNote(notes[0]);
@@ -56,20 +56,18 @@ function DumbPatientCarePlanDetails(props) {
         if (notes.length > 1) {
           // display the latest note first
           setSubsequentNotes(
-            notes.slice(1).sort((a, b) => {
-              return moment(a.date).isBefore(b.date) ? 1 : -1;
-            }),
+            notes.slice(1).sort((a, b) => (moment(a.date).isBefore(b.date) ? 1 : -1)),
           );
         }
       }
     });
-  }, [props.item.id, reloadNotes]);
+  }, [item.id, getNotes, reloadNotes]);
 
   return (
     <Container>
       <CarePlanNoteForm
         key={resetForm}
-        carePlanId={props.item.id}
+        carePlanId={item.id}
         onReloadNotes={() => {
           setReloadNotes(reloadNotes + 1);
         }}
@@ -90,9 +88,9 @@ function DumbPatientCarePlanDetails(props) {
             }}
           />
           {subsequentNotes.length
-            ? subsequentNotes.map((note, index) => (
+            ? subsequentNotes.map(note => (
                 <EditableNoteDisplay
-                  key={index}
+                  key={note.id}
                   note={note}
                   onNoteDeleted={() => {
                     setReloadNotes(reloadNotes + 1);
@@ -113,7 +111,5 @@ function DumbPatientCarePlanDetails(props) {
 }
 
 export const PatientCarePlanDetails = connectApi(api => ({
-  getNotes: async patientCarePlanId => {
-    return await api.get(`patientCarePlan/${patientCarePlanId}/notes`);
-  },
+  getNotes: async patientCarePlanId => api.get(`patientCarePlan/${patientCarePlanId}/notes`),
 }))(DumbPatientCarePlanDetails);

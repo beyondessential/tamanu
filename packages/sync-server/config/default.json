@@ -1,15 +1,27 @@
 {
   "port": 3000,
+  // this should be set to the external address of the server, e.g. "https://sync-dev.tamanu.io"
+  "canonicalHostName": "http://localhost:3000",
   "db": {
     "name": "tamanu-sync",
+    // when verbose to true, log.consoleLevel must be set to "debug" to see any output
     "verbose": false,
     "username": "",
     "password": "",
     "migrateOnStartup": false
   },
+  "updateUrls": {
+    "mobile": ""
+  },
   "log": {
     "path": "",
-    "consoleLevel": "info"
+    "consoleLevel": "http",
+    "color": true
+  },
+  "honeycomb": {
+    "apiKey": "",
+    "dataset": "tamanu-general",
+    "enabled": true
   },
   "sync": {
     "concurrentChannelChecks": 8
@@ -45,10 +57,14 @@
     ]
   },
   "auth": {
+    // this secret should be set if more than one process of the sync-server is running
+    // otherwise, each process will use a different key and tokens won't match
+    "secret": null,
     "saltRounds": 12,
     "tokenDuration": "1h",
     "reportNoUserError": false,
     "allowDummyToken": false,
+    "useHardcodedPermissions": true,
     "initialUser": {
       "email": "admin@tamanu.io",
       "displayName": "Initial Admin",
@@ -69,19 +85,147 @@
     "allowedOrigin": ""
   },
   "schedules": {
-    "outpatientDischarger": "0 0 2 ? * * *"
+    // batchSize == run through them all in one run, in batches of N
+    // limit == run through N per task run
+    // schedule: 5 fields == first is minutes, 6 fields == first is SECONDS
+
+    "outpatientDischarger": {
+      // every day at 11 PM
+      "schedule": "0 11 * * *",
+      "batchSize": 1000,
+      "batchSleepAsyncDurationInMilliseconds": 50
+    },
+    "patientEmailCommunicationProcessor": {
+      // every 30seconds /!\
+      "schedule": "*/30 * * * * *",
+      "limit": 10
+    },
+    "deceasedPatientDischarger": {
+      // once an hour
+      "schedule": "29 * * * *",
+      "batchSize": 100,
+      "batchSleepAsyncDurationInMilliseconds": 50
+    },
+    "certificateNotificationProcessor": {
+      // every 30 seconds /!\
+      "schedule": "*/30 * * * * *",
+      "limit": 10
+    },
+    "reportRequestProcessor": {
+      // every 30 seconds /!\
+      "schedule": "*/30 * * * * *",
+      "limit": 10
+    },
+    "signerRenewalChecker": {
+      "schedule": "0 0 * * *"
+    },
+    "signerRenewalSender": {
+      // needs to happen after the Renewal Checker, and regularly thereafter as a retry mechanism
+      "schedule": "30 * * * *"
+    },
+    "signerWorkingPeriodChecker": {
+      "schedule": "0 1 * * *"
+    },
+    "automaticLabTestResultPublisher": {
+      "enabled": false,
+      "schedule": "*/15 * * * *",
+      "limit": 300,
+      "results": {
+        "labTestType-RATPositive": {
+          "labTestMethodId": "labTestMethod-RAT",
+          "result": "Positive"
+        },
+        "labTestType-RATNegative": {
+          "labTestMethodId": "labTestMethod-RAT",
+          "result": "Negative"
+        }
+      }
+    },
+    "duplicateAdditionalDataDeleter": {
+      "enabled": false,
+      "schedule": "0 * * * *"
+    }
   },
+  "integrations": {
+    "fijiVrs": {
+      "enabled": false,
+      "host": "http://uat-vra.digitalfiji.gov.fj:8786",
+      "username": null,
+      "password": null,
+      // refresh the token if it's within tokenExpiryMarginMs milliseconds of expiry
+      "tokenExpiryMarginMs": 60000,
+      "flagInsteadOfDeleting": true,
+      "retrySchedule": "*/30 * * * * *",
+      // don't retry pending records unless they're retryMinAgeMs old
+      "retryMinAgeMs": 60000,
+      "requireClientHeaders": true
+    },
+    "fijiVps": {
+      "enabled": false,
+      "requireClientHeaders": true
+    },
+    "euDcc": {
+      "enabled": false,
+      "issuer": null // Responsible org for vax cert issuance, e.g. 'Ministry of Health of the Tamanu Republic'. If null defaults to the facility name.
+    },
+    "vdsNc": {
+      "enabled": false
+    },
+    "signer": {
+      "enabled": false,
+
+      // Encryption key for ICAO Signer key material (stored in DB).
+      // This must be unique per country/installation AND NEVER CHANGED.
+      // It must be at least 32 bytes of random data in Base64.
+      // $ openssl rand -base64 32
+      "keySecret": null,
+
+      // For VDS-NC: exactly 2 uppercase letters/numbers, must be unique in country, ref 9303-13 §2.2.1(a)
+      // For EU DCC: at least 1 character, must be unique in country, should be descriptive
+      "commonName": "TA",
+
+      // For EU DCC only: the name of the issuing organisation (provider/O of the DSC)
+      // "provider": "Tamanu",
+
+      // Email address for CSCA signing contact
+      "sendRequestTo": "admin@tamanu.io"
+    },
+    "mSupply": {
+      "enabled": false,
+      "requireClientHeaders": true
+    }
+  },
+  // on the sync-server, don't read these values from config!
+  // use the getLocalisation() helper in packages/sync-server/app/localisation.js
+  // this will ensure we can read these values from the database in the future
   "localisation": {
+    "allowInvalid": false,
+    // the labResultWidget and timeZone keys are here for legacy reasons
+    // don't put anything else in the top level of localisation unless it relates to localisation itself
     "labResultWidget": {
-      "categoryWhitelist": [
-        "labTestCategory-COVID"
-      ],
-      "testTypeWhitelist": [
-        "labTestType-COVID"
-      ]
+      "categoryWhitelist": ["labTestCategory-COVID"],
+      "testTypeWhitelist": ["labTestType-COVID"]
     },
     "data": {
+      "country": {
+        "name": "",
+        "alpha-2": "",
+        "alpha-3": ""
+      },
       "fields": {
+        "countryName": {
+          "shortLabel": "Country",
+          "longLabel": "Country",
+          "hidden": false
+        },
+        "emergencyContactName": {
+          "shortLabel": "Emergency contact name",
+          "longLabel": "Emergency contact name"
+        },
+        "emergencyContactNumber": {
+          "shortLabel": "Emergency contact number",
+          "longLabel": "Emergency contact number"
+        },
         "markedForSync": {
           "shortLabel": "Sync",
           "longLabel": "Marked for sync"
@@ -113,6 +257,11 @@
           "longLabel": "Sex",
           "hidden": false
         },
+        "email": {
+          "shortLabel": "Email",
+          "longLabel": "Email",
+          "hidden": false
+        },
         "dateOfBirth": {
           "shortLabel": "DOB",
           "longLabel": "Date of birth"
@@ -128,6 +277,10 @@
         "dateOfBirthExact": {
           "shortLabel": "DOB exact",
           "longLabel": "Date of birth exact"
+        },
+        "dateOfDeath": {
+          "shortLabel": "Death",
+          "longLabel": "Date of death"
         },
         "bloodType": {
           "shortLabel": "Blood type",
@@ -185,8 +338,8 @@
           "hidden": false
         },
         "subdivisionId": {
-          "shortLabel": "Sub Division",
-          "longLabel": "Sub Division",
+          "shortLabel": "Sub division",
+          "longLabel": "Sub division",
           "hidden": false
         },
         "divisionId": {
@@ -274,19 +427,115 @@
         }
       },
       "features": {
+        "editPatientDetailsOnMobile": true,
+        "enableInvoicing": false,
         "registerNewPatient": true,
-        "hideOtherSex": true
+        "hideOtherSex": true,
+        "enablePatientDeaths": false
       },
       "templates": {
         "letterhead": {
           "title": "TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES",
           "subTitle": "PO Box 12345, Melbourne, Australia"
+        },
+        "signerRenewalEmail": {
+          "subject": "Tamanu ICAO Certificate Signing Request",
+          "body": "Please sign the following certificate signing request (CSR) with the Country Signing Certificate Authority (CSCA), and return it to the Tamanu team or Tamanu deployment administration team."
+        },
+        "vaccineCertificateEmail": {
+          "subject": "Medical Certificate now available",
+          "body": "A medical certificate has been generated for you.\nYour certificate is available attached to this email."
+        },
+        "covidTestCertificateEmail": {
+          "subject": "Medical Certificate now available",
+          "body": "A medical certificate has been generated for you.\nYour certificate is available attached to this email."
+        },
+        "vaccineCertificate": {
+          "emailAddress": "tamanu@health.gov",
+          "contactNumber": "12345",
+          "healthFacility": "State level"
+        },
+        "covidTestCertificate": {
+          "laboratoryName": "Approved test provider"
         }
       },
+      "printMeasures": {
+        "stickerLabelPage": {
+          "pageWidth": "210mm",
+          "pageHeight": "297mm",
+          "pageMarginTop": "15.09mm",
+          "pageMarginLeft": "6.4mm",
+          "columnTotal": 3,
+          "columnWidth": "64mm",
+          "columnGap": "3.01mm",
+          "rowTotal": 10,
+          "rowHeight": "26.7mm",
+          "rowGap": "0"
+        }
+      },
+
+      // The time zone setting is currently only used for Vaccine Certificates
+      "timeZone": null,
+
+      // UVCI format for vaccine certificate *previews* on Desktop.
+      // This should match whichever of integrations.euDcc or .vdsNc is enabled, and
+      // does *not* affect which format is used for the actual PDF certificate when
+      // generated in the sync server. Can be `tamanu` or `icao` or `eudcc`.
+      // `tamanu` implies that the signing integrations are not enabled.
+      "previewUvciFormat": "tamanu",
+
       "sync": {
         "syncAllEncountersForTheseScheduledVaccines": []
       },
       "disabledReports": []
+    }
+  },
+  "reports": {
+    // Configure this COVID report with custom properties needed for mapping entities, and the surveyId to sync with tupaia.
+    // Note: it only syncs if configured to in the scheduled reports config.
+    "covid-vaccine-daily-summary-village": {
+      "countryCode": "WS",
+      "hierarchyName": "covid_samoa",
+      "surveyId": "605b114261f76a3684009d5a"
+    }
+  },
+  "reportProcess": {
+    // Report process timeout in 2 hours.
+    "timeOutDurationSeconds": 7200,
+    "runInChildProcess": true,
+    // provide an array [] if you want to override the options, eg: ['--max-old-space-size=4096']
+    "processOptions": null,
+    // Provide an object {} for the env of child process
+    "childProcessEnv": null
+  },
+  "hl7": {
+    "nullLastNameValue": "NoLastName",
+    "assigners": {
+      "patientDisplayId": "Tamanu"
+    },
+    "dataDictionaries": {
+      "testMethod": "http://tamanu.io/data-dictionary/covid-test-methods",
+      "patientDisplayId": "http://tamanu.io/data-dictionary/application-reference-number.html",
+      "labRequestDisplayId": "http://tamanu.io/data-dictionary/labrequest-reference-number.html"
+    }
+  },
+  "tupaiaApiClient": {},
+  "s3": {},
+  "scheduledReports": [],
+  "disk": {
+    "diskPath": "C:/",
+    "freeSpaceRequired": {
+      "gigabytesForUploadingDocuments": 16
+    }
+  },
+  "questionCodeIds": {
+    "passport": null,
+    "nationalityId": null,
+    "email": null
+  },
+  "notifications": {
+    "certificates": {
+      "labTestCategoryIds": []
     }
   }
 }

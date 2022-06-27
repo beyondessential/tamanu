@@ -1,6 +1,6 @@
 import styled from 'styled-components';
-import { Colors } from '../../constants';
 import { Typography } from '@material-ui/core';
+import { Colors } from '../../constants';
 
 export const ProgramsPane = styled.div`
   background: white;
@@ -12,13 +12,15 @@ export const ProgramsPane = styled.div`
 export const ProgramsPaneHeader = styled.div`
   padding: 30px;
   background: ${Colors.primary};
-  text-transform: capitalize;
   margin: -30px -30px 30px -30px;
+
+  &::first-letter {
+    text-transform: uppercase;
+  }
 `;
 
 export const ProgramsPaneHeading = styled(Typography)`
   font-weight: 500;
   font-size: 18px;
-  text-transform: capitalize;
   color: ${Colors.secondary};
 `;

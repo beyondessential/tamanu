@@ -1,4 +1,5 @@
 import { buildVersionCompatibilityCheck } from 'shared/utils';
+import { InvalidClientHeadersError } from 'shared/errors';
 
 // If a new version of the mobile app is being released in conjunction with an update to the sync
 // server, set `min` for `Tamanu Mobile` to reflect that, and mobile users will be logged out until
@@ -6,17 +7,33 @@ import { buildVersionCompatibilityCheck } from 'shared/utils';
 // not supported.
 export const SUPPORTED_CLIENT_VERSIONS = {
   'Tamanu LAN Server': {
-    min: '1.8.0',
-    max: '1.8.4', // note that higher patch versions will be allowed to connect
+    min: '1.17.0',
+    max: '1.17.0', // note that higher patch versions will be allowed to connect
+  },
+  'Tamanu Desktop': {
+    min: '1.17.0',
+    max: '1.17.0', // note that higher patch versions will be allowed to connect
   },
   'Tamanu Mobile': {
-    min: '1.7.0',
-    max: '1.8.99', // note that higher patch versions will be allowed to connect
+    min: '1.17.36',
+    max: '1.17.99', // note that higher patch versions will be allowed to connect
+  },
+  'fiji-vps': {
+    min: null,
+    max: null,
+  },
+  'fiji-vrs': {
+    min: null,
+    max: null,
+  },
+  mSupply: {
+    min: null,
+    max: null,
   },
 };
 
 export const versionCompatibility = (req, res, next) => {
-  const clientType = req.header('X-Runtime');
+  const clientType = req.header('X-Tamanu-Client');
 
   if (!clientType) {
     // a thirdparty tool (or internal test suite) is using the API; ignore version checking
@@ -26,12 +43,11 @@ export const versionCompatibility = (req, res, next) => {
 
   const clientTypes = Object.keys(SUPPORTED_CLIENT_VERSIONS);
   if (!clientTypes.includes(clientType)) {
-    res.status(400).json({
-      error: {
-        message: `The only supported client types are ${clientTypes.join(', ')}`,
-        name: 'InvalidClientType',
-      },
-    });
+    next(
+      new InvalidClientHeadersError(
+        `The only supported X-Tamanu-Client values are ${clientTypes.join(', ')}`,
+      ),
+    );
     return;
   }
 

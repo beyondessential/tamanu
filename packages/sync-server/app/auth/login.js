@@ -1,31 +1,19 @@
 import asyncHandler from 'express-async-handler';
 import config from 'config';
 import bcrypt from 'bcrypt';
+import { getPermissionsForRoles } from 'shared/permissions/rolesToPermissions';
+import { BadAuthenticationError } from 'shared/errors';
 import { getLocalisation } from '../localisation';
 import { convertFromDbRecord } from '../convertDbRecord';
 
-import { BadAuthenticationError } from 'shared/errors';
-import { FAKE_TOKEN, getToken, stripUser } from './utils';
+import { getToken, stripUser } from './utils';
 
 export const login = asyncHandler(async (req, res) => {
   const { store, body } = req;
-  const { email, password } = body;
+  const { email, password, facilityId } = body;
 
-  if (!email && !password) {
-    if (!config.auth.allowDummyToken) {
-      throw new BadAuthenticationError('Missing credentials');
-    }
-
-    // send a token for the initial user
-    const initialUser = await store.findUser(config.auth.initialUser.email);
-    if (!initialUser) {
-      throw new BadAuthenticationError('No such user');
-    }
-    res.send({
-      token: FAKE_TOKEN,
-      user: convertFromDbRecord(stripUser(initialUser)).data,
-    });
-    return;
+  if (!email || !password) {
+    throw new BadAuthenticationError('Missing credentials');
   }
 
   const user = await store.findUser(email);
@@ -43,12 +31,21 @@ export const login = asyncHandler(async (req, res) => {
     throw new BadAuthenticationError('Invalid credentials');
   }
 
-  const token = await getToken(user);
-  const localisation = await getLocalisation();
+  const token = await getToken(user, config.auth.tokenDuration);
+
+  // Send some additional data with login to tell the user about
+  // the context they've just logged in to.
+  const [facility, localisation, permissions] = await Promise.all([
+    store.models.Facility.findByPk(facilityId),
+    getLocalisation(),
+    getPermissionsForRoles(user.role),
+  ]);
 
   res.send({
     token,
-    localisation,
     user: convertFromDbRecord(stripUser(user)).data,
+    permissions,
+    facility,
+    localisation,
   });
 });

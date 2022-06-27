@@ -1,8 +1,8 @@
-import { createDummyPatient, createDummyEncounter, randomReferenceId } from 'shared/demoData/patients';
+import { createDummyPatient, createDummyEncounter, randomRecordId } from 'shared/demoData';
 import { createTestContext } from '../utilities';
 
 async function createDummyProcedure(models) {
-  const locationId = await randomReferenceId(models, 'location');
+  const locationId = await randomRecordId(models, 'Location');
   return {
     note: '',
     date: new Date(),
@@ -16,9 +16,10 @@ describe('Procedures', () => {
   let encounter = null;
   let baseApp = null;
   let models = null;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
     patient = await models.Patient.create(await createDummyPatient(models));
@@ -29,6 +30,7 @@ describe('Procedures', () => {
       reasonForEncounter: 'vitals test',
     });
   });
+  afterAll(() => ctx.close());
 
   it('should record a procedure', async () => {
     const result = await app.post('/v1/procedure').send({

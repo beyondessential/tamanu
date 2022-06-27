@@ -16,7 +16,8 @@ labRequestLog.get(
 
     const logsWithDisplayName = await Promise.all(
       logs.map(async log => {
-        const updatedByDisplayName = (await models.User.findByPk(log.updatedById)).dataValues.displayName;
+        const updatedByDisplayName = (await models.User.findByPk(log.updatedById)).dataValues
+          .displayName;
         return { ...log.dataValues, updatedByDisplayName };
       }),
     );

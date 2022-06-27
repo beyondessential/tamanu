@@ -17,16 +17,6 @@ import { ConfirmCancelRow } from '../components/ButtonRow';
 import { foreignKey } from '../utils/validation';
 
 export class OngoingConditionForm extends React.PureComponent {
-  static propTypes = {
-    onSubmit: PropTypes.func.isRequired,
-    onCancel: PropTypes.func.isRequired,
-    editedObject: PropTypes.shape({}),
-  };
-
-  static defaultProps = {
-    editedObject: null,
-  };
-
   renderForm = ({ submitForm, values }) => {
     const { editedObject, onCancel, practitionerSuggester, icd10Suggester } = this.props;
     const resolving = values.resolved;
@@ -41,10 +31,15 @@ export class OngoingConditionForm extends React.PureComponent {
           disabled={resolving}
           required
         />
-        <Field name="date" label="Date recorded" component={DateField} disabled={resolving} />
+        <Field
+          name="recordedDate"
+          label="Date recorded"
+          component={DateField}
+          disabled={resolving}
+        />
         <Field
           name="practitioner"
-          label="Doctor/Nurse"
+          label="Doctor/nurse"
           disabled={resolving}
           component={AutocompleteField}
           suggester={practitionerSuggester}
@@ -56,7 +51,7 @@ export class OngoingConditionForm extends React.PureComponent {
             <Field name="resolutionDate" label="Date resolved" component={DateField} />
             <Field
               name="resolutionPractitioner"
-              label="Doctor/Nurse confirming resolution"
+              label="Doctor/nurse confirming resolution"
               component={AutocompleteField}
               suggester={practitionerSuggester}
             />
@@ -107,3 +102,13 @@ export class OngoingConditionForm extends React.PureComponent {
     );
   }
 }
+
+OngoingConditionForm.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+  editedObject: PropTypes.shape({}),
+};
+
+OngoingConditionForm.defaultProps = {
+  editedObject: null,
+};

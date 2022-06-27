@@ -21,10 +21,10 @@ import {
 import { checkAbility } from '../utils/ability';
 import { Colors } from '../constants';
 
-export const ButtonBase = props => {
+export const ButtonBase = ({ disabled, ...props }) => {
   const allowed = isAllowed(props);
   const locationsProps = getLocationProps(props);
-  return <MuiButtonBase {...props} {...locationsProps} disabled={!allowed || props.disabled} />;
+  return <MuiButtonBase {...props} {...locationsProps} disabled={!allowed || disabled} />;
 };
 
 const StyledButton = styled(MuiButton)`
@@ -57,6 +57,21 @@ export const OutlinedButton = props => (
   <StyledOutlinedButton variant="outlined" color="primary" {...props} />
 );
 
+const StyledLargeButton = styled(StyledButton)`
+  font-size: 15px;
+  line-height: 18px;
+  padding: 12px 25px;
+  border: 1px solid ${props => props.theme.palette.primary.main};
+`;
+
+export const LargeButton = props => (
+  <StyledLargeButton variant="contained" color="primary" {...props} />
+);
+
+export const LargeOutlineButton = props => (
+  <StyledLargeButton variant="outlined" color="primary" {...props} />
+);
+
 export const ClearButton = props => (
   <Button variant="outlined" {...props}>
     Clear
@@ -78,11 +93,14 @@ const StyledDeleteButton = styled(Button)`
   }
 `;
 
-export const DeleteButton = props => (
-  <StyledDeleteButton variant="contained" {...props}>
-    {props.children || 'Delete'}
-  </StyledDeleteButton>
-);
+export const DeleteButton = props => {
+  const { children } = props;
+  return (
+    <StyledDeleteButton variant="contained" {...props}>
+      {children || 'Delete'}
+    </StyledDeleteButton>
+  );
+};
 
 export const SearchButton = props => (
   <Button variant="contained" color="primary" {...props}>
@@ -92,13 +110,13 @@ export const SearchButton = props => (
 
 export const CheckInButton = props => (
   <Button variant="contained" color="secondary" {...props}>
-    Check In
+    Check-in
   </Button>
 );
 
 export const CheckOutButton = props => (
   <Button variant="contained" color="secondary" {...props}>
-    Check Out
+    Check-out
   </Button>
 );
 
@@ -159,17 +177,17 @@ const StyledNavButton = styled(TextButton)`
 
 export const ForwardButton = ({ children, ...props }) => (
   <StyledNavButton {...props}>
-    {children} <ChevronRight />
+    {children}
+    <ChevronRight />
   </StyledNavButton>
 );
 
-export const BackButton = ({ to, onClick, ...props }) => {
-  return (
-    <StyledNavButton to={to} onClick={onClick} {...props}>
-      <ChevronLeft /> Back
-    </StyledNavButton>
-  );
-};
+export const BackButton = ({ to, text = true, ...props }) => (
+  <StyledNavButton to={to} {...props}>
+    <ChevronLeft />
+    {text && ' Back'}
+  </StyledNavButton>
+);
 
 const StyledImageButton = styled(Button)`
   background: ${Colors.white};
@@ -181,9 +199,9 @@ const StyledImageButton = styled(Button)`
   }
 `;
 
-export const ImageButton = ({ children, ...props }) => (
+export const ImageButton = ({ children, alt, src, ...props }) => (
   <StyledImageButton variant="contained" {...props}>
-    <img src={props.src} />
+    <img alt={alt ?? 'Button with an unspecified image'} src={src} />
     {children}
   </StyledImageButton>
 );

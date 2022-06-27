@@ -2,10 +2,10 @@ import React from 'react';
 import moment from 'moment';
 import styled from 'styled-components';
 
-function formatShort(date) {
+export function formatShort(date) {
   if (!date) return '--/--/----';
 
-  return moment(date).format('D/MM/YYYY'); // "04/03/2019" dd/mm in locale order
+  return moment(date).format('DD/MM/YYYY'); // "04/03/2019" dd/mm in locale order
 }
 
 function formatLong(date) {
@@ -18,8 +18,14 @@ function formatDuration(date) {
   return moment(date).from(moment(), true);
 }
 
-function formatTime(date) {
+export function formatTime(date) {
   return moment(date).format('hh:mm a');
+}
+
+function formatShortExplicit(date) {
+  if (!date) return 'Unknown';
+
+  return moment(date).format('Do MMM YYYY'); // "4th Mar 2019" unambiguous short format
 }
 
 const StyledAbbr = styled.abbr`
@@ -31,11 +37,14 @@ export const DateDisplay = ({
   showDate = true,
   showTime = false,
   showDuration = false,
+  showExplicitDate = false,
   ...props
 }) => {
   const parts = [];
   if (showDate) {
     parts.push(formatShort(date));
+  } else if (showExplicitDate) {
+    parts.push(formatShortExplicit(date));
   }
   if (showDuration) {
     parts.push(`(${formatDuration(date)})`);
@@ -44,7 +53,7 @@ export const DateDisplay = ({
     parts.push(formatTime(date));
   }
   return (
-    <StyledAbbr {...props} title={formatLong(date)}>
+    <StyledAbbr {...props} title={formatLong(date)} data-test-class="date-display-abbr">
       {parts.join(' ')}
     </StyledAbbr>
   );

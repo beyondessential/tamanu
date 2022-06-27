@@ -1,6 +1,6 @@
 /*
- * Tupaia
- * Copyright (c) 2017 - 2020 Beyond Essential Systems Pty Ltd
+ * Tamanu
+ * Copyright (c) 2017 - 2022 Beyond Essential Systems Pty Ltd
  */
 
 import { createMuiTheme } from '@material-ui/core/styles';
@@ -49,8 +49,8 @@ const overrides = {
   MuiOutlinedInput: {
     notchedOutline: {
       borderColor: Colors.outline,
-    }
-  }
+    },
+  },
 };
 
 export const theme = createMuiTheme({ palette, themeName, typography, shape, overrides });

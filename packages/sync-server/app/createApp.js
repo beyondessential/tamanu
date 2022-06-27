@@ -1,23 +1,24 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import morgan from 'morgan';
 import compression from 'compression';
 
-import { log } from 'shared/services/logging';
+import { getLoggingMiddleware } from 'shared/services/logging';
+import { constructPermission } from 'shared/permissions/middleware';
+import { SERVER_TYPES } from 'shared/constants';
 
 import { routes } from './routes';
 import { authModule } from './auth';
 import { publicRoutes } from './publicRoutes';
 
-import errorHandler from './middleware/errorHandler';
+import { defaultErrorHandler } from './middleware/errorHandler';
 import { loadshedder } from './middleware/loadshedder';
 import { versionCompatibility } from './middleware/versionCompatibility';
 
-import { version } from '../package.json';
+import { version } from './serverInfo';
 
-const isDevelopment = process.env.NODE_ENV === 'development';
+export function createApp(ctx) {
+  const { store, emailService } = ctx;
 
-export function createApp({ store, emailService }) {
   // Init our app
   const app = express();
   app.use(loadshedder());
@@ -25,16 +26,10 @@ export function createApp({ store, emailService }) {
   app.use(bodyParser.json({ limit: '50mb' }));
   app.use(bodyParser.urlencoded({ extended: true }));
 
-  app.use(
-    morgan(isDevelopment ? 'dev' : 'tiny', {
-      stream: {
-        write: message => log.info(message),
-      },
-    }),
-  );
+  app.use(getLoggingMiddleware());
 
   app.use((req, res, next) => {
-    res.setHeader('X-Runtime', 'Tamanu Sync Server');
+    res.setHeader('X-Tamanu-Server', SERVER_TYPES.SYNC);
     res.setHeader('X-Version', version);
     next();
   });
@@ -44,6 +39,7 @@ export function createApp({ store, emailService }) {
   app.use((req, res, next) => {
     req.store = store;
     req.emailService = emailService;
+    req.ctx = ctx;
 
     next();
   });
@@ -58,14 +54,15 @@ export function createApp({ store, emailService }) {
   // API v1
   app.use('/v1/public', publicRoutes);
   app.use('/v1', authModule);
+  app.use('/v1', constructPermission);
   app.use('/v1', routes);
 
   // Dis-allow all other routes
-  app.get('*', (req, res) => {
+  app.use('*', (req, res) => {
     res.status(404).end();
   });
 
-  app.use(errorHandler);
+  app.use(defaultErrorHandler);
 
   return app;
 }

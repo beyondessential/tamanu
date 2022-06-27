@@ -60,11 +60,13 @@ describe('RequestQueue', () => {
     const queue = new RequestQueue({
       maxActiveRequests: 1,
       maxQueuedRequests: 1,
-      queueTimeout: 1000,
+      queueTimeout: 100,
     });
     await expect(queue.acquire()).resolves.toEqual(expect.anything());
-    expect(queue.acquire()).toEqual(expect.any(Promise));
+    const willTimeout = queue.acquire();
+    expect(willTimeout).toEqual(expect.any(Promise));
     await expect(queue.acquire()).rejects.toEqual(expect.any(RequestQueueExceededError));
+    await expect(willTimeout).rejects.toEqual(expect.any(RequestQueueTimeoutError));
   });
 
   it('rejects parallel requests that take too long', async () => {
@@ -77,7 +79,7 @@ describe('RequestQueue', () => {
     const startMs = Date.now();
     await expect(queue.acquire()).rejects.toEqual(expect.any(RequestQueueTimeoutError));
     const elapsedMs = Date.now() - startMs;
-    expect(elapsedMs).toBeLessThan(150);
+    expect(elapsedMs).toBeLessThan(1100); // accept any delay less than a second - the event queue can be slow
   });
 });
 

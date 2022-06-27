@@ -1,20 +1,21 @@
 import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
 
+import { VACCINE_STATUS } from 'shared/constants';
+
 import { Modal } from './Modal';
-import { ConfirmAdministeredVaccineDelete } from './ConfirmAdministeredVaccineDelete';
 
 import { connectApi } from '../api/connectApi';
 import { reloadPatient } from '../store/patient';
 
-import { VACCINE_STATUS } from '../constants';
 import { ContentPane } from './ContentPane';
 import { DeleteButton } from './Button';
 import { TextInput } from './Field';
 import { FormGrid } from './FormGrid';
+import { ConfirmModal } from './ConfirmModal';
 
 const Button = styled(DeleteButton)`
-  margin-top: 12px;
+  margin-top: 2em;
 `;
 
 const ModalContent = React.memo(({ open, onClose, onMarkRecordedInError, vaccineRecord }) => {
@@ -22,7 +23,7 @@ const ModalContent = React.memo(({ open, onClose, onMarkRecordedInError, vaccine
   const closeWithoutDeletingRecord = useCallback(() => {
     setConfirmDelete(false);
     onClose();
-  }, []);
+  }, [onClose]);
 
   if (!vaccineRecord) return null;
 
@@ -30,21 +31,25 @@ const ModalContent = React.memo(({ open, onClose, onMarkRecordedInError, vaccine
     status,
     injectionSite,
     scheduledVaccine: { label, schedule },
-    encounter: {
-      examiner: { displayName },
-    },
+    recorder,
+    givenBy,
+    location,
+    encounter,
   } = vaccineRecord;
 
   if (confirmDelete) {
     return (
-      <Modal title="Delete Vaccination Record" open={open} onClose={closeWithoutDeletingRecord}>
-        <ContentPane>
-          <ConfirmAdministeredVaccineDelete
-            onDelete={onMarkRecordedInError}
-            onClose={closeWithoutDeletingRecord}
-          />
-        </ContentPane>
-      </Modal>
+      <ConfirmModal
+        title="Delete Vaccination Record"
+        text="WARNING: This action is irreversible!"
+        subText="Are you sure you want to delete this vaccination record?"
+        open={open}
+        onCancel={closeWithoutDeletingRecord}
+        onConfirm={onMarkRecordedInError}
+        ConfirmButton={DeleteButton}
+        cancelButtonText="No"
+        confirmButtonText="Yes"
+      />
     );
   }
 
@@ -55,11 +60,17 @@ const ModalContent = React.memo(({ open, onClose, onMarkRecordedInError, vaccine
           <TextInput disabled value={`${label} (${schedule})`} label="Vaccine" />
           <TextInput disabled value={status} label="Status" />
           <TextInput disabled value={injectionSite} label="Injection site" />
-          <TextInput disabled value={displayName} label="Practitioner" />
-          <Button onClick={() => setConfirmDelete(true)} variant="contained" color="primary">
-            DELETE RECORD
-          </Button>
+          <TextInput
+            disabled
+            value={location?.name || encounter?.location?.name}
+            label="Facility"
+          />
+          {givenBy && <TextInput disabled value={givenBy} label="Giver" />}
+          <TextInput disabled value={recorder?.displayName || encounter?.examiner?.displayName} label="Recorder" />
         </FormGrid>
+        <Button onClick={() => setConfirmDelete(true)} variant="contained" color="primary">
+          DELETE RECORD
+        </Button>
       </ContentPane>
     </Modal>
   );

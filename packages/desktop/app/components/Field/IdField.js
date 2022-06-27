@@ -38,24 +38,22 @@ const Text = styled.p`
   align-self: flex-end;
 `;
 
-export const IdInput = ({ value, name, onChange, regenerateId }) => {
-  return (
-    <IdControl>
-      <Id>{value || ''}</Id>
-      <RegenerateId onClick={() => onChange({ target: { value: regenerateId(), name } })}>
-        <Autorenew />
-        <Text>Regenerate</Text>
-      </RegenerateId>
-    </IdControl>
-  );
-};
+export const IdInput = ({ value, name, onChange, regenerateId }) => (
+  <IdControl>
+    <Id data-test-class="id-field-div">{value || ''}</Id>
+    <RegenerateId onClick={() => onChange({ target: { value: regenerateId(), name } })}>
+      <Autorenew />
+      <Text>Regenerate</Text>
+    </RegenerateId>
+  </IdControl>
+);
 
-export const IdField = props => (
+export const IdField = ({ field, regenerateId }) => (
   <IdInput
-    name={props.field.name}
-    value={props.field.value}
-    onChange={props.field.onChange}
-    {...props}
+    name={field.name}
+    value={field.value}
+    onChange={field.onChange}
+    regenerateId={regenerateId}
   />
 );
 

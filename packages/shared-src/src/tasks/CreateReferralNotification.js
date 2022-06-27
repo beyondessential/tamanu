@@ -5,20 +5,20 @@ import {
 } from '../constants';
 
 export async function createReferralNotification(referral, models) {
-  const { PatientCommunication, User, ReferenceData } = models;
+  const { PatientCommunication, User, Department, Facility } = models;
 
   // retrieve data related to referral
   const referredBy = await User.findOne({ where: { id: referral.get('referredById') } });
-  const referredToDepartment = await ReferenceData.findOne({
+  const referredToDepartment = await Department.findOne({
     where: { id: referral.get('referredToDepartmentId') },
   });
-  const referredToFacility = await ReferenceData.findOne({
+  const referredToFacility = await Facility.findOne({
     where: { id: referral.get('referredToFacilityId') },
   });
 
   // build the email notification
   const notificationSubject = 'Medical referral made for you';
-  const notificationContent = `You have been referred to another health facility for further examination or treatment. 
+  const notificationContent = `You have been referred to another health facility for further examination or treatment.
 Referred by: ${referredBy.displayName}
 Referred to: ${referredToDepartment.name} at ${referredToFacility.name}
 Please attend this health facility as soon as possible.

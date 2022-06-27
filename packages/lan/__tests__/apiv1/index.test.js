@@ -2,11 +2,13 @@ import { createTestContext } from '../utilities';
 
 describe('fundamentals', () => {
   let baseApp = null;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     baseApp = ctx.baseApp;
   });
+  afterAll(() => ctx.close());
 
   test.todo('should respond to a GET request');
   test.todo('should respond to a POST request');

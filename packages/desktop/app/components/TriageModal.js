@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import moment from 'moment';
 import { push } from 'connected-react-router';
 
 import { useLocalisation } from '../contexts/Localisation';
@@ -10,6 +9,7 @@ import { Colors } from '../constants';
 import { connectApi } from '../api/connectApi';
 import { TriageForm } from '../forms/TriageForm';
 import { DisplayIdLabel } from './DisplayIdLabel';
+import { DateDisplay } from './DateDisplay';
 
 const PatientDetails = styled.div`
   padding: 15px;
@@ -46,31 +46,29 @@ const DETAILS_FIELD_DEFINITIONS = [
   ['firstName'],
   ['lastName'],
   ['sex'],
-  ['dateOfBirth', ({ dateOfBirth }) => moment(dateOfBirth).format('MM/DD/YYYY')],
+  ['dateOfBirth', ({ dateOfBirth }) => <DateDisplay date={dateOfBirth} />],
 ];
 
 const DumbTriageModal = React.memo(({ open, patient, onClose, ...rest }) => {
-  const { displayId, firstName, lastName, sex, dateOfBirth } = patient;
+  const { displayId } = patient;
   const { getLocalisation } = useLocalisation();
-  const detailsFields = DETAILS_FIELD_DEFINITIONS
-    .filter(([name]) => getLocalisation(`fields.${name}.hidden`) !== true)
-    .map(([name, accessor]) => (
-      <React.Fragment key={name}>
-        <DetailLabel>{getLocalisation(`fields.${name}.longLabel`)}:</DetailLabel>
-        <DetailValue>{accessor ? accessor(patient) : patient[name]}</DetailValue>
-      </React.Fragment>
-    ));
+  const detailsFields = DETAILS_FIELD_DEFINITIONS.filter(
+    ([name]) => getLocalisation(`fields.${name}.hidden`) !== true,
+  ).map(([name, accessor]) => (
+    <React.Fragment key={name}>
+      <DetailLabel>{getLocalisation(`fields.${name}.longLabel`)}:</DetailLabel>
+      <DetailValue>{accessor ? accessor(patient) : patient[name]}</DetailValue>
+    </React.Fragment>
+  ));
 
   return (
     <Modal title="New Emergency Triage" open={open} width="md" onClose={onClose}>
       <PatientDetails>
         <Header>
-          <span>Patient Details</span>
+          <span>Patient details</span>
           <DisplayIdLabel>{displayId}</DisplayIdLabel>
         </Header>
-        <div>
-          {detailsFields}
-        </div>
+        <div>{detailsFields}</div>
       </PatientDetails>
       <TriageForm onCancel={onClose} {...rest} />
     </Modal>

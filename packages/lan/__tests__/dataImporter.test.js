@@ -1,6 +1,10 @@
-import { importData } from '~/admin/importDataDefinition';
-import { preprocessRecordSet } from '~/admin/preprocessRecordSet';
+import { importData } from '../app/admin/importDataDefinition';
+import { preprocessRecordSet } from '../app/admin/preprocessRecordSet';
+import { sendRecordGroups } from '../app/admin/createDataImporterEndpoint';
 import { createTestContext } from './utilities';
+import { WebRemote } from '../app/sync/WebRemote';
+
+jest.mock('../app/sync/WebRemote');
 
 const TEST_DATA_PATH = './__tests__/importers/test_definitions.xlsx';
 
@@ -19,8 +23,8 @@ describe('Data definition import', () => {
   });
 
   it('should ensure every record has an id', () => {
-    for (const [k, records] of recordGroups) {
-      records.map(r => {
+    for (const [, records] of recordGroups) {
+      records.forEach(r => {
         expect(r).toHaveProperty('data.id');
       });
     }
@@ -33,7 +37,7 @@ describe('Data definition import', () => {
   };
 
   it('should flag records with missing ids', () => {
-    expectError('referenceData', 'id is a required field');
+    expectError('referenceData', 'record has no id');
   });
 
   it('should flag records with invalid ids', () => {
@@ -54,8 +58,6 @@ describe('Data definition import', () => {
     expect(records).toHaveProperty('referenceData:village', 10);
     expect(records).toHaveProperty('referenceData:drug', 10);
     expect(records).toHaveProperty('referenceData:allergy', 10);
-    expect(records).toHaveProperty('referenceData:department', 10);
-    expect(records).toHaveProperty('referenceData:location', 10);
     expect(records).toHaveProperty('referenceData:icd10', 10);
     expect(records).toHaveProperty('referenceData:triageReason', 10);
     expect(records).toHaveProperty('referenceData:procedureType', 10);
@@ -65,6 +67,21 @@ describe('Data definition import', () => {
   it('should import user records', () => {
     const { records } = resultInfo.stats;
     expect(records).toHaveProperty('user', 10);
+  });
+
+  it('should import facility records', () => {
+    const { records } = resultInfo.stats;
+    expect(records).toHaveProperty('facility', 10);
+  });
+
+  it('should import department records', () => {
+    const { records } = resultInfo.stats;
+    expect(records).toHaveProperty('department', 10);
+  });
+
+  it('should import location records', () => {
+    const { records } = resultInfo.stats;
+    expect(records).toHaveProperty('location', 10);
   });
 
   it('should import patient records', () => {
@@ -77,21 +94,91 @@ describe('Data definition import', () => {
     expect(records).toHaveProperty('labTestType', 10);
   });
 
+  it('should import scheduled vaccine records', () => {
+    const { records } = resultInfo.stats;
+    expect(records).toHaveProperty('scheduledVaccine', 1);
+  });
+
+  it('should import administered vaccine records', () => {
+    const { records } = resultInfo.stats;
+    expect(records).toHaveProperty('encounter:administeredVaccine', 2);
+  });
+
   it('should report an error if an FK search comes up empty', () => {
-    expectError('patient', 'could not find a referenceData called "village-nowhere"');
+    expectError(
+      'patient',
+      'could not find a record of type referenceData called "village-nowhere"',
+    );
   });
 
   it('should report an error if an FK is of the wrong type', () => {
-    expectError('patient', 'linked referenceData for');
+    expectError(
+      'patient',
+      'could not find a record of type referenceData called "2ecb58ca-8b2b-42e8-9c18-fd06c09653e1"',
+    );
   });
 
   describe('Importer permissions', () => {
+    let ctx;
+    beforeAll(async () => {
+      ctx = await createTestContext();
+    });
+    afterAll(() => ctx.close());
+
     it('Should forbid an import by a non-admin', async () => {
-      const { baseApp } = await createTestContext();
+      const { baseApp } = ctx;
       const nonAdminApp = await baseApp.asRole('practitioner');
 
       const response = await nonAdminApp.post('/v1/admin/importData');
       expect(response).toBeForbidden();
+    });
+  });
+});
+
+describe('sendRecordGroups', () => {
+  const fetchMock = jest
+    .spyOn(WebRemote.prototype, 'fetch')
+    .mockImplementation(() => Promise.resolve({ error: null }));
+
+  it('splits recordGroups by channel and sends them', async () => {
+    // arrange
+    const recordGroups = [
+      // test reference data channel override
+      ['referenceData', [{ id: 'ref123' }]],
+      // test channel grouping
+      [
+        'encounter',
+        [
+          { channel: 'patient/pat123/encounter', id: 'enc123' },
+          { channel: 'patient/pat123/encounter', id: 'enc456' },
+          { channel: 'patient/pat456/encounter', id: 'enc789' },
+        ],
+      ],
+      // test records without a channel
+      ['patient', [{ id: 'pat123' }]],
+      // test chunking
+      ['user', [{ id: 'u1' }, { id: 'u2' }, { id: 'u3' }, { id: 'u4' }]],
+    ];
+
+    // act
+    await sendRecordGroups(recordGroups);
+
+    // assert
+    [
+      ['reference', ['ref123']],
+      ['patient/pat123/encounter', ['enc123', 'enc456']],
+      ['patient/pat456/encounter', ['enc789']],
+      ['patient', ['pat123']],
+      ['user', ['u1', 'u2', 'u3']],
+      ['user', ['u4']],
+    ].forEach(([channel, ids]) => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        `sync/${encodeURIComponent(channel)}`,
+        expect.objectContaining({
+          method: 'POST',
+          body: expect.arrayContaining(ids.map(id => expect.objectContaining({ id }))),
+        }),
+      );
     });
   });
 });

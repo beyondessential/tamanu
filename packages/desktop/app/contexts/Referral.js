@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { ApiContext } from '../api/singletons';
+import { useApi } from '../api';
 
 const ReferralContext = React.createContext({
   referral: null,
@@ -14,7 +14,7 @@ export const ReferralProvider = ({ children }) => {
   const [referral, setReferral] = useState(null);
   const [isLoadingReferral, setIsLoadingReferral] = useState(false);
 
-  const api = useContext(ApiContext);
+  const api = useApi();
 
   // write Referral data to the sync server.
   const saveReferral = async (referralId, data) => {

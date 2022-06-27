@@ -1,98 +1,31 @@
-import config from 'config';
+// serverInfo must be imported before any shared modules
+// so that it can set globals
+import { version } from './app/serverInfo';
 
+import { program } from 'commander';
 import { log } from 'shared/services/logging';
-import { createReferralNotification } from 'shared/tasks/CreateReferralNotification';
-import { parseArguments } from 'shared/arguments';
 
-import { createApp } from './app/createApp';
-import { initDatabase } from './app/database';
-import { startScheduledTasks } from './app/tasks';
-import { EmailService } from './app/services/EmailService';
+import * as cmd from './app/subCommands';
+import { setupEnv } from './app/env';
 
-import { version } from './package.json';
+async function run() {
+  program
+    .version(version)
+    .description('Tamanu sync-server')
+    .name('node app.bundle.js');
 
-const port = config.port;
-
-async function setup(store, options) {
-  const userCount = await store.models.User.count();
-  if (userCount > 0) {
-    throw new Error(`Found ${userCount} users already in the database, aborting setup.`);
+  for (const [key, command] of Object.entries(cmd).filter(([key, _]) => /^\w+Command$/.test(key))) {
+    program.addCommand(command, { isDefault: key === 'serveAllCommand' });
   }
 
-  // create initial admin user
-  const { initialUser } = config.auth;
-  if (!initialUser.email) {
-    throw new Error(`The initial user in config is missing an email address.`);
-  }
-
-  log.info(`Creating initial user account for ${initialUser.email}...`);
-  await store.models.User.create(initialUser);
-  log.info(`Done.`);
-  process.exit(0);
-}
-
-async function serve(store, options) {
-  log.info(`Starting sync server version ${version}.`);
-
-  if (config.db.migrateOnStartup) {
-    await store.sequelize.migrate({ migrateDirection: 'up' });
-  } else {
-    await store.sequelize.assertUpToDate(options);
-  }
-
-  const emailService = new EmailService();
-  const context = { store, emailService };
-  const app = createApp(context);
-  app.listen(port, () => {
-    log.info(`Server is running on port ${port}!`);
-  });
-  process.on('SIGTERM', () => {
-    app.close();
-  });
-
-  // only execute tasks on the first worker process
-  // NODE_APP_INSTANCE is set by PM2; if it's not present, assume this process is the first
-  const isFirstProcess = !process.env.NODE_APP_INSTANCE || process.env.NODE_APP_INSTANCE === '0';
-  if (isFirstProcess) {
-    startScheduledTasks(context);
-  }
-
-  if (config.notifications && config.notifications.referralCreated) {
-    context.models.Referral.addHook(
-      'afterCreate',
-      'create referral notification hook',
-      referral => {
-        createReferralNotification(referral, context.models);
-      },
-    );
-  }
-}
-
-async function migrate(store, options) {
-  await store.sequelize.migrate(options);
-  process.exit(0);
-}
-
-async function run(command, options) {
-  const subcommand = {
-    serve,
-    migrate,
-    setup,
-  }[command];
-
-  if (!subcommand) {
-    throw new Error(`Unrecognised subcommand: ${command}`);
-  }
-
-  const { store } = await initDatabase({ testMode: false });
-  return subcommand(store, options);
+  setupEnv();
+  await program.parseAsync(process.argv);
 }
 
 // catch and exit if run() throws an error
 (async () => {
   try {
-    const { command, ...options } = parseArguments();
-    await run(command, options);
+    await run();
   } catch (e) {
     log.error(`run(): fatal error: ${e.toString()}`);
     log.error(e.stack);

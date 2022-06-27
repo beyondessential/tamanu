@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
+import { PATIENT_ISSUE_TYPES } from '../constants';
 import { initSyncForModelNestedUnderPatient } from './sync';
 import { Model } from './Model';
-import { PATIENT_ISSUE_TYPES } from '../constants';
 
 export class PatientIssue extends Model {
   static init({ primaryKey, ...options }) {

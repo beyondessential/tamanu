@@ -41,7 +41,7 @@ const DATA_ELEMENT_TYPES = [
 ];
 
 module.exports = {
-  up: async (query) => {
+  up: async query => {
     await query.changeColumn('program_data_elements', 'type', {
       type: Sequelize.STRING(31),
       allowNull: false,
@@ -52,13 +52,12 @@ module.exports = {
     });
   },
 
-  down: async (query) => {
+  down: async query => {
     await query.changeColumn('program_data_elements', 'type', {
       type: Sequelize.ENUM(DATA_ELEMENT_TYPES),
     });
     await query.changeColumn('encounters', 'encounter_type', {
       type: Sequelize.ENUM(ENCOUNTER_TYPES),
     });
-  }
+  },
 };
-

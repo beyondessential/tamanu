@@ -1,0 +1,26 @@
+{
+  "baseUrl": "./src",
+  "compilerOptions": {
+    "outDir": "./build",
+    "pretty": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "esModuleInterop": true,
+    "isolatedModules": false,
+    "resolveJsonModule": true,
+    "moduleResolution": "node",
+    "skipLibCheck": true,
+    "strict": true,
+    "alwaysStrict": true,
+    "target": "es2019",
+    "module": "CommonJS"
+  },
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "build",
+    "node_modules",
+    "jest.config.js"
+  ]
+}

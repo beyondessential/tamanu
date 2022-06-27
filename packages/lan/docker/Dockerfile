@@ -6,7 +6,7 @@ ARG NODE_NATIVE_BUILD_DEPS="make gcc g++ python"
 # install deps
 COPY packages/lan/package.json yarn.lock .
 RUN apk add --no-cache --virtual .build-deps $NODE_NATIVE_BUILD_DEPS && \
-    yarn install --non-interactive --pure-lockfile --production && \
+    yarn install --non-interactive --frozen-lockfile --production && \
     yarn cache clean && \
     apk del .build-deps
 

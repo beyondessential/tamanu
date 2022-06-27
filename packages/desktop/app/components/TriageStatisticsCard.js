@@ -88,14 +88,14 @@ const DataFetchingTriageStatisticsCard = memo(({ priorityLevel, fetchData }) => 
 
   useEffect(() => {
     async function fetchTriageData() {
-      const { data } = await fetchData();
-      setData(data);
+      const result = await fetchData();
+      setData(result.data);
     }
     fetchTriageData();
     // update data every 30 seconds
     const interval = setInterval(() => fetchTriageData(), MINUTE * 0.5);
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchData]);
 
   if (data.length === 0) {
     return (
@@ -108,12 +108,13 @@ const DataFetchingTriageStatisticsCard = memo(({ priorityLevel, fetchData }) => 
   }
 
   const priorityLevelData = data.filter(
-    p => parseInt(p.score) === priorityLevel && p.encounterType === 'triage',
+    p => parseInt(p.score, 10) === priorityLevel && p.encounterType === 'triage',
   );
   const timeSinceTriage = triageTime => Math.round(new Date() - new Date(triageTime));
-  const summedWaitTime = priorityLevelData.reduce((prev, curr) => {
-    return prev + timeSinceTriage(curr.triageTime);
-  }, 0);
+  const summedWaitTime = priorityLevelData.reduce(
+    (prev, curr) => prev + timeSinceTriage(curr.triageTime),
+    0,
+  );
   const averageWaitTime = summedWaitTime / priorityLevelData.length || 0;
 
   return (
@@ -132,7 +133,7 @@ export const DumbTriageStatisticsCard = ({
   priorityLevel,
 }) => {
   const colorTheme = TRIAGE_COLORS_BY_LEVEL[priorityLevel];
-  const title = `Level ${priorityLevel} Patient`;
+  const title = `Level ${priorityLevel} patient`;
   const hours = Math.floor(averageWaitTime / HOUR);
   const minutes = Math.floor((averageWaitTime - hours * HOUR) / MINUTE);
   const pluralise = (amount, suffix) => `${amount}${suffix}${amount === 1 ? '' : 's'}`;
@@ -175,7 +176,7 @@ DumbTriageStatisticsCard.propTypes = {
   priorityLevel: PropTypes.number.isRequired,
 };
 
-function mapApiToProps(api, dispatch) {
+function mapApiToProps(api) {
   return {
     fetchData: () => api.get('triage'),
   };

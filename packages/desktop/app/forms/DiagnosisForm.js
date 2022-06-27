@@ -2,11 +2,7 @@ import React from 'react';
 import * as yup from 'yup';
 
 import { foreignKey } from '../utils/validation';
-import {
-  diagnosisCertaintyOptions,
-  nonEmergencyDiagnosisCertaintyOptions,
-  CERTAINTY_OPTIONS_BY_VALUE,
-} from '../constants';
+import { diagnosisCertaintyOptions } from '../constants';
 
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { FormGrid } from '../components/FormGrid';
@@ -52,7 +48,7 @@ export const DiagnosisForm = React.memo(
             <div style={{ gridColumn: '1 / -1' }}>
               <Field
                 name="diagnosisId"
-                label="ICD10 Code"
+                label="ICD10 code"
                 component={AutocompleteField}
                 suggester={icd10Suggester}
                 required

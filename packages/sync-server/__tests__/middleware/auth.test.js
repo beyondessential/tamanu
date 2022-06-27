@@ -4,6 +4,11 @@ import { createTestContext } from '../utilities';
 
 const TEST_EMAIL = 'test@beyondessential.com.au';
 const TEST_PASSWORD = '1Q2Q3Q4Q';
+const TEST_FACILITY = {
+  id: 'testfacilityid',
+  code: 'testfacilitycode',
+  name: 'Test Facility',
+};
 
 const USERS = [
   {
@@ -27,7 +32,10 @@ describe('Auth', () => {
     emailService = ctx.emailService;
     app = await baseApp.asRole('practitioner');
 
-    await Promise.all(USERS.map(r => ctx.store.models.User.create(r)));
+    await Promise.all([
+      ...USERS.map(r => ctx.store.models.User.create(r)),
+      ctx.store.models.Facility.create(TEST_FACILITY),
+    ]);
   });
 
   afterAll(async () => close());
@@ -113,6 +121,7 @@ describe('Auth', () => {
       const loginResponse = await baseApp.post('/v1/login').send({
         email: USER_EMAIL,
         password: USER_PASSWORD,
+        facilityId: TEST_FACILITY.id,
       });
       expect(loginResponse).toHaveSucceeded();
       expect(loginResponse.body).toEqual({
@@ -124,6 +133,8 @@ describe('Auth', () => {
           role: 'practitioner',
         },
         localisation: expect.any(Object),
+        permissions: expect.any(Object),
+        facility: expect.objectContaining(TEST_FACILITY),
       });
     });
 
@@ -220,6 +231,16 @@ describe('Auth', () => {
     expect(body).toHaveProperty('email', TEST_EMAIL);
     expect(body).not.toHaveProperty('password');
     expect(body).not.toHaveProperty('hashedPassword');
+  });
+
+  it('Should send permissions alongside login information', async () => {
+    const response = await baseApp.post('/v1/login').send({
+      email: TEST_EMAIL,
+      password: TEST_PASSWORD,
+    });
+
+    expect(response).toHaveSucceeded();
+    expect(response.body).toHaveProperty('permissions');
   });
 
   describe('Change password', () => {

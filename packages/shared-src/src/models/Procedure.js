@@ -27,7 +27,7 @@ export class Procedure extends Model {
     this.belongsTo(models.Encounter, {
       foreignKey: 'encounterId',
     });
-    this.belongsTo(models.ReferenceData, {
+    this.belongsTo(models.Location, {
       foreignKey: 'locationId',
       as: 'Location',
     });

@@ -1,6 +1,5 @@
 import {
   createDummyPatient,
-  createDummyEncounter,
   randomUser,
   randomReferenceId,
 } from 'shared/demoData/patients';
@@ -10,13 +9,15 @@ describe('PatientCarePlan', () => {
   let app = null;
   let baseApp = null;
   let models = null;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
   });
+  afterAll(() => ctx.close());
 
   it('should reject creating an admissions report with insufficient permissions', async () => {
     const noPermsApp = await baseApp.asRole('base');

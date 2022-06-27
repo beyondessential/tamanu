@@ -1,0 +1,41 @@
+import config from 'config';
+import { Command } from 'commander';
+
+import { log } from 'shared/services/logging';
+
+import { createApp } from '../createApp';
+import { ApplicationContext } from '../ApplicationContext';
+import { version } from '../serverInfo';
+
+const { port } = config;
+
+export const serve = async ({ skipMigrationCheck }) => {
+  log.info(`Starting sync server version ${version}.`);
+
+  log.info(`Process info`, {
+    execArgs: process.execArgs || '<empty>',
+  });
+
+  const context = await new ApplicationContext().init();
+  const { store } = context;
+
+  await store.sequelize.assertUpToDate({ skipMigrationCheck });
+
+  const app = createApp(context);
+
+  const server = app.listen(port, () => {
+    log.info(`Server is running on port ${port}!`);
+  });
+
+  for (const sig of ['SIGINT', 'SIGTERM']) {
+    process.on(sig, () => {
+      log.info(`Received ${sig}, closing HTTP server`);
+      server.close();
+    });
+  }
+};
+
+export const serveCommand = new Command('serve')
+  .description('Start the Tamanu sync server')
+  .option('--skipMigrationCheck', 'skip the migration check on startup')
+  .action(serve);

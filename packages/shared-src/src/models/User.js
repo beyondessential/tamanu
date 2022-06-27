@@ -86,5 +86,13 @@ export class User extends Model {
       foreignKey: 'dischargerId',
       as: 'discharges',
     });
+
+    this.hasMany(models.ImagingRequest, {
+      foreignKey: 'completedById',
+    });
+
+    this.belongsToMany(models.Facility, {
+      through: 'UserFacility',
+    });
   }
 }

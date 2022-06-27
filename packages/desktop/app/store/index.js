@@ -3,3 +3,4 @@ export * from './options';
 export * from './patient';
 export * from './imagingRequest';
 export * from './decisionSupport';
+export * from './initStore';

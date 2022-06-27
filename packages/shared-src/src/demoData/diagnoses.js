@@ -1,4 +1,4 @@
-import { splitIds } from './splitIds';
+import { splitIds } from './utilities';
 import { ICD10_DIAGNOSES } from './icd10';
 
 export const TRIAGE_DIAGNOSES = splitIds(`
@@ -6,7 +6,7 @@ export const TRIAGE_DIAGNOSES = splitIds(`
  Abdominal pain/distension
  Abnormal behaviour/mental state
  Allergic reaction
- Back pain 
+ Back pain
  Bleeding - from nose
  Bleeding - in stool
  Bleeding - in urine

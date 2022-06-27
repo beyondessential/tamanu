@@ -1,3 +1,5 @@
+/* eslint-disable no-param-reassign */
+
 import { Op } from 'sequelize';
 import { generateReportFromQueryData } from './utilities';
 
@@ -106,7 +108,7 @@ async function queryReferralsData(models, parameters) {
   return result;
 }
 
-export async function dataGenerator(models, parameters) {
+export async function dataGenerator({ models }, parameters) {
   const queryResults = await queryReferralsData(models, parameters);
   return generateReportFromQueryData(queryResults, reportColumnTemplate);
 }

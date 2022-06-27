@@ -7,14 +7,12 @@ import { ModalActionRow } from '../components/ModalActionRow';
 
 export const NewLocationForm = memo(({ editedObject, onSubmit, onCancel }) => {
   const renderForm = useCallback(
-    ({ submitForm }) => {
-      return (
-        <FormGrid>
-          <Field name="name" label="Location name" component={TextField} required />
-          <ModalActionRow confirmText="Create" onConfirm={submitForm} onCancel={onCancel} />
-        </FormGrid>
-      );
-    },
+    ({ submitForm }) => (
+      <FormGrid>
+        <Field name="name" label="Location name" component={TextField} required />
+        <ModalActionRow confirmText="Create" onConfirm={submitForm} onCancel={onCancel} />
+      </FormGrid>
+    ),
     [onCancel],
   );
 

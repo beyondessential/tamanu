@@ -7,17 +7,20 @@ import {
   executeImportPlan,
   createExportPlan,
   executeExportPlan,
+  MODEL_DEPENDENCY_ORDER,
 } from 'shared/models/sync';
 import { log } from 'shared/services/logging';
 
-const { readOnly } = config.sync;
+const { readOnly, dynamicLimiter } = config.sync;
 
-const EXPORT_LIMIT = 100;
-const INITIAL_PULL_LIMIT = 100;
-const MIN_PULL_LIMIT = 1;
-const MAX_PULL_LIMIT = 10000;
-const OPTIMAL_PULL_TIME_PER_PAGE = 2000; // aim for 2 seconds per page
-const MAX_LIMIT_CHANGE_PER_BATCH = 0.2; // max 20% increase from batch to batch, or it is too jumpy
+const {
+  exportLimit: EXPORT_LIMIT,
+  initialPullLimit: INITIAL_PULL_LIMIT,
+  minPullLimit: MIN_PULL_LIMIT,
+  maxPullLimit: MAX_PULL_LIMIT,
+  optimalPullTimePerPageMs: OPTIMAL_PULL_TIME_PER_PAGE,
+  maxLimitChangePerBatch: MAX_LIMIT_CHANGE_PER_BATCH,
+} = dynamicLimiter;
 
 // Set the current page size based on how long the previous page took to complete.
 const calculateDynamicLimit = (currentLimit, pullTime) => {
@@ -59,7 +62,18 @@ export class SyncManager {
       channels.length === 1
         ? channels // waste of effort to check which need pulling if there's only 1, just pull
         : await this.context.remote.fetchChannelsWithChanges(channelsWithCursors);
+
+    if (channelsToPull.length === 0) {
+      log.info(`SyncManager.pullAndImport: no changes to pull`, { model: model.name });
+      return;
+    }
+
     const channelsToPullSet = new Set(channelsToPull);
+    log.info(`SyncManager.pullAndImport: found channels to pull`, {
+      model: model.name,
+      count: channelsToPull.length,
+    });
+
     for (const { channel, cursor } of channelsWithCursors) {
       if (channelsToPullSet.has(channel)) {
         await this.pullAndImportChannel(model, channel, cursor);
@@ -75,12 +89,16 @@ export class SyncManager {
 
     let cursor = initialCursor;
     let limit = INITIAL_PULL_LIMIT;
-    log.info(`SyncManager.pullAndImport: syncing ${channel} (last: ${cursor})`);
+    log.debug(`SyncManager.pullAndImport: syncing`, { channel, cursor });
+
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       // pull
-      log.debug(
-        `SyncManager.pullAndImport: pulling ${limit} records since ${cursor} for ${channel}`,
-      );
+      log.debug(`SyncManager.pullAndImport: pulling records`, {
+        channel,
+        cursor,
+        limit,
+      });
       const startTime = Date.now();
       const result = await this.context.remote.pull(channel, {
         since: cursor,
@@ -90,12 +108,16 @@ export class SyncManager {
       cursor = result.cursor;
       const syncRecords = result.records;
       if (syncRecords.length === 0) {
-        log.debug(`SyncManager.pullAndImport: reached end of ${channel}`);
+        log.debug(`SyncManager.pullAndImport: reached end of channel`, { channel });
         break;
       }
 
       // import
-      log.debug(`SyncManager.pullAndImport: importing ${syncRecords.length} ${model.name} records`);
+      log.debug(`SyncManager.pullAndImport: importing records`, {
+        count: syncRecords.length,
+        model: model.name,
+        channel,
+      });
       await importRecords(syncRecords);
       await this.setChannelPullCursor(channel, cursor);
       const pullTime = Date.now() - startTime;
@@ -110,45 +132,58 @@ export class SyncManager {
   }
 
   async exportAndPushChannel(model, channel) {
-    log.debug(`SyncManager.exportAndPush: syncing ${channel}`);
+    log.debug(`SyncManager.exportAndPush: syncing`, { channel, model: model.name });
 
     // export
     const plan = createExportPlan(model.sequelize, channel);
     const exportRecords = (cursor = null, limit = EXPORT_LIMIT) => {
-      log.debug(`SyncManager.exportAndPush: exporting up to ${limit} records since ${cursor}`);
+      log.debug(`SyncManager.exportAndPush: exporting a batch`, {
+        limit,
+        cursor,
+      });
       return executeExportPlan(plan, { since: cursor, limit });
     };
 
-    // unmark
-    const unmarkRecords = async records => {
-      // TODO use bulk update after https://github.com/beyondessential/tamanu-backlog/issues/463
-      const modelInstances = await model.findAll({
-        where: {
-          id: records.map(r => r.data.id),
+    // mark + unmark
+    const markRecords = async () => {
+      await model.update(
+        { isPushing: true, markedForPush: false },
+        {
+          where: {
+            markedForPush: true,
+          },
+          // skip validation - no sync fields should be used in model validation
+          validate: false,
         },
-      });
-      await Promise.all(
-        modelInstances.map(m => {
-          m.markedForPush = false;
-          m.pushedAt = new Date();
-          return m.save();
-        }),
+      );
+    };
+    const unmarkRecords = async records => {
+      await model.update(
+        { isPushing: false, pushedAt: new Date() },
+        {
+          where: {
+            id: records.map(r => r.data.id),
+          },
+          // skip validation - no sync fields should be used in model validation
+          validate: false,
+        },
       );
     };
 
     let cursor = null;
+    await markRecords();
     do {
       const exportResponse = await exportRecords(cursor);
       const { records } = exportResponse;
       if (records.length > 0) {
-        log.debug(`SyncManager.exportAndPush: pushing ${records.length} to sync server`);
+        log.debug(`SyncManager.exportAndPush: pushing to sync server`, { count: records.length });
         await this.context.remote.push(channel, records);
         await unmarkRecords(records);
       }
       cursor = exportResponse.cursor;
     } while (cursor);
 
-    log.debug(`SyncManager.exportAndPush: reached end of ${channel}`);
+    log.debug(`SyncManager.exportAndPush: reached end of channel`, { channel });
   }
 
   getChannelPullCursors(channels) {
@@ -170,39 +205,7 @@ export class SyncManager {
       log.info(`SyncManager.runSync.run: began sync run`);
       const { models } = this.context;
 
-      // set host when sync is run
-      // this is checked on startup to prevent LAN mixing data sets
-      await models.LocalSystemFact.set('syncHost', config.sync.host);
-
-      // ordered array because some models depend on others
-      const modelsToSync = [
-        models.ReferenceData,
-        models.User,
-        models.Asset,
-
-        models.ScheduledVaccine,
-
-        models.Program,
-        models.Survey,
-        models.ProgramDataElement,
-        models.SurveyScreenComponent,
-
-        models.Patient,
-        models.PatientAllergy,
-        models.PatientCarePlan,
-        models.PatientCondition,
-        models.PatientFamilyHistory,
-        models.PatientIssue,
-        models.PatientAdditionalData,
-
-        models.LabTestType,
-        models.Encounter,
-        models.ReportRequest,
-        models.Location,
-        models.UserFacility,
-
-        // models.LabRequestLog,
-      ];
+      const modelsToSync = MODEL_DEPENDENCY_ORDER.map(name => models[name]);
 
       for (const model of modelsToSync) {
         if (!readOnly && shouldPush(model)) {

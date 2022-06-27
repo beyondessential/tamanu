@@ -1,4 +1,6 @@
-export const getFileInDocumentsPath = fileName => ''; // '`file://${RNFS.DocumentDirectoryPath}/${fileName}`;
+// TODO: work out what happened here
+// export const getFileInDocumentsPath = fileName => `file://${RNFS.DocumentDirectoryPath}/${fileName}`;
+export const getFileInDocumentsPath = () => '';
 
 export const imageDataIsFileName = imageData =>
   imageData && imageData.length < 100 && imageData.search('.*?.(jpg|png)') !== -1;

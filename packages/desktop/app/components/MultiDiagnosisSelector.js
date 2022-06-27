@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import styled from 'styled-components';
 
 import { Button } from './Button';
@@ -11,12 +11,21 @@ const AdderContainer = styled.div`
   align-items: end;
 `;
 
-const DiagnosisItem = React.memo(({ diagnosis, onRemove }) => (
-  <li>
-    (<a onClick={() => onRemove(diagnosis.id)}>x</a>)
-    <span> {diagnosis.name}</span>
-  </li>
-));
+const DiagnosisItem = React.memo(({ diagnosis, onRemove }) => {
+  const onSelectDiagnosis = useCallback(() => onRemove(diagnosis.id), [onRemove, diagnosis.id]);
+  return (
+    <li>
+      <>
+        (
+        <span role="button" tabIndex="0" onClick={onSelectDiagnosis} onKeyUp={onSelectDiagnosis}>
+          x
+        </span>
+        )
+      </>
+      <span>{` ${diagnosis.name}`}</span>
+    </li>
+  );
+});
 
 const DiagnosisList = ({ diagnoses, onRemove }) => {
   const listContents =
@@ -30,12 +39,15 @@ const DiagnosisList = ({ diagnoses, onRemove }) => {
 
 export const MultiDiagnosisSelector = React.memo(
   ({ value, limit = 5, onChange, icd10Suggester, name }) => {
-    const selectedDiagnoses = value || [];
+    const selectedDiagnoses = useMemo(() => value || [], [value]);
     const [selectedDiagnosisId, setSelectedDiagnosisId] = React.useState(null);
 
-    const updateValue = React.useCallback(newValue => {
-      onChange({ target: { value: newValue, name } });
-    }, [name]);
+    const updateValue = React.useCallback(
+      newValue => {
+        onChange({ target: { value: newValue, name } });
+      },
+      [onChange, name],
+    );
 
     const onDiagnosisChange = React.useCallback(
       ({ target }) => {
@@ -56,20 +68,23 @@ export const MultiDiagnosisSelector = React.memo(
           updateValue([...selectedDiagnoses, diagnosis]);
         })();
       }
-    }, [selectedDiagnoses, selectedDiagnosisId, setSelectedDiagnosisId, updateValue]);
+    }, [selectedDiagnoses, selectedDiagnosisId, updateValue, icd10Suggester]);
 
-    const onRemove = React.useCallback(id => {
-      const newValues = selectedDiagnoses.filter(x => x.id !== id);
-      updateValue(newValues);
-    }, [selectedDiagnoses, updateValue]);
+    const onRemove = React.useCallback(
+      id => {
+        const newValues = selectedDiagnoses.filter(x => x.id !== id);
+        updateValue(newValues);
+      },
+      [selectedDiagnoses, updateValue],
+    );
 
     // This forces the autocomplete component to clear when the user hits add.
-    // (when the key changes, React treats it as an instruction to destroy the old 
+    // (when the key changes, React treats it as an instruction to destroy the old
     // component, and add a new unrelated component in its place with fresh state)
     const autocompleteForceRerender = selectedDiagnoses.length;
 
     return (
-      <React.Fragment>
+      <>
         <AdderContainer>
           <AutocompleteInput
             key={autocompleteForceRerender}
@@ -83,7 +98,7 @@ export const MultiDiagnosisSelector = React.memo(
           </Button>
         </AdderContainer>
         <DiagnosisList diagnoses={selectedDiagnoses} onRemove={onRemove} />
-      </React.Fragment>
+      </>
     );
   },
 );

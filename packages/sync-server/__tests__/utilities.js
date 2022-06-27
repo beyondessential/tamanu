@@ -7,6 +7,10 @@ import { COMMUNICATION_STATUSES } from 'shared/constants';
 import { createApp } from 'sync-server/app/createApp';
 import { initDatabase, closeDatabase } from 'sync-server/app/database';
 import { getToken } from 'sync-server/app/auth/utils';
+import { initIntegrations } from 'sync-server/app/integrations';
+
+jest.setTimeout(30 * 1000); // more generous than the default 5s but not crazy
+jest.mock('../app/utils/getFreeDiskSpace');
 
 const chance = new Chance();
 
@@ -43,8 +47,8 @@ export function extendExpect(expect) {
     },
     toHaveRequestError(response, expected) {
       const { statusCode } = response;
-      const match = !expected || expected === statusCode;
-      const pass = statusCode >= 400 && statusCode < 500 && statusCode !== 403 && match;
+      const match = expected === statusCode;
+      const pass = statusCode >= 400 && statusCode !== 403 && (statusCode < 500 || match);
       let expectedText = 'Expected error status code';
       if (expected) {
         expectedText += ` ${expected}`;
@@ -77,18 +81,25 @@ export function extendExpect(expect) {
   });
 }
 
-export async function createTestContext() {
-  const { store } = await initDatabase({ testMode: true });
-  const emailService = {
-    sendEmail: jest.fn().mockImplementation(() =>
-      Promise.resolve({
-        status: COMMUNICATION_STATUSES.SENT,
-        result: { '//': 'mailgun result not mocked' },
-      }),
-    ),
-  };
+class MockApplicationContext {
+  async init() {
+    this.store = await initDatabase({ testMode: true, syncClientMode: false });
+    this.emailService = {
+      sendEmail: jest.fn().mockImplementation(() =>
+        Promise.resolve({
+          status: COMMUNICATION_STATUSES.SENT,
+          result: { '//': 'mailgun result not mocked' },
+        }),
+      ),
+    };
+    await initIntegrations(this);
+    return this;
+  }
+}
 
-  const expressApp = createApp({ store, emailService });
+export async function createTestContext() {
+  const ctx = await new MockApplicationContext().init();
+  const expressApp = createApp(ctx);
   const appServer = http.createServer(expressApp);
   const baseApp = supertest(appServer);
 
@@ -101,7 +112,7 @@ export async function createTestContext() {
   };
 
   baseApp.asRole = async role => {
-    const newUser = await store.models.User.create({
+    const newUser = await ctx.store.models.User.create({
       email: chance.email(),
       displayName: chance.name(),
       password: chance.string(),
@@ -116,7 +127,7 @@ export async function createTestContext() {
     await closeDatabase();
   };
 
-  return { baseApp, store, close, emailService };
+  return { ...ctx, baseApp, close };
 }
 
 export async function withDate(fakeDate, fn) {

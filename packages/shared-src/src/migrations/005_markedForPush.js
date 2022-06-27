@@ -11,7 +11,7 @@ const tables = [
 ];
 
 module.exports = {
-  up: async (query) => {
+  up: async query => {
     for (const table of tables) {
       await query.addColumn(table, 'marked_for_push', {
         type: Sequelize.BOOLEAN,
@@ -20,7 +20,7 @@ module.exports = {
       });
     }
   },
-  down: async (query) => {
+  down: async query => {
     for (const table of tables) {
       await query.removeColumn(table, 'marked_for_push');
     }

@@ -13,6 +13,7 @@ describe('sync-related hooks', () => {
     context = await initDb({ syncClientMode: true });
     models = context.models;
   });
+  afterAll(() => context.sequelize.close());
 
   it('marks root sync objects for push', async () => {
     // arrange

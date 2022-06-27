@@ -2,8 +2,7 @@ import React, { memo, useCallback, useState } from 'react';
 import styled from 'styled-components';
 
 import { PATIENT_ISSUE_TYPES } from 'shared/constants';
-import { Button } from './Button';
-import { ButtonRow } from './ButtonRow';
+import { OutlinedButton } from './Button';
 
 import { InfoPaneList } from './InfoPaneList';
 import { CoreInfoDisplay } from './PatientCoreInfo';
@@ -21,6 +20,7 @@ import { DeathModal } from './DeathModal';
 import { Colors } from '../constants';
 
 import { PatientCarePlanDetails } from './PatientCarePlanNotes';
+import { useLocalisation } from '../contexts/Localisation';
 
 const OngoingConditionDisplay = memo(({ patient, readonly }) => (
   <InfoPaneList
@@ -28,7 +28,7 @@ const OngoingConditionDisplay = memo(({ patient, readonly }) => (
     readonly={readonly}
     title="Ongoing conditions"
     endpoint="ongoingCondition"
-    suggesterEndpoints={['practitioner', 'icd10']}
+    suggesters={{ practitioner: {}, icd10: {} }}
     items={patient.conditions}
     Form={OngoingConditionForm}
     getName={({ condition, resolved }) =>
@@ -43,7 +43,7 @@ const AllergyDisplay = memo(({ patient, readonly }) => (
     readonly={readonly}
     title="Allergies"
     endpoint="allergy"
-    suggesterEndpoints={['practitioner', 'allergy']}
+    suggesters={{ practitioner: {}, allergy: {} }}
     items={patient.allergies}
     Form={AllergyForm}
     getName={allergy => allergy.allergy.name}
@@ -56,11 +56,11 @@ const FamilyHistoryDisplay = memo(({ patient, readonly }) => (
     readonly={readonly}
     title="Family history"
     endpoint="familyHistory"
-    suggesterEndpoints={['practitioner', 'icd10']}
+    suggesters={{ practitioner: {}, icd10: {} }}
     items={patient.familyHistory}
     Form={FamilyHistoryForm}
     getName={historyItem => {
-      const name = historyItem.diagnosis.name;
+      const { name } = historyItem.diagnosis;
       const relation = historyItem.relationship;
       if (!relation) return name;
       return `${name} (${relation})`;
@@ -79,7 +79,7 @@ const PatientIssuesDisplay = memo(({ patient, readonly }) => {
   ];
 
   return (
-    <React.Fragment>
+    <>
       <PatientAlert alerts={warnings} />
       <InfoPaneList
         patient={patient}
@@ -90,7 +90,7 @@ const PatientIssuesDisplay = memo(({ patient, readonly }) => {
         Form={PatientIssueForm}
         getName={issue => issue.note}
       />
-    </React.Fragment>
+    </>
   );
 });
 
@@ -100,27 +100,21 @@ const CarePlanDisplay = memo(({ patient, readonly }) => (
     readonly={readonly}
     title="Care plans"
     endpoint="patientCarePlan"
-    suggesterEndpoints={['practitioner', 'carePlan']}
+    suggesters={{
+      practitioner: {},
+      carePlan: {
+        filterer: ({ code }) => !patient.carePlans.some(c => c.carePlan.code === code),
+      },
+    }}
     items={patient.carePlans}
     Form={PatientCarePlanForm}
     getName={({ carePlan }) => carePlan.name}
     behavior="modal"
-    itemTitle="Care Plan"
+    itemTitle="Add care plan"
     CustomEditForm={PatientCarePlanDetails}
-    getEditFormName={({ carePlan }) => `Care Plan: ${carePlan.name}`}
+    getEditFormName={({ carePlan }) => `Care plan: ${carePlan.name}`}
   />
 ));
-
-const Container = styled.div`
-  background: ${Colors.white};
-  min-height: 100vh;
-  border-right: 1px solid ${Colors.outline};
-`;
-
-const ListsSection = styled.div`
-  margin-top: 15px;
-  padding: 20px;
-`;
 
 const RecordDeathSection = memo(({ patient, readonly }) => {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -128,38 +122,61 @@ const RecordDeathSection = memo(({ patient, readonly }) => {
   const closeModal = useCallback(() => setModalOpen(false), [setModalOpen]);
 
   return (
-    <React.Fragment>
-      <Button variant="contained" color="primary" disabled={patient.death} onClick={openModal}>
+    <>
+      <OutlinedButton disabled={!!patient.dateOfDeath || readonly} onClick={openModal}>
         Record death
-      </Button>
+      </OutlinedButton>
       <DeathModal disabled={readonly} open={isModalOpen} onClose={closeModal} patient={patient} />
-    </React.Fragment>
+    </>
   );
 });
 
 const PrintSection = memo(({ patient }) => <PatientPrintDetailsModal patient={patient} />);
 
-const Buttons = styled(ButtonRow)`
-  margin-top: 30px;
+const Container = styled.div`
+  position: relative;
+  background: ${Colors.white};
+  min-height: 100vh;
+  box-shadow: 1px 0 3px rgba(0, 0, 0, 0.1);
+  z-index: 10;
 `;
 
-const InfoPaneLists = memo(props => (
-  <ListsSection>
-    <OngoingConditionDisplay {...props} />
-    <AllergyDisplay {...props} />
-    <FamilyHistoryDisplay {...props} />
-    <PatientIssuesDisplay {...props} />
-    <CarePlanDisplay {...props} />
-    <Buttons>
-      <PrintSection {...props} />
-      <RecordDeathSection {...props} />
-    </Buttons>
-  </ListsSection>
-));
+const ListsSection = styled.div`
+  padding: 5px 25px;
+`;
 
-export const PatientInfoPane = memo(({ patient, readonly }) => (
-  <Container>
-    <CoreInfoDisplay patient={patient} />
-    <InfoPaneLists patient={patient} readonly={readonly} />
-  </Container>
-));
+const Buttons = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+
+  > button {
+    margin-right: 10px;
+
+    &:last-child {
+      margin: 0;
+    }
+  }
+`;
+
+export const PatientInfoPane = memo(({ patient, readonly }) => {
+  const { getLocalisation } = useLocalisation();
+  const patientDeathsEnabled = getLocalisation('features.enablePatientDeaths');
+
+  return (
+    <Container>
+      <CoreInfoDisplay patient={patient} />
+      <ListsSection>
+        <OngoingConditionDisplay patient={patient} readonly={readonly} />
+        <AllergyDisplay patient={patient} readonly={readonly} />
+        <FamilyHistoryDisplay patient={patient} readonly={readonly} />
+        <PatientIssuesDisplay patient={patient} readonly={readonly} />
+        <CarePlanDisplay patient={patient} readonly={readonly} />
+        <Buttons>
+          {patientDeathsEnabled && <RecordDeathSection patient={patient} readonly={readonly} />}
+          <PrintSection patient={patient} readonly={readonly} />
+        </Buttons>
+      </ListsSection>
+    </Container>
+  );
+});

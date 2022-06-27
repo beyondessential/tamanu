@@ -1,20 +1,27 @@
-import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
+import {
+  createDummyPatient,
+  createDummyEncounter,
+  createDummyEncounterMedication,
+} from 'shared/demoData/patients';
 import moment from 'moment';
 import { createTestContext } from '../utilities';
+import { uploadAttachment } from '../../app/utils/uploadAttachment';
 
 describe('Encounter', () => {
   let patient = null;
   let app = null;
   let baseApp = null;
   let models = null;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
     patient = await models.Patient.create(await createDummyPatient(models));
     app = await baseApp.asRole('practitioner');
   });
+  afterAll(() => ctx.close());
 
   it('should reject reading an encounter with insufficient permissions', async () => {
     const noPermsApp = await baseApp.asRole('base');
@@ -45,10 +52,25 @@ describe('Encounter', () => {
       ...(await createDummyEncounter(models)),
       patientId: patient.id,
     });
+    const c = await models.Encounter.create({
+      ...(await createDummyEncounter(models, { current: true })),
+      patientId: patient.id,
+    });
+
     const result = await app.get(`/v1/patient/${patient.id}/encounters`);
     expect(result).toHaveSucceeded();
     expect(result.body.count).toBeGreaterThan(0);
     expect(result.body.data.some(x => x.id === v.id)).toEqual(true);
+    expect(result.body.data.some(x => x.id === c.id)).toEqual(true);
+
+    expect(result.body.data.find(x => x.id === v.id)).toMatchObject({
+      id: v.id,
+      endDate: expect.any(String),
+    });
+    expect(result.body.data.find(x => x.id === c.id)).toMatchObject({
+      id: c.id,
+    });
+    expect(result.body.data.find(x => x.id === c.id)).not.toHaveProperty('endDate');
   });
 
   it('should fail to get an encounter that does not exist', async () => {
@@ -105,6 +127,112 @@ describe('Encounter', () => {
   test.todo('should get a list of lab requests');
   test.todo('should get a list of imaging requests');
   test.todo('should get a list of prescriptions');
+
+  it('should get a list of all documents from an encounter', async () => {
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId: patient.id,
+    });
+    const otherEncounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId: patient.id,
+    });
+    // Create four document metadata objects: two from requested encounter,
+    // one from a different encounter, one from the same patient.
+    const metadataOne = {
+      name: 'one',
+      type: 'application/pdf',
+      attachmentId: 'fake-id-1',
+      encounterId: encounter.id,
+    };
+    const metadataTwo = {
+      name: 'two',
+      type: 'application/pdf',
+      attachmentId: 'fake-id-2',
+      encounterId: encounter.id,
+    };
+    const metadataThree = {
+      name: 'three',
+      type: 'application/pdf',
+      attachmentId: 'fake-id-3',
+      encounterId: otherEncounter.id,
+    };
+    const metadataFour = {
+      name: 'four',
+      type: 'application/pdf',
+      attachmentId: 'fake-id-4',
+      patientId: patient.id,
+    };
+
+    await Promise.all([
+      models.DocumentMetadata.create(metadataOne),
+      models.DocumentMetadata.create(metadataTwo),
+      models.DocumentMetadata.create(metadataThree),
+      models.DocumentMetadata.create(metadataFour),
+    ]);
+
+    const result = await app.get(`/v1/encounter/${encounter.id}/documentMetadata`);
+    expect(result).toHaveSucceeded();
+    expect(result.body).toMatchObject({
+      count: 2,
+      data: expect.any(Array),
+    });
+  });
+
+  it('should get a sorted list of documents', async () => {
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId: patient.id,
+    });
+    const metadataOne = await models.DocumentMetadata.create({
+      name: 'A',
+      type: 'application/pdf',
+      attachmentId: 'fake-id-1',
+      encounterId: encounter.id,
+    });
+    const metadataTwo = await models.DocumentMetadata.create({
+      name: 'B',
+      type: 'image/jpeg',
+      attachmentId: 'fake-id-2',
+      encounterId: encounter.id,
+    });
+
+    // Sort by name ASC/DESC (presumably sufficient to test only one field)
+    const resultAsc = await app.get(
+      `/v1/encounter/${encounter.id}/documentMetadata?order=asc&orderBy=name`,
+    );
+    expect(resultAsc).toHaveSucceeded();
+    expect(resultAsc.body.data[0].id).toBe(metadataOne.id);
+
+    const resultDesc = await app.get(
+      `/v1/encounter/${encounter.id}/documentMetadata?order=desc&orderBy=name`,
+    );
+    expect(resultDesc).toHaveSucceeded();
+    expect(resultDesc.body.data[0].id).toBe(metadataTwo.id);
+  });
+
+  it('should get a paginated list of documents', async () => {
+    const encounter = await models.Encounter.create({
+      ...(await createDummyEncounter(models)),
+      patientId: patient.id,
+    });
+
+    const documents = [];
+    for (let i = 0; i < 12; i++) {
+      documents.push({
+        name: String(i),
+        type: 'application/pdf',
+        attachmentId: `fake-id-${i}`,
+        encounterId: encounter.id,
+      });
+    }
+    await models.DocumentMetadata.bulkCreate(documents);
+    const result = await app.get(
+      `/v1/encounter/${encounter.id}/documentMetadata?page=1&rowsPerPage=10&offset=5`,
+    );
+    expect(result).toHaveSucceeded();
+    expect(result.body.data.length).toBe(7);
+  });
 
   describe('write', () => {
     it('should reject updating an encounter with insufficient permissions', async () => {
@@ -208,10 +336,7 @@ describe('Encounter', () => {
       });
 
       it('should change encounter department and add a note', async () => {
-        const departments = await models.ReferenceData.findAll({
-          where: { type: 'department' },
-          limit: 2,
-        });
+        const departments = await models.Department.findAll({ limit: 2 });
 
         const v = await models.Encounter.create({
           ...(await createDummyEncounter(models)),
@@ -231,10 +356,7 @@ describe('Encounter', () => {
       });
 
       it('should change encounter location and add a note', async () => {
-        const [fromLocation, toLocation] = await models.ReferenceData.findAll({
-          where: { type: 'location' },
-          limit: 2,
-        });
+        const [fromLocation, toLocation] = await models.Location.findAll({ limit: 2 });
 
         const v = await models.Encounter.create({
           ...(await createDummyEncounter(models)),
@@ -292,6 +414,61 @@ describe('Encounter', () => {
         expect(notes.some(check)).toEqual(true);
       });
 
+      it('should only update medications marked for discharge', async () => {
+        // Create encounter to be discharged
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models, { current: true })),
+          patientId: patient.id,
+        });
+
+        // Create two encounter medications with specific quantities to compare
+        const medicationOne = await models.EncounterMedication.create({
+          ...(await createDummyEncounterMedication(models, { quantity: 1 })),
+          encounterId: encounter.id,
+        });
+        const medicationTwo = await models.EncounterMedication.create({
+          ...(await createDummyEncounterMedication(models, { quantity: 2 })),
+          encounterId: encounter.id,
+        });
+
+        // Mark only one medication for discharge
+        const result = await app.put(`/v1/encounter/${encounter.id}`).send({
+          endDate: new Date(),
+          discharge: {
+            encounterId: encounter.id,
+            dischargerId: app.user.id,
+          },
+          medications: {
+            [medicationOne.id]: {
+              isDischarge: true,
+              quantity: 3,
+              repeats: 0,
+            },
+            [medicationTwo.id]: {
+              isDischarge: false,
+              quantity: 0,
+              repeats: 1,
+            },
+          },
+        });
+        expect(result).toHaveSucceeded();
+
+        // Reload medications and make sure only the first one got edited
+        await Promise.all([medicationOne.reload(), medicationTwo.reload()]);
+
+        // Only compare explicitly set values
+        expect(medicationOne.dataValues).toMatchObject({
+          id: medicationOne.id,
+          isDischarge: true,
+          quantity: 3,
+          repeats: 0,
+        });
+        expect(medicationTwo.dataValues).toMatchObject({
+          id: medicationTwo.id,
+          quantity: 2,
+        });
+      });
+
       it('should not update encounter to an invalid location or add a note', async () => {
         const v = await models.Encounter.create({
           ...(await createDummyEncounter(models)),
@@ -308,10 +485,7 @@ describe('Encounter', () => {
       it('should roll back a whole modification if part of it is invalid', async () => {
         // to test this, we're going to do a valid location change and an invalid encounter type update
 
-        const [fromLocation, toLocation] = await models.ReferenceData.findAll({
-          where: { type: 'location' },
-          limit: 2,
-        });
+        const [fromLocation, toLocation] = await models.Location.findAll({ limit: 2 });
 
         const v = await models.Encounter.create({
           ...(await createDummyEncounter(models)),
@@ -469,6 +643,43 @@ describe('Encounter', () => {
         expect(result).toHaveSucceeded();
         const { body } = result;
         expect(body.count).toBeGreaterThan(0);
+      });
+    });
+
+    describe('document metadata', () => {
+      it('should fail creating a document metadata if the encounter ID does not exist', async () => {
+        const result = await app.post('/v1/encounter/123456789/documentMetadata').send({
+          name: 'test document',
+          documentOwner: 'someone',
+          note: 'some note',
+        });
+        expect(result).toHaveRequestError();
+      });
+
+      it('should create a document metadata', async () => {
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+        });
+
+        // Mock function gets called inside api route
+        uploadAttachment.mockImplementationOnce(req => ({
+          metadata: { ...req.body },
+          type: 'application/pdf',
+          attachmentId: '123456789',
+        }));
+
+        const result = await app.post(`/v1/encounter/${encounter.id}/documentMetadata`).send({
+          name: 'test document',
+          type: 'application/pdf',
+          documentOwner: 'someone',
+          note: 'some note',
+        });
+        expect(result).toHaveSucceeded();
+        expect(result.body.id).toBeTruthy();
+        const metadata = await models.DocumentMetadata.findByPk(result.body.id);
+        expect(metadata).toBeDefined();
+        expect(uploadAttachment.mock.calls.length).toBe(1);
       });
     });
 

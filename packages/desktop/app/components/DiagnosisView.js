@@ -5,7 +5,6 @@ import { Button } from './Button';
 import { DiagnosisModal } from './DiagnosisModal';
 import { DiagnosisList } from './DiagnosisList';
 import { Colors } from '../constants';
-import { LoadingIndicator } from './LoadingIndicator';
 
 const DiagnosisHeading = styled.div`
   margin-right: 1rem;
@@ -13,17 +12,6 @@ const DiagnosisHeading = styled.div`
   font-weight: 500;
   color: ${Colors.primary};
 `;
-
-function compareDiagnosis(a, b) {
-  if (a.isPrimary === b.isPrimary) {
-    return a.diagnosis.name.localeCompare(b.diagnosis.name);
-  }
-
-  if (a.isPrimary) return -1;
-
-  // so b.isPrimary
-  return 1;
-}
 
 const DiagnosisLabel = React.memo(({ numberOfDiagnoses }) => {
   if (numberOfDiagnoses === 0) {
@@ -49,11 +37,12 @@ export const DiagnosisView = React.memo(({ encounter, isTriage, readonly }) => {
   const displayedDiagnoses = diagnoses.filter(d => !['error', 'disproven'].includes(d.certainty));
 
   return (
-    <React.Fragment>
+    <>
       <DiagnosisModal
         diagnosis={diagnosis}
         isTriage={isTriage}
         encounterId={id}
+        excludeDiagnoses={displayedDiagnoses}
         onClose={() => editDiagnosis(null)}
       />
       <DiagnosisGrid>
@@ -71,6 +60,6 @@ export const DiagnosisView = React.memo(({ encounter, isTriage, readonly }) => {
           Add diagnosis
         </AddDiagnosisButton>
       </DiagnosisGrid>
-    </React.Fragment>
+    </>
   );
 });

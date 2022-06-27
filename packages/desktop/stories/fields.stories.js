@@ -3,7 +3,8 @@ import shortid from 'shortid';
 
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-
+import '@fortawesome/fontawesome-free/css/all.css';
+import MuiDialog from '@material-ui/core/Dialog';
 import {
   TextInput,
   CheckInput,
@@ -13,12 +14,15 @@ import {
   DateTimeInput,
   NumberInput,
   SelectInput,
+  MultiselectInput,
   AutocompleteInput,
   NullableBooleanInput,
+  TimeWithUnitInput,
 } from '../app/components';
+import Box from '@material-ui/core/Box';
 import { IdInput } from '../app/components/Field/IdField';
 import styled from 'styled-components';
-import { Colors } from '../app/constants';
+import { Button } from '@material-ui/core';
 
 const FRUITS = [
   { value: 'apples', label: 'Apples' },
@@ -57,11 +61,14 @@ class StoryControlWrapper extends React.PureComponent {
   };
 
   render() {
-    const { Component, ...props } = this.props;
+    const { Component, clearButton, ...props } = this.props;
     const { value } = this.state;
     return (
       <Container>
         <Component {...props} value={value} onChange={this.onChange} />
+        {clearButton && (
+          <Button onClick={() => this.setState({ value: '' })}> Clear Field (value = "") </Button>
+        )}
       </Container>
     );
   }
@@ -76,7 +83,8 @@ function addStories(name, Component, note) {
     .add('Required', () => <Component required />)
     .add('Disabled', () => <Component disabled />)
     .add('With help text', () => <Component helperText="Here is some help text" />)
-    .add('With error', () => <Component error helperText="Here is an error message" />);
+    .add('With error', () => <Component error helperText="Here is an error message" />)
+    .add('Clearable', () => <Component clearButton />);
 }
 
 addStories(
@@ -85,6 +93,16 @@ addStories(
   'Free text input.',
 ).add('Multiline', () => (
   <StoryControlWrapper Component={TextInput} label="Life story" multiline rows={4} />
+));
+
+addStories('TimeWithUnitInput', props => (
+  <StoryControlWrapper
+    Component={TimeWithUnitInput}
+    label="Time between onset"
+    name="onsetMinutes"
+    min={0}
+    {...props}
+  />
 ));
 
 addStories('CheckInput', props => (
@@ -156,6 +174,10 @@ addStories('SelectInput', props => (
   <StoryControlWrapper Component={SelectInput} label="Fruit" options={FRUITS} {...props} />
 ));
 
+addStories('MultiselectInput', props => (
+  <StoryControlWrapper Component={MultiselectInput} label="Fruit" options={FRUITS} {...props} />
+));
+
 const dummySuggester = {
   fetchSuggestions: async search => {
     await new Promise(resolve => setTimeout(resolve, 1000));
@@ -181,6 +203,14 @@ addStories('Autocomplete', props => (
       suggester={dummySuggester}
     />
   ))
+  .add('Inside a Modal', props => (
+    <MuiDialog width="md" open title="Autocomplete">
+      <Box p={5}>
+        <AutocompleteInput label="Fruit" options={FRUITS} {...props} />
+      </Box>
+    </MuiDialog>
+  ))
+
   .add(
     'Async with invalid existing value',
     () => (

@@ -1,12 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Modal } from './Modal';
 import { ButtonRow } from './ButtonRow';
 import { Button } from './Button';
 
 export const PatientAlert = React.memo(({ alerts = [] }) => {
-  if (alerts.length === 0) return null;
+  const [alertVisible, setAlertVisible] = useState(true);
 
-  const [alertVisible, setAlertVisible] = React.useState(true);
+  if (alerts.length === 0) return null;
   const close = () => setAlertVisible(false);
 
   return (

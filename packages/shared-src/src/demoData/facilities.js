@@ -1,4 +1,4 @@
-import { splitIds } from './splitIds';
+import { splitIds } from './utilities';
 
 export const FACILITIES = splitIds(`
   Balwyn
@@ -13,3 +13,8 @@ export const FACILITIES = splitIds(`
   Thornbury
   Traralgon
 `);
+
+export const seedFacilities = async models => {
+  const facilities = FACILITIES.map(d => ({ ...d, code: d.name }));
+  return models.Facility.bulkCreate(facilities);
+};

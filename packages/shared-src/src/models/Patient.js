@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS } from 'shared/constants';
+import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES } from 'shared/constants';
 import { Model } from './Model';
 
 export class Patient extends Model {
@@ -18,6 +18,7 @@ export class Patient extends Model {
         culturalName: Sequelize.STRING,
 
         dateOfBirth: Sequelize.DATE,
+        dateOfDeath: Sequelize.DATE,
         sex: {
           type: Sequelize.ENUM('male', 'female', 'other'),
           allowNull: false,
@@ -31,8 +32,12 @@ export class Patient extends Model {
       },
       {
         ...options,
-        syncConfig: { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
-        indexes: [{ fields: ['display_id'] }, { fields: ['last_name'] }],
+        syncConfig: { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, includedRelations: ['notes'] },
+        indexes: [
+          { fields: ['date_of_death'] },
+          { fields: ['display_id'] },
+          { fields: ['last_name'] },
+        ],
       },
     );
   }
@@ -42,15 +47,29 @@ export class Patient extends Model {
       foreignKey: 'patientId',
     });
 
-    // technically this relation is hasOne but this just describes
+    // technically these two relations are hasOne but this just describes
     // "there is another table referencing this one by id"
     this.hasMany(models.PatientAdditionalData, {
       foreignKey: 'patientId',
+      as: 'additionalData',
+    });
+    this.hasMany(models.PatientDeathData, {
+      foreignKey: 'patientId',
+      as: 'deathData',
     });
 
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'villageId',
       as: 'village',
+    });
+
+    this.hasMany(models.Note, {
+      foreignKey: 'recordId',
+      as: 'notes',
+      constraints: false,
+      scope: {
+        recordType: this.name,
+      },
     });
   }
 
@@ -61,5 +80,96 @@ export class Patient extends Model {
       attributes: ['id'],
     });
     return patients.map(({ id }) => id);
+  }
+
+  async getAdministeredVaccines(queryOptions = {}) {
+    const { models } = this.sequelize;
+    const certifiableVaccineIds = await models.CertifiableVaccine.allVaccineIds();
+
+    const { where: optWhere = {}, include = [], ...optRest } = queryOptions;
+
+    if (include.length === 0) {
+      include.push(
+        {
+          model: models.Encounter,
+          as: 'encounter',
+          include: models.Encounter.getFullReferenceAssociations(),
+        },
+        {
+          model: models.Location,
+          as: 'location',
+        },
+      );
+    }
+
+    if (!include.some(i => i.as === 'scheduledVaccine')) {
+      include.push({
+        model: models.ScheduledVaccine,
+        as: 'scheduledVaccine',
+        include: models.ScheduledVaccine.getListReferenceAssociations(),
+      });
+    }
+
+    const results = await models.AdministeredVaccine.findAll({
+      order: [['date', 'DESC']],
+      ...optRest,
+      raw: true,
+      nest: true,
+      include,
+      where: {
+        ...optWhere,
+        '$encounter.patient_id$': this.id,
+        status: 'GIVEN',
+      },
+    });
+
+    for (const result of results) {
+      if (certifiableVaccineIds.includes(result.scheduledVaccine.vaccineId)) {
+        result.certifiable = true;
+      }
+    }
+
+    return results;
+  }
+
+  async getCovidLabTests(queryOptions) {
+    const labRequests = await this.sequelize.models.LabRequest.findAll({
+      raw: true,
+      nest: true,
+      ...queryOptions,
+      where: { status: LAB_REQUEST_STATUSES.PUBLISHED },
+      include: [
+        { association: 'requestedBy' },
+        {
+          association: 'category',
+          where: { name: Sequelize.literal("UPPER(category.name) LIKE ('%COVID%')") },
+        },
+        {
+          association: 'tests',
+          include: [{ association: 'labTestMethod' }, { association: 'labTestType' }],
+        },
+        { association: 'laboratory' },
+        {
+          association: 'encounter',
+          required: true,
+          include: [
+            { association: 'examiner' },
+            {
+              association: 'patient',
+              where: { id: this.id },
+            },
+          ],
+        },
+      ],
+    });
+
+    // Place the tests data at the top level of the object as this is a getter for lab tests
+    // After the merge, id is the lab test id and labRequestId is the lab request id
+    const labTests = labRequests.map(labRequest => {
+      const { tests, ...labRequestData } = labRequest;
+      return { ...labRequestData, ...tests };
+    });
+
+    return labTests.slice().sort((a, b) => Date.parse(b.date) - Date.parse(a.date));
   }
 }

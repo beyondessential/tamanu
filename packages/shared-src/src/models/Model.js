@@ -8,17 +8,22 @@ const firstLetterLowercase = s => (s[0] || '').toLowerCase() + s.slice(1);
 // write a migration when adding to this list (e.g. 005_markedForPush.js and 007_pushedAt.js)
 const MARKED_FOR_PUSH_MODELS = [
   'Encounter',
+  'LabRequestLog',
   'Patient',
+  'PatientAdditionalData',
   'PatientAllergy',
   'PatientCarePlan',
   'PatientCondition',
   'PatientFamilyHistory',
   'PatientIssue',
-  'PatientAdditionalData',
   'ReportRequest',
-  'Location',
   'UserFacility',
-  'LabRequestLog',
+  'DocumentMetadata',
+  'CertificateNotification',
+
+  // Temporarily remove death data models from sync as sync cannot handle the foreign key cycle
+  // 'PatientDeathData',
+  // 'DeathCause',
 ];
 
 export class Model extends sequelize.Model {
@@ -29,6 +34,11 @@ export class Model extends sequelize.Model {
         type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: true,
+      };
+      attributes.isPushing = {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
       };
       attributes.pushedAt = Sequelize.DATE;
       attributes.pulledAt = Sequelize.DATE;
@@ -50,8 +60,9 @@ export class Model extends sequelize.Model {
     // into
     // { id: 12345, field: 'value', referenceObject: { id: 23456, name: 'object' } }
 
+    const { models } = this.sequelize;
     const values = Object.entries(this.dataValues)
-      .filter(([key, val]) => val !== null)
+      .filter(([_key, val]) => val !== null) // eslint-disable-line no-unused-vars
       .reduce(
         (obj, [key, val]) => ({
           ...obj,
@@ -60,7 +71,7 @@ export class Model extends sequelize.Model {
         {},
       );
 
-    const references = this.constructor.getListReferenceAssociations();
+    const references = this.constructor.getListReferenceAssociations(models);
 
     if (!references) return values;
 
@@ -83,17 +94,6 @@ export class Model extends sequelize.Model {
     return this.constructor.name;
   }
 
-  getNotes(limit = undefined) {
-    const { Note } = this.sequelize.models;
-    return Note.findAll({
-      where: {
-        recordType: this.getModelName(),
-        recordId: this.id,
-      },
-      limit,
-    });
-  }
-
   static getListReferenceAssociations() {
     // List of relations to include when fetching this model
     // as part of a list (eg to display in a table)
@@ -107,7 +107,8 @@ export class Model extends sequelize.Model {
   static getFullReferenceAssociations() {
     // List of relations when fetching just this model
     // (eg to display in a detailed view)
-    return this.getListReferenceAssociations();
+    const { models } = this.sequelize;
+    return this.getListReferenceAssociations(models);
   }
 
   static async findByIds(ids) {

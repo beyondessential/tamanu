@@ -18,5 +18,5 @@ export const IDCardIcon = ({ hovered }) => {
         </clipPath>
       </defs>
     </svg>
-  )
+  );
 };

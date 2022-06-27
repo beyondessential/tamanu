@@ -1,11 +1,11 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import { isArray, toString, each } from 'lodash';
 import { toast } from 'react-toastify';
 import deepEqual from 'deep-equal';
 import shortid from 'shortid';
 
 export const concatSelf = (array, ...items) => {
-  items.map(item => {
+  items.forEach(item => {
     if (isArray(item)) {
       item.forEach(variable => array.push(variable));
     } else {
@@ -17,11 +17,11 @@ export const concatSelf = (array, ...items) => {
 export const prepareToastMessage = msg => {
   const messages = isArray(msg) ? msg : [msg];
   return (
-    <Fragment>
-      {messages.map((text, key) => (
-        <div key={`err-msg-${key}`}>{toString(text)}</div>
+    <>
+      {messages.map(text => (
+        <div key={`err-msg-${text}`}>{toString(text)}</div>
       ))}
-    </Fragment>
+    </>
   );
 };
 
@@ -37,16 +37,16 @@ export const getClient = () => {
   return localStorage.getItem('clientId');
 };
 
-export const notify = (message, { type = 'error', autoClose = null, ...props } = {}) => {
+export const notify = (message, props) => {
   if (message !== false) {
-    toast(prepareToastMessage(message), { type, autoClose, ...props });
+    toast(prepareToastMessage(message), props);
   } else {
     toast.dismiss();
   }
 };
 
 export const notifySuccess = (msg, props) => notify(msg, { ...props, type: 'success' });
-export const notifyError = notify;
+export const notifyError = (msg, props) => notify(msg, { ...props, type: 'error' });
 
 export const flattenRequest = (object, deep = true) => {
   try {
@@ -86,9 +86,9 @@ export const history = {
 };
 
 export const hexToRgba = (hex, opacity) => {
-  hex = hex.replace('#', '');
-  const r = parseInt(hex.substring(0, 2), 16);
-  const g = parseInt(hex.substring(2, 4), 16);
-  const b = parseInt(hex.substring(4, 6), 16);
+  const hx = hex.replace('#', '');
+  const r = parseInt(hx.substring(0, 2), 16);
+  const g = parseInt(hx.substring(2, 4), 16);
+  const b = parseInt(hx.substring(4, 6), 16);
   return `rgba(${r},${g},${b},${opacity})`;
 };

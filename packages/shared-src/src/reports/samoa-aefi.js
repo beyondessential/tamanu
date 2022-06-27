@@ -5,6 +5,7 @@ function parametersToSqlWhere(parameters) {
   const whereClause = Object.entries(parameters)
     .filter(([, val]) => val)
     .reduce((where, [key, value]) => {
+      /* eslint-disable no-param-reassign */
       switch (key) {
         case 'village':
           where['$encounter.patient.village_id$'] = value;
@@ -24,6 +25,7 @@ function parametersToSqlWhere(parameters) {
         default:
           break;
       }
+      /* eslint-enable no-param-reassign */
       return where;
     }, {});
 
@@ -32,7 +34,7 @@ function parametersToSqlWhere(parameters) {
 
 export const permission = 'Survey';
 
-export async function dataGenerator(models, parameters = {}) {
+export async function dataGenerator({ models }, parameters = {}) {
   // see https://docs.google.com/spreadsheets/d/1xgc_E_RStT6AXWiNzv7pTA9EbjIZEdIR/edit#gid=777794303 for codes
   const aefiSurvey = await models.Survey.findOne({
     where: {
@@ -43,10 +45,10 @@ export async function dataGenerator(models, parameters = {}) {
   const aefiSurveyColumns = await models.SurveyScreenComponent.findAll({
     where: {
       surveyId: aefiSurvey.get('id'),
-      ['$dataElement.name$']: {
+      '$dataElement.name$': {
         [Op.not]: null,
       },
-      ['$dataElement.type$']: {
+      '$dataElement.type$': {
         [Op.not]: 'Instruction',
       },
     },
@@ -92,6 +94,7 @@ export async function dataGenerator(models, parameters = {}) {
       );
       const answersByDataElementId = survey.answers.reduce(
         (allAnswers, answer) => {
+          // eslint-disable-next-line no-param-reassign
           allAnswers[answer.dataElementId] = answer.body;
           return allAnswers;
         },
@@ -123,7 +126,7 @@ async function getMostRecentVaccineForPatientBeforeSurveyDate(models, patientId,
       },
     ],
     where: {
-      ['$encounter.patient_id$']: patientId,
+      '$encounter.patient_id$': patientId,
       date: { [Op.lte]: surveyDate },
     },
     order: [['date', 'DESC']],

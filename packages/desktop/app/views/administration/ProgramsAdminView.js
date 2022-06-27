@@ -1,4 +1,4 @@
-import React, { memo, useState, useCallback } from 'react';
+import React, { memo, useCallback } from 'react';
 import styled from 'styled-components';
 
 import { useApi } from '../../api';
@@ -11,15 +11,14 @@ const Container = styled.div`
 export const ProgramsAdminView = memo(() => {
   const api = useApi();
   const onSubmit = useCallback(
-    ({ file, ...data }) => api.postWithFileUpload('admin/importProgram', file, data)
+    ({ file, ...data }) => api.postWithFileUpload('admin/importProgram', file, data),
+    [api],
   );
 
   return (
     <Container>
       <h1>Programs admin</h1>
-      <DataDocumentUploadForm
-        onSubmit={onSubmit}
-      />
+      <DataDocumentUploadForm onSubmit={onSubmit} />
     </Container>
   );
 });

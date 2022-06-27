@@ -1,8 +1,7 @@
-import React from 'react';
+import React, { Children } from 'react';
 import styled from 'styled-components';
 
 import { Button } from './Button';
-import { Colors } from '../constants';
 
 const Row = styled.div`
   display: grid;
@@ -16,7 +15,7 @@ const Row = styled.div`
 // Also note the 'auto' as the first element of grid-template-columns,
 // which corresponds to this div.
 export const ButtonRow = React.memo(({ children, ...props }) => (
-  <Row items={children.length || 1} {...props}>
+  <Row items={Children.toArray(children).length || 1} {...props}>
     <div />
     {children}
   </Row>
@@ -27,6 +26,7 @@ export const ConfirmCancelRow = React.memo(
     onCancel,
     onConfirm,
     confirmText = 'Confirm',
+    confirmColor = 'primary',
     cancelText = 'Cancel',
     confirmDisabled,
     ...props
@@ -38,7 +38,12 @@ export const ConfirmCancelRow = React.memo(
         </Button>
       )}
       {onConfirm && (
-        <Button variant="contained" color="primary" onClick={onConfirm} disabled={confirmDisabled}>
+        <Button
+          variant="contained"
+          color={confirmColor}
+          onClick={onConfirm}
+          disabled={confirmDisabled}
+        >
           {confirmText}
         </Button>
       )}

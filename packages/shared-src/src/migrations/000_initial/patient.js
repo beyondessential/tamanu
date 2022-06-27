@@ -1,5 +1,4 @@
 module.exports = ({ Sequelize, foreignKey }) => ({
-
   name: 'Patient',
 
   fields: {

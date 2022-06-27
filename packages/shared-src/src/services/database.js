@@ -2,6 +2,7 @@ import { Sequelize } from 'sequelize';
 import { createNamespace } from 'cls-hooked';
 import pg from 'pg';
 import wayfarer from 'wayfarer';
+import util from 'util';
 
 // an issue in how webpack's require handling interacts with sequelize means we need
 // to provide the module to sequelize manually
@@ -12,7 +13,14 @@ import { log } from './logging';
 
 import { migrate, assertUpToDate } from './migrations';
 import * as models from '../models';
-import { initSyncClientModeHooks } from '../models/sync';
+import { initSyncHooks } from '../models/sync';
+
+// this allows us to use transaction callbacks without manually managing a transaction handle
+// https://sequelize.org/master/manual/transactions.html#automatically-pass-transactions-to-all-queries
+// done once for all sequelize objects
+const namespace = createNamespace('sequelize-transaction-namespace');
+// eslint-disable-next-line react-hooks/rules-of-hooks
+Sequelize.useCLS(namespace);
 
 // this is dangerous and should only be used in test mode
 const unsafeRecreatePgDb = async ({ name, username, password, host, port }) => {
@@ -30,6 +38,11 @@ const unsafeRecreatePgDb = async ({ name, username, password, host, port }) => {
     await client.connect();
     await client.query(`DROP DATABASE IF EXISTS "${name}"`);
     await client.query(`CREATE DATABASE "${name}"`);
+  } catch (e) {
+    log.error(
+      'Failed to drop database. Note that every createTestContext() must have a corresponding ctx.close()!',
+    );
+    throw e;
   } finally {
     await client.end();
   }
@@ -64,15 +77,18 @@ async function connectToDatabase(dbOptions) {
   if (sqlitePath) {
     log.info(`Connecting to sqlite database at ${sqlitePath}...`);
   } else {
-    log.info(`Connecting to database ${username}@${name}...`);
+    log.info(
+      `Connecting to database ${username || '<no username>'}:*****@${host || '<no host>'}:${port ||
+        '<no port>'}/${name || '<no name>'}...`,
+    );
   }
 
-  // this allows us to use transaction callbacks without manually managing a transaction handle
-  // https://sequelize.org/master/manual/transactions.html#automatically-pass-transactions-to-all-queries
-  const namespace = createNamespace('sequelize-transaction-namespace');
-  Sequelize.useCLS(namespace);
-
-  const logging = verbose ? s => log.debug(s) : null;
+  const logging = verbose
+    ? (query, obj) =>
+        log.debug(
+          `${util.inspect(query)}; -- ${util.inspect(obj.bind || [], { breakLength: Infinity })}`,
+        )
+    : null;
   const options = sqlitePath
     ? { dialect: 'sqlite', dialectModule: sqlite3, storage: sqlitePath }
     : { dialect: 'postgres' };
@@ -85,6 +101,7 @@ async function connectToDatabase(dbOptions) {
   await sequelize.authenticate();
 
   process.on('SIGTERM', () => {
+    log.info('Received SIGTERM, closing sequelize');
     sequelize.close();
   });
 
@@ -103,26 +120,24 @@ export async function initDatabase(dbOptions) {
   } = dbOptions;
 
   const sequelize = await connectToDatabase(dbOptions);
-  
+
   // set configuration variables for individual models
   models.User.SALT_ROUNDS = saltRounds;
 
   // attach migration function to the sequelize object - leaving the responsibility
   // of calling it to the implementing server (this allows for skipping migrations
   // in favour of calling sequelize.sync() during test mode)
-  sequelize.migrate = async options => {
+  sequelize.migrate = async direction => {
     if (sqlitePath) {
-      log.info("Syncing sqlite schema...");
+      log.info('Syncing sqlite schema...');
       await sequelize.sync();
       return;
     }
 
-    return migrate(log, sequelize, options);
+    await migrate(log, sequelize, direction);
   };
 
-  sequelize.assertUpToDate = async options => {
-    return assertUpToDate(log, sequelize, options);
-  };
+  sequelize.assertUpToDate = async options => assertUpToDate(log, sequelize, options);
 
   // init all models
   const modelClasses = Object.values(models);
@@ -154,9 +169,7 @@ export async function initDatabase(dbOptions) {
   });
 
   // init global sync hooks that live in shared-src
-  if (syncClientMode) {
-    initSyncClientModeHooks(models);
-  }
+  initSyncHooks(models);
 
   // router to convert channelRoutes (e.g. `[patient/:patientId/issue]`) to a model + params
   // (e.g. PatientIssue + { patientId: 'abc123', route: '...' })
@@ -175,6 +188,9 @@ export async function initDatabase(dbOptions) {
     // run afterInit callbacks for model
     await Promise.all(model.afterInitCallbacks.map(fn => fn()));
   }
+
+  // add isInsideTransaction helper to avoid exposing the namespace
+  sequelize.isInsideTransaction = () => !!namespace.get('transaction');
 
   return { sequelize, models };
 }
