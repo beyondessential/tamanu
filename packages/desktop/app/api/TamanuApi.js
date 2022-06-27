@@ -125,7 +125,7 @@ export class TamanuApi {
     }
     this.setToken(token);
     const user = await this.get('user/me');
-    
+    this.user = user;
     const ability = buildAbilityForUser(user, permissions);
     
     return { user, token, localisation, server, ability };
@@ -147,8 +147,8 @@ export class TamanuApi {
 
     const user = await this.get('user/me');
     this.user = user;
-
     const ability = buildAbilityForUser(user, permissions);
+
     return { user, token, localisation, server, ability };
   }
 

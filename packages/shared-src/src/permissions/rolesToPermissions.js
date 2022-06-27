@@ -1,5 +1,5 @@
 import config from 'config';
-import { buildAbility, buildAdminAbility } from './buildAbility';
+import { buildAbilityForUser } from './buildAbility';
 import { Permission } from '../models';
 
 //---------------------------------------------------------
@@ -68,10 +68,6 @@ export async function getPermissionsForRoles(roleString) {
 export async function getAbilityForUser(user) {
   if (!user) {
     return buildAbility([]);
-  }
-
-  if (user.role === 'admin') {
-    return buildAdminAbility();
   }
 
   const permissions = await getPermissionsForRoles(user.role);
