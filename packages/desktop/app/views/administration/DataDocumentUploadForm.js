@@ -9,7 +9,7 @@ import { ButtonRow } from 'desktop/app/components/ButtonRow';
 import { Button } from 'desktop/app/components/Button';
 import { Notification } from 'desktop/app/components/Notification';
 
-import { useCurrentUser } from 'desktop/app/store/auth';
+import { useAuth } from 'desktop/app/contexts/Auth';
 
 import { ImportStatsDisplay } from './components/ImportStatsDisplay';
 import { ImportErrorsTable } from './components/ImportErrorsTable';
