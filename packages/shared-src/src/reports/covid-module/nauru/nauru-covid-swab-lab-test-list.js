@@ -7,7 +7,7 @@ const SURVEY_QUESTION_CODES = {
   'Test location': 'pde-NauCOVTest003',
   'Does patient have symptoms': 'pde-NauCOVTest005',
   'If Yes, date of first symptom onset': 'pde-NauCOVTest006',
-  'Symptoms': 'pde-NauCOVTest007',
+  Symptoms: 'pde-NauCOVTest007',
   'Health Clinic': 'pde-NauCOVTest008',
 };
 
@@ -56,7 +56,6 @@ const reportColumnTemplate = [
     title: 'Laboratory officer',
     accessor: data => data.laboratoryOfficer,
   },
-  { title: 'Public health facility', accessor: data => data.publicHealthFacility }, // TODO
   {
     title: 'Sample collection time',
     accessor: data => data.x,
