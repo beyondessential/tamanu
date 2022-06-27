@@ -40,12 +40,14 @@ const createDummySurvey = async models => {
     },
     { id: 'pde-Test1', code: 'Test1', name: 'Test Question 1', type: 'Not Instruction' },
     { id: 'pde-Test2', code: 'Test2', name: 'Test Question 2', type: 'Not Instruction' },
+    { id: 'pde-Result', code: 'Result', name: 'Result', type: 'Result' },
   ]);
 
   await models.SurveyScreenComponent.bulkCreate([
     { dataElementId: 'pde-Should not show', surveyId: SURVEY_ID },
     { dataElementId: 'pde-Test1', surveyId: SURVEY_ID },
     { dataElementId: 'pde-Test2', surveyId: SURVEY_ID },
+    { dataElementId: 'pde-Result', surveyId: SURVEY_ID },
   ]);
 };
 
