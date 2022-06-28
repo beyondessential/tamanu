@@ -1,6 +1,11 @@
 import { subDays } from 'date-fns';
+import { keyBy, groupBy } from 'lodash';
 import { NON_ANSWERABLE_DATA_ELEMENT_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '../constants';
-import { generateReportFromQueryData, getAnswerBody } from './utilities';
+import {
+  generateReportFromQueryData,
+  getAnswerBody,
+  getAutocompleteComponentMap,
+} from './utilities';
 
 const COMMON_FIELDS = [
   'Patient ID',
@@ -94,14 +99,14 @@ const getData = async (sequelize, parameters) => {
   });
 };
 
-const getReportColumnTemplate = (components) => {
+const getReportColumnTemplate = components => {
   const answerableComponents = components.filter(
     ({ dataElement }) => !NON_ANSWERABLE_DATA_ELEMENT_TYPES.includes(dataElement.type),
   );
   const surveyHasResult = components.some(
     ({ dataElement }) => dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.RESULT,
   );
-  
+
   return [
     ...COMMON_FIELDS.map(field => ({
       title: field,
@@ -113,10 +118,64 @@ const getReportColumnTemplate = (components) => {
     })),
     ...(surveyHasResult ? [{ title: 'Result', accessor: data => data.answers.Result }] : []),
   ];
-}
+};
 
-export const dataGenerator = async ({ sequelize, models }, parameters = {}) => {
-  const { surveyId } = parameters;
+export const transformSingleResponse = async (
+  models,
+  result,
+  autocompleteComponentMap,
+  dataElementIdToComponent,
+) => {
+  const { answers } = result;
+  const newAnswers = {};
+
+  await Promise.all(
+    Object.entries(answers).forEach(([key, body]) => {
+      if (key !== 'Result') {
+        const dataElementId = key;
+        const type =
+          dataElementIdToComponent[dataElementId]?.dataElement?.dataValues?.type || 'unknown';
+        const componentConfig = autocompleteComponentMap.get(dataElementId);
+        newAnswers[key] = getAnswerBody(models, componentConfig, type, body, {
+          dateFormat: 'YYYY/MM/DD',
+        });
+      }
+    }),
+  );
+
+  return {
+    ...result,
+    answers: newAnswers,
+  };
+};
+/**
+ * This currently runs with
+ *       m x n time
+ *         m   memory (in addition to the m x n to store the results themselves)
+ * where
+ *    n is the number of responses fetched
+ *    m is the number of questions in the survey
+ */
+export const transformAllResponses = async (models, results, surveyComponents) => {
+  const autocompleteComponentMap = getAutocompleteComponentMap(surveyComponents);
+  const dataElementIdToComponent = keyBy(surveyComponents, component => component.dataElementId);
+
+  const transformedResults = [];
+  // Transforming results 1 by 1 in order to avoid using too much memory 
+  for (const result of results) {
+    const transformedResult = await transformSingleResponse(
+      models,
+      result,
+      autocompleteComponentMap,
+      dataElementIdToComponent,
+    );
+    transformedResults.push(transformedResult);
+  }
+  return transformedResults;
+};
+
+export const dataGenerator = async ({ sequelize, models }, parameters = { surveyId: 'program-fijincdprimaryscreening-fijibreastprimaryscreen'} ) => {
+  const { surveyId = 'program-fijincdprimaryscreening-fijibreastprimaryscreen' } = parameters;
   if (!surveyId) {
     throw new Error('parameter "survey" must be supplied');
   }
@@ -128,11 +187,8 @@ export const dataGenerator = async ({ sequelize, models }, parameters = {}) => {
   const components = await models.SurveyScreenComponent.getComponentsForSurvey(surveyId);
   const reportColumnTemplate = getReportColumnTemplate(components);
 
-  const results = await getData(sequelize, parameters);
-  for (result of results) {
-    const mappedAnswers = await Promise.all(Object.entriesresult.answers => ));
-
-  }
+  const rawData = await getData(sequelize, { surveyId: 'program-fijincdprimaryscreening-fijibreastprimaryscreen'});
+  const results = await transformAllResponses(models, rawData, components);
 
   return generateReportFromQueryData(results, reportColumnTemplate);
 };

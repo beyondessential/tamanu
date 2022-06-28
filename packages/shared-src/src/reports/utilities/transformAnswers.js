@@ -53,7 +53,7 @@ export const getAnswerBody = async (models, componentConfig, type, answer, trans
   }
 };
 
-const getAutocompleteComponentMap = surveyComponents => {
+export const getAutocompleteComponentMap = surveyComponents => {
   const autocompleteComponents = surveyComponents
     .filter(c => c.dataElement.dataValues.type === 'Autocomplete')
     .map(({ dataElementId, config: componentConfig }) => [
@@ -61,23 +61,6 @@ const getAutocompleteComponentMap = surveyComponents => {
       componentConfig ? JSON.parse(componentConfig) : {},
     ]);
   return new Map(autocompleteComponents);
-};
-
-const simples = async (answers, autocompleteComponentMap, dataElementIdToComponent) => {
-  const newAnswers = {};
-  // const autocompleteComponentMap = getAutocompleteComponentMap(surveyComponents);
-  // const dataElementIdToComponent = keyBy(surveyComponents, component => component.dataElementId);
-
-  await Promise.all(
-    Object.entries(answers).forEach(([key, body]) => {
-      const type =
-        dataElementIdToComponent[dataElementId]?.dataElement?.dataValues?.type || 'unknown';
-      const componentConfig = autocompleteComponentMap.get(dataElementId);
-      newAnswers[key] = getAnswerBody(models, componentConfig, type, body, transformConfig);
-    }),
-  );
-
-  return newAnswers;
 };
 
 export const transformAnswers = async (
