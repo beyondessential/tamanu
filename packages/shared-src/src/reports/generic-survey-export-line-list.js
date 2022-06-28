@@ -177,11 +177,8 @@ export const transformAllResponses = async (models, results, surveyComponents) =
   return transformedResults;
 };
 
-export const dataGenerator = async (
-  { sequelize, models },
-  parameters = { surveyId: 'program-fijincdprimaryscreening-fijibreastscreenref' },
-) => {
-  const { surveyId = 'program-fijincdprimaryscreening-fijibreastscreenref' } = parameters;
+export const dataGenerator = async ({ sequelize, models }, parameters = {}) => {
+  const { surveyId } = parameters;
   if (!surveyId) {
     throw new Error('parameter "survey" must be supplied');
   }
@@ -193,9 +190,7 @@ export const dataGenerator = async (
   const components = await models.SurveyScreenComponent.getComponentsForSurvey(surveyId);
   const reportColumnTemplate = getReportColumnTemplate(components);
 
-  const rawData = await getData(sequelize, {
-    surveyId: 'program-fijincdprimaryscreening-fijibreastscreenref',
-  });
+  const rawData = await getData(sequelize, parameters);
   const results = await transformAllResponses(models, rawData, components);
 
   return generateReportFromQueryData(results, reportColumnTemplate);
