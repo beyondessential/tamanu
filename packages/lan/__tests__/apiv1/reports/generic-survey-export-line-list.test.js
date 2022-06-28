@@ -175,13 +175,13 @@ describe('Generic survey export', () => {
       expect(result.body).toMatchTabularReport(
         [
           {
-            'Submission Time': format(getExpectedDate(date1), 'yyyy/MM/dd HH:mm a'),
+            'Submission Time': format(getExpectedDate(date1), 'yyyy-MM-dd HH:mm a'),
           },
           {
-            'Submission Time': format(getExpectedDate(date2), 'yyyy/MM/dd HH:mm a'),
+            'Submission Time': format(getExpectedDate(date2), 'yyyy-MM-dd HH:mm a'),
           },
           {
-            'Submission Time': format(getExpectedDate(date3), 'yyyy/MM/dd HH:mm a'),
+            'Submission Time': format(getExpectedDate(date3), 'yyyy-MM-dd HH:mm a'),
           },
         ],
         { partialMatching: true },
@@ -214,14 +214,14 @@ describe('Generic survey export', () => {
           'Patient ID': expectedPatient.displayId,
           'First name': expectedPatient.firstName,
           'Last name': expectedPatient.lastName,
-          'Date of birth': format(expectedPatient.dateOfBirth, 'yyyy/MM/dd'),
+          'Date of birth': format(expectedPatient.dateOfBirth, 'yyyy-MM-dd'),
           Age: 1,
           Sex: expectedPatient.sex,
           Village: expectedVillage.name,
-          'Submission Time': format(expectedDate, 'yyyy/MM/dd HH:mm a'),
+          'Submission Time': format(expectedDate, 'yyyy-MM-dd HH:mm a'),
           'name-pde-Test1': 'Data point 1',
           'name-pde-CheckboxQ': 'Yes',
-          'name-pde-DateQ': '2022/05/30',
+          'name-pde-DateQ': '2022-05-30',
           'name-pde-Autocomplete': expectedVillage.name,
           Result: 'Seventeen',
         },

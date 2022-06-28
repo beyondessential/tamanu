@@ -49,12 +49,12 @@ with
 select
   p.first_name "First name",
   p.last_name "Last name",
-  to_char(p.date_of_birth::date, 'yyyy/mm/dd') "Date of birth",
+  to_char(p.date_of_birth::date, 'yyyy-mm-dd') "Date of birth",
   extract(year from age(p.date_of_birth))::integer "Age",
   p.sex "Sex",
   p.display_id "Patient ID",
   vil."name" as "Village",
-  to_char(sr.end_time, 'YYYY/MM/DD HH12' || CHR(58) || 'MI AM') "Submission Time", -- Need to use "|| CHR(58)" here or else sequelize thinks "<colon>MI" is a variable (it even replaces in comments!!)
+  to_char(sr.end_time, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM') "Submission Time", -- Need to use "|| CHR(58)" here or else sequelize thinks "<colon>MI" is a variable (it even replaces in comments!!)
   s.name,
   answers
 from survey_responses sr
@@ -141,7 +141,7 @@ export const transformSingleResponse = async (
           dataElementIdToComponent[dataElementId]?.dataElement?.dataValues?.type || 'unknown';
         const componentConfig = autocompleteComponentMap.get(dataElementId);
         newAnswers[key] = await getAnswerBody(models, componentConfig, type, body, {
-          dateFormat: 'YYYY/MM/DD',
+          dateFormat: 'YYYY-MM-DD',
         });
       }
     }),
