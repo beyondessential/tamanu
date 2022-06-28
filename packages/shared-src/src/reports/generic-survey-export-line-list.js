@@ -107,8 +107,12 @@ export const dataGenerator = async ({ sequelize, models }, parameters = {}) => {
   const results = await getData(sequelize, parameters);
 
   const components = await models.SurveyScreenComponent.getComponentsForSurvey(surveyId);
-  const answerableComponents = components.filter(({ dataElement }) => !(NON_ANSWERABLE_DATA_ELEMENT_TYPES.includes(dataElement.type)))
-  const surveyHasResult = components.find(({ dataElement }) => dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.RESULT)
+  const answerableComponents = components.filter(
+    ({ dataElement }) => !NON_ANSWERABLE_DATA_ELEMENT_TYPES.includes(dataElement.type),
+  );
+  const surveyHasResult = components.some(
+    ({ dataElement }) => dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.RESULT,
+  );
 
   const reportColumnTemplate = [
     ...COMMON_FIELDS.map(field => ({
@@ -119,9 +123,7 @@ export const dataGenerator = async ({ sequelize, models }, parameters = {}) => {
       title: dataElement.name,
       accessor: data => data.answers[dataElement.id],
     })),
-    ...(surveyHasResult
-      ? [{ title: 'Result', accessor: data => data.answers.Result }]
-      : []),
+    ...(surveyHasResult ? [{ title: 'Result', accessor: data => data.answers.Result }] : []),
   ];
 
   return generateReportFromQueryData(results, reportColumnTemplate);
