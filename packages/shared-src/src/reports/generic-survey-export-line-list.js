@@ -135,8 +135,7 @@ export const transformSingleResponse = async (
     Object.entries(answers).map(async ([key, body]) => {
       if (key === 'Result') {
         newAnswers[key] = body;
-      }
-      else {
+      } else {
         const dataElementId = key;
         const type =
           dataElementIdToComponent[dataElementId]?.dataElement?.dataValues?.type || 'unknown';
@@ -153,20 +152,13 @@ export const transformSingleResponse = async (
     answers: newAnswers,
   };
 };
-/**
- * This currently runs with
- *       m x n time
- *         m   memory (in addition to the m x n to store the results themselves)
- * where
- *    n is the number of responses fetched
- *    m is the number of questions in the survey
- */
+
 export const transformAllResponses = async (models, results, surveyComponents) => {
   const autocompleteComponentMap = getAutocompleteComponentMap(surveyComponents);
   const dataElementIdToComponent = keyBy(surveyComponents, component => component.dataElementId);
 
   const transformedResults = [];
-  // Transforming results 1 by 1 in order to avoid using too much memory
+  // Transforming results synchronously in order to avoid using too much memory
   for (const result of results) {
     const transformedResult = await transformSingleResponse(
       models,
