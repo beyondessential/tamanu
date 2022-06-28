@@ -1,6 +1,6 @@
 import { subDays } from 'date-fns';
 import { NON_ANSWERABLE_DATA_ELEMENT_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '../constants';
-import { generateReportFromQueryData } from './utilities';
+import { generateReportFromQueryData, getAnswerBody } from './utilities';
 
 const COMMON_FIELDS = [
   'Patient ID',
@@ -94,27 +94,15 @@ const getData = async (sequelize, parameters) => {
   });
 };
 
-export const dataGenerator = async ({ sequelize, models }, parameters = {}) => {
-  const { surveyId } = parameters;
-  if (!surveyId) {
-    throw new Error('parameter "survey" must be supplied');
-  }
-  const { isSensitive } = await models.Survey.findByPk(surveyId);
-  if (isSensitive) {
-    throw new Error('Cannot export a survey marked as "sensitive"');
-  }
-
-  const results = await getData(sequelize, parameters);
-
-  const components = await models.SurveyScreenComponent.getComponentsForSurvey(surveyId);
+const getReportColumnTemplate = (components) => {
   const answerableComponents = components.filter(
     ({ dataElement }) => !NON_ANSWERABLE_DATA_ELEMENT_TYPES.includes(dataElement.type),
   );
   const surveyHasResult = components.some(
     ({ dataElement }) => dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.RESULT,
   );
-
-  const reportColumnTemplate = [
+  
+  return [
     ...COMMON_FIELDS.map(field => ({
       title: field,
       accessor: data => data[field],
@@ -125,6 +113,26 @@ export const dataGenerator = async ({ sequelize, models }, parameters = {}) => {
     })),
     ...(surveyHasResult ? [{ title: 'Result', accessor: data => data.answers.Result }] : []),
   ];
+}
+
+export const dataGenerator = async ({ sequelize, models }, parameters = {}) => {
+  const { surveyId } = parameters;
+  if (!surveyId) {
+    throw new Error('parameter "survey" must be supplied');
+  }
+  const { isSensitive } = await models.Survey.findByPk(surveyId);
+  if (isSensitive) {
+    throw new Error('Cannot export a survey marked as "sensitive"');
+  }
+
+  const components = await models.SurveyScreenComponent.getComponentsForSurvey(surveyId);
+  const reportColumnTemplate = getReportColumnTemplate(components);
+
+  const results = await getData(sequelize, parameters);
+  for (result of results) {
+    const mappedAnswers = await Promise.all(Object.entriesresult.answers => ));
+
+  }
 
   return generateReportFromQueryData(results, reportColumnTemplate);
 };
