@@ -228,7 +228,7 @@ const GridColumnContainer = styled.div`
 `;
 
 const StyledTabDisplay = styled(TabDisplay)`
-  filter: drop-shadow(2px 2px 25px rgba(0, 0, 0, 0.1));
+  box-shadow: 2px 2px 25px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
   border: 1px solid ${Colors.outline};
   background: white;

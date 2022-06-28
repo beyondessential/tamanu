@@ -25,7 +25,7 @@ const PriorityText = styled.span`
 const StatisticsRow = styled.div`
   display: flex;
   margin: 16px 0 30px 0;
-  filter: drop-shadow(2px 2px 25px rgba(0, 0, 0, 0.1));
+  box-shadow: 2px 2px 25px rgba(0, 0, 0, 0.1);
 `;
 
 const ADMITTED_PRIORITY = {
