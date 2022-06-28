@@ -2,6 +2,8 @@ import { randomReferenceDataObjects } from 'shared/demoData/patients';
 import { fake } from 'shared/test-helpers';
 import { subDays, format } from 'date-fns';
 import { createTestContext } from '../../utilities';
+import { PROGRAM_DATA_ELEMENT_TYPES } from '../constants';
+
 
 const REPORT_URL = '/v1/reports/generic-survey-export-line-list';
 const PROGRAM_ID = 'test-program-id';
@@ -31,27 +33,20 @@ const createDummySurvey = async models => {
     programId: PROGRAM_ID,
   });
 
-  await models.ProgramDataElement.bulkCreate([
-    {
-      id: 'pde-Should not show',
-      code: 'NoShow',
-      name: 'This is an instruction',
-      type: 'Instruction',
-    },
-    { id: 'pde-Test1', code: 'Test1', name: 'Test Question 1', type: 'Not Instruction' },
-    { id: 'pde-Test2', code: 'Test2', name: 'Test Question 2', type: 'Not Instruction' },
-    { id: 'pde-Result', code: 'Result', name: 'Result', type: 'Result' },
-  ]);
+  const questions = [
+    { id: 'pde-Instruction', type: PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION },
+    { id: 'pde-Test1', type: 'Not Known' },
+    { id: 'pde-BinaryQ', type: PROGRAM_DATA_ELEMENT_TYPES.BINARY },
+    { id: 'pde-DateQ', type: PROGRAM_DATA_ELEMENT_TYPES.DATE },
+    { id: 'pde-Autocomplete', surveyId: PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE },
+    { id: 'pde-Result', name: 'Result', type: 'Result' },
+  ];
 
-  await models.SurveyScreenComponent.bulkCreate([
-    { dataElementId: 'pde-Should not show', surveyId: SURVEY_ID },
-    { dataElementId: 'pde-Test1', surveyId: SURVEY_ID },
-    { dataElementId: 'pde-Test2', surveyId: SURVEY_ID },
-    { dataElementId: 'pde-Result', surveyId: SURVEY_ID },
-  ]);
+  await models.ProgramDataElement.bulkCreate(questions.map(({ id, type }) => ({ id, code: `code-${id}`, name: `name-${id}`, type })));
+  await models.SurveyScreenComponent.bulkCreate(questions.map(({ id, type }) => ({ dataElementId: id, surveyId: SURVEY_ID }));
 };
 
-const submitSurveyForPatient = (app, patient, date) =>
+const submitSurveyForPatient = (app, patient, date, expectedVillage) =>
   app.post('/v1/surveyResponse').send({
     surveyId: SURVEY_ID,
     startTime: date,
@@ -59,7 +54,9 @@ const submitSurveyForPatient = (app, patient, date) =>
     endTime: date,
     answers: {
       'pde-Test1': 'Data point 1',
-      'pde-Test2': 'Data point 2',
+      'pde-BinaryQ': 'false',
+      'pde-DateQ': '2022-05-30T02:37:12.826Z',
+      'pde-Autocomplete': expectedVillage.id,
     },
   });
 
@@ -123,7 +120,7 @@ describe('Generic survey export', () => {
     });
 
     it('should default to filtering for 30 days of data', async () => {
-      await submitSurveyForPatient(app, expectedPatient, subDays(new Date(), 35));
+      await submitSurveyForPatient(app, expectedPatient, subDays(new Date(), 35), expectedVillage);
 
       const result = await app.post(REPORT_URL).send({
         parameters: {
@@ -136,7 +133,7 @@ describe('Generic survey export', () => {
 
     it('should return no data if filtering for a different village', async () => {
       const date = subDays(new Date(), 25);
-      await submitSurveyForPatient(app, expectedPatient, date);
+      await submitSurveyForPatient(app, expectedPatient, date, expectedVillage);
 
       const result = await app.post(REPORT_URL).send({
         parameters: {
@@ -153,9 +150,9 @@ describe('Generic survey export', () => {
       const date2 = subDays(new Date(), 25);
       const date3 = subDays(new Date(), 25);
       // Submit in a different order just in case
-      await submitSurveyForPatient(app, expectedPatient, date2);
-      await submitSurveyForPatient(app, expectedPatient, date3);
-      await submitSurveyForPatient(app, expectedPatient, date1);
+      await submitSurveyForPatient(app, expectedPatient, date2, expectedVillage);
+      await submitSurveyForPatient(app, expectedPatient, date3, expectedVillage);
+      await submitSurveyForPatient(app, expectedPatient, date1, expectedVillage);
 
       const result = await app.post(REPORT_URL).send({
         parameters: {
@@ -166,13 +163,13 @@ describe('Generic survey export', () => {
       expect(result.body).toMatchTabularReport(
         [
           {
-            'Submission Time': format(getExpectedDate(date1), 'yyyy-MM-dd HH:mm'),
+            'Submission Time': format(getExpectedDate(date1), 'yyyy-MM-dd HH:mm a'),
           },
           {
-            'Submission Time': format(getExpectedDate(date2), 'yyyy-MM-dd HH:mm'),
+            'Submission Time': format(getExpectedDate(date2), 'yyyy-MM-dd HH:mm a'),
           },
           {
-            'Submission Time': format(getExpectedDate(date3), 'yyyy-MM-dd HH:mm'),
+            'Submission Time': format(getExpectedDate(date3), 'yyyy-MM-dd HH:mm a'),
           },
         ],
         { partialMatching: true },
@@ -184,7 +181,7 @@ describe('Generic survey export', () => {
 
       const expectedDate = getExpectedDate(date);
 
-      await submitSurveyForPatient(app, expectedPatient, date);
+      await submitSurveyForPatient(app, expectedPatient, date, expectedVillage);
 
       const [response] = await testContext.models.SurveyResponse.findAll({
         where: { surveyId: SURVEY_ID },
@@ -210,9 +207,11 @@ describe('Generic survey export', () => {
           Sex: expectedPatient.sex,
           Village: expectedVillage.name,
           'Submission Time': format(expectedDate, 'yyyy/MM/dd HH:mm a'),
-          'Test Question 1': 'Data point 1',
-          'Test Question 2': 'Data point 2',
-          'Result': 'Seventeen',
+          'name-pde-Test1': 'Data point 1',
+          'name-pde-BinaryQ': 'Yes',
+          'name-pde-DateQ': '2022/05/30',
+          'name-pde-Autocomplete': expectedVillage.name,
+          Result: 'Seventeen',
         },
       ]);
     });

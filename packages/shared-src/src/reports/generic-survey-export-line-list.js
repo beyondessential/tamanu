@@ -1,5 +1,5 @@
 import { subDays } from 'date-fns';
-import { keyBy, groupBy } from 'lodash';
+import { keyBy } from 'lodash';
 import { NON_ANSWERABLE_DATA_ELEMENT_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '../constants';
 import {
   generateReportFromQueryData,
