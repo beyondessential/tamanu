@@ -1,8 +1,8 @@
 import { randomReferenceDataObjects } from 'shared/demoData/patients';
+import { PROGRAM_DATA_ELEMENT_TYPES } from 'shared/constants';
 import { fake } from 'shared/test-helpers';
 import { subDays, format } from 'date-fns';
 import { createTestContext } from '../../utilities';
-import { PROGRAM_DATA_ELEMENT_TYPES } from '../constants';
 
 
 const REPORT_URL = '/v1/reports/generic-survey-export-line-list';
@@ -43,7 +43,7 @@ const createDummySurvey = async models => {
   ];
 
   await models.ProgramDataElement.bulkCreate(questions.map(({ id, type }) => ({ id, code: `code-${id}`, name: `name-${id}`, type })));
-  await models.SurveyScreenComponent.bulkCreate(questions.map(({ id, type }) => ({ dataElementId: id, surveyId: SURVEY_ID }));
+  await models.SurveyScreenComponent.bulkCreate(questions.map(({ id, type }) => ({ dataElementId: id, surveyId: SURVEY_ID })));
 };
 
 const submitSurveyForPatient = (app, patient, date, expectedVillage) =>
@@ -163,13 +163,13 @@ describe('Generic survey export', () => {
       expect(result.body).toMatchTabularReport(
         [
           {
-            'Submission Time': format(getExpectedDate(date1), 'yyyy-MM-dd HH:mm a'),
+            'Submission Time': format(getExpectedDate(date1), 'yyyy/MM/dd HH:mm a'),
           },
           {
-            'Submission Time': format(getExpectedDate(date2), 'yyyy-MM-dd HH:mm a'),
+            'Submission Time': format(getExpectedDate(date2), 'yyyy/MM/dd HH:mm a'),
           },
           {
-            'Submission Time': format(getExpectedDate(date3), 'yyyy-MM-dd HH:mm a'),
+            'Submission Time': format(getExpectedDate(date3), 'yyyy/MM/dd HH:mm a'),
           },
         ],
         { partialMatching: true },
