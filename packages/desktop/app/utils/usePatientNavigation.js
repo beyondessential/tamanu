@@ -8,6 +8,14 @@ export const usePatientNavigation = () => {
 
   const navigate = url => dispatch(push(url));
 
+  const navigateToCategory = category =>
+    navigate(
+      generatePath('/patients/:category', {
+        category,
+        ...params,
+      }),
+    );
+
   const navigateToPatient = (patientId, modal) =>
     navigate(
       generatePath('/patients/:category/:patientId/:modal?', {
@@ -50,10 +58,22 @@ export const usePatientNavigation = () => {
       ),
     );
 
+  const navigateBack = () => {
+    if (params.imagingRequestId || params.labRequestId) {
+      navigateToEncounter();
+    } else if (params.encounterId) {
+      navigateToPatient();
+    } else {
+      navigateToCategory();
+    }
+  };
+
   return {
     navigateToPatient,
     navigateToEncounter,
     navigateToLabRequest,
     navigateToImagingRequest,
+    navigateToCategory,
+    navigateBack,
   };
 };

@@ -6,12 +6,11 @@ import { useLabRequest } from '../../contexts/LabRequest';
 import { useApi, useSuggester } from '../../api';
 import { useCertificate } from '../../utils/useCertificate';
 
-import { Button, DeleteButton } from '../../components/Button';
+import { DeleteButton } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { DataFetchingTable } from '../../components/Table';
 import { ManualLabResultModal } from '../../components/ManualLabResultModal';
-import { TopBar } from '../../components/TopBar';
 import { FormGrid } from '../../components/FormGrid';
 import {
   SelectInput,
@@ -31,6 +30,7 @@ import { LabRequestAuditPane } from '../../components/LabRequestAuditPane';
 import { LAB_REQUEST_STATUS_LABELS } from '../../constants';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 import { getCompletedDate, getMethod } from '../../utils/lab';
+import { PatientNavigation } from '../../components/PatientNavigation';
 
 const makeRangeStringAccessor = sex => ({ labTestType }) => {
   const max = sex === 'male' ? labTestType.maleMax : labTestType.femaleMax;
@@ -290,7 +290,7 @@ const LabRequestActionDropdown = ({ labRequest, patient, updateLabReq }) => {
         open={labModalOpen}
         onClose={() => setLabModalOpen(false)}
       />
-      <DropdownButton actions={actions} />
+      <DropdownButton style={{ marginBottom: '30px' }} actions={actions} />
     </>
   );
 };
@@ -311,7 +311,7 @@ const LabRequestInfoPane = ({ labRequest, refreshLabRequest }) => (
 
 export const LabRequestView = () => {
   const { isLoading, labRequest, updateLabRequest, loadLabRequest } = useLabRequest();
-  const { navigateToLabRequest, navigateToEncounter } = usePatientNavigation();
+  const { navigateToLabRequest } = usePatientNavigation();
   const patient = useSelector(state => state.patient);
 
   const updateLabReq = useCallback(
@@ -326,22 +326,16 @@ export const LabRequestView = () => {
     navigateToLabRequest(labRequest.id);
   }, [labRequest.id, loadLabRequest, navigateToLabRequest]);
 
-  const onBack = () => navigateToEncounter();
-
   if (isLoading) return <LoadingIndicator />;
   return (
     <div>
-      <TopBar title="Lab request">
-        <div>
-          <LabRequestActionDropdown
-            labRequest={labRequest}
-            patient={patient}
-            updateLabReq={updateLabReq}
-          />
-        </div>
-      </TopBar>
-      <Button onClick={onBack}>&lt; Back to encounter information</Button>
+      <PatientNavigation />
       <ContentPane>
+        <LabRequestActionDropdown
+          labRequest={labRequest}
+          patient={patient}
+          updateLabReq={updateLabReq}
+        />
         <LabRequestInfoPane labRequest={labRequest} refreshLabRequest={refreshLabRequest} />
       </ContentPane>
       <ContentPane>

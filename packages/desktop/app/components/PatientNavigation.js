@@ -1,9 +1,7 @@
-import { push } from 'connected-react-router';
 import React from 'react';
-import { useDispatch } from 'react-redux';
-import { useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { Colors } from '../constants';
+import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { BackButton } from './Button';
 import { PatientBreadcrumbs } from './PatientBreadcrumbs';
 
@@ -27,24 +25,10 @@ const VerticalDivider = styled.div`
 `;
 
 export const PatientNavigation = () => {
-  const params = useParams();
-  const dispatch = useDispatch();
-
-  const handleBack = () => {
-    if (params.imagingRequestId || params.labRequestId) {
-      return dispatch(
-        push(`/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}`),
-      );
-    }
-    if (params.encounterId) {
-      return dispatch(push(`/patients/${params.category}/${params.patientId}`));
-    }
-    return dispatch(push(`/patients/${params.category}`));
-  };
-
+  const { navigateBack } = usePatientNavigation();
   return (
     <PatientNavigationContainer>
-      <BackButton onClick={handleBack} />
+      <BackButton onClick={navigateBack} />
       <VerticalDivider />
       <PatientBreadcrumbs />
     </PatientNavigationContainer>

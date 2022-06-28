@@ -15,7 +15,6 @@ import {
 } from 'desktop/app/utils';
 import { runCalculations } from 'shared/utils/calculations';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
-import { PatientDisplay } from './PatientDisplay';
 
 const Text = styled.div`
   margin-bottom: 10px;
@@ -194,14 +193,11 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
   );
 
   return (
-    <>
-      <PatientDisplay surveyCompleted={surveyCompleted} />
-      <ProgramsPane>
-        <ProgramsPaneHeader>
-          <ProgramsPaneHeading variant="h6">{survey.name}</ProgramsPaneHeading>
-        </ProgramsPaneHeader>
-        {surveyContents}
-      </ProgramsPane>
-    </>
+    <ProgramsPane>
+      <ProgramsPaneHeader>
+        <ProgramsPaneHeading variant="h6">{survey.name}</ProgramsPaneHeading>
+      </ProgramsPaneHeader>
+      {surveyContents}
+    </ProgramsPane>
   );
 };

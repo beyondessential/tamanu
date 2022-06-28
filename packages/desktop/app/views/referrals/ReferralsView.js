@@ -9,10 +9,10 @@ import { FormGrid } from 'desktop/app/components/FormGrid';
 import { SURVEY_TYPES } from 'shared/constants';
 
 import { SurveySelector } from '../programs/SurveySelector';
-import { PatientDisplay } from '../programs/PatientDisplay';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from '../programs/ProgramsPane';
 import { getCurrentUser } from '../../store';
 import { getAnswersFromData, getActionsFromData } from '../../utils';
+import { PatientNavigation } from '../../components/PatientNavigation';
 
 const ReferralFlow = ({ patient, currentUser }) => {
   const api = useApi();
@@ -56,8 +56,8 @@ const ReferralFlow = ({ patient, currentUser }) => {
 
   if (!referralSurvey) {
     return (
-      <>
-        <PatientDisplay />
+      <div>
+        <PatientNavigation />
         <ProgramsPane>
           <ProgramsPaneHeader>
             <ProgramsPaneHeading variant="h6">Select a referral</ProgramsPaneHeading>
@@ -70,7 +70,7 @@ const ReferralFlow = ({ patient, currentUser }) => {
             />
           </FormGrid>
         </ProgramsPane>
-      </>
+      </div>
     );
   }
 

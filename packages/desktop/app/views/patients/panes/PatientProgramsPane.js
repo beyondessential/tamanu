@@ -10,7 +10,7 @@ export const PatientProgramsPane = React.memo(({ endpoint }) => {
   const params = useParams();
 
   const handleNewSurvey = () =>
-    dispatch(push(`/patients/${params.category}/${params.patientId}/programs`));
+    dispatch(push(`/patients/${params.category}/${params.patientId}/programs/new`));
 
   return (
     <ContentPane>
