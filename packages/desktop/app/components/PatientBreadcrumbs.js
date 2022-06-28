@@ -5,7 +5,6 @@ import { useParams, useRouteMatch } from 'react-router-dom';
 import styled from 'styled-components';
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../constants';
 import { useEncounter } from '../contexts/Encounter';
-import { useLabRequest } from '../contexts/LabRequest';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 
 const StyledBreadcrumbs = styled(Breadcrumbs)`
@@ -51,27 +50,69 @@ const InactiveBreadcrumb = ({ children, onClick }) => (
   </BreadcrumbLink>
 );
 
+const getCategoryText = ({ category }) => CATEGORY_TO_TEXT[category];
+const getEncounterLabel = ({ encounterType }) => ENCOUNTER_OPTIONS_BY_VALUE[encounterType]?.label;
+const getPatientName = ({ firstName, lastName }) => `${firstName} ${lastName}`;
+
 export const PatientBreadcrumbs = () => {
   const params = useParams();
   const { navigateToCategory, navigateToPatient, navigateToEncounter } = usePatientNavigation();
   const patient = useSelector(state => state.patient);
   const { encounter } = useEncounter();
+
+  const breadCrumbsMap = [
+    { path: '/patients/:category', text: getCategoryText(params), link: navigateToCategory },
+    {
+      path: '/patients/:category/:patientId/:modal?',
+      text: getPatientName(patient),
+      link: navigateToPatient,
+    },
+    [
+      {
+        path: '/patients/:category/:patientId/programs/new',
+        text: 'New Survey',
+      },
+      {
+        path: '/patients/:category/:patientId/referrals/new',
+        text: 'New Referral',
+      },
+      {
+        path: '/patients/:category/:patientId/encounter/:encounterId/:modal?',
+        text: getEncounterLabel(encounter || {}),
+        link: navigateToEncounter,
+      },
+    ],
+    [
+      {
+        path: '/patients/:category/:patientId/encounter/:encounterId/summary',
+        text: 'Discharge Summary',
+      },
+      {
+        path:
+          '/patients/:category/:patientId/encounter/:encounterId/lab-requests/:labRequestId/:modal?',
+        text: 'Lab Request',
+      },
+      {
+        path:
+          '/patients/:category/:patientId/encounter/:encounterId/imaging-requests/:imagingRequestId/:modal?',
+        text: 'Imaging Request',
+      },
+    ],
+  ];
+
   return (
     <StyledBreadcrumbs>
-      <Breadcrumb onClick={navigateToCategory}>{CATEGORY_TO_TEXT[params.category]}</Breadcrumb>
-      <Breadcrumb onClick={navigateToPatient} active={!params.encounterId}>
-        {patient.firstName} {patient.lastName}
-      </Breadcrumb>
-      {params.encounterId && encounter && (
-        <Breadcrumb
-          onClick={navigateToEncounter}
-          active={!(params.labRequestId || params.imagingRequestId)}
-        >
-          {ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].label}
-        </Breadcrumb>
-      )}
-      {params.labRequestId && <Breadcrumb active>Lab Request</Breadcrumb>}
-      {params.imagingRequestId && <Breadcrumb active>Imaging Request</Breadcrumb>}
+      {breadCrumbsMap.map(crums => {
+        const crum = Array.isArray(crums) ? crums.find(x => useRouteMatch(x.path)) : crums;
+        if (!crum) return null;
+        const { isExact } = useRouteMatch(crum.path);
+
+        return (
+          <Breadcrumb onClick={crum.link} active={isExact}>
+            {crum.text}
+          </Breadcrumb>
+        );
+      })}
     </StyledBreadcrumbs>
   );
 };

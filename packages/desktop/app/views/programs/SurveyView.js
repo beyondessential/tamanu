@@ -15,9 +15,21 @@ import {
 } from 'desktop/app/utils';
 import { runCalculations } from 'shared/utils/calculations';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
+import { Colors } from '../../constants';
 
 const Text = styled.div`
   margin-bottom: 10px;
+`;
+
+export const SurveyPaneHeader = styled(ProgramsPaneHeader)`
+  background: ${props => props.theme.palette.primary.main};
+  text-align: center;
+  border-top-right-radius: 3px;
+  border-top-left-radius: 3px;
+`;
+
+export const SurveyPaneHeading = styled(ProgramsPaneHeading)`
+  color: ${Colors.white};
 `;
 
 const SurveyQuestion = ({ component, patient }) => {
@@ -194,9 +206,9 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
 
   return (
     <ProgramsPane>
-      <ProgramsPaneHeader>
-        <ProgramsPaneHeading variant="h6">{survey.name}</ProgramsPaneHeading>
-      </ProgramsPaneHeader>
+      <SurveyPaneHeader>
+        <SurveyPaneHeading variant="h6">{survey.name}</SurveyPaneHeading>
+      </SurveyPaneHeader>
       {surveyContents}
     </ProgramsPane>
   );

@@ -54,10 +54,18 @@ const ReferralFlow = ({ patient, currentUser }) => {
     [api, referralSurvey, startTime, patient],
   );
 
-  if (!referralSurvey) {
-    return (
-      <div>
-        <PatientNavigation />
+  return (
+    <div>
+      <PatientNavigation />
+      {referralSurvey ? (
+        <SurveyView
+          onSubmit={submitReferral}
+          survey={referralSurvey}
+          onCancel={unsetReferral}
+          patient={patient}
+          currentUser={currentUser}
+        />
+      ) : (
         <ProgramsPane>
           <ProgramsPaneHeader>
             <ProgramsPaneHeading variant="h6">Select a referral</ProgramsPaneHeading>
@@ -70,18 +78,8 @@ const ReferralFlow = ({ patient, currentUser }) => {
             />
           </FormGrid>
         </ProgramsPane>
-      </div>
-    );
-  }
-
-  return (
-    <SurveyView
-      onSubmit={submitReferral}
-      survey={referralSurvey}
-      onCancel={unsetReferral}
-      patient={patient}
-      currentUser={currentUser}
-    />
+      )}
+    </div>
   );
 };
 

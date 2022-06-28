@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Redirect, useParams } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import PrintIcon from '@material-ui/icons/Print';
@@ -8,13 +8,17 @@ import Box from '@material-ui/core/Box';
 import { PrintPortal, PrintLetterhead } from '../../components/PatientPrinting';
 import { LocalisedText } from '../../components/LocalisedText';
 import { useApi } from '../../api';
-import { BackButton, Button } from '../../components/Button';
+import { Button } from '../../components/Button';
 import { DateDisplay } from '../../components/DateDisplay';
-import { TopBar } from '../../components';
 import { useEncounter } from '../../contexts/Encounter';
 import { useElectron } from '../../contexts/Electron';
 import { Colors } from '../../constants';
 import { useCertificate } from '../../utils/useCertificate';
+import { PatientNavigation } from '../../components/PatientNavigation';
+
+const Container = styled.div`
+  background: ${Colors.white};
+`;
 
 const SummaryPageContainer = styled.div`
   margin: 0 auto;
@@ -24,11 +28,6 @@ const SummaryPageContainer = styled.div`
 const Label = styled.span`
   min-width: 200px;
   font-weight: 500;
-`;
-
-const StyledBackButton = styled(BackButton)`
-  width: fit-content;
-  margin: 24px 0;
 `;
 
 const Content = styled.div`
@@ -215,7 +214,6 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
 
 export const DischargeSummaryView = React.memo(() => {
   const api = useApi();
-  const params = useParams();
   const [discharge, setDischarge] = useState(null);
   const { encounter } = useEncounter();
   const { printPage } = useElectron();
@@ -235,12 +233,9 @@ export const DischargeSummaryView = React.memo(() => {
   }
 
   return (
-    <>
-      <TopBar title="Patient Discharge Summary" />
+    <Container>
+      <PatientNavigation />
       <NavContainer>
-        <StyledBackButton
-          to={`/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}`}
-        />
         <Button
           variant="outlined"
           color="primary"
@@ -257,6 +252,6 @@ export const DischargeSummaryView = React.memo(() => {
           <SummaryPage encounter={encounter} discharge={discharge} />
         </Box>
       </PrintPortal>
-    </>
+    </Container>
   );
 });
