@@ -129,12 +129,14 @@ export const transformSingleResponse = async (
   dataElementIdToComponent,
 ) => {
   const { answers } = result;
-  console.log(answers);
   const newAnswers = {};
 
   await Promise.all(
     Object.entries(answers).map(async ([key, body]) => {
-      if (key !== 'Result') {
+      if (key === 'Result') {
+        newAnswers[key] = body;
+      }
+      else {
         const dataElementId = key;
         const type =
           dataElementIdToComponent[dataElementId]?.dataElement?.dataValues?.type || 'unknown';

@@ -4,7 +4,6 @@ import { fake } from 'shared/test-helpers';
 import { subDays, format } from 'date-fns';
 import { createTestContext } from '../../utilities';
 
-
 const REPORT_URL = '/v1/reports/generic-survey-export-line-list';
 const PROGRAM_ID = 'test-program-id';
 const SURVEY_ID = 'test-survey-id';
@@ -36,14 +35,27 @@ const createDummySurvey = async models => {
   const questions = [
     { id: 'pde-Instruction', type: PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION },
     { id: 'pde-Test1', type: 'Not Known' },
-    { id: 'pde-BinaryQ', type: PROGRAM_DATA_ELEMENT_TYPES.BINARY },
+    { id: 'pde-CheckboxQ', type: PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX },
     { id: 'pde-DateQ', type: PROGRAM_DATA_ELEMENT_TYPES.DATE },
-    { id: 'pde-Autocomplete', surveyId: PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE },
-    { id: 'pde-Result', name: 'Result', type: 'Result' },
+    {
+      id: 'pde-Autocomplete',
+      type: PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE,
+      config: '{"source":"ReferenceData"}',
+    },
+    { id: 'pde-Result', name: 'Result', type: PROGRAM_DATA_ELEMENT_TYPES.RESULT },
   ];
 
-  await models.ProgramDataElement.bulkCreate(questions.map(({ id, type }) => ({ id, code: `code-${id}`, name: `name-${id}`, type })));
-  await models.SurveyScreenComponent.bulkCreate(questions.map(({ id, type }) => ({ dataElementId: id, surveyId: SURVEY_ID })));
+  await models.ProgramDataElement.bulkCreate(
+    questions.map(({ id, type }) => ({
+      id,
+      code: `code-${id}`,
+      name: `name-${id}`,
+      type,
+    })),
+  );
+  await models.SurveyScreenComponent.bulkCreate(
+    questions.map(({ id, config }) => ({ dataElementId: id, surveyId: SURVEY_ID, config })),
+  );
 };
 
 const submitSurveyForPatient = (app, patient, date, expectedVillage) =>
@@ -54,7 +66,7 @@ const submitSurveyForPatient = (app, patient, date, expectedVillage) =>
     endTime: date,
     answers: {
       'pde-Test1': 'Data point 1',
-      'pde-BinaryQ': 'false',
+      'pde-CheckboxQ': 'true',
       'pde-DateQ': '2022-05-30T02:37:12.826Z',
       'pde-Autocomplete': expectedVillage.id,
     },
@@ -208,7 +220,7 @@ describe('Generic survey export', () => {
           Village: expectedVillage.name,
           'Submission Time': format(expectedDate, 'yyyy/MM/dd HH:mm a'),
           'name-pde-Test1': 'Data point 1',
-          'name-pde-BinaryQ': 'Yes',
+          'name-pde-CheckboxQ': 'Yes',
           'name-pde-DateQ': '2022/05/30',
           'name-pde-Autocomplete': expectedVillage.name,
           Result: 'Seventeen',
