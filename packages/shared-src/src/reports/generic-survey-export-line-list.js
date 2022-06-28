@@ -49,12 +49,12 @@ with
 select
   p.first_name "First name",
   p.last_name "Last name",
-  to_char(p.date_of_birth::date, 'yyyy-mm-dd') "Date of birth",
+  to_char(p.date_of_birth::date, 'yyyy/mm/dd') "Date of birth",
   extract(year from age(p.date_of_birth))::integer "Age",
   p.sex "Sex",
   p.display_id "Patient ID",
   vil."name" as "Village",
-  to_char(sr.end_time, 'YYYY-MM-DD HH24' || CHR(58) || 'MI') "Submission Time", -- Need to use "|| CHR(58)" here or else sequelize thinks "<colon>MI" is a variable (it even replaces in comments!!)
+  to_char(sr.end_time, 'YYYY/MM/DD HH12' || CHR(58) || 'MI AM') "Submission Time", -- Need to use "|| CHR(58)" here or else sequelize thinks "<colon>MI" is a variable (it even replaces in comments!!)
   s.name,
   answers
 from survey_responses sr
@@ -179,9 +179,9 @@ export const transformAllResponses = async (models, results, surveyComponents) =
 
 export const dataGenerator = async (
   { sequelize, models },
-  parameters = { surveyId: 'program-fijincdprimaryscreening-fijibreastprimaryscreen' },
+  parameters = { surveyId: 'program-fijincdprimaryscreening-fijibreastscreenref' },
 ) => {
-  const { surveyId = 'program-fijincdprimaryscreening-fijibreastprimaryscreen' } = parameters;
+  const { surveyId = 'program-fijincdprimaryscreening-fijibreastscreenref' } = parameters;
   if (!surveyId) {
     throw new Error('parameter "survey" must be supplied');
   }
@@ -194,7 +194,7 @@ export const dataGenerator = async (
   const reportColumnTemplate = getReportColumnTemplate(components);
 
   const rawData = await getData(sequelize, {
-    surveyId: 'program-fijincdprimaryscreening-fijibreastprimaryref',
+    surveyId: 'program-fijincdprimaryscreening-fijibreastscreenref',
   });
   const results = await transformAllResponses(models, rawData, components);
 
