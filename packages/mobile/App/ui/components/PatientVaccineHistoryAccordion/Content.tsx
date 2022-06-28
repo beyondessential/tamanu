@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { format } from 'date-fns';
 import { StyleSheet, Text, View } from 'react-native';
 import { StyledView, RowView, ColumnView } from '/styled/common';
@@ -18,6 +18,7 @@ const styles = StyleSheet.create({
     margin: 2,
     fontWeight: 'bold',
     fontSize: 16,
+    color: theme.colors.TEXT_DARK,
   },
   row: {
     display: 'flex',
@@ -26,7 +27,8 @@ const styles = StyleSheet.create({
     width: '100%',
   },
 });
-const VaccinationDetailsList = ({ status, date, reason, scheduledVaccine }): JSX.Element => (
+
+const VaccinationDetailsList = ({ status, date, scheduledVaccine }): ReactElement => (
   <RowView width="100%">
     <View style={styles.section}>
       <View style={styles.row}>
@@ -55,9 +57,7 @@ const VaccinationDetailsList = ({ status, date, reason, scheduledVaccine }): JSX
 
 export const Content = (
   section: any,
-  index: number,
-  isActive: boolean,
-): JSX.Element => (
+): ReactElement => (
   <StyledView>
     <ColumnView
       width="100%"
@@ -67,7 +67,7 @@ export const Content = (
       paddingLeft={20}
       paddingRight={20}
     >
-      {section.data.map(d => <VaccinationDetailsList {...d} />)}
+      {section.data.map((d) => <VaccinationDetailsList key={d.id} {...d} />)}
     </ColumnView>
   </StyledView>
 );

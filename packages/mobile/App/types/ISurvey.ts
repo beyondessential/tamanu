@@ -32,7 +32,9 @@ export interface ISurveyScreenComponent {
   componentIndex?: number;
   text?: string;
   visibilityCriteria?: string;
+  validationCriteria?: string;
   config?: string;
+  detail?: string;
   options?: string;
   calculation?: string;
   source?: string;

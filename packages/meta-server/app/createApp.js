@@ -4,6 +4,7 @@ import morgan from 'morgan';
 import compression from 'compression';
 
 import { log } from 'shared/services/logging';
+import { SERVER_TYPES } from 'shared/constants';
 
 import { versionRouter } from './versions';
 import { serversRouter } from './servers';
@@ -21,8 +22,10 @@ export function createApp() {
   app.use(bodyParser.urlencoded({ extended: true }));
 
   app.use((req, res, next) => {
-    res.setHeader('X-Runtime', 'Tamanu Metadata Server'); // TODO: deprecated
-    res.setHeader('X-Tamanu-Server', 'Tamanu Metadata Server');
+    // TODO: deprecated, remove when all servers have moved on
+    res.setHeader('X-Runtime', SERVER_TYPES.META);
+
+    res.setHeader('X-Tamanu-Server', SERVER_TYPES.META);
     res.setHeader('X-Version', version);
     next();
   });

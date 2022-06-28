@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyledView, RowView } from '/styled/common';
+import { StyledView, RowView, ColumnView } from '/styled/common';
 import { getOrientation, SCREEN_ORIENTATION } from '/helpers/screen';
 import { DateField } from '../../DateField/DateField';
 import { TextField } from '../../TextField/TextField';
@@ -21,24 +21,9 @@ const InjectionSiteDropdown = ({ onChange, label }): JSX.Element => {
 };
 
 export function VaccineFormGiven(): JSX.Element {
-  return getOrientation() === SCREEN_ORIENTATION.PORTRAIT ? (
-    <StyledView>
-      <FormSectionHeading text="Consent" />
-      <Field
-        component={Checkbox}
-        name="consent"
-        text="Do you have consent from the recipient/parent/guardian to give this vaccine and record in Tamanu?"
-      />
-      <FormSectionHeading text="Date" />
-      <Field component={DateField} name="date" label="Date" />
-      <FormSectionHeading text="Batch" />
-      <Field component={TextField} name="batch" label="Batch No." />
-      <FormSectionHeading text="Injection site" marginBottom={0} />
-      <Field component={InjectionSiteDropdown} name="injectionSite" label="Select" />
-      <FormSectionHeading text="Examiner" />
-      <CurrentUserField name="examiner" label="Examiner" />
-    </StyledView>
-  ) : (
+  const RowOrCol = getOrientation() === SCREEN_ORIENTATION.PORTRAIT ? ColumnView : RowView;
+
+  return (
     <StyledView paddingTop={10}>
       <FormSectionHeading text="Consent" />
       <Field
@@ -48,19 +33,23 @@ export function VaccineFormGiven(): JSX.Element {
       />
       <FormSectionHeading text="Date" />
       <Field component={DateField} name="date" label="Date" />
-      <RowView marginTop={10} justifyContent="space-between">
-        <StyledView width="49%">
+      <RowOrCol marginTop={10} justifyContent="space-between">
+        <StyledView minWidth="49%">
           <FormSectionHeading text="Batch" />
           <Field component={TextField} name="batch" label="Batch No." />
         </StyledView>
-        <StyledView width="49%">
+        <StyledView minWidth="49%">
           <FormSectionHeading text="Injection site" marginBottom={-5} />
           <Field component={InjectionSiteDropdown} name="injectionSite" label="Injection site" />
         </StyledView>
-      </RowView>
+      </RowOrCol>
       <StyledView width="100%">
-        <FormSectionHeading text="Examiner" />
-        <CurrentUserField name="examiner" label="Examiner" />
+        <FormSectionHeading text="Given by" />
+        <Field component={TextField} name="givenBy" marginTop={0} />
+      </StyledView>
+      <StyledView width="100%">
+        <FormSectionHeading text="Recorded by" />
+        <CurrentUserField name="recorderId" />
       </StyledView>
     </StyledView>
   );

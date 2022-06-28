@@ -4,16 +4,17 @@ import { useIsFocused } from '@react-navigation/native';
 import { List } from 'react-native-paper';
 import { format } from 'date-fns';
 
-import { FieldTypes } from '~/ui/helpers/fields';
-import { Routes } from '~/ui/helpers/routes';
-import { DateFormats } from '~/ui/helpers/constants';
-import { ISurveyResponse } from '~/types';
-import { useBackendEffect } from '~/ui/hooks';
-import { ErrorScreen } from '~/ui/components/ErrorScreen';
-import { StyledScrollView, StyledText } from '~/ui/styled/common';
-import { SurveyResponseLink } from '~/ui/components/SurveyResponseLink';
-import { ReduxStoreProps } from '~/ui/interfaces/ReduxStoreProps';
-import { PatientStateProps } from '~/ui/store/ducks/patient';
+import { FieldTypes } from '../../../helpers/fields';
+import { Routes } from '../../../helpers/routes';
+import { DateFormats } from '../../../helpers/constants';
+import { ISurveyResponse } from '../../../../types';
+import { useBackendEffect } from '../../../hooks';
+import { ErrorScreen } from '../../../components/ErrorScreen';
+import { StyledScrollView, StyledText } from '../../../styled/common';
+import { SurveyResponseLink } from '../../../components/SurveyResponseLink';
+import { ReduxStoreProps } from '../../../interfaces/ReduxStoreProps';
+import { PatientStateProps } from '../../../store/ducks/patient';
+import { theme } from '../../../styled/theme';
 
 export const ReferralHistoryScreen = (): ReactElement => {
   const { selectedPatient } = useSelector(
@@ -39,6 +40,7 @@ export const ReferralHistoryScreen = (): ReactElement => {
 
           return (
             <List.Accordion
+              key={`${survey.id}-${startTime}`}
               title={`${survey.name} (${format(startTime, DateFormats.DDMMYY)})`}
               left={(props): ReactElement => (
                 <List.Icon {...props} icon="clipboard-plus-outline" />
@@ -63,7 +65,7 @@ export const ReferralHistoryScreen = (): ReactElement => {
                       [body],
                     );
                     if (dataElement.type !== FieldTypes.SURVEY_LINK) {
-                      return <StyledText>{body}</StyledText>;
+                      return <StyledText color={theme.colors.TEXT_DARK}>{body}</StyledText>;
                     }
                     if (programResponseError) {
                       throw programResponseError;

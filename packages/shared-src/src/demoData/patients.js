@@ -1,8 +1,8 @@
 import Chance from 'chance';
 import moment from 'moment';
 
-import { generateId } from '../utils/generateId';
 import { ENCOUNTER_TYPES } from '../constants';
+import { generateId } from '../utils/generateId';
 import { TIME_INTERVALS, randomDate, randomRecordId } from './utilities';
 
 const { HOUR } = TIME_INTERVALS;

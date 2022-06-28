@@ -39,8 +39,8 @@ export const UserAvatar = ({
     >
       {!image ? (
         <StyledText
-          fontSize={screenPercentageToDP('1.7', Orientation.Height)}
-          fontWeight={900}
+          fontSize={screenPercentageToDP('2.7', Orientation.Height)}
+          fontWeight={500}
           color={theme.colors.WHITE}
         >
           {userInitials}

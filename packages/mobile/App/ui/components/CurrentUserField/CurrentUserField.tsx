@@ -5,7 +5,7 @@ import { authUserSelector } from '~/ui/helpers/selectors';
 import { Field } from '../Forms/FormField';
 import { TextField } from '../TextField/TextField';
 
-export const CurrentUserField = ({ name, label, valueKey = 'displayName' }) => {
+export const CurrentUserField = ({ name, label = null, valueKey = 'displayName' }) => {
   const user = useSelector(authUserSelector);
 
   return (

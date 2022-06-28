@@ -4,7 +4,7 @@ import config from 'config';
 import { log } from 'shared/services/logging';
 import { DISCOVERY_MAGIC_STRING, DISCOVERY_PORT } from 'shared/constants';
 
-import { version } from '../package.json';
+import { version } from './serverInfo';
 
 export function listenForServerQueries() {
   const socket = dgram.createSocket('udp4');

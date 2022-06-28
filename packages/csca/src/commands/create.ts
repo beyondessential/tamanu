@@ -4,7 +4,7 @@ import type { Country } from 'world-countries';
 import prompts from 'prompts';
 import { enumFromStringValue, enumValues, confirm } from '../utils';
 import CA from '../ca';
-import { Profile, signerDefaultValidityDays, signerExtensions, signerWorkingDays } from '../ca/profile';
+import { addLeaps, Profile, signerDefaultValidityDays, signerExtensions, signerWorkingDays } from '../ca/profile';
 import { ConfigFile, period } from '../ca/Config';
 import { CRL_URL_BASE, CSCA_PKUP, CSCA_VALIDITY } from '../ca/constants';
 
@@ -70,8 +70,8 @@ function makeCAConfig(
     workingPeriod: period(now, CSCA_PKUP),
     validityPeriod: period(now, CSCA_VALIDITY),
     issuance: {
-      workingPeriodDays: signerWorkingDays(profile),
-      validityPeriodDays: signerDefaultValidityDays(profile),
+      workingPeriodDays: addLeaps(signerWorkingDays(profile)),
+      validityPeriodDays: addLeaps(signerDefaultValidityDays(profile)),
       extensions: signerExtensions(profile, { country }),
     },
   };

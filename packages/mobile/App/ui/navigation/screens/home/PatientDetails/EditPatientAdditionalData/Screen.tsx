@@ -6,7 +6,7 @@ import { PatientAdditionalDataForm } from '/components/Forms/PatientAdditionalDa
 import { theme } from '/styled/theme';
 
 export const EditPatientAdditionalDataScreen = ({ navigation, route }): ReactElement => {
-  const { patientId, patientName, additionalDataJSON } = route.params;
+  const { patientId, patientName, additionalDataJSON, sectionTitle } = route.params;
   // additionalDataJSON might be undefined if record doesn't exist,
   // JSON.parse will break if it doesn't get a JSON object
   const additionalData = additionalDataJSON && JSON.parse(additionalDataJSON);
@@ -27,6 +27,7 @@ export const EditPatientAdditionalDataScreen = ({ navigation, route }): ReactEle
         patientId={patientId}
         additionalData={additionalData}
         navigation={navigation}
+        sectionTitle={sectionTitle}
       />
     </FullView>
   );

@@ -1,8 +1,8 @@
 import { groupBy } from 'lodash';
 import { Op } from 'sequelize';
 import moment from 'moment';
-import { generateReportFromQueryData } from '../utilities';
 import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_LABELS } from '../../constants';
+import { generateReportFromQueryData } from '../utilities';
 import { transformAnswers } from '../utilities/transformAnswers';
 
 const WILLIAM_HOROTO_IDS = [
@@ -97,6 +97,11 @@ const getLabTests = async (models, parameters) =>
                   },
                   'village',
                 ],
+              },
+              {
+                model: models.Location,
+                as: 'location',
+                include: ['facility'],
               },
             ],
           },
@@ -270,6 +275,7 @@ const getLabTestRecords = async (
         additionalDataNationality: patientAdditionalData?.nationality?.name,
         additionalDataPassportNumber: patientAdditionalData?.passport,
         sampleTime: labRequest?.sampleTime,
+        facilityName: encounter?.location?.facility?.name,
       };
       Object.entries(surveyQuestionCodes).forEach(([key, dataElement]) => {
         labTestRecord[key] = getLatestPatientAnswerInDateRange(
@@ -292,7 +298,7 @@ const getLabTestRecords = async (
 export const baseDataGenerator = async (
   { models },
   parameters = {},
-  { surveyId, reportColumnTemplate, surveyQuestionCodes, dateFormat = 'DD-MM-YYYY' },
+  { surveyId, reportColumnTemplate, surveyQuestionCodes, dateFormat = 'YYYY/MM/DD' },
 ) => {
   const labTests = await getLabTests(models, parameters);
   const answers = await getFijiCovidAnswers(models, parameters, { surveyId });
