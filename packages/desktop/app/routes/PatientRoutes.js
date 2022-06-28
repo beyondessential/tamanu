@@ -27,11 +27,11 @@ export const PatientRoutes = React.memo(({ match }) => (
         path={`${match.path}/encounter/:encounterId/lab-request/:labRequestId/:modal?`}
         component={LabRequestView}
       />
-      <Route path={`${match.path}/encounter/:encounterId/:modal?`} component={EncounterView} />
       <Route
         path={`${match.path}/encounter/:encounterId/summary`}
         component={DischargeSummaryView}
       />
+      <Route path={`${match.path}/encounter/:encounterId/:modal?`} component={EncounterView} />
       <Redirect to={match.path} />
     </Switch>
   </TwoColumnDisplay>
