@@ -1,6 +1,6 @@
 import React from 'react';
 import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
-import { DateField, DisplayIdField, LocalisedField, SelectField } from '../Field';
+import { DateField, LocalisedField, SelectField } from '../Field';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { IMAGING_REQUEST_STATUS_LABELS } from '../../constants';
 
@@ -22,7 +22,7 @@ export const ImagingRequestsSearchBar = ({ setSearchParameters }) => (
   >
     <LocalisedField name="firstName" />
     <LocalisedField name="lastName" />
-    <DisplayIdField />
+    <LocalisedField name="displayId" />
     <LocalisedField name="requestId" defaultLabel="Request ID" />
     <LocalisedField name="imagingType" defaultLabel="Type" />
     <LocalisedField
