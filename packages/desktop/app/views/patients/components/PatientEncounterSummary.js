@@ -49,7 +49,6 @@ const NoVisitContainer = styled.div`
   align-items: center;
   justify-content: space-between;
   background: ${Colors.white};
-  margin: 1rem;
   padding: 28px 30px;
 `;
 

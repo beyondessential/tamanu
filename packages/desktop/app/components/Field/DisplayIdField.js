@@ -15,7 +15,7 @@ const FieldContainer = styled(LocalisedField)`
   }
 `;
 
-const CheckField = ({ field, ...props }) => (
+const CheckField = ({ field }) => (
   <Tooltip title="Exact term search">
     <Checkbox
       icon={<SpellcheckIcon color="disabled" />}
@@ -25,7 +25,6 @@ const CheckField = ({ field, ...props }) => (
       onChange={field.onChange}
       value="checked"
       color="primary"
-      {...props}
     />
   </Tooltip>
 );
