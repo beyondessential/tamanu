@@ -82,7 +82,7 @@ const MenuButton = styled(Button)`
 
 const Popper = styled(MuiPopper)`
   margin-top: 2px;
-  z-index: 9999;
+  z-index: 1;
   min-width: ${props => (props.anchorEl ? `${props.anchorEl.offsetWidth}px` : `${0}`)};
 `;
 
@@ -106,9 +106,10 @@ export const DropdownButton = React.memo(({ variant, size, actions, ...props }) 
   const [anchorEl, setAnchorEl] = useState(null);
   const anchorRef = useRef(null);
 
-  function handleClick(event, index) {
+  const handleClick = (event, index) => {
     actions[index].onClick(event);
-  }
+    setAnchorEl(null);
+  };
 
   const handleToggle = () => {
     setAnchorEl(anchorEl ? null : anchorRef.current);

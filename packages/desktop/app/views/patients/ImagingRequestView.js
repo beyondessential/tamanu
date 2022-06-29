@@ -30,7 +30,11 @@ import { useCertificate } from '../../utils/useCertificate';
 
 const BackLink = connect(null, dispatch => ({
   onClick: () => dispatch(push('/patients/encounter')),
-}))(({ onClick }) => <Button onClick={onClick}>&lt; Back to encounter information</Button>);
+}))(({ onClick }) => (
+  <Button onClick={onClick} variant="text" color="default">
+    &lt; Back to encounter information
+  </Button>
+));
 
 const statusOptions = [
   { value: 'pending', label: 'Pending' },
