@@ -210,7 +210,7 @@ export class TamanuApi {
 
     // handle forbidden error and trigger catch all modal
     if (response.status === 403 && error && this.reduxStore) {
-      return this.reduxStore.dispatch(setForbiddenError(error));
+      this.reduxStore.dispatch(setForbiddenError(error));
     }
 
     // handle auth expiring
