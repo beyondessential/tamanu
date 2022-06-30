@@ -2,6 +2,7 @@ import React, { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
 import { useEncounter } from '../../../contexts/Encounter';
+import { ContentPane } from '../../../components';
 import { PatientEncounterSummary } from '../components/PatientEncounterSummary';
 import { PatientHistory } from '../../../components/PatientHistory';
 
@@ -26,15 +27,19 @@ export const HistoryPane = React.memo(({ disabled }) => {
 
   return (
     <>
-      <PatientEncounterSummary
-        encounter={currentEncounter}
-        viewEncounter={onViewEncounter}
-        openCheckin={onOpenCheckin}
-        openTriage={onOpenTriage}
-        patient={patient}
-        disabled={disabled}
-      />
-      <PatientHistory patient={patient} onItemClick={onViewEncounter} />
+      <ContentPane>
+        <PatientEncounterSummary
+          encounter={currentEncounter}
+          viewEncounter={onViewEncounter}
+          openCheckin={onOpenCheckin}
+          openTriage={onOpenTriage}
+          patient={patient}
+          disabled={disabled}
+        />
+      </ContentPane>
+      <ContentPane>
+        <PatientHistory patient={patient} onItemClick={onViewEncounter} />
+      </ContentPane>
     </>
   );
 });

@@ -3,7 +3,7 @@ import styled, { css } from 'styled-components';
 import { ENCOUNTER_TYPES } from 'shared/constants';
 import { Box, Typography } from '@material-ui/core';
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
-import { DateDisplay, LargeButton, DeathCertificateModal } from '../../../components';
+import { DateDisplay, LargeButton, ViewButton, DeathCertificateModal } from '../../../components';
 import { useApi } from '../../../api';
 
 const PATIENT_STATUS = {
@@ -33,24 +33,14 @@ const ENCOUNTER_TYPE_TO_STATUS = {
 const Border = css`
   border: 1px solid ${Colors.outline};
   border-left: 10px solid ${props => PATIENT_STATUS_COLORS[props.patientStatus]};
-  border-radius: 10px;
+  border-radius: 5px;
 `;
 
 const Container = styled.div`
   ${Border};
-  margin: 1rem;
   background: ${Colors.white};
   transition: color 0.2s ease;
-
-  ${props =>
-    props.clickable
-      ? css`
-          &:hover {
-            cursor: pointer;
-            background: ${Colors.offWhite};
-          }
-        `
-      : null}
+  box-shadow: 2px 2px 25px rgba(0, 0, 0, 0.1);
 `;
 
 const NoVisitContainer = styled.div`
@@ -59,7 +49,6 @@ const NoVisitContainer = styled.div`
   align-items: center;
   justify-content: space-between;
   background: ${Colors.white};
-  margin: 1rem;
   padding: 28px 30px;
 `;
 
@@ -196,10 +185,12 @@ export const PatientEncounterSummary = ({
   const patientStatus = ENCOUNTER_TYPE_TO_STATUS[encounterType];
 
   return (
-    <Container patientStatus={patientStatus} onClick={() => viewEncounter(id)} clickable>
+    <Container patientStatus={patientStatus}>
       <Header patientStatus={patientStatus}>
         <BoldTitle variant="h3">Type:</BoldTitle>
         <Title variant="h3">{ENCOUNTER_OPTIONS_BY_VALUE[encounterType].label}</Title>
+        <div style={{ flexGrow: 1 }} />
+        <ViewButton onClick={() => viewEncounter(id)} size="small" />
       </Header>
       <Content>
         <ContentItem>

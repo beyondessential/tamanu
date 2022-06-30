@@ -15,11 +15,11 @@ import { TopBar } from '../../components/TopBar';
 import { ButtonRow } from '../../components/ButtonRow';
 import { FormGrid } from '../../components/FormGrid';
 import {
-  DateInput,
   TextInput,
   SelectField,
   Field,
   AutocompleteField,
+  DateTimeInput,
 } from '../../components/Field';
 import { useApi } from '../../api';
 import { Suggester } from '../../utils/suggester';
@@ -30,7 +30,11 @@ import { useCertificate } from '../../utils/useCertificate';
 
 const BackLink = connect(null, dispatch => ({
   onClick: () => dispatch(push('/patients/encounter')),
-}))(({ onClick }) => <Button onClick={onClick}>&lt; Back to encounter information</Button>);
+}))(({ onClick }) => (
+  <Button onClick={onClick} variant="text" color="default">
+    &lt; Back to encounter information
+  </Button>
+));
 
 const statusOptions = [
   { value: 'pending', label: 'Pending' },
@@ -73,12 +77,7 @@ const PrintButton = ({ imagingRequest, patient }) => {
           />
         )}
       </Modal>
-      <Button
-        variant="outlined"
-        color="primary"
-        onClick={openModal}
-        style={{ marginRight: '0.5rem' }}
-      >
+      <Button variant="outlined" onClick={openModal} style={{ marginRight: '0.5rem' }}>
         Print request
       </Button>
     </>
@@ -114,7 +113,11 @@ const DumbImagingRequestInfoPane = React.memo(
               disabled
             />
             <Field name="status" label="Status" component={SelectField} options={statusOptions} />
-            <DateInput value={imagingRequest.requestedDate} label="Request date" disabled />
+            <DateTimeInput
+              value={imagingRequest.requestedDate}
+              label="Request date and time"
+              disabled
+            />
             <TextInput
               multiline
               value={imagingRequest.areaToBeImaged}
@@ -159,7 +162,6 @@ const DumbImagingRequestInfoPane = React.memo(
             {/* Needs custom styling to properly display view image button to the left */}
             <ButtonRow style={{ gridTemplateColumns: '8rem auto 8rem' }}>
               <Button
-                variant="contained"
                 color="secondary"
                 style={{
                   gridColumn: '1 / span 1',
@@ -177,11 +179,7 @@ const DumbImagingRequestInfoPane = React.memo(
                 <br />
                 (external link)
               </Button>
-              {dirty && (
-                <Button variant="contained" color="primary" type="submit">
-                  Save
-                </Button>
-              )}
+              {dirty && <Button type="submit">Save</Button>}
             </ButtonRow>
           </FormGrid>
         </Form>

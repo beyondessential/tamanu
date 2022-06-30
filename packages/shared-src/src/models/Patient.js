@@ -58,6 +58,11 @@ export class Patient extends Model {
       as: 'deathData',
     });
 
+    // this one is actually a hasMany
+    this.hasMany(models.PatientSecondaryId, {
+      foreignKey: 'patientId',
+      as: 'secondaryIds',
+    });
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'villageId',
       as: 'village',

@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { isEmpty } from 'lodash';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
@@ -49,6 +50,20 @@ export const Button = ({ children, isSubmitting, disabled, ...props }) => {
   );
 };
 
+Button.propTypes = {
+  isSubmitting: PropTypes.bool,
+  disabled: PropTypes.bool,
+  variant: PropTypes.PropTypes.oneOf(['contained', 'outlined', 'text']),
+  color: PropTypes.PropTypes.oneOf(['primary', 'secondary']),
+};
+
+Button.defaultProps = {
+  isSubmitting: false,
+  disabled: false,
+  variant: 'contained',
+  color: 'primary',
+};
+
 const StyledOutlinedButton = styled(StyledButton)`
   border-color: ${props => props.theme.palette.primary.main};
 `;
@@ -56,6 +71,11 @@ const StyledOutlinedButton = styled(StyledButton)`
 export const OutlinedButton = props => (
   <StyledOutlinedButton variant="outlined" color="primary" {...props} />
 );
+
+export const GreyOutlinedButton = styled(props => <StyledButton {...props} />)`
+  border: 1px solid #dedede;
+  color: ${props => props.theme.palette.text.secondary};
+`;
 
 const StyledLargeButton = styled(StyledButton)`
   font-size: 15px;
@@ -147,6 +167,12 @@ export const UpdateButton = props => (
 export const NewButton = ({ children, ...props }) => (
   <Button variant="outlined" {...props}>
     {children}
+  </Button>
+);
+
+export const ViewButton = props => (
+  <Button variant="contained" color="primary" {...props}>
+    View
   </Button>
 );
 

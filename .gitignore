@@ -22,6 +22,8 @@ release
 dev
 deploy
 build
+/sync-server-*.zip
+/lan-*.zip
 
 # Test artefacts
 test.*.hl7.json

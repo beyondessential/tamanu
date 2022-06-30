@@ -9,8 +9,12 @@ const WILLIAM_HOROTO_IDS = [
   'f4a0e3f0-54da-4fc9-a73e-1b72c9ca92a5', // Kiribati
   '4d719b6f-af55-42ac-99b3-5a27cadaab2b', // Palau
   '2d574680-e0fc-4956-a37e-121ccb434995', // Fiji
+  'e8a51fc9-28fd-4284-8d00-9ef87bd8d855', // Nauru // TFAI897159
+  'c11229a7-b95c-4416-a3ad-560cd75d8f21', // Nauru // RQCO669542
   'cebdd9a4-2744-4ad2-9919-98dc0b15464c', // Dev - for testing purposes
 ];
+
+const YIELD_EVERY_N_LOOPS = 100;
 
 const yieldControl = () => new Promise(resolve => setTimeout(resolve, 20));
 
@@ -122,9 +126,11 @@ const getLabTests = async (models, parameters) =>
     ],
     where: parametersToLabTestSqlWhere(parameters),
     order: [['date', 'ASC']],
+    raw: true,
+    nest: true,
   });
 
-const getFijiCovidAnswers = async (models, parameters, { surveyId }) => {
+const getFijiCovidAnswers = async (models, parameters, { surveyId, dateFormat }) => {
   // Use the latest survey responses per patient above to get the corresponding answers
   const answers = await models.SurveyResponseAnswer.findAll({
     where: parametersToSurveyResponseSqlWhere(parameters, { surveyId }),
@@ -136,20 +142,22 @@ const getFijiCovidAnswers = async (models, parameters, { surveyId }) => {
           {
             model: models.Encounter,
             as: 'encounter',
-            include: [
-              {
-                model: models.Patient,
-                as: 'patient',
-              },
-            ],
           },
         ],
         order: [['end_time', 'ASC']],
       },
     ],
+    raw: true,
+    nest: true,
   });
 
-  return answers;
+  const components = await models.SurveyScreenComponent.getComponentsForSurvey(surveyId);
+
+  const transformedAnswers = await transformAnswers(models, answers, components, {
+    dateFormat,
+  });
+
+  return transformedAnswers;
 };
 
 // Find latest survey response within date range using the answers.
@@ -205,10 +213,16 @@ const getLabTestRecords = async (
   );
 
   const results = [];
+  let totalLoops = 0;
 
   for (const [patientId, patientLabTests] of Object.entries(labTestsByPatientId)) {
     // lab tests were already sorted by 'date' ASC in the sql.
     for (let i = 0; i < patientLabTests.length; i++) {
+      totalLoops++;
+      if (totalLoops % YIELD_EVERY_N_LOOPS === 0) {
+        await yieldControl();
+      }
+
       const labTest = patientLabTests[i];
       const currentLabTestDate = moment(labTest.date).startOf('day');
 
@@ -270,6 +284,7 @@ const getLabTestRecords = async (
         testingTime: labTest.completedDate ? moment(labTest.completedDate).format('LTS') : '',
         priority: labRequest?.priority?.name,
         testingLaboratory: labRequest?.laboratory?.name,
+        laboratoryOfficer: labTest?.laboratoryOfficer,
         labTestMethod: labTest?.labTestMethod?.name,
         additionalDataEthnicity: patientAdditionalData?.ethnicity?.name,
         additionalDataNationality: patientAdditionalData?.nationality?.name,
@@ -288,7 +303,6 @@ const getLabTestRecords = async (
       });
 
       results.push(labTestRecord);
-      await yieldControl();
     }
   }
 
@@ -301,12 +315,10 @@ export const baseDataGenerator = async (
   { surveyId, reportColumnTemplate, surveyQuestionCodes, dateFormat = 'YYYY/MM/DD' },
 ) => {
   const labTests = await getLabTests(models, parameters);
-  const answers = await getFijiCovidAnswers(models, parameters, { surveyId });
-  const components = await models.SurveyScreenComponent.getComponentsForSurvey(surveyId);
-  const transformedAnswers = await transformAnswers(models, answers, components, {
+  const transformedAnswers = await getFijiCovidAnswers(models, parameters, {
+    surveyId,
     dateFormat,
   });
-
   const reportData = await getLabTestRecords(labTests, transformedAnswers, parameters, {
     surveyQuestionCodes,
     dateFormat,

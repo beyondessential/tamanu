@@ -1,4 +1,5 @@
 import { subDays } from 'date-fns';
+import { NON_ANSWERABLE_DATA_ELEMENT_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '../constants';
 import { generateReportFromQueryData } from './utilities';
 
 const COMMON_FIELDS = [
@@ -25,12 +26,6 @@ with
 		select
 			id,
 			'Result',
-			result::text
-		from survey_responses sr
-		union all
-		select
-			id,
-			'Result (text)',
 			result_text
 		from survey_responses sr
 	),
@@ -111,24 +106,24 @@ export const dataGenerator = async ({ sequelize, models }, parameters = {}) => {
 
   const results = await getData(sequelize, parameters);
 
-  const components = await models.SurveyScreenComponent.getAnswerComponentsForSurveys(surveyId);
+  const components = await models.SurveyScreenComponent.getComponentsForSurvey(surveyId);
+  const answerableComponents = components.filter(({ dataElement }) => !(NON_ANSWERABLE_DATA_ELEMENT_TYPES.includes(dataElement.type)))
+  const surveyHasResult = components.find(({ dataElement }) => dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.RESULT)
 
   const reportColumnTemplate = [
     ...COMMON_FIELDS.map(field => ({
       title: field,
       accessor: data => data[field],
     })),
-    ...components.map(({ dataElement }) => ({
+    ...answerableComponents.map(({ dataElement }) => ({
       title: dataElement.name,
       accessor: data => data.answers[dataElement.id],
     })),
-    ...(results[0]?.answers?.Result
+    ...(surveyHasResult
       ? [{ title: 'Result', accessor: data => data.answers.Result }]
       : []),
-    ...(results[0]?.answers?.['Result (text)']
-      ? [{ title: 'Result (text)', accessor: data => data.answers['Result (text)'] }]
-      : []),
   ];
+
   return generateReportFromQueryData(results, reportColumnTemplate);
 };
 
