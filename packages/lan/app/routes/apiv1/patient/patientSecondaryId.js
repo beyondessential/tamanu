@@ -1,5 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { pick } from 'lodash';
 import { NotFoundError } from 'shared/errors';
 
 export const patientSecondaryIdRoutes = express.Router();
@@ -37,7 +38,8 @@ patientSecondaryIdRoutes.put(
     req.checkPermission('read', secondaryId);
     req.checkPermission('write', secondaryId);
 
-    await secondaryId.update(req.body);
+    const updatableFields = pick(req.body, ['value', 'visibilityStatus', 'typeId']);
+    await secondaryId.update(updatableFields);
     res.send(secondaryId);
   }),
 );
