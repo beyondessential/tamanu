@@ -10,7 +10,6 @@ import { Translated } from '../Translated';
 import { PrimarySidebarItem } from './PrimarySidebarItem';
 import { SecondarySidebarItem } from './SecondarySidebarItem';
 import { getCurrentRoute } from '../../store/router';
-import { checkAbility } from '../../utils/ability';
 import { useAuth } from '../../contexts/Auth';
 
 const Container = styled.div`
@@ -91,14 +90,6 @@ const getInitials = string =>
     .slice(0, 2)
     .join('');
 
-const permissionCheck = (child, parent) => {
-  const ability = { ...child.ability, ...parent.ability };
-  if (!ability.subject || !ability.action) {
-    return true;
-  }
-  return checkAbility(ability);
-};
-
 // currentPath - the current route. eg. /programs/covid-19/patients
 // menuItemPath - the configured routes that are displayed in the sidebar. eg /patients
 const isHighlighted = (currentPath, menuItemPath, sectionIsOpen) => {
@@ -148,7 +139,6 @@ export const Sidebar = React.memo(({ items }) => {
                 isCurrent={currentPath === child.path}
                 color={child.color}
                 label={child.label}
-                disabled={!permissionCheck(child, item)}
                 onClick={() => onPathChanged(child.path)}
               />
             ))}

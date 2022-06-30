@@ -18,11 +18,17 @@ import {
   Refresh,
 } from '@material-ui/icons';
 
-import { checkAbility } from '../utils/ability';
 import { Colors } from '../constants';
 
+const getLocationProps = ({ to }) => {
+  if (to) {
+    return { component: Link, to };
+  }
+  return {};
+};
+
 export const ButtonBase = ({ disabled, ...props }) => {
-  const allowed = isAllowed(props);
+  const allowed = true;
   const locationsProps = getLocationProps(props);
   return <MuiButtonBase {...props} {...locationsProps} disabled={!allowed || disabled} />;
 };
@@ -223,19 +229,3 @@ export const RefreshIconButton = ({ ...props }) => (
     <Refresh fontSize="inherit" />
   </IconButton>
 );
-
-const isAllowed = ({ can = {} }) => {
-  let allowed = true;
-  const { do: action, on: subject, field } = can;
-  if (!isEmpty(can)) {
-    allowed = checkAbility({ action, subject, field });
-  }
-  return allowed;
-};
-
-const getLocationProps = ({ to }) => {
-  if (to) {
-    return { component: Link, to };
-  }
-  return {};
-};
