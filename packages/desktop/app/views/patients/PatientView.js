@@ -100,16 +100,14 @@ export const PatientView = () => {
 
   return (
     <>
-      <div style={{ overflow: 'hidden' }}>
-        <PatientAlert alerts={patient.alerts} />
-        <TabDisplay
-          tabs={visibleTabs}
-          currentTab={currentTab}
-          onTabSelect={setCurrentTab}
-          patient={patient}
-          disabled={disabled}
-        />
-      </div>
+      <PatientAlert alerts={patient.alerts} />
+      <TabDisplay
+        tabs={visibleTabs}
+        currentTab={currentTab}
+        onTabSelect={setCurrentTab}
+        patient={patient}
+        disabled={disabled}
+      />
       <RoutedEncounterModal
         patientId={patient.id}
         patientBillingTypeId={patient.additionalData?.patientBillingTypeId}

@@ -9,14 +9,12 @@ export const usePatientNavigation = () => {
 
   const navigate = url => dispatch(push(url));
 
-  const getParams = path => {
-    const match = matchPath(location.pathname, {
+  const getParams = path =>
+    matchPath(location.pathname, {
       path,
       exact: false,
       strict: false,
-    });
-    return match?.params || {};
-  };
+    })?.params;
 
   const navigateToCategory = category => {
     navigate(
@@ -71,14 +69,16 @@ export const usePatientNavigation = () => {
   };
 
   const navigateBack = () => {
-    const params = getParams(PATIENT_PATHS.ENCOUNTER);
-    if (params.imagingRequestId || params.labRequestId) {
-      navigateToEncounter();
-    } else if (params.encounterId) {
-      navigateToPatient();
-    } else {
-      navigateToCategory();
+    const requestParams = getParams(`${PATIENT_PATHS.ENCOUNTER}/*`);
+    if (requestParams) {
+      return navigateToEncounter(requestParams.encounterId);
     }
+    const encounterParams = getParams(PATIENT_PATHS.ENCOUNTER);
+    if (encounterParams) {
+      return navigateToPatient(encounterParams.patientId);
+    }
+    const patientParams = getParams(PATIENT_PATHS.patientParams);
+    return navigateToCategory(patientParams);
   };
 
   return {

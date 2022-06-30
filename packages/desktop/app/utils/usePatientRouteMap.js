@@ -1,9 +1,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { Switch, useParams } from 'react-router-dom';
-import { PatientInfoPane } from '../components/PatientInfoPane';
+import { useParams } from 'react-router-dom';
 import { getPatientNameAsString } from '../components/PatientNameDisplay';
-import { TwoColumnDisplay } from '../components/TwoColumnDisplay';
 import {
   PATIENT_PATHS,
   PATIENT_CATEGORIES,
@@ -45,16 +43,10 @@ export const usePatientRouteMap = () => {
           [PATIENT_CATEGORIES.INPATIENT]: <AdmittedPatientsView />,
           [PATIENT_CATEGORIES.OUTPATIENT]: <OutpatientsView />,
         }[props.match.params.category]),
-      navigateTo: () => navigateToCategory(params.category),
+      navigateTo: () => navigateToCategory(params.category || 'all'),
       routes: [
         {
           path: `${PATIENT_PATHS.PATIENT}/:modal?`,
-          wrapper: ({ children }) => (
-            <TwoColumnDisplay>
-              <PatientInfoPane />
-              <Switch>{children}</Switch>
-            </TwoColumnDisplay>
-          ),
           component: PatientView,
           navigateTo: () => navigateToPatient(patient.id),
           title: getPatientNameAsString(patient || {}),
