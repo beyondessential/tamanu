@@ -12,6 +12,7 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { TopBar } from '../../components/TopBar';
 import { ButtonRow } from '../../components/ButtonRow';
 import { FormGrid } from '../../components/FormGrid';
+import { Modal } from '../../components/Modal';
 import {
   TextInput,
   SelectField,
@@ -22,7 +23,6 @@ import {
 import { useApi, useSuggester } from '../../api';
 
 import { ImagingRequestPrintout } from '../../components/PatientPrinting/ImagingRequestPrintout';
-import { Modal } from '../../components/Modal';
 
 const statusOptions = [
   { value: 'pending', label: 'Pending' },
@@ -199,7 +199,9 @@ export const ImagingRequestView = () => {
           <PrintButton imagingRequest={imagingRequest} patient={patient} />
         </div>
       </TopBar>
-      <Button onClick={onBack}>&lt; Back to encounter information</Button>
+      <Button variant="text" color="default" onClick={onBack}>
+        &lt; Back to encounter information
+      </Button>
       <ContentPane>
         <ImagingRequestInfoPane
           imagingRequest={imagingRequest}

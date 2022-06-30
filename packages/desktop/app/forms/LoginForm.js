@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Collapse from '@material-ui/core/Collapse';
+import MuiButton from '@material-ui/core/Button';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { FormGrid } from '../components/FormGrid';
@@ -76,7 +77,9 @@ export const LoginForm = React.memo(
         <LoginButton fullWidth variant="contained" color="primary" type="submit">
           Login to your account
         </LoginButton>
-        <Button onClick={onNavToResetPassword}>Forgot your password?</Button>
+        <Button onClick={onNavToResetPassword} color="default" variant="text">
+          Forgot your password?
+        </Button>
       </FormGrid>
     );
 

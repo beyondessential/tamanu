@@ -98,24 +98,6 @@ describe('Note', () => {
       expect(note.recordId).toEqual(encounter.id);
     });
 
-    it('should edit a note if its by the same user', async () => {
-      const note = await models.Note.create({
-        content: chance.paragraph(),
-        recordId: encounter.id,
-        recordType: NOTE_RECORD_TYPES.ENCOUNTER,
-        noteType: NOTE_TYPES.SYSTEM,
-        authorId: app.user.id,
-      });
-
-      const response = await app.put(`/v1/note/${note.id}`).send({
-        content: 'updated',
-      });
-
-      expect(response).toHaveSucceeded();
-      expect(response.body.id).toEqual(note.id);
-      expect(response.body.content).toEqual('updated');
-    });
-
     it('should not write a note on an non-existent record', async () => {
       const response = await app.post('/v1/encounter/fakeEncounterId/notes').send({
         content: chance.paragraph(),
@@ -157,13 +139,13 @@ describe('Note', () => {
         expect(response).toBeForbidden();
       });
 
-      it('should forbid editing a note if the author does not match request user', async () => {
+      it('should forbid editing an encounter note', async () => {
         const note = await models.Note.create({
           content: chance.paragraph(),
           recordId: encounter.id,
           recordType: NOTE_RECORD_TYPES.ENCOUNTER,
           noteType: NOTE_TYPES.SYSTEM,
-          authorId: testUser.id,
+          authorId: app.user.id,
         });
 
         const response = await app.put(`/v1/note/${note.id}`).send({
