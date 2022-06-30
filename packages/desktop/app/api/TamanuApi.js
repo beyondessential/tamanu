@@ -127,7 +127,7 @@ export class TamanuApi {
     const user = await this.get('user/me');
     this.user = user;
     const ability = buildAbilityForUser(user, permissions);
-    
+
     return { user, token, localisation, server, ability };
   }
 
