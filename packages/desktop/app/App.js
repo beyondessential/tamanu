@@ -8,6 +8,7 @@ import { getCurrentRoute } from './store/router';
 import { LoginView } from './views';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { DecisionSupportModal } from './components/DecisionSupportModal';
+import { ForbiddenErrorModal } from './components/ForbiddenErrorModal';
 
 const AppContainer = styled.div`
   display: flex;
@@ -48,6 +49,7 @@ export function App({ sidebar, children }) {
         <AppContentsContainer>
           {children}
           <DecisionSupportModal />
+          <ForbiddenErrorModal />
         </AppContentsContainer>
       </ErrorBoundary>
     </AppContainer>

@@ -36,6 +36,32 @@ describe('Permissions', () => {
 
   afterAll(() => ctx.close());
 
+  it('should make sure permissions are unique', async () => {
+    await expect(
+      ctx.store.models.Permission.create({
+        roleId: 'writer',
+        noun: 'Patient',
+        verb: 'write',
+      }),
+    ).rejects.toThrow('Validation error');
+    await expect(
+      ctx.store.models.Permission.create({
+        roleId: 'reader',
+        noun: 'Report',
+        verb: 'run',
+        objectId: 'report-allowed',
+      }),
+    ).rejects.toThrow('Validation error');
+    await expect(
+      ctx.store.models.Permission.create({
+        roleId: 'reader',
+        noun: 'Report',
+        verb: 'run',
+        objectId: 'different-report',
+      }),
+    ).resolves.not.toThrowError();
+  });
+
   describe('Creating permission definition from database', () => {
     it('should read a permission definition object from a series of records', async () => {
       const ability = await getAbilityForRoles('reader');

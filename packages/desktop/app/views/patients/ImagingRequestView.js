@@ -11,6 +11,7 @@ import { ContentPane } from '../../components/ContentPane';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { ButtonRow } from '../../components/ButtonRow';
 import { FormGrid } from '../../components/FormGrid';
+import { Modal } from '../../components/Modal';
 import {
   TextInput,
   SelectField,
@@ -21,7 +22,6 @@ import {
 import { useApi, useSuggester } from '../../api';
 
 import { ImagingRequestPrintout } from '../../components/PatientPrinting/ImagingRequestPrintout';
-import { Modal } from '../../components/Modal';
 
 const statusOptions = [
   { value: 'pending', label: 'Pending' },

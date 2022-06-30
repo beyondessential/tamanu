@@ -1,5 +1,5 @@
 import { createDummyEncounter } from 'shared/demoData/patients';
-import { createTestContext } from '../../utilities';
+import { createTestContext } from '../../../utilities';
 import {
   createCovidTestForPatient,
   createLabTests,
