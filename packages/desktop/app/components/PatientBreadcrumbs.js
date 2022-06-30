@@ -57,13 +57,14 @@ export const PatientBreadcrumbs = ({ routeMap }) => {
         break;
       }
     }
-    if (!match || !route.routes) return crumbs;
+    if (!match) return crumbs;
 
     crumbs.push(
-      <Breadcrumb onClick={route.navigateTo} active={match.isExact}>
+      <Breadcrumb onClick={() => route.navigateTo()} active={match.isExact}>
         {route.title}
       </Breadcrumb>,
     );
+    if (!route.routes) return crumbs;
     // Create breadcrumb for child route
     return getCrumbs(route.routes, crumbs);
   };

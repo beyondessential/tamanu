@@ -61,7 +61,8 @@ export const ImagingRequestsTable = React.memo(({ encounterId, searchParameters 
       const category = params.category || 'all';
       dispatch(
         push(
-          `/patients/${category}/${patientId}/encounter/${encounterId}/imaging-request/${imagingRequest.id}`,
+          `/patients/${category}/${patientId}/encounter/${encounterId ||
+            encounter.id}/imaging-request/${imagingRequest.id}`,
         ),
       );
     },
