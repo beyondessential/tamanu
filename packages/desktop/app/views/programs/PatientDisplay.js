@@ -37,9 +37,8 @@ const LightText = styled.span`
   margin-left: 5px;
 `;
 
-export const PatientDisplay = ({ surveyCompleted = false }) => {
+export const PatientDisplay = () => {
   const patient = useSelector(state => state.patient);
-  const shouldShowCancel = !surveyCompleted;
   const dispatch = useDispatch();
 
   const onViewPatient = useCallback(async () => {
@@ -70,7 +69,6 @@ export const PatientDisplay = ({ surveyCompleted = false }) => {
           <LightText>({patient.displayId})</LightText>
         </Heading>
       </div>
-      {shouldShowCancel && <Button onClick={history.goBack}>Cancel</Button>}
     </Header>
   );
 };

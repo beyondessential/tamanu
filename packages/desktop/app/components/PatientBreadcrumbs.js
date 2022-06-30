@@ -40,33 +40,30 @@ const InactiveBreadcrumb = ({ children, onClick }) => (
   </BreadcrumbLink>
 );
 
+const getBreadcrumbFromRoute = (route, isExact) => (
+  <Breadcrumb onClick={() => route.navigateTo()} active={isExact}>
+    {route.title}
+  </Breadcrumb>
+);
+
 export const PatientBreadcrumbs = ({ routeMap }) => {
   const location = useLocation();
 
   const getCrumbs = (routeList, crumbs = []) => {
-    let match;
-    let route;
+    if (!routeList) return crumbs;
     for (let i = 0; i < routeList.length; i++) {
       const routeConfig = routeList[i];
       const matched = matchPath(location.pathname, {
         path: routeConfig.path,
       });
       if (matched) {
-        match = matched;
-        route = routeConfig;
-        break;
+        return getCrumbs(routeConfig.routes, [
+          ...crumbs,
+          getBreadcrumbFromRoute(routeConfig, matched.isExact),
+        ]);
       }
     }
-    if (!match) return crumbs;
-
-    crumbs.push(
-      <Breadcrumb onClick={() => route.navigateTo()} active={match.isExact}>
-        {route.title}
-      </Breadcrumb>,
-    );
-    if (!route.routes) return crumbs;
-    // Create breadcrumb for child route
-    return getCrumbs(route.routes, crumbs);
+    return crumbs;
   };
 
   return <StyledBreadcrumbs>{getCrumbs(routeMap)}</StyledBreadcrumbs>;

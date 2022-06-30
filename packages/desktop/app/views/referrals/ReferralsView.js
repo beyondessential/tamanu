@@ -53,31 +53,30 @@ const ReferralFlow = ({ patient, currentUser }) => {
     [api, referralSurvey, startTime, patient],
   );
 
+  if (!referralSurvey) {
+    return (
+      <ProgramsPane>
+        <ProgramsPaneHeader>
+          <ProgramsPaneHeading variant="h6">Select a referral</ProgramsPaneHeading>
+        </ProgramsPaneHeader>
+        <FormGrid columns={1}>
+          <SurveySelector
+            onSelectSurvey={setSelectedReferral}
+            surveys={referralSurveys}
+            buttonText="Begin referral"
+          />
+        </FormGrid>
+      </ProgramsPane>
+    );
+  }
   return (
-    <div>
-      {referralSurvey ? (
-        <SurveyView
-          onSubmit={submitReferral}
-          survey={referralSurvey}
-          onCancel={unsetReferral}
-          patient={patient}
-          currentUser={currentUser}
-        />
-      ) : (
-        <ProgramsPane>
-          <ProgramsPaneHeader>
-            <ProgramsPaneHeading variant="h6">Select a referral</ProgramsPaneHeading>
-          </ProgramsPaneHeader>
-          <FormGrid columns={1}>
-            <SurveySelector
-              onSelectSurvey={setSelectedReferral}
-              surveys={referralSurveys}
-              buttonText="Begin referral"
-            />
-          </FormGrid>
-        </ProgramsPane>
-      )}
-    </div>
+    <SurveyView
+      onSubmit={submitReferral}
+      survey={referralSurvey}
+      onCancel={unsetReferral}
+      patient={patient}
+      currentUser={currentUser}
+    />
   );
 };
 

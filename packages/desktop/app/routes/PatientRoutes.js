@@ -5,24 +5,22 @@ import { PatientNavigation } from '../components/PatientNavigation';
 import { TwoColumnDisplay } from '../components/TwoColumnDisplay';
 import { usePatientRouteMap } from '../utils/usePatientRouteMap';
 
-const checkShowNavigation = (prevProps, nextProps) => prevProps.match === nextProps.match;
+const checkMatchUnchanged = (prevProps, nextProps) => prevProps.match === nextProps.match;
 
 const NavigationWrapper = React.memo(({ children, match, routeMap }) => {
   const showNavigation = !match.isExact;
   return showNavigation ? (
-    <>
-      <TwoColumnDisplay>
-        <PatientInfoPane />
-        <div style={{ overflow: 'hidden' }}>
-          <PatientNavigation routeMap={routeMap} />
-          {children}
-        </div>
-      </TwoColumnDisplay>
-    </>
+    <TwoColumnDisplay>
+      <PatientInfoPane />
+      <div style={{ overflow: 'hidden' }}>
+        <PatientNavigation routeMap={routeMap} />
+        {children}
+      </div>
+    </TwoColumnDisplay>
   ) : (
     children
   );
-}, checkShowNavigation);
+}, checkMatchUnchanged);
 
 export const PatientRoutes = ({ match }) => {
   const routeMap = usePatientRouteMap();
@@ -35,7 +33,7 @@ export const PatientRoutes = ({ match }) => {
       </Switch>
     </NavigationWrapper>
   );
-}
+};
 
 const RouteWithSubRoutes = ({ path, component, routes }) => (
   <>
