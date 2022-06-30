@@ -2,7 +2,7 @@ import config from 'config';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
-import { ForbiddenError } from 'shared/errors';
+import { BadAuthenticationError } from 'shared/errors';
 import { getPermissions } from 'shared/permissions/middleware';
 import {
   simpleGet,
@@ -18,7 +18,7 @@ user.get(
   '/me',
   asyncHandler(async (req, res) => {
     if (!req.user) {
-      throw new ForbiddenError();
+      throw new BadAuthenticationError('Invalid token');
     }
     req.checkPermission('read', req.user);
     res.send(req.user);

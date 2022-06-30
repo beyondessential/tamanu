@@ -197,6 +197,10 @@ export const FACILITY_MENU_ITEMS = [
     ability: { subject: 'user', action: 'read' },
     children: [
       {
+        label: 'Permissions',
+        path: '/admin/permissions',
+      },
+      {
         label: 'Programs',
         path: '/admin/programs',
       },
