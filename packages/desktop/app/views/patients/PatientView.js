@@ -100,7 +100,7 @@ export const PatientView = () => {
 
   return (
     <>
-      <div>
+      <div style={{ overflow: 'hidden' }}>
         <PatientAlert alerts={patient.alerts} />
         <TabDisplay
           tabs={visibleTabs}
