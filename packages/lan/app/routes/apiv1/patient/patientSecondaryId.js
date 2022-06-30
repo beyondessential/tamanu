@@ -9,10 +9,6 @@ patientSecondaryIdRoutes.get(
   '/:id/secondaryId',
   asyncHandler(async (req, res) => {
     const { models, params } = req;
-    const patient = await models.Patient.findByPk(params.id);
-    if (!patient) throw new NotFoundError();
-    req.checkPermission('read', patient);
-
     const { rows, count } = await models.PatientSecondaryId.findAndCountAll({
       where: { patientId: params.id },
     });
@@ -35,7 +31,6 @@ patientSecondaryIdRoutes.put(
     const { models, params } = req;
     const secondaryId = await models.PatientSecondaryId.findByPk(params.secondaryIdId);
     if (!secondaryId) throw new NotFoundError();
-    req.checkPermission('read', secondaryId);
     req.checkPermission('write', secondaryId);
 
     const updatableFields = pick(req.body, ['value', 'visibilityStatus', 'typeId']);
@@ -50,7 +45,6 @@ patientSecondaryIdRoutes.post(
     const { models, params } = req;
     const patient = await models.Patient.findByPk(params.id);
     if (!patient) throw new NotFoundError();
-    req.checkPermission('read', patient);
     req.checkPermission('create', 'PatientSecondaryId');
 
     const secondaryId = await models.PatientSecondaryId.create({
