@@ -24,13 +24,13 @@ const VerticalDivider = styled.div`
   height: 100%;
 `;
 
-export const PatientNavigation = () => {
+export const PatientNavigation = ({ routeMap }) => {
   const { navigateBack } = usePatientNavigation();
   return (
     <PatientNavigationContainer>
       <BackButton onClick={navigateBack} />
       <VerticalDivider />
-      <PatientBreadcrumbs />
+      <PatientBreadcrumbs routeMap={routeMap} />
     </PatientNavigationContainer>
   );
 };

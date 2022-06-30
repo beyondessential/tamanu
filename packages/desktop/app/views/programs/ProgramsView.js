@@ -20,7 +20,6 @@ import {
 import { LoadingIndicator } from 'desktop/app/components/LoadingIndicator';
 import { PatientListingView } from 'desktop/app/views';
 import { getAnswersFromData, getActionsFromData } from '../../utils';
-import { PatientNavigation } from '../../components/PatientNavigation';
 
 const SurveyFlow = ({ patient, currentUser }) => {
   const api = useApi();
@@ -125,7 +124,6 @@ export const ProgramsView = () => {
   const currentUser = useSelector(getCurrentUser);
   return (
     <div>
-      <PatientNavigation />
       {patient.id ? (
         <SurveyFlow patient={patient} currentUser={currentUser} />
       ) : (

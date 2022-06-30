@@ -20,7 +20,6 @@ import {
   ReferralPane,
   InvoicesPane,
 } from './panes';
-import { PatientNavigation } from '../../components/PatientNavigation';
 
 const getConnectRoutedModal = ({ category, patientId }, suffix) =>
   connectRoutedModal(`/patients/${category}/${patientId}`, suffix);
@@ -102,7 +101,6 @@ export const PatientView = () => {
   return (
     <>
       <div>
-        <PatientNavigation />
         <PatientAlert alerts={patient.alerts} />
         <TabDisplay
           tabs={visibleTabs}

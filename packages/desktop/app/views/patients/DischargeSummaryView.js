@@ -14,7 +14,6 @@ import { useEncounter } from '../../contexts/Encounter';
 import { useElectron } from '../../contexts/Electron';
 import { Colors } from '../../constants';
 import { useCertificate } from '../../utils/useCertificate';
-import { PatientNavigation } from '../../components/PatientNavigation';
 
 const Container = styled.div`
   background: ${Colors.white};
@@ -234,7 +233,6 @@ export const DischargeSummaryView = React.memo(() => {
 
   return (
     <Container>
-      <PatientNavigation />
       <NavContainer>
         <Button
           variant="outlined"

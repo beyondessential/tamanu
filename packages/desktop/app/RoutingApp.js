@@ -6,11 +6,11 @@ import { SERVER_TYPES } from 'shared/constants';
 
 import { App } from './App';
 import {
-  PatientsRoutes,
   ImagingRoutes,
   MedicationRoutes,
   LabsRoutes,
   BillingRoutes,
+  PatientRoutes,
   AdministrationRoutes,
   ProgramsRoutes,
   ReportsRoutes,
@@ -29,7 +29,10 @@ export const RoutingFacilityApp = React.memo(() => (
   <App sidebar={<Sidebar items={FACILITY_MENU_ITEMS} />}>
     <Switch>
       <Redirect exact path="/" to="/patients/all" />
-      <Route path="/patients" component={PatientsRoutes} />
+      <Route
+        path="/patients/:category(all|emergency|inpatient|outpatient)"
+        component={PatientRoutes}
+      />
       <Route path="/appointments" component={AppointmentRoutes} />
       <Route path="/imaging-requests" component={ImagingRoutes} />
       <Route path="/lab-requests" component={LabsRoutes} />

@@ -12,7 +12,6 @@ import { SurveySelector } from '../programs/SurveySelector';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from '../programs/ProgramsPane';
 import { getCurrentUser } from '../../store';
 import { getAnswersFromData, getActionsFromData } from '../../utils';
-import { PatientNavigation } from '../../components/PatientNavigation';
 
 const ReferralFlow = ({ patient, currentUser }) => {
   const api = useApi();
@@ -56,7 +55,6 @@ const ReferralFlow = ({ patient, currentUser }) => {
 
   return (
     <div>
-      <PatientNavigation />
       {referralSurvey ? (
         <SurveyView
           onSubmit={submitReferral}

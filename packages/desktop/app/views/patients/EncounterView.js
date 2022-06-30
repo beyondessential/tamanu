@@ -31,7 +31,6 @@ import {
 } from './panes';
 import { DropdownButton } from '../../components/DropdownButton';
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../constants';
-import { PatientNavigation } from '../../components/PatientNavigation';
 
 const getConnectRoutedModal = ({ category, patientId, encounterId }, suffix) =>
   connectRoutedModal(`/patients/${category}/${patientId}/encounter/${encounterId}`, suffix);
@@ -257,7 +256,6 @@ export const EncounterView = () => {
 
   return (
     <GridColumnContainer>
-      <PatientNavigation />
       <EncounterTopBar
         title={getHeaderText(encounter)}
         subTitle={facility?.name}

@@ -1,4 +1,4 @@
-export { PatientsRoutes } from './PatientsRoutes';
+export { PatientRoutes } from './PatientRoutes';
 export { AppointmentRoutes } from './AppointmentRoutes';
 export { ImagingRoutes } from './ImagingRoutes';
 export { MedicationRoutes } from './MedicationRoutes';

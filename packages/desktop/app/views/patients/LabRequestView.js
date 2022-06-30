@@ -30,7 +30,6 @@ import { LabRequestAuditPane } from '../../components/LabRequestAuditPane';
 import { LAB_REQUEST_STATUS_LABELS } from '../../constants';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 import { getCompletedDate, getMethod } from '../../utils/lab';
-import { PatientNavigation } from '../../components/PatientNavigation';
 
 const makeRangeStringAccessor = sex => ({ labTestType }) => {
   const max = sex === 'male' ? labTestType.maleMax : labTestType.femaleMax;
@@ -329,7 +328,6 @@ export const LabRequestView = () => {
   if (isLoading) return <LoadingIndicator />;
   return (
     <div>
-      <PatientNavigation />
       <ContentPane>
         <LabRequestActionDropdown
           labRequest={labRequest}

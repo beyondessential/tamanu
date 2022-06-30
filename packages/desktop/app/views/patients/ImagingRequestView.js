@@ -22,7 +22,6 @@ import { useApi, useSuggester } from '../../api';
 
 import { ImagingRequestPrintout } from '../../components/PatientPrinting/ImagingRequestPrintout';
 import { Modal } from '../../components/Modal';
-import { PatientNavigation } from '../../components/PatientNavigation';
 
 const statusOptions = [
   { value: 'pending', label: 'Pending' },
@@ -195,17 +194,14 @@ export const ImagingRequestView = () => {
 
   if (patient.loading) return <LoadingIndicator />;
   return (
-    <div>
-      <PatientNavigation />
-      <ContentPane>
-        <PrintButton imagingRequest={imagingRequest} patient={patient} />
-        <ImagingRequestInfoPane
-          imagingRequest={imagingRequest}
-          onSubmit={onSubmit}
-          practitionerSuggester={practitionerSuggester}
-          locationSuggester={locationSuggester}
-        />
-      </ContentPane>
-    </div>
+    <ContentPane>
+      <PrintButton imagingRequest={imagingRequest} patient={patient} />
+      <ImagingRequestInfoPane
+        imagingRequest={imagingRequest}
+        onSubmit={onSubmit}
+        practitionerSuggester={practitionerSuggester}
+        locationSuggester={locationSuggester}
+      />
+    </ContentPane>
   );
 };
