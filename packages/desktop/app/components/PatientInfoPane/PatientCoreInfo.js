@@ -1,15 +1,20 @@
 import React, { memo } from 'react';
 import styled from 'styled-components';
-import { Typography } from '@material-ui/core';
+import { Button, Typography } from '@material-ui/core';
+import { LocalisedText } from '../LocalisedText';
+import { DateDisplay } from '../DateDisplay';
+import { PatientInitialsIcon } from '../PatientInitialsIcon';
+import { Colors } from '../../constants';
 
-import { LocalisedText } from './LocalisedText';
-import { DateDisplay } from './DateDisplay';
-import { PatientInitialsIcon } from './PatientInitialsIcon';
-import { Colors } from '../constants';
+const PatientButton = styled(Button)`
+  display: block;
+  width: 100%;
+  padding: 25px 35px 35px 25px;
+  text-align: left;
 
-const NameSection = styled.div`
-  margin-bottom: 20px;
-  padding: 25px 35px 15px 25px;
+  &:hover {
+    background: #f4f9ff;
+  }
 `;
 
 const NameHeader = styled(Typography)`
@@ -35,14 +40,14 @@ const NameContainer = styled.div`
 const CoreInfoSection = styled.div`
   display: grid;
   grid-template-columns: 2fr 3.5fr;
-  border-bottom: 1px solid #ebebeb;
-  border-top: 1px solid #ebebeb;
+  border-bottom: 1px solid ${Colors.softOutline};
+  border-top: 1px solid ${Colors.softOutline};
   padding-left: 10px;
 `;
 
 const CoreInfoCellContainer = styled.div`
   :first-of-type {
-    border-right: 1px solid #ebebeb;
+    border-right: 1px solid ${Colors.softOutline};
   }
 
   padding: 10px 15px;
@@ -117,7 +122,7 @@ const HealthIdDisplay = ({ displayId }) => (
 
 export const CoreInfoDisplay = memo(({ patient }) => (
   <>
-    <NameSection>
+    <PatientButton>
       <NameHeader>Patient Details</NameHeader>
       <NameContainer>
         <div>
@@ -127,7 +132,7 @@ export const CoreInfoDisplay = memo(({ patient }) => (
         <PatientInitialsIcon patient={patient} />
         {patient.death && <DeceasedIndicator death={patient.death} />}
       </NameContainer>
-    </NameSection>
+    </PatientButton>
     <CoreInfoSection>
       <CoreInfoCell path="fields.sex.shortLabel" testId="core-info-patient-sex">
         {patient.sex}
