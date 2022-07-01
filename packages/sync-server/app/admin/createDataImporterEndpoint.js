@@ -5,50 +5,6 @@ import config from 'config';
 import { log } from 'shared/services/logging';
 import { getUploadedData } from 'shared/utils/getUploadedData';
 
-import { createImportPlan, executeImportPlan } from 'shared/models/sync';
-
-import { preprocessRecordSet } from './preprocessRecordSet';
-
-// we can't use the lodash groupBy, because this needs to handle `undefined`
-function groupBy(array, key) {
-  const map = new Map();
-  for (const item of array) {
-    const value = item[key];
-    if (map.has(value)) {
-      map.get(value).push(item);
-    } else {
-      map.set(value, [item]);
-    }
-  }
-  return map.entries();
-}
-
-function getChannelFromRecordType(recordType) {
-  if (recordType === 'referenceData') {
-    return 'reference';
-  }
-  return recordType;
-}
-
-export async function importRecordGroups(sequelize, recordGroups) {
-  for (const [recordType, recordsForGroup] of recordGroups) {
-    const recordsByChannel = groupBy(recordsForGroup, 'channel');
-    const total = recordsForGroup.length;
-    let completed = 0;
-    log.debug(`importRecordGroups: importing ${total} records`);
-    for (const [maybeChannel, recordsForChannel] of recordsByChannel) {
-      const channel = maybeChannel || getChannelFromRecordType(recordType);
-
-      const plan = createImportPlan(sequelize, channel);
-      executeImportPlan(plan, recordsForChannel);
-
-      completed += recordsForChannel.length;
-      log.debug(`importRecordGroups: imported ${completed} of ${total}`);
-    }
-    log.debug(`importRecordGroups: finished importing ${total} records`);
-  }
-}
-
 export function createDataImporterEndpoint(importer) {
   return asyncHandler(async (req, res) => {
     const start = Date.now();
@@ -75,13 +31,13 @@ export function createDataImporterEndpoint(importer) {
       unlink(file, () => null);
     }
 
-    const { recordGroups, ...resultInfo } = await preprocessRecordSet(recordSet);
+    // const { recordGroups, ...resultInfo } = await preprocessRecordSet(recordSet);
 
     const sendResult = (extraData = {}) =>
       res.send({
-        ...resultInfo,
+        // ...resultInfo,
         ...extraData,
-        records: showRecords ? recordGroups : undefined,
+        // records: showRecords ? recordGroups : undefined,
         serverInfo: {
           host: config.sync.host,
         },
@@ -99,7 +55,7 @@ export function createDataImporterEndpoint(importer) {
     }
 
     // send to sync server in batches
-    await importRecordGroups(store.sequelize, recordGroups);
+    // await importRecordGroups(store.sequelize, recordGroups);
 
     sendResult({ sentData: true });
   });
