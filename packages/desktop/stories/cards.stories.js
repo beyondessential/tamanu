@@ -1,17 +1,35 @@
 import React from 'react';
-
 import { storiesOf } from '@storybook/react';
-
-import { DumbTriageStatisticsCard } from '../app/components/TriageStatisticsCard';
 import { Card, CardBody, CardHeader, CardDivider, CardItem } from '../app/components';
+import { TriageDashboard } from '../app/components/TriageDashboard';
+import { ApiContext } from '../app/api';
 
-storiesOf('Cards', module).add('TriageStatisticsCard', () => (
-  <DumbTriageStatisticsCard
-    numberOfPatients={28}
-    percentageIncrease={15}
-    averageWaitTime={68}
-    priorityLevel={1}
-  />
+const dummyApi = {
+  get: () => {
+    return {
+      data: [
+        {
+          score: '2',
+          encounterType: 'triage',
+          triageTime: '2022-06-30T22:22:34.875Z',
+        },
+        {
+          score: '2',
+          encounterType: 'triage',
+          triageTime: '2022-06-30T22:22:34.875Z',
+        },
+      ],
+      count: 2,
+    };
+  },
+};
+
+storiesOf('Cards', module).add('TriageDashboard', () => (
+  <ApiContext.Provider value={dummyApi}>
+    <div style={{ margin: '1rem' }}>
+      <TriageDashboard />
+    </div>
+  </ApiContext.Provider>
 ));
 
 storiesOf('Cards', module).add('EncounterInfoCard', () => (

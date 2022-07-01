@@ -1,14 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
-
-// Config
-export const TRIAGE_CATEGORIES = [
-  { level: 1, label: 'Non-urgent', color: '#47CA80' },
-  { level: 2, label: 'Urgent', color: '#FFCC24' },
-  { level: 3, label: 'Very Urgent', color: '#F17F16' },
-  { level: 4, label: 'Emergency', color: '#F76853' },
-];
+import { TRIAGE_CATEGORIES } from './TriageDashboard';
 
 // Cell color cannot be set on the component due to the way table cells are configured so the
 // cell color must be calculated and set in the table config separately
