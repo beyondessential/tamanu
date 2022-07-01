@@ -3,9 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Typography } from '@material-ui/core';
 
 import { reloadPatient } from 'desktop/app/store/patient';
-import { Button } from 'desktop/app/components/Button';
 import { PatientNameDisplay } from 'desktop/app/components/PatientNameDisplay';
-import { history } from 'desktop/app/utils/utils';
 import styled from 'styled-components';
 import { push } from 'connected-react-router';
 import { Colors } from '../../constants';
