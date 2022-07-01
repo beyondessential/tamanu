@@ -15,14 +15,9 @@ const TopLevelListItem = styled(ListItem)`
     transform: rotate(0deg);
   }
 
-  &.Mui-selected {
-    background: none;
-  }
+  background: ${props => (props.selected ? 'rgba(255, 255, 255, 0.15)' : '')};
 
-  background: ${props => (props.$highlighted ? 'rgba(255, 255, 255, 0.15)' : '')};
-
-  &:hover,
-  &.Mui-selected:hover {
+  &:hover {
     background: rgba(255, 255, 255, 0.15);
   }
 `;
@@ -63,7 +58,7 @@ export const TopLevelSidebarItem = ({
       onClick={onClick}
       selected={isCurrent}
       disabled={disabled}
-      data-test-class="TopLevel-sidebar-item"
+      data-test-class="toplevel-sidebar-item"
     >
       <SidebarTopLevelIcon src={icon || administrationIcon} />
       <TopLevelItemText disableTypography primary={label} />
