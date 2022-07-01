@@ -192,39 +192,37 @@ export const FACILITY_MENU_ITEMS = [
 
 export const SYNC_MENU_ITEMS = [
   {
-    key: 'admin',
-    label: 'Administration',
-    path: '/admin',
-    icon: administrationIcon,
+    key: 'settings',
+    label: 'Settings',
+    path: '/admin/settings',
     ability: { subject: 'user', action: 'read' },
-    children: [
-      {
-        label: 'Settings',
-        path: '/admin/settings',
-      },
-      {
-        label: 'Users',
-        path: '/admin/users',
-        ability: { action: 'read', subject: 'user' },
-      },
-      {
-        label: 'Locations',
-        path: '/admin/locations',
-        ability: { action: 'read', subject: 'location' },
-      },
-      {
-        label: 'Permissions',
-        path: '/admin/permissions',
-        ability: { action: 'read', subject: 'userRole' },
-      },
-      {
-        label: 'Programs',
-        path: '/admin/programs',
-      },
-      {
-        label: 'Data Import',
-        path: '/admin/refdata',
-      },
-    ],
+  },
+  {
+    key: 'users',
+    label: 'Users',
+    path: '/admin/users',
+    ability: { action: 'read', subject: 'user' },
+  },
+  {
+    key: 'locations',
+    label: 'Locations',
+    path: '/admin/locations',
+    ability: { action: 'read', subject: 'location' },
+  },
+  {
+    key: 'permissions',
+    label: 'Permissions',
+    path: '/admin/permissions',
+    ability: { action: 'read', subject: 'userRole' },
+  },
+  {
+    key: 'programs',
+    label: 'Programs',
+    path: '/admin/programs',
+  },
+  {
+    key: 'refdata',
+    label: 'Data Import',
+    path: '/admin/refdata',
   },
 ];

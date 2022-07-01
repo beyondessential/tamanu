@@ -7,6 +7,7 @@ import { TamanuLogoWhite } from '../TamanuLogo';
 import { Colors } from '../../constants';
 import { version } from '../../../package.json';
 import { Translated } from '../Translated';
+import { TopLevelSidebarItem } from './TopLevelSidebarItem';
 import { PrimarySidebarItem } from './PrimarySidebarItem';
 import { SecondarySidebarItem } from './SecondarySidebarItem';
 import { getCurrentRoute } from '../../store/router';
@@ -91,8 +92,8 @@ const getInitials = string =>
     .slice(0, 2)
     .join('');
 
-const permissionCheck = (child, parent) => {
-  const ability = { ...child.ability, ...parent.ability };
+const permissionCheck = (...items) => {
+  const ability = { ...items.map(item => item.ability) };
   if (!ability.subject || !ability.action) {
     return true;
   }
@@ -131,29 +132,42 @@ export const Sidebar = React.memo(({ items }) => {
     <Container>
       <Logo size="126px" />
       <List component="nav">
-        {items.map(item => (
-          <PrimarySidebarItem
-            icon={item.icon}
-            label={item.label}
-            divider={item.divider}
-            key={item.key}
-            highlighted={isHighlighted(currentPath, item.path, selectedParentItem === item.key)}
-            selected={selectedParentItem === item.key}
-            onClick={() => clickedParentItem(item)}
-          >
-            {item.children.map(child => (
-              <SecondarySidebarItem
-                key={child.path}
-                path={child.path}
-                isCurrent={currentPath.includes(child.path)}
-                color={child.color}
-                label={child.label}
-                disabled={!permissionCheck(child, item)}
-                onClick={() => onPathChanged(child.path)}
-              />
-            ))}
-          </PrimarySidebarItem>
-        ))}
+        {items.map(item =>
+          item.children ? (
+            <PrimarySidebarItem
+              icon={item.icon}
+              label={item.label}
+              divider={item.divider}
+              key={item.key}
+              highlighted={isHighlighted(currentPath, item.path, selectedParentItem === item.key)}
+              selected={selectedParentItem === item.key}
+              onClick={() => clickedParentItem(item)}
+            >
+              {item.children.map(child => (
+                <SecondarySidebarItem
+                  key={child.path}
+                  path={child.path}
+                  isCurrent={currentPath.includes(child.path)}
+                  color={child.color}
+                  label={child.label}
+                  disabled={!permissionCheck(child, item)}
+                  onClick={() => onPathChanged(child.path)}
+                />
+              ))}
+            </PrimarySidebarItem>
+          ) : (
+            <TopLevelSidebarItem
+              icon={item.icon}
+              path={item.path}
+              label={item.label}
+              divider={item.divider}
+              key={item.key}
+              isCurrent={currentPath.includes(item.path)}
+              disabled={!permissionCheck(item)}
+              onClick={() => onPathChanged(item.path)}
+            />
+          ),
+        )}
       </List>
       <Footer>
         <StyledDivider />
