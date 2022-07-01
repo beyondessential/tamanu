@@ -142,6 +142,17 @@ const getFijiCovidAnswers = async (models, parameters, { surveyId, dateFormat })
           {
             model: models.Encounter,
             as: 'encounter',
+            // patient is only necessary if a village is specified
+            ...(parameters.village
+              ? {
+                  include: [
+                    {
+                      model: models.Patient,
+                      as: 'patient',
+                    },
+                  ],
+                }
+              : {}),
           },
         ],
         order: [['end_time', 'ASC']],
