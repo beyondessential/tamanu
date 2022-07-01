@@ -15,7 +15,6 @@ export const TRIAGE_CATEGORIES = [
 
 const Container = styled.div`
   display: flex;
-  margin: 16px 0 30px 0;
   border-radius: 3px;
   overflow: hidden;
   border: 1px solid ${Colors.outline};
@@ -69,6 +68,7 @@ export const TriageDashboard = () => {
     <Container>
       {data.map(({ averageWaitTime, numberOfPatients, level, color }) => (
         <TriageStatisticsCard
+          key={level}
           color={color}
           priorityLevel={level}
           numberOfPatients={numberOfPatients}
