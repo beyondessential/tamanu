@@ -8,7 +8,6 @@ import { PatientBreadcrumbs } from './PatientBreadcrumbs';
 const PatientNavigationContainer = styled.div`
   width: 100%;
   background: #ffffff;
-  box-shadow: 0px 1px 0px ${Colors.softOutline};
   display: flex;
   height: 50px;
   align-items: center;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Switch, Route } from 'react-router';
+import { Switch, Route, Redirect } from 'react-router';
 import { useSelector } from 'react-redux';
 
 import { SERVER_TYPES } from 'shared/constants';
@@ -28,6 +28,7 @@ export const RoutingApp = () => {
 export const RoutingFacilityApp = React.memo(() => (
   <App sidebar={<Sidebar items={FACILITY_MENU_ITEMS} />}>
     <Switch>
+      <Redirect exact path="/" to="/patients/all" />
       <Route path="/patients" component={PatientsRoutes} />
       <Route path="/appointments" component={AppointmentRoutes} />
       <Route path="/imaging-requests" component={ImagingRoutes} />
