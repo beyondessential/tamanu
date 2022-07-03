@@ -1,7 +1,7 @@
 import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
 import { generatePath, matchPath, useLocation } from 'react-router-dom';
-import { PATIENT_PATHS } from '../constants/patientRouteMap';
+import { PATIENT_PATHS } from '../constants/patientPaths';
 
 export const usePatientNavigation = () => {
   const dispatch = useDispatch();

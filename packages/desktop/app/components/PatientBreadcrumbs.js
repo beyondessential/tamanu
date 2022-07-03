@@ -3,7 +3,7 @@ import React from 'react';
 import { matchPath, useLocation, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { Colors } from '../constants';
-import { PATIENT_CATEGORY_TO_TITLE } from '../constants/patientRouteMap';
+import { PATIENT_CATEGORY_TO_TITLE } from '../constants/patientPaths';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 
 const StyledBreadcrumbs = styled(Breadcrumbs)`
@@ -46,6 +46,8 @@ export const PatientBreadcrumbs = ({ patientRoutes }) => {
 
   const handleCategoryClick = () => navigateToCategory(params.category);
 
+  // Navigates down the patientRoutes tree to get the active route hierarchy
+  // and outputs a list of links and titles for these routes.
   const getPatientCrumbs = (routeList, crumbs = []) => {
     if (!routeList) return crumbs;
     for (let i = 0; i < routeList.length; i++) {

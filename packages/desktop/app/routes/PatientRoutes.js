@@ -5,7 +5,7 @@ import { PatientInfoPane } from '../components/PatientInfoPane';
 import { getPatientNameAsString } from '../components/PatientNameDisplay';
 import { PatientNavigation } from '../components/PatientNavigation';
 import { TwoColumnDisplay } from '../components/TwoColumnDisplay';
-import { PATIENT_PATHS } from '../constants/patientRouteMap';
+import { PATIENT_PATHS } from '../constants/patientPaths';
 import { useEncounter } from '../contexts/Encounter';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import {

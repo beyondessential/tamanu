@@ -1,6 +1,6 @@
 import React from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
-import { PATIENT_PATHS } from '../constants/patientRouteMap';
+import { PATIENT_PATHS } from '../constants/patientPaths';
 import {
   AdmittedPatientsView,
   OutpatientsView,
