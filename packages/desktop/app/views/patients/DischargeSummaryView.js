@@ -17,6 +17,7 @@ import { useCertificate } from '../../utils/useCertificate';
 
 const Container = styled.div`
   background: ${Colors.white};
+  height: 100%;
 `;
 
 const SummaryPageContainer = styled.div`
@@ -62,7 +63,7 @@ const NavContainer = styled.div`
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  margin: 20px;
+  padding: 20px;
 `;
 
 const DiagnosesList = ({ diagnoses }) => {

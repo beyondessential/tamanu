@@ -99,12 +99,12 @@ const TABS = [
 ];
 
 const EncounterActionDropdown = ({ encounter }) => {
-  const { navigateToEncounter } = usePatientNavigation();
+  const { navigateToEncounter, navigateToSummary } = usePatientNavigation();
   const onChangeEncounterType = type => navigateToEncounter(encounter.id, `changeType/${type}`);
   const onChangeLocation = () => navigateToEncounter(encounter.id, 'move');
   const onDischargeOpen = () => navigateToEncounter(encounter.id, 'discharge');
   const onChangeDepartment = () => navigateToEncounter(encounter.id, 'changeDepartment');
-  const onViewSummary = () => navigateToEncounter(encounter.id, 'summary');
+  const onViewSummary = () => navigateToSummary();
 
   if (encounter.endDate) {
     return (

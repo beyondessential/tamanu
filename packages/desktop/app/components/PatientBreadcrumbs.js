@@ -11,14 +11,11 @@ const StyledBreadcrumbs = styled(Breadcrumbs)`
     font-size: 12px;
     color: ${Colors.softText};
   }
-`;
-
-const BreadcrumbText = styled(Typography)`
-  font-size: 12px;
-  color: ${props => props.theme.palette.primary.main};
-  text-transform: capitalize;
-  font-weight: 500;
-  cursor: default;
+  & ol > :last-child > p {
+    pointer-events: none;
+    font-weight: 500;
+    cursor: default;
+  }
 `;
 
 const BreadcrumbLink = styled(Typography)`
@@ -32,26 +29,22 @@ const BreadcrumbLink = styled(Typography)`
   }
 `;
 
-const Breadcrumb = ({ active, ...props }) =>
-  active ? <ActiveBreadcrumb {...props} /> : <InactiveBreadcrumb {...props} />;
-
-const ActiveBreadcrumb = ({ children }) => <BreadcrumbText>{children}</BreadcrumbText>;
-const InactiveBreadcrumb = ({ children, onClick }) => (
+const Breadcrumb = ({ onClick, children }) => (
   <BreadcrumbLink underline="hover" color="inherit" onClick={onClick}>
     {children}
   </BreadcrumbLink>
 );
 
-const getBreadcrumbFromRoute = (route, isExact) => (
-  <Breadcrumb onClick={() => route.navigateTo()} active={isExact}>
-    {route.title}
-  </Breadcrumb>
+const getBreadcrumbFromRoute = ({ navigateTo, title }) => (
+  <Breadcrumb onClick={navigateTo}>{title}</Breadcrumb>
 );
 
 export const PatientBreadcrumbs = ({ routeMap }) => {
   const location = useLocation();
   const { navigateToCategory } = usePatientNavigation();
   const params = useParams();
+
+  const handleCategoryClick = () => navigateToCategory(params.category);
 
   const getPatientCrumbs = (routeList, crumbs = []) => {
     if (!routeList) return crumbs;
@@ -63,14 +56,12 @@ export const PatientBreadcrumbs = ({ routeMap }) => {
       if (matched) {
         return getPatientCrumbs(routeConfig.routes, [
           ...crumbs,
-          getBreadcrumbFromRoute(routeConfig, matched.isExact),
+          getBreadcrumbFromRoute(routeConfig),
         ]);
       }
     }
     return crumbs;
   };
-
-  const handleCategoryClick = () => navigateToCategory(params.category);
 
   return (
     <StyledBreadcrumbs>

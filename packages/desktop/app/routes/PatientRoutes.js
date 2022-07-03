@@ -7,6 +7,15 @@ import { usePatientRouteMap } from '../utils/usePatientRouteMap';
 
 const isPathUnchanged = (prevProps, nextProps) => prevProps.match.path === nextProps.match.path;
 
+const RouteWithSubRoutes = ({ path, component, routes }) => (
+  <>
+    <Route exact path={path} component={component} />
+    {routes?.map(subRoute => (
+      <RouteWithSubRoutes key={`route-${subRoute.path}`} {...subRoute} />
+    ))}
+  </>
+);
+
 export const PatientRoutes = React.memo(() => {
   const routeMap = usePatientRouteMap();
   return (
@@ -23,12 +32,3 @@ export const PatientRoutes = React.memo(() => {
     </TwoColumnDisplay>
   );
 }, isPathUnchanged);
-
-const RouteWithSubRoutes = ({ path, component, routes }) => (
-  <>
-    <Route exact path={path} component={component} />
-    {routes?.map(subRoute => (
-      <RouteWithSubRoutes key={`route-${subRoute.path}`} {...subRoute} />
-    ))}
-  </>
-);

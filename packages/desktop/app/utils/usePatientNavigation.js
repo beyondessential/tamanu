@@ -46,6 +46,15 @@ export const usePatientNavigation = () => {
     );
   };
 
+  const navigateToSummary = () => {
+    const existingParams = getParams(PATIENT_PATHS.ENCOUNTER);
+    navigate(
+      generatePath(`${PATIENT_PATHS.ENCOUNTER}/summary/view`, {
+        ...existingParams,
+      }),
+    );
+  };
+
   const navigateToLabRequest = (labRequestId, modal) => {
     const existingParams = getParams(PATIENT_PATHS.ENCOUNTER);
     navigate(
@@ -87,6 +96,7 @@ export const usePatientNavigation = () => {
     navigateToLabRequest,
     navigateToImagingRequest,
     navigateToCategory,
+    navigateToSummary,
     navigateBack,
   };
 };

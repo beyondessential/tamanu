@@ -43,7 +43,7 @@ export const usePatientRouteMap = () => {
           title: getEncounterType(encounter || {}),
           routes: [
             {
-              path: `${PATIENT_PATHS.ENCOUNTER}/summary`,
+              path: `${PATIENT_PATHS.SUMMARY}/view`,
               component: DischargeSummaryView,
               title: 'Discharge Summary',
             },
