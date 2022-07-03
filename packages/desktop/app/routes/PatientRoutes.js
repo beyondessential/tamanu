@@ -1,9 +1,72 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { Switch, Route } from 'react-router-dom';
 import { PatientInfoPane } from '../components/PatientInfoPane';
+import { getPatientNameAsString } from '../components/PatientNameDisplay';
 import { PatientNavigation } from '../components/PatientNavigation';
 import { TwoColumnDisplay } from '../components/TwoColumnDisplay';
-import { usePatientRouteMap } from '../utils/usePatientRouteMap';
+import { PATIENT_PATHS } from '../constants/patientRouteMap';
+import { useEncounter } from '../contexts/Encounter';
+import { usePatientNavigation } from '../utils/usePatientNavigation';
+import {
+  DischargeSummaryView,
+  EncounterView,
+  ImagingRequestView,
+  LabRequestView,
+  PatientView,
+} from '../views';
+import { getEncounterType } from '../views/patients/panes/EncounterInfoPane';
+import { ProgramsView } from '../views/programs/ProgramsView';
+import { ReferralsView } from '../views/referrals/ReferralsView';
+
+export const usePatientRoutes = () => {
+  const { navigateToEncounter, navigateToPatient } = usePatientNavigation();
+  const patient = useSelector(state => state.patient);
+  const { encounter } = useEncounter();
+  return [
+    {
+      path: `${PATIENT_PATHS.PATIENT}/:modal?`,
+      component: PatientView,
+      navigateTo: () => navigateToPatient(patient.id),
+      title: getPatientNameAsString(patient || {}),
+      routes: [
+        {
+          path: `${PATIENT_PATHS.PATIENT}/programs/new`,
+          component: ProgramsView,
+          title: 'New Survey',
+        },
+        {
+          path: `${PATIENT_PATHS.PATIENT}/referrals/new`,
+          component: ReferralsView,
+          title: 'New Referral',
+        },
+        {
+          path: `${PATIENT_PATHS.ENCOUNTER}/:modal?`,
+          component: EncounterView,
+          navigateTo: () => navigateToEncounter(encounter.id),
+          title: getEncounterType(encounter || {}),
+          routes: [
+            {
+              path: `${PATIENT_PATHS.SUMMARY}/view`,
+              component: DischargeSummaryView,
+              title: 'Discharge Summary',
+            },
+            {
+              path: `${PATIENT_PATHS.LAB_REQUEST}/:modal?`,
+              component: LabRequestView,
+              title: 'Lab Request',
+            },
+            {
+              path: `${PATIENT_PATHS.IMAGING_REQUEST}/:modal?`,
+              component: ImagingRequestView,
+              title: 'Imaging Request',
+            },
+          ],
+        },
+      ],
+    },
+  ];
+};
 
 const isPathUnchanged = (prevProps, nextProps) => prevProps.match.path === nextProps.match.path;
 
@@ -17,14 +80,14 @@ const RouteWithSubRoutes = ({ path, component, routes }) => (
 );
 
 export const PatientRoutes = React.memo(() => {
-  const routeMap = usePatientRouteMap();
+  const patientRoutes = usePatientRoutes();
   return (
     <TwoColumnDisplay>
       <PatientInfoPane />
       <div style={{ overflow: 'hidden' }}>
-        <PatientNavigation routeMap={routeMap} />
+        <PatientNavigation patientRoutes={patientRoutes} />
         <Switch>
-          {routeMap.map(route => (
+          {patientRoutes.map(route => (
             <RouteWithSubRoutes key={`route-${route.path}`} {...route} />
           ))}
         </Switch>

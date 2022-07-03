@@ -39,7 +39,7 @@ const getBreadcrumbFromRoute = ({ navigateTo, title }) => (
   <Breadcrumb onClick={navigateTo}>{title}</Breadcrumb>
 );
 
-export const PatientBreadcrumbs = ({ routeMap }) => {
+export const PatientBreadcrumbs = ({ patientRoutes }) => {
   const location = useLocation();
   const { navigateToCategory } = usePatientNavigation();
   const params = useParams();
@@ -68,7 +68,7 @@ export const PatientBreadcrumbs = ({ routeMap }) => {
       <Breadcrumb onClick={handleCategoryClick}>
         {PATIENT_CATEGORY_TO_TITLE[params.category]}
       </Breadcrumb>
-      {getPatientCrumbs(routeMap)}
+      {getPatientCrumbs(patientRoutes)}
     </StyledBreadcrumbs>
   );
 };
