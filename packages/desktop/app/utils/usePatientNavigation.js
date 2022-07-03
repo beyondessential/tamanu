@@ -77,8 +77,8 @@ export const usePatientNavigation = () => {
     if (encounterParams) {
       return navigateToPatient(encounterParams.patientId);
     }
-    const patientParams = getParams(PATIENT_PATHS.patientParams);
-    return navigateToCategory(patientParams);
+    const patientParams = getParams(PATIENT_PATHS.PATIENT);
+    return navigateToCategory(patientParams.category);
   };
 
   return {

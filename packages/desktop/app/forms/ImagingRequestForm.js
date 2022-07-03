@@ -68,7 +68,7 @@ const FormSubmitActionDropdown = React.memo(({ requestId, encounter, submitForm 
     { label: 'Finalise & print', onClick: finaliseAndPrint },
   ];
 
-  return <DropdownButton color="primary" variant="contained" actions={actions} />;
+  return <DropdownButton variant="contained" actions={actions} />;
 });
 
 class DumbImagingRequestForm extends React.PureComponent {

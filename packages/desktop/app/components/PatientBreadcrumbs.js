@@ -1,8 +1,10 @@
 import { Breadcrumbs, Typography } from '@material-ui/core';
 import React from 'react';
-import { matchPath, useLocation } from 'react-router-dom';
+import { matchPath, useLocation, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import { Colors } from '../constants';
+import { PATIENT_CATEGORY_TO_TITLE } from '../constants/patientRouteMap';
+import { usePatientNavigation } from '../utils/usePatientNavigation';
 
 const StyledBreadcrumbs = styled(Breadcrumbs)`
   & ol > .MuiBreadcrumbs-separator {
@@ -48,8 +50,10 @@ const getBreadcrumbFromRoute = (route, isExact) => (
 
 export const PatientBreadcrumbs = ({ routeMap }) => {
   const location = useLocation();
+  const { navigateToCategory } = usePatientNavigation();
+  const params = useParams();
 
-  const getCrumbs = (routeList, crumbs = []) => {
+  const getPatientCrumbs = (routeList, crumbs = []) => {
     if (!routeList) return crumbs;
     for (let i = 0; i < routeList.length; i++) {
       const routeConfig = routeList[i];
@@ -57,7 +61,7 @@ export const PatientBreadcrumbs = ({ routeMap }) => {
         path: routeConfig.path,
       });
       if (matched) {
-        return getCrumbs(routeConfig.routes, [
+        return getPatientCrumbs(routeConfig.routes, [
           ...crumbs,
           getBreadcrumbFromRoute(routeConfig, matched.isExact),
         ]);
@@ -66,5 +70,14 @@ export const PatientBreadcrumbs = ({ routeMap }) => {
     return crumbs;
   };
 
-  return <StyledBreadcrumbs>{getCrumbs(routeMap)}</StyledBreadcrumbs>;
+  const handleCategoryClick = () => navigateToCategory(params.category);
+
+  return (
+    <StyledBreadcrumbs>
+      <Breadcrumb onClick={handleCategoryClick}>
+        {PATIENT_CATEGORY_TO_TITLE[params.category]}
+      </Breadcrumb>
+      {getPatientCrumbs(routeMap)}
+    </StyledBreadcrumbs>
+  );
 };
