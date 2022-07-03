@@ -9,7 +9,6 @@ import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { Button } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { TopBar } from '../../components/TopBar';
 import { ButtonRow } from '../../components/ButtonRow';
 import { FormGrid } from '../../components/FormGrid';
 import { Modal } from '../../components/Modal';
@@ -65,7 +64,11 @@ const PrintButton = ({ imagingRequest, patient }) => {
           />
         )}
       </Modal>
-      <Button variant="outlined" onClick={openModal} style={{ marginRight: '0.5rem' }}>
+      <Button
+        variant="outlined"
+        onClick={openModal}
+        style={{ marginRight: '0.5rem', marginBottom: '30px' }}
+      >
         Print request
       </Button>
     </>
@@ -189,27 +192,16 @@ export const ImagingRequestView = () => {
     navigateToEncounter();
   };
 
-  const onBack = () => navigateToEncounter();
-
   if (patient.loading) return <LoadingIndicator />;
   return (
-    <div>
-      <TopBar title="Imaging request">
-        <div>
-          <PrintButton imagingRequest={imagingRequest} patient={patient} />
-        </div>
-      </TopBar>
-      <Button variant="text" color="default" onClick={onBack}>
-        &lt; Back to encounter information
-      </Button>
-      <ContentPane>
-        <ImagingRequestInfoPane
-          imagingRequest={imagingRequest}
-          onSubmit={onSubmit}
-          practitionerSuggester={practitionerSuggester}
-          locationSuggester={locationSuggester}
-        />
-      </ContentPane>
-    </div>
+    <ContentPane>
+      <PrintButton imagingRequest={imagingRequest} patient={patient} />
+      <ImagingRequestInfoPane
+        imagingRequest={imagingRequest}
+        onSubmit={onSubmit}
+        practitionerSuggester={practitionerSuggester}
+        locationSuggester={locationSuggester}
+      />
+    </ContentPane>
   );
 };

@@ -1,59 +1,102 @@
 import { push } from 'connected-react-router';
 import { useDispatch } from 'react-redux';
-import { generatePath, useParams } from 'react-router-dom';
+import { generatePath, matchPath, useLocation } from 'react-router-dom';
+import { PATIENT_PATHS } from '../constants/patientPaths';
 
 export const usePatientNavigation = () => {
-  const params = useParams();
   const dispatch = useDispatch();
+  const location = useLocation();
 
   const navigate = url => dispatch(push(url));
 
-  const navigateToPatient = (patientId, modal) =>
+  const getParams = path =>
+    matchPath(location.pathname, {
+      path,
+      exact: false,
+      strict: false,
+    })?.params;
+
+  const navigateToCategory = category => {
     navigate(
-      generatePath('/patients/:category/:patientId/:modal?', {
+      generatePath(PATIENT_PATHS.CATEGORY, {
+        category,
+      }),
+    );
+  };
+
+  const navigateToPatient = (patientId, modal) => {
+    const existingParams = getParams(PATIENT_PATHS.CATEGORY);
+    navigate(
+      generatePath(`${PATIENT_PATHS.PATIENT}/:modal?`, {
+        ...existingParams,
         patientId,
-        ...params,
         modal,
       }),
     );
+  };
 
-  const navigateToEncounter = (encounterId, modal) =>
+  const navigateToEncounter = (encounterId, modal) => {
+    const existingParams = getParams(PATIENT_PATHS.PATIENT);
     navigate(
-      generatePath('/patients/:category/:patientId/encounter/:encounterId/:modal?', {
+      generatePath(`${PATIENT_PATHS.ENCOUNTER}/:modal?`, {
+        ...existingParams,
         encounterId,
-        ...params,
         modal,
       }),
     );
+  };
 
-  const navigateToLabRequest = (labRequestId, modal) =>
+  const navigateToSummary = () => {
+    const existingParams = getParams(PATIENT_PATHS.ENCOUNTER);
     navigate(
-      generatePath(
-        '/patients/:category/:patientId/encounter/:encounterId/lab-request/:labRequestId/:modal?',
-        {
-          labRequestId,
-          ...params,
-          modal,
-        },
-      ),
+      generatePath(`${PATIENT_PATHS.ENCOUNTER}/summary/view`, {
+        ...existingParams,
+      }),
     );
+  };
 
-  const navigateToImagingRequest = (imagingRequestId, modal) =>
+  const navigateToLabRequest = (labRequestId, modal) => {
+    const existingParams = getParams(PATIENT_PATHS.ENCOUNTER);
     navigate(
-      generatePath(
-        '/patients/:category/:patientId/encounter/:encounterId/lab-request/:imagingRequestId/:modal?',
-        {
-          imagingRequestId,
-          ...params,
-          modal,
-        },
-      ),
+      generatePath(`${PATIENT_PATHS.LAB_REQUEST}/:modal?`, {
+        ...existingParams,
+        labRequestId,
+        modal,
+      }),
     );
+  };
+
+  const navigateToImagingRequest = (imagingRequestId, modal) => {
+    const existingParams = getParams(PATIENT_PATHS.ENCOUNTER);
+    navigate(
+      generatePath(`${PATIENT_PATHS.IMAGING_REQUEST}/:modal?`, {
+        ...existingParams,
+        imagingRequestId,
+        modal,
+      }),
+    );
+  };
+
+  const navigateBack = () => {
+    const requestParams = getParams(`${PATIENT_PATHS.ENCOUNTER}/*`);
+    if (requestParams) {
+      return navigateToEncounter(requestParams.encounterId);
+    }
+    const encounterParams = getParams(PATIENT_PATHS.ENCOUNTER);
+    if (encounterParams) {
+      return navigateToPatient(encounterParams.patientId);
+    }
+    const patientParams = getParams(PATIENT_PATHS.PATIENT);
+    return navigateToCategory(patientParams.category);
+  };
 
   return {
     navigateToPatient,
     navigateToEncounter,
     navigateToLabRequest,
     navigateToImagingRequest,
+    navigateToCategory,
+    navigateToSummary,
+    navigateBack,
   };
 };

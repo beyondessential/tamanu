@@ -103,7 +103,7 @@ const PeopleIcon = styled(People)`
 const StatisticsRow = styled.div`
   display: flex;
   margin: 16px 0 30px;
-  filter: drop-shadow(2px 2px 25px rgba(0, 0, 0, 0.1));
+  box-shadow: 2px 2px 25px rgba(0, 0, 0, 0.1);
 `;
 
 const ENDPOINT = 'patient/program/activeCovid19Patients';

@@ -9,7 +9,6 @@ import { reloadPatient } from 'desktop/app/store/patient';
 import { getCurrentUser } from 'desktop/app/store/auth';
 
 import { SurveyView } from 'desktop/app/views/programs/SurveyView';
-import { PatientDisplay } from 'desktop/app/views/programs/PatientDisplay';
 import { SurveySelector } from 'desktop/app/views/programs/SurveySelector';
 import { FormGrid } from 'desktop/app/components/FormGrid';
 import { SelectInput } from 'desktop/app/components/Field/SelectField';
@@ -87,27 +86,24 @@ const SurveyFlow = ({ patient, currentUser }) => {
 
   if (!survey) {
     return (
-      <>
-        <PatientDisplay />
-        <ProgramsPane>
-          <ProgramsPaneHeader>
-            <ProgramsPaneHeading variant="h6">Select a survey</ProgramsPaneHeading>
-          </ProgramsPaneHeader>
-          <FormGrid columns={1}>
-            <SelectInput
-              options={programs.map(p => ({ value: p.id, label: p.name }))}
-              value={selectedProgramId}
-              onChange={selectProgram}
-              label="Select program"
-            />
-            <SurveySelector
-              onSelectSurvey={setSelectedSurvey}
-              surveys={surveys}
-              buttonText="Begin survey"
-            />
-          </FormGrid>
-        </ProgramsPane>
-      </>
+      <ProgramsPane>
+        <ProgramsPaneHeader>
+          <ProgramsPaneHeading variant="h6">Select survey</ProgramsPaneHeading>
+        </ProgramsPaneHeader>
+        <FormGrid columns={1}>
+          <SelectInput
+            options={programs.map(p => ({ value: p.id, label: p.name }))}
+            value={selectedProgramId}
+            onChange={selectProgram}
+            label="Select program"
+          />
+          <SurveySelector
+            onSelectSurvey={setSelectedSurvey}
+            surveys={surveys}
+            buttonText="Begin survey"
+          />
+        </FormGrid>
+      </ProgramsPane>
     );
   }
 

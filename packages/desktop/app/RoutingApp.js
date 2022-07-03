@@ -6,7 +6,6 @@ import { SERVER_TYPES } from 'shared/constants';
 
 import { App } from './App';
 import {
-  PatientsRoutes,
   ImagingRoutes,
   MedicationRoutes,
   LabsRoutes,
@@ -16,6 +15,7 @@ import {
   ReportsRoutes,
   ImmunisationRoutes,
   AppointmentRoutes,
+  PatientsRoutes,
 } from './routes';
 import { Sidebar, FACILITY_MENU_ITEMS, SYNC_MENU_ITEMS } from './components/Sidebar';
 import { TopBar, Notification } from './components';
