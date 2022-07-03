@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import AccessTime from '@material-ui/icons/AccessTime';
 import { useApi } from '../api';
-import { TriageStatisticsCard } from './TriageStatisticsCard';
+import { StatisticsCard } from './StatisticsCard';
 import { Colors } from '../constants';
 
 // Config
@@ -61,18 +62,59 @@ const useTriageData = () => {
   });
 };
 
+const MINUTE = 60 * 1000;
+const HOUR = 60 * MINUTE;
+
+const Row = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+`;
+
+const FooterLabel = styled.span`
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 18px;
+  margin-right: 5px;
+  color: ${Colors.midText};
+`;
+
+const FooterTime = styled(FooterLabel)`
+  color: ${Colors.darkestText};
+`;
+
+const CardFooter = ({ averageWaitTime, color }) => {
+  const hours = Math.floor(averageWaitTime / HOUR);
+  const minutes = Math.floor((averageWaitTime - hours * HOUR) / MINUTE);
+  const pluralise = (amount, suffix) => `${amount}${suffix}${amount === 1 ? '' : 's'}`;
+  const averageHrs = pluralise(hours, 'hr');
+  const averageMins = pluralise(minutes, 'min');
+
+  return (
+    <>
+      <Row>
+        <AccessTime htmlColor={color} />
+        <FooterLabel>Avg. wait time: </FooterLabel>
+        <FooterTime>{averageHrs}</FooterTime>
+      </Row>
+      <FooterTime>{averageMins}</FooterTime>
+    </>
+  );
+};
+
 export const TriageDashboard = () => {
   const data = useTriageData();
 
   return (
     <Container>
       {data.map(({ averageWaitTime, numberOfPatients, level, color }) => (
-        <TriageStatisticsCard
+        <StatisticsCard
           key={level}
           color={color}
-          priorityLevel={level}
-          numberOfPatients={numberOfPatients}
-          averageWaitTime={averageWaitTime}
+          title={`Level ${level} patient`}
+          value={numberOfPatients}
+          Footer={<CardFooter color={color} averageWaitTime={averageWaitTime} />}
         />
       ))}
     </Container>

@@ -316,7 +316,7 @@ TableComponent.propTypes = {
     PropTypes.shape({
       key: PropTypes.string.isRequired,
       title: PropTypes.node,
-      accessor: PropTypes.func,
+      accessor: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
       sortable: PropTypes.bool,
     }),
   ).isRequired,

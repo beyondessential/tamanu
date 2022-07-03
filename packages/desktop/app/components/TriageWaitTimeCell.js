@@ -5,14 +5,8 @@ import { TRIAGE_CATEGORIES } from './TriageDashboard';
 
 // Cell color cannot be set on the component due to the way table cells are configured so the
 // cell color must be calculated and set in the table config separately
-export const getTriageCellColor = ({ encounterType, score }) => {
-  if (encounterType !== 'triage') {
-    return '';
-  }
-  return (
-    TRIAGE_CATEGORIES.find(c => c.level === parseInt(score))?.color || ADMITTED_PRIORITY_COLOUR
-  );
-};
+export const getTriageCellColor = ({ score }) =>
+  TRIAGE_CATEGORIES.find(c => c.level === parseInt(score))?.color;
 
 const MINUTE = 60 * 1000;
 const HOUR = 60 * MINUTE;
@@ -55,7 +49,7 @@ export const TriageWaitTimeCell = React.memo(({ encounterType, triageTime, close
         </TriageCell>
       );
     case 'observation':
-      return <PlainCell>{`Seen at ${moment(closedTime).format('h:mma')}`}</PlainCell>;
+      return <TriageCell>{`Seen at ${moment(closedTime).format('h:mma')}`}</TriageCell>;
     default:
       return <PlainCell>Admitted</PlainCell>;
   }
