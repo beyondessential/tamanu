@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import AccessTime from '@material-ui/icons/AccessTime';
 import { useApi } from '../api';
-import { StatisticsCard } from './StatisticsCard';
+import { StatisticsCard, StatisticsCardContainer } from './StatisticsCard';
 import { Colors } from '../constants';
 
 // Config
@@ -13,14 +13,6 @@ export const TRIAGE_CATEGORIES = [
   { level: 4, label: 'Non-urgent', color: '#47CA80' },
   { level: 5, label: 'Deceased', color: '#67A6E3' },
 ];
-
-const Container = styled.div`
-  display: flex;
-  border-radius: 3px;
-  overflow: hidden;
-  border: 1px solid ${Colors.outline};
-  box-shadow: 2px 2px 25px rgba(0, 0, 0, 0.1);
-`;
 
 const getAverageWaitTime = categoryData => {
   if (categoryData.length === 0) {
@@ -107,7 +99,7 @@ export const TriageDashboard = () => {
   const data = useTriageData();
 
   return (
-    <Container>
+    <StatisticsCardContainer>
       {data.map(({ averageWaitTime, numberOfPatients, level, color }) => (
         <StatisticsCard
           key={level}
@@ -117,6 +109,6 @@ export const TriageDashboard = () => {
           Footer={<CardFooter color={color} averageWaitTime={averageWaitTime} />}
         />
       ))}
-    </Container>
+    </StatisticsCardContainer>
   );
 };

@@ -92,3 +92,11 @@ StatisticsCard.defaultProps = {
   percentageIncrease: 0,
   Footer: null,
 };
+
+export const StatisticsCardContainer = styled.div`
+  display: flex;
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid ${Colors.outline};
+  box-shadow: 2px 2px 25px rgba(0, 0, 0, 0.1);
+`;
