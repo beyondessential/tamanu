@@ -6,7 +6,7 @@ import ArrowUpward from '@material-ui/icons/ArrowUpward';
 import ArrowDownward from '@material-ui/icons/ArrowDownward';
 import AccessTime from '@material-ui/icons/AccessTime';
 import { Colors, TRIAGE_COLORS_BY_LEVEL } from '../constants';
-import { connectApi } from '../api';
+import { useApi } from '../api';
 
 const MINUTE = 60 * 1000;
 const HOUR = 60 * MINUTE;
@@ -83,19 +83,20 @@ const FooterTime = styled.span`
   color: ${Colors.midText};
 `;
 
-const DataFetchingTriageStatisticsCard = memo(({ priorityLevel, fetchData }) => {
+export const TriageStatisticsCard = memo(({ priorityLevel }) => {
   const [data, setData] = useState([]);
+  const api = useApi();
 
   useEffect(() => {
     async function fetchTriageData() {
-      const result = await fetchData();
+      const result = await api.get('triage');
       setData(result.data);
     }
     fetchTriageData();
     // update data every 30 seconds
     const interval = setInterval(() => fetchTriageData(), MINUTE * 0.5);
     return () => clearInterval(interval);
-  }, [fetchData]);
+  }, [api]);
 
   if (data.length === 0) {
     return (
@@ -175,11 +176,3 @@ DumbTriageStatisticsCard.propTypes = {
   averageWaitTime: PropTypes.number.isRequired,
   priorityLevel: PropTypes.number.isRequired,
 };
-
-function mapApiToProps(api) {
-  return {
-    fetchData: () => api.get('triage'),
-  };
-}
-
-export const TriageStatisticsCard = connectApi(mapApiToProps)(DataFetchingTriageStatisticsCard);
