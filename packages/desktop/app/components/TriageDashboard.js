@@ -4,15 +4,7 @@ import AccessTime from '@material-ui/icons/AccessTime';
 import { useApi } from '../api';
 import { StatisticsCard, StatisticsCardContainer } from './StatisticsCard';
 import { Colors } from '../constants';
-
-// Config
-export const TRIAGE_CATEGORIES = [
-  { level: 1, label: 'Emergency', color: '#F76853' },
-  { level: 2, label: 'Very Urgent', color: '#F17F16' },
-  { level: 3, label: 'Urgent', color: '#FFCC24' },
-  { level: 4, label: 'Non-urgent', color: '#47CA80' },
-  { level: 5, label: 'Deceased', color: '#67A6E3' },
-];
+import { useLocalisation } from '../contexts/Localisation';
 
 const getAverageWaitTime = categoryData => {
   if (categoryData.length === 0) {
@@ -29,6 +21,8 @@ const getAverageWaitTime = categoryData => {
 const useTriageData = () => {
   const api = useApi();
   const [data, setData] = useState([]);
+  const { getLocalisation } = useLocalisation();
+  const triageCategories = getLocalisation('triageCategories');
 
   useEffect(() => {
     const fetchTriageData = async () => {
@@ -42,7 +36,7 @@ const useTriageData = () => {
     return () => clearInterval(interval);
   }, [api]);
 
-  return TRIAGE_CATEGORIES.map(category => {
+  return triageCategories.map(category => {
     const categoryData = data.filter(x => parseInt(x.score) === category.level);
     const averageWaitTime = getAverageWaitTime(categoryData);
     return {

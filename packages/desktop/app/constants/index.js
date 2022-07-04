@@ -259,24 +259,6 @@ export const encounterOptions = [
 
 export const ENCOUNTER_OPTIONS_BY_VALUE = createValueIndex(encounterOptions);
 
-export const TRIAGE_COLORS_BY_LEVEL = {
-  1: Colors.alert,
-  2: Colors.secondary,
-  3: Colors.safe,
-};
-
-export const triagePriorities = [
-  { value: '1', label: 'Emergency', color: TRIAGE_COLORS_BY_LEVEL[1] },
-  { value: '2', label: 'Priority', color: TRIAGE_COLORS_BY_LEVEL[2] },
-  { value: '3', label: 'Non-urgent', color: TRIAGE_COLORS_BY_LEVEL[3] },
-];
-
-export const immunisationStatusList = [
-  { value: 'On time', label: 'On time', color: TRIAGE_COLORS_BY_LEVEL[3] },
-  { value: 'Late', label: 'Late', color: TRIAGE_COLORS_BY_LEVEL[2] },
-  { value: 'Missing', label: 'Missing', color: TRIAGE_COLORS_BY_LEVEL[1] },
-];
-
 export const operativePlanStatuses = {
   PLANNED: 'planned',
   DROPPED: 'dropped',
