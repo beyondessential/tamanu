@@ -220,7 +220,7 @@ export async function importData(models, file, { whitelist = [] }) {
   // sort by length of needs, so that stuff that doesn't depend on anything else gets done first
   // (as an optimisation, the algorithm doesn't need this, but it saves a few cycles)
   const dataTypes = Object.entries(DEPENDENCIES);
-  dataTypes.sort(([_, a], [_, b]) => (a.needs?.length ?? 0) - (b.needs?.length ?? 0));
+  dataTypes.sort(([_ka, a], [_kb, b]) => (a.needs?.length ?? 0) - (b.needs?.length ?? 0));
 
   log.debug('Importing other data types', { dataTypes });
   const importedData = [];
