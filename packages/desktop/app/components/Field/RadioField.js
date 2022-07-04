@@ -12,6 +12,7 @@ import { Colors } from '../../constants';
 const DEFAULT_LABEL_THEME = {
   color: { default: Colors.outline, selected: Colors.primary },
   background: { default: Colors.white, selected: Colors.offWhite },
+  border: { default: Colors.outline, selected: Colors.primary },
   text: { default: Colors.darkText, selected: Colors.darkestText },
 };
 
@@ -21,21 +22,26 @@ const StyledFormControl = styled(FormControl)`
 `;
 
 const StyledRadioGroup = styled(RadioGroup)`
-  display: grid;
-  grid-auto-flow: ${props => (props.row ? 'row' : 'column')};
-  grid-template-columns: ${props => `repeat(${props.length}, 1fr)`};
-  grid-column-gap: 10px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  flex-direction: row;
 `;
 
 const ControlLabel = styled(FormControlLabel)`
-  margin: 0;
+  flex: ${props => (props.fullWidth ? 1 : 0)};
+  margin: 0 10px 0 0;
   border-radius: 3px;
-  padding: 12px;
+  padding: 12px 20px;
   border: 1px solid
     ${props => (props.selected ? props.theme.border.selected : props.theme.border.default)};
   justify-content: center;
   background: ${props =>
     props.selected ? props.theme.background.selected : props.theme.background.default};
+
+  &:last-child {
+    margin-right: 0;
+  }
 
   .MuiButtonBase-root {
     padding: 0;
@@ -43,7 +49,7 @@ const ControlLabel = styled(FormControlLabel)`
     color: ${props => (props.selected ? props.theme.color.selected : props.theme.color.default)};
 
     svg {
-      font-size: 20px;
+      font-size: 18px;
     }
   }
 
@@ -61,7 +67,7 @@ export const RadioInput = ({
   value,
   label,
   helperText,
-  inline = false,
+  fullWidth,
   style,
   ...props
 }) => (
@@ -69,7 +75,6 @@ export const RadioInput = ({
     <StyledFormControl {...props}>
       <StyledRadioGroup
         length={options.length}
-        row={inline}
         aria-label={name}
         name={name}
         value={value || ''}
@@ -81,6 +86,7 @@ export const RadioInput = ({
             control={<Radio value={option.value} selected={value === option.value} />}
             label={option.label}
             value={option.value}
+            fullWidth={fullWidth}
             selected={value === option.value}
             theme={
               option.color
@@ -100,6 +106,19 @@ export const RadioInput = ({
   </OuterLabelFieldWrapper>
 );
 
+RadioInput.propTypes = {
+  name: PropTypes.string.isRequired,
+  value: PropTypes.string,
+  onChange: PropTypes.func.isRequired,
+  options: PropTypes.arrayOf(PropTypes.instanceOf(Object)).isRequired,
+  fullWidth: PropTypes.bool,
+};
+
+RadioInput.defaultProps = {
+  value: false,
+  fullWidth: false,
+};
+
 export const RadioField = ({ field, error, ...props }) => (
   <RadioInput
     name={field.name}
@@ -109,16 +128,3 @@ export const RadioField = ({ field, error, ...props }) => (
     {...props}
   />
 );
-
-RadioInput.propTypes = {
-  name: PropTypes.string.isRequired,
-  value: PropTypes.string,
-  onChange: PropTypes.func.isRequired,
-  options: PropTypes.arrayOf(PropTypes.instanceOf(Object)).isRequired,
-  inline: PropTypes.bool, // display radio options in single line
-};
-
-RadioInput.defaultProps = {
-  value: false,
-  inline: false,
-};

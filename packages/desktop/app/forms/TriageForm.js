@@ -65,9 +65,9 @@ export const TriageForm = ({ onCancel, editedObject }) => {
           name="score"
           label={<InfoPopupLabel />}
           component={RadioField}
+          fullWidth
           options={triageCategories?.map(x => ({ value: x.level.toString(), ...x })) || []}
           style={{ gridColumn: '1/-1' }}
-          inline
         />
         <FormGrid columns={1} style={{ gridColumn: '1 / -1' }}>
           <Field

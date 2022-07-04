@@ -247,7 +247,6 @@ const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
               onChange={e => {
                 setDataSource(e.target.value);
               }}
-              inline
               options={[
                 { label: 'This facility', value: REPORT_DATA_SOURCES.THIS_FACILITY },
                 { label: 'All facilities', value: REPORT_DATA_SOURCES.ALL_FACILITIES },
