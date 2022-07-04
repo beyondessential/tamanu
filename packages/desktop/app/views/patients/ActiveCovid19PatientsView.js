@@ -73,7 +73,7 @@ const COLUMNS = [
 
 const ENDPOINT = 'patient/program/activeCovid19Patients';
 
-const ActiveCovid19PatientsTable = React.memo(({ data, ...props }) => {
+const Covid19PatientsTable = React.memo(({ data, ...props }) => {
   const dispatch = useDispatch();
   const handleViewPatient = id => dispatch(viewPatient(id));
 
@@ -93,8 +93,17 @@ const Container = styled(StatisticsCardContainer)`
   max-width: 1200px;
 `;
 
-const Dashboard = React.memo(({ data }) => {
-  const patientsByClinicalStatus = groupBy(data, 'clinicalStatus');
+const Covid19PatientsDashboard = () => {
+  const api = useApi();
+  const [patientsByClinicalStatus, setPatientsByClinicalStatus] = useState([]);
+
+  useEffect(() => {
+    (async () => {
+      const response = await api.get(ENDPOINT);
+      setPatientsByClinicalStatus(groupBy(response.data, 'clinicalStatus'));
+    })();
+  }, [api]);
+
   return (
     <Container>
       {Object.entries(CLINICAL_STATUSES).map(([key, clinicalStatus]) => (
@@ -107,27 +116,17 @@ const Dashboard = React.memo(({ data }) => {
       ))}
     </Container>
   );
-});
+};
 
 export const ActiveCovid19PatientsView = React.memo(() => {
-  const api = useApi();
-  const [data, setData] = useState([]);
   const [searchParameters, setSearchParameters] = useState({});
-
-  useEffect(() => {
-    (async () => {
-      const activeCovid19PatientsData = await api.get(ENDPOINT);
-      setData(activeCovid19PatientsData);
-    })();
-  }, [api]);
-
   return (
     <PageContainer>
       <TopBar title="Active COVID-19 patients" />
       <CovidPatientsSearchBar onSearch={setSearchParameters} />
       <ContentPane>
-        <Dashboard data={data} />
-        <ActiveCovid19PatientsTable data={data} fetchOptions={searchParameters} />
+        <Covid19PatientsDashboard />
+        <Covid19PatientsTable fetchOptions={searchParameters} />
       </ContentPane>
     </PageContainer>
   );
