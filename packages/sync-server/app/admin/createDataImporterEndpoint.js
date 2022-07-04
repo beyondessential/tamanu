@@ -1,9 +1,15 @@
 import asyncHandler from 'express-async-handler';
-import { unlink } from 'fs';
 import config from 'config';
+import { unlink } from 'fs';
+import { Sequelize } from 'sequelize';
 
-import { log } from 'shared/services/logging';
 import { getUploadedData } from 'shared/utils/getUploadedData';
+
+class DryRun extends Error {
+  constructor() {
+    super('Dry run: rollback');
+  }
+}
 
 export function createDataImporterEndpoint(importer) {
   return asyncHandler(async (req, res) => {
@@ -17,46 +23,56 @@ export function createDataImporterEndpoint(importer) {
       dryRun = false,
       showRecords = false,
       allowErrors = false,
-      ...metadata
+      ...options
     } = await getUploadedData(req);
-
-    // parse uploaded file
-    const recordSet = await importer({
-      file,
-      ...metadata,
-    });
+    
+    const result = await Sequelize.transaction({
+      // strongest level to be sure to read/write good data
+      isolationLevel: Sequelize.Transaction.ISOLATION_LEVEL.SERIALIZABLE,
+    }, async () => {
+      await importer(store.models, file, options);
+      if (dryRun) throw new DryRun;
+    }).then(resolved => ({ resolved }), rejected => ({ rejected }));
 
     // we don't need the file any more
     if (deleteFileAfterImport) {
       unlink(file, () => null);
     }
+    
+    const duration = (Date.now() - start) / 1000.0;
+    const serverInfo = {
+      host: config.sync.host,
+    };
 
-    // const { recordGroups, ...resultInfo } = await preprocessRecordSet(recordSet);
-
-    const sendResult = (extraData = {}) =>
-      res.send({
-        // ...resultInfo,
-        ...extraData,
-        // records: showRecords ? recordGroups : undefined,
-        serverInfo: {
-          host: config.sync.host,
-        },
-        duration: (Date.now() - start) / 1000.0,
-      });
-
-    // bail out early
-    if (dryRun) {
-      sendResult({ sentData: false, didntSendReason: 'dryRun' });
-      return;
+    if (result.resolved) {
+      if (dryRun) {
+        throw new Error('Data import completed but it was a dry run!!!');
+      } else {
+        res.send({
+          duration,
+          sentData: result.resolved,
+          serverInfo,
+        });
+      }
+    } else if (result.rejected) {
+      if (dryRun && result.rejected instanceof DryRun) {
+        res.send({
+          didntSendReason: 'dryRun',
+          duration,
+          sentData: false,
+          serverInfo,
+        });
+      } else {
+        res.send({
+          didntSendReason: 'validationFailed',
+          duration,
+          errorDetail: result.rejected?.stack ?? result.rejected,
+          sentData: false,
+          serverInfo,
+        });
+      }
+    } else {
+      throw new Error('Bad promise state');
     }
-    if (resultInfo.errors.length > 0 && !allowErrors) {
-      sendResult({ sentData: false, didntSendReason: 'validationFailed' });
-      return;
-    }
-
-    // send to sync server in batches
-    // await importRecordGroups(store.sequelize, recordGroups);
-
-    sendResult({ sentData: true });
   });
 }
