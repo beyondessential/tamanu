@@ -57,6 +57,7 @@ async function connectToDatabase(dbOptions) {
     host = null,
     port = null,
     verbose = false,
+    timeZone = null,
   } = dbOptions;
   let { name, sqlitePath = null } = dbOptions;
 
@@ -89,9 +90,13 @@ async function connectToDatabase(dbOptions) {
           `${util.inspect(query)}; -- ${util.inspect(obj.bind || [], { breakLength: Infinity })}`,
         )
     : null;
-  const options = sqlitePath
+  let options = sqlitePath
     ? { dialect: 'sqlite', dialectModule: sqlite3, storage: sqlitePath }
     : { dialect: 'postgres' };
+  if (timeZone) {
+    // Set up sequelize to read out values in specified timezone
+    options = { ...options, dialectOptions: { useUTC: false }, timezone: timeZone };
+  }
   const sequelize = new Sequelize(name, username, password, {
     ...options,
     host,

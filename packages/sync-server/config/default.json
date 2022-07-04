@@ -487,7 +487,10 @@
       "sync": {
         "syncAllEncountersForTheseScheduledVaccines": []
       },
-      "disabledReports": []
+      "disabledReports": [],
+      // List of reports to be generated with local time (from timeZone field)
+      // All others are generated in UTC
+      "localTimeReports": []
     }
   },
   "reportProcess": {

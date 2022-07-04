@@ -8,6 +8,7 @@ import { EmailService } from '../services/EmailService';
 import { ReportRunner } from '../report/ReportRunner';
 import { initDatabase } from '../database';
 import { setupEnv } from '../env';
+import { getLocalisation } from '../localisation';
 
 const REPORT_HEAP_INTERVAL_MS = 1000;
 
@@ -20,7 +21,13 @@ async function report(options) {
     }, REPORT_HEAP_INTERVAL_MS);
   }
 
-  const store = await initDatabase({ testMode: false });
+  const localisation = await getLocalisation();
+  const { localTimeReports = [], timeZone = null } = localisation;
+
+  const store = await initDatabase({
+    testMode: false,
+    timeZone: localTimeReports.includes(options.name) ? timeZone : null,
+  });
   setupEnv();
   try {
     const { name, parameters, recipients } = options;

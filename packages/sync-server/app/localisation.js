@@ -270,6 +270,7 @@ const rootLocalisationSchema = yup
       .required()
       .noUnknown(),
     disabledReports: yup.array(yup.string().required()).defined(),
+    localTimeReports: yup.array(yup.string().required()).defined(),
   })
   .required()
   .noUnknown();
