@@ -1,11 +1,13 @@
 import { readFile, utils } from 'xlsx';
 import { getJsDateFromExcel } from 'excel-date-to-js';
 import moment from 'moment';
+import { camelCase } from 'lodash';
 
 import { log } from 'shared/services/logging';
 import { ENCOUNTER_TYPES, IMAGING_AREA_TYPES } from 'shared/constants';
+import { ReferenceData } from 'shared/models';
 
-const sanitise = string => string.trim().replace(/[^A-Za-z0-9]+/g, '');
+const normaliseSheetName = string => camelCase(string.replace(/[^a-z0-9]+/g, '-'));
 
 const recordTransformer = type => item => {
   // ignore "note" column
@@ -115,147 +117,134 @@ const makeTransformer = (sheetName, transformer) => {
   };
 };
 
-// define as an array so that we can make guarantees about order
-const transformers = [
-  makeTransformer('facilities', recordTransformer('facility')),
-  makeTransformer('villages', referenceDataTransformer('village')),
-  makeTransformer('manufacturers', referenceDataTransformer('manufacturer')),
-  makeTransformer('drugs', referenceDataTransformer('drug')),
-  makeTransformer('allergies', referenceDataTransformer('allergy')),
-  makeTransformer('departments', recordTransformer('department')),
-  makeTransformer('locations', recordTransformer('location')),
-  makeTransformer('diagnoses', referenceDataTransformer('icd10')),
-  makeTransformer('triageReasons', referenceDataTransformer('triageReason')),
-  makeTransformer(
-    'xRayImagingAreas',
-    referenceDataTransformer(IMAGING_AREA_TYPES.X_RAY_IMAGING_AREA),
-  ),
-  makeTransformer(
-    'ultrasoundImagingAreas',
-    referenceDataTransformer(IMAGING_AREA_TYPES.ULTRASOUND_IMAGING_AREA),
-  ),
-  makeTransformer(
-    'ctScanImagingAreas',
-    referenceDataTransformer(IMAGING_AREA_TYPES.CT_SCAN_IMAGING_AREA),
-  ),
-  makeTransformer(
-    'echocardiogramImagingAreas',
-    referenceDataTransformer(IMAGING_AREA_TYPES.ECHOCARDIOGRAM_IMAGING_AREA),
-  ),
-  makeTransformer('mriImagingAreas', referenceDataTransformer(IMAGING_AREA_TYPES.MRI_IMAGING_AREA)),
-  makeTransformer(
-    'mammogramImagingAreas',
-    referenceDataTransformer(IMAGING_AREA_TYPES.MAMMOGRAM_IMAGING_AREA),
-  ),
-  makeTransformer('ecgImagingAreas', referenceDataTransformer(IMAGING_AREA_TYPES.ECG_IMAGING_AREA)),
-  makeTransformer(
-    'holterMonitorImagingAreas',
-    referenceDataTransformer(IMAGING_AREA_TYPES.HOLTER_MONITOR_IMAGING_AREA),
-  ),
-  makeTransformer(
-    'endoscopyImagingAreas',
-    referenceDataTransformer(IMAGING_AREA_TYPES.ENDOSCOPY_IMAGING_AREA),
-  ),
-  makeTransformer(
-    'fluroscopyImagingAreas',
-    referenceDataTransformer(IMAGING_AREA_TYPES.FLUROSCOPY_IMAGING_AREA),
-  ),
-  makeTransformer(
-    'angiogramImagingAreas',
-    referenceDataTransformer(IMAGING_AREA_TYPES.ANGIOGRAM_IMAGING_AREA),
-  ),
-  makeTransformer(
-    'colonoscopyImagingAreas',
-    referenceDataTransformer(IMAGING_AREA_TYPES.COLONOSCOPY_IMAGING_AREA),
-  ),
-  makeTransformer(
-    'stressTestImagingAreas',
-    referenceDataTransformer(IMAGING_AREA_TYPES.STRESS_TEST_IMAGING_AREA),
-  ),
-  makeTransformer(
-    'vascularStudyImagingAreas',
-    referenceDataTransformer(IMAGING_AREA_TYPES.VASCULAR_STUDY_IMAGING_AREA),
-  ),
-  makeTransformer('procedures', referenceDataTransformer('procedureType')),
-  makeTransformer('careplans', referenceDataTransformer('carePlan')),
-  makeTransformer('ethnicities', referenceDataTransformer('ethnicity')),
-  makeTransformer('nationalities', referenceDataTransformer('nationality')),
-  makeTransformer('divisions', referenceDataTransformer('division')),
-  makeTransformer('subdivisions', referenceDataTransformer('subdivision')),
-  makeTransformer('medicalareas', referenceDataTransformer('medicalArea')),
-  makeTransformer('nursingzones', referenceDataTransformer('nursingZone')),
-  makeTransformer('settlements', referenceDataTransformer('settlement')),
-  makeTransformer('occupations', referenceDataTransformer('occupation')),
-  makeTransformer('religions', referenceDataTransformer('religion')),
-  makeTransformer('countries', referenceDataTransformer('country')),
-  makeTransformer('labTestCategories', referenceDataTransformer('labTestCategory')),
-  makeTransformer('patientBillingType', referenceDataTransformer('patientBillingType')),
-  makeTransformer('labTestPriorities', referenceDataTransformer('labTestPriority')),
-  makeTransformer('labTestLaboratory', referenceDataTransformer('labTestLaboratory')),
-  makeTransformer('labTestMethods', referenceDataTransformer('labTestMethod')),
-  makeTransformer('additionalInvoiceLines', referenceDataTransformer('additionalInvoiceLine')),
-  makeTransformer('users', recordTransformer('user')),
-  makeTransformer('patients', patientDataTransformer),
-  makeTransformer('labTestTypes', recordTransformer('labTestType')),
-  makeTransformer('certifiableVaccines', recordTransformer('certifiableVaccine')),
-  makeTransformer('vaccineSchedules', recordTransformer('scheduledVaccine')),
-  makeTransformer('invoiceLineTypes', recordTransformer('invoiceLineType')),
-  makeTransformer('invoicePriceChangeTypes', recordTransformer('invoicePriceChangeType')),
-  makeTransformer('administeredVaccines', administeredVaccineTransformer()), // should go below patients, users, departments, locations
-  makeTransformer('roles', null),
-  makeTransformer('secondaryIdType', referenceDataTransformer('secondaryIdType')),
-];
+// All reference data is imported first, so that can be assumed for ordering.
+const DEPENDENCIES = {
+  users: {},
+  
+  patients: {
+    transformer: patientDataTransformer,
+    needs: ['users'],
+  },
+
+  certifiableVaccines: {},
+  vaccineSchedules: {},
+  administeredVaccines: {
+    transformer: administeredVaccineTransformer,
+    needs: ['vaccineSchedules', 'users'],
+  },
+
+  labTestTypes: {},
+  invoicePriceChangeTypes: {},
+  invoiceLineTypes: {
+    needs: ['labTestType'],
+  },
+};
 
 export async function importData({ file, whitelist = [] }) {
   log.info(`Importing data definitions from ${file}...`);
-
-  // parse xlsx
+  
+  log.debug('Parse XLSX workbook');
   const workbook = readFile(file);
-  const sheets = Object.entries(workbook.Sheets).reduce(
-    (group, [sheetName, sheet]) => ({
-      ...group,
-      [sanitise(sheetName).toLowerCase()]: sheet,
-    }),
-    {},
-  );
 
-  // set up the importer
-  const importSheet = (sheetName, transformer) => {
-    const sheet = sheets[sheetName.toLowerCase()];
-    const data = utils.sheet_to_json(sheet);
+  log.debug('Normalise all sheet names for lookup');
+  const sheets = new Map;
+  for (const [sheetName, sheet] of Object.entries(workbook.Sheets)) {
+    sheets.set(normaliseSheetName(sheetName), sheet);
+  }
 
-    return data
-      .filter(item => Object.values(item).some(x => x))
-      .map(item => {
-        const transformed = transformer(item);
-        if (!transformed) return null;
+  log.debug('Gather possible types of reference data');
+  const refDataTypes = (await ReferenceData.findAll({
+    attributes: ['type'],
+    group: 'type',
+  })).map(ref => ref.type);
 
-        // transformer can return an object or an array of object
-        return [transformed].flat().map(t => ({
-          sheet: sheetName,
-          row: item.__rowNum__ + 1, // account for 0-based js vs 1-based excel
-          ...t,
-        }));
-      })
-      .flat();
-  };
+  log.debug('Import all reference data', { types: refDataTypes });
+  const importedRef = [];
+  for (const refType of refDataTypes) {
+    log.debug('Look for reference data in sheets', { refType });
+    const sheet = sheets.get(refType);
+    if (!sheet) continue;
+    
+    log.debug('Found a sheet for the reference data', { refType });
+    await loadReferenceData(refType, sheet);
+    importedRef.push(refType);
+  }
+  log.debug('Done importing reference data', { imported: importedRef });
 
-  // figure out which transformers we're actually using
-  const lowercaseWhitelist = whitelist.map(x => x.toLowerCase());
-  const activeTransformers = transformers.filter(({ sheetName, transformer }) => {
-    if (!transformer) return false;
-    if (whitelist.length > 0 && !lowercaseWhitelist.includes(sheetName.toLowerCase())) {
-      return false;
+  // sort by length of needs, so that stuff that doesn't depend on anything else gets done first
+  // (as an optimisation, the algorithm doesn't need this, but it saves a few cycles)
+  const dataTypes = Object.entries(DEPENDENCIES);
+  dataTypes.sort(([_, a], [_, b]) => (a.needs?.length ?? 0) - (b.needs?.length ?? 0));
+
+  log.debug('Importing other data types', { dataTypes });
+  const importedData = [];
+  const droppedData = [];
+  while (dataTypes.length > 0) {
+    const [dataType, { needs = [], transformer = recordTransformer(dataType) }] = dataTypes.shift();
+
+    log.debug('Look for data type in sheets', { dataType });
+    const sheet = sheets.get(dataType);
+    if (!sheet) {
+      log.debug('No sheet for it, drop that data type', { dataType });
+      droppedData.push(dataType);
+      continue;
     }
-    const sheet = sheets[sheetName.toLowerCase()];
-    if (!sheet) return false;
 
-    return true;
-  });
+    log.debug('Found a sheet for the data', { dataType });
 
-  // restructure the parsed data to sync record format
-  return activeTransformers
-    .map(({ sheetName, transformer }) => importSheet(sheetName, transformer))
-    .flat()
-    .filter(x => x);
+    if (needs) {
+      log.debug('Resolve data type needs', { dataType, needs });
+      if (!needs.every(need => importedData.includes(need) || droppedData.includes(need))) {
+        log.debug('Some needs are missing, deferring');
+        dataTypes.push([dataType, { needs, transformer }]);
+        continue;
+      }
+    }
+
+    await loadData(dataType, transformer, sheet);
+    importedData.push(dataType);
+  }
+
+  log.debug('Done importing data', { importedData, droppedData });
 }
+
+
+  // // set up the importer
+  // const importSheet = (sheetName, transformer) => {
+  //   const sheet = sheets[sheetName.toLowerCase()];
+  //   const data = utils.sheet_to_json(sheet);
+
+  //   return data
+  //     .filter(item => Object.values(item).some(x => x))
+  //     .map(item => {
+  //       const transformed = transformer(item);
+  //       if (!transformed) return null;
+
+  //       // transformer can return an object or an array of object
+  //       return [transformed].flat().map(t => ({
+  //         sheet: sheetName,
+  //         row: item.__rowNum__ + 1, // account for 0-based js vs 1-based excel
+  //         ...t,
+  //       }));
+  //     })
+  //     .flat();
+  // };
+
+  // // figure out which transformers we're actually using
+  // const lowercaseWhitelist = whitelist.map(x => x.toLowerCase());
+  // const activeTransformers = transformers.filter(({ sheetName, transformer }) => {
+  //   if (!transformer) return false;
+  //   if (whitelist.length > 0 && !lowercaseWhitelist.includes(sheetName.toLowerCase())) {
+  //     return false;
+  //   }
+  //   const sheet = sheets[sheetName.toLowerCase()];
+  //   if (!sheet) return false;
+
+  //   return true;
+  // });
+
+  // // restructure the parsed data to sync record format
+  // return activeTransformers
+  //   .map(({ sheetName, transformer }) => importSheet(sheetName, transformer))
+  //   .flat()
+  //   .filter(x => x);
