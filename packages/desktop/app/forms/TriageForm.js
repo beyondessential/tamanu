@@ -36,7 +36,7 @@ export const TriageForm = ({ onCancel, editedObject }) => {
   const triageCategories = getLocalisation('triageCategories');
   const locationSuggester = useSuggester('location');
   const practitionerSuggester = useSuggester('practitioner');
-  const triageComplaintSuggester = useSuggester('triageReason');
+  const triageReasonSuggester = useSuggester('triageReason');
 
   const renderForm = ({ submitForm }) => {
     return (
@@ -74,14 +74,14 @@ export const TriageForm = ({ onCancel, editedObject }) => {
             name="chiefComplaintId"
             label="Chief complaint"
             component={AutocompleteField}
-            suggester={triageComplaintSuggester}
+            suggester={triageReasonSuggester}
             required
           />
           <Field
             name="secondaryComplaintId"
             label="Secondary complaint"
             component={AutocompleteField}
-            suggester={triageComplaintSuggester}
+            suggester={triageReasonSuggester}
           />
           <Box mt={1} mb={2}>
             <Field name="vitals" component={NestedVitalsModal} />

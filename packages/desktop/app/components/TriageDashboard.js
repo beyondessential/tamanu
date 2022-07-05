@@ -36,7 +36,7 @@ const useTriageData = () => {
     return () => clearInterval(interval);
   }, [api]);
 
-  return triageCategories.map(category => {
+  return triageCategories?.map(category => {
     const categoryData = data.filter(x => parseInt(x.score) === category.level);
     const averageWaitTime = getAverageWaitTime(categoryData);
     return {
@@ -91,6 +91,10 @@ const CardFooter = ({ averageWaitTime, color }) => {
 
 export const TriageDashboard = () => {
   const data = useTriageData();
+
+  if (!data) {
+    return null;
+  }
 
   return (
     <StatisticsCardContainer>

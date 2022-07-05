@@ -10,18 +10,16 @@ const Section = styled.div`
   border-bottom: 1px solid ${Colors.outline};
 `;
 
-export const TriageListingView = React.memo(() => {
-  return (
-    <PageContainer>
-      <TopBar title="Emergency patients" />
-      <Section>
-        <ContentPane>
-          <TriageDashboard />
-        </ContentPane>
-      </Section>
+export const TriageListingView = () => (
+  <PageContainer>
+    <TopBar title="Emergency patients" />
+    <Section>
       <ContentPane>
-        <TriageTable />
+        <TriageDashboard />
       </ContentPane>
-    </PageContainer>
-  );
-});
+    </Section>
+    <ContentPane>
+      <TriageTable />
+    </ContentPane>
+  </PageContainer>
+);
