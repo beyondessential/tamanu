@@ -29,7 +29,6 @@ const DiagnosisFields = ({ count, icd10Suggester }) => (
     <Field
       name={`diagnosisCertainty${count}`}
       label="Certainty"
-      inline
       component={RadioField}
       options={[
         { value: DIAGNOSIS_CERTAINTY.SUSPECTED, label: 'Suspected' },
