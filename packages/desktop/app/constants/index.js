@@ -357,18 +357,6 @@ export const REPORT_DATA_SOURCES = {
   ALL_FACILITIES: 'allFacilities',
 };
 
-export const CLINICAL_STATUSES = {
-  CRITICAL: 'Critical',
-  NEEDS_REVIEW: 'Needs review',
-  LOW_RISK: 'Low risk',
-};
-
-export const CLINICAL_COLORS_BY_STATUS = {
-  [CLINICAL_STATUSES.CRITICAL]: Colors.alert,
-  [CLINICAL_STATUSES.NEEDS_REVIEW]: Colors.secondary,
-  [CLINICAL_STATUSES.LOW_RISK]: Colors.safe,
-};
-
 export const appointmentTypeOptions = Object.values(APPOINTMENT_TYPES).map(type => ({
   label: type,
   value: type,
