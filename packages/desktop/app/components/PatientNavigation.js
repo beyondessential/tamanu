@@ -20,7 +20,6 @@ const StickyContainer = styled.div`
 const PatientNavigationContainer = styled.div`
   width: 100%;
   background: ${Colors.white};
-  box-shadow: 0px 1px 0px ${Colors.softOutline};
   display: flex;
   height: 50px;
   align-items: center;
