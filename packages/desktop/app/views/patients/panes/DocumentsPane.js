@@ -117,7 +117,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
         />
       </PaneWrapper>
       <DocumentModal
-        open={modalStatus === MODAL_STATES.DOCUMENT_OPEN}
+        open={modalStatus !== MODAL_STATES.CLOSED}
         onClose={handleClose}
         onSubmit={handleSubmit}
         isSubmitting={isSubmitting}

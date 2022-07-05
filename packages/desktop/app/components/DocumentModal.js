@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
 import { Modal, ModalLoader } from './Modal';
 import { DocumentForm } from '../forms/DocumentForm';
+import { ConfirmCancelRow } from './ButtonRow';
 
 const MessageContainer = styled.div`
   margin: 0 auto;
@@ -27,17 +28,6 @@ const Message = styled(Typography)`
   margin-bottom: 30px;
 `;
 
-const ErrorMessage = () => (
-  <MessageContainer>
-    <MessageTitle>Unable to upload file</MessageTitle>
-    <Message>
-      File cannot be uploaded at this time. This may be due to network problems or insufficient
-      storage space on your server. Please try again in a few minutes or contact your system
-      administrator.
-    </Message>
-  </MessageContainer>
-);
-
 export const DocumentModal = React.memo(({ open, onClose, onSubmit, isSubmitting, isError }) => {
   let ModalBody = (
     <DocumentForm actionText="Add" onSubmit={onSubmit} onCancel={onClose} editedObject={document} />
@@ -46,7 +36,19 @@ export const DocumentModal = React.memo(({ open, onClose, onSubmit, isSubmitting
   if (isSubmitting) {
     ModalBody = <ModalLoader loadingText="Please wait while we upload your document" />;
   } else if (isError) {
-    ModalBody = <ErrorMessage />;
+    ModalBody = (
+      <div>
+        <MessageContainer>
+          <MessageTitle>Unable to upload file</MessageTitle>
+          <Message>
+            File cannot be uploaded at this time. This may be due to network problems or
+            insufficient storage space on your server. Please try again in a few minutes or contact
+            your system administrator.
+          </Message>
+        </MessageContainer>
+        <ConfirmCancelRow cancelText="Close" onCancel={onClose} />
+      </div>
+    );
   }
 
   return (
