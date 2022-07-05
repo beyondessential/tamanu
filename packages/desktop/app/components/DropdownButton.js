@@ -47,7 +47,7 @@ const MainButton = styled(Button)`
 `;
 
 const MenuButton = styled(Button)`
-  padding: 8px 7px 8px 0;
+  padding: 9px 7px 9px 0;
   border-radius: 3px;
 
   &.MuiButton-sizeLarge {
@@ -82,7 +82,7 @@ const MenuButton = styled(Button)`
 
 const Popper = styled(MuiPopper)`
   margin-top: 2px;
-  z-index: 1;
+  z-index: 1500;
   min-width: ${props => (props.anchorEl ? `${props.anchorEl.offsetWidth}px` : `${0}`)};
 `;
 

@@ -33,7 +33,7 @@ const StyledButton = styled(MuiButton)`
   font-size: 14px;
   line-height: 16px;
   text-transform: none;
-  padding: 11px 20px 12px;
+  padding: 12px 20px;
   box-shadow: none;
 `;
 

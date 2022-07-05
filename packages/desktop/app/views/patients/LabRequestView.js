@@ -99,6 +99,8 @@ const BackLink = () => {
   const dispatch = useDispatch();
   return (
     <Button
+      color="default"
+      variant="text"
       onClick={() => {
         dispatch(push('/patients/encounter'));
       }}
