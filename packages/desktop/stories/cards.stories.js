@@ -1,35 +1,16 @@
 import React from 'react';
+
 import { storiesOf } from '@storybook/react';
+
+import { StatisticsCard, StatisticsCardContainer } from '../app/components/StatisticsCard';
 import { Card, CardBody, CardHeader, CardDivider, CardItem } from '../app/components';
-import { TriageDashboard } from '../app/components/TriageDashboard';
-import { ApiContext } from '../app/api';
 
-const dummyApi = {
-  get: () => {
-    return {
-      data: [
-        {
-          score: '2',
-          encounterType: 'triage',
-          triageTime: '2022-06-30T22:22:34.875Z',
-        },
-        {
-          score: '2',
-          encounterType: 'triage',
-          triageTime: '2022-06-30T22:22:34.875Z',
-        },
-      ],
-      count: 2,
-    };
-  },
-};
-
-storiesOf('Cards', module).add('TriageDashboard', () => (
-  <ApiContext.Provider value={dummyApi}>
-    <div style={{ margin: '1rem' }}>
-      <TriageDashboard />
-    </div>
-  </ApiContext.Provider>
+storiesOf('Cards', module).add('StatisticsCard', () => (
+  <StatisticsCardContainer>
+    <StatisticsCard title="Emergency" value={28} color="#e67e22" />
+    <StatisticsCard title="Urgent" value={28} color="#2980b9" />
+    <StatisticsCard title="Non Urgent" value={28} color="#27ae60" />
+  </StatisticsCardContainer>
 ));
 
 storiesOf('Cards', module).add('EncounterInfoCard', () => (
