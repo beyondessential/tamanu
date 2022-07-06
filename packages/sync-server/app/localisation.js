@@ -248,13 +248,16 @@ const rootLocalisationSchema = yup
     fields: fieldsSchema,
     templates: templatesSchema,
     timeZone: yup.string().nullable(),
-    triageCategories: yup.array(
-      yup.object({
-        level: yup.number().required(),
-        label: yup.string().required(),
-        color: yup.string().required(),
-      }),
-    ),
+    triageCategories: yup
+      .array(
+        yup.object({
+          level: yup.number().required(),
+          label: yup.string().required(),
+          color: yup.string().required(),
+        }),
+      )
+      .min(3)
+      .max(5),
     previewUvciFormat: yup
       .string()
       .required()
