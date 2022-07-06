@@ -1,12 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
-import { push } from 'connected-react-router';
-
+import { useApi, useSuggester } from '../api';
 import { useLocalisation } from '../contexts/Localisation';
-import { Modal } from './Modal';
-import { Suggester } from '../utils/suggester';
+import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { Colors } from '../constants';
-import { connectApi } from '../api/connectApi';
+
+import { Modal } from './Modal';
 import { TriageForm } from '../forms/TriageForm';
 import { DisplayIdLabel } from './DisplayIdLabel';
 import { DateDisplay } from './DateDisplay';
@@ -49,8 +48,22 @@ const DETAILS_FIELD_DEFINITIONS = [
   ['dateOfBirth', ({ dateOfBirth }) => <DateDisplay date={dateOfBirth} />],
 ];
 
-const DumbTriageModal = React.memo(({ open, patient, onClose, ...rest }) => {
+export const TriageModal = React.memo(({ open, patient, onClose }) => {
   const { displayId } = patient;
+  const { navigateToPatient } = usePatientNavigation();
+  const api = useApi();
+  const practitionerSuggester = useSuggester('practitioner');
+  const locationSuggester = useSuggester('location');
+  const triageComplaintSuggester = useSuggester('triageReason');
+
+  const onSubmit = async data => {
+    await api.post('triage', {
+      ...data,
+      patientId: patient.id,
+    });
+    navigateToPatient(patient.id, 'triage');
+  };
+
   const { getLocalisation } = useLocalisation();
   const detailsFields = DETAILS_FIELD_DEFINITIONS.filter(
     ([name]) => getLocalisation(`fields.${name}.hidden`) !== true,
@@ -70,20 +83,13 @@ const DumbTriageModal = React.memo(({ open, patient, onClose, ...rest }) => {
         </Header>
         <div>{detailsFields}</div>
       </PatientDetails>
-      <TriageForm onCancel={onClose} {...rest} />
+      <TriageForm
+        onCancel={onClose}
+        onSubmit={onSubmit}
+        triageComplaintSuggester={triageComplaintSuggester}
+        practitionerSuggester={practitionerSuggester}
+        locationSuggester={locationSuggester}
+      />
     </Modal>
   );
 });
-
-export const TriageModal = connectApi((api, dispatch, { patient }) => ({
-  onSubmit: async data => {
-    await api.post('triage', {
-      ...data,
-      patientId: patient.id,
-    });
-    dispatch(push('/patients/triage'));
-  },
-  practitionerSuggester: new Suggester(api, 'practitioner'),
-  locationSuggester: new Suggester(api, 'location'),
-  triageComplaintSuggester: new Suggester(api, 'triageReason'),
-}))(DumbTriageModal);

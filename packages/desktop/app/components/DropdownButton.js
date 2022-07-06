@@ -102,7 +102,7 @@ const MenuList = styled(MuiMenuList)`
   }
 `;
 
-export const DropdownButton = React.memo(({ variant, size, actions, ...props }) => {
+export const DropdownButton = React.memo(({ variant, size, actions, style, className }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const anchorRef = useRef(null);
 
@@ -124,7 +124,6 @@ export const DropdownButton = React.memo(({ variant, size, actions, ...props }) 
   if (otherActions.length === 0) {
     return (
       <MainButton
-        {...props}
         variant={variant}
         size={size}
         color="primary"
@@ -139,14 +138,13 @@ export const DropdownButton = React.memo(({ variant, size, actions, ...props }) 
   const isOpen = Boolean(anchorEl);
 
   return (
-    <Container ref={anchorRef}>
+    <Container style={style} className={className} ref={anchorRef}>
       <ButtonGroup
         variant={variant}
         size={size}
         color="primary"
         disableElevation
         style={{ width: '100%' }}
-        {...props}
       >
         <MainButton onClick={event => handleClick(event, 0)}>{mainAction.label}</MainButton>
         <MenuButton onClick={handleToggle}>

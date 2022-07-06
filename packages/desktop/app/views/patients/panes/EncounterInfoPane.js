@@ -12,7 +12,7 @@ import { useReferenceData } from '../../../api/queries';
 
 const getDepartmentName = ({ department }) => (department ? department.name : 'Unknown');
 const getLocationName = ({ location }) => (location ? location.name : 'Unknown');
-const getEncounterType = ({ encounterType }) =>
+export const getEncounterType = ({ encounterType }) =>
   encounterType ? ENCOUNTER_OPTIONS_BY_VALUE[encounterType]?.label : 'Unknown';
 
 export const EncounterInfoPane = React.memo(({ encounter }) => {

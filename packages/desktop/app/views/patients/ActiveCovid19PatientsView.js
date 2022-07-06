@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { push } from 'connected-react-router';
 import { groupBy } from 'lodash';
 import styled from 'styled-components';
 import People from '@material-ui/icons/People';
 import { useApi } from '../../api';
-import { viewPatient } from '../../store/patient';
+import { reloadPatient } from '../../store/patient';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
+import { CLINICAL_STATUSES, CLINICAL_COLORS_BY_STATUS, Colors } from '../../constants';
+
 import {
   TopBar,
   CovidPatientsSearchBar,
@@ -14,7 +17,6 @@ import {
   DateDisplay,
   ContentPane,
 } from '../../components';
-import { CLINICAL_STATUSES, CLINICAL_COLORS_BY_STATUS, Colors } from '../../constants';
 
 const getClinicalStatusCellColor = ({ clinicalStatus }) =>
   CLINICAL_COLORS_BY_STATUS[clinicalStatus];
@@ -101,7 +103,7 @@ const PeopleIcon = styled(People)`
 const StatisticsRow = styled.div`
   display: flex;
   margin: 16px 0 30px;
-  filter: drop-shadow(2px 2px 25px rgba(0, 0, 0, 0.1));
+  box-shadow: 2px 2px 25px rgba(0, 0, 0, 0.1);
 `;
 
 const ENDPOINT = 'patient/program/activeCovid19Patients';
@@ -130,7 +132,10 @@ const PriorityDisplay = React.memo(({ clinicalStatus }) => (
 
 const ActiveCovid19PatientsTable = React.memo(({ data, ...props }) => {
   const dispatch = useDispatch();
-  const handleViewPatient = id => dispatch(viewPatient(id));
+  const handleViewPatient = async id => {
+    await dispatch(reloadPatient(id));
+    dispatch(push(`/patients/all/${id}`));
+  };
 
   return (
     <DataFetchingTable

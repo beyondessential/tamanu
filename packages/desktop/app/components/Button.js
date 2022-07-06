@@ -198,7 +198,11 @@ export const TextButton = ({ children, ...props }) => (
 
 const StyledNavButton = styled(TextButton)`
   color: ${Colors.primary};
-  font-size: 14px;
+  padding-right: 8px;
+  font-size: 12px;
+  & svg {
+    font-size: 20px;
+  }
 `;
 
 export const ForwardButton = ({ children, ...props }) => (

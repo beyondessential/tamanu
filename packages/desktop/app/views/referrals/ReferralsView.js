@@ -9,7 +9,6 @@ import { FormGrid } from 'desktop/app/components/FormGrid';
 import { SURVEY_TYPES } from 'shared/constants';
 
 import { SurveySelector } from '../programs/SurveySelector';
-import { PatientDisplay } from '../programs/PatientDisplay';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from '../programs/ProgramsPane';
 import { getCurrentUser } from '../../store';
 import { getAnswersFromData, getActionsFromData } from '../../utils';
@@ -56,24 +55,20 @@ const ReferralFlow = ({ patient, currentUser }) => {
 
   if (!referralSurvey) {
     return (
-      <>
-        <PatientDisplay />
-        <ProgramsPane>
-          <ProgramsPaneHeader>
-            <ProgramsPaneHeading variant="h6">Select a referral</ProgramsPaneHeading>
-          </ProgramsPaneHeader>
-          <FormGrid columns={1}>
-            <SurveySelector
-              onSelectSurvey={setSelectedReferral}
-              surveys={referralSurveys}
-              buttonText="Begin referral"
-            />
-          </FormGrid>
-        </ProgramsPane>
-      </>
+      <ProgramsPane>
+        <ProgramsPaneHeader>
+          <ProgramsPaneHeading variant="h6">Select a referral</ProgramsPaneHeading>
+        </ProgramsPaneHeader>
+        <FormGrid columns={1}>
+          <SurveySelector
+            onSelectSurvey={setSelectedReferral}
+            surveys={referralSurveys}
+            buttonText="Begin referral"
+          />
+        </FormGrid>
+      </ProgramsPane>
     );
   }
-
   return (
     <SurveyView
       onSubmit={submitReferral}
