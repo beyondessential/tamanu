@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
+import styled from 'styled-components';
 
 import { useParams } from 'react-router-dom';
 import { TabDisplay } from '../../components/TabDisplay';
@@ -20,9 +21,21 @@ import {
   ReferralPane,
   InvoicesPane,
 } from './panes';
+import { Colors } from '../../constants';
+import { NAVIGATION_CONTAINER_HEIGHT } from '../../components/PatientNavigation';
 
 const getConnectRoutedModal = ({ category, patientId }, suffix) =>
   connectRoutedModal(`/patients/${category}/${patientId}`, suffix);
+
+const StyledDisplayTabs = styled(TabDisplay)`
+  overflow: initial;
+  .MuiTabs-root {
+    z-index: 9;
+    position: sticky;
+    top: ${NAVIGATION_CONTAINER_HEIGHT};
+    border-bottom: 1px solid ${Colors.softOutline};
+  }
+`;
 
 const TABS = [
   {
@@ -101,7 +114,7 @@ export const PatientView = () => {
   return (
     <>
       <PatientAlert alerts={patient.alerts} />
-      <TabDisplay
+      <StyledDisplayTabs
         tabs={visibleTabs}
         currentTab={currentTab}
         onTabSelect={setCurrentTab}

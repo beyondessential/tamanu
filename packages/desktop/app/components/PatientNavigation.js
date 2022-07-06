@@ -5,11 +5,16 @@ import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { BackButton } from './Button';
 import { PatientBreadcrumbs } from './PatientBreadcrumbs';
 
-const PatientNavigationContainer = styled.div`
+export const NAVIGATION_CONTAINER_HEIGHT = '50px';
+
+const StickyContainer = styled.div`
   width: 100%;
-  background: #ffffff;
+  background: ${Colors.white};
   display: flex;
-  height: 50px;
+  z-index: 9;
+  position: sticky;
+  top: 0;
+  height: ${NAVIGATION_CONTAINER_HEIGHT};
   align-items: center;
   padding-left: 30px;
   padding-right: 30px;
@@ -26,10 +31,10 @@ const VerticalDivider = styled.div`
 export const PatientNavigation = ({ patientRoutes }) => {
   const { navigateBack } = usePatientNavigation();
   return (
-    <PatientNavigationContainer>
+    <StickyContainer>
       <BackButton onClick={navigateBack} />
       <VerticalDivider />
       <PatientBreadcrumbs patientRoutes={patientRoutes} />
-    </PatientNavigationContainer>
+    </StickyContainer>
   );
 };

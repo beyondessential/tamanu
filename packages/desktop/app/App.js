@@ -2,6 +2,7 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import 'typeface-roboto';
+import { Colors } from './constants';
 
 import { checkIsLoggedIn } from './store/auth';
 import { getCurrentRoute } from './store/router';
@@ -19,6 +20,7 @@ const AppContentsContainer = styled.div`
   height: 100vh;
   overflow: auto;
   flex: 1;
+  border-top: 1px solid ${Colors.softOutline};
 `;
 
 export function App({ sidebar, children }) {
