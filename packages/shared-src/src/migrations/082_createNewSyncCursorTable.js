@@ -1,11 +1,7 @@
 import { STRING, DATE, NOW, UUIDV4 } from 'sequelize';
 
 export async function up(query) {
-  await query.dropTable('channel_sync_pull_cursors');
-}
-
-export async function down(query) {
-  await query.createTable('channel_sync_pull_cursors', {
+  await query.createTable('sync_cursors', {
     id: {
       type: STRING,
       defaultValue: UUIDV4,
@@ -26,13 +22,18 @@ export async function down(query) {
       type: DATE,
       allowNull: true,
     },
-    channel: {
+    direction: {
       type: STRING,
       allowNull: false,
     },
-    pull_cursor: {
-      type: STRING,
+    cursor: {
+      type: DATE,
       allowNull: true,
+      defaultValue: 0,
     },
   });
+}
+
+export async function down(query) {
+  await query.dropTable('sync_cursors');
 }
