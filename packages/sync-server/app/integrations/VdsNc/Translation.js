@@ -1,6 +1,7 @@
 import moment from 'moment';
 import { transliterate as tr } from 'transliteration';
 import { getLocalisation } from '../../localisation';
+import { getDisplayDate } from 'shared/utils/patientCertificates/getDisplayDate';
 
 const SEX_TO_CHAR = {
   male: 'M',
@@ -121,9 +122,7 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
     } = dose;
 
     const event = {
-      dvc: moment(date)
-        .utc()
-        .format(MOMENT_FORMAT_ISODATE),
+      dvc: getDisplayDate(date, MOMENT_FORMAT_ISODATE),
       seq: SCHEDULE_TO_SEQUENCE[schedule] ?? SEQUENCE_MAX + 1,
       ctr: countryCode,
       lot: batch || 'Unknown', // If batch number was not recorded, we add a indicative string value to complete ICAO validation
@@ -269,7 +268,7 @@ function pid(firstName, lastName, dateOfBirth, sex) {
 
   const data = {
     n: name,
-    dob: moment(dateOfBirth).format(MOMENT_FORMAT_ISODATE),
+    dob: getDisplayDate(dateOfBirth, MOMENT_FORMAT_ISODATE),
   };
 
   if (sex && SEX_TO_CHAR[sex]) {
