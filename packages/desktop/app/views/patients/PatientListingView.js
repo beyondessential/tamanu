@@ -1,6 +1,5 @@
 import React, { useState, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
-import styled from 'styled-components';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { reloadPatient } from '../../store/patient';
 
@@ -27,12 +26,6 @@ import {
   location,
   department,
 } from './columns';
-
-const StyledTopBar = styled(TopBar)`
-  position: sticky;
-  top: 0;
-  z-index: 9;
-`;
 
 const PATIENT_SEARCH_ENDPOINT = 'patient';
 
@@ -132,9 +125,9 @@ export const PatientListingView = ({ onViewPatient }) => {
   const [searchParameters, setSearchParameters] = useState({});
   return (
     <PageContainer>
-      <StyledTopBar title="Patient listing">
+      <TopBar title="Patient listing">
         <NewPatientButton onCreateNewPatient={onViewPatient} />
-      </StyledTopBar>
+      </TopBar>
       <AllPatientsSearchBar onSearch={setSearchParameters} />
       <ContentPane>
         <PatientTable
@@ -151,7 +144,7 @@ export const AdmittedPatientsView = () => {
   const [searchParameters, setSearchParameters] = useState({});
   return (
     <PageContainer>
-      <StyledTopBar title="Admitted patient listing" />
+      <TopBar title="Admitted patient listing" />
       <PatientSearchBar onSearch={setSearchParameters} />
       <ContentPane>
         <PatientTable
@@ -168,7 +161,7 @@ export const OutpatientsView = () => {
   const [searchParameters, setSearchParameters] = useState({});
   return (
     <PageContainer>
-      <StyledTopBar title="Outpatient listing" />
+      <TopBar title="Outpatient listing" />
       <PatientSearchBar onSearch={setSearchParameters} />
       <ContentPane>
         <PatientTable

@@ -29,14 +29,16 @@ const BreadcrumbLink = styled(Typography)`
   }
 `;
 
-const Breadcrumb = ({ onClick, children }) => (
-  <BreadcrumbLink underline="hover" color="inherit" onClick={onClick}>
+const Breadcrumb = ({ onClick, children, path }) => (
+  <BreadcrumbLink key={`breadcrumb-${path}`} underline="hover" color="inherit" onClick={onClick}>
     {children}
   </BreadcrumbLink>
 );
 
-const getBreadcrumbFromRoute = ({ navigateTo, title }) => (
-  <Breadcrumb onClick={navigateTo}>{title}</Breadcrumb>
+const getBreadcrumbFromRoute = ({ navigateTo, title, path }) => (
+  <Breadcrumb path={path} onClick={navigateTo}>
+    {title}
+  </Breadcrumb>
 );
 
 export const PatientBreadcrumbs = ({ patientRoutes }) => {
