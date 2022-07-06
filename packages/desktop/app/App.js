@@ -14,13 +14,13 @@ import { ForbiddenErrorModal } from './components/ForbiddenErrorModal';
 const AppContainer = styled.div`
   display: flex;
   background: #f7f9fb;
-  border-top: 1px solid ${Colors.softOutline};
 `;
 
 const AppContentsContainer = styled.div`
   height: 100vh;
   overflow: auto;
   flex: 1;
+  border-top: 1px solid ${Colors.softOutline};
 `;
 
 export function App({ sidebar, children }) {
