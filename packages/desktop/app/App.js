@@ -2,6 +2,7 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import 'typeface-roboto';
+import { Colors } from './constants';
 
 import { checkIsLoggedIn } from './store/auth';
 import { getCurrentRoute } from './store/router';
@@ -13,6 +14,7 @@ import { ForbiddenErrorModal } from './components/ForbiddenErrorModal';
 const AppContainer = styled.div`
   display: flex;
   background: #f7f9fb;
+  border-top: 1px solid ${Colors.softOutline};
 `;
 
 const AppContentsContainer = styled.div`

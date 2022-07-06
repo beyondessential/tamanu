@@ -14,6 +14,7 @@ import { checkAbility } from '../../utils/ability';
 import { useAuth } from '../../contexts/Auth';
 
 const Container = styled.div`
+  margin-top: -1px;
   display: flex;
   flex-direction: column;
   background: ${Colors.primaryDark};

@@ -84,7 +84,9 @@ export const PatientRoutes = React.memo(() => {
   return (
     <TwoColumnDisplay>
       <PatientInfoPane />
-      <div style={{ overflow: 'hidden' }}>
+      {/* Using contain:strict along with overflow: auto here allows sticky navigation section
+      to have correct scrollable behavior in relation to the patient info pane and switch components */}
+      <div style={{ contain: 'strict', overflow: 'auto' }}>
         <PatientNavigation patientRoutes={patientRoutes} />
         <Switch>
           {patientRoutes.map(route => (
