@@ -67,7 +67,7 @@ Tab.defaultProps = {
   selected: false,
 };
 
-export const Tabs = ({ value, onChange, tabs, children, className = '' }) => {
+export const Tabs = ({ value, onChange, tabs, children, className }) => {
   return (
     <TabBar className={className}>
       <TabContainer variant="scrollable" scrollButtons="on" value={value}>
