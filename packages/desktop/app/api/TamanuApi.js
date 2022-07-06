@@ -127,7 +127,7 @@ export class TamanuApi {
     const user = await this.get('user/me');
     this.user = user;
     const ability = buildAbilityForUser(user, permissions);
-    
+
     return { user, token, localisation, server, ability };
   }
 
@@ -210,7 +210,7 @@ export class TamanuApi {
 
     // handle forbidden error and trigger catch all modal
     if (response.status === 403 && error && this.reduxStore) {
-      return this.reduxStore.dispatch(setForbiddenError(error));
+      this.reduxStore.dispatch(setForbiddenError(error));
     }
 
     // handle auth expiring

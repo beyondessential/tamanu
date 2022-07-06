@@ -93,9 +93,13 @@ export const DataFetchingMedicationTable = () => {
   const dispatch = useDispatch();
   const onMedicationSelect = useCallback(
     async medication => {
-      await dispatch(reloadPatient(medication.encounter.patientId));
       await loadEncounter(medication.encounter.id);
-      dispatch(push(`/patients/encounter?tab=${ENCOUNTER_TAB_NAMES.MEDICATION}`));
+      await dispatch(reloadPatient(medication.encounter.patientId));
+      dispatch(
+        push(
+          `/patients/all/${medication.encounter.patientId}/encounter/${medication.encounter.id}?tab=${ENCOUNTER_TAB_NAMES.MEDICATION}`,
+        ),
+      );
     },
     [loadEncounter, dispatch],
   );

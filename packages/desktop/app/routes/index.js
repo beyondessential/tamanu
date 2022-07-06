@@ -1,11 +1,11 @@
+export { PatientRoutes } from './PatientRoutes';
 export { PatientsRoutes } from './PatientsRoutes';
-export { SchedulingRoutes } from './SchedulingRoutes';
+export { AppointmentRoutes } from './AppointmentRoutes';
 export { ImagingRoutes } from './ImagingRoutes';
 export { MedicationRoutes } from './MedicationRoutes';
 export { LabsRoutes } from './LabsRoutes';
 export { BillingRoutes } from './BillingRoutes';
 export { AdministrationRoutes } from './AdministrationRoutes';
 export { ProgramsRoutes } from './ProgramsRoutes';
-export { ReferralsRoutes } from './ReferralsRoutes';
 export { ReportsRoutes } from './ReportsRoutes';
 export { ImmunisationRoutes } from './ImmunisationRoutes';

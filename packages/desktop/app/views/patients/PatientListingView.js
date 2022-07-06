@@ -1,6 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
-import { viewPatient } from '../../store/patient';
+import { usePatientNavigation } from '../../utils/usePatientNavigation';
+import { reloadPatient } from '../../store/patient';
+
 import {
   TopBar,
   PageContainer,
@@ -49,20 +51,21 @@ const INPATIENT_COLUMNS = [markedForSync, displayId, firstName, lastName, sex, d
   // location and department should be sortable
   .concat([location, department]);
 
-const PatientTable = ({ onViewPatient, columns, fetchOptions, searchParameters }) => {
+const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
+  const { navigateToPatient } = usePatientNavigation();
   const dispatch = useDispatch();
   const fetchOptionsWithSearchParameters = { ...searchParameters, ...fetchOptions };
+
+  const handleViewPatient = async row => {
+    await dispatch(reloadPatient(row.id));
+    navigateToPatient(row.id);
+  };
+
   return (
     <DataFetchingTable
       columns={columns}
       noDataMessage="No patients found"
-      onRowClick={row => {
-        if (onViewPatient) {
-          onViewPatient(row.id);
-        } else {
-          dispatch(viewPatient(row.id));
-        }
-      }}
+      onRowClick={handleViewPatient}
       rowStyle={({ patientStatus }) =>
         patientStatus === 'deceased' ? '& > td:not(:first-child) { color: #ed333a; }' : ''
       }
@@ -73,6 +76,7 @@ const PatientTable = ({ onViewPatient, columns, fetchOptions, searchParameters }
 };
 
 const NewPatientButton = ({ onCreateNewPatient }) => {
+  const { navigateToPatient } = usePatientNavigation();
   const [isCreatingPatient, setCreatingPatient] = useState(false);
   const [isBirth, setIsBirth] = useState(false);
   const dispatch = useDispatch();
@@ -88,6 +92,16 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
     setIsBirth(true);
   }, []);
 
+  const handleCreateNewPatient = async newPatient => {
+    setCreatingPatient(false);
+    if (onCreateNewPatient) {
+      onCreateNewPatient(newPatient.id);
+    } else {
+      await dispatch(reloadPatient(newPatient.id));
+    }
+    navigateToPatient(newPatient.id);
+  };
+
   return (
     <>
       <DropdownButton
@@ -101,14 +115,7 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
         isBirth={isBirth}
         open={isCreatingPatient}
         onCancel={hideModal}
-        onCreateNewPatient={newPatient => {
-          setCreatingPatient(false);
-          if (onCreateNewPatient) {
-            onCreateNewPatient(newPatient.id);
-          } else {
-            dispatch(viewPatient(newPatient.id));
-          }
-        }}
+        onCreateNewPatient={handleCreateNewPatient}
       />
     </>
   );
