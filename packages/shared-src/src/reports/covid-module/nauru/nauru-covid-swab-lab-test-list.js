@@ -58,6 +58,10 @@ const reportColumnTemplate = [
     accessor: data => data.laboratoryOfficer,
   },
   {
+    title: 'Sample collection date',
+    accessor: data => format(new Date(data.sampleTime), 'yyyy/MM/dd'),
+  },
+  {
     title: 'Sample collection time',
     accessor: data => format(new Date(data.sampleTime), 'hh:mm a'),
   },
