@@ -66,7 +66,11 @@ const ModalContent = React.memo(({ open, onClose, onMarkRecordedInError, vaccine
             label="Facility"
           />
           {givenBy && <TextInput disabled value={givenBy} label="Giver" />}
-          <TextInput disabled value={recorder?.displayName || encounter?.examiner?.displayName} label="Recorder" />
+          <TextInput
+            disabled
+            value={recorder?.displayName || encounter?.examiner?.displayName}
+            label="Recorder"
+          />
         </FormGrid>
         <Button onClick={() => setConfirmDelete(true)} variant="contained" color="primary">
           DELETE RECORD

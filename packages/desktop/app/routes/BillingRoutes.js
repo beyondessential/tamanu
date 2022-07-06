@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, Switch } from 'react-router-dom';
+import { Redirect, Route, Switch } from 'react-router-dom';
 
 import { NotActiveView } from '../views';
 
@@ -17,6 +17,7 @@ export const BillingRoutes = React.memo(({ match }) => (
       <Route exact path={`${match.path}/pricing/procedure`} component={NotActiveView} />
       <Route exact path={`${match.path}/pricing/ward`} component={NotActiveView} />
       <Route exact path={`${match.path}/pricing/profiles`} component={NotActiveView} />
+      <Redirect to={match.path} />
     </Switch>
   </div>
 ));

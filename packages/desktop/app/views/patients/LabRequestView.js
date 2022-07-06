@@ -1,17 +1,16 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { connect, useDispatch } from 'react-redux';
-import { push } from 'connected-react-router';
+import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
+import { usePatientNavigation } from '../../utils/usePatientNavigation';
+import { useLabRequest } from '../../contexts/LabRequest';
+import { useApi, useSuggester } from '../../api';
+import { useCertificate } from '../../utils/useCertificate';
 
-import { Button, DeleteButton } from '../../components/Button';
+import { DeleteButton } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { PatientInfoPane } from '../../components/PatientInfoPane';
-import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { DataFetchingTable } from '../../components/Table';
 import { ManualLabResultModal } from '../../components/ManualLabResultModal';
-
-import { TopBar } from '../../components/TopBar';
 import { FormGrid } from '../../components/FormGrid';
 import {
   SelectInput,
@@ -22,20 +21,15 @@ import {
 } from '../../components/Field';
 import { ConfirmCancelRow } from '../../components/ButtonRow';
 import { ConfirmModal } from '../../components/ConfirmModal';
-
-import { LAB_REQUEST_STATUS_LABELS } from '../../constants';
-
-import { capitaliseFirstLetter } from '../../utils/capitalise';
-import { getCompletedDate, getMethod } from '../../utils/lab';
+import { LabRequestPrintout } from '../../components/PatientPrinting/LabRequestPrintout';
+import { DropdownButton } from '../../components/DropdownButton';
 import { Modal } from '../../components/Modal';
 import { LabRequestNoteForm } from '../../forms/LabRequestNoteForm';
 import { LabRequestAuditPane } from '../../components/LabRequestAuditPane';
-import { useLabRequest } from '../../contexts/LabRequest';
-import { useApi, useSuggester } from '../../api';
 
-import { LabRequestPrintout } from '../../components/PatientPrinting/LabRequestPrintout';
-import { useCertificate } from '../../utils/useCertificate';
-import { DropdownButton } from '../../components/DropdownButton';
+import { LAB_REQUEST_STATUS_LABELS } from '../../constants';
+import { capitaliseFirstLetter } from '../../utils/capitalise';
+import { getCompletedDate, getMethod } from '../../utils/lab';
 
 const makeRangeStringAccessor = sex => ({ labTestType }) => {
   const max = sex === 'male' ? labTestType.maleMax : labTestType.femaleMax;
@@ -95,18 +89,6 @@ const ResultsPane = React.memo(({ labRequest, patient }) => {
   );
 });
 
-const BackLink = () => {
-  const dispatch = useDispatch();
-  return (
-    <Button
-      onClick={() => {
-        dispatch(push('/patients/encounter'));
-      }}
-    >
-      &lt; Back to encounter information
-    </Button>
-  );
-};
 const ChangeLabStatusModal = ({ status: currentStatus, updateLabReq, open, onClose }) => {
   const [status, setStatus] = useState(currentStatus);
   const updateLabStatus = useCallback(async () => {
@@ -170,15 +152,15 @@ const ChangeLaboratoryModal = ({ laboratory, updateLabReq, open, onClose }) => {
   );
 };
 
-const DeleteRequestModal = ({ labRequestId, updateLabReq, open, onClose }) => {
-  const dispatch = useDispatch();
+const DeleteRequestModal = ({ updateLabReq, open, onClose }) => {
+  const { navigateToEncounter } = usePatientNavigation();
   const deleteLabRequest = useCallback(async () => {
     await updateLabReq({
       status: 'deleted',
     });
     onClose();
-    dispatch(push('/patients/encounter'));
-  }, [updateLabReq, onClose, dispatch]);
+    navigateToEncounter();
+  }, [updateLabReq, onClose, navigateToEncounter]);
 
   return (
     <>
@@ -307,7 +289,7 @@ const LabRequestActionDropdown = ({ labRequest, patient, updateLabReq }) => {
         open={labModalOpen}
         onClose={() => setLabModalOpen(false)}
       />
-      <DropdownButton actions={actions} />
+      <DropdownButton style={{ marginBottom: '30px' }} actions={actions} />
     </>
   );
 };
@@ -326,45 +308,40 @@ const LabRequestInfoPane = ({ labRequest, refreshLabRequest }) => (
   </FormGrid>
 );
 
-export const DumbLabRequestView = React.memo(({ patient }) => {
+export const LabRequestView = () => {
   const { isLoading, labRequest, updateLabRequest, loadLabRequest } = useLabRequest();
+  const { navigateToLabRequest } = usePatientNavigation();
+  const patient = useSelector(state => state.patient);
+
   const updateLabReq = useCallback(
     async data => {
       await updateLabRequest(labRequest.id, data);
+      navigateToLabRequest(labRequest.id);
     },
-    [labRequest, updateLabRequest],
+    [labRequest, updateLabRequest, navigateToLabRequest],
   );
   const refreshLabRequest = useCallback(async () => {
     await loadLabRequest(labRequest.id);
-  }, [labRequest.id, loadLabRequest]);
+    navigateToLabRequest(labRequest.id);
+  }, [labRequest.id, loadLabRequest, navigateToLabRequest]);
 
   if (isLoading) return <LoadingIndicator />;
   return (
-    <TwoColumnDisplay>
-      <PatientInfoPane patient={patient} />
-      <div>
-        <TopBar title="Lab request">
-          <LabRequestActionDropdown
-            labRequest={labRequest}
-            patient={patient}
-            updateLabReq={updateLabReq}
-          />
-        </TopBar>
-        <BackLink />
-        <ContentPane>
-          <LabRequestInfoPane labRequest={labRequest} refreshLabRequest={refreshLabRequest} />
-        </ContentPane>
-        <ContentPane>
-          <ResultsPane labRequest={labRequest} patient={patient} />
-        </ContentPane>
-        <ContentPane>
-          <LabRequestAuditPane labRequest={labRequest} />
-        </ContentPane>
-      </div>
-    </TwoColumnDisplay>
+    <div>
+      <ContentPane>
+        <LabRequestActionDropdown
+          labRequest={labRequest}
+          patient={patient}
+          updateLabReq={updateLabReq}
+        />
+        <LabRequestInfoPane labRequest={labRequest} refreshLabRequest={refreshLabRequest} />
+      </ContentPane>
+      <ContentPane>
+        <ResultsPane labRequest={labRequest} patient={patient} />
+      </ContentPane>
+      <ContentPane>
+        <LabRequestAuditPane labRequest={labRequest} />
+      </ContentPane>
+    </div>
   );
-});
-
-export const LabRequestView = connect(state => ({
-  patient: state.patient,
-}))(DumbLabRequestView);
+};
