@@ -8,7 +8,7 @@ export const addPatientMarkForSyncHook = context => {
           log.debug(
             `[syncWhenMarkedForSync] patient ${patient.id} was newly marked for sync, syncing immediately...`,
           );
-          await context.syncManager.runSync(patient.id);
+          await context.syncManager.syncPatient(patient.id);
         }
       } catch (e) {
         log.warn(`[syncWhenMarkedForSync] patient ${patient.id} failed to sync: ${e.stack}`);

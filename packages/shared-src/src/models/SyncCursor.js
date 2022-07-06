@@ -25,17 +25,14 @@ export class SyncCursor extends Model {
     );
   }
 
-  useCursor(direction) {
-    const getCursor = async () => {
-      const { cursor } = await this.findOrCreate({ where: { direction } });
-      return cursor;
-    };
+  async useCursor(direction) {
+    const { cursor } = await this.findOrCreate({ where: { direction } });
 
     const setCursor = async newCursorValue => {
       await this.update({ cursor: newCursorValue }, { where: { direction } });
     };
 
-    return [getCursor, setCursor];
+    return [cursor, setCursor];
   }
 
   useOutgoingCursor() {

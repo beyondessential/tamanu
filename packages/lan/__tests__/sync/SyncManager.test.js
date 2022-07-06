@@ -125,7 +125,7 @@ describe('SyncManager', () => {
       });
 
       // act
-      await ctx.syncManager.runSync();
+      await ctx.syncManager.triggerSync();
 
       // assert
       expect(await ctx.models.Program.findByPk(program.id)).toEqual(null);
