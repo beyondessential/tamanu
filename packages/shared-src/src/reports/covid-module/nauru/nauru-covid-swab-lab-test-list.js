@@ -1,3 +1,4 @@
+import { format } from 'date-fns';
 import { baseDataGenerator } from '../covid-swab-lab-test-list';
 
 const SURVEY_ID = 'program-naurucovid19-naurucovidtestregistration';
@@ -58,7 +59,7 @@ const reportColumnTemplate = [
   },
   {
     title: 'Sample collection time',
-    accessor: data => data.x,
+    accessor: data => format(new Date(data.sampleTime), 'hh:mm a'),
   },
   ...Object.keys(SURVEY_QUESTION_CODES).map(name => ({
     title: name,
