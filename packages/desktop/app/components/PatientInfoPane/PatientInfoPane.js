@@ -1,27 +1,23 @@
 import React, { memo, useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-
 import { PATIENT_ISSUE_TYPES } from 'shared/constants';
-import { OutlinedButton } from './Button';
-
+import { OutlinedButton } from '../Button';
 import { InfoPaneList } from './InfoPaneList';
 import { CoreInfoDisplay } from './PatientCoreInfo';
-import { PatientAlert } from './PatientAlert';
-import { PatientPrintDetailsModal } from './PatientPrinting';
-
+import { PatientAlert } from '../PatientAlert';
+import { PatientPrintDetailsModal } from '../PatientPrinting';
 import {
   AllergyForm,
   OngoingConditionForm,
   FamilyHistoryForm,
   PatientCarePlanForm,
   PatientIssueForm,
-} from '../forms';
-import { DeathModal } from './DeathModal';
-import { Colors } from '../constants';
-
+} from '../../forms';
+import { DeathModal } from '../DeathModal';
+import { Colors } from '../../constants';
 import { PatientCarePlanDetails } from './PatientCarePlanNotes';
-import { useLocalisation } from '../contexts/Localisation';
+import { useLocalisation } from '../../contexts/Localisation';
 
 const OngoingConditionDisplay = memo(({ patient, readonly }) => (
   <InfoPaneList

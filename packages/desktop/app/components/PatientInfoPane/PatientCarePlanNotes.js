@@ -1,9 +1,9 @@
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { connectApi } from '../api';
-import { CarePlanNoteDisplay } from './CarePlanNoteDisplay';
-import { CarePlanNoteForm } from './CarePlanNoteForm';
+import { useApi } from '../../api';
+import { CarePlanNoteDisplay } from '../CarePlanNoteDisplay';
+import { CarePlanNoteForm } from '../CarePlanNoteForm';
 
 const Container = styled.div`
   min-height: 50vh;
@@ -41,14 +41,15 @@ function EditableNoteDisplay({ onSuccessfulSubmit, onNoteDeleted, ...rest }) {
   );
 }
 
-function DumbPatientCarePlanDetails({ getNotes, item }) {
+export const PatientCarePlanDetails = React.memo(({ item }) => {
   const [firstNote, setFirstNote] = useState();
   const [subsequentNotes, setSubsequentNotes] = useState([]);
   const [resetForm, setResetForm] = useState(0);
   const [reloadNotes, setReloadNotes] = useState(0);
+  const api = useApi();
 
   useEffect(() => {
-    getNotes(item.id).then(notes => {
+    api.get(`patientCarePlan/${item.id}/notes`).then(notes => {
       if (notes.length) {
         // first note is the main care plan
         setFirstNote(notes[0]);
@@ -61,7 +62,7 @@ function DumbPatientCarePlanDetails({ getNotes, item }) {
         }
       }
     });
-  }, [item.id, getNotes, reloadNotes]);
+  }, [api, item.id, reloadNotes]);
 
   return (
     <Container>
@@ -108,8 +109,4 @@ function DumbPatientCarePlanDetails({ getNotes, item }) {
       ) : null}
     </Container>
   );
-}
-
-export const PatientCarePlanDetails = connectApi(api => ({
-  getNotes: async patientCarePlanId => api.get(`patientCarePlan/${patientCarePlanId}/notes`),
-}))(DumbPatientCarePlanDetails);
+});
