@@ -2,9 +2,9 @@ import { importData } from '../app/admin/importDataDefinition';
 import { preprocessRecordSet } from '../app/admin/preprocessRecordSet';
 import { sendRecordGroups } from '../app/admin/createDataImporterEndpoint';
 import { createTestContext } from './utilities';
-import { WebRemote } from '../app/sync/WebRemote';
+import { CentralServerConnection } from '../app/sync/CentralServerConnection';
 
-jest.mock('../app/sync/WebRemote');
+jest.mock('../app/sync/CentralServerConnection');
 
 const TEST_DATA_PATH = './__tests__/importers/test_definitions.xlsx';
 
@@ -137,7 +137,7 @@ describe('Data definition import', () => {
 
 describe('sendRecordGroups', () => {
   const fetchMock = jest
-    .spyOn(WebRemote.prototype, 'fetch')
+    .spyOn(CentralServerConnection.prototype, 'fetch')
     .mockImplementation(() => Promise.resolve({ error: null }));
 
   it('splits recordGroups by channel and sends them', async () => {

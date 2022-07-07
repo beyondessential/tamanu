@@ -1,8 +1,8 @@
 import { calculatePageLimit } from './calculatePageLimit';
 
-export const pullIncomingChanges = async (remote, getCursor, patientId) => {
+export const pullIncomingChanges = async (centralServer, getCursor, patientId) => {
   const cursor = await getCursor();
-  const { sessionId, totalToPull } = await remote.startPullSession(cursor, { patientId });
+  const { sessionId, totalToPull } = await centralServer.startPullSession(cursor, { patientId });
   let offset = 0;
   let limit = calculatePageLimit();
   const incomingChanges = [];
@@ -16,7 +16,7 @@ export const pullIncomingChanges = async (remote, getCursor, patientId) => {
       limit,
     });
     const startTime = Date.now();
-    const records = await remote.pull(sessionId, {
+    const records = await centralServer.pull(sessionId, {
       offset,
       limit,
     });
@@ -29,6 +29,6 @@ export const pullIncomingChanges = async (remote, getCursor, patientId) => {
 
   // acknowledge that the final pull was received, so the sync server can close the session and wipe
   // the snapshot of records to be pulled
-  await remote.endSession(sessionId);
+  await centralServer.endSession(sessionId);
   return incomingChanges;
 };

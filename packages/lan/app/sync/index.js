@@ -1,3 +1,3 @@
 export * from './FacilitySyncManager';
-export * from './WebRemote';
+export * from './CentralServerConnection';
 export * from './patientMarkForSyncHook';

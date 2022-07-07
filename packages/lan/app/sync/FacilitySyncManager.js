@@ -10,13 +10,13 @@ import { pullIncomingChanges } from './pullIncomingChanges';
 export class FacilitySyncManager {
   models = null;
 
-  remote = null;
+  centralServer = null;
 
   syncPromise = null;
 
-  constructor({ models, remote }) {
+  constructor({ models, centralServer }) {
     this.models = models;
-    this.remote = remote;
+    this.centralServer = centralServer;
   }
 
   async triggerSync() {
@@ -53,14 +53,14 @@ export class FacilitySyncManager {
       getModelsForDirection(this.models, SYNC_DIRECTIONS.FACILITY_TO_CENTRAL),
       outgoingCursor,
     );
-    await pushOutgoingChanges(this.remote, outgoingChanges);
+    await pushOutgoingChanges(this.centralServer, outgoingChanges);
     await setOutgoingCursor(outgoingChanges[outgoingChanges.length - 1].timestamp);
 
     // syncing incoming changes happens in two phases: pulling all the records from the server,
     // then saving all those records into the local database
     // this avoids a period of time where the the local database may be "partially synced"
     const [incomingCursor, setIncomingCursor] = await this.models.SyncCursor.useIncomingCursor();
-    const incomingChanges = await pullIncomingChanges(this.remote, incomingCursor);
+    const incomingChanges = await pullIncomingChanges(this.centralServer, incomingCursor);
     await saveIncomingChanges(
       getModelsForDirection(this.models, SYNC_DIRECTIONS.CENTRAL_TO_FACILITY),
       incomingChanges,
@@ -74,12 +74,12 @@ export class FacilitySyncManager {
   // pull all of a patient's existing data, and mark them to be kept up to date from now on
   // this can happen in parallel with the normal sync process as it doesn't interfere
   async syncPatient(patientId) {
-    const changes = await pullIncomingChanges(this.remote, 0, patientId);
+    const changes = await pullIncomingChanges(this.centralServer, 0, patientId);
     await saveIncomingChanges({ patient: this.models.patient }, changes);
 
     // tell the sync server to keep patient up to date in this facility
     // this is done last so that we know the full patient sync is complete before adding them
     // to any regular sync (which otherwise might run simultaneously)
-    await this.remote.markPatientForSync(patientId);
+    await this.centralServer.markPatientForSync(patientId);
   }
 }

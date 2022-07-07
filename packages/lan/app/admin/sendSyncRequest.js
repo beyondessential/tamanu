@@ -7,7 +7,7 @@ const splitIntoChunks = (arr, chunkSize) =>
     .fill(0)
     .map((v, i) => arr.slice(i * chunkSize, (i + 1) * chunkSize));
 
-export async function sendSyncRequest(remote, channel, records) {
+export async function sendSyncRequest(centralServer, channel, records) {
   // use a much lower # of requests per channel for users, as it can contain
   // a call to bcrypt, which is intentionally slow, and this can time syncs out
   const maxRecordsPerRequest = channel === 'user' ? 3 : 250;
@@ -19,7 +19,7 @@ export async function sendSyncRequest(remote, channel, records) {
 
   const url = `sync/${encodeURIComponent(channel)}`;
   for (const part of parts) {
-    const response = await remote.fetch(url, {
+    const response = await centralServer.fetch(url, {
       method: 'POST',
       body: part,
     });

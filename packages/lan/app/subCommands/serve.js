@@ -5,7 +5,7 @@ import { log } from 'shared/services/logging';
 
 import { checkConfig } from '../checkConfig';
 import { initDatabase, performDatabaseIntegrityChecks } from '../database';
-import { addPatientMarkForSyncHook, FacilitySyncManager, WebRemote } from '../sync';
+import { addPatientMarkForSyncHook, FacilitySyncManager, CentralServerConnection } from '../sync';
 import { createApp } from '../createApp';
 import { startScheduledTasks } from '../tasks';
 import { listenForServerQueries } from '../discovery';
@@ -31,8 +31,8 @@ async function serve({ skipMigrationCheck }) {
   await checkConfig(config, context);
   await performDatabaseIntegrityChecks(context);
 
-  context.remote = new WebRemote(context);
-  context.remote.connect(); // preemptively connect remote to speed up sync
+  context.centralServer = new CentralServerConnection(context);
+  context.centralServer.connect(); // preemptively connect central server to speed up sync
   context.syncManager = new FacilitySyncManager(context);
 
   const app = createApp(context);
