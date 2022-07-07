@@ -29,7 +29,7 @@ const StyledRadioGroup = styled(RadioGroup)`
 `;
 
 const ControlLabel = styled(FormControlLabel)`
-  flex: ${props => (props.fullWidth ? 1 : 0)};
+  flex: ${props => props.$fullWidth && 1};
   margin: 0 10px 0 0;
   border-radius: 3px;
   padding: 12px 20px;
@@ -86,7 +86,7 @@ export const RadioInput = ({
             control={<Radio value={option.value} selected={value === option.value} />}
             label={option.label}
             value={option.value}
-            fullWidth={fullWidth}
+            $fullWidth={fullWidth}
             selected={value === option.value}
             theme={
               option.color

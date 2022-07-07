@@ -1,6 +1,7 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
-import { viewPatientEncounter } from '../store';
+import { useParams } from 'react-router-dom';
+import { push } from 'connected-react-router';
 import { useEncounter } from '../contexts/Encounter';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
@@ -34,12 +35,13 @@ const useColumns = () => {
 
 export const TriageTable = React.memo(() => {
   const { loadEncounter } = useEncounter();
+  const { category } = useParams();
   const dispatch = useDispatch();
   const columns = useColumns();
 
   const viewEncounter = async triage => {
     await loadEncounter(triage.encounterId);
-    dispatch(viewPatientEncounter(triage.patientId, triage.encounterId));
+    dispatch(push(`/patients/${category}/${triage.patientId}/encounter/${triage.encounterId}`));
   };
 
   return (

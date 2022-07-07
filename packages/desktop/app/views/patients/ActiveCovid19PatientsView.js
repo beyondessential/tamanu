@@ -6,8 +6,6 @@ import styled from 'styled-components';
 import { useApi } from '../../api';
 import { reloadPatient } from '../../store/patient';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
-import { Colors } from '../../constants';
-
 import {
   TopBar,
   CovidPatientsSearchBar,
