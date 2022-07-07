@@ -187,80 +187,33 @@ export class CentralServerConnection {
     }
   }
 
-  async fetchChannelsWithChanges(channelsToCheck) {
-    const algorithmConfig = config.sync.channelsWithChanges.algorithm;
-    const maxErrors = Math.max(
-      algorithmConfig.maxErrorRate * channelsToCheck.length,
-      algorithmConfig.maxErrorsFloor,
-    );
-
-    let batchSize = algorithmConfig.initialBatchSize;
-
-    const throttle = factor => {
-      batchSize = Math.min(
-        algorithmConfig.maxBatchSize,
-        Math.max(algorithmConfig.minBatchSize, Math.ceil(batchSize * factor)),
-      );
-    };
-
-    log.info(
-      `CentralServerConnection.fetchChannelsWithChanges: Beginning channel check for ${channelsToCheck.length} total patients`,
-    );
-    const channelsWithPendingChanges = [];
-    const channelsLeftToCheck = [...channelsToCheck];
-    const errors = [];
-    while (channelsLeftToCheck.length > 0) {
-      const batchOfChannels = channelsLeftToCheck.splice(0, batchSize);
-      try {
-        log.debug(
-          `CentralServerConnection.fetchChannelsWithChanges: Checking channels for ${batchOfChannels.length} patients`,
-        );
-        const body = batchOfChannels.reduce(
-          (acc, { channel, cursor }) => ({
-            ...acc,
-            [channel]: cursor,
-          }),
-          {},
-        );
-        const { channelsWithChanges } = await this.fetch(`sync/channels`, {
-          method: 'POST',
-          body,
-          backoff: config.sync.channelsWithChanges.backoff,
-        });
-        log.debug(
-          `CentralServerConnection.fetchChannelsWithChanges: OK! ${channelsLeftToCheck.length} left.`,
-        );
-        channelsWithPendingChanges.push(...channelsWithChanges);
-        throttle(algorithmConfig.throttleFactorUp);
-      } catch (e) {
-        // errored - put those channels back into the queue
-        errors.push(e);
-        if (errors.length > maxErrors) {
-          log.error(errors);
-          throw new Error('Too many errors encountered, aborting sync entirely');
-        }
-        channelsLeftToCheck.push(...batchOfChannels);
-        throttle(algorithmConfig.throttleFactorDown);
-        log.debug(
-          `CentralServerConnection.fetchChannelsWithChanges: Failed! Returning records to the back of the queue and slowing to batches of ${batchSize}; ${channelsLeftToCheck.length} left.`,
-        );
-      }
-    }
-
-    log.info(
-      `CentralServerConnection.fetchChannelsWithChanges: Channel check finished. Found ${channelsWithPendingChanges.length} channels with pending changes.`,
-    );
-    return channelsWithPendingChanges;
+  async startPullSession(since, patientId) {
+    const body = { since, patientId };
+    return this.fetch('sync/pull', { method: 'POST', body });
   }
 
-  async pull(channel, { since = 0, limit = 100, page = 0, noCount = 'false' } = {}) {
-    const query = { since, limit, page, noCount };
-    const path = `sync/${encodeURIComponent(channel)}?${objectToQueryString(query)}`;
+  async startPushSession() {
+    return this.fetch('sync/push', { method: 'POST' });
+  }
+
+  async endPullSession(sessionId) {
+    const path = `sync/pull/${sessionId}`;
+    return this.fetch(path, { method: 'DELETE' });
+  }
+
+  async endPushSession(sessionId) {
+    const path = `sync/push/${sessionId}`;
+    return this.fetch(path, { method: 'DELETE' });
+  }
+
+  async pull(sessionId, { limit = 100, offset = 0 } = {}) {
+    const query = { limit, offset };
+    const path = `sync/pull/${sessionId}?${objectToQueryString(query)}`;
     return this.fetch(path);
   }
 
-  async push(channel, body) {
-    const path = `sync/${encodeURIComponent(channel)}`;
+  async push(sessionId, body) {
+    const path = `sync/push/${sessionId}`;
     return this.fetch(path, { method: 'POST', body });
   }
 

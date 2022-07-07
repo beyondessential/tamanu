@@ -5,7 +5,7 @@ const { dynamicLimiter } = config.sync;
 const { exportLimit: EXPORT_LIMIT } = dynamicLimiter;
 
 export const pushOutgoingChanges = async (centralServer, changes) => {
-  const sessionId = await centralServer.startPushSession();
+  const { sessionId } = await centralServer.startPushSession();
   const chunks = chunk(changes, EXPORT_LIMIT);
   for (const chunkOfChanges of chunks) {
     await centralServer.push(sessionid, chunkOfChanges);
@@ -13,5 +13,5 @@ export const pushOutgoingChanges = async (centralServer, changes) => {
 
   // acknowledge that the final push has been completed, so the sync server can close the session
   // and persist the collection of records to be saved
-  await centralServer.endSession(sessionId);
+  await centralServer.endPushSession(sessionId);
 };

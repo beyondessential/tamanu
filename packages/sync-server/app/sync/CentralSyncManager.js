@@ -22,15 +22,20 @@ export class CentralSyncManager {
   startIncomingSession() {
     const sessionId = this.startSession();
     this.sessions[sessionId].incomingChanges = [];
+    return { sessionId };
   }
 
-  startOutgoingSession(since) {
+  async startOutgoingSession(since) {
     const sessionId = this.startSession();
-    const changes = await snapshotOutgoingChanges(getModelsForDirection(this.models, SYNC_DIRECTIONS.CENTRAL_TO_FACILITY), since);
+    const changes = await snapshotOutgoingChanges(
+      getModelsForDirection(this.models, SYNC_DIRECTIONS.CENTRAL_TO_FACILITY),
+      since,
+    );
     this.session[sessionId].outgoingChanges = changes;
+    return { sessionId, count: changes.length };
   }
 
-  endSession(sessionId) {
+  async endSession(sessionId) {
     if (!this.sessions[sessionId]) {
       throw new Error(`Sync session ${sessionId} not found`);
     }
@@ -38,7 +43,10 @@ export class CentralSyncManager {
     // persist any incoming changes to the db
     const { incomingChanges } = this.sessions[sessionId];
     if (incomingChanges) {
-      saveIncomingChanges(getModelsForDirection(this.models, SYNC_DIRECTIONS.FACILITY_TO_CENTRAL), changes);
+      await saveIncomingChanges(
+        getModelsForDirection(this.models, SYNC_DIRECTIONS.FACILITY_TO_CENTRAL),
+        changes,
+      );
     }
 
     delete this.sessions[sessionId];

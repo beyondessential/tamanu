@@ -5,75 +5,66 @@ import { InvalidParameterError, NotFoundError } from 'shared/errors';
 
 import { log } from 'shared/services/logging';
 
+import { CentralSyncManager } from './CentralSyncManager';
+
 const syncManager = new CentralSyncManager();
 
 export const syncRoutes = express.Router();
 
-syncRoutes.get(
-  '/',
+syncRoutes.post(
+  '/pull',
   asyncHandler(async (req, res) => {
-    const { store, query, params } = req;
-    const { patientId } = params;
-    const { since, limit = '100', offset = '0' } = query;
-
+    const { query } = req;
+    const { since } = query;
     if (!since) {
-      throw new InvalidParameterError('Sync GET request must include a "since" parameter');
+      throw new Error('Must provide "since" when starting a sync session, even if it is 0');
     }
-
-    const limitNum = parseInt(limit, 10) || undefined;
-
-    log.info(`GET : returned ${records?.length} records`);
-    res.send({
-      changes: filteredChanges,
-      cursor,
-    });
+    const { sessionId, count } = await syncManager.startOutgoingSession(parseInt(since, 10));
+    res.send({ sessionId, count });
   }),
 );
 
 syncRoutes.post(
-  '/:channel',
+  '/push',
   asyncHandler(async (req, res) => {
-    // grab the requested time before running any queries
-    const requestedAt = Date.now();
+    const { sessionId } = await syncManager.startIncomingSession();
+    res.send({ sessionId });
+  }),
+);
 
-    const { store, params, body } = req;
-    const { channel } = params;
+syncRoutes.get(
+  '/pull/:sessionId',
+  asyncHandler(async (req, res) => {
+    const { query, params } = req;
+    const { sessionId } = params;
+    const { offset = '0', limit = '100' } = query;
+    const changes = await syncManager.getOutgoingChanges(sessionId, {
+      offset: parseInt(offset, 10),
+      limit: parseInt(limit, 10),
+    });
+    log.info(`GET /pull : returned ${changes.length} changes`);
+    res.send(changes);
+  }),
+);
 
-    const plan = createImportPlan(store.sequelize, channel);
-    const upsert = async records => {
-      // TODO: sort out permissions
-      // if (!shouldPush(model)) {
-      //   throw new InvalidOperationError(`Pushing to channel "${channel}" is not allowed`);
-      // }
-      return executeImportPlan(plan, records);
-    };
+syncRoutes.post(
+  '/push/:sessionId',
+  asyncHandler(async (req, res) => {
+    const { params, body: changes } = req;
+    const { sessionId } = params;
 
-    const syncRecords = Array.isArray(body) ? body : [body];
-    const count = await upsert(syncRecords);
-    log.info(`POST to ${channel} : ${count} records`);
-    res.send({ count, requestedAt });
+    await syncManager.addIncomingChanges(sessionId, changes);
+    log.info(`POST to ${sessionId} : ${changes.length} records`);
+    res.send({});
   }),
 );
 
 syncRoutes.delete(
-  '/:channel/:recordId',
+  '/pu(sl)(hl)/:sessionId', // match pull and push with same handler, for ending sync session
   asyncHandler(async (req, res) => {
-    // grab the requested time before running any queries
-    const requestedAt = Date.now();
-
-    const { store, params } = req;
-    const { channel, recordId } = params;
-
-    const count = await store.markRecordDeleted(channel, recordId);
-
-    if (count === 0) {
-      throw new NotFoundError();
-    } else if (count !== 1) {
-      // if we hit this, something is very wrong
-      throw new Error(`Expected deleted record count to be 0 or 1, was actually: ${count}`);
-    }
-
-    log.info(`DELETE from channel ${channel} record ${recordId}`);
-    res.send({ count, requestedAt });
+    const { params } = req;
+    const { sessionId } = params;
+    await syncManager.endSession(sessionId);
+    res.send({});
   }),
 );

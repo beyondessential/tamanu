@@ -2,7 +2,9 @@ import { calculatePageLimit } from './calculatePageLimit';
 
 export const pullIncomingChanges = async (centralServer, getCursor, patientId) => {
   const cursor = await getCursor();
-  const { sessionId, totalToPull } = await centralServer.startPullSession(cursor, { patientId });
+  const { sessionId, count: totalToPull } = await centralServer.startPullSession(cursor, {
+    patientId,
+  });
   let offset = 0;
   let limit = calculatePageLimit();
   const incomingChanges = [];
@@ -29,6 +31,6 @@ export const pullIncomingChanges = async (centralServer, getCursor, patientId) =
 
   // acknowledge that the final pull was received, so the sync server can close the session and wipe
   // the snapshot of records to be pulled
-  await centralServer.endSession(sessionId);
+  await centralServer.endPullSession(sessionId);
   return incomingChanges;
 };
