@@ -5,6 +5,7 @@ import { LocalisedText } from '../LocalisedText';
 import { DateDisplay } from '../DateDisplay';
 import { PatientInitialsIcon } from '../PatientInitialsIcon';
 import { Colors } from '../../constants';
+import { usePatientNavigation } from '../../utils/usePatientNavigation';
 
 const PatientButton = styled(Button)`
   display: block;
@@ -120,27 +121,30 @@ const HealthIdDisplay = ({ displayId }) => (
   </HealthIdContainer>
 );
 
-export const CoreInfoDisplay = memo(({ patient }) => (
-  <>
-    <PatientButton>
-      <NameHeader>Patient Details</NameHeader>
-      <NameContainer>
-        <div>
-          <NameText data-test-id="core-info-patient-first-name">{patient.firstName}</NameText>
-          <NameText data-test-id="core-info-patient-last-name">{patient.lastName}</NameText>
-        </div>
-        <PatientInitialsIcon patient={patient} />
-        {patient.death && <DeceasedIndicator death={patient.death} />}
-      </NameContainer>
-    </PatientButton>
-    <CoreInfoSection>
-      <CoreInfoCell path="fields.sex.shortLabel" testId="core-info-patient-sex">
-        {patient.sex}
-      </CoreInfoCell>
-      <CoreInfoCell path="fields.dateOfBirth.shortLabel" testId="core-info-patient-dob">
-        <DateDisplay date={patient.dateOfBirth} />
-      </CoreInfoCell>
-    </CoreInfoSection>
-    <HealthIdDisplay displayId={patient.displayId} />
-  </>
-));
+export const CoreInfoDisplay = memo(({ patient }) => {
+  const { navigateToPatient } = usePatientNavigation();
+  return (
+    <>
+      <PatientButton onClick={() => navigateToPatient(patient.id)}>
+        <NameHeader>Patient Details</NameHeader>
+        <NameContainer>
+          <div>
+            <NameText data-test-id="core-info-patient-first-name">{patient.firstName}</NameText>
+            <NameText data-test-id="core-info-patient-last-name">{patient.lastName}</NameText>
+          </div>
+          <PatientInitialsIcon patient={patient} />
+          {patient.death && <DeceasedIndicator death={patient.death} />}
+        </NameContainer>
+      </PatientButton>
+      <CoreInfoSection>
+        <CoreInfoCell path="fields.sex.shortLabel" testId="core-info-patient-sex">
+          {patient.sex}
+        </CoreInfoCell>
+        <CoreInfoCell path="fields.dateOfBirth.shortLabel" testId="core-info-patient-dob">
+          <DateDisplay date={patient.dateOfBirth} />
+        </CoreInfoCell>
+      </CoreInfoSection>
+      <HealthIdDisplay displayId={patient.displayId} />
+    </>
+  );
+});
