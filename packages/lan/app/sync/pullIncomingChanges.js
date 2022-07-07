@@ -6,11 +6,11 @@ export const pullIncomingChanges = async (remote, getCursor, patientId) => {
   let offset = 0;
   let limit = calculatePageLimit();
   const incomingChanges = [];
-  log.debug(`SyncManager.pullChanges: syncing`, { sessionId, offset });
+  log.debug(`pullIncomingChanges: syncing`, { sessionId, offset });
 
   // pull changes a page at a time
   while (incomingChanges.length < totalToPull) {
-    log.debug(`SyncManager.pullChanges: pulling records`, {
+    log.debug(`pullIncomingChanges: pulling records`, {
       sessionId,
       offset,
       limit,

@@ -12,7 +12,7 @@ import { toMatchTabularReport } from './toMatchTabularReport';
 import { allSeeds } from './seed';
 import { deleteAllTestIds } from './setupUtilities';
 
-import { SyncManager } from '../app/sync/SyncManager';
+import { FacilitySyncManager } from '../app/sync/FacilitySyncManager';
 import { WebRemote } from '../app/sync/WebRemote';
 
 jest.mock('../app/sync/WebRemote');
@@ -145,7 +145,7 @@ export async function createTestContext() {
 
   const context = { baseApp, sequelize, models, remote };
 
-  context.syncManager = new SyncManager(context);
+  context.syncManager = new FacilitySyncManager(context);
 
   const close = async () => {
     await new Promise(resolve => appServer.close(resolve));

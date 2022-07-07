@@ -1,3 +1,3 @@
-export * from './SyncManager';
+export * from './FacilitySyncManager';
 export * from './WebRemote';
 export * from './patientMarkForSyncHook';

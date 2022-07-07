@@ -7,7 +7,7 @@ import { saveIncomingChanges } from './saveIncomingChanges';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 import { pushOutgoingChanges } from './pushOutgoingChanges';
 
-export class SyncManager {
+export class FacilitySyncManager {
   models = null;
 
   remote = null;
@@ -21,7 +21,7 @@ export class SyncManager {
 
   async triggerSync() {
     if (!config.sync.enabled) {
-      log.warn('SyncManager.triggerSync: sync is disabled');
+      log.warn('FacilitySyncManager.triggerSync: sync is disabled');
       return;
     }
 
@@ -42,7 +42,7 @@ export class SyncManager {
     }
 
     const startTimestampMs = Date.now();
-    log.info(`SyncManager.runSync: began sync run`);
+    log.info(`FacilitySyncManager.runSync: began sync run`);
 
     // syncing outgoing changes happens in two phases: taking a point-in-time copy of all records
     // to be pushed, and then pushing those up in batches
@@ -60,7 +60,7 @@ export class SyncManager {
     await saveIncomingChanges(this.models, incomingChanges, setIncomingCursor);
 
     const elapsedTimeMs = Date.now() - startTimestampMs;
-    log.info(`SyncManager.runSync: finished sync run in ${elapsedTimeMs}ms`);
+    log.info(`FacilitySyncManager.runSync: finished sync run in ${elapsedTimeMs}ms`);
   }
 
   // pull all of a patient's existing data, and mark them to be kept up to date from now on
