@@ -36,7 +36,7 @@ const Breadcrumb = ({ onClick, children, path }) => (
 );
 
 const getBreadcrumbFromRoute = ({ navigateTo, title, path }) => (
-  <Breadcrumb path={path} onClick={navigateTo}>
+  <Breadcrumb path={path} onClick={navigateTo} key={`breadcrumb-${path}`}>
     {title}
   </Breadcrumb>
 );

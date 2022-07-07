@@ -1,44 +1,49 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useApi, useSuggester } from '../api';
 import { useLocalisation } from '../contexts/Localisation';
-import { usePatientNavigation } from '../utils/usePatientNavigation';
-import { Colors } from '../constants';
-
 import { Modal } from './Modal';
+import { Colors } from '../constants';
 import { TriageForm } from '../forms/TriageForm';
-import { DisplayIdLabel } from './DisplayIdLabel';
 import { DateDisplay } from './DateDisplay';
 
+const Header = styled.div`
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 18px;
+  margin-bottom: 3px;
+`;
+
 const PatientDetails = styled.div`
+  display: flex;
+  justify-content: space-between;
   padding: 15px;
   border: 1px solid ${Colors.outline};
   border-radius: 3px;
   margin-bottom: 15px;
+`;
 
-  div:last-child {
-    display: grid;
-    grid-template-columns: 1fr 4fr;
-  }
+const Grid = styled.div`
+  display: grid;
+  margin-top: 5px;
+  grid-template-columns: 100px 4fr;
+  grid-column-gap: 15px;
+  grid-row-gap: 10px;
+`;
+
+const DisplayIdLabel = styled.span`
+  font-size: 16px;
+  line-height: 21px;
+  font-weight: 500;
+  color: ${props => props.theme.palette.primary.main};
 `;
 
 const DetailLabel = styled.span`
-  color: ${Colors.midText};
-  padding-bottom: 5px;
+  color: ${props => props.theme.palette.text.secondary};
 `;
 
 const DetailValue = styled.span`
-  color: ${Colors.darkText};
-  padding-bottom: 5px;
+  color: ${props => props.theme.palette.text.primary};
   text-transform: capitalize;
-`;
-
-const Header = styled.div`
-  display: flex;
-  justify-content: space-between;
-  font-weight: 600;
-  color: ${Colors.darkestText};
-  margin-bottom: 20px;
 `;
 
 const DETAILS_FIELD_DEFINITIONS = [
@@ -50,21 +55,8 @@ const DETAILS_FIELD_DEFINITIONS = [
 
 export const TriageModal = React.memo(({ open, patient, onClose }) => {
   const { displayId } = patient;
-  const { navigateToPatient } = usePatientNavigation();
-  const api = useApi();
-  const practitionerSuggester = useSuggester('practitioner');
-  const locationSuggester = useSuggester('location');
-  const triageComplaintSuggester = useSuggester('triageReason');
-
-  const onSubmit = async data => {
-    await api.post('triage', {
-      ...data,
-      patientId: patient.id,
-    });
-    navigateToPatient(patient.id, 'triage');
-  };
-
   const { getLocalisation } = useLocalisation();
+
   const detailsFields = DETAILS_FIELD_DEFINITIONS.filter(
     ([name]) => getLocalisation(`fields.${name}.hidden`) !== true,
   ).map(([name, accessor]) => (
@@ -75,21 +67,13 @@ export const TriageModal = React.memo(({ open, patient, onClose }) => {
   ));
 
   return (
-    <Modal title="New Emergency Triage" open={open} width="md" onClose={onClose}>
+    <Modal title="New emergency triage" open={open} width="md" onClose={onClose}>
+      <Header>Patient details</Header>
       <PatientDetails>
-        <Header>
-          <span>Patient details</span>
-          <DisplayIdLabel>{displayId}</DisplayIdLabel>
-        </Header>
-        <div>{detailsFields}</div>
+        <Grid>{detailsFields}</Grid>
+        <DisplayIdLabel>{displayId}</DisplayIdLabel>
       </PatientDetails>
-      <TriageForm
-        onCancel={onClose}
-        onSubmit={onSubmit}
-        triageComplaintSuggester={triageComplaintSuggester}
-        practitionerSuggester={practitionerSuggester}
-        locationSuggester={locationSuggester}
-      />
+      <TriageForm onCancel={onClose} patient={patient} />
     </Modal>
   );
 });
