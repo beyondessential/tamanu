@@ -13,14 +13,14 @@ export class Asset extends Model {
       },
       {
         ...options,
-        syncConfig: { syncDirection: SYNC_DIRECTIONS.PULL_ONLY },
+        syncDirection: SYNC_DIRECTIONS.CENTRAL_TO_FACILITY,
       },
     );
   }
 
   /**
    * This is only used when inserting asset manually through RestClient
-   * Asset is PULL_ONLY and we don't sync asset up from devices to sync servers.
+   * Asset is CENTRAL_TO_FACILITY, i.e. we don't sync asset up from devices to sync servers.
    */
   static sanitizeForSyncServer({ data, ...restOfValues }) {
     // base64

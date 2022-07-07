@@ -1,6 +1,7 @@
 import config from 'config';
 import { upperFirst } from 'lodash';
 import { Sequelize } from 'sequelize';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
 export class SurveyResponseAnswer extends Model {
@@ -11,7 +12,7 @@ export class SurveyResponseAnswer extends Model {
         name: Sequelize.STRING,
         body: Sequelize.TEXT,
       },
-      options,
+      { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );
   }
 

@@ -29,6 +29,6 @@ export const pullIncomingChanges = async (remote, getCursor, patientId) => {
 
   // acknowledge that the final pull was received, so the sync server can close the session and wipe
   // the snapshot of records to be pulled
-  await remote.endPullSession(sessionId);
+  await remote.endSession(sessionId);
   return incomingChanges;
 };

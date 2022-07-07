@@ -1,4 +1,5 @@
 import { Sequelize } from 'sequelize';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
 export const NOTE_RECORD_TYPES = {
@@ -58,6 +59,7 @@ export class Note extends Model {
             }
           },
         },
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
   }

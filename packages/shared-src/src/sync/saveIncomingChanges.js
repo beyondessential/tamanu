@@ -1,5 +1,6 @@
+import { keyBy } from 'lodash';
 import { Op } from 'sequelize';
-import { shouldPull, MODEL_DEPENDENCY_ORDER } from 'shared/models/sync';
+import { MODEL_DEPENDENCY_ORDER } from 'shared/models/order';
 
 const saveCreates = async (model, records) => model.bulkCreate(records);
 
@@ -34,20 +35,15 @@ const saveChangesForModel = async (model, changes) => {
   await saveDeletes(model, idsForDelete);
 };
 
-export const saveIncomingChanges = async (models, changes, setCursor) => {
-  const models = MODEL_DEPENDENCY_ORDER.map(name => this.context.models[name]).filter(model =>
-    shouldPull(model),
-  );
+export const saveIncomingChanges = async (models, changes) => {
+  const orderedModels = MODEL_DEPENDENCY_ORDER.map(name => models[name]);
 
-  await model.sequelize.transaction(async () => {
+  const changesByRecordType = keyBy(changes, c => c.recordType);
+
+  const [firstModel] = orderedModels; // arbitrary model to grab sequelize from
+  await firstModel.sequelize.transaction(async () => {
     for (const model of models) {
-      await saveChangesForModel(
-        model,
-        changes.filter(c => c.recordType === model.tableName),
-      );
+      await saveChangesForModel(model, changesByRecordType[model.tableName] || []);
     }
   });
-
-  const highestChange = changes[changes.length - 1];
-  await setCursor(highestChange.timestamp);
 };

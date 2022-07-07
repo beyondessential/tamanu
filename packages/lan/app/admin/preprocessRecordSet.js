@@ -1,6 +1,6 @@
 import { get } from 'lodash';
 
-import { compareModelPriority } from 'shared/models/sync/order';
+import { MODEL_DEPENDENCY_ORDER } from 'shared/sync/order';
 
 import { validateRecordSet } from './validateRecordSet';
 
@@ -42,6 +42,17 @@ function getRecordCounts(recordsByType) {
 
   return recordCounts;
 }
+
+const lowercaseModelOrder = MODEL_DEPENDENCY_ORDER.map(x => x.toLowerCase());
+
+const compareModelPriority = (modelNameA, modelNameB) => {
+  const priorityA = lowercaseModelOrder.indexOf(modelNameA.toLowerCase());
+  const priorityB = lowercaseModelOrder.indexOf(modelNameB.toLowerCase());
+  const delta = priorityA - priorityB;
+  if (delta) return delta;
+
+  return modelNameA.localeCompare(modelNameB);
+};
 
 export async function preprocessRecordSet(recordSet) {
   const { records, errors = [] } = await validateRecordSet(recordSet);

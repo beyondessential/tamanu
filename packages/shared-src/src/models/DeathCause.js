@@ -15,7 +15,7 @@ export class DeathCause extends Model {
       },
       {
         ...options,
-        syncConfig: { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         validate: {
           mustHavePatientDeathData() {
             if (this.deletedAt) return;

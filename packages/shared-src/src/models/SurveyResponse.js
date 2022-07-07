@@ -1,6 +1,10 @@
 import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
-import { ACTION_DATA_ELEMENT_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from 'shared/constants';
+import {
+  ACTION_DATA_ELEMENT_TYPES,
+  PROGRAM_DATA_ELEMENT_TYPES,
+  SYNC_DIRECTIONS,
+} from 'shared/constants';
 import { Model } from './Model';
 import { runCalculations } from '../utils/calculations';
 import { getStringValue, getResultValue } from '../utils/fields';
@@ -74,7 +78,10 @@ export class SurveyResponse extends Model {
         result: { type: Sequelize.FLOAT, allowNull: true },
         resultText: { type: Sequelize.TEXT, allowNull: true },
       },
-      options,
+      {
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+        ...options,
+      },
     );
   }
 

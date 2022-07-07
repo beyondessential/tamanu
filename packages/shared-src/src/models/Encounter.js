@@ -2,10 +2,14 @@ import { Sequelize } from 'sequelize';
 import moment from 'moment';
 import config from 'config';
 
-import { ENCOUNTER_TYPES, ENCOUNTER_TYPE_VALUES, NOTE_TYPES } from 'shared/constants';
+import {
+  ENCOUNTER_TYPES,
+  ENCOUNTER_TYPE_VALUES,
+  NOTE_TYPES,
+  SYNC_DIRECTIONS,
+} from 'shared/constants';
 import { InvalidOperationError } from 'shared/errors';
 
-import { initSyncForModelNestedUnderPatient } from './sync';
 import { Model } from './Model';
 
 export class Encounter extends Model {
@@ -40,105 +44,6 @@ export class Encounter extends Model {
         },
       };
     }
-    const nestedSyncConfig = initSyncForModelNestedUnderPatient(this, 'encounter');
-    const syncConfig = {
-      includedRelations: [
-        'administeredVaccines',
-        'surveyResponses',
-        'surveyResponses.answers',
-        'diagnoses',
-        'medications',
-        'labRequests',
-        'labRequests.tests',
-        'labRequests.notes',
-        'imagingRequests',
-        'imagingRequests.notes',
-        'procedures',
-        'initiatedReferrals',
-        'completedReferrals',
-        'vitals',
-        'discharge',
-        'triages',
-        'triages.notes',
-        'invoice',
-        'invoice.invoiceLineItems',
-        'invoice.invoicePriceChangeItems',
-        'documents',
-        'notes',
-      ],
-      ...nestedSyncConfig,
-      channelRoutes: [
-        ...nestedSyncConfig.channelRoutes,
-        {
-          route: 'labRequest/all/encounter',
-          mustMatchRecord: false,
-          queryFromParams: () => ({
-            where: {},
-            include: [
-              {
-                association: 'labRequests',
-                required: true,
-                duplicating: false,
-                attributes: [],
-              },
-            ],
-          }),
-        },
-        {
-          route: 'scheduledVaccine/:scheduledVaccineId/encounter',
-          mustMatchRecord: false,
-          queryFromParams: ({ scheduledVaccineId }) => {
-            if (typeof scheduledVaccineId !== 'string') {
-              throw new Error(
-                `Encounter queryFromParams: expected scheduledVaccineId to be a string, got ${scheduledVaccineId}`,
-              );
-            }
-            return {
-              where: {},
-              include: {
-                association: 'administeredVaccines',
-                required: true,
-                duplicating: false,
-                attributes: [],
-                where: { scheduledVaccineId },
-              },
-            };
-          },
-        },
-      ],
-      getChannels: async patientId => {
-        // query patient channels and localisation in parallel
-        const [nestedChannels, localisation] = await Promise.all([
-          nestedSyncConfig.getChannels(patientId),
-          this.sequelize.models.UserLocalisationCache.getLocalisation({
-            include: {
-              association: 'user',
-              required: true,
-              where: {
-                email: config.sync.email,
-              },
-            },
-          }),
-        ]);
-
-        // patient channels
-        const channels = [...nestedChannels];
-
-        // lab requests
-        if (config.sync.syncAllLabRequests) {
-          channels.push('labRequest/all/encounter');
-        }
-
-        // scheduled vaccines
-        const scheduledVaccineIdsToSync =
-          localisation?.sync?.syncAllEncountersForTheseScheduledVaccines || [];
-        for (const scheduledVaccineId of scheduledVaccineIdsToSync) {
-          channels.push(`scheduledVaccine/${scheduledVaccineId}/encounter`);
-        }
-
-        return channels;
-      },
-    };
     super.init(
       {
         id: primaryKey,
@@ -154,7 +59,7 @@ export class Encounter extends Model {
       {
         ...options,
         validate,
-        syncConfig,
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
   }

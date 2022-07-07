@@ -1,4 +1,5 @@
 import { Sequelize } from 'sequelize';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
 export class EncounterMedication extends Model {
@@ -36,6 +37,7 @@ export class EncounterMedication extends Model {
       },
       {
         ...options,
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         validate: {
           mustHaveMedication() {
             if (!this.medicationId) {

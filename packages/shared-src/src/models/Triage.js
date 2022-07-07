@@ -1,4 +1,4 @@
-import { ENCOUNTER_TYPES } from 'shared/constants';
+import { ENCOUNTER_TYPES, SYNC_DIRECTIONS } from 'shared/constants';
 import { Sequelize, Op } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
@@ -15,7 +15,7 @@ export class Triage extends Model {
 
         score: Sequelize.TEXT,
       },
-      options,
+      { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );
   }
 

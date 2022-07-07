@@ -17,7 +17,7 @@ export class ReportRequest extends Model {
       },
       {
         ...options,
-        syncConfig: { syncDirection: SYNC_DIRECTIONS.PUSH_ONLY },
+        syncDirection: SYNC_DIRECTIONS.FACILITY_TO_CENTRAL,
       },
     );
   }

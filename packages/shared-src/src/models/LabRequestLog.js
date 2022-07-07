@@ -15,20 +15,7 @@ export class LabRequestLog extends Model {
       },
       {
         ...options,
-        syncConfig: {
-          syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
-          channelRoutes: [
-            {
-              route: 'labRequest/:labRequestId/log',
-              params: [{ name: 'labRequestId' }],
-            },
-          ],
-          getChannels: async () =>
-            this.sequelize.models.LabRequest.findAll({
-              where: {},
-              attributes: ['id'],
-            }).map(lr => `labRequest/${lr.id}/log`),
-        },
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
   }

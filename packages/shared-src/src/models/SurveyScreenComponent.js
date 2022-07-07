@@ -21,7 +21,7 @@ export class SurveyScreenComponent extends Model {
       },
       {
         ...options,
-        syncConfig: { syncDirection: SYNC_DIRECTIONS.PULL_ONLY },
+        syncDirection: SYNC_DIRECTIONS.CENTRAL_TO_FACILITY,
       },
     );
   }

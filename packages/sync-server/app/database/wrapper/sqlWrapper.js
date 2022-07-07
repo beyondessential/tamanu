@@ -1,6 +1,5 @@
 import { Sequelize, Op } from 'sequelize';
 import { initDatabase } from 'shared/services/database';
-import { syncCursorToWhereCondition } from 'shared/models/sync';
 
 export class SqlWrapper {
   models = null;
@@ -24,20 +23,6 @@ export class SqlWrapper {
 
   async close() {
     await this.sequelize.close();
-  }
-
-  async countSince(channel, since, { limit } = {}) {
-    return this.sequelize.channelRouter(channel, (model, params, channelRoute) => {
-      const { where, include } = channelRoute.queryFromParams(params);
-      return model.count({
-        paranoid: false,
-        where: {
-          [Op.and]: [syncCursorToWhereCondition(since), where],
-        },
-        include,
-        limit,
-      });
-    });
   }
 
   async markRecordDeleted(channel, id) {

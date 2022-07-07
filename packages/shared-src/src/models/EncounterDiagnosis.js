@@ -1,4 +1,5 @@
 import { Sequelize } from 'sequelize';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { DIAGNOSIS_CERTAINTY, DIAGNOSIS_CERTAINTY_VALUES } from '../constants';
 import { Model } from './Model';
 
@@ -22,6 +23,7 @@ export class EncounterDiagnosis extends Model {
       },
       {
         ...options,
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         validate: {
           mustHaveDiagnosis() {
             if (!this.diagnosisId) {

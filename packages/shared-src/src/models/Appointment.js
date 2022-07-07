@@ -23,7 +23,7 @@ export class Appointment extends Model {
           defaultValue: APPOINTMENT_STATUSES.CONFIRMED,
         },
       },
-      { ...options },
+      options,
     );
   }
 

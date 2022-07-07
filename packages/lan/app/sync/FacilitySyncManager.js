@@ -1,11 +1,11 @@
 import config from 'config';
 
 import { log } from 'shared/services/logging';
+import { SYNC_DIRECTIONS } from 'shared/constants';
+import { getModelsForDirection, snapshotOutgoingChanges, saveIncomingChanges } from 'shared/sync';
 
-import { pullIncomingChanges } from './pullIncomingChanges';
-import { saveIncomingChanges } from './saveIncomingChanges';
-import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 import { pushOutgoingChanges } from './pushOutgoingChanges';
+import { pullIncomingChanges } from './pullIncomingChanges';
 
 export class FacilitySyncManager {
   models = null;
@@ -49,15 +49,23 @@ export class FacilitySyncManager {
     // this avoids any of the records to be pushed being changed during the push period and
     // causing data that isn't internally coherent from ending up on the sync server
     const [outgoingCursor, setOutgoingCursor] = await this.models.SyncCursor.useOutgoingCursor();
-    const outgoingChanges = await snapshotOutgoingChanges(this.models, outgoingCursor);
-    await pushOutgoingChanges(this.remote, outgoingChanges, setOutgoingCursor);
+    const outgoingChanges = await snapshotOutgoingChanges(
+      getModelsForDirection(this.models, SYNC_DIRECTIONS.FACILITY_TO_CENTRAL),
+      outgoingCursor,
+    );
+    await pushOutgoingChanges(this.remote, outgoingChanges);
+    await setOutgoingCursor(outgoingChanges[outgoingChanges.length - 1].timestamp);
 
     // syncing incoming changes happens in two phases: pulling all the records from the server,
     // then saving all those records into the local database
     // this avoids a period of time where the the local database may be "partially synced"
     const [incomingCursor, setIncomingCursor] = await this.models.SyncCursor.useIncomingCursor();
     const incomingChanges = await pullIncomingChanges(this.remote, incomingCursor);
-    await saveIncomingChanges(this.models, incomingChanges, setIncomingCursor);
+    await saveIncomingChanges(
+      getModelsForDirection(this.models, SYNC_DIRECTIONS.CENTRAL_TO_FACILITY),
+      incomingChanges,
+    );
+    await setIncomingCursor(incomingChanges[incomingChanges.length - 1].timestamp);
 
     const elapsedTimeMs = Date.now() - startTimestampMs;
     log.info(`FacilitySyncManager.runSync: finished sync run in ${elapsedTimeMs}ms`);
@@ -67,7 +75,7 @@ export class FacilitySyncManager {
   // this can happen in parallel with the normal sync process as it doesn't interfere
   async syncPatient(patientId) {
     const changes = await pullIncomingChanges(this.remote, 0, patientId);
-    await saveIncomingChanges(this.models, changes, () => {});
+    await saveIncomingChanges({ patient: this.models.patient }, changes);
 
     // tell the sync server to keep patient up to date in this facility
     // this is done last so that we know the full patient sync is complete before adding them

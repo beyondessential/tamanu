@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { initSyncForModelNestedUnderPatient } from './sync';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
 export class PatientAllergy extends Model {
@@ -12,7 +12,7 @@ export class PatientAllergy extends Model {
       },
       {
         ...options,
-        syncConfig: initSyncForModelNestedUnderPatient(this, 'allergy'),
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
   }

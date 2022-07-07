@@ -1,4 +1,5 @@
 import { Sequelize } from 'sequelize';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
 export class Procedure extends Model {
@@ -15,7 +16,7 @@ export class Procedure extends Model {
         note: Sequelize.STRING,
         completedNote: Sequelize.STRING,
       },
-      options,
+      { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );
   }
 

@@ -32,7 +32,7 @@ export class Patient extends Model {
       },
       {
         ...options,
-        syncConfig: { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, includedRelations: ['notes'] },
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         indexes: [
           { fields: ['date_of_death'] },
           { fields: ['display_id'] },

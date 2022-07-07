@@ -13,7 +13,7 @@ export class Attachment extends Model {
       },
       {
         ...options,
-        syncConfig: { syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC },
+        syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
       },
     );
   }

@@ -1,53 +1,15 @@
 import * as sequelize from 'sequelize';
-import { SyncConfig } from './sync';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 
 const { Sequelize, Op, Utils } = sequelize;
 
 const firstLetterLowercase = s => (s[0] || '').toLowerCase() + s.slice(1);
 
-// write a migration when adding to this list (e.g. 005_markedForPush.js and 007_pushedAt.js)
-const MARKED_FOR_PUSH_MODELS = [
-  'Encounter',
-  'LabRequestLog',
-  'Patient',
-  'PatientAdditionalData',
-  'PatientAllergy',
-  'PatientCarePlan',
-  'PatientCondition',
-  'PatientFamilyHistory',
-  'PatientIssue',
-  'PatientSecondaryId',
-  'ReportRequest',
-  'UserFacility',
-  'DocumentMetadata',
-  'CertificateNotification',
-
-  // Temporarily remove death data models from sync as sync cannot handle the foreign key cycle
-  // 'PatientDeathData',
-  // 'DeathCause',
-];
-
 export class Model extends sequelize.Model {
-  static init(originalAttributes, { syncClientMode, syncConfig, ...options }) {
-    const attributes = { ...originalAttributes };
-    if (syncClientMode && MARKED_FOR_PUSH_MODELS.includes(this.name)) {
-      attributes.markedForPush = {
-        type: Sequelize.BOOLEAN,
-        allowNull: false,
-        defaultValue: true,
-      };
-      attributes.isPushing = {
-        type: Sequelize.BOOLEAN,
-        allowNull: false,
-        defaultValue: false,
-      };
-      attributes.pushedAt = Sequelize.DATE;
-      attributes.pulledAt = Sequelize.DATE;
-    }
+  static init(attributes, { syncDirection, ...options }) {
     super.init(attributes, options);
-    this.syncClientMode = syncClientMode;
     this.defaultIdValue = attributes.id.defaultValue;
-    this.syncConfig = new SyncConfig(this, syncConfig);
+    this.syncDirection = syncDirection;
   }
 
   static generateId() {
@@ -118,14 +80,5 @@ export class Model extends sequelize.Model {
     });
   }
 
-  // list of callbacks to call after model is initialised
-  static afterInitCallbacks = [];
-
-  // adds a function to be called once model is initialised
-  // (useful for hooks and anything else that needs an initialised model)
-  static afterInit(fn) {
-    this.afterInitCallbacks.push(fn);
-  }
-
-  static syncConfig = {};
+  static syncDirection = SYNC_DIRECTIONS.DO_NOT_SYNC;
 }

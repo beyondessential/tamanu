@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { INVOICE_LINE_ITEM_STATUSES } from 'shared/constants';
+import { INVOICE_LINE_ITEM_STATUSES, SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
 export class InvoiceLineItem extends Model {
@@ -15,7 +15,7 @@ export class InvoiceLineItem extends Model {
           defaultValue: INVOICE_LINE_ITEM_STATUSES.ACTIVE,
         },
       },
-      options,
+      { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );
   }
 

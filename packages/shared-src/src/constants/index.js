@@ -221,8 +221,8 @@ export const COMMUNICATION_STATUSES_VALUES = Object.values(COMMUNICATION_STATUSE
 
 export const SYNC_DIRECTIONS = {
   DO_NOT_SYNC: 'do_not_sync',
-  PUSH_ONLY: 'push_only',
-  PULL_ONLY: 'pull_only',
+  FACILITY_TO_CENTRAL: 'facility_to_central',
+  CENTRAL_TO_FACILITY: 'central_to_facility',
   BIDIRECTIONAL: 'bidirectional',
 };
 

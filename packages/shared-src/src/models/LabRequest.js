@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
 
-import { LAB_REQUEST_STATUSES, NOTE_TYPES } from 'shared/constants';
+import { LAB_REQUEST_STATUSES, NOTE_TYPES, SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
 export class LabRequest extends Model {
@@ -50,7 +50,7 @@ export class LabRequest extends Model {
           allowNull: false,
         },
       },
-      options,
+      { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );
   }
 
