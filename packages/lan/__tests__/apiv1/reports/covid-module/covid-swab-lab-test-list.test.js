@@ -415,6 +415,22 @@ describe('Covid swab lab test list', () => {
   });
 
   describe('returns the correct data', () => {
+    it('with a village parameter', async () => {
+      const PATIENT_ID_COLUMN = 4;
+      const result = await app.post('/v1/reports/fiji-covid-swab-lab-test-list').send({
+        parameters: {
+          village: village1,
+        },
+      });
+      expect(result).toHaveSucceeded();
+      expect(result.body).toHaveLength(3);
+      expect(result.body.map(r => r[PATIENT_ID_COLUMN])).toEqual([
+        'Patient ID',
+        expectedPatient1.displayId,
+        expectedPatient1.displayId,
+      ]);
+    });
+
     it('should return latest data per patient and latest data per patient per date', async () => {
       const result = await app.post('/v1/reports/fiji-covid-swab-lab-test-list').send({});
       expect(result).toHaveSucceeded();

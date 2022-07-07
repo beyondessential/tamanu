@@ -29,12 +29,13 @@ const TopBarSubHeading = styled(Typography)`
 `;
 
 const AppBar = styled.div`
+  position: sticky;
+  top: 0;
+  z-index: 9;
   flex-grow: 1;
   background-color: ${Colors.white};
   padding: 16px 0;
-  z-index: 1;
   border-bottom: 1px solid ${props => props.theme.palette.grey[400]};
-  position: relative;
   border-bottom: 1px solid ${Colors.softOutline};
 `;
 
@@ -47,8 +48,8 @@ const Bar = styled(Toolbar)`
 `;
 
 export const TopBar = React.memo(({ title, subTitle, children, className }) => (
-  <AppBar>
-    <Bar className={className}>
+  <AppBar className={className}>
+    <Bar>
       {subTitle ? (
         <div>
           <SmallTopBarHeading variant="h2">{title}</SmallTopBarHeading>
@@ -103,8 +104,13 @@ const Value = styled(Label)`
   margin-left: 5px;
 `;
 
+const StaticTopBar = styled(TopBar)`
+  position: relative;
+  z-index: 1;
+`;
+
 export const EncounterTopBar = ({ title, subTitle, encounter, children }) => (
-  <TopBar title={title} subTitle={subTitle}>
+  <StaticTopBar title={title} subTitle={subTitle}>
     <Container>
       <div>
         <Cell>
@@ -120,7 +126,7 @@ export const EncounterTopBar = ({ title, subTitle, encounter, children }) => (
       </div>
       {children}
     </Container>
-  </TopBar>
+  </StaticTopBar>
 );
 
 EncounterTopBar.propTypes = {

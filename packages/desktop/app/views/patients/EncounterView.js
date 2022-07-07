@@ -1,25 +1,22 @@
-import React from 'react';
-import { connect, useSelector } from 'react-redux';
-import { push } from 'connected-react-router';
+import React, { useMemo } from 'react';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { Divider, Box } from '@material-ui/core';
 import { ENCOUNTER_TYPES } from 'shared/constants';
-import {
-  Button,
-  BackButton,
-  EncounterTopBar,
-  connectRoutedModal,
-  ContentPane,
-} from '../../components';
+import { useParams } from 'react-router-dom';
+import { useEncounter } from '../../contexts/Encounter';
+import { useLocalisation } from '../../contexts/Localisation';
+import { useAuth } from '../../contexts/Auth';
+import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
+import { usePatientNavigation } from '../../utils/usePatientNavigation';
+import { Button, EncounterTopBar, connectRoutedModal, ContentPane } from '../../components';
 import { DiagnosisView } from '../../components/DiagnosisView';
 import { DischargeModal } from '../../components/DischargeModal';
 import { MoveModal } from '../../components/MoveModal';
 import { ChangeEncounterTypeModal } from '../../components/ChangeEncounterTypeModal';
 import { ChangeDepartmentModal } from '../../components/ChangeDepartmentModal';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { PatientInfoPane } from '../../components/PatientInfoPane';
 import { TabDisplay } from '../../components/TabDisplay';
-import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import {
   VitalsPane,
   NotesPane,
@@ -34,10 +31,9 @@ import {
 } from './panes';
 import { DropdownButton } from '../../components/DropdownButton';
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../constants';
-import { useEncounter } from '../../contexts/Encounter';
-import { useLocalisation } from '../../contexts/Localisation';
-import { useAuth } from '../../contexts/Auth';
-import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
+
+const getConnectRoutedModal = ({ category, patientId, encounterId }, suffix) =>
+  connectRoutedModal(`/patients/${category}/${patientId}/encounter/${encounterId}`, suffix);
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
@@ -102,110 +98,110 @@ const TABS = [
   },
 ];
 
-const RoutedDischargeModal = connectRoutedModal('/patients/encounter', 'discharge')(DischargeModal);
-const RoutedChangeEncounterTypeModal = connectRoutedModal(
-  '/patients/encounter',
-  'changeType',
-)(ChangeEncounterTypeModal);
-const RoutedChangeDepartmentModal = connectRoutedModal(
-  '/patients/encounter',
-  'changeDepartment',
-)(ChangeDepartmentModal);
-const RoutedMoveModal = connectRoutedModal('/patients/encounter', 'move')(MoveModal);
+const EncounterActionDropdown = ({ encounter }) => {
+  const { navigateToEncounter, navigateToSummary } = usePatientNavigation();
+  const onChangeEncounterType = type => navigateToEncounter(encounter.id, `changeType/${type}`);
+  const onChangeLocation = () => navigateToEncounter(encounter.id, 'move');
+  const onDischargeOpen = () => navigateToEncounter(encounter.id, 'discharge');
+  const onChangeDepartment = () => navigateToEncounter(encounter.id, 'changeDepartment');
+  const onViewSummary = () => navigateToSummary();
 
-const EncounterActionDropdown = connect(null, dispatch => ({
-  onDischargeOpen: () => dispatch(push('/patients/encounter/discharge')),
-  onChangeEncounterType: newType => dispatch(push(`/patients/encounter/changeType/${newType}`)),
-  onViewSummary: () => dispatch(push('/patients/encounter/summary')),
-  onChangeLocation: () => dispatch(push('/patients/encounter/move')),
-  onChangeDepartment: () => dispatch(push('/patients/encounter/changeDepartment')),
-}))(
-  ({
-    encounter,
-    onDischargeOpen,
-    onChangeEncounterType,
-    onChangeLocation,
-    onCancelLocationChange,
-    onFinaliseLocationChange,
-    onChangeDepartment,
-    onViewSummary,
-  }) => {
-    if (encounter.endDate) {
-      return (
-        <Button variant="outlined" color="primary" onClick={onViewSummary}>
-          View discharge summary
-        </Button>
-      );
-    }
+  if (encounter.endDate) {
+    return (
+      <Button variant="outlined" color="primary" onClick={onViewSummary}>
+        View discharge summary
+      </Button>
+    );
+  }
 
-    const progression = {
-      [ENCOUNTER_TYPES.TRIAGE]: 0,
-      [ENCOUNTER_TYPES.OBSERVATION]: 1,
-      [ENCOUNTER_TYPES.EMERGENCY]: 2,
-      [ENCOUNTER_TYPES.ADMISSION]: 3,
-    };
-    const isProgressionForward = (currentState, nextState) =>
-      progression[nextState] > progression[currentState];
-    const actions = [
-      {
-        label: 'Move to active ED care',
-        onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.OBSERVATION),
-        condition: () => isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.OBSERVATION),
-      },
-      {
-        label: 'Move to emergency short stay',
-        onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.EMERGENCY),
-        condition: () => isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.EMERGENCY),
-      },
-      {
-        label: 'Admit to hospital',
-        onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.ADMISSION),
-        condition: () => isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.ADMISSION),
-      },
-      {
-        label: 'Finalise location change',
-        condition: () => encounter.plannedLocation,
-        onClick: onFinaliseLocationChange,
-      },
-      {
-        label: 'Cancel location change',
-        condition: () => encounter.plannedLocation,
-        onClick: onCancelLocationChange,
-      },
-      {
-        label: 'Discharge without being seen',
-        onClick: onDischargeOpen,
-        condition: () => encounter.encounterType === ENCOUNTER_TYPES.TRIAGE,
-      },
-      {
-        label: 'Discharge',
-        onClick: onDischargeOpen,
-        condition: () => encounter.encounterType !== ENCOUNTER_TYPES.TRIAGE,
-      },
-      {
-        label: 'Change department',
-        onClick: onChangeDepartment,
-      },
-      {
-        label: 'Change location',
-        condition: () => !encounter.plannedLocation,
-        onClick: onChangeLocation,
-      },
-    ].filter(action => !action.condition || action.condition());
+  const progression = {
+    [ENCOUNTER_TYPES.TRIAGE]: 0,
+    [ENCOUNTER_TYPES.OBSERVATION]: 1,
+    [ENCOUNTER_TYPES.EMERGENCY]: 2,
+    [ENCOUNTER_TYPES.ADMISSION]: 3,
+  };
+  const isProgressionForward = (currentState, nextState) =>
+    progression[nextState] > progression[currentState];
 
-    return <DropdownButton actions={actions} />;
-  },
-);
+  const actions = [
+    {
+      label: 'Move to active ED care',
+      onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.OBSERVATION),
+      condition: () => isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.OBSERVATION),
+    },
+    {
+      label: 'Move to emergency short stay',
+      onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.EMERGENCY),
+      condition: () => isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.EMERGENCY),
+    },
+    {
+      label: 'Admit to hospital',
+      onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.ADMISSION),
+      condition: () => isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.ADMISSION),
+    },
+    // {
+    //   label: 'Finalise location change',
+    //   condition: () => encounter.plannedLocation,
+    //   onClick: onFinaliseLocationChange,
+    // },
+    // {
+    //   label: 'Cancel location change',
+    //   condition: () => encounter.plannedLocation,
+    //   onClick: onCancelLocationChange,
+    // },
+    {
+      label: 'Discharge without being seen',
+      onClick: onDischargeOpen,
+      condition: () => encounter.encounterType === ENCOUNTER_TYPES.TRIAGE,
+    },
+    {
+      label: 'Discharge',
+      onClick: onDischargeOpen,
+      condition: () => encounter.encounterType !== ENCOUNTER_TYPES.TRIAGE,
+    },
+    {
+      label: 'Change department',
+      onClick: onChangeDepartment,
+    },
+    {
+      label: 'Change location',
+      condition: () => !encounter.plannedLocation,
+      onClick: onChangeLocation,
+    },
+  ].filter(action => !action.condition || action.condition());
 
-const EncounterActions = ({ encounter }) => (
-  <>
-    <EncounterActionDropdown encounter={encounter} />
-    <RoutedDischargeModal encounter={encounter} />
-    <RoutedChangeEncounterTypeModal encounter={encounter} />
-    <RoutedChangeDepartmentModal encounter={encounter} />
-    <RoutedMoveModal encounter={encounter} />
-  </>
-);
+  return <DropdownButton variant="outlined" actions={actions} />;
+};
+
+const EncounterActions = ({ encounter }) => {
+  const params = useParams();
+
+  const RoutedDischargeModal = useMemo(() => getConnectRoutedModal(params, 'discharge'), [params])(
+    DischargeModal,
+  );
+
+  const RoutedChangeEncounterTypeModal = useMemo(
+    () => getConnectRoutedModal(params, 'changeType'),
+    [params],
+  )(ChangeEncounterTypeModal);
+
+  const RoutedChangeDepartmentModal = useMemo(
+    () => getConnectRoutedModal(params, 'changeDepartment'),
+    [params],
+  )(ChangeDepartmentModal);
+
+  const RoutedMoveModal = useMemo(() => getConnectRoutedModal(params, 'move'), [params])(MoveModal);
+
+  return (
+    <>
+      <EncounterActionDropdown encounter={encounter} />
+      <RoutedDischargeModal encounter={encounter} />
+      <RoutedChangeEncounterTypeModal encounter={encounter} />
+      <RoutedChangeDepartmentModal />
+      <RoutedMoveModal encounter={encounter} />
+    </>
+  );
+};
 
 function getHeaderText({ encounterType }) {
   switch (encounterType) {
@@ -230,19 +226,8 @@ const GridColumnContainer = styled.div`
   min-width: 0;
 `;
 
-// Todo: Remove when breadcrumbs are added
-const BreadcrumbsPlaceholder = styled.div`
-  background: white;
-  padding: 12px 0 6px 20px;
-  border-bottom: 1px solid ${Colors.softOutline};
-
-  .MuiButton-root {
-    font-size: 12px;
-  }
-`;
-
 const StyledTabDisplay = styled(TabDisplay)`
-  filter: drop-shadow(2px 2px 25px rgba(0, 0, 0, 0.1));
+  box-shadow: 2px 2px 25px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
   border: 1px solid ${Colors.outline};
   background: white;
@@ -270,40 +255,34 @@ export const EncounterView = () => {
   const visibleTabs = TABS.filter(tab => !tab.condition || tab.condition(getLocalisation));
 
   return (
-    <TwoColumnDisplay>
-      <PatientInfoPane patient={patient} disabled={disabled} />
-      <GridColumnContainer>
-        <BreadcrumbsPlaceholder>
-          <BackButton to="/patients/view" />
-        </BreadcrumbsPlaceholder>
-        <EncounterTopBar
-          title={getHeaderText(encounter)}
-          subTitle={facility?.name}
+    <GridColumnContainer>
+      <EncounterTopBar
+        title={getHeaderText(encounter)}
+        subTitle={facility?.name}
+        encounter={encounter}
+      >
+        <EncounterActions encounter={encounter} />
+      </EncounterTopBar>
+      <ContentPane>
+        <EncounterInfoPane encounter={encounter} />
+        <Box mt={4} mb={4}>
+          <Divider />
+        </Box>
+        <DiagnosisView
           encounter={encounter}
-        >
-          <EncounterActions encounter={encounter} />
-        </EncounterTopBar>
-        <ContentPane>
-          <EncounterInfoPane encounter={encounter} />
-          <Box mt={4} mb={4}>
-            <Divider />
-          </Box>
-          <DiagnosisView
-            encounter={encounter}
-            isTriage={getIsTriage(encounter)}
-            disabled={disabled}
-          />
-        </ContentPane>
-        <ContentPane>
-          <StyledTabDisplay
-            tabs={visibleTabs}
-            currentTab={currentTab}
-            onTabSelect={setCurrentTab}
-            encounter={encounter}
-            disabled={disabled}
-          />
-        </ContentPane>
-      </GridColumnContainer>
-    </TwoColumnDisplay>
+          isTriage={getIsTriage(encounter)}
+          disabled={disabled}
+        />
+      </ContentPane>
+      <ContentPane>
+        <StyledTabDisplay
+          tabs={visibleTabs}
+          currentTab={currentTab}
+          onTabSelect={setCurrentTab}
+          encounter={encounter}
+          disabled={disabled}
+        />
+      </ContentPane>
+    </GridColumnContainer>
   );
 };

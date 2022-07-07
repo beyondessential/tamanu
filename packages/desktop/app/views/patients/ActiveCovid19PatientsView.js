@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { push } from 'connected-react-router';
 import { groupBy } from 'lodash';
 import styled from 'styled-components';
 import { useApi } from '../../api';
-import { viewPatient } from '../../store/patient';
+import { reloadPatient } from '../../store/patient';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
+import { Colors } from '../../constants';
+
 import {
   TopBar,
   CovidPatientsSearchBar,
@@ -75,7 +78,10 @@ const ENDPOINT = 'patient/program/activeCovid19Patients';
 
 const Covid19PatientsTable = React.memo(({ data, ...props }) => {
   const dispatch = useDispatch();
-  const handleViewPatient = id => dispatch(viewPatient(id));
+  const handleViewPatient = async id => {
+    await dispatch(reloadPatient(id));
+    dispatch(push(`/patients/all/${id}`));
+  };
 
   return (
     <DataFetchingTable

@@ -13,7 +13,6 @@ const MarkPatientForSyncButton = styled(Button)`
   justify-content: center;
   text-align: -webkit-center;
   height: 9rem;
-  margin: 1rem;
 `;
 
 const MarkPatientForSyncIcon = styled(Loop)`

@@ -1,4 +1,5 @@
 import React, { memo, useCallback, useState } from 'react';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 
 import { PATIENT_ISSUE_TYPES } from 'shared/constants';
@@ -158,8 +159,10 @@ const Buttons = styled.div`
   }
 `;
 
-export const PatientInfoPane = memo(({ patient, readonly }) => {
+export const PatientInfoPane = () => {
   const { getLocalisation } = useLocalisation();
+  const patient = useSelector(state => state.patient);
+  const readonly = !!patient.death;
   const patientDeathsEnabled = getLocalisation('features.enablePatientDeaths');
 
   return (
@@ -178,4 +181,4 @@ export const PatientInfoPane = memo(({ patient, readonly }) => {
       </ListsSection>
     </Container>
   );
-});
+};

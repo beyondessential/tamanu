@@ -11,6 +11,9 @@ import {
   getLabTestPriorities,
   loadOptions,
 } from '../store/options';
+import { useLabRequest } from '../contexts/LabRequest';
+import { useEncounter } from '../contexts/Encounter';
+import { usePatientNavigation } from '../utils/usePatientNavigation';
 
 import {
   Form,
@@ -30,9 +33,6 @@ import { DateDisplay } from '../components/DateDisplay';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { DropdownButton } from '../components/DropdownButton';
 
-import { useLabRequest } from '../contexts/LabRequest';
-import { useEncounter } from '../contexts/Encounter';
-
 function getEncounterTypeLabel(type) {
   return encounterOptions.find(x => x.value === type).label;
 }
@@ -50,6 +50,7 @@ function filterTestTypes(testTypes, { labTestCategoryId }) {
 }
 
 const FormSubmitActionDropdown = ({ requestId, encounter, submitForm }) => {
+  const { navigateToLabRequest } = usePatientNavigation();
   const { loadEncounter } = useEncounter();
   const { loadLabRequest } = useLabRequest();
   const [awaitingPrintRedirect, setAwaitingPrintRedirect] = useState();
@@ -58,10 +59,11 @@ const FormSubmitActionDropdown = ({ requestId, encounter, submitForm }) => {
   useEffect(() => {
     (async () => {
       if (awaitingPrintRedirect && requestId) {
-        await loadLabRequest(requestId, 'print');
+        await loadLabRequest(requestId);
+        navigateToLabRequest(requestId, 'print');
       }
     })();
-  }, [requestId, awaitingPrintRedirect, loadLabRequest]);
+  }, [requestId, awaitingPrintRedirect, loadLabRequest, navigateToLabRequest]);
 
   const finalise = async data => {
     await submitForm(data);

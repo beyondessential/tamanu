@@ -33,7 +33,7 @@ const StyledButton = styled(MuiButton)`
   font-size: 14px;
   line-height: 16px;
   text-transform: none;
-  padding: 11px 20px 12px;
+  padding: 12px 20px;
   box-shadow: none;
 `;
 
@@ -198,7 +198,11 @@ export const TextButton = ({ children, ...props }) => (
 
 const StyledNavButton = styled(TextButton)`
   color: ${Colors.primary};
-  font-size: 14px;
+  padding-right: 8px;
+  font-size: 12px;
+  & svg {
+    font-size: 20px;
+  }
 `;
 
 export const ForwardButton = ({ children, ...props }) => (
