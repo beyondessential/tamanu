@@ -42,7 +42,8 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
     CertifiableVaccine,
   } = models;
 
-  const countryCode = (await getLocalisation()).country['alpha-3'];
+  const { country, timeZone } = await getLocalisation();
+  const countryCode = country['alpha-3'];
 
   const patient = await Patient.findOne({
     where: { id: patientId },
@@ -138,7 +139,7 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
 
     const event = {
       dvc: moment(date)
-        .utc()
+        .tz(timeZone)
         .format(MOMENT_FORMAT_ISODATE),
       seq: SCHEDULE_TO_SEQUENCE[schedule],
       ctr: countryCode,
@@ -162,7 +163,7 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
 
   return {
     pid: {
-      ...pid(firstName, lastName, dateOfBirth, sex),
+      ...pid(firstName, lastName, dateOfBirth, sex, timeZone),
       ...pidDoc,
     },
     ve: [...vaccines.values()],
@@ -180,7 +181,8 @@ export const createVdsNcTestData = async (labTestId, { models }) => {
     Encounter,
   } = models;
 
-  const countryCode = (await getLocalisation()).country['alpha-3'];
+  const { country, timeZone } = await getLocalisation();
+  const countryCode = country['alpha-3'];
 
   const test = await LabTest.findOne({
     where: {
@@ -243,7 +245,7 @@ export const createVdsNcTestData = async (labTestId, { models }) => {
 
   return {
     pid: {
-      ...pid(firstName, lastName, dateOfBirth, sex),
+      ...pid(firstName, lastName, dateOfBirth, sex, timeZone),
       ...pidDoc,
     },
     sp: {
@@ -270,7 +272,7 @@ export const createVdsNcTestData = async (labTestId, { models }) => {
   };
 };
 
-function pid(firstName, lastName, dateOfBirth, sex) {
+function pid(firstName, lastName, dateOfBirth, sex, timeZone = 'UTC') {
   const MAX_LEN = 39;
   const primary = tr(lastName);
   const secondary = tr(firstName);
@@ -285,7 +287,9 @@ function pid(firstName, lastName, dateOfBirth, sex) {
 
   const data = {
     n: name,
-    dob: moment(dateOfBirth).format(MOMENT_FORMAT_ISODATE),
+    dob: moment(dateOfBirth)
+      .tz(timeZone)
+      .format(MOMENT_FORMAT_ISODATE),
   };
 
   if (sex && SEX_TO_CHAR[sex]) {
