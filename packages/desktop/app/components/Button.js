@@ -54,7 +54,7 @@ Button.propTypes = {
   isSubmitting: PropTypes.bool,
   disabled: PropTypes.bool,
   variant: PropTypes.PropTypes.oneOf(['contained', 'outlined', 'text']),
-  color: PropTypes.PropTypes.oneOf(['primary', 'secondary']),
+  color: PropTypes.PropTypes.oneOf(['default', 'primary', 'secondary']),
 };
 
 Button.defaultProps = {

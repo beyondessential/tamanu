@@ -83,6 +83,18 @@ const StyledTableCell = styled(TableCell)`
   font-size: 14px;
   line-height: 18px;
   background: ${props => props.background};
+
+  &.MuiTableCell-body {
+    padding: 20px 15px;
+  }
+
+  &:first-child {
+    padding-left: 20px;
+  }
+
+  &:last-child {
+    padding-right: 20px;
+  }
 `;
 
 const StyledTable = styled(MaterialTable)`
@@ -304,7 +316,7 @@ TableComponent.propTypes = {
     PropTypes.shape({
       key: PropTypes.string.isRequired,
       title: PropTypes.node,
-      accessor: PropTypes.func,
+      accessor: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
       sortable: PropTypes.bool,
     }),
   ).isRequired,
