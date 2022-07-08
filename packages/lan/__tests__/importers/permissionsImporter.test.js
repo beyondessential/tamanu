@@ -11,7 +11,7 @@ describe('Importing permissions', () => {
     const rawData = await importPermissions({ file: TEST_PERMISSIONS_PATH });
     const { recordGroups: rg, ...rest } = await preprocessRecordSet(rawData);
     resultInfo = rest;
-    importedPermissions = rg.find(x => x[0] === 'permission')[1];
+    [, importedPermissions] = rg.find(x => x[0] === 'permission');
   });
 
   const findErrors = (recordType, text) => {
@@ -28,7 +28,7 @@ describe('Importing permissions', () => {
 
   describe('Permissions validation', () => {
     it('Should forbid duplicates of the same permission', async () => {
-      const [err] = findErrors('permission', "is already being used");
+      const [err] = findErrors('permission', 'is already being used');
       expect(err).toBeTruthy();
       expect(err.data).toHaveProperty('verb', 'list');
       expect(err.data).toHaveProperty('noun', 'User');
@@ -36,7 +36,10 @@ describe('Importing permissions', () => {
     });
 
     it('Should forbid permissions with an invalid role', async () => {
-      const [err] = findErrors('permission', `could not find a record of type role called "invalid"`);
+      const [err] = findErrors(
+        'permission',
+        `could not find a record of type role called "invalid"`,
+      );
       expect(err).toBeTruthy();
     });
   });
@@ -62,26 +65,26 @@ describe('Importing permissions', () => {
       const wrongLetter = yErrors.find(x => x.data.noun === 'FailDueToWrongLetter');
       expect(wrongLetter).toBeTruthy();
     });
-    
+
     it('Should not allow multiple ys', async () => {
       const twoLetters = yErrors.find(x => x.data.noun === 'FailDueToTwoLetters');
-      expect(twoLetters).toBeTruthy(); 
+      expect(twoLetters).toBeTruthy();
     });
-    
+
     it('Should ignore permissions with a matrix cell with just a space', async () => {
       // shouldn't be a record OR an error, just ignored
       const found = importedPermissions.some(x => x.data.noun === 'FailDueToSpace');
-      expect(found).toEqual(false);                  
+      expect(found).toEqual(false);
     });
 
     it('Should not be case-sensitive about the Ys', async () => {
       const found = importedPermissions.some(x => x.data.noun === 'SucceedEvenThoughCapitalY');
-      expect(found).toEqual(true);            
+      expect(found).toEqual(true);
     });
-    
+
     it('Should ignore whitespace in the y cell', async () => {
       const found = importedPermissions.some(x => x.data.noun === 'SucceedEvenThoughSpace');
-      expect(found).toEqual(true);      
+      expect(found).toEqual(true);
     });
   });
 });

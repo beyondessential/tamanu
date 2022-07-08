@@ -62,7 +62,7 @@ const Provider = ({
 
   const setContextUserAndAbility = (userData): void => {
     setUserData(userData);
-    const abilityObject = buildAbility(backend.permissions.data);
+    const abilityObject = buildAbility(userData, backend.permissions.data);
     setAbility(abilityObject);
   };
 
