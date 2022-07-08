@@ -18,7 +18,6 @@ const AppContainer = styled.div`
 
 const AppContentsContainer = styled.div`
   height: 100vh;
-  overflow: auto;
   flex: 1;
   border-top: 1px solid ${Colors.softOutline};
 `;
