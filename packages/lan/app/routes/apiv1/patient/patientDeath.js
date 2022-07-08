@@ -208,10 +208,10 @@ patientDeath.post(
       await patient.update({ dateOfDeath: body.timeOfDeath });
 
       const deathData = await PatientDeathData.create({
-        antecendentCause1ConditionId: body.antecedentCause1,
-        antecendentCause1TimeAfterOnset: body.antecedentCause1Interval,
-        antecendentCause2ConditionId: body.antecedentCause2,
-        antecendentCause2TimeAfterOnset: body.antecedentCause2Interval,
+        antecedentCause1ConditionId: body.antecedentCause1,
+        antecedentCause1TimeAfterOnset: body.antecedentCause1Interval,
+        antecedentCause2ConditionId: body.antecedentCause2,
+        antecedentCause2TimeAfterOnset: body.antecedentCause2Interval,
         birthWeight: body.birthWeight,
         carrierAge: body.ageOfMother,
         carrierExistingConditionId: body.motherExistingCondition,

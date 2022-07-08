@@ -25,8 +25,8 @@ export class PatientDeathData extends Model {
         withinDayOfBirth: Sequelize.BOOLEAN,
         outsideHealthFacility: Sequelize.BOOLEAN,
         primaryCauseTimeAfterOnset: Sequelize.INTEGER, // minutes
-        antecendentCause1TimeAfterOnset: Sequelize.INTEGER, // minutes
-        antecendentCause2TimeAfterOnset: Sequelize.INTEGER, // minutes
+        antecedentCause1TimeAfterOnset: Sequelize.INTEGER, // minutes
+        antecedentCause2TimeAfterOnset: Sequelize.INTEGER, // minutes
       },
       {
         ...options,
