@@ -135,6 +135,7 @@ const Container = styled.div`
   background: ${Colors.white};
   box-shadow: 1px 0 3px rgba(0, 0, 0, 0.1);
   z-index: 10;
+  overflow: auto;
 `;
 
 const ListsSection = styled.div`
