@@ -1,17 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
-
+import { Typography } from '@material-ui/core';
 import { useEncounter } from '../../../contexts/Encounter';
 import { useApi } from '../../../api';
 import { isInvoiceEditable } from '../../../utils';
-
 import { InvoiceLineItemModal } from '../../../components/InvoiceLineItemModal';
 import { InvoicePriceChangeItemModal } from '../../../components/InvoicePriceChangeItemModal';
 import { PotentialInvoiceLineItemsModal } from '../../../components/PotentialInvoiceLineItemsModal';
 import { InvoiceDetailTable } from '../../../components/InvoiceDetailTable';
-import { Button } from '../../../components/Button';
+import { Button, OutlinedButton } from '../../../components/Button';
 import { ContentPane } from '../../../components/ContentPane';
-
 import { Colors } from '../../../constants';
 import { TabPane } from '../components';
 
@@ -19,21 +17,28 @@ const EmptyPane = styled(ContentPane)`
   text-align: center;
 `;
 
-const ActionsPane = styled(ContentPane)`
+const ActionsPane = styled.div`
   display: flex;
   flex-direction: row-reverse;
-  column-gap: 1.6rem;
+  align-items: center;
+
+  > button {
+    margin-left: 16px;
+  }
 `;
 
-const InvoiceHeading = styled.h3`
+const InvoiceHeading = styled(Typography)`
   color: ${Colors.primary};
-  margin: 24px 1rem; /* 24px to match ContentPane */
+  font-weight: 500;
+  font-size: 14px;
+  margin-left: 5px;
 `;
 
 const InvoiceTopBar = styled.div`
-  display: grid;
-  grid-template-columns: 18rem 1fr;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
+  margin-bottom: 20px;
 `;
 
 export const InvoicingPane = React.memo(({ encounter }) => {
@@ -81,13 +86,13 @@ export const InvoicingPane = React.memo(({ encounter }) => {
   if (!invoice) {
     return (
       <EmptyPane>
-        <Button onClick={createInvoice}>Create Invoice</Button>
+        <Button onClick={createInvoice}>Create invoice</Button>
       </EmptyPane>
     );
   }
 
   return (
-    <>
+    <TabPane>
       <InvoiceTopBar>
         <InvoiceHeading>Invoice number: {invoice.displayId}</InvoiceHeading>
         {isInvoiceEditable(invoice) ? (
@@ -104,9 +109,9 @@ export const InvoicingPane = React.memo(({ encounter }) => {
                 loadEncounter(encounter.id);
               }}
             />
-            <Button onClick={() => setInvoicePriceChangeModalOpen(true)} variant="outlined">
+            <OutlinedButton onClick={() => setInvoicePriceChangeModalOpen(true)}>
               Add price change
-            </Button>
+            </OutlinedButton>
             <InvoicePriceChangeItemModal
               title="Add price change"
               actionText="Create"
@@ -118,9 +123,9 @@ export const InvoicingPane = React.memo(({ encounter }) => {
                 await loadEncounter(encounter.id);
               }}
             />
-            <Button onClick={() => setPotentialLineItemsModalOpen(true)} variant="outlined">
+            <OutlinedButton onClick={() => setPotentialLineItemsModalOpen(true)}>
               Populate invoice
-            </Button>
+            </OutlinedButton>
             <PotentialInvoiceLineItemsModal
               open={potentialLineItemsModalOpen}
               invoiceId={invoice.id}
@@ -133,9 +138,7 @@ export const InvoicingPane = React.memo(({ encounter }) => {
           </ActionsPane>
         ) : null}
       </InvoiceTopBar>
-      <TabPane>
-        <InvoiceDetailTable invoice={invoice} />
-      </TabPane>
-    </>
+      <InvoiceDetailTable invoice={invoice} />
+    </TabPane>
   );
 });

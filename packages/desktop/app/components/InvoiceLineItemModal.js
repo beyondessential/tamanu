@@ -4,12 +4,10 @@ import * as yup from 'yup';
 import { useApi } from '../api';
 import { Suggester } from '../utils/suggester';
 import { foreignKey } from '../utils/validation';
-
 import { Modal } from './Modal';
 import { Form, Field, DateField, AutocompleteField, NumberField } from './Field';
 import { FormGrid } from './FormGrid';
-import { Button } from './Button';
-import { ButtonRow } from './ButtonRow';
+import { ConfirmCancelRow } from './ButtonRow';
 
 export const InvoiceLineItemModal = ({
   title,
@@ -79,14 +77,7 @@ export const InvoiceLineItemModal = ({
               label="Discount/markup % (-/+)"
               component={NumberField}
             />
-            <ButtonRow>
-              <Button variant="outlined" onClick={onClose} color="primary">
-                Cancel
-              </Button>
-              <Button variant="contained" onClick={submitForm} color="primary">
-                {actionText}
-              </Button>
-            </ButtonRow>
+            <ConfirmCancelRow confirmText={actionText} onConfirm={submitForm} onCancel={onClose} />
           </FormGrid>
         )}
         initialValues={initialValues}
