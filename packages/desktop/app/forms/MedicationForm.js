@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
-
+import { Box } from '@material-ui/core';
 import { foreignKey } from '../utils/validation';
-import { ButtonRow } from '../components/ButtonRow';
-import { Button } from '../components/Button';
 import { DropdownButton } from '../components/DropdownButton';
-import { FormGrid } from '../components/FormGrid';
+import { PrescriptionPrintModal } from '../components/PatientPrinting/PrescriptionPrintModal';
 import {
+  FormGrid,
+  Button,
+  ButtonRow,
   Form,
   Field,
   SelectField,
@@ -15,8 +16,8 @@ import {
   AutocompleteField,
   NumberField,
   DateField,
-} from '../components/Field';
-import { PrescriptionPrintModal } from '../components/PatientPrinting/PrescriptionPrintModal';
+  DateDisplay,
+} from '../components';
 
 const drugRouteOptions = [
   { label: 'Dermal', value: 'dermal' },
@@ -62,6 +63,22 @@ const DiscontinuePrintButtonRow = styled.div`
   grid-column: -1 / 1;
 `;
 
+const DiscontinuedLabel = ({ medication }) => {
+  const { updatedAt, discontinuingClinician, discontinuingReason } = medication;
+  return (
+    <Box color="error.main" ml={2}>
+      <strong>Discontinued</strong>
+      <br />
+      Discontinued at: <DateDisplay date={updatedAt} />
+      <br />
+      by: {discontinuingClinician?.displayName}
+      <br />
+      Reason: {discontinuingReason}
+      <br />
+    </Box>
+  );
+};
+
 export const MedicationForm = React.memo(
   ({
     onCancel,
@@ -103,7 +120,7 @@ export const MedicationForm = React.memo(
             note: medication?.note ?? '',
             route: medication?.route ?? '',
             prescription: medication?.prescription ?? '',
-            date: medication?.createdAt ?? new Date(),
+            date: medication?.date ?? new Date(),
             qtyMorning: medication?.qtyMorning ?? 0,
             qtyLunch: medication?.qtyMorning ?? 0,
             qtyEvening: medication?.qtyEvening ?? 0,
@@ -236,23 +253,7 @@ export const MedicationForm = React.memo(
                     />
                   </>
                 )}
-                {medication?.discontinued && (
-                  <p style={{ color: 'red' }}>
-                    <span style={{ fontWeight: 'bold' }}>Discontinued</span>
-                    <br />
-                    Discontinued at:{' '}
-                    {medication?.updatedAt
-                      .substr(0, 10)
-                      .split('-')
-                      .reverse()
-                      .join('/')}
-                    <br />
-                    by: {medication?.discontinuingClinician?.displayName}
-                    <br />
-                    Reason: {medication?.discontinuingReason}
-                    <br />
-                  </p>
-                )}
+                {medication?.discontinued && <DiscontinuedLabel medication={medication} />}
               </div>
               {shouldShowSubmitButton && (
                 <ButtonRow>
