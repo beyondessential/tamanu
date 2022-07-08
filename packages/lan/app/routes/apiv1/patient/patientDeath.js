@@ -244,7 +244,7 @@ patientDeath.post(
           await ContributingDeathCause.create({
             patientDeathDataId: deathData.id,
             conditionId: condition.cause,
-            timeAfterOnset: condition.interval,
+            timeAfterOnset: condition.interval ?? 0,
           });
         }
       }
