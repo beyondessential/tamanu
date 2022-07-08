@@ -7,7 +7,11 @@ import {
   VISIBILITY_STATUSES,
 } from 'shared/constants';
 
-const visibilityStatus = yup.string().oneOf(Object.values(VISIBILITY_STATUSES));
+const visibilityStatus = yup
+  .string()
+  .default(VISIBILITY_STATUSES.CURRENT)
+  .oneOf(Object.values(VISIBILITY_STATUSES))
+  ;
 
 const safeIdRegex = /^[A-Za-z0-9-]+$/;
 const safeCodeRegex = /^[A-Za-z0-9-./]+$/;

@@ -30,10 +30,14 @@ describe('Data definition import', () => {
     }
   });
 
-  const expectError = (recordType, text) => {
+  const findFirstError = (recordType, text) => {
     const hasError = record => record.errors.some(e => e.includes(text));
     const condition = record => record.recordType === recordType && hasError(record);
-    expect(resultInfo.errors.some(condition)).toEqual(true);
+    return resultInfo.errors.find(condition);
+  };
+
+  const expectError = (recordType, text) => {
+    expect(findFirstError(recordType, text)).toBeTruthy();
   };
 
   it('should flag records with missing ids', () => {
@@ -113,9 +117,35 @@ describe('Data definition import', () => {
 
   it('should report an error if an FK is of the wrong type', () => {
     expectError(
-      'patient',
+      'visibilityStatus',
       'could not find a record of type referenceData called "2ecb58ca-8b2b-42e8-9c18-fd06c09653e1"',
     );
+  });
+
+  describe('Visibility status', () => {
+    // All the record types work the same, just testing against Village 
+    let villageRecords;
+    beforeAll(() => {
+      villageRecords = recordGroups
+        .find(([t]) => t === 'referenceData')[1]
+        .filter(x => x.sheet === 'villages')
+        .reduce((state, current) => ({ ...state, [current.data.id]: current }), {});
+    });
+
+    it('Should import visibility status', () => {
+      expect(villageRecords['village-historical']).toHaveProperty('visibilityStatus', 'historical');
+      expect(villageRecords['village-visible']).toHaveProperty('visibilityStatus', 'current');
+    });
+
+    it('Should default to visible', () => {
+      expect(villageRecords['village-default-visible']).toHaveProperty('visibilityStatus', 'current');
+    });
+
+    it('Should only accept valid values', () => {
+      const error = findFirstError('referenceData', `visibilityStatus must be`);
+      expect(error.data).toHaveProperty('id', 'village-invalid-visibility');
+    });
+
   });
 
   describe('Importer permissions', () => {
