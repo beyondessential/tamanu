@@ -128,6 +128,7 @@ export const DropdownButton = React.memo(({ variant, size, actions, style, class
         size={size}
         color="primary"
         disableElevation
+        style={{ borderColor: Colors.primary }}
         onClick={event => handleClick(event, 0)}
       >
         {mainAction.label}

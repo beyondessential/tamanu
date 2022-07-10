@@ -27,7 +27,7 @@ import {
 } from '../components/Field';
 import { TestSelectorField } from '../components/TestSelector';
 import { FormGrid } from '../components/FormGrid';
-import { Button } from '../components/Button';
+import { OutlinedButton } from '../components/Button';
 import { ButtonRow } from '../components/ButtonRow';
 import { DateDisplay } from '../components/DateDisplay';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
@@ -154,9 +154,7 @@ export class LabRequestForm extends React.PureComponent {
           rows={3}
         />
         <ButtonRow>
-          <Button variant="contained" onClick={onCancel}>
-            Cancel
-          </Button>
+          <OutlinedButton onClick={onCancel}>Cancel</OutlinedButton>
           <FormSubmitActionDropdown
             requestId={requestId}
             encounter={encounter}

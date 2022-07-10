@@ -15,7 +15,7 @@ export const ReferralPane = React.memo(({ patient }) => {
   return (
     <ContentPane>
       <TableButtonRow variant="small">
-        <Button onClick={handleNewReferral}>New Referral</Button>
+        <Button onClick={handleNewReferral}>New referral</Button>
       </TableButtonRow>
       <ReferralTable patientId={patient.id} />
     </ContentPane>
