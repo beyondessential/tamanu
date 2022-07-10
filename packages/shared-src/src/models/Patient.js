@@ -60,7 +60,7 @@ export class Patient extends Model {
 
     // this one is actually a hasMany
     this.hasMany(models.PatientSecondaryId, {
-      foreignKey: 'secondaryId',
+      foreignKey: 'patientId',
       as: 'secondaryIds',
     });
     this.belongsTo(models.ReferenceData, {

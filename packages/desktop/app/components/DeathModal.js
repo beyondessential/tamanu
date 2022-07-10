@@ -1,13 +1,15 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { viewPatient } from '../store/patient';
+import { reloadPatient } from '../store/patient';
 import { Modal } from './Modal';
 import { DeathForm } from '../forms/DeathForm';
 import { useApi, useSuggester } from '../api';
+import { usePatientNavigation } from '../utils/usePatientNavigation';
 
 export const DeathModal = React.memo(({ open, onClose }) => {
   const api = useApi();
   const dispatch = useDispatch();
+  const { navigateToPatient } = usePatientNavigation();
   const patient = useSelector(state => state.patient);
   const icd10Suggester = useSuggester('icd10');
   const practitionerSuggester = useSuggester('practitioner');
@@ -18,7 +20,8 @@ export const DeathModal = React.memo(({ open, onClose }) => {
     await api.post(`patient/${patientId}/death`, data);
 
     onClose();
-    dispatch(viewPatient(patientId));
+    await dispatch(reloadPatient(patientId));
+    navigateToPatient(patientId);
   };
 
   return (

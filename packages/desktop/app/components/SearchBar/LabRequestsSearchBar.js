@@ -1,5 +1,5 @@
 import React from 'react';
-import { DateField, SelectField, LocalisedField, DisplayIdField } from '../Field';
+import { DateField, SelectField, LocalisedField } from '../Field';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { LAB_REQUEST_STATUS_LABELS, LAB_REQUEST_STATUSES } from '../../constants';
 import { useLabRequest } from '../../contexts/LabRequest';
@@ -19,7 +19,7 @@ export const LabRequestsSearchBar = () => {
     >
       <LocalisedField name="firstName" />
       <LocalisedField name="lastName" />
-      <DisplayIdField />
+      <LocalisedField name="displayId" />
       <LocalisedField name="requestId" defaultLabel="Request ID" />
       <LocalisedField name="category" defaultLabel="Type" />
       <LocalisedField

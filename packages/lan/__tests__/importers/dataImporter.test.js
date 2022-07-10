@@ -1,10 +1,10 @@
-import { importData } from '../app/admin/importDataDefinition';
-import { preprocessRecordSet } from '../app/admin/preprocessRecordSet';
-import { sendRecordGroups } from '../app/admin/createDataImporterEndpoint';
-import { createTestContext } from './utilities';
-import { CentralServerConnection } from '../app/sync/CentralServerConnection';
+import { importData } from '../../app/admin/importDataDefinition';
+import { preprocessRecordSet } from '../../app/admin/preprocessRecordSet';
+import { sendRecordGroups } from '../../app/admin/createDataImporterEndpoint';
+import { createTestContext } from '../utilities';
+import { CentralServerConnection } from '../../app/sync/CentralServerConnection';
 
-jest.mock('../app/sync/CentralServerConnection');
+jest.mock('../../app/sync/CentralServerConnection');
 
 const TEST_DATA_PATH = './__tests__/importers/test_definitions.xlsx';
 

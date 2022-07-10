@@ -1,7 +1,6 @@
 import React from 'react';
 import { connectApi } from '../../../api';
-
-import { ContentPane } from '../../../components/ContentPane';
+import { ContentPane } from '../../../components';
 import { PatientDetailsForm } from '../../../forms/PatientDetailsForm';
 import { reloadPatient } from '../../../store/patient';
 

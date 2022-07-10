@@ -1,15 +1,17 @@
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
-import { connect } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import { useParams } from 'react-router-dom';
+import { push } from 'connected-react-router';
 
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 
 import { IMAGING_REQUEST_STATUS_LABELS, IMAGING_REQUEST_COLORS } from '../constants';
-import { viewImagingRequest } from '../store/imagingRequest';
 import { PatientNameDisplay } from './PatientNameDisplay';
-import { viewPatientEncounter } from '../store/patient';
+import { reloadPatient } from '../store/patient';
 import { useEncounter } from '../contexts/Encounter';
+import { reloadImagingRequest } from '../store';
 
 const StatusLabel = styled.div`
   background: ${p => p.color};
@@ -42,40 +44,39 @@ const globalColumns = [
   ...encounterColumns,
 ];
 
-const DumbImagingRequestsTable = React.memo(
-  ({ encounterId, onImagingRequestSelect, searchParameters }) => {
-    const { loadEncounter } = useEncounter();
+export const ImagingRequestsTable = React.memo(({ encounterId, searchParameters }) => {
+  const dispatch = useDispatch();
+  const params = useParams();
+  const { loadEncounter } = useEncounter();
 
-    const selectImagingRequest = useCallback(
-      async imagingRequest => {
-        const { encounter } = imagingRequest;
-        if (encounter) {
-          await loadEncounter(encounter.id);
-        }
-        onImagingRequestSelect(imagingRequest);
-      },
-      [loadEncounter, onImagingRequestSelect],
-    );
+  const selectImagingRequest = useCallback(
+    async imagingRequest => {
+      const { encounter } = imagingRequest;
+      const patientId = params.patientId || encounter.patientId;
+      if (encounter) {
+        await loadEncounter(encounter.id);
+        await dispatch(reloadPatient(patientId));
+      }
+      await dispatch(reloadImagingRequest(imagingRequest.id));
+      const category = params.category || 'all';
+      dispatch(
+        push(
+          `/patients/${category}/${patientId}/encounter/${encounterId ||
+            encounter.id}/imaging-request/${imagingRequest.id}`,
+        ),
+      );
+    },
+    [loadEncounter, dispatch, params.patientId, params.category, encounterId],
+  );
 
-    return (
-      <DataFetchingTable
-        endpoint={encounterId ? `encounter/${encounterId}/imagingRequests` : 'imagingRequest'}
-        columns={encounterId ? encounterColumns : globalColumns}
-        noDataMessage="No imaging requests found"
-        onRowClick={selectImagingRequest}
-        fetchOptions={searchParameters}
-      />
-    );
-  },
-);
-
-export const ImagingRequestsTable = connect(null, dispatch => ({
-  onImagingRequestSelect: imagingRequest => {
-    const { encounter, id } = imagingRequest;
-    if (encounter) {
-      dispatch(viewPatientEncounter(encounter.patient.id, encounter.id));
-    }
-
-    dispatch(viewImagingRequest(id));
-  },
-}))(DumbImagingRequestsTable);
+  return (
+    <DataFetchingTable
+      endpoint={encounterId ? `encounter/${encounterId}/imagingRequests` : 'imagingRequest'}
+      columns={encounterId ? encounterColumns : globalColumns}
+      noDataMessage="No imaging requests found"
+      onRowClick={selectImagingRequest}
+      fetchOptions={searchParameters}
+      elevated={false}
+    />
+  );
+});

@@ -1,11 +1,11 @@
-import React from 'react';
-import { connect } from 'react-redux';
+import React, { useMemo } from 'react';
+import { useSelector } from 'react-redux';
+import styled from 'styled-components';
 
+import { useParams } from 'react-router-dom';
 import { TabDisplay } from '../../components/TabDisplay';
-import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientAlert } from '../../components/PatientAlert';
-import { PatientInfoPane } from '../../components/PatientInfoPane';
 import { EncounterModal } from '../../components/EncounterModal';
 import { TriageModal } from '../../components/TriageModal';
 import { connectRoutedModal } from '../../components/Modal';
@@ -17,13 +17,25 @@ import {
   ImmunisationsPane,
   PatientMedicationPane,
   DocumentsPane,
-  ProgramsPane,
+  PatientProgramsPane,
   ReferralPane,
   InvoicesPane,
 } from './panes';
+import { Colors } from '../../constants';
+import { NAVIGATION_CONTAINER_HEIGHT } from '../../components/PatientNavigation';
 
-const RoutedEncounterModal = connectRoutedModal('/patients/view', 'checkin')(EncounterModal);
-const RoutedTriageModal = connectRoutedModal('/patients/view', 'triage')(TriageModal);
+const getConnectRoutedModal = ({ category, patientId }, suffix) =>
+  connectRoutedModal(`/patients/${category}/${patientId}`, suffix);
+
+const StyledDisplayTabs = styled(TabDisplay)`
+  overflow: initial;
+  .MuiTabs-root {
+    z-index: 9;
+    position: sticky;
+    top: ${NAVIGATION_CONTAINER_HEIGHT};
+    border-bottom: 1px solid ${Colors.softOutline};
+  }
+`;
 
 const TABS = [
   {
@@ -49,7 +61,7 @@ const TABS = [
     key: 'Programs',
     icon: 'fa fa-hospital',
     render: ({ patient, ...props }) => (
-      <ProgramsPane endpoint={`patient/${patient.Id}/programResponses`} {...props} />
+      <PatientProgramsPane endpoint={`patient/${patient.id}/programResponses`} {...props} />
     ),
   },
   {
@@ -79,10 +91,21 @@ const TABS = [
   },
 ];
 
-export const DumbPatientView = React.memo(({ patient, loading }) => {
+export const PatientView = () => {
+  const params = useParams();
   const { getLocalisation } = useLocalisation();
+  const patient = useSelector(state => state.patient);
+  const loading = useSelector(state => state.loading);
   const [currentTab, setCurrentTab] = React.useState('history');
   const disabled = !!patient.death;
+
+  const RoutedEncounterModal = useMemo(() => getConnectRoutedModal(params, 'checkin'), [params])(
+    EncounterModal,
+  );
+
+  const RoutedTriageModal = useMemo(() => getConnectRoutedModal(params, 'triage'), [params])(
+    TriageModal,
+  );
 
   if (loading) return <LoadingIndicator />;
 
@@ -91,16 +114,13 @@ export const DumbPatientView = React.memo(({ patient, loading }) => {
   return (
     <>
       <PatientAlert alerts={patient.alerts} />
-      <TwoColumnDisplay>
-        <PatientInfoPane patient={patient} disabled={disabled} />
-        <TabDisplay
-          tabs={visibleTabs}
-          currentTab={currentTab}
-          onTabSelect={setCurrentTab}
-          patient={patient}
-          disabled={disabled}
-        />
-      </TwoColumnDisplay>
+      <StyledDisplayTabs
+        tabs={visibleTabs}
+        currentTab={currentTab}
+        onTabSelect={setCurrentTab}
+        patient={patient}
+        disabled={disabled}
+      />
       <RoutedEncounterModal
         patientId={patient.id}
         patientBillingTypeId={patient.additionalData?.patientBillingTypeId}
@@ -109,9 +129,4 @@ export const DumbPatientView = React.memo(({ patient, loading }) => {
       <RoutedTriageModal patient={patient} />
     </>
   );
-});
-
-export const PatientView = connect(state => ({
-  loading: state.patient.loading,
-  patient: state.patient,
-}))(DumbPatientView);
+};

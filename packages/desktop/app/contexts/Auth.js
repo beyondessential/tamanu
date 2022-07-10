@@ -11,6 +11,7 @@ export const useAuth = () => {
   return {
     ...useSelector(state => ({
       currentUser: state.auth.user,
+      ability: state.auth.ability,
       facility: state.auth.server?.facility || {},
     })),
     onLogout: () => dispatch(logout()),

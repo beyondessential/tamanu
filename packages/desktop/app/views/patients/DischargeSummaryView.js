@@ -8,13 +8,17 @@ import Box from '@material-ui/core/Box';
 import { PrintPortal, PrintLetterhead } from '../../components/PatientPrinting';
 import { LocalisedText } from '../../components/LocalisedText';
 import { useApi } from '../../api';
-import { BackButton, Button } from '../../components/Button';
+import { Button } from '../../components/Button';
 import { DateDisplay } from '../../components/DateDisplay';
-import { TopBar } from '../../components';
 import { useEncounter } from '../../contexts/Encounter';
 import { useElectron } from '../../contexts/Electron';
 import { Colors } from '../../constants';
 import { useCertificate } from '../../utils/useCertificate';
+
+const Container = styled.div`
+  background: ${Colors.white};
+  height: 100%;
+`;
 
 const SummaryPageContainer = styled.div`
   margin: 0 auto;
@@ -24,11 +28,6 @@ const SummaryPageContainer = styled.div`
 const Label = styled.span`
   min-width: 200px;
   font-weight: 500;
-`;
-
-const StyledBackButton = styled(BackButton)`
-  width: fit-content;
-  margin: 24px 0;
 `;
 
 const Content = styled.div`
@@ -64,7 +63,7 @@ const NavContainer = styled.div`
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  margin: 20px;
+  padding: 20px;
 `;
 
 const DiagnosesList = ({ diagnoses }) => {
@@ -230,14 +229,12 @@ export const DischargeSummaryView = React.memo(() => {
 
   // If there is no encounter loaded then this screen can't be displayed
   if (!encounter?.id) {
-    return <Redirect to="/patients/view" />;
+    return <Redirect to="/patients/all" />;
   }
 
   return (
-    <>
-      <TopBar title="Patient Discharge Summary" />
+    <Container>
       <NavContainer>
-        <StyledBackButton to="/patients/encounter" />
         <Button
           variant="outlined"
           color="primary"
@@ -254,6 +251,6 @@ export const DischargeSummaryView = React.memo(() => {
           <SummaryPage encounter={encounter} discharge={discharge} />
         </Box>
       </PrintPortal>
-    </>
+    </Container>
   );
 });
