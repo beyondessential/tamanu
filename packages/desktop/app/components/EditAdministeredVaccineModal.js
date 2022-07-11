@@ -81,12 +81,13 @@ const ModalContent = React.memo(({ open, onClose, onMarkRecordedInError, vaccine
 });
 
 export const EditAdministeredVaccineModal = connectApi(
-  (api, dispatch, { patientId, vaccineRecord }) => ({
+  (api, dispatch, { patientId, vaccineRecord, onClose }) => ({
     onMarkRecordedInError: async () => {
       await api.put(`patient/${patientId}/administeredVaccine/${vaccineRecord.id}`, {
         status: VACCINE_STATUS.RECORDED_IN_ERROR,
       });
       dispatch(reloadPatient(patientId));
+      onClose();
     },
   }),
 )(ModalContent);
