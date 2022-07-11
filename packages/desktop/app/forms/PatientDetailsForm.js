@@ -40,13 +40,7 @@ export const PrimaryDetailsGroup = () => {
       <LocalisedField name="culturalName" component={TextField} />
       <LocalisedField name="dateOfBirth" component={DateField} required />
       <LocalisedField name="villageId" component={AutocompleteField} suggester={villageSuggester} />
-      <LocalisedField
-        name="sex"
-        component={RadioField}
-        options={filteredSexOptions}
-        inline
-        required
-      />
+      <LocalisedField name="sex" component={RadioField} options={filteredSexOptions} required />
       <LocalisedField
         name="email"
         component={TextField}

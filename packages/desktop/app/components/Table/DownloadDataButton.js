@@ -1,17 +1,12 @@
 import React, { isValidElement } from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { Button } from '@material-ui/core';
-import SaveAltIcon from '@material-ui/icons/SaveAlt';
-import styled from 'styled-components';
+import GetAppIcon from '@material-ui/icons/GetApp';
 import cheerio from 'cheerio';
 import XLSX from 'xlsx';
 
+import { GreyOutlinedButton } from '../Button';
 import { useElectron } from '../../contexts/Electron';
-
-const PaddedDownloadIcon = styled(SaveAltIcon)`
-  padding: 5px;
-  font-size: 42px;
-`;
 
 function getHeaderValue(column) {
   if (!column.title) {
@@ -86,8 +81,12 @@ export function DownloadDataButton({ exportName, columns, data }) {
   };
 
   return (
-    <Button onClick={onDownloadData} data-test-class="download-data-button">
-      <PaddedDownloadIcon />
-    </Button>
+    <GreyOutlinedButton
+      onClick={onDownloadData}
+      data-test-class="download-data-button"
+      startIcon={<GetAppIcon />}
+    >
+      Export
+    </GreyOutlinedButton>
   );
 }

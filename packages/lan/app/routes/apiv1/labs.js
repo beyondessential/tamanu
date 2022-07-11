@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import moment from 'moment';
-import { QueryTypes } from 'sequelize';
+import { QueryTypes, Sequelize } from 'sequelize';
 
 import { NOTE_RECORD_TYPES } from 'shared/models/Note';
 import { NotFoundError, InvalidOperationError } from 'shared/errors';
@@ -225,7 +225,9 @@ labTest.get(
     // always allow reading lab test options
     req.flagPermissionChecked();
 
-    const records = await req.models.LabTestType.findAll();
+    const records = await req.models.LabTestType.findAll({
+      order: Sequelize.literal('name ASC'),
+    });
     res.send({
       data: records,
       count: records.length,

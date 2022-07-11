@@ -195,6 +195,11 @@ export const practitioner = [
 
   { verb: 'read', noun: 'PatientDeath' },
   { verb: 'create', noun: 'PatientDeath' },
+
+  { verb: 'list', noun: 'PatientSecondaryId' },
+  { verb: 'read', noun: 'PatientSecondaryId' },
+  { verb: 'write', noun: 'PatientSecondaryId' },
+  { verb: 'create', noun: 'PatientSecondaryId' },
 ];
 
 export const admin = [

@@ -9,7 +9,17 @@ import { ReportRunner } from '../report/ReportRunner';
 import { initDatabase } from '../database';
 import { setupEnv } from '../env';
 
+const REPORT_HEAP_INTERVAL_MS = 1000;
+
 async function report(options) {
+  if (options.heap) {
+    setInterval(() => {
+      const used = process.memoryUsage().heapUsed / 1024 / 1024;
+      // eslint-disable-next-line no-console
+      console.log(`Heap: ${used} MiB`);
+    }, REPORT_HEAP_INTERVAL_MS);
+  }
+
   const store = await initDatabase({ testMode: false });
   setupEnv();
   try {
@@ -62,6 +72,7 @@ async function report(options) {
 export const reportCommand = new Command('report')
   .description('Generate a report')
   .option('-n, --name <string>', 'Name of the report') // validated in function
+  .option('--heap', `Report heap usage every ${REPORT_HEAP_INTERVAL_MS}ms`, false)
   .requiredOption(
     '-r, --recipients <json|csv>',
     'JSON recipients or comma-separated list of emails',

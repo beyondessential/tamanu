@@ -1,9 +1,11 @@
 import React, { useCallback } from 'react';
-import { connect } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import { useParams } from 'react-router-dom';
+import { push } from 'connected-react-router';
 
 import { DataFetchingTable } from './Table';
 
-import { viewPatientEncounter } from '../store/patient';
+import { reloadPatient } from '../store/patient';
 import { useEncounter } from '../contexts/Encounter';
 import { useLabRequest } from '../contexts/LabRequest';
 
@@ -39,7 +41,9 @@ const globalColumns = [
   ...encounterColumns,
 ];
 
-const DumbLabRequestsTable = React.memo(({ encounterId, viewPatient }) => {
+export const LabRequestsTable = React.memo(({ encounterId }) => {
+  const params = useParams();
+  const dispatch = useDispatch();
   const { loadEncounter } = useEncounter();
   const { loadLabRequest, searchParameters } = useLabRequest();
   const selectLab = useCallback(
@@ -48,10 +52,18 @@ const DumbLabRequestsTable = React.memo(({ encounterId, viewPatient }) => {
         // no encounter, likely on the labs page
         await loadEncounter(lab.encounterId);
       }
-      if (lab.patientId) viewPatient(lab);
-      loadLabRequest(lab.id);
+      if (lab.patientId) await dispatch(reloadPatient(lab.patientId));
+      const patientId = params.patientId || lab.patientId;
+      const category = params.category || 'all';
+      await loadLabRequest(lab.id);
+      dispatch(
+        push(
+          `/patients/${category}/${patientId}/encounter/${encounterId ||
+            lab.encounterId}/lab-request/${lab.id}`,
+        ),
+      );
     },
-    [encounterId, loadEncounter, viewPatient, loadLabRequest],
+    [encounterId, dispatch, loadEncounter, loadLabRequest, params.patientId, params.category],
   );
 
   return (
@@ -61,10 +73,7 @@ const DumbLabRequestsTable = React.memo(({ encounterId, viewPatient }) => {
       noDataMessage="No lab requests found"
       onRowClick={selectLab}
       fetchOptions={searchParameters}
+      elevated={false}
     />
   );
 });
-
-export const LabRequestsTable = connect(null, dispatch => ({
-  viewPatient: lab => dispatch(viewPatientEncounter(lab.patientId, lab.encounterId)),
-}))(DumbLabRequestsTable);

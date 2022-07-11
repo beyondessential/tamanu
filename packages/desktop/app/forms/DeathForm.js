@@ -293,7 +293,6 @@ export const DeathForm = React.memo(
           <Field
             name="surgeryInLast4Weeks"
             label="Was surgery performed in the last 4 weeks?"
-            inline
             component={RadioField}
             options={binaryUnknownOptions}
           />
@@ -316,16 +315,15 @@ export const DeathForm = React.memo(
             <Field
               name="pregnant"
               label="If this was a woman, was the woman pregnant?"
-              inline
               component={RadioField}
               options={binaryUnknownOptions}
             />
             <Field
               name="pregnancyContribute"
               label="Did the pregnancy contribute to the death?"
-              inline
               component={RadioField}
               options={binaryUnknownOptions}
+              visibilityCriteria={{ pregnant: 'yes' }}
             />
           </StyledFormGrid>
         ) : null}
@@ -335,6 +333,7 @@ export const DeathForm = React.memo(
             label="What was the manner of death?"
             component={SelectField}
             options={mannerOfDeathOptions}
+            required
           />
           <Field
             name="mannerOfDeathDate"

@@ -67,7 +67,7 @@ const ActionDropdown = React.memo(({ row, refreshTable }) => {
 
   return (
     <>
-      <DropdownButton color="primary" actions={actions} />
+      <DropdownButton actions={actions} variant="outlined" size="small" />
       <EncounterModal
         open={openModal === ACTION_MODAL_STATES.ENCOUNTER_OPEN}
         onClose={onCloseModal}

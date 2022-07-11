@@ -12,6 +12,13 @@ const SCHEDULE_TO_SEQUENCE = {
   'Dose 1': 1,
   'Dose 2': 2,
   Booster: 3,
+  'Dose 3': 3,
+  'Dose 4': 4,
+  'Dose 5': 5,
+  'Dose 6': 6,
+  'Dose 7': 7,
+  'Dose 8': 8,
+  'Dose 9': 9,
 };
 
 const METHOD_CODE = {
@@ -28,7 +35,6 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
     Patient,
     PatientAdditionalData,
     ReferenceData,
-    AdministeredVaccine,
     Encounter,
     Facility,
     Location,
@@ -36,18 +42,19 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
     CertifiableVaccine,
   } = models;
 
-  const countryCode = (await getLocalisation()).country['alpha-3'];
+  const { country, timeZone } = await getLocalisation();
+  const countryCode = country['alpha-3'];
 
-  const { firstName, lastName, dateOfBirth, sex } = await Patient.findOne({
+  const patient = await Patient.findOne({
     where: { id: patientId },
   });
-  const { passport } = await PatientAdditionalData.findOne({ where: { patientId } });
-  const vaccinations = await AdministeredVaccine.findAll({
-    where: {
-      '$encounter.patient_id$': patientId,
-      '$scheduledVaccine.label$': ['COVID-19 AZ', 'COVID-19 Pfizer'],
-      status: 'GIVEN',
-    },
+
+  const { firstName, lastName, dateOfBirth, sex } = patient;
+  const pad = await PatientAdditionalData.findOne({ where: { patientId } });
+  const passport = pad?.passport;
+
+  const vaccinations = await patient.getAdministeredVaccines({
+    order: [['date', 'ASC']],
     include: [
       {
         model: Location,
@@ -87,6 +94,9 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
       },
     ],
   });
+
+  if (vaccinations.length === 0)
+    throw new Error('Patient does not have any certifiable vaccinations');
 
   const pidDoc = passport
     ? {
@@ -129,7 +139,7 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
 
     const event = {
       dvc: moment(date)
-        .utc()
+        .tz(timeZone)
         .format(MOMENT_FORMAT_ISODATE),
       seq: SCHEDULE_TO_SEQUENCE[schedule],
       ctr: countryCode,
@@ -153,7 +163,7 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
 
   return {
     pid: {
-      ...pid(firstName, lastName, dateOfBirth, sex),
+      ...pid(firstName, lastName, dateOfBirth, sex, timeZone),
       ...pidDoc,
     },
     ve: [...vaccines.values()],
@@ -171,7 +181,8 @@ export const createVdsNcTestData = async (labTestId, { models }) => {
     Encounter,
   } = models;
 
-  const countryCode = (await getLocalisation()).country['alpha-3'];
+  const { country, timeZone } = await getLocalisation();
+  const countryCode = country['alpha-3'];
 
   const test = await LabTest.findOne({
     where: {
@@ -234,7 +245,7 @@ export const createVdsNcTestData = async (labTestId, { models }) => {
 
   return {
     pid: {
-      ...pid(firstName, lastName, dateOfBirth, sex),
+      ...pid(firstName, lastName, dateOfBirth, sex, timeZone),
       ...pidDoc,
     },
     sp: {
@@ -261,7 +272,7 @@ export const createVdsNcTestData = async (labTestId, { models }) => {
   };
 };
 
-function pid(firstName, lastName, dateOfBirth, sex) {
+function pid(firstName, lastName, dateOfBirth, sex, timeZone = 'UTC') {
   const MAX_LEN = 39;
   const primary = tr(lastName);
   const secondary = tr(firstName);
@@ -276,7 +287,9 @@ function pid(firstName, lastName, dateOfBirth, sex) {
 
   const data = {
     n: name,
-    dob: moment(dateOfBirth).format(MOMENT_FORMAT_ISODATE),
+    dob: moment(dateOfBirth)
+      .tz(timeZone)
+      .format(MOMENT_FORMAT_ISODATE),
   };
 
   if (sex && SEX_TO_CHAR[sex]) {

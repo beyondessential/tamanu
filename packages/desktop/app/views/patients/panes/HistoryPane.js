@@ -1,12 +1,14 @@
 import React, { useCallback } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { push } from 'connected-react-router';
+import { useSelector } from 'react-redux';
+import { usePatientNavigation } from '../../../utils/usePatientNavigation';
 import { useEncounter } from '../../../contexts/Encounter';
+
+import { ContentPane } from '../../../components';
 import { PatientEncounterSummary } from '../components/PatientEncounterSummary';
 import { PatientHistory } from '../../../components/PatientHistory';
 
 export const HistoryPane = React.memo(({ disabled }) => {
-  const dispatch = useDispatch();
+  const { navigateToEncounter, navigateToPatient } = usePatientNavigation();
   const patient = useSelector(state => state.patient);
   const { currentEncounter } = patient;
 
@@ -15,26 +17,31 @@ export const HistoryPane = React.memo(({ disabled }) => {
   const onViewEncounter = useCallback(
     id => {
       (async () => {
-        await loadEncounter(id, true);
+        await loadEncounter(id);
+        navigateToEncounter(id);
       })();
     },
-    [loadEncounter],
+    [loadEncounter, navigateToEncounter],
   );
 
-  const onOpenCheckin = () => dispatch(push('/patients/view/checkin'));
-  const onOpenTriage = () => dispatch(push('/patients/view/triage'));
+  const onOpenCheckin = () => navigateToPatient(patient.id, 'checkin');
+  const onOpenTriage = () => navigateToPatient(patient.id, 'triage');
 
   return (
     <>
-      <PatientEncounterSummary
-        encounter={currentEncounter}
-        viewEncounter={onViewEncounter}
-        openCheckin={onOpenCheckin}
-        openTriage={onOpenTriage}
-        patient={patient}
-        disabled={disabled}
-      />
-      <PatientHistory patient={patient} onItemClick={onViewEncounter} />
+      <ContentPane>
+        <PatientEncounterSummary
+          encounter={currentEncounter}
+          viewEncounter={onViewEncounter}
+          openCheckin={onOpenCheckin}
+          openTriage={onOpenTriage}
+          patient={patient}
+          disabled={disabled}
+        />
+      </ContentPane>
+      <ContentPane>
+        <PatientHistory patient={patient} onItemClick={onViewEncounter} />
+      </ContentPane>
     </>
   );
 });

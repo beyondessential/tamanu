@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { isEmpty } from 'lodash';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
@@ -32,7 +33,7 @@ const StyledButton = styled(MuiButton)`
   font-size: 14px;
   line-height: 16px;
   text-transform: none;
-  padding: 11px 20px 12px;
+  padding: 12px 20px;
   box-shadow: none;
 `;
 
@@ -49,6 +50,20 @@ export const Button = ({ children, isSubmitting, disabled, ...props }) => {
   );
 };
 
+Button.propTypes = {
+  isSubmitting: PropTypes.bool,
+  disabled: PropTypes.bool,
+  variant: PropTypes.PropTypes.oneOf(['contained', 'outlined', 'text']),
+  color: PropTypes.PropTypes.oneOf(['default', 'primary', 'secondary']),
+};
+
+Button.defaultProps = {
+  isSubmitting: false,
+  disabled: false,
+  variant: 'contained',
+  color: 'primary',
+};
+
 const StyledOutlinedButton = styled(StyledButton)`
   border-color: ${props => props.theme.palette.primary.main};
 `;
@@ -56,6 +71,11 @@ const StyledOutlinedButton = styled(StyledButton)`
 export const OutlinedButton = props => (
   <StyledOutlinedButton variant="outlined" color="primary" {...props} />
 );
+
+export const GreyOutlinedButton = styled(props => <StyledButton {...props} />)`
+  border: 1px solid #dedede;
+  color: ${props => props.theme.palette.text.secondary};
+`;
 
 const StyledLargeButton = styled(StyledButton)`
   font-size: 15px;
@@ -150,6 +170,12 @@ export const NewButton = ({ children, ...props }) => (
   </Button>
 );
 
+export const ViewButton = props => (
+  <Button variant="contained" color="primary" {...props}>
+    View
+  </Button>
+);
+
 const StyledTextButton = styled(Button)`
   font-size: 16px;
   text-transform: capitalize;
@@ -172,7 +198,11 @@ export const TextButton = ({ children, ...props }) => (
 
 const StyledNavButton = styled(TextButton)`
   color: ${Colors.primary};
-  font-size: 14px;
+  padding-right: 8px;
+  font-size: 12px;
+  & svg {
+    font-size: 20px;
+  }
 `;
 
 export const ForwardButton = ({ children, ...props }) => (

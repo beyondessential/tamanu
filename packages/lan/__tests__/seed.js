@@ -55,6 +55,12 @@ export const testImagingTypes = splitIds(`
   Ultrasound
 `).map(x => ({ ...x, type: 'imagingType' }));
 
+export const testSecondaryIdTypes = splitIds(`
+  National Healthcare Number
+  RISPACs ID
+  Test ID type
+`).map(x => ({ ...x, type: 'secondaryIdType' }));
+
 export const allSeeds = [
   ...testDiagnoses,
   ...testDrugs,
@@ -62,5 +68,6 @@ export const allSeeds = [
   ...testImagingTypes,
   ...testVillages,
   ...testAllergies,
+  ...testSecondaryIdTypes,
   ...CARE_PLANS,
 ];

@@ -7,12 +7,16 @@ import { ENCOUNTER_TYPES } from 'shared/constants';
 
 const sanitise = string => string.trim().replace(/[^A-Za-z0-9]+/g, '');
 
-const recordTransformer = type => item => ({
-  recordType: type,
-  data: {
-    ...item,
-  },
-});
+const recordTransformer = type => item => {
+  // ignore "note" column
+  const { note, ...rest } = item;
+  return {
+    recordType: type,
+    data: {
+      ...rest,
+    },
+  };
+};
 
 const referenceDataTransformer = type => item => {
   const { code } = item;
@@ -141,6 +145,7 @@ const transformers = [
   makeTransformer('labTestLaboratory', referenceDataTransformer('labTestLaboratory')),
   makeTransformer('labTestMethods', referenceDataTransformer('labTestMethod')),
   makeTransformer('additionalInvoiceLines', referenceDataTransformer('additionalInvoiceLine')),
+  makeTransformer('manufacturers', referenceDataTransformer('manufacturer')),
   makeTransformer('users', recordTransformer('user')),
   makeTransformer('patients', patientDataTransformer),
   makeTransformer('labTestTypes', recordTransformer('labTestType')),
@@ -150,6 +155,7 @@ const transformers = [
   makeTransformer('invoicePriceChangeTypes', recordTransformer('invoicePriceChangeType')),
   makeTransformer('administeredVaccines', administeredVaccineTransformer()), // should go below patients, users, departments, locations
   makeTransformer('roles', null),
+  makeTransformer('secondaryIdType', referenceDataTransformer('secondaryIdType')),
 ];
 
 export async function importData({ file, whitelist = [] }) {

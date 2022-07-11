@@ -1,15 +1,18 @@
 import React from 'react';
-
+import styled from 'styled-components';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-
 import { Button, OutlinedButton } from '../app/components/Button';
 import { ButtonRow, ConfirmCancelRow } from '../app/components/ButtonRow';
 import { DropdownButton } from '../app/components/DropdownButton';
 
 storiesOf('Buttons/ButtonRow', module)
   .add('Default', () => <Button variant="contained">Button</Button>)
-  .add('Primary', () => <Button variant="contained" color="primary">Button</Button>)
+  .add('Primary', () => (
+    <Button variant="contained" color="primary">
+      Button
+    </Button>
+  ))
   .add('Outlined', () => <OutlinedButton>Button</OutlinedButton>)
   .add('ConfirmCancel', () => (
     <ConfirmCancelRow onConfirm={action('confirm')} onCancel={action('confirm')} />
@@ -47,47 +50,47 @@ storiesOf('Buttons/ButtonRow', module)
     </ButtonRow>
   ));
 
+const actions = [
+  { label: 'button', onClick: () => {} },
+  { label: 'Etendre', onClick: () => {} },
+  { label: 'Relever', onClick: () => {} },
+  { label: 'Glisser', onClick: () => {} },
+];
+
+const Container = styled.div`
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  padding: 1rem;
+
+  > div {
+    margin-right: 18px;
+    margin-bottom: 3px;
+  }
+`;
+
 storiesOf('Buttons/DropdownButton', module)
   .add('Default', () => (
-    <DropdownButton
-      color="primary"
-      actions={[
-        { label: 'Plier', onClick: action('plier') },
-        { label: 'Etendre', onClick: action('etendre') },
-        { label: 'Relever', onClick: action('relever') },
-        { label: 'Glisser', onClick: action('glisser') },
-      ]}
-    />
+    <div>
+      <Container>
+        <DropdownButton actions={actions} size="large" />
+        <DropdownButton actions={actions} />
+        <DropdownButton actions={actions} size="small" />
+      </Container>
+      <Container>
+        <DropdownButton actions={actions} variant="outlined" size="large" />
+        <DropdownButton actions={actions} variant="outlined" />
+        <DropdownButton actions={actions} variant="outlined" size="small" />
+      </Container>
+    </div>
   ))
   .add('Only one action', () => (
-    <DropdownButton color="primary" actions={[{ label: 'Plier', onClick: action('plier') }]} />
+    <DropdownButton actions={[{ label: 'Plier', onClick: () => {} }]} />
   ))
-  .add('No actions', () => <DropdownButton color="primary" actions={[]} />)
-  .add('With split color', () => (
-    <DropdownButton
-      color="primary"
-      dropdownColor="secondary"
-      actions={[
-        { label: 'Plier', onClick: action('plier') },
-        { label: 'Etendre', onClick: action('etendre') },
-        { label: 'Relever', onClick: action('relever') },
-        { label: 'Glisser', onClick: action('glisser') },
-      ]}
-    />
-  ))
+  .add('No actions', () => <DropdownButton actions={[]} />)
   .add('In button row', () => (
     <ButtonRow>
-      <Button onClick={action('other')} variant="contained">
-        Other
-      </Button>
-      <DropdownButton
-        color="primary"
-        actions={[
-          { label: 'Plier', onClick: action('plier') },
-          { label: 'Etendre', onClick: action('etendre') },
-          { label: 'Relever', onClick: action('relever') },
-          { label: 'Glisser', onClick: action('glisser') },
-        ]}
-      />
+      <Button onClick={() => {}}>Other</Button>
+      <DropdownButton actions={actions} />
     </ButtonRow>
   ));

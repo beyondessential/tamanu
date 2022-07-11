@@ -16,8 +16,7 @@ export interface IAdministeredVaccine {
   reason?: string;
   scheduledVaccine?: IScheduledVaccine | string;
   scheduledVaccineId?: string;
-  giver?: IUser | string;
-  giverId?: string;
+  givenBy?: string;
   recorder?: IUser | string;
   recorderId?: string;
   encounter?: IEncounter | string;

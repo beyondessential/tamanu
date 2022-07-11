@@ -67,7 +67,7 @@ describe('User', () => {
 
     it('should fail to get the user with a null token', async () => {
       const result = await baseApp.get('/v1/user/me');
-      expect(result).toBeForbidden();
+      expect(result).toHaveRequestError();
     });
 
     it('should fail to get the user with an expired token', async () => {

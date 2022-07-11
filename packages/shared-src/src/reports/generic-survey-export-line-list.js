@@ -1,4 +1,5 @@
 import { subDays } from 'date-fns';
+import { NON_ANSWERABLE_DATA_ELEMENT_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '../constants';
 import { generateReportFromQueryData } from './utilities';
 
 const COMMON_FIELDS = [
@@ -14,19 +15,32 @@ const COMMON_FIELDS = [
 
 // Uncomment deleted_at checks once Tan-1421 is complete, see https://linear.app/bes/issue/TAN-1456/update-existing-sql-reports-to-support-deleted-at
 const query = `
-with 
-  responses_with_answers as (
-    select
-      response_id,
-      json_object_agg(
-        data_element_id, body
-      ) "answers"
-    from survey_response_answers sra
-    where body <> '' -- Doesn't really matter, just could save some memory
-    -- and sra.deleted_at is null 
-    and data_element_id is not null
-    group by response_id 
-  )
+with
+	answers_and_results as (
+		select 
+			response_id,
+			data_element_id,
+			body
+		from survey_response_answers sra
+		union all
+		select
+			id,
+			'Result',
+			result_text
+		from survey_responses sr
+	),
+	responses_with_answers as (
+		select
+			response_id,
+			json_object_agg(
+				data_element_id, body
+			) "answers"
+		from answers_and_results aar
+		where body <> '' -- Doesn't really matter, just could save some memory
+		--and aar.deleted_at is null
+		and data_element_id is not null
+		group by response_id
+	)
 select
   p.first_name "First name",
   p.last_name "Last name",
@@ -48,6 +62,7 @@ where sr.survey_id  = :survey_id
 and CASE WHEN :village_id IS NOT NULL THEN p.village_id = :village_id ELSE true end 
 and CASE WHEN :from_date IS NOT NULL THEN sr.end_time::date >= :from_date::date ELSE true END
 and CASE WHEN :to_date IS NOT NULL THEN sr.end_time::date <= :to_date::date ELSE true END
+order by sr.end_time desc
 --and sr.deleted_at is null
 `;
 
@@ -91,18 +106,24 @@ export const dataGenerator = async ({ sequelize, models }, parameters = {}) => {
 
   const results = await getData(sequelize, parameters);
 
-  const components = await models.SurveyScreenComponent.getAnswerComponentsForSurveys(surveyId);
+  const components = await models.SurveyScreenComponent.getComponentsForSurvey(surveyId);
+  const answerableComponents = components.filter(({ dataElement }) => !(NON_ANSWERABLE_DATA_ELEMENT_TYPES.includes(dataElement.type)))
+  const surveyHasResult = components.find(({ dataElement }) => dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.RESULT)
 
   const reportColumnTemplate = [
     ...COMMON_FIELDS.map(field => ({
       title: field,
       accessor: data => data[field],
     })),
-    ...components.map(({ dataElement }) => ({
+    ...answerableComponents.map(({ dataElement }) => ({
       title: dataElement.name,
       accessor: data => data.answers[dataElement.id],
     })),
+    ...(surveyHasResult
+      ? [{ title: 'Result', accessor: data => data.answers.Result }]
+      : []),
   ];
+
   return generateReportFromQueryData(results, reportColumnTemplate);
 };
 

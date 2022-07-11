@@ -83,11 +83,6 @@ export const REPORT_DEFINITIONS = [
     allFacilities: true,
   },
   {
-    name: 'COVID vaccine campaign daily summary by village',
-    id: 'covid-vaccine-daily-summary-village',
-    allFacilities: true,
-  },
-  {
     name: 'Adverse Event Following Immunization',
     id: 'aefi',
     parameters: [{ parameterField: 'VillageField' }],
@@ -122,6 +117,11 @@ export const REPORT_DEFINITIONS = [
   {
     name: 'Palau COVID-19 Test - Line list',
     id: 'palau-covid-swab-lab-test-list',
+    allFacilities: true,
+  },
+  {
+    name: 'Nauru COVID-19 Test - Line list',
+    id: 'nauru-covid-swab-lab-test-list',
     allFacilities: true,
   },
   {

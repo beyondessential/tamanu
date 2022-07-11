@@ -1,5 +1,5 @@
-export { ConnectedPatientDetailsForm } from './DetailsPane';
-export { DocumentsPane } from './DocumentsPane';
+export { PatientDetailsPane } from './DetailsPane';
+export * from './DocumentsPane';
 export { HistoryPane } from './HistoryPane';
 export { ImmunisationsPane } from './ImmunisationsPane';
 export { ImagingPane } from './ImagingPane';
@@ -9,7 +9,8 @@ export { EncounterMedicationPane } from './EncounterMedicationPane';
 export { EncounterInfoPane } from './EncounterInfoPane';
 export { NotesPane } from './NotesPane';
 export { ProcedurePane } from './ProcedurePane';
-export { ProgramsPane } from './ProgramsPane';
+export { EncounterProgramsPane } from './EncounterProgramsPane';
+export { PatientProgramsPane } from './PatientProgramsPane';
 export { ReferralPane } from './ReferralPane';
 export { InvoicingPane } from './InvoicingPane';
 export { InvoicesPane } from './InvoicesPane';

@@ -210,7 +210,6 @@ export const ImmunisationForm = React.memo(
                 <Field
                   name="scheduledVaccineId"
                   label="Available schedule"
-                  inline
                   component={RadioField}
                   options={scheduleOptions}
                   required
@@ -219,12 +218,7 @@ export const ImmunisationForm = React.memo(
             </FullWidthCol>
 
             <Field name="date" label="Date" component={DateField} required />
-            <Field
-              name="giverId"
-              label="Given by"
-              component={AutocompleteField}
-              suggester={practitionerSuggester}
-            />
+            <Field name="givenBy" label="Given by" component={TextField} />
             <Field
               name="locationId"
               label="Location"

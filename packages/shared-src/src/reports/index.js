@@ -4,7 +4,6 @@ import * as recentDiagnoses from './recent-diagnoses';
 import * as vaccineList from './vaccine-list';
 import * as tuvaluVaccineList from './tuvalu-vaccine-list';
 import * as covidVaccineList from './covid-module/covid-vaccine-list';
-import * as covidVaccineDailySummaryByVillage from './covid-module/covid-vaccine-daily-summary-village';
 import {
   generateCovidVaccineSummaryDose1Report,
   generateCovidVaccineSummaryDose2Report,
@@ -17,6 +16,7 @@ import * as registeredPatients from './registered-patients';
 import * as fijiCovidSwabLabTestList from './covid-module/fiji/fiji-covid-swab-lab-test-list';
 import * as fijiTravellerCovidLabTestList from './covid-module/fiji/fiji-traveller-covid-lab-test-list';
 import * as palauCovidSwabLabTestList from './covid-module/palau/palau-covid-swab-lab-test-list';
+import * as nauruCovidSwabLabTestList from './covid-module/nauru/nauru-covid-swab-lab-test-list';
 import * as kiribatiCovidSwabLabTestList from './covid-module/kiribati/kiribati-covid-swab-lab-test-list';
 import * as samoaCovidSwabLabTestList from './covid-module/samoa/samoa-covid-swab-lab-test-list';
 import * as covidSwabLabTestsSummary from './covid-module/covid-swab-lab-tests-summary';
@@ -48,8 +48,6 @@ export function getReportModule(reportType) {
       return tuvaluVaccineList;
     case 'covid-vaccine-list':
       return covidVaccineList;
-    case 'covid-vaccine-daily-summary-village':
-      return covidVaccineDailySummaryByVillage;
     case 'covid-vaccine-summary-dose1':
       return {
         permission: covidVaccineSummaryPermission,
@@ -74,6 +72,8 @@ export function getReportModule(reportType) {
       return fijiTravellerCovidLabTestList;
     case 'palau-covid-swab-lab-test-list':
       return palauCovidSwabLabTestList;
+    case 'nauru-covid-swab-lab-test-list':
+      return nauruCovidSwabLabTestList;
     case 'kiribati-covid-swab-lab-test-list':
       return kiribatiCovidSwabLabTestList;
     case 'samoa-covid-swab-lab-test-list':
