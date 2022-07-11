@@ -3,7 +3,7 @@ import { SYNC_DIRECTIONS } from 'shared/constants';
 import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
 
-export class DeathCause extends Model {
+export class ContributingDeathCause extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {

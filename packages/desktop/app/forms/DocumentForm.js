@@ -4,12 +4,10 @@ import * as yup from 'yup';
 import { useApi } from '../api';
 import { Suggester } from '../utils/suggester';
 import { foreignKey } from '../utils/validation';
-
 import { Form, Field, TextField, AutocompleteField } from '../components/Field';
 import { FileChooserField } from '../components/Field/FileChooserField';
 import { FormGrid } from '../components/FormGrid';
-import { Button } from '../components/Button';
-import { ButtonRow } from '../components/ButtonRow';
+import { ConfirmCancelRow } from '../components/ButtonRow';
 
 export const FILE_FILTERS = [
   { name: 'PDF (.pdf)', extensions: ['pdf'] },
@@ -47,14 +45,7 @@ export const DocumentForm = ({ actionText, onSubmit, onCancel, editedObject }) =
         suggester={departmentSuggester}
       />
       <Field name="note" label="Note" component={TextField} style={{ gridColumn: '1 / -1' }} />
-      <ButtonRow>
-        <Button variant="outlined" onClick={onCancel} color="primary">
-          Cancel
-        </Button>
-        <Button variant="contained" onClick={submitForm} color="primary">
-          {actionText}
-        </Button>
-      </ButtonRow>
+      <ConfirmCancelRow confirmText={actionText} onConfirm={submitForm} onCancel={onCancel} />
     </FormGrid>
   );
 

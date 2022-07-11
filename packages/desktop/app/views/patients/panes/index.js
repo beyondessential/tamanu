@@ -1,4 +1,4 @@
-export { ConnectedPatientDetailsForm } from './DetailsPane';
+export { PatientDetailsPane } from './DetailsPane';
 export * from './DocumentsPane';
 export { HistoryPane } from './HistoryPane';
 export { ImmunisationsPane } from './ImmunisationsPane';

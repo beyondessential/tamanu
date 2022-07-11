@@ -1,18 +1,20 @@
 import React from 'react';
-import { connectApi } from '../../../api';
+import { useDispatch } from 'react-redux';
+import { useApi } from '../../../api';
 import { ContentPane } from '../../../components';
 import { PatientDetailsForm } from '../../../forms/PatientDetailsForm';
 import { reloadPatient } from '../../../store/patient';
 
-export const ConnectedPatientDetailsForm = connectApi((api, dispatch, { patient }) => ({
-  onSubmit: async data => {
+export const PatientDetailsPane = React.memo(({ patient }) => {
+  const api = useApi();
+  const dispatch = useDispatch();
+  const handleSubmit = async data => {
     await api.put(`patient/${patient.id}`, data);
     dispatch(reloadPatient(patient.id));
-  },
-}))(
-  React.memo(props => (
+  };
+  return (
     <ContentPane>
-      <PatientDetailsForm {...props} />
+      <PatientDetailsForm patient={patient} onSubmit={handleSubmit} />
     </ContentPane>
-  )),
-);
+  );
+});
