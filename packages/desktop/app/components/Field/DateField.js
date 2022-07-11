@@ -2,8 +2,6 @@ import React, { useState, useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
 import PropTypes from 'prop-types';
-import InputAdornment from '@material-ui/core/InputAdornment';
-import CalendarToday from '@material-ui/icons/CalendarToday';
 import { TextInput } from './TextField';
 
 // This component is pretty tricky! It has to keep track of two layers of state:
@@ -32,15 +30,6 @@ function fromRFC3339(rfc3339Date, format) {
 function toRFC3339(date, format) {
   return moment(date, format).toISOString();
 }
-
-const CalendarIcon = styled(CalendarToday)`
-  color: #cccccc;
-`;
-
-const DatePlaceholder = styled.div`
-  font-size: 11pt;
-  color: #8e8e8e;
-`;
 
 export const DateInput = ({
   type = 'date',
@@ -84,11 +73,6 @@ export const DateInput = ({
       value={currentText}
       onChange={onValueChange}
       InputProps={{
-        startAdornment: (
-          <InputAdornment position="start">
-            {placeholder ? <DatePlaceholder>{placeholder}</DatePlaceholder> : <CalendarIcon />}
-          </InputAdornment>
-        ),
         // Set max property on HTML input element to force 4-digit year value (max year being 9999)
         inputProps: { max },
       }}
