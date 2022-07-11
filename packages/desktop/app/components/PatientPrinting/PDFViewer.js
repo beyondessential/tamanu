@@ -29,7 +29,7 @@ const Loader = styled.div`
 // @react-pdf/renderer ships with its own version of PDFViewer. However it is a bit flaky because
 // it doesn't include updateInstance in the useEffect dependencies. Also it is convenient to set
 // width, height and toolbar settings in one place
-export const PDFViewer = ({ id, children, key }) => {
+export const PDFViewer = ({ id, children }) => {
   const [loaded, setLoaded] = useState(false);
   const [instance, updateInstance] = usePDF({ document: children });
 
@@ -53,7 +53,7 @@ export const PDFViewer = ({ id, children, key }) => {
     );
   }
 
-  return <FullIframe src={`${instance.url}#toolbar=0`} title={id} id={id} key={key} />;
+  return <FullIframe src={`${instance.url}#toolbar=0`} title={id} id={id} key={id} />;
 };
 
 export const printPDF = elementId => {

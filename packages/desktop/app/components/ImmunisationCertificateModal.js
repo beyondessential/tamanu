@@ -44,7 +44,7 @@ export const ImmunisationCertificateModal = ({ open, onClose, patient }) => {
       onPrint={() => printPDF('vaccine-certificate')}
       additionalActions={<EmailButton onEmail={createImmunisationCertificateNotification} />}
     >
-      <PDFViewer id="vaccine-certificate" key="vaccine-certificate">
+      <PDFViewer id="vaccine-certificate">
         <VaccineCertificate
           patient={patient}
           vaccinations={vaccinations}

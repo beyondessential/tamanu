@@ -44,7 +44,7 @@ export const CovidTestCertificateModal = ({ patient }) => {
       onPrint={() => printPDF('test-certificate')}
       additionalActions={<EmailButton onEmail={createCovidTestCertNotification} />}
     >
-      <PDFViewer id="test-certificate" key="test-certificate">
+      <PDFViewer id="test-certificate">
         <CovidLabCertificate
           patient={patient}
           labs={labs}
