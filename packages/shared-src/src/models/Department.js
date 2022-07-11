@@ -25,7 +25,7 @@ export class Department extends Model {
         },
         visibilityStatus: {
           type: Sequelize.TEXT,
-          default: VISIBILITY_STATUSES.CURRENT,
+          defaultValue: VISIBILITY_STATUSES.CURRENT,
           allowNull: false,
         },
       },
