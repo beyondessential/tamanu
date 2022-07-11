@@ -174,6 +174,11 @@ export const ACTION_DATA_ELEMENT_TYPES = [
   PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA,
 ];
 
+export const LAB_RESULT_QUESTION_TYPES = {
+  STRING: 'string',
+  NUMBER: 'number',
+};
+
 export const REPORT_REQUEST_STATUSES = {
   RECEIVED: 'Received',
   PROCESSING: 'Processing',

@@ -4,6 +4,7 @@ import {
   INJECTION_SITE_OPTIONS,
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
   VACCINE_STATUS,
+  LAB_RESULT_QUESTION_TYPES,
 } from 'shared/constants';
 
 const safeIdRegex = /^[A-Za-z0-9-]+$/;
@@ -71,12 +72,12 @@ export const permission = yup.object().shape({
   deletedAt: yup.date().nullable(),
 });
 
-const LAB_TEST_RESULT_TYPES = ['Number', 'Select', 'FreeText'];
+const LAB_TEST_RESULT_TYPES = Object.values(LAB_RESULT_QUESTION_TYPES);
 const rangeRegex = /^[0-9.]+, [0-9.]+$/;
 export const labTestType = base.shape({
   name: yup.string().required(),
   labTestCategoryId: yup.string().required(),
-  resultType: yup
+  questionType: yup
     .string()
     .required()
     .oneOf(LAB_TEST_RESULT_TYPES),

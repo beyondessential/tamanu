@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 
 import * as yup from 'yup';
+import { LAB_RESULT_QUESTION_TYPES } from 'shared/constants';
 import {
   Form,
   Field,
@@ -17,7 +18,7 @@ import { useSuggester } from '../api';
 
 function getComponentForTest(questionType, options) {
   if (options && options.length) return SelectField;
-  if (questionType === 'string') return TextField;
+  if (questionType === LAB_RESULT_QUESTION_TYPES.STRING) return TextField;
   return NumberField;
 }
 
