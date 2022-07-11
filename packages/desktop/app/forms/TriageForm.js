@@ -150,7 +150,7 @@ export const TriageForm = ({ onCancel, editedObject }) => {
       ...updatedValues,
       patientId: patient.id,
     });
-    dispatch(push('/patients/triage'));
+    dispatch(push('/patients/emergency'));
   };
 
   return (

@@ -12,7 +12,6 @@ import { connectRoutedModal } from '../../components/Modal';
 import { useLocalisation } from '../../contexts/Localisation';
 
 import {
-  ConnectedPatientDetailsForm,
   HistoryPane,
   ImmunisationsPane,
   PatientMedicationPane,
@@ -20,6 +19,7 @@ import {
   PatientProgramsPane,
   ReferralPane,
   InvoicesPane,
+  PatientDetailsPane,
 } from './panes';
 import { Colors } from '../../constants';
 import { NAVIGATION_CONTAINER_HEIGHT } from '../../components/PatientNavigation';
@@ -48,7 +48,7 @@ const TABS = [
     label: 'Details',
     key: 'details',
     icon: 'fa fa-info-circle',
-    render: props => <ConnectedPatientDetailsForm {...props} />,
+    render: props => <PatientDetailsPane {...props} />,
   },
   {
     label: 'Referrals',
@@ -95,7 +95,6 @@ export const PatientView = () => {
   const params = useParams();
   const { getLocalisation } = useLocalisation();
   const patient = useSelector(state => state.patient);
-  const loading = useSelector(state => state.loading);
   const [currentTab, setCurrentTab] = React.useState('history');
   const disabled = !!patient.death;
 
@@ -107,7 +106,7 @@ export const PatientView = () => {
     TriageModal,
   );
 
-  if (loading) return <LoadingIndicator />;
+  if (patient.loading) return <LoadingIndicator />;
 
   const visibleTabs = TABS.filter(tab => !tab.condition || tab.condition(getLocalisation));
 
