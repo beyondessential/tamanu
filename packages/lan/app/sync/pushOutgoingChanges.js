@@ -1,4 +1,5 @@
 import { chunk } from 'lodash';
+import config from 'config';
 
 const { dynamicLimiter } = config.sync;
 

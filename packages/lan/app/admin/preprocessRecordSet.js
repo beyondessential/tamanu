@@ -1,7 +1,5 @@
 import { get } from 'lodash';
 
-import { MODEL_DEPENDENCY_ORDER } from 'shared/sync/order';
-
 import { validateRecordSet } from './validateRecordSet';
 
 function groupRecordsByType(records) {
@@ -42,6 +40,71 @@ function getRecordCounts(recordsByType) {
 
   return recordCounts;
 }
+
+export const MODEL_DEPENDENCY_ORDER = [
+  'ReferenceData',
+  'Asset',
+  'Facility',
+  'Department',
+  'Location',
+  'Role',
+  'Permission',
+
+  'User',
+  'UserFacility',
+
+  'Patient',
+  'Encounter',
+
+  'PatientAllergy',
+  'PatientCarePlan',
+  'PatientCondition',
+  'PatientFamilyHistory',
+  'PatientIssue',
+  'PatientAdditionalData',
+  'PatientSecondaryId',
+
+  'PatientDeathData',
+  'ContributingDeathCause',
+
+  'EncounterDiagnosis',
+  'EncounterMedication',
+  'Procedure',
+  'Referral',
+  'Vitals',
+  'Triage',
+
+  'CertifiableVaccine',
+  'ScheduledVaccine',
+  'AdministeredVaccine',
+
+  'Program',
+  'ProgramDataElement',
+  'Survey',
+  'SurveyScreenComponent',
+
+  'SurveyResponse',
+  'SurveyResponseAnswer',
+
+  'LabTestType',
+  'LabTest',
+  'LabRequest',
+  'ImagingRequest',
+
+  'Note',
+
+  'ReportRequest',
+  'PatientCommunication',
+  'CertificateNotification',
+
+  'Invoice',
+  'InvoiceLineType',
+  'InvoiceLineItem',
+  'InvoicePriceChangeType',
+  'InvoicePriceChangeItem',
+
+  'DocumentMetadata',
+];
 
 const lowercaseModelOrder = MODEL_DEPENDENCY_ORDER.map(x => x.toLowerCase());
 

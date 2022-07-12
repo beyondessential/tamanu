@@ -25,7 +25,7 @@ export class SyncCursor extends Model {
     );
   }
 
-  async useCursor(direction) {
+  static async useCursor(direction) {
     const { cursor } = await this.findOrCreate({ where: { direction } });
 
     const setCursor = async newCursorValue => {
@@ -35,11 +35,11 @@ export class SyncCursor extends Model {
     return [cursor, setCursor];
   }
 
-  useOutgoingCursor() {
+  static async useOutgoingCursor() {
     return this.useCursor(DIRECTIONS.OUTGOING);
   }
 
-  useIncomingCursor() {
+  static async useIncomingCursor() {
     return this.useCursor(DIRECTIONS.INCOMING);
   }
 }

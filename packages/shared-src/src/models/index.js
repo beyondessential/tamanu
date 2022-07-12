@@ -72,3 +72,5 @@ export * from './InvoicePriceChangeType';
 export * from './Signer';
 
 export * from './CertificateNotification';
+
+export * from './SyncCursor';

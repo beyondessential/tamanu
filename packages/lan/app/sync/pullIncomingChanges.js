@@ -1,7 +1,7 @@
+import { log } from 'shared/services/logging';
 import { calculatePageLimit } from './calculatePageLimit';
 
-export const pullIncomingChanges = async (centralServer, getCursor, patientId) => {
-  const cursor = await getCursor();
+export const pullIncomingChanges = async (centralServer, cursor = 0, patientId) => {
   const { sessionId, count: totalToPull } = await centralServer.startPullSession(cursor, {
     patientId,
   });

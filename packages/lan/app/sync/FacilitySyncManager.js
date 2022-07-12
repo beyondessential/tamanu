@@ -6,6 +6,7 @@ import { getModelsForDirection, snapshotOutgoingChanges, saveIncomingChanges } f
 
 import { pushOutgoingChanges } from './pushOutgoingChanges';
 import { pullIncomingChanges } from './pullIncomingChanges';
+import { sortInDependencyOrder } from '../../../shared-src/src/models/sortInDependencyOrder';
 
 export class FacilitySyncManager {
   models = null;
@@ -53,19 +54,23 @@ export class FacilitySyncManager {
       getModelsForDirection(this.models, SYNC_DIRECTIONS.FACILITY_TO_CENTRAL),
       outgoingCursor,
     );
-    await pushOutgoingChanges(this.centralServer, outgoingChanges);
-    await setOutgoingCursor(outgoingChanges[outgoingChanges.length - 1].timestamp);
+    if (outgoingChanges.length > 0) {
+      await pushOutgoingChanges(this.centralServer, outgoingChanges);
+      await setOutgoingCursor(outgoingChanges[outgoingChanges.length - 1].timestamp);
+    }
 
     // syncing incoming changes happens in two phases: pulling all the records from the server,
     // then saving all those records into the local database
     // this avoids a period of time where the the local database may be "partially synced"
     const [incomingCursor, setIncomingCursor] = await this.models.SyncCursor.useIncomingCursor();
     const incomingChanges = await pullIncomingChanges(this.centralServer, incomingCursor);
-    await saveIncomingChanges(
-      getModelsForDirection(this.models, SYNC_DIRECTIONS.CENTRAL_TO_FACILITY),
-      incomingChanges,
-    );
-    await setIncomingCursor(incomingChanges[incomingChanges.length - 1].timestamp);
+    if (incomingChanges.length > 0) {
+      await saveIncomingChanges(
+        getModelsForDirection(this.models, SYNC_DIRECTIONS.CENTRAL_TO_FACILITY),
+        incomingChanges,
+      );
+      await setIncomingCursor(incomingChanges[incomingChanges.length - 1].timestamp);
+    }
 
     const elapsedTimeMs = Date.now() - startTimestampMs;
     log.info(`FacilitySyncManager.runSync: finished sync run in ${elapsedTimeMs}ms`);

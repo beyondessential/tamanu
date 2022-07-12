@@ -1,5 +1,5 @@
 import config from 'config';
-import { Op } from 'sequelize';
+import { Op, DATE } from 'sequelize';
 
 const { readOnly } = config.sync;
 
@@ -13,7 +13,9 @@ const COLUMNS_EXCLUDED_FROM_SYNC = [
 
 const snapshotChangesForModel = async (model, cursor) => {
   const recordsChanged = await model.findAll({
-    updatedAt: { [Op.gt]: cursor }, // updatedAt is set on all creates, updates, and deletes
+    where: {
+      updatedAt: { [Op.gt]: cursor }, // updatedAt is set on all creates, updates, and deletes
+    },
   });
 
   const sanitizeRecord = record =>
@@ -24,8 +26,7 @@ const snapshotChangesForModel = async (model, cursor) => {
         // sanitize values, e.g. dates to iso strings
         .map(name => {
           const columnType = model.tableAttributes[name].type;
-          const value =
-            columnType instanceof Sequelize.DATE ? record[name]?.toISOString() : record[name];
+          const value = columnType instanceof DATE ? record[name]?.toISOString() : record[name];
           return [name, value];
         }),
     );

@@ -1,6 +1,6 @@
-import { keyBy } from 'lodash';
+import { groupBy } from 'lodash';
 import { Op } from 'sequelize';
-import { MODEL_DEPENDENCY_ORDER } from 'shared/models/order';
+import { sortInDependencyOrder } from 'shared/models/sortInDependencyOrder';
 
 const saveCreates = async (model, records) => model.bulkCreate(records);
 
@@ -19,13 +19,13 @@ const saveChangesForModel = async (model, changes) => {
   const recordsForCreate = changes
     .filter(c => !c.isDeleted && !existingIdSet.has(c.data.id))
     .map(({ data }) => {
-      validateRecord(data, null);
+      // validateRecord(data, null); TODO add in validation
       return data;
     });
   const recordsForUpdate = changes
     .filter(r => !r.isDeleted && existingIdSet.has(r.data.id))
     .map(({ data }) => {
-      validateRecord(data, null);
+      // validateRecord(data, null); TODO add in validation
       return data;
     });
 
@@ -36,13 +36,13 @@ const saveChangesForModel = async (model, changes) => {
 };
 
 export const saveIncomingChanges = async (models, changes) => {
-  const orderedModels = MODEL_DEPENDENCY_ORDER.map(name => models[name]);
+  const sortedModels = sortInDependencyOrder(models);
 
-  const changesByRecordType = keyBy(changes, c => c.recordType);
+  const changesByRecordType = groupBy(changes, c => c.recordType);
 
-  const [firstModel] = orderedModels; // arbitrary model to grab sequelize from
+  const [firstModel] = sortedModels; // arbitrary model to grab sequelize from
   await firstModel.sequelize.transaction(async () => {
-    for (const model of models) {
+    for (const model of sortedModels) {
       await saveChangesForModel(model, changesByRecordType[model.tableName] || []);
     }
   });

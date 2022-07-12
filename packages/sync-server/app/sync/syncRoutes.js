@@ -1,8 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
-import { InvalidParameterError, NotFoundError } from 'shared/errors';
-
 import { log } from 'shared/services/logging';
 
 import { CentralSyncManager } from './CentralSyncManager';
@@ -14,12 +12,16 @@ export const syncRoutes = express.Router();
 syncRoutes.post(
   '/pull',
   asyncHandler(async (req, res) => {
-    const { query } = req;
-    const { since } = query;
-    if (!since) {
+    const { body, store } = req;
+    const { since } = body;
+    console.log(body);
+    if (!Number.isInteger(since)) {
       throw new Error('Must provide "since" when starting a sync session, even if it is 0');
     }
-    const { sessionId, count } = await syncManager.startOutgoingSession(parseInt(since, 10));
+    const { sessionId, count } = await syncManager.startOutgoingSession(
+      store.models,
+      parseInt(since, 10),
+    );
     res.send({ sessionId, count });
   }),
 );
@@ -59,12 +61,16 @@ syncRoutes.post(
   }),
 );
 
-syncRoutes.delete(
-  '/pu(sl)(hl)/:sessionId', // match pull and push with same handler, for ending sync session
-  asyncHandler(async (req, res) => {
-    const { params } = req;
-    const { sessionId } = params;
-    await syncManager.endSession(sessionId);
-    res.send({});
-  }),
-);
+// match pull and push with same handler, for ending sync session
+const endSyncSession = asyncHandler(async (req, res) => {
+  const { params, store } = req;
+  const { sessionId } = params;
+  try {
+    await syncManager.endSession(store.models, sessionId);
+  } catch (e) {
+    console.log(e);
+  }
+  res.send({});
+});
+syncRoutes.delete('/push/:sessionId', endSyncSession);
+syncRoutes.delete('/pull/:sessionId', endSyncSession);
