@@ -1,5 +1,11 @@
 import { Sequelize } from 'sequelize';
-import { AVPU_OPTIONS, SYNC_DIRECTIONS } from 'shared/constants';
+import {
+  AVPU_OPTIONS,
+  DETECTED_PRESENCE_OPTIONS,
+  URINE_NITRITES_OPTIONS,
+  URINE_PROTEIN_OPTIONS,
+  SYNC_DIRECTIONS,
+} from 'shared/constants';
 import { Model } from './Model';
 
 export class Vitals extends Model {
@@ -22,6 +28,19 @@ export class Vitals extends Model {
         respiratoryRate: Sequelize.FLOAT,
         spo2: Sequelize.FLOAT,
         avpu: Sequelize.ENUM(AVPU_OPTIONS.map(x => x.value)),
+        gcs: Sequelize.FLOAT,
+        hemoglobin: Sequelize.FLOAT,
+        fastingBloodGlucose: Sequelize.FLOAT,
+        urinePh: Sequelize.FLOAT,
+        urineLeukocytes: Sequelize.STRING,
+        urineNitrites: Sequelize.STRING,
+        urobilinogen: Sequelize.FLOAT,
+        urineProtein: Sequelize.STRING,
+        bloodInUrine: Sequelize.STRING,
+        urineSpecificGravity: Sequelize.FLOAT,
+        urineKetone: Sequelize.STRING,
+        urineBilirubin: Sequelize.STRING,
+        urineGlucose: Sequelize.FLOAT,
       },
       {
         ...options,
