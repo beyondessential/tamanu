@@ -2,6 +2,19 @@ import config from 'config';
 
 import { log } from 'shared/services/logging';
 import { sleepAsync } from 'shared/utils';
+import {
+  BadAuthenticationError,
+  FacilityAndSyncVersionIncompatibleError,
+  InsufficientStorageError,
+} from 'shared/errors';
+
+const IRRECOVERABLE_ERRORS = [BadAuthenticationError, FacilityAndSyncVersionIncompatibleError];
+const isIrrecoverable = e => {
+  const isErrorOnList = IRRECOVERABLE_ERRORS.some(irrecErr => e instanceof irrecErr);
+  const is4xx = e.remoteResponse?.status >= 400 && e.remoteResponse?.status < 500;
+  const isInsufficientStorage = e.remoteResponse?.message === InsufficientStorageError.name;
+  return isErrorOnList || is4xx || isInsufficientStorage;
+};
 
 export const callWithBackoff = async (
   fn,
@@ -27,30 +40,48 @@ export const callWithBackoff = async (
     attempt += 1;
     const attemptStartMs = Date.now();
     try {
-      log.debug(`callWithBackoff: attempt ${attempt}/${maxAttempts}: started`);
+      log.debug(`callWithBackoff: started`, { attempt, maxAttempts });
       const result = await fn();
       const now = Date.now();
       const attemptMs = now - attemptStartMs;
       const totalMs = now - overallStartMs;
-      log.debug(
-        `callWithBackoff: attempt ${attempt}/${maxAttempts}: succeeded (attempt took ${attemptMs}ms, total time ${totalMs}ms)`,
-      );
+      log.debug(`callWithBackoff: succeeded`, {
+        attempt,
+        maxAttempts,
+        time: `${attemptMs}ms`,
+        totalTime: `${totalMs}ms`,
+      });
       return result;
     } catch (e) {
+      // throw if the error is irrecoverable
+      if (isIrrecoverable(e)) {
+        log.error(`callWithBackoff: failed, error was irrecoverable`, {
+          attempt,
+          maxAttempts,
+          stack: e.stack,
+        });
+        throw e;
+      }
+
       // throw if we've exceeded our maximum retries
       if (attempt >= maxAttempts) {
-        log.error(
-          `callWithBackoff: attempt ${attempt}/${maxAttempts} failed, max retries exceeded: ${e.stack}`,
-        );
+        log.error(`callWithBackoff: failed, max retries exceeded`, {
+          attempt,
+          maxAttempts,
+          stack: e.stack,
+        });
         throw e;
       }
 
       // otherwise, calculate the next backoff delay
       [secondLastN, lastN] = [lastN, Math.max(lastN + secondLastN, 1)];
       const delay = Math.min(lastN * multiplierMs, maxWaitMs);
-      log.warn(
-        `callWithBackoff: attempt ${attempt}/${maxAttempts} failed, retrying in ${delay}ms: ${e.stack}`,
-      );
+      log.warn(`callWithBackoff: failed, retrying`, {
+        attempt,
+        maxAttempts,
+        retryingIn: `${delay}ms`,
+        stack: e.stack,
+      });
       await sleepAsync(delay);
     }
   }
