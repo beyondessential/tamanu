@@ -1,5 +1,5 @@
 import config from 'config';
-import { STRING, INTEGER, QueryInterface } from 'sequelize';
+import { STRING, INTEGER, QueryInterface, QueryTypes } from 'sequelize';
 
 const MAIN_CAUSES = ['primary_cause', 'antecedent_cause1', 'antecedent_cause2'];
 
@@ -28,13 +28,26 @@ export async function up(query: QueryInterface) {
       WHERE patient_death_data.${col}_id = death_causes.id
     `);
 
-    await query.sequelize.query(`
-      DELETE FROM death_causes
-      WHERE death_causes.id IN
-      (SELECT ${col}_id FROM patient_death_data)
-    `);
+    const deathCausesDeleteIds = (
+      await query.sequelize.query(
+        `
+          SELECT ${col}_id
+          FROM patient_death_data
+          WHERE ${col}_id IS NOT NULL
+        `,
+        { type: QueryTypes.SELECT },
+      )
+    ).map((d: object) => d[`${col}_id`]);
 
     await query.removeColumn('patient_death_data', `${col}_id`);
+
+    if (deathCausesDeleteIds.length > 0) {
+      await query.sequelize.query('DELETE FROM death_causes WHERE death_causes.id IN(:ids)', {
+        replacements: {
+          ids: deathCausesDeleteIds,
+        },
+      });
+    }
   }
 
   await query.renameTable('death_causes', 'contributing_death_causes');
@@ -53,22 +66,28 @@ export async function down(query: QueryInterface) {
       },
     });
 
-    // https://stackoverflow.com/a/61000724
-    // https://stackoverflow.com/a/21327318
-    const uuidgen = config.db.sqlitePath
-      ? `select lower(hex( randomblob(4)) || '-' || hex( randomblob(2))
-         || '-' || '4' || substr( hex( randomblob(2)), 2) || '-'
-         || substr('AB89', 1 + (abs(random()) % 4) , 1)  ||
-         substr(hex(randomblob(2)), 2) || '-' || hex(randomblob(6)))`
-      : `SELECT uuid_in(overlay(overlay(md5(random()::text || ':' || random()::text) placing '4' from 13) placing to_hex(floor(random()*(11-8+1) + 8)::int)::text from 17)::cstring)`;
-    // can't rely on postgres extensions being present ;_;
+    if (config.db.sqlitePath) {
+      console.warn('Losing data on the down migration');
+    } else {
+      // https://stackoverflow.com/a/21327318
+      // can't rely on postgres extensions being present ;_;
+      const uuidgen = `SELECT uuid_in(overlay(overlay(md5(random()::text || ':' || random()::text) placing '4' from 13) placing to_hex(floor(random()*(11-8+1) + 8)::int)::text from 17)::cstring)`;
 
-    await query.sequelize.query(`
-      INSERT INTO death_causes (id, condition_id, time_after_onset)
-      SELECT (${uuidgen}), pdd.${col}_condition_id, pdd.${col}_time_after_onset
-      FROM patient_death_data pdd
-      WHERE pdd.${col}_condition_id IS NOT NULL
-    `);
+      // only postgres supports using this syntax
+      await query.sequelize.query(`
+        WITH inserted AS (
+          INSERT INTO death_causes (id, patient_death_data_id, condition_id, time_after_onset)
+          SELECT (${uuidgen}), pdd.id, pdd.${col}_condition_id, pdd.${col}_time_after_onset
+          FROM patient_death_data pdd
+          WHERE pdd.${col}_condition_id IS NOT NULL
+          RETURNING id, patient_death_data_id
+        )
+        UPDATE patient_death_data pdd
+        SET ${col}_id = inserted.id
+        FROM inserted
+        WHERE pdd.id = inserted.patient_death_data_id
+      `);
+    }
 
     await query.removeColumn('patient_death_data', `${col}_condition_id`);
     await query.removeColumn('patient_death_data', `${col}_time_after_onset`);
