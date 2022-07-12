@@ -63,6 +63,14 @@ export const location = base.shape({
   facilityId: yup.string().required(),
 });
 
+export const permission = yup.object().shape({
+  _yCell: yup.string().oneOf(['y', 'n'], 'permissions matrix must only use the letter y or n'), // validation-only, not stored in the database anywhere
+  verb: yup.string().required(),
+  noun: yup.string().required(),
+  objectId: yup.string().nullable(),
+  deletedAt: yup.date().nullable(),
+});
+
 const LAB_TEST_RESULT_TYPES = ['Number', 'Select', 'FreeText'];
 const rangeRegex = /^[0-9.]+, [0-9.]+$/;
 export const labTestType = base.shape({

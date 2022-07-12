@@ -1,5 +1,5 @@
 import { buildAbilityForTests } from 'shared/permissions/buildAbility';
-import { queryPermissionsForRoles } from 'shared/permissions/rolesToPermissions';
+import { queryPermissionsForRoles, getAbilityForUser } from 'shared/permissions/rolesToPermissions';
 import { createTestContext } from '../utilities';
 
 async function getAbilityForRoles(roleString) {
@@ -35,6 +35,32 @@ describe('Permissions', () => {
   });
 
   afterAll(() => ctx.close());
+
+  it('should make sure permissions are unique', async () => {
+    await expect(
+      ctx.store.models.Permission.create({
+        roleId: 'writer',
+        noun: 'Patient',
+        verb: 'write',
+      }),
+    ).rejects.toThrow('Validation error');
+    await expect(
+      ctx.store.models.Permission.create({
+        roleId: 'reader',
+        noun: 'Report',
+        verb: 'run',
+        objectId: 'report-allowed',
+      }),
+    ).rejects.toThrow('Validation error');
+    await expect(
+      ctx.store.models.Permission.create({
+        roleId: 'reader',
+        noun: 'Report',
+        verb: 'run',
+        objectId: 'different-report',
+      }),
+    ).resolves.not.toThrowError();
+  });
 
   describe('Creating permission definition from database', () => {
     it('should read a permission definition object from a series of records', async () => {
@@ -75,6 +101,20 @@ describe('Permissions', () => {
       const response = await userApp.get('/v1/permissions');
       const { permissions } = response.body;
       expect(permissions.some(x => x.verb === 'write' && x.noun === 'EncounterDiagnosis'));
+    });
+
+    it('Should forbid any user without specific permission', async () => {
+      const userApp = await ctx.baseApp.asRole('reception');
+      const ability = await getAbilityForUser(userApp.user);
+      const hasPermission = ability.can('fakeVerb', 'FakeNoun');
+      expect(hasPermission).toBe(false);
+    });
+
+    it('Should grant every permission to the superadmin', async () => {
+      const adminApp = await ctx.baseApp.asRole('admin');
+      const ability = await getAbilityForUser(adminApp.user);
+      const hasPermission = ability.can('fakeVerb', 'FakeNoun');
+      expect(hasPermission).toBe(true);
     });
   });
 });

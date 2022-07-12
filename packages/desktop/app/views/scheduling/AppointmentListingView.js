@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-
-import { TopBar, PageContainer, DataFetchingTable } from '../../components';
-import { DateDisplay } from '../../components/DateDisplay';
+import {
+  TopBar,
+  DateDisplay,
+  PageContainer,
+  DataFetchingTable,
+  AppointmentsSearchBar,
+} from '../../components';
 import { NewAppointmentButton } from '../../components/Appointments/NewAppointmentButton';
-import { AppointmentsSearchBar } from '../../components/Appointments/AppointmentsSearchBar';
 
 const CapitalisedValue = styled.span`
   text-transform: capitalize;

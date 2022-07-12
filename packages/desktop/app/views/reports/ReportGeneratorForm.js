@@ -142,7 +142,7 @@ const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
   const [parameters, setParameters] = useState([]);
   const [dataSource, setDataSource] = useState(REPORT_DATA_SOURCES.THIS_FACILITY);
   const [isDataSourceFieldDisabled, setIsDataSourceFieldDisabled] = useState(false);
-  const [availableReports, setAvailableReports] = useState([]);
+  const [availableReports, setAvailableReports] = useState(null);
   const [reportsById, setReportsById] = useState({});
   const [reportOptions, setReportOptions] = useState([]);
 
@@ -212,7 +212,7 @@ const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
   // Wait until available reports are loaded to render.
   // This is a workaround because of an issue that the onChange callback (when selecting a report)
   // inside render method of Formik doesn't update its dependency when the available reports list is already loaded
-  if (!availableReports.length && !requestError) {
+  if (Array.isArray(availableReports) === false && !requestError) {
     return <LoadingIndicator backgroundColor="#f7f9fb" />;
   }
 

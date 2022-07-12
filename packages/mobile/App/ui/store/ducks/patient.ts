@@ -10,7 +10,7 @@ export interface WithPatientActions {
 }
 
 export interface PatientStateProps {
-  selectedPatient: any;
+  selectedPatient: IPatient;
 }
 
 const MAX_STORED_RECENT_PATIENTS = 20;

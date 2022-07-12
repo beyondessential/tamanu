@@ -213,7 +213,6 @@ export const FACILITY_MENU_ITEMS = [
       {
         label: 'Permissions',
         path: '/admin/permissions',
-        ability: { action: 'read', subject: 'userRole' },
       },
       {
         label: 'Programs',

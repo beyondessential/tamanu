@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
-import { SvgXml } from 'react-native-svg';
-export const AppIntro2Icon = memo(props => {
+import { SvgXml, XmlProps } from 'react-native-svg';
+
+export const AppIntro2Icon = memo<Omit<XmlProps, 'xml'>>(props => {
   const xml = `<svg width="265" height="207" viewBox="0 0 265 207" fill="none" xmlns="http://www.w3.org/2000/svg">
   <g clipPath="url(#clip0)">
     <path d="M131.5 206.857C187.557 206.857 233 160.551 233 103.429C233 46.3065 187.557 0 131.5 0C75.4431 0 30 46.3065 30 103.429C30 160.551 75.4431 206.857 131.5 206.857Z" fill="#2B5E8F" />
