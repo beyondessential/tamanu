@@ -17,6 +17,7 @@ import * as registeredPatients from './registered-patients';
 import * as fijiCovidSwabLabTestList from './covid-module/fiji/fiji-covid-swab-lab-test-list';
 import * as fijiTravellerCovidLabTestList from './covid-module/fiji/fiji-traveller-covid-lab-test-list';
 import * as palauCovidSwabLabTestList from './covid-module/palau/palau-covid-swab-lab-test-list';
+import * as nauruCovidSwabLabTestList from './covid-module/nauru/nauru-covid-swab-lab-test-list';
 import * as kiribatiCovidSwabLabTestList from './covid-module/kiribati/kiribati-covid-swab-lab-test-list';
 import * as samoaCovidSwabLabTestList from './covid-module/samoa/samoa-covid-swab-lab-test-list';
 import * as covidSwabLabTestsSummary from './covid-module/covid-swab-lab-tests-summary';
@@ -74,6 +75,8 @@ export function getReportModule(reportType) {
       return fijiTravellerCovidLabTestList;
     case 'palau-covid-swab-lab-test-list':
       return palauCovidSwabLabTestList;
+    case 'nauru-covid-swab-lab-test-list':
+      return nauruCovidSwabLabTestList;
     case 'kiribati-covid-swab-lab-test-list':
       return kiribatiCovidSwabLabTestList;
     case 'samoa-covid-swab-lab-test-list':
@@ -106,3 +109,4 @@ export function getReportModule(reportType) {
 }
 
 export { REPORT_DEFINITIONS } from './reportDefinitions';
+export { REPORT_OBJECTS } from './reportObjects';

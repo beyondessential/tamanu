@@ -78,7 +78,12 @@ export const VaccineTableCell = ({
     administeredData,
   );
   const administeredVaccine = administeredData && administeredData.find(
-    v => v.scheduledVaccine.id === id,
+    v => {
+      if (typeof v.scheduledVaccine === "string") {
+        return v.scheduledVaccine === id;
+      }
+      return v.scheduledVaccine.id === id;
+    }
   );
 
   let cellStatus = vaccineStatus || dueStatus.status || VaccineStatus.UNKNOWN;

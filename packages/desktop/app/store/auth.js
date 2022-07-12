@@ -17,8 +17,8 @@ const CHANGE_PASSWORD_FAILURE = 'CHANGE_PASSWORD_FAILURE';
 
 export const restoreSession = () => async (dispatch, getState, { api }) => {
   try {
-    const { user, token, localisation, server } = await api.restoreSession();
-    dispatch({ type: LOGIN_SUCCESS, user, token, localisation, server });
+    const { user, token, localisation, server, ability } = await api.restoreSession();
+    dispatch({ type: LOGIN_SUCCESS, user, token, localisation, server, ability });
   } catch (e) {
     // no action required -- this just means we haven't logged in
   }
@@ -28,12 +28,8 @@ export const login = (host, email, password) => async (dispatch, getState, { api
   dispatch({ type: LOGIN_START });
 
   try {
-    const { user, token, localisation, server, permissions } = await api.login(
-      host,
-      email,
-      password,
-    );
-    dispatch({ type: LOGIN_SUCCESS, user, token, localisation, server, permissions });
+    const { user, token, localisation, server, ability } = await api.login(host, email, password);
+    dispatch({ type: LOGIN_SUCCESS, user, token, localisation, server, ability });
   } catch (error) {
     dispatch({ type: LOGIN_FAILURE, error: error.message });
   }
@@ -118,7 +114,7 @@ const actionHandlers = {
   [LOGIN_SUCCESS]: action => ({
     loading: false,
     user: action.user,
-    ability: action.permissions,
+    ability: action.ability,
     error: defaultState.error,
     token: action.token,
     localisation: action.localisation,
@@ -188,6 +184,3 @@ const actionHandlers = {
 };
 
 export const authReducer = createStatePreservingReducer(defaultState, actionHandlers);
-
-const getUserSelector = state => state.auth?.user;
-export const useCurrentUser = () => useSelector(getUserSelector);

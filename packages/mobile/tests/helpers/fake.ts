@@ -22,6 +22,7 @@ import {
 
 import { BaseModel } from '~/models/BaseModel';
 import { ID } from '~/types/ID';
+import { VaccineStatus } from '~/ui/helpers/patient';
 
 export const fakePatient = (): IPatient => {
   const uuid = uuidv4();
@@ -51,7 +52,7 @@ export const fakeEncounter = (): IEncounter => ({
 
 export const fakeAdministeredVaccine = (): IAdministeredVaccine => ({
   id: `administered-vaccine-id-${uuidv4()}`,
-  status: 'done',
+  status: VaccineStatus.GIVEN,
   date: new Date(),
 });
 

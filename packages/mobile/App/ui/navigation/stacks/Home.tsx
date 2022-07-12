@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext } from 'react';
+import React, { ReactElement } from 'react';
 // Navigators
 import {
   createStackNavigator,
@@ -24,12 +24,12 @@ import { noSwipeGestureOnNavigator } from '/helpers/navigators';
 import { Routes } from '/helpers/routes';
 import { RegisterPatientStack } from './RegisterPatientStack';
 import { PatientDetailsStack } from './PatientDetailsStack';
-import AuthContext from '~/ui/contexts/AuthContext';
+import { useAuth } from '~/ui/contexts/AuthContext';
 
 const Stack = createStackNavigator();
 
 export const HomeStack = (): ReactElement => {
-  const authCtx = useContext(AuthContext);
+  const authCtx = useAuth();
 
   return (
     <Stack.Navigator
