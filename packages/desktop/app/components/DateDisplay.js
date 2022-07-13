@@ -8,6 +8,12 @@ export function formatShort(date) {
   return moment(date).format('DD/MM/YYYY'); // "04/03/2019" dd/mm in locale order
 }
 
+export function getCurrentDateString() {
+  const example = formatShort(new Date());
+  console.log('getCurrentDateString', example);
+  return example;
+}
+
 function formatLong(date) {
   if (!date) return 'Date information not available';
 
