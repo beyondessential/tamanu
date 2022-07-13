@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { formatISO9075 } from 'date-fns';
 import { useApi } from '../api';
 import { Suggester } from '../utils/suggester';
 
@@ -14,14 +15,24 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
   const anaestheticSuggester = new Suggester(api, 'drug');
 
   return (
-    <Modal width="md" title="New procedure" open={!!editedProcedure} onClose={onClose}>
+    <Modal
+      width="md"
+      title={`${editedProcedure?.id ? 'Edit' : 'New'} procedure`}
+      open={!!editedProcedure}
+      onClose={onClose}
+    >
       <ProcedureForm
         onSubmit={async data => {
-          if (data.id) {
-            await api.put(`procedure/${data.id}`, data);
+          // Standardize this once we fully implement ISO9075 dates
+          const payload = {
+            ...data,
+            startTime: formatISO9075(new Date(data.startTime)),
+          };
+          if (payload.id) {
+            await api.put(`procedure/${payload.id}`, payload);
           } else {
             await api.post('procedure', {
-              ...data,
+              ...payload,
               encounterId,
             });
           }

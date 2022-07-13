@@ -1,8 +1,8 @@
-import { DATE, QueryInterface } from 'sequelize';
+import { STRING, QueryInterface } from 'sequelize';
 
 export async function up(query: QueryInterface) {
   await query.addColumn('procedures', 'start_time', {
-    type: DATE,
+    type: STRING,
     allowNull: true,
   });
 }

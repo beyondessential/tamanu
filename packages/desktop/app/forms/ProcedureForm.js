@@ -39,7 +39,7 @@ export const ProcedureForm = React.memo(
         const handleCancel = () => onCancel && onCancel();
         const getButtonText = isCompleted => {
           if (isCompleted) return 'Finalise';
-          if (editedObject) return 'Update';
+          if (editedObject?.id) return 'Update';
           return 'Create';
         };
 
@@ -138,7 +138,7 @@ export const ProcedureForm = React.memo(
         procedureTypeId: foreignKey('Procedure must be selected'),
         locationId: foreignKey('Location must be selected'),
         date: yup.date().required(),
-        startTime: yup.date(),
+        startTime: yup.string(),
         endTime: yup.date(),
         physicianId: foreignKey('Physician must be selected'),
         assistantId: optionalForeignKey(),

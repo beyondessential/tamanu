@@ -12,7 +12,7 @@ export class Procedure extends Model {
         },
         date: { type: Sequelize.DATE, allowNull: false },
         endTime: { type: Sequelize.DATE, allowNull: true },
-        startTime: { type: Sequelize.DATE, allowNull: true },
+        startTime: { type: Sequelize.STRING, allowNull: true },
         note: Sequelize.STRING,
         completedNote: Sequelize.STRING,
       },
