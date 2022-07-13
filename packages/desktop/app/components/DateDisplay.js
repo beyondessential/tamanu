@@ -1,12 +1,21 @@
 import React from 'react';
 import moment from 'moment';
 import styled from 'styled-components';
+import { format } from 'date-fns';
 
-export function formatShort(date) {
-  if (!date) return '--/--/----';
+import { enGB, enUS } from 'date-fns/locale';
 
-  return moment(date).format('DD/MM/YYYY'); // "04/03/2019" dd/mm in locale order
-}
+const locales = { 'en-GB': enGB, 'en-US': enUS };
+
+const formatDate = (date, formatStr, fallback) => {
+  if (!date) return fallback;
+  const locale = locales[window.navigator.language] || enGB;
+  return format(new Date(date), formatStr, { locale });
+};
+
+export const formatShort = date => {
+  return formatDate(date, 'P', '--/--/----');
+};
 
 function formatLong(date) {
   if (!date) return 'Date information not available';
