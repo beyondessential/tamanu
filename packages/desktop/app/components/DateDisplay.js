@@ -9,9 +9,7 @@ export function formatShort(date) {
 }
 
 export function getCurrentDateString() {
-  const example = formatShort(new Date());
-  console.log('getCurrentDateString', example);
-  return example;
+  return formatShort(new Date());
 }
 
 function formatLong(date) {
@@ -46,6 +44,10 @@ export const DateDisplay = ({
   showExplicitDate = false,
   ...props
 }) => {
+  if (typeof date === 'string') {
+    return date;
+  }
+
   const parts = [];
   if (showDate) {
     parts.push(formatShort(date));
