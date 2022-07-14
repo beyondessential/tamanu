@@ -1,8 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Typography } from '@material-ui/core';
-import { Colors } from '../constants';
 import { PropTypes } from 'prop-types';
+import { Colors } from '../constants';
 
 export const Card = styled.div`
   background: white;
