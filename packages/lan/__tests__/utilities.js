@@ -141,9 +141,9 @@ export async function createTestContext() {
 
   jest.setTimeout(30 * 1000); // more generous than the default 5s but not crazy
 
-  const centralServerConnection = new CentralServerConnection();
+  const centralServer = new CentralServerConnection();
 
-  const context = { baseApp, sequelize, models, centralServerConnection };
+  const context = { baseApp, sequelize, models, centralServer };
 
   context.syncManager = new FacilitySyncManager(context);
 
