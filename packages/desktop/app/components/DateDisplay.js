@@ -4,10 +4,10 @@ import { formatDistanceToNow } from 'date-fns';
 
 const intlFormatDate = (date, formatOptions, fallback = 'Unknown') => {
   if (!date) return fallback;
-  return new Date(date).toLocaleDateString('default', formatOptions);
+  return new Date(date).toLocaleString('default', formatOptions);
 };
 
-export const formatShort = date => intlFormatDate(date, {}, '--/--/----'); // 12/04/2020
+export const formatShort = date => intlFormatDate(date, { dateStyle: 'short' }, '--/--/----'); // 12/04/2020
 
 const formatLong = date =>
   intlFormatDate(
