@@ -53,7 +53,7 @@ describe('Imaging requests', () => {
     expect(result).toHaveRequestError();
   });
 
-  it('should get imaging requests for an encounter', async () => {
+  it.skip('should get imaging requests for an encounter', async () => {
     const createdImagingRequest = await models.ImagingRequest.create({
       encounterId: encounter.id,
       imagingType: IMAGING_TYPES.CT_SCAN,
