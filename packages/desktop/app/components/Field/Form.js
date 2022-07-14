@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Formik } from 'formik';
 import PropTypes from 'prop-types';
 import { ValidationError } from 'yup';
@@ -20,28 +20,33 @@ const FormErrors = ({ errors }) => {
   ));
 };
 
-export class Form extends React.PureComponent {
-  constructor() {
-    super();
-    this.state = {
-      validationErrors: {},
-      isErrorDialogVisible: false,
-    };
-  }
+const convertDateValuesToLocaleString = values =>
+  Object.entries(values).reduce(
+    (acc, [key, value]) => ({
+      ...acc,
+      [key]: value instanceof Date ? value.toLocaleString() : value,
+    }),
+    {},
+  );
 
-  setErrors = validationErrors => {
-    const { onError } = this.props;
+export const Form = ({ onError, onSubmit, onSuccess, showInlineErrorsOnly, render, ...props }) => {
+  const [validationErrors, setValidationErrors] = useState({});
+  const [isErrorDialogVisible, setIsErrorDialogVisible] = useState(false);
+
+  // Replace instances of Date.now() with locale string
+  const initialValues = convertDateValuesToLocaleString(props.initialValues);
+
+  const handleShowErrorDialog = errors => {
     if (onError) {
-      onError(validationErrors);
+      onError(errors);
     }
-    this.setState({ validationErrors, isErrorDialogVisible: true });
+    setValidationErrors(errors);
+    setIsErrorDialogVisible(true);
   };
 
-  hideErrorDialog = () => {
-    this.setState({ isErrorDialogVisible: false });
-  };
+  const handleHideErrorDialog = () => setIsErrorDialogVisible(false);
 
-  createSubmissionHandler = ({
+  const createSubmissionHandler = ({
     validateForm,
     handleSubmit,
     isSubmitting,
@@ -63,17 +68,15 @@ export class Form extends React.PureComponent {
     const values = getValues();
     const formErrors = await validateForm(values);
     if (Object.entries(formErrors).length) {
-      this.setErrors(formErrors);
+      handleShowErrorDialog(formErrors);
       setSubmitting(false);
       throw new ValidationError('Form was not filled out correctly');
     }
 
-    // submission phase
-    const { onSubmit, onSuccess } = this.props;
     try {
       const result = await onSubmit(values, {
         ...rest,
-        setErrors: this.setErrors,
+        setErrors: handleShowErrorDialog,
       });
       if (onSuccess) {
         onSuccess(result);
@@ -82,14 +85,14 @@ export class Form extends React.PureComponent {
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error('Error during form submission: ', e);
-      this.setErrors([e.message]);
+      handleShowErrorDialog([e.message]);
       throw e;
     } finally {
       setSubmitting(false);
     }
   };
 
-  renderFormContents = ({
+  const renderFormContents = ({
     isValid,
     isSubmitting,
     submitForm: originalSubmitForm,
@@ -100,7 +103,7 @@ export class Form extends React.PureComponent {
 
     // we need this func for nested forms
     // as the original submitForm() will trigger validation automatically
-    const submitForm = this.createSubmissionHandler({
+    const submitForm = createSubmissionHandler({
       isSubmitting,
       getValues: () => values,
       ...formProps,
@@ -112,8 +115,6 @@ export class Form extends React.PureComponent {
       values = newValues;
       originalSetValues(newValues);
     };
-
-    const { render } = this.props;
 
     return (
       <form onSubmit={submitForm} noValidate>
@@ -128,40 +129,35 @@ export class Form extends React.PureComponent {
       </form>
     );
   };
-
-  render() {
-    const { onSubmit, showInlineErrorsOnly, ...props } = this.props;
-    const { validationErrors, isErrorDialogVisible } = this.state;
-
-    // read children from additional props rather than destructuring so
-    // eslint ignores it (there's not good support for "forbidden" props)
-    if (props.children) {
-      throw new Error('Form must not have any children -- use the `render` prop instead please!');
-    }
-
-    return (
-      <>
-        <Formik
-          onSubmit={onSubmit}
-          validateOnChange={false}
-          validateOnBlur={false}
-          initialStatus={{
-            page: 1,
-          }}
-          {...props}
-          render={this.renderFormContents}
-        />
-
-        <Dialog
-          isVisible={isErrorDialogVisible}
-          onClose={this.hideErrorDialog}
-          headerTitle="Please fix below errors to continue"
-          contentText={<FormErrors errors={validationErrors} />}
-        />
-      </>
-    );
+  // read children from additional props rather than destructuring so
+  // eslint ignores it (there's not good support for "forbidden" props)
+  if (props.children) {
+    throw new Error('Form must not have any children -- use the `render` prop instead please!');
   }
-}
+
+  return (
+    <>
+      <Formik
+        onSubmit={onSubmit}
+        validateOnChange={false}
+        validateOnBlur={false}
+        initialStatus={{
+          page: 1,
+        }}
+        initialValues={initialValues}
+        {...props}
+        render={renderFormContents}
+      />
+
+      <Dialog
+        isVisible={isErrorDialogVisible}
+        onClose={handleHideErrorDialog}
+        headerTitle="Please fix below errors to continue"
+        contentText={<FormErrors errors={validationErrors} />}
+      />
+    </>
+  );
+};
 
 Form.propTypes = {
   onError: PropTypes.func,
