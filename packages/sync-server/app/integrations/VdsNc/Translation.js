@@ -1,7 +1,8 @@
 import moment from 'moment';
 import { transliterate as tr } from 'transliteration';
-import { getLocalisation } from '../../localisation';
 import { log } from 'shared/services/logging';
+
+import { getLocalisation } from '../../localisation';
 
 const SEX_TO_CHAR = {
   male: 'M',
