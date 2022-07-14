@@ -2,7 +2,6 @@ import React from 'react';
 
 import { storiesOf } from '@storybook/react';
 
-import { PATIENTS } from 'Shared/demoData';
 import { Notification } from '../app/components/Notification';
 import { DateDisplay } from '../app/components/DateDisplay';
 
@@ -13,5 +12,4 @@ storiesOf('DateDisplay', module)
     note:
       'Shows a JS date in a locale-appropriate format. User can hover to see a more verbose date.',
   })
-  .add('placeholder', () => <DateDisplay date={new Date()} />)
-  .add('with duration', () => <DateDisplay date={new Date(2010, 10, 10)} showDuration />);
+  .add('placeholder', () => <DateDisplay date={new Date()} />);

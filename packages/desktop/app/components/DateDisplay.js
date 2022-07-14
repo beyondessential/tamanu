@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import { formatDistanceToNow } from 'date-fns';
 
 const intlFormatDate = (date, formatOptions, fallback = 'Unknown') => {
   if (!date) return fallback;
@@ -19,10 +18,6 @@ const formatLong = date =>
     },
     'Date information not available',
   ); // "Thursday, 14 July 2022, 03:44 pm"
-
-const formatDuration = date => {
-  return formatDistanceToNow(new Date(date), { addSuffix: true });
-}; // 4 months ago
 
 export const formatTime = date =>
   intlFormatDate(
@@ -47,7 +42,6 @@ export const DateDisplay = ({
   date,
   showDate = true,
   showTime = false,
-  showDuration = false,
   showExplicitDate = false,
   ...props
 }) => {
@@ -56,9 +50,6 @@ export const DateDisplay = ({
     parts.push(formatShort(date));
   } else if (showExplicitDate) {
     parts.push(formatShortExplicit(date));
-  }
-  if (showDuration) {
-    parts.push(`(${formatDuration(date)})`);
   }
   if (showTime) {
     parts.push(formatTime(date));
