@@ -103,8 +103,8 @@ export class WebRemote {
           },
           this.fetchImplementation,
         );
-        const checkForInvalidToken = ({ status }) => status === 401;
-        if (checkForInvalidToken(response)) {
+        const isInvalidToken = response?.status === 401;
+        if (isInvalidToken) {
           if (retryAuth) {
             log.warn('Token was invalid - reconnecting to sync server');
             await this.connect();
