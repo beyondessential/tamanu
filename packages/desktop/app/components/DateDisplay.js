@@ -7,7 +7,7 @@ const intlFormatDate = (date, formatOptions, fallback = 'Unknown') => {
   return new Intl.DateTimeFormat('default', formatOptions).format(new Date(date));
 };
 
-export const formatShort = date => intlFormatDate(date, { dateStyle: 'short' }, '__/__/____');
+export const formatShort = date => intlFormatDate(date, { dateStyle: 'short' }, '__/__/____'); // 12/04/2020
 
 const formatLong = date =>
   intlFormatDate(
@@ -22,7 +22,7 @@ const formatLong = date =>
 
 const formatDuration = date => {
   return formatDistanceToNow(new Date(date), { addSuffix: true });
-};
+}; // 4 months ago
 
 export const formatTime = date =>
   intlFormatDate(
@@ -32,7 +32,7 @@ export const formatTime = date =>
       hour12: true,
     },
     '__:__',
-  );
+  ); // 12:30 am
 
 const formatShortExplicit = date =>
   intlFormatDate(date, {
