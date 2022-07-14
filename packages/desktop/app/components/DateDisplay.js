@@ -1,20 +1,9 @@
 import React from 'react';
 import moment from 'moment';
 import styled from 'styled-components';
-import { format } from 'date-fns';
-
-import { enGB, enUS } from 'date-fns/locale';
-
-const locales = { 'en-GB': enGB, 'en-US': enUS };
-
-const formatDate = (date, formatStr, fallback) => {
-  if (!date) return fallback;
-  const locale = locales[window.navigator.language] || enGB;
-  return format(new Date(date), formatStr, { locale });
-};
 
 export const formatShort = date => {
-  return formatDate(date, 'P', '--/--/----');
+  return new Date(date).toLocaleDateString('default');
 };
 
 function formatLong(date) {
