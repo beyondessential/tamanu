@@ -93,6 +93,7 @@ describe('WebRemote', () => {
       const remote = createRemote();
       fetch.mockReturnValueOnce(clientVersionLow);
       await expect(remote.connect()).rejects.toThrow(/please upgrade.*v1\.0\.0/i);
+      fetch.mockReturnValueOnce(clientVersionLow);
       await expect(remote.connect()).rejects.toThrow(FacilityAndSyncVersionIncompatibleError);
     });
 
@@ -100,6 +101,7 @@ describe('WebRemote', () => {
       const remote = createRemote();
       fetch.mockReturnValueOnce(clientVersionHigh);
       await expect(remote.connect()).rejects.toThrow(/only supports up to v2\.0\.0/i);
+      fetch.mockReturnValueOnce(clientVersionHigh);
       await expect(remote.connect()).rejects.toThrow(FacilityAndSyncVersionIncompatibleError);
     });
 
