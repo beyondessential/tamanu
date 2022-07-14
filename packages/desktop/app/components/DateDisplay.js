@@ -8,17 +8,6 @@ const intlFormatDate = (date, formatOptions, fallback = 'Unknown') => {
 
 export const formatShort = date => intlFormatDate(date, { dateStyle: 'short' }, '--/--/----'); // 12/04/2020
 
-const formatLong = date =>
-  intlFormatDate(
-    date,
-    {
-      timeStyle: 'short',
-      dateStyle: 'full',
-      hour12: true,
-    },
-    'Date information not available',
-  ); // "Thursday, 14 July 2022, 03:44 pm"
-
 export const formatTime = date =>
   intlFormatDate(
     date,
@@ -34,6 +23,19 @@ const formatShortExplicit = date =>
     dateStyle: 'medium',
   }); // "4 Mar 2019"
 
+// long format date is displayed on hover
+const formatLong = date =>
+  intlFormatDate(
+    date,
+    {
+      timeStyle: 'short',
+      dateStyle: 'full',
+      hour12: true,
+    },
+    'Date information not available',
+  ); // "Thursday, 14 July 2022, 03:44 pm"
+
+// abbr tag allows a title to be passed in which shows the long format date on hover
 const StyledAbbr = styled.abbr`
   text-decoration: none;
 `;
