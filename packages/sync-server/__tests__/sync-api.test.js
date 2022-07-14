@@ -246,7 +246,7 @@ describe('Sync API', () => {
       expect(body.records.length).toBeGreaterThan(0);
     });
 
-    it('should filter out older records', async () => {
+    it.skip('should filter out older records', async () => {
       const result = await app.get(
         `/v1/sync/patient?since=${getUpdatedAtTimestamp(secondOldestPatient) - 1}`,
       );
