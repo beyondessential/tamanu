@@ -1,32 +1,43 @@
 import React from 'react';
-import moment from 'moment';
 import styled from 'styled-components';
+import { formatDistanceToNow } from 'date-fns';
 
-export function formatShort(date) {
-  if (!date) return '--/--/----';
+const intlFormatDate = (date, formatOptions, fallback = 'Unknown') => {
+  if (!date) return fallback;
+  return new Intl.DateTimeFormat('default', formatOptions).format(new Date(date));
+};
 
-  return moment(date).format('DD/MM/YYYY'); // "04/03/2019" dd/mm in locale order
-}
+export const formatShort = date => intlFormatDate(date, { dateStyle: 'short' }, '__/__/____');
 
-function formatLong(date) {
-  if (!date) return 'Date information not available';
+const formatLong = date =>
+  intlFormatDate(
+    date,
+    {
+      timeStyle: 'short',
+      dateStyle: 'full',
+      hour12: true,
+    },
+    'Date information not available',
+  ); // "Thursday, 14 July 2022, 03:44 pm"
 
-  return moment(date).format('LLLL'); // "Monday, March 4, 2019 10:22 AM"
-}
+const formatDuration = date => {
+  return formatDistanceToNow(new Date(date), { addSuffix: true });
+};
 
-function formatDuration(date) {
-  return moment(date).from(moment(), true);
-}
+export const formatTime = date =>
+  intlFormatDate(
+    date,
+    {
+      timeStyle: 'short',
+      hour12: true,
+    },
+    '__:__',
+  );
 
-export function formatTime(date) {
-  return moment(date).format('hh:mm a');
-}
-
-function formatShortExplicit(date) {
-  if (!date) return 'Unknown';
-
-  return moment(date).format('Do MMM YYYY'); // "4th Mar 2019" unambiguous short format
-}
+const formatShortExplicit = date =>
+  intlFormatDate(date, {
+    dateStyle: 'medium',
+  }); // "4 Mar 2019"
 
 const StyledAbbr = styled.abbr`
   text-decoration: none;
