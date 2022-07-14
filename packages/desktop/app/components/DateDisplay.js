@@ -3,7 +3,7 @@ import moment from 'moment';
 import styled from 'styled-components';
 
 export const formatShort = date => {
-  return new Date(date).toLocaleDateString('default');
+  return new Date(date).toLocaleString('default', { dateStyle: 'short' });
 };
 
 function formatLong(date) {
