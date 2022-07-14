@@ -2,18 +2,15 @@ import config from 'config';
 
 import { log } from 'shared/services/logging';
 import { sleepAsync } from 'shared/utils';
-import {
-  BadAuthenticationError,
-  FacilityAndSyncVersionIncompatibleError,
-  InsufficientStorageError,
-} from 'shared/errors';
+import { BadAuthenticationError, FacilityAndSyncVersionIncompatibleError } from 'shared/errors';
 
 const IRRECOVERABLE_ERRORS = [BadAuthenticationError, FacilityAndSyncVersionIncompatibleError];
+const isErrorOnIrrecoverableList = e =>
+  IRRECOVERABLE_ERRORS.some(irrecErr => e instanceof irrecErr);
+const is4xx = e => e.remoteResponse?.status >= 400 && e.remoteResponse?.status < 500;
+const isInsufficientStorage = e => e.remoteResponse?.message === 'InsufficientStorage';
 const isIrrecoverable = e => {
-  const isErrorOnList = IRRECOVERABLE_ERRORS.some(irrecErr => e instanceof irrecErr);
-  const is4xx = e.remoteResponse?.status >= 400 && e.remoteResponse?.status < 500;
-  const isInsufficientStorage = e.remoteResponse?.message === InsufficientStorageError.name;
-  return isErrorOnList || is4xx || isInsufficientStorage;
+  return isErrorOnIrrecoverableList(e) || is4xx(e) || isInsufficientStorage(e);
 };
 
 export const callWithBackoff = async (
