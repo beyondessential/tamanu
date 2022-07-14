@@ -8,7 +8,7 @@ import {
   invalidUserCredentialsMessage,
   invalidTokenMessage,
   generalErrorMessage,
-} from '~/services/auth/error';
+} from '~/services/error';
 import { version } from '/root/package.json';
 
 import { callWithBackoff, callWithBackoffOptions } from './callWithBackoff';
