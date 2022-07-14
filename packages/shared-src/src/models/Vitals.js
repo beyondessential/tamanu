@@ -1,11 +1,5 @@
 import { Sequelize } from 'sequelize';
-import {
-  AVPU_OPTIONS,
-  DETECTED_PRESENCE_OPTIONS,
-  URINE_NITRITES_OPTIONS,
-  URINE_PROTEIN_OPTIONS,
-  SYNC_DIRECTIONS,
-} from 'shared/constants';
+import { AVPU_OPTIONS, SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
 export class Vitals extends Model {

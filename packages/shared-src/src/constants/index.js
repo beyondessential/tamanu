@@ -55,32 +55,6 @@ export const AVPU_OPTIONS = [
   { value: 'unresponsive', label: 'Unresponsive' },
 ];
 
-// this type is used for urineLeukocytes, bloodInUrine,
-// urineKetone and urineBilirubin
-// urineBilirubin does not have 'trace' value, which should be filtered
-// out by the frontend
-export const DETECTED_PRESENCE_OPTIONS = [
-  { value: 'none', label: 'None' },
-  { value: 'trace', label: 'Trace' },
-  { value: 'small', label: 'Small' },
-  { value: 'moderate', label: 'Moderate' },
-  { value: 'large', label: 'Large' },
-];
-
-export const URINE_NITRITES_OPTIONS = [
-  { value: 'negative', label: 'Negative' },
-  { value: 'positive', label: 'Positive' },
-];
-
-export const URINE_PROTEIN_OPTIONS = [
-  { value: 'negative', label: 'Negative' },
-  { value: 'trace', label: 'Trace' },
-  { value: '30', label: '30' },
-  { value: '100', label: '100' },
-  { value: '300', label: '300' },
-  { value: '2000+', label: '2000+' },
-];
-
 export const REFERENCE_TYPES = {
   ICD10: 'icd10',
   ALLERGY: 'allergy',
