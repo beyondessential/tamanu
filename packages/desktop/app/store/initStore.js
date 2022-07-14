@@ -32,6 +32,6 @@ export function initStore(api) {
   const store = createStore(persistedReducers, {}, enhancers);
 
   api.setReduxStore(store);
-  
+
   return { store, history };
 }
