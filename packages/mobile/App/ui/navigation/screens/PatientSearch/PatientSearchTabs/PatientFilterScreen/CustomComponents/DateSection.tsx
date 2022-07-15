@@ -6,6 +6,6 @@ import { DateField } from '/components/DateField/DateField';
 
 export const DateSection = (): ReactElement => (
   <Section localisationPath="fields.dateOfBirth">
-    <Field component={DateField} name="dateOfBirth" />
+    <Field component={DateField} max={new Date()} name="dateOfBirth" />
   </Section>
 );
