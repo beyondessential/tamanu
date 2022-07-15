@@ -4,7 +4,7 @@ import { useApi } from '../api';
 import { Suggester } from '../utils/suggester';
 import { Modal } from './Modal';
 import { MedicationForm } from '../forms/MedicationForm';
-import { getCurrentDateString } from './DateDisplay';
+import { getCurrentDateString } from '../utils/dateTime';
 
 export const MedicationModal = ({ open, onClose, onSaved, encounterId, medication, readOnly }) => {
   const api = useApi();
