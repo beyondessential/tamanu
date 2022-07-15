@@ -165,6 +165,18 @@ export const PatientEncounterSummary = ({
   openTriage,
   encounter,
 }) => {
+  // This means that we set null when retrieving the encounter
+  // because the request had an error
+  if (encounter === null) {
+    return (
+      <NoVisitContainer>
+        <NoVisitTitle variant="h2">
+          You do not have the necessary permissions to read encounters
+        </NoVisitTitle>
+      </NoVisitContainer>
+    );
+  }
+
   if (patient.dateOfDeath) {
     return <PatientDeathSummary patient={patient} />;
   }
