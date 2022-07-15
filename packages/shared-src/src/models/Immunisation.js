@@ -1,4 +1,5 @@
 import { Sequelize } from 'sequelize';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 
 import { InvalidOperationError } from 'shared/errors';
 
@@ -24,6 +25,7 @@ export class Immunisation extends Model {
       },
       {
         ...options,
+        syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
         validate: {
           mustHaveValidPatient() {
             if (!this.patientId) {

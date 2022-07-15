@@ -9,7 +9,9 @@ export class Model extends sequelize.Model {
     super.init(attributes, options);
     this.defaultIdValue = attributes.id.defaultValue;
     if (!syncDirection) {
-      throw new Error('Every model must specify a sync direction, even if that is "DO_NOT_SYNC"');
+      throw new Error(
+        `Every model must specify a sync direction, even if that is "DO_NOT_SYNC". Check the model definition for ${this.name}`,
+      );
     }
     this.syncDirection = syncDirection;
   }
