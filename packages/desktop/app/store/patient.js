@@ -12,10 +12,19 @@ export const clearPatient = () => ({
 export const reloadPatient = id => async (dispatch, getState, { api }) => {
   dispatch({ type: PATIENT_LOAD_START, id });
 
+  // Fetch this separate from the other patient information
+  // (handling it differently to avoid breaking patient view page)
+  let currentEncounter;
+  try {
+    currentEncounter = await api.get(`patient/${id}/currentEncounter`);
+  } catch (e) {
+    // Ignore error
+    currentEncounter = null;
+  }
+
   try {
     const [
       patient,
-      currentEncounter,
       familyHistory,
       allergies,
       issues,
@@ -24,7 +33,6 @@ export const reloadPatient = id => async (dispatch, getState, { api }) => {
       additionalData,
     ] = await Promise.all([
       api.get(`patient/${id}`),
-      api.get(`patient/${id}/currentEncounter`),
       api.get(`patient/${id}/familyHistory`),
       api.get(`patient/${id}/allergies`),
       api.get(`patient/${id}/issues`),
