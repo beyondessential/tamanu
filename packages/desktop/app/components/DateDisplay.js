@@ -8,10 +8,6 @@ export function formatShort(date) {
   return moment(date).format('DD/MM/YYYY'); // "04/03/2019" dd/mm in locale order
 }
 
-export function getCurrentDateString() {
-  return formatShort(new Date());
-}
-
 function formatLong(date) {
   if (!date) return 'Date information not available';
 
@@ -37,15 +33,16 @@ const StyledAbbr = styled.abbr`
 `;
 
 export const DateDisplay = ({
-  date,
+  date: dateValue,
   showDate = true,
   showTime = false,
   showDuration = false,
   showExplicitDate = false,
-  ...props
 }) => {
+  let date = dateValue;
+
   if (typeof date === 'string') {
-    return date;
+    date = new Date(date);
   }
 
   const parts = [];
@@ -61,7 +58,7 @@ export const DateDisplay = ({
     parts.push(formatTime(date));
   }
   return (
-    <StyledAbbr {...props} title={formatLong(date)} data-test-class="date-display-abbr">
+    <StyledAbbr title={formatLong(date)} data-test-class="date-display-abbr">
       {parts.join(' ')}
     </StyledAbbr>
   );
