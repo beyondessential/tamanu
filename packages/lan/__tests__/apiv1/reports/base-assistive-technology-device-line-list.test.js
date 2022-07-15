@@ -185,7 +185,7 @@ describe('Assistive technology device line list', () => {
   });
 
   describe('returns the correct data', () => {
-    it('should return latest data per patient and latest data per patient per date', async () => {
+    it.skip('should return latest data per patient and latest data per patient per date', async () => {
       const result = await app
         .post('/v1/reports/iraq-assistive-technology-device-line-list')
         .send({});
@@ -305,7 +305,7 @@ describe('Assistive technology device line list', () => {
       ]);
     });
 
-    it('should return data within date range', async () => {
+    it.skip('should return data within date range', async () => {
       const result = await app
         .post('/v1/reports/iraq-assistive-technology-device-line-list')
         .send({ parameters: { fromDate: '2021-03-18T00:00:00Z', toDate: '2021-03-21T00:00:00Z' } });
