@@ -133,12 +133,12 @@ describe('Data definition import', () => {
     });
 
     it('Should import visibility status', () => {
-      expect(villageRecords['village-historical']).toHaveProperty('visibilityStatus', 'historical');
-      expect(villageRecords['village-visible']).toHaveProperty('visibilityStatus', 'current');
+      expect(villageRecords['village-historical']).toHaveProperty('data.visibilityStatus', 'historical');
+      expect(villageRecords['village-visible']).toHaveProperty('data.visibilityStatus', 'current');
     });
 
     it('Should default to visible', () => {
-      expect(villageRecords['village-default-visible']).toHaveProperty('visibilityStatus', 'current');
+      expect(villageRecords['village-default-visible']).toHaveProperty('data.visibilityStatus', 'current');
     });
 
     it('Should only accept valid values', () => {

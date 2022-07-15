@@ -24,7 +24,6 @@ export class Facility extends Model {
         visibilityStatus: {
           type: Sequelize.TEXT,
           defaultValue: VISIBILITY_STATUSES.CURRENT,
-          allowNull: false,
         },
       },
       {
