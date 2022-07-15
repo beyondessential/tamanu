@@ -41,7 +41,7 @@ export class CentralSyncManager {
     if (incomingChanges) {
       await saveIncomingChanges(
         getModelsForDirection(models, SYNC_DIRECTIONS.FACILITY_TO_CENTRAL),
-        changes,
+        incomingChanges,
       );
     }
 
