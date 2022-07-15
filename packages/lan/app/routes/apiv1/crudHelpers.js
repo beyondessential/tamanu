@@ -79,6 +79,7 @@ export const simpleGetList = (modelName, foreignKey = '', options = {}) =>
     const { models, params, query } = req;
     const { order = 'ASC', orderBy } = query;
     const { additionalFilters = {}, include = [] } = options;
+    req.checkPermission('list', modelName);
 
     const model = models[modelName];
     const associations = model.getListReferenceAssociations(models) || [];
