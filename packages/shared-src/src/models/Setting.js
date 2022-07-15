@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
 // originally added to support the same use case as localisation, will eventually be merged with it
@@ -11,7 +11,7 @@ export class Setting extends Model {
         settingName: { type: Sequelize.STRING, unique: true },
         settingContent: Sequelize.STRING,
       },
-      options,
+      { ...options, syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC },
     );
   }
 }

@@ -1,7 +1,6 @@
 import * as sequelize from 'sequelize';
-import { SYNC_DIRECTIONS } from 'shared/constants';
 
-const { Sequelize, Op, Utils } = sequelize;
+const { Op, Utils } = sequelize;
 
 const firstLetterLowercase = s => (s[0] || '').toLowerCase() + s.slice(1);
 
@@ -79,6 +78,4 @@ export class Model extends sequelize.Model {
       where: { id: { [Op.in]: ids } },
     });
   }
-
-  static syncDirection = SYNC_DIRECTIONS.DO_NOT_SYNC;
 }

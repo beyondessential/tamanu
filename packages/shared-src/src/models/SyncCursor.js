@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
 const DIRECTIONS = {
@@ -21,7 +21,7 @@ export class SyncCursor extends Model {
           defaultValue: 0,
         },
       },
-      options,
+      { ...options, syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC },
     );
   }
 
