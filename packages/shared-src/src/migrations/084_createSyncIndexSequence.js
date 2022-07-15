@@ -1,5 +1,7 @@
 export async function up(query) {
-  await query.sequelize.query('CREATE SEQUENCE sync_index_sequence');
+  await query.sequelize.query(
+    `CREATE SEQUENCE sync_index_sequence; SELECT nextval('sync_index_sequence')`,
+  );
 }
 
 export async function down(query) {
