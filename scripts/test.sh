@@ -4,6 +4,7 @@ set -euo pipefail
 echo "Running tests"
 for workspace in shared-src lan sync-server meta-server; do
   echo "=== Running tests in $workspace"
+  NODE_OPTIONS="--max-old-space-size=8192" \
   yarn workspace $workspace \
     run test-coverage \
     --coverageReporters=json-summary
