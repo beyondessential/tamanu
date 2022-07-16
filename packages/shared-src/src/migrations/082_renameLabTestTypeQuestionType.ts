@@ -11,6 +11,13 @@ const CORRECTED_VALUES = {
   SELECT: 'Select',
 };
 
+const ENUM_REPLACEMENTS = {
+  previousEnumNumber: PREVIOUS_ENUM_VALUES.NUMBER,
+  correctedNumber: CORRECTED_VALUES.NUMBER,
+  previousEnumString: PREVIOUS_ENUM_VALUES.STRING,
+  correctedString: CORRECTED_VALUES.FREE_TEXT,
+};
+
 export async function up(query: QueryInterface) {
   await query.changeColumn('lab_test_types', 'question_type', {
     type: STRING,
@@ -21,20 +28,26 @@ export async function up(query: QueryInterface) {
   // Correct the type values
   await query.sequelize.query(
     `UPDATE lab_test_types SET result_type = CASE result_type 
-     WHEN '${PREVIOUS_ENUM_VALUES.NUMBER}' THEN '${CORRECTED_VALUES.NUMBER}' 
-     WHEN '${PREVIOUS_ENUM_VALUES.STRING}' THEN '${CORRECTED_VALUES.FREE_TEXT}'
+     WHEN :previousEnumNumber THEN :correctedNumber
+     WHEN :previousEnumString THEN :correctedString
      END
     `,
+    {
+      replacements: ENUM_REPLACEMENTS,
+    },
   );
 }
 
 export async function down(query: QueryInterface) {
   await query.sequelize.query(
     `UPDATE lab_test_types SET result_type = CASE result_type 
-     WHEN '${CORRECTED_VALUES.NUMBER}' THEN '${PREVIOUS_ENUM_VALUES.NUMBER}' 
-     WHEN '${CORRECTED_VALUES.FREE_TEXT}' THEN '${PREVIOUS_ENUM_VALUES.STRING}'
+     WHEN :correctedNumber THEN :previousEnumNumber
+     WHEN :correctedString THEN :previousEnumString
      END
     `,
+    {
+      replacements: ENUM_REPLACEMENTS,
+    },
   );
   await query.renameColumn('lab_test_types', 'result_type', 'question_type');
   await query.changeColumn('lab_test_types', 'question_type', {
