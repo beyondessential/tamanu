@@ -11,7 +11,7 @@ const CORRECTED_VALUES = {
   SELECT: 'Select',
 };
 
-const ENUM_REPLACEMENTS = {
+const replacements = {
   previousEnumNumber: PREVIOUS_ENUM_VALUES.NUMBER,
   correctedNumber: CORRECTED_VALUES.NUMBER,
   previousEnumString: PREVIOUS_ENUM_VALUES.STRING,
@@ -25,7 +25,6 @@ export async function up(query: QueryInterface) {
   });
   await query.sequelize.query('DROP TYPE IF EXISTS "enum_lab_test_types_question_type";');
   await query.renameColumn('lab_test_types', 'question_type', 'result_type');
-  // Correct the type values
   await query.sequelize.query(
     `UPDATE lab_test_types SET result_type = CASE result_type 
      WHEN :previousEnumNumber THEN :correctedNumber
@@ -33,7 +32,7 @@ export async function up(query: QueryInterface) {
      END
     `,
     {
-      replacements: ENUM_REPLACEMENTS,
+      replacements,
     },
   );
 }
@@ -46,7 +45,7 @@ export async function down(query: QueryInterface) {
      END
     `,
     {
-      replacements: ENUM_REPLACEMENTS,
+      replacements,
     },
   );
   await query.renameColumn('lab_test_types', 'result_type', 'question_type');
