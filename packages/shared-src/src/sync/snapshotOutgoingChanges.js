@@ -34,7 +34,6 @@ const snapshotChangesForModel = async (model, sinceSessionIndex) => {
   return recordsChanged.map(r => ({
     isDeleted: !!r.deletedAt,
     recordType: model.tableName,
-    updatedSinceSession: r.updatedSinceSession,
     data: sanitizeRecord(r),
   }));
 };
