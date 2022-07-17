@@ -35,13 +35,11 @@ const saveChangesForModel = async (model, changes) => {
   await saveDeletes(model, idsForDelete);
 };
 
-export const saveIncomingChanges = async (models, changes) => {
+export const saveIncomingChanges = async (sequelize, models, changes) => {
   const sortedModels = sortInDependencyOrder(models);
-
   const changesByRecordType = groupBy(changes, c => c.recordType);
 
-  const [firstModel] = sortedModels; // arbitrary model to grab sequelize from
-  await firstModel.sequelize.transaction(async () => {
+  await sequelize.transaction(async () => {
     for (const model of sortedModels) {
       await saveChangesForModel(model, changesByRecordType[model.tableName] || []);
     }

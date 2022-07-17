@@ -1,4 +1,4 @@
-import { INTEGER, literal } from 'sequelize';
+import { INTEGER } from 'sequelize';
 
 async function getSyncingTables(sequelize) {
   const [tables] = await sequelize.query(
@@ -18,7 +18,7 @@ module.exports = {
 
       // fill it with some initial values
       await query.sequelize.query(`
-        UPDATE ${table} SET updated_at_beat = 0;
+        UPDATE ${table} SET updated_at_beat = 1;
       `);
 
       // add a not null constraint
@@ -48,13 +48,13 @@ module.exports = {
   down: async query => {
     const syncingTables = await getSyncingTables(query.sequelize);
     for (const table of syncingTables) {
-      await query.removeColumn(table, 'sync_beat');
       await query.sequelize.query(`
         DROP TRIGGER set_${table}_updated_at_beat_on_insert ON ${table};
       `);
       await query.sequelize.query(`
         DROP TRIGGER set_${table}_updated_at_beat_on_update ON ${table};
       `);
+      await query.removeColumn(table, 'updated_at_beat');
     }
   },
 };

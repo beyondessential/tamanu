@@ -16,8 +16,8 @@ export class SyncCursor extends Model {
           type: Sequelize.STRING,
           allowNull: false,
         },
-        cursor: {
-          type: Sequelize.DATE,
+        lastBeat: {
+          type: Sequelize.BIGINT,
           defaultValue: 0,
         },
       },
@@ -26,13 +26,13 @@ export class SyncCursor extends Model {
   }
 
   static async useCursor(direction) {
-    const { cursor } = await this.findOrCreate({ where: { direction } });
+    const { lastBeat } = await this.findOrCreate({ where: { direction } });
 
     const setCursor = async newCursorValue => {
-      await this.update({ cursor: newCursorValue }, { where: { direction } });
+      await this.update({ lastBeat: newCursorValue }, { where: { direction } });
     };
 
-    return [cursor, setCursor];
+    return [lastBeat, setCursor];
   }
 
   static async useOutgoingCursor() {

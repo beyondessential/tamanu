@@ -1,12 +1,21 @@
 import * as sequelize from 'sequelize';
 
-const { Op, Utils } = sequelize;
+const { Op, Utils, Sequelize } = sequelize;
 
 const firstLetterLowercase = s => (s[0] || '').toLowerCase() + s.slice(1);
 
 export class Model extends sequelize.Model {
   static init(attributes, { syncDirection, ...options }) {
-    super.init(attributes, options);
+    super.init(
+      {
+        ...attributes,
+        updatedAtBeat: {
+          type: Sequelize.BIGINT,
+          allowNull: false,
+        },
+      },
+      options,
+    );
     this.defaultIdValue = attributes.id.defaultValue;
     if (!syncDirection) {
       throw new Error(

@@ -4,19 +4,22 @@ import { log } from 'shared/services/logging';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { getModelsForDirection, snapshotOutgoingChanges, saveIncomingChanges } from 'shared/sync';
 
+import { saveCurrentSyncBeat } from './saveCurrentSyncBeat';
 import { pushOutgoingChanges } from './pushOutgoingChanges';
 import { pullIncomingChanges } from './pullIncomingChanges';
-import { sortInDependencyOrder } from '../../../shared-src/src/models/sortInDependencyOrder';
 
 export class FacilitySyncManager {
   models = null;
+
+  sequelize = null;
 
   centralServer = null;
 
   syncPromise = null;
 
-  constructor({ models, centralServer }) {
+  constructor({ models, sequelize, centralServer }) {
     this.models = models;
+    this.sequelize = sequelize;
     this.centralServer = centralServer;
   }
 
@@ -45,6 +48,14 @@ export class FacilitySyncManager {
     const startTimestampMs = Date.now();
     log.info(`FacilitySyncManager.runSync: began sync run`);
 
+    // the first step of sync is to trigger a sync pulse on the central server and retrieve the
+    // latest "sync beat" (an index tracking the global sync timeline). this sets the local facility
+    // sync beat, so that any records that are created or updated from this point onwards are
+    // marked using that new sync beat and will be captured in the next sync (avoiding any missed
+    // changes due to a race condition)
+    const newSyncBeat = await this.centralServer.fetchNextSyncBeat();
+    await saveCurrentSyncBeat(this.sequelize, newSyncBeat);
+
     // syncing outgoing changes happens in two phases: taking a point-in-time copy of all records
     // to be pushed, and then pushing those up in batches
     // this avoids any of the records to be pushed being changed during the push period and
@@ -66,6 +77,7 @@ export class FacilitySyncManager {
     const incomingChanges = await pullIncomingChanges(this.centralServer, incomingCursor);
     if (incomingChanges.length > 0) {
       await saveIncomingChanges(
+        this.sequelize,
         getModelsForDirection(this.models, SYNC_DIRECTIONS.CENTRAL_TO_FACILITY),
         incomingChanges,
       );

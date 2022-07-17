@@ -23,7 +23,7 @@ export const pullIncomingChanges = async (centralServer, cursor = 0, patientId) 
       limit,
     });
     incomingChanges.push(...records);
-    offset = offset + records.length;
+    offset += records.length;
 
     const pullTime = Date.now() - startTime;
     limit = calculatePageLimit(limit, pullTime);

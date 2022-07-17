@@ -9,6 +9,24 @@ const syncManager = new CentralSyncManager();
 
 export const syncRoutes = express.Router();
 
+syncRoutes.get(
+  '/beat/current',
+  asyncHandler(async (req, res) => {
+    const { store } = req;
+    const currentBeat = await syncManager.getCurrentBeat(store.sequelize);
+    res.send(currentBeat);
+  }),
+);
+
+syncRoutes.get(
+  '/beat/next',
+  asyncHandler(async (req, res) => {
+    const { store } = req;
+    const nextBeat = await syncManager.getNextBeat(store.sequelize);
+    res.send(nextBeat);
+  }),
+);
+
 syncRoutes.post(
   '/pull',
   asyncHandler(async (req, res) => {
@@ -66,7 +84,7 @@ const endSyncSession = asyncHandler(async (req, res) => {
   const { params, store } = req;
   const { sessionId } = params;
   try {
-    await syncManager.endSession(store.models, sessionId);
+    await syncManager.endSession(store.sequelize, store.models, sessionId);
   } catch (e) {
     console.log(e);
   }

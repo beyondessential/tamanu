@@ -6,6 +6,18 @@ import { SYNC_DIRECTIONS } from 'shared/constants';
 export class CentralSyncManager {
   sessions = {};
 
+  async getCurrentBeat(sequelize) {
+    const [[{ currval: currentBeat }]] = await sequelize.query(
+      `SELECT currval('sync_beat_sequence')`,
+    );
+    return currentBeat.nextval;
+  }
+
+  async getNextBeat(sequelize) {
+    const [[{ nextval: nextBeat }]] = await sequelize.query(`SELECT nextval('sync_beat_sequence')`);
+    return nextBeat;
+  }
+
   startSession() {
     const startTime = Date.now();
     const sessionId = uuidv4();
@@ -31,7 +43,7 @@ export class CentralSyncManager {
     return { sessionId, count: changes.length };
   }
 
-  async endSession(models, sessionId) {
+  async endSession(sequelize, models, sessionId) {
     if (!this.sessions[sessionId]) {
       throw new Error(`Sync session ${sessionId} not found`);
     }
@@ -40,6 +52,7 @@ export class CentralSyncManager {
     const { incomingChanges } = this.sessions[sessionId];
     if (incomingChanges) {
       await saveIncomingChanges(
+        sequelize,
         getModelsForDirection(models, SYNC_DIRECTIONS.FACILITY_TO_CENTRAL),
         incomingChanges,
       );

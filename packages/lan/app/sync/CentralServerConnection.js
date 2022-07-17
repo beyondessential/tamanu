@@ -187,6 +187,10 @@ export class CentralServerConnection {
     }
   }
 
+  async fetchNextSyncBeat() {
+    return this.fetch('sync/beat/next');
+  }
+
   async startPullSession(since, patientId) {
     const body = { since, patientId };
     return this.fetch('sync/pull', { method: 'POST', body });

@@ -9,12 +9,13 @@ const COLUMNS_EXCLUDED_FROM_SYNC = [
   'markedForPush',
   'markedForSync',
   'isPushing',
+  'updatedAtBeat',
 ];
 
 const snapshotChangesForModel = async (model, cursor) => {
   const recordsChanged = await model.findAll({
     where: {
-      updatedAt: { [Op.gt]: cursor }, // updatedAt is set on all creates, updates, and deletes
+      updatedAtBeat: { [Op.gt]: cursor }, // updatedAt is set on all creates, updates, and deletes
     },
   });
 
@@ -34,7 +35,7 @@ const snapshotChangesForModel = async (model, cursor) => {
   return recordsChanged.map(r => ({
     isDeleted: !!r.deletedAt,
     recordType: model.tableName,
-    timestamp: r.updatedAt,
+    updatedAtBeat: r.updatedAtBeat,
     data: sanitizeRecord(r),
   }));
 };
