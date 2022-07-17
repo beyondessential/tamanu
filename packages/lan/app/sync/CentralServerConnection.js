@@ -187,37 +187,27 @@ export class CentralServerConnection {
     }
   }
 
-  async fetchNextSyncBeat() {
-    return this.fetch('sync/beat/next');
+  async startSyncSession() {
+    return this.fetch('sync', { method: 'POST' });
   }
 
-  async startPullSession(since, patientId) {
-    const body = { since, patientId };
-    return this.fetch('sync/pull', { method: 'POST', body });
+  async endSyncSession(sessionId) {
+    return this.fetch(`sync/${sessionId}`, { method: 'DELETE' });
   }
 
-  async startPushSession() {
-    return this.fetch('sync/push', { method: 'POST' });
-  }
-
-  async endPullSession(sessionId) {
-    const path = `sync/pull/${sessionId}`;
-    return this.fetch(path, { method: 'DELETE' });
-  }
-
-  async endPushSession(sessionId) {
-    const path = `sync/push/${sessionId}`;
-    return this.fetch(path, { method: 'DELETE' });
+  async setPullFilter(sessionId, cursor, patientId) {
+    const body = { cursor, patientId };
+    return this.fetch(`sync/${sessionId}/pullFilter`, { method: 'POST', body });
   }
 
   async pull(sessionId, { limit = 100, offset = 0 } = {}) {
     const query = { limit, offset };
-    const path = `sync/pull/${sessionId}?${objectToQueryString(query)}`;
+    const path = `sync/${sessionId}/pull?${objectToQueryString(query)}`;
     return this.fetch(path);
   }
 
-  async push(sessionId, body) {
-    const path = `sync/push/${sessionId}`;
+  async push(sessionId, body, { pageNumber, totalPages }) {
+    const path = `sync/${sessionId}/push?${objectToQueryString({ pageNumber, totalPages })}`;
     return this.fetch(path, { method: 'POST', body });
   }
 

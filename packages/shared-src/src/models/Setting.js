@@ -14,4 +14,19 @@ export class Setting extends Model {
       { ...options, syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC },
     );
   }
+
+  static async get(name) {
+    const settingRecord = await this.findOne({ where: { settingName: name } });
+    if (!settingRecord) {
+      return null;
+    }
+    return settingRecord.settingContent;
+  }
+
+  static async set(name, value) {
+    await this.upsert(
+      { settingName: name, settingContent: value },
+      { where: { settingName: name } },
+    );
+  }
 }

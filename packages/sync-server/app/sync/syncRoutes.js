@@ -9,51 +9,36 @@ const syncManager = new CentralSyncManager();
 
 export const syncRoutes = express.Router();
 
-syncRoutes.get(
-  '/beat/current',
-  asyncHandler(async (req, res) => {
-    const { store } = req;
-    const currentBeat = await syncManager.getCurrentBeat(store.sequelize);
-    res.send(currentBeat);
-  }),
-);
-
-syncRoutes.get(
-  '/beat/next',
-  asyncHandler(async (req, res) => {
-    const { store } = req;
-    const nextBeat = await syncManager.getNextBeat(store.sequelize);
-    res.send(nextBeat);
-  }),
-);
-
 syncRoutes.post(
-  '/pull',
+  '/',
   asyncHandler(async (req, res) => {
-    const { body, store } = req;
-    const { since } = body;
-    console.log(body);
-    if (!Number.isInteger(since)) {
-      throw new Error('Must provide "since" when starting a sync session, even if it is 0');
+    const { store } = req;
+    const syncBeat = await syncManager.startSession(store);
+    res.send(syncBeat);
+  }),
+);
+
+// set the cursor for a pull session
+syncRoutes.post(
+  '/:sessionId/pullFilter',
+  asyncHandler(async (req, res) => {
+    const { params, body, store } = req;
+    const { cursor } = body;
+    if (!Number.isInteger(cursor)) {
+      throw new Error('Must provide "cursor" when creating a pull filter, even if it is 0');
     }
-    const { sessionId, count } = await syncManager.startOutgoingSession(
-      store.models,
-      parseInt(since, 10),
+    const count = await syncManager.setPullFilter(
+      params.sessionId,
+      { cursor: parseInt(cursor, 10) },
+      store,
     );
-    res.send({ sessionId, count });
+    res.send(count);
   }),
 );
 
-syncRoutes.post(
-  '/push',
-  asyncHandler(async (req, res) => {
-    const { sessionId } = await syncManager.startIncomingSession();
-    res.send({ sessionId });
-  }),
-);
-
+// pull changes down to facility
 syncRoutes.get(
-  '/pull/:sessionId',
+  '/:sessionId/pull',
   asyncHandler(async (req, res) => {
     const { query, params } = req;
     const { sessionId } = params;
@@ -67,28 +52,26 @@ syncRoutes.get(
   }),
 );
 
+// push changes in from facility
 syncRoutes.post(
-  '/push/:sessionId',
+  '/:sessionId/push',
   asyncHandler(async (req, res) => {
-    const { params, body: changes } = req;
+    const { params, body: changes, query, store } = req;
     const { sessionId } = params;
 
-    await syncManager.addIncomingChanges(sessionId, changes);
+    await syncManager.addIncomingChanges(sessionId, changes, query, store);
     log.info(`POST to ${sessionId} : ${changes.length} records`);
     res.send({});
   }),
 );
 
-// match pull and push with same handler, for ending sync session
-const endSyncSession = asyncHandler(async (req, res) => {
-  const { params, store } = req;
-  const { sessionId } = params;
-  try {
+// end session
+syncRoutes.delete(
+  '/:sessionId',
+  asyncHandler(async (req, res) => {
+    const { params, store } = req;
+    const { sessionId } = params;
     await syncManager.endSession(store.sequelize, store.models, sessionId);
-  } catch (e) {
-    console.log(e);
-  }
-  res.send({});
-});
-syncRoutes.delete('/push/:sessionId', endSyncSession);
-syncRoutes.delete('/pull/:sessionId', endSyncSession);
+    res.send({});
+  }),
+);

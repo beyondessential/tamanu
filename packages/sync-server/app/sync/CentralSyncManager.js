@@ -1,77 +1,55 @@
-import { v4 as uuidv4 } from 'uuid';
-
 import { getModelsForDirection, snapshotOutgoingChanges, saveIncomingChanges } from 'shared/sync';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 
 export class CentralSyncManager {
   sessions = {};
 
-  async getCurrentBeat(sequelize) {
-    const [[{ currval: currentBeat }]] = await sequelize.query(
-      `SELECT currval('sync_beat_sequence')`,
-    );
-    return currentBeat.nextval;
-  }
-
-  async getNextBeat(sequelize) {
-    const [[{ nextval: nextBeat }]] = await sequelize.query(`SELECT nextval('sync_beat_sequence')`);
-    return nextBeat;
-  }
-
-  startSession() {
+  async startSession({ sequelize }) {
     const startTime = Date.now();
-    const sessionId = uuidv4();
-    this.sessions[sessionId] = {
+    const [[{ nextval: syncBeat }]] = await sequelize.query(
+      `SELECT nextval('sync_index_sequence')`,
+    );
+    this.sessions[syncBeat] = {
       startTime,
+      incomingChanges: [],
     };
-    return sessionId;
+    return syncBeat;
   }
 
-  startIncomingSession() {
-    const sessionId = this.startSession();
-    this.sessions[sessionId].incomingChanges = [];
-    return { sessionId };
+  async endSession(syncBeat) {
+    if (!this.sessions[syncBeat]) {
+      throw new Error(`Sync session ${syncBeat} not found`);
+    }
+    delete this.sessions[syncBeat];
   }
 
-  async startOutgoingSession(models, since) {
-    const sessionId = this.startSession();
+  async setPullFilter(syncBeat, { cursor }, { models }) {
     const changes = await snapshotOutgoingChanges(
       getModelsForDirection(models, SYNC_DIRECTIONS.CENTRAL_TO_FACILITY),
-      since,
+      cursor,
     );
-    this.sessions[sessionId].outgoingChanges = changes;
-    return { sessionId, count: changes.length };
+    this.sessions[syncBeat].outgoingChanges = changes;
+    return changes.length;
   }
 
-  async endSession(sequelize, models, sessionId) {
-    if (!this.sessions[sessionId]) {
-      throw new Error(`Sync session ${sessionId} not found`);
+  getOutgoingChanges(syncBeat, { offset, limit }) {
+    if (!this.sessions[syncBeat]) {
+      throw new Error(`Sync session ${syncBeat} not found`);
     }
+    return this.sessions[syncBeat].outgoingChanges.slice(offset, offset + limit);
+  }
 
-    // persist any incoming changes to the db
-    const { incomingChanges } = this.sessions[sessionId];
-    if (incomingChanges) {
+  async addIncomingChanges(syncBeat, changes, { pageNumber, totalPages }, { sequelize, models }) {
+    if (!this.sessions[syncBeat]) {
+      throw new Error(`Sync session ${syncBeat} not found`);
+    }
+    this.sessions[syncBeat].incomingChanges.push(...changes);
+    if (pageNumber === totalPages) {
       await saveIncomingChanges(
         sequelize,
         getModelsForDirection(models, SYNC_DIRECTIONS.FACILITY_TO_CENTRAL),
-        incomingChanges,
+        this.sessions[syncBeat].incomingChanges,
       );
     }
-
-    delete this.sessions[sessionId];
-  }
-
-  getOutgoingChanges(sessionId, { offset, limit }) {
-    if (!this.sessions[sessionId]) {
-      throw new Error(`Sync session ${sessionId} not found`);
-    }
-    return this.sessions[sessionId].outgoingChanges.slice(offset, offset + limit);
-  }
-
-  addIncomingChanges(sessionId, changes) {
-    if (!this.sessions[sessionId]) {
-      throw new Error(`Sync session ${sessionId} not found`);
-    }
-    this.sessions[sessionId].incomingChanges.push(...changes);
   }
 }

@@ -1,18 +1,20 @@
-import { chunk } from 'lodash';
-import config from 'config';
+import { calculatePageLimit } from './calculatePageLimit';
 
-const { dynamicLimiter } = config.sync;
+export const pushOutgoingChanges = async (centralServer, sessionId, changes) => {
+  let startOfPage = 0;
+  let limit = calculatePageLimit();
+  while (startOfPage < changes.length) {
+    const endOfPage = Math.min(startOfPage + limit, changes.length);
+    const page = changes.slice(startOfPage, endOfPage);
 
-const { exportLimit: EXPORT_LIMIT } = dynamicLimiter;
+    const startTime = Date.now();
+    await centralServer.push(sessionId, page, {
+      pushedSoFar: endOfPage,
+      totalToPush: changes.length,
+    });
+    const endTime = Date.now();
 
-export const pushOutgoingChanges = async (centralServer, changes) => {
-  const { sessionId } = await centralServer.startPushSession();
-  const chunks = chunk(changes, EXPORT_LIMIT);
-  for (const chunkOfChanges of chunks) {
-    await centralServer.push(sessionId, chunkOfChanges);
+    startOfPage = endOfPage;
+    limit = calculatePageLimit(limit, endTime - startTime);
   }
-
-  // acknowledge that the final push has been completed, so the sync server can close the session
-  // and persist the collection of records to be saved
-  await centralServer.endPushSession(sessionId);
 };
