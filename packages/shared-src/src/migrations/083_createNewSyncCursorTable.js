@@ -1,4 +1,4 @@
-import { INTEGER, STRING, DATE, NOW, UUIDV4 } from 'sequelize';
+import { BIGINT, STRING, DATE, NOW, UUIDV4 } from 'sequelize';
 
 export async function up(query) {
   await query.createTable('sync_cursors', {
@@ -26,8 +26,8 @@ export async function up(query) {
       type: STRING,
       allowNull: false,
     },
-    current_index: {
-      type: INTEGER,
+    last_beat: {
+      type: BIGINT,
       allowNull: true,
       defaultValue: 0,
     },
