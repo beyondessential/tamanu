@@ -161,7 +161,7 @@ function sanitiseRecordForValues(data) {
     markedForSync,
     createdAt,
     updatedAt,
-    updatedAtIndex,
+    updatedSinceSession,
     pushedAt,
     pulledAt,
 

@@ -6,49 +6,54 @@ export class CentralSyncManager {
 
   async startSession({ sequelize }) {
     const startTime = Date.now();
-    const [[{ nextval: syncIndex }]] = await sequelize.query(
-      `SELECT nextval('sync_index_sequence')`,
+    const [[{ nextval: sessionIndex }]] = await sequelize.query(
+      `SELECT nextval('sync_session_sequence')`,
     );
-    this.sessions[syncIndex] = {
+    this.sessions[sessionIndex] = {
       startTime,
       incomingChanges: [],
     };
-    return syncIndex;
+    return sessionIndex;
   }
 
-  async endSession(syncIndex) {
-    if (!this.sessions[syncIndex]) {
-      throw new Error(`Sync session ${syncIndex} not found`);
+  async endSession(sessionIndex) {
+    if (!this.sessions[sessionIndex]) {
+      throw new Error(`Sync session ${sessionIndex} not found`);
     }
-    delete this.sessions[syncIndex];
+    delete this.sessions[sessionIndex];
   }
 
-  async setPullFilter(syncIndex, { since }, { models }) {
+  async setPullFilter(sessionIndex, { sinceSessionIndex }, { models }) {
     const changes = await snapshotOutgoingChanges(
       getModelsForDirection(models, SYNC_DIRECTIONS.CENTRAL_TO_FACILITY),
-      since,
+      sinceSessionIndex,
     );
-    this.sessions[syncIndex].outgoingChanges = changes;
+    this.sessions[sessionIndex].outgoingChanges = changes;
     return changes.length;
   }
 
-  getOutgoingChanges(syncIndex, { offset, limit }) {
-    if (!this.sessions[syncIndex]) {
-      throw new Error(`Sync session ${syncIndex} not found`);
+  getOutgoingChanges(sessionIndex, { offset, limit }) {
+    if (!this.sessions[sessionIndex]) {
+      throw new Error(`Sync session ${sessionIndex} not found`);
     }
-    return this.sessions[syncIndex].outgoingChanges.slice(offset, offset + limit);
+    return this.sessions[sessionIndex].outgoingChanges.slice(offset, offset + limit);
   }
 
-  async addIncomingChanges(syncIndex, changes, { pageNumber, totalPages }, { sequelize, models }) {
-    if (!this.sessions[syncIndex]) {
-      throw new Error(`Sync session ${syncIndex} not found`);
+  async addIncomingChanges(
+    sessionIndex,
+    changes,
+    { pageNumber, totalPages },
+    { sequelize, models },
+  ) {
+    if (!this.sessions[sessionIndex]) {
+      throw new Error(`Sync session ${sessionIndex} not found`);
     }
-    this.sessions[syncIndex].incomingChanges.push(...changes);
+    this.sessions[sessionIndex].incomingChanges.push(...changes);
     if (pageNumber === totalPages) {
       await saveIncomingChanges(
         sequelize,
         getModelsForDirection(models, SYNC_DIRECTIONS.FACILITY_TO_CENTRAL),
-        this.sessions[syncIndex].incomingChanges,
+        this.sessions[sessionIndex].incomingChanges,
       );
     }
   }

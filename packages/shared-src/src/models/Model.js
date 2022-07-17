@@ -9,7 +9,7 @@ export class Model extends sequelize.Model {
     super.init(
       {
         ...attributes,
-        updatedAtIndex: Sequelize.BIGINT,
+        updatedSinceSession: Sequelize.BIGINT,
       },
       options,
     );

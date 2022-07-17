@@ -5,7 +5,7 @@ export const expectDeepSyncRecordMatch = (dbRecord, syncRecord, options = {}) =>
     updatedAt: _updatedAt,
     createdAt: _createdAt,
     deletedAt: _deletedAt,
-    updatedAtIndex: _updatedAtIndex,
+    updatedSinceSession: _updatedSinceSession,
     markedForSyncAt: _markedForSyncAt,
     isPushing: _isPushing,
     password: _password,

@@ -9,13 +9,12 @@ const COLUMNS_EXCLUDED_FROM_SYNC = [
   'markedForPush',
   'markedForSync',
   'isPushing',
-  'updatedAtIndex',
 ];
 
-const snapshotChangesForModel = async (model, cursor) => {
+const snapshotChangesForModel = async (model, sinceSessionIndex) => {
   const recordsChanged = await model.findAll({
     where: {
-      updatedAtIndex: { [Op.gt]: cursor }, // updatedAtIndex is set on all creates, updates, and soft deletes
+      updatedSinceSession: { [Op.gte]: sinceSessionIndex }, // updatedSinceSession is set on all creates, updates, and soft deletes
     },
   });
 
@@ -35,19 +34,19 @@ const snapshotChangesForModel = async (model, cursor) => {
   return recordsChanged.map(r => ({
     isDeleted: !!r.deletedAt,
     recordType: model.tableName,
-    updatedAtIndex: r.updatedAtIndex,
+    updatedSinceSession: r.updatedSinceSession,
     data: sanitizeRecord(r),
   }));
 };
 
-export const snapshotOutgoingChanges = async (models, cursor) => {
+export const snapshotOutgoingChanges = async (models, sinceSessionIndex) => {
   if (readOnly) {
     return [];
   }
 
   const outgoingChanges = [];
   for (const model of Object.values(models)) {
-    const changesForModel = await snapshotChangesForModel(model, cursor);
+    const changesForModel = await snapshotChangesForModel(model, sinceSessionIndex);
     outgoingChanges.push(...changesForModel);
   }
   return outgoingChanges;

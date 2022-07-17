@@ -191,23 +191,23 @@ export class CentralServerConnection {
     return this.fetch('sync', { method: 'POST' });
   }
 
-  async endSyncSession(sessionId) {
-    return this.fetch(`sync/${sessionId}`, { method: 'DELETE' });
+  async endSyncSession(sessionIndex) {
+    return this.fetch(`sync/${sessionIndex}`, { method: 'DELETE' });
   }
 
-  async setPullFilter(sessionId, since, patientId) {
-    const body = { since, patientId };
-    return this.fetch(`sync/${sessionId}/pullFilter`, { method: 'POST', body });
+  async setPullFilter(sessionIndex, sinceSessionIndex) {
+    const body = { sinceSessionIndex };
+    return this.fetch(`sync/${sessionIndex}/pullFilter`, { method: 'POST', body });
   }
 
-  async pull(sessionId, { limit = 100, offset = 0 } = {}) {
+  async pull(sessionIndex, { limit = 100, offset = 0 } = {}) {
     const query = { limit, offset };
-    const path = `sync/${sessionId}/pull?${objectToQueryString(query)}`;
+    const path = `sync/${sessionIndex}/pull?${objectToQueryString(query)}`;
     return this.fetch(path);
   }
 
-  async push(sessionId, body, { pageNumber, totalPages }) {
-    const path = `sync/${sessionId}/push?${objectToQueryString({ pageNumber, totalPages })}`;
+  async push(sessionIndex, body, { pageNumber, totalPages }) {
+    const path = `sync/${sessionIndex}/push?${objectToQueryString({ pageNumber, totalPages })}`;
     return this.fetch(path, { method: 'POST', body });
   }
 

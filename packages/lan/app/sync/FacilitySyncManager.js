@@ -4,7 +4,7 @@ import { log } from 'shared/services/logging';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { getModelsForDirection, snapshotOutgoingChanges, saveIncomingChanges } from 'shared/sync';
 
-import { saveCurrentSyncIndex } from './saveCurrentSyncIndex';
+import { setSyncSessionSequence } from './setSyncSessionSequence';
 import { pushOutgoingChanges } from './pushOutgoingChanges';
 import { pullIncomingChanges } from './pullIncomingChanges';
 
@@ -50,19 +50,21 @@ export class FacilitySyncManager {
 
     // the first step of sync is to start a session and retrieve the index used as both the id of
     // the session, and a marker on the global sync timeline
-    // we persist this now so that any records that are created or updated from this point on, even
-    // mid way through this sync, are marked using the new index and will be captured in the next sync
     const sessionIndex = await this.centralServer.startSyncSession();
-    await saveCurrentSyncIndex(this.sequelize, sessionIndex);
+
+    // persist the session index through to the facility's copy of the db sync session sequence now
+    // so that any records that are created or updated from this point on, even mid way through this
+    // sync, are marked using the new index and will be captured in the next sync
+    await setSyncSessionSequence(this.sequelize, sessionIndex);
 
     // syncing outgoing changes happens in two phases: taking a point-in-time copy of all records
     // to be pushed, and then pushing those up in batches
     // this avoids any of the records to be pushed being changed during the push period and
     // causing data that isn't internally coherent from ending up on the sync server
-    const cursor = (await this.models.Setting.get('LastSuccessfulSyncIndex')) || 0;
+    const lastSessionIndex = (await this.models.Setting.get('LastSuccessfulSyncSession')) || 0;
     const outgoingChanges = await snapshotOutgoingChanges(
       getModelsForDirection(this.models, SYNC_DIRECTIONS.FACILITY_TO_CENTRAL),
-      cursor,
+      lastSessionIndex,
     );
     if (outgoingChanges.length > 0) {
       await pushOutgoingChanges(this.centralServer, sessionIndex, outgoingChanges);
@@ -71,7 +73,11 @@ export class FacilitySyncManager {
     // syncing incoming changes happens in two phases: pulling all the records from the server,
     // then saving all those records into the local database
     // this avoids a period of time where the the local database may be "partially synced"
-    const incomingChanges = await pullIncomingChanges(this.centralServer, sessionIndex, cursor);
+    const incomingChanges = await pullIncomingChanges(
+      this.centralServer,
+      sessionIndex,
+      lastSessionIndex,
+    );
     await this.sequelize.transaction(async () => {
       if (incomingChanges.length > 0) {
         await saveIncomingChanges(
@@ -84,26 +90,11 @@ export class FacilitySyncManager {
       // update the last successful sync in the same save transaction - if updating the cursor fails,
       // we want to roll back the rest of the saves so that we don't end up detecting them as
       // needing a sync up to the central server when we attempt to resync from the same old cursor
-      await this.models.Setting.set('LastSuccessfulSyncIndex', sessionIndex);
+      await this.models.Setting.set('LastSuccessfulSyncSession', sessionIndex);
     });
     await this.centralServer.endSyncSession(sessionIndex);
 
     const elapsedTimeMs = Date.now() - startTimestampMs;
     log.info(`FacilitySyncManager.runSync: finished sync run in ${elapsedTimeMs}ms`);
-  }
-
-  // pull all of a patient's existing data, and mark them to be kept up to date from now on
-  // this can happen in parallel with the normal sync process as it doesn't interfere
-  async syncPatient(patientId) {
-    const sessionIndex = await this.centralServer.startSyncSession();
-    const changes = await pullIncomingChanges(this.centralServer, sessionIndex, 0, patientId);
-    await saveIncomingChanges({ patient: this.models.patient }, changes);
-
-    // tell the sync server to keep patient up to date in this facility
-    // this is done last so that we know the full patient sync is complete before adding them
-    // to any regular sync (which otherwise might run simultaneously)
-    await this.centralServer.markPatientForSync(patientId);
-
-    await this.centralServer.endSyncSession(sessionIndex);
   }
 }
