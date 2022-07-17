@@ -157,13 +157,10 @@ function sanitiseRecordForValues(data) {
     patientId,
 
     // backend fields
-    markedForPush,
     markedForSync,
     createdAt,
     updatedAt,
     updatedSinceSession,
-    pushedAt,
-    pulledAt,
 
     // state fields
     loading,

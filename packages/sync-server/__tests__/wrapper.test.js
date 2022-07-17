@@ -131,10 +131,7 @@ describe('sqlWrapper', () => {
             model.findAll({ paranoid: false }),
           );
           expect(
-            omit(instances.find(r => r.id === instance.id).get({ plain: true }), [
-              'markedForPush',
-              'markedForSync',
-            ]),
+            omit(instances.find(r => r.id === instance.id).get({ plain: true }), ['markedForSync']),
           ).toEqual({
             ...instance,
             createdAt: expect.any(Date),

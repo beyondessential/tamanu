@@ -3,13 +3,7 @@ import { Op, DATE } from 'sequelize';
 
 const { readOnly } = config.sync;
 
-const COLUMNS_EXCLUDED_FROM_SYNC = [
-  'createdAt',
-  'updatedAt',
-  'markedForPush',
-  'markedForSync',
-  'isPushing',
-];
+const COLUMNS_EXCLUDED_FROM_SYNC = ['createdAt', 'updatedAt', 'markedForSync'];
 
 const snapshotChangesForModel = async (model, sinceSessionIndex) => {
   const recordsChanged = await model.findAll({

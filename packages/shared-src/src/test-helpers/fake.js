@@ -198,11 +198,7 @@ const IGNORED_FIELDS = [
   'updatedAt',
   'deletedAt',
   'updatedSinceSession',
-  'pushedAt',
-  'pulledAt',
-  'markedForPush',
   'markedForSync',
-  'isPushing',
 ];
 
 const MODEL_SPECIFIC_OVERRIDES = {

@@ -574,14 +574,7 @@ describe('Sync API', () => {
 
       const foundRecords = await ctx.store.models.Patient.findAll();
       const foundRecord = foundRecords.find(r => r.id === record.data.id).get({ plain: true });
-      const {
-        createdAt,
-        updatedAt,
-        deletedAt,
-        markedForPush,
-        markedForSync,
-        ...data
-      } = foundRecord;
+      const { createdAt, updatedAt, deletedAt, markedForSync, ...data } = foundRecord;
       // Drop the notes before the comparison since foundRecord won't include them
       const { notes, ...comparisonData } = record.data;
       expect(data).toEqual(comparisonData);
