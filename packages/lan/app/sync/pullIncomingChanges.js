@@ -1,8 +1,8 @@
 import { log } from 'shared/services/logging';
 import { calculatePageLimit } from './calculatePageLimit';
 
-export const pullIncomingChanges = async (centralServer, sessionId, cursor, patientId) => {
-  const totalToPull = await centralServer.setPullFilter(sessionId, cursor, { patientId });
+export const pullIncomingChanges = async (centralServer, sessionId, since, patientId) => {
+  const totalToPull = await centralServer.setPullFilter(sessionId, since, { patientId });
 
   let offset = 0;
   let limit = calculatePageLimit();

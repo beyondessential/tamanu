@@ -195,8 +195,8 @@ export class CentralServerConnection {
     return this.fetch(`sync/${sessionId}`, { method: 'DELETE' });
   }
 
-  async setPullFilter(sessionId, cursor, patientId) {
-    const body = { cursor, patientId };
+  async setPullFilter(sessionId, since, patientId) {
+    const body = { since, patientId };
     return this.fetch(`sync/${sessionId}/pullFilter`, { method: 'POST', body });
   }
 

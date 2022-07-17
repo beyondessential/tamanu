@@ -197,7 +197,7 @@ const IGNORED_FIELDS = [
   'createdAt',
   'updatedAt',
   'deletedAt',
-  'updatedAtBeat',
+  'updatedAtIndex',
   'pushedAt',
   'pulledAt',
   'markedForPush',

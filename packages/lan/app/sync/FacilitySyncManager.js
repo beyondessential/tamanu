@@ -49,10 +49,9 @@ export class FacilitySyncManager {
     log.info(`FacilitySyncManager.runSync: began sync run`);
 
     // the first step of sync is to start a session and retrieve the index used as both the id of
-    // the session, and a point in time marker on the global sync timeline.
-    // we persist this now as our current sync index, so that any records that are created or updated
-    // from this point on are marked using that and will be captured in the next sync (avoiding any
-    // missed changes due to a race condition)
+    // the session, and a marker on the global sync timeline
+    // we persist this now so that any records that are created or updated from this point on, even
+    // mid way through this sync, are marked using the new index and will be captured in the next sync
     const sessionIndex = await this.centralServer.startSyncSession();
     await saveCurrentSyncIndex(this.sequelize, sessionIndex);
 
@@ -60,7 +59,7 @@ export class FacilitySyncManager {
     // to be pushed, and then pushing those up in batches
     // this avoids any of the records to be pushed being changed during the push period and
     // causing data that isn't internally coherent from ending up on the sync server
-    const cursor = (await this.models.Setting.get('SyncCursor')) || 0;
+    const cursor = (await this.models.Setting.get('LastSuccessfulSyncIndex')) || 0;
     const outgoingChanges = await snapshotOutgoingChanges(
       getModelsForDirection(this.models, SYNC_DIRECTIONS.FACILITY_TO_CENTRAL),
       cursor,
@@ -73,15 +72,20 @@ export class FacilitySyncManager {
     // then saving all those records into the local database
     // this avoids a period of time where the the local database may be "partially synced"
     const incomingChanges = await pullIncomingChanges(this.centralServer, sessionIndex, cursor);
-    if (incomingChanges.length > 0) {
-      await saveIncomingChanges(
-        this.sequelize,
-        getModelsForDirection(this.models, SYNC_DIRECTIONS.CENTRAL_TO_FACILITY),
-        incomingChanges,
-      );
-    }
+    await this.sequelize.transaction(async () => {
+      if (incomingChanges.length > 0) {
+        await saveIncomingChanges(
+          this.sequelize,
+          getModelsForDirection(this.models, SYNC_DIRECTIONS.CENTRAL_TO_FACILITY),
+          incomingChanges,
+        );
+      }
 
-    await this.models.Setting.set('SyncCursor', sessionIndex);
+      // update the last successful sync in the same save transaction - if updating the cursor fails,
+      // we want to roll back the rest of the saves so that we don't end up detecting them as
+      // needing a sync up to the central server when we attempt to resync from the same old cursor
+      await this.models.Setting.set('LastSuccessfulSyncIndex', sessionIndex);
+    });
     await this.centralServer.endSyncSession(sessionIndex);
 
     const elapsedTimeMs = Date.now() - startTimestampMs;

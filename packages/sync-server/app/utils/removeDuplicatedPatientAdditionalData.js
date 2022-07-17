@@ -7,7 +7,7 @@ const METADATA_COLUMNS = [
   'id',
   'createdAt',
   'updatedAt',
-  'updatedAtBeat',
+  'updatedAtIndex',
   'deletedAt',
   'patientId',
   'markedForPush',

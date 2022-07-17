@@ -6,49 +6,49 @@ export class CentralSyncManager {
 
   async startSession({ sequelize }) {
     const startTime = Date.now();
-    const [[{ nextval: syncBeat }]] = await sequelize.query(
+    const [[{ nextval: syncIndex }]] = await sequelize.query(
       `SELECT nextval('sync_index_sequence')`,
     );
-    this.sessions[syncBeat] = {
+    this.sessions[syncIndex] = {
       startTime,
       incomingChanges: [],
     };
-    return syncBeat;
+    return syncIndex;
   }
 
-  async endSession(syncBeat) {
-    if (!this.sessions[syncBeat]) {
-      throw new Error(`Sync session ${syncBeat} not found`);
+  async endSession(syncIndex) {
+    if (!this.sessions[syncIndex]) {
+      throw new Error(`Sync session ${syncIndex} not found`);
     }
-    delete this.sessions[syncBeat];
+    delete this.sessions[syncIndex];
   }
 
-  async setPullFilter(syncBeat, { cursor }, { models }) {
+  async setPullFilter(syncIndex, { since }, { models }) {
     const changes = await snapshotOutgoingChanges(
       getModelsForDirection(models, SYNC_DIRECTIONS.CENTRAL_TO_FACILITY),
-      cursor,
+      since,
     );
-    this.sessions[syncBeat].outgoingChanges = changes;
+    this.sessions[syncIndex].outgoingChanges = changes;
     return changes.length;
   }
 
-  getOutgoingChanges(syncBeat, { offset, limit }) {
-    if (!this.sessions[syncBeat]) {
-      throw new Error(`Sync session ${syncBeat} not found`);
+  getOutgoingChanges(syncIndex, { offset, limit }) {
+    if (!this.sessions[syncIndex]) {
+      throw new Error(`Sync session ${syncIndex} not found`);
     }
-    return this.sessions[syncBeat].outgoingChanges.slice(offset, offset + limit);
+    return this.sessions[syncIndex].outgoingChanges.slice(offset, offset + limit);
   }
 
-  async addIncomingChanges(syncBeat, changes, { pageNumber, totalPages }, { sequelize, models }) {
-    if (!this.sessions[syncBeat]) {
-      throw new Error(`Sync session ${syncBeat} not found`);
+  async addIncomingChanges(syncIndex, changes, { pageNumber, totalPages }, { sequelize, models }) {
+    if (!this.sessions[syncIndex]) {
+      throw new Error(`Sync session ${syncIndex} not found`);
     }
-    this.sessions[syncBeat].incomingChanges.push(...changes);
+    this.sessions[syncIndex].incomingChanges.push(...changes);
     if (pageNumber === totalPages) {
       await saveIncomingChanges(
         sequelize,
         getModelsForDirection(models, SYNC_DIRECTIONS.FACILITY_TO_CENTRAL),
-        this.sessions[syncBeat].incomingChanges,
+        this.sessions[syncIndex].incomingChanges,
       );
     }
   }

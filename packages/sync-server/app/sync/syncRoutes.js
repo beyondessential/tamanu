@@ -13,8 +13,8 @@ syncRoutes.post(
   '/',
   asyncHandler(async (req, res) => {
     const { store } = req;
-    const syncBeat = await syncManager.startSession(store);
-    res.send(syncBeat);
+    const syncIndex = await syncManager.startSession(store);
+    res.send(syncIndex);
   }),
 );
 
@@ -23,13 +23,13 @@ syncRoutes.post(
   '/:sessionId/pullFilter',
   asyncHandler(async (req, res) => {
     const { params, body, store } = req;
-    const { cursor } = body;
-    if (!Number.isInteger(cursor)) {
-      throw new Error('Must provide "cursor" when creating a pull filter, even if it is 0');
+    const { since } = body;
+    if (!Number.isInteger(since)) {
+      throw new Error('Must provide "since" when creating a pull filter, even if it is 0');
     }
     const count = await syncManager.setPullFilter(
       params.sessionId,
-      { cursor: parseInt(cursor, 10) },
+      { since: parseInt(since, 10) },
       store,
     );
     res.send(count);
