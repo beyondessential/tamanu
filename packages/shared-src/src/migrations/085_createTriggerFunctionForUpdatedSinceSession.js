@@ -5,11 +5,7 @@ export async function up(query) {
       LANGUAGE plpgsql AS
       $func$
       BEGIN
-        NEW.updated_since_session := currval('sync_session_sequence');
-        RETURN NEW;
-      EXCEPTION WHEN OTHERS THEN -- handle sequence not yet initialised in this session
-        PERFORM setval('sync_session_sequence', (SELECT last_value FROM sync_session_sequence)); --
-        NEW.updated_since_session := currval('sync_session_sequence');
+        SELECT last_value FROM sync_session_sequence INTO NEW.updated_since_session;
         RETURN NEW;
       END
       $func$;

@@ -28,7 +28,19 @@ export class CentralSyncManager {
       getModelsForDirection(models, SYNC_DIRECTIONS.CENTRAL_TO_FACILITY),
       sinceSessionIndex,
     );
-    this.sessions[sessionIndex].outgoingChanges = changes;
+
+    // filter out any changes that were pushed in during the same sync session
+    const { incomingChanges } = this.sessions[sessionIndex];
+    const incomingChangeDataById = Object.fromEntries(
+      incomingChanges.map(c => [c.data.id, c.data]),
+    );
+    const changesWithoutEcho = changes.filter(
+      c =>
+        !incomingChangeDataById[c.recordId] ||
+        incomingChangeDataById[c.recordId].updatedSinceSession !== c.data.updatedSinceSession,
+    );
+    this.sessions[sessionIndex].outgoingChanges = changesWithoutEcho;
+
     return changes.length;
   }
 
