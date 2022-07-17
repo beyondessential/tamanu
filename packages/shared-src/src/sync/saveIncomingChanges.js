@@ -15,15 +15,24 @@ const saveChangesForModel = async (model, changes) => {
   const idsForDelete = changes.filter(c => c.isDeleted).map(c => c.data.id);
   const idsForUpsert = changes.filter(c => !c.isDeleted && c.data.id).map(c => c.data.id);
   const existing = await model.findByIds(idsForUpsert);
-  const existingIdSet = new Set(existing.map(e => e.id));
+  const idToUpdatedSinceSession = Object.fromEntries(
+    existing.map(e => [e.id, e.updatedSinceSession]),
+  );
   const recordsForCreate = changes
-    .filter(c => !c.isDeleted && !existingIdSet.has(c.data.id))
+    .filter(c => !c.isDeleted && !idToUpdatedSinceSession[c.data.id])
     .map(({ data }) => {
       // validateRecord(data, null); TODO add in validation
       return data;
     });
   const recordsForUpdate = changes
-    .filter(r => !r.isDeleted && existingIdSet.has(r.data.id))
+    .filter(
+      r =>
+        !r.isDeleted &&
+        !!idToUpdatedSinceSession[r.data.id] &&
+        // perform basic conflict resolution using last write wins, with "last" defined using sync
+        // session index as a system-wide logical clock
+        r.data.updatedSinceSession > idToUpdatedSinceSession[r.data.id],
+    )
     .map(({ data }) => {
       // validateRecord(data, null); TODO add in validation
       return data;
