@@ -36,12 +36,12 @@ export class CentralSyncManager {
     );
     const changesWithoutEcho = changes.filter(
       c =>
-        !incomingChangeDataById[c.recordId] ||
-        incomingChangeDataById[c.recordId].updatedSinceSession !== c.data.updatedSinceSession,
+        !incomingChangeDataById[c.data.id] ||
+        incomingChangeDataById[c.data.id].updatedSinceSession !== c.data.updatedSinceSession,
     );
     this.sessions[sessionIndex].outgoingChanges = changesWithoutEcho;
 
-    return changes.length;
+    return changesWithoutEcho.length;
   }
 
   getOutgoingChanges(sessionIndex, { offset, limit }) {
