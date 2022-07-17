@@ -23,18 +23,19 @@ syncRoutes.post(
   '/:sessionIndex/pullFilter',
   asyncHandler(async (req, res) => {
     const { params, body, store } = req;
-    const { sinceSessionIndex } = body;
-    if (!Number.isInteger(sinceSessionIndex)) {
+    const { sinceSessionIndex: sinceSessionIndexString } = body;
+    const sinceSessionIndex = parseInt(sinceSessionIndexString, 10);
+    if (isNaN(sinceSessionIndex)) {
       throw new Error(
         'Must provide "sinceSessionIndex" when creating a pull filter, even if it is 0',
       );
     }
     const count = await syncManager.setPullFilter(
       params.sessionIndex,
-      { sinceSessionIndex: parseInt(sinceSessionIndex, 10) },
+      { sinceSessionIndex },
       store,
     );
-    res.send(count);
+    res.json(count);
   }),
 );
 
@@ -50,7 +51,7 @@ syncRoutes.get(
       limit: parseInt(limit, 10),
     });
     log.info(`GET /pull : returned ${changes.length} changes`);
-    res.send(changes);
+    res.json(changes);
   }),
 );
 
@@ -63,7 +64,7 @@ syncRoutes.post(
 
     await syncManager.addIncomingChanges(sessionIndex, changes, query, store);
     log.info(`POST to ${sessionIndex} : ${changes.length} records`);
-    res.send({});
+    res.json({});
   }),
 );
 
@@ -71,9 +72,9 @@ syncRoutes.post(
 syncRoutes.delete(
   '/:sessionIndex',
   asyncHandler(async (req, res) => {
-    const { params, store } = req;
+    const { params } = req;
     const { sessionIndex } = params;
-    await syncManager.endSession(store.sequelize, store.models, sessionIndex);
-    res.send({});
+    await syncManager.endSession(sessionIndex);
+    res.json({});
   }),
 );

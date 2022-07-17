@@ -96,5 +96,7 @@ export class FacilitySyncManager {
 
     const elapsedTimeMs = Date.now() - startTimestampMs;
     log.info(`FacilitySyncManager.runSync: finished sync run in ${elapsedTimeMs}ms`);
+
+    this.syncPromise = null;
   }
 }
