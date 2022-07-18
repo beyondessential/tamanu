@@ -59,7 +59,7 @@ describe('Data definition import', () => {
   it('should import a bunch of reference data items', () => {
     const { records } = resultInfo.stats;
 
-    expect(records).toHaveProperty('referenceData:village', 10);
+    expect(records).toHaveProperty('referenceData:village', 13);
     expect(records).toHaveProperty('referenceData:drug', 10);
     expect(records).toHaveProperty('referenceData:allergy', 10);
     expect(records).toHaveProperty('referenceData:icd10', 10);
@@ -117,7 +117,7 @@ describe('Data definition import', () => {
 
   it('should report an error if an FK is of the wrong type', () => {
     expectError(
-      'visibilityStatus',
+      'patient',
       'could not find a record of type referenceData called "2ecb58ca-8b2b-42e8-9c18-fd06c09653e1"',
     );
   });
