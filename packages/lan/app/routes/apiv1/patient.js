@@ -71,7 +71,6 @@ patientRoute.put(
     if (markingForSync) {
       // no need to check write permission or update patient record itself,
       // just create a link between the patient and this facility
-      console.log('MARKING', patient.id, serverFacilityId);
       await PatientFacility.create({
         patientId: patient.id,
         facilityId: serverFacilityId,
