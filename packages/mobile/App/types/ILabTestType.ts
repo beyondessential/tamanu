@@ -1,3 +1,4 @@
+import { VisibilityStatus } from '~/visibilityStatuses';
 import { ID } from './ID';
 import { IReferenceData } from './IReferenceData';
 
@@ -21,4 +22,5 @@ export interface ILabTestType {
 
   labTestCategory: IReferenceData;
   labTestCategoryId: string;
+  visibilityStatus: VisibilityStatus.Current,
 }
