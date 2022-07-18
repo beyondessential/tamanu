@@ -196,7 +196,7 @@ export class CentralServerConnection {
   }
 
   async setPullFilter(sessionIndex, sinceSessionIndex) {
-    const body = { sinceSessionIndex };
+    const body = { sinceSessionIndex, facilityId: config.serverFacilityId };
     return this.fetch(`sync/${sessionIndex}/pullFilter`, { method: 'POST', body });
   }
 

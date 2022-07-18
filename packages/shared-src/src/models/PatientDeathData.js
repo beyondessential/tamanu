@@ -107,4 +107,12 @@ export class PatientDeathData extends Model {
       as: 'contributingCauses',
     });
   }
+
+  static buildPatientFilter(patientIds) {
+    return {
+      where: {
+        patientId: { in: patientIds },
+      },
+    };
+  }
 }

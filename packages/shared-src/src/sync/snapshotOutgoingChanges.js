@@ -5,12 +5,20 @@ const { readOnly } = config.sync;
 
 const COLUMNS_EXCLUDED_FROM_SYNC = ['createdAt', 'updatedAt', 'markedForSync'];
 
-const snapshotChangesForModel = async (model, sinceSessionIndex) => {
-  const recordsChanged = await model.findAll({
-    where: {
-      updatedSinceSession: { [Op.gte]: sinceSessionIndex }, // updatedSinceSession is set on all creates, updates, and soft deletes
-    },
-  });
+const snapshotChangesForModel = async (model, sinceSessionIndex, patientIds) => {
+  const where = {
+    updatedSinceSession: { [Op.gte]: sinceSessionIndex }, // updatedSinceSession is set on all creates, updates, and soft deletes
+  };
+  const patientFilter =
+    patientIds && model.buildPatientFilter && model.buildPatientFilter(patientIds);
+  const recordsChanged = await model.findAll(
+    patientFilter
+      ? {
+          ...patientFilter,
+          where: { ...where, ...patientFilter.where },
+        }
+      : { where },
+  );
 
   const sanitizeRecord = record =>
     Object.fromEntries(
@@ -32,14 +40,14 @@ const snapshotChangesForModel = async (model, sinceSessionIndex) => {
   }));
 };
 
-export const snapshotOutgoingChanges = async (models, sinceSessionIndex) => {
+export const snapshotOutgoingChanges = async (models, sinceSessionIndex, patientIds) => {
   if (readOnly) {
     return [];
   }
 
   const outgoingChanges = [];
   for (const model of Object.values(models)) {
-    const changesForModel = await snapshotChangesForModel(model, sinceSessionIndex);
+    const changesForModel = await snapshotChangesForModel(model, sinceSessionIndex, patientIds);
     outgoingChanges.push(...changesForModel);
   }
   return outgoingChanges;

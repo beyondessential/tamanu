@@ -23,7 +23,7 @@ syncRoutes.post(
   '/:sessionIndex/pullFilter',
   asyncHandler(async (req, res) => {
     const { params, body, store } = req;
-    const { sinceSessionIndex: sinceSessionIndexString } = body;
+    const { sinceSessionIndex: sinceSessionIndexString, facilityId } = body;
     const sinceSessionIndex = parseInt(sinceSessionIndexString, 10);
     if (isNaN(sinceSessionIndex)) {
       throw new Error(
@@ -32,7 +32,7 @@ syncRoutes.post(
     }
     const count = await syncManager.setPullFilter(
       params.sessionIndex,
-      { sinceSessionIndex },
+      { sinceSessionIndex, facilityId },
       store,
     );
     res.json(count);

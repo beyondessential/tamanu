@@ -1,6 +1,5 @@
 import { Sequelize } from 'sequelize';
 import moment from 'moment';
-import config from 'config';
 
 import {
   ENCOUNTER_TYPES,
@@ -182,6 +181,14 @@ export class Encounter extends Model {
 
     // this.hasMany(models.Procedure);
     // this.hasMany(models.Report);
+  }
+
+  static buildPatientFilter(patientIds) {
+    return {
+      where: {
+        patientId: { in: patientIds },
+      },
+    };
   }
 
   static checkNeedsAutoDischarge({ encounterType, startDate, endDate }) {

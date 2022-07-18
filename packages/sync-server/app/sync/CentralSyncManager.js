@@ -1,5 +1,6 @@
 import { getModelsForDirection, snapshotOutgoingChanges, saveIncomingChanges } from 'shared/sync';
 import { SYNC_DIRECTIONS } from 'shared/constants';
+import { getPatientDependentModels } from './getPatientDependentModels';
 
 export class CentralSyncManager {
   sessions = {};
@@ -23,14 +24,35 @@ export class CentralSyncManager {
     delete this.sessions[sessionIndex];
   }
 
-  async setPullFilter(sessionIndex, { sinceSessionIndex }, { models }) {
-    const changes = await snapshotOutgoingChanges(
-      getModelsForDirection(models, SYNC_DIRECTIONS.CENTRAL_TO_FACILITY),
-      sinceSessionIndex,
+  async setPullFilter(sessionIndex, { sinceSessionIndex, facilityId }, { models }) {
+    // work out if any patients were newly marked for sync
+    const { incomingChanges } = this.sessions[sessionIndex];
+    const patientIdsForFullSync = incomingChanges
+      .filter(c => c.recordType === 'patient_facility' && !c.isDeleted)
+      .map(c => c.data.patient_id);
+
+    // get changes from all time associated with patients that were marked for sync in this session
+    const fullSyncChanges = await snapshotOutgoingChanges(
+      getPatientDependentModels(models),
+      0,
+      patientIdsForFullSync,
     );
 
+    // get changes since the last successful sync for all other synced patients and independent
+    // record types
+    const patientFacilities = await models.PatientFacility.find({ where: { facilityId } });
+    const patientIdsForRegularSync = patientFacilities
+      .map(p => p.patientId)
+      .filter(patientId => !patientIdsForFullSync.includes(patientId));
+    const regularChanges = await snapshotOutgoingChanges(
+      getModelsForDirection(models, SYNC_DIRECTIONS.CENTRAL_TO_FACILITY),
+      sinceSessionIndex,
+      patientIdsForRegularSync,
+    );
+
+    const changes = [...fullSyncChanges, ...regularChanges];
+
     // filter out any changes that were pushed in during the same sync session
-    const { incomingChanges } = this.sessions[sessionIndex];
     const incomingChangesByUniqueKey = Object.fromEntries(
       incomingChanges.map(c => [`${c.recordType}_${c.data.id}`, c]),
     );
