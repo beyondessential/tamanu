@@ -31,14 +31,22 @@ export class CentralSyncManager {
 
     // filter out any changes that were pushed in during the same sync session
     const { incomingChanges } = this.sessions[sessionIndex];
-    const incomingChangeDataById = Object.fromEntries(
-      incomingChanges.map(c => [c.data.id, c.data]),
+    const incomingChangesByUniqueKey = Object.fromEntries(
+      incomingChanges.map(c => [`${c.recordType}_${c.data.id}`, c]),
     );
-    const changesWithoutEcho = changes.filter(
-      c =>
-        !incomingChangeDataById[c.data.id] ||
-        incomingChangeDataById[c.data.id].updatedSinceSession !== c.data.updatedSinceSession,
-    );
+    const changesWithoutEcho = changes.filter(c => {
+      // if the detected change just came in, and the updated marker indicates that it hasn't
+      // changed since, don't send it back down to the same facility that sent it
+      const sameIncomingChange = incomingChangesByUniqueKey[`${c.recordType}_${c.data.id}`];
+      if (
+        sameIncomingChange &&
+        sameIncomingChange.data.updatedSinceSession === c.data.updatedSinceSession
+      ) {
+        return false;
+      }
+
+      return true;
+    });
     this.sessions[sessionIndex].outgoingChanges = changesWithoutEcho;
 
     return changesWithoutEcho.length;
