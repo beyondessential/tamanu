@@ -27,6 +27,7 @@ export function fakeScheduledVaccine(prefix = 'test-') {
     weeksFromLastVaccinationDue: null,
     index: random(0, 50),
     vaccineId: null,
+    visibilityStatus: 'current',
     ...fakeStringFields(`${prefix}scheduledVaccine_${id}_`, [
       'id',
       'category',
@@ -212,6 +213,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
     cityTown: chance.city(),
     division: chance.province({ full: true }),
     type: chance.pickone(['hospital', 'clinic']),
+    visibilityStatus: 'current',
   }),
   Patient: () => {
     const sex = chance.pickone(['male', 'female', 'other']);
