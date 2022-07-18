@@ -175,13 +175,13 @@ describe('Generic survey export', () => {
       expect(result.body).toMatchTabularReport(
         [
           {
-            'Submission Time': format(getExpectedDate(date1), 'yyyy-MM-dd HH:mm a'),
+            'Submission Time': format(getExpectedDate(date1), 'yyyy-MM-dd h:mm a'),
           },
           {
-            'Submission Time': format(getExpectedDate(date2), 'yyyy-MM-dd HH:mm a'),
+            'Submission Time': format(getExpectedDate(date2), 'yyyy-MM-dd h:mm a'),
           },
           {
-            'Submission Time': format(getExpectedDate(date3), 'yyyy-MM-dd HH:mm a'),
+            'Submission Time': format(getExpectedDate(date3), 'yyyy-MM-dd h:mm a'),
           },
         ],
         { partialMatching: true },
@@ -218,7 +218,7 @@ describe('Generic survey export', () => {
           Age: 1,
           Sex: expectedPatient.sex,
           Village: expectedVillage.name,
-          'Submission Time': format(expectedDate, 'yyyy-MM-dd HH:mm a'),
+          'Submission Time': format(expectedDate, 'yyyy-MM-dd h:mm a'),
           'name-pde-Test1': 'Data point 1',
           'name-pde-CheckboxQ': 'Yes',
           'name-pde-DateQ': '2022-05-30',
