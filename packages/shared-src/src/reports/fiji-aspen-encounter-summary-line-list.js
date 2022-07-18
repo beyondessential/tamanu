@@ -40,7 +40,7 @@ with
         json_build_object(
           'Note type', note_type,
           'Content', "content",
-          'Note date', "date"
+          'Note date', to_char("date", 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
         ) 
       ) aggregated_notes
     from notes
@@ -182,7 +182,7 @@ with
         json_build_object(
           'Note type', note_type,
           'Content', "content",
-          'Note date', "date"
+          'Note date', to_char("date", 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
         ) 
       ) "Notes"
     from notes
