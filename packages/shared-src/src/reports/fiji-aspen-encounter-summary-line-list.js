@@ -38,9 +38,9 @@ with
       record_id,
       json_agg(
         json_build_object(
-          'note_type', note_type,
-          'content', "content",
-          'note_date', "date"
+          'Note type', note_type,
+          'Content', "content",
+          'Note date', "date"
         ) 
       ) aggregated_notes
     from notes
@@ -51,8 +51,8 @@ with
       lab_request_id,
       json_agg(
         json_build_object(
-          'name', ltt.name,
-          'notes', 'TODO'
+          'Name', ltt.name,
+          'Notes', 'TODO'
         )
       ) tests
     from lab_tests lt
@@ -64,8 +64,8 @@ with
       encounter_id,
       json_agg(
         json_build_object(
-          'tests', tests,
-          'notes', to_json(aggregated_notes)
+          'Tests', tests,
+          'Notes', to_json(aggregated_notes)
         )) "Lab requests"
     from lab_requests lr
     join lab_test_info lti
@@ -78,12 +78,12 @@ with
       encounter_id,
       json_agg(
         json_build_object(
-          'name', proc.name,
-          'code', proc.code,
-          'date', to_char(date, 'yyyy-dd-mm'),
-          'location', loc.name,
-          'notes', p.note,
-          'completed_notes', completed_note
+          'Name', proc.name,
+          'Code', proc.code,
+          'Date', to_char(date, 'yyyy-dd-mm'),
+          'Location', loc.name,
+          'Notes', p.note,
+          'Completed notes', completed_note
         ) 
       ) "Procedures"
     from "procedures" p
@@ -96,9 +96,9 @@ with
       encounter_id,
       json_agg(
         json_build_object(
-          'name', medication.name,
-          'discontinued', coalesce(discontinued, false),
-          'discontinuing_reason', discontinuing_reason
+          'Name', medication.name,
+          'Discontinued', coalesce(discontinued, false),
+          'Discontinuing reason', discontinuing_reason
         ) 
       ) "Medications"
     from encounter_medications em
@@ -110,10 +110,10 @@ with
       encounter_id,
       json_agg(
         json_build_object(
-          'name', diagnosis.name,
-          'code', diagnosis.code,
-          'is_primary', case when is_primary then 'primary' else 'secondary' end,
-          'certainty', certainty
+          'Name', diagnosis.name,
+          'Code', diagnosis.code,
+          'Is primary?', case when is_primary then 'primary' else 'secondary' end,
+          'Certainty', certainty
         ) 
       ) "Diagnosis"
     from encounter_diagnoses ed
@@ -126,9 +126,9 @@ with
       encounter_id,
       json_agg(
         json_build_object(
-          'name', drug.name,
-          'label', sv.label,
-          'schedule', sv.schedule
+          'Name', drug.name,
+          'Label', sv.label,
+          'Schedule', sv.schedule
         ) 
       ) "Vaccinations"
     from administered_vaccines av
@@ -140,9 +140,9 @@ with
     select
       ir.encounter_id,
       json_build_object(
-        'name', image_type.name,
-        'area_to_be_imaged', area_notes.aggregated_notes,
-        'notes', non_area_notes.aggregated_notes
+        'Name', image_type.name,
+        'Area to be imaged', area_notes.aggregated_notes,
+        'Notes', non_area_notes.aggregated_notes
       ) "data"
     from imaging_requests ir
     join reference_data image_type on image_type.id = ir.imaging_type_id
@@ -180,9 +180,9 @@ with
       record_id encounter_id,
       json_agg(
         json_build_object(
-          'note_type', note_type,
-          'content', "content",
-          'note_date', "date"
+          'Note type', note_type,
+          'Content', "content",
+          'Note date', "date"
         ) 
       ) "Notes"
     from notes
@@ -210,18 +210,18 @@ with
       e.id encounter_id,
       case when count("from") = 0
         then json_build_array(json_build_object(
-          'department', d.name,
-          'assigned_time', e.start_date
+          'Department', d.name,
+          'Assigned time', to_char(e.start_date, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
         ))
         else json_build_array(
           json_build_object(
-            'department', first_from, --first "from" from note
-            'assigned_time', e.start_date
+            'Department', first_from, --first "from" from note
+            'Assigned time', to_char(e.start_date, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
           ),
           json_agg(
             json_build_object(
-              'department', "to",
-              'assigned_time', nh.date
+              'Department', "to",
+              'Assigned time', to_char(nh.date, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
             ) ORDER BY nh.date
           )
         )
@@ -251,18 +251,18 @@ with
       e.id encounter_id,
       case when count("from") = 0
         then json_build_array(json_build_object(
-          'location', l.name,
-          'assigned_time', e.start_date
+          'Location', l.name,
+          'Assigned time', to_char(e.start_date, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
         ))
         else json_build_array(
           json_build_object(
-            'location', first_from, --first "from" from note
-            'assigned_time', e.start_date
+            'Location', first_from, --first "from" from note
+            'Assigned time', to_char(e.start_date, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
           ),
           json_agg(
             json_build_object(
-              'location', "to",
-              'assigned_time', nh.date
+              'Location', "to",
+              'Assigned time', to_char(nh.date, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
             ) ORDER BY nh.date
           )
         )
@@ -365,10 +365,28 @@ const getData = async (sequelize, parameters) => {
   });
 };
 
+const formatJsonValue = value => {
+  if (Array.isArray(value)) {
+    console.log(value);
+    return value.map(formatJsonValue).join('; ');
+  }
+  if (typeof value === 'object' && !(value instanceof Date) && value !== null) {
+    return Object.entries(value)
+      .map(([k, v]) => `${k}: ${formatJsonValue(v)}`)
+      .join(', ');
+  }
+  return value;
+};
+
+const formatRow = row =>
+  Object.entries(row).reduce((acc, [k, v]) => ({ ...acc, [k]: formatJsonValue(v) }), {});
+
 export const dataGenerator = async ({ sequelize }, parameters = {}) => {
   const results = await getData(sequelize, parameters);
 
-  return generateReportFromQueryData(results, reportColumnTemplate);
+  const formattedResults = results.map(formatRow);
+
+  return generateReportFromQueryData(formattedResults, reportColumnTemplate);
 };
 
 export const permission = 'Encounter';
