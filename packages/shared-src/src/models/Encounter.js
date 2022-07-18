@@ -1,4 +1,4 @@
-import { Sequelize, Op } from 'sequelize';
+import { Sequelize } from 'sequelize';
 import moment from 'moment';
 
 import {
@@ -9,9 +9,9 @@ import {
 } from 'shared/constants';
 import { InvalidOperationError } from 'shared/errors';
 
-import { Model } from './Model';
+import { PatientLinkedModel } from './PatientLinkedModel';
 
-export class Encounter extends Model {
+export class Encounter extends PatientLinkedModel {
   static init({ primaryKey, hackToSkipEncounterValidation, ...options }) {
     let validate = {};
     if (!hackToSkipEncounterValidation) {
@@ -181,14 +181,6 @@ export class Encounter extends Model {
 
     // this.hasMany(models.Procedure);
     // this.hasMany(models.Report);
-  }
-
-  static buildPatientFilter(patientIds) {
-    return {
-      where: {
-        patientId: { [Op.in]: patientIds },
-      },
-    };
   }
 
   static checkNeedsAutoDischarge({ encounterType, startDate, endDate }) {

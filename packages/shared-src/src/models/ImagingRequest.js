@@ -3,11 +3,11 @@ import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
 import { IMAGING_REQUEST_STATUS_TYPES, SYNC_DIRECTIONS } from 'shared/constants';
 
-import { Model } from './Model';
+import { EncounterLinkedModel } from './EncounterLinkedModel';
 
 const ALL_IMAGING_REQUEST_STATUS_TYPES = Object.values(IMAGING_REQUEST_STATUS_TYPES);
 
-export class ImagingRequest extends Model {
+export class ImagingRequest extends EncounterLinkedModel {
   static init({ primaryKey, ...options }) {
     super.init(
       {

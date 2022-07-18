@@ -1,8 +1,8 @@
 import { Sequelize } from 'sequelize';
 import { AVPU_OPTIONS, SYNC_DIRECTIONS } from 'shared/constants';
-import { Model } from './Model';
+import { EncounterLinkedModel } from './EncounterLinkedModel';
 
-export class Vitals extends Model {
+export class Vitals extends EncounterLinkedModel {
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -69,6 +69,7 @@ export class Vitals extends Model {
   static initRelations(models) {
     this.belongsTo(models.Encounter, {
       foreignKey: 'encounterId',
+      as: 'encounter',
     });
   }
 }

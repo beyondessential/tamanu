@@ -1,9 +1,9 @@
 import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { DIAGNOSIS_CERTAINTY, DIAGNOSIS_CERTAINTY_VALUES } from '../constants';
-import { Model } from './Model';
+import { EncounterLinkedModel } from './EncounterLinkedModel';
 
-export class EncounterDiagnosis extends Model {
+export class EncounterDiagnosis extends EncounterLinkedModel {
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -43,6 +43,7 @@ export class EncounterDiagnosis extends Model {
   static initRelations(models) {
     this.belongsTo(models.Encounter, {
       foreignKey: 'encounterId',
+      as: 'encounter',
     });
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'diagnosisId',

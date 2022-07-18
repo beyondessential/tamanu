@@ -2,9 +2,9 @@ import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
 
 import { LAB_REQUEST_STATUSES, NOTE_TYPES, SYNC_DIRECTIONS } from 'shared/constants';
-import { Model } from './Model';
+import { EncounterLinkedModel } from './EncounterLinkedModel';
 
-export class LabRequest extends Model {
+export class LabRequest extends EncounterLinkedModel {
   static init({ primaryKey, ...options }) {
     super.init(
       {

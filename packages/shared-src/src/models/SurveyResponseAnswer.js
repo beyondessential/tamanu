@@ -1,6 +1,6 @@
 import config from 'config';
 import { upperFirst } from 'lodash';
-import { Sequelize } from 'sequelize';
+import { Sequelize, Op } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
@@ -25,6 +25,13 @@ export class SurveyResponseAnswer extends Model {
       foreignKey: 'responseId',
       as: 'surveyResponse',
     });
+  }
+
+  static buildPatientFilter(patientIds) {
+    return {
+      where: { '$surveyResponse.encounter.patient_id$': { [Op.in]: patientIds } },
+      include: [{ association: 'surveyResponse', include: ['encounter'] }],
+    };
   }
 
   static getDefaultId = async resource => {

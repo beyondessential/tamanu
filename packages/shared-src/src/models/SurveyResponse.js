@@ -5,7 +5,7 @@ import {
   PROGRAM_DATA_ELEMENT_TYPES,
   SYNC_DIRECTIONS,
 } from 'shared/constants';
-import { Model } from './Model';
+import { EncounterLinkedModel } from './EncounterLinkedModel';
 import { runCalculations } from '../utils/calculations';
 import { getStringValue, getResultValue } from '../utils/fields';
 
@@ -67,7 +67,7 @@ const handleSurveyResponseActions = async (models, actions, questions, answers, 
   }
 };
 
-export class SurveyResponse extends Model {
+export class SurveyResponse extends EncounterLinkedModel {
   static init({ primaryKey, ...options }) {
     super.init(
       {

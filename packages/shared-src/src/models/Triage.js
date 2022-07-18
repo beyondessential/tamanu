@@ -1,9 +1,9 @@
 import { ENCOUNTER_TYPES, SYNC_DIRECTIONS } from 'shared/constants';
 import { Sequelize, Op } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
-import { Model } from './Model';
+import { EncounterLinkedModel } from './EncounterLinkedModel';
 
-export class Triage extends Model {
+export class Triage extends EncounterLinkedModel {
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -22,6 +22,7 @@ export class Triage extends Model {
   static initRelations(models) {
     this.belongsTo(models.Encounter, {
       foreignKey: 'encounterId',
+      as: 'encounter',
     });
 
     this.belongsTo(models.User, {

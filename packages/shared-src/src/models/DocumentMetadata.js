@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
-import { Model } from './Model';
-export class DocumentMetadata extends Model {
+import { PatientLinkedModel } from './PatientLinkedModel';
+export class DocumentMetadata extends PatientLinkedModel {
   static init({ primaryKey, ...options }) {
     super.init(
       {

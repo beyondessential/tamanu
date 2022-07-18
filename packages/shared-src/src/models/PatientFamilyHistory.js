@@ -1,8 +1,8 @@
 import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
-import { Model } from './Model';
+import { PatientLinkedModel } from './PatientLinkedModel';
 
-export class PatientFamilyHistory extends Model {
+export class PatientFamilyHistory extends PatientLinkedModel {
   static init({ primaryKey, ...options }) {
     super.init(
       {

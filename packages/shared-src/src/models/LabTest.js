@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize';
+import { Sequelize, Op } from 'sequelize';
 import { LAB_TEST_STATUSES, SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
@@ -63,5 +63,12 @@ export class LabTest extends Model {
 
   static getListReferenceAssociations() {
     return ['category', 'labTestType', 'labTestMethod'];
+  }
+
+  static buildPatientFilter(patientIds) {
+    return {
+      where: { '$labRequest.encounter.patient_id$': { [Op.in]: patientIds } },
+      include: [{ association: 'labRequest', include: ['encounter'] }],
+    };
   }
 }

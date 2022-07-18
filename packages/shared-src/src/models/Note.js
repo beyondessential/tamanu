@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize';
+import { Sequelize, Op } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
@@ -87,6 +87,7 @@ export class Note extends Model {
     NOTE_RECORD_TYPE_VALUES.forEach(modelName => {
       this.belongsTo(models[modelName], {
         foreignKey: 'recordId',
+        as: `${modelName.charAt(0).toLowerCase()}${modelName.slice(1)}`, // lower case first letter
         constraints: false,
       });
     });
@@ -96,5 +97,27 @@ export class Note extends Model {
     if (!this.recordType) return Promise.resolve(null);
     const parentGetter = `get${this.recordType}`;
     return this[parentGetter](options);
+  }
+
+  static buildPatientFilter(patientIds) {
+    return {
+      where: {
+        [Op.or]: [
+          { recordId: { [Op.in]: patientIds } },
+          { '$encounter.patient_id$': { [Op.in]: patientIds } },
+          { '$patientCarePlan.patient_id$': { [Op.in]: patientIds } },
+          { '$triage.encounter.patient_id$': { [Op.in]: patientIds } },
+          { '$labRequest.encounter.patient_id$': { [Op.in]: patientIds } },
+          { '$imagingRequest.encounter.patient_id$': { [Op.in]: patientIds } },
+        ],
+      },
+      include: [
+        'encounter',
+        'patientCarePlan',
+        { association: 'triage', include: ['encounter'] },
+        { association: 'labRequest', include: ['encounter'] },
+        { association: 'imagingRequest', include: ['encounter'] },
+      ],
+    };
   }
 }

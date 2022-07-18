@@ -1,14 +1,18 @@
 import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
-import { Model } from './Model';
+import { PatientLinkedModel } from './PatientLinkedModel';
 
-export class PatientAllergy extends Model {
+export class PatientAllergy extends PatientLinkedModel {
   static init({ primaryKey, ...options }) {
     super.init(
       {
         id: primaryKey,
         note: Sequelize.STRING,
-        recordedDate: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false },
+        recordedDate: {
+          type: Sequelize.DATE,
+          defaultValue: Sequelize.NOW,
+          allowNull: false,
+        },
       },
       {
         ...options,

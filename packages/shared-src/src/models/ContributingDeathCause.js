@@ -1,4 +1,4 @@
-import { Sequelize, Op } from 'sequelize';
+import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
@@ -46,14 +46,5 @@ export class ContributingDeathCause extends Model {
       foreignKey: 'conditionId',
       as: 'condition',
     });
-  }
-
-  static buildPatientFilter(patientIds) {
-    return {
-      where: {
-        '$patientDeathData.patient_id$': { [Op.in]: patientIds },
-      },
-      include: ['patientDeathData'],
-    };
   }
 }

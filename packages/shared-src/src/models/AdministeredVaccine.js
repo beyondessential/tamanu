@@ -1,11 +1,11 @@
 import { Sequelize, Op } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
 import { SYNC_DIRECTIONS } from 'shared/constants';
-import { Model } from './Model';
+import { EncounterLinkedModel } from './EncounterLinkedModel';
 import { Encounter } from './Encounter';
 import { ScheduledVaccine } from './ScheduledVaccine';
 
-export class AdministeredVaccine extends Model {
+export class AdministeredVaccine extends EncounterLinkedModel {
   static init({ primaryKey, ...options }) {
     super.init(
       {

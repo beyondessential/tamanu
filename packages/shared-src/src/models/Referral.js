@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize';
+import { Sequelize, Op } from 'sequelize';
 import { REFERRAL_STATUSES, SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
@@ -35,5 +35,12 @@ export class Referral extends Model {
       foreignKey: 'surveyResponseId',
       as: 'surveyResponse',
     });
+  }
+
+  static buildPatientFilter(patientIds) {
+    return {
+      where: { '$initiatingEncounter.patient_id$': { [Op.in]: patientIds } },
+      include: ['initiatingEncounter'],
+    };
   }
 }

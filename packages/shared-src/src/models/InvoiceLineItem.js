@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize';
+import { Sequelize, Op } from 'sequelize';
 import { INVOICE_LINE_ITEM_STATUSES, SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
@@ -48,5 +48,12 @@ export class InvoiceLineItem extends Model {
         as: 'orderedBy',
       },
     ];
+  }
+
+  static buildPatientFilter(patientIds) {
+    return {
+      where: { '$invoice.encounter.patient_id$': { [Op.in]: patientIds } },
+      include: [{ association: 'invoice', include: ['encounter'] }],
+    };
   }
 }

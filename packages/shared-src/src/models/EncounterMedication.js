@@ -1,8 +1,8 @@
 import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
-import { Model } from './Model';
+import { EncounterLinkedModel } from './EncounterLinkedModel';
 
-export class EncounterMedication extends Model {
+export class EncounterMedication extends EncounterLinkedModel {
   static init({ primaryKey, ...options }) {
     super.init(
       {

@@ -1,8 +1,8 @@
 import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
-import { Model } from './Model';
+import { EncounterLinkedModel } from './EncounterLinkedModel';
 
-export class Procedure extends Model {
+export class Procedure extends EncounterLinkedModel {
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -27,6 +27,7 @@ export class Procedure extends Model {
   static initRelations(models) {
     this.belongsTo(models.Encounter, {
       foreignKey: 'encounterId',
+      as: 'encounter',
     });
     this.belongsTo(models.Location, {
       foreignKey: 'locationId',

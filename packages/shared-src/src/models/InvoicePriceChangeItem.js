@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize';
+import { Sequelize, Op } from 'sequelize';
 import { INVOICE_PRICE_CHANGE_ITEM_STATUSES, SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
@@ -49,5 +49,12 @@ export class InvoicePriceChangeItem extends Model {
         as: 'orderedBy',
       },
     ];
+  }
+
+  static buildPatientFilter(patientIds) {
+    return {
+      where: { '$invoice.encounter.patient_id$': { [Op.in]: patientIds } },
+      include: [{ association: 'invoice', include: ['encounter'] }],
+    };
   }
 }
