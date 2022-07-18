@@ -12,7 +12,7 @@ export * from './PatientVRSData';
 export * from './PatientSecondaryId';
 
 export * from './PatientDeathData';
-export * from './DeathCause';
+export * from './ContributingDeathCause';
 
 export * from './Encounter';
 export * from './Discharge';

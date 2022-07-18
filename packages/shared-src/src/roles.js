@@ -195,22 +195,12 @@ export const practitioner = [
 
   { verb: 'read', noun: 'PatientDeath' },
   { verb: 'create', noun: 'PatientDeath' },
+
+  { verb: 'list', noun: 'PatientSecondaryId' },
+  { verb: 'read', noun: 'PatientSecondaryId' },
+  { verb: 'write', noun: 'PatientSecondaryId' },
+  { verb: 'create', noun: 'PatientSecondaryId' },
 ];
 
-export const admin = [
-  ...practitioner,
-
-  { verb: 'create', noun: 'User' },
-  { verb: 'write', noun: 'User' },
-
-  { verb: 'write', noun: 'ReferenceData' },
-  { verb: 'create', noun: 'ReferenceData' },
-
-  { verb: 'write', noun: 'Setting' },
-  { verb: 'create', noun: 'Setting' },
-
-  { verb: 'read', noun: 'Signer' },
-  { verb: 'write', noun: 'Signer' },
-
-  { verb: 'run', noun: 'Report' },
-];
+// "Manage all" is a special case in CASL for the admin to grant everything
+export const admin = [{ verb: 'manage', noun: 'all' }];

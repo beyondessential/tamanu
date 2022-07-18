@@ -47,7 +47,7 @@ const MainButton = styled(Button)`
 `;
 
 const MenuButton = styled(Button)`
-  padding: 8px 7px 8px 0;
+  padding: 9px 7px 9px 0;
   border-radius: 3px;
 
   &.MuiButton-sizeLarge {
@@ -82,7 +82,7 @@ const MenuButton = styled(Button)`
 
 const Popper = styled(MuiPopper)`
   margin-top: 2px;
-  z-index: 9999;
+  z-index: 1500; // This needs to be higher than the modal z-index (1400) to be visible in modals
   min-width: ${props => (props.anchorEl ? `${props.anchorEl.offsetWidth}px` : `${0}`)};
 `;
 
@@ -102,13 +102,14 @@ const MenuList = styled(MuiMenuList)`
   }
 `;
 
-export const DropdownButton = React.memo(({ variant, size, actions, ...props }) => {
+export const DropdownButton = React.memo(({ variant, size, actions, style, className }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const anchorRef = useRef(null);
 
-  function handleClick(event, index) {
+  const handleClick = (event, index) => {
     actions[index].onClick(event);
-  }
+    setAnchorEl(null);
+  };
 
   const handleToggle = () => {
     setAnchorEl(anchorEl ? null : anchorRef.current);
@@ -123,11 +124,11 @@ export const DropdownButton = React.memo(({ variant, size, actions, ...props }) 
   if (otherActions.length === 0) {
     return (
       <MainButton
-        {...props}
         variant={variant}
         size={size}
         color="primary"
         disableElevation
+        style={{ borderColor: Colors.primary }}
         onClick={event => handleClick(event, 0)}
       >
         {mainAction.label}
@@ -138,14 +139,13 @@ export const DropdownButton = React.memo(({ variant, size, actions, ...props }) 
   const isOpen = Boolean(anchorEl);
 
   return (
-    <Container ref={anchorRef}>
+    <Container style={style} className={className} ref={anchorRef}>
       <ButtonGroup
         variant={variant}
         size={size}
         color="primary"
         disableElevation
         style={{ width: '100%' }}
-        {...props}
       >
         <MainButton onClick={event => handleClick(event, 0)}>{mainAction.label}</MainButton>
         <MenuButton onClick={handleToggle}>

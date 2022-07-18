@@ -7,6 +7,7 @@ import { useEncounter } from '../contexts/Encounter';
 import { MedicationModal } from './MedicationModal';
 import { reloadPatient } from '../store';
 import { ENCOUNTER_TAB_NAMES } from '../views/patients/EncounterView';
+import { Colors } from '../constants';
 
 const getMedicationName = ({ medication }) => medication.name;
 
@@ -63,7 +64,7 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
   const rowStyle = ({ discontinued }) =>
     discontinued
       ? `
-        color: red;
+        color: ${Colors.alert};
         text-decoration: line-through;`
       : '';
 
@@ -93,9 +94,13 @@ export const DataFetchingMedicationTable = () => {
   const dispatch = useDispatch();
   const onMedicationSelect = useCallback(
     async medication => {
-      await dispatch(reloadPatient(medication.encounter.patientId));
       await loadEncounter(medication.encounter.id);
-      dispatch(push(`/patients/encounter?tab=${ENCOUNTER_TAB_NAMES.MEDICATION}`));
+      await dispatch(reloadPatient(medication.encounter.patientId));
+      dispatch(
+        push(
+          `/patients/all/${medication.encounter.patientId}/encounter/${medication.encounter.id}?tab=${ENCOUNTER_TAB_NAMES.MEDICATION}`,
+        ),
+      );
     },
     [loadEncounter, dispatch],
   );

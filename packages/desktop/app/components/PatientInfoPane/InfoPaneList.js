@@ -3,11 +3,11 @@ import styled from 'styled-components';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import { Collapse, Button, Typography } from '@material-ui/core';
 import { kebabCase } from 'lodash';
-import { connectApi } from '../api';
-import { Suggester } from '../utils/suggester';
-import { reloadPatient } from '../store/patient';
-import { Colors } from '../constants';
-import { Modal } from './Modal';
+import { connectApi } from '../../api';
+import { Suggester } from '../../utils/suggester';
+import { reloadPatient } from '../../store/patient';
+import { Colors } from '../../constants';
+import { Modal } from '../Modal';
 
 const TitleContainer = styled.div`
   color: ${Colors.primary};

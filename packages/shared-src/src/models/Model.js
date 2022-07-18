@@ -21,10 +21,8 @@ const MARKED_FOR_PUSH_MODELS = [
   'UserFacility',
   'DocumentMetadata',
   'CertificateNotification',
-
-  // Temporarily remove death data models from sync as sync cannot handle the foreign key cycle
-  // 'PatientDeathData',
-  // 'DeathCause',
+  'PatientDeathData',
+  'ContributingDeathCause',
 ];
 
 export class Model extends sequelize.Model {

@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { format } from 'date-fns';
 import { useLocalisation } from '../contexts/Localisation';
 import { useSuggester } from '../api';
 import {
@@ -38,15 +39,14 @@ export const PrimaryDetailsGroup = () => {
       <LocalisedField name="middleName" component={TextField} />
       <LocalisedField name="lastName" component={TextField} required />
       <LocalisedField name="culturalName" component={TextField} />
-      <LocalisedField name="dateOfBirth" component={DateField} required />
-      <LocalisedField name="villageId" component={AutocompleteField} suggester={villageSuggester} />
       <LocalisedField
-        name="sex"
-        component={RadioField}
-        options={filteredSexOptions}
-        inline
+        name="dateOfBirth"
+        max={format(new Date(), 'yyyy-MM-dd')}
+        component={DateField}
         required
       />
+      <LocalisedField name="villageId" component={AutocompleteField} suggester={villageSuggester} />
+      <LocalisedField name="sex" component={RadioField} options={filteredSexOptions} required />
       <LocalisedField
         name="email"
         component={TextField}

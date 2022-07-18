@@ -184,6 +184,3 @@ const actionHandlers = {
 };
 
 export const authReducer = createStatePreservingReducer(defaultState, actionHandlers);
-
-const getUserSelector = state => state.auth?.user;
-export const useCurrentUser = () => useSelector(getUserSelector);

@@ -40,6 +40,7 @@ export const CovidTestCertificateModal = ({ patient }) => {
       onClose={() => setOpen(false)}
       width="md"
       printable
+      keepMounted
       onPrint={() => printPDF('test-certificate')}
       additionalActions={<EmailButton onEmail={createCovidTestCertNotification} />}
     >

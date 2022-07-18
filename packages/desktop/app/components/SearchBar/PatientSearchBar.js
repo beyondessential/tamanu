@@ -1,6 +1,14 @@
 import React from 'react';
+import { format } from 'date-fns';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
-import { AutocompleteField, CheckField, Field, LocalisedField, DisplayIdField } from '../Field';
+import {
+  AutocompleteField,
+  CheckField,
+  Field,
+  LocalisedField,
+  DisplayIdField,
+  DateField,
+} from '../Field';
 import { useSuggester } from '../../api';
 
 export const PatientSearchBar = React.memo(({ onSearch }) => {
@@ -19,7 +27,12 @@ export const PatientSearchBar = React.memo(({ onSearch }) => {
     >
       <LocalisedField name="firstName" />
       <LocalisedField name="lastName" />
-      <Field name="dateOfBirthExact" label="DOB" />
+      <Field
+        name="dateOfBirthExact"
+        label="DOB"
+        max={format(new Date(), 'yyyy-MM-dd')}
+        component={DateField}
+      />
       <DisplayIdField />
       <LocalisedField
         name="facilityId"

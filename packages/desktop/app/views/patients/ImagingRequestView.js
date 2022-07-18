@@ -1,19 +1,17 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { connect, useDispatch } from 'react-redux';
-import { push } from 'connected-react-router';
+import { Form, Formik } from 'formik';
+import { useSelector } from 'react-redux';
 import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
 import { useParams } from 'react-router-dom';
-
-import { Form, Formik } from 'formik';
+import { useCertificate } from '../../utils/useCertificate';
+import { usePatientNavigation } from '../../utils/usePatientNavigation';
 
 import { Button } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { PatientInfoPane } from '../../components/PatientInfoPane';
-import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
-import { TopBar } from '../../components/TopBar';
 import { ButtonRow } from '../../components/ButtonRow';
 import { FormGrid } from '../../components/FormGrid';
+import { Modal } from '../../components/Modal';
 import {
   TextInput,
   SelectField,
@@ -21,16 +19,9 @@ import {
   AutocompleteField,
   DateTimeInput,
 } from '../../components/Field';
-import { useApi } from '../../api';
-import { Suggester } from '../../utils/suggester';
+import { useApi, useSuggester } from '../../api';
 
 import { ImagingRequestPrintout } from '../../components/PatientPrinting/ImagingRequestPrintout';
-import { Modal } from '../../components/Modal';
-import { useCertificate } from '../../utils/useCertificate';
-
-const BackLink = connect(null, dispatch => ({
-  onClick: () => dispatch(push('/patients/encounter')),
-}))(({ onClick }) => <Button onClick={onClick}>&lt; Back to encounter information</Button>);
 
 const statusOptions = [
   { value: 'pending', label: 'Pending' },
@@ -73,14 +64,18 @@ const PrintButton = ({ imagingRequest, patient }) => {
           />
         )}
       </Modal>
-      <Button variant="outlined" onClick={openModal} style={{ marginRight: '0.5rem' }}>
+      <Button
+        variant="outlined"
+        onClick={openModal}
+        style={{ marginRight: '0.5rem', marginBottom: '30px' }}
+      >
         Print request
       </Button>
     </>
   );
 };
 
-const DumbImagingRequestInfoPane = React.memo(
+const ImagingRequestInfoPane = React.memo(
   ({ imagingRequest, onSubmit, practitionerSuggester, locationSuggester }) => (
     <Formik
       // Only submit specific fields for update
@@ -184,42 +179,29 @@ const DumbImagingRequestInfoPane = React.memo(
   ),
 );
 
-export const DumbImagingRequestView = React.memo(({ imagingRequest, patient }) => {
+export const ImagingRequestView = () => {
   const api = useApi();
-  const dispatch = useDispatch();
-  const practitionerSuggester = new Suggester(api, 'practitioner');
-  const locationSuggester = new Suggester(api, 'location');
+  const { navigateToEncounter } = usePatientNavigation();
+  const imagingRequest = useSelector(state => state.imagingRequest);
+  const patient = useSelector(state => state.patient);
+  const practitionerSuggester = useSuggester('practitioner');
+  const locationSuggester = useSuggester('location');
 
   const onSubmit = data => {
     api.put(`imagingRequest/${imagingRequest.id}`, { ...data });
-    dispatch(push('/patients/encounter'));
+    navigateToEncounter();
   };
 
   if (patient.loading) return <LoadingIndicator />;
   return (
-    <TwoColumnDisplay>
-      <PatientInfoPane patient={patient} />
-      <div>
-        <TopBar title="Imaging request">
-          <div>
-            <PrintButton imagingRequest={imagingRequest} patient={patient} />
-          </div>
-        </TopBar>
-        <BackLink />
-        <ContentPane>
-          <DumbImagingRequestInfoPane
-            imagingRequest={imagingRequest}
-            onSubmit={onSubmit}
-            practitionerSuggester={practitionerSuggester}
-            locationSuggester={locationSuggester}
-          />
-        </ContentPane>
-      </div>
-    </TwoColumnDisplay>
+    <ContentPane>
+      <PrintButton imagingRequest={imagingRequest} patient={patient} />
+      <ImagingRequestInfoPane
+        imagingRequest={imagingRequest}
+        onSubmit={onSubmit}
+        practitionerSuggester={practitionerSuggester}
+        locationSuggester={locationSuggester}
+      />
+    </ContentPane>
   );
-});
-
-export const ImagingRequestView = connect(state => ({
-  imagingRequest: state.imagingRequest,
-  patient: state.patient,
-}))(DumbImagingRequestView);
+};

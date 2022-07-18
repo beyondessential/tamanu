@@ -1,26 +1,23 @@
 import React, { memo, useCallback, useState } from 'react';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-
 import { PATIENT_ISSUE_TYPES } from 'shared/constants';
-import { OutlinedButton } from './Button';
-
+import { OutlinedButton } from '../Button';
 import { InfoPaneList } from './InfoPaneList';
 import { CoreInfoDisplay } from './PatientCoreInfo';
-import { PatientAlert } from './PatientAlert';
-import { PatientPrintDetailsModal } from './PatientPrinting';
-
+import { PatientAlert } from '../PatientAlert';
+import { PatientPrintDetailsModal } from '../PatientPrinting';
 import {
   AllergyForm,
   OngoingConditionForm,
   FamilyHistoryForm,
   PatientCarePlanForm,
   PatientIssueForm,
-} from '../forms';
-import { DeathModal } from './DeathModal';
-import { Colors } from '../constants';
-
+} from '../../forms';
+import { DeathModal } from '../DeathModal';
+import { Colors } from '../../constants';
 import { PatientCarePlanDetails } from './PatientCarePlanNotes';
-import { useLocalisation } from '../contexts/Localisation';
+import { useLocalisation } from '../../contexts/Localisation';
 
 const OngoingConditionDisplay = memo(({ patient, readonly }) => (
   <InfoPaneList
@@ -136,9 +133,9 @@ const PrintSection = memo(({ patient }) => <PatientPrintDetailsModal patient={pa
 const Container = styled.div`
   position: relative;
   background: ${Colors.white};
-  min-height: 100vh;
   box-shadow: 1px 0 3px rgba(0, 0, 0, 0.1);
   z-index: 10;
+  overflow: auto;
 `;
 
 const ListsSection = styled.div`
@@ -159,8 +156,10 @@ const Buttons = styled.div`
   }
 `;
 
-export const PatientInfoPane = memo(({ patient, readonly }) => {
+export const PatientInfoPane = () => {
   const { getLocalisation } = useLocalisation();
+  const patient = useSelector(state => state.patient);
+  const readonly = !!patient.death;
   const patientDeathsEnabled = getLocalisation('features.enablePatientDeaths');
 
   return (
@@ -179,4 +178,4 @@ export const PatientInfoPane = memo(({ patient, readonly }) => {
       </ListsSection>
     </Container>
   );
-});
+};

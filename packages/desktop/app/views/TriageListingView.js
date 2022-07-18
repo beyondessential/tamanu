@@ -1,129 +1,25 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import moment from 'moment';
-import { connect } from 'react-redux';
-import { viewPatientEncounter } from '../store/patient';
-import { TopBar, PageContainer, DataFetchingTable, ContentPane } from '../components';
-import { TriageStatisticsCard } from '../components/TriageStatisticsCard';
-import { DateDisplay } from '../components/DateDisplay';
-import { LiveDurationDisplay } from '../components/LiveDurationDisplay';
-import { TRIAGE_COLORS_BY_LEVEL } from '../constants';
-import { capitaliseFirstLetter } from '../utils/capitalise';
-import { useEncounter } from '../contexts/Encounter';
+import { TopBar, PageContainer, ContentPane } from '../components';
+import { TriageTable } from '../components/TriageTable';
+import { TriageDashboard } from '../components/TriageDashboard';
+import { Colors } from '../constants';
 
-const PriorityText = styled.span`
-  color: white;
-  font-weight: bold;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  text-align: center;
+const Section = styled.div`
+  background: white;
+  border-bottom: 1px solid ${Colors.outline};
 `;
 
-const StatisticsRow = styled.div`
-  display: flex;
-  margin: 16px 0 30px 0;
-  filter: drop-shadow(2px 2px 25px rgba(0, 0, 0, 0.1));
-`;
-
-const ADMITTED_PRIORITY = {
-  color: '#bdbdbd',
-};
-
-const StatusDisplay = React.memo(({ encounterType, startTime }) => {
-  switch (encounterType) {
-    case 'triage':
-      return (
-        <>
-          <LiveDurationDisplay startTime={startTime} />
-          <small>{`Triage at ${moment(startTime).format('h:mma')}`}</small>
-        </>
-      );
-    case 'observation':
-      return 'Seen';
-    default:
-      return 'Admitted';
-  }
-});
-
-const PriorityDisplay = React.memo(({ startTime, encounterType, closedTime }) => (
-  <PriorityText>
-    <StatusDisplay encounterType={encounterType} startTime={startTime} closedTime={closedTime} />
-  </PriorityText>
-));
-
-function getRowColor({ encounterType, score }) {
-  switch (encounterType) {
-    case 'triage':
-      return TRIAGE_COLORS_BY_LEVEL[score];
-    default:
-      return ADMITTED_PRIORITY.color;
-  }
-}
-
-const COLUMNS = [
-  {
-    key: 'score',
-    title: 'Wait time',
-    cellColor: getRowColor,
-    accessor: row => (
-      <PriorityDisplay
-        score={row.score}
-        startTime={row.triageTime}
-        closedTime={row.closedTime}
-        encounterType={row.encounterType}
-      />
-    ),
-  },
-  { key: 'chiefComplaint', title: 'Chief complaint' },
-  { key: 'displayId' },
-  { key: 'patientName', title: 'Patient', accessor: row => `${row.firstName} ${row.lastName}` },
-  { key: 'dateOfBirth', accessor: row => <DateDisplay date={row.dateOfBirth} /> },
-  {
-    key: 'sex',
-    accessor: row => {
-      const sex = row.sex || '';
-      return capitaliseFirstLetter(sex);
-    },
-  },
-  { key: 'locationName', title: 'Location' },
-];
-
-const DumbTriageTable = React.memo(({ onViewEncounter, ...props }) => {
-  const { loadEncounter } = useEncounter();
-  const viewEncounter = useCallback(
-    async triage => {
-      await loadEncounter(triage.encounterId);
-      onViewEncounter(triage);
-    },
-    [loadEncounter, onViewEncounter],
-  );
-
-  return (
-    <DataFetchingTable
-      endpoint="triage"
-      columns={COLUMNS}
-      noDataMessage="No patients found"
-      onRowClick={viewEncounter}
-      {...props}
-    />
-  );
-});
-
-const TriageTable = connect(null, dispatch => ({
-  onViewEncounter: triage => dispatch(viewPatientEncounter(triage.patientId, triage.encounterId)),
-}))(DumbTriageTable);
-
-export const TriageListingView = React.memo(() => (
+export const TriageListingView = () => (
   <PageContainer>
-    <TopBar title="Emergency department" />
+    <TopBar title="Emergency patients" />
+    <Section>
+      <ContentPane>
+        <TriageDashboard />
+      </ContentPane>
+    </Section>
     <ContentPane>
-      <StatisticsRow>
-        <TriageStatisticsCard priorityLevel={1} />
-        <TriageStatisticsCard priorityLevel={2} />
-        <TriageStatisticsCard priorityLevel={3} />
-      </StatisticsRow>
       <TriageTable />
     </ContentPane>
   </PageContainer>
-));
+);

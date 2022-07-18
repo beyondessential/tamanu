@@ -37,16 +37,15 @@ export const CustomisableSearchBar = ({
     <SectionLabel>{title}</SectionLabel>
     <Form
       onSubmit={values => {
-        const params = values;
         // if filtering by date of birth exact, send the formatted date
         // to the server instead of the date object
-        if (params.dateOfBirthExact) {
-          params.dateOfBirthExact = moment(params.dateOfBirthExact)
-            .utc()
-            .format('YYYY-MM-DD');
-        }
+        const dateOfBirthExact = values.dateOfBirthExact
+          ? moment(values.dateOfBirthExact)
+              .utc()
+              .format('YYYY-MM-DD')
+          : undefined;
 
-        onSearch(params);
+        onSearch({ ...values, dateOfBirthExact });
       }}
       render={({ submitForm, clearForm }) => (
         <>
@@ -60,7 +59,7 @@ export const CustomisableSearchBar = ({
             {renderCheckField}
             <Box marginLeft="auto">
               <LargeOutlineButton style={{ marginRight: 12 }} onClick={clearForm}>
-                Clear Search
+                Clear search
               </LargeOutlineButton>
               <LargeButton onClick={submitForm} type="submit">
                 Search

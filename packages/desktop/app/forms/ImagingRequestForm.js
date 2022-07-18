@@ -2,11 +2,14 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import shortid from 'shortid';
-import { connect } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
+import { usePatientNavigation } from '../utils/usePatientNavigation';
+import { useEncounter } from '../contexts/Encounter';
 
 import { foreignKey } from '../utils/validation';
 import { encounterOptions } from '../constants';
 import { getImagingTypes, loadOptions } from '../store/options';
+import { reloadImagingRequest } from '../store';
 
 import {
   Form,
@@ -18,13 +21,11 @@ import {
   DateTimeField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
-import { Button } from '../components/Button';
+import { OutlinedButton } from '../components/Button';
 import { ButtonRow } from '../components/ButtonRow';
 import { DateDisplay } from '../components/DateDisplay';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { DropdownButton } from '../components/DropdownButton';
-import { viewImagingRequest } from '../store/imagingRequest';
-import { useEncounter } from '../contexts/Encounter';
 
 function getEncounterTypeLabel(type) {
   return encounterOptions.find(x => x.value === type).label;
@@ -36,40 +37,39 @@ function getEncounterLabel(encounter) {
   return `${encounterDate} (${encounterTypeLabel})`;
 }
 
-const FormSubmitActionDropdown = connect(null, dispatch => ({
-  onNavigateToImagingRequests: id => dispatch(viewImagingRequest(id, 'print')),
-}))(
-  React.memo(({ onNavigateToImagingRequests, requestId, encounter, submitForm }) => {
-    const { loadEncounter } = useEncounter();
-    const [awaitingPrintRedirect, setAwaitingPrintRedirect] = useState();
+const FormSubmitActionDropdown = React.memo(({ requestId, encounter, submitForm }) => {
+  const dispatch = useDispatch();
+  const { loadEncounter } = useEncounter();
+  const { navigateToImagingRequest } = usePatientNavigation();
+  const [awaitingPrintRedirect, setAwaitingPrintRedirect] = useState();
 
-    // Transition to print page as soon as we have the generated id
-    useEffect(() => {
-      (async () => {
-        if (awaitingPrintRedirect && requestId) {
-          await onNavigateToImagingRequests(requestId);
-        }
-      })();
-    }, [requestId, awaitingPrintRedirect, onNavigateToImagingRequests]);
+  // Transition to print page as soon as we have the generated id
+  useEffect(() => {
+    (async () => {
+      if (awaitingPrintRedirect && requestId) {
+        await dispatch(reloadImagingRequest(requestId));
+        navigateToImagingRequest(requestId);
+      }
+    })();
+  }, [requestId, awaitingPrintRedirect, dispatch, navigateToImagingRequest]);
 
-    const finalise = async data => {
-      await submitForm(data);
-      await loadEncounter(encounter.id);
-    };
-    const finaliseAndPrint = async data => {
-      await submitForm(data);
-      // We can't transition pages until the imaging req is fully submitted
-      setAwaitingPrintRedirect(true);
-    };
+  const finalise = async data => {
+    await submitForm(data);
+    await loadEncounter(encounter.id);
+  };
+  const finaliseAndPrint = async data => {
+    await submitForm(data);
+    // We can't transition pages until the imaging req is fully submitted
+    setAwaitingPrintRedirect(true);
+  };
 
-    const actions = [
-      { label: 'Finalise', onClick: finalise },
-      { label: 'Finalise & print', onClick: finaliseAndPrint },
-    ];
+  const actions = [
+    { label: 'Finalise', onClick: finalise },
+    { label: 'Finalise & print', onClick: finaliseAndPrint },
+  ];
 
-    return <DropdownButton actions={actions} />;
-  }),
-);
+  return <DropdownButton variant="contained" actions={actions} />;
+});
 
 class DumbImagingRequestForm extends React.PureComponent {
   componentDidMount() {
@@ -135,9 +135,7 @@ class DumbImagingRequestForm extends React.PureComponent {
           rows={3}
         />
         <ButtonRow>
-          <Button variant="contained" onClick={onCancel}>
-            Cancel
-          </Button>
+          <OutlinedButton onClick={onCancel}>Cancel</OutlinedButton>
           <FormSubmitActionDropdown
             requestId={requestId}
             encounter={encounter}
