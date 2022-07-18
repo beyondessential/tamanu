@@ -367,7 +367,6 @@ const getData = async (sequelize, parameters) => {
 
 const formatJsonValue = value => {
   if (Array.isArray(value)) {
-    console.log(value);
     return value.map(formatJsonValue).join('; ');
   }
   if (typeof value === 'object' && !(value instanceof Date) && value !== null) {
