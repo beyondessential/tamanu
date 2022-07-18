@@ -1,10 +1,12 @@
 import { promises } from 'fs';
 import qs from 'qs';
 
-import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
+import { buildAbilityForUser } from 'shared/permissions/buildAbility';
+import { VERSION_COMPATIBILITY_ERRORS, SERVER_TYPES } from 'shared/constants';
 import { LOCAL_STORAGE_KEYS } from '../constants';
+import { setForbiddenError } from '../store';
 
-const { HOST, TOKEN, LOCALISATION, SERVER } = LOCAL_STORAGE_KEYS;
+const { HOST, TOKEN, LOCALISATION, SERVER, PERMISSIONS } = LOCAL_STORAGE_KEYS;
 
 const getResponseJsonSafely = async response => {
   try {
@@ -62,20 +64,23 @@ function restoreFromLocalStorage() {
   const token = localStorage.getItem(TOKEN);
   const localisation = safeGetStoredJSON(LOCALISATION);
   const server = safeGetStoredJSON(SERVER);
+  const permissions = safeGetStoredJSON(PERMISSIONS);
 
-  return { token, localisation, server };
+  return { token, localisation, server, permissions };
 }
 
-function saveToLocalStorage({ token, localisation, server }) {
+function saveToLocalStorage({ token, localisation, server, permissions }) {
   localStorage.setItem(TOKEN, token);
   localStorage.setItem(LOCALISATION, JSON.stringify(localisation));
   localStorage.setItem(SERVER, JSON.stringify(server));
+  localStorage.setItem(PERMISSIONS, JSON.stringify(permissions));
 }
 
 function clearLocalStorage() {
   localStorage.removeItem(TOKEN);
   localStorage.removeItem(LOCALISATION);
   localStorage.removeItem(SERVER);
+  localStorage.removeItem(PERMISSIONS);
 }
 
 export class TamanuApi {
@@ -85,11 +90,16 @@ export class TamanuApi {
     this.authHeader = null;
     this.onVersionIncompatible = null;
     this.user = null;
+    this.reduxStore = null;
 
     const host = window.localStorage.getItem(HOST);
     if (host) {
       this.setHost(host);
     }
+  }
+
+  setReduxStore(store) {
+    this.reduxStore = store;
   }
 
   setHost(host) {
@@ -109,26 +119,37 @@ export class TamanuApi {
   }
 
   async restoreSession() {
-    const { token, localisation, server } = restoreFromLocalStorage();
+    const { token, localisation, server, permissions } = restoreFromLocalStorage();
     if (!token) {
       throw new Error('No stored session found.');
     }
     this.setToken(token);
     const user = await this.get('user/me');
-    return { user, token, localisation, server };
+    this.user = user;
+    const ability = buildAbilityForUser(user, permissions);
+
+    return { user, token, localisation, server, ability };
   }
 
   async login(host, email, password) {
     this.setHost(host);
-    const response = await this.post('login', { email, password });
-    const { token, localisation, server } = response;
-    saveToLocalStorage({ token, localisation, server });
+    const response = await this.post('login', { email, password }, { returnResponse: true });
+    const serverType = response.headers.get('X-Tamanu-Server');
+    if (![SERVER_TYPES.LAN, SERVER_TYPES.SYNC].includes(serverType)) {
+      throw new Error(`Tamanu server type '${serverType}' is not supported.`);
+    }
+
+    const { token, localisation, server = {}, permissions } = await response.json();
+    server.type = serverType;
+    saveToLocalStorage({ token, localisation, server, permissions });
     this.setToken(token);
     this.lastRefreshed = Date.now();
 
     const user = await this.get('user/me');
     this.user = user;
-    return { user, token, localisation, server };
+    const ability = buildAbilityForUser(user, permissions);
+
+    return { user, token, localisation, server, ability };
   }
 
   async requestPasswordReset(host, email) {
@@ -160,7 +181,7 @@ export class TamanuApi {
     if (!this.host) {
       throw new Error("TamanuApi can't be used until the host is set");
     }
-    const { headers, ...otherConfig } = config;
+    const { headers, returnResponse = false, ...otherConfig } = config;
     const queryString = qs.stringify(query || {});
     const url = `${this.prefix}/${endpoint}${query ? `?${queryString}` : ''}`;
     const response = await fetchOrThrowIfUnavailable(url, {
@@ -179,13 +200,21 @@ export class TamanuApi {
         this.refreshToken();
       }
 
+      if (returnResponse) {
+        return response;
+      }
       return response.json();
     }
 
     const { error } = await getResponseJsonSafely(response);
 
+    // handle forbidden error and trigger catch all modal
+    if (response.status === 403 && error && this.reduxStore) {
+      this.reduxStore.dispatch(setForbiddenError(error));
+    }
+
     // handle auth expiring
-    if ([401, 403].includes(response.status) && this.onAuthFailure) {
+    if (response.status === 401 && this.onAuthFailure) {
       clearLocalStorage();
       this.onAuthFailure('Your session has expired. Please log in again.');
     }
@@ -203,11 +232,11 @@ export class TamanuApi {
     throw new Error(error?.message || response.status);
   }
 
-  async get(endpoint, query) {
-    return this.fetch(endpoint, query, { method: 'GET' });
+  async get(endpoint, query, options = {}) {
+    return this.fetch(endpoint, query, { method: 'GET', ...options });
   }
 
-  async postWithFileUpload(endpoint, filePath, body) {
+  async postWithFileUpload(endpoint, filePath, body, options = {}) {
     const fileData = await promises.readFile(filePath);
     const blob = new Blob([fileData]);
 
@@ -223,30 +252,33 @@ export class TamanuApi {
     return this.fetch(endpoint, null, {
       method: 'POST',
       body: formData,
+      ...options,
     });
   }
 
-  async post(endpoint, body) {
+  async post(endpoint, body, options = {}) {
     return this.fetch(endpoint, null, {
       method: 'POST',
       body: body && JSON.stringify(body),
       headers: {
         'Content-Type': 'application/json',
       },
+      ...options,
     });
   }
 
-  async put(endpoint, body) {
+  async put(endpoint, body, options = {}) {
     return this.fetch(endpoint, null, {
       method: 'PUT',
       body: body && JSON.stringify(body),
       headers: {
         'Content-Type': 'application/json',
       },
+      ...options,
     });
   }
 
-  async delete(endpoint, query) {
-    return this.fetch(endpoint, query, { method: 'DELETE' });
+  async delete(endpoint, query, options = {}) {
+    return this.fetch(endpoint, query, { method: 'DELETE', ...options });
   }
 }

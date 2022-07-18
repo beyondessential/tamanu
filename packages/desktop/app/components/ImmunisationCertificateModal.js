@@ -10,13 +10,13 @@ import { useLocalisation } from '../contexts/Localisation';
 
 export const ImmunisationCertificateModal = ({ open, onClose, patient }) => {
   const api = useApi();
-  const [immunisations, setImmunisations] = useState([]);
+  const [vaccinations, setVaccinations] = useState([]);
   const { getLocalisation } = useLocalisation();
   const { watermark, logo, footerImg, printedBy } = useCertificate();
 
   useEffect(() => {
     api.get(`patient/${patient.id}/administeredVaccines`).then(response => {
-      setImmunisations(response.data);
+      setVaccinations(response.data);
     });
   }, [api, patient.id]);
 
@@ -46,7 +46,7 @@ export const ImmunisationCertificateModal = ({ open, onClose, patient }) => {
       <PDFViewer id="vaccine-certificate">
         <VaccineCertificate
           patient={patient}
-          vaccinations={immunisations}
+          vaccinations={vaccinations}
           watermarkSrc={watermark}
           logoSrc={logo}
           signingSrc={footerImg}

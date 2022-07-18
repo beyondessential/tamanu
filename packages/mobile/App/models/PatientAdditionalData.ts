@@ -1,5 +1,5 @@
 import { Entity, Column, RelationId, ManyToOne, BeforeUpdate, BeforeInsert } from 'typeorm/browser';
-import { BaseModel, IdRelation } from './BaseModel';
+import { BaseModel, FindMarkedForUploadOptions, IdRelation } from './BaseModel';
 import { IPatientAdditionalData } from '~/types';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { Patient } from './Patient';
@@ -130,5 +130,20 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
       parent.markedForSync = true;
       await parent.save();
     }
+  }
+
+  static async findMarkedForUpload(
+    opts: FindMarkedForUploadOptions,
+  ): Promise<BaseModel[]> {
+    const patientId = opts.channel.match(/^patient\/(.*)\/additionalData$/)[1];
+    if (!patientId) {
+      throw new Error(`Could not extract patientId from ${opts.channel}`);
+    }
+
+    const records = await this.findMarkedForUploadQuery(opts)
+      .andWhere('patientId = :patientId', { patientId })
+      .getMany();
+
+    return records as BaseModel[];
   }
 }

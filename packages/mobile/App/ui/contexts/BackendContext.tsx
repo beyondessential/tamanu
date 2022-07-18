@@ -21,11 +21,13 @@ export const BackendProvider = ({ Component }): ReactElement => {
         setInitialised(true);
       });
     })();
-    return () => backend.stopSyncService();
+    return () => { 
+      backend.stopSyncService(); 
+    };
   }, [backend]);
 
   if (!initialised) {
-    return <LoadingScreen text="Connecting to database..." />;
+    return <LoadingScreen />;
   }
 
   return (

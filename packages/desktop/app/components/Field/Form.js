@@ -1,7 +1,9 @@
 import React from 'react';
 import { Formik } from 'formik';
 import PropTypes from 'prop-types';
+import { ValidationError } from 'yup';
 import { Typography } from '@material-ui/core';
+
 import { flattenObject } from '../../utils';
 
 import { Dialog } from '../Dialog';
@@ -63,23 +65,28 @@ export class Form extends React.PureComponent {
     if (Object.entries(formErrors).length) {
       this.setErrors(formErrors);
       setSubmitting(false);
-      return;
+      throw new ValidationError('Form was not filled out correctly');
     }
 
     // submission phase
-    const { onSubmit } = this.props;
+    const { onSubmit, onSuccess } = this.props;
     try {
-      await onSubmit(values, {
+      const result = await onSubmit(values, {
         ...rest,
         setErrors: this.setErrors,
       });
+      if (onSuccess) {
+        onSuccess(result);
+      }
+      return result;
     } catch (e) {
       // eslint-disable-next-line no-console
-      console.error('Error submitting form: ', e);
+      console.error('Error during form submission: ', e);
       this.setErrors([e.message]);
+      throw e;
+    } finally {
+      setSubmitting(false);
     }
-
-    setSubmitting(false);
   };
 
   renderFormContents = ({
@@ -158,6 +165,7 @@ export class Form extends React.PureComponent {
 
 Form.propTypes = {
   onError: PropTypes.func,
+  onSuccess: PropTypes.func,
   onSubmit: PropTypes.func.isRequired,
   render: PropTypes.func.isRequired,
   showInlineErrorsOnly: PropTypes.bool,
@@ -167,5 +175,6 @@ Form.propTypes = {
 Form.defaultProps = {
   showInlineErrorsOnly: false,
   onError: null,
+  onSuccess: null,
   initialValues: {},
 };

@@ -11,12 +11,11 @@ const FieldWrapper = styled.div`
 
 const MainField = styled(NumberInput)`
   flex: 1;
+  margin-right: 6px;
 `;
 
 const Select = styled(TextInput)`
-  width: 95px;
-  margin-left: -2px;
-  margin-right: -2px;
+  width: 98px;
 
   .MuiSvgIcon-root {
     color: ${props => props.theme.palette.grey['400']};
@@ -35,10 +34,11 @@ const HiddenField = props => <HiddenInput {...props} type="hidden" />;
 
 const UNIT_OPTIONS = [
   { unit: 'minutes', minutes: 1 },
-  { unit: 'hours', minutes: 1 * 60 },
-  { unit: 'days', minutes: 1 * 60 * 24 },
-  { unit: 'weeks', minutes: 1 * 60 * 24 * 7 },
-  { unit: 'months', minutes: 1 * 60 * 24 * 30 },
+  { unit: 'hours', minutes: 60 },
+  { unit: 'days', minutes: 60 * 24 },
+  { unit: 'weeks', minutes: 60 * 24 * 7 },
+  { unit: 'months', minutes: 60 * 24 * 30 },
+  { unit: 'years', minutes: 60 * 24 * 365 },
 ];
 
 export const TimeWithUnitInput = ({

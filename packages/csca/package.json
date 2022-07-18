@@ -1,6 +1,6 @@
 {
   "name": "csca",
-  "version": "1.16.0",
+  "version": "1.18.2",
   "description": "CSCA tooling for Tamanu desktop app",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
@@ -11,7 +11,7 @@
     "build": "rm -rf build; tsc --build tsconfig.json",
     "test": "yarn build",
     "cli": "yarn build && node build",
-    "lint": "eslint --fix src/**/*",
+    "lint": "eslint src/**/*",
     "lint-stats": "eslint --format ../scripts/eslint-stats.js src/**/*"
   },
   "devDependencies": {
@@ -35,6 +35,7 @@
     "commander": "^9.0.0",
     "date-fns": "^2.19.0",
     "prompts": "^2.0.0",
-    "world-countries": "^4.0.0"
+    "world-countries": "^4.0.0",
+    "yup": "^0.32.11"
   }
 }

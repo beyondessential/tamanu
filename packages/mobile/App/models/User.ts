@@ -2,6 +2,7 @@ import { Entity, Column, Index, OneToMany } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { Referral } from './Referral';
 import { IUser } from '~/types';
+import { AdministeredVaccine } from './AdministeredVaccine';
 import { LabRequest } from './LabRequest';
 
 @Entity('user')
@@ -21,14 +22,14 @@ export class User extends BaseModel implements IUser {
   @Column()
   role: string;
 
-  @OneToMany(() => Referral, referral => referral.practitioner)
+  @OneToMany(() => Referral, (referral) => referral.practitioner)
   referrals: Referral[];
 
-  @OneToMany(() => LabRequest, labRequest => labRequest.requestedBy)
+  @OneToMany(() => LabRequest, (labRequest) => labRequest.requestedBy)
   labRequests: LabRequest[];
 
-  static excludedSyncColumns: string[] = [
-    ...BaseModel.excludedSyncColumns,
-    'localPassword',
-  ];
+  @OneToMany(() => AdministeredVaccine, (administeredVaccine) => administeredVaccine.recorder)
+  recordedVaccines: AdministeredVaccine[];
+
+  static excludedSyncColumns: string[] = [...BaseModel.excludedSyncColumns, 'localPassword'];
 }

@@ -1,7 +1,7 @@
 import { program } from 'commander';
 
 import { version } from '../package.json';
-import { create, sign, crlUpload, revoke } from './commands';
+import { create, sign, crlUpload, reconfig, revoke } from './commands';
 
 program
   .version(version)
@@ -9,6 +9,7 @@ program
   .addCommand(create)
   .addCommand(sign)
   .addCommand(crlUpload)
+  .addCommand(reconfig)
   .addCommand(revoke)
   .parseAsync(process.argv)
   .catch(e => {

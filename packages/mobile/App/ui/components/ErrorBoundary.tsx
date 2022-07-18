@@ -4,6 +4,7 @@ import { theme } from '~/ui/styled/theme';
 import { Popup } from 'popup-ui';
 import { useNavigation } from '@react-navigation/native';
 import { Routes } from '/helpers/routes';
+import { StackNavigationProp } from '@react-navigation/stack';
 
 interface ErrorComponentProps {
   error: string,
@@ -22,7 +23,7 @@ interface ErrorBoundaryState {
 }
 
 const FullScreenErrorModal = ({ resetRoute = Routes.HomeStack.Index }) => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<StackNavigationProp<any>>();
 
   Popup.show({
     type: 'Danger',

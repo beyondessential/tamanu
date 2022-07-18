@@ -87,7 +87,7 @@ export const DataFetchingMedicationTable = () => {
   const { loadEncounter } = useEncounter();
   const onMedicationSelect = useCallback(
     async medication => {
-      await loadEncounter(medication.encounter.id);
+      await loadEncounter(medication.encounter.id, true);
     },
     [loadEncounter],
   );

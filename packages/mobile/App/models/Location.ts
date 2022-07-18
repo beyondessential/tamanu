@@ -4,6 +4,7 @@ import { ILocation } from '../types';
 import { BaseModel } from './BaseModel';
 import { Encounter } from './Encounter';
 import { Facility } from './Facility';
+import { AdministeredVaccine } from './AdministeredVaccine';
 
 @Entity('location')
 export class Location extends BaseModel implements ILocation {
@@ -19,4 +20,7 @@ export class Location extends BaseModel implements ILocation {
 
   @OneToMany(() => Encounter, ({ location }) => location)
   encounters: Location[];
+
+  @OneToMany(() => AdministeredVaccine, (administeredVaccine) => administeredVaccine.location)
+  administeredVaccines: AdministeredVaccine[];
 }
