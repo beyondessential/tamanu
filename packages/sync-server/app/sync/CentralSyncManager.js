@@ -28,8 +28,8 @@ export class CentralSyncManager {
     // work out if any patients were newly marked for sync
     const { incomingChanges } = this.sessions[sessionIndex];
     const patientIdsForFullSync = incomingChanges
-      .filter(c => c.recordType === 'patient_facility' && !c.isDeleted)
-      .map(c => c.data.patient_id);
+      .filter(c => c.recordType === 'patient_facilities' && !c.isDeleted)
+      .map(c => c.data.patientId);
 
     // get changes from all time associated with patients that were marked for sync in this session
     const fullSyncChanges = await snapshotOutgoingChanges(
@@ -40,7 +40,7 @@ export class CentralSyncManager {
 
     // get changes since the last successful sync for all other synced patients and independent
     // record types
-    const patientFacilities = await models.PatientFacility.find({ where: { facilityId } });
+    const patientFacilities = await models.PatientFacility.findAll({ where: { facilityId } });
     const patientIdsForRegularSync = patientFacilities
       .map(p => p.patientId)
       .filter(patientId => !patientIdsForFullSync.includes(patientId));

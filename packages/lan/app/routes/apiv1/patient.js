@@ -62,6 +62,7 @@ patientRoute.put(
       db,
       models: { Patient, PatientAdditionalData, PatientFacility },
       params,
+      syncManager,
     } = req;
     req.checkPermission('read', 'Patient');
     const patient = await Patient.findByPk(params.id);
@@ -75,6 +76,7 @@ patientRoute.put(
         patientId: patient.id,
         facilityId: serverFacilityId,
       });
+      syncManager.triggerSync();
     } else {
       req.checkPermission('write', patient);
 

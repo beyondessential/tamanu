@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize';
+import { Sequelize, Op } from 'sequelize';
 import moment from 'moment';
 
 import {
@@ -186,7 +186,7 @@ export class Encounter extends Model {
   static buildPatientFilter(patientIds) {
     return {
       where: {
-        patientId: { in: patientIds },
+        patientId: { [Op.in]: patientIds },
       },
     };
   }

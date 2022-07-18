@@ -6,18 +6,23 @@ const { readOnly } = config.sync;
 const COLUMNS_EXCLUDED_FROM_SYNC = ['createdAt', 'updatedAt', 'markedForSync'];
 
 const snapshotChangesForModel = async (model, sinceSessionIndex, patientIds) => {
-  const where = {
-    updatedSinceSession: { [Op.gte]: sinceSessionIndex }, // updatedSinceSession is set on all creates, updates, and soft deletes
+  const shouldFilterByPatient = !!model.buildPatientFilter && patientIds;
+  if (shouldFilterByPatient && patientIds.length === 0) {
+    return [];
+  }
+  const patientFilter = shouldFilterByPatient && model.buildPatientFilter(patientIds);
+
+  const baseFilter = {
+    where: { updatedSinceSession: { [Op.gte]: sinceSessionIndex } },
   };
-  const patientFilter =
-    patientIds && model.buildPatientFilter && model.buildPatientFilter(patientIds);
+
   const recordsChanged = await model.findAll(
     patientFilter
       ? {
           ...patientFilter,
-          where: { ...where, ...patientFilter.where },
+          where: { ...baseFilter.where, ...patientFilter.where },
         }
-      : { where },
+      : baseFilter,
   );
 
   const sanitizeRecord = record =>

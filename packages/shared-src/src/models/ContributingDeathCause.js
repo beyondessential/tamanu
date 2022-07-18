@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize';
+import { Sequelize, Op } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
@@ -39,11 +39,21 @@ export class ContributingDeathCause extends Model {
   static initRelations(models) {
     this.belongsTo(models.PatientDeathData, {
       foreignKey: 'patientDeathDataId',
+      as: 'patientDeathData',
     });
 
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'conditionId',
       as: 'condition',
     });
+  }
+
+  static buildPatientFilter(patientIds) {
+    return {
+      where: {
+        '$patientDeathData.patient_id$': { [Op.in]: patientIds },
+      },
+      include: ['patientDeathData'],
+    };
   }
 }

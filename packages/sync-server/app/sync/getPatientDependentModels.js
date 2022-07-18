@@ -1,3 +1,5 @@
 export function getPatientDependentModels(models) {
-  return models.filter(m => !!m.buildPatientFilter);
+  return Object.fromEntries(
+    Object.entries(models).filter(([modelName, model]) => !!model.buildPatientFilter),
+  );
 }

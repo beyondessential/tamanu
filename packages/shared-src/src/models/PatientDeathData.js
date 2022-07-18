@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize';
+import { Sequelize, Op } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
@@ -111,7 +111,7 @@ export class PatientDeathData extends Model {
   static buildPatientFilter(patientIds) {
     return {
       where: {
-        patientId: { in: patientIds },
+        patientId: { [Op.in]: patientIds },
       },
     };
   }
