@@ -18,7 +18,7 @@ module.exports = {
 
       // fill it with some initial values
       await query.sequelize.query(`
-        UPDATE ${table} SET updated_since_session = 1;
+        UPDATE ${table} SET updated_since_session = 0;
       `);
 
       // add a not null constraint

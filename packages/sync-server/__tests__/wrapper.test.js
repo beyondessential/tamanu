@@ -130,9 +130,7 @@ describe('sqlWrapper', () => {
           const instances = await store.sequelize.channelRouter(channel, model =>
             model.findAll({ paranoid: false }),
           );
-          expect(
-            omit(instances.find(r => r.id === instance.id).get({ plain: true }), ['markedForSync']),
-          ).toEqual({
+          expect(instances.find(r => r.id === instance.id).get({ plain: true })).toEqual({
             ...instance,
             createdAt: expect.any(Date),
             updatedAt: expect.any(Date),

@@ -5,7 +5,7 @@ import { log } from 'shared/services/logging';
 
 import { checkConfig } from '../checkConfig';
 import { initDatabase, performDatabaseIntegrityChecks } from '../database';
-import { addPatientMarkForSyncHook, FacilitySyncManager, CentralServerConnection } from '../sync';
+import { FacilitySyncManager, CentralServerConnection } from '../sync';
 import { createApp } from '../createApp';
 import { startScheduledTasks } from '../tasks';
 import { listenForServerQueries } from '../discovery';
@@ -49,8 +49,6 @@ async function serve({ skipMigrationCheck }) {
   listenForServerQueries();
 
   startScheduledTasks(context);
-
-  addPatientMarkForSyncHook(context);
 }
 
 export const serveCommand = new Command('serve')
