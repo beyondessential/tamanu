@@ -16,7 +16,7 @@ const saveChangesForModel = async (model, changes) => {
   const idsForUpsert = changes.filter(c => !c.isDeleted && c.data.id).map(c => c.data.id);
   const existing = await model.findByIds(idsForUpsert);
   const idToUpdatedSinceSession = Object.fromEntries(
-    existing.map(e => [e.id, e.updatedSinceSession]),
+    existing.map(e => [e.id, e.updatedAtSyncIndex]),
   );
   const recordsForCreate = changes
     .filter(c => !c.isDeleted && !idToUpdatedSinceSession[c.data.id])
@@ -31,7 +31,7 @@ const saveChangesForModel = async (model, changes) => {
         !!idToUpdatedSinceSession[r.data.id] &&
         // perform basic conflict resolution using last write wins, with "last" defined using sync
         // session index as a system-wide logical clock
-        r.data.updatedSinceSession > idToUpdatedSinceSession[r.data.id],
+        r.data.updatedAtSyncIndex > idToUpdatedSinceSession[r.data.id],
     )
     .map(({ data }) => {
       // validateRecord(data, null); TODO add in validation

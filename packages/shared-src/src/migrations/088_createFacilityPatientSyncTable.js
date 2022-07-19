@@ -23,7 +23,7 @@ module.exports = {
           type: Sequelize.DATE,
           defaultValue: Sequelize.NOW,
         },
-        updated_since_session: {
+        updated_at_sync_index: {
           type: Sequelize.BIGINT,
         },
         facility_id: {
@@ -51,18 +51,18 @@ module.exports = {
     );
 
     await query.sequelize.query(`
-      CREATE TRIGGER set_patient_facilities_updated_since_session_on_insert
+      CREATE TRIGGER set_patient_facilities_updated_at_sync_index_on_insert
       BEFORE INSERT ON patient_facilities
       FOR EACH ROW
-      WHEN (NEW.updated_since_session IS NULL) -- i.e. when an override value has not been passed in
-      EXECUTE FUNCTION set_updated_since_session();
+      WHEN (NEW.updated_at_sync_index IS NULL) -- i.e. when an override value has not been passed in
+      EXECUTE FUNCTION set_updated_at_sync_index();
     `);
     await query.sequelize.query(`
-      CREATE TRIGGER set_patient_facilities_updated_since_session_on_update
+      CREATE TRIGGER set_patient_facilities_updated_at_sync_index_on_update
       BEFORE UPDATE ON patient_facilities
       FOR EACH ROW
-      WHEN (NEW.updated_since_session IS NULL OR NEW.updated_since_session = OLD.updated_since_session) -- i.e. when an override value has not been passed in
-      EXECUTE FUNCTION set_updated_since_session();
+      WHEN (NEW.updated_at_sync_index IS NULL OR NEW.updated_at_sync_index = OLD.updated_at_sync_index) -- i.e. when an override value has not been passed in
+      EXECUTE FUNCTION set_updated_at_sync_index();
     `);
   },
   down: async query => {

@@ -62,7 +62,7 @@ export class CentralSyncManager {
       const sameIncomingChange = incomingChangesByUniqueKey[`${c.recordType}_${c.data.id}`];
       if (
         sameIncomingChange &&
-        sameIncomingChange.data.updatedSinceSession === c.data.updatedSinceSession
+        sameIncomingChange.data.updatedAtSyncIndex === c.data.updatedAtSyncIndex
       ) {
         return false;
       }

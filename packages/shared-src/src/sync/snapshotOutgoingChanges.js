@@ -13,7 +13,7 @@ const snapshotChangesForModel = async (model, sinceSessionIndex, patientIds) => 
   const patientFilter = shouldFilterByPatient && model.buildPatientFilter(patientIds);
 
   const baseFilter = {
-    where: { updatedSinceSession: { [Op.gte]: sinceSessionIndex } },
+    where: { updatedAtSyncIndex: { [Op.gte]: sinceSessionIndex } },
   };
 
   const recordsChanged = await model.findAll(
