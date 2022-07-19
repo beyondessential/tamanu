@@ -197,7 +197,7 @@ export class Encounter extends PatientLinkedModel {
       .toDate();
   }
 
-  static sanitizeForSyncServer(values) {
+  static sanitizeForCentralServer(values) {
     // if the encounter is for an outpatient and started before today, it should be closed
     if (this.checkNeedsAutoDischarge(values)) {
       return { ...values, endDate: this.getAutoDischargeEndDate(values) };

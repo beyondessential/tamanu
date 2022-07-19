@@ -55,7 +55,10 @@ export class Model extends sequelize.Model {
     return references.reduce((allValues, referenceName) => {
       const { [referenceName]: referenceVal, ...otherValues } = allValues;
       if (!referenceVal) return allValues;
-      return { ...otherValues, [firstLetterLowercase(referenceName)]: referenceVal.dataValues };
+      return {
+        ...otherValues,
+        [firstLetterLowercase(referenceName)]: referenceVal.dataValues,
+      };
     }, values);
   }
 
@@ -88,5 +91,15 @@ export class Model extends sequelize.Model {
     return this.findAll({
       where: { id: { [Op.in]: ids } },
     });
+  }
+
+  static sanitizeForCentralServer(values) {
+    // implement on the specific model if needed
+    return values;
+  }
+
+  static sanitizeForFacilityServer(values) {
+    // implement on the specific model if needed
+    return values;
   }
 }

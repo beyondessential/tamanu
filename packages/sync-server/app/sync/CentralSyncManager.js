@@ -96,6 +96,7 @@ export class CentralSyncManager {
         sequelize,
         getModelsForDirection(models, SYNC_DIRECTIONS.FACILITY_TO_CENTRAL),
         this.sessions[sessionIndex].incomingChanges,
+        true,
       );
     }
   }

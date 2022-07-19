@@ -10,7 +10,11 @@ const saveUpdates = async (model, records) =>
 const saveDeletes = async (model, recordIds) =>
   model.destroy({ where: { id: { [Op.in]: recordIds } } });
 
-const saveChangesForModel = async (model, changes) => {
+const saveChangesForModel = async (model, changes, isCentralServer) => {
+  const sanitizeData = isCentralServer
+    ? model.sanitizeForCentralServer
+    : model.sanitizeForFacilityServer;
+
   // split changes into create, update, delete
   const idsForDelete = changes.filter(c => c.isDeleted).map(c => c.data.id);
   const idsForUpsert = changes.filter(c => !c.isDeleted && c.data.id).map(c => c.data.id);
@@ -22,7 +26,7 @@ const saveChangesForModel = async (model, changes) => {
     .filter(c => !c.isDeleted && !idToUpdatedSinceSession[c.data.id])
     .map(({ data }) => {
       // validateRecord(data, null); TODO add in validation
-      return data;
+      return sanitizeData(data);
     });
   const recordsForUpdate = changes
     .filter(
@@ -35,7 +39,7 @@ const saveChangesForModel = async (model, changes) => {
     )
     .map(({ data }) => {
       // validateRecord(data, null); TODO add in validation
-      return data;
+      return sanitizeData(data);
     });
 
   // run each import process
@@ -44,13 +48,13 @@ const saveChangesForModel = async (model, changes) => {
   await saveDeletes(model, idsForDelete);
 };
 
-export const saveIncomingChanges = async (sequelize, models, changes) => {
+export const saveIncomingChanges = async (sequelize, models, changes, isCentralServer = false) => {
   const sortedModels = sortInDependencyOrder(models);
   const changesByRecordType = groupBy(changes, c => c.recordType);
 
   await sequelize.transaction(async () => {
     for (const model of sortedModels) {
-      await saveChangesForModel(model, changesByRecordType[model.tableName] || []);
+      await saveChangesForModel(model, changesByRecordType[model.tableName] || [], isCentralServer);
     }
   });
 };

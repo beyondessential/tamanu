@@ -22,7 +22,7 @@ export class Asset extends Model {
    * This is only used when inserting asset manually through RestClient
    * Asset is CENTRAL_TO_FACILITY, i.e. we don't sync asset up from devices to sync servers.
    */
-  static sanitizeForSyncServer({ data, ...restOfValues }) {
+  static sanitizeForCentralServer({ data, ...restOfValues }) {
     // base64
     if (typeof data === 'string') {
       return { ...restOfValues, data: Buffer.from(data, 'base64') };
@@ -30,7 +30,7 @@ export class Asset extends Model {
     return { ...restOfValues, data: Buffer.from(data) };
   }
 
-  static sanitizeForSyncClient({ data, ...restOfValues }) {
+  static sanitizeForFacilityServer({ data, ...restOfValues }) {
     // Need to do this to import blob data properly when pulling,
     // otherwise blob data will be truncated
     return { ...restOfValues, data: Buffer.from(data) };

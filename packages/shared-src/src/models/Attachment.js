@@ -18,7 +18,7 @@ export class Attachment extends Model {
     );
   }
 
-  static sanitizeForSyncServer({ data, ...restOfValues }) {
+  static sanitizeForCentralServer({ data, ...restOfValues }) {
     return { ...restOfValues, data: Buffer.from(data, 'base64') };
   }
 }
