@@ -1,6 +1,6 @@
 import { getModelsForDirection, snapshotOutgoingChanges, saveIncomingChanges } from 'shared/sync';
 import { SYNC_DIRECTIONS } from 'shared/constants';
-import { getPatientDependentModels } from './getPatientDependentModels';
+import { getPatientLinkedModels } from './getPatientLinkedModels';
 
 export class CentralSyncManager {
   sessions = {};
@@ -33,7 +33,7 @@ export class CentralSyncManager {
 
     // get changes from all time associated with patients that were marked for sync in this session
     const fullSyncChanges = await snapshotOutgoingChanges(
-      getPatientDependentModels(models),
+      getPatientLinkedModels(models),
       0,
       patientIdsForFullSync,
     );
