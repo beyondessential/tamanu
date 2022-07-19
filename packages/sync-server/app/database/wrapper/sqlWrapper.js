@@ -1,4 +1,4 @@
-import { Sequelize, Op } from 'sequelize';
+import { Sequelize } from 'sequelize';
 import { initDatabase } from 'shared/services/database';
 
 export class SqlWrapper {
