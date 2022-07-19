@@ -23,6 +23,9 @@
     "dataset": "tamanu-general",
     "enabled": true
   },
+  "sync": {
+    "readOnly": false
+  },
   "loadshedder": {
     // paths are checked sequentially until a path matches a prefix
     // (e.g. the path `/v1/sync/patient` would match the prefix `/v1/sync/`)
