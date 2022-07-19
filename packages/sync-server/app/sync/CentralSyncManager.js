@@ -24,7 +24,7 @@ export class CentralSyncManager {
     delete this.sessions[sessionIndex];
   }
 
-  async setPullFilter(sessionIndex, { sinceSessionIndex, facilityId }, { models }) {
+  async setPullFilter(sessionIndex, { fromSessionIndex, facilityId }, { models }) {
     // work out if any patients were newly marked for sync
     const { incomingChanges } = this.sessions[sessionIndex];
     const patientIdsForFullSync = incomingChanges
@@ -46,7 +46,7 @@ export class CentralSyncManager {
       .filter(patientId => !patientIdsForFullSync.includes(patientId));
     const regularChanges = await snapshotOutgoingChanges(
       getModelsForDirection(models, SYNC_DIRECTIONS.CENTRAL_TO_FACILITY),
-      sinceSessionIndex,
+      fromSessionIndex,
       patientIdsForRegularSync,
     );
 

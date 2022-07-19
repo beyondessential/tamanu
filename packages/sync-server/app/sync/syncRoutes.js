@@ -18,21 +18,21 @@ syncRoutes.post(
   }),
 );
 
-// set the "sinceSessionIndex" for a pull session
+// set the "fromSessionIndex" for a pull session
 syncRoutes.post(
   '/:sessionIndex/pullFilter',
   asyncHandler(async (req, res) => {
     const { params, body, store } = req;
-    const { sinceSessionIndex: sinceSessionIndexString, facilityId } = body;
-    const sinceSessionIndex = parseInt(sinceSessionIndexString, 10);
-    if (isNaN(sinceSessionIndex)) {
+    const { fromSessionIndex: fromSessionIndexString, facilityId } = body;
+    const fromSessionIndex = parseInt(fromSessionIndexString, 10);
+    if (isNaN(fromSessionIndex)) {
       throw new Error(
-        'Must provide "sinceSessionIndex" when creating a pull filter, even if it is 0',
+        'Must provide "fromSessionIndex" when creating a pull filter, even if it is 0',
       );
     }
     const count = await syncManager.setPullFilter(
       params.sessionIndex,
-      { sinceSessionIndex, facilityId },
+      { fromSessionIndex, facilityId },
       store,
     );
     res.json(count);
