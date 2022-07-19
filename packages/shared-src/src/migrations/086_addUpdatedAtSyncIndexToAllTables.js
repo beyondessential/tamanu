@@ -1,6 +1,6 @@
 import { INTEGER } from 'sequelize';
 
-async function getSyncingTables(sequelize) {
+async function getAllTables(sequelize) {
   const [tables] = await sequelize.query(
     `SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = 'public';`,
   );
@@ -9,7 +9,7 @@ async function getSyncingTables(sequelize) {
 
 module.exports = {
   up: async query => {
-    const syncingTables = await getSyncingTables(query.sequelize);
+    const syncingTables = await getAllTables(query.sequelize);
     for (const table of syncingTables) {
       // add the updated_at_sync_index column
       await query.addColumn(table, 'updated_at_sync_index', {
@@ -46,7 +46,7 @@ module.exports = {
     }
   },
   down: async query => {
-    const syncingTables = await getSyncingTables(query.sequelize);
+    const syncingTables = await getAllTables(query.sequelize);
     for (const table of syncingTables) {
       await query.sequelize.query(`
         DROP TRIGGER set_${table}_updated_at_sync_index_on_insert ON ${table};
