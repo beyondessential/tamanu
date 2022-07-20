@@ -183,7 +183,7 @@ with
           'Note type', note_type,
           'Content', "content",
           'Note date', to_char("date", 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
-        ) 
+        ) order by "date" desc
       ) "Notes"
     from notes
     where note_type != 'system'
