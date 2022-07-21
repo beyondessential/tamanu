@@ -15,9 +15,10 @@ export class LabTest extends Model {
           defaultValue: Sequelize.NOW,
         },
         status: {
-          type: Sequelize.ENUM(LAB_TEST_STATUS_VALUES),
+          type: Sequelize.STRING(31),
           allowNull: false,
           defaultValue: LAB_TEST_STATUSES.RECEPTION_PENDING,
+          isIn: [LAB_TEST_STATUS_VALUES], // double array is intentional
         },
         result: {
           type: Sequelize.STRING,

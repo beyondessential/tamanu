@@ -1,11 +1,14 @@
 import { random, sample } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
+import Chance from 'chance';
 import {
   DIAGNOSIS_CERTAINTY_VALUES,
   ENCOUNTER_TYPE_VALUES,
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
   REFERENCE_TYPE_VALUES,
 } from 'shared/constants';
+
+const chance = new Chance();
 
 export function fakeStringFields(prefix, fields) {
   return fields.reduce(
@@ -15,31 +18,6 @@ export function fakeStringFields(prefix, fields) {
     }),
     {},
   );
-}
-
-export function fakePatient(prefix = 'test-') {
-  const id = uuidv4();
-
-  const dateOfBirth = new Date(random(0, Date.now()));
-  const dateOfDeath = prefix.startsWith('dead')
-    ? new Date(random(dateOfBirth.getTime(), Date.now()))
-    : null;
-
-  return {
-    ...fakeStringFields(`${prefix}patient_${id}_`, [
-      'id',
-      'firstName',
-      'middleName',
-      'lastName',
-      'culturalName',
-      'displayId',
-    ]),
-    sex: sample(['male', 'female', 'other']),
-    dateOfBirth,
-    dateOfDeath,
-    email: null,
-    villageId: null,
-  };
 }
 
 export function fakeScheduledVaccine(prefix = 'test-') {
@@ -127,13 +105,7 @@ export function fakeAdministeredVaccine(prefix = 'test-', scheduledVaccineId) {
     encounterId: null,
     scheduledVaccineId,
     date: new Date(random(0, Date.now())),
-    ...fakeStringFields(`${prefix}administeredVaccine_${id}_`, [
-      'id',
-      'batch',
-      'status',
-      'reason',
-      'location',
-    ]),
+    ...fakeStringFields(`${prefix}administeredVaccine_${id}_`, ['id', 'batch', 'status', 'reason']),
   };
 }
 
@@ -232,25 +204,98 @@ const IGNORED_FIELDS = [
   'isPushing',
 ];
 
-export const fake = (model, overrides = {}) => {
+const MODEL_SPECIFIC_OVERRIDES = {
+  Facility: () => ({
+    email: chance.email(),
+    contactNumber: chance.phone(),
+    streetAddress: `${chance.natural({ max: 999 })} ${chance.street()}`,
+    cityTown: chance.city(),
+    division: chance.province({ full: true }),
+    type: chance.pickone(['hospital', 'clinic']),
+  }),
+  Patient: () => {
+    const sex = chance.pickone(['male', 'female', 'other']);
+    let nameGender;
+    if (sex === 'male' || sex === 'female') {
+      nameGender = sex;
+    }
+    return {
+      displayId: chance.hash({ length: 8 }),
+      sex,
+      firstName: chance.first({ gender: nameGender }),
+      middleName: chance.first({ gender: nameGender }),
+      lastName: chance.last(),
+      culturalName: chance.first({ gender: nameGender }),
+      dateOfDeath: null,
+      email: chance.email(),
+    };
+  },
+  PatientAdditionalData: () => ({
+    placeOfBirth: chance.city(),
+    bloodType: chance.pickone(['O', 'A', 'B', 'AB']) + chance.pickone(['+', '-']),
+    primaryContactNumber: chance.phone(),
+    secondaryContactNumber: chance.phone(),
+    maritalStatus: chance.pickone([
+      'Single',
+      'Married',
+      'Widowed',
+      'Divorced',
+      'Separated',
+      'De Facto',
+    ]),
+    cityTown: chance.city(),
+    streetVillage: chance.street(),
+    educationalLevel: chance.pickone([
+      'None',
+      'Primary',
+      'High School',
+      'Bachelors',
+      'Masters',
+      'PhD.',
+    ]),
+    socialMedia: `@${chance.word()}`,
+    title: chance.prefix(),
+    birthCertificate: `BC${chance.natural({ min: 1000000, max: 9999999 })}`,
+    drivingLicense: `L${chance.natural({ min: 100000, max: 999999 })}`,
+    passport: chance.character() + chance.natural({ min: 10000000, max: 99999999 }).toString(),
+    emergencyContactName: chance.name(),
+    emergencyContactNumber: chance.phone(),
+  }),
+  User: () => ({
+    email: chance.email(),
+    displayName: chance.name(),
+    role: 'practitioner',
+  }),
+  Survey: () => ({
+    isSensitive: false,
+  }),
+  Encounter: () => ({
+    encounterType: sample(ENCOUNTER_TYPE_VALUES),
+  }),
+};
+
+export const fake = (model, passedOverrides = {}) => {
   const id = uuidv4();
   const record = {};
+  const modelOverridesFn = MODEL_SPECIFIC_OVERRIDES[model.name];
+  const modelOverrides = modelOverridesFn ? modelOverridesFn() : {};
+  const overrides = { ...modelOverrides, ...passedOverrides };
   const overrideFields = Object.keys(overrides);
 
   for (const [name, attribute] of Object.entries(model.tableAttributes)) {
-    const { type } = attribute;
+    const { type, fieldName } = attribute;
 
-    if (overrideFields.includes(attribute.fieldName)) {
-      record[name] = overrides[attribute.fieldName];
+    if (overrideFields.includes(fieldName)) {
+      record[name] = overrides[fieldName];
     } else if (attribute.references) {
       // null out id fields
       record[name] = null;
-    } else if (IGNORED_FIELDS.includes(attribute.fieldName)) {
+    } else if (IGNORED_FIELDS.includes(fieldName)) {
       // ignore metadata fields
     } else if (FIELD_HANDLERS[type]) {
       record[name] = FIELD_HANDLERS[type](model, attribute, id);
     } else {
-      // if you hit this error, you probably need to add a new field handler
+      // if you hit this error, you probably need to add a new field handler or a model-specific override
       throw new Error(`Could not fake field ${model.name}.${name} of type ${type}`);
     }
   }

@@ -61,13 +61,13 @@ export class ReportRunner {
 
       log.info(`ReportRunner - Running report "${this.reportName}" finished`);
     } catch (e) {
-      throw new Error(`Failed to generate report, ${e.message}`);
+      throw new Error(`${e.stack}\nReportRunner - Failed to generate report`);
     }
 
     try {
       await this.sendReport(reportData);
     } catch (e) {
-      throw new Error(`Failed to send, ${e.message}`);
+      throw new Error(`${e.stack}\nReportRunner - Failed to send`);
     }
   }
 

@@ -83,6 +83,10 @@ export async function queryCovidVaccineListData(models, parameters) {
         model: models.ScheduledVaccine,
         as: 'scheduledVaccine',
       },
+      {
+        model: models.User,
+        as: 'recorder',
+      },
     ],
     where: parametersToSqlWhere(parameters),
     order: [
@@ -111,7 +115,10 @@ export async function queryCovidVaccineListData(models, parameters) {
       status,
       batch,
       scheduledVaccine: { schedule, label: vaccineName },
+      recorder,
     } = vaccine;
+
+    const vaccinator = vaccine.givenBy ?? recorder?.displayName ?? examinerName;
 
     const record = {
       patientId,
@@ -125,7 +132,7 @@ export async function queryCovidVaccineListData(models, parameters) {
       vaccineStatus: status === 'GIVEN' ? 'Yes' : 'No',
       vaccineDate: moment(date).format('DD-MM-YYYY'),
       batch: status === 'GIVEN' ? batch : '',
-      vaccinator: status === 'GIVEN' ? examinerName : '',
+      vaccinator: status === 'GIVEN' ? vaccinator : '',
     };
 
     reportData.push(record);

@@ -1,4 +1,5 @@
 import { Entity, Column, ManyToOne, RelationId } from 'typeorm/browser';
+import { PureAbility } from '@casl/ability';
 import { BaseModel } from './BaseModel';
 import { Program } from './Program';
 import { Database } from '~/infra/db';
@@ -33,6 +34,12 @@ export class Survey extends BaseModel implements ISurvey {
       relations: ['dataElement'],
       order: { screenIndex: 'ASC', componentIndex: 'ASC' },
     });
+  }
+
+  // Used for filtering lists of submittable surveys
+  shouldShowInList(ability: PureAbility): boolean {
+    if (this.programId === 'program-hidden_forms') return false;
+    return ability.can('submit', this);
   }
 
   static async getResponses(surveyId: string): Promise<ISurveyResponse[]> {

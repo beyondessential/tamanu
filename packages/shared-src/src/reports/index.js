@@ -17,6 +17,7 @@ import * as registeredPatients from './registered-patients';
 import * as fijiCovidSwabLabTestList from './covid-module/fiji/fiji-covid-swab-lab-test-list';
 import * as fijiTravellerCovidLabTestList from './covid-module/fiji/fiji-traveller-covid-lab-test-list';
 import * as palauCovidSwabLabTestList from './covid-module/palau/palau-covid-swab-lab-test-list';
+import * as nauruCovidSwabLabTestList from './covid-module/nauru/nauru-covid-swab-lab-test-list';
 import * as kiribatiCovidSwabLabTestList from './covid-module/kiribati/kiribati-covid-swab-lab-test-list';
 import * as samoaCovidSwabLabTestList from './covid-module/samoa/samoa-covid-swab-lab-test-list';
 import * as covidSwabLabTestsSummary from './covid-module/covid-swab-lab-tests-summary';
@@ -30,6 +31,7 @@ import * as fijiNcdPrimaryScreeningPendingReferralsLineList from './fiji-ncd-pri
 import * as fijiNcdPrimaryScreeningSummary from './fiji-ncd-primary-screening/fiji-ncd-primary-screening-summary';
 import * as fijiStatisticalReportForPhisSummary from './fiji-statistical-report-for-phis-summary';
 import * as palauCovidCaseReportLineList from './covid-module/palau/palau-covid-case-report-line-list';
+import * as genericSurveyExportLineList from './generic-survey-export-line-list';
 
 export function getReportModule(reportType) {
   switch (reportType) {
@@ -73,6 +75,8 @@ export function getReportModule(reportType) {
       return fijiTravellerCovidLabTestList;
     case 'palau-covid-swab-lab-test-list':
       return palauCovidSwabLabTestList;
+    case 'nauru-covid-swab-lab-test-list':
+      return nauruCovidSwabLabTestList;
     case 'kiribati-covid-swab-lab-test-list':
       return kiribatiCovidSwabLabTestList;
     case 'samoa-covid-swab-lab-test-list':
@@ -99,7 +103,10 @@ export function getReportModule(reportType) {
       return fijiStatisticalReportForPhisSummary;
     case 'palau-covid-case-report-line-list':
       return palauCovidCaseReportLineList;
+    case 'generic-survey-export-line-list':
+      return genericSurveyExportLineList;
   }
 }
 
 export { REPORT_DEFINITIONS } from './reportDefinitions';
+export { REPORT_OBJECTS } from './reportObjects';

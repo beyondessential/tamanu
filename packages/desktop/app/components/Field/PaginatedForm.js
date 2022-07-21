@@ -125,7 +125,7 @@ export const PaginatedForm = ({
   initialValues,
 }) => {
   const [formState, setFormState] = useState(FORM_STATES.IDLE);
-  const { onStepBack, onStepForward, handleStep, screenIndex } = usePaginatedForm(children);
+  const { onStepBack, onStepForward, handleStep, screenIndex } = usePaginatedForm();
 
   const onSubmitForm = async data => {
     await onSubmit(data);

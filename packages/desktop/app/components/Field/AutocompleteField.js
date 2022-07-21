@@ -2,70 +2,65 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import Autosuggest from 'react-autosuggest';
-import { MenuItem, Popper, Paper, Typography } from '@material-ui/core';
-import InputAdornment from '@material-ui/core/InputAdornment';
+import { debounce } from 'lodash';
+import { MenuItem, Popper, Paper, Typography, InputAdornment } from '@material-ui/core';
 import Search from '@material-ui/icons/Search';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { Colors } from '../../constants';
 import { StyledTextField } from './TextField';
 
 const SuggestionsContainer = styled(Popper)`
-  z-index: 999;
-  width: 100%;
-`;
+  z-index: 9999;
+  width: ${props => (props.anchorEl ? `${props.anchorEl.offsetWidth}px` : `${0}`)};
 
-const SuggestionsList = styled(Paper)`
-  ul {
-    margin: 0;
-    padding: 0;
-    list-style-type: none;
-  }
-`;
-
-const AutocompleteContainer = styled.div`
   // react auto suggest does not take a style or class prop so the only way to style it is to wrap it
   .react-autosuggest__container {
     position: relative;
   }
   .react-autosuggest__suggestions-container {
-    max-height: 300px;
+    max-height: 210px;
     overflow-y: auto;
   }
 `;
 
-const renderInputComponent = inputProps => {
-  const { inputRef = () => {}, ref, label, required, className, ...other } = inputProps;
-  return (
-    <OuterLabelFieldWrapper label={label} required={required} className={className} ref={ref}>
-      <StyledTextField
-        variant="outlined"
-        InputProps={{
-          endAdornment: (
-            <InputAdornment
-              position="end"
-              style={{
-                paddingRight: '14px',
-              }}
-            >
-              <Search style={{ opacity: 0.5 }} />
-            </InputAdornment>
-          ),
-          style: {
-            paddingRight: 0,
-            background: Colors.white,
-          },
-        }}
-        fullWidth
-        inputRef={inputRef}
-        {...other}
-      />
-    </OuterLabelFieldWrapper>
-  );
-};
+const SuggestionsList = styled(Paper)`
+  box-shadow: none;
+  border: 1px solid ${Colors.outline};
+  border-radius: 0 0 3px 3px;
+
+  .react-autosuggest__suggestions-list {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+
+    .MuiButtonBase-root {
+      padding: 12px 12px 12px 20px;
+
+      .MuiTypography-root {
+        font-size: 14px;
+        line-height: 18px;
+      }
+
+      &:hover {
+        background: ${Colors.hoverGrey};
+      }
+    }
+  }
+`;
+
+const Icon = styled(InputAdornment)`
+  .MuiSvgIcon-root {
+    color: ${props => props.theme.palette.text.secondary};
+    font-size: 20px;
+  }
+`;
 
 class BaseAutocomplete extends Component {
   constructor() {
     super();
+    this.anchorEl = React.createRef();
+    this.debouncedFetchOptions = debounce(this.fetchOptions, 100);
+
     this.state = {
       suggestions: [],
       displayedValue: '',
@@ -138,63 +133,89 @@ class BaseAutocomplete extends Component {
     this.setState({ suggestions: [] });
   };
 
+  onKeyDown = event => {
+    // prevent enter button submitting the whole form
+    if (event.keyCode === 13) {
+      event.preventDefault();
+    }
+  };
+
   renderSuggestion = (suggestion, { isHighlighted }) => (
     <MenuItem selected={isHighlighted} component="div">
       <Typography variant="body2">{suggestion.label}</Typography>
     </MenuItem>
   );
 
-  setAnchorRefForPopper = ref => {
-    this.anchorEl = ref;
-  };
-
   renderContainer = option => (
     <SuggestionsContainer
       anchorEl={this.anchorEl}
       open={!!option.children}
       placement="bottom-start"
-      modifiers={{
-        preventOverflow: {
-          enabled: false,
-        },
-        flip: {
-          enabled: false,
-        },
-      }}
-      disablePortal
     >
       <SuggestionsList {...option.containerProps}>{option.children}</SuggestionsList>
     </SuggestionsContainer>
   );
 
+  setAnchorRefForPopper = ref => {
+    this.anchorEl = ref;
+  };
+
+  renderInputComponent = inputProps => {
+    const { label, required, className, ...other } = inputProps;
+    return (
+      <OuterLabelFieldWrapper label={label} required={required} className={className}>
+        <StyledTextField
+          variant="outlined"
+          InputProps={{
+            ref: this.setAnchorRefForPopper,
+            endAdornment: (
+              <Icon position="end">
+                <Search />
+              </Icon>
+            ),
+          }}
+          fullWidth
+          {...other}
+        />
+      </OuterLabelFieldWrapper>
+    );
+  };
+
   render() {
     const { displayedValue, suggestions } = this.state;
-    const { label, required, name, disabled, error, helperText, placeholder } = this.props;
+    const {
+      label,
+      required,
+      name,
+      disabled,
+      error,
+      helperText,
+      placeholder = 'Search...',
+    } = this.props;
 
     return (
-      <AutocompleteContainer>
-        <Autosuggest
-          suggestions={suggestions}
-          onSuggestionsFetchRequested={this.fetchOptions}
-          onSuggestionsClearRequested={this.clearOptions}
-          renderSuggestionsContainer={this.renderContainer}
-          getSuggestionValue={this.handleSuggestionChange}
-          renderSuggestion={this.renderSuggestion}
-          renderInputComponent={renderInputComponent}
-          inputProps={{
-            label,
-            required,
-            disabled,
-            error,
-            helperText,
-            name,
-            placeholder,
-            value: displayedValue,
-            onChange: this.handleInputChange,
-            inputRef: this.setAnchorRefForPopper,
-          }}
-        />
-      </AutocompleteContainer>
+      <Autosuggest
+        alwaysRenderSuggestions
+        suggestions={suggestions}
+        onSuggestionsFetchRequested={this.debouncedFetchOptions}
+        onSuggestionsClearRequested={this.clearOptions}
+        renderSuggestionsContainer={this.renderContainer}
+        getSuggestionValue={this.handleSuggestionChange}
+        renderSuggestion={this.renderSuggestion}
+        renderInputComponent={this.renderInputComponent}
+        inputProps={{
+          label,
+          required,
+          disabled,
+          error,
+          helperText,
+          name,
+          placeholder,
+          value: displayedValue,
+          onKeyDown: this.onKeyDown,
+          onChange: this.handleInputChange,
+        }}
+      />
     );
   }
 }

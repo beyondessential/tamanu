@@ -15,7 +15,7 @@ import { FormGrid } from './FormGrid';
 import { ConfirmModal } from './ConfirmModal';
 
 const Button = styled(DeleteButton)`
-  margin-top: 12px;
+  margin-top: 2em;
 `;
 
 const ModalContent = React.memo(({ open, onClose, onMarkRecordedInError, vaccineRecord }) => {
@@ -31,9 +31,10 @@ const ModalContent = React.memo(({ open, onClose, onMarkRecordedInError, vaccine
     status,
     injectionSite,
     scheduledVaccine: { label, schedule },
-    encounter: {
-      examiner: { displayName },
-    },
+    recorder,
+    givenBy,
+    location,
+    encounter,
   } = vaccineRecord;
 
   if (confirmDelete) {
@@ -59,11 +60,17 @@ const ModalContent = React.memo(({ open, onClose, onMarkRecordedInError, vaccine
           <TextInput disabled value={`${label} (${schedule})`} label="Vaccine" />
           <TextInput disabled value={status} label="Status" />
           <TextInput disabled value={injectionSite} label="Injection site" />
-          <TextInput disabled value={displayName} label="Practitioner" />
-          <Button onClick={() => setConfirmDelete(true)} variant="contained" color="primary">
-            DELETE RECORD
-          </Button>
+          <TextInput
+            disabled
+            value={location?.name || encounter?.location?.name}
+            label="Facility"
+          />
+          {givenBy && <TextInput disabled value={givenBy} label="Giver" />}
+          <TextInput disabled value={recorder?.displayName || encounter?.examiner?.displayName} label="Recorder" />
         </FormGrid>
+        <Button onClick={() => setConfirmDelete(true)} variant="contained" color="primary">
+          DELETE RECORD
+        </Button>
       </ContentPane>
     </Modal>
   );
