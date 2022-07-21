@@ -60,11 +60,13 @@ async function createSampleCollectionSurvey(models) {
       id: 'pde-samcovidsamp02',
       code: 'samcovidsamp02',
       name: 'Phone Number',
+      type: 'FreeText',
     },
     {
       id: 'pde-samcovidsamp03',
       code: 'samcovidsamp03',
       name: 'Village',
+      type: 'FreeText',
     },
   ]);
 

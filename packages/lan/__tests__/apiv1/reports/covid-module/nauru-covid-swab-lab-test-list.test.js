@@ -32,11 +32,11 @@ async function createNauruSurveys(models) {
   });
 
   await models.ProgramDataElement.bulkCreate([
-    { id: 'pde-NauCOVTest002', code: 'NauCOVTest002' },
-    { id: 'pde-NauCOVTest003', code: 'NauCOVTest003' },
-    { id: 'pde-NauCOVTest005', code: 'NauCOVTest005' },
-    { id: 'pde-NauCOVTest006', code: 'NauCOVTest006' },
-    { id: 'pde-NauCOVTest007', code: 'NauCOVTest007' },
+    { id: 'pde-NauCOVTest002', code: 'NauCOVTest002', type: 'FreeText' },
+    { id: 'pde-NauCOVTest003', code: 'NauCOVTest003', type: 'FreeText' },
+    { id: 'pde-NauCOVTest005', code: 'NauCOVTest005', type: 'FreeText' },
+    { id: 'pde-NauCOVTest006', code: 'NauCOVTest006', type: 'FreeText' },
+    { id: 'pde-NauCOVTest007', code: 'NauCOVTest007', type: 'FreeText' },
     {
       id: 'pde-NauCOVTest008',
       code: 'NauCOVTest008',
@@ -50,7 +50,7 @@ async function createNauruSurveys(models) {
     { dataElementId: 'pde-NauCOVTest005', surveyId: SURVEY_ID },
     { dataElementId: 'pde-NauCOVTest006', surveyId: SURVEY_ID },
     { dataElementId: 'pde-NauCOVTest007', surveyId: SURVEY_ID },
-    { dataElementId: 'pde-NauCOVTest008', surveyId: SURVEY_ID, config: '{"source": "Facility"}', },
+    { dataElementId: 'pde-NauCOVTest008', surveyId: SURVEY_ID, config: '{"source": "Facility"}' },
   ]);
 }
 

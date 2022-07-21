@@ -199,13 +199,13 @@ const createSurveys = async (models, app, expectedPatient1, expectedPatient2) =>
   });
 
   await models.ProgramDataElement.bulkCreate([
-    { id: 'pde-FijCOVSamp4', code: 'IrqMAReg-13', name: 'pde-IrqMAReg-13' },
-    { id: 'pde-FijCOVSamp6', code: 'FijCOVSamp6', name: 'pde-FijCOVSamp6' },
-    { id: 'pde-FijCOVSamp7', code: 'FijCOVSamp7', name: 'pde-FijCOVSamp7' },
-    { id: 'pde-FijCOVSamp10', code: 'FijCOVSamp10', name: 'pde-FijCOVSamp10' },
-    { id: 'pde-FijCOVSamp11', code: 'FijCOVSamp11', name: 'pde-FijCOVSamp11' },
-    { id: 'pde-FijCOVSamp12', code: 'FijCOVSamp12', name: 'pde-FijCOVSamp12' },
-    { id: 'pde-FijCOVSamp13', code: 'FijCOVSamp13', name: 'pde-FijCOVSamp13' },
+    { id: 'pde-FijCOVSamp4', code: 'IrqMAReg-13', name: 'pde-IrqMAReg-13', type: 'FreeText' },
+    { id: 'pde-FijCOVSamp6', code: 'FijCOVSamp6', name: 'pde-FijCOVSamp6', type: 'FreeText' },
+    { id: 'pde-FijCOVSamp7', code: 'FijCOVSamp7', name: 'pde-FijCOVSamp7', type: 'FreeText' },
+    { id: 'pde-FijCOVSamp10', code: 'FijCOVSamp10', name: 'pde-FijCOVSamp10', type: 'FreeText' },
+    { id: 'pde-FijCOVSamp11', code: 'FijCOVSamp11', name: 'pde-FijCOVSamp11', type: 'FreeText' },
+    { id: 'pde-FijCOVSamp12', code: 'FijCOVSamp12', name: 'pde-FijCOVSamp12', type: 'FreeText' },
+    { id: 'pde-FijCOVSamp13', code: 'FijCOVSamp13', name: 'pde-FijCOVSamp13', type: 'FreeText' },
   ]);
 
   await models.Survey.create({
