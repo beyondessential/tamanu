@@ -144,6 +144,10 @@
         }
       }
     },
+    "covidClearanceCertificatePublisher": {
+      "enabled": false,
+      "schedule": "*/30 * * * *"
+    },
     "duplicateAdditionalDataDeleter": {
       "enabled": true,
       "schedule": "*/15 * * * *"
