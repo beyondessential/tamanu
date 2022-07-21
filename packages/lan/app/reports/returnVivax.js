@@ -17,7 +17,7 @@ export const returnVivaxReport = {
     const counts = {};
     const repeats = {};
     baseDiagnoses.forEach(x => {
-      const patientId = x.encounter[0].patient[0]._id;
+      const patientId = x.encounter[0].patient[0].id;
       counts[patientId] = (counts[patientId] || 0) + 1;
       if (counts[patientId] > 1) {
         repeats[patientId] = x;

@@ -135,7 +135,7 @@ export class SenaitePoller extends ScheduledTask {
   }
 
   async createLabRequest(labRequest) {
-    const labRequestRealmId = labRequest._id;
+    const labRequestRealmId = labRequest.id;
     const url = `${BASE_URL}/analysisrequests/ajax_ar_add/submit`;
 
     log.debug('Senaite LabRequest: CREATING', labRequestRealmId);
@@ -144,7 +144,7 @@ export class SenaitePoller extends ScheduledTask {
     const testIDs = labRequest.tests.map(x => x.type.senaiteId).filter(x => x);
 
     if (!testIDs.length) {
-      throw new Error(`No valid test types on labRequest:${labRequest._id}`);
+      throw new Error(`No valid test types on labRequest:${labRequest.id}`);
     }
 
     const dateTime = formatForSenaite(labRequest.requestedDate);
@@ -243,7 +243,7 @@ export class SenaitePoller extends ScheduledTask {
     const { senaiteId } = realmLabRequest;
     const results = await this.fetchLabRequestInfo(senaiteId);
 
-    log.debug('Updating tests for', realmLabRequest._id);
+    log.debug('Updating tests for', realmLabRequest.id);
     this.database.write(() => {
       realmLabRequest.tests.forEach(realmTest => {
         const senaiteResult = results.tests.find(x => x.serviceId === realmTest.type.senaiteId);

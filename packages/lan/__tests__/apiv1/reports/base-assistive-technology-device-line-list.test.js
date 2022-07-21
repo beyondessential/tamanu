@@ -46,14 +46,14 @@ describe('Assistive technology device line list', () => {
     });
 
     await models.ProgramDataElement.bulkCreate([
-      { id: 'pde-IrqMAReg-13', code: 'IrqMAReg-13', name: 'pde-IrqMAReg-13' },
+      { id: 'pde-IrqMAReg-13', code: 'IrqMAReg-13', name: 'pde-IrqMAReg-13', type: 'FreeText' },
 
-      { id: 'pde-IrqPreMob-2', code: 'IrqPreMob-2', name: 'pde-IrqPreMob-2' },
-      { id: 'pde-IrqPreMob-1', code: 'IrqPreMob-1', name: 'pde-IrqPreMob-1' },
-      { id: 'pde-IrqPreMob-6', code: 'IrqPreMob-6', name: 'pde-IrqPreMob-6' },
-      { id: 'pde-IrqPreMob-7', code: 'IrqPreMob-7', name: 'pde-IrqPreMob-7' },
-      { id: 'pde-IrqPreMob-8', code: 'IrqPreMob-8', name: 'pde-IrqPreMob-8' },
-      { id: 'pde-IrqPreMob-9', code: 'IrqPreMob-9', name: 'pde-IrqPreMob-9' },
+      { id: 'pde-IrqPreMob-2', code: 'IrqPreMob-2', name: 'pde-IrqPreMob-2', type: 'FreeText' },
+      { id: 'pde-IrqPreMob-1', code: 'IrqPreMob-1', name: 'pde-IrqPreMob-1', type: 'FreeText' },
+      { id: 'pde-IrqPreMob-6', code: 'IrqPreMob-6', name: 'pde-IrqPreMob-6', type: 'FreeText' },
+      { id: 'pde-IrqPreMob-7', code: 'IrqPreMob-7', name: 'pde-IrqPreMob-7', type: 'FreeText' },
+      { id: 'pde-IrqPreMob-8', code: 'IrqPreMob-8', name: 'pde-IrqPreMob-8', type: 'FreeText' },
+      { id: 'pde-IrqPreMob-9', code: 'IrqPreMob-9', name: 'pde-IrqPreMob-9', type: 'FreeText' },
     ]);
 
     await models.Survey.create({

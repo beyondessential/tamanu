@@ -19,13 +19,13 @@ export const diagnosesByVillageReport = {
 
     baseDiagnoses.forEach(d => {
       const { village } = d.encounter[0].patient[0];
-      if (!counts[village._id]) {
-        counts[village._id] = {
+      if (!counts[village.id]) {
+        counts[village.id] = {
           count: 0,
           village: village.name,
         };
       }
-      counts[village._id].count += 1;
+      counts[village.id].count += 1;
     });
 
     return {
