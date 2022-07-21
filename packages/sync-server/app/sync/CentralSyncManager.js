@@ -1,9 +1,27 @@
 import { getModelsForDirection, snapshotOutgoingChanges, saveIncomingChanges } from 'shared/sync';
 import { SYNC_DIRECTIONS } from 'shared/constants';
+import { log } from 'shared/services/logging';
 import { getPatientLinkedModels } from './getPatientLinkedModels';
+
+// after 10 minutes of no activity, consider a session lapsed and wipe it to avoid holding invalid
+// changes in memory when a sync fails on the facility server end
+const LAPSE_AFTER_MILLISECONDS = 10 * 60 * 1000;
+const CHECK_LAPSED_SESSIONS_INTERVAL = 1 * 60 * 1000; // check once per minute
 
 export class CentralSyncManager {
   sessions = {};
+
+  constructor() {
+    this.setInterval((this.purgeLapsedSessions, CHECK_LAPSED_SESSIONS_INTERVAL));
+  }
+
+  purgeLapsedSessions = () => {
+    const oldestValidTime = Date.now() - LAPSE_AFTER_MILLISECONDS;
+    const lapsedSessions = Object.keys(this.sessions).filter(
+      sessionIndex => this.sessions[sessionIndex].lastConnectionTime < oldestValidTime,
+    );
+    lapsedSessions.forEach(sessionIndex => delete this.sessions[sessionIndex]);
+  };
 
   async startSession({ sequelize }) {
     const startTime = Date.now();
@@ -12,21 +30,36 @@ export class CentralSyncManager {
     );
     this.sessions[sessionIndex] = {
       startTime,
+      lastConnectionTime: startTime,
       incomingChanges: [],
     };
     return sessionIndex;
   }
 
-  async endSession(sessionIndex) {
-    if (!this.sessions[sessionIndex]) {
+  connectToSession(sessionIndex) {
+    const session = this.sessions[sessionIndex];
+    if (!session) {
       throw new Error(`Sync session ${sessionIndex} not found`);
     }
+    session.lastConnectionTime = Date.now();
+    return session;
+  }
+
+  async endSession(sessionIndex) {
+    const session = this.connectToSession(sessionIndex);
+    log.info(
+      `Sync session performed ${session.incomingChanges.length} incoming and ${
+        session.outgoingChanges.length
+      } outgoing changes in ${(Date.now() - session.startTime) / 1000} seconds`,
+    );
     delete this.sessions[sessionIndex];
   }
 
   async setPullFilter(sessionIndex, { fromSessionIndex, facilityId }, { models }) {
+    const session = this.connectToSession(sessionIndex);
+
     // work out if any patients were newly marked for sync
-    const { incomingChanges } = this.sessions[sessionIndex];
+    const { incomingChanges } = session;
     const patientIdsForFullSync = incomingChanges
       .filter(c => c.recordType === 'patient_facilities' && !c.isDeleted)
       .map(c => c.data.patientId);
@@ -69,16 +102,14 @@ export class CentralSyncManager {
 
       return true;
     });
-    this.sessions[sessionIndex].outgoingChanges = changesWithoutEcho;
+    session.outgoingChanges = changesWithoutEcho;
 
     return changesWithoutEcho.length;
   }
 
   getOutgoingChanges(sessionIndex, { offset, limit }) {
-    if (!this.sessions[sessionIndex]) {
-      throw new Error(`Sync session ${sessionIndex} not found`);
-    }
-    return this.sessions[sessionIndex].outgoingChanges.slice(offset, offset + limit);
+    const session = this.connectToSession(sessionIndex);
+    return session.outgoingChanges.slice(offset, offset + limit);
   }
 
   async addIncomingChanges(
@@ -87,15 +118,13 @@ export class CentralSyncManager {
     { pageNumber, totalPages },
     { sequelize, models },
   ) {
-    if (!this.sessions[sessionIndex]) {
-      throw new Error(`Sync session ${sessionIndex} not found`);
-    }
-    this.sessions[sessionIndex].incomingChanges.push(...changes);
+    const session = this.connectToSession(sessionIndex);
+    session.incomingChanges.push(...changes);
     if (pageNumber === totalPages) {
       await saveIncomingChanges(
         sequelize,
         getModelsForDirection(models, SYNC_DIRECTIONS.FACILITY_TO_CENTRAL),
-        this.sessions[sessionIndex].incomingChanges,
+        session.incomingChanges,
         true,
       );
     }
