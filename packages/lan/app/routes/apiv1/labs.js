@@ -5,7 +5,7 @@ import { QueryTypes, Sequelize } from 'sequelize';
 
 import { NOTE_RECORD_TYPES } from 'shared/models/Note';
 import { NotFoundError, InvalidOperationError } from 'shared/errors';
-import { REFERENCE_TYPES, LAB_REQUEST_STATUSES, NOTE_TYPES } from 'shared/constants';
+import { REFERENCE_TYPES, LAB_REQUEST_STATUSES, NOTE_TYPES, VISIBILITY_STATUSES } from 'shared/constants';
 import { makeFilter, makeSimpleTextFilterFactory } from '../../utils/query';
 import { renameObjectKeys } from '../../utils/renameObjectKeys';
 import { simpleGet, simplePut, simpleGetList, permissionCheckingRouter } from './crudHelpers';
@@ -217,7 +217,11 @@ labRelations.get(
 
 labRequest.use(labRelations);
 
+// TODO: This route should be moved to a separate file
+
 export const labTest = express.Router();
+
+// TODO: Should this be a suggester?
 
 labTest.get(
   '/options$',
@@ -227,6 +231,9 @@ labTest.get(
 
     const records = await req.models.LabTestType.findAll({
       order: Sequelize.literal('name ASC'),
+      where: {
+        visibilityCriteria: VISIBILITY_STATUSES.CURRENT,
+      },
     });
     res.send({
       data: records,
@@ -234,6 +241,9 @@ labTest.get(
     });
   }),
 );
+
+// TODO: these two are just fetching refdata and should probably be suggester endpoints?
+// Do we have a flavour of suggester endpoint that just fetches the whole lot?
 
 labTest.get(
   '/categories$',
