@@ -130,41 +130,4 @@ describe('CentralServerConnection', () => {
       await await expect(connectPromise).rejects.toThrow('fake timeout');
     });
   });
-
-  describe('pull', () => {
-    it('pulls records', async () => {
-      const centralServer = createCentralServerConnection();
-      const body = {
-        records: [{ id: 'abc' }],
-        count: 1,
-        requestedAt: 123456,
-      };
-      fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(fakeSuccess(body));
-      expect(centralServer.pull('reference')).resolves.toEqual(body);
-    });
-
-    it('throws an error on an invalid response', async () => {
-      const centralServer = createCentralServerConnection();
-      fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(fakeFailure(403));
-      await expect(centralServer.pull('reference')).rejects.toThrow(InvalidOperationError);
-    });
-  });
-
-  describe('push', () => {
-    it('pushes records', async () => {
-      const centralServer = createCentralServerConnection();
-      const body = {
-        count: 1,
-        requestedAt: 123456,
-      };
-      fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(fakeSuccess(body));
-      expect(centralServer.push('reference', [{ id: 'abc' }])).resolves.toEqual(body);
-    });
-
-    it('throws an error on an invalid response', async () => {
-      const centralServer = createCentralServerConnection();
-      fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(fakeFailure(403));
-      await expect(centralServer.push('reference')).rejects.toThrow(InvalidOperationError);
-    });
-  });
 });
