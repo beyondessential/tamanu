@@ -15,6 +15,8 @@ import { checkVdsNcConfig } from './VdsNc';
 
 console.log(hl7Demo)
 
+console.log(hl7Demo)
+
 const integrations = {
   hl7Demo,
   fijiVrs,
