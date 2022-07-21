@@ -16,9 +16,6 @@ function buildNestedInclude(associations) {
 }
 
 function includeWithinEncounter(include, association) {
-  if (include.length === 0) {
-    return;
-  }
   let [parentInclude] = include;
   while (parentInclude.association !== 'encounter') {
     [parentInclude] = parentInclude.include;
