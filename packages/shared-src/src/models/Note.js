@@ -99,7 +99,7 @@ export class Note extends Model {
     return this[parentGetter](options);
   }
 
-  static buildPatientFilter(patientIds) {
+  static buildSyncFilter(patientIds) {
     return {
       where: {
         [Op.or]: [

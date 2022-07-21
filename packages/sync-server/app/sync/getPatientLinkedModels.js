@@ -1,5 +1,3 @@
 export function getPatientLinkedModels(models) {
-  return Object.fromEntries(
-    Object.entries(models).filter(([, model]) => !!model.buildPatientFilter),
-  );
+  return Object.fromEntries(Object.entries(models).filter(([, model]) => !!model.buildSyncFilter));
 }

@@ -27,7 +27,7 @@ export class SurveyResponseAnswer extends Model {
     });
   }
 
-  static buildPatientFilter(patientIds) {
+  static buildSyncFilter(patientIds) {
     return {
       where: { '$surveyResponse.encounter.patient_id$': { [Op.in]: patientIds } },
       include: [{ association: 'surveyResponse', include: ['encounter'] }],

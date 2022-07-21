@@ -6,11 +6,11 @@ const { readOnly } = config.sync;
 const COLUMNS_EXCLUDED_FROM_SYNC = ['createdAt', 'updatedAt', 'markedForSync'];
 
 const snapshotChangesForModel = async (model, fromSessionIndex, patientIds) => {
-  const shouldFilterByPatient = !!model.buildPatientFilter && patientIds;
+  const shouldFilterByPatient = !!model.buildSyncFilter && patientIds;
   if (shouldFilterByPatient && patientIds.length === 0) {
     return [];
   }
-  const patientFilter = shouldFilterByPatient && model.buildPatientFilter(patientIds);
+  const patientFilter = shouldFilterByPatient && model.buildSyncFilter(patientIds);
 
   const baseFilter = {
     where: { updatedAtSyncIndex: { [Op.gte]: fromSessionIndex } },

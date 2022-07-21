@@ -65,7 +65,7 @@ export class LabTest extends Model {
     return ['category', 'labTestType', 'labTestMethod'];
   }
 
-  static buildPatientFilter(patientIds) {
+  static buildSyncFilter(patientIds) {
     return {
       where: { '$labRequest.encounter.patient_id$': { [Op.in]: patientIds } },
       include: [{ association: 'labRequest', include: ['encounter'] }],

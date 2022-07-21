@@ -51,7 +51,7 @@ export class InvoicePriceChangeItem extends Model {
     ];
   }
 
-  static buildPatientFilter(patientIds) {
+  static buildSyncFilter(patientIds) {
     return {
       where: { '$invoice.encounter.patient_id$': { [Op.in]: patientIds } },
       include: [{ association: 'invoice', include: ['encounter'] }],

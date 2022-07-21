@@ -37,7 +37,7 @@ export class Referral extends Model {
     });
   }
 
-  static buildPatientFilter(patientIds) {
+  static buildSyncFilter(patientIds) {
     return {
       where: { '$initiatingEncounter.patient_id$': { [Op.in]: patientIds } },
       include: ['initiatingEncounter'],
