@@ -122,7 +122,6 @@ patientRelations.get('/:id/issues', simpleGetList('PatientIssue', 'patientId'));
 patientRelations.get('/:id/conditions', simpleGetList('PatientCondition', 'patientId'));
 patientRelations.get('/:id/allergies', simpleGetList('PatientAllergy', 'patientId'));
 patientRelations.get('/:id/familyHistory', simpleGetList('PatientFamilyHistory', 'patientId'));
-patientRelations.get('/:id/immunisations', simpleGetList('Immunisation', 'patientId'));
 patientRelations.get('/:id/carePlans', simpleGetList('PatientCarePlan', 'patientId'));
 
 patientRelations.get(
