@@ -1,8 +1,9 @@
 import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
-import { EncounterLinkedModel } from './EncounterLinkedModel';
+import { Model } from './Model';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 
-export class Procedure extends EncounterLinkedModel {
+export class Procedure extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -55,4 +56,6 @@ export class Procedure extends EncounterLinkedModel {
       as: 'Anaesthetic',
     });
   }
+
+  static buildSyncFilter = buildEncounterLinkedSyncFilter;
 }

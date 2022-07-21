@@ -1,8 +1,9 @@
 import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
-import { PatientLinkedModel } from './PatientLinkedModel';
+import { Model } from './Model';
+import { buildPatientLinkedSyncFilter } from './buildPatientLinkedSyncFilter';
 
-export class PatientSecondaryId extends PatientLinkedModel {
+export class PatientSecondaryId extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -33,4 +34,6 @@ export class PatientSecondaryId extends PatientLinkedModel {
       as: 'type',
     });
   }
+
+  static buildSyncFilter = buildPatientLinkedSyncFilter;
 }

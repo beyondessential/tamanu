@@ -1,9 +1,10 @@
 import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { DIAGNOSIS_CERTAINTY, DIAGNOSIS_CERTAINTY_VALUES } from '../constants';
-import { EncounterLinkedModel } from './EncounterLinkedModel';
+import { Model } from './Model';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 
-export class EncounterDiagnosis extends EncounterLinkedModel {
+export class EncounterDiagnosis extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -54,4 +55,6 @@ export class EncounterDiagnosis extends EncounterLinkedModel {
   static getListReferenceAssociations() {
     return ['Diagnosis'];
   }
+
+  static buildSyncFilter = buildEncounterLinkedSyncFilter;
 }

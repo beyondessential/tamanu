@@ -1,5 +1,6 @@
 import { Sequelize, Op } from 'sequelize';
 import { REFERRAL_STATUSES, SYNC_DIRECTIONS } from 'shared/constants';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { Model } from './Model';
 
 export class Referral extends Model {
@@ -38,9 +39,6 @@ export class Referral extends Model {
   }
 
   static buildSyncFilter(patientIds) {
-    return {
-      where: { '$initiatingEncounter.patient_id$': { [Op.in]: patientIds } },
-      include: ['initiatingEncounter'],
-    };
+    return buildEncounterLinkedSyncFilter(patientIds, ['initiatingEncounter']);
   }
 }

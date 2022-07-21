@@ -1,5 +1,6 @@
 import { Sequelize, Op } from 'sequelize';
 import { INVOICE_PRICE_CHANGE_ITEM_STATUSES, SYNC_DIRECTIONS } from 'shared/constants';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { Model } from './Model';
 
 export class InvoicePriceChangeItem extends Model {
@@ -52,9 +53,6 @@ export class InvoicePriceChangeItem extends Model {
   }
 
   static buildSyncFilter(patientIds) {
-    return {
-      where: { '$invoice.encounter.patient_id$': { [Op.in]: patientIds } },
-      include: [{ association: 'invoice', include: ['encounter'] }],
-    };
+    return buildEncounterLinkedSyncFilter(patientIds, ['invoice', 'encounter']);
   }
 }

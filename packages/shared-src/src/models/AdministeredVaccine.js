@@ -1,11 +1,12 @@
 import { Sequelize, Op } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
 import { SYNC_DIRECTIONS } from 'shared/constants';
-import { EncounterLinkedModel } from './EncounterLinkedModel';
+import { Model } from './Model';
 import { Encounter } from './Encounter';
 import { ScheduledVaccine } from './ScheduledVaccine';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 
-export class AdministeredVaccine extends EncounterLinkedModel {
+export class AdministeredVaccine extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -75,6 +76,8 @@ export class AdministeredVaccine extends EncounterLinkedModel {
       as: 'department',
     });
   }
+
+  static buildSyncFilter = buildEncounterLinkedSyncFilter;
 
   static async lastVaccinationForPatient(patientId, vaccineIds = []) {
     const query = {

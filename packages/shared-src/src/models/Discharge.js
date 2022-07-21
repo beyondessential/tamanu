@@ -1,9 +1,10 @@
 import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
 import { SYNC_DIRECTIONS } from 'shared/constants';
-import { EncounterLinkedModel } from './EncounterLinkedModel';
+import { Model } from './Model';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 
-export class Discharge extends EncounterLinkedModel {
+export class Discharge extends Model {
   static init({ primaryKey, ...options }) {
     const validate = {
       mustHaveEncounter() {
@@ -43,4 +44,6 @@ export class Discharge extends EncounterLinkedModel {
       as: 'discharger',
     });
   }
+
+  static buildSyncFilter = buildEncounterLinkedSyncFilter;
 }

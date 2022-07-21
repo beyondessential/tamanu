@@ -5,7 +5,8 @@ import {
   PROGRAM_DATA_ELEMENT_TYPES,
   SYNC_DIRECTIONS,
 } from 'shared/constants';
-import { EncounterLinkedModel } from './EncounterLinkedModel';
+import { Model } from './Model';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { runCalculations } from '../utils/calculations';
 import { getStringValue, getResultValue } from '../utils/fields';
 
@@ -67,7 +68,7 @@ const handleSurveyResponseActions = async (models, actions, questions, answers, 
   }
 };
 
-export class SurveyResponse extends EncounterLinkedModel {
+export class SurveyResponse extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -106,6 +107,8 @@ export class SurveyResponse extends EncounterLinkedModel {
       as: 'referral',
     });
   }
+
+  static buildSyncFilter = buildEncounterLinkedSyncFilter;
 
   static async getSurveyEncounter({ encounterId, patientId, reasonForEncounter, ...responseData }) {
     const { Encounter } = this.sequelize.models;

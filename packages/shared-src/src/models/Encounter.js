@@ -9,9 +9,10 @@ import {
 } from 'shared/constants';
 import { InvalidOperationError } from 'shared/errors';
 
-import { PatientLinkedModel } from './PatientLinkedModel';
+import { Model } from './Model';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 
-export class Encounter extends PatientLinkedModel {
+export class Encounter extends Model {
   static init({ primaryKey, hackToSkipEncounterValidation, ...options }) {
     let validate = {};
     if (!hackToSkipEncounterValidation) {
@@ -181,6 +182,10 @@ export class Encounter extends PatientLinkedModel {
 
     // this.hasMany(models.Procedure);
     // this.hasMany(models.Report);
+  }
+
+  static buildSyncFilter(patientIds) {
+    return buildEncounterLinkedSyncFilter(patientIds, []);
   }
 
   static checkNeedsAutoDischarge({ encounterType, startDate, endDate }) {

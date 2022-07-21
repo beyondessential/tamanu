@@ -3,11 +3,12 @@ import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
 import { IMAGING_REQUEST_STATUS_TYPES, SYNC_DIRECTIONS } from 'shared/constants';
 
-import { EncounterLinkedModel } from './EncounterLinkedModel';
+import { Model } from './Model';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 
 const ALL_IMAGING_REQUEST_STATUS_TYPES = Object.values(IMAGING_REQUEST_STATUS_TYPES);
 
-export class ImagingRequest extends EncounterLinkedModel {
+export class ImagingRequest extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -98,4 +99,6 @@ export class ImagingRequest extends EncounterLinkedModel {
       },
     });
   }
+
+  static buildSyncFilter = buildEncounterLinkedSyncFilter;
 }

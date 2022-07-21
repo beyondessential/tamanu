@@ -1,9 +1,10 @@
 import { ENCOUNTER_TYPES, SYNC_DIRECTIONS } from 'shared/constants';
 import { Sequelize, Op } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
-import { EncounterLinkedModel } from './EncounterLinkedModel';
+import { Model } from './Model';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 
-export class Triage extends EncounterLinkedModel {
+export class Triage extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -47,6 +48,8 @@ export class Triage extends EncounterLinkedModel {
       },
     });
   }
+
+  static buildSyncFilter = buildEncounterLinkedSyncFilter;
 
   static async create(data) {
     const { Department, Encounter, ReferenceData } = this.sequelize.models;

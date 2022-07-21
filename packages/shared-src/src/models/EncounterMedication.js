@@ -1,8 +1,9 @@
 import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
-import { EncounterLinkedModel } from './EncounterLinkedModel';
+import { Model } from './Model';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 
-export class EncounterMedication extends EncounterLinkedModel {
+export class EncounterMedication extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -77,4 +78,6 @@ export class EncounterMedication extends EncounterLinkedModel {
   static getListReferenceAssociations() {
     return ['Medication', 'encounter', 'prescriber', 'discontinuingClinician'];
   }
+
+  static buildSyncFilter = buildEncounterLinkedSyncFilter;
 }

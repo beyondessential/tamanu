@@ -1,14 +1,19 @@
 import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
-import { PatientLinkedModel } from './PatientLinkedModel';
+import { Model } from './Model';
+import { buildPatientLinkedSyncFilter } from './buildPatientLinkedSyncFilter';
 
-export class PatientCondition extends PatientLinkedModel {
+export class PatientCondition extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
         id: primaryKey,
         note: Sequelize.STRING,
-        recordedDate: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false },
+        recordedDate: {
+          type: Sequelize.DATE,
+          defaultValue: Sequelize.NOW,
+          allowNull: false,
+        },
         resolved: { type: Sequelize.BOOLEAN, defaultValue: false },
       },
       {
@@ -27,4 +32,6 @@ export class PatientCondition extends PatientLinkedModel {
   static getListReferenceAssociations() {
     return ['condition'];
   }
+
+  static buildSyncFilter = buildPatientLinkedSyncFilter;
 }

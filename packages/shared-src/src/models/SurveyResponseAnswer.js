@@ -2,6 +2,7 @@ import config from 'config';
 import { upperFirst } from 'lodash';
 import { Sequelize, Op } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { Model } from './Model';
 
 export class SurveyResponseAnswer extends Model {
@@ -28,10 +29,7 @@ export class SurveyResponseAnswer extends Model {
   }
 
   static buildSyncFilter(patientIds) {
-    return {
-      where: { '$surveyResponse.encounter.patient_id$': { [Op.in]: patientIds } },
-      include: [{ association: 'surveyResponse', include: ['encounter'] }],
-    };
+    return buildEncounterLinkedSyncFilter(patientIds, ['surveyResponse', 'encounter']);
   }
 
   static getDefaultId = async resource => {

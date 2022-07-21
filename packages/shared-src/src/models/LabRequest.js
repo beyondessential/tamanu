@@ -2,9 +2,10 @@ import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
 
 import { LAB_REQUEST_STATUSES, NOTE_TYPES, SYNC_DIRECTIONS } from 'shared/constants';
-import { EncounterLinkedModel } from './EncounterLinkedModel';
+import { Model } from './Model';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 
-export class LabRequest extends EncounterLinkedModel {
+export class LabRequest extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -135,6 +136,8 @@ export class LabRequest extends EncounterLinkedModel {
   static getListReferenceAssociations() {
     return ['requestedBy', 'category', 'priority', 'laboratory'];
   }
+
+  static buildSyncFilter = buildEncounterLinkedSyncFilter;
 
   getTests() {
     return this.sequelize.models.LabTest.findAll({
