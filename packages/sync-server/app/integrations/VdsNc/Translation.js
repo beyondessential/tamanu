@@ -1,5 +1,7 @@
 import moment from 'moment';
 import { transliterate as tr } from 'transliteration';
+import { log } from 'shared/services/logging';
+
 import { getLocalisation } from '../../localisation';
 
 const SEX_TO_CHAR = {
@@ -95,8 +97,12 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
     ],
   });
 
-  if (vaccinations.length === 0)
-    throw new Error('Patient does not have any certifiable vaccinations');
+  log.debug('Translating VDS', {
+    patientId,
+    vaccinationCount: vaccinations.length,
+  });
+
+  if (vaccinations.length === 0) throw new Error('Patient does not have any vaccinations');
 
   const pidDoc = passport
     ? {
@@ -122,6 +128,11 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
       },
     } = dose;
 
+    const sublog = log.child({
+      administeredVaccineId: dose.id,
+      vaccineRefId: vaccineId,
+    });
+
     const facilityName = location?.facility?.name ?? encounterFacilityName;
 
     const certVax = await CertifiableVaccine.findOne({
@@ -135,7 +146,10 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
         },
       ],
     });
-    if (!certVax) throw new Error('Vaccine is not certifiable');
+    if (!certVax) {
+      sublog.debug('Vaccine is not certifiable');
+      continue;
+    }
 
     const event = {
       dvc: moment(date)
@@ -146,12 +160,15 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
       lot: batch || 'Unknown', // If batch number was not recorded, we add a indicative string value to complete ICAO validation
       adm: facilityName,
     };
+    sublog.debug('Event for vaccine', { event });
 
     if (vaccines.has(label)) {
+      sublog.debug('Adding to existing brand/label group', { label });
       const vax = vaccines.get(label);
       vax.vd.push(event);
       vaccines.set(label, vax);
     } else {
+      sublog.debug('Adding to new brand/label group', { label });
       vaccines.set(label, {
         des: certVax.icd11DrugCode,
         nam: label,
@@ -160,6 +177,13 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
       });
     }
   }
+
+  log.debug('Translated VDS', {
+    patientId,
+    vaccinationCount: vaccines.size,
+  });
+
+  if (vaccines.size === 0) throw new Error('No certifiable vaccines for patient');
 
   return {
     pid: {
