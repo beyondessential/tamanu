@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
-import { SYNC_DIRECTIONS } from 'shared/constants';
+import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from 'shared/constants';
 import { Model } from './Model';
 
 const QUESTION_TYPES = {
@@ -53,6 +53,10 @@ export class LabTestType extends Model {
         options: {
           type: Sequelize.TEXT,
           allowNull: true,
+        },
+        visibilityStatus: {
+          type: Sequelize.TEXT,
+          defaultValue: VISIBILITY_STATUSES.CURRENT,
         },
       },
       {

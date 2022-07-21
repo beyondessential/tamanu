@@ -72,8 +72,6 @@ handlers found in `packages/lan/app/routes/apiv1/crudHelpers.js`
 
 `/v1/imagingRequest`
 
-`/v1/immunisation`
-
 `/v1/program`
 
 `/v1/surveyResponse`
