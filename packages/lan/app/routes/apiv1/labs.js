@@ -232,7 +232,7 @@ labTest.get(
     const records = await req.models.LabTestType.findAll({
       order: Sequelize.literal('name ASC'),
       where: {
-        visibilityCriteria: VISIBILITY_STATUSES.CURRENT,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       },
     });
     res.send({
