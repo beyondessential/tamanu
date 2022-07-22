@@ -1,16 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-import { connect } from 'react-redux';
 
 import { foreignKey } from '../utils/validation';
 import { encounterOptions } from '../constants';
-import {
-  getLabTestTypes,
-  getLabTestCategories,
-  getLabTestPriorities,
-  loadOptions,
-} from '../store/options';
 import { useLabRequest } from '../contexts/LabRequest';
 import { useEncounter } from '../contexts/Encounter';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
@@ -32,6 +25,7 @@ import { ButtonRow } from '../components/ButtonRow';
 import { DateDisplay } from '../components/DateDisplay';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { DropdownButton } from '../components/DropdownButton';
+import { useSuggester } from '../api';
 
 function getEncounterTypeLabel(type) {
   return encounterOptions.find(x => x.value === type).label;
@@ -41,12 +35,6 @@ function getEncounterLabel(encounter) {
   const encounterDate = DateDisplay.rawFormat(encounter.startDate);
   const encounterTypeLabel = getEncounterTypeLabel(encounter.encounterType);
   return `${encounterDate} (${encounterTypeLabel})`;
-}
-
-function filterTestTypes(testTypes, { labTestCategoryId }) {
-  return labTestCategoryId
-    ? testTypes.filter(tt => tt.labTestCategoryId === labTestCategoryId)
-    : [];
 }
 
 const FormSubmitActionDropdown = ({ requestId, encounter, submitForm }) => {
@@ -83,22 +71,35 @@ const FormSubmitActionDropdown = ({ requestId, encounter, submitForm }) => {
   return <DropdownButton actions={actions} />;
 };
 
-export class LabRequestForm extends React.PureComponent {
-  componentDidMount() {
-    const { onMount } = this.props;
-    if (onMount) onMount();
-  }
+export const LabRequestForm = ({
+  onSubmit,
+  editedObject, 
+  generateDisplayId,
+  practitionerSuggester,
+  onCancel,
+  encounter = {},
+  requestId,
+}) => {
 
-  renderForm = ({ values, submitForm }) => {
-    const {
-      practitionerSuggester,
-      onCancel,
-      testTypes,
-      encounter = {},
-      testCategories,
-      testPriorities,
-      requestId,
-    } = this.props;
+  /*
+  // TODO: test types need to be filtered properly each time category changes
+  // testTypes.filter(tt => tt.labTestCategoryId === labTestCategoryId)
+  // and also it needs to fetch the whole lot for all of them? suggester/api update?
+
+  previously it was doing this 
+  (might just move this into a useState here instead of reworking the suggester):
+
+    const labTestTypes = (await api.get(`labTest/options`)).data;
+    const labTestCategories = (await api.get(`labTest/categories`)).data;
+    const labTestPriorities = (await api.get(`labTest/priorities`)).data;
+  
+  */
+
+  const testTypes = useSuggester('labTestType');
+  const testCategories = useSuggester('labTestCategory');
+  const testPriorities = useSuggester('labTestPriority');
+
+  const renderForm = ({ values, submitForm }) => {
     const { examiner = {} } = encounter;
     const examinerLabel = examiner.displayName;
     const encounterLabel = getEncounterLabel(encounter);
@@ -165,61 +166,36 @@ export class LabRequestForm extends React.PureComponent {
     );
   };
 
-  render() {
-    const { onSubmit, editedObject, generateDisplayId } = this.props;
-    return (
-      <Form
-        onSubmit={onSubmit}
-        render={this.renderForm}
-        initialValues={{
-          displayId: generateDisplayId(),
-          requestedDate: new Date().toLocaleDateString(),
-          sampleTime: new Date().toLocaleString(),
-          ...editedObject,
-        }}
-        validationSchema={yup.object().shape({
-          requestedById: foreignKey('Requesting doctor is required'),
-          labTestCategoryId: foreignKey('Lab request type must be selected'),
-          sampleTime: yup.date().required(),
-          requestedDate: yup.date().required(),
-        })}
-        validate={values => {
-          // there's a bug in formik for handling `yup.mixed.test` so just do it manually here
-          const { labTestTypeIds = [] } = values;
-          if (labTestTypeIds.length === 0) {
-            return {
-              labTestTypeIds: 'At least one test must be selected',
-            };
-          }
-          return {};
-        }}
-      />
-    );
-  }
+  return (
+    <Form
+      onSubmit={onSubmit}
+      render={renderForm}
+      initialValues={{
+        displayId: generateDisplayId(),
+        requestedDate: new Date().toLocaleDateString(),
+        sampleTime: new Date().toLocaleString(),
+        ...editedObject,
+      }}
+      validationSchema={yup.object().shape({
+        requestedById: foreignKey('Requesting doctor is required'),
+        labTestCategoryId: foreignKey('Lab request type must be selected'),
+        sampleTime: yup.date().required(),
+        requestedDate: yup.date().required(),
+      })}
+      validate={values => {
+        // there's a bug in formik for handling `yup.mixed.test` so just do it manually here
+        const { labTestTypeIds = [] } = values;
+        if (labTestTypeIds.length === 0) {
+          return {
+            labTestTypeIds: 'At least one test must be selected',
+          };
+        }
+        return {};
+      }}
+    />
+  );
 }
 
 LabRequestForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
-  onMount: PropTypes.func,
 };
-
-LabRequestForm.defaultProps = {
-  onMount: null,
-};
-
-export const ConnectedLabRequestForm = connect(
-  state => ({
-    testTypes: getLabTestTypes(state),
-    testCategories: getLabTestCategories(state).map(({ id, name }) => ({
-      value: id,
-      label: name,
-    })),
-    testPriorities: getLabTestPriorities(state).map(({ id, name }) => ({
-      value: id,
-      label: name,
-    })),
-  }),
-  dispatch => ({
-    onMount: () => dispatch(loadOptions()),
-  }),
-)(LabRequestForm);
