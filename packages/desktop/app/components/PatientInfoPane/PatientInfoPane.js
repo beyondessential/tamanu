@@ -16,12 +16,19 @@ import { DeathModal } from '../DeathModal';
 import { Colors } from '../../constants';
 import { PatientCarePlanDetails } from './PatientCarePlanNotes';
 import { useLocalisation } from '../../contexts/Localisation';
+import {
+  CONDITIONS_TITLE,
+  ALLERGIES_TITLE,
+  FAMILY_HISTORY_TITLE,
+  ISSUES_TITLE,
+  CARE_PLANS_TITLE,
+} from './paneTitles';
 
 const OngoingConditionDisplay = memo(({ patient, readonly }) => (
   <InfoPaneList
     patient={patient}
     readonly={readonly}
-    title="Ongoing conditions"
+    title={CONDITIONS_TITLE}
     endpoint="ongoingCondition"
     getEndpoint={`patient/${patient.id}/conditions`}
     suggesters={{ practitioner: {}, icd10: {} }}
@@ -36,7 +43,7 @@ const AllergyDisplay = memo(({ patient, readonly }) => (
   <InfoPaneList
     patient={patient}
     readonly={readonly}
-    title="Allergies"
+    title={ALLERGIES_TITLE}
     endpoint="allergy"
     getEndpoint={`patient/${patient.id}/allergies`}
     suggesters={{ practitioner: {}, allergy: {} }}
@@ -49,7 +56,7 @@ const FamilyHistoryDisplay = memo(({ patient, readonly }) => (
   <InfoPaneList
     patient={patient}
     readonly={readonly}
-    title="Family history"
+    title={FAMILY_HISTORY_TITLE}
     endpoint="familyHistory"
     getEndpoint={`patient/${patient.id}/familyHistory`}
     suggesters={{ practitioner: {}, icd10: {} }}
@@ -67,7 +74,7 @@ const PatientIssuesDisplay = memo(({ patient, readonly }) => (
   <InfoPaneList
     patient={patient}
     readonly={readonly}
-    title="Other patient issues"
+    title={ISSUES_TITLE}
     endpoint="patientIssue"
     getEndpoint={`patient/${patient.id}/issues`}
     Form={PatientIssueForm}
@@ -80,7 +87,7 @@ const CarePlanDisplay = memo(({ patient, readonly }) => (
   <InfoPaneList
     patient={patient}
     readonly={readonly}
-    title="Care plans"
+    title={CARE_PLANS_TITLE}
     endpoint="patientCarePlan"
     getEndpoint={`patient/${patient.id}/carePlans`}
     suggesters={{
