@@ -83,7 +83,6 @@ export const InfoPaneList = memo(
     Form,
     endpoint,
     getEndpoint,
-    suggesters,
     getName = () => '???',
     behavior = 'collapse',
     itemTitle = '',
@@ -120,8 +119,9 @@ export const InfoPaneList = memo(
           patient={patient}
           Form={Form}
           endpoint={endpoint}
-          suggesters={suggesters}
           onClose={handleCloseForm}
+          title={title}
+          items={items}
         />
       </Wrapper>
     );
@@ -158,9 +158,10 @@ export const InfoPaneList = memo(
                       patient={patient}
                       Form={Form}
                       endpoint={endpoint}
-                      suggesters={suggesters}
                       item={item}
                       onClose={handleCloseForm}
+                      title={title}
+                      items={items}
                     />
                   </Collapse>
                 </React.Fragment>
@@ -180,9 +181,10 @@ export const InfoPaneList = memo(
                     patient={patient}
                     Form={Form}
                     endpoint={endpoint}
-                    suggesters={suggesters}
                     item={item}
                     onClose={handleCloseForm}
+                    title={title}
+                    items={items}
                   />
                 </Modal>
               </React.Fragment>
