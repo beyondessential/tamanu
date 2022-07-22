@@ -13,8 +13,6 @@ const configureCustomRequestId = () => customAlphabet(ALPHABET_FOR_ID, 8);
 
 export const ImagingRequestModal = ({ open, onClose, encounter }) => {
   const api = useApi();
-  const practitionerSuggester = new Suggester(api, 'practitioner');
-  const imagingTypeSuggester = new Suggester(api, 'imagingType');
   const generateDisplayId = configureCustomRequestId();
   const [requestId, setRequestId] = useState();
 
