@@ -181,3 +181,13 @@ createSuggester(
   patient => patient,
   'first_name',
 );
+
+createSuggester(
+  'labTestType',
+  'LabTestType',
+  `${FITS_VISIBILITY_CRITERIA}`,
+  ({ id, name, labTestCategoryId }) => ({
+    id, name, labTestCategoryId
+  }),
+  'name'
+);
