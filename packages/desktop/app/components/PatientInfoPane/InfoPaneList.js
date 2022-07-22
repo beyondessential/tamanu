@@ -3,11 +3,14 @@ import styled from 'styled-components';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import { Collapse, Button, Typography } from '@material-ui/core';
 import { kebabCase } from 'lodash';
+import { PATIENT_ISSUE_TYPES } from 'shared/constants';
 import { connectApi } from '../../api';
 import { Suggester } from '../../utils/suggester';
 import { reloadPatient } from '../../store/patient';
 import { Colors } from '../../constants';
 import { Modal } from '../Modal';
+import { PatientAlert } from '../PatientAlert';
+import { useApiGet } from '../../utils/useApiGet';
 
 const TitleContainer = styled.div`
   color: ${Colors.primary};
@@ -87,23 +90,42 @@ const AddEditForm = connectApi(
   )),
 );
 
+const shouldShowIssueInWarningModal = ({ type }) => type === PATIENT_ISSUE_TYPES.WARNING;
+
+const getItems = (isIssuesPane, response) => {
+  const items = response?.data || [];
+  if (isIssuesPane === false) {
+    return { items, warnings: null };
+  }
+
+  const warnings = items.filter(shouldShowIssueInWarningModal);
+  const sortedIssues = [
+    ...warnings,
+    ...items.filter(issue => !shouldShowIssueInWarningModal(issue)),
+  ];
+
+  return { items: sortedIssues, warnings };
+};
+
 export const InfoPaneList = memo(
   ({
     patient,
     readonly,
     title,
     Form,
-    items = [],
     endpoint,
+    getEndpoint,
     suggesters,
     getName = () => '???',
     behavior = 'collapse',
     itemTitle = '',
     CustomEditForm,
     getEditFormName = () => '???',
+    isIssuesPane = false,
   }) => {
     const [addEditState, setAddEditState] = useState({ adding: false, editKey: null });
     const { adding, editKey } = addEditState;
+    const [response, error] = useApiGet(getEndpoint, undefined, undefined, [patient]);
 
     const handleAddButtonClick = useCallback(
       () => setAddEditState({ adding: !adding, editKey: null }),
@@ -114,6 +136,8 @@ export const InfoPaneList = memo(
       () => setAddEditState({ adding: false, editKey: null }),
       [],
     );
+
+    const { items, warnings } = getItems(isIssuesPane, response);
 
     const Wrapper = props =>
       behavior === 'collapse' ? (
@@ -137,9 +161,10 @@ export const InfoPaneList = memo(
     const EditForm = CustomEditForm || AddEditForm;
     return (
       <>
+        {isIssuesPane && <PatientAlert alerts={warnings} />}
         <TitleContainer data-test-id={`info-pane-${kebabCase(title)}`}>
           <TitleText>{title}</TitleText>
-          {!readonly && (
+          {!readonly && !error && (
             <AddButton
               onClick={handleAddButtonClick}
               endIcon={<AddCircleIcon />}
@@ -150,6 +175,7 @@ export const InfoPaneList = memo(
           )}
         </TitleContainer>
         <DataList>
+          {error && error.message}
           {items.map(item => {
             const { id } = item;
             const name = getName(item);

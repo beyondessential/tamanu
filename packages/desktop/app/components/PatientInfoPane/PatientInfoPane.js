@@ -1,11 +1,9 @@
 import React, { memo, useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-import { PATIENT_ISSUE_TYPES } from 'shared/constants';
 import { OutlinedButton } from '../Button';
 import { InfoPaneList } from './InfoPaneList';
 import { CoreInfoDisplay } from './PatientCoreInfo';
-import { PatientAlert } from '../PatientAlert';
 import { PatientPrintDetailsModal } from '../PatientPrinting';
 import {
   AllergyForm,
@@ -25,8 +23,8 @@ const OngoingConditionDisplay = memo(({ patient, readonly }) => (
     readonly={readonly}
     title="Ongoing conditions"
     endpoint="ongoingCondition"
+    getEndpoint={`patient/${patient.id}/conditions`}
     suggesters={{ practitioner: {}, icd10: {} }}
-    items={patient.conditions}
     Form={OngoingConditionForm}
     getName={({ condition, resolved }) =>
       resolved ? `${condition.name} (resolved)` : condition.name
@@ -40,8 +38,8 @@ const AllergyDisplay = memo(({ patient, readonly }) => (
     readonly={readonly}
     title="Allergies"
     endpoint="allergy"
+    getEndpoint={`patient/${patient.id}/allergies`}
     suggesters={{ practitioner: {}, allergy: {} }}
-    items={patient.allergies}
     Form={AllergyForm}
     getName={allergy => allergy.allergy.name}
   />
@@ -53,8 +51,8 @@ const FamilyHistoryDisplay = memo(({ patient, readonly }) => (
     readonly={readonly}
     title="Family history"
     endpoint="familyHistory"
+    getEndpoint={`patient/${patient.id}/familyHistory`}
     suggesters={{ practitioner: {}, icd10: {} }}
-    items={patient.familyHistory}
     Form={FamilyHistoryForm}
     getName={historyItem => {
       const { name } = historyItem.diagnosis;
@@ -65,31 +63,18 @@ const FamilyHistoryDisplay = memo(({ patient, readonly }) => (
   />
 ));
 
-const shouldShowIssueInWarningModal = ({ type }) => type === PATIENT_ISSUE_TYPES.WARNING;
-
-const PatientIssuesDisplay = memo(({ patient, readonly }) => {
-  const { issues = [] } = patient;
-  const warnings = issues.filter(shouldShowIssueInWarningModal);
-  const sortedIssues = [
-    ...warnings,
-    ...issues.filter(issue => !shouldShowIssueInWarningModal(issue)),
-  ];
-
-  return (
-    <>
-      <PatientAlert alerts={warnings} />
-      <InfoPaneList
-        patient={patient}
-        readonly={readonly}
-        title="Other patient issues"
-        endpoint="patientIssue"
-        items={sortedIssues}
-        Form={PatientIssueForm}
-        getName={issue => issue.note}
-      />
-    </>
-  );
-});
+const PatientIssuesDisplay = memo(({ patient, readonly }) => (
+  <InfoPaneList
+    patient={patient}
+    readonly={readonly}
+    title="Other patient issues"
+    endpoint="patientIssue"
+    getEndpoint={`patient/${patient.id}/issues`}
+    Form={PatientIssueForm}
+    getName={issue => issue.note}
+    isIssuesPane
+  />
+));
 
 const CarePlanDisplay = memo(({ patient, readonly }) => (
   <InfoPaneList
@@ -97,13 +82,13 @@ const CarePlanDisplay = memo(({ patient, readonly }) => (
     readonly={readonly}
     title="Care plans"
     endpoint="patientCarePlan"
+    getEndpoint={`patient/${patient.id}/carePlans`}
     suggesters={{
       practitioner: {},
       carePlan: {
         filterer: ({ code }) => !patient.carePlans.some(c => c.carePlan.code === code),
       },
     }}
-    items={patient.carePlans}
     Form={PatientCarePlanForm}
     getName={({ carePlan }) => carePlan.name}
     behavior="modal"
