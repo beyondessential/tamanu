@@ -9,6 +9,7 @@ import { Modal } from '../Modal';
 import { PatientAlert } from '../PatientAlert';
 import { useApiGet } from '../../utils/useApiGet';
 import { InfoPaneAddEditForm } from './InfoPaneAddEditForm';
+import { ISSUES_TITLE } from './paneTitles';
 
 const TitleContainer = styled.div`
   color: ${Colors.primary};
@@ -88,7 +89,6 @@ export const InfoPaneList = memo(
     itemTitle = '',
     CustomEditForm,
     getEditFormName = () => '???',
-    isIssuesPane = false,
   }) => {
     const [addEditState, setAddEditState] = useState({ adding: false, editKey: null });
     const { adding, editKey } = addEditState;
@@ -104,6 +104,7 @@ export const InfoPaneList = memo(
       [],
     );
 
+    const isIssuesPane = title === ISSUES_TITLE;
     const { items, warnings } = getItems(isIssuesPane, response);
 
     const Wrapper = props =>

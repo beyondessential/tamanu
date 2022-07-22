@@ -79,7 +79,6 @@ const PatientIssuesDisplay = memo(({ patient, readonly }) => (
     getEndpoint={`patient/${patient.id}/issues`}
     Form={PatientIssueForm}
     getName={issue => issue.note}
-    isIssuesPane
   />
 ));
 
