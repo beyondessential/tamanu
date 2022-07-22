@@ -1,6 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
 import moment from 'moment';
-import asyncPool from 'tiny-async-pool';
 
 import { fake } from 'shared/test-helpers';
 import { ENCOUNTER_TYPES, REFERENCE_TYPES } from 'shared/constants';
@@ -11,19 +10,12 @@ import * as programData from './program.json';
 import { importProgram } from './program';
 import { insertSurveyResponse } from './insertSurveyResponse';
 import { insertCovidTest } from './insertCovidTest';
-import { chance, seed } from './chance';
+import { chance, seed } from '../chance';
+import { loopAndGenerate } from '../loopAndGenerate';
 
-const REPORT_INTERVAL_MS = 100;
 const NUM_VILLAGES = 50;
 const NUM_EXAMINERS = 10;
 const NUM_FACILITIES = 20;
-const CONCURRENT_PATIENT_INSERTS = 4;
-
-function range(n) {
-  return Array(n)
-    .fill()
-    .map((_, i) => i);
-}
 
 export const generateFiji = async ({ patientCount: patientCountStr }) => {
   const patientCount = Number.parseInt(patientCountStr, 10);
@@ -183,43 +175,12 @@ export const generateFiji = async ({ patientCount: patientCountStr }) => {
     }
   };
 
-  let intervalId;
+  // perform the generation
+  process.stdout.write(`Creating/upserting setup data (seed=${seed})...\n`);
   try {
-    let complete = 0;
-
-    let startMs = null;
-    const reportProgress = () => {
-      // \r works because the length of this is guaranteed to always grow longer or stay the same
-      const pct = ((complete / patientCount) * 100).toFixed(2);
-      const perSecond = startMs ? (complete / ((Date.now() - startMs) / 1000)).toFixed(2) : '-';
-      process.stdout.write(
-        `\rGenerating patient ${complete}/${patientCount} (${pct}% | ${perSecond}/sec)...`,
-      );
-    };
-
-    // perform the generation
-    process.stdout.write(`Creating/upserting setup data (seed=${seed})...\n`);
     await upsertSetupData();
-
-    // report progress regularly but don't spam the console
-    intervalId = setInterval(reportProgress, REPORT_INTERVAL_MS);
-    reportProgress();
-
-    // generate patients
-    startMs = Date.now();
-    await asyncPool(CONCURRENT_PATIENT_INSERTS, range(patientCount), async () => {
-      await store.sequelize.transaction(async () => {
-        await insertPatientData();
-      });
-      complete++;
-    });
-
-    // finish up
-    clearInterval(intervalId);
-    reportProgress();
-    process.stdout.write('\nComplete\n');
+    await loopAndGenerate(store, patientCount, () => insertPatientData());
   } finally {
-    clearInterval(intervalId);
     await closeDatabase();
   }
 };

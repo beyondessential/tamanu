@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { chance } from './chance';
+import { chance } from '../chance';
 
 export const insertSurveyResponse = async (
   { SurveyResponse, SurveyResponseAnswer },
