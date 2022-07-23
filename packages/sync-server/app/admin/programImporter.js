@@ -3,6 +3,8 @@ import { existsSync } from 'fs';
 import { readFile, utils } from 'xlsx';
 import config from 'config';
 
+export const PERMISSIONS = ['Program', 'Survey'];
+
 const yesOrNo = value => !!(value && value.toLowerCase() === 'yes');
 
 const idify = name => name.toLowerCase().replace(/\W/g, '');
@@ -125,7 +127,7 @@ function importSurveySheet(data, survey) {
     .flat();
 }
 
-export function importProgram({ file, whitelist }) {
+export default function importProgram({ file, whitelist }) {
   if (!existsSync(file)) {
     throw new Error(`File ${file} not found`);
   }

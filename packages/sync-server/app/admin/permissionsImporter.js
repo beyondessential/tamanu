@@ -2,6 +2,8 @@ import { readFile, utils } from 'xlsx';
 
 import { log } from 'shared/services/logging';
 
+export const PERMISSIONS = ['Permission', 'Role', 'User'];
+
 const sanitise = string => string.trim().replace(/[^A-Za-z0-9]+/g, '');
 
 const roleTransformer = item => {
@@ -44,7 +46,7 @@ const permissionTransformer = item => {
     });
 };
 
-export async function importPermissions({ file }) {
+export default async function importPermissions({ file }) {
   log.info(`Importing permissions from ${file}...`);
 
   // parse xlsx

@@ -9,9 +9,15 @@ import {
   administeredVaccineLoader,
   referenceDataLoaderFactory,
   loaderFactory,
-} from './dataLoaders';
+} from './loaders';
 import { DryRun } from './errors';
-import { importSheet } from './importSheet';
+import { importSheet } from './sheet';
+import { coalesceStats } from './stats';
+
+export const PERMISSIONS = [
+  'User',
+  'ReferenceData',
+];
 
 // All reference data is imported first, so that can be assumed for ordering.
 //
@@ -46,7 +52,7 @@ const DEPENDENCIES = {
   },
 };
 
-async function importDataInner({ errors, models, stats, file, whitelist = [] }) {
+async function importerInner({ errors, models, stats, file, whitelist = [] }) {
   log.info('Importing data definitions from file', { file });
 
   log.debug('Parse XLSX workbook');
@@ -160,24 +166,7 @@ async function importDataInner({ errors, models, stats, file, whitelist = [] }) 
   log.debug('Done importing data', { importedData, droppedData });
 }
 
-function coalesceStats(stats) {
-  const allStats = {};
-  for (const stat of stats) {
-    for (const [model, { created, updated }] of Object.entries(stat)) {
-      if (allStats[model]) {
-        allStats[model].created += created;
-        allStats[model].updated += updated;
-      } else {
-        allStats[model] = { created, updated };
-      }
-    }
-  }
-
-  log.debug('Imported lotsa things', { stats: allStats });
-  return allStats;
-}
-
-export async function importData(models, file, { dryRun = false, whitelist = [] }) {
+export default async function importer({ models, file, dryRun = false, whitelist = [] }) {
   const errors = [];
   const stats = [];
 
@@ -188,7 +177,7 @@ export async function importData(models, file, { dryRun = false, whitelist = [] 
         isolationLevel: Sequelize.Transaction.ISOLATION_LEVEL.SERIALIZABLE,
       },
       async () => {
-        await importDataInner({ errors, models, stats, file, whitelist });
+        await importerInner({ errors, models, stats, file, whitelist });
         if (errors.length > 0) throw new Error('rollback on errors');
         if (dryRun) throw new DryRun();
       },

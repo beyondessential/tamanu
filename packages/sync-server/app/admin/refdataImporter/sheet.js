@@ -1,11 +1,14 @@
 import { utils } from 'xlsx';
+
 import {
   DataLoaderError,
   ForeignkeyResolutionError,
   UpstertionError,
   ValidationError,
-  WorkSheetError
+  WorkSheetError,
 } from './errors';
+import * as schemas from './schemas';
+import { newStatsRow } from './stats';
 
 export async function importSheet({ errors, log, models }, { loader, sheetName, sheet }) {
   const stats = {};
@@ -24,7 +27,7 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
   for (const [sheetRow, data] of sheetRows.entries()) {
     try {
       for (const { model, values } of loader(data)) {
-        stats[model] = stats[model] || { created: 0, updated: 0, errored: 0 };
+        stats[model] = stats[model] || newStatsRow();
         tableRows.push({ model, sheetRow, values });
       }
     } catch (err) {
@@ -47,6 +50,11 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
   const validRows = [];
   for (const { model, sheetRow, values } of resolvedRows) {
     try {
+      const schemaName = model === 'ReferenceData'
+        ? (schemas[`RD${sheetName}`] ? `RD${sheetName}` : 'ReferenceData')
+        : (schemas[model] ? model : 'Base');
+
+      const schema = schemas[schemaName];
       validRows.push({ model, sheetRow, values });
     } catch (err) {
       stats[model].errored += 1;

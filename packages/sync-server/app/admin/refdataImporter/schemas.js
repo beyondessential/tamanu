@@ -23,31 +23,31 @@ const fieldTypes = {
   name: yup.string().max(255),
 };
 
-export const base = yup.object().shape({
+export const Base = yup.object().shape({
   id: fieldTypes.id.required(),
 });
 
-export const referenceData = base.shape({
+export const ReferenceData = Base.shape({
   type: yup.string().required(),
   code: fieldTypes.code.required(),
   name: yup.string().required(),
   visibilityStatus,
 });
 
-export const patient = base.shape({
+export const Patient = Base.shape({
   villageId: yup.string(),
   firstName: yup.string().required(),
   lastName: yup.string().required(),
   dateOfBirth: yup.date().required(),
 });
 
-export const user = base.shape({
+export const User = Base.shape({
   email: yup.string().required(),
   displayName: yup.string().required(),
   password: yup.string().required(),
 });
 
-export const facility = base.shape({
+export const Facility = Base.shape({
   code: fieldTypes.code.required(),
   name: fieldTypes.name.required(),
   email: yup.string(),
@@ -59,21 +59,21 @@ export const facility = base.shape({
   visibilityStatus,
 });
 
-export const department = base.shape({
+export const Department = Base.shape({
   code: fieldTypes.code.required(),
   name: fieldTypes.name.required(),
   facilityId: yup.string().required(),
   visibilityStatus,
 });
 
-export const location = base.shape({
+export const Location = Base.shape({
   code: fieldTypes.code.required(),
   name: fieldTypes.name.required(),
   facilityId: yup.string().required(),
   visibilityStatus,
 });
 
-export const permission = yup.object().shape({
+export const Permission = yup.object().shape({
   _yCell: yup.string().oneOf(['y', 'n'], 'permissions matrix must only use the letter y or n'), // validation-only, not stored in the database anywhere
   verb: yup.string().required(),
   noun: yup.string().required(),
@@ -82,7 +82,7 @@ export const permission = yup.object().shape({
 });
 
 const rangeRegex = /^[0-9.]+, [0-9.]+$/;
-export const labTestType = base.shape({
+export const LabTestType = Base.shape({
   name: yup.string().required(),
   labTestCategoryId: yup.string().required(),
   resultType: yup
@@ -109,7 +109,7 @@ const jsonString = () =>
     }
   });
 
-export const programDataElement = base.shape({
+export const ProgramDataElement = Base.shape({
   indicator: yup.string(),
   type: yup
     .string()
@@ -118,7 +118,7 @@ export const programDataElement = base.shape({
   defaultOptions: jsonString(),
 });
 
-export const surveyScreenComponent = base.shape({
+export const SurveyScreenComponent = Base.shape({
   visibilityCriteria: jsonString(),
   validationCriteria: jsonString(),
   config: jsonString(),
@@ -131,7 +131,7 @@ export const surveyScreenComponent = base.shape({
   dataElementId: yup.string().required(),
 });
 
-export const scheduledVaccine = base.shape({
+export const ScheduledVaccine = Base.shape({
   category: yup.string().required(),
   label: yup.string().required(),
   schedule: yup.string().required(),
@@ -142,7 +142,7 @@ export const scheduledVaccine = base.shape({
   visibilityStatus,
 });
 
-export const survey = base.shape({
+export const Survey = Base.shape({
   surveyType: yup
     .string()
     .required()
@@ -150,7 +150,7 @@ export const survey = base.shape({
   isSensitive: yup.boolean().required(),
 });
 
-export const encounter = base.shape({
+export const Encounter = Base.shape({
   // contains only what's needed for administeredVaccine imports, extend as neccesary
   encounterType: yup.string().oneOf(Object.values(ENCOUNTER_TYPES)),
   startDate: yup.date().required(),
@@ -165,7 +165,7 @@ export const encounter = base.shape({
             .string()
             .oneOf(['administeredVaccine'])
             .required(),
-          data: base.shape({
+          data: Base.shape({
             batch: yup.string(),
             consent: yup.boolean().required(),
             status: yup

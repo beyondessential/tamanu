@@ -4,8 +4,12 @@ import { promises as fs } from 'fs';
 
 import { getUploadedData } from 'shared/utils/getUploadedData';
 
-export function createDataImporterEndpoint(importer) {
+export function createDataImporterEndpoint(importer, permissions = []) {
   return asyncHandler(async (req, res) => {
+    for (const perm of permissions) {
+      req.checkPermission('write', perm);
+    }
+
     const start = Date.now();
     const { store } = req;
 
@@ -18,7 +22,7 @@ export function createDataImporterEndpoint(importer) {
       whitelist = [],
     } = await getUploadedData(req);
 
-    const result = await importer(store.models, file, { allowErrors, dryRun, whitelist });
+    const result = await importer({ file, models: store.models, allowErrors, dryRun, whitelist });
 
     // we don't need the file any more
     if (deleteFileAfterImport) {
