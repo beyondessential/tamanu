@@ -1,23 +1,17 @@
 import { camelCase, upperFirst } from 'lodash';
 import { Sequelize } from 'sequelize';
-import { readFile, utils } from 'xlsx';
+import { readFile } from 'xlsx';
 
 import { log } from 'shared/services/logging';
 
-import {
-  DataLoaderError,
-  DryRun,
-  ForeignkeyResolutionError,
-  UpstertionError,
-  ValidationError,
-  WorkSheetError,
-} from './errors';
 import {
   patientDataLoader,
   administeredVaccineLoader,
   referenceDataLoaderFactory,
   loaderFactory,
 } from './dataLoaders';
+import { DryRun } from './errors';
+import { importSheet } from './importSheet';
 
 // All reference data is imported first, so that can be assumed for ordering.
 //
@@ -51,74 +45,6 @@ const DEPENDENCIES = {
     needs: ['labTestType'],
   },
 };
-
-async function loadData({ errors, log, models }, { loader, sheetName, sheet }) {
-  const stats = {};
-
-  log.debug('Loading rows from sheet');
-  let sheetRows;
-  try {
-    sheetRows = utils.sheet_to_json(sheet);
-  } catch (err) {
-    errors.push(new WorkSheetError(sheetName, 0, err));
-    return stats;
-  }
-
-  log.debug('Preparing rows of data into table rows', { rows: sheetRows.length });
-  const tableRows = [];
-  for (const [sheetRow, data] of sheetRows.entries()) {
-    try {
-      for (const { model, values } of loader(data)) {
-        stats[model] = stats[model] || { created: 0, updated: 0, errored: 0 };
-        tableRows.push({ model, sheetRow, values });
-      }
-    } catch (err) {
-      errors.push(new DataLoaderError(sheetName, sheetRow, err));
-    }
-  }
-
-  log.debug('Resolving foreign keys', { rows: tableRows.length });
-  const resolvedRows = [];
-  for (const { model, sheetRow, values } of tableRows) {
-    try {
-      resolvedRows.push({ model, sheetRow, values });
-    } catch (err) {
-      stats[model].errored += 1;
-      errors.push(new ForeignkeyResolutionError(sheetName, sheetRow, err));
-    }
-  }
-
-  log.debug('Validating data', { rows: resolvedRows.length });
-  const validRows = [];
-  for (const { model, sheetRow, values } of resolvedRows) {
-    try {
-      validRows.push({ model, sheetRow, values });
-    } catch (err) {
-      stats[model].errored += 1;
-      errors.push(new ValidationError(sheetName, sheetRow, err));
-    }
-  }
-
-  log.debug('Upserting database rows', { rows: validRows.length });
-  for (const { model, sheetRow, values } of validRows) {
-    const Model = models[model];
-    const existing = values.id && (await Model.findByPk(values.id));
-    try {
-      if (existing) {
-        await existing.update(values);
-        stats[model].updated += 1;
-      } else {
-        await Model.create(values);
-        stats[model].created += 1;
-      }
-    } catch (err) {
-      stats[model].errored += 1;
-      errors.push(new UpstertionError(sheetName, sheetRow, err));
-    }
-  }
-
-  return stats;
-}
 
 async function importDataInner({ errors, models, stats, file, whitelist = [] }) {
   log.info('Importing data definitions from file', { file });
@@ -178,7 +104,7 @@ async function importDataInner({ errors, models, stats, file, whitelist = [] }) 
 
     log.debug('Found a sheet for the reference data', { refType });
     stats.push(
-      await loadData(context(refType, 'referenceData'), {
+      await importSheet(context(refType, 'referenceData'), {
         loader: referenceDataLoaderFactory(refType),
         sheetName: refType,
         sheet,
@@ -222,7 +148,7 @@ async function importDataInner({ errors, models, stats, file, whitelist = [] }) 
     }
 
     stats.push(
-      await loadData(context(dataType), {
+      await importSheet(context(dataType), {
         loader,
         sheetName: dataType,
         sheet,
