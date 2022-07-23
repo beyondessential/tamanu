@@ -1,110 +1,23 @@
-import { readFile, utils } from 'xlsx';
-import { getJsDateFromExcel } from 'excel-date-to-js';
-import moment from 'moment';
 import { camelCase, upperFirst } from 'lodash';
+import { Sequelize } from 'sequelize';
+import { readFile, utils } from 'xlsx';
 
 import { log } from 'shared/services/logging';
-import { ENCOUNTER_TYPES } from 'shared/constants';
 
-const loaderFactory = model => ({ note, ...values }) => ({ model, values });
-
-function referenceDataLoaderFactory(refType) {
-  return ({ id, code, name }) => [
-    {
-      model: 'ReferenceData',
-      values: {
-        id,
-        type: refType,
-        code: typeof code === 'number' ? `${code}` : code,
-        name,
-      },
-    },
-  ];
-}
-
-function administeredVaccineLoader(item) {
-  const {
-    encounterId,
-    administeredVaccineId,
-    date: excelDate,
-    reason,
-    consent,
-    locationId,
-    departmentId,
-    examinerId,
-    patientId,
-    ...data
-  } = item;
-  const date = excelDate ? getJsDateFromExcel(excelDate) : null;
-
-  const rows = [];
-
-  rows.push({
-    model: 'AdministeredVaccine',
-    values: {
-      id: administeredVaccineId,
-
-      date,
-      reason,
-      consent: ['true', 'yes', 't', 'y'].some(v => v === consent?.toLowerCase()),
-      ...data,
-
-      // relationships
-      encounterId,
-    },
-  });
-
-  const startDate = date ? moment(date).startOf('day') : null;
-  const endDate = date ? moment(date).endOf('day') : null;
-  rows.push({
-    model: Encounter,
-    values: {
-      id: encounterId,
-
-      encounterType: ENCOUNTER_TYPES.CLINIC,
-      startDate,
-      endDate,
-      reasonForEncounter: reason,
-
-      // relationships
-      administeredVaccines: [administeredVaccineId],
-      locationId,
-      departmentId,
-      examinerId,
-      patientId,
-    },
-  });
-
-  return rows;
-}
-
-function patientDataLoader(item) {
-  const { dateOfBirth, id: patientId, patientAdditionalDataId, ...otherFields } = item;
-
-  const rows = [];
-
-  rows.push({
-    model: 'Patient',
-    values: {
-      id: patientId,
-      dateOfBirth: dateOfBirth && getJsDateFromExcel(dateOfBirth),
-      ...otherFields,
-    },
-  });
-
-  if (patientAdditionalDataId) {
-    rows.push({
-      model: 'PatientAdditionalData',
-      values: {
-        id: patientAdditionalDataId,
-        patientId,
-        ...otherFields,
-      },
-    });
-  }
-
-  return rows;
-}
+import {
+  DataLoaderError,
+  DryRun,
+  ForeignkeyResolutionError,
+  UpstertionError,
+  ValidationError,
+  WorkSheetError,
+} from './errors';
+import {
+  patientDataLoader,
+  administeredVaccineLoader,
+  referenceDataLoaderFactory,
+  loaderFactory,
+} from './dataLoaders';
 
 // All reference data is imported first, so that can be assumed for ordering.
 //
@@ -115,6 +28,8 @@ function patientDataLoader(item) {
 // }
 //
 // where interface LoadRow { model: string; values: object; }
+//
+// creating dependency cycles is a sin (it will deadloop, don't do it)
 const DEPENDENCIES = {
   users: {},
 
@@ -137,37 +52,75 @@ const DEPENDENCIES = {
   },
 };
 
-async function loadData(log, models, loader, sheet) {
-  log.debug('Loading data from sheet');
-  const data = utils.sheet_to_json(sheet);
-  
-  log.debug('Preparing data into rows', { rows: data.length });
-  const rows = [];
-  for (const item of data) {
-    rows.push(...loader(item));
-  }
-  log.debug('Obtained database rows to upsert', { count: instances.length });
-
+async function loadData({ errors, log, models }, { loader, sheetName, sheet }) {
   const stats = {};
 
-  // TODO: optimise
-  for (const { model, values } of rows) {
-    stats[model] = stats[model] || { created: 0, updated: 0 };
-    const Model = models[model];
-    const existing = values.id && await Model.findByPk(values.id);
-    if (existing) {
-      await existing.update(values);
-      stats[model].updated += 1;
-    } else {
-      await Model.create(values);
-      stats[model].created += 1;
+  log.debug('Loading rows from sheet');
+  let sheetRows;
+  try {
+    sheetRows = utils.sheet_to_json(sheet);
+  } catch (err) {
+    errors.push(new WorkSheetError(sheetName, 0, err));
+    return stats;
+  }
+
+  log.debug('Preparing rows of data into table rows', { rows: sheetRows.length });
+  const tableRows = [];
+  for (const [sheetRow, data] of sheetRows.entries()) {
+    try {
+      for (const { model, values } of loader(data)) {
+        stats[model] = stats[model] || { created: 0, updated: 0, errored: 0 };
+        tableRows.push({ model, sheetRow, values });
+      }
+    } catch (err) {
+      errors.push(new DataLoaderError(sheetName, sheetRow, err));
     }
   }
-  
+
+  log.debug('Resolving foreign keys', { rows: tableRows.length });
+  const resolvedRows = [];
+  for (const { model, sheetRow, values } of tableRows) {
+    try {
+      resolvedRows.push({ model, sheetRow, values });
+    } catch (err) {
+      stats[model].errored += 1;
+      errors.push(new ForeignkeyResolutionError(sheetName, sheetRow, err));
+    }
+  }
+
+  log.debug('Validating data', { rows: resolvedRows.length });
+  const validRows = [];
+  for (const { model, sheetRow, values } of resolvedRows) {
+    try {
+      validRows.push({ model, sheetRow, values });
+    } catch (err) {
+      stats[model].errored += 1;
+      errors.push(new ValidationError(sheetName, sheetRow, err));
+    }
+  }
+
+  log.debug('Upserting database rows', { rows: validRows.length });
+  for (const { model, sheetRow, values } of validRows) {
+    const Model = models[model];
+    const existing = values.id && (await Model.findByPk(values.id));
+    try {
+      if (existing) {
+        await existing.update(values);
+        stats[model].updated += 1;
+      } else {
+        await Model.create(values);
+        stats[model].created += 1;
+      }
+    } catch (err) {
+      stats[model].errored += 1;
+      errors.push(new UpstertionError(sheetName, sheetRow, err));
+    }
+  }
+
   return stats;
 }
 
-export async function importData(models, file, { whitelist = [] }) {
+async function importDataInner({ errors, models, stats, file, whitelist = [] }) {
   log.info('Importing data definitions from file', { file });
 
   log.debug('Parse XLSX workbook');
@@ -193,8 +146,28 @@ export async function importData(models, file, { whitelist = [] }) {
       group: 'type',
     })
   ).map(ref => ref.type);
-  
-  const stats = [];
+
+  // general idea is there are a number of phases, and during each we iterate
+  // through the entire set of remaining rows. any errors are caught and stored,
+  // and the erroring rows are omitted from the set that goes on to the next bit
+  //
+  // if there are any errors at the end of the process, we throw to rollback the
+  // transaction.
+  //
+  // pushing on like this means that there may be some false-positive errors in
+  // later steps that actually wouldn't be errors if the right rows had made it
+  // through without erroring previously. overall, though, it should provide a
+  // lot more feedback than erroring early.
+
+  const context = (sheetName, dataType = sheetName) => ({
+    errors,
+    log: log.child({
+      file,
+      dataType,
+      sheetName,
+    }),
+    models,
+  });
 
   log.debug('Import all reference data', { types: refDataTypes });
   const importedRef = [];
@@ -204,15 +177,13 @@ export async function importData(models, file, { whitelist = [] }) {
     if (!sheet) continue;
 
     log.debug('Found a sheet for the reference data', { refType });
-    stats.push(await loadData(
-      log.child({
-        file,
-        dataType: 'referenceData',
+    stats.push(
+      await loadData(context(refType, 'referenceData'), {
+        loader: referenceDataLoaderFactory(refType),
+        sheetName: refType,
+        sheet,
       }),
-      models,
-      referenceDataLoaderFactory(refType),
-      sheet,
-    ));
+    );
     importedRef.push(refType);
   }
   log.debug('Done importing reference data', { imported: importedRef });
@@ -250,21 +221,20 @@ export async function importData(models, file, { whitelist = [] }) {
       }
     }
 
-    stats.push(await loadData(
-      log.child({
-        file,
-        dataType,
+    stats.push(
+      await loadData(context(dataType), {
+        loader,
+        sheetName: dataType,
+        sheet,
       }),
-      models,
-      loader,
-      sheet,
-    ));
+    );
     importedData.push(dataType);
   }
 
   log.debug('Done importing data', { importedData, droppedData });
-  
-  // coalesce stats
+}
+
+function coalesceStats(stats) {
   const allStats = {};
   for (const stat of stats) {
     for (const [model, { created, updated }] of Object.entries(stat)) {
@@ -276,6 +246,46 @@ export async function importData(models, file, { whitelist = [] }) {
       }
     }
   }
+
   log.debug('Imported lotsa things', { stats: allStats });
   return allStats;
+}
+
+export async function importData(models, file, { dryRun = false, whitelist = [] }) {
+  const errors = [];
+  const stats = [];
+
+  try {
+    await Sequelize.transaction(
+      {
+        // strongest level to be sure to read/write good data
+        isolationLevel: Sequelize.Transaction.ISOLATION_LEVEL.SERIALIZABLE,
+      },
+      async () => {
+        await importDataInner({ errors, models, stats, file, whitelist });
+        if (errors.length > 0) throw new Error('rollback on errors');
+        if (dryRun) throw new DryRun();
+      },
+    );
+
+    if (dryRun) {
+      throw new Error('Data import completed but it was a dry run!!!');
+    } else {
+      return { reason: 'done', errors: [], stats: coalesceStats(stats) };
+    }
+  } catch (err) {
+    if (dryRun && err instanceof DryRun) {
+      return {
+        reason: 'dryrun',
+        errors: [],
+        stats: coalesceStats(stats),
+      };
+    } else {
+      return {
+        reason: 'errors',
+        errors,
+        stats: coalesceStats(stats),
+      };
+    }
+  }
 }

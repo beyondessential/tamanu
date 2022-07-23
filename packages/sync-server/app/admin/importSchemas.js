@@ -173,8 +173,6 @@ export const encounter = base.shape({
               .oneOf(Object.values(VACCINE_STATUS)) // TODO
               .required(),
             reason: yup.string(),
-            // TODO: what does this actually do?
-            // location: yup.string(),
             injectionSite: yup.string().oneOf(Object.values(INJECTION_SITE_OPTIONS)),
             date: yup.date().required(),
             scheduledVaccineId: yup.string().required(),
