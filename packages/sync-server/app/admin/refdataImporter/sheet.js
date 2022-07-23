@@ -1,4 +1,5 @@
 import { utils } from 'xlsx';
+import { ValidationError as YupValidationError } from 'yup';
 
 import {
   DataLoaderError,
@@ -50,15 +51,28 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
   const validRows = [];
   for (const { model, sheetRow, values } of resolvedRows) {
     try {
-      const schemaName = model === 'ReferenceData'
-        ? (schemas[`RD${sheetName}`] ? `RD${sheetName}` : 'ReferenceData')
-        : (schemas[model] ? model : 'Base');
+      const schemaName =
+        model === 'ReferenceData'
+          ? schemas[`RD${sheetName}`]
+            ? `RD${sheetName}`
+            : 'ReferenceData'
+          : schemas[model]
+          ? model
+          : 'Base';
 
       const schema = schemas[schemaName];
-      validRows.push({ model, sheetRow, values });
+      validRows.push({
+        model,
+        sheetRow,
+        values: await schema.validate(values, { abortEarly: false }),
+      });
     } catch (err) {
       stats[model].errored += 1;
-      errors.push(new ValidationError(sheetName, sheetRow, err));
+      if (err instanceof YupValidationError) {
+        for (const valerr of err.errors) {
+          errors.push(new ValidationError(sheetName, sheetRow, valerr));
+        }
+      }
     }
   }
 
