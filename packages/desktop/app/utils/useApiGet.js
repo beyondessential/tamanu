@@ -28,6 +28,7 @@ export const useApiGet = (endpoint, query, options, dependencies = []) => {
   for (let i = 0; i < hookDeps.length; i++) {
     if (hookDeps.length !== dependencies.length || hookDeps[i] !== dependencies[i]) {
       setHookDeps(dependencies);
+      break;
     }
   }
 
