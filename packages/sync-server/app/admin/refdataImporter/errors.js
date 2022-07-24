@@ -1,14 +1,18 @@
 export class DataImportError extends Error {
     constructor(sheetName, rowNumber, error) {
+        let previous;
         if (typeof error === 'string') {
-            super(`${error} on ${sheetName} at row ${rowNumber + 1}`);
-        } else if (error instanceof Error) {
+            previous = new Error(error);
+        }
+
+        if (error instanceof Error) {
             super(`${error.message} on ${sheetName} at row ${rowNumber + 1}`);
-            this.previous = error;
+            previous = error;
         } else {
             throw new Error('DEV ERROR: pass either a string or Error error');
         }
-        
+
+        this.previous = previous;
         this.sheetName = sheetName;
         this.rowNumber = rowNumber;
     }
@@ -16,8 +20,9 @@ export class DataImportError extends Error {
     toJSON() {
         return {
             sheet: this.sheetName,
-            row: this.rowNumber,
-            message: this.message,
+            row: this.rowNumber + 1,
+            kind: this.constructor.name,
+            message: this.previous.toString(),
         };
     }
 }

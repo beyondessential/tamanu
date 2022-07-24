@@ -1,6 +1,6 @@
 import { log } from 'shared/services/logging';
 
-export function newStatsRow({ created = 0, updated = 0, errored = 0 }) {
+export function newStatsRow({ created = 0, updated = 0, errored = 0 } = {}) {
   return { created, updated, errored };
 }
 

@@ -17,9 +17,10 @@ const ErrorText = styled.span`
 const ERROR_COLUMNS = [
   { key: 'sheet', title: 'Sheet', width: 1 },
   { key: 'row', title: 'Row' },
+  { key: 'kind', title: 'Error' },
   {
     key: 'error',
-    title: 'Error',
+    title: 'Message',
     accessor: data => <ErrorText>{data.message}</ErrorText>,
   },
 ];
@@ -28,12 +29,15 @@ const ImportErrorsTable = ({ errors }) => (
   <Table rowIdKey="row" columns={ERROR_COLUMNS} noDataMessage="All good!" data={errors} />
 );
 
-
 const STATS_COLUMNS = [
   { key: 'model', title: 'Model', accessor: ([model]) => model },
   { key: 'created', title: 'Created', accessor: ([_, { created }]) => created },
   { key: 'updated', title: 'Updated', accessor: ([_, { updated }]) => updated },
-  { key: 'errored', title: 'Errored', accessor: ([_, { errored }]) => <ErrorText>{errored}</ErrorText> },
+  {
+    key: 'errored',
+    title: 'Errored',
+    accessor: ([_, { errored }]) => <ErrorText>{errored}</ErrorText>,
+  },
 ];
 
 const ImportStatsDisplay = ({ stats }) => (
@@ -44,7 +48,6 @@ const ImportStatsDisplay = ({ stats }) => (
     data={Object.entries(stats)}
   />
 );
-
 
 const UploadForm = ({ submitForm, isSubmitting, additionalFields }) => (
   <FormGrid columns={1}>
@@ -67,25 +70,24 @@ const UploadForm = ({ submitForm, isSubmitting, additionalFields }) => (
 );
 
 const OutcomeHeader = ({ result }) => {
-  if (!result.errors?.length) {
-    return (
-      <h3>
-        {`Import successful! Sent ${
-          Object.values(result.stats).reduce((memo, { created, updated }) => memo + created + updated, 0)
-        } records in ${result.duration.toFixed(2)}s`}
-      </h3>
-    );
-  }
-
   if (result.didntSendReason === 'validationFailed') {
     return <h3>Please correct these validation issues and try again</h3>;
-  }
-
-  if (result.didntSendReason === 'dryRun') {
+  } else if (result.didntSendReason === 'dryRun') {
     return <h3>Test import finished</h3>;
+  } else if (result.didntSendReason) {
+    return <h3>{`Import failed - server reports "${result.didntSendReason}"`}</h3>;
+  } else if (!result.errors?.length) {
+    return (
+      <h3>
+        {`Import successful! Sent ${Object.values(result.stats).reduce(
+          (memo, { created, updated }) => memo + created + updated,
+          0,
+        )} records in ${result.duration.toFixed(2)}s`}
+      </h3>
+    );
+  } else {
+    return <h3>Import failed - unknown server error</h3>;
   }
-
-  return <h3>{`Import failed - server reports "${result.didntSendReason}"`}</h3>;
 };
 
 const OutcomeDisplay = ({ result }) => {
