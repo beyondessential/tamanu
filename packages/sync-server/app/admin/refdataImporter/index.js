@@ -1,5 +1,5 @@
 import { singularize } from 'inflection';
-import { camelCase, upperFirst } from 'lodash';
+import { camelCase, upperFirst, lowerCase } from 'lodash';
 import { Sequelize } from 'sequelize';
 import { readFile } from 'xlsx';
 
@@ -59,13 +59,14 @@ async function importerInner({ errors, models, stats, file, whitelist = [] }) {
   log.debug('Normalise all sheet names for lookup');
   const sheets = new Map();
   for (const [sheetName, sheet] of Object.entries(workbook.Sheets)) {
-    const name = singularize(camelCase(sheetName.replace(/[^a-z0-9]+/g, '-')));
+    const name = singularize(camelCase(singularize(lowerCase(sheetName))));
 
     if (whitelist.length && !whitelist.includes(name)) {
       log.debug('Sheet has been manually excluded', { name });
       continue;
     }
 
+    log.debug('Found and normalised sheet name', { name });
     sheets.set(name, sheet);
   }
 
@@ -177,10 +178,11 @@ export default async function importer({
   // TODO handle allowErrors: true
 
   try {
-    await Sequelize.transaction(
+    log.debug('Starting transaction');
+    await models.ReferenceData.sequelize.transaction(
       {
         // strongest level to be sure to read/write good data
-        isolationLevel: Sequelize.Transaction.ISOLATION_LEVEL.SERIALIZABLE,
+        isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE,
       },
       async () => {
         await importerInner({ errors, models, stats, file, whitelist });
@@ -188,6 +190,7 @@ export default async function importer({
         if (dryRun) throw new DryRun();
       },
     );
+    log.debug('Ended transaction');
 
     if (dryRun) {
       throw new Error('Data import completed but it was a dry run!!!');
@@ -195,16 +198,23 @@ export default async function importer({
       return { errors: [], stats: coalesceStats(stats) };
     }
   } catch (err) {
+    log.error(`while importing refdata: ${err.stack}`);
     if (dryRun && err instanceof DryRun) {
       return {
         didntSendReason: 'dryRun',
         errors: [],
         stats: coalesceStats(stats),
       };
-    } else {
+    } else if (errors.length) {
       return {
         didntSendReason: 'validationFailed',
         errors,
+        stats: coalesceStats(stats),
+      };
+    } else {
+      return {
+        didntSendReason: 'validationFailed',
+        errors: [err],
         stats: coalesceStats(stats),
       };
     }
