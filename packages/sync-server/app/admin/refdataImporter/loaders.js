@@ -2,7 +2,8 @@ import { getJsDateFromExcel } from 'excel-date-to-js';
 import moment from 'moment';
 import { ENCOUNTER_TYPES } from 'shared/constants';
 
-export const loaderFactory = model => ({ note, ...values }) => ({ model, values });
+export const loaderFactory = model => ({ note, ...values }) => [{ model, values }];
+
 export function referenceDataLoaderFactory(refType) {
   return ({ id, code, name }) => [
     {
@@ -18,7 +19,16 @@ export function referenceDataLoaderFactory(refType) {
 }
 export function administeredVaccineLoader(item) {
   const {
-    encounterId, administeredVaccineId, date: excelDate, reason, consent, locationId, departmentId, examinerId, patientId, ...data
+    encounterId,
+    administeredVaccineId,
+    date: excelDate,
+    reason,
+    consent,
+    locationId,
+    departmentId,
+    examinerId,
+    patientId,
+    ...data
   } = item;
   const date = excelDate ? getJsDateFromExcel(excelDate) : null;
 
@@ -42,7 +52,7 @@ export function administeredVaccineLoader(item) {
   const startDate = date ? moment(date).startOf('day') : null;
   const endDate = date ? moment(date).endOf('day') : null;
   rows.push({
-    model: Encounter,
+    model: 'Encounter',
     values: {
       id: encounterId,
 

@@ -29,10 +29,10 @@ function isRefData(kind) {
 }
 
 function findFieldName(values, fkField) {
-  const fkFieldLower = foreignKeyField.toLowerCase();
-  const fkFieldCamel = camelCase(foreignKeyField);
-  const fkFieldUcfirst = upperFirst(foreignKeyField);
-  const fkFieldSplit = lowerCase(foreignKeyField);
+  const fkFieldLower = fkField.toLowerCase();
+  const fkFieldCamel = camelCase(fkField);
+  const fkFieldUcfirst = upperFirst(fkField);
+  const fkFieldSplit = lowerCase(fkField);
   const fkFieldSplitUcwords = startCase(fkFieldSplit);
   if (values[fkField]) return fkField;
   if (values[fkFieldLower]) return fkFieldLower;

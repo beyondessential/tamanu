@@ -19,8 +19,8 @@ export const PERMISSIONS = ['User', 'ReferenceData'];
 
 // All reference data is imported first, so that can be assumed for ordering.
 //
-// sheetNameNormalisedToCamelCase: {
-//   model: 'ModelName' (defaults to `upperFirst(sheetNameNormalisedToCamelCase)`),
+// sheetNameNormalised: {
+//   model: 'ModelName' (defaults to `upperFirst(sheetNameNormalised)`),
 //   loader: fn(item) => Array<LoadRow> (defaults to `loaderFactory(Model)`),
 //   needs: ['otherSheetNames', 'thisOneNeeds'] (defaults to `[]`),
 // }
@@ -29,32 +29,33 @@ export const PERMISSIONS = ['User', 'ReferenceData'];
 //
 // creating dependency cycles is a sin (it will deadloop, don't do it)
 const DEPENDENCIES = {
-  users: {},
+  user: {},
 
-  patients: {
+  patient: {
     loader: patientDataLoader,
-    needs: ['users'],
+    needs: ['user'],
   },
 
-  certifiableVaccines: {},
-  vaccineSchedules: {},
-  administeredVaccines: {
+  certifiableVaccine: {},
+  scheduledVaccine: {},
+  administeredVaccine: {
     loader: administeredVaccineLoader,
-    needs: ['vaccineSchedules', 'users'],
+    needs: ['scheduledVaccine', 'user'],
   },
 
-  labTestTypes: {},
-  invoicePriceChangeTypes: {},
-  invoiceLineTypes: {
+  labTestType: {},
+  invoicePriceChangeType: {},
+  invoiceLineType: {
     needs: ['labTestType'],
   },
 };
 
 function normalise(name) {
   const norm = singularize(camelCase(singularize(lowerCase(name))));
-  
+
   if (norm === 'placesOfBirth') return 'placeOfBirth';
-  
+  if (norm === 'vaccineSchedule') return 'scheduledVaccine';
+
   return norm;
 }
 
@@ -129,12 +130,14 @@ async function importerInner({ errors, models, stats, file, whitelist = [] }) {
 
   // sort by length of needs, so that stuff that doesn't depend on anything else gets done first
   // (as an optimisation, the algorithm doesn't need this, but it saves a few cycles)
-  const dataTypes = Object.entries(DEPENDENCIES);
+  const dataTypes = Object.entries(DEPENDENCIES).map(([k, v]) => [normalise(k), v]);
   dataTypes.sort(([_ka, a], [_kb, b]) => (a.needs?.length ?? 0) - (b.needs?.length ?? 0));
 
   log.debug('Importing other data types', { dataTypes });
   const importedData = [];
   const droppedData = [];
+
+  // TODO: cycle/deadloop protection
   while (dataTypes.length > 0) {
     const [
       dataType,

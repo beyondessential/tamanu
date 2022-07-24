@@ -1,18 +1,16 @@
 export class DataImportError extends Error {
     constructor(sheetName, rowNumber, error) {
-        let previous;
         if (typeof error === 'string') {
-            previous = new Error(error);
+            error = new Error(error);
         }
 
         if (error instanceof Error) {
             super(`${error.message} on ${sheetName} at row ${rowNumber + 1}`);
-            previous = error;
         } else {
             throw new Error('DEV ERROR: pass either a string or Error error');
         }
-
-        this.previous = previous;
+        
+        this.previous = error;
         this.sheetName = sheetName;
         this.rowNumber = rowNumber;
     }
