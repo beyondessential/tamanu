@@ -15,10 +15,7 @@ import { DryRun } from './errors';
 import { importSheet } from './sheet';
 import { coalesceStats } from './stats';
 
-export const PERMISSIONS = [
-  'User',
-  'ReferenceData',
-];
+export const PERMISSIONS = ['User', 'ReferenceData'];
 
 // All reference data is imported first, so that can be assumed for ordering.
 //
@@ -167,9 +164,17 @@ async function importerInner({ errors, models, stats, file, whitelist = [] }) {
   log.debug('Done importing data', { importedData, droppedData });
 }
 
-export default async function importer({ models, file, dryRun = false, whitelist = [] }) {
+export default async function importer({
+  models,
+  file,
+  allowErrors = false,
+  dryRun = false,
+  whitelist = [],
+}) {
   const errors = [];
   const stats = [];
+
+  // TODO handle allowErrors: true
 
   try {
     await Sequelize.transaction(
