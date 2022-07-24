@@ -60,6 +60,8 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
   for (const [sheetRow, data] of sheetRows.entries()) {
     try {
       for (const { model, values } of loader(data)) {
+        if (!models[model]) throw new Error(`No such type of data: ${model}`);
+
         stats[model] = stats[model] || newStatsRow();
         tableRows.push({ model, sheetRow, values });
       }
