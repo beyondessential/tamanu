@@ -2,7 +2,7 @@ import React, { memo, useCallback } from 'react';
 import { ContentPane } from '../../components';
 import { useApi } from '../../api';
 import { CheckArrayInput } from '../../components/Field/CheckArrayInput';
-import { DataDocumentUploadForm } from './DataDocumentUploadForm';
+import { RefDataUploadForm } from './RefDataUploadForm';
 import { Field } from '../../components/Field';
 
 export const ReferenceDataAdminView = memo(() => {
@@ -74,7 +74,7 @@ export const ReferenceDataAdminView = memo(() => {
   return (
     <ContentPane>
       <h1>Data admin</h1>
-      <DataDocumentUploadForm onSubmit={onSubmit} additionalFields={whitelist} />
+      <RefDataUploadForm onSubmit={onSubmit} additionalFields={whitelist} />
     </ContentPane>
   );
 });

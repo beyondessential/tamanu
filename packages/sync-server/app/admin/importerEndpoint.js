@@ -33,7 +33,7 @@ export function createDataImporterEndpoint(importer, permissions = []) {
       ...result,
       duration: (Date.now() - start) / 1000.0,
       serverInfo: {
-        host: config.sync.host,
+        host: 'Central Server',
       },
     });
   });

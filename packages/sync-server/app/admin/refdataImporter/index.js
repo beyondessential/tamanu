@@ -192,18 +192,18 @@ export default async function importer({
     if (dryRun) {
       throw new Error('Data import completed but it was a dry run!!!');
     } else {
-      return { reason: 'done', errors: [], stats: coalesceStats(stats) };
+      return { errors: [], stats: coalesceStats(stats) };
     }
   } catch (err) {
     if (dryRun && err instanceof DryRun) {
       return {
-        reason: 'dryrun',
+        didntSendReason: 'dryRun',
         errors: [],
         stats: coalesceStats(stats),
       };
     } else {
       return {
-        reason: 'errors',
+        didntSendReason: 'validationFailed',
         errors,
         stats: coalesceStats(stats),
       };
