@@ -50,6 +50,14 @@ const DEPENDENCIES = {
   },
 };
 
+function normalise(name) {
+  const norm = singularize(camelCase(singularize(lowerCase(name))));
+  
+  if (norm === 'placesOfBirth') return 'placeOfBirth';
+  
+  return norm;
+}
+
 async function importerInner({ errors, models, stats, file, whitelist = [] }) {
   log.info('Importing data definitions from file', { file });
 
@@ -59,14 +67,14 @@ async function importerInner({ errors, models, stats, file, whitelist = [] }) {
   log.debug('Normalise all sheet names for lookup');
   const sheets = new Map();
   for (const [sheetName, sheet] of Object.entries(workbook.Sheets)) {
-    const name = singularize(camelCase(singularize(lowerCase(sheetName))));
+    const name = normalise(sheetName);
 
     if (whitelist.length && !whitelist.includes(name)) {
       log.debug('Sheet has been manually excluded', { name });
       continue;
     }
 
-    log.debug('Found and normalised sheet name', { name });
+    log.debug('Found and normalised sheet', { name });
     sheets.set(name, sheet);
   }
 
