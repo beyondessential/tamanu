@@ -8,6 +8,17 @@ export class DataImportError extends Error {
         } else {
             throw new Error('DEV ERROR: pass either a string or Error error');
         }
+        
+        this.sheetName = sheetName;
+        this.rowNumber = rowNumber;
+    }
+
+    toJSON() {
+        return {
+            sheet: this.sheetName,
+            row: this.rowNumber,
+            message: this.message,
+        };
     }
 }
 
