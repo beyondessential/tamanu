@@ -371,6 +371,7 @@ export const ALPHABET_FOR_ID =
   // this is absolutely fine and the concat isn't useless
   // eslint-disable-next-line no-useless-concat
   'ABCDEFGH' + /* I */ 'JK' + /* L */ 'MN' + /* O */ 'PQRSTUVWXYZ' + /* 01 */ '23456789';
+
 export const INVOICE_STATUS_OPTIONS = [
   { label: 'Cancelled', value: INVOICE_STATUSES.CANCELLED },
   { label: 'In progress', value: INVOICE_STATUSES.IN_PROGRESS },

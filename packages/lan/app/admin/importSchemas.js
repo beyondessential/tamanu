@@ -5,8 +5,13 @@ import {
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
   VACCINE_STATUS,
   LAB_TEST_RESULT_TYPES,
+  VISIBILITY_STATUSES,
 } from 'shared/constants';
 
+const visibilityStatus = yup
+  .string()
+  .default(VISIBILITY_STATUSES.CURRENT)
+  .oneOf(Object.values(VISIBILITY_STATUSES));
 const safeIdRegex = /^[A-Za-z0-9-]+$/;
 const safeCodeRegex = /^[A-Za-z0-9-./]+$/;
 
@@ -26,6 +31,7 @@ export const referenceData = base.shape({
   type: yup.string().required(),
   code: fieldTypes.code.required(),
   name: yup.string().required(),
+  visibilityStatus,
 });
 
 export const patient = base.shape({
@@ -50,18 +56,21 @@ export const facility = base.shape({
   cityTown: yup.string(),
   division: yup.string(),
   type: yup.string(),
+  visibilityStatus,
 });
 
 export const department = base.shape({
   code: fieldTypes.code.required(),
   name: fieldTypes.name.required(),
   facilityId: yup.string().required(),
+  visibilityStatus,
 });
 
 export const location = base.shape({
   code: fieldTypes.code.required(),
   name: fieldTypes.name.required(),
   facilityId: yup.string().required(),
+  visibilityStatus,
 });
 
 export const permission = yup.object().shape({
@@ -84,6 +93,7 @@ export const labTestType = base.shape({
   unit: yup.string(),
   maleRange: yup.string().matches(rangeRegex),
   femaleRange: yup.string().matches(rangeRegex),
+  visibilityStatus,
 });
 
 const jsonString = () =>
@@ -129,6 +139,7 @@ export const scheduledVaccine = base.shape({
   weeksFromLastVaccinationDue: yup.number(),
   index: yup.number().required(),
   vaccineId: yup.string().required(),
+  visibilityStatus,
 });
 
 export const survey = base.shape({

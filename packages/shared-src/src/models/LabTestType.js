@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
-import { SYNC_DIRECTIONS, LAB_TEST_RESULT_TYPES } from 'shared/constants';
+import { SYNC_DIRECTIONS, LAB_TEST_RESULT_TYPES, VISIBILITY_STATUSES } from 'shared/constants';
 import { Model } from './Model';
 
 function optionStringToArray(s) {
@@ -46,6 +46,10 @@ export class LabTestType extends Model {
         options: {
           type: Sequelize.TEXT,
           allowNull: true,
+        },
+        visibilityStatus: {
+          type: Sequelize.TEXT,
+          defaultValue: VISIBILITY_STATUSES.CURRENT,
         },
       },
       {

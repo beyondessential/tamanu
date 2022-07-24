@@ -24,7 +24,7 @@ const InfoPopupLabel = React.memo(() => (
   <span>
     <span>Triage score </span>
     {/* Todo: convert triage flow chart to a configurable asset */}
-    {/*<ImageInfoModal src={triageFlowchart} />*/}
+    {/* <ImageInfoModal src={triageFlowchart} /> */}
   </span>
 ));
 

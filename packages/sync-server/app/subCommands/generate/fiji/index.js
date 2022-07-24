@@ -50,7 +50,7 @@ export const generateFiji = async ({ patientCount: patientCountStr }) => {
   const upsertSetupData = async () => {
     // villages
     for (let i = 0; i < NUM_VILLAGES; i++) {
-      const name = chance.name();
+      const name = chance.city();
       const code = name.toLowerCase();
       const id = `village-${code}-${uuidv4()}`;
       await ReferenceData.create({ id, code, name, type: 'village' });

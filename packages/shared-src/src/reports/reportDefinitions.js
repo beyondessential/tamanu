@@ -324,6 +324,7 @@ export const REPORT_DEFINITIONS = [
         label: 'Survey',
         name: 'surveyId',
         suggesterEndpoint: 'survey',
+        required: true,
       },
     ],
   },
