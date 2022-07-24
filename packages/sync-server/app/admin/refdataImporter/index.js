@@ -1,3 +1,4 @@
+import { singularize } from 'inflection';
 import { camelCase, upperFirst } from 'lodash';
 import { Sequelize } from 'sequelize';
 import { readFile } from 'xlsx';
@@ -61,7 +62,7 @@ async function importerInner({ errors, models, stats, file, whitelist = [] }) {
   log.debug('Normalise all sheet names for lookup');
   const sheets = new Map();
   for (const [sheetName, sheet] of Object.entries(workbook.Sheets)) {
-    const name = camelCase(sheetName.replace(/[^a-z0-9]+/g, '-'));
+    const name = singularize(camelCase(sheetName.replace(/[^a-z0-9]+/g, '-')));
 
     if (whitelist.length && !whitelist.includes(name)) {
       log.debug('Sheet has been manually excluded', { name });

@@ -78,6 +78,7 @@
     "express-session": "^1.15.6",
     "express-validator": "^6.5.0",
     "follow": "^1.1.0",
+    "inflection": "^1.13.2",
     "json-canonicalize": "^1.0.4",
     "jsonwebtoken": "^8.4.0",
     "jszip": "^3.7.1",
