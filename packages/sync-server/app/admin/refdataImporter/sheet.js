@@ -54,6 +54,11 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
     errors.push(new WorkSheetError(sheetName, 0, err));
     return stats;
   }
+  
+  if (sheetRows.length === 0) {
+    log.debug('Nothing in this sheet, skipping');
+    return stats;
+  }
 
   log.debug('Preparing rows of data into table rows', { rows: sheetRows.length });
   const tableRows = [];
@@ -68,6 +73,11 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
     } catch (err) {
       errors.push(new DataLoaderError(sheetName, sheetRow, err));
     }
+  }
+
+  if (tableRows.length === 0) {
+    log.debug('Nothing left, skipping');
+    return stats;
   }
 
   log.debug('Building reverse lookup table');
@@ -138,6 +148,11 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
     }
   }
 
+  if (resolvedRows.length === 0) {
+    log.debug('Nothing left, skipping');
+    return stats;
+  }
+
   log.debug('Validating data', { rows: resolvedRows.length });
   const validRows = [];
   for (const { model, sheetRow, values } of resolvedRows) {
@@ -165,6 +180,11 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
         }
       }
     }
+  }
+
+  if (validRows.length === 0) {
+    log.debug('Nothing left, skipping');
+    return stats;
   }
 
   log.debug('Upserting database rows', { rows: validRows.length });
