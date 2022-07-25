@@ -1,4 +1,5 @@
 import { camelCase, lowerCase, lowerFirst, startCase, upperFirst } from 'lodash';
+import { Op } from 'sequelize';
 import { utils } from 'xlsx';
 import { ValidationError as YupValidationError } from 'yup';
 
@@ -12,16 +13,53 @@ import {
 import * as schemas from './schemas';
 import { newStatsRow } from './stats';
 
-// lowerCamelCase are refdata types
-// UpperCamelCase are other models
-const FOREIGN_KEY_FIELDS = {
-  CertifiableVaccine: 'vaccine',
-  Department: 'Facility',
-  LabTestType: 'labTestCategory',
-  Location: 'Facility',
-  Patient: 'village',
-  Permission: 'Role',
-  ScheduledVaccine: 'vaccine',
+const FOREIGN_KEY_SCHEMATA = {
+  CertifiableVaccine: [
+    {
+      field: 'vaccine',
+      model: 'ReferenceData',
+      types: ['vaccine', 'drug'],
+    },
+  ],
+  Department: [
+    {
+      field: 'facility',
+      model: 'Facility',
+    },
+  ],
+  LabTestType: [
+    {
+      field: 'labTestCategory',
+      model: 'ReferenceData',
+      types: ['labTestCategory'],
+    },
+  ],
+  Location: [
+    {
+      field: 'facility',
+      model: 'Facility',
+    },
+  ],
+  Patient: [
+    {
+      field: 'village',
+      model: 'ReferenceData',
+      types: ['village'],
+    },
+  ],
+  Permission: [
+    {
+      field: 'role',
+      model: 'Role',
+    },
+  ],
+  ScheduledVaccine: [
+    {
+      field: 'vaccine',
+      model: 'ReferenceData',
+      types: ['vaccine', 'drug'],
+    },
+  ],
 };
 
 function isRefData(kind) {
@@ -45,7 +83,7 @@ function findFieldName(values, fkField) {
 
 export async function importSheet({ errors, log, models }, { loader, sheetName, sheet }) {
   const stats = {};
-  const statkey = model => model === 'ReferenceData' ? `${model}/${sheetName}` : model;
+  const statkey = model => (model === 'ReferenceData' ? `${model}/${sheetName}` : model);
 
   log.debug('Loading rows from sheet');
   let sheetRows;
@@ -55,7 +93,7 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
     errors.push(new WorkSheetError(sheetName, 0, err));
     return stats;
   }
-  
+
   if (sheetRows.length === 0) {
     log.debug('Nothing in this sheet, skipping');
     return stats;
@@ -97,16 +135,15 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
   const resolvedRows = [];
   for (const { model, sheetRow, values } of tableRows) {
     try {
-      const foreignKeyField = FOREIGN_KEY_FIELDS[model];
-      if (foreignKeyField) {
-        const fkFieldName = findFieldName(values, foreignKeyField);
+      for (const fkSchema of FOREIGN_KEY_SCHEMATA[model] ?? []) {
+        const fkFieldName = findFieldName(values, fkSchema.field);
         if (fkFieldName) {
           const fkFieldValue = values[fkFieldName];
-          const fkNameLowerId = `${lowerFirst(foreignKeyField)}Id`;
+          const fkNameLowerId = `${lowerFirst(fkSchema.field)}Id`;
 
-          const hasLocalId = lookup.has({ kind: foreignKeyField, id: fkFieldValue });
+          const hasLocalId = lookup.has({ kind: fkSchema.field, id: fkFieldValue });
           const idByLocalName = lookup.get({
-            kind: foreignKeyField,
+            kind: fkSchema.field,
             name: fkFieldValue.toLowerCase(),
           });
 
@@ -118,17 +155,21 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
             values[fkNameLowerId] = idByLocalName;
           } else {
             const hasRemoteId =
-              (isRefData(foreignKeyField)
+              (fkSchema.model === 'ReferenceData'
                 ? await models.ReferenceData.count({
-                    where: { type: foreignKeyField, id: fkFieldValue },
+                    where: { type: fkSchema.types, id: fkFieldValue },
                   })
-                : await models[model].count({ where: { id: fkFieldValue } })) > 0;
+                : await models[fkSchema.model].count({ where: { id: fkFieldValue } })) > 0;
 
-            const idByRemoteName = (isRefData(foreignKeyField)
+            const idByRemoteName = (fkSchema.model === 'ReferenceData'
               ? await models.ReferenceData.findOne({
-                  where: { type: foreignKeyField, name: fkFieldValue.toLowerCase() },
+                  where: { type: fkSchema.types, name: { [Op.iLike]: fkFieldValue } },
                 })
-              : await models[model].findOne({ where: { name: fkFieldValue.toLowerCase() } })
+              : await models[fkSchema.model].findOne({
+                  where: {
+                    name: { [Op.iLike]: fkFieldValue },
+                  },
+                })
             )?.id;
 
             if (hasRemoteId) {

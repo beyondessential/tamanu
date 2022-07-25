@@ -77,7 +77,7 @@ const OutcomeHeader = ({ result }) => {
   if (result.didntSendReason === 'validationFailed') {
     return <h3>Please correct these validation issues and try again</h3>;
   } else if (result.didntSendReason === 'dryRun') {
-    return <h3>Test import finished</h3>;
+    return <h3>Test import finished successfully</h3>;
   } else if (result.didntSendReason) {
     return <h3>{`Import failed - server reports "${result.didntSendReason}"`}</h3>;
   } else if (!result.errors?.length) {
@@ -105,10 +105,10 @@ const OutcomeDisplay = ({ result }) => {
       <hr />
       <h4>Summary</h4>
       <ImportStatsDisplay stats={result.stats} />
-      {result.errors.length && <>
+      {result.errors.length ? <>
         <h4>Errors</h4>
         <ImportErrorsTable errors={result.errors} />
-      </>}
+      </> : null}
     </div>
   );
 };
