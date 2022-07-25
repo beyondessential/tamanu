@@ -1,4 +1,5 @@
 import React, { memo, useState, useCallback } from 'react';
+import { sum } from 'lodash';
 import styled from 'styled-components';
 
 import * as yup from 'yup';
@@ -26,11 +27,7 @@ const ERROR_COLUMNS = [
 ];
 
 const ImportErrorsTable = ({ errors }) => (
-  <Table
-    columns={ERROR_COLUMNS}
-    noDataMessage="All good!"
-    data={errors}
-  />
+  <Table columns={ERROR_COLUMNS} noDataMessage="All good!" data={errors} />
 );
 
 const STATS_COLUMNS = [
@@ -40,7 +37,9 @@ const STATS_COLUMNS = [
   {
     key: 'errored',
     title: 'Errored',
-    accessor: ({ errored }) => <ColorText color={errored > 0 ? 'red' : 'green'}>{errored}</ColorText>,
+    accessor: ({ errored }) => (
+      <ColorText color={errored > 0 ? 'red' : 'green'}>{errored}</ColorText>
+    ),
   },
 ];
 
@@ -73,25 +72,36 @@ const UploadForm = ({ submitForm, isSubmitting, additionalFields }) => (
   </FormGrid>
 );
 
+function sumStat(stats, fields = ['created', 'updated', 'errored']) {
+  return sum(Object.values(stats).map(stat => sum(fields.map(f => stat[f]))));
+}
+
 const OutcomeHeader = ({ result }) => {
+  let head;
   if (result.didntSendReason === 'validationFailed') {
-    return <h3>Please correct these validation issues and try again</h3>;
+    head = <h3>Please correct these validation issues and try again</h3>;
   } else if (result.didntSendReason === 'dryRun') {
-    return <h3>Test import finished successfully</h3>;
+    head = <h3>Test import finished successfully</h3>;
   } else if (result.didntSendReason) {
-    return <h3>{`Import failed - server reports "${result.didntSendReason}"`}</h3>;
+    head = <h3>{`Import failed! server reports "${result.didntSendReason}"`}</h3>;
   } else if (!result.errors?.length) {
-    return (
-      <h3>
-        {`Import successful! Sent ${Object.values(result.stats).reduce(
-          (memo, { created, updated }) => memo + created + updated,
-          0,
-        )} records in ${result.duration.toFixed(2)}s`}
-      </h3>
-    );
+    head = <h3>Import successful!</h3>;
   } else {
-    return <h3>Import failed - unknown server error</h3>;
+    head = <h3>Import failed - unknown server error</h3>;
   }
+
+  return (
+    <>
+      {head}
+      <p>
+        {`Time: ${result.duration.toFixed(2)}s — Records: ` +
+          `${sumStat(result.stats, ['created'])} created, ` +
+          `${sumStat(result.stats, ['updated'])} updated, ` +
+          `${sumStat(result.stats, ['errored'])} errored, ` +
+          `${sumStat(result.stats)} total`}
+      </p>
+    </>
+  );
 };
 
 const OutcomeDisplay = ({ result }) => {
@@ -105,10 +115,12 @@ const OutcomeDisplay = ({ result }) => {
       <hr />
       <h4>Summary</h4>
       <ImportStatsDisplay stats={result.stats} />
-      {result.errors.length ? <>
-        <h4>Errors</h4>
-        <ImportErrorsTable errors={result.errors} />
-      </> : null}
+      {result.errors.length ? (
+        <>
+          <h4>Errors</h4>
+          <ImportErrorsTable errors={result.errors} />
+        </>
+      ) : null}
     </div>
   );
 };
