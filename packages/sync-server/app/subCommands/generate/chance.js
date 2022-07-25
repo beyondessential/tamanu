@@ -1,8 +1,6 @@
 import Chance from 'chance';
-import crypto from 'crypto';
 
-// see https://github.com/nodejs/node/blob/v12.22.1/lib/internal/crypto/random.js#L125
-const RAND_MAX = 0xffffffffffff;
-
-export const seed = crypto.randomInt(RAND_MAX);
-export const chance = new Chance(seed);
+// use a static seed to make data generation predictable
+const STATIC_SEED = '82c8a4df-0b64-4c06-9491-944284e9184b';
+export const seed = STATIC_SEED;
+export const chance = new Chance(STATIC_SEED);
