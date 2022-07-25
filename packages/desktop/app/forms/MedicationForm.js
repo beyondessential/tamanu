@@ -64,12 +64,12 @@ const DiscontinuePrintButtonRow = styled.div`
 `;
 
 const DiscontinuedLabel = ({ medication }) => {
-  const { updatedAt, discontinuingClinician, discontinuingReason } = medication;
+  const { discontinuedDate, discontinuingClinician, discontinuingReason } = medication;
   return (
     <Box color="error.main" ml={2}>
       <strong>Discontinued</strong>
       <br />
-      Discontinued at: <DateDisplay date={updatedAt} />
+      Discontinued at: <DateDisplay date={discontinuedDate} />
       <br />
       by: {discontinuingClinician?.displayName}
       <br />
@@ -253,7 +253,7 @@ export const MedicationForm = React.memo(
                     />
                   </>
                 )}
-                {medication?.discontinued && <DiscontinuedLabel medication={medication} />}
+                {medication?.discontinuedDate && <DiscontinuedLabel medication={medication} />}
               </div>
               {shouldShowSubmitButton && (
                 <ButtonRow>
