@@ -29,9 +29,7 @@ export async function loopAndGenerate(store, count, generatorFn) {
     // generate patients
     startMs = Date.now();
     await asyncPool(CONCURRENT_GENERATE_CALLS, range(count), async () => {
-      await store.sequelize.transaction(async () => {
-        await generatorFn();
-      });
+      await generatorFn();
       complete++;
     });
 

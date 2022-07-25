@@ -1,5 +1,6 @@
 import { Command } from 'commander';
 import { uniq, pick } from 'lodash';
+import { UniqueConstraintError } from 'sequelize';
 
 import { initDatabase, closeDatabase } from '../../../database';
 import { seed } from '../chance';
@@ -7,6 +8,7 @@ import { loopAndGenerate } from '../loopAndGenerate';
 import { STEPS } from './steps';
 
 const POSSIBLE_STEPS = Object.keys(STEPS.PER_PATIENT);
+const MAX_CONSECUTIVE_UNIQUE_CONSTRAINT_ERRORS = 100; // very unlikely to happen 100 times in a row
 
 const generateFiji = async ({ patientCount: patientCountStr, steps: stepsStr }) => {
   const patientCount = Number.parseInt(patientCountStr, 10);
@@ -21,7 +23,7 @@ const generateFiji = async ({ patientCount: patientCountStr, steps: stepsStr }) 
 
   // helper to run required SETUP steps
   const upsertSetupData = async () => {
-g    const data = {};
+    const data = {};
     for (const [name, step] of Object.entries(setupSteps)) {
       data[name] = await step.run(store);
     }
@@ -30,10 +32,27 @@ g    const data = {};
 
   // helper to run requested PER_PATIENT steps
   const insertPatientData = async setupData => {
-    const patient = await STEPS.PATIENT.run(store, setupData);
-    for (const step of perPatientStepValues) {
-      await step.run(store, setupData, patient.id);
+    let patient;
+    // avoid creating a function inside the loop
+    const doWork = async () => {
+      patient = await STEPS.PATIENT.run(store, setupData);
+      for (const step of perPatientStepValues) {
+        await step.run(store, setupData, patient.id);
+      }
+    };
+    for (let i = 0; i < MAX_CONSECUTIVE_UNIQUE_CONSTRAINT_ERRORS; i++) {
+      try {
+        await store.sequelize.transaction(doWork);
+        return;
+      } catch (e) {
+        if (!(e instanceof UniqueConstraintError)) {
+          throw e;
+        }
+      }
     }
+    throw new Error(
+      `exceeded ${MAX_CONSECUTIVE_UNIQUE_CONSTRAINT_ERRORS} consecutive unique constraint errors`,
+    );
   };
 
   // perform the generation
