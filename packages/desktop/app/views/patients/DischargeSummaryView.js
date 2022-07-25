@@ -66,6 +66,11 @@ const NavContainer = styled.div`
   padding: 20px;
 `;
 
+const IdValue = styled.span`
+  font-weight: normal;
+  margin-left: .5ch;
+`;
+
 const DiagnosesList = ({ diagnoses }) => {
   if (diagnoses.length === 0) {
     return <span>N/A</span>;
@@ -142,9 +147,9 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
         </h4>
         <h4>
           <Label>
-            <LocalisedText path="fields.displayId.shortLabel" />
+            <LocalisedText path="fields.displayId.shortLabel" />:
           </Label>
-          <span>{patient.displayId}</span>
+          <IdValue>{patient.displayId}</IdValue>
         </h4>
       </Header>
       <Content>
