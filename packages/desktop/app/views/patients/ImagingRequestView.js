@@ -111,7 +111,12 @@ const ImagingRequestInfoPane = React.memo(
             />
             <TextInput
               multiline
-              value={imagingRequest.areaToBeImaged}
+              value={
+                // Either use free text area or multi-select areas data
+                imagingRequest?.areas
+                  ? imagingRequest.areas.map(area => area.name).join(', ')
+                  : imagingRequest.areaNote
+              }
               label="Area to be imaged"
               style={{ gridColumn: '1 / -1', minHeight: '60px' }}
               disabled

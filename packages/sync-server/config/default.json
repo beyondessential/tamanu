@@ -460,6 +460,20 @@
           "laboratoryName": "Approved test provider"
         }
       },
+      "imagingTypes": {
+        "xRay": { "label": "X-Ray" },
+        "ctScan": { "label": "CT Scan" },
+        "ecg": { "label": "Electrocardiogram (ECG)" },
+        "mri": { "label": "MRI" },
+        "ultrasound": { "label": "Ultrasound" },
+        "holterMonitor": { "label": "Holter Monitor" },
+        "echocardiogram": { "label": "Echocardiogram" },
+        "mammogram": { "label": "Mammogram" },
+        "endoscopy": { "label": "Endoscopy" },
+        "fluroscopy": { "label": "Fluroscopy" },
+        "angiogram": { "label": "Angiogram" },
+        "colonoscopy": { "label": "Colonoscopy" }
+      },
       "printMeasures": {
         "stickerLabelPage": {
           "pageWidth": "210mm",

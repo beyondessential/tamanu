@@ -55,6 +55,9 @@ export const ReferenceDataAdminView = memo(() => {
         { value: 'invoiceLineTypes', label: 'invoiceLineType' },
         { value: 'invoicePriceChangeTypes', label: 'invoicePriceChangeType' },
         { value: 'administeredVaccines', label: 'administeredVaccine' },
+        { value: 'xrayImagingAreas', label: 'xrayImagingAreas' },
+        { value: 'ctScanImagingAreas', label: 'ctScanImagingAreas' },
+        { value: 'ultrasoundImagingAreas', label: 'ultrasoundImagingAreas' },
       ]}
     />
   );

@@ -3,6 +3,7 @@ import * as yup from 'yup';
 import { defaultsDeep } from 'lodash';
 
 import { log } from 'shared/services/logging';
+import { IMAGING_TYPES } from 'shared/constants';
 
 const fieldSchema = yup
   .object({
@@ -187,6 +188,25 @@ const fieldsSchema = yup
   .required()
   .noUnknown();
 
+const imagingTypeSchema = yup
+  .object({
+    label: yup.string().required(),
+  })
+  .noUnknown();
+
+const imagingTypesSchema = yup
+  .object({
+    ...Object.values(IMAGING_TYPES).reduce(
+      (fields, field) => ({
+        ...fields,
+        [field]: imagingTypeSchema,
+      }),
+      {},
+    ),
+  })
+  .required()
+  .noUnknown();
+
 const validCssAbsoluteLength = yup
   .string()
   .required()
@@ -248,6 +268,7 @@ const rootLocalisationSchema = yup
     fields: fieldsSchema,
     templates: templatesSchema,
     timeZone: yup.string().nullable(),
+    imagingTypes: imagingTypesSchema,
     triageCategories: yup
       .array(
         yup.object({

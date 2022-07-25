@@ -59,7 +59,7 @@ export class ImagingRequest extends Model {
   }
 
   static getListReferenceAssociations() {
-    return ['imagingType', 'requestedBy'];
+    return ['imagingType', 'requestedBy', 'areas'];
   }
 
   static initRelations(models) {
@@ -86,6 +86,12 @@ export class ImagingRequest extends Model {
     this.belongsTo(models.Location, {
       foreignKey: 'locationId',
       as: 'location',
+    });
+
+    this.belongsToMany(models.ReferenceData, {
+      through: models.ImagingRequestArea,
+      as: 'areas',
+      foreignKey: 'imagingRequestId',
     });
 
     this.hasMany(models.Note, {

@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import moment from 'moment';
 import { Op } from 'sequelize';
-import { NOTE_TYPES } from 'shared/constants';
+import { NOTE_TYPES, AREA_TYPE_TO_IMAGING_TYPE, IMAGING_AREA_TYPES } from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
 import {
   getNoteWithType,
@@ -28,6 +28,33 @@ const urgencyTextToBooleanFilter = getTextToBooleanFilter('urgent');
 export const imagingRequest = express.Router();
 
 imagingRequest.get(
+  '/areas$',
+  asyncHandler(async (req, res) => {
+    const {
+      models: { ReferenceData },
+      flagPermissionChecked,
+    } = req;
+    // always allow reading imaging area options
+    flagPermissionChecked();
+
+    const records = await ReferenceData.findAll({
+      where: {
+        type: Object.values(IMAGING_AREA_TYPES),
+      },
+    });
+    // Key areas by imagingType
+    const areas = records.reduce((acc, record) => {
+      const imagingType = AREA_TYPE_TO_IMAGING_TYPE[record.type];
+      return {
+        ...acc,
+        [imagingType]: [...(acc[imagingType] || []), record.forResponse()],
+      };
+    }, {});
+    res.send({ data: areas });
+  }),
+);
+
+imagingRequest.get(
   '/:id',
   asyncHandler(async (req, res) => {
     const {
@@ -45,14 +72,16 @@ imagingRequest.get(
 
     // Extract note content if note exists, else default content to empty string
     const noteContent = getNoteWithType(relatedNotes, NOTE_TYPES.OTHER)?.content || '';
+
+    // Free text area content fallback
     const areaNoteContent =
       getNoteWithType(relatedNotes, NOTE_TYPES.AREA_TO_BE_IMAGED)?.content || '';
 
     // Convert Sequelize model to use a custom object as response
     const responseObject = {
-      ...imagingRequestObject.forResponse(),
+      ...imagingRequestObject.get({ plain: true }),
       note: noteContent,
-      areaToBeImaged: areaNoteContent,
+      areaNote: areaNoteContent,
     };
 
     res.send(responseObject);
@@ -70,7 +99,12 @@ imagingRequest.put(
     const imagingRequestObject = await ImagingRequest.findByPk(id);
     if (!imagingRequestObject) throw new NotFoundError();
     req.checkPermission('write', 'ImagingRequest');
-    await imagingRequestObject.update(req.body);
+    const { areas, areaNote, ...imagingRequestData } = req.body;
+
+    await imagingRequestObject.update(imagingRequestData);
+
+    // Updates the reference data associations for the areas to be imaged
+    await imagingRequestObject.setAreas(areas.split(/,\s/));
 
     // Get related notes (general, area to be imaged)
     const relatedNotes = await imagingRequestObject.getNotes();
@@ -101,14 +135,14 @@ imagingRequest.put(
 
     // Update the content of the area to be imaged note object if it exists
     if (areaNoteObject) {
-      await areaNoteObject.update({ content: req.body.areaToBeImaged });
+      await areaNoteObject.update({ content: req.body.areaNote });
       areaNoteContent = areaNoteObject.content;
     }
     // Else, create a new one only if it has content
-    else if (req.body.areaToBeImaged) {
+    else if (req.body.areaNote) {
       const newAreaNoteObject = await imagingRequestObject.createNote({
         noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
-        content: req.body.areaToBeImaged,
+        content: req.body.areaNote,
         authorId: req.user.id,
       });
       areaNoteContent = newAreaNoteObject.content;
@@ -116,9 +150,10 @@ imagingRequest.put(
 
     // Convert Sequelize model to use a custom object as response
     const responseObject = {
-      ...imagingRequestObject.forResponse(),
+      ...imagingRequestObject.get({ plain: true }),
       note: noteContent,
-      areaToBeImaged: areaNoteContent,
+      // Fallback free text area notes
+      areaNote: areaNoteContent,
     };
 
     res.send(responseObject);
@@ -132,7 +167,12 @@ imagingRequest.post(
       models: { ImagingRequest },
     } = req;
     req.checkPermission('create', 'ImagingRequest');
-    const newImagingRequest = await ImagingRequest.create(req.body);
+    const { areas, areaNote, ...imagingRequestData } = req.body;
+
+    const newImagingRequest = await ImagingRequest.create(imagingRequestData);
+
+    // Creates the reference data associations for the areas to be imaged
+    await newImagingRequest.setAreas(areas.split(/,\s/));
 
     // Return notes content or empty string with the response for consistency
     let noteContent = '';
@@ -151,10 +191,10 @@ imagingRequest.post(
     }
 
     // Only create an area to be imaged note if it has content
-    if (req.body.areaToBeImaged) {
+    if (req.body.areaNote) {
       const newAreaNote = await newImagingRequest.createNote({
         noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
-        content: req.body.areaToBeImaged,
+        content: req.body.areaNote,
         authorId: req.user.id,
       });
 
@@ -164,9 +204,9 @@ imagingRequest.post(
 
     // Convert Sequelize model to use a custom object as response
     const responseObject = {
-      ...newImagingRequest.forResponse(),
+      ...newImagingRequest.get({ plain: true }),
       note: noteContent,
-      areaToBeImaged: areaNoteContent,
+      areaNote: areaNoteContent,
     };
 
     res.send(responseObject);
@@ -244,6 +284,13 @@ globalImagingRequests.get(
       association: 'imagingType',
       where: imagingTypeFilters,
     };
+    const areas = {
+      association: 'areas',
+      through: {
+        // Don't include attributes on through table
+        attributes: [],
+      },
+    };
     const patient = {
       association: 'patient',
       where: patientFilters,
@@ -258,7 +305,7 @@ globalImagingRequests.get(
     const databaseResponse = await models.ImagingRequest.findAndCountAll({
       where: imagingRequestFilters,
       order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
-      include: [requestedBy, imagingType, encounter],
+      include: [requestedBy, imagingType, encounter, areas],
       limit: rowsPerPage,
       offset: page * rowsPerPage,
     });
@@ -266,12 +313,13 @@ globalImagingRequests.get(
     // Extract and normalize data calling a base model method
     const { count } = databaseResponse;
     const { rows } = databaseResponse;
-    const data = rows.map(x => x.forResponse());
 
+    const data = rows.map(x => x.get({ plain: true }));
     res.send({
       count,
       data,
     });
   }),
 );
+
 imagingRequest.use(globalImagingRequests);
