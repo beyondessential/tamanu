@@ -1,11 +1,15 @@
-const Sequelize = require('sequelize');
+import { DATE, QueryInterface } from 'sequelize';
 
 export const ISO9075_FORMAT = 'YYYY-MM-DD HH:mm:ss';
 
-export async function createDateTimeStringUpMigration(query, tableName, columnName) {
+export async function createDateTimeStringUpMigration(
+  query: QueryInterface,
+  tableName: string,
+  columnName: string,
+) {
   // 1. Create legacy columns
   await query.addColumn(tableName, `${columnName}_legacy`, {
-    type: Sequelize.DATE,
+    type: DATE,
   });
 
   // 2. Copy data to legacy columns for backup
@@ -14,12 +18,16 @@ export async function createDateTimeStringUpMigration(query, tableName, columnNa
   // 3.Change column types from of original columns from date to string & convert data to string
   await query.sequelize.query(
     `ALTER TABLE ${tableName}
-       ALTER COLUMN ${columnName} TYPE VARCHAR
+       ALTER COLUMN ${columnName} TYPE CHAR
        USING TO_CHAR(${columnName}, '${ISO9075_FORMAT}');`,
   );
 }
 
-export async function createDateTImeStringDownMigration(query, tableName, columnName) {
+export async function createDateTimeStringDownMigration(
+  query: QueryInterface,
+  tableName: string,
+  columnName: string,
+) {
   // 1. Clear data from string column
   await query.sequelize.query(
     `ALTER TABLE "${tableName}" ALTER COLUMN "${columnName}" TYPE timestamp with time zone USING ${columnName}_legacy;`,
