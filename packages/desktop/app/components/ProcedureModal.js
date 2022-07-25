@@ -1,11 +1,11 @@
 import React from 'react';
 
-import { formatISO9075 } from 'date-fns';
 import { useApi } from '../api';
 import { Suggester } from '../utils/suggester';
 
 import { Modal } from './Modal';
 import { ProcedureForm } from '../forms/ProcedureForm';
+import { toDateTimeString } from '../utils/dateTime';
 
 export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure }) => {
   const api = useApi();
@@ -23,10 +23,9 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
     >
       <ProcedureForm
         onSubmit={async data => {
-          // Standardize this once we fully implement ISO9075 dates
           const payload = {
             ...data,
-            startTime: formatISO9075(new Date(data.startTime)),
+            startTime: toDateTimeString(data.startTime),
           };
           if (payload.id) {
             await api.put(`procedure/${payload.id}`, payload);
