@@ -1,5 +1,8 @@
-import { formatISO9075 } from 'date-fns';
+import { isValid, formatISO9075 } from 'date-fns';
 
 export function toDateTimeString(date) {
-  return formatISO9075(new Date(date));
+  if (!isValid(date)) {
+    throw new Error('Not a valid date');
+  }
+  return formatISO9075(date);
 }

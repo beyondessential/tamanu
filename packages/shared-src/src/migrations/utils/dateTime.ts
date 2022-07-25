@@ -18,7 +18,7 @@ export async function createDateTimeStringUpMigration(
   // 3.Change column types from of original columns from date to string & convert data to string
   await query.sequelize.query(
     `ALTER TABLE ${tableName}
-       ALTER COLUMN ${columnName} TYPE CHAR
+       ALTER COLUMN ${columnName} TYPE CHAR(20)
        USING TO_CHAR(${columnName}, '${ISO9075_FORMAT}');`,
   );
 }

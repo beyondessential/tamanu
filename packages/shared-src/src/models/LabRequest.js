@@ -9,12 +9,13 @@ export class LabRequest extends Model {
     super.init(
       {
         id: primaryKey,
-
         sampleTime: {
-          type: Sequelize.STRING,
+          type: Sequelize.STRING(20),
           set(value) {
             this.setValueAsDateString('sampleTime', value);
           },
+          allowNull: false,
+          defaultValue: Sequelize.NOW,
         },
         // Legacy column has historical date time data as a backup
         sampleTimeLegacy: {
@@ -23,10 +24,12 @@ export class LabRequest extends Model {
           defaultValue: Sequelize.NOW,
         },
         requestedDate: {
-          type: Sequelize.STRING,
+          type: Sequelize.STRING(20),
           set(value) {
             this.setValueAsDateString('requestedDate', value);
           },
+          allowNull: false,
+          defaultValue: Sequelize.NOW,
         },
         // Legacy column has historical date time data as a backup
         requestedDateLegacy: {
