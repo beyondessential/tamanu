@@ -6,9 +6,10 @@ export const insertSurveyResponse = async (
   setupData,
   { encounterId, startTime },
 ) => {
+  const { survey } = setupData.programSurveyAndQuestions;
   const response = await SurveyResponse.create({
     encounterId,
-    surveyId: setupData.survey.id,
+    surveyId: survey.id,
     startTime,
     endTime: moment(startTime).add(10, 'minutes'),
   });
@@ -57,17 +58,17 @@ const humanReadableQuestionsToCode = {
   isContactHighRisk: 'FijCOVSamp60',
 };
 
-const generateAnswers = ({ villageIds, facDepLoc }) => {
+const generateAnswers = ({ villages, facilitiesDepartmentsAndLocations }) => {
   // screen 1
   const consent = 'Yes'; // if they don't consent then the form isn't filled in
   const contactNumber = chance.integer({ min: 1000000, max: 9999999 }); // yes, in this survey it's a number
-  const subdivision = chance.pickone(villageIds);
-  const [facilityId] = chance.pickone(facDepLoc);
+  const subdivision = chance.pickone(villages).id;
+  const [facility] = chance.pickone(facilitiesDepartmentsAndLocations);
   const publicOrPrivate = chance.pickone(['Public', 'Private']);
   let publicHealthFacility;
   let privateHealthFacility;
   if (publicOrPrivate === 'Public') {
-    publicHealthFacility = facilityId; // TODO: actual survey uses ReferenceData
+    publicHealthFacility = facility.id; // TODO: actual survey uses ReferenceData
   } else {
     privateHealthFacility = `${chance.city()} ${chance.pickone([
       'Hospital',
