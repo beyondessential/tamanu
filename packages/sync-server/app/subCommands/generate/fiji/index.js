@@ -1,3 +1,4 @@
+import { Command } from 'commander';
 import { uniq, pick } from 'lodash';
 
 import { initDatabase, closeDatabase } from '../../../database';
@@ -6,7 +7,7 @@ import { seed } from '../chance';
 import { loopAndGenerate } from '../loopAndGenerate';
 import { STEPS } from './steps';
 
-export const generateFiji = async ({ patientCount: patientCountStr }) => {
+const generateFiji = async ({ patientCount: patientCountStr }) => {
   const patientCount = Number.parseInt(patientCountStr, 10);
   const store = await initDatabase({ testMode: false });
 
@@ -44,3 +45,8 @@ g    const data = {};
     await closeDatabase();
   }
 };
+
+export const fijiCommand = new Command('fiji')
+  .description('Generate fake data with the same rough structure as Fiji')
+  .option('-p, --patientCount <number>', 'number of patients to generate', 10000)
+  .action(generateFiji);
