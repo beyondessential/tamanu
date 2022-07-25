@@ -11,16 +11,27 @@ export class LabRequest extends Model {
         id: primaryKey,
 
         sampleTime: {
+          type: Sequelize.STRING,
+          allowNull: false,
+          defaultValue: Sequelize.NOW,
+        },
+        // Legacy column has historical date time data as a backup
+        sampleTimeLegacy: {
           type: Sequelize.DATE,
           allowNull: false,
           defaultValue: Sequelize.NOW,
         },
         requestedDate: {
+          type: Sequelize.STRING,
+          allowNull: false,
+          defaultValue: Sequelize.NOW,
+        },
+        // Legacy column has historical date time data as a backup
+        requestedDateLegacy: {
           type: Sequelize.DATE,
           allowNull: false,
           defaultValue: Sequelize.NOW,
         },
-
         specimenAttached: {
           type: Sequelize.BOOLEAN,
           defaultValue: false,
