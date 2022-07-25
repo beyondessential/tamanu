@@ -20,6 +20,11 @@ const FOREIGN_KEY_SCHEMATA = {
       model: 'ReferenceData',
       types: ['vaccine', 'drug'],
     },
+    {
+      field: 'manufacturer',
+      model: 'ReferenceData',
+      types: ['manufacturer'],
+    },
   ],
   Department: [
     {
