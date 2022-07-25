@@ -2,7 +2,7 @@ const Sequelize = require('sequelize');
 
 export const ISO9075_FORMAT = 'YYYY-MM-DD HH:mm:ss';
 
-export async function createUpMigration(query, tableName, columnName) {
+export async function createDateTimeStringUpMigration(query, tableName, columnName) {
   // 1. Create legacy columns
   await query.addColumn(tableName, `${columnName}_legacy`, {
     type: Sequelize.DATE,
@@ -19,7 +19,7 @@ export async function createUpMigration(query, tableName, columnName) {
   );
 }
 
-export async function createDownMigration(query, tableName, columnName) {
+export async function createDateTImeStringDownMigration(query, tableName, columnName) {
   // 1. Clear data from string column
   await query.sequelize.query(
     `ALTER TABLE "${tableName}" ALTER COLUMN "${columnName}" TYPE timestamp with time zone USING ${columnName}_legacy;`,
