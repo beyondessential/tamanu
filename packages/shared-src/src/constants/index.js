@@ -385,3 +385,8 @@ export const SERVER_TYPES = {
   META: 'Tamanu Metadata Server',
   SYNC: 'Tamanu Sync Server',
 };
+
+export const VISIBILITY_STATUSES = {
+  CURRENT: 'current',
+  HISTORICAL: 'historical',
+};

@@ -3,6 +3,7 @@ import { IFacility } from '../types';
 import { BaseModel } from './BaseModel';
 import { Department } from './Department';
 import { Location } from './Location';
+import { VisibilityStatus } from '../visibilityStatuses';
 
 @Entity('facility')
 export class Facility extends BaseModel implements IFacility {
@@ -29,6 +30,9 @@ export class Facility extends BaseModel implements IFacility {
 
   @Column({ nullable: true })
   type?: string;
+
+  @Column({ default: VisibilityStatus.Current })
+  visibilityStatus: string;
 
   @OneToMany(() => Location, ({ facility }) => facility)
   locations: Location[];

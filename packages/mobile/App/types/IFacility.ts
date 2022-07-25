@@ -1,3 +1,4 @@
+import { VisibilityStatus } from '~/visibilityStatuses';
 import { ID } from './ID';
 
 export interface IFacility {
@@ -10,4 +11,5 @@ export interface IFacility {
   cityTown?: string;
   division?: string;
   type?: string;
+  visibilityStatus: VisibilityStatus.Current,
 }

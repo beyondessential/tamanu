@@ -3,6 +3,7 @@ import { Entity, Column, RelationId } from 'typeorm/browser';
 import { ILabTestType, LabTestQuestionType } from '~/types';
 import { BaseModel } from './BaseModel';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
+import { VisibilityStatus } from '../visibilityStatuses';
 
 @Entity('labTestType')
 export class LabTestType extends BaseModel implements ILabTestType {
@@ -41,4 +42,7 @@ export class LabTestType extends BaseModel implements ILabTestType {
   labTestCategory: ReferenceData;
   @RelationId(({ labTestCategory }) => labTestCategory)
   labTestCategoryId: string;
+
+  @Column({ default: VisibilityStatus.Current })
+  visibilityStatus: string;
 }
