@@ -41,12 +41,17 @@ const StyledAbbr = styled.abbr`
 `;
 
 export const DateDisplay = ({
-  date,
+  date: dateValue,
   showDate = true,
   showTime = false,
   showExplicitDate = false,
-  ...props
 }) => {
+  let date = dateValue;
+
+  if (typeof date === 'string') {
+    date = new Date(date);
+  }
+
   const parts = [];
   if (showDate) {
     parts.push(formatShort(date));
@@ -57,7 +62,7 @@ export const DateDisplay = ({
     parts.push(formatTime(date));
   }
   return (
-    <StyledAbbr {...props} title={formatLong(date)} data-test-class="date-display-abbr">
+    <StyledAbbr title={formatLong(date)} data-test-class="date-display-abbr">
       {parts.join(' ')}
     </StyledAbbr>
   );
