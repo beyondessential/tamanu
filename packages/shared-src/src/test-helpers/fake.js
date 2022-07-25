@@ -8,6 +8,7 @@ import {
   REFERENCE_TYPE_VALUES,
   VISIBILITY_STATUSES,
 } from 'shared/constants';
+import { toDateTimeString } from '../utils/dateTime';
 
 const chance = new Chance();
 
@@ -180,12 +181,14 @@ export function fakeEncounterMedication(prefix = 'test-') {
 
 const fakeDate = () => new Date(random(0, Date.now()));
 const fakeString = (model, { fieldName }, id) => `${model.name}.${fieldName}.${id}`;
+const fakeDateString = () => toDateTimeString(fakeDate());
 const fakeInt = () => random(0, 10);
 const fakeFloat = () => Math.random() * 1000;
 const fakeBool = () => sample([true, false]);
 const FIELD_HANDLERS = {
   'TIMESTAMP WITH TIME ZONE': fakeDate,
   DATETIME: fakeDate,
+  'VARCHAR(20)': fakeDateString, // VARCHAR(20) are used for date string storage
   'VARCHAR(255)': fakeString,
   'VARCHAR(31)': (...args) => fakeString(...args).slice(0, 31),
   TEXT: fakeString,
