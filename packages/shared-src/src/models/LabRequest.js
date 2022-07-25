@@ -2,6 +2,7 @@ import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
 
 import { LAB_REQUEST_STATUSES, NOTE_TYPES } from 'shared/constants';
+import { ISO9075_FORMAT } from '../utils/dateTime';
 import { Model } from './Model';
 
 export class LabRequest extends Model {
@@ -12,8 +13,9 @@ export class LabRequest extends Model {
 
         sampleTime: {
           type: Sequelize.STRING,
-          allowNull: false,
-          defaultValue: Sequelize.NOW,
+          set(value) {
+            this.setValueAsDateString('sampleTime', value);
+          },
         },
         // Legacy column has historical date time data as a backup
         sampleTimeLegacy: {
@@ -22,16 +24,16 @@ export class LabRequest extends Model {
           defaultValue: Sequelize.NOW,
         },
         requestedDate: {
-          type: Sequelize.STRING,
-          allowNull: false,
-          defaultValue: Sequelize.NOW,
-        },
-        // Legacy column has historical date time data as a backup
-        requestedDateLegacy: {
           type: Sequelize.DATE,
           allowNull: false,
           defaultValue: Sequelize.NOW,
         },
+        // Legacy column has historical date time data as a backup
+        // requestedDateLegacy: {
+        //   type: Sequelize.DATE,
+        //   allowNull: false,
+        //   defaultValue: Sequelize.NOW,
+        // },
         specimenAttached: {
           type: Sequelize.BOOLEAN,
           defaultValue: false,

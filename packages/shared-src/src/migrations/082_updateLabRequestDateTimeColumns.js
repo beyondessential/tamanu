@@ -14,7 +14,7 @@ module.exports = {
     await query.sequelize.query(
       `ALTER TABLE lab_requests
        ALTER COLUMN sample_time TYPE VARCHAR
-       USING TO_CHAR(sample_time_legacy, 'YYYY-MM-DD HH:mm:ss');`,
+       USING TO_CHAR(sample_time, 'YYYY-MM-DD HH:mm:ss');`,
     );
   },
   down: async query => {
