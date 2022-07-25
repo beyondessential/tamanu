@@ -148,6 +148,8 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
   }
 
   static async getForPatient(patientId: string): Promise<PatientAdditionalData> {
+    // use a query builder instead of find, as apparently there's some
+    // misbehaviour around how typeorm traverses this relation 
     return await PatientAdditionalData.getRepository()
       .createQueryBuilder('patient_additional_data')
       .where('patient_additional_data.patientId = :patientId', { patientId })
