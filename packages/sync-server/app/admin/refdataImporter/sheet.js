@@ -45,6 +45,7 @@ function findFieldName(values, fkField) {
 
 export async function importSheet({ errors, log, models }, { loader, sheetName, sheet }) {
   const stats = {};
+  const statkey = model => model === 'ReferenceData' ? `${model}/${sheetName}` : model;
 
   log.debug('Loading rows from sheet');
   let sheetRows;
@@ -67,7 +68,7 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
       for (const { model, values } of loader(data)) {
         if (!models[model]) throw new Error(`No such type of data: ${model}`);
 
-        stats[model] = stats[model] || newStatsRow();
+        stats[statkey(model)] = stats[statkey(model)] || newStatsRow();
         tableRows.push({ model, sheetRow, values });
       }
     } catch (err) {
@@ -143,7 +144,7 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
 
       resolvedRows.push({ model, sheetRow, values });
     } catch (err) {
-      stats[model].errored += 1;
+      stats[statkey(model)].errored += 1;
       errors.push(new ForeignkeyResolutionError(sheetName, sheetRow, err));
     }
   }
@@ -173,7 +174,7 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
         values: await schema.validate(values, { abortEarly: false }),
       });
     } catch (err) {
-      stats[model].errored += 1;
+      stats[statkey(model)].errored += 1;
       if (err instanceof YupValidationError) {
         for (const valerr of err.errors) {
           errors.push(new ValidationError(sheetName, sheetRow, valerr));
@@ -194,13 +195,13 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
     try {
       if (existing) {
         await existing.update(values);
-        stats[model].updated += 1;
+        stats[statkey(model)].updated += 1;
       } else {
         await Model.create(values);
-        stats[model].created += 1;
+        stats[statkey(model)].created += 1;
       }
     } catch (err) {
-      stats[model].errored += 1;
+      stats[statkey(model)].errored += 1;
       errors.push(new UpstertionError(sheetName, sheetRow, err));
     }
   }

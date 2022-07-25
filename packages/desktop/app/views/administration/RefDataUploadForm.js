@@ -10,8 +10,8 @@ import { ButtonRow } from 'desktop/app/components/ButtonRow';
 import { Button } from 'desktop/app/components/Button';
 import { Table } from 'desktop/app/components/Table';
 
-const ErrorText = styled.span`
-  color: red;
+const ColorText = styled.span`
+  color: ${props => props.color};
 `;
 
 const ERROR_COLUMNS = [
@@ -21,31 +21,35 @@ const ERROR_COLUMNS = [
   {
     key: 'error',
     title: 'Message',
-    accessor: data => <ErrorText>{data.message}</ErrorText>,
+    accessor: data => <ColorText color="red">{data.message}</ColorText>,
   },
 ];
 
 const ImportErrorsTable = ({ errors }) => (
-  <Table rowIdKey="row" columns={ERROR_COLUMNS} noDataMessage="All good!" data={errors} />
+  <Table
+    columns={ERROR_COLUMNS}
+    noDataMessage="All good!"
+    data={errors}
+  />
 );
 
 const STATS_COLUMNS = [
-  { key: 'model', title: 'Model', accessor: ([model]) => model },
-  { key: 'created', title: 'Created', accessor: ([_, { created }]) => created },
-  { key: 'updated', title: 'Updated', accessor: ([_, { updated }]) => updated },
+  { key: 'key', title: 'Table' },
+  { key: 'created', title: 'Created' },
+  { key: 'updated', title: 'Updated' },
   {
     key: 'errored',
     title: 'Errored',
-    accessor: ([_, { errored }]) => <ErrorText>{errored}</ErrorText>,
+    accessor: ({ errored }) => <ColorText color={errored > 0 ? 'red' : 'green'}>{errored}</ColorText>,
   },
 ];
 
 const ImportStatsDisplay = ({ stats }) => (
   <Table
-    rowIdKey="row"
+    rowIdKey="key"
     columns={STATS_COLUMNS}
     noDataMessage="Nothing there"
-    data={Object.entries(stats)}
+    data={Object.entries(stats).map(([key, data]) => ({ key, ...data }))}
   />
 );
 
@@ -99,11 +103,12 @@ const OutcomeDisplay = ({ result }) => {
     <div>
       <OutcomeHeader result={result} />
       <hr />
-      <div>{`Target server: ${result.serverInfo?.host}`}</div>
-      <h4>Records imported</h4>
+      <h4>Summary</h4>
       <ImportStatsDisplay stats={result.stats} />
-      <h4>Validation results</h4>
-      <ImportErrorsTable errors={result.errors} />
+      {result.errors.length && <>
+        <h4>Errors</h4>
+        <ImportErrorsTable errors={result.errors} />
+      </>}
     </div>
   );
 };
