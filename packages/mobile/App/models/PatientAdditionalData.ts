@@ -147,14 +147,18 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
     return records as BaseModel[];
   }
 
+  static async getForPatient(patientId: string): Promise<PatientAdditionalData> {
+    return await PatientAdditionalData.getRepository()
+      .createQueryBuilder('patient_additional_data')
+      .where('patient_additional_data.patientId = :patientId', { patientId })
+      .getOne();
+  }
 
   static async getOrCreateForPatient(patientId: string): Promise<PatientAdditionalData> {
     // See if there's an existing PAD we can use
-    const existing = await PatientAdditionalData.find({
-      where: { patient: { id: patientId } },
-    });
-    if (existing.length > 0) {
-      return existing[0];
+    const existing = PatientAdditionalData.getForPatient(patientId);
+    if (existing) {
+      return existing;
     }
 
     // otherwise create a new one

@@ -37,7 +37,7 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
       (async (): Promise<void> => {
         const { models } = backend;
         try {
-          const result = await models.PatientAdditionalData.getOrCreateForPatient(patient.id);
+          const result = await models.PatientAdditionalData.getForPatient(patient.id);
           if (!mounted) {
             return;
           }
