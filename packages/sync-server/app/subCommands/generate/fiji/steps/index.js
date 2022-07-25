@@ -5,6 +5,7 @@ import scheduledVaccines from './scheduledVaccines';
 import programSurveyAndQuestions from './programSurveyAndQuestions';
 import labTestCategories from './labTestCategories';
 import patient from './patient';
+import patientAdditionalData from './patientAdditionalData';
 import administeredVaccines from './administeredVaccines';
 import testsAndSurveys from './testsAndSurveys';
 
@@ -23,7 +24,7 @@ export const STEPS = {
   PATIENT: patient,
   // PER_PATIENT steps are run after each patient is created and receive the patient's id
   PER_PATIENT: {
-    // TODO: additionalData
+    patientAdditionalData,
     administeredVaccines,
     testsAndSurveys,
   },
