@@ -146,4 +146,25 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
 
     return records as BaseModel[];
   }
+
+
+  static async getOrCreateForPatient(patientId: string): Promise<PatientAdditionalData> {
+    // See if there's an existing PAD we can use
+    const existing = await PatientAdditionalData.find({
+      where: { patient: { id: patientId } },
+    });
+    if (existing.length > 0) {
+      return existing[0];
+    }
+
+    // otherwise create a new one
+    return PatientAdditionalData.createAndSaveOne({
+      patient: patientId,
+    });
+  }
+
+  static async updateForPatient(patientId: string, values: any) {
+    const additionalData = await PatientAdditionalData.getOrCreateForPatient(patientId);
+    await PatientAdditionalData.updateValues(additionalData.id, values);
+  }
 }
