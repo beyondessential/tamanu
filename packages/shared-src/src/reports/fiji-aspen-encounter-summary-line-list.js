@@ -296,8 +296,8 @@ select
   p.sex "Sex",
   billing.name "Patient billing type",
   e.id "Encounter ID",
-  to_char(e.start_date, 'YYYY-MM-DD HH24' || CHR(58) || 'MI') "Encounter start date",
-  to_char(e.end_date, 'YYYY-MM-DD HH24' || CHR(58) || 'MI') "Encounter end date",
+  to_char(e.start_date, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM') "Encounter start date",
+  to_char(e.end_date, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM') "Encounter end date",
   case e.encounter_type
     when 'triage' then  'Triage'
     when 'observation' then  'Active ED patient'
