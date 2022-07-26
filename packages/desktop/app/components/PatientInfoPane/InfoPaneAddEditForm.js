@@ -1,9 +1,8 @@
 import React, { memo, useCallback, useMemo } from 'react';
-import { useDispatch } from 'react-redux';
+import { useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
 import { useApi } from '../../api';
 import { Suggester } from '../../utils/suggester';
-import { reloadPatient } from '../../store/patient';
 import {
   CONDITIONS_TITLE,
   ALLERGIES_TITLE,
@@ -41,7 +40,7 @@ const getSuggesters = (title, items) => {
 export const InfoPaneAddEditForm = memo(
   ({ patient, endpoint, onClose, Form, item, title, items }) => {
     const api = useApi();
-    const dispatch = useDispatch();
+    const queryClient = useQueryClient();
 
     const onSubmit = useCallback(
       async data => {
@@ -51,10 +50,11 @@ export const InfoPaneAddEditForm = memo(
         } else {
           await api.post(endpoint, { ...data, patientId: patient.id });
         }
-        dispatch(reloadPatient(patient.id));
+
+        queryClient.invalidateQueries([`infoPaneListItem-${title}`]);
         onClose();
       },
-      [api, dispatch, endpoint, onClose, patient.id],
+      [api, endpoint, onClose, patient.id, title, queryClient],
     );
 
     const suggesters = useMemo(
