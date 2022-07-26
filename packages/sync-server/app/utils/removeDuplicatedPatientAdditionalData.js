@@ -18,7 +18,7 @@ const METADATA_COLUMNS = [
 ];
 
 // function to check for unset values (can't just check for falsiness as we don't want to overwrite 0s)
-const isBlank = value => (value === undefined || value === null || value === '');
+const isBlank = value => value === undefined || value === null || value === '';
 
 export async function reconcilePatient(sequelize, patientId) {
   const { mergePopulatedPADRecords } = (await getLocalisation()).features;
@@ -38,7 +38,6 @@ export async function reconcilePatient(sequelize, patientId) {
       replacements: { patientId },
     },
   );
-  
 
   // get all the records that have actual data against them
   const checkedRecords = patientAdditionalDataRecords.map(record => {
@@ -53,8 +52,8 @@ export async function reconcilePatient(sequelize, patientId) {
       merged: false,
       canonical: false,
       populatedKeys,
-      hasData: populatedKeys.length > 0, 
-    }
+      hasData: populatedKeys.length > 0,
+    };
   });
 
   // figure out the canonical record - the first one with data if there is one, otherwise just go with the first one
@@ -67,9 +66,8 @@ export async function reconcilePatient(sequelize, patientId) {
   }
   canonicalRecord.canonical = true;
 
-
   // now we merge extra records into the canonical one
-  const recordsToMerge = checkedRecords.filter(record => !record.canonical);  
+  const recordsToMerge = checkedRecords.filter(record => !record.canonical);
 
   // this will track the new values we want to merge in
   const valuesToMerge = {};
@@ -98,7 +96,7 @@ export async function reconcilePatient(sequelize, patientId) {
       }
     } else {
       // with the feature off, any populated keys will prevent a merge
-      canMerge = (record.populatedKeys.length === 0)
+      canMerge = record.populatedKeys.length === 0;
     }
 
     if (canMerge) {
@@ -106,7 +104,7 @@ export async function reconcilePatient(sequelize, patientId) {
       Object.assign(existingValues, values);
       record.merged = true;
     } else {
-      unmergeableRecords.push(record);      
+      unmergeableRecords.push(record);
     }
   }
 
@@ -115,11 +113,10 @@ export async function reconcilePatient(sequelize, patientId) {
       `Patient ${patientId} has ${unmergeableRecords.length} PatientAdditionalData records that need manual reconciliation`,
     );
   }
-  
 
   // update the canonical record with the merged values
   const updatedKeys = Object.keys(valuesToMerge);
-  if (mergePopulatedPADRecords) { 
+  if (mergePopulatedPADRecords) {
     if (updatedKeys.length > 0) {
       log.info(`Updating ${updatedKeys.length} new additional data keys`, {
         patientId,
@@ -167,7 +164,7 @@ export async function reconcilePatient(sequelize, patientId) {
   return {
     unmergeable: unmergeableRecords.length,
     deleted: idsToDelete.length,
-    updatedKeys: updatedKeys,
+    updatedKeys,
     blank: recordsToMerge.filter(x => !x.hasData).length,
   };
 }
