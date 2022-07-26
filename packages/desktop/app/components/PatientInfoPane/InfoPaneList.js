@@ -1,5 +1,6 @@
 import React, { memo, useState, useCallback } from 'react';
 import styled from 'styled-components';
+import { useQuery } from '@tanstack/react-query';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import { Collapse, Button, Typography } from '@material-ui/core';
 import { kebabCase } from 'lodash';
@@ -7,9 +8,9 @@ import { PATIENT_ISSUE_TYPES } from 'shared/constants';
 import { Colors } from '../../constants';
 import { Modal } from '../Modal';
 import { PatientAlert } from '../PatientAlert';
-import { useApiGet } from '../../utils/useApiGet';
 import { InfoPaneAddEditForm } from './InfoPaneAddEditForm';
 import { ISSUES_TITLE } from './paneTitles';
+import { useApi } from '../../api';
 
 const TitleContainer = styled.div`
   color: ${Colors.primary};
@@ -91,7 +92,16 @@ export const InfoPaneList = memo(
   }) => {
     const [addEditState, setAddEditState] = useState({ adding: false, editKey: null });
     const { adding, editKey } = addEditState;
-    const [response, error] = useApiGet(getEndpoint, undefined, undefined, [patient]);
+    const api = useApi();
+    const { data, error } = useQuery(
+      [`infoPaneListItem-${title}`, getEndpoint],
+      () => api.get(getEndpoint),
+      {
+        cacheTime: 0,
+      },
+    );
+    const isIssuesPane = title === ISSUES_TITLE;
+    const { items, warnings } = getItems(isIssuesPane, data);
 
     const handleAddButtonClick = useCallback(
       () => setAddEditState({ adding: !adding, editKey: null }),
@@ -102,9 +112,6 @@ export const InfoPaneList = memo(
       () => setAddEditState({ adding: false, editKey: null }),
       [],
     );
-
-    const isIssuesPane = title === ISSUES_TITLE;
-    const { items, warnings } = getItems(isIssuesPane, response);
 
     const Wrapper = props =>
       behavior === 'collapse' ? (
