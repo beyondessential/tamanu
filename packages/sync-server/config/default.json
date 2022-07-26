@@ -432,9 +432,7 @@
         "registerNewPatient": true,
         "hideOtherSex": true,
         "enablePatientDeaths": false,
-        "patientAdditionalData": {
-          "mergePopulatedPADRecords": true  
-        }
+        "mergePopulatedPADRecords": true
       },
       "templates": {
         "letterhead": {

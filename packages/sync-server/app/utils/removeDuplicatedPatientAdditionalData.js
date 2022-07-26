@@ -18,7 +18,7 @@ const METADATA_COLUMNS = [
 ];
 
 export async function reconcilePatient(sequelize, patientId) {
-  const { mergePopulatedPADRecords } = (await getLocalisation()).features.patientAdditionalData;
+  const { mergePopulatedPADRecords } = (await getLocalisation()).features;
 
   // find all the records for this patient
   const patientAdditionalDataRecords = await sequelize.query(
