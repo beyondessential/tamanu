@@ -4,6 +4,7 @@ import moment from 'moment';
 
 import { log } from 'shared/services/logging';
 import { ENCOUNTER_TYPES } from 'shared/constants';
+import { IMAGING_AREA_TYPES } from 'shared-src/src/constants';
 
 const sanitise = string => string.trim().replace(/[^A-Za-z0-9]+/g, '');
 
@@ -127,9 +128,48 @@ const transformers = [
   makeTransformer('diagnoses', referenceDataTransformer('icd10')),
   makeTransformer('triageReasons', referenceDataTransformer('triageReason')),
   makeTransformer('imagingTypes', referenceDataTransformer('imagingType')),
-  makeTransformer('xrayImagingAreas', referenceDataTransformer('xrayImagingAreas')),
-  makeTransformer('ultrasoundImagingAreas', referenceDataTransformer('ultrasoundImagingAreas')),
-  makeTransformer('ctImagingAreas', referenceDataTransformer('ctImagingAreas')),
+  makeTransformer(
+    'xrayImagingAreas',
+    referenceDataTransformer(IMAGING_AREA_TYPES.X_RAY_IMAGING_AREA),
+  ),
+  makeTransformer(
+    'ultrasoundImagingAreas',
+    referenceDataTransformer(IMAGING_AREA_TYPES.ULTRASOUND_IMAGING_AREA),
+  ),
+  makeTransformer(
+    'ctScanImagingAreas',
+    referenceDataTransformer(IMAGING_AREA_TYPES.CT_SCAN_IMAGING_AREA),
+  ),
+  makeTransformer(
+    'echocardiogramImagingAreas',
+    referenceDataTransformer(IMAGING_AREA_TYPES.ECHOCARDIOGRAM_IMAGING_AREA),
+  ),
+  makeTransformer('mriImagingAreas', referenceDataTransformer(IMAGING_AREA_TYPES.MRI_IMAGING_AREA)),
+  makeTransformer(
+    'mammogramImagingAreas',
+    referenceDataTransformer(IMAGING_AREA_TYPES.MAMMOGRAM_IMAGING_AREA),
+  ),
+  makeTransformer('ecgImagingAreas', referenceDataTransformer(IMAGING_AREA_TYPES.ECG_IMAGING_AREA)),
+  makeTransformer(
+    'holterMonitorImagingAreas',
+    referenceDataTransformer(IMAGING_AREA_TYPES.HOLTER_MONITOR_IMAGING_AREA),
+  ),
+  makeTransformer(
+    'endoscopyImagingAreas',
+    referenceDataTransformer(IMAGING_AREA_TYPES.ENDOSCOPY_IMAGING_AREA),
+  ),
+  makeTransformer(
+    'fluroscopyImagingAreas',
+    referenceDataTransformer(IMAGING_AREA_TYPES.FLUROSCOPY_IMAGING_AREA),
+  ),
+  makeTransformer(
+    'angiogramImagingAreas',
+    referenceDataTransformer(IMAGING_AREA_TYPES.ANGIOGRAM_IMAGING_AREA),
+  ),
+  makeTransformer(
+    'colonoscopyImagingAreas',
+    referenceDataTransformer(IMAGING_AREA_TYPES.COLONOSCOPY_IMAGING_AREA),
+  ),
   makeTransformer('procedures', referenceDataTransformer('procedureType')),
   makeTransformer('careplans', referenceDataTransformer('carePlan')),
   makeTransformer('ethnicities', referenceDataTransformer('ethnicity')),
