@@ -431,7 +431,10 @@
         "enableInvoicing": false,
         "registerNewPatient": true,
         "hideOtherSex": true,
-        "enablePatientDeaths": false
+        "enablePatientDeaths": false,
+        "patientAdditionalData": {
+          "mergePopulatedPADRecords": true  
+        }
       },
       "templates": {
         "letterhead": {

@@ -259,6 +259,9 @@ const rootLocalisationSchema = yup
         hideOtherSex: yup.boolean().required(),
         registerNewPatient: yup.boolean().required(),
         enablePatientDeaths: yup.boolean().required(),
+        patientAdditionalData: yup.object({
+          mergePopulatedPADRecords: yup.boolean().required(),
+        }).required(),
       })
       .required()
       .noUnknown(),
