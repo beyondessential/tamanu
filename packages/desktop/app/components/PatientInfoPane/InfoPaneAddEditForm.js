@@ -1,6 +1,7 @@
-import React, { memo } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
+import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
-import { connectApi } from '../../api';
+import { useApi } from '../../api';
 import { Suggester } from '../../utils/suggester';
 import { reloadPatient } from '../../store/patient';
 import {
@@ -37,29 +38,40 @@ const getSuggesters = (title, items) => {
   }
 };
 
-export const InfoPaneAddEditForm = connectApi(
-  (api, dispatch, { patient, endpoint, onClose, title, items }) => ({
-    onSubmit: async data => {
-      if (data.id) {
-        // don't need to include patientId as the existing record will already have it
-        await api.put(`${endpoint}/${data.id}`, data);
-      } else {
-        await api.post(endpoint, { ...data, patientId: patient.id });
-      }
-      dispatch(reloadPatient(patient.id));
-      onClose();
-    },
-    ...Object.fromEntries(
-      Object.entries(getSuggesters(title, items)).map(([key, options = {}]) => [
-        `${key}Suggester`,
-        new Suggester(api, key, options),
-      ]),
-    ),
-  }),
-)(
-  memo(({ Form, item, onClose, ...restOfProps }) => (
-    <FormContainer>
-      <Form onCancel={onClose} editedObject={item} {...restOfProps} />
-    </FormContainer>
-  )),
+export const InfoPaneAddEditForm = memo(
+  ({ patient, endpoint, onClose, Form, item, title, items }) => {
+    const api = useApi();
+    const dispatch = useDispatch();
+
+    const onSubmit = useCallback(
+      async data => {
+        if (data.id) {
+          // don't need to include patientId as the existing record will already have it
+          await api.put(`${endpoint}/${data.id}`, data);
+        } else {
+          await api.post(endpoint, { ...data, patientId: patient.id });
+        }
+        dispatch(reloadPatient(patient.id));
+        onClose();
+      },
+      [api, dispatch, endpoint, onClose, patient.id],
+    );
+
+    const suggesters = useMemo(
+      () =>
+        Object.fromEntries(
+          Object.entries(getSuggesters(title, items)).map(([key, options = {}]) => [
+            `${key}Suggester`,
+            new Suggester(api, key, options),
+          ]),
+        ),
+      [api, title, items],
+    );
+
+    return (
+      <FormContainer>
+        <Form onCancel={onClose} editedObject={item} onSubmit={onSubmit} {...suggesters} />
+      </FormContainer>
+    );
+  },
 );
