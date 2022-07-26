@@ -1,6 +1,5 @@
 import { DATE, QueryInterface } from 'sequelize';
-
-export const ISO9075_FORMAT = 'YYYY-MM-DD HH:mm:ss';
+import { ISO9075_FORMAT, ISO9075_FORMAT_LENGTH } from '../../constants';
 
 export async function createDateTimeStringUpMigration(
   query: QueryInterface,
@@ -18,7 +17,7 @@ export async function createDateTimeStringUpMigration(
   // 3.Change column types from of original columns from date to string & convert data to string
   await query.sequelize.query(
     `ALTER TABLE ${tableName}
-       ALTER COLUMN ${columnName} TYPE CHAR(19)
+       ALTER COLUMN ${columnName} TYPE CHAR(${ISO9075_FORMAT_LENGTH})
        USING TO_CHAR(${columnName}, '${ISO9075_FORMAT}');`,
   );
 }
