@@ -17,6 +17,9 @@ const METADATA_COLUMNS = [
   'mergedIntoId',
 ];
 
+// function to check for unset values (can't just check for falsiness as we don't want to overwrite 0s)
+const isBlank = value => (value === undefined || value === null || value === '');
+
 export async function reconcilePatient(sequelize, patientId) {
   const { mergePopulatedPADRecords } = (await getLocalisation()).features;
 
@@ -36,8 +39,6 @@ export async function reconcilePatient(sequelize, patientId) {
     },
   );
   
-  // function to check for unset values (can't just check for falsiness as we don't want to overwrite 0s)
-  const isBlank = value => (value === undefined || value === null || value === '');
 
   // get all the records that have actual data against them
   const checkedRecords = patientAdditionalDataRecords.map(record => {

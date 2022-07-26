@@ -158,7 +158,7 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
 
   static async getOrCreateForPatient(patientId: string): Promise<PatientAdditionalData> {
     // See if there's an existing PAD we can use
-    const existing = PatientAdditionalData.getForPatient(patientId);
+    const existing = await PatientAdditionalData.getForPatient(patientId);
     if (existing) {
       return existing;
     }
@@ -169,7 +169,7 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
     });
   }
 
-  static async updateForPatient(patientId: string, values: any) {
+  static async updateForPatient(patientId: string, values: Partial<PatientAdditionalData>) {
     const additionalData = await PatientAdditionalData.getOrCreateForPatient(patientId);
     await PatientAdditionalData.updateValues(additionalData.id, values);
   }
