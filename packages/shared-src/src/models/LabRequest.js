@@ -3,6 +3,8 @@ import { InvalidOperationError } from 'shared/errors';
 
 import { LAB_REQUEST_STATUSES, NOTE_TYPES } from 'shared/constants';
 import { Model } from './Model';
+import { dateTimeType } from './dateTimeType';
+import { getCurrentDateTimeString } from '../utils/dateTime';
 
 export class LabRequest extends Model {
   static init({ primaryKey, ...options }) {
@@ -10,12 +12,9 @@ export class LabRequest extends Model {
       {
         id: primaryKey,
         sampleTime: {
-          type: Sequelize.STRING(20),
-          set(value) {
-            this.setValueAsDateString('sampleTime', value);
-          },
+          ...dateTimeType('sampleTime'),
           allowNull: false,
-          defaultValue: Sequelize.NOW,
+          defaultValue: getCurrentDateTimeString,
         },
         // Legacy column has historical date time data as a backup
         sampleTimeLegacy: {
@@ -24,12 +23,9 @@ export class LabRequest extends Model {
           defaultValue: Sequelize.NOW,
         },
         requestedDate: {
-          type: Sequelize.STRING(20),
-          set(value) {
-            this.setValueAsDateString('requestedDate', value);
-          },
+          ...dateTimeType('requestedDate'),
           allowNull: false,
-          defaultValue: Sequelize.NOW,
+          defaultValue: getCurrentDateTimeString,
         },
         // Legacy column has historical date time data as a backup
         requestedDateLegacy: {

@@ -1,6 +1,5 @@
 import * as sequelize from 'sequelize';
 import { SyncConfig } from './sync';
-import { toDateTimeString } from '../utils/dateTime';
 
 const { Sequelize, Op, Utils } = sequelize;
 
@@ -92,10 +91,6 @@ export class Model extends sequelize.Model {
 
   getModelName() {
     return this.constructor.name;
-  }
-
-  setValueAsDateString(fieldName, value) {
-    this.setDataValue(fieldName, toDateTimeString(value));
   }
 
   static getListReferenceAssociations() {
