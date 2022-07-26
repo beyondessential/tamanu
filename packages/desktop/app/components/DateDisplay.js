@@ -6,7 +6,8 @@ const intlFormatDate = (date, formatOptions, fallback = 'Unknown') => {
   return new Date(date).toLocaleString('default', formatOptions);
 };
 
-export const formatShort = date => intlFormatDate(date, { dateStyle: 'short' }, '--/--/----'); // 12/04/2020
+export const formatShort = date =>
+  intlFormatDate(date, { day: '2-digit', month: '2-digit', year: 'numeric' }, '--/--/----'); // 12/04/2020
 
 export const formatTime = date =>
   intlFormatDate(
