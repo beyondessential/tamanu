@@ -184,10 +184,10 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
 
       // Save values to database records
       if (Object.keys(patientRecordValues).length) {
-        await PatientAdditionalData.updateForPatient(patientId, patientRecordValues);
+        await Patient.updateValues(patientId, patientRecordValues);
       }
       if (Object.keys(patientAdditionalDataValues).length) {
-        await Patient.updateValues(patientId, patientRecordValues);
+        await PatientAdditionalData.updateForPatient(patientId, patientAdditionalDataValues);
       }
 
       return responseRecord;
