@@ -85,6 +85,33 @@ describe('Lab test publisher', () => {
     expect(updatedMerged2).toHaveProperty('mergedIntoId', realData.id);
   });
   
+  it('Should merge in multiple duplicates whose non-null fields align', async () => {
+    const patient = await models.Patient.create(createDummyPatient());
+    const realData = await models.PatientAdditionalData.create({ patientId: patient.id, passport: 'passport' });
+    const mergedData = await models.PatientAdditionalData.create({ patientId: patient.id, passport: 'passport', drivingLicense: 'drivingLicense', bloodType: 'A-' });
+    const mergedData2 = await models.PatientAdditionalData.create({ patientId: patient.id, passport: 'passport', drivingLicense: 'drivingLicense', birthCertificate: 'birthCertificate' });
+
+    const results = await reconcilePatient(ctx.store.sequelize, patient.id);
+    expect(results).toHaveProperty('deleted', 2);
+    expect(results).toHaveProperty('unmergeable', 0);
+
+    const updatedReal = await loadEvenIfDeleted(realData);
+    expect(updatedReal.deletedAt).toBeFalsy();
+    expect(updatedReal).toHaveProperty('mergedIntoId', null);
+    expect(updatedReal).toHaveProperty('passport', 'passport');
+    expect(updatedReal).toHaveProperty('drivingLicense', 'drivingLicense');
+    expect(updatedReal).toHaveProperty('birthCertificate', 'birthCertificate');
+    expect(updatedReal).toHaveProperty('bloodType', 'A-');
+
+    const updatedMerged = await loadEvenIfDeleted(mergedData);
+    expect(updatedMerged.deletedAt).toBeTruthy();
+    expect(updatedMerged).toHaveProperty('mergedIntoId', realData.id);
+
+    const updatedMerged2 = await loadEvenIfDeleted(mergedData2);
+    expect(updatedMerged2.deletedAt).toBeTruthy();
+    expect(updatedMerged2).toHaveProperty('mergedIntoId', realData.id);
+  });
+  
   it('Should only merge one duplicate record if duplicates conflict with each other', async () => {
     const patient = await models.Patient.create(createDummyPatient());
     const realData = await models.PatientAdditionalData.create({ patientId: patient.id, passport: 'passport' });

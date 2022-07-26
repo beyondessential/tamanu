@@ -90,8 +90,7 @@ export async function reconcilePatient(sequelize, patientId) {
           // we can happily overwrite a blank
           values[k] = incomingValue;
         } else if (existingValue !== incomingValue) {
-          // we can't overwrite actual values, only merge nulls
-          console.log(`Key ${k} (${existingValue}) can't be overwritten by ${incomingValue}`);
+          // we can't overwrite actual values
           canMerge = false;
           break;
         }
