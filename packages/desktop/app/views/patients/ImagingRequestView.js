@@ -117,7 +117,7 @@ const ImagingRequestInfoPane = React.memo(
                   ? imagingRequest.areas.map(area => area.name).join(', ')
                   : imagingRequest.areaNote
               }
-              label="Area to be imaged"
+              label="Areas to be imaged"
               style={{ gridColumn: '1 / -1', minHeight: '60px' }}
               disabled
             />

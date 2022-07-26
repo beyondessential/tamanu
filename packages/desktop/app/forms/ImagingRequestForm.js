@@ -152,7 +152,7 @@ export const ImagingRequestForm = React.memo(
               ) : (
                 <Field
                   name="areaNote"
-                  label="Area to be imaged"
+                  label="Areas to be imaged"
                   component={TextField}
                   multiline
                   style={{ gridColumn: '1 / -1' }}

@@ -204,8 +204,7 @@ const imagingTypesSchema = yup
       {},
     ),
   })
-  .required()
-  .noUnknown();
+  .required();
 
 const validCssAbsoluteLength = yup
   .string()

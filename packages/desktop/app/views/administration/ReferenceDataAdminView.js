@@ -1,5 +1,4 @@
 import React, { memo, useCallback } from 'react';
-import styled from 'styled-components';
 import { ContentPane } from '../../components';
 import { useApi } from '../../api';
 import { CheckArrayInput } from '../../components/Field/CheckArrayInput';
@@ -55,9 +54,18 @@ export const ReferenceDataAdminView = memo(() => {
         { value: 'invoiceLineTypes', label: 'invoiceLineType' },
         { value: 'invoicePriceChangeTypes', label: 'invoicePriceChangeType' },
         { value: 'administeredVaccines', label: 'administeredVaccine' },
-        { value: 'xrayImagingAreas', label: 'xrayImagingAreas' },
-        { value: 'ctScanImagingAreas', label: 'ctScanImagingAreas' },
-        { value: 'ultrasoundImagingAreas', label: 'ultrasoundImagingAreas' },
+        { value: 'xRayImagingAreas', label: 'xRayImagingArea' },
+        { value: 'ctScanImagingAreas', label: 'ctScanImagingArea' },
+        { value: 'ultrasoundImagingAreas', label: 'ultrasoundImagingArea' },
+        { value: 'echocardiogramImagingAreas', label: 'echocardiogramImagingArea' },
+        { value: 'mriImagingAreas', label: 'mriImagingArea' },
+        { value: 'mammogramImagingAreas', label: 'mammogramImagingArea' },
+        { value: 'ecgImagingAreas', label: 'ecgImagingArea' },
+        { value: 'holterMonitorImagingAreas', label: 'holterMonitorImagingArea' },
+        { value: 'endoscopyImagingAreas', label: 'endoscopyImagingArea' },
+        { value: 'fluroscopyImagingAreas', label: 'fluroscopyImagingArea' },
+        { value: 'angiogramImagingAreas', label: 'angiogramImagingArea' },
+        { value: 'colonoscopyImagingAreas', label: 'colonoscopyImagingArea' },
       ]}
     />
   );

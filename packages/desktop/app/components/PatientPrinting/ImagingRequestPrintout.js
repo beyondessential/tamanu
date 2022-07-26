@@ -11,7 +11,8 @@ export const ImagingRequestPrintout = React.memo(
       requestedBy,
       urgent,
       imagingType,
-      areaToBeImaged,
+      areas,
+      areaNote,
       note,
     } = imagingRequestData;
 
@@ -27,8 +28,9 @@ export const ImagingRequestPrintout = React.memo(
           Department: encounterData?.department?.name,
           'Requested by': requestedBy?.displayName,
           Urgent: urgent ? 'Yes' : 'No',
+          // TODO: need to correct this for new imaging type enum style
           'Imaging type': imagingType?.name,
-          'Area to be imaged': areaToBeImaged,
+          'Areas to be imaged': areas ? areas.map(area => area.name).join(', ') : areaNote,
         }}
       />
     );

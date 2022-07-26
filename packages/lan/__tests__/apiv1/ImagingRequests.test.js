@@ -58,7 +58,7 @@ describe('Imaging requests', () => {
     const createdImagingRequest = await models.ImagingRequest.create({
       encounterId: encounter.id,
       imagingTypeId: await randomReferenceId(models, 'imagingType'),
-      requestedById: app.user.id,
+      requestedById: app.user.id
     });
     const result = await app.get(`/v1/encounter/${encounter.id}/imagingRequests`);
     expect(result).toHaveSucceeded();
@@ -75,7 +75,7 @@ describe('Imaging requests', () => {
     const createdImagingRequest = await models.ImagingRequest.create({
       encounterId: encounter.id,
       imagingTypeId: await randomReferenceId(models, 'imagingType'),
-      requestedById: app.user.id,
+      requestedById: app.user.id
     });
     const result = await app.get(`/v1/encounter/${encounter.id}/imagingRequests`);
     expect(result).toHaveSucceeded();

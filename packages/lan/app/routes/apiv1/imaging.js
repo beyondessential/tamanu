@@ -104,7 +104,9 @@ imagingRequest.put(
     await imagingRequestObject.update(imagingRequestData);
 
     // Updates the reference data associations for the areas to be imaged
-    await imagingRequestObject.setAreas(areas.split(/,\s/));
+    if (areas) {
+      await imagingRequestObject.setAreas(areas.split(/,\s/));
+    }
 
     // Get related notes (general, area to be imaged)
     const relatedNotes = await imagingRequestObject.getNotes();
@@ -172,7 +174,9 @@ imagingRequest.post(
     const newImagingRequest = await ImagingRequest.create(imagingRequestData);
 
     // Creates the reference data associations for the areas to be imaged
-    await newImagingRequest.setAreas(areas.split(/,\s/));
+    if (areas) {
+      await newImagingRequest.setAreas(areas.split(/,\s/));
+    }
 
     // Return notes content or empty string with the response for consistency
     let noteContent = '';
