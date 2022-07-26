@@ -328,4 +328,22 @@ export const REPORT_DEFINITIONS = [
       },
     ],
   },
+  {
+    name: 'Appointments - Line list',
+    id: 'appointments-line-list',
+    parameters: [
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Ward',
+        name: 'location',
+        suggesterEndpoint: 'location',
+      },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Ward',
+        name: 'location',
+        suggesterEndpoint: 'location',
+      },
+    ],
+  },
 ];
