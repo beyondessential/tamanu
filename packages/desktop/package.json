@@ -124,6 +124,7 @@
     "@storybook/addon-links": "^5.0.1",
     "@storybook/addons": "^5.0.1",
     "@storybook/react": "^5.0.1",
+    "@tanstack/react-query-devtools": "^4.0.10",
     "chalk": "^2.4.1",
     "concurrently": "^3.6.1",
     "cross-env": "^5.2.0",

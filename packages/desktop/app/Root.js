@@ -1,6 +1,7 @@
 import React from 'react';
 import { Provider } from 'react-redux';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { ConnectedRouter } from 'connected-react-router';
 import PropTypes from 'prop-types';
 import { CssBaseline } from '@material-ui/core';
@@ -38,6 +39,7 @@ export default function Root({ api, store, history }) {
               <MuiThemeProvider theme={theme}>
                 <ThemeProvider theme={theme}>
                   <QueryClientProvider client={queryClient}>
+                    <ReactQueryDevtools initialIsOpen={false} />
                     <ElectronProvider>
                       <ToastContainer
                         closeOnClick
