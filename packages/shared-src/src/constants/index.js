@@ -379,3 +379,6 @@ export const SERVER_TYPES = {
   META: 'Tamanu Metadata Server',
   SYNC: 'Tamanu Sync Server',
 };
+
+export const ISO9075_FORMAT = 'YYYY-MM-DD HH:mm:ss';
+export const ISO9075_FORMAT_LENGTH = ISO9075_FORMAT.length;
