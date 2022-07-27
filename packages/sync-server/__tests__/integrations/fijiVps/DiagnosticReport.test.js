@@ -122,8 +122,8 @@ describe('VPS integration - DiagnosticReport', () => {
             resource: {
               resourceType: 'DiagnosticReport',
               id: labTest.id,
-              effectiveDateTime: labRequest.sampleTime.toISOString(),
-              issued: labRequest.requestedDate.toISOString(),
+              effectiveDateTime: labRequest.sampleTime,
+              issued: labRequest.requestedDate,
               code: {
                 coding: [
                   {
