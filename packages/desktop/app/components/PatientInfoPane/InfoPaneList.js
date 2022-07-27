@@ -93,13 +93,8 @@ export const InfoPaneList = memo(
     const [addEditState, setAddEditState] = useState({ adding: false, editKey: null });
     const { adding, editKey } = addEditState;
     const api = useApi();
-    const { data, error } = useQuery(
-      [`infoPaneListItem-${title}`, getEndpoint],
-      () => api.get(getEndpoint),
-      {
-        cacheTime: 0,
-        retry: false,
-      },
+    const { data, error } = useQuery([`infoPaneListItem-${title}`, getEndpoint], () =>
+      api.get(getEndpoint),
     );
     const isIssuesPane = title === ISSUES_TITLE;
     const { items, warnings } = getItems(isIssuesPane, data);

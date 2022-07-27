@@ -27,7 +27,13 @@ const StateContextProviders = ({ children, store }) => (
   </EncounterProvider>
 );
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+    },
+  },
+});
 
 export default function Root({ api, store, history }) {
   return (
