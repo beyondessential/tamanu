@@ -93,7 +93,7 @@ export const InfoPaneList = memo(
     const [addEditState, setAddEditState] = useState({ adding: false, editKey: null });
     const { adding, editKey } = addEditState;
     const api = useApi();
-    const { data, error, isLoading } = useQuery(
+    const { data, error } = useQuery(
       [`infoPaneListItem-${title}`, getEndpoint],
       () => api.get(getEndpoint),
       {
@@ -135,13 +135,12 @@ export const InfoPaneList = memo(
     );
 
     const EditForm = CustomEditForm || InfoPaneAddEditForm;
-    const showAddButton = !readonly && !isLoading && !error;
     return (
       <>
         {isIssuesPane && <PatientAlert alerts={warnings} />}
         <TitleContainer data-test-id={`info-pane-${kebabCase(title)}`}>
           <TitleText>{title}</TitleText>
-          {showAddButton && (
+          {!readonly && (
             <AddButton
               onClick={handleAddButtonClick}
               endIcon={<AddCircleIcon />}
