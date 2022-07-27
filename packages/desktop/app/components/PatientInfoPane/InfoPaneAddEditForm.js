@@ -51,7 +51,7 @@ export const InfoPaneAddEditForm = memo(
           await api.post(endpoint, { ...data, patientId: patient.id });
         }
 
-        queryClient.invalidateQueries([`infoPaneListItem-${title}`]);
+        queryClient.invalidateQueries([`infoPaneListItem-${title}`, patient.id]);
         onClose();
       },
       [api, endpoint, onClose, patient.id, title, queryClient],
