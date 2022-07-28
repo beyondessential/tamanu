@@ -80,7 +80,7 @@ export class PatientAdditionalData extends Model {
   }
 
   static async getForPatient(patientId) {
-    return this.findOne({ where: { patientId }});
+    return this.findOne({ where: { patientId } });
   }
 
   static async getOrCreateForPatient(patientId) {

@@ -6,14 +6,14 @@ import { runCalculations } from '../utils/calculations';
 import { getStringValue, getResultValue } from '../utils/fields';
 
 async function createPatientIssues(models, questions, patientId) {
-  const issueQuestions = questions.filter(q => q.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE);
+  const issueQuestions = questions.filter(
+    q => q.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE,
+  );
   for (const question of issueQuestions) {
     const { config: configString } = question;
     const config = JSON.parse(configString) || {};
     if (!config.issueNote || !config.issueType) {
-      throw new InvalidOperationError(
-        `Ill-configured PatientIssue with config: ${configString}`,
-      );
+      throw new InvalidOperationError(`Ill-configured PatientIssue with config: ${configString}`);
     }
     await models.PatientIssue.create({
       patientId,
@@ -28,7 +28,9 @@ async function writeToPatientFields(models, questions, answers, patientId) {
   const patientRecordValues = {};
   const patientAdditionalDataValues = {};
 
-  const writeQuestions = questions.filter(q => q.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA);
+  const writeQuestions = questions.filter(
+    q => q.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA,
+  );
   for (const question of writeQuestions) {
     const { dataElement, config: configString } = question;
     const config = JSON.parse(configString) || {};
@@ -51,10 +53,7 @@ async function writeToPatientFields(models, questions, answers, patientId) {
   // Save values to database records
   const { Patient, PatientAdditionalData } = models;
   if (Object.keys(patientRecordValues).length) {
-    await Patient.update(
-      patientRecordValues,
-      { where: { id: patientId } },
-    );
+    await Patient.update(patientRecordValues, { where: { id: patientId } });
   }
   if (Object.keys(patientAdditionalDataValues).length) {
     const pad = await PatientAdditionalData.getOrCreateForPatient(patientId);
@@ -67,7 +66,6 @@ async function handleSurveyResponseActions(models, questions, actions, answers, 
   await createPatientIssues(models, activeQuestions, patientId);
   await writeToPatientFields(models, activeQuestions, answers, patientId);
 }
-
 
 export class SurveyResponse extends Model {
   static init({ primaryKey, ...options }) {
@@ -151,7 +149,7 @@ export class SurveyResponse extends Model {
       throw new Error('SurveyResponse.createWithAnswers must always run inside a transaction!');
     }
     const { models } = this.sequelize;
-    const { answers, actions, surveyId, patientId, encounterId, ...responseData } = data;
+    const { answers, actions = {}, surveyId, patientId, encounterId, ...responseData } = data;
 
     // ensure survey exists
     const survey = await models.Survey.findByPk(surveyId);
@@ -208,8 +206,14 @@ export class SurveyResponse extends Model {
         responseId: record.id,
       });
     }
-    
-    await handleSurveyResponseActions(models, questions, actions, finalAnswers, encounter.patientId);
+
+    await handleSurveyResponseActions(
+      models,
+      questions,
+      actions,
+      finalAnswers,
+      encounter.patientId,
+    );
 
     return record;
   }
