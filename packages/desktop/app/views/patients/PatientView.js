@@ -100,9 +100,8 @@ export const PatientView = () => {
   const [currentTab, setCurrentTab] = React.useState('history');
   const disabled = !!patient.death;
   const api = useApi();
-  const { data: additionalData, isLoading } = useQuery(
-    ['additionalData', patient.id],
-    () => api.get(`patient/${patient.id}/additionalData`),
+  const { data: additionalData, isLoading } = useQuery(['additionalData', patient.id], () =>
+    api.get(`patient/${patient.id}/additionalData`),
   );
 
   const RoutedEncounterModal = useMemo(() => getConnectRoutedModal(params, 'checkin'), [params])(
