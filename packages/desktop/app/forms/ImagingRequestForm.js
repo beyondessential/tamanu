@@ -94,7 +94,7 @@ export const ImagingRequestForm = React.memo(
     const { examiner = {} } = encounter;
     const examinerLabel = examiner.displayName;
     const encounterLabel = getEncounterLabel(encounter);
-    const { getAreasByImagingType } = useImagingRequestAreas();
+    const { getAreasForImagingType } = useImagingRequestAreas();
     return (
       <Form
         onSubmit={onSubmit}
@@ -109,7 +109,7 @@ export const ImagingRequestForm = React.memo(
           requestedDate: yup.date().required(),
         })}
         render={({ submitForm, values }) => {
-          const imagingAreas = getAreasByImagingType(values.imagingTypeId);
+          const imagingAreas = getAreasForImagingType(values.imagingTypeId);
           return (
             <FormGrid>
               <Field name="id" label="Imaging request code" disabled component={TextField} />
