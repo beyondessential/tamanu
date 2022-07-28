@@ -105,7 +105,6 @@ export const ImagingRequestForm = React.memo(
         }}
         validationSchema={yup.object().shape({
           requestedById: foreignKey('Requesting doctor is required'),
-          imagingTypeId: foreignKey('Imaging request type must be selected'),
           requestedDate: yup.date().required(),
         })}
         render={({ submitForm, values }) => {
@@ -133,7 +132,7 @@ export const ImagingRequestForm = React.memo(
               <FormSeparatorLine />
               <TextInput label="Encounter" disabled value={encounterLabel} />
               <Field
-                name="imagingTypeId"
+                name="imagingType"
                 label="Imaging request type"
                 required
                 component={SelectField}

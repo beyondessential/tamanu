@@ -48,11 +48,6 @@ export class ImagingRequest extends Model {
               throw new InvalidOperationError('An imaging request must have a valid status.');
             }
           },
-          mustHaveValidImagingType() {
-            if (!this.imagingTypeId) {
-              throw new InvalidOperationError('An imaging request must have a valid imaging type.');
-            }
-          },
           mustHaveValidRequester() {
             if (!this.requestedById) {
               throw new InvalidOperationError('An imaging request must have a valid requester.');
