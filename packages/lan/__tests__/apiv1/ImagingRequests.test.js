@@ -1,7 +1,7 @@
+import { IMAGING_TYPES } from 'shared/constants';
 import {
   createDummyPatient,
   createDummyEncounter,
-  randomReferenceId,
 } from 'shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
@@ -29,7 +29,7 @@ describe('Imaging requests', () => {
   it('should record an imaging request', async () => {
     const result = await app.post('/v1/imagingRequest').send({
       encounterId: encounter.id,
-      imagingTypeId: await randomReferenceId(models, 'imagingType'),
+      imagingType: IMAGING_TYPES.CT_SCAN,
       requestedById: app.user.id,
     });
     expect(result).toHaveSucceeded();
@@ -57,7 +57,7 @@ describe('Imaging requests', () => {
   it('should get imaging requests for an encounter', async () => {
     const createdImagingRequest = await models.ImagingRequest.create({
       encounterId: encounter.id,
-      imagingTypeId: await randomReferenceId(models, 'imagingType'),
+      imagingType: IMAGING_TYPES.CT_SCAN,
       requestedById: app.user.id
     });
     const result = await app.get(`/v1/encounter/${encounter.id}/imagingRequests`);
@@ -74,7 +74,7 @@ describe('Imaging requests', () => {
   it('should get imaging request reference info when listing imaging requests', async () => {
     const createdImagingRequest = await models.ImagingRequest.create({
       encounterId: encounter.id,
-      imagingTypeId: await randomReferenceId(models, 'imagingType'),
+      imagingType: IMAGING_TYPES.CT_SCAN,
       requestedById: app.user.id
     });
     const result = await app.get(`/v1/encounter/${encounter.id}/imagingRequests`);
