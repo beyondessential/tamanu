@@ -32,6 +32,7 @@ export const PatientSearchBar = React.memo(({ onSearch }) => {
         label="DOB"
         max={getCurrentDateString()}
         component={DateField}
+        saveDateAsString
       />
       <DisplayIdField />
       <LocalisedField

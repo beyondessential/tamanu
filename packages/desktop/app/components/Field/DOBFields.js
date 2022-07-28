@@ -19,8 +19,8 @@ const JoinedField = styled(Field)`
 
 export const DOBFields = () => (
   <>
-    <Field name="dateOfBirthExact" component={DateField} label="DOB" />
-    <JoinedField name="dateOfBirthFrom" component={DateField} label="DOB from" />
-    <Field name="dateOfBirthTo" component={DateField} label="DOB to" />
+    <Field name="dateOfBirthExact" component={DateField} saveDateAsString label="DOB" />
+    <JoinedField name="dateOfBirthFrom" component={DateField} saveDateAsString label="DOB from" />
+    <Field name="dateOfBirthTo" component={DateField} saveDateAsString label="DOB to" />
   </>
 );
