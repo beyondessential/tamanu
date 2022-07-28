@@ -59,7 +59,7 @@ export const DateInput = ({
 
       onChange({ target: { value: outputValue, name } });
     },
-    [onChange, format, name],
+    [onChange, format, name, saveDateAsString],
   );
 
   useEffect(() => {
