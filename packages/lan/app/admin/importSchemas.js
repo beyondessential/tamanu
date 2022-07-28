@@ -10,9 +10,7 @@ import {
 const visibilityStatus = yup
   .string()
   .default(VISIBILITY_STATUSES.CURRENT)
-  .oneOf(Object.values(VISIBILITY_STATUSES))
-  ;
-
+  .oneOf(Object.values(VISIBILITY_STATUSES));
 const safeIdRegex = /^[A-Za-z0-9-]+$/;
 const safeCodeRegex = /^[A-Za-z0-9-./]+$/;
 
