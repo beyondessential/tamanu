@@ -65,7 +65,6 @@ describe('Data definition import', () => {
     expect(records).toHaveProperty('referenceData:icd10', 10);
     expect(records).toHaveProperty('referenceData:triageReason', 10);
     expect(records).toHaveProperty('referenceData:procedureType', 10);
-    expect(records).toHaveProperty('referenceData:imagingType', 4);
   });
 
   it('should import user records', () => {

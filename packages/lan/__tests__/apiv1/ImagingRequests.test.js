@@ -74,7 +74,6 @@ describe('Imaging requests', () => {
   it('should get imaging request reference info when listing imaging requests', async () => {
     const createdImagingRequest = await models.ImagingRequest.create({
       encounterId: encounter.id,
-      imagingType: IMAGING_TYPES.CT_SCAN,
       requestedById: app.user.id
     });
     const result = await app.get(`/v1/encounter/${encounter.id}/imagingRequests`);
@@ -84,6 +83,5 @@ describe('Imaging requests', () => {
 
     const record = body.data[0];
     expect(record).toHaveProperty('requestedBy.displayName');
-    expect(record).toHaveProperty('imagingType.name');
   });
 });
