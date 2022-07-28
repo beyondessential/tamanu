@@ -47,7 +47,6 @@ export const DateInput = ({
   const onValueChange = useCallback(
     event => {
       const formattedValue = event.target.value;
-
       const date = toMomentDate(formattedValue, format);
 
       if (max) {
@@ -58,9 +57,7 @@ export const DateInput = ({
         }
       }
 
-      const outputValue = saveDateAsString
-        ? toDateTimeString(formattedValue)
-        : toRFC3339(formattedValue, format);
+      const outputValue = saveDateAsString ? toDateTimeString(date) : date.toISOString();
 
       setCurrentText(formattedValue);
       if (outputValue === 'Invalid date') {

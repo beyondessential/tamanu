@@ -34,9 +34,6 @@ import { DateDisplay } from '../components/DateDisplay';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { DropdownButton } from '../components/DropdownButton';
 
-import { useLabRequest } from '../contexts/LabRequest';
-import { useEncounter } from '../contexts/Encounter';
-
 function getEncounterTypeLabel(type) {
   return encounterOptions.find(x => x.value === type).label;
 }
