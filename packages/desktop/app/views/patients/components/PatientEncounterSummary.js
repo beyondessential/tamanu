@@ -130,9 +130,7 @@ const PatientDeathSummary = React.memo(({ patient }) => {
   }
 
   if (error) {
-    return (
-      <DataStatusMessage message="You do not have permission to read patient death details." />
-    );
+    return <DataStatusMessage message={error.message} />;
   }
 
   return (
@@ -186,7 +184,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin, o
   }
 
   if (error) {
-    return <DataStatusMessage message="You do not have permission to read an encounter." />;
+    return <DataStatusMessage message={error.message} />;
   }
 
   if (!encounter) {
