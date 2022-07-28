@@ -216,18 +216,18 @@ export default async function importer({
         errors: [],
         stats: coalesceStats(stats),
       };
-    } else if (errors.length) {
+    }
+    if (errors.length) {
       return {
         didntSendReason: 'validationFailed',
         errors,
         stats: coalesceStats(stats),
       };
-    } else {
-      return {
-        didntSendReason: 'validationFailed',
-        errors: [err],
-        stats: coalesceStats(stats),
-      };
     }
+    return {
+      didntSendReason: 'validationFailed',
+      errors: [err],
+      stats: coalesceStats(stats),
+    };
   }
 }

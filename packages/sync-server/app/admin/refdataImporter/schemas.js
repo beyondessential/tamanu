@@ -35,7 +35,9 @@ export const ReferenceData = Base.shape({
 });
 
 export const RDmanufacturer = ReferenceData.shape({
-  code: fieldTypes.code.matches(/^((?!ORG-).+|ORG-[0-9]+)$/, 'must either by a textual code or an EU ORG code').required(),
+  code: fieldTypes.code
+    .matches(/^((?!ORG-).+|ORG-[0-9]+)$/, 'must either by a textual code or an EU ORG code')
+    .required(),
   name: yup.string().required(),
 });
 
@@ -151,12 +153,31 @@ const ICD11_REGEX = /^([0-9A-HJ-NP-V]{1,4}(\.[0-9A-HJ-NP-V]{1,4})?|X[0-9A-HJ-NP-
 const SNOMED_OR_ATC = /^([0-9]+|[A-Z][0-9A-Z]*)$/;
 const EITHER_EU_CODE_OR_SOMETHING_ELSE = /^((?!EU\/).+|EU\/[0-9]\/[0-9]{2}\/[0-9]+)$/;
 export const CertifiableVaccine = Base.shape({
-  icd11DrugCode: yup.string().matches(ICD11_REGEX, 'must be ICD-11 code').required(),
-  icd11DiseaseCode: yup.string().matches(ICD11_REGEX, 'must be ICD-11 code').required(),
-  vaccineCode: yup.string().matches(SNOMED_OR_ATC, 'must be SNOMED-CT or ATC code').required(),
-  targetCode: yup.string().matches(SNOMED_OR_ATC, 'must be SNOMED-CT or ATC code').optional(),
-  euProductCode: yup.string().matches(EITHER_EU_CODE_OR_SOMETHING_ELSE, 'must either be a name or an EU product code').optional(),
-  maximumDosage: yup.number().positive().integer().required(),
+  icd11DrugCode: yup
+    .string()
+    .matches(ICD11_REGEX, 'must be ICD-11 code')
+    .required(),
+  icd11DiseaseCode: yup
+    .string()
+    .matches(ICD11_REGEX, 'must be ICD-11 code')
+    .required(),
+  vaccineCode: yup
+    .string()
+    .matches(SNOMED_OR_ATC, 'must be SNOMED-CT or ATC code')
+    .required(),
+  targetCode: yup
+    .string()
+    .matches(SNOMED_OR_ATC, 'must be SNOMED-CT or ATC code')
+    .optional(),
+  euProductCode: yup
+    .string()
+    .matches(EITHER_EU_CODE_OR_SOMETHING_ELSE, 'must either be a name or an EU product code')
+    .optional(),
+  maximumDosage: yup
+    .number()
+    .positive()
+    .integer()
+    .required(),
   vaccineId: yup.string().required(),
   manufacturerId: yup.string().optional(),
 });
