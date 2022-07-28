@@ -6,7 +6,6 @@ import { useQuery } from '@tanstack/react-query';
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
 import { DateDisplay, LargeButton, ViewButton, DeathCertificateModal } from '../../../components';
 import { useApi } from '../../../api';
-import { LoadingIndicator } from '../../../components/LoadingIndicator';
 
 const PATIENT_STATUS = {
   INPATIENT: 'inpatient',
@@ -114,21 +113,25 @@ const ButtonRow = styled(Box)`
   }
 `;
 
+const DataStatusMessage = ({ message }) => (
+  <NoVisitContainer>
+    <Typography variant="h6">{message}</Typography>
+  </NoVisitContainer>
+);
+
 const PatientDeathSummary = React.memo(({ patient }) => {
   const api = useApi();
   const { data: deathData, error, isLoading } = useQuery(['PatientDeathSummary'], () =>
     api.get(`patient/${patient.id}/death`),
   );
 
-  if (isLoading) return <LoadingIndicator />;
+  if (isLoading) {
+    return <DataStatusMessage message="Loading..." />;
+  }
 
   if (error) {
     return (
-      <NoVisitContainer>
-        <NoVisitTitle variant="h2">
-          You do not have permission to read patient death details.
-        </NoVisitTitle>
-      </NoVisitContainer>
+      <DataStatusMessage message="You do not have permission to read patient death details." />
     );
   }
 
@@ -179,15 +182,11 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin, o
   }
 
   if (isLoading) {
-    return <LoadingIndicator />;
+    return <DataStatusMessage message="Loading..." />;
   }
 
   if (error) {
-    return (
-      <NoVisitContainer>
-        <NoVisitTitle variant="h2">You do not have permission to read an encounter.</NoVisitTitle>
-      </NoVisitContainer>
-    );
+    return <DataStatusMessage message="You do not have permission to read an encounter." />;
   }
 
   if (!encounter) {
