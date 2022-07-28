@@ -226,15 +226,6 @@ globalImagingRequests.get(
     const { models, query } = req;
     const { order = 'ASC', orderBy, rowsPerPage = 10, page = 0, ...filterParams } = query;
 
-    // Model filters for Sequelize 'where' clauses
-    const imagingTypeFilters = mapQueryFilters(filterParams, [
-      {
-        key: 'imagingType',
-        alias: 'name',
-        operator: Op.startsWith,
-        mapFn: caseInsensitiveFilter,
-      },
-    ]);
     const patientFilters = mapQueryFilters(filterParams, [
       { key: 'firstName', operator: Op.startsWith, mapFn: caseInsensitiveFilter },
       { key: 'lastName', operator: Op.startsWith, mapFn: caseInsensitiveFilter },
@@ -247,6 +238,7 @@ globalImagingRequests.get(
         operator: Op.startsWith,
         mapFn: caseInsensitiveFilter,
       },
+      { key: 'imagingType', operator: Op.eq },
       { key: 'status', operator: Op.eq },
       {
         key: 'urgency',
@@ -283,10 +275,6 @@ globalImagingRequests.get(
     // Associations to include on query
     const requestedBy = {
       association: 'requestedBy',
-    };
-    const imagingType = {
-      association: 'imagingType',
-      where: imagingTypeFilters,
     };
     const areas = {
       association: 'areas',

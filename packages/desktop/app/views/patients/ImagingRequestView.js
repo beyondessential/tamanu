@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Form, Formik } from 'formik';
 import { useSelector } from 'react-redux';
-import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
+import { IMAGING_REQUEST_STATUS_TYPES, IMAGING_TYPES } from 'shared/constants';
 import { useParams } from 'react-router-dom';
 import { useCertificate } from '../../utils/useCertificate';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
@@ -22,6 +22,7 @@ import {
 import { useApi, useSuggester } from '../../api';
 
 import { ImagingRequestPrintout } from '../../components/PatientPrinting/ImagingRequestPrintout';
+import { useLocalisation } from '../../contexts/Localisation';
 
 const statusOptions = [
   { value: 'pending', label: 'Pending' },
@@ -76,7 +77,7 @@ const PrintButton = ({ imagingRequest, patient }) => {
 };
 
 const ImagingRequestInfoPane = React.memo(
-  ({ imagingRequest, onSubmit, practitionerSuggester, locationSuggester }) => (
+  ({ imagingRequest, onSubmit, practitionerSuggester, locationSuggester, imagingTypes }) => (
     <Formik
       // Only submit specific fields for update
       onSubmit={({ status, completedById, locationId, results }) => {
@@ -97,7 +98,11 @@ const ImagingRequestInfoPane = React.memo(
         <Form>
           <FormGrid columns={3}>
             <TextInput value={imagingRequest.id} label="Request ID" disabled />
-            <TextInput value={imagingRequest.imagingType?.name} label="Request type" disabled />
+            <TextInput
+              value={imagingTypes[imagingRequest.imagingType]?.label || 'Unknown'}
+              label="Request type"
+              disabled
+            />
             <TextInput
               value={imagingRequest.urgent ? 'Urgent' : 'Standard'}
               label="Urgency"
@@ -192,6 +197,10 @@ export const ImagingRequestView = () => {
   const practitionerSuggester = useSuggester('practitioner');
   const locationSuggester = useSuggester('location');
 
+  const { getLocalisation } = useLocalisation();
+  const imagingTypes = getLocalisation('imagingTypes');
+  console.log(imagingTypes);
+
   const onSubmit = data => {
     api.put(`imagingRequest/${imagingRequest.id}`, { ...data });
     navigateToEncounter();
@@ -206,6 +215,7 @@ export const ImagingRequestView = () => {
         onSubmit={onSubmit}
         practitionerSuggester={practitionerSuggester}
         locationSuggester={locationSuggester}
+        imagingTypes={imagingTypes}
       />
     </ContentPane>
   );
