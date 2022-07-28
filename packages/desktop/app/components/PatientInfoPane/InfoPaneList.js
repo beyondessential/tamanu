@@ -93,7 +93,7 @@ export const InfoPaneList = memo(
     const [addEditState, setAddEditState] = useState({ adding: false, editKey: null });
     const { adding, editKey } = addEditState;
     const api = useApi();
-    const { data, error } = useQuery([`infoPaneListItem-${title}`, patient.id, getEndpoint], () =>
+    const { data, error } = useQuery([`infoPaneListItem-${title}`, patient.id], () =>
       api.get(getEndpoint),
     );
     const isIssuesPane = title === ISSUES_TITLE;
