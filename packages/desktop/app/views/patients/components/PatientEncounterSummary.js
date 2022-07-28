@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import styled, { css } from 'styled-components';
 import { ENCOUNTER_TYPES } from 'shared/constants';
 import { Box, Typography } from '@material-ui/core';
@@ -115,14 +115,22 @@ const ButtonRow = styled(Box)`
 `;
 
 const PatientDeathSummary = React.memo(({ patient }) => {
-  const [deathData, setDeathData] = useState(null);
   const api = useApi();
+  const { data: deathData, error, isLoading } = useQuery(['PatientDeathSummary'], () =>
+    api.get(`patient/${patient.id}/death`),
+  );
 
-  useEffect(() => {
-    api.get(`patient/${patient.id}/death`).then(response => {
-      setDeathData(response);
-    });
-  }, [api, patient.id]);
+  if (isLoading) return <LoadingIndicator />;
+
+  if (error) {
+    return (
+      <NoVisitContainer>
+        <NoVisitTitle variant="h2">
+          You do not have permission to read patient death details.
+        </NoVisitTitle>
+      </NoVisitContainer>
+    );
+  }
 
   return (
     <Container patientStatus={PATIENT_STATUS.DECEASED}>
