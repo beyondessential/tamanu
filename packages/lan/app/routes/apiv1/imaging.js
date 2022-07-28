@@ -309,7 +309,7 @@ globalImagingRequests.get(
     const databaseResponse = await models.ImagingRequest.findAndCountAll({
       where: imagingRequestFilters,
       order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
-      include: [requestedBy, imagingType, encounter, areas],
+      include: [requestedBy, encounter, areas],
       limit: rowsPerPage,
       offset: page * rowsPerPage,
     });

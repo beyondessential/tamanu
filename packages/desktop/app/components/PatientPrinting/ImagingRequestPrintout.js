@@ -2,6 +2,7 @@ import React from 'react';
 import moment from 'moment';
 
 import { SimplePrintout } from './SimplePrintout';
+import { useLocalisation } from '../../contexts/Localisation';
 
 export const ImagingRequestPrintout = React.memo(
   ({ imagingRequestData, patientData, encounterData, certificateData }) => {
@@ -15,6 +16,8 @@ export const ImagingRequestPrintout = React.memo(
       areaNote,
       note,
     } = imagingRequestData;
+    const { getLocalisation } = useLocalisation();
+    const imagingTypes = getLocalisation('imaging_types');
 
     return (
       <SimplePrintout
@@ -28,8 +31,7 @@ export const ImagingRequestPrintout = React.memo(
           Department: encounterData?.department?.name,
           'Requested by': requestedBy?.displayName,
           Urgent: urgent ? 'Yes' : 'No',
-          // TODO: need to correct this for new imaging type enum style
-          'Imaging type': imagingType?.name,
+          'Imaging type': imagingTypes[imagingType].label,
           'Areas to be imaged': areas ? areas.map(area => area.name).join(', ') : areaNote,
         }}
       />

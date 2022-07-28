@@ -64,7 +64,7 @@ export class ImagingRequest extends Model {
   }
 
   static getListReferenceAssociations() {
-    return ['imagingType', 'requestedBy', 'areas'];
+    return ['requestedBy', 'areas'];
   }
 
   static initRelations(models) {

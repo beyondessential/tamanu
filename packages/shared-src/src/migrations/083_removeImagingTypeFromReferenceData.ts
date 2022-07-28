@@ -1,7 +1,6 @@
 import { STRING, QueryInterface } from 'sequelize';
 
 const IMAGING_REQUEST_TABLE_NAME = 'imaging_requests';
-const IMAGING_TYPE_ID_FKEY = 'imaging_requests_imaging_type_id_fkey'
 
 export const IMAGING_TYPES = {
   X_RAY: 'xRay',
@@ -19,7 +18,7 @@ const IMAGING_TYPE_REF_IDS = {
   MAMMOGRAM: 'imagingType-Mammogram',
   ECHOCARDIOGRAM: 'imagingType-Echocardiogram',
   ENDOSCOPY: 'imagingType-Endoscopy',
-}
+};
 
 const replacements = {
   xRayRefId: IMAGING_TYPE_REF_IDS.X_RAY,
@@ -34,15 +33,16 @@ const replacements = {
   echocardiogramText: IMAGING_TYPES.ECHOCARDIOGRAM,
   endoscopyRefId: IMAGING_TYPE_REF_IDS.ENDOSCOPY,
   endoscopyText: IMAGING_TYPES.ENDOSCOPY,
-}
+};
 
 export async function up(query: QueryInterface) {
   await query.addColumn(IMAGING_REQUEST_TABLE_NAME, 'imaging_type', {
-    type: STRING(31), 
+    type: STRING(31),
     allowNull: true,
-    defaultValue: null
+    defaultValue: null,
   });
-  await query.sequelize.query(`
+  await query.sequelize.query(
+    `
       UPDATE ${IMAGING_REQUEST_TABLE_NAME}
       SET
         imaging_type = CASE imaging_type_id
@@ -53,9 +53,10 @@ export async function up(query: QueryInterface) {
           WHEN :echocardiogramRefId THEN :echocardiogramText
           WHEN :endoscopyRefId THEN :endoscopyText
           END
-    `, {replacements});
+    `,
+    { replacements },
+  );
   await query.removeColumn(IMAGING_REQUEST_TABLE_NAME, 'imaging_type_id');
-  await query.removeConstraint(IMAGING_REQUEST_TABLE_NAME, IMAGING_TYPE_ID_FKEY);
 }
 
 export async function down(query: QueryInterface) {
@@ -66,7 +67,8 @@ export async function down(query: QueryInterface) {
       key: 'id',
     },
   });
-  await query.sequelize.query(`
+  await query.sequelize.query(
+    `
       UPDATE ${IMAGING_REQUEST_TABLE_NAME}
       SET
         imaging_type_id = CASE imaging_type
@@ -77,6 +79,8 @@ export async function down(query: QueryInterface) {
           WHEN :echocardiogramText THEN :echocardiogramRefId
           WHEN :endoscopyText THEN :endoscopyRefId
           END
-    `, {replacements});
+    `,
+    { replacements },
+  );
   await query.removeColumn(IMAGING_REQUEST_TABLE_NAME, 'imaging_type');
 }
