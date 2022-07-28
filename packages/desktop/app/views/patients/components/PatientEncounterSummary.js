@@ -174,10 +174,9 @@ const PatientDeathSummary = React.memo(({ patient }) => {
 
 export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin, openTriage }) => {
   const api = useApi();
-  const currentEncounterEndpoint = `patient/${patient.id}/currentEncounter`;
   const { data: encounter, error, isLoading } = useQuery(
-    ['PatientEncounterSummary', currentEncounterEndpoint],
-    () => api.get(currentEncounterEndpoint),
+    ['currentEncounter', patient.id],
+    () => api.get(`patient/${patient.id}/currentEncounter`),
   );
 
   if (patient.dateOfDeath) {
