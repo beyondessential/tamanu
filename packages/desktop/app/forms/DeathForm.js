@@ -3,6 +3,7 @@ import * as yup from 'yup';
 import { Typography } from '@material-ui/core';
 import styled from 'styled-components';
 import MuiBox from '@material-ui/core/Box';
+import { ageInMonths, ageInYears } from 'shared/utils/dateTime';
 import {
   ArrayField,
   Button,
@@ -22,7 +23,6 @@ import {
   FormGrid,
   FormSeparatorLine,
 } from '../components';
-import { ageInMonths, ageInYears } from 'shared/utils/dateTime';
 
 const binaryOptions = [
   { value: 'yes', label: 'Yes' },

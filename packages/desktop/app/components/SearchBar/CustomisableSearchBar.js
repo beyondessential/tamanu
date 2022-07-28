@@ -2,10 +2,10 @@ import React from 'react';
 import styled from 'styled-components';
 import moment from 'moment';
 import Box from '@material-ui/core/Box';
+import { toDateString } from 'shared/utils/dateTime';
 import { LargeButton, LargeOutlineButton } from '../Button';
 import { Form } from '../Field';
 import { Colors } from '../../constants';
-import { toDateString } from 'shared/utils/dateTime';
 
 const Container = styled.div`
   border-bottom: 1px solid ${Colors.outline};

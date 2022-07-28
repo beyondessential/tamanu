@@ -11,7 +11,10 @@ const reportColumnTemplate = [
   { title: 'Patient ID', accessor: data => data.patient.displayId },
   { title: 'Sex', accessor: data => data.patient.sex },
   { title: 'Village', accessor: data => data.patient.village.name },
-  { title: 'Date of Birth', accessor: data => format(new Date(data.patient.dateOfBirth), 'dd/MM/yyyy') },
+  {
+    title: 'Date of Birth',
+    accessor: data => format(new Date(data.patient.dateOfBirth), 'dd/MM/yyyy'),
+  },
   {
     title: 'Age',
     accessor: data => ageInYears(data.patient.dateOfBirth),

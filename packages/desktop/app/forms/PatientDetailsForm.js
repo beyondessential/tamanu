@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { format } from 'date-fns';
+import { getCurrentDateString } from 'shared/utils/dateTime';
 import { useLocalisation } from '../contexts/Localisation';
 import { useSuggester } from '../api';
 import {
@@ -24,7 +24,6 @@ import {
   maritalStatusOptions,
   educationalAttainmentOptions,
 } from '../constants';
-import { getCurrentDateString } from 'shared/utils/dateTime';
 
 export const PrimaryDetailsGroup = () => {
   const villageSuggester = useSuggester('village');
