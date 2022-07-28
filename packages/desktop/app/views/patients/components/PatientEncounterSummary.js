@@ -121,10 +121,9 @@ const DataStatusMessage = ({ message }) => (
 
 const PatientDeathSummary = React.memo(({ patient }) => {
   const api = useApi();
-  const deathDataEndpoint = `patient/${patient.id}/death`;
   const { data: deathData, error, isLoading } = useQuery(
-    ['PatientDeathSummary', deathDataEndpoint],
-    () => api.get(deathDataEndpoint),
+    ['patientDeathSummary', patient.id],
+    () => api.get(`patient/${patient.id}/death`),
   );
 
   if (isLoading) {
