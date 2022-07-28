@@ -13,11 +13,10 @@ export function createDataImporterEndpoint(importer) {
       file,
       deleteFileAfterImport = true,
       dryRun = false,
-      allowErrors = false,
       whitelist = [],
     } = await getUploadedData(req);
 
-    const result = await importer({ file, models: store.models, allowErrors, dryRun, whitelist });
+    const result = await importer({ file, models: store.models, dryRun, whitelist });
 
     // we don't need the file any more
     if (deleteFileAfterImport) {

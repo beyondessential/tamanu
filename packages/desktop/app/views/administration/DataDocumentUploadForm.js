@@ -17,7 +17,6 @@ import { ImportErrorsTable } from './components/ImportErrorsTable';
 const ProgramUploadForm = ({ submitForm, isSubmitting, additionalFields }) => (
   <FormGrid columns={1}>
     <Field component={CheckField} label="Test run" name="dryRun" required />
-    <Field component={CheckField} label="Skip invalid records" name="allowErrors" required />
     <Field
       component={FileChooserField}
       filters={[FILTER_EXCEL]}
@@ -121,7 +120,6 @@ export const DataDocumentUploadForm = memo(({ onSubmit, onReceiveResult, additio
         onSubmit={onSubmitUpload}
         validationSchema={yup.object().shape({
           dryRun: yup.bool(),
-          allowErrors: yup.bool(),
           file: yup.string(),
         })}
         initialValues={{

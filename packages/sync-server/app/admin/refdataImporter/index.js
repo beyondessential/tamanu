@@ -180,14 +180,11 @@ async function importerInner({ errors, models, stats, file, whitelist = [] }) {
 export default async function importer({
   models,
   file,
-  allowErrors = false,
   dryRun = false,
   whitelist = [],
 }) {
   const errors = [];
   const stats = [];
-
-  // TODO handle allowErrors: true
 
   try {
     log.debug('Starting transaction');
