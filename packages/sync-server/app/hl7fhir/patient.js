@@ -2,10 +2,11 @@ import config from 'config';
 import { format } from 'date-fns';
 import { Op } from 'sequelize';
 
+import { toDateString } from 'shared/utils/dateTime';
+
 import { getParamAndModifier, getQueryObject, getDefaultOperator } from './utils';
 import { modifiers } from './hl7Parameters';
 import { hl7PatientFields } from './hl7PatientFields';
-import { toDateString } from 'shared/utils/dateTime';
 
 function patientName(patient, additional) {
   const official = {

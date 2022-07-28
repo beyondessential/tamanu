@@ -66,7 +66,6 @@ async function queryCovidVaccineSummaryData(models, parameters) {
     where: parametersToSqlWhere(parameters),
   });
   const administeredVaccines = result.map(r => r.get({ plain: true }));
-  const today = new Date();
   const countBySheet = administeredVaccines.reduce(
     (acc, vaccine) => {
       if (!vaccine.encounter?.patientId) {

@@ -1,5 +1,4 @@
 import { Sequelize, Op } from 'sequelize';
-import moment from 'moment';
 import { generateReportFromQueryData } from './utilities';
 import { toDateString } from '../utils/dateTime';
 
