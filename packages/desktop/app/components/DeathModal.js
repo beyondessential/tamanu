@@ -15,7 +15,7 @@ export const DeathModal = React.memo(({ open, onClose }) => {
   const icd10Suggester = useSuggester('icd10');
   const practitionerSuggester = useSuggester('practitioner');
   const facilitySuggester = useSuggester('facility');
-  const { data: queryData } = useQuery(['DeathModal'], () =>
+  const { data: queryData } = useQuery(['hasCurrentEncounter', patient.id], () =>
     api.get(`patient/${patient.id}/hasCurrentEncounter`),
   );
 
