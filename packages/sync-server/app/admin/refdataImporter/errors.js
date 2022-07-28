@@ -1,18 +1,21 @@
 export class DataImportError extends Error {
-  constructor(sheetName, rowNumber, error) {
-    rowNumber += 2; // correcting for zero-index and for header row
+  constructor(sheetName, rowIndex, error) {
+    const rowNumber = rowIndex + 2; // correcting for zero-index and for header row
 
+    let previous;
     if (typeof error === 'string') {
-      error = new Error(error);
+      previous = new Error(error);
+    } else {
+      previous = error;
     }
 
-    if (error instanceof Error) {
-      super(`${error.message} on ${sheetName} at row ${rowNumber}`);
+    if (previous instanceof Error) {
+      super(`${previous.message} on ${sheetName} at row ${rowNumber}`);
     } else {
       throw new Error('DEV ERROR: pass either a string or Error error');
     }
 
-    this.previous = error;
+    this.previous = previous;
     this.sheetName = sheetName;
     this.rowNumber = rowNumber;
   }

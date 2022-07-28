@@ -67,10 +67,6 @@ const FOREIGN_KEY_SCHEMATA = {
   ],
 };
 
-function isRefData(kind) {
-  return kind[0] === kind[0].toLowerCase();
-}
-
 function findFieldName(values, fkField) {
   const fkFieldLower = fkField.toLowerCase();
   const fkFieldCamel = camelCase(fkField);
@@ -204,14 +200,23 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
   const validRows = [];
   for (const { model, sheetRow, values } of resolvedRows) {
     try {
-      const schemaName =
-        model === 'ReferenceData'
-          ? schemas[`RD${sheetName}`]
-            ? `RD${sheetName}`
-            : 'ReferenceData'
-          : schemas[model]
-          ? model
-          : 'Base';
+      let schemaName;
+      if (model === 'ReferenceData') {
+        const specificSchemaName = `RD${sheetName}`;
+        const specificSchemaExists = !!schemas[specificSchemaName];
+        if (specificSchemaExists) {
+          schemaName = specificSchemaName;
+        } else {
+          schemaName = 'ReferenceData';
+        }
+      } else {
+        const specificSchemaExists = !!schemas[model];
+        if (specificSchemaExists) {
+          schemaName = model;
+        } else {
+          schemaName = 'Base';
+        }
+      }
 
       const schema = schemas[schemaName];
       validRows.push({

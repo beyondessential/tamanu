@@ -182,7 +182,7 @@ const OutcomeDisplay = ({ result }) => {
   );
 };
 
-export const ReferenceDataAdminView = memo(({ additionalFields }) => {
+export const ReferenceDataAdminView = memo(() => {
   const [resetKey, setResetKey] = useState(Math.random());
   const [result, setResult] = useState(null);
 

@@ -1,15 +1,10 @@
 import asyncHandler from 'express-async-handler';
-import config from 'config';
 import { promises as fs } from 'fs';
 
 import { getUploadedData } from 'shared/utils/getUploadedData';
 
-export function createDataImporterEndpoint(importer, permissions = []) {
+export function createDataImporterEndpoint(importer) {
   return asyncHandler(async (req, res) => {
-    // for (const perm of permissions) {
-    //   req.checkPermission('write', perm);
-    // }
-
     const start = Date.now();
     const { store } = req;
 
@@ -26,7 +21,8 @@ export function createDataImporterEndpoint(importer, permissions = []) {
 
     // we don't need the file any more
     if (deleteFileAfterImport) {
-      await fs.unlink(file).catch(_ => {});
+      // eslint-disable-next-line no-unused-vars
+      await fs.unlink(file).catch(ignore => {});
     }
 
     res.send({
