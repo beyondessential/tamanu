@@ -32,7 +32,7 @@ import { ButtonRow } from '../components/ButtonRow';
 import { DateDisplay } from '../components/DateDisplay';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { DropdownButton } from '../components/DropdownButton';
-import { getCurrentDateString, getCurrentDateTimeString } from 'shared-src/src/utils/dateTime';
+import { getCurrentDateTimeString } from '../utils/dateTime';
 
 function getEncounterTypeLabel(type) {
   return encounterOptions.find(x => x.value === type).label;
@@ -186,7 +186,7 @@ export class LabRequestForm extends React.PureComponent {
         render={this.renderForm}
         initialValues={{
           displayId: generateDisplayId(),
-          requestedDate: getCurrentDateString(),
+          requestedDate: getCurrentDateTimeString(),
           sampleTime: getCurrentDateTimeString(),
           ...editedObject,
         }}
