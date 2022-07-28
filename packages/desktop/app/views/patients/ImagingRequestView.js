@@ -199,7 +199,6 @@ export const ImagingRequestView = () => {
 
   const { getLocalisation } = useLocalisation();
   const imagingTypes = getLocalisation('imagingTypes');
-  console.log(imagingTypes);
 
   const onSubmit = data => {
     api.put(`imagingRequest/${imagingRequest.id}`, { ...data });
