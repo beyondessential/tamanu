@@ -79,6 +79,7 @@ export const simpleGetList = (modelName, foreignKey = '', options = {}) =>
     const { models, params, query } = req;
     const { order = 'ASC', orderBy } = query;
     const { additionalFilters = {}, include = [] } = options;
+    req.checkPermission('list', modelName);
 
     const model = models[modelName];
     const associations = model.getListReferenceAssociations(models) || [];
@@ -107,6 +108,7 @@ export const paginatedGetList = (modelName, foreignKey = '', options = {}) => {
     const { models, params, query } = req;
     const { page = 0, order = 'ASC', orderBy, rowsPerPage } = query;
     const offset = query.offset || page * rowsPerPage || 0;
+    req.checkPermission('list', modelName);
 
     const model = models[modelName];
     const associations = model.getListReferenceAssociations(models) || [];
