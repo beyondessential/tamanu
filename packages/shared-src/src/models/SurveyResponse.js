@@ -37,8 +37,6 @@ async function writeToPatientFields(models, questions, answers, patientId) {
 
     const { fieldName, isAdditionalDataField } = config.writeToPatient || {};
     if (!fieldName) {
-      // TODO: the right place for this is on validation during import
-      // but failing that, is throwing the right thing to do here?
       throw new Error('No fieldName defined for writeToPatient config');
     }
 
