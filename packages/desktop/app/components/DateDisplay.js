@@ -36,6 +36,13 @@ const formatLong = date =>
     'Date information not available',
   ); // "Thursday, 14 July 2022, 03:44 pm"
 
+const getDiagnosticInfo = (date, rawDate) => {
+  const displayDate = formatLong(date);
+  const { timeZone } = Intl.DateTimeFormat().resolvedOptions();
+  const timeZoneOffset = date.getTimezoneOffset() / 60;
+  return `Display datetime: ${displayDate}, Raw datetime: ${rawDate}, Timezone: ${timeZone}, Timezone offset: ${timeZoneOffset}`;
+};
+
 // abbr tag allows a title to be passed in which shows the long format date on hover
 const StyledAbbr = styled.abbr`
   text-decoration: none;
@@ -63,7 +70,7 @@ export const DateDisplay = ({
     parts.push(formatTime(date));
   }
   return (
-    <StyledAbbr title={formatLong(date)} data-test-class="date-display-abbr">
+    <StyledAbbr title={getDiagnosticInfo(date, dateValue)} data-test-class="date-display-abbr">
       {parts.join(' ')}
     </StyledAbbr>
   );
