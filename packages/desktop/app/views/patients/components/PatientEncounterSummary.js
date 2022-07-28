@@ -166,6 +166,10 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin, o
     api.get(`patient/${patient.id}/currentEncounter`),
   );
 
+  if (patient.dateOfDeath) {
+    return <PatientDeathSummary patient={patient} />;
+  }
+
   if (isLoading) {
     return <LoadingIndicator />;
   }
@@ -176,10 +180,6 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin, o
         <NoVisitTitle variant="h2">You do not have permission to read an encounter.</NoVisitTitle>
       </NoVisitContainer>
     );
-  }
-
-  if (patient.dateOfDeath) {
-    return <PatientDeathSummary patient={patient} />;
   }
 
   if (!encounter) {
