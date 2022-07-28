@@ -5,7 +5,15 @@ export function toDateTimeString(date) {
   if (!isValid(dateObj)) {
     throw new Error('Not a valid date');
   }
-  return formatISO9075(dateObj);
+  return formatISO9075(dateObj, { representation: 'complete' });
+}
+
+export function toDateString(date) {
+  const dateObj = new Date(date);
+  if (!isValid(dateObj)) {
+    throw new Error('Not a valid date');
+  }
+  return formatISO9075(dateObj, { representation: 'date' });
 }
 
 export function getCurrentDateTimeString() {
