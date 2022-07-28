@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react';
 import styled, { css } from 'styled-components';
 import { ENCOUNTER_TYPES } from 'shared/constants';
 import { Box, Typography } from '@material-ui/core';
+import { useQuery } from '@tanstack/react-query';
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
 import { DateDisplay, LargeButton, ViewButton, DeathCertificateModal } from '../../../components';
 import { useApi } from '../../../api';
+import { LoadingIndicator } from '../../../components/LoadingIndicator';
 
 const PATIENT_STATUS = {
   INPATIENT: 'inpatient',
@@ -158,13 +160,24 @@ const PatientDeathSummary = React.memo(({ patient }) => {
   );
 });
 
-export const PatientEncounterSummary = ({
-  patient,
-  viewEncounter,
-  openCheckin,
-  openTriage,
-  encounter,
-}) => {
+export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin, openTriage }) => {
+  const api = useApi();
+  const { data: encounter, error, isLoading } = useQuery(['PatientEncounterSummary'], () =>
+    api.get(`patient/${patient.id}/currentEncounter`),
+  );
+
+  if (isLoading) {
+    return <LoadingIndicator />;
+  }
+
+  if (error) {
+    return (
+      <NoVisitContainer>
+        <NoVisitTitle variant="h2">You do not have permission to read an encounter.</NoVisitTitle>
+      </NoVisitContainer>
+    );
+  }
+
   if (patient.dateOfDeath) {
     return <PatientDeathSummary patient={patient} />;
   }
