@@ -1,8 +1,7 @@
 import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
 import Chance from 'chance';
-import { SURVEY_TYPES } from 'shared/constants';
+import { SURVEY_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from 'shared/constants';
 import { createTestContext } from '../utilities';
-import { PROGRAM_DATA_ELEMENT_TYPES } from '../../../shared-src/src/constants';
 
 const chance = new Chance();
 
