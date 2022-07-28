@@ -280,6 +280,30 @@ patientRoute.get(
   }),
 );
 
+// Special route that only returns a boolean and has different permission check
+patientRoute.get(
+  '/:id/hasCurrentEncounter',
+  asyncHandler(async (req, res) => {
+    const {
+      models: { Encounter },
+      params,
+    } = req;
+
+    req.checkPermission('list', 'Encounter');
+
+    const currentEncounter = await Encounter.findOne({
+      where: {
+        patientId: params.id,
+        endDate: null,
+      },
+    });
+
+    // Only send back boolean information about the encounter existence
+    const hasCurrentEncounter = currentEncounter !== null;
+    res.send({ hasCurrentEncounter });
+  }),
+);
+
 patientRoute.get(
   '/:id/lastDischargedEncounter/medications',
   asyncHandler(async (req, res) => {
