@@ -1,17 +1,22 @@
 import { Sequelize } from 'sequelize';
 
 import { InvalidOperationError } from 'shared/errors';
-import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
+import { IMAGING_REQUEST_STATUS_TYPES, IMAGING_TYPES } from 'shared/constants';
 
 import { Model } from './Model';
 
 const ALL_IMAGING_REQUEST_STATUS_TYPES = Object.values(IMAGING_REQUEST_STATUS_TYPES);
-
+const ALL_IMAGING_TYPES = Object.values(IMAGING_TYPES)
 export class ImagingRequest extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
         id: primaryKey,
+
+        imagingType: {
+          type: Sequelize.ENUM(ALL_IMAGING_TYPES),
+          allowNull: false,
+        },
 
         status: {
           type: Sequelize.ENUM(ALL_IMAGING_REQUEST_STATUS_TYPES),
@@ -71,11 +76,6 @@ export class ImagingRequest extends Model {
     this.belongsTo(models.User, {
       foreignKey: 'requestedById',
       as: 'requestedBy',
-    });
-
-    this.belongsTo(models.ReferenceData, {
-      foreignKey: 'imagingTypeId',
-      as: 'imagingType',
     });
 
     this.belongsTo(models.User, {

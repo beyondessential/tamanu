@@ -26,7 +26,6 @@ export const ReferenceDataAdminView = memo(() => {
         { value: 'locations', label: 'location' },
         { value: 'diagnoses', label: 'icd10' },
         { value: 'triageReasons', label: 'triageReason' },
-        { value: 'imagingTypes', label: 'imagingType' },
         { value: 'procedures', label: 'procedureType' },
         { value: 'careplans', label: 'carePlan' },
         { value: 'ethnicities', label: 'ethnicity' },
@@ -66,6 +65,8 @@ export const ReferenceDataAdminView = memo(() => {
         { value: 'fluroscopyImagingAreas', label: 'fluroscopyImagingArea' },
         { value: 'angiogramImagingAreas', label: 'angiogramImagingArea' },
         { value: 'colonoscopyImagingAreas', label: 'colonoscopyImagingArea' },
+        { value: 'vascularStudyImagingAreas', label: 'vascularStudyImagingArea' },
+        { value: 'stressTestImagingAreas', label: 'stressTestImagingArea' },
       ]}
     />
   );

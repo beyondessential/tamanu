@@ -3,8 +3,7 @@ import { getJsDateFromExcel } from 'excel-date-to-js';
 import moment from 'moment';
 
 import { log } from 'shared/services/logging';
-import { ENCOUNTER_TYPES } from 'shared/constants';
-import { IMAGING_AREA_TYPES } from 'shared-src/src/constants';
+import { ENCOUNTER_TYPES, IMAGING_AREA_TYPES } from 'shared/constants';
 
 const sanitise = string => string.trim().replace(/[^A-Za-z0-9]+/g, '');
 
@@ -127,7 +126,6 @@ const transformers = [
   makeTransformer('locations', recordTransformer('location')),
   makeTransformer('diagnoses', referenceDataTransformer('icd10')),
   makeTransformer('triageReasons', referenceDataTransformer('triageReason')),
-  makeTransformer('imagingTypes', referenceDataTransformer('imagingType')),
   makeTransformer(
     'xrayImagingAreas',
     referenceDataTransformer(IMAGING_AREA_TYPES.X_RAY_IMAGING_AREA),
@@ -169,6 +167,14 @@ const transformers = [
   makeTransformer(
     'colonoscopyImagingAreas',
     referenceDataTransformer(IMAGING_AREA_TYPES.COLONOSCOPY_IMAGING_AREA),
+  ),
+  makeTransformer(
+    'stressTestImagingAreas',
+    referenceDataTransformer(IMAGING_AREA_TYPES.STRESS_TEST_IMAGING_AREA),
+  ),
+  makeTransformer(
+    'vascularStudyImagingAreas',
+    referenceDataTransformer(IMAGING_AREA_TYPES.VASCULAR_STUDY_IMAGING_AREA),
   ),
   makeTransformer('procedures', referenceDataTransformer('procedureType')),
   makeTransformer('careplans', referenceDataTransformer('carePlan')),
