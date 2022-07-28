@@ -6,7 +6,7 @@ import { IMAGING_REQUEST_STATUS_TYPES, IMAGING_TYPES } from 'shared/constants';
 import { Model } from './Model';
 
 const ALL_IMAGING_REQUEST_STATUS_TYPES = Object.values(IMAGING_REQUEST_STATUS_TYPES);
-const ALL_IMAGING_TYPES = Object.values(IMAGING_TYPES)
+const ALL_IMAGING_TYPES = Object.values(IMAGING_TYPES);
 export class ImagingRequest extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
