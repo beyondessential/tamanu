@@ -32,6 +32,7 @@ import { ButtonRow } from '../components/ButtonRow';
 import { DateDisplay } from '../components/DateDisplay';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { DropdownButton } from '../components/DropdownButton';
+import { getCurrentDateTimeString } from '../utils/dateTime';
 
 function getEncounterTypeLabel(type) {
   return encounterOptions.find(x => x.value === type).label;
@@ -107,7 +108,13 @@ export class LabRequestForm extends React.PureComponent {
     return (
       <FormGrid>
         <Field name="displayId" label="Lab request number" disabled component={TextField} />
-        <Field name="requestedDate" label="Order date" required component={DateTimeField} />
+        <Field
+          name="requestedDate"
+          label="Order date"
+          required
+          component={DateTimeField}
+          saveDateAsString
+        />
         <TextInput label="Supervising doctor" disabled value={examinerLabel} />
         <Field
           name="requestedById"
@@ -116,7 +123,13 @@ export class LabRequestForm extends React.PureComponent {
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
-        <Field name="sampleTime" label="Sample time" required component={DateTimeField} />
+        <Field
+          name="sampleTime"
+          label="Sample time"
+          required
+          component={DateTimeField}
+          saveDateAsString
+        />
         <div>
           <Field name="specimenAttached" label="Specimen attached?" component={CheckField} />
           <Field name="urgent" label="Urgent?" component={CheckField} />
@@ -173,8 +186,8 @@ export class LabRequestForm extends React.PureComponent {
         render={this.renderForm}
         initialValues={{
           displayId: generateDisplayId(),
-          requestedDate: new Date().toLocaleDateString(),
-          sampleTime: new Date().toLocaleString(),
+          requestedDate: getCurrentDateTimeString(),
+          sampleTime: getCurrentDateTimeString(),
           ...editedObject,
         }}
         validationSchema={yup.object().shape({

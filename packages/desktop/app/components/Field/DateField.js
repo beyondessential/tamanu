@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import moment from 'moment';
 import PropTypes from 'prop-types';
 import { TextInput } from './TextField';
+import { toDateTimeString } from '../../utils/dateTime';
 
 // This component is pretty tricky! It has to keep track of two layers of state:
 //
@@ -38,6 +39,7 @@ export const DateInput = ({
   name,
   placeholder,
   max = '9999-12-31',
+  saveDateAsString = false,
   ...props
 }) => {
   const [currentText, setCurrentText] = useState(fromRFC3339(value, format));
@@ -56,16 +58,17 @@ export const DateInput = ({
         }
       }
 
-      const rfcValue = date.toISOString();
+      const outputValue = saveDateAsString ? toDateTimeString(date) : date.toISOString();
+
       setCurrentText(formattedValue);
-      if (rfcValue === 'Invalid date') {
+      if (outputValue === 'Invalid date') {
         onChange({ target: { value: '', name } });
         return;
       }
 
-      onChange({ target: { value: rfcValue, name } });
+      onChange({ target: { value: outputValue, name } });
     },
-    [onChange, format, name, max],
+    [onChange, format, name, max, saveDateAsString],
   );
 
   useEffect(() => {
