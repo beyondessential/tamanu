@@ -17,7 +17,7 @@ const URGENCY_OPTIONS = [
 
 export const ImagingRequestsSearchBar = ({ setSearchParameters }) => {
   const { getLocalisation } = useLocalisation();
-  const imagingTypes = getLocalisation('imagingTypes');
+  const imagingTypes = getLocalisation('imagingTypes') || {};
 
   const imagingTypeOptions = Object.entries(imagingTypes).map(([key, val]) => ({
     label: val.label,

@@ -77,7 +77,7 @@ const PrintButton = ({ imagingRequest, patient }) => {
 };
 
 const ImagingRequestInfoPane = React.memo(
-  ({ imagingRequest, onSubmit, practitionerSuggester, locationSuggester, imagingTypes }) => (
+  ({ imagingRequest, onSubmit, practitionerSuggester, locationSuggester, imagingTypes = {} }) => (
     <Formik
       // Only submit specific fields for update
       onSubmit={({ status, completedById, locationId, results }) => {
