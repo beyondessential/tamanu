@@ -210,9 +210,12 @@ const labRelations = permissionCheckingRouter('read', 'LabRequest');
 labRelations.get('/:id/tests', simpleGetList('LabTest', 'labRequestId'));
 labRelations.get(
   '/:id/notes',
-  simpleGetList('Note', 'recordId', {
-    additionalFilters: { recordType: NOTE_RECORD_TYPES.LAB_REQUEST },
-  }),
+  simpleGetList(
+    'Note',
+    'recordId',
+    { additionalFilters: { recordType: NOTE_RECORD_TYPES.LAB_REQUEST } },
+    'LabRequest',
+  ),
 );
 
 labRequest.use(labRelations);

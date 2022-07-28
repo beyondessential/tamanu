@@ -74,12 +74,19 @@ export const simplePost = modelName =>
     res.send(object);
   });
 
-export const simpleGetList = (modelName, foreignKey = '', options = {}) =>
+export const simpleGetList = (modelName, foreignKey = '', options = {}, parentModelName) =>
   asyncHandler(async (req, res) => {
     const { models, params, query } = req;
     const { order = 'ASC', orderBy } = query;
     const { additionalFilters = {}, include = [] } = options;
-    req.checkPermission('list', modelName);
+
+    // The notes table is a backend abstraction, individual
+    // permissions won't be assigned against the model.
+    if (parentModelName && modelName === 'Note') {
+      req.checkPermission('read', parentModelName);
+    } else {
+      req.checkPermission('list', modelName);
+    }
 
     const model = models[modelName];
     const associations = model.getListReferenceAssociations(models) || [];
