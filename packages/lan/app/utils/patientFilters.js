@@ -32,7 +32,7 @@ export const createPatientFilters = filterParams => {
     // For age filter
     makeFilter(
       filterParams.ageMax,
-      `DATE(patients.date_of_birth) >= DATE(:dobMin)`,
+      `patients.date_of_birth >= DATE(:dobMin)`,
       ({ ageMax }) => ({
         dobMin: moment()
           .startOf('day')
@@ -43,7 +43,7 @@ export const createPatientFilters = filterParams => {
     ),
     makeFilter(
       filterParams.ageMin,
-      `DATE(patients.date_of_birth) <= DATE(:dobMax)`,
+      `patients.date_of_birth <= DATE(:dobMax)`,
       ({ ageMin }) => ({
         dobMax: moment()
           .startOf('day')
@@ -54,7 +54,7 @@ export const createPatientFilters = filterParams => {
     // For DOB filter
     makeFilter(
       filterParams.dateOfBirthFrom,
-      `DATE(patients.date_of_birth) >= :dateOfBirthFrom`,
+      `patients.date_of_birth >= :dateOfBirthFrom`,
       ({ dateOfBirthFrom }) => ({
         dateOfBirthFrom: moment(dateOfBirthFrom)
           .startOf('day')
@@ -63,7 +63,7 @@ export const createPatientFilters = filterParams => {
     ),
     makeFilter(
       filterParams.dateOfBirthTo,
-      `DATE(patients.date_of_birth) <= :dateOfBirthTo`,
+      `patients.date_of_birth <= :dateOfBirthTo`,
       ({ dateOfBirthTo }) => ({
         dateOfBirthTo: moment(dateOfBirthTo)
           .endOf('day')
@@ -72,7 +72,7 @@ export const createPatientFilters = filterParams => {
     ),
     makeFilter(
       filterParams.dateOfBirthExact,
-      `DATE(patients.date_of_birth) = :dateOfBirthExact`,
+      `patients.date_of_birth = :dateOfBirthExact`,
       ({ dateOfBirthExact }) => ({
         dateOfBirthExact,
       }),

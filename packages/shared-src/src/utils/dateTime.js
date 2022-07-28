@@ -1,4 +1,4 @@
-import { isValid, formatISO9075 } from 'date-fns';
+import { isValid, formatISO9075, differenceInMonths, differenceInYears } from 'date-fns';
 
 export function toDateTimeString(date) {
   const dateObj = new Date(date);
@@ -22,4 +22,12 @@ export function getCurrentDateTimeString() {
 
 export function getCurrentDateString() {
   return formatISO9075(new Date(), { representation: 'date' });
+}
+
+export function ageInMonths(dob) {
+  return differenceInMonths(new Date(), new Date(dob));
+}
+
+export function ageInYears(dob) {
+  return differenceInYears(new Date(), new Date(dob));
 }

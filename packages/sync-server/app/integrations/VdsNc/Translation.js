@@ -296,7 +296,7 @@ export const createVdsNcTestData = async (labTestId, { models }) => {
   };
 };
 
-function pid(firstName, lastName, dateOfBirth, sex, timeZone = 'UTC') {
+function pid(firstName, lastName, dob, sex, timeZone = 'UTC') {
   const MAX_LEN = 39;
   const primary = tr(lastName);
   const secondary = tr(firstName);
@@ -311,9 +311,7 @@ function pid(firstName, lastName, dateOfBirth, sex, timeZone = 'UTC') {
 
   const data = {
     n: name,
-    dob: moment(dateOfBirth)
-      .tz(timeZone)
-      .format(MOMENT_FORMAT_ISODATE),
+    dob,
   };
 
   if (sex && SEX_TO_CHAR[sex]) {

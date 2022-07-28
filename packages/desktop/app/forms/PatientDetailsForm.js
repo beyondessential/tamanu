@@ -24,6 +24,7 @@ import {
   maritalStatusOptions,
   educationalAttainmentOptions,
 } from '../constants';
+import { getCurrentDateString } from 'shared/utils/dateTime';
 
 export const PrimaryDetailsGroup = () => {
   const villageSuggester = useSuggester('village');
@@ -41,7 +42,7 @@ export const PrimaryDetailsGroup = () => {
       <LocalisedField name="culturalName" component={TextField} />
       <LocalisedField
         name="dateOfBirth"
-        max={format(new Date(), 'yyyy-MM-dd')}
+        max={getCurrentDateString()}
         component={DateField}
         required
       />

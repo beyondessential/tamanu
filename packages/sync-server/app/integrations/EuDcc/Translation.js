@@ -120,9 +120,7 @@ export async function createEuDccVaccinationData(administeredVaccineId, { models
 
   const { timeZone, country } = await getLocalisation();
 
-  const dob = moment(patient.dateOfBirth)
-    .tz(timeZone)
-    .format(MOMENT_FORMAT_ISODATE);
+  const dob = patient.dateOfBirth;
   const vaxDate = moment(date)
     .tz(timeZone)
     .format(MOMENT_FORMAT_ISODATE);

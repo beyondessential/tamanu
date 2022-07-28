@@ -5,6 +5,7 @@ import Box from '@material-ui/core/Box';
 import { LargeButton, LargeOutlineButton } from '../Button';
 import { Form } from '../Field';
 import { Colors } from '../../constants';
+import { toDateString } from 'shared/utils/dateTime';
 
 const Container = styled.div`
   border-bottom: 1px solid ${Colors.outline};
@@ -40,9 +41,7 @@ export const CustomisableSearchBar = ({
         // if filtering by date of birth exact, send the formatted date
         // to the server instead of the date object
         const dateOfBirthExact = values.dateOfBirthExact
-          ? moment(values.dateOfBirthExact)
-              .utc()
-              .format('YYYY-MM-DD')
+          ? toDateString(values.dateOfBirthExact)
           : undefined;
 
         onSearch({ ...values, dateOfBirthExact });

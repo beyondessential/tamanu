@@ -100,7 +100,7 @@ async function queryCovidVaccineListData(models, parameters) {
       acc[patientId] = {
         patientName: `${firstName} ${lastName}`,
         uid: displayId,
-        dob: dateOfBirth.toLocaleDateString(),
+        dob: (new Date(dateOfBirth)).toLocaleDateString(),
         village: village?.name,
         dose1: 'No',
         dose2: 'No',

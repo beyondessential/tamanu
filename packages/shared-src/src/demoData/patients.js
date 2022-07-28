@@ -4,6 +4,7 @@ import moment from 'moment';
 import { ENCOUNTER_TYPES } from '../constants';
 import { generateId } from '../utils/generateId';
 import { TIME_INTERVALS, randomDate, randomRecordId } from './utilities';
+import { toDateString } from '../utils/dateTime';
 
 const { HOUR } = TIME_INTERVALS;
 
@@ -114,7 +115,7 @@ export function createDummyPatient(models, overrides = {}) {
     lastName: chance.last(),
     culturalName: chance.last(),
     sex: chance.bool({ likelihood: 5 }) ? 'other' : gender,
-    dateOfBirth: chance.birthday(),
+    dateOfBirth: toDateString(chance.birthday()),
     title,
     ...overrides,
   };

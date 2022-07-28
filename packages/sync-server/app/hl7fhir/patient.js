@@ -5,6 +5,7 @@ import { Op } from 'sequelize';
 import { getParamAndModifier, getQueryObject, getDefaultOperator } from './utils';
 import { modifiers } from './hl7Parameters';
 import { hl7PatientFields } from './hl7PatientFields';
+import { toDateString } from 'shared/utils/dateTime';
 
 function patientName(patient, additional) {
   const official = {
@@ -80,7 +81,7 @@ export function patientToHL7Patient(patient, additional = {}) {
     active: true, // currently unused in Tamanu, always true
     identifier: patientIds(patient, additional),
     name: patientName(patient, additional),
-    birthDate: patient.dateOfBirth && format(patient.dateOfBirth, 'yyyy-MM-dd'),
+    birthDate: patient.dateOfBirth && toDateString(patient.dateOfBirth),
     gender: patient.sex,
     address: patientAddress(patient, additional),
     telecom: patientTelecom(patient, additional),

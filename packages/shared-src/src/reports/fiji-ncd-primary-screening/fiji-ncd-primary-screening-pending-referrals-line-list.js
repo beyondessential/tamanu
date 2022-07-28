@@ -14,6 +14,7 @@ import {
   getCachedAnswer,
   parametersToAnswerSqlWhere,
 } from './utils';
+import { ageInYears } from '../../utils/dateTime';
 
 import {
   REFERRAL_SURVEY_IDS,
@@ -125,8 +126,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
     const referralDate = moment(referralSurveyResponse.endTime).format('DD-MM-YYYY');
     const { surveyId } = referralSurveyResponse;
     const surveyGroupKey = getSurveyGroupKey(surveyId);
-    const dateOfBirthMoment = patient.dateOfBirth ?? moment(patient.dateOfBirth);
-    const age = dateOfBirthMoment ? moment().diff(dateOfBirthMoment, 'years') : '';
+    const age = patient.dateOfBirth ? ageInYears(patient.dateOfBirth) : '';
 
     const recordData = {
       firstName: patient.firstName,
