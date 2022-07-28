@@ -5,7 +5,7 @@ import { ContentPane } from '../../../components';
 import { PatientDetailsForm } from '../../../forms/PatientDetailsForm';
 import { reloadPatient } from '../../../store/patient';
 
-export const PatientDetailsPane = React.memo(({ patient }) => {
+export const PatientDetailsPane = React.memo(({ patient, additionalData }) => {
   const api = useApi();
   const dispatch = useDispatch();
   const handleSubmit = async data => {
@@ -14,7 +14,11 @@ export const PatientDetailsPane = React.memo(({ patient }) => {
   };
   return (
     <ContentPane>
-      <PatientDetailsForm patient={patient} onSubmit={handleSubmit} />
+      <PatientDetailsForm
+        patient={patient}
+        additionalData={additionalData}
+        onSubmit={handleSubmit}
+      />
     </ContentPane>
   );
 });
