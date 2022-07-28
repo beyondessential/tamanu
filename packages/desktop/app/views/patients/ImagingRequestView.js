@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Form, Formik } from 'formik';
 import { useSelector } from 'react-redux';
-import { IMAGING_REQUEST_STATUS_TYPES, IMAGING_TYPES } from 'shared/constants';
+import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
 import { useParams } from 'react-router-dom';
 import { useCertificate } from '../../utils/useCertificate';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
@@ -77,7 +77,7 @@ const PrintButton = ({ imagingRequest, patient }) => {
 };
 
 const ImagingRequestInfoPane = React.memo(
-  ({ imagingRequest, onSubmit, practitionerSuggester, locationSuggester, imagingTypes = {} }) => (
+  ({ imagingRequest, onSubmit, practitionerSuggester, locationSuggester, imagingTypes }) => (
     <Formik
       // Only submit specific fields for update
       onSubmit={({ status, completedById, locationId, results }) => {
@@ -198,7 +198,7 @@ export const ImagingRequestView = () => {
   const locationSuggester = useSuggester('location');
 
   const { getLocalisation } = useLocalisation();
-  const imagingTypes = getLocalisation('imagingTypes');
+  const imagingTypes = getLocalisation('imagingTypes') || {};
 
   const onSubmit = data => {
     api.put(`imagingRequest/${imagingRequest.id}`, { ...data });
