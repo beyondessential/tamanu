@@ -5,63 +5,69 @@ import { Model } from './Model';
 import { runCalculations } from '../utils/calculations';
 import { getStringValue, getResultValue } from '../utils/fields';
 
-const handleSurveyResponseActions = async (models, actions, questions, answers, patientId) => {
-  const actionQuestions = questions
-    .filter(q => ACTION_DATA_ELEMENT_TYPES.includes(q.dataElement.type))
-    .filter(({ dataElement }) => Object.keys(actions).includes(dataElement.id));
+async function createPatientIssues(models, questions, patientId) {
+  const issueQuestions = questions.filter(q => q.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE);
+  for (const question of issueQuestions) {
+    const { config: configString } = question;
+    const config = JSON.parse(configString) || {};
+    if (!config.issueNote || !config.issueType) {
+      throw new InvalidOperationError(
+        `Ill-configured PatientIssue with config: ${configString}`,
+      );
+    }
+    await models.PatientIssue.create({
+      patientId,
+      type: config.issueType,
+      note: config.issueNote,
+    });
+  }
+}
 
-  for (const question of actionQuestions) {
+async function writeToPatientFields(models, questions, answers, patientId) {
+  // these will store values to write to patient records following submission
+  const patientRecordValues = {};
+  const patientAdditionalDataValues = {};
+
+  const writeQuestions = questions.filter(q => q.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA);
+  for (const question of writeQuestions) {
     const { dataElement, config: configString } = question;
     const config = JSON.parse(configString) || {};
-    switch (dataElement.type) {
-      case PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE: {
-        if (!config.issueNote || !config.issueType)
-          throw new InvalidOperationError(
-            `Ill-configured PatientIssue with config: ${configString}`,
-          );
-        await models.PatientIssue.create({
-          patientId,
-          type: config.issueType,
-          note: config.issueNote,
-        });
-        break;
-      }
-      case PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA: {
-        if (config.writeToPatient) {
-          if (!config.writeToPatient.fieldName) {
-            throw new Error('No fieldName defined for writeToPatient config');
-          }
-          const patient = await models.Patient.findOne({
-            where: { id: patientId },
-            include: [
-              {
-                model: models.PatientAdditionalData,
-                as: 'additionalData',
-              },
-            ],
-          });
-          const additionalData = patient?.additionalData?.[0];
-          if (config.writeToPatient.isAdditionalDataField) {
-            if (!additionalData) {
-              throw new Error(`Unable to find additionalData for patientId ${patientId}`);
-            }
-            additionalData[config.writeToPatient.fieldName] = answers[dataElement.id];
-            await additionalData.save();
-          } else {
-            if (!patient) {
-              throw new Error(`Unable to find patient for id ${patientId}`);
-            }
-            patient[config.writeToPatient.fieldName] = answers[dataElement.id];
-            await patient.save();
-          }
-        }
-        break;
-      }
-      default:
-      // pass
+
+    const { fieldName, isAdditionalDataField } = config.writeToPatient || {};
+    if (!fieldName) {
+      // TODO: the right place for this is on validation during import
+      // but failing that, is throwing the right thing to do here?
+      throw new Error('No fieldName defined for writeToPatient config');
+    }
+
+    const value = answers[dataElement.id];
+    if (isAdditionalDataField) {
+      patientAdditionalDataValues[fieldName] = value;
+    } else {
+      patientRecordValues[fieldName] = value;
     }
   }
-};
+
+  // Save values to database records
+  const { Patient, PatientAdditionalData } = models;
+  if (Object.keys(patientRecordValues).length) {
+    await Patient.update(
+      patientRecordValues,
+      { where: { id: patientId } },
+    );
+  }
+  if (Object.keys(patientAdditionalDataValues).length) {
+    const pad = await PatientAdditionalData.getOrCreateForPatient(patientId);
+    await pad.update(patientAdditionalDataValues);
+  }
+}
+
+async function handleSurveyResponseActions(models, questions, actions, answers, patientId) {
+  const activeQuestions = questions.filter(q => actions[q.dataElementId]);
+  await createPatientIssues(models, activeQuestions, patientId);
+  await writeToPatientFields(models, activeQuestions, answers, patientId);
+}
+
 
 export class SurveyResponse extends Model {
   static init({ primaryKey, ...options }) {
@@ -155,8 +161,6 @@ export class SurveyResponse extends Model {
 
     const questions = await models.SurveyScreenComponent.getComponentsForSurvey(surveyId);
 
-    await handleSurveyResponseActions(models, actions, questions, answers, patientId);
-
     const calculatedAnswers = runCalculations(questions, answers);
     const finalAnswers = {
       ...answers,
@@ -189,6 +193,8 @@ export class SurveyResponse extends Model {
       if (!component) return null;
       return component.dataElement;
     };
+
+    // create answer records
     for (const a of Object.entries(finalAnswers)) {
       const [dataElementId, value] = a;
       const dataElement = findDataElement(dataElementId);
@@ -202,6 +208,8 @@ export class SurveyResponse extends Model {
         responseId: record.id,
       });
     }
+    
+    await handleSurveyResponseActions(models, questions, actions, finalAnswers, encounter.patientId);
 
     return record;
   }
