@@ -20,14 +20,14 @@ import { TextInput } from './TextField';
 // has some unusual input handling (switching focus between day/month/year etc) that
 // a value change will interfere with.
 
+function toMomentDate(date, format) {
+  return moment(date, format);
+}
+
 function fromRFC3339(rfc3339Date, format) {
   if (!rfc3339Date) return '';
 
   return moment(rfc3339Date).format(format);
-}
-
-function toRFC3339(date, format) {
-  return moment(date, format).toISOString();
 }
 
 export const DateInput = ({
@@ -45,8 +45,18 @@ export const DateInput = ({
   const onValueChange = useCallback(
     event => {
       const formattedValue = event.target.value;
-      const rfcValue = toRFC3339(formattedValue, format);
 
+      const date = toMomentDate(formattedValue, format);
+
+      if (max) {
+        const maxDate = toMomentDate(max, format);
+        if (date.isAfter(maxDate)) {
+          onChange({ target: { value: '', name } });
+          return;
+        }
+      }
+
+      const rfcValue = date.toISOString();
       setCurrentText(formattedValue);
       if (rfcValue === 'Invalid date') {
         onChange({ target: { value: '', name } });
@@ -55,7 +65,7 @@ export const DateInput = ({
 
       onChange({ target: { value: rfcValue, name } });
     },
-    [onChange, format, name],
+    [onChange, format, name, max],
   );
 
   useEffect(() => {
