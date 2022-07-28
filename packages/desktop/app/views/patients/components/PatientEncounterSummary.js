@@ -121,8 +121,10 @@ const DataStatusMessage = ({ message }) => (
 
 const PatientDeathSummary = React.memo(({ patient }) => {
   const api = useApi();
-  const { data: deathData, error, isLoading } = useQuery(['PatientDeathSummary'], () =>
-    api.get(`patient/${patient.id}/death`),
+  const deathDataEndpoint = `patient/${patient.id}/death`;
+  const { data: deathData, error, isLoading } = useQuery(
+    ['PatientDeathSummary', deathDataEndpoint],
+    () => api.get(deathDataEndpoint),
   );
 
   if (isLoading) {
@@ -173,8 +175,10 @@ const PatientDeathSummary = React.memo(({ patient }) => {
 
 export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin, openTriage }) => {
   const api = useApi();
-  const { data: encounter, error, isLoading } = useQuery(['PatientEncounterSummary'], () =>
-    api.get(`patient/${patient.id}/currentEncounter`),
+  const currentEncounterEndpoint = `patient/${patient.id}/currentEncounter`;
+  const { data: encounter, error, isLoading } = useQuery(
+    ['PatientEncounterSummary', currentEncounterEndpoint],
+    () => api.get(currentEncounterEndpoint),
   );
 
   if (patient.dateOfDeath) {
