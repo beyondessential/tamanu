@@ -269,6 +269,7 @@ const rootLocalisationSchema = yup
         hideOtherSex: yup.boolean().required(),
         registerNewPatient: yup.boolean().required(),
         enablePatientDeaths: yup.boolean().required(),
+        mergePopulatedPADRecords: yup.boolean().required(),
       })
       .required()
       .noUnknown(),

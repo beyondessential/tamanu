@@ -58,7 +58,9 @@ export const DateInput = ({
         }
       }
 
-      const outputValue = saveDateAsString ? toDateTimeString(date) : date.toISOString();
+      const outputValue = saveDateAsString
+        ? toDateTimeString(formattedValue)
+        : toRFC3339(formattedValue, format);
 
       setCurrentText(formattedValue);
       if (outputValue === 'Invalid date') {
