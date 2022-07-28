@@ -44,6 +44,7 @@ export const PrimaryDetailsGroup = () => {
         max={getCurrentDateString()}
         component={DateField}
         required
+        saveDateAsString
       />
       <LocalisedField name="villageId" component={AutocompleteField} suggester={villageSuggester} />
       <LocalisedField name="sex" component={RadioField} options={filteredSexOptions} required />
