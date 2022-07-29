@@ -1,3 +1,5 @@
+import { APPOINTMENT_STATUSES } from 'shared/constants';
+
 export const REPORT_DEFINITIONS = [
   {
     name: 'Incomplete referrals',
@@ -334,15 +336,24 @@ export const REPORT_DEFINITIONS = [
     parameters: [
       {
         parameterField: 'ParameterAutocompleteField',
-        label: 'Ward',
+        label: 'Location',
         name: 'location',
         suggesterEndpoint: 'location',
       },
       {
         parameterField: 'ParameterAutocompleteField',
-        label: 'Ward',
-        name: 'location',
-        suggesterEndpoint: 'location',
+        label: 'Clinician',
+        name: 'clinician',
+        suggesterEndpoint: 'practitioner',
+      },
+      {
+        parameterField: 'ParameterSelectField',
+        name: 'appointmentStatus',
+        label: 'Appointment Status',
+        options: Object.values(APPOINTMENT_STATUSES).map(status => ({
+          label: status,
+          value: status,
+        })),
       },
     ],
   },

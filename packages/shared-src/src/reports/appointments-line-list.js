@@ -59,7 +59,7 @@ order by a.start_time;
 `;
 
 const getData = async (sequelize, parameters) => {
-  const { fromDate, toDate, appointmentStatus, location } = parameters;
+  const { fromDate, toDate, appointmentStatus, location, clinician } = parameters;
 
   return sequelize.query(query, {
     type: sequelize.QueryTypes.SELECT,
@@ -68,6 +68,7 @@ const getData = async (sequelize, parameters) => {
       to_date: toDate ?? null,
       appointment_status: appointmentStatus ?? null,
       location_id: location ?? null,
+      clinician_id: clinician ?? null,
     },
   });
 };
