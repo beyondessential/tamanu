@@ -1,3 +1,4 @@
+import { NOTE_TYPES } from 'shared/constants';
 import { generateReportFromQueryData } from './utilities';
 
 const FIELDS = [
@@ -152,17 +153,17 @@ with
         json_agg(note) aggregated_notes
       from notes_info
       cross join json_array_elements(aggregated_notes) note
-      where note->>'note_type' != 'abc' --cross join ok here as only 1 record will be matched
+      where note->>'Note type' != '${NOTE_TYPES.AREA_TO_BE_IMAGED}' --cross join ok here as only 1 record will be matched
       group by record_id
     ) non_area_notes
     on non_area_notes.record_id = ir.id 
     left join (
       select 
         record_id,
-        string_agg(note->>'content', 'ERROR - SHOULD ONLY BE ONE AREA TO BE IMAGED') aggregated_notes
+        string_agg(note->>'Content', 'ERROR - SHOULD ONLY BE ONE AREA TO BE IMAGED') aggregated_notes
       from notes_info
       cross join json_array_elements(aggregated_notes) note
-      where note->>'note_type' = 'abc' --cross join ok here as only 1 record will be matched
+      where note->>'Note type' = '${NOTE_TYPES.AREA_TO_BE_IMAGED}' --cross join ok here as only 1 record will be matched
       group by record_id
     ) area_notes
     on area_notes.record_id = ir.id
