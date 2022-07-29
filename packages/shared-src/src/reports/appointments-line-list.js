@@ -31,19 +31,16 @@ with
 		group by patient_id
 	)
 select
-	case when
-		p.middle_name is not null
-		then p.first_name || ' ' || p.middle_name || ' ' || p.last_name
-	    else p.first_name || ' ' || p.last_name
-	end "Patient Name",
+	p.first_name "First Name",
+	p.last_name "Last Name",
 	p.display_id "MRID",
 	to_char(p.date_of_birth, 'YYYY-MM-DD') "DOB",
 	p.sex "Sex",
 	vil.name "Village",
 	bt.billing_type_name "Patient Type",
 	to_char(a.start_time, 'YYYY-MM-DD') "Appointment Date",
-	to_char(a.start_time, 'HH12' || CHR(58) || 'MI AM') "Time Slot",
-	a."type" "Clinic",
+	to_char(a.start_time, 'HH12' || CHR(58) || 'MI AM') "Appointment Time",
+	a."type" "Appointment Type",
 	a.status "Appointment Status",
 	u.display_name "Clinician",
 	l.name "Location"
@@ -57,6 +54,8 @@ where CASE WHEN :location_id IS NOT NULL THEN l.id = :location_id ELSE true end
 AND CASE WHEN :from_date IS NOT NULL THEN a.start_time::date >= :from_date::date ELSE true END
 AND CASE WHEN :to_date IS NOT NULL THEN a.start_time::date <= :to_date::date ELSE true end
 and case when :appointment_status is not null then a.status = :appointment_status else true end
+and case when :clinician_id is not null then u.id = :clinician_id else true end
+order by a.start_time;
 `;
 
 const getData = async (sequelize, parameters) => {
