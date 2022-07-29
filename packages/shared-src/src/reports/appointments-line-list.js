@@ -52,9 +52,9 @@ left join reference_data vil on vil.id = p.village_id
 left join billing_type bt on bt.patient_id = p.id
 left join users u on u.id = a.clinician_id
 left join locations l on l.id = a.location_id
-where CASE WHEN :location_id IS NOT NULL THEN l.id = :location_id ELSE true end 
-AND CASE WHEN :from_date IS NOT NULL THEN a.start_time::date >= :from_date::date ELSE true END
-AND CASE WHEN :to_date IS NOT NULL THEN a.start_time::date <= :to_date::date ELSE true end
+where case when :location_id is not null then l.id = :location_id else true end 
+and case when :from_date is not null then a.start_time::date >= :from_date::date else true end
+and case when :to_date is not null then a.start_time::date <= :to_date::date else true end
 and case when :appointment_status is not null then a.status = :appointment_status else true end
 and case when :clinician_id is not null then u.id = :clinician_id else true end
 order by a.start_time;
