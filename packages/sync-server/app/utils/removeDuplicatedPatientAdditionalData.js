@@ -2,6 +2,7 @@ import { Sequelize, QueryTypes } from 'sequelize';
 
 import { log } from 'shared/services/logging';
 import { PatientAdditionalData } from 'shared/models';
+import { getLocalisation } from '../localisation';
 
 const METADATA_COLUMNS = [
   'id',
@@ -16,7 +17,12 @@ const METADATA_COLUMNS = [
   'mergedIntoId',
 ];
 
+// function to check for unset values (can't just check for falsiness as we don't want to overwrite 0s)
+const isBlank = value => value === undefined || value === null || value === '';
+
 export async function reconcilePatient(sequelize, patientId) {
+  const { mergePopulatedPADRecords } = (await getLocalisation()).features;
+
   // find all the records for this patient
   const patientAdditionalDataRecords = await sequelize.query(
     `
@@ -34,16 +40,21 @@ export async function reconcilePatient(sequelize, patientId) {
   );
 
   // get all the records that have actual data against them
-  const checkedRecords = patientAdditionalDataRecords.map(record => ({
-    record,
-    canonical: false,
-    hasData: Object.keys(record.dataValues).some(col => {
+  const checkedRecords = patientAdditionalDataRecords.map(record => {
+    const populatedKeys = Object.keys(record.dataValues).filter(col => {
       if (METADATA_COLUMNS.includes(col)) return false;
       const value = record[col];
-      if (value === undefined || value === null || value === '') return false;
+      if (isBlank(value)) return false;
       return true;
-    }),
-  }));
+    });
+    return {
+      record,
+      merged: false,
+      canonical: false,
+      populatedKeys,
+      hasData: populatedKeys.length > 0,
+    };
+  });
 
   // figure out the canonical record - the first one with data if there is one, otherwise just go with the first one
   const canonicalRecord = checkedRecords.find(x => x.hasData) || checkedRecords[0];
@@ -53,12 +64,82 @@ export async function reconcilePatient(sequelize, patientId) {
   if (!canonicalRecord) {
     throw new Error(`No canonical record found for patientId ${patientId}`);
   }
-
   canonicalRecord.canonical = true;
+
+  // now we merge extra records into the canonical one
+  const recordsToMerge = checkedRecords.filter(record => !record.canonical);
+
+  // this will track the new values we want to merge in
+  const valuesToMerge = {};
+  const existingValues = {};
+  for (const k of canonicalRecord.populatedKeys) {
+    existingValues[k] = canonicalRecord.record.dataValues[k];
+  }
+
+  const unmergeableRecords = [];
+
+  for (const record of recordsToMerge) {
+    const values = {};
+    let canMerge = true;
+    if (mergePopulatedPADRecords) {
+      for (const k of record.populatedKeys) {
+        const incomingValue = record.record.dataValues[k];
+        const existingValue = existingValues[k];
+        if (isBlank(existingValue)) {
+          // we can happily overwrite a blank
+          values[k] = incomingValue;
+        } else if (existingValue !== incomingValue) {
+          // we can't overwrite actual values
+          canMerge = false;
+          break;
+        }
+      }
+    } else {
+      // with the feature off, any populated keys will prevent a merge
+      canMerge = record.populatedKeys.length === 0;
+    }
+
+    if (canMerge) {
+      Object.assign(valuesToMerge, values);
+      Object.assign(existingValues, values);
+      record.merged = true;
+    } else {
+      unmergeableRecords.push(record);
+    }
+  }
+
+  if (unmergeableRecords.length > 0) {
+    log.warn(
+      `Patient ${patientId} has ${unmergeableRecords.length} PatientAdditionalData records that need manual reconciliation`,
+    );
+  }
+
+  // update the canonical record with the merged values
+  const updatedKeys = Object.keys(valuesToMerge);
+  if (mergePopulatedPADRecords) {
+    if (updatedKeys.length > 0) {
+      log.info(`Updating ${updatedKeys.length} new additional data keys`, {
+        patientId,
+        keys: updatedKeys,
+        canonicalId: canonicalRecord.record.id,
+      });
+      await PatientAdditionalData.update(
+        {
+          updatedAt: Sequelize.literal('CURRENT_TIMESTAMP'),
+          ...valuesToMerge,
+        },
+        {
+          where: {
+            id: canonicalRecord.record.id,
+          },
+        },
+      );
+    }
+  }
 
   // delete the ones we can
   const idsToDelete = checkedRecords
-    .filter(record => !record.canonical && !record.hasData)
+    .filter(record => record.merged)
     .map(record => record.record.id);
   if (idsToDelete.length > 0) {
     log.info(`Merging ${idsToDelete.length} records`, {
@@ -79,19 +160,12 @@ export async function reconcilePatient(sequelize, patientId) {
     );
   }
 
-  // warn if there are any OTHER records with data, which will need to be resolved manually
-  // TODO: more intelligent merge logic
-  const unmergeable = checkedRecords.filter(record => !record.canonical && record.hasData);
-  if (unmergeable.length > 0) {
-    log.warn(
-      `Patient ${patientId} has ${unmergeable.length} PatientAdditionalData records that need manual reconciliation`,
-    );
-  }
-
-  // return some tallies for reporting
+  // return some info for reporting
   return {
-    unmergeable: unmergeable.length,
+    unmergeable: unmergeableRecords.length,
     deleted: idsToDelete.length,
+    updatedKeys,
+    blank: recordsToMerge.filter(x => !x.hasData).length,
   };
 }
 
