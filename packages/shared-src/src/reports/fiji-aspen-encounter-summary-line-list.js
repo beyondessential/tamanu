@@ -292,11 +292,12 @@ with
       encounter_id,
       hours::text || CHR(58) || remaining_minutes::text "Time seen following triage/Wait time"
     from triages t,
-      lateral (
-        select case when t.closed_time is null 
-        then extract(EPOCH from now() - t.triage_time::timestamp)/60
-        else extract(EPOCH from t.closed_time - t.triage_time)/60
-      end total_minutes
+    lateral (
+      select
+        case when t.closed_time is null
+          then (extract(EPOCH from now()) - extract(EPOCH from t.triage_time))/60
+          else (extract(EPOCH from t.closed_time) - extract(EPOCH from t.triage_time))/60
+        end total_minutes
     ) total_minutes,
     lateral (select floor(total_minutes / 60) hours) hours,
     lateral (select floor(total_minutes - hours*60) remaining_minutes) remaining_minutes
