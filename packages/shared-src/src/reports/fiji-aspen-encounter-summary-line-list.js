@@ -52,8 +52,7 @@ with
       lab_request_id,
       json_agg(
         json_build_object(
-          'Name', ltt.name,
-          'Notes', 'TODO'
+          'Name', ltt.name
         )
       ) tests
     from lab_tests lt
