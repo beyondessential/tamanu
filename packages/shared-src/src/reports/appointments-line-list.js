@@ -1,3 +1,4 @@
+import { addDays } from 'date-fns';
 import { generateReportFromQueryData } from './utilities';
 
 const FIELDS = [
@@ -60,7 +61,14 @@ order by a.start_time;
 `;
 
 const getData = async (sequelize, parameters) => {
-  const { fromDate, toDate, appointmentStatus, location, clinician } = parameters;
+  const { appointmentStatus, location, clinician } = parameters;
+
+  // Only default if both date parameters are blank
+  let { fromDate, toDate } = parameters;
+  if (!fromDate && !toDate) {
+    fromDate = new Date();
+    toDate = addDays(new Date(), 30);
+  }
 
   return sequelize.query(query, {
     type: sequelize.QueryTypes.SELECT,
