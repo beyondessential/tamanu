@@ -287,6 +287,20 @@ with
     on l2.name = nh."to" or l2.name = nh."from" or l2.id = l.id
     where place = 'location' or place is null
     group by e.id, l.name, e.start_date, first_from
+  ),
+  triage_info as (
+    select
+      encounter_id,
+      hours::text || CHR(58) || remaining_minutes::text "Time seen following triage/Wait time"
+    from triages t,
+      lateral (
+        select case when t.closed_time is null 
+        then extract(EPOCH from now() - t.triage_time::timestamp)/60
+        else extract(EPOCH from t.closed_time - t.triage_time)/60
+      end total_minutes
+    ) total_minutes,
+    lateral (select floor(total_minutes / 60) hours) hours,
+    lateral (select floor(total_minutes - hours*60) remaining_minutes) remaining_minutes
   )
 select
   p.display_id "Patient ID",
@@ -315,10 +329,7 @@ select
     when '3' then  'Non-urgent'
     else t.score
   end "Triage category",
-  case when t.closed_time is null 
-    then age(t.triage_time)
-    else age(t.closed_time, t.triage_time)
-  end "Time seen following triage/Wait time",
+  ti."Time seen following triage/Wait time",
   di2.department_history "Department",
   li.location_history "Location",
   e.reason_for_encounter "Reason for encounter",
@@ -340,6 +351,7 @@ left join lab_request_info lri on lri.encounter_id = e.id
 left join imaging_info ii on ii.encounter_id = e.id
 left join encounter_notes_info ni on ni.encounter_id = e.id
 left join triages t on t.encounter_id = e.id
+left join triage_info ti on ti.encounter_id = e.id
 left join location_info li on li.encounter_id = e.id
 left join department_info di2 on di2.encounter_id = e.id
 where e.end_date is not null
