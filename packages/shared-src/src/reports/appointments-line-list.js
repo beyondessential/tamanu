@@ -1,18 +1,19 @@
 import { generateReportFromQueryData } from './utilities';
 
 const FIELDS = [
-  "Patient Name",
-  "MRID",
-  "DOB",
-  "Sex",
-  "Village",
-  "Patient Type",
-  "Appointment Date",
-  "Time Slot",
-  "Clinic",
-  "Appointment Status",
-  "Clinician",
-  "Location",
+  'First Name',
+  'Last Name',
+  'MRID',
+  'DOB',
+  'Sex',
+  'Village',
+  'Patient Type',
+  'Appointment Date',
+  'Appointment Time',
+  'Appointment Type',
+  'Appointment Status',
+  'Clinician',
+  'Location',
 ];
 
 const reportColumnTemplate = FIELDS.map(field => ({
@@ -80,4 +81,3 @@ export const dataGenerator = async ({ sequelize }, parameters = {}) => {
 };
 
 export const permission = 'Appointment';
-
