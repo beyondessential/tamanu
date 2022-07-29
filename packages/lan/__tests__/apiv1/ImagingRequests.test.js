@@ -40,6 +40,7 @@ describe('Imaging requests', () => {
     const result = await app.post('/v1/imagingRequest').send({
       encounterId: encounter.id,
       status: 'invalid',
+      imagingType: IMAGING_TYPES.CT_SCAN,
       requestedById: app.user.id,
     });
     expect(result).toHaveRequestError();
@@ -49,6 +50,7 @@ describe('Imaging requests', () => {
     const result = await app.post('/v1/imagingRequest').send({
       encounterId: encounter.id,
       status: 'invalid',
+      imagingType: IMAGING_TYPES.CT_SCAN,
       requestedById: app.user.id,
     });
     expect(result).toHaveRequestError();
@@ -58,7 +60,7 @@ describe('Imaging requests', () => {
     const createdImagingRequest = await models.ImagingRequest.create({
       encounterId: encounter.id,
       imagingType: IMAGING_TYPES.CT_SCAN,
-      requestedById: app.user.id
+      requestedById: app.user.id,
     });
     const result = await app.get(`/v1/encounter/${encounter.id}/imagingRequests`);
     expect(result).toHaveSucceeded();
@@ -74,7 +76,8 @@ describe('Imaging requests', () => {
   it('should get imaging request reference info when listing imaging requests', async () => {
     const createdImagingRequest = await models.ImagingRequest.create({
       encounterId: encounter.id,
-      requestedById: app.user.id
+      requestedById: app.user.id,
+      imagingType: IMAGING_TYPES.CT_SCAN,
     });
     const result = await app.get(`/v1/encounter/${encounter.id}/imagingRequests`);
     expect(result).toHaveSucceeded();
