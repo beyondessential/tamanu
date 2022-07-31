@@ -396,3 +396,6 @@ export const VISIBILITY_STATUSES = {
   CURRENT: 'current',
   HISTORICAL: 'historical',
 };
+
+export const ISO9075_FORMAT = 'YYYY-MM-DD HH:mm:ss';
+export const ISO9075_FORMAT_LENGTH = ISO9075_FORMAT.length;
