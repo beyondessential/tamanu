@@ -36,6 +36,9 @@
     },
     "mSupply": {
       "enabled": true
+    },
+    "hl7fhir": {
+      "enabled": true
     }
   },
   "disk": {
