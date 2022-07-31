@@ -1,8 +1,5 @@
 import { IMAGING_TYPES } from 'shared/constants';
-import {
-  createDummyPatient,
-  createDummyEncounter,
-} from 'shared/demoData/patients';
+import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
 describe('Imaging requests', () => {
@@ -86,5 +83,23 @@ describe('Imaging requests', () => {
 
     const record = body.data[0];
     expect(record).toHaveProperty('requestedBy.displayName');
+  });
+
+  it('should return areas to be imaged', async () => {
+    const result = await app.get('/v1/imagingRequest/areas');
+    expect(result).toHaveSucceeded();
+    const { body } = result;
+    const expectedAreas = expect.arrayContaining([
+      expect.objectContaining({
+        id: expect.any(String),
+      }),
+    ]);
+    expect(body).toEqual(
+      expect.objectContaining({
+        xRay: expectedAreas,
+        ctScan: expectedAreas,
+        ultrasound: expectedAreas,
+      }),
+    );
   });
 });

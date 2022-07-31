@@ -50,7 +50,7 @@ imagingRequest.get(
         [imagingType]: [...(acc[imagingType] || []), record.forResponse()],
       };
     }, {});
-    res.send({ data: areas });
+    res.send(areas);
   }),
 );
 

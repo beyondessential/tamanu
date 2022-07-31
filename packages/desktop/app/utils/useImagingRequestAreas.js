@@ -12,7 +12,7 @@ export const useImagingRequestAreas = () => {
   useEffect(() => {
     const fetchReferenceData = async () => {
       const res = await api.get(`imagingRequest/areas`);
-      setImagingRequestAreas(res.data);
+      setImagingRequestAreas(res);
     };
     fetchReferenceData();
   }, [api]);
