@@ -4,6 +4,7 @@ import {
   INJECTION_SITE_OPTIONS,
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
   VACCINE_STATUS,
+  LAB_TEST_RESULT_TYPES,
   VISIBILITY_STATUSES,
 } from 'shared/constants';
 
@@ -80,7 +81,6 @@ export const permission = yup.object().shape({
   deletedAt: yup.date().nullable(),
 });
 
-const LAB_TEST_RESULT_TYPES = ['Number', 'Select', 'FreeText'];
 const rangeRegex = /^[0-9.]+, [0-9.]+$/;
 export const labTestType = base.shape({
   name: yup.string().required(),
@@ -88,7 +88,7 @@ export const labTestType = base.shape({
   resultType: yup
     .string()
     .required()
-    .oneOf(LAB_TEST_RESULT_TYPES),
+    .oneOf(Object.values(LAB_TEST_RESULT_TYPES)),
   options: yup.string(),
   unit: yup.string(),
   maleRange: yup.string().matches(rangeRegex),

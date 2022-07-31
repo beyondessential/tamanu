@@ -1,13 +1,15 @@
+import { LAB_TEST_RESULT_TYPES } from '../constants';
+
 const LAB_TEST_CATEGORY_OTHER = {
   name: 'Other',
   tests: [
     {
       name: 'INR',
-      questionType: 'number',
+      resultType: LAB_TEST_RESULT_TYPES.NUMBER,
     },
     {
       name: 'Blood Glucose',
-      questionType: 'number',
+      resultType: LAB_TEST_RESULT_TYPES.NUMBER,
     },
   ],
 };
@@ -20,14 +22,14 @@ const LAB_TEST_CATEGORY_LFT = {
       unit: 'umol/L',
       maleRange: [5, 17],
       femaleRange: [5, 17],
-      questionType: 'number',
+      resultType: LAB_TEST_RESULT_TYPES.NUMBER,
     },
     {
       name: 'ALP',
       unit: 'IU',
       maleRange: [35, 130],
       femaleRange: [35, 130],
-      questionType: 'number',
+      resultType: LAB_TEST_RESULT_TYPES.NUMBER,
     },
   ],
 };
@@ -40,14 +42,14 @@ const LAB_TEST_CATEGORY_U_AND_E = {
       unit: 'mmol/L',
       maleRange: [135, 146],
       femaleRange: [135, 146],
-      questionType: 'number',
+      resultType: LAB_TEST_RESULT_TYPES.NUMBER,
     },
     {
       name: 'Potassium',
       unit: 'mmol/L',
       maleRange: [3.5, 5.3],
       femaleRange: [3.5, 5.3],
-      questionType: 'number',
+      resultType: LAB_TEST_RESULT_TYPES.NUMBER,
     },
   ],
 };
@@ -60,14 +62,14 @@ const LAB_TEST_CATEGORY_FBC = {
       unit: 'g/dL',
       maleRange: [135, 180],
       femaleRange: [115, 160],
-      questionType: 'number',
+      resultType: LAB_TEST_RESULT_TYPES.NUMBER,
     },
     {
       name: 'WBC',
       unit: 'x10^3/uL',
       maleRange: [4, 11],
       femaleRange: [4, 11],
-      questionType: 'number',
+      resultType: LAB_TEST_RESULT_TYPES.NUMBER,
     },
   ],
 };
@@ -77,7 +79,7 @@ const LAB_TEST_CATEGORY_MALARIA = {
   tests: [
     {
       name: 'Malaria type',
-      questionType: 'string',
+      resultType: LAB_TEST_RESULT_TYPES.FREE_TEXT,
       options: ['vivax', 'falciparum', 'mixed', 'none'],
     },
   ],
