@@ -127,7 +127,7 @@ const transformers = [
   makeTransformer('diagnoses', referenceDataTransformer('icd10')),
   makeTransformer('triageReasons', referenceDataTransformer('triageReason')),
   makeTransformer(
-    'xrayImagingAreas',
+    'xRayImagingAreas',
     referenceDataTransformer(IMAGING_AREA_TYPES.X_RAY_IMAGING_AREA),
   ),
   makeTransformer(
