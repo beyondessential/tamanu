@@ -40,7 +40,7 @@ const getDiagnosticInfo = (date, rawDate) => {
   const displayDate = formatLong(date);
   const { timeZone } = Intl.DateTimeFormat().resolvedOptions();
   const timeZoneOffset = date.getTimezoneOffset() / 60;
-  return `Display datetime: ${displayDate}, Raw datetime: ${rawDate}, Timezone: ${timeZone}, Timezone offset: ${timeZoneOffset}`;
+  return `Display date: ${displayDate} \nRaw date: ${rawDate} \nTimezone: ${timeZone} \nTimezone offset: ${timeZoneOffset}`;
 };
 
 // abbr tag allows a title to be passed in which shows the long format date on hover
