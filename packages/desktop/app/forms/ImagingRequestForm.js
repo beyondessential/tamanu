@@ -85,7 +85,7 @@ export const ImagingRequestForm = React.memo(
     generateId = shortid.generate,
   }) => {
     const { getLocalisation } = useLocalisation();
-    const imagingTypes = getLocalisation('imagingTypes');
+    const imagingTypes = getLocalisation('imagingTypes') || {};
     const imagingTypeOptions = Object.entries(imagingTypes).map(([key, val]) => ({
       label: val.label,
       value: key,
