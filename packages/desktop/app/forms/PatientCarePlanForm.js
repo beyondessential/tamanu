@@ -27,7 +27,7 @@ export const PatientCarePlanForm = ({
           required
         />
         <FormGrid columns={2}>
-          <Field name="recordedDate" label="Date recorded" component={DateTimeField} />
+          <Field name="date" label="Date recorded" component={DateTimeField} />
           <Field
             name="examinerId"
             label="Doctor/nurse"
@@ -52,12 +52,12 @@ export const PatientCarePlanForm = ({
       </FormGrid>
     )}
     initialValues={{
-      recordedDate: new Date(),
+      date: new Date(),
       ...editedObject,
     }}
     validationSchema={yup.object().shape({
       carePlanId: foreignKey('Care plan is a required field'),
-      recordedDate: yup.date(),
+      date: yup.date(),
       examinerId: yup.string(),
       content: yup.string(),
     })}
