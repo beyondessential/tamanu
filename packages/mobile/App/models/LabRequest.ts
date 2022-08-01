@@ -21,10 +21,13 @@ import { getCurrentDateTimeString } from '../ui/helpers/date';
 
 @Entity('labRequest')
 export class LabRequest extends BaseModel implements ILabRequest {
-  @Column({ nullable: false, default: getCurrentDateTimeString })
+  // Default needs to be declared inside anonymous function otherwise it will
+  // simply use the value returned on init.
+  // https://github.com/typeorm/typeorm/issues/877#issuecomment-772051282
+  @Column({ nullable: false, default: () => getCurrentDateTimeString() })
   sampleTime: string;
 
-  @Column({ nullable: false, default: getCurrentDateTimeString })
+  @Column({ nullable: false, default: () => getCurrentDateTimeString() })
   requestedDate: string;
 
   @Column({ nullable: true, default: false })
