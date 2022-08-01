@@ -11,7 +11,10 @@ export class PatientCarePlan extends Model {
       },
       {
         ...options,
-        syncConfig: initSyncForModelNestedUnderPatient(this, 'carePlan'),
+        syncConfig: {
+          ...initSyncForModelNestedUnderPatient(this, 'carePlan'),
+          includedRelations: ['notes'],
+        },
       },
     );
   }
@@ -20,6 +23,15 @@ export class PatientCarePlan extends Model {
     this.belongsTo(models.Patient, { foreignKey: 'patientId' });
     this.belongsTo(models.ReferenceData, { foreignKey: 'carePlanId', as: 'carePlan' });
     this.belongsTo(models.User, { foreignKey: 'examinerId', as: 'examiner' });
+
+    this.hasMany(models.Note, {
+      foreignKey: 'recordId',
+      as: 'notes',
+      constraints: false,
+      scope: {
+        recordType: this.name,
+      },
+    });
   }
 
   static getListReferenceAssociations() {

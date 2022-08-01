@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { connect } from 'react-redux';
@@ -28,6 +28,11 @@ import { Button } from '../components/Button';
 import { ButtonRow } from '../components/ButtonRow';
 import { DateDisplay } from '../components/DateDisplay';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
+import { DropdownButton } from '../components/DropdownButton';
+
+import { useLabRequest } from '../contexts/LabRequest';
+import { useEncounter } from '../contexts/Encounter';
+import { getCurrentDateString, getCurrentDateTimeString } from '../utils/dateTime';
 
 function getEncounterTypeLabel(type) {
   return encounterOptions.find(x => x.value === type).label;
@@ -45,6 +50,38 @@ function filterTestTypes(testTypes, { labTestCategoryId }) {
     : [];
 }
 
+const FormSubmitActionDropdown = ({ requestId, encounter, submitForm }) => {
+  const { loadEncounter } = useEncounter();
+  const { loadLabRequest } = useLabRequest();
+  const [awaitingPrintRedirect, setAwaitingPrintRedirect] = useState();
+
+  // Transition to print page as soon as we have the generated id
+  useEffect(() => {
+    (async () => {
+      if (awaitingPrintRedirect && requestId) {
+        await loadLabRequest(requestId, 'print');
+      }
+    })();
+  }, [requestId, awaitingPrintRedirect, loadLabRequest]);
+
+  const finalise = async data => {
+    await submitForm(data);
+    await loadEncounter(encounter.id);
+  };
+  const finaliseAndPrint = async data => {
+    await submitForm(data);
+    // We can't transition pages until the lab req is fully submitted
+    setAwaitingPrintRedirect(true);
+  };
+
+  const actions = [
+    { label: 'Finalise', onClick: finalise },
+    { label: 'Finalise & print', onClick: finaliseAndPrint },
+  ];
+
+  return <DropdownButton color="primary" variant="contained" actions={actions} />;
+};
+
 export class LabRequestForm extends React.PureComponent {
   componentDidMount() {
     const { onMount } = this.props;
@@ -59,6 +96,7 @@ export class LabRequestForm extends React.PureComponent {
       encounter = {},
       testCategories,
       testPriorities,
+      requestId,
     } = this.props;
     const { examiner = {} } = encounter;
     const examinerLabel = examiner.displayName;
@@ -68,7 +106,13 @@ export class LabRequestForm extends React.PureComponent {
     return (
       <FormGrid>
         <Field name="displayId" label="Lab request number" disabled component={TextField} />
-        <Field name="requestedDate" label="Order date" required component={DateTimeField} />
+        <Field
+          name="requestedDate"
+          label="Order date"
+          required
+          component={DateTimeField}
+          saveDateAsString
+        />
         <TextInput label="Supervising doctor" disabled value={examinerLabel} />
         <Field
           name="requestedById"
@@ -77,7 +121,13 @@ export class LabRequestForm extends React.PureComponent {
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
-        <Field name="sampleTime" label="Sample time" required component={DateTimeField} />
+        <Field
+          name="sampleTime"
+          label="Sample time"
+          required
+          component={DateTimeField}
+          saveDateAsString
+        />
         <div>
           <Field name="specimenAttached" label="Specimen attached?" component={CheckField} />
           <Field name="urgent" label="Urgent?" component={CheckField} />
@@ -118,12 +168,11 @@ export class LabRequestForm extends React.PureComponent {
           <Button variant="contained" onClick={onCancel}>
             Cancel
           </Button>
-          <Button variant="contained" onClick={submitForm} color="primary">
-            Finalise and print
-          </Button>
-          <Button variant="contained" onClick={submitForm} color="primary">
-            Finalise and close
-          </Button>
+          <FormSubmitActionDropdown
+            requestId={requestId}
+            encounter={encounter}
+            submitForm={submitForm}
+          />
         </ButtonRow>
       </FormGrid>
     );
@@ -137,8 +186,8 @@ export class LabRequestForm extends React.PureComponent {
         render={this.renderForm}
         initialValues={{
           displayId: generateDisplayId(),
-          requestedDate: new Date().toLocaleDateString(),
-          sampleTime: new Date().toLocaleString(),
+          requestedDate: getCurrentDateTimeString(),
+          sampleTime: getCurrentDateTimeString(),
           ...editedObject,
         }}
         validationSchema={yup.object().shape({

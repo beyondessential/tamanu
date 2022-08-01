@@ -1,5 +1,11 @@
 import React, { useState, useCallback } from 'react';
-import { TopBar, PageContainer, Button, DataFetchingTable, SearchBar } from '../../components';
+import {
+  TopBar,
+  PageContainer,
+  Button,
+  DataFetchingTable,
+  LocationSearchBar,
+} from '../../components';
 import { NewLocationForm } from '../../forms';
 import { NewRecordModal } from './components';
 import { LOCATION_SEARCH_ENDPOINT } from './constants';
@@ -40,7 +46,7 @@ export const LocationAdminView = React.memo(() => {
           Add new location
         </Button>
       </TopBar>
-      <SearchBar onSearch={setSearchParameters} />
+      <LocationSearchBar onSearch={setSearchParameters} />
       <LocationTable fetchOptions={searchParameters} />
       <NewRecordModal
         title="Create new location"

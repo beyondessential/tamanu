@@ -17,7 +17,9 @@ async function report(options) {
     const validNames = REPORT_DEFINITIONS.map(d => d.id);
     if (!validNames.some(n => n === name)) {
       const nameOutput = validNames.map(n => `\n  ${n}`).join('');
-      throw new Error(`invalid name '${name}', must be one of: ${nameOutput}`);
+      throw new Error(
+        `invalid name '${name}', must be one of: ${nameOutput} \n (hint - supply name with -n <name>)`,
+      );
     }
     let reportParameters = {};
     let reportRecipients = {};

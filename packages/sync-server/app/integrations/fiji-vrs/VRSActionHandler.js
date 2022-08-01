@@ -46,7 +46,9 @@ export class VRSActionHandler {
           successCount++;
         }
       } catch (e) {
-        log.error('VRSActionHandler: Recieved error while applying action:');
+        log.error('VRSActionHandler: Recieved error while applying action', {
+          fetchId: action?.Id,
+        });
         log.error(e);
         failCount++;
       }

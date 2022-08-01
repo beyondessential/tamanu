@@ -1,15 +1,9 @@
-import React, {
-  FunctionComponent, ReactElement,
-  useCallback,
-  useContext,
-  useState,
-} from 'react';
+import React, { FunctionComponent, ReactElement, useCallback, useState } from 'react';
 import { KeyboardAvoidingView, StatusBar } from 'react-native';
 import {
   StyledView,
   StyledSafeAreaView,
   FullView,
-  RowView,
   ColumnView,
   StyledTouchableOpacity,
   StyledText,
@@ -21,11 +15,11 @@ import { ResetPasswordProps } from '/interfaces/Screens/SignUp/ResetPasswordProp
 import { Routes } from '/helpers/routes';
 import { ModalInfo } from '/components/ModalInfo';
 import { ResetPasswordFormModel } from '~/ui/interfaces/forms/ResetPasswordFormProps';
-import AuthContext from '~/ui/contexts/AuthContext';
+import { useAuth } from '~/ui/contexts/AuthContext';
 import { Button } from '/components/Button';
 
 export const ResetPassword: FunctionComponent<any> = ({ navigation }: ResetPasswordProps) => {
-  const authCtx = useContext(AuthContext);
+  const authCtx = useAuth();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -102,9 +96,20 @@ export const ResetPassword: FunctionComponent<any> = ({ navigation }: ResetPassw
         margin={screenPercentageToDP(2.43, Orientation.Width)}
         style={{ backgroundColor: theme.colors.BACKGROUND_GREY }}
       >
-        <StyledText fontSize={screenPercentageToDP('1.94', Orientation.Height)}>An email with instructions has been sent to:</StyledText>
-        <StyledText fontSize={screenPercentageToDP('1.94', Orientation.Height)} fontWeight="bold" marginTop="10" marginBottom="10">{resetPasswordEmail}</StyledText>
-        <StyledText fontSize={screenPercentageToDP('1.94', Orientation.Height)}>If you do not receive this email within a few minutes please try again.</StyledText>
+        <StyledText fontSize={screenPercentageToDP('1.94', Orientation.Height)}>
+          An email with instructions has been sent to:
+        </StyledText>
+        <StyledText
+          fontSize={screenPercentageToDP('1.94', Orientation.Height)}
+          fontWeight="bold"
+          marginTop="10"
+          marginBottom="10"
+        >
+          {resetPasswordEmail}
+        </StyledText>
+        <StyledText fontSize={screenPercentageToDP('1.94', Orientation.Height)}>
+          If you do not receive this email within a few minutes please try again.
+        </StyledText>
       </ColumnView>
       <Button
         marginTop={20}
@@ -167,8 +172,8 @@ export const ResetPassword: FunctionComponent<any> = ({ navigation }: ResetPassw
               Reset Password
             </StyledText>
           </StyledView>
-          { success && renderSuccess() }
-          { !success && renderForm() }
+          {success && renderSuccess()}
+          {!success && renderForm()}
         </KeyboardAvoidingView>
       </StyledSafeAreaView>
     </FullView>

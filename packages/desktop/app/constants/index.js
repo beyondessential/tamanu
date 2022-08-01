@@ -53,6 +53,7 @@ export const Colors = {
   offWhite: '#fafafa',
   brightBlue: '#67A6E3',
   searchTintColor: '#d2dae3',
+  hoverGrey: '#f3f5f7',
 };
 
 export const MAX_AUTO_COMPLETE_ITEMS = {
@@ -365,6 +366,7 @@ export const LOCAL_STORAGE_KEYS = {
   LOCALISATION: 'localisation',
   SERVER: 'server',
   REMEMBER_EMAIL: 'remember-email',
+  PERMISSIONS: 'permissions',
 };
 
 export const REPORT_DATA_SOURCES = {

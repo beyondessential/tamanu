@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, ReactElement } from 'react';
 import Accordion from 'react-native-collapsible/Accordion';
 import { StyledScrollView } from '/styled/common';
 import Header from './Header';
@@ -15,7 +15,7 @@ interface AccordionListProps {
 export const PatientHistoryAccordion = ({
   dataArray,
   rows,
-}: AccordionListProps): JSX.Element => {
+}: AccordionListProps): ReactElement => {
   const [activeSections, setActiveSections] = useState<number[]>([]);
 
   const updateSections = (newActiveSection: number[]): void => {

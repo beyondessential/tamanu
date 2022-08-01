@@ -125,6 +125,11 @@ export const REPORT_DEFINITIONS = [
     allFacilities: true,
   },
   {
+    name: 'Nauru COVID-19 Test - Line list',
+    id: 'nauru-covid-swab-lab-test-list',
+    allFacilities: true,
+  },
+  {
     name: 'Palau COVID-19 Case Report - Line list',
     id: 'palau-covid-case-report-line-list',
     allFacilities: true,
@@ -311,6 +316,19 @@ export const REPORT_DEFINITIONS = [
         label: 'Location',
         name: 'location',
         suggesterEndpoint: 'location',
+      },
+    ],
+  },
+  {
+    name: 'Generic Survey Export - Line List',
+    id: 'generic-survey-export-line-list',
+    parameters: [
+      { parameterField: 'VillageField' },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Survey',
+        name: 'surveyId',
+        suggesterEndpoint: 'survey',
       },
     ],
   },

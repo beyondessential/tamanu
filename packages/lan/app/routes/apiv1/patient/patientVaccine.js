@@ -123,7 +123,7 @@ patientVaccineRoutes.post(
         endDate: req.body.date,
         patientId: req.params.id,
         locationId: req.body.locationId,
-        examinerId: req.body.examinerId,
+        examinerId: req.body.recorderId,
         departmentId: req.body.departmentId,
       });
       encounterId = newEncounter.get('id');
@@ -142,25 +142,9 @@ patientVaccineRoutes.get(
   '/:id/administeredVaccines',
   asyncHandler(async (req, res) => {
     req.checkPermission('list', 'PatientVaccine');
-    const results = await req.models.AdministeredVaccine.findAll({
-      where: {
-        '$encounter.patient_id$': req.params.id,
-        status: 'GIVEN',
-      },
-      order: [['date', 'DESC']],
-      include: [
-        {
-          model: req.models.Encounter,
-          as: 'encounter',
-          include: req.models.Encounter.getFullReferenceAssociations(),
-        },
-        {
-          model: req.models.ScheduledVaccine,
-          as: 'scheduledVaccine',
-          include: req.models.ScheduledVaccine.getListReferenceAssociations(),
-        },
-      ],
-    });
+
+    const patient = await req.models.Patient.findByPk(req.params.id);
+    const results = await patient.getAdministeredVaccines();
 
     // TODO: enable pagination for this endpoint
     res.send({ count: results.length, data: results });

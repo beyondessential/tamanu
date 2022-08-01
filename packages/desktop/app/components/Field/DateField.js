@@ -1,10 +1,8 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import styled from 'styled-components';
 import moment from 'moment';
 import PropTypes from 'prop-types';
-import InputAdornment from '@material-ui/core/InputAdornment';
-import CalendarToday from '@material-ui/icons/CalendarToday';
 import { TextInput } from './TextField';
+import { toDateTimeString } from '../../utils/dateTime';
 
 // This component is pretty tricky! It has to keep track of two layers of state:
 //
@@ -33,15 +31,6 @@ function toRFC3339(date, format) {
   return moment(date, format).toISOString();
 }
 
-const CalendarIcon = styled(CalendarToday)`
-  color: #cccccc;
-`;
-
-const DatePlaceholder = styled.div`
-  font-size: 11pt;
-  color: #8e8e8e;
-`;
-
 export const DateInput = ({
   type = 'date',
   value,
@@ -50,6 +39,7 @@ export const DateInput = ({
   name,
   placeholder,
   max = '9999-12-31',
+  saveDateAsString = false,
   ...props
 }) => {
   const [currentText, setCurrentText] = useState(fromRFC3339(value, format));
@@ -57,17 +47,19 @@ export const DateInput = ({
   const onValueChange = useCallback(
     event => {
       const formattedValue = event.target.value;
-      const rfcValue = toRFC3339(formattedValue, format);
+      const outputValue = saveDateAsString
+        ? toDateTimeString(formattedValue)
+        : toRFC3339(formattedValue, format);
 
       setCurrentText(formattedValue);
-      if (rfcValue === 'Invalid date') {
+      if (outputValue === 'Invalid date') {
         onChange({ target: { value: '', name } });
         return;
       }
 
-      onChange({ target: { value: rfcValue, name } });
+      onChange({ target: { value: outputValue, name } });
     },
-    [onChange, format, name],
+    [onChange, format, name, saveDateAsString],
   );
 
   useEffect(() => {
@@ -84,11 +76,6 @@ export const DateInput = ({
       value={currentText}
       onChange={onValueChange}
       InputProps={{
-        startAdornment: (
-          <InputAdornment position="start">
-            {placeholder ? <DatePlaceholder>{placeholder}</DatePlaceholder> : <CalendarIcon />}
-          </InputAdornment>
-        ),
         // Set max property on HTML input element to force 4-digit year value (max year being 9999)
         inputProps: { max },
       }}

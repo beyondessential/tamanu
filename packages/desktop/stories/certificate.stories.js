@@ -5,6 +5,7 @@ import { createDummyPatient, createDummyPatientAdditionalData } from 'shared/dem
 import { CovidLabCertificate, VaccineCertificate } from 'shared/utils/patientCertificates';
 import { PDFViewer } from '@react-pdf/renderer';
 import { DeathCertificate } from '../app/components/PatientPrinting/DeathCertificate';
+import { LabRequestPrintout } from '../app/components/PatientPrinting/LabRequestPrintout';
 import SigningImage from './assets/signing-image.png';
 import Watermark from './assets/watermark.png';
 import Logo from './assets/tamanu-logo.png';
@@ -79,6 +80,11 @@ const getLocalisation = key => {
     'templates.letterhead.subTitle': 'PO Box 12345, Melbourne, Australia',
     'templates.vaccineCertificate.emailAddress': 'tamanu@health.govt',
     'templates.vaccineCertificate.contactNumber': '123456',
+
+    'fields.firstName.longLabel': 'First Name',
+    'fields.lastName.longLabel': 'Last Name',
+    'fields.dateOfBirth.longLabel': 'Date of Birth',
+    'fields.sex.longLabel': 'Sex',
   };
   return config[key];
 };
@@ -200,6 +206,7 @@ const vaccinations = [
       updatedAt: '2022-01-23T21:56:27.437Z',
       vaccineId: 'drug-COVID-19-Pfizer',
     },
+    certifiable: true,
   },
 ];
 
@@ -222,9 +229,24 @@ storiesOf('Certificates', module).add('VaccineCertificate', () => {
         signingSrc={SigningImage}
         logoSrc={Logo}
         vdsSrc={vdsSrc}
-        extraPatientFields={[{ key: 'uvci', label: 'UVCI', accessor: () => 'x1235y12345' }]}
         getLocalisation={getLocalisation}
       />
     </PDFViewer>
+  );
+});
+
+storiesOf('Certificates', module).add('LabRequestPrintout', () => {
+  return (
+    <Modal title="Record patient death" open width="md">
+      <LabRequestPrintout
+        labRequestData={{ displayId: 'ASDF123', requestedDate: '10/10/10' }}
+        patientData={{
+          ...patient,
+          timeOfDeath: new Date(),
+          causes: { primary: { condition: { name: 'Diabetes' } } },
+        }}
+        certificateData={certificateData}
+      />
+    </Modal>
   );
 });

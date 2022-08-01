@@ -5,18 +5,18 @@ import { LocalisedText } from '../LocalisedText';
 
 const Text = styled(Typography)`
   font-size: 12px;
-  margin-bottom: 20px;
+  margin-bottom: ${p => p.margin};
 `;
 
-export const CertificateLabel = ({ name, children }) => (
-  <Text>
+export const CertificateLabel = ({ name, children, margin = '20px' }) => (
+  <Text margin={margin}>
     <strong>{name}: </strong>
     {children}
   </Text>
 );
 
-export const LocalisedCertificateLabel = ({ name, children }) => (
-  <Text>
+export const LocalisedCertificateLabel = ({ name, children, margin = '20px' }) => (
+  <Text margin={margin}>
     <strong>
       <LocalisedText path={`fields.${name}.longLabel`} />:{' '}
     </strong>

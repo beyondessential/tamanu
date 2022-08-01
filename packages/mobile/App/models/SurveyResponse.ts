@@ -19,6 +19,7 @@ import {
   getStringValue,
   getResultValue,
   isCalculated,
+  FieldTypes,
 } from '~/ui/helpers/fields';
 
 import { runCalculations } from '~/ui/helpers/calculations';
@@ -28,6 +29,8 @@ import { Survey } from './Survey';
 import { Encounter } from './Encounter';
 import { SurveyResponseAnswer } from './SurveyResponseAnswer';
 import { Referral } from './Referral';
+import { Patient } from './Patient';
+import { PatientAdditionalData } from './PatientAdditionalData';
 
 @Entity('survey_response')
 export class SurveyResponse extends BaseModel implements ISurveyResponse {
@@ -133,24 +136,39 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       });
 
       setNote('Attaching answers...');
-      const findDataElement = (code: string): IProgramDataElement => {
-        const component = components.find(c => c.dataElement.code === code);
-        if (!component) return null;
-        return component.dataElement;
-      };
+
+      // these will store values to write to patient records following submission
+      const patientRecordValues = {};
+      const patientAdditionalDataValues = {};
+
+      // TODO: this should just look at the field name and decide; there will never be overlap
+      const isAdditionalDataField = (questionConfig) => questionConfig.writeToPatient?.isAdditionalDataField;
 
       for (const a of Object.entries(finalValues)) {
         const [dataElementCode, value] = a;
-        const dataElement = findDataElement(dataElementCode);
-        if (dataElement === null) {
+        const component = components.find(c => c.dataElement.code === dataElementCode);
+        if (!component) {
           // better to fail entirely than save partial data
-          throw new Error(`no data element for code: ${dataElementCode}`);
+          throw new Error(`no screen component for code: ${dataElementCode}, cannot match to data element`);
         }
+        const { dataElement } = component;
 
         if (isCalculated(dataElement.type) && value !== 0 && !value) {
           // calculated values will always be in the answer object - but we
           // shouldn't save null answers
           continue;
+        }
+
+        if (dataElement.type === FieldTypes.PATIENT_DATA) {
+          const questionConfig = component.getConfigObject();
+          const fieldName = questionConfig.writeToPatient?.fieldName;
+          if (fieldName) {
+            if (isAdditionalDataField(questionConfig)) {
+              patientAdditionalDataValues[fieldName] = value;
+            } else {
+              patientRecordValues[fieldName] = value;
+            }
+          }
         }
 
         const body = getStringValue(dataElement.type, value);
@@ -163,6 +181,14 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
         });
       }
       setNote('Done');
+
+      // Save values to database records
+      if (Object.keys(patientRecordValues).length) {
+        await Patient.updateValues(patientId, patientRecordValues);
+      }
+      if (Object.keys(patientAdditionalDataValues).length) {
+        await PatientAdditionalData.updateForPatient(patientId, patientAdditionalDataValues);
+      }
 
       return responseRecord;
     } catch (e) {

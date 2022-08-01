@@ -1,10 +1,11 @@
+import { random } from 'lodash';
 import {
   createDummyEncounter,
   createDummyEncounterMedication,
   createDummyPatient,
   randomReferenceId,
 } from 'shared/demoData/patients';
-import { fakeEncounter, fakePatient, fakeStringFields, fakeUser } from 'shared/test-helpers/fake';
+import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
 
 describe('Patient', () => {
@@ -92,7 +93,7 @@ describe('Patient', () => {
     // (the second one needs to have a 'greater' date to be the last)
     const endDate = new Date();
     await Promise.all([
-      encounterOne.update({ endDate: endDate }),
+      encounterOne.update({ endDate }),
       encounterTwo.update({ endDate: new Date(endDate.getTime() + 1000) }),
     ]);
 
@@ -142,7 +143,7 @@ describe('Patient', () => {
 
       expect(result).toHaveSucceeded();
 
-      const id = result.body.id;
+      const { id } = result.body;
       const additional = await models.PatientAdditionalData.findOne({ where: { patientId: id } });
       expect(additional).toBeTruthy();
       expect(additional).toHaveProperty('passport', 'TEST-PASSPORT');
@@ -195,16 +196,14 @@ describe('Patient', () => {
     let commons;
     beforeAll(async () => {
       const { User, Facility, Department, Location, ReferenceData } = models;
-      const { id: clinicianId } = await User.create({ ...fakeUser(), role: 'practitioner' });
-      const { id: facilityId } = await Facility.create(
-        fakeStringFields('facility', ['code', 'name']),
-      );
+      const { id: clinicianId } = await User.create({ ...fake(User), role: 'practitioner' });
+      const { id: facilityId } = await Facility.create(fake(Facility));
       const { id: departmentId } = await Department.create({
-        ...fakeStringFields('dept', ['code', 'name']),
+        ...fake(Department),
         facilityId,
       });
       const { id: locationId } = await Location.create({
-        ...fakeStringFields('loc', ['code', 'name']),
+        ...fake(Location),
         facilityId,
       });
       const cond1 = await ReferenceData.create({
@@ -254,7 +253,7 @@ describe('Patient', () => {
 
     it('should mark a patient as dead', async () => {
       const { Patient } = models;
-      const { id } = await Patient.create(fakePatient('alive-1'));
+      const { id } = await Patient.create({ ...fake(Patient), dateOfDeath: null });
       const { clinicianId, facilityId, cond1Id, cond2Id, cond3Id } = commons;
 
       const dod = new Date('2021-09-01T00:00:00.000Z');
@@ -269,8 +268,7 @@ describe('Patient', () => {
         antecedentCause1Interval: 120,
         antecedentCause2: cond3Id,
         antecedentCause2Interval: 150,
-        otherContributingConditions: cond2Id,
-        otherContributingConditionsInterval: 400,
+        otherContributingConditions: [{ cause: cond2Id, interval: 400 }],
         surgeryInLast4Weeks: 'yes',
         lastSurgeryDate: '2021-08-02T20:52:00.000Z',
         lastSurgeryReason: cond1Id,
@@ -288,13 +286,15 @@ describe('Patient', () => {
       });
       expect(result).toHaveSucceeded();
 
-      const patient = await Patient.findByPk(id);
-      expect(patient.dateOfDeath).toEqual(dod);
+      const foundPatient = await Patient.findByPk(id);
+      expect(foundPatient.dateOfDeath).toEqual(dod);
     });
 
     it('should not mark a dead patient as dead', async () => {
       const { Patient } = models;
-      const { id } = await Patient.create(fakePatient('dead-1'));
+      const patientData = fake(Patient);
+      patientData.dateOfDeath = new Date(random(patientData.dateOfBirth.getTime(), Date.now()));
+      const { id } = await Patient.create(patientData);
       const { clinicianId, facilityId, cond1Id } = commons;
 
       const result = await app.post(`/v1/patient/${id}/death`).send({
@@ -310,7 +310,7 @@ describe('Patient', () => {
 
     it('should reject with no data', async () => {
       const { Patient } = models;
-      const { id } = await Patient.create(fakePatient('alive-2'));
+      const { id } = await Patient.create({ ...fake(Patient), dateOfDeath: null });
 
       const result = await app.post(`/v1/patient/${id}/death`).send({});
       expect(result).not.toHaveSucceeded();
@@ -318,7 +318,7 @@ describe('Patient', () => {
 
     it('should reject with invalid data', async () => {
       const { Patient } = models;
-      const { id } = await Patient.create(fakePatient('alive-3'));
+      const { id } = await Patient.create({ ...fake(Patient), dateOfDeath: null });
 
       const result = await app.post(`/v1/patient/${id}/death`).send({
         timeOfDeath: 'this is not a date',
@@ -329,9 +329,9 @@ describe('Patient', () => {
     it('should mark active encounters as discharged', async () => {
       const { Encounter, Patient } = models;
       const { clinicianId, facilityId, departmentId, locationId, cond1Id } = commons;
-      const { id } = await Patient.create(fakePatient('alive-4'));
+      const { id } = await Patient.create({ ...fake(Patient), dateOfDeath: null });
       const { id: encId } = await Encounter.create({
-        ...fakeEncounter(),
+        ...fake(Encounter),
         departmentId,
         locationId,
         patientId: id,
@@ -359,7 +359,7 @@ describe('Patient', () => {
 
     it('should return no death data for alive patient', async () => {
       const { Patient } = models;
-      const { id, dateOfBirth } = await Patient.create(fakePatient('alive-1'));
+      const { id, dateOfBirth } = await Patient.create({ ...fake(Patient), dateOfDeath: null });
 
       const result = await app.get(`/v1/patient/${id}/death`);
 
@@ -373,7 +373,7 @@ describe('Patient', () => {
 
     it('should return death data for deceased patient', async () => {
       const { Patient } = models;
-      const { id, dateOfBirth } = await Patient.create(fakePatient('alive-1'));
+      const { id, dateOfBirth } = await Patient.create({ ...fake(Patient), dateOfDeath: null });
       const { clinicianId, facilityId, cond1, cond2, cond3, cond1Id, cond2Id, cond3Id } = commons;
 
       const dod = new Date('2021-09-01T00:00:00.000Z');
@@ -388,8 +388,7 @@ describe('Patient', () => {
         antecedentCause1Interval: 120,
         antecedentCause2: cond3Id,
         antecedentCause2Interval: 150,
-        otherContributingConditions: cond2Id,
-        otherContributingConditionsInterval: 400,
+        otherContributingConditions: [{ cause: cond2Id, interval: 400 }],
         surgeryInLast4Weeks: 'yes',
         lastSurgeryDate: '2021-08-02T20:52:00.000Z',
         lastSurgeryReason: cond1Id,

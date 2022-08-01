@@ -3,24 +3,36 @@ import { InvalidOperationError } from 'shared/errors';
 
 import { LAB_REQUEST_STATUSES, NOTE_TYPES } from 'shared/constants';
 import { Model } from './Model';
+import { dateTimeType } from './dateTimeType';
+import { getCurrentDateTimeString } from '../utils/dateTime';
 
 export class LabRequest extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
         id: primaryKey,
-
         sampleTime: {
+          ...dateTimeType('sampleTime'),
+          allowNull: false,
+          defaultValue: getCurrentDateTimeString,
+        },
+        // Legacy column has historical date time data as a backup
+        sampleTimeLegacy: {
           type: Sequelize.DATE,
           allowNull: false,
           defaultValue: Sequelize.NOW,
         },
         requestedDate: {
+          ...dateTimeType('requestedDate'),
+          allowNull: false,
+          defaultValue: getCurrentDateTimeString,
+        },
+        // Legacy column has historical date time data as a backup
+        requestedDateLegacy: {
           type: Sequelize.DATE,
           allowNull: false,
           defaultValue: Sequelize.NOW,
         },
-
         specimenAttached: {
           type: Sequelize.BOOLEAN,
           defaultValue: false,
@@ -80,8 +92,10 @@ export class LabRequest extends Model {
   }
 
   async addLabNote(content) {
-    const { Note } = this.sequelize.models;
-    return Note.createForRecord(this, NOTE_TYPES.OTHER, content);
+    await this.createNote({
+      noteType: NOTE_TYPES.OTHER,
+      content,
+    });
   }
 
   static initRelations(models) {
@@ -118,6 +132,15 @@ export class LabRequest extends Model {
     this.hasMany(models.CertificateNotification, {
       foreignKey: 'labRequestId',
       as: 'certificate_notification',
+    });
+
+    this.hasMany(models.Note, {
+      foreignKey: 'recordId',
+      as: 'notes',
+      constraints: false,
+      scope: {
+        recordType: this.name,
+      },
     });
   }
 

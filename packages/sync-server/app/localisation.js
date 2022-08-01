@@ -153,6 +153,16 @@ const templatesSchema = yup
       })
       .required()
       .noUnknown(),
+
+    covidTestCertificate: yup
+      .object({
+        laboratoryName: yup
+          .string()
+          .trim()
+          .required(),
+      })
+      .required()
+      .noUnknown(),
   })
   .required()
   .noUnknown();
@@ -173,6 +183,46 @@ const fieldsSchema = yup
       }),
       {},
     ),
+  })
+  .required()
+  .noUnknown();
+
+const validCssAbsoluteLength = yup
+  .string()
+  .required()
+  // eslint-disable-next-line no-template-curly-in-string
+  .test('is-valid-css-absolute-length', '${path} is not a valid CSS absolute length', value => {
+    if (value === '0') {
+      return true;
+    }
+
+    // Make sure unit is a valid CSS absolute unit
+    const unitCharLength = value.slice(-1) === 'Q' ? 1 : 2;
+    const unit = value.slice(-unitCharLength);
+    if (['cm', 'mm', 'Q', 'in', 'pc', 'pt', 'px'].includes(unit) === false) {
+      return false;
+    }
+
+    // Make sure the rest of the string is actually a valid CSS number
+    // only integers or floats with no extra characters.
+    const numberString = value.slice(0, -unitCharLength);
+    return /(^\d+$)|(^\d+\.\d+$)/.test(numberString);
+  });
+
+const printMeasuresSchema = yup
+  .object({
+    stickerLabelPage: yup.object({
+      pageWidth: validCssAbsoluteLength,
+      pageHeight: validCssAbsoluteLength,
+      pageMarginTop: validCssAbsoluteLength,
+      pageMarginLeft: validCssAbsoluteLength,
+      columnTotal: yup.number().required(),
+      columnWidth: validCssAbsoluteLength,
+      columnGap: validCssAbsoluteLength,
+      rowTotal: yup.number().required(),
+      rowHeight: validCssAbsoluteLength,
+      rowGap: validCssAbsoluteLength,
+    }),
   })
   .required()
   .noUnknown();
@@ -202,10 +252,6 @@ const rootLocalisationSchema = yup
       .string()
       .required()
       .oneOf(['tamanu', 'eudcc', 'icao']),
-    covidVaccines: yup
-      .array()
-      .of(yup.string())
-      .required(),
     features: yup
       .object({
         editPatientDetailsOnMobile: yup.boolean().required(),
@@ -213,9 +259,11 @@ const rootLocalisationSchema = yup
         hideOtherSex: yup.boolean().required(),
         registerNewPatient: yup.boolean().required(),
         enablePatientDeaths: yup.boolean().required(),
+        mergePopulatedPADRecords: yup.boolean().required(),
       })
       .required()
       .noUnknown(),
+    printMeasures: printMeasuresSchema,
     sync: yup
       .object({
         syncAllEncountersForTheseScheduledVaccines: yup.array(yup.string().required()).defined(),

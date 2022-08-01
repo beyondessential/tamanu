@@ -91,8 +91,14 @@ const reportColumnTemplate = [
   { title: 'Date of first symptom', accessor: data => data.dateOfFirstSymptom },
   { title: 'Symptoms', accessor: data => data.symptoms },
   { title: 'Vaccinated', accessor: data => data.vaccinated },
-  { title: 'Date of 1st dose', accessor: data => data.dateOf1stDose },
-  { title: 'Date of 2nd dose', accessor: data => data.dateOf2ndDose },
+  {
+    title: 'Date of 1st dose',
+    accessor: data => data.dateOf1stDose,
+  },
+  {
+    title: 'Date of 2nd dose',
+    accessor: data => data.dateOf2ndDose,
+  },
 
   {
     title: 'Patient is at a higher risk of developing severe COVID-19',

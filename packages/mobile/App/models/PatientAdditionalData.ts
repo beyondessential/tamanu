@@ -1,5 +1,5 @@
 import { Entity, Column, RelationId, ManyToOne, BeforeUpdate, BeforeInsert } from 'typeorm/browser';
-import { BaseModel, IdRelation } from './BaseModel';
+import { BaseModel, FindMarkedForUploadOptions, IdRelation } from './BaseModel';
 import { IPatientAdditionalData } from '~/types';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { Patient } from './Patient';
@@ -130,5 +130,47 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
       parent.markedForSync = true;
       await parent.save();
     }
+  }
+
+  static async findMarkedForUpload(
+    opts: FindMarkedForUploadOptions,
+  ): Promise<BaseModel[]> {
+    const patientId = opts.channel.match(/^patient\/(.*)\/additionalData$/)[1];
+    if (!patientId) {
+      throw new Error(`Could not extract patientId from ${opts.channel}`);
+    }
+
+    const records = await this.findMarkedForUploadQuery(opts)
+      .andWhere('patientId = :patientId', { patientId })
+      .getMany();
+
+    return records as BaseModel[];
+  }
+
+  static async getForPatient(patientId: string): Promise<PatientAdditionalData> {
+    // use a query builder instead of find, as apparently there's some
+    // misbehaviour around how typeorm traverses this relation 
+    return await PatientAdditionalData.getRepository()
+      .createQueryBuilder('patient_additional_data')
+      .where('patient_additional_data.patientId = :patientId', { patientId })
+      .getOne();
+  }
+
+  static async getOrCreateForPatient(patientId: string): Promise<PatientAdditionalData> {
+    // See if there's an existing PAD we can use
+    const existing = await PatientAdditionalData.getForPatient(patientId);
+    if (existing) {
+      return existing;
+    }
+
+    // otherwise create a new one
+    return PatientAdditionalData.createAndSaveOne({
+      patient: patientId,
+    });
+  }
+
+  static async updateForPatient(patientId: string, values: Partial<PatientAdditionalData>) {
+    const additionalData = await PatientAdditionalData.getOrCreateForPatient(patientId);
+    await PatientAdditionalData.updateValues(additionalData.id, values);
   }
 }

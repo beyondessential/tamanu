@@ -4,9 +4,8 @@ import { Typography } from '@material-ui/core';
 import styled from 'styled-components';
 import moment from 'moment';
 import MuiBox from '@material-ui/core/Box';
-import { FormGrid } from '../components/FormGrid';
-import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import {
+  ArrayField,
   Button,
   OutlinedButton,
   Field,
@@ -21,6 +20,8 @@ import {
   SelectField,
   TimeWithUnitField,
   PaginatedForm,
+  FormGrid,
+  FormSeparatorLine,
 } from '../components';
 
 const binaryOptions = [
@@ -197,7 +198,9 @@ export const DeathForm = React.memo(
             .min(patient.dateOfBirth, "Time of death can't be before date of birth")
             .required(),
         })}
-        initialValues={{ outsideHealthFacility: false }}
+        initialValues={{
+          outsideHealthFacility: false,
+        }}
       >
         <StyledFormGrid columns={2}>
           <FieldWithTooltip
@@ -239,14 +242,25 @@ export const DeathForm = React.memo(
           <FormSeparatorLine />
           <Field
             name="otherContributingConditions"
-            label="Other contributing conditions"
-            component={AutocompleteField}
-            suggester={icd10Suggester}
-          />
-          <Field
-            name="otherContributingConditionsInterval"
-            label="Time between onset and death"
-            component={TimeWithUnitField}
+            component={ArrayField}
+            renderField={(index, DeleteButton) => (
+              <>
+                <Field
+                  name={`otherContributingConditions[${index}].cause`}
+                  label="Other contributing condition"
+                  component={AutocompleteField}
+                  suggester={icd10Suggester}
+                />
+                <MuiBox display="flex" alignItems="center">
+                  <Field
+                    name={`otherContributingConditions[${index}].interval`}
+                    label="Time between onset and death"
+                    component={TimeWithUnitField}
+                  />
+                  {index > 0 && DeleteButton}
+                </MuiBox>
+              </>
+            )}
           />
           <FormSeparatorLine />
           <Field
