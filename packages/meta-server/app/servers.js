@@ -45,9 +45,9 @@ const servers = [
 
   // development servers
   { name: 'Dev', type: 'dev', host: 'https://sync-dev.tamanu.io' },
-  { name: 'Fiji VPS/VRS UAT', type: 'dev', host: 'https://sync-uat-fiji-vps.tamanu.io' },
   { name: 'Staging', type: 'dev', host: 'https://sync-staging.tamanu.io' },
   { name: 'Stress testing', type: 'dev', host: 'https://sync-stress-test.tamanu.io' },
+  { name: 'UAT', type: 'dev', host: 'https://sync-uat.tamanu.io' },
 ];
 
 serversRouter.get('/', (req, res) => {
