@@ -18,18 +18,22 @@ export const PatientIssueForm = ({ onSubmit, editedObject, onCancel }) => (
       <FormGrid columns={1}>
         <Field name="type" label="Type" component={SelectField} options={ISSUE_TYPES} />
         <Field name="note" label="Notes" component={TextField} multiline rows={2} />
-        <Field name="date" label="Date recorded" component={DateField} required />
-        <ConfirmCancelRow onCancel={onCancel} onConfirm={submitForm} />
+        <Field name="recordedDate" label="Date recorded" component={DateField} required />
+        <ConfirmCancelRow
+          onCancel={onCancel}
+          onConfirm={submitForm}
+          confirmText={editedObject ? 'Save' : 'Add'}
+        />
       </FormGrid>
     )}
     initialValues={{
-      date: new Date(),
+      recordedDate: new Date(),
       type: 'issue',
       ...editedObject,
     }}
     validationSchema={yup.object().shape({
       note: yup.string().required(),
-      date: yup.date().required(),
+      recordedDate: yup.date().required(),
     })}
   />
 );
