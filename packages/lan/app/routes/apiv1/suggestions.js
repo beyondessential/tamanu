@@ -1,7 +1,7 @@
 import { pascal } from 'case';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { Op } from 'sequelize';
+import { Op, literal } from 'sequelize';
 import { NotFoundError } from 'shared/errors';
 import { SURVEY_TYPES, REFERENCE_TYPE_VALUES, INVOICE_LINE_TYPES, VISIBILITY_STATUSES } from 'shared/constants';
 
@@ -33,7 +33,7 @@ function createSuggesterRoute(
       const results = await model.findAll({
         where,
         order: [
-          sequelize.literal(positionQuery),
+          literal(positionQuery),
           searchColumn
         ],
         limit: defaultLimit,
