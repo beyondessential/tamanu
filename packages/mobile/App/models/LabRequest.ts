@@ -18,7 +18,7 @@ import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { LabTest } from './LabTest';
 import { User } from './User';
 
-const ISO9075_SQLITE_DEFAULT = 'strftime("%Y-%m-%d %H:%M:%S", CURRENT_TIMESTAMP)';
+const ISO9075_SQLITE_DEFAULT = "strftime('%Y-%m-%d %H:%M:%S', CURRENT_TIMESTAMP)";
 @Entity('labRequest')
 export class LabRequest extends BaseModel implements ILabRequest {
   // Default needs to be declared inside anonymous function otherwise it will
