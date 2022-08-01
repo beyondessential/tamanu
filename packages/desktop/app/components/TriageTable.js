@@ -7,6 +7,7 @@ import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { TriageWaitTimeCell } from './TriageWaitTimeCell';
 import { useLocalisation } from '../contexts/Localisation';
+import { reloadPatient } from '../store';
 
 const useColumns = () => {
   const { getLocalisation } = useLocalisation();
@@ -40,6 +41,7 @@ export const TriageTable = React.memo(() => {
   const columns = useColumns();
 
   const viewEncounter = async triage => {
+    await dispatch(reloadPatient(triage.patientId));
     await loadEncounter(triage.encounterId);
     dispatch(push(`/patients/${category}/${triage.patientId}/encounter/${triage.encounterId}`));
   };
