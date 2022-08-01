@@ -1,4 +1,4 @@
-import { addDays } from 'date-fns';
+import { addDays, endOfDay } from 'date-fns';
 import { generateReportFromQueryData } from './utilities';
 
 const FIELDS = [
@@ -67,7 +67,7 @@ const getData = async (sequelize, parameters) => {
   let { fromDate, toDate } = parameters;
   if (!fromDate && !toDate) {
     fromDate = new Date();
-    toDate = addDays(new Date(), 30);
+    toDate = endOfDay(addDays(new Date(), 30));
   }
 
   return sequelize.query(query, {
