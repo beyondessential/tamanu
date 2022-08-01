@@ -73,7 +73,7 @@ const DumbCarePlanNoteDisplay = ({
         {isMainCarePlan ? <MainCarePlanIndicator>Main care plan</MainCarePlanIndicator> : null}
       </VerticalCenter>
       <VerticalCenter>
-        <Timestamp>{moment(note.date).format('LLLL')}</Timestamp>
+        <Timestamp>{moment(note.recordedDate).format('LLLL')}</Timestamp>
         <MoreDropdownMenu
           iconColor={Colors.midText}
           actions={[

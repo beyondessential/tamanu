@@ -8,11 +8,16 @@ import { ConfirmCancelRow } from '../components/ButtonRow';
 
 import { foreignKey } from '../utils/validation';
 
-export class PatientCarePlanForm extends React.PureComponent {
-  renderForm = ({ submitForm }) => {
-    const { editedObject, onCancel, practitionerSuggester, carePlanSuggester } = this.props;
-    const buttonText = editedObject ? 'Save' : 'Add';
-    return (
+export const PatientCarePlanForm = ({
+  practitionerSuggester,
+  carePlanSuggester,
+  editedObject,
+  onCancel,
+  onSubmit,
+}) => (
+  <Form
+    onSubmit={onSubmit}
+    render={({ submitForm }) => (
       <FormGrid columns={1}>
         <Field
           name="carePlanId"
@@ -22,7 +27,7 @@ export class PatientCarePlanForm extends React.PureComponent {
           required
         />
         <FormGrid columns={2}>
-          <Field name="date" label="Date recorded" component={DateTimeField} />
+          <Field name="recordedDate" label="Date recorded" component={DateTimeField} />
           <Field
             name="examinerId"
             label="Doctor/nurse"
@@ -39,31 +44,25 @@ export class PatientCarePlanForm extends React.PureComponent {
           rows={6}
         />
 
-        <ConfirmCancelRow onCancel={onCancel} onConfirm={submitForm} confirmText={buttonText} />
+        <ConfirmCancelRow
+          onCancel={onCancel}
+          onConfirm={submitForm}
+          confirmText={editedObject ? 'Save' : 'Add'}
+        />
       </FormGrid>
-    );
-  };
-
-  render() {
-    const { editedObject, onSubmit } = this.props;
-    return (
-      <Form
-        onSubmit={onSubmit}
-        render={this.renderForm}
-        initialValues={{
-          date: new Date(),
-          ...editedObject,
-        }}
-        validationSchema={yup.object().shape({
-          carePlanId: foreignKey('Care plan is a required field'),
-          date: yup.date(),
-          examinerId: yup.string(),
-          content: yup.string(),
-        })}
-      />
-    );
-  }
-}
+    )}
+    initialValues={{
+      recordedDate: new Date(),
+      ...editedObject,
+    }}
+    validationSchema={yup.object().shape({
+      carePlanId: foreignKey('Care plan is a required field'),
+      recordedDate: yup.date(),
+      examinerId: yup.string(),
+      content: yup.string(),
+    })}
+  />
+);
 
 PatientCarePlanForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
