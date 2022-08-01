@@ -130,12 +130,10 @@ encounterRelations.get(
 encounterRelations.get('/:id/imagingRequests', simpleGetList('ImagingRequest', 'encounterId'));
 encounterRelations.get(
   '/:id/notes',
-  simpleGetList(
-    'Note',
-    'recordId',
-    { additionalFilters: { recordType: NOTE_RECORD_TYPES.ENCOUNTER } },
-    'Encounter',
-  ),
+  simpleGetList('Note', 'recordId', {
+    additionalFilters: { recordType: NOTE_RECORD_TYPES.ENCOUNTER },
+    skipPermissionCheck: true,
+  }),
 );
 encounterRelations.get(
   '/:id/invoice',
