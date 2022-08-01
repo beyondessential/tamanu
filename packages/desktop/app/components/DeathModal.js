@@ -15,8 +15,8 @@ export const DeathModal = React.memo(({ open, onClose }) => {
   const icd10Suggester = useSuggester('icd10');
   const practitionerSuggester = useSuggester('practitioner');
   const facilitySuggester = useSuggester('facility');
-  const { data: queryData } = useQuery(['hasCurrentEncounter', patient.id], () =>
-    api.get(`patient/${patient.id}/hasCurrentEncounter`),
+  const { data: queryData } = useQuery(['openPatientEncounters', patient.id], () =>
+    api.get(`patient/${patient.id}/encounters?open=true`),
   );
 
   const recordPatientDeath = async data => {
@@ -34,7 +34,7 @@ export const DeathModal = React.memo(({ open, onClose }) => {
         onSubmit={recordPatientDeath}
         onCancel={onClose}
         patient={patient}
-        hasCurrentEncounter={queryData?.hasCurrentEncounter}
+        hasCurrentEncounter={queryData?.count > 0}
         icd10Suggester={icd10Suggester}
         practitionerSuggester={practitionerSuggester}
         facilitySuggester={facilitySuggester}

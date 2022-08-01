@@ -113,7 +113,33 @@ patientRoute.post(
 
 const patientRelations = permissionCheckingRouter('read', 'Patient');
 
-patientRelations.get('/:id/encounters', simpleGetList('Encounter', 'patientId'));
+patientRelations.get(
+  '/:id/encounters',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('list', 'Encounter');
+    const {
+      models: { Encounter },
+      params,
+      query,
+    } = req;
+    const { order = 'ASC', orderBy, open = false } = query;
+
+    const objects = await Encounter.findAll({
+      where: {
+        patientId: params.id,
+        ...(open && { endDate: null }),
+      },
+      order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
+    });
+
+    const data = objects.map(x => x.forResponse());
+
+    res.send({
+      count: objects.length,
+      data,
+    });
+  }),
+);
 
 // TODO
 // patientRelations.get('/:id/appointments', simpleGetList('Appointment', 'patientId'));
@@ -277,30 +303,6 @@ patientRoute.get(
 
     // explicitly send as json (as it might be null)
     res.json(currentEncounter);
-  }),
-);
-
-// Special route that only returns a boolean and has different permission check
-patientRoute.get(
-  '/:id/hasCurrentEncounter',
-  asyncHandler(async (req, res) => {
-    const {
-      models: { Encounter },
-      params,
-    } = req;
-
-    req.checkPermission('list', 'Encounter');
-
-    const currentEncounter = await Encounter.findOne({
-      where: {
-        patientId: params.id,
-        endDate: null,
-      },
-    });
-
-    // Only send back boolean information about the encounter existence
-    const hasCurrentEncounter = currentEncounter !== null;
-    res.send({ hasCurrentEncounter });
   }),
 );
 
