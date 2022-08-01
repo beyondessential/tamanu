@@ -43,18 +43,10 @@
       tag: ^(master$|dev$|staging-|ci-)
       type: parallel
       steps:
-        # the following steps are run in serial so they don't overlap
         - name: for lan
-          type: serial
-          steps:
-            - name: the installer
-              service: app-without-db
-              tag: ^(master$|dev$|staging-|ci-)
-              command: ./scripts/build_lan.sh
-            - name: the release
-              tag: ^(master$|dev$|staging-|ci-)
-              service: app-without-db
-              command: ./scripts/build_package_release.sh lan
+          tag: ^(master$|dev$|staging-|ci-)
+          service: app-without-db
+          command: ./scripts/build_package_release.sh lan
         - name: for desktop installer
           service: app-without-db
           tag: ^(master$|dev$|staging-|ci-)
