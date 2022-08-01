@@ -71,7 +71,7 @@ const LabRequestRow = ({ labRequest }: LabRequestRowProps): JSX.Element => (
     <StyledView width={screenPercentageToDP(23, Orientation.Width)}>
       <StyledText color={theme.colors.TEXT_DARK} fontSize={13}>
         {formatDate(
-          labRequest.requestedDate,
+          new Date(labRequest.requestedDate),
           DateFormats.DAY_MONTH_YEAR_SHORT,
         )}
       </StyledText>
