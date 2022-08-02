@@ -13,7 +13,7 @@ const ForbiddenMessage = () => (
   <ContentPane>
     <Typography variant="h4">Forbidden</Typography>
     <Typography variant="body2">
-      You do not have permission to read, create or write patient additional data.
+      You do not have permission to read, create or write patient data.
     </Typography>
   </ContentPane>
 );
