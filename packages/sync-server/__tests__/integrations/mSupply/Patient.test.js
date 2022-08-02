@@ -2,6 +2,7 @@ import { format } from 'date-fns';
 import moment from 'moment';
 
 import { fake } from 'shared/test-helpers/fake';
+import { parseISO9075 } from 'shared/utils/dateTime';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 import { IDENTIFIER_NAMESPACE } from '../../../app/hl7fhir/utils';
 
@@ -59,8 +60,8 @@ describe('mSupply integration - Patient', () => {
                 use: 'home',
               },
             ],
-            birthDate: format(patient.dateOfBirth, 'yyyy-MM-dd'),
-            deceasedDateTime: format(patient.dateOfDeath, "yyyy-MM-dd'T'HH:mm:ssXXX"),
+            birthDate: patient.dateOfBirth,
+            deceasedDateTime: format(parseISO9075(patient.dateOfDeath), "yyyy-MM-dd'T'HH:mm:ssXXX"),
             gender: patient.sex,
             id: patient.id,
             identifier: [
@@ -245,10 +246,10 @@ describe('mSupply integration - Patient', () => {
     it('sorts by dateOfBirth ascending (birthdate)', async () => {
       const { Patient } = ctx.store.models;
       await Promise.all([
-        Patient.create(fake(Patient, { dateOfBirth: moment('1984-10-20') })),
-        Patient.create(fake(Patient, { dateOfBirth: moment('1985-02-20') })),
-        Patient.create(fake(Patient, { dateOfBirth: moment('1985-03-20') })),
-        Patient.create(fake(Patient, { dateOfBirth: moment('1985-03-21') })),
+        Patient.create(fake(Patient, { dateOfBirth: '1984-10-20' })),
+        Patient.create(fake(Patient, { dateOfBirth: '1985-02-20' })),
+        Patient.create(fake(Patient, { dateOfBirth: '1985-03-20' })),
+        Patient.create(fake(Patient, { dateOfBirth: '1985-03-21' })),
       ]);
 
       const path = `/v1/integration/mSupply/Patient?_sort=birthdate`;
@@ -267,10 +268,10 @@ describe('mSupply integration - Patient', () => {
     it('sorts by dateOfBirth descending (-birthdate)', async () => {
       const { Patient } = ctx.store.models;
       await Promise.all([
-        Patient.create(fake(Patient, { dateOfBirth: moment('1984-10-20') })),
-        Patient.create(fake(Patient, { dateOfBirth: moment('1985-02-20') })),
-        Patient.create(fake(Patient, { dateOfBirth: moment('1985-03-20') })),
-        Patient.create(fake(Patient, { dateOfBirth: moment('1985-03-21') })),
+        Patient.create(fake(Patient, { dateOfBirth: '1984-10-20' })),
+        Patient.create(fake(Patient, { dateOfBirth: '1985-02-20' })),
+        Patient.create(fake(Patient, { dateOfBirth: '1985-03-20' })),
+        Patient.create(fake(Patient, { dateOfBirth: '1985-03-21' })),
       ]);
 
       const path = `/v1/integration/mSupply/Patient?_sort=-birthdate`;
@@ -626,15 +627,14 @@ describe('mSupply integration - Patient', () => {
 
     it('filters patients by dateOfBirth (birthdate)', async () => {
       const { Patient } = ctx.store.models;
-      const dateString = '1990-05-25';
-      const dateOfBirth = moment.utc(dateString);
+      const dateOfBirth = '1990-05-25';
       await Promise.all([
         Patient.create(fake(Patient, { dateOfBirth })),
         Patient.create(fake(Patient, { dateOfBirth })),
-        Patient.create(fake(Patient, { dateOfBirth: moment.utc('1985-10-20') })),
+        Patient.create(fake(Patient, { dateOfBirth: '1985-10-20' })),
       ]);
 
-      const path = `/v1/integration/mSupply/Patient?birthdate=${dateString}`;
+      const path = `/v1/integration/mSupply/Patient?birthdate=${dateOfBirth}`;
       const response = await app
         .get(path)
         .set({ 'X-Tamanu-Client': 'mSupply', 'X-Version': '0.0.1' });
@@ -796,8 +796,7 @@ describe('mSupply integration - Patient', () => {
       const { Patient } = ctx.store.models;
       const firstName = 'Jane';
       const lastName = 'Doe';
-      const dateString = '1990-05-20';
-      const dateOfBirth = moment.utc(dateString);
+      const dateOfBirth = '1990-05-20';
       await Promise.all([
         Patient.create(fake(Patient, { firstName, lastName, dateOfBirth })),
         Patient.create(fake(Patient, { firstName, lastName, dateOfBirth })),
@@ -805,7 +804,7 @@ describe('mSupply integration - Patient', () => {
       ]);
 
       const slicedName = firstName.slice(1, 3);
-      const path = `/v1/integration/mSupply/Patient?given:contains=${slicedName}&family=${lastName}&birthdate=${dateString}`;
+      const path = `/v1/integration/mSupply/Patient?given:contains=${slicedName}&family=${lastName}&birthdate=${dateOfBirth}`;
       const response = await app
         .get(path)
         .set({ 'X-Tamanu-Client': 'mSupply', 'X-Version': '0.0.1' });

@@ -82,13 +82,13 @@ export function patientToHL7Patient(patient, additional = {}) {
     active: true, // currently unused in Tamanu, always true
     identifier: patientIds(patient, additional),
     name: patientName(patient, additional),
-    birthDate: patient.dateOfBirth && toDateString(patient.dateOfBirth),
+    birthDate: patient.dateOfBirth,
     gender: patient.sex,
     address: patientAddress(patient, additional),
     telecom: patientTelecom(patient, additional),
     // Only add deceasedDateTime key if the patient is deceased
     ...(patient.dateOfDeath && {
-      deceasedDateTime: format(patient.dateOfDeath, "yyyy-MM-dd'T'HH:mm:ssXXX"),
+      deceasedDateTime: format(new Date(patient.dateOfDeath), "yyyy-MM-dd'T'HH:mm:ssXXX"),
     }),
   };
 }
