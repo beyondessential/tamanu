@@ -95,7 +95,7 @@ export async function createDummyEncounter(models, { current, ...overrides } = {
   const startDate = new Date(endDate.getTime() - duration);
 
   return {
-    encounterType: chance.pick(Object.values(ENCOUNTER_TYPES)),
+    encounterType: chance.pickone(Object.values(ENCOUNTER_TYPES)),
     startDate,
     endDate: current ? undefined : endDate,
     reasonForEncounter: chance.sentence({ words: chance.integer({ min: 4, max: 8 }) }),
@@ -107,8 +107,8 @@ export async function createDummyEncounter(models, { current, ...overrides } = {
 }
 
 export function createDummyPatient(models, overrides = {}) {
-  const gender = overrides.sex || chance.pick(['male', 'female']);
-  const title = overrides.title || chance.pick(['Mr', 'Mrs', 'Ms']);
+  const gender = overrides.sex || chance.pickone(['male', 'female']);
+  const title = overrides.title || chance.pickone(['Mr', 'Mrs', 'Ms']);
   return {
     displayId: generateId(),
     firstName: chance.first({ gender }),
@@ -130,10 +130,10 @@ function randomPhoneNumber() {
 export function createDummyPatientAdditionalData() {
   return {
     placeOfBirth: chance.city(),
-    bloodType: chance.pick(['A+', 'B+', 'A-', 'B-', 'AB+', 'AB-', 'O+', 'O-']),
+    bloodType: chance.pickone(['A+', 'B+', 'A-', 'B-', 'AB+', 'AB-', 'O+', 'O-']),
     primaryContactNumber: randomPhoneNumber(),
     secondaryContactNumber: randomPhoneNumber(),
-    maritalStatus: chance.pick(['Single', 'Married', 'Defacto']),
+    maritalStatus: chance.pickone(['Single', 'Married', 'Defacto']),
     cityTown: chance.city(),
     streetVillage: `${Math.floor(Math.random() * 200)} ${chance.street({ short_suffix: true })}`,
     drivingLicense: randomDigits(10),
