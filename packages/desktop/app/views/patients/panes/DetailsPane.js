@@ -30,7 +30,7 @@ export const PatientDetailsPane = React.memo(({ patient, additionalData }) => {
   // Display form if user can read, write or create patient additional data.
   // It's assumed that if a user got this far, they can read a patient.
   const canViewForm = ['read', 'write', 'create'].some(verb =>
-    ability.can(verb, 'PatientAdditionalData'),
+    ability.can(verb, 'Patient'),
   );
 
   if (canViewForm === false) {
