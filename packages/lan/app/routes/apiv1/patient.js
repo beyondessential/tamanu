@@ -156,7 +156,6 @@ patientRelations.get(
     const { models, params } = req;
 
     req.checkPermission('read', 'Patient');
-    req.checkPermission('read', 'PatientAdditionalData');
 
     const additionalDataRecord = await models.PatientAdditionalData.findOne({
       where: { patientId: params.id },
