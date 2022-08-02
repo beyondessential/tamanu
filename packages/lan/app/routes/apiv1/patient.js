@@ -113,7 +113,33 @@ patientRoute.post(
 
 const patientRelations = permissionCheckingRouter('read', 'Patient');
 
-patientRelations.get('/:id/encounters', simpleGetList('Encounter', 'patientId'));
+patientRelations.get(
+  '/:id/encounters',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('list', 'Encounter');
+    const {
+      models: { Encounter },
+      params,
+      query,
+    } = req;
+    const { order = 'ASC', orderBy, open = false } = query;
+
+    const objects = await Encounter.findAll({
+      where: {
+        patientId: params.id,
+        ...(open && { endDate: null }),
+      },
+      order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
+    });
+
+    const data = objects.map(x => x.forResponse());
+
+    res.send({
+      count: objects.length,
+      data,
+    });
+  }),
+);
 
 // TODO
 // patientRelations.get('/:id/appointments', simpleGetList('Appointment', 'patientId'));
