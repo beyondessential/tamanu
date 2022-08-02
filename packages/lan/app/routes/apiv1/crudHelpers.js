@@ -105,13 +105,16 @@ export const simpleGetList = (modelName, foreignKey = '', options = {}) =>
   });
 
 export const paginatedGetList = (modelName, foreignKey = '', options = {}) => {
-  const { additionalFilters = {}, include = [] } = options;
+  const { additionalFilters = {}, include = [], skipPermissionCheck = false } = options;
 
   return asyncHandler(async (req, res) => {
     const { models, params, query } = req;
     const { page = 0, order = 'ASC', orderBy, rowsPerPage } = query;
     const offset = query.offset || page * rowsPerPage || 0;
-    req.checkPermission('list', modelName);
+
+    if (skipPermissionCheck === false) {
+      req.checkPermission('list', modelName);
+    }
 
     const model = models[modelName];
     const associations = model.getListReferenceAssociations(models) || [];
