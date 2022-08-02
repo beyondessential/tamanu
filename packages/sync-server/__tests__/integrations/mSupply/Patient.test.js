@@ -2,7 +2,7 @@ import { format } from 'date-fns';
 import moment from 'moment';
 
 import { fake } from 'shared/test-helpers/fake';
-import { parseISO9075 } from 'shared/utils/dateTime';
+import { getCurrentDateString, parseISO9075 } from 'shared/utils/dateTime';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 import { IDENTIFIER_NAMESPACE } from '../../../app/hl7fhir/utils';
 
@@ -648,7 +648,7 @@ describe('mSupply integration - Patient', () => {
       await Promise.all([
         Patient.create(fake(Patient)),
         Patient.create(fake(Patient)),
-        Patient.create(fake(Patient, { dateOfDeath: moment.utc() })),
+        Patient.create(fake(Patient, { dateOfDeath: getCurrentDateString() })),
       ]);
 
       // Query deceased=true
