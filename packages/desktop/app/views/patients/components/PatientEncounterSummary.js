@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import styled, { css } from 'styled-components';
 import { ENCOUNTER_TYPES } from 'shared/constants';
 import { Box, Typography } from '@material-ui/core';
+import { useQuery } from '@tanstack/react-query';
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
 import { DateDisplay, LargeButton, ViewButton, DeathCertificateModal } from '../../../components';
 import { useApi } from '../../../api';
@@ -112,15 +113,25 @@ const ButtonRow = styled(Box)`
   }
 `;
 
-const PatientDeathSummary = React.memo(({ patient }) => {
-  const [deathData, setDeathData] = useState(null);
-  const api = useApi();
+const DataStatusMessage = ({ message }) => (
+  <NoVisitContainer>
+    <Typography variant="h6">{message}</Typography>
+  </NoVisitContainer>
+);
 
-  useEffect(() => {
-    api.get(`patient/${patient.id}/death`).then(response => {
-      setDeathData(response);
-    });
-  }, [api, patient.id]);
+const PatientDeathSummary = React.memo(({ patient }) => {
+  const api = useApi();
+  const { data: deathData, error, isLoading } = useQuery(['patientDeathSummary', patient.id], () =>
+    api.get(`patient/${patient.id}/death`),
+  );
+
+  if (isLoading) {
+    return <DataStatusMessage message="Loading..." />;
+  }
+
+  if (error) {
+    return <DataStatusMessage message={error.message} />;
+  }
 
   return (
     <Container patientStatus={PATIENT_STATUS.DECEASED}>
@@ -158,15 +169,22 @@ const PatientDeathSummary = React.memo(({ patient }) => {
   );
 });
 
-export const PatientEncounterSummary = ({
-  patient,
-  viewEncounter,
-  openCheckin,
-  openTriage,
-  encounter,
-}) => {
+export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin, openTriage }) => {
+  const api = useApi();
+  const { data: encounter, error, isLoading } = useQuery(['currentEncounter', patient.id], () =>
+    api.get(`patient/${patient.id}/currentEncounter`),
+  );
+
   if (patient.dateOfDeath) {
     return <PatientDeathSummary patient={patient} />;
+  }
+
+  if (isLoading) {
+    return <DataStatusMessage message="Loading..." />;
+  }
+
+  if (error) {
+    return <DataStatusMessage message={error.message} />;
   }
 
   if (!encounter) {

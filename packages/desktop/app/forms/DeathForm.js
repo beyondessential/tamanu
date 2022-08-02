@@ -165,7 +165,15 @@ const mannerOfDeathVisibilityCriteria = {
 };
 
 export const DeathForm = React.memo(
-  ({ onCancel, onSubmit, patient, practitionerSuggester, icd10Suggester, facilitySuggester }) => {
+  ({
+    onCancel,
+    onSubmit,
+    patient,
+    hasCurrentEncounter,
+    practitionerSuggester,
+    icd10Suggester,
+    facilitySuggester,
+  }) => {
     const canBePregnant = patient.sex === 'female' && ageInYears(patient.dateOfBirth) >= 12;
     const isInfant = ageInMonths(patient.dateOfBirth) <= 2;
 
@@ -173,7 +181,7 @@ export const DeathForm = React.memo(
       <PaginatedForm
         onSubmit={onSubmit}
         onCancel={onCancel}
-        SummaryScreen={patient.currentEncounter ? DoubleConfirmScreen : ConfirmScreen}
+        SummaryScreen={hasCurrentEncounter ? DoubleConfirmScreen : ConfirmScreen}
         validationSchema={yup.object().shape({
           causeOfDeath: yup.string().required(),
           causeOfDeathInterval: yup

@@ -3,7 +3,12 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 import { NotFoundError } from 'shared/errors';
-import { SURVEY_TYPES, REFERENCE_TYPE_VALUES, INVOICE_LINE_TYPES } from 'shared/constants';
+import {
+  SURVEY_TYPES,
+  REFERENCE_TYPE_VALUES,
+  INVOICE_LINE_TYPES,
+  VISIBILITY_STATUSES,
+} from 'shared/constants';
 
 export const suggestions = express.Router();
 
@@ -118,11 +123,9 @@ function createSuggester(endpoint, modelName, whereSql, mapper, searchColumn) {
   createSuggesterRoute(endpoint, modelName, whereSql, mapper, searchColumn);
 }
 
-const createNameSuggester = (endpoint, modelName = pascal(endpoint)) =>
-  createSuggester(endpoint, modelName, 'LOWER(name) LIKE LOWER(:search)', ({ id, name }) => ({
-    id,
-    name,
-  }));
+// this should probably be changed to a `visibility_criteria IN ('list', 'of', 'statuses')`
+// once there's more than one status that we're checking agains
+const FITS_VISIBILITY_CRITERIA = `visibility_status = '${VISIBILITY_STATUSES.CURRENT}'`;
 
 REFERENCE_TYPE_VALUES.map(typeName =>
   createAllRecordsSuggesterRoute(typeName, 'ReferenceData', `type = '${typeName}'`),
@@ -132,9 +135,20 @@ REFERENCE_TYPE_VALUES.map(typeName =>
   createSuggester(
     typeName,
     'ReferenceData',
-    `LOWER(name) LIKE LOWER(:search) AND type = '${typeName}'`,
+    `LOWER(name) LIKE LOWER(:search) AND type = '${typeName}' AND ${FITS_VISIBILITY_CRITERIA}`,
   ),
 );
+
+const createNameSuggester = (endpoint, modelName = pascal(endpoint)) =>
+  createSuggester(
+    endpoint,
+    modelName,
+    `LOWER(name) LIKE LOWER(:search) AND ${FITS_VISIBILITY_CRITERIA}`,
+    ({ id, name }) => ({
+      id,
+      name,
+    }),
+  );
 
 createNameSuggester('department');
 createNameSuggester('location');

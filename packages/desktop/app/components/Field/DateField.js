@@ -47,7 +47,6 @@ export const DateInput = ({
   const onValueChange = useCallback(
     event => {
       const formattedValue = event.target.value;
-
       const date = toMomentDate(formattedValue, format);
 
       if (max) {

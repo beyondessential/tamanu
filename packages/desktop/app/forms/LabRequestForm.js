@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { connect } from 'react-redux';
+import { getCurrentDateString, getCurrentDateTimeString } from 'shared/utils/dateTime';
 
 import { foreignKey } from '../utils/validation';
 import { encounterOptions } from '../constants';
@@ -32,7 +33,6 @@ import { ButtonRow } from '../components/ButtonRow';
 import { DateDisplay } from '../components/DateDisplay';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { DropdownButton } from '../components/DropdownButton';
-import { getCurrentDateTimeString } from '../utils/dateTime';
 
 function getEncounterTypeLabel(type) {
   return encounterOptions.find(x => x.value === type).label;
