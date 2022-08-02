@@ -82,6 +82,10 @@
               tag: ^(dev$|ci-)
               service: awsdeployment
               command: ./scripts/deploy_sync.sh dev
+            - name: onto uat
+              tag: ^uat-
+              service: awsdeployment
+              command: ./scripts/deploy_sync.sh uat-fiji-vps
             - name: onto staging
               tag: ^(staging-)
               service: awsdeployment
