@@ -1,10 +1,5 @@
-import { importData } from '../../app/admin/importDataDefinition';
-import { preprocessRecordSet } from '../../app/admin/preprocessRecordSet';
-import { sendRecordGroups } from '../../app/admin/createDataImporterEndpoint';
+import { importers } from '../../app/admin/refdataImporter';
 import { createTestContext } from '../utilities';
-import { WebRemote } from '../../app/sync/WebRemote';
-
-jest.mock('../../app/sync/WebRemote');
 
 const TEST_DATA_PATH = './__tests__/importers/test_definitions.xlsx';
 
@@ -16,10 +11,10 @@ describe('Data definition import', () => {
   let recordGroups = null;
 
   beforeAll(async () => {
-    const rawData = await importData({ file: TEST_DATA_PATH });
-    const { recordGroups: rg, ...rest } = await preprocessRecordSet(rawData);
-    resultInfo = rest;
-    recordGroups = rg;
+    const rawData = await importers({ file: TEST_DATA_PATH });
+    // const { recordGroups: rg, ...rest } = await preprocessRecordSet(rawData);
+    // resultInfo = rest;
+    // recordGroups = rg;
   });
 
   it('should ensure every record has an id', () => {
@@ -158,56 +153,8 @@ describe('Data definition import', () => {
       const { baseApp } = ctx;
       const nonAdminApp = await baseApp.asRole('practitioner');
 
-      const response = await nonAdminApp.post('/v1/admin/importData');
+      const response = await nonAdminApp.post('/v1/admin/importers');
       expect(response).toBeForbidden();
-    });
-  });
-});
-
-describe('sendRecordGroups', () => {
-  const fetchMock = jest
-    .spyOn(WebRemote.prototype, 'fetch')
-    .mockImplementation(() => Promise.resolve({ error: null }));
-
-  it('splits recordGroups by channel and sends them', async () => {
-    // arrange
-    const recordGroups = [
-      // test reference data channel override
-      ['referenceData', [{ id: 'ref123' }]],
-      // test channel grouping
-      [
-        'encounter',
-        [
-          { channel: 'patient/pat123/encounter', id: 'enc123' },
-          { channel: 'patient/pat123/encounter', id: 'enc456' },
-          { channel: 'patient/pat456/encounter', id: 'enc789' },
-        ],
-      ],
-      // test records without a channel
-      ['patient', [{ id: 'pat123' }]],
-      // test chunking
-      ['user', [{ id: 'u1' }, { id: 'u2' }, { id: 'u3' }, { id: 'u4' }]],
-    ];
-
-    // act
-    await sendRecordGroups(recordGroups);
-
-    // assert
-    [
-      ['reference', ['ref123']],
-      ['patient/pat123/encounter', ['enc123', 'enc456']],
-      ['patient/pat456/encounter', ['enc789']],
-      ['patient', ['pat123']],
-      ['user', ['u1', 'u2', 'u3']],
-      ['user', ['u4']],
-    ].forEach(([channel, ids]) => {
-      expect(fetchMock).toHaveBeenCalledWith(
-        `sync/${encodeURIComponent(channel)}`,
-        expect.objectContaining({
-          method: 'POST',
-          body: expect.arrayContaining(ids.map(id => expect.objectContaining({ id }))),
-        }),
-      );
     });
   });
 });
