@@ -26,16 +26,19 @@ function createSuggesterRoute(
 
       const model = models[modelName];
 
-      const positionQuery = `POSITION(LOWER(:positionMatch) in LOWER(${searchColumn})) > 1`;
+      const positionQuery = literal(`POSITION(LOWER(:positionMatch) in LOWER(${searchColumn})) > 1`);
       
       const searchQuery = (query.q || '').trim().toLowerCase();
-      const where = whereBuilder(searchQuery);
+      const where = whereBuilder(`%${searchQuery}%`);
       const results = await model.findAll({
         where,
         order: [
-          literal(positionQuery),
+          positionQuery,
           searchColumn
         ],
+        replacements: { 
+          positionMatch: searchQuery 
+        },
         limit: defaultLimit,
       });
 
