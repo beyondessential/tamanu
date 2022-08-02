@@ -1,9 +1,12 @@
+import { remote } from 'electron';
 import React from 'react';
 import styled from 'styled-components';
 
+const getLocale = () => remote.app.getLocale() || 'default'
+
 const intlFormatDate = (date, formatOptions, fallback = 'Unknown') => {
   if (!date) return fallback;
-  return new Date(date).toLocaleString('default', formatOptions);
+  return new Date(date).toLocaleString(getLocale(), formatOptions);
 };
 
 export const formatShort = date =>
