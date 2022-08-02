@@ -1,6 +1,7 @@
 import { format } from 'date-fns';
 
 import { VACCINE_STATUS, INJECTION_SITE_OPTIONS } from 'shared/constants';
+import { parseHL7Reference } from './utils';
 
 // These are the only ones that we support at the moment,
 // so OK to hardcode them for now.
@@ -118,4 +119,33 @@ export function administeredVaccineToHL7Immunization(administeredVaccine) {
       doseNumber: scheduledVaccine.schedule,
     },
   };
+}
+
+export function getAdministeredVaccineInclude(_, query) {
+  const { patient, 'vaccine-code': vaccineId } = query;
+
+  return [
+    {
+      association: 'scheduledVaccine',
+      required: true,
+      include: [
+        {
+          association: 'referenceData',
+          required: true,
+          where: { ...(vaccineId && { id: vaccineId }) },
+        },
+      ],
+    },
+    {
+      association: 'encounter',
+      required: true,
+      include: [
+        {
+          association: 'patient',
+          required: true,
+          where: { ...(patient && { displayId: parseHL7Reference(patient) }) },
+        },
+      ],
+    },
+  ];
 }
