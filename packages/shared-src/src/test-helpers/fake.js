@@ -189,8 +189,8 @@ const fakeBool = () => sample([true, false]);
 const FIELD_HANDLERS = {
   'TIMESTAMP WITH TIME ZONE': fakeDate,
   DATETIME: fakeDate,
-  'VARCHAR(19)': fakeDateTimeString, // VARCHAR(19) are used for datetime string storage
-  'VARCHAR(10)': fakeDateString, // VARCHAR(10) are used for date string storage
+  'CHAR(19)': fakeDateTimeString, // used for datetime string storage
+  'CHAR(10)': fakeDateString, // used for date string storage
   'VARCHAR(255)': fakeString,
   'VARCHAR(31)': (...args) => fakeString(...args).slice(0, 31),
   TEXT: fakeString,
