@@ -60,7 +60,7 @@
           service: app-without-db
           command: ./scripts/build_package_release.sh meta-server
     - name: push and deploy
-      tag: ^(master$|dev$|staging-|ci-|release-desktop-)
+      tag: ^(master$|dev$|staging-|ci-|uat-|release-desktop-)
       type: parallel
       steps:
         - name: the desktop installer
