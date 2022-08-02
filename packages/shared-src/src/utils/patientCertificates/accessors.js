@@ -1,13 +1,15 @@
+import { formatISO9075 } from 'date-fns';
 import { getDisplayDate } from './getDisplayDate';
 
 export const getCompletedDate = ({ completedDate }, getLocalisation) =>
   completedDate ? getDisplayDate(completedDate, 'Do MMM YYYY', getLocalisation) : 'Unknown';
 
-export const getDateOfSwab = ({ sampleTime }, getLocalisation) =>
-  sampleTime ? getDisplayDate(sampleTime, 'Do MMM YYYY', getLocalisation) : 'Unknown';
+export const getDateOfSwab = ({ sampleTime }) =>
+  sampleTime ? formatISO9075(new Date(sampleTime), { representation: 'date' }) : 'Unknown';
 
-export const getTimeOfSwab = ({ sampleTime }, getLocalisation) =>
-  sampleTime ? getDisplayDate(sampleTime, 'hh:mm a', getLocalisation) : 'Unknown';
+export const getTimeOfSwab = ({ sampleTime }) => {
+  return sampleTime ? formatISO9075(new Date(sampleTime), { representation: 'time' }) : 'Unknown';
+};
 
 export const getDOB = ({ dateOfBirth }, getLocalisation) =>
   dateOfBirth ? getDisplayDate(dateOfBirth, 'Do MMM YYYY', getLocalisation) : 'Unknown';
