@@ -296,7 +296,7 @@ export const REPORT_DEFINITIONS = [
   {
     name: 'Fiji Statistical Report for PHIS - Summary',
     id: 'fiji-statistical-report-for-phis-summary',
-    dateRangeLabel: 'Date range (or leave blank for the past 30 days of data)', // TODO: Will not fetch data from the future
+    dateRangeLabel: 'Date range (or leave blank for the past 30 days of data)',
     allFacilities: true,
     parameters: [
       {
