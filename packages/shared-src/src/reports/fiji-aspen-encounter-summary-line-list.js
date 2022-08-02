@@ -41,13 +41,13 @@ with
           'Note type', note_type,
           'Content', "content",
           'Note date', to_char("date", 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
-        ) 
+        )
       ) aggregated_notes
     from notes
     group by record_id
   ),
   lab_test_info as (
-    select 
+    select
       lab_request_id,
       json_agg(
         json_build_object(
@@ -56,11 +56,11 @@ with
         )
       ) tests
     from lab_tests lt
-    join lab_test_types ltt on ltt.id = lt.lab_test_type_id 
-    group by lab_request_id 
+    join lab_test_types ltt on ltt.id = lt.lab_test_type_id
+    group by lab_request_id
   ),
   lab_request_info as (
-    select 
+    select
       encounter_id,
       json_agg(
         json_build_object(
@@ -84,12 +84,12 @@ with
           'Location', loc.name,
           'Notes', p.note,
           'Completed notes', completed_note
-        ) 
+        )
       ) "Procedures"
     from "procedures" p
     left join reference_data proc ON proc.id = procedure_type_id
     left join locations loc on loc.id = location_id
-    group by encounter_id 
+    group by encounter_id
   ),
   medications_info as (
     select
@@ -99,7 +99,7 @@ with
           'Name', medication.name,
           'Discontinued', coalesce(discontinued, false),
           'Discontinuing reason', discontinuing_reason
-        ) 
+        )
       ) "Medications"
     from encounter_medications em
     join reference_data medication on medication.id = em.medication_id
@@ -114,7 +114,7 @@ with
           'Code', diagnosis.code,
           'Is primary?', case when is_primary then 'primary' else 'secondary' end,
           'Certainty', certainty
-        ) 
+        )
       ) "Diagnosis"
     from encounter_diagnoses ed
     join reference_data diagnosis on diagnosis.id = ed.diagnosis_id
@@ -129,11 +129,11 @@ with
           'Name', drug.name,
           'Label', sv.label,
           'Schedule', sv.schedule
-        ) 
+        )
       ) "Vaccinations"
     from administered_vaccines av
-    join scheduled_vaccines sv on sv.id = av.scheduled_vaccine_id 
-    join reference_data drug on drug.id = sv.vaccine_id 
+    join scheduled_vaccines sv on sv.id = av.scheduled_vaccine_id
+    join reference_data drug on drug.id = sv.vaccine_id
     group by encounter_id
   ),
   single_image_info as (
@@ -147,7 +147,7 @@ with
     from imaging_requests ir
     join reference_data image_type on image_type.id = ir.imaging_type_id
     left join (
-      select 
+      select
         record_id,
         json_agg(note) aggregated_notes
       from notes_info
@@ -155,9 +155,9 @@ with
       where note->>'note_type' != 'abc' --cross join ok here as only 1 record will be matched
       group by record_id
     ) non_area_notes
-    on non_area_notes.record_id = ir.id 
+    on non_area_notes.record_id = ir.id
     left join (
-      select 
+      select
         record_id,
         string_agg(note->>'content', 'ERROR - SHOULD ONLY BE ONE AREA TO BE IMAGED') aggregated_notes
       from notes_info
@@ -206,7 +206,7 @@ with
     and "content" ~ 'Changed (.*) from (.*) to (.*)'
   ),
   department_info as (
-    select 
+    select
       e.id encounter_id,
       case when count("from") = 0
         then json_build_array(json_build_object(
@@ -247,7 +247,7 @@ with
     group by e.id, d.name, e.start_date, first_from
   ),
   location_info as (
-    select 
+    select
       e.id encounter_id,
       case when count("from") = 0
         then json_build_array(json_build_object(
@@ -291,8 +291,8 @@ select
   p.display_id "Patient ID",
   p.first_name "First name",
   p.last_name "Last name",
-  to_char(p.date_of_birth, 'YYYY-MM-DD') "Date of birth",
-  extract(year from age(p.date_of_birth)) "Age",
+  p.date_of_birth "Date of birth",
+  extract(year from age(p.date_of_birth::date)) "Age",
   p.sex "Sex",
   billing.name "Patient billing type",
   e.id "Encounter ID",
@@ -314,7 +314,7 @@ select
     when '3' then  'Non-urgent'
     else t.score
   end "Triage category",
-  case when t.closed_time is null 
+  case when t.closed_time is null
     then age(t.triage_time)
     else age(t.closed_time, t.triage_time)
   end "Time seen following triage/Wait time",
@@ -343,8 +343,8 @@ left join location_info li on li.encounter_id = e.id
 left join department_info di2 on di2.encounter_id = e.id
 where e.end_date is not null
 and coalesce(billing.id, '-') like coalesce(:billing_type, '%%')
-and CASE WHEN :department_id IS NOT NULL THEN dept_id_list::jsonb ? :department_id ELSE true end 
-and CASE WHEN :location_id IS NOT NULL THEN loc_id_list::jsonb ? :location_id ELSE true end 
+and CASE WHEN :department_id IS NOT NULL THEN dept_id_list::jsonb ? :department_id ELSE true end
+and CASE WHEN :location_id IS NOT NULL THEN loc_id_list::jsonb ? :location_id ELSE true end
 AND CASE WHEN :from_date IS NOT NULL THEN e.start_date::date >= :from_date::date ELSE true END
 AND CASE WHEN :to_date IS NOT NULL THEN e.start_date::date <= :to_date::date ELSE true END
 order by e.start_date desc;
