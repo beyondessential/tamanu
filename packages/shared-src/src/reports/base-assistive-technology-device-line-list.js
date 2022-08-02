@@ -1,9 +1,10 @@
+import { format } from 'date-fns';
 import { keyBy, groupBy, uniqWith, isEqual } from 'lodash';
 import { Op } from 'sequelize';
 import moment from 'moment';
 import { generateReportFromQueryData } from './utilities';
 import { transformAnswers } from './utilities/transformAnswers';
-import { toDateString, ageInYears } from '../utils/dateTime';
+import { parseISO9075, ageInYears } from '../utils/dateTime';
 
 const parametersToSurveyResponseSqlWhere = (parameters, surveyIds) => {
   const defaultWhereClause = {
@@ -180,7 +181,7 @@ export const dataGenerator = async (
         continue;
       }
 
-      const dateOfBirth = patient.dateOfBirth ? toDateString(patient.dateOfBirth) : '';
+      const dateOfBirth = patient.dateOfBirth ? format(parseISO9075(patient.dateOfBirth), 'dd-MM-yyyy') : '';
       const age = patient.dateOfBirth ? ageInYears(patient.dateOfBirth) : '';
       const recordData = {
         clientId: patient.displayId,
