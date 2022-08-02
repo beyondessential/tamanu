@@ -2,7 +2,7 @@ import moment from 'moment';
 import {
   createDummyEncounter,
   createDummyPatient,
-  randomReferenceId,
+  randomReferenceIds,
 } from 'shared/demoData/patients';
 import { randomLabRequest } from 'shared/demoData';
 import { LAB_REQUEST_STATUSES } from 'shared/constants';
@@ -384,8 +384,7 @@ describe('Covid swab lab test list', () => {
     ctx = await createTestContext();
     const { models } = ctx;
     baseApp = ctx.baseApp;
-    village1 = await randomReferenceId(models, 'village');
-    village2 = await randomReferenceId(models, 'village');
+    [village1, village2] = await randomReferenceIds(models, 'village', 2);
 
     expectedPatient1 = await models.Patient.create(
       await createDummyPatient(models, { villageId: village1 }),
