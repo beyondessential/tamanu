@@ -1,20 +1,49 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
+import { Typography } from '@material-ui/core';
 import { useApi } from '../../../api';
+import { useAuth } from '../../../contexts/Auth';
 import { ContentPane } from '../../../components';
 import { PatientDetailsForm } from '../../../forms/PatientDetailsForm';
 import { reloadPatient } from '../../../store/patient';
 
-export const PatientDetailsPane = React.memo(({ patient }) => {
+// Momentary component to just display a message, will need design and
+// refactor later.
+const ForbiddenMessage = () => (
+  <ContentPane>
+    <Typography variant="h4">Forbidden</Typography>
+    <Typography variant="body2">
+      You do not have permission to read, create or write patient data.
+    </Typography>
+  </ContentPane>
+);
+
+export const PatientDetailsPane = React.memo(({ patient, additionalData }) => {
   const api = useApi();
   const dispatch = useDispatch();
+  const { ability } = useAuth();
   const handleSubmit = async data => {
     await api.put(`patient/${patient.id}`, data);
     dispatch(reloadPatient(patient.id));
   };
+
+  // Display form if user can read, write or create patient additional data.
+  // It's assumed that if a user got this far, they can read a patient.
+  const canViewForm = ['read', 'write', 'create'].some(verb =>
+    ability.can(verb, 'Patient'),
+  );
+
+  if (canViewForm === false) {
+    return <ForbiddenMessage />;
+  }
+
   return (
     <ContentPane>
-      <PatientDetailsForm patient={patient} onSubmit={handleSubmit} />
+      <PatientDetailsForm
+        patient={patient}
+        additionalData={additionalData}
+        onSubmit={handleSubmit}
+      />
     </ContentPane>
   );
 });
