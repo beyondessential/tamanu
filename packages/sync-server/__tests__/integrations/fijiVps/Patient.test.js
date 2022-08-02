@@ -1,6 +1,7 @@
 import { format } from 'date-fns';
 
 import { fake } from 'shared/test-helpers/fake';
+import { parseISO9075 } from 'shared/utils/dateTime';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 import { IDENTIFIER_NAMESPACE } from '../../../app/hl7fhir/utils';
 
@@ -58,8 +59,8 @@ describe('VPS integration - Patient', () => {
                 use: 'home',
               },
             ],
-            birthDate: format(patient.dateOfBirth, 'yyyy-MM-dd'),
-            deceasedDateTime: format(patient.dateOfDeath, "yyyy-MM-dd'T'HH:mm:ssXXX"),
+            birthDate: format(parseISO9075(patient.dateOfBirth), 'yyyy-MM-dd'),
+            deceasedDateTime: format(parseISO9075(patient.dateOfDeath), "yyyy-MM-dd'T'HH:mm:ssXXX"),
             gender: patient.sex,
             id: patient.id,
             identifier: [
