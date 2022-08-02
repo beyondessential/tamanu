@@ -18,17 +18,14 @@ import { Encounter } from './Encounter';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { LabTest } from './LabTest';
 import { User } from './User';
+import { ISO9075_SQLITE_DEFAULT } from './columnDefaults';
 
-const ISO9075_SQLITE_DEFAULT = "strftime('%Y-%m-%d %H:%M:%S', CURRENT_TIMESTAMP)";
 @Entity('labRequest')
 export class LabRequest extends BaseModel implements ILabRequest {
-  // Default needs to be declared inside anonymous function otherwise it will
-  // simply use the value returned on init.
-  // https://github.com/typeorm/typeorm/issues/877#issuecomment-772051282
-  @Column({ nullable: false, default: () => ISO9075_SQLITE_DEFAULT })
+  @Column({ nullable: false, default: ISO9075_SQLITE_DEFAULT })
   sampleTime: DateString;
 
-  @Column({ nullable: false, default: () => ISO9075_SQLITE_DEFAULT })
+  @Column({ nullable: false, default: ISO9075_SQLITE_DEFAULT })
   requestedDate: DateString;
 
   @Column({ nullable: true, default: false })
