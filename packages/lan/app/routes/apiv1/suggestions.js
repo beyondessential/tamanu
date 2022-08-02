@@ -3,7 +3,12 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 import { NotFoundError } from 'shared/errors';
-import { SURVEY_TYPES, REFERENCE_TYPE_VALUES, INVOICE_LINE_TYPES, VISIBILITY_STATUSES } from 'shared/constants';
+import {
+  SURVEY_TYPES,
+  REFERENCE_TYPE_VALUES,
+  INVOICE_LINE_TYPES,
+  VISIBILITY_STATUSES,
+} from 'shared/constants';
 
 export const suggestions = express.Router();
 
@@ -136,13 +141,13 @@ REFERENCE_TYPE_VALUES.map(typeName =>
 
 const createNameSuggester = (endpoint, modelName = pascal(endpoint)) =>
   createSuggester(
-    endpoint, 
-    modelName, 
-    `LOWER(name) LIKE LOWER(:search) AND ${FITS_VISIBILITY_CRITERIA}`, 
+    endpoint,
+    modelName,
+    `LOWER(name) LIKE LOWER(:search) AND ${FITS_VISIBILITY_CRITERIA}`,
     ({ id, name }) => ({
       id,
       name,
-    })
+    }),
   );
 
 createNameSuggester('department');
