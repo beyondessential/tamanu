@@ -37,7 +37,7 @@
     "mSupply": {
       "enabled": true
     },
-    "hl7fhir": {
+    "fhir": {
       "enabled": true
     }
   },

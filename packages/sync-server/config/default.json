@@ -194,7 +194,7 @@
       "enabled": false,
       "requireClientHeaders": true
     },
-    "hl7fhir": {
+    "fhir": {
       "enabled": false
     }
   },

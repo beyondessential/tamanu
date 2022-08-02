@@ -7,7 +7,7 @@ import * as fijiVrs from './fiji-vrs';
 import * as fijiVps from './fiji-vps';
 import * as signer from './Signer';
 import * as mSupply from './mSupply';
-import * as hl7fhir from './hl7fhir';
+import * as fhir from './fhir';
 
 import { checkEuDccConfig } from './EuDcc';
 import { checkSignerConfig } from './Signer';
@@ -18,7 +18,7 @@ const integrations = {
   fijiVps,
   signer,
   mSupply,
-  hl7fhir,
+  fhir,
 };
 
 export const integrationRoutes = express.Router();
