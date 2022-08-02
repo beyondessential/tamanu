@@ -1,3 +1,4 @@
+import { format } from 'date-fns';
 import {
   createDummyEncounter,
   createDummyPatient,
@@ -5,7 +6,7 @@ import {
 } from 'shared/demoData/patients';
 import { randomRecord } from 'shared/demoData/utilities';
 import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_LABELS } from 'shared/constants';
-import { format } from 'date-fns';
+import { parseISO9075 } from 'shared/utils/dateTime';
 import { createTestContext } from '../../../utilities';
 import {
   createCovidTestForPatient,
@@ -137,7 +138,7 @@ describe('Nauru covid case report tests', () => {
         {
           'Patient first name': expectedPatient.firstName,
           'Patient last name': expectedPatient.lastName,
-          DOB: format(expectedPatient.dateOfBirth, 'yyyy/MM/dd'),
+          DOB: format(parseISO9075(expectedPatient.dateOfBirth), 'yyyy/MM/dd'),
           Sex: expectedPatient.sex,
           'Patient ID': expectedPatient.displayId,
           'Home sub-division': village.name,
