@@ -6,6 +6,7 @@ import {
   randomReferenceId,
 } from 'shared/demoData/patients';
 import { fake } from 'shared/test-helpers/fake';
+import { toDateString, parseISO9075 } from 'shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 
 describe('Patient', () => {
@@ -287,13 +288,15 @@ describe('Patient', () => {
       expect(result).toHaveSucceeded();
 
       const foundPatient = await Patient.findByPk(id);
-      expect(foundPatient.dateOfDeath).toEqual(dod);
+      expect(foundPatient.dateOfDeath).toEqual(toDateString(dod));
     });
 
     it('should not mark a dead patient as dead', async () => {
       const { Patient } = models;
       const patientData = fake(Patient);
-      patientData.dateOfDeath = new Date(random(patientData.dateOfBirth.getTime(), Date.now()));
+      patientData.dateOfDeath = new Date(
+        random(parseISO9075(patientData.dateOfBirth).getTime(), Date.now()),
+      );
       const { id } = await Patient.create(patientData);
       const { clinicianId, facilityId, cond1Id } = commons;
 
@@ -366,7 +369,7 @@ describe('Patient', () => {
       expect(result).toHaveStatus(404);
       expect(result.body).toMatchObject({
         patientId: id,
-        dateOfBirth: dateOfBirth.toISOString(),
+        dateOfBirth: toDateString(dateOfBirth),
         dateOfDeath: null,
       });
     });
@@ -408,12 +411,12 @@ describe('Patient', () => {
       const result = await app.get(`/v1/patient/${id}/death`);
 
       expect(result).toHaveSucceeded();
-      expect(result.body.dateOfDeath).toEqual(dod.toISOString());
+      expect(result.body.dateOfDeath).toEqual(toDateString(dod));
 
       expect(result.body).toMatchObject({
         patientId: id,
-        dateOfBirth: dateOfBirth.toISOString(),
-        dateOfDeath: dod.toISOString(),
+        dateOfBirth: toDateString(dateOfBirth),
+        dateOfDeath: toDateString(dod),
 
         manner: 'Accident',
         causes: {
