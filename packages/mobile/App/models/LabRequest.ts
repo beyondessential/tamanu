@@ -12,6 +12,7 @@ import {
   IDataRequiredToCreateLabRequest,
   ILabRequest,
   LabRequestStatus,
+  DateString,
 } from '~/types';
 import { Encounter } from './Encounter';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
@@ -25,10 +26,10 @@ export class LabRequest extends BaseModel implements ILabRequest {
   // simply use the value returned on init.
   // https://github.com/typeorm/typeorm/issues/877#issuecomment-772051282
   @Column({ nullable: false, default: () => ISO9075_SQLITE_DEFAULT })
-  sampleTime: string;
+  sampleTime: DateString;
 
   @Column({ nullable: false, default: () => ISO9075_SQLITE_DEFAULT })
-  requestedDate: string;
+  requestedDate: DateString;
 
   @Column({ nullable: true, default: false })
   urgent?: boolean;

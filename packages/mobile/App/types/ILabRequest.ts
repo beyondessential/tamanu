@@ -4,6 +4,7 @@ import { IEncounter } from './IEncounter';
 import { ILabTest } from './ILabTest';
 import { IReferenceData } from './IReferenceData';
 import { IUser } from './IUser';
+import { DateString } from './DateString';
 
 export enum LabRequestStatus {
   RECEPTION_PENDING = 'reception_pending',
@@ -17,8 +18,8 @@ export const LAB_REQUEST_STATUS_OPTIONS = createDropdownOptionsFromObject(LabReq
 
 export interface ILabRequest {
   id: ID;
-  sampleTime: string;
-  requestedDate: string;
+  sampleTime: DateString;
+  requestedDate: DateString;
   urgent?: boolean;
   specimenAttached?: boolean;
   status?: LabRequestStatus;
@@ -44,8 +45,8 @@ export interface ILabRequest {
 
 export interface IDataRequiredToCreateLabRequest {
   id?: ID; // has default
-  sampleTime?: string; // has default
-  requestedDate?: string; // has default
+  sampleTime?: DateString; // has default
+  requestedDate?: DateString; // has default
   urgent?: boolean;
   specimenAttached?: boolean;
   status?: LabRequestStatus;
