@@ -75,7 +75,7 @@
         # collide if an application is deployed in parallel
         # see https://github.com/codeship-library/aws-utilities/issues/115
         - name: the sync server
-          tag: ^(master$|dev$|staging-|ci-)
+          tag: ^(master$|dev$|staging-|ci-|uat-)
           type: serial
           steps:
             - name: onto dev
