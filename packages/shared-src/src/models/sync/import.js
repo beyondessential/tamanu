@@ -2,14 +2,9 @@ import { Sequelize, Op } from 'sequelize';
 import { chunk, flatten, without, pick, pickBy } from 'lodash';
 import { propertyPathsToTree } from './metadata';
 
-// SQLite < v3.32 has a hard limit of 999 bound parameters per query
-// see https://www.sqlite.org/limits.html for more
-// All newer versions and Postgres limits are higher
-const SQLITE_MAX_PARAMETERS = 999;
 export const chunkRows = rows => {
   const maxColumnsPerRow = rows.reduce((max, r) => Math.max(Object.keys(r).length, max), 0);
-  const rowsPerChunk = Math.floor(SQLITE_MAX_PARAMETERS / maxColumnsPerRow);
-  return chunk(rows, rowsPerChunk);
+  return chunk(rows, maxColumnsPerRow);
 };
 
 export const createImportPlan = (sequelize, channel) =>
