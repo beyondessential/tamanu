@@ -33,3 +33,9 @@ export function getCurrentDateTimeString(): string {
 export function getCurrentDateString(): string {
   return formatISO9075(new Date(), { representation: 'date' });
 }
+
+// It seems that some JS implementations have problems
+// parsing strings to dates.
+export function parseISO9075(date: string): Date {
+  return new Date(date.replace(' ', 'T'));
+}

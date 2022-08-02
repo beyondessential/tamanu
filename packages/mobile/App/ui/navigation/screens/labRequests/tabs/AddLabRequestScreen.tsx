@@ -154,6 +154,7 @@ export const DumbAddLabRequestScreen = ({
   const initialValues = {
     ...defaultInitialValues,
     sampleTime: new Date(),
+    sampleDate: new Date(),
     requestedDate: new Date(),
     displayId,
   };
