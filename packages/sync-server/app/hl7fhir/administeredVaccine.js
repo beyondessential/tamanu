@@ -125,14 +125,15 @@ export function getAdministeredVaccineInclude(_, query) {
   const { patient, 'vaccine-code': vaccineId } = query;
 
   return [
+    { association: 'recorder', required: true },
     {
       association: 'scheduledVaccine',
       required: true,
       include: [
         {
-          association: 'referenceData',
+          association: 'vaccine',
           required: true,
-          where: { ...(vaccineId && { id: vaccineId }) },
+          ...(vaccineId && { where: { id: vaccineId } }),
         },
       ],
     },
@@ -143,7 +144,7 @@ export function getAdministeredVaccineInclude(_, query) {
         {
           association: 'patient',
           required: true,
-          where: { ...(patient && { displayId: parseHL7Reference(patient) }) },
+          ...(patient && { where: { displayId: parseHL7Reference(patient) } }),
         },
       ],
     },
