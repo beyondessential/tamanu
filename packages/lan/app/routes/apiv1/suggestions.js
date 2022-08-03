@@ -3,7 +3,12 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op, literal } from 'sequelize';
 import { NotFoundError } from 'shared/errors';
-import { SURVEY_TYPES, REFERENCE_TYPE_VALUES, INVOICE_LINE_TYPES, VISIBILITY_STATUSES } from 'shared/constants';
+import {
+  SURVEY_TYPES,
+  REFERENCE_TYPE_VALUES,
+  INVOICE_LINE_TYPES,
+  VISIBILITY_STATUSES,
+} from 'shared/constants';
 
 export const suggestions = express.Router();
 
@@ -131,7 +136,7 @@ const createNameSuggester = (endpoint, modelName = pascal(endpoint)) =>
     ({ id, name }) => ({
       id,
       name,
-    })
+    }),
   );
 
 createNameSuggester('department');
