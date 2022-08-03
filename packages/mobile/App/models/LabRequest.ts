@@ -17,15 +17,15 @@ import { Encounter } from './Encounter';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { LabTest } from './LabTest';
 import { User } from './User';
+import { ISO9075_SQLITE_DEFAULT } from './columnDefaults';
 
 @Entity('labRequest')
 export class LabRequest extends BaseModel implements ILabRequest {
-  // https://github.com/typeorm/typeorm/issues/877#issuecomment-772051282 (+ timezones??)
-  @Column({ nullable: false, default: () => 'CURRENT_TIMESTAMP' })
-  sampleTime: Date;
+  @Column({ nullable: false, default: ISO9075_SQLITE_DEFAULT })
+  sampleTime: string;
 
-  @Column({ nullable: false, default: () => 'CURRENT_TIMESTAMP' })
-  requestedDate: Date;
+  @Column({ nullable: false, default: ISO9075_SQLITE_DEFAULT })
+  requestedDate: string;
 
   @Column({ nullable: true, default: false })
   urgent?: boolean;

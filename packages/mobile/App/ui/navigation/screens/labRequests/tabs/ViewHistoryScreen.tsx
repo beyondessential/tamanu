@@ -12,7 +12,7 @@ import { ILabRequest } from '~/types';
 import { navigateAfterTimeout } from '~/ui/helpers/navigators';
 import { StyledView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
-import { formatDate } from '/helpers/date';
+import { formatDate, parseISO9075 } from '/helpers/date';
 import { DateFormats } from '~/ui/helpers/constants';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
@@ -71,7 +71,7 @@ const LabRequestRow = ({ labRequest }: LabRequestRowProps): JSX.Element => (
     <StyledView width={screenPercentageToDP(23, Orientation.Width)}>
       <StyledText color={theme.colors.TEXT_DARK} fontSize={13}>
         {formatDate(
-          labRequest.requestedDate,
+          parseISO9075(labRequest.requestedDate),
           DateFormats.DAY_MONTH_YEAR_SHORT,
         )}
       </StyledText>
