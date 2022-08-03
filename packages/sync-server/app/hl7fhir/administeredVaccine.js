@@ -179,7 +179,7 @@ export function getAdministeredVaccineInclude(_, query) {
         {
           association: 'patient',
           required: true,
-          ...(patient && { where: { displayId: parseHL7Reference(patient) } }),
+          ...(patient && { where: { id: parseHL7Reference(patient) } }),
         },
       ],
     },

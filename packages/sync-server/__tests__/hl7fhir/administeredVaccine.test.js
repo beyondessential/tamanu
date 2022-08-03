@@ -11,7 +11,7 @@ describe('HL7 Administered Vaccines', () => {
   let models;
   let ctx;
 
-  let patientDisplayId;
+  let patientId;
   let administeredVaccineId;
 
   beforeAll(async () => {
@@ -30,8 +30,7 @@ describe('HL7 Administered Vaccines', () => {
     } = models;
 
     const patient = await Patient.create({ ...fake(Patient) });
-    const patientId = patient.id;
-    patientDisplayId = patient.displayId;
+    patientId = patient.id;
 
     const { id: examinerId } = await User.create(fakeUser());
     const { id: facilityId } = await Facility.create({ ...fake(Facility) });
@@ -108,7 +107,7 @@ describe('HL7 Administered Vaccines', () => {
   });
 
   it('Should output a valid sequelize include', async () => {
-    const query = { patient: patientDisplayId, 'vaccine-code': 'COVAST' };
+    const query = { patient: patientId, 'vaccine-code': 'COVAST' };
     const include = getAdministeredVaccineInclude(null, query);
     const administeredVaccine = await models.AdministeredVaccine.findAll({
       include,
