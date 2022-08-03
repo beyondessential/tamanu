@@ -30,7 +30,7 @@ export * from './LabTest';
 export * from './LabRequestLog';
 export * from './LabTestType';
 export * from './ImagingRequest';
-export * from './ImagingRequestArea';
+export * from './ImagingRequestAreas';
 
 export * from './Program';
 export * from './Survey';
