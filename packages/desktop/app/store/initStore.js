@@ -31,7 +31,5 @@ export function initStore(api) {
   const persistedReducers = persistCombineReducers(persistConfig, createReducers(history));
   const store = createStore(persistedReducers, {}, enhancers);
 
-  api.setReduxStore(store);
-  
   return { store, history };
 }

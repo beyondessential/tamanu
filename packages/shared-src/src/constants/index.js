@@ -131,6 +131,7 @@ export const REFERENCE_TYPES = {
   SOCIAL_MEDIA_PLATFORM: 'socialMediaPlatform',
   PATIENT_BILLING_TYPE: 'patientBillingType',
   MANUFACTURER: 'manufacturer',
+  SECONDARY_ID_TYPE: 'secondaryIdType',
 };
 
 export const REFERENCE_TYPE_VALUES = Object.values(REFERENCE_TYPES);
@@ -163,10 +164,21 @@ export const PROGRAM_DATA_ELEMENT_TYPES = {
 };
 export const PROGRAM_DATA_ELEMENT_TYPE_VALUES = Object.values(PROGRAM_DATA_ELEMENT_TYPES);
 
+export const NON_ANSWERABLE_DATA_ELEMENT_TYPES = [
+  PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION,
+  PROGRAM_DATA_ELEMENT_TYPES.RESULT,
+];
+
 export const ACTION_DATA_ELEMENT_TYPES = [
   PROGRAM_DATA_ELEMENT_TYPES.PATIENT_ISSUE,
   PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA,
 ];
+
+export const LAB_TEST_RESULT_TYPES = {
+  FREE_TEXT: 'FreeText',
+  NUMBER: 'Number',
+  SELECT: 'Select',
+};
 
 export const REPORT_REQUEST_STATUSES = {
   RECEIVED: 'Received',
@@ -378,6 +390,11 @@ export const SERVER_TYPES = {
   LAN: 'Tamanu LAN Server',
   META: 'Tamanu Metadata Server',
   SYNC: 'Tamanu Sync Server',
+};
+
+export const VISIBILITY_STATUSES = {
+  CURRENT: 'current',
+  HISTORICAL: 'historical',
 };
 
 export const ISO9075_FORMAT = 'YYYY-MM-DD HH:mm:ss';

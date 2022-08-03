@@ -9,9 +9,10 @@ export * from './PatientAllergy';
 export * from './PatientIssue';
 export * from './PatientAdditionalData';
 export * from './PatientVRSData';
+export * from './PatientSecondaryId';
 
 export * from './PatientDeathData';
-export * from './DeathCause';
+export * from './ContributingDeathCause';
 
 export * from './Encounter';
 export * from './Discharge';
@@ -38,7 +39,6 @@ export * from './SurveyResponse';
 export * from './SurveyResponseAnswer';
 
 export * from './Referral';
-export * from './Immunisation';
 export * from './CertifiableVaccine';
 export * from './ScheduledVaccine';
 export * from './AdministeredVaccine';

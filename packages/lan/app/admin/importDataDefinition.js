@@ -145,7 +145,6 @@ const transformers = [
   makeTransformer('labTestLaboratory', referenceDataTransformer('labTestLaboratory')),
   makeTransformer('labTestMethods', referenceDataTransformer('labTestMethod')),
   makeTransformer('additionalInvoiceLines', referenceDataTransformer('additionalInvoiceLine')),
-  makeTransformer('manufacturers', referenceDataTransformer('manufacturer')),
   makeTransformer('users', recordTransformer('user')),
   makeTransformer('patients', patientDataTransformer),
   makeTransformer('labTestTypes', recordTransformer('labTestType')),
@@ -154,6 +153,8 @@ const transformers = [
   makeTransformer('invoiceLineTypes', recordTransformer('invoiceLineType')),
   makeTransformer('invoicePriceChangeTypes', recordTransformer('invoicePriceChangeType')),
   makeTransformer('administeredVaccines', administeredVaccineTransformer()), // should go below patients, users, departments, locations
+  makeTransformer('roles', null),
+  makeTransformer('secondaryIdType', referenceDataTransformer('secondaryIdType')),
 ];
 
 export async function importData({ file, whitelist = [] }) {

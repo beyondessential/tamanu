@@ -1,13 +1,16 @@
 import React, { memo, useState, useCallback } from 'react';
 import styled from 'styled-components';
+import { useQuery } from '@tanstack/react-query';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import { Collapse, Button, Typography } from '@material-ui/core';
 import { kebabCase } from 'lodash';
-import { connectApi } from '../api';
-import { Suggester } from '../utils/suggester';
-import { reloadPatient } from '../store/patient';
-import { Colors } from '../constants';
-import { Modal } from './Modal';
+import { PATIENT_ISSUE_TYPES } from 'shared/constants';
+import { Colors } from '../../constants';
+import { Modal } from '../Modal';
+import { PatientAlert } from '../PatientAlert';
+import { InfoPaneAddEditForm } from './InfoPaneAddEditForm';
+import { ISSUES_TITLE } from './paneTitles';
+import { useApi } from '../../api';
 
 const TitleContainer = styled.div`
   color: ${Colors.primary};
@@ -56,36 +59,22 @@ const ListItem = styled.li`
   line-height: 18px;
 `;
 
-const FormContainer = styled.div`
-  margin: 1rem 0;
-`;
+const shouldShowIssueInWarningModal = ({ type }) => type === PATIENT_ISSUE_TYPES.WARNING;
 
-const AddEditForm = connectApi(
-  (api, dispatch, { patient, endpoint, onClose, suggesters = [] }) => ({
-    onSubmit: async data => {
-      if (data.id) {
-        // don't need to include patientId as the existing record will already have it
-        await api.put(`${endpoint}/${data.id}`, data);
-      } else {
-        await api.post(endpoint, { ...data, patientId: patient.id });
-      }
-      dispatch(reloadPatient(patient.id));
-      onClose();
-    },
-    ...Object.fromEntries(
-      Object.entries(suggesters).map(([key, options = {}]) => [
-        `${key}Suggester`,
-        new Suggester(api, key, options),
-      ]),
-    ),
-  }),
-)(
-  memo(({ Form, item, onClose, ...restOfProps }) => (
-    <FormContainer>
-      <Form onCancel={onClose} editedObject={item} {...restOfProps} />
-    </FormContainer>
-  )),
-);
+const getItems = (isIssuesPane, response) => {
+  const items = response?.data || [];
+  if (isIssuesPane === false) {
+    return { items, warnings: null };
+  }
+
+  const warnings = items.filter(shouldShowIssueInWarningModal);
+  const sortedIssues = [
+    ...warnings,
+    ...items.filter(issue => !shouldShowIssueInWarningModal(issue)),
+  ];
+
+  return { items: sortedIssues, warnings };
+};
 
 export const InfoPaneList = memo(
   ({
@@ -93,9 +82,8 @@ export const InfoPaneList = memo(
     readonly,
     title,
     Form,
-    items = [],
     endpoint,
-    suggesters,
+    getEndpoint,
     getName = () => '???',
     behavior = 'collapse',
     itemTitle = '',
@@ -104,6 +92,12 @@ export const InfoPaneList = memo(
   }) => {
     const [addEditState, setAddEditState] = useState({ adding: false, editKey: null });
     const { adding, editKey } = addEditState;
+    const api = useApi();
+    const { data, error } = useQuery([`infoPaneListItem-${title}`, patient.id], () =>
+      api.get(getEndpoint),
+    );
+    const isIssuesPane = title === ISSUES_TITLE;
+    const { items, warnings } = getItems(isIssuesPane, data);
 
     const handleAddButtonClick = useCallback(
       () => setAddEditState({ adding: !adding, editKey: null }),
@@ -124,19 +118,21 @@ export const InfoPaneList = memo(
 
     const addForm = (
       <Wrapper>
-        <AddEditForm
+        <InfoPaneAddEditForm
           patient={patient}
           Form={Form}
           endpoint={endpoint}
-          suggesters={suggesters}
           onClose={handleCloseForm}
+          title={title}
+          items={items}
         />
       </Wrapper>
     );
 
-    const EditForm = CustomEditForm || AddEditForm;
+    const EditForm = CustomEditForm || InfoPaneAddEditForm;
     return (
       <>
+        {isIssuesPane && <PatientAlert alerts={warnings} />}
         <TitleContainer data-test-id={`info-pane-${kebabCase(title)}`}>
           <TitleText>{title}</TitleText>
           {!readonly && (
@@ -150,50 +146,54 @@ export const InfoPaneList = memo(
           )}
         </TitleContainer>
         <DataList>
-          {items.map(item => {
-            const { id } = item;
-            const name = getName(item);
-            if (behavior === 'collapse') {
+          {error && error.message}
+          {!error &&
+            items.map(item => {
+              const { id } = item;
+              const name = getName(item);
+              if (behavior === 'collapse') {
+                return (
+                  <React.Fragment key={id}>
+                    <Collapse in={editKey !== id}>
+                      <ListItem onClick={() => handleRowClick(id)}>{name}</ListItem>
+                    </Collapse>
+                    <Collapse in={editKey === id}>
+                      <EditForm
+                        patient={patient}
+                        Form={Form}
+                        endpoint={endpoint}
+                        item={item}
+                        onClose={handleCloseForm}
+                        title={title}
+                        items={items}
+                      />
+                    </Collapse>
+                  </React.Fragment>
+                );
+              }
+
               return (
                 <React.Fragment key={id}>
-                  <Collapse in={editKey !== id}>
-                    <ListItem onClick={() => handleRowClick(id)}>{name}</ListItem>
-                  </Collapse>
-                  <Collapse in={editKey === id}>
+                  <ListItem onClick={() => handleRowClick(id)}>{name}</ListItem>
+                  <Modal
+                    width="md"
+                    title={getEditFormName(item)}
+                    open={editKey === id}
+                    onClose={handleCloseForm}
+                  >
                     <EditForm
                       patient={patient}
                       Form={Form}
                       endpoint={endpoint}
-                      suggesters={suggesters}
                       item={item}
                       onClose={handleCloseForm}
+                      title={title}
+                      items={items}
                     />
-                  </Collapse>
+                  </Modal>
                 </React.Fragment>
               );
-            }
-
-            return (
-              <React.Fragment key={id}>
-                <ListItem onClick={() => handleRowClick(id)}>{name}</ListItem>
-                <Modal
-                  width="md"
-                  title={getEditFormName(item)}
-                  open={editKey === id}
-                  onClose={handleCloseForm}
-                >
-                  <EditForm
-                    patient={patient}
-                    Form={Form}
-                    endpoint={endpoint}
-                    suggesters={suggesters}
-                    item={item}
-                    onClose={handleCloseForm}
-                  />
-                </Modal>
-              </React.Fragment>
-            );
-          })}
+            })}
           {addForm}
         </DataList>
       </>

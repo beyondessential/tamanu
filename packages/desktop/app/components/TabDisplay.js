@@ -35,30 +35,32 @@ const Icon = styled.i`
   margin-right: 5px;
 `;
 
-export const TabDisplay = React.memo(({ tabs, currentTab, onTabSelect, ...tabProps }) => {
-  const currentTabData = tabs.find(t => t.key === currentTab);
-  const buttons = tabs.map(({ key, label, render, icon }) => (
-    <StyledTab
-      key={key}
-      icon={
-        <Icon
-          className={icon}
-          color={currentTabData.key === key ? Colors.primary : Colors.softText}
-        />
-      }
-      style={{ minWidth: 'auto' }}
-      label={label}
-      disabled={!render}
-      value={key}
-      onClick={() => onTabSelect(key)}
-    />
-  ));
-  return (
-    <TabBar>
-      <TabContainer variant="scrollable" scrollButtons="on" value={currentTab}>
-        {buttons}
-      </TabContainer>
-      <div>{currentTabData.render({ ...tabProps })}</div>
-    </TabBar>
-  );
-});
+export const TabDisplay = React.memo(
+  ({ tabs, currentTab, onTabSelect, className, ...tabProps }) => {
+    const currentTabData = tabs.find(t => t.key === currentTab);
+    const buttons = tabs.map(({ key, label, render, icon }) => (
+      <StyledTab
+        key={key}
+        icon={
+          <Icon
+            className={icon}
+            color={currentTabData.key === key ? Colors.primary : Colors.softText}
+          />
+        }
+        style={{ minWidth: 'auto' }}
+        label={label}
+        disabled={!render}
+        value={key}
+        onClick={() => onTabSelect(key)}
+      />
+    ));
+    return (
+      <TabBar className={className}>
+        <TabContainer variant="scrollable" scrollButtons="on" value={currentTab}>
+          {buttons}
+        </TabContainer>
+        <div>{currentTabData.render({ ...tabProps })}</div>
+      </TabBar>
+    );
+  },
+);

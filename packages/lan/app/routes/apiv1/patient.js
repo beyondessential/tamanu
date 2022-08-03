@@ -11,7 +11,7 @@ import { createPatientFilters } from '../../utils/patientFilters';
 import { patientVaccineRoutes } from './patient/patientVaccine';
 import { patientDocumentMetadataRoutes } from './patient/patientDocumentMetadata';
 import { patientInvoiceRoutes } from './patient/patientInvoice';
-
+import { patientSecondaryIdRoutes } from './patient/patientSecondaryId';
 import { patientDeath } from './patient/patientDeath';
 import { patientProfilePicture } from './patient/patientProfilePicture';
 import { activeCovid19PatientsHandler } from '../../routeHandlers';
@@ -113,7 +113,33 @@ patientRoute.post(
 
 const patientRelations = permissionCheckingRouter('read', 'Patient');
 
-patientRelations.get('/:id/encounters', simpleGetList('Encounter', 'patientId'));
+patientRelations.get(
+  '/:id/encounters',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('list', 'Encounter');
+    const {
+      models: { Encounter },
+      params,
+      query,
+    } = req;
+    const { order = 'ASC', orderBy, open = false } = query;
+
+    const objects = await Encounter.findAll({
+      where: {
+        patientId: params.id,
+        ...(open && { endDate: null }),
+      },
+      order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
+    });
+
+    const data = objects.map(x => x.forResponse());
+
+    res.send({
+      count: objects.length,
+      data,
+    });
+  }),
+);
 
 // TODO
 // patientRelations.get('/:id/appointments', simpleGetList('Appointment', 'patientId'));
@@ -122,7 +148,6 @@ patientRelations.get('/:id/issues', simpleGetList('PatientIssue', 'patientId'));
 patientRelations.get('/:id/conditions', simpleGetList('PatientCondition', 'patientId'));
 patientRelations.get('/:id/allergies', simpleGetList('PatientAllergy', 'patientId'));
 patientRelations.get('/:id/familyHistory', simpleGetList('PatientFamilyHistory', 'patientId'));
-patientRelations.get('/:id/immunisations', simpleGetList('Immunisation', 'patientId'));
 patientRelations.get('/:id/carePlans', simpleGetList('PatientCarePlan', 'patientId'));
 
 patientRelations.get(
@@ -152,6 +177,7 @@ patientRelations.get(
 
 patientRelations.use(patientProfilePicture);
 patientRelations.use(patientDeath);
+patientRelations.use(patientSecondaryIdRoutes);
 
 patientRelations.get(
   '/:id/referrals',

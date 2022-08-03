@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TopBar, PageContainer, ImagingRequestsSearchBar } from '../components';
+import { TopBar, PageContainer, ImagingRequestsSearchBar, ContentPane } from '../components';
 import { ImagingRequestsTable } from '../components/ImagingRequestsTable';
 
 export const ImagingRequestListingView = React.memo(() => {
@@ -9,7 +9,9 @@ export const ImagingRequestListingView = React.memo(() => {
     <PageContainer>
       <TopBar title="Imaging requests" />
       <ImagingRequestsSearchBar setSearchParameters={setSearchParameters} />
-      <ImagingRequestsTable searchParameters={searchParameters} />
+      <ContentPane>
+        <ImagingRequestsTable searchParameters={searchParameters} />
+      </ContentPane>
     </PageContainer>
   );
 });
