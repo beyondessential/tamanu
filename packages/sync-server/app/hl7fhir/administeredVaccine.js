@@ -1,4 +1,5 @@
 import { format } from 'date-fns';
+import { Op } from 'sequelize';
 
 import { VACCINE_STATUS, INJECTION_SITE_OPTIONS } from 'shared/constants';
 import { parseHL7Reference } from './utils';
@@ -34,16 +35,39 @@ const KNOWN_VACCINE_IDS = {
   ASTRAZENECA: 'drug-COVAX',
 };
 
+// List of IDs to include in generic search
+const KNOWN_VACCINE_IDS_VALUES = Object.values(KNOWN_VACCINE_IDS);
+
+// All currently supported AIRV vaccine codes
+const KNOWN_AIRV_CODES = {
+  COMIRN: 'COMIRN',
+  COVAST: 'COVAST',
+};
+
 // AIRV: Australian Immunisation Register Vaccine
+// This function is used to display the used code
 function vaccineIdToAIRVCode(scheduledVaccine) {
   const vaccineId = scheduledVaccine.vaccine.id;
   switch (vaccineId) {
     case KNOWN_VACCINE_IDS.PFIZER:
-      return 'COMIRN';
+      return KNOWN_AIRV_CODES.COMIRN;
     case KNOWN_VACCINE_IDS.ASTRAZENECA:
-      return 'COVAST';
+      return KNOWN_AIRV_CODES.COVAST;
     default:
       throw new Error(`Unrecognized vaccine ID ${vaccineId}`);
+  }
+}
+
+// Returns a reference data ID or an unmatchable string
+// This function maps the search value (code) to our internal vaccine ID.
+function AIRVCodeToVaccineId(code) {
+  switch (code) {
+    case KNOWN_AIRV_CODES.COMIRN:
+      return KNOWN_VACCINE_IDS.PFIZER;
+    case KNOWN_AIRV_CODES.COVAST:
+      return KNOWN_VACCINE_IDS.ASTRAZENECA;
+    default:
+      return 'UNMATCHABLE-STRING-1e79156d-af15-40d9-96e6-ed78d4ce9e1e';
   }
 }
 
@@ -121,8 +145,19 @@ export function administeredVaccineToHL7Immunization(administeredVaccine) {
   };
 }
 
+// We only want to return vaccines with codes we know
+function getInnerVaccineWhereClause(vaccineCode) {
+  // Filtered search
+  if (vaccineCode) {
+    return { id: AIRVCodeToVaccineId(vaccineCode) };
+  }
+
+  // Only include known supported vaccines
+  return { id: { [Op.in]: KNOWN_VACCINE_IDS_VALUES } };
+}
+
 export function getAdministeredVaccineInclude(_, query) {
-  const { patient, 'vaccine-code': vaccineId } = query;
+  const { patient, 'vaccine-code': vaccineCode } = query;
 
   return [
     { association: 'recorder', required: true },
@@ -133,7 +168,7 @@ export function getAdministeredVaccineInclude(_, query) {
         {
           association: 'vaccine',
           required: true,
-          ...(vaccineId && { where: { id: vaccineId } }),
+          where: { ...getInnerVaccineWhereClause(vaccineCode) },
         },
       ],
     },
