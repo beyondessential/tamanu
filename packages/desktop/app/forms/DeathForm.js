@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import * as yup from 'yup';
 import { Typography } from '@material-ui/core';
 import styled from 'styled-components';
-import moment from 'moment';
+import { differenceInYears, differenceInMonths } from 'date-fns';
 import MuiBox from '@material-ui/core/Box';
 import {
   ArrayField,
@@ -166,10 +166,10 @@ const mannerOfDeathVisibilityCriteria = {
 
 export const DeathForm = React.memo(
   ({ onCancel, onSubmit, patient, practitionerSuggester, icd10Suggester, facilitySuggester }) => {
-    const patientYearsOld = moment().diff(patient.dateOfBirth, 'years');
+    const patientYearsOld = differenceInYears(new Date(), patient.dateOfBirth);
     const isAdultFemale = patient.sex === 'female' && patientYearsOld >= 12;
 
-    const patientMonthsOld = moment().diff(patient.dateOfBirth, 'months');
+    const patientMonthsOld = differenceInMonths(new Date(), patient.dateOfBirth);
     const isInfant = patientMonthsOld <= 2;
 
     return (
