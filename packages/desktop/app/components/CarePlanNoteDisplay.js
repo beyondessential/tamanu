@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import moment from 'moment';
+import format from 'date-fns/format';
 
 import { Colors } from '../constants';
 import { MoreDropdownMenu } from './MoreDropdownMenu';
@@ -73,7 +73,7 @@ const DumbCarePlanNoteDisplay = ({
         {isMainCarePlan ? <MainCarePlanIndicator>Main care plan</MainCarePlanIndicator> : null}
       </VerticalCenter>
       <VerticalCenter>
-        <Timestamp>{moment(note.date).format('LLLL')}</Timestamp>
+        <Timestamp>{format(new Date(note.date), 'LLLL')}</Timestamp>
         <MoreDropdownMenu
           iconColor={Colors.midText}
           actions={[

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import moment from 'moment';
+import format from 'date-fns/format';
 import { withStyles } from '@material-ui/core/styles';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
@@ -54,7 +54,7 @@ export const Appointment = ({ appointment, onUpdated }) => {
           <div>
             <PatientNameDisplay patient={patient} />
           </div>
-          <div>{moment(startTime).format('h:mm a')}</div>
+          <div>{format(new Date(startTime), 'h:mm a')}</div>
         </div>
         <div className="icon">
           {status === 'Confirmed' && <RadioButtonUncheckedIcon />}
