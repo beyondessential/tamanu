@@ -11,7 +11,6 @@ describe('HL7 Administered Vaccines', () => {
   let models;
   let ctx;
 
-  const vaccineId = 'drug-COVAX';
   let patientDisplayId;
   let administeredVaccineId;
 
@@ -47,9 +46,10 @@ describe('HL7 Administered Vaccines', () => {
       endDate: null,
     });
 
-    await ReferenceData.create({
+    const EXPECTED_API_DRUG_ID = 'drug-COVAX';
+    const { id: vaccineId } = await ReferenceData.create({
       ...fakeReferenceData(),
-      id: vaccineId,
+      id: EXPECTED_API_DRUG_ID,
       code: 'COVAX',
       type: 'drug',
       name: 'COVAX',
@@ -108,11 +108,11 @@ describe('HL7 Administered Vaccines', () => {
   });
 
   it('Should output a valid sequelize include', async () => {
-    const query = { patient: patientDisplayId, 'vaccine-code': vaccineId };
+    const query = { patient: patientDisplayId, 'vaccine-code': 'COVAST' };
     const include = getAdministeredVaccineInclude(null, query);
-    const patients = await models.AdministeredVaccine.findAll({
+    const administeredVaccine = await models.AdministeredVaccine.findAll({
       include,
     });
-    expect(patients.length).toBe(1);
+    expect(administeredVaccine.length).toBe(1);
   });
 });
