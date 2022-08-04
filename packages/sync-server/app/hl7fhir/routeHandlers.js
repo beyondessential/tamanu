@@ -102,6 +102,24 @@ export function immunizationHandler() {
   });
 }
 
+function findSingleResource(modelName, include, toHL7Fn) {
+  return asyncHandler(async (req, res) => {
+    const { models } = req.store;
+    const { id } = req.params;
+    const record = await models[modelName].findOne({
+      where: { id },
+      include,
+    });
+
+    if (!record) {
+      throw new NotFoundError(`Unable to find resource ${id}`);
+    }
+
+    const resource = toHL7Fn(record);
+    res.send(resource);
+  });
+}
+
 export function singlePatientHandler() {
   return findSingleResource('Patient', [{ association: 'additionalData' }], patient =>
     patientToHL7Patient(patient, patient.additionalData[0]),
@@ -137,22 +155,4 @@ export function singleImmunizationHandler() {
     getAdministeredVaccineInclude(null, {}),
     administeredVaccineToHL7Immunization,
   );
-}
-
-function findSingleResource(modelName, include, toHL7Fn) {
-  return asyncHandler(async (req, res) => {
-    const { models } = req.store;
-    const { id } = req.params;
-    const record = await models[modelName].findOne({
-      where: { id },
-      include,
-    });
-
-    if (!record) {
-      throw new NotFoundError(`Unable to find resource ${id}`);
-    }
-
-    const resource = toHL7Fn(record);
-    res.send(resource);
-  });
 }
