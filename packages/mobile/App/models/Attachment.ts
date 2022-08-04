@@ -6,7 +6,7 @@ import { readFileInDocuments, deleteFileInDocuments } from '../ui/helpers/file';
 @Entity('attachment')
 export class Attachment extends BaseModel {
   @Column({ nullable: true })
-  size?: number; //size in bytes
+  size?: number; //size in byte
 
   @Column({ type: 'varchar' })
   type: string;
