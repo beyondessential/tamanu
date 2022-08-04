@@ -58,6 +58,14 @@ function vaccineIdToAIRVCode(scheduledVaccine) {
   }
 }
 
+// Dictionary that maps Tamanu injection site to HL7 code
+const INJECTION_SITE_TO_HL7_CODE = {
+  [INJECTION_SITE_OPTIONS.RIGHT_ARM]: 'RA',
+  [INJECTION_SITE_OPTIONS.LEFT_ARM]: 'LA',
+  [INJECTION_SITE_OPTIONS.RIGHT_THIGH]: 'RT',
+  [INJECTION_SITE_OPTIONS.LEFT_THIGH]: 'LT',
+};
+
 // Returns a reference data ID or an unmatchable string
 // This function maps the search value (code) to our internal vaccine ID.
 function AIRVCodeToVaccineId(code) {
@@ -82,21 +90,6 @@ function encounterToHL7Reference(encounter) {
   return {
     reference: `Encounter/${encounter.id}`,
   };
-}
-
-function injectionSiteToHL7Code(injectionSite) {
-  switch (injectionSite) {
-    case INJECTION_SITE_OPTIONS.RIGHT_ARM:
-      return 'RA';
-    case INJECTION_SITE_OPTIONS.LEFT_ARM:
-      return 'LA';
-    case INJECTION_SITE_OPTIONS.RIGHT_THIGH:
-      return 'RT';
-    case INJECTION_SITE_OPTIONS.LEFT_THIGH:
-      return 'LT';
-    default:
-      return null;
-  }
 }
 
 function practitionerToHL7Reference(practitioner) {
@@ -129,7 +122,7 @@ export function administeredVaccineToHL7Immunization(administeredVaccine) {
       coding: [
         {
           system: HL7_INJECTION_SITE_URL,
-          code: injectionSiteToHL7Code(injectionSite),
+          code: INJECTION_SITE_TO_HL7_CODE(injectionSite) || null,
           display: injectionSite,
         },
       ],
