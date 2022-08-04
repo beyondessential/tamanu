@@ -122,7 +122,7 @@ export function administeredVaccineToHL7Immunization(administeredVaccine) {
       coding: [
         {
           system: HL7_INJECTION_SITE_URL,
-          code: INJECTION_SITE_TO_HL7_CODE(injectionSite) || null,
+          code: INJECTION_SITE_TO_HL7_CODE[injectionSite] || null,
           display: injectionSite,
         },
       ],
