@@ -13,7 +13,7 @@
       command: scripts/apply_and_revert_sync_server_migrations.sh
     - name: lint (on PR branches)
       type: parallel
-      exclude: ^(master$|dev$|staging-|ci-)
+      exclude: ^(master$|dev$|staging-|ci-|uat-)
       steps:
         - name: the desktop app and servers
           service: app-without-db
@@ -28,35 +28,35 @@
           steps:
             - name: on main branches
               command: scripts/test.sh
-              tag: ^(master$|dev$|staging-|ci-)
+              tag: ^(master$|dev$|staging-|ci-|uat-)
             - name: on PR branches
               command: scripts/test.sh pr-coverage
-              exclude: ^(master$|dev$|staging-|ci-)
+              exclude: ^(master$|dev$|staging-|ci-|uat-)
         - name: the mobile app
           service: mobile
           command: "yarn test:coverage"
     - name: fix ssh for builds
-      tag: ^(master$|dev$|staging-|ci-)
+      tag: ^(master$|dev$|staging-|ci-|uat-)
       service: app-without-db
       command: /pre/scripts/fix_ssh.sh
     - name: build packages
-      tag: ^(master$|dev$|staging-|ci-)
+      tag: ^(master$|dev$|staging-|ci-|uat-)
       type: parallel
       steps:
         - name: for lan
-          tag: ^(master$|dev$|staging-|ci-)
+          tag: ^(master$|dev$|staging-|ci-|uat-)
           service: app-without-db
           command: ./scripts/build_package_release.sh lan
         - name: for desktop installer
           service: app-without-db
-          tag: ^(master$|dev$|staging-|ci-)
+          tag: ^(master$|dev$|staging-|ci-|uat-)
           command: ./scripts/build_desktop.sh build-only
         - name: for sync release
-          tag: ^(master$|dev$|staging-|ci-)
+          tag: ^(master$|dev$|staging-|ci-|uat-)
           service: app-without-db
           command: ./scripts/build_package_release.sh sync-server
         - name: for meta release
-          tag: ^(master$|dev$|staging-|ci-)
+          tag: ^(master$|dev$|staging-|ci-|uat-)
           service: app-without-db
           command: ./scripts/build_package_release.sh meta-server
     - name: push and deploy
@@ -69,7 +69,7 @@
           command: ./scripts/build_desktop.sh build-and-release
         - name: all artefacts to s3
           service: awsdeployment
-          tag: ^(master$|dev$|staging-|ci-)
+          tag: ^(master$|dev$|staging-|ci-|uat-)
           command: ./scripts/push.sh
         # the following serial steps are a fix for a bug where version names can
         # collide if an application is deployed in parallel
@@ -103,7 +103,7 @@
               service: awsdeployment
               command: ./scripts/deploy_sync.sh demo-palau
         - name: the lan server
-          tag: ^(master$|dev$|staging-|ci-)
+          tag: ^(master$|dev$|staging-|ci-|uat-)
           type: serial
           steps:
             - name: onto dev
