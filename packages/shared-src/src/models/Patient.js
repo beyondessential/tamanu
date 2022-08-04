@@ -98,7 +98,17 @@ export class Patient extends Model {
         {
           model: models.Encounter,
           as: 'encounter',
-          include: models.Encounter.getFullReferenceAssociations(),
+          // Don't use getFullReferenceAssociations because we don't want to include vitals data
+          // in the query because it is a hasMany relation which causes duplicate vaccine records
+          // to be returned if there are multiple vitals associated with encounters
+          include: [
+            'department',
+            'examiner',
+            {
+              association: 'location',
+              include: ['facility'],
+            },
+          ],
         },
         {
           model: models.Location,
