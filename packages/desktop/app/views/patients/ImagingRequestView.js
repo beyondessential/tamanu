@@ -1,11 +1,10 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Form, Formik } from 'formik';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { push } from 'connected-react-router';
 import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
 import { useParams } from 'react-router-dom';
 import { useCertificate } from '../../utils/useCertificate';
-import { usePatientNavigation } from '../../utils/usePatientNavigation';
-
 import { Button } from '../../components/Button';
 import { ContentPane } from '../../components/ContentPane';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -20,9 +19,9 @@ import {
   DateTimeInput,
 } from '../../components/Field';
 import { useApi, useSuggester } from '../../api';
-
 import { ImagingRequestPrintout } from '../../components/PatientPrinting/ImagingRequestPrintout';
 import { useLocalisation } from '../../contexts/Localisation';
+import { ENCOUNTER_TAB_NAMES } from './EncounterView';
 
 const statusOptions = [
   { value: 'pending', label: 'Pending' },
@@ -160,26 +159,12 @@ const ImagingRequestInfoPane = React.memo(
                 style={{ gridColumn: '1 / -1', minHeight: '60px' }}
               />
             )}
-            {/* Needs custom styling to properly display view image button to the left */}
-            <ButtonRow style={{ gridTemplateColumns: '8rem auto 8rem' }}>
-              <Button
-                color="secondary"
-                style={{
-                  gridColumn: '1 / span 1',
-                  // Change horizontal padding to fit text properly
-                  paddingLeft: '10px',
-                  paddingRight: '10px',
-                  // Only show button when status is completed and keep it on the
-                  // document layout to preserve correct row button display
-                  visibility:
-                    values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED ? 'visible' : 'hidden',
-                }}
-                disabled
-              >
-                View image
-                <br />
-                (external link)
-              </Button>
+            <ButtonRow>
+              {values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED && (
+                <Button color="secondary" disabled>
+                  View image (external link)
+                </Button>
+              )}
               {dirty && <Button type="submit">Save</Button>}
             </ButtonRow>
           </FormGrid>
@@ -191,7 +176,8 @@ const ImagingRequestInfoPane = React.memo(
 
 export const ImagingRequestView = () => {
   const api = useApi();
-  const { navigateToEncounter } = usePatientNavigation();
+  const dispatch = useDispatch();
+  const params = useParams();
   const imagingRequest = useSelector(state => state.imagingRequest);
   const patient = useSelector(state => state.patient);
   const practitionerSuggester = useSuggester('practitioner');
@@ -200,9 +186,13 @@ export const ImagingRequestView = () => {
   const { getLocalisation } = useLocalisation();
   const imagingTypes = getLocalisation('imagingTypes') || {};
 
-  const onSubmit = data => {
-    api.put(`imagingRequest/${imagingRequest.id}`, { ...data });
-    navigateToEncounter();
+  const onSubmit = async data => {
+    await api.put(`imagingRequest/${imagingRequest.id}`, data);
+    dispatch(
+      push(
+        `/patients/${params.category}/${params.patientId}/encounter/${params.encounterId}?tab=${ENCOUNTER_TAB_NAMES.IMAGING}`,
+      ),
+    );
   };
 
   if (patient.loading) return <LoadingIndicator />;
