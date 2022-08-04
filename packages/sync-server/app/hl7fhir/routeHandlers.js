@@ -1,6 +1,7 @@
 import config from 'config';
 import asyncHandler from 'express-async-handler';
 import { isArray } from 'lodash';
+import { NotFoundError } from 'shared/errors';
 
 import { patientToHL7Patient, getPatientWhereClause } from './patient';
 import {
@@ -229,5 +230,60 @@ export function immunizationHandler() {
     });
 
     res.send(payload);
+  });
+}
+
+export function singlePatientHandler() {
+  return findSingleResource('Patient', [{ association: 'additionalData' }], patient =>
+    patientToHL7Patient(patient, patient.additionalData[0]),
+  );
+}
+
+export function singleDiagnosticReportHandler() {
+  return findSingleResource(
+    'LabTest',
+    [
+      { association: 'labTestType' },
+      { association: 'labTestMethod' },
+      {
+        association: 'labRequest',
+        required: true,
+        include: [
+          { association: 'laboratory' },
+          {
+            association: 'encounter',
+            required: true,
+            include: [{ association: 'examiner' }, { association: 'patient' }],
+          },
+        ],
+      },
+    ],
+    labTestToHL7DiagnosticReport,
+  );
+}
+
+export function singleImmunizationHandler() {
+  return findSingleResource(
+    'AdministeredVaccine',
+    getAdministeredVaccineInclude(null, {}),
+    administeredVaccineToHL7Immunization,
+  );
+}
+
+function findSingleResource(modelName, include, toHL7Fn) {
+  return asyncHandler(async (req, res) => {
+    const { models } = req.store;
+    const { id } = req.params;
+    const record = await models[modelName].findOne({
+      where: { id },
+      include,
+    });
+
+    if (!record) {
+      throw new NotFoundError(`Unable to find resource ${id}`);
+    }
+
+    const resource = toHL7Fn(record);
+    res.send(resource);
   });
 }
