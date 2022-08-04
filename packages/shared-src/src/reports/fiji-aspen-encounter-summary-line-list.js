@@ -140,12 +140,17 @@ with
     select
       ir.encounter_id,
       json_build_object(
-        'Name', image_type.name,
-        'Area to be imaged', area_notes.aggregated_notes,
+        'Name', imaging_types.imaging_type_label,
+        'Area to be imaged', array_to_string(coalesce(area_names, array[area_notes.aggregated_notes]), ','), 
         'Notes', non_area_notes.aggregated_notes
       ) "data"
     from imaging_requests ir
-    join reference_data image_type on image_type.id = ir.imaging_type_id
+
+    inner join (
+      select 
+        key, trim('"' from value::text) as imaging_type_label from jsonb_each(:imaging_area_labels)) as imaging_types
+    on ir.imaging_type = imaging_types.key
+
     left join (
       select 
         record_id,
@@ -156,6 +161,7 @@ with
       group by record_id
     ) non_area_notes
     on non_area_notes.record_id = ir.id 
+
     left join (
       select 
         record_id,
@@ -166,7 +172,19 @@ with
       group by record_id
     ) area_notes
     on area_notes.record_id = ir.id
+    
+    left join (
+      select
+        imaging_request_id,
+        array_agg(reference_data.name) as area_names
+      from imaging_request_areas
+      inner join reference_data
+      on area_id = reference_data.id
+      group by imaging_request_id)
+    reference_list 
+    on reference_list.imaging_request_id = ir.id
   ),
+
   imaging_info as (
     select
       encounter_id,
@@ -374,6 +392,22 @@ const getData = async (sequelize, parameters) => {
       billing_type: patientBillingType ?? null,
       department_id: department ?? null,
       location_id: location ?? null,
+      imaging_area_labels: JSON.stringify({
+        xRay: 'X-Ray',
+        ctScan: 'CT Scan',
+        ecg: 'Electrocardiogram (ECG)',
+        mri: 'MRI',
+        ultrasound: 'Ultrasound',
+        holterMonitor: 'Holter Monitor',
+        echocardiogram: 'Echocardiogram',
+        mammogram: 'Mammogram',
+        endoscopy: 'Endoscopy',
+        fluroscopy: 'Fluroscopy',
+        angiogram: 'Angiogram',
+        colonoscopy: 'Colonoscopy',
+        vascularStudy: 'Vascular Study',
+        stressTest: 'Treadmill',
+      }),
     },
   });
 };
