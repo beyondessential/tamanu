@@ -60,7 +60,7 @@
           service: app-without-db
           command: ./scripts/build_package_release.sh meta-server
     - name: push and deploy
-      tag: ^(master$|dev$|staging-|ci-|release-desktop-)
+      tag: ^(master$|dev$|staging-|ci-|uat-|release-desktop-)
       type: parallel
       steps:
         - name: the desktop installer
@@ -75,13 +75,17 @@
         # collide if an application is deployed in parallel
         # see https://github.com/codeship-library/aws-utilities/issues/115
         - name: the sync server
-          tag: ^(master$|dev$|staging-|ci-)
+          tag: ^(master$|dev$|staging-|ci-|uat-)
           type: serial
           steps:
             - name: onto dev
               tag: ^(dev$|ci-)
               service: awsdeployment
               command: ./scripts/deploy_sync.sh dev
+            - name: onto uat
+              tag: ^uat-
+              service: awsdeployment
+              command: ./scripts/deploy_sync.sh uat-fiji-vps
             - name: onto staging
               tag: ^(staging-)
               service: awsdeployment
