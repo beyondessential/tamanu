@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import moment from 'moment';
+import { startOfDay, endOfDay } from 'date-fns';
 import { Op } from 'sequelize';
 import { NOTE_TYPES } from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
@@ -216,9 +216,7 @@ globalImagingRequests.get(
         operator: Op.gte,
         mapFn: (fieldName, operator, value) => ({
           [fieldName]: {
-            [operator]: moment(value)
-              .startOf('day')
-              .toISOString(),
+            [operator]: startOfDay(value).toISOString(),
           },
         }),
       },
@@ -228,9 +226,7 @@ globalImagingRequests.get(
         operator: Op.lte,
         mapFn: (fieldName, operator, value) => ({
           [fieldName]: {
-            [operator]: moment(value)
-              .endOf('day')
-              .toISOString(),
+            [operator]: endOfDay(value).toISOString(),
           },
         }),
       },

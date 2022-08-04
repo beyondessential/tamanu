@@ -1,6 +1,6 @@
 import { readFile, utils } from 'xlsx';
 import { getJsDateFromExcel } from 'excel-date-to-js';
-import moment from 'moment';
+import { startOfDay, endOfDay } from 'date-fns';
 
 import { log } from 'shared/services/logging';
 import { ENCOUNTER_TYPES } from 'shared/constants';
@@ -54,8 +54,8 @@ const administeredVaccineTransformer = () => ({
       ...data,
     },
   };
-  const startDate = date ? moment(date).startOf('day') : null;
-  const endDate = date ? moment(date).endOf('day') : null;
+  const startDate = date ? startOfDay(date) : null;
+  const endDate = date ? endOfDay(date) : null;
   return {
     recordType: 'encounter',
     channel: `patient/${encodeURIComponent(patientId)}/encounter`,

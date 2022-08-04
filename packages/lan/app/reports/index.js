@@ -1,4 +1,4 @@
-import moment from 'moment';
+import { subMonths } from 'date-fns';
 
 import * as allReports from './allReports';
 
@@ -16,10 +16,8 @@ export const generateReport = async (db, reportName, userParams) => {
   }
 
   const params = {
-    startDate: moment(userParams.endDate)
-      .subtract(1, 'month')
-      .toDate(),
-    endDate: moment().toDate(),
+    startDate: subMonths(userParams.endDate, 1),
+    endDate: new Date(),
     ...userParams,
   };
 
@@ -28,7 +26,7 @@ export const generateReport = async (db, reportName, userParams) => {
   return {
     metadata: {
       report: report.title,
-      generated: moment().toDate(),
+      generated: new Date(),
       ...userParams,
     },
     data,
