@@ -1,6 +1,5 @@
-import moment from 'moment';
 import { Op } from 'sequelize';
-import { subDays } from 'date-fns';
+import { subDays, format } from 'date-fns';
 import { generateReportFromQueryData } from './utilities';
 
 export const reportColumnTemplate = [
@@ -124,13 +123,13 @@ export async function queryCovidVaccineListData(models, parameters) {
       patientId,
       patientName: `${firstName} ${lastName}`,
       uid: displayId,
-      dob: moment(dateOfBirth).format('DD-MM-YYYY'),
+      dob: format(dateOfBirth, 'dd-MM-yyyy'),
       sex,
       village: village?.name,
       vaccineName,
       schedule,
       vaccineStatus: status === 'GIVEN' ? 'Yes' : 'No',
-      vaccineDate: moment(date).format('DD-MM-YYYY'),
+      vaccineDate: format(date, 'dd-MM-yyyy'),
       batch: status === 'GIVEN' ? batch : '',
       vaccinator: status === 'GIVEN' ? vaccinator : '',
     };

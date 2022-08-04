@@ -1,6 +1,6 @@
 import { keyBy, groupBy, uniqWith, isEqual, upperFirst } from 'lodash';
 import { Op } from 'sequelize';
-import moment from 'moment';
+import { format, differenceInYears, parse } from 'date-fns';
 import { generateReportFromQueryData, getAnswers } from '../utilities';
 import {
   transformAndRemoveDuplicatedAnswersPerDate,
@@ -47,7 +47,7 @@ const getReferralByPatientSurveyAndDate = async (models, transformedAnswers) => 
   const finalReferrals = await removeDuplicatedReferralsPerDate(referrals);
 
   return keyBy(finalReferrals, r => {
-    const referralDate = moment(r.surveyResponse.endTime).format('DD-MM-YYYY');
+    const referralDate = format(r.surveyResponse.endTime, 'dd-MM-yyyy');
     const surveyGroupKey = getSurveyGroupKey(r.surveyResponse.surveyId);
     return `${r.initiatingEncounter.patientId}|${surveyGroupKey}|${referralDate}`;
   });
@@ -71,7 +71,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
   const patientById = await getPatientById(models, rawAnswers);
   const answersByPatientId = groupBy(filteredAnswers, a => a.patientId);
   const answersByPatientSurveyDataElement = keyBy(filteredAnswers, a => {
-    const responseDate = moment(a.responseEndTime).format('DD-MM-YYYY');
+    const responseDate = format(a.responseEndTime, 'dd-MM-yyyy');
     const surveyGroupKey = getSurveyGroupKey(a.surveyId);
     return getPerPatientPerSurveyPerDatePerElementKey(
       a.patientId,
@@ -92,7 +92,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
   for (const [patientId, patientAnswers] of Object.entries(answersByPatientId)) {
     const screeningFormAnswers = patientAnswers.filter(a => FORM_SURVEY_IDS.includes(a.surveyId));
     const groupedScreeningFormAnswers = groupBy(screeningFormAnswers, a => {
-      const responseDate = moment(a.responseEndTime).format('DD-MM-YYYY');
+      const responseDate = format(a.responseEndTime, 'dd-MM-yyyy');
       return `${getSurveyGroupKey(a.surveyId)}|${responseDate}`;
     });
     const patient = patientById[patientId];
@@ -101,8 +101,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
     // Group the answers by survey and date. So for per patient per date, we should 1 row per survey (maximum 3 surveys)
     for (const [key] of Object.entries(groupedScreeningFormAnswers)) {
       const [surveyGroupKey, responseDate] = key.split('|');
-      const dateOfBirthMoment = patient.dateOfBirth ?? moment(patient.dateOfBirth);
-      const age = dateOfBirthMoment ? moment().diff(dateOfBirthMoment, 'years') : '';
+      const age = patient.dateOfBirth ? differenceInYears(new Date(), patient.dateOfBirth) : '';
 
       const recordData = {
         firstName: patient.firstName,
@@ -161,7 +160,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
       if (!date1 && !date2) return 0;
 
       // Sort oldest to most recent
-      return moment(date1, 'DD-MM-YYYY') - moment(date2, 'DD-MM-YYYY');
+      return parse(date1, 'dd-MM-yyyy', new Date()) - parse(date2, 'dd-MM-yyyy', new Date());
     },
   );
 

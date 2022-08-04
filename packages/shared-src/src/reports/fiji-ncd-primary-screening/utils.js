@@ -1,6 +1,6 @@
 import { groupBy, keyBy } from 'lodash';
 import { Op } from 'sequelize';
-import moment from 'moment';
+import { differenceInMilliseconds, format } from 'date-fns';
 
 import { transformAnswers } from '../utilities';
 
@@ -156,14 +156,14 @@ export const getPatientById = async (models, rawAnswers) => {
 
 export const removeDuplicatedReferralsPerDate = referrals => {
   const referralByPatientAndDate = groupBy(referrals, r => {
-    const referralDate = moment(r.surveyResponse.endTime).format('DD-MM-YYYY');
+    const referralDate = format(r.surveyResponse.endTime, 'dd-MM-yyyy');
     return `${r.initiatingEncounter.patientId}|${r.surveyResponse.surveyId}|${referralDate}`;
   });
 
   const results = [];
   for (const groupedAnswers of Object.values(referralByPatientAndDate)) {
     const sortedLatestToOldestReferrals = groupedAnswers.sort((r1, r2) =>
-      moment(r2.initiatingEncounter.startDate).diff(moment(r1.initiatingEncounter.startDate)),
+      differenceInMilliseconds(r2.initiatingEncounter.startDate, r1.initiatingEncounter.startDate),
     );
     results.push(sortedLatestToOldestReferrals[0]);
   }
@@ -173,14 +173,14 @@ export const removeDuplicatedReferralsPerDate = referrals => {
 
 export const removeDuplicatedAnswersPerDate = answers => {
   const answersPerElement = groupBy(answers, a => {
-    const responseDate = moment(a.responseEndTime).format('DD-MM-YYYY');
+    const responseDate = format(a.responseEndTime, 'dd-MM-yyyy');
     return `${a.patientId}|${a.surveyId}|${responseDate}|${a.dataElementId}`;
   });
 
   const results = [];
   for (const groupedAnswers of Object.values(answersPerElement)) {
     const sortedLatestToOldestAnswers = groupedAnswers.sort((a1, a2) =>
-      moment(a2.responseEndTime).diff(moment(a1.responseEndTime)),
+      differenceInMilliseconds(a2.responseEndTime, a1.responseEndTime),
     );
     results.push(sortedLatestToOldestAnswers[0]);
   }

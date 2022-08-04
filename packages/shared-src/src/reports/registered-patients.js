@@ -1,5 +1,5 @@
 import { Sequelize, Op } from 'sequelize';
-import moment from 'moment';
+import { format } from 'date-fns';
 import { generateReportFromQueryData } from './utilities';
 
 export const permission = 'Patient';
@@ -114,7 +114,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
 
   const reportData = patientsData.map(({ dataValues }) => {
     const dateOfBirth = dataValues.date_of_birth
-      ? moment(dataValues.date_of_birth).format('DD-MM-YYYY')
+      ? format(dataValues.date_of_birth, 'dd-MM-yyyy')
       : '';
 
     const villageName = dataValues.village?.dataValues?.name ?? null;

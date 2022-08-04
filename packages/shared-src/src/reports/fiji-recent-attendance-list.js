@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import moment from 'moment';
+import { startOfDay, endOfDay, format } from 'date-fns';
 import { DIAGNOSIS_CERTAINTY } from 'shared/constants';
 import { getAgeFromDate } from 'shared/utils/date';
 import { generateReportFromQueryData } from './utilities';
@@ -45,13 +45,13 @@ const parametersToEncounterSqlWhere = parameters =>
           if (!newWhere.startDate) {
             newWhere.startDate = {};
           }
-          newWhere.startDate[Op.gte] = moment(value).startOf('day');
+          newWhere.startDate[Op.gte] = startOfDay(value);
           break;
         case 'toDate':
           if (!newWhere.startDate) {
             newWhere.startDate = {};
           }
-          newWhere.startDate[Op.lte] = moment(value).endOf('day');
+          newWhere.startDate[Op.lte] = endOfDay(value);
           break;
         default:
           break;
@@ -147,7 +147,7 @@ const transformDataPoint = encounter => {
     medicalArea: patientAdditionalData?.medicalArea?.name,
     nursingZone: patientAdditionalData?.nursingZone?.name,
     clinician: examiner?.displayName,
-    dateOfAttendance: moment(encounter.startDate).format('DD-MM-YYYY'),
+    dateOfAttendance: format(encounter.startDate, 'dd-MM-yyyy'),
     department: encounter.department?.name,
     location: encounter.location?.name,
     reasonForAttendance: encounter.reasonForEncounter,
