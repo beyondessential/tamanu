@@ -14,6 +14,7 @@ import {
   permissionCheckingRouter,
   runPaginatedQuery,
   paginatedGetList,
+  createNoteListingHandler,
 } from './crudHelpers';
 
 export const encounter = express.Router();
@@ -128,12 +129,7 @@ encounterRelations.get(
   paginatedGetList('DocumentMetadata', 'encounterId'),
 );
 encounterRelations.get('/:id/imagingRequests', simpleGetList('ImagingRequest', 'encounterId'));
-encounterRelations.get(
-  '/:id/notes',
-  simpleGetList('Note', 'recordId', {
-    additionalFilters: { recordType: NOTE_RECORD_TYPES.ENCOUNTER },
-  }),
-);
+encounterRelations.get('/:id/notes', createNoteListingHandler(NOTE_RECORD_TYPES.ENCOUNTER));
 encounterRelations.get(
   '/:id/invoice',
   simpleGetHasOne('Invoice', 'encounterId', {
