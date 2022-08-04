@@ -1,5 +1,5 @@
 import config from 'config';
-import moment from 'moment';
+import { startOfDay } from 'date-fns';
 import { Op } from 'sequelize';
 
 import { ScheduledTask } from 'shared/tasks';
@@ -25,9 +25,7 @@ export class OutpatientDischarger extends ScheduledTask {
   }
 
   async countQueue() {
-    const startOfToday = moment()
-      .startOf('day')
-      .toDate();
+    const startOfToday = startOfDay(new Date());
 
     const where = {
       encounterType: 'clinic',
@@ -41,9 +39,7 @@ export class OutpatientDischarger extends ScheduledTask {
   }
 
   async run() {
-    const startOfToday = moment()
-      .startOf('day')
-      .toDate();
+    const startOfToday = startOfDay(new Date());
 
     const where = {
       encounterType: 'clinic',

@@ -1,4 +1,4 @@
-import moment from 'moment-timezone';
+import { formatInTimeZone } from 'date-fns-tz';
 import { transliterate as tr } from 'transliteration';
 import config from 'config';
 import { EUDCC_CERTIFICATE_TYPES, EUDCC_SCHEMA_VERSION } from 'shared/constants';
@@ -18,7 +18,7 @@ const SCHEDULE_TO_SEQUENCE = {
   'Dose 9': 9,
 };
 
-const MOMENT_FORMAT_ISODATE = 'YYYY-MM-DD';
+const FORMAT_ISODATE = 'yyyy-MM-dd';
 
 export async function createEuDccVaccinationData(administeredVaccineId, { models }) {
   const {
@@ -120,12 +120,8 @@ export async function createEuDccVaccinationData(administeredVaccineId, { models
 
   const { timeZone, country } = await getLocalisation();
 
-  const dob = moment(patient.dateOfBirth)
-    .tz(timeZone)
-    .format(MOMENT_FORMAT_ISODATE);
-  const vaxDate = moment(date)
-    .tz(timeZone)
-    .format(MOMENT_FORMAT_ISODATE);
+  const dob = formatInTimeZone(patient.dateOfBirth, timeZone, FORMAT_ISODATE);
+  const vaxDate = formatInTimeZone(date, timeZone, FORMAT_ISODATE);
 
   return {
     ver: EUDCC_SCHEMA_VERSION,

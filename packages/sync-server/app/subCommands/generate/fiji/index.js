@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import moment from 'moment';
+import { add } from 'date-fns';
 import asyncPool from 'tiny-async-pool';
 
 import { fake } from 'shared/test-helpers';
@@ -175,9 +175,10 @@ export const generateFiji = async ({ patientCount: patientCountStr }) => {
     for (const testDate of testDates) {
       for (let i = 0; i < chance.integer({ min: 0, max: 2 }); i++) {
         const { id: encounterId } = await insertEncounter(patient.id);
-        const startTime = moment(testDate)
-          .add(chance.integer({ min: 1, max: 6 }), 'days')
-          .add(chance.integer({ min: 1, max: 12 }), 'hours');
+        const startTime = add(testDate, {
+          days: chance.integer({ min: 1, max: 6 }),
+          hours: chance.integer({ min: 1, max: 12 }),
+        });
         await insertSurveyResponse(store.sequelize.models, setupData, { encounterId, startTime });
       }
     }
