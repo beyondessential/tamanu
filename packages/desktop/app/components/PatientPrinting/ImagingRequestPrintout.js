@@ -32,7 +32,7 @@ export const ImagingRequestPrintout = React.memo(
           'Requested by': requestedBy?.displayName,
           Urgent: urgent ? 'Yes' : 'No',
           'Imaging type': imagingTypes[imagingType]?.label || 'Unknown',
-          'Areas to be imaged': areas ? areas.map(area => area.name).join(', ') : areaNote,
+          'Areas to be imaged': areas?.length ? areas.map(area => area.name).join(', ') : areaNote,
         }}
       />
     );

@@ -118,7 +118,7 @@ const ImagingRequestInfoPane = React.memo(
               multiline
               value={
                 // Either use free text area or multi-select areas data
-                imagingRequest?.areas
+                imagingRequest.areas?.length
                   ? imagingRequest.areas.map(area => area.name).join(', ')
                   : imagingRequest.areaNote
               }
