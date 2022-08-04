@@ -7,7 +7,7 @@ import { InvalidClientHeadersError } from 'shared/errors';
 // not supported.
 export const SUPPORTED_CLIENT_VERSIONS = {
   'Tamanu LAN Server': {
-    min: '1.19.0',
+    min: '1..0',
     max: '1.19.0', // note that higher patch versions will be allowed to connect
   },
   'Tamanu Desktop': {
