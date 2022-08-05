@@ -40,7 +40,7 @@ describe('Suggestions', () => {
       expect(result).toHaveSucceeded();
 
       const { body } = result;
-      expect(body).toHaveProperty('length', 1);
+      expect(body).toHaveLength(1)
       expect(body[0]).toHaveProperty('id', searchPatient.id);
     });
 
