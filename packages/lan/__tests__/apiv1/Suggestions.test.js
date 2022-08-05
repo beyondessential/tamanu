@@ -1,4 +1,4 @@
-import { SURVEY_TYPES } from 'shared/constants';
+import { SURVEY_TYPES, VISIBILITY_STATUSES } from 'shared/constants';
 import { splitIds, buildDiagnosis } from 'shared/demoData';
 import { createTestContext } from '../utilities';
 import { testDiagnoses } from '../seed';
@@ -171,4 +171,27 @@ describe('Suggestions', () => {
       expect(body.map(({ name }) => name)).toEqual(sortedTestData.map(({ name }) => name));
     });
   });
+
+  it('should respect visibility status', async () => {
+    const visible = await models.ReferenceData.create({
+      type: 'allergy',
+      name: 'visibility YES',
+      code: 'visible_allergy',
+    });
+    const invisible = await models.ReferenceData.create({
+      type: 'allergy',
+      name: 'visibility NO',
+      code: 'invisible_allergy',
+      visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+    });
+
+    const result = await userApp.get('/v1/suggestions/allergy?q=visibility');
+    expect(result).toHaveSucceeded();
+    const { body } = result;
+
+    const idArray = body.map(({ id }) => id);
+    expect(idArray).toContain(visible.id); 
+    expect(idArray).not.toContain(invisible.id); 
+  });
+    
 });

@@ -12,6 +12,7 @@ import {
   IDataRequiredToCreateLabRequest,
   ILabRequest,
   LabRequestStatus,
+  DateString,
 } from '~/types';
 import { Encounter } from './Encounter';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
@@ -22,10 +23,10 @@ import { ISO9075_SQLITE_DEFAULT } from './columnDefaults';
 @Entity('labRequest')
 export class LabRequest extends BaseModel implements ILabRequest {
   @Column({ nullable: false, default: ISO9075_SQLITE_DEFAULT })
-  sampleTime: string;
+  sampleTime: DateString;
 
   @Column({ nullable: false, default: ISO9075_SQLITE_DEFAULT })
-  requestedDate: string;
+  requestedDate: DateString;
 
   @Column({ nullable: true, default: false })
   urgent?: boolean;

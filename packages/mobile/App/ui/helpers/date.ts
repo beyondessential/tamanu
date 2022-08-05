@@ -1,4 +1,5 @@
 import { format, parseISO, differenceInYears } from 'date-fns';
+import { DateString } from '~/types';
 
 export function formatDate(date: Date, dateFormat: string): string {
   return format(date, dateFormat);
@@ -15,6 +16,6 @@ export function formatStringDate(date: string, dateFormat: string): string {
 
 // It seems that some JS implementations have problems
 // parsing strings to dates.
-export function parseISO9075(date: string): Date {
+export function parseISO9075(date: DateString): Date {
   return new Date(date.replace(' ', 'T'));
 }
