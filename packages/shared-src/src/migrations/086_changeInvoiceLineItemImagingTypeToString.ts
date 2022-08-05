@@ -71,7 +71,7 @@ export async function down(query: QueryInterface) {
           WHEN :ultrasoundText THEN :ultrasoundRefId
           WHEN :mammogramText THEN :mammogramRefId
           WHEN :echocardiogramText THEN :echocardiogramRefId
-          WHEN :endoscopyText THEN :endoscopyRefIds
+          WHEN :endoscopyText THEN :endoscopyRefId
           END
       WHERE item_type = :itemTypeImaging`,
     { replacements },
