@@ -75,17 +75,32 @@ export const SurveyResponseDetailsModal = connectApi(api => ({
 }))(({ surveyResponseId, fetchResponseDetails, onClose }) => {
   const [surveyDetails, setSurveyDetails] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (surveyResponseId) {
       setLoading(true);
       (async () => {
-        const details = await fetchResponseDetails(surveyResponseId);
-        setSurveyDetails(details);
-        setLoading(false);
+        try {
+          const details = await fetchResponseDetails(surveyResponseId);
+          setSurveyDetails(details);
+        } catch (e) {
+          setError(e);
+        } finally {
+          setLoading(false);
+        }
       })();
     }
   }, [surveyResponseId, fetchResponseDetails]);
+
+  if (error) {
+    return (
+      <Modal title="Survey response" open={!!surveyResponseId} onClose={onClose}>
+        <h3>Error fetching response details</h3>
+        <pre>{error.stack}</pre>
+      </Modal>
+    );
+  }
 
   if (loading || !surveyDetails) {
     return (

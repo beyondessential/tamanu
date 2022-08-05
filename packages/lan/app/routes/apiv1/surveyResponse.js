@@ -12,6 +12,8 @@ const MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE = {
   ReferenceData: 'name',
 };
 
+const DEFAULT_DISPLAY_COLUMN = 'id';
+
 surveyResponse.get(
   '/:id',
   asyncHandler(async (req, res) => {
@@ -41,9 +43,22 @@ surveyResponse.get(
         if (!componentConfig) {
           return answer;
         }
-        const result = await models[componentConfig.source].findByPk(answer.dataValues.body);
-        const answerDisplayValue =
-          result[MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE[componentConfig.source]];
+
+        const model = models[componentConfig.source];
+        if (!model) {
+          throw new Error('Survey is misconfigured: Question config did not specify a source');
+        }
+
+        const result = await model.findByPk(answer.dataValues.body);
+        if (!result) {
+          throw new Error(
+            `Selected answer ${componentConfig.source}[${answer.dataValues.body}] not found`,
+          );
+        }
+
+        const columnToDisplay =
+          MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE[componentConfig.source] || DEFAULT_DISPLAY_COLUMN;
+        const answerDisplayValue = result[columnToDisplay];
 
         const transformedAnswer = {
           ...answer.dataValues,
