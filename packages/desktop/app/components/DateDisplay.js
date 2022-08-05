@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Tooltip from '@material-ui/core/Tooltip';
+import format from 'date-fns/format';
 
 const intlFormatDate = (date, formatOptions, fallback = 'Unknown') => {
   if (!date) return fallback;
@@ -36,26 +37,52 @@ const formatLong = date =>
     'Date information not available',
   ); // "Thursday, 14 July 2022, 03:44 pm"
 
-const DiagnosticInfo = ({ date, rawDate }) => {
+// Diagnostic info for debugging
+const DiagnosticInfo = ({ date: rawDate }) => {
+  const date = new Date(rawDate);
   const displayDate = formatLong(date);
   const { timeZone } = Intl.DateTimeFormat().resolvedOptions();
-  const timeZoneOffset = date.getTimezoneOffset() / 60;
+  const timeZoneOffset = format(date, 'XXX');
 
   return (
     <div>
       Display date: {displayDate} <br />
-      Raw date: {rawDate.toString()} <br />
-      Timezone: {timeZone} <br />
-      Timezone offset: {timeZoneOffset}
+      Raw date: {date.toString()} <br />
+      Time zone: {timeZone} <br />
+      Time zone offset: {timeZoneOffset}
     </div>
+  );
+};
+
+// Tooltip that shows the long date or full diagnostic date info if the shift key is held down
+// before mousing over the date display
+const DateTooltip = ({ date, children }) => {
+  const [tooltipOpen, setTooltipOpen] = useState(false);
+  const [debug, setDebug] = useState(false);
+
+  const handleOpen = event => {
+    if (event.shiftKey) {
+      setDebug(true);
+    }
+    setTooltipOpen(true);
+  };
+
+  const handleClose = () => {
+    setTooltipOpen(false);
+    setDebug(false);
+  };
+
+  const tooltipTitle = debug ? <DiagnosticInfo date={date} /> : formatLong(date);
+
+  return (
+    <Tooltip open={tooltipOpen} onClose={handleClose} onOpen={handleOpen} title={tooltipTitle}>
+      {children}
+    </Tooltip>
   );
 };
 
 export const DateDisplay = React.memo(
   ({ date: dateValue, showDate = true, showTime = false, showExplicitDate = false }) => {
-    const [tooltipOpen, setTooltipOpen] = React.useState(false);
-    const [debug, setDebug] = React.useState(false);
-
     let date = dateValue;
 
     if (typeof date === 'string') {
@@ -72,24 +99,10 @@ export const DateDisplay = React.memo(
       parts.push(formatTime(date));
     }
 
-    const handleOpen = event => {
-      if (event.shiftKey) {
-        setDebug(true);
-      }
-      setTooltipOpen(true);
-    };
-
-    const handleClose = () => {
-      setTooltipOpen(false);
-      setDebug(false);
-    };
-
-    const tooltip = debug ? <DiagnosticInfo date={date} rawDate={dateValue} /> : formatLong(date);
-
     return (
-      <Tooltip tooltipOpen={tooltipOpen} onClose={handleClose} onOpen={handleOpen} title={tooltip}>
+      <DateTooltip date={dateValue}>
         <span>{parts.join(' ')}</span>
-      </Tooltip>
+      </DateTooltip>
     );
   },
 );
