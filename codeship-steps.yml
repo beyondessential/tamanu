@@ -110,6 +110,10 @@
               tag: ^(dev$|ci-)
               service: awsdeployment
               command: ./scripts/deploy_lan.sh dev
+            - name: onto uat
+              tag: ^uat-
+              service: awsdeployment
+              command: ./scripts/deploy_lan.sh uat
             - name: onto staging
               tag: ^(staging-)
               service: awsdeployment
