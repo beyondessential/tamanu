@@ -46,11 +46,18 @@ surveyResponse.get(
 
         const model = models[componentConfig.source];
         if (!model) {
-          throw new Error('Survey is misconfigured: Question config did not specify a source');
+          throw new Error(
+            'Survey is misconfigured: Question config did not specify a valid source',
+          );
         }
 
         const result = await model.findByPk(answer.dataValues.body);
         if (!result) {
+          if (componentConfig.source === 'ReferenceData') {
+            throw new Error(
+              `Selected answer ${componentConfig.source}[${answer.dataValues.body}] not found (check that the surveyquestion's source isn't ReferenceData for a Location, Facility, or Department)`,
+            );
+          }
           throw new Error(
             `Selected answer ${componentConfig.source}[${answer.dataValues.body}] not found`,
           );
