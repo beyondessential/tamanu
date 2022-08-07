@@ -1,5 +1,5 @@
+import { endOfDay, startOfDay } from 'date-fns';
 import { getJsDateFromExcel } from 'excel-date-to-js';
-import moment from 'moment';
 import { ENCOUNTER_TYPES } from 'shared/constants';
 
 export const loaderFactory = model => ({ note, ...values }) => [{ model, values }];
@@ -35,10 +35,8 @@ export function administeredVaccineLoader(item) {
   } = item;
   const date = excelDate ? getJsDateFromExcel(excelDate) : null;
 
-  const rows = [];
-
-  const startDate = date ? moment(date).startOf('day') : null;
-  const endDate = date ? moment(date).endOf('day') : null;
+  const startDate = date ? startOfDay(date) : null;
+  const endDate = date ? endOfDay(date) : null;
 
   return [
     {
