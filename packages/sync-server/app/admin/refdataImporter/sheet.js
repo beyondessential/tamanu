@@ -102,10 +102,18 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
 
   log.debug('Preparing rows of data into table rows', { rows: sheetRows.length });
   const tableRows = [];
+  const idCache = new Set();
   for (const [sheetRow, data] of sheetRows.entries()) {
     try {
       for (const { model, values } of loader(data)) {
         if (!models[model]) throw new Error(`No such type of data: ${model}`);
+
+        if (values.id && idCache.has(values.id)) {
+          errors.push(new ValidationError(sheetName, sheetRow, `duplicate id: ${values.id}`));
+          continue;
+        } else {
+          idCache.add(values.id);
+        }
 
         stats[statkey(model)] = stats[statkey(model)] || newStatsRow();
         tableRows.push({ model, sheetRow, values });

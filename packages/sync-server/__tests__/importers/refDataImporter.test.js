@@ -93,9 +93,9 @@ describe('Data definition import', () => {
     expect(errors).toContainValidationError('village', 6, BAD_VIS_ERROR_MESSAGE);
     expect(errors).toContainValidationError('village', 7, 'id is a required field');
 
-    expect(errors).toContainValidationError('triageReason', 5, BAD_ID_ERROR_MESSAGE);
     expect(errors).toContainValidationError('diagnosis', 3, BAD_CODE_ERROR_MESSAGE);
-    // TODO: duplicate IDs
+    expect(errors).toContainValidationError('triageReason', 4, 'duplicate id: triage-dupeid');
+    expect(errors).toContainValidationError('triageReason', 5, BAD_ID_ERROR_MESSAGE);
   });
 
   it('should validate users', async () => {
@@ -111,11 +111,6 @@ describe('Data definition import', () => {
     expect(errors).toContainValidationError('user', 4, 'displayName is a required field');
     expect(errors).toContainValidationError('user', 5, 'id is a required field');
   });
-
-  it.todo('should flag records with duplicate ids');
-  // it('should flag records with duplicate ids', () => {
-  //   expectError('referenceData', 'is already being used at');
-  // });
 
   it.todo('should report an error if an FK search comes up empty');
   // it('should report an error if an FK search comes up empty', () => {
