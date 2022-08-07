@@ -1,4 +1,4 @@
-import importer from '../../app/admin/importPermissions';
+import importer from '../../app/admin/permissionsImporter';
 
 const TEST_PERMISSIONS_PATH = './__tests__/importers/test_permissions.xlsx';
 
