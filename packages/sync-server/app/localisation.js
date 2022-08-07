@@ -157,6 +157,23 @@ const templatesSchema = yup
       .required()
       .noUnknown(),
 
+    covidClearanceCertificateEmail: yup
+      .object()
+      .shape({
+        subject: yup
+          .string()
+          .trim()
+          .min(1)
+          .required(),
+        body: yup
+          .string()
+          .trim()
+          .min(1)
+          .required(),
+      })
+      .required()
+      .noUnknown(),
+
     vaccineCertificate: yup
       .object({
         emailAddress: yup.string().trim(),

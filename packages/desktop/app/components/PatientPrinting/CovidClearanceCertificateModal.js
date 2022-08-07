@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { CovidLabCertificate } from 'shared/utils/patientCertificates';
-import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
+import { CovidLabCertificate, CertificateTypes } from 'shared/utils/patientCertificates';
+import { COVID_19_CLEARANCE_CERTIFICATE } from 'shared/constants';
 import { Modal } from '../Modal';
 import { useApi } from '../../api';
 import { useLocalisation } from '../../contexts/Localisation';
@@ -24,7 +24,7 @@ export const CovidClearanceCertificateModal = ({ patient }) => {
   const createCovidTestCertNotification = useCallback(
     data => {
       api.post('certificateNotification', {
-        type: ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING.JSON,
+        type: COVID_19_CLEARANCE_CERTIFICATE,
         requireSigning: false,
         patientId: patient.id,
         forwardAddress: data.email,
@@ -53,7 +53,7 @@ export const CovidClearanceCertificateModal = ({ patient }) => {
           logoSrc={logo}
           getLocalisation={getLocalisation}
           printedBy={printedBy}
-          certType="Clearance"
+          certType={CertificateTypes.clearance}
         />
       </PDFViewer>
     </Modal>

@@ -325,6 +325,8 @@ export const ICAO_DOCUMENT_TYPES = {
   },
 };
 
+export const COVID_19_CLEARANCE_CERTIFICATE = 'covid_19_clearance';
+
 export const EUDCC_CERTIFICATE_TYPES = {
   VACCINATION: 'v',
   TEST: 't',

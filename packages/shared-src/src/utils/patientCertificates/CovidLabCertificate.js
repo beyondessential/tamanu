@@ -60,18 +60,18 @@ const columns = [
 ];
 
 export const CertificateTypes = {
-  Test: 'Test',
-  Clearance: 'Clearance',
+  test: 'test',
+  clearance: 'clearance',
 };
 
 const CertificateTitle = {
-  Test: 'Covid-19 Test History',
-  Clearance: 'Covid-19 Clearance Certificate',
+  test: 'Covid-19 Test History',
+  clearance: 'Covid-19 Clearance Certificate',
 };
 
 const getCertificateRemark = patient => ({
-  Test: '',
-  Clearance: `This notice certifies that ${patient.firstName} ${patient.lastName} is no longer considered infectious following 13 days of self-isolation from the date of their first positive SARS-CoV-2 test and are medically cleared from COVID-19.`,
+  test: '',
+  clearance: `This notice certifies that ${patient.firstName} ${patient.lastName} is no longer considered infectious following 13 days of self-isolation from the date of their first positive SARS-CoV-2 test and are medically cleared from COVID-19.`,
 });
 
 export const CovidLabCertificate = ({
