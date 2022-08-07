@@ -4,9 +4,11 @@ import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 import { IDENTIFIER_NAMESPACE } from '../../../app/hl7fhir/utils';
 
-const chance = new Chance();
+const integrationName = 'fijiVps';
+const requestHeaders = { 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' };
 
-describe('VPS integration - DiagnosticReport', () => {
+describe(`${integrationName} integration - DiagnosticReport`, () => {
+  const chance = new Chance();
   let ctx;
   let app;
   beforeAll(async () => {
@@ -94,12 +96,10 @@ describe('VPS integration - DiagnosticReport', () => {
       } = await createLabTestHierarchy(patient);
 
       const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
-      const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Aresult&_include=DiagnosticReport%3Aresult.device%3ADevice`;
+      const path = `/v1/integration/${integrationName}/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Aresult&_include=DiagnosticReport%3Aresult.device%3ADevice`;
 
       // act
-      const response = await app
-        .get(path)
-        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
+      const response = await app.get(path).set(requestHeaders);
 
       // assert
       expect(response).toHaveSucceeded();
@@ -240,18 +240,15 @@ describe('VPS integration - DiagnosticReport', () => {
       await createLabTestHierarchy(someOtherPatient);
 
       const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
-      const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
+      const path = `/v1/integration/${integrationName}/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
 
       // act
-      const response1 = await app
-        .get(path)
-        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
+      const response1 = await app.get(path).set(requestHeaders);
 
       const nextUrl = response1.body.link.find(l => l.relation === 'next')?.url;
-      const [, nextPath] = nextUrl.match(/^.*(\/v1\/integration\/fijiVps\/.*)$/);
-      const response2 = await app
-        .get(nextPath)
-        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
+      const urlRegEx = new RegExp(`^.*(/v1/integration/${integrationName}/.*)$`);
+      const [, nextPath] = nextUrl.match(urlRegEx);
+      const response2 = await app.get(nextPath).set(requestHeaders);
 
       // assert
       expect(response1).toHaveSucceeded();
@@ -261,7 +258,9 @@ describe('VPS integration - DiagnosticReport', () => {
           { relation: 'self', url: expect.stringContaining(path) },
           {
             relation: 'next',
-            url: expect.stringContaining('/v1/integration/fijiVps/DiagnosticReport?searchId='),
+            url: expect.stringContaining(
+              `/v1/integration/${integrationName}/DiagnosticReport?searchId=`,
+            ),
           },
         ],
         entry: [
@@ -288,12 +287,10 @@ describe('VPS integration - DiagnosticReport', () => {
     it("returns no error but no results when subject:identifier doesn't match a patient", async () => {
       // arrange
       const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|not-an-existing-id`);
-      const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
+      const path = `/v1/integration/${integrationName}/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
 
       // act
-      const response = await app
-        .get(path)
-        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
+      const response = await app.get(path).set(requestHeaders);
 
       // assert
       expect(response).toHaveSucceeded();
@@ -325,12 +322,10 @@ describe('VPS integration - DiagnosticReport', () => {
       await labRequest.save();
 
       const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
-      const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Aresult&_include=DiagnosticReport%3Aresult.device%3ADevice`;
+      const path = `/v1/integration/${integrationName}/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Aresult&_include=DiagnosticReport%3Aresult.device%3ADevice`;
 
       // act
-      const response = await app
-        .get(path)
-        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
+      const response = await app.get(path).set(requestHeaders);
 
       // assert
       expect(response).toHaveSucceeded();
@@ -368,12 +363,10 @@ describe('VPS integration - DiagnosticReport', () => {
       const { labTest, labTestMethod } = await createLabTestHierarchy(patient, { isRDT: true });
 
       const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
-      const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Aresult&_include=DiagnosticReport%3Aresult.device%3ADevice`;
+      const path = `/v1/integration/${integrationName}/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Aresult&_include=DiagnosticReport%3Aresult.device%3ADevice`;
 
       // act
-      const response = await app
-        .get(path)
-        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
+      const response = await app.get(path).set(requestHeaders);
 
       // assert
       expect(response).toHaveSucceeded();
@@ -426,12 +419,10 @@ describe('VPS integration - DiagnosticReport', () => {
       await labRequest2.save();
 
       const id = encodeURIComponent(`${IDENTIFIER_NAMESPACE}|${patient.displayId}`);
-      const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
+      const path = `/v1/integration/${integrationName}/DiagnosticReport?_sort=-issued&_page=0&_count=2&status=final&subject%3Aidentifier=${id}`;
 
       // act
-      const response = await app
-        .get(path)
-        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
+      const response = await app.get(path).set(requestHeaders);
 
       // assert
       expect(response).toHaveSucceeded();
@@ -453,12 +444,10 @@ describe('VPS integration - DiagnosticReport', () => {
       await createLabTestHierarchy(patient);
 
       const id = encodeURIComponent(`https://wrong.com/this-is-wrong|${patient.displayId}`);
-      const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=deceased&_page=-1&_count=101&status=invalid-status&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Asomething-invalid`;
+      const path = `/v1/integration/${integrationName}/DiagnosticReport?_sort=deceased&_page=-1&_count=101&status=invalid-status&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Asomething-invalid`;
 
       // act
-      const response = await app
-        .get(path)
-        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
+      const response = await app.get(path).set(requestHeaders);
 
       // assert
       expect(response).toHaveRequestError(422);
@@ -481,12 +470,10 @@ describe('VPS integration - DiagnosticReport', () => {
       const patient = await Patient.create(fake(Patient));
       await createLabTestHierarchy(patient);
 
-      const path = `/v1/integration/fijiVps/DiagnosticReport`;
+      const path = `/v1/integration/${integrationName}/DiagnosticReport`;
 
       // act
-      const response = await app
-        .get(path)
-        .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
+      const response = await app.get(path).set(requestHeaders);
 
       // assert
       expect(response).toHaveRequestError(422);
