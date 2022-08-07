@@ -1,3 +1,4 @@
+import config from 'config';
 import asyncHandler from 'express-async-handler';
 import { promises as fs } from 'fs';
 
@@ -28,7 +29,7 @@ export function createDataImporterEndpoint(importer) {
       ...result,
       duration: (Date.now() - start) / 1000.0,
       serverInfo: {
-        host: 'Central Server',
+        host: config.canonicalHostName,
       },
     });
   });
