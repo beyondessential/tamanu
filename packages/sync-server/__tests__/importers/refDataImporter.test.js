@@ -83,6 +83,20 @@ describe('Data definition import', () => {
     expect(afterCount).toEqual(beforeCount);
   });
 
+  it('should error on missing file', async () => {
+    const { didntSendReason, errors } = await doImport({
+      file: 'nofile',
+      dryRun: true,
+    });
+
+    expect(didntSendReason).toEqual('validationFailed');
+
+    expect(errors[0]).toHaveProperty(
+      'message',
+      `ENOENT: no such file or directory, open './__tests__/importers/refdata-nofile.xlsx'`,
+    );
+  });
+
   it('should validate reference data', async () => {
     const { didntSendReason, errors } = await doImport({
       file: 'invalid-refdata',
