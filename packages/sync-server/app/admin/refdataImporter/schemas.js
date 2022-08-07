@@ -42,10 +42,18 @@ export const RDmanufacturer = ReferenceData.shape({
 });
 
 export const Patient = Base.shape({
-  villageId: yup.string(),
   firstName: yup.string().required(),
+  middleName: yup.string(),
   lastName: yup.string().required(),
+  culturalName: yup.string(),
+  
+  displayId: yup.string().required(),
+  sex: yup.string().oneOf(['male', 'female', 'other']).required(),
+  
   dateOfBirth: yup.date().required(),
+  dateOfDeath: yup.date(),
+  
+  villageId: yup.string(),
 });
 
 export const User = Base.shape({
