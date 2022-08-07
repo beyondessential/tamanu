@@ -150,6 +150,7 @@ export const makeCovidTestCertificate = async (patient, printedBy, models, vdsDa
         printedBy={printedBy}
         vdsSrc={vds}
         getLocalisation={getLocalisationData}
+        certType="Test"
       />,
       filePath,
     );

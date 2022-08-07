@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { CovidLabCertificate } from 'shared/utils/patientCertificates';
 import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
 import { Modal } from '../Modal';
@@ -9,15 +8,12 @@ import { EmailButton } from '../Email/EmailButton';
 import { PDFViewer, printPDF } from './PDFViewer';
 import { useCertificate } from '../../utils/useCertificate';
 
-export const CovidTestCertificateModal = ({ patient }) => {
+export const CovidClearanceCertificateModal = ({ patient }) => {
   const [open, setOpen] = useState(true);
   const [labs, setLabs] = useState([]);
   const { getLocalisation } = useLocalisation();
   const api = useApi();
   const { watermark, logo, footerImg, printedBy } = useCertificate();
-  const { data: additionalData } = useQuery(['additionalData', patient.id], () =>
-    api.get(`patient/${patient.id}/additionalData`),
-  );
 
   useEffect(() => {
     api.get(`patient/${patient.id}/covidLabTests`).then(response => {
@@ -38,8 +34,6 @@ export const CovidTestCertificateModal = ({ patient }) => {
     [api, patient.id, printedBy],
   );
 
-  const patientData = { ...patient, additionalData };
-
   return (
     <Modal
       open={open}
@@ -47,19 +41,19 @@ export const CovidTestCertificateModal = ({ patient }) => {
       width="md"
       printable
       keepMounted
-      onPrint={() => printPDF('test-certificate')}
+      onPrint={() => printPDF('clearance-certificate')}
       additionalActions={<EmailButton onEmail={createCovidTestCertNotification} />}
     >
-      <PDFViewer id="test-certificate">
+      <PDFViewer id="clearance-certificate">
         <CovidLabCertificate
-          patient={patientData}
+          patient={patient}
           labs={labs}
           watermarkSrc={watermark}
           signingSrc={footerImg}
           logoSrc={logo}
           getLocalisation={getLocalisation}
           printedBy={printedBy}
-          certType="Test"
+          certType="Clearance"
         />
       </PDFViewer>
     </Modal>

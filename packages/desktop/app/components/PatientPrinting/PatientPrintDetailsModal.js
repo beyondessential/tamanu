@@ -9,6 +9,7 @@ import { useApi } from '../../api';
 import { PatientIDCardPage } from './PatientIDCardPage';
 import { PatientStickerLabelPage } from './PatientStickerLabelPage';
 import { CovidTestCertificateModal } from './CovidTestCertificateModal';
+import { CovidClearanceCertificateModal } from './CovidClearanceCertificateModal';
 import { StickerIcon } from './StickerIcon';
 import { IDCardIcon } from './IDCardIcon';
 import { CertificateIcon } from './CertificateIcon';
@@ -27,6 +28,11 @@ const PRINT_OPTIONS = {
   covidTestCert: {
     label: 'Print COVID-19 test certificate',
     component: CovidTestCertificateModal,
+    icon: CertificateIcon,
+  },
+  covidClearanceCert: {
+    label: 'Print COVID-19 clearance certificate',
+    component: CovidClearanceCertificateModal,
     icon: CertificateIcon,
   },
 };
