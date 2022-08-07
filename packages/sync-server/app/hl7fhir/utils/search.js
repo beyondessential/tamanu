@@ -57,8 +57,6 @@ export function getQueryObject(columnName, value, operator, modifier, parameterT
     const startDate = parseHL7Date(value).startOf(timeUnit).toDate();
     const endDate = parseHL7Date(value).endOf(timeUnit).toDate();
     
-    console.log({ columnName, value, operator, modifier, parameterType, startDate, endDate });
-    
     if (['date_of_birth', 'date_of_death'].includes(columnName)) {
       return { [operator]: [toDateString(startDate), toDateString(endDate)] };
     }
