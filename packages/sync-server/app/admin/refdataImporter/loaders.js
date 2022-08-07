@@ -5,7 +5,7 @@ import { ENCOUNTER_TYPES } from 'shared/constants';
 export const loaderFactory = model => ({ note, ...values }) => [{ model, values }];
 
 export function referenceDataLoaderFactory(refType) {
-  return ({ id, code, name }) => [
+  return ({ id, code, name, visibilityStatus }) => [
     {
       model: 'ReferenceData',
       values: {
@@ -13,10 +13,12 @@ export function referenceDataLoaderFactory(refType) {
         type: refType,
         code: typeof code === 'number' ? `${code}` : code,
         name,
+        visibilityStatus,
       },
     },
   ];
 }
+
 export function administeredVaccineLoader(item) {
   const {
     encounterId,
