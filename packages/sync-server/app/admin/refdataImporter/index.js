@@ -142,7 +142,7 @@ async function importerInner({ errors, models, stats, file, whitelist = [] }) {
   log.debug('Done importing data', { importedData, droppedData });
 }
 
-export default async function importer({
+export async function importer({
   models,
   file,
   dryRun = false,

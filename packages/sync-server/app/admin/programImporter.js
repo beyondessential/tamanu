@@ -127,7 +127,7 @@ function importSurveySheet(data, survey) {
     .flat();
 }
 
-export default function importProgram({ file, whitelist }) {
+export function importer({ file, whitelist }) {
   if (!existsSync(file)) {
     throw new Error(`File ${file} not found`);
   }

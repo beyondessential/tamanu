@@ -1,9 +1,13 @@
 import express from 'express';
 
 import { createDataImporterEndpoint } from './importerEndpoint';
-import refdataImporter, { PERMISSIONS as REFDATA_PERMISSIONS } from './refdataImporter';
-import permissionsImporter, { PERMISSIONS as PERMISSIONS_PERMISSIONS } from './permissionsImporter';
-import programImporter, { PERMISSIONS as PROGRAM_PERMISSIONS } from './programImporter';
+
+import {
+  importer as permissionsImporter,
+  PERMISSIONS as PERMISSIONS_PERMISSIONS,
+} from './permissionsImporter';
+import { importer as programImporter, PERMISSIONS as PROGRAM_PERMISSIONS } from './programImporter';
+import { importer as refdataImporter, PERMISSIONS as REFDATA_PERMISSIONS } from './refdataImporter';
 
 export const adminRoutes = express.Router();
 

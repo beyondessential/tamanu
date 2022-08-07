@@ -1,6 +1,6 @@
 import matchers from 'expect/build/matchers';
 
-import importer from '../../app/admin/refdataImporter';
+import { importer } from '../../app/admin/refdataImporter';
 import { ValidationError, ForeignkeyResolutionError } from '../../app/admin/refdataImporter/errors';
 import { createTestContext } from '../utilities';
 

@@ -46,7 +46,7 @@ const permissionTransformer = item => {
     });
 };
 
-export default async function importPermissions({ file }) {
+export async function importer({ file }) {
   log.info(`Importing permissions from ${file}...`);
 
   // parse xlsx

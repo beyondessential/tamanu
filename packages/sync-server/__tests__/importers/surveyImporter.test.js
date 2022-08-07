@@ -1,5 +1,5 @@
 import { cloneDeep } from 'lodash';
-import importer from '../../app/admin/programImporter';
+import { importer } from '../../app/admin/programImporter';
 
 const TEST_PROGRAMS_PATH = './__tests__/importers/test_programs.xlsx';
 
