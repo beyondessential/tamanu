@@ -187,6 +187,10 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
             } else if (idByRemoteName) {
               delete values[fkFieldName];
               values[fkNameLowerId] = idByRemoteName;
+            } else {
+              throw new Error(
+                `valid foreign key expected in column ${fkFieldName} (corresponding to ${fkNameLowerId}) but found: ${fkFieldValue}`,
+              );
             }
           }
         }
