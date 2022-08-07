@@ -99,8 +99,10 @@ async function importerInner({ errors, models, stats, file, whitelist = [] }) {
   const importedData = [];
   const droppedData = [];
 
-  // TODO: cycle/deadloop protection
-  while (dataTypes.length > 0) {
+  let loopProtection = 100;
+  while (dataTypes.length > 0 && loopProtection > 0) {
+    loopProtection -= 1;
+
     const [
       dataType,
       { model = upperFirst(dataType), loader = loaderFactory(model), needs = [] },
@@ -134,6 +136,8 @@ async function importerInner({ errors, models, stats, file, whitelist = [] }) {
     );
     importedData.push(dataType);
   }
+  
+  if (!loopProtection) throw new Error('Loop, cycle, or unresolvable import dependencies');
 
   log.debug('Done importing data', { importedData, droppedData });
 }
