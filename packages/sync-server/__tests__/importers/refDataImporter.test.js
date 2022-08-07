@@ -1,7 +1,7 @@
 import matchers from 'expect/build/matchers';
 
 import importer from '../../app/admin/refdataImporter';
-import { ValidationError } from '../../app/admin/refdataImporter/errors';
+import { ValidationError, ForeignkeyResolutionError } from '../../app/admin/refdataImporter/errors';
 import { createTestContext } from '../utilities';
 
 // the importer can take a little while
@@ -18,7 +18,11 @@ function toContainValidationError(errors, inSheet, atRow, withMessage) {
   return toContainError(errors, { ofType: ValidationError, inSheet, atRow, withMessage });
 }
 
-expect.extend({ toContainError, toContainValidationError });
+function toContainFkError(errors, inSheet, atRow, withMessage) {
+  return toContainError(errors, { ofType: ForeignkeyResolutionError, inSheet, atRow, withMessage });
+}
+
+expect.extend({ toContainError, toContainValidationError, toContainFkError });
 
 const BAD_ID_ERROR_MESSAGE = 'id must not have spaces or punctuation other than -';
 const BAD_CODE_ERROR_MESSAGE = 'code must not have spaces or punctuation other than -./';
@@ -98,8 +102,8 @@ describe('Data definition import', () => {
     expect(errors).toContainValidationError('triageReason', 5, BAD_ID_ERROR_MESSAGE);
   });
 
+  // as example of non-refdata import
   it('should validate users', async () => {
-    // as example of non-refdata import
     const { didntSendReason, errors } = await doImport({
       file: 'invalid-users',
       dryRun: true,
@@ -112,21 +116,24 @@ describe('Data definition import', () => {
     expect(errors).toContainValidationError('user', 5, 'id is a required field');
   });
 
-  it.todo('should report an error if an FK search comes up empty');
-  // it('should report an error if an FK search comes up empty', () => {
-  //   expectError(
-  //     'patient',
-  //     'could not find a record of type referenceData called "village-nowhere"',
-  //   );
-  // });
+  it('should validate foreign keys', async () => {
+    const { didntSendReason, errors } = await doImport({
+      file: 'invalid-fk',
+      dryRun: true,
+    });
 
-  it.todo('should report an error if an FK is of the wrong type');
-  // it('should report an error if an FK is of the wrong type', () => {
-  //   expectError(
-  //     'patient',
-  //     'could not find a record of type referenceData called "2ecb58ca-8b2b-42e8-9c18-fd06c09653e1"',
-  //   );
-  // });
+    expect(didntSendReason).toEqual('validationFailed');
+    expect(errors).toContainFkError(
+      'patient',
+      4,
+      'valid foreign key expected in column village (corresponding to villageId) but found: village-nowhere',
+    );
+    expect(errors).toContainFkError(
+      'patient',
+      5,
+      'valid foreign key expected in column village (corresponding to villageId) but found: drug-id',
+    );
+  });
 
   describe.skip('Visibility status', () => {
     it('Should import visibility status', () => {
