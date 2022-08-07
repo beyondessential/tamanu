@@ -5,6 +5,7 @@ import { ENCOUNTER_TYPES } from 'shared/constants';
 export const loaderFactory = model => ({ note, ...values }) => [{ model, values }];
 
 export function referenceDataLoaderFactory(refType) {
+  if (refType === 'diagnosis') refType = 'icd10';
   return ({ id, code, name, visibilityStatus }) => [
     {
       model: 'ReferenceData',

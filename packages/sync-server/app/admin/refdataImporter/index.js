@@ -68,9 +68,11 @@ async function importerInner({ errors, models, stats, file, whitelist = [] }) {
     models,
   });
 
-  log.debug('Import all reference data', { types: REFERENCE_TYPE_VALUES });
+  const refDataTypes = ['diagnosis', ...REFERENCE_TYPE_VALUES];
+
+  log.debug('Import all reference data', { types: refDataTypes });
   const importedRef = [];
-  for (const refType of REFERENCE_TYPE_VALUES) {
+  for (const refType of refDataTypes) {
     log.debug('Look for reference data in sheets', { refType });
     const sheet = sheets.get(refType);
     if (!sheet) continue;

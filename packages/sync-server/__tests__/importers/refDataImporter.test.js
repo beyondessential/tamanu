@@ -50,6 +50,7 @@ describe('Data definition import', () => {
     expect(errors).toBeEmpty();
     expect(stats).toEqual({
       'ReferenceData/allergy': { created: 10, updated: 0, errored: 0 },
+      'ReferenceData/diagnosis': { created: 10, updated: 0, errored: 0 },
       'ReferenceData/drug': { created: 10, updated: 0, errored: 0 },
       'ReferenceData/triageReason': { created: 10, updated: 0, errored: 0 },
       'ReferenceData/imagingType': { created: 4, updated: 0, errored: 0 },
