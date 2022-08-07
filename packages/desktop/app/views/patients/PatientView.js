@@ -1,8 +1,9 @@
 import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
-
+import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
+
 import { TabDisplay } from '../../components/TabDisplay';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientAlert } from '../../components/PatientAlert';
@@ -10,6 +11,7 @@ import { EncounterModal } from '../../components/EncounterModal';
 import { TriageModal } from '../../components/TriageModal';
 import { connectRoutedModal } from '../../components/Modal';
 import { useLocalisation } from '../../contexts/Localisation';
+import { useApi } from '../../api';
 
 import {
   HistoryPane,
@@ -97,6 +99,10 @@ export const PatientView = () => {
   const patient = useSelector(state => state.patient);
   const [currentTab, setCurrentTab] = React.useState('history');
   const disabled = !!patient.death;
+  const api = useApi();
+  const { data: additionalData, isLoading } = useQuery(['additionalData', patient.id], () =>
+    api.get(`patient/${patient.id}/additionalData`),
+  );
 
   const RoutedEncounterModal = useMemo(() => getConnectRoutedModal(params, 'checkin'), [params])(
     EncounterModal,
@@ -106,7 +112,7 @@ export const PatientView = () => {
     TriageModal,
   );
 
-  if (patient.loading) return <LoadingIndicator />;
+  if (patient.loading || isLoading) return <LoadingIndicator />;
 
   const visibleTabs = TABS.filter(tab => !tab.condition || tab.condition(getLocalisation));
 
@@ -118,11 +124,12 @@ export const PatientView = () => {
         currentTab={currentTab}
         onTabSelect={setCurrentTab}
         patient={patient}
+        additionalData={additionalData}
         disabled={disabled}
       />
       <RoutedEncounterModal
         patientId={patient.id}
-        patientBillingTypeId={patient.additionalData?.patientBillingTypeId}
+        patientBillingTypeId={additionalData?.patientBillingTypeId}
         referrals={patient.referrals}
       />
       <RoutedTriageModal patient={patient} />

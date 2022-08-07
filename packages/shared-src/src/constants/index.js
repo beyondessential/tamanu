@@ -133,6 +133,12 @@ export const ACTION_DATA_ELEMENT_TYPES = [
   PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA,
 ];
 
+export const LAB_TEST_RESULT_TYPES = {
+  FREE_TEXT: 'FreeText',
+  NUMBER: 'Number',
+  SELECT: 'Select',
+};
+
 export const REPORT_REQUEST_STATUSES = {
   RECEIVED: 'Received',
   PROCESSING: 'Processing',
@@ -349,3 +355,6 @@ export const VISIBILITY_STATUSES = {
   CURRENT: 'current',
   HISTORICAL: 'historical',
 };
+
+export const ISO9075_FORMAT = 'YYYY-MM-DD HH:mm:ss';
+export const ISO9075_FORMAT_LENGTH = ISO9075_FORMAT.length;

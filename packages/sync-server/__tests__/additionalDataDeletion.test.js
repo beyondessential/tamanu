@@ -59,7 +59,85 @@ describe('Lab test publisher', () => {
     expect(updatedNull2).toHaveProperty('mergedIntoId', realData.id);
   });
 
-  it('Should not delete a duplicate record with data in it', async () => {
+  it('Should merge in a record that has no direct conflicts', async () => {
+    const patient = await models.Patient.create(createDummyPatient());
+    const realData = await models.PatientAdditionalData.create({ patientId: patient.id, passport: 'passport' });
+    const mergedData = await models.PatientAdditionalData.create({ patientId: patient.id, drivingLicense: 'drivingLicense' });
+    const mergedData2 = await models.PatientAdditionalData.create({ patientId: patient.id, birthCertificate: 'birthCertificate' });
+
+    const results = await reconcilePatient(ctx.store.sequelize, patient.id);
+    expect(results).toHaveProperty('deleted', 2);
+    expect(results).toHaveProperty('unmergeable', 0);
+
+    const updatedReal = await loadEvenIfDeleted(realData);
+    expect(updatedReal.deletedAt).toBeFalsy();
+    expect(updatedReal).toHaveProperty('mergedIntoId', null);
+    expect(updatedReal).toHaveProperty('passport', 'passport');
+    expect(updatedReal).toHaveProperty('drivingLicense', 'drivingLicense');
+    expect(updatedReal).toHaveProperty('birthCertificate', 'birthCertificate');
+
+    const updatedMerged = await loadEvenIfDeleted(mergedData);
+    expect(updatedMerged.deletedAt).toBeTruthy();
+    expect(updatedMerged).toHaveProperty('mergedIntoId', realData.id);
+
+    const updatedMerged2 = await loadEvenIfDeleted(mergedData2);
+    expect(updatedMerged2.deletedAt).toBeTruthy();
+    expect(updatedMerged2).toHaveProperty('mergedIntoId', realData.id);
+  });
+  
+  it('Should merge in multiple duplicates whose non-null fields align', async () => {
+    const patient = await models.Patient.create(createDummyPatient());
+    const realData = await models.PatientAdditionalData.create({ patientId: patient.id, passport: 'passport' });
+    const mergedData = await models.PatientAdditionalData.create({ patientId: patient.id, passport: 'passport', drivingLicense: 'drivingLicense', bloodType: 'A-' });
+    const mergedData2 = await models.PatientAdditionalData.create({ patientId: patient.id, passport: 'passport', drivingLicense: 'drivingLicense', birthCertificate: 'birthCertificate' });
+
+    const results = await reconcilePatient(ctx.store.sequelize, patient.id);
+    expect(results).toHaveProperty('deleted', 2);
+    expect(results).toHaveProperty('unmergeable', 0);
+
+    const updatedReal = await loadEvenIfDeleted(realData);
+    expect(updatedReal.deletedAt).toBeFalsy();
+    expect(updatedReal).toHaveProperty('mergedIntoId', null);
+    expect(updatedReal).toHaveProperty('passport', 'passport');
+    expect(updatedReal).toHaveProperty('drivingLicense', 'drivingLicense');
+    expect(updatedReal).toHaveProperty('birthCertificate', 'birthCertificate');
+    expect(updatedReal).toHaveProperty('bloodType', 'A-');
+
+    const updatedMerged = await loadEvenIfDeleted(mergedData);
+    expect(updatedMerged.deletedAt).toBeTruthy();
+    expect(updatedMerged).toHaveProperty('mergedIntoId', realData.id);
+
+    const updatedMerged2 = await loadEvenIfDeleted(mergedData2);
+    expect(updatedMerged2.deletedAt).toBeTruthy();
+    expect(updatedMerged2).toHaveProperty('mergedIntoId', realData.id);
+  });
+  
+  it('Should only merge one duplicate record if duplicates conflict with each other', async () => {
+    const patient = await models.Patient.create(createDummyPatient());
+    const realData = await models.PatientAdditionalData.create({ patientId: patient.id, passport: 'passport' });
+    const mergedOKData = await models.PatientAdditionalData.create({ patientId: patient.id, drivingLicense: 'drivingLicense' });
+    const mergedBadData = await models.PatientAdditionalData.create({ patientId: patient.id, drivingLicense: 'otherDriving' });
+
+    const results = await reconcilePatient(ctx.store.sequelize, patient.id);
+    expect(results).toHaveProperty('deleted', 1);
+    expect(results).toHaveProperty('unmergeable', 1);
+
+    const updatedReal = await loadEvenIfDeleted(realData);
+    expect(updatedReal.deletedAt).toBeFalsy();
+    expect(updatedReal).toHaveProperty('mergedIntoId', null);
+    expect(updatedReal).toHaveProperty('passport', 'passport');
+    expect(updatedReal).toHaveProperty('drivingLicense', 'drivingLicense');
+
+    const updatedMerged = await loadEvenIfDeleted(mergedOKData);
+    expect(updatedMerged.deletedAt).toBeTruthy();
+    expect(updatedMerged).toHaveProperty('mergedIntoId', realData.id);
+
+    const updatedMerged2 = await loadEvenIfDeleted(mergedBadData);
+    expect(updatedMerged2.deletedAt).toBeFalsy();
+    expect(updatedMerged2).toHaveProperty('mergedIntoId', null);
+  });
+
+  it('Should not merge a duplicate record with conflicting data', async () => {
     const patient = await models.Patient.create(createDummyPatient());
     const realData = await models.PatientAdditionalData.create({ patientId: patient.id, passport: '12345' });
     const realData2 = await models.PatientAdditionalData.create({ patientId: patient.id, passport: '99999' });

@@ -1,14 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
-import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from 'shared/constants';
+import { SYNC_DIRECTIONS, LAB_TEST_RESULT_TYPES, VISIBILITY_STATUSES } from 'shared/constants';
 import { Model } from './Model';
-
-const QUESTION_TYPES = {
-  NUMBER: 'number',
-  STRING: 'string',
-};
-
-const QUESTION_TYPE_VALUES = Object.values(QUESTION_TYPES);
 
 function optionStringToArray(s) {
   if (!s) return undefined;
@@ -45,10 +38,10 @@ export class LabTestType extends Model {
         femaleMin: Sequelize.FLOAT,
         femaleMax: Sequelize.FLOAT,
         rangeText: Sequelize.STRING,
-        questionType: {
-          type: Sequelize.ENUM(QUESTION_TYPE_VALUES),
+        resultType: {
+          type: Sequelize.ENUM(Object.values(LAB_TEST_RESULT_TYPES)),
           allowNull: false,
-          defaultValue: QUESTION_TYPES.NUMBER,
+          defaultValue: LAB_TEST_RESULT_TYPES.NUMBER,
         },
         options: {
           type: Sequelize.TEXT,

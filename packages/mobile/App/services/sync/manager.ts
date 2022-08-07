@@ -179,7 +179,7 @@ export class SyncManager {
           model: models.PatientAdditionalData
         })),
         ...syncablePatients.map(p => ({
-          channel: `patient/${p.id}/secondaryIds`,
+          channel: `patient/${p.id}/secondaryId`,
           model: models.PatientSecondaryId
         })),
       ];

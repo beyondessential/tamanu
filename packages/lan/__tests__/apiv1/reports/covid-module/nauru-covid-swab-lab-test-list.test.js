@@ -148,7 +148,7 @@ describe('Nauru covid case report tests', () => {
           Status: LAB_REQUEST_STATUS_LABELS[LAB_REQUEST_STATUSES.RECEPTION_PENDING],
           Result: 'Positive',
           'Requested by': null,
-          'Requested date': format(labRequest.requestedDate, 'yyyy/MM/dd'),
+          'Requested date': format(new Date(labRequest.requestedDate), 'yyyy/MM/dd'),
           'Submitted date': format(labTest.date, 'yyyy/MM/dd'),
           Priority: null,
           'Testing laboratory': null,

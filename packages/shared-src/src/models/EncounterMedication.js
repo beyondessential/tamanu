@@ -28,6 +28,7 @@ export class EncounterMedication extends Model {
         quantity: Sequelize.INTEGER,
 
         discontinued: Sequelize.BOOLEAN,
+        discontinuedDate: Sequelize.STRING,
         discontinuingReason: Sequelize.STRING,
         repeats: Sequelize.INTEGER,
         isDischarge: {
