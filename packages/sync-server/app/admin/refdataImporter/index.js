@@ -161,7 +161,7 @@ export default async function importer({
       async () => {
         await importerInner({ errors, models, stats, file, whitelist });
         if (errors.length > 0) throw new Error('rollback on errors');
-        if (dryRun) throw new DryRun();
+        if (dryRun) throw new DryRun(); // roll back the transaction
       },
     );
     log.debug('Ended transaction');
