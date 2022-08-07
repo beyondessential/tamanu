@@ -1,18 +1,29 @@
+import matchers from 'expect/build/matchers';
+
 import importer from '../../app/admin/refdataImporter';
+import { ValidationError } from '../../app/admin/refdataImporter/errors';
 import { createTestContext } from '../utilities';
 
 // the importer can take a little while
 jest.setTimeout(30000);
 
-// const findFirstError = (recordType, text) => {
-//   const hasError = record => record.errors.some(e => e.includes(text));
-//   const condition = record => record.recordType === recordType && hasError(record);
-//   return resultInfo.errors.find(condition);
-// };
+function toContainError(errors, { ofType, inSheet, atRow, withMessage }) {
+  return matchers.toContain(
+    errors.map(error => `${error.constructor.name}: ${error.message}`),
+    `${ofType.name}: ${withMessage} on ${inSheet} at row ${atRow}`,
+  );
+}
 
-// const expectError = (recordType, text) => {
-//   expect(findFirstError(recordType, text)).toBeTruthy();
-// };
+function toContainValidationError(errors, inSheet, atRow, withMessage) {
+  return toContainError(errors, { ofType: ValidationError, inSheet, atRow, withMessage });
+}
+
+expect.extend({ toContainError, toContainValidationError });
+
+const BAD_ID_ERROR_MESSAGE = 'id must not have spaces or punctuation other than -';
+const BAD_CODE_ERROR_MESSAGE = 'code must not have spaces or punctuation other than -./';
+const BAD_VIS_ERROR_MESSAGE =
+  'visibilityStatus must be one of the following values: current, historical';
 
 describe('Data definition import', () => {
   let ctx;
@@ -22,7 +33,7 @@ describe('Data definition import', () => {
   afterAll(async () => {
     await ctx.close();
   });
-  
+
   function doImport(options) {
     const { file, ...opts } = options;
     return importer({
@@ -67,20 +78,38 @@ describe('Data definition import', () => {
     expect(afterCount).toEqual(beforeCount);
   });
 
-  it.todo('should flag records with missing ids');
-  // it('should flag records with missing ids', () => {
-  //   expectError('referenceData', 'record has no id');
-  // });
+  it('should validate reference data', async () => {
+    const { didntSendReason, errors } = await doImport({
+      file: 'invalid-refdata',
+      dryRun: true,
+    });
 
-  it.todo('should flag records with invalid ids');
-  // it('should flag records with invalid ids', () => {
-  //   expectError('referenceData', 'id must not have spaces or punctuation');
-  // });
+    expect(didntSendReason).toEqual('validationFailed');
 
-  it.todo('should flag records with invalid codes');
-  // it('should flag records with invalid codes', () => {
-  //   expectError('referenceData', 'code must not have spaces or punctuation');
-  // });
+    expect(errors).toContainValidationError('village', 3, 'code is a required field');
+    expect(errors).toContainValidationError('village', 4, 'name is a required field');
+    expect(errors).toContainValidationError('village', 5, BAD_ID_ERROR_MESSAGE);
+    expect(errors).toContainValidationError('village', 6, BAD_VIS_ERROR_MESSAGE);
+    expect(errors).toContainValidationError('village', 7, 'id is a required field');
+
+    expect(errors).toContainValidationError('triageReason', 5, BAD_ID_ERROR_MESSAGE);
+    expect(errors).toContainValidationError('diagnosis', 3, BAD_CODE_ERROR_MESSAGE);
+    // TODO: duplicate IDs
+  });
+
+  it('should validate users', async () => {
+    // as example of non-refdata import
+    const { didntSendReason, errors } = await doImport({
+      file: 'invalid-users',
+      dryRun: true,
+    });
+
+    expect(didntSendReason).toEqual('validationFailed');
+    expect(errors).toContainValidationError('user', 2, 'password is a required field');
+    expect(errors).toContainValidationError('user', 3, 'email is a required field');
+    expect(errors).toContainValidationError('user', 4, 'displayName is a required field');
+    expect(errors).toContainValidationError('user', 5, 'id is a required field');
+  });
 
   it.todo('should flag records with duplicate ids');
   // it('should flag records with duplicate ids', () => {
@@ -104,15 +133,6 @@ describe('Data definition import', () => {
   // });
 
   describe.skip('Visibility status', () => {
-    // All the record types work the same, just testing against Village
-    // let villageRecords;
-    // beforeAll(() => {
-    //   villageRecords = recordGroups
-    //     .find(([t]) => t === 'referenceData')[1]
-    //     .filter(x => x.sheet === 'villages')
-    //     .reduce((state, current) => ({ ...state, [current.data.id]: current }), {});
-    // });
-
     it('Should import visibility status', () => {
       expect(villageRecords['village-historical']).toHaveProperty(
         'data.visibilityStatus',
@@ -126,11 +146,6 @@ describe('Data definition import', () => {
         'data.visibilityStatus',
         'current',
       );
-    });
-
-    it('Should only accept valid values', () => {
-      const error = findFirstError('referenceData', `visibilityStatus must be`);
-      expect(error.data).toHaveProperty('id', 'village-invalid-visibility');
     });
   });
 
