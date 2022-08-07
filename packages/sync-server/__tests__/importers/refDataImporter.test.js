@@ -170,20 +170,12 @@ describe('Data definition import', () => {
     expect(historical).toHaveProperty('visibilityStatus', 'historical');
   });
 
-  describe('Importer permissions', () => {
-    let ctx;
-    beforeAll(async () => {
-      ctx = await createTestContext();
-    });
-    afterAll(() => ctx.close());
+  // TODO: when permission checking is implemented on sync server
+  it.skip('should forbid an import by a non-admin', async () => {
+    const { baseApp } = ctx;
+    const nonAdminApp = await baseApp.asRole('practitioner');
 
-    // TODO: when permission checking is implemented on sync server
-    it.skip('Should forbid an import by a non-admin', async () => {
-      const { baseApp } = ctx;
-      const nonAdminApp = await baseApp.asRole('practitioner');
-
-      const response = await nonAdminApp.post('/v1/admin/importRefData');
-      expect(response).toBeForbidden();
-    });
+    const response = await nonAdminApp.post('/v1/admin/importRefData');
+    expect(response).toBeForbidden();
   });
 });
