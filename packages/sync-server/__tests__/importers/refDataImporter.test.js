@@ -67,8 +67,6 @@ describe('Data definition import', () => {
     expect(afterCount).toEqual(beforeCount);
   });
 
-  it.todo('should ensure every record has an id');
-
   it.todo('should flag records with missing ids');
   // it('should flag records with missing ids', () => {
   //   expectError('referenceData', 'record has no id');
@@ -87,67 +85,6 @@ describe('Data definition import', () => {
   it.todo('should flag records with duplicate ids');
   // it('should flag records with duplicate ids', () => {
   //   expectError('referenceData', 'is already being used at');
-  // });
-
-  it.todo('should import a bunch of reference data items');
-  // it('should import a bunch of reference data items', () => {
-  //   const { records } = resultInfo.stats;
-
-  //   expect(records).toHaveProperty('referenceData:village', 13);
-  //   expect(records).toHaveProperty('referenceData:drug', 10);
-  //   expect(records).toHaveProperty('referenceData:allergy', 10);
-  //   expect(records).toHaveProperty('referenceData:icd10', 10);
-  //   expect(records).toHaveProperty('referenceData:triageReason', 10);
-  //   expect(records).toHaveProperty('referenceData:procedureType', 10);
-  //   expect(records).toHaveProperty('referenceData:imagingType', 4);
-  // });
-
-  it.todo('should import user records');
-  // it('should import user records', () => {
-  //   const { records } = resultInfo.stats;
-  //   expect(records).toHaveProperty('user', 10);
-  // });
-
-  it.todo('should import facility records');
-  // it('should import facility records', () => {
-  //   const { records } = resultInfo.stats;
-  //   expect(records).toHaveProperty('facility', 10);
-  // });
-
-  it.todo('should import department records');
-  // it('should import department records', () => {
-  //   const { records } = resultInfo.stats;
-  //   expect(records).toHaveProperty('department', 10);
-  // });
-
-  it.todo('should import location records');
-  // it('should import location records', () => {
-  //   const { records } = resultInfo.stats;
-  //   expect(records).toHaveProperty('location', 10);
-  // });
-
-  it.todo('should import patient records');
-  // it('should import patient records', () => {
-  //   const { records } = resultInfo.stats;
-  //   expect(records).toHaveProperty('patient', 10);
-  // });
-
-  it.todo('should import lab test type records');
-  // it('should import lab test type records', () => {
-  //   const { records } = resultInfo.stats;
-  //   expect(records).toHaveProperty('labTestType', 10);
-  // });
-
-  it.todo('should import scheduled vaccine records');
-  // it('should import scheduled vaccine records', () => {
-  //   const { records } = resultInfo.stats;
-  //   expect(records).toHaveProperty('scheduledVaccine', 1);
-  // });
-
-  it.todo('should import administered vaccine records');
-  // it('should import administered vaccine records', () => {
-  //   const { records } = resultInfo.stats;
-  //   expect(records).toHaveProperty('encounter:administeredVaccine', 2);
   // });
 
   it.todo('should report an error if an FK search comes up empty');
