@@ -32,7 +32,7 @@ export class DataImportError extends Error {
 
 export class DataLoaderError extends DataImportError {}
 export class ForeignkeyResolutionError extends DataImportError {}
-export class UpstertionError extends DataImportError {}
+export class UpsertionError extends DataImportError {}
 export class ValidationError extends DataImportError {}
 export class WorkSheetError extends DataImportError {}
 

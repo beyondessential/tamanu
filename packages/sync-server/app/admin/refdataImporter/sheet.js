@@ -6,7 +6,7 @@ import { ValidationError as YupValidationError } from 'yup';
 import {
   DataLoaderError,
   ForeignkeyResolutionError,
-  UpstertionError,
+  UpsertionError,
   ValidationError,
   WorkSheetError,
 } from './errors';
@@ -261,7 +261,7 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
       }
     } catch (err) {
       stats[statkey(model)].errored += 1;
-      errors.push(new UpstertionError(sheetName, sheetRow, err));
+      errors.push(new UpsertionError(sheetName, sheetRow, err));
     }
   }
 
