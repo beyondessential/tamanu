@@ -4,51 +4,18 @@ import { Sequelize } from 'sequelize';
 import { readFile } from 'xlsx';
 
 import { log } from 'shared/services/logging';
+import { REFERENCE_TYPE_VALUES } from 'shared/constants';
 
 import {
-  patientDataLoader,
-  administeredVaccineLoader,
   referenceDataLoaderFactory,
   loaderFactory,
 } from './loaders';
 import { DryRun } from './errors';
 import { importSheet } from './sheet';
 import { coalesceStats } from './stats';
+import DEPENDENCIES from './dependencies';
 
 export const PERMISSIONS = ['User', 'ReferenceData'];
-
-// All reference data is imported first, so that can be assumed for ordering.
-//
-// sheetNameNormalised: {
-//   model: 'ModelName' (defaults to `upperFirst(sheetNameNormalised)`),
-//   loader: fn(item) => Array<LoadRow> (defaults to `loaderFactory(Model)`),
-//   needs: ['otherSheetNames', 'thisOneNeeds'] (defaults to `[]`),
-// }
-//
-// where interface LoadRow { model: string; values: object; }
-//
-// creating dependency cycles is a sin (it will deadloop, don't do it)
-const DEPENDENCIES = {
-  user: {},
-
-  patient: {
-    loader: patientDataLoader,
-    needs: ['user'],
-  },
-
-  certifiableVaccine: {},
-  scheduledVaccine: {},
-  administeredVaccine: {
-    loader: administeredVaccineLoader,
-    needs: ['scheduledVaccine', 'user'],
-  },
-
-  labTestType: {},
-  invoicePriceChangeType: {},
-  invoiceLineType: {
-    needs: ['labTestType'],
-  },
-};
 
 function normalise(name) {
   const norm = singularize(camelCase(singularize(lowerCase(name))));
@@ -79,14 +46,6 @@ async function importerInner({ errors, models, stats, file, whitelist = [] }) {
     sheets.set(name, sheet);
   }
 
-  log.debug('Gather possible types of reference data');
-  const refDataTypes = (
-    await models.ReferenceData.findAll({
-      attributes: ['type'],
-      group: 'type',
-    })
-  ).map(ref => ref.type);
-
   // general idea is there are a number of phases, and during each we iterate
   // through the entire set of remaining rows. any errors are caught and stored,
   // and the erroring rows are omitted from the set that goes on to the next bit
@@ -109,9 +68,9 @@ async function importerInner({ errors, models, stats, file, whitelist = [] }) {
     models,
   });
 
-  log.debug('Import all reference data', { types: refDataTypes });
+  log.debug('Import all reference data', { types: REFERENCE_TYPE_VALUES });
   const importedRef = [];
-  for (const refType of refDataTypes) {
+  for (const refType of REFERENCE_TYPE_VALUES) {
     log.debug('Look for reference data in sheets', { refType });
     const sheet = sheets.get(refType);
     if (!sheet) continue;
