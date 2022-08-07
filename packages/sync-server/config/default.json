@@ -147,6 +147,7 @@
     "covidClearanceCertificatePublisher": {
       "enabled": false,
       "schedule": "*/30 * * * *",
+      "daysSinceSampleTime": 13,
       "after": "2022-01-01",
       "labTestCategories": [
         "labTestCategory-COVID",
