@@ -190,37 +190,27 @@ export const Survey = Base.shape({
   isSensitive: yup.boolean().required(),
 });
 
+export const AdministeredVaccine = Base.shape({
+  batch: yup.string(),
+  consent: yup.boolean().required(),
+  status: yup
+    .string()
+    .oneOf(Object.values(VACCINE_STATUS))
+    .required(),
+  reason: yup.string(),
+  injectionSite: yup.string().oneOf(Object.values(INJECTION_SITE_OPTIONS)),
+  date: yup.date().required(),
+  scheduledVaccineId: fieldTypes.id.required(),
+  encounterId: fieldTypes.id.required(),
+});
+
 export const Encounter = Base.shape({
   // contains only what's needed for administeredVaccine imports, extend as neccesary
   encounterType: yup.string().oneOf(Object.values(ENCOUNTER_TYPES)),
   startDate: yup.date().required(),
   endDate: yup.date(),
   reasonForEncounter: yup.string(),
-  administeredVaccines: yup
-    .array()
-    .of(
-      yup
-        .object({
-          recordType: yup
-            .string()
-            .oneOf(['administeredVaccine'])
-            .required(),
-          data: Base.shape({
-            batch: yup.string(),
-            consent: yup.boolean().required(),
-            status: yup
-              .string()
-              .oneOf(Object.values(VACCINE_STATUS)) // TODO
-              .required(),
-            reason: yup.string(),
-            injectionSite: yup.string().oneOf(Object.values(INJECTION_SITE_OPTIONS)),
-            date: yup.date().required(),
-            scheduledVaccineId: yup.string().required(),
-          }),
-        })
-        .required(),
-    )
-    .required(),
+
   // relationships
   locationId: yup.string().required(),
   departmentId: yup.string().required(),
