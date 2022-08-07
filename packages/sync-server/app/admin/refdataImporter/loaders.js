@@ -36,44 +36,43 @@ export function administeredVaccineLoader(item) {
 
   const rows = [];
 
-  rows.push({
-    model: 'AdministeredVaccine',
-    values: {
-      id: administeredVaccineId,
-
-      date,
-      reason,
-      consent: ['true', 'yes', 't', 'y'].some(v => v === consent?.toLowerCase()),
-      ...data,
-
-      // relationships
-      encounterId,
-    },
-  });
-
   const startDate = date ? moment(date).startOf('day') : null;
   const endDate = date ? moment(date).endOf('day') : null;
-  rows.push({
-    model: 'Encounter',
-    values: {
-      id: encounterId,
 
-      encounterType: ENCOUNTER_TYPES.CLINIC,
-      startDate,
-      endDate,
-      reasonForEncounter: reason,
+  return [
+    {
+      model: 'Encounter',
+      values: {
+        id: encounterId,
 
-      // relationships
-      administeredVaccines: [administeredVaccineId],
-      locationId,
-      departmentId,
-      examinerId,
-      patientId,
+        encounterType: ENCOUNTER_TYPES.CLINIC,
+        startDate,
+        endDate,
+        reasonForEncounter: reason,
+
+        locationId,
+        departmentId,
+        examinerId,
+        patientId,
+      },
     },
-  });
+    {
+      model: 'AdministeredVaccine',
+      values: {
+        id: administeredVaccineId,
 
-  return rows;
+        date,
+        reason,
+        consent: ['true', 'yes', 't', 'y'].some(v => v === consent?.toLowerCase()),
+        ...data,
+
+        // relationships
+        encounterId,
+      },
+    },
+  ];
 }
+
 export function patientDataLoader(item) {
   const { dateOfBirth, id: patientId, patientAdditionalDataId, ...otherFields } = item;
 
