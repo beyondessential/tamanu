@@ -149,21 +149,25 @@ describe('Data definition import', () => {
     );
   });
 
-  describe.skip('Visibility status', () => {
-    it('Should import visibility status', () => {
-      expect(villageRecords['village-historical']).toHaveProperty(
-        'data.visibilityStatus',
-        'historical',
-      );
-      expect(villageRecords['village-visible']).toHaveProperty('data.visibilityStatus', 'current');
+  it('should import visibility status', async () => {
+    const { ReferenceData } = ctx.store.models;
+
+    const { stats, errors } = await doImport({
+      file: 'valid-visibility',
     });
 
-    it('Should default to visible', () => {
-      expect(villageRecords['village-default-visible']).toHaveProperty(
-        'data.visibilityStatus',
-        'current',
-      );
+    expect(errors).toBeEmpty();
+    expect(stats).toEqual({
+      'ReferenceData/village': { created: 3, updated: 0, errored: 0 },
     });
+
+    const visible = await ReferenceData.findOne({ where: { id: 'village-visible' } });
+    const defaultVis = await ReferenceData.findOne({ where: { id: 'village-default-visible' } });
+    const historical = await ReferenceData.findOne({ where: { id: 'village-historical' } });
+
+    expect(visible).toHaveProperty('visibilityStatus', 'current');
+    expect(defaultVis).toHaveProperty('visibilityStatus', 'current');
+    expect(historical).toHaveProperty('visibilityStatus', 'historical');
   });
 
   describe('Importer permissions', () => {
