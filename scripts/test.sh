@@ -1,15 +1,27 @@
 #!/bin/bash
 set -euo pipefail
 
-echo "Running tests"
-for workspace in shared-src lan sync-server meta-server; do
-  echo "=== Running tests in $workspace"
+runtest() {
+  workspace="${1:?required}"
+  shard="${2:-'1/1'}"
+
+  echo "=== Running tests in $workspace (shard $shard)"
   NODE_OPTIONS="--max-old-space-size=8192" \
   yarn workspace $workspace \
     run test-coverage \
-    --coverageReporters=json-summary
+    --coverageReporters=json-summary \
+    --shard="$shard"
   echo "==============================="
   echo
+}
+
+totalshards=3
+
+echo "Running tests"
+for workspace in shared-src lan sync-server meta-server; do
+  for shard in $(seq 1 $totalshards); do
+    runtest $workspace $shard/$totalshards
+  done
 done
 
 echo "Aggregating coverage"
