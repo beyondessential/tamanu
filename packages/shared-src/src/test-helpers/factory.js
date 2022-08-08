@@ -101,7 +101,6 @@ export const buildNestedEncounter = async (ctx, patientId, optionalEncounterId) 
     ...fake(ctx.models.ImagingRequest),
     status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
     requestedById: encounter.examinerId,
-    imagingTypeId: imagingType.id,
   };
   imagingRequest.encounterId = encounter.id;
   encounter.imagingRequests = [imagingRequest];
