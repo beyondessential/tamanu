@@ -86,11 +86,7 @@ const DateTooltip = ({ date, children }) => {
 
 export const DateDisplay = React.memo(
   ({ date: dateValue, showDate = true, showTime = false, showExplicitDate = false }) => {
-    let date = dateValue;
-
-    if (typeof date === 'string') {
-      date = new Date(date);
-    }
+    const date = typeof dateValue === 'string' ? new Date(dateValue) : dateValue;
 
     const parts = [];
     if (showDate) {
