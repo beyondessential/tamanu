@@ -449,5 +449,8 @@ export const VISIBILITY_STATUSES = {
   HISTORICAL: 'historical',
 };
 
-export const ISO9075_FORMAT = 'YYYY-MM-DD HH:mm:ss';
-export const ISO9075_FORMAT_LENGTH = ISO9075_FORMAT.length;
+export const ISO9075_DATETIME_FORMAT = 'YYYY-MM-DD HH:mm:ss';
+export const ISO9075_DATETIME_FORMAT_LENGTH = ISO9075_DATETIME_FORMAT.length;
+
+export const ISO9075_DATE_FORMAT = 'YYYY-MM-DD';
+export const ISO9075_DATE_FORMAT_LENGTH = ISO9075_DATE_FORMAT.length;

@@ -1,11 +1,21 @@
-import { isValid, formatISO9075 } from 'date-fns';
+import { isValid, formatISO9075, differenceInMonths, differenceInYears } from 'date-fns';
 
 export function toDateTimeString(date) {
+  if (date === null) return null;
+
   const dateObj = new Date(date);
-  if (!isValid(dateObj)) {
-    throw new Error('Not a valid date');
-  }
-  return formatISO9075(dateObj);
+  if (!isValid(dateObj)) throw new Error('Not a valid date');
+
+  return formatISO9075(dateObj, { representation: 'complete' });
+}
+
+export function toDateString(date) {
+  if (date === null) return null;
+
+  const dateObj = new Date(date);
+  if (!isValid(dateObj)) throw new Error('Not a valid date');
+
+  return formatISO9075(dateObj, { representation: 'date' });
 }
 
 export function getCurrentDateTimeString() {
@@ -14,4 +24,18 @@ export function getCurrentDateTimeString() {
 
 export function getCurrentDateString() {
   return formatISO9075(new Date(), { representation: 'date' });
+}
+
+export function ageInMonths(dob) {
+  return differenceInMonths(new Date(), new Date(dob));
+}
+
+export function ageInYears(dob) {
+  return differenceInYears(new Date(), new Date(dob));
+}
+
+// It seems that some JS implementations have problems
+// parsing strings to dates.
+export function parseISO9075(date) {
+  return new Date(date.replace(' ', 'T'));
 }
