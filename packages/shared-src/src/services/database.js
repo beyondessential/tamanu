@@ -130,7 +130,7 @@ export async function initDatabase(dbOptions) {
   sequelize.migrate = async direction => {
     if (sqlitePath) {
       log.info('Syncing sqlite schema...');
-      await sequelize.sync();
+      await sequelize.sync({});
       return;
     }
 
