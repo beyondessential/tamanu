@@ -4,7 +4,7 @@ import { subDays, format } from 'date-fns';
 import { groupBy } from 'lodash';
 import moment from 'moment';
 import { Op } from 'sequelize';
-import { getAgeFromDate } from '../../../utils/date';
+import { ageInYears } from '../../../utils/dateTime';
 import { generateReportFromQueryData } from '../../utilities';
 import { transformAnswers } from '../../utilities/transformAnswers';
 
@@ -27,7 +27,7 @@ const reportColumnTemplate = [
   {
     title: 'Age',
     accessor: data => {
-      return data.patient.dateOfBirth ? getAgeFromDate(data.patient.dateOfBirth) : '';
+      return data.patient.dateOfBirth ? ageInYears(data.patient.dateOfBirth) : '';
     },
   },
   { title: 'Sex', accessor: data => data.patient.sex },
