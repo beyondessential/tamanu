@@ -98,17 +98,7 @@ export class Patient extends Model {
         {
           model: models.Encounter,
           as: 'encounter',
-          // Don't use getFullReferenceAssociations because we don't want to include vitals data
-          // in the query because it is a hasMany relation which causes duplicate vaccine records
-          // to be returned if there are multiple vitals associated with encounters
-          include: [
-            'department',
-            'examiner',
-            {
-              association: 'location',
-              include: ['facility'],
-            },
-          ],
+          include: models.Encounter.getFullReferenceAssociations(),
         },
         {
           model: models.Location,
@@ -128,8 +118,6 @@ export class Patient extends Model {
     const results = await models.AdministeredVaccine.findAll({
       order: [['date', 'DESC']],
       ...optRest,
-      raw: true,
-      nest: true,
       include,
       where: {
         ...optWhere,
