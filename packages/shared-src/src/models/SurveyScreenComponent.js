@@ -40,15 +40,17 @@ export class SurveyScreenComponent extends Model {
     });
   }
 
-  static getComponentsForSurveys(surveyIds) {
-    return this.findAll({
+  static async getComponentsForSurveys(surveyIds) {
+    const components = await this.findAll({
       where: {
         surveyId: {
           [Op.in]: surveyIds,
         },
       },
       include: this.getListReferenceAssociations(),
-    }).map(c => c.forResponse());
+    })
+
+    return components.map(c => c.forResponse());
   }
 
   static getComponentsForSurvey(surveyId) {
