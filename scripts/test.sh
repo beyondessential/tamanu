@@ -15,10 +15,14 @@ runtest() {
   echo
 }
 
-totalshards=3
-
 echo "Running tests"
 for workspace in shared-src lan sync-server meta-server; do
+  if [[ "$workspace" == "lan" ]]; then
+    totalshards=3
+  else
+    totalshards=1
+  fi
+
   for shard in $(seq 1 $totalshards); do
     runtest $workspace $shard/$totalshards
   done
