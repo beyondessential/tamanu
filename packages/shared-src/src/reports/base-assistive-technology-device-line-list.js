@@ -3,6 +3,7 @@ import { Op } from 'sequelize';
 import moment from 'moment';
 import { generateReportFromQueryData } from './utilities';
 import { transformAnswers } from './utilities/transformAnswers';
+import { ageInYears } from '../utils/dateTime';
 
 const parametersToSurveyResponseSqlWhere = (parameters, surveyIds) => {
   const defaultWhereClause = {
@@ -181,7 +182,7 @@ export const dataGenerator = async (
 
       const dateOfBirthMoment = patient.dateOfBirth ?? moment(patient.dateOfBirth);
       const dateOfBirth = dateOfBirthMoment ? moment(dateOfBirthMoment).format('DD-MM-YYYY') : '';
-      const age = dateOfBirthMoment ? moment().diff(dateOfBirthMoment, 'years') : '';
+      const age = patient.dateOfBirth ? ageInYears(patient.dateOfBirth) : '';
       const recordData = {
         clientId: patient.displayId,
         gender: patient.sex,
