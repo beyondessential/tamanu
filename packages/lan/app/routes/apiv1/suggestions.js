@@ -1,7 +1,7 @@
 import { pascal } from 'case';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { Op, literal } from 'sequelize';
+import { Sequelize, Op, literal } from 'sequelize';
 import { NotFoundError } from 'shared/errors';
 import {
   SURVEY_TYPES,
@@ -78,7 +78,7 @@ function createAllRecordsSuggesterRoute(endpoint, modelName, where, mapper = def
       const model = models[modelName];
       const results = await model.findAll({
         where,
-        limit,
+        limit: defaultLimit,
       });
 
       const listing = results.map(mapper);
@@ -184,7 +184,7 @@ createSuggester(
   search => ({
     [Op.or]: [
       Sequelize.where(
-        Sequelize.fn('concat', Sequelize.col('firstName'), ' ', Sequelize.col('lastName')), 
+        Sequelize.fn('concat', Sequelize.col('first_name'), ' ', Sequelize.col('last_name')), 
         { [Op.iLike]: search },
       ),
       { displayId: { [Op.iLike]: search } },
