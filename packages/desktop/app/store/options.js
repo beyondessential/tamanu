@@ -11,7 +11,6 @@ export const loadOptions = () => async (dispatch, getState, { api }) => {
   const labTestTypes = (await api.get(`labTest/options`)).data;
   const labTestCategories = (await api.get(`labTest/categories`)).data;
   const labTestPriorities = (await api.get(`labTest/priorities`)).data;
-  // const imagingTypes = (await api.get(`imagingType`)).data;
 
   dispatch({
     type: OPTIONS_LOAD_FINISH,
@@ -19,7 +18,6 @@ export const loadOptions = () => async (dispatch, getState, { api }) => {
       labTestTypes,
       labTestCategories,
       labTestPriorities,
-      // imagingTypes,
     },
   });
 };
@@ -29,7 +27,6 @@ export const loadOptions = () => async (dispatch, getState, { api }) => {
 export const getLabTestTypes = state => state.options.labTestTypes;
 export const getLabTestCategories = state => state.options.labTestCategories;
 export const getLabTestPriorities = state => state.options.labTestPriorities;
-export const getImagingTypes = state => state.options.imagingTypes;
 
 // reducers
 
@@ -37,7 +34,6 @@ const defaultState = {
   labTestTypes: [],
   labTestCategories: [],
   labTestPriorities: [],
-  imagingTypes: [],
   loading: false,
 };
 

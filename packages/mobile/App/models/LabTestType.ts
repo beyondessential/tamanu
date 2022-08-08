@@ -1,6 +1,6 @@
 import { Entity, Column, RelationId } from 'typeorm/browser';
 
-import { ILabTestType, LabTestQuestionType } from '~/types';
+import { ILabTestType, LabTestResultType } from '~/types';
 import { BaseModel } from './BaseModel';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { VisibilityStatus } from '../visibilityStatuses';
@@ -31,8 +31,8 @@ export class LabTestType extends BaseModel implements ILabTestType {
   @Column({ nullable: true })
   rangeText?: string;
 
-  @Column({ type: 'varchar', nullable: false, default: LabTestQuestionType.NUMBER })
-  questionType: LabTestQuestionType;
+  @Column({ type: 'varchar', nullable: false, default: LabTestResultType.NUMBER })
+  resultType: LabTestResultType;
 
   @Column({ nullable: true })
   options?: string;

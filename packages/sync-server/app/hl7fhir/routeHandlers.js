@@ -17,6 +17,10 @@ import {
   addPaginationToWhere,
   decodeIdentifier,
 } from './utils';
+import {
+  administeredVaccineToHL7Immunization,
+  getAdministeredVaccineInclude,
+} from './administeredVaccine';
 
 // TODO (TAN-943): fix auth to throw an error if X-Tamanu-Client and X-Tamanu-Version aren't set
 
@@ -204,6 +208,24 @@ export function diagnosticReportHandler() {
           includedResources: includedResources.map(resource => ({ resource })),
         };
       },
+    });
+
+    res.send(payload);
+  });
+}
+
+export function immunizationHandler() {
+  return asyncHandler(async (req, res) => {
+    const payload = await getHL7Payload({
+      req,
+      querySchema: schema.immunization.query,
+      model: req.store.models.AdministeredVaccine,
+      getWhere: () => ({}), // deliberately empty
+      getInclude: getAdministeredVaccineInclude,
+      bundleId: 'immunizations',
+      toHL7: administeredVaccine => ({
+        mainResource: administeredVaccineToHL7Immunization(administeredVaccine),
+      }),
     });
 
     res.send(payload);

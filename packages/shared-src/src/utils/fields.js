@@ -82,7 +82,9 @@ export function checkVisibilityCriteria(component, allComponents, values) {
       ? Object.entries(restOfCriteria).every(checkIfQuestionMeetsCriteria)
       : Object.entries(restOfCriteria).some(checkIfQuestionMeetsCriteria);
   } catch (error) {
-    log.warn(`Error parsing JSON visibility criteria for ${component.dataElement?.code}, using fallback.\nError message: ${error.message}`);
+    log.warn(
+      `Error parsing JSON visibility criteria for ${component.dataElement?.code}, using fallback.\nError message: ${error.message}`,
+    );
 
     return fallbackParseVisibilityCriteria(visibilityCriteria, values, allComponents);
   }
