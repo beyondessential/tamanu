@@ -250,8 +250,6 @@ export abstract class BaseModel extends BaseEntity {
   static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
 
   static uploadLimit = 100;
-
-  static pluralTableName = ;
   
   // Exclude these properties from uploaded model
   // May be columns or relationIds
