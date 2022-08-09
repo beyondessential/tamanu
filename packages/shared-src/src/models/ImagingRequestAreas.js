@@ -8,6 +8,7 @@ export class ImagingRequestAreas extends Model {
       },
       {
         ...options,
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
   }
