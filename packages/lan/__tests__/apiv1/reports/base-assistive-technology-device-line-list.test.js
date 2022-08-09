@@ -185,6 +185,7 @@ describe('Assistive technology device line list', () => {
   });
 
   describe('returns the correct data', () => {
+    // FIXME NODE 16
     it.skip('should return latest data per patient and latest data per patient per date', async () => {
       const result = await app
         .post('/v1/reports/iraq-assistive-technology-device-line-list')
@@ -305,6 +306,7 @@ describe('Assistive technology device line list', () => {
       ]);
     });
 
+    // FIXME NODE 16
     it.skip('should return data within date range', async () => {
       const result = await app
         .post('/v1/reports/iraq-assistive-technology-device-line-list')

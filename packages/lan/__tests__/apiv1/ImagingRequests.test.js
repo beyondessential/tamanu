@@ -53,6 +53,7 @@ describe('Imaging requests', () => {
     expect(result).toHaveRequestError();
   });
 
+  // FIXME NODE 16
   it.skip('should get imaging requests for an encounter', async () => {
     const createdImagingRequest = await models.ImagingRequest.create({
       encounterId: encounter.id,
