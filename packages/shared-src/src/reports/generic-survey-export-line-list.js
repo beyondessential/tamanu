@@ -128,11 +128,13 @@ export const transformSingleResponse = async (
   autocompleteComponentMap,
   dataElementIdToComponent,
 ) => {
-  const { answers } = result;
+  const { answers = {} } = result;
   const newAnswers = {};
-
+  
+  console.log('result, answers', result, answers);
   await Promise.all(
     Object.entries(answers).map(async ([key, body]) => {
+      console.log('key, body', key, body);
       if (key === 'Result') {
         newAnswers[key] = body;
       } else {
@@ -147,6 +149,7 @@ export const transformSingleResponse = async (
     }),
   );
 
+  console.log('result, answers, newAnswers', result, answers, newAnswers);
   return {
     ...result,
     answers: newAnswers,
