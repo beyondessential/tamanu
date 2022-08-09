@@ -1,6 +1,7 @@
 import { QueryInterface } from 'sequelize';
 
 const INVOICE_LINE_TYPES_TABLE_NAME = 'invoice_line_types';
+const INVOICE_LINE_ITEMS_TABLE_NAME = 'invoice_line_items';
 
 export const IMAGING_TYPES = {
   X_RAY: 'xRay',
@@ -51,6 +52,14 @@ export async function up(query: QueryInterface) {
           ELSE :unknownFallback
           END
       WHERE item_type = :itemTypeImaging`,
+    { replacements },
+  );
+  await query.sequelize.query(
+    `DELETE FROM ${INVOICE_LINE_ITEMS_TABLE_NAME} i
+      USING ${INVOICE_LINE_TYPES_TABLE_NAME} t
+      WHERE i.invoice_line_type_id = t.id
+      AND t.item_type = :itemTypeImaging
+      AND t.item_id = :unknownFallback`,
     { replacements },
   );
   await query.sequelize.query(
