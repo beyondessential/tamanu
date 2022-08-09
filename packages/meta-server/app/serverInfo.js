@@ -4,7 +4,7 @@ import pkg from '../package.json';
 // from within the shared modules (eg in honeycomb)
 global.serverInfo = {
   version: pkg.version,
-  serverType: 'sync',
+  serverType: 'meta',
 };
 
 export const { version } = global.serverInfo;
