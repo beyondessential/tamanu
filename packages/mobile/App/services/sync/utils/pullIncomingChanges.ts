@@ -16,7 +16,7 @@ export const pullIncomingChanges = async (
   // pull changes a page at a time
   while (incomingChanges.length < totalToPull) {
     const startTime = Date.now();
-    const records = await centralServer.pull(currentSessionIndex, offset, limit);
+    const records = await centralServer.pull(currentSessionIndex, limit, offset);
 
     incomingChanges.push(...records);
     offset += records.length;
