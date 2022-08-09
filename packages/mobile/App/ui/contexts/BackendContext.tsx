@@ -21,7 +21,7 @@ export const BackendProvider = ({ Component }): ReactElement => {
         setInitialised(true);
       });
     })();
-    return () => { 
+    return () => {
       backend.stopSyncService(); 
     };
   }, [backend]);

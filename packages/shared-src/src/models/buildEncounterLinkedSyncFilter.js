@@ -9,7 +9,8 @@ function buildNestedInclude(associations) {
       if (i === depth) {
         parentInclude.push({ association, include: [] });
       }
-      [parentInclude] = parentInclude.include;
+      [parentInclude] = parentInclude;
+      parentInclude = parentInclude.include;
     }
   });
   return include;

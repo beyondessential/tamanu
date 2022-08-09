@@ -1,2 +1,2 @@
-export * from './manager';
-export * from './source';
+export * from './MobileSyncManager';
+export * from './CentralServerConnection';

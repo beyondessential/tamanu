@@ -15,6 +15,7 @@ import { theme } from '/styled/theme';
 import { withPatient } from '/containers/Patient';
 import { useBackend } from '~/ui/hooks';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
+import { Patient } from '../../../../../../models/Patient';
 
 interface IPopup {
   title: string;
@@ -123,8 +124,8 @@ const PatientHomeContainer = ({
   const { models, syncManager } = useBackend();
   const onSyncPatient = useCallback(async (): Promise<void> => {
     try {
-      await models.Patient.markForSync(selectedPatient.id);
-      syncManager.runScheduledSync();
+      await Patient.markForSync(selectedPatient.id);
+      syncManager.triggerSync();
       navigation.navigate(Routes.HomeStack.HomeTabs.SyncData);
     } catch (error) {
       setErrorMessage(error.message);

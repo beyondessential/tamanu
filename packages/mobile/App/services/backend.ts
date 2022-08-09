@@ -1,5 +1,6 @@
 import { Database } from '../infra/db';
-import { SyncManager, WebSyncSource } from './sync';
+import { MobileSyncManager, CentralServerConnection } from './sync';
+import { readConfig } from '~/services/config';
 import { AuthService } from './auth';
 import { AuthenticationError } from './auth/error';
 import { LocalisationService } from './localisation';
@@ -17,9 +18,9 @@ export class Backend {
 
   models: typeof MODELS_MAP;
 
-  syncManager: SyncManager;
+  syncManager: MobileSyncManager;
 
-  syncSource: WebSyncSource;
+  centralServer: CentralServerConnection;
 
   auth: AuthService;
 
@@ -32,11 +33,11 @@ export class Backend {
   constructor() {
     const { models } = Database;
     this.models = models;
-    this.syncSource = new WebSyncSource();
-    this.auth = new AuthService(models, this.syncSource);
+    this.centralServer = new CentralServerConnection();
+    this.auth = new AuthService(models, this.centralServer);
     this.localisation = new LocalisationService(this.auth);
     this.permissions = new PermissionsService(this.auth);
-    this.syncManager = new SyncManager(this.syncSource, this.localisation);
+    this.syncManager = new MobileSyncManager(this.centralServer);
   }
 
   async initialise(): Promise<void> {
@@ -49,11 +50,15 @@ export class Backend {
     if (this.interval) {
       return; // already started
     }
-    await this.syncManager.waitForEnd();
 
+    await this.syncManager.waitForEnd();
+        
     const run = async (): Promise<void> => {
       try {
-        await this.syncManager.runScheduledSync();
+        const facilityId = await readConfig('facilityId', '');
+        if (!facilityId) {
+          await this.syncManager.triggerSync();
+        }
       } catch (e) {
         if (e instanceof AuthenticationError) {
           // expected - just log message

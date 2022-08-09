@@ -83,7 +83,8 @@ export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): 
       const editedPatient = await Patient.findOne(selectedPatient.id);
 
       // Mark patient for sync and update redux state
-      await Patient.markForSync(editedPatient.id);
+      await Patient.markForSync(editedPatient.id)
+
       setSelectedPatient(editedPatient);
 
       // Navigate back to patient details
