@@ -352,11 +352,6 @@ export const LOCAL_STORAGE_KEYS = {
   PERMISSIONS: 'permissions',
 };
 
-export const REPORT_DATA_SOURCES = {
-  THIS_FACILITY: 'thisFacility',
-  ALL_FACILITIES: 'allFacilities',
-};
-
 export const appointmentTypeOptions = Object.values(APPOINTMENT_TYPES).map(type => ({
   label: type,
   value: type,

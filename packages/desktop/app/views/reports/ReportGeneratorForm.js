@@ -5,6 +5,8 @@ import React, { useCallback, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 import * as Yup from 'yup';
+import { REPORT_DATA_SOURCES } from 'shared/constants';
+
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { connectApi, useApi } from '../../api';
 import {
@@ -19,7 +21,7 @@ import {
   MultiselectField,
 } from '../../components';
 import { FormGrid } from '../../components/FormGrid';
-import { Colors, MUI_SPACING_UNIT, REPORT_DATA_SOURCES } from '../../constants';
+import { Colors, MUI_SPACING_UNIT } from '../../constants';
 import { getCurrentUser } from '../../store/auth';
 
 import { VillageField } from './VillageField';
@@ -147,7 +149,7 @@ const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
   const [requestError, setRequestError] = useState();
   const [parameters, setParameters] = useState([]);
   const [dataSource, setDataSource] = useState(REPORT_DATA_SOURCES.THIS_FACILITY);
-  const [isDataSourceFieldDisabled, setIsDataSourceFieldDisabled] = useState(false);
+  const [dataSourceOptions, setDataSourceOptions] = useState(REPORT_DATA_SOURCES);
   const [availableReports, setAvailableReports] = useState(null);
   const [reportsById, setReportsById] = useState({});
   const [reportOptions, setReportOptions] = useState([]);
