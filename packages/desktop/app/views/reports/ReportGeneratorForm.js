@@ -151,6 +151,7 @@ const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
   const [availableReports, setAvailableReports] = useState(null);
   const [reportsById, setReportsById] = useState({});
   const [reportOptions, setReportOptions] = useState([]);
+  const [dateRangeLabel, setDateRangeLabel] = useState('Date range');
 
   useEffect(() => {
     (async () => {
@@ -175,6 +176,7 @@ const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
       }
 
       setParameters(reportDefinition.parameters || []);
+      setDateRangeLabel(reportDefinition.dateRangeLabel);
       if (reportDefinition.allFacilities) {
         setIsDataSourceFieldDisabled(true);
         setDataSource(REPORT_DATA_SOURCES.ALL_FACILITIES);
@@ -287,9 +289,7 @@ const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
             </>
           ) : null}
           <Spacer />
-          <DateRangeLabel variant="body1">
-            Date range (or leave blank for the past 30 days of data)
-          </DateRangeLabel>
+          <DateRangeLabel variant="body1">{dateRangeLabel}</DateRangeLabel>
           <FormGrid columns={2}>
             <Field name="fromDate" label="From date" component={DateField} />
             <Field name="toDate" label="To date" component={DateField} />

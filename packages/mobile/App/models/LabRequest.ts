@@ -12,6 +12,7 @@ import {
   IDataRequiredToCreateLabRequest,
   ILabRequest,
   LabRequestStatus,
+  DateString,
 } from '~/types';
 import { Encounter } from './Encounter';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';

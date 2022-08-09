@@ -1,4 +1,5 @@
 import { format, parseISO, differenceInYears } from 'date-fns';
+import { DateString } from '~/types';
 
 export function formatDate(date: Date, dateFormat: string): string {
   return format(date, dateFormat);

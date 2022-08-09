@@ -4,6 +4,7 @@ import { IEncounter } from './IEncounter';
 import { ILabTest } from './ILabTest';
 import { IReferenceData } from './IReferenceData';
 import { IUser } from './IUser';
+import { DateString } from './DateString';
 
 export enum LabRequestStatus {
   RECEPTION_PENDING = 'reception_pending',
@@ -44,8 +45,13 @@ export interface ILabRequest {
 
 export interface IDataRequiredToCreateLabRequest {
   id?: ID; // has default
+<<<<<<< HEAD
   sampleTime?: string; // has default
   requestedDate?: string; // has default
+=======
+  sampleTime?: DateString; // has default
+  requestedDate?: DateString; // has default
+>>>>>>> dev
   urgent?: boolean;
   specimenAttached?: boolean;
   status?: LabRequestStatus;

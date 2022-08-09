@@ -8,22 +8,13 @@
   "license": "SEE LICENSE IN license",
   "main": "NODE_ENV='development' index.js",
   "bin": "dist/app.bundle.js",
-  "pkg": {
-    "assets": [
-      "../shared/**/*",
-      "config",
-      "node_modules/config"
-    ]
-  },
   "scripts": {
     "start": "node ./dist/app.bundle.js",
     "start-dev": "rm -rf ./dist/ && webpack --config webpack.config.dev.js",
     "test": "NODE_ENV=test jest",
     "test-coverage": "yarn test --coverage",
     "test-watch": "yarn test --watch",
-    "build": "rm -rf ./dist/ && webpack --config webpack.config.prod.js && yarn run run-pkg",
-    "run-pkg": "pkg . --targets node12-win-x64 --output ./release/server.exe",
-    "package": "./scripts/package.sh",
+    "build": "rm -rf ./dist/ && webpack --config webpack.config.prod.js",
     "lint": "eslint app",
     "lint-stats": "eslint app --format ../scripts/eslint-stats.js"
   },
@@ -44,7 +35,6 @@
     "mocha": "^5.2.0",
     "nodemon": "^1.17.3",
     "nodemon-webpack-plugin": "^4.0.8",
-    "pkg": "^4.4.8",
     "supertest": "^4.0.2",
     "weak-napi": "^2.0.2",
     "webpack": "^4.29.6",
