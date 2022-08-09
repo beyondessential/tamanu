@@ -467,6 +467,7 @@
           "laboratoryName": "Approved test provider"
         }
       },
+      "imagingTypes": {},
       "printMeasures": {
         "stickerLabelPage": {
           "pageWidth": "210mm",
