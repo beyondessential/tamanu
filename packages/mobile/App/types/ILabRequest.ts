@@ -18,8 +18,8 @@ export const LAB_REQUEST_STATUS_OPTIONS = createDropdownOptionsFromObject(LabReq
 
 export interface ILabRequest {
   id: ID;
-  sampleTime: DateString;
-  requestedDate: DateString;
+  sampleTime: string;
+  requestedDate: string;
   urgent?: boolean;
   specimenAttached?: boolean;
   status?: LabRequestStatus;
@@ -45,8 +45,8 @@ export interface ILabRequest {
 
 export interface IDataRequiredToCreateLabRequest {
   id?: ID; // has default
-  sampleTime?: DateString; // has default
-  requestedDate?: DateString; // has default
+  sampleTime?: string; // has default
+  requestedDate?: string; // has default
   urgent?: boolean;
   specimenAttached?: boolean;
   status?: LabRequestStatus;
