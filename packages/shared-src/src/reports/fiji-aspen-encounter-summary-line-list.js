@@ -16,7 +16,7 @@ const FIELDS = [
   'Triage category',
   {
     title: 'Time seen following triage/Wait time (hh:mm)',
-    accessor: data => data['Time seen following triage/Wait time'],
+    accessor: data => data.waitTimeFollowingTriage,
   },
   'Department',
   'Location',
@@ -315,7 +315,7 @@ with
   triage_info as (
     select
       encounter_id,
-      hours::text || CHR(58) || remaining_minutes::text "Time seen following triage/Wait time"
+      hours::text || CHR(58) || remaining_minutes::text "waitTimeFollowingTriage"
     from triages t,
     lateral (
       select
@@ -354,7 +354,7 @@ select
     when '3' then  'Non-urgent'
     else t.score
   end "Triage category",
-  ti."Time seen following triage/Wait time",
+  ti."waitTimeFollowingTriage",
   di2.department_history "Department",
   li.location_history "Location",
   e.reason_for_encounter "Reason for encounter",
