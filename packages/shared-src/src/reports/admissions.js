@@ -2,7 +2,7 @@ import { Op } from 'sequelize';
 import { subDays, format } from 'date-fns';
 import { ENCOUNTER_TYPES, DIAGNOSIS_CERTAINTY, NOTE_TYPES } from 'shared/constants';
 import upperFirst from 'lodash/upperFirst';
-import { ageInYears } from 'shared/utils/dateTime';
+import { getAgeFromDate } from 'shared/utils/date';
 import { generateReportFromQueryData } from './utilities';
 
 const reportColumnTemplate = [
@@ -14,7 +14,7 @@ const reportColumnTemplate = [
   { title: 'Date of Birth', accessor: data => format(data.patient.dateOfBirth, 'dd/MM/yyyy') },
   {
     title: 'Age',
-    accessor: data => ageInYears(data.patient.dateOfBirth),
+    accessor: data => getAgeFromDate(data.patient.dateOfBirth),
   },
   { title: 'Patient Type', accessor: data => data.patientBillingType?.name },
   { title: 'Admitting Doctor/Nurse', accessor: data => data.examiner?.displayName },

@@ -1,7 +1,7 @@
 import { Op } from 'sequelize';
 import moment from 'moment';
 import { DIAGNOSIS_CERTAINTY } from 'shared/constants';
-import { ageInYears } from 'shared/utils/dateTime';
+import { getAgeFromDate } from 'shared/utils/date';
 import { generateReportFromQueryData } from './utilities';
 
 const FIELD_TO_TITLE = {
@@ -139,7 +139,7 @@ const transformDataPoint = encounter => {
     firstName: patient.firstName,
     lastName: patient.lastName,
     displayId: patient.displayId,
-    age: ageInYears(patient.dateOfBirth),
+    age: getAgeFromDate(patient.dateOfBirth),
     sex: patient.sex,
     ethnicity: patientAdditionalData?.ethnicity?.name,
     contactPhone: patientAdditionalData?.primaryContactNumber,
