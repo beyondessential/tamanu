@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import moment from 'moment';
+import { format } from 'date-fns';
 
 const MINUTE = 60 * 1000;
 const HOUR = 60 * MINUTE;
@@ -39,11 +39,11 @@ export const TriageWaitTimeCell = React.memo(({ encounterType, triageTime, close
       return (
         <TriageCell>
           <div>{getDuration(triageTime)}</div>
-          <div>{`Triage at ${moment(triageTime).format('h:mma')}`}</div>
+          <div>{`Triage at ${format(new Date(triageTime), 'h:mma')}`}</div>
         </TriageCell>
       );
     case 'observation':
-      return <TriageCell>{`Seen at ${moment(closedTime).format('h:mma')}`}</TriageCell>;
+      return <TriageCell>{`Seen at ${format(new Date(closedTime), 'h:mma')}`}</TriageCell>;
     default:
       return <PlainCell>Admitted</PlainCell>;
   }
