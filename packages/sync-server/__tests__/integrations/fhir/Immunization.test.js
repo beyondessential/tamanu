@@ -1,7 +1,10 @@
 import { fake, fakeReferenceData, fakeUser } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 
-describe('FHIR integration - Immunization', () => {
+const integrationName = 'fhir';
+const requestHeaders = {};
+
+describe(`${integrationName} integration - Immunization`, () => {
   let ctx;
   let app;
   let models;
@@ -111,8 +114,8 @@ describe('FHIR integration - Immunization', () => {
   describe('success', () => {
     it("returns no error but no results when patient reference doesn't match", async () => {
       const id = '123456789';
-      const path = `/v1/integration/fhir/Immunization?_sort=-issued&_page=0&_count=2&patient=${id}`;
-      const response = await app.get(path);
+      const path = `/v1/integration/${integrationName}/Immunization?_sort=-issued&_page=0&_count=2&patient=${id}`;
+      const response = await app.get(path).set(requestHeaders);
       expect(response).toHaveSucceeded();
       expect(response.body).toEqual({
         resourceType: 'Bundle',
@@ -133,8 +136,8 @@ describe('FHIR integration - Immunization', () => {
     });
 
     it("returns no error but no results when vaccine code doesn't match", async () => {
-      const path = `/v1/integration/fhir/Immunization?_sort=-issued&_page=0&_count=2&vaccine-code=${NON_SUPPORTED_VACCINE_ID}`;
-      const response = await app.get(path);
+      const path = `/v1/integration/${integrationName}/Immunization?_sort=-issued&_page=0&_count=2&vaccine-code=${NON_SUPPORTED_VACCINE_ID}`;
+      const response = await app.get(path).set(requestHeaders);
       expect(response).toHaveSucceeded();
       expect(response.body).toEqual({
         resourceType: 'Bundle',
@@ -155,7 +158,9 @@ describe('FHIR integration - Immunization', () => {
     });
 
     it('returns a list of supported immunizations when passed no query params', async () => {
-      const response = await app.get('/v1/integration/fhir/Immunization');
+      const response = await app
+        .get(`/v1/integration/${integrationName}/Immunization`)
+        .set(requestHeaders);
       expect(response).toHaveSucceeded();
       // We created 3, but only 2 types of vaccine are supported to be included
       expect(response.body.total).toBe(2);
@@ -164,8 +169,8 @@ describe('FHIR integration - Immunization', () => {
 
   describe('failure', () => {
     it('returns a 422 error when passed the wrong query params', async () => {
-      const path = '/v1/integration/fhir/Immunization?_sort=id&_page=z&_count=x&status=initial';
-      const response = await app.get(path);
+      const path = `/v1/integration/${integrationName}/Immunization?_sort=id&_page=z&_count=x&status=initial`;
+      const response = await app.get(path).set(requestHeaders);
       expect(response).toHaveRequestError(422);
       expect(response.body).toMatchObject({
         error: {
