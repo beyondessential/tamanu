@@ -14,7 +14,8 @@ export const SyncDataScreen = (): ReactElement => {
   const backend = useContext(BackendContext);
   const syncManager: MobileSyncManager = backend.syncManager;
 
-  const formatLastSyncTime = (lastSyncTime): string => (lastSyncTime ? moment(lastSyncTime).fromNow() : '');
+  const formatLastSyncTime = (lastSyncTime): string =>
+    lastSyncTime ? moment(lastSyncTime).fromNow() : '';
 
   const [isSyncing, setIsSyncing] = useState(syncManager.isSyncing);
   const [progress, setProgress] = useState(syncManager.progress);
@@ -22,6 +23,8 @@ export const SyncDataScreen = (): ReactElement => {
   const [formattedLastSyncTime, setFormattedLastSyncTime] = useState(
     formatLastSyncTime(syncManager.lastSyncTime),
   );
+  const [lastSyncPushedRecordsCount, setLastSyncPushedRecordsCount] = useState(null);
+  const [lastSyncPulledRecordsCount, setLastSyncPulledRecordsCount] = useState(null);
 
   setStatusBar('light-content', theme.colors.MAIN_SUPER_DARK);
 
@@ -39,6 +42,8 @@ export const SyncDataScreen = (): ReactElement => {
         case SYNC_EVENT_ACTIONS.SYNC_ENDED:
           setIsSyncing(false);
           setFormattedLastSyncTime(formatLastSyncTime(syncManager.lastSyncTime));
+          setLastSyncPushedRecordsCount(syncManager.lastSyncPushedRecordsCount);
+          setLastSyncPulledRecordsCount(syncManager.lastSyncPulledRecordsCount);
           deactivateKeepAwake();
           break;
         case SYNC_EVENT_ACTIONS.SYNC_IN_PROGRESS:
@@ -94,6 +99,15 @@ export const SyncDataScreen = (): ReactElement => {
             >
               {formattedLastSyncTime}
             </StyledText>
+            {!isSyncing && lastSyncPulledRecordsCount !== null && lastSyncPushedRecordsCount !== null ? (
+              <StyledText
+                fontSize={screenPercentageToDP(1.7, Orientation.Height)}
+                fontWeight={500}
+                color={theme.colors.WHITE}
+              >
+                {`pulled ${lastSyncPulledRecordsCount} records, pushed ${lastSyncPushedRecordsCount} records`}
+              </StyledText>
+            ) : null}
           </>
         ) : (
           <StyledText

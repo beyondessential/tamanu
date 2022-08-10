@@ -5,5 +5,5 @@ export const getSyncSessionIndex = async (key: string): Promise<number> => {
     key,
   });
 
-  return localSystemFact ? parseInt(localSystemFact.key) : 0;
+  return localSystemFact ? parseInt(localSystemFact.value) : 0;
 };

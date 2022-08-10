@@ -26,6 +26,10 @@ export class MobileSyncManager {
 
   lastSyncTime = '';
 
+  lastSyncPushedRecordsCount: number = null;
+
+  lastSyncPulledRecordsCount: number = null;
+
   emitter = mitt();
 
   errors = [];
@@ -101,7 +105,6 @@ export class MobileSyncManager {
       this.isSyncing = false;
       this.lastSyncTime = formatDate(new Date(), DateFormats.DATE_AND_TIME);
       this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ENDED, `time=${Date.now() - startTime}ms`);
-
       console.info(`Sync took ${Date.now() - startTime} ms`);
     }
   }
@@ -154,6 +157,7 @@ export class MobileSyncManager {
       );
     }
 
+    this.lastSyncPushedRecordsCount = outgoingChanges.length;
     console.info(
       `MobileSyncManager.syncOutgoingChanges(): End sync outgoing changes, outgoing changes count: ${outgoingChanges.length}`,
     );
@@ -200,6 +204,7 @@ export class MobileSyncManager {
       }
     }
 
+    this.lastSyncPulledRecordsCount = incomingChanges.length;
     console.info(
       `MobileSyncManager.syncIncomingChanges(): End sync incoming changes, incoming changes count: ${incomingChanges.length}`,
     );
