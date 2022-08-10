@@ -2,8 +2,7 @@ import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { TouchableWithoutFeedback } from 'react-native';
 import { StyledText, StyledView } from '/styled/common';
 import { BackendContext } from '~/ui/contexts/BackendContext';
-import { MobileSyncManager } from '../../services/sync';
-import { SYNC_EVENT_ACTIONS } from '../../constants';
+import { MobileSyncManager, SYNC_EVENT_ACTIONS } from '../../services/sync';
 
 function stringifyError(e): string {
   const error = e.error || e;

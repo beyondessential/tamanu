@@ -5,11 +5,10 @@ import { CenterView, StyledText, StyledView } from '../../../../styled/common';
 import { theme } from '../../../../styled/theme';
 import { Orientation, screenPercentageToDP, setStatusBar } from '../../../../helpers/screen';
 import { BackendContext } from '../../../../contexts/BackendContext';
-import { MobileSyncManager } from '../../../../../services/sync';
+import { MobileSyncManager, SYNC_EVENT_ACTIONS } from '../../../../../services/sync';
 import { Button } from '../../../../components/Button';
 import { CircularProgress } from '../../../../components/CircularProgress';
 import { SyncErrorDisplay } from '../../../../components/SyncErrorDisplay';
-import { SYNC_EVENT_ACTIONS } from '../../../../../constants';
 
 export const SyncDataScreen = (): ReactElement => {
   const backend = useContext(BackendContext);
