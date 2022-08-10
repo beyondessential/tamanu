@@ -2,6 +2,7 @@ import { pascal } from 'case';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Sequelize, Op, literal } from 'sequelize';
+import config from 'config';
 import { NotFoundError } from 'shared/errors';
 import {
   SURVEY_TYPES,
@@ -125,13 +126,14 @@ REFERENCE_TYPE_VALUES.map(typeName =>
   ),
 );
 
-const createNameSuggester = (endpoint, modelName = pascal(endpoint)) =>
+const createNameSuggester = (endpoint, modelName = pascal(endpoint), filterByFacility = false) =>
   createSuggester(
     endpoint, 
     modelName, 
     search => ({
       name: { [Op.iLike]: search },
       ...VISIBILITY_CRITERIA,
+      ...(filterByFacility && { facilityId: config.serverFacilityId }),
     }),
     ({ id, name }) => ({
       id,
@@ -139,8 +141,8 @@ const createNameSuggester = (endpoint, modelName = pascal(endpoint)) =>
     }),
   );
 
-createNameSuggester('department');
-createNameSuggester('location');
+createNameSuggester('department', 'Department', true);
+createNameSuggester('location', 'Location', true);
 createNameSuggester('facility');
 
 createSuggester(
