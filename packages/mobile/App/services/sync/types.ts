@@ -13,18 +13,18 @@ export type UploadRecordsResponse = {
 
 export interface SyncRecord {
   ERROR_MESSAGE?: string;
-  recordType: string,
+  recordType: string;
   isDeleted?: boolean;
   data: SyncRecordData;
 }
 
 export type PersistResult = {
   failures: string[];
-}
+};
 
 export type DataToPersist = {
-  [key: string]: unknown
-}
+  [key: string]: unknown;
+};
 
 export interface SyncRecordData {
   id: string;
@@ -36,4 +36,12 @@ export interface LoginResponse {
   user: IUser;
   localisation: object;
   permissions: [];
+}
+
+export enum SYNC_EVENT_ACTIONS {
+  SYNC_STARTED = 'syncStarted',
+  SYNC_IN_PROGRESS = 'syncInProgress',
+  SYNC_ENDED = 'syncEnded',
+  SYNC_ERROR = 'syncRecordError',
+  SYNC_RECORD_ERROR = 'syncRecordError',
 }

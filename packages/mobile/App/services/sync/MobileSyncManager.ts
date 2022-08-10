@@ -13,7 +13,7 @@ import {
   getSyncSessionIndex,
 } from './utils';
 import { SYNC_DIRECTIONS } from '~/models/constants';
-import { SYNC_EVENT_ACTIONS } from '../../constants';
+import { SYNC_EVENT_ACTIONS } from '../../services/sync';
 
 export class MobileSyncManager {
   isSyncing = false;
