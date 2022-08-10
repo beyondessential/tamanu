@@ -14,7 +14,7 @@ export const SyncDataScreen = (): ReactElement => {
   const backend = useContext(BackendContext);
   const syncManager: SyncManager = backend.syncManager;
 
-  const formatLastSyncTime = (lastSyncTime): string => (lastSyncTime ? formatDistance(lastSyncTime, new Date(), { addSuffix: true}) : '');
+  const formatLastSyncTime = (lastSyncTime): string => (lastSyncTime ? formatDistance(new Date(lastSyncTime), new Date(), { addSuffix: true}) : '');
 
   const [isSyncing, setIsSyncing] = useState(syncManager.isSyncing);
   const [progress, setProgress] = useState(syncManager.progress);
