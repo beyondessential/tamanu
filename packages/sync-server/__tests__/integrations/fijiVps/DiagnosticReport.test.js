@@ -102,7 +102,6 @@ describe('VPS integration - DiagnosticReport', () => {
         .get(path)
         .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
-      console.log(convertISO9075toRFC3339(labRequest.sampleTime));
       // assert
       expect(response).toHaveSucceeded();
       expect(response.body).toEqual({
