@@ -9,7 +9,7 @@ import { MODELS_MAP } from '../models/modelsMap';
 
 const SYNC_PERIOD_MINUTES = 5;
 
-export class Backend {
+export class BackendManager {
   randomId: any;
 
   responses: any[];

@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
-import { Backend } from '~/services/backend';
+import { BackendManager } from '~/services/BackendManager';
 import { BackendContext } from '~/ui/contexts/BackendContext';
 
 export type ResultArray<T> = [T | null, Error | null];
@@ -32,7 +32,7 @@ export const useCancelableEffect = <T>(
 };
 
 export const useBackendEffect = <T>(
-  call: (backend: Backend) => Promise<T> | T,
+  call: (backendManager: BackendManager) => Promise<T> | T,
   dependencies = [],
 ): ResultArray<T> => {
   const backend = useContext(BackendContext);
