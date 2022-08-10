@@ -63,7 +63,7 @@ export class FacilitySyncManager {
     // causing data that isn't internally coherent from ending up on the sync server
     const lastSessionIndex = (await this.models.Setting.get('LastSuccessfulSyncSession')) || 0;
     const outgoingChanges = await snapshotOutgoingChanges(
-      getModelsForDirection(this.models, SYNC_DIRECTIONS.FACILITY_TO_CENTRAL),
+      getModelsForDirection(this.models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL),
       lastSessionIndex,
     );
     if (outgoingChanges.length > 0) {
@@ -82,7 +82,7 @@ export class FacilitySyncManager {
       if (incomingChanges.length > 0) {
         await saveIncomingChanges(
           this.sequelize,
-          getModelsForDirection(this.models, SYNC_DIRECTIONS.CENTRAL_TO_FACILITY),
+          getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
           incomingChanges,
         );
       }
