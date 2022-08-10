@@ -3,7 +3,12 @@ import config from 'config';
 import { subDays } from 'date-fns';
 import { Op } from 'sequelize';
 import { ScheduledTask } from 'shared/tasks';
-import { LAB_REQUEST_STATUSES } from 'shared/constants';
+import { getPatientSurveyResponseAnswer } from 'shared/utils';
+import {
+  LAB_REQUEST_STATUSES,
+  COVID_19_CLEARANCE_CERTIFICATE,
+  CERTIFICATE_NOTIFICATION_STATUSES,
+} from 'shared/constants';
 import { log } from 'shared/services/logging';
 
 export class CovidClearanceCertificatePublisher extends ScheduledTask {
@@ -24,10 +29,12 @@ export class CovidClearanceCertificatePublisher extends ScheduledTask {
       labTestTypes,
       daysSinceSampleTime,
     } = config.schedules.covidClearanceCertificatePublisher;
-    const { LabRequest, LabTest } = this.models;
+    const { LabRequest, LabTest, CertificateNotification, Encounter } = this.models;
+    const questionId = config.questionCodeIds?.email;
+
     // Get lab requests before the last 13 days with the
     // lab test categories configured
-    const requests = await LabRequest.findAll({
+    const clearedRequests = await LabRequest.findAll({
       where: {
         status: LAB_REQUEST_STATUSES.PUBLISHED,
         sampleTime: {
@@ -40,6 +47,7 @@ export class CovidClearanceCertificatePublisher extends ScheduledTask {
         '$tests.lab_test_type_id$': {
           [Op.in]: labTestTypes,
         },
+        '$certificate_notification.id$': null,
       },
       include: [
         {
@@ -47,7 +55,41 @@ export class CovidClearanceCertificatePublisher extends ScheduledTask {
           as: 'tests',
           required: true,
         },
+        {
+          model: CertificateNotification,
+          as: 'certificate_notification',
+          required: false,
+          where: {
+            type: COVID_19_CLEARANCE_CERTIFICATE,
+            created_by: this.getName(),
+          },
+        },
+        {
+          model: Encounter,
+          as: 'encounter',
+          required: true,
+        },
       ],
     });
+
+    for (const labRequest of clearedRequests) {
+      const emailAddress = await getPatientSurveyResponseAnswer(
+        this.models,
+        labRequest.encounter.patientId,
+        questionId,
+      );
+
+      await CertificateNotification.create({
+        type: COVID_19_CLEARANCE_CERTIFICATE,
+        createdBy: this.getName(),
+        requiresSigning: false,
+        patientId: labRequest.encounter.patientId,
+        // If forward address is null, the communication service will
+        // attempt to use the patient.email field
+        forwardAddress: emailAddress,
+        status: CERTIFICATE_NOTIFICATION_STATUSES.QUEUED,
+        labRequestId: labRequest.id,
+      });
+    }
   }
 }
