@@ -118,8 +118,6 @@ export class Patient extends Model {
     const results = await models.AdministeredVaccine.findAll({
       order: [['date', 'DESC']],
       ...optRest,
-      raw: true,
-      nest: true,
       include,
       where: {
         ...optWhere,

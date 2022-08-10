@@ -28,12 +28,17 @@ async function writeToPatientFields(models, questions, answers, patientId) {
   const patientRecordValues = {};
   const patientAdditionalDataValues = {};
 
-  const writeQuestions = questions.filter(
-    q => q.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA,
+  const patientDataQuestions = questions.filter(
+    q => q.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA
   );
-  for (const question of writeQuestions) {
+  for (const question of patientDataQuestions) {
     const { dataElement, config: configString } = question;
     const config = JSON.parse(configString) || {};
+
+    if (!config.writeToPatient) {
+      // this is just a question that's reading patient data, not writing it
+      continue;
+    }
 
     const { fieldName, isAdditionalDataField } = config.writeToPatient || {};
     if (!fieldName) {

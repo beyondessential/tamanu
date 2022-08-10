@@ -23,3 +23,4 @@ export * from './IPatientAditionalData';
 export * from './IFacility';
 export * from './ILocation';
 export * from './IDepartment';
+export * from './DateString';

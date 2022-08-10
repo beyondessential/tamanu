@@ -193,6 +193,9 @@
     "mSupply": {
       "enabled": false,
       "requireClientHeaders": true
+    },
+    "fhir": {
+      "enabled": false
     }
   },
   // on the sync-server, don't read these values from config!
@@ -460,6 +463,7 @@
           "laboratoryName": "Approved test provider"
         }
       },
+      "imagingTypes": {},
       "printMeasures": {
         "stickerLabelPage": {
           "pageWidth": "210mm",
@@ -474,7 +478,6 @@
           "rowGap": "0"
         }
       },
-
       // The time zone setting is currently only used for Vaccine Certificates
       "timeZone": null,
       "triageCategories": [

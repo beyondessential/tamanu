@@ -8,11 +8,16 @@ import { ConfirmCancelRow } from '../components/ButtonRow';
 
 import { foreignKey } from '../utils/validation';
 
-export class FamilyHistoryForm extends React.PureComponent {
-  renderForm = ({ submitForm }) => {
-    const { onCancel, icd10Suggester, practitionerSuggester, editedObject } = this.props;
-    const buttonText = editedObject ? 'Save' : 'Add';
-    return (
+export const FamilyHistoryForm = ({
+  onCancel,
+  icd10Suggester,
+  practitionerSuggester,
+  editedObject,
+  onSubmit,
+}) => (
+  <Form
+    onSubmit={onSubmit}
+    render={({ submitForm }) => (
       <FormGrid columns={1}>
         <Field
           name="diagnosisId"
@@ -21,7 +26,7 @@ export class FamilyHistoryForm extends React.PureComponent {
           component={AutocompleteField}
           suggester={icd10Suggester}
         />
-        <Field name="date" label="Date recorded" required component={DateField} />
+        <Field name="recordedDate" label="Date recorded" required component={DateField} />
         <Field name="relationship" label="Relation to patient" component={TextField} />
         <Field
           name="practitionerId"
@@ -31,30 +36,24 @@ export class FamilyHistoryForm extends React.PureComponent {
           suggester={practitionerSuggester}
         />
         <Field name="note" label="Notes" component={TextField} multiline rows={2} />
-        <ConfirmCancelRow onConfirm={submitForm} onCancel={onCancel} confirmText={buttonText} />
+        <ConfirmCancelRow
+          onConfirm={submitForm}
+          onCancel={onCancel}
+          confirmText={editedObject ? 'Save' : 'Add'}
+        />
       </FormGrid>
-    );
-  };
-
-  render() {
-    const { onSubmit, editedObject } = this.props;
-    return (
-      <Form
-        onSubmit={onSubmit}
-        render={this.renderForm}
-        initialValues={{
-          date: new Date(),
-          ...editedObject,
-        }}
-        validationSchema={yup.object().shape({
-          diagnosisId: foreignKey('Diagnosis is required'),
-          practitionerId: foreignKey('Doctor/nurse is required'),
-          date: yup.date().required(),
-        })}
-      />
-    );
-  }
-}
+    )}
+    initialValues={{
+      recordedDate: new Date(),
+      ...editedObject,
+    }}
+    validationSchema={yup.object().shape({
+      diagnosisId: foreignKey('Diagnosis is required'),
+      practitionerId: foreignKey('Doctor/nurse is required'),
+      recordedDate: yup.date().required(),
+    })}
+  />
+);
 
 FamilyHistoryForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
