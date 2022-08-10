@@ -1,7 +1,7 @@
 import mitt from 'mitt';
 
 import { readConfig } from '~/services/config';
-import { LoginResponse, SyncRecord } from './types';
+import { LoginResponse, SyncRecord, FetchOptions } from './types';
 import {
   AuthenticationError,
   OutdatedVersionError,
@@ -11,56 +11,9 @@ import {
 } from '~/services/auth/error';
 import { version } from '/root/package.json';
 
-import { callWithBackoff, callWithBackoffOptions } from './utils/callWithBackoff';
+import { callWithBackoff, getResponseJsonSafely, fetchWithTimeout } from './utils';
 
 const API_VERSION = 1;
-
-const MAX_FETCH_WAIT_TIME = 45 * 1000; // 45 seconds in milliseconds
-
-type TimeoutPromiseResponse = {
-  promise: Promise<void>;
-  cleanup: () => void;
-};
-const createTimeoutPromise = (): TimeoutPromiseResponse => {
-  let cleanup: () => void;
-  const promise: Promise<void> = new Promise((resolve, reject) => {
-    const id = setTimeout(() => {
-      clearTimeout(id);
-      reject(new Error('Network request timed out'));
-    }, MAX_FETCH_WAIT_TIME);
-    cleanup = (): void => {
-      clearTimeout(id);
-      resolve();
-    };
-  });
-  return { promise, cleanup };
-};
-
-const fetchWithTimeout = async (url: string, config?: object): Promise<Response> => {
-  const { cleanup, promise: timeoutPromise } = createTimeoutPromise();
-  try {
-    const response = await Promise.race([fetch(url, config), timeoutPromise]);
-    // assert type because timeoutPromise is guaranteed not to resolve unless cleaned up
-    return response as Response;
-  } finally {
-    cleanup();
-  }
-};
-
-const getResponseJsonSafely = async (response: Response): Promise<Record<string, any>> => {
-  try {
-    return response.json();
-  } catch (e) {
-    // log json parsing errors, but still return a valid object
-    console.error(e);
-    return {};
-  }
-};
-
-type FetchOptions = {
-  backoff?: callWithBackoffOptions;
-  [key: string]: any;
-};
 
 export class CentralServerConnection {
   host: string;

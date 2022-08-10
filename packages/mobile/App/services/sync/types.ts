@@ -1,5 +1,5 @@
 import { IUser } from '~/types';
-
+import { callWithBackoffOptions } from './utils/callWithBackoff';
 export type DownloadRecordsResponse = {
   count: number;
   cursor: string;
@@ -37,6 +37,11 @@ export interface LoginResponse {
   localisation: object;
   permissions: [];
 }
+
+export type FetchOptions = {
+  backoff?: callWithBackoffOptions;
+  [key: string]: any;
+};
 
 export enum SYNC_EVENT_ACTIONS {
   SYNC_STARTED = 'syncStarted',

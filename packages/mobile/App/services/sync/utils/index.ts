@@ -5,3 +5,6 @@ export { pullIncomingChanges } from './pullIncomingChanges';
 export { saveIncomingChanges } from './saveIncomingChanges';
 export { getModelsForDirection } from './getModelsForDirection';
 export { getSyncSessionIndex } from './getSyncSessionIndex';
+export { callWithBackoff } from './callWithBackoff';
+export { getResponseJsonSafely } from './getResponseJsonSafely';
+export { fetchWithTimeout } from './fetchWithTimeout';
