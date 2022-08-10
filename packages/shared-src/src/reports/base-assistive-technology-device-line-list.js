@@ -180,7 +180,7 @@ export const dataGenerator = async (
       }
 
       const dateOfBirth = patient.dateOfBirth ? format(patient.dateOfBirth, 'dd-MM-yyyy') : '';
-      const age = patient.dateOfBirth ? differenceInYears(patient.dateOfBirth, new Date()) : '';
+      const age = patient.dateOfBirth ? differenceInYears(new Date(), patient.dateOfBirth) : '';
       const recordData = {
         clientId: patient.displayId,
         gender: patient.sex,
