@@ -74,7 +74,7 @@ export class User extends Model {
           },
         },
         indexes: [{ fields: ['email'] }],
-        syncDirection: SYNC_DIRECTIONS.CENTRAL_TO_FACILITY,
+        syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
       },
     );
 

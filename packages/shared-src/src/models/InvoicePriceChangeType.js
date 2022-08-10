@@ -14,7 +14,7 @@ export class InvoicePriceChangeType extends Model {
       },
       {
         ...options,
-        syncDirection: SYNC_DIRECTIONS.CENTRAL_TO_FACILITY,
+        syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
       },
     );
   }

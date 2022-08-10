@@ -78,7 +78,7 @@ export class CentralSyncManager {
       .map(p => p.patientId)
       .filter(patientId => !patientIdsForFullSync.includes(patientId));
     const regularChanges = await snapshotOutgoingChanges(
-      getModelsForDirection(models, SYNC_DIRECTIONS.CENTRAL_TO_FACILITY),
+      getModelsForDirection(models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
       fromSessionIndex,
       patientIdsForRegularSync,
     );
@@ -123,7 +123,7 @@ export class CentralSyncManager {
     if (pageNumber === totalPages) {
       await saveIncomingChanges(
         sequelize,
-        getModelsForDirection(models, SYNC_DIRECTIONS.FACILITY_TO_CENTRAL),
+        getModelsForDirection(models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL),
         session.incomingChanges,
         true,
       );
