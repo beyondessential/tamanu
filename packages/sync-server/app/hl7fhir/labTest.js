@@ -1,6 +1,6 @@
 import config from 'config';
-import { format } from 'date-fns';
 import { LAB_REQUEST_STATUSES } from 'shared/constants';
+import { convertISO9075toRFC3339 } from 'shared/utils/dateTime';
 
 import { labTestTypeToLOINCCode } from './loinc';
 
@@ -108,8 +108,8 @@ export function labTestToHL7DiagnosticReport(labTest) {
     ],
     subject: patientToHL7Reference(patient),
     status: labRequestStatusToHL7Status(labRequest.status),
-    effectiveDateTime: format(new Date(labRequest.sampleTime), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"),
-    issued: format(new Date(labRequest.requestedDate), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"),
+    effectiveDateTime: convertISO9075toRFC3339(labRequest.sampleTime),
+    issued: convertISO9075toRFC3339(labRequest.requestedDate),
     code: {
       text: labTestType.name,
       coding: [

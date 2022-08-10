@@ -1,7 +1,7 @@
 import Chance from 'chance';
-import { format } from 'date-fns';
 
 import { fake } from 'shared/test-helpers/fake';
+import { convertISO9075toRFC3339 } from 'shared/utils/dateTime';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 import { IDENTIFIER_NAMESPACE } from '../../../app/hl7fhir/utils';
 
@@ -102,6 +102,7 @@ describe('VPS integration - DiagnosticReport', () => {
         .get(path)
         .set({ 'X-Tamanu-Client': 'fiji-vps', 'X-Version': '0.0.1' });
 
+      console.log(convertISO9075toRFC3339(labRequest.sampleTime));
       // assert
       expect(response).toHaveSucceeded();
       expect(response.body).toEqual({
@@ -123,11 +124,8 @@ describe('VPS integration - DiagnosticReport', () => {
             resource: {
               resourceType: 'DiagnosticReport',
               id: labTest.id,
-              effectiveDateTime: format(
-                new Date(labRequest.sampleTime),
-                "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
-              ),
-              issued: format(new Date(labRequest.requestedDate), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"),
+              effectiveDateTime: convertISO9075toRFC3339(labRequest.sampleTime),
+              issued: convertISO9075toRFC3339(labRequest.requestedDate),
               code: {
                 coding: [
                   {
