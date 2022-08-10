@@ -18,28 +18,25 @@ import {
 } from '../components/Field';
 import { Button } from '../components';
 
-const DiagnosisFields = ({ count, icd10Suggester }) => {
-  return (
-    <FormGrid columns={2}>
-      <Field
-        name={`diagnosisId${count}`}
-        label="Diagnosis"
-        component={AutocompleteField}
-        suggester={icd10Suggester}
-      />
-      <Field
-        name={`diagnosisCertainty${count}`}
-        label="Certainty"
-        inline
-        component={RadioField}
-        options={[
-          { value: DIAGNOSIS_CERTAINTY.SUSPECTED, label: 'Suspected' },
-          { value: DIAGNOSIS_CERTAINTY.CONFIRMED, label: 'Confirmed' },
-        ]}
-      />
-    </FormGrid>
-  );
-};
+const DiagnosisFields = ({ count, icd10Suggester }) => (
+  <FormGrid columns={2}>
+    <Field
+      name={`diagnosisId${count}`}
+      label="Diagnosis"
+      component={AutocompleteField}
+      suggester={icd10Suggester}
+    />
+    <Field
+      name={`diagnosisCertainty${count}`}
+      label="Certainty"
+      component={RadioField}
+      options={[
+        { value: DIAGNOSIS_CERTAINTY.SUSPECTED, label: 'Suspected' },
+        { value: DIAGNOSIS_CERTAINTY.CONFIRMED, label: 'Confirmed' },
+      ]}
+    />
+  </FormGrid>
+);
 
 const DiagnosesContainer = styled.div`
   grid-column: 1 / -1;

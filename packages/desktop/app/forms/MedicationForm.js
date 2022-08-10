@@ -1,10 +1,14 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import styled from 'styled-components';
 import * as yup from 'yup';
-
+import { Box } from '@material-ui/core';
 import { foreignKey } from '../utils/validation';
-import { ConfirmCancelRow } from '../components/ButtonRow';
-import { FormGrid } from '../components/FormGrid';
+import { DropdownButton } from '../components/DropdownButton';
+import { PrescriptionPrintModal } from '../components/PatientPrinting/PrescriptionPrintModal';
 import {
+  FormGrid,
+  Button,
+  ButtonRow,
   Form,
   Field,
   SelectField,
@@ -12,7 +16,8 @@ import {
   AutocompleteField,
   NumberField,
   DateField,
-} from '../components/Field';
+  DateDisplay,
+} from '../components';
 
 const drugRouteOptions = [
   { label: 'Dermal', value: 'dermal' },
@@ -30,8 +35,8 @@ const drugRouteOptions = [
   { label: 'Vaginal', value: 'vaginal' },
 ];
 
-const validationSchema = readOnly => {
-  return !readOnly
+const validationSchema = readOnly =>
+  !readOnly
     ? yup.object().shape({
         medicationId: foreignKey('Medication must be selected'),
         prescriberId: foreignKey('Prescriber must be selected'),
@@ -43,23 +48,46 @@ const validationSchema = readOnly => {
         date: yup.date().required(),
         endDate: yup.date(),
         note: yup.string(),
-        quantity: yup
-          .number()
-          .integer(),
+        quantity: yup.number().integer(),
       })
     : yup.object().shape({
         discontinuingReason: yup.string(),
         discontinuingClinicianId: foreignKey('Clinician must be selected'),
       });
+
+const DiscontinuePrintButtonRow = styled.div`
+  display: grid;
+  grid-auto-flow: column;
+  grid-column-gap: 0.7rem;
+  grid-template-columns: 8rem auto 8rem 8rem;
+  grid-column: -1 / 1;
+`;
+
+const DiscontinuedLabel = ({ medication }) => {
+  const { discontinuedDate, discontinuingClinician, discontinuingReason } = medication;
+  return (
+    <Box color="error.main" ml={2}>
+      <strong>Discontinued</strong>
+      <br />
+      Discontinued at: <DateDisplay date={discontinuedDate} />
+      <br />
+      by: {discontinuingClinician?.displayName}
+      <br />
+      Reason: {discontinuingReason}
+      <br />
+    </Box>
+  );
 };
 
 export const MedicationForm = React.memo(
   ({
     onCancel,
+    onSaved,
     onSubmit,
     drugSuggester,
     practitionerSuggester,
     medication,
+    submittedMedication,
     shouldDiscontinue,
     onDiscontinue,
     readOnly,
@@ -67,154 +95,208 @@ export const MedicationForm = React.memo(
     const shouldShowDiscontinuationButton = readOnly && !medication?.discontinued;
     const shouldShowSubmitButton = !readOnly || shouldDiscontinue;
 
+    const [printModalOpen, setPrintModalOpen] = useState();
+    const [awaitingPrint, setAwaitingPrint] = useState(false);
+
+    // Transition to print page as soon as we have the generated id
+    useEffect(() => {
+      (async () => {
+        if (awaitingPrint && submittedMedication) {
+          setPrintModalOpen(true);
+        }
+      })();
+    }, [awaitingPrint, submittedMedication]);
+
     return (
-      <Form
-        onSubmit={onSubmit}
-        initialValues={{
-          note: medication?.note ?? '',
-          route: medication?.route ?? '',
-          prescription: medication?.prescription ?? '',
-          date: medication?.createdAt ?? new Date(),
-          qtyMorning: medication?.qtyMorning ?? 0,
-          qtyLunch: medication?.qtyMorning ?? 0,
-          qtyEvening: medication?.qtyEvening ?? 0,
-          qtyNight: medication?.qtyNight ?? 0,
-          quantity: medication?.quantity ?? 0,
-          indication: medication?.indication ?? '',
-        }}
-        validationSchema={validationSchema(readOnly)}
-        render={({ submitForm }) => (
-          <FormGrid>
-            <div style={{ gridColumn: '1 / -1' }}>
+      <>
+        <Form
+          onSubmit={onSubmit}
+          onSuccess={() => {
+            if (!awaitingPrint) {
+              onSaved();
+            }
+          }}
+          initialValues={{
+            note: medication?.note ?? '',
+            route: medication?.route ?? '',
+            prescription: medication?.prescription ?? '',
+            date: medication?.date ?? new Date(),
+            qtyMorning: medication?.qtyMorning ?? 0,
+            qtyLunch: medication?.qtyMorning ?? 0,
+            qtyEvening: medication?.qtyEvening ?? 0,
+            qtyNight: medication?.qtyNight ?? 0,
+            quantity: medication?.quantity ?? 0,
+            indication: medication?.indication ?? '',
+          }}
+          validationSchema={validationSchema(readOnly)}
+          render={({ submitForm }) => (
+            <FormGrid>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <Field
+                  name="medicationId"
+                  label="Medication"
+                  component={AutocompleteField}
+                  suggester={drugSuggester}
+                  disabled={readOnly}
+                  value={medication?.medication?.id}
+                  required={!readOnly}
+                />
+              </div>
               <Field
-                name="medicationId"
-                label="Medication"
-                component={AutocompleteField}
-                suggester={drugSuggester}
+                name="prescription"
+                label="Instructions"
+                component={TextField}
+                required={!readOnly}
                 disabled={readOnly}
-                value={medication?.medication?.id}
+              />
+              <Field
+                name="route"
+                label="Route of administration"
+                component={SelectField}
+                options={drugRouteOptions}
+                disabled={readOnly}
                 required={!readOnly}
               />
-            </div>
-            <Field
-              name="prescription"
-              label="Prescription"
-              component={TextField}
-              required={!readOnly}
-              disabled={readOnly}
-            />
-            <Field
-              name="route"
-              label="Route of administration"
-              component={SelectField}
-              options={drugRouteOptions}
-              disabled={readOnly}
-              required={!readOnly}
-            />
-            <Field
-              name="date"
-              label="Prescription date"
-              component={DateField}
-              required={!readOnly}
-              disabled={readOnly}
-            />
-            <Field
-              name="endDate"
-              label="End date"
-              component={DateField}
-              disabled={readOnly}
-              value={medication?.endDate}
-            />
-            <Field
-              name="prescriberId"
-              label="Prescriber"
-              component={AutocompleteField}
-              suggester={practitionerSuggester}
-              required={!readOnly}
-              disabled={readOnly}
-              value={medication?.prescriberId}
-            />
-            <Field
-              name="note"
-              label="Notes"
-              component={TextField}
-              style={{ gridColumn: '1/-1' }}
-              disabled={readOnly}
-            />
-            <FormGrid nested>
-              <h3 style={{ gridColumn: '1/-1' }}>Quantity</h3>
               <Field
-                name="qtyMorning"
-                label="Morning"
+                name="date"
+                label="Prescription date"
+                component={DateField}
+                required={!readOnly}
+                disabled={readOnly}
+              />
+              <Field
+                name="endDate"
+                label="End date"
+                component={DateField}
+                disabled={readOnly}
+                value={medication?.endDate}
+              />
+              <Field
+                name="prescriberId"
+                label="Prescriber"
+                component={AutocompleteField}
+                suggester={practitionerSuggester}
+                required={!readOnly}
+                disabled={readOnly}
+                value={medication?.prescriberId}
+              />
+              <Field
+                name="note"
+                label="Notes"
+                component={TextField}
+                style={{ gridColumn: '1/-1' }}
+                disabled={readOnly}
+              />
+              <FormGrid nested>
+                <h3 style={{ gridColumn: '1/-1' }}>Quantity</h3>
+                <Field
+                  name="qtyMorning"
+                  label="Morning"
+                  component={NumberField}
+                  disabled={readOnly}
+                />
+                <Field name="qtyLunch" label="Lunch" component={NumberField} disabled={readOnly} />
+                <Field
+                  name="qtyEvening"
+                  label="Evening"
+                  component={NumberField}
+                  disabled={readOnly}
+                />
+                <Field name="qtyNight" label="Night" component={NumberField} disabled={readOnly} />
+              </FormGrid>
+              <Field
+                name="indication"
+                label="Indication"
+                component={TextField}
+                disabled={readOnly}
+              />
+              <Field
+                name="quantity"
+                label="Discharge quantity"
                 component={NumberField}
                 disabled={readOnly}
               />
-              <Field name="qtyLunch" label="Lunch" component={NumberField} disabled={readOnly} />
-              <Field
-                name="qtyEvening"
-                label="Evening"
-                component={NumberField}
-                disabled={readOnly}
-              />
-              <Field name="qtyNight" label="Night" component={NumberField} disabled={readOnly} />
-            </FormGrid>
-            <Field name="indication" label="Indication" component={TextField} disabled={readOnly} />
-            <Field
-              name="quantity"
-              label="Discharge quantity"
-              component={NumberField}
-              disabled={readOnly}
-            />
-            {shouldShowDiscontinuationButton && (
-              <ConfirmCancelRow
-                confirmText="Discontinue"
-                confirmColor="secondary"
-                cancelText="Close"
-                onConfirm={onDiscontinue}
-                onCancel={onCancel}
-              />
-            )}
-            <div>
-              {shouldDiscontinue && (
+              {shouldShowDiscontinuationButton && (
                 <>
-                  <Field
-                    name="discontinuingClinicianId"
-                    label="Discontinued by"
-                    component={AutocompleteField}
-                    suggester={practitionerSuggester}
-                    value={medication?.discontinuingClinicianId}
-                  />
-                  <Field
-                    name="discontinuingReason"
-                    label="Discontinued reason"
-                    component={TextField}
-                  />
+                  <DiscontinuePrintButtonRow>
+                    <Button variant="outlined" color="primary" onClick={onDiscontinue}>
+                      Discontinue
+                    </Button>
+                    <div />
+                    <Button variant="outlined" color="primary" onClick={onCancel}>
+                      Close
+                    </Button>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={() => setPrintModalOpen(true)}
+                    >
+                      Print
+                    </Button>
+                  </DiscontinuePrintButtonRow>
                 </>
               )}
-              {medication?.discontinued && (
-                <p style={{ color: 'red' }}>
-                  <span style={{ fontWeight: 'bold' }}>Discontinued</span>
-                  <br />
-                  Discontinued at:{' '}
-                  {medication?.updatedAt
-                    .substr(0, 10)
-                    .split('-')
-                    .reverse()
-                    .join('/')}
-                  <br />
-                  by: {medication?.discontinuingClinician?.displayName}
-                  <br />
-                  Reason: {medication?.discontinuingReason}
-                  <br />
-                </p>
+              <div>
+                {shouldDiscontinue && (
+                  <>
+                    <Field
+                      name="discontinuingClinicianId"
+                      label="Discontinued by"
+                      component={AutocompleteField}
+                      suggester={practitionerSuggester}
+                      value={medication?.discontinuingClinicianId}
+                    />
+                    <Field
+                      name="discontinuingReason"
+                      label="Discontinued reason"
+                      component={TextField}
+                    />
+                  </>
+                )}
+                {medication?.discontinuedDate && <DiscontinuedLabel medication={medication} />}
+              </div>
+              {shouldShowSubmitButton && (
+                <ButtonRow>
+                  <Button variant="outlined" color="primary" onClick={onCancel}>
+                    Cancel
+                  </Button>
+                  <DropdownButton
+                    actions={[
+                      {
+                        label: 'Finalise',
+                        onClick: data => {
+                          setAwaitingPrint(false);
+                          submitForm(data);
+                        },
+                      },
+                      {
+                        label: 'Finalise & print',
+                        onClick: data => {
+                          setAwaitingPrint(true);
+                          submitForm(data);
+                        },
+                      },
+                    ]}
+                  />
+                </ButtonRow>
               )}
-            </div>
-            {shouldShowSubmitButton && (
-              <ConfirmCancelRow onConfirm={submitForm} onCancel={onCancel} />
-            )}
-          </FormGrid>
+            </FormGrid>
+          )}
+        />
+        {(submittedMedication || medication) && (
+          <PrescriptionPrintModal
+            medication={submittedMedication || medication}
+            open={printModalOpen}
+            onClose={() => {
+              if (awaitingPrint) {
+                onSaved();
+              }
+              setAwaitingPrint(false);
+              setPrintModalOpen(false);
+            }}
+          />
         )}
-      />
+      </>
     );
   },
 );

@@ -50,16 +50,21 @@ export class Encounter extends Model {
         'medications',
         'labRequests',
         'labRequests.tests',
+        'labRequests.notes',
         'imagingRequests',
+        'imagingRequests.notes',
         'procedures',
         'initiatedReferrals',
         'completedReferrals',
         'vitals',
         'discharge',
         'triages',
+        'triages.notes',
         'invoice',
         'invoice.invoiceLineItems',
         'invoice.invoicePriceChangeItems',
+        'documents',
+        'notes',
       ],
       ...nestedSyncConfig,
       channelRoutes: [
@@ -138,15 +143,12 @@ export class Encounter extends Model {
       {
         id: primaryKey,
         encounterType: Sequelize.STRING(31),
-
         startDate: {
           type: Sequelize.DATE,
           allowNull: false,
         },
         endDate: Sequelize.DATE,
-
         reasonForEncounter: Sequelize.TEXT,
-
         deviceId: Sequelize.TEXT,
       },
       {
@@ -158,7 +160,15 @@ export class Encounter extends Model {
   }
 
   static getFullReferenceAssociations() {
-    return ['vitals', 'department', 'location', 'examiner'];
+    return [
+      'vitals',
+      'department',
+      'examiner',
+      {
+        association: 'location',
+        include: ['facility'],
+      },
+    ];
   }
 
   static initRelations(models) {
@@ -246,6 +256,25 @@ export class Encounter extends Model {
       as: 'triages',
     });
 
+    this.hasMany(models.DocumentMetadata, {
+      foreignKey: 'encounterId',
+      as: 'documents',
+    });
+
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'patientBillingTypeId',
+      as: 'patientBillingType',
+    });
+
+    this.hasMany(models.Note, {
+      foreignKey: 'recordId',
+      as: 'notes',
+      constraints: false,
+      scope: {
+        recordType: this.name,
+      },
+    });
+
     // this.hasMany(models.Procedure);
     // this.hasMany(models.Report);
   }
@@ -273,9 +302,10 @@ export class Encounter extends Model {
   }
 
   async addSystemNote(content) {
-    const { Note } = this.sequelize.models;
-
-    const note = await Note.createForRecord(this, NOTE_TYPES.SYSTEM, content);
+    const note = await this.createNote({
+      noteType: NOTE_TYPES.SYSTEM,
+      content,
+    });
 
     return note;
   }
@@ -308,10 +338,21 @@ export class Encounter extends Model {
     }
   }
 
+  async dischargeWithDischarger(discharger, endDate) {
+    if (this.endDate) throw new Error(`Encounter ${this.id} already discharged`);
+
+    const { Discharge } = this.sequelize.models;
+    await Discharge.create({
+      encounterId: this.id,
+      dischargerId: discharger.id,
+    });
+    await this.update({ endDate });
+  }
+
   async update(data) {
     const { Department, Location } = this.sequelize.models;
 
-    return this.sequelize.transaction(async () => {
+    const updateEncounter = async () => {
       if (data.endDate && !this.endDate) {
         await this.onDischarge(data.endDate, data.dischargeNote);
       }
@@ -347,6 +388,16 @@ export class Encounter extends Model {
       }
 
       return super.update(data);
+    };
+
+    if (this.sequelize.isInsideTransaction()) {
+      return updateEncounter();
+    }
+
+    // If the update is not already in a transaction, wrap it in one
+    // Having nested transactions can cause bugs in postgres so only conditionally wrap
+    return this.sequelize.transaction(async () => {
+      await updateEncounter();
     });
   }
 }

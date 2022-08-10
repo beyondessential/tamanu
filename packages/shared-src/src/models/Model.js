@@ -16,10 +16,13 @@ const MARKED_FOR_PUSH_MODELS = [
   'PatientCondition',
   'PatientFamilyHistory',
   'PatientIssue',
+  'PatientSecondaryId',
   'ReportRequest',
   'UserFacility',
   'DocumentMetadata',
   'CertificateNotification',
+  'PatientDeathData',
+  'ContributingDeathCause',
 ];
 
 export class Model extends sequelize.Model {
@@ -58,7 +61,7 @@ export class Model extends sequelize.Model {
 
     const { models } = this.sequelize;
     const values = Object.entries(this.dataValues)
-      .filter(([key, val]) => val !== null)
+      .filter(([_key, val]) => val !== null) // eslint-disable-line no-unused-vars
       .reduce(
         (obj, [key, val]) => ({
           ...obj,
@@ -88,17 +91,6 @@ export class Model extends sequelize.Model {
 
   getModelName() {
     return this.constructor.name;
-  }
-
-  getNotes(limit = undefined) {
-    const { Note } = this.sequelize.models;
-    return Note.findAll({
-      where: {
-        recordType: this.getModelName(),
-        recordId: this.id,
-      },
-      limit,
-    });
   }
 
   static getListReferenceAssociations() {

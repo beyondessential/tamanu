@@ -45,10 +45,10 @@ const DefaultSuccessScreen = ({ onClose }) => (
   </div>
 );
 
-const getVisibleQuestions = (questionComponents, values) => {
+const getVisibleQuestions = (questionComponents, values) =>
   // Adapt the questionComponents from react elements to the survey config objects which the
   // checkVisibility util expects
-  return questionComponents.filter(c =>
+  questionComponents.filter(c =>
     checkVisibility(
       {
         visibilityCriteria: JSON.stringify(c.props.visibilityCriteria),
@@ -60,8 +60,6 @@ const getVisibleQuestions = (questionComponents, values) => {
       })),
     ),
   );
-};
-
 const FormScreen = ({ screenComponent, values, onStepForward, onStepBack, isLast }) => {
   const { children } = screenComponent.props;
   const questionComponents = React.Children.toArray(children);
@@ -124,9 +122,10 @@ export const PaginatedForm = ({
   SummaryScreen = DefaultSummaryScreen,
   SuccessScreen = DefaultSuccessScreen,
   validationSchema,
+  initialValues,
 }) => {
   const [formState, setFormState] = useState(FORM_STATES.IDLE);
-  const { onStepBack, onStepForward, handleStep, screenIndex } = usePaginatedForm(children);
+  const { onStepBack, onStepForward, handleStep, screenIndex } = usePaginatedForm();
 
   const onSubmitForm = async data => {
     await onSubmit(data);
@@ -145,7 +144,8 @@ export const PaginatedForm = ({
     <Form
       onSubmit={onSubmitForm}
       validationSchema={validationSchema}
-      render={({ submitForm, values }) => {
+      initialValues={initialValues}
+      render={({ submitForm, values, setValues }) => {
         if (screenIndex <= maxIndex) {
           const screenComponent = formScreens.find((screen, i) =>
             i === screenIndex ? screen : null,
@@ -169,8 +169,26 @@ export const PaginatedForm = ({
           );
         }
 
+        const submitVisibleValues = event => {
+          const visibleFields = new Set(
+            getVisibleQuestions(
+              formScreens.map(s => React.Children.toArray(s.props.children)).flat(),
+              values,
+            ).map(q => q.props.name),
+          );
+          const visibleValues = Object.fromEntries(
+            Object.entries(values).filter(([key]) => visibleFields.has(key)),
+          );
+          setValues(visibleValues);
+          submitForm(event);
+        };
+
         return (
-          <SummaryScreen onStepBack={onStepBack} submitForm={submitForm} onCancel={onCancel} />
+          <SummaryScreen
+            onStepBack={onStepBack}
+            submitForm={submitVisibleValues}
+            onCancel={onCancel}
+          />
         );
       }}
     />

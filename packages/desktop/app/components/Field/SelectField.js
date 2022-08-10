@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select';
 import styled from 'styled-components';
-
+import { Colors } from '../../constants';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
 
@@ -24,6 +24,32 @@ export const SelectInput = ({
     [onChange, name],
   );
 
+  const customStyles = {
+    control: (provided, state) => ({
+      ...provided,
+      borderColor: state.isFocused ? Colors.primary : Colors.outline,
+      boxShadow: 'none',
+      borderRadius: '3px',
+      paddingTop: '5px',
+      paddingBottom: '3px',
+      paddingLeft: '5px',
+    }),
+    dropdownIndicator: provided => ({
+      ...provided,
+      color: Colors.midText,
+      padding: '4px 16px 6px 6px',
+    }),
+    placeholder: provided => ({ ...provided, color: Colors.softText }),
+    indicatorSeparator: () => ({ display: 'none' }),
+    menu: provided => ({
+      ...provided,
+      marginTop: 0,
+      marginBottom: 0,
+      boxShadow: 'none',
+      border: `1px solid ${Colors.outline}`,
+    }),
+  };
+
   const isReadonly = (readonly && !disabled) || (value && !onChange);
   if (disabled || isReadonly || !options || options.length === 0) {
     const valueText = ((options || []).find(o => o.value === value) || {}).label || '';
@@ -31,6 +57,7 @@ export const SelectInput = ({
       <OuterLabelFieldWrapper label={label} {...props}>
         <StyledTextField
           value={valueText}
+          styles={customStyles}
           variant="outlined"
           classes={classes}
           disabled={disabled}
@@ -51,7 +78,9 @@ export const SelectInput = ({
         options={options}
         menuPlacement="auto"
         menuPosition="fixed"
+        styles={customStyles}
         menuShouldBlockScroll="true"
+        placeholder="Select"
         {...props}
       />
     </OuterLabelFieldWrapper>

@@ -2,11 +2,14 @@ import config from 'config';
 import fs from 'fs';
 import path from 'path';
 import * as AWS from '@aws-sdk/client-s3';
+import mkdirp from 'mkdirp';
+
 import { COMMUNICATION_STATUSES } from 'shared/constants';
 import { getReportModule } from 'shared/reports';
 import { log } from 'shared/services/logging';
-import { createTupaiaApiClient, translateReportDataToSurveyResponses } from 'shared/utils';
-import { removeFile, createZippedSpreadsheet } from '../utils/files';
+
+import { removeFile, createZippedSpreadsheet, writeToSpreadsheet } from '../utils/files';
+import { getLocalisation } from '../localisation';
 
 export class ReportRunner {
   constructor(reportName, parameters, recipients, store, emailService) {
@@ -15,15 +18,16 @@ export class ReportRunner {
     this.recipients = recipients;
     this.store = store;
     this.emailService = emailService;
-    this.tupaiaApiClient = null;
   }
 
-  validate(reportModule, reportDataGenerator) {
-    if (!config.mailgun.from) {
+  async validate(reportModule, reportDataGenerator) {
+    const localisation = await getLocalisation();
+
+    if (this.recipients.email && !config.mailgun.from) {
       throw new Error('ReportRunner - Email config missing');
     }
 
-    const { disabledReports } = config.localisation.data;
+    const { disabledReports } = localisation;
     if (disabledReports.includes(this.reportName)) {
       throw new Error(`ReportRunner - Report "${this.reportName}" is disabled`);
     }
@@ -39,29 +43,23 @@ export class ReportRunner {
     const reportModule = getReportModule(this.reportName);
     const reportDataGenerator = reportModule?.dataGenerator;
 
-    this.validate(reportModule, reportDataGenerator);
+    await this.validate(reportModule, reportDataGenerator);
 
     let reportData = null;
     try {
-      if (reportModule.needsTupaiaApiClient) {
-        if (!this.tupaiaApiClient) {
-          this.tupaiaApiClient = createTupaiaApiClient();
-        }
-      }
-
       log.info(`ReportRunner - Running report "${this.reportName}"`);
 
-      reportData = await reportDataGenerator(this.store, this.parameters, this.tupaiaApiClient);
+      reportData = await reportDataGenerator(this.store, this.parameters);
 
       log.info(`ReportRunner - Running report "${this.reportName}" finished`);
     } catch (e) {
-      throw new Error(`Failed to generate report, ${e.message}`);
+      throw new Error(`${e.stack}\nReportRunner - Failed to generate report`);
     }
 
     try {
       await this.sendReport(reportData);
     } catch (e) {
-      throw new Error(`Failed to send, ${e.message}`);
+      throw new Error(`${e.stack}\nReportRunner - Failed to send`);
     }
   }
 
@@ -76,17 +74,47 @@ export class ReportRunner {
       await this.sendReportToEmail(reportData);
       sent = true;
     }
-    if (this.recipients.tupaia) {
-      await this.sendReportToTupaia(reportData);
-      sent = true;
-    }
     if (this.recipients.s3) {
       await this.sendReportToS3(reportData);
+      sent = true;
+    }
+    if (this.recipients.local) {
+      await this.sendReportToLocal(reportData);
       sent = true;
     }
     if (!sent) {
       throw new Error('ReportRunner - No recipients');
     }
+  }
+
+  /**
+   * @param reportData
+   * @returns {Promise<void>}
+   */
+  async sendReportToLocal(reportData) {
+    const reportName = this.getReportName();
+    for (const recipient of this.recipients.local) {
+      const { format, path: reportFolder } = recipient;
+      if (!format || !reportFolder) {
+        const str = JSON.stringify(recipient);
+        throw new Error(
+          `ReportRunner - local recipients must specifiy a format and a path, got: ${str}`,
+        );
+      }
+      await mkdirp(reportFolder);
+      const reportNameExtended = `${reportName}.${format}`;
+      const reportPath = path.resolve(reportFolder, reportNameExtended);
+      const outputPath = await writeToSpreadsheet(reportData, reportPath, format);
+      // eslint-disable-next-line no-console
+      console.log(outputPath);
+    }
+  }
+
+  /**
+   * @returns {string}
+   */
+  getReportName() {
+    return `${this.reportName}-report-${new Date().getTime()}`;
   }
 
   /**
@@ -96,7 +124,7 @@ export class ReportRunner {
    * @returns {Promise<void>}
    */
   async sendReportToEmail(reportData) {
-    const reportName = `${this.reportName}-report-${new Date().getTime()}`;
+    const reportName = this.getReportName();
 
     let zipFile;
     try {
@@ -121,29 +149,6 @@ export class ReportRunner {
     } finally {
       if (zipFile) await removeFile(zipFile);
     }
-  }
-
-  /**
-   * @param request ReportRequest
-   * @param reportData []
-   * @returns {Promise<void>}
-   */
-  async sendReportToTupaia(reportData) {
-    const reportConfig = config.reports?.[this.reportName];
-
-    if (!reportConfig) {
-      throw new Error('ReportRunner - Report not configured');
-    }
-
-    const { surveyId } = reportConfig;
-
-    const translated = translateReportDataToSurveyResponses(surveyId, reportData);
-
-    if (!this.tupaiaApiClient) {
-      this.tupaiaApiClient = createTupaiaApiClient();
-    }
-
-    await this.tupaiaApiClient.meditrak.createSurveyResponses(translated);
   }
 
   /**

@@ -1,23 +1,18 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { groupBy } from 'lodash';
-import Tooltip from 'react-tooltip';
 import { APPOINTMENT_STATUSES } from 'shared/constants';
 import { Colors } from '../../constants';
 import { Appointment } from './Appointment';
-import { AppointmentDetail } from './AppointmentDetail';
 
-const Column = ({ header, appointments }) => {
+const Column = ({ header, appointments, onAppointmentUpdated }) => {
   const appointmentsByStartTime = [...appointments].sort((a, b) => a.startTime - b.startTime);
-  useEffect(() => {
-    Tooltip.rebuild();
-  }, [appointmentsByStartTime]);
   return (
     <>
       <ColumnHeader className="location">{header}</ColumnHeader>
       <ColumnBody className="appointments">
         {appointmentsByStartTime.map(appt => (
-          <Appointment key={appt.id} appointment={appt} />
+          <Appointment key={appt.id} appointment={appt} onUpdated={onAppointmentUpdated} />
         ))}
       </ColumnBody>
     </>
@@ -29,7 +24,7 @@ export const DailySchedule = ({
   activeFilter,
   filterValue,
   appointmentType,
-  appointmentUpdated,
+  onAppointmentUpdated,
 }) => {
   const appointmentGroups = groupBy(
     appointments.filter(appointment => {
@@ -73,45 +68,13 @@ export const DailySchedule = ({
     <>
       <Container>
         {columns.map(props => (
-          <Column {...props} />
+          <Column onAppointmentUpdated={onAppointmentUpdated} {...props} />
         ))}
       </Container>
-      <TooltipContainer>
-        <Tooltip
-          id="appointment-details"
-          className="appointment-details"
-          event="click"
-          clickable
-          place="right"
-          type="light"
-          backgroundColor="#fff"
-          arrowColor="#fff"
-          border
-          borderColor={Colors.outline}
-          getContent={appointmentId => {
-            if (!appointmentId) {
-              return null;
-            }
-            const appointment = appointments.find(appt => appt.id === appointmentId);
-            if (!appointment) {
-              return null;
-            }
-            return <AppointmentDetail appointment={appointment} updated={appointmentUpdated} />;
-          }}
-        />
-      </TooltipContainer>
     </>
   );
 };
 
-const TooltipContainer = styled.div`
-  .appointment-details {
-    z-index: 1101; /* exceed MuiAppBar-root */
-  }
-  .appointment-details.show {
-    opacity: 1;
-  }
-`;
 const Container = styled.div`
   display: grid;
   grid-template-rows: max-content 1fr;

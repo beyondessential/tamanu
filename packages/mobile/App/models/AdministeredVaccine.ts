@@ -2,7 +2,10 @@ import { Entity, Column, ManyToOne, BeforeUpdate, BeforeInsert, RelationId } fro
 import { BaseModel } from './BaseModel';
 import { IAdministeredVaccine, InjectionSiteType } from '~/types';
 import { Encounter } from './Encounter';
+import { Location } from './Location';
+import { Department } from './Department';
 import { ScheduledVaccine } from './ScheduledVaccine';
+import { User } from './User';
 import { VaccineStatus } from '~/ui/helpers/patient';
 
 @Entity('administered_vaccine')
@@ -19,23 +22,65 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   @Column({ type: 'varchar', nullable: true })
   injectionSite?: InjectionSiteType;
 
-  @Column({ nullable: true })
-  location?: string;
+  @Column({ nullable: true, default: true })
+  consent: boolean;
 
   @Column()
   date: Date;
 
-  @ManyToOne(() => Encounter, encounter => encounter.administeredVaccines)
+  @Column({ nullable: true })
+  givenBy?: string;
+
+
+  @ManyToOne(
+    () => Encounter,
+    encounter => encounter.administeredVaccines,
+  )
   encounter: Encounter;
 
   @RelationId(({ encounter }: AdministeredVaccine) => encounter)
   encounterId: string;
 
-  @ManyToOne(() => ScheduledVaccine, scheduledVaccine => scheduledVaccine.administeredVaccines)
+
+  @ManyToOne(
+    () => ScheduledVaccine,
+    scheduledVaccine => scheduledVaccine.administeredVaccines,
+  )
   scheduledVaccine: ScheduledVaccine;
 
   @RelationId(({ scheduledVaccine }: AdministeredVaccine) => scheduledVaccine)
   scheduledVaccineId: string;
+
+
+  @ManyToOne(
+    () => User,
+    user => user.recordedVaccines,
+  )
+  recorder: User;
+
+  @RelationId(({ recorder }: AdministeredVaccine) => recorder)
+  recorderId: string;
+
+
+  @ManyToOne(
+    () => Location,
+    loc => loc.administeredVaccines,
+  )
+  location: Location;
+
+  @RelationId(({ location }: AdministeredVaccine) => location)
+  locationId: string;
+
+
+  @ManyToOne(
+    () => Department,
+    dep => dep.administeredVaccines,
+  )
+  department: Department;
+
+  @RelationId(({ department }: AdministeredVaccine) => department)
+  departmentId: string;
+
 
   @BeforeInsert()
   @BeforeUpdate()
@@ -52,10 +97,9 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
       .leftJoinAndSelect('administered_vaccine.scheduledVaccine', 'scheduledVaccine')
       .leftJoinAndSelect('scheduledVaccine.vaccine', 'vaccine')
       .where('encounter.patient.id = :patient', { patient: patientId })
-      .andWhere(
-        'administered_vaccine.status IN (:...status)',
-        { status: [VaccineStatus.GIVEN, VaccineStatus.NOT_GIVEN] },
-      )
+      .andWhere('administered_vaccine.status IN (:...status)', {
+        status: [VaccineStatus.GIVEN, VaccineStatus.NOT_GIVEN],
+      })
       .getMany();
   }
 }

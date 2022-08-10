@@ -16,7 +16,7 @@ module.exports = {
     });
     await query.changeColumn('imaging_requests', 'status', {
       type: Sequelize.STRING,
-      defaultValue: 'pending'
+      defaultValue: 'pending',
     });
   },
   down: async query => {

@@ -68,7 +68,7 @@ export const styles = StyleSheet.create({
 export const Row = props => <View {...props} style={styles.row} />;
 export const Col = props => <View style={styles.col} {...props} />;
 export const Box = ({ mt, mb, ...props }) => (
-  <View {...props} style={[styles.box, { marginTop: mt, marginBottom: mb }]} />
+  <View style={[styles.box, { marginTop: mt, marginBottom: mb }]} {...props} />
 );
 
 export const Signature = ({ text }) => (
@@ -78,18 +78,19 @@ export const Signature = ({ text }) => (
   </View>
 );
 
-export const SigningImage = ({ src }) => {
-  return <Image src={src} style={styles.signingImage} cache={false} />;
-};
+export const SigningImage = ({ src }) => (
+  <Image src={src} style={styles.signingImage} cache={false} />
+);
 
-export const Watermark = ({ src }) => {
-  return (
-    <View style={styles.watermarkContainer}>
-      <Image src={src} style={styles.watermarkImage} cache={false} />
-    </View>
-  );
-};
+export const Watermark = ({ src }) => (
+  <View style={styles.watermarkContainer}>
+    <Image src={src} style={styles.watermarkImage} cache={false} />
+  </View>
+);
 
-export const VDSImage = ({ src }) => {
-  return <Image src={src} style={styles.vds} />;
-};
+/* react-pdf doesn't yet support svg images in the Image component so this will need to be either a
+png or jpg src image
+@see https://github.com/diegomura/react-pdf/issues/1250 */
+export const Logo = ({ logoSrc }) => <Image src={logoSrc} style={styles.logo} cache={false} />;
+
+export const VDSImage = ({ src }) => <Image src={src} style={styles.vds} />;

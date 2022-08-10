@@ -2,6 +2,7 @@ import { ReferenceData } from './ReferenceData';
 import { Patient } from './Patient';
 import { PatientAdditionalData } from './PatientAdditionalData';
 import { PatientIssue } from './PatientIssue';
+import { PatientSecondaryId } from './PatientSecondaryId';
 import { User } from './User';
 import { Encounter } from './Encounter';
 import { Program } from './Program';
@@ -25,38 +26,12 @@ import { LabRequest } from './LabRequest';
 import { LabTest } from './LabTest';
 import { LabTestType } from './LabTestType';
 
-export const MODELS_ARRAY: typeof BaseModel[] = [
-  ReferenceData,
-  Patient,
-  PatientAdditionalData,
-  PatientIssue,
-  User,
-  Encounter,
-  Program,
-  ProgramDataElement,
-  Survey,
-  SurveyScreenComponent,
-  SurveyResponse,
-  SurveyResponseAnswer,
-  Vitals,
-  Diagnosis,
-  ScheduledVaccine,
-  AdministeredVaccine,
-  Medication,
-  Referral,
-  Attachment,
-  Facility,
-  Department,
-  Location,
-  LabRequest,
-  LabTest,
-  LabTestType,
-];
 export const MODELS_MAP = {
   ReferenceData,
   Patient,
   PatientAdditionalData,
   PatientIssue,
+  PatientSecondaryId,
   User,
   Encounter,
   Program,
@@ -79,3 +54,4 @@ export const MODELS_MAP = {
   LabTest,
   LabTestType,
 };
+export const MODELS_ARRAY: typeof BaseModel[] = Object.values(MODELS_MAP);

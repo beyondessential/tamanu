@@ -1,16 +1,6 @@
-import React, {
-  FunctionComponent,
-  useCallback,
-  useContext,
-  useState,
-} from 'react';
+import React, { FunctionComponent, useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
-import {
-  Platform,
-  KeyboardAvoidingView,
-  StatusBar,
-  Linking,
-} from 'react-native';
+import { Platform, KeyboardAvoidingView, StatusBar, Linking } from 'react-native';
 import {
   StyledView,
   StyledSafeAreaView,
@@ -22,13 +12,11 @@ import {
 import { CrossIcon, UserIcon } from '/components/Icons';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { theme } from '/styled/theme';
-import { SignInForm } from '/components/Forms/SignInForm/SignInForm';
+import { SignInForm } from '/components/Forms/SignInForm';
 import { SignInProps } from '/interfaces/Screens/SignUp/SignInProps';
 import { Routes } from '/helpers/routes';
 import { ModalInfo } from '/components/ModalInfo';
 import { authSelector } from '/helpers/selectors';
-import { SignInFormModel } from '~/ui/interfaces/forms/SignInFormProps';
-import AuthContext from '~/ui/contexts/AuthContext';
 import { OutdatedVersionError } from '~/services/auth/error';
 import { useFacility } from '~/ui/contexts/FacilityContext';
 
@@ -39,11 +27,10 @@ interface ModalContent {
 }
 
 export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
-  const authCtx = useContext(AuthContext);
   const authState = useSelector(authSelector);
 
   const [modalVisible, setModalVisible] = useState(false);
-  const [modalContent, setModalContent] = useState({ message: '' });
+  const [modalContent, setModalContent] = useState<ModalContent>({ message: '' });
 
   const onNavigateToForgotPassword = useCallback(() => {
     console.log('onNavigateToForgotPassword...');
@@ -64,37 +51,6 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
   }, [modalContent.buttonUrl]);
 
   const { facilityId } = useFacility();
-
-  const onSubmitForm = useCallback(async (values: SignInFormModel) => {
-    try {
-      if (!values.server) {
-        // TODO it would be better to properly respond to form validation and show the error
-        showErrorModal({ message: 'Please select a server to connect to' });
-        return;
-      }
-      await authCtx.signIn(values);
-
-      if (!facilityId) {
-        navigation.navigate(Routes.SignUpStack.SelectFacility);
-      } else if (authState.isFirstTime) {
-        navigation.navigate(Routes.HomeStack.Index);
-      } else {
-        navigation.navigate(Routes.HomeStack.Index, {
-          screen: Routes.HomeStack.HomeTabs.Index,
-        });
-      }
-    } catch (error) {
-      if (error instanceof OutdatedVersionError) {
-        showErrorModal({
-          message: error.message,
-          buttonPrompt: 'Update',
-          buttonUrl: error.updateUrl,
-        });
-      } else {
-        showErrorModal({ message: error.message });
-      }
-    }
-  }, []);
 
   return (
     <FullView background={theme.colors.PRIMARY_MAIN}>
@@ -144,7 +100,30 @@ export const SignIn: FunctionComponent<any> = ({ navigation }: SignInProps) => {
               Sign in
             </StyledText>
           </StyledView>
-          <SignInForm onSubmitForm={onSubmitForm} />
+          <SignInForm
+            onError={(error: Error): void => {
+              if (error instanceof OutdatedVersionError) {
+                showErrorModal({
+                  message: error.message,
+                  buttonPrompt: 'Update',
+                  buttonUrl: error.updateUrl,
+                });
+              } else {
+                showErrorModal({ message: error.message });
+              }
+            }}
+            onSuccess={(): void => {
+              if (!facilityId) {
+                navigation.navigate(Routes.SignUpStack.SelectFacility);
+              } else if (authState.isFirstTime) {
+                navigation.navigate(Routes.HomeStack.Index);
+              } else {
+                navigation.navigate(Routes.HomeStack.Index, {
+                  screen: Routes.HomeStack.HomeTabs.Index,
+                });
+              }
+            }}
+          />
           <StyledTouchableOpacity onPress={onNavigateToForgotPassword}>
             <StyledText
               width="100%"

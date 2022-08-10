@@ -8,12 +8,15 @@
   "log": {
     "consoleLevel": "warn"
   },
-  "tupaiaApiClient": {
-    "auth": {
-      "username": "tamanu-server@tupaia.org",
-      "password": ""
-    },
-    "environment": "dev"
+  "localisation": {
+    "data": {
+      "timeZone": "UTC",
+      "country": {
+        "name": "Utopia",
+        "alpha-2": "UT",
+        "alpha-3": "UTO"
+      }
+    }
   },
   "integrations": {
     "fijiVrs": {
@@ -24,19 +27,18 @@
     "fijiVps": {
       "enabled": true
     },
-    "vds": {
+    "vdsNc": {
+      "enabled": true
+    },
+    "signer": {
       "enabled": true,
-      "keySecret": "2hcp3wizGFFnGgsgZZDqFZDmUjaFCIppN8HnyBABqck=",
-      "csr": {
-        "subject": {
-          "countryCode2": "UT"
-        },
-        "email": "admin@tamanu.io"
-      },
-      "sign": {
-        "countryCode3": "UTO"
-      }
-      // ICAO specifies "UT", "UTO", "Utopia" for testing/sample documents
+      "keySecret": "2hcp3wizGFFnGgsgZZDqFZDmUjaFCIppN8HnyBABqck="
+    },
+    "mSupply": {
+      "enabled": true
+    },
+    "fhir": {
+      "enabled": true
     }
   },
   "disk": {
@@ -46,7 +48,7 @@
   },
   "notifications": {
     "certificates": {
-      "labTestCategoryId": "labTestCategory-COVID"
+      "labTestCategoryIds": ["labTestCategory-COVID"]
     }
   }
 }

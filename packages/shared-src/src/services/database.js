@@ -13,7 +13,14 @@ import { log } from './logging';
 
 import { migrate, assertUpToDate } from './migrations';
 import * as models from '../models';
-import { initSyncClientModeHooks } from '../models/sync';
+import { initSyncHooks } from '../models/sync';
+
+// this allows us to use transaction callbacks without manually managing a transaction handle
+// https://sequelize.org/master/manual/transactions.html#automatically-pass-transactions-to-all-queries
+// done once for all sequelize objects
+const namespace = createNamespace('sequelize-transaction-namespace');
+// eslint-disable-next-line react-hooks/rules-of-hooks
+Sequelize.useCLS(namespace);
 
 // this is dangerous and should only be used in test mode
 const unsafeRecreatePgDb = async ({ name, username, password, host, port }) => {
@@ -31,8 +38,10 @@ const unsafeRecreatePgDb = async ({ name, username, password, host, port }) => {
     await client.connect();
     await client.query(`DROP DATABASE IF EXISTS "${name}"`);
     await client.query(`CREATE DATABASE "${name}"`);
-  } catch(e) {
-    log.error("Failed to drop database. Note that every createTestContext() must have a corresponding ctx.close()!");
+  } catch (e) {
+    log.error(
+      'Failed to drop database. Note that every createTestContext() must have a corresponding ctx.close()!',
+    );
     throw e;
   } finally {
     await client.end();
@@ -73,11 +82,6 @@ async function connectToDatabase(dbOptions) {
         '<no port>'}/${name || '<no name>'}...`,
     );
   }
-
-  // this allows us to use transaction callbacks without manually managing a transaction handle
-  // https://sequelize.org/master/manual/transactions.html#automatically-pass-transactions-to-all-queries
-  const namespace = createNamespace('sequelize-transaction-namespace');
-  Sequelize.useCLS(namespace);
 
   const logging = verbose
     ? (query, obj) =>
@@ -133,9 +137,7 @@ export async function initDatabase(dbOptions) {
     await migrate(log, sequelize, direction);
   };
 
-  sequelize.assertUpToDate = async options => {
-    return assertUpToDate(log, sequelize, options);
-  };
+  sequelize.assertUpToDate = async options => assertUpToDate(log, sequelize, options);
 
   // init all models
   const modelClasses = Object.values(models);
@@ -167,9 +169,7 @@ export async function initDatabase(dbOptions) {
   });
 
   // init global sync hooks that live in shared-src
-  if (syncClientMode) {
-    initSyncClientModeHooks(models);
-  }
+  initSyncHooks(models);
 
   // router to convert channelRoutes (e.g. `[patient/:patientId/issue]`) to a model + params
   // (e.g. PatientIssue + { patientId: 'abc123', route: '...' })
@@ -188,6 +188,9 @@ export async function initDatabase(dbOptions) {
     // run afterInit callbacks for model
     await Promise.all(model.afterInitCallbacks.map(fn => fn()));
   }
+
+  // add isInsideTransaction helper to avoid exposing the namespace
+  sequelize.isInsideTransaction = () => !!namespace.get('transaction');
 
   return { sequelize, models };
 }

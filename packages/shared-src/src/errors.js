@@ -17,6 +17,8 @@ export class RequestQueueTimeoutError extends BaseError {}
 export class RequestQueueExceededError extends BaseError {}
 export class InsufficientStorageError extends BaseError {}
 export class InvalidClientHeadersError extends BaseError {}
+export class InvalidConfigError extends BaseError {}
+export class FacilityAndSyncVersionIncompatibleError extends BaseError {}
 
 export function getCodeForErrorName(name) {
   switch (name) {
@@ -41,6 +43,7 @@ export function getCodeForErrorName(name) {
       // unprocessable entity - syntax is correct but data is bad
       return 422;
     case 'RemoteCallFailedError':
+    case 'FacilityAndSyncVersionIncompatibleError':
       // remote server returned an error
       return 502;
     case 'RemoteTimeoutError':

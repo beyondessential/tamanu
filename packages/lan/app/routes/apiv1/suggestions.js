@@ -1,23 +1,61 @@
 import { pascal } from 'case';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { QueryTypes } from 'sequelize';
-
+import { Sequelize, Op, literal } from 'sequelize';
 import { NotFoundError } from 'shared/errors';
-
-import { REFERENCE_TYPE_VALUES, INVOICE_LINE_TYPES } from 'shared/constants';
+import {
+  SURVEY_TYPES,
+  REFERENCE_TYPE_VALUES,
+  INVOICE_LINE_TYPES,
+  VISIBILITY_STATUSES,
+} from 'shared/constants';
 
 export const suggestions = express.Router();
 
-const defaultMapper = ({ name, code, id }) => ({ name, code, id });
-
 const defaultLimit = 25;
 
-// Add a new suggester for a particular model at the given endpoint.
-// Records will be filtered based on the whereSql parameter. The user's search term
-// will be passed to the sql query as ":search" - see the existing suggestion
-// endpoints for usage examples.
-function createSuggester(endpoint, modelName, whereSql, mapper = defaultMapper) {
+const defaultMapper = ({ name, code, id }) => ({ name, code, id });
+
+function createSuggesterRoute(
+  endpoint,
+  modelName,
+  whereBuilder,
+  mapper = defaultMapper,
+  searchColumn = 'name',
+) {
+  suggestions.get(
+    `/${endpoint}`,
+    asyncHandler(async (req, res) => {
+      req.checkPermission('list', modelName);
+      const { models, query } = req;
+
+      const model = models[modelName];
+
+      const positionQuery = literal(`POSITION(LOWER(:positionMatch) in LOWER(${searchColumn})) > 1`);
+      
+      const searchQuery = (query.q || '').trim().toLowerCase();
+      const where = whereBuilder(`%${searchQuery}%`);
+      const results = await model.findAll({
+        where,
+        order: [
+          positionQuery,
+          searchColumn
+        ],
+        replacements: { 
+          positionMatch: searchQuery 
+        },
+        limit: defaultLimit,
+      });
+
+      res.send(results.map(mapper));
+    }),
+  );
+}
+
+// this exists so a control can look up the associated information of a given suggester endpoint
+// when it's already been given an id so that it's guaranteed to have the same structure as the
+// options endpoint
+function createSuggesterLookupRoute(endpoint, modelName, mapper = defaultMapper) {
   suggestions.get(
     `/${endpoint}/:id`,
     asyncHandler(async (req, res) => {
@@ -29,36 +67,19 @@ function createSuggester(endpoint, modelName, whereSql, mapper = defaultMapper) 
       res.send(mapper(record));
     }),
   );
+}
 
+function createAllRecordsSuggesterRoute(endpoint, modelName, where, mapper = defaultMapper) {
   suggestions.get(
-    `/${endpoint}`,
+    `/${endpoint}/all`,
     asyncHandler(async (req, res) => {
       req.checkPermission('list', modelName);
-      const { models, query } = req;
-      const search = (query.q || '').trim().toLowerCase();
-      if (!search) {
-        res.send([]);
-        return;
-      }
-
+      const { models } = req;
       const model = models[modelName];
-      const results = await model.sequelize.query(
-        `
-      SELECT *
-      FROM "${model.tableName}"
-      WHERE ${whereSql}
-      LIMIT :limit
-    `,
-        {
-          replacements: {
-            search: `%${search}%`,
-            limit: defaultLimit,
-          },
-          type: QueryTypes.SELECT,
-          model,
-          mapToModel: true,
-        },
-      );
+      const results = await model.findAll({
+        where,
+        limit: defaultLimit,
+      });
 
       const listing = results.map(mapper);
       res.send(listing);
@@ -66,43 +87,109 @@ function createSuggester(endpoint, modelName, whereSql, mapper = defaultMapper) 
   );
 }
 
-const createNameSuggester = (endpoint, modelName = pascal(endpoint)) =>
-  createSuggester(endpoint, modelName, 'LOWER(name) LIKE LOWER(:search)', ({ id, name }) => ({
-    id,
-    name,
-  }));
+// Add a new suggester for a particular model at the given endpoint.
+// Records will be filtered based on the whereSql parameter. The user's search term
+// will be passed to the sql query as ":search" - see the existing suggestion
+// endpoints for usage examples.
+function createSuggester(endpoint, modelName, whereBuilder, mapper, searchColumn) {
+  createSuggesterLookupRoute(endpoint, modelName, mapper);
+  createSuggesterRoute(endpoint, modelName, whereBuilder, mapper, searchColumn);
+}
+
+// this should probably be changed to a `visibility_criteria IN ('list', 'of', 'statuses')`
+// once there's more than one status that we're checking agains
+const VISIBILITY_CRITERIA = {
+  visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+};
+
+REFERENCE_TYPE_VALUES.map(typeName =>
+  createAllRecordsSuggesterRoute(
+    typeName, 
+    'ReferenceData',
+    {
+      type: typeName,
+      ...VISIBILITY_CRITERIA,
+    }
+  ),
+);
 
 REFERENCE_TYPE_VALUES.map(typeName =>
   createSuggester(
     typeName,
     'ReferenceData',
-    `LOWER(name) LIKE LOWER(:search) AND type = '${typeName}'`,
+    search => ({
+      name: { [Op.iLike]: search },
+      type: typeName,
+      ...VISIBILITY_CRITERIA,
+    }),
   ),
 );
+
+const createNameSuggester = (endpoint, modelName = pascal(endpoint)) =>
+  createSuggester(
+    endpoint, 
+    modelName, 
+    search => ({
+      name: { [Op.iLike]: search },
+      ...VISIBILITY_CRITERIA,
+    }),
+    ({ id, name }) => ({
+      id,
+      name,
+    }),
+  );
 
 createNameSuggester('department');
 createNameSuggester('location');
 createNameSuggester('facility');
+
+createSuggester(
+  'survey',
+  'Survey',
+  search => ({
+    name: { [Op.iLike]: search },
+    surveyType: {
+      [Op.ne]: SURVEY_TYPES.OBSOLETE,
+    }
+  }),
+  ({ id, name }) => ({ id, name }),
+);
+
 createSuggester(
   'invoiceLineTypes',
   'InvoiceLineType',
-  `LOWER(name) LIKE LOWER(:search) AND item_type = '${INVOICE_LINE_TYPES.ADDITIONAL}'`,
+  search => ({
+    name: { [Op.iLike]: search },
+    itemType: INVOICE_LINE_TYPES.ADDITIONAL,
+  }),
   ({ id, name, price }) => ({ id, name, price }),
 );
 
 createSuggester(
   'practitioner',
   'User',
-  'LOWER(display_name) LIKE LOWER(:search)',
+  search => ({
+    displayName: { [Op.iLike]: search },
+  }),
   ({ id, displayName }) => ({
     id,
     name: displayName,
   }),
+  'display_name',
 );
 
 createSuggester(
   'patient',
   'Patient',
-  'LOWER(first_name) LIKE LOWER(:search) OR LOWER(first_name) LIKE LOWER(:search) OR LOWER(last_name) LIKE LOWER(:search) OR LOWER(cultural_name) LIKE LOWER(:search)',
+  search => ({
+    [Op.or]: [
+      Sequelize.where(
+        Sequelize.fn('concat', Sequelize.col('first_name'), ' ', Sequelize.col('last_name')), 
+        { [Op.iLike]: search },
+      ),
+      { displayId: { [Op.iLike]: search } },
+    ],
+  }),
   patient => patient,
+  'first_name',
 );

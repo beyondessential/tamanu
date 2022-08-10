@@ -1,8 +1,8 @@
 import { Sequelize } from 'sequelize';
 import { REPORT_REQUEST_STATUS_VALUES, SYNC_DIRECTIONS } from 'shared/constants';
 import { log } from 'shared/services/logging';
-import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
+import { InvalidOperationError } from 'shared/errors';
 
 export class ReportRequest extends Model {
   static init({ primaryKey, ...options }) {

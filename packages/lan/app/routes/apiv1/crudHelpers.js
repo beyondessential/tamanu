@@ -4,7 +4,7 @@ import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 
 import { NotFoundError } from 'shared/errors';
-import { renameObjectKeys } from '~/utils/renameObjectKeys';
+import { renameObjectKeys } from '../../utils/renameObjectKeys';
 
 // utility function for creating a subroute that all checks the same
 // action (for eg different relation reads on an encounter all check encounter.read)
@@ -78,7 +78,11 @@ export const simpleGetList = (modelName, foreignKey = '', options = {}) =>
   asyncHandler(async (req, res) => {
     const { models, params, query } = req;
     const { order = 'ASC', orderBy } = query;
-    const { additionalFilters = {}, include = [] } = options;
+    const { additionalFilters = {}, include = [], skipPermissionCheck = false } = options;
+
+    if (skipPermissionCheck === false) {
+      req.checkPermission('list', modelName);
+    }
 
     const model = models[modelName];
     const associations = model.getListReferenceAssociations(models) || [];
@@ -101,12 +105,16 @@ export const simpleGetList = (modelName, foreignKey = '', options = {}) =>
   });
 
 export const paginatedGetList = (modelName, foreignKey = '', options = {}) => {
-  const { additionalFilters = {}, include = [] } = options;
+  const { additionalFilters = {}, include = [], skipPermissionCheck = false } = options;
 
   return asyncHandler(async (req, res) => {
     const { models, params, query } = req;
     const { page = 0, order = 'ASC', orderBy, rowsPerPage } = query;
     const offset = query.offset || page * rowsPerPage || 0;
+
+    if (skipPermissionCheck === false) {
+      req.checkPermission('list', modelName);
+    }
 
     const model = models[modelName];
     const associations = model.getListReferenceAssociations(models) || [];
@@ -175,3 +183,9 @@ export async function runPaginatedQuery(db, model, countQuery, selectQuery, para
     data: forResponse,
   };
 }
+
+export const createNoteListingHandler = recordType => simpleGetList('Note', 'recordId', {
+  additionalFilters: { recordType },
+  // this is designed to be mounted inside a permission checking router
+  skipPermissionCheck: true,
+});

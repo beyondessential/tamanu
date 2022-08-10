@@ -105,7 +105,7 @@ export class SyncManager {
   async waitForEnd(): Promise<void> {
     if (this.isSyncing) {
       return new Promise(resolve => {
-        const done = () => {
+        const done = (): void => {
           resolve();
           this.emitter.off('syncEnded', done);
         };
@@ -177,6 +177,10 @@ export class SyncManager {
         ...syncablePatients.map(p => ({
           channel: `patient/${p.id}/additionalData`,
           model: models.PatientAdditionalData
+        })),
+        ...syncablePatients.map(p => ({
+          channel: `patient/${p.id}/secondaryId`,
+          model: models.PatientSecondaryId
         })),
       ];
 

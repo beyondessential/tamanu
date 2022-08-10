@@ -9,7 +9,13 @@
   },
   "log": {
     "path": "",
-    "consoleLevel": "info"
+    "consoleLevel": "http",
+    "color": true
+  },
+  "honeycomb": {
+    "apiKey": "",
+    "dataset": "tamanu-general",
+    "enabled": true
   },
   "sync": {
     "schedule": "*/1 * * * *",
@@ -52,10 +58,10 @@
   },
   "port": 4000,
   "db": {
-    "name": "main",
+    "name": "tamanu-lan",
     "sqlitePath": "data/tamanu.db",
-    "username": "test",
-    "password": "abc123",
+    "username": "",
+    "password": "",
     "verbose": false,
     "migrateOnStartup": false
   },
@@ -87,7 +93,7 @@
     }
   },
   "questionCodeIds": {
-    "passportNumber": "pde-FijCOVRDT005",
-    "citizenship": "pde-PalauCOVSamp7"
+    "passport": "pde-FijCOVRDT005",
+    "nationalityId": "pde-PalauCOVSamp7"
   }
 }

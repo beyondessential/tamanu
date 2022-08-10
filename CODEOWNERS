@@ -1,0 +1,32 @@
+#
+# Kennedy and McLean currently own sync, because it's complicated and fragile
+# functionality that's core to the app, and sync bugs have scary potential for
+# data loss.
+#
+# This doesn't mean you can't work on it! It just means they should review
+# changes to the following areas of the repo.
+#
+# See Slack discussion:
+# https://beyondessential.slack.com/archives/GE9NHB95F/p1649711118757929
+#
+/packages/shared-src/src/models/sync/   @stretchkennedy @mcccclean
+/packages/lan/app/sync/                 @stretchkennedy @mcccclean
+/packages/sync-server/app/sync.js       @stretchkennedy @mcccclean
+/packages/sync-server/app/database/     @stretchkennedy @mcccclean
+/packages/mobile/App/services/sync/     @stretchkennedy @mcccclean
+
+#
+# Félix currently owns VDS-NC/EU-DCC/Signer and CSCA.
+# Same reasoning, but it's not core to Tamanu.
+#
+/packages/csca/src/                                       @passcod
+/packages/sync-server/integrations/EuDcc                  @passcod
+/packages/sync-server/integrations/Signer                 @passcod
+/packages/sync-server/integrations/VdsNc                  @passcod
+
+# 
+# Nick's a code owner of the default config files just to make sure that
+# he's across any changes that might need to be made to any particular server.
+# 
+/packages/sync-server/config/default.json   @nick-beyondessential
+/packages/lan/config/default.json           @nick-beyondessential

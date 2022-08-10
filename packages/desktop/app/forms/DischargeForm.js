@@ -58,9 +58,7 @@ const StyledUnorderedList = styled.ul`
 const ProcedureList = React.memo(({ procedures }) => (
   <StyledUnorderedList>
     {procedures.length > 0
-      ? procedures.map(({ procedureType }) => {
-          return <li key={procedureType.id}>{procedureType.name}</li>;
-        })
+      ? procedures.map(({ procedureType }) => <li key={procedureType.id}>{procedureType.name}</li>)
       : 'N/a'}
   </StyledUnorderedList>
 ));
@@ -215,43 +213,41 @@ export const DischargeForm = ({ practitionerSuggester, onCancel, onSubmit }) => 
     })();
   }, [api, encounter.id]);
 
-  const renderForm = ({ submitForm }) => {
-    return (
-      <>
-        <FormGrid>
-          <EncounterOverview encounter={encounter} />
-          <Field name="endDate" label="Discharge date" component={DateField} required />
-          <Field
-            name="discharge.dischargerId"
-            label="Discharging physician"
-            component={AutocompleteField}
-            suggester={practitionerSuggester}
-            required
-          />
-          <OuterLabelFieldWrapper label="Discharge medications" style={{ gridColumn: '1 / -1' }}>
-            <TableFormFields columns={medicationColumns} data={activeMedications} />
-          </OuterLabelFieldWrapper>
-          <Field
-            name="sendToPharmacy"
-            label="Send prescription to pharmacy"
-            component={CheckField}
-            helperText="Requires mSupply"
-            style={{ gridColumn: '1 / -1' }}
-            disabled
-          />
-          <Field
-            name="discharge.note"
-            label="Discharge treatment plan and follow-up notes"
-            component={TextField}
-            multiline
-            rows={4}
-            style={{ gridColumn: '1 / -1' }}
-          />
-          <ConfirmCancelRow onCancel={onCancel} onConfirm={submitForm} confirmText="Finalise" />
-        </FormGrid>
-      </>
-    );
-  };
+  const renderForm = ({ submitForm }) => (
+    <>
+      <FormGrid>
+        <EncounterOverview encounter={encounter} />
+        <Field name="endDate" label="Discharge date" component={DateField} required />
+        <Field
+          name="discharge.dischargerId"
+          label="Discharging physician"
+          component={AutocompleteField}
+          suggester={practitionerSuggester}
+          required
+        />
+        <OuterLabelFieldWrapper label="Discharge medications" style={{ gridColumn: '1 / -1' }}>
+          <TableFormFields columns={medicationColumns} data={activeMedications} />
+        </OuterLabelFieldWrapper>
+        <Field
+          name="sendToPharmacy"
+          label="Send prescription to pharmacy"
+          component={CheckField}
+          helperText="Requires mSupply"
+          style={{ gridColumn: '1 / -1' }}
+          disabled
+        />
+        <Field
+          name="discharge.note"
+          label="Discharge treatment plan and follow-up notes"
+          component={TextField}
+          multiline
+          rows={4}
+          style={{ gridColumn: '1 / -1' }}
+        />
+        <ConfirmCancelRow onCancel={onCancel} onConfirm={submitForm} confirmText="Finalise" />
+      </FormGrid>
+    </>
+  );
 
   return (
     <Form

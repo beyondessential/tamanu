@@ -36,18 +36,16 @@ const AddUserIcon = styled.div`
   }
 `;
 
-export const IdBanner = ({ children }) => {
-  return (
-    <IdFieldContainer>
-      <IdFieldTitle>
-        <LocalisedText path="fields.displayId.longLabel" />
-      </IdFieldTitle>
+export const IdBanner = ({ children }) => (
+  <IdFieldContainer>
+    <IdFieldTitle>
+      <LocalisedText path="fields.displayId.longLabel" />
+    </IdFieldTitle>
 
-      {children}
+    {children}
 
-      <AddUserIcon>
-        <PersonAdd />
-      </AddUserIcon>
-    </IdFieldContainer>
-  );
-};
+    <AddUserIcon>
+      <PersonAdd />
+    </AddUserIcon>
+  </IdFieldContainer>
+);

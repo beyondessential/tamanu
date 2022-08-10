@@ -5,14 +5,16 @@ describe('Reference data', () => {
   let adminApp = null;
   let baseApp = null;
   let models = null;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
     userApp = await baseApp.asRole('practitioner');
     adminApp = await baseApp.asRole('admin');
   });
+  afterAll(() => ctx.close());
 
   it('should not allow a regular user to create a new reference item', async () => {
     const result = await userApp.post('/v1/referenceData').send({

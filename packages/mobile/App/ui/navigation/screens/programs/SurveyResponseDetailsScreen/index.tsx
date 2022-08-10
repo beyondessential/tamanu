@@ -1,26 +1,22 @@
-import React, { useCallback } from 'react';
-import { StyledView, StyledText, FullView } from '/styled/common';
-import { theme } from '/styled/theme';
-
+import React, { useCallback, ReactElement } from 'react';
 import { ScrollView } from 'react-native-gesture-handler';
-import { StackHeader } from '/components/StackHeader';
 import { useNavigation } from '@react-navigation/native';
-import { formatStringDate } from '/helpers/date';
-import { DateFormats } from '/helpers/constants';
-import { FieldTypes } from '/helpers/fields';
-import { SurveyResultBadge } from '/components/SurveyResultBadge';
-import { ViewPhotoLink } from '/components/ViewPhotoLink';
-import { LoadingScreen } from '~/ui/components/LoadingScreen';
-import { useBackendEffect } from '~/ui/hooks';
 
-const SOURCE_TO_COLUMN_MAP = {
-  ReferenceData: 'name',
-  User: 'displayName',
-};
+import { StyledView, StyledText, FullView } from '../../../../styled/common';
+import { theme } from '../../../../styled/theme';
 
-const AutocompleteAnswer = ({ question, answer }): JSX.Element => {
+import { StackHeader } from '../../../../components/StackHeader';
+import { formatStringDate } from '../../../../helpers/date';
+import { AutocompleteSourceToColumnMap, DateFormats } from '../../../../helpers/constants';
+import { FieldTypes } from '../../../../helpers/fields';
+import { SurveyResultBadge } from '../../../../components/SurveyResultBadge';
+import { ViewPhotoLink } from '../../../../components/ViewPhotoLink';
+import { LoadingScreen } from '../../../../components/LoadingScreen';
+import { useBackendEffect } from '../../../../hooks';
+
+const AutocompleteAnswer = ({ question, answer }): ReactElement => {
   const config = JSON.parse(question.config);
-  const columnName = SOURCE_TO_COLUMN_MAP[config.source];
+  const columnName = AutocompleteSourceToColumnMap[config.source];
   const [refData, error] = useBackendEffect(
     ({ models }) => models[config.source].getRepository().findOne(answer),
     [question],
@@ -32,7 +28,7 @@ const AutocompleteAnswer = ({ question, answer }): JSX.Element => {
     console.error(error);
     return <StyledText>{error.message}</StyledText>;
   }
-  return <StyledText textAlign="right">{refData[columnName]}</StyledText>;
+  return <StyledText textAlign="right" color={theme.colors.TEXT_DARK}>{refData[columnName]}</StyledText>;
 };
 
 function getAnswerText(question, answer): string | number {
@@ -67,24 +63,24 @@ function getAnswerText(question, answer): string | number {
   }
 }
 
-const renderAnswer = (question, answer): JSX.Element => {
+const renderAnswer = (question, answer): ReactElement => {
   switch (question.dataElement.type) {
     case FieldTypes.RESULT:
-      return <SurveyResultBadge result={answer} />;
+      return <SurveyResultBadge resultText={answer} />;
     case FieldTypes.PHOTO:
       return <ViewPhotoLink imageId={answer} />;
     case FieldTypes.AUTOCOMPLETE:
       return <AutocompleteAnswer question={question} answer={answer} />;
     default:
       return (
-        <StyledText textAlign="right">
+        <StyledText textAlign="right" color={theme.colors.TEXT_DARK}>
           {getAnswerText(question, answer)}
         </StyledText>
       );
   }
 };
 
-const AnswerItem = ({ question, answer, index }): JSX.Element => (
+const AnswerItem = ({ question, answer, index }): ReactElement => (
   <StyledView
     minHeight={40}
     maxWidth="100%"
@@ -107,7 +103,7 @@ const AnswerItem = ({ question, answer, index }): JSX.Element => (
   </StyledView>
 );
 
-export const SurveyResponseDetailsScreen = ({ route }): JSX.Element => {
+export const SurveyResponseDetailsScreen = ({ route }): ReactElement => {
   const navigation = useNavigation();
   const { surveyResponseId } = route.params;
 
@@ -142,7 +138,7 @@ export const SurveyResponseDetailsScreen = ({ route }): JSX.Element => {
     };
   };
 
-  const questionToAnswerItem = ({ question, answer }, i): JSX.Element => (
+  const questionToAnswerItem = ({ question, answer }, i): ReactElement => (
     <AnswerItem
       key={question.id}
       index={i}

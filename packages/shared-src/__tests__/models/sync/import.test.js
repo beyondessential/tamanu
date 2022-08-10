@@ -1,6 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
 import {
-  fakePatient,
   fakeProgram,
   fakeProgramDataElement,
   fakeReferenceData,
@@ -39,13 +38,15 @@ describe('import', () => {
     beforeAll(async () => {
       context = await initDb({ syncClientMode: true }); // TODO: test server mode too
       models = context.models;
-      await models.Patient.create({ ...fakePatient(), id: patientId });
-      await models.User.create({ ...fakeUser(), id: userId });
-      await models.Facility.create({ ...fake(models.Facility), id: facilityId });
+      const { Patient, User, Facility } = models;
+      await Patient.create({ ...fake(Patient), id: patientId });
+      await User.create({ ...fakeUser(), id: userId });
+      await Facility.create({ ...fake(Facility), id: facilityId });
     });
+    afterAll(() => context.sequelize.close());
 
     const rootTestCases = [
-      ['Patient', fakePatient],
+      ['Patient', () => fake(models.Patient)],
       ['Program', fakeProgram],
       ['ProgramDataElement', fakeProgramDataElement],
       ['ReferenceData', fakeReferenceData],
@@ -296,7 +297,8 @@ describe('import', () => {
     beforeAll(async () => {
       context = await initDb({ syncClientMode: false });
       models = context.models;
-      await models.Patient.create({ ...fakePatient(), id: patientId });
+      const { Patient } = models;
+      await Patient.create({ ...fake(Patient), id: patientId });
     });
 
     it('removes null or undefined fields when importing', async () => {

@@ -1,6 +1,10 @@
+/* eslint-disable no-param-reassign */
+
 import { Op } from 'sequelize';
-import { subDays } from 'date-fns';
+import { subDays, format } from 'date-fns';
 import { generateReportFromQueryData } from '../utilities';
+
+const DATE_FORMAT = 'yyyy/MM/dd';
 
 const reportColumnTemplate = [
   {
@@ -8,13 +12,13 @@ const reportColumnTemplate = [
     accessor: data => data.patientName,
   },
   { title: 'UID', accessor: data => data.uid },
-  { title: 'DOB', accessor: data => data.dob },
+  { title: 'DOB', accessor: data => format(new Date(data.dob), DATE_FORMAT) },
   { title: 'Sex', accessor: data => data.sex },
   { title: 'Village', accessor: data => data.village },
   { title: 'First dose given', accessor: data => data.dose1 },
-  { title: 'First dose date', accessor: data => data.dose1Date },
+  { title: 'First dose date', accessor: data => format(new Date(data.dose1Date), DATE_FORMAT) },
   { title: 'Second dose given', accessor: data => data.dose2 },
-  { title: 'Second dose date', accessor: data => data.dose2Date },
+  { title: 'Second dose date', accessor: data => format(new Date(data.dose2Date), DATE_FORMAT) },
   { title: 'Vaccine Name', accessor: data => data.vaccineLabel },
 ];
 
@@ -80,7 +84,7 @@ async function queryCovidVaccineListData(models, parameters) {
     where: parametersToSqlWhere(parameters),
   });
   const administeredVaccines = result.map(r => r.get({ plain: true }));
-  const patients = administeredVaccines.reduce(function(acc, vaccine) {
+  const patients = administeredVaccines.reduce((acc, vaccine) => {
     if (!vaccine.encounter?.patientId) {
       return acc;
     }

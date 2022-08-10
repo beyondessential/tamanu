@@ -8,7 +8,6 @@ import {
   IAdministeredVaccine,
   IEncounter,
   IPatient,
-  IPatientIssue,
   IProgram,
   IProgramDataElement,
   IReferenceData,
@@ -18,9 +17,13 @@ import {
   ISurveyResponseAnswer,
   ISurveyScreenComponent,
   IUser,
+  ReferenceDataType,
 } from '~/types';
 
 import { BaseModel } from '~/models/BaseModel';
+import { ID } from '~/types/ID';
+import { VaccineStatus } from '~/ui/helpers/patient';
+import { VisibilityStatus } from '~/visibilityStatuses';
 
 export const fakePatient = (): IPatient => {
   const uuid = uuidv4();
@@ -35,6 +38,7 @@ export const fakePatient = (): IPatient => {
     villageId: null,
     dateOfBirth: new Date(),
     sex: `female-${uuid}`,
+    email: `${uuid}@email.com`,
     markedForSync: false,
   };
 };
@@ -49,7 +53,7 @@ export const fakeEncounter = (): IEncounter => ({
 
 export const fakeAdministeredVaccine = (): IAdministeredVaccine => ({
   id: `administered-vaccine-id-${uuidv4()}`,
-  status: 'done',
+  status: VaccineStatus.GIVEN,
   date: new Date(),
 });
 
@@ -70,6 +74,10 @@ export const fakeSurvey = (): ISurvey => ({
   isSensitive: false,
 });
 
+// @ts-expect-error
+// The tests in import.spec.ts tests break if getConfigObject or getOptions are present, but these are
+// required by ISurveyScreenComponent. The checks in import.spec.ts will need to be updated to ignore
+// these keys before this function can be typed correctly.
 export const fakeSurveyScreenComponent = (): ISurveyScreenComponent => ({
   id: `survey-screen-component-${uuidv4()}`,
   dataElementId: null,
@@ -85,25 +93,33 @@ export const fakeSurveyScreenComponent = (): ISurveyScreenComponent => ({
   calculation: '',
 });
 
-export const fakeSurveyResponse = (): ISurveyResponse => ({
+export const fakeSurveyResponse = (survey: ISurvey): ISurveyResponse => ({
   id: `survey-response-id-${uuidv4()}`,
   startTime: new Date(),
   endTime: new Date(),
+  surveyId: survey.id,
 });
 
-export const fakeSurveyResponseAnswer = (): ISurveyResponseAnswer => ({
+export const fakeSurveyResponseAnswer = (
+  responseId: ID,
+  programDataElement: IProgramDataElement,
+): ISurveyResponseAnswer => ({
   id: `survey-response-answer-id-${uuidv4()}`,
   body: 'survey-response-answer-body',
   name: 'survey-response-answer-name',
+  responseId,
+  dataElement: programDataElement,
+  dataElementId: programDataElement.id,
 });
 
-export const fakeReferenceData = (): IReferenceData => {
+export const fakeReferenceData = (type?: ReferenceDataType): IReferenceData => {
   const uuid = uuidv4();
   return {
     id: `reference-data-id-${uuid}`,
     name: `reference-data-name-${uuid}`,
     code: `reference-data-code-${uuid}`,
-    type: `reference-data-type-${uuid}`,
+    type: type || ReferenceDataType.Village,
+    visibilityStatus: VisibilityStatus.Current,
   };
 };
 
@@ -130,6 +146,7 @@ export const fakeScheduledVaccine = (): IScheduledVaccine => {
     weeksFromBirthDue: 5,
     weeksFromLastVaccinationDue: null,
     category: `scheduled-vaccine-category-${uuid}`,
+    visibilityStatus: VisibilityStatus.Current,
   };
 };
 
@@ -168,7 +185,7 @@ export const fake = (model: typeof BaseModel, { relations = [] }: FakeOptions = 
   const id = uuidv4();
   // assign columns
   for (const column of metadata.ownColumns) {
-    const typeId = (typeof column.type === 'function') ? column.type.name : column.type;
+    const typeId = typeof column.type === 'function' ? column.type.name : column.type;
     if (model.excludedSyncColumns.includes(column.propertyName)) {
       // ignore excluded columns
     } else if (column.relationMetadata) {
@@ -186,7 +203,8 @@ export const fake = (model: typeof BaseModel, { relations = [] }: FakeOptions = 
   const rootRelationNames = relations.filter(rn => !rn.includes('.')); // e.g. ['surveyResponse', 'administeredVaccines']
   const multiLevelRelationNames = relations.filter(rn => rn.includes('.')); // e.g. ['surveyResponse.answers']
 
-  for (const relationName of rootRelationNames) { // traverse relations specific to the model itself
+  for (const relationName of rootRelationNames) {
+    // traverse relations specific to the model itself
     // find metadata for the relation
     const relation = metadata.relations.find(r => r.propertyPath === relationName);
 
@@ -207,8 +225,7 @@ export const fake = (model: typeof BaseModel, { relations = [] }: FakeOptions = 
     else if (relation.relationType === 'many-to-one') {
       const childRecord = fake(relation.type as typeof BaseModel, { relations: childRelationNames });
       record[relationName] = childRecord;
-    }
-    else {
+    } else {
       // at the moment, we only handle some types of relations - if you need something different, implement it!
       throw new Error(`Could not fake relation ${model.name}.${relationName} (unsupported type ${relation?.relationType})`);
     }
@@ -246,7 +263,7 @@ export const createWithRelations = async (model: typeof BaseModel, record: any) 
   // create one-to-many relations
   for (const relation of relations.filter(r => r.relationType === 'one-to-many')) {
     if (Array.isArray(record[relation.propertyPath])) {
-      const childModel = (relation.type as typeof BaseModel);
+      const childModel = relation.type as typeof BaseModel;
       for (const childRecord of record[relation.propertyPath]) {
         await createWithRelations(childModel, {
           ...childRecord,
@@ -256,4 +273,3 @@ export const createWithRelations = async (model: typeof BaseModel, record: any) 
     }
   }
 };
-

@@ -3,7 +3,8 @@ import shortid from 'shortid';
 
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-
+import '@fortawesome/fontawesome-free/css/all.css';
+import MuiDialog from '@material-ui/core/Dialog';
 import {
   TextInput,
   CheckInput,
@@ -18,6 +19,7 @@ import {
   NullableBooleanInput,
   TimeWithUnitInput,
 } from '../app/components';
+import Box from '@material-ui/core/Box';
 import { IdInput } from '../app/components/Field/IdField';
 import styled from 'styled-components';
 import { Button } from '@material-ui/core';
@@ -201,6 +203,14 @@ addStories('Autocomplete', props => (
       suggester={dummySuggester}
     />
   ))
+  .add('Inside a Modal', props => (
+    <MuiDialog width="md" open title="Autocomplete">
+      <Box p={5}>
+        <AutocompleteInput label="Fruit" options={FRUITS} {...props} />
+      </Box>
+    </MuiDialog>
+  ))
+
   .add(
     'Async with invalid existing value',
     () => (

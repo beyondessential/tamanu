@@ -1,6 +1,7 @@
 import { Chance } from 'chance';
 import { sample } from 'lodash';
-import { GenderOptions, BloodTypes } from '/helpers/constants';
+import { GenderOptions } from '/helpers/constants';
+import { bloodOptions } from '/helpers/additionalData';
 import { IPatient } from '~/types';
 
 const defaultGenerator = new Chance();
@@ -31,7 +32,7 @@ export const generatePatient = (generator = defaultGenerator): IPatient => {
     middleName,
     lastName,
     culturalName: generator.bool() ? '' : generator.name(),
-    bloodType: generator.pickone(BloodTypes).value,
+    bloodType: generator.pickone(bloodOptions).value,
     sex: gender,
     dateOfBirth: generator.birthday(),
   };

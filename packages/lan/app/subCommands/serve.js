@@ -8,13 +8,18 @@ import { initDatabase, performDatabaseIntegrityChecks } from '../database';
 import { addPatientMarkForSyncHook, SyncManager, WebRemote } from '../sync';
 import { createApp } from '../createApp';
 import { startScheduledTasks } from '../tasks';
-import { startDataChangePublisher } from '../DataChangePublisher';
 import { listenForServerQueries } from '../discovery';
 
-import { version } from '../../package.json';
+import { version } from '../serverInfo';
 
 async function serve({ skipMigrationCheck }) {
-  log.info(`Starting facility server version ${version}.`);
+  log.info(`Starting facility server version ${version}`, {
+    serverFacilityId: config.serverFacilityId,
+  });
+
+  log.info(`Process info`, {
+    execArgs: process.execArgs || '<empty>',
+  });
 
   const context = await initDatabase();
   if (config.db.sqlitePath || config.db.migrateOnStartup) {
@@ -46,8 +51,6 @@ async function serve({ skipMigrationCheck }) {
   startScheduledTasks(context);
 
   addPatientMarkForSyncHook(context);
-
-  startDataChangePublisher(server, context);
 }
 
 export const serveCommand = new Command('serve')

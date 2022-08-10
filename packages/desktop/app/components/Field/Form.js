@@ -1,7 +1,9 @@
 import React from 'react';
 import { Formik } from 'formik';
 import PropTypes from 'prop-types';
+import { ValidationError } from 'yup';
 import { Typography } from '@material-ui/core';
+
 import { flattenObject } from '../../utils';
 
 import { Dialog } from '../Dialog';
@@ -44,7 +46,7 @@ export class Form extends React.PureComponent {
     handleSubmit,
     isSubmitting,
     setSubmitting,
-    values,
+    getValues,
     ...rest
   }) => async event => {
     event.preventDefault();
@@ -58,41 +60,58 @@ export class Form extends React.PureComponent {
     setSubmitting(true);
 
     // validation phase
-    const formErrors = await validateForm();
+    const values = getValues();
+    const formErrors = await validateForm(values);
     if (Object.entries(formErrors).length) {
       this.setErrors(formErrors);
       setSubmitting(false);
-      return;
+      throw new ValidationError('Form was not filled out correctly');
     }
 
     // submission phase
-    const { onSubmit } = this.props;
+    const { onSubmit, onSuccess } = this.props;
     try {
-      await onSubmit(values, {
+      const result = await onSubmit(values, {
         ...rest,
         setErrors: this.setErrors,
       });
+      if (onSuccess) {
+        onSuccess(result);
+      }
+      return result;
     } catch (e) {
       // eslint-disable-next-line no-console
-      console.error('Error submitting form: ', e);
+      console.error('Error during form submission: ', e);
       this.setErrors([e.message]);
+      throw e;
+    } finally {
+      setSubmitting(false);
     }
-
-    setSubmitting(false);
   };
 
   renderFormContents = ({
     isValid,
     isSubmitting,
     submitForm: originalSubmitForm,
+    setValues: originalSetValues,
     ...formProps
   }) => {
+    let { values } = formProps;
+
     // we need this func for nested forms
     // as the original submitForm() will trigger validation automatically
     const submitForm = this.createSubmissionHandler({
       isSubmitting,
+      getValues: () => values,
       ...formProps,
     });
+
+    // if setValues is called, we need to update the values that the submission handler uses so that
+    // it can be called immediately afterwards (i.e. setValues has a synchronous effect)
+    const setValues = newValues => {
+      values = newValues;
+      originalSetValues(newValues);
+    };
 
     const { render } = this.props;
 
@@ -100,6 +119,7 @@ export class Form extends React.PureComponent {
       <form onSubmit={submitForm} noValidate>
         {render({
           ...formProps,
+          setValues,
           isValid,
           isSubmitting,
           submitForm,
@@ -145,6 +165,7 @@ export class Form extends React.PureComponent {
 
 Form.propTypes = {
   onError: PropTypes.func,
+  onSuccess: PropTypes.func,
   onSubmit: PropTypes.func.isRequired,
   render: PropTypes.func.isRequired,
   showInlineErrorsOnly: PropTypes.bool,
@@ -154,5 +175,6 @@ Form.propTypes = {
 Form.defaultProps = {
   showInlineErrorsOnly: false,
   onError: null,
+  onSuccess: null,
   initialValues: {},
 };

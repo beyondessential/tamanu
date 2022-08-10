@@ -3,6 +3,7 @@ export * from './SyncConnectionParameters';
 
 export * from './IPatient';
 export * from './IPatientIssue';
+export * from './IPatientSecondaryId';
 export * from './IEncounter';
 export * from './ILabRequest';
 export * from './ILabTest';
@@ -22,3 +23,4 @@ export * from './IPatientAditionalData';
 export * from './IFacility';
 export * from './ILocation';
 export * from './IDepartment';
+export * from './DateString';

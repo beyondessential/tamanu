@@ -12,13 +12,15 @@ describe('Triage', () => {
   let app = null;
   let baseApp = null;
   let models = null;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
   });
+  afterAll(() => ctx.close());
 
   it('should admit a patient to triage', async () => {
     const encounterPatient = await models.Patient.create(await createDummyPatient(models));

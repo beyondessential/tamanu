@@ -1,11 +1,11 @@
 import config from 'config';
-import { buildAbility } from './buildAbility';
+import { buildAbility, buildAbilityForUser } from './buildAbility';
 import { Permission } from '../models';
 
 //---------------------------------------------------------
 // "Hardcoded" permissions version -- safe to delete once all deployments
 // have been migrated to database version.
-import * as roles from 'shared/roles';
+import * as roles from 'shared/roles'; // eslint-disable-line import/order
 
 function getHardcodedPermissions(roleIds) {
   const permissions = roles[roleIds];
@@ -71,13 +71,7 @@ export async function getAbilityForUser(user) {
   }
 
   const permissions = await getPermissionsForRoles(user.role);
-  const ability = buildAbility([
-    ...permissions,
-    // a user can always read and write themselves -- this is
-    // separate to the role system as it's cached per-role, not per-user
-    { verb: 'read', noun: 'User', objectId: user.id },
-    { verb: 'write', noun: 'User', objectId: user.id },
-  ]);
+  const ability = buildAbilityForUser(user, permissions);
 
   return ability;
 }

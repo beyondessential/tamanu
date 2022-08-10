@@ -2,14 +2,32 @@ import React from 'react';
 import ReactPDF from '@react-pdf/renderer';
 import path from 'path';
 import QRCode from 'qrcode';
-import { log } from 'shared/services/logging';
-import { tmpdir, CovidLabCertificate, VaccineCertificate } from 'shared/utils';
-import { getLocalisationData } from './localisation';
+import { get } from 'lodash';
+import config from 'config';
 
-export const makeVaccineCertificate = async (patient, models, vdsData = null) => {
+import { log } from 'shared/services/logging';
+import {
+  tmpdir,
+  CovidLabCertificate,
+  VaccineCertificate,
+  getPatientSurveyResponseAnswer,
+} from 'shared/utils';
+import { getLocalisation } from '../localisation';
+
+export const makeVaccineCertificate = async (patient, printedBy, models, uvci, qrData = null) => {
+  const localisation = await getLocalisation();
+  const getLocalisationData = key => get(localisation, key);
+
   const folder = await tmpdir();
   const fileName = `vaccine-certificate-${patient.id}.pdf`;
   const filePath = path.join(folder, fileName);
+
+  const logo = await models.Asset.findOne({
+    raw: true,
+    where: {
+      name: 'letterhead-logo',
+    },
+  });
 
   const signingImage = await models.Asset.findOne({
     raw: true,
@@ -25,19 +43,25 @@ export const makeVaccineCertificate = async (patient, models, vdsData = null) =>
     },
   });
 
-  const vds = vdsData ? await QRCode.toDataURL(vdsData) : null;
+  const vds = qrData ? await QRCode.toDataURL(qrData) : null;
 
   try {
     const vaccinations = await patient.getAdministeredVaccines();
-    const uvci = await patient.getIcaoUVCI();
+    const additionalData = await models.PatientAdditionalData.findOne({
+      where: { patientId: patient.id },
+      include: models.PatientAdditionalData.getFullReferenceAssociations(),
+    });
+    const patientData = { ...patient.dataValues, additionalData: additionalData?.dataValues };
 
     await ReactPDF.render(
       <VaccineCertificate
-        patient={patient.dataValues}
-        extraPatientFields={[{ key: 'uvci', label: 'UVCI', accessor: () => uvci }]}
+        patient={patientData}
+        printedBy={printedBy}
+        uvci={uvci}
         vaccinations={vaccinations}
         signingSrc={signingImage?.data}
         watermarkSrc={watermark?.data}
+        logoSrc={logo?.data}
         vdsSrc={vds}
         getLocalisation={getLocalisationData}
       />,
@@ -54,10 +78,20 @@ export const makeVaccineCertificate = async (patient, models, vdsData = null) =>
   };
 };
 
-export const makeCovidTestCertificate = async (patient, models, vdsData = null) => {
+export const makeCovidTestCertificate = async (patient, printedBy, models, vdsData = null) => {
+  const localisation = await getLocalisation();
+  const getLocalisationData = key => get(localisation, key);
+
   const folder = await tmpdir();
   const fileName = `covid-test-certificate-${patient.id}.pdf`;
   const filePath = path.join(folder, fileName);
+
+  const logo = await models.Asset.findOne({
+    raw: true,
+    where: {
+      name: 'letterhead-logo',
+    },
+  });
 
   const signingImage = await models.Asset.findOne({
     raw: true,
@@ -74,15 +108,46 @@ export const makeCovidTestCertificate = async (patient, models, vdsData = null) 
   });
 
   const vds = vdsData ? await QRCode.toDataURL(vdsData) : null;
+  const additionalData = await models.PatientAdditionalData.findOne({
+    where: { patientId: patient.id },
+    include: models.PatientAdditionalData.getFullReferenceAssociations(),
+  });
+  const passportFromSurveyResponse = await getPatientSurveyResponseAnswer(
+    models,
+    patient.id,
+    config?.questionCodeIds?.passport,
+  );
+
+  const nationalityId = await getPatientSurveyResponseAnswer(
+    models,
+    patient.id,
+    config?.questionCodeIds?.nationalityId,
+  );
+
+  const nationalityRecord = await models.ReferenceData.findByPk(nationalityId);
+  const nationalityFromSurveyResponse = nationalityRecord?.dataValues?.name;
+
+  const patientData = {
+    ...patient.dataValues,
+    additionalData: {
+      ...additionalData?.dataValues,
+      passport: additionalData?.dataValues?.passport || passportFromSurveyResponse,
+      nationality: {
+        name: additionalData?.dataValues?.nationality?.name || nationalityFromSurveyResponse,
+      },
+    },
+  };
 
   try {
-    const labs = await patient.getLabRequests();
+    const labs = await patient.getCovidLabTests();
     await ReactPDF.render(
       <CovidLabCertificate
-        patient={patient.dataValues}
+        patient={patientData}
         labs={labs}
         signingSrc={signingImage?.data}
         watermarkSrc={watermark?.data}
+        logoSrc={logo?.data}
+        printedBy={printedBy}
         vdsSrc={vds}
         getLocalisation={getLocalisationData}
       />,

@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useContext } from 'react';
+import React, { FunctionComponent } from 'react';
 // Helpers
 import { Routes } from '/helpers/routes';
 import { noSwipeGestureOnNavigator } from '/helpers/navigators';
@@ -7,22 +7,21 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { SignUpStack } from './SignUp';
 import { HomeStack } from './Home';
 import { useFacility } from '~/ui/contexts/FacilityContext';
-import AuthContext from '~/ui/contexts/AuthContext';
+import { useAuth } from '~/ui/contexts/AuthContext';
 import { AutocompleteModalScreen } from '~/ui/components/AutocompleteModal';
 import { SelectFacilityScreen } from '~/ui/navigation/screens/signup/SelectFacilityScreen';
 
 const Stack = createStackNavigator();
 
-function getSignInFlowRoute() {
-  const authCtx = useContext(AuthContext);
+function getSignInFlowRoute(): string {
+  const authCtx = useAuth();
   const { facilityId } = useFacility();
   if (!authCtx.isUserAuthenticated()) {
     return Routes.SignUpStack.Index;
   } else if (!facilityId) {
     return Routes.SignUpStack.SelectFacility;
-  } else {
-    return Routes.HomeStack.Index;
   }
+  return Routes.HomeStack.Index;
 }
 
 export const Core: FunctionComponent<any> = () => {

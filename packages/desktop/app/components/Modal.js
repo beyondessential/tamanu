@@ -9,7 +9,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogActions from '@material-ui/core/DialogActions';
 import PrintIcon from '@material-ui/icons/Print';
 import CloseIcon from '@material-ui/icons/Close';
-import { IconButton } from '@material-ui/core';
+import { Box, CircularProgress, IconButton, Typography } from '@material-ui/core';
 import { getCurrentRoute } from '../store/router';
 import { Colors } from '../constants';
 import { useElectron } from '../contexts/Electron';
@@ -29,7 +29,6 @@ const Dialog = styled(MuiDialog)`
 
   @media print {
     .MuiPaper-root {
-      background: rgb(243, 245, 247, 0.9);
       -webkit-print-color-adjust: exact;
     }
 
@@ -47,6 +46,10 @@ const ModalContent = styled.div`
 
 const ModalContainer = styled.div`
   background: ${Colors.background};
+
+  @media print {
+    background: none;
+  }
 `;
 
 export const FullWidthRow = styled.div`
@@ -73,6 +76,10 @@ const VerticalCenteredText = styled.span`
   align-items: center;
 `;
 
+const StyledButton = styled(Button)`
+  margin-left: 8px;
+`;
+
 export const Modal = memo(
   ({
     title,
@@ -83,27 +90,39 @@ export const Modal = memo(
     open = false,
     onClose,
     printable = false,
+    onPrint = null,
     additionalActions,
     ...props
   }) => {
     const { printPage } = useElectron();
+
+    const handlePrint = () => {
+      // If a custom print handler has been passed use that. For example for printing the contents
+      // of an iframe. Otherwise use the default electron print page
+      if (onPrint) {
+        onPrint();
+      } else {
+        printPage();
+      }
+    };
+
     return (
       <Dialog fullWidth maxWidth={width} classes={classes} open={open} onClose={onClose} {...props}>
         <ModalTitle>
           <VerticalCenteredText>{title}</VerticalCenteredText>
           <div>
             {additionalActions}
-            {printable ? (
-              <Button
+            {printable && (
+              <StyledButton
                 color="primary"
                 variant="outlined"
-                onClick={() => printPage()}
+                onClick={handlePrint}
                 startIcon={<PrintIcon />}
                 size="small"
               >
                 Print
-              </Button>
-            ) : null}
+              </StyledButton>
+            )}
             <IconButton onClick={onClose}>
               <CloseIcon />
             </IconButton>
@@ -116,6 +135,26 @@ export const Modal = memo(
       </Dialog>
     );
   },
+);
+
+const Loader = styled(Box)`
+  padding: 40px 0;
+  text-align: center;
+
+  .MuiTypography-root {
+    margin-top: 40px;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 21px;
+    color: ${props => props.theme.palette.text.secondary};
+  }
+`;
+
+export const ModalLoader = ({ loadingText }) => (
+  <Loader>
+    <CircularProgress size="5rem" />
+    <Typography>{loadingText}</Typography>
+  </Loader>
 );
 
 export const connectRoutedModal = (baseRoute, suffix) =>

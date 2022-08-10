@@ -14,33 +14,6 @@ export const DateFormats = {
   TIME_HHMMSS: 'pp',
 };
 
-export const BloodTypes = [
-  {
-    value: 'A+',
-    label: 'A+',
-  },
-  {
-    value: 'A-',
-    label: 'A-',
-  },
-  {
-    value: 'B+',
-    label: 'B+',
-  },
-  {
-    value: 'O+',
-    label: 'O+',
-  },
-  {
-    value: 'AB+',
-    label: 'AB+',
-  },
-  {
-    value: 'AB-',
-    label: 'AB-',
-  },
-];
-
 export const FilterTypeAll = 'All';
 
 export const VisitTypes = {
@@ -126,7 +99,7 @@ export const userRolesOptions = [
 ];
 
 type VaccineStatusCellsType = {
-  [key in VaccineStatus]: {
+  [key in VaccineStatus]?: {
     Icon: (props: Record<string, any>) => React.ReactElement;
     background: string;
     color: string;
@@ -210,14 +183,6 @@ export const FemaleGender = {
 
 export const GenderOptions = [MaleGender, FemaleGender, OtherGender];
 
-export const MarriedStatus = {
-  value: 'married',
-  label: 'Married',
-};
-export const SingleStatus = { value: 'single', label: 'Single' };
-export const Other = { value: 'other', label: 'Other' };
-export const MaritalStatusOptions = [SingleStatus, MarriedStatus, Other];
-
 export const EncounterTypeNames = {
   admission: 'Admission',
   clinic: 'Clinic',
@@ -234,4 +199,13 @@ export const LabRequestStatus = {
   to_be_verified: 'To be verified',
   verified: 'Verified',
   published: 'published',
+};
+
+// also update /packages/lan/app/routes/apiv1/surveyResponse.js when this changes
+export const AutocompleteSourceToColumnMap = {
+  User: 'displayName',
+  Department: 'name',
+  Facility: 'name',
+  Location: 'name',
+  ReferenceData: 'name',
 };

@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { connectApi } from '../api';
+import { useApi, useSuggester } from '../api';
 import { Colors } from '../constants';
-import { Suggester } from '../utils/suggester';
 import { Button } from './Button';
 import { ButtonRow } from './ButtonRow';
 
@@ -14,17 +13,21 @@ const SubmitError = styled.div`
   padding: 0.25rem;
 `;
 
-export function DumbCarePlanNoteForm({
+export function CarePlanNoteForm({
   note,
-  updateNote,
-  submitNote,
   carePlanId,
   onReloadNotes,
-  practitionerSuggester,
   onSuccessfulSubmit,
   onCancel,
 }) {
   const [submitError, setSubmitError] = useState('');
+  const practitionerSuggester = useSuggester('practitioner');
+  const api = useApi();
+
+  const submitNote = async (patientCarePlanId, body) =>
+    api.post(`patientCarePlan/${patientCarePlanId}/notes`, body);
+
+  const updateNote = async updatedNote => api.put(`note/${updatedNote.id}`, updatedNote);
   return (
     <Form
       onSubmit={async values => {
@@ -43,53 +46,41 @@ export function DumbCarePlanNoteForm({
         onReloadNotes();
       }}
       initialValues={note || { date: new Date() }}
-      render={() => {
-        return (
-          <>
-            <FormGrid columns={2}>
-              <Field
-                name="onBehalfOfId"
-                label="On Behalf Of"
-                component={AutocompleteField}
-                suggester={practitionerSuggester}
-              />
-              <Field name="date" label="Date recorded" component={DateTimeField} />
-            </FormGrid>
-            <FormGrid columns={1}>
-              <Field
-                name="content"
-                placeholder="Write a note..."
-                component={TextField}
-                multiline
-                rows={4}
-              />
-            </FormGrid>
-            <SubmitError>{submitError}</SubmitError>
-            <ButtonRow>
-              {note ? (
-                <Button variant="contained" onClick={onCancel}>
-                  Cancel
-                </Button>
-              ) : (
-                <div />
-              )}
-              <Button variant="outlined" color="primary" type="submit">
-                {note ? 'Save' : 'Add Note'}
+      render={() => (
+        <>
+          <FormGrid columns={2}>
+            <Field
+              name="onBehalfOfId"
+              label="On Behalf Of"
+              component={AutocompleteField}
+              suggester={practitionerSuggester}
+            />
+            <Field name="date" label="Date recorded" component={DateTimeField} />
+          </FormGrid>
+          <FormGrid columns={1}>
+            <Field
+              name="content"
+              placeholder="Write a note..."
+              component={TextField}
+              multiline
+              rows={4}
+            />
+          </FormGrid>
+          <SubmitError>{submitError}</SubmitError>
+          <ButtonRow>
+            {note ? (
+              <Button variant="contained" onClick={onCancel}>
+                Cancel
               </Button>
-            </ButtonRow>
-          </>
-        );
-      }}
+            ) : (
+              <div />
+            )}
+            <Button variant="outlined" color="primary" type="submit">
+              {note ? 'Save' : 'Add Note'}
+            </Button>
+          </ButtonRow>
+        </>
+      )}
     />
   );
 }
-
-export const CarePlanNoteForm = connectApi(api => ({
-  submitNote: async (patientCarePlanId, body) => {
-    return api.post(`patientCarePlan/${patientCarePlanId}/notes`, body);
-  },
-  updateNote: async note => {
-    return api.put(`note/${note.id}`, note);
-  },
-  practitionerSuggester: new Suggester(api, 'practitioner'),
-}))(DumbCarePlanNoteForm);

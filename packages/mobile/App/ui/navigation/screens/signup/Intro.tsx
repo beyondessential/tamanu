@@ -5,22 +5,22 @@ import {
   CenterView,
   StyledText,
   StyledSafeAreaView,
-} from '/styled/common';
-import { LogoV1Icon } from '/components/Icons';
-import { Button } from '/components/Button';
+} from '../../../styled/common';
+import { theme } from '../../../styled/theme';
+import { LogoV1Icon } from '../../../components/Icons';
+import { Button } from '../../../components/Button';
 //helpers
-import { Orientation, screenPercentageToDP } from '/helpers/screen';
-import { Routes } from '/helpers/routes';
-import { theme } from '/styled/theme';
+import { Orientation, screenPercentageToDP } from '../../../helpers/screen';
+import { Routes } from '../../../helpers/routes';
 // Screen
-import { IntroScreenProps } from '/interfaces/screens/SignUpStack/Intro';
+import { IntroScreenProps } from '../../../interfaces/Screens/SignUpStack/Intro';
 
 export const IntroScreen: FunctionComponent<any> = ({
   navigation,
 }: IntroScreenProps) => {
-  const onNavigateToNewAccount = useCallback(() => {
-    navigation.navigate(Routes.SignUpStack.RegisterAccountStep1);
-  }, []);
+  // const onNavigateToNewAccount = useCallback(() => {
+  //   navigation.navigate(Routes.SignUpStack.RegisterAccountStep1);
+  // }, []);
 
   const onNavigateToSignIn = useCallback(() => {
     navigation.navigate(Routes.SignUpStack.SignIn);
@@ -58,10 +58,9 @@ export const IntroScreen: FunctionComponent<any> = ({
           <Button
             id="intro-sign-in-button"
             onPress={onNavigateToSignIn}
-            width={`${140}px`}
+            width="140px"
             outline
             borderColor={theme.colors.PRIMARY_MAIN}
-            marginRight={screenPercentageToDP('2.43', Orientation.Width)}
             buttonText="Sign in"
             textColor={theme.colors.PRIMARY_MAIN}
             fontWeight={500}
@@ -84,20 +83,17 @@ export const IntroScreen: FunctionComponent<any> = ({
             </StyledText>
           </Button> */}
         </RowView>
-        <CenterView marginTop={30}>
+        <CenterView marginTop="30px">
           <Button
-            height={`${40}px`}
+            height="40px"
             onPress={(): void => console.log('request access..')}
-            width={`${140}px`}
+            width="180px"
             backgroundColor={theme.colors.WHITE}
-          >
-            <StyledText
-              fontSize={`${screenPercentageToDP('1.94', Orientation.Height)}px`}
-              color={theme.colors.PRIMARY_MAIN}
-            >
-              Request Access
-            </StyledText>
-          </Button>
+            buttonText="Request Access"
+            textColor={theme.colors.PRIMARY_MAIN}
+            fontWeight={500}
+            fontSize={`${screenPercentageToDP(1.94, Orientation.Height)}px`}
+          />
         </CenterView>
       </StyledSafeAreaView>
     </FullView>

@@ -1,35 +1,13 @@
 import React from 'react';
 import { render } from 'react-dom';
-import { applyMiddleware, createStore, compose } from 'redux';
-import { persistStore, persistCombineReducers } from 'redux-persist';
-import storage from 'redux-persist/lib/storage';
-import { routerMiddleware } from 'connected-react-router';
-import thunk from 'redux-thunk';
-import { createHashHistory } from 'history';
+import { persistStore } from 'redux-persist';
 
 import Root from './Root';
 import './fonts.scss';
-
-import { createReducers } from './createReducers';
+import './react-toastify.scss';
 import { API } from './api/singletons';
-import { startDataChangeResponder } from './DataChangeResponder';
-
 import { registerYup } from './utils/errorMessages';
-
-import { restoreSession, authFailure, versionIncompatible } from './store/auth';
-
-function initStore(api) {
-  const history = createHashHistory();
-  const router = routerMiddleware(history);
-  const enhancers = compose(applyMiddleware(router, thunk.withExtraArgument({ api })));
-  const persistConfig = { key: 'tamanu', storage };
-  if (process.env.NODE_ENV !== 'development') {
-    persistConfig.whitelist = []; // persist used for a dev experience, but not required in production
-  }
-  const persistedReducers = persistCombineReducers(persistConfig, createReducers(history));
-  const store = createStore(persistedReducers, {}, enhancers);
-  return { store, history };
-}
+import { initStore, restoreSession, authFailure, versionIncompatible } from './store';
 
 function initPersistor(api, store) {
   const persistor = persistStore(store, null, () => {
@@ -57,9 +35,6 @@ function start() {
   // TODO: Switch to use api when we get rid of API singleton
   // const api = new TamanuApi(version);
   const { store, history } = initStore(API);
-
-  // set up data change responder to trigger reloads when relevant data changes server-side
-  startDataChangeResponder(API, store);
 
   // attempt to restore session from local storage
   store.dispatch(restoreSession());

@@ -1,19 +1,20 @@
 import config from 'config';
 import sequelize from 'sequelize';
 import { spawn } from 'child_process';
+
 import { REPORT_REQUEST_STATUSES } from 'shared/constants';
 import { getReportModule } from 'shared/reports';
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
+
 import { ReportRunner } from '../report/ReportRunner';
+import { getLocalisation } from '../localisation';
 
 // time out and kill the report process if it takes more than 2 hours to run
 const REPORT_TIME_OUT_DURATION_MILLISECONDS = config.reportProcess.timeOutDurationSeconds * 1000;
 
 export class ReportRequestProcessor extends ScheduledTask {
-  getName = () => {
-    return 'ReportRequestProcessor';
-  };
+  getName = () => 'ReportRequestProcessor';
 
   constructor(context) {
     // run at 30 seconds interval, process 10 report requests each time
@@ -25,7 +26,7 @@ export class ReportRequestProcessor extends ScheduledTask {
 
   spawnReportProcess = async request => {
     const [node, scriptPath] = process.argv;
-    const processOptions = config.reportProcess.processOptions;
+    const { processOptions } = config.reportProcess;
     const parameters = processOptions || process.execArgv;
 
     log.info(
@@ -83,7 +84,7 @@ export class ReportRequestProcessor extends ScheduledTask {
         );
       });
 
-      childProcess.on('error', err => {
+      childProcess.on('error', () => {
         reject(
           new Error(`Child process failed to start, using commands [${node}, ${scriptPath}].`),
         );
@@ -116,7 +117,16 @@ export class ReportRequestProcessor extends ScheduledTask {
     await reportRunner.run();
   }
 
+  async countQueue() {
+    return this.context.store.models.ReportRequest.count({
+      where: {
+        status: REPORT_REQUEST_STATUSES.RECEIVED,
+      },
+    });
+  }
+
   async runReports() {
+    const localisation = await getLocalisation();
     const requests = await this.context.store.models.ReportRequest.findAll({
       where: {
         status: REPORT_REQUEST_STATUSES.RECEIVED,
@@ -135,7 +145,7 @@ export class ReportRequestProcessor extends ScheduledTask {
         return;
       }
 
-      const disabledReports = config.localisation.data.disabledReports;
+      const { disabledReports } = localisation;
       if (disabledReports.includes(request.reportType)) {
         log.error(`Report "${request.reportType}" is disabled`);
         await request.update({
@@ -174,11 +184,10 @@ export class ReportRequestProcessor extends ScheduledTask {
           status: REPORT_REQUEST_STATUSES.PROCESSED,
         });
       } catch (e) {
-        log.error(`ReportRequestProcessorError - Failed to generate report, ${e.message}`);
-        log.error(e.stack);
+        log.error(`${e.stack}\nReportRequestProcessorError - Failed to generate report`);
         await request.update({
           status: REPORT_REQUEST_STATUSES.ERROR,
-          error: e.message,
+          error: e.stack,
         });
       }
     }

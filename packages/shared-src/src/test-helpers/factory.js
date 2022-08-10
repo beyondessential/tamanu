@@ -6,7 +6,6 @@ import {
   fakeEncounter,
   fakeEncounterDiagnosis,
   fakeEncounterMedication,
-  fakePatient,
   fakeProgramDataElement,
   fakeReferenceData,
   fakeScheduledVaccine,
@@ -21,14 +20,15 @@ import {
 // TODO: generic
 
 export const buildEncounter = async (ctx, patientId, optionalEncounterId) => {
-  const patient = fakePatient();
+  const { Patient, User } = ctx.models;
+  const patient = fake(Patient);
   if (patientId) {
     patient.id = patientId;
   }
-  await ctx.models.Patient.upsert(patient);
+  await Patient.upsert(patient);
 
   const examiner = fakeUser('examiner');
-  await ctx.models.User.upsert(examiner);
+  await User.upsert(examiner);
 
   const encounter = fakeEncounter();
   if (optionalEncounterId !== undefined) {
@@ -36,6 +36,7 @@ export const buildEncounter = async (ctx, patientId, optionalEncounterId) => {
   }
   encounter.patientId = patient.id;
   encounter.examinerId = examiner.id;
+  encounter.patientBillingTypeId = null;
   encounter.locationId = await findOrCreateId(ctx, ctx.models.Location);
   encounter.departmentId = await findOrCreateId(ctx, ctx.models.Department);
 
@@ -93,14 +94,10 @@ export const buildNestedEncounter = async (ctx, patientId, optionalEncounterId) 
   labTest.labRequestId = labRequest.id;
   labRequest.tests = [labTest];
 
-  const imagingType = { ...fake(ctx.models.ReferenceData), type: REFERENCE_TYPES.IMAGING_TYPE };
-  await ctx.models.ReferenceData.upsert(imagingType);
-
   const imagingRequest = {
     ...fake(ctx.models.ImagingRequest),
     status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
     requestedById: encounter.examinerId,
-    imagingTypeId: imagingType.id,
   };
   imagingRequest.encounterId = encounter.id;
   encounter.imagingRequests = [imagingRequest];

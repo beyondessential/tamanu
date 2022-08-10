@@ -1,16 +1,24 @@
-import React, { useCallback } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
+import { VaccineCertificate } from 'shared/utils/patientCertificates';
 import { Modal } from './Modal';
-import { connectApi, useApi } from '../api';
-import { ImmunisationCertificate } from './ImmunisationCertificate';
+import { useApi } from '../api';
 import { EmailButton } from './Email/EmailButton';
+import { useCertificate } from '../utils/useCertificate';
+import { PDFViewer, printPDF } from './PatientPrinting/PDFViewer';
+import { useLocalisation } from '../contexts/Localisation';
 
-const DumbImmunisationCertificateModal = ({ getImmunisations, open, onClose, patient }) => {
+export const ImmunisationCertificateModal = ({ open, onClose, patient }) => {
   const api = useApi();
-  const [immunisations, setImmunisations] = React.useState();
-  React.useEffect(() => {
-    getImmunisations().then(setImmunisations);
-  }, [getImmunisations]);
+  const [vaccinations, setVaccinations] = useState([]);
+  const { getLocalisation } = useLocalisation();
+  const { watermark, logo, footerImg, printedBy } = useCertificate();
+
+  useEffect(() => {
+    api.get(`patient/${patient.id}/administeredVaccines`).then(response => {
+      setVaccinations(response.data);
+    });
+  }, [api, patient.id]);
 
   const createImmunisationCertificateNotification = useCallback(
     data => {
@@ -19,12 +27,12 @@ const DumbImmunisationCertificateModal = ({ getImmunisations, open, onClose, pat
         requireSigning: true,
         patientId: patient.id,
         forwardAddress: data.email,
+        createdBy: printedBy,
       });
     },
-    [api, patient],
+    [api, patient.id, printedBy],
   );
 
-  const certificate = <ImmunisationCertificate patient={patient} immunisations={immunisations} />;
   return (
     <Modal
       title="Vaccination Certificate"
@@ -32,16 +40,21 @@ const DumbImmunisationCertificateModal = ({ getImmunisations, open, onClose, pat
       onClose={onClose}
       width="md"
       printable
+      keepMounted
+      onPrint={() => printPDF('vaccine-certificate')}
       additionalActions={<EmailButton onEmail={createImmunisationCertificateNotification} />}
     >
-      {certificate}
+      <PDFViewer id="vaccine-certificate">
+        <VaccineCertificate
+          patient={patient}
+          vaccinations={vaccinations}
+          watermarkSrc={watermark}
+          logoSrc={logo}
+          signingSrc={footerImg}
+          printedBy={printedBy}
+          getLocalisation={getLocalisation}
+        />
+      </PDFViewer>
     </Modal>
   );
 };
-
-export const ImmunisationCertificateModal = connectApi((api, dispatch, { patient }) => ({
-  async getImmunisations() {
-    const response = await api.get(`patient/${patient.id}/administeredVaccines`);
-    return response.data;
-  },
-}))(DumbImmunisationCertificateModal);

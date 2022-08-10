@@ -2,7 +2,7 @@ import Chance from 'chance';
 
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
-import { IDENTIFIER_NAMESPACE } from '../../../app/integrations/fiji-vps/schema';
+import { IDENTIFIER_NAMESPACE } from '../../../app/hl7fhir/utils';
 
 const chance = new Chance();
 
@@ -122,8 +122,8 @@ describe('VPS integration - DiagnosticReport', () => {
             resource: {
               resourceType: 'DiagnosticReport',
               id: labTest.id,
-              effectiveDateTime: labRequest.sampleTime.toISOString(),
-              issued: labRequest.requestedDate.toISOString(),
+              effectiveDateTime: labRequest.sampleTime,
+              issued: labRequest.requestedDate,
               code: {
                 coding: [
                   {
@@ -453,7 +453,7 @@ describe('VPS integration - DiagnosticReport', () => {
       await createLabTestHierarchy(patient);
 
       const id = encodeURIComponent(`https://wrong.com/this-is-wrong|${patient.displayId}`);
-      const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=issued&_page=-1&_count=101&status=invalid-status&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Asomething-invalid`;
+      const path = `/v1/integration/fijiVps/DiagnosticReport?_sort=deceased&_page=-1&_count=101&status=invalid-status&subject%3Aidentifier=${id}&_include=DiagnosticReport%3Asomething-invalid`;
 
       // act
       const response = await app
@@ -468,9 +468,9 @@ describe('VPS integration - DiagnosticReport', () => {
             'subject:identifier must be in the format "<namespace>|<id>"',
             '_count must be less than or equal to 20',
             '_page must be greater than or equal to 0',
-            '_sort must be one of the following values: -issued',
-            '_include[0] must be one of the following values: DiagnosticReport:result, DiagnosticReport:result.device:Device',
+            '_sort must be one of the following values: -issued, issued',
             'status must be one of the following values: final',
+            '_include[0] must be one of the following values: DiagnosticReport:result, DiagnosticReport:result.device:Device',
           ],
         },
       });
@@ -492,12 +492,7 @@ describe('VPS integration - DiagnosticReport', () => {
       expect(response).toHaveRequestError(422);
       expect(response.body).toMatchObject({
         error: {
-          errors: [
-            'subject:identifier must be in the format "<namespace>|<id>"',
-            'subject:identifier is a required field',
-            '_page is a required field',
-            '_sort is a required field',
-          ],
+          errors: ['subject:identifier is a required field'],
         },
       });
     });

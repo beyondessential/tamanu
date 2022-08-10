@@ -1,4 +1,4 @@
-import { createDummyEncounter, createDummyPatient } from 'shared/demoData/patients';
+import { createDummyEncounter, createDummyPatient, randomVitals } from 'shared/demoData/patients';
 import { VACCINE_CATEGORIES } from 'shared/constants';
 import { createAdministeredVaccine, createScheduledVaccine } from 'shared/demoData/vaccines';
 import { createTestContext } from '../utilities';
@@ -12,16 +12,17 @@ describe('PatientVaccine', () => {
   let scheduled1 = null;
   let scheduled2 = null;
   let scheduled3 = null;
+  let ctx;
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
     patient = await models.Patient.create(await createDummyPatient(models));
     patient2 = await models.Patient.create(await createDummyPatient(models));
-    await models.ScheduledVaccine.truncate();
-    await models.AdministeredVaccine.truncate();
+    await models.ScheduledVaccine.truncate({ cascade: true });
+    await models.AdministeredVaccine.truncate({ cascade: true });
 
     // create 3 scheduled vaccines, 2 routine and 1 campaign
     scheduled1 = await models.ScheduledVaccine.create(
@@ -46,6 +47,11 @@ describe('PatientVaccine', () => {
     const encounter = await models.Encounter.create(
       await createDummyEncounter(models, { patientId: patient.id }),
     );
+
+    // create the encounter with multiple vitals records
+    await models.Vitals.create({ encounterId: encounter.id, ...randomVitals() });
+    await models.Vitals.create({ encounterId: encounter.id, ...randomVitals() });
+
     await models.AdministeredVaccine.create(
       await createAdministeredVaccine(models, {
         scheduledVaccineId: scheduled2.id,
@@ -53,6 +59,7 @@ describe('PatientVaccine', () => {
       }),
     );
   });
+  afterAll(() => ctx.close());
 
   it('should reject with insufficient permissions', async () => {
     const noPermsApp = await baseApp.asRole('base');
@@ -60,7 +67,7 @@ describe('PatientVaccine', () => {
     expect(result).toBeForbidden();
   });
 
-  describe('get scheduled vaccines', () => {
+  describe('Scheduled vaccines', () => {
     it('should get a list of scheduled vaccines', async () => {
       const result = await app.get(`/v1/patient/1/scheduledVaccines`);
       expect(result).toHaveSucceeded();
@@ -99,12 +106,16 @@ describe('PatientVaccine', () => {
     });
   });
 
-  describe('Edit administered vaccines', () => {
-    it('Should mark an administered vaccine as recorded in error', async () => {
+  describe('Administered vaccines', () => {
+    it('Should get administered vaccines', async () => {
       const result = await app.get(`/v1/patient/${patient.id}/administeredVaccines`);
       expect(result).toHaveSucceeded();
       expect(result.body.count).toEqual(1);
       expect(result.body.data[0].status).toEqual('GIVEN');
+    });
+
+    it('Should mark an administered vaccine as recorded in error', async () => {
+      const result = await app.get(`/v1/patient/${patient.id}/administeredVaccines`);
 
       const markedAsRecordedInError = await app
         .put(`/v1/patient/${patient.id}/administeredVaccine/${result.body.data[0].id}`)

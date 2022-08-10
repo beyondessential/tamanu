@@ -2,11 +2,51 @@ import asyncHandler from 'express-async-handler';
 import { unlink } from 'fs';
 import config from 'config';
 
+import { log } from 'shared/services/logging';
+
 import { getUploadedData } from './getUploadedData';
 import { sendSyncRequest } from './sendSyncRequest';
 
 import { preprocessRecordSet } from './preprocessRecordSet';
 import { WebRemote } from '../sync/WebRemote';
+
+// we can't use the lodash groupBy, because this needs to handle `undefined`
+function groupBy(array, key) {
+  const map = new Map();
+  for (const item of array) {
+    const value = item[key];
+    if (map.has(value)) {
+      map.get(value).push(item);
+    } else {
+      map.set(value, [item]);
+    }
+  }
+  return map.entries();
+}
+
+function getChannelFromRecordType(recordType) {
+  if (recordType === 'referenceData') {
+    return 'reference';
+  }
+  return recordType;
+}
+
+export async function sendRecordGroups(recordGroups) {
+  const remote = new WebRemote();
+  for (const [recordType, recordsForGroup] of recordGroups) {
+    const recordsByChannel = groupBy(recordsForGroup, 'channel');
+    const total = recordsForGroup.length;
+    let completed = 0;
+    log.debug(`sendRecordGroups: sending ${total} records`);
+    for (const [maybeChannel, recordsForChannel] of recordsByChannel) {
+      const channel = maybeChannel || getChannelFromRecordType(recordType);
+      await sendSyncRequest(remote, channel, recordsForChannel);
+      completed += recordsForChannel.length;
+      log.debug(`sendRecordGroups: sent ${completed} of ${total}`);
+    }
+    log.debug(`sendRecordGroups: finished sending ${total} records`);
+  }
+}
 
 export function createDataImporterEndpoint(importer) {
   return asyncHandler(async (req, res) => {
@@ -57,20 +97,7 @@ export function createDataImporterEndpoint(importer) {
     }
 
     // send to sync server in batches
-    const remote = new WebRemote();
-    for (const [recordType, records] of recordGroups) {
-      let endpoint;
-      if (records[0].channel) {
-        // Only allow fixed channel for now
-        if (records.some(r => r.channel !== records[0].channel)) {
-          throw new Error('Channel does not match between records');
-        }
-        endpoint = records[0].channel;
-      } else {
-        endpoint = recordType === 'referenceData' ? 'reference' : recordType;
-      }
-      await sendSyncRequest(remote, endpoint, records);
-    }
+    await sendRecordGroups(recordGroups);
 
     sendResult({ sentData: true });
   });

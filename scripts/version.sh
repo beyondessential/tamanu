@@ -5,7 +5,7 @@ VERSION=$1
 
 if [ -z "$VERSION" ]; then
   cat << EOF
-This script sets all the relevant version numbers in the repo 
+This script sets all the relevant version numbers in the repo
 
 Usage:
 $ ./scripts/version.sh 1.2.3
@@ -27,21 +27,16 @@ version packages/desktop/app/package.json
 version packages/sync-server/package.json
 version packages/lan/package.json
 version packages/shared-src/package.json
-version packages/shared/package.json
+version packages/shared-src/shared.package.json
 version packages/meta-server/package.json
 version packages/scripts/package.json
-
-echo "Updating changelog"
-template=scripts/changelog_template.md
-sed -e "/## vNEXT/{" -e "r $template" -e "d" -e "}" CHANGELOG.md > CHANGELOG.md.2
-sed -e "s/## vJUSTNOW/## v$VERSION/g" CHANGELOG.md.2 > CHANGELOG.md.3
-rm CHANGELOG.md CHANGELOG.md.2
-mv CHANGELOG.md.3 CHANGELOG.md
+version packages/qr-tester/package.json
+version packages/csca/package.json
 
 cat << EOF
 
-Don't forget to manually update the checks in:
+Don't forget to manually update:
   - packages/lan/app/middleware/versionCompatibility.js
   - packages/sync-server/app/middleware/versionCompatibility.js
-and to manually update mobile (the patch version of mobile must monotonically increase)
+  - packages/mobile/package.json (the patch version of mobile must monotonically increase)
 EOF

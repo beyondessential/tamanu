@@ -1,4 +1,5 @@
 import { inRange } from 'lodash';
+import { log } from '../services/logging';
 
 export function getStringValue(type, value) {
   switch (type) {
@@ -16,7 +17,7 @@ function compareData(dataType, expected, given) {
       if (expected === 'no' && given === false) return true;
       break;
     case 'Number':
-    case 'Calculated':
+    case 'Calculated': {
       // we check within a threshold because strict equality is actually pretty rare
       const parsed = parseFloat(expected);
       const diff = Math.abs(parsed - given);
@@ -24,6 +25,7 @@ function compareData(dataType, expected, given) {
       const threshold = 0.05; // TODO: configurable
       if (diff < threshold) return true;
       break;
+    }
     case 'MultiSelect':
       return given.split(', ').includes(expected);
     default:
@@ -46,7 +48,7 @@ export function checkVisibilityCriteria(component, allComponents, values) {
       return true;
     }
 
-    const { _conjunction: conjunction, hidden, ...restOfCriteria } = criteriaObject;
+    const { _conjunction: conjunction, hidden: _, ...restOfCriteria } = criteriaObject;
     if (Object.keys(restOfCriteria).length === 0) {
       return true;
     }
@@ -70,15 +72,19 @@ export function checkVisibilityCriteria(component, allComponents, values) {
         return givenValues.includes(answersEnablingFollowUp);
       }
 
-      return answersEnablingFollowUp.includes(value);
+      if (Array.isArray(answersEnablingFollowUp)) {
+        return answersEnablingFollowUp.includes(value);
+      }
+      return answersEnablingFollowUp === value;
     };
 
     return conjunction === 'and'
       ? Object.entries(restOfCriteria).every(checkIfQuestionMeetsCriteria)
       : Object.entries(restOfCriteria).some(checkIfQuestionMeetsCriteria);
   } catch (error) {
-    console.warn(`Error parsing JSON visilbity criteria, using fallback.
-                  \nError message: ${error}`);
+    log.warn(
+      `Error parsing JSON visibility criteria for ${component.dataElement?.code}, using fallback.\nError message: ${error.message}`,
+    );
 
     return fallbackParseVisibilityCriteria(visibilityCriteria, values, allComponents);
   }
@@ -102,7 +108,7 @@ function fallbackParseVisibilityCriteria(visibilityCriteria, values, allComponen
   const comparisonComponent = allComponents.find(x => x.dataElement.code === elementCode);
 
   if (!comparisonComponent) {
-    console.warn(`Comparison component ${elementCode} not found!`);
+    log.warn(`Comparison component ${elementCode} not found!`);
     return false;
   }
 

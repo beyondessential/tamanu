@@ -1,22 +1,32 @@
-import React, { createContext, PropsWithChildren, ReactElement, useContext, useEffect, useState, RefObject } from 'react';
+import React, {
+  createContext,
+  PropsWithChildren,
+  ReactElement,
+  useContext,
+  useEffect,
+  useState,
+  RefObject,
+} from 'react';
 import { NavigationContainerRef } from '@react-navigation/native';
 import NetInfo from '@react-native-community/netinfo';
 import { compose } from 'redux';
+import { PureAbility } from '@casl/ability';
 import { withAuth } from '~/ui/containers/Auth';
 import { WithAuthStoreProps } from '~/ui/store/ducks/auth';
 import { Routes } from '~/ui/helpers/routes';
 import { BackendContext } from '~/ui/contexts/BackendContext';
 import { IUser, SyncConnectionParameters } from '~/types';
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { ResetPasswordFormModel } from '/interfaces/forms/ResetPasswordFormProps';
-import {ChangePasswordFormModel} from "/interfaces/forms/ChangePasswordFormProps";
+import { ChangePasswordFormModel } from '/interfaces/forms/ChangePasswordFormProps';
+import { buildAbility } from '~/ui/helpers/ability';
 
 type AuthProviderProps = WithAuthStoreProps & {
   navRef: RefObject<NavigationContainerRef>;
-}
+};
 
 interface AuthContextData {
   user: IUser;
+  ability: PureAbility;
   signIn: (params: SyncConnectionParameters) => Promise<void>;
   signOut: () => void;
   isUserAuthenticated: () => boolean;
@@ -38,8 +48,10 @@ const Provider = ({
   navRef,
   ...props
 }: PropsWithChildren<AuthProviderProps>): ReactElement => {
+  const backend = useContext(BackendContext);
   const checkFirstSession = (): boolean => props.isFirstTime;
   const [user, setUserData] = useState();
+  const [ability, setAbility] = useState(null);
   const [resetPasswordLastEmailUsed, setResetPasswordLastEmailUsed] = useState('');
 
   const setUserFirstSignIn = (): void => {
@@ -48,22 +60,30 @@ const Provider = ({
 
   const isUserAuthenticated = (): boolean => props.token !== null && props.user !== null;
 
-  const signInAs = user => {
-    setUser(user);
-    setUserData(user);
+  const setContextUserAndAbility = (userData): void => {
+    setUserData(userData);
+    const abilityObject = buildAbility(userData, backend.permissions.data);
+    setAbility(abilityObject);
+  };
+
+  const signInAs = (authenticatedUser): void => {
+    // Destructure the local password out of the user object - it only needs to be in
+    // the database, we don't need or want to store it in app state as well.
+    const { localPassword, ...userData } = authenticatedUser;
+    setUser(userData);
+    setContextUserAndAbility(userData);
     setSignedInStatus(true);
   };
 
-  const backend = useContext(BackendContext);
   const localSignIn = async (params: SyncConnectionParameters): Promise<void> => {
-    const user = await backend.auth.localSignIn(params);
-    signInAs(user);
+    const usr = await backend.auth.localSignIn(params);
+    signInAs(usr);
   };
 
   const remoteSignIn = async (params: SyncConnectionParameters): Promise<void> => {
-    const { user, token } = await backend.auth.remoteSignIn(params);
+    const { user: usr, token } = await backend.auth.remoteSignIn(params);
     setToken(token);
-    signInAs(user);
+    signInAs(usr);
   };
 
   const signIn = async (params: SyncConnectionParameters): Promise<void> => {
@@ -111,9 +131,16 @@ const Provider = ({
     }
   }, [backend, props.token, props.user]);
 
+  // sets state again after launching the app
+  useEffect(() => {
+    if (props.token && props.user) {
+      setContextUserAndAbility(props.user);
+    }
+  }, []);
+
   // sign user out if an auth error was thrown
   useEffect(() => {
-    const handler = (err: Error) => {
+    const handler = (err: Error): void => {
       console.log(`signing out user with token ${props.token}: received auth error:`, err);
       signOut();
     };
@@ -132,6 +159,7 @@ const Provider = ({
         isUserAuthenticated,
         checkFirstSession,
         user,
+        ability,
         requestResetPassword,
         resetPasswordLastEmailUsed,
         changePassword,
@@ -143,4 +171,5 @@ const Provider = ({
 };
 
 export const AuthProvider = compose(withAuth)(Provider);
+export const useAuth = (): AuthContextData => useContext(AuthContext);
 export default AuthContext;

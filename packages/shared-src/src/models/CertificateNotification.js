@@ -7,9 +7,12 @@ export class CertificateNotification extends Model {
     super.init(
       {
         id: primaryKey,
+        createdBy: Sequelize.STRING,
         type: Sequelize.STRING,
         forwardAddress: Sequelize.STRING,
         requireSigning: Sequelize.BOOLEAN,
+        status: Sequelize.STRING,
+        error: Sequelize.TEXT,
       },
       {
         ...options,
@@ -31,6 +34,12 @@ export class CertificateNotification extends Model {
     this.belongsTo(models.LabTest, {
       foreignKey: 'labTestId',
       as: 'labTest',
+    });
+
+    // For automated emails
+    this.belongsTo(models.LabRequest, {
+      foreignKey: 'labRequestId',
+      as: 'labRequest',
     });
   }
 }

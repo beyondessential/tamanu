@@ -1,7 +1,8 @@
 import moment from 'moment';
 import { transliterate as tr } from 'transliteration';
-import allModels from 'shared/models';
-import { vdsConfig } from './Config';
+import { log } from 'shared/services/logging';
+
+import { getLocalisation } from '../../localisation';
 
 const SEX_TO_CHAR = {
   male: 'M',
@@ -13,8 +14,14 @@ const SCHEDULE_TO_SEQUENCE = {
   'Dose 1': 1,
   'Dose 2': 2,
   Booster: 3,
+  'Dose 3': 3,
+  'Dose 4': 4,
+  'Dose 5': 5,
+  'Dose 6': 6,
+  'Dose 7': 7,
+  'Dose 8': 8,
+  'Dose 9': 9,
 };
-const SEQUENCE_MAX = Math.max(...Object.values(SCHEDULE_TO_SEQUENCE));
 
 const METHOD_CODE = {
   GeneXpert: 'antigen',
@@ -22,37 +29,45 @@ const METHOD_CODE = {
   RDT: 'antigen',
 };
 
-const ICD11_COVID19_VACCINE = 'XM68M6';
-const ICD11_COVID19_DISEASE = 'RA01.0';
-
 const MOMENT_FORMAT_ISODATE = 'YYYY-MM-DD';
 const MOMENT_FORMAT_RFC3339 = 'YYYY-MM-DDTHH:mm:ssZ';
 
-export const createProofOfVaccination = async (
-  patientId,
-  { countryCode = vdsConfig().sign.countryCode3, models },
-) => {
+export const createVdsNcVaccinationData = async (patientId, { models }) => {
   const {
     Patient,
     PatientAdditionalData,
     ReferenceData,
-    AdministeredVaccine,
     Encounter,
     Facility,
     Location,
     ScheduledVaccine,
+    CertifiableVaccine,
   } = models;
-  const { firstName, lastName, dateOfBirth, sex } = await Patient.findOne({
+
+  const { country, timeZone } = await getLocalisation();
+  const countryCode = country['alpha-3'];
+
+  const patient = await Patient.findOne({
     where: { id: patientId },
   });
-  const { passport } = await PatientAdditionalData.findOne({ where: { patientId } });
-  const vaccinations = await AdministeredVaccine.findAll({
-    where: {
-      '$encounter.patient_id$': patientId,
-      '$scheduledVaccine.label$': ['COVID-19 AZ', 'COVID-19 Pfizer'],
-      status: 'GIVEN',
-    },
+
+  const { firstName, lastName, dateOfBirth, sex } = patient;
+  const pad = await PatientAdditionalData.findOne({ where: { patientId } });
+  const passport = pad?.passport;
+
+  const vaccinations = await patient.getAdministeredVaccines({
+    order: [['date', 'ASC']],
     include: [
+      {
+        model: Location,
+        as: 'location',
+        include: [
+          {
+            model: Facility,
+            as: 'facility',
+          },
+        ],
+      },
       {
         model: Encounter,
         as: 'encounter',
@@ -63,7 +78,7 @@ export const createProofOfVaccination = async (
             include: [
               {
                 model: Facility,
-                as: 'Facility',
+                as: 'facility',
               },
             ],
           },
@@ -82,6 +97,13 @@ export const createProofOfVaccination = async (
     ],
   });
 
+  log.debug('Translating VDS', {
+    patientId,
+    vaccinationCount: vaccinations.length,
+  });
+
+  if (vaccinations.length === 0) throw new Error('Patient does not have any vaccinations');
+
   const pidDoc = passport
     ? {
         i: passport,
@@ -94,54 +116,85 @@ export const createProofOfVaccination = async (
     const {
       batch,
       date,
+      location,
       scheduledVaccine: {
         schedule,
-        vaccine: { name: label },
+        vaccine: { name: label, id: vaccineId },
       },
       encounter: {
         location: {
-          Facility: { name: facility },
+          facility: { name: encounterFacilityName },
         },
       },
     } = dose;
 
+    const sublog = log.child({
+      administeredVaccineId: dose.id,
+      vaccineRefId: vaccineId,
+    });
+
+    const facilityName = location?.facility?.name ?? encounterFacilityName;
+
+    const certVax = await CertifiableVaccine.findOne({
+      where: {
+        vaccineId,
+      },
+      include: [
+        {
+          model: ReferenceData,
+          as: 'manufacturer',
+        },
+      ],
+    });
+    if (!certVax) {
+      sublog.debug('Vaccine is not certifiable');
+      continue;
+    }
+
     const event = {
       dvc: moment(date)
-        .utc()
+        .tz(timeZone)
         .format(MOMENT_FORMAT_ISODATE),
-      seq: SCHEDULE_TO_SEQUENCE[schedule] ?? SEQUENCE_MAX + 1,
+      seq: SCHEDULE_TO_SEQUENCE[schedule],
       ctr: countryCode,
       lot: batch || 'Unknown', // If batch number was not recorded, we add a indicative string value to complete ICAO validation
-      adm: facility,
+      adm: facilityName,
     };
+    sublog.debug('Event for vaccine', { event });
 
     if (vaccines.has(label)) {
+      sublog.debug('Adding to existing brand/label group', { label });
       const vax = vaccines.get(label);
       vax.vd.push(event);
       vaccines.set(label, vax);
     } else {
+      sublog.debug('Adding to new brand/label group', { label });
       vaccines.set(label, {
-        des: ICD11_COVID19_VACCINE,
+        des: certVax.icd11DrugCode,
         nam: label,
-        dis: ICD11_COVID19_DISEASE,
+        dis: certVax.icd11DiseaseCode,
         vd: [event],
       });
     }
   }
 
+  log.debug('Translated VDS', {
+    patientId,
+    vaccinationCount: vaccines.size,
+  });
+
+  if (vaccines.size === 0) throw new Error('No certifiable vaccines for patient');
+
   return {
     pid: {
-      ...pid(firstName, lastName, dateOfBirth, sex),
+      ...pid(firstName, lastName, dateOfBirth, sex, timeZone),
       ...pidDoc,
     },
     ve: [...vaccines.values()],
   };
 };
 
-export const createProofOfTest = async (
-  labTestId,
-  { countryCode = vdsConfig().sign.countryCode3, models = allModels } = {},
-) => {
+export const createVdsNcTestData = async (labTestId, { models }) => {
   const {
     Patient,
     PatientAdditionalData,
@@ -151,6 +204,10 @@ export const createProofOfTest = async (
     Location,
     Encounter,
   } = models;
+
+  const { country, timeZone } = await getLocalisation();
+  const countryCode = country['alpha-3'];
+
   const test = await LabTest.findOne({
     where: {
       id: labTestId,
@@ -181,7 +238,7 @@ export const createProofOfTest = async (
               {
                 model: Location,
                 as: 'location',
-                include: ['Facility'],
+                include: ['facility'],
               },
             ],
           },
@@ -193,7 +250,7 @@ export const createProofOfTest = async (
   const { labTestMethod: method, labRequest: request } = test;
 
   const {
-    location: { Facility: facility },
+    location: { facility },
     patient: {
       firstName,
       lastName,
@@ -212,7 +269,7 @@ export const createProofOfTest = async (
 
   return {
     pid: {
-      ...pid(firstName, lastName, dateOfBirth, sex),
+      ...pid(firstName, lastName, dateOfBirth, sex, timeZone),
       ...pidDoc,
     },
     sp: {
@@ -239,7 +296,7 @@ export const createProofOfTest = async (
   };
 };
 
-function pid(firstName, lastName, dateOfBirth, sex) {
+function pid(firstName, lastName, dateOfBirth, sex, timeZone = 'UTC') {
   const MAX_LEN = 39;
   const primary = tr(lastName);
   const secondary = tr(firstName);
@@ -254,7 +311,9 @@ function pid(firstName, lastName, dateOfBirth, sex) {
 
   const data = {
     n: name,
-    dob: moment(dateOfBirth).format(MOMENT_FORMAT_ISODATE),
+    dob: moment(dateOfBirth)
+      .tz(timeZone)
+      .format(MOMENT_FORMAT_ISODATE),
   };
 
   if (sex && SEX_TO_CHAR[sex]) {

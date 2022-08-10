@@ -5,7 +5,6 @@ import styled from 'styled-components';
 import Avatar from '@material-ui/core/Avatar';
 
 import { foreignKey } from '../utils/validation';
-
 import {
   Form,
   Field,
@@ -13,12 +12,13 @@ import {
   SelectField,
   AutocompleteField,
   TextField,
-} from '../components/Field';
-import { FormGrid } from '../components/FormGrid';
-import { DateDisplay } from '../components/DateDisplay';
-import { Button } from '../components/Button';
-
+  Button,
+  FormGrid,
+  LocalisedField,
+  SuggesterSelectField,
+} from '../components';
 import { encounterOptions, Colors } from '../constants';
+import { useSuggester } from '../api';
 
 const SelectorGrid = styled.div`
   display: grid;
@@ -43,42 +43,11 @@ const EncounterOptionTypeButton = styled(Button)`
 `;
 
 const EncounterOptionButton = ({ label, image, onClick }) => (
-  <EncounterOptionTypeButton variant="contained" onClick={onClick}>
+  <EncounterOptionTypeButton variant="contained" color="default" onClick={onClick}>
     <TypeImage alt={label} src={image} />
     {label}
   </EncounterOptionTypeButton>
 );
-
-const getReferralLabel = referral => {
-  const { date, referringDoctor, location } = referral;
-  const parts = [
-    `${DateDisplay.rawFormat(date)}:`,
-    location && location.name,
-    referringDoctor && referringDoctor.displayName && `(by ${referringDoctor.displayName})`,
-  ];
-  return parts.filter(x => x).join(' ');
-};
-
-const ReferralField = ({ referrals = [] }) => {
-  const referralOptions = [{ value: null, label: 'No linked referral' }].concat(
-    referrals
-      .filter(r => !r.closedDate)
-      .map(r => ({
-        value: r.id,
-        label: getReferralLabel(r),
-      })),
-  );
-
-  return (
-    <Field
-      name="referralId"
-      label="Referral"
-      disabled={referrals.length === 0}
-      component={SelectField}
-      options={referralOptions}
-    />
-  );
-};
 
 const StartPage = ({ setValue }) => {
   const items = encounterOptions
@@ -96,20 +65,17 @@ const StartPage = ({ setValue }) => {
   return <SelectorGrid>{items}</SelectorGrid>;
 };
 
-export class EncounterForm extends React.PureComponent {
-  renderForm = ({ values, setFieldValue, submitForm }) => {
+export const EncounterForm = React.memo(({ editedObject, onSubmit, patientBillingTypeId }) => {
+  const locationSuggester = useSuggester('location');
+  const practitionerSuggester = useSuggester('practitioner');
+  const departmentSuggester = useSuggester('department');
+
+  const renderForm = ({ values, setFieldValue, submitForm }) => {
     if (!values.encounterType) {
       return <StartPage setValue={setFieldValue} />;
     }
 
-    const {
-      locationSuggester,
-      practitionerSuggester,
-      departmentSuggester,
-      editedObject,
-      referrals,
-    } = this.props;
-    const buttonText = editedObject ? 'Update encounter' : 'Start encounter';
+    const buttonText = editedObject ? 'Update encounter' : 'Confirm';
 
     return (
       <FormGrid>
@@ -122,7 +88,7 @@ export class EncounterForm extends React.PureComponent {
         />
         <Field
           name="startDate"
-          label="Check-in"
+          label="Check-in date"
           required
           component={DateField}
           options={encounterOptions}
@@ -141,6 +107,11 @@ export class EncounterForm extends React.PureComponent {
           component={AutocompleteField}
           suggester={locationSuggester}
         />
+        <LocalisedField
+          name="patientBillingTypeId"
+          endpoint="patientBillingType"
+          component={SuggesterSelectField}
+        />
         <Field
           name="examinerId"
           label="Practitioner"
@@ -148,7 +119,6 @@ export class EncounterForm extends React.PureComponent {
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
-        <ReferralField referrals={referrals} />
         <Field
           name="reasonForEncounter"
           label="Reason for encounter"
@@ -166,30 +136,28 @@ export class EncounterForm extends React.PureComponent {
     );
   };
 
-  render() {
-    const { onSubmit, editedObject } = this.props;
-    return (
-      <Form
-        onSubmit={onSubmit}
-        render={this.renderForm}
-        initialValues={{
-          startDate: new Date(),
-          ...editedObject,
-        }}
-        validationSchema={yup.object().shape({
-          examinerId: foreignKey('Examiner is required'),
-          locationId: foreignKey('Location is required'),
-          departmentId: foreignKey('Department is required'),
-          startDate: yup.date().required(),
-          encounterType: yup
-            .mixed()
-            .oneOf(encounterOptions.map(x => x.value))
-            .required(),
-        })}
-      />
-    );
-  }
-}
+  return (
+    <Form
+      onSubmit={onSubmit}
+      render={renderForm}
+      initialValues={{
+        startDate: new Date(),
+        patientBillingTypeId,
+        ...editedObject,
+      }}
+      validationSchema={yup.object().shape({
+        examinerId: foreignKey('Examiner is required'),
+        locationId: foreignKey('Location is required'),
+        departmentId: foreignKey('Department is required'),
+        startDate: yup.date().required(),
+        encounterType: yup
+          .mixed()
+          .oneOf(encounterOptions.map(x => x.value))
+          .required(),
+      })}
+    />
+  );
+});
 
 EncounterForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,

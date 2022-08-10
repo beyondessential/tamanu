@@ -1,16 +1,16 @@
 import React, { ReactElement, useCallback, useState, useRef } from 'react';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
-import { ISurveyScreenComponent } from '~/types';
-import { checkVisibilityCriteria } from '/helpers/fields';
+import { ISurveyScreenComponent } from '../../../../types';
+import { checkVisibilityCriteria } from '../../../helpers/fields';
+import { Orientation, screenPercentageToDP } from '../../../helpers/screen';
 import { SurveyQuestion } from './SurveyQuestion';
-import { SectionHeader } from '../../SectionHeader';
-import { Button } from '../../Button';
-import { FullView, RowView, StyledText, StyledView } from '~/ui/styled/common';
 import { FormScreenView } from '../FormScreenView';
 import { SubmitButton } from '../SubmitButton';
-
-import { ErrorBoundary } from '~/ui/components/ErrorBoundary';
-import { Orientation, screenPercentageToDP } from '~/ui/helpers/screen';
+import { SectionHeader } from '../../SectionHeader';
+import { Button } from '../../Button';
+import { ErrorBoundary } from '../../ErrorBoundary';
+import { FullView, RowView, StyledText, StyledView } from '../../../styled/common';
+import { theme } from '../../../styled/theme';
 
 const SurveyQuestionErrorView = ({ error }): ReactElement => (
   <TouchableWithoutFeedback onPress={(): void => console.warn(error)}>
@@ -108,7 +108,7 @@ export const FormFields = ({
         </RowView>
         {currentScreenIndex === maxIndex && (
           <StyledView margin={10}>
-            <StyledText>{note}</StyledText>
+            <StyledText color={theme.colors.TEXT_DARK}>{note}</StyledText>
           </StyledView>
         )}
       </FormScreenView>

@@ -2,10 +2,14 @@ import React, { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
 import { storiesOf } from '@storybook/react';
 import { createDummyPatient, createDummyPatientAdditionalData } from 'shared/demoData';
-import { CovidLabCertificate, VaccineCertificate } from 'shared/utils';
+import { CovidLabCertificate, VaccineCertificate } from 'shared/utils/patientCertificates';
 import { PDFViewer } from '@react-pdf/renderer';
+import { DeathCertificate } from '../app/components/PatientPrinting/DeathCertificate';
+import { LabRequestPrintout } from '../app/components/PatientPrinting/LabRequestPrintout';
 import SigningImage from './assets/signing-image.png';
 import Watermark from './assets/watermark.png';
+import Logo from './assets/tamanu-logo.png';
+import { Modal } from '../app/components';
 
 const dummyPatient = createDummyPatient();
 const dummyAdditionalData = createDummyPatientAdditionalData();
@@ -74,21 +78,65 @@ const getLocalisation = key => {
   const config = {
     'templates.letterhead.title': 'TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES',
     'templates.letterhead.subTitle': 'PO Box 12345, Melbourne, Australia',
-    'templates.vaccineCertificateFooter.emailAddress': 'tamanu@health.govt',
-    'templates.vaccineCertificateFooter.contactNumber': '123456',
+    'templates.vaccineCertificate.emailAddress': 'tamanu@health.govt',
+    'templates.vaccineCertificate.contactNumber': '123456',
+
+    'fields.firstName.longLabel': 'First Name',
+    'fields.lastName.longLabel': 'Last Name',
+    'fields.dateOfBirth.longLabel': 'Date of Birth',
+    'fields.sex.longLabel': 'Sex',
   };
   return config[key];
 };
+
+const certificateData = {
+  title: 'Tamanu Ministry of Health & Medical Services',
+  subTitle: 'PS Box 123456, Melbourne, Australia',
+  logo: Logo,
+  logoType: 'image/png',
+  watermark: Watermark,
+  watermarkType: 'image/png',
+  footerImg: SigningImage,
+  footerImgType: 'image/png',
+  printedBy: 'Initial Admin',
+};
+
+storiesOf('Certificates', module).add('DeathCertificate', () => {
+  return (
+    <Modal title="Record patient death" open width="md">
+      <DeathCertificate
+        patientData={{
+          ...patient,
+          timeOfDeath: new Date(),
+          causes: {
+            primary: { condition: { name: 'Diabetes' } },
+            antecedent1: { condition: { name: 'Eating too much sugar' } },
+            antecedent2: { condition: { name: 'Living in a nutritionally poor environment' } },
+            contributing: [
+              { condition: { name: 'Old age' } },
+              { condition: { name: 'Overweight' } },
+              { condition: { name: 'Smoking' } },
+            ],
+          },
+        }}
+        certificateData={certificateData}
+      />
+    </Modal>
+  );
+});
 
 storiesOf('Certificates', module).add('CovidLabCertificate', () => (
   <PDFViewer width={800} height={1000} showToolbar={false}>
     <CovidLabCertificate
       patient={patient}
+      createdBy="Initial Admin"
       labs={labs}
       watermarkSrc={Watermark}
       signingSrc={SigningImage}
+      logoSrc={Logo}
       vdsSrc={vds}
       getLocalisation={getLocalisation}
+      printedBy="Initial Admin"
     />
   </PDFViewer>
 ));
@@ -158,6 +206,7 @@ const vaccinations = [
       updatedAt: '2022-01-23T21:56:27.437Z',
       vaccineId: 'drug-COVID-19-Pfizer',
     },
+    certifiable: true,
   },
 ];
 
@@ -178,10 +227,26 @@ storiesOf('Certificates', module).add('VaccineCertificate', () => {
         vaccinations={vaccinations}
         watermarkSrc={Watermark}
         signingSrc={SigningImage}
+        logoSrc={Logo}
         vdsSrc={vdsSrc}
-        extraPatientFields={[{ key: 'uvci', label: 'UVCI', accessor: () => 'x1235y12345' }]}
         getLocalisation={getLocalisation}
       />
     </PDFViewer>
+  );
+});
+
+storiesOf('Certificates', module).add('LabRequestPrintout', () => {
+  return (
+    <Modal title="Record patient death" open width="md">
+      <LabRequestPrintout
+        labRequestData={{ displayId: 'ASDF123', requestedDate: '10/10/10' }}
+        patientData={{
+          ...patient,
+          timeOfDeath: new Date(),
+          causes: { primary: { condition: { name: 'Diabetes' } } },
+        }}
+        certificateData={certificateData}
+      />
+    </Modal>
   );
 });

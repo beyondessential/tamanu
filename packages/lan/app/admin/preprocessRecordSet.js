@@ -1,6 +1,8 @@
+import { get } from 'lodash';
+
 import { compareModelPriority } from 'shared/models/sync/order';
 
-import { validateRecordSet } from './importerValidators';
+import { validateRecordSet } from './validateRecordSet';
 
 function groupRecordsByType(records) {
   return records.reduce(
@@ -28,6 +30,14 @@ function getRecordCounts(recordsByType) {
   (recordsByType.referenceData || []).forEach(record => {
     const key = `referenceData:${record.data.type}`;
     recordCounts[key] = (recordCounts[key] || 0) + 1;
+  });
+
+  // count encounter data records by subtype
+  (recordsByType.encounter || []).forEach(record => {
+    if (get(record, 'data.administeredVaccines.length') > 0) {
+      const key = `encounter:administeredVaccine`;
+      recordCounts[key] = (recordCounts[key] || 0) + 1;
+    }
   });
 
   return recordCounts;

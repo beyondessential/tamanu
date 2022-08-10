@@ -17,9 +17,13 @@ export function removeFile(filePath) {
   });
 }
 
-async function writeToSpreadsheet(data, filePath, bookType) {
+const stringifyIfNonDateObject = val =>
+  typeof val === 'object' && !(val instanceof Date) && val !== null ? JSON.stringify(val) : val;
+
+export async function writeToSpreadsheet(data, filePath, bookType) {
   const book = XLSX.utils.book_new();
-  const sheet = XLSX.utils.aoa_to_sheet(data);
+  const stringifiedData = data.map(row => row.map(stringifyIfNonDateObject));
+  const sheet = XLSX.utils.aoa_to_sheet(stringifiedData);
   XLSX.utils.book_append_sheet(book, sheet, 'values');
   return new Promise((resolve, reject) => {
     XLSX.writeFileAsync(filePath, book, { type: bookType }, err => {

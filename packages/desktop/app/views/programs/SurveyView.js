@@ -13,12 +13,23 @@ import {
   getFormInitialValues,
   getConfigObject,
 } from 'desktop/app/utils';
-import { runCalculations } from 'shared-src/src/utils/calculations';
+import { runCalculations } from 'shared/utils/calculations';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
-import { PatientDisplay } from './PatientDisplay';
+import { Colors } from '../../constants';
 
 const Text = styled.div`
   margin-bottom: 10px;
+`;
+
+export const SurveyPaneHeader = styled(ProgramsPaneHeader)`
+  background: ${props => props.theme.palette.primary.main};
+  text-align: center;
+  border-top-right-radius: 3px;
+  border-top-left-radius: 3px;
+`;
+
+export const SurveyPaneHeading = styled(ProgramsPaneHeading)`
+  color: ${Colors.white};
 `;
 
 const SurveyQuestion = ({ component, patient }) => {
@@ -30,9 +41,10 @@ const SurveyQuestion = ({ component, patient }) => {
     text: componentText,
   } = component;
   const { defaultText, type, defaultOptions, id } = dataElement;
+  const configObject = getConfigObject(id, componentConfig);
   const text = componentText || defaultText;
   const options = mapOptionsToValues(componentOptions || defaultOptions);
-  const FieldComponent = getComponentForQuestionType(type);
+  const FieldComponent = getComponentForQuestionType(type, configObject);
 
   if (!FieldComponent) return <Text>{text}</Text>;
 
@@ -43,7 +55,7 @@ const SurveyQuestion = ({ component, patient }) => {
       patient={patient}
       name={id}
       options={options}
-      config={getConfigObject(id, componentConfig)}
+      config={configObject}
       helperText={detail}
     />
   );
@@ -172,7 +184,23 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
   );
 
   const renderSurvey = props => {
-    const { submitForm, values, setFieldValue } = props;
+    const { submitForm, values, setFieldValue, setValues } = props;
+
+    // 1. get a list of visible fields
+    const submitVisibleValues = event => {
+      const visibleFields = new Set(
+        components.filter(c => checkVisibility(c, values, components)).map(x => x.dataElementId),
+      );
+
+      // 2. Filter the form values to only include visible fields
+      const visibleValues = Object.fromEntries(
+        Object.entries(values).filter(([key]) => visibleFields.has(key)),
+      );
+
+      // 3. Set visible values in form state
+      setValues(visibleValues);
+      submitForm(event);
+    };
 
     return (
       <SurveyScreenPaginator
@@ -180,7 +208,7 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
         patient={patient}
         values={values}
         setFieldValue={setFieldValue}
-        onSurveyComplete={submitForm}
+        onSurveyComplete={submitVisibleValues}
         onCancel={onCancel}
       />
     );
@@ -193,14 +221,11 @@ export const SurveyView = ({ survey, onSubmit, onCancel, patient, currentUser })
   );
 
   return (
-    <>
-      <PatientDisplay surveyCompleted={surveyCompleted} />
-      <ProgramsPane>
-        <ProgramsPaneHeader>
-          <ProgramsPaneHeading variant="h6">{survey.name}</ProgramsPaneHeading>
-        </ProgramsPaneHeader>
-        {surveyContents}
-      </ProgramsPane>
-    </>
+    <ProgramsPane>
+      <SurveyPaneHeader>
+        <SurveyPaneHeading variant="h6">{survey.name}</SurveyPaneHeading>
+      </SurveyPaneHeader>
+      {surveyContents}
+    </ProgramsPane>
   );
 };

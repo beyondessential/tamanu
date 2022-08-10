@@ -1,28 +1,50 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
-
+import { Typography } from '@material-ui/core';
 import { useEncounter } from '../../../contexts/Encounter';
 import { useApi } from '../../../api';
 import { isInvoiceEditable } from '../../../utils';
-
 import { InvoiceLineItemModal } from '../../../components/InvoiceLineItemModal';
+import { InvoicePriceChangeItemModal } from '../../../components/InvoicePriceChangeItemModal';
 import { PotentialInvoiceLineItemsModal } from '../../../components/PotentialInvoiceLineItemsModal';
 import { InvoiceDetailTable } from '../../../components/InvoiceDetailTable';
-import { Button } from '../../../components/Button';
+import { Button, OutlinedButton } from '../../../components/Button';
 import { ContentPane } from '../../../components/ContentPane';
+import { Colors } from '../../../constants';
+import { TabPane } from '../components';
 
 const EmptyPane = styled(ContentPane)`
   text-align: center;
 `;
 
-const ActionsPane = styled(ContentPane)`
+const ActionsPane = styled.div`
   display: flex;
-  column-gap: 1.6rem;
+  flex-direction: row-reverse;
+  align-items: center;
+
+  > button {
+    margin-left: 16px;
+  }
+`;
+
+const InvoiceHeading = styled(Typography)`
+  color: ${Colors.primary};
+  font-weight: 500;
+  font-size: 14px;
+  margin-left: 5px;
+`;
+
+const InvoiceTopBar = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
 `;
 
 export const InvoicingPane = React.memo(({ encounter }) => {
   const [invoiceLineModalOpen, setInvoiceLineModalOpen] = useState(false);
   const [potentialLineItemsModalOpen, setPotentialLineItemsModalOpen] = useState(false);
+  const [invoicePriceChangeModalOpen, setInvoicePriceChangeModalOpen] = useState(false);
   const [invoice, setInvoice] = useState(null);
   const [error, setError] = useState(null);
   const { loadEncounter } = useEncounter();
@@ -64,51 +86,59 @@ export const InvoicingPane = React.memo(({ encounter }) => {
   if (!invoice) {
     return (
       <EmptyPane>
-        <Button variant="contained" color="primary" onClick={createInvoice}>
-          Create Invoice
-        </Button>
+        <Button onClick={createInvoice}>Create invoice</Button>
       </EmptyPane>
     );
   }
 
   return (
-    <>
-      <h3 style={{ margin: '1rem' }}>Invoice number: {invoice.displayId}</h3>
+    <TabPane>
+      <InvoiceTopBar>
+        <InvoiceHeading>Invoice number: {invoice.displayId}</InvoiceHeading>
+        {isInvoiceEditable(invoice) ? (
+          <ActionsPane>
+            <Button onClick={() => setInvoiceLineModalOpen(true)}>Add item</Button>
+            <InvoiceLineItemModal
+              title="Add item"
+              actionText="Add"
+              open={invoiceLineModalOpen}
+              invoiceId={invoice.id}
+              onClose={() => setInvoiceLineModalOpen(false)}
+              onSaved={() => {
+                setInvoiceLineModalOpen(false);
+                loadEncounter(encounter.id);
+              }}
+            />
+            <OutlinedButton onClick={() => setInvoicePriceChangeModalOpen(true)}>
+              Add price change
+            </OutlinedButton>
+            <InvoicePriceChangeItemModal
+              title="Add price change"
+              actionText="Create"
+              open={invoicePriceChangeModalOpen}
+              invoiceId={invoice.id}
+              onClose={() => setInvoicePriceChangeModalOpen(false)}
+              onSaved={async () => {
+                setInvoicePriceChangeModalOpen(false);
+                await loadEncounter(encounter.id);
+              }}
+            />
+            <OutlinedButton onClick={() => setPotentialLineItemsModalOpen(true)}>
+              Populate invoice
+            </OutlinedButton>
+            <PotentialInvoiceLineItemsModal
+              open={potentialLineItemsModalOpen}
+              invoiceId={invoice.id}
+              onClose={() => setPotentialLineItemsModalOpen(false)}
+              onSaved={() => {
+                setPotentialLineItemsModalOpen(false);
+                loadEncounter(encounter.id);
+              }}
+            />
+          </ActionsPane>
+        ) : null}
+      </InvoiceTopBar>
       <InvoiceDetailTable invoice={invoice} />
-      {isInvoiceEditable(invoice.status) ? (
-        <ActionsPane>
-          <Button onClick={() => setInvoiceLineModalOpen(true)} variant="contained" color="primary">
-            Add item
-          </Button>
-          <InvoiceLineItemModal
-            title="Add invoice line item"
-            actionText="Create"
-            open={invoiceLineModalOpen}
-            invoiceId={invoice.id}
-            onClose={() => setInvoiceLineModalOpen(false)}
-            onSaved={() => {
-              setInvoiceLineModalOpen(false);
-              loadEncounter(encounter.id);
-            }}
-          />
-          <Button
-            onClick={() => setPotentialLineItemsModalOpen(true)}
-            variant="contained"
-            color="primary"
-          >
-            Populate invoice
-          </Button>
-          <PotentialInvoiceLineItemsModal
-            open={potentialLineItemsModalOpen}
-            invoiceId={invoice.id}
-            onClose={() => setPotentialLineItemsModalOpen(false)}
-            onSaved={() => {
-              setPotentialLineItemsModalOpen(false);
-              loadEncounter(encounter.id);
-            }}
-          />
-        </ActionsPane>
-      ) : null}
-    </>
+    </TabPane>
   );
 });

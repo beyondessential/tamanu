@@ -15,7 +15,13 @@
   },
   "log": {
     "path": "",
-    "consoleLevel": "info"
+    "consoleLevel": "http",
+    "color": true
+  },
+  "honeycomb": {
+    "apiKey": "",
+    "dataset": "tamanu-general",
+    "enabled": true
   },
   "sync": {
     "concurrentChannelChecks": 8
@@ -94,22 +100,50 @@
       "schedule": "*/30 * * * * *",
       "limit": 10
     },
-    "reportRequestProcessor": {
-       // every 30 seconds /!\
+    "deceasedPatientDischarger": {
+      // once an hour
+      "schedule": "29 * * * *",
+      "batchSize": 100,
+      "batchSleepAsyncDurationInMilliseconds": 50
+    },
+    "certificateNotificationProcessor": {
+      // every 30 seconds /!\
       "schedule": "*/30 * * * * *",
       "limit": 10
     },
-    "vds": {
-      "signerRenewalChecker": {
-        "schedule": "0 0 * * *"
-      },
-      "signerRenewalSender": {
-        // needs to happen after the Renewal Checker, and regularly thereafter as a retry mechanism
-        "schedule": "30 * * * *"
-      },
-      "signerExpiryChecker": {
-        "schedule": "0 1 * * *"
+    "reportRequestProcessor": {
+      // every 30 seconds /!\
+      "schedule": "*/30 * * * * *",
+      "limit": 10
+    },
+    "signerRenewalChecker": {
+      "schedule": "0 0 * * *"
+    },
+    "signerRenewalSender": {
+      // needs to happen after the Renewal Checker, and regularly thereafter as a retry mechanism
+      "schedule": "30 * * * *"
+    },
+    "signerWorkingPeriodChecker": {
+      "schedule": "0 1 * * *"
+    },
+    "automaticLabTestResultPublisher": {
+      "enabled": false,
+      "schedule": "*/15 * * * *",
+      "limit": 300,
+      "results": {
+        "labTestType-RATPositive": {
+          "labTestMethodId": "labTestMethod-RAT",
+          "result": "Positive"
+        },
+        "labTestType-RATNegative": {
+          "labTestMethodId": "labTestMethod-RAT",
+          "result": "Negative"
+        }
       }
+    },
+    "duplicateAdditionalDataDeleter": {
+      "enabled": true,
+      "schedule": "*/15 * * * *"
     }
   },
   "integrations": {
@@ -130,48 +164,70 @@
       "enabled": false,
       "requireClientHeaders": true
     },
-    "vds": {
+    "euDcc": {
       "enabled": false,
-      // Encryption key for ICAO DSC key material (stored in DB).
-      // This must be unique per country/installation.
+      "issuer": null // Responsible org for vax cert issuance, e.g. 'Ministry of Health of the Tamanu Republic'. If null defaults to the facility name.
+    },
+    "vdsNc": {
+      "enabled": false
+    },
+    "signer": {
+      "enabled": false,
+
+      // Encryption key for ICAO Signer key material (stored in DB).
+      // This must be unique per country/installation AND NEVER CHANGED.
       // It must be at least 32 bytes of random data in Base64.
       // $ openssl rand -base64 32
       "keySecret": null,
-      "csr": {
-        "subject": {
-          "countryCode2": null, // ICAO 2-letter country code
-          "signerIdentifier": "TA" // max 2 letters, ref 9303-13 §2.2.1(a)
-        },
-        "email": null // email address for CSCA signing contact
-      },
-      "sign": {
-        "countryCode3": null, // ICAO 3-letter country code
-      },
-      "renew": {
-        // "daysBeforeExpiry": 16, // max 32
-        // "maxSignatures": null, // null means no limit
-        // "softMaxSignatures": null // defaults to 90% of maxSignatures
-      }
+
+      // For VDS-NC: exactly 2 uppercase letters/numbers, must be unique in country, ref 9303-13 §2.2.1(a)
+      // For EU DCC: at least 1 character, must be unique in country, should be descriptive
+      "commonName": "TA",
+
+      // For EU DCC only: the name of the issuing organisation (provider/O of the DSC)
+      // "provider": "Tamanu",
+
+      // Email address for CSCA signing contact
+      "sendRequestTo": "admin@tamanu.io"
+    },
+    "mSupply": {
+      "enabled": false,
+      "requireClientHeaders": true
+    },
+    "fhir": {
+      "enabled": false
     }
   },
+  // on the sync-server, don't read these values from config!
+  // use the getLocalisation() helper in packages/sync-server/app/localisation.js
+  // this will ensure we can read these values from the database in the future
   "localisation": {
+    "allowInvalid": false,
+    // the labResultWidget and timeZone keys are here for legacy reasons
+    // don't put anything else in the top level of localisation unless it relates to localisation itself
     "labResultWidget": {
-      "categoryWhitelist": [
-        "labTestCategory-COVID"
-      ],
-      "testTypeWhitelist": [
-        "labTestType-COVID"
-      ]
+      "categoryWhitelist": ["labTestCategory-COVID"],
+      "testTypeWhitelist": ["labTestType-COVID"]
     },
     "data": {
+      "country": {
+        "name": "",
+        "alpha-2": "",
+        "alpha-3": ""
+      },
       "fields": {
+        "countryName": {
+          "shortLabel": "Country",
+          "longLabel": "Country",
+          "hidden": false
+        },
         "emergencyContactName": {
-          "shortLabel": "Emergency Contact Name",
-          "longLabel": "Emergency Contact Name"
+          "shortLabel": "Emergency contact name",
+          "longLabel": "Emergency contact name"
         },
         "emergencyContactNumber": {
-          "shortLabel": "Emergency Contact Number",
-          "longLabel": "Emergency Contact Number"
+          "shortLabel": "Emergency contact number",
+          "longLabel": "Emergency contact number"
         },
         "markedForSync": {
           "shortLabel": "Sync",
@@ -202,6 +258,11 @@
         "sex": {
           "shortLabel": "Sex",
           "longLabel": "Sex",
+          "hidden": false
+        },
+        "email": {
+          "shortLabel": "Email",
+          "longLabel": "Email",
           "hidden": false
         },
         "dateOfBirth": {
@@ -373,14 +434,15 @@
         "enableInvoicing": false,
         "registerNewPatient": true,
         "hideOtherSex": true,
-        "enablePatientDeaths": false
+        "enablePatientDeaths": false,
+        "mergePopulatedPADRecords": true
       },
       "templates": {
         "letterhead": {
           "title": "TAMANU MINISTRY OF HEALTH & MEDICAL SERVICES",
           "subTitle": "PO Box 12345, Melbourne, Australia"
         },
-        "vdsRenewalEmail": {
+        "signerRenewalEmail": {
           "subject": "Tamanu ICAO Certificate Signing Request",
           "body": "Please sign the following certificate signing request (CSR) with the Country Signing Certificate Authority (CSCA), and return it to the Tamanu team or Tamanu deployment administration team."
         },
@@ -392,27 +454,54 @@
           "subject": "Medical Certificate now available",
           "body": "A medical certificate has been generated for you.\nYour certificate is available attached to this email."
         },
-        "vaccineCertificateFooter": {
+        "vaccineCertificate": {
           "emailAddress": "tamanu@health.gov",
-          "contactNumber": 12345
+          "contactNumber": "12345",
+          "healthFacility": "State level"
+        },
+        "covidTestCertificate": {
+          "laboratoryName": "Approved test provider"
         }
       },
+      "imagingTypes": {},
+      "printMeasures": {
+        "stickerLabelPage": {
+          "pageWidth": "210mm",
+          "pageHeight": "297mm",
+          "pageMarginTop": "15.09mm",
+          "pageMarginLeft": "6.4mm",
+          "columnTotal": 3,
+          "columnWidth": "64mm",
+          "columnGap": "3.01mm",
+          "rowTotal": 10,
+          "rowHeight": "26.7mm",
+          "rowGap": "0"
+        }
+      },
+      // The time zone setting is currently only used for Vaccine Certificates
+      "timeZone": null,
+      "triageCategories": [
+        { "level": 1, "label": "Emergency", "color": "#F76853" },
+        { "level": 2, "label": "Very Urgent", "color": "#F17F16" },
+        { "level": 3, "label": "Urgent", "color": "#FFCC24" },
+        { "level": 4, "label": "Non-urgent", "color": "#47CA80" },
+        { "level": 5, "label": "Deceased", "color": "#67A6E3" }
+      ],
+
+      // UVCI format for vaccine certificate *previews* on Desktop.
+      // This should match whichever of integrations.euDcc or .vdsNc is enabled, and
+      // does *not* affect which format is used for the actual PDF certificate when
+      // generated in the sync server. Can be `tamanu` or `icao` or `eudcc`.
+      // `tamanu` implies that the signing integrations are not enabled.
+      "previewUvciFormat": "tamanu",
+
       "sync": {
         "syncAllEncountersForTheseScheduledVaccines": []
       },
       "disabledReports": []
     }
   },
-  "reports": {
-    // Configure this COVID report with custom properties needed for mapping entities, and the surveyId to sync with tupaia.
-    // Note: it only syncs if configured to in the scheduled reports config.
-    "covid-vaccine-daily-summary-village": {
-      "countryCode": "WS",
-      "hierarchyName": "covid_samoa",
-      "surveyId": "605b114261f76a3684009d5a"
-    }
-  },
-  "reportProcess" : {
+  "reportProcess": {
     // Report process timeout in 2 hours.
     "timeOutDurationSeconds": 7200,
     "runInChildProcess": true,
@@ -432,7 +521,6 @@
       "labRequestDisplayId": "http://tamanu.io/data-dictionary/labrequest-reference-number.html"
     }
   },
-  "tupaiaApiClient": {},
   "s3": {},
   "scheduledReports": [],
   "disk": {
@@ -440,6 +528,15 @@
     "freeSpaceRequired": {
       "gigabytesForUploadingDocuments": 16
     }
+  },
+  "questionCodeIds": {
+    "passport": null,
+    "nationalityId": null,
+    "email": null
+  },
+  "notifications": {
+    "certificates": {
+      "labTestCategoryIds": []
+    }
   }
 }
-

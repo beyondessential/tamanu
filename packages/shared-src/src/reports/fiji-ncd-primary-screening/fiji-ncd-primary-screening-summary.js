@@ -1,4 +1,5 @@
-import { Sequelize, Op } from 'sequelize';
+/* eslint-disable no-param-reassign */
+
 import moment from 'moment';
 import { groupBy, keyBy } from 'lodash';
 import { generateReportFromQueryData } from '../utilities';
@@ -128,8 +129,8 @@ function sumObjectsByKey(objs) {
   }, {});
 }
 
-const parametersToSqlWhereClause = parameterKeys => {
-  return parameterKeys
+const parametersToSqlWhereClause = parameterKeys =>
+  parameterKeys
     .map(key => {
       switch (key) {
         case 'village':
@@ -146,23 +147,20 @@ const parametersToSqlWhereClause = parameterKeys => {
           // Cast to date (no time) so we select any surveys on or before the calendar day provided
           return 'AND sr.end_time::date <= :to_date::date';
         default:
-          break;
+          return '';
       }
     })
     .join('\n');
-};
 
 const buildCase = (name, condition) => `count(case when ${condition} then 1 end) as "${name}"`;
 
-const getSelectClause = () => {
-  return `
+const getSelectClause = () => `
     to_char(sr.end_time, 'yyyy-mm-dd') as date,
     ${Object.entries(FIELDS)
-      .filter(([_, { selectSql }]) => selectSql)
+      .filter(([_key, { selectSql }]) => selectSql) // eslint-disable-line no-unused-vars
       .map(([key, { selectSql }]) => buildCase(key, selectSql))
       .join(',\n')}
   `;
-};
 
 const getJoinClauses = () => {
   // NOTE: interval '24 hours' is a postgres specific construct.
@@ -205,8 +203,8 @@ const getJoinClauses = () => {
 
 const getData = async (sequelize, parameters) => {
   const nonEmptyParameterKeys = Object.entries(parameters)
-    .filter(([key, val]) => !!val)
-    .map(([key, val]) => key);
+    .filter(([_key, val]) => !!val) // eslint-disable-line no-unused-vars
+    .map(([key, _val]) => key); // eslint-disable-line no-unused-vars
 
   const {
     fromDate,
@@ -253,8 +251,8 @@ const getData = async (sequelize, parameters) => {
 
 const getTotalPatientsScreened = async (sequelize, parameters) => {
   const nonEmptyParameterKeys = Object.entries(parameters)
-    .filter(([key, val]) => !!val)
-    .map(([key, val]) => key);
+    .filter(([_key, val]) => !!val) // eslint-disable-line no-unused-vars
+    .map(([key, _val]) => key); // eslint-disable-line no-unused-vars
 
   const {
     fromDate,
@@ -304,7 +302,7 @@ export const dataGenerator = async ({ sequelize }, parameters = {}) => {
     .map(([date, resultsForDate]) => ({
       date,
       patientsScreened: parseInt(patientsScreenedByDate[date].patientsScreened, 10),
-      ...sumObjectsByKey(resultsForDate.map(({ date: _, ...summableKeys }) => summableKeys)),
+      ...sumObjectsByKey(resultsForDate.map(({ date: _, ...summableKeys }) => summableKeys)), // eslint-disable-line no-unused-vars
     }))
     // Sort oldest to most recent
     .sort(({ date: date1 }, { date: date2 }) => moment(date1) - moment(date2))

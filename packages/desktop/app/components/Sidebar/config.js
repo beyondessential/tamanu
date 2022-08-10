@@ -8,22 +8,9 @@ import {
   scheduleIcon,
   vaccineIcon,
 } from '../../constants/images';
+import { Colors } from '../../constants';
 
-export const submenuIcons = {
-  action: 'fa fa-chevron-circle-right',
-  calendar: 'fa fa-calendar',
-  cog: 'fa fa-cog',
-  location: 'fa fa-location-arrow',
-  new: 'fa fa-plus',
-  permissions: 'fa fa-lock',
-  report: 'fa fa-chevron-circle-right',
-  search: 'fa fa-search',
-  table: 'fa fa-th-list',
-  users: 'fa fa-users',
-  immunisations: 'fa fa-syringe',
-};
-
-export const items = [
+export const FACILITY_MENU_ITEMS = [
   {
     key: 'patients',
     label: 'Patients',
@@ -33,26 +20,26 @@ export const items = [
     children: [
       {
         label: 'All patients',
-        path: '/patients',
-        icon: submenuIcons.table,
+        color: '#7EB3E7',
+        path: '/patients/all',
         ability: { action: 'read' },
       },
       {
         label: 'Inpatients',
-        path: '/patients/admitted',
-        icon: submenuIcons.table,
+        color: Colors.safe,
+        path: '/patients/inpatient',
         ability: { action: 'read' },
       },
       {
         label: 'Emergency patients',
-        path: '/patients/triage',
-        icon: submenuIcons.table,
+        color: Colors.orange,
+        path: '/patients/emergency',
         ability: { action: 'read' },
       },
       {
         label: 'Outpatients',
+        color: '#F9BA5B',
         path: '/patients/outpatient',
-        icon: submenuIcons.table,
         ability: { action: 'read' },
       },
     ],
@@ -66,20 +53,17 @@ export const items = [
     children: [
       {
         label: 'Upcoming appointments',
-        path: '/appointments',
-        icon: submenuIcons.table,
+        path: '/appointments/all',
         ability: { action: 'read' },
       },
       {
         label: 'Appointments calendar',
         path: '/appointments/calendar',
-        icon: submenuIcons.calendar,
         ability: { action: 'read' },
       },
       {
-        label: 'Add appointment',
-        path: '/appointments/appointment/new',
-        icon: submenuIcons.new,
+        label: 'New appointment',
+        path: '/appointments/new',
         ability: { action: 'create' },
       },
     ],
@@ -87,32 +71,28 @@ export const items = [
   {
     key: 'medication',
     label: 'Medication',
-    path: '/medication',
+    path: '/medication-requests',
     icon: medicationIcon,
     ability: { subject: 'medication' },
     children: [
       {
         label: 'Requests',
-        path: '/medication/requests',
-        icon: submenuIcons.table,
+        path: '/medication-requests/all',
         ability: { action: 'read' },
       },
       {
         label: 'Completed',
-        path: '/medication/completed',
-        icon: submenuIcons.table,
+        path: '/medication-requests/completed',
         ability: { action: 'read' },
       },
       {
         label: 'New request',
-        path: '/medication/request',
-        icon: submenuIcons.new,
+        path: '/medication-requests/new',
         ability: { action: 'create' },
       },
       {
         label: 'Dispense',
-        path: '/medication/dispense',
-        icon: submenuIcons.action,
+        path: '/medication-requests/dispense',
         ability: { action: 'create' },
       },
     ],
@@ -120,26 +100,23 @@ export const items = [
   {
     key: 'imaging',
     label: 'Imaging',
-    path: '/imaging',
+    path: '/imaging-requests',
     icon: radiologyIcon,
     ability: { subject: 'imaging' },
     children: [
       {
         label: 'Requests',
-        path: '/imaging',
-        icon: submenuIcons.table,
+        path: '/imaging-requests/all',
         ability: { action: 'read' },
       },
       {
         label: 'Completed',
-        path: '/imaging/completed',
-        icon: submenuIcons.table,
+        path: '/imaging-requests/completed',
         ability: { action: 'read' },
       },
       {
         label: 'New request',
-        path: '/imaging/request',
-        icon: submenuIcons.new,
+        path: '/imaging-requests/new',
         ability: { action: 'create' },
       },
     ],
@@ -147,91 +124,24 @@ export const items = [
   {
     key: 'labs',
     label: 'Labs',
-    path: '/labs',
+    path: '/lab-requests',
     icon: labsIcon,
     ability: { subject: 'lab' },
     children: [
       {
         label: 'Requests',
-        path: '/labs',
-        icon: submenuIcons.table,
+        path: '/lab-requests/all',
         ability: { action: 'read' },
       },
       {
         label: 'Completed',
-        path: '/labs/completed',
-        icon: submenuIcons.table,
+        path: '/lab-requests/completed',
         ability: { action: 'read' },
       },
       {
         label: 'New request',
-        path: '/labs/edit/new',
-        icon: submenuIcons.new,
+        path: '/lab-requests/new',
         ability: { action: 'create' },
-      },
-    ],
-  },
-  {
-    key: 'admin',
-    label: 'Administration',
-    path: '/admin',
-    icon: administrationIcon,
-    ability: { subject: 'user', action: 'read' },
-    children: [
-      {
-        label: 'Settings',
-        path: '/admin/settings',
-        icon: submenuIcons.cog,
-      },
-      {
-        label: 'Users',
-        path: '/admin/users',
-        icon: submenuIcons.users,
-        ability: { action: 'read', subject: 'user' },
-      },
-      {
-        label: 'Locations',
-        path: '/admin/locations',
-        icon: submenuIcons.location,
-        ability: { action: 'read', subject: 'location' },
-      },
-      {
-        label: 'Permissions',
-        path: '/admin/permissions',
-        icon: submenuIcons.permissions,
-        ability: { action: 'read', subject: 'userRole' },
-      },
-      {
-        label: 'Programs',
-        icon: submenuIcons.table,
-        path: '/admin/programs',
-      },
-      {
-        label: 'Data import',
-        icon: submenuIcons.table,
-        path: '/admin/refdata',
-      },
-    ],
-  },
-  {
-    key: 'programs',
-    label: 'Programs',
-    path: '/programs',
-    icon: programsIcon,
-    ability: { action: 'read', subject: 'program' },
-    children: [],
-  },
-  {
-    key: 'reports',
-    label: 'Reports',
-    path: '/reports',
-    icon: scheduleIcon,
-    ability: { action: 'read', subject: 'report' },
-    children: [
-      {
-        label: 'Report generator',
-        path: `/reports/`,
-        icon: submenuIcons.report,
       },
     ],
   },
@@ -244,14 +154,62 @@ export const items = [
     children: [
       {
         label: 'Immunisation register',
-        path: `/immunisations/`,
-        icon: submenuIcons.immunisations,
+        path: `/immunisations/all`,
       },
       {
         label: 'COVID campaign',
-        path: `/immunisations/covid`,
-        icon: submenuIcons.immunisations,
+        path: `/immunisations/covid-campaign`,
+      },
+    ],
+  },
+  {
+    key: 'programs',
+    label: 'Programs',
+    path: '/programs',
+    icon: programsIcon,
+    ability: { action: 'read', subject: 'program' },
+    children: [
+      {
+        label: 'Active COVID-19 patients',
+        path: `/programs/active-covid-19-patients`,
+      },
+    ],
+  },
+  {
+    key: 'reports',
+    label: 'Reports',
+    path: '/reports',
+    icon: scheduleIcon,
+    ability: { action: 'read', subject: 'report' },
+    children: [
+      {
+        label: 'Report generator',
+        path: `/reports/new`,
+      },
+    ],
+  },
+  {
+    key: 'admin',
+    label: 'Administration',
+    path: '/admin',
+    icon: administrationIcon,
+    divider: true,
+    ability: { subject: 'user', action: 'read' },
+    children: [
+      {
+        label: 'Permissions',
+        path: '/admin/permissions',
+      },
+      {
+        label: 'Programs',
+        path: '/admin/programs',
+      },
+      {
+        label: 'Data import',
+        path: '/admin/data-import',
       },
     ],
   },
 ];
+
+export const SYNC_MENU_ITEMS = [];

@@ -4,6 +4,7 @@ import morgan from 'morgan';
 import compression from 'compression';
 
 import { log } from 'shared/services/logging';
+import { SERVER_TYPES } from 'shared/constants';
 
 import { versionRouter } from './versions';
 import { serversRouter } from './servers';
@@ -21,8 +22,10 @@ export function createApp() {
   app.use(bodyParser.urlencoded({ extended: true }));
 
   app.use((req, res, next) => {
-    res.setHeader('X-Runtime', 'Tamanu Metadata Server'); // TODO: deprecated
-    res.setHeader('X-Tamanu-Server', 'Tamanu Metadata Server');
+    // TODO: deprecated, remove when all servers have moved on
+    res.setHeader('X-Runtime', SERVER_TYPES.META);
+
+    res.setHeader('X-Tamanu-Server', SERVER_TYPES.META);
     res.setHeader('X-Version', version);
     next();
   });
@@ -38,18 +41,19 @@ export function createApp() {
   app.use('/version', versionRouter);
   app.use('/servers', serversRouter);
 
-  app.get('/', (req, res) => {
+  app.get('/', (_req, res) => {
     res.send({
       index: true,
     });
   });
 
   // Dis-allow all other routes
-  app.get('*', (req, res) => {
+  app.get('*', (_req, res) => {
     res.status(404).end();
   });
 
-  app.use((error, req, res, _) => {
+  /* eslint-disable no-unused-vars */
+  app.use((error, _req, res, _next) => {
     res.status(500).send({
       error: {
         message: error.message,

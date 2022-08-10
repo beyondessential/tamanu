@@ -9,6 +9,9 @@ import { NoteForm } from '../forms/NoteForm';
 export const NoteModal = ({ open, onClose, onSaved, encounterId, noteId, editedObject }) => {
   const api = useApi();
   const practitionerSuggester = new Suggester(api, 'practitioner');
+  // Don't allow users to modify encounter notes
+  // (currently this component only manages those)
+  const isReadOnly = !!editedObject?.id;
 
   return (
     <Modal title="Note" open={open} onClose={onClose}>
@@ -24,6 +27,7 @@ export const NoteModal = ({ open, onClose, onSaved, encounterId, noteId, editedO
         onCancel={onClose}
         practitionerSuggester={practitionerSuggester}
         editedObject={editedObject}
+        isReadOnly={isReadOnly}
       />
     </Modal>
   );

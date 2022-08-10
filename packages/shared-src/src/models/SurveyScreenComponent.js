@@ -1,6 +1,7 @@
 import { Sequelize, Op } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { parseOrNull } from 'shared/utils/parse-or-null';
+import { log } from 'shared/services/logging';
 import { Model } from './Model';
 
 export class SurveyScreenComponent extends Model {
@@ -47,6 +48,7 @@ export class SurveyScreenComponent extends Model {
         },
       },
       include: this.getListReferenceAssociations(),
+      order: ['screenIndex', 'componentIndex'],
     }).map(c => c.forResponse());
   }
 
@@ -63,7 +65,7 @@ export class SurveyScreenComponent extends Model {
       const optionArray = JSON.parse(optionString);
       return Object.entries(optionArray).map(([label, value]) => ({ label, value }));
     } catch (e) {
-      console.error(e);
+      log.error(e);
       return [];
     }
   }

@@ -1,8 +1,6 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS } from 'shared/constants';
+import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES } from 'shared/constants';
 import { Model } from './Model';
-import { generateUUIDDateTimeHash } from '../utils';
-import { log } from 'shared/services/logging';
 
 export class Patient extends Model {
   static init({ primaryKey, ...options }) {
@@ -34,7 +32,7 @@ export class Patient extends Model {
       },
       {
         ...options,
-        syncConfig: { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
+        syncConfig: { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, includedRelations: ['notes'] },
         indexes: [
           { fields: ['date_of_death'] },
           { fields: ['display_id'] },
@@ -49,16 +47,34 @@ export class Patient extends Model {
       foreignKey: 'patientId',
     });
 
-    // technically this relation is hasOne but this just describes
+    // technically these two relations are hasOne but this just describes
     // "there is another table referencing this one by id"
     this.hasMany(models.PatientAdditionalData, {
       foreignKey: 'patientId',
       as: 'additionalData',
     });
+    this.hasMany(models.PatientDeathData, {
+      foreignKey: 'patientId',
+      as: 'deathData',
+    });
 
+    // this one is actually a hasMany
+    this.hasMany(models.PatientSecondaryId, {
+      foreignKey: 'patientId',
+      as: 'secondaryIds',
+    });
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'villageId',
       as: 'village',
+    });
+
+    this.hasMany(models.Note, {
+      foreignKey: 'recordId',
+      as: 'notes',
+      constraints: false,
+      scope: {
+        recordType: this.name,
+      },
     });
   }
 
@@ -71,36 +87,66 @@ export class Patient extends Model {
     return patients.map(({ id }) => id);
   }
 
-  async getAdministeredVaccines() {
+  async getAdministeredVaccines(queryOptions = {}) {
     const { models } = this.sequelize;
-    return models.AdministeredVaccine.findAll({
-      where: {
-        ['$encounter.patient_id$']: this.id,
-        status: 'GIVEN',
-      },
-      order: [['updatedAt', 'DESC']],
-      include: [
+    const certifiableVaccineIds = await models.CertifiableVaccine.allVaccineIds();
+
+    const { where: optWhere = {}, include = [], ...optRest } = queryOptions;
+
+    if (include.length === 0) {
+      include.push(
         {
           model: models.Encounter,
           as: 'encounter',
           include: models.Encounter.getFullReferenceAssociations(),
         },
         {
-          model: models.ScheduledVaccine,
-          as: 'scheduledVaccine',
-          include: models.ScheduledVaccine.getListReferenceAssociations(),
+          model: models.Location,
+          as: 'location',
         },
-      ],
+      );
+    }
+
+    if (!include.some(i => i.as === 'scheduledVaccine')) {
+      include.push({
+        model: models.ScheduledVaccine,
+        as: 'scheduledVaccine',
+        include: models.ScheduledVaccine.getListReferenceAssociations(),
+      });
+    }
+
+    const results = await models.AdministeredVaccine.findAll({
+      order: [['date', 'DESC']],
+      ...optRest,
+      include,
+      where: {
+        ...optWhere,
+        '$encounter.patient_id$': this.id,
+        status: 'GIVEN',
+      },
     });
+
+    for (const result of results) {
+      if (certifiableVaccineIds.includes(result.scheduledVaccine.vaccineId)) {
+        result.certifiable = true;
+      }
+    }
+
+    return results;
   }
 
-  async getLabRequests(queryOptions) {
-    return this.sequelize.models.LabRequest.findAll({
+  async getCovidLabTests(queryOptions) {
+    const labRequests = await this.sequelize.models.LabRequest.findAll({
       raw: true,
       nest: true,
       ...queryOptions,
+      where: { status: LAB_REQUEST_STATUSES.PUBLISHED },
       include: [
         { association: 'requestedBy' },
+        {
+          association: 'category',
+          where: { name: Sequelize.literal("UPPER(category.name) LIKE ('%COVID%')") },
+        },
         {
           association: 'tests',
           include: [{ association: 'labTestMethod' }, { association: 'labTestType' }],
@@ -119,32 +165,14 @@ export class Patient extends Model {
         },
       ],
     });
-  }
 
-  async getIcaoUVCI() {
-    log.debug('Generating UVCI');
-
-    const { models } = this.sequelize;
-
-    const vaccinations = await models.AdministeredVaccine.findAll({
-      where: {
-        ['$encounter.patient_id$']: this.id,
-        status: 'GIVEN',
-      },
-      order: [['updatedAt', 'DESC']],
-      include: [
-        {
-          model: models.Encounter,
-          as: 'encounter',
-          include: models.Encounter.getFullReferenceAssociations(),
-        },
-      ],
+    // Place the tests data at the top level of the object as this is a getter for lab tests
+    // After the merge, id is the lab test id and labRequestId is the lab request id
+    const labTests = labRequests.map(labRequest => {
+      const { tests, ...labRequestData } = labRequest;
+      return { ...labRequestData, ...tests };
     });
 
-    const latestVaccination = vaccinations[0];
-    const patientId = this.id;
-    const updatedAt = latestVaccination.get('updatedAt');
-
-    return generateUUIDDateTimeHash(patientId, updatedAt);
+    return labTests.slice().sort((a, b) => Date.parse(b.date) - Date.parse(a.date));
   }
 }

@@ -12,20 +12,19 @@ export const chunkRows = rows => {
   return chunk(rows, rowsPerChunk);
 };
 
-export const createImportPlan = (sequelize, channel) => {
-  return sequelize.channelRouter(channel, (model, params, channelRoute) => {
+export const createImportPlan = (sequelize, channel) =>
+  sequelize.channelRouter(channel, (model, params, channelRoute) => {
     const relationTree = propertyPathsToTree(model.syncConfig.includedRelations);
-    const validateRecord = record => channelRoute.validate(record, params);
+    const validateRecord = record => channelRoute.validateRecordParams(record, params);
     return createImportPlanInner(model, relationTree, validateRecord);
   });
-};
 
 const createImportPlanInner = (model, relationTree, validateRecord) => {
   // columns
   const allColumns = Object.keys(model.tableAttributes);
   const columns = without(allColumns, ...model.syncConfig.excludedColumns);
 
-  //relations
+  // relations
   const children = Object.entries(relationTree).reduce((memo, [relationName, childTree]) => {
     const association = model.associations[relationName];
     const childModel = association.target;
@@ -122,9 +121,9 @@ const executeCreates = async (importPlan, records) => {
     // bulk create of children later
     return { ...data, id: importPlan.model.generateId() };
   });
-  return executeUpdateOrCreates(importPlan, recordsWithIds, model => async rows => {
-    return model.bulkCreate(rows);
-  });
+  return executeUpdateOrCreates(importPlan, recordsWithIds, model => async rows =>
+    model.bulkCreate(rows),
+  );
 };
 
 const executeUpdates = async (importPlan, records) =>
@@ -188,7 +187,7 @@ const executeUpdateOrCreates = async (
       const recordsForCreate = childRecords.filter(r => !existingIdSet.has(r.id));
       const recordsForUpdate = childRecords.filter(r => existingIdSet.has(r.id));
       await executeCreates(relationPlan, recordsForCreate);
-      executeUpdates(relationPlan, recordsForUpdate);
+      await executeUpdates(relationPlan, recordsForUpdate);
     }
   }
 

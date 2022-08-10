@@ -23,7 +23,7 @@ export class Asset extends Model {
    * Asset is PULL_ONLY and we don't sync asset up from devices to sync servers.
    */
   static sanitizeForSyncServer({ data, ...restOfValues }) {
-    //base64
+    // base64
     if (typeof data === 'string') {
       return { ...restOfValues, data: Buffer.from(data, 'base64') };
     }

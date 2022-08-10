@@ -1,22 +1,20 @@
 import express from 'express';
-import config from 'config';
-import moment from 'moment';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes, Op } from 'sequelize';
 import { isEqual } from 'lodash';
-
+import { getPatientAdditionalData } from 'shared/utils';
 import { NotFoundError } from 'shared/errors';
-import { simpleGetList, permissionCheckingRouter, runPaginatedQuery } from './crudHelpers';
 
-import { renameObjectKeys } from '~/utils/renameObjectKeys';
+import { simpleGetList, permissionCheckingRouter, runPaginatedQuery } from './crudHelpers';
+import { renameObjectKeys } from '../../utils/renameObjectKeys';
 import { createPatientFilters } from '../../utils/patientFilters';
 import { patientVaccineRoutes } from './patient/patientVaccine';
 import { patientDocumentMetadataRoutes } from './patient/patientDocumentMetadata';
-
+import { patientInvoiceRoutes } from './patient/patientInvoice';
+import { patientSecondaryIdRoutes } from './patient/patientSecondaryId';
 import { patientDeath } from './patient/patientDeath';
 import { patientProfilePicture } from './patient/patientProfilePicture';
 import { activeCovid19PatientsHandler } from '../../routeHandlers';
-
 import { getOrderClause } from '../../database/utils';
 
 const patientRoute = express.Router();
@@ -57,6 +55,7 @@ patientRoute.put(
   '/:id',
   asyncHandler(async (req, res) => {
     const {
+      db,
       models: { Patient, PatientAdditionalData },
       params,
     } = req;
@@ -64,24 +63,27 @@ patientRoute.put(
     const patient = await Patient.findByPk(params.id);
     if (!patient) throw new NotFoundError();
     req.checkPermission('write', patient);
-    await patient.update(requestBodyToRecord(req.body));
 
-    const patientAdditionalData = await PatientAdditionalData.findOne({
-      where: { patientId: patient.id },
-    });
+    await db.transaction(async () => {
+      await patient.update(requestBodyToRecord(req.body));
 
-    if (!patientAdditionalData) {
-      // Do not try to create patient additional data if all we're trying to update is markedForSync = true to
-      // sync down patient because PatientAdditionalData will be automatically synced down along with Patient
-      if (!isEqual(req.body, { markedForSync: true })) {
-        await PatientAdditionalData.create({
-          ...requestBodyToRecord(req.body),
-          patientId: patient.id,
-        });
+      const patientAdditionalData = await PatientAdditionalData.findOne({
+        where: { patientId: patient.id },
+      });
+
+      if (!patientAdditionalData) {
+        // Do not try to create patient additional data if all we're trying to update is markedForSync = true to
+        // sync down patient because PatientAdditionalData will be automatically synced down along with Patient
+        if (!isEqual(req.body, { markedForSync: true })) {
+          await PatientAdditionalData.create({
+            ...requestBodyToRecord(req.body),
+            patientId: patient.id,
+          });
+        }
+      } else {
+        await patientAdditionalData.update(requestBodyToRecord(req.body));
       }
-    } else {
-      await patientAdditionalData.update(requestBodyToRecord(req.body));
-    }
+    });
 
     res.send(dbRecordToResponse(patient));
   }),
@@ -97,22 +99,47 @@ patientRoute.post(
     req.checkPermission('create', 'Patient');
     const patientData = requestBodyToRecord(req.body);
 
-    await db.transaction(async () => {
-      const patientRecord = await Patient.create(patientData);
-
+    const patientRecord = await db.transaction(async () => {
+      const createdPatient = await Patient.create(patientData);
       await PatientAdditionalData.create({
         ...patientData,
-        patientId: patientRecord.id,
+        patientId: createdPatient.id,
       });
-
-      res.send(dbRecordToResponse(patientRecord));
+      return createdPatient;
     });
+    res.send(dbRecordToResponse(patientRecord));
   }),
 );
 
 const patientRelations = permissionCheckingRouter('read', 'Patient');
 
-patientRelations.get('/:id/encounters', simpleGetList('Encounter', 'patientId'));
+patientRelations.get(
+  '/:id/encounters',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('list', 'Encounter');
+    const {
+      models: { Encounter },
+      params,
+      query,
+    } = req;
+    const { order = 'ASC', orderBy, open = false } = query;
+
+    const objects = await Encounter.findAll({
+      where: {
+        patientId: params.id,
+        ...(open && { endDate: null }),
+      },
+      order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
+    });
+
+    const data = objects.map(x => x.forResponse());
+
+    res.send({
+      count: objects.length,
+      data,
+    });
+  }),
+);
 
 // TODO
 // patientRelations.get('/:id/appointments', simpleGetList('Appointment', 'patientId'));
@@ -121,7 +148,6 @@ patientRelations.get('/:id/issues', simpleGetList('PatientIssue', 'patientId'));
 patientRelations.get('/:id/conditions', simpleGetList('PatientCondition', 'patientId'));
 patientRelations.get('/:id/allergies', simpleGetList('PatientAllergy', 'patientId'));
 patientRelations.get('/:id/familyHistory', simpleGetList('PatientFamilyHistory', 'patientId'));
-patientRelations.get('/:id/immunisations', simpleGetList('Immunisation', 'patientId'));
 patientRelations.get('/:id/carePlans', simpleGetList('PatientCarePlan', 'patientId'));
 
 patientRelations.get(
@@ -131,17 +157,27 @@ patientRelations.get(
 
     req.checkPermission('read', 'Patient');
 
-    const additionalData = await models.PatientAdditionalData.findOne({
+    const additionalDataRecord = await models.PatientAdditionalData.findOne({
       where: { patientId: params.id },
       include: models.PatientAdditionalData.getFullReferenceAssociations(),
     });
 
-    res.send(additionalData || {});
+    // Lookup survey responses for passport and nationality to fill patient additional data
+    // Todo: Remove when WAITM-243 is complete
+    const passport = await getPatientAdditionalData(models, params.id, 'passport');
+    const nationalityId = await getPatientAdditionalData(models, params.id, 'nationalityId');
+    const nationality = nationalityId
+      ? await models.ReferenceData.findByPk(nationalityId)
+      : undefined;
+
+    const recordData = additionalDataRecord ? additionalDataRecord.toJSON() : {};
+    res.send({ ...recordData, passport, nationality, nationalityId });
   }),
 );
 
 patientRelations.use(patientProfilePicture);
 patientRelations.use(patientDeath);
+patientRelations.use(patientSecondaryIdRoutes);
 
 patientRelations.get(
   '/:id/referrals',
@@ -207,7 +243,7 @@ patientRelations.get(
         WHERE
           encounters.patient_id = :patientId
           AND surveys.survey_type = :surveyType
-          ${ surveyId ? "AND surveys.id = :surveyId" : '' }
+          ${surveyId ? 'AND surveys.id = :surveyId' : ''}
       `,
       `
         SELECT
@@ -230,7 +266,7 @@ patientRelations.get(
         WHERE
           encounters.patient_id = :patientId
           AND surveys.survey_type = :surveyType
-          ${ surveyId ? "AND surveys.id = :surveyId" : '' }
+          ${surveyId ? 'AND surveys.id = :surveyId' : ''}
       `,
       { patientId, surveyId, surveyType },
       query,
@@ -469,102 +505,19 @@ patientRoute.get('/program/activeCovid19Patients', asyncHandler(activeCovid19Pat
 patientRoute.use(patientVaccineRoutes);
 patientRoute.use(patientDocumentMetadataRoutes);
 
-/**
- * Helper function and endpoints for patient additional data.
- *
- * Looks up selected field in AdditionalData records and
- * uses a configured questionIds as a fallback
- *
- * The ideal way to get this data would be to allow survey questions to be configured
- * such that they write their answers to patient record fields. However in the meantime
- * these endpoint handlers allow easy and consistent access to the data on the front end
- */
-async function getPatientAdditionalData(req, field, questionId) {
-  const {
-    params,
-    models: { Patient, PatientAdditionalData },
-  } = req;
-  const patientId = params.id;
-
-  const patient = await Patient.findByPk(patientId);
-  if (!patient) throw new NotFoundError();
-
-  const patientAdditionalData = await PatientAdditionalData.findOne({
-    where: { patientId: patient.id },
-    include: PatientAdditionalData.getFullReferenceAssociations(),
-  });
-
-  const value = patientAdditionalData?.dataValues[field];
-
-  if (value) {
-    return value;
-  }
-
-  const result = await req.db.query(
-    `SELECT body, survey_responses.end_time
-       FROM survey_response_answers
-       LEFT JOIN survey_responses
-        ON (survey_responses.id = survey_response_answers.response_id)
-       LEFT JOIN encounters
-        ON (survey_responses.encounter_id = encounters.id)
-       WHERE
-          data_element_id = :questionId
-        AND
-          encounters.patient_id = :patientId`,
-    {
-      replacements: {
-        patientId,
-        questionId,
-      },
-      type: QueryTypes.SELECT,
-    },
-  );
-
-  const resultsWithAnswers = result
-    .filter(({ body }) => !!body)
-    .sort(({ end_time: endTime1 }, { end_time: endTime2 }) => moment(endTime1).isAfter(endTime2));
-
-  if (resultsWithAnswers.length === 0) {
-    return '';
-  }
-
-  return resultsWithAnswers[0].body;
-}
+patientRoute.use(patientInvoiceRoutes);
 
 patientRoute.get(
-  '/:id/passportNumber',
+  '/:id/covidLabTests',
   asyncHandler(async (req, res) => {
-    const questionId = config?.questionCodeIds?.passportNumber;
-
-    if (!questionId) {
-      res.send('');
-      return;
-    }
-
     req.checkPermission('read', 'Patient');
 
-    const value = await getPatientAdditionalData(req, 'passport', questionId);
-    res.json(value);
-  }),
-);
+    const { models, params } = req;
+    const { Patient } = models;
 
-patientRoute.get(
-  '/:id/nationality',
-  asyncHandler(async (req, res) => {
-    const questionId = config?.questionCodeIds?.citizenship;
-    if (!questionId) {
-      res.send('');
-      return;
-    }
+    const patient = await Patient.findByPk(params.id);
+    const labTests = await patient.getCovidLabTests();
 
-    const value = await getPatientAdditionalData(req, 'nationalityId', questionId);
-
-    if (!value) {
-      res.send('');
-      return;
-    }
-
-    const record = await req.models.ReferenceData.findByPk(value);
-    res.json(record?.dataValues?.name);
+    res.json({ data: labTests, count: labTests.length });
   }),
 );

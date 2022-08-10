@@ -120,7 +120,7 @@ const Screen: FC<ViewAllScreenProps> = ({
   );
 
   if (!list) {
-    return <LoadingScreen text="Loading patients..." />;
+    return <LoadingScreen />;
   }
 
   return (

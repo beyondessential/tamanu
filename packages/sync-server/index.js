@@ -1,18 +1,12 @@
+// serverInfo must be imported before any shared modules
+// so that it can set globals
+import { version } from './app/serverInfo';
+
 import { program } from 'commander';
 import { log } from 'shared/services/logging';
 
-import { version } from './package.json';
-
-import {
-  serveCommand,
-  migrateCommand,
-  reportCommand,
-  setupCommand,
-  calculateSurveyResultsCommand,
-  removeDuplicatedPatientAdditionalDataCommand,
-  loadIcaoSignerCommand,
-  userCommand,
-} from './app/subCommands';
+import * as cmd from './app/subCommands';
+import { setupEnv } from './app/env';
 
 async function run() {
   program
@@ -20,15 +14,11 @@ async function run() {
     .description('Tamanu sync-server')
     .name('node app.bundle.js');
 
-  program.addCommand(serveCommand, { isDefault: true });
-  program.addCommand(migrateCommand);
-  program.addCommand(reportCommand);
-  program.addCommand(setupCommand);
-  program.addCommand(calculateSurveyResultsCommand);
-  program.addCommand(removeDuplicatedPatientAdditionalDataCommand);
-  program.addCommand(loadIcaoSignerCommand);
-  program.addCommand(userCommand);
+  for (const [key, command] of Object.entries(cmd).filter(([key, _]) => /^\w+Command$/.test(key))) {
+    program.addCommand(command, { isDefault: key === 'serveAllCommand' });
+  }
 
+  setupEnv();
   await program.parseAsync(process.argv);
 }
 

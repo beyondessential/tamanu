@@ -1,13 +1,12 @@
 import React from 'react';
 
+import { format } from 'date-fns';
 import { useLocalisation } from '../contexts/Localisation';
-import { useApi } from '../api';
-import { Suggester } from '../utils/suggester';
-import { FormGrid } from '../components/FormGrid';
-import { ButtonRow } from '../components/ButtonRow';
-import { Button } from '../components/Button';
-
+import { useSuggester } from '../api';
 import {
+  FormGrid,
+  ButtonRow,
+  Button,
   Form,
   LocalisedField,
   DateField,
@@ -15,8 +14,8 @@ import {
   TextField,
   RadioField,
   SelectField,
-} from '../components/Field';
-
+  SuggesterSelectField,
+} from '../components';
 import {
   sexOptions,
   bloodOptions,
@@ -27,8 +26,7 @@ import {
 } from '../constants';
 
 export const PrimaryDetailsGroup = () => {
-  const api = useApi();
-  const villageSuggester = new Suggester(api, 'village');
+  const villageSuggester = useSuggester('village');
   const { getLocalisation } = useLocalisation();
   let filteredSexOptions = sexOptions;
   if (getLocalisation('features.hideOtherSex') === true) {
@@ -41,15 +39,14 @@ export const PrimaryDetailsGroup = () => {
       <LocalisedField name="middleName" component={TextField} />
       <LocalisedField name="lastName" component={TextField} required />
       <LocalisedField name="culturalName" component={TextField} />
-      <LocalisedField name="dateOfBirth" component={DateField} required />
-      <LocalisedField name="villageId" component={AutocompleteField} suggester={villageSuggester} />
       <LocalisedField
-        name="sex"
-        component={RadioField}
-        options={filteredSexOptions}
-        inline
+        name="dateOfBirth"
+        max={format(new Date(), 'yyyy-MM-dd')}
+        component={DateField}
         required
       />
+      <LocalisedField name="villageId" component={AutocompleteField} suggester={villageSuggester} />
+      <LocalisedField name="sex" component={RadioField} options={filteredSexOptions} required />
       <LocalisedField
         name="email"
         component={TextField}
@@ -61,18 +58,17 @@ export const PrimaryDetailsGroup = () => {
 };
 
 export const SecondaryDetailsGroup = () => {
-  const api = useApi();
-  const countrySuggester = new Suggester(api, 'country');
-  const divisionSuggester = new Suggester(api, 'division');
-  const ethnicitySuggester = new Suggester(api, 'ethnicity');
-  const medicalAreaSuggester = new Suggester(api, 'medicalArea');
-  const nationalitySuggester = new Suggester(api, 'nationality');
-  const nursingZoneSuggester = new Suggester(api, 'nursingZone');
-  const occupationSuggester = new Suggester(api, 'occupation');
-  const settlementSuggester = new Suggester(api, 'settlement');
-  const subdivisionSuggester = new Suggester(api, 'subdivision');
-  const religionSuggester = new Suggester(api, 'religion');
-  const patientBillingTypeSuggester = new Suggester(api, 'patientBillingType');
+  const countrySuggester = useSuggester('country');
+  const divisionSuggester = useSuggester('division');
+  const ethnicitySuggester = useSuggester('ethnicity');
+  const medicalAreaSuggester = useSuggester('medicalArea');
+  const nationalitySuggester = useSuggester('nationality');
+  const nursingZoneSuggester = useSuggester('nursingZone');
+  const occupationSuggester = useSuggester('occupation');
+  const settlementSuggester = useSuggester('settlement');
+  const subdivisionSuggester = useSuggester('subdivision');
+  const religionSuggester = useSuggester('religion');
+
   return (
     <>
       <LocalisedField name="birthCertificate" component={TextField} />
@@ -145,8 +141,8 @@ export const SecondaryDetailsGroup = () => {
       />
       <LocalisedField
         name="patientBillingTypeId"
-        component={AutocompleteField}
-        suggester={patientBillingTypeSuggester}
+        endpoint="patientBillingType"
+        component={SuggesterSelectField}
       />
       <LocalisedField name="emergencyContactName" component={TextField} />
       <LocalisedField name="emergencyContactNumber" component={TextField} type="tel" />
@@ -184,7 +180,7 @@ function sanitiseRecordForValues(data) {
     .reduce((state, [k, v]) => ({ ...state, [k]: v }), {});
 }
 
-function stripPatientData(patient) {
+function stripPatientData(patient, additionalData) {
   // The patient object includes the entirety of patient state, not just the
   // fields on the db record, and whatever we pass to initialValues will get
   // sent on to the server if it isn't modified by a field on the form.
@@ -192,26 +188,24 @@ function stripPatientData(patient) {
 
   return {
     ...sanitiseRecordForValues(patient),
-    ...sanitiseRecordForValues(patient.additionalData),
+    ...sanitiseRecordForValues(additionalData),
   };
 }
 
-export const PatientDetailsForm = ({ patient, onSubmit }) => {
-  return (
-    <Form
-      render={({ submitForm }) => (
-        <FormGrid>
-          <PrimaryDetailsGroup />
-          <SecondaryDetailsGroup />
-          <ButtonRow>
-            <Button variant="contained" color="primary" onClick={submitForm}>
-              Save
-            </Button>
-          </ButtonRow>
-        </FormGrid>
-      )}
-      initialValues={stripPatientData(patient)}
-      onSubmit={onSubmit}
-    />
-  );
-};
+export const PatientDetailsForm = ({ patient, additionalData, onSubmit }) => (
+  <Form
+    render={({ submitForm }) => (
+      <FormGrid>
+        <PrimaryDetailsGroup />
+        <SecondaryDetailsGroup />
+        <ButtonRow>
+          <Button variant="contained" color="primary" onClick={submitForm}>
+            Save
+          </Button>
+        </ButtonRow>
+      </FormGrid>
+    )}
+    initialValues={stripPatientData(patient, additionalData)}
+    onSubmit={onSubmit}
+  />
+);

@@ -4,6 +4,7 @@ import * as Yup from 'yup';
 import { Formik } from 'formik';
 import { compose } from 'redux';
 import { useSelector } from 'react-redux';
+import { formatISO9075 } from 'date-fns';
 import { FullView, StyledSafeAreaView } from '/styled/common';
 import { Routes } from '/helpers/routes';
 import { theme } from '/styled/theme';
@@ -88,7 +89,7 @@ export const DumbAddLabRequestScreen = ({
     }
     if (!labTestTypes || labTestTypes.length === 0) {
       return {
-        form: 'At least one lab test types must be selected.',
+        form: 'At least one lab test type must be selected.',
       };
     }
 
@@ -109,27 +110,39 @@ export const DumbAddLabRequestScreen = ({
         { reasonForEncounter: 'Lab request from mobile' },
       );
 
+      const {
+        requestedDate,
+        sampleDate,
+        sampleTime,
+        urgent,
+        specimenAttached,
+        displayId: generatedDisplayId
+      } = values;
+
       const combinedSampleTime = new Date(
-        values.sampleDate.getFullYear(),
-        values.sampleDate.getMonth(),
-        values.sampleDate.getDate(),
-        values.sampleTime.getHours(),
-        values.sampleTime.getMinutes(),
-        values.sampleTime.getSeconds(),
-        values.sampleTime.getMilliseconds(),
+        sampleDate.getFullYear(),
+        sampleDate.getMonth(),
+        sampleDate.getDate(),
+        sampleTime.getHours(),
+        sampleTime.getMinutes(),
+        sampleTime.getSeconds(),
+        sampleTime.getMilliseconds(),
       );
 
-      const { requestedDate, urgent, specimenAttached, displayId: generatedDisplayId } = values;
+      // Convert requestedDate and sampleTime to strings
+      const requestedDateString = formatISO9075(requestedDate);
+      const sampleTimeString = formatISO9075(combinedSampleTime);
+
       await models.LabRequest.createWithTests({
         displayId: generatedDisplayId,
-        requestedDate,
+        requestedDate: requestedDateString,
         urgent,
         specimenAttached,
         requestedBy: user.id,
         encounter: encounter.id,
         labTestCategory: values.categoryId,
         labTestPriority: values.priorityId,
-        sampleTime: combinedSampleTime,
+        sampleTime: sampleTimeString,
         labTestTypeIds: values.labTestTypes,
       });
 
@@ -140,6 +153,8 @@ export const DumbAddLabRequestScreen = ({
 
   const initialValues = {
     ...defaultInitialValues,
+    sampleTime: new Date(),
+    sampleDate: new Date(),
     requestedDate: new Date(),
     displayId,
   };

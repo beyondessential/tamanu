@@ -4,7 +4,6 @@ import { v4 as uuidv4 } from 'uuid';
 import {
   buildNestedEncounter,
   expectDeepSyncRecordsMatch,
-  fakePatient,
   fakeReferenceData,
   fake,
   unsafeSetUpdatedAt,
@@ -15,7 +14,6 @@ import {
 } from 'shared/test-helpers';
 
 import { convertFromDbRecord, convertToDbRecord } from 'sync-server/app/convertDbRecord';
-import * as hooks from 'shared/tasks/CreateLabRequestNotifications';
 import { createTestContext } from './utilities';
 import { SUPPORTED_CLIENT_VERSIONS } from '../app/middleware/versionCompatibility';
 
@@ -27,29 +25,37 @@ export const makeUpdatedAt = daysAgo =>
 
 const getUpdatedAtTimestamp = ({ updatedAt }) => new Date(updatedAt).valueOf();
 
-const fakeSyncRecordPatient = (...args) => convertFromDbRecord(fakePatient(...args));
-
-const OLDEST_PATIENT = { ...fakeSyncRecordPatient('oldest_'), updatedAt: makeUpdatedAt(20) };
-const SECOND_OLDEST_PATIENT = {
-  ...fakeSyncRecordPatient('second-oldest_'),
-  updatedAt: makeUpdatedAt(10),
-};
-const REFERENCE_DATA = {
-  ...fakeReferenceData('aaa_early_id_'),
-  updatedAt: OLDEST_PATIENT.updatedAt,
-};
-
 // TODO: add exhaustive tests for sync API for each channel
 
 describe('Sync API', () => {
+  // The sync api joins patients to notes but the faker doesn't include them so we add it here for a later comparison
+  const fakeSyncRecordPatient = overrides =>
+    convertFromDbRecord({
+      notes: [],
+      ...fake(ctx.store.models.Patient),
+      ...overrides,
+    });
+  let oldestPatient;
+  let secondOldestPatient;
+  let referenceData;
+
   let app = null;
   let ctx = null;
   beforeAll(async () => {
     ctx = await createTestContext();
     app = await ctx.baseApp.asRole('practitioner');
+    oldestPatient = { ...fakeSyncRecordPatient(), updatedAt: makeUpdatedAt(20) };
+    secondOldestPatient = {
+      ...fakeSyncRecordPatient(),
+      updatedAt: makeUpdatedAt(10),
+    };
+    referenceData = {
+      ...fakeReferenceData('aaa_early_id_'),
+      updatedAt: oldestPatient.updatedAt,
+    };
 
     await Promise.all(
-      [OLDEST_PATIENT, SECOND_OLDEST_PATIENT].map(async r => {
+      [oldestPatient, secondOldestPatient].map(async r => {
         await ctx.store.models.Patient.upsert(convertToDbRecord(r));
         await unsafeSetUpdatedAt(ctx.store.sequelize, {
           table: 'patients',
@@ -58,11 +64,11 @@ describe('Sync API', () => {
         });
       }),
     );
-    await ctx.store.models.ReferenceData.upsert(REFERENCE_DATA);
+    await ctx.store.models.ReferenceData.upsert(referenceData);
     await unsafeSetUpdatedAt(ctx.store.sequelize, {
       table: 'reference_data',
-      id: REFERENCE_DATA.id,
-      updated_at: REFERENCE_DATA.updatedAt,
+      id: referenceData.id,
+      updated_at: referenceData.updatedAt,
     });
   });
 
@@ -84,7 +90,7 @@ describe('Sync API', () => {
     });
 
     it('should return all requested channels that have pending changes since a sync cursor', async () => {
-      const syncCursor = getUpdatedAtTimestamp(SECOND_OLDEST_PATIENT) - 1;
+      const syncCursor = getUpdatedAtTimestamp(secondOldestPatient) - 1;
       const result = await app
         .post('/v1/sync/channels')
         .send({ patient: syncCursor, reference: syncCursor });
@@ -94,8 +100,8 @@ describe('Sync API', () => {
     });
 
     it('should return all requested channels that have pending changes using different sync cursors', async () => {
-      const patientSyncCursor = getUpdatedAtTimestamp(SECOND_OLDEST_PATIENT) - 1;
-      const referenceSyncCursor = getUpdatedAtTimestamp(OLDEST_PATIENT) - 1;
+      const patientSyncCursor = getUpdatedAtTimestamp(secondOldestPatient) - 1;
+      const referenceSyncCursor = getUpdatedAtTimestamp(oldestPatient) - 1;
       const result = await app
         .post('/v1/sync/channels')
         .send({ patient: patientSyncCursor, reference: referenceSyncCursor });
@@ -105,7 +111,7 @@ describe('Sync API', () => {
     });
 
     it('should differentiate timestamp clashes correctly using id', async () => {
-      const syncCursor = `${getUpdatedAtTimestamp(REFERENCE_DATA)};${REFERENCE_DATA.id}`;
+      const syncCursor = `${getUpdatedAtTimestamp(referenceData)};${referenceData.id}`;
       const result = await app.post('/v1/sync/channels').send({
         patient: syncCursor,
         reference: syncCursor,
@@ -117,9 +123,11 @@ describe('Sync API', () => {
 
     const NUM_CHANNELS_TO_TEST = 1000;
     const ALLOWABLE_TIME = 2000;
+    const NUM_RUNS = 5;
     it(`handles ${NUM_CHANNELS_TO_TEST} channels in under ${ALLOWABLE_TIME}ms`, async () => {
       // arrange
-      jest.setTimeout(120 * 1000);
+      // twice the allowable time, plus 100ms per insert for record creation
+      jest.setTimeout(ALLOWABLE_TIME * NUM_RUNS * 2 + NUM_CHANNELS_TO_TEST * 100);
       const { Patient, PatientIssue } = ctx.store.models;
 
       const patients = [];
@@ -136,14 +144,22 @@ describe('Sync API', () => {
       const idsObj = patientChannels.reduce((memo, channel) => ({ ...memo, [channel]: '0' }), {});
 
       // act
-      const startMs = Date.now();
-      const result = await app.post('/v1/sync/channels').send(idsObj);
-      const elapsedMs = Date.now() - startMs;
+      const run = async () => {
+        const startMs = Date.now();
+        const result = await app.post('/v1/sync/channels').send(idsObj);
+        const endMs = Date.now();
+        expect(result).toHaveSucceeded();
+        expect(result.body.channelsWithChanges).toEqual(patientChannels);
+        return endMs - startMs;
+      };
+      const times = [];
+      for (let i = 0; i < NUM_RUNS; i++) {
+        times.push(await run());
+      }
 
       // assert
-      expect(result).toHaveSucceeded();
-      expect(result.body.channelsWithChanges).toEqual(patientChannels);
-      expect(elapsedMs).toBeLessThan(ALLOWABLE_TIME);
+      const avgTime = times.reduce((a, b) => a + b) / NUM_RUNS;
+      expect(avgTime).toBeLessThan(ALLOWABLE_TIME);
     });
   });
 
@@ -164,7 +180,7 @@ describe('Sync API', () => {
       expect(body.records.length).toBeGreaterThan(0);
 
       const firstRecord = body.records[0];
-      const { updatedAt, ...oldestWithoutUpdatedAt } = OLDEST_PATIENT;
+      const { updatedAt, ...oldestWithoutUpdatedAt } = oldestPatient;
       delete oldestWithoutUpdatedAt.data.dateOfDeath; // model has a null, sync response omits null dates
 
       expect(firstRecord).toEqual(JSON.parse(JSON.stringify(oldestWithoutUpdatedAt)));
@@ -177,20 +193,46 @@ describe('Sync API', () => {
     });
 
     it('should omit null dates', async () => {
-      const { DocumentMetadata } = ctx.store.models;
-      DocumentMetadata.create({ name: 'with', type: 'application/pdf', attachmentId: 'fake-id-1', documentCreatedAt: new Date });
-      DocumentMetadata.create({ name: 'without', type: 'application/pdf', attachmentId: 'fake-id-2' });
-      
-      const result = await app.get(`/v1/sync/documentMetadata?since=0`);
+      const { Patient } = ctx.store.models;
+
+      const patientWithDOB = await Patient.create({
+        ...(await fake(Patient)),
+        firstName: 'patientWithDOB',
+      });
+      const patientWithoutDOB = await Patient.create({
+        ...(await fake(Patient)),
+        firstName: 'patientWithoutDOB',
+        dateOfBirth: null,
+      });
+
+      // Patients need this helper function on sync tests
+      await Promise.all([
+        await unsafeSetUpdatedAt(ctx.store.sequelize, {
+          table: 'patients',
+          id: patientWithDOB.id,
+          updated_at: makeUpdatedAt(20),
+        }),
+        await unsafeSetUpdatedAt(ctx.store.sequelize, {
+          table: 'patients',
+          id: patientWithoutDOB.id,
+          updated_at: makeUpdatedAt(20),
+        }),
+      ]);
+
+      const result = await app.get('/v1/sync/patient?since=0');
       expect(result).toHaveSucceeded();
 
-      const { body: { records } } = result;
-      const withDate = records.find(({ data: { name } }) => name === 'with');
+      const {
+        body: { records },
+      } = result;
+      const withDate = records.find(({ data: { firstName } }) => firstName === 'patientWithDOB');
       expect(withDate).toBeTruthy();
-      expect(withDate.data).toHaveProperty('documentCreatedAt');
-      const withoutDate = records.find(({ data: { name } }) => name === 'without');
+      expect(withDate.data).toHaveProperty('dateOfBirth');
+      const withoutDate = records.find(
+        ({ data: { firstName } }) => firstName === 'patientWithoutDOB',
+      );
       expect(withoutDate).toBeTruthy();
-      expect(withoutDate.data).not.toHaveProperty('documentCreatedAt');
+      expect(withoutDate.data).not.toHaveProperty('dateOfBirth');
     });
 
     it('should not return a count if noCount=true', async () => {
@@ -206,13 +248,13 @@ describe('Sync API', () => {
 
     it('should filter out older records', async () => {
       const result = await app.get(
-        `/v1/sync/patient?since=${getUpdatedAtTimestamp(SECOND_OLDEST_PATIENT) - 1}`,
+        `/v1/sync/patient?since=${getUpdatedAtTimestamp(secondOldestPatient) - 1}`,
       );
       expect(result).toHaveSucceeded();
 
       const { body } = result;
       const firstRecord = body.records[0];
-      expect(firstRecord).toHaveProperty('id', SECOND_OLDEST_PATIENT.id);
+      expect(firstRecord).toHaveProperty('id', secondOldestPatient.id);
     });
 
     it('should split updatedAt conflicts using id', async () => {
@@ -220,7 +262,7 @@ describe('Sync API', () => {
       const updatedAt = makeUpdatedAt(5);
       await Promise.all(
         [0, 1].map(async () => {
-          const p = fakePatient();
+          const p = fake(ctx.store.models.Patient);
           await ctx.store.models.Patient.upsert(p);
           await unsafeSetUpdatedAt(ctx.store.sequelize, {
             table: 'patients',
@@ -250,7 +292,9 @@ describe('Sync API', () => {
 
       // assert
       expect(firstCursor.split(';')[1]).toEqual(earlierIdRecord.id);
-      expectDeepSyncRecordsMatch([earlierIdRecord], firstRecords, { nullableDateFields: ['dateOfDeath'] });
+      expectDeepSyncRecordsMatch([earlierIdRecord], firstRecords, {
+        nullableDateFields: ['dateOfDeath'],
+      });
       expect(secondCursor.split(';')[1]).toEqual(laterIdRecord.id);
       expectDeepSyncRecordsMatch([laterIdRecord], secondRecords, {
         nullableDateFields: ['dateOfDeath'],
@@ -259,7 +303,7 @@ describe('Sync API', () => {
 
     it('should have count and cursor fields', async () => {
       const result = await app.get(
-        `/v1/sync/patient?since=${OLDEST_PATIENT.updatedAt.valueOf() - 1}`,
+        `/v1/sync/patient?since=${oldestPatient.updatedAt.valueOf() - 1}`,
       );
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveProperty('count', expect.any(Number));
@@ -353,7 +397,7 @@ describe('Sync API', () => {
         // instantiate 20 records
         records = new Array(TOTAL_RECORDS)
           .fill(0)
-          .map((zero, i) => fakeSyncRecordPatient(`test-limits-${i}_`));
+          .map((zero, i) => fakeSyncRecordPatient({ firstName: `test-limits-${i}` }));
 
         // import in series so there's a predictable order to test against
         await Promise.all(records.map(r => ctx.store.models.Patient.upsert(convertToDbRecord(r))));
@@ -538,7 +582,9 @@ describe('Sync API', () => {
         markedForSync,
         ...data
       } = foundRecord;
-      expect(data).toEqual(record.data);
+      // Drop the notes before the comparison since foundRecord won't include them
+      const { notes, ...comparisonData } = record.data;
+      expect(data).toEqual(comparisonData);
     });
 
     const patientId = uuidv4();
@@ -626,9 +672,9 @@ describe('Sync API', () => {
         expect(result).toHaveSucceeded();
         expect(result.body).toHaveProperty('count', 1);
         const getResult = await app.get('/v1/sync/patient?since=0', 0);
-        const records = getResult.body.records;
+        const { records } = getResult.body;
         expect(records).toHaveProperty('length', 1);
-        record = records[0];
+        [record] = records;
       });
 
       it('should add a flag to deleted records', async () => {
@@ -679,52 +725,6 @@ describe('Sync API', () => {
 
       // TODO: add this once auth is implemented
       it.todo("returns a 403 if the user isn't authenticated");
-    });
-  });
-
-  describe('Sync hooks', () => {
-    beforeEach(() => {
-      // Mock the hook functions, we don't actually need to call them
-      // we just want to confirm the hook is triggered correctly from a sync
-      jest.spyOn(hooks, 'createSingleLabRequestNotification').mockReturnValue('test');
-      jest.spyOn(hooks, 'createMultiLabRequestNotifications').mockReturnValue('test');
-    });
-    afterEach(() => {
-      jest.clearAllMocks();
-    });
-    const patientId = uuidv4();
-    it('labRequests afterBulkUpdate hook triggered from sync', async () => {
-      // arrange
-      await ctx.store.models.Encounter.destroy({ where: {}, force: true });
-      const encounterToInsert = await buildNestedEncounter(ctx.store, patientId);
-      await ctx.store.models.Encounter.create(encounterToInsert);
-      await upsertAssociations(ctx.store.models.Encounter, encounterToInsert);
-
-      // act
-      const getResult = await app.get(`/v1/sync/patient%2F${patientId}%2Fencounter?since=0`);
-      const syncEncounter = getResult.body.records.find(
-        ({ data }) => data.id === encounterToInsert.id,
-      );
-      syncEncounter.data.labRequests[0].data.status = 'verified';
-
-      await app.post(`/v1/sync/patient%2F${patientId}%2Fencounter?since=0`).send(syncEncounter);
-
-      // assert
-      expect(hooks.createSingleLabRequestNotification).toHaveBeenCalled();
-    });
-
-    it('labRequests afterBulkCreate hook triggered from sync', async () => {
-      // arrange
-      await ctx.store.models.Encounter.destroy({ where: {}, force: true });
-      const encounter = await buildNestedEncounter(ctx.store, patientId);
-
-      // act
-      await app
-        .post(`/v1/sync/patient%2F${patientId}%2Fencounter?since=0`)
-        .send(convertFromDbRecord(encounter));
-
-      // assert
-      expect(hooks.createMultiLabRequestNotifications).toHaveBeenCalled();
     });
   });
 });

@@ -1,8 +1,13 @@
 import React, { useCallback, useState } from 'react';
+import { push } from 'connected-react-router';
+import { useDispatch } from 'react-redux';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { useEncounter } from '../contexts/Encounter';
 import { MedicationModal } from './MedicationModal';
+import { reloadPatient } from '../store';
+import { ENCOUNTER_TAB_NAMES } from '../views/patients/EncounterView';
+import { Colors } from '../constants';
 
 const getMedicationName = ({ medication }) => medication.name;
 
@@ -56,14 +61,12 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
     setEncounterMedication(medication);
   }, []);
 
-  const rowStyle = useCallback(({ discontinued }) =>
+  const rowStyle = ({ discontinued }) =>
     discontinued
       ? `
-    color: red;
-    text-decoration: line-through;
-  `
-      : '',
-  );
+        color: ${Colors.alert};
+        text-decoration: line-through;`
+      : '';
 
   return (
     <div>
@@ -80,6 +83,7 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
         endpoint={`encounter/${encounterId}/medications`}
         onRowClick={onMedicationSelect}
         rowStyle={rowStyle}
+        elevated={false}
       />
     </div>
   );
@@ -87,11 +91,18 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
 
 export const DataFetchingMedicationTable = () => {
   const { loadEncounter } = useEncounter();
+  const dispatch = useDispatch();
   const onMedicationSelect = useCallback(
     async medication => {
       await loadEncounter(medication.encounter.id);
+      await dispatch(reloadPatient(medication.encounter.patientId));
+      dispatch(
+        push(
+          `/patients/all/${medication.encounter.patientId}/encounter/${medication.encounter.id}?tab=${ENCOUNTER_TAB_NAMES.MEDICATION}`,
+        ),
+      );
     },
-    [loadEncounter],
+    [loadEncounter, dispatch],
   );
 
   return (

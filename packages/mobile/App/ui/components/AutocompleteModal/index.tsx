@@ -4,8 +4,8 @@ import { Button } from 'react-native-paper';
 import { NavigationProp } from '@react-navigation/native';
 import Autocomplete from 'react-native-autocomplete-input';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { theme } from '~/ui/styled/theme';
-import { Suggester } from '~/ui/helpers/suggester';
+import { theme } from '../../styled/theme';
+import { Suggester } from '../../helpers/suggester';
 
 const styles = StyleSheet.create({
   container: {
@@ -15,10 +15,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   lightItemText: {
+    color: theme.colors.TEXT_DARK,
     backgroundColor: theme.colors.WHITE,
     padding: 12,
   },
   darkItemText: {
+    color: theme.colors.TEXT_DARK,
     backgroundColor: theme.colors.LIGHT_GREY,
     padding: 12,
   },
@@ -36,7 +38,8 @@ type AutocompleteModalScreenProps = {
     params: {
       suggester: Suggester;
       callback: (item: any) => any;
-    };};
+    };
+  };
 };
 
 export const AutocompleteModalScreen = ({
@@ -45,19 +48,16 @@ export const AutocompleteModalScreen = ({
 }: AutocompleteModalScreenProps): ReactElement => {
   const { callback, suggester } = route.params;
   const [searchTerm, setSearchTerm] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [displayedOptions, setDisplayedOptions] = useState([]);
 
   useEffect(() => {
     (async (): Promise<void> => {
-      setIsLoading(true);
       const data = await suggester.fetchSuggestions(searchTerm);
-      setIsLoading(false);
       setDisplayedOptions(data);
     })();
   }, [searchTerm]);
 
-  const onSelectItem = useCallback((item) => {
+  const onSelectItem = useCallback(item => {
     navigation.goBack();
     callback(item);
   }, []);
@@ -66,32 +66,33 @@ export const AutocompleteModalScreen = ({
     navigation.goBack();
   }, []);
 
-  let useDarkBackground = true;
   return (
     <View style={styles.container}>
       <Autocomplete
         placeholder="Search..."
+        placeholderTextColor={theme.colors.TEXT_DARK}
         data={displayedOptions}
         onChangeText={setSearchTerm}
         autoFocus
-        renderItem={({ item }): JSX.Element => {
-          useDarkBackground = !useDarkBackground;
-          return (
-            <TouchableOpacity
-              onPress={(): void => onSelectItem(item)}
-            >
-              <Text style={useDarkBackground ? styles.darkItemText : styles.lightItemText}>
-                {item.label}
-              </Text>
-            </TouchableOpacity>
-          );
+        flatListProps={{
+          keyExtractor: item => item.value,
+          renderItem: ({ item, index }): ReactElement => {
+            const useDarkBackground = index % 2 === 0;
+            return (
+              <TouchableOpacity onPress={(): void => onSelectItem(item)}>
+                <Text style={useDarkBackground ? styles.darkItemText : styles.lightItemText}>
+                  {item.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          },
+        }}
+        style={{
+          color: theme.colors.TEXT_DARK,
         }}
       />
-      <Button
-        mode="contained"
-        style={styles.backButton}
-        onPress={onNavigateBack}
-      >Back
+      <Button mode="contained" style={styles.backButton} onPress={onNavigateBack}>
+        Back
       </Button>
     </View>
   );

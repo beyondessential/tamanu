@@ -41,7 +41,7 @@ invoicePriceChangeItemsRoute.get(
     const { models, params } = req;
     req.checkPermission('read', 'InvoicePriceChangeItem');
 
-    const priceChangeItemId = { params };
+    const { priceChangeItemId } = params;
     const invoicePriceChangeItem = await models.InvoicePriceChangeItem.findByPk(priceChangeItemId);
 
     req.checkPermission('read', invoicePriceChangeItem);

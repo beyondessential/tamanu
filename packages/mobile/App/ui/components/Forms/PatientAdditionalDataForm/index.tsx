@@ -5,53 +5,46 @@ import { PatientAdditionalDataFields } from './PatientAdditionalDataFields';
 import { patientAdditionalDataValidationSchema, getInitialValues } from './helpers';
 import { PatientAdditionalData } from '~/models/PatientAdditionalData';
 import { Routes } from '~/ui/helpers/routes';
+import { FormSectionHeading } from '../FormSectionHeading';
+import { additionalDataSections } from '~/ui/helpers/additionalData';
 
 export const PatientAdditionalDataForm = ({
   patientId,
   additionalData,
   navigation,
+  sectionTitle,
 }): ReactElement => {
   const scrollViewRef = useRef();
-  const onCreateOrEditAdditionalData = useCallback(async (values) => {
-    // A user isn't guaranteed to have any additional data,
-    // in which case it needs to be created.
-    if (additionalData) {
-      // Edit additional data
-      const editedAdditionalData = await PatientAdditionalData.findOne(additionalData.id);
+  // After save/update, the model will mark itself for upload and the
+  // patient for sync (see beforeInsert and beforeUpdate decorators).
+  const onCreateOrEditAdditionalData = useCallback(
+    async values => {
+      await PatientAdditionalData.updateForPatient(patientId, values);
 
-      // Update each value used on the form
-      Object.entries(values).forEach(([key, value]) => {
-        editedAdditionalData[key] = value;
-      });
 
-      // Save() call will mark the model for upload and the patient for sync
-      await editedAdditionalData.save();
-    } else {
-      // Create additional data and mark it for upload. Creating a new one will
-      // automatically mark the patient for sync.
-      await PatientAdditionalData.createAndSaveOne({
-        ...values,
-        patientId: patientId,
-        markedForUpload: true,
-      });
-    }
+      // Navigate back to patient details
+      navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index);
+    },
+    [navigation],
+  );
 
-    // Navigate back to patient details
-    navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index);
-  }, [navigation]);
+  // Get the actual additional data section object
+  const section = additionalDataSections.find(({ title }) => title === sectionTitle);
+  const { fields } = section;
 
   return (
     <Form
-      initialValues={getInitialValues(additionalData)}
+      initialValues={getInitialValues(additionalData, fields)}
       validationSchema={patientAdditionalDataValidationSchema}
       onSubmit={onCreateOrEditAdditionalData}
     >
       {({ handleSubmit, isSubmitting }): ReactElement => (
         <FormScreenView scrollViewRef={scrollViewRef}>
+          <FormSectionHeading text={sectionTitle} />
           <PatientAdditionalDataFields
             handleSubmit={handleSubmit}
             isSubmitting={isSubmitting}
-            navigation={navigation}
+            fields={fields}
           />
         </FormScreenView>
       )}

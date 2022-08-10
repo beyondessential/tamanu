@@ -10,15 +10,15 @@ import {
   StyledView,
   StyledScrollView,
   StyledText,
-} from '/styled/common';
-import { theme } from '/styled/theme';
-import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import { SelectOption } from '.';
+} from '../../styled/common';
+import { theme } from '../../styled/theme';
+import { screenPercentageToDP, Orientation } from '../../helpers/screen';
+import { SelectOption } from './';
 
 interface AndroidPickerProps {
   options: SelectOption[];
   open: boolean;
-  onChange: Function;
+  onChange: (option: SelectOption) => void;
   closeModal: () => void;
   label?: string;
 }
@@ -32,7 +32,7 @@ export const AndroidPicker = ({
 }: AndroidPickerProps): ReactElement => {
   const onChangeItem = React.useCallback(
     (item) => {
-      onChange(item.value);
+      onChange(item);
       closeModal();
     },
     [closeModal, onChange],
@@ -48,7 +48,7 @@ export const AndroidPicker = ({
           position="absolute"
           borderRadius={5}
           width="90%"
-          height="100%"
+          height="100%" // height 100% is needed to make the view scrollable
           zIndex={5}
           background={theme.colors.WHITE}
         >
@@ -69,10 +69,12 @@ export const AndroidPicker = ({
                 <StyledView
                   accessibilityLabel={item.label}
                   justifyContent="center"
-                  padding={25}
+                  paddingLeft="25"
+                  paddingRight="25"
                   width="100%"
+                  height={screenPercentageToDP('4.86%', Orientation.Height)}
                 >
-                  <StyledText>{item.label}</StyledText>
+                  <StyledText color={theme.colors.TEXT_DARK}>{item.label}</StyledText>
                 </StyledView>
               </TouchableOpacity>
               <StyledView

@@ -1,52 +1,26 @@
 import React from 'react';
-import { StyledView, RowView } from '/styled/common';
-import {
-  Orientation,
-  screenPercentageToDP,
-  getOrientation,
-  SCREEN_ORIENTATION,
-} from '/helpers/screen';
+import { StyledView } from '/styled/common';
 import { DateField } from '../../DateField/DateField';
 import { Field } from '../FormField';
 import { TextField } from '../../TextField/TextField';
 import { CurrentUserField } from '../../CurrentUserField/CurrentUserField';
+import { FormSectionHeading } from '../FormSectionHeading';
 
-export const VaccineFormNotGiven = (): JSX.Element => (
-  getOrientation() === SCREEN_ORIENTATION.PORTRAIT ? (
-    <StyledView
-      justifyContent="space-between"
-      height={screenPercentageToDP(21.87, Orientation.Height)}
-    >
+export function VaccineFormNotGiven(): JSX.Element {
+  return (
+    <StyledView paddingTop={10}>
+      <FormSectionHeading text="Date" />
       <Field component={DateField} name="date" label="Date" />
-      <Field
-        component={TextField}
-        name="reason"
-        label="Reason"
-      />
-      <CurrentUserField
-        name="examiner"
-        label="Examiner"
-      />
+      <FormSectionHeading text="Reason" />
+      <Field component={TextField} name="reason" label="Reason" />
+      <StyledView width="100%">
+        <FormSectionHeading text="Given by" />
+        <Field component={TextField} name="givenBy" marginTop={0} />
+      </StyledView>
+      <StyledView width="100%">
+        <FormSectionHeading text="Recorded by" />
+        <CurrentUserField name="recorderId" />
+      </StyledView>
     </StyledView>
-  ) : (
-    <StyledView>
-      <RowView marginTop={10}>
-        <Field component={DateField} name="date" label="Date" />
-      </RowView>
-      <RowView marginTop={10} justifyContent="space-between">
-        <StyledView width="49%">
-          <Field
-            component={TextField}
-            name="reason"
-            label="Reason"
-          />
-        </StyledView>
-        <StyledView width="49%">
-          <CurrentUserField
-            name="examiner"
-            label="Examiner"
-          />
-        </StyledView>
-      </RowView>
-    </StyledView>
-  ));
+  );
+}

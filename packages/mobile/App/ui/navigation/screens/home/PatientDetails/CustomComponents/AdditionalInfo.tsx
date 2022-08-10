@@ -1,57 +1,90 @@
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useState, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 
-import { PatientAdditionalDataProps } from '/interfaces/PatientDetails';
-import { FieldRowDisplay } from '~/ui/components/FieldRowDisplay';
+import { FieldRowDisplay } from '../../../../../components/FieldRowDisplay';
+import { ErrorScreen } from '../../../../../components/ErrorScreen';
+import { LoadingScreen } from '../../../../../components/LoadingScreen';
 import { PatientSection } from './PatientSection';
-import { useLocalisation } from '~/ui/contexts/LocalisationContext';
+import { useLocalisation } from '../../../../../contexts/LocalisationContext';
+import { IPatient, IPatientAdditionalData } from '../../../../../../types';
+import { useBackend } from '../../../../../hooks';
+import { additionalDataSections } from '../../../../../helpers/additionalData';
 
-interface AdditionalInfoProps extends PatientAdditionalDataProps {
-  onEdit: () => void;
+interface AdditionalInfoProps {
+  onEdit: (additionalInfo: IPatientAdditionalData, sectionTitle: string) => void;
+  patient: IPatient;
 }
 
-export const AdditionalInfo = ({
-  onEdit,
-  patientAdditionalData: data,
-}: AdditionalInfoProps): ReactElement => {
-  const fields = [
-    ['birthCertificate', data?.birthCertificate],
-    ['drivingLicense', data?.drivingLicense],
-    ['passport', data?.passport],
-    ['bloodType', data?.bloodType],
-    ['title', data?.title],
-    ['placeOfBirth', data?.placeOfBirth],
-    ['countryOfBirthId', data?.countryOfBirth?.name],
-    ['maritalStatus', data?.maritalStatus],
-    ['primaryContactNumber', data?.primaryContactNumber],
-    ['secondaryContactNumber', data?.secondaryContactNumber],
-    ['socialMedia', data?.socialMedia],
-    ['settlementId', data?.settlement?.name],
-    ['streetVillage', data?.streetVillage],
-    ['cityTown', data?.cityTown],
-    ['subdivisionId', data?.subdivision?.name],
-    ['divisionId', data?.division?.name],
-    ['countryId', data?.country?.name],
-    ['medicalAreaId', data?.medicalArea?.name],
-    ['nursingZoneId', data?.nursingZone?.name],
-    ['nationalityId', data?.nationality?.name],
-    ['ethnicityId', data?.ethnicity?.name],
-    ['occupationId', data?.occupation?.name],
-    ['educationalLevel', data?.educationalLevel],
-    ['religionId', data?.religion?.name],
-    ['patientBillingTypeId', data?.patientBillingType?.name],
-  ];
+function getFieldData(data: IPatientAdditionalData, fieldName: string): string {
+  // Field is reference data
+  if (fieldName.slice(-2) === 'Id') {
+    const actualName = fieldName.slice(0, -2);
+    return data?.[actualName]?.name;
+  }
+
+  // Field is a string field
+  return data?.[fieldName];
+}
+
+export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactElement => {
+  const backend = useBackend();
+  const [additionalDataRecord, setAdditionalDataRecord] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  useFocusEffect(
+    useCallback(() => {
+      let mounted = true;
+      (async (): Promise<void> => {
+        const { models } = backend;
+        try {
+          const result = await models.PatientAdditionalData.getForPatient(patient.id);
+          if (!mounted) {
+            return;
+          }
+          setAdditionalDataRecord(result);
+          setLoading(false);
+        } catch (err) {
+          if (!mounted) {
+            return;
+          }
+          setError(err);
+          setLoading(false);
+        }
+      })();
+      return (): void => {
+        mounted = false;
+      };
+    }, [backend, patient.id]),
+  );
+
+  // Display general error
+  if (error) {
+    return <ErrorScreen error={error} />;
+  }
 
   // Check if patient additional data should be editable
   const { getBool } = useLocalisation();
   const isEditable = getBool('features.editPatientDetailsOnMobile');
 
+  // Add edit callback and map the inner 'fields' array
+  const sections = additionalDataSections.map(({ title, fields }) => {
+    const onEditCallback = (): void => onEdit(additionalDataRecord, title);
+    const mappedFields = fields.map(fieldName => ([fieldName, getFieldData(additionalDataRecord, fieldName)]));
+    return { title, fields: mappedFields, onEditCallback };
+  });
+
   return (
-    <PatientSection
-      hasSeparator
-      title="Additional Information"
-      onEdit={isEditable ? onEdit : undefined}
-    >
-      <FieldRowDisplay fields={fields} fieldsPerRow={2} />
-    </PatientSection>
+    <>
+      {sections.map(({ title, fields, onEditCallback }) => (
+        <PatientSection
+          key={title}
+          title={title}
+          onEdit={isEditable ? onEditCallback : undefined}
+          isClosable
+        >
+          {loading ? <LoadingScreen /> : <FieldRowDisplay fields={fields} />}
+        </PatientSection>
+      ))}
+    </>
   );
 };

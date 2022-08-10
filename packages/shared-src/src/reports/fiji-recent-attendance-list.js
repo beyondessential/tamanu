@@ -29,8 +29,8 @@ const reportColumnTemplate = Object.entries(FIELD_TO_TITLE).map(([key, title]) =
   accessor: data => data[key],
 }));
 
-const parametersToEncounterSqlWhere = parameters => {
-  return Object.entries(parameters)
+const parametersToEncounterSqlWhere = parameters =>
+  Object.entries(parameters)
     .filter(([, val]) => val)
     .reduce((where, [key, value]) => {
       const newWhere = { ...where };
@@ -58,7 +58,6 @@ const parametersToEncounterSqlWhere = parameters => {
       }
       return newWhere;
     }, {});
-};
 
 const getEncounters = async (models, parameters) => {
   const encounters = await models.Encounter.findAll({
