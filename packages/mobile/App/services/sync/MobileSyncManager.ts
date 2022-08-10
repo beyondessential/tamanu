@@ -93,6 +93,7 @@ export class MobileSyncManager {
 
     try {
       await this.runSync();
+      this.setProgress(0, '');
     } catch (e) {
       this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ERROR, { error: e.message });
     } finally {
@@ -116,7 +117,6 @@ export class MobileSyncManager {
     this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STARTED);
 
     const currentSessionIndex = await this.centralServer.startSyncSession();
-
     const lastSuccessfulSessionIndex = await getSyncSessionIndex('LastSuccessfulSyncSession');
 
     console.info(
@@ -126,10 +126,7 @@ export class MobileSyncManager {
     await setSyncSessionSequence(this.models, currentSessionIndex, 'CurrentSyncSession');
 
     await this.syncOutgoingChanges(currentSessionIndex, lastSuccessfulSessionIndex);
-
     await this.syncIncomingChanges(currentSessionIndex, lastSuccessfulSessionIndex);
-
-    this.setProgress(0, '');
 
     await setSyncSessionSequence(this.models, currentSessionIndex, 'LastSuccessfulSyncSession');
 
@@ -152,7 +149,7 @@ export class MobileSyncManager {
         currentSessionIndex,
         outgoingChanges,
         (total, pushedRecords) =>
-          this.updateProgress(total, pushedRecords, 'Stage 1/3: Pushing records'),
+          this.updateProgress(total, pushedRecords, 'Stage 1/3: Pushing all new records'),
       );
     }
 
@@ -169,7 +166,7 @@ export class MobileSyncManager {
       currentSessionIndex,
       lastSessionIndex,
       (total, downloadedChangesTotal) =>
-        this.updateProgress(total, downloadedChangesTotal, 'Stage 2/3: Pulling records'),
+        this.updateProgress(total, downloadedChangesTotal, 'Stage 2/3: Pulling all new records'),
     );
 
     if (incomingChanges.length > 0) {
@@ -200,10 +197,10 @@ export class MobileSyncManager {
       if (failures.length > 0) {
         throw new Error(`Saving ${failures.length} individual record failures`);
       }
-
-      return;
     }
 
-    console.info('MobileSyncManager.syncIncomingChanges(): No changes to push');
+    console.info(
+      `MobileSyncManager.syncIncomingChanges(): End sync incoming changes, incoming changes count: ${incomingChanges.length}`,
+    );
   }
 }

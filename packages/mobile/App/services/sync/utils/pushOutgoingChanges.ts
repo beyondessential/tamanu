@@ -8,7 +8,7 @@ export const pushOutgoingChanges = async (
   sessionIndex: number,
   changes: SyncRecord[],
   progressCallback: (total: number, progressCount: number) => void,
-) => {
+): Promise<void> => {
   let startOfPage = 0;
   let limit = calculatePageLimit();
   let pushedRecordsCount = 0;

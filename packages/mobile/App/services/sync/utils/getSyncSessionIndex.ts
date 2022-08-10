@@ -1,9 +1,11 @@
-import { Database } from '~/infra/db';
+import { LocalSystemFact } from '../../../models/LocalSystemFact';
 
-export const getSyncSessionIndex = async key => {
-  const localSystemFact = await Database.models.LocalSystemFact.findOne({
+export const getSyncSessionIndex = async (
+  key: string,
+): Promise<number> => {
+  const localSystemFact = await LocalSystemFact.findOne({
     key,
   });
 
-  return parseInt(localSystemFact?.key) || 0;
+  return localSystemFact ? parseInt(localSystemFact.key) : 0;
 };
