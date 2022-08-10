@@ -15,6 +15,7 @@ import {
 import { SYNC_DIRECTIONS } from '~/models/constants';
 import { SYNC_EVENT_ACTIONS } from '../../services/sync';
 import { formatDate } from '../../ui/helpers/date';
+import { DateFormats } from '../../ui/helpers/constants';
 
 export class MobileSyncManager {
   isSyncing = false;
@@ -98,8 +99,8 @@ export class MobileSyncManager {
       this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ERROR, { error: e.message });
     } finally {
       this.isSyncing = false;
+      this.lastSyncTime = formatDate(new Date(), DateFormats.DATE_AND_TIME);
       this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ENDED, `time=${Date.now() - startTime}ms`);
-      this.lastSyncTime = formatDate(new Date(), 'YYYY/mm/dd hh:m');
 
       console.info(`Sync took ${Date.now() - startTime} ms`);
     }

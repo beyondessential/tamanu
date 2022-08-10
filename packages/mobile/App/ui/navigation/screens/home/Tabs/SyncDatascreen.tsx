@@ -85,7 +85,7 @@ export const SyncDataScreen = (): ReactElement => {
               fontWeight={500}
               color={theme.colors.WHITE}
             >
-              Last successful Sync
+              Last successful sync
             </StyledText>
             <StyledText
               fontSize={screenPercentageToDP(1.7, Orientation.Height)}
