@@ -42,7 +42,7 @@ export const usePatientNavigation = () => {
         ...existingParams,
         encounterId,
         modal,
-      })}${search ? `?${new URLSearchParams(search).toString()}` : ''}`,
+      })}${search ? `?${new URLSearchParams(search)}` : ''}`,
     );
   };
 
