@@ -148,20 +148,9 @@
       "enabled": false,
       "schedule": "*/30 * * * *",
       "daysSinceSampleTime": 13,
-      "after": "2022-01-01",
-      "labTestCategories": [
-        "labTestCategory-COVID",
-        "labTestCategory-COVIDRAT"
-      ],
-      "labTestTypes": [
-        "labTestType-COVID",
-        "labTestType-COVIDNasopharyngealSwab",
-        "labTestType-COVIDNasalSwab",
-        "labTestType-COVIDOropharyngealSwab",
-        "labTestType-COVIDEndotrachealaspirate",
-        "labTestType-RDTNegativenofurthertestingneeded",
-        "labTestType-RDTPositive"
-      ]
+      "after": "2022-09-01",
+      "labTestCategories": [],
+      "labTestTypes": []
     },
     "duplicateAdditionalDataDeleter": {
       "enabled": true,
