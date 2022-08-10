@@ -3,8 +3,8 @@ import { pick } from 'lodash';
 
 import { BaseModel } from '../../../models/BaseModel';
 import { SyncRecord, SyncRecordData } from '../types';
-import { extractIncludedColumns } from './extractIncludedColumns';
 import { MODELS_MAP } from '~/models/modelsMap';
+import { extractIncludedColumns } from './extractIncludedColumns';
 
 const buildToSyncRecord = (model: typeof BaseModel, record: object): SyncRecord => {
   // TODO: handle lazy and/or embedded relations
