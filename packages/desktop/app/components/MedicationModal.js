@@ -4,6 +4,7 @@ import { useApi } from '../api';
 import { Suggester } from '../utils/suggester';
 import { Modal } from './Modal';
 import { MedicationForm } from '../forms/MedicationForm';
+import { getCurrentDateString } from '../utils/dateTime';
 
 export const MedicationModal = ({ open, onClose, onSaved, encounterId, medication, readOnly }) => {
   const api = useApi();
@@ -20,6 +21,7 @@ export const MedicationModal = ({ open, onClose, onSaved, encounterId, medicatio
       discontinuingClinicianId: data?.discontinuingClinicianId,
       discontinuingReason: data?.discontinuingReason,
       discontinued: !!data?.discontinuingClinicianId,
+      discontinuedDate: getCurrentDateString(),
     };
     api.put(`medication/${medication.id}`, payload);
 

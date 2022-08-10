@@ -3,6 +3,7 @@ import { BaseModel } from './BaseModel';
 import { AdministeredVaccine } from './AdministeredVaccine';
 import { IScheduledVaccine } from '~/types';
 import { ReferenceDataRelation, ReferenceData } from './ReferenceData';
+import { VisibilityStatus } from '../visibilityStatuses';
 
 @Entity('scheduled_vaccine')
 export class ScheduledVaccine extends BaseModel implements IScheduledVaccine {
@@ -31,4 +32,8 @@ export class ScheduledVaccine extends BaseModel implements IScheduledVaccine {
 
   @OneToMany(() => AdministeredVaccine, administeredVaccine => administeredVaccine.scheduledVaccine)
   administeredVaccines: AdministeredVaccine[];
+
+  @Column({ default: VisibilityStatus.Current })
+  visibilityStatus: string;
+
 }

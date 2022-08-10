@@ -2,15 +2,15 @@ import React, { useState } from 'react';
 import { useEncounter } from '../../../contexts/Encounter';
 import { ProcedureModal } from '../../../components/ProcedureModal';
 import { ProcedureTable } from '../../../components/ProcedureTable';
-import { ContentPane } from '../../../components/ContentPane';
-import { Button } from '../../../components';
+import { TableButtonRow, Button } from '../../../components';
+import { TabPane } from '../components';
 
 export const ProcedurePane = React.memo(({ encounter, readonly }) => {
   const [editedProcedure, setEditedProcedure] = useState(null);
   const { loadEncounter } = useEncounter();
 
   return (
-    <div>
+    <TabPane>
       <ProcedureModal
         editedProcedure={editedProcedure}
         encounterId={encounter.id}
@@ -20,17 +20,12 @@ export const ProcedurePane = React.memo(({ encounter, readonly }) => {
           await loadEncounter(encounter.id);
         }}
       />
-      <ProcedureTable encounterId={encounter.id} onItemClick={item => setEditedProcedure(item)} />
-      <ContentPane>
-        <Button
-          onClick={() => setEditedProcedure({})}
-          variant="contained"
-          color="primary"
-          disabled={readonly}
-        >
+      <TableButtonRow variant="small">
+        <Button onClick={() => setEditedProcedure({})} disabled={readonly}>
           New procedure
         </Button>
-      </ContentPane>
-    </div>
+      </TableButtonRow>
+      <ProcedureTable encounterId={encounter.id} onItemClick={item => setEditedProcedure(item)} />
+    </TabPane>
   );
 });

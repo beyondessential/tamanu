@@ -89,7 +89,7 @@ export const DumbAddLabRequestScreen = ({
     }
     if (!labTestTypes || labTestTypes.length === 0) {
       return {
-        form: 'At least one lab test types must be selected.',
+        form: 'At least one lab test type must be selected.',
       };
     }
 

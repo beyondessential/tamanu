@@ -6,6 +6,7 @@ import {
   ENCOUNTER_TYPE_VALUES,
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
   REFERENCE_TYPE_VALUES,
+  VISIBILITY_STATUSES,
 } from 'shared/constants';
 import { toDateTimeString } from '../utils/dateTime';
 
@@ -28,6 +29,7 @@ export function fakeScheduledVaccine(prefix = 'test-') {
     weeksFromLastVaccinationDue: null,
     index: random(0, 50),
     vaccineId: null,
+    visibilityStatus: VISIBILITY_STATUSES.CURRENT,
     ...fakeStringFields(`${prefix}scheduledVaccine_${id}_`, [
       'id',
       'category',
@@ -86,6 +88,7 @@ export function fakeReferenceData(prefix = 'test-') {
   const id = uuidv4();
   return {
     type: sample(REFERENCE_TYPE_VALUES),
+    visibilityStatus: VISIBILITY_STATUSES.CURRENT,
     ...fakeStringFields(`${prefix}referenceData_${id}_`, ['id', 'name', 'code']),
   };
 }
@@ -215,6 +218,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
     cityTown: chance.city(),
     division: chance.province({ full: true }),
     type: chance.pickone(['hospital', 'clinic']),
+    visibilityStatus: VISIBILITY_STATUSES.CURRENT,
   }),
   Patient: () => {
     const sex = chance.pickone(['male', 'female', 'other']);

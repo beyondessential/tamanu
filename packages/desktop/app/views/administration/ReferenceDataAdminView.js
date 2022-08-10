@@ -1,15 +1,9 @@
 import React, { memo, useCallback } from 'react';
-import styled from 'styled-components';
-
+import { ContentPane } from '../../components';
 import { useApi } from '../../api';
 import { CheckArrayInput } from '../../components/Field/CheckArrayInput';
 import { DataDocumentUploadForm } from './DataDocumentUploadForm';
-
 import { Field } from '../../components/Field';
-
-const Container = styled.div`
-  padding: 32px;
-`;
 
 export const ReferenceDataAdminView = memo(() => {
   const api = useApi();
@@ -32,7 +26,6 @@ export const ReferenceDataAdminView = memo(() => {
         { value: 'locations', label: 'location' },
         { value: 'diagnoses', label: 'icd10' },
         { value: 'triageReasons', label: 'triageReason' },
-        { value: 'imagingTypes', label: 'imagingType' },
         { value: 'procedures', label: 'procedureType' },
         { value: 'careplans', label: 'carePlan' },
         { value: 'ethnicities', label: 'ethnicity' },
@@ -60,14 +53,28 @@ export const ReferenceDataAdminView = memo(() => {
         { value: 'invoiceLineTypes', label: 'invoiceLineType' },
         { value: 'invoicePriceChangeTypes', label: 'invoicePriceChangeType' },
         { value: 'administeredVaccines', label: 'administeredVaccine' },
+        { value: 'xRayImagingAreas', label: 'xRayImagingArea' },
+        { value: 'ctScanImagingAreas', label: 'ctScanImagingArea' },
+        { value: 'ultrasoundImagingAreas', label: 'ultrasoundImagingArea' },
+        { value: 'echocardiogramImagingAreas', label: 'echocardiogramImagingArea' },
+        { value: 'mriImagingAreas', label: 'mriImagingArea' },
+        { value: 'mammogramImagingAreas', label: 'mammogramImagingArea' },
+        { value: 'ecgImagingAreas', label: 'ecgImagingArea' },
+        { value: 'holterMonitorImagingAreas', label: 'holterMonitorImagingArea' },
+        { value: 'endoscopyImagingAreas', label: 'endoscopyImagingArea' },
+        { value: 'fluroscopyImagingAreas', label: 'fluroscopyImagingArea' },
+        { value: 'angiogramImagingAreas', label: 'angiogramImagingArea' },
+        { value: 'colonoscopyImagingAreas', label: 'colonoscopyImagingArea' },
+        { value: 'vascularStudyImagingAreas', label: 'vascularStudyImagingArea' },
+        { value: 'stressTestImagingAreas', label: 'stressTestImagingArea' },
       ]}
     />
   );
 
   return (
-    <Container>
+    <ContentPane>
       <h1>Data admin</h1>
       <DataDocumentUploadForm onSubmit={onSubmit} additionalFields={whitelist} />
-    </Container>
+    </ContentPane>
   );
 });

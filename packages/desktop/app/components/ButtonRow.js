@@ -1,25 +1,32 @@
 import React, { Children } from 'react';
 import styled from 'styled-components';
 
-import { Button } from './Button';
+import { Button, OutlinedButton } from './Button';
 
 const Row = styled.div`
-  display: grid;
-  grid-auto-flow: column;
-  grid-column-gap: 0.7rem;
-  grid-template-columns: auto repeat(${p => p.items}, 8rem);
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-end;
+  margin-top: 10px;
+
+  // ensure the button row takes up the full width if it's used in a grid context
   grid-column: 1 / -1;
+
+  > button,
+  > div {
+    margin-left: 16px;
+  }
 `;
 
-// Add an empty div at the start to fill up any excess space.
-// Also note the 'auto' as the first element of grid-template-columns,
-// which corresponds to this div.
 export const ButtonRow = React.memo(({ children, ...props }) => (
   <Row items={Children.toArray(children).length || 1} {...props}>
-    <div />
     {children}
   </Row>
 ));
+
+const ConfirmButton = styled(Button)`
+  min-width: 90px;
+`;
 
 export const ConfirmCancelRow = React.memo(
   ({
@@ -32,20 +39,11 @@ export const ConfirmCancelRow = React.memo(
     ...props
   }) => (
     <ButtonRow {...props}>
-      {onCancel && (
-        <Button variant="contained" onClick={onCancel}>
-          {cancelText}
-        </Button>
-      )}
+      {onCancel && <OutlinedButton onClick={onCancel}>{cancelText}</OutlinedButton>}
       {onConfirm && (
-        <Button
-          variant="contained"
-          color={confirmColor}
-          onClick={onConfirm}
-          disabled={confirmDisabled}
-        >
+        <ConfirmButton color={confirmColor} onClick={onConfirm} disabled={confirmDisabled}>
           {confirmText}
-        </Button>
+        </ConfirmButton>
       )}
     </ButtonRow>
   ),

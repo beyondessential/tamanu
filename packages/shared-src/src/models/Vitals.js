@@ -22,6 +22,19 @@ export class Vitals extends Model {
         respiratoryRate: Sequelize.FLOAT,
         spo2: Sequelize.FLOAT,
         avpu: Sequelize.ENUM(AVPU_OPTIONS.map(x => x.value)),
+        gcs: Sequelize.FLOAT,
+        hemoglobin: Sequelize.FLOAT,
+        fastingBloodGlucose: Sequelize.FLOAT,
+        urinePh: Sequelize.FLOAT,
+        urineLeukocytes: Sequelize.STRING,
+        urineNitrites: Sequelize.STRING,
+        urobilinogen: Sequelize.FLOAT,
+        urineProtein: Sequelize.STRING,
+        bloodInUrine: Sequelize.STRING,
+        urineSpecificGravity: Sequelize.FLOAT,
+        urineKetone: Sequelize.STRING,
+        urineBilirubin: Sequelize.STRING,
+        urineGlucose: Sequelize.FLOAT,
       },
       {
         ...options,
@@ -29,22 +42,6 @@ export class Vitals extends Model {
           mustHaveEncounter() {
             if (!this.encounterId) {
               throw new Error('A vitals reading must be attached to an encounter.');
-            }
-          },
-          mustHaveOneReading() {
-            const allReadings = [
-              this.temperature,
-              this.height,
-              this.weight,
-              this.sbp,
-              this.dbp,
-              this.heartRate,
-              this.respiratoryRate,
-              this.spo2,
-              this.avpu,
-            ];
-            if (!allReadings.some(x => x)) {
-              throw new Error('At least one reading must be defined');
             }
           },
         },

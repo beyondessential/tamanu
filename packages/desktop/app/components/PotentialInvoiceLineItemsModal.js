@@ -1,11 +1,8 @@
 import React from 'react';
-
 import { INVOICE_LINE_TYPE_LABELS } from 'shared/constants';
 import { useApi } from '../api';
-
 import { Modal } from './Modal';
-import { ButtonRow } from './ButtonRow';
-import { Button } from './Button';
+import { ConfirmCancelRow } from './ButtonRow';
 import { DateDisplay } from './DateDisplay';
 import { DataFetchingTable } from './Table';
 
@@ -33,21 +30,14 @@ export const PotentialInvoiceLineItemsModal = ({ open, onClose, invoiceId, onSav
         noDataMessage="No potential invoice line items found"
         allowExport={false}
       />
-      <ButtonRow>
-        <Button variant="contained" onClick={onClose}>
-          Cancel
-        </Button>
-        <Button
-          variant="contained"
-          onClick={async () => {
-            await addPotentialLineItems();
-            onSaved();
-          }}
-          color="primary"
-        >
-          Add
-        </Button>
-      </ButtonRow>
+      <ConfirmCancelRow
+        confirmText="Add"
+        onConfirm={async () => {
+          await addPotentialLineItems();
+          onSaved();
+        }}
+        onCancel={onClose}
+      />
     </Modal>
   );
 };

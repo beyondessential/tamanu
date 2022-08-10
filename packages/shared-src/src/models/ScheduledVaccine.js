@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS } from 'shared/constants';
+import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from 'shared/constants';
 import { Model } from './Model';
 
 export class ScheduledVaccine extends Model {
@@ -13,6 +13,10 @@ export class ScheduledVaccine extends Model {
         weeksFromBirthDue: Sequelize.INTEGER,
         weeksFromLastVaccinationDue: Sequelize.INTEGER,
         index: Sequelize.INTEGER,
+        visibilityStatus: {
+          type: Sequelize.TEXT,
+          defaultValue: VISIBILITY_STATUSES.CURRENT,
+        },
       },
       {
         ...options,

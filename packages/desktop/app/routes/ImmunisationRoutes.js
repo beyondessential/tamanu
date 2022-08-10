@@ -1,17 +1,11 @@
 import React from 'react';
-import { Route, Switch } from 'react-router-dom';
-import { NotActiveView } from '../views';
-
+import { Redirect, Route, Switch } from 'react-router-dom';
 import { ImmunisationsView, CovidCampaignView } from '../views/patients';
 
 export const ImmunisationRoutes = React.memo(({ match }) => (
-  <div>
-    <Switch>
-      <Route exact path={match.path} component={ImmunisationsView} />
-
-      <Route path={`${match.path}/covid`} component={CovidCampaignView} />
-
-      <NotActiveView />
-    </Switch>
-  </div>
+  <Switch>
+    <Route exact path={`${match.path}/all`} component={ImmunisationsView} />
+    <Route path={`${match.path}/covid-campaign`} component={CovidCampaignView} />
+    <Redirect to={`${match.path}/all`} />
+  </Switch>
 ));
