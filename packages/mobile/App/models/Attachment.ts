@@ -1,5 +1,5 @@
 import { Entity, Column, AfterLoad, AfterRemove } from 'typeorm/browser';
-import { SYNC_DIRECTIONS } from './constants';
+import { SYNC_DIRECTIONS } from './types';
 import { BaseModel } from './BaseModel';
 import { SurveyResponseAnswer } from './SurveyResponseAnswer';
 import { readFileInDocuments, deleteFileInDocuments } from '../ui/helpers/file';

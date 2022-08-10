@@ -1,4 +1,4 @@
-import { SYNC_DIRECTIONS } from '../../../models/constants';
+import { SYNC_DIRECTIONS } from '../../../models/types';
 import { MODELS_MAP } from '~/models/modelsMap';
 
 export const getModelsForDirection = (

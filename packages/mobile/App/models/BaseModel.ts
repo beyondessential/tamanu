@@ -14,7 +14,7 @@ import {
   FindOptionsUtils,
   Repository,
 } from 'typeorm/browser';
-import { SYNC_DIRECTIONS } from './constants';
+import { SYNC_DIRECTIONS } from './types';
 import { getSyncSessionIndex } from '../services/sync/utils';
 
 export type ModelPojo = {

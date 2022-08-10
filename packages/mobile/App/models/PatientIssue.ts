@@ -2,7 +2,7 @@ import { Entity, Column, ManyToOne, RelationId, BeforeUpdate, BeforeInsert } fro
 import { BaseModel, FindMarkedForUploadOptions } from './BaseModel';
 import { Patient } from './Patient';
 import { IPatientIssue, PatientIssueType } from '~/types';
-import { SYNC_DIRECTIONS } from './constants';
+import { SYNC_DIRECTIONS } from './types';
 
 @Entity('patient_issue')
 export class PatientIssue extends BaseModel implements IPatientIssue {

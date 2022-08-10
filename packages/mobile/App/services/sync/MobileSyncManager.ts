@@ -12,7 +12,7 @@ import {
   getModelsForDirection,
   getSyncSessionIndex,
 } from './utils';
-import { SYNC_DIRECTIONS } from '~/models/constants';
+import { SYNC_DIRECTIONS } from '~/models/types';
 import { SYNC_EVENT_ACTIONS } from '../../services/sync';
 import { formatDate } from '../../ui/helpers/date';
 import { DateFormats } from '../../ui/helpers/constants';

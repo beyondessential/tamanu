@@ -3,7 +3,7 @@ import { BaseModel, FindMarkedForUploadOptions, IdRelation } from './BaseModel';
 import { Patient } from './Patient';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { IPatientSecondaryId } from '~/types';
-import { SYNC_DIRECTIONS } from './constants';
+import { SYNC_DIRECTIONS } from './types';
 
 @Entity('patient_secondary_id')
 export class PatientSecondaryId extends BaseModel implements IPatientSecondaryId {

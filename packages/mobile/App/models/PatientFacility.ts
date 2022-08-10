@@ -4,7 +4,7 @@ import { Entity, ManyToOne } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { Facility } from './Facility';
 import { Patient } from './Patient';
-import { SYNC_DIRECTIONS } from './constants';
+import { SYNC_DIRECTIONS } from './types';
 
 @Entity('patient_facility')
 export class PatientFacility extends BaseModel {
