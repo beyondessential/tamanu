@@ -1,8 +1,8 @@
-import { pick } from 'lodash';
+import { pick, without } from 'lodash';
 
 import { SyncRecordData, DataToPersist } from '../types';
 import { BaseModel } from '~/models/BaseModel';
-import { extractIncludedColumns } from '../metadata';
+
 
 export const getRelationIdsFieldMapping = (model: typeof BaseModel) =>
   model

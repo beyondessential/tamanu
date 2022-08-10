@@ -11,7 +11,7 @@ import {
 } from '~/services/auth/error';
 import { version } from '/root/package.json';
 
-import { callWithBackoff, callWithBackoffOptions } from './callWithBackoff';
+import { callWithBackoff, callWithBackoffOptions } from './utils/callWithBackoff';
 
 const API_VERSION = 1;
 
