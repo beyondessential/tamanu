@@ -1,3 +1,4 @@
+import { NOTE_TYPES } from 'shared/constants';
 import { generateReportFromQueryData } from './utilities';
 
 const FIELDS = [
@@ -13,7 +14,10 @@ const FIELDS = [
   'Encounter end date',
   'Encounter type',
   'Triage category',
-  'Time seen following triage/Wait time',
+  {
+    title: 'Time seen following triage/Wait time (hh:mm)',
+    accessor: data => data.waitTimeFollowingTriage,
+  },
   'Department',
   'Location',
   'Reason for encounter',
@@ -26,10 +30,14 @@ const FIELDS = [
   'Notes',
 ];
 
-const reportColumnTemplate = FIELDS.map(field => ({
-  title: field,
-  accessor: data => data[field],
-}));
+const reportColumnTemplate = FIELDS.map(field =>
+  typeof field === 'string'
+    ? {
+        title: field,
+        accessor: data => data[field],
+      }
+    : field,
+);
 
 const query = `
 with
@@ -51,8 +59,7 @@ with
       lab_request_id,
       json_agg(
         json_build_object(
-          'Name', ltt.name,
-          'Notes', 'TODO'
+          'Name', ltt.name
         )
       ) tests
     from lab_tests lt
@@ -140,33 +147,51 @@ with
     select
       ir.encounter_id,
       json_build_object(
-        'Name', image_type.name,
-        'Area to be imaged', area_notes.aggregated_notes,
+        'Name', imaging_types.imaging_type_label,
+        'Area to be imaged', array_to_string(coalesce(area_names, array[area_notes.aggregated_notes]), ','), 
         'Notes', non_area_notes.aggregated_notes
       ) "data"
     from imaging_requests ir
-    join reference_data image_type on image_type.id = ir.imaging_type_id
+
+    inner join (
+      select 
+        key, trim('"' from value::text) as imaging_type_label from jsonb_each(:imaging_area_labels)) as imaging_types
+    on ir.imaging_type = imaging_types.key
+
     left join (
       select 
         record_id,
         json_agg(note) aggregated_notes
       from notes_info
       cross join json_array_elements(aggregated_notes) note
-      where note->>'note_type' != 'abc' --cross join ok here as only 1 record will be matched
+      where note->>'Note type' != '${NOTE_TYPES.AREA_TO_BE_IMAGED}' --cross join ok here as only 1 record will be matched
       group by record_id
     ) non_area_notes
     on non_area_notes.record_id = ir.id 
+
     left join (
       select 
         record_id,
-        string_agg(note->>'content', 'ERROR - SHOULD ONLY BE ONE AREA TO BE IMAGED') aggregated_notes
+        string_agg(note->>'Content', 'ERROR - SHOULD ONLY BE ONE AREA TO BE IMAGED') aggregated_notes
       from notes_info
       cross join json_array_elements(aggregated_notes) note
-      where note->>'note_type' = 'abc' --cross join ok here as only 1 record will be matched
+      where note->>'Note type' = '${NOTE_TYPES.AREA_TO_BE_IMAGED}' --cross join ok here as only 1 record will be matched
       group by record_id
     ) area_notes
     on area_notes.record_id = ir.id
+    
+    left join (
+      select
+        imaging_request_id,
+        array_agg(reference_data.name) as area_names
+      from imaging_request_areas
+      inner join reference_data
+      on area_id = reference_data.id
+      group by imaging_request_id)
+    reference_list 
+    on reference_list.imaging_request_id = ir.id
   ),
+
   imaging_info as (
     select
       encounter_id,
@@ -286,6 +311,21 @@ with
     on l2.name = nh."to" or l2.name = nh."from" or l2.id = l.id
     where place = 'location' or place is null
     group by e.id, l.name, e.start_date, first_from
+  ),
+  triage_info as (
+    select
+      encounter_id,
+      hours::text || CHR(58) || remaining_minutes::text "waitTimeFollowingTriage"
+    from triages t,
+    lateral (
+      select
+        case when t.closed_time is null
+          then (extract(EPOCH from now()) - extract(EPOCH from t.triage_time))/60
+          else (extract(EPOCH from t.closed_time) - extract(EPOCH from t.triage_time))/60
+        end total_minutes
+    ) total_minutes,
+    lateral (select floor(total_minutes / 60) hours) hours,
+    lateral (select floor(total_minutes - hours*60) remaining_minutes) remaining_minutes
   )
 select
   p.display_id "Patient ID",
@@ -314,10 +354,7 @@ select
     when '3' then  'Non-urgent'
     else t.score
   end "Triage category",
-  case when t.closed_time is null 
-    then age(t.triage_time)
-    else age(t.closed_time, t.triage_time)
-  end "Time seen following triage/Wait time",
+  ti."waitTimeFollowingTriage",
   di2.department_history "Department",
   li.location_history "Location",
   e.reason_for_encounter "Reason for encounter",
@@ -339,6 +376,7 @@ left join lab_request_info lri on lri.encounter_id = e.id
 left join imaging_info ii on ii.encounter_id = e.id
 left join encounter_notes_info ni on ni.encounter_id = e.id
 left join triages t on t.encounter_id = e.id
+left join triage_info ti on ti.encounter_id = e.id
 left join location_info li on li.encounter_id = e.id
 left join department_info di2 on di2.encounter_id = e.id
 where e.end_date is not null
@@ -361,6 +399,22 @@ const getData = async (sequelize, parameters) => {
       billing_type: patientBillingType ?? null,
       department_id: department ?? null,
       location_id: location ?? null,
+      imaging_area_labels: JSON.stringify({
+        xRay: 'X-Ray',
+        ctScan: 'CT Scan',
+        ecg: 'Electrocardiogram (ECG)',
+        mri: 'MRI',
+        ultrasound: 'Ultrasound',
+        holterMonitor: 'Holter Monitor',
+        echocardiogram: 'Echocardiogram',
+        mammogram: 'Mammogram',
+        endoscopy: 'Endoscopy',
+        fluroscopy: 'Fluroscopy',
+        angiogram: 'Angiogram',
+        colonoscopy: 'Colonoscopy',
+        vascularStudy: 'Vascular Study',
+        stressTest: 'Treadmill',
+      }),
     },
   });
 };

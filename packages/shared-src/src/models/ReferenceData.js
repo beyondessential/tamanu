@@ -47,6 +47,14 @@ export class ReferenceData extends Model {
     );
   }
 
+  static initRelations(models) {
+    this.belongsToMany(models.ImagingRequest, {
+      through: models.ImagingRequestAreas,
+      as: 'area',
+      foreignKey: 'areaId',
+    });
+  }
+
   static async create(values) {
     // the type column is just text in sqlite so validate it here
     const { type } = values;

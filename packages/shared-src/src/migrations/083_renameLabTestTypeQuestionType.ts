@@ -29,7 +29,7 @@ export async function up(query: QueryInterface) {
     `UPDATE lab_test_types 
     SET
       result_type = CASE result_type WHEN :previousEnumNumber THEN :correctedNumber WHEN :previousEnumString THEN :correctedString END,
-      updated_at =  now()::timestamptz(3)
+      updated_at = now()::timestamptz(3)
     `,
     {
       replacements,
@@ -42,7 +42,7 @@ export async function down(query: QueryInterface) {
     `UPDATE lab_test_types
     SET 
       result_type = CASE result_type WHEN :correctedNumber THEN :previousEnumNumber WHEN :correctedString THEN :previousEnumString END,
-      updated_at =  now()::timestamptz(3)
+      updated_at = now()::timestamptz(3)
     `,
     {
       replacements,

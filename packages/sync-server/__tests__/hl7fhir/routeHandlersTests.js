@@ -2,6 +2,7 @@ import Chance from 'chance';
 import { format } from 'date-fns';
 import moment from 'moment';
 
+import { convertISO9075toRFC3339 } from 'shared/utils/dateTime';
 import { fake, fakeReferenceData, fakeUser } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 import { IDENTIFIER_NAMESPACE } from '../../app/hl7fhir/utils';
@@ -128,8 +129,8 @@ export function testDiagnosticReportHandler(integrationName, requestHeaders = {}
               resource: {
                 resourceType: 'DiagnosticReport',
                 id: labTest.id,
-                effectiveDateTime: labRequest.sampleTime,
-                issued: labRequest.requestedDate,
+                effectiveDateTime: convertISO9075toRFC3339(labRequest.sampleTime),
+                issued: convertISO9075toRFC3339(labRequest.requestedDate),
                 code: {
                   coding: [
                     {

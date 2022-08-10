@@ -33,16 +33,34 @@ const createDummySurvey = async models => {
   });
 
   const questions = [
-    { id: 'pde-Instruction', type: PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION },
-    { id: 'pde-Test1', type: 'Not Known' },
-    { id: 'pde-CheckboxQ', type: PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX },
-    { id: 'pde-DateQ', type: PROGRAM_DATA_ELEMENT_TYPES.DATE },
+    {
+      id: 'pde-Instruction',
+      type: PROGRAM_DATA_ELEMENT_TYPES.INSTRUCTION,
+      screenIndex: 1,
+      componentIndex: 1,
+    },
+    { id: 'pde-Test1', type: 'Not Known', screenIndex: 1, componentIndex: 2 },
+    {
+      id: 'pde-CheckboxQ',
+      type: PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX,
+      screenIndex: 1,
+      componentIndex: 1,
+    },
+    { id: 'pde-DateQ', type: PROGRAM_DATA_ELEMENT_TYPES.DATE, screenIndex: 3, componentIndex: 1 }, // screenIndex: 3 so should be last
     {
       id: 'pde-Autocomplete',
       type: PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE,
       config: '{"source":"ReferenceData"}',
+      screenIndex: 2,
+      componentIndex: 1,
     },
-    { id: 'pde-Result', name: 'Result', type: PROGRAM_DATA_ELEMENT_TYPES.RESULT },
+    {
+      id: 'pde-Result',
+      name: 'Result',
+      type: PROGRAM_DATA_ELEMENT_TYPES.RESULT,
+      screenIndex: 2,
+      componentIndex: 2,
+    },
   ];
 
   await models.ProgramDataElement.bulkCreate(
@@ -54,7 +72,13 @@ const createDummySurvey = async models => {
     })),
   );
   await models.SurveyScreenComponent.bulkCreate(
-    questions.map(({ id, config }) => ({ dataElementId: id, surveyId: SURVEY_ID, config })),
+    questions.map(({ id, config, screenIndex, componentIndex }) => ({
+      dataElementId: id,
+      surveyId: SURVEY_ID,
+      config,
+      screenIndex,
+      componentIndex,
+    })),
   );
 };
 
@@ -157,6 +181,24 @@ describe('Generic survey export', () => {
       expect(result.body).toMatchTabularReport([]);
     });
 
+    it('should not error if given an empty survey response', async () => {
+      const date = subDays(new Date(), 25);
+      await app.post('/v1/surveyResponse').send({
+        surveyId: SURVEY_ID,
+        startTime: date,
+        patientId: expectedPatient.id,
+        endTime: date,
+        answers: {},
+      });
+
+      const result = await app.post(REPORT_URL).send({
+        parameters: {
+          surveyId: SURVEY_ID,
+        },
+      });
+      expect(result).toHaveSucceeded();
+    });
+
     it('should return data ordered by date', async () => {
       const date1 = subDays(new Date(), 25);
       const date2 = subDays(new Date(), 25);
@@ -219,11 +261,11 @@ describe('Generic survey export', () => {
           Sex: expectedPatient.sex,
           Village: expectedVillage.name,
           'Submission Time': format(expectedDate, 'yyyy-MM-dd hh:mm a'),
-          'name-pde-Test1': 'Data point 1',
-          'name-pde-CheckboxQ': 'Yes',
-          'name-pde-DateQ': '2022-05-30',
-          'name-pde-Autocomplete': expectedVillage.name,
-          Result: 'Seventeen',
+          'name-pde-CheckboxQ': 'Yes', // screenIndex: 1, componentIndex: 1
+          'name-pde-Test1': 'Data point 1', // screenIndex: 1, componentIndex: 2
+          'name-pde-Autocomplete': expectedVillage.name, // screenIndex: 2, componentIndex: 1
+          'name-pde-DateQ': '2022-05-30', // screenIndex: 3, componentIndex: 1
+          Result: 'Seventeen', // Always last
         },
       ]);
     });
