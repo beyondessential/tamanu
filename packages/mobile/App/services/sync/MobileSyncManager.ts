@@ -1,7 +1,7 @@
 import mitt from 'mitt';
 
 import { Database } from '~/infra/db';
-
+import { MODELS_MAP } from '~/models/modelsMap';
 import { CentralServerConnection } from './CentralServerConnection';
 import {
   setSyncSessionSequence,
@@ -26,7 +26,7 @@ export class MobileSyncManager {
 
   errors = [];
 
-  models;
+  models: typeof MODELS_MAP;
 
   centralServer: CentralServerConnection;
 
@@ -95,9 +95,8 @@ export class MobileSyncManager {
     } finally {
       this.isSyncing = false;
       this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ENDED, `time=${Date.now() - startTime}ms`);
+      console.info(`Sync took ${Date.now() - startTime} ms`);
     }
-
-    console.info(`Sync took ${Date.now() - startTime} ms`);
   }
 
   async runSync(): Promise<void> {

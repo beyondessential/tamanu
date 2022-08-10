@@ -1,5 +1,6 @@
 import { groupBy, chunk } from 'lodash';
 
+import { SyncRecord, PersistResult } from '../types';
 import { sortInDependencyOrder } from './sortInDependencyOrder';
 import { SQLITE_MAX_PARAMETERS } from '~/infra/db/helpers';
 import { buildFromSyncRecord } from './buildFromSyncRecord';
@@ -9,9 +10,9 @@ import { BaseModel } from '~/models/BaseModel';
 
 const saveChangesForModel = async (
   model: typeof BaseModel,
-  changes,
+  changes: SyncRecord[],
   progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
-) => {
+): Promise<PersistResult> => {
   // split changes into create, update, delete
   const idsForDelete = changes.filter(c => c.isDeleted).map(c => c.data.id);
   const idsForUpsert = changes.filter(c => !c.isDeleted && c.data.id).map(c => c.data.id);
@@ -61,9 +62,9 @@ const saveChangesForModel = async (
 
 export const saveIncomingChanges = async (
   models: typeof MODELS_MAP,
-  changes,
+  changes: SyncRecord[],
   progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
-) => {
+): Promise<PersistResult> => {
   const sortedModels = await sortInDependencyOrder(models);
   const changesByRecordType = groupBy(changes, c => c.recordType);
   const failures = [];

@@ -1,7 +1,14 @@
 import { chunk } from 'lodash';
-import { chunkRows, SQLITE_MAX_PARAMETERS } from '~/infra/db/helpers';
 
-export const executeInserts = async (model, rows, progressCallback) => {
+import { PersistResult, DataToPersist } from '../types';
+import { chunkRows, SQLITE_MAX_PARAMETERS } from '~/infra/db/helpers';
+import { BaseModel } from '~/models/BaseModel';
+
+export const executeInserts = async (
+  model: typeof BaseModel,
+  rows: DataToPersist[],
+  progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
+): Promise<PersistResult> => {
   let insertedRowsCount = 0;
   const failures = [];
 
@@ -30,7 +37,11 @@ export const executeInserts = async (model, rows, progressCallback) => {
   return { failures };
 };
 
-export const executeUpdates = async (model, rows, progressCallback) => {
+export const executeUpdates = async (
+  model: typeof BaseModel,
+  rows: DataToPersist[],
+  progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
+): Promise<PersistResult> => {
   let updatedRowsCount = 0;
   const failures = [];
 
@@ -59,7 +70,11 @@ export const executeUpdates = async (model, rows, progressCallback) => {
   return { failures };
 };
 
-export const executeDeletes = async (model, rowIds, progressCallback) => {
+export const executeDeletes = async (
+  model: typeof BaseModel,
+  rowIds: string[],
+  progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
+): Promise<PersistResult> => {
   let deletedRowsCount = 0;
   const failures = [];
 

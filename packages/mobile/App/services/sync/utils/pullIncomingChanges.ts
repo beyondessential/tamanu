@@ -1,3 +1,4 @@
+import { SyncRecord } from '../types'
 import { CentralServerConnection } from '../CentralServerConnection';
 import { calculatePageLimit } from './calculatePageLimit';
 
@@ -6,7 +7,7 @@ export const pullIncomingChanges = async (
   currentSessionIndex: number,
   lastSessionIndex: number,
   progressCallback: (total: number, progressCount: number) => void,
-) => {
+): Promise<SyncRecord[]> => {
   const totalToPull = await centralServer.setPullFilter(currentSessionIndex, lastSessionIndex);
 
   let offset = 0;

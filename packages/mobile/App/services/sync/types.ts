@@ -18,6 +18,14 @@ export interface SyncRecord {
   data: SyncRecordData;
 }
 
+export type PersistResult = {
+  failures: string[];
+}
+
+export type DataToPersist = {
+  [key: string]: unknown
+}
+
 export interface SyncRecordData {
   id: string;
   [key: string]: any;

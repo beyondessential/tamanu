@@ -1,7 +1,7 @@
 import mitt from 'mitt';
-import { chunk } from 'lodash';
+
 import { readConfig } from '~/services/config';
-import { LoginResponse } from './types';
+import { LoginResponse, SyncRecord } from './types';
 import {
   AuthenticationError,
   OutdatedVersionError,
@@ -163,7 +163,7 @@ export class CentralServerConnection {
     return this.post(`sync/${sessionIndex}/pullFilter`, {}, body, {});
   }
 
-  async pull(sessionIndex: number, limit: number = 100, offset: number = 0) {
+  async pull(sessionIndex: number, limit: number = 100, offset: number = 0): Promise<SyncRecord[]> {
     const query = { limit, offset };
     return this.get(`sync/${sessionIndex}/pull`, query);
   }
