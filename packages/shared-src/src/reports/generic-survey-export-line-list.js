@@ -141,7 +141,7 @@ export const transformSingleResponse = async (
           dataElementIdToComponent[dataElementId]?.dataElement?.dataValues?.type || 'unknown';
         const componentConfig = autocompleteComponentMap.get(dataElementId);
         newAnswers[key] = await getAnswerBody(models, componentConfig, type, body, {
-          dateFormat: 'YYYY-MM-DD',
+          dateFormat: 'yyyy-MM-dd',
         });
       }
     }),

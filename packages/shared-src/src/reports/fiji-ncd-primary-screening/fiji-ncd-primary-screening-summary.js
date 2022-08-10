@@ -307,7 +307,7 @@ export const dataGenerator = async ({ sequelize }, parameters = {}) => {
     // Sort oldest to most recent
     .sort(({ date: date1 }, { date: date2 }) => date1 - date2)
     .map(({ date, ...otherFields }) => ({
-      date: format(date, 'dd-MM-yyyy'),
+      date: format(new Date(date), 'dd-MM-yyyy'),
       ...otherFields,
     }));
 

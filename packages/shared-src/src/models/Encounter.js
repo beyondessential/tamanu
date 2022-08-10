@@ -282,13 +282,13 @@ export class Encounter extends Model {
   static checkNeedsAutoDischarge({ encounterType, startDate, endDate }) {
     return (
       encounterType === ENCOUNTER_TYPES.CLINIC &&
-      isBefore(startDate, startOfDay(new Date())) &&
+      isBefore(new Date(startDate), startOfDay(new Date())) &&
       !endDate
     );
   }
 
   static getAutoDischargeEndDate({ startDate }) {
-    return endOfDay(startDate);
+    return endOfDay(new Date(startDate));
   }
 
   static sanitizeForSyncServer(values) {

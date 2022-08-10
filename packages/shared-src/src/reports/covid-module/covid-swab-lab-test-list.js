@@ -3,10 +3,11 @@ import {
   differenceInMilliseconds,
   isWithinInterval,
   isBefore,
-  isAfter
+  isAfter,
   startOfDay,
   endOfDay,
   format,
+  isSameDay,
 } from 'date-fns';
 import { groupBy } from 'lodash';
 import { Op } from 'sequelize';
@@ -209,12 +210,10 @@ const getLatestPatientAnswerInDateRange = (
   );
 
   const latestAnswer = sortedLatestToOldestAnswers.find(a =>
-    isWithinInterval(a.responseEndTime).isBetween(
-      currentlabTestDate,
-      nextLabTestDate,
-      undefined,
-      '[)', // '[)' means currentLabTestDate <= surveyResponse.endTime < nextLabTestDate
-    ),
+    isWithinInterval(a.responseEndTime, {
+      start: currentlabTestDate,
+      end: nextLabTestDate,
+    }),
   );
 
   return latestAnswer?.body;
@@ -272,7 +271,7 @@ const getLabTestRecords = async (
         const { date: nextLabTestTimestamp } = nextLabTest;
         // if next lab test not on the same date (next one on a different date,
         // startOf('day') to exclude the next date when comparing range later
-        if (!currentLabTestDate.isSame(nextLabTestTimestamp, 'day')) {
+        if (!isSameDay(currentLabTestDate, nextLabTestTimestamp)) {
           nextLabTestDate = startOfDay(nextLabTestTimestamp);
         } else {
           // if next lab test on the same date, just use its raw timestamp
@@ -289,7 +288,7 @@ const getLabTestRecords = async (
       const village = patient?.village?.name;
       const patientAdditionalData = patient?.additionalData?.[0];
 
-      const formatDate = date => (date ? format(date, dateFormat) : '');
+      const formatDate = date => (date ? format(new Date(date), dateFormat) : '');
 
       const labTestRecord = {
         firstName: patient?.firstName,
@@ -338,7 +337,7 @@ const getLabTestRecords = async (
 export const baseDataGenerator = async (
   { models },
   parameters = {},
-  { surveyId, reportColumnTemplate, surveyQuestionCodes, dateFormat = 'YYYY/MM/DD' },
+  { surveyId, reportColumnTemplate, surveyQuestionCodes, dateFormat = 'yyyy/MM/dd' },
 ) => {
   const labTests = await getLabTests(models, parameters);
   const transformedAnswers = await getFijiCovidAnswers(models, parameters, {
