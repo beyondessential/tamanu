@@ -25,11 +25,11 @@ export class ChangeEncounterTypeForm extends React.PureComponent {
   };
 
   render() {
-    const { extraRoute, onSubmit } = this.props;
+    const { type, onSubmit } = this.props;
     return (
       <Form
         initialValues={{
-          encounterType: extraRoute,
+          encounterType: type,
         }}
         render={this.renderForm}
         onSubmit={onSubmit}
