@@ -143,6 +143,8 @@ const createNameSuggester = (endpoint, modelName = pascal(endpoint), filterByFac
 
 createNameSuggester('department', 'Department', true);
 createNameSuggester('location', 'Location', true);
+createNameSuggester('allDepartments', 'Department');
+createNameSuggester('allLocations', 'Location');
 createNameSuggester('facility');
 
 createSuggester(
