@@ -1,8 +1,15 @@
-import { SyncRecord, SyncRecordData } from '../types';
+import { SyncRecord } from '../types';
 
 import { CentralServerConnection } from '../CentralServerConnection';
 import { calculatePageLimit } from './calculatePageLimit';
 
+/**
+ * Push outgoing changes in batches
+ * @param centralServer 
+ * @param sessionIndex 
+ * @param changes 
+ * @param progressCallback 
+ */
 export const pushOutgoingChanges = async (
   centralServer: CentralServerConnection,
   sessionIndex: number,

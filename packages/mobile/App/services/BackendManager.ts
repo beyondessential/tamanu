@@ -51,7 +51,7 @@ export class BackendManager {
       return; // already started
     }
 
-    await this.syncManager.waitForEnd();
+    await this.syncManager.waitForCurrentSyncToEnd();
         
     const run = async (): Promise<void> => {
       try {
@@ -81,6 +81,6 @@ export class BackendManager {
     }
     clearInterval(this.interval);
     this.interval = null;
-    await this.syncManager.waitForEnd();
+    await this.syncManager.waitForCurrentSyncToEnd();
   }
 }

@@ -1,5 +1,6 @@
 import { IUser } from '~/types';
 import { callWithBackoffOptions } from './utils/callWithBackoff';
+
 export type DownloadRecordsResponse = {
   count: number;
   cursor: string;

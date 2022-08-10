@@ -44,6 +44,10 @@ export class MobileSyncManager {
     this.createEmitterListener();
   }
 
+  /**
+   * Create emitter listener to listen to any errors happening during the sync,
+   * and then the errors can be shown in the Syn screen (SyncErrorDisplay)
+   */
   createEmitterListener() {
     this.emitter.on('*', (action, ...args) => {
       switch (action) {
@@ -63,18 +67,33 @@ export class MobileSyncManager {
     });
   }
 
+  /**
+   * Set the current progress (%) and the current progress message for the circular progress bar
+   * @param progress
+   * @param progressMessage
+   */
   setProgress(progress: number, progressMessage: string): void {
     this.progress = progress;
     this.progressMessage = progressMessage;
     this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_IN_PROGRESS, this.progress);
   }
 
+  /**
+   * Calculate the current progress (%) using the final total and the current records in progress
+   * @param total
+   * @param batchTotal
+   * @param progressMessage
+   */
   updateProgress = (total: number, batchTotal: number, progressMessage: string): void => {
     const progressPercentage = Math.min(Math.ceil((batchTotal / total) * 100));
     this.setProgress(progressPercentage, progressMessage);
   };
 
-  async waitForEnd(): Promise<void> {
+  /**
+   * Wait for the current sync to end
+   * @returns
+   */
+  async waitForCurrentSyncToEnd(): Promise<void> {
     if (this.isSyncing) {
       return new Promise(resolve => {
         const done = (): void => {
@@ -86,6 +105,10 @@ export class MobileSyncManager {
     }
   }
 
+  /**
+   * Trigger syncing and send through the sync errors if there is any
+   * @returns
+   */
   async triggerSync(): Promise<void> {
     if (this.isSyncing) {
       console.warn(
@@ -120,6 +143,8 @@ export class MobileSyncManager {
     this.errors = [];
     this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STARTED);
 
+    // the first step of sync is to start a session and retrieve the index used as both the id of
+    // the session, and a marker on the global sync timeline
     const currentSessionIndex = await this.centralServer.startSyncSession();
     const lastSuccessfulSessionIndex = await getSyncSessionIndex('LastSuccessfulSyncSession');
 
@@ -127,24 +152,29 @@ export class MobileSyncManager {
       `MobileSyncManager.runSync(): Sync started with session index ${currentSessionIndex}, last successful session index: ${lastSuccessfulSessionIndex}`,
     );
 
+    // persist the session index in LocalSystemFact table now
+    // so that any records that are created or updated from this point on, even mid way through this
+    // sync, are marked using the new index and will be captured in the next sync
     await setSyncSessionSequence(this.models, currentSessionIndex, 'CurrentSyncSession');
 
     await this.syncOutgoingChanges(currentSessionIndex, lastSuccessfulSessionIndex);
     await this.syncIncomingChanges(currentSessionIndex, lastSuccessfulSessionIndex);
 
-    await setSyncSessionSequence(this.models, currentSessionIndex, 'LastSuccessfulSyncSession');
-
     await this.centralServer.endSyncSession(currentSessionIndex);
   }
 
+  /**
+   * Syncing outgoing changes in batches
+   * @param currentSessionIndex
+   * @param lastSuccessfulSessionIndex
+   */
   async syncOutgoingChanges(
     currentSessionIndex: number,
     lastSuccessfulSessionIndex: number,
   ): Promise<void> {
-    console.info(`MobileSyncManager.syncOutgoingChanges(): Began sync outgoing changes`);
+    console.info(`MobileSyncManager.syncOutgoingChanges(): Begin sync outgoing changes`);
 
     const modelsToPush = getModelsForDirection(this.models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL);
-
     const outgoingChanges = await snapshotOutgoingChanges(modelsToPush, lastSuccessfulSessionIndex);
 
     if (outgoingChanges.length > 0) {
@@ -158,13 +188,21 @@ export class MobileSyncManager {
     }
 
     this.lastSyncPushedRecordsCount = outgoingChanges.length;
+
     console.info(
       `MobileSyncManager.syncOutgoingChanges(): End sync outgoing changes, outgoing changes count: ${outgoingChanges.length}`,
     );
   }
 
+  /**
+   * Syncing incoming changes happens in two phases: pulling all the records from the server (in batches),
+   * then saving all those records into the local database
+   * this avoids a period of time where the the local database may be "partially synced"
+   * @param currentSessionIndex
+   * @param lastSessionIndex
+   */
   async syncIncomingChanges(currentSessionIndex: number, lastSessionIndex: number): Promise<void> {
-    console.info(`MobileSyncManager.syncIncomingChanges(): Began sync incoming changes`);
+    console.info(`MobileSyncManager.syncIncomingChanges(): Begin sync incoming changes`);
 
     const incomingChanges = await pullIncomingChanges(
       this.centralServer,
@@ -184,6 +222,9 @@ export class MobileSyncManager {
       const modelsToPull = getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
 
       let failures = [];
+
+      // Save all incoming changes in 1 transaction so that the whole sync session save
+      // either fail 100% or suceed 100%, no partial save.
       await Database.client.transaction(async () => {
         ({ failures } = await saveIncomingChanges(
           modelsToPull,
@@ -202,9 +243,15 @@ export class MobileSyncManager {
       if (failures.length > 0) {
         throw new Error(`Saving ${failures.length} individual record failures`);
       }
+
+      // update the last successful sync in the same save transaction - if updating the cursor fails,
+      // we want to roll back the rest of the saves so that we don't end up detecting them as
+      // needing a sync up to the central server when we attempt to resync from the same old cursor
+      await setSyncSessionSequence(this.models, currentSessionIndex, 'LastSuccessfulSyncSession');
     }
 
     this.lastSyncPulledRecordsCount = incomingChanges.length;
+
     console.info(
       `MobileSyncManager.syncIncomingChanges(): End sync incoming changes, incoming changes count: ${incomingChanges.length}`,
     );

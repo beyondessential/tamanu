@@ -86,6 +86,8 @@ export class Patient extends BaseModel implements IPatient {
       where: { patient: patientId, facility: facilityId },
     });
 
+    console.log('patientFacility', patientFacility);
+    console.log('facilityId', facilityId);
     if (!patientFacility) {
       await PatientFacility.createAndSaveOne({ patient: patientId, facility: facilityId });
     }

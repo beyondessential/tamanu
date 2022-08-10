@@ -8,6 +8,13 @@ import { executeInserts, executeUpdates, executeDeletes } from './executeCrud';
 import { MODELS_MAP } from '~/models/modelsMap';
 import { BaseModel } from '~/models/BaseModel';
 
+/**
+ * Save changes for a single model in batch because SQLite only support limited number of parameters
+ * @param model 
+ * @param changes 
+ * @param progressCallback 
+ * @returns 
+ */
 const saveChangesForModel = async (
   model: typeof BaseModel,
   changes: SyncRecord[],
@@ -60,6 +67,13 @@ const saveChangesForModel = async (
   return { failures: [...createFailures, ...updateFailures, ...deleteFailures] };
 };
 
+/**
+ * Save all the incoming changes in the right order of dependency
+ * @param models 
+ * @param changes 
+ * @param progressCallback 
+ * @returns 
+ */
 export const saveIncomingChanges = async (
   models: typeof MODELS_MAP,
   changes: SyncRecord[],

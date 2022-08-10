@@ -2,11 +2,10 @@ import { without } from 'lodash';
 
 import { BaseModel } from '~/models/BaseModel';
 
-/*
- *   extractIncludedColumns
- *
- *    Input: a model
- *    Output: columns to include when exporting/importing that model
+/**
+ * Extract the columns to include when exporting/importing for a model
+ * @param model 
+ * @returns 
  */
 export const extractIncludedColumns = (model: typeof BaseModel) => {
     const { metadata } = model.getRepository();

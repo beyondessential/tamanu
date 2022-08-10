@@ -14,6 +14,13 @@ const buildToSyncRecord = (model: typeof BaseModel, record: object): SyncRecord 
   return { recordType: model.getPluralTableName(), data };
 };
 
+/**
+ * Get all the records that have updatedAtSyncIndex >= the last successful sync index, 
+ * meaning that these records have been updated since the last successful sync
+ * @param models 
+ * @param fromSessionIndex 
+ * @returns 
+ */
 export const snapshotOutgoingChanges = async (
   models: typeof MODELS_MAP,
   fromSessionIndex: number,
