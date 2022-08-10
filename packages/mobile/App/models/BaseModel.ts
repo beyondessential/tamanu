@@ -114,23 +114,33 @@ export abstract class BaseModel extends BaseEntity {
 
   @BeforeUpdate()
   async markForUpload() {
-    const index = await getSyncSessionIndex('CurrentSyncSession');
     // TAN-884: make sure records always have markedForUpload set to true when sync is ongoing
     // This may sometimes cause records to be uploaded even when an update failed!
     // We take that risk, since it's better than not uploading a record.
 
     const thisModel = this.constructor as typeof BaseModel;
+    const index = await getSyncSessionIndex('CurrentSyncSession');
+    if (
+      [null, undefined].includes(this.updatedAtSyncIndex) ||
+      (await thisModel.findOne({ id: this.id }))?.updatedAtSyncIndex === this.updatedAtSyncIndex
+    ) {
+      this.updatedAtSyncIndex = index;
+    }
 
     // acquire an exclusive lock before running the update
     await thisModel.markedForUploadMutex.runExclusive(async () => {
-      await thisModel.getRepository().update({ id: this.id }, { markedForUpload: true, updatedAtSyncIndex: index });
+      await thisModel
+        .getRepository()
+        .update({ id: this.id }, { markedForUpload: true, updatedAtSyncIndex: index });
     });
   }
 
   @BeforeInsert()
   async assignUpdatedAtSyncIndex() {
     const index = await getSyncSessionIndex('CurrentSyncSession');
-    this.updatedAtSyncIndex = index;
+    if ([null, undefined].includes(this.updatedAtSyncIndex)) {
+      this.updatedAtSyncIndex = index;
+    }
   }
 
   async markParentForUpload<T extends typeof BaseModel>(parentModel: T, parentProperty: string) {
@@ -250,7 +260,7 @@ export abstract class BaseModel extends BaseEntity {
   static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
 
   static uploadLimit = 100;
-  
+
   // Exclude these properties from uploaded model
   // May be columns or relationIds
   static excludedSyncColumns: string[] = [
@@ -267,8 +277,8 @@ export abstract class BaseModel extends BaseEntity {
 
   //TODO: A hack for now to match with the tables in the central server
   static getPluralTableName(): string {
-    return `${this.getRepository().metadata.tableName}s`
-  };
+    return `${this.getRepository().metadata.tableName}s`;
+  }
 
   getPlainData(): ModelPojo {
     const thisModel = this.constructor as typeof BaseModel;
