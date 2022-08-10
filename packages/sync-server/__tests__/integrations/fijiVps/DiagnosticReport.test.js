@@ -1,4 +1,5 @@
 import Chance from 'chance';
+import { format } from 'date-fns';
 
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
@@ -122,8 +123,11 @@ describe('VPS integration - DiagnosticReport', () => {
             resource: {
               resourceType: 'DiagnosticReport',
               id: labTest.id,
-              effectiveDateTime: labRequest.sampleTime,
-              issued: labRequest.requestedDate,
+              effectiveDateTime: format(
+                new Date(labRequest.sampleTime),
+                "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+              ),
+              issued: format(new Date(labRequest.requestedDate), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"),
               code: {
                 coding: [
                   {

@@ -1,4 +1,5 @@
 import config from 'config';
+import { format } from 'date-fns';
 import { LAB_REQUEST_STATUSES } from 'shared/constants';
 
 import { labTestTypeToLOINCCode } from './loinc';
@@ -107,8 +108,8 @@ export function labTestToHL7DiagnosticReport(labTest) {
     ],
     subject: patientToHL7Reference(patient),
     status: labRequestStatusToHL7Status(labRequest.status),
-    effectiveDateTime: labRequest.sampleTime,
-    issued: labRequest.requestedDate,
+    effectiveDateTime: format(new Date(labRequest.sampleTime), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"),
+    issued: format(new Date(labRequest.requestedDate), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"),
     code: {
       text: labTestType.name,
       coding: [
