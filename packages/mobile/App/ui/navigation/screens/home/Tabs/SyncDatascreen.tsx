@@ -105,7 +105,7 @@ export const SyncDataScreen = (): ReactElement => {
                 fontWeight={500}
                 color={theme.colors.WHITE}
               >
-                {`pulled ${lastSyncPulledRecordsCount} records, pushed ${lastSyncPushedRecordsCount} records`}
+                {`pulled ${lastSyncPulledRecordsCount} record(s), pushed ${lastSyncPushedRecordsCount} record(s)`}
               </StyledText>
             ) : null}
           </>
