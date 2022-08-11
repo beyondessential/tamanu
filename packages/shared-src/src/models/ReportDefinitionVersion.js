@@ -20,7 +20,7 @@ export class ReportDefinitionVersion extends Model {
     super.init(
       {
         id: primaryKey,
-        name: {
+        versionNumber: {
           type: Sequelize.STRING,
           allowNull: false,
         },
@@ -63,7 +63,7 @@ export class ReportDefinitionVersion extends Model {
            */
           type: Sequelize.TEXT,
           allowNull: false,
-          default: '[]',
+          default: '{}',
           validate: {
             matchesSchema: optionsValidator.validate,
           },

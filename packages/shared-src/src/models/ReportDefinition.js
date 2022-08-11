@@ -1,3 +1,4 @@
+import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
@@ -6,6 +7,10 @@ export class ReportDefinition extends Model {
     super.init(
       {
         id: primaryKey,
+        name: {
+          type: Sequelize.STRING,
+          allowNull: false,
+        },
       },
       {
         ...options,

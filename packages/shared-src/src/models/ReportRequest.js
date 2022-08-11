@@ -9,7 +9,7 @@ export class ReportRequest extends Model {
     super.init(
       {
         id: primaryKey,
-        legacyReportId: {
+        legacyReportType: {
           type: Sequelize.STRING,
           allowNull: true,
         },
@@ -27,14 +27,14 @@ export class ReportRequest extends Model {
             // No validation on deleted records
             if (!this.deletedAt) return;
 
-            if (!this.versionId && !this.legacyReportId) {
+            if (!this.versionId && !this.legacyReportType) {
               throw new InvalidOperationError(
-                'A report request must have either a legacyReportId or a versionId',
+                'A report request must have either a legacyReportType or a versionId',
               );
             }
-            if (this.versionId && this.legacyReportId) {
+            if (this.versionId && this.legacyReportType) {
               throw new InvalidOperationError(
-                'A report request must have either a legacyReportId or a versionId, not both',
+                'A report request must have either a legacyReportType or a versionId, not both',
               );
             }
           },
