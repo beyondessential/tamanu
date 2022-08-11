@@ -71,7 +71,7 @@ const CertificateTitle = {
 
 const getCertificateRemark = patient => ({
   test: '',
-  clearance: `This notice certifies that ${patient.firstName} ${patient.lastName} is no longer considered infectious following 13 days of self-isolation from the date of their first positive SARS-CoV-2 test and are medically cleared from COVID-19.`,
+  clearance: `This notice certifies that ${patient.firstName || ''} ${patient.lastName || ''} is no longer considered infectious following 13 days of self-isolation from the date of their first positive SARS-CoV-2 test and are medically cleared from COVID-19.`,
 });
 
 export const CovidLabCertificate = ({
