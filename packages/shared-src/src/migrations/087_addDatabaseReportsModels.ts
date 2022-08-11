@@ -1,4 +1,4 @@
-import { STRING, DATE, NOW, UUIDV4, QueryInterface, INTEGER, ENUM } from 'sequelize';
+import { STRING, DATE, BOOLEAN, NOW, UUIDV4, QueryInterface, INTEGER, ENUM } from 'sequelize';
 
 const basics = {
   id: {
@@ -21,10 +21,32 @@ const basics = {
   },
 };
 
+const syncColumns = {
+  marked_for_push: {
+    type: BOOLEAN,
+    allowNull: false,
+    defaultValue: true,
+  },
+  is_pushing: {
+    type: BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  },
+  pushed_at: {
+    type: DATE,
+    allowNull: true,
+  },
+  pulled_at: {
+    type: DATE,
+    allowNull: true,
+  },
+};
+
 export async function up(query: QueryInterface) {
   // Add Report Definition Table
   await query.createTable('report_definitions', {
     ...basics,
+    ...syncColumns,
     name: {
       type: STRING,
       allowNull: false,
@@ -34,6 +56,7 @@ export async function up(query: QueryInterface) {
   // Add Report Definition Version Table
   await query.createTable('report_definition_versions', {
     ...basics,
+    ...syncColumns,
     version_number: {
       type: INTEGER,
       allowNull: false,
