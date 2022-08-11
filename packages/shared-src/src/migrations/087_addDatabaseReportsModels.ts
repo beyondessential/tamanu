@@ -102,15 +102,12 @@ export async function up(query: QueryInterface) {
     allowNull: true,
     references: { model: 'report_definition_versions', key: 'id' },
   });
-
-  await query.renameColumn('report_requests', 'report_type', 'legacy_report_type');
 }
 
 export async function down(query: QueryInterface) {
   // Undo Updates to Report Requests Table
   await query.removeColumn('report_requests', 'facility_id');
   await query.removeColumn('report_requests', 'version_id');
-  await query.renameColumn('report_requests', 'legacy_report_type', 'report_type');
 
   // Remove Report Definition Table
   await query.dropTable('report_definition_versions');

@@ -9,10 +9,7 @@ export class ReportRequest extends Model {
     super.init(
       {
         id: primaryKey,
-        legacyReportType: {
-          type: Sequelize.STRING,
-          allowNull: true,
-        },
+        reportType: { type: Sequelize.STRING, allowNull: false },
         recipients: { type: Sequelize.TEXT, allowNull: false },
         parameters: Sequelize.TEXT,
         status: { type: Sequelize.ENUM(REPORT_REQUEST_STATUS_VALUES), allowNull: false },
@@ -27,14 +24,14 @@ export class ReportRequest extends Model {
             // No validation on deleted records
             if (!this.deletedAt) return;
 
-            if (!this.versionId && !this.legacyReportType) {
+            if (!this.versionId && !this.reportType) {
               throw new InvalidOperationError(
-                'A report request must have either a legacyReportType or a versionId',
+                'A report request must have either a reportType or a versionId',
               );
             }
-            if (this.versionId && this.legacyReportType) {
+            if (this.versionId && this.reportType) {
               throw new InvalidOperationError(
-                'A report request must have either a legacyReportType or a versionId, not both',
+                'A report request must have either a reportType or a versionId, not both',
               );
             }
           },
