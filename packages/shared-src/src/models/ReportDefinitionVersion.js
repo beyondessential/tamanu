@@ -61,7 +61,7 @@ export class ReportDefinitionVersion extends Model {
            *   "allFacilities": false,
            * }
            */
-          type: Sequelize.TEXT,
+          type: Sequelize.JSONB,
           allowNull: false,
           default: '{}',
           validate: {
@@ -88,7 +88,7 @@ export class ReportDefinitionVersion extends Model {
 
     this.hasMany(models.ReportRequest, {
       foreignKey: 'versionId',
-      as: 'runs',
+      as: 'requests',
     });
   }
 }

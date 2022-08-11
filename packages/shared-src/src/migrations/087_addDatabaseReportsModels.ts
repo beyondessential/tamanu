@@ -1,4 +1,4 @@
-import { STRING, DATE, BOOLEAN, NOW, UUIDV4, QueryInterface, INTEGER, ENUM } from 'sequelize';
+import { STRING, DATE, BOOLEAN, NOW, UUIDV4, QueryInterface, INTEGER, JSONB } from 'sequelize';
 
 const basics = {
   id: {
@@ -66,7 +66,7 @@ export async function up(query: QueryInterface) {
       allowNull: true,
     },
     status: {
-      type: ENUM('draft', 'published'),
+      type: STRING,
       allowNull: false,
       defaultValue: 'draft',
     },
@@ -75,7 +75,7 @@ export async function up(query: QueryInterface) {
       allowNull: true,
     },
     options: {
-      type: STRING,
+      type: JSONB,
       allowNull: true,
     },
     definition_id: {
