@@ -1,4 +1,4 @@
-import { STRING, DATE, NOW, UUIDV4, QueryInterface } from 'sequelize';
+import { STRING, DATE, NOW, UUIDV4, QueryInterface, INTEGER, ENUM } from 'sequelize';
 
 const basics = {
   id: {
@@ -7,15 +7,15 @@ const basics = {
     allowNull: false,
     primaryKey: true,
   },
-  createdAt: {
+  created_at: {
     type: DATE,
     defaultValue: NOW,
   },
-  updatedAt: {
+  updated_at: {
     type: DATE,
     defaultValue: NOW,
   },
-  deletedAt: {
+  deleted_at: {
     type: DATE,
     defaultValue: NOW,
   },
@@ -34,8 +34,8 @@ export async function up(query: QueryInterface) {
   // Add Report Definition Version Table
   await query.createTable('report_definition_versions', {
     ...basics,
-    name: {
-      type: STRING,
+    version_number: {
+      type: INTEGER,
       allowNull: false,
     },
     notes: {
@@ -43,9 +43,9 @@ export async function up(query: QueryInterface) {
       allowNull: true,
     },
     status: {
-      type: STRING,
+      type: ENUM('draft', 'published'),
       allowNull: false,
-      default: 'draft',
+      defaultValue: 'draft',
     },
     query: {
       type: STRING,
@@ -60,9 +60,9 @@ export async function up(query: QueryInterface) {
       allowNull: true,
       references: { model: 'report_definitions', key: 'id' },
     },
-    userId: {
+    user_id: {
       type: STRING,
-      references: { model: 'user', key: 'id' },
+      references: { model: 'users', key: 'id' },
       allowNull: false,
     },
   });
@@ -74,43 +74,20 @@ export async function up(query: QueryInterface) {
     references: { model: 'facilities', key: 'id' },
   });
 
-  await query.addColumn('report_requests', 'legacy_report_id', {
-    type: STRING,
-    allowNull: true,
-  });
-
   await query.addColumn('report_requests', 'version_id', {
     type: STRING,
     allowNull: true,
     references: { model: 'report_definition_versions', key: 'id' },
   });
 
-  await query.sequelize.query(`
-      UPDATE report_requests
-      SET legacy_report_id = report_type
-    `);
-
-  await query.removeColumn('report_requests', 'report_type');
+  await query.renameColumn('report_requests', 'report_type', 'legacy_report_type');
 }
 
 export async function down(query: QueryInterface) {
   // Undo Updates to Report Requests Table
-
-  // Adding a non-nullable column will fail if there are records in the db
-  await query.addColumn('report_requests', 'report_type', {
-    type: STRING,
-    allowNull: false,
-    default: 'DEFAULT_REPORT_TYPE',
-  });
-  await query.sequelize.query(`
-      UPDATE report_requests
-      SET report_type = legacy_report_id
-    `);
-  // Removing the default value
-  await query.changeColumn('report_requests', 'report_type', {
-    type: STRING,
-    allowNull: false,
-  });
+  await query.removeColumn('report_requests', 'facility_id');
+  await query.removeColumn('report_requests', 'version_id');
+  await query.renameColumn('report_requests', 'legacy_report_type', 'report_type');
 
   // Remove Report Definition Table
   await query.dropTable('report_definition_versions');
