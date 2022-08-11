@@ -16322,14 +16322,7 @@ jest-each@^28.1.1:
     jest-util "^28.1.1"
     pretty-format "^28.1.1"
 
-jest-environment-node-single-context@^28.0.0:
-  version "28.0.0"
-  resolved "https://registry.yarnpkg.com/jest-environment-node-single-context/-/jest-environment-node-single-context-28.0.0.tgz#765a1aeb07da8f539f8d5d0688f6821a2c1728a3"
-  integrity sha512-Gqs/P5sNHriFOsA8q0sjR9R7SrMPyXkBWRcO8AoXiv1kAuye9CAEqQXZse2gB/dXdTJ0lE/2BOXsJYXWbpP/Zw==
-  dependencies:
-    jest-environment-node "^28.0.2"
-
-jest-environment-node@^28.0.2, jest-environment-node@^28.1.1:
+jest-environment-node@^28.1.1:
   version "28.1.1"
   resolved "https://registry.yarnpkg.com/jest-environment-node/-/jest-environment-node-28.1.1.tgz#1c86c59003a7d319fa06ea3b1bbda6c193715c67"
   integrity sha512-2aV/eeY/WNgUUJrrkDJ3cFEigjC5fqT1+fCclrY6paqJ5zVPoM//sHmfgUUp7WLYxIdbPwMiVIzejpN56MxnNA==
