@@ -146,8 +146,8 @@
       }
     },
     "duplicateAdditionalDataDeleter": {
-      "enabled": false,
-      "schedule": "0 * * * *"
+      "enabled": true,
+      "schedule": "*/15 * * * *"
     }
   },
   "integrations": {
@@ -193,6 +193,9 @@
     "mSupply": {
       "enabled": false,
       "requireClientHeaders": true
+    },
+    "fhir": {
+      "enabled": false
     }
   },
   // on the sync-server, don't read these values from config!
@@ -435,7 +438,8 @@
         "enableInvoicing": false,
         "registerNewPatient": true,
         "hideOtherSex": true,
-        "enablePatientDeaths": false
+        "enablePatientDeaths": false,
+        "mergePopulatedPADRecords": true
       },
       "templates": {
         "letterhead": {
@@ -463,6 +467,7 @@
           "laboratoryName": "Approved test provider"
         }
       },
+      "imagingTypes": {},
       "printMeasures": {
         "stickerLabelPage": {
           "pageWidth": "210mm",

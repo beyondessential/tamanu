@@ -1,62 +1,109 @@
-import React from 'react';
-import moment from 'moment';
-import styled from 'styled-components';
+import React, { useState } from 'react';
+import { remote } from 'electron';
+import Tooltip from '@material-ui/core/Tooltip';
+import format from 'date-fns/format';
 
-export function formatShort(date) {
-  if (!date) return '--/--/----';
+const getLocale = () => remote.app.getLocale() || 'default';
 
-  return moment(date).format('DD/MM/YYYY'); // "04/03/2019" dd/mm in locale order
-}
+const intlFormatDate = (date, formatOptions, fallback = 'Unknown') => {
+  if (!date) return fallback;
+  return new Date(date).toLocaleString(getLocale(), formatOptions);
+};
 
-function formatLong(date) {
-  if (!date) return 'Date information not available';
+export const formatShort = date =>
+  intlFormatDate(date, { day: '2-digit', month: '2-digit', year: 'numeric' }, '--/--/----'); // 12/04/2020
 
-  return moment(date).format('LLLL'); // "Monday, March 4, 2019 10:22 AM"
-}
+export const formatTime = date =>
+  intlFormatDate(
+    date,
+    {
+      timeStyle: 'short',
+      hour12: true,
+    },
+    '__:__',
+  ); // 12:30 am
 
-function formatDuration(date) {
-  return moment(date).from(moment(), true);
-}
+const formatShortExplicit = date =>
+  intlFormatDate(date, {
+    dateStyle: 'medium',
+  }); // "4 Mar 2019"
 
-export function formatTime(date) {
-  return moment(date).format('hh:mm a');
-}
+// long format date is displayed on hover
+const formatLong = date =>
+  intlFormatDate(
+    date,
+    {
+      timeStyle: 'short',
+      dateStyle: 'full',
+      hour12: true,
+    },
+    'Date information not available',
+  ); // "Thursday, 14 July 2022, 03:44 pm"
 
-function formatShortExplicit(date) {
-  if (!date) return 'Unknown';
+// Diagnostic info for debugging
+const DiagnosticInfo = ({ date: rawDate }) => {
+  const date = new Date(rawDate);
+  const displayDate = formatLong(date);
+  const { timeZone } = Intl.DateTimeFormat().resolvedOptions();
+  const timeZoneOffset = format(date, 'XXX');
 
-  return moment(date).format('Do MMM YYYY'); // "4th Mar 2019" unambiguous short format
-}
-
-const StyledAbbr = styled.abbr`
-  text-decoration: none;
-`;
-
-export const DateDisplay = ({
-  date,
-  showDate = true,
-  showTime = false,
-  showDuration = false,
-  showExplicitDate = false,
-  ...props
-}) => {
-  const parts = [];
-  if (showDate) {
-    parts.push(formatShort(date));
-  } else if (showExplicitDate) {
-    parts.push(formatShortExplicit(date));
-  }
-  if (showDuration) {
-    parts.push(`(${formatDuration(date)})`);
-  }
-  if (showTime) {
-    parts.push(formatTime(date));
-  }
   return (
-    <StyledAbbr {...props} title={formatLong(date)} data-test-class="date-display-abbr">
-      {parts.join(' ')}
-    </StyledAbbr>
+    <div>
+      Display date: {displayDate} <br />
+      Raw date: {date.toString()} <br />
+      Time zone: {timeZone} <br />
+      Time zone offset: {timeZoneOffset}
+    </div>
   );
 };
+
+// Tooltip that shows the long date or full diagnostic date info if the shift key is held down
+// before mousing over the date display
+const DateTooltip = ({ date, children }) => {
+  const [tooltipOpen, setTooltipOpen] = useState(false);
+  const [debug, setDebug] = useState(false);
+
+  const handleOpen = event => {
+    if (event.shiftKey) {
+      setDebug(true);
+    }
+    setTooltipOpen(true);
+  };
+
+  const handleClose = () => {
+    setTooltipOpen(false);
+    setDebug(false);
+  };
+
+  const tooltipTitle = debug ? <DiagnosticInfo date={date} /> : formatLong(date);
+
+  return (
+    <Tooltip open={tooltipOpen} onClose={handleClose} onOpen={handleOpen} title={tooltipTitle}>
+      {children}
+    </Tooltip>
+  );
+};
+
+export const DateDisplay = React.memo(
+  ({ date: dateValue, showDate = true, showTime = false, showExplicitDate = false }) => {
+    const date = typeof dateValue === 'string' ? new Date(dateValue) : dateValue;
+
+    const parts = [];
+    if (showDate) {
+      parts.push(formatShort(date));
+    } else if (showExplicitDate) {
+      parts.push(formatShortExplicit(date));
+    }
+    if (showTime) {
+      parts.push(formatTime(date));
+    }
+
+    return (
+      <DateTooltip date={dateValue}>
+        <span>{parts.join(' ')}</span>
+      </DateTooltip>
+    );
+  },
+);
 
 DateDisplay.rawFormat = formatShort;

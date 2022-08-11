@@ -8,6 +8,7 @@ import { checkIsLoggedIn } from './store/auth';
 import { getCurrentRoute } from './store/router';
 import { LoginView } from './views';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { PromiseErrorBoundary } from './components/PromiseErrorBoundary';
 import { DecisionSupportModal } from './components/DecisionSupportModal';
 import { ForbiddenErrorModal } from './components/ForbiddenErrorModal';
 
@@ -33,13 +34,15 @@ export function App({ sidebar, children }) {
   return (
     <AppContainer>
       {sidebar}
-      <ErrorBoundary errorKey={currentRoute}>
-        <AppContentsContainer>
-          {children}
-          <DecisionSupportModal />
-          <ForbiddenErrorModal />
-        </AppContentsContainer>
-      </ErrorBoundary>
+      <PromiseErrorBoundary>
+        <ErrorBoundary errorKey={currentRoute}>
+          <AppContentsContainer>
+            {children}
+            <DecisionSupportModal />
+            <ForbiddenErrorModal />
+          </AppContentsContainer>
+        </ErrorBoundary>
+      </PromiseErrorBoundary>
     </AppContainer>
   );
 }

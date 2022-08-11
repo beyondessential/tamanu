@@ -13,7 +13,7 @@ export class Program extends Model {
       {
         ...options,
         indexes: [{ unique: true, fields: ['code'] }],
-        syncDirection: SYNC_DIRECTIONS.CENTRAL_TO_FACILITY,
+        syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
       },
     );
   }

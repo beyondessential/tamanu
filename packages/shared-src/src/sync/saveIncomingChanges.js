@@ -23,7 +23,7 @@ const saveChangesForModel = async (model, changes, isCentralServer) => {
     existing.map(e => [e.id, e.updatedAtSyncIndex]),
   );
   const recordsForCreate = changes
-    .filter(c => !c.isDeleted && !idToUpdatedSinceSession[c.data.id])
+    .filter(c => !c.isDeleted && idToUpdatedSinceSession[c.data.id] === undefined)
     .map(({ data }) => {
       // validateRecord(data, null); TODO add in validation
       return sanitizeData(data);

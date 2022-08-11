@@ -4,24 +4,36 @@ import { InvalidOperationError } from 'shared/errors';
 import { LAB_REQUEST_STATUSES, NOTE_TYPES, SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
+import { dateTimeType } from './dateTimeType';
+import { getCurrentDateTimeString } from '../utils/dateTime';
 
 export class LabRequest extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
         id: primaryKey,
-
         sampleTime: {
+          ...dateTimeType('sampleTime'),
+          allowNull: false,
+          defaultValue: getCurrentDateTimeString,
+        },
+        // Legacy column has historical date time data as a backup
+        sampleTimeLegacy: {
           type: Sequelize.DATE,
           allowNull: false,
           defaultValue: Sequelize.NOW,
         },
         requestedDate: {
+          ...dateTimeType('requestedDate'),
+          allowNull: false,
+          defaultValue: getCurrentDateTimeString,
+        },
+        // Legacy column has historical date time data as a backup
+        requestedDateLegacy: {
           type: Sequelize.DATE,
           allowNull: false,
           defaultValue: Sequelize.NOW,
         },
-
         specimenAttached: {
           type: Sequelize.BOOLEAN,
           defaultValue: false,

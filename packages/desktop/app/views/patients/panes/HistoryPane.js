@@ -10,7 +10,6 @@ import { PatientHistory } from '../../../components/PatientHistory';
 export const HistoryPane = React.memo(({ disabled }) => {
   const { navigateToEncounter, navigateToPatient } = usePatientNavigation();
   const patient = useSelector(state => state.patient);
-  const { currentEncounter } = patient;
 
   const { loadEncounter } = useEncounter();
 
@@ -31,7 +30,6 @@ export const HistoryPane = React.memo(({ disabled }) => {
     <>
       <ContentPane>
         <PatientEncounterSummary
-          encounter={currentEncounter}
           viewEncounter={onViewEncounter}
           openCheckin={onOpenCheckin}
           openTriage={onOpenTriage}

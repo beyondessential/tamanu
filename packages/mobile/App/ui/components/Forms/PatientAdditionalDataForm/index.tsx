@@ -19,21 +19,8 @@ export const PatientAdditionalDataForm = ({
   // patient for sync (see beforeInsert and beforeUpdate decorators).
   const onCreateOrEditAdditionalData = useCallback(
     async values => {
-      // A user isn't guaranteed to have any additional data,
-      // in which case it needs to be created.
-      if (additionalData) {
-        // Edit additional data
-        await PatientAdditionalData.updateValues(additionalData.id, values);
-      } else {
-        // Create new empty additional data
-        const newAdditionalData = await PatientAdditionalData.createAndSaveOne({
-          patient: patientId,
-        });
+      await PatientAdditionalData.updateForPatient(patientId, values);
 
-        // Update the newly created additional data to properly save relations
-        // defined with 'IdRelation' and 'RelationId' decorators.
-        await PatientAdditionalData.updateValues(newAdditionalData.id, values);
-      }
 
       // Navigate back to patient details
       navigation.navigate(Routes.HomeStack.PatientDetailsStack.Index);
