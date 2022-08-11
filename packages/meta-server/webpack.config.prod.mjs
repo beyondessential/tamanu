@@ -1,4 +1,4 @@
-import baseConfig from '../common-configs/webpack.config.mjs';
+import baseConfig from '../../common.webpack.config.mjs';
 
 export default {
   ...baseConfig,
