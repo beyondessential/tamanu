@@ -5,7 +5,7 @@ import { useEncounter } from '../contexts/Encounter';
 import { Modal } from './Modal';
 import { ChangeEncounterTypeForm } from '../forms/ChangeEncounterTypeForm';
 
-export const ChangeEncounterTypeModal = React.memo(({ open, encounter, onClose, extraRoute }) => {
+export const ChangeEncounterTypeModal = React.memo(({ open, encounter, onClose }) => {
   const { writeAndViewEncounter } = useEncounter();
   const { navigateToEncounter } = usePatientNavigation();
   const changeEncounterType = useCallback(
@@ -23,7 +23,6 @@ export const ChangeEncounterTypeModal = React.memo(({ open, encounter, onClose, 
         onSubmit={changeEncounterType}
         onCancel={onClose}
         encounter={encounter}
-        extraRoute={extraRoute}
       />
     </Modal>
   );
