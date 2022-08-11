@@ -82,6 +82,10 @@ export class ReportDefinitionVersion extends Model {
       as: 'definition',
     });
 
+    this.belongsTo(models.User, {
+      foreignKey: { name: 'userId', allowNull: false },
+    });
+
     this.hasMany(models.ReportRequest, {
       foreignKey: 'versionId',
       as: 'runs',
