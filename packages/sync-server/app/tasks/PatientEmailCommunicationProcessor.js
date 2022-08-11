@@ -48,11 +48,13 @@ export class PatientEmailCommunicationProcessor extends ScheduledTask {
         plain: true,
       });
       const toAddress = emailPlain.destination || emailPlain.patient?.email;
-      log.info('\n');
-      log.info(`Processing email : ${emailPlain.id}`);
-      log.info(`Email type       : ${emailPlain.type}`);
-      log.info(`Email to patient : ${emailPlain.patient?.id}`);
-      log.info(`At address       : ${toAddress}`);
+
+      log.info("Sending email to patient", { 
+        communicationId: emailPlain.id,
+        type: emailPlain.type,
+        patientId: emailPlain.patient?.id, 
+      });
+
       try {
         const result = await this.context.emailService.sendEmail({
           to: toAddress,
@@ -61,11 +63,21 @@ export class PatientEmailCommunicationProcessor extends ScheduledTask {
           text: emailPlain.content,
           attachment: emailPlain.attachment,
         });
+        if(result.error) {
+          log.warn('Email failed', {
+            communicationId: emailPlain.id,
+            error: result.error,
+          });
+        }
         return email.update({
           status: result.status,
           error: result.error,
         });
       } catch (e) {
+        log.warn('Email errored', {
+          communicationId: emailPlain.id,
+          error: e.message,
+        });
         return email.update({
           status: COMMUNICATION_STATUSES.ERROR,
           error: e.message,
