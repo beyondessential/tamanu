@@ -1,5 +1,5 @@
 // This file is the typeORM equivalent to the same utility in shared-src/migrations
-import { QueryRunner } from 'typeorm';
+import { QueryRunner, TableColumn } from 'typeorm';
 const ISO9075_FORMAT = 'YYYY-MM-DD HH:mm:ss';
 const ISO9075_FORMAT_LENGTH = ISO9075_FORMAT.length;
 
@@ -8,18 +8,37 @@ export async function createDateTimeStringUpMigration(
   tableName: string,
   columnName: string,
 ): Promise<void> {
-  const ver = await queryRunner.query('SELECT sqlite_version()');
-  console.log(ver);
-  // 1. Move existing data to new legacy column
-  await queryRunner.query(
-    `ALTER TABLE ${tableName} RENAME COLUMN ${columnName} TO ${columnName}_legacy`,
+  // 1. Create legacy columns
+  await queryRunner.addColumn(
+    tableName,
+    new TableColumn({
+      name: `${columnName}_legacy`,
+      type: 'date',
+      isNullable: true,
+    }),
   );
 
-  // 2. Remake original column name as string type
+  // 2. Copy data to legacy columns for backup
   await queryRunner.query(
-    `ALTER TABLE ${tableName}
-       ADD COLUMN ${columnName} TYPE CHAR(${ISO9075_FORMAT_LENGTH})
-       USING TO_CHAR(${columnName}_legacy, '${ISO9075_FORMAT}');`,
+    `UPDATE ${tableName}
+      SET ${columnName}_legacy = ${columnName}`,
+  );
+
+  // 3.Change column types from of original columns from date to string & convert data to string
+  // NOTE: SQLite doesn't like to update columns, drop the column and recreate it as the new type
+  await queryRunner.dropColumn(tableName, columnName);
+  await queryRunner.addColumn(
+    tableName,
+    new TableColumn({
+      name: columnName,
+      type: 'string',
+      length: `${ISO9075_FORMAT_LENGTH}`,
+      isNullable: true,
+    }),
+  );
+  await queryRunner.query(
+    `UPDATE ${tableName}
+      SET ${columnName} = ${columnName}_legacy`,
   );
 }
 
