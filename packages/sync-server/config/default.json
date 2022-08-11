@@ -521,7 +521,8 @@
         "registerNewPatient": true,
         "hideOtherSex": true,
         "enablePatientDeaths": false,
-        "mergePopulatedPADRecords": true
+        "mergePopulatedPADRecords": true,
+        "enableCovidClearanceCertificate": false
       },
       "templates": {
         "letterhead": {
