@@ -108,8 +108,85 @@ describe('SurveyResponse', () => {
       });
     });
 
-    it.todo('should error if a question has no source');
-    it.todo("should error if the answer body doesn't point to a valid source");
-    it.todo('should hint if users might have legacy ReferenceData sources');
+    it('should error if the config has no source', async () => {
+      // arrange
+      const { Facility } = models;
+      const facility = await Facility.create(fake(Facility));
+      const { response } = await setupAutocompleteSurvey('{}', facility.id);
+
+      // act
+      const result = await app.get(`/v1/surveyResponse/${response.id}`);
+
+      // assert
+      expect(result).not.toHaveSucceeded();
+      expect(result.body).toMatchObject({
+        error: {
+          message: 'Survey is misconfigured: Question config did not specify a valid source',
+        },
+      });
+    });
+
+    it("should error if the config doesn't point to a valid source", async () => {
+      // arrange
+      const { Facility } = models;
+      const facility = await Facility.create(fake(Facility));
+      const { response } = await setupAutocompleteSurvey(
+        JSON.stringify({ source: 'Frobnizzle' }),
+        facility.id,
+      );
+
+      // act
+      const result = await app.get(`/v1/surveyResponse/${response.id}`);
+
+      // assert
+      expect(result).not.toHaveSucceeded();
+      expect(result.body).toMatchObject({
+        error: {
+          message: 'Survey is misconfigured: Question config did not specify a valid source',
+        },
+      });
+    });
+
+    it("should error if the answer body doesn't point to a real record", async () => {
+      // arrange
+      const { Facility } = models;
+      await Facility.create(fake(Facility));
+      const { response } = await setupAutocompleteSurvey(
+        JSON.stringify({ source: 'Facility' }),
+        'this-facility-id-does-not-exist',
+      );
+
+      // act
+      const result = await app.get(`/v1/surveyResponse/${response.id}`);
+
+      // assert
+      expect(result).not.toHaveSucceeded();
+      expect(result.body).toMatchObject({
+        error: {
+          message: `Selected answer Facility[this-facility-id-does-not-exist] not found`,
+        },
+      });
+    });
+
+    it('should error and hint if users might have legacy ReferenceData sources', async () => {
+      // arrange
+      const { Facility } = models;
+      const facility = await Facility.create(fake(Facility));
+      const { response } = await setupAutocompleteSurvey(
+        JSON.stringify({ source: 'ReferenceData', where: { type: 'facility' } }),
+        facility.id,
+      );
+
+      // act
+      const result = await app.get(`/v1/surveyResponse/${response.id}`);
+
+      // assert
+      expect(result).not.toHaveSucceeded();
+      expect(result.body).toMatchObject({
+        error: {
+          message: `Selected answer ReferenceData[${facility.id}] not found (check that the surveyquestion's source isn't ReferenceData for a Location, Facility, or Department)`,
+        },
+      });
+    });
   });
 });
