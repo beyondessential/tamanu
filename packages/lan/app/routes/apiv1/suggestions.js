@@ -37,7 +37,7 @@ function createSuggesterRoute(
       );
 
       const searchQuery = (query.q || '').trim().toLowerCase();
-      const where = whereBuilder(`%${searchQuery}%`);
+      const where = whereBuilder(`%${searchQuery}%`, query);
       const results = await model.findAll({
         where,
         order: [positionQuery, searchColumn],
@@ -117,25 +117,34 @@ REFERENCE_TYPE_VALUES.map(typeName =>
   })),
 );
 
-const createNameSuggester = (endpoint, modelName = pascal(endpoint), filterByFacility = false) =>
-  createSuggester(
-    endpoint,
-    modelName,
-    search => ({
-      name: { [Op.iLike]: search },
-      ...VISIBILITY_CRITERIA,
-      ...(filterByFacility && { facilityId: config.serverFacilityId }),
-    }),
-    ({ id, name }) => ({
-      id,
-      name,
-    }),
-  );
+const DEFAULT_WHERE_BUILDER = search => ({
+  name: { [Op.iLike]: search },
+  ...VISIBILITY_CRITERIA,
+});
 
-createNameSuggester('department', 'Department', true);
-createNameSuggester('location', 'Location', true);
-createNameSuggester('allDepartments', 'Department');
-createNameSuggester('allLocations', 'Location');
+const filterByFacilityWhereBuilder = (search, query) => {
+  const baseWhere = DEFAULT_WHERE_BUILDER(search);
+  if (!query.filterByFacility) {
+    return baseWhere;
+  }
+  return {
+    ...baseWhere,
+    facilityId: config.serverFacilityId,
+  };
+};
+
+const createNameSuggester = (
+  endpoint,
+  modelName = pascal(endpoint),
+  whereBuilderFn = DEFAULT_WHERE_BUILDER,
+) =>
+  createSuggester(endpoint, modelName, whereBuilderFn, ({ id, name }) => ({
+    id,
+    name,
+  }));
+
+createNameSuggester('department', 'Department', filterByFacilityWhereBuilder);
+createNameSuggester('location', 'Location', filterByFacilityWhereBuilder);
 createNameSuggester('facility');
 
 createSuggester(
