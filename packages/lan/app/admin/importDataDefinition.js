@@ -3,16 +3,20 @@ import { getJsDateFromExcel } from 'excel-date-to-js';
 import moment from 'moment';
 
 import { log } from 'shared/services/logging';
-import { ENCOUNTER_TYPES } from 'shared/constants';
+import { ENCOUNTER_TYPES, IMAGING_AREA_TYPES } from 'shared/constants';
 
 const sanitise = string => string.trim().replace(/[^A-Za-z0-9]+/g, '');
 
-const recordTransformer = type => item => ({
-  recordType: type,
-  data: {
-    ...item,
-  },
-});
+const recordTransformer = type => item => {
+  // ignore "note" column
+  const { note, ...rest } = item;
+  return {
+    recordType: type,
+    data: {
+      ...rest,
+    },
+  };
+};
 
 const referenceDataTransformer = type => item => {
   const { code } = item;
@@ -115,13 +119,63 @@ const makeTransformer = (sheetName, transformer) => {
 const transformers = [
   makeTransformer('facilities', recordTransformer('facility')),
   makeTransformer('villages', referenceDataTransformer('village')),
+  makeTransformer('manufacturers', referenceDataTransformer('manufacturer')),
   makeTransformer('drugs', referenceDataTransformer('drug')),
   makeTransformer('allergies', referenceDataTransformer('allergy')),
   makeTransformer('departments', recordTransformer('department')),
   makeTransformer('locations', recordTransformer('location')),
   makeTransformer('diagnoses', referenceDataTransformer('icd10')),
   makeTransformer('triageReasons', referenceDataTransformer('triageReason')),
-  makeTransformer('imagingTypes', referenceDataTransformer('imagingType')),
+  makeTransformer(
+    'xRayImagingAreas',
+    referenceDataTransformer(IMAGING_AREA_TYPES.X_RAY_IMAGING_AREA),
+  ),
+  makeTransformer(
+    'ultrasoundImagingAreas',
+    referenceDataTransformer(IMAGING_AREA_TYPES.ULTRASOUND_IMAGING_AREA),
+  ),
+  makeTransformer(
+    'ctScanImagingAreas',
+    referenceDataTransformer(IMAGING_AREA_TYPES.CT_SCAN_IMAGING_AREA),
+  ),
+  makeTransformer(
+    'echocardiogramImagingAreas',
+    referenceDataTransformer(IMAGING_AREA_TYPES.ECHOCARDIOGRAM_IMAGING_AREA),
+  ),
+  makeTransformer('mriImagingAreas', referenceDataTransformer(IMAGING_AREA_TYPES.MRI_IMAGING_AREA)),
+  makeTransformer(
+    'mammogramImagingAreas',
+    referenceDataTransformer(IMAGING_AREA_TYPES.MAMMOGRAM_IMAGING_AREA),
+  ),
+  makeTransformer('ecgImagingAreas', referenceDataTransformer(IMAGING_AREA_TYPES.ECG_IMAGING_AREA)),
+  makeTransformer(
+    'holterMonitorImagingAreas',
+    referenceDataTransformer(IMAGING_AREA_TYPES.HOLTER_MONITOR_IMAGING_AREA),
+  ),
+  makeTransformer(
+    'endoscopyImagingAreas',
+    referenceDataTransformer(IMAGING_AREA_TYPES.ENDOSCOPY_IMAGING_AREA),
+  ),
+  makeTransformer(
+    'fluroscopyImagingAreas',
+    referenceDataTransformer(IMAGING_AREA_TYPES.FLUROSCOPY_IMAGING_AREA),
+  ),
+  makeTransformer(
+    'angiogramImagingAreas',
+    referenceDataTransformer(IMAGING_AREA_TYPES.ANGIOGRAM_IMAGING_AREA),
+  ),
+  makeTransformer(
+    'colonoscopyImagingAreas',
+    referenceDataTransformer(IMAGING_AREA_TYPES.COLONOSCOPY_IMAGING_AREA),
+  ),
+  makeTransformer(
+    'stressTestImagingAreas',
+    referenceDataTransformer(IMAGING_AREA_TYPES.STRESS_TEST_IMAGING_AREA),
+  ),
+  makeTransformer(
+    'vascularStudyImagingAreas',
+    referenceDataTransformer(IMAGING_AREA_TYPES.VASCULAR_STUDY_IMAGING_AREA),
+  ),
   makeTransformer('procedures', referenceDataTransformer('procedureType')),
   makeTransformer('careplans', referenceDataTransformer('carePlan')),
   makeTransformer('ethnicities', referenceDataTransformer('ethnicity')),
@@ -143,11 +197,13 @@ const transformers = [
   makeTransformer('users', recordTransformer('user')),
   makeTransformer('patients', patientDataTransformer),
   makeTransformer('labTestTypes', recordTransformer('labTestType')),
+  makeTransformer('certifiableVaccines', recordTransformer('certifiableVaccine')),
   makeTransformer('vaccineSchedules', recordTransformer('scheduledVaccine')),
   makeTransformer('invoiceLineTypes', recordTransformer('invoiceLineType')),
   makeTransformer('invoicePriceChangeTypes', recordTransformer('invoicePriceChangeType')),
   makeTransformer('administeredVaccines', administeredVaccineTransformer()), // should go below patients, users, departments, locations
   makeTransformer('roles', null),
+  makeTransformer('secondaryIdType', referenceDataTransformer('secondaryIdType')),
 ];
 
 export async function importData({ file, whitelist = [] }) {

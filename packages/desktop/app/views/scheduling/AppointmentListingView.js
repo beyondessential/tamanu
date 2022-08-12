@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-
-import { TopBar, PageContainer, DataFetchingTable } from '../../components';
-import { DateDisplay } from '../../components/DateDisplay';
+import {
+  TopBar,
+  DateDisplay,
+  PageContainer,
+  DataFetchingTable,
+  AppointmentsSearchBar,
+  ContentPane,
+} from '../../components';
 import { NewAppointmentButton } from '../../components/Appointments/NewAppointmentButton';
-import { AppointmentsSearchBar } from '../../components/Appointments/AppointmentsSearchBar';
 
 const CapitalisedValue = styled.span`
   text-transform: capitalize;
@@ -53,14 +57,16 @@ export const AppointmentListingView = () => {
         <NewAppointmentButton onSuccess={() => setRefreshCount(refreshCount + 1)} />
       </TopBar>
       <AppointmentsSearchBar onSearch={setSearchParams} />
-      <DataFetchingTable
-        endpoint="appointments"
-        columns={COLUMNS}
-        noDataMessage="No appointments found"
-        initialSort={{ order: 'asc', orderBy: 'startTime' }}
-        fetchOptions={searchParams}
-        refreshCount={refreshCount}
-      />
+      <ContentPane>
+        <DataFetchingTable
+          endpoint="appointments"
+          columns={COLUMNS}
+          noDataMessage="No appointments found"
+          initialSort={{ order: 'asc', orderBy: 'startTime' }}
+          fetchOptions={searchParams}
+          refreshCount={refreshCount}
+        />
+      </ContentPane>
     </PageContainer>
   );
 };

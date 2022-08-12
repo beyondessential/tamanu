@@ -11,21 +11,23 @@ export async function validateRecordSet(records) {
   const fkStore = new ForeignKeyStore(records);
 
   const validate = async record => {
-    const { recordType, data } = record;
+    const { recordType, recordId, data } = record;
     const { id } = data;
     const schema = schemas[recordType] || schemas.base;
 
+    const lookupValue = recordId || id;
+
     try {
-      if (!id) {
+      if (!lookupValue) {
         throw new ValidationError('record has no id');
       }
       // perform id duplicate check outside of schemas as it relies on
       // consistent object identities, which yup's validation
       // does not guarantee
-      const existing = fkStore.recordsById[id];
+      const existing = fkStore.recordsObject[lookupValue];
       if (existing !== record) {
         throw new ValidationError(
-          `id ${id} is already being used at ${existing.sheet}:${existing.row}`,
+          `id ${lookupValue} is already being used at ${existing.sheet}:${existing.row}`,
         );
       }
 
@@ -37,7 +39,11 @@ export async function validateRecordSet(records) {
       // i.e. a department record already has a "facilityId" field
       if (includesRelations[recordType]) {
         for (const recordTypeToBeIncluded of includesRelations[recordType]) {
-          const foundRecord = fkStore.findRecord(id, recordTypeToBeIncluded, `${recordType}Id`);
+          const foundRecord = fkStore.findRecord(
+            lookupValue,
+            recordTypeToBeIncluded,
+            `${recordType}Id`,
+          );
           if (!foundRecord) {
             throw new ValidationError(`record has no ${recordTypeToBeIncluded}`);
           }

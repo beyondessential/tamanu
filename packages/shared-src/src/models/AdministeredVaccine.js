@@ -16,8 +16,8 @@ export class AdministeredVaccine extends Model {
           allowNull: false,
         },
         reason: Sequelize.STRING,
-        location: Sequelize.STRING,
         injectionSite: Sequelize.STRING, // conceptually enum(INJECTION_SITE_OPTIONS)
+        givenBy: Sequelize.TEXT,
         date: {
           type: Sequelize.DATE,
           allowNull: false,
@@ -56,6 +56,21 @@ export class AdministeredVaccine extends Model {
     this.belongsTo(models.ScheduledVaccine, {
       foreignKey: 'scheduledVaccineId',
       as: 'scheduledVaccine',
+    });
+
+    this.belongsTo(models.User, {
+      foreignKey: 'recorderId',
+      as: 'recorder',
+    });
+
+    this.belongsTo(models.Location, {
+      foreignKey: 'locationId',
+      as: 'location',
+    });
+
+    this.belongsTo(models.Department, {
+      foreignKey: 'departmentId',
+      as: 'department',
     });
   }
 

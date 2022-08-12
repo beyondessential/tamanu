@@ -1,3 +1,5 @@
+import { VisibilityStatus } from "~/visibilityStatuses";
+
 export enum ReferenceDataType {
   ICD10 = 'icd10',
   Allergy = 'allergy',
@@ -11,6 +13,7 @@ export enum ReferenceDataType {
   LabTestPriority = 'labTestPriority',
   Village = 'village',
   Vaccine = 'vaccine',
+  PatientIdType = 'patientIdType',
 }
 
 export interface IReferenceData {
@@ -19,4 +22,5 @@ export interface IReferenceData {
   name: string;
   code: string;
   type: ReferenceDataType;
+  visibilityStatus: VisibilityStatus;
 }

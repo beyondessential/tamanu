@@ -1,5 +1,7 @@
-import { SURVEY_TYPES } from 'shared/constants';
+import { SURVEY_TYPES, VISIBILITY_STATUSES } from 'shared/constants';
 import { splitIds, buildDiagnosis } from 'shared/demoData';
+import { createDummyPatient } from 'shared/demoData/patients';
+
 import { createTestContext } from '../utilities';
 import { testDiagnoses } from '../seed';
 
@@ -18,7 +20,61 @@ describe('Suggestions', () => {
   afterAll(() => ctx.close());
 
   describe('Patients', () => {
-    test.todo('should not get patients without permission');
+    let searchPatient;
+
+    beforeAll(async () => {
+      searchPatient = await models.Patient.create(await createDummyPatient(models, {
+        firstName: 'Test',
+        lastName: 'Appear',
+        displayId: 'abcabc123123',
+      }));
+      await models.Patient.create(await createDummyPatient(models, {
+        firstName: 'Negative',
+        lastName: 'Negative',
+        displayId: 'negative',
+      }));
+    });
+    
+    it('should get a patient by first name', async () => {
+      const result = await userApp.get('/v1/suggestions/patient').query({ q: 'Test' });
+      expect(result).toHaveSucceeded();
+
+      const { body } = result;
+      expect(body).toHaveLength(1)
+      expect(body[0]).toHaveProperty('id', searchPatient.id);
+    });
+
+    it('should get a patient by last name', async () => {
+      const result = await userApp.get('/v1/suggestions/patient').query({ q: 'Appear' });
+      expect(result).toHaveSucceeded();
+      
+      const { body } = result;
+      expect(body).toHaveProperty('length', 1);
+      expect(body[0]).toHaveProperty('id', searchPatient.id);
+    });
+
+    it('should get a patient by combined first and last name', async () => {
+      const result = await userApp.get('/v1/suggestions/patient').query({ q: 'Test Appear' });
+      expect(result).toHaveSucceeded();
+      
+      const { body } = result;
+      expect(body).toHaveProperty('length', 1);
+      expect(body[0]).toHaveProperty('id', searchPatient.id);
+    });
+
+    it('should get a patient by displayId', async () => {
+      const result = await userApp.get('/v1/suggestions/patient').query({ q: 'abcabc123123' });
+      expect(result).toHaveSucceeded();
+      
+      const { body } = result;
+      expect(body).toHaveProperty('length', 1);
+      expect(body[0]).toHaveProperty('id', searchPatient.id);
+    });
+
+    it('should not get patients without permission', async () => {
+      const result = await baseApp.get('/v1/suggestions/patient').query({ q: 'anything' });
+      expect(result).toBeForbidden();
+    });
   });
 
   describe('General functionality (via diagnoses)', () => {
@@ -125,12 +181,12 @@ describe('Suggestions', () => {
 
     it('should return results that start with the query first', async () => {
       const testData = splitIds(`
-      Acute bacterial infection	A49.9
-      Chronic constipation	K59.0
-      Constipation	K59.0
-      Simple constipation	K59.0
-      Unconscious	R40.2
-    `).map(buildDiagnosis);
+        Acute bacterial infection	A49.9
+        Chronic constipation	K59.0
+        Constipation	K59.0
+        Simple constipation	K59.0
+        Unconscious	R40.2
+      `).map(buildDiagnosis);
 
       await models.ReferenceData.bulkCreate(testData);
 
@@ -149,17 +205,17 @@ describe('Suggestions', () => {
 
     it('should return results alphabetically when the position of the search query is the same', async () => {
       const testData = splitIds(`
-      Acute viral gastroenteritis	A09.9
-      Acute myeloid leukaemia	C92.0
-      Acute bronchiolitis	J21.9
-      Acute stress disorder	F43.0
-      Acute vulvitis	N76.2
-      Acute gout attack	M10.9
-      Acute tubular necrosis	N17.0
-      Acute axillary lymphadenitis	L04.2
-      Acute mastitis	N61
-      Acute bronchitis	J20.9
-    `).map(buildDiagnosis);
+        Acute viral gastroenteritis	A09.9
+        Acute myeloid leukaemia	C92.0
+        Acute bronchiolitis	J21.9
+        Acute stress disorder	F43.0
+        Acute vulvitis	N76.2
+        Acute gout attack	M10.9
+        Acute tubular necrosis	N17.0
+        Acute axillary lymphadenitis	L04.2
+        Acute mastitis	N61
+        Acute bronchitis	J20.9
+      `).map(buildDiagnosis);
 
       await models.ReferenceData.bulkCreate(testData);
 
@@ -171,4 +227,27 @@ describe('Suggestions', () => {
       expect(body.map(({ name }) => name)).toEqual(sortedTestData.map(({ name }) => name));
     });
   });
+
+  it('should respect visibility status', async () => {
+    const visible = await models.ReferenceData.create({
+      type: 'allergy',
+      name: 'visibility YES',
+      code: 'visible_allergy',
+    });
+    const invisible = await models.ReferenceData.create({
+      type: 'allergy',
+      name: 'visibility NO',
+      code: 'invisible_allergy',
+      visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+    });
+
+    const result = await userApp.get('/v1/suggestions/allergy?q=visibility');
+    expect(result).toHaveSucceeded();
+    const { body } = result;
+
+    const idArray = body.map(({ id }) => id);
+    expect(idArray).toContain(visible.id); 
+    expect(idArray).not.toContain(invisible.id); 
+  });
+    
 });

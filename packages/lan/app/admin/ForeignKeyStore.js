@@ -23,6 +23,10 @@ const foreignKeySchemas = {
     field: 'vaccine',
     recordType: 'referenceData',
   },
+  permission: {
+    field: 'role',
+    recordType: 'role',
+  },
 };
 
 export class ForeignKeyStore {
@@ -30,12 +34,15 @@ export class ForeignKeyStore {
   // { recordType: 'foo', data: { id: 'bar', ...otherData }, ...otherMetadata }
   constructor(records) {
     this.records = records;
-    this.recordsById = {};
+    this.recordsObject = {};
     records.forEach(record => {
       const {
+        recordId,
         data: { id },
       } = record;
-      this.recordsById[id] = this.recordsById[id] || record;
+      const lookupValue = recordId || id;
+      const existing = this.recordsObject[lookupValue];
+      this.recordsObject[lookupValue] = existing || record;
     });
   }
 
@@ -57,7 +64,7 @@ export class ForeignKeyStore {
     if (!searchValue) return null;
 
     // if a record with exactly `searchValue` as its id is found, use it
-    const byId = this.recordsById[searchValue];
+    const byId = this.recordsObject[searchValue];
     if (byId && byId.recordType === recordType) {
       return byId;
     }

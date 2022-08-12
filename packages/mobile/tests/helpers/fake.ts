@@ -22,6 +22,8 @@ import {
 
 import { BaseModel } from '~/models/BaseModel';
 import { ID } from '~/types/ID';
+import { VaccineStatus } from '~/ui/helpers/patient';
+import { VisibilityStatus } from '~/visibilityStatuses';
 
 export const fakePatient = (): IPatient => {
   const uuid = uuidv4();
@@ -51,7 +53,7 @@ export const fakeEncounter = (): IEncounter => ({
 
 export const fakeAdministeredVaccine = (): IAdministeredVaccine => ({
   id: `administered-vaccine-id-${uuidv4()}`,
-  status: 'done',
+  status: VaccineStatus.GIVEN,
   date: new Date(),
 });
 
@@ -117,6 +119,7 @@ export const fakeReferenceData = (type?: ReferenceDataType): IReferenceData => {
     name: `reference-data-name-${uuid}`,
     code: `reference-data-code-${uuid}`,
     type: type || ReferenceDataType.Village,
+    visibilityStatus: VisibilityStatus.Current,
   };
 };
 
@@ -143,6 +146,7 @@ export const fakeScheduledVaccine = (): IScheduledVaccine => {
     weeksFromBirthDue: 5,
     weeksFromLastVaccinationDue: null,
     category: `scheduled-vaccine-category-${uuid}`,
+    visibilityStatus: VisibilityStatus.Current,
   };
 };
 

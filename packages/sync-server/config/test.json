@@ -8,13 +8,6 @@
   "log": {
     "consoleLevel": "warn"
   },
-  "tupaiaApiClient": {
-    "auth": {
-      "username": "tamanu-server@tupaia.org",
-      "password": ""
-    },
-    "environment": "dev"
-  },
   "localisation": {
     "data": {
       "timeZone": "UTC",
@@ -42,6 +35,9 @@
       "keySecret": "2hcp3wizGFFnGgsgZZDqFZDmUjaFCIppN8HnyBABqck="
     },
     "mSupply": {
+      "enabled": true
+    },
+    "fhir": {
       "enabled": true
     }
   },

@@ -9,25 +9,13 @@ const SCHEDULE_TO_SEQUENCE = {
   'Dose 1': 1,
   'Dose 2': 2,
   Booster: 3,
-};
-const SEQUENCE_MAX = Math.max(...Object.values(SCHEDULE_TO_SEQUENCE));
-
-const DISEASE_AGENT_CODE = '840539006';
-const VACCINE_CODE = 'J07BX03';
-
-const DRUG_TO_PRODUCT = {
-  'drug-COVID-19-Astra-Zeneca': 'EU/1/21/1529',
-  'drug-COVID-19-Pfizer': 'EU/1/20/1528',
-};
-
-const DRUG_TO_ORG = {
-  'drug-COVID-19-Astra-Zeneca': 'ORG-100001699',
-  'drug-COVID-19-Pfizer': 'ORG-100030215',
-};
-
-const DRUG_TO_SCHEDULE_DOSAGE = {
-  'drug-COVID-19-Astra-Zeneca': 3,
-  'drug-COVID-19-Pfizer': 3,
+  'Dose 3': 3,
+  'Dose 4': 4,
+  'Dose 5': 5,
+  'Dose 6': 6,
+  'Dose 7': 7,
+  'Dose 8': 8,
+  'Dose 9': 9,
 };
 
 const MOMENT_FORMAT_ISODATE = 'YYYY-MM-DD';
@@ -41,10 +29,21 @@ export async function createEuDccVaccinationData(administeredVaccineId, { models
     Facility,
     Location,
     ScheduledVaccine,
+    CertifiableVaccine,
   } = models;
 
   const vaccination = await AdministeredVaccine.findByPk(administeredVaccineId, {
     include: [
+      {
+        model: Location,
+        as: 'location',
+        include: [
+          {
+            model: Facility,
+            as: 'facility',
+          },
+        ],
+      },
       {
         model: Encounter,
         as: 'encounter',
@@ -89,6 +88,7 @@ export async function createEuDccVaccinationData(administeredVaccineId, { models
   const {
     id,
     date,
+    location,
     scheduledVaccine: {
       schedule,
       vaccine: { id: vaccineId },
@@ -96,14 +96,27 @@ export async function createEuDccVaccinationData(administeredVaccineId, { models
     encounter: {
       patient,
       location: {
-        facility: { name: facilityName },
+        facility: { name: encounterFacilityName },
       },
     },
   } = vaccination;
 
-  if (!Object.keys(DRUG_TO_PRODUCT).includes(vaccineId)) {
-    throw new Error(`Unsupported vaccine: ${vaccineId}`);
-  }
+  const facilityName = location?.facility?.name ?? encounterFacilityName;
+
+  const certVax = await CertifiableVaccine.findOne({
+    where: {
+      vaccineId,
+    },
+    include: [
+      {
+        model: ReferenceData,
+        as: 'manufacturer',
+      },
+    ],
+  });
+
+  if (!certVax) throw new Error('Vaccine is not certifiable');
+  if (!certVax.usableForEuDcc()) throw new Error('Vaccination is not usable for EU DCC');
 
   const { timeZone, country } = await getLocalisation();
 
@@ -120,12 +133,12 @@ export async function createEuDccVaccinationData(administeredVaccineId, { models
     dob,
     [EUDCC_CERTIFICATE_TYPES.VACCINATION]: [
       {
-        tg: DISEASE_AGENT_CODE,
-        vp: VACCINE_CODE,
-        mp: DRUG_TO_PRODUCT[vaccineId],
-        ma: DRUG_TO_ORG[vaccineId],
-        dn: SCHEDULE_TO_SEQUENCE[schedule] ?? SEQUENCE_MAX + 1,
-        sd: DRUG_TO_SCHEDULE_DOSAGE[vaccineId],
+        tg: certVax.targetCode,
+        vp: certVax.vaccineCode,
+        mp: certVax.euProductCode,
+        ma: certVax.manufacturer.code,
+        dn: SCHEDULE_TO_SEQUENCE[schedule],
+        sd: certVax.maximumDosage,
         dt: vaxDate,
         co: country['alpha-2'],
         is: config.integrations.euDcc.issuer ?? facilityName,

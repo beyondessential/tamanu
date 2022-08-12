@@ -1,11 +1,11 @@
-import React, { ReactElement, useCallback, useContext, useEffect } from 'react';
+import React, { ReactElement, useCallback, useEffect } from 'react';
 import { StatusBar } from 'react-native';
 import { compose } from 'redux';
 import { RecentlyViewedPatientTiles } from './RecentlyViewedPatientTiles';
 import { LogoV2Icon, SearchIcon } from '/components/Icons';
 import { UserAvatar } from '/components/UserAvatar';
 import { withAuth } from '/containers/Auth';
-import AuthContext from '~/ui/contexts/AuthContext';
+import { useAuth } from '~/ui/contexts/AuthContext';
 import { useFacility } from '~/ui/contexts/FacilityContext';
 import { disableAndroidBackButton } from '/helpers/android';
 import { Routes } from '/helpers/routes';
@@ -57,7 +57,7 @@ const BaseHomeScreen = ({ navigation, user }: BaseAppProps): ReactElement => {
   const {
     checkFirstSession,
     setUserFirstSignIn,
-  } = useContext(AuthContext);
+  } = useAuth();
   const {
     facilityName
   } = useFacility();

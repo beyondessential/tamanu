@@ -65,11 +65,18 @@ invoiceLineItemsRoute.delete(
 invoiceLineItemsRoute.get(
   '/:invoiceId/potentialLineItems',
   asyncHandler(async (req, res) => {
-    const { models, params, db } = req;
+    const { models, params, db, getLocalisation } = req;
     const { invoiceId } = params;
     const invoice = await models.Invoice.findByPk(invoiceId);
     const { encounterId } = invoice;
-    const potentialInvoiceLineItems = await getPotentialInvoiceLineItems(db, models, encounterId);
+    const localisation = await getLocalisation();
+    const { imagingTypes } = localisation;
+    const potentialInvoiceLineItems = await getPotentialInvoiceLineItems(
+      db,
+      models,
+      encounterId,
+      imagingTypes,
+    );
     const data = potentialInvoiceLineItems.map(x => renameObjectKeys(x.forResponse()));
     res.send({
       count: data.length,
@@ -81,13 +88,20 @@ invoiceLineItemsRoute.get(
 invoiceLineItemsRoute.post(
   '/:invoiceId/potentialLineItems',
   asyncHandler(async (req, res) => {
-    const { models, params, db } = req;
+    const { models, params, db, getLocalisation } = req;
     req.checkPermission('create', 'InvoiceLineItem');
 
     const { invoiceId } = params;
     const invoice = await models.Invoice.findByPk(invoiceId);
     const { encounterId } = invoice;
-    const potentialInvoiceLineItems = await getPotentialInvoiceLineItems(db, models, encounterId);
+    const localisation = await getLocalisation();
+    const { imagingTypes } = localisation;
+    const potentialInvoiceLineItems = await getPotentialInvoiceLineItems(
+      db,
+      models,
+      encounterId,
+      imagingTypes,
+    );
     const items = potentialInvoiceLineItems.map(x => renameObjectKeys(x.forResponse()));
 
     // create actual invoice line records for the potential invoice line items

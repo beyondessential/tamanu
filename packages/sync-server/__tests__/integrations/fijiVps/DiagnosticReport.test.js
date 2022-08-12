@@ -1,6 +1,7 @@
 import Chance from 'chance';
 
 import { fake } from 'shared/test-helpers/fake';
+import { convertISO9075toRFC3339 } from 'shared/utils/dateTime';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 import { IDENTIFIER_NAMESPACE } from '../../../app/hl7fhir/utils';
 
@@ -122,8 +123,8 @@ describe('VPS integration - DiagnosticReport', () => {
             resource: {
               resourceType: 'DiagnosticReport',
               id: labTest.id,
-              effectiveDateTime: labRequest.sampleTime.toISOString(),
-              issued: labRequest.requestedDate.toISOString(),
+              effectiveDateTime: convertISO9075toRFC3339(labRequest.sampleTime),
+              issued: convertISO9075toRFC3339(labRequest.requestedDate),
               code: {
                 coding: [
                   {

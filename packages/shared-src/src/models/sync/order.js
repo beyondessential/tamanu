@@ -1,9 +1,14 @@
 export const MODEL_DEPENDENCY_ORDER = [
   'ReferenceData',
-  'User',
+  'Asset',
   'Facility',
   'Department',
   'Location',
+  'Role',
+  'Permission',
+
+  'User',
+  'UserFacility',
 
   'Patient',
   'Encounter',
@@ -14,6 +19,10 @@ export const MODEL_DEPENDENCY_ORDER = [
   'PatientFamilyHistory',
   'PatientIssue',
   'PatientAdditionalData',
+  'PatientSecondaryId',
+
+  'PatientDeathData',
+  'ContributingDeathCause',
 
   'EncounterDiagnosis',
   'EncounterMedication',
@@ -22,6 +31,7 @@ export const MODEL_DEPENDENCY_ORDER = [
   'Vitals',
   'Triage',
 
+  'CertifiableVaccine',
   'ScheduledVaccine',
   'AdministeredVaccine',
 
@@ -29,6 +39,7 @@ export const MODEL_DEPENDENCY_ORDER = [
   'ProgramDataElement',
   'Survey',
   'SurveyScreenComponent',
+
   'SurveyResponse',
   'SurveyResponseAnswer',
 
@@ -41,12 +52,16 @@ export const MODEL_DEPENDENCY_ORDER = [
 
   'ReportRequest',
   'PatientCommunication',
+  'CertificateNotification',
 
   'Invoice',
   'InvoiceLineType',
   'InvoiceLineItem',
   'InvoicePriceChangeType',
-  'InvoicePriceChange',
+  'InvoicePriceChangeItem',
+
+  // 'LabRequestLog',
+  'DocumentMetadata',
 ];
 
 const lowercaseModelOrder = MODEL_DEPENDENCY_ORDER.map(x => x.toLowerCase());

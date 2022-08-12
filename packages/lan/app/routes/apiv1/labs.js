@@ -1,15 +1,20 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import moment from 'moment';
-import { QueryTypes } from 'sequelize';
+import { QueryTypes, Sequelize } from 'sequelize';
 
 import { NOTE_RECORD_TYPES } from 'shared/models/Note';
 import { NotFoundError, InvalidOperationError } from 'shared/errors';
-import { REFERENCE_TYPES, LAB_REQUEST_STATUSES } from 'shared/constants';
+import { REFERENCE_TYPES, LAB_REQUEST_STATUSES, NOTE_TYPES } from 'shared/constants';
 import { makeFilter, makeSimpleTextFilterFactory } from '../../utils/query';
 import { renameObjectKeys } from '../../utils/renameObjectKeys';
-import { simpleGet, simplePut, simpleGetList, permissionCheckingRouter } from './crudHelpers';
-
+import {
+  simpleGet,
+  simplePut,
+  simpleGetList,
+  permissionCheckingRouter,
+  createNoteListingHandler
+} from './crudHelpers';
 export const labRequest = express.Router();
 
 labRequest.get('/:id', simpleGet('LabRequest'));
@@ -45,8 +50,15 @@ labRequest.post(
   '/$',
   asyncHandler(async (req, res) => {
     const { models } = req;
+    const { note } = req.body;
     req.checkPermission('create', 'LabRequest');
     const object = await models.LabRequest.createWithTests(req.body);
+    if (note) {
+      object.createNote({
+        noteType: NOTE_TYPES.OTHER,
+        content: note,
+      });
+    }
     res.send(object);
   }),
 );
@@ -201,12 +213,7 @@ labRequest.post(
 
 const labRelations = permissionCheckingRouter('read', 'LabRequest');
 labRelations.get('/:id/tests', simpleGetList('LabTest', 'labRequestId'));
-labRelations.get(
-  '/:id/notes',
-  simpleGetList('Note', 'recordId', {
-    additionalFilters: { recordType: NOTE_RECORD_TYPES.LAB_REQUEST },
-  }),
-);
+labRelations.get('/:id/notes', createNoteListingHandler(NOTE_RECORD_TYPES.LAB_REQUEST));
 
 labRequest.use(labRelations);
 
@@ -218,7 +225,9 @@ labTest.get(
     // always allow reading lab test options
     req.flagPermissionChecked();
 
-    const records = await req.models.LabTestType.findAll();
+    const records = await req.models.LabTestType.findAll({
+      order: Sequelize.literal('name ASC'),
+    });
     res.send({
       data: records,
       count: records.length,

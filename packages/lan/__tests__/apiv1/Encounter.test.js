@@ -631,13 +631,6 @@ describe('Encounter', () => {
         expect(result).toHaveRequestError();
       });
 
-      it('should not record a vitals reading with no readings', async () => {
-        const result = await app.post('/v1/vitals').send({
-          encounterId: vitalsEncounter.id,
-        });
-        expect(result).toHaveRequestError();
-      });
-
       it('should get vitals readings for an encounter', async () => {
         const result = await app.get(`/v1/encounter/${vitalsEncounter.id}/vitals`);
         expect(result).toHaveSucceeded();

@@ -11,7 +11,7 @@ import { createPatientFilters } from '../../utils/patientFilters';
 import { patientVaccineRoutes } from './patient/patientVaccine';
 import { patientDocumentMetadataRoutes } from './patient/patientDocumentMetadata';
 import { patientInvoiceRoutes } from './patient/patientInvoice';
-
+import { patientSecondaryIdRoutes } from './patient/patientSecondaryId';
 import { patientDeath } from './patient/patientDeath';
 import { patientProfilePicture } from './patient/patientProfilePicture';
 import { activeCovid19PatientsHandler } from '../../routeHandlers';
@@ -113,7 +113,33 @@ patientRoute.post(
 
 const patientRelations = permissionCheckingRouter('read', 'Patient');
 
-patientRelations.get('/:id/encounters', simpleGetList('Encounter', 'patientId'));
+patientRelations.get(
+  '/:id/encounters',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('list', 'Encounter');
+    const {
+      models: { Encounter },
+      params,
+      query,
+    } = req;
+    const { order = 'ASC', orderBy, open = false } = query;
+
+    const objects = await Encounter.findAll({
+      where: {
+        patientId: params.id,
+        ...(open && { endDate: null }),
+      },
+      order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
+    });
+
+    const data = objects.map(x => x.forResponse());
+
+    res.send({
+      count: objects.length,
+      data,
+    });
+  }),
+);
 
 // TODO
 // patientRelations.get('/:id/appointments', simpleGetList('Appointment', 'patientId'));
@@ -122,7 +148,6 @@ patientRelations.get('/:id/issues', simpleGetList('PatientIssue', 'patientId'));
 patientRelations.get('/:id/conditions', simpleGetList('PatientCondition', 'patientId'));
 patientRelations.get('/:id/allergies', simpleGetList('PatientAllergy', 'patientId'));
 patientRelations.get('/:id/familyHistory', simpleGetList('PatientFamilyHistory', 'patientId'));
-patientRelations.get('/:id/immunisations', simpleGetList('Immunisation', 'patientId'));
 patientRelations.get('/:id/carePlans', simpleGetList('PatientCarePlan', 'patientId'));
 
 patientRelations.get(
@@ -132,17 +157,27 @@ patientRelations.get(
 
     req.checkPermission('read', 'Patient');
 
-    const additionalData = await models.PatientAdditionalData.findOne({
+    const additionalDataRecord = await models.PatientAdditionalData.findOne({
       where: { patientId: params.id },
       include: models.PatientAdditionalData.getFullReferenceAssociations(),
     });
 
-    res.send(additionalData || {});
+    // Lookup survey responses for passport and nationality to fill patient additional data
+    // Todo: Remove when WAITM-243 is complete
+    const passport = await getPatientAdditionalData(models, params.id, 'passport');
+    const nationalityId = await getPatientAdditionalData(models, params.id, 'nationalityId');
+    const nationality = nationalityId
+      ? await models.ReferenceData.findByPk(nationalityId)
+      : undefined;
+
+    const recordData = additionalDataRecord ? additionalDataRecord.toJSON() : {};
+    res.send({ ...recordData, passport, nationality, nationalityId });
   }),
 );
 
 patientRelations.use(patientProfilePicture);
 patientRelations.use(patientDeath);
+patientRelations.use(patientSecondaryIdRoutes);
 
 patientRelations.get(
   '/:id/referrals',
@@ -471,34 +506,6 @@ patientRoute.use(patientVaccineRoutes);
 patientRoute.use(patientDocumentMetadataRoutes);
 
 patientRoute.use(patientInvoiceRoutes);
-
-patientRoute.get(
-  '/:id/passportNumber',
-  asyncHandler(async (req, res) => {
-    req.checkPermission('read', 'Patient');
-    const passportNumber = await getPatientAdditionalData(req.models, req.params.id, 'passport');
-    res.json(passportNumber);
-  }),
-);
-
-patientRoute.get(
-  '/:id/nationality',
-  asyncHandler(async (req, res) => {
-    const nationalityId = await getPatientAdditionalData(
-      req.models,
-      req.params.id,
-      'nationalityId',
-    );
-
-    if (!nationalityId) {
-      res.send('');
-      return;
-    }
-
-    const nationalityRecord = await req.models.ReferenceData.findByPk(nationalityId);
-    res.json(nationalityRecord?.dataValues?.name);
-  }),
-);
 
 patientRoute.get(
   '/:id/covidLabTests',

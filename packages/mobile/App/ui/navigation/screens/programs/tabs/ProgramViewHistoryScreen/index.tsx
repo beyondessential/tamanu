@@ -33,9 +33,15 @@ export const ProgramViewHistoryScreen = ({
   }
 
   const responsesToShow = selectedPatient
-    ? responses.filter(
-      ({ encounter }) => encounter.patient.id === selectedPatient.id,
-    )
+    ? responses.filter(({ encounter }) => {
+        if (typeof encounter === "string" ) {
+          return false;
+        }
+        if (typeof encounter.patient === "string") {
+          return false;
+        }
+        return encounter.patient.id === selectedPatient.id;
+      })
     : responses;
 
   return (

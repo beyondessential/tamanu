@@ -1,3 +1,4 @@
+import { NOTE_TYPES } from 'shared/constants';
 import { generateReportFromQueryData } from './utilities';
 
 const FIELDS = [
@@ -13,7 +14,10 @@ const FIELDS = [
   'Encounter end date',
   'Encounter type',
   'Triage category',
-  'Time seen following triage/Wait time',
+  {
+    title: 'Time seen following triage/Wait time (hh:mm)',
+    accessor: data => data.waitTimeFollowingTriage,
+  },
   'Department',
   'Location',
   'Reason for encounter',
@@ -26,10 +30,14 @@ const FIELDS = [
   'Notes',
 ];
 
-const reportColumnTemplate = FIELDS.map(field => ({
-  title: field,
-  accessor: data => data[field],
-}));
+const reportColumnTemplate = FIELDS.map(field =>
+  typeof field === 'string'
+    ? {
+        title: field,
+        accessor: data => data[field],
+      }
+    : field,
+);
 
 const query = `
 with
@@ -38,9 +46,9 @@ with
       record_id,
       json_agg(
         json_build_object(
-          'note_type', note_type,
-          'content', "content",
-          'note_date', "date"
+          'Note type', note_type,
+          'Content', "content",
+          'Note date', to_char("date", 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
         ) 
       ) aggregated_notes
     from notes
@@ -51,8 +59,7 @@ with
       lab_request_id,
       json_agg(
         json_build_object(
-          'name', ltt.name,
-          'notes', 'TODO'
+          'Name', ltt.name
         )
       ) tests
     from lab_tests lt
@@ -64,8 +71,8 @@ with
       encounter_id,
       json_agg(
         json_build_object(
-          'tests', tests,
-          'notes', to_json(aggregated_notes)
+          'Tests', tests,
+          'Notes', to_json(aggregated_notes)
         )) "Lab requests"
     from lab_requests lr
     join lab_test_info lti
@@ -78,12 +85,12 @@ with
       encounter_id,
       json_agg(
         json_build_object(
-          'name', proc.name,
-          'code', proc.code,
-          'date', to_char(date, 'yyyy-dd-mm'),
-          'location', loc.name,
-          'notes', p.note,
-          'completed_notes', completed_note
+          'Name', proc.name,
+          'Code', proc.code,
+          'Date', to_char(date, 'yyyy-dd-mm'),
+          'Location', loc.name,
+          'Notes', p.note,
+          'Completed notes', completed_note
         ) 
       ) "Procedures"
     from "procedures" p
@@ -96,9 +103,9 @@ with
       encounter_id,
       json_agg(
         json_build_object(
-          'name', medication.name,
-          'discontinued', coalesce(discontinued, false),
-          'discontinuing_reason', discontinuing_reason
+          'Name', medication.name,
+          'Discontinued', coalesce(discontinued, false),
+          'Discontinuing reason', discontinuing_reason
         ) 
       ) "Medications"
     from encounter_medications em
@@ -110,10 +117,10 @@ with
       encounter_id,
       json_agg(
         json_build_object(
-          'name', diagnosis.name,
-          'code', diagnosis.code,
-          'is_primary', case when is_primary then 'primary' else 'secondary' end,
-          'certainty', certainty
+          'Name', diagnosis.name,
+          'Code', diagnosis.code,
+          'Is primary?', case when is_primary then 'primary' else 'secondary' end,
+          'Certainty', certainty
         ) 
       ) "Diagnosis"
     from encounter_diagnoses ed
@@ -126,9 +133,9 @@ with
       encounter_id,
       json_agg(
         json_build_object(
-          'name', drug.name,
-          'label', sv.label,
-          'schedule', sv.schedule
+          'Name', drug.name,
+          'Label', sv.label,
+          'Schedule', sv.schedule
         ) 
       ) "Vaccinations"
     from administered_vaccines av
@@ -140,33 +147,51 @@ with
     select
       ir.encounter_id,
       json_build_object(
-        'name', image_type.name,
-        'area_to_be_imaged', area_notes.aggregated_notes,
-        'notes', non_area_notes.aggregated_notes
+        'Name', imaging_types.imaging_type_label,
+        'Area to be imaged', array_to_string(coalesce(area_names, array[area_notes.aggregated_notes]), ','), 
+        'Notes', non_area_notes.aggregated_notes
       ) "data"
     from imaging_requests ir
-    join reference_data image_type on image_type.id = ir.imaging_type_id
+
+    inner join (
+      select 
+        key, trim('"' from value::text) as imaging_type_label from jsonb_each(:imaging_area_labels)) as imaging_types
+    on ir.imaging_type = imaging_types.key
+
     left join (
       select 
         record_id,
         json_agg(note) aggregated_notes
       from notes_info
       cross join json_array_elements(aggregated_notes) note
-      where note->>'note_type' != 'abc' --cross join ok here as only 1 record will be matched
+      where note->>'Note type' != '${NOTE_TYPES.AREA_TO_BE_IMAGED}' --cross join ok here as only 1 record will be matched
       group by record_id
     ) non_area_notes
     on non_area_notes.record_id = ir.id 
+
     left join (
       select 
         record_id,
-        string_agg(note->>'content', 'ERROR - SHOULD ONLY BE ONE AREA TO BE IMAGED') aggregated_notes
+        string_agg(note->>'Content', 'ERROR - SHOULD ONLY BE ONE AREA TO BE IMAGED') aggregated_notes
       from notes_info
       cross join json_array_elements(aggregated_notes) note
-      where note->>'note_type' = 'abc' --cross join ok here as only 1 record will be matched
+      where note->>'Note type' = '${NOTE_TYPES.AREA_TO_BE_IMAGED}' --cross join ok here as only 1 record will be matched
       group by record_id
     ) area_notes
     on area_notes.record_id = ir.id
+    
+    left join (
+      select
+        imaging_request_id,
+        array_agg(reference_data.name) as area_names
+      from imaging_request_areas
+      inner join reference_data
+      on area_id = reference_data.id
+      group by imaging_request_id)
+    reference_list 
+    on reference_list.imaging_request_id = ir.id
   ),
+
   imaging_info as (
     select
       encounter_id,
@@ -180,10 +205,10 @@ with
       record_id encounter_id,
       json_agg(
         json_build_object(
-          'note_type', note_type,
-          'content', "content",
-          'note_date', "date"
-        ) 
+          'Note type', note_type,
+          'Content', "content",
+          'Note date', to_char("date", 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
+        ) order by "date" desc
       ) "Notes"
     from notes
     where note_type != 'system'
@@ -210,18 +235,18 @@ with
       e.id encounter_id,
       case when count("from") = 0
         then json_build_array(json_build_object(
-          'department', d.name,
-          'assigned_time', e.start_date
+          'Department', d.name,
+          'Assigned time', to_char(e.start_date, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
         ))
         else json_build_array(
           json_build_object(
-            'department', first_from, --first "from" from note
-            'assigned_time', e.start_date
+            'Department', first_from, --first "from" from note
+            'Assigned time', to_char(e.start_date, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
           ),
           json_agg(
             json_build_object(
-              'department', "to",
-              'assigned_time', nh.date
+              'Department', "to",
+              'Assigned time', to_char(nh.date, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
             ) ORDER BY nh.date
           )
         )
@@ -251,18 +276,18 @@ with
       e.id encounter_id,
       case when count("from") = 0
         then json_build_array(json_build_object(
-          'location', l.name,
-          'assigned_time', e.start_date
+          'Location', l.name,
+          'Assigned time', to_char(e.start_date, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
         ))
         else json_build_array(
           json_build_object(
-            'location', first_from, --first "from" from note
-            'assigned_time', e.start_date
+            'Location', first_from, --first "from" from note
+            'Assigned time', to_char(e.start_date, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
           ),
           json_agg(
             json_build_object(
-              'location', "to",
-              'assigned_time', nh.date
+              'Location', "to",
+              'Assigned time', to_char(nh.date, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
             ) ORDER BY nh.date
           )
         )
@@ -286,6 +311,21 @@ with
     on l2.name = nh."to" or l2.name = nh."from" or l2.id = l.id
     where place = 'location' or place is null
     group by e.id, l.name, e.start_date, first_from
+  ),
+  triage_info as (
+    select
+      encounter_id,
+      hours::text || CHR(58) || remaining_minutes::text "waitTimeFollowingTriage"
+    from triages t,
+    lateral (
+      select
+        case when t.closed_time is null
+          then (extract(EPOCH from now()) - extract(EPOCH from t.triage_time))/60
+          else (extract(EPOCH from t.closed_time) - extract(EPOCH from t.triage_time))/60
+        end total_minutes
+    ) total_minutes,
+    lateral (select floor(total_minutes / 60) hours) hours,
+    lateral (select floor(total_minutes - hours*60) remaining_minutes) remaining_minutes
   )
 select
   p.display_id "Patient ID",
@@ -296,8 +336,8 @@ select
   p.sex "Sex",
   billing.name "Patient billing type",
   e.id "Encounter ID",
-  to_char(e.start_date, 'YYYY-MM-DD HH24' || CHR(58) || 'MI') "Encounter start date",
-  to_char(e.end_date, 'YYYY-MM-DD HH24' || CHR(58) || 'MI') "Encounter end date",
+  to_char(e.start_date, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM') "Encounter start date",
+  to_char(e.end_date, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM') "Encounter end date",
   case e.encounter_type
     when 'triage' then  'Triage'
     when 'observation' then  'Active ED patient'
@@ -314,10 +354,7 @@ select
     when '3' then  'Non-urgent'
     else t.score
   end "Triage category",
-  case when t.closed_time is null 
-    then age(t.triage_time)
-    else age(t.closed_time, t.triage_time)
-  end "Time seen following triage/Wait time",
+  ti."waitTimeFollowingTriage",
   di2.department_history "Department",
   li.location_history "Location",
   e.reason_for_encounter "Reason for encounter",
@@ -339,6 +376,7 @@ left join lab_request_info lri on lri.encounter_id = e.id
 left join imaging_info ii on ii.encounter_id = e.id
 left join encounter_notes_info ni on ni.encounter_id = e.id
 left join triages t on t.encounter_id = e.id
+left join triage_info ti on ti.encounter_id = e.id
 left join location_info li on li.encounter_id = e.id
 left join department_info di2 on di2.encounter_id = e.id
 where e.end_date is not null
@@ -361,14 +399,47 @@ const getData = async (sequelize, parameters) => {
       billing_type: patientBillingType ?? null,
       department_id: department ?? null,
       location_id: location ?? null,
+      imaging_area_labels: JSON.stringify({
+        xRay: 'X-Ray',
+        ctScan: 'CT Scan',
+        ecg: 'Electrocardiogram (ECG)',
+        mri: 'MRI',
+        ultrasound: 'Ultrasound',
+        holterMonitor: 'Holter Monitor',
+        echocardiogram: 'Echocardiogram',
+        mammogram: 'Mammogram',
+        endoscopy: 'Endoscopy',
+        fluroscopy: 'Fluroscopy',
+        angiogram: 'Angiogram',
+        colonoscopy: 'Colonoscopy',
+        vascularStudy: 'Vascular Study',
+        stressTest: 'Treadmill',
+      }),
     },
   });
 };
 
+const formatJsonValue = value => {
+  if (Array.isArray(value)) {
+    return value.map(formatJsonValue).join('; ');
+  }
+  if (typeof value === 'object' && !(value instanceof Date) && value !== null) {
+    return Object.entries(value)
+      .map(([k, v]) => `${k}: ${formatJsonValue(v)}`)
+      .join(', ');
+  }
+  return value;
+};
+
+const formatRow = row =>
+  Object.entries(row).reduce((acc, [k, v]) => ({ ...acc, [k]: formatJsonValue(v) }), {});
+
 export const dataGenerator = async ({ sequelize }, parameters = {}) => {
   const results = await getData(sequelize, parameters);
 
-  return generateReportFromQueryData(results, reportColumnTemplate);
+  const formattedResults = results.map(formatRow);
+
+  return generateReportFromQueryData(formattedResults, reportColumnTemplate);
 };
 
 export const permission = 'Encounter';

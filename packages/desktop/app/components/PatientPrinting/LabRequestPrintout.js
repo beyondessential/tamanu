@@ -9,7 +9,6 @@ export const LabRequestPrintout = React.memo(
       displayId,
       requestedDate,
       sampleTime,
-      laboratory,
       requestedBy,
       priority,
       category,
@@ -25,7 +24,7 @@ export const LabRequestPrintout = React.memo(
         tableData={{
           'Test ID': displayId,
           'Request date': requestedDate ? moment(requestedDate).format('DD/MM/YYYY') : null,
-          Facility: laboratory?.name,
+          Facility: encounterData?.location?.facility?.name,
           Department: encounterData?.department?.name,
           'Requested by': requestedBy?.displayName,
           'Sample time': sampleTime ? moment(sampleTime).format('DD/MM/YYYY hh:mm a') : null,
