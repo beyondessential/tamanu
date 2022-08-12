@@ -1,0 +1,33 @@
+name: Build a Windows Release ZIP for Central Server
+on:
+  workflow_dispatch:
+  # these two only for deving on branch
+  push:
+
+jobs:
+  windows-release-zip:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+    
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 12
+        cache: yarn
+    
+    - name: Yarn
+      run: yarn install
+
+    - name: Build the release
+      shell: bash
+      run: |
+        set -x
+        jq -r '"TAMANU_VERSION=\(.version)"' packages/sync-server/package.json | tee -a $GITHUB_ENV
+        exec scripts/release_windows_zip_hacky.sh sync-server
+
+    - name: Upload output
+      uses: actions/upload-artifact@v3
+      with:
+        retention-days: 7
+        name: "Tamanu central v${{ env.TAMANU_VERSION }}"
+        path: "sync-server-v${{ env.TAMANU_VERSION }}.zip"
