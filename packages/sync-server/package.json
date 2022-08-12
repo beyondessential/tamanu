@@ -17,7 +17,7 @@
   },
   "scripts": {
     "start": "node ./dist/app.bundle.js",
-    "setup-dev": "node ./dist/app.bundle.js setup --facility ref/facility/ba",
+    "setup-dev": "node ./dist/app.bundle.js setup",
     "start-dev": "rimraf ./dist/ && webpack --config webpack.config.dev.mjs",
     "test": "NODE_ENV=test jest",
     "test-coverage": "yarn test --coverage",
