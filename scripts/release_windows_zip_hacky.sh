@@ -17,10 +17,13 @@ RELEASE_FOLDER="release-nodejs"
 ./scripts/build_shared.sh
 ./scripts/build_package_release.sh "$WORKSPACE"
 
+mkdirp=node_modules/.bin/mkdirp
+rimraf=node_modules/.bin/rimraf
+
 # get rid of extraneous junk from the linux release
 pushd "./packages/$WORKSPACE/$RELEASE_FOLDER"
 mv ./node_modules/shared .
-rm -rf node_modules
+$rimraf node_modules
 popd
 
 # zip and rename
@@ -31,7 +34,7 @@ DIR_NAME="release-v$VERSION"
 ZIP_NAME="$WORKSPACE-v$VERSION.zip"
 mv "$RELEASE_FOLDER" "$DIR_NAME"
 zip -r "$ZIP_NAME" "$DIR_NAME"
-rm -rf "$DIR_NAME"
+$rimraf "$DIR_NAME"
 popd
 
 # move to tamanu

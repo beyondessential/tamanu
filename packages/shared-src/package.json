@@ -8,8 +8,8 @@
   "author": "Beyond Essential Systems Pty. Ltd.",
   "license": "SEE LICENSE IN license",
   "scripts": {
-    "clean": "rm -rf ../shared",
-    "prepare": "mkdir -p ../shared && cp -n shared.package.json ../shared/package.json || true",
+    "clean": "rimraf ../shared",
+    "prepare": "mkdirp ../shared && cp -n shared.package.json ../shared/package.json || true",
     "compile": "yarn run prepare && yarn run babel --extensions '.js,.ts,.tsx' --root-mode upward --out-dir ../shared src",
     "build": "yarn run clean && yarn run compile && yarn run tsc --build tsconfig.json",
     "build-watch": "yarn run compile --watch",

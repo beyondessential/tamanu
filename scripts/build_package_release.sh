@@ -14,12 +14,15 @@ shopt -s extglob
 # build sync bundle
 yarn workspace "$WORKSPACE" build
 
+mkdirp=node_modules/.bin/mkdirp
+rimraf=node_modules/.bin/rimraf
+
 # copy workspace into release dir
 pushd "./packages/$WORKSPACE"
-rm -rf "./$RELEASE_DIR"
-mkdir -p "./$RELEASE_DIR"
-cp -R $WORKSPACE.pm2.config.js dist config package.json ../../yarn.lock "./$RELEASE_DIR"
-rm -rf "${RELEASE_DIR}/config/"{development,test,local}".json"
+$rimraf "./$RELEASE_DIR"
+$mkdirp "./$RELEASE_DIR"
+cp -r $WORKSPACE.pm2.config.js dist config package.json ../../yarn.lock "./$RELEASE_DIR"
+$rimraf "${RELEASE_DIR}/config/"{development,test,local}".json"
 
 pushd "$RELEASE_DIR"
 # run yarn install now that we're not in a known workspace
@@ -27,4 +30,4 @@ yarn install --non-interactive --production --frozen-lockfile
 popd
 
 # copy across shared
-cp -R ../shared "./$RELEASE_DIR/node_modules/"
+cp -r ../shared "./$RELEASE_DIR/node_modules/"
