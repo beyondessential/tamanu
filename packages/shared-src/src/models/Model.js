@@ -114,14 +114,12 @@ export class Model extends sequelize.Model {
     const table = this.tableName;
     console.log("table:", table);
     return this.sequelize.query(`
-      SELECT * FROM ${table} WHERE id IN :ids
+      SELECT id, deleted_at FROM ${table} WHERE id IN :ids
     `, {
       replacements: {
         ids,
       },
-      model: this,
       type: QueryTypes.SELECT,
-      mapToModel: true,
     });
   }
 
