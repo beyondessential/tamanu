@@ -1,7 +1,7 @@
 import * as sequelize from 'sequelize';
 import { SyncConfig } from './sync';
 
-const { Sequelize, Op, Utils } = sequelize;
+const { Sequelize, Utils, QueryTypes } = sequelize;
 
 const firstLetterLowercase = s => (s[0] || '').toLowerCase() + s.slice(1);
 

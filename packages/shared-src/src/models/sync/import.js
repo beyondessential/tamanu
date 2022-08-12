@@ -1,6 +1,7 @@
 import { Sequelize, Op } from 'sequelize';
 import { chunk, flatten, without, pick, pickBy } from 'lodash';
 import { propertyPathsToTree } from './metadata';
+import { log } from 'shared/services/logging';
 
 // SQLite < v3.32 has a hard limit of 999 bound parameters per query
 // see https://www.sqlite.org/limits.html for more
@@ -63,7 +64,7 @@ export const executeImportPlan = async (plan, syncRecords) => {
         return data;
       });
     const recordsForUpdate = syncRecords
-      .filter(r => !r.isDeleted && existingIdSet.has(r.data.id) && !existingDeletedIdSet.has(r.data.id))
+      .filter(r => !r.isDeleted && existingIdSet.has(r.data.id))
       .map(({ data }) => {
         validateRecord(data, null);
         return data;
@@ -73,7 +74,7 @@ export const executeImportPlan = async (plan, syncRecords) => {
     // TODO: 
     // - create a new PAD record if it's a PAD? or undelete and update?
     // - other records... warn and ignore?
-    console.warn("Sync includes updates to deleted records", { ids: deletedUpdates.map(r => r.id) });
+    log.warn("Sync includes updates to deleted records", { ids: deletedUpdates.map(r => r.id) });
 
     // run each import process
     const createSuccessCount = await executeCreates(plan, recordsForCreate);
