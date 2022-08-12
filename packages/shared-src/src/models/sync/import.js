@@ -63,11 +63,17 @@ export const executeImportPlan = async (plan, syncRecords) => {
         return data;
       });
     const recordsForUpdate = syncRecords
-      .filter(r => !r.isDeleted && existingIdSet.has(r.data.id))
+      .filter(r => !r.isDeleted && existingIdSet.has(r.data.id) && !existingDeletedIdSet.has(r.data.id))
       .map(({ data }) => {
         validateRecord(data, null);
         return data;
       });
+
+    const deletedUpdates = existing.filter(e => e.deletedAt);
+    // TODO: 
+    // - create a new PAD record if it's a PAD? or undelete and update?
+    // - other records... warn and ignore?
+    console.warn("Sync includes updates to deleted records", { ids: deletedUpdates.map(r => r.id) });
 
     // run each import process
     const createSuccessCount = await executeCreates(plan, recordsForCreate);

@@ -111,8 +111,16 @@ export class Model extends sequelize.Model {
   }
 
   static async findByIds(ids) {
-    return this.findAll({
-      where: { id: { [Op.in]: ids } },
+    const table = this.getTableName();
+    return this.sequelize.query(`
+      SELECT * FROM ${table} WHERE id IN :ids
+    `, {
+      replacements: {
+        ids,
+      },
+      model: this,
+      type: QueryTypes.SELECT,
+      mapToModel: true,
     });
   }
 
