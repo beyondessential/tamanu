@@ -17,8 +17,8 @@ RELEASE_FOLDER="release-nodejs"
 ./scripts/build_shared.sh
 ./scripts/build_package_release.sh "$WORKSPACE"
 
-mkdirp=node_modules/.bin/mkdirp
-rimraf=node_modules/.bin/rimraf
+mkdirp="node node_modules/.bin/mkdirp"
+rimraf="node node_modules/.bin/rimraf"
 
 # get rid of extraneous junk from the linux release
 pushd "./packages/$WORKSPACE/$RELEASE_FOLDER"

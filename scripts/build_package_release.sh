@@ -14,8 +14,8 @@ shopt -s extglob
 # build sync bundle
 yarn workspace "$WORKSPACE" build
 
-mkdirp=node_modules/.bin/mkdirp
-rimraf=node_modules/.bin/rimraf
+mkdirp="node node_modules/.bin/mkdirp"
+rimraf="node node_modules/.bin/rimraf"
 
 # copy workspace into release dir
 pushd "./packages/$WORKSPACE"
