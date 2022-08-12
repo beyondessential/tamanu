@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
 import * as yup from 'yup';
-import { SYNC_DIRECTIONS } from 'shared/constants';
+import { SYNC_DIRECTIONS, REPORT_STATUSES, REPORT_STATUSES_VALUES } from 'shared/constants';
 import { Model } from './Model';
 
 const optionsValidator = yup.object({
@@ -12,7 +12,7 @@ const optionsValidator = yup.object({
         parameterField: yup.string().required(),
       }),
     ),
-  allFacilities: yup.boolean().required(),
+  dataSources: yup.array(),
 });
 
 export class ReportDefinitionVersion extends Model {
@@ -32,9 +32,9 @@ export class ReportDefinitionVersion extends Model {
         status: {
           type: Sequelize.STRING,
           allowNull: false,
-          default: 'draft',
+          default: REPORT_STATUSES.DRAFT,
           validate: {
-            isIn: [['draft', 'published']],
+            isIn: [REPORT_STATUSES_VALUES],
           },
         },
         query: {
@@ -42,11 +42,11 @@ export class ReportDefinitionVersion extends Model {
           type: Sequelize.TEXT,
           allowNull: false,
         },
-        options: {
+        queryOptions: {
           /**
            * As of 28/02/22, contains:
            *  - parameters
-           *  - allFacilities
+           *  - dataSources
            * e.g.
            * {
            *   "parameters": [
@@ -58,10 +58,10 @@ export class ReportDefinitionVersion extends Model {
            *       "suggesterEndpoint": "nursingZone"
            *     }
            *   ],
-           *   "allFacilities": false,
+           *   "dataSources": [],
            * }
            */
-          type: Sequelize.JSONB,
+          type: Sequelize.Text,
           allowNull: false,
           default: '{}',
           validate: {

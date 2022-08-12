@@ -1,4 +1,5 @@
-import { STRING, DATE, BOOLEAN, NOW, UUIDV4, QueryInterface, INTEGER, JSONB } from 'sequelize';
+import { STRING, DATE, BOOLEAN, NOW, UUIDV4, QueryInterface, INTEGER, TEXT } from 'sequelize';
+import { REPORT_STATUSES } from 'shared/constants';
 
 const basics = {
   id: {
@@ -68,14 +69,14 @@ export async function up(query: QueryInterface) {
     status: {
       type: STRING,
       allowNull: false,
-      defaultValue: 'draft',
+      defaultValue: REPORT_STATUSES.DRAFT,
     },
     query: {
       type: STRING,
       allowNull: true,
     },
     options: {
-      type: JSONB,
+      type: TEXT,
       allowNull: true,
     },
     definition_id: {
