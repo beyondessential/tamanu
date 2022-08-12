@@ -18,12 +18,12 @@ jobs:
     - name: Yarn
       run: yarn install
 
-    - name: Build the release
-      shell: bash
-      run: |
-        set -x
-        jq -r '"TAMANU_VERSION=\(.version)"' packages/sync-server/package.json | tee -a $GITHUB_ENV
-        exec scripts/release_windows_zip_hacky.sh sync-server
+    # - name: Build the release
+    #   shell: bash
+    #   run: |
+    #     set -x
+    #     jq -r '"TAMANU_VERSION=\(.version)"' packages/sync-server/package.json | tee -a $GITHUB_ENV
+    #     exec scripts/release_windows_zip_hacky.sh sync-server
 
     - name: Upload output
       uses: actions/upload-artifact@v3
