@@ -1,4 +1,4 @@
-import { STRING, DATE, BOOLEAN, NOW, UUIDV4, QueryInterface, INTEGER, TEXT } from 'sequelize';
+import { STRING, DATE, BOOLEAN, NOW, UUIDV4, QueryInterface, INTEGER, JSON } from 'sequelize';
 import { REPORT_STATUSES } from 'shared/constants';
 
 const basics = {
@@ -75,8 +75,8 @@ export async function up(query: QueryInterface) {
       type: STRING,
       allowNull: true,
     },
-    options: {
-      type: TEXT,
+    queryOptions: {
+      type: JSON,
       allowNull: true,
     },
     definition_id: {

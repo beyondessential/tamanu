@@ -61,7 +61,7 @@ export class ReportDefinitionVersion extends Model {
            *   "dataSources": [],
            * }
            */
-          type: Sequelize.Text,
+          type: Sequelize.JSON,
           allowNull: false,
           default: '{}',
           validate: {
