@@ -33,8 +33,6 @@
     "eslint-plugin-import": "^2.22.1",
     "jest": "^28.1.1",
     "mocha": "^5.2.0",
-    "nodemon": "^1.17.3",
-    "nodemon-webpack-plugin": "^4.0.8",
     "supertest": "^4.0.2",
     "weak-napi": "^2.0.2",
     "webpack": "^5.73.0",

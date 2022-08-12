@@ -1,4 +1,5 @@
 import nodeExternals from 'webpack-node-externals';
+import NodemonPlugin from 'nodemon-webpack-plugin';
 
 export default {
   entry: ['core-js/stable', './index.js'],
@@ -23,3 +24,13 @@ export default {
     filename: 'app.bundle.js',
   },
 };
+
+export function nodemon(options) {
+  const nodemon = new NodemonPlugin({
+    delay: 500,
+    watch: ['./dist', '../shared'],
+    ...options,
+  });
+  nodemon.isWebpackWatching = true;
+  return nodemon;
+}
