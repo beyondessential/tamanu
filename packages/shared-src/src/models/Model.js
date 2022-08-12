@@ -111,7 +111,8 @@ export class Model extends sequelize.Model {
   }
 
   static async findByIds(ids) {
-    const table = this.getTableName();
+    const table = this.tableName;
+    console.log("table:", table);
     return this.sequelize.query(`
       SELECT * FROM ${table} WHERE id IN :ids
     `, {
