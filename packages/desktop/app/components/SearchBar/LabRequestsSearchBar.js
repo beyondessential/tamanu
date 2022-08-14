@@ -11,7 +11,6 @@ const STATUS_OPTIONS = Object.values(LAB_REQUEST_STATUSES).map(s => ({
 
 export const LabRequestsSearchBar = () => {
   const { searchParameters, setSearchParameters } = useLabRequest();
-  console.log(searchParameters)
   return (
     <CustomisableSearchBar
       title="Search lab requests"
@@ -34,13 +33,13 @@ export const LabRequestsSearchBar = () => {
       <LocalisedField
         name="requestedDateFrom"
         defaultLabel="Requested from"
-        saveAsDateString
+        saveDateAsString
         component={DateField}
       />
       <LocalisedField
         name="requestedDateTo"
         defaultLabel="Requested to"
-        saveAsDateString
+        saveDateAsString
         component={DateField}
       />
     </CustomisableSearchBar>
