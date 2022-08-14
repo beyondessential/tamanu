@@ -1,5 +1,6 @@
 import { STRING, DATE, BOOLEAN, NOW, UUIDV4, QueryInterface, INTEGER, JSON } from 'sequelize';
-import { REPORT_STATUSES } from 'shared/constants';
+
+const REPORT_STATUSES = { DRAFT: 'draft', PUBLISHED: 'published' };
 
 const basics = {
   id: {
