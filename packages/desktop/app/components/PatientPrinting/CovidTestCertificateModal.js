@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { CovidLabCertificate } from 'shared/utils/patientCertificates';
 import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
 import { Modal } from '../Modal';
@@ -14,6 +15,9 @@ export const CovidTestCertificateModal = ({ patient }) => {
   const { getLocalisation } = useLocalisation();
   const api = useApi();
   const { watermark, logo, footerImg, printedBy } = useCertificate();
+  const { data: additionalData } = useQuery(['additionalData', patient.id], () =>
+    api.get(`patient/${patient.id}/additionalData`),
+  );
 
   useEffect(() => {
     api.get(`patient/${patient.id}/covidLabTests`).then(response => {
@@ -34,6 +38,8 @@ export const CovidTestCertificateModal = ({ patient }) => {
     [api, patient.id, printedBy],
   );
 
+  const patientData = { ...patient, additionalData };
+
   return (
     <Modal
       open={open}
@@ -46,7 +52,7 @@ export const CovidTestCertificateModal = ({ patient }) => {
     >
       <PDFViewer id="test-certificate">
         <CovidLabCertificate
-          patient={patient}
+          patient={patientData}
           labs={labs}
           watermarkSrc={watermark}
           signingSrc={footerImg}
