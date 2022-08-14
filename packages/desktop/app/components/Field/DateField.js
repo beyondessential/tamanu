@@ -91,7 +91,7 @@ export const DateInput = ({
 export const TimeInput = props => <DateInput type="time" format="HH:mm" {...props} />;
 
 export const DateTimeInput = props => (
-  <DateInput type="datetime-local" format="YYYY-MM-DDTHH:mm" max="9999-12-31T00:00" {...props} />
+  <DateInput type="datetime-local" format="yyyy-MM-dd'T'HH:mm" max="9999-12-31T00:00" {...props} />
 );
 
 export const DateField = ({ field, ...props }) => (

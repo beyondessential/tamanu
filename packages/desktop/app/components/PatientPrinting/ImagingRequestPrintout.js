@@ -1,8 +1,8 @@
 import React from 'react';
-import { format } from 'date-fns';
 
 import { SimplePrintout } from './SimplePrintout';
 import { useLocalisation } from '../../contexts/Localisation';
+import { DateDisplay } from '../DateDisplay';
 
 export const ImagingRequestPrintout = React.memo(
   ({ imagingRequestData, patientData, encounterData, certificateData }) => {
@@ -26,7 +26,7 @@ export const ImagingRequestPrintout = React.memo(
         certificateData={{ ...certificateData, pageTitle: 'Imaging Request' }}
         tableData={{
           'Request ID': id,
-          'Request date': requestedDate ? format(requestedDate, 'dd/MM/yyyy') : null,
+          'Request date': requestedDate ? <DateDisplay date={requestedDate} /> : null,
           Facility: encounterData?.location?.facility?.name,
           Department: encounterData?.department?.name,
           'Requested by': requestedBy?.displayName,

@@ -1,10 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
-import format from 'date-fns/format';
 
 import { Colors } from '../constants';
 import { MoreDropdownMenu } from './MoreDropdownMenu';
 import { useApi } from '../api';
+import { DateDisplay } from './DateDisplay';
 
 const NoteContainer = styled.div`
   border: 1px solid ${Colors.outline};
@@ -70,7 +70,9 @@ export const CarePlanNoteDisplay = ({ note, isMainCarePlan, onEditClicked, onNot
           {isMainCarePlan ? <MainCarePlanIndicator>Main care plan</MainCarePlanIndicator> : null}
         </VerticalCenter>
         <VerticalCenter>
-          <Timestamp>{format(new Date(note.date), 'LLLL')}</Timestamp>
+          <Timestamp>
+            <DateDisplay date={note.date} />
+          </Timestamp>
           <MoreDropdownMenu
             iconColor={Colors.midText}
             actions={[

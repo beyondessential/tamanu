@@ -1,7 +1,7 @@
 import React from 'react';
-import { format } from 'date-fns';
 
 import { SimplePrintout } from './SimplePrintout';
+import { DateDisplay } from '../DateDisplay';
 
 export const LabRequestPrintout = React.memo(
   ({ labRequestData, patientData, encounterData, certificateData }) => {
@@ -23,11 +23,11 @@ export const LabRequestPrintout = React.memo(
         certificateData={{ ...certificateData, pageTitle: 'Lab Request' }}
         tableData={{
           'Test ID': displayId,
-          'Request date': requestedDate ? format(requestedDate, 'dd/MM/yyyy') : null,
+          'Request date': requestedDate ? <DateDisplay date={requestedDate} /> : null,
           Facility: encounterData?.location?.facility?.name,
           Department: encounterData?.department?.name,
           'Requested by': requestedBy?.displayName,
-          'Sample time': sampleTime ? format(sampleTime, 'dd/MM/yyyy hh:mm a') : null,
+          'Sample time': sampleTime ? <DateDisplay date={sampleTime} /> : null,
           Priority: priority?.name,
           'Test type': category?.name,
           'Test requested': tests.map(test => test.labTestType?.name).join(', '),
