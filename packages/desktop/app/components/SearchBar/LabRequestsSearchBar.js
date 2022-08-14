@@ -33,13 +33,13 @@ export const LabRequestsSearchBar = () => {
       <LocalisedField
         name="requestedDateFrom"
         defaultLabel="Requested from"
-        saveAsDateString
+        saveDateAsString
         component={DateField}
       />
       <LocalisedField
         name="requestedDateTo"
         defaultLabel="Requested to"
-        saveAsDateString
+        saveDateAsString
         component={DateField}
       />
     </CustomisableSearchBar>
