@@ -11,6 +11,7 @@ const STATUS_OPTIONS = Object.values(LAB_REQUEST_STATUSES).map(s => ({
 
 export const LabRequestsSearchBar = () => {
   const { searchParameters, setSearchParameters } = useLabRequest();
+  console.log(searchParameters)
   return (
     <CustomisableSearchBar
       title="Search lab requests"
