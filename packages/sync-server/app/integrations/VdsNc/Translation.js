@@ -30,7 +30,7 @@ const METHOD_CODE = {
 };
 
 const DATE_FORMAT_ISODATE = 'yyyy-MM-dd';
-const DATE_FORMAT_RFC3339 = "yyyy-MM-dd'T'HH:mm:ssZ";
+const DATE_FORMAT_RFC3339 = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
 export const createVdsNcVaccinationData = async (patientId, { models }) => {
   const {
