@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { REPORT_REQUEST_STATUS_VALUES, SYNC_DIRECTIONS } from 'shared/constants';
 import { log } from 'shared/services/logging';
+import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
 
 export class ReportRequest extends Model {
@@ -17,6 +18,24 @@ export class ReportRequest extends Model {
       },
       {
         ...options,
+        validate: {
+          // Must have
+          hasReportId: () => {
+            // No validation on deleted records
+            if (!this.deletedAt) return;
+
+            if (!this.versionId && !this.reportType) {
+              throw new InvalidOperationError(
+                'A report request must have either a reportType or a versionId',
+              );
+            }
+            if (this.versionId && this.reportType) {
+              throw new InvalidOperationError(
+                'A report request must have either a reportType or a versionId, not both',
+              );
+            }
+          },
+        },
         syncConfig: { syncDirection: SYNC_DIRECTIONS.PUSH_ONLY },
       },
     );
@@ -26,6 +45,14 @@ export class ReportRequest extends Model {
     this.belongsTo(models.User, {
       foreignKey: { name: 'requestedByUserId', allowNull: false },
       onDelete: 'CASCADE',
+    });
+    this.belongsTo(models.Facility, {
+      foreignKey: 'facilityId',
+      as: 'facility',
+    });
+    this.belongsTo(models.ReportDefinitionVersion, {
+      foreignKey: 'versionId',
+      as: 'version',
     });
   }
 
