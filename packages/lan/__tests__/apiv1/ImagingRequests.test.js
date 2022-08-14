@@ -53,8 +53,7 @@ describe('Imaging requests', () => {
     expect(result).toHaveRequestError();
   });
 
-  // FIXME NODE 16
-  it.skip('should get imaging requests for an encounter', async () => {
+  it('should get imaging requests for an encounter', async () => {
     const createdImagingRequest = await models.ImagingRequest.create({
       encounterId: encounter.id,
       imagingType: IMAGING_TYPES.CT_SCAN,
@@ -65,10 +64,10 @@ describe('Imaging requests', () => {
 
     const { body } = result;
 
-    // ID, type, status, requestedBy, requestedDate
+    // ID, imagingType, status, requestedBy, requestedDate
 
     expect(body.count).toBeGreaterThan(0);
-    expect(body.data[0]).toHaveProperty('type', createdImagingRequest.type);
+    expect(body.data[0]).toHaveProperty('imagingType', createdImagingRequest.imagingType);
   });
 
   it('should get imaging request reference info when listing imaging requests', async () => {
