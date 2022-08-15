@@ -89,24 +89,6 @@ describe('CentralServerConnection', () => {
       await expect(centralServer.connect()).rejects.toThrow(BadAuthenticationError);
     });
 
-    it('throws an InvalidOperationError with an appropriate message if the client version is too low', async () => {
-      const centralServer = createCentralServerConnection();
-      fetch.mockReturnValueOnce(clientVersionLow);
-      await expect(centralServer.connect()).rejects.toThrow(/please upgrade.*v1\.0\.0/i);
-    });
-
-    it('throws an InvalidOperationError with an appropriate message if the client version is too high', async () => {
-      const centralServer = createCentralServerConnection();
-      fetch.mockReturnValueOnce(clientVersionHigh);
-      await expect(centralServer.connect()).rejects.toThrow(/only supports up to v2\.0\.0/i);
-    });
-
-    it('throws an InvalidOperationError if any other server error is returned', async () => {
-      const centralServer = createCentralServerConnection();
-      fetch.mockReturnValueOnce(authFailure);
-      await expect(centralServer.connect()).rejects.toThrow(InvalidOperationError);
-    });
-
     it('throws a FacilityAndSyncVersionIncompatibleError with an appropriate message if the client version is too low', async () => {
       const centralServer = createCentralServerConnection();
       fetch.mockReturnValueOnce(clientVersionLow);
