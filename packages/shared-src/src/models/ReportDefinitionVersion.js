@@ -21,7 +21,7 @@ export class ReportDefinitionVersion extends Model {
       {
         id: primaryKey,
         versionNumber: {
-          type: Sequelize.STRING,
+          type: Sequelize.INTEGER,
           allowNull: false,
         },
         notes: {
@@ -33,9 +33,7 @@ export class ReportDefinitionVersion extends Model {
           type: Sequelize.STRING,
           allowNull: false,
           default: REPORT_STATUSES.DRAFT,
-          validate: {
-            isIn: [REPORT_STATUSES_VALUES],
-          },
+          isIn: [REPORT_STATUSES_VALUES],
         },
         query: {
           // SQL query
