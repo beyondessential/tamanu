@@ -1,17 +1,12 @@
 /**
- * Create custom datetime char types linking Sequelize type to Postgres
+ * Create custom datetime Sequelize types and link to Postgres types.
  */
 import util from 'util';
-import { DataTypes, Utils } from 'sequelize';
-
-const ABSTRACT = DataTypes.ABSTRACT.prototype.constructor;
+import { DataTypes, Utils, ABSTRACT } from 'sequelize';
 
 export function createDateType() {
   class DATETIMESTRING extends ABSTRACT {
-    static key = 'date_time_string';
-
     toSql() {
-      // postgresql domain name
       return 'date_time_string';
     }
 
@@ -22,7 +17,6 @@ export function createDateType() {
 
   class DATESTRING extends ABSTRACT {
     toSql() {
-      // postgresql domain name
       return 'date_string';
     }
 
@@ -31,13 +25,15 @@ export function createDateType() {
     }
   }
 
-  // set the type key
+  // Set the type key
   DATETIMESTRING.prototype.key = 'date_time_string';
   DATESTRING.prototype.key = 'date_string';
 
-  // be able to use this datatype directly without having to call `new` on it.
+  // Make datatype able to be used directly without having to call `new` on it.
   DataTypes.DATETIMESTRING = Utils.classToInvokable(DATETIMESTRING);
   DataTypes.DATESTRING = Utils.classToInvokable(DATESTRING);
+
+  // Map the datatype to the postgres type/domain name
   DataTypes.DATETIMESTRING.types.postgres = ['date_time_string'];
   DataTypes.DATESTRING.types.postgres = ['date_string'];
 
@@ -49,7 +45,10 @@ export function createDateType() {
   };
 
   util.inherits(PgTypes.DATETIMESTRING, DataTypes.DATETIMESTRING);
+  // Reassign postgres-specific parser
   PgTypes.DATETIMESTRING.parse = DataTypes.DATETIMESTRING.parse;
+
+  // These two extra steps are seemingly necessary altho not described in sequelize docs
   PgTypes.DATETIMESTRING.types = { postgres: ['date_time_string'] };
   DataTypes.postgres.DATETIMESTRING.key = 'date_time_string';
 
@@ -59,7 +58,9 @@ export function createDateType() {
   };
 
   util.inherits(PgTypes.DATESTRING, DataTypes.DATESTRING);
+  // Reassign postgres-specific parser
   PgTypes.DATESTRING.parse = DataTypes.DATESTRING.parse;
+  // These two extra steps are seemingly necessary altho not described in sequelize docs
   PgTypes.DATESTRING.types = { postgres: ['date_string'] };
   DataTypes.postgres.DATESTRING.key = 'date_string';
 }
