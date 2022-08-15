@@ -1,4 +1,4 @@
-import moment from 'moment';
+import moment from 'moment-timezone';
 import { createDummyPatient, randomReferenceIds } from 'shared/demoData/patients';
 import { createTestContext } from '../../utilities';
 
@@ -18,6 +18,7 @@ describe('Assistive technology device line list', () => {
   beforeAll(async () => {
     ctx = await createTestContext();
     const { models } = ctx;
+    moment.tz.setDefault('Etc/UTC');
 
     await models.SurveyResponseAnswer.truncate({ cascade: true });
     await models.SurveyResponse.truncate({ cascade: true });
