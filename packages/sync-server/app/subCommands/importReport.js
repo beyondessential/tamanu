@@ -10,21 +10,18 @@ async function importReport(options) {
   const report = JSON.parse(data);
   const store = await initDatabase({ testMode: false });
   const { ReportDefinitionVersion, ReportDefinition } = store.models;
-  let definition = await ReportDefinition.findOne({
+  const [definition] = await ReportDefinition.findOrCreate({
     where: { name: options.name },
   });
+
   let { userId } = report;
-  if (!definition) {
-    definition = await ReportDefinition.create({
-      name: options.name,
-    });
-  }
   if (!report.userId) {
     const user = await store.models.User.findOne({
       where: { email: DEFAULT_USER_EMAIL },
     });
     userId = user.id;
   }
+
   const request = await ReportDefinitionVersion.create({
     definitionId: definition.id,
     userId,
