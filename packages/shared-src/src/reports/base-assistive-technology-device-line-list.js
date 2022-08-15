@@ -166,9 +166,11 @@ export const dataGenerator = async (
   const latestAnswersPerPatientPerDate = getLatestAnswerPerPatientPerDate(
     answersForPerPatientPerDate,
   );
+  console.log(latestAnswersPerPatientPerDate);
   const patients = answers.map(a => a.surveyResponse?.encounter?.patient);
   const patientById = keyBy(patients, 'id');
   const patientIdsByResponseDates = getPatientIdsByResponseDates(answersForPerPatientPerDate);
+  console.log(patientIdsByResponseDates);
 
   const reportData = [];
 
@@ -210,6 +212,7 @@ export const dataGenerator = async (
       reportData.push(recordData);
     }
   }
+  console.log(reportData);
 
   return generateReportFromQueryData(reportData, reportColumnTemplate);
 };

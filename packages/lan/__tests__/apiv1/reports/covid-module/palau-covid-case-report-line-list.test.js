@@ -178,6 +178,7 @@ describe('Palau covid case report tests', () => {
     });
 
     beforeEach(async () => {
+      await testContext.models.SurveyResponseAnswer.destroy({ where: {} });
       await testContext.models.SurveyResponse.destroy({ where: {} });
     });
 
