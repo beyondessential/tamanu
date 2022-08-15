@@ -6,10 +6,8 @@ import { FormGrid } from '../FormGrid';
 import { Field, Form, AutocompleteField, SelectField, DateTimeField } from '../Field';
 import { ConfirmCancelRow } from '../ButtonRow';
 import { FormSeparatorLine } from '../FormSeparatorLine';
-import { getPatientNameAsString } from '../PatientNameDisplay';
-import { formatShort } from '../DateDisplay';
 
-import { useApi } from '../../api';
+import { useApi, usePatientSuggester } from '../../api';
 import { Suggester } from '../../utils/suggester';
 import { appointmentTypeOptions } from '../../constants';
 
@@ -19,14 +17,7 @@ export const AppointmentForm = props => {
   const isUpdating = !!appointment;
   const clinicianSuggester = new Suggester(api, 'practitioner');
   const locationSuggester = new Suggester(api, 'location');
-  const patientSuggester = new Suggester(api, 'patient', {
-    formatter: ({ id, ...patient }) => ({
-      label: `${getPatientNameAsString(patient)} (${patient.displayId}) - ${
-        patient.sex
-      } - ${formatShort(patient.dateOfBirth)}`,
-      value: id,
-    }),
-  });
+  const patientSuggester = usePatientSuggester();
   let initialValues = {};
   if (isUpdating) {
     initialValues = {

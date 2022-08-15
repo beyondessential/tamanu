@@ -23,6 +23,8 @@ export class PatientAdditionalData extends Model {
         passport: Sequelize.STRING,
         emergencyContactName: Sequelize.STRING,
         emergencyContactNumber: Sequelize.STRING,
+        motherId: Sequelize.STRING,
+        fatherId: Sequelize.STRING,
       },
       {
         ...options,
@@ -53,6 +55,16 @@ export class PatientAdditionalData extends Model {
     this.belongsTo(models.User, {
       foreignKey: 'registeredById',
       as: 'registeredBy',
+    });
+
+    this.belongsTo(models.Patient, {
+      foreignKey: 'motherId',
+      as: 'mother',
+    });
+
+    this.belongsTo(models.Patient, {
+      foreignKey: 'fatherId',
+      as: 'father',
     });
 
     const referenceRelation = name =>

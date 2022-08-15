@@ -18,7 +18,7 @@ const ForbiddenMessage = () => (
   </ContentPane>
 );
 
-export const PatientDetailsPane = React.memo(({ patient, additionalData }) => {
+export const PatientDetailsPane = React.memo(({ patient, additionalData, birthData }) => {
   const api = useApi();
   const dispatch = useDispatch();
   const { ability } = useAuth();
@@ -42,6 +42,7 @@ export const PatientDetailsPane = React.memo(({ patient, additionalData }) => {
       <PatientDetailsForm
         patient={patient}
         additionalData={additionalData}
+        birthData={birthData}
         onSubmit={handleSubmit}
       />
     </ContentPane>

@@ -4,6 +4,7 @@ import { QueryTypes, Op } from 'sequelize';
 import { isEqual } from 'lodash';
 
 import { NotFoundError } from 'shared/errors';
+import { PATIENT_REGISTRY_TYPES } from 'shared/constants';
 
 import { renameObjectKeys } from '../../../utils/renameObjectKeys';
 import { createPatientFilters } from '../../../utils/patientFilters';
@@ -11,8 +12,10 @@ import { patientVaccineRoutes } from './patientVaccine';
 import { patientDocumentMetadataRoutes } from './patientDocumentMetadata';
 import { patientInvoiceRoutes } from './patientInvoice';
 import { patientRelations } from './patientRelations';
+import { patientBirthData } from './patientBirthData';
 import { activeCovid19PatientsHandler } from '../../../routeHandlers';
 import { getOrderClause } from '../../../database/utils';
+import { requestBodyToRecord, dbRecordToResponse, pickPatientBirthData } from './utils';
 import { PATIENT_SORT_KEYS } from './constants';
 
 const patientRoute = express.Router();
@@ -39,12 +42,15 @@ patientRoute.put(
   asyncHandler(async (req, res) => {
     const {
       db,
-      models: { Patient, PatientAdditionalData },
+      models: { Patient, PatientAdditionalData, PatientBirthData },
       params,
     } = req;
     req.checkPermission('read', 'Patient');
     const patient = await Patient.findByPk(params.id);
-    if (!patient) throw new NotFoundError();
+    if (!patient) {
+      throw new NotFoundError();
+    }
+
     req.checkPermission('write', patient);
 
     await db.transaction(async () => {
@@ -66,6 +72,23 @@ patientRoute.put(
       } else {
         await patientAdditionalData.update(requestBodyToRecord(req.body));
       }
+
+      const patientBirthData = await PatientBirthData.findOne({
+        where: { patientId: patient.id },
+      });
+      const recordData = requestBodyToRecord(req.body);
+      const patientBirthRecordData = pickPatientBirthData(PatientBirthData, recordData);
+
+      if (!patientBirthData) {
+        if (!isEqual(req.body, { markedForSync: true })) {
+          await PatientBirthData.create({
+            ...patientBirthRecordData,
+            patientId: patient.id,
+          });
+        }
+      } else {
+        await patientBirthData.update(patientBirthRecordData);
+      }
     });
 
     res.send(dbRecordToResponse(patient));
@@ -77,17 +100,31 @@ patientRoute.post(
   asyncHandler(async (req, res) => {
     const {
       db,
-      models: { Patient, PatientAdditionalData },
+      models: { Patient, PatientAdditionalData, PatientBirthData },
     } = req;
     req.checkPermission('create', 'Patient');
-    const patientData = requestBodyToRecord(req.body);
+    const requestData = requestBodyToRecord(req.body);
+    const { patientRegistryType, ...patientData } = requestData;
 
     const patientRecord = await db.transaction(async () => {
       const createdPatient = await Patient.create(patientData);
+      const patientAdditionalBirthData =
+        patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY
+          ? { motherId: patientData.motherId, fatherId: patientData.fatherId }
+          : {};
+
       await PatientAdditionalData.create({
         ...patientData,
+        ...patientAdditionalBirthData,
         patientId: createdPatient.id,
       });
+
+      if (patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY) {
+        await PatientBirthData.create({
+          ...pickPatientBirthData(PatientBirthData, patientData),
+          patientId: createdPatient.id,
+        });
+      }
       return createdPatient;
     });
     res.send(dbRecordToResponse(patientRecord));
@@ -319,13 +356,14 @@ patientRoute.get(
 
 patientRoute.get('/program/activeCovid19Patients', asyncHandler(activeCovid19PatientsHandler));
 
-/* CHILD ROUTES*/
-/* CHILD ROUTES*/
-/* CHILD ROUTES*/
+/* CHILD ROUTES FROM HERE*/
+/* CHILD ROUTES FROM HERE*/
+/* CHILD ROUTES FROM HERE*/
 
 patientRoute.use(patientRelations);
 patientRoute.use(patientVaccineRoutes);
 patientRoute.use(patientDocumentMetadataRoutes);
 patientRoute.use(patientInvoiceRoutes);
+patientRoute.use(patientBirthData);
 
 export { patientRoute as patient };
