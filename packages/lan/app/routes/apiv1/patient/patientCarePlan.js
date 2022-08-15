@@ -4,7 +4,7 @@ import { NOTE_TYPES } from 'shared/constants';
 import { InvalidParameterError } from 'shared/errors';
 import { NOTE_RECORD_TYPES } from 'shared/models/Note';
 
-import { simpleGet, simplePut } from './crudHelpers';
+import { simpleGet, simplePut } from '../crudHelpers';
 
 export const patientCarePlan = express.Router();
 

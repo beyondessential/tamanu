@@ -2,37 +2,20 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes, Op } from 'sequelize';
 import { isEqual } from 'lodash';
-import { getPatientAdditionalData } from 'shared/utils';
+
 import { NotFoundError } from 'shared/errors';
 
-import { simpleGetList, permissionCheckingRouter, runPaginatedQuery } from './crudHelpers';
-import { renameObjectKeys } from '../../utils/renameObjectKeys';
-import { createPatientFilters } from '../../utils/patientFilters';
-import { patientVaccineRoutes } from './patient/patientVaccine';
-import { patientDocumentMetadataRoutes } from './patient/patientDocumentMetadata';
-import { patientInvoiceRoutes } from './patient/patientInvoice';
-import { patientSecondaryIdRoutes } from './patient/patientSecondaryId';
-import { patientDeath } from './patient/patientDeath';
-import { patientProfilePicture } from './patient/patientProfilePicture';
-import { activeCovid19PatientsHandler } from '../../routeHandlers';
-import { getOrderClause } from '../../database/utils';
+import { renameObjectKeys } from '../../../utils/renameObjectKeys';
+import { createPatientFilters } from '../../../utils/patientFilters';
+import { patientVaccineRoutes } from './patientVaccine';
+import { patientDocumentMetadataRoutes } from './patientDocumentMetadata';
+import { patientInvoiceRoutes } from './patientInvoice';
+import { patientRelations } from './patientRelations';
+import { activeCovid19PatientsHandler } from '../../../routeHandlers';
+import { getOrderClause } from '../../../database/utils';
+import { PATIENT_SORT_KEYS } from './constants';
 
 const patientRoute = express.Router();
-export { patientRoute as patient };
-
-function dbRecordToResponse(patientRecord) {
-  return {
-    ...patientRecord.get({
-      plain: true,
-    }),
-  };
-}
-
-function requestBodyToRecord(reqBody) {
-  return {
-    ...reqBody,
-  };
-}
 
 patientRoute.get(
   '/:id',
@@ -110,176 +93,6 @@ patientRoute.post(
     res.send(dbRecordToResponse(patientRecord));
   }),
 );
-
-const patientRelations = permissionCheckingRouter('read', 'Patient');
-
-patientRelations.get(
-  '/:id/encounters',
-  asyncHandler(async (req, res) => {
-    req.checkPermission('list', 'Encounter');
-    const {
-      models: { Encounter },
-      params,
-      query,
-    } = req;
-    const { order = 'ASC', orderBy, open = false } = query;
-
-    const objects = await Encounter.findAll({
-      where: {
-        patientId: params.id,
-        ...(open && { endDate: null }),
-      },
-      order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
-    });
-
-    const data = objects.map(x => x.forResponse());
-
-    res.send({
-      count: objects.length,
-      data,
-    });
-  }),
-);
-
-// TODO
-// patientRelations.get('/:id/appointments', simpleGetList('Appointment', 'patientId'));
-
-patientRelations.get('/:id/issues', simpleGetList('PatientIssue', 'patientId'));
-patientRelations.get('/:id/conditions', simpleGetList('PatientCondition', 'patientId'));
-patientRelations.get('/:id/allergies', simpleGetList('PatientAllergy', 'patientId'));
-patientRelations.get('/:id/familyHistory', simpleGetList('PatientFamilyHistory', 'patientId'));
-patientRelations.get('/:id/carePlans', simpleGetList('PatientCarePlan', 'patientId'));
-
-patientRelations.get(
-  '/:id/additionalData',
-  asyncHandler(async (req, res) => {
-    const { models, params } = req;
-
-    req.checkPermission('read', 'Patient');
-
-    const additionalDataRecord = await models.PatientAdditionalData.findOne({
-      where: { patientId: params.id },
-      include: models.PatientAdditionalData.getFullReferenceAssociations(),
-    });
-
-    // Lookup survey responses for passport and nationality to fill patient additional data
-    // Todo: Remove when WAITM-243 is complete
-    const passport = await getPatientAdditionalData(models, params.id, 'passport');
-    const nationalityId = await getPatientAdditionalData(models, params.id, 'nationalityId');
-    const nationality = nationalityId
-      ? await models.ReferenceData.findByPk(nationalityId)
-      : undefined;
-
-    const recordData = additionalDataRecord ? additionalDataRecord.toJSON() : {};
-    res.send({ ...recordData, passport, nationality, nationalityId });
-  }),
-);
-
-patientRelations.use(patientProfilePicture);
-patientRelations.use(patientDeath);
-patientRelations.use(patientSecondaryIdRoutes);
-
-patientRelations.get(
-  '/:id/referrals',
-  asyncHandler(async (req, res) => {
-    const { models, params } = req;
-
-    req.checkPermission('read', 'Patient');
-    req.checkPermission('read', 'Encounter');
-
-    const patientReferrals = await models.Referral.findAll({
-      include: [
-        {
-          association: 'initiatingEncounter',
-          where: {
-            '$initiatingEncounter.patient_id$': params.id,
-          },
-        },
-        {
-          association: 'surveyResponse',
-          include: [
-            {
-              association: 'answers',
-            },
-            {
-              association: 'survey',
-              include: [
-                {
-                  association: 'components',
-                  include: [
-                    {
-                      association: 'dataElement',
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    });
-
-    res.send({ count: patientReferrals.length, data: patientReferrals });
-  }),
-);
-
-patientRelations.get(
-  '/:id/programResponses',
-  asyncHandler(async (req, res) => {
-    const { db, models, params, query } = req;
-    const patientId = params.id;
-    const { surveyId, surveyType = 'programs' } = query;
-    const { count, data } = await runPaginatedQuery(
-      db,
-      models.SurveyResponse,
-      `
-        SELECT COUNT(1) as count
-        FROM
-          survey_responses
-          LEFT JOIN encounters
-            ON (survey_responses.encounter_id = encounters.id)
-          LEFT JOIN surveys
-            ON (survey_responses.survey_id = surveys.id)
-        WHERE
-          encounters.patient_id = :patientId
-          AND surveys.survey_type = :surveyType
-          ${surveyId ? 'AND surveys.id = :surveyId' : ''}
-      `,
-      `
-        SELECT
-          survey_responses.*,
-          surveys.id as survey_id,
-          surveys.name as survey_name,
-          encounters.examiner_id,
-          users.display_name as assessor_name,
-          programs.name as program_name
-        FROM
-          survey_responses
-          LEFT JOIN encounters
-            ON (survey_responses.encounter_id = encounters.id)
-          LEFT JOIN surveys
-            ON (survey_responses.survey_id = surveys.id)
-          LEFT JOIN users
-            ON (users.id = encounters.examiner_id)
-          LEFT JOIN programs
-            ON (programs.id = surveys.program_id)
-        WHERE
-          encounters.patient_id = :patientId
-          AND surveys.survey_type = :surveyType
-          ${surveyId ? 'AND surveys.id = :surveyId' : ''}
-      `,
-      { patientId, surveyId, surveyType },
-      query,
-    );
-
-    res.send({
-      count: parseInt(count, 10),
-      data,
-    });
-  }),
-);
-
-patientRoute.use(patientRelations);
 
 patientRoute.get(
   '/:id/currentEncounter',
@@ -359,21 +172,6 @@ patientRoute.get(
   }),
 );
 
-const sortKeys = {
-  markedForSync: 'patients.marked_for_sync',
-  displayId: 'patients.display_id',
-  lastName: 'UPPER(patients.last_name)',
-  culturalName: 'UPPER(patients.cultural_name)',
-  firstName: 'UPPER(patients.first_name)',
-  age: 'patients.date_of_birth',
-  dateOfBirth: 'patients.date_of_birth',
-  villageName: 'village_name',
-  locationName: 'location.name',
-  departmentName: 'department.name',
-  encounterType: 'encounters.encounter_type',
-  sex: 'patients.sex',
-};
-
 patientRoute.get(
   '/$',
   asyncHandler(async (req, res) => {
@@ -392,11 +190,15 @@ patientRoute.get(
       ...filterParams
     } = query;
 
-    const sortKey = sortKeys[orderBy] || sortKeys.displayId;
+    const sortKey = PATIENT_SORT_KEYS[orderBy] || PATIENT_SORT_KEYS.displayId;
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
     // add secondary search terms so no matter what the primary order, the results are secondarily
     // sorted sensibly
-    const secondarySearchTerm = [sortKeys.lastName, sortKeys.firstName, sortKeys.displayId]
+    const secondarySearchTerm = [
+      PATIENT_SORT_KEYS.lastName,
+      PATIENT_SORT_KEYS.firstName,
+      PATIENT_SORT_KEYS.displayId,
+    ]
       .filter(v => v !== orderBy)
       .map(v => `${v} ASC`)
       .join(', ');
@@ -500,13 +302,6 @@ patientRoute.get(
   }),
 );
 
-patientRoute.get('/program/activeCovid19Patients', asyncHandler(activeCovid19PatientsHandler));
-
-patientRoute.use(patientVaccineRoutes);
-patientRoute.use(patientDocumentMetadataRoutes);
-
-patientRoute.use(patientInvoiceRoutes);
-
 patientRoute.get(
   '/:id/covidLabTests',
   asyncHandler(async (req, res) => {
@@ -521,3 +316,16 @@ patientRoute.get(
     res.json({ data: labTests, count: labTests.length });
   }),
 );
+
+patientRoute.get('/program/activeCovid19Patients', asyncHandler(activeCovid19PatientsHandler));
+
+/* CHILD ROUTES*/
+/* CHILD ROUTES*/
+/* CHILD ROUTES*/
+
+patientRoute.use(patientRelations);
+patientRoute.use(patientVaccineRoutes);
+patientRoute.use(patientDocumentMetadataRoutes);
+patientRoute.use(patientInvoiceRoutes);
+
+export { patientRoute as patient };
