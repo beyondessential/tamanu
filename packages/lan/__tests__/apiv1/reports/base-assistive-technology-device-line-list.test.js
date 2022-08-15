@@ -1,4 +1,4 @@
-import moment from 'moment';
+import moment from 'moment-timezone';
 import { createDummyPatient, randomReferenceIds } from 'shared/demoData/patients';
 import { createTestContext } from '../../utilities';
 
@@ -18,6 +18,7 @@ describe('Assistive technology device line list', () => {
   beforeAll(async () => {
     ctx = await createTestContext();
     const { models } = ctx;
+    moment.tz.setDefault('Etc/UTC');
 
     await models.SurveyResponseAnswer.truncate({ cascade: true });
     await models.SurveyResponse.truncate({ cascade: true });
@@ -185,8 +186,7 @@ describe('Assistive technology device line list', () => {
   });
 
   describe('returns the correct data', () => {
-    // FIXME NODE 16
-    it.skip('should return latest data per patient and latest data per patient per date', async () => {
+    it('should return latest data per patient and latest data per patient per date', async () => {
       const result = await app
         .post('/v1/reports/iraq-assistive-technology-device-line-list')
         .send({});
@@ -306,8 +306,7 @@ describe('Assistive technology device line list', () => {
       ]);
     });
 
-    // FIXME NODE 16
-    it.skip('should return data within date range', async () => {
+    it('should return data within date range', async () => {
       const result = await app
         .post('/v1/reports/iraq-assistive-technology-device-line-list')
         .send({ parameters: { fromDate: '2021-03-18T00:00:00Z', toDate: '2021-03-21T00:00:00Z' } });
