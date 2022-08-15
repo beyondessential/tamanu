@@ -56,7 +56,7 @@ export class BackendManager {
     const run = async (): Promise<void> => {
       try {
         const facilityId = await readConfig('facilityId', '');
-        if (!facilityId) {
+        if (facilityId) {
           await this.syncManager.triggerSync();
         }
       } catch (e) {

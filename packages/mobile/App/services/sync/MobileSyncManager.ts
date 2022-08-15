@@ -183,7 +183,7 @@ export class MobileSyncManager {
         currentSessionIndex,
         outgoingChanges,
         (total, pushedRecords) =>
-          this.updateProgress(total, pushedRecords, 'Stage 1/3: Pushing all new records'),
+          this.updateProgress(total, pushedRecords, 'Stage 1/3: Pushing all new changes'),
       );
     }
 
@@ -209,15 +209,13 @@ export class MobileSyncManager {
       currentSessionIndex,
       lastSessionIndex,
       (total, downloadedChangesTotal) =>
-        this.updateProgress(total, downloadedChangesTotal, 'Stage 2/3: Pulling all new records'),
+        this.updateProgress(total, downloadedChangesTotal, 'Stage 2/3: Pulling all new changes'),
     );
 
     if (incomingChanges.length > 0) {
       console.info(
-        `MobileSyncManager.syncIncomingChanges(): Saving ${incomingChanges.length} records`,
+        `MobileSyncManager.syncIncomingChanges(): Saving ${incomingChanges.length} changes`,
       );
-
-      this.setProgress(0, 'Stage 3/3: Start saving records...');
 
       const modelsToPull = getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
 

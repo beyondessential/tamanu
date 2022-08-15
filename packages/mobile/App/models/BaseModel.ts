@@ -89,9 +89,7 @@ const getMappedFormValues = (values: object): object => {
 };
 
 export abstract class BaseModel extends BaseEntity {
-  // TAN-884: lock entire model class while updating markedForUpload or syncing
-  static markedForUploadMutex = new Mutex();
-
+  
   @PrimaryColumn()
   @Generated('uuid')
   id: string;
@@ -114,10 +112,6 @@ export abstract class BaseModel extends BaseEntity {
 
   @BeforeUpdate()
   async markForUpload() {
-    // TAN-884: make sure records always have markedForUpload set to true when sync is ongoing
-    // This may sometimes cause records to be uploaded even when an update failed!
-    // We take that risk, since it's better than not uploading a record.
-
     const thisModel = this.constructor as typeof BaseModel;
     const index = await getSyncSessionIndex('CurrentSyncSession');
     if (
@@ -127,12 +121,7 @@ export abstract class BaseModel extends BaseEntity {
       this.updatedAtSyncIndex = index;
     }
 
-    // acquire an exclusive lock before running the update
-    await thisModel.markedForUploadMutex.runExclusive(async () => {
-      await thisModel
-        .getRepository()
-        .update({ id: this.id }, { markedForUpload: true, updatedAtSyncIndex: index });
-    });
+    this.markedForUpload = true;
   }
 
   @BeforeInsert()

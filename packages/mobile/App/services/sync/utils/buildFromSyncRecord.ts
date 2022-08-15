@@ -32,12 +32,6 @@ export const mapFields = (
   return newObj;
 };
 
-/*
- *   buildFromSyncRecord
- *
- *    Input: a model
- *    Output: a function that will convert a SyncRecord into an object matching that model
- */
 export const buildFromSyncRecord = (
   model: typeof BaseModel,
   data: SyncRecordData,
