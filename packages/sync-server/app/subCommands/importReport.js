@@ -15,15 +15,16 @@ async function importReport(options) {
   });
 
   const versions = await definition.getVersions();
-  if (versions.some(v => v.versionNumber === report.versionNumber)) {
+  if (!report.versionNumber || versions.some(v => v.versionNumber === report.versionNumber)) {
     const latestVersion = versions.reduce(
       (acc, v) => (v.versionNumber > acc ? v.versionNumber : acc),
       0,
     );
     const incrementedVersion = latestVersion + 1;
-    log.info(`supplied version already exists in database, incrementing to ${incrementedVersion}`);
+    log.info(`Incrementing versionNumber to ${incrementedVersion}`);
     report.versionNumber = incrementedVersion;
   }
+
   let { userId } = report;
   if (!report.userId) {
     const user = await store.models.User.findOne({
