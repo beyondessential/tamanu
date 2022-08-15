@@ -326,6 +326,69 @@ describe('import', () => {
       });
     });
 
+    describe('Deleted records', () => {
+      it('throws an appropriate error when trying to sync up a deleted record', async () => {
+        // create the record with a deletedAt
+        const { Patient } = models;
+        const data = await fake(Patient);
+        const patient = await Patient.create(data);
+
+        // delete the record in the db
+        await patient.update({ 
+          deletedAt: new Date(),
+        });
+
+        // create an edit to the record without a deleted-at
+        const syncRecord = toSyncRecord({
+          ...data,
+          firstName: 'Changed',
+        });
+
+        // sync the edit up
+        const plan = createImportPlan(Patient.sequelize, 'patient');
+        const executePromise = executeImportPlan(plan, [syncRecord]);
+        
+        // expect a throw
+        await expect(executePromise).rejects.toHaveProperty('message', "Sync payload includes updates to deleted records");
+
+        // and the name change should not have stuck
+        const dbPatient = await Patient.findByPk(patient.id);
+        expect(dbPatient).not.toHaveProperty('firstName', 'Changed');
+      });
+
+      it('un-deletes a synced-up PAD', async () => {
+        // create the PAD with a deletedAt
+        const { Patient, PatientAdditionalData } = models;
+        const patient = await Patient.create(await fake(Patient));
+        const pad = await PatientAdditionalData.create({
+          ...await fake(PatientAdditionalData),
+          patientId: patient.id,
+        });
+
+        // create an edit that changes some detail
+        const record = toSyncRecord({ 
+          ...pad.dataValues,
+          passport: 'Changed',
+        });
+        
+        // delete the initial record before uploading the edit
+        await pad.update({ 
+          deletedAt: new Date(),
+        });
+
+        // sync the edit up - this should succeed so we don't need to worry about .rejects
+        const plan = createImportPlan(PatientAdditionalData.sequelize, `patient/${patient.id}/additionalData`);
+        await executeImportPlan(plan, [record]);
+
+        // reload the record
+        await pad.reload();
+
+        // expect the edit to have taken & the deletedAt to have been removed
+        expect(pad).toHaveProperty('passport', 'Changed');
+        expect(pad).toHaveProperty('deletedAt', null);
+      });
+    });
+
     it('closes old outpatient encounters when importing', async () => {
       // arrange
       const { Encounter } = models;

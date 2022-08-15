@@ -42,6 +42,7 @@ export class Model extends sequelize.Model {
       attributes.pushedAt = Sequelize.DATE;
       attributes.pulledAt = Sequelize.DATE;
     }
+    attributes.deletedAt = Sequelize.DATE;
     super.init(attributes, options);
     this.syncClientMode = syncClientMode;
     this.defaultIdValue = attributes.id.defaultValue;

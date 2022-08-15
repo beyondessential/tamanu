@@ -49,12 +49,17 @@ const createImportPlanInner = (model, relationTree, validateRecord) => {
 };
 
 async function findByIds(model, ids) {
+  if (ids.length === 0) {
+    return [];
+  }
   return model.sequelize.query(`
     SELECT * FROM "${model.tableName}" WHERE id IN (:ids)
   `, {
     replacements: {
       ids,
     },
+    model,
+    mapToModel: true,
     type: QueryTypes.SELECT,
   });
 }
@@ -82,10 +87,24 @@ export const executeImportPlan = async (plan, syncRecords) => {
       });
 
     const deletedUpdates = existing.filter(e => e.deletedAt);
-    // TODO: 
-    // - create a new PAD record if it's a PAD? or undelete and update?
-    // - other records... warn and ignore?
-    log.warn("Sync includes updates to deleted records", { ids: deletedUpdates.map(r => r.id) });
+    if (deletedUpdates.length > 0) {
+      if (model.syncConfig.undeleteOnUpdate) {
+        // restore the deleted records
+        const idsToRestore = deletedUpdates.map(e => e.id);
+        await model.update({
+          deletedAt: null,
+        }, {
+          where: {
+            id: {
+              [Op.in]: idsToRestore,
+            },
+          },
+        });
+      } else {
+        log.error("Sync includes updates to deleted records", { ids: deletedUpdates.map(r => r.id) });
+        throw new Error("Sync payload includes updates to deleted records");
+      }
+    }
   
     // run each import process
     const createSuccessCount = await executeCreates(plan, recordsForCreate);
