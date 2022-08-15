@@ -27,9 +27,9 @@ export function testImmunizationHandler(integrationName, requestHeaders = {}) {
         AdministeredVaccine,
       } = models;
 
-      const { id: patientId } = await Patient.create({ ...fake(Patient) });
+      const { id: patientId } = await Patient.create(fake(Patient));
       const { id: examinerId } = await User.create(fakeUser());
-      const { id: facilityId } = await Facility.create({ ...fake(Facility) });
+      const { id: facilityId } = await Facility.create(fake(Facility));
       const { id: departmentId } = await Department.create({ ...fake(Department), facilityId });
       const { id: locationId } = await Location.create({ ...fake(Location), facilityId });
       const { id: encounterId } = await Encounter.create({
