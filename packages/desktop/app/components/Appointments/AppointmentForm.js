@@ -18,7 +18,9 @@ export const AppointmentForm = props => {
   const api = useApi();
   const isUpdating = !!appointment;
   const clinicianSuggester = new Suggester(api, 'practitioner');
-  const locationSuggester = new Suggester(api, 'location');
+  const locationSuggester = new Suggester(api, 'location', {
+    baseQueryParameters: { filterByFacility: true },
+  });
   const patientSuggester = new Suggester(api, 'patient', {
     formatter: ({ id, ...patient }) => ({
       label: `${getPatientNameAsString(patient)} (${patient.displayId}) - ${

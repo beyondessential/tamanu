@@ -207,6 +207,13 @@ export const REPORT_REQUEST_STATUSES = {
 
 export const REPORT_REQUEST_STATUS_VALUES = Object.values(REPORT_REQUEST_STATUSES);
 
+export const REPORT_DATA_SOURCES = {
+  THIS_FACILITY: 'thisFacility',
+  ALL_FACILITIES: 'allFacilities',
+};
+
+export const REPORT_DATA_SOURCE_VALUES = Object.values(REPORT_DATA_SOURCES);
+
 export const DIAGNOSIS_CERTAINTY = {
   SUSPECTED: 'suspected',
   CONFIRMED: 'confirmed',
@@ -449,5 +456,5 @@ export const VISIBILITY_STATUSES = {
   HISTORICAL: 'historical',
 };
 
-export const ISO9075_FORMAT = 'YYYY-MM-DD HH:mm:ss';
-export const ISO9075_FORMAT_LENGTH = ISO9075_FORMAT.length;
+export const ISO9075_DATETIME_FORMAT = 'YYYY-MM-DD HH:mm:ss';
+export const ISO9075_DATE_FORMAT = 'YYYY-MM-DD';

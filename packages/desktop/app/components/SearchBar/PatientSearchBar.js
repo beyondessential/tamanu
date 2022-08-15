@@ -13,8 +13,12 @@ import { useSuggester } from '../../api';
 
 export const PatientSearchBar = React.memo(({ onSearch }) => {
   const facilitySuggester = useSuggester('facility');
-  const locationSuggester = useSuggester('location');
-  const departmentSuggester = useSuggester('department');
+  const locationSuggester = useSuggester('location', {
+    baseQueryParameters: { filterByFacility: true },
+  });
+  const departmentSuggester = useSuggester('department', {
+    baseQueryParameters: { filterByFacility: true },
+  });
   const practitionerSuggester = useSuggester('practitioner');
   return (
     <CustomisableSearchBar
