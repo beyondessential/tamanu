@@ -31,9 +31,10 @@ export class ReportDefinitionVersion extends Model {
         },
         status: {
           type: Sequelize.STRING,
-          allowNull: false,
           default: REPORT_STATUSES.DRAFT,
-          isIn: [REPORT_STATUSES_VALUES],
+          validate: {
+            isIn: [REPORT_STATUSES_VALUES],
+          },
         },
         query: {
           // SQL query
@@ -61,9 +62,8 @@ export class ReportDefinitionVersion extends Model {
            */
           type: Sequelize.JSON,
           allowNull: false,
-          default: '{}',
           validate: {
-            matchesSchema: optionsValidator.validate,
+            matchesSchema: value => optionsValidator.validate(value),
           },
         },
       },
