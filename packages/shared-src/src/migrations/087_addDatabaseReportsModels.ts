@@ -76,7 +76,7 @@ export async function up(query: QueryInterface) {
       type: STRING,
       allowNull: true,
     },
-    queryOptions: {
+    query_options: {
       type: JSON,
       allowNull: true,
     },

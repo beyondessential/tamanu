@@ -209,7 +209,7 @@ export const REPORT_REQUEST_STATUS_VALUES = Object.values(REPORT_REQUEST_STATUSE
 
 export const REPORT_STATUSES = { DRAFT: 'draft', PUBLISHED: 'published' };
 
-export const REPORT_STATUSES_VALUES = Object.values(REPORT_REQUEST_STATUSES);
+export const REPORT_STATUSES_VALUES = Object.values(REPORT_STATUSES);
 
 export const DIAGNOSIS_CERTAINTY = {
   SUSPECTED: 'suspected',
