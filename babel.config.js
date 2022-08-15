@@ -7,16 +7,21 @@ module.exports = api => {
 
   return {
     presets: [
-      [ "@babel/preset-env", {
-        targets: { node: 10 },
-        useBuiltIns: "usage",
-        corejs: 2,
-      } ],
+      [
+        '@babel/preset-env',
+        {
+          targets: { node: "current" },
+          bugfixes: true,
+          useBuiltIns: 'usage',
+          corejs: 2,
+        },
+      ],
     ],
     plugins: [
-      "@babel/plugin-proposal-function-bind",
-      "@babel/plugin-proposal-class-properties",
-      "@babel/plugin-proposal-export-default-from",
+      '@babel/plugin-proposal-function-bind',
+      '@babel/plugin-proposal-class-properties',
+      '@babel/plugin-proposal-export-default-from',
+      '@babel/plugin-proposal-logical-assignment-operators',
     ],
   };
 };
