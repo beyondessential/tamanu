@@ -1,4 +1,4 @@
-import { Sequelize, Op } from 'sequelize';
+import { Sequelize, Op, QueryTypes } from 'sequelize';
 import { chunk, flatten, without, pick, pickBy } from 'lodash';
 import { propertyPathsToTree } from './metadata';
 import { log } from 'shared/services/logging';
@@ -48,6 +48,17 @@ const createImportPlanInner = (model, relationTree, validateRecord) => {
   return { model, columns, children, validateRecord };
 };
 
+async function findByIds(model, ids) {
+  return model.sequelize.query(`
+    SELECT * FROM "${model.tableName}" WHERE id IN (:ids)
+  `, {
+    replacements: {
+      ids,
+    },
+    type: QueryTypes.SELECT,
+  });
+}
+
 export const executeImportPlan = async (plan, syncRecords) => {
   const { model, validateRecord } = plan;
 
@@ -55,7 +66,7 @@ export const executeImportPlan = async (plan, syncRecords) => {
     // split records into create, update, delete
     const idsForDelete = syncRecords.filter(r => r.isDeleted).map(r => r.data.id);
     const idsForUpsert = syncRecords.filter(r => !r.isDeleted && r.data.id).map(r => r.data.id);
-    const existing = await model.findByIds(idsForUpsert);
+    const existing = await findByIds(model, idsForUpsert);
     const existingIdSet = new Set(existing.map(e => e.id));
     const recordsForCreate = syncRecords
       .filter(r => !r.isDeleted && !existingIdSet.has(r.data.id))
@@ -75,7 +86,7 @@ export const executeImportPlan = async (plan, syncRecords) => {
     // - create a new PAD record if it's a PAD? or undelete and update?
     // - other records... warn and ignore?
     log.warn("Sync includes updates to deleted records", { ids: deletedUpdates.map(r => r.id) });
-
+  
     // run each import process
     const createSuccessCount = await executeCreates(plan, recordsForCreate);
     const updateSuccessCount = await executeUpdates(plan, recordsForUpdate);
@@ -189,7 +200,7 @@ const executeUpdateOrCreates = async (
       }),
     );
     if (childRecords && childRecords.length > 0) {
-      const existing = await relationPlan.model.findByIds(childRecords.map(r => r.id));
+      const existing = await findByIds(relationPlan.model, childRecords.map(r => r.id));
       const existingIdSet = new Set(existing.map(e => e.id));
       const recordsForCreate = childRecords.filter(r => !existingIdSet.has(r.id));
       const recordsForUpdate = childRecords.filter(r => existingIdSet.has(r.id));

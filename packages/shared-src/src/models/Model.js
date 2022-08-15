@@ -1,7 +1,7 @@
 import * as sequelize from 'sequelize';
 import { SyncConfig } from './sync';
 
-const { Sequelize, Utils, QueryTypes } = sequelize;
+const { Sequelize, Op, Utils, QueryTypes } = sequelize;
 
 const firstLetterLowercase = s => (s[0] || '').toLowerCase() + s.slice(1);
 
@@ -108,19 +108,6 @@ export class Model extends sequelize.Model {
     // (eg to display in a detailed view)
     const { models } = this.sequelize;
     return this.getListReferenceAssociations(models);
-  }
-
-  static async findByIds(ids) {
-    const table = this.tableName;
-    console.log("table:", table);
-    return this.sequelize.query(`
-      SELECT id, deleted_at FROM ${table} WHERE id IN :ids
-    `, {
-      replacements: {
-        ids,
-      },
-      type: QueryTypes.SELECT,
-    });
   }
 
   // list of callbacks to call after model is initialised
