@@ -184,8 +184,8 @@ describe('Assistive technology device line list', () => {
     });
   });
 
-  describe('returns the correct data', () => {
-    it('should return latest data per patient and latest data per patient per date', async () => {
+  describe.only('returns the correct data', () => {
+    it.only('should return latest data per patient and latest data per patient per date', async () => {
       const result = await app
         .post('/v1/reports/iraq-assistive-technology-device-line-list')
         .send({});

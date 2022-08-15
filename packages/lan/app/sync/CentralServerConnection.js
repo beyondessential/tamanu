@@ -212,7 +212,10 @@ export class CentralServerConnection {
   }
 
   async push(sessionIndex, body, { pageNumber, totalPages }) {
-    const path = `sync/${sessionIndex}/push?${objectToQueryString({ pageNumber, totalPages })}`;
+    const path = `sync/${sessionIndex}/push?${objectToQueryString({
+      pageNumber,
+      totalPages,
+    })}`;
     return this.fetch(path, { method: 'POST', body });
   }
 

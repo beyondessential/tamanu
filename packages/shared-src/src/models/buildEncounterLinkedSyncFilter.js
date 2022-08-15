@@ -36,6 +36,7 @@ export function buildEncounterLinkedSyncFilter(
   const or = [{ [`$${pathToEncounter}patient_id$`]: { [Op.in]: patientIds } }];
 
   // add any encounters with a lab request, if syncing labs everywhere is turned on
+  // TODO this config exists on the lan not sync server
   if (config.sync?.syncAllLabRequests) {
     or.push({ [`$${pathToEncounter}labRequest.id$`]: { [Op.not]: null } });
     if (isEncounter) {
