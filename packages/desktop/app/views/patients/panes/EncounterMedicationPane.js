@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useEncounter } from '../../../contexts/Encounter';
 import { MedicationModal } from '../../../components/MedicationModal';
 import { EncounterMedicationTable } from '../../../components/MedicationTable';
-import { Button, TableButtonRow } from '../../../components';
+import { ButtonWithPermissionCheck, TableButtonRow } from '../../../components';
 import { TabPane } from '../components';
 
 export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
@@ -21,9 +21,14 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
         }}
       />
       <TableButtonRow variant="small">
-        <Button onClick={() => setModalOpen(true)} disabled={readonly}>
+        <ButtonWithPermissionCheck
+          onClick={() => setModalOpen(true)}
+          disabled={readonly}
+          verb="create"
+          noun="EncounterMedication"
+        >
           New prescription
-        </Button>
+        </ButtonWithPermissionCheck>
       </TableButtonRow>
       <EncounterMedicationTable encounterId={encounter.id} />
     </TabPane>

@@ -211,6 +211,13 @@ export const REPORT_STATUSES = { DRAFT: 'draft', PUBLISHED: 'published' };
 
 export const REPORT_STATUSES_VALUES = Object.values(REPORT_STATUSES);
 
+export const REPORT_DATA_SOURCES = {
+  THIS_FACILITY: 'thisFacility',
+  ALL_FACILITIES: 'allFacilities',
+};
+
+export const REPORT_DATA_SOURCE_VALUES = Object.values(REPORT_DATA_SOURCES);
+
 export const DIAGNOSIS_CERTAINTY = {
   SUSPECTED: 'suspected',
   CONFIRMED: 'confirmed',
