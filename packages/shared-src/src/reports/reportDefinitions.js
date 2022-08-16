@@ -379,6 +379,7 @@ export const REPORT_DEFINITIONS = [
   {
     name: 'Appointments - Line list',
     id: 'appointments-line-list',
+    dateRangeLabel: 'Date range (or leave blank for the next 30 days of data)',
     dataSourceOptions: [REPORT_DATA_SOURCES.THIS_FACILITY],
     parameters: [
       {
