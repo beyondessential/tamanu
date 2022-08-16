@@ -1,11 +1,11 @@
 import { keyBy } from 'lodash';
 import { Grid, Typography } from '@material-ui/core';
 import { red } from '@material-ui/core/colors';
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect, useMemo } from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
 import * as Yup from 'yup';
-import { REPORT_DATA_SOURCES } from 'shared/constants';
+import { REPORT_DATA_SOURCES, REPORT_DATA_SOURCE_VALUES } from 'shared/constants';
 
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { connectApi, useApi } from '../../api';
@@ -147,20 +147,37 @@ const ReportTypeField = ({ onValueChange, ...props }) => {
 const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
   const api = useApi();
   const [requestError, setRequestError] = useState();
-  const [parameters, setParameters] = useState([]);
+
+  const [availableReports, setAvailableReports] = useState([]);
+  const reportsById = useMemo(() => keyBy(availableReports, 'id'), [availableReports]);
+  const reportOptions = useMemo(() => availableReports.map(r => ({ value: r.id, label: r.name })), [
+    availableReports,
+  ]);
+
   const [dataSource, setDataSource] = useState(REPORT_DATA_SOURCES.THIS_FACILITY);
-  const [dataSourceOptions, setDataSourceOptions] = useState(REPORT_DATA_SOURCES);
-  const [availableReports, setAvailableReports] = useState(null);
-  const [reportsById, setReportsById] = useState({});
-  const [reportOptions, setReportOptions] = useState([]);
-  const [dateRangeLabel, setDateRangeLabel] = useState('Date range');
+  const [selectedReportId, setSelectedReportId] = useState(null);
+
+  // Report Config
+  const selectedReportDefinition = reportsById[selectedReportId] || {};
+  const {
+    parameters = [],
+    dateRangeLabel = 'Date range',
+    dataSourceOptions = REPORT_DATA_SOURCE_VALUES,
+  } = selectedReportDefinition; // TODO: Nulls. setParameters(reportDefinition.parameters || []);
+  const isDataSourceFieldDisabled = dataSourceOptions.length === 1;
+  // const [dataSourceOptions, setDataSourceOptions] = useState(REPORT_DATA_SOURCES);
+  // const [dateRangeLabel, setDateRangeLabel] = useState('Date range');
+
+  useEffect(() => {
+    if (!dataSourceOptions.includes(dataSource)) {
+      setDataSource(dataSourceOptions[0]);
+    }
+  }, [dataSourceOptions, dataSource]);
 
   useEffect(() => {
     (async () => {
       try {
         const reports = await getAvailableReports(api);
-        setReportsById(keyBy(reports, 'id'));
-        setReportOptions(reports.map(r => ({ value: r.id, label: r.name })));
         setAvailableReports(reports);
       } catch (error) {
         // eslint-disable-next-line no-console
@@ -169,26 +186,6 @@ const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
       }
     })();
   }, [api]);
-
-  const selectReportHandle = useCallback(
-    id => {
-      const reportDefinition = reportsById[id];
-      if (!reportDefinition) {
-        return;
-      }
-
-      setParameters(reportDefinition.parameters || []);
-      setDateRangeLabel(reportDefinition.dateRangeLabel);
-      if (reportDefinition.allFacilities) {
-        setIsDataSourceFieldDisabled(true);
-        setDataSource(REPORT_DATA_SOURCES.ALL_FACILITIES);
-      } else {
-        setIsDataSourceFieldDisabled(false);
-        setDataSource(REPORT_DATA_SOURCES.THIS_FACILITY);
-      }
-    },
-    [reportsById],
-  );
 
   const submitRequestReport = useCallback(
     async formValues => {
@@ -253,7 +250,7 @@ const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
               component={ReportTypeField}
               options={reportOptions}
               required
-              onValueChange={selectReportHandle}
+              onValueChange={setSelectedReportId}
             />
             <Field
               name="dataSource"
