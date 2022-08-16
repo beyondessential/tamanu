@@ -26,6 +26,10 @@ export const SUPPORTED_CLIENT_VERSIONS = {
     min: null,
     max: null,
   },
+  medici: {
+    min: null,
+    max: null,
+  },
   mSupply: {
     min: null,
     max: null,
