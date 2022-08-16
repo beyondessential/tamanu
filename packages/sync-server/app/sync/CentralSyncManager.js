@@ -13,7 +13,7 @@ export class CentralSyncManager {
   sessions = {};
 
   constructor() {
-    setInterval((this.purgeLapsedSessions, CHECK_LAPSED_SESSIONS_INTERVAL));
+    setInterval(this.purgeLapsedSessions, CHECK_LAPSED_SESSIONS_INTERVAL);
   }
 
   purgeLapsedSessions = () => {
