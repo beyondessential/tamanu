@@ -116,11 +116,6 @@ const RequestErrorMessage = ({ errorMessage }) => (
 
 const getAvailableReports = async api => api.get('reports');
 
-const generateFacilityReport = async (api, reportType, parameters) =>
-  api.post(`reports/${reportType}`, {
-    parameters,
-  });
-
 const submitReportRequest = async (api, reportType, parameters, emails) =>
   api.post('reportRequest', {
     reportType,
@@ -191,9 +186,13 @@ const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
   const submitRequestReport = useCallback(
     async formValues => {
       const { reportType, emails, ...restValues } = formValues;
+      const isLegacyReport = reportsById[reportType]?.legacyReport;
+
       try {
         if (dataSource === REPORT_DATA_SOURCES.THIS_FACILITY) {
-          const excelData = await generateFacilityReport(api, reportType, restValues);
+          const excelData = await api.post(`reports/${reportType}?legacyReport=${isLegacyReport}`, {
+            parameters: restValues,
+          });
 
           const filePath = await saveExcelFile(excelData, {
             promptForFilePath: true,
@@ -214,7 +213,7 @@ const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
         setRequestError(`Unable to submit report request - ${e.message}`);
       }
     },
-    [api, dataSource, onSuccessfulSubmit],
+    [api, dataSource, onSuccessfulSubmit, reportsById],
   );
 
   // Wait until available reports are loaded to render.
