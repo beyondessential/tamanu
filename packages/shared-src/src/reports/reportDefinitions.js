@@ -1,4 +1,8 @@
-import { APPOINTMENT_STATUSES, REPORT_DATA_SOURCES } from 'shared/constants';
+import {
+  APPOINTMENT_STATUSES,
+  REPORT_DATA_SOURCES,
+  REPORT_DATA_SOURCE_VALUES,
+} from 'shared/constants';
 
 const LAST_30_DAYS_DATE_LABEL = 'Date range (or leave blank for the past 30 days of data)';
 const ALL_TIME_DATE_LABEL = 'Date range (or leave blank for all data)';
@@ -8,14 +12,14 @@ export const REPORT_DEFINITIONS = [
     name: 'Incomplete referrals',
     id: 'incomplete-referrals',
     dateRangeLabel: ALL_TIME_DATE_LABEL,
-    dataSourceOptions: REPORT_DATA_SOURCES,
+    dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
     parameters: [{ parameterField: 'VillageField' }, { parameterField: 'PractitionerField' }],
   },
   {
     name: 'Recent Diagnoses',
     id: 'recent-diagnoses',
     dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
-    dataSourceOptions: REPORT_DATA_SOURCES,
+    dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
     parameters: [
       {
         parameterField: 'DiagnosisField',
@@ -36,7 +40,7 @@ export const REPORT_DEFINITIONS = [
     name: 'Admissions - Line list',
     id: 'admissions',
     dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
-    dataSourceOptions: REPORT_DATA_SOURCES,
+    dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
     parameters: [
       { parameterField: 'PractitionerField' },
       {
@@ -63,7 +67,7 @@ export const REPORT_DEFINITIONS = [
     name: 'Vaccine - Line list',
     id: 'vaccine-list',
     dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
-    dataSourceOptions: REPORT_DATA_SOURCES,
+    dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
     parameters: [
       { parameterField: 'VillageField' },
       { parameterField: 'VaccineCategoryField' },
@@ -85,7 +89,7 @@ export const REPORT_DEFINITIONS = [
     name: 'COVID vaccine campaign - Line list',
     id: 'covid-vaccine-list',
     dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
-    dataSourceOptions: REPORT_DATA_SOURCES,
+    dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
     parameters: [{ parameterField: 'VillageField' }],
   },
   {
@@ -104,14 +108,14 @@ export const REPORT_DEFINITIONS = [
     name: 'Adverse Event Following Immunization',
     id: 'aefi',
     dateRangeLabel: ALL_TIME_DATE_LABEL,
-    dataSourceOptions: REPORT_DATA_SOURCES,
+    dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
     parameters: [{ parameterField: 'VillageField' }],
   },
   {
     name: 'Samoa Adverse Event Following Immunisation',
     id: 'samoa-aefi',
     dateRangeLabel: ALL_TIME_DATE_LABEL,
-    dataSourceOptions: REPORT_DATA_SOURCES,
+    dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
     parameters: [{ parameterField: 'VillageField' }],
   },
   {
@@ -176,32 +180,32 @@ export const REPORT_DEFINITIONS = [
     name: 'COVID-19 Tests - Summary',
     id: 'covid-swab-lab-tests-summary',
     dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
-    dataSourceOptions: REPORT_DATA_SOURCES,
+    dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
     parameters: [{ parameterField: 'VillageField' }, { parameterField: 'LabTestLaboratoryField' }],
   },
   {
     name: 'India assistive technology device - Line list',
     id: 'india-assistive-technology-device-line-list',
     dateRangeLabel: ALL_TIME_DATE_LABEL,
-    dataSourceOptions: REPORT_DATA_SOURCES,
+    dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
   },
   {
     name: 'Iraq assistive technology device - Line list',
     id: 'iraq-assistive-technology-device-line-list',
     dateRangeLabel: ALL_TIME_DATE_LABEL,
-    dataSourceOptions: REPORT_DATA_SOURCES,
+    dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
   },
   {
     name: 'PNG assistive technology device - Line list',
     id: 'png-assistive-technology-device-line-list',
     dateRangeLabel: ALL_TIME_DATE_LABEL,
-    dataSourceOptions: REPORT_DATA_SOURCES,
+    dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
   },
   {
     name: 'Fiji recent attendance - Line list',
     id: 'fiji-recent-attendance-list',
     dateRangeLabel: ALL_TIME_DATE_LABEL,
-    dataSourceOptions: REPORT_DATA_SOURCES,
+    dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
     parameters: [
       { parameterField: 'VillageField' },
       { parameterField: 'DiagnosisField', name: 'diagnosis', label: 'Diagnosis' },
@@ -338,7 +342,7 @@ export const REPORT_DEFINITIONS = [
     name: 'Fiji Aspen encounter summary - Line list',
     id: 'fiji-aspen-encounter-summary-line-list',
     dateRangeLabel: ALL_TIME_DATE_LABEL, // TODO: Changed in new PR
-    dataSourceOptions: REPORT_DATA_SOURCES,
+    dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
     parameters: [
       {
         parameterField: 'ParameterAutocompleteField',
@@ -364,7 +368,7 @@ export const REPORT_DEFINITIONS = [
     name: 'Generic Survey Export - Line List',
     id: 'generic-survey-export-line-list',
     dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
-    dataSourceOptions: REPORT_DATA_SOURCES,
+    dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
     parameters: [
       { parameterField: 'VillageField' },
       {
