@@ -4,7 +4,12 @@ import { ENCOUNTER_TYPES } from 'shared/constants';
 import { Box, Typography } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
-import { DateDisplay, LargeButton, ViewButton, DeathCertificateModal } from '../../../components';
+import {
+  DateDisplay,
+  ViewButton,
+  DeathCertificateModal,
+  ButtonWithPermissionCheck,
+} from '../../../components';
 import { useApi } from '../../../api';
 
 const PATIENT_STATUS = {
@@ -192,8 +197,12 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin, o
       <NoVisitContainer>
         <NoVisitTitle variant="h2">No Current Visit</NoVisitTitle>
         <ButtonRow>
-          <LargeButton onClick={openCheckin}>Admit or check-in</LargeButton>
-          <LargeButton onClick={openTriage}>Triage</LargeButton>
+          <ButtonWithPermissionCheck onClick={openCheckin} verb="create" noun="Encounter">
+            Admit or check-in
+          </ButtonWithPermissionCheck>
+          <ButtonWithPermissionCheck onClick={openTriage} verb="create" noun="Triage">
+            Triage
+          </ButtonWithPermissionCheck>
         </ButtonRow>
       </NoVisitContainer>
     );
