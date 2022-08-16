@@ -104,7 +104,7 @@ export const DocumentsPane = React.memo(({ encounter, patient }) => {
 
   return (
     <>
-      {isFromEncounter && <DocumentsSearchBar setSearchParameters={setSearchParameters} />}
+      {!isFromEncounter && <DocumentsSearchBar setSearchParameters={setSearchParameters} />}
       <PaneWrapper>
         <TableButtonRow variant="small">
           <Button onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}>Add document</Button>
