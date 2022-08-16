@@ -66,6 +66,6 @@ module.exports = {
     `);
   },
   down: async query => {
-    query.dropTable('patient_facilities');
+    await query.dropTable('patient_facilities');
   },
 };
