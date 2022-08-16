@@ -11,7 +11,7 @@ import {
   PatientSearchBar,
   ContentPane,
 } from '../../components';
-import { DropdownButton } from '../../components/DropdownButton';
+import { DropdownButtonWithPermissionCheck } from '../../components/DropdownButton';
 import { NewPatientModal } from './components';
 import {
   markedForSync,
@@ -104,11 +104,13 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
 
   return (
     <>
-      <DropdownButton
+      <DropdownButtonWithPermissionCheck
         actions={[
           { label: 'Create new patient', onClick: showNewPatient },
           { label: 'Register birth', onClick: showNewBirth },
         ]}
+        verb="create"
+        noun="Patient"
       />
       <NewPatientModal
         title="New patient"

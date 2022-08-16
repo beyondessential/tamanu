@@ -4,8 +4,9 @@ import { generateReportFromQueryData } from './utilities';
 const FIELDS = [
   'First Name',
   'Last Name',
-  'MRID',
+  'Patient ID',
   'DOB',
+  'Age',
   'Sex',
   'Village',
   'Patient Type',
@@ -35,8 +36,9 @@ with
 select
 	p.first_name "First Name",
 	p.last_name "Last Name",
-	p.display_id "MRID",
+	p.display_id "Patient ID",
 	to_char(p.date_of_birth, 'YYYY-MM-DD') "DOB",
+	extract(year from age(p.date_of_birth)) "Age",
 	p.sex "Sex",
 	vil.name "Village",
 	bt.billing_type_name "Patient Type",
