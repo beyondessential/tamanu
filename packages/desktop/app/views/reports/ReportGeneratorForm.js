@@ -2,13 +2,13 @@ import { keyBy } from 'lodash';
 import { Grid, Typography } from '@material-ui/core';
 import { red } from '@material-ui/core/colors';
 import React, { useCallback, useState, useEffect, useMemo } from 'react';
-import { connect } from 'react-redux';
 import styled from 'styled-components';
 import * as Yup from 'yup';
 import { REPORT_DATA_SOURCES, REPORT_DATA_SOURCE_VALUES } from 'shared/constants';
 
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { connectApi, useApi } from '../../api';
+import { useAuth } from '../../contexts/Auth';
 import {
   AutocompleteField,
   Button,
@@ -22,7 +22,6 @@ import {
 } from '../../components';
 import { FormGrid } from '../../components/FormGrid';
 import { Colors, MUI_SPACING_UNIT } from '../../constants';
-import { getCurrentUser } from '../../store/auth';
 
 import { VillageField } from './VillageField';
 import { LabTestLaboratoryField } from './LabTestLaboratoryField';
@@ -144,8 +143,10 @@ const ReportTypeField = ({ onValueChange, ...props }) => {
   return <AutocompleteField {...props} onChange={changeCallback} />;
 };
 
-const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
+export const DumbReportGeneratorForm = ({ onSuccessfulSubmit }) => {
   const api = useApi();
+  const { currentUser } = useAuth();
+
   const [requestError, setRequestError] = useState();
   const [availableReports, setAvailableReports] = useState([]);
   const [dataSource, setDataSource] = useState(REPORT_DATA_SOURCES.THIS_FACILITY);
@@ -314,7 +315,3 @@ const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
     />
   );
 };
-
-export const ReportGeneratorForm = connect(state => ({
-  currentUser: getCurrentUser(state),
-}))(DumbReportGeneratorForm);
