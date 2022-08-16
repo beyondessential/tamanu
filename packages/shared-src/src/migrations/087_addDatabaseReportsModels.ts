@@ -1,4 +1,4 @@
-import { STRING, DATE, BOOLEAN, NOW, UUIDV4, QueryInterface, INTEGER, JSON } from 'sequelize';
+import { STRING, DATE, BOOLEAN, NOW, UUIDV4, QueryInterface, INTEGER, JSON, TEXT } from 'sequelize';
 
 const REPORT_STATUSES = { DRAFT: 'draft', PUBLISHED: 'published' };
 
@@ -73,7 +73,7 @@ export async function up(query: QueryInterface) {
       defaultValue: REPORT_STATUSES.DRAFT,
     },
     query: {
-      type: STRING,
+      type: TEXT,
       allowNull: true,
     },
     query_options: {
