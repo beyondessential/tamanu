@@ -1,5 +1,5 @@
 import { createDummyPatient } from 'shared/demoData/patients';
-import { LAB_REQUEST_STATUSES } from 'shared/constants';
+import { LAB_REQUEST_STATUSES, ENCOUNTER_TYPES } from 'shared/constants';
 import { createTestContext } from './utilities';
 import { AutomaticLabTestResultPublisher } from '../app/tasks/AutomaticLabTestResultPublisher';
 
@@ -30,27 +30,33 @@ describe('Lab test publisher', () => {
   let patient;
 
   const makeLabRequest = async testType => {
-    const encounter = await models.Encounter.create({
-      patientId: patient.id,
-      startDate: new Date(),
-    });
-    const labRequest = await models.LabRequest.create({
-      encounterId: encounter.id,
-      displayId: `${Math.random()}`,
-    });
-    if (!(await models.LabTestType.findByPk(testType))) {
-      await models.LabTestType.create({
-        id: testType,
-        name: testType,
-        code: testType,
-        labTestCategoryId: testCategory.id,
+    try {
+      const encounter = await models.Encounter.create({
+        patientId: patient.id,
+        startDate: new Date(),
+        encounterType: ENCOUNTER_TYPES.IMAGING,
       });
+      const labRequest = await models.LabRequest.create({
+        encounterId: encounter.id,
+        displayId: `${Math.random()}`,
+      });
+      if (!(await models.LabTestType.findByPk(testType))) {
+        await models.LabTestType.create({
+          id: testType,
+          name: testType,
+          code: testType,
+          labTestCategoryId: testCategory.id,
+        });
+      }
+      const labTest = await models.LabTest.create({
+        labRequestId: labRequest.id,
+        labTestTypeId: testType,
+      });
+      return { encounter, labRequest, labTest };
+    } catch (e) {
+      console.log(e);
+      throw e;
     }
-    const labTest = await models.LabTest.create({
-      labRequestId: labRequest.id,
-      labTestTypeId: testType,
-    });
-    return { encounter, labRequest, labTest };
   };
 
   beforeAll(async () => {
@@ -88,18 +94,6 @@ describe('Lab test publisher', () => {
     expect(updatedLabTest).toHaveProperty('result', 'Positive');
     expect(updatedLabTest).toHaveProperty('labTestMethodId', 'labTestMethod-RAT');
     expect(updatedLabTest.labRequest).toHaveProperty('status', LAB_REQUEST_STATUSES.PUBLISHED);
-  });
-
-  it('Should set the updatedAt of its lab request and its encounter', async () => {
-    const { labTest, encounter } = await makeLabRequest('labTestType-RATPositive');
-    const then = Date.now();
-
-    await publisher.run();
-
-    const updatedLabTest = await models.LabTest.findByPk(labTest.id, { include: ['labRequest'] });
-    expect(updatedLabTest.labRequest.updatedAt.getTime()).toBeGreaterThan(then);
-    const updatedEncounter = await models.Encounter.findByPk(encounter.id);
-    expect(updatedEncounter.updatedAt.getTime()).toBeGreaterThan(then);
   });
 
   it('Should publish a negative result', async () => {

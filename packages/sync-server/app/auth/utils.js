@@ -24,3 +24,21 @@ export const getToken = async (user, expiry) => {
 export const verifyToken = token => {
   return jwt.verify(token, JWT_SECRET);
 };
+
+export const findUser = async (models, email) => {
+  const user = await models.User.scope('withPassword').findOne({
+    where: { email },
+  });
+  if (!user) {
+    return null;
+  }
+  return user.get({ plain: true });
+};
+
+export const findUserById = async (models, id) => {
+  const user = await models.User.findByPk(id);
+  if (!user) {
+    return null;
+  }
+  return user.get({ plain: true });
+};
