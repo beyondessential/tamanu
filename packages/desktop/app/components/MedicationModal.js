@@ -23,8 +23,8 @@ export const MedicationModal = ({ open, onClose, onSaved, encounterId, medicatio
       discontinued: !!data?.discontinuingClinicianId,
       discontinuedDate: getCurrentDateString(),
     };
-    api.put(`medication/${medication.id}`, payload);
-
+    const res = await api.put(`medication/${medication.id}`, payload);
+    setSubmittedMedication(res);
     setShouldDiscontinue(false);
     onClose();
   };
