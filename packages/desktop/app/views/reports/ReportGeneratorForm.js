@@ -143,7 +143,7 @@ const ReportTypeField = ({ onValueChange, ...props }) => {
   return <AutocompleteField {...props} onChange={changeCallback} />;
 };
 
-export const DumbReportGeneratorForm = ({ onSuccessfulSubmit }) => {
+export const ReportGeneratorForm = ({ onSuccessfulSubmit }) => {
   const api = useApi();
   const { currentUser } = useAuth();
 
