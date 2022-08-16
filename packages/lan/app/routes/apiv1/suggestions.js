@@ -31,18 +31,17 @@ function createSuggesterRoute(
 
       const model = models[modelName];
 
-      const positionQuery = literal(`POSITION(LOWER(:positionMatch) in LOWER(${searchColumn})) > 1`);
-      
+      const positionQuery = literal(
+        `POSITION(LOWER(:positionMatch) in LOWER(${searchColumn})) > 1`,
+      );
+
       const searchQuery = (query.q || '').trim().toLowerCase();
       const where = whereBuilder(`%${searchQuery}%`);
       const results = await model.findAll({
         where,
-        order: [
-          positionQuery,
-          searchColumn
-        ],
-        replacements: { 
-          positionMatch: searchQuery 
+        order: [positionQuery, searchColumn],
+        replacements: {
+          positionMatch: searchQuery,
         },
         limit: defaultLimit,
       });
@@ -103,32 +102,24 @@ const VISIBILITY_CRITERIA = {
 };
 
 REFERENCE_TYPE_VALUES.map(typeName =>
-  createAllRecordsSuggesterRoute(
-    typeName, 
-    'ReferenceData',
-    {
-      type: typeName,
-      ...VISIBILITY_CRITERIA,
-    }
-  ),
+  createAllRecordsSuggesterRoute(typeName, 'ReferenceData', {
+    type: typeName,
+    ...VISIBILITY_CRITERIA,
+  }),
 );
 
 REFERENCE_TYPE_VALUES.map(typeName =>
-  createSuggester(
-    typeName,
-    'ReferenceData',
-    search => ({
-      name: { [Op.iLike]: search },
-      type: typeName,
-      ...VISIBILITY_CRITERIA,
-    }),
-  ),
+  createSuggester(typeName, 'ReferenceData', search => ({
+    name: { [Op.iLike]: search },
+    type: typeName,
+    ...VISIBILITY_CRITERIA,
+  })),
 );
 
 const createNameSuggester = (endpoint, modelName = pascal(endpoint)) =>
   createSuggester(
-    endpoint, 
-    modelName, 
+    endpoint,
+    modelName,
     search => ({
       name: { [Op.iLike]: search },
       ...VISIBILITY_CRITERIA,
@@ -150,7 +141,7 @@ createSuggester(
     name: { [Op.iLike]: search },
     surveyType: {
       [Op.ne]: SURVEY_TYPES.OBSOLETE,
-    }
+    },
   }),
   ({ id, name }) => ({ id, name }),
 );
@@ -184,7 +175,7 @@ createSuggester(
   search => ({
     [Op.or]: [
       Sequelize.where(
-        Sequelize.fn('concat', Sequelize.col('first_name'), ' ', Sequelize.col('last_name')), 
+        Sequelize.fn('concat', Sequelize.col('first_name'), ' ', Sequelize.col('last_name')),
         { [Op.iLike]: search },
       ),
       { displayId: { [Op.iLike]: search } },
