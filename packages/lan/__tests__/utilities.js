@@ -100,8 +100,8 @@ export async function createTestContext() {
   // do NOT time out during create context
   jest.setTimeout(1000 * 60 * 60 * 24);
 
-  // sync db and remove old test data
-  await sequelize.sync({});
+  // migrate db and remove old test data
+  await sequelize.migrate();
   await deleteAllTestIds(dbResult);
 
   // populate with reference data
