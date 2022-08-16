@@ -147,26 +147,22 @@ const ReportTypeField = ({ onValueChange, ...props }) => {
 const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
   const api = useApi();
   const [requestError, setRequestError] = useState();
-
   const [availableReports, setAvailableReports] = useState([]);
+  const [dataSource, setDataSource] = useState(REPORT_DATA_SOURCES.THIS_FACILITY);
+  const [selectedReportId, setSelectedReportId] = useState(null);
+
   const reportsById = useMemo(() => keyBy(availableReports, 'id'), [availableReports]);
   const reportOptions = useMemo(() => availableReports.map(r => ({ value: r.id, label: r.name })), [
     availableReports,
   ]);
 
-  const [dataSource, setDataSource] = useState(REPORT_DATA_SOURCES.THIS_FACILITY);
-  const [selectedReportId, setSelectedReportId] = useState(null);
-
-  // Report Config
-  const selectedReportDefinition = reportsById[selectedReportId] || {};
   const {
     parameters = [],
     dateRangeLabel = 'Date range',
     dataSourceOptions = REPORT_DATA_SOURCE_VALUES,
-  } = selectedReportDefinition; // TODO: Nulls. setParameters(reportDefinition.parameters || []);
+  } = reportsById[selectedReportId] || {};
+
   const isDataSourceFieldDisabled = dataSourceOptions.length === 1;
-  // const [dataSourceOptions, setDataSourceOptions] = useState(REPORT_DATA_SOURCES);
-  // const [dateRangeLabel, setDateRangeLabel] = useState('Date range');
 
   useEffect(() => {
     if (!dataSourceOptions.includes(dataSource)) {
