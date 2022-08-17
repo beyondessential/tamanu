@@ -1,28 +1,9 @@
-import matchers from 'expect/build/matchers';
-
 import { importer } from '../../app/admin/refdataImporter';
-import { ValidationError, ForeignkeyResolutionError } from '../../app/admin/refdataImporter/errors';
 import { createTestContext } from '../utilities';
+import './matchers';
 
 // the importer can take a little while
 jest.setTimeout(30000);
-
-function toContainError(errors, { ofType, inSheet, atRow, withMessage }) {
-  return matchers.toContain(
-    errors.map(error => `${error.constructor.name}: ${error.message}`),
-    `${ofType.name}: ${withMessage} on ${inSheet} at row ${atRow}`,
-  );
-}
-
-function toContainValidationError(errors, inSheet, atRow, withMessage) {
-  return toContainError(errors, { ofType: ValidationError, inSheet, atRow, withMessage });
-}
-
-function toContainFkError(errors, inSheet, atRow, withMessage) {
-  return toContainError(errors, { ofType: ForeignkeyResolutionError, inSheet, atRow, withMessage });
-}
-
-expect.extend({ toContainError, toContainValidationError, toContainFkError });
 
 const BAD_ID_ERROR_MESSAGE = 'id must not have spaces or punctuation other than -';
 const BAD_CODE_ERROR_MESSAGE = 'code must not have spaces or punctuation other than -./';
@@ -204,8 +185,8 @@ describe('Permissions import', () => {
     expect(didntSendReason).toEqual('dryRun');
     expect(errors).toBeEmpty();
     expect(stats).toEqual({
-      'Role': { created: 3, updated: 0, errored: 0 },
-      'Permission': { created: 29, updated: 0, errored: 0 },
+      Role: { created: 3, updated: 0, errored: 0 },
+      Permission: { created: 29, updated: 0, errored: 0 },
     });
   });
 
