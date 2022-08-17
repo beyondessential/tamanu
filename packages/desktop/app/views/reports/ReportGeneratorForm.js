@@ -111,24 +111,24 @@ export const ReportGeneratorForm = ({ onSuccessfulSubmit }) => {
 
   const submitRequestReport = useCallback(
     async formValues => {
-      const { reportType, emails, ...restValues } = formValues;
-      const isLegacyReport = reportsById[reportType]?.legacyReport;
+      const { reportId, emails, ...restValues } = formValues;
+      const isLegacyReport = reportsById[reportId]?.legacyReport;
 
       try {
         if (dataSource === REPORT_DATA_SOURCES.THIS_FACILITY) {
-          const excelData = await api.post(`reports/${reportType}?legacyReport=${isLegacyReport}`, {
+          const excelData = await api.post(`reports/${reportId}?legacyReport=${isLegacyReport}`, {
             parameters: restValues,
           });
 
           const filePath = await saveExcelFile(excelData, {
             promptForFilePath: true,
-            defaultFileName: reportType,
+            defaultFileName: reportId,
           });
           // eslint-disable-next-line no-console
           console.log('file saved at ', filePath);
         } else {
-          await api.post('reportRequest', {
-            reportType,
+          await api.post(`reportRequest?legacyReport=${isLegacyReport}`, {
+            reportId,
             restValues,
             emailList: parseEmails(formValues.emails),
           });
@@ -156,13 +156,13 @@ export const ReportGeneratorForm = ({ onSuccessfulSubmit }) => {
   return (
     <Form
       initialValues={{
-        reportType: '',
+        reportId: '',
         emails: currentUser.email,
         ...parameters.reduce((acc, { name }) => ({ ...acc, [name]: null }), {}),
       }}
       onSubmit={submitRequestReport}
       validationSchema={Yup.object().shape({
-        reportType: Yup.string().required('Report type is required'),
+        reportId: Yup.string().required('Report type is required'),
         ...parameters.reduce(
           (schema, field) => ({
             ...schema,
@@ -175,8 +175,8 @@ export const ReportGeneratorForm = ({ onSuccessfulSubmit }) => {
         <>
           <FormGrid columns={3}>
             <Field
-              name="reportType"
-              label="Report type"
+              name="reportId"
+              label="Report id"
               component={ReportTypeField}
               options={reportOptions}
               required

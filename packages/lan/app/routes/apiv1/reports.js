@@ -100,7 +100,7 @@ const generateReportFromQueryData = queryData => [
 ];
 
 reports.post(
-  '/:reportType',
+  '/:reportId',
   asyncHandler(async (req, res) => {
     const {
       db,
@@ -110,7 +110,7 @@ reports.post(
       params,
       getLocalisation,
     } = req;
-    const { reportType: reportId } = params;
+    const { reportId } = params;
     const legacyReport = JSON.parse(query.legacyReport);
 
     if (legacyReport) {
@@ -119,7 +119,7 @@ reports.post(
 
       const reportModule = getReportModule(reportId);
       if (!reportModule) {
-        res.status(400).send({ message: 'invalid reportType' });
+        res.status(400).send({ message: 'invalid reportId' });
         return;
       }
       req.checkPermission('read', reportModule.permission);
