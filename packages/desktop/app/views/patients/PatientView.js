@@ -37,7 +37,7 @@ const TABS = [
     label: 'History',
     key: 'history',
     icon: 'fa fa-calendar-day',
-    render: () => <HistoryPane />,
+    render: props => <HistoryPane {...props} />,
   },
   {
     label: 'Details',
