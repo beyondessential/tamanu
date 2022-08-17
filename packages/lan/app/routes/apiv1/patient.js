@@ -183,9 +183,7 @@ patientRelations.get(
   '/:id/referrals',
   asyncHandler(async (req, res) => {
     const { models, params } = req;
-
-    req.checkPermission('read', 'Patient');
-    req.checkPermission('read', 'Encounter');
+    req.checkPermission('list', 'SurveyResponse');
 
     const patientReferrals = await models.Referral.findAll({
       include: [
@@ -227,6 +225,7 @@ patientRelations.get(
   '/:id/programResponses',
   asyncHandler(async (req, res) => {
     const { db, models, params, query } = req;
+    req.checkPermission('list', 'SurveyResponse');
     const patientId = params.id;
     const { surveyId, surveyType = 'programs' } = query;
     const { count, data } = await runPaginatedQuery(
