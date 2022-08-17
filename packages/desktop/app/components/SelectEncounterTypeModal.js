@@ -34,7 +34,7 @@ const EncounterOptionButton = ({ label, image, onClick }) => (
   </EncounterOptionTypeButton>
 );
 
-const StartPage = ({ onClick }) => {
+export const SelectEncounterTypeModal = React.memo(({ open, onClose, onSelectEncounterType }) => {
   const items = encounterOptions
     .filter(option => !option.hideFromMenu)
     .map(({ label, value, image }) => (
@@ -43,17 +43,13 @@ const StartPage = ({ onClick }) => {
         label={label}
         value={value}
         image={image}
-        onClick={onClick}
+        onClick={onSelectEncounterType}
       />
     ));
 
-  return <SelectorGrid>{items}</SelectorGrid>;
-};
-
-export const SelectEncounterTypeModal = React.memo(({ open, onClose, onSelectEncounterType }) => {
   return (
     <Modal title="Check-in" open={open} onClose={onClose}>
-      <StartPage onClick={onSelectEncounterType} />
+      <SelectorGrid>{items}</SelectorGrid>
     </Modal>
   );
 });
