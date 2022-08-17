@@ -18,6 +18,7 @@ export const EncounterModal = React.memo(
 
     const onCreateEncounter = useCallback(
       async data => {
+        onClose();
         const encounter = await createEncounter({
           patientId,
           referralId: referral?.id,
@@ -29,7 +30,6 @@ export const EncounterModal = React.memo(
 
         await dispatch(reloadPatient(patientId));
         navigateToEncounter(encounter.id);
-        onClose();
       },
       [dispatch, patientId, api, createEncounter, onClose, referral, navigateToEncounter],
     );
