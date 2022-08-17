@@ -43,7 +43,7 @@ export const SelectEncounterTypeModal = React.memo(({ open, onClose, onSelectEnc
         label={label}
         value={value}
         image={image}
-        onClick={onSelectEncounterType}
+        onClick={() => onSelectEncounterType(value)}
       />
     ));
 
