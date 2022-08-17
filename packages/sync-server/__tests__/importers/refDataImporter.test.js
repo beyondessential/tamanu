@@ -151,6 +151,19 @@ describe('Data definition import', () => {
     expect(historical).toHaveProperty('visibilityStatus', 'historical');
   });
 
+  it('should hash user passwords', async () => {
+    const { User } = ctx.store.models;
+    const testUserPre = await User.findByPk('test-password-hashing');
+    if (testUserPre) await testUserPre.destroy();
+
+    await doImport({ file: 'valid-userpassword' });
+
+    const testUser = await User.findByPk('test-password-hashing');
+    expect(testUser).not.toHaveProperty('password', 'plaintext');
+    expect(testUser.password).not.toBeEmpty();
+    expect(testUser.password).not.toEqual('plaintext');
+  });
+
   // TODO: when permission checking is implemented on sync server
   it.skip('should forbid an import by a non-admin', async () => {
     const { baseApp } = ctx;
