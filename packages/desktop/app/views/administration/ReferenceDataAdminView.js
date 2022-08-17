@@ -1,5 +1,5 @@
 import React from 'react';
-import { AdminView } from './components/AdminView';
+import { ImporterView } from './components/ImporterView';
 
 const ALLOWLIST = [
   'additionalInvoiceLines',
@@ -55,5 +55,5 @@ const ALLOWLIST = [
 ];
 
 export const ReferenceDataAdminView = () => (
-  <AdminView title="Import reference data" endpoint="admin/importRefData" whitelist={ALLOWLIST} />
+  <ImporterView title="Import reference data" endpoint="admin/importRefData" whitelist={ALLOWLIST} />
 );

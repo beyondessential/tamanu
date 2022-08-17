@@ -1,6 +1,6 @@
 import React from 'react';
-import { AdminView } from './components/AdminView';
+import { ImporterView } from './components/ImporterView';
 
-export const ProgramsAdminView = () => (
-  <AdminView title="Import permissions" endpoint="admin/importPermissions" />
+export const PermissionsAdminView = () => (
+  <ImporterView title="Import permissions" endpoint="admin/importPermissions" />
 );

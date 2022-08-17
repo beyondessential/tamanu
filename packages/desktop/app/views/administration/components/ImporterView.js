@@ -92,7 +92,7 @@ const OutcomeHeader = ({ result }) => {
     head = <h3>Test import finished successfully</h3>;
   } else if (result.didntSendReason) {
     head = <h3>{`Import failed! server reports "${result.didntSendReason}"`}</h3>;
-  } else if (!result.errors?.length) {
+  } else if (!result?.errors?.length) {
     head = <h3>Import successful!</h3>;
   } else {
     head = <h3>Import failed - unknown server error</h3>;
@@ -101,13 +101,13 @@ const OutcomeHeader = ({ result }) => {
   return (
     <>
       {head}
-      <p>
-        {`Time: ${result.duration.toFixed(2)}s — Records: ` +
+      {result.stats && <p>
+        {`Time: ${result.duration?.toFixed(2) ?? 'unknown '}s — Records: ` +
           `${sumStat(result.stats, ['created'])} created, ` +
           `${sumStat(result.stats, ['updated'])} updated, ` +
           `${sumStat(result.stats, ['errored'])} errored, ` +
           `${sumStat(result.stats)} total`}
-      </p>
+      </p>}
     </>
   );
 };
@@ -122,18 +122,18 @@ const OutcomeDisplay = ({ result }) => {
       <OutcomeHeader result={result} />
       <hr />
       <h4>Summary</h4>
-      <ImportStatsDisplay stats={result.stats} />
-      {result.errors.length ? (
+      {result.stats && <ImportStatsDisplay stats={result.stats} />}
+      {result?.errors?.length && (
         <>
           <h4>Errors</h4>
-          <ImportErrorsTable errors={result.errors} />
+          <ImportErrorsTable errors={result?.errors} />
         </>
-      ) : null}
+      )}
     </div>
   );
 };
 
-export const AdminView = memo(({ title, endpoint, whitelist }) => {
+export const ImporterView = memo(({ title, endpoint, whitelist }) => {
   const [resetKey, setResetKey] = useState(Math.random());
   const [result, setResult] = useState(null);
 
