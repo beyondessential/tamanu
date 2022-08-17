@@ -1,9 +1,10 @@
-import { singularize } from 'inflection';
-import { camelCase, upperFirst, lowerCase } from 'lodash';
+import { upperFirst } from 'lodash';
 import { readFile } from 'xlsx';
 
 import { log } from 'shared/services/logging';
 import { REFERENCE_TYPE_VALUES } from 'shared/constants';
+
+import { normaliseSheetName } from '../importerEndpoint';
 
 import {
   referenceDataLoaderFactory,
@@ -12,16 +13,7 @@ import {
 import { importSheet } from './sheet';
 import DEPENDENCIES from './dependencies';
 
-export const PERMISSIONS = ['User', 'ReferenceData'];
-
-function normalise(name) {
-  const norm = singularize(camelCase(singularize(lowerCase(name))));
-
-  if (norm === 'placesOfBirth') return 'placeOfBirth';
-  if (norm === 'vaccineSchedule') return 'scheduledVaccine';
-
-  return norm;
-}
+export const PERMISSIONS = ['Permission', 'Role', 'User', 'ReferenceData'];
 
 export async function importer({ errors, models, stats, file, whitelist = [] }) {
   log.info('Importing data definitions from file', { file });
@@ -32,7 +24,7 @@ export async function importer({ errors, models, stats, file, whitelist = [] }) 
   log.debug('Normalise all sheet names for lookup');
   const sheets = new Map();
   for (const [sheetName, sheet] of Object.entries(workbook.Sheets)) {
-    const name = normalise(sheetName);
+    const name = normaliseSheetName(sheetName);
 
     if (whitelist.length && !whitelist.includes(name)) {
       log.debug('Sheet has been manually excluded', { name });
@@ -88,7 +80,7 @@ export async function importer({ errors, models, stats, file, whitelist = [] }) 
 
   // sort by length of needs, so that stuff that doesn't depend on anything else gets done first
   // (as an optimisation, the algorithm doesn't need this, but it saves a few cycles)
-  const dataTypes = Object.entries(DEPENDENCIES).map(([k, v]) => [normalise(k), v]);
+  const dataTypes = Object.entries(DEPENDENCIES).map(([k, v]) => [normaliseSheetName(k), v]);
   // eslint-disable-next-line no-unused-vars
   dataTypes.sort(([_ka, a], [_kb, b]) => (a.needs?.length ?? 0) - (b.needs?.length ?? 0));
 

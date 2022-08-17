@@ -1,6 +1,8 @@
 import config from 'config';
 import asyncHandler from 'express-async-handler';
 import { promises as fs } from 'fs';
+import { singularize } from 'inflection';
+import { camelCase, lowerCase } from 'lodash';
 import { Sequelize } from 'sequelize';
 
 import { getUploadedData } from 'shared/utils/getUploadedData';
@@ -8,6 +10,15 @@ import { log } from 'shared/services/logging/log';
 
 import { DryRun, DataImportError } from './errors';
 import { coalesceStats } from './stats';
+
+export function normaliseSheetName(name) {
+  const norm = singularize(camelCase(singularize(lowerCase(name))));
+
+  if (norm === 'placesOfBirth') return 'placeOfBirth';
+  if (norm === 'vaccineSchedule') return 'scheduledVaccine';
+
+  return norm;
+}
 
 async function importerTransaction({ importer, models, file, dryRun = false, whitelist = [] }) {
   const errors = [];

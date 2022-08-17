@@ -13,7 +13,7 @@ export const PERMISSIONS = ['Program', 'Survey'];
 const FOREIGN_KEY_SCHEMATA = {};
 
 export async function importer({ errors, models, stats, file, whitelist = [] }) {
-  log.info('Importing data definitions from file', { file });
+  log.info('Importing programs from file', { file });
 
   log.info(`Reading surveys from ${file}...`);
   const workbook = readFile(file);
