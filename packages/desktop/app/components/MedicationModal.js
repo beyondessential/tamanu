@@ -16,7 +16,7 @@ export const MedicationModal = ({ open, onClose, onSaved, encounterId, medicatio
     setShouldDiscontinue(true);
   };
 
-  const onDiscontinueSubmit = async data => {
+  const onDiscontinueSubmit = async (data, awaitingPrint) => {
     const payload = {
       discontinuingClinicianId: data?.discontinuingClinicianId,
       discontinuingReason: data?.discontinuingReason,
@@ -29,8 +29,10 @@ export const MedicationModal = ({ open, onClose, onSaved, encounterId, medicatio
     const newMedication = await api.get(`medication/${medication.id}`);
 
     setSubmittedMedication(newMedication);
-    setShouldDiscontinue(false);
-    onClose();
+    if (!awaitingPrint) {
+      setShouldDiscontinue(false);
+      onClose();
+    }
   };
 
   const onSaveSubmit = async data => {

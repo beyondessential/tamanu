@@ -273,7 +273,7 @@ export const MedicationForm = React.memo(
                         label: 'Finalise & print',
                         onClick: data => {
                           setAwaitingPrint(true);
-                          submitForm(data);
+                          submitForm(data, true);
                         },
                       },
                     ]}
