@@ -139,7 +139,10 @@ describe('User', () => {
     });
   });
 
-  it('should create a new user', async () => {
+  // skipping test until users are actually created on the facility server
+  // currently, as they are set to "pull_from_central", they should really be created or edited
+  // through the admin panel directly on the central server
+  it.skip('should create a new user', async () => {
     const details = createUser();
     const result = await adminApp.post('/v1/user').send(details);
     expect(result).toHaveSucceeded();
@@ -153,7 +156,10 @@ describe('User', () => {
     expect(createdUser).not.toHaveProperty('password', details.password);
   });
 
-  it('should not allow a non-admin to create a new user', async () => {
+  // skipping test until users are actually created on the facility server
+  // currently, as they are set to "pull_from_central", they should really be created or edited
+  // through the admin panel directly on the central server
+  it.skip('should not allow a non-admin to create a new user', async () => {
     const userApp = await baseApp.asRole('practitioner');
     const details = createUser();
     const result = await userApp.post('/v1/user').send(details);
@@ -163,7 +169,10 @@ describe('User', () => {
     expect(createdUser).toBeFalsy();
   });
 
-  it('should change a name', async () => {
+  // skipping test until users are actually created on the facility server
+  // currently, as they are set to "pull_from_central", they should really be created or edited
+  // through the admin panel directly on the central server
+  it.skip('should change a name', async () => {
     const newUser = await models.User.create(
       createUser({
         displayName: 'Alan',
@@ -180,7 +189,10 @@ describe('User', () => {
     expect(updatedUser).toHaveProperty('displayName', 'Brian');
   });
 
-  it('should allow an admin to change a password', async () => {
+  // skipping test until users are actually created on the facility server
+  // currently, as they are set to "pull_from_central", they should really be created or edited
+  // through the admin panel directly on the central server
+  it.skip('should allow an admin to change a password', async () => {
     const details = createUser();
     const newUser = await models.User.create(details);
     const { id } = newUser;
@@ -201,7 +213,10 @@ describe('User', () => {
     expect(updatedUser.password).not.toEqual(oldHashedPW);
   });
 
-  it('should allow a non-admin user to change their own password', async () => {
+  // skipping test until users are actually created on the facility server
+  // currently, as they are set to "pull_from_central", they should really be created or edited
+  // through the admin panel directly on the central server
+  it.skip('should allow a non-admin user to change their own password', async () => {
     const details = createUser();
     const newUser = await models.User.create(details);
     const { id } = newUser;
@@ -224,7 +239,10 @@ describe('User', () => {
     expect(updatedUser.password).not.toEqual(oldHashedPW);
   });
 
-  it("should not allow a non-admin user to change someone else's password", async () => {
+  // skipping test until users are actually created on the facility server
+  // currently, as they are set to "pull_from_central", they should really be created or edited
+  // through the admin panel directly on the central server
+  it.skip("should not allow a non-admin user to change someone else's password", async () => {
     const details = createUser();
     const newUser = await models.User.create(details);
 
@@ -236,12 +254,18 @@ describe('User', () => {
     expect(result).toBeForbidden();
   });
 
-  it('should fail to create a user without an email', async () => {
+  // skipping test until users are actually created on the facility server
+  // currently, as they are set to "pull_from_central", they should really be created or edited
+  // through the admin panel directly on the central server
+  it.skip('should fail to create a user without an email', async () => {
     const result = await adminApp.post('/v1/user').send({});
     expect(result).toHaveRequestError();
   });
 
-  it('should fail to create a user with a duplicate email', async () => {
+  // skipping test until users are actually created on the facility server
+  // currently, as they are set to "pull_from_central", they should really be created or edited
+  // through the admin panel directly on the central server
+  it.skip('should fail to create a user with a duplicate email', async () => {
     const baseUserResult = await adminApp.post('/v1/user').send({
       displayName: 'Test Dupe',
       email: 'duplicate@user.com',
