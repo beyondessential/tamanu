@@ -179,3 +179,87 @@ describe('Data definition import', () => {
     expect(response).toBeForbidden();
   });
 });
+
+describe('Permissions import', () => {
+  let ctx;
+  beforeAll(async () => {
+    ctx = await createTestContext();
+  });
+  afterAll(async () => {
+    await ctx.close();
+  });
+
+  function doImport(options) {
+    const { file, ...opts } = options;
+    return importer({
+      file: `./__tests__/importers/permissions-${file}.xlsx`,
+      models: ctx.store.models,
+      ...opts,
+    });
+  }
+
+  it('should succeed with valid data', async () => {
+    const { didntSendReason, errors, stats } = await doImport({ file: 'valid', dryRun: true });
+
+    expect(didntSendReason).toEqual('dryRun');
+    expect(errors).toBeEmpty();
+    expect(stats).toEqual({
+      'Role': { created: 3, updated: 0, errored: 0 },
+      'Permission': { created: 29, updated: 0, errored: 0 },
+    });
+  });
+
+  it('should not write anything for a dry run', async () => {
+    const { Permission } = ctx.store.models;
+    const beforeCount = await Permission.count();
+
+    await doImport({ file: 'valid', dryRun: true });
+
+    const afterCount = await Permission.count();
+    expect(afterCount).toEqual(beforeCount);
+  });
+
+  it('should error on missing file', async () => {
+    const { didntSendReason, errors } = await doImport({
+      file: 'nofile',
+      dryRun: true,
+    });
+
+    expect(didntSendReason).toEqual('validationFailed');
+
+    expect(errors[0]).toHaveProperty(
+      'message',
+      `ENOENT: no such file or directory, open './__tests__/importers/permissions-nofile.xlsx'`,
+    );
+  });
+
+  it('should validate permissions data', async () => {
+    const { didntSendReason, errors } = await doImport({
+      file: 'invalid',
+      dryRun: true,
+    });
+
+    expect(didntSendReason).toEqual('validationFailed');
+
+    expect(errors).toContainValidationError(
+      'permission',
+      14,
+      'duplicate id: reception-list-user-any',
+    );
+    expect(errors).toContainValidationError(
+      'permission',
+      16,
+      'permissions matrix must only use the letter y or n',
+    );
+    expect(errors).toContainValidationError(
+      'permission',
+      19,
+      'permissions matrix must only use the letter y or n',
+    );
+    expect(errors).toContainFkError(
+      'permission',
+      20,
+      'valid foreign key expected in column role (corresponding to roleId) but found: invalid',
+    );
+  });
+});
