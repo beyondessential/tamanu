@@ -9,6 +9,7 @@ const syncManager = new CentralSyncManager();
 
 export const syncRoutes = express.Router();
 
+// create new sync session
 syncRoutes.post(
   '/',
   asyncHandler(async (req, res) => {
