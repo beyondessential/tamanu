@@ -1,7 +1,6 @@
 import {
   patientDataLoader,
   administeredVaccineLoader,
-  roleLoader,
   permissionLoader,
 } from './loaders';
 
@@ -45,9 +44,7 @@ export default {
     needs: ['labTestType'],
   },
 
-  role: {
-    loader: roleLoader,
-  },
+  role: {},
   permission: {
     loader: permissionLoader,
     needs: ['role'],

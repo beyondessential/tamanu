@@ -100,15 +100,6 @@ export function patientDataLoader(item) {
   return rows;
 }
 
-export function roleLoader(item) {
-  // ignore "note" column
-  const { note, ...values } = item;
-  return [{
-    model: 'Role',
-    values,
-  }];
-}
-
 export function permissionLoader(item) {
   const { verb, noun, objectId = null, note, ...roles } = item;
   // Any non-empty value in the role cell would mean the role
