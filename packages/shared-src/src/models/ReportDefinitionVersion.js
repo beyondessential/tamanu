@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize';
+import { Sequelize, QueryTypes } from 'sequelize';
 import * as yup from 'yup';
 import { SYNC_DIRECTIONS, REPORT_STATUSES, REPORT_STATUSES_VALUES } from 'shared/constants';
 import { Model } from './Model';
@@ -15,7 +15,15 @@ const optionsValidator = yup.object({
   dataSources: yup.array(),
 });
 
+const generateReportFromQueryData = queryData => [
+  Object.keys(queryData[0]),
+  ...queryData.map(col => Object.values(col)),
+];
+
 export class ReportDefinitionVersion extends Model {
+  // Todo: add permission as a column and default to Report
+  permission = 'Report';
+
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -88,5 +96,18 @@ export class ReportDefinitionVersion extends Model {
       foreignKey: 'versionId',
       as: 'requests',
     });
+  }
+
+  async dataGenerator(context, parameters) {
+    const { sequelize } = context;
+    const reportQuery = this.get('query');
+    const queryResults = await sequelize.query(reportQuery, {
+      type: QueryTypes.SELECT,
+      replacements: parameters,
+    });
+
+    const forResponse = generateReportFromQueryData(queryResults);
+    console.log('For response', forResponse);
+    return forResponse;
   }
 }

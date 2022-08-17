@@ -17,6 +17,8 @@ reportRequest.post(
       query,
     } = req;
 
+    console.log('endpoint...');
+
     const legacyReport = JSON.parse(query.legacyReport);
     const { reportId } = body;
 
@@ -30,11 +32,16 @@ reportRequest.post(
     assertReportEnabled(localisation, reportId);
 
     const reportModule = getReportModule(reportId);
-    if (!reportModule) {
+    // Todo: add validation for database defined reports
+    if (!reportModule && legacyReport) {
       res.status(400).send({ message: 'invalid reportId' });
       return;
     }
-    req.checkPermission('read', reportModule.permission);
+
+    // Todo: Permission check for db defined reports
+    if (legacyReport) {
+      req.checkPermission('read', reportModule.permission);
+    }
 
     const newReportRequest = {
       reportType: legacyReport ? reportId : undefined,

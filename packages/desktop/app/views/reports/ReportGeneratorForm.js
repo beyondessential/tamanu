@@ -49,9 +49,9 @@ const RequestErrorMessage = ({ errorMessage }) => (
   </ErrorMessageContainer>
 );
 
-// adding an onValueChange hook to the report type field
-// so we can keep internal state of the report type
-const ReportTypeField = ({ onValueChange, ...props }) => {
+// adding an onValueChange hook to the report id field
+// so we can keep internal state of the report id
+const ReportIdField = ({ onValueChange, ...props }) => {
   const { field } = props;
   const changeCallback = useCallback(
     event => {
@@ -116,7 +116,7 @@ export const ReportGeneratorForm = ({ onSuccessfulSubmit }) => {
 
       try {
         if (dataSource === REPORT_DATA_SOURCES.THIS_FACILITY) {
-          const excelData = await api.post(`reports/${reportId}?legacyReport=${isLegacyReport}`, {
+          const excelData = await api.post(`reports/${reportId}`, {
             parameters: restValues,
           });
 
@@ -162,7 +162,7 @@ export const ReportGeneratorForm = ({ onSuccessfulSubmit }) => {
       }}
       onSubmit={submitRequestReport}
       validationSchema={Yup.object().shape({
-        reportId: Yup.string().required('Report type is required'),
+        reportId: Yup.string().required('Report id is required'),
         ...parameters.reduce(
           (schema, field) => ({
             ...schema,
@@ -177,7 +177,7 @@ export const ReportGeneratorForm = ({ onSuccessfulSubmit }) => {
             <Field
               name="reportId"
               label="Report id"
-              component={ReportTypeField}
+              component={ReportIdField}
               options={reportOptions}
               required
               onValueChange={setSelectedReportId}

@@ -98,7 +98,7 @@ export class ReportRunner {
       if (!format || !reportFolder) {
         const str = JSON.stringify(recipient);
         throw new Error(
-          `ReportRunner - local recipients must specifiy a format and a path, got: ${str}`,
+          `ReportRunner - local recipients must specify a format and a path, got: ${str}`,
         );
       }
       await mkdirp(reportFolder);

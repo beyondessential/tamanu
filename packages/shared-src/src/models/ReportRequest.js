@@ -9,7 +9,7 @@ export class ReportRequest extends Model {
     super.init(
       {
         id: primaryKey,
-        reportType: { type: Sequelize.STRING, allowNull: false },
+        reportType: { type: Sequelize.STRING },
         recipients: { type: Sequelize.TEXT, allowNull: false },
         parameters: Sequelize.TEXT,
         status: { type: Sequelize.ENUM(REPORT_REQUEST_STATUS_VALUES), allowNull: false },
@@ -51,7 +51,7 @@ export class ReportRequest extends Model {
       as: 'facility',
     });
     this.belongsTo(models.ReportDefinitionVersion, {
-      foreignKey: 'versionId',
+      foreignKey: 'versionId', // Todo: update foreign key to be report_definition_version_id
       as: 'version',
     });
   }

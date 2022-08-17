@@ -104,6 +104,8 @@ export async function up(query: QueryInterface) {
     allowNull: true,
     references: { model: 'report_definition_versions', key: 'id' },
   });
+
+  // Todo: update report_type column to allow null
 }
 
 export async function down(query: QueryInterface) {
