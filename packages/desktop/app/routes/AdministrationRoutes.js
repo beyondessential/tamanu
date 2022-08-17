@@ -5,9 +5,9 @@ import { ProgramsAdminView, ReferenceDataAdminView, PermissionsAdminView } from 
 
 export const AdministrationRoutes = React.memo(({ match }) => (
   <Switch>
+    <Route path={`${match.path}/refdata`} component={ReferenceDataAdminView} />
     <Route path={`${match.path}/permissions`} component={PermissionsAdminView} />
     <Route path={`${match.path}/programs`} component={ProgramsAdminView} />
-    <Route path={`${match.path}/refdata`} component={ReferenceDataAdminView} />
-    <Redirect to={`${match.path}/programs`} />
+    <Redirect to={`${match.path}/refdata`} />
   </Switch>
 ));
