@@ -1,3 +1,4 @@
+import { importerTransaction } from '../../app/admin/importerEndpoint';
 import { importer } from '../../app/admin/refdataImporter';
 import { createTestContext } from '../utilities';
 import './matchers';
@@ -21,7 +22,8 @@ describe('Data definition import', () => {
 
   function doImport(options) {
     const { file, ...opts } = options;
-    return importer({
+    return importerTransaction({
+      importer,
       file: `./__tests__/importers/refdata-${file}.xlsx`,
       models: ctx.store.models,
       ...opts,

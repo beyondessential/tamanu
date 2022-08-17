@@ -20,7 +20,8 @@ export function normaliseSheetName(name) {
   return norm;
 }
 
-async function importerTransaction({ importer, models, file, dryRun = false, whitelist = [] }) {
+/** @internal exported for testing only */
+export async function importerTransaction({ importer, models, file, dryRun = false, whitelist = [] }) {
   const errors = [];
   const stats = [];
 
