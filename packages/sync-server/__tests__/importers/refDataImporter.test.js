@@ -158,13 +158,13 @@ describe('Data definition import', () => {
     const testUserPre = await User.findByPk('test-password-hashing');
     if (testUserPre) await testUserPre.destroy();
 
-    await doImport({ file: 'valid-userpassword' });
+    const { errors } = await doImport({ file: 'valid-userpassword' });
+    expect(errors).toBeEmpty();
 
-    const testUser = await ctx.store.findUserById('test-password-hashing');
-    expect(testUser).not.toHaveProperty('password', 'plaintext');
-    expect(testUser.password).toBeDefined();
-    expect(testUser.password).not.toEqual('plaintext');
-    expect(testUser.password.slice(0, 2)).toBe('$2'); // magic number for bcrypt hashes
+    const testUser = await User.scope('withPassword').findByPk('test-password-hashing');
+    const password = testUser.get('password', { raw: true });
+    expect(password).not.toEqual('plaintext');
+    expect(password).toEqual(expect.stringMatching(/^\$2/)); // magic number for bcrypt hashes
   });
 
   // TODO: when permission checking is implemented on sync server

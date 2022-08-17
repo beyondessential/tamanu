@@ -58,7 +58,7 @@ describe('Programs import', () => {
 
     expect(errors[0]).toHaveProperty(
       'message',
-      `ENOENT: no such file or directory, open './__tests__/importers/permissions-nofile.xlsx'`,
+      `ENOENT: no such file or directory, open './__tests__/importers/programs-nofile.xlsx'`,
     );
   });
 });
