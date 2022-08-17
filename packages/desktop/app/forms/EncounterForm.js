@@ -1,8 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-import styled from 'styled-components';
-import Avatar from '@material-ui/core/Avatar';
 
 import { foreignKey } from '../utils/validation';
 import {
@@ -17,64 +15,15 @@ import {
   LocalisedField,
   SuggesterSelectField,
 } from '../components';
-import { encounterOptions, Colors } from '../constants';
+import { encounterOptions } from '../constants';
 import { useSuggester } from '../api';
 
-const SelectorGrid = styled.div`
-  display: grid;
-  grid-template-columns: auto auto auto;
-  grid-gap: 0.7rem;
-`;
-
-const TypeImage = styled(Avatar)`
-  margin-bottom: 10px;
-`;
-
-const EncounterOptionTypeButton = styled(Button)`
-  background: ${Colors.white};
-  display: grid;
-  justify-content: center;
-  text-align: -webkit-center;
-  height: 9rem;
-
-  span {
-    justify-items: center;
-  }
-`;
-
-const EncounterOptionButton = ({ label, image, onClick }) => (
-  <EncounterOptionTypeButton variant="contained" color="default" onClick={onClick}>
-    <TypeImage alt={label} src={image} />
-    {label}
-  </EncounterOptionTypeButton>
-);
-
-const StartPage = ({ setValue }) => {
-  const items = encounterOptions
-    .filter(option => !option.hideFromMenu)
-    .map(({ label, value, image }) => (
-      <EncounterOptionButton
-        key={value}
-        label={label}
-        value={value}
-        image={image}
-        onClick={() => setValue('encounterType', value)}
-      />
-    ));
-
-  return <SelectorGrid>{items}</SelectorGrid>;
-};
-
-export const EncounterForm = React.memo(({ editedObject, onSubmit, patientBillingTypeId }) => {
+export const EncounterForm = React.memo(({ editedObject, onSubmit, patientBillingTypeId, encounterType }) => {
   const locationSuggester = useSuggester('location');
   const practitionerSuggester = useSuggester('practitioner');
   const departmentSuggester = useSuggester('department');
 
-  const renderForm = ({ values, setFieldValue, submitForm }) => {
-    if (!values.encounterType) {
-      return <StartPage setValue={setFieldValue} />;
-    }
-
+  const renderForm = ({ submitForm }) => {
     const buttonText = editedObject ? 'Update encounter' : 'Confirm';
 
     return (
@@ -142,6 +91,7 @@ export const EncounterForm = React.memo(({ editedObject, onSubmit, patientBillin
       render={renderForm}
       initialValues={{
         startDate: new Date(),
+        encounterType,
         patientBillingTypeId,
         ...editedObject,
       }}
