@@ -160,10 +160,11 @@ describe('Data definition import', () => {
 
     await doImport({ file: 'valid-userpassword' });
 
-    const testUser = await User.findByPk('test-password-hashing');
+    const testUser = await ctx.store.findUserById('test-password-hashing');
     expect(testUser).not.toHaveProperty('password', 'plaintext');
-    expect(testUser.password).not.toBeEmpty();
+    expect(testUser.password).toBeDefined();
     expect(testUser.password).not.toEqual('plaintext');
+    expect(testUser.password.slice(0, 2)).toBe('$2'); // magic number for bcrypt hashes
   });
 
   // TODO: when permission checking is implemented on sync server
@@ -187,7 +188,8 @@ describe('Permissions import', () => {
 
   function doImport(options) {
     const { file, ...opts } = options;
-    return importer({
+    return importerTransaction({
+      importer,
       file: `./__tests__/importers/permissions-${file}.xlsx`,
       models: ctx.store.models,
       ...opts,
