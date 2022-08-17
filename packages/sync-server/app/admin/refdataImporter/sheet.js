@@ -1,7 +1,7 @@
 import { utils } from 'xlsx';
 
 import { DataLoaderError, ValidationError, WorkSheetError } from '../errors';
-import { updateStat } from '../stats';
+import { statkey, updateStat } from '../stats';
 import { importRows } from '../importRows';
 
 const FOREIGN_KEY_SCHEMATA = {
@@ -90,7 +90,7 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
           idCache.add(values.id);
         }
 
-        updateStat(stats, model, 'created', 0);
+        updateStat(stats, statkey(model, sheetName), 'created', 0);
         tableRows.push({ model, sheetRow, values });
       }
     } catch (err) {

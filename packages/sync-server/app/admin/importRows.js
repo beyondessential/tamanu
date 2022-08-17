@@ -3,7 +3,7 @@ import { Op } from 'sequelize';
 import { ValidationError as YupValidationError } from 'yup';
 
 import { ForeignkeyResolutionError, UpsertionError, ValidationError } from './errors';
-import { updateStat } from './stats';
+import { statkey, updateStat } from './stats';
 import * as schemas from './importSchemas';
 
 function findFieldName(values, fkField) {
@@ -101,7 +101,7 @@ export async function importRows(
 
       resolvedRows.push({ model, sheetRow, values });
     } catch (err) {
-      updateStat(stats, model, 'errored');
+      updateStat(stats, statkey(model, sheetName), 'errored');
       errors.push(new ForeignkeyResolutionError(sheetName, sheetRow, err));
     }
   }
@@ -140,7 +140,7 @@ export async function importRows(
         values: await schema.validate(values, { abortEarly: false }),
       });
     } catch (err) {
-      updateStat(stats, model, 'errored');
+      updateStat(stats, statkey(model, sheetName), 'errored');
       if (err instanceof YupValidationError) {
         for (const valerr of err.errors) {
           errors.push(new ValidationError(sheetName, sheetRow, valerr));
@@ -154,7 +154,6 @@ export async function importRows(
     return stats;
   }
 
-  console.log({ validRows });
   log.debug('Upserting database rows', { rows: validRows.length });
   for (const { model, sheetRow, values } of validRows) {
     const Model = models[model];
@@ -162,13 +161,13 @@ export async function importRows(
     try {
       if (existing) {
         await existing.update(values);
-        updateStat(stats, model, 'updated');
+        updateStat(stats, statkey(model, sheetName), 'updated');
       } else {
         await Model.create(values);
-        updateStat(stats, model, 'created');
+        updateStat(stats, statkey(model, sheetName), 'created');
       }
     } catch (err) {
-      updateStat(stats, model, 'errored');
+      updateStat(stats, statkey(model, sheetName), 'errored');
       errors.push(new UpsertionError(sheetName, sheetRow, err));
     }
   }

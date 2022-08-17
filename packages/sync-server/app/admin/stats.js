@@ -1,6 +1,6 @@
 import { log } from 'shared/services/logging';
 
-function statkey(model) {
+export function statkey(model, sheetName) {
   return model === 'ReferenceData' ? `${model}/${sheetName}` : model;
 }
 
@@ -8,8 +8,7 @@ function newStatsRow({ created = 0, updated = 0, errored = 0 } = {}) {
   return { created, updated, errored };
 }
 
-export function updateStat(stats, model, field, incr = 1) {
-  const key = statkey(model);
+export function updateStat(stats, key, field, incr = 1) {
   stats[key] = stats[key] || newStatsRow();
   stats[key][field] += incr;
 }
