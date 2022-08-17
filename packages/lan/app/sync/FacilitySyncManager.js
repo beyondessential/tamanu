@@ -61,7 +61,8 @@ export class FacilitySyncManager {
     // to be pushed, and then pushing those up in batches
     // this avoids any of the records to be pushed being changed during the push period and
     // causing data that isn't internally coherent from ending up on the sync server
-    const lastSessionIndex = (await this.models.Setting.get('LastSuccessfulSyncSession')) || 0;
+    const lastSessionIndex =
+      (await this.models.LocalSystemFact.get('LastSuccessfulSyncSession')) || 0;
     const outgoingChanges = await snapshotOutgoingChanges(
       getModelsForDirection(this.models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL),
       lastSessionIndex,
@@ -90,7 +91,7 @@ export class FacilitySyncManager {
       // update the last successful sync in the same save transaction - if updating the cursor fails,
       // we want to roll back the rest of the saves so that we don't end up detecting them as
       // needing a sync up to the central server when we attempt to resync from the same old cursor
-      await this.models.Setting.set('LastSuccessfulSyncSession', sessionIndex);
+      await this.models.LocalSystemFact.set('LastSuccessfulSyncSession', sessionIndex);
     });
     await this.centralServer.endSyncSession(sessionIndex);
 

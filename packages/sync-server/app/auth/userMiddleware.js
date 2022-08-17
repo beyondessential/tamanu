@@ -2,7 +2,7 @@ import asyncHandler from 'express-async-handler';
 import config from 'config';
 
 import { ForbiddenError, BadAuthenticationError } from 'shared/errors';
-import { FAKE_TOKEN, verifyToken, stripUser } from './utils';
+import { FAKE_TOKEN, verifyToken, stripUser, findUser, findUserById } from './utils';
 
 export const userMiddleware = asyncHandler(async (req, res, next) => {
   const { store, headers } = req;
@@ -20,7 +20,7 @@ export const userMiddleware = asyncHandler(async (req, res, next) => {
   }
 
   if (config.auth.allowDummyToken && token === FAKE_TOKEN) {
-    req.user = await store.findUser(config.auth.initialUser.email);
+    req.user = await findUser(store.models, config.auth.initialUser.email);
     next();
     return;
   }
@@ -34,7 +34,7 @@ export const userMiddleware = asyncHandler(async (req, res, next) => {
 
   const { userId } = contents;
 
-  const user = await store.findUserById(userId);
+  const user = await findUserById(store.models, userId);
 
   if (!user) {
     throw new BadAuthenticationError(`User specified in token (${userId}) does not exist`);

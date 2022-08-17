@@ -166,15 +166,15 @@ export const dataGenerator = async (
   const latestAnswersPerPatientPerDate = getLatestAnswerPerPatientPerDate(
     answersForPerPatientPerDate,
   );
-  console.log(latestAnswersPerPatientPerDate);
   const patients = answers.map(a => a.surveyResponse?.encounter?.patient);
   const patientById = keyBy(patients, 'id');
   const patientIdsByResponseDates = getPatientIdsByResponseDates(answersForPerPatientPerDate);
-  console.log(patientIdsByResponseDates);
 
   const reportData = [];
 
-  for (const [patientId, surveyResponseDates] of Object.entries(patientIdsByResponseDates)) {
+  for (const [patientId, surveyResponseDates] of Object.entries(
+    patientIdsByResponseDates,
+  ).sort(([p1], [p2]) => p1.localeCompare(p2))) {
     const patient = patientById[patientId];
     for (const surveyResponseDate of surveyResponseDates) {
       if (!patient) {
@@ -212,7 +212,6 @@ export const dataGenerator = async (
       reportData.push(recordData);
     }
   }
-  console.log(reportData);
 
   return generateReportFromQueryData(reportData, reportColumnTemplate);
 };

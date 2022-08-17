@@ -3,7 +3,6 @@ import {
   FacilityAndSyncVersionIncompatibleError,
   RemoteCallFailedError,
   BadAuthenticationError,
-  InvalidOperationError,
 } from 'shared/errors';
 
 const { CentralServerConnection } = jest.requireActual('../../app/sync/CentralServerConnection');

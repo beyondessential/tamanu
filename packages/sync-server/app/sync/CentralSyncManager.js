@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import { getModelsForDirection, snapshotOutgoingChanges, saveIncomingChanges } from 'shared/sync';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { log } from 'shared/services/logging';
@@ -55,16 +56,22 @@ export class CentralSyncManager {
     delete this.sessions[sessionIndex];
   }
 
+  // The hardest thing about sync is knowing what happens at the session index border - do we want
+  // records strictly >, or >= the cursor being requested? The truth is, it doesn't matter! A session
+  // index is unique to one device, and gets updated at the end of its sync session, so if a device
+  // is requesting records "from" index x, we know that it only has records from the central server
+  // that are _below_ that index, but also has all records locally _at_ that index already - it must
+  // have been the one that changed them, if they have an index unique to that device!
+  // For sanity's sake, we use >= consistently, because it aligns with the "from" of "fromSessionIndex"
   async setPullFilter(sessionIndex, { fromSessionIndex, facilityId }, { models }) {
     const session = this.connectToSession(sessionIndex);
 
-    // work out if any patients were newly marked for sync
-    const { incomingChanges } = session;
-    const patientIdsForFullSync = incomingChanges
-      .filter(c => c.recordType === 'patient_facilities' && !c.isDeleted)
-      .map(c => c.data.patientId);
-
-    // get changes from all time associated with patients that were marked for sync in this session
+    // work out if any patients were newly marked for sync since this device last connected, and
+    // include changes from all time for those patients
+    const newPatientFacilities = await models.PatientFacility.findAll({
+      where: { facilityId, updatedAtSyncIndex: { [Op.gte]: fromSessionIndex } },
+    });
+    const patientIdsForFullSync = newPatientFacilities.map(n => n.patientId);
     const fullSyncChanges = await snapshotOutgoingChanges(
       getPatientLinkedModels(models),
       0,
@@ -86,12 +93,13 @@ export class CentralSyncManager {
     const changes = [...fullSyncChanges, ...regularChanges];
 
     // filter out any changes that were pushed in during the same sync session
+    const { incomingChanges } = session;
     const incomingChangesByUniqueKey = Object.fromEntries(
       incomingChanges.map(c => [`${c.recordType}_${c.data.id}`, c]),
     );
     const changesWithoutEcho = changes.filter(c => {
       // if the detected change just came in, and the updated marker indicates that it hasn't
-      // changed since, don't send it back down to the same facility that sent it
+      // changed since, don't send it back down to the same device that sent it
       const sameIncomingChange = incomingChangesByUniqueKey[`${c.recordType}_${c.data.id}`];
       if (
         sameIncomingChange &&

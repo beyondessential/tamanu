@@ -33,10 +33,10 @@ describe('Assistive technology device line list', () => {
     [village1, village2] = await randomReferenceIds(models, 'village', 2);
 
     expectedPatient1 = await models.Patient.create(
-      await createDummyPatient(models, { villageId: village1 }),
+      await createDummyPatient(models, { id: 'AAAAAA', villageId: village1 }),
     );
     expectedPatient2 = await models.Patient.create(
-      await createDummyPatient(models, { villageId: village2 }),
+      await createDummyPatient(models, { id: 'BBBBBB', villageId: village2 }),
     );
 
     app = await baseApp.asRole('practitioner');
@@ -185,8 +185,8 @@ describe('Assistive technology device line list', () => {
     });
   });
 
-  describe.only('returns the correct data', () => {
-    it.only('should return latest data per patient and latest data per patient per date', async () => {
+  describe('returns the correct data', () => {
+    it('should return latest data per patient and latest data per patient per date', async () => {
       const result = await app
         .post('/v1/reports/iraq-assistive-technology-device-line-list')
         .send({});
@@ -216,35 +216,6 @@ describe('Assistive technology device line list', () => {
           'Other health care referrals (ان كان هنالك إجابات أخرى  اوصف ذلك)',
           'Other service referrals (خدمة أخرى)',
           'Other, other service referrals (ان كان هنالك إجابات أخرى  اوصف ذلك)',
-        ],
-
-        /* ******PATIENT 2******** */
-        // -----Row on 2021-03-17-----//, on this date, there are answers submitted for 2 patients: patient1 and patient2
-        [
-          // patient details
-          expectedPatient2.displayId,
-          expectedPatient2.sex,
-          moment(expectedPatient2.dateOfBirth).format('DD-MM-YYYY'),
-          expect.any(Number),
-          null,
-
-          // always grab the latest answer for a data element for that patient.
-          'pde-IrqMAReg-13-on-2021-03-12T10:53:15.708Z-Patient2',
-
-          // always grab the latest answer for a data element within that date, regardless of survey response,
-          'pde-IrqPreMob-2-on-2021-03-17T10:53:15.708Z-Patient2',
-          'pde-IrqPreMob-1-on-2021-03-17T10:53:15.708Z-Patient2',
-          'pde-IrqPreMob-6-on-2021-03-17T10:53:15.708Z-Patient2',
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
         ],
 
         /* ****** PATIENT 1 ******** */
@@ -295,6 +266,35 @@ describe('Assistive technology device line list', () => {
           'pde-IrqPreMob-7-on-2021-03-20T11:53:15.708Z-Patient1',
           'pde-IrqPreMob-8-on-2021-03-20T11:53:15.708Z-Patient1',
           'pde-IrqPreMob-9-on-2021-03-20T11:53:15.708Z-Patient1',
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+        ],
+
+        /* ******PATIENT 2******** */
+        // -----Row on 2021-03-17-----//, on this date, there are answers submitted for 2 patients: patient1 and patient2
+        [
+          // patient details
+          expectedPatient2.displayId,
+          expectedPatient2.sex,
+          moment(expectedPatient2.dateOfBirth).format('DD-MM-YYYY'),
+          expect.any(Number),
+          null,
+
+          // always grab the latest answer for a data element for that patient.
+          'pde-IrqMAReg-13-on-2021-03-12T10:53:15.708Z-Patient2',
+
+          // always grab the latest answer for a data element within that date, regardless of survey response,
+          'pde-IrqPreMob-2-on-2021-03-17T10:53:15.708Z-Patient2',
+          'pde-IrqPreMob-1-on-2021-03-17T10:53:15.708Z-Patient2',
+          'pde-IrqPreMob-6-on-2021-03-17T10:53:15.708Z-Patient2',
+          null,
+          null,
+          null,
           null,
           null,
           null,
