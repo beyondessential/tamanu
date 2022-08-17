@@ -41,7 +41,6 @@ export const EncounterForm = React.memo(
             label="Check-in date"
             required
             component={DateField}
-            options={encounterOptions}
           />
           <Field
             name="departmentId"
