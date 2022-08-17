@@ -16,6 +16,8 @@ export function createDataImporterEndpoint(importer) {
       dryRun = false,
       whitelist = [],
     } = await getUploadedData(req);
+    
+    console.log({file});
 
     const result = await importer({ file, models: store.models, dryRun, whitelist });
 
