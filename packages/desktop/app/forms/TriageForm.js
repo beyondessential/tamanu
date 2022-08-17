@@ -46,12 +46,7 @@ export const TriageForm = ({ onCancel, editedObject }) => {
           component={DateTimeField}
           helperText="If different from triage time"
         />
-        <Field
-          name="triageTime"
-          label="Triage date & time"
-          required
-          component={DateTimeField}
-        />
+        <Field name="triageTime" label="Triage date & time" required component={DateTimeField} />
         <Field
           name="locationId"
           label="Location"
