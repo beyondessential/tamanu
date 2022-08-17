@@ -1,7 +1,17 @@
 import { log } from 'shared/services/logging';
 
-export function newStatsRow({ created = 0, updated = 0, errored = 0 } = {}) {
+function statkey(model) {
+  return model === 'ReferenceData' ? `${model}/${sheetName}` : model;
+}
+
+function newStatsRow({ created = 0, updated = 0, errored = 0 } = {}) {
   return { created, updated, errored };
+}
+
+export function updateStat(stats, model, field, incr = 1) {
+  const key = statkey(model);
+  stats[key] = stats[key] || newStatsRow();
+  stats[key][field] += incr;
 }
 
 export function coalesceStats(stats) {

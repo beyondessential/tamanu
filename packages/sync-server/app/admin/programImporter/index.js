@@ -1,34 +1,31 @@
 import { log } from 'shared/services/logging';
-import { existsSync } from 'fs';
 import { readFile, utils } from 'xlsx';
 import config from 'config';
 
 import { ValidationError } from '../errors';
-import { programLoader, surveyLoader } from './loaders';
+import { importRows } from '../importRows';
+
 import { idify } from './idify';
 import { importSurveySheet } from './screens';
 
 export const PERMISSIONS = ['Program', 'Survey'];
 
-export const yesOrNo = value => !!(value && value.toLowerCase() === 'yes');
-
-export const makeRecord = (recordType, data, sheet, row) => ({
-  recordType,
-  data,
-  sheet,
-  row,
-});
+const FOREIGN_KEY_SCHEMATA = {};
 
 export async function importer({ errors, models, stats, file, whitelist = [] }) {
   log.info('Importing data definitions from file', { file });
 
   log.info(`Reading surveys from ${file}...`);
   const workbook = readFile(file);
-  
+
   log.debug('Checking for metadata sheet');
   const metadataSheet = workbook.Sheets.Metadata;
   if (!metadataSheet) {
-    throw new ValidationError('Metadata', -2, 'A program workbook must have a sheet named Metadata');
+    throw new ValidationError(
+      'Metadata',
+      -2,
+      'A program workbook must have a sheet named Metadata',
+    );
   }
 
   // The Metadata sheet follows this structure:
@@ -63,7 +60,7 @@ export async function importer({ errors, models, stats, file, whitelist = [] }) 
       "A survey workbook Metadata sheet must have a row starting with a 'name' or 'code' cell",
     );
   })();
-  
+
   log.debug('Check where we are importing');
 
   // detect if we're importing to home server
@@ -82,7 +79,7 @@ export async function importer({ errors, models, stats, file, whitelist = [] }) 
       );
     }
   }
-  
+
   log.debug('Check code/name presence');
 
   if (!programMetadata.programCode) {
@@ -97,13 +94,33 @@ export async function importer({ errors, models, stats, file, whitelist = [] }) 
   // than the home server.
   const prefix = !importingToHome && country ? `(${country}) ` : '';
   log.debug('Prefix: ', { prefix });
-  
+
   const programId = `program-${idify(programMetadata.programCode)}`;
   const programName = `${prefix}${programMetadata.programName}`;
 
-  const rows = [
-    programLoader({ id: programId, name: programName }),
-  ];
+  const context = sheetName => ({
+    errors,
+    log: log.child({
+      file,
+      sheetName,
+    }),
+    models,
+  });
+
+  {
+    stats.push(
+      await importRows(context('metadata'), {
+        sheetName: 'metadata',
+        rows: [
+          {
+            model: 'Program',
+            values: { id: programId, name: programName },
+            sheetRow: 0,
+          },
+        ],
+      }),
+    );
+  }
 
   // read metadata table starting at header row
   const surveyMetadata = utils.sheet_to_json(metadataSheet, { range: headerRow });
@@ -138,14 +155,21 @@ export async function importer({ errors, models, stats, file, whitelist = [] }) 
 
   // then loop over each survey defined in metadata and import it
   for (const md of surveyMetadata.filter(shouldImportSurvey)) {
+    const sheetName = md.name;
+    const surveyRows = [];
+
     const surveyData = {
-      id: `${programRecord.data.id}-${idify(md.code)}`,
-      name: `${prefix}${md.name}`,
-      programId: programRecord.data.id,
+      id: `${programId}-${idify(md.code)}`,
+      name: `${prefix}${sheetName}`,
+      programId,
       surveyType: md.surveyType,
       isSensitive: md.isSensitive,
     };
-    rows.push(surveyLoader(surveyData));
+    surveyRows.push({
+      model: 'Survey',
+      sheetRow: -2,
+      values: surveyData,
+    });
 
     // don't import questions for obsoleted surveys
     // (or even read their worksheet, or check if it exists)
@@ -155,23 +179,29 @@ export async function importer({ errors, models, stats, file, whitelist = [] }) 
 
     // Strip some characters from workbook names before trying to find them
     // (this mirrors the punctuation stripping that node-xlsx does internally)
-    const worksheet = workbook.Sheets[md.name.replace(/['"]/g, '')] || workbook.Sheets[md.code];
-    if (!worksheet && md.surveyType !== 'obsolete') {
+    const worksheet = workbook.Sheets[sheetName.replace(/['"]/g, '')] || workbook.Sheets[md.code];
+    if (!worksheet) {
       const keys = Object.keys(workbook.Sheets);
-      throw new ValidationError(
-        md.name,
-        -2,
-        `Sheet named "${md.name}" was not found in the workbook. (found: ${keys})`,
+      errors.push(
+        new ValidationError(
+          sheetName,
+          -2,
+          `Sheet named "${sheetName}" was not found in the workbook. (found: ${keys})`,
+        ),
       );
+      continue;
     }
-    const data = utils.sheet_to_json(worksheet);
 
-    // TODO: convert this bit to new style
-    rows.push(...importSurveySheet(data, surveyData));
+    const data = utils.sheet_to_json(worksheet);
+    surveyRows.push(...importSurveySheet(data, surveyData));
+
+    stats.push(
+      await importRows(context(sheetName), {
+        sheetName,
+        rows: surveyRows,
+      }),
+    );
   }
 
-  log.debug('Got some rows', { count: rows.length });
-  // TODO: split up sheet.js to be able to reuse it here
-  // and do the actual import
-  return rows;
+  log.debug('Done importing programs data');
 }

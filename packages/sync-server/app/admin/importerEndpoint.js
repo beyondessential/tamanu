@@ -4,8 +4,9 @@ import { promises as fs } from 'fs';
 import { Sequelize } from 'sequelize';
 
 import { getUploadedData } from 'shared/utils/getUploadedData';
+import { log } from 'shared/services/logging/log';
 
-import { DryRun } from './errors';
+import { DryRun, DataImportError } from './errors';
 import { coalesceStats } from './stats';
 
 async function importerTransaction({ importer, models, file, dryRun = false, whitelist = [] }) {
@@ -87,6 +88,13 @@ export function createDataImporterEndpoint(importer) {
       // eslint-disable-next-line no-unused-vars
       await fs.unlink(file).catch(ignore => {});
     }
+
+    result.errors =
+      result.errors?.map(err =>
+        (err instanceof Error || typeof err === 'string') && !(err instanceof DataImportError)
+          ? new DataImportError('(general)', -3, err)
+          : err,
+      ) ?? [];
 
     res.send({
       ...result,

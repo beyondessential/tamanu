@@ -1,8 +1,9 @@
-import { makeRecord, yesOrNo } from './index';
+export function yesOrNo(value) {
+  return !!(value && value.toLowerCase() === 'yes');
+}
 
 function newlinesToArray(data) {
-  if (!data)
-    return null;
+  if (!data) return null;
 
   let split = ',';
   if (data.trim().match(/[\r\n]/)) {
@@ -16,31 +17,38 @@ function newlinesToArray(data) {
     .filter(x => x);
   return JSON.stringify(array);
 }
+
 function makeScreen(questions, componentData) {
-  return questions
-    .map((component, i) => {
-      const {
-        visibilityCriteria = '', validationCriteria = '', detail = '', config: qConfig = '', calculation = '', row, ...elementData
-      } = component;
+  return questions.flatMap((component, i) => {
+    const {
+      visibilityCriteria = '',
+      validationCriteria = '',
+      detail = '',
+      config: qConfig = '',
+      calculation = '',
+      row,
+      ...elementData
+    } = component;
 
-      const { surveyId, sheet, ...otherComponentData } = componentData;
+    const { surveyId, ...otherComponentData } = componentData;
+    const dataElId = `pde-${elementData.code}`;
 
-      const dataElement = makeRecord(
-        'programDataElement',
-        {
-          id: `pde-${elementData.code}`,
+    return [
+      {
+        model: 'ProgramDataElement',
+        sheetRow: row,
+        values: {
+          id: dataElId,
           defaultOptions: '',
           ...elementData,
         },
-        sheet,
-        row
-      );
-
-      const surveyScreenComponent = makeRecord(
-        'surveyScreenComponent',
-        {
+      },
+      {
+        model: 'SurveyScreenComponent',
+        sheetRow: row,
+        values: {
           id: `${surveyId}-${elementData.code}`,
-          dataElementId: dataElement.data.id,
+          dataElementId: dataElId,
           surveyId,
           text: '',
           options: '',
@@ -52,14 +60,11 @@ function makeScreen(questions, componentData) {
           calculation,
           ...otherComponentData,
         },
-        sheet,
-        row
-      );
-
-      return [dataElement, surveyScreenComponent];
-    })
-    .flat();
+      },
+    ];
+  });
 }
+
 function importDataElement(row) {
   const { newScreen, options, optionLabels, text, ...rest } = row;
 
@@ -68,10 +73,11 @@ function importDataElement(row) {
     defaultOptions: options,
     optionLabels: newlinesToArray(optionLabels),
     defaultText: text,
-    row: row.__rowNum__ + 1,
+    row: row.__rowNum__,
     ...rest,
   };
 }
+
 // Break an array of questions into chunks, with the split points determined
 // by a newScreen: true property. (with newScreen: true questions placed as
 // the first element of each chunk)
@@ -87,16 +93,16 @@ function splitIntoScreens(questions) {
     return questions.slice(start, end);
   });
 }
+
 export function importSurveySheet(data, survey) {
   const questions = data.map(importDataElement).filter(q => q.code);
   const screens = splitIntoScreens(questions);
 
-  return screens
-    .map((x, i) => makeScreen(x, {
+  return screens.flatMap((x, i) =>
+    makeScreen(x, {
       surveyId: survey.id,
       sheet: survey.name,
       screenIndex: i,
-    })
-    )
-    .flat();
+    }),
+  );
 }
