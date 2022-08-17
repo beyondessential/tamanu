@@ -142,7 +142,7 @@ describe('User', () => {
   // skipping test until users are actually created on the facility server
   // currently, as they are set to "pull_from_central", they should really be created or edited
   // through the admin panel directly on the central server
-  it.x('should create a new user', async () => {
+  it.skip('should create a new user', async () => {
     const details = createUser();
     const result = await adminApp.post('/v1/user').send(details);
     expect(result).toHaveSucceeded();
@@ -159,7 +159,7 @@ describe('User', () => {
   // skipping test until users are actually created on the facility server
   // currently, as they are set to "pull_from_central", they should really be created or edited
   // through the admin panel directly on the central server
-  it.x('should not allow a non-admin to create a new user', async () => {
+  it.skip('should not allow a non-admin to create a new user', async () => {
     const userApp = await baseApp.asRole('practitioner');
     const details = createUser();
     const result = await userApp.post('/v1/user').send(details);
@@ -172,7 +172,7 @@ describe('User', () => {
   // skipping test until users are actually created on the facility server
   // currently, as they are set to "pull_from_central", they should really be created or edited
   // through the admin panel directly on the central server
-  it.x('should change a name', async () => {
+  it.skip('should change a name', async () => {
     const newUser = await models.User.create(
       createUser({
         displayName: 'Alan',
@@ -192,7 +192,7 @@ describe('User', () => {
   // skipping test until users are actually created on the facility server
   // currently, as they are set to "pull_from_central", they should really be created or edited
   // through the admin panel directly on the central server
-  it.x('should allow an admin to change a password', async () => {
+  it.skip('should allow an admin to change a password', async () => {
     const details = createUser();
     const newUser = await models.User.create(details);
     const { id } = newUser;
@@ -216,7 +216,7 @@ describe('User', () => {
   // skipping test until users are actually created on the facility server
   // currently, as they are set to "pull_from_central", they should really be created or edited
   // through the admin panel directly on the central server
-  it.x('should allow a non-admin user to change their own password', async () => {
+  it.skip('should allow a non-admin user to change their own password', async () => {
     const details = createUser();
     const newUser = await models.User.create(details);
     const { id } = newUser;
@@ -242,7 +242,7 @@ describe('User', () => {
   // skipping test until users are actually created on the facility server
   // currently, as they are set to "pull_from_central", they should really be created or edited
   // through the admin panel directly on the central server
-  it.x("should not allow a non-admin user to change someone else's password", async () => {
+  it.skip("should not allow a non-admin user to change someone else's password", async () => {
     const details = createUser();
     const newUser = await models.User.create(details);
 
@@ -257,7 +257,7 @@ describe('User', () => {
   // skipping test until users are actually created on the facility server
   // currently, as they are set to "pull_from_central", they should really be created or edited
   // through the admin panel directly on the central server
-  it.x('should fail to create a user without an email', async () => {
+  it.skip('should fail to create a user without an email', async () => {
     const result = await adminApp.post('/v1/user').send({});
     expect(result).toHaveRequestError();
   });
@@ -265,7 +265,7 @@ describe('User', () => {
   // skipping test until users are actually created on the facility server
   // currently, as they are set to "pull_from_central", they should really be created or edited
   // through the admin panel directly on the central server
-  it.x('should fail to create a user with a duplicate email', async () => {
+  it.skip('should fail to create a user with a duplicate email', async () => {
     const baseUserResult = await adminApp.post('/v1/user').send({
       displayName: 'Test Dupe',
       email: 'duplicate@user.com',
