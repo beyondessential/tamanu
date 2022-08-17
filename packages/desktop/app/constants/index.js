@@ -233,18 +233,23 @@ export const noteTypes = [
 
 export const encounterOptions = [
   { value: ENCOUNTER_TYPES.ADMISSION, label: 'Hospital admission', image: medicationIcon },
-  { value: ENCOUNTER_TYPES.CLINIC, label: 'Clinic', image: administrationIcon },
-  { value: ENCOUNTER_TYPES.IMAGING, label: 'Imaging', image: radiologyIcon },
-  { value: ENCOUNTER_TYPES.EMERGENCY, label: 'Emergency short stay', image: scheduleIcon },
   {
-    value: ENCOUNTER_TYPES.OBSERVATION,
-    label: 'Active ED patient',
+    value: ENCOUNTER_TYPES.TRIAGE,
+    label: 'Triage',
     image: patientIcon,
     triageFlowOnly: true,
   },
+  { value: ENCOUNTER_TYPES.CLINIC, label: 'Clinic', image: administrationIcon },
+  { value: ENCOUNTER_TYPES.IMAGING, label: 'Imaging', image: radiologyIcon, hideFromMenu: true },
   {
-    value: ENCOUNTER_TYPES.TRIAGE,
-    label: 'Triaged patient',
+    value: ENCOUNTER_TYPES.EMERGENCY,
+    label: 'Emergency short stay',
+    image: scheduleIcon,
+    hideFromMenu: true,
+  },
+  {
+    value: ENCOUNTER_TYPES.OBSERVATION,
+    label: 'Active ED patient',
     image: patientIcon,
     triageFlowOnly: true,
     hideFromMenu: true,
