@@ -10,8 +10,6 @@ import { importSurveySheet } from './screens';
 
 export const PERMISSIONS = ['Program', 'Survey'];
 
-const FOREIGN_KEY_SCHEMATA = {};
-
 export async function importer({ errors, models, stats, file, whitelist = [] }) {
   log.info('Importing programs from file', { file });
 
@@ -72,7 +70,7 @@ export async function importer({ errors, models, stats, file, whitelist = [] }) 
 
   if (!importingToHome) {
     if (!host.match(/(localhost|dev|demo|staging)/)) {
-      return new ValidationError(
+      throw new ValidationError(
         'Metadata',
         headerRow,
         `This workbook can only be imported to ${homeServer} or a non-production (dev/demo/staging) server. (nb: current server is ${host})`,
@@ -107,20 +105,18 @@ export async function importer({ errors, models, stats, file, whitelist = [] }) 
     models,
   });
 
-  {
-    stats.push(
-      await importRows(context('metadata'), {
-        sheetName: 'metadata',
-        rows: [
-          {
-            model: 'Program',
-            values: { id: programId, name: programName },
-            sheetRow: 0,
-          },
-        ],
-      }),
-    );
-  }
+  stats.push(
+    await importRows(context('metadata'), {
+      sheetName: 'metadata',
+      rows: [
+        {
+          model: 'Program',
+          values: { id: programId, name: programName },
+          sheetRow: 0,
+        },
+      ],
+    }),
+  );
 
   // read metadata table starting at header row
   const surveyMetadata = utils.sheet_to_json(metadataSheet, { range: headerRow });

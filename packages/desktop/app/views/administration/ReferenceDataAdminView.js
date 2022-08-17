@@ -55,5 +55,9 @@ const ALLOWLIST = [
 ];
 
 export const ReferenceDataAdminView = () => (
-  <ImporterView title="Import reference data" endpoint="admin/importRefData" whitelist={ALLOWLIST} />
+  <ImporterView
+    title="Import reference data"
+    endpoint="admin/importRefData"
+    whitelist={ALLOWLIST}
+  />
 );

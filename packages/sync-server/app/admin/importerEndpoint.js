@@ -21,7 +21,13 @@ export function normaliseSheetName(name) {
 }
 
 /** @internal exported for testing only */
-export async function importerTransaction({ importer, models, file, dryRun = false, whitelist = [] }) {
+export async function importerTransaction({
+  importer,
+  models,
+  file,
+  dryRun = false,
+  whitelist = [],
+}) {
   const errors = [];
   const stats = [];
 

@@ -8,10 +8,12 @@ function newStatsRow({ created = 0, updated = 0, errored = 0 } = {}) {
   return { created, updated, errored };
 }
 
+/* eslint-disable no-param-reassign */
 export function updateStat(stats, key, field, incr = 1) {
   stats[key] = stats[key] || newStatsRow();
   stats[key][field] += incr;
 }
+/* eslint-enable no-param-reassign */
 
 export function coalesceStats(stats) {
   const allStats = {};

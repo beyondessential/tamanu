@@ -101,13 +101,15 @@ const OutcomeHeader = ({ result }) => {
   return (
     <>
       {head}
-      {result.stats && <p>
-        {`Time: ${result.duration?.toFixed(2) ?? 'unknown '}s — Records: ` +
-          `${sumStat(result.stats, ['created'])} created, ` +
-          `${sumStat(result.stats, ['updated'])} updated, ` +
-          `${sumStat(result.stats, ['errored'])} errored, ` +
-          `${sumStat(result.stats)} total`}
-      </p>}
+      {result.stats && (
+        <p>
+          {`Time: ${result.duration?.toFixed(2) ?? 'unknown '}s — Records: ` +
+            `${sumStat(result.stats, ['created'])} created, ` +
+            `${sumStat(result.stats, ['updated'])} updated, ` +
+            `${sumStat(result.stats, ['errored'])} errored, ` +
+            `${sumStat(result.stats)} total`}
+        </p>
+      )}
     </>
   );
 };

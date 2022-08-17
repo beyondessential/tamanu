@@ -5,13 +5,12 @@ import { ENCOUNTER_TYPES } from 'shared/constants';
 export const loaderFactory = model => ({ note, ...values }) => [{ model, values }];
 
 export function referenceDataLoaderFactory(refType) {
-  if (refType === 'diagnosis') refType = 'icd10';
   return ({ id, code, name, visibilityStatus }) => [
     {
       model: 'ReferenceData',
       values: {
         id,
-        type: refType,
+        type: refType === 'diagnosis' ? 'icd10' : refType,
         code: typeof code === 'number' ? `${code}` : code,
         name,
         visibilityStatus,
