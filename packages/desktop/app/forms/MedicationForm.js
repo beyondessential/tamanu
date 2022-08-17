@@ -40,7 +40,7 @@ const validationSchema = readOnly =>
     ? yup.object().shape({
         medicationId: foreignKey('Medication must be selected'),
         prescriberId: foreignKey('Prescriber must be selected'),
-        prescription: yup.string().required(),
+        prescription: yup.string().required('Instructions are required'),
         route: yup
           .string()
           .oneOf(drugRouteOptions.map(x => x.value))

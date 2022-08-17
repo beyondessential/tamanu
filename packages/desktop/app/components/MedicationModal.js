@@ -23,8 +23,12 @@ export const MedicationModal = ({ open, onClose, onSaved, encounterId, medicatio
       discontinued: !!data?.discontinuingClinicianId,
       discontinuedDate: getCurrentDateString(),
     };
-    const res = await api.put(`medication/${medication.id}`, payload);
-    setSubmittedMedication(res);
+    await api.put(`medication/${medication.id}`, payload);
+
+    // The return from the put doesn't include the joined tables like medication and prescriber
+    const newMedication = await api.get(`medication/${medication.id}`);
+
+    setSubmittedMedication(newMedication);
     setShouldDiscontinue(false);
     onClose();
   };
