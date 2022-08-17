@@ -3,7 +3,10 @@ import { format } from 'date-fns';
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 
-describe('FHIR integration - Single resource', () => {
+const integrationName = 'fhir';
+const requestHeaders = {};
+
+describe(`${integrationName} integration - Single resource`, () => {
   let ctx;
   let app;
   beforeAll(async () => {
@@ -22,7 +25,8 @@ describe('FHIR integration - Single resource', () => {
       });
       await patient.reload();
 
-      const response = await app.get(`/v1/integration/fhir/Patient/${patient.id}`);
+      const path = `/v1/integration/${integrationName}/Patient/${patient.id}`;
+      const response = await app.get(path).set(requestHeaders);
       expect(response).toHaveSucceeded();
       expect(response.body).toEqual({
         active: true,
@@ -79,7 +83,8 @@ describe('FHIR integration - Single resource', () => {
 
     it('returns a 422 error when the resource does not exist', async () => {
       const nonExistingId = '1234567890';
-      const response = await app.get(`/v1/integration/fhir/Patient/${nonExistingId}`);
+      const path = `/v1/integration/${integrationName}/Patient/${nonExistingId}`;
+      const response = await app.get(path).set(requestHeaders);
       expect(response).toHaveRequestError(422);
       expect(response.body).toMatchObject({
         error: {
