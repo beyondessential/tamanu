@@ -9,9 +9,9 @@ import {
   UpsertionError,
   ValidationError,
   WorkSheetError,
-} from './errors';
+} from '../errors';
+import { newStatsRow } from '../stats';
 import * as schemas from './schemas';
-import { newStatsRow } from './stats';
 
 const FOREIGN_KEY_SCHEMATA = {
   CertifiableVaccine: [

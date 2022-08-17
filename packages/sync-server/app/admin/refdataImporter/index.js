@@ -1,6 +1,5 @@
 import { singularize } from 'inflection';
 import { camelCase, upperFirst, lowerCase } from 'lodash';
-import { Sequelize } from 'sequelize';
 import { readFile } from 'xlsx';
 
 import { log } from 'shared/services/logging';
@@ -10,9 +9,7 @@ import {
   referenceDataLoaderFactory,
   loaderFactory,
 } from './loaders';
-import { DryRun } from './errors';
 import { importSheet } from './sheet';
-import { coalesceStats } from './stats';
 import DEPENDENCIES from './dependencies';
 
 export const PERMISSIONS = ['User', 'ReferenceData'];
@@ -26,7 +23,7 @@ function normalise(name) {
   return norm;
 }
 
-async function importerInner({ errors, models, stats, file, whitelist = [] }) {
+export async function importer({ errors, models, stats, file, whitelist = [] }) {
   log.info('Importing data definitions from file', { file });
 
   log.debug('Parse XLSX workbook');
@@ -136,61 +133,8 @@ async function importerInner({ errors, models, stats, file, whitelist = [] }) {
     );
     importedData.push(dataType);
   }
-  
+
   if (!loopProtection) throw new Error('Loop, cycle, or unresolvable import dependencies');
 
   log.debug('Done importing data', { importedData, droppedData });
-}
-
-export async function importer({
-  models,
-  file,
-  dryRun = false,
-  whitelist = [],
-}) {
-  const errors = [];
-  const stats = [];
-
-  try {
-    log.debug('Starting transaction');
-    await models.ReferenceData.sequelize.transaction(
-      {
-        // strongest level to be sure to read/write good data
-        isolationLevel: Sequelize.Transaction.ISOLATION_LEVELS.SERIALIZABLE,
-      },
-      async () => {
-        await importerInner({ errors, models, stats, file, whitelist });
-        if (errors.length > 0) throw new Error('rollback on errors');
-        if (dryRun) throw new DryRun(); // roll back the transaction
-      },
-    );
-    log.debug('Ended transaction');
-
-    if (dryRun) {
-      throw new Error('Data import completed but it was a dry run!!!');
-    } else {
-      return { errors: [], stats: coalesceStats(stats) };
-    }
-  } catch (err) {
-    log.error(`while importing refdata: ${err.stack}`);
-    if (dryRun && err instanceof DryRun) {
-      return {
-        didntSendReason: 'dryRun',
-        errors: [],
-        stats: coalesceStats(stats),
-      };
-    }
-    if (errors.length) {
-      return {
-        didntSendReason: 'validationFailed',
-        errors,
-        stats: coalesceStats(stats),
-      };
-    }
-    return {
-      didntSendReason: 'validationFailed',
-      errors: [err],
-      stats: coalesceStats(stats),
-    };
-  }
 }
