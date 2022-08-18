@@ -20,7 +20,6 @@ export async function initDatabase() {
     ...config.db,
     testMode,
     primaryKeyDefault: testMode ? createTestUUID : undefined,
-    syncClientMode: true,
   });
   return existingConnection;
 }

@@ -1,2 +1,2 @@
-export * from './SyncManager';
+export * from './FacilitySyncManager';
 export * from './CentralServerConnection';
