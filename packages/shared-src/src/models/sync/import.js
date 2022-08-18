@@ -1,4 +1,4 @@
-import { Sequelize, Op, QueryTypes } from 'sequelize';
+import { Sequelize, Op } from 'sequelize';
 import { chunk, flatten, without, pick, pickBy } from 'lodash';
 import { propertyPathsToTree } from './metadata';
 import { log } from 'shared/services/logging';
@@ -48,22 +48,6 @@ const createImportPlanInner = (model, relationTree, validateRecord) => {
   return { model, columns, children, validateRecord };
 };
 
-async function findByIds(model, ids) {
-  if (ids.length === 0) {
-    return [];
-  }
-  return model.sequelize.query(`
-    SELECT * FROM "${model.tableName}" WHERE id IN (:ids)
-  `, {
-    replacements: {
-      ids,
-    },
-    model,
-    mapToModel: true,
-    type: QueryTypes.SELECT,
-  });
-}
-
 export const executeImportPlan = async (plan, syncRecords) => {
   const { model, validateRecord } = plan;
 
@@ -71,7 +55,7 @@ export const executeImportPlan = async (plan, syncRecords) => {
     // split records into create, update, delete
     const idsForDelete = syncRecords.filter(r => r.isDeleted).map(r => r.data.id);
     const idsForUpsert = syncRecords.filter(r => !r.isDeleted && r.data.id).map(r => r.data.id);
-    const existing = await findByIds(model, idsForUpsert);
+    const existing = await model.findByIds(idsForUpsert, true);
     const existingIdSet = new Set(existing.map(e => e.id));
     const recordsForCreate = syncRecords
       .filter(r => !r.isDeleted && !existingIdSet.has(r.data.id))
