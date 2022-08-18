@@ -3,6 +3,12 @@ import { PATIENT_COMMUNICATION_CHANNELS, COMMUNICATION_STATUSES } from 'shared/c
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
 
+// turns 'hello there' into 'h*********e'
+const maskMiddle = s => s.slice(0, 1) + s.slice(1, -1).replace(/./g, '*') + s.slice(-1);
+
+// turns 'test@gmail.com' into 't**t@g*******m'
+const maskEmail = email => email.replace(/[^@]*/g, maskMiddle);
+
 export class PatientEmailCommunicationProcessor extends ScheduledTask {
   constructor(context) {
     const conf = config.schedules.patientEmailCommunicationProcessor;
@@ -52,7 +58,8 @@ export class PatientEmailCommunicationProcessor extends ScheduledTask {
       log.info("Sending email to patient", { 
         communicationId: emailPlain.id,
         type: emailPlain.type,
-        patientId: emailPlain.patient?.id, 
+        patientId: emailPlain.patient?.id,
+        email: maskEmail(toAddress),
       });
 
       try {
