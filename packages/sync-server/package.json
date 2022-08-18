@@ -15,6 +15,9 @@
       "node_modules/config"
     ]
   },
+  "engines": {
+    "node": "^16.16.0"
+  },
   "scripts": {
     "start": "node ./dist/app.bundle.js",
     "setup-dev": "node ./dist/app.bundle.js setup",
