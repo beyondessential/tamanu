@@ -14,6 +14,4 @@ export class Setting extends Model {
       { ...options, syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC },
     );
   }
-    );
-  }
 }
