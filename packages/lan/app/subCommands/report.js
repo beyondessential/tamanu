@@ -8,6 +8,7 @@ async function report({ name }) {
   // going via inline import rather than top-level just to keep diff footprint small during a hotfix
   // should be fine to pull to the top level
   const { getReportModule } = await import('shared/reports');
+  // Todo: update report subcommand
   const module = getReportModule(name);
   log.info(`Running report ${name} (with empty parameters)`);
   const result = await module.dataGenerator(context, {});

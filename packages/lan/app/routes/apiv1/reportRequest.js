@@ -9,17 +9,8 @@ export const reportRequest = express.Router();
 reportRequest.post(
   '/$',
   asyncHandler(async (req, res) => {
-    const {
-      models: { ReportRequest },
-      body,
-      user,
-      getLocalisation,
-      query,
-    } = req;
-
-    console.log('endpoint...');
-
-    const legacyReport = JSON.parse(query.legacyReport);
+    const { models, body, user, getLocalisation } = req;
+    const { ReportRequest } = models;
     const { reportId } = body;
 
     req.checkPermission('create', 'ReportRequest');
@@ -31,21 +22,20 @@ reportRequest.post(
     const localisation = await getLocalisation();
     assertReportEnabled(localisation, reportId);
 
-    const reportModule = getReportModule(reportId);
-    // Todo: add validation for database defined reports
-    if (!reportModule && legacyReport) {
+    const reportModule = await getReportModule(reportId, models);
+
+    if (!reportModule) {
       res.status(400).send({ message: 'invalid reportId' });
       return;
     }
 
-    // Todo: Permission check for db defined reports
-    if (legacyReport) {
-      req.checkPermission('read', reportModule.permission);
-    }
+    req.checkPermission('read', reportModule.permission);
+
+    const isDatabaseDefinedReport = reportModule instanceof models.ReportDefinitionVersion;
 
     const newReportRequest = {
-      reportType: legacyReport ? reportId : undefined,
-      versionId: legacyReport ? undefined : reportId,
+      reportType: isDatabaseDefinedReport ? undefined : reportId,
+      versionId: isDatabaseDefinedReport ? reportId : undefined,
       recipients: JSON.stringify({
         email: body.emailList,
       }),

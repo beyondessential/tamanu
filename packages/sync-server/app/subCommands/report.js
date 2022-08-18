@@ -22,6 +22,8 @@ async function report(options) {
 
   const store = await initDatabase({ testMode: false });
   setupEnv();
+
+  // Todo: update report runner command
   try {
     const { name, parameters, recipients } = options;
     const validNames = REPORT_DEFINITIONS.map(d => d.id);

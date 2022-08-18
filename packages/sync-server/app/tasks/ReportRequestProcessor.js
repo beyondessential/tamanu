@@ -30,9 +30,9 @@ export class ReportRequestProcessor extends ScheduledTask {
     const parameters = processOptions || process.execArgv;
 
     log.info(
-      `Spawning child process for report request "${request.id}" for report "${
-        request.reportType
-      }" with command [${node}, ${parameters.toString()}, ${scriptPath}].`,
+      `Spawning child process for report request "${
+        request.id
+      }" for report "${request.getReportId()}" with command [${node}, ${parameters.toString()}, ${scriptPath}].`,
     );
 
     // For some reasons, when running a child process under pm2, pm2_env was not set and caused a problem.
@@ -48,7 +48,7 @@ export class ReportRequestProcessor extends ScheduledTask {
         scriptPath,
         'report',
         '--name',
-        request.reportType,
+        request.getReportId(),
         '--parameters',
         request.parameters,
         '--recipients',
@@ -71,7 +71,9 @@ export class ReportRequestProcessor extends ScheduledTask {
       childProcess.on('exit', code => {
         if (code === 0) {
           log.info(
-            `Child process running report request "${request.id}" for report "${request.reportType}" has finished.`,
+            `Child process running report request "${
+              request.id
+            }" for report "${request.getReportId()}" has finished.`,
           );
           resolve();
           return;
@@ -79,7 +81,9 @@ export class ReportRequestProcessor extends ScheduledTask {
         reject(
           new Error(
             errorMessage ||
-              `Failed to generate report for report request "${request.id}" for report "${request.reportType}"`,
+              `Failed to generate report for report request "${
+                request.id
+              }" for report "${request.getReportId()}"`,
           ),
         );
       });
@@ -104,10 +108,12 @@ export class ReportRequestProcessor extends ScheduledTask {
 
   async runReportInTheSameProcess(request) {
     log.info(
-      `Running report request "${request.id}" for report "${request.reportType}" in main process.`,
+      `Running report request "${
+        request.id
+      }" for report "${request.getReportId()}" in main process.`,
     );
     const reportRunner = new ReportRunner(
-      request.reportType,
+      request.getReportId(),
       request.getParameters(),
       request.getRecipients(),
       this.context.store,
@@ -136,6 +142,8 @@ export class ReportRequestProcessor extends ScheduledTask {
     });
 
     for (const request of requests) {
+      const reportId = request.getReportId();
+
       if (!config.mailgun.from) {
         log.error(`ReportRequestProcessorError - Email config missing`);
         await request.update({
@@ -146,24 +154,24 @@ export class ReportRequestProcessor extends ScheduledTask {
       }
 
       const { disabledReports } = localisation;
-      if (disabledReports.includes(request.reportType)) {
-        log.error(`Report "${request.reportType}" is disabled`);
+      if (disabledReports.includes(reportId)) {
+        log.error(`Report "${reportId}" is disabled`);
         await request.update({
           status: REPORT_REQUEST_STATUSES.ERROR,
-          error: `Report "${request.reportType}" is disabled`,
+          error: `Report "${reportId}" is disabled`,
         });
         return;
       }
 
-      const reportModule = getReportModule(request.reportType);
+      const reportModule = await getReportModule(reportId, this.context.store.models);
       const reportDataGenerator = reportModule?.dataGenerator;
       if (!reportModule || !reportDataGenerator) {
         log.error(
-          `ReportRequestProcessorError - Unable to find report generator for report ${request.id} of type ${request.reportType}`,
+          `ReportRequestProcessorError - Unable to find report generator for report ${request.id} of type ${reportId}`,
         );
         await request.update({
           status: REPORT_REQUEST_STATUSES.ERROR,
-          error: `Unable to find report generator for report ${request.id} of type ${request.reportType}`,
+          error: `Unable to find report generator for report ${request.id} of type ${reportId}`,
         });
         return;
       }

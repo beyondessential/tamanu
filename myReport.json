@@ -1,9 +1,12 @@
 {
-  "query": "SELECT\n\"initiatingEncounter\".\"start_date\" AS \"Date\",\n\"patient\".\"display_id\" AS \"National Health Number\",\n\"patient\".\"first_name\" AS \"Patient First Name\",\n\"patient\".\"last_name\" AS \"Patient Last Name\",\n\"examiner\".\"display_name\" AS \"Referring Doctor\"\nFROM \"referrals\" AS \"Referral\"\nLEFT OUTER JOIN \"encounters\" AS \"initiatingEncounter\" ON \"Referral\".\"initiating_encounter_id\" = \"initiatingEncounter\".\"id\"\nLEFT OUTER JOIN \"users\" AS \"examiner\" ON \"initiatingEncounter\".\"examiner_id\" = \"examiner\".\"id\"\nLEFT OUTER JOIN \"patients\" AS \"patient\" ON \"initiatingEncounter\".\"patient_id\" = \"patient\".\"id\"\nLEFT OUTER JOIN \"encounter_diagnoses\" AS \"diagnoses\" ON \"initiatingEncounter\".\"id\" = \"diagnoses\".\"encounter_id\"\nWHERE \"examiner\".\"id\" = :practitioner;",
+  "query": "SELECT\n\"initiatingEncounter\".\"start_date\" AS \"Date\",\n\"patient\".\"display_id\" AS \"National Health Number\",\n\"patient\".\"first_name\" AS \"Patient First Name\",\n\"patient\".\"last_name\" AS \"Patient Last Name\",\n\"examiner\".\"display_name\" AS \"Referring Doctor\"\nFROM \"referrals\" AS \"Referral\"\nLEFT OUTER JOIN \"encounters\" AS \"initiatingEncounter\" ON \"Referral\".\"initiating_encounter_id\" = \"initiatingEncounter\".\"id\"\nLEFT OUTER JOIN \"users\" AS \"examiner\" ON \"initiatingEncounter\".\"examiner_id\" = \"examiner\".\"id\"\nLEFT OUTER JOIN \"patients\" AS \"patient\" ON \"initiatingEncounter\".\"patient_id\" = \"patient\".\"id\"\nLEFT OUTER JOIN \"encounter_diagnoses\" AS \"diagnoses\" ON \"initiatingEncounter\".\"id\" = \"diagnoses\".\"encounter_id\"\nWHERE examiner.id LIKE :practitioner AND patient.village_id LIKE :village;",
   "notes": "A report of incomplete referrals. First example of a database defined report.",
   "status": "published",
   "queryOptions": {
-    "parameters": [{ "parameterField": "VillageField" }, { "parameterField": "PractitionerField" }],
+    "parameters": [
+      { "parameterField": "VillageField", "name": "village" },
+      { "parameterField": "PractitionerField", "name": "practitioner" }
+    ],
     "dataSources": []
   }
 }
