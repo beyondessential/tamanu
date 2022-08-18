@@ -160,8 +160,7 @@ function sanitiseRecordForValues(data) {
     markedForSync,
     createdAt,
     updatedAt,
-    pushedAt,
-    pulledAt,
+    updatedAtSyncIndex,
 
     // state fields
     loading,

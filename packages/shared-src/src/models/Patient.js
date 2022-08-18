@@ -24,11 +24,6 @@ export class Patient extends Model {
           allowNull: false,
         },
         email: Sequelize.STRING,
-        markedForSync: {
-          type: Sequelize.BOOLEAN,
-          allowNull: false,
-          defaultValue: false,
-        },
       },
       {
         ...options,
@@ -76,15 +71,8 @@ export class Patient extends Model {
         recordType: this.name,
       },
     });
-  }
 
-  static async getSyncIds() {
-    const patients = await this.sequelize.models.Patient.findAll({
-      where: { markedForSync: true },
-      raw: true,
-      attributes: ['id'],
     });
-    return patients.map(({ id }) => id);
   }
 
   async getAdministeredVaccines(queryOptions = {}) {
