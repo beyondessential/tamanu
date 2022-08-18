@@ -173,7 +173,9 @@ export const dataGenerator = async (
 
   const reportData = [];
 
-  for (const [patientId, surveyResponseDates] of Object.entries(patientIdsByResponseDates)) {
+  for (const [patientId, surveyResponseDates] of Object.entries(
+    patientIdsByResponseDates,
+  ).sort(([p1], [p2]) => p1.localeCompare(p2))) {
     const patient = patientById[patientId];
     for (const surveyResponseDate of surveyResponseDates) {
       if (!patient) {
