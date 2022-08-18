@@ -130,7 +130,7 @@ export class CentralServerConnection {
             `Server responded with status code ${response.status} (${errorMessage})`,
           );
           // attach status and body from response
-          err.remoteResponse = {
+          err.centralServerResponse = {
             status: response.status,
             body: responseBody,
           };
@@ -282,11 +282,11 @@ export class CentralServerConnection {
 
       return response;
     } catch (err) {
-      if (err.remoteResponse) {
+      if (err.centralServerResponse) {
         // pass sync server response back
-        const remoteErrorMsg = err.remoteResponse.body.error?.message;
-        const passThroughError = new Error(remoteErrorMsg ?? err);
-        passThroughError.status = err.remoteResponse.status;
+        const centralServerErrorMsg = err.centralServerResponse.body.error?.message;
+        const passThroughError = new Error(centralServerErrorMsg ?? err);
+        passThroughError.status = err.centralServerResponse.status;
         throw passThroughError;
       } else {
         // fallback

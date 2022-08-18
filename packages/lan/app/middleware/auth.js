@@ -7,7 +7,7 @@ import { BadAuthenticationError } from 'shared/errors';
 import { log } from 'shared/services/logging';
 import { getPermissionsForRoles } from 'shared/permissions/rolesToPermissions';
 
-import { WebRemote } from '../sync';
+import { CentralServerConnection } from '../sync';
 
 const { tokenDuration, secret } = config.auth;
 
@@ -39,10 +39,10 @@ async function comparePassword(user, password) {
   }
 }
 
-export async function remoteLogin(models, email, password) {
+export async function centralServerLogin(models, email, password) {
   // try logging in to sync server
-  const remote = new WebRemote();
-  const response = await remote.fetch('login', {
+  const centralServer = new CentralServerConnection();
+  const response = await centralServer.fetch('login', {
     awaitConnection: false,
     retryAuth: false,
     method: 'POST',
@@ -55,7 +55,7 @@ export async function remoteLogin(models, email, password) {
     },
   });
 
-  // we've logged in as a valid remote user - update local database to match
+  // we've logged in as a valid central user - update local database to match
   const { user, localisation } = response;
   const { id, ...userDetails } = user;
 
@@ -78,7 +78,7 @@ export async function remoteLogin(models, email, password) {
   const permissions = await getPermissionsForRoles(user.role);
   return {
     token,
-    remote: true,
+    central: true,
     localisation,
     permissions,
   };
@@ -99,24 +99,24 @@ async function localLogin(models, email, password) {
 
   const token = getToken(user);
   const permissions = await getPermissionsForRoles(user.role);
-  return { token, remote: false, localisation, permissions };
+  return { token, central: false, localisation, permissions };
 }
 
-async function remoteLoginWithLocalFallback(models, email, password) {
+async function centralServerLoginWithLocalFallback(models, email, password) {
   // always log in locally when testing
   if (process.env.NODE_ENV === 'test') {
     return localLogin(models, email, password);
   }
 
   try {
-    return await remoteLogin(models, email, password);
+    return await centralServerLogin(models, email, password);
   } catch (e) {
     if (e.name === 'BadAuthenticationError') {
       // actual bad credentials server-side
       throw new BadAuthenticationError('Incorrect username or password, please try again');
     }
 
-    log.warn(`remoteLoginWithLocalFallback: remote login failed: ${e}`);
+    log.warn(`centralServerLoginWithLocalFallback: central server login failed: ${e}`);
     return localLogin(models, email, password);
   }
 }
@@ -129,7 +129,7 @@ export async function loginHandler(req, res, next) {
   req.flagPermissionChecked();
 
   try {
-    const responseData = await remoteLoginWithLocalFallback(models, email, password);
+    const responseData = await centralServerLoginWithLocalFallback(models, email, password);
     const facility = await models.Facility.findByPk(config.serverFacilityId);
     res.send({
       ...responseData,

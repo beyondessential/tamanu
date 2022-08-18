@@ -1,6 +1,6 @@
 import fs, { promises as asyncFs } from 'fs';
 import { InvalidParameterError, RemoteCallFailedError } from 'shared/errors';
-import { WebRemote } from '../sync';
+import { CentralServerConnection } from '../sync';
 import { getUploadedData } from '../admin/getUploadedData';
 
 // Helper function for uploading one file to the sync server
@@ -24,9 +24,9 @@ export const uploadAttachment = async (req, maxFileSize) => {
   }
 
   // Upload file to sync server
-  // WebRemote takes care of adding headers and convert body to JSON
-  const remote = new WebRemote();
-  const syncResponse = await remote.fetch('attachment', {
+  // CentralServerConnection takes care of adding headers and convert body to JSON
+  const centralServer = new CentralServerConnection();
+  const syncResponse = await centralServer.fetch('attachment', {
     method: 'POST',
     body: {
       type,

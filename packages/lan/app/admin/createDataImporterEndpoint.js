@@ -8,7 +8,7 @@ import { getUploadedData } from './getUploadedData';
 import { sendSyncRequest } from './sendSyncRequest';
 
 import { preprocessRecordSet } from './preprocessRecordSet';
-import { WebRemote } from '../sync/WebRemote';
+import { CentralServerConnection } from '../sync/CentralServerConnection';
 
 // we can't use the lodash groupBy, because this needs to handle `undefined`
 function groupBy(array, key) {
@@ -32,7 +32,7 @@ function getChannelFromRecordType(recordType) {
 }
 
 export async function sendRecordGroups(recordGroups) {
-  const remote = new WebRemote();
+  const centralServer = new CentralServerConnection();
   for (const [recordType, recordsForGroup] of recordGroups) {
     const recordsByChannel = groupBy(recordsForGroup, 'channel');
     const total = recordsForGroup.length;
@@ -40,7 +40,7 @@ export async function sendRecordGroups(recordGroups) {
     log.debug(`sendRecordGroups: sending ${total} records`);
     for (const [maybeChannel, recordsForChannel] of recordsByChannel) {
       const channel = maybeChannel || getChannelFromRecordType(recordType);
-      await sendSyncRequest(remote, channel, recordsForChannel);
+      await sendSyncRequest(centralServer, channel, recordsForChannel);
       completed += recordsForChannel.length;
       log.debug(`sendRecordGroups: sent ${completed} of ${total}`);
     }
