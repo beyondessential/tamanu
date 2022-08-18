@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 
 export class Invoice extends Model {
   static init({ primaryKey, ...options }) {
@@ -34,4 +35,6 @@ export class Invoice extends Model {
       as: 'invoicePriceChangeItems',
     });
   }
+
+  static buildSyncFilter = buildEncounterLinkedSyncFilter;
 }

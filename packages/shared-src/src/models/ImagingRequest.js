@@ -5,6 +5,7 @@ import { InvalidOperationError } from 'shared/errors';
 import { SYNC_DIRECTIONS, IMAGING_REQUEST_STATUS_TYPES, IMAGING_TYPES } from 'shared/constants';
 
 import { Model } from './Model';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 
 const ALL_IMAGING_REQUEST_STATUS_TYPES = Object.values(IMAGING_REQUEST_STATUS_TYPES);
 const ALL_IMAGING_TYPES = Object.values(IMAGING_TYPES);
@@ -100,4 +101,6 @@ export class ImagingRequest extends Model {
       },
     });
   }
+
+  static buildSyncFilter = buildEncounterLinkedSyncFilter;
 }

@@ -1,5 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import config from 'config';
 import { QueryTypes, Op } from 'sequelize';
 import { isEqual } from 'lodash';
 import { getPatientAdditionalData } from 'shared/utils';
@@ -17,6 +18,8 @@ import { patientProfilePicture } from './patient/patientProfilePicture';
 import { activeCovid19PatientsHandler } from '../../routeHandlers';
 import { getOrderClause } from '../../database/utils';
 
+const { serverFacilityId } = config;
+
 const patientRoute = express.Router();
 export { patientRoute as patient };
 
@@ -25,6 +28,7 @@ function dbRecordToResponse(patientRecord) {
     ...patientRecord.get({
       plain: true,
     }),
+    markedForSync: !!patientRecord.patientFacilities?.length > 0,
   };
 }
 
@@ -56,34 +60,43 @@ patientRoute.put(
   asyncHandler(async (req, res) => {
     const {
       db,
-      models: { Patient, PatientAdditionalData },
+      models: { Patient, PatientAdditionalData, PatientFacility },
       params,
+      syncManager,
     } = req;
     req.checkPermission('read', 'Patient');
     const patient = await Patient.findByPk(params.id);
     if (!patient) throw new NotFoundError();
-    req.checkPermission('write', patient);
 
-    await db.transaction(async () => {
-      await patient.update(requestBodyToRecord(req.body));
-
-      const patientAdditionalData = await PatientAdditionalData.findOne({
-        where: { patientId: patient.id },
+    const markingForSync = isEqual(req.body, { markedForSync: true });
+    if (markingForSync) {
+      // no need to check write permission or update patient record itself,
+      // just create a link between the patient and this facility
+      await PatientFacility.create({
+        patientId: patient.id,
+        facilityId: serverFacilityId,
       });
+      syncManager.triggerSync();
+    } else {
+      req.checkPermission('write', patient);
 
-      if (!patientAdditionalData) {
-        // Do not try to create patient additional data if all we're trying to update is markedForSync = true to
-        // sync down patient because PatientAdditionalData will be automatically synced down along with Patient
-        if (!isEqual(req.body, { markedForSync: true })) {
+      await db.transaction(async () => {
+        await patient.update(requestBodyToRecord(req.body));
+
+        const patientAdditionalData = await PatientAdditionalData.findOne({
+          where: { patientId: patient.id },
+        });
+
+        if (!patientAdditionalData) {
           await PatientAdditionalData.create({
             ...requestBodyToRecord(req.body),
             patientId: patient.id,
           });
+        } else {
+          await patientAdditionalData.update(requestBodyToRecord(req.body));
         }
-      } else {
-        await patientAdditionalData.update(requestBodyToRecord(req.body));
-      }
-    });
+      });
+    }
 
     res.send(dbRecordToResponse(patient));
   }),
@@ -94,7 +107,7 @@ patientRoute.post(
   asyncHandler(async (req, res) => {
     const {
       db,
-      models: { Patient, PatientAdditionalData },
+      models: { Patient, PatientAdditionalData, PatientFacility },
     } = req;
     req.checkPermission('create', 'Patient');
     const patientData = requestBodyToRecord(req.body);
@@ -104,6 +117,10 @@ patientRoute.post(
       await PatientAdditionalData.create({
         ...patientData,
         patientId: createdPatient.id,
+      });
+      await PatientFacility.create({
+        patientId: createdPatient.id,
+        facilityId: serverFacilityId,
       });
       return createdPatient;
     });
@@ -360,7 +377,7 @@ patientRoute.get(
 );
 
 const sortKeys = {
-  markedForSync: 'patients.marked_for_sync',
+  markedForSync: 'patient_facilities.patient_id',
   displayId: 'patients.display_id',
   lastName: 'UPPER(patients.last_name)',
   culturalName: 'UPPER(patients.cultural_name)',
@@ -428,6 +445,8 @@ patientRoute.get(
           ON (location.id = encounters.location_id)
         LEFT JOIN reference_data AS village
           ON (village.type = 'village' AND village.id = patients.village_id)
+        LEFT JOIN patient_facilities
+          ON (patient_facilities.patient_id = patients.id)
       ${whereClauses && `WHERE ${whereClauses}`}
     `;
 
@@ -472,7 +491,8 @@ patientRoute.get(
           location.id AS location_id,
           location.name AS location_name,
           village.id AS village_id,
-          village.name AS village_name
+          village.name AS village_name,
+          patient_facilities.patient_id IS NOT NULL as marked_for_sync
         ${from}
 
         ORDER BY ${sortKey} ${sortDirection}, ${secondarySearchTerm} NULLS LAST

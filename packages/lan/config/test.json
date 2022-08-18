@@ -13,6 +13,7 @@
       "location": "Bed 1"
     }
   },
+  "serverFacilityId": "balwyn",
   "sync": {
     "syncAllLabRequests": true,
     "backoff": {

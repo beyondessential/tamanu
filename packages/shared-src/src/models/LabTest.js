@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { LAB_TEST_STATUSES, SYNC_DIRECTIONS } from 'shared/constants';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { Model } from './Model';
 
 const LAB_TEST_STATUS_VALUES = Object.values(LAB_TEST_STATUSES);
@@ -63,5 +64,9 @@ export class LabTest extends Model {
 
   static getListReferenceAssociations() {
     return ['category', 'labTestType', 'labTestMethod'];
+  }
+
+  static buildSyncFilter(patientIds) {
+    return buildEncounterLinkedSyncFilter(patientIds, ['labRequest', 'encounter']);
   }
 }

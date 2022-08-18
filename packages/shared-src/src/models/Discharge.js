@@ -2,6 +2,7 @@ import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 
 export class Discharge extends Model {
   static init({ primaryKey, ...options }) {
@@ -43,4 +44,6 @@ export class Discharge extends Model {
       as: 'discharger',
     });
   }
+
+  static buildSyncFilter = buildEncounterLinkedSyncFilter;
 }

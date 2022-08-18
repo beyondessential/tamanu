@@ -98,4 +98,26 @@ export class Note extends Model {
     const parentGetter = `get${this.recordType}`;
     return this[parentGetter](options);
   }
+
+  static buildSyncFilter(patientIds) {
+    return {
+      where: {
+        [Op.or]: [
+          { recordId: { [Op.in]: patientIds } },
+          { '$encounter.patient_id$': { [Op.in]: patientIds } },
+          { '$patientCarePlan.patient_id$': { [Op.in]: patientIds } },
+          { '$triage.encounter.patient_id$': { [Op.in]: patientIds } },
+          { '$labRequest.encounter.patient_id$': { [Op.in]: patientIds } },
+          { '$imagingRequest.encounter.patient_id$': { [Op.in]: patientIds } },
+        ],
+      },
+      include: [
+        'encounter',
+        'patientCarePlan',
+        { association: 'triage', include: ['encounter'] },
+        { association: 'labRequest', include: ['encounter'] },
+        { association: 'imagingRequest', include: ['encounter'] },
+      ],
+    };
+  }
 }

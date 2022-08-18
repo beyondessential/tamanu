@@ -72,7 +72,14 @@ export class Patient extends Model {
       },
     });
 
+    this.belongsToMany(models.Facility, {
+      through: 'PatientFacility',
+      as: 'patientFacilities',
     });
+  }
+
+  static getFullReferenceAssociations() {
+    return ['patientFacilities'];
   }
 
   async getAdministeredVaccines(queryOptions = {}) {

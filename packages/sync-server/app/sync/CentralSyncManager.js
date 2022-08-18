@@ -1,6 +1,8 @@
+import { Op } from 'sequelize';
 import { getModelsForDirection, snapshotOutgoingChanges, saveIncomingChanges } from 'shared/sync';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { log } from 'shared/services/logging';
+import { getPatientLinkedModels } from './getPatientLinkedModels';
 
 // after 10 minutes of no activity, consider a session lapsed and wipe it to avoid holding invalid
 // changes in memory when a sync fails on the facility server end
@@ -61,14 +63,34 @@ export class CentralSyncManager {
   // that are _below_ that index, but also has all records locally _at_ that index already - it must
   // have been the one that changed them, if they have an index unique to that device!
   // For sanity's sake, we use >= consistently, because it aligns with the "from" of "fromSessionIndex"
-  async setPullFilter(sessionIndex, { fromSessionIndex }, { models }) {
+  async setPullFilter(sessionIndex, { fromSessionIndex, facilityId }, { models }) {
     const session = this.connectToSession(sessionIndex);
 
-    // get changes since the last successful sync
-    const changes = await snapshotOutgoingChanges(
+    // work out if any patients were newly marked for sync since this device last connected, and
+    // include changes from all time for those patients
+    const newPatientFacilities = await models.PatientFacility.findAll({
+      where: { facilityId, updatedAtSyncIndex: { [Op.gte]: fromSessionIndex } },
+    });
+    const patientIdsForFullSync = newPatientFacilities.map(n => n.patientId);
+    const fullSyncChanges = await snapshotOutgoingChanges(
+      getPatientLinkedModels(models),
+      0,
+      patientIdsForFullSync,
+    );
+
+    // get changes since the last successful sync for all other synced patients and independent
+    // record types
+    const patientFacilities = await models.PatientFacility.findAll({ where: { facilityId } });
+    const patientIdsForRegularSync = patientFacilities
+      .map(p => p.patientId)
+      .filter(patientId => !patientIdsForFullSync.includes(patientId));
+    const regularChanges = await snapshotOutgoingChanges(
       getModelsForDirection(models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
       fromSessionIndex,
+      patientIdsForRegularSync,
     );
+
+    const changes = [...fullSyncChanges, ...regularChanges];
 
     // filter out any changes that were pushed in during the same sync session
     const { incomingChanges } = session;

@@ -51,5 +51,9 @@ export class Facility extends Model {
     this.belongsToMany(models.User, {
       through: 'UserFacility',
     });
+
+    this.belongsToMany(models.Patient, {
+      through: 'PatientFacility',
+    });
   }
 }

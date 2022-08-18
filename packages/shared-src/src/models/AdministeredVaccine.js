@@ -4,6 +4,7 @@ import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 import { Encounter } from './Encounter';
 import { ScheduledVaccine } from './ScheduledVaccine';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 
 export class AdministeredVaccine extends Model {
   static init({ primaryKey, ...options }) {
@@ -75,6 +76,8 @@ export class AdministeredVaccine extends Model {
       as: 'department',
     });
   }
+
+  static buildSyncFilter = buildEncounterLinkedSyncFilter;
 
   static async lastVaccinationForPatient(patientId, vaccineIds = []) {
     const query = {
