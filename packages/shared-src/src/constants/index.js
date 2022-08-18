@@ -447,6 +447,7 @@ export const SERVER_TYPES = {
 export const VISIBILITY_STATUSES = {
   CURRENT: 'current',
   HISTORICAL: 'historical',
+  MERGED: 'merged',
 };
 
 export const ISO9075_FORMAT = 'YYYY-MM-DD HH:mm:ss';
