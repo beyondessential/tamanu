@@ -1,8 +1,8 @@
 import { QueryInterface } from 'sequelize';
 
 export async function up(query: QueryInterface) {
-  await query.sequelize.query(`CREATE DOMAIN date_time_string as character varying(19)`);
-  await query.sequelize.query(`CREATE DOMAIN date_string as character varying(10)`);
+  await query.sequelize.query(`CREATE DOMAIN date_time_string as CHAR(19)`);
+  await query.sequelize.query(`CREATE DOMAIN date_string as CHAR(10)`);
 }
 
 export async function down(query: QueryInterface) {
