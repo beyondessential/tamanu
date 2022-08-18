@@ -29,6 +29,7 @@ export class Patient extends Model {
           allowNull: false,
           defaultValue: false,
         },
+        visibilityStatus: Sequelize.STRING,
       },
       {
         ...options,
@@ -56,6 +57,12 @@ export class Patient extends Model {
     this.hasMany(models.PatientDeathData, {
       foreignKey: 'patientId',
       as: 'deathData',
+    });
+    
+    // TODO: is sequelize OK with a recursive definition? do we do this elsewhere?
+    this.hasMany(models.Patient, {
+      foreignKey: 'mergedIntoId',
+      as: 'mergedPatients',
     });
 
     // this one is actually a hasMany
