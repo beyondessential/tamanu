@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import { Sequelize, Op } from 'sequelize';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
 export class Signer extends Model {
@@ -82,6 +83,7 @@ export class Signer extends Model {
       },
       {
         ...options,
+        syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
         paranoid: true,
         indexes: [
           { fields: ['validity_period_start'] },

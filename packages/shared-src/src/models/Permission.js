@@ -20,7 +20,7 @@ export class Permission extends Model {
       },
       {
         ...options,
-        syncConfig: { syncDirection: SYNC_DIRECTIONS.PULL_ONLY },
+        syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
         hooks: {
           afterSave() {
             resetPermissionCache();

@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { initSyncForModelNestedUnderPatient } from './sync';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
 export class PatientAllergy extends Model {
@@ -8,11 +8,15 @@ export class PatientAllergy extends Model {
       {
         id: primaryKey,
         note: Sequelize.STRING,
-        recordedDate: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false },
+        recordedDate: {
+          type: Sequelize.DATE,
+          defaultValue: Sequelize.NOW,
+          allowNull: false,
+        },
       },
       {
         ...options,
-        syncConfig: initSyncForModelNestedUnderPatient(this, 'allergy'),
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
   }

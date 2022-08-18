@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { AVPU_OPTIONS } from 'shared/constants';
+import { AVPU_OPTIONS, SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
 export class Vitals extends Model {
@@ -38,6 +38,7 @@ export class Vitals extends Model {
       },
       {
         ...options,
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         validate: {
           mustHaveEncounter() {
             if (!this.encounterId) {
@@ -52,6 +53,7 @@ export class Vitals extends Model {
   static initRelations(models) {
     this.belongsTo(models.Encounter, {
       foreignKey: 'encounterId',
+      as: 'encounter',
     });
   }
 }

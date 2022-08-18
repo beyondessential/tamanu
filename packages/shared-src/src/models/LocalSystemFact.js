@@ -1,4 +1,5 @@
 import { Sequelize } from 'sequelize';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
 // stores data written _by the server_
@@ -19,6 +20,7 @@ export class LocalSystemFact extends Model {
         },
       },
       {
+        syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
         ...options,
         indexes: [{ unique: true, fields: ['key'] }],
       },

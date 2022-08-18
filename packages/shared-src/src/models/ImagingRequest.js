@@ -1,7 +1,8 @@
 import { Sequelize } from 'sequelize';
 
 import { InvalidOperationError } from 'shared/errors';
-import { IMAGING_REQUEST_STATUS_TYPES, IMAGING_TYPES } from 'shared/constants';
+
+import { SYNC_DIRECTIONS, IMAGING_REQUEST_STATUS_TYPES, IMAGING_TYPES } from 'shared/constants';
 
 import { Model } from './Model';
 
@@ -42,6 +43,7 @@ export class ImagingRequest extends Model {
       },
       {
         ...options,
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         validate: {
           mustHaveValidRequestStatusType() {
             if (!ALL_IMAGING_REQUEST_STATUS_TYPES.includes(this.status)) {

@@ -10,7 +10,7 @@ export class UserFacility extends Model {
       },
       {
         ...options,
-        syncConfig: { syncDirection: SYNC_DIRECTIONS.PULL_ONLY },
+        syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
         uniqueKeys: {
           user_location_unique: {
             fields: ['user_id', 'facility_id'],

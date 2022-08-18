@@ -1,4 +1,5 @@
 import { Sequelize } from 'sequelize';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
 // Model to store VRS-related data that we don't currently have a good place for
@@ -20,6 +21,7 @@ export class PatientVRSData extends Model {
       {
         ...options,
         tableName: 'patient_vrs_data',
+        syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
       },
     );
   }

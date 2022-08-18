@@ -28,7 +28,7 @@ export class Facility extends Model {
       },
       {
         ...options,
-        syncConfig: { syncDirection: SYNC_DIRECTIONS.PULL_ONLY },
+        syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
         indexes: [
           { unique: true, fields: ['code'] },
           { unique: true, fields: ['name'] },
