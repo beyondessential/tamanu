@@ -11,7 +11,7 @@ export class Setting extends Model {
         settingName: { type: Sequelize.STRING, unique: true },
         settingContent: Sequelize.STRING,
       },
-      options,
+      { ...options, syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC },
     );
   }
 }
