@@ -66,9 +66,13 @@ const StartPage = ({ setValue }) => {
 };
 
 export const EncounterForm = React.memo(({ editedObject, onSubmit, patientBillingTypeId }) => {
-  const locationSuggester = useSuggester('location');
+  const locationSuggester = useSuggester('location', {
+    baseQueryParameters: { filterByFacility: true },
+  });
   const practitionerSuggester = useSuggester('practitioner');
-  const departmentSuggester = useSuggester('department');
+  const departmentSuggester = useSuggester('department', {
+    baseQueryParameters: { filterByFacility: true },
+  });
 
   const renderForm = ({ values, setFieldValue, submitForm }) => {
     if (!values.encounterType) {
