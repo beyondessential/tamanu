@@ -3,6 +3,7 @@ import asyncHandler from 'express-async-handler';
 import { log } from 'shared/services/logging';
 import * as yup from 'yup';
 import { ValidationError } from 'yup';
+import { findUser } from './utils';
 
 export const changePassword = express.Router();
 
@@ -34,7 +35,7 @@ changePassword.post(
 const doChangePassword = async (store, { email, newPassword, token }) => {
   const { models } = store;
 
-  const user = await store.findUser(email);
+  const user = await findUser(models, email);
   const userId = user ? user.id : 'thwart-timing-attack';
 
   const oneTimeLogin = await models.OneTimeLogin.findOne({
