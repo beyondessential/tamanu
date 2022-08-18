@@ -3,10 +3,9 @@ import {
   FacilityAndSyncVersionIncompatibleError,
   RemoteCallFailedError,
   BadAuthenticationError,
-  InvalidOperationError,
 } from 'shared/errors';
 
-const { WebRemote } = jest.requireActual('../../app/sync/WebRemote');
+const { CentralServerConnection } = jest.requireActual('../../app/sync/CentralServerConnection');
 
 const fakeResponse = (response, body, headers) => {
   const validBody = JSON.parse(JSON.stringify(body));
@@ -32,12 +31,12 @@ const fakeTimeout = message => (url, opts) =>
 const fetch = jest.fn();
 
 const createRemote = () => {
-  const remote = new WebRemote();
+  const remote = new CentralServerConnection();
   remote.fetchImplementation = fetch;
   return remote;
 };
 
-describe('WebRemote', () => {
+describe('CentralServerConnection', () => {
   const authSuccess = fakeSuccess({
     token: 'this-is-not-real',
     user: {
