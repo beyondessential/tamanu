@@ -1,7 +1,5 @@
 import { get } from 'lodash';
 
-import { compareModelPriority } from 'shared/models/sync/order';
-
 import { validateRecordSet } from './validateRecordSet';
 
 function groupRecordsByType(records) {
@@ -42,6 +40,82 @@ function getRecordCounts(recordsByType) {
 
   return recordCounts;
 }
+
+export const MODEL_DEPENDENCY_ORDER = [
+  'ReferenceData',
+  'Asset',
+  'Facility',
+  'Department',
+  'Location',
+  'Role',
+  'Permission',
+
+  'User',
+  'UserFacility',
+
+  'Patient',
+  'Encounter',
+
+  'PatientAllergy',
+  'PatientCarePlan',
+  'PatientCondition',
+  'PatientFamilyHistory',
+  'PatientIssue',
+  'PatientAdditionalData',
+  'PatientSecondaryId',
+
+  'PatientDeathData',
+  'ContributingDeathCause',
+
+  'EncounterDiagnosis',
+  'EncounterMedication',
+  'Procedure',
+  'Referral',
+  'Vitals',
+  'Triage',
+
+  'CertifiableVaccine',
+  'ScheduledVaccine',
+  'AdministeredVaccine',
+
+  'Program',
+  'ProgramDataElement',
+  'Survey',
+  'SurveyScreenComponent',
+
+  'SurveyResponse',
+  'SurveyResponseAnswer',
+
+  'LabTestType',
+  'LabTest',
+  'LabRequest',
+  'ImagingRequest',
+
+  'Note',
+
+  'ReportRequest',
+  'PatientCommunication',
+  'CertificateNotification',
+
+  'Invoice',
+  'InvoiceLineType',
+  'InvoiceLineItem',
+  'InvoicePriceChangeType',
+  'InvoicePriceChangeItem',
+
+  'DocumentMetadata',
+];
+
+const lowercaseModelOrder = MODEL_DEPENDENCY_ORDER.map(x => x.toLowerCase());
+
+const compareModelPriority = (modelNameA, modelNameB) => {
+  const priorityA = lowercaseModelOrder.indexOf(modelNameA.toLowerCase());
+  const priorityB = lowercaseModelOrder.indexOf(modelNameB.toLowerCase());
+  const delta = priorityA - priorityB;
+  if (delta) return delta;
+
+  return modelNameA.localeCompare(modelNameB);
+};
 
 export async function preprocessRecordSet(recordSet) {
   const { records, errors = [] } = await validateRecordSet(recordSet);
