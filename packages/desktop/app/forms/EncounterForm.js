@@ -100,7 +100,7 @@ export const EncounterForm = React.memo(
           departmentId: foreignKey('Department is required'),
           startDate: yup.date().required(),
           encounterType: yup
-            .mixed()
+            .string()
             .oneOf(encounterOptions.map(x => x.value))
             .required(),
         })}
