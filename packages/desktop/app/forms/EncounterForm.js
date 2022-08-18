@@ -20,9 +20,13 @@ import { useSuggester } from '../api';
 
 export const EncounterForm = React.memo(
   ({ editedObject, onSubmit, patientBillingTypeId, encounterType }) => {
-    const locationSuggester = useSuggester('location');
+    const locationSuggester = useSuggester('location', {
+      baseQueryParameters: { filterByFacility: true },
+    });
     const practitionerSuggester = useSuggester('practitioner');
-    const departmentSuggester = useSuggester('department');
+    const departmentSuggester = useSuggester('department', {
+      baseQueryParameters: { filterByFacility: true },
+    });
 
     const renderForm = ({ submitForm }) => {
       const buttonText = editedObject ? 'Update encounter' : 'Confirm';
