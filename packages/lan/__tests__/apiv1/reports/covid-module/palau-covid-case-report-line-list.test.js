@@ -28,36 +28,39 @@ async function createPalauSurveys(models) {
   });
 
   await models.ProgramDataElement.bulkCreate([
-    { id: 'pde-PalauCOVCase2', code: 'PalauCOVCase2' },
-    { id: 'pde-PalauCOVCase2a', code: 'PalauCOVCase2a' },
-    { id: 'pde-PalauCOVCase3', code: 'PalauCOVCase3' },
-    { id: 'pde-PalauCOVCase4', code: 'PalauCOVCase4' },
-    { id: 'pde-PalauCOVCase6', code: 'PalauCOVCase6' },
-    { id: 'pde-PalauCOVCase6a', code: 'PalauCOVCase6a' },
-    { id: 'pde-PalauCOVCase7', code: 'PalauCOVCase7' },
-    { id: 'pde-PalauCOVCase8', code: 'PalauCOVCase8' },
-    { id: 'pde-PalauCOVCase10', code: 'PalauCOVCase10' },
+    { id: 'pde-PalauCOVCase2', code: 'PalauCOVCase2', type: 'FreeText' },
+    { id: 'pde-PalauCOVCase2a', code: 'PalauCOVCase2a', type: 'FreeText' },
+    { id: 'pde-PalauCOVCase3', code: 'PalauCOVCase3', type: 'FreeText' },
+    { id: 'pde-PalauCOVCase4', code: 'PalauCOVCase4', type: 'FreeText' },
+    { id: 'pde-PalauCOVCase6', code: 'PalauCOVCase6', type: 'FreeText' },
+    { id: 'pde-PalauCOVCase6a', code: 'PalauCOVCase6a', type: 'FreeText' },
+    { id: 'pde-PalauCOVCase7', code: 'PalauCOVCase7', type: 'FreeText' },
+    { id: 'pde-PalauCOVCase8', code: 'PalauCOVCase8', type: 'FreeText' },
+    { id: 'pde-PalauCOVCase10', code: 'PalauCOVCase10', type: 'FreeText' },
     {
       id: 'pde-PalauCOVCase11',
       code: 'PalauCOVCase11',
+      type: 'FreeText',
     },
-    { id: 'pde-PalauCOVCase13', code: 'PalauCOVCase13' },
-    { id: 'pde-PalauCOVCase9', code: 'PalauCOVCase9' },
-    { id: 'pde-PalauCOVCase14', code: 'PalauCOVCase14' },
+    { id: 'pde-PalauCOVCase13', code: 'PalauCOVCase13', type: 'FreeText' },
+    { id: 'pde-PalauCOVCase9', code: 'PalauCOVCase9', type: 'FreeText' },
+    { id: 'pde-PalauCOVCase14', code: 'PalauCOVCase14', type: 'FreeText' },
     {
       id: 'pde-PalauCOVCase16',
       code: 'PalauCOVCase16',
+      type: 'FreeText',
     },
-    { id: 'pde-PalauCOVCase18', code: 'PalauCOVCase18' },
-    { id: 'pde-PalauCOVCase20', code: 'PalauCOVCase20' },
+    { id: 'pde-PalauCOVCase18', code: 'PalauCOVCase18', type: 'FreeText' },
+    { id: 'pde-PalauCOVCase20', code: 'PalauCOVCase20', type: 'FreeText' },
     {
       id: 'pde-PalauCOVCase27',
       code: 'PalauCOVCase27',
+      type: 'FreeText',
     },
-    { id: 'pde-PalauCOVCase28', code: 'PalauCOVCase28' },
-    { id: 'pde-PalauCOVCase31', code: 'PalauCOVCase31' },
-    { id: 'pde-PalauCOVCase33', code: 'PalauCOVCase33' },
-    { id: 'pde-PalauCOVCase36', code: 'PalauCOVCase36' },
+    { id: 'pde-PalauCOVCase28', code: 'PalauCOVCase28', type: 'FreeText' },
+    { id: 'pde-PalauCOVCase31', code: 'PalauCOVCase31', type: 'FreeText' },
+    { id: 'pde-PalauCOVCase33', code: 'PalauCOVCase33', type: 'FreeText' },
+    { id: 'pde-PalauCOVCase36', code: 'PalauCOVCase36', type: 'FreeText' },
   ]);
 
   await models.SurveyScreenComponent.bulkCreate([
@@ -85,11 +88,11 @@ async function createPalauSurveys(models) {
   ]);
 
   await models.ProgramDataElement.bulkCreate([
-    { id: 'pde-PalauCOVCaseFUp02', code: 'PalauCOVCaseFUp02' },
-    { id: 'pde-PalauCOVCaseFUp04', code: 'PalauCOVCaseFUp04' },
-    { id: 'pde-PalauCOVCaseFUp06', code: 'PalauCOVCaseFUp06' },
-    { id: 'pde-PalauCOVCaseFUp07', code: 'PalauCOVCaseFUp07' },
-    { id: 'pde-PalauCOVCaseFUp08', code: 'PalauCOVCaseFUp08' },
+    { id: 'pde-PalauCOVCaseFUp02', code: 'PalauCOVCaseFUp02', type: 'FreeText' },
+    { id: 'pde-PalauCOVCaseFUp04', code: 'PalauCOVCaseFUp04', type: 'FreeText' },
+    { id: 'pde-PalauCOVCaseFUp06', code: 'PalauCOVCaseFUp06', type: 'FreeText' },
+    { id: 'pde-PalauCOVCaseFUp07', code: 'PalauCOVCaseFUp07', type: 'FreeText' },
+    { id: 'pde-PalauCOVCaseFUp08', code: 'PalauCOVCaseFUp08', type: 'FreeText' },
   ]);
 
   await models.SurveyScreenComponent.bulkCreate([
@@ -175,6 +178,7 @@ describe('Palau covid case report tests', () => {
     });
 
     beforeEach(async () => {
+      await testContext.models.SurveyResponseAnswer.destroy({ where: {} });
       await testContext.models.SurveyResponse.destroy({ where: {} });
     });
 
