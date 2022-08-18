@@ -32,4 +32,6 @@ export class PatientCondition extends Model {
   static getListReferenceAssociations() {
     return ['condition'];
   }
+
+  static buildSyncFilter = buildPatientLinkedSyncFilter;
 }
