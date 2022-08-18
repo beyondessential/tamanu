@@ -5,10 +5,13 @@ import config from 'config';
 import { log } from 'shared/services/logging';
 
 import { getUploadedData } from './getUploadedData';
-import { sendSyncRequest } from './sendSyncRequest';
 
 import { preprocessRecordSet } from './preprocessRecordSet';
 import { CentralServerConnection } from '../sync/CentralServerConnection';
+
+const sendSyncRequest = () => {
+  // stubbed out as it will be removed in EPI-62
+};
 
 // we can't use the lodash groupBy, because this needs to handle `undefined`
 function groupBy(array, key) {

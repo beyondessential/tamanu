@@ -6,7 +6,7 @@
   - name: Ensure Nodejs is installed via Chocolatey
     win_chocolatey:
       name: nodejs
-      version: 16.15.1
+      version: 16.16.0
       state: present
 
   - name: Ensure PostgreSQL is installed via Chocolatey
