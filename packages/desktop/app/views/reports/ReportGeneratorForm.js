@@ -112,7 +112,6 @@ export const ReportGeneratorForm = ({ onSuccessfulSubmit }) => {
   const submitRequestReport = useCallback(
     async formValues => {
       const { reportId, emails, ...restValues } = formValues;
-      const isLegacyReport = reportsById[reportId]?.legacyReport;
 
       try {
         if (dataSource === REPORT_DATA_SOURCES.THIS_FACILITY) {
@@ -127,7 +126,7 @@ export const ReportGeneratorForm = ({ onSuccessfulSubmit }) => {
           // eslint-disable-next-line no-console
           console.log('file saved at ', filePath);
         } else {
-          await api.post(`reportRequest?legacyReport=${isLegacyReport}`, {
+          await api.post(`reportRequest`, {
             reportId,
             restValues,
             emailList: parseEmails(formValues.emails),
@@ -143,7 +142,7 @@ export const ReportGeneratorForm = ({ onSuccessfulSubmit }) => {
         setRequestError(`Unable to submit report request - ${e.message}`);
       }
     },
-    [api, dataSource, onSuccessfulSubmit, reportsById],
+    [api, dataSource, onSuccessfulSubmit],
   );
 
   // Wait until available reports are loaded to render.
@@ -204,7 +203,7 @@ export const ReportGeneratorForm = ({ onSuccessfulSubmit }) => {
                 {parameters.map(({ parameterField, required, name, label, ...restOfProps }) => {
                   return (
                     <ParameterField
-                      key={name}
+                      key={name || parameterField}
                       required={required}
                       name={name}
                       label={label}

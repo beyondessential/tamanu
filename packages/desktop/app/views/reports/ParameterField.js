@@ -9,14 +9,18 @@ import { VaccineCategoryField } from './VaccineCategoryField';
 import { VaccineField } from './VaccineField';
 import { useSuggester } from '../../api';
 
-const ParameterAutocompleteField = ({ suggesterEndpoint, ...props }) => {
+const ParameterAutocompleteField = ({ suggesterEndpoint, name, ...props }) => {
   const suggester = useSuggester(suggesterEndpoint);
-  return <Field component={AutocompleteField} suggester={suggester} {...props} />;
+  return <Field component={AutocompleteField} suggester={suggester} name={name} {...props} />;
 };
 
-const ParameterSelectField = props => <Field component={SelectField} {...props} />;
+const ParameterSelectField = ({ name, ...props }) => (
+  <Field component={SelectField} name={name} {...props} />
+);
 
-const ParameterMultiselectField = props => <Field component={MultiselectField} {...props} />;
+const ParameterMultiselectField = ({ name, ...props }) => (
+  <Field component={MultiselectField} name={name} {...props} />
+);
 
 const EmptyField = styled.div``;
 
@@ -38,7 +42,6 @@ export const ParameterField = ({ parameterField, name, required, label, values, 
 
   return (
     <ParameterFieldComponent
-      key={name}
       required={required}
       name={name}
       label={label}

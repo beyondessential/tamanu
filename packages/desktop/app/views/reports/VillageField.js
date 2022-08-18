@@ -3,9 +3,9 @@ import { connectApi } from '../../api';
 import { AutocompleteField, LocalisedField } from '../../components';
 import { Suggester } from '../../utils/suggester';
 
-const DumbVillageField = ({ villageSuggester, required }) => (
+const DumbVillageField = ({ name = 'village', villageSuggester, required }) => (
   <LocalisedField
-    name="village"
+    name={name}
     path="fields.villageId"
     component={AutocompleteField}
     suggester={villageSuggester}

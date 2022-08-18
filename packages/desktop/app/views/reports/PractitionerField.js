@@ -3,9 +3,9 @@ import { connectApi } from '../../api';
 import { AutocompleteField, Field } from '../../components';
 import { Suggester } from '../../utils/suggester';
 
-const DumbPractitionerField = ({ practitionerSuggester, required }) => (
+const DumbPractitionerField = ({ name = 'practitioner', practitionerSuggester, required }) => (
   <Field
-    name="practitioner"
+    name={name}
     label="Doctor/nurse"
     component={AutocompleteField}
     suggester={practitionerSuggester}
