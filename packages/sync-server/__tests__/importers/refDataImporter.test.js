@@ -153,7 +153,7 @@ describe('Data definition import', () => {
     expect(historical).toHaveProperty('visibilityStatus', 'historical');
   });
 
-  it('should hash user passwords', async () => {
+  it('should hash user passwords on creates', async () => {
     const { User } = ctx.store.models;
     const testUserPre = await User.findByPk('test-password-hashing');
     if (testUserPre) await testUserPre.destroy();
@@ -165,6 +165,24 @@ describe('Data definition import', () => {
     const password = testUser.get('password', { raw: true });
     expect(password).not.toEqual('plaintext');
     expect(password).toEqual(expect.stringMatching(/^\$2/)); // magic number for bcrypt hashes
+  });
+
+  it('should hash user passwords on updates', async () => {
+    const { User } = ctx.store.models;
+    const testUserPre = await User.scope('withPassword').create({
+      id: 'test-password-hashing',
+      password: 'something',
+    });
+    const passwordPre = testUser.get('password', { raw: true });
+
+    const { errors } = await doImport({ file: 'valid-userpassword' });
+    expect(errors).toBeEmpty();
+
+    const testUser = await User.scope('withPassword').findByPk('test-password-hashing');
+    const password = testUser.get('password', { raw: true });
+    expect(password).not.toEqual('plaintext');
+    expect(password).toEqual(expect.stringMatching(/^\$2/)); // magic number for bcrypt hashes
+    expect(password).not.toEqual(passwordPre); // make sure it's updated
   });
 
   // TODO: when permission checking is implemented on sync server
