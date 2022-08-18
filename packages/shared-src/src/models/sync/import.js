@@ -203,7 +203,7 @@ const executeUpdateOrCreates = async (
       }),
     );
     if (childRecords && childRecords.length > 0) {
-      const existing = await findByIds(relationPlan.model, childRecords.map(r => r.id));
+      const existing = await relationPlan.model.findByIds(childRecords.map(r => r.id), false);
       const existingIdSet = new Set(existing.map(e => e.id));
       const recordsForCreate = childRecords.filter(r => !existingIdSet.has(r.id));
       const recordsForUpdate = childRecords.filter(r => existingIdSet.has(r.id));
