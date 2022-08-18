@@ -83,7 +83,7 @@ export class PatientEmailCommunicationProcessor extends ScheduledTask {
       } catch (e) {
         log.warn('Email errored', {
           communicationId: emailPlain.id,
-          error: e.message,
+          error: e.stack,
         });
         return email.update({
           status: COMMUNICATION_STATUSES.ERROR,
