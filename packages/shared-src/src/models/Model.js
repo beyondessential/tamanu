@@ -5,26 +5,6 @@ const { Sequelize, Op, Utils } = sequelize;
 
 const firstLetterLowercase = s => (s[0] || '').toLowerCase() + s.slice(1);
 
-// write a migration when adding to this list (e.g. 005_markedForPush.js and 007_pushedAt.js)
-const MARKED_FOR_PUSH_MODELS = [
-  'Encounter',
-  'LabRequestLog',
-  'Patient',
-  'PatientAdditionalData',
-  'PatientAllergy',
-  'PatientCarePlan',
-  'PatientCondition',
-  'PatientFamilyHistory',
-  'PatientIssue',
-  'PatientSecondaryId',
-  'ReportRequest',
-  'UserFacility',
-  'DocumentMetadata',
-  'CertificateNotification',
-  'PatientDeathData',
-  'ContributingDeathCause',
-];
-
 export class Model extends sequelize.Model {
   static init(originalAttributes, { syncClientMode, syncConfig, ...options }) {
     const attributes = { ...originalAttributes };
@@ -81,7 +61,10 @@ export class Model extends sequelize.Model {
     return references.reduce((allValues, referenceName) => {
       const { [referenceName]: referenceVal, ...otherValues } = allValues;
       if (!referenceVal) return allValues;
-      return { ...otherValues, [firstLetterLowercase(referenceName)]: referenceVal.dataValues };
+      return {
+        ...otherValues,
+        [firstLetterLowercase(referenceName)]: referenceVal.dataValues,
+      };
     }, values);
   }
 
@@ -116,13 +99,6 @@ export class Model extends sequelize.Model {
     });
   }
 
-  // list of callbacks to call after model is initialised
-  static afterInitCallbacks = [];
-
-  // adds a function to be called once model is initialised
-  // (useful for hooks and anything else that needs an initialised model)
-  static afterInit(fn) {
-    this.afterInitCallbacks.push(fn);
   }
 
   static syncConfig = {};

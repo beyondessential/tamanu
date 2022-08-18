@@ -157,7 +157,6 @@ function sanitiseRecordForValues(data) {
     patientId,
 
     // backend fields
-    markedForPush,
     markedForSync,
     createdAt,
     updatedAt,
