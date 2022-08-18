@@ -55,7 +55,7 @@ export const executeImportPlan = async (plan, syncRecords) => {
     // split records into create, update, delete
     const idsForDelete = syncRecords.filter(r => r.isDeleted).map(r => r.data.id);
     const idsForUpsert = syncRecords.filter(r => !r.isDeleted && r.data.id).map(r => r.data.id);
-    const existing = await model.findByIds(idsForUpsert, true);
+    const existing = await model.findByIds(idsForUpsert, false);
     const existingIdSet = new Set(existing.map(e => e.id));
     const recordsForCreate = syncRecords
       .filter(r => !r.isDeleted && !existingIdSet.has(r.data.id))
