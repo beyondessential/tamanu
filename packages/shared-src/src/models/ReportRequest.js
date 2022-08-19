@@ -46,14 +46,8 @@ export class ReportRequest extends Model {
       foreignKey: { name: 'requestedByUserId', allowNull: false },
       onDelete: 'CASCADE',
     });
-    this.belongsTo(models.Facility, {
-      foreignKey: 'facilityId',
-      as: 'facility',
-    });
-    this.belongsTo(models.ReportDefinitionVersion, {
-      foreignKey: 'versionId',
-      as: 'version',
-    });
+    this.belongsTo(models.Facility);
+    this.belongsTo(models.ReportDefinitionVersion);
   }
 
   getParameters() {
