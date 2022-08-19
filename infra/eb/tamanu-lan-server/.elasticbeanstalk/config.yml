@@ -1,8 +1,11 @@
 branch-defaults:
   default:
-    environment: tamanu-lan-server-dev
+    environment: tamanu-facility-server-dev-16a
 environment-defaults:
-  tamanu-lan-server-dev:
+  tamanu-facility-server-dev-16a:
+    branch: null
+    repository: null
+  tamanu-facility-server-dev-16b:
     branch: null
     repository: null
 global:
