@@ -73,7 +73,7 @@ const UploadForm = ({ submitForm, isSubmitting, whitelist }) => (
       />
     )}
     <ButtonRow>
-      <Button disabled={isSubmitting} onClick={submitForm} variant="contained" color="primary">
+      <Button disabled={isSubmitting} type="submit">
         Import data
       </Button>
     </ButtonRow>
