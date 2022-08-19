@@ -143,4 +143,4 @@
             - name: onto prod
               tag: ^dev$
               service: awsdeployment
-              command: ./scripts/deploy_meta.sh prod tamanu-meta-server-prod
+              command: ./scripts/deploy_meta.sh prod tamanu-meta-server-prod-16
