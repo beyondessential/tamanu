@@ -43,7 +43,7 @@ export class ReportRequest extends Model {
 
   static initRelations(models) {
     this.belongsTo(models.User, {
-      foreignKey: { name: 'userId', allowNull: false },
+      foreignKey: { name: 'requestedByUserId', allowNull: false },
       onDelete: 'CASCADE',
     });
     this.belongsTo(models.Facility);
