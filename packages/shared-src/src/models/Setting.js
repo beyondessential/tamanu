@@ -25,13 +25,13 @@ import { Model } from './Model';
  * zzz   | schedules.automaticLabTestResultPublisher | false
  */
 
-function buildSettingsRecords(keyPrefix, value) {
+function buildSettingsRecords(keyPrefix, value, facilityId) {
   if (isPlainObject(value)) {
     return Object.entries(value)
-      .map(([k, v]) => buildSettingsRecords([keyPrefix, k].join('.'), v))
+      .map(([k, v]) => buildSettingsRecords([keyPrefix, k].join('.'), v, facilityId))
       .flat();
   }
-  return [{ key: keyPrefix, value: JSON.stringify(value) }];
+  return [{ key: keyPrefix, value: JSON.stringify(value), facilityId }];
 }
 
 export class Setting extends Model {
@@ -42,26 +42,33 @@ export class Setting extends Model {
         key: {
           type: Sequelize.STRING,
           allowNull: false,
-          unique: true,
         },
-        value: {
-          type: Sequelize.TEXT,
-          allowNull: true,
-        },
+        value: Sequelize.TEXT,
       },
       {
-        syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
         ...options,
+        syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
+        // ideally would have a composite unique index here on key/facilityId, but prior to postgres
+        // 15 there's no built in way to have NULL be meaningful in a unique constraint, and
+        // facilityId is nullable
       },
     );
   }
 
-  static async get(key = '') {
+  static initRelations(models) {
+    this.belongsTo(models.Facility, {
+      foreignKey: 'facilityId',
+      as: 'facility',
+    });
+  }
+
+  static async get(key = '', facilityId = null) {
     const settings = await Setting.findAll({
       where: {
         key: {
           [Op.startsWith]: key, // LIKE '{key}%'
         },
+        facilityId,
       },
     });
 
@@ -93,8 +100,17 @@ export class Setting extends Model {
     return key.split('.').reduce((object, index) => object[index], settingsObject);
   }
 
-  static async set(key, value) {
-    const records = buildSettingsRecords(key, value);
-    return Promise.all(records.map(r => this.upsert(r)));
+  static async set(key, value, facilityId = null) {
+    const records = buildSettingsRecords(key, value, facilityId);
+    return Promise.all(
+      records.map(async r => {
+        // can't use upsert as there is no unique constraint on key/facilityId combo
+        const existing = await this.findOne({ where: { key: r.key, facilityId: r.facilityId } });
+        if (existing) {
+          await this.update({ value: r.value }, { where: { id: existing.id } });
+        }
+        await this.create(r);
+      }),
+    );
   }
 }

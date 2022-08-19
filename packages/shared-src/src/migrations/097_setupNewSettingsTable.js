@@ -31,11 +31,18 @@ module.exports = {
       ...COMMON_COLUMNS,
       key: {
         type: Sequelize.STRING,
-        unique: true,
         allowNull: false,
       },
       value: {
         type: Sequelize.STRING,
+        allowNull: true,
+      },
+      facility_id: {
+        type: Sequelize.STRING,
+        references: {
+          model: 'facilities',
+          key: 'id',
+        },
         allowNull: true,
       },
     });
