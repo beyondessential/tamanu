@@ -43,17 +43,11 @@ export class ReportRequest extends Model {
 
   static initRelations(models) {
     this.belongsTo(models.User, {
-      foreignKey: { name: 'requestedByUserId', allowNull: false },
+      foreignKey: { name: 'userId', allowNull: false },
       onDelete: 'CASCADE',
     });
-    this.belongsTo(models.Facility, {
-      foreignKey: 'facilityId',
-      as: 'facility',
-    });
-    this.belongsTo(models.ReportDefinitionVersion, {
-      foreignKey: 'versionId', // Todo: update foreign key to be report_definition_version_id
-      as: 'version',
-    });
+    this.belongsTo(models.Facility);
+    this.belongsTo(models.ReportDefinitionVersion);
   }
 
   getReportId() {
