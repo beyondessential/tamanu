@@ -12,7 +12,7 @@ import {
   formatUpdatedAt,
 } from '../../../app/subCommands/importReport/actions';
 
-const getUnparsedVersionData = num =>`{ ${num ? `"versionNumber": ${num}` : ""} }`
+const getUnparsedVersionData = num => `{ ${num ? `"versionNumber": ${num}` : ''} }`;
 
 jest.mock('shared/services/logging', () => ({
   log: {
