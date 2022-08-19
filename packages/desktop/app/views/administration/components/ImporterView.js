@@ -153,7 +153,7 @@ export const ImporterView = memo(({ title, endpoint, whitelist }) => {
       setResult(intermediateResult);
       return true;
     },
-    [api],
+    [api, endpoint],
   );
 
   const renderForm = useCallback(props => <UploadForm whitelist={whitelist} {...props} />, []);
