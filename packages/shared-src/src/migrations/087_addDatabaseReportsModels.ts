@@ -80,7 +80,7 @@ export async function up(query: QueryInterface) {
       type: JSON,
       allowNull: true,
     },
-    definition_id: {
+    report_definition_id: {
       type: STRING,
       allowNull: true,
       references: { model: 'report_definitions', key: 'id' },
@@ -99,7 +99,7 @@ export async function up(query: QueryInterface) {
     references: { model: 'facilities', key: 'id' },
   });
 
-  await query.addColumn('report_requests', 'version_id', {
+  await query.addColumn('report_requests', 'report_definition_version_id', {
     type: STRING,
     allowNull: true,
     references: { model: 'report_definition_versions', key: 'id' },
