@@ -109,7 +109,7 @@ export async function up(query: QueryInterface) {
 export async function down(query: QueryInterface) {
   // Undo Updates to Report Requests Table
   await query.removeColumn('report_requests', 'facility_id');
-  await query.removeColumn('report_requests', 'version_id');
+  await query.removeColumn('report_requests', 'report_definition_version_id');
 
   // Remove Report Definition Table
   await query.dropTable('report_definition_versions');
