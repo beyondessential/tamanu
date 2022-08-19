@@ -20,9 +20,6 @@ export class ReportDefinition extends Model {
   }
 
   static initRelations(models) {
-    this.hasMany(models.ReportDefinitionVersion, {
-      foreignKey: 'definitionId',
-      as: 'versions',
-    });
+    this.hasMany(models.ReportDefinitionVersion);
   }
 }
