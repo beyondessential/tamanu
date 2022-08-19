@@ -3,15 +3,15 @@ import { startCase, sum } from 'lodash';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
-import { useApi } from 'desktop/app/api';
-import { ContentPane } from 'desktop/app/components';
-import { Form, Field, CheckField } from 'desktop/app/components/Field';
-import { FileChooserField, FILTER_EXCEL } from 'desktop/app/components/Field/FileChooserField';
-import { CheckArrayInput } from 'desktop/app/components/Field/CheckArrayInput';
-import { FormGrid } from 'desktop/app/components/FormGrid';
-import { ButtonRow } from 'desktop/app/components/ButtonRow';
-import { Button } from 'desktop/app/components/Button';
-import { Table } from 'desktop/app/components/Table';
+import { useApi } from '../../../api';
+import { ContentPane } from '../../../components';
+import { Form, Field, CheckField } from '../../../components/Field';
+import { FileChooserField, FILTER_EXCEL } from '../../../components/Field/FileChooserField';
+import { CheckArrayInput } from '../../../components/Field/CheckArrayInput';
+import { FormGrid } from '../../../components/FormGrid';
+import { ButtonRow } from '../../../components/ButtonRow';
+import { Button } from '../../../components/Button';
+import { Table } from '../../../components/Table';
 
 const ColorText = styled.span`
   color: ${props => props.color};
