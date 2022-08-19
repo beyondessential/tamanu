@@ -10,6 +10,8 @@ export const DEFAULT_USER_EMAIL = 'admin@tamanu.io';
 export const ACTIVE_TEXT = '\x1b[32mactive\x1b[0m';
 export const OVERWRITING_TEXT = '\x1b[1moverwriting with new data\x1b[0m';
 
+export const formatUpdatedAt = date => format(date, 'P p');
+
 export const getVersionError = ({ versionNumber }) =>
   new Error(
     `Version ${versionNumber} does not exist, remove versionNumber from JSON and try again to auto increment`,
@@ -29,9 +31,9 @@ export async function createVersion(file, definition, versions, store) {
     versionData.id = existingVersion.id;
   } else {
     const latestVersion = reportUtils.getLatestVersion(versions);
-    const incrementedVersion = (latestVersion?.versionNumber || 0) + 1;
-    log.info(`Auto incrementing versionNumber to ${incrementedVersion}`);
-    versionData.versionNumber = incrementedVersion;
+    const versionNumber = (latestVersion?.versionNumber || 0) + 1;
+    log.info(`Auto incrementing versionNumber to ${versionNumber}`);
+    versionData.versionNumber = versionNumber;
   }
 
   let { userId } = versionData;
@@ -78,7 +80,7 @@ export async function listVersions(definition, versions) {
     table.push([
       versionNumber,
       `${status}${isActive ? ` ${ACTIVE_TEXT}` : ''}`,
-      format(updatedAt, 'P p'),
+      formatUpdatedAt(updatedAt),
     ]);
   });
   log.info(`Listing versions for report definition ${definition.name}\n${table.toString()}`);

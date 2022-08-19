@@ -1,5 +1,4 @@
 import Table from 'cli-table3';
-import { format } from 'date-fns';
 import { promises as fs } from 'fs';
 import { log } from 'shared/services/logging';
 import { initDatabase } from '../../../app/database';
@@ -10,7 +9,10 @@ import {
   DEFAULT_USER_EMAIL,
   ACTIVE_TEXT,
   OVERWRITING_TEXT,
+  formatUpdatedAt,
 } from '../../../app/subCommands/importReport/actions';
+
+const getUnparsedVersionData = num =>`{ ${num ? `"versionNumber": ${num}` : ""} }`
 
 jest.mock('shared/services/logging', () => ({
   log: {
@@ -32,7 +34,7 @@ jest.mock('cli-table3', () =>
 const mockDefinition = { id: 'test-definition-id', name: 'test-definition-name' };
 
 const mockUpdatedAt = new Date();
-const mockFormattedUpdatedAt = format(mockUpdatedAt, 'P p');
+const mockFormattedUpdatedAt = formatUpdatedAt(mockUpdatedAt);
 
 const mockVersions = [
   { versionNumber: 2, status: 'draft', updatedAt: mockUpdatedAt },
@@ -78,7 +80,7 @@ describe('importReport actions', () => {
       mockStore = await initDatabase();
     });
     it('calls the correct functions and creates version', async () => {
-      const mockReadFile = jest.spyOn(fs, 'readFile').mockResolvedValue('{}');
+      const mockReadFile = jest.spyOn(fs, 'readFile').mockResolvedValue(getUnparsedVersionData());
       await createVersion('/path', mockDefinition, mockVersions, mockStore);
       expect(mockReadFile).toHaveBeenCalledWith('/path');
       expect(mockStore.models.User.findOne).toHaveBeenCalledWith({
@@ -93,7 +95,7 @@ describe('importReport actions', () => {
       });
     });
     it('calls the correct functions and updates version when versionNumber supplied', async () => {
-      jest.spyOn(fs, 'readFile').mockResolvedValue('{"versionNumber": 1}');
+      jest.spyOn(fs, 'readFile').mockResolvedValue(getUnparsedVersionData(1));
       await createVersion('/path', mockDefinition, [{ versionNumber: 1 }], mockStore);
       expect(log.warn).nthCalledWith(1, `Version 1 already exists, ${OVERWRITING_TEXT}`);
       expect(mockStore.models.ReportDefinitionVersion.upsert).toBeCalledWith({
@@ -103,7 +105,7 @@ describe('importReport actions', () => {
       });
     });
     it('throws error when versionNumber is invalid', async () => {
-      jest.spyOn(fs, 'readFile').mockResolvedValue('{"versionNumber": 3}');
+      jest.spyOn(fs, 'readFile').mockResolvedValue(getUnparsedVersionData(3));
       expect(
         createVersion('/path', mockDefinition, [{ versionNumber: 1 }], mockStore),
       ).rejects.toThrow(getVersionError({ versionNumber: 3 }));
