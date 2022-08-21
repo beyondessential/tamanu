@@ -174,7 +174,7 @@ const PatientDeathSummary = React.memo(({ patient }) => {
   );
 });
 
-export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin, openTriage }) => {
+export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin }) => {
   const api = useApi();
   const { data: encounter, error, isLoading } = useQuery(['currentEncounter', patient.id], () =>
     api.get(`patient/${patient.id}/currentEncounter`),
@@ -199,9 +199,6 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin, o
         <ButtonRow>
           <ButtonWithPermissionCheck onClick={openCheckin} verb="create" noun="Encounter">
             Admit or check-in
-          </ButtonWithPermissionCheck>
-          <ButtonWithPermissionCheck onClick={openTriage} verb="create" noun="Triage">
-            Triage
           </ButtonWithPermissionCheck>
         </ButtonRow>
       </NoVisitContainer>
