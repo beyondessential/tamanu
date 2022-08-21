@@ -9,7 +9,9 @@ reports.get(
   asyncHandler(async (req, res) => {
     req.flagPermissionChecked();
     const { models, user, ability } = req;
-    const localisation = await models.UserLocalisationCache.getLocalisation({
+    const { UserLocalisationCache, ReportDefinition } = models;
+
+    const localisation = await UserLocalisationCache.getLocalisation({
       where: { userId: user.id },
       order: [['createdAt', 'DESC']],
     });
@@ -17,28 +19,57 @@ reports.get(
     const disabledReports = localisation?.disabledReports || [];
     const availableReports = REPORT_DEFINITIONS.filter(
       ({ id }) => !disabledReports.includes(id) && ability.can('run', REPORT_OBJECTS[id]),
-    );
-    res.send(availableReports);
+    ).map(report => ({ ...report, legacyReport: true }));
+
+    const reportsDefinitions = await ReportDefinition.findAll({
+      include: [
+        {
+          model: models.ReportDefinitionVersion,
+          as: 'versions',
+          where: { status: 'published' },
+        },
+      ],
+      order: [['versions', 'version_number', 'DESC']],
+    });
+
+    const dbReports = reportsDefinitions.map(r => {
+      // Get the latest report definition version by getting the first record from the ordered list
+      const version = r.versions[0];
+      const options = JSON.parse(version.queryOptions);
+      const { parameters } = options;
+      return {
+        id: version.id,
+        name: r.name,
+        dateRangeLabel: 'DATE RANGE LABEL',
+        legacyReport: false,
+        parameters,
+        version: version.versionNumber,
+      };
+    });
+
+    res.send([...availableReports, ...dbReports]);
   }),
 );
 
 reports.post(
-  '/:reportType',
+  '/:reportId',
   asyncHandler(async (req, res) => {
     const {
       db,
       models,
       body: { parameters },
+      params,
       getLocalisation,
     } = req;
-    const { reportType } = req.params;
+    const { reportId } = params;
 
     const localisation = await getLocalisation();
-    assertReportEnabled(localisation, reportType);
+    assertReportEnabled(localisation, reportId);
 
-    const reportModule = getReportModule(req.params.reportType);
+    const reportModule = await getReportModule(reportId, models);
+
     if (!reportModule) {
-      res.status(400).send({ message: 'invalid reportType' });
+      res.status(400).send({ message: 'invalid reportId' });
       return;
     }
     req.checkPermission('read', reportModule.permission);
