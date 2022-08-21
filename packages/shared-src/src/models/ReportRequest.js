@@ -9,7 +9,7 @@ export class ReportRequest extends Model {
     super.init(
       {
         id: primaryKey,
-        reportType: { type: Sequelize.STRING, allowNull: false },
+        reportType: { type: Sequelize.STRING },
         recipients: { type: Sequelize.TEXT, allowNull: false },
         parameters: Sequelize.TEXT,
         status: { type: Sequelize.ENUM(REPORT_REQUEST_STATUS_VALUES), allowNull: false },
