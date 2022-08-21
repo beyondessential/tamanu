@@ -23,9 +23,9 @@ async function report(options) {
   const store = await initDatabase({ testMode: false });
   setupEnv();
 
-  // Todo: update report runner command
   try {
-    const { name, parameters, recipients } = options;
+    const { reportId, parameters, recipients } = options;
+
     const validNames = REPORT_DEFINITIONS.map(d => d.id);
     if (!validNames.some(n => n === name)) {
       const nameOutput = validNames.map(n => `\n  ${n}`).join('');
@@ -53,14 +53,14 @@ async function report(options) {
 
     const emailService = new EmailService();
     const reportRunner = new ReportRunner(
-      name,
+      reportId,
       reportParameters,
       reportRecipients,
       store,
       emailService,
     );
     log.info(
-      `Running report "${name}" with parameters "${parameters}" and recipients "${recipients}"`,
+      `Running report "${reportId}" with parameters "${parameters}" and recipients "${recipients}"`,
     );
     await reportRunner.run();
   } catch (error) {
@@ -73,7 +73,7 @@ async function report(options) {
 
 export const reportCommand = new Command('report')
   .description('Generate a report')
-  .option('-n, --name <string>', 'Name of the report') // validated in function
+  .option('--reportId <string>', 'Id of the report') // validated in function
   .option('--heap', `Report heap usage every ${REPORT_HEAP_INTERVAL_MS}ms`, false)
   .requiredOption(
     '-r, --recipients <json|csv>',

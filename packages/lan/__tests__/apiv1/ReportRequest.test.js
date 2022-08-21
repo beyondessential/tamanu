@@ -28,7 +28,8 @@ describe('ReportRequest', () => {
       });
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveProperty('id');
-      expect(result.body).toHaveProperty('reportId', 'incomplete-referrals');
+
+      expect(result.body).toHaveProperty('reportType', 'incomplete-referrals');
       expect(result.body).toHaveProperty(
         'recipients',
         JSON.stringify({ email: ['example@gmail.com', 'other@gmail.com'] }),

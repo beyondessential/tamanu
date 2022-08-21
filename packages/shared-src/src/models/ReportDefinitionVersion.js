@@ -86,7 +86,10 @@ export class ReportDefinitionVersion extends Model {
   }
 
   static initRelations(models) {
-    this.belongsTo(models.ReportDefinition);
+    this.belongsTo(models.ReportDefinition, {
+      foreignKey: 'reportDefinitionId',
+      as: 'reportDefinition',
+    });
 
     this.belongsTo(models.User, {
       foreignKey: { name: 'userId', allowNull: false },
