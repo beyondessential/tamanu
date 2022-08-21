@@ -71,8 +71,6 @@ export class Patient extends Model {
         recordType: this.name,
       },
     });
-
-    });
   }
 
   async getAdministeredVaccines(queryOptions = {}) {
