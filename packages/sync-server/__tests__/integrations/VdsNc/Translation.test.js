@@ -99,6 +99,8 @@ describe('VDS: Proof of Vaccination', () => {
       Location,
       ScheduledVaccine,
       AdministeredVaccine,
+      Department,
+      User,
     } = ctx.store.models;
 
     const patient = await Patient.create({
@@ -132,10 +134,19 @@ describe('VDS: Proof of Vaccination', () => {
       facilityId: facility.id,
     });
 
+    const department = await Department.create({
+      ...fake(Department),
+      facilityId: facility.id,
+    });
+
+    const examiner = await User.create(fakeUser());
+
     const vaccineEncounter = await Encounter.create({
       ...fake(Encounter),
       patientId: patient.id,
       locationId: location.id,
+      departmentId: department.id,
+      examinerId: examiner.id,
     });
 
     await AdministeredVaccine.create({

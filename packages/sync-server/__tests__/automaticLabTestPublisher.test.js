@@ -38,7 +38,10 @@ describe('Lab test publisher', () => {
         ...fake(models.Department),
         facilityId: facility.id,
       });
-      const location = await models.Location.create({ ...fake(Location), facilityId: facility.id });
+      const location = await models.Location.create({
+        ...fake(models.Location),
+        facilityId: facility.id,
+      });
       const encounter = await models.Encounter.create({
         patientId: patient.id,
         startDate: new Date(),
