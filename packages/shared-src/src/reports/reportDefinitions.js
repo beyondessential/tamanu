@@ -409,4 +409,38 @@ export const REPORT_DEFINITIONS = [
       },
     ],
   },
+  {
+    name: 'Imaging requests - Line list',
+    id: 'imaging-requests-line-list',
+    dateRangeLabel: ALL_TIME_DATE_LABEL,
+    dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
+    parameters: [
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Requesting clinician',
+        name: 'requestedById',
+        suggesterEndpoint: 'practitioner',
+      },
+      /*
+      {
+        parameterField: 'ParameterSelectField',
+        label: 'Imaging type',
+        name: 'imagingType',
+        options: [], // TODO add options
+      },
+      {
+        parameterField: 'ParameterSelectField',
+        label: 'Area to be imaged',
+        name: 'areaToBeImaged',
+        options: [], // TODO add options dependant on imaging type
+      },
+      {
+        parameterField: 'ParameterSelectField',
+        label: 'Status',
+        name: 'status',
+        options: [], // TODO add options dependant on imaging type
+      },
+      */
+    ],
+  },
 ];
