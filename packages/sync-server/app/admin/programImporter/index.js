@@ -55,7 +55,7 @@ export async function importer({ errors, models, stats, file, whitelist = [] }) 
     throw new ValidationError(
       'Metadata',
       0,
-      "A survey workbook Metadata sheet must have a row starting with a 'name' or 'code' cell",
+      "A survey workbook Metadata sheet must have a row starting with a 'name' or 'code' cell in the first 10 rows",
     );
   })();
 
