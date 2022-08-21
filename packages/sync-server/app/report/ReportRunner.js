@@ -18,6 +18,9 @@ export class ReportRunner {
     this.recipients = recipients;
     this.store = store;
     this.emailService = emailService;
+
+    // todo: improve filename @see WAITM-181
+    this.reportName = reportId;
   }
 
   async validate(reportModule, reportDataGenerator) {
@@ -114,7 +117,6 @@ export class ReportRunner {
    * @returns {string}
    */
   getReportName() {
-    // Todo: update getReportName
     return `${this.reportName}-report-${new Date().getTime()}`;
   }
 

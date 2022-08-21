@@ -114,15 +114,11 @@ export class ReportDefinitionVersion extends Model {
 
     const replacements = { ...parametersDefaults, ...parameters };
 
-    console.log('replacements', replacements);
-
     const queryResults = await sequelize.query(reportQuery, {
       type: QueryTypes.SELECT,
       replacements,
     });
 
-    const forResponse = generateReportFromQueryData(queryResults);
-    console.log('For response', forResponse);
-    return forResponse;
+    return generateReportFromQueryData(queryResults);
   }
 }
