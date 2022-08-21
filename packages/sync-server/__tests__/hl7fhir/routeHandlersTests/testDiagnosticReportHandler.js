@@ -22,6 +22,7 @@ export function testDiagnosticReportHandler(integrationName, requestHeaders = {}
         Facility,
         LabTest,
         LabRequest,
+        Location,
         ReferenceData,
         LabTestType,
         Encounter,
