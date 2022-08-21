@@ -191,24 +191,6 @@ export const FACILITY_MENU_ITEMS = [
 ];
 
 export const SYNC_MENU_ITEMS = [
-  // {
-  //   key: 'settings',
-  //   label: 'Settings',
-  //   path: '/admin/settings',
-  //   ability: { subject: 'user', action: 'read' },
-  // },
-  // {
-  //   key: 'users',
-  //   label: 'Users',
-  //   path: '/admin/users',
-  //   ability: { action: 'read', subject: 'user' },
-  // },
-  // {
-  //   key: 'locations',
-  //   label: 'Locations',
-  //   path: '/admin/locations',
-  //   ability: { action: 'read', subject: 'location' },
-  // },
   {
     key: 'refdata',
     label: 'Data Import',
