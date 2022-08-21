@@ -2,7 +2,10 @@
  * Create custom datetime Sequelize types and link to Postgres types.
  */
 import util from 'util';
-import { DataTypes, Utils, ABSTRACT } from 'sequelize';
+import { DataTypes, Utils } from 'sequelize';
+
+// Necessary as DataTypes.ABSTRACT is wrapped with classToInvokable()
+const ABSTRACT = DataTypes.ABSTRACT.prototype.constructor;
 
 export function createDateType() {
   class DATETIMESTRING extends ABSTRACT {
