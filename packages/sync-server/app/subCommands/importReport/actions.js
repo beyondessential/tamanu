@@ -6,12 +6,10 @@ import { format } from 'date-fns';
 import * as reportUtils from './utils';
 
 export const DEFAULT_USER_EMAIL = 'admin@tamanu.io';
-
 export const ACTIVE_TEXT = '\x1b[32mactive\x1b[0m';
 export const OVERWRITING_TEXT = '\x1b[1moverwriting with new data\x1b[0m';
 
 export const formatUpdatedAt = date => format(date, 'P p');
-
 export const getVersionError = ({ versionNumber }) =>
   new Error(
     `Version ${versionNumber} does not exist, remove versionNumber from JSON and try again to auto increment`,
