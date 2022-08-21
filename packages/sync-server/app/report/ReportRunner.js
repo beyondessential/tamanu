@@ -12,8 +12,8 @@ import { removeFile, createZippedSpreadsheet, writeToSpreadsheet } from '../util
 import { getLocalisation } from '../localisation';
 
 export class ReportRunner {
-  constructor(reportName, parameters, recipients, store, emailService) {
-    this.reportName = reportName;
+  constructor(reportId, parameters, recipients, store, emailService) {
+    this.reportId = reportId;
     this.parameters = parameters;
     this.recipients = recipients;
     this.store = store;
@@ -28,30 +28,30 @@ export class ReportRunner {
     }
 
     const { disabledReports } = localisation;
-    if (disabledReports.includes(this.reportName)) {
-      throw new Error(`ReportRunner - Report "${this.reportName}" is disabled`);
+    if (disabledReports.includes(this.reportId)) {
+      throw new Error(`ReportRunner - Report "${this.reportId}" is disabled`);
     }
 
     if (!reportModule || !reportDataGenerator) {
       throw new Error(
-        `ReportRunner - Unable to find report generator for report "${this.reportName}"`,
+        `ReportRunner - Unable to find report generator for report "${this.reportId}"`,
       );
     }
   }
 
   async run() {
-    const reportModule = getReportModule(this.reportName);
+    const reportModule = await getReportModule(this.reportId, this.store.models);
     const reportDataGenerator = reportModule?.dataGenerator;
 
     await this.validate(reportModule, reportDataGenerator);
 
     let reportData = null;
     try {
-      log.info(`ReportRunner - Running report "${this.reportName}"`);
+      log.info(`ReportRunner - Running report "${this.reportId}"`);
 
-      reportData = await reportDataGenerator(this.store, this.parameters);
+      reportData = await reportModule.dataGenerator(this.store, this.parameters);
 
-      log.info(`ReportRunner - Running report "${this.reportName}" finished`);
+      log.info(`ReportRunner - Running report "${this.reportId}" finished`);
     } catch (e) {
       throw new Error(`${e.stack}\nReportRunner - Failed to generate report`);
     }
@@ -114,6 +114,7 @@ export class ReportRunner {
    * @returns {string}
    */
   getReportName() {
+    // Todo: update getReportName
     return `${this.reportName}-report-${new Date().getTime()}`;
   }
 

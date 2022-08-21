@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize';
+import { Sequelize, QueryTypes } from 'sequelize';
 import * as yup from 'yup';
 import { SYNC_DIRECTIONS, REPORT_STATUSES, REPORT_STATUSES_VALUES } from 'shared/constants';
 import { Model } from './Model';
@@ -10,12 +10,22 @@ const optionsValidator = yup.object({
     .of(
       yup.object({
         parameterField: yup.string().required(),
+        name: yup.string().required(),
       }),
     ),
   dataSources: yup.array(),
 });
 
+const generateReportFromQueryData = queryData => {
+  if (queryData.length === 0) {
+    return [];
+  }
+  return [Object.keys(queryData[0]), ...queryData.map(col => Object.values(col))];
+};
+
 export class ReportDefinitionVersion extends Model {
+  permission = 'Report';
+
   static init({ primaryKey, ...options }) {
     super.init(
       {
@@ -85,5 +95,34 @@ export class ReportDefinitionVersion extends Model {
     });
 
     this.hasMany(models.ReportRequest);
+  }
+
+  getParameters() {
+    const options = JSON.parse(this.queryOptions);
+    return options.parameters;
+  }
+
+  async dataGenerator(context, parameters) {
+    const { sequelize } = context;
+    const reportQuery = this.get('query');
+
+    const parametersDefinition = this.getParameters();
+    const parametersDefaults = parametersDefinition.reduce(
+      (obj, { name }) => ({ ...obj, [name]: '%' }),
+      { fromDate: new Date('02-02-2000'), toDate: new Date() },
+    );
+
+    const replacements = { ...parametersDefaults, ...parameters };
+
+    console.log('replacements', replacements);
+
+    const queryResults = await sequelize.query(reportQuery, {
+      type: QueryTypes.SELECT,
+      replacements,
+    });
+
+    const forResponse = generateReportFromQueryData(queryResults);
+    console.log('For response', forResponse);
+    return forResponse;
   }
 }

@@ -14,7 +14,7 @@
     "test": "NODE_ENV=test jest",
     "test-coverage": "yarn test --coverage",
     "test-watch": "yarn test --watch",
-    "build": "rm -rf ./dist/ && webpack --config webpack.config.prod.js",
+    "build": "rm -rf ./dist/ && webpack --config webpack.config.prod.mjs",
     "lint": "eslint app",
     "lint-stats": "eslint app --format ../scripts/eslint-stats.js"
   },
