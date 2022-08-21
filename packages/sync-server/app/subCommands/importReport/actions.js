@@ -45,7 +45,7 @@ export async function createVersion(file, definition, versions, store) {
   }
 
   const [version] = await ReportDefinitionVersion.upsert({
-    definitionId: definition.id,
+    reportDefinitionId: definition.id,
     userId,
     ...versionData,
   });
