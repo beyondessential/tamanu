@@ -12,9 +12,13 @@ import { DryRun, DataImportError } from './errors';
 import { coalesceStats } from './stats';
 
 export function normaliseSheetName(name) {
-  const norm = singularize(camelCase(singularize(lowerCase(name))));
+  const norm = camelCase(
+    lowerCase(name)
+      .split(/\s+/)
+      .map(word => singularize(word))
+      .join(' '),
+  );
 
-  if (norm === 'placesOfBirth') return 'placeOfBirth';
   if (norm === 'vaccineSchedule') return 'scheduledVaccine';
 
   return norm;
