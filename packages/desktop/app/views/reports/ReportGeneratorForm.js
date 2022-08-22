@@ -77,8 +77,11 @@ const useFileName = () => {
   const date = format(new Date(), 'ddMMyyyy');
 
   return reportName => {
-    const dashedName = reportName.replace(/\s+/g, '-').replace(/-+/g, '-');
-    return `Tamanu_Report_${date}_${dashedName}_${country.name}`;
+    const dashedName = `${reportName}_${country.name}`
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-');
+    return `Tamanu_Report_${date}_${dashedName}`;
   };
 };
 

@@ -119,7 +119,6 @@ export class ReportRunner {
    */
   async getReportName() {
     const { country } = await getLocalisation();
-    const date = formatDate(new Date(), 'ddMMyyyy');
 
     let reportName = this.reportId;
 
@@ -132,9 +131,13 @@ export class ReportRunner {
       reportName = `${dbDefinedReportModule.reportDefinition.name}`;
     }
 
-    const dashedName = reportName.replace(/\s+/g, '-').replace(/-+/g, '-');
+    const date = formatDate(new Date(), 'ddMMyyyy');
 
-    return `Tamanu_Report_${date}_${dashedName}_${country.name}`;
+    const dashedName = `${reportName}_${country.name}`
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-');
+    return `Tamanu_Report_${date}_${dashedName}`;
   }
 
   /**
