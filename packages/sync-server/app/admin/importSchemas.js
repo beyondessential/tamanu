@@ -23,31 +23,49 @@ const fieldTypes = {
   name: yup.string().max(255),
 };
 
-export const base = yup.object().shape({
+export const Base = yup.object().shape({
   id: fieldTypes.id.required(),
 });
 
-export const referenceData = base.shape({
+export const ReferenceData = Base.shape({
   type: yup.string().required(),
   code: fieldTypes.code.required(),
   name: yup.string().required(),
   visibilityStatus,
 });
 
-export const patient = base.shape({
-  villageId: yup.string(),
-  firstName: yup.string().required(),
-  lastName: yup.string().required(),
-  dateOfBirth: yup.date().required(),
+export const RDmanufacturer = ReferenceData.shape({
+  code: fieldTypes.code
+    .matches(/^((?!ORG-).+|ORG-[0-9]+)$/, 'must either by a textual code or an EU ORG code')
+    .required(),
+  name: yup.string().required(),
 });
 
-export const user = base.shape({
+export const Patient = Base.shape({
+  firstName: yup.string().required(),
+  middleName: yup.string(),
+  lastName: yup.string().required(),
+  culturalName: yup.string(),
+
+  displayId: yup.string().required(),
+  sex: yup
+    .string()
+    .oneOf(['male', 'female', 'other'])
+    .required(),
+
+  dateOfBirth: yup.date().required(),
+  dateOfDeath: yup.date(),
+
+  villageId: yup.string(),
+});
+
+export const User = Base.shape({
   email: yup.string().required(),
   displayName: yup.string().required(),
   password: yup.string().required(),
 });
 
-export const facility = base.shape({
+export const Facility = Base.shape({
   code: fieldTypes.code.required(),
   name: fieldTypes.name.required(),
   email: yup.string(),
@@ -59,21 +77,21 @@ export const facility = base.shape({
   visibilityStatus,
 });
 
-export const department = base.shape({
+export const Department = Base.shape({
   code: fieldTypes.code.required(),
   name: fieldTypes.name.required(),
   facilityId: yup.string().required(),
   visibilityStatus,
 });
 
-export const location = base.shape({
+export const Location = Base.shape({
   code: fieldTypes.code.required(),
   name: fieldTypes.name.required(),
   facilityId: yup.string().required(),
   visibilityStatus,
 });
 
-export const permission = yup.object().shape({
+export const Permission = yup.object().shape({
   _yCell: yup.string().oneOf(['y', 'n'], 'permissions matrix must only use the letter y or n'), // validation-only, not stored in the database anywhere
   verb: yup.string().required(),
   noun: yup.string().required(),
@@ -82,7 +100,7 @@ export const permission = yup.object().shape({
 });
 
 const rangeRegex = /^[0-9.]+, [0-9.]+$/;
-export const labTestType = base.shape({
+export const LabTestType = Base.shape({
   name: yup.string().required(),
   labTestCategoryId: yup.string().required(),
   resultType: yup
@@ -109,7 +127,7 @@ const jsonString = () =>
     }
   });
 
-export const programDataElement = base.shape({
+export const ProgramDataElement = Base.shape({
   indicator: yup.string(),
   type: yup
     .string()
@@ -118,7 +136,7 @@ export const programDataElement = base.shape({
   defaultOptions: jsonString(),
 });
 
-export const surveyScreenComponent = base.shape({
+export const SurveyScreenComponent = Base.shape({
   visibilityCriteria: jsonString(),
   validationCriteria: jsonString(),
   config: jsonString(),
@@ -131,7 +149,7 @@ export const surveyScreenComponent = base.shape({
   dataElementId: yup.string().required(),
 });
 
-export const scheduledVaccine = base.shape({
+export const ScheduledVaccine = Base.shape({
   category: yup.string().required(),
   label: yup.string().required(),
   schedule: yup.string().required(),
@@ -142,7 +160,40 @@ export const scheduledVaccine = base.shape({
   visibilityStatus,
 });
 
-export const survey = base.shape({
+const ICD11_REGEX = /^([0-9A-HJ-NP-V]{1,4}(\.[0-9A-HJ-NP-V]{1,4})?|X[0-9A-HJ-NP-Z.]+)$/;
+const SNOMED_OR_ATC = /^([0-9]+|[A-Z][0-9A-Z]*)$/;
+const EITHER_EU_CODE_OR_SOMETHING_ELSE = /^((?!EU\/).+|EU\/[0-9]\/[0-9]{2}\/[0-9]+)$/;
+export const CertifiableVaccine = Base.shape({
+  icd11DrugCode: yup
+    .string()
+    .matches(ICD11_REGEX, 'must be ICD-11 code')
+    .required(),
+  icd11DiseaseCode: yup
+    .string()
+    .matches(ICD11_REGEX, 'must be ICD-11 code')
+    .required(),
+  vaccineCode: yup
+    .string()
+    .matches(SNOMED_OR_ATC, 'must be SNOMED-CT or ATC code')
+    .required(),
+  targetCode: yup
+    .string()
+    .matches(SNOMED_OR_ATC, 'must be SNOMED-CT or ATC code')
+    .optional(),
+  euProductCode: yup
+    .string()
+    .matches(EITHER_EU_CODE_OR_SOMETHING_ELSE, 'must either be a name or an EU product code')
+    .optional(),
+  maximumDosage: yup
+    .number()
+    .positive()
+    .integer()
+    .required(),
+  vaccineId: yup.string().required(),
+  manufacturerId: yup.string().optional(),
+});
+
+export const Survey = Base.shape({
   surveyType: yup
     .string()
     .required()
@@ -150,39 +201,27 @@ export const survey = base.shape({
   isSensitive: yup.boolean().required(),
 });
 
-export const encounter = base.shape({
+export const AdministeredVaccine = Base.shape({
+  batch: yup.string(),
+  consent: yup.boolean().required(),
+  status: yup
+    .string()
+    .oneOf(Object.values(VACCINE_STATUS))
+    .required(),
+  reason: yup.string(),
+  injectionSite: yup.string().oneOf(Object.values(INJECTION_SITE_OPTIONS)),
+  date: yup.date().required(),
+  scheduledVaccineId: fieldTypes.id.required(),
+  encounterId: fieldTypes.id.required(),
+});
+
+export const Encounter = Base.shape({
   // contains only what's needed for administeredVaccine imports, extend as neccesary
   encounterType: yup.string().oneOf(Object.values(ENCOUNTER_TYPES)),
   startDate: yup.date().required(),
   endDate: yup.date(),
   reasonForEncounter: yup.string(),
-  administeredVaccines: yup
-    .array()
-    .of(
-      yup
-        .object({
-          recordType: yup
-            .string()
-            .oneOf(['administeredVaccine'])
-            .required(),
-          data: base.shape({
-            batch: yup.string(),
-            consent: yup.boolean().required(),
-            status: yup
-              .string()
-              .oneOf(Object.values(VACCINE_STATUS)) // TODO
-              .required(),
-            reason: yup.string(),
-            // TODO: what does this actually do?
-            // location: yup.string(),
-            injectionSite: yup.string().oneOf(Object.values(INJECTION_SITE_OPTIONS)),
-            date: yup.date().required(),
-            scheduledVaccineId: yup.string().required(),
-          }),
-        })
-        .required(),
-    )
-    .required(),
+
   // relationships
   locationId: yup.string().required(),
   departmentId: yup.string().required(),
