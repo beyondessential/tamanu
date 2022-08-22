@@ -148,7 +148,7 @@ export const REPORT_DEFINITIONS = [
     name: 'Palau COVID-19 Test - Line list',
     id: 'palau-covid-swab-lab-test-list',
     dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
-    dataSourceOptions: [REPORT_DATA_SOURCES.ALL_FACILITIES],
+    dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
   },
   {
     name: 'Nauru COVID-19 Test - Line list',
