@@ -169,12 +169,13 @@ describe('Data definition import', () => {
 
   it('should hash user passwords on updates', async () => {
     const { User } = ctx.store.models;
-    const testUserPre = await User.scope('withPassword').create({
+    await User.create({
       id: 'test-password-hashing',
       password: 'something',
       email: 'test-password-hashing@tamanu.io',
       displayName: 'test-password-hashing',
     });
+    const testUserPre = await User.scope('withPassword').findByPk('test-password-hashing');
     const passwordPre = testUserPre.get('password', { raw: true });
 
     const { errors } = await doImport({ file: 'valid-userpassword' });
