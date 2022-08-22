@@ -1,28 +1,10 @@
-import matchers from 'expect/build/matchers';
-
+import { importerTransaction } from '../../app/admin/importerEndpoint';
 import { importer } from '../../app/admin/refdataImporter';
-import { ValidationError, ForeignkeyResolutionError } from '../../app/admin/refdataImporter/errors';
 import { createTestContext } from '../utilities';
+import './matchers';
 
 // the importer can take a little while
 jest.setTimeout(30000);
-
-function toContainError(errors, { ofType, inSheet, atRow, withMessage }) {
-  return matchers.toContain(
-    errors.map(error => `${error.constructor.name}: ${error.message}`),
-    `${ofType.name}: ${withMessage} on ${inSheet} at row ${atRow}`,
-  );
-}
-
-function toContainValidationError(errors, inSheet, atRow, withMessage) {
-  return toContainError(errors, { ofType: ValidationError, inSheet, atRow, withMessage });
-}
-
-function toContainFkError(errors, inSheet, atRow, withMessage) {
-  return toContainError(errors, { ofType: ForeignkeyResolutionError, inSheet, atRow, withMessage });
-}
-
-expect.extend({ toContainError, toContainValidationError, toContainFkError });
 
 const BAD_ID_ERROR_MESSAGE = 'id must not have spaces or punctuation other than -';
 const BAD_CODE_ERROR_MESSAGE = 'code must not have spaces or punctuation other than -./';
@@ -40,7 +22,8 @@ describe('Data definition import', () => {
 
   function doImport(options) {
     const { file, ...opts } = options;
-    return importer({
+    return importerTransaction({
+      importer,
       file: `./__tests__/importers/refdata-${file}.xlsx`,
       models: ctx.store.models,
       ...opts,
@@ -170,6 +153,46 @@ describe('Data definition import', () => {
     expect(historical).toHaveProperty('visibilityStatus', 'historical');
   });
 
+  it('should hash user passwords on creates', async () => {
+    const { User } = ctx.store.models;
+    const testUserPre = await User.findByPk('test-password-hashing');
+    if (testUserPre) await testUserPre.destroy();
+
+    const { errors } = await doImport({ file: 'valid-userpassword' });
+    expect(errors).toBeEmpty();
+
+    const testUser = await User.scope('withPassword').findByPk('test-password-hashing');
+    const password = testUser.get('password', { raw: true });
+    expect(password).not.toEqual('plaintext');
+    expect(password).toEqual(expect.stringMatching(/^\$2/)); // magic number for bcrypt hashes
+  });
+
+  it('should hash user passwords on updates', async () => {
+    const { User } = ctx.store.models;
+
+    let testUserPre = await User.scope('withPassword').findByPk('test-password-hashing');
+    if (!testUserPre) {
+      await User.create({
+        id: 'test-password-hashing',
+        password: 'something',
+        email: 'test-password-hashing@tamanu.io',
+        displayName: 'test-password-hashing',
+      });
+      testUserPre = await User.scope('withPassword').findByPk('test-password-hashing');
+    }
+    const passwordPre = testUserPre.get('password', { raw: true });
+    expect(passwordPre).toEqual(expect.stringMatching(/^\$2/)); // sanity check
+
+    const { errors } = await doImport({ file: 'valid-userpassword' });
+    expect(errors).toBeEmpty();
+
+    const testUser = await User.scope('withPassword').findByPk('test-password-hashing');
+    const password = testUser.get('password', { raw: true });
+    expect(password).not.toEqual('plaintext');
+    expect(password).toEqual(expect.stringMatching(/^\$2/)); // magic number for bcrypt hashes
+    expect(password).not.toEqual(passwordPre); // make sure it's updated
+  });
+
   // TODO: when permission checking is implemented on sync server
   it.skip('should forbid an import by a non-admin', async () => {
     const { baseApp } = ctx;
@@ -177,5 +200,90 @@ describe('Data definition import', () => {
 
     const response = await nonAdminApp.post('/v1/admin/importRefData');
     expect(response).toBeForbidden();
+  });
+});
+
+describe('Permissions import', () => {
+  let ctx;
+  beforeAll(async () => {
+    ctx = await createTestContext();
+  });
+  afterAll(async () => {
+    await ctx.close();
+  });
+
+  function doImport(options) {
+    const { file, ...opts } = options;
+    return importerTransaction({
+      importer,
+      file: `./__tests__/importers/permissions-${file}.xlsx`,
+      models: ctx.store.models,
+      ...opts,
+    });
+  }
+
+  it('should succeed with valid data', async () => {
+    const { didntSendReason, errors, stats } = await doImport({ file: 'valid', dryRun: true });
+
+    expect(didntSendReason).toEqual('dryRun');
+    expect(errors).toBeEmpty();
+    expect(stats).toEqual({
+      Role: { created: 3, updated: 0, errored: 0 },
+      Permission: { created: 29, updated: 0, errored: 0 },
+    });
+  });
+
+  it('should not write anything for a dry run', async () => {
+    const { Permission } = ctx.store.models;
+    const beforeCount = await Permission.count();
+
+    await doImport({ file: 'valid', dryRun: true });
+
+    const afterCount = await Permission.count();
+    expect(afterCount).toEqual(beforeCount);
+  });
+
+  it('should error on missing file', async () => {
+    const { didntSendReason, errors } = await doImport({
+      file: 'nofile',
+      dryRun: true,
+    });
+
+    expect(didntSendReason).toEqual('validationFailed');
+
+    expect(errors[0]).toHaveProperty(
+      'message',
+      `ENOENT: no such file or directory, open './__tests__/importers/permissions-nofile.xlsx'`,
+    );
+  });
+
+  it('should validate permissions data', async () => {
+    const { didntSendReason, errors } = await doImport({
+      file: 'invalid',
+      dryRun: true,
+    });
+
+    expect(didntSendReason).toEqual('validationFailed');
+
+    expect(errors).toContainValidationError(
+      'permission',
+      14,
+      'duplicate id: reception-list-user-any',
+    );
+    expect(errors).toContainValidationError(
+      'permission',
+      16,
+      'permissions matrix must only use the letter y or n',
+    );
+    expect(errors).toContainValidationError(
+      'permission',
+      19,
+      'permissions matrix must only use the letter y or n',
+    );
+    expect(errors).toContainFkError(
+      'permission',
+      20,
+      'valid foreign key expected in column role (corresponding to roleId) but found: invalid',
+    );
   });
 });

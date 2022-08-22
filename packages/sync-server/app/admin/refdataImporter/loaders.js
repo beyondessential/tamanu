@@ -5,13 +5,12 @@ import { ENCOUNTER_TYPES } from 'shared/constants';
 export const loaderFactory = model => ({ note, ...values }) => [{ model, values }];
 
 export function referenceDataLoaderFactory(refType) {
-  if (refType === 'diagnosis') refType = 'icd10';
   return ({ id, code, name, visibilityStatus }) => [
     {
       model: 'ReferenceData',
       values: {
         id,
-        type: refType,
+        type: refType === 'diagnosis' ? 'icd10' : refType,
         code: typeof code === 'number' ? `${code}` : code,
         name,
         visibilityStatus,
@@ -98,4 +97,32 @@ export function patientDataLoader(item) {
   }
 
   return rows;
+}
+
+export function permissionLoader(item) {
+  const { verb, noun, objectId = null, note, ...roles } = item;
+  // Any non-empty value in the role cell would mean the role
+  // is enabled for the permission
+  return Object.entries(roles)
+    .map(([role, yCell]) => [role, yCell.toLowerCase().trim()])
+    .filter(([, yCell]) => yCell)
+    .map(([role, yCell]) => {
+      const id = `${role}-${verb}-${noun}-${objectId || 'any'}`.toLowerCase();
+
+      // set deletedAt if the cell is marked N
+      const deletedAt = yCell === 'n' ? new Date() : null;
+
+      return {
+        model: 'Permission',
+        values: {
+          _yCell: yCell,
+          id,
+          verb,
+          noun,
+          objectId,
+          role,
+          deletedAt,
+        },
+      };
+    });
 }

@@ -1,7 +1,4 @@
-import {
-  patientDataLoader,
-  administeredVaccineLoader
-} from './loaders';
+import { patientDataLoader, administeredVaccineLoader, permissionLoader } from './loaders';
 
 // All reference data is imported first, so that can be assumed for ordering.
 //
@@ -41,5 +38,11 @@ export default {
   invoicePriceChangeType: {},
   invoiceLineType: {
     needs: ['labTestType'],
+  },
+
+  role: {},
+  permission: {
+    loader: permissionLoader,
+    needs: ['role'],
   },
 };

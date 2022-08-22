@@ -46,13 +46,16 @@ export const Patient = Base.shape({
   middleName: yup.string(),
   lastName: yup.string().required(),
   culturalName: yup.string(),
-  
+
   displayId: yup.string().required(),
-  sex: yup.string().oneOf(['male', 'female', 'other']).required(),
-  
+  sex: yup
+    .string()
+    .oneOf(['male', 'female', 'other'])
+    .required(),
+
   dateOfBirth: yup.date().required(),
   dateOfDeath: yup.date(),
-  
+
   villageId: yup.string(),
 });
 
