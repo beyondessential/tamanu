@@ -65,6 +65,7 @@
     "chalk": "^5.0.1",
     "chance": "^1.1.8",
     "check-disk-space": "^3.1.0",
+    "cli-table3": "^0.6.2",
     "cls-hooked": "^4.2.2",
     "commander": "^9.0.0",
     "compression": "^1.7.2",

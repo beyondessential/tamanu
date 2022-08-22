@@ -9614,6 +9614,15 @@ cli-table3@0.5.1:
   optionalDependencies:
     colors "^1.1.2"
 
+cli-table3@^0.6.2:
+  version "0.6.2"
+  resolved "https://registry.yarnpkg.com/cli-table3/-/cli-table3-0.6.2.tgz#aaf5df9d8b5bf12634dc8b3040806a0c07120d2a"
+  integrity sha512-QyavHCaIC80cMivimWu4aWHilIpiDpfm3hGmqAmXVL1UsnbLuBSMd21hTX6VY4ZSDSM73ESLeF8TOYId3rBTbw==
+  dependencies:
+    string-width "^4.2.0"
+  optionalDependencies:
+    "@colors/colors" "1.5.0"
+
 cli-tableau@^2.0.0:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/cli-tableau/-/cli-tableau-2.0.1.tgz#baa78d83e08a2d7ab79b7dad9406f0254977053f"
