@@ -9,7 +9,7 @@ export class User extends Model {
   static SALT_ROUNDS = DEFAULT_SALT_ROUNDS;
 
   static hashPassword(pw) {
-    return hash(pw, User.SALT_ROUNDS);
+    return hash(pw, User.SALT_ROUNDS ?? DEFAULT_SALT_ROUNDS);
   }
 
   forResponse() {
