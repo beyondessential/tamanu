@@ -18,6 +18,7 @@ jest.mock('shared/services/logging', () => ({
   log: {
     info: jest.fn(),
     warn: jest.fn(),
+    error: jest.fn(),
   },
 }));
 
@@ -89,7 +90,7 @@ describe('importReport actions', () => {
         },
       });
       expect(mockStore.models.ReportDefinitionVersion.upsert).toHaveBeenCalledWith({
-        definitionId: 'test-definition-id',
+        reportDefinitionId: 'test-definition-id',
         userId: 'test-user-id',
         versionNumber: 3,
       });
@@ -99,7 +100,7 @@ describe('importReport actions', () => {
       await createVersion('/path', mockDefinition, [{ versionNumber: 1 }], mockStore);
       expect(log.warn).nthCalledWith(1, `Version 1 already exists, ${OVERWRITING_TEXT}`);
       expect(mockStore.models.ReportDefinitionVersion.upsert).toBeCalledWith({
-        definitionId: 'test-definition-id',
+        reportDefinitionId: 'test-definition-id',
         userId: 'test-user-id',
         versionNumber: 1,
       });
