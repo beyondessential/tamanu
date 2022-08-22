@@ -6,7 +6,7 @@ export * from './ApiContext';
 export * from './connectApi';
 
 export const useApi = () => useContext(ApiContext);
-export const useSuggester = type => {
+export const useSuggester = (type, options) => {
   const api = useApi();
-  return new Suggester(api, type);
+  return new Suggester(api, type, options);
 };
