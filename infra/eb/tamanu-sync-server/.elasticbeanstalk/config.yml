@@ -8,7 +8,7 @@ environment-defaults:
 global:
   application_name: tamanu-sync-server
   default_ec2_keyname: tamanu-eb-key-pair
-  default_platform: Node.js 12 running on 64bit Amazon Linux 2
+  default_platform: Node.js 16 running on 64bit Amazon Linux 2
   default_region: ap-southeast-2
   include_git_submodules: true
   instance_profile: null

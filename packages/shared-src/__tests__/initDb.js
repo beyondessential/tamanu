@@ -7,7 +7,7 @@ const config = {
 
 export const initDb = async (overrides = {}) => {
   const db = await initDatabase({ ...config, ...overrides });
-  await db.sequelize.drop();
+  await db.sequelize.drop({});
   await db.sequelize.sync({ force: true });
   return db;
 };
