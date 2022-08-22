@@ -129,10 +129,12 @@ export class ReportRunner {
     );
 
     if (dbDefinedReportModule) {
-      reportName = `${dbDefinedReportModule.reportDefinition.name}(v${dbDefinedReportModule.versionNumber})`;
+      reportName = `${dbDefinedReportModule.reportDefinition.name}`;
     }
 
-    return `Tamanu_Report_${date}_${reportName}_${country.name}`;
+    const dashedName = reportName.replace(/\s+/g, '-').replace(/-+/g, '-');
+
+    return `Tamanu_Report_${date}_${dashedName}_${country.name}`;
   }
 
   /**

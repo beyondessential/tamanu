@@ -1,5 +1,6 @@
 import React, { useCallback, useState, useEffect, useMemo } from 'react';
 import { keyBy } from 'lodash';
+import { format } from 'date-fns';
 import { Grid, Typography } from '@material-ui/core';
 import { red } from '@material-ui/core/colors';
 import styled from 'styled-components';
@@ -21,6 +22,7 @@ import { Colors, MUI_SPACING_UNIT } from '../../constants';
 import { saveExcelFile } from '../../utils/saveExcelFile';
 import { EmailField, parseEmails } from './EmailField';
 import { ParameterField } from './ParameterField';
+import { useLocalisation } from '../../contexts/Localisation';
 
 const Spacer = styled.div`
   padding-top: 30px;
@@ -69,8 +71,20 @@ const buildParameterFieldValidation = ({ name, required }) => {
   return Yup.mixed();
 };
 
+const useFileName = () => {
+  const { getLocalisation } = useLocalisation();
+  const country = getLocalisation('country');
+  const date = format(new Date(), 'ddMMyyyy');
+
+  return reportName => {
+    const dashedName = reportName.replace(/\s+/g, '-').replace(/-+/g, '-');
+    return `Tamanu_Report_${date}_${dashedName}_${country.name}`;
+  };
+};
+
 export const ReportGeneratorForm = ({ onSuccessfulSubmit }) => {
   const api = useApi();
+  const getFileName = useFileName();
   const { currentUser } = useAuth();
   const [requestError, setRequestError] = useState();
   const [availableReports, setAvailableReports] = useState([]);
@@ -119,9 +133,11 @@ export const ReportGeneratorForm = ({ onSuccessfulSubmit }) => {
             parameters: restValues,
           });
 
+          const reportName = reportsById[reportId].name;
+
           const filePath = await saveExcelFile(excelData, {
             promptForFilePath: true,
-            defaultFileName: reportId,
+            defaultFileName: getFileName(reportName),
           });
           // eslint-disable-next-line no-console
           console.log('file saved at ', filePath);
@@ -142,7 +158,7 @@ export const ReportGeneratorForm = ({ onSuccessfulSubmit }) => {
         setRequestError(`Unable to submit report request - ${e.message}`);
       }
     },
-    [api, dataSource, onSuccessfulSubmit],
+    [api, dataSource, onSuccessfulSubmit, reportsById],
   );
 
   // Wait until available reports are loaded to render.
@@ -175,7 +191,7 @@ export const ReportGeneratorForm = ({ onSuccessfulSubmit }) => {
           <FormGrid columns={3}>
             <Field
               name="reportId"
-              label="Report id"
+              label="Report name"
               component={ReportIdField}
               options={reportOptions}
               required
