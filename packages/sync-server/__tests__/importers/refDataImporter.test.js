@@ -181,6 +181,7 @@ describe('Data definition import', () => {
       testUserPre = await User.scope('withPassword').findByPk('test-password-hashing');
     }
     const passwordPre = testUserPre.get('password', { raw: true });
+    expect(passwordPre).toEqual(expect.stringMatching(/^\$2/)); // sanity check
 
     const { errors } = await doImport({ file: 'valid-userpassword' });
     expect(errors).toBeEmpty();

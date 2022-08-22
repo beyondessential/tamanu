@@ -21,6 +21,15 @@ function findFieldName(values, fkField) {
   return null;
 }
 
+function loadExisting(Model, id) {
+  if (!id) return null;
+
+  // user model needs to have access to password to hash it
+  if (Model.name === 'User') return Model.scope('withPassword').findByPk(id);
+
+  return Model.findByPk(id);
+}
+
 export async function importRows(
   { errors, log, models },
   { rows, sheetName, stats = {}, foreignKeySchemata = {} },
@@ -157,7 +166,7 @@ export async function importRows(
   log.debug('Upserting database rows', { rows: validRows.length });
   for (const { model, sheetRow, values } of validRows) {
     const Model = models[model];
-    const existing = values.id && (await Model.findByPk(values.id));
+    const existing = await loadExisting(Model, values.id);
     try {
       if (existing) {
         await existing.update(values);
