@@ -9,6 +9,10 @@ const ABSTRACT = DataTypes.ABSTRACT.prototype.constructor;
 
 export function createDateType() {
   class DATETIMESTRING extends ABSTRACT {
+    static toString() {
+      return 'date_time_string';
+    }
+
     toSql() {
       return 'date_time_string';
     }
@@ -19,6 +23,10 @@ export function createDateType() {
   }
 
   class DATESTRING extends ABSTRACT {
+    static toString() {
+      return 'date_time_string';
+    }
+
     toSql() {
       return 'date_string';
     }

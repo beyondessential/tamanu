@@ -1,16 +1,14 @@
-import { DATE, DATEONLY, QueryInterface, AbstractDataTypeConstructor } from 'sequelize';
+import { DataTypes, QueryInterface, AbstractDataTypeConstructor } from 'sequelize';
 import {
   ISO9075_DATETIME_FORMAT,
-  ISO9075_DATETIME_FORMAT_LENGTH,
-  ISO9075_DATE_FORMAT_LENGTH,
   ISO9075_DATE_FORMAT,
 } from '../../constants';
 
 /** @internal mostly internal, but occasionally useful for specific things */
 export function upMigration(
   legacyType: AbstractDataTypeConstructor,
+  newType: AbstractDataTypeConstructor,
   format: string,
-  length: number,
 ) {
   return async function(query: QueryInterface, tableName: string, columnName: string) {
     // 1. Create legacy columns
@@ -24,21 +22,21 @@ export function upMigration(
     // 3.Change column types from of original columns from date to string & convert data to string
     await query.sequelize.query(
       `ALTER TABLE ${tableName}
-        ALTER COLUMN ${columnName} TYPE CHAR(${length})
+        ALTER COLUMN ${columnName} TYPE ${newType}
         USING TO_CHAR(${columnName}, '${format}');`,
     );
   };
 }
 
 export const createDateTimeStringUpMigration = upMigration(
-  DATE,
+  DataTypes.DATE,
+  DataTypes.DATETIMESTRING,
   ISO9075_DATETIME_FORMAT,
-  ISO9075_DATETIME_FORMAT_LENGTH,
 );
 export const createDateStringUpMigration = upMigration(
-  DATEONLY,
+  DataTypes.DATEONLY,
+  DataTypes.DATESTRING,
   ISO9075_DATE_FORMAT,
-  ISO9075_DATE_FORMAT_LENGTH,
 );
 
 /** @internal mostly internal, but occasionally useful for specific things */
