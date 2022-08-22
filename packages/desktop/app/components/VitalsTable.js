@@ -59,5 +59,5 @@ export const VitalsTable = React.memo(() => {
     ...transposeColumnToRow(row),
   }));
   // and return the table
-  return <Table columns={dataColumns} data={rows} />;
+  return <Table columns={dataColumns} data={rows} elevated={false} />;
 });

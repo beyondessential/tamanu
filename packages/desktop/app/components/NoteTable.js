@@ -65,6 +65,7 @@ export const NoteTable = ({ encounterId }) => {
         onRowClick={handleRowClick}
         customSort={sortNotes}
         refreshCount={refreshCount}
+        elevated={false}
       />
     </div>
   );

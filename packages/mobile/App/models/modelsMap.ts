@@ -2,6 +2,7 @@ import { ReferenceData } from './ReferenceData';
 import { Patient } from './Patient';
 import { PatientAdditionalData } from './PatientAdditionalData';
 import { PatientIssue } from './PatientIssue';
+import { PatientSecondaryId } from './PatientSecondaryId';
 import { User } from './User';
 import { Encounter } from './Encounter';
 import { Program } from './Program';
@@ -30,6 +31,7 @@ export const MODELS_MAP = {
   Patient,
   PatientAdditionalData,
   PatientIssue,
+  PatientSecondaryId,
   User,
   Encounter,
   Program,

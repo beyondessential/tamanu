@@ -1,51 +1,12 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Typography } from '@material-ui/core';
 import { promises as asyncFs } from 'fs';
 import { lookup as lookupMimeType } from 'mime-types';
-import styled from 'styled-components';
-
 import { DocumentsTable } from '../../../components/DocumentsTable';
-import { ConfirmCancelRow } from '../../../components/ButtonRow';
 import { DocumentModal } from '../../../components/DocumentModal';
 import { DocumentsSearchBar } from '../../../components/DocumentsSearchBar';
-import { Modal } from '../../../components/Modal';
-import { Button } from '../../../components/Button';
-
 import { useApi } from '../../../api';
-
-// Similar to ContentPane but content is aligned to the right
-const PaneButtonContainer = styled.div`
-  margin: 24px;
-  display: flex;
-  justify-content: flex-end;
-`;
-
-const AlertNoInternetModal = React.memo(({ open, onClose }) => (
-  <Modal title="No internet connection detected" open={open} onClose={onClose}>
-    <Typography gutterBottom>
-      <strong>
-        Viewing and downloading documents in Tamanu requires a live connection to the central
-        server.
-      </strong>
-    </Typography>
-    <Typography gutterBottom>
-      To save on hard drive space and improve performance, documents in Tamanu are stored on the
-      central server. Please check your network connection and/or try again in a few minutes.
-    </Typography>
-    <ConfirmCancelRow onConfirm={onClose} confirmText="OK" />
-  </Modal>
-));
-
-const AlertNoSpaceModal = React.memo(({ open, onClose }) => (
-  <Modal title="Not enough storage space to upload file" open={open} onClose={onClose}>
-    <Typography gutterBottom>
-      The server has limited storage space remaining. To protect performance, you are currently
-      unable to upload documents or images. Please speak to your system administrator to increase
-      your central server&apos;s hard drive space.
-    </Typography>
-    <ConfirmCancelRow onConfirm={onClose} confirmText="OK" />
-  </Modal>
-));
+import { TabPane } from '../components';
+import { Button, ContentPane, TableButtonRow } from '../../../components';
 
 const MODAL_STATES = {
   CLOSED: 'closed',
@@ -64,7 +25,7 @@ const hasInternetConnection = () => {
   return false;
 };
 
-export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = false }) => {
+export const DocumentsPane = React.memo(({ encounter, patient }) => {
   const [modalStatus, setModalStatus] = useState(MODAL_STATES.CLOSED);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchParameters, setSearchParameters] = useState({});
@@ -138,40 +99,33 @@ export const DocumentsPane = React.memo(({ encounter, patient, showSearchBar = f
     };
   }, [isSubmitting]);
 
+  const isFromEncounter = !!encounter?.id;
+  const PaneWrapper = isFromEncounter ? TabPane : ContentPane;
+
   return (
-    <div>
+    <>
+      {!isFromEncounter && <DocumentsSearchBar setSearchParameters={setSearchParameters} />}
+      <PaneWrapper>
+        <TableButtonRow variant="small">
+          <Button onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}>Add document</Button>
+        </TableButtonRow>
+        <DocumentsTable
+          endpoint={endpoint}
+          searchParameters={searchParameters}
+          refreshCount={refreshCount}
+          canInvokeDocumentAction={canInvokeDocumentAction}
+        />
+      </PaneWrapper>
       <DocumentModal
-        open={modalStatus === MODAL_STATES.DOCUMENT_OPEN}
+        open={modalStatus !== MODAL_STATES.CLOSED}
         onClose={handleClose}
         onSubmit={handleSubmit}
         isSubmitting={isSubmitting}
-        title="Add document"
-        actionText="Add"
+        isError={
+          modalStatus === MODAL_STATES.ALERT_NO_INTERNET_OPEN ||
+          modalStatus === MODAL_STATES.ALERT_NO_SPACE_OPEN
+        }
       />
-      <AlertNoInternetModal
-        open={modalStatus === MODAL_STATES.ALERT_NO_INTERNET_OPEN}
-        onClose={handleClose}
-      />
-      <AlertNoSpaceModal
-        open={modalStatus === MODAL_STATES.ALERT_NO_SPACE_OPEN}
-        onClose={handleClose}
-      />
-      {showSearchBar && <DocumentsSearchBar setSearchParameters={setSearchParameters} />}
-      <PaneButtonContainer>
-        <Button
-          onClick={() => setModalStatus(MODAL_STATES.DOCUMENT_OPEN)}
-          variant="contained"
-          color="primary"
-        >
-          Add document
-        </Button>
-      </PaneButtonContainer>
-      <DocumentsTable
-        endpoint={endpoint}
-        searchParameters={searchParameters}
-        refreshCount={refreshCount}
-        canInvokeDocumentAction={canInvokeDocumentAction}
-      />
-    </div>
+    </>
   );
 });

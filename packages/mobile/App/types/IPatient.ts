@@ -1,4 +1,5 @@
 import { IPatientAdditionalData } from './IPatientAditionalData';
+import { IPatientSecondaryId } from './IPatientSecondaryId';
 import { IReferenceData } from './IReferenceData';
 
 export interface IPatient {
@@ -15,5 +16,6 @@ export interface IPatient {
   village?: IReferenceData,
   villageId?: string,
   additionalData?: IPatientAdditionalData;
+  secondaryIds?: IPatientSecondaryId[];
   markedForSync?: boolean;
 }

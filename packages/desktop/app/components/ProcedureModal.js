@@ -5,6 +5,7 @@ import { Suggester } from '../utils/suggester';
 
 import { Modal } from './Modal';
 import { ProcedureForm } from '../forms/ProcedureForm';
+import { toDateTimeString } from '../utils/dateTime';
 
 export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure }) => {
   const api = useApi();
@@ -14,14 +15,23 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
   const anaestheticSuggester = new Suggester(api, 'drug');
 
   return (
-    <Modal width="md" title="New procedure" open={!!editedProcedure} onClose={onClose}>
+    <Modal
+      width="md"
+      title={`${editedProcedure?.id ? 'Edit' : 'New'} procedure`}
+      open={!!editedProcedure}
+      onClose={onClose}
+    >
       <ProcedureForm
         onSubmit={async data => {
-          if (data.id) {
-            await api.put(`procedure/${data.id}`, data);
+          const payload = {
+            ...data,
+            startTime: toDateTimeString(data.startTime),
+          };
+          if (payload.id) {
+            await api.put(`procedure/${payload.id}`, payload);
           } else {
             await api.post('procedure', {
-              ...data,
+              ...payload,
               encounterId,
             });
           }

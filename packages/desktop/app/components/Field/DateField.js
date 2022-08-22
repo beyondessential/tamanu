@@ -21,14 +21,14 @@ import { toDateTimeString } from '../../utils/dateTime';
 // has some unusual input handling (switching focus between day/month/year etc) that
 // a value change will interfere with.
 
+function toMomentDate(date, format) {
+  return moment(date, format);
+}
+
 function fromRFC3339(rfc3339Date, format) {
   if (!rfc3339Date) return '';
 
   return moment(rfc3339Date).format(format);
-}
-
-function toRFC3339(date, format) {
-  return moment(date, format).toISOString();
 }
 
 export const DateInput = ({
@@ -47,9 +47,17 @@ export const DateInput = ({
   const onValueChange = useCallback(
     event => {
       const formattedValue = event.target.value;
-      const outputValue = saveDateAsString
-        ? toDateTimeString(formattedValue)
-        : toRFC3339(formattedValue, format);
+      const date = toMomentDate(formattedValue, format);
+
+      if (max) {
+        const maxDate = toMomentDate(max, format);
+        if (date.isAfter(maxDate)) {
+          onChange({ target: { value: '', name } });
+          return;
+        }
+      }
+
+      const outputValue = saveDateAsString ? toDateTimeString(date) : date.toISOString();
 
       setCurrentText(formattedValue);
       if (outputValue === 'Invalid date') {
@@ -59,7 +67,7 @@ export const DateInput = ({
 
       onChange({ target: { value: outputValue, name } });
     },
-    [onChange, format, name, saveDateAsString],
+    [onChange, format, name, max, saveDateAsString],
   );
 
   useEffect(() => {

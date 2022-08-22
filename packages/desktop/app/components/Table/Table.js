@@ -6,15 +6,17 @@
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import MaterialTable from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableSortLabel from '@material-ui/core/TableSortLabel';
-import TableRow from '@material-ui/core/TableRow';
-import TableFooter from '@material-ui/core/TableFooter';
-import TablePagination from '@material-ui/core/TablePagination';
-
+import {
+  Table as MaterialTable,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableSortLabel,
+  TableRow,
+  TableFooter,
+  TablePagination,
+} from '@material-ui/core';
+import { Paper, PaperStyles } from '../Paper';
 import { DownloadDataButton } from './DownloadDataButton';
 import { useLocalisation } from '../../contexts/Localisation';
 import { ErrorBoundary } from '../ErrorBoundary';
@@ -53,17 +55,20 @@ const StyledTableRow = styled(TableRow)`
       ? `
       cursor: pointer;
       &:hover {
-        background: rgba(255,255,255,0.6);
+        background: #f4f9ff;
       }
     `
       : ''}
 
-  ${p => p.rowStyle ?? ''}
+  ${p => (p.$rowStyle ? p.$rowStyle : '')}
 `;
 
 const StyledTableContainer = styled.div`
-  margin: 1rem;
   overflow: auto;
+  border-radius: 5px;
+  background: white;
+  border: 1px solid ${Colors.outline};
+  ${props => (props.$elevated ? PaperStyles : null)};
 `;
 
 const StyledTableCellContent = styled.div`
@@ -74,13 +79,25 @@ const StyledTableCellContent = styled.div`
 `;
 
 const StyledTableCell = styled(TableCell)`
-  padding: 16px;
+  padding: 15px;
+  font-size: 14px;
+  line-height: 18px;
   background: ${props => props.background};
+
+  &.MuiTableCell-body {
+    padding: 20px 15px;
+  }
+
+  &:first-child {
+    padding-left: 20px;
+  }
+
+  &:last-child {
+    padding-right: 20px;
+  }
 `;
 
 const StyledTable = styled(MaterialTable)`
-  border: 1px solid ${Colors.outline};
-  border-radius: 3px 3px 0 0;
   border-collapse: unset;
   background: ${Colors.white};
 
@@ -95,11 +112,14 @@ const StyledTableHead = styled(TableHead)`
 
 const StyledTableFooter = styled(TableFooter)`
   background: ${Colors.background};
-  border-bottom: 1px solid black;
+
+  tr:last-child td {
+    border-bottom: none;
+  }
 `;
 
 const RowContainer = React.memo(({ children, rowStyle, onClick }) => (
-  <StyledTableRow onClick={onClick} rowStyle={rowStyle}>
+  <StyledTableRow onClick={onClick} $rowStyle={rowStyle}>
     {children}
   </StyledTableRow>
 ));
@@ -247,8 +267,8 @@ class TableComponent extends React.Component {
         page={page}
         count={count}
         rowsPerPage={rowsPerPage}
-        onChangePage={this.handleChangePage}
-        onChangeRowsPerPage={this.handleChangeRowsPerPage}
+        onPageChange={this.handleChangePage}
+        onRowsPerPageChange={this.handleChangeRowsPerPage}
       />
     );
   }
@@ -276,9 +296,9 @@ class TableComponent extends React.Component {
   }
 
   render() {
-    const { className } = this.props;
+    const { className, elevated } = this.props;
     return (
-      <StyledTableContainer className={className}>
+      <StyledTableContainer className={className} $elevated={elevated}>
         <StyledTable>
           <StyledTableHead>
             <TableRow>{this.renderHeaders()}</TableRow>
@@ -296,7 +316,7 @@ TableComponent.propTypes = {
     PropTypes.shape({
       key: PropTypes.string.isRequired,
       title: PropTypes.node,
-      accessor: PropTypes.func,
+      accessor: PropTypes.oneOfType([PropTypes.func, PropTypes.object]),
       sortable: PropTypes.bool,
     }),
   ).isRequired,
@@ -320,6 +340,7 @@ TableComponent.propTypes = {
   refreshTable: PropTypes.func,
   rowStyle: PropTypes.func,
   allowExport: PropTypes.bool,
+  elevated: PropTypes.bool,
 };
 
 TableComponent.defaultProps = {
@@ -333,6 +354,7 @@ TableComponent.defaultProps = {
   orderBy: null,
   order: 'asc',
   page: null,
+  elevated: true,
   onRowClick: null,
   rowsPerPage: DEFAULT_ROWS_PER_PAGE_OPTIONS[0],
   rowsPerPageOptions: DEFAULT_ROWS_PER_PAGE_OPTIONS,

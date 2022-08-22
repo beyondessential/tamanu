@@ -13,7 +13,7 @@ import {
 import { useApi } from '../api';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
-import { TextButton } from './Button';
+import { OutlinedButton } from './Button';
 import { InvoiceDetailModal } from './InvoiceDetailModal';
 
 const StatusLabel = styled.div`
@@ -53,7 +53,7 @@ const ViewButton = React.memo(({ row }) => {
         onClose={() => setInvoiceModalOpen(false)}
         onUpdated={row.refreshTable}
       />
-      <TextButton onClick={() => setInvoiceModalOpen(true)}>View</TextButton>
+      <OutlinedButton onClick={() => setInvoiceModalOpen(true)}>View</OutlinedButton>
     </>
   );
 });

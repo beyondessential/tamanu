@@ -1,14 +1,16 @@
 import React, { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { usePatientNavigation } from '../utils/usePatientNavigation';
 
 import { Modal } from './Modal';
 import { useSuggester } from '../api';
 import { DischargeForm } from '../forms/DischargeForm';
 import { useEncounter } from '../contexts/Encounter';
-import { viewPatient } from '../store';
+import { reloadPatient } from '../store/patient';
 
 export const DischargeModal = React.memo(({ open, onClose }) => {
   const dispatch = useDispatch();
+  const { navigateToPatient } = usePatientNavigation();
   const patient = useSelector(state => state.patient);
   const { encounter, writeAndViewEncounter } = useEncounter();
   const practitionerSuggester = useSuggester('practitioner');
@@ -16,10 +18,11 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
   const handleDischarge = useCallback(
     async data => {
       await writeAndViewEncounter(encounter.id, data);
-      await dispatch(viewPatient(patient.id));
+      await dispatch(reloadPatient(patient.id));
+      navigateToPatient(patient.id);
       onClose();
     },
-    [writeAndViewEncounter, encounter.id, dispatch, patient.id, onClose],
+    [writeAndViewEncounter, encounter.id, dispatch, patient.id, onClose, navigateToPatient],
   );
 
   return (
