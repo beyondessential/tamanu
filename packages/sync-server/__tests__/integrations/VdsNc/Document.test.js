@@ -170,6 +170,9 @@ describe('VDS-NC: Document cryptography', () => {
         await Encounter.create({
           ...fake(Encounter),
           patientId: patient.id,
+          locationId: location.id,
+          departmentId: department.id,
+          examinerId: examiner.id,
         })
       ).id,
       date: new Date(Date.parse('2 January 2022, UTC')),
