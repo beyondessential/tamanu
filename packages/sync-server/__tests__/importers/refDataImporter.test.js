@@ -172,8 +172,10 @@ describe('Data definition import', () => {
     const testUserPre = await User.scope('withPassword').create({
       id: 'test-password-hashing',
       password: 'something',
+      email: 'test-password-hashing@tamanu.io',
+      displayName: 'test-password-hashing',
     });
-    const passwordPre = testUser.get('password', { raw: true });
+    const passwordPre = testUserPre.get('password', { raw: true });
 
     const { errors } = await doImport({ file: 'valid-userpassword' });
     expect(errors).toBeEmpty();
