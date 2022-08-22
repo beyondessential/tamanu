@@ -55,11 +55,7 @@ export async function importerTransaction({
     );
     log.debug('Ended transaction');
 
-    if (dryRun) {
-      throw new Error('Data import completed but it was a dry run!!!');
-    } else {
-      return { errors: [], stats: coalesceStats(stats) };
-    }
+    return { errors: [], stats: coalesceStats(stats) };
   } catch (err) {
     log.error(`while importing refdata: ${err.stack}`);
     if (dryRun && err instanceof DryRun) {
