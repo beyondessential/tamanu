@@ -24,14 +24,14 @@ export class ReportRequest extends Model {
             // No validation on deleted records
             if (!this.deletedAt) return;
 
-            if (!this.versionId && !this.reportType) {
+            if (!this.reportDefinitionVersionId && !this.reportType) {
               throw new InvalidOperationError(
-                'A report request must have either a reportType or a versionId',
+                'A report request must have either a reportType or a reportDefinitionVersionId',
               );
             }
-            if (this.versionId && this.reportType) {
+            if (this.reportDefinitionVersionId && this.reportType) {
               throw new InvalidOperationError(
-                'A report request must have either a reportType or a versionId, not both',
+                'A report request must have either a reportType or a reportDefinitionVersionId, not both',
               );
             }
           },
@@ -46,8 +46,18 @@ export class ReportRequest extends Model {
       foreignKey: { name: 'requestedByUserId', allowNull: false },
       onDelete: 'CASCADE',
     });
-    this.belongsTo(models.Facility);
-    this.belongsTo(models.ReportDefinitionVersion);
+    this.belongsTo(models.Facility, {
+      foreignKey: 'facilityId',
+      as: 'facility',
+    });
+    this.belongsTo(models.ReportDefinitionVersion, {
+      foreignKey: 'reportDefinitionVersionId',
+      as: 'reportDefinitionVersion',
+    });
+  }
+
+  getReportId() {
+    return this.reportDefinitionVersionId || this.reportType;
   }
 
   getReportId() {
