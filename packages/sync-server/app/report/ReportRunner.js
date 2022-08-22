@@ -133,11 +133,12 @@ export class ReportRunner {
 
     const date = formatDate(new Date(), 'ddMMyyyy');
 
-    const dashedName = `${reportName}_${country.name}`
+    const dashedName = `${reportName}-${country.name}`
       .trim()
       .replace(/\s+/g, '-')
-      .replace(/-+/g, '-');
-    return `Tamanu_Report_${date}_${dashedName}`;
+      .replace(/-+/g, '-')
+      .toLowerCase();
+    return `tamanu-report-${date}-${dashedName}`;
   }
 
   /**
