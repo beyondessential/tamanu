@@ -1,5 +1,10 @@
 import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
-import { BadAuthenticationError, InvalidOperationError } from 'shared/errors';
+import {
+  FacilityAndSyncVersionIncompatibleError,
+  RemoteCallFailedError,
+  BadAuthenticationError,
+  InvalidOperationError,
+} from 'shared/errors';
 
 const { WebRemote } = jest.requireActual('../../app/sync/WebRemote');
 
@@ -84,22 +89,26 @@ describe('WebRemote', () => {
       await expect(remote.connect()).rejects.toThrow(BadAuthenticationError);
     });
 
-    it('throws an InvalidOperationError with an appropriate message if the client version is too low', async () => {
+    it('throws a FacilityAndSyncVersionIncompatibleError with an appropriate message if the client version is too low', async () => {
       const remote = createRemote();
       fetch.mockReturnValueOnce(clientVersionLow);
       await expect(remote.connect()).rejects.toThrow(/please upgrade.*v1\.0\.0/i);
+      fetch.mockReturnValueOnce(clientVersionLow);
+      await expect(remote.connect()).rejects.toThrow(FacilityAndSyncVersionIncompatibleError);
     });
 
-    it('throws an InvalidOperationError with an appropriate message if the client version is too high', async () => {
+    it('throws a FacilityAndSyncVersionIncompatibleError with an appropriate message if the client version is too high', async () => {
       const remote = createRemote();
       fetch.mockReturnValueOnce(clientVersionHigh);
       await expect(remote.connect()).rejects.toThrow(/only supports up to v2\.0\.0/i);
+      fetch.mockReturnValueOnce(clientVersionHigh);
+      await expect(remote.connect()).rejects.toThrow(FacilityAndSyncVersionIncompatibleError);
     });
 
-    it('throws an InvalidOperationError if any other server error is returned', async () => {
+    it('throws a RemoteCallFailedError if any other server error is returned', async () => {
       const remote = createRemote();
       fetch.mockReturnValueOnce(authFailure);
-      await expect(remote.connect()).rejects.toThrow(InvalidOperationError);
+      await expect(remote.connect()).rejects.toThrow(RemoteCallFailedError);
     });
 
     it('retrieves user data', async () => {
@@ -146,7 +155,7 @@ describe('WebRemote', () => {
     it('throws an error on an invalid response', async () => {
       const remote = createRemote();
       fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(fakeFailure(403));
-      await expect(remote.pull('reference')).rejects.toThrow(InvalidOperationError);
+      await expect(remote.pull('reference')).rejects.toThrow(RemoteCallFailedError);
     });
   });
 
@@ -164,7 +173,7 @@ describe('WebRemote', () => {
     it('throws an error on an invalid response', async () => {
       const remote = createRemote();
       fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(fakeFailure(403));
-      await expect(remote.push('reference')).rejects.toThrow(InvalidOperationError);
+      await expect(remote.push('reference')).rejects.toThrow(RemoteCallFailedError);
     });
   });
 });

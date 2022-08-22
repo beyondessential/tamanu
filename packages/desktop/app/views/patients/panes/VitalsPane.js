@@ -2,15 +2,15 @@ import React, { useState } from 'react';
 import { useEncounter } from '../../../contexts/Encounter';
 import { VitalsModal } from '../../../components/VitalsModal';
 import { VitalsTable } from '../../../components/VitalsTable';
-import { ContentPane } from '../../../components/ContentPane';
-import { Button } from '../../../components';
+import { TableButtonRow, Button } from '../../../components';
+import { TabPane } from '../components';
 
 export const VitalsPane = React.memo(({ encounter, readonly }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const { loadEncounter } = useEncounter();
 
   return (
-    <div>
+    <TabPane>
       <VitalsModal
         open={modalOpen}
         encounterId={encounter.id}
@@ -20,17 +20,12 @@ export const VitalsPane = React.memo(({ encounter, readonly }) => {
           await loadEncounter(encounter.id);
         }}
       />
-      <VitalsTable />
-      <ContentPane>
-        <Button
-          onClick={() => setModalOpen(true)}
-          variant="contained"
-          color="primary"
-          disabled={readonly}
-        >
+      <TableButtonRow variant="small">
+        <Button onClick={() => setModalOpen(true)} disabled={readonly}>
           Record vitals
         </Button>
-      </ContentPane>
-    </div>
+      </TableButtonRow>
+      <VitalsTable />
+    </TabPane>
   );
 });

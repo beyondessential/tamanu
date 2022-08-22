@@ -28,6 +28,8 @@ type DatePickerProps = {
   isVisible: boolean;
   mode: 'date' | 'time';
   value: Date;
+  min?: Date;
+  max?: Date;
 };
 
 const DatePicker = ({
@@ -35,16 +37,19 @@ const DatePicker = ({
   isVisible,
   mode,
   value,
-}: DatePickerProps): ReactElement =>
-  isVisible ? (
-    <DateTimePicker
-      value={value}
-      mode={mode}
-      display="spinner"
-      onChange={onDateChange}
-      style={styles.androidPickerStyles}
-    />
-  ) : null;
+  min,
+  max,
+}: DatePickerProps): ReactElement => (isVisible ? (
+  <DateTimePicker
+    value={value}
+    mode={mode}
+    display="spinner"
+    onChange={onDateChange}
+    style={styles.androidPickerStyles}
+    maximumDate={max}
+    minimumDate={min}
+  />
+) : null);
 
 export interface DateFieldProps extends BaseInputProps {
   value: Date;
@@ -52,6 +57,8 @@ export interface DateFieldProps extends BaseInputProps {
   placeholder?: '' | string;
   mode?: 'date' | 'time';
   disabled?: boolean;
+  min?: Date;
+  max?: Date;
 }
 
 export const DateField = React.memo(
@@ -60,6 +67,8 @@ export const DateField = React.memo(
     onChange,
     label,
     error,
+    min,
+    max,
     mode = 'date',
     disabled = false,
     required = false,
@@ -144,10 +153,11 @@ export const DateField = React.memo(
               mode={mode}
               isVisible={isDatePickerVisible}
               value={value || new Date()}
+              min={min}
+              max={max}
             />
           ),
-          [isDatePickerVisible],
-        )}
+          [isDatePickerVisible])}
       </StyledView>
     );
   },

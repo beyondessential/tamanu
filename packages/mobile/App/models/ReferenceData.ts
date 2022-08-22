@@ -2,6 +2,7 @@ import { Entity, Column, Like } from 'typeorm/browser';
 import { ManyToOne } from 'typeorm';
 import { BaseModel } from './BaseModel';
 import { IReferenceData, ReferenceDataType } from '~/types';
+import { VisibilityStatus } from '../visibilityStatuses';
 
 @Entity('reference_data')
 export class ReferenceData extends BaseModel implements IReferenceData {
@@ -13,6 +14,9 @@ export class ReferenceData extends BaseModel implements IReferenceData {
 
   @Column({ type: 'varchar' })
   type: ReferenceDataType;
+
+  @Column({ default: VisibilityStatus.Current })
+  visibilityStatus: string;
 
   static async getAnyOfType(referenceDataType: ReferenceDataType): Promise<ReferenceData | null> {
     const repo = this.getRepository();

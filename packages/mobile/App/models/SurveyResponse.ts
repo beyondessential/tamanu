@@ -137,6 +137,13 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
 
       setNote('Attaching answers...');
 
+      // these will store values to write to patient records following submission
+      const patientRecordValues = {};
+      const patientAdditionalDataValues = {};
+
+      // TODO: this should just look at the field name and decide; there will never be overlap
+      const isAdditionalDataField = (questionConfig) => questionConfig.writeToPatient?.isAdditionalDataField;
+
       for (const a of Object.entries(finalValues)) {
         const [dataElementCode, value] = a;
         const component = components.find(c => c.dataElement.code === dataElementCode);
@@ -154,26 +161,12 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
 
         if (dataElement.type === FieldTypes.PATIENT_DATA) {
           const questionConfig = component.getConfigObject();
-          if (questionConfig.writeToPatient && questionConfig.writeToPatient.fieldName) {
-            if (questionConfig.writeToPatient.isAdditionalDataField) {
-              // find doesn't work with ManyToOne fields so we need to use a QueryBuilder
-              const additionalData = await PatientAdditionalData.getRepository()
-                .createQueryBuilder('patient_additional_data')
-                .where('patient_additional_data.patientId = :patientId', { patientId })
-                .getOne();
-              if (!additionalData) {
-                throw new Error('Can not find additionalData record for patient');
-              }
-              PatientAdditionalData.updateValues(
-                additionalData.id,
-                {
-                  [questionConfig.writeToPatient.fieldName]: value,
-                },
-              );
+          const fieldName = questionConfig.writeToPatient?.fieldName;
+          if (fieldName) {
+            if (isAdditionalDataField(questionConfig)) {
+              patientAdditionalDataValues[fieldName] = value;
             } else {
-              // Surveys are called from the patient
-              // so we know patientId is pointing to a real record
-              Patient.updateValues(patientId, { [questionConfig.writeToPatient.fieldName]: value });
+              patientRecordValues[fieldName] = value;
             }
           }
         }
@@ -188,6 +181,14 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
         });
       }
       setNote('Done');
+
+      // Save values to database records
+      if (Object.keys(patientRecordValues).length) {
+        await Patient.updateValues(patientId, patientRecordValues);
+      }
+      if (Object.keys(patientAdditionalDataValues).length) {
+        await PatientAdditionalData.updateForPatient(patientId, patientAdditionalDataValues);
+      }
 
       return responseRecord;
     } catch (e) {

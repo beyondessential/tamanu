@@ -4,7 +4,6 @@ import * as recentDiagnoses from './recent-diagnoses';
 import * as vaccineList from './vaccine-list';
 import * as tuvaluVaccineList from './tuvalu-vaccine-list';
 import * as covidVaccineList from './covid-module/covid-vaccine-list';
-import * as covidVaccineDailySummaryByVillage from './covid-module/covid-vaccine-daily-summary-village';
 import {
   generateCovidVaccineSummaryDose1Report,
   generateCovidVaccineSummaryDose2Report,
@@ -32,6 +31,7 @@ import * as fijiNcdPrimaryScreeningSummary from './fiji-ncd-primary-screening/fi
 import * as fijiStatisticalReportForPhisSummary from './fiji-statistical-report-for-phis-summary';
 import * as palauCovidCaseReportLineList from './covid-module/palau/palau-covid-case-report-line-list';
 import * as genericSurveyExportLineList from './generic-survey-export-line-list';
+import * as appointmentsLineList from './appointments-line-list';
 
 export function getReportModule(reportType) {
   switch (reportType) {
@@ -49,8 +49,6 @@ export function getReportModule(reportType) {
       return tuvaluVaccineList;
     case 'covid-vaccine-list':
       return covidVaccineList;
-    case 'covid-vaccine-daily-summary-village':
-      return covidVaccineDailySummaryByVillage;
     case 'covid-vaccine-summary-dose1':
       return {
         permission: covidVaccineSummaryPermission,
@@ -105,6 +103,8 @@ export function getReportModule(reportType) {
       return palauCovidCaseReportLineList;
     case 'generic-survey-export-line-list':
       return genericSurveyExportLineList;
+    case 'appointments-line-list':
+      return appointmentsLineList;
   }
 }
 

@@ -66,24 +66,28 @@ const DISPENSED_MEDICATION_COLUMNS = [
 ];
 
 export const PatientMedicationPane = React.memo(({ patient }) => (
-  <ContentPane>
-    <OuterLabelFieldWrapper label="Most recent discharge medications">
-      <DataFetchingTable
-        endpoint={`patient/${patient.id}/lastDischargedEncounter/medications`}
-        columns={DISCHARGED_MEDICATION_COLUMNS}
-        noDataMessage="No discharge medications found"
-        initialSort={{ order: 'desc', orderBy: 'endDate' }}
-      />
-    </OuterLabelFieldWrapper>
-    <OuterLabelFieldWrapper label="Dispensed medications">
-      <Table
-        columns={DISPENSED_MEDICATION_COLUMNS}
-        data={[]}
-        noDataMessage="No dispensed medications found"
-        // Next two props are used only to avoid a display error and an execution error
-        page={0}
-        onChangeOrderBy={() => {}}
-      />
-    </OuterLabelFieldWrapper>
-  </ContentPane>
+  <>
+    <ContentPane>
+      <OuterLabelFieldWrapper label="Most recent discharge medications">
+        <DataFetchingTable
+          endpoint={`patient/${patient.id}/lastDischargedEncounter/medications`}
+          columns={DISCHARGED_MEDICATION_COLUMNS}
+          noDataMessage="No discharge medications found"
+          initialSort={{ order: 'desc', orderBy: 'endDate' }}
+        />
+      </OuterLabelFieldWrapper>
+    </ContentPane>
+    <ContentPane>
+      <OuterLabelFieldWrapper label="Dispensed medications">
+        <Table
+          columns={DISPENSED_MEDICATION_COLUMNS}
+          data={[]}
+          noDataMessage="No dispensed medications found"
+          // Next two props are used only to avoid a display error and an execution error
+          page={0}
+          onChangeOrderBy={() => {}}
+        />
+      </OuterLabelFieldWrapper>
+    </ContentPane>
+  </>
 ));

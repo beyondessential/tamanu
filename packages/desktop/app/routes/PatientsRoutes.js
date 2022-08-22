@@ -1,31 +1,28 @@
 import React from 'react';
-import { Route, Switch } from 'react-router-dom';
-
+import { Redirect, Route, Switch } from 'react-router-dom';
+import { PATIENT_PATHS } from '../constants/patientPaths';
 import {
+  AdmittedPatientsView,
+  OutpatientsView,
   PatientListingView,
   TriageListingView,
-  AdmittedPatientsView,
-  PatientView,
-  EncounterView,
-  NotActiveView,
-  LabRequestView,
-  ImagingRequestView,
-  DischargeSummaryView,
-  OutpatientsView,
 } from '../views';
+import { PatientRoutes } from './PatientRoutes';
 
 export const PatientsRoutes = React.memo(({ match }) => (
   <Switch>
-    <Route exact path={match.path} component={PatientListingView} />
-    <Route path={`${match.path}/triage`} component={TriageListingView} />
-    <Route path={`${match.path}/admitted`} component={AdmittedPatientsView} />
-    <Route path={`${match.path}/outpatient`} component={OutpatientsView} />
-    <Route path={`${match.path}/new`} component={NotActiveView} />
-    <Route path={`${match.path}/view`} component={PatientView} />
-    <Route path={`${match.path}/encounter/labRequest/:modal?`} component={LabRequestView} />
-    <Route path={`${match.path}/encounter/imagingRequest/:modal?`} component={ImagingRequestView} />
-    <Route path={`${match.path}/encounter/summary`} component={DischargeSummaryView} />
-    <Route path={`${match.path}/encounter`} component={EncounterView} />
-    <NotActiveView />
+    <Route path={PATIENT_PATHS.PATIENT} component={PatientRoutes} />
+    <Route
+      path={PATIENT_PATHS.CATEGORY}
+      render={props =>
+        ({
+          all: <PatientListingView />,
+          emergency: <TriageListingView />,
+          inpatient: <AdmittedPatientsView />,
+          outpatient: <OutpatientsView />,
+        }[props.match.params.category])
+      }
+    />
+    <Redirect to={`${match.path}/all`} />
   </Switch>
 ));

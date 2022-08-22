@@ -50,7 +50,7 @@ async function createNauruSurveys(models) {
     { dataElementId: 'pde-NauCOVTest005', surveyId: SURVEY_ID },
     { dataElementId: 'pde-NauCOVTest006', surveyId: SURVEY_ID },
     { dataElementId: 'pde-NauCOVTest007', surveyId: SURVEY_ID },
-    { dataElementId: 'pde-NauCOVTest008', surveyId: SURVEY_ID, config: '{"source": "Facility"}', },
+    { dataElementId: 'pde-NauCOVTest008', surveyId: SURVEY_ID, config: '{"source": "Facility"}' },
   ]);
 }
 
@@ -148,7 +148,7 @@ describe('Nauru covid case report tests', () => {
           Status: LAB_REQUEST_STATUS_LABELS[LAB_REQUEST_STATUSES.RECEPTION_PENDING],
           Result: 'Positive',
           'Requested by': null,
-          'Requested date': format(labRequest.requestedDate, 'yyyy/MM/dd'),
+          'Requested date': format(new Date(labRequest.requestedDate), 'yyyy/MM/dd'),
           'Submitted date': format(labTest.date, 'yyyy/MM/dd'),
           Priority: null,
           'Testing laboratory': null,
