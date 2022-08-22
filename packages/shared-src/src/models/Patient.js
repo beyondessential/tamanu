@@ -35,7 +35,7 @@ export class Patient extends Model {
         ...options,
         syncConfig: {
           syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
-          includedRelations: config.sync.embedPatientNotes ? ['notes'] : [],
+          includedRelations: config.sync?.embedPatientNotes ? ['notes'] : [],
         },
         indexes: [
           { fields: ['date_of_death'] },
