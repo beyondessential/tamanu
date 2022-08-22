@@ -29,4 +29,4 @@ else
     yarn --cwd ${DESKTOP_ROOT} run package-and-publish-win
 fi
 
-./scripts/pack.sh desktop
+./scripts/pack_desktop.sh

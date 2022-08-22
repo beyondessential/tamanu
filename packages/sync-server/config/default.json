@@ -196,6 +196,9 @@
     "mSupply": {
       "enabled": false,
       "requireClientHeaders": true
+    },
+    "fhir": {
+      "enabled": false
     }
   },
   // on the sync-server, don't read these values from config!
