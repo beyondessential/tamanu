@@ -1,6 +1,7 @@
 import config from 'config';
 import fs from 'fs';
 import path from 'path';
+import { format as formatDate } from 'date-fns';
 import * as AWS from '@aws-sdk/client-s3';
 import mkdirp from 'mkdirp';
 
@@ -18,9 +19,6 @@ export class ReportRunner {
     this.recipients = recipients;
     this.store = store;
     this.emailService = emailService;
-
-    // todo: improve filename @see WAITM-181
-    this.reportName = reportId;
   }
 
   async validate(reportModule, reportDataGenerator) {
@@ -95,7 +93,8 @@ export class ReportRunner {
    * @returns {Promise<void>}
    */
   async sendReportToLocal(reportData) {
-    const reportName = this.getReportName();
+    const reportName = await this.getReportName();
+
     for (const recipient of this.recipients.local) {
       const { format, path: reportFolder } = recipient;
       if (!format || !reportFolder) {
@@ -105,6 +104,7 @@ export class ReportRunner {
         );
       }
       await mkdirp(reportFolder);
+
       const reportNameExtended = `${reportName}.${format}`;
       const reportPath = path.resolve(reportFolder, reportNameExtended);
       const outputPath = await writeToSpreadsheet(reportData, reportPath, format);
@@ -114,10 +114,25 @@ export class ReportRunner {
   }
 
   /**
-   * @returns {string}
+   *
+   * @returns {Promise<string>}
    */
-  getReportName() {
-    return `${this.reportName}-report-${new Date().getTime()}`;
+  async getReportName() {
+    const { country } = await getLocalisation();
+    const date = formatDate(new Date(), 'ddMMyyyy');
+
+    let reportName = this.reportId;
+
+    const dbDefinedReportModule = await this.store.models.ReportDefinitionVersion.findByPk(
+      this.reportId,
+      { include: ['reportDefinition'] },
+    );
+
+    if (dbDefinedReportModule) {
+      reportName = `${dbDefinedReportModule.reportDefinition.name}(v${dbDefinedReportModule.versionNumber})`;
+    }
+
+    return `Tamanu_Report_${date}_${reportName}_${country.name}`;
   }
 
   /**
@@ -127,7 +142,7 @@ export class ReportRunner {
    * @returns {Promise<void>}
    */
   async sendReportToEmail(reportData) {
-    const reportName = this.getReportName();
+    const reportName = await this.getReportName();
 
     let zipFile;
     try {
@@ -169,7 +184,8 @@ export class ReportRunner {
     let zipFile;
     const bookType = 'csv';
     try {
-      zipFile = await createZippedSpreadsheet(this.reportName, reportData, bookType);
+      const reportName = await this.getReportName();
+      zipFile = await createZippedSpreadsheet(reportName, reportData, bookType);
 
       const filename = path.basename(zipFile);
 
