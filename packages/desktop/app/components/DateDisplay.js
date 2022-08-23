@@ -2,7 +2,7 @@ import { remote } from 'electron';
 import React from 'react';
 import styled from 'styled-components';
 
-const getLocale = () => remote.app.getLocale() || 'default';
+const getLocale = () => remote.getGlobal('osLocales') || remote.app.getLocale() || 'default';
 
 const intlFormatDate = (date, formatOptions, fallback = 'Unknown') => {
   if (!date) return fallback;
