@@ -100,7 +100,7 @@ export async function createTestContext() {
   // do NOT time out during create context
   jest.setTimeout(1000 * 60 * 60 * 24);
 
-  /** sync does not create custom types */
+  /** sync does not interpret and create custom types */
   await createCustomTypes(dbResult);
 
   // sync db and remove old test dat
