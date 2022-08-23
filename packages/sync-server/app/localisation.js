@@ -78,6 +78,18 @@ const HIDEABLE_FIELDS = [
   'passport',
   'religionId',
   'patientBillingTypeId',
+  'motherId',
+  'fatherId',
+  'birthWeight',
+  'birthLength',
+  'birthDeliveryType',
+  'gestationalAgeEstimate',
+  'apgarScoreOneMinute',
+  'apgarScoreFiveMinutes',
+  'apgarScoreTenMinutes',
+  'timeOfBirth',
+  'clinicianAtBirthId',
+  'birthType',
 ];
 
 const templatesSchema = yup
