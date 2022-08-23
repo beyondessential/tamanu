@@ -69,19 +69,18 @@ where
   and case when :from_date is not null then e.start_date::date >= :from_date::date else true end
   and case when :to_date is not null then e.start_date::date <= :to_date::date else true end
   and case when :requested_by_id is not null then ir.requested_by_id = :requested_by_id else true end
+  and case when :imaging_type is not null then ir.imaging_type = :imaging_type else true end
+  and case when :status is not null then ir.status = :status else true end
 order by ir.requested_date desc;
 `;
-// TODO: add 2 more conditional where clauses for imaging type and status
-// and case when :imaging_type is not null then ir.imaging_type = :imaging_type else true end
-// and case when :status is not null then ir.status = :status else true end
 
 const getData = async (sequelize, parameters) => {
   const {
     fromDate = subDays(new Date(), 30),
     toDate,
     requestedById,
-    // imagingType,
-    // status,
+    imagingType,
+    status,
   } = parameters;
 
   return sequelize.query(query, {
@@ -90,8 +89,8 @@ const getData = async (sequelize, parameters) => {
       from_date: fromDate ?? null,
       to_date: toDate ?? null,
       requested_by_id: requestedById ?? null,
-      // imaging_type: imagingType ?? null,
-      // status: status ?? null,
+      imaging_type: imagingType ?? null,
+      status: status ?? null,
     },
   });
 };
