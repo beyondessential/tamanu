@@ -101,14 +101,6 @@ export const PatientView = () => {
     () => api.get(`patient/${patient.id}/birthData`),
   );
 
-  const RoutedEncounterModal = useMemo(() => getConnectRoutedModal(params, 'checkin'), [params])(
-    EncounterModal,
-  );
-
-  const RoutedTriageModal = useMemo(() => getConnectRoutedModal(params, 'triage'), [params])(
-    TriageModal,
-  );
-
   if (patient.loading || isLoadingAdditionalData || isLoadingBirthData) {
     return <LoadingIndicator />;
   }
