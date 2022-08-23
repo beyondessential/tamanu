@@ -7,3 +7,8 @@ export function deleteAllTestIds({ models, sequelize }) {
   );
   return Promise.all(deleteTasks);
 }
+
+export async function createCustomTypes({ sequelize }) {
+  await sequelize.query(`CREATE DOMAIN date_time_string as CHAR(19)`);
+  await sequelize.query(`CREATE DOMAIN date_string as CHAR(10)`);
+}
