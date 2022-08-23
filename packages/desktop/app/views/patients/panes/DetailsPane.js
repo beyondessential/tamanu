@@ -18,7 +18,7 @@ const ForbiddenMessage = () => (
   </ContentPane>
 );
 
-export const PatientDetailsPane = React.memo(({ patient, additionalData }) => {
+export const PatientDetailsPane = React.memo(({ patient, additionalData, birthData }) => {
   const api = useApi();
   const dispatch = useDispatch();
   const { ability } = useAuth();
@@ -29,9 +29,7 @@ export const PatientDetailsPane = React.memo(({ patient, additionalData }) => {
 
   // Display form if user can read, write or create patient additional data.
   // It's assumed that if a user got this far, they can read a patient.
-  const canViewForm = ['read', 'write', 'create'].some(verb =>
-    ability.can(verb, 'Patient'),
-  );
+  const canViewForm = ['read', 'write', 'create'].some(verb => ability.can(verb, 'Patient'));
 
   if (canViewForm === false) {
     return <ForbiddenMessage />;
@@ -42,6 +40,7 @@ export const PatientDetailsPane = React.memo(({ patient, additionalData }) => {
       <PatientDetailsForm
         patient={patient}
         additionalData={additionalData}
+        birthData={birthData}
         onSubmit={handleSubmit}
       />
     </ContentPane>

@@ -207,6 +207,13 @@ export const REPORT_REQUEST_STATUSES = {
 
 export const REPORT_REQUEST_STATUS_VALUES = Object.values(REPORT_REQUEST_STATUSES);
 
+export const REPORT_DATA_SOURCES = {
+  THIS_FACILITY: 'thisFacility',
+  ALL_FACILITIES: 'allFacilities',
+};
+
+export const REPORT_DATA_SOURCE_VALUES = Object.values(REPORT_DATA_SOURCES);
+
 export const DIAGNOSIS_CERTAINTY = {
   SUSPECTED: 'suspected',
   CONFIRMED: 'confirmed',
@@ -447,6 +454,26 @@ export const SERVER_TYPES = {
 export const VISIBILITY_STATUSES = {
   CURRENT: 'current',
   HISTORICAL: 'historical',
+};
+
+export const PATIENT_REGISTRY_TYPES = {
+  NEW_PATIENT: 'new_patient',
+  BIRTH_REGISTRY: 'birth_registry',
+};
+
+export const BIRTH_DELIVERY_TYPES = {
+  NORMAL_VAGINAL_DELIVERY: 'normal_vaginal_delivery',
+  BREECH: 'breech',
+  EMERGENCY_C_SECTION: 'emergency_c_section',
+  ELECTIVE_C_SECTION: 'elective_c_section',
+  VENTOUSE: 'ventouse',
+  FORCEPS: 'forceps',
+  OTHER: 'other',
+};
+
+export const BIRTH_TYPES = {
+  SINGLE: 'single',
+  PLURAL: 'plural',
 };
 
 export const ISO9075_FORMAT = 'YYYY-MM-DD HH:mm:ss';

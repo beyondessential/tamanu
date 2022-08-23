@@ -35,7 +35,7 @@
     "build-report": "yarn build-shared && yarn workspace sync-server build && yarn workspace sync-server start report"
   },
   "engines": {
-    "node": "^12.16.0"
+    "node": "^16.16.0"
   },
   "private": true,
   "workspaces": {
@@ -65,6 +65,8 @@
     "eslint-config-prettier": "^4.3.0",
     "eslint-plugin-prettier": "^3.1.0",
     "eslint-plugin-react-hooks": "^4.3.0",
+    "nodemon": "^2.0.19",
+    "nodemon-webpack-plugin": "^4.8.1",
     "prettier": "^1.17.1",
     "yarn": "^1.22.18"
   },

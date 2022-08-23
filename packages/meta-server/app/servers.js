@@ -20,11 +20,6 @@ const servers = [
   { name: 'Fiji NCD', type: 'live', host: 'https://sync-ncd-pilot.tamanu-fiji.org' },
   { name: 'Fiji Tourism', type: 'live', host: 'https://sync-tourism.tamanu-fiji.org' },
   { name: 'Kiribati', type: 'live', host: 'https://sync.tamanu-kiribati.org' },
-  {
-    name: 'Motivation Australia - Papua New Guinea',
-    type: 'live',
-    host: 'https://motivation-sync-png.tamanu.io',
-  },
   { name: 'Nauru', type: 'live', host: 'https://sync.tamanu-nauru.org' },
   { name: 'Palau', type: 'live', host: 'https://sync.tamanu-palau.org' },
   { name: 'Samoa', type: 'live', host: 'https://tamanu-sync.health.gov.ws' },
@@ -41,10 +36,11 @@ const servers = [
   { name: 'Demo (Palau)', type: 'demo', host: 'https://sync-demo.tamanu-palau.org' },
   { name: 'Demo (Palau EB)', type: 'demo', host: 'https://sync-demo-palau.tamanu.io' },
   { name: 'Demo (Samoa)', type: 'demo', host: 'https://sync-samoa-demo.tamanu.io' },
+  { name: 'Demo (Solomons)', type: 'demo', host: 'https://sync-demo.tamanu-solomons.org' },
   { name: 'Demo (Tuvalu)', type: 'demo', host: 'https://sync-demo-tuvalu.tamanu.io' },
 
   // development servers
-  { name: 'Dev', type: 'dev', host: 'https://sync-dev.tamanu.io' },
+  { name: 'Dev', type: 'dev', host: 'https://central-dev.tamanu.io' },
   { name: 'Staging', type: 'dev', host: 'https://sync-staging.tamanu.io' },
   { name: 'Stress testing', type: 'dev', host: 'https://sync-stress-test.tamanu.io' },
   { name: 'UAT', type: 'dev', host: 'https://sync-uat.tamanu.io' },
