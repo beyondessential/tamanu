@@ -89,6 +89,19 @@ export const IMAGING_REQUEST_STATUS_TYPES = {
   COMPLETED: 'completed',
 };
 
+export const IMAGING_REQUEST_STATUS_LABELS = {
+  [IMAGING_REQUEST_STATUS_TYPES.PENDING]: 'Pending',
+  [IMAGING_REQUEST_STATUS_TYPES.COMPLETED]: 'Completed',
+  [IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS]: 'In progress',
+};
+
+export const IMAGING_REQUEST_STATUS_OPTIONS = Object.values(IMAGING_REQUEST_STATUS_TYPES).map(
+  s => ({
+    label: IMAGING_REQUEST_STATUS_LABELS[s],
+    value: s,
+  }),
+);
+
 export const AVPU_OPTIONS = [
   { value: 'alert', label: 'Alert' },
   { value: 'verbal', label: 'Verbal' },

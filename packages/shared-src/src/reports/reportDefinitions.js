@@ -2,6 +2,7 @@ import {
   APPOINTMENT_STATUSES,
   REPORT_DATA_SOURCES,
   REPORT_DATA_SOURCE_VALUES,
+  IMAGING_REQUEST_STATUS_OPTIONS,
 } from 'shared/constants';
 
 const LAST_30_DAYS_DATE_LABEL = 'Date range (or leave blank for the past 30 days of data)';
@@ -426,15 +427,15 @@ export const REPORT_DEFINITIONS = [
         parameterField: 'ParameterSelectField',
         label: 'Imaging type',
         name: 'imagingType',
-        options: [], // TODO add options
+        options: [],
       },
+      */
       {
         parameterField: 'ParameterSelectField',
         label: 'Status',
         name: 'status',
-        options: [], // TODO add options dependant on imaging type
+        options: IMAGING_REQUEST_STATUS_OPTIONS,
       },
-      */
     ],
   },
 ];
