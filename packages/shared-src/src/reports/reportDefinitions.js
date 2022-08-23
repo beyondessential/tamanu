@@ -422,14 +422,7 @@ export const REPORT_DEFINITIONS = [
         name: 'requestedById',
         suggesterEndpoint: 'practitioner',
       },
-      /*
-      {
-        parameterField: 'ParameterSelectField',
-        label: 'Imaging type',
-        name: 'imagingType',
-        options: [],
-      },
-      */
+      { parameterField: 'ImagingTypeField' },
       {
         parameterField: 'ParameterSelectField',
         label: 'Status',
