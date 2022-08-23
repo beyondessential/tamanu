@@ -430,6 +430,66 @@
         "age": {
           "shortLabel": "Age",
           "longLabel": "Age"
+        },
+        "motherId": {
+          "shortLabel": "Mother",
+          "longLabel": "Mother",
+          "hidden": false
+        },
+        "fatherId": {
+          "shortLabel": "Father",
+          "longLabel": "Father",
+          "hidden": false
+        },
+        "birthWeight": {
+          "shortLabel": "Birth weight (kg)",
+          "longLabel": "Birth weight (kg)",
+          "hidden": false
+        },
+        "birthLength": {
+          "shortLabel": "Birth length (cm)",
+          "longLabel": "Birth length (cm)",
+          "hidden": false
+        },
+        "birthDeliveryType": {
+          "shortLabel": "Delivery type",
+          "longLabel": "Delivery type",
+          "hidden": false
+        },
+        "gestationalAgeEstimate": {
+          "shortLabel": "Estimated gestational age (weeks)",
+          "longLabel": "Estimated gestational age (weeks)",
+          "hidden": false
+        },
+        "apgarScoreOneMinute": {
+          "shortLabel": "Apgar score 1 minute",
+          "longLabel": "Apgar score 1 minute",
+          "hidden": false
+        },
+        "apgarScoreFiveMinutes": {
+          "shortLabel": "Apgar score 5 minutes",
+          "longLabel": "Apgar score 5 minutes",
+          "hidden": false
+        },
+        "apgarScoreTenMinutes": {
+          "shortLabel": "Apgar score 10 minutes",
+          "longLabel": "Apgar score 10 minutes",
+          "hidden": false
+        },
+        "timeOfBirth": {
+          "shortLabel": "Time of birth",
+          "longLabel": "Time of birth",
+          "hidden": false
+        },
+        "clinicianAtBirthId": {
+          "shortLabel": "Name of clinician at birth",
+          "longLabel": "Name of clinician at birth",
+          "hidden": false
+        },
+        "birthType": {
+          "shortLabel": "Single/Plural birth",
+          "longLabel": "Single/Plural birth",
+          "hidden": false
         }
       },
       "features": {

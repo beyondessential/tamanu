@@ -92,11 +92,26 @@ export const PatientView = () => {
   const [currentTab, setCurrentTab] = React.useState('history');
   const disabled = !!patient.death;
   const api = useApi();
-  const { data: additionalData, isLoading } = useQuery(['additionalData', patient.id], () =>
-    api.get(`patient/${patient.id}/additionalData`),
+  const { data: additionalData, isLoading: isLoadingAdditionalData } = useQuery(
+    ['additionalData', patient.id],
+    () => api.get(`patient/${patient.id}/additionalData`),
+  );
+  const { data: birthData, isLoading: isLoadingBirthData } = useQuery(
+    ['birthData', patient.id],
+    () => api.get(`patient/${patient.id}/birthData`),
   );
 
-  if (patient.loading || isLoading) return <LoadingIndicator />;
+  const RoutedEncounterModal = useMemo(() => getConnectRoutedModal(params, 'checkin'), [params])(
+    EncounterModal,
+  );
+
+  const RoutedTriageModal = useMemo(() => getConnectRoutedModal(params, 'triage'), [params])(
+    TriageModal,
+  );
+
+  if (patient.loading || isLoadingAdditionalData || isLoadingBirthData) {
+    return <LoadingIndicator />;
+  }
 
   const visibleTabs = TABS.filter(tab => !tab.condition || tab.condition(getLocalisation));
 
@@ -109,6 +124,7 @@ export const PatientView = () => {
         onTabSelect={setCurrentTab}
         patient={patient}
         additionalData={additionalData}
+        birthData={birthData}
         disabled={disabled}
       />
     </>
