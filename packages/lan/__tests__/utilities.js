@@ -10,7 +10,7 @@ import { getToken } from 'lan/app/middleware/auth';
 
 import { toMatchTabularReport } from './toMatchTabularReport';
 import { allSeeds } from './seed';
-import { deleteAllTestIds, createCustomTypes } from './setupUtilities';
+import { deleteAllTestIds } from './setupUtilities';
 
 import { SyncManager } from '../app/sync/SyncManager';
 import { WebRemote } from '../app/sync/WebRemote';
@@ -101,7 +101,8 @@ export async function createTestContext() {
   jest.setTimeout(1000 * 60 * 60 * 24);
 
   // sync does not interpret and create custom types
-  await createCustomTypes(dbResult);
+  await sequelize.query(`CREATE DOMAIN date_time_string as CHAR(19)`);
+  await sequelize.query(`CREATE DOMAIN date_string as CHAR(10)`);
 
   // sync db and remove old test dat
   await sequelize.sync({});
