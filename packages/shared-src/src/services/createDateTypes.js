@@ -7,7 +7,7 @@ import { DataTypes, Utils } from 'sequelize';
 // Necessary as DataTypes.ABSTRACT is wrapped with classToInvokable()
 const ABSTRACT = DataTypes.ABSTRACT.prototype.constructor;
 
-export function createDateType() {
+export function createDateTypes() {
   class DATETIMESTRING extends ABSTRACT {
     static toString() {
       return 'date_time_string';
