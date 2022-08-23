@@ -430,12 +430,6 @@ export const REPORT_DEFINITIONS = [
       },
       {
         parameterField: 'ParameterSelectField',
-        label: 'Area to be imaged',
-        name: 'areaToBeImaged',
-        options: [], // TODO add options dependant on imaging type
-      },
-      {
-        parameterField: 'ParameterSelectField',
         label: 'Status',
         name: 'status',
         options: [], // TODO add options dependant on imaging type

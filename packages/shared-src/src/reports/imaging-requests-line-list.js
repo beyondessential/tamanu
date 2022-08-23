@@ -8,7 +8,7 @@ const FIELDS = [
   'DOB',
   'Age',
   'Sex',
-  'Village', // Change field name with localisation
+  'Village',
   'Facility',
   'Department',
   'Location',
@@ -71,9 +71,8 @@ where
   and case when :requested_by_id is not null then ir.requested_by_id = :requested_by_id else true end
 order by ir.requested_date desc;
 `;
-// TODO: add 3 more conditional where clauses for imaging type, area to be imaged and status
+// TODO: add 2 more conditional where clauses for imaging type and status
 // and case when :imaging_type is not null then ir.imaging_type = :imaging_type else true end
-// and case when :area_to_be_imaged is not null then n.content = :area_to_be_imaged else true end
 // and case when :status is not null then ir.status = :status else true end
 
 const getData = async (sequelize, parameters) => {
@@ -82,7 +81,6 @@ const getData = async (sequelize, parameters) => {
     toDate,
     requestedById,
     // imagingType,
-    // areaToBeImaged,
     // status,
   } = parameters;
 
@@ -93,7 +91,6 @@ const getData = async (sequelize, parameters) => {
       to_date: toDate ?? null,
       requested_by_id: requestedById ?? null,
       // imaging_type: imagingType ?? null,
-      // area_to_be_imaged: areaToBeImaged ?? null,
       // status: status ?? null,
     },
   });
