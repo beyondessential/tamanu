@@ -14,7 +14,6 @@ import { deleteAllTestIds } from './setupUtilities';
 
 import { SyncManager } from '../app/sync/SyncManager';
 import { WebRemote } from '../app/sync/WebRemote';
-import { createDateTypes } from '../../shared-src/src/services/createDateTypes';
 
 jest.mock('../app/sync/WebRemote');
 jest.mock('../app/utils/uploadAttachment');
@@ -95,7 +94,6 @@ export function extendExpect(expect) {
 }
 
 export async function createTestContext() {
-  createDateTypes();
   const dbResult = await initDatabase();
   const { models, sequelize } = dbResult;
 
