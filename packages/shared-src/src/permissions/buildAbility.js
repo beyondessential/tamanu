@@ -16,7 +16,7 @@ export function buildAbility(permissions, options = {}) {
 
 export function buildAdminAbility() {
   return buildAbility([
-    // these values are specially understood by CASL to grant 
+    // these values are specially understood by CASL to grant
     // wildcard permission for all actions
     { verb: 'manage', noun: 'all' },
   ]);

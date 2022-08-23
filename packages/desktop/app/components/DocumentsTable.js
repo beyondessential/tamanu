@@ -32,7 +32,7 @@ const ActionDropdown = React.memo(({ row, onDownload, onClickDelete }) => {
     */
   ];
 
-  return <DropdownButton color="primary" actions={actions} />;
+  return <DropdownButton actions={actions} variant="outlined" size="small" />;
 });
 
 const getType = ({ type }) => {
@@ -45,7 +45,7 @@ const getUploadedDate = ({ documentUploadedAt }) =>
 const getDepartmentName = ({ department }) => department?.name || '';
 
 export const DocumentsTable = React.memo(
-  ({ endpoint, searchParameters, refreshCount, canInvokeDocumentAction }) => {
+  ({ endpoint, searchParameters, refreshCount, canInvokeDocumentAction, elevated }) => {
     const { showSaveDialog, openPath } = useElectron();
     const api = useApi();
 
@@ -135,6 +135,7 @@ export const DocumentsTable = React.memo(
           fetchOptions={searchParameters}
           refreshCount={refreshCount}
           allowExport={false}
+          elevated={elevated}
         />
         <ConfirmModal
           open={selectedDocumentId !== null}

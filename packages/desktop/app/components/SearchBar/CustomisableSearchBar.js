@@ -59,7 +59,7 @@ export const CustomisableSearchBar = ({
             {renderCheckField}
             <Box marginLeft="auto">
               <LargeOutlineButton style={{ marginRight: 12 }} onClick={clearForm}>
-                Clear Search
+                Clear search
               </LargeOutlineButton>
               <LargeButton onClick={submitForm} type="submit">
                 Search

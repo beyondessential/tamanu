@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 
 import * as yup from 'yup';
+import { LAB_TEST_RESULT_TYPES } from 'shared/constants';
 import {
   Form,
   Field,
@@ -15,9 +16,9 @@ import { ConfirmCancelRow } from '../components/ButtonRow';
 import { capitaliseFirstLetter } from '../utils/capitalise';
 import { useSuggester } from '../api';
 
-function getComponentForTest(questionType, options) {
+function getComponentForTest(resultType, options) {
   if (options && options.length) return SelectField;
-  if (questionType === 'string') return TextField;
+  if (resultType === LAB_TEST_RESULT_TYPES.FREE_TEXT) return TextField;
   return NumberField;
 }
 
@@ -37,8 +38,8 @@ function renderOptions(options) {
 }
 
 export const ManualLabResultForm = ({ onSubmit, onClose, labTest }) => {
-  const { questionType, options } = labTest.labTestType;
-  const component = getComponentForTest(questionType, options);
+  const { resultType, options } = labTest.labTestType;
+  const component = getComponentForTest(resultType, options);
   const methodSuggester = useSuggester('labTestMethod');
 
   const renderForm = useCallback(

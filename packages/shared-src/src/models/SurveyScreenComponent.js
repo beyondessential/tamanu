@@ -48,23 +48,12 @@ export class SurveyScreenComponent extends Model {
         },
       },
       include: this.getListReferenceAssociations(),
+      order: ['screenIndex', 'componentIndex'],
     }).map(c => c.forResponse());
   }
 
   static getComponentsForSurvey(surveyId) {
     return this.getComponentsForSurveys([surveyId]);
-  }
-
-  static getAnswerComponentsForSurveys(surveyId) {
-    return this.findAll({
-      where: {
-        surveyId,
-        '$dataElement.type$': {
-          [Op.not]: 'Instruction',
-        },
-      },
-      include: this.getListReferenceAssociations(),
-    }).map(c => c.forResponse());
   }
 
   getOptions() {

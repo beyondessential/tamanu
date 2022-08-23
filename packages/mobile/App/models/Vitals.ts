@@ -1,6 +1,6 @@
 import { Entity, Column, ManyToOne, RelationId, BeforeInsert, BeforeUpdate } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
-import { AVPUType, IVitals } from '~/types';
+import { AVPUType, IVitals, DetectedPresenceType, UrineNitritesType, UrineProteinType } from '../types/IVitals';
 import { Encounter } from './Encounter';
 
 @Entity('vitals')
@@ -34,6 +34,45 @@ export class Vitals extends BaseModel implements IVitals {
 
   @Column({ type: 'varchar', nullable: true })
   avpu?: AVPUType;
+
+  @Column({ type: 'int', nullable: true })
+  gcs?: number;
+
+  @Column({ type: 'int', nullable: true })
+  hemoglobin?: number;
+
+  @Column({ type: 'int', nullable: true })
+  fastingBloodGlucose?: number;
+
+  @Column({ type: 'int', nullable: true })
+  urinePh?: number;
+
+  @Column({ type: 'varchar', nullable: true })
+  urineLeukocytes?: DetectedPresenceType;
+
+  @Column({ type: 'varchar', nullable: true })
+  urineNitrites?: UrineNitritesType;
+
+  @Column({ type: 'int', nullable: true })
+  urobilinogen?: number;
+
+  @Column({ type: 'varchar', nullable: true })
+  urineProtein?: UrineProteinType;
+
+  @Column({ type: 'varchar', nullable: true })
+  bloodInUrine?: DetectedPresenceType;
+
+  @Column({ type: 'int', nullable: true })
+  urineSpecificGravity?: number;
+
+  @Column({ type: 'varchar', nullable: true })
+  urineKetone?: DetectedPresenceType;
+
+  @Column({ type: 'varchar', nullable: true })
+  urineBilirubin?: DetectedPresenceType;
+
+  @Column({ type: 'int', nullable: true })
+  urineGlucose?: number;
 
   @ManyToOne(() => Encounter)
   encounter: Encounter;

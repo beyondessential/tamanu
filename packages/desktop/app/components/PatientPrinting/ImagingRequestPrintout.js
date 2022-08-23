@@ -2,6 +2,7 @@ import React from 'react';
 import moment from 'moment';
 
 import { SimplePrintout } from './SimplePrintout';
+import { useLocalisation } from '../../contexts/Localisation';
 
 export const ImagingRequestPrintout = React.memo(
   ({ imagingRequestData, patientData, encounterData, certificateData }) => {
@@ -11,9 +12,12 @@ export const ImagingRequestPrintout = React.memo(
       requestedBy,
       urgent,
       imagingType,
-      areaToBeImaged,
+      areas,
+      areaNote,
       note,
     } = imagingRequestData;
+    const { getLocalisation } = useLocalisation();
+    const imagingTypes = getLocalisation('imagingTypes') || {};
 
     return (
       <SimplePrintout
@@ -27,8 +31,8 @@ export const ImagingRequestPrintout = React.memo(
           Department: encounterData?.department?.name,
           'Requested by': requestedBy?.displayName,
           Urgent: urgent ? 'Yes' : 'No',
-          'Imaging type': imagingType?.name,
-          'Area to be imaged': areaToBeImaged,
+          'Imaging type': imagingTypes[imagingType]?.label || 'Unknown',
+          'Areas to be imaged': areas?.length ? areas.map(area => area.name).join(', ') : areaNote,
         }}
       />
     );

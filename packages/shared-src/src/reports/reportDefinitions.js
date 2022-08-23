@@ -1,3 +1,5 @@
+import { APPOINTMENT_STATUSES } from 'shared/constants';
+
 export const REPORT_DEFINITIONS = [
   {
     name: 'Incomplete referrals',
@@ -80,11 +82,6 @@ export const REPORT_DEFINITIONS = [
   {
     name: 'COVID vaccine campaign - Second dose summary',
     id: 'covid-vaccine-summary-dose2',
-    allFacilities: true,
-  },
-  {
-    name: 'COVID vaccine campaign daily summary by village',
-    id: 'covid-vaccine-daily-summary-village',
     allFacilities: true,
   },
   {
@@ -329,6 +326,34 @@ export const REPORT_DEFINITIONS = [
         label: 'Survey',
         name: 'surveyId',
         suggesterEndpoint: 'survey',
+        required: true,
+      },
+    ],
+  },
+  {
+    name: 'Appointments - Line list',
+    id: 'appointments-line-list',
+    parameters: [
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Location',
+        name: 'location',
+        suggesterEndpoint: 'location',
+      },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Clinician',
+        name: 'clinician',
+        suggesterEndpoint: 'practitioner',
+      },
+      {
+        parameterField: 'ParameterSelectField',
+        name: 'appointmentStatus',
+        label: 'Appointment Status',
+        options: Object.values(APPOINTMENT_STATUSES).map(status => ({
+          label: status,
+          value: status,
+        })),
       },
     ],
   },

@@ -61,7 +61,7 @@ export const ArrayField = ({ form, field, renderField, maxFields = 4 }) => {
             <AddButton
               startIcon={<AddCircleOutline />}
               type="button"
-              color="primary"
+              variant="text"
               onClick={() => {
                 setFields(currentFields => [...currentFields, { id: generate() }]);
               }}

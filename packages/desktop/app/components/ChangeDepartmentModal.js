@@ -1,30 +1,31 @@
 import React, { useCallback } from 'react';
-
-import { Modal } from './Modal';
-
-import { connectApi } from '../api/connectApi';
-import { Suggester } from '../utils/suggester';
+import { useSuggester } from '../api';
+import { useEncounter } from '../contexts/Encounter';
+import { usePatientNavigation } from '../utils/usePatientNavigation';
 
 import { ChangeDepartmentForm } from '../forms/ChangeDepartmentForm';
-import { useEncounter } from '../contexts/Encounter';
+import { Modal } from './Modal';
 
-const DumbChangeDepartmentModal = React.memo(({ open, onClose, ...rest }) => {
+export const ChangeDepartmentModal = React.memo(({ open, onClose }) => {
+  const { navigateToEncounter } = usePatientNavigation();
+  const departmentSuggester = useSuggester('department');
   const encounterCtx = useEncounter();
   const onSubmit = useCallback(
-    data => {
+    async data => {
       const { encounter, writeAndViewEncounter } = encounterCtx;
-      writeAndViewEncounter(encounter.id, data);
+      await writeAndViewEncounter(encounter.id, data);
+      navigateToEncounter(encounter.id);
     },
-    [encounterCtx],
+    [encounterCtx, navigateToEncounter],
   );
 
   return (
     <Modal title="Change department" open={open} onClose={onClose}>
-      <ChangeDepartmentForm onSubmit={onSubmit} onCancel={onClose} {...rest} />
+      <ChangeDepartmentForm
+        onSubmit={onSubmit}
+        onCancel={onClose}
+        departmentSuggester={departmentSuggester}
+      />
     </Modal>
   );
 });
-
-export const ChangeDepartmentModal = connectApi(api => ({
-  departmentSuggester: new Suggester(api, 'department'),
-}))(DumbChangeDepartmentModal);
