@@ -11,9 +11,7 @@ import {
   PatientSearchBar,
   ContentPane,
 } from '../../components';
-import { DropdownButton } from '../../components/DropdownButton';
-import { OutlinedButton } from '../../components/Button';
-import { withPermissionCheck } from '../../components/withPermissionCheck';
+import { ButtonWithPermissionCheck } from '../../components/Button';
 import { NewPatientModal } from './components';
 import {
   markedForSync,
@@ -99,7 +97,15 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
 
   return (
     <>
-      {withPermissionCheck(<OutlinedButton onClick={showNewPatient}>+ Create new patient</OutlinedButton>)}
+      <ButtonWithPermissionCheck
+        variant="outlined"
+        color="primary"
+        verb="create"
+        noun="Patient"
+        onClick={showNewPatient}
+      >
+        + Create new patient
+      </ButtonWithPermissionCheck>
       <NewPatientModal
         title="New patient"
         open={isCreatingPatient}
