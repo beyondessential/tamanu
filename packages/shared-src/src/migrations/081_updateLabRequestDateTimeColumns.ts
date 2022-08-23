@@ -8,7 +8,7 @@ export async function up(query: QueryInterface) {
   await query.addColumn(TABLE_NAME, 'sample_time_legacy', {
     type: DataTypes.DATE,
   });
-  await query.addColumn(TABLE_NAME, `requested_date_legacy`, {
+  await query.addColumn(TABLE_NAME, 'requested_date_legacy', {
     type: DataTypes.DATE,
   });
 
