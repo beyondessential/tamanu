@@ -32,7 +32,6 @@ import { resetPassword } from './resetPassword';
 import { changePassword } from './changePassword';
 import { certificateNotification } from './certificateNotification';
 
-import { admin } from './admin';
 import { setting } from './setting';
 import { asset } from './asset';
 import { department } from './department';
@@ -84,8 +83,6 @@ apiv1.use('/appointments', appointments);
 
 apiv1.use('/invoices', invoices);
 apiv1.use('/invoiceLineTypes', invoiceLineTypes);
-
-apiv1.use('/admin', admin);
 
 apiv1.use('/setting', setting);
 

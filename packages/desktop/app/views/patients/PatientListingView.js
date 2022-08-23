@@ -13,6 +13,7 @@ import {
 } from '../../components';
 import { DropdownButton } from '../../components/DropdownButton';
 import { OutlinedButton } from '../../components/Button';
+import { withPermissionCheck } from '../../components/withPermissionCheck';
 import { NewPatientModal } from './components';
 import {
   markedForSync,
@@ -98,7 +99,7 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
 
   return (
     <>
-      <OutlinedButton onClick={showNewPatient}>+ Create new patient</OutlinedButton>
+      {withPermissionCheck(<OutlinedButton onClick={showNewPatient}>+ Create new patient</OutlinedButton>)}
       <NewPatientModal
         title="New patient"
         open={isCreatingPatient}
