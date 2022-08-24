@@ -11,6 +11,9 @@ import {
   REFERRAL_STATUSES,
   INVOICE_STATUSES,
   INVOICE_PAYMENT_STATUSES,
+  PATIENT_REGISTRY_TYPES,
+  BIRTH_DELIVERY_TYPES,
+  BIRTH_TYPES,
 } from 'shared/constants';
 
 import {
@@ -398,4 +401,24 @@ export const INVOICE_PAYMENT_STATUS_LABELS = {
 export const INVOICE_PAYMENT_STATUS_OPTIONS = [
   { label: 'Unpaid', value: INVOICE_PAYMENT_STATUSES.UNPAID },
   { label: 'Paid', value: INVOICE_PAYMENT_STATUSES.PAID },
+];
+
+export const BIRTH_DELIVERY_TYPE_OPTIONS = [
+  { value: BIRTH_DELIVERY_TYPES.NORMAL_VAGINAL_DELIVERY, label: 'Normal vaginal delivery' },
+  { value: BIRTH_DELIVERY_TYPES.BREECH, label: 'Breech' },
+  { value: BIRTH_DELIVERY_TYPES.EMERGENCY_C_SECTION, label: 'Emergency C-section' },
+  { value: BIRTH_DELIVERY_TYPES.ELECTIVE_C_SECTION, label: 'Elective C-section' },
+  { value: BIRTH_DELIVERY_TYPES.VENTOUSE, label: 'Ventouse' },
+  { value: BIRTH_DELIVERY_TYPES.FORCEPS, label: 'Forceps' },
+  { value: BIRTH_DELIVERY_TYPES.OTHER, label: 'Other' },
+];
+
+export const BIRTH_TYPE_OPTIONS = [
+  { value: BIRTH_TYPES.SINGLE, label: 'Single' },
+  { value: BIRTH_TYPES.PLURAL, label: 'Plural' },
+];
+
+export const PATIENT_REGISTRY_OPTIONS = [
+  { value: PATIENT_REGISTRY_TYPES.NEW_PATIENT, label: 'Create new patient' },
+  { value: PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY, label: 'Register birth' },
 ];
