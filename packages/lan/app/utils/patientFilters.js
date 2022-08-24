@@ -80,7 +80,10 @@ export const createPatientFilters = filterParams => {
     makeFilter(filterParams.villageId, `patients.village_id = :villageId`),
     makeFilter(filterParams.locationId, `location.id = :locationId`),
     makeFilter(filterParams.departmentId, `department.id = :departmentId`),
-    makeFilter(filterParams.facilityId, `department.facility_id = :facilityId`),
+    makeFilter(
+      filterParams.facilityId === ':local' ? config.serverFacilityId : filterParams.facilityId,
+      `department.facility_id = :facilityId`,
+    ),
     makeFilter(filterParams.inpatient, `encounters.encounter_type = 'admission'`),
     makeFilter(filterParams.outpatient, `encounters.encounter_type = 'clinic'`),
     makeFilter(filterParams.clinicianId, `encounters.examiner_id = :clinicianId`),
