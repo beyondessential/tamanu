@@ -13,10 +13,10 @@ export type UploadRecordsResponse = {
 };
 
 export interface SyncRecord {
-  ERROR_MESSAGE?: string;
+  recordId: string,
   recordType: string;
-  isDeleted?: boolean;
   data: SyncRecordData;
+  isDeleted?: boolean;
 }
 
 export type PersistResult = {

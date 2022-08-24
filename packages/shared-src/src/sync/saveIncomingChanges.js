@@ -1,6 +1,16 @@
 import { groupBy } from 'lodash';
 import { Op } from 'sequelize';
 import { sortInDependencyOrder } from 'shared/models/sortInDependencyOrder';
+import {
+  findSessionSyncRecordsForFacility,
+  findSessionSyncRecordsForCentral,
+} from './findSessionSyncRecords';
+import {
+  countSessionSyncRecordsForFacility,
+  countSessionSyncRecordsForCentral,
+} from './countSessionSyncRecords';
+
+const BATCH_SIZE = 10000;
 
 const saveCreates = async (model, records) => model.bulkCreate(records);
 
@@ -48,13 +58,57 @@ const saveChangesForModel = async (model, changes, isCentralServer) => {
   await saveDeletes(model, idsForDelete);
 };
 
-export const saveIncomingChanges = async (sequelize, models, changes, isCentralServer = false) => {
-  const sortedModels = sortInDependencyOrder(models);
-  const changesByRecordType = groupBy(changes, c => c.recordType);
+const saveChangesForModelInBatches = async (
+  sequelize,
+  model,
+  models,
+  sessionIndex,
+  recordType,
+  isCentralServer,
+) => {
+  const syncRecordsCount = isCentralServer
+    ? await countSessionSyncRecordsForCentral(models, model.tableName, sessionIndex)
+    : await countSessionSyncRecordsForFacility(models, model.tableName);
+
+  const batchCount = Math.ceil(syncRecordsCount / BATCH_SIZE);
 
   await sequelize.transaction(async () => {
-    for (const model of sortedModels) {
-      await saveChangesForModel(model, changesByRecordType[model.tableName] || [], isCentralServer);
+    for (let batchIndex = 0; batchIndex < batchCount; batchIndex++) {
+      const offset = BATCH_SIZE * batchIndex;
+
+      const batchRecords = isCentralServer
+        ? await findSessionSyncRecordsForCentral(
+            models,
+            recordType,
+            sessionIndex,
+            BATCH_SIZE,
+            offset,
+          )
+        : await findSessionSyncRecordsForFacility(models, recordType, BATCH_SIZE, offset);
+
+      const batchRecordsToSave = batchRecords.map(r => r.dataValues);
+      await saveChangesForModel(model, batchRecordsToSave, isCentralServer);
     }
   });
+};
+
+export const saveIncomingChanges = async (
+  sequelize,
+  models,
+  pulledModels,
+  sessionIndex,
+  isCentralServer = false,
+) => {
+  const sortedModels = sortInDependencyOrder(pulledModels);
+
+  for (const model of sortedModels) {
+    await saveChangesForModelInBatches(
+      sequelize,
+      model,
+      models,
+      sessionIndex,
+      model.tableName,
+      isCentralServer,
+    );
+  }
 };

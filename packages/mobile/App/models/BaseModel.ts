@@ -1,5 +1,4 @@
 import { pick } from 'lodash';
-import { Mutex } from 'async-mutex';
 import {
   BaseEntity,
   PrimaryColumn,
@@ -107,7 +106,7 @@ export abstract class BaseModel extends BaseEntity {
   @Column({ nullable: true })
   uploadedAt: Date;
 
-  @Column({ nullable: false, default: () => 0 })
+  @Column({ nullable: false, default: 0 })
   updatedAtSyncIndex: number;
 
   @BeforeUpdate()
@@ -126,8 +125,8 @@ export abstract class BaseModel extends BaseEntity {
 
   @BeforeInsert()
   async assignUpdatedAtSyncIndex() {
-    const index = await getSyncSessionIndex('CurrentSyncSession');
     if ([null, undefined].includes(this.updatedAtSyncIndex)) {
+      const index = await getSyncSessionIndex('CurrentSyncSession');
       this.updatedAtSyncIndex = index;
     }
   }
