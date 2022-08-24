@@ -73,13 +73,13 @@ patientRoute.put(
         await patientAdditionalData.update(requestBodyToRecord(req.body));
       }
 
-      const patientBirthData = await PatientBirthData.findOne({
+      const patientBirth = await PatientBirthData.findOne({
         where: { patientId: patient.id },
       });
       const recordData = requestBodyToRecord(req.body);
       const patientBirthRecordData = pickPatientBirthData(PatientBirthData, recordData);
 
-      if (!patientBirthData) {
+      if (!patientBirth) {
         if (!isEqual(req.body, { markedForSync: true })) {
           await PatientBirthData.create({
             ...patientBirthRecordData,
@@ -87,7 +87,7 @@ patientRoute.put(
           });
         }
       } else {
-        await patientBirthData.update(patientBirthRecordData);
+        await patientBirth.update(patientBirthRecordData);
       }
     });
 
@@ -355,10 +355,6 @@ patientRoute.get(
 );
 
 patientRoute.get('/program/activeCovid19Patients', asyncHandler(activeCovid19PatientsHandler));
-
-/* CHILD ROUTES FROM HERE*/
-/* CHILD ROUTES FROM HERE*/
-/* CHILD ROUTES FROM HERE*/
 
 patientRoute.use(patientRelations);
 patientRoute.use(patientVaccineRoutes);
