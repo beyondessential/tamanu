@@ -5,7 +5,17 @@ import { format } from 'date-fns';
 
 import { PATIENT_REGISTRY_TYPES } from 'shared/constants';
 
-import { Colors } from '../constants';
+import {
+  Colors,
+  sexOptions,
+  bloodOptions,
+  titleOptions,
+  socialMediaOptions,
+  maritalStatusOptions,
+  educationalAttainmentOptions,
+  BIRTH_DELIVERY_TYPE_OPTIONS,
+  BIRTH_TYPE_OPTIONS,
+} from '../constants';
 import { useLocalisation } from '../contexts/Localisation';
 import { useSuggester, usePatientSuggester, useApi } from '../api';
 
@@ -23,16 +33,6 @@ import {
   SuggesterSelectField,
   TimeField,
 } from '../components';
-import {
-  sexOptions,
-  bloodOptions,
-  titleOptions,
-  socialMediaOptions,
-  maritalStatusOptions,
-  educationalAttainmentOptions,
-  BIRTH_DELIVERY_TYPE_OPTIONS,
-  BIRTH_TYPE_OPTIONS,
-} from '../constants';
 
 const StyledHeading = styled.div`
   font-weight: 500;
