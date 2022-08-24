@@ -81,7 +81,7 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
           }}
           options={PATIENT_REGISTRY_OPTIONS}
           style={{ gridColumn: '1 / -1' }}
-        ></StyledRadioField>
+        />
         <PrimaryDetailsGroup />
         <AdditionalInformationRow>
           <div>
