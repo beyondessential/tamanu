@@ -20,7 +20,7 @@ const generateReportFromQueryData = queryData => {
   if (queryData.length === 0) {
     return [];
   }
-  return [Object.keys(queryData[0]), ...queryData.map(col => Object.values(col))];
+  return [Object.keys(queryData[0]), ...queryData.map(Object.values)];
 };
 
 export class ReportDefinitionVersion extends Model {

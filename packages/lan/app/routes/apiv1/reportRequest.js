@@ -10,7 +10,7 @@ reportRequest.post(
   '/$',
   asyncHandler(async (req, res) => {
     const { models, body, user, getLocalisation } = req;
-    const { ReportRequest } = models;
+    const { ReportRequest, ReportDefinitionVersion } = models;
     const { reportId } = body;
 
     req.checkPermission('create', 'ReportRequest');
@@ -31,11 +31,10 @@ reportRequest.post(
 
     req.checkPermission('read', reportModule.permission);
 
-    const isDatabaseDefinedReport = reportModule instanceof models.ReportDefinitionVersion;
+    const isDatabaseDefinedReport = reportModule instanceof ReportDefinitionVersion;
 
     const newReportRequest = {
-      reportType: isDatabaseDefinedReport ? undefined : reportId,
-      versionId: isDatabaseDefinedReport ? reportId : undefined,
+      ...(isDatabaseDefinedReport ? { versionId: reportId } : { reportType: reportId }),
       recipients: JSON.stringify({
         email: body.emailList,
       }),

@@ -60,10 +60,6 @@ export class ReportRequest extends Model {
     return this.reportDefinitionVersionId || this.reportType;
   }
 
-  getReportId() {
-    return this.versionId || this.reportType;
-  }
-
   getParameters() {
     try {
       return JSON.parse(this.parameters);

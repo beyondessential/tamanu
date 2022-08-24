@@ -195,7 +195,7 @@ export const ReportGeneratorForm = ({ onSuccessfulSubmit }) => {
           <FormGrid columns={3}>
             <Field
               name="reportId"
-              label="Report name"
+              label="Report"
               component={ReportIdField}
               options={reportOptions}
               required

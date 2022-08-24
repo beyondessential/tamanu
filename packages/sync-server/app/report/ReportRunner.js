@@ -50,7 +50,7 @@ export class ReportRunner {
     try {
       log.info(`ReportRunner - Running report "${this.reportId}"`);
 
-      reportData = await reportModule.dataGenerator(this.store, this.parameters);
+      reportData = await reportDataGenerator(this.store, this.parameters);
 
       log.info(`ReportRunner - Running report "${this.reportId}" finished`);
     } catch (e) {

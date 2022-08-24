@@ -86,7 +86,7 @@ async function report(options) {
 
 export const reportCommand = new Command('report')
   .description('Generate a report')
-  .option('--reportId <string>', 'reportId of the report') // validated in function
+  .option('--reportId <string>', 'id of the report') // validated in function
   .option('--heap', `Report heap usage every ${REPORT_HEAP_INTERVAL_MS}ms`, false)
   .requiredOption(
     '-r, --recipients <json|csv>',

@@ -35,14 +35,12 @@ reports.get(
     const dbReports = reportsDefinitions.map(r => {
       // Get the latest report definition version by getting the first record from the ordered list
       const version = r.versions[0];
-      const options = JSON.parse(version.queryOptions);
-      const { parameters } = options;
+
       return {
         id: version.id,
         name: r.name,
-        dateRangeLabel: 'DATE RANGE LABEL',
-        legacyReport: false,
-        parameters,
+        dateRangeLabel: 'Date range (or leave blank for all data)',
+        parameters: version.getParameters(),
         version: version.versionNumber,
       };
     });
