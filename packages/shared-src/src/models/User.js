@@ -81,11 +81,12 @@ export class User extends Model {
         indexes: [{ fields: ['email'] }],
         syncConfig: { syncDirection: SYNC_DIRECTIONS.PULL_ONLY },
         hooks: {
-          async beforeUpdate (user) {
+          async beforeUpdate(user) {
             if (user.changed('password')) {
+              // eslint-disable-next-line no-param-reassign
               user.password = await User.hashPassword(user.password);
             }
-          }
+          },
         },
       },
     );
