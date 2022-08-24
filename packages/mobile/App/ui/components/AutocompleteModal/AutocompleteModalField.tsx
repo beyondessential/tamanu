@@ -1,9 +1,6 @@
 import React, { useEffect, useState, ReactElement } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import {
-  screenPercentageToDP,
-  Orientation,
-} from '../../helpers/screen';
+import { screenPercentageToDP, Orientation } from '../../helpers/screen';
 import { Suggester, BaseModelSubclass } from '../../helpers/suggester';
 import { theme } from '../../styled/theme';
 import { Button } from '../Button';
@@ -15,6 +12,7 @@ interface AutocompleteModalFieldProps {
   suggester: Suggester<BaseModelSubclass>;
   modalRoute: string;
   marginTop?: number;
+  error?: string;
 }
 
 export const AutocompleteModalField = ({
@@ -24,6 +22,7 @@ export const AutocompleteModalField = ({
   suggester,
   modalRoute,
   marginTop,
+  error,
 }: AutocompleteModalFieldProps): ReactElement => {
   const navigation = useNavigation();
   const [label, setLabel] = useState(placeholder);
@@ -32,10 +31,11 @@ export const AutocompleteModalField = ({
     setLabel(selectedItem.label);
   };
 
-  const openModal = (): void => navigation.navigate(modalRoute, {
-    callback: onPress,
-    suggester,
-  });
+  const openModal = (): void =>
+    navigation.navigate(modalRoute, {
+      callback: onPress,
+      suggester,
+    });
 
   useEffect(() => {
     if (!suggester) return;
@@ -55,7 +55,7 @@ export const AutocompleteModalField = ({
       justifyContent="flex-start"
       borderRadius={1}
       borderStyle="solid"
-      borderColor="#EBEBEB"
+      borderColor={error ? theme.colors.ERROR : '#EBEBEB'}
       borderWidth={1}
       fontWeight={400}
       fontSize={15}
