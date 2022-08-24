@@ -32,6 +32,8 @@ import {
   educationalAttainmentOptions,
   BIRTH_DELIVERY_TYPE_OPTIONS,
   BIRTH_TYPE_OPTIONS,
+  PLACE_OF_BIRTH_OPTIONS,
+  ATTENDANT_OF_BIRTH_OPTIONS,
 } from '../constants';
 
 const StyledHeading = styled.div`
@@ -98,30 +100,41 @@ export const SecondaryDetailsGroup = ({ patientRegistryType }) => {
   const settlementSuggester = useSuggester('settlement');
   const subdivisionSuggester = useSuggester('subdivision');
   const religionSuggester = useSuggester('religion');
-  const practitionerSuggester = useSuggester('practitioner');
+  const facilitySuggester = useSuggester('facility');
   const patientSuggester = usePatientSuggester();
 
   return (
     <StyledSecondaryDetailsGroup>
       {patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY && (
         <>
-          <StyledHeading>Birth information</StyledHeading>
+          <StyledHeading>Birth details</StyledHeading>
           <StyledFormGrid>
             <LocalisedField name="timeOfBirth" component={TimeField} />
-            <LocalisedField
-              name="clinicianAtBirthId"
-              component={AutocompleteField}
-              suggester={practitionerSuggester}
-            />
-            <LocalisedField name="birthWeight" component={TextField} type="number" />
-            <LocalisedField name="birthLength" component={TextField} type="number" />
             <LocalisedField name="gestationalAgeEstimate" component={TextField} type="number" />
+            <LocalisedField
+              name="placeOfBirth"
+              component={SelectField}
+              options={PLACE_OF_BIRTH_OPTIONS}
+            />
+            <LocalisedField
+              name="birthFacilityId"
+              component={AutocompleteField}
+              suggester={facilitySuggester}
+            />
+            <LocalisedField
+              name="attendantAtBirth"
+              component={SelectField}
+              options={ATTENDANT_OF_BIRTH_OPTIONS}
+            />
+            <LocalisedField name="nameOfAttendantAtBirth" component={TextField} type="text" />
             <LocalisedField
               name="birthDeliveryType"
               component={SelectField}
               options={BIRTH_DELIVERY_TYPE_OPTIONS}
             />
             <LocalisedField name="birthType" component={SelectField} options={BIRTH_TYPE_OPTIONS} />
+            <LocalisedField name="birthWeight" component={TextField} type="number" />
+            <LocalisedField name="birthLength" component={TextField} type="number" />
             <LocalisedField name="apgarScoreOneMinute" component={TextField} type="number" />
             <LocalisedField name="apgarScoreFiveMinutes" component={TextField} type="number" />
             <LocalisedField name="apgarScoreTenMinutes" component={TextField} type="number" />

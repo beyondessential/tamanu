@@ -88,7 +88,9 @@ const HIDEABLE_FIELDS = [
   'apgarScoreFiveMinutes',
   'apgarScoreTenMinutes',
   'timeOfBirth',
-  'clinicianAtBirthId',
+  'attendantAtBirth',
+  'nameOfAttendantAtBirth',
+  'birthFacilityId',
   'birthType',
 ];
 
