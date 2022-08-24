@@ -54,7 +54,7 @@ const ImportStatsDisplay = ({ stats }) => (
   />
 );
 
-const UploadForm = ({ submitForm, isSubmitting, whitelist }) => (
+const UploadForm = ({ isSubmitting, whitelist }) => (
   <FormGrid columns={1}>
     <Field component={CheckField} label="Test run" name="dryRun" required />
     <Field
