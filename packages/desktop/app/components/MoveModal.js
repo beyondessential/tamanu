@@ -10,7 +10,9 @@ import { Modal } from './Modal';
 
 export const MoveModal = ({ open, onClose, encounter }) => {
   const { navigateToEncounter } = usePatientNavigation();
-  const locationSuggester = useSuggester('location');
+  const locationSuggester = useSuggester('location', {
+    baseQueryParameters: { filterByFacility: true },
+  });
   const { writeAndViewEncounter } = useEncounter();
   const movePatient = useCallback(
     async data => {
@@ -110,7 +112,7 @@ const MoveForm = ({ onSubmit, onClose, encounter, locationSuggester }) => {
 // );
 
 // const BaseMoveModal = connectApi((api, dispatch, { encounter, endpoint }) => ({
-//   locationSuggester: new Suggester(api, 'location'),
+//   locationSuggester: new Suggester(api, 'location'), // If this gets uncommented, check if the location should be filtered by current facility (SEE EPI-87)
 //   onSubmit: async data => {
 //     await api.put(`encounter/${encounter.id}/${endpoint}`, data);
 //     dispatch(viewEncounter(encounter.id));

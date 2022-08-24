@@ -1,7 +1,8 @@
 import { writeFileSync } from 'fs';
 import { InvalidParameterError, RemoteCallFailedError } from 'shared/errors';
+import { getUploadedData } from 'shared/utils/getUploadedData';
+
 import { WebRemote } from '../app/sync/WebRemote';
-import { getUploadedData } from '../app/admin/getUploadedData';
 // Get the unmocked function to be able to test it
 const { uploadAttachment } = jest.requireActual('../app/utils/uploadAttachment');
 
@@ -12,7 +13,7 @@ const FILEDATA =
 // Function called inside uploadAttachment, it expects a network request
 // with multipart/form-data which doesn't seem very straightforward to
 // recreate within node.
-jest.mock('../app/admin/getUploadedData');
+jest.mock('shared/utils/getUploadedData');
 getUploadedData.mockImplementation(async req => {
   // Create a file that can be used with the FS module, return path
   const fileName = 'test-file.jpeg';

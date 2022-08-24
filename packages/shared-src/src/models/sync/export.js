@@ -1,8 +1,7 @@
-import { Sequelize, Op } from 'sequelize';
+import { Op, DataTypes } from 'sequelize';
 import { without } from 'lodash';
 import { propertyPathsToTree } from './metadata';
 import { getSyncCursorFromRecord, syncCursorToWhereCondition } from './cursor';
-import { ISO9075_DATETIME_FORMAT_LENGTH, ISO9075_DATE_FORMAT_LENGTH } from '../../constants';
 import { toDateTimeString, toDateString } from '../../utils/dateTime';
 
 export const createExportPlan = (sequelize, channel) =>
@@ -29,14 +28,12 @@ const createExportPlanInner = (model, relationTree, query) => {
     (memo, columnName) => {
       const columnType = model.tableAttributes[columnName].type;
       let formatter = null; // default to passing the value straight through
-      if (columnType instanceof Sequelize.DATE) {
+      if (columnType instanceof DataTypes.DATE) {
         formatter = date => date?.toISOString();
-      } else if (columnType instanceof Sequelize.CHAR) {
-        if (columnType.options.length === ISO9075_DATETIME_FORMAT_LENGTH) {
-          formatter = date => toDateTimeString(date) ?? undefined;
-        } else if (columnType.options.length === ISO9075_DATE_FORMAT_LENGTH) {
-          formatter = date => toDateString(date) ?? undefined;
-        }
+      } else if (columnType instanceof DataTypes.DATETIMESTRING) {
+        formatter = date => toDateTimeString(date) ?? undefined;
+      } else if (columnType instanceof DataTypes.DATESTRING) {
+        formatter = date => toDateString(date) ?? undefined;
       }
       return { ...memo, [columnName]: formatter };
     },

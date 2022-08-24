@@ -9,7 +9,9 @@ import { toDateTimeString } from '../utils/dateTime';
 
 export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure }) => {
   const api = useApi();
-  const locationSuggester = new Suggester(api, 'location');
+  const locationSuggester = new Suggester(api, 'location', {
+    baseQueryParameters: { filterByFacility: true },
+  });
   const practitionerSuggester = new Suggester(api, 'practitioner');
   const procedureSuggester = new Suggester(api, 'procedureType');
   const anaestheticSuggester = new Suggester(api, 'drug');
