@@ -1,3 +1,4 @@
+import config from 'config';
 import moment from 'moment';
 import { makeFilter } from './query';
 
