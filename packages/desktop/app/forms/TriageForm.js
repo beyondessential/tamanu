@@ -18,7 +18,6 @@ import { FormGrid } from '../components/FormGrid';
 import { ModalActionRow } from '../components/ModalActionRow';
 import { NestedVitalsModal } from '../components/NestedVitalsModal';
 import { useApi, useSuggester } from '../api';
-import { encounterOptions } from '../constants';
 import { useLocalisation } from '../contexts/Localisation';
 
 const InfoPopupLabel = React.memo(() => (
@@ -56,7 +55,6 @@ export const TriageForm = ({ onCancel, editedObject }) => {
           label="Triage date & time"
           required
           component={DateTimeField}
-          options={encounterOptions}
           saveDateAsString
         />
         <Field
