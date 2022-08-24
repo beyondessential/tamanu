@@ -105,11 +105,12 @@ export class ReportDefinitionVersion extends Model {
   async dataGenerator(context, parameters) {
     const { sequelize } = context;
     const reportQuery = this.get('query');
+    const CATCH_ALL_FROM_DATE = '01-01-1970';
 
     const parametersDefinition = this.getParameters();
     const parametersDefaults = parametersDefinition.reduce(
       (obj, { name }) => ({ ...obj, [name]: '%' }),
-      { fromDate: new Date('02-02-2000'), toDate: new Date() },
+      { fromDate: new Date(CATCH_ALL_FROM_DATE), toDate: new Date() },
     );
 
     const replacements = { ...parametersDefaults, ...parameters };
