@@ -24,6 +24,7 @@
     "password": "",
     "timeout": 10000,
     "readOnly": false,
+    "queryBatchSize": 10000,
     "enabled": true,
     "syncAllLabRequests": false,
     "backoff": {

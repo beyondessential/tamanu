@@ -21,13 +21,12 @@ export const executeInserts = async (
       const progressMessage = `Stage 3/3: Creating ${totalRowsCount} ${model.name} records`;
       progressCallback(totalRowsCount, insertedRowsCount, progressMessage);
     } catch (e) {
-      // try records individually, some may succeed
       await Promise.all(
         batchOfRows.map(async row => {
           try {
             await model.insert(row);
           } catch (error) {
-            failures.push({ error: `Insert failed with ${error.message}`, recordId: row.id });
+            throw new Error (`Insert failed with '${error.message}', recordId: ${row.id}`);
           }
         }),
       );
@@ -60,7 +59,7 @@ export const executeUpdates = async (
           try {
             await model.save(row);
           } catch (error) {
-            failures.push({ error: `Update failed with ${error.message}`, recordId: row.id });
+            throw new Error (`Insert failed with '${error.message}', recordId: ${row.id}`);
           }
         }),
       );
@@ -93,7 +92,7 @@ export const executeDeletes = async (
           try {
             await model.delete(id);
           } catch (error) {
-            failures.push({ error: `Delete failed with ${error.message}`, recordId: id });
+            throw new Error (`Delete failed with '${error.message}', recordId: ${id}`);
           }
         }),
       );

@@ -11,7 +11,12 @@ const buildToSyncRecord = (model: typeof BaseModel, record: object): SyncRecord 
   const includedColumns = extractIncludedColumns(model);
   const data = pick(record, includedColumns) as SyncRecordData;
 
-  return { recordType: model.getPluralTableName(), data };
+  return {
+    recordId: data.id,
+    isDeleted: !!data.deletedAt,
+    recordType: model.getPluralTableName(),
+    data,
+  };
 };
 
 /**
@@ -26,6 +31,7 @@ export const snapshotOutgoingChanges = async (
   fromSessionIndex: number,
 ): Promise<SyncRecord[]> => {
   const outgoingChanges = [];
+  
   for (const model of Object.values(models)) {
     const changesForModel = await model.find({
       where: { updatedAtSyncIndex: MoreThanOrEqual(fromSessionIndex) },

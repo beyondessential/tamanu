@@ -2,7 +2,11 @@ import config from 'config';
 
 import { log } from 'shared/services/logging';
 import { SYNC_DIRECTIONS } from 'shared/constants';
-import { getModelsForDirection, snapshotOutgoingChanges, saveIncomingChanges } from 'shared/sync';
+import {
+  getModelsForDirection,
+  snapshotOutgoingChangesForFacility,
+  saveIncomingChanges,
+} from 'shared/sync';
 
 import { setSyncSessionSequence } from './setSyncSessionSequence';
 import { pushOutgoingChanges } from './pushOutgoingChanges';
@@ -45,6 +49,9 @@ export class FacilitySyncManager {
       );
     }
 
+    // Clear previous temp data stored for persist
+    await this.models.SessionSyncRecord.truncate();
+
     const startTimestampMs = Date.now();
     log.info(`FacilitySyncManager.runSync: began sync run`);
 
@@ -63,7 +70,7 @@ export class FacilitySyncManager {
     // causing data that isn't internally coherent from ending up on the sync server
     const lastSessionIndex =
       (await this.models.LocalSystemFact.get('LastSuccessfulSyncSession')) || 0;
-    const outgoingChanges = await snapshotOutgoingChanges(
+    const outgoingChanges = await snapshotOutgoingChangesForFacility(
       getModelsForDirection(this.models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL),
       lastSessionIndex,
     );
@@ -74,17 +81,20 @@ export class FacilitySyncManager {
     // syncing incoming changes happens in two phases: pulling all the records from the server,
     // then saving all those records into the local database
     // this avoids a period of time where the the local database may be "partially synced"
-    const incomingChanges = await pullIncomingChanges(
+    const incomingChangesCount = await pullIncomingChanges(
       this.centralServer,
+      this.models,
       sessionIndex,
       lastSessionIndex,
     );
+
     await this.sequelize.transaction(async () => {
-      if (incomingChanges.length > 0) {
+      if (incomingChangesCount > 0) {
         await saveIncomingChanges(
           this.sequelize,
+          this.models,
           getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
-          incomingChanges,
+          sessionIndex,
         );
       }
 
@@ -97,6 +107,9 @@ export class FacilitySyncManager {
 
     const elapsedTimeMs = Date.now() - startTimestampMs;
     log.info(`FacilitySyncManager.runSync: finished sync run in ${elapsedTimeMs}ms`);
+
+    // Clear temp data stored for persist
+    await this.models.SessionSyncRecord.truncate();
 
     this.syncPromise = null;
   }

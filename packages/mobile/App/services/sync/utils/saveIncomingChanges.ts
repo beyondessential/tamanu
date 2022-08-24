@@ -1,12 +1,13 @@
-import { groupBy, chunk } from 'lodash';
+import { chunk } from 'lodash';
 
-import { SyncRecord, PersistResult } from '../types';
+import { SyncRecord } from '../types';
 import { sortInDependencyOrder } from './sortInDependencyOrder';
 import { SQLITE_MAX_PARAMETERS } from '../../../infra/db/helpers';
 import { buildFromSyncRecord } from './buildFromSyncRecord';
 import { executeInserts, executeUpdates, executeDeletes } from './executeCrud';
 import { MODELS_MAP } from '../../../models/modelsMap';
 import { BaseModel } from '../../../models/BaseModel';
+import { QUERY_BATCH_SIZE } from '../constants';
 
 /**
  * Save changes for a single model in batch because SQLite only support limited number of parameters
@@ -19,10 +20,10 @@ const saveChangesForModel = async (
   model: typeof BaseModel,
   changes: SyncRecord[],
   progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
-): Promise<PersistResult> => {
+): Promise<void> => {
   // split changes into create, update, delete
-  const idsForDelete = changes.filter(c => c.isDeleted).map(c => c.data.id);
-  const idsForUpsert = changes.filter(c => !c.isDeleted && c.data.id).map(c => c.data.id);
+  const idsForDelete = changes.filter(c => c.isDeleted).map(c => c.dataJson.id);
+  const idsForUpsert = changes.filter(c => !c.isDeleted && c.dataJson.id).map(c => c.dataJson.id);
   let idToUpdatedSinceSession = {};
 
   for (const batchOfIds of chunk(idsForUpsert, SQLITE_MAX_PARAMETERS)) {
@@ -36,36 +37,58 @@ const saveChangesForModel = async (
   }
 
   const recordsForCreate = changes
-    .filter(c => !c.isDeleted && idToUpdatedSinceSession[c.data.id] === undefined)
-    .map(({ data }) => buildFromSyncRecord(model, data));
+    .filter(c => !c.isDeleted && idToUpdatedSinceSession[c.recordId] === undefined)
+    .map(({ dataJson }) => buildFromSyncRecord(model, dataJson));
 
   const recordsForUpdate = changes
     .filter(
-      r => !r.isDeleted
-      && !!idToUpdatedSinceSession[r.data.id]
-      && r.data.updatedAtSyncIndex > idToUpdatedSinceSession[r.data.id],
+      r =>
+        !r.isDeleted &&
+        !!idToUpdatedSinceSession[r.data.id] &&
+        r.data.updatedAtSyncIndex > idToUpdatedSinceSession[r.data.id],
     )
     .map(({ data }) => buildFromSyncRecord(model, data));
 
   // run each import process
-  const { failures: createFailures } = await executeInserts(
-    model,
-    recordsForCreate,
-    progressCallback,
-  );
-  const { failures: updateFailures } = await executeUpdates(
-    model,
-    recordsForUpdate,
-    progressCallback,
-  );
-  const { failures: deleteFailures } = await executeDeletes(model, idsForDelete, progressCallback);
-
-  // return combined failures
-  return { failures: [...createFailures, ...updateFailures, ...deleteFailures] };
+  await executeInserts(model, recordsForCreate, progressCallback);
+  await executeUpdates(model, recordsForUpdate, progressCallback);
+  await executeDeletes(model, idsForDelete, progressCallback);
 };
 
 /**
- * Save all the incoming changes in the right order of dependency
+ * Persist the incoming changes that are previously stored in
+ * session_sync_record into actual tables.
+ * This will be done in batches to avoid memory problem
+ * @param model
+ * @param models
+ * @param progressCallback
+ */
+const saveChangesForModelInBatches = async (
+  model: typeof BaseModel,
+  models: typeof MODELS_MAP,
+  progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
+): Promise<void> => {
+  const syncRecordsCount = await models.SessionSyncRecord.count({
+    recordType: model.getPluralTableName(),
+  });
+
+  const batchCount = Math.ceil(syncRecordsCount / QUERY_BATCH_SIZE);
+
+  for (let batchIndex = 0; batchIndex < batchCount; batchIndex++) {
+    const modelRecordsInBatch = await models.SessionSyncRecord.find({
+      where: { recordType: model.getPluralTableName() },
+      order: { id: 'ASC' },
+      take: QUERY_BATCH_SIZE,
+      skip: QUERY_BATCH_SIZE * batchIndex,
+    });
+
+    await saveChangesForModel(model, modelRecordsInBatch, progressCallback);
+  }
+};
+
+/**
+ * Save all the incoming changes in the right order of dependency,
+ * using the data stored in session_sync_record previously
  * @param models
  * @param changes
  * @param progressCallback
@@ -73,24 +96,12 @@ const saveChangesForModel = async (
  */
 export const saveIncomingChanges = async (
   models: typeof MODELS_MAP,
-  changes: SyncRecord[],
+  incomingModels: typeof MODELS_MAP,
   progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
-): Promise<PersistResult> => {
-  const sortedModels = await sortInDependencyOrder(models);
-  const changesByRecordType = groupBy(changes, c => c.recordType);
-  const failures = [];
+): Promise<void> => {
+  const sortedModels = await sortInDependencyOrder(incomingModels);
 
   for (const model of sortedModels) {
-    const modelRecords = changesByRecordType[model.getPluralTableName()] || [];
-
-    const { failures: modelFailures } = await saveChangesForModel(
-      model,
-      modelRecords,
-      progressCallback,
-    );
-
-    failures.push(...modelFailures);
+    await saveChangesForModelInBatches(model, models, progressCallback);
   }
-
-  return { failures };
 };
