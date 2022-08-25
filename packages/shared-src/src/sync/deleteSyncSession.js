@@ -25,5 +25,4 @@ export const deleteSyncSession = async (store, sessionIndex) => {
       },
     },
   );
-}
-  
+};
