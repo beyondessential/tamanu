@@ -116,6 +116,7 @@ patientRelations.get(
   '/:id/programResponses',
   asyncHandler(async (req, res) => {
     const { db, models, params, query } = req;
+    req.checkPermission('list', 'SurveyResponse');
     const patientId = params.id;
     const { surveyId, surveyType = 'programs' } = query;
     const { count, data } = await runPaginatedQuery(

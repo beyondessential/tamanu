@@ -36,6 +36,7 @@ export class PatientAdditionalData extends Model {
               route: 'import/patientAdditionalData',
             },
           ],
+          undeleteOnUpdate: true,
         },
       },
     );

@@ -322,7 +322,7 @@ export const DeathForm = React.memo(
           <StyledFormGrid columns={1}>
             <Field
               name="pregnant"
-              label="If this was a woman, was the woman pregnant?"
+              label="Was the woman pregnant?"
               component={RadioField}
               options={binaryUnknownOptions}
             />
