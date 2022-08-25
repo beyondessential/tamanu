@@ -1,6 +1,6 @@
 import { chunk } from 'lodash';
 
-import { PersistResult, DataToPersist } from '../types';
+import { DataToPersist } from '../types';
 import { chunkRows, SQLITE_MAX_PARAMETERS } from '../../../infra/db/helpers';
 import { BaseModel } from '../../../models/BaseModel';
 
@@ -8,9 +8,8 @@ export const executeInserts = async (
   model: typeof BaseModel,
   rows: DataToPersist[],
   progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
-): Promise<PersistResult> => {
+): Promise<void> => {
   let insertedRowsCount = 0;
-  const failures = [];
 
   for (const batchOfRows of chunkRows(rows)) {
     try {
@@ -26,23 +25,20 @@ export const executeInserts = async (
           try {
             await model.insert(row);
           } catch (error) {
-            throw new Error (`Insert failed with '${error.message}', recordId: ${row.id}`);
+            throw new Error(`Insert failed with '${error.message}', recordId: ${row.id}`);
           }
         }),
       );
     }
   }
-
-  return { failures };
 };
 
 export const executeUpdates = async (
   model: typeof BaseModel,
   rows: DataToPersist[],
   progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
-): Promise<PersistResult> => {
+): Promise<void> => {
   let updatedRowsCount = 0;
-  const failures = [];
 
   for (const batchOfRows of chunkRows(rows)) {
     try {
@@ -59,23 +55,20 @@ export const executeUpdates = async (
           try {
             await model.save(row);
           } catch (error) {
-            throw new Error (`Insert failed with '${error.message}', recordId: ${row.id}`);
+            throw new Error(`Update failed with '${error.message}', recordId: ${row.id}`);
           }
         }),
       );
     }
   }
-
-  return { failures };
 };
 
 export const executeDeletes = async (
   model: typeof BaseModel,
   rowIds: string[],
   progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
-): Promise<PersistResult> => {
+): Promise<void> => {
   let deletedRowsCount = 0;
-  const failures = [];
 
   for (const batchOfIds of chunk(rowIds, SQLITE_MAX_PARAMETERS)) {
     try {
@@ -92,12 +85,10 @@ export const executeDeletes = async (
           try {
             await model.delete(id);
           } catch (error) {
-            throw new Error (`Delete failed with '${error.message}', recordId: ${id}`);
+            throw new Error(`Delete failed with '${error.message}', recordId: ${id}`);
           }
         }),
       );
     }
   }
-
-  return { failures };
 };

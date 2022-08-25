@@ -41,33 +41,6 @@ export class MobileSyncManager {
   constructor(centralServer: CentralServerConnection) {
     this.centralServer = centralServer;
     this.models = Database.models;
-    this.createEmitterListener();
-  }
-
-  /**
-   * Create emitter listener to listen to any errors happening during the sync,
-   * and then the errors can be shown in the Syn screen (SyncErrorDisplay)
-   */
-  createEmitterListener(): void {
-    this.emitter.on('*', (action, ...args) => {
-      switch (action) {
-        case SYNC_EVENT_ACTIONS.SYNC_RECORD_ERROR: {
-          const syncError = args[0];
-          this.errors.push(syncError);
-          console.warn('Sync record error', syncError);
-          break;
-        }
-        case SYNC_EVENT_ACTIONS.SYNC_ERROR: {
-          const syncError = args[0].error;
-          this.errors.push(syncError);
-          console.warn('Sync error', syncError);
-          break;
-        }
-        default: {
-          console.warn('Unknown action: ', action);
-        }
-      }
-    });
   }
 
   /**
@@ -127,8 +100,8 @@ export class MobileSyncManager {
     try {
       await this.runSync();
       this.setProgress(0, '');
-    } catch (e) {
-      this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ERROR, { error: e.message });
+    } catch (error) {
+      this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ERROR, { error });
     } finally {
       this.isSyncing = false;
       this.lastSyncTime = formatDate(new Date(), DateFormats.DATE_AND_TIME);

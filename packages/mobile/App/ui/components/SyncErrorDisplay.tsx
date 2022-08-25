@@ -1,5 +1,4 @@
 import React, { ReactElement, useContext, useEffect, useState } from 'react';
-import { TouchableWithoutFeedback } from 'react-native';
 import { StyledText, StyledView } from '/styled/common';
 import { BackendContext } from '~/ui/contexts/BackendContext';
 import { MobileSyncManager, SYNC_EVENT_ACTIONS } from '../../services/sync';
@@ -12,21 +11,16 @@ function stringifyError(e): string {
 }
 
 export const SyncErrorDisplay = (): ReactElement => {
-  const [index, setIndex] = useState(0);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [errorCount, setErrorCount] = useState(0);
+  const [error, setError] = useState(null);
   const backend = useContext(BackendContext);
   const syncManager: MobileSyncManager = backend.syncManager;
 
   useEffect(() => {
-    setErrorCount(syncManager.errors.length);
-    const errorHandler = ({ error }): void => {
-      setErrorMessage(`Failed to sync with ${error}`);
-      setErrorCount(syncManager.errors.length);
+    const errorHandler = ({ error: errorObject }): void => {
+      setError(errorObject);
     };
     const errorResetHandler = (): void => {
-      setErrorMessage('');
-      setErrorCount(syncManager.errors.length); // should be zero
+      setError(null);
     };
     syncManager.emitter.on(SYNC_EVENT_ACTIONS.SYNC_ERROR, errorHandler);
     syncManager.emitter.on(SYNC_EVENT_ACTIONS.SYNC_STARTED, errorResetHandler);
@@ -36,42 +30,15 @@ export const SyncErrorDisplay = (): ReactElement => {
     };
   }, []);
 
-  const onPress = (p): void => {
-    const assumedWidth = 350; // TODO get real element width
-    const margin = assumedWidth * 0.25;
-    if (p.nativeEvent.locationX < margin) {
-      setIndex(Math.max(0, index - 1));
-    } else if (p.nativeEvent.locationX > (assumedWidth - margin)) {
-      setIndex(Math.min(errorCount - 1, index + 1));
-    }
-  };
-
-  if (errorCount === 0) {
+  if (!error) {
     return null;
   }
 
-  let error = null;
-  if (index < errorCount) {
-    error = syncManager.errors[index];
-  }
-
   return (
-    <TouchableWithoutFeedback onPress={onPress}>
-      <StyledView marginTop={10} backgroundColor="#441111">
-        <StyledView margin={8}>
-          <StyledText color="white">{errorMessage}</StyledText>
-          <StyledText color="white">{`Error ${index + 1}/${errorCount}`}</StyledText>
-          {error
-            ? (
-              <StyledView>
-                <StyledText color="red">{stringifyError(error)}</StyledText>
-                {error.record && <StyledText color="white">{JSON.stringify(error.record)}</StyledText>}
-              </StyledView>
-            )
-            : <StyledText>No error</StyledText>
-          }
-        </StyledView>
+    <StyledView marginTop={10} backgroundColor="#441111">
+      <StyledView margin={8}>
+        <StyledText color="red">{stringifyError(error)}</StyledText>
       </StyledView>
-    </TouchableWithoutFeedback>
+    </StyledView>
   );
 };
