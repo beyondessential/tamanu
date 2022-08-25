@@ -1,7 +1,7 @@
 import { isValid, format, formatISO9075, differenceInMonths, differenceInYears } from 'date-fns';
 
 export function toDateTimeString(date) {
-  if (!date) return null;
+  if (date === null || date === undefined) return null;
 
   const dateObj = new Date(date);
   if (!isValid(dateObj)) throw new Error('Not a valid date');
@@ -10,7 +10,7 @@ export function toDateTimeString(date) {
 }
 
 export function toDateString(date) {
-  if (!date) return null;
+  if (date === null || date === undefined) return null;
 
   const dateObj = new Date(date);
   if (!isValid(dateObj)) throw new Error('Not a valid date');
