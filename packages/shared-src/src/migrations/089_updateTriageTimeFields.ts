@@ -39,9 +39,9 @@ export async function up(query: QueryInterface) {
 export async function down(query: QueryInterface) {
   await query.sequelize.query(`
     ALTER TABLE ${TABLE_NAME}
-    ALTER COLUMN arrival_time TYPE timestamp with time zone USING arrival_time,
-    ALTER COLUMN triage_time TYPE timestamp with time zone USING triage_time,
-    ALTER COLUMN closed_time TYPE timestamp with time zone USING closed_time;
+    ALTER COLUMN arrival_time TYPE timestamp with time zone USING arrival_time_legacy,
+    ALTER COLUMN triage_time TYPE timestamp with time zone USING triage_time_legacy,
+    ALTER COLUMN closed_time TYPE timestamp with time zone USING closed_time_legacy;
   `);
   await query.removeColumn(TABLE_NAME, 'arrival_time_legacy');
   await query.removeColumn(TABLE_NAME, 'triage_time_legacy');
