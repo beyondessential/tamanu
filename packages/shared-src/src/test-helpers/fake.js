@@ -268,6 +268,12 @@ const MODEL_SPECIFIC_OVERRIDES = {
     emergencyContactName: chance.name(),
     emergencyContactNumber: chance.phone(),
   }),
+  PatientDeathData: () => ({
+    wasPregnant: sample(['yes', 'no', 'unknown', null]),
+    pregnancyContributed: sample(['yes', 'no', 'unknown', null]),
+    recentSurgery: sample(['yes', 'no', 'unknown', null]),
+    stillborn: sample(['yes', 'no', 'unknown', null]),
+  }),
   User: () => ({
     email: chance.email(),
     displayName: chance.name(),
