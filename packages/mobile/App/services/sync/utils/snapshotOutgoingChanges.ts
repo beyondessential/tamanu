@@ -31,7 +31,7 @@ export const snapshotOutgoingChanges = async (
   fromSessionIndex: number,
 ): Promise<SyncRecord[]> => {
   const outgoingChanges = [];
-  
+
   for (const model of Object.values(models)) {
     const changesForModel = await model.find({
       where: { updatedAtSyncIndex: MoreThanOrEqual(fromSessionIndex) },

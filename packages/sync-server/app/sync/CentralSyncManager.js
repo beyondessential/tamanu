@@ -45,7 +45,7 @@ export class CentralSyncManager {
 
   async connectToSession({ sequelize }, sessionIndex) {
     const session = await sequelize.models.SyncSession.findOne({
-      id: sessionIndex,
+      where: { id: sessionIndex },
     });
     if (!session) {
       throw new Error(`Sync session ${sessionIndex} not found`);
@@ -70,6 +70,7 @@ export class CentralSyncManager {
   // For sanity's sake, we use >= consistently, because it aligns with the "from" of "fromSessionIndex"
   async setPullFilter(sessionIndex, { fromSessionIndex, facilityId }, store) {
     await this.connectToSession(store, sessionIndex);
+
     const { models } = store;
     // work out if any patients were newly marked for sync since this device last connected, and
     // include changes from all time for those patients
@@ -107,7 +108,7 @@ export class CentralSyncManager {
       await deleteEchoChanges(store, sessionIndex);
     });
 
-    const { total } = await getOutgoingChangesCount(store, sessionIndex);
+    const total = await getOutgoingChangesCount(store, sessionIndex);
 
     return total;
   }

@@ -1,7 +1,7 @@
 import { SESSION_SYNC_DIRECTION } from './constants';
 
-export const getOutgoingChangesCount = async (store, sessionIndex) =>
-  store.sequelize.query(
+export const getOutgoingChangesCount = async (store, sessionIndex) => {
+  const [rows] = await store.sequelize.query(
     `
         SELECT COUNT(*) AS total
         FROM session_sync_records
@@ -15,3 +15,6 @@ export const getOutgoingChangesCount = async (store, sessionIndex) =>
       },
     },
   );
+
+  return rows[0]?.total || 0;
+};

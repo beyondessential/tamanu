@@ -15,7 +15,7 @@ export const getSessionOutgoingChanges = async (store, sessionIndex, direction, 
         AND direction = :direction
       ORDER BY id ASC
       LIMIT :limit
-      OFFSET: offset
+      OFFSET :offset
     `,
     {
       replacements: {
