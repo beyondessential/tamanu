@@ -1,4 +1,5 @@
 import { Op } from 'sequelize';
+import { log } from 'shared/services/logging';
 import {
   getModelsForDirection,
   snapshotOutgoingChangesForCentral,
@@ -43,7 +44,7 @@ export class CentralSyncManager {
   }
 
   async connectToSession({ sequelize }, sessionIndex) {
-    const session = await sequelize.models.SyncSession.find({
+    const session = await sequelize.models.SyncSession.findOne({
       id: sessionIndex,
     });
     if (!session) {
@@ -68,7 +69,7 @@ export class CentralSyncManager {
   // have been the one that changed them, if they have an index unique to that device!
   // For sanity's sake, we use >= consistently, because it aligns with the "from" of "fromSessionIndex"
   async setPullFilter(sessionIndex, { fromSessionIndex, facilityId }, store) {
-    const session = await this.connectToSession(store, sessionIndex);
+    await this.connectToSession(store, sessionIndex);
     const { models } = store;
     // work out if any patients were newly marked for sync since this device last connected, and
     // include changes from all time for those patients
@@ -79,7 +80,7 @@ export class CentralSyncManager {
 
     // Persisting records require multiple INSERT/DELETE steps.
     // So need to bundle all the steps in 1 transaction so it can be all or nothing.
-    await this.sequelize.transaction(async () => {
+    await store.sequelize.transaction(async () => {
       await snapshotOutgoingChangesForCentral(
         getPatientLinkedModels(models),
         models,
@@ -133,7 +134,7 @@ export class CentralSyncManager {
     await models.SessionSyncRecord.bulkCreate(sessionSyncRecords);
 
     if (pageNumber === totalPages) {
-      await this.sequelize.transaction(async () => {
+      await store.sequelize.transaction(async () => {
         await saveIncomingChanges(
           sequelize,
           models,
