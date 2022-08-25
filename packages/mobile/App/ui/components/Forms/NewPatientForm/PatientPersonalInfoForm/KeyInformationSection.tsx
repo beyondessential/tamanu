@@ -9,7 +9,7 @@ import { DateField } from '~/ui/components/DateField/DateField';
 import { TextField } from '../../../TextField/TextField';
 
 export const KeyInformationSection = (): ReactElement => {
-  const { getBool } = useLocalisation()
+  const { getBool } = useLocalisation();
   let filteredGenderOptions = GenderOptions;
   if (getBool('features.hideOtherSex') === true) {
     filteredGenderOptions = filteredGenderOptions.filter(({ value }) => value !== Gender.Other);
@@ -17,8 +17,8 @@ export const KeyInformationSection = (): ReactElement => {
   return (
     <FormGroup sectionName="KEY INFORMATION" marginTop>
       <LocalisedField name="sex" options={filteredGenderOptions} component={Dropdown} />
-      <LocalisedField name="dateOfBirth" component={DateField} />
+      <LocalisedField name="dateOfBirth" max={new Date()} component={DateField} />
       <LocalisedField name="email" component={TextField} />
     </FormGroup>
   );
-}
+};

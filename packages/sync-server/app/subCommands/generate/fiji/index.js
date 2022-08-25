@@ -50,7 +50,7 @@ export const generateFiji = async ({ patientCount: patientCountStr }) => {
   const upsertSetupData = async () => {
     // villages
     for (let i = 0; i < NUM_VILLAGES; i++) {
-      const name = chance.name();
+      const name = chance.city();
       const code = name.toLowerCase();
       const id = `village-${code}-${uuidv4()}`;
       await ReferenceData.create({ id, code, name, type: 'village' });
@@ -187,10 +187,14 @@ export const generateFiji = async ({ patientCount: patientCountStr }) => {
   try {
     let complete = 0;
 
+    let startMs = null;
     const reportProgress = () => {
       // \r works because the length of this is guaranteed to always grow longer or stay the same
       const pct = ((complete / patientCount) * 100).toFixed(2);
-      process.stdout.write(`\rGenerating patient ${complete}/${patientCount} (${pct}%)...`);
+      const perSecond = startMs ? (complete / ((Date.now() - startMs) / 1000)).toFixed(2) : '-';
+      process.stdout.write(
+        `\rGenerating patient ${complete}/${patientCount} (${pct}% | ${perSecond}/sec)...`,
+      );
     };
 
     // perform the generation
@@ -202,6 +206,7 @@ export const generateFiji = async ({ patientCount: patientCountStr }) => {
     reportProgress();
 
     // generate patients
+    startMs = Date.now();
     await asyncPool(CONCURRENT_PATIENT_INSERTS, range(patientCount), async () => {
       await store.sequelize.transaction(async () => {
         await insertPatientData();

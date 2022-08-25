@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { format } from 'date-fns';
 import { useLocalisation } from '../contexts/Localisation';
 import { useSuggester } from '../api';
 import {
@@ -38,15 +39,14 @@ export const PrimaryDetailsGroup = () => {
       <LocalisedField name="middleName" component={TextField} />
       <LocalisedField name="lastName" component={TextField} required />
       <LocalisedField name="culturalName" component={TextField} />
-      <LocalisedField name="dateOfBirth" component={DateField} required />
-      <LocalisedField name="villageId" component={AutocompleteField} suggester={villageSuggester} />
       <LocalisedField
-        name="sex"
-        component={RadioField}
-        options={filteredSexOptions}
-        inline
+        name="dateOfBirth"
+        max={format(new Date(), 'yyyy-MM-dd')}
+        component={DateField}
         required
       />
+      <LocalisedField name="villageId" component={AutocompleteField} suggester={villageSuggester} />
+      <LocalisedField name="sex" component={RadioField} options={filteredSexOptions} required />
       <LocalisedField
         name="email"
         component={TextField}
@@ -180,7 +180,7 @@ function sanitiseRecordForValues(data) {
     .reduce((state, [k, v]) => ({ ...state, [k]: v }), {});
 }
 
-function stripPatientData(patient) {
+function stripPatientData(patient, additionalData) {
   // The patient object includes the entirety of patient state, not just the
   // fields on the db record, and whatever we pass to initialValues will get
   // sent on to the server if it isn't modified by a field on the form.
@@ -188,11 +188,11 @@ function stripPatientData(patient) {
 
   return {
     ...sanitiseRecordForValues(patient),
-    ...sanitiseRecordForValues(patient.additionalData),
+    ...sanitiseRecordForValues(additionalData),
   };
 }
 
-export const PatientDetailsForm = ({ patient, onSubmit }) => (
+export const PatientDetailsForm = ({ patient, additionalData, onSubmit }) => (
   <Form
     render={({ submitForm }) => (
       <FormGrid>
@@ -205,7 +205,7 @@ export const PatientDetailsForm = ({ patient, onSubmit }) => (
         </ButtonRow>
       </FormGrid>
     )}
-    initialValues={stripPatientData(patient)}
+    initialValues={stripPatientData(patient, additionalData)}
     onSubmit={onSubmit}
   />
 );

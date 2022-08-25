@@ -1,133 +1,190 @@
-import React, { useCallback } from 'react';
+import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
-import Button from '@material-ui/core/Button';
-import ButtonGroup from '@material-ui/core/ButtonGroup';
-import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
-import ClickAwayListener from '@material-ui/core/ClickAwayListener';
-import Grow from '@material-ui/core/Grow';
-import Paper from '@material-ui/core/Paper';
-import Popper from '@material-ui/core/Popper';
-import MenuItem from '@material-ui/core/MenuItem';
-import MenuList from '@material-ui/core/MenuList';
+import PropTypes from 'prop-types';
+import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
+import {
+  Button,
+  ButtonGroup,
+  ClickAwayListener,
+  Paper,
+  MenuItem,
+  Popper as MuiPopper,
+  MenuList as MuiMenuList,
+} from '@material-ui/core';
+import { Colors } from '../constants';
 
-// Button has 'text-transform: uppercase' by default,
-// override and uppercase only the first one
-const TextTransformedButton = styled(Button)`
-  text-transform: none;
+const Container = styled.div`
+  position: relative;
+  display: inline-block;
+`;
 
-  &::first-letter {
-    text-transform: uppercase;
+const MainButton = styled(Button)`
+  flex: 1;
+  border-radius: 3px;
+  text-transform: capitalize;
+  font-size: 14px;
+  line-height: 18px;
+  padding: 8px 13px;
+  letter-spacing: 0;
+
+  &.MuiButton-sizeLarge {
+    padding: 10px 19px;
+  }
+
+  &.MuiButton-sizeSmall {
+    padding: 7px 10px 7px 10px;
+    line-height: 16px;
+  }
+
+  &.MuiButton-outlinedPrimary {
+    border-color: ${props => props.theme.palette.primary.main};
+    border-right-color: transparent;
+  }
+
+  &.MuiButton-containedPrimary {
+    border-color: transparent;
   }
 `;
 
-// mostly cribbed from the mui example at https://material-ui.com/components/buttons/#split-button
+const MenuButton = styled(Button)`
+  padding: 9px 7px 9px 0;
+  border-radius: 3px;
 
-export const DropdownButton = React.memo(({ actions, color, dropdownColor, variant, ...props }) => {
-  const [open, setOpen] = React.useState(false);
-  const anchorRef = React.useRef(null);
-
-  function handleClick(event, index) {
-    setOpen(false);
-    actions[index].onClick(event);
+  &.MuiButton-sizeLarge {
+    padding: 10px 10px 10px 0;
   }
 
-  const handleToggle = useCallback(() => {
-    setOpen(prevOpen => !prevOpen);
-  }, []);
+  &.MuiButton-sizeSmall {
+    padding: 6px 8px 6px 0;
+  }
 
-  const handleClose = useCallback(event => {
-    if (anchorRef.current && anchorRef.current.contains(event.target)) {
-      return;
+  &.MuiButton-outlinedPrimary {
+    border-color: ${props => props.theme.palette.primary.main};
+    border-left: none;
+
+    .MuiButton-label {
+      border-left: 1px solid ${props => props.theme.palette.primary.main};
     }
+  }
 
-    setOpen(false);
-  }, []);
+  &.MuiButton-containedPrimary {
+    .MuiButton-label {
+      border-left: 1px solid white;
+    }
+  }
+
+  .MuiSvgIcon-root {
+    width: 28px;
+    height: auto;
+    padding-left: 6px;
+  }
+`;
+
+const Popper = styled(MuiPopper)`
+  margin-top: 2px;
+  z-index: 1500; // This needs to be higher than the modal z-index (1400) to be visible in modals
+  min-width: ${props => (props.anchorEl ? `${props.anchorEl.offsetWidth}px` : `${0}`)};
+`;
+
+const MenuList = styled(MuiMenuList)`
+  margin: 2px 0;
+  padding: 0;
+
+  .MuiListItem-root {
+    padding: 6px 6px 6px 12px;
+    font-size: 14px;
+    line-height: 1.4;
+    white-space: initial;
+
+    &:hover {
+      background: ${Colors.background};
+    }
+  }
+`;
+
+export const DropdownButton = React.memo(({ variant, size, actions, style, className }) => {
+  const [anchorEl, setAnchorEl] = useState(null);
+  const anchorRef = useRef(null);
+
+  const handleClick = (event, index) => {
+    actions[index].onClick(event);
+    setAnchorEl(null);
+  };
+
+  const handleToggle = () => {
+    setAnchorEl(anchorEl ? null : anchorRef.current);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   const [mainAction, ...otherActions] = actions;
 
-  if (!mainAction) {
-    return (
-      <TextTransformedButton {...props} variant={variant} color={color} disabled>
-        No action
-      </TextTransformedButton>
-    );
-  }
-
   if (otherActions.length === 0) {
     return (
-      <TextTransformedButton
-        {...props}
+      <MainButton
         variant={variant}
-        color={color}
+        size={size}
+        color="primary"
+        disableElevation
+        style={{ borderColor: Colors.primary }}
         onClick={event => handleClick(event, 0)}
       >
         {mainAction.label}
-      </TextTransformedButton>
+      </MainButton>
     );
   }
 
+  const isOpen = Boolean(anchorEl);
+
   return (
-    <span {...props}>
-      <ButtonGroup variant={variant} color={color} ref={anchorRef} aria-label="split button">
-        <TextTransformedButton onClick={event => handleClick(event, 0)}>
-          {mainAction.label}
-        </TextTransformedButton>
-        <TextTransformedButton
-          color={dropdownColor || color}
-          size="small"
-          aria-owns={open ? 'menu-list-grow' : undefined}
-          aria-haspopup="true"
-          onClick={handleToggle}
-        >
-          <ArrowDropDownIcon />
-        </TextTransformedButton>
-      </ButtonGroup>
-      <Popper
-        open={open}
-        anchorEl={anchorRef.current}
-        transition
-        disablePortal
-        style={{ zIndex: 10 }}
+    <Container style={style} className={className} ref={anchorRef}>
+      <ButtonGroup
+        variant={variant}
+        size={size}
+        color="primary"
+        disableElevation
+        style={{ width: '100%' }}
       >
-        {({ TransitionProps, placement }) => (
-          <Grow
-            {...TransitionProps}
-            style={{
-              transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom',
-            }}
-          >
-            <Paper id="menu-list-grow">
-              <ClickAwayListener onClickAway={handleClose}>
-                <MenuList>
-                  {otherActions.map((action, index) => (
-                    <MenuItem
-                      key={action.label}
-                      disabled={!action.onClick}
-                      onClick={event => handleClick(event, index + 1)}
-                    >
-                      {action.label}
-                    </MenuItem>
-                  ))}
-                </MenuList>
-              </ClickAwayListener>
-            </Paper>
-          </Grow>
-        )}
+        <MainButton onClick={event => handleClick(event, 0)}>{mainAction.label}</MainButton>
+        <MenuButton onClick={handleToggle}>
+          <KeyboardArrowDownIcon />
+        </MenuButton>
+      </ButtonGroup>
+      <Popper open={isOpen} anchorEl={anchorEl} placement="bottom-start">
+        <Paper elevation={0} variant="outlined">
+          <ClickAwayListener onClickAway={handleClose}>
+            <MenuList>
+              {otherActions.map((action, index) => (
+                <MenuItem
+                  key={action.label}
+                  disabled={!action.onClick}
+                  onClick={event => handleClick(event, index + 1)}
+                >
+                  {action.label}
+                </MenuItem>
+              ))}
+            </MenuList>
+          </ClickAwayListener>
+        </Paper>
       </Popper>
-    </span>
+    </Container>
   );
 });
 
-export const FullWidthDropdownButton = styled(DropdownButton)`
-  width: 100%; /* targets single action button */
+DropdownButton.propTypes = {
+  actions: PropTypes.arrayOf(
+    PropTypes.shape({
+      label: PropTypes.string,
+      onClick: PropTypes.func,
+    }),
+  ).isRequired,
+  variant: PropTypes.string,
+  size: PropTypes.string,
+};
 
-  div:first-of-type {
-    /* targets dropdown button container, ignoring actions container */
-    width: 100%;
-
-    button:first-of-type {
-      /* targets action button, ignoring dropdown button */
-      width: 100%;
-    }
-  }
-`;
+DropdownButton.defaultProps = {
+  variant: 'contained',
+  size: 'medium',
+};

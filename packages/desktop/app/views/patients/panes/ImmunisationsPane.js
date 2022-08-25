@@ -1,18 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import styled from 'styled-components';
-
 import { useApi } from '../../../api';
-import { Button } from '../../../components/Button';
-import { ContentPane } from '../../../components/ContentPane';
+import { ContentPane, TableButtonRow, Button } from '../../../components';
 import { EditAdministeredVaccineModal } from '../../../components/EditAdministeredVaccineModal';
 import { ImmunisationCertificateModal } from '../../../components/ImmunisationCertificateModal';
 import { ImmunisationModal } from '../../../components/ImmunisationModal';
 import { ImmunisationsTable } from '../../../components/ImmunisationsTable';
-
-const ButtonSpacer = styled.div`
-  display: inline;
-  margin-right: 10px;
-`;
 
 export const ImmunisationsPane = React.memo(({ patient, readonly }) => {
   const [isAdministerModalOpen, setIsAdministerModalOpen] = useState(false);
@@ -34,7 +26,7 @@ export const ImmunisationsPane = React.memo(({ patient, readonly }) => {
   }, [api, patient.id]);
 
   return (
-    <div>
+    <>
       <ImmunisationModal
         open={isAdministerModalOpen}
         patientId={patient.id}
@@ -46,31 +38,26 @@ export const ImmunisationsPane = React.memo(({ patient, readonly }) => {
         vaccineRecord={vaccineData}
         onClose={() => setIsEditAdministeredModalOpen(false)}
       />
-      <ImmunisationsTable patient={patient} onItemClick={id => onOpenEditModal(id)} />
+      <ContentPane>
+        <TableButtonRow variant="small">
+          <Button
+            onClick={() => setIsCertificateModalOpen(true)}
+            variant="outlined"
+            disabled={!hasVaccines}
+          >
+            View certificate
+          </Button>
+          <Button onClick={() => setIsAdministerModalOpen(true)} disabled={readonly}>
+            Give vaccine
+          </Button>
+        </TableButtonRow>
+        <ImmunisationsTable patient={patient} onItemClick={id => onOpenEditModal(id)} />
+      </ContentPane>
       <ImmunisationCertificateModal
         open={isCertificateModalOpen}
         patient={patient}
         onClose={() => setIsCertificateModalOpen(false)}
       />
-      <ContentPane>
-        <Button
-          onClick={() => setIsAdministerModalOpen(true)}
-          variant="contained"
-          color="primary"
-          disabled={readonly}
-        >
-          Give vaccine
-        </Button>
-        <ButtonSpacer />
-        <Button
-          onClick={() => setIsCertificateModalOpen(true)}
-          variant="outlined"
-          color="primary"
-          disabled={!hasVaccines}
-        >
-          View certificate
-        </Button>
-      </ContentPane>
-    </div>
+    </>
   );
 });

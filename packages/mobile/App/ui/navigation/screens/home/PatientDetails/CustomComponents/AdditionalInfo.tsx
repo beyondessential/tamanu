@@ -77,6 +77,7 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
     <>
       {sections.map(({ title, fields, onEditCallback }) => (
         <PatientSection
+          key={title}
           title={title}
           onEdit={isEditable ? onEditCallback : undefined}
           isClosable

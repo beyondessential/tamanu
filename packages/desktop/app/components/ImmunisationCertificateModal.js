@@ -1,4 +1,5 @@
 import React, { useEffect, useCallback, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
 import { VaccineCertificate } from 'shared/utils/patientCertificates';
 import { Modal } from './Modal';
@@ -13,6 +14,9 @@ export const ImmunisationCertificateModal = ({ open, onClose, patient }) => {
   const [vaccinations, setVaccinations] = useState([]);
   const { getLocalisation } = useLocalisation();
   const { watermark, logo, footerImg, printedBy } = useCertificate();
+  const { data: additionalData } = useQuery(['additionalData', patient.id], () =>
+    api.get(`patient/${patient.id}/additionalData`),
+  );
 
   useEffect(() => {
     api.get(`patient/${patient.id}/administeredVaccines`).then(response => {
@@ -33,6 +37,8 @@ export const ImmunisationCertificateModal = ({ open, onClose, patient }) => {
     [api, patient.id, printedBy],
   );
 
+  const patientData = { ...patient, additionalData };
+
   return (
     <Modal
       title="Vaccination Certificate"
@@ -40,12 +46,13 @@ export const ImmunisationCertificateModal = ({ open, onClose, patient }) => {
       onClose={onClose}
       width="md"
       printable
+      keepMounted
       onPrint={() => printPDF('vaccine-certificate')}
       additionalActions={<EmailButton onEmail={createImmunisationCertificateNotification} />}
     >
       <PDFViewer id="vaccine-certificate">
         <VaccineCertificate
-          patient={patient}
+          patient={patientData}
           vaccinations={vaccinations}
           watermarkSrc={watermark}
           logoSrc={logo}

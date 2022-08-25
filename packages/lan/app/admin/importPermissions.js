@@ -21,13 +21,13 @@ const permissionTransformer = item => {
   // is enabled for the permission
   return Object.entries(roles)
     .map(([role, yCell]) => [role, yCell.toLowerCase().trim()])
-    .filter(([role, yCell]) => yCell)
+    .filter(([, yCell]) => yCell)
     .map(([role, yCell]) => {
       const id = `${role}-${verb}-${noun}-${objectId || 'any'}`.toLowerCase();
 
       // set deletedAt if the cell is marked N
-      const deletedAt = (yCell === 'n') ? new Date() : null;
- 
+      const deletedAt = yCell === 'n' ? new Date() : null;
+
       return {
         recordType: 'permission',
         recordId: id,

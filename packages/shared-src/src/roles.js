@@ -90,11 +90,6 @@ export const practitioner = [
   { verb: 'write', noun: 'Referral' },
   { verb: 'create', noun: 'Referral' },
 
-  { verb: 'list', noun: 'Immunisation' },
-  { verb: 'read', noun: 'Immunisation' },
-  { verb: 'write', noun: 'Immunisation' },
-  { verb: 'create', noun: 'Immunisation' },
-
   { verb: 'list', noun: 'PatientIssue' },
   { verb: 'read', noun: 'PatientIssue' },
   { verb: 'write', noun: 'PatientIssue' },
@@ -104,11 +99,6 @@ export const practitioner = [
   { verb: 'read', noun: 'PatientFamilyHistory' },
   { verb: 'write', noun: 'PatientFamilyHistory' },
   { verb: 'create', noun: 'PatientFamilyHistory' },
-
-  { verb: 'list', noun: 'PatientAdditionalData' },
-  { verb: 'read', noun: 'PatientAdditionalData' },
-  { verb: 'write', noun: 'PatientAdditionalData' },
-  { verb: 'create', noun: 'PatientAdditionalData' },
 
   { verb: 'list', noun: 'PatientAllergy' },
   { verb: 'read', noun: 'PatientAllergy' },
@@ -195,6 +185,11 @@ export const practitioner = [
 
   { verb: 'read', noun: 'PatientDeath' },
   { verb: 'create', noun: 'PatientDeath' },
+
+  { verb: 'list', noun: 'PatientSecondaryId' },
+  { verb: 'read', noun: 'PatientSecondaryId' },
+  { verb: 'write', noun: 'PatientSecondaryId' },
+  { verb: 'create', noun: 'PatientSecondaryId' },
 
   { verb: 'run', noun: 'Report' },
 ];

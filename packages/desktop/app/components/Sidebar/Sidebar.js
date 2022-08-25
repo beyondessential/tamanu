@@ -145,7 +145,7 @@ export const Sidebar = React.memo(({ items }) => {
               <SecondarySidebarItem
                 key={child.path}
                 path={child.path}
-                isCurrent={currentPath === child.path}
+                isCurrent={currentPath.includes(child.path)}
                 color={child.color}
                 label={child.label}
                 disabled={!permissionCheck(child, item)}

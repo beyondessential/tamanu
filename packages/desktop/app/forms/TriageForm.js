@@ -1,9 +1,9 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import * as yup from 'yup';
-
+import { push } from 'connected-react-router';
+import { useDispatch, useSelector } from 'react-redux';
+import { Box } from '@material-ui/core';
 import { foreignKey } from '../utils/validation';
-
 import {
   Form,
   Field,
@@ -13,37 +13,46 @@ import {
   RadioField,
   CheckField,
 } from '../components/Field';
-import { ImageInfoModal } from '../components/InfoModal';
 import { FormGrid } from '../components/FormGrid';
 import { ModalActionRow } from '../components/ModalActionRow';
 import { NestedVitalsModal } from '../components/NestedVitalsModal';
-
-import triageFlowchart from '../assets/images/triage-flowchart.png';
-
-import { encounterOptions, triagePriorities } from '../constants';
+import { useApi, useSuggester } from '../api';
+import { encounterOptions } from '../constants';
+import { useLocalisation } from '../contexts/Localisation';
 
 const InfoPopupLabel = React.memo(() => (
   <span>
     <span>Triage score </span>
-    <ImageInfoModal src={triageFlowchart} />
+    {/* Todo: convert triage flow chart to a configurable asset */}
+    {/* <ImageInfoModal src={triageFlowchart} /> */}
   </span>
 ));
 
-export class TriageForm extends React.PureComponent {
-  renderForm = ({ submitForm }) => {
-    const {
-      locationSuggester,
-      practitionerSuggester,
-      triageComplaintSuggester,
-      onCancel,
-    } = this.props;
+export const TriageForm = ({ onCancel, editedObject }) => {
+  const api = useApi();
+  const dispatch = useDispatch();
+  const patient = useSelector(state => state.patient);
+  const { getLocalisation } = useLocalisation();
+  const triageCategories = getLocalisation('triageCategories');
+  const locationSuggester = useSuggester('location');
+  const practitionerSuggester = useSuggester('practitioner');
+  const triageReasonSuggester = useSuggester('triageReason');
+
+  const renderForm = ({ submitForm }) => {
     return (
       <FormGrid>
         <Field
           name="arrivalTime"
-          label="Arrival time"
+          label="Arrival date & time"
           component={DateTimeField}
           helperText="If different from triage time"
+        />
+        <Field
+          name="triageTime"
+          label="Triage date & time"
+          required
+          component={DateTimeField}
+          options={encounterOptions}
         />
         <Field
           name="locationId"
@@ -53,36 +62,30 @@ export class TriageForm extends React.PureComponent {
           suggester={locationSuggester}
         />
         <Field
-          name="triageTime"
-          label="Triage time"
-          required
-          component={DateTimeField}
-          options={encounterOptions}
-        />
-        <Field
           name="score"
           label={<InfoPopupLabel />}
-          inline
           component={RadioField}
-          options={triagePriorities}
+          fullWidth
+          options={triageCategories?.map(x => ({ value: x.level.toString(), ...x })) || []}
+          style={{ gridColumn: '1/-1' }}
         />
         <FormGrid columns={1} style={{ gridColumn: '1 / -1' }}>
           <Field
             name="chiefComplaintId"
             label="Chief complaint"
             component={AutocompleteField}
-            suggester={triageComplaintSuggester}
+            suggester={triageReasonSuggester}
             required
           />
           <Field
             name="secondaryComplaintId"
             label="Secondary complaint"
             component={AutocompleteField}
-            suggester={triageComplaintSuggester}
+            suggester={triageReasonSuggester}
           />
-          <div>
+          <Box mt={1} mb={2}>
             <Field name="vitals" component={NestedVitalsModal} />
-          </div>
+          </Box>
           <Field
             name="checkLostConsciousness"
             label="Did the patient receive a blow to the head or lose consciousness at any time?"
@@ -119,14 +122,12 @@ export class TriageForm extends React.PureComponent {
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
-        <ModalActionRow confirmText="Submit triage" onConfirm={submitForm} onCancel={onCancel} />
+        <ModalActionRow confirmText="Submit" onConfirm={submitForm} onCancel={onCancel} />
       </FormGrid>
     );
   };
 
-  onSubmit = values => {
-    const { onSubmit } = this.props;
-
+  const onSubmit = async values => {
     // These fields are just stored in the database as a single freetext note, so assign
     // strings and concatenate
     const notes = [
@@ -145,34 +146,28 @@ export class TriageForm extends React.PureComponent {
         .join('\n'),
     };
 
-    onSubmit(updatedValues);
+    await api.post('triage', {
+      ...updatedValues,
+      patientId: patient.id,
+    });
+    dispatch(push('/patients/emergency'));
   };
 
-  render() {
-    const { editedObject } = this.props;
-    return (
-      <Form
-        onSubmit={this.onSubmit}
-        render={this.renderForm}
-        initialValues={{
-          triageTime: new Date(),
-          ...editedObject,
-        }}
-        validationSchema={yup.object().shape({
-          triageTime: yup.date().required(),
-          chiefComplaintId: foreignKey('Chief complaint must be selected'),
-          practitionerId: foreignKey('Triage clinician must be selected'),
-          locationId: foreignKey('Location must be selected'),
-          score: yup
-            .string()
-            .oneOf(triagePriorities.map(x => x.value))
-            .required(),
-        })}
-      />
-    );
-  }
-}
-
-TriageForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
+  return (
+    <Form
+      onSubmit={onSubmit}
+      render={renderForm}
+      initialValues={{
+        triageTime: new Date(),
+        ...editedObject,
+      }}
+      validationSchema={yup.object().shape({
+        triageTime: yup.date().required(),
+        chiefComplaintId: foreignKey('Chief complaint must be selected'),
+        practitionerId: foreignKey('Triage clinician must be selected'),
+        locationId: foreignKey('Location must be selected'),
+        score: yup.string().required(),
+      })}
+    />
+  );
 };

@@ -24,6 +24,9 @@ export class PatientDeathData extends Model {
         wasPregnant: Sequelize.STRING, // yes/no/unknown/null
         withinDayOfBirth: Sequelize.BOOLEAN,
         outsideHealthFacility: Sequelize.BOOLEAN,
+        primaryCauseTimeAfterOnset: Sequelize.INTEGER, // minutes
+        antecedentCause1TimeAfterOnset: Sequelize.INTEGER, // minutes
+        antecedentCause2TimeAfterOnset: Sequelize.INTEGER, // minutes
       },
       {
         ...options,
@@ -76,20 +79,19 @@ export class PatientDeathData extends Model {
     });
 
     // conceptually "hasOne" but we want the foreign key to be here
-    this.belongsTo(models.DeathCause, {
-      foreignKey: 'primaryCauseId',
-      as: 'primaryCause',
-      constraints: false,
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'primaryCauseConditionId',
+      as: 'primaryCauseCondition',
     });
-    this.belongsTo(models.DeathCause, {
-      foreignKey: 'antecedentCause1Id',
-      as: 'antecedentCause1',
-      constraints: false,
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'antecedentCause1ConditionId',
+      as: 'antecedentCause1Condition',
+      allowNull: true,
     });
-    this.belongsTo(models.DeathCause, {
-      foreignKey: 'antecedentCause2Id',
-      as: 'antecedentCause2',
-      constraints: false,
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'antecedentCause2ConditionId',
+      as: 'antecedentCause2Condition',
+      allowNull: true,
     });
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'lastSurgeryReasonId',
@@ -100,11 +102,9 @@ export class PatientDeathData extends Model {
       as: 'carrierExistingCondition',
     });
 
-    // for "contributing" death causes but also includes the primary/secondary
-    this.hasMany(models.DeathCause, {
+    this.hasMany(models.ContributingDeathCause, {
       foreignKey: 'patientDeathDataId',
       as: 'contributingCauses',
-      constraints: false,
     });
   }
 }

@@ -107,7 +107,7 @@ export const DataDocumentUploadForm = memo(({ onSubmit, onReceiveResult, additio
     ability.can('write', 'Permission'),
     ability.can('write', 'ReferenceData'),
     ability.can('write', 'Program'),
-    ability.can('write', 'Survey')
+    ability.can('write', 'Survey'),
   ];
 
   if (permissions.some(x => !x)) {

@@ -210,7 +210,6 @@ export const ImmunisationForm = React.memo(
                 <Field
                   name="scheduledVaccineId"
                   label="Available schedule"
-                  inline
                   component={RadioField}
                   options={scheduleOptions}
                   required

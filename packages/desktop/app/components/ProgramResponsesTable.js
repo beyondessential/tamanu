@@ -34,6 +34,7 @@ export const DataFetchingProgramsTable = ({ endpoint }) => {
         columns={columns}
         noDataMessage="No program responses found"
         onRowClick={onSelectResponse}
+        elevated={false}
       />
     </>
   );

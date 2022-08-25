@@ -197,4 +197,72 @@ describe('Patient', () => {
       expect(result.body.data[0].condition).toHaveProperty('name');
     });
   });
+
+  describe('secondary IDs', () => {
+    it('should get an empty list of patient secondary IDs', async () => {
+      const patient = await models.Patient.create(await createDummyPatient(models));
+
+      const result = await app.get(`/v1/patient/${patient.id}/secondaryId`);
+      expect(result).toHaveSucceeded();
+      expect(result.body.count).toEqual(0);
+    });
+
+    it('should get a list of patient secondary IDs', async () => {
+      const patient = await models.Patient.create(await createDummyPatient(models));
+      const otherPatient = await models.Patient.create(await createDummyPatient(models));
+      const secondaryIdType = await randomReferenceId(models, 'secondaryIdType');
+
+      await models.PatientSecondaryId.create({
+        value: 'ABCDEFG',
+        visibilityStatus: 'historical',
+        typeId: secondaryIdType,
+        patientId: patient.id,
+      });
+      await models.PatientSecondaryId.create({
+        value: 'HIJKLMN',
+        visibilityStatus: 'current',
+        typeId: secondaryIdType,
+        patientId: patient.id,
+      });
+      await models.PatientSecondaryId.create({
+        value: 'OPQRSTU',
+        visibilityStatus: 'current',
+        typeId: secondaryIdType,
+        patientId: otherPatient.id,
+      });
+
+      const result = await app.get(`/v1/patient/${patient.id}/secondaryId`);
+      expect(result).toHaveSucceeded();
+      expect(result.body.count).toEqual(2);
+    });
+
+    it('should create a new secondary ID', async () => {
+      const patient = await models.Patient.create(await createDummyPatient(models));
+      const idValue = '12345678910';
+      const result = await app.post(`/v1/patient/${patient.id}/secondaryId`).send({
+        value: idValue,
+        visibilityStatus: 'current',
+        typeId: await randomReferenceId(models, 'secondaryIdType'),
+        patientId: patient.id,
+      });
+      expect(result).toHaveSucceeded();
+      expect(result.body.value).toBe(idValue);
+    });
+
+    it('should edit a secondary ID', async () => {
+      const patient = await models.Patient.create(await createDummyPatient(models));
+      const secondaryId = await models.PatientSecondaryId.create({
+        value: '987654321',
+        visibilityStatus: 'current',
+        typeId: await randomReferenceId(models, 'secondaryIdType'),
+        patientId: patient.id,
+      });
+      const newVisibilityStatus = 'historical';
+      const result = await app.put(`/v1/patient/${patient.id}/secondaryId/${secondaryId.id}`).send({
+        visibilityStatus: newVisibilityStatus,
+      });
+      expect(result).toHaveSucceeded();
+      expect(result.body.visibilityStatus).toBe(newVisibilityStatus);
+    });
+  });
 });
