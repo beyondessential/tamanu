@@ -19,7 +19,7 @@ const saveChangesForModel = async (
   model: typeof BaseModel,
   changes: SyncRecord[],
   progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
-): Promise<PersistResult> => {
+): Promise<void> => {
   // split changes into create, update, delete
   const idsForDelete = changes.filter(c => c.isDeleted).map(c => c.data.id);
   const idsForUpsert = changes.filter(c => !c.isDeleted && c.data.id).map(c => c.data.id);
@@ -41,27 +41,17 @@ const saveChangesForModel = async (
 
   const recordsForUpdate = changes
     .filter(
-      r => !r.isDeleted
-      && !!idToUpdatedSinceSession[r.data.id]
-      && r.data.updatedAtSyncIndex > idToUpdatedSinceSession[r.data.id],
+      r =>
+        !r.isDeleted &&
+        !!idToUpdatedSinceSession[r.data.id] &&
+        r.data.updatedAtSyncIndex > idToUpdatedSinceSession[r.data.id],
     )
     .map(({ data }) => buildFromSyncRecord(model, data));
 
   // run each import process
-  const { failures: createFailures } = await executeInserts(
-    model,
-    recordsForCreate,
-    progressCallback,
-  );
-  const { failures: updateFailures } = await executeUpdates(
-    model,
-    recordsForUpdate,
-    progressCallback,
-  );
-  const { failures: deleteFailures } = await executeDeletes(model, idsForDelete, progressCallback);
-
-  // return combined failures
-  return { failures: [...createFailures, ...updateFailures, ...deleteFailures] };
+  await executeInserts(model, recordsForCreate, progressCallback);
+  await executeUpdates(model, recordsForUpdate, progressCallback);
+  await executeDeletes(model, idsForDelete, progressCallback);
 };
 
 /**
@@ -75,22 +65,13 @@ export const saveIncomingChanges = async (
   models: typeof MODELS_MAP,
   changes: SyncRecord[],
   progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
-): Promise<PersistResult> => {
+): Promise<void> => {
   const sortedModels = await sortInDependencyOrder(models);
   const changesByRecordType = groupBy(changes, c => c.recordType);
-  const failures = [];
 
   for (const model of sortedModels) {
     const modelRecords = changesByRecordType[model.getPluralTableName()] || [];
 
-    const { failures: modelFailures } = await saveChangesForModel(
-      model,
-      modelRecords,
-      progressCallback,
-    );
-
-    failures.push(...modelFailures);
+    await saveChangesForModel(model, modelRecords, progressCallback);
   }
-
-  return { failures };
 };

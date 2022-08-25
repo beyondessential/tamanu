@@ -41,33 +41,6 @@ export class MobileSyncManager {
   constructor(centralServer: CentralServerConnection) {
     this.centralServer = centralServer;
     this.models = Database.models;
-    this.createEmitterListener();
-  }
-
-  /**
-   * Create emitter listener to listen to any errors happening during the sync,
-   * and then the errors can be shown in the Syn screen (SyncErrorDisplay)
-   */
-  createEmitterListener(): void {
-    this.emitter.on('*', (action, ...args) => {
-      switch (action) {
-        case SYNC_EVENT_ACTIONS.SYNC_RECORD_ERROR: {
-          const syncError = args[0];
-          this.errors.push(syncError);
-          console.warn('Sync record error', syncError);
-          break;
-        }
-        case SYNC_EVENT_ACTIONS.SYNC_ERROR: {
-          const syncError = args[0].error;
-          this.errors.push(syncError);
-          console.warn('Sync error', syncError);
-          break;
-        }
-        default: {
-          console.warn('Unknown action: ', action);
-        }
-      }
-    });
   }
 
   /**
@@ -127,8 +100,8 @@ export class MobileSyncManager {
     try {
       await this.runSync();
       this.setProgress(0, '');
-    } catch (e) {
-      this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ERROR, { error: e.message });
+    } catch (error) {
+      this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ERROR, { error });
     } finally {
       this.isSyncing = false;
       this.lastSyncTime = formatDate(new Date(), DateFormats.DATE_AND_TIME);
@@ -225,34 +198,18 @@ export class MobileSyncManager {
 
       const modelsToPull = getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
 
-      let failures = [];
-
       // Save all incoming changes in 1 transaction so that the whole sync session save
       // either fail 100% or suceed 100%, no partial save.
       await Database.client.transaction(async () => {
-        ({ failures } = await saveIncomingChanges(
-          modelsToPull,
-          incomingChanges,
-          this.updateProgress,
-        ));
+        await saveIncomingChanges(modelsToPull, incomingChanges, this.updateProgress);
+
+        // update the last successful sync in the same save transaction,
+        // if updating the cursor fails,
+        // we want to roll back the rest of the saves so that we don't end up detecting them as
+        // needing a sync up to the central server when we attempt to resync
+        // from the same old cursor
+        await setSyncSessionSequence(this.models, currentSessionIndex, 'LastSuccessfulSyncSession');
       });
-
-      failures.forEach(({ error, recordId }) =>
-        this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_RECORD_ERROR, {
-          record: { id: recordId },
-          error,
-        }),
-      );
-
-      if (failures.length > 0) {
-        throw new Error(`Saving ${failures.length} individual record failures`);
-      }
-
-      // update the last successful sync in the same save transaction,
-      // if updating the cursor fails,
-      // we want to roll back the rest of the saves so that we don't end up detecting them as
-      // needing a sync up to the central server when we attempt to resync from the same old cursor
-      await setSyncSessionSequence(this.models, currentSessionIndex, 'LastSuccessfulSyncSession');
     }
 
     this.lastSyncPulledRecordsCount = incomingChanges.length;
