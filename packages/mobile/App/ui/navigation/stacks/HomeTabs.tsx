@@ -129,7 +129,7 @@ function MyTabBar({
                 onPress={onPress}
                 onLongPress={onLongPress}
                 accessibilityRole="button"
-                accessibilityStates={isFocused ? ['selected'] : []}
+                accessibilityState={isFocused ? {selected: true} : {}}
                 accessibilityLabel={options.tabBarAccessibilityLabel}
                 testID={options.tabBarTestID}
                 alignItems="center"

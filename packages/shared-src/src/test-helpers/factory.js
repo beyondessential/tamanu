@@ -94,14 +94,10 @@ export const buildNestedEncounter = async (ctx, patientId, optionalEncounterId) 
   labTest.labRequestId = labRequest.id;
   labRequest.tests = [labTest];
 
-  const imagingType = { ...fake(ctx.models.ReferenceData), type: REFERENCE_TYPES.IMAGING_TYPE };
-  await ctx.models.ReferenceData.upsert(imagingType);
-
   const imagingRequest = {
     ...fake(ctx.models.ImagingRequest),
     status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
     requestedById: encounter.examinerId,
-    imagingTypeId: imagingType.id,
   };
   imagingRequest.encounterId = encounter.id;
   encounter.imagingRequests = [imagingRequest];

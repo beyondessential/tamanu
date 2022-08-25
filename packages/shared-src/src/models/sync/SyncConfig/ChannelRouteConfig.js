@@ -40,9 +40,9 @@ export class ChannelRouteConfig {
     this.params = params.map(paramConfigOptions => new ParamConfig(model, paramConfigOptions));
   }
 
-  validate(record, paramsObject) {
+  validateRecordParams(record, paramsObject) {
     for (const paramConfig of this.params) {
-      paramConfig.validate(record, paramsObject);
+      paramConfig.validateParam(record, paramsObject);
     }
   }
 }

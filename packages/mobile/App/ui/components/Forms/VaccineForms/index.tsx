@@ -57,19 +57,19 @@ export const VaccineForm = ({
   onCancel,
 }: VaccineForm): JSX.Element => {
   const { Form: StatusForm } = useMemo(() => getFormType(status), [status]);
+  const consentSchema =
+    status === VaccineStatus.GIVEN
+      ? Yup.boolean()
+        .oneOf([true])
+        .required()
+      : Yup.boolean();
   return (
     <Form
       onSubmit={onSubmit}
-      validationSchema={Yup.object().shape(
-        (status === VaccineStatus.GIVEN
-          ? {
-              date: Yup.date().required(),
-              consent: Yup.boolean().oneOf([true]).required(),
-            }
-          : {
-              date: Yup.date().required(),
-            }) as { date: Yup.DateSchema; consent?: Yup.BooleanSchema },
-      )}
+      validationSchema={Yup.object().shape({
+        date: Yup.date().required(),
+        consent: consentSchema,
+      })}
       initialValues={createInitialValues({ ...initialValues, status })}
     >
       {(): JSX.Element => (

@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { API } from '../../api/singletons';
 import { useApi } from '../../api';
-
-import { TopBar, PageContainer, DataFetchingTable } from '../../components';
+import {
+  TopBar,
+  PageContainer,
+  DataFetchingTable,
+  ImmunisationSearchBar,
+  ContentPane,
+} from '../../components';
 import { displayId, firstName, lastName, village } from './columns';
-import { ImmunisationSearchBar, PatientImmunisationsModal } from './components';
+import { PatientImmunisationsModal } from './components';
 
 const CovidVaccinationStatusComponent = ({ row }) => {
   const [covidVaccinationStatus, setCovidVaccinationStatus] = useState('No dose');
@@ -79,11 +84,13 @@ export const CovidCampaignView = ({ getPatientVaccinations }) => {
       />
       <TopBar title="COVID campaign" />
       <ImmunisationSearchBar onSearch={setSearchParameters} />
-      <PatientCovidCampaignTable
-        getVaccines={getPatientVaccinations}
-        onPatientSelect={onRowClick}
-        fetchOptions={searchParameters}
-      />
+      <ContentPane>
+        <PatientCovidCampaignTable
+          getVaccines={getPatientVaccinations}
+          onPatientSelect={onRowClick}
+          fetchOptions={searchParameters}
+        />
+      </ContentPane>
     </PageContainer>
   );
 };

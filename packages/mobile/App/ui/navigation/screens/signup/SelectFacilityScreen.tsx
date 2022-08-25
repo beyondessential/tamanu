@@ -1,7 +1,6 @@
 import React, {
   FunctionComponent,
   useCallback,
-  useContext,
   useState,
   ReactElement,
   useEffect,
@@ -22,7 +21,7 @@ import { theme } from '/styled/theme';
 import { Routes } from '/helpers/routes';
 import { Button } from '/components/Button';
 import { SignInProps } from '/interfaces/Screens/SignUp/SignInProps';
-import AuthContext from '~/ui/contexts/AuthContext';
+import { useAuth } from '~/ui/contexts/AuthContext';
 
 import { Form } from '~/ui/components/Forms/Form';
 import { Field } from '~/ui/components/Forms/FormField';
@@ -120,7 +119,7 @@ export const SelectFacilityForm = ({ onSubmitForm }) => {
 
 export const SelectFacilityScreen: FunctionComponent<any> = ({ navigation }: SignInProps) => {
   const { facilityId, assignFacility } = useFacility();
-  const { signOut } = useContext(AuthContext);
+  const { signOut } = useAuth();
 
   const onSubmitForm = useCallback(async (values) => {
     await assignFacility(values.facilityId, values.facilityName);

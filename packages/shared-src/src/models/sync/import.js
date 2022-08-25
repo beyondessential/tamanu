@@ -1,6 +1,7 @@
 import { Sequelize, Op } from 'sequelize';
 import { chunk, flatten, without, pick, pickBy } from 'lodash';
 import { propertyPathsToTree } from './metadata';
+import { log } from 'shared/services/logging';
 
 // SQLite < v3.32 has a hard limit of 999 bound parameters per query
 // see https://www.sqlite.org/limits.html for more
@@ -15,7 +16,7 @@ export const chunkRows = rows => {
 export const createImportPlan = (sequelize, channel) =>
   sequelize.channelRouter(channel, (model, params, channelRoute) => {
     const relationTree = propertyPathsToTree(model.syncConfig.includedRelations);
-    const validateRecord = record => channelRoute.validate(record, params);
+    const validateRecord = record => channelRoute.validateRecordParams(record, params);
     return createImportPlanInner(model, relationTree, validateRecord);
   });
 
@@ -54,7 +55,7 @@ export const executeImportPlan = async (plan, syncRecords) => {
     // split records into create, update, delete
     const idsForDelete = syncRecords.filter(r => r.isDeleted).map(r => r.data.id);
     const idsForUpsert = syncRecords.filter(r => !r.isDeleted && r.data.id).map(r => r.data.id);
-    const existing = await model.findByIds(idsForUpsert);
+    const existing = await model.findByIds(idsForUpsert, false);
     const existingIdSet = new Set(existing.map(e => e.id));
     const recordsForCreate = syncRecords
       .filter(r => !r.isDeleted && !existingIdSet.has(r.data.id))
@@ -69,6 +70,26 @@ export const executeImportPlan = async (plan, syncRecords) => {
         return data;
       });
 
+    const deletedUpdates = existing.filter(e => e.deletedAt);
+    if (deletedUpdates.length > 0) {
+      if (model.syncConfig.undeleteOnUpdate) {
+        // restore the deleted records
+        const idsToRestore = deletedUpdates.map(e => e.id);
+        await model.update({
+          deletedAt: null,
+        }, {
+          where: {
+            id: {
+              [Op.in]: idsToRestore,
+            },
+          },
+        });
+      } else {
+        log.error("Sync includes updates to deleted records", { ids: deletedUpdates.map(r => r.id) });
+        throw new Error("Sync payload includes updates to deleted records");
+      }
+    }
+  
     // run each import process
     const createSuccessCount = await executeCreates(plan, recordsForCreate);
     const updateSuccessCount = await executeUpdates(plan, recordsForUpdate);
@@ -182,7 +203,7 @@ const executeUpdateOrCreates = async (
       }),
     );
     if (childRecords && childRecords.length > 0) {
-      const existing = await relationPlan.model.findByIds(childRecords.map(r => r.id));
+      const existing = await relationPlan.model.findByIds(childRecords.map(r => r.id), false);
       const existingIdSet = new Set(existing.map(e => e.id));
       const recordsForCreate = childRecords.filter(r => !existingIdSet.has(r.id));
       const recordsForUpdate = childRecords.filter(r => existingIdSet.has(r.id));

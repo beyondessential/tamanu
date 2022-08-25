@@ -1,14 +1,9 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-
-import { PageContainer, TopBar } from '../../components';
+import { PageContainer, ContentPane, TopBar } from '../../components';
 import { Notification } from '../../components/Notification';
 import { Button } from '../../components/Button';
 import { AppointmentForm } from '../../components/Appointments/AppointmentForm';
-
-const Container = styled.div`
-  margin: 1rem;
-`;
 
 const ButtonRow = styled.div`
   display: flex;
@@ -31,7 +26,7 @@ export const NewAppointmentView = () => {
   return (
     <PageContainer>
       <TopBar title="New appointment" />
-      <Container>
+      <ContentPane>
         {success ? (
           <SubmissionSuccess onReset={() => setSuccess(false)} />
         ) : (
@@ -41,7 +36,7 @@ export const NewAppointmentView = () => {
             }}
           />
         )}
-      </Container>
+      </ContentPane>
     </PageContainer>
   );
 };

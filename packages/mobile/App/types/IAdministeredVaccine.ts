@@ -4,6 +4,7 @@ import { IEncounter } from './IEncounter';
 import { IUser } from './IUser';
 import { ILocation } from './ILocation';
 import { IDepartment } from './IDepartment';
+import { VaccineStatus } from '~/ui/helpers/patient';
 
 export interface IAdministeredVaccine {
   id: ID;
@@ -20,7 +21,7 @@ export interface IAdministeredVaccine {
   recorderId?: string;
   encounter?: IEncounter | string;
   batch?: string;
-  status: string;
+  status: VaccineStatus;
   date: Date;
 }
 

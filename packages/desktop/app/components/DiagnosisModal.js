@@ -3,7 +3,7 @@ import React, { useCallback } from 'react';
 import { connectApi } from '../api/connectApi';
 import { Suggester } from '../utils/suggester';
 import { useEncounter } from '../contexts/Encounter';
-import { showDecisionSupport } from '../store/decisionSupport';
+import { showDecisionSupport } from '../store/specialModals';
 
 import { Modal } from './Modal';
 import { DiagnosisForm } from '../forms/DiagnosisForm';

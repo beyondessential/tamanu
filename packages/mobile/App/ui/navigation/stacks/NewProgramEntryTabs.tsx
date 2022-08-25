@@ -7,7 +7,7 @@ import { ProgramViewHistoryScreen } from '../screens/programs/tabs/ProgramViewHi
 import { StackHeader } from '/components/StackHeader';
 import { createTopTabNavigator } from '/components/TopTabNavigator';
 import { withPatient } from '/containers/Patient';
-import { IPatient, IProgram } from '~/types';
+import { IPatient, IProgram, SurveyTypes } from '~/types';
 import { joinNames } from '/helpers/user';
 import { FullView } from '/styled/common';
 
@@ -15,14 +15,13 @@ const Tabs = createTopTabNavigator();
 
 type NewProgramEntryTabsParams = {
   NewProgramEntryTabs: {
-    program: IProgram;
+    surveyId: string;
+    surveyName: string;
+    surveyType: SurveyTypes;
   };
 };
 
-type NewProgramEntryTabsRouteProps = RouteProp<
-NewProgramEntryTabsParams,
-'NewProgramEntryTabs'
->;
+type NewProgramEntryTabsRouteProps = RouteProp<NewProgramEntryTabsParams, 'NewProgramEntryTabs'>;
 
 type NewProgramEntryTabsProps = {
   navigation: NavigationProp<any>;
@@ -41,11 +40,7 @@ const TabNavigator = ({
   }, []);
   return (
     <FullView>
-      <StackHeader
-        title={surveyName}
-        subtitle={joinNames(selectedPatient)}
-        onGoBack={goBack}
-      />
+      <StackHeader title={surveyName} subtitle={joinNames(selectedPatient)} onGoBack={goBack} />
       <Tabs.Navigator>
         <Tabs.Screen
           initialParams={{

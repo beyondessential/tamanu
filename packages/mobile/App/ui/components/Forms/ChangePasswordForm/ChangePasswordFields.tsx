@@ -1,4 +1,4 @@
-import React, { ReactElement, useState, useEffect } from 'react';
+import React, { ReactElement } from 'react';
 import { StyledView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
 import { Field } from '../FormField';
@@ -34,7 +34,7 @@ export const ChangePasswordFields = ({
       <Field
         name="token"
         component={TextField}
-        keyboardType="numeric"
+        keyboardType="default"
         label="Reset Code"
       />
       <StyledText
@@ -51,7 +51,7 @@ export const ChangePasswordFields = ({
         label="New Password"
         secure
       />
-      <ServerSelector />
+      <Field name="server" component={ServerSelector} label="Select a country" />
     </StyledView>
     <Button
       marginTop={20}

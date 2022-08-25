@@ -48,7 +48,7 @@ export class Referral extends BaseModel implements IReferral {
     },
     values: object,
     setNote: (note: string) => void = () => null,
-  ): Promise<Referral> {
+  ) {
     // typeORM is extremely unhappy if you take away this
     // transactionalEntityManager param even if it's unused.
     return getConnection().transaction(async (transactionalEntityManager) => {

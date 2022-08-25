@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import Paper from '@material-ui/core/Paper';
+import { push } from 'connected-react-router';
 
 import { TamanuLogo } from '../components';
 import { LOCAL_STORAGE_KEYS } from '../constants';
@@ -10,7 +11,14 @@ import { splashImages } from '../constants/images';
 import { LoginForm } from '../forms/LoginForm';
 import { ResetPasswordForm } from '../forms/ResetPasswordForm';
 import { ChangePasswordForm } from '../forms/ChangePasswordForm';
-import { changePassword, login, requestPasswordReset, restartPasswordResetFlow } from '../store';
+import {
+  changePassword,
+  login,
+  requestPasswordReset,
+  restartPasswordResetFlow,
+  clearPatient,
+} from '../store';
+import { useApi } from '../api';
 
 import { SyncHealthNotificationComponent } from '../components/SyncHealthNotification';
 
@@ -36,6 +44,7 @@ const LogoContainer = styled.div`
 `;
 
 export const LoginView = () => {
+  const api = useApi();
   const dispatch = useDispatch();
   const loginError = useSelector(state => state.auth.error);
   const requestPasswordResetError = useSelector(state => state.auth.resetPassword.error);
@@ -50,6 +59,12 @@ export const LoginView = () => {
 
   const submitLogin = data => {
     const { host, email, password, rememberMe } = data;
+
+    // If a different user logs in, reset patient state and navigate to index
+    if (email !== api.user?.email) {
+      dispatch(clearPatient());
+      dispatch(push('/'));
+    }
 
     if (rememberMe) {
       localStorage.setItem(REMEMBER_EMAIL, email);

@@ -10,7 +10,7 @@ const LocalisationContext = React.createContext({
 
 export const useLocalisation = () => useContext(LocalisationContext);
 
-const DumbLocalisationProvider = ({ children, reduxLocalisation }) => {
+export const DumbLocalisationProvider = ({ children, reduxLocalisation }) => {
   const [localisation, setLocalisation] = useState({});
 
   useEffect(() => {

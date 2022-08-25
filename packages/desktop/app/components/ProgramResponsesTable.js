@@ -19,17 +19,7 @@ const columns = [
   { key: 'results', title: 'Results', accessor: getResults },
 ];
 
-function getEndpoint({ encounterId, patientId }) {
-  if (encounterId) {
-    return `encounter/${encounterId}/programResponses`;
-  }
-  if (patientId) {
-    return `patient/${patientId}/programResponses`;
-  }
-  throw new Error('DataFetchingProgramsTable: must pass either patientId or encounterId');
-}
-
-export const DataFetchingProgramsTable = ({ encounterId, patientId }) => {
+export const DataFetchingProgramsTable = ({ endpoint }) => {
   const [selectedResponseId, setSelectedResponseId] = useState(null);
   const onSelectResponse = useCallback(surveyResponse => {
     setSelectedResponseId(surveyResponse.id);
@@ -40,10 +30,11 @@ export const DataFetchingProgramsTable = ({ encounterId, patientId }) => {
     <>
       <SurveyResponseDetailsModal surveyResponseId={selectedResponseId} onClose={cancelResponse} />
       <DataFetchingTable
-        endpoint={getEndpoint({ encounterId, patientId })}
+        endpoint={endpoint}
         columns={columns}
         noDataMessage="No program responses found"
         onRowClick={onSelectResponse}
+        elevated={false}
       />
     </>
   );

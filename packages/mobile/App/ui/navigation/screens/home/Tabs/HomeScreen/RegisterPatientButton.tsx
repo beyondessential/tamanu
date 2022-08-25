@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { ReactElement, useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useLocalisation } from '~/ui/contexts/LocalisationContext';
 import { theme } from '/styled/theme';

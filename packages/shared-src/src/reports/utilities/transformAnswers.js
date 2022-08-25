@@ -10,7 +10,12 @@ const convertAutocompleteAnswer = async (models, componentConfig, answer) => {
     return answer;
   }
 
-  const result = await models[componentConfig.source].findByPk(answer);
+  const model = models[componentConfig.source];
+  if (!model) {
+    throw new Error(`no model for componentConfig ${JSON.stringify(componentConfig)}`);
+  }
+
+  const result = await model.findByPk(answer);
   if (!result) {
     return answer;
   }
@@ -34,7 +39,7 @@ const convertBinaryToYesNo = answer => {
 const convertDateAnswer = (answer, { dateFormat = 'DD-MM-YYYY' }) =>
   answer ? moment(answer).format(dateFormat) : '';
 
-const getAnswerBody = async (models, componentConfig, type, answer, transformConfig) => {
+export const getAnswerBody = async (models, componentConfig, type, answer, transformConfig) => {
   switch (type) {
     case 'Date':
     case 'SubmissionDate':
@@ -48,19 +53,23 @@ const getAnswerBody = async (models, componentConfig, type, answer, transformCon
   }
 };
 
-export const transformAnswers = async (
-  models,
-  surveyResponseAnswers,
-  surveyComponents,
-  transformConfig = {},
-) => {
+export const getAutocompleteComponentMap = surveyComponents => {
   const autocompleteComponents = surveyComponents
     .filter(c => c.dataElement.dataValues.type === 'Autocomplete')
     .map(({ dataElementId, config: componentConfig }) => [
       dataElementId,
       componentConfig ? JSON.parse(componentConfig) : {},
     ]);
-  const autocompleteComponentMap = new Map(autocompleteComponents);
+  return new Map(autocompleteComponents);
+};
+
+export const transformAnswers = async (
+  models,
+  surveyResponseAnswers,
+  surveyComponents,
+  transformConfig = {},
+) => {
+  const autocompleteComponentMap = getAutocompleteComponentMap(surveyComponents);
   const dataElementIdToComponent = keyBy(surveyComponents, component => component.dataElementId);
 
   // Some questions in the front end are not answered but still record the answer as empty string in the database
@@ -81,6 +90,7 @@ export const transformAnswers = async (
     const type =
       dataElementIdToComponent[dataElementId]?.dataElement?.dataValues?.type || 'unknown';
     const componentConfig = autocompleteComponentMap.get(dataElementId);
+
     const body = await getAnswerBody(models, componentConfig, type, answer.body, transformConfig);
     const answerObject = {
       surveyId,

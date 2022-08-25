@@ -34,6 +34,7 @@ export class PatientAdditionalData extends Model {
               route: 'import/patientAdditionalData',
             },
           ],
+          undeleteOnUpdate: true,
         },
       },
     );
@@ -77,5 +78,28 @@ export class PatientAdditionalData extends Model {
 
   static getFullReferenceAssociations() {
     return ['countryOfBirth', 'nationality'];
+  }
+
+  static async getForPatient(patientId) {
+    return this.findOne({ where: { patientId } });
+  }
+
+  static async getOrCreateForPatient(patientId) {
+    // See if there's an existing PAD we can use
+    const existing = await this.getForPatient(patientId);
+    if (existing) {
+      return existing;
+    }
+
+    // otherwise create a new one
+    return this.create({
+      patientId,
+    });
+  }
+
+  static async updateForPatient(patientId, values) {
+    const additionalData = await this.getOrCreateForPatient(patientId);
+    await additionalData.update(values);
+    return additionalData;
   }
 }

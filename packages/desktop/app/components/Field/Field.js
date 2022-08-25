@@ -2,15 +2,19 @@ import React from 'react';
 import { Field as FormikField, connect as formikConnect, getIn } from 'formik';
 import MuiBox from '@material-ui/core/Box';
 import { FormTooltip } from '../FormTooltip';
+import { TextField } from './TextField';
 
-export const Field = formikConnect(({ formik: { errors }, name, helperText, ...props }) => (
-  <FormikField
-    {...props}
-    error={!!getIn(errors, name)}
-    helperText={getIn(errors, name) || helperText}
-    name={name}
-  />
-));
+export const Field = formikConnect(
+  ({ formik: { errors }, name, component = TextField, helperText, ...props }) => (
+    <FormikField
+      {...props}
+      component={component}
+      error={!!getIn(errors, name)}
+      helperText={getIn(errors, name) || helperText}
+      name={name}
+    />
+  ),
+);
 
 /**
  * A formik form field with an added tooltip

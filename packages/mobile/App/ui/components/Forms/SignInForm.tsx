@@ -3,7 +3,6 @@ import React, {
   ReactElement,
   useRef,
   useCallback,
-  useContext,
   useEffect,
   useState,
 } from 'react';
@@ -11,7 +10,7 @@ import * as Yup from 'yup';
 import { StyledView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
-import AuthContext from '~/ui/contexts/AuthContext';
+import { useAuth } from '~/ui/contexts/AuthContext';
 import { readConfig } from '~/services/config';
 import { useFacility } from '~/ui/contexts/FacilityContext';
 import { Form } from './Form';
@@ -48,7 +47,7 @@ const ServerInfo = __DEV__
 export const SignInForm: FunctionComponent<any> = ({ onError, onSuccess }) => {
   const [existingHost, setExistingHost] = useState('');
   const passwordRef = useRef(null);
-  const authCtx = useContext(AuthContext);
+  const authCtx = useAuth();
   const signIn = useCallback(
     async (values: SignInFormModel) => {
       try {

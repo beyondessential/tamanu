@@ -5,11 +5,12 @@ export function getUserInitials(username: string): string {
 }
 
 interface NameProps {
-  firstName: string;
-  lastName: string;
+  firstName?: string;
+  lastName?: string;
 }
 
-export const joinNames = (data: NameProps): string => [data.firstName, data.lastName].join(' ');
+export const joinNames = (data: NameProps): string =>
+  [data.firstName ?? '', data.lastName ?? ''].join(' ');
 
 export const Genders = {
   FEMALE: 'female',

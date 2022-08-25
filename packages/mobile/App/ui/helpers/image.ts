@@ -18,7 +18,7 @@ interface ResizeOptions {
   onlyScaleDown?: boolean;
 }
 
-export const launchImagePicker = (): Promise<ImagePickerResponse> =>
+export const launchImagePicker = (): Promise<ImagePickerResponse | null> =>
   new Promise((resolve, reject) => {
     ImagePicker.showImagePicker(
       {
@@ -32,7 +32,7 @@ export const launchImagePicker = (): Promise<ImagePickerResponse> =>
           // Add log later
           reject(new Error(imagePickerResponse.error));
         } else if (imagePickerResponse.didCancel) {
-          resolve();
+          resolve(null);
         } else {
           resolve(imagePickerResponse);
         }
@@ -40,11 +40,9 @@ export const launchImagePicker = (): Promise<ImagePickerResponse> =>
     );
   });
 
-export const getImageFromPhotoLibrary = async (): Promise<Nullable<
-  ImagePickerResponse
->> => {
+export const getImageFromPhotoLibrary = async () => {
   const OS = Platform.OS;
-  let image = null;
+  let image : ImagePickerResponse = null;
   if (OS === 'android') {
     try {
       const photoLibraryPermissionAndroid = await check(

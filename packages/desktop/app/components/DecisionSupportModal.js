@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { getCurrentDecisionSupport, POP_DECISION_SUPPORT } from 'desktop/app/store/decisionSupport';
+import { getCurrentDecisionSupport, POP_DECISION_SUPPORT } from '../store/specialModals';
 import { Modal } from './Modal';
 
 import { DateDisplay } from './DateDisplay';

@@ -2,7 +2,6 @@ import React, {
   ReactElement,
   useMemo,
   useCallback,
-  useContext,
 } from 'react';
 import { useSelector } from 'react-redux';
 import {
@@ -30,9 +29,8 @@ import {
   RingIcon,
 } from '/components/Icons';
 import { version as AppVersion } from '/root/package.json';
-import { StatusBar, StatusBarStyle, Linking} from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
-import AuthContext from '~/ui/contexts/AuthContext';
+import { Linking} from 'react-native';
+import { useAuth } from '~/ui/contexts/AuthContext';
 import { useFacility } from '~/ui/contexts/FacilityContext';
 import { BaseAppProps } from '~/ui/interfaces/BaseAppProps';
 import { authUserSelector } from '/helpers/selectors';
@@ -72,7 +70,7 @@ const TamanuAppVersion = ({ version }: TamanuAppVersionProps): ReactElement => (
 );
 
 export const MoreScreen = ({ navigation }: BaseAppProps): ReactElement => {
-  const authCtx = useContext(AuthContext);
+  const authCtx = useAuth();
   const user = useSelector(authUserSelector);
   const { facilityName } = useFacility();
   const settings = useMemo(

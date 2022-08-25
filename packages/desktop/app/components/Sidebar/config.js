@@ -21,19 +21,19 @@ export const FACILITY_MENU_ITEMS = [
       {
         label: 'All patients',
         color: '#7EB3E7',
-        path: '/patients',
+        path: '/patients/all',
         ability: { action: 'read' },
       },
       {
         label: 'Inpatients',
         color: Colors.safe,
-        path: '/patients/admitted',
+        path: '/patients/inpatient',
         ability: { action: 'read' },
       },
       {
         label: 'Emergency patients',
         color: Colors.orange,
-        path: '/patients/triage',
+        path: '/patients/emergency',
         ability: { action: 'read' },
       },
       {
@@ -53,7 +53,7 @@ export const FACILITY_MENU_ITEMS = [
     children: [
       {
         label: 'Upcoming appointments',
-        path: '/appointments',
+        path: '/appointments/all',
         ability: { action: 'read' },
       },
       {
@@ -63,7 +63,7 @@ export const FACILITY_MENU_ITEMS = [
       },
       {
         label: 'New appointment',
-        path: '/appointments/appointment/new',
+        path: '/appointments/new',
         ability: { action: 'create' },
       },
     ],
@@ -71,28 +71,28 @@ export const FACILITY_MENU_ITEMS = [
   {
     key: 'medication',
     label: 'Medication',
-    path: '/medication',
+    path: '/medication-requests',
     icon: medicationIcon,
     ability: { subject: 'medication' },
     children: [
       {
         label: 'Requests',
-        path: '/medication/requests',
+        path: '/medication-requests/all',
         ability: { action: 'read' },
       },
       {
         label: 'Completed',
-        path: '/medication/completed',
+        path: '/medication-requests/completed',
         ability: { action: 'read' },
       },
       {
         label: 'New request',
-        path: '/medication/request',
+        path: '/medication-requests/new',
         ability: { action: 'create' },
       },
       {
         label: 'Dispense',
-        path: '/medication/dispense',
+        path: '/medication-requests/dispense',
         ability: { action: 'create' },
       },
     ],
@@ -100,23 +100,23 @@ export const FACILITY_MENU_ITEMS = [
   {
     key: 'imaging',
     label: 'Imaging',
-    path: '/imaging',
+    path: '/imaging-requests',
     icon: radiologyIcon,
     ability: { subject: 'imaging' },
     children: [
       {
         label: 'Requests',
-        path: '/imaging',
+        path: '/imaging-requests/all',
         ability: { action: 'read' },
       },
       {
         label: 'Completed',
-        path: '/imaging/completed',
+        path: '/imaging-requests/completed',
         ability: { action: 'read' },
       },
       {
         label: 'New request',
-        path: '/imaging/request',
+        path: '/imaging-requests/new',
         ability: { action: 'create' },
       },
     ],
@@ -124,23 +124,23 @@ export const FACILITY_MENU_ITEMS = [
   {
     key: 'labs',
     label: 'Labs',
-    path: '/labs',
+    path: '/lab-requests',
     icon: labsIcon,
     ability: { subject: 'lab' },
     children: [
       {
         label: 'Requests',
-        path: '/labs',
+        path: '/lab-requests/all',
         ability: { action: 'read' },
       },
       {
         label: 'Completed',
-        path: '/labs/completed',
+        path: '/lab-requests/completed',
         ability: { action: 'read' },
       },
       {
         label: 'New request',
-        path: '/labs/edit/new',
+        path: '/lab-requests/new',
         ability: { action: 'create' },
       },
     ],
@@ -154,11 +154,11 @@ export const FACILITY_MENU_ITEMS = [
     children: [
       {
         label: 'Immunisation register',
-        path: `/immunisations/`,
+        path: `/immunisations/all`,
       },
       {
         label: 'COVID campaign',
-        path: `/immunisations/covid`,
+        path: `/immunisations/covid-campaign`,
       },
     ],
   },
@@ -171,7 +171,7 @@ export const FACILITY_MENU_ITEMS = [
     children: [
       {
         label: 'Active COVID-19 patients',
-        path: `/programs/active-covid-19-program/patients`,
+        path: `/programs/active-covid-19-patients`,
       },
     ],
   },
@@ -184,7 +184,7 @@ export const FACILITY_MENU_ITEMS = [
     children: [
       {
         label: 'Report generator',
-        path: `/reports/`,
+        path: `/reports/new`,
       },
     ],
   },
@@ -197,23 +197,8 @@ export const FACILITY_MENU_ITEMS = [
     ability: { subject: 'user', action: 'read' },
     children: [
       {
-        label: 'Settings',
-        path: '/admin/settings',
-      },
-      {
-        label: 'Users',
-        path: '/admin/users',
-        ability: { action: 'read', subject: 'user' },
-      },
-      {
-        label: 'Locations',
-        path: '/admin/locations',
-        ability: { action: 'read', subject: 'location' },
-      },
-      {
         label: 'Permissions',
         path: '/admin/permissions',
-        ability: { action: 'read', subject: 'userRole' },
       },
       {
         label: 'Programs',
@@ -221,7 +206,7 @@ export const FACILITY_MENU_ITEMS = [
       },
       {
         label: 'Data import',
-        path: '/admin/refdata',
+        path: '/admin/data-import',
       },
     ],
   },

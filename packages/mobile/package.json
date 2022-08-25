@@ -1,6 +1,6 @@
 {
   "name": "tamanuapp",
-  "version": "1.17.36",
+  "version": "1.19.40",
   "private": true,
   "scripts": {
     "android": "npx react-native run-android",
@@ -24,6 +24,7 @@
     "mockserver": "cd mockserver/functions && npm run serve"
   },
   "dependencies": {
+    "@casl/ability": "^4.1.0",
     "@react-native-async-storage/async-storage": "^1.13.2",
     "@react-native-community/cameraroll": "^4.0.4",
     "@react-native-community/datetimepicker": "^5.1.0",
@@ -38,9 +39,6 @@
     "@storybook/addon-actions": "^5.2.8",
     "@storybook/react-native": "^5.2.8",
     "@testing-library/react-native": "^9.0.0",
-    "@types/mathjs": "^6.0.11",
-    "@types/react-native-svg-charts": "^5.0.3",
-    "@types/react-redux": "^7.1.7",
     "async-mutex": "^0.3.2",
     "chance": "^1.1.4",
     "date-fns": "^2.7.0",
@@ -111,9 +109,12 @@
     "@types/detox": "^14.5.2",
     "@types/jest": "^24.0.23",
     "@types/lodash": "^4.14.168",
+    "@types/mathjs": "^6.0.11",
     "@types/node": "^14.0.4",
     "@types/react": "^17.0.2",
-    "@types/react-native": "^0.66.15",
+    "@types/react-native": "0.67.2",
+    "@types/react-native-svg-charts": "^5.0.3",
+    "@types/react-redux": "^7.1.7",
     "@types/react-test-renderer": "^16.9.2",
     "@types/styled-components": "^5.1.0",
     "@types/styled-system": "^5.1.4",

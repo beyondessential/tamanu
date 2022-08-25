@@ -1,3 +1,5 @@
+import { APPOINTMENT_STATUSES } from 'shared/constants';
+
 export const REPORT_DEFINITIONS = [
   {
     name: 'Incomplete referrals',
@@ -83,11 +85,6 @@ export const REPORT_DEFINITIONS = [
     allFacilities: true,
   },
   {
-    name: 'COVID vaccine campaign daily summary by village',
-    id: 'covid-vaccine-daily-summary-village',
-    allFacilities: true,
-  },
-  {
     name: 'Adverse Event Following Immunization',
     id: 'aefi',
     parameters: [{ parameterField: 'VillageField' }],
@@ -122,6 +119,11 @@ export const REPORT_DEFINITIONS = [
   {
     name: 'Palau COVID-19 Test - Line list',
     id: 'palau-covid-swab-lab-test-list',
+    allFacilities: true,
+  },
+  {
+    name: 'Nauru COVID-19 Test - Line list',
+    id: 'nauru-covid-swab-lab-test-list',
     allFacilities: true,
   },
   {
@@ -324,6 +326,34 @@ export const REPORT_DEFINITIONS = [
         label: 'Survey',
         name: 'surveyId',
         suggesterEndpoint: 'survey',
+        required: true,
+      },
+    ],
+  },
+  {
+    name: 'Appointments - Line list',
+    id: 'appointments-line-list',
+    parameters: [
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Location',
+        name: 'location',
+        suggesterEndpoint: 'location',
+      },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Clinician',
+        name: 'clinician',
+        suggesterEndpoint: 'practitioner',
+      },
+      {
+        parameterField: 'ParameterSelectField',
+        name: 'appointmentStatus',
+        label: 'Appointment Status',
+        options: Object.values(APPOINTMENT_STATUSES).map(status => ({
+          label: status,
+          value: status,
+        })),
       },
     ],
   },

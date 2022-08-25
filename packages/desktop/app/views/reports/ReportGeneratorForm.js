@@ -96,6 +96,12 @@ async function validateCommaSeparatedEmails(emails) {
   return '';
 }
 
+const buildParameterFieldValidation = ({ name, required }) => {
+  if (required) return Yup.mixed().required(`${name} is a required field`);
+
+  return Yup.mixed();
+};
+
 const ErrorMessageContainer = styled(Grid)`
   padding: ${MUI_SPACING_UNIT * 2}px ${MUI_SPACING_UNIT * 3}px;
   background-color: ${red[50]};
@@ -142,7 +148,7 @@ const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
   const [parameters, setParameters] = useState([]);
   const [dataSource, setDataSource] = useState(REPORT_DATA_SOURCES.THIS_FACILITY);
   const [isDataSourceFieldDisabled, setIsDataSourceFieldDisabled] = useState(false);
-  const [availableReports, setAvailableReports] = useState([]);
+  const [availableReports, setAvailableReports] = useState(null);
   const [reportsById, setReportsById] = useState({});
   const [reportOptions, setReportOptions] = useState([]);
 
@@ -212,7 +218,7 @@ const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
   // Wait until available reports are loaded to render.
   // This is a workaround because of an issue that the onChange callback (when selecting a report)
   // inside render method of Formik doesn't update its dependency when the available reports list is already loaded
-  if (!availableReports.length && !requestError) {
+  if (Array.isArray(availableReports) === false && !requestError) {
     return <LoadingIndicator backgroundColor="#f7f9fb" />;
   }
 
@@ -221,13 +227,18 @@ const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
       initialValues={{
         reportType: '',
         emails: currentUser.email,
+        ...parameters.reduce((acc, { name }) => ({ ...acc, [name]: null }), {}),
       }}
       onSubmit={submitRequestReport}
       validationSchema={Yup.object().shape({
         reportType: Yup.string().required('Report type is required'),
-        ...parameters
-          .filter(field => field.validation)
-          .reduce((schema, field) => ({ ...schema, [field.name]: field.validation }), {}),
+        ...parameters.reduce(
+          (schema, field) => ({
+            ...schema,
+            [field.name]: buildParameterFieldValidation(field),
+          }),
+          {},
+        ),
       })}
       render={({ values }) => (
         <>
@@ -247,7 +258,6 @@ const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
               onChange={e => {
                 setDataSource(e.target.value);
               }}
-              inline
               options={[
                 { label: 'This facility', value: REPORT_DATA_SOURCES.THIS_FACILITY },
                 { label: 'All facilities', value: REPORT_DATA_SOURCES.ALL_FACILITIES },

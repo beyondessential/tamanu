@@ -15,6 +15,8 @@ storiesOf('VisitTypeButton', module)
       type={VisitTypes.CLINIC}
       selected
       onPress={(): void => console.log('with icon')}
+      title=""
+      subtitle=""
     />
   ))
   .add('with icon unselected', () => (
@@ -23,22 +25,8 @@ storiesOf('VisitTypeButton', module)
       type={VisitTypes.CLINIC}
       selected={false}
       onPress={(): void => console.log('with icon')}
-    />
-  ))
-  .add('without icon unselected', () => (
-    <VisitTypeButton
-      title="ALL"
-      subtitle="All types"
-      selected={false}
-      onPress={(): void => console.log('no icon')}
-    />
-  ))
-  .add('without icon selected', () => (
-    <VisitTypeButton
-      title="ALL"
-      subtitle="All types"
-      selected
-      onPress={(): void => console.log('no icon')}
+      title=""
+      subtitle=""
     />
   ))
   .add('Button list', () => <VisitButtonList />);

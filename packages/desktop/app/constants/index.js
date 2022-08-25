@@ -48,6 +48,7 @@ export const Colors = {
   midText: '#888888',
   softText: '#b8b8b8',
   outline: '#dedede',
+  softOutline: '#ebebeb',
   background: '#f3f5f7',
   white: '#ffffff',
   offWhite: '#fafafa',
@@ -258,24 +259,6 @@ export const encounterOptions = [
 
 export const ENCOUNTER_OPTIONS_BY_VALUE = createValueIndex(encounterOptions);
 
-export const TRIAGE_COLORS_BY_LEVEL = {
-  1: Colors.alert,
-  2: Colors.secondary,
-  3: Colors.safe,
-};
-
-export const triagePriorities = [
-  { value: '1', label: 'Emergency', color: TRIAGE_COLORS_BY_LEVEL[1] },
-  { value: '2', label: 'Priority', color: TRIAGE_COLORS_BY_LEVEL[2] },
-  { value: '3', label: 'Non-urgent', color: TRIAGE_COLORS_BY_LEVEL[3] },
-];
-
-export const immunisationStatusList = [
-  { value: 'On time', label: 'On time', color: TRIAGE_COLORS_BY_LEVEL[3] },
-  { value: 'Late', label: 'Late', color: TRIAGE_COLORS_BY_LEVEL[2] },
-  { value: 'Missing', label: 'Missing', color: TRIAGE_COLORS_BY_LEVEL[1] },
-];
-
 export const operativePlanStatuses = {
   PLANNED: 'planned',
   DROPPED: 'dropped',
@@ -366,23 +349,12 @@ export const LOCAL_STORAGE_KEYS = {
   LOCALISATION: 'localisation',
   SERVER: 'server',
   REMEMBER_EMAIL: 'remember-email',
+  PERMISSIONS: 'permissions',
 };
 
 export const REPORT_DATA_SOURCES = {
   THIS_FACILITY: 'thisFacility',
   ALL_FACILITIES: 'allFacilities',
-};
-
-export const CLINICAL_STATUSES = {
-  CRITICAL: 'Critical',
-  NEEDS_REVIEW: 'Needs review',
-  LOW_RISK: 'Low risk',
-};
-
-export const CLINICAL_COLORS_BY_STATUS = {
-  [CLINICAL_STATUSES.CRITICAL]: Colors.alert,
-  [CLINICAL_STATUSES.NEEDS_REVIEW]: Colors.secondary,
-  [CLINICAL_STATUSES.LOW_RISK]: Colors.safe,
 };
 
 export const appointmentTypeOptions = Object.values(APPOINTMENT_TYPES).map(type => ({
@@ -399,6 +371,7 @@ export const ALPHABET_FOR_ID =
   // this is absolutely fine and the concat isn't useless
   // eslint-disable-next-line no-useless-concat
   'ABCDEFGH' + /* I */ 'JK' + /* L */ 'MN' + /* O */ 'PQRSTUVWXYZ' + /* 01 */ '23456789';
+
 export const INVOICE_STATUS_OPTIONS = [
   { label: 'Cancelled', value: INVOICE_STATUSES.CANCELLED },
   { label: 'In progress', value: INVOICE_STATUSES.IN_PROGRESS },

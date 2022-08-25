@@ -29,19 +29,19 @@ export class ParamConfig {
     this.mustMatchRecord = mustMatchRecord;
   }
 
-  validate(record, paramsObject) {
+  validateParam(record, paramsObject) {
     const { name } = this;
     const value = paramsObject[name];
     if (!value) {
       if (this.isRequired === true) {
-        throw new Error(`${this.class.name}.syncConfig.validate: param ${name} is required`);
+        throw new Error(`${this.class.name}.syncConfig.validateParam: param ${name} is required`);
       } else {
         return; // don't validate a missing parameter
       }
     }
     if (this.mustMatchRecord === true && value && value !== record[this.name]) {
       throw new Error(
-        `${this.model.name}.syncConfig.validate: param ${name}=${value} doesn't match record.${name}=${record[name]}`,
+        `${this.model.name}.syncConfig.validateParam: param ${name}=${value} doesn't match record.${name}=${record[name]}`,
       );
     }
   }

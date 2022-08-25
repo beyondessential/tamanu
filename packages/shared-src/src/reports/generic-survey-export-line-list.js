@@ -1,5 +1,11 @@
 import { subDays } from 'date-fns';
-import { generateReportFromQueryData } from './utilities';
+import { keyBy } from 'lodash';
+import { NON_ANSWERABLE_DATA_ELEMENT_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '../constants';
+import {
+  generateReportFromQueryData,
+  getAnswerBody,
+  getAutocompleteComponentMap,
+} from './utilities';
 
 const COMMON_FIELDS = [
   'Patient ID',
@@ -14,19 +20,32 @@ const COMMON_FIELDS = [
 
 // Uncomment deleted_at checks once Tan-1421 is complete, see https://linear.app/bes/issue/TAN-1456/update-existing-sql-reports-to-support-deleted-at
 const query = `
-with 
-  responses_with_answers as (
-    select
-      response_id,
-      json_object_agg(
-        data_element_id, body
-      ) "answers"
-    from survey_response_answers sra
-    where body <> '' -- Doesn't really matter, just could save some memory
-    -- and sra.deleted_at is null 
-    and data_element_id is not null
-    group by response_id 
-  )
+with
+	answers_and_results as (
+		select 
+			response_id,
+			data_element_id,
+			body
+		from survey_response_answers sra
+		union all
+		select
+			id,
+			'Result',
+			result_text
+		from survey_responses sr
+	),
+	responses_with_answers as (
+		select
+			response_id,
+			json_object_agg(
+				data_element_id, body
+			) "answers"
+		from answers_and_results aar
+		where body <> '' -- Doesn't really matter, just could save some memory
+		--and aar.deleted_at is null
+		and data_element_id is not null
+		group by response_id
+	)
 select
   p.first_name "First name",
   p.last_name "Last name",
@@ -35,7 +54,7 @@ select
   p.sex "Sex",
   p.display_id "Patient ID",
   vil."name" as "Village",
-  to_char(sr.end_time, 'YYYY-MM-DD HH24' || CHR(58) || 'MI') "Submission Time", -- Need to use "|| CHR(58)" here or else sequelize thinks "<colon>MI" is a variable (it even replaces in comments!!)
+  to_char(sr.end_time, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM') "Submission Time", -- Need to use "|| CHR(58)" here or else sequelize thinks "<colon>MI" is a variable (it even replaces in comments!!)
   s.name,
   answers
 from survey_responses sr
@@ -48,6 +67,7 @@ where sr.survey_id  = :survey_id
 and CASE WHEN :village_id IS NOT NULL THEN p.village_id = :village_id ELSE true end 
 and CASE WHEN :from_date IS NOT NULL THEN sr.end_time::date >= :from_date::date ELSE true END
 and CASE WHEN :to_date IS NOT NULL THEN sr.end_time::date <= :to_date::date ELSE true END
+order by sr.end_time desc
 --and sr.deleted_at is null
 `;
 
@@ -79,6 +99,78 @@ const getData = async (sequelize, parameters) => {
   });
 };
 
+const getReportColumnTemplate = components => {
+  const answerableComponents = components.filter(
+    ({ dataElement }) =>
+      !NON_ANSWERABLE_DATA_ELEMENT_TYPES.includes(dataElement.type) &&
+      dataElement.type !== PROGRAM_DATA_ELEMENT_TYPES.SURVEY_LINK,
+  );
+  const surveyHasResult = components.some(
+    ({ dataElement }) => dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.RESULT,
+  );
+
+  return [
+    ...COMMON_FIELDS.map(field => ({
+      title: field,
+      accessor: data => data[field],
+    })),
+    ...answerableComponents.map(({ dataElement }) => ({
+      title: dataElement.name,
+      accessor: data => data.answers[dataElement.id],
+    })),
+    ...(surveyHasResult ? [{ title: 'Result', accessor: data => data.answers.Result }] : []),
+  ];
+};
+
+export const transformSingleResponse = async (
+  models,
+  result,
+  autocompleteComponentMap,
+  dataElementIdToComponent,
+) => {
+  const answers = result.answers || {};
+  const newAnswers = {};
+
+  await Promise.all(
+    Object.entries(answers).map(async ([key, body]) => {
+      if (key === 'Result') {
+        newAnswers[key] = body;
+      } else {
+        const dataElementId = key;
+        const type =
+          dataElementIdToComponent[dataElementId]?.dataElement?.dataValues?.type || 'unknown';
+        const componentConfig = autocompleteComponentMap.get(dataElementId);
+        newAnswers[key] = await getAnswerBody(models, componentConfig, type, body, {
+          dateFormat: 'YYYY-MM-DD',
+        });
+      }
+    }),
+  );
+
+  return {
+    ...result,
+    answers: newAnswers,
+  };
+};
+
+export const transformAllResponses = async (models, results, surveyComponents) => {
+  const autocompleteComponentMap = getAutocompleteComponentMap(surveyComponents);
+  const dataElementIdToComponent = keyBy(surveyComponents, component => component.dataElementId);
+
+  const transformedResults = [];
+  // Transforming results synchronously in order to avoid using too much memory
+  for (const result of results) {
+    const transformedResult = await transformSingleResponse(
+      models,
+      result,
+      autocompleteComponentMap,
+      dataElementIdToComponent,
+    );
+    transformedResults.push(transformedResult);
+  }
+  return transformedResults;
+};
+
 export const dataGenerator = async ({ sequelize, models }, parameters = {}) => {
   const { surveyId } = parameters;
   if (!surveyId) {
@@ -89,20 +181,12 @@ export const dataGenerator = async ({ sequelize, models }, parameters = {}) => {
     throw new Error('Cannot export a survey marked as "sensitive"');
   }
 
-  const results = await getData(sequelize, parameters);
+  const components = await models.SurveyScreenComponent.getComponentsForSurvey(surveyId);
+  const reportColumnTemplate = getReportColumnTemplate(components);
 
-  const components = await models.SurveyScreenComponent.getAnswerComponentsForSurveys(surveyId);
+  const rawData = await getData(sequelize, parameters);
+  const results = await transformAllResponses(models, rawData, components);
 
-  const reportColumnTemplate = [
-    ...COMMON_FIELDS.map(field => ({
-      title: field,
-      accessor: data => data[field],
-    })),
-    ...components.map(({ dataElement }) => ({
-      title: dataElement.name,
-      accessor: data => data.answers[dataElement.id],
-    })),
-  ];
   return generateReportFromQueryData(results, reportColumnTemplate);
 };
 

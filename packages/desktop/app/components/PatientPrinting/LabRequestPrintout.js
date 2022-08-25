@@ -9,7 +9,6 @@ export const LabRequestPrintout = React.memo(
       displayId,
       requestedDate,
       sampleTime,
-      laboratory,
       requestedBy,
       priority,
       category,

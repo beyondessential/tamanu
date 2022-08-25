@@ -22,6 +22,28 @@
 
 - (left blank)
 
+## v1.17.1
+
+### Manual steps required after upgrade ⚙
+
+- (left blank)
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
+- (left blank)
+
+### Bug fixes 🐛
+
+- (left blank)
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
+
 ## v1.17.0
 
 ### Manual steps required after upgrade ⚙
@@ -49,6 +71,28 @@
 ### Infrastructure and maintenance 🛠
 
 - Drop deprecated `X-Runtime` header (except in meta server).
+
+## v1.16.3
+
+### Manual steps required after upgrade ⚙
+
+- (left blank)
+
+### Features ⭐
+
+- (left blank)
+
+### Tweaks ⚖️
+
+- (left blank)
+
+### Bug fixes 🐛
+
+- VDS encodes dates as sync-server timezone to match PDF
+
+### Infrastructure and maintenance 🛠
+
+- (left blank)
 
 ## v1.16.2
 

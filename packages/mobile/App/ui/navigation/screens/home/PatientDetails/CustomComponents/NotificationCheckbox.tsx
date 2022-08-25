@@ -15,6 +15,7 @@ export const NotificationCheckbox = (
     <Separator marginTop={20} />
     <StyledView marginTop={20} marginBottom={20}>
       <Checkbox
+        id="send-reminders"
         onChange={props.onChange}
         value={props.value}
         text="Send Reminders for Vaccines, Appointments etc..."

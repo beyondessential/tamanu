@@ -30,7 +30,7 @@ const MultilineCell = ({ children, style, numeric, ...rest }: Props) => (
     {...rest}
     style={[styles.container, numeric && styles.right, style]}
   >
-    <Text>{children}</Text>
+    <Text accessibilityComponentType={undefined} accessibilityTraits={undefined}>{children}</Text>
   </TouchableRipple>
 );
 

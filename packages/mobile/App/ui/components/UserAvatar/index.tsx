@@ -7,7 +7,7 @@ import { screenPercentageToDP, Orientation } from '/helpers/screen';
 export interface UserAvatarProps {
   image?: string;
   displayName: string;
-  sex: string;
+  sex?: string;
   size: number;
   Icon?: JSX.Element;
 }

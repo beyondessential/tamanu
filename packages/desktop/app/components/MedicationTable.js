@@ -1,8 +1,13 @@
 import React, { useCallback, useState } from 'react';
+import { push } from 'connected-react-router';
+import { useDispatch } from 'react-redux';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { useEncounter } from '../contexts/Encounter';
 import { MedicationModal } from './MedicationModal';
+import { reloadPatient } from '../store';
+import { ENCOUNTER_TAB_NAMES } from '../views/patients/EncounterView';
+import { Colors } from '../constants';
 
 const getMedicationName = ({ medication }) => medication.name;
 
@@ -14,7 +19,7 @@ const MEDICATION_COLUMNS = [
   {
     key: 'endDate',
     title: 'End Date',
-    accessor: data => <DateDisplay date={data?.endDate ?? ''} />,
+    accessor: data => (data?.endDate ? <DateDisplay date={data?.endDate} /> : ''),
   },
   { key: 'prescriber', title: 'Prescriber', accessor: data => data?.prescriber?.displayName ?? '' },
 ];
@@ -59,7 +64,7 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
   const rowStyle = ({ discontinued }) =>
     discontinued
       ? `
-        color: red;
+        color: ${Colors.alert};
         text-decoration: line-through;`
       : '';
 
@@ -78,6 +83,7 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
         endpoint={`encounter/${encounterId}/medications`}
         onRowClick={onMedicationSelect}
         rowStyle={rowStyle}
+        elevated={false}
       />
     </div>
   );
@@ -85,11 +91,18 @@ export const EncounterMedicationTable = React.memo(({ encounterId }) => {
 
 export const DataFetchingMedicationTable = () => {
   const { loadEncounter } = useEncounter();
+  const dispatch = useDispatch();
   const onMedicationSelect = useCallback(
     async medication => {
-      await loadEncounter(medication.encounter.id, true);
+      await loadEncounter(medication.encounter.id);
+      await dispatch(reloadPatient(medication.encounter.patientId));
+      dispatch(
+        push(
+          `/patients/all/${medication.encounter.patientId}/encounter/${medication.encounter.id}?tab=${ENCOUNTER_TAB_NAMES.MEDICATION}`,
+        ),
+      );
     },
-    [loadEncounter],
+    [loadEncounter, dispatch],
   );
 
   return (

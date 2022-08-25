@@ -32,20 +32,22 @@ const servers = [
 
   // demo servers
   { name: 'Demo', type: 'demo', host: 'https://sync-demo.tamanu.io' },
+  { name: 'Demo 2', type: 'demo', host: 'https://sync-demo-2.tamanu.io' },
   { name: 'Demo (Aspen)', type: 'demo', host: 'https://aspen-demo-sync.tamanu-fiji.org' },
   { name: 'Demo (Fiji)', type: 'demo', host: 'https://sync-demo.tamanu-fiji.org' },
   { name: 'Demo (Fiji Tourism)', type: 'demo', host: 'https://sync.demo-tourism.tamanu-fiji.org' },
   { name: 'Demo (Kiribati)', type: 'demo', host: 'https://sync-demo.tamanu-kiribati.org' },
   { name: 'Demo (Nauru)', type: 'demo', host: 'https://sync-demo-nauru.tamanu.io' },
-  { name: 'Demo (Palau)', type: 'demo', host: 'https://sync-demo-palau.tamanu.io' },
+  { name: 'Demo (Palau)', type: 'demo', host: 'https://sync-demo.tamanu-palau.org' },
+  { name: 'Demo (Palau EB)', type: 'demo', host: 'https://sync-demo-palau.tamanu.io' },
   { name: 'Demo (Samoa)', type: 'demo', host: 'https://sync-samoa-demo.tamanu.io' },
   { name: 'Demo (Tuvalu)', type: 'demo', host: 'https://sync-demo-tuvalu.tamanu.io' },
 
   // development servers
   { name: 'Dev', type: 'dev', host: 'https://sync-dev.tamanu.io' },
-  { name: 'Fiji VPS/VRS UAT', type: 'dev', host: 'https://sync-uat-fiji-vps.tamanu.io' },
   { name: 'Staging', type: 'dev', host: 'https://sync-staging.tamanu.io' },
   { name: 'Stress testing', type: 'dev', host: 'https://sync-stress-test.tamanu.io' },
+  { name: 'UAT', type: 'dev', host: 'https://sync-uat.tamanu.io' },
 ];
 
 serversRouter.get('/', (req, res) => {

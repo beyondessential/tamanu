@@ -19,7 +19,12 @@ export const VaccineScreenComponent = ({ selectedPatient }): ReactElement => {
   if (!administeredVaccines) return <LoadingScreen />;
 
   const dataGroupedByVaccine = Object.entries(
-    groupBy(administeredVaccines, value => value.scheduledVaccine.vaccine.name),
+    groupBy(administeredVaccines, value => {
+      if (typeof value.scheduledVaccine === "string") {
+        return value.scheduledVaccine;
+      }
+      return value.scheduledVaccine.vaccine.name;
+    }),
   ).map(([title, data]) => ({ title, data }));
   if (error) return <ErrorScreen error={error} />;
   return (
