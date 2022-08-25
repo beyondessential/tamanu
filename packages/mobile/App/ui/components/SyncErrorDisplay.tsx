@@ -2,7 +2,7 @@ import React, { ReactElement, useContext, useEffect, useState } from 'react';
 import { TouchableWithoutFeedback } from 'react-native';
 import { StyledText, StyledView } from '/styled/common';
 import { BackendContext } from '~/ui/contexts/BackendContext';
-import { SyncManager } from '~/services/sync';
+import { MobileSyncManager, SYNC_EVENT_ACTIONS } from '../../services/sync';
 
 function stringifyError(e): string {
   const error = e.error || e;
@@ -16,23 +16,23 @@ export const SyncErrorDisplay = (): ReactElement => {
   const [errorMessage, setErrorMessage] = useState('');
   const [errorCount, setErrorCount] = useState(0);
   const backend = useContext(BackendContext);
-  const syncManager: SyncManager = backend.syncManager;
+  const syncManager: MobileSyncManager = backend.syncManager;
 
   useEffect(() => {
     setErrorCount(syncManager.errors.length);
-    const errorHandler = ({ channel, error }): void => {
-      setErrorMessage(`Failed to sync ${channel} with ${error}`);
+    const errorHandler = ({ error }): void => {
+      setErrorMessage(`Failed to sync with ${error}`);
       setErrorCount(syncManager.errors.length);
     };
     const errorResetHandler = (): void => {
       setErrorMessage('');
       setErrorCount(syncManager.errors.length); // should be zero
     };
-    syncManager.emitter.on('channelSyncError', errorHandler);
-    syncManager.emitter.on('syncStarted', errorResetHandler);
+    syncManager.emitter.on(SYNC_EVENT_ACTIONS.SYNC_ERROR, errorHandler);
+    syncManager.emitter.on(SYNC_EVENT_ACTIONS.SYNC_STARTED, errorResetHandler);
     return (): void => {
-      syncManager.emitter.off('channelSyncError', errorHandler);
-      syncManager.emitter.off('syncStarted', errorResetHandler);
+      syncManager.emitter.off(SYNC_EVENT_ACTIONS.SYNC_ERROR, errorHandler);
+      syncManager.emitter.off(SYNC_EVENT_ACTIONS.SYNC_STARTED, errorResetHandler);
     };
   }, []);
 

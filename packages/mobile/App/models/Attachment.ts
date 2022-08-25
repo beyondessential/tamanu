@@ -1,4 +1,5 @@
 import { Entity, Column, AfterLoad, AfterRemove } from 'typeorm/browser';
+import { SYNC_DIRECTIONS } from './types';
 import { BaseModel } from './BaseModel';
 import { SurveyResponseAnswer } from './SurveyResponseAnswer';
 import { readFileInDocuments, deleteFileInDocuments } from '../ui/helpers/file';
@@ -17,9 +18,7 @@ export class Attachment extends BaseModel {
   @Column()
   filePath: string; // will not be synced up, only for local usage
 
-  static shouldImport = false;
-
-  static shouldExport = true;
+  static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
 
   static uploadLimit = 1;
 

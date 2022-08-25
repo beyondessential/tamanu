@@ -27,6 +27,7 @@ import { Referral } from './Referral';
 import { LabRequest } from './LabRequest';
 import { readConfig } from '~/services/config';
 import { ReferenceData, ReferenceDataRelation } from '~/models/ReferenceData';
+import { SYNC_DIRECTIONS } from './types';
 
 const TIME_OFFSET = 3;
 
@@ -223,7 +224,7 @@ export class Encounter extends BaseModel implements IEncounter {
     return query.getRawMany();
   }
 
-  static shouldExport = true;
+  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
   @BeforeInsert()
   @BeforeUpdate()
@@ -232,8 +233,7 @@ export class Encounter extends BaseModel implements IEncounter {
     // we don't need to upload the patient, so we only set markedForSync
     const parent = await this.findParent(Patient, 'patient');
     if (parent) {
-      parent.markedForSync = true;
-      await parent.save();
+      await Patient.markForSync(parent.id)
     }
   }
 

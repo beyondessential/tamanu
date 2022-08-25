@@ -2,6 +2,7 @@ import { Entity, Column, ManyToOne, RelationId, BeforeUpdate, BeforeInsert } fro
 import { BaseModel, FindMarkedForUploadOptions } from './BaseModel';
 import { Patient } from './Patient';
 import { IPatientIssue, PatientIssueType } from '~/types';
+import { SYNC_DIRECTIONS } from './types';
 
 @Entity('patient_issue')
 export class PatientIssue extends BaseModel implements IPatientIssue {
@@ -19,7 +20,7 @@ export class PatientIssue extends BaseModel implements IPatientIssue {
   @RelationId(({ patient }) => patient)
   patientId: string;
 
-  static shouldExport = true;
+  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
   // TODO: add everything below here to a mixin
   // https://www.typescriptlang.org/docs/handbook/mixins.html
@@ -31,8 +32,7 @@ export class PatientIssue extends BaseModel implements IPatientIssue {
     // we don't need to upload the patient, so we only set markedForSync
     const parent = await this.findParent(Patient, 'patient');
     if (parent) {
-      parent.markedForSync = true;
-      await parent.save();
+      await Patient.markForSync(parent.id)
     }
   }
 

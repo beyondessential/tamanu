@@ -3,6 +3,7 @@ import { BaseModel, FindMarkedForUploadOptions, IdRelation } from './BaseModel';
 import { IPatientAdditionalData } from '~/types';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { Patient } from './Patient';
+import { SYNC_DIRECTIONS } from './types';
 
 @Entity('patient_additional_data')
 export class PatientAdditionalData extends BaseModel implements IPatientAdditionalData {
@@ -119,7 +120,7 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
   @Column({ default: false })
   markedForSync: boolean;
 
-  static shouldExport = true;
+  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
   @BeforeInsert()
   @BeforeUpdate()
@@ -127,8 +128,7 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
     // Adding or editing additional data should mark the patient for sync
     const parent = await this.findParent(Patient, 'patient');
     if (parent) {
-      parent.markedForSync = true;
-      await parent.save();
+      await Patient.markForSync(parent.id)
     }
   }
 

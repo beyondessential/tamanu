@@ -3,6 +3,7 @@ import { BaseModel, FindMarkedForUploadOptions, IdRelation } from './BaseModel';
 import { Patient } from './Patient';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { IPatientSecondaryId } from '~/types';
+import { SYNC_DIRECTIONS } from './types';
 
 @Entity('patient_secondary_id')
 export class PatientSecondaryId extends BaseModel implements IPatientSecondaryId {
@@ -22,7 +23,7 @@ export class PatientSecondaryId extends BaseModel implements IPatientSecondaryId
   @RelationId(({ patient }) => patient)
   patientId: string;
 
-  static shouldExport = true;
+  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
   @BeforeInsert()
   @BeforeUpdate()
@@ -31,8 +32,7 @@ export class PatientSecondaryId extends BaseModel implements IPatientSecondaryId
     // we don't need to upload the patient, so we only set markedForSync
     const parent = await this.findParent(Patient, 'patient');
     if (parent) {
-      parent.markedForSync = true;
-      await parent.save();
+      await Patient.markForSync(parent.id)
     }
   }
 

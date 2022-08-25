@@ -9,6 +9,7 @@ import { PatientSecondaryId } from './PatientSecondaryId';
 import { IPatient, IPatientAdditionalData } from '~/types';
 import { formatDateForQuery } from '~/infra/db/helpers';
 import { PatientAdditionalData } from './PatientAdditionalData';
+import { PatientFacility } from './PatientFacility';
 import { ReferenceData, NullableReferenceDataRelation } from './ReferenceData';
 const TIME_OFFSET = 3;
 
@@ -47,7 +48,10 @@ export class Patient extends BaseModel implements IPatient {
   @IdRelation()
   villageId?: string | null;
 
-  @OneToMany(() => PatientAdditionalData, additionalData => additionalData.patient)
+  @OneToMany(
+    () => PatientAdditionalData,
+    additionalData => additionalData.patient,
+  )
   additionalData: IPatientAdditionalData;
 
   //----------------------------------------------------------
@@ -56,21 +60,35 @@ export class Patient extends BaseModel implements IPatient {
   @Column({ default: false })
   markedForSync: boolean; // TODO: should markedForUpload on children cascade upward to this?
 
-  @OneToMany(() => Encounter, encounter => encounter.patient)
-  encounters: Encounter[]
+  @OneToMany(
+    () => Encounter,
+    encounter => encounter.patient,
+  )
+  encounters: Encounter[];
 
-  @OneToMany(() => PatientIssue, issue => issue.patient)
-  issues: PatientIssue[]
+  @OneToMany(
+    () => PatientIssue,
+    issue => issue.patient,
+  )
+  issues: PatientIssue[];
 
-  @OneToMany(() => PatientSecondaryId, secondaryId => secondaryId.patient)
-  secondaryIds: PatientSecondaryId[]
+  @OneToMany(
+    () => PatientSecondaryId,
+    secondaryId => secondaryId.patient,
+  )
+  secondaryIds: PatientSecondaryId[];
 
   static shouldExport = true;
 
   static async markForSync(patientId: string): Promise<void> {
-    const repo = this.getRepository();
+    const facilityId = await readConfig('facilityId', '');
+    const patientFacility = await PatientFacility.findOne({
+      where: { patient: patientId, facility: facilityId },
+    });
 
-    await repo.update(patientId, { markedForSync: true });
+    if (!patientFacility) {
+      await PatientFacility.createAndSaveOne({ patient: patientId, facility: facilityId });
+    }
   }
 
   static async findRecentlyViewed(): Promise<Patient[]> {
@@ -79,12 +97,14 @@ export class Patient extends BaseModel implements IPatient {
 
     const list = await this.getRepository().findByIds(patientIds);
 
-    return patientIds
-      // map is needed to make sure that patients are in the same order as in recentlyViewedPatients
-      // (typeorm findByIds doesn't guarantee return order)
-      .map(storedId => list.find(({ id }) => id === storedId))
-      // filter removes patients who couldn't be found (which occurs when a patient was deleted)
-      .filter(patient => !!patient);
+    return (
+      patientIds
+        // map is needed to make sure that patients are in the same order as in recentlyViewedPatients
+        // (typeorm findByIds doesn't guarantee return order)
+        .map(storedId => list.find(({ id }) => id === storedId))
+        // filter removes patients who couldn't be found (which occurs when a patient was deleted)
+        .filter(patient => !!patient)
+    );
   }
 
   static async getSyncable(): Promise<Patient[]> {
@@ -97,20 +117,19 @@ export class Patient extends BaseModel implements IPatient {
     const date = addHours(startOfDay(new Date()), TIME_OFFSET);
     const thirtyYearsAgo = subYears(new Date(), 30);
 
-    const genderQuery = repo.createQueryBuilder('patient')
+    const genderQuery = repo
+      .createQueryBuilder('patient')
       .select('sex', 'gender')
       .addSelect('count(distinct encounter.patientId)', 'totalVisitors')
       .addSelect('count(distinct surveyResponse.encounterId)', 'totalSurveys')
       .leftJoin('patient.encounters', 'encounter')
       .leftJoin(
-        (subQuery) => subQuery
-          .select('surveyResponse.id', 'id')
-          .addSelect('surveyResponse.encounterId', 'encounterId')
-          .from('survey_response', 'surveyResponse')
-          .where(
-            'surveyResponse.surveyId = :surveyId',
-            { surveyId },
-          ),
+        subQuery =>
+          subQuery
+            .select('surveyResponse.id', 'id')
+            .addSelect('surveyResponse.encounterId', 'encounterId')
+            .from('survey_response', 'surveyResponse')
+            .where('surveyResponse.surveyId = :surveyId', { surveyId }),
         'surveyResponse',
         '"surveyResponse"."encounterId" = encounter.id',
       )
@@ -121,20 +140,24 @@ export class Patient extends BaseModel implements IPatient {
       .groupBy('gender')
       .getRawMany();
 
-    const ageRangeQuery = repo.createQueryBuilder('patient')
-      .select(`case when dateOfBirth >= datetime(${formatDateForQuery(thirtyYearsAgo)}, 'unixepoch') then 'lessThanThirty' else 'moreThanThirty' end`, 'ageGroup')
+    const ageRangeQuery = repo
+      .createQueryBuilder('patient')
+      .select(
+        `case when dateOfBirth >= datetime(${formatDateForQuery(
+          thirtyYearsAgo,
+        )}, 'unixepoch') then 'lessThanThirty' else 'moreThanThirty' end`,
+        'ageGroup',
+      )
       .addSelect('count(distinct encounter.patientId)', 'totalVisitors')
       .addSelect('count(distinct surveyResponse.encounterId)', 'totalSurveys')
       .leftJoin('patient.encounters', 'encounter')
       .leftJoin(
-        (subQuery) => subQuery
-          .select('surveyResponse.id', 'id')
-          .addSelect('surveyResponse.encounterId', 'encounterId')
-          .from('survey_response', 'surveyResponse')
-          .where(
-            'surveyResponse.surveyId = :surveyId',
-            { surveyId },
-          ),
+        subQuery =>
+          subQuery
+            .select('surveyResponse.id', 'id')
+            .addSelect('surveyResponse.encounterId', 'encounterId')
+            .from('survey_response', 'surveyResponse')
+            .where('surveyResponse.surveyId = :surveyId', { surveyId }),
         'surveyResponse',
         '"surveyResponse"."encounterId" = encounter.id',
       )
@@ -145,19 +168,18 @@ export class Patient extends BaseModel implements IPatient {
       .groupBy('ageGroup')
       .getRawMany();
 
-    const totalVisitors = repo.createQueryBuilder('patient')
+    const totalVisitors = repo
+      .createQueryBuilder('patient')
       .select('count(distinct encounter.patientId)', 'totalVisitors')
       .addSelect('count(distinct surveyResponse.encounterId)', 'totalSurveys')
       .leftJoin('patient.encounters', 'encounter')
       .leftJoin(
-        (subQuery) => subQuery
-          .select('surveyResponse.id', 'id')
-          .addSelect('surveyResponse.encounterId', 'encounterId')
-          .from('survey_response', 'surveyResponse')
-          .where(
-            'surveyResponse.surveyId = :surveyId',
-            { surveyId },
-          ),
+        subQuery =>
+          subQuery
+            .select('surveyResponse.id', 'id')
+            .addSelect('surveyResponse.encounterId', 'encounterId')
+            .from('survey_response', 'surveyResponse')
+            .where('surveyResponse.surveyId = :surveyId', { surveyId }),
         'surveyResponse',
         '"surveyResponse"."encounterId" = encounter.id',
       )
@@ -175,7 +197,8 @@ export class Patient extends BaseModel implements IPatient {
     const repo = this.getRepository();
     const date = addHours(startOfDay(new Date()), TIME_OFFSET);
 
-    const query = repo.createQueryBuilder('patient')
+    const query = repo
+      .createQueryBuilder('patient')
       .select(['patient.id', 'firstName', 'lastName', 'dateOfBirth', 'sex'])
       .addSelect("COALESCE(referral.referredFacility,'not referred')", 'referredTo')
       .innerJoin('patient.encounters', 'encounter')

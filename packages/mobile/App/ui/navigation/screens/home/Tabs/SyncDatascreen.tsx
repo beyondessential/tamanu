@@ -5,54 +5,51 @@ import { CenterView, StyledText, StyledView } from '../../../../styled/common';
 import { theme } from '../../../../styled/theme';
 import { Orientation, screenPercentageToDP, setStatusBar } from '../../../../helpers/screen';
 import { BackendContext } from '../../../../contexts/BackendContext';
-import { SyncManager } from '../../../../../services/sync';
+import { MobileSyncManager, SYNC_EVENT_ACTIONS } from '../../../../../services/sync';
 import { Button } from '../../../../components/Button';
 import { CircularProgress } from '../../../../components/CircularProgress';
 import { SyncErrorDisplay } from '../../../../components/SyncErrorDisplay';
 
 export const SyncDataScreen = (): ReactElement => {
   const backend = useContext(BackendContext);
-  const syncManager: SyncManager = backend.syncManager;
+  const syncManager: MobileSyncManager = backend.syncManager;
 
-  const formatLastSyncTime = (lastSyncTime): string => (lastSyncTime ? moment(lastSyncTime).fromNow() : '');
+  const formatLastSyncTime = (lastSyncTime): string =>
+    lastSyncTime ? moment(lastSyncTime).fromNow() : '';
 
   const [isSyncing, setIsSyncing] = useState(syncManager.isSyncing);
   const [progress, setProgress] = useState(syncManager.progress);
-  const [channelName, setChannelName] = useState('');
+  const [progressMessage, setProgressMessage] = useState(syncManager.progressMessage);
   const [formattedLastSyncTime, setFormattedLastSyncTime] = useState(
     formatLastSyncTime(syncManager.lastSyncTime),
   );
+  const [lastSyncPushedRecordsCount, setLastSyncPushedRecordsCount] = useState(null);
+  const [lastSyncPulledRecordsCount, setLastSyncPulledRecordsCount] = useState(null);
 
   setStatusBar('light-content', theme.colors.MAIN_SUPER_DARK);
 
   const manualSync = useCallback(() => {
-    syncManager.runScheduledSync();
+    syncManager.triggerSync();
   }, []);
 
   useEffect(() => {
     const handler = (action, event) => {
       switch (action) {
-        case 'syncStarted':
+        case SYNC_EVENT_ACTIONS.SYNC_STARTED:
           setIsSyncing(true);
           activateKeepAwake(); // don't let the device sleep while syncing
           break;
-        case 'syncEnded':
+        case SYNC_EVENT_ACTIONS.SYNC_ENDED:
           setIsSyncing(false);
           setFormattedLastSyncTime(formatLastSyncTime(syncManager.lastSyncTime));
+          setLastSyncPushedRecordsCount(syncManager.lastSyncPushedRecordsCount);
+          setLastSyncPulledRecordsCount(syncManager.lastSyncPulledRecordsCount);
           deactivateKeepAwake();
           break;
-        case 'progress':
+        case SYNC_EVENT_ACTIONS.SYNC_IN_PROGRESS:
           setProgress(syncManager.progress);
+          setProgressMessage(syncManager.progressMessage);
           break;
-        case 'channelSyncStarted': {
-          const channel = event;
-          const prettyChannel = channel
-            .split(/(?=[A-Z])/)
-            .join(' ')
-            .toLowerCase(); // e.g. scheduledVaccine -> scheduled vaccine
-          setChannelName(prettyChannel);
-          break;
-        }
         default:
           break;
       }
@@ -83,7 +80,7 @@ export const SyncDataScreen = (): ReactElement => {
           fontSize={screenPercentageToDP(2.55, Orientation.Height)}
           textAlign="center"
         >
-          {isSyncing ? `Syncing ${channelName} data` : 'Up to date'}
+          {isSyncing ? progressMessage : 'Up to date'}
         </StyledText>
         {!isSyncing && formattedLastSyncTime ? (
           <>
@@ -93,7 +90,7 @@ export const SyncDataScreen = (): ReactElement => {
               fontWeight={500}
               color={theme.colors.WHITE}
             >
-              Last successful Sync
+              Last successful sync
             </StyledText>
             <StyledText
               fontSize={screenPercentageToDP(1.7, Orientation.Height)}
@@ -102,6 +99,15 @@ export const SyncDataScreen = (): ReactElement => {
             >
               {formattedLastSyncTime}
             </StyledText>
+            {!isSyncing && lastSyncPulledRecordsCount !== null && lastSyncPushedRecordsCount !== null ? (
+              <StyledText
+                fontSize={screenPercentageToDP(1.7, Orientation.Height)}
+                fontWeight={500}
+                color={theme.colors.WHITE}
+              >
+                {`pulled ${lastSyncPulledRecordsCount} change(s), pushed ${lastSyncPushedRecordsCount} change(s)`}
+              </StyledText>
+            ) : null}
           </>
         ) : (
           <StyledText

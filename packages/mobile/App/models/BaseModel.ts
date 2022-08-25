@@ -7,12 +7,15 @@ import {
   UpdateDateColumn,
   CreateDateColumn,
   Column,
+  BeforeInsert,
   BeforeUpdate,
   Index,
   MoreThan,
   FindOptionsUtils,
   Repository,
 } from 'typeorm/browser';
+import { SYNC_DIRECTIONS } from './types';
+import { getSyncSessionIndex } from '../services/sync/utils';
 
 export type ModelPojo = {
   id: string;
@@ -25,8 +28,7 @@ export type FindMarkedForUploadOptions = {
 };
 
 // https://stackoverflow.com/questions/54281631/is-it-possible-to-get-instancetypet-to-work-on-an-abstract-class
-type AbstractInstanceType<T> = T extends { prototype: infer U } ?
-  U : never;
+type AbstractInstanceType<T> = T extends { prototype: infer U } ? U : never;
 
 function sanitiseForImport<T>(repo: Repository<T>, data: { [key: string]: any }) {
   // TypeORM will complain when importing an object that has fields that don't
@@ -41,10 +43,13 @@ function sanitiseForImport<T>(repo: Repository<T>, data: { [key: string]: any })
   const columns = repo.metadata.columns.map(({ propertyName }) => propertyName);
   return Object.entries(data)
     .filter(([key]) => columns.includes(key))
-    .reduce((state, [key, value]) => ({
-      ...state,
-      [key]: value,
-    }), {});
+    .reduce(
+      (state, [key, value]) => ({
+        ...state,
+        [key]: value,
+      }),
+      {},
+    );
 }
 
 // This is used instead of @RelationId provided by typeorm, because
@@ -84,9 +89,7 @@ const getMappedFormValues = (values: object): object => {
 };
 
 export abstract class BaseModel extends BaseEntity {
-  // TAN-884: lock entire model class while updating markedForUpload or syncing
-  static markedForUploadMutex = new Mutex();
-
+  
   @PrimaryColumn()
   @Generated('uuid')
   id: string;
@@ -104,29 +107,37 @@ export abstract class BaseModel extends BaseEntity {
   @Column({ nullable: true })
   uploadedAt: Date;
 
+  @Column({ nullable: false, default: () => 0 })
+  updatedAtSyncIndex: number;
+
   @BeforeUpdate()
   async markForUpload() {
-    // TAN-884: make sure records always have markedForUpload set to true when sync is ongoing
-    // This may sometimes cause records to be uploaded even when an update failed!
-    // We take that risk, since it's better than not uploading a record.
-
     const thisModel = this.constructor as typeof BaseModel;
+    const index = await getSyncSessionIndex('CurrentSyncSession');
+    if (
+      [null, undefined].includes(this.updatedAtSyncIndex) ||
+      (await thisModel.findOne({ id: this.id }))?.updatedAtSyncIndex === this.updatedAtSyncIndex
+    ) {
+      this.updatedAtSyncIndex = index;
+    }
 
-    // acquire an exclusive lock before running the update
-    await thisModel.markedForUploadMutex.runExclusive(async () => {
-      await thisModel.getRepository().update({ id: this.id }, { markedForUpload: true });
-    });
+    this.markedForUpload = true;
   }
 
-  async markParentForUpload<T extends typeof BaseModel>(
-    parentModel: T,
-    parentProperty: string,
-  ) {
+  @BeforeInsert()
+  async assignUpdatedAtSyncIndex() {
+    const index = await getSyncSessionIndex('CurrentSyncSession');
+    if ([null, undefined].includes(this.updatedAtSyncIndex)) {
+      this.updatedAtSyncIndex = index;
+    }
+  }
+
+  async markParentForUpload<T extends typeof BaseModel>(parentModel: T, parentProperty: string) {
     const parent = await this.findParent(parentModel, parentProperty);
     if (!parent) {
       return;
     }
-    await parent.markForUpload()
+    await parent.markForUpload();
   }
 
   async findParent<T extends typeof BaseModel>(
@@ -137,15 +148,13 @@ export abstract class BaseModel extends BaseEntity {
     const parentValue = this[parentProperty];
 
     if (typeof parentValue === 'string') {
-      entity = await parentModel.findOne({
-        where: { id: parentValue }
-      }) as AbstractInstanceType<T>;
-
+      entity = (await parentModel.findOne({
+        where: { id: parentValue },
+      })) as AbstractInstanceType<T>;
     } else if (typeof parentValue === 'object') {
-      entity = await parentModel.findOne({
+      entity = (await parentModel.findOne({
         where: { id: parentValue.id },
-      }) as AbstractInstanceType<T>;
-
+      })) as AbstractInstanceType<T>;
     } else {
       const thisModel = this.constructor as typeof BaseModel;
       entity = await thisModel
@@ -190,7 +199,9 @@ export abstract class BaseModel extends BaseEntity {
 
     // Bail early if no record was found
     if (!instance) {
-      console.error(`${this.name} record with ID ${id} doesn't exist, therefore it can't be updated`);
+      console.error(
+        `${this.name} record with ID ${id} doesn't exist, therefore it can't be updated`,
+      );
       return null;
     }
 
@@ -207,17 +218,13 @@ export abstract class BaseModel extends BaseEntity {
     return instance.save();
   }
 
-  static async findMarkedForUpload(
-    opts: FindMarkedForUploadOptions,
-  ): Promise<BaseModel[]> {
+  static async findMarkedForUpload(opts: FindMarkedForUploadOptions): Promise<BaseModel[]> {
     // query is built separately so it can be modified in child classes
     return this.findMarkedForUploadQuery(opts).getMany();
   }
 
-  static findMarkedForUploadQuery(
-    { limit, after }: FindMarkedForUploadOptions,
-  ) {
-    const whereAfter = (typeof after === 'string') ? { id: MoreThan(after) } : {};
+  static findMarkedForUploadQuery({ limit, after }: FindMarkedForUploadOptions) {
+    const whereAfter = typeof after === 'string' ? { id: MoreThan(after) } : {};
 
     const qb = this.getRepository().createQueryBuilder();
     return FindOptionsUtils.applyOptionsToQueryBuilder(qb, {
@@ -237,11 +244,9 @@ export abstract class BaseModel extends BaseEntity {
     return ids;
   }
 
-  static async postExportCleanUp() { }
+  static async postExportCleanUp() {}
 
-  static shouldImport = true;
-
-  static shouldExport = false;
+  static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
 
   static uploadLimit = 100;
 
@@ -258,6 +263,11 @@ export abstract class BaseModel extends BaseEntity {
   // Include these relations on uploaded model
   // Does not currently handle lazy or embedded relations
   static includedSyncRelations: string[] = [];
+
+  //TODO: A hack for now to match with the tables in the central server
+  static getPluralTableName(): string {
+    return `${this.getRepository().metadata.tableName}s`;
+  }
 
   getPlainData(): ModelPojo {
     const thisModel = this.constructor as typeof BaseModel;
