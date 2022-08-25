@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { InvalidOperationError } from 'shared/errors';
+import { dateType } from './dateTimeTypes';
 import { Model } from './Model';
 
 export class PatientDeathData extends Model {
@@ -11,12 +12,14 @@ export class PatientDeathData extends Model {
         birthWeight: { type: Sequelize.INTEGER, unsigned: true },
         carrierAge: { type: Sequelize.INTEGER, unsigned: true },
         carrierPregnancyWeeks: { type: Sequelize.INTEGER, unsigned: true },
-        externalCauseDate: Sequelize.DATE,
+        externalCauseDate: dateType('externalCauseDate'),
+        externalCauseDateLegacy: Sequelize.DATE,
+        lastSurgeryDate: dateType('lastSurgeryDate'),
+        lastSurgeryDateLegacy: Sequelize.DATE,
         externalCauseLocation: Sequelize.STRING,
         externalCauseNotes: Sequelize.TEXT,
         fetalOrInfant: Sequelize.BOOLEAN, // true/false/null
         hoursSurvivedSinceBirth: { type: Sequelize.INTEGER, unsigned: true },
-        lastSurgeryDate: Sequelize.DATE,
         manner: { type: Sequelize.STRING, allowNull: false },
         pregnancyContributed: Sequelize.STRING, // yes/no/unknown/null
         recentSurgery: Sequelize.STRING, // yes/no/unknown/null
