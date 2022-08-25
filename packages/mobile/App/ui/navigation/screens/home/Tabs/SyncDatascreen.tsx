@@ -14,7 +14,7 @@ export const SyncDataScreen = (): ReactElement => {
   const backend = useContext(BackendContext);
   const syncManager: MobileSyncManager = backend.syncManager;
 
-  const formatLastSyncTime = (lastSyncTime): string =>
+  const formatLastSyncTime = (lastSyncTime: string): string =>
     lastSyncTime ? moment(lastSyncTime).fromNow() : '';
 
   const [isSyncing, setIsSyncing] = useState(syncManager.isSyncing);
@@ -33,7 +33,7 @@ export const SyncDataScreen = (): ReactElement => {
   }, []);
 
   useEffect(() => {
-    const handler = (action, event) => {
+    const handler = (action: string): void => {
       switch (action) {
         case SYNC_EVENT_ACTIONS.SYNC_STARTED:
           setIsSyncing(true);
@@ -99,7 +99,9 @@ export const SyncDataScreen = (): ReactElement => {
             >
               {formattedLastSyncTime}
             </StyledText>
-            {!isSyncing && lastSyncPulledRecordsCount !== null && lastSyncPushedRecordsCount !== null ? (
+            {!isSyncing &&
+            lastSyncPulledRecordsCount !== null &&
+            lastSyncPushedRecordsCount !== null ? (
               <StyledText
                 fontSize={screenPercentageToDP(1.7, Orientation.Height)}
                 fontWeight={500}

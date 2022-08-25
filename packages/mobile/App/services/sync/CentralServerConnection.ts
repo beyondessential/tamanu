@@ -1,6 +1,6 @@
 import mitt from 'mitt';
 
-import { readConfig } from '~/services/config';
+import { readConfig } from '../config';
 import { LoginResponse, SyncRecord, FetchOptions } from './types';
 import {
   AuthenticationError,
@@ -8,7 +8,7 @@ import {
   invalidUserCredentialsMessage,
   invalidTokenMessage,
   generalErrorMessage,
-} from '~/services/auth/error';
+} from '../auth/error';
 import { version } from '/root/package.json';
 
 import { callWithBackoff, getResponseJsonSafely, fetchWithTimeout } from './utils';

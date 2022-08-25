@@ -1,14 +1,14 @@
-import { SyncRecord } from '../types'
+import { SyncRecord } from '../types';
 import { CentralServerConnection } from '../CentralServerConnection';
 import { calculatePageLimit } from './calculatePageLimit';
 
 /**
  * Pull incoming changes in batches
- * @param centralServer 
- * @param currentSessionIndex 
- * @param lastSessionIndex 
- * @param progressCallback 
- * @returns 
+ * @param centralServer
+ * @param currentSessionIndex
+ * @param lastSessionIndex
+ * @param progressCallback
+ * @returns
  */
 export const pullIncomingChanges = async (
   centralServer: CentralServerConnection,

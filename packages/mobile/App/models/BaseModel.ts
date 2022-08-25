@@ -1,5 +1,4 @@
 import { pick } from 'lodash';
-import { Mutex } from 'async-mutex';
 import {
   BaseEntity,
   PrimaryColumn,
@@ -89,7 +88,6 @@ const getMappedFormValues = (values: object): object => {
 };
 
 export abstract class BaseModel extends BaseEntity {
-  
   @PrimaryColumn()
   @Generated('uuid')
   id: string;
@@ -111,7 +109,7 @@ export abstract class BaseModel extends BaseEntity {
   updatedAtSyncIndex: number;
 
   @BeforeUpdate()
-  async markForUpload() {
+  async markForUpload(): Promise<void> {
     const thisModel = this.constructor as typeof BaseModel;
     const index = await getSyncSessionIndex('CurrentSyncSession');
     if (
@@ -125,14 +123,17 @@ export abstract class BaseModel extends BaseEntity {
   }
 
   @BeforeInsert()
-  async assignUpdatedAtSyncIndex() {
+  async assignUpdatedAtSyncIndex(): Promise<void> {
     const index = await getSyncSessionIndex('CurrentSyncSession');
     if ([null, undefined].includes(this.updatedAtSyncIndex)) {
       this.updatedAtSyncIndex = index;
     }
   }
 
-  async markParentForUpload<T extends typeof BaseModel>(parentModel: T, parentProperty: string) {
+  async markParentForUpload<T extends typeof BaseModel>(
+    parentModel: T,
+    parentProperty: string,
+  ): Promise<void> {
     const parent = await this.findParent(parentModel, parentProperty);
     if (!parent) {
       return;
@@ -264,7 +265,6 @@ export abstract class BaseModel extends BaseEntity {
   // Does not currently handle lazy or embedded relations
   static includedSyncRelations: string[] = [];
 
-  //TODO: A hack for now to match with the tables in the central server
   static getPluralTableName(): string {
     return `${this.getRepository().metadata.tableName}s`;
   }

@@ -1,6 +1,6 @@
 import { Database } from '../infra/db';
 import { MobileSyncManager, CentralServerConnection } from './sync';
-import { readConfig } from '~/services/config';
+import { readConfig } from './config';
 import { AuthService } from './auth';
 import { AuthenticationError } from './auth/error';
 import { LocalisationService } from './localisation';
@@ -52,7 +52,7 @@ export class BackendManager {
     }
 
     await this.syncManager.waitForCurrentSyncToEnd();
-        
+
     const run = async (): Promise<void> => {
       try {
         const facilityId = await readConfig('facilityId', '');

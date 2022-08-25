@@ -2,18 +2,18 @@ import { groupBy, chunk } from 'lodash';
 
 import { SyncRecord, PersistResult } from '../types';
 import { sortInDependencyOrder } from './sortInDependencyOrder';
-import { SQLITE_MAX_PARAMETERS } from '~/infra/db/helpers';
+import { SQLITE_MAX_PARAMETERS } from '../../../infra/db/helpers';
 import { buildFromSyncRecord } from './buildFromSyncRecord';
 import { executeInserts, executeUpdates, executeDeletes } from './executeCrud';
-import { MODELS_MAP } from '~/models/modelsMap';
-import { BaseModel } from '~/models/BaseModel';
+import { MODELS_MAP } from '../../../models/modelsMap';
+import { BaseModel } from '../../../models/BaseModel';
 
 /**
  * Save changes for a single model in batch because SQLite only support limited number of parameters
- * @param model 
- * @param changes 
- * @param progressCallback 
- * @returns 
+ * @param model
+ * @param changes
+ * @param progressCallback
+ * @returns
  */
 const saveChangesForModel = async (
   model: typeof BaseModel,
@@ -41,14 +41,11 @@ const saveChangesForModel = async (
 
   const recordsForUpdate = changes
     .filter(
-      r =>
-        !r.isDeleted &&
-        !!idToUpdatedSinceSession[r.data.id] &&
-        r.data.updatedAtSyncIndex > idToUpdatedSinceSession[r.data.id],
+      r => !r.isDeleted
+      && !!idToUpdatedSinceSession[r.data.id]
+      && r.data.updatedAtSyncIndex > idToUpdatedSinceSession[r.data.id],
     )
-    .map(({ data }) => {
-      return buildFromSyncRecord(model, data);
-    });
+    .map(({ data }) => buildFromSyncRecord(model, data));
 
   // run each import process
   const { failures: createFailures } = await executeInserts(
@@ -69,10 +66,10 @@ const saveChangesForModel = async (
 
 /**
  * Save all the incoming changes in the right order of dependency
- * @param models 
- * @param changes 
- * @param progressCallback 
- * @returns 
+ * @param models
+ * @param changes
+ * @param progressCallback
+ * @returns
  */
 export const saveIncomingChanges = async (
   models: typeof MODELS_MAP,

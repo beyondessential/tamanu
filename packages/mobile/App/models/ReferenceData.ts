@@ -45,7 +45,7 @@ export class ReferenceData extends BaseModel implements IReferenceData {
 
   static getPluralTableName(): string {
     return 'reference_data';
-  };
+  }
 }
 
 export const ReferenceDataRelation = (): any => ManyToOne(

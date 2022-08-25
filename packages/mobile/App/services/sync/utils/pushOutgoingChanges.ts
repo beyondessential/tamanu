@@ -5,10 +5,10 @@ import { calculatePageLimit } from './calculatePageLimit';
 
 /**
  * Push outgoing changes in batches
- * @param centralServer 
- * @param sessionIndex 
- * @param changes 
- * @param progressCallback 
+ * @param centralServer
+ * @param sessionIndex
+ * @param changes
+ * @param progressCallback
  */
 export const pushOutgoingChanges = async (
   centralServer: CentralServerConnection,

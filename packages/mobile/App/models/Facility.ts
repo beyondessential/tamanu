@@ -41,6 +41,6 @@ export class Facility extends BaseModel implements IFacility {
   departments: Department[];
 
   static getPluralTableName(): string {
-    return 'facilities'
-  };
+    return 'facilities';
+  }
 }

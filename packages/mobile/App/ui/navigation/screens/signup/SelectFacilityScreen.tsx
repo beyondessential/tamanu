@@ -104,7 +104,8 @@ export const SelectFacilityScreen: FunctionComponent<any> = ({ navigation }: Sig
 
   const onSubmitForm = useCallback(async values => {
     await assignFacility(values.facilityId, values.facilityName);
-    await backend.syncManager.triggerSync(); // trigger sync when user finish selecting the facility for the device
+    // trigger sync when user finish selecting the facility for the device
+    await backend.syncManager.triggerSync();
   }, []);
 
   useEffect(() => {

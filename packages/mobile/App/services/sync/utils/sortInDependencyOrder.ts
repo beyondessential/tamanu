@@ -1,8 +1,8 @@
 import { getManager } from 'typeorm';
 import { groupBy } from 'lodash';
 
-import { MODELS_MAP } from '~/models/modelsMap';
-import { BaseModel } from '~/models/BaseModel';
+import { MODELS_MAP } from '../../../models/modelsMap';
+import { BaseModel } from '../../../models/BaseModel';
 
 type DependencyMap = {
   [tableName: string]: string[];
@@ -15,7 +15,7 @@ type DependencyMap = {
  *  'survey_screen_component': ['survey_screen', 'program_data_element'],
  *  ....
  * }
- * @returns 
+ * @returns
  */
 const getDependencyMap = async (): Promise<DependencyMap> => {
   const entityManager = getManager();
@@ -51,10 +51,10 @@ const getDependencyMap = async (): Promise<DependencyMap> => {
  *  'survey': 'Survey',
  *  ....
  * }
- * @param models 
- * @returns 
+ * @param models
+ * @returns
  */
-const getTableNameToModelName = (models: typeof MODELS_MAP) => {
+const getTableNameToModelName = (models: typeof MODELS_MAP): { [key: string]: string } => {
   const tableNameToModelName = {};
 
   Object.values(models).forEach(model => {
@@ -67,9 +67,10 @@ const getTableNameToModelName = (models: typeof MODELS_MAP) => {
 };
 
 /**
- * Sort the models in order of persist based on foreign keys so that they are imported in the right order
- * @param models 
- * @returns 
+ * Sort the models in order of persist based on foreign keys so
+ * that they are imported in the right order
+ * @param models
+ * @returns
  */
 export const sortInDependencyOrder = async (
   models: typeof MODELS_MAP,

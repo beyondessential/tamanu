@@ -3,7 +3,7 @@ import { pick } from 'lodash';
 
 import { BaseModel } from '../../../models/BaseModel';
 import { SyncRecord, SyncRecordData } from '../types';
-import { MODELS_MAP } from '~/models/modelsMap';
+import { MODELS_MAP } from '../../../models/modelsMap';
 import { extractIncludedColumns } from './extractIncludedColumns';
 
 const buildToSyncRecord = (model: typeof BaseModel, record: object): SyncRecord => {
@@ -15,11 +15,11 @@ const buildToSyncRecord = (model: typeof BaseModel, record: object): SyncRecord 
 };
 
 /**
- * Get all the records that have updatedAtSyncIndex >= the last successful sync index, 
+ * Get all the records that have updatedAtSyncIndex >= the last successful sync index,
  * meaning that these records have been updated since the last successful sync
- * @param models 
- * @param fromSessionIndex 
- * @returns 
+ * @param models
+ * @param fromSessionIndex
+ * @returns
  */
 export const snapshotOutgoingChanges = async (
   models: typeof MODELS_MAP,

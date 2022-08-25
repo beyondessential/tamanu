@@ -9,12 +9,10 @@ import { SYNC_DIRECTIONS } from './types';
 @Entity('patient_facility')
 export class PatientFacility extends BaseModel {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
-  
-  @ManyToOne(
-    () => Patient,
-  )
+
+  @ManyToOne(() => Patient)
   patient: Patient;
-  
+
   @RelationId(({ patient }) => patient)
   patientId: string;
 
@@ -25,6 +23,6 @@ export class PatientFacility extends BaseModel {
   facilityId: string;
 
   static getPluralTableName(): string {
-    return 'patient_facilities'
-  };
+    return 'patient_facilities';
+  }
 }

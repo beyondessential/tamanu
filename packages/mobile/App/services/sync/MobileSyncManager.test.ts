@@ -21,10 +21,6 @@ describe('MobileSyncManager', () => {
   const centralServerConnection = new CentralServerConnection();
   let mobileSyncManager;
 
-  // beforeAll(async () => {
-  //   await Database.connect();
-  // });
-
   beforeEach(() => {
     mobileSyncManager = new MobileSyncManager(centralServerConnection);
     jest.clearAllMocks();

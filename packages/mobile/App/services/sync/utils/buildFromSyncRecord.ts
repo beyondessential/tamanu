@@ -1,7 +1,7 @@
 import { pick } from 'lodash';
 
 import { SyncRecordData, DataToPersist } from '../types';
-import { BaseModel } from '~/models/BaseModel';
+import { BaseModel } from '../../../models/BaseModel';
 import { extractIncludedColumns } from './extractIncludedColumns';
 
 export const getRelationIdsFieldMapping = (model: typeof BaseModel) =>
@@ -38,7 +38,8 @@ export const buildFromSyncRecord = (
 ): DataToPersist => {
   // find columns to include
   const includedColumns = extractIncludedColumns(model);
-  // populate `fieldMapping` with `RelationId` to `Relation` mappings (not necessary for `IdRelation`)
+  // populate `fieldMapping` with `RelationId` to `Relation` mappings
+  // (not necessary for `IdRelation`)
   const fieldMapping = getRelationIdsFieldMapping(model);
 
   const dbRecord = mapFields(fieldMapping, pick(data, includedColumns));
