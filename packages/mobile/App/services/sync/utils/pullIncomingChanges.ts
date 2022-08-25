@@ -2,6 +2,7 @@ import { CentralServerConnection } from '../CentralServerConnection';
 import { MODELS_MAP } from '../../../models/modelsMap';
 import { calculatePageLimit } from './calculatePageLimit';
 import { chunkRows } from '../../../infra/db/helpers';
+import { SESSION_SYNC_DIRECTION } from '../constants';
 
 /**
  * Pull incoming changes in batches and save them in session_sync_record table,
@@ -37,6 +38,7 @@ export const pullIncomingChanges = async (
 
     const recordsToSave = records.map(r => ({
       ...r,
+      direction: SESSION_SYNC_DIRECTION.INCOMING,
       data: JSON.stringify(r.data),
     }));
 
