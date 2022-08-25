@@ -1,6 +1,6 @@
 import config from 'config';
 
-import { subDays } from 'date-fns';
+import { subDays, startOfDay } from 'date-fns';
 import { Op } from 'sequelize';
 import { ScheduledTask } from 'shared/tasks';
 import { getPatientSurveyResponseAnswer } from 'shared/utils';
@@ -32,13 +32,13 @@ export class CovidClearanceCertificatePublisher extends ScheduledTask {
     const { LabRequest, LabTest, CertificateNotification, Encounter } = this.models;
     const questionId = config.questionCodeIds?.email;
 
-    // Get lab requests before the last 13 days with the
-    // lab test categories configured
+    // Get lab requests that were sampled 13 days before the start
+    // of today, and with configured lab test categories
     const clearedRequests = await LabRequest.findAll({
       where: {
         status: LAB_REQUEST_STATUSES.PUBLISHED,
         sampleTime: {
-          [Op.lt]: subDays(new Date(), daysSinceSampleTime),
+          [Op.lt]: subDays(startOfDay(new Date()), daysSinceSampleTime),
           [Op.gt]: after,
         },
         labTestCategoryId: {
