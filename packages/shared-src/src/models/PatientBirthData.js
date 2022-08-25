@@ -20,6 +20,7 @@ export class PatientBirthData extends Model {
         apgarScoreTenMinutes: { type: Sequelize.INTEGER },
         timeOfBirth: { type: Sequelize.STRING },
         birthType: { type: Sequelize.STRING }, // Single/Plural
+        registeredBirthPlace: { type: Sequelize.STRING },
       },
       {
         ...options,
@@ -64,5 +65,6 @@ export class PatientBirthData extends Model {
     'attendantAtBirth',
     'nameOfAttendantAtBirth',
     'birthFacilityId',
+    'registeredBirthPlace',
   ];
 }

@@ -2,8 +2,10 @@ import React from 'react';
 import styled from 'styled-components';
 import { isEmpty } from 'lodash';
 import { format } from 'date-fns';
+import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from 'shared/constants';
 
-import { PATIENT_REGISTRY_TYPES } from 'shared/constants';
+import { toDateTimeString } from '../utils/dateTime';
+import { useSexValues } from '../hooks';
 
 import {
   Colors,
@@ -20,7 +22,7 @@ import {
 } from '../constants';
 import { useLocalisation } from '../contexts/Localisation';
 import { useSuggester, usePatientSuggester, useApi } from '../api';
-
+import { getPatientDetailsValidation } from '../validations';
 import {
   FormGrid,
   ButtonRow,
@@ -87,9 +89,7 @@ export const PrimaryDetailsGroup = () => {
   );
 };
 
-export const SecondaryDetailsGroup = ({ patientRegistryType }) => {
-  const api = useApi();
-
+export const SecondaryDetailsGroup = ({ patientRegistryType, values = {} }) => {
   const countrySuggester = useSuggester('country');
   const divisionSuggester = useSuggester('division');
   const ethnicitySuggester = useSuggester('ethnicity');
@@ -112,15 +112,17 @@ export const SecondaryDetailsGroup = ({ patientRegistryType }) => {
             <LocalisedField name="timeOfBirth" component={TimeField} />
             <LocalisedField name="gestationalAgeEstimate" component={TextField} type="number" />
             <LocalisedField
-              name="placeOfBirth"
+              name="registeredBirthPlace"
               component={SelectField}
               options={PLACE_OF_BIRTH_OPTIONS}
             />
-            <LocalisedField
-              name="birthFacilityId"
-              component={AutocompleteField}
-              suggester={facilitySuggester}
-            />
+            {values.registeredBirthPlace === PLACE_OF_BIRTH_TYPES.HEALTH_FACILITY && (
+              <LocalisedField
+                name="birthFacilityId"
+                component={AutocompleteField}
+                suggester={facilitySuggester}
+              />
+            )}
             <LocalisedField
               name="attendantAtBirth"
               component={SelectField}
@@ -315,13 +317,29 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
     ? PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY
     : PATIENT_REGISTRY_TYPES.NEW_PATIENT;
 
+  const handleSubmit = data => {
+    const newData = { ...data };
+    newData.timeOfBirth =
+      typeof newData.timeOfBirth !== 'string'
+        ? toDateTimeString(newData.timeOfBirth)
+        : newData.timeOfBirth;
+
+    if (newData.registeredBirthPlace !== PLACE_OF_BIRTH_TYPES.HEALTH_FACILITY) {
+      newData.birthFacilityId = null;
+    }
+
+    onSubmit(newData);
+  };
+
+  const sexValues = useSexValues();
+
   return (
     <Form
-      render={({ submitForm }) => (
+      render={({ submitForm, values }) => (
         <>
           <PrimaryDetailsGroup />
           <StyledPatientDetailSecondaryDetailsGroupWrapper>
-            <SecondaryDetailsGroup patientRegistryType={patientRegistryType} />
+            <SecondaryDetailsGroup patientRegistryType={patientRegistryType} values={values} />
           </StyledPatientDetailSecondaryDetailsGroupWrapper>
           <ButtonRow>
             <Button variant="contained" color="primary" onClick={submitForm}>
@@ -331,7 +349,8 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
         </>
       )}
       initialValues={stripPatientData(patient, additionalData, birthData)}
-      onSubmit={onSubmit}
+      onSubmit={handleSubmit}
+      validationSchema={getPatientDetailsValidation(sexValues)}
     />
   );
 };

@@ -17,6 +17,10 @@ export async function up(query: QueryInterface): Promise<void> {
     },
     allowNull: true,
   });
+  await query.addColumn('patient_birth_data', 'registered_birth_place', {
+    type: Sequelize.STRING,
+    allowNull: true,
+  });
   await query.removeColumn('patient_birth_data', 'clinician_at_birth_id');
 }
 
@@ -31,4 +35,5 @@ export async function down(query: QueryInterface): Promise<void> {
   });
   await query.removeColumn('patient_birth_data', 'attendant_at_birth');
   await query.removeColumn('patient_birth_data', 'name_of_attendant_at_birth');
+  await query.removeColumn('patient_birth_data', 'registered_birth_place');
 }

@@ -430,7 +430,10 @@ export const ATTENDANT_OF_BIRTH_OPTIONS = [
   { value: ATTENDANT_OF_BIRTH_TYPES.DOCTOR, label: 'Doctor' },
   { value: ATTENDANT_OF_BIRTH_TYPES.MIDWIFE, label: 'Midwife' },
   { value: ATTENDANT_OF_BIRTH_TYPES.NURSE, label: 'Nurse' },
-  { value: ATTENDANT_OF_BIRTH_TYPES.TRADITIONAL_BIRTH_ATTENDANT, label: 'Traditional birth attendant' },
+  {
+    value: ATTENDANT_OF_BIRTH_TYPES.TRADITIONAL_BIRTH_ATTENDANT,
+    label: 'Traditional birth attendant',
+  },
   { value: ATTENDANT_OF_BIRTH_TYPES.OTHER, label: 'Other' },
 ];
 

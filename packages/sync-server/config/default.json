@@ -299,8 +299,8 @@
           "hidden": false
         },
         "placeOfBirth": {
-          "shortLabel": "Place of birth",
-          "longLabel": "Place of birth",
+          "shortLabel": "Birth location",
+          "longLabel": "Birth location",
           "hidden": false
         },
         "countryOfBirthId": {
@@ -499,6 +499,11 @@
         "birthFacilityId": {
           "shortLabel": "Name of health facility (if applicable)",
           "longLabel": "Name of health facility (if applicable)",
+          "hidden": false
+        },
+        "registeredBirthPlace": {
+          "shortLabel": "Place of birth",
+          "longLabel":  "Place of birth",
           "hidden": false
         }
       },
