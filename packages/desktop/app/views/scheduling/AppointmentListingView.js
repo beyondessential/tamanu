@@ -28,7 +28,6 @@ const COLUMNS = [
     key: 'patientName',
     title: 'Patient',
     accessor: row => `${row.patient.firstName} ${row.patient.lastName}`,
-    sortable: false,
   },
   {
     key: 'sex',
