@@ -2,8 +2,10 @@ import React from 'react';
 import styled from 'styled-components';
 import { isEmpty } from 'lodash';
 import { format } from 'date-fns';
+import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from 'shared/constants';
 
-import { PATIENT_REGISTRY_TYPES } from 'shared/constants';
+import { toDateTimeString } from '../utils/dateTime';
+import { useSexValues } from '../hooks';
 
 import {
   Colors,
@@ -15,10 +17,12 @@ import {
   educationalAttainmentOptions,
   BIRTH_DELIVERY_TYPE_OPTIONS,
   BIRTH_TYPE_OPTIONS,
+  PLACE_OF_BIRTH_OPTIONS,
+  ATTENDANT_OF_BIRTH_OPTIONS,
 } from '../constants';
 import { useLocalisation } from '../contexts/Localisation';
 import { useSuggester, usePatientSuggester, useApi } from '../api';
-
+import { getPatientDetailsValidation } from '../validations';
 import {
   FormGrid,
   ButtonRow,
@@ -85,9 +89,7 @@ export const PrimaryDetailsGroup = () => {
   );
 };
 
-export const SecondaryDetailsGroup = ({ patientRegistryType }) => {
-  const api = useApi();
-
+export const SecondaryDetailsGroup = ({ patientRegistryType, values = {} }) => {
   const countrySuggester = useSuggester('country');
   const divisionSuggester = useSuggester('division');
   const ethnicitySuggester = useSuggester('ethnicity');
@@ -98,30 +100,43 @@ export const SecondaryDetailsGroup = ({ patientRegistryType }) => {
   const settlementSuggester = useSuggester('settlement');
   const subdivisionSuggester = useSuggester('subdivision');
   const religionSuggester = useSuggester('religion');
-  const practitionerSuggester = useSuggester('practitioner');
+  const facilitySuggester = useSuggester('facility');
   const patientSuggester = usePatientSuggester();
 
   return (
     <StyledSecondaryDetailsGroup>
       {patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY && (
         <>
-          <StyledHeading>Birth information</StyledHeading>
+          <StyledHeading>Birth details</StyledHeading>
           <StyledFormGrid>
             <LocalisedField name="timeOfBirth" component={TimeField} />
-            <LocalisedField
-              name="clinicianAtBirthId"
-              component={AutocompleteField}
-              suggester={practitionerSuggester}
-            />
-            <LocalisedField name="birthWeight" component={TextField} type="number" />
-            <LocalisedField name="birthLength" component={TextField} type="number" />
             <LocalisedField name="gestationalAgeEstimate" component={TextField} type="number" />
+            <LocalisedField
+              name="registeredBirthPlace"
+              component={SelectField}
+              options={PLACE_OF_BIRTH_OPTIONS}
+            />
+            {values.registeredBirthPlace === PLACE_OF_BIRTH_TYPES.HEALTH_FACILITY && (
+              <LocalisedField
+                name="birthFacilityId"
+                component={AutocompleteField}
+                suggester={facilitySuggester}
+              />
+            )}
+            <LocalisedField
+              name="attendantAtBirth"
+              component={SelectField}
+              options={ATTENDANT_OF_BIRTH_OPTIONS}
+            />
+            <LocalisedField name="nameOfAttendantAtBirth" component={TextField} type="text" />
             <LocalisedField
               name="birthDeliveryType"
               component={SelectField}
               options={BIRTH_DELIVERY_TYPE_OPTIONS}
             />
             <LocalisedField name="birthType" component={SelectField} options={BIRTH_TYPE_OPTIONS} />
+            <LocalisedField name="birthWeight" component={TextField} type="number" />
+            <LocalisedField name="birthLength" component={TextField} type="number" />
             <LocalisedField name="apgarScoreOneMinute" component={TextField} type="number" />
             <LocalisedField name="apgarScoreFiveMinutes" component={TextField} type="number" />
             <LocalisedField name="apgarScoreTenMinutes" component={TextField} type="number" />
@@ -302,13 +317,29 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
     ? PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY
     : PATIENT_REGISTRY_TYPES.NEW_PATIENT;
 
+  const handleSubmit = data => {
+    const newData = { ...data };
+    newData.timeOfBirth =
+      typeof newData.timeOfBirth !== 'string'
+        ? toDateTimeString(newData.timeOfBirth)
+        : newData.timeOfBirth;
+
+    if (newData.registeredBirthPlace !== PLACE_OF_BIRTH_TYPES.HEALTH_FACILITY) {
+      newData.birthFacilityId = null;
+    }
+
+    onSubmit(newData);
+  };
+
+  const sexValues = useSexValues();
+
   return (
     <Form
-      render={({ submitForm }) => (
+      render={({ submitForm, values }) => (
         <>
           <PrimaryDetailsGroup />
           <StyledPatientDetailSecondaryDetailsGroupWrapper>
-            <SecondaryDetailsGroup patientRegistryType={patientRegistryType} />
+            <SecondaryDetailsGroup patientRegistryType={patientRegistryType} values={values} />
           </StyledPatientDetailSecondaryDetailsGroupWrapper>
           <ButtonRow>
             <Button variant="contained" color="primary" onClick={submitForm}>
@@ -318,7 +349,8 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
         </>
       )}
       initialValues={stripPatientData(patient, additionalData, birthData)}
-      onSubmit={onSubmit}
+      onSubmit={handleSubmit}
+      validationSchema={getPatientDetailsValidation(sexValues)}
     />
   );
 };

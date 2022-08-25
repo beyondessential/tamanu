@@ -466,7 +466,7 @@ export const BIRTH_DELIVERY_TYPES = {
   BREECH: 'breech',
   EMERGENCY_C_SECTION: 'emergency_c_section',
   ELECTIVE_C_SECTION: 'elective_c_section',
-  VENTOUSE: 'ventouse',
+  VACUUM_EXTRACTION: 'vacuum_extraction',
   FORCEPS: 'forceps',
   OTHER: 'other',
 };
@@ -474,6 +474,20 @@ export const BIRTH_DELIVERY_TYPES = {
 export const BIRTH_TYPES = {
   SINGLE: 'single',
   PLURAL: 'plural',
+};
+
+export const PLACE_OF_BIRTH_TYPES = {
+  HEALTH_FACILITY: 'health_facility',
+  HOME: 'home',
+  OTHER: 'other',
+};
+
+export const ATTENDANT_OF_BIRTH_TYPES = {
+  DOCTOR: 'doctor',
+  MIDWIFE: 'midwife',
+  NURSE: 'nurse',
+  TRADITIONAL_BIRTH_ATTENDANT: 'traditional_birth_attentdant',
+  OTHER: 'other',
 };
 
 export const ISO9075_DATETIME_FORMAT = 'YYYY-MM-DD HH:mm:ss';

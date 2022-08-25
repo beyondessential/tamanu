@@ -299,8 +299,8 @@
           "hidden": false
         },
         "placeOfBirth": {
-          "shortLabel": "Place of birth",
-          "longLabel": "Place of birth",
+          "shortLabel": "Birth location",
+          "longLabel": "Birth location",
           "hidden": false
         },
         "countryOfBirthId": {
@@ -457,8 +457,8 @@
           "hidden": false
         },
         "gestationalAgeEstimate": {
-          "shortLabel": "Estimated gestational age (weeks)",
-          "longLabel": "Estimated gestational age (weeks)",
+          "shortLabel": "Gestational age (weeks)",
+          "longLabel": "Gestational age (weeks)",
           "hidden": false
         },
         "apgarScoreOneMinute": {
@@ -481,14 +481,29 @@
           "longLabel": "Time of birth",
           "hidden": false
         },
-        "clinicianAtBirthId": {
-          "shortLabel": "Name of clinician at birth",
-          "longLabel": "Name of clinician at birth",
+        "attendantAtBirth": {
+          "shortLabel": "Attendant at birth",
+          "longLabel": "Attendant at birth",
+          "hidden": false
+        },
+        "nameOfAttendantAtBirth": {
+          "shortLabel": "Name of attendant",
+          "longLabel": "Name of attendant",
           "hidden": false
         },
         "birthType": {
           "shortLabel": "Single/Plural birth",
           "longLabel": "Single/Plural birth",
+          "hidden": false
+        },
+        "birthFacilityId": {
+          "shortLabel": "Name of health facility (if applicable)",
+          "longLabel": "Name of health facility (if applicable)",
+          "hidden": false
+        },
+        "registeredBirthPlace": {
+          "shortLabel": "Place of birth",
+          "longLabel":  "Place of birth",
           "hidden": false
         }
       },
