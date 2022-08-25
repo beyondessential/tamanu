@@ -225,6 +225,15 @@ describe('Patient', () => {
         name: 'Confusion',
       });
 
+      const makeCommon = condition => {
+        const { deletedAt, ...dataValues } = condition.dataValues;
+        return {
+          ...dataValues,
+          createdAt: condition.createdAt.toISOString(),
+          updatedAt: condition.updatedAt.toISOString(),
+        };
+      }
+
       commons = {
         clinicianId,
         facilityId,
@@ -233,21 +242,9 @@ describe('Patient', () => {
         cond1Id: cond1.id,
         cond2Id: cond2.id,
         cond3Id: cond3.id,
-        cond1: {
-          ...cond1.dataValues,
-          createdAt: cond1.createdAt.toISOString(),
-          updatedAt: cond1.updatedAt.toISOString(),
-        },
-        cond2: {
-          ...cond2.dataValues,
-          createdAt: cond2.createdAt.toISOString(),
-          updatedAt: cond2.updatedAt.toISOString(),
-        },
-        cond3: {
-          ...cond3.dataValues,
-          createdAt: cond3.createdAt.toISOString(),
-          updatedAt: cond3.updatedAt.toISOString(),
-        },
+        cond1: makeCommon(cond1),
+        cond2: makeCommon(cond2),
+        cond3: makeCommon(cond3),
       };
     });
 
@@ -412,6 +409,7 @@ describe('Patient', () => {
 
       expect(result.body).toMatchObject({
         patientId: id,
+
         dateOfBirth: dateOfBirth.toISOString(),
         dateOfDeath: dod.toISOString(),
 

@@ -2,6 +2,7 @@ import { pascal } from 'case';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Sequelize, Op, literal } from 'sequelize';
+import config from 'config';
 import { NotFoundError } from 'shared/errors';
 import {
   SURVEY_TYPES,
@@ -31,18 +32,17 @@ function createSuggesterRoute(
 
       const model = models[modelName];
 
-      const positionQuery = literal(`POSITION(LOWER(:positionMatch) in LOWER(${searchColumn})) > 1`);
-      
+      const positionQuery = literal(
+        `POSITION(LOWER(:positionMatch) in LOWER(${searchColumn})) > 1`,
+      );
+
       const searchQuery = (query.q || '').trim().toLowerCase();
-      const where = whereBuilder(`%${searchQuery}%`);
+      const where = whereBuilder(`%${searchQuery}%`, query);
       const results = await model.findAll({
         where,
-        order: [
-          positionQuery,
-          searchColumn
-        ],
-        replacements: { 
-          positionMatch: searchQuery 
+        order: [positionQuery, searchColumn],
+        replacements: {
+          positionMatch: searchQuery,
         },
         limit: defaultLimit,
       });
@@ -103,44 +103,48 @@ const VISIBILITY_CRITERIA = {
 };
 
 REFERENCE_TYPE_VALUES.map(typeName =>
-  createAllRecordsSuggesterRoute(
-    typeName, 
-    'ReferenceData',
-    {
-      type: typeName,
-      ...VISIBILITY_CRITERIA,
-    }
-  ),
+  createAllRecordsSuggesterRoute(typeName, 'ReferenceData', {
+    type: typeName,
+    ...VISIBILITY_CRITERIA,
+  }),
 );
 
 REFERENCE_TYPE_VALUES.map(typeName =>
-  createSuggester(
-    typeName,
-    'ReferenceData',
-    search => ({
-      name: { [Op.iLike]: search },
-      type: typeName,
-      ...VISIBILITY_CRITERIA,
-    }),
-  ),
+  createSuggester(typeName, 'ReferenceData', search => ({
+    name: { [Op.iLike]: search },
+    type: typeName,
+    ...VISIBILITY_CRITERIA,
+  })),
 );
 
-const createNameSuggester = (endpoint, modelName = pascal(endpoint)) =>
-  createSuggester(
-    endpoint, 
-    modelName, 
-    search => ({
-      name: { [Op.iLike]: search },
-      ...VISIBILITY_CRITERIA,
-    }),
-    ({ id, name }) => ({
-      id,
-      name,
-    }),
-  );
+const DEFAULT_WHERE_BUILDER = search => ({
+  name: { [Op.iLike]: search },
+  ...VISIBILITY_CRITERIA,
+});
 
-createNameSuggester('department');
-createNameSuggester('location');
+const filterByFacilityWhereBuilder = (search, query) => {
+  const baseWhere = DEFAULT_WHERE_BUILDER(search);
+  if (!query.filterByFacility) {
+    return baseWhere;
+  }
+  return {
+    ...baseWhere,
+    facilityId: config.serverFacilityId,
+  };
+};
+
+const createNameSuggester = (
+  endpoint,
+  modelName = pascal(endpoint),
+  whereBuilderFn = DEFAULT_WHERE_BUILDER,
+) =>
+  createSuggester(endpoint, modelName, whereBuilderFn, ({ id, name }) => ({
+    id,
+    name,
+  }));
+
+createNameSuggester('department', 'Department', filterByFacilityWhereBuilder);
+createNameSuggester('location', 'Location', filterByFacilityWhereBuilder);
 createNameSuggester('facility');
 
 createSuggester(
@@ -150,7 +154,7 @@ createSuggester(
     name: { [Op.iLike]: search },
     surveyType: {
       [Op.ne]: SURVEY_TYPES.OBSOLETE,
-    }
+    },
   }),
   ({ id, name }) => ({ id, name }),
 );
@@ -184,7 +188,7 @@ createSuggester(
   search => ({
     [Op.or]: [
       Sequelize.where(
-        Sequelize.fn('concat', Sequelize.col('first_name'), ' ', Sequelize.col('last_name')), 
+        Sequelize.fn('concat', Sequelize.col('first_name'), ' ', Sequelize.col('last_name')),
         { [Op.iLike]: search },
       ),
       { displayId: { [Op.iLike]: search } },

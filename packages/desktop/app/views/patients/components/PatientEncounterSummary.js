@@ -4,7 +4,12 @@ import { ENCOUNTER_TYPES } from 'shared/constants';
 import { Box, Typography } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
-import { DateDisplay, LargeButton, ViewButton, DeathCertificateModal } from '../../../components';
+import {
+  DateDisplay,
+  ViewButton,
+  DeathCertificateModal,
+  ButtonWithPermissionCheck,
+} from '../../../components';
 import { useApi } from '../../../api';
 
 const PATIENT_STATUS = {
@@ -169,7 +174,7 @@ const PatientDeathSummary = React.memo(({ patient }) => {
   );
 });
 
-export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin, openTriage }) => {
+export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin }) => {
   const api = useApi();
   const { data: encounter, error, isLoading } = useQuery(['currentEncounter', patient.id], () =>
     api.get(`patient/${patient.id}/currentEncounter`),
@@ -192,8 +197,9 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin, o
       <NoVisitContainer>
         <NoVisitTitle variant="h2">No Current Visit</NoVisitTitle>
         <ButtonRow>
-          <LargeButton onClick={openCheckin}>Admit or check-in</LargeButton>
-          <LargeButton onClick={openTriage}>Triage</LargeButton>
+          <ButtonWithPermissionCheck onClick={openCheckin} verb="create" noun="Encounter">
+            Admit or check-in
+          </ButtonWithPermissionCheck>
         </ButtonRow>
       </NoVisitContainer>
     );

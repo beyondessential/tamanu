@@ -7,18 +7,17 @@ import { Modal } from './Modal';
 import { reloadPatient } from '../store/patient';
 import { EncounterForm } from '../forms/EncounterForm';
 import { useEncounter } from '../contexts/Encounter';
-import { usePatientNavigation } from '../utils/usePatientNavigation';
 
 export const EncounterModal = React.memo(
   ({ open, onClose, patientId, referral, patientBillingTypeId, ...props }) => {
-    const { navigateToEncounter } = usePatientNavigation();
     const { createEncounter } = useEncounter();
     const api = useApi();
     const dispatch = useDispatch();
 
     const onCreateEncounter = useCallback(
       async data => {
-        const encounter = await createEncounter({
+        onClose();
+        await createEncounter({
           patientId,
           referralId: referral?.id,
           ...data,
@@ -27,11 +26,9 @@ export const EncounterModal = React.memo(
           await api.put(`referral/${referral.id}`, { status: REFERRAL_STATUSES.COMPLETED });
         }
 
-        await dispatch(reloadPatient(patientId));
-        navigateToEncounter(encounter.id);
-        onClose();
+        dispatch(reloadPatient(patientId));
       },
-      [dispatch, patientId, api, createEncounter, onClose, referral, navigateToEncounter],
+      [dispatch, patientId, api, createEncounter, onClose, referral],
     );
 
     return (

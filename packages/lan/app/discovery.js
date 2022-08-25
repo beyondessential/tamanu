@@ -40,7 +40,7 @@ export function listenForServerQueries() {
 
   socket.bind(DISCOVERY_PORT);
 
-  process.on('SIGTERM', () => {
+  process.once('SIGTERM', () => {
     log.info('Received SIGTERM, closing UDP discovery server');
     socket.close();
   });

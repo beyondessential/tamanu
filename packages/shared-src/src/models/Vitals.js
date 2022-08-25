@@ -44,22 +44,6 @@ export class Vitals extends Model {
               throw new Error('A vitals reading must be attached to an encounter.');
             }
           },
-          mustHaveOneReading() {
-            const allReadings = [
-              this.temperature,
-              this.height,
-              this.weight,
-              this.sbp,
-              this.dbp,
-              this.heartRate,
-              this.respiratoryRate,
-              this.spo2,
-              this.avpu,
-            ];
-            if (!allReadings.some(x => x)) {
-              throw new Error('At least one reading must be defined');
-            }
-          },
         },
       },
     );

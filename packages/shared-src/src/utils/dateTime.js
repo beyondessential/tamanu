@@ -1,4 +1,4 @@
-import { isValid, formatISO9075, differenceInMonths, differenceInYears } from 'date-fns';
+import { isValid, format, formatISO9075, differenceInMonths, differenceInYears } from 'date-fns';
 
 export function toDateTimeString(date) {
   if (date === null) return null;
@@ -24,6 +24,10 @@ export function getCurrentDateTimeString() {
 
 export function getCurrentDateString() {
   return formatISO9075(new Date(), { representation: 'date' });
+}
+
+export function convertISO9075toRFC3339(dateString) {
+  return format(new Date(dateString), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 }
 
 export function ageInMonths(dob) {

@@ -25,13 +25,6 @@ export class InvoiceLineType extends Model {
       as: 'procedureType',
       constraints: false,
     });
-
-    this.belongsTo(models.ReferenceData, {
-      foreignKey: 'itemId',
-      as: 'imagingType',
-      constraints: false,
-    });
-
     this.belongsTo(models.LabTestType, {
       foreignKey: 'itemId',
       as: 'labTestType',
@@ -56,22 +49,6 @@ export class InvoiceLineType extends Model {
           ),
         },
         as: 'procedureType',
-      },
-      {
-        model: models.ReferenceData,
-        on: {
-          itemId: Sequelize.where(
-            Sequelize.col('invoiceLineType->imagingType.id'),
-            '=',
-            Sequelize.col('invoiceLineType.item_id'),
-          ),
-          itemType: Sequelize.where(
-            Sequelize.col('invoiceLineType->imagingType.type'),
-            '=',
-            'imagingType',
-          ),
-        },
-        as: 'imagingType',
       },
       {
         model: models.LabTestType,

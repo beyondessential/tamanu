@@ -1,4 +1,4 @@
-FROM node:12-alpine
+FROM node:16-alpine
 
 WORKDIR /app
 ARG NODE_NATIVE_BUILD_DEPS="make gcc g++ python"

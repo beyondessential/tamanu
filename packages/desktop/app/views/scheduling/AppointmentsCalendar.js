@@ -64,7 +64,9 @@ export const AppointmentsCalendar = () => {
     {
       name: 'location',
       text: 'Locations',
-      suggester: new Suggester(api, 'location'),
+      suggester: new Suggester(api, 'location', {
+        baseQueryParameters: { filterByFacility: true },
+      }),
     },
     {
       name: 'clinician',

@@ -1,12 +1,10 @@
 import { promises as fs } from 'fs';
 import { tmpdir } from 'os';
-import { extname, join } from 'path';
-
+import { join } from 'path';
 import { Command } from 'commander';
-import { Pkcs10CertificateRequest } from '@peculiar/x509';
 import { execFileSync } from 'child_process';
+
 import CA from '../ca';
-import crypto from '../crypto';
 import { confirm } from '../utils';
 import { validate } from '../ca/Config';
 

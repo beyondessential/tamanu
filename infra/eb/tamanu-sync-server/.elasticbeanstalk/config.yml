@@ -1,14 +1,14 @@
 branch-defaults:
   default:
-    environment: tamanu-sync-server-dev
+    environment: tamanu-central-server-dev-16
 environment-defaults:
-  tamanu-sync-server-dev:
+  tamanu-central-server-dev-16:
     branch: null
     repository: null
 global:
   application_name: tamanu-sync-server
   default_ec2_keyname: tamanu-eb-key-pair
-  default_platform: Node.js 12 running on 64bit Amazon Linux 2
+  default_platform: Node.js 16 running on 64bit Amazon Linux 2
   default_region: ap-southeast-2
   include_git_submodules: true
   instance_profile: null

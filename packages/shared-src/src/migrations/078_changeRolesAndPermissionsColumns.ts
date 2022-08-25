@@ -11,9 +11,10 @@ export async function up(query: QueryInterface) {
   await query.renameColumn('permissions', 'objectId', 'object_id');
   await query.renameColumn('permissions', 'roleId', 'role_id');
 
-  await query.addConstraint('permissions', ['role_id'], {
+  await query.addConstraint('permissions', {
     type: 'foreign key',
     name: 'permissions_role_id_fkey',
+    fields: ['role_id'],
     references: {
       table: 'roles',
       field: 'id',

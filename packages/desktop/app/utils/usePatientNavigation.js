@@ -35,15 +35,14 @@ export const usePatientNavigation = () => {
     );
   };
 
-  const navigateToEncounter = (encounterId, modal) => {
+  const navigateToEncounter = (encounterId, modal, search) => {
     const existingParams = getParams(PATIENT_PATHS.PATIENT);
-    navigate(
-      generatePath(`${PATIENT_PATHS.ENCOUNTER}/:modal?`, {
-        ...existingParams,
-        encounterId,
-        modal,
-      }),
-    );
+    const encounterRoute = generatePath(`${PATIENT_PATHS.ENCOUNTER}/:modal?`, {
+      ...existingParams,
+      encounterId,
+      modal,
+    });
+    navigate(`${encounterRoute}${search ? `?${new URLSearchParams(search)}` : ''}`);
   };
 
   const navigateToSummary = () => {

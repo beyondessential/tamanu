@@ -141,6 +141,7 @@ encounterRelations.get(
   '/:id/programResponses',
   asyncHandler(async (req, res) => {
     const { db, models, params, query } = req;
+    req.checkPermission('list', 'SurveyResponse');
     const encounterId = params.id;
     const { count, data } = await runPaginatedQuery(
       db,

@@ -181,6 +181,24 @@ describe('Generic survey export', () => {
       expect(result.body).toMatchTabularReport([]);
     });
 
+    it('should not error if given an empty survey response', async () => {
+      const date = subDays(new Date(), 25);
+      await app.post('/v1/surveyResponse').send({
+        surveyId: SURVEY_ID,
+        startTime: date,
+        patientId: expectedPatient.id,
+        endTime: date,
+        answers: {},
+      });
+
+      const result = await app.post(REPORT_URL).send({
+        parameters: {
+          surveyId: SURVEY_ID,
+        },
+      });
+      expect(result).toHaveSucceeded();
+    });
+
     it('should return data ordered by date', async () => {
       const date1 = subDays(new Date(), 25);
       const date2 = subDays(new Date(), 25);

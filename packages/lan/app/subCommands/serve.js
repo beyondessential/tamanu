@@ -41,7 +41,7 @@ async function serve({ skipMigrationCheck }) {
   const server = app.listen(port, () => {
     log.info(`Server is running on port ${port}!`);
   });
-  process.on('SIGTERM', () => {
+  process.once('SIGTERM', () => {
     log.info('Received SIGTERM, closing HTTP server');
     server.close();
   });

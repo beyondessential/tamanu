@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useEncounter } from '../../../contexts/Encounter';
 import { NoteModal } from '../../../components/NoteModal';
 import { NoteTable } from '../../../components/NoteTable';
-import { Button, TableButtonRow } from '../../../components';
+import { ButtonWithPermissionCheck, TableButtonRow } from '../../../components';
 import { TabPane } from '../components';
 
 export const NotesPane = React.memo(({ encounter, readonly }) => {
@@ -21,9 +21,14 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
         }}
       />
       <TableButtonRow variant="small">
-        <Button onClick={() => setModalOpen(true)} disabled={readonly}>
+        <ButtonWithPermissionCheck
+          onClick={() => setModalOpen(true)}
+          disabled={readonly}
+          verb="write"
+          noun="Encounter"
+        >
           New note
-        </Button>
+        </ButtonWithPermissionCheck>
       </TableButtonRow>
       <NoteTable encounterId={encounter.id} />
     </TabPane>

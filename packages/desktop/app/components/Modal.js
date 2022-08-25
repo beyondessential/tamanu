@@ -161,7 +161,6 @@ export const connectRoutedModal = (baseRoute, suffix) =>
   connect(
     state => ({
       open: getCurrentRoute(state).startsWith(`${baseRoute}/${suffix}`),
-      extraRoute: getCurrentRoute(state).replace(`${baseRoute}/${suffix}/`, ''),
     }),
     dispatch => ({
       onClose: () => dispatch(push(baseRoute)),

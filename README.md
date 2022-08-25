@@ -216,7 +216,7 @@ the API url and login credentials as well (see config/default.json for how this 
 
 #### Setting up a new Elastic Beanstalk application and environment:
 
-- add a certificate for a subdomain (e.g. [sync-dev.tamanu.io](https://sync-dev.tamanu.io)) using AWS's ACM
+- add a certificate for a subdomain (e.g. [central-dev.tamanu.io](https://central-dev.tamanu.io)) using AWS's ACM
 - configure the application and environment in AWS
   1. select "web server" when prompted
   2. fill out the basic details of your environment

@@ -51,7 +51,7 @@ const FormSubmitActionDropdown = React.memo(({ requestId, encounter, submitForm 
     (async () => {
       if (awaitingPrintRedirect && requestId) {
         await dispatch(reloadImagingRequest(requestId));
-        navigateToImagingRequest(requestId);
+        navigateToImagingRequest(requestId, 'print');
       }
     })();
   }, [requestId, awaitingPrintRedirect, dispatch, navigateToImagingRequest]);

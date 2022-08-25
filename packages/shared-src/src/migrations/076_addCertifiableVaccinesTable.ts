@@ -65,9 +65,10 @@ export async function up(query: QueryInterface) {
     },
   });
 
-  await query.addConstraint('certifiable_vaccines', ['vaccine_id'], {
-    name: 'certifiable_vaccines_unique_vaccine_id',
+  await query.addConstraint('certifiable_vaccines', {
     type: 'unique',
+    name: 'certifiable_vaccines_unique_vaccine_id',
+    fields: ['vaccine_id'],
   });
 }
 

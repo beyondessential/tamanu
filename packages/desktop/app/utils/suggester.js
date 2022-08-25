@@ -1,11 +1,16 @@
 const defaultFormatter = ({ name, id }) => ({ label: name, value: id });
 
 export class Suggester {
-  constructor(api, endpoint, { formatter = defaultFormatter, filterer = () => true } = {}) {
+  constructor(
+    api,
+    endpoint,
+    { formatter = defaultFormatter, filterer = () => true, baseQueryParameters = {} } = {},
+  ) {
     this.api = api;
     this.endpoint = `suggestions/${encodeURIComponent(endpoint)}`;
     this.formatter = formatter;
     this.filterer = filterer;
+    this.baseQueryParameters = baseQueryParameters;
   }
 
   async fetch(suffix, queryParameters) {
@@ -23,7 +28,7 @@ export class Suggester {
 
   fetchSuggestions = async search => {
     try {
-      const data = await this.fetch('', { q: search });
+      const data = await this.fetch('', { ...this.baseQueryParameters, q: search });
       return data.filter(this.filterer).map(this.formatter);
     } catch (e) {
       return [];

@@ -37,18 +37,15 @@ export function getFormInitialValues(
   currentUser: IUser,
   patient: IPatient,
 ): { [key: string]: any } {
-  const initialValues = components.reduce<{ [key: string]: any }>(
-    (acc, { dataElement }) => {
-      const initialValue = getInitialValue(dataElement);
-      const propName = dataElement.code;
-      if (initialValue === undefined) {
-        return acc;
-      }
-      acc[propName] = initialValue;
+  const initialValues = components.reduce<{ [key: string]: any }>((acc, { dataElement }) => {
+    const initialValue = getInitialValue(dataElement);
+    const propName = dataElement.code;
+    if (initialValue === undefined) {
       return acc;
-    },
-    {},
-  );
+    }
+    acc[propName] = initialValue;
+    return acc;
+  }, {});
 
   // other data
   for (const component of components) {
@@ -92,24 +89,21 @@ function getFieldValidator(
   }
 }
 
-export function getFormSchema(
-  components: ISurveyScreenComponent[],
-): Yup.ObjectSchema {
-  const objectShapeSchema = components.reduce<{ [key: string]: any }>(
-    (acc, component) => {
-      const { dataElement, required } = component;
-      const propName = dataElement.code;
-      const validator = getFieldValidator(dataElement);
-      if (!validator) return acc;
-      if (required) {
-        acc[propName] = validator.required();
-      } else {
-        acc[propName] = validator;
-      }
-      return acc;
-    },
-    {},
-  );
+export function getFormSchema(components: ISurveyScreenComponent[]): Yup.ObjectSchema {
+  const objectShapeSchema = components.reduce<{ [key: string]: any }>((acc, component) => {
+    const { dataElement, required } = component;
+    const propName = dataElement.code;
+    const validator = getFieldValidator(dataElement);
+
+    if (!validator) return acc;
+    if (required) {
+      acc[propName] = validator.required();
+    } else {
+      acc[propName] = validator.nullable();
+    }
+    return acc;
+  }, {});
+
   return Yup.object().shape(objectShapeSchema);
 }
 

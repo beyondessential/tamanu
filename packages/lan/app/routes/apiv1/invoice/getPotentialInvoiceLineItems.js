@@ -14,7 +14,7 @@ const getInvoiceLineNotExistYetClause = `invoice_line_types.id NOT IN (SELECT in
  * compare if there have been corresponding invoice line items created,
  * and return the dummy potential invoice line items for the ones that have not been created yet.
  */
-export const getPotentialInvoiceLineItems = async (db, models, encounterId) => {
+export const getPotentialInvoiceLineItems = async (db, models, encounterId, imagingTypes) => {
   const procedures = await db.query(
     `
         SELECT
@@ -51,8 +51,8 @@ export const getPotentialInvoiceLineItems = async (db, models, encounterId) => {
   const imagingRequests = await db.query(
     `
         SELECT
-        reference_data.name AS "name",
-        reference_data.code AS "code",
+        imaging_type.label AS "name",
+        imaging_type.code AS "code",
         imaging_requests.requested_date AS "date",
         imaging_requests.requested_by_id AS "orderedById",
         users.display_name AS "orderedBy",
@@ -61,10 +61,11 @@ export const getPotentialInvoiceLineItems = async (db, models, encounterId) => {
         invoice_line_types.price AS "price"
         FROM imaging_requests
         INNER JOIN invoice_line_types
-        ON invoice_line_types.item_id = imaging_requests.imaging_type_id
-        INNER JOIN reference_data
-        ON invoice_line_types.item_id = reference_data.id
-        AND invoice_line_types.item_type = 'imagingType'
+        ON invoice_line_types.item_id = imaging_requests.imaging_type
+        INNER JOIN (
+          SELECT 
+            key, value->>'code' AS code, value->>'label' AS label FROM jsonb_each(:imagingTypes)) AS imaging_type
+        ON invoice_line_types.item_id = imaging_type.key
         INNER JOIN users
         ON users.id = imaging_requests.requested_by_id
         WHERE imaging_requests.encounter_id = :encounterId
@@ -74,6 +75,7 @@ export const getPotentialInvoiceLineItems = async (db, models, encounterId) => {
       replacements: {
         encounterId,
         invoiceLineItemDeletedStatus: INVOICE_LINE_ITEM_STATUSES.DELETED,
+        imagingTypes: JSON.stringify(imagingTypes),
       },
       model: models.ImagingRequest,
       type: QueryTypes.SELECT,

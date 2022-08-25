@@ -128,7 +128,7 @@ export const transformSingleResponse = async (
   autocompleteComponentMap,
   dataElementIdToComponent,
 ) => {
-  const { answers } = result;
+  const answers = result.answers || {};
   const newAnswers = {};
 
   await Promise.all(
