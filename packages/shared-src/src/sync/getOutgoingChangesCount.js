@@ -9,7 +9,7 @@ export const getOutgoingChangesCount = async (store, sessionIndex) =>
           AND direction = :direction
     `,
     {
-      replacement: {
+      replacements: {
         sessionIndex,
         direction: SESSION_SYNC_DIRECTION.OUTGOING,
       },
