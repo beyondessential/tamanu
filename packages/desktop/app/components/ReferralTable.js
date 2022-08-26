@@ -6,7 +6,7 @@ import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { DropdownButton } from './DropdownButton';
 
-import { CheckInModal } from './CheckInModal';
+import { EncounterModal } from './EncounterModal';
 import { useEncounter } from '../contexts/Encounter';
 import { useApi } from '../api';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
@@ -68,10 +68,9 @@ const ActionDropdown = React.memo(({ row, refreshTable }) => {
   return (
     <>
       <DropdownButton actions={actions} variant="outlined" size="small" />
-      <CheckInModal
+      <EncounterModal
         open={modalStatus === ACTION_MODAL_STATES.ENCOUNTER_OPEN}
         onClose={onCloseModal}
-        patientId={row.initiatingEncounter.patientId}
         referral={row}
       />
       <ConfirmModal
