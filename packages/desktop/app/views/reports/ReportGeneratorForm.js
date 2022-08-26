@@ -31,6 +31,7 @@ import { saveExcelFile } from '../../utils/saveExcelFile';
 import { VaccineCategoryField } from './VaccineCategoryField';
 import { VaccineField } from './VaccineField';
 import { Suggester } from '../../utils/suggester';
+import { ImagingTypeField } from './ImagingTypeField';
 
 const EmptyField = styled.div``;
 
@@ -52,6 +53,7 @@ const PARAMETER_FIELD_COMPONENTS = {
   ParameterAutocompleteField,
   ParameterSelectField,
   ParameterMultiselectField,
+  ImagingTypeField,
 };
 
 const Spacer = styled.div`

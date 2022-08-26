@@ -2,6 +2,7 @@ import {
   APPOINTMENT_STATUSES,
   REPORT_DATA_SOURCES,
   REPORT_DATA_SOURCE_VALUES,
+  IMAGING_REQUEST_STATUS_OPTIONS,
 } from 'shared/constants';
 
 const LAST_30_DAYS_DATE_LABEL = 'Date range (or leave blank for the past 30 days of data)';
@@ -411,6 +412,27 @@ export const REPORT_DEFINITIONS = [
           label: status,
           value: status,
         })),
+      },
+    ],
+  },
+  {
+    name: 'Imaging requests - Line list',
+    id: 'imaging-requests-line-list',
+    dateRangeLabel: ALL_TIME_DATE_LABEL,
+    dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
+    parameters: [
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Requesting clinician',
+        name: 'requestedById',
+        suggesterEndpoint: 'practitioner',
+      },
+      { parameterField: 'ImagingTypeField' },
+      {
+        parameterField: 'ParameterSelectField',
+        label: 'Status',
+        name: 'status',
+        options: IMAGING_REQUEST_STATUS_OPTIONS,
       },
     ],
   },
