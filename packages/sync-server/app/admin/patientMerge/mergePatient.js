@@ -39,11 +39,7 @@ export async function getTablesWithNoMergeCoverage(models) {
   return missingModels;
 }
 
-async function simpleMergeRecordAcross(
-  model,
-  keepPatientId,
-  unwantedPatientId,
-) {
+async function simpleMergeRecordAcross(model, keepPatientId, unwantedPatientId) {
   // We need to go via a raw query as Model.update({}) performs validation on the whole record,
   // so we'll be rejected for failing to include required fields - even though we only want to
   // update patientId!
