@@ -12,10 +12,12 @@ import { mergePatientHandler } from './patientMerge';
 
 export const adminRoutes = express.Router();
 
-// Permission check on admin routes; not applied earlier in the handler stack as
-// it might affect sync performance. Safe to remove once more general permission
-// checks have been implemented.
+// Only construct permissions for the admin stack for now.
+// The only reason this isn't applied earlier/more generally is
+// because it might affect sync performance. This will be fine to
+// remove once more general permission checks have been implemented.
 adminRoutes.use(constructPermission);
+
 adminRoutes.use(
   asyncHandler((req, res, next) => {
     if (!req.ability.can('manage', 'all')) {

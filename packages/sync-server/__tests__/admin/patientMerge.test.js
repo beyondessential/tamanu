@@ -116,10 +116,10 @@ describe("Patient merge", () => {
   });
   
   it('Should merge death data cleanly', async () => {
-    // Theoretically this should behave the same as other records but I (@mclean) encountered
-    // a weird validation issue* during dev, so I'm just including this additional test to
-    // be safe.
-    // * It was complaining about a missing clinicianId even though it wasn't updating any records
+    // Theoretically this should behave the same as other records but I (@mclean) 
+    // encountered a validation issue* during dev, so I'm just including this 
+    // additional test to be safe.
+    // *complaints of a missing clinicianId despite not updating any records
     const [keep, merge] = await makeTwoPatients();
 
     const clinician = await models.User.create(fake(models.User));
