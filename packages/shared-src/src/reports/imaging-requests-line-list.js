@@ -22,12 +22,10 @@ const FIELDS = [
   'Status',
 ];
 
-const reportColumnTemplate = FIELDS.map(field =>
-  ({
-        title: field,
-        accessor: data => data[field],
-      })
-);
+const reportColumnTemplate = FIELDS.map(field => ({
+  title: field,
+  accessor: data => data[field],
+}));
 
 const query = `
 select 
