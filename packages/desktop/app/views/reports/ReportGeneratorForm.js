@@ -35,7 +35,7 @@ import { Suggester } from '../../utils/suggester';
 const EmptyField = styled.div``;
 
 const ParameterAutocompleteField = connectApi((api, _, props) => ({
-  suggester: new Suggester(api, props.suggesterEndpoint),
+  suggester: new Suggester(api, props.suggesterEndpoint, props.suggesterOptions),
 }))(props => <Field component={AutocompleteField} suggester={props.suggester} {...props} />);
 
 const ParameterSelectField = props => <Field component={SelectField} {...props} />;
