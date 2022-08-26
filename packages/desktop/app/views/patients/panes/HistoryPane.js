@@ -6,7 +6,7 @@ import { useEncounter } from '../../../contexts/Encounter';
 import { ContentPane } from '../../../components';
 import { PatientEncounterSummary } from '../components/PatientEncounterSummary';
 import { PatientHistory } from '../../../components/PatientHistory';
-import { EncounterModal } from '../../../components/EncounterModal';
+import { CheckInModal } from '../../../components/CheckInModal';
 import { TriageModal } from '../../../components/TriageModal';
 import { SelectEncounterTypeModal } from '../../../components/SelectEncounterTypeModal';
 
@@ -62,7 +62,7 @@ export const HistoryPane = React.memo(({ patient, additionalData, disabled }) =>
         onClose={onCloseModal}
         onSelectEncounterType={onSelectEncounterType}
       />
-      <EncounterModal
+      <CheckInModal
         open={modalStatus === MODAL_STATES.ENCOUNTER_OPEN}
         onClose={onCloseModal}
         patientId={patient.id}

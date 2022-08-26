@@ -8,7 +8,7 @@ import { reloadPatient } from '../store/patient';
 import { EncounterForm } from '../forms/EncounterForm';
 import { useEncounter } from '../contexts/Encounter';
 
-export const EncounterModal = React.memo(
+export const CheckInModal = React.memo(
   ({ open, onClose, patientId, referral, patientBillingTypeId, ...props }) => {
     const { createEncounter } = useEncounter();
     const api = useApi();
