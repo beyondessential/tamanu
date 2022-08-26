@@ -1,14 +1,8 @@
 import React from 'react';
-import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
+import { IMAGING_REQUEST_STATUS_OPTIONS } from 'shared/constants';
 import { DateField, LocalisedField, SelectField } from '../Field';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
-import { IMAGING_REQUEST_STATUS_LABELS } from '../../constants';
 import { useLocalisation } from '../../contexts/Localisation';
-
-const STATUS_OPTIONS = Object.values(IMAGING_REQUEST_STATUS_TYPES).map(s => ({
-  label: IMAGING_REQUEST_STATUS_LABELS[s],
-  value: s,
-}));
 
 const URGENCY_OPTIONS = [
   { label: 'Urgent', value: 'urgent' },
@@ -44,7 +38,7 @@ export const ImagingRequestsSearchBar = ({ setSearchParameters }) => {
         name="status"
         defaultLabel="Status"
         component={SelectField}
-        options={STATUS_OPTIONS}
+        options={IMAGING_REQUEST_STATUS_OPTIONS}
       />
       <LocalisedField
         name="urgency"
