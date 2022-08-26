@@ -48,7 +48,7 @@ export const SelectEncounterTypeModal = React.memo(({ open, onClose, onSelectEnc
     ));
 
   return (
-    <Modal title="Check-in" open={open} onClose={onClose}>
+    <Modal title="Admit or check-in" open={open} onClose={onClose}>
       <SelectorGrid>{items}</SelectorGrid>
     </Modal>
   );
