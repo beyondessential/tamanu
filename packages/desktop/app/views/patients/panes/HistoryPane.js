@@ -1,25 +1,14 @@
 import React, { useCallback, useState } from 'react';
-import { ENCOUNTER_TYPES } from 'shared/constants';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
 import { useEncounter } from '../../../contexts/Encounter';
 
 import { ContentPane } from '../../../components';
 import { PatientEncounterSummary } from '../components/PatientEncounterSummary';
 import { PatientHistory } from '../../../components/PatientHistory';
-import { CheckInModal } from '../../../components/CheckInModal';
-import { TriageModal } from '../../../components/TriageModal';
-import { SelectEncounterTypeModal } from '../../../components/SelectEncounterTypeModal';
-
-const MODAL_STATES = {
-  CLOSED: 'closed',
-  SELECT_OPEN: 'select',
-  ENCOUNTER_OPEN: 'encounter',
-  TRIAGE_OPEN: 'triage',
-};
+import { EncounterModal } from '../../../components/EncounterModal';
 
 export const HistoryPane = React.memo(({ patient, additionalData, disabled }) => {
-  const [modalStatus, setModalStatus] = useState(MODAL_STATES.CLOSED);
-  const [encounterType, setEncounterType] = useState(null);
+  const [isModalOpen, setModalOpen] = useState(false);
   const { navigateToEncounter } = usePatientNavigation();
   const { loadEncounter } = useEncounter();
 
@@ -33,23 +22,14 @@ export const HistoryPane = React.memo(({ patient, additionalData, disabled }) =>
     [loadEncounter, navigateToEncounter],
   );
 
-  const onCloseModal = useCallback(() => setModalStatus(MODAL_STATES.CLOSED), []);
-  const onSelectEncounterType = useCallback(value => {
-    if (value === ENCOUNTER_TYPES.TRIAGE) {
-      setModalStatus(MODAL_STATES.TRIAGE_OPEN);
-      return;
-    }
-
-    setEncounterType(value);
-    setModalStatus(MODAL_STATES.ENCOUNTER_OPEN);
-  }, []);
+  const onCloseModal = useCallback(() => setModalOpen(false), []);
 
   return (
     <>
       <ContentPane>
         <PatientEncounterSummary
           viewEncounter={onViewEncounter}
-          openCheckin={() => setModalStatus(MODAL_STATES.SELECT_OPEN)}
+          openCheckin={() => setModalOpen(true)}
           patient={patient}
           disabled={disabled}
         />
@@ -57,22 +37,10 @@ export const HistoryPane = React.memo(({ patient, additionalData, disabled }) =>
       <ContentPane>
         <PatientHistory patient={patient} onItemClick={onViewEncounter} />
       </ContentPane>
-      <SelectEncounterTypeModal
-        open={modalStatus === MODAL_STATES.SELECT_OPEN}
+      <EncounterModal
+        open={isModalOpen}
         onClose={onCloseModal}
-        onSelectEncounterType={onSelectEncounterType}
-      />
-      <CheckInModal
-        open={modalStatus === MODAL_STATES.ENCOUNTER_OPEN}
-        onClose={onCloseModal}
-        patientId={patient.id}
         patientBillingTypeId={additionalData?.patientBillingTypeId}
-        encounterType={encounterType}
-      />
-      <TriageModal
-        open={modalStatus === MODAL_STATES.TRIAGE_OPEN}
-        onClose={onCloseModal}
-        patient={patient}
       />
     </>
   );
