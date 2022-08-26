@@ -40,12 +40,13 @@ export async function getTablesWithNoMergeCoverage(models) {
 }
 
 async function simpleMergeRecordAcross(model, keepPatientId, unwantedPatientId) {
-  // We need to go via a raw query as Model.update({}) performs validation on the whole record,
-  // so we'll be rejected for failing to include required fields - even though we only want to
-  // update patientId!
-  // Note that this also means that *even if a record has been soft-deleted* its patientId will be
-  // shifted over to the "keep" patient. This is desirable! The two patients are the same person,
-  // we're not meaningfully updating data here, we're correcting it.
+  // We need to go via a raw query as Model.update({}) performs validation on the 
+  // whole record, so we'll be rejected for failing to include required fields -
+  //  even though we only want to update patientId!
+  // Note that this also means that *even if a record has been soft-deleted* its
+  // patientId will be shifted over to the "keep" patient. This is desirable! The
+  // two patients are the same person, we're not meaningfully *updating* data 
+  // here, we're correcting it.
   const tableName = model.getTableName();
   const [records, result] = await model.sequelize.query(
     `
@@ -72,7 +73,9 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
   return sequelize.transaction(async () => {
     const keepPatient = await models.Patient.findByPk(keepPatientId);
     if (!keepPatient) {
-      throw new InvalidParameterError(`Patient to keep (with id ${keepPatientId}) does not exist.`);
+      throw new InvalidParameterError(
+        `Patient to keep (with id ${keepPatientId}) does not exist.`
+      );
     }
 
     const unwantedPatient = await models.Patient.findByPk(unwantedPatientId);
@@ -107,9 +110,10 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
     }
 
     // Now reconcile patient additional data.
-    // Note that it's basically the same logic as above; I've just separated it out
-    // to highlight the fact that it requires special treatment. (If an update to
-    // this would make more sense to consolidate them that should be fine.)
+    // Note that we basically use the same logic as above; I've just separated 
+    // it out to highlight the fact that it requires special treatment. 
+    // (If a later update to this code would make more sense to consolidate
+    // them that should be fine.)
     const padRecordsMerged = await simpleMergeRecordAcross(
       models.PatientAdditionalData,
       keepPatientId,

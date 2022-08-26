@@ -31,6 +31,9 @@ describe("Patient merge", () => {
   });
 
   it("Should make a fuss if any models with a patientId aren't covered", async () => {
+    // If this test is breaking your CI after adding a new model, you need to add it
+    // to the simpleUpdateModels array over in mergePatient.js (unless it isn't
+    // trivial to merge, in which case, thank goodness this caught you)
     const tables = await getTablesWithNoMergeCoverage(models);
     expect(tables).toHaveLength(0);
   });
