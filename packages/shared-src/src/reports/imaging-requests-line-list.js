@@ -23,12 +23,10 @@ const FIELDS = [
 ];
 
 const reportColumnTemplate = FIELDS.map(field =>
-  typeof field === 'string'
-    ? {
+  ({
         title: field,
         accessor: data => data[field],
-      }
-    : field,
+      })
 );
 
 const query = `
