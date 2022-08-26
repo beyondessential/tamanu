@@ -19,7 +19,4 @@ adminRoutes.post(
   createDataImporterEndpoint(programImporter, PROGRAM_PERMISSIONS),
 );
 
-adminRoutes.post(
-  '/mergePatient',
-  mergePatientHandler,
-);
+adminRoutes.post('/mergePatient', mergePatientHandler);
