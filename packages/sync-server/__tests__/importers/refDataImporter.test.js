@@ -193,8 +193,7 @@ describe('Data definition import', () => {
     expect(password).not.toEqual(passwordPre); // make sure it's updated
   });
 
-  // TODO: when permission checking is implemented on sync server
-  it.skip('should forbid an import by a non-admin', async () => {
+  it('should forbid an import by a non-admin', async () => {
     const { baseApp } = ctx;
     const nonAdminApp = await baseApp.asRole('practitioner');
 

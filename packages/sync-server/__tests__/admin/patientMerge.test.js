@@ -230,7 +230,7 @@ describe("Patient merge", () => {
       expect(merge.deletedAt).toBeTruthy();
     });
 
-    xit('Should only allow admins to merge patients', async () => {
+    it('Should only allow admins to merge patients', async () => {
       const [keep, merge] = await makeTwoPatients();
       const app = await baseApp.asRole('reception');
 
