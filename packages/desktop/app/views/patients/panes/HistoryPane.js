@@ -68,7 +68,6 @@ export const HistoryPane = React.memo(({ patient, additionalData, disabled }) =>
         patientId={patient.id}
         patientBillingTypeId={additionalData?.patientBillingTypeId}
         encounterType={encounterType}
-        referrals={patient.referrals}
       />
       <TriageModal
         open={modalStatus === MODAL_STATES.TRIAGE_OPEN}
