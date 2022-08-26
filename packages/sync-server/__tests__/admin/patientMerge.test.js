@@ -2,10 +2,13 @@ import { mergePatient, getTablesWithNoMergeCoverage } from "../../app/admin/pati
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
 import { VISIBILITY_STATUSES } from 'shared/constants';
+import { InvalidParameterError } from 'shared/errors';
 
 describe("Patient merge", () => {
 
   let models;
+  let baseApp;
+  let adminApp;
 
   const makeTwoPatients = async (overridesKeep = {}, overridesMerge = {}) => {
     const { Patient } = models;
@@ -22,7 +25,9 @@ describe("Patient merge", () => {
 
   beforeAll(async () => {
     const ctx = await createTestContext();
+    baseApp = ctx.baseApp;
     models = ctx.store.models;
+    adminApp = await baseApp.asRole('admin');
   });
 
   it("Should make a fuss if any models with a patientId aren't covered", async () => {
@@ -44,7 +49,7 @@ describe("Patient merge", () => {
     expect(keep).toHaveProperty('deletedAt', null);
     expect(merge).toHaveProperty('mergedIntoId', keep.id);
     expect(merge).toHaveProperty('visibilityStatus', VISIBILITY_STATUSES.MERGED);
-    // expect(merge.deletedAt).toBeTruthy();
+    expect(merge.deletedAt).toBeTruthy();
   });
   
   it('Should merge encounters across', async () => {
@@ -111,7 +116,7 @@ describe("Patient merge", () => {
     // Theoretically this should behave the same as other records but I (@mclean) encountered
     // a weird validation issue* during dev, so I'm just including this additional test to
     // be safe.
-    // * was complaining about a missing clinicianId even though it wasn't updating any records
+    // * It was complaining about a missing clinicianId even though it wasn't updating any records
     const [keep, merge] = await makeTwoPatients();
 
     const clinician = await models.User.create(fake(models.User));
@@ -131,6 +136,120 @@ describe("Patient merge", () => {
     expect(death).toHaveProperty('patientId', keep.id);
   });
 
-  it.todo('Should merge patient additional data cleanly');
+  it("Should throw if the keep patient doesn't exist", async () => {
+    const { Patient } = models;
+    const keep = await Patient.create(fake(Patient));
+    expect(() => mergePatient(models, keep.id, 'not real')).rejects.toThrow(InvalidParameterError);
+  });
 
+  it("Should throw if the merge patient doesn't exist", async () => {
+    const { Patient } = models;
+    const merge = await Patient.create(fake(Patient));
+    expect(() => mergePatient(models, 'not real', merge.id)).rejects.toThrow(InvalidParameterError);
+  });
+
+  describe('PatientAdditionalData', () => {
+    it('Should merge patient additional data cleanly', async () => {
+      const { PatientAdditionalData } = models;
+      const [keep, merge] = await makeTwoPatients();
+
+      const keepPatientPad = await PatientAdditionalData.create({
+        patientId: keep.id,
+        passport: 'keep-passport',
+      });
+
+      const mergePatientPad = await PatientAdditionalData.create({
+        patientId: merge.id,
+        primaryContactNumber: 'merge-phone',
+      });
+
+      const { updates } = await mergePatient(models, keep.id, merge.id);
+      expect(updates).toEqual({
+        Patient: 1,
+        PatientAdditionalData: 1,
+      });
+
+      await keepPatientPad.reload({ paranoid: false });
+      await mergePatientPad.reload({ paranoid: false });
+
+      expect(keepPatientPad).toHaveProperty('deletedAt', null);
+      expect(keepPatientPad).toHaveProperty('passport', 'keep-passport');
+      expect(keepPatientPad).toHaveProperty('primaryContactNumber', 'merge-phone');
+      expect(mergePatientPad).toHaveProperty('patientId', keep.id);
+      expect(mergePatientPad.deletedAt).toBeTruthy();
+    });
+
+    it('Should merge patient additional data even if the keep patient PAD is null', async () => {
+      const { PatientAdditionalData } = models;
+      const [keep, merge] = await makeTwoPatients();
+  
+      const keepPatientPad = await PatientAdditionalData.create({
+        patientId: keep.id,
+      });
+  
+      const mergePatientPad = await PatientAdditionalData.create({
+        patientId: merge.id,
+        primaryContactNumber: 'merge-phone',
+      });
+
+      const { updates } = await mergePatient(models, keep.id, merge.id);
+      expect(updates).toEqual({
+        Patient: 1,
+        PatientAdditionalData: 1,
+      });
+
+      await keepPatientPad.reload({ paranoid: false });
+      await mergePatientPad.reload({ paranoid: false });
+
+      expect(mergePatientPad).toHaveProperty('deletedAt', null);
+      expect(mergePatientPad).toHaveProperty('primaryContactNumber', 'merge-phone');
+      expect(mergePatientPad).toHaveProperty('patientId', keep.id);
+      expect(keepPatientPad.deletedAt).toBeTruthy();
+    });
+  });
+
+  describe('Endpoint', () => {
+    it('Should call the function from the endpoint', async () => {
+      const [keep, merge] = await makeTwoPatients();
+
+      const response = await adminApp.post('/v1/admin/mergePatient').send({
+        keepPatientId: keep.id,
+        unwantedPatientId: merge.id,
+      });
+      expect(response).toHaveSucceeded();
+      expect(response.body.updates).toEqual({
+        Patient: 1,
+      });
+  
+      await keep.reload({ paranoid: false });
+      await merge.reload({ paranoid: false });
+      expect(keep).toHaveProperty('mergedIntoId', null);
+      expect(keep).toHaveProperty('deletedAt', null);
+      expect(merge).toHaveProperty('mergedIntoId', keep.id);
+      expect(merge).toHaveProperty('visibilityStatus', VISIBILITY_STATUSES.MERGED);
+      expect(merge.deletedAt).toBeTruthy();
+    });
+
+    it('Should only allow admins to merge patients', async () => {
+      const [keep, merge] = await makeTwoPatients();
+      const app = await baseApp.asRole('reception');
+
+      const response = await app.post('/v1/admin/mergePatient').send({
+        keepPatientId: keep.id,
+        unwantedPatientId: merge.id,
+      });
+      expect(response).toBeForbidden();
+    });
+
+    it("Should return any encountered error", async () => {
+      const { Patient } = models;
+      const patient = await Patient.create(fake(Patient));
+
+      const response = await adminApp.post('/v1/admin/mergePatient').send({
+        keepPatientId: patient.id,
+        unwantedPatientId: 'doesnt exist',
+      });
+      expect(response).toHaveRequestError();
+    });
+  });
 });
