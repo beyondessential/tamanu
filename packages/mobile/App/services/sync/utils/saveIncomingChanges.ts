@@ -1,4 +1,5 @@
-import { chunk } from 'lodash';
+import RNFS from 'react-native-fs';
+import { chunk, groupBy } from 'lodash';
 
 import { SyncRecord } from '../types';
 import { sortInDependencyOrder } from './sortInDependencyOrder';
@@ -7,7 +8,7 @@ import { buildFromSyncRecord } from './buildFromSyncRecord';
 import { executeInserts, executeUpdates, executeDeletes } from './executeCrud';
 import { MODELS_MAP } from '../../../models/modelsMap';
 import { BaseModel } from '../../../models/BaseModel';
-import { QUERY_BATCH_SIZE } from '../constants';
+import { readFileInDocuments } from '../../../ui/helpers/file';
 
 /**
  * Save changes for a single model in batch because SQLite only support limited number of parameters
@@ -22,8 +23,8 @@ const saveChangesForModel = async (
   progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
 ): Promise<void> => {
   // split changes into create, update, delete
-  const idsForDelete = changes.filter(c => c.isDeleted).map(c => c.dataJson.id);
-  const idsForUpsert = changes.filter(c => !c.isDeleted && c.dataJson.id).map(c => c.dataJson.id);
+  const idsForDelete = changes.filter(c => c.isDeleted).map(c => c.data.id);
+  const idsForUpsert = changes.filter(c => !c.isDeleted && c.data.id).map(c => c.data.id);
   let idToUpdatedSinceSession = {};
 
   for (const batchOfIds of chunk(idsForUpsert, SQLITE_MAX_PARAMETERS)) {
@@ -38,7 +39,7 @@ const saveChangesForModel = async (
 
   const recordsForCreate = changes
     .filter(c => !c.isDeleted && idToUpdatedSinceSession[c.recordId] === undefined)
-    .map(({ dataJson }) => buildFromSyncRecord(model, dataJson));
+    .map(({ data }) => buildFromSyncRecord(model, data));
 
   const recordsForUpdate = changes
     .filter(
@@ -56,37 +57,6 @@ const saveChangesForModel = async (
 };
 
 /**
- * Persist the incoming changes that are previously stored in
- * session_sync_record into actual tables.
- * This will be done in batches to avoid memory problem
- * @param model
- * @param models
- * @param progressCallback
- */
-const saveChangesForModelInBatches = async (
-  model: typeof BaseModel,
-  models: typeof MODELS_MAP,
-  progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
-): Promise<void> => {
-  const syncRecordsCount = await models.SessionSyncRecord.count({
-    recordType: model.getPluralTableName(),
-  });
-
-  const batchCount = Math.ceil(syncRecordsCount / QUERY_BATCH_SIZE);
-
-  for (let batchIndex = 0; batchIndex < batchCount; batchIndex++) {
-    const modelRecordsInBatch = await models.SessionSyncRecord.find({
-      where: { recordType: model.getPluralTableName() },
-      order: { id: 'ASC' },
-      take: QUERY_BATCH_SIZE,
-      skip: QUERY_BATCH_SIZE * batchIndex,
-    });
-
-    await saveChangesForModel(model, modelRecordsInBatch, progressCallback);
-  }
-};
-
-/**
  * Save all the incoming changes in the right order of dependency,
  * using the data stored in session_sync_record previously
  * @param models
@@ -101,7 +71,34 @@ export const saveIncomingChanges = async (
 ): Promise<void> => {
   const sortedModels = await sortInDependencyOrder(incomingModels);
 
-  for (const model of sortedModels) {
-    await saveChangesForModelInBatches(model, models, progressCallback);
+  let currentBatchIndex = 0;
+
+  while (true) {
+    const fileName = `batch${currentBatchIndex}.json`;
+    const filePath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
+    let batchString = '';
+    try {
+      const base64 = await readFileInDocuments(filePath);
+      batchString = Buffer.from(base64, 'base64').toString();
+    } catch (e) {
+      batchString = '';
+      //ignore error because most likely it fails because there is not more batch file to be found
+    }
+
+    if (!batchString) {
+      break;
+    }
+    const batch = JSON.parse(batchString);
+    const recordsByType = groupBy(batch, 'recordType');
+
+    for (const model of sortedModels) {
+      const modelRecords = recordsByType[model.getPluralTableName()];
+      if (modelRecords === undefined) {
+        continue;
+      }
+      await saveChangesForModel(model, modelRecords, progressCallback);
+    }
+
+    currentBatchIndex++;
   }
 };

@@ -8,3 +8,4 @@ export { getSyncSessionIndex } from './getSyncSessionIndex';
 export { callWithBackoff } from './callWithBackoff';
 export { getResponseJsonSafely } from './getResponseJsonSafely';
 export { fetchWithTimeout } from './fetchWithTimeout';
+export { clearPersistedSyncSessionRecords } from './clearPersistedSyncSessionRecords';

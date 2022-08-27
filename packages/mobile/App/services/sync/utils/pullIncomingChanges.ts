@@ -1,8 +1,10 @@
 import { CentralServerConnection } from '../CentralServerConnection';
 import { MODELS_MAP } from '../../../models/modelsMap';
 import { calculatePageLimit } from './calculatePageLimit';
-import { chunkRows } from '../../../infra/db/helpers';
 import { SESSION_SYNC_DIRECTION } from '../constants';
+import { saveFileInDocuments } from '/helpers/file';
+
+const FILE_BATCH_SIZE = 20000;
 
 /**
  * Pull incoming changes in batches and save them in session_sync_record table,
@@ -25,6 +27,8 @@ export const pullIncomingChanges = async (
 
   let offset = 0;
   let limit = calculatePageLimit();
+  let currentBatchIndex = 0;
+  let currentRows = [];
 
   // pull changes a page at a time
   while (offset < totalToPull) {
@@ -39,7 +43,6 @@ export const pullIncomingChanges = async (
     const recordsToSave = records.map(r => ({
       ...r,
       direction: SESSION_SYNC_DIRECTION.INCOMING,
-      data: JSON.stringify(r.data),
     }));
 
     // This is an attempt to avoid storing all the pulled data
@@ -48,13 +51,18 @@ export const pullIncomingChanges = async (
     // 2. When a huge number of data is imported to sync and the facility syncs it down
     // So store the data in session_sync_records table instead and will persist it to
     //  the actual tables later
-    for (const batchOfRows of chunkRows(recordsToSave)) {
-      await models.SessionSyncRecord.getRepository()
-        .createQueryBuilder('session_sync_record')
-        .insert()
-        .into(models.SessionSyncRecord)
-        .values(batchOfRows)
-        .execute();
+
+    currentRows.push(...recordsToSave);
+    if (currentRows.length >= FILE_BATCH_SIZE) {
+      const fileName = `batch${currentBatchIndex}.json`;
+
+      await saveFileInDocuments(
+        Buffer.from(JSON.stringify(currentRows), 'utf-8').toString('base64'),
+        fileName,
+      );
+
+      currentRows = [];
+      currentBatchIndex++;
     }
 
     offset += recordsToSave.length;

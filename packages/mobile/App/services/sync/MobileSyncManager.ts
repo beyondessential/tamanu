@@ -11,6 +11,7 @@ import {
   saveIncomingChanges,
   getModelsForDirection,
   getSyncSessionIndex,
+  clearPersistedSyncSessionRecords,
 } from './utils';
 import { SYNC_DIRECTIONS } from '../../models/types';
 import { SYNC_EVENT_ACTIONS } from './types';
@@ -122,7 +123,7 @@ export class MobileSyncManager {
     this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STARTED);
 
     // Clear previous temp data for persisting
-    await this.models.SessionSyncRecord.clear();
+    await clearPersistedSyncSessionRecords();
 
     // the first step of sync is to start a session and retrieve the index used as both the id of
     // the session, and a marker on the global sync timeline
@@ -144,7 +145,7 @@ export class MobileSyncManager {
     await this.centralServer.endSyncSession(currentSessionIndex);
 
     // Clear previous temp data for persisting
-    await this.models.SessionSyncRecord.clear();
+    await clearPersistedSyncSessionRecords();
   }
 
   /**
@@ -205,17 +206,25 @@ export class MobileSyncManager {
 
       const incomingModels = getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
 
-      // Save all incoming changes in 1 transaction so that the whole sync session save
-      // either fail 100% or suceed 100%, no partial save.
-      await Database.client.transaction(async () => {
-        await saveIncomingChanges(this.models, incomingModels, this.updateProgress);
+      await saveIncomingChanges(this.models, incomingModels, this.updateProgress);
 
-        // update the last successful sync in the same save transaction,
-        // if updating the cursor fails, we want to roll back the rest of the saves
-        // so that we don't end up detecting them as needing a sync up
-        // to the central server when we attempt to resync from the same old cursor
-        await setSyncSessionSequence(this.models, currentSessionIndex, 'LastSuccessfulSyncSession');
-      });
+      // update the last successful sync in the same save transaction,
+      // if updating the cursor fails, we want to roll back the rest of the saves
+      // so that we don't end up detecting them as needing a sync up
+      // to the central server when we attempt to resync from the same old cursor
+      await setSyncSessionSequence(this.models, currentSessionIndex, 'LastSuccessfulSyncSession');
+
+      // // Save all incoming changes in 1 transaction so that the whole sync session save
+      // // either fail 100% or suceed 100%, no partial save.
+      // await Database.client.transaction(async () => {
+      //   await saveIncomingChanges(this.models, incomingModels, this.updateProgress);
+
+      //   // update the last successful sync in the same save transaction,
+      //   // if updating the cursor fails, we want to roll back the rest of the saves
+      //   // so that we don't end up detecting them as needing a sync up
+      //   // to the central server when we attempt to resync from the same old cursor
+      //   await setSyncSessionSequence(this.models, currentSessionIndex, 'LastSuccessfulSyncSession');
+      // });
     }
 
     this.lastSyncPulledRecordsCount = incomingChangesCount;
