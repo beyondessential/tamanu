@@ -39,3 +39,7 @@ export function ageInYears(dob) {
 export function parseISO9075(date) {
   return new Date(date.replace(' ', 'T'));
 }
+
+export function convertISO9075toRFC3339(dateString) {
+  return format(new Date(dateString), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+}

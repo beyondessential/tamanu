@@ -12,6 +12,7 @@ export * from './PatientVRSData';
 export * from './PatientSecondaryId';
 
 export * from './PatientDeathData';
+export * from './PatientBirthData';
 export * from './ContributingDeathCause';
 
 export * from './Encounter';
@@ -30,6 +31,7 @@ export * from './LabTest';
 export * from './LabRequestLog';
 export * from './LabTestType';
 export * from './ImagingRequest';
+export * from './ImagingRequestAreas';
 
 export * from './Program';
 export * from './Survey';

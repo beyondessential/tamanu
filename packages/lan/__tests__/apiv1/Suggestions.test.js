@@ -1,5 +1,7 @@
 import { SURVEY_TYPES, VISIBILITY_STATUSES } from 'shared/constants';
 import { splitIds, buildDiagnosis } from 'shared/demoData';
+import { createDummyPatient } from 'shared/demoData/patients';
+
 import { createTestContext } from '../utilities';
 import { testDiagnoses } from '../seed';
 
@@ -18,7 +20,61 @@ describe('Suggestions', () => {
   afterAll(() => ctx.close());
 
   describe('Patients', () => {
-    test.todo('should not get patients without permission');
+    let searchPatient;
+
+    beforeAll(async () => {
+      searchPatient = await models.Patient.create(await createDummyPatient(models, {
+        firstName: 'Test',
+        lastName: 'Appear',
+        displayId: 'abcabc123123',
+      }));
+      await models.Patient.create(await createDummyPatient(models, {
+        firstName: 'Negative',
+        lastName: 'Negative',
+        displayId: 'negative',
+      }));
+    });
+    
+    it('should get a patient by first name', async () => {
+      const result = await userApp.get('/v1/suggestions/patient').query({ q: 'Test' });
+      expect(result).toHaveSucceeded();
+
+      const { body } = result;
+      expect(body).toHaveLength(1)
+      expect(body[0]).toHaveProperty('id', searchPatient.id);
+    });
+
+    it('should get a patient by last name', async () => {
+      const result = await userApp.get('/v1/suggestions/patient').query({ q: 'Appear' });
+      expect(result).toHaveSucceeded();
+      
+      const { body } = result;
+      expect(body).toHaveProperty('length', 1);
+      expect(body[0]).toHaveProperty('id', searchPatient.id);
+    });
+
+    it('should get a patient by combined first and last name', async () => {
+      const result = await userApp.get('/v1/suggestions/patient').query({ q: 'Test Appear' });
+      expect(result).toHaveSucceeded();
+      
+      const { body } = result;
+      expect(body).toHaveProperty('length', 1);
+      expect(body[0]).toHaveProperty('id', searchPatient.id);
+    });
+
+    it('should get a patient by displayId', async () => {
+      const result = await userApp.get('/v1/suggestions/patient').query({ q: 'abcabc123123' });
+      expect(result).toHaveSucceeded();
+      
+      const { body } = result;
+      expect(body).toHaveProperty('length', 1);
+      expect(body[0]).toHaveProperty('id', searchPatient.id);
+    });
+
+    it('should not get patients without permission', async () => {
+      const result = await baseApp.get('/v1/suggestions/patient').query({ q: 'anything' });
+      expect(result).toBeForbidden();
+    });
   });
 
   describe('General functionality (via diagnoses)', () => {

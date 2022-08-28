@@ -38,60 +38,69 @@ const styles = StyleSheet.create({
   },
 });
 
-const LabRequestRow = ({ labRequest }: LabRequestRowProps): JSX.Element => (
-  <StyledView
-    minHeight={40}
-    maxWidth="100%"
-    justifyContent="space-between"
-    flexDirection="row"
-    flexGrow={1}
-    alignItems="center"
-    paddingLeft={16}
-    paddingRight={16}
-    background={theme.colors.BACKGROUND_GREY}
-    borderBottomWidth={0.5}
-    borderColor={theme.colors.DISABLED_GREY}
-  >
-    <StyledView width={screenPercentageToDP(17, Orientation.Width)}>
-      {labRequest.displayId === 'NO_DISPLAY_ID' ? null : (
-        <View style={styles.displayId}>
-          <StyledText
-            fontWeight="bold"
-            fontSize={11}
-            color={theme.colors.LIGHT_BLUE}
-            textAlign="center"
-          >
-            {labRequest.displayId === 'NO_DISPLAY_ID'
-              ? ''
-              : labRequest.displayId}
-          </StyledText>
-        </View>
-      )}
-    </StyledView>
-    <StyledView width={screenPercentageToDP(23, Orientation.Width)}>
-      <StyledText color={theme.colors.TEXT_DARK} fontSize={13}>
-        {formatDate(
-          parseISO9075(labRequest.requestedDate),
-          DateFormats.DAY_MONTH_YEAR_SHORT,
+const LabRequestRow = ({ labRequest }: LabRequestRowProps): JSX.Element => {
+  let date: string;
+  try {
+    date = formatDate(
+      parseISO9075(labRequest.requestedDate),
+      DateFormats.DAY_MONTH_YEAR_SHORT,
+    );
+  } catch (e) {
+    console.warn(e, labRequest.requestedDate);
+    date = '-';
+  }
+  return (
+    <StyledView
+      minHeight={40}
+      maxWidth="100%"
+      justifyContent="space-between"
+      flexDirection="row"
+      flexGrow={1}
+      alignItems="center"
+      paddingLeft={16}
+      paddingRight={16}
+      background={theme.colors.BACKGROUND_GREY}
+      borderBottomWidth={0.5}
+      borderColor={theme.colors.DISABLED_GREY}
+    >
+      <StyledView width={screenPercentageToDP(17, Orientation.Width)}>
+        {labRequest.displayId === 'NO_DISPLAY_ID' ? null : (
+          <View style={styles.displayId}>
+            <StyledText
+              fontWeight="bold"
+              fontSize={11}
+              color={theme.colors.LIGHT_BLUE}
+              textAlign="center"
+            >
+              {labRequest.displayId === 'NO_DISPLAY_ID'
+                ? ''
+                : labRequest.displayId}
+            </StyledText>
+          </View>
         )}
-      </StyledText>
+      </StyledView>
+      <StyledView width={screenPercentageToDP(23, Orientation.Width)}>
+        <StyledText color={theme.colors.TEXT_DARK} fontSize={13}>
+          {date}
+        </StyledText>
+      </StyledView>
+      <StyledView width={screenPercentageToDP(20, Orientation.Width)}>
+        <StyledText
+          fontWeight="bold"
+          color={theme.colors.TEXT_DARK}
+          fontSize={13}
+        >
+          {labRequest.labTestCategory.name}
+        </StyledText>
+      </StyledView>
+      <StyledView width={screenPercentageToDP(35, Orientation.Width)}>
+        <SyncStatusindicator
+          synced={!labRequest.markedForUpload || !labRequest.encounter.markedForUpload}
+        />
+      </StyledView>
     </StyledView>
-    <StyledView width={screenPercentageToDP(20, Orientation.Width)}>
-      <StyledText
-        fontWeight="bold"
-        color={theme.colors.TEXT_DARK}
-        fontSize={13}
-      >
-        {labRequest.labTestCategory.name}
-      </StyledText>
-    </StyledView>
-    <StyledView width={screenPercentageToDP(35, Orientation.Width)}>
-      <SyncStatusindicator
-        synced={!labRequest.markedForUpload || !labRequest.encounter.markedForUpload}
-      />
-    </StyledView>
-  </StyledView>
-);
+  );
+}
 
 export const DumbViewHistoryScreen = ({ selectedPatient, navigation }): ReactElement => {
   const [data, error] = useBackendEffect(

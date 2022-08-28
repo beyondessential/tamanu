@@ -8,7 +8,13 @@ import { NotFoundError, InvalidOperationError } from 'shared/errors';
 import { REFERENCE_TYPES, LAB_REQUEST_STATUSES, NOTE_TYPES } from 'shared/constants';
 import { makeFilter, makeSimpleTextFilterFactory } from '../../utils/query';
 import { renameObjectKeys } from '../../utils/renameObjectKeys';
-import { simpleGet, simplePut, simpleGetList, permissionCheckingRouter } from './crudHelpers';
+import {
+  simpleGet,
+  simplePut,
+  simpleGetList,
+  permissionCheckingRouter,
+  createNoteListingHandler,
+} from './crudHelpers';
 
 export const labRequest = express.Router();
 
@@ -208,12 +214,7 @@ labRequest.post(
 
 const labRelations = permissionCheckingRouter('read', 'LabRequest');
 labRelations.get('/:id/tests', simpleGetList('LabTest', 'labRequestId'));
-labRelations.get(
-  '/:id/notes',
-  simpleGetList('Note', 'recordId', {
-    additionalFilters: { recordType: NOTE_RECORD_TYPES.LAB_REQUEST },
-  }),
-);
+labRelations.get('/:id/notes', createNoteListingHandler(NOTE_RECORD_TYPES.LAB_REQUEST));
 
 labRequest.use(labRelations);
 

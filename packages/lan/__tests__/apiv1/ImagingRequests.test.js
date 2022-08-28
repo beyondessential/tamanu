@@ -1,8 +1,5 @@
-import {
-  createDummyPatient,
-  createDummyEncounter,
-  randomReferenceId,
-} from 'shared/demoData/patients';
+import { IMAGING_TYPES } from 'shared/constants';
+import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
 describe('Imaging requests', () => {
@@ -29,7 +26,7 @@ describe('Imaging requests', () => {
   it('should record an imaging request', async () => {
     const result = await app.post('/v1/imagingRequest').send({
       encounterId: encounter.id,
-      imagingTypeId: await randomReferenceId(models, 'imagingType'),
+      imagingType: IMAGING_TYPES.CT_SCAN,
       requestedById: app.user.id,
     });
     expect(result).toHaveSucceeded();
@@ -40,6 +37,7 @@ describe('Imaging requests', () => {
     const result = await app.post('/v1/imagingRequest').send({
       encounterId: encounter.id,
       status: 'invalid',
+      imagingType: IMAGING_TYPES.CT_SCAN,
       requestedById: app.user.id,
     });
     expect(result).toHaveRequestError();
@@ -49,6 +47,7 @@ describe('Imaging requests', () => {
     const result = await app.post('/v1/imagingRequest').send({
       encounterId: encounter.id,
       status: 'invalid',
+      imagingType: IMAGING_TYPES.CT_SCAN,
       requestedById: app.user.id,
     });
     expect(result).toHaveRequestError();
@@ -57,7 +56,7 @@ describe('Imaging requests', () => {
   it('should get imaging requests for an encounter', async () => {
     const createdImagingRequest = await models.ImagingRequest.create({
       encounterId: encounter.id,
-      imagingTypeId: await randomReferenceId(models, 'imagingType'),
+      imagingType: IMAGING_TYPES.CT_SCAN,
       requestedById: app.user.id,
     });
     const result = await app.get(`/v1/encounter/${encounter.id}/imagingRequests`);
@@ -65,17 +64,17 @@ describe('Imaging requests', () => {
 
     const { body } = result;
 
-    // ID, type, status, requestedBy, requestedDate
+    // ID, imagingType, status, requestedBy, requestedDate
 
     expect(body.count).toBeGreaterThan(0);
-    expect(body.data[0]).toHaveProperty('type', createdImagingRequest.type);
+    expect(body.data[0]).toHaveProperty('imagingType', createdImagingRequest.imagingType);
   });
 
   it('should get imaging request reference info when listing imaging requests', async () => {
     const createdImagingRequest = await models.ImagingRequest.create({
       encounterId: encounter.id,
-      imagingTypeId: await randomReferenceId(models, 'imagingType'),
       requestedById: app.user.id,
+      imagingType: IMAGING_TYPES.CT_SCAN,
     });
     const result = await app.get(`/v1/encounter/${encounter.id}/imagingRequests`);
     expect(result).toHaveSucceeded();
@@ -84,6 +83,23 @@ describe('Imaging requests', () => {
 
     const record = body.data[0];
     expect(record).toHaveProperty('requestedBy.displayName');
-    expect(record).toHaveProperty('imagingType.name');
+  });
+
+  it('should return areas to be imaged', async () => {
+    const result = await app.get('/v1/imagingRequest/areas');
+    expect(result).toHaveSucceeded();
+    const { body } = result;
+    const expectedAreas = expect.arrayContaining([
+      expect.objectContaining({
+        id: expect.any(String),
+      }),
+    ]);
+    expect(body).toEqual(
+      expect.objectContaining({
+        xRay: expectedAreas,
+        ctScan: expectedAreas,
+        ultrasound: expectedAreas,
+      }),
+    );
   });
 });

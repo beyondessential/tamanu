@@ -47,6 +47,14 @@ export class ReferenceData extends Model {
     );
   }
 
+  static initRelations(models) {
+    this.belongsToMany(models.ImagingRequest, {
+      through: models.ImagingRequestAreas,
+      as: 'area',
+      foreignKey: 'areaId',
+    });
+  }
+
   static async create(values) {
     // the type column is just text in sqlite so validate it here
     const { type } = values;
@@ -57,9 +65,10 @@ export class ReferenceData extends Model {
   }
 
   async update(values) {
-    if (values.type) {
+    if (values.type && values.type !== this.type) {
       throw new InvalidOperationError('The type of a reference data item cannot be changed');
     }
+
     return super.update(values);
   }
 }

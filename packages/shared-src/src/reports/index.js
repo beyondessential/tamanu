@@ -31,6 +31,8 @@ import * as fijiNcdPrimaryScreeningSummary from './fiji-ncd-primary-screening/fi
 import * as fijiStatisticalReportForPhisSummary from './fiji-statistical-report-for-phis-summary';
 import * as palauCovidCaseReportLineList from './covid-module/palau/palau-covid-case-report-line-list';
 import * as genericSurveyExportLineList from './generic-survey-export-line-list';
+import * as appointmentsLineList from './appointments-line-list';
+import * as imagingRequestsLineList from './imaging-requests-line-list';
 
 export function getReportModule(reportType) {
   switch (reportType) {
@@ -102,6 +104,10 @@ export function getReportModule(reportType) {
       return palauCovidCaseReportLineList;
     case 'generic-survey-export-line-list':
       return genericSurveyExportLineList;
+    case 'appointments-line-list':
+      return appointmentsLineList;
+    case 'imaging-requests-line-list':
+      return imagingRequestsLineList;
   }
 }
 

@@ -3,6 +3,7 @@ import * as yup from 'yup';
 import { push } from 'connected-react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { Box } from '@material-ui/core';
+import { getCurrentDateTimeString } from 'shared-src/src/utils/dateTime';
 import { foreignKey } from '../utils/validation';
 import {
   Form,
@@ -17,7 +18,6 @@ import { FormGrid } from '../components/FormGrid';
 import { ModalActionRow } from '../components/ModalActionRow';
 import { NestedVitalsModal } from '../components/NestedVitalsModal';
 import { useApi, useSuggester } from '../api';
-import { encounterOptions } from '../constants';
 import { useLocalisation } from '../contexts/Localisation';
 
 const InfoPopupLabel = React.memo(() => (
@@ -34,7 +34,9 @@ export const TriageForm = ({ onCancel, editedObject }) => {
   const patient = useSelector(state => state.patient);
   const { getLocalisation } = useLocalisation();
   const triageCategories = getLocalisation('triageCategories');
-  const locationSuggester = useSuggester('location');
+  const locationSuggester = useSuggester('location', {
+    baseQueryParameters: { filterByFacility: true },
+  });
   const practitionerSuggester = useSuggester('practitioner');
   const triageReasonSuggester = useSuggester('triageReason');
 
@@ -46,13 +48,14 @@ export const TriageForm = ({ onCancel, editedObject }) => {
           label="Arrival date & time"
           component={DateTimeField}
           helperText="If different from triage time"
+          saveDateAsString
         />
         <Field
           name="triageTime"
           label="Triage date & time"
           required
           component={DateTimeField}
-          options={encounterOptions}
+          saveDateAsString
         />
         <Field
           name="locationId"
@@ -158,7 +161,7 @@ export const TriageForm = ({ onCancel, editedObject }) => {
       onSubmit={onSubmit}
       render={renderForm}
       initialValues={{
-        triageTime: new Date(),
+        triageTime: getCurrentDateTimeString(),
         ...editedObject,
       }}
       validationSchema={yup.object().shape({

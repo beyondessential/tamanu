@@ -1,4 +1,5 @@
 import { Sequelize } from 'sequelize';
+import config from 'config';
 import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES } from 'shared/constants';
 import { Model } from './Model';
 import { dateType } from './dateTimeTypes';
@@ -34,7 +35,10 @@ export class Patient extends Model {
       },
       {
         ...options,
-        syncConfig: { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, includedRelations: ['notes'] },
+        syncConfig: {
+          syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+          includedRelations: config.sync?.embedPatientNotes ? ['notes'] : [],
+        },
         indexes: [
           { fields: ['date_of_death'] },
           { fields: ['display_id'] },
@@ -120,8 +124,6 @@ export class Patient extends Model {
     const results = await models.AdministeredVaccine.findAll({
       order: [['date', 'DESC']],
       ...optRest,
-      raw: true,
-      nest: true,
       include,
       where: {
         ...optWhere,

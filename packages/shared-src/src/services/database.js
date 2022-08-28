@@ -14,6 +14,9 @@ import { log } from './logging';
 import { migrate, assertUpToDate } from './migrations';
 import * as models from '../models';
 import { initSyncHooks } from '../models/sync';
+import { createDateTypes } from './createDateTypes';
+
+createDateTypes();
 
 // this allows us to use transaction callbacks without manually managing a transaction handle
 // https://sequelize.org/master/manual/transactions.html#automatically-pass-transactions-to-all-queries
@@ -100,10 +103,15 @@ async function connectToDatabase(dbOptions) {
   });
   await sequelize.authenticate();
 
-  process.on('SIGTERM', () => {
-    log.info('Received SIGTERM, closing sequelize');
-    sequelize.close();
-  });
+  if (!testMode) {
+    // in test mode the context is closed manually, and we spin up lots of database
+    // connections, so this is just holding onto the sequelize instance in a callback
+    // that never gets called.
+    process.once('SIGTERM', () => {
+      log.info('Received SIGTERM, closing sequelize');
+      sequelize.close();
+    });
+  }
 
   return sequelize;
 }
@@ -130,7 +138,7 @@ export async function initDatabase(dbOptions) {
   sequelize.migrate = async direction => {
     if (sqlitePath) {
       log.info('Syncing sqlite schema...');
-      await sequelize.sync();
+      await sequelize.sync({});
       return;
     }
 

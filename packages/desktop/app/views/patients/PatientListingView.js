@@ -11,7 +11,7 @@ import {
   PatientSearchBar,
   ContentPane,
 } from '../../components';
-import { DropdownButton } from '../../components/DropdownButton';
+import { ButtonWithPermissionCheck } from '../../components/Button';
 import { NewPatientModal } from './components';
 import {
   markedForSync,
@@ -78,18 +78,11 @@ const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
 const NewPatientButton = ({ onCreateNewPatient }) => {
   const { navigateToPatient } = usePatientNavigation();
   const [isCreatingPatient, setCreatingPatient] = useState(false);
-  const [isBirth, setIsBirth] = useState(false);
   const dispatch = useDispatch();
   const hideModal = useCallback(() => setCreatingPatient(false), [setCreatingPatient]);
 
   const showNewPatient = useCallback(() => {
     setCreatingPatient(true);
-    setIsBirth(false);
-  }, []);
-
-  const showNewBirth = useCallback(() => {
-    setCreatingPatient(true);
-    setIsBirth(true);
   }, []);
 
   const handleCreateNewPatient = async newPatient => {
@@ -104,15 +97,17 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
 
   return (
     <>
-      <DropdownButton
-        actions={[
-          { label: 'Create new patient', onClick: showNewPatient },
-          { label: 'Register birth', onClick: showNewBirth },
-        ]}
-      />
+      <ButtonWithPermissionCheck
+        variant="outlined"
+        color="primary"
+        verb="create"
+        noun="Patient"
+        onClick={showNewPatient}
+      >
+        + Create new patient
+      </ButtonWithPermissionCheck>
       <NewPatientModal
         title="New patient"
-        isBirth={isBirth}
         open={isCreatingPatient}
         onCancel={hideModal}
         onCreateNewPatient={handleCreateNewPatient}
