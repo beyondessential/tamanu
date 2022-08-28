@@ -11,6 +11,25 @@ import { setupEnv } from '../env';
 
 const REPORT_HEAP_INTERVAL_MS = 1000;
 
+const validateReportId = async (reportId, models) => {
+  const dbDefinedReportModule = await models.ReportDefinitionVersion.findByPk(reportId);
+
+  if (dbDefinedReportModule) {
+    return true;
+  }
+
+  const validNames = REPORT_DEFINITIONS.map(d => d.id);
+
+  if (!validNames.some(n => n === reportId)) {
+    const nameOutput = validNames.map(n => `\n  ${n}`).join('');
+    throw new Error(
+      `invalid name '${reportId}', must be one of: ${nameOutput} \n (hint - supply name with --reportId <reportId>)`,
+    );
+  }
+
+  return true;
+};
+
 async function report(options) {
   if (options.heap) {
     setInterval(() => {
@@ -23,14 +42,10 @@ async function report(options) {
   const store = await initDatabase({ testMode: false });
   setupEnv();
   try {
-    const { name, parameters, recipients } = options;
-    const validNames = REPORT_DEFINITIONS.map(d => d.id);
-    if (!validNames.some(n => n === name)) {
-      const nameOutput = validNames.map(n => `\n  ${n}`).join('');
-      throw new Error(
-        `invalid name '${name}', must be one of: ${nameOutput} \n (hint - supply name with -n <name>)`,
-      );
-    }
+    const { reportId, parameters, recipients } = options;
+
+    await validateReportId(reportId, store.models);
+
     let reportParameters = {};
     let reportRecipients = {};
     try {
@@ -51,14 +66,14 @@ async function report(options) {
 
     const emailService = new EmailService();
     const reportRunner = new ReportRunner(
-      name,
+      reportId,
       reportParameters,
       reportRecipients,
       store,
       emailService,
     );
     log.info(
-      `Running report "${name}" with parameters "${parameters}" and recipients "${recipients}"`,
+      `Running report "${reportId}" with parameters "${parameters}" and recipients "${recipients}"`,
     );
     await reportRunner.run();
   } catch (error) {
@@ -71,7 +86,7 @@ async function report(options) {
 
 export const reportCommand = new Command('report')
   .description('Generate a report')
-  .option('-n, --name <string>', 'Name of the report') // validated in function
+  .option('--reportId <string>', 'id of the report') // validated in function
   .option('--heap', `Report heap usage every ${REPORT_HEAP_INTERVAL_MS}ms`, false)
   .requiredOption(
     '-r, --recipients <json|csv>',

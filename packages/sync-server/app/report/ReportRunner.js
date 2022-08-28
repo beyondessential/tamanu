@@ -1,6 +1,7 @@
 import config from 'config';
 import fs from 'fs';
 import path from 'path';
+import { format as formatDate } from 'date-fns';
 import * as AWS from '@aws-sdk/client-s3';
 import mkdirp from 'mkdirp';
 
@@ -12,8 +13,8 @@ import { removeFile, createZippedSpreadsheet, writeToSpreadsheet } from '../util
 import { getLocalisation } from '../localisation';
 
 export class ReportRunner {
-  constructor(reportName, parameters, recipients, store, emailService) {
-    this.reportName = reportName;
+  constructor(reportId, parameters, recipients, store, emailService) {
+    this.reportId = reportId;
     this.parameters = parameters;
     this.recipients = recipients;
     this.store = store;
@@ -28,30 +29,30 @@ export class ReportRunner {
     }
 
     const { disabledReports } = localisation;
-    if (disabledReports.includes(this.reportName)) {
-      throw new Error(`ReportRunner - Report "${this.reportName}" is disabled`);
+    if (disabledReports.includes(this.reportId)) {
+      throw new Error(`ReportRunner - Report "${this.reportId}" is disabled`);
     }
 
     if (!reportModule || !reportDataGenerator) {
       throw new Error(
-        `ReportRunner - Unable to find report generator for report "${this.reportName}"`,
+        `ReportRunner - Unable to find report generator for report "${this.reportId}"`,
       );
     }
   }
 
   async run() {
-    const reportModule = getReportModule(this.reportName);
+    const reportModule = await getReportModule(this.reportId, this.store.models);
     const reportDataGenerator = reportModule?.dataGenerator;
 
     await this.validate(reportModule, reportDataGenerator);
 
     let reportData = null;
     try {
-      log.info(`ReportRunner - Running report "${this.reportName}"`);
+      log.info(`ReportRunner - Running report "${this.reportId}"`);
 
       reportData = await reportDataGenerator(this.store, this.parameters);
 
-      log.info(`ReportRunner - Running report "${this.reportName}" finished`);
+      log.info(`ReportRunner - Running report "${this.reportId}" finished`);
     } catch (e) {
       throw new Error(`${e.stack}\nReportRunner - Failed to generate report`);
     }
@@ -92,7 +93,8 @@ export class ReportRunner {
    * @returns {Promise<void>}
    */
   async sendReportToLocal(reportData) {
-    const reportName = this.getReportName();
+    const reportName = await this.getReportName();
+
     for (const recipient of this.recipients.local) {
       const { format, path: reportFolder } = recipient;
       if (!format || !reportFolder) {
@@ -102,6 +104,7 @@ export class ReportRunner {
         );
       }
       await mkdirp(reportFolder);
+
       const reportNameExtended = `${reportName}.${format}`;
       const reportPath = path.resolve(reportFolder, reportNameExtended);
       const outputPath = await writeToSpreadsheet(reportData, reportPath, format);
@@ -111,10 +114,31 @@ export class ReportRunner {
   }
 
   /**
-   * @returns {string}
+   *
+   * @returns {Promise<string>}
    */
-  getReportName() {
-    return `${this.reportName}-report-${new Date().getTime()}`;
+  async getReportName() {
+    const { country } = await getLocalisation();
+
+    let reportName = this.reportId;
+
+    const dbDefinedReportModule = await this.store.models.ReportDefinitionVersion.findByPk(
+      this.reportId,
+      { include: ['reportDefinition'] },
+    );
+
+    if (dbDefinedReportModule) {
+      reportName = `${dbDefinedReportModule.reportDefinition.name}`;
+    }
+
+    const date = formatDate(new Date(), 'ddMMyyyy');
+
+    const dashedName = `${reportName}-${country.name}`
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .toLowerCase();
+    return `tamanu-report-${date}-${dashedName}`;
   }
 
   /**
@@ -124,7 +148,7 @@ export class ReportRunner {
    * @returns {Promise<void>}
    */
   async sendReportToEmail(reportData) {
-    const reportName = this.getReportName();
+    const reportName = await this.getReportName();
 
     let zipFile;
     try {
@@ -166,7 +190,8 @@ export class ReportRunner {
     let zipFile;
     const bookType = 'csv';
     try {
-      zipFile = await createZippedSpreadsheet(this.reportName, reportData, bookType);
+      const reportName = await this.getReportName();
+      zipFile = await createZippedSpreadsheet(reportName, reportData, bookType);
 
       const filename = path.basename(zipFile);
 

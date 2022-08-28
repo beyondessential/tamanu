@@ -33,8 +33,14 @@ import * as palauCovidCaseReportLineList from './covid-module/palau/palau-covid-
 import * as genericSurveyExportLineList from './generic-survey-export-line-list';
 import * as appointmentsLineList from './appointments-line-list';
 
-export function getReportModule(reportType) {
-  switch (reportType) {
+export async function getReportModule(reportId, models) {
+  const dbDefinedReportModule = await models.ReportDefinitionVersion.findByPk(reportId);
+
+  if (dbDefinedReportModule) {
+    return dbDefinedReportModule;
+  }
+
+  switch (reportId) {
     default:
       return null;
     case 'admissions':
