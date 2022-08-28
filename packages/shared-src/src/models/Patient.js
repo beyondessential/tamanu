@@ -2,7 +2,7 @@ import { Sequelize } from 'sequelize';
 import config from 'config';
 import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES } from 'shared/constants';
 import { Model } from './Model';
-import { dateType } from './dateTimeTypes';
+import { dateType, dateTimeType } from './dateTimeTypes';
 
 export class Patient extends Model {
   static init({ primaryKey, ...options }) {
@@ -20,7 +20,7 @@ export class Patient extends Model {
         culturalName: Sequelize.STRING,
 
         dateOfBirth: dateType('dateOfBirth'),
-        dateOfDeath: dateType('dateOfDeath'),
+        dateOfDeath: dateTimeType('dateOfDeath'),
 
         sex: {
           type: Sequelize.ENUM('male', 'female', 'other'),

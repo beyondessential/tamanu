@@ -502,6 +502,3 @@ export const ATTENDANT_OF_BIRTH_TYPES = {
   TRADITIONAL_BIRTH_ATTENDANT: 'traditional_birth_attentdant',
   OTHER: 'other',
 };
-
-export const ISO9075_DATETIME_FORMAT = 'YYYY-MM-DD HH:mm:ss';
-export const ISO9075_DATE_FORMAT = 'YYYY-MM-DD';

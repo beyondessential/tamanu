@@ -1,7 +1,7 @@
 import { DataTypes, QueryInterface } from 'sequelize';
-import { ISO9075_DATETIME_FORMAT } from '../constants';
 
 const TABLE_NAME = 'appointments';
+const ISO9075_DATE_TIME_FMT = 'YYYY-MM-DD HH:mm:ss';
 
 export async function up(query: QueryInterface) {
   await query.addColumn(TABLE_NAME, 'start_time_legacy', {
@@ -19,8 +19,8 @@ export async function up(query: QueryInterface) {
   `);
   await query.sequelize.query(`
   ALTER TABLE ${TABLE_NAME} 
-  ALTER COLUMN start_time TYPE CHAR(19) USING TO_CHAR(start_time, '${ISO9075_DATETIME_FORMAT}'),
-  ALTER COLUMN end_time TYPE CHAR(19) USING TO_CHAR(end_time, '${ISO9075_DATETIME_FORMAT}');
+  ALTER COLUMN start_time TYPE CHAR(19) USING TO_CHAR(start_time, '${ISO9075_DATE_TIME_FMT}'),
+  ALTER COLUMN end_time TYPE CHAR(19) USING TO_CHAR(end_time, '${ISO9075_DATE_TIME_FMT}');
 `);
 }
 
