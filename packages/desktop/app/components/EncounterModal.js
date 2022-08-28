@@ -23,7 +23,6 @@ export const EncounterModal = React.memo(({ open, onClose, referral, patientBill
   const onCloseModal = useCallback(() => {
     // Reset to default state
     setModalStatus(MODAL_STATES.SELECT_OPEN);
-    // Close modal
     onClose();
   }, [onClose]);
   const onSelectEncounterType = useCallback(value => {
