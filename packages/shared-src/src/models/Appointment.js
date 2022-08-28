@@ -9,9 +9,7 @@ export class Appointment extends Model {
       {
         id: primaryKey,
         startTime: dateTimeType('startTime', { allowNull: false }),
-        startTimeLegacy: Sequelize.DATE,
         endTime: dateTimeType('endTime'),
-        endTimeLegacy: Sequelize.DATE,
         type: {
           type: Sequelize.STRING,
           allowNull: false,
