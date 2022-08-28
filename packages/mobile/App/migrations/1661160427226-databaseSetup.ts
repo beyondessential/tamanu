@@ -13,6 +13,7 @@ export class databaseSetup1661160427226 implements MigrationInterface {
       const tableObject = queryRunner.getTable(table.name);
       console.log('table', tableObject);
     }
+    await queryRunner.commitTransaction();
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {

@@ -1,5 +1,9 @@
 import { Table, TableColumn, TableIndex, TableForeignKey } from 'typeorm';
 
+const baseIndex = new TableIndex({
+  columnNames: ['markedForUpload'],
+});
+
 const BaseColumns = [
   new TableColumn({
     name: 'id',
@@ -57,6 +61,9 @@ const ReferenceDataTable = new Table({
       isNullable: false,
     }),
   ],
+  indices: [
+    baseIndex,
+  ],
 });
 
 const DiagnosisTable = new Table({
@@ -96,6 +103,9 @@ const DiagnosisTable = new Table({
       referencedTableName: 'encounter',
       referencedColumnNames: ['id'],
     }),
+  ],
+  indices: [
+    baseIndex,
   ],
 });
 
@@ -170,6 +180,9 @@ const MedicationTable = new Table({
       referencedColumnNames: ['id'],
     }),
   ],
+  indices: [
+    baseIndex,
+  ],
 });
 
 const ProgramTable = new Table({
@@ -180,6 +193,9 @@ const ProgramTable = new Table({
       name: 'name',
       type: 'varchar',
     }),
+  ],
+  indices: [
+    baseIndex,
   ],
 });
 
@@ -214,6 +230,9 @@ const SurveyTable = new Table({
       referencedColumnNames: ['id'],
     }),
   ],
+  indices: [
+    baseIndex,
+  ],
 });
 
 const ProgramDataElementTable = new Table({
@@ -243,6 +262,9 @@ const ProgramDataElementTable = new Table({
       type: 'text',
       isNullable: false,
     }),
+  ],
+  indices: [
+    baseIndex,
   ],
 });
 
@@ -278,6 +300,9 @@ const SurveyResponseAnswerTable = new Table({
       referencedTableName: 'program_data_element',
       referencedColumnNames: ['id'],
     }),
+  ],
+  indices: [
+    baseIndex,
   ],
 });
 
@@ -471,6 +496,9 @@ const PatientAdditionalDataTable = new Table({
       referencedColumnNames: ['id'],
     }),
   ],
+  indices: [
+    baseIndex,
+  ],
 });
 
 const SurveyResponseTable = new Table({
@@ -516,6 +544,9 @@ const SurveyResponseTable = new Table({
       referencedColumnNames: ['id'],
     }),
   ],
+  indices: [
+    baseIndex,
+  ],
 });
 
 const ReferralTable = new Table({
@@ -556,6 +587,9 @@ const ReferralTable = new Table({
       referencedColumnNames: ['id'],
     }),
   ],
+  indices: [
+    baseIndex,
+  ],
 });
 
 const DepartmentTable = new Table({
@@ -591,6 +625,9 @@ const DepartmentTable = new Table({
       referencedTableName: 'facility',
       referencedColumnNames: ['id'],
     }),
+  ],
+  indices: [
+    baseIndex,
   ],
 });
 
@@ -637,6 +674,9 @@ const FacilityTable = new Table({
       default: "'current'",
     }),
   ],
+  indices: [
+    baseIndex,
+  ],
 });
 
 const LocationTable = new Table({
@@ -672,6 +712,9 @@ const LocationTable = new Table({
       referencedTableName: 'facility',
       referencedColumnNames: ['id'],
     }),
+  ],
+  indices: [
+    baseIndex,
   ],
 });
 
@@ -720,6 +763,9 @@ const ScheduledVaccineTable = new Table({
       referencedTableName: 'reference_data',
       referencedColumnNames: ['id'],
     }),
+  ],
+  indices: [
+    baseIndex,
   ],
 });
 
@@ -806,6 +852,9 @@ const AdministeredVaccineTable = new Table({
       referencedColumnNames: ['id'],
     }),
   ],
+  indices: [
+    baseIndex,
+  ],
 });
 
 const LabTestTypeTable = new Table({
@@ -877,6 +926,9 @@ const LabTestTypeTable = new Table({
       referencedColumnNames: ['id'],
     }),
   ],
+  indices: [
+    baseIndex,
+  ],
 });
 
 const LabTestTable = new Table({
@@ -930,6 +982,9 @@ const LabTestTable = new Table({
       referencedTableName: 'labTestType',
       referencedColumnNames: ['id'],
     }),
+  ],
+  indices: [
+    baseIndex,
   ],
 });
 
@@ -1020,6 +1075,9 @@ const LabRequestTable = new Table({
       referencedColumnNames: ['id'],
     }),
   ],
+  indices: [
+    baseIndex,
+  ],
 });
 
 const UserTable = new Table({
@@ -1048,6 +1106,7 @@ const UserTable = new Table({
     }),
   ],
   indices: [
+    baseIndex,
     new TableIndex({
       columnNames: ['email'],
     }),
@@ -1163,6 +1222,9 @@ const VitalsTable = new Table({
       referencedColumnNames: ['id'],
     }),
   ],
+  indices: [
+    baseIndex,
+  ],
 });
 
 const EncounterTable = new Table({
@@ -1245,6 +1307,7 @@ const EncounterTable = new Table({
     }),
   ],
   indices: [
+    baseIndex,
     new TableIndex({
       columnNames: ['patientId'],
     }),
@@ -1280,6 +1343,9 @@ const PatientIssueTable = new Table({
       referencedTableName: 'patient',
       referencedColumnNames: ['id'],
     }),
+  ],
+  indices: [
+    baseIndex,
   ],
 });
 
@@ -1317,6 +1383,9 @@ const PatientSecondaryIdTable = new Table({
       referencedTableName: 'patient',
       referencedColumnNames: ['id'],
     }),
+  ],
+  indices: [
+    baseIndex,
   ],
 });
 
@@ -1374,6 +1443,7 @@ const PatientTable = new Table({
     }),
   ],
   indices: [
+    baseIndex,
     new TableIndex({
       columnNames: ['villageId'],
     }),
@@ -1441,6 +1511,9 @@ const SurveyScreenComponentTable = new Table({
       referencedColumnNames: ['id'],
     }),
   ],
+  indices: [
+    baseIndex,
+  ],
 });
 
 const AttachmentTable = new Table({
@@ -1465,6 +1538,9 @@ const AttachmentTable = new Table({
       type: 'varchar',
       isNullable: false,
     }),
+  ],
+  indices: [
+    baseIndex,
   ],
 });
 
