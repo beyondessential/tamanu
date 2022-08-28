@@ -20,7 +20,6 @@ export class Patient extends Model {
         culturalName: Sequelize.STRING,
 
         dateOfBirth: Sequelize.DATE,
-        dateOfDeathLegacy: Sequelize.DATE,
         dateOfDeath: dateTimeType('dateOfDeath'),
         sex: {
           type: Sequelize.ENUM('male', 'female', 'other'),

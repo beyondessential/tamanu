@@ -13,9 +13,7 @@ export class PatientDeathData extends Model {
         carrierAge: { type: Sequelize.INTEGER, unsigned: true },
         carrierPregnancyWeeks: { type: Sequelize.INTEGER, unsigned: true },
         externalCauseDate: dateType('externalCauseDate'),
-        externalCauseDateLegacy: Sequelize.DATE,
         lastSurgeryDate: dateType('lastSurgeryDate'),
-        lastSurgeryDateLegacy: Sequelize.DATE,
         externalCauseLocation: Sequelize.STRING,
         externalCauseNotes: Sequelize.TEXT,
         fetalOrInfant: Sequelize.BOOLEAN, // true/false/null
