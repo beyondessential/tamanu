@@ -6,7 +6,7 @@ import {
   createTableWithBaseIndex,
 } from './firstTimeSetup/databaseDefinition';
 
-export class databaseSetup1661160427 implements MigrationInterface {
+export class databaseSetup1661160427226 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
     // TODO: If the db already exists, don't run any of this
     for (const table of TABLE_DEFINITIONS) {

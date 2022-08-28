@@ -22,7 +22,6 @@ const CONNECTION_CONFIG = {
   logging: LOG_LEVELS,
   synchronize: false,
   entities: MODELS_ARRAY,
-  // migrationsRun: true,
   migrations: migrationList,
 } as const;
 
@@ -63,7 +62,7 @@ class DatabaseHelper {
       // pointed to the table being altered, the query will fail)
       await this.client.query(`PRAGMA foreign_keys = OFF;`);
 
-      await this.client.synchronize();
+      // await this.client.synchronize();
       await this.client.runMigrations();
       console.log("Synchronising database schema: OK");
       this.syncError = null;
