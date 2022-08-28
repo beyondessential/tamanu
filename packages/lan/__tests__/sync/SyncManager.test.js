@@ -218,7 +218,6 @@ describe('SyncManager', () => {
       expect(calls[0][1][0].data).toMatchObject({
         ...record,
         dateOfBirth: record?.dateOfBirth?.toISOString(),
-        dateOfDeathLegacy: record?.dateOfDeathLegacy?.toISOString(),
         dateOfDeath: undefined,
       });
     });
