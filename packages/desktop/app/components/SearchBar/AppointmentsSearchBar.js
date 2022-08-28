@@ -55,8 +55,18 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
         component={SelectField}
         options={appointmentStatusOptions}
       />
-      <LocalisedField name="after" defaultLabel="Start from" component={DateTimeField} />
-      <LocalisedField name="before" defaultLabel="Until" component={DateTimeField} />
+      <LocalisedField
+        saveDateAsString
+        name="after"
+        defaultLabel="Start from"
+        component={DateTimeField}
+      />
+      <LocalisedField
+        saveDateAsString
+        name="before"
+        defaultLabel="Until"
+        component={DateTimeField}
+      />
       <LocalisedField name="displayId" />
     </CustomisableSearchBar>
   );
