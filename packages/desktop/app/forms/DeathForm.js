@@ -282,6 +282,7 @@ export const DeathForm = React.memo(
             name="timeOfDeath"
             label="Date/Time"
             component={props => <DateTimeField {...props} InputProps={{}} />}
+            saveDateAsString
             required
           />
           <Field
@@ -322,7 +323,7 @@ export const DeathForm = React.memo(
           <StyledFormGrid columns={1}>
             <Field
               name="pregnant"
-              label="If this was a woman, was the woman pregnant?"
+              label="Was the woman pregnant?"
               component={RadioField}
               options={binaryUnknownOptions}
             />
@@ -347,6 +348,7 @@ export const DeathForm = React.memo(
             name="mannerOfDeathDate"
             label="What date did this external cause occur?"
             component={DateField}
+            saveDateAsString
             visibilityCriteria={mannerOfDeathVisibilityCriteria}
           />
           <Field

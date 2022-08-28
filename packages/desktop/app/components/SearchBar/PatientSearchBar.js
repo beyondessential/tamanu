@@ -11,13 +11,13 @@ import {
 } from '../Field';
 import { useSuggester } from '../../api';
 
-export const PatientSearchBar = React.memo(({ onSearch }) => {
+export const PatientSearchBar = React.memo(({ onSearch, suggestByFacility = true }) => {
   const facilitySuggester = useSuggester('facility');
   const locationSuggester = useSuggester('location', {
-    baseQueryParameters: { filterByFacility: true },
+    baseQueryParameters: suggestByFacility ? { filterByFacility: true } : {},
   });
   const departmentSuggester = useSuggester('department', {
-    baseQueryParameters: { filterByFacility: true },
+    baseQueryParameters: suggestByFacility ? { filterByFacility: true } : {},
   });
   const practitionerSuggester = useSuggester('practitioner');
   return (

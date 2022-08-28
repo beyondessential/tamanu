@@ -20,6 +20,8 @@ const syncConfigOptionsSchema = yup.object({
   getChannels: func().required(),
   // list of channel routes, e.g. handlers for different channels
   channelRoutes: yup.array(channelRouteConfigSchema).test(isTruthy),
+  // whether to restore a deleted record when receiving a sync record for it
+  undeleteOnUpdate: yup.boolean(),
 });
 
 export class SyncConfig {
@@ -40,12 +42,14 @@ export class SyncConfig {
       includedRelations = [],
       getChannels = () => [lowerFirst(model.name)],
       channelRoutes = [{ route: lowerFirst(model.name) }],
+      undeleteOnUpdate = false,
     } = options;
 
     this.syncDirection = syncDirection;
     this.excludedColumns = excludedColumns;
     this.includedRelations = includedRelations;
     this.getChannels = getChannels;
+    this.undeleteOnUpdate = undeleteOnUpdate;
 
     // merge channel route config
     this.channelRoutes = channelRoutes.map(

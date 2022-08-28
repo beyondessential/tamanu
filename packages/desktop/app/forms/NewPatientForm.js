@@ -1,19 +1,18 @@
 import React, { memo, useState } from 'react';
 import styled from 'styled-components';
-import * as yup from 'yup';
 import Collapse from '@material-ui/core/Collapse';
-import { PATIENT_REGISTRY_TYPES, BIRTH_DELIVERY_TYPES, BIRTH_TYPES } from 'shared/constants';
+import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from 'shared/constants';
 
-import { useLocalisation } from '../contexts/Localisation';
 import { Form, Field } from '../components/Field';
 import { IdField } from '../components/Field/IdField';
 import { ModalActionRow } from '../components/ModalActionRow';
 import { PlusIconButton, MinusIconButton, RadioField } from '../components';
 import { IdBanner } from '../components/IdBanner';
-import { Colors, sexOptions, PATIENT_REGISTRY_OPTIONS } from '../constants';
+import { Colors, PATIENT_REGISTRY_OPTIONS } from '../constants';
 import { toDateTimeString } from '../utils/dateTime';
-
+import { getPatientDetailsValidation } from '../validations';
 import { PrimaryDetailsGroup, SecondaryDetailsGroup } from './PatientDetailsForm';
+import { useSexValues } from '../hooks';
 
 const IdBannerContainer = styled.div`
   margin: -20px -32px 0 -32px;
@@ -60,11 +59,21 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
   );
 
   const handleSubmit = data => {
-    data.patientRegistryType = patientRegistryType;
-    (data.timeOfBirth = toDateTimeString(data.timeOfBirth)), onSubmit(data);
+    const newData = { ...data };
+    newData.patientRegistryType = patientRegistryType;
+    newData.timeOfBirth =
+      typeof data.timeOfBirth !== 'string'
+        ? toDateTimeString(newData.timeOfBirth)
+        : newData.timeOfBirth;
+
+    if (newData.registeredBirthPlace !== PLACE_OF_BIRTH_TYPES.HEALTH_FACILITY) {
+      newData.birthFacilityId = null;
+    }
+
+    onSubmit(newData);
   };
 
-  const renderForm = ({ submitForm }) => {
+  const renderForm = ({ submitForm, values }) => {
     return (
       <>
         <IdBannerContainer>
@@ -95,18 +104,14 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
           )}
         </AdditionalInformationRow>
         <Collapse in={isExpanded} style={{ gridColumn: 'span 2' }}>
-          <SecondaryDetailsGroup patientRegistryType={patientRegistryType} />
+          <SecondaryDetailsGroup patientRegistryType={patientRegistryType} values={values} />
         </Collapse>
         <ModalActionRow confirmText="Create" onConfirm={submitForm} onCancel={onCancel} />
       </>
     );
   };
 
-  const { getLocalisation } = useLocalisation();
-  let sexValues = sexOptions.map(o => o.value);
-  if (getLocalisation('features.hideOtherSex') === true) {
-    sexValues = sexValues.filter(s => s !== 'other');
-  }
+  const sexValues = useSexValues();
 
   return (
     <Form
@@ -116,47 +121,7 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
         displayId: generateId(),
         ...editedObject,
       }}
-      validationSchema={yup.object().shape({
-        firstName: yup.string().required(),
-        middleName: yup.string(),
-        lastName: yup.string().required(),
-        culturalName: yup.string(),
-        dateOfBirth: yup.date().required(),
-        sex: yup
-          .string()
-          .oneOf(sexValues)
-          .required(),
-        email: yup.string().email(),
-        religion: yup.string(),
-        occupation: yup.string(),
-        birthWeight: yup
-          .number()
-          .min(0)
-          .max(6),
-        birthLength: yup
-          .number()
-          .min(0)
-          .max(50),
-        birthDeliveryType: yup.string().oneOf(Object.values(BIRTH_DELIVERY_TYPES)),
-        gestationalAgeEstimate: yup
-          .number()
-          .min(1)
-          .max(45),
-        apgarScoreOneMinute: yup
-          .number()
-          .min(1)
-          .max(10),
-        apgarScoreFiveMinutes: yup
-          .number()
-          .min(1)
-          .max(10),
-        apgarScoreTenMinutes: yup
-          .number()
-          .min(1)
-          .max(10),
-        birthType: yup.string().oneOf(Object.values(BIRTH_TYPES)),
-        timeOfBirth: yup.string(),
-      })}
+      validationSchema={getPatientDetailsValidation(sexValues)}
     />
   );
 });

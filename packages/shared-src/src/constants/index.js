@@ -89,6 +89,19 @@ export const IMAGING_REQUEST_STATUS_TYPES = {
   COMPLETED: 'completed',
 };
 
+export const IMAGING_REQUEST_STATUS_LABELS = {
+  [IMAGING_REQUEST_STATUS_TYPES.PENDING]: 'Pending',
+  [IMAGING_REQUEST_STATUS_TYPES.COMPLETED]: 'Completed',
+  [IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS]: 'In progress',
+};
+
+export const IMAGING_REQUEST_STATUS_OPTIONS = Object.values(IMAGING_REQUEST_STATUS_TYPES).map(
+  s => ({
+    label: IMAGING_REQUEST_STATUS_LABELS[s],
+    value: s,
+  }),
+);
+
 export const AVPU_OPTIONS = [
   { value: 'alert', label: 'Alert' },
   { value: 'verbal', label: 'Verbal' },
@@ -466,7 +479,7 @@ export const BIRTH_DELIVERY_TYPES = {
   BREECH: 'breech',
   EMERGENCY_C_SECTION: 'emergency_c_section',
   ELECTIVE_C_SECTION: 'elective_c_section',
-  VENTOUSE: 'ventouse',
+  VACUUM_EXTRACTION: 'vacuum_extraction',
   FORCEPS: 'forceps',
   OTHER: 'other',
 };
@@ -476,5 +489,16 @@ export const BIRTH_TYPES = {
   PLURAL: 'plural',
 };
 
-export const ISO9075_FORMAT = 'YYYY-MM-DD HH:mm:ss';
-export const ISO9075_FORMAT_LENGTH = ISO9075_FORMAT.length;
+export const PLACE_OF_BIRTH_TYPES = {
+  HEALTH_FACILITY: 'health_facility',
+  HOME: 'home',
+  OTHER: 'other',
+};
+
+export const ATTENDANT_OF_BIRTH_TYPES = {
+  DOCTOR: 'doctor',
+  MIDWIFE: 'midwife',
+  NURSE: 'nurse',
+  TRADITIONAL_BIRTH_ATTENDANT: 'traditional_birth_attentdant',
+  OTHER: 'other',
+};

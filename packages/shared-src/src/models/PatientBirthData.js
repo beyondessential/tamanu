@@ -12,12 +12,15 @@ export class PatientBirthData extends Model {
         birthWeight: { type: Sequelize.DECIMAL },
         birthLength: { type: Sequelize.DECIMAL },
         birthDeliveryType: { type: Sequelize.STRING },
+        attendantAtBirth: { type: Sequelize.STRING },
+        nameOfAttendantAtBirth: { type: Sequelize.STRING },
         gestationalAgeEstimate: { type: Sequelize.INTEGER },
         apgarScoreOneMinute: { type: Sequelize.INTEGER },
         apgarScoreFiveMinutes: { type: Sequelize.INTEGER },
         apgarScoreTenMinutes: { type: Sequelize.INTEGER },
         timeOfBirth: { type: Sequelize.STRING },
         birthType: { type: Sequelize.STRING }, // Single/Plural
+        registeredBirthPlace: { type: Sequelize.STRING },
       },
       {
         ...options,
@@ -42,9 +45,9 @@ export class PatientBirthData extends Model {
       foreignKey: 'patientId',
     });
 
-    this.belongsTo(models.User, {
-      foreignKey: 'clinicianAtBirthId',
-      as: 'clinician',
+    this.belongsTo(models.Facility, {
+      foreignKey: 'birthFacilityId',
+      as: 'facility',
     });
   }
 
@@ -59,6 +62,9 @@ export class PatientBirthData extends Model {
     'apgarScoreTenMinutes',
     'timeOfBirth',
     'birthType',
-    'clinicianAtBirthId',
+    'attendantAtBirth',
+    'nameOfAttendantAtBirth',
+    'birthFacilityId',
+    'registeredBirthPlace',
   ];
 }

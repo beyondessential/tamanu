@@ -14,6 +14,8 @@ import {
   PATIENT_REGISTRY_TYPES,
   BIRTH_DELIVERY_TYPES,
   BIRTH_TYPES,
+  PLACE_OF_BIRTH_TYPES,
+  ATTENDANT_OF_BIRTH_TYPES,
 } from 'shared/constants';
 
 import {
@@ -87,12 +89,6 @@ export const LAB_REQUEST_COLORS = {
   [LAB_REQUEST_STATUSES.VERIFIED]: '#5af',
   [LAB_REQUEST_STATUSES.PUBLISHED]: '#afa',
   unknown: '#333',
-};
-
-export const IMAGING_REQUEST_STATUS_LABELS = {
-  [IMAGING_REQUEST_STATUS_TYPES.PENDING]: 'Pending',
-  [IMAGING_REQUEST_STATUS_TYPES.COMPLETED]: 'Completed',
-  [IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS]: 'In progress',
 };
 
 export const IMAGING_REQUEST_COLORS = {
@@ -408,7 +404,7 @@ export const BIRTH_DELIVERY_TYPE_OPTIONS = [
   { value: BIRTH_DELIVERY_TYPES.BREECH, label: 'Breech' },
   { value: BIRTH_DELIVERY_TYPES.EMERGENCY_C_SECTION, label: 'Emergency C-section' },
   { value: BIRTH_DELIVERY_TYPES.ELECTIVE_C_SECTION, label: 'Elective C-section' },
-  { value: BIRTH_DELIVERY_TYPES.VENTOUSE, label: 'Ventouse' },
+  { value: BIRTH_DELIVERY_TYPES.VACUUM_EXTRACTION, label: 'Vacuum extraction' },
   { value: BIRTH_DELIVERY_TYPES.FORCEPS, label: 'Forceps' },
   { value: BIRTH_DELIVERY_TYPES.OTHER, label: 'Other' },
 ];
@@ -416,6 +412,23 @@ export const BIRTH_DELIVERY_TYPE_OPTIONS = [
 export const BIRTH_TYPE_OPTIONS = [
   { value: BIRTH_TYPES.SINGLE, label: 'Single' },
   { value: BIRTH_TYPES.PLURAL, label: 'Plural' },
+];
+
+export const PLACE_OF_BIRTH_OPTIONS = [
+  { value: PLACE_OF_BIRTH_TYPES.HEALTH_FACILITY, label: 'Health facility' },
+  { value: PLACE_OF_BIRTH_TYPES.HOME, label: 'Home' },
+  { value: PLACE_OF_BIRTH_TYPES.OTHER, label: 'Other' },
+];
+
+export const ATTENDANT_OF_BIRTH_OPTIONS = [
+  { value: ATTENDANT_OF_BIRTH_TYPES.DOCTOR, label: 'Doctor' },
+  { value: ATTENDANT_OF_BIRTH_TYPES.MIDWIFE, label: 'Midwife' },
+  { value: ATTENDANT_OF_BIRTH_TYPES.NURSE, label: 'Nurse' },
+  {
+    value: ATTENDANT_OF_BIRTH_TYPES.TRADITIONAL_BIRTH_ATTENDANT,
+    label: 'Traditional birth attendant',
+  },
+  { value: ATTENDANT_OF_BIRTH_TYPES.OTHER, label: 'Other' },
 ];
 
 export const PATIENT_REGISTRY_OPTIONS = [

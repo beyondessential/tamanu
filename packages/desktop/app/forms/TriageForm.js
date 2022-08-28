@@ -3,6 +3,7 @@ import * as yup from 'yup';
 import { push } from 'connected-react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { Box } from '@material-ui/core';
+import { getCurrentDateTimeString } from 'shared-src/src/utils/dateTime';
 import { foreignKey } from '../utils/validation';
 import {
   Form,
@@ -47,8 +48,15 @@ export const TriageForm = ({ onCancel, editedObject }) => {
           label="Arrival date & time"
           component={DateTimeField}
           helperText="If different from triage time"
+          saveDateAsString
         />
-        <Field name="triageTime" label="Triage date & time" required component={DateTimeField} />
+        <Field
+          name="triageTime"
+          label="Triage date & time"
+          required
+          component={DateTimeField}
+          saveDateAsString
+        />
         <Field
           name="locationId"
           label="Location"
@@ -153,7 +161,7 @@ export const TriageForm = ({ onCancel, editedObject }) => {
       onSubmit={onSubmit}
       render={renderForm}
       initialValues={{
-        triageTime: new Date(),
+        triageTime: getCurrentDateTimeString(),
         ...editedObject,
       }}
       validationSchema={yup.object().shape({
