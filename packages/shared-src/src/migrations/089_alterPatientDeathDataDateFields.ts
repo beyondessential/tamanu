@@ -1,7 +1,7 @@
 import { QueryInterface, DataTypes } from 'sequelize';
-import { ISO9075_DATE_FORMAT } from '../constants';
 
 const TABLE_NAME = 'patient_death_data';
+const ISO9075_DATE_FMT = 'YYYY-MM-DD';
 
 export async function up(query: QueryInterface) {
   // 1. Create legacy columns
@@ -24,9 +24,9 @@ export async function up(query: QueryInterface) {
   await query.sequelize.query(`
     ALTER TABLE ${TABLE_NAME} 
     ALTER COLUMN external_cause_date TYPE date_string 
-      USING TO_CHAR(external_cause_date, '${ISO9075_DATE_FORMAT}'),
+      USING TO_CHAR(external_cause_date, '${ISO9075_DATE_FMT}'),
     ALTER COLUMN last_surgery_date TYPE date_time_string 
-      USING TO_CHAR(last_surgery_date, '${ISO9075_DATE_FORMAT}');
+      USING TO_CHAR(last_surgery_date, '${ISO9075_DATE_FMT}');
 `);
 }
 

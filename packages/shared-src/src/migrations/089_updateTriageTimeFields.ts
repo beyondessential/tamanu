@@ -1,7 +1,7 @@
 import { QueryInterface, DataTypes } from 'sequelize';
-import { ISO9075_DATETIME_FORMAT } from '../constants';
 
 const TABLE_NAME = 'triages';
+const ISO9075_DATE_TIME_FMT = 'YYYY-MM-DD HH:mm:ss';
 
 export async function up(query: QueryInterface) {
   // 1. Create legacy columns
@@ -28,11 +28,11 @@ export async function up(query: QueryInterface) {
   await query.sequelize.query(`
       ALTER TABLE ${TABLE_NAME}
       ALTER COLUMN arrival_time TYPE date_time_string
-        USING TO_CHAR(arrival_time, '${ISO9075_DATETIME_FORMAT}'),
+        USING TO_CHAR(arrival_time, '${ISO9075_DATE_TIME_FMT}'),
       ALTER COLUMN triage_time TYPE date_time_string
-        USING TO_CHAR(triage_time, '${ISO9075_DATETIME_FORMAT}'),
+        USING TO_CHAR(triage_time, '${ISO9075_DATE_TIME_FMT}'),
       ALTER COLUMN closed_time TYPE date_time_string
-        USING TO_CHAR(closed_time, '${ISO9075_DATETIME_FORMAT}');
+        USING TO_CHAR(closed_time, '${ISO9075_DATE_TIME_FMT}');
   `);
 }
 
