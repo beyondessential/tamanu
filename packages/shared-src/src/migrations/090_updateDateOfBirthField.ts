@@ -15,7 +15,6 @@ export async function up(query: QueryInterface) {
       SET
           date_of_birth_legacy = date_of_birth;
     `);
-
   // 3.Change column types from of original columns from date to string & convert data to string
   await query.sequelize.query(`
       ALTER TABLE ${TABLE_NAME}
