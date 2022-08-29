@@ -56,14 +56,12 @@ async function createDateTimeStringDownMigration(
   await queryRunner.query(`ALTER TABLE ${tableName} RENAME COLUMN ${columnName}_legacy TO ${columnName}`);
 }
 
-export class updateLabRequestDateTimeColumns1661717539000 implements MigrationInterface {
+export class updatePatientDateTimeColumns1661717539000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
-    await createDateTimeStringUpMigration(queryRunner, 'labRequest', 'sampleTime');
-    await createDateTimeStringUpMigration(queryRunner, 'labRequest', 'requestedDate');
+    await createDateTimeStringUpMigration(queryRunner, 'patient', 'dateOfBirth');
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
-    await createDateTimeStringDownMigration(queryRunner, 'labRequest', 'sampleTime');
-    await createDateTimeStringDownMigration(queryRunner, 'labRequest', 'requestedDate');
+    await createDateTimeStringDownMigration(queryRunner, 'patient', 'dateOfBirth');
   }
 }
