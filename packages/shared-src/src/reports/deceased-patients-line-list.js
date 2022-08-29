@@ -97,7 +97,7 @@ select
   to_char(pdd.last_surgery_date::timestamp::date, 'dd/mm/yyyy') as "Date of surgery",
   rd3.name as "Reason for surgery",
   pdd.manner as "Manner of death",
-  to_char(pdd.external_cause_date::timestamp::date, 'dd/mm/yyyy') as "Date of external cause
+  to_char(pdd.external_cause_date::timestamp::date, 'dd/mm/yyyy') as "Date of external cause",
   pdd.external_cause_location as "Location of external cause",
   pdd.was_pregnant as "If female, was the woman pregnant",
   pdd.pregnancy_contributed as "Did the pregnancy contribute to the death",
@@ -135,7 +135,7 @@ where
   and case when :to_date is not null then e.start_date::date <= :to_date::date else true end
   and case when :cause_of_death is not null then rd4.id = :cause_of_death else true end
   and case when :antecedent_cause is not null then (rd5.id = :antecedent_cause OR rd6.id = :antecedent_cause) else true end
-  and case when :other_contributing_condition is not null then other_causes.id = :other_contributing_condition else true end
+  and case when :other_contributing_condition is not null then os.id = :other_contributing_condition else true end
   and case when :manner_of_death is not null then pdd.manner = :manner_of_death else true end
 order by p.date_of_death desc;
 `;
