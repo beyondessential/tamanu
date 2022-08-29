@@ -1,4 +1,5 @@
 module.exports = {
+  testEnvironment: "node",
   transform: {
     '^.+\\.js$': '<rootDir>/jest.babel.js',
   },
