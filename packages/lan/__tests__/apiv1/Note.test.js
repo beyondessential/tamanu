@@ -66,7 +66,9 @@ describe('Note', () => {
 
       expect(response).toHaveSucceeded();
 
-      const note = await models.Note.findByPk(response.body.id);
+      const note = await models.NotePage.findSinglePageWithSingleItem(models, {
+        where: { id: response.body.id },
+      });
       expect(note.content).toEqual(content);
       expect(note.recordType).toEqual('LabRequest');
       expect(note.recordId).toEqual(labRequest.body.id);
@@ -92,7 +94,9 @@ describe('Note', () => {
 
       expect(response).toHaveSucceeded();
 
-      const note = await models.Note.findByPk(response.body.id);
+      const note = await models.NotePage.findSinglePageWithSingleItem(models, {
+        where: { id: response.body.id },
+      });
       expect(note.content).toEqual(content);
       expect(note.recordType).toEqual('Encounter');
       expect(note.recordId).toEqual(encounter.id);
@@ -125,11 +129,11 @@ describe('Note', () => {
       });
 
       it('should forbid editing notes on a forbidden record', async () => {
-        const note = await models.Note.create({
+        const note = await models.NotePage.createWithItem({
           content: chance.paragraph(),
           recordId: encounter.id,
           recordType: NOTE_RECORD_TYPES.ENCOUNTER,
-          noteType: NOTE_TYPES.SYSTEM,
+          type: NOTE_TYPES.SYSTEM,
         });
 
         const response = await noPermsApp.put(`/v1/note/${note.id}`).send({
@@ -140,7 +144,7 @@ describe('Note', () => {
       });
 
       it('should forbid editing an encounter note', async () => {
-        const note = await models.Note.create({
+        const note = await models.NotePage.createWithItem({
           content: chance.paragraph(),
           recordId: encounter.id,
           recordType: NOTE_RECORD_TYPES.ENCOUNTER,
@@ -167,7 +171,7 @@ describe('Note', () => {
     });
 
     it('should allow editing a patient care plan note regardless of the author', async () => {
-      const note = await models.Note.create({
+      const note = await models.NotePage.createWithItem({
         content: chance.paragraph(),
         recordId: patientCarePlan.id,
         recordType: NOTE_RECORD_TYPES.PATIENT_CARE_PLAN,

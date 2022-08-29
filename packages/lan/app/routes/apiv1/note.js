@@ -16,7 +16,9 @@ note.put(
   asyncHandler(async (req, res) => {
     const { models, body, params } = req;
 
-    const editedNote = await models.Note.findByPk(params.id);
+    const editedNote = await models.NotePage.findSinglePageWithSingleItem(models, {
+      where: { id: params.id },
+    });
     if (!editedNote) {
       throw new NotFoundError();
     }
@@ -48,7 +50,10 @@ note.post(
 note.delete(
   '/:id',
   asyncHandler(async (req, res) => {
-    const noteToBeDeleted = await req.models.Note.findByPk(req.params.id);
+    const { models } = req;
+    const noteToBeDeleted = await models.NotePage.findSinglePageWithSingleItem(models, {
+      where: { id: req.params.id },
+    });
     if (!noteToBeDeleted) {
       throw new NotFoundError();
     }
@@ -58,9 +63,15 @@ note.delete(
     }
 
     req.checkPermission('write', noteToBeDeleted.recordType);
-    await req.models.Note.destroy({
+    await req.models.NotePage.destroy({
       where: {
         id: req.params.id,
+      },
+    });
+
+    await req.models.NoteItem.destroy({
+      where: {
+        notePageId: req.params.id,
       },
     });
     res.send({});

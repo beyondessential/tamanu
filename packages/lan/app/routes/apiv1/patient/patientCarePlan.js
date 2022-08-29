@@ -5,6 +5,7 @@ import { InvalidParameterError } from 'shared/errors';
 import { NOTE_RECORD_TYPES } from 'shared/models/Note';
 
 import { simpleGet, simplePut } from '../crudHelpers';
+import { note } from '../note';
 
 export const patientCarePlan = express.Router();
 
@@ -38,7 +39,7 @@ patientCarePlan.get(
     const { models, params } = req;
     req.checkPermission('read', 'PatientCarePlan');
 
-    const notes = await models.Note.findAll({
+    const notes = await models.NotePage.findPagesWithSingleItem(models, {
       where: {
         recordId: params.id,
         recordType: NOTE_RECORD_TYPES.PATIENT_CARE_PLAN,
@@ -59,15 +60,18 @@ patientCarePlan.post(
   '/:id/notes',
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'PatientCarePlan');
-    const newNote = await req.models.Note.create({
+    const newNote = await req.models.NotePage.create({
       recordId: req.params.id,
       recordType: NOTE_RECORD_TYPES.PATIENT_CARE_PLAN,
       date: req.body.date,
-      content: req.body.content,
-      noteType: NOTE_TYPES.TREATMENT_PLAN,
-      authorId: req.user.id,
-      onBehalfOfId: req.body.onBehalfOfId,
+      type: NOTE_TYPES.TREATMENT_PLAN,
     });
-    res.send(newNote);
+
+    const newNoteItem = await req.models.NoteItem.create({
+      notePageId: newNote.id,
+      content: req.body.content,
+      authorId: req.user.id,
+    });
+    res.send({ note: newNote, noteItem: newNoteItem });
   }),
 );

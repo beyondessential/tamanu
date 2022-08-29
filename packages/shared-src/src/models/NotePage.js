@@ -42,18 +42,6 @@ export class NotePage extends Model {
     );
   }
 
-  static async createForRecord(record, type, content) {
-    await NotePage.create({
-      recordId: record.id,
-      recordType: record.getModelName(),
-      type,
-    });
-
-    return NoteItem.create({
-      content,
-    });
-  }
-
   static initRelations(models) {
     NOTE_RECORD_TYPE_VALUES.forEach(modelName => {
       this.belongsTo(models[modelName], {
@@ -67,5 +55,79 @@ export class NotePage extends Model {
       as: 'noteItems',
       constraints: false,
     });
+  }
+
+  static async createForRecord(record, type, content) {
+    await NotePage.create({
+      recordId: record.id,
+      recordType: record.getModelName(),
+      type,
+    });
+
+    return NoteItem.create({
+      content,
+    });
+  }
+
+  static async createWithItem({ recordId, recordType, type, content, authorId }) {
+    await NotePage.create({
+      recordId,
+      recordType,
+      type,
+    });
+
+    return NoteItem.create({
+      content,
+      authorId,
+    });
+  }
+
+  static async findPagesWithSingleItem(models, options = {}) {
+    const notePages = await this.findAll({
+      include: [
+        ...options.includes,
+        {
+          model: models.NoteItem,
+          as: 'noteItems',
+          where: {
+            revisedById: null,
+          },
+          limit: 1,
+        },
+      ],
+      ...options,
+    });
+
+    return notePages
+      .map(notePage => notePage.toJSON())
+      .map(notePage => {
+        const newNotePage = { ...notePage };
+        newNotePage.content = newNotePage.noteItems[0]?.content;
+        delete newNotePage.noteItems;
+        return newNotePage;
+      });
+  }
+
+  static async findSinglePageWithSingleItem(models, options = {}) {
+    const notePage = await this.findOne({
+      include: [
+        ...options.includes,
+        {
+          model: models.NoteItem,
+          as: 'noteItems',
+          where: {
+            revisedById: null,
+          },
+          limit: 1,
+        },
+      ],
+      ...options,
+    });
+
+    const notePageJSON = notePage.toJSON();
+    notePageJSON.content = notePageJSON.noteItems[0]?.content;
+    delete notePageJSON.noteItems;
+
+    return notePageJSON;
   }
 }

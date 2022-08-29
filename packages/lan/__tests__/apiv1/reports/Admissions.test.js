@@ -150,7 +150,7 @@ describe('Admissions report', () => {
         departmentId: expectedDepartment2.id,
       });
 
-      const departmentChangeNote = await models.Note.findOne({
+      const departmentChangeNote = await models.NotePage.findSinglePageWithSingleItem(models, {
         where: {
           recordId: expectedEncounter.id,
           noteType: 'system',
