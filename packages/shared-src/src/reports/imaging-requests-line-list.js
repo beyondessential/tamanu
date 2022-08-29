@@ -67,7 +67,7 @@ where
   and case when :requested_by_id is not null then ir.requested_by_id = :requested_by_id else true end
   and case when :imaging_type is not null then ir.imaging_type = :imaging_type else true end
   and case when :status is not null then ir.status = :status else true end
-order by ir.requested_date desc;
+order by ir.requested_date;
 `;
 
 const getData = async (sequelize, parameters) => {
