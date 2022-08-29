@@ -15,7 +15,7 @@ export const getVersionError = ({ versionNumber }) =>
     `Version ${versionNumber} does not exist, remove versionNumber from JSON and try again to auto increment`,
   );
 
-export async function createVersion(file, definition, versions, store) {
+export async function createVersion(file, definition, versions, store, verbose) {
   const data = await fs.readFile(file);
   const versionData = JSON.parse(data);
   const { ReportDefinitionVersion } = store.models;
@@ -24,6 +24,7 @@ export async function createVersion(file, definition, versions, store) {
     versionData.query,
     versionData.queryOptions?.parameters,
     store,
+    verbose,
   );
 
   if (Number.isInteger(versionData.versionNumber)) {

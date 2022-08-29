@@ -91,12 +91,13 @@ describe('importReport actions', () => {
       const explainAnalyzeQuerySpy = jest
         .spyOn(importUtils, 'explainAnalyzeQuery')
         .mockResolvedValue();
-      await createVersion('/path', mockDefinition, mockVersions, mockStore);
+      await createVersion('/path', mockDefinition, mockVersions, mockStore, true);
       expect(readFileSpy).toHaveBeenCalledWith('/path');
       expect(explainAnalyzeQuerySpy).toHaveBeenCalledWith(
         'test-query',
         [{ name: 'test', parameterField: 'TestField' }],
         mockStore,
+        true,
       );
       expect(mockStore.models.User.findOne).toHaveBeenCalledWith({
         where: {

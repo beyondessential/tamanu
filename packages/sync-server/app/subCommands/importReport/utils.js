@@ -19,13 +19,20 @@ export function getLatestVersion(versions, status) {
     .find(v => !status || v.status === status);
 }
 
-export async function explainAnalyzeQuery(query, paramDefinitions = [], store) {
+export async function explainAnalyzeQuery(query, paramDefinitions = [], store, verbose) {
   try {
-    await store.sequelize.query(`EXPLAIN ANALYZE ${query}`, {
+    const results = await store.sequelize.query(`EXPLAIN ANALYZE ${query}`, {
       type: QueryTypes.SELECT,
       replacements: getQueryReplacementsFromParams(paramDefinitions),
     });
-    log.info('Query valid');
+    if (verbose) {
+      const formatResults = results.reduce(
+        (a1, x) =>
+          `${a1}\n${Object.entries(x).reduce((a2, [k, v]) => `${a2}\x1b[1m${k}:\x1b[0m ${v}`, '')}`,
+        'Query valid explain analyze output:',
+      );
+      log.info(`${formatResults}`);
+    }
   } catch (err) {
     log.error(`Invalid query: ${err.message}`);
     process.exit(1);
