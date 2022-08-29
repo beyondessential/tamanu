@@ -20,8 +20,8 @@ adminRoutes.use(constructPermission);
 
 adminRoutes.use(
   asyncHandler((req, res, next) => {
-    if (!req.ability.can('manage', 'all')) {
-      throw new ForbiddenError('Only admins can use central server admin functions.');
+    if (!req.ability.can('write', 'ReferenceData') || !req.ability.can('write', 'User')) {
+      throw new ForbiddenError('You do not have permission to access the central server admin panel.');
     }
     next();
   }),
