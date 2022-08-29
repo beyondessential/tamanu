@@ -232,7 +232,7 @@ describe('Patient', () => {
           createdAt: condition.createdAt.toISOString(),
           updatedAt: condition.updatedAt.toISOString(),
         };
-      }
+      };
 
       commons = {
         clinicianId,
@@ -284,7 +284,7 @@ describe('Patient', () => {
       expect(result).toHaveSucceeded();
 
       const foundPatient = await Patient.findByPk(id);
-      expect(foundPatient.dateOfDeath).toEqual(toDateString(dod));
+      expect(foundPatient.dateOfDeath).toEqual(dod);
     });
 
     it('should not mark a dead patient as dead', async () => {
@@ -344,6 +344,7 @@ describe('Patient', () => {
         causeOfDeathInterval: 100,
         mannerOfDeath: 'Disease',
       });
+
       expect(result).toHaveSucceeded();
 
       const encounter = await Encounter.findByPk(encId);
@@ -406,13 +407,10 @@ describe('Patient', () => {
 
       expect(result).toHaveSucceeded();
       expect(result.body.dateOfDeath).toEqual(dod);
-      expect(result.body.dateOfDeath).toEqual(toDateString(dod));
-
       expect(result.body).toMatchObject({
         patientId: id,
         dateOfBirth: toDateString(dateOfBirth),
-        dateOfDeath: toDateString(dod),
-
+        dateOfDeath: dod,
         manner: 'Accident',
         causes: {
           primary: {

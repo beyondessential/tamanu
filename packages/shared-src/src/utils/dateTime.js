@@ -1,4 +1,4 @@
-import { isValid, formatISO9075, differenceInMonths, differenceInYears } from 'date-fns';
+import { format, isValid, formatISO9075, differenceInMonths, differenceInYears } from 'date-fns';
 
 export function toDateTimeString(date) {
   if (date === null) return null;
