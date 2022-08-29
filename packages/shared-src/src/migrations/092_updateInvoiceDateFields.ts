@@ -56,7 +56,7 @@ export async function down(query: QueryInterface) {
   `);
   await query.sequelize.query(`
     ALTER TABLE ${LINE_ITEMS_TABLE}
-    ALTER COLUMN date TYPE timestamp with time zone USING date_legacy;
+    ALTER COLUMN date_generated TYPE timestamp with time zone USING date_generated_legacy;
   `);
   await query.sequelize.query(`
     ALTER TABLE ${PRICE_CHANGE_ITEMS_TABLE}
