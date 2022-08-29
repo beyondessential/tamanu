@@ -2,6 +2,7 @@ import Table from 'cli-table3';
 import { promises as fs } from 'fs';
 import { log } from 'shared/services/logging';
 import { initDatabase } from '../../../app/database';
+import * as importUtils from '../../../app/subCommands/importReport/utils';
 import {
   createVersion,
   getVersionError,
@@ -12,7 +13,12 @@ import {
   formatUpdatedAt,
 } from '../../../app/subCommands/importReport/actions';
 
-const getUnparsedVersionData = num => `{ ${num ? `"versionNumber": ${num}` : ''} }`;
+const getUnparsedVersionData = num =>
+  `{ ${num ? `"versionNumber": ${num},` : ''} "query": "test-query", "queryOptions": {
+    "parameters": [ 
+        { "parameterField": "TestField", "name": "test" }
+    ]
+  } }`;
 
 jest.mock('shared/services/logging', () => ({
   log: {
@@ -81,9 +87,17 @@ describe('importReport actions', () => {
       mockStore = await initDatabase();
     });
     it('calls the correct functions and creates version', async () => {
-      const mockReadFile = jest.spyOn(fs, 'readFile').mockResolvedValue(getUnparsedVersionData());
+      const readFileSpy = jest.spyOn(fs, 'readFile').mockResolvedValue(getUnparsedVersionData());
+      const explainAnalyzeQuerySpy = jest
+        .spyOn(importUtils, 'explainAnalyzeQuery')
+        .mockResolvedValue();
       await createVersion('/path', mockDefinition, mockVersions, mockStore);
-      expect(mockReadFile).toHaveBeenCalledWith('/path');
+      expect(readFileSpy).toHaveBeenCalledWith('/path');
+      expect(explainAnalyzeQuerySpy).toHaveBeenCalledWith(
+        'test-query',
+        [{ name: 'test', parameterField: 'TestField' }],
+        mockStore,
+      );
       expect(mockStore.models.User.findOne).toHaveBeenCalledWith({
         where: {
           email: DEFAULT_USER_EMAIL,
@@ -91,22 +105,32 @@ describe('importReport actions', () => {
       });
       expect(mockStore.models.ReportDefinitionVersion.upsert).toHaveBeenCalledWith({
         reportDefinitionId: 'test-definition-id',
+        query: 'test-query',
+        queryOptions: {
+          parameters: [{ parameterField: 'TestField', name: 'test' }],
+        },
         userId: 'test-user-id',
         versionNumber: 3,
       });
     });
     it('calls the correct functions and updates version when versionNumber supplied', async () => {
       jest.spyOn(fs, 'readFile').mockResolvedValue(getUnparsedVersionData(1));
+      jest.spyOn(importUtils, 'explainAnalyzeQuery').mockResolvedValue();
       await createVersion('/path', mockDefinition, [{ versionNumber: 1 }], mockStore);
       expect(log.warn).nthCalledWith(1, `Version 1 already exists, ${OVERWRITING_TEXT}`);
       expect(mockStore.models.ReportDefinitionVersion.upsert).toBeCalledWith({
         reportDefinitionId: 'test-definition-id',
+        query: 'test-query',
+        queryOptions: {
+          parameters: [{ parameterField: 'TestField', name: 'test' }],
+        },
         userId: 'test-user-id',
         versionNumber: 1,
       });
     });
     it('throws error when versionNumber is invalid', async () => {
       jest.spyOn(fs, 'readFile').mockResolvedValue(getUnparsedVersionData(3));
+      jest.spyOn(importUtils, 'explainAnalyzeQuery').mockResolvedValue();
       expect(
         createVersion('/path', mockDefinition, [{ versionNumber: 1 }], mockStore),
       ).rejects.toThrow(getVersionError({ versionNumber: 3 }));
