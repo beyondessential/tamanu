@@ -3,7 +3,9 @@ import { log } from 'shared/services/logging';
 import Table from 'cli-table3';
 import { REPORT_STATUSES } from 'shared/constants';
 import { format } from 'date-fns';
+import { QueryTypes } from 'sequelize';
 import * as reportUtils from './utils';
+import { getQueryReplacementsFromParams } from '../../../../shared-src/src/utils/getQueryReplacementsFromParams';
 
 export const DEFAULT_USER_EMAIL = 'admin@tamanu.io';
 export const ACTIVE_TEXT = '\x1b[32mactive\x1b[0m';
@@ -15,10 +17,25 @@ export const getVersionError = ({ versionNumber }) =>
     `Version ${versionNumber} does not exist, remove versionNumber from JSON and try again to auto increment`,
   );
 
+export async function explainAnalyzeQuery(query, paramDefinitions = [], store) {
+  try {
+    await store.sequelize.query(`EXPLAIN ANALYZE ${query}`, {
+      type: QueryTypes.SELECT,
+      replacements: getQueryReplacementsFromParams(paramDefinitions),
+    });
+    log.info('Query valid');
+  } catch (err) {
+    log.error(`Invalid query: ${err.message}`);
+    process.exit(1);
+  }
+}
+
 export async function createVersion(file, definition, versions, store) {
   const data = await fs.readFile(file);
   const versionData = JSON.parse(data);
   const { ReportDefinitionVersion } = store.models;
+
+  await explainAnalyzeQuery(versionData.query, versionData.queryOptions?.parameters, store);
 
   if (Number.isInteger(versionData.versionNumber)) {
     const existingVersion = versions.find(v => v.versionNumber === versionData.versionNumber);
