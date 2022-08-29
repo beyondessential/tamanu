@@ -1,3 +1,4 @@
+import { VISIBILITY_STATUSES } from 'shared/constants';
 import { importerTransaction } from '../../app/admin/importerEndpoint';
 import { importer } from '../../app/admin/refdataImporter';
 import { createTestContext } from '../utilities';
@@ -8,8 +9,7 @@ jest.setTimeout(30000);
 
 const BAD_ID_ERROR_MESSAGE = 'id must not have spaces or punctuation other than -';
 const BAD_CODE_ERROR_MESSAGE = 'code must not have spaces or punctuation other than -./';
-const BAD_VIS_ERROR_MESSAGE =
-  'visibilityStatus must be one of the following values: current, historical';
+const BAD_VIS_ERROR_MESSAGE = `visibilityStatus must be one of the following values:`;
 
 describe('Data definition import', () => {
   let ctx;
