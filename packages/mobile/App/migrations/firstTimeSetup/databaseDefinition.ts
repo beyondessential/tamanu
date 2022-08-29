@@ -9,29 +9,26 @@ const BaseColumns = [
     name: 'id',
     type: 'varchar',
     isPrimary: true,
-    isNullable: false,
   }),
   new TableColumn({
     name: 'createdAt',
     type: 'datetime',
     default: "datetime('now')",
-    isNullable: false,
   }),
   new TableColumn({
     name: 'updatedAt',
     type: 'datetime',
     default: "datetime('now')",
-    isNullable: false,
   }),
   new TableColumn({
     name: 'markedForUpload',
     type: 'boolean',
     default: 1,
-    isNullable: false,
   }),
   new TableColumn({
     name: 'uploadedAt',
     type: 'datetime',
+    isNullable: true,
   }),
 ];
 
@@ -42,23 +39,19 @@ const ReferenceDataTable = new Table({
     new TableColumn({
       name: 'name',
       type: 'varchar',
-      isNullable: false,
     }),
     new TableColumn({
       name: 'code',
       type: 'varchar',
-      isNullable: false,
     }),
     new TableColumn({
       name: 'type',
       type: 'varchar',
-      isNullable: false,
     }),
     new TableColumn({
       name: 'visibilityStatus',
       type: 'varchar',
       default: "'current'",
-      isNullable: false,
     }),
   ],
   indices: [
@@ -73,23 +66,26 @@ const DiagnosisTable = new Table({
     new TableColumn({
       name: 'isPrimary',
       type: 'boolean',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'date',
       type: 'datetime',
-      isNullable: false,
     }),
     new TableColumn({
       name: 'certainty',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'diagnosisId',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'encounterId',
       type: 'varchar',
+      isNullable: true,
     }),
   ],
   foreignKeys: [
@@ -116,56 +112,65 @@ const MedicationTable = new Table({
     new TableColumn({
       name: 'date',
       type: 'datetime',
-      isNullable: false,
     }),
     new TableColumn({
       name: 'endDate',
       type: 'datetime',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'prescription',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'note',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'indication',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'route',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'quantity',
       type: 'integer',
-      isNullable: false,
     }),
     new TableColumn({
       name: 'qtyMorning',
       type: 'integer',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'qtyLunch',
       type: 'integer',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'qtyEvening',
       type: 'integer',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'qtyNight',
       type: 'integer',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'medicationId',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'encounterId',
       type: 'varchar',
+      isNullable: true,
     }),
   ],
   foreignKeys: [
@@ -192,6 +197,7 @@ const ProgramTable = new Table({
     new TableColumn({
       name: 'name',
       type: 'varchar',
+      isNullable: true,
     }),
   ],
   indices: [
@@ -207,20 +213,22 @@ const SurveyTable = new Table({
       name: 'surveyType',
       type: 'varchar',
       default: "'programs'",
+      isNullable: true,
     }),
     new TableColumn({
       name: 'name',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'isSensitive',
       type: 'boolean',
-      isNullable: false,
       default: 0,
     }),
     new TableColumn({
       name: 'programId',
       type: 'varchar',
+      isNullable: true,
     }),
   ],
   foreignKeys: [
@@ -242,25 +250,28 @@ const ProgramDataElementTable = new Table({
     new TableColumn({
       name: 'code',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'name',
       type: 'varchar',
       default: "''",
+      isNullable: true,
     }),
     new TableColumn({
       name: 'defaultText',
       type: 'varchar',
       default: "''",
+      isNullable: true,
     }),
     new TableColumn({
       name: 'defaultOptions',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'type',
       type: 'text',
-      isNullable: false,
     }),
   ],
   indices: [
@@ -275,18 +286,22 @@ const SurveyResponseAnswerTable = new Table({
     new TableColumn({
       name: 'name',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'body',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'responseId',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'dataElementId',
       type: 'varchar',
+      isNullable: true,
     }),
   ],
   foreignKeys: [
@@ -313,120 +328,147 @@ const PatientAdditionalDataTable = new Table({
     new TableColumn({
       name: 'placeOfBirth',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'title',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'bloodType',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'primaryContactNumber',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'secondaryContactNumber',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'maritalStatus',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'cityTown',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'streetVillage',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'educationalLevel',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'socialMedia',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'birthCertificate',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'drivingLicense',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'passport',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'emergencyContactName',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'emergencyContactNumber',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'religionId',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'patientBillingTypeId',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'countryOfBirthId',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'markedForSync',
       type: 'boolean',
-      isNullable: false,
       default: 0,
     }),
     new TableColumn({
       name: 'patientId',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'nationalityId',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'countryId',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'divisionId',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'subdivisionId',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'medicalAreaId',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'nursingZoneId',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'settlementId',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'ethnicityId',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'occupationId',
       type: 'varchar',
+      isNullable: true,
     }),
   ],
   foreignKeys: [
@@ -508,28 +550,34 @@ const SurveyResponseTable = new Table({
     new TableColumn({
       name: 'startTime',
       type: 'datetime',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'endTime',
       type: 'datetime',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'result',
       type: 'integer',
       default: "''",
+      isNullable: true,
     }),
     new TableColumn({
       name: 'resultText',
       type: 'varchar',
       default: "''",
+      isNullable: true,
     }),
     new TableColumn({
       name: 'surveyId',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'encounterId',
       type: 'varchar',
+      isNullable: true,
     }),
   ],
   foreignKeys: [
@@ -556,18 +604,22 @@ const ReferralTable = new Table({
     new TableColumn({
       name: 'referredFacility',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'initiatingEncounterId',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'completingEncounterId',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'surveyResponseId',
       type: 'varchar',
+      isNullable: true,
     }),
   ],
   foreignKeys: [
@@ -599,24 +651,22 @@ const DepartmentTable = new Table({
     new TableColumn({
       name: 'code',
       type: 'varchar',
-      isNullable: false,
       default: "''",
     }),
     new TableColumn({
       name: 'name',
       type: 'varchar',
-      isNullable: false,
       default: "''",
     }),
     new TableColumn({
       name: 'visibilityStatus',
       type: 'varchar',
-      isNullable: false,
       default: "'current'",
     }),
     new TableColumn({
       name: 'facilityId',
       type: 'varchar',
+      isNullable: true,
     }),
   ],
   foreignKeys: [
@@ -638,39 +688,46 @@ const FacilityTable = new Table({
     new TableColumn({
       name: 'code',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'name',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'contactNumber',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'email',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'streetAddress',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'cityTown',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'division',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'type',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'visibilityStatus',
       type: 'varchar',
-      isNullable: false,
       default: "'current'",
     }),
   ],
@@ -686,24 +743,22 @@ const LocationTable = new Table({
     new TableColumn({
       name: 'code',
       type: 'varchar',
-      isNullable: false,
       default: "''",
     }),
     new TableColumn({
       name: 'name',
       type: 'varchar',
-      isNullable: false,
       default: "''",
     }),
     new TableColumn({
       name: 'visibilityStatus',
       type: 'varchar',
-      isNullable: false,
       default: "'current'",
     }),
     new TableColumn({
       name: 'facilityId',
       type: 'varchar',
+      isNullable: true,
     }),
   ],
   foreignKeys: [
@@ -725,36 +780,42 @@ const ScheduledVaccineTable = new Table({
     new TableColumn({
       name: 'index',
       type: 'integer',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'label',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'schedule',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'weeksFromBirthDue',
       type: 'integer',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'weeksFromLastVaccinationDue',
       type: 'integer',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'category',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'visibilityStatus',
       type: 'varchar',
-      isNullable: false,
       default: "''",
     }),
     new TableColumn({
       name: 'vaccineId',
       type: 'varchar',
+      isNullable: true,
     }),
   ],
   foreignKeys: [
@@ -776,53 +837,61 @@ const AdministeredVaccineTable = new Table({
     new TableColumn({
       name: 'batch',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'status',
       type: 'varchar',
-      isNullable: false,
     }),
     new TableColumn({
       name: 'reason',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'injectionSite',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'consent',
       type: 'boolean',
       default: 1,
+      isNullable: true,
     }),
     new TableColumn({
       name: 'date',
       type: 'datetime',
-      isNullable: false,
     }),
     new TableColumn({
       name: 'givenBy',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'encounterId',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'scheduledVaccineId',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'recorderId',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'locationId',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'departmentId',
       type: 'varchar',
+      isNullable: true,
     }),
   ],
   foreignKeys: [
@@ -864,59 +933,61 @@ const LabTestTypeTable = new Table({
     new TableColumn({
       name: 'code',
       type: 'varchar',
-      isNullable: false,
     }),
     new TableColumn({
       name: 'name',
       type: 'varchar',
-      isNullable: false,
       default: "''",
     }),
     new TableColumn({
       name: 'unit',
       type: 'varchar',
-      isNullable: false,
       default: "''",
     }),
     new TableColumn({
       name: 'maleMin',
       type: 'integer',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'maleMax',
       type: 'integer',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'femaleMin',
       type: 'integer',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'femaleMax',
       type: 'integer',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'rangeText',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'resultType',
       type: 'varchar',
-      isNullable: false,
       default: "'Number'",
     }),
     new TableColumn({
       name: 'options',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'visibilityStatus',
       type: 'varchar',
-      isNullable: false,
       default: "'current'",
     }),
     new TableColumn({
       name: 'labTestCategoryId',
       type: 'varchar',
+      isNullable: true,
     }),
   ],
   foreignKeys: [
@@ -938,32 +1009,32 @@ const LabTestTable = new Table({
     new TableColumn({
       name: 'sampleTime',
       type: 'datetime',
-      isNullable: false,
       default: 'CURRENT_TIMESTAMP',
     }),
     new TableColumn({
       name: 'status',
       type: 'varchar',
-      isNullable: false,
       default: "'reception_pending'",
     }),
     new TableColumn({
       name: 'result',
       type: 'varchar',
-      isNullable: false,
       default: "''",
     }),
     new TableColumn({
       name: 'labRequestId',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'categoryId',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'labTestTypeId',
       type: 'varchar',
+      isNullable: true,
     }),
   ],
   foreignKeys: [
@@ -995,62 +1066,69 @@ const LabRequestTable = new Table({
     new TableColumn({
       name: 'sampleTime',
       type: 'varchar',
-      isNullable: false,
       default: "strftime('%Y-%m-%d %H:%M:%S', CURRENT_TIMESTAMP)",
     }),
     new TableColumn({
       name: 'requestedDate',
       type: 'varchar',
-      isNullable: false,
       default: "strftime('%Y-%m-%d %H:%M:%S', CURRENT_TIMESTAMP)",
     }),
     new TableColumn({
       name: 'urgent',
       type: 'boolean',
       default: 0,
+      isNullable: true,
     }),
     new TableColumn({
       name: 'specimenAttached',
       type: 'boolean',
       default: 0,
+      isNullable: true,
     }),
     new TableColumn({
       name: 'status',
       type: 'varchar',
       default: "'reception_pending'",
+      isNullable: true,
     }),
     new TableColumn({
       name: 'senaiteId',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'sampleId',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'displayId',
       type: 'varchar',
-      isNullable: false,
     }),
     new TableColumn({
       name: 'note',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'encounterId',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'requestedById',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'labTestCategoryId',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'labTestPriorityId',
       type: 'varchar',
+      isNullable: true,
     }),
   ],
   foreignKeys: [
@@ -1087,22 +1165,20 @@ const UserTable = new Table({
     new TableColumn({
       name: 'email',
       type: 'varchar',
-      isNullable: false,
       isUnique: true,
     }),
     new TableColumn({
       name: 'localPassword',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'displayName',
       type: 'varchar',
-      isNullable: false,
     }),
     new TableColumn({
       name: 'role',
       type: 'varchar',
-      isNullable: false,
     }),
   ],
   indices: [
@@ -1120,99 +1196,121 @@ const VitalsTable = new Table({
     new TableColumn({
       name: 'dateRecorded',
       type: 'datetime',
-      isNullable: false,
     }),
     new TableColumn({
       name: 'weight',
       type: 'integer',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'height',
       type: 'integer',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'sbp',
       type: 'integer',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'dbp',
       type: 'integer',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'heartRate',
       type: 'integer',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'respiratoryRate',
       type: 'integer',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'temperature',
       type: 'integer',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'spO2',
       type: 'integer',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'avpu',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'gcs',
       type: 'integer',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'hemoglobin',
       type: 'integer',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'fastingBloodGlucose',
       type: 'integer',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'urinePh',
       type: 'integer',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'urineLeukocytes',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'urineNitrites',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'urobilinogen',
       type: 'integer',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'urineProtein',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'bloodInUrine',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'urineSpecificGravity',
       type: 'integer',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'urineKetone',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'urineBilirubin',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'urineGlucose',
       type: 'integer',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'encounterId',
       type: 'varchar',
+      isNullable: true,
     }),
   ],
   foreignKeys: [
@@ -1234,49 +1332,56 @@ const EncounterTable = new Table({
     new TableColumn({
       name: 'encounterType',
       type: 'varchar',
-      isNullable: false,
     }),
     new TableColumn({
       name: 'startDate',
       type: 'datetime',
-      isNullable: false,
     }),
     new TableColumn({
       name: 'endDate',
       type: 'datetime',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'reasonForEncounter',
       type: 'varchar',
       default: "''",
+      isNullable: true,
     }),
     new TableColumn({
       name: 'medication',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'deviceId',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'patientBillingTypeId',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'patientId',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'examinerId',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'departmentId',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'locationId',
       type: 'varchar',
+      isNullable: true,
     }),
   ],
   foreignKeys: [
@@ -1321,20 +1426,20 @@ const PatientIssueTable = new Table({
     new TableColumn({
       name: 'note',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'recordedDate',
       type: 'datetime',
-      isNullable: false,
     }),
     new TableColumn({
       name: 'type',
       type: 'text',
-      isNullable: false,
     }),
     new TableColumn({
       name: 'patientId',
       type: 'varchar',
+      isNullable: true,
     }),
   ],
   foreignKeys: [
@@ -1356,20 +1461,20 @@ const PatientSecondaryIdTable = new Table({
     new TableColumn({
       name: 'value',
       type: 'varchar',
-      isNullable: false,
     }),
     new TableColumn({
       name: 'visibilityStatus',
       type: 'varchar',
-      isNullable: false,
     }),
     new TableColumn({
       name: 'typeId',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'patientId',
       type: 'varchar',
+      isNullable: true,
     }),
   ],
   foreignKeys: [
@@ -1396,49 +1501,54 @@ const PatientTable = new Table({
     new TableColumn({
       name: 'displayId',
       type: 'varchar',
-      isNullable: false,
     }),
     new TableColumn({
       name: 'title',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'firstName',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'middleName',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'lastName',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'culturalName',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'dateOfBirth',
       type: 'datetime',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'email',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'sex',
       type: 'varchar',
-      isNullable: false,
     }),
     new TableColumn({
       name: 'villageId',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'markedForSync',
       type: 'boolean',
-      isNullable: false,
       default: 0,
     }),
   ],
@@ -1457,46 +1567,57 @@ const SurveyScreenComponentTable = new Table({
     new TableColumn({
       name: 'screenIndex',
       type: 'integer',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'componentIndex',
       type: 'integer',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'text',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'visibilityCriteria',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'validationCriteria',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'detail',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'config',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'options',
       type: 'text',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'calculation',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'surveyId',
       type: 'varchar',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'dataElementId',
       type: 'varchar',
+      isNullable: true,
     }),
   ],
   foreignKeys: [
@@ -1523,20 +1644,20 @@ const AttachmentTable = new Table({
     new TableColumn({
       name: 'size',
       type: 'integer',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'type',
       type: 'varchar',
-      isNullable: false,
     }),
     new TableColumn({
       name: 'data',
       type: 'blob',
+      isNullable: true,
     }),
     new TableColumn({
       name: 'filePath',
       type: 'varchar',
-      isNullable: false,
     }),
   ],
   indices: [
