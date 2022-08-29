@@ -436,4 +436,34 @@ export const REPORT_DEFINITIONS = [
       },
     ],
   },
+  {
+    name: 'Deceased patients - Line list',
+    id: 'deceased-patients-line-list',
+    dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
+    dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
+    /*
+    parameters: [
+      {
+        parameterField: '???',
+        label: 'Cause of death',
+        name: '???',
+      },
+      {
+        parameterField: '???',
+        label: 'Due to (or as a consequence of)',
+        name: '???',
+      },
+      {
+        parameterField: '???',
+        label: 'Other contributing condition',
+        name: '???',
+      },
+      {
+        parameterField: '???',
+        label: 'Manner of death',
+        name: '???',
+      },
+    ],
+    */
+  },
 ];
