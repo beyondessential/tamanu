@@ -47,7 +47,7 @@ describe('importReport', () => {
       mockDefinition,
       mockVersions,
       'test-store',
-      false
+      false,
     );
   });
   it('calls both create version and list versions when both options are provided', async () => {
