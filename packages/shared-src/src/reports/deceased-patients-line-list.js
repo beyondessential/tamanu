@@ -135,7 +135,7 @@ where
   and case when :antecedent_cause is not null then (rd5.id = :antecedent_cause OR rd6.id = :antecedent_cause) else true end
   and case when :other_contributing_condition is not null then os.id = :other_contributing_condition else true end
   and case when :manner_of_death is not null then pdd.manner = :manner_of_death else true end
-order by p.date_of_death desc, p.id, e.end_date;
+order by p.date_of_death, p.id, e.end_date;
 `;
 
 const getData = async (sequelize, parameters) => {
