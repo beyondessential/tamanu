@@ -61,7 +61,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
                   use: 'home',
                 },
               ],
-              birthDate: format(patient.dateOfBirth, 'yyyy-MM-dd'),
+              birthDate: format(new Date(patient.dateOfBirth), 'yyyy-MM-dd'),
               deceasedDateTime: format(new Date(patient.dateOfDeath), "yyyy-MM-dd'T'HH:mm:ssXXX"),
               gender: patient.sex,
               id: patient.id,
