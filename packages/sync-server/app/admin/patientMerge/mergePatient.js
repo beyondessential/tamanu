@@ -16,6 +16,7 @@ const simpleUpdateModels = [
   'PatientCarePlan',
   'PatientCommunication',
   'PatientDeathData',
+  'PatientBirthData',
   'Appointment',
   'DocumentMetadata',
   'CertificateNotification',
