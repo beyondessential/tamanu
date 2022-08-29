@@ -48,9 +48,9 @@ export class Setting extends Model {
       {
         ...options,
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
-        // ideally would have a composite unique index here on key/facilityId, but prior to postgres
-        // 15 there's no built in way to have NULL be meaningful in a unique constraint, and
-        // facilityId is nullable
+        // ideally would have a composite unique index here on key/facilityId, but prior to
+        // postgres 15 there's no built in way to have NULL be meaningful in a unique constraint,
+        // and facilityId is nullable
       },
     );
   }
