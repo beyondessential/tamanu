@@ -89,7 +89,7 @@
             - name: onto staging
               tag: ^(staging-)
               service: awsdeployment
-              command: ./scripts/deploy_sync.sh staging tamanu-sync-server-staging
+              command: ./scripts/deploy_sync.sh staging tamanu-central-server-staging-16
             - name: onto demo
               tag: ^(master$)
               service: awsdeployment
@@ -118,10 +118,14 @@
               tag: ^uat-
               service: awsdeployment
               command: ./scripts/deploy_lan.sh uat tamanu-lan-server-uat
-            - name: onto staging
+            - name: onto staging A
               tag: ^(staging-)
               service: awsdeployment
-              command: ./scripts/deploy_lan.sh staging tamanu-lan-server-staging
+              command: ./scripts/deploy_lan.sh staging tamanu-facility-server-staging-16a
+            - name: onto staging B
+              tag: ^(staging-)
+              service: awsdeployment
+              command: ./scripts/deploy_lan.sh staging tamanu-facility-server-staging-16b
             - name: onto demo
               tag: ^(master$)
               service: awsdeployment

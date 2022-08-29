@@ -419,7 +419,7 @@ export const REPORT_DEFINITIONS = [
   {
     name: 'Imaging requests - Line list',
     id: 'imaging-requests-line-list',
-    dateRangeLabel: ALL_TIME_DATE_LABEL,
+    dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
     parameters: [
       {

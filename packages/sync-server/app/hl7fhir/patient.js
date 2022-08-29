@@ -86,7 +86,7 @@ export function patientToHL7Patient(patient, additional = {}) {
     telecom: patientTelecom(patient, additional),
     // Only add deceasedDateTime key if the patient is deceased
     ...(patient.dateOfDeath && {
-      deceasedDateTime: format(patient.dateOfDeath, "yyyy-MM-dd'T'HH:mm:ssXXX"),
+      deceasedDateTime: format(new Date(patient.dateOfDeath), "yyyy-MM-dd'T'HH:mm:ssXXX"),
     }),
   };
 }
