@@ -25,7 +25,7 @@ export function createApp({ sequelize, models, syncManager }) {
     next();
   });
 
-  // trust x-forwarded-for as the remote address
+  // trust the x-forwarded-for header from addresses in `config.proxy.trusted`
   app.set('trust proxy', config.proxy.trusted);
   app.use(getLoggingMiddleware());
 
