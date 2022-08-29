@@ -9,9 +9,6 @@ export class NotePage extends Model {
     super.init(
       {
         id: primaryKey,
-
-        // we can't use a sequelize-generated relation here
-        // as the FK can link to one of many different tables
         type: {
           type: Sequelize.STRING,
           allowNull: false,
