@@ -67,7 +67,7 @@ export const InvoiceLineItemModal = ({
             />
             <Field
               name="invoiceLineTypeId"
-              label="Details 123"
+              label="Details"
               required
               component={AutocompleteField}
               suggester={invoiceLineTypeSuggester}
