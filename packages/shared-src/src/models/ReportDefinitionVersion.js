@@ -2,6 +2,7 @@ import { Sequelize, QueryTypes } from 'sequelize';
 import * as yup from 'yup';
 import { SYNC_DIRECTIONS, REPORT_STATUSES, REPORT_STATUSES_VALUES } from 'shared/constants';
 import { Model } from './Model';
+import { getQueryReplacementsFromParams } from '../utils/getQueryReplacementsFromParams';
 
 const optionsValidator = yup.object({
   parameters: yup
@@ -105,15 +106,9 @@ export class ReportDefinitionVersion extends Model {
   async dataGenerator(context, parameters) {
     const { sequelize } = context;
     const reportQuery = this.get('query');
-    const CATCH_ALL_FROM_DATE = '01-01-1970';
 
     const parametersDefinition = this.getParameters();
-    const parametersDefaults = parametersDefinition.reduce(
-      (obj, { name }) => ({ ...obj, [name]: '%' }),
-      { fromDate: new Date(CATCH_ALL_FROM_DATE), toDate: new Date() },
-    );
-
-    const replacements = { ...parametersDefaults, ...parameters };
+    const replacements = getQueryReplacementsFromParams(parametersDefinition, parameters);
 
     const queryResults = await sequelize.query(reportQuery, {
       type: QueryTypes.SELECT,

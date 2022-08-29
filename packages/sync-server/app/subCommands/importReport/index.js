@@ -11,7 +11,7 @@ export async function importReport(options) {
     await importActions.listVersions(definition, versions, store);
   }
   if (options.file) {
-    await importActions.createVersion(options.file, definition, versions, store);
+    await importActions.createVersion(options.file, definition, versions, store, options.verbose);
   }
   process.exit(0);
 }
@@ -21,4 +21,5 @@ export const importReportCommand = new Command('importReport')
   .requiredOption('-n, --name <string>', 'Name of the report')
   .option('-f, --file <path>', 'Path to report definition version data JSON')
   .option('-l, --list', 'List all report definition versions')
+  .option('-v, --verbose', 'log additional details during import')
   .action(importReport);

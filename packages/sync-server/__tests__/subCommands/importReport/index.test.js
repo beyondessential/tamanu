@@ -37,7 +37,7 @@ describe('importReport', () => {
       .spyOn(importUtils, 'findOrCreateDefinition')
       .mockResolvedValue(mockDefinition);
     const createVersionSpy = jest.spyOn(importActions, 'createVersion').mockImplementation();
-    const options = { file: 'test-file', name: 'test-name' };
+    const options = { file: 'test-file', name: 'test-name', verbose: false };
     await importReport(options);
     expect(exitSpy).toBeCalledWith(0);
     expect(findOrCreateDefinitionSpy).toBeCalledWith(options.name, 'test-store');
@@ -47,6 +47,7 @@ describe('importReport', () => {
       mockDefinition,
       mockVersions,
       'test-store',
+      false,
     );
   });
   it('calls both create version and list versions when both options are provided', async () => {
@@ -56,7 +57,7 @@ describe('importReport', () => {
       .mockResolvedValue(mockDefinition);
     const createVersionSpy = jest.spyOn(importActions, 'createVersion').mockImplementation();
     const listVersionsSpy = jest.spyOn(importActions, 'listVersions').mockImplementation();
-    const options = { file: 'test-file', list: true, name: 'test-name' };
+    const options = { file: 'test-file', list: true, name: 'test-name', verbose: true };
     await importReport(options);
     expect(exitSpy).toBeCalledWith(0);
     expect(findOrCreateDefinitionSpy).toBeCalledWith(options.name, 'test-store');
@@ -66,6 +67,7 @@ describe('importReport', () => {
       mockDefinition,
       mockVersions,
       'test-store',
+      true
     );
     expect(listVersionsSpy).toBeCalledWith(mockDefinition, mockVersions, 'test-store');
   });
