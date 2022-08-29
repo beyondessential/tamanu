@@ -13,12 +13,13 @@ import { removeFile, createZippedSpreadsheet, writeToSpreadsheet } from '../util
 import { getLocalisation } from '../localisation';
 
 export class ReportRunner {
-  constructor(reportId, parameters, recipients, store, emailService) {
+  constructor(reportId, parameters, recipients, store, emailService, userId) {
     this.reportId = reportId;
     this.parameters = parameters;
     this.recipients = recipients;
     this.store = store;
     this.emailService = emailService;
+    this.userId = userId;
   }
 
   async validate(reportModule, reportDataGenerator) {
@@ -40,6 +41,34 @@ export class ReportRunner {
     }
   }
 
+  /**
+   *
+   * @returns {Promise<string>}
+   */
+  async getRequestedByUser() {
+    return this.store.models.User.findByPk(this.userId);
+  }
+
+  /**
+   *
+   * @returns {Promise<(string[]|(string|string)[]|(string|*)[])[]>}
+   */
+  async getMetadata() {
+    const user = await this.getRequestedByUser();
+    const date = formatDate(new Date(), 'dd/MM/yyyy');
+    const reportName = await this.getReportName();
+    const filterString = Object.entries(this.parameters)
+      .map(([key, value]) => `${key}: ${value}`)
+      .join(', ');
+
+    return [
+      ['Report Name:', reportName],
+      ['Date Generated:', date],
+      ['User:', user.email],
+      ['Filters:', filterString],
+    ];
+  }
+
   async run() {
     const reportModule = await getReportModule(this.reportId, this.store.models);
     const reportDataGenerator = reportModule?.dataGenerator;
@@ -47,10 +76,12 @@ export class ReportRunner {
     await this.validate(reportModule, reportDataGenerator);
 
     let reportData = null;
+    let metadata = [];
     try {
       log.info(`ReportRunner - Running report "${this.reportId}"`);
 
       reportData = await reportDataGenerator(this.store, this.parameters);
+      metadata = await this.getMetadata();
 
       log.info(`ReportRunner - Running report "${this.reportId}" finished`);
     } catch (e) {
@@ -58,7 +89,7 @@ export class ReportRunner {
     }
 
     try {
-      await this.sendReport(reportData);
+      await this.sendReport({ data: reportData, metadata });
     } catch (e) {
       throw new Error(`${e.stack}\nReportRunner - Failed to send`);
     }
