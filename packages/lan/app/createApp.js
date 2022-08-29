@@ -1,6 +1,7 @@
-import express from 'express';
 import bodyParser from 'body-parser';
 import compression from 'compression';
+import config from 'config';
+import express from 'express';
 
 import { SERVER_TYPES } from 'shared/constants';
 import { getLoggingMiddleware } from 'shared/services/logging';
@@ -24,6 +25,8 @@ export function createApp({ sequelize, models, syncManager }) {
     next();
   });
 
+  // trust x-forwarded-for as the remote address
+  app.set('trust proxy', config.proxy.trusted);
   app.use(getLoggingMiddleware());
 
   app.use((req, res, next) => {
