@@ -25,6 +25,7 @@ describe('Setting', () => {
       ['offset', 12],
       ['nothing', null],
       ['include', true],
+      ['some', ['t', 'h', 'i', 'n', 'g', 's']],
     ];
 
     const testSetThenGet = async ([key, value]) => {
@@ -42,6 +43,7 @@ describe('Setting', () => {
       ['timezone.name', 'Pacific/Tongatapu'],
       ['timezone.offset.hours', 12],
       ['timezone.offset.minutes', null],
+      ['timezone.daylightSavingsBounds', ['02/04', '25/09']],
     ];
 
     const testSetThenGet = async ([key, value]) => {
@@ -73,6 +75,7 @@ describe('Setting', () => {
             hours: 12,
             minutes: null,
           },
+          daylightSavingsBounds: ['02/04', '25/09'],
         },
       ],
     ];
@@ -93,6 +96,7 @@ describe('Setting', () => {
             hours: 12,
             minutes: null,
           },
+          daylightSavingsBounds: ['02/04', '25/09'],
         },
       ],
       ['timezone.offset.hours', 12],
@@ -129,6 +133,7 @@ describe('Setting', () => {
             hours: 12,
             minutes: null,
           },
+          daylightSavingsBounds: ['02/04', '25/09'],
         },
         facilityA,
       ],
@@ -140,6 +145,7 @@ describe('Setting', () => {
             hours: 10,
             minutes: null,
           },
+          daylightSavingsBounds: ['02/04', '01/10'],
         },
         facilityB,
       ],
@@ -165,6 +171,7 @@ describe('Setting', () => {
             hours: 12,
             minutes: null,
           },
+          daylightSavingsBounds: ['02/04', '25/09'],
         },
       ],
       ['timezone.offset.hours', facilityB, 10],
@@ -201,6 +208,7 @@ describe('Setting', () => {
             hours: 12,
             minutes: null,
           },
+          daylightSavingsBounds: ['02/04', '25/09'],
         },
         facilityA,
       ],
@@ -216,8 +224,12 @@ describe('Setting', () => {
       breeds: { siamese: { include: false } },
     });
 
-    // alter an existing key in a nested object
-    await Setting.set('timezone', { offset: { minutes: 30 } }, facilityA);
+    // alter existing keys in a nested object
+    await Setting.set(
+      'timezone',
+      { offset: { minutes: 30 }, daylightSavingsBounds: ['02/04', '30/09'] },
+      facilityA,
+    );
 
     // alter an existing key and add a new one at the same time
     await Setting.set('timezone', { name: 'Australia/Sydney', code: 'AEST' }, facilityA);
@@ -250,6 +262,7 @@ describe('Setting', () => {
         hours: 10,
         minutes: 30,
       },
+      daylightSavingsBounds: ['02/04', '30/09'],
     });
   });
 });
