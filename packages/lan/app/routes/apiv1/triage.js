@@ -1,3 +1,4 @@
+import config from 'config';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
@@ -91,13 +92,22 @@ triage.get(
            ON (encounters.location_id = location.id)
           LEFT JOIN reference_data AS complaint
            ON (triages.chief_complaint_id = complaint.id)
-        WHERE (encounters.encounter_type = 'triage' OR encounters.encounter_type = 'observation') AND encounters.end_date IS NULL
+        WHERE
+          encounters.end_date IS NULL
+          AND location.facility_id = :facility
+          AND (
+            encounters.encounter_type = 'triage'
+            OR encounters.encounter_type = 'observation'
+          )
         ORDER BY ${sortKey} ${sortDirection} NULLS LAST
       `,
       {
         model: Triage,
         type: QueryTypes.SELECT,
         mapToModel: true,
+        replacements: {
+          facility: config.serverFacilityId,
+        },
       },
     );
 
