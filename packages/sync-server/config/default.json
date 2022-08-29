@@ -1,6 +1,6 @@
 {
   "port": 3000,
-  // this should be set to the external address of the server, e.g. "https://sync-dev.tamanu.io"
+  // this should be set to the external address of the server, e.g. "https://central-dev.tamanu.io"
   "canonicalHostName": "http://localhost:3000",
   "db": {
     "name": "tamanu-sync",
@@ -24,7 +24,10 @@
     "enabled": true
   },
   "sync": {
-    "concurrentChannelChecks": 8
+    "concurrentChannelChecks": 8,
+    // embedPatientNotes is a workaround for TAN-1757
+    // TODO: remove after 1.21 release
+    "embedPatientNotes": false
   },
   "loadshedder": {
     // paths are checked sequentially until a path matches a prefix
@@ -296,8 +299,8 @@
           "hidden": false
         },
         "placeOfBirth": {
-          "shortLabel": "Place of birth",
-          "longLabel": "Place of birth",
+          "shortLabel": "Birth location",
+          "longLabel": "Birth location",
           "hidden": false
         },
         "countryOfBirthId": {
@@ -427,6 +430,81 @@
         "age": {
           "shortLabel": "Age",
           "longLabel": "Age"
+        },
+        "motherId": {
+          "shortLabel": "Mother",
+          "longLabel": "Mother",
+          "hidden": false
+        },
+        "fatherId": {
+          "shortLabel": "Father",
+          "longLabel": "Father",
+          "hidden": false
+        },
+        "birthWeight": {
+          "shortLabel": "Birth weight (kg)",
+          "longLabel": "Birth weight (kg)",
+          "hidden": false
+        },
+        "birthLength": {
+          "shortLabel": "Birth length (cm)",
+          "longLabel": "Birth length (cm)",
+          "hidden": false
+        },
+        "birthDeliveryType": {
+          "shortLabel": "Delivery type",
+          "longLabel": "Delivery type",
+          "hidden": false
+        },
+        "gestationalAgeEstimate": {
+          "shortLabel": "Gestational age (weeks)",
+          "longLabel": "Gestational age (weeks)",
+          "hidden": false
+        },
+        "apgarScoreOneMinute": {
+          "shortLabel": "Apgar score 1 minute",
+          "longLabel": "Apgar score 1 minute",
+          "hidden": false
+        },
+        "apgarScoreFiveMinutes": {
+          "shortLabel": "Apgar score 5 minutes",
+          "longLabel": "Apgar score 5 minutes",
+          "hidden": false
+        },
+        "apgarScoreTenMinutes": {
+          "shortLabel": "Apgar score 10 minutes",
+          "longLabel": "Apgar score 10 minutes",
+          "hidden": false
+        },
+        "timeOfBirth": {
+          "shortLabel": "Time of birth",
+          "longLabel": "Time of birth",
+          "hidden": false
+        },
+        "attendantAtBirth": {
+          "shortLabel": "Attendant at birth",
+          "longLabel": "Attendant at birth",
+          "hidden": false
+        },
+        "nameOfAttendantAtBirth": {
+          "shortLabel": "Name of attendant",
+          "longLabel": "Name of attendant",
+          "hidden": false
+        },
+        "birthType": {
+          "shortLabel": "Single/Plural birth",
+          "longLabel": "Single/Plural birth",
+          "hidden": false
+        },
+        "birthFacilityId": {
+          "shortLabel": "Name of health facility (if applicable)",
+          "longLabel": "Name of health facility (if applicable)",
+          "hidden": false
+        },
+        "registeredBirthPlace": {
+          "shortLabel": "Place of birth",
+          "longLabel":  "Place of birth",
+          "hidden": false
         }
       },
       "features": {

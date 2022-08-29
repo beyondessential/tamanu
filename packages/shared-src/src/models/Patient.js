@@ -1,5 +1,7 @@
 import { Sequelize } from 'sequelize';
+import config from 'config';
 import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES } from 'shared/constants';
+import { dateTimeType } from './dateTimeTypes';
 import { Model } from './Model';
 
 export class Patient extends Model {
@@ -18,7 +20,7 @@ export class Patient extends Model {
         culturalName: Sequelize.STRING,
 
         dateOfBirth: Sequelize.DATE,
-        dateOfDeath: Sequelize.DATE,
+        dateOfDeath: dateTimeType('dateOfDeath'),
         sex: {
           type: Sequelize.ENUM('male', 'female', 'other'),
           allowNull: false,
@@ -32,7 +34,10 @@ export class Patient extends Model {
       },
       {
         ...options,
-        syncConfig: { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, includedRelations: ['notes'] },
+        syncConfig: {
+          syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
+          includedRelations: config.sync?.embedPatientNotes ? ['notes'] : [],
+        },
         indexes: [
           { fields: ['date_of_death'] },
           { fields: ['display_id'] },
