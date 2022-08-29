@@ -181,7 +181,9 @@ export const dataGenerator = async (
         continue;
       }
 
-      const dateOfBirth = patient.dateOfBirth ? format(parseISO9075(patient.dateOfBirth), 'dd-MM-yyyy') : '';
+      const dateOfBirth = patient.dateOfBirth
+        ? format(parseISO9075(patient.dateOfBirth), 'dd-MM-yyyy')
+        : '';
       const age = patient.dateOfBirth ? ageInYears(patient.dateOfBirth) : '';
       const recordData = {
         clientId: patient.displayId,

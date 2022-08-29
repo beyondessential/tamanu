@@ -95,11 +95,13 @@ const FIELDS = {
   },
   'referred<30': {
     title: 'Total referred by <30 years',
-    selectSql: 'referral_sr.id is not null and extract(year from age(patient.date_of_birth::date)) < 30',
+    selectSql:
+      'referral_sr.id is not null and extract(year from age(patient.date_of_birth::date)) < 30',
   },
   'referred>30': {
     title: 'Total referred by >30 years',
-    selectSql: 'referral_sr.id is not null and extract(year from age(patient.date_of_birth::date)) >= 30',
+    selectSql:
+      'referral_sr.id is not null and extract(year from age(patient.date_of_birth::date)) >= 30',
   },
   referredItaukei: {
     title: 'Total referred by Itaukei',
