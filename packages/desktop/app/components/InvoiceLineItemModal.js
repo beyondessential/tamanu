@@ -39,8 +39,6 @@ export const InvoiceLineItemModal = ({
     [invoiceId, invoiceLineItem, api, onSaved],
   );
 
-  console.log('invoiceLineItem', invoiceLineItem);
-
   const initialValues = invoiceLineItem
     ? {
         ...invoiceLineItem,
