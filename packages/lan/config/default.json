@@ -65,7 +65,7 @@
     "sqlitePath": "data/tamanu.db",
     "username": "",
     "password": "",
-    "verbose": false,
+    "verbose": true,
     "migrateOnStartup": false
   },
   "senaite": {

@@ -5,7 +5,7 @@ import { NotFoundError } from 'shared/errors';
 import { LAB_REQUEST_STATUSES, DOCUMENT_SIZE_LIMIT, INVOICE_STATUSES } from 'shared/constants';
 import { NOTE_RECORD_TYPES } from 'shared/models/Note';
 import { uploadAttachment } from '../../utils/uploadAttachment';
-
+import { notePageListHandler } from '../../routeHandlers';
 import {
   simpleGet,
   simpleGetHasOne,
@@ -14,7 +14,6 @@ import {
   permissionCheckingRouter,
   runPaginatedQuery,
   paginatedGetList,
-  createNoteListingHandler,
 } from './crudHelpers';
 
 export const encounter = express.Router();
@@ -129,7 +128,7 @@ encounterRelations.get(
   paginatedGetList('DocumentMetadata', 'encounterId'),
 );
 encounterRelations.get('/:id/imagingRequests', simpleGetList('ImagingRequest', 'encounterId'));
-encounterRelations.get('/:id/notes', createNoteListingHandler(NOTE_RECORD_TYPES.ENCOUNTER));
+encounterRelations.get('/:id/notePages', notePageListHandler);
 encounterRelations.get(
   '/:id/invoice',
   simpleGetHasOne('Invoice', 'encounterId', {

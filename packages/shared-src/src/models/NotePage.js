@@ -29,12 +29,16 @@ export class NotePage extends Model {
         validate: {
           mustHaveValidRelationType() {
             if (!NOTE_RECORD_TYPE_VALUES.includes(this.recordType)) {
-              throw new Error(`NotePage: Must have a valid record type (got ${this.recordType})`);
+              throw new Error(
+                `NotePage: Must have a valid record type (got ${this.recordType}), id: '${this.id}'`,
+              );
             }
           },
           mustHaveValidType() {
             if (!NOTE_TYPE_VALUES.includes(this.type)) {
-              throw new Error(`NotePage: Must have a valid note type (got ${this.type})`);
+              throw new Error(
+                `NotePage: Must have a valid note type (got ${this.type}), id: '${JSON.stringify(this)}'`,
+              );
             }
           },
         },

@@ -6,7 +6,15 @@ import { Suggester } from '../utils/suggester';
 import { Modal } from './Modal';
 import { NoteForm } from '../forms/NoteForm';
 
-export const NoteModal = ({ open, onClose, onSaved, encounterId, noteId, editedObject }) => {
+export const NoteModal = ({
+  title = 'Note',
+  open,
+  onClose,
+  onSaved,
+  encounterId,
+  noteId,
+  editedObject,
+}) => {
   const api = useApi();
   const practitionerSuggester = new Suggester(api, 'practitioner');
   // Don't allow users to modify encounter notes
@@ -14,14 +22,14 @@ export const NoteModal = ({ open, onClose, onSaved, encounterId, noteId, editedO
   const isReadOnly = !!editedObject?.id;
 
   return (
-    <Modal title="Note" open={open} onClose={onClose}>
+    <Modal title={title} open={open} width="md" onClose={onClose}>
       <NoteForm
         onSubmit={async data => {
-          if (noteId || data.id) {
-            await api.put(`note/${noteId || data.id}`, data);
-          } else {
-            await api.post(`encounter/${encounterId}/notes`, data);
-          }
+          // TODO: Add support for PUT
+          const newData = { ...data };
+          newData.recordId = encounterId;
+          newData.recordType = 'Encounter';
+          await api.post('notePages', newData);
           onSaved();
         }}
         onCancel={onClose}

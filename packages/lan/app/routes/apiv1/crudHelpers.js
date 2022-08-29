@@ -185,7 +185,7 @@ export async function runPaginatedQuery(db, model, countQuery, selectQuery, para
 }
 
 export const createNoteListingHandler = recordType =>
-  simpleGetList('Note', 'recordId', {
+  simpleGetList('NotePage', 'recordId', {
     additionalFilters: { recordType },
     // this is designed to be mounted inside a permission checking router
     skipPermissionCheck: true,

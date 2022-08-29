@@ -5,12 +5,13 @@ import { DateDisplay } from './DateDisplay';
 import { noteTypes } from '../constants';
 import { NoteModal } from './NoteModal';
 
-const getTypeLabel = ({ noteType }) => noteTypes.find(x => x.value === noteType).label;
+const getTypeLabel = ({ type }) => noteTypes.find(x => x.value === type).label;
+const getContent = ({ noteItems }) => noteItems[0]?.content || '';
 
 const COLUMNS = [
   { key: 'date', title: 'Date', accessor: ({ date }) => <DateDisplay date={date} showTime /> },
-  { key: 'noteType', title: 'Type', accessor: getTypeLabel },
-  { key: 'content', title: 'Content', maxWidth: 300 },
+  { key: 'type', title: 'Type', accessor: getTypeLabel },
+  { key: 'content', title: 'Content', maxWidth: 300, accessor: getContent },
 ];
 
 export const NoteTable = ({ encounterId }) => {
@@ -35,6 +36,7 @@ export const NoteTable = ({ encounterId }) => {
     [setIsNoteModalOpen, setNoteId, setEditedObject],
   );
   const sortNotes = useCallback(notes => {
+    console.log('notes', notes);
     // The sorting rule for Notes is to pin the Treatment Plans to the top
     // And sort everything chronologically
     const treatmentPlanNotes = notes
@@ -61,7 +63,7 @@ export const NoteTable = ({ encounterId }) => {
       />
       <DataFetchingTable
         columns={COLUMNS}
-        endpoint={`encounter/${encounterId}/notes`}
+        endpoint={`encounter/${encounterId}/notePages`}
         onRowClick={handleRowClick}
         customSort={sortNotes}
         refreshCount={refreshCount}
