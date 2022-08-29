@@ -1,6 +1,6 @@
 ### Changes
 
-_&gt;Add a brief description of the changes in this PR to help give the reviewer context.&lt;_
+_Add a brief description of the changes in this PR to help give the reviewer context._
 
 ### Checklist
 
