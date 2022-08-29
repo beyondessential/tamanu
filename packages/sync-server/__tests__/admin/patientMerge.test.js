@@ -6,6 +6,7 @@ import { InvalidParameterError } from 'shared/errors';
 
 describe("Patient merge", () => {
 
+  let ctx;
   let models;
   let baseApp;
   let adminApp;
@@ -24,10 +25,14 @@ describe("Patient merge", () => {
   };
 
   beforeAll(async () => {
-    const ctx = await createTestContext();
+    ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.store.models;
     adminApp = await baseApp.asRole('admin');
+  });
+
+  afterAll(async () => {
+    await ctx.close();
   });
 
   it("Should make a fuss if any models with a patientId aren't covered", async () => {
