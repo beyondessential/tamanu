@@ -64,5 +64,11 @@ export class NotePage extends Model {
         constraints: false,
       });
     });
+
+    this.hasMany(models.NoteItem, {
+      foreignKey: 'notePageId',
+      as: 'noteItems',
+      constraints: false,
+    });
   }
 }
