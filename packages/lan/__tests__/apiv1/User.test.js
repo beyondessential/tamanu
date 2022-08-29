@@ -12,6 +12,10 @@ const createUser = overrides => ({
   ...overrides,
 });
 
+// N.B. there were formerly a well written extra suite of tests here for functionality like creating
+// users and changing passwords, which is functionality that isn't supported on the facility server
+// If reimplementing the same functionality on the facility or central server, see this file at
+// commit 51f66c9
 describe('User', () => {
   let adminApp = null;
   let baseApp = null;
