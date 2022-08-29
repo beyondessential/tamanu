@@ -11,7 +11,6 @@ export class databaseSetup1661160427226 implements MigrationInterface {
       // Create the tables only if they don't already exist
       await queryRunner.createTable(table, ifNotExist);
     }
-    await queryRunner.commitTransaction();
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
