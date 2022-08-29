@@ -131,16 +131,34 @@ from
   left join reference_data rd7 on rd7.id=pdd.carrier_existing_condition_id
 where
   to_char(e.end_date::timestamp::date, 'dd/mm/yyyy') = to_char(p.date_of_death::timestamp::date, 'dd/mm/yyyy')
+  and case when :from_date is not null then e.start_date::date >= :from_date::date else true end
+  and case when :to_date is not null then e.start_date::date <= :to_date::date else true end
+  and case when :cause_of_death is not null then rd4.id = :cause_of_death else true end
+  and case when :antecedent_cause is not null then (rd5.id = :antecedent_cause OR rd6.id = :antecedent_cause) else true end
+  and case when :other_contributing_condition is not null then other_causes.id = :other_contributing_condition else true end
+  and case when :manner_of_death is not null then pdd.manner = :manner_of_death else true end
 order by p.date_of_death desc;
 `;
 
 const getData = async (sequelize, parameters) => {
-  const { fromDate = subDays(new Date(), 30) } = parameters;
+  const {
+    fromDate = subDays(new Date(), 30),
+    toDate,
+    causeOfDeath,
+    antecedentCause,
+    otherContributingCondition,
+    mannerOfDeath,
+  } = parameters;
 
   return sequelize.query(query, {
     type: sequelize.QueryTypes.SELECT,
     replacements: {
       from_date: fromDate ?? null,
+      to_date: toDate ?? null,
+      cause_of_death: causeOfDeath ?? null,
+      antecedent_cause: antecedentCause ?? null,
+      other_contributing_condition: otherContributingCondition ?? null,
+      manner_of_death: mannerOfDeath ?? null,
     },
   });
 };

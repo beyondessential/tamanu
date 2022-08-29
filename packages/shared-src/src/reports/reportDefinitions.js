@@ -3,6 +3,7 @@ import {
   REPORT_DATA_SOURCES,
   REPORT_DATA_SOURCE_VALUES,
   IMAGING_REQUEST_STATUS_OPTIONS,
+  MANNER_OF_DEATH_OPTIONS,
 } from 'shared/constants';
 
 const LAST_30_DAYS_DATE_LABEL = 'Date range (or leave blank for the past 30 days of data)';
@@ -441,29 +442,31 @@ export const REPORT_DEFINITIONS = [
     id: 'deceased-patients-line-list',
     dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
-    /*
     parameters: [
       {
-        parameterField: '???',
+        parameterField: 'ParameterAutocompleteField',
         label: 'Cause of death',
-        name: '???',
+        name: 'causeOfDeath',
+        suggesterEndpoint: 'icd10',
       },
       {
-        parameterField: '???',
+        parameterField: 'ParameterAutocompleteField',
         label: 'Due to (or as a consequence of)',
-        name: '???',
+        name: 'antecedentCause',
+        suggesterEndpoint: 'icd10',
       },
       {
-        parameterField: '???',
+        parameterField: 'ParameterAutocompleteField',
         label: 'Other contributing condition',
-        name: '???',
+        name: 'otherContributingCondition',
+        suggesterEndpoint: 'icd10',
       },
       {
-        parameterField: '???',
+        parameterField: 'ParameterSelectField',
         label: 'Manner of death',
-        name: '???',
+        name: 'mannerOfDeath',
+        options: MANNER_OF_DEATH_OPTIONS,
       },
     ],
-    */
   },
 ];
