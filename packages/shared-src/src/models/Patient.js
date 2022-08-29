@@ -31,6 +31,7 @@ export class Patient extends Model {
           allowNull: false,
           defaultValue: false,
         },
+        visibilityStatus: Sequelize.STRING,
       },
       {
         ...options,
@@ -62,8 +63,7 @@ export class Patient extends Model {
       foreignKey: 'patientId',
       as: 'deathData',
     });
-
-    // this one is actually a hasMany
+    
     this.hasMany(models.PatientSecondaryId, {
       foreignKey: 'patientId',
       as: 'secondaryIds',
@@ -71,6 +71,11 @@ export class Patient extends Model {
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'villageId',
       as: 'village',
+    });
+
+    this.hasMany(models.Patient, {
+      foreignKey: 'mergedIntoId',
+      as: 'mergedPatients',
     });
 
     this.hasMany(models.Note, {
