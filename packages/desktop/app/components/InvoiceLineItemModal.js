@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import * as yup from 'yup';
-
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { useApi } from '../api';
 import { Suggester } from '../utils/suggester';
 import { foreignKey } from '../utils/validation';
@@ -39,6 +39,8 @@ export const InvoiceLineItemModal = ({
     [invoiceId, invoiceLineItem, api, onSaved],
   );
 
+  console.log('invoiceLineItem', invoiceLineItem);
+
   const initialValues = invoiceLineItem
     ? {
         ...invoiceLineItem,
@@ -47,7 +49,7 @@ export const InvoiceLineItemModal = ({
           invoiceLineItem.percentageChange && invoiceLineItem.percentageChange * 100,
       }
     : {
-        dateGenerated: new Date(),
+        dateGenerated: getCurrentDateTimeString(),
       };
 
   return (
@@ -56,10 +58,16 @@ export const InvoiceLineItemModal = ({
         onSubmit={createOrUpdateLineItem}
         render={({ submitForm }) => (
           <FormGrid>
-            <Field name="dateGenerated" label="Date" required component={DateField} />
+            <Field
+              name="dateGenerated"
+              label="Date"
+              required
+              component={DateField}
+              saveDateAsString
+            />
             <Field
               name="invoiceLineTypeId"
-              label="Details"
+              label="Details 123"
               required
               component={AutocompleteField}
               suggester={invoiceLineTypeSuggester}
