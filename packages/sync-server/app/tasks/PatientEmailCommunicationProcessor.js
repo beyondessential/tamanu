@@ -55,7 +55,7 @@ export class PatientEmailCommunicationProcessor extends ScheduledTask {
       });
       const toAddress = emailPlain.destination || emailPlain.patient?.email;
 
-      log.info("Sending email to patient", { 
+      log.info('Sending email to patient', {
         communicationId: emailPlain.id,
         type: emailPlain.type,
         patientId: emailPlain.patient?.id,
@@ -70,7 +70,7 @@ export class PatientEmailCommunicationProcessor extends ScheduledTask {
           text: emailPlain.content,
           attachment: emailPlain.attachment,
         });
-        if(result.error) {
+        if (result.error) {
           log.warn('Email failed', {
             communicationId: emailPlain.id,
             error: result.error,
