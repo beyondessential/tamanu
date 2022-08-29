@@ -136,7 +136,7 @@ export class LabRequest extends Model {
 
     this.hasMany(models.NotePage, {
       foreignKey: 'recordId',
-      as: 'notePages',
+      as: 'notes',
       constraints: false,
       scope: {
         recordType: this.name,
