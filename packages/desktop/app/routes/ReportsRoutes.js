@@ -1,9 +1,10 @@
 import React from 'react';
-import { Route, Switch } from 'react-router-dom';
+import { Redirect, Route, Switch } from 'react-router-dom';
 import { ReportGenerator } from '../views';
 
 export const ReportsRoutes = ({ match }) => (
   <Switch>
-    <Route exact path={match.path} component={ReportGenerator} />
+    <Route path={`${match.path}/new`} component={ReportGenerator} />
+    <Redirect to={`${match.path}/new`} />
   </Switch>
 );

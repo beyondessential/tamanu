@@ -1,9 +1,11 @@
+import { VisibilityStatus } from '~/visibilityStatuses';
 import { ID } from './ID';
 import { IReferenceData } from './IReferenceData';
 
-export enum LabTestQuestionType {
-  NUMBER = 'number',
-  STRING = 'string',
+export enum LabTestResultType {
+  NUMBER = 'Number',
+  FREE_TEXT = 'FreeText',
+  SELECT = 'Select'
 }
 
 export interface ILabTestType {
@@ -15,10 +17,11 @@ export interface ILabTestType {
   maleMax?: number;
   femaleMin?: number;
   femaleMax?: number;
-  rangeText?: string;
-  questionType: LabTestQuestionType;
+  rangeText?:string;
+  resultType? : LabTestResultType;
   options?: string;
 
   labTestCategory: IReferenceData;
   labTestCategoryId: string;
+  visibilityStatus: VisibilityStatus.Current,
 }

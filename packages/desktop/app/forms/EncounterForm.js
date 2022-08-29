@@ -43,7 +43,7 @@ const EncounterOptionTypeButton = styled(Button)`
 `;
 
 const EncounterOptionButton = ({ label, image, onClick }) => (
-  <EncounterOptionTypeButton variant="contained" onClick={onClick}>
+  <EncounterOptionTypeButton variant="contained" color="default" onClick={onClick}>
     <TypeImage alt={label} src={image} />
     {label}
   </EncounterOptionTypeButton>

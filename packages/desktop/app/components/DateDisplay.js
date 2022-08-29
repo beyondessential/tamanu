@@ -1,59 +1,72 @@
+import { remote } from 'electron';
 import React from 'react';
-import moment from 'moment';
 import styled from 'styled-components';
 
-export function formatShort(date) {
-  if (!date) return '--/--/----';
+const getLocale = () => remote.getGlobal('osLocales') || remote.app.getLocale() || 'default';
 
-  return moment(date).format('DD/MM/YYYY'); // "04/03/2019" dd/mm in locale order
-}
+const intlFormatDate = (date, formatOptions, fallback = 'Unknown') => {
+  if (!date) return fallback;
+  return new Date(date).toLocaleString(getLocale(), formatOptions);
+};
 
-function formatLong(date) {
-  if (!date) return 'Date information not available';
+export const formatShort = date =>
+  intlFormatDate(date, { day: '2-digit', month: '2-digit', year: 'numeric' }, '--/--/----'); // 12/04/2020
 
-  return moment(date).format('LLLL'); // "Monday, March 4, 2019 10:22 AM"
-}
+export const formatTime = date =>
+  intlFormatDate(
+    date,
+    {
+      timeStyle: 'short',
+      hour12: true,
+    },
+    '__:__',
+  ); // 12:30 am
 
-function formatDuration(date) {
-  return moment(date).from(moment(), true);
-}
+const formatShortExplicit = date =>
+  intlFormatDate(date, {
+    dateStyle: 'medium',
+  }); // "4 Mar 2019"
 
-export function formatTime(date) {
-  return moment(date).format('hh:mm a');
-}
+// long format date is displayed on hover
+const formatLong = date =>
+  intlFormatDate(
+    date,
+    {
+      timeStyle: 'short',
+      dateStyle: 'full',
+      hour12: true,
+    },
+    'Date information not available',
+  ); // "Thursday, 14 July 2022, 03:44 pm"
 
-function formatShortExplicit(date) {
-  if (!date) return 'Unknown';
-
-  return moment(date).format('Do MMM YYYY'); // "4th Mar 2019" unambiguous short format
-}
-
+// abbr tag allows a title to be passed in which shows the long format date on hover
 const StyledAbbr = styled.abbr`
   text-decoration: none;
 `;
 
 export const DateDisplay = ({
-  date,
+  date: dateValue,
   showDate = true,
   showTime = false,
-  showDuration = false,
   showExplicitDate = false,
-  ...props
 }) => {
+  let date = dateValue;
+
+  if (typeof date === 'string') {
+    date = new Date(date);
+  }
+
   const parts = [];
   if (showDate) {
     parts.push(formatShort(date));
   } else if (showExplicitDate) {
     parts.push(formatShortExplicit(date));
   }
-  if (showDuration) {
-    parts.push(`(${formatDuration(date)})`);
-  }
   if (showTime) {
     parts.push(formatTime(date));
   }
   return (
-    <StyledAbbr {...props} title={formatLong(date)} data-test-class="date-display-abbr">
+    <StyledAbbr title={formatLong(date)} data-test-class="date-display-abbr">
       {parts.join(' ')}
     </StyledAbbr>
   );

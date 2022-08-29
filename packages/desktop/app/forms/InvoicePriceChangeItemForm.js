@@ -13,8 +13,7 @@ import {
   NumberField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
-import { Button } from '../components/Button';
-import { ButtonRow } from '../components/ButtonRow';
+import { ConfirmCancelRow } from '../components/ButtonRow';
 
 export const InvoicePriceChangeItemForm = ({
   actionText,
@@ -44,14 +43,7 @@ export const InvoicePriceChangeItemForm = ({
             required
             component={NumberField}
           />
-          <ButtonRow>
-            <Button variant="contained" onClick={onCancel}>
-              Cancel
-            </Button>
-            <Button variant="contained" onClick={submitForm} color="primary">
-              {actionText}
-            </Button>
-          </ButtonRow>
+          <ConfirmCancelRow confirmText={actionText} onConfirm={submitForm} onCancel={onCancel} />
         </FormGrid>
       )}
       initialValues={{

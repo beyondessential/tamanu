@@ -13,7 +13,6 @@ const MarkPatientForSyncButton = styled(Button)`
   justify-content: center;
   text-align: -webkit-center;
   height: 9rem;
-  margin: 1rem;
 `;
 
 const MarkPatientForSyncIcon = styled(Loop)`
@@ -22,7 +21,7 @@ const MarkPatientForSyncIcon = styled(Loop)`
 `;
 
 const DumbMarkPatientForSync = ({ onMarkPatientForSync }) => (
-  <MarkPatientForSyncButton onClick={onMarkPatientForSync}>
+  <MarkPatientForSyncButton onClick={onMarkPatientForSync} variant="text" color="default">
     <MarkPatientForSyncIcon />
     Sync patient records
   </MarkPatientForSyncButton>
