@@ -19,7 +19,7 @@ export async function up(query: QueryInterface) {
   // 3.Change column types from of original columns from date to string & convert data to string
   await query.sequelize.query(`
       ALTER TABLE ${TABLE_NAME}
-      ALTER COLUMN date_of_birth TYPE date_time
+      ALTER COLUMN date_of_birth TYPE date_string
       USING TO_CHAR(date_of_birth, '${ISO9075_DATE_FMT}');
   `);
 }
