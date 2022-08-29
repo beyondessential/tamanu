@@ -50,11 +50,11 @@ const query = `
 with
 	other_causes as (
 		select id,
-			case when rnum = 1 then time_after_onset end as "Time between onset of cause and death",
-       		case when rnum = 1 then name end as "Other contributing conditions 1",
-       		case when rnum = 2 then name end as "Other contributing conditions 2",
-       		case when rnum = 3 then name end as "Other contributing conditions 3",
-       		case when rnum = 4 then name end as "Other contributing conditions 4"
+			max(case when rnum = 1 then time_after_onset end) as "Time between onset of cause and death",
+       		max(case when rnum = 1 then name end) as "Other contributing conditions 1",
+       		max(case when rnum = 2 then name end) as "Other contributing conditions 2",
+       		max(case when rnum = 3 then name end) as "Other contributing conditions 3",
+       		max(case when rnum = 4 then name end) as "Other contributing conditions 4"
 		from (
 			select pdd.id,
 				dc.time_after_onset,
@@ -64,10 +64,11 @@ with
 			left join contributing_death_causes dc on dc.patient_death_data_id = pdd.id
 			left join reference_data rd on rd.id=dc.condition_id
 			where dc.id not in (SELECT DISTINCT unnest(string_to_array(pdd2.primary_cause_condition_id || '#' || pdd2.antecedent_cause1_condition_id || '#' || pdd2.antecedent_cause2_condition_id, '#')) FROM patient_death_data pdd2 )
-			ORDER BY pdd.id, rnum
+			order by pdd.id, rnum
     ) as d
+    group by d.id
 	)
-select
+select distinct on (p.date_of_death, p.id)
   p.display_id as "Patient ID",
   p.first_name  as "Patient first name",
   p.last_name as "Patient last name",
@@ -116,15 +117,12 @@ from
   left join patient_additional_data pad2 on pad2.patient_id = p.id
   left join reference_data nationality on nationality.id = pad2.nationality_id
   left join encounters e on e.patient_id = p.id
-  left join reference_data department on department.id = e.department_id
-  left join reference_data loc on loc.id = e.location_id
+  left join departments department on department.id = e.department_id
+  left join locations loc on loc.id = e.location_id
   left join users u ON u.id = pdd.clinician_id
-  left join contributing_death_causes dc_primary_cause on dc_primary_cause.id=pdd.primary_cause_condition_id
-  left join reference_data rd4 on rd4.id=dc_primary_cause.condition_id
-  left join contributing_death_causes dc_antencedent_cause1 on dc_antencedent_cause1.id=pdd.antecedent_cause1_condition_id
-  left join reference_data rd5 on rd5.id=dc_antencedent_cause1.condition_id
-  left join contributing_death_causes dc_antencedent_cause2 on dc_antencedent_cause2.id=pdd.antecedent_cause2_condition_id
-  left join reference_data rd6 on rd6.id=dc_antencedent_cause2.condition_id
+  left join reference_data rd4 on rd4.id=pdd.primary_cause_condition_id
+  left join reference_data rd5 on rd5.id=pdd.antecedent_cause1_condition_id
+  left join reference_data rd6 on rd6.id=pdd.antecedent_cause2_condition_id
   left join facilities f on f.id=pdd.facility_id
   left join other_causes os on os.id=pdd.id
   left join reference_data rd3 on rd3.id=pdd.last_surgery_reason_id
@@ -137,7 +135,7 @@ where
   and case when :antecedent_cause is not null then (rd5.id = :antecedent_cause OR rd6.id = :antecedent_cause) else true end
   and case when :other_contributing_condition is not null then os.id = :other_contributing_condition else true end
   and case when :manner_of_death is not null then pdd.manner = :manner_of_death else true end
-order by p.date_of_death desc;
+order by p.date_of_death desc, p.id, e.end_date;
 `;
 
 const getData = async (sequelize, parameters) => {
