@@ -38,12 +38,6 @@ export class Patient extends BaseModel implements IPatient {
   @Column({ nullable: true })
   email?: string;
 
-  @Column({ nullable: true })
-  mergedIntoId?: string;
-
-  @Column({ default: 'current' }) // TODO: run a test locally to make sure this migrates OK
-  visibilityStatus: string;
-
   @Column()
   sex: string;
 
