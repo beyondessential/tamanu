@@ -303,7 +303,7 @@ export class Encounter extends Model {
 
   async addSystemNote(content) {
     const note = await this.createNote({
-      noteType: NOTE_TYPES.SYSTEM,
+      type: NOTE_TYPES.SYSTEM,
       content,
     });
 
