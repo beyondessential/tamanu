@@ -46,8 +46,8 @@ select
 	to_char(p.date_of_birth::timestamp::date, 'dd-mm-yyyy') as "DOB",
 	case
 		when p.date_of_death is null
-   			then date_part('year',Age(p.date_of_birth))
-      		else date_part('year',Age(p.date_of_death, p.date_of_birth))
+   	then date_part('year', Age(p.date_of_birth))
+    else date_part('year', Age(p.date_of_death::date, p.date_of_birth))
     end as "Age",
 	p.sex as "Sex",
 	rd_village.name as "Village",
