@@ -19,7 +19,7 @@ const FIELDS = [
   'Supervising clinician',
   'Requesting clinician',
   'Priority',
-  'Test Type',
+  'Test category',
   'Tests',
   'Area to be imaged',
   'Status',
@@ -61,7 +61,7 @@ select
 	examiner_by_user.display_name as "Supervising clinician",
 	requested_by_user.display_name as "Requesting Clinician",
 	rd_priority.name as "Priority",
-	rd_request_type.name as "Test Type",
+	rd_request_type.name as "Test category",
 	lti.Tests as "Tests",
 	case
 		when lr.status = 'reception_pending' then 'Reception pending'
@@ -93,6 +93,11 @@ where
 		'c11229a7-b95c-4416-a3ad-560cd75d8f21',
 		'cebdd9a4-2744-4ad2-9919-98dc0b15464c'
   )
+  and case when :from_date is not null then e.start_date::date >= :from_date::date else true end
+  and case when :to_date is not null then e.start_date::date <= :to_date::date else true end
+  and case when :requested_by_id is not null then lr.requested_by_id = :requested_by_id else true end
+  and case when :lab_test_category_id is not null then rd_request_type.id = :lab_test_category_id else true end
+  and case when :status is not null then lr.status = :status else true end
 order by lr.requested_date;
 `;
 
