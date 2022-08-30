@@ -57,7 +57,7 @@ export class ReportRunner {
     const user = await this.getRequestedByUser();
     const date = formatDate(new Date(), 'dd/MM/yyyy');
     const reportName = await this.getReportName();
-    const filterString = Object.entries(this.parameters)
+    const filterString = Object.entries(this.parameters || [])
       .map(([key, value]) => `${key}: ${value}`)
       .join(', ');
 
@@ -80,7 +80,7 @@ export class ReportRunner {
     try {
       log.info(`ReportRunner - Running report "${this.reportId}"`);
 
-      reportData = await reportDataGenerator(this.store, this.parameters);
+      reportData = await reportModule.dataGenerator(this.store, this.parameters);
       metadata = await this.getMetadata();
 
       log.info(`ReportRunner - Running report "${this.reportId}" finished`);
