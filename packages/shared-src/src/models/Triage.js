@@ -2,17 +2,16 @@ import { ENCOUNTER_TYPES, SYNC_DIRECTIONS } from 'shared/constants';
 import { Sequelize, Op } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
+import { dateTimeType } from './dateTimeTypes';
 
 export class Triage extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
         id: primaryKey,
-
-        arrivalTime: Sequelize.DATE,
-        triageTime: Sequelize.DATE,
-        closedTime: Sequelize.DATE,
-
+        arrivalTime: dateTimeType('arrivalTime'),
+        triageTime: dateTimeType('triageTime'),
+        closedTime: dateTimeType('closedTime'),
         score: Sequelize.TEXT,
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
