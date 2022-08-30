@@ -1,10 +1,7 @@
-import { parseISO, subDays } from 'date-fns';
-import config from 'config';
+import { subDays } from 'date-fns';
 
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
-
-const { host } = config.integrations.fijiVrs;
 
 describe('fijiAspenMediciReport', () => {
   let ctx;
@@ -29,11 +26,12 @@ describe('fijiAspenMediciReport', () => {
 
       // act
       const response = await app
-        .post(`/v1/integration/fijiAspenMediciReport`)
-        .send({
-          'period.start': subDays(new Date(), 30).toISOString(),
-          'period.end': new Date().toISOString(),
-        })
+        .get(
+          `/v1/integration/fijiAspenMediciReport?'period.start'=${subDays(
+            new Date(),
+            30,
+          ).toISOString()}&'period.end'=${new Date().toISOString()}`,
+        )
         .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });
 
       // assert
@@ -143,136 +141,5 @@ describe('fijiAspenMediciReport', () => {
         },
       ]);
     });
-  });
-
-  describe('failure', () => {
-    it('throws a 422 if a required field is missing', async () => {
-      // arrange
-      const { fetchId } = await prepareVRSMocks(ctx, {
-        vrsPatient: {
-          ...(await fakeVRSPatient(ctx.store.models)),
-          individual_refno: null, // missing required field
-        },
-      });
-
-      // act
-      const response = await app
-        .post(`/v1/integration/fijiVrs/hooks/patientCreated`)
-        .send({
-          fetch_id: fetchId,
-          operation: 'INSERT',
-          created_datetime: new Date().toISOString(),
-        })
-        .set({ 'X-Tamanu-Client': 'fiji-vrs', 'X-Version': '0.0.1' });
-
-      // assert
-      expect(response).toHaveRequestError(422);
-      expect(response.body).toMatchObject({
-        response: false,
-        error: {
-          message: expect.stringContaining('must be a `string` type'),
-          name: 'ValidationError',
-        },
-      });
-      const fetchMock = ctx.integrations.fijiVrs.remote.fetchImplementation;
-      expect(fetchMock).toHaveBeenCalledWith(`${host}/token`, expect.anything());
-      expect(fetchMock).toHaveBeenCalledWith(
-        `${host}/api/Tamanu/Fetch?fetch_id=${fetchId}`,
-        expect.anything(),
-      );
-      expect(fetchMock).not.toHaveBeenCalledWith(
-        `${host}/api/Tamanu/Acknowledge?fetch_id=${fetchId}`,
-        expect.anything(),
-      );
-      expect(fetchMock).toHaveBeenCalledTimes(2);
-    });
-
-    it('throws a 422 if a field is of the wrong type', async () => {
-      // arrange
-      const { fetchId } = await prepareVRSMocks(ctx, {
-        vrsPatient: {
-          ...(await fakeVRSPatient(ctx.store.models)),
-          dob: 'this is not a valid ISO date',
-        },
-      });
-
-      // act
-      const response = await app
-        .post(`/v1/integration/fijiVrs/hooks/patientCreated`)
-        .send({
-          fetch_id: fetchId,
-          operation: 'INSERT',
-          created_datetime: new Date().toISOString(),
-        })
-        .set({ 'X-Tamanu-Client': 'fiji-vrs', 'X-Version': '0.0.1' });
-
-      // assert
-      expect(response).toHaveRequestError(422);
-      expect(response.body).toMatchObject({
-        response: false,
-        error: {
-          message: expect.stringContaining('must be a `date` type'),
-          name: 'ValidationError',
-        },
-      });
-      const fetchMock = ctx.integrations.fijiVrs.remote.fetchImplementation;
-      expect(fetchMock).toHaveBeenCalledWith(`${host}/token`, expect.anything());
-      expect(fetchMock).toHaveBeenCalledWith(
-        `${host}/api/Tamanu/Fetch?fetch_id=${fetchId}`,
-        expect.anything(),
-      );
-      expect(fetchMock).not.toHaveBeenCalledWith(
-        `${host}/api/Tamanu/Acknowledge?fetch_id=${fetchId}`,
-        expect.anything(),
-      );
-      expect(fetchMock).toHaveBeenCalledTimes(2);
-    });
-
-    it('throws a 502 if the remote call fails', async () => {
-      // arrange
-      const { fetchId } = await prepareVRSMocks(ctx, {
-        tokenImpl: () => ({
-          ok: false,
-          status: 500,
-          json: async () => ({
-            message: 'test error',
-          }),
-        }),
-      });
-
-      // act
-      const response = await app
-        .post(`/v1/integration/fijiVrs/hooks/patientCreated`)
-        .send({
-          fetch_id: fetchId,
-          operation: 'INSERT',
-          created_datetime: new Date().toISOString(),
-        })
-        .set({ 'X-Tamanu-Client': 'fiji-vrs', 'X-Version': '0.0.1' });
-
-      // assert
-      expect(response).toHaveRequestError(502);
-      expect(response.body).toEqual({
-        response: false,
-        error: {
-          message: expect.stringContaining('500'),
-          name: 'RemoteCallFailedError',
-        },
-      });
-      const fetchMock = ctx.integrations.fijiVrs.remote.fetchImplementation;
-      expect(fetchMock).toHaveBeenCalledWith(`${host}/token`, expect.anything());
-      expect(fetchMock).not.toHaveBeenCalledWith(
-        `${host}/api/Tamanu/Fetch?fetch_id=${fetchId}`,
-        expect.anything(),
-      );
-      expect(fetchMock).not.toHaveBeenCalledWith(
-        `${host}/api/Tamanu/Acknowledge?fetch_id=${fetchId}`,
-        expect.anything(),
-      );
-      expect(fetchMock).toHaveBeenCalledTimes(1);
-    });
-
-    it.todo('rejects invalid credentials');
-    it.todo('sets response to false on error');
   });
 });
