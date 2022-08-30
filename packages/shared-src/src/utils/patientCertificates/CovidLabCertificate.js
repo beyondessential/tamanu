@@ -55,7 +55,7 @@ const columns = [
   {
     key: 'specimenType',
     title: 'Specimen type',
-    accessor: ({ labTestType }) => labTestType?.name || 'Unknown',
+    accessor: ({ labTestType }) => (labTestType || {}).name || 'Unknown',
   },
 ];
 
