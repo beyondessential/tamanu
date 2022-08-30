@@ -9,6 +9,7 @@ describe('ImagingRequest', () => {
   beforeAll(async () => {
     context = await initDb({ testMode: true });
   });
+  afterAll(() => context.sequelize.close());
 
   it('allows more than 255 characters in the results', async () => {
     // arrange
