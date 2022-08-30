@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import * as yup from 'yup';
 import Collapse from '@material-ui/core/Collapse';
 import PrintIcon from '@material-ui/icons/Print';
-
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { Colors, INVOICE_PAYMENT_STATUS_OPTIONS, ENCOUNTER_OPTIONS_BY_VALUE } from '../constants';
 import { foreignKey } from '../utils/validation';
 import { isInvoiceEditable } from '../utils';
@@ -108,7 +108,14 @@ export const InvoiceDetailForm = ({
               options={INVOICE_PAYMENT_STATUS_OPTIONS}
             />
             <Field name="total" label="Total ($)" disabled required component={NumberField} />
-            <Field name="date" label="Date" disabled required component={DateField} />
+            <Field
+              name="date"
+              label="Date"
+              disabled
+              required
+              component={DateField}
+              saveDateAsString
+            />
             <Field name="admissionType" label="Admission type" disabled component={TextField} />
             <Field name="receiptNumber" label="Receipt number" component={TextField} />
             <ButtonRow>
@@ -133,7 +140,7 @@ export const InvoiceDetailForm = ({
           </FormGrid>
         )}
         initialValues={{
-          date: new Date(),
+          date: getCurrentDateTimeString(),
           ...invoice,
           admissionType: invoice.admissionType
             ? ENCOUNTER_OPTIONS_BY_VALUE[invoice.admissionType].label
