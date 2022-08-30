@@ -42,6 +42,14 @@ export async function up(query) {
       },
       allowNull: true,
     },
+    on_behalf_of_id: {
+      type: Sequelize.STRING,
+      references: {
+        model: 'users',
+        key: 'id',
+      },
+      allowNull: true,
+    },
     content: {
       type: Sequelize.TEXT,
       allowNull: false,

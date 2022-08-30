@@ -25,7 +25,7 @@ export async function up(query) {
     await query.sequelize.query(
       `
       INSERT INTO note_items(id, note_page_id, content, date, author_id, created_at, updated_at, deleted_at)
-      VALUES(:id, :notePageId, :content, :date, :authorId, :createdAt, :updatedAt, :deletedAt)
+      VALUES(:id, :notePageId, :content, :date, :authorId, :onBehalfOfId, :createdAt, :updatedAt, :deletedAt)
       `,
       {
         replacements: {
@@ -34,6 +34,7 @@ export async function up(query) {
           content: note.content,
           date: note.date,
           authorId: note.author_id,
+          onBehalfOfId: note.on_behalf_of_id,
           createdAt: note.created_at,
           updatedAt: note.updated_at,
           deletedAt: note.deleted_at,
@@ -128,6 +129,7 @@ export async function down(query) {
           noteType: notePage.note_type,
           content: noteItem.content,
           authorId: noteItem.author_id,
+          onBehalfOfId: noteItem.on_behalf_of_id,
           date: noteItem.date,
           recordId: notePage.record_id,
           recordType: notePage.record_type,
