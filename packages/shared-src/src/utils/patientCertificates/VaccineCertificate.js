@@ -16,18 +16,18 @@ const columns = [
     key: 'vaccine',
     title: 'Vaccine',
     customStyles: { minWidth: 30 },
-    accessor: ({ scheduledVaccine }) => scheduledVaccine?.label,
+    accessor: ({ scheduledVaccine }) => (scheduledVaccine || {}).label,
   },
   {
     key: 'vaccineBrand',
     title: 'Vaccine brand',
     customStyles: { minWidth: 30 },
-    accessor: ({ scheduledVaccine }) => scheduledVaccine?.vaccine?.name,
+    accessor: ({ scheduledVaccine }) => ((scheduledVaccine || {}).vaccine || {}).name,
   },
   {
     key: 'schedule',
     title: 'Schedule',
-    accessor: ({ scheduledVaccine }) => scheduledVaccine?.schedule,
+    accessor: ({ scheduledVaccine }) => (scheduledVaccine || {}).schedule,
   },
   {
     key: 'countryName',
@@ -80,7 +80,7 @@ export const VaccineCertificate = ({
     } else {
       const vaxes = vaccinations.filter(v => v.certifiable);
       vaxes.sort((a, b) => +a.date - +b.date);
-      actualUvci = generateUVCI(vaxes[0]?.id, { format: uvciFormat, countryCode });
+      actualUvci = generateUVCI((vaxes[0] || {}).id, { format: uvciFormat, countryCode });
     }
   } else {
     actualUvci = null;
