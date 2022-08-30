@@ -15,7 +15,7 @@
       type: parallel
       exclude: ^(master$|dev$|staging-|ci-|uat-)
       steps:
-        - name: the desktop app and servers
+        - name: lint desktop app and servers
           service: app-without-db
           command: scripts/lint.sh pr-lints
         - name: ensure storybook builds

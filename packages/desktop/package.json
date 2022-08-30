@@ -34,7 +34,7 @@
     "test": "echo 'No tests on desktop'",
     "reinstall": "rm -rf ../../**/node_modules && yarn",
     "storybook": "start-storybook -p 6006",
-    "check-storybook": "start-storybook --ci --smoke-test",
+    "verify-storybook": "start-storybook --ci --smoke-test",
     "build-storybook": "build-storybook"
   },
   "browserslist": "electron 1.6",
@@ -121,6 +121,7 @@
     ]
   },
   "devDependencies": {
+    "@babel/plugin-proposal-optional-chaining": "^7.18.9",
     "@beyondessential/eslint-config-js": "^1.1.0",
     "@emotion/core": "^10.0.9",
     "@react-pdf/renderer": "^2.1.1",
