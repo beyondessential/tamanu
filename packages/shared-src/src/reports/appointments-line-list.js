@@ -2,18 +2,17 @@ import { addDays, endOfDay } from 'date-fns';
 import { generateReportFromQueryData } from './utilities';
 
 const FIELDS = [
-  'First Name',
-  'Last Name',
   'Patient ID',
+  'Patient first name',
+  'Patient last name',
   'DOB',
   'Age',
   'Sex',
   'Village',
-  'Patient Type',
-  'Appointment Date',
-  'Appointment Time',
-  'Appointment Type',
-  'Appointment Status',
+  'Patient type',
+  'Appointment date and time',
+  'Appointment type',
+  'Appointment status',
   'Clinician',
   'Location',
 ];
@@ -34,18 +33,17 @@ with
 		group by patient_id
 	)
 select
-	p.first_name "First Name",
-	p.last_name "Last Name",
-	p.display_id "Patient ID",
-	to_char(p.date_of_birth, 'YYYY-MM-DD') "DOB",
+  p.display_id "Patient ID",
+	p.first_name "Patient first name",
+	p.last_name "Patient last name",
+	to_char(p.date_of_birth, 'DD/MM/YYYY') "DOB",
 	extract(year from age(p.date_of_birth)) "Age",
 	p.sex "Sex",
 	vil.name "Village",
-	bt.billing_type_name "Patient Type",
-	to_char(a.start_time, 'YYYY-MM-DD') "Appointment Date",
-	to_char(a.start_time, 'HH12' || CHR(58) || 'MI AM') "Appointment Time",
-	a."type" "Appointment Type",
-	a.status "Appointment Status",
+	bt.billing_type_name "Patient type",
+	to_char(a.start_time, 'DD/MM/YYYY HH12' || CHR(58) || 'MI AM') "Appointment date and time",
+	a."type" "Appointment type",
+	a.status "Appointment status",
 	u.display_name "Clinician",
 	l.name "Location"
 from appointments a
