@@ -62,8 +62,8 @@ from
   left join notes n on n.record_id = ir.id
 where
   n.note_type = 'areaToBeImaged' or n.note_type is null
-  and case when :from_date is not null then e.start_date::date >= :from_date::date else true end
-  and case when :to_date is not null then e.start_date::date <= :to_date::date else true end
+  and case when :from_date is not null then ir.requested_date::date >= :from_date::date else true end
+  and case when :to_date is not null then ir.requested_date::date <= :to_date::date else true end
   and case when :requested_by_id is not null then ir.requested_by_id = :requested_by_id else true end
   and case when :imaging_type is not null then ir.imaging_type = :imaging_type else true end
   and case when :status is not null then ir.status = :status else true end
