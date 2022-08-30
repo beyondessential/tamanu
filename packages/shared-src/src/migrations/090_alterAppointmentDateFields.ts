@@ -1,7 +1,7 @@
 import { DataTypes, QueryInterface } from 'sequelize';
 
 const TABLE_NAME = 'appointments';
-const ISO9075_DATE_TIME_FMT = 'YYYY-MM-DD HH:mm:ss';
+const ISO9075_DATE_TIME_FMT = 'YYYY-MM-DD HH24:MI:SS';
 
 export async function up(query: QueryInterface) {
   await query.addColumn(TABLE_NAME, 'start_time_legacy', {
