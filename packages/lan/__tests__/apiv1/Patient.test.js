@@ -206,27 +206,24 @@ describe('Patient', () => {
         ...fake(Location),
         facilityId,
       });
-      await ReferenceData.create({
+      const cond1 = await ReferenceData.create({
         id: 'ref/icd10/K07.9',
         type: 'icd10',
         code: 'K07.9',
         name: 'Dentofacial anomaly',
       });
-      const cond1 = await ReferenceData.findByPk('ref/icd10/K07.9');
-      await ReferenceData.create({
+      const cond2 = await ReferenceData.create({
         id: 'ref/icd10/A51.3',
         type: 'icd10',
         code: 'A51.3',
         name: 'Secondary syphilis of skin',
       });
-      const cond2 = await ReferenceData.findByPk('ref/icd10/A51.3');
-      await ReferenceData.create({
+      const cond3 = await ReferenceData.create({
         id: 'ref/icd10/R41.0',
         type: 'icd10',
         code: 'R41.0',
         name: 'Confusion',
       });
-      const cond3 = await ReferenceData.findByPk('ref/icd10/R41.0');
 
       const makeCommon = condition => {
         const { deletedAt, ...dataValues } = condition.dataValues;
