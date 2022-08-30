@@ -43,7 +43,7 @@ select
 	p.display_id as "Patient ID",
 	p.first_name as "Patient first name",
 	p.last_name as "Patient last name",
-	to_char(p.date_of_birth::timestamp::date, 'dd-mm-yyyy') as "DOB",
+	to_char(p.date_of_birth::timestamp::date, 'dd/mm/yyyy') as "DOB",
 	case
 		when p.date_of_death is null
    	then date_part('year', Age(p.date_of_birth))
