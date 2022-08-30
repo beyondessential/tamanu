@@ -1,6 +1,6 @@
 import React from 'react';
 import * as yup from 'yup';
-
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { useSuggester } from '../api';
 import { foreignKey } from '../utils/validation';
 
@@ -28,7 +28,7 @@ export const InvoicePriceChangeItemForm = ({
       onSubmit={onSubmit}
       render={({ submitForm }) => (
         <FormGrid>
-          <Field name="date" label="Date" required component={DateField} />
+          <Field name="date" label="Date" required component={DateField} saveDateAsString />
           <Field name="description" label="Details" required component={TextField} />
           <Field
             name="orderedById"
@@ -47,7 +47,7 @@ export const InvoicePriceChangeItemForm = ({
         </FormGrid>
       )}
       initialValues={{
-        date: new Date(),
+        date: getCurrentDateTimeString(),
         ...invoicePriceChangeItem,
       }}
       validationSchema={yup.object().shape({

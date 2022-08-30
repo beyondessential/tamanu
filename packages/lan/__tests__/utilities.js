@@ -102,6 +102,7 @@ export async function createTestContext() {
 
   // migrate db and remove old test data
   await sequelize.migrate('up');
+
   await deleteAllTestIds(dbResult);
 
   // populate with reference data
