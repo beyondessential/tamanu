@@ -72,7 +72,11 @@ export const VaccineCertificate = ({
   const countryName = getLocalisation('country.name');
   const uvciFormat = getLocalisation('previewUvciFormat');
 
-  const data = vaccinations.map(vaccination => ({ ...vaccination, countryName, healthFacility }));
+  const data = vaccinations.map(vaccination => ({
+    ...vaccination.dataValues,
+    countryName,
+    healthFacility,
+  }));
   let actualUvci;
   if (vaccinations.some(v => v.certifiable)) {
     if (uvci) {
