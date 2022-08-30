@@ -178,7 +178,7 @@ export const ReportGeneratorForm = ({ onSuccessfulSubmit }) => {
         setRequestError(`Unable to submit report request - ${e.message}`);
       }
     },
-    [api, dataSource, onSuccessfulSubmit, reportsById],
+    [getFileName, currentUser.email, api, dataSource, onSuccessfulSubmit, reportsById],
   );
 
   // Wait until available reports are loaded to render.
