@@ -32,7 +32,7 @@ lab_test_info as (
       )
     ) tests
   from lab_tests lt
-  join lab_test_types ltt on ltt.id = lt.lab_test_type_id 
+  left join lab_test_types ltt on ltt.id = lt.lab_test_type_id
   group by lab_request_id 
 ),
 lab_request_info as (
@@ -44,7 +44,7 @@ lab_request_info as (
         'notes', to_json(aggregated_notes)
       )) "Lab requests"
   from lab_requests lr
-  join lab_test_info lti
+  left join lab_test_info lti -- include lab requests with no tests (hyperthetical)
   on lti.lab_request_id  = lr.id
   left join notes_info ni on ni.record_id = lr.id
   group by encounter_id
@@ -273,16 +273,16 @@ location_info as (
   group by e.id, l.name, e.start_date, first_from
 )
 select
-p.display_id "Patient ID",
-p.first_name "First name",
-p.last_name "Last name",
-to_char(p.date_of_birth, 'YYYY-MM-DD') "Date of birth",
-extract(year from age(p.date_of_birth::date)) "Age",
-p.sex "Sex",
-billing.name "Patient billing type",
-e.id "Encounter ID",
-to_char(e.start_date, 'YYYY-MM-DD HH24' || CHR(58) || 'MI') "Encounter start date",
-to_char(e.end_date, 'YYYY-MM-DD HH24' || CHR(58) || 'MI') "Encounter end date",
+p.display_id "patientId",
+p.first_name "firstname",
+p.last_name "lastname",
+to_char(p.date_of_birth, 'YYYY-MM-DD') "dateOfBirth",
+extract(year from age(p.date_of_birth::date)) "age",
+p.sex "sex",
+billing.name "patientBillingType",
+e.id "encounterId",
+to_char(e.start_date, 'YYYY-MM-DD HH24' || CHR(58) || 'MI') "encounterStartDate",
+to_char(e.end_date, 'YYYY-MM-DD HH24' || CHR(58) || 'MI') "encounterEndDate",
 case e.encounter_type
   when 'triage' then  'Triage'
   when 'observation' then  'Active ED patient'
@@ -292,29 +292,29 @@ case e.encounter_type
   when 'imaging' then 'Imaging'
   when 'surveyResponse' then 'Survey response'
   else e.encounter_type
-end "Encounter type",
+end "encounterType",
 case t.score
   when '1' then  'Emergency'
   when '2' then  'Priority'
   when '3' then  'Non-urgent'
   else t.score
-end "Triage category",
+end "triageCategory",
 ${"'hi'"
 //   case when t.closed_time is null 
 //   then age(t.triage_time)
 //   else age(t.closed_time, t.triage_time)
 // end 
-} "Time seen following triage/Wait time",
-di2.department_history "Department",
-li.location_history "Location",
-e.reason_for_encounter "Reason for encounter",
-di."Diagnosis",
-mi."Medications",
-vi."Vaccinations",
-pi."Procedures",
-lri."Lab requests",
-ii."Imaging requests",
-ni."Notes"
+} "waitTime",
+di2.department_history "department",
+li.location_history "location",
+e.reason_for_encounter "reasonForEncounter",
+di."Diagnosis" diagnosis,
+mi."Medications" medications,
+vi."Vaccinations" vaccinations,
+pi."Procedures" as "procedures",
+lri."Lab requests" "labRequests",
+ii."Imaging requests" "imagingRequests",
+ni."Notes" notes
 from patients p
 join encounters e on e.patient_id = p.id
 left join reference_data billing on billing.id = e.patient_billing_type_id
@@ -328,8 +328,7 @@ left join encounter_notes_info ni on ni.encounter_id = e.id
 left join triages t on t.encounter_id = e.id
 left join location_info li on li.encounter_id = e.id
 left join department_info di2 on di2.encounter_id = e.id
-where e.end_date is not null
-and coalesce(billing.id, '-') like coalesce(:billing_type, '%%')
+where coalesce(billing.id, '-') like coalesce(:billing_type, '%%')
 and CASE WHEN :department_id IS NOT NULL THEN dept_id_list::jsonb ? :department_id ELSE true end 
 and CASE WHEN :location_id IS NOT NULL THEN loc_id_list::jsonb ? :location_id ELSE true end 
 AND CASE WHEN :from_date IS NOT NULL THEN e.start_date::date >= :from_date::date ELSE true END
