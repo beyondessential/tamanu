@@ -27,7 +27,7 @@ export const randomRecords = (models, modelName, count) =>
 
 export const randomRecordId = async (models, modelName) => {
   const obj = await randomRecord(models, modelName);
-  return obj?.id ?? null;
+  return (obj || {}).id || null;
 };
 
 const makeId = s =>
