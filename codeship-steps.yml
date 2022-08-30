@@ -20,7 +20,7 @@
           command: scripts/lint.sh pr-lints
         - name: ensure storybook builds
           service: app-without-db
-          command: scripts/storybook.sh
+          command: "yarn workspace desktop run verify-storybook"
         # - TODO(WAITM-215): mobile lints
     - name: test
       type: serial
