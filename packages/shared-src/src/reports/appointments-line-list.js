@@ -1,4 +1,5 @@
-import { addDays, endOfDay } from 'date-fns';
+import { addDays, endOfDay, format } from 'date-fns';
+import { parseISO9075 } from 'shared/utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
 const FIELDS = [
@@ -10,17 +11,24 @@ const FIELDS = [
   'Sex',
   'Village',
   'Patient type',
-  'Appointment date and time',
+  {
+    title: 'Appointment date and time',
+    accessor: data => format(parseISO9075(data.appointmentDateTime), 'dd/MM/yyyy hh:mm a'),
+  },
   'Appointment type',
   'Appointment status',
   'Clinician',
   'Location',
 ];
 
-const reportColumnTemplate = FIELDS.map(field => ({
-  title: field,
-  accessor: data => data[field],
-}));
+const reportColumnTemplate = FIELDS.map(field =>
+  typeof field === 'string'
+    ? {
+        title: field,
+        accessor: data => data[field],
+      }
+    : field,
+);
 
 const query = `
 with
@@ -33,15 +41,15 @@ with
 		group by patient_id
 	)
 select
-  p.display_id "Patient ID",
+	p.display_id "Patient ID",
 	p.first_name "Patient first name",
 	p.last_name "Patient last name",
-	to_char(p.date_of_birth, 'DD/MM/YYYY') "DOB",
-	extract(year from age(p.date_of_birth)) "Age",
+	to_char(p.date_of_birth::date, 'DD/MM/YYYY') "DOB",
+	extract(year from age(p.date_of_birth::date)) "Age",
 	p.sex "Sex",
 	vil.name "Village",
 	bt.billing_type_name "Patient type",
-	to_char(a.start_time, 'DD/MM/YYYY HH12' || CHR(58) || 'MI AM') "Appointment date and time",
+	a.start_time "appointmentDateTime",
 	a."type" "Appointment type",
 	a.status "Appointment status",
 	u.display_name "Clinician",
