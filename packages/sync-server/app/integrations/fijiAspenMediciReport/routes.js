@@ -2,6 +2,7 @@ import { QueryTypes } from 'sequelize';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
+import { NOTE_TYPES } from 'shared/constants';
 import { requireClientHeaders } from '../../middleware/requireClientHeaders';
 
 export const routes = express.Router();
@@ -115,19 +116,18 @@ single_image_info as (
   select
     ir.encounter_id,
     json_build_object(
-      'name', image_type.name,
+      'name', ir.imaging_type,
       'area_to_be_imaged', area_notes.aggregated_notes,
       'notes', non_area_notes.aggregated_notes
     ) "data"
   from imaging_requests ir
-  join reference_data image_type on image_type.id = ir.imaging_type_id
   left join (
     select 
       record_id,
       json_agg(note) aggregated_notes
     from notes_info
     cross join json_array_elements(aggregated_notes) note
-    where note->>'note_type' != 'abc' --cross join ok here as only 1 record will be matched
+    where note->>'note_type' != '${NOTE_TYPES.AREA_TO_BE_IMAGED}' --cross join ok here as only 1 record will be matched
     group by record_id
   ) non_area_notes
   on non_area_notes.record_id = ir.id 
@@ -137,10 +137,20 @@ single_image_info as (
       string_agg(note->>'content', 'ERROR - SHOULD ONLY BE ONE AREA TO BE IMAGED') aggregated_notes
     from notes_info
     cross join json_array_elements(aggregated_notes) note
-    where note->>'note_type' = 'abc' --cross join ok here as only 1 record will be matched
+    where note->>'note_type' = '${NOTE_TYPES.AREA_TO_BE_IMAGED}' --cross join ok here as only 1 record will be matched
     group by record_id
   ) area_notes
   on area_notes.record_id = ir.id
+  left join (
+    select
+      imaging_request_id,
+      array_agg(reference_data.name) as area_names
+    from imaging_request_areas
+    inner join reference_data
+    on area_id = reference_data.id
+    group by imaging_request_id
+  ) reference_list 
+  on reference_list.imaging_request_id = ir.id
 ),
 imaging_info as (
   select
@@ -267,7 +277,7 @@ p.display_id "Patient ID",
 p.first_name "First name",
 p.last_name "Last name",
 to_char(p.date_of_birth, 'YYYY-MM-DD') "Date of birth",
-extract(year from age(p.date_of_birth)) "Age",
+extract(year from age(p.date_of_birth::date)) "Age",
 p.sex "Sex",
 billing.name "Patient billing type",
 e.id "Encounter ID",
@@ -289,10 +299,12 @@ case t.score
   when '3' then  'Non-urgent'
   else t.score
 end "Triage category",
-case when t.closed_time is null 
-  then age(t.triage_time)
-  else age(t.closed_time, t.triage_time)
-end "Time seen following triage/Wait time",
+${"'hi'"
+//   case when t.closed_time is null 
+//   then age(t.triage_time)
+//   else age(t.closed_time, t.triage_time)
+// end 
+} "Time seen following triage/Wait time",
 di2.department_history "Department",
 li.location_history "Location",
 e.reason_for_encounter "Reason for encounter",
