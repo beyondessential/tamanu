@@ -1,7 +1,6 @@
 import React from 'react';
-
 import { Modal } from './Modal';
-import { Button } from './Button';
+import { OutlinedButton } from './Button';
 import { VitalsForm } from '../forms/VitalsForm';
 
 export const NestedVitalsModal = ({ field }) => {
@@ -18,9 +17,7 @@ export const NestedVitalsModal = ({ field }) => {
 
   return (
     <>
-      <Button onClick={openModal} variant="contained" color="primary">
-        Record vitals
-      </Button>
+      <OutlinedButton onClick={openModal}>Record vitals</OutlinedButton>
       <Modal open={isOpen} onClose={closeModal}>
         <VitalsForm editedObject={field.value || {}} onSubmit={onSubmit} onCancel={closeModal} />
       </Modal>

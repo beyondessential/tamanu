@@ -6,17 +6,16 @@ import { SERVER_TYPES } from 'shared/constants';
 
 import { App } from './App';
 import {
-  PatientsRoutes,
-  SchedulingRoutes,
   ImagingRoutes,
   MedicationRoutes,
   LabsRoutes,
   BillingRoutes,
   AdministrationRoutes,
   ProgramsRoutes,
-  ReferralsRoutes,
   ReportsRoutes,
   ImmunisationRoutes,
+  AppointmentRoutes,
+  PatientsRoutes,
 } from './routes';
 import { Sidebar, FACILITY_MENU_ITEMS, SYNC_MENU_ITEMS } from './components/Sidebar';
 import { TopBar, Notification } from './components';
@@ -29,16 +28,15 @@ export const RoutingApp = () => {
 export const RoutingFacilityApp = React.memo(() => (
   <App sidebar={<Sidebar items={FACILITY_MENU_ITEMS} />}>
     <Switch>
-      <Redirect exact path="/" to="/patients" />
+      <Redirect exact path="/" to="/patients/all" />
       <Route path="/patients" component={PatientsRoutes} />
-      <Route path="/appointments" component={SchedulingRoutes} />
-      <Route path="/imaging" component={ImagingRoutes} />
-      <Route path="/medication" component={MedicationRoutes} />
-      <Route path="/labs" component={LabsRoutes} />
+      <Route path="/appointments" component={AppointmentRoutes} />
+      <Route path="/imaging-requests" component={ImagingRoutes} />
+      <Route path="/lab-requests" component={LabsRoutes} />
+      <Route path="/medication-requests" component={MedicationRoutes} />
       <Route path="/invoices" component={BillingRoutes} />
       <Route path="/admin" component={AdministrationRoutes} />
       <Route path="/programs" component={ProgramsRoutes} />
-      <Route path="/referrals" component={ReferralsRoutes} />
       <Route path="/reports" component={ReportsRoutes} />
       <Route path="/immunisations" component={ImmunisationRoutes} />
       {/*

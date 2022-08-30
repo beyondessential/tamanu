@@ -6,7 +6,9 @@ import {
   ENCOUNTER_TYPE_VALUES,
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
   REFERENCE_TYPE_VALUES,
+  VISIBILITY_STATUSES,
 } from 'shared/constants';
+import { toDateTimeString } from '../utils/dateTime';
 
 const chance = new Chance();
 
@@ -27,6 +29,7 @@ export function fakeScheduledVaccine(prefix = 'test-') {
     weeksFromLastVaccinationDue: null,
     index: random(0, 50),
     vaccineId: null,
+    visibilityStatus: VISIBILITY_STATUSES.CURRENT,
     ...fakeStringFields(`${prefix}scheduledVaccine_${id}_`, [
       'id',
       'category',
@@ -85,6 +88,7 @@ export function fakeReferenceData(prefix = 'test-') {
   const id = uuidv4();
   return {
     type: sample(REFERENCE_TYPE_VALUES),
+    visibilityStatus: VISIBILITY_STATUSES.CURRENT,
     ...fakeStringFields(`${prefix}referenceData_${id}_`, ['id', 'name', 'code']),
   };
 }
@@ -177,12 +181,14 @@ export function fakeEncounterMedication(prefix = 'test-') {
 
 const fakeDate = () => new Date(random(0, Date.now()));
 const fakeString = (model, { fieldName }, id) => `${model.name}.${fieldName}.${id}`;
+const fakeDateString = () => toDateTimeString(fakeDate());
 const fakeInt = () => random(0, 10);
 const fakeFloat = () => Math.random() * 1000;
 const fakeBool = () => sample([true, false]);
 const FIELD_HANDLERS = {
   'TIMESTAMP WITH TIME ZONE': fakeDate,
   DATETIME: fakeDate,
+  'VARCHAR(19)': fakeDateString, // VARCHAR(19) are used for date string storage
   'VARCHAR(255)': fakeString,
   'VARCHAR(31)': (...args) => fakeString(...args).slice(0, 31),
   TEXT: fakeString,
@@ -212,6 +218,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
     cityTown: chance.city(),
     division: chance.province({ full: true }),
     type: chance.pickone(['hospital', 'clinic']),
+    visibilityStatus: VISIBILITY_STATUSES.CURRENT,
   }),
   Patient: () => {
     const sex = chance.pickone(['male', 'female', 'other']);

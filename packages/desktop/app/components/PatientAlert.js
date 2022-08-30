@@ -10,7 +10,7 @@ export const PatientAlert = React.memo(({ alerts = [] }) => {
   const close = () => setAlertVisible(false);
 
   return (
-    <Modal title="Patient warnings" open={alertVisible}>
+    <Modal title="Patient warnings" open={alertVisible} onClose={close}>
       <ul>
         {alerts.map(a => (
           <li key={a.id}>{a.note}</li>

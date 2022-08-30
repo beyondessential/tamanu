@@ -9,7 +9,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogActions from '@material-ui/core/DialogActions';
 import PrintIcon from '@material-ui/icons/Print';
 import CloseIcon from '@material-ui/icons/Close';
-import { IconButton } from '@material-ui/core';
+import { Box, CircularProgress, IconButton, Typography } from '@material-ui/core';
 import { getCurrentRoute } from '../store/router';
 import { Colors } from '../constants';
 import { useElectron } from '../contexts/Electron';
@@ -137,11 +137,30 @@ export const Modal = memo(
   },
 );
 
+const Loader = styled(Box)`
+  padding: 40px 0;
+  text-align: center;
+
+  .MuiTypography-root {
+    margin-top: 40px;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 21px;
+    color: ${props => props.theme.palette.text.secondary};
+  }
+`;
+
+export const ModalLoader = ({ loadingText }) => (
+  <Loader>
+    <CircularProgress size="5rem" />
+    <Typography>{loadingText}</Typography>
+  </Loader>
+);
+
 export const connectRoutedModal = (baseRoute, suffix) =>
   connect(
     state => ({
       open: getCurrentRoute(state).startsWith(`${baseRoute}/${suffix}`),
-      extraRoute: getCurrentRoute(state).replace(`${baseRoute}/${suffix}/`, ''),
     }),
     dispatch => ({
       onClose: () => dispatch(push(baseRoute)),

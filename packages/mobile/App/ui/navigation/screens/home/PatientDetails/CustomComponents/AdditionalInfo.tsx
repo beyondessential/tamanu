@@ -28,7 +28,7 @@ function getFieldData(data: IPatientAdditionalData, fieldName: string): string {
 
 export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactElement => {
   const backend = useBackend();
-  const [additionalDataRes, setAdditionalDataRes] = useState(null);
+  const [additionalDataRecord, setAdditionalDataRecord] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   useFocusEffect(
@@ -37,13 +37,11 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
       (async (): Promise<void> => {
         const { models } = backend;
         try {
-          const result = await models.PatientAdditionalData.find({
-            where: { patient: { id: patient.id } },
-          });
+          const result = await models.PatientAdditionalData.getForPatient(patient.id);
           if (!mounted) {
             return;
           }
-          setAdditionalDataRes(result);
+          setAdditionalDataRecord(result);
           setLoading(false);
         } catch (err) {
           if (!mounted) {
@@ -64,17 +62,14 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
     return <ErrorScreen error={error} />;
   }
 
-  // Extract first patient additional data record
-  const data = additionalDataRes && additionalDataRes[0];
-
   // Check if patient additional data should be editable
   const { getBool } = useLocalisation();
   const isEditable = getBool('features.editPatientDetailsOnMobile');
 
   // Add edit callback and map the inner 'fields' array
   const sections = additionalDataSections.map(({ title, fields }) => {
-    const onEditCallback = (): void => onEdit(data, title);
-    const mappedFields = fields.map(fieldName => ([fieldName, getFieldData(data, fieldName)]));
+    const onEditCallback = (): void => onEdit(additionalDataRecord, title);
+    const mappedFields = fields.map(fieldName => ([fieldName, getFieldData(additionalDataRecord, fieldName)]));
     return { title, fields: mappedFields, onEditCallback };
   });
 
@@ -82,6 +77,7 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
     <>
       {sections.map(({ title, fields, onEditCallback }) => (
         <PatientSection
+          key={title}
           title={title}
           onEdit={isEditable ? onEditCallback : undefined}
           isClosable

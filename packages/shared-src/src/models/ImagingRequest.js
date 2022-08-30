@@ -1,17 +1,22 @@
 import { Sequelize } from 'sequelize';
 
 import { InvalidOperationError } from 'shared/errors';
-import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
+import { IMAGING_REQUEST_STATUS_TYPES, IMAGING_TYPES } from 'shared/constants';
 
 import { Model } from './Model';
 
 const ALL_IMAGING_REQUEST_STATUS_TYPES = Object.values(IMAGING_REQUEST_STATUS_TYPES);
-
+const ALL_IMAGING_TYPES = Object.values(IMAGING_TYPES);
 export class ImagingRequest extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
         id: primaryKey,
+
+        imagingType: {
+          type: Sequelize.ENUM(ALL_IMAGING_TYPES),
+          allowNull: false,
+        },
 
         status: {
           type: Sequelize.ENUM(ALL_IMAGING_REQUEST_STATUS_TYPES),
@@ -43,11 +48,6 @@ export class ImagingRequest extends Model {
               throw new InvalidOperationError('An imaging request must have a valid status.');
             }
           },
-          mustHaveValidImagingType() {
-            if (!this.imagingTypeId) {
-              throw new InvalidOperationError('An imaging request must have a valid imaging type.');
-            }
-          },
           mustHaveValidRequester() {
             if (!this.requestedById) {
               throw new InvalidOperationError('An imaging request must have a valid requester.');
@@ -59,7 +59,7 @@ export class ImagingRequest extends Model {
   }
 
   static getListReferenceAssociations() {
-    return ['imagingType', 'requestedBy'];
+    return ['requestedBy', 'areas'];
   }
 
   static initRelations(models) {
@@ -73,11 +73,6 @@ export class ImagingRequest extends Model {
       as: 'requestedBy',
     });
 
-    this.belongsTo(models.ReferenceData, {
-      foreignKey: 'imagingTypeId',
-      as: 'imagingType',
-    });
-
     this.belongsTo(models.User, {
       foreignKey: 'completedById',
       as: 'completedBy',
@@ -86,6 +81,12 @@ export class ImagingRequest extends Model {
     this.belongsTo(models.Location, {
       foreignKey: 'locationId',
       as: 'location',
+    });
+
+    this.belongsToMany(models.ReferenceData, {
+      through: models.ImagingRequestAreas,
+      as: 'areas',
+      foreignKey: 'imagingRequestId',
     });
 
     this.hasMany(models.Note, {

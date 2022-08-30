@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { API } from '../../api/singletons';
 import { useApi } from '../../api';
-import { TopBar, PageContainer, DataFetchingTable, ImmunisationSearchBar } from '../../components';
+import {
+  TopBar,
+  PageContainer,
+  DataFetchingTable,
+  ImmunisationSearchBar,
+  ContentPane,
+} from '../../components';
 import { displayId, firstName, lastName, village } from './columns';
 import { PatientImmunisationsModal } from './components';
 
@@ -78,11 +84,13 @@ export const CovidCampaignView = ({ getPatientVaccinations }) => {
       />
       <TopBar title="COVID campaign" />
       <ImmunisationSearchBar onSearch={setSearchParameters} />
-      <PatientCovidCampaignTable
-        getVaccines={getPatientVaccinations}
-        onPatientSelect={onRowClick}
-        fetchOptions={searchParameters}
-      />
+      <ContentPane>
+        <PatientCovidCampaignTable
+          getVaccines={getPatientVaccinations}
+          onPatientSelect={onRowClick}
+          fetchOptions={searchParameters}
+        />
+      </ContentPane>
     </PageContainer>
   );
 };

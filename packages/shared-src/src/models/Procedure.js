@@ -12,6 +12,7 @@ export class Procedure extends Model {
         },
         date: { type: Sequelize.DATE, allowNull: false },
         endTime: { type: Sequelize.DATE, allowNull: true },
+        startTime: { type: Sequelize.STRING, allowNull: true },
         note: Sequelize.STRING,
         completedNote: Sequelize.STRING,
       },
@@ -35,7 +36,6 @@ export class Procedure extends Model {
       foreignKey: 'procedureTypeId',
       as: 'ProcedureType',
     });
-
     this.belongsTo(models.User, {
       foreignKey: 'physicianId',
       as: 'Physician',

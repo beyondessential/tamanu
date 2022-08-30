@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { connect } from 'react-redux';
+import { getCurrentDateString, getCurrentDateTimeString } from 'shared/utils/dateTime';
 
 import { foreignKey } from '../utils/validation';
 import { encounterOptions } from '../constants';
@@ -11,6 +12,9 @@ import {
   getLabTestPriorities,
   loadOptions,
 } from '../store/options';
+import { useLabRequest } from '../contexts/LabRequest';
+import { useEncounter } from '../contexts/Encounter';
+import { usePatientNavigation } from '../utils/usePatientNavigation';
 
 import {
   Form,
@@ -24,14 +28,11 @@ import {
 } from '../components/Field';
 import { TestSelectorField } from '../components/TestSelector';
 import { FormGrid } from '../components/FormGrid';
-import { Button } from '../components/Button';
+import { OutlinedButton } from '../components/Button';
 import { ButtonRow } from '../components/ButtonRow';
 import { DateDisplay } from '../components/DateDisplay';
 import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { DropdownButton } from '../components/DropdownButton';
-
-import { useLabRequest } from '../contexts/LabRequest';
-import { useEncounter } from '../contexts/Encounter';
 
 function getEncounterTypeLabel(type) {
   return encounterOptions.find(x => x.value === type).label;
@@ -50,6 +51,7 @@ function filterTestTypes(testTypes, { labTestCategoryId }) {
 }
 
 const FormSubmitActionDropdown = ({ requestId, encounter, submitForm }) => {
+  const { navigateToLabRequest } = usePatientNavigation();
   const { loadEncounter } = useEncounter();
   const { loadLabRequest } = useLabRequest();
   const [awaitingPrintRedirect, setAwaitingPrintRedirect] = useState();
@@ -58,10 +60,11 @@ const FormSubmitActionDropdown = ({ requestId, encounter, submitForm }) => {
   useEffect(() => {
     (async () => {
       if (awaitingPrintRedirect && requestId) {
-        await loadLabRequest(requestId, 'print');
+        await loadLabRequest(requestId);
+        navigateToLabRequest(requestId, 'print');
       }
     })();
-  }, [requestId, awaitingPrintRedirect, loadLabRequest]);
+  }, [requestId, awaitingPrintRedirect, loadLabRequest, navigateToLabRequest]);
 
   const finalise = async data => {
     await submitForm(data);
@@ -78,7 +81,7 @@ const FormSubmitActionDropdown = ({ requestId, encounter, submitForm }) => {
     { label: 'Finalise & print', onClick: finaliseAndPrint },
   ];
 
-  return <DropdownButton color="primary" variant="contained" actions={actions} />;
+  return <DropdownButton actions={actions} />;
 };
 
 export class LabRequestForm extends React.PureComponent {
@@ -105,7 +108,13 @@ export class LabRequestForm extends React.PureComponent {
     return (
       <FormGrid>
         <Field name="displayId" label="Lab request number" disabled component={TextField} />
-        <Field name="requestedDate" label="Order date" required component={DateTimeField} />
+        <Field
+          name="requestedDate"
+          label="Order date"
+          required
+          component={DateTimeField}
+          saveDateAsString
+        />
         <TextInput label="Supervising doctor" disabled value={examinerLabel} />
         <Field
           name="requestedById"
@@ -114,7 +123,13 @@ export class LabRequestForm extends React.PureComponent {
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
-        <Field name="sampleTime" label="Sample time" required component={DateTimeField} />
+        <Field
+          name="sampleTime"
+          label="Sample time"
+          required
+          component={DateTimeField}
+          saveDateAsString
+        />
         <div>
           <Field name="specimenAttached" label="Specimen attached?" component={CheckField} />
           <Field name="urgent" label="Urgent?" component={CheckField} />
@@ -152,9 +167,7 @@ export class LabRequestForm extends React.PureComponent {
           rows={3}
         />
         <ButtonRow>
-          <Button variant="contained" onClick={onCancel}>
-            Cancel
-          </Button>
+          <OutlinedButton onClick={onCancel}>Cancel</OutlinedButton>
           <FormSubmitActionDropdown
             requestId={requestId}
             encounter={encounter}
@@ -173,8 +186,8 @@ export class LabRequestForm extends React.PureComponent {
         render={this.renderForm}
         initialValues={{
           displayId: generateDisplayId(),
-          requestedDate: new Date().toLocaleDateString(),
-          sampleTime: new Date().toLocaleString(),
+          requestedDate: getCurrentDateTimeString(),
+          sampleTime: getCurrentDateTimeString(),
           ...editedObject,
         }}
         validationSchema={yup.object().shape({
