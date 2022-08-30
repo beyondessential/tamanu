@@ -1,7 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { ENCOUNTER_TYPES } from 'shared/constants';
-import { createDummyPatient } from 'Shared/demoData';
+import { createDummyPatient } from 'shared/demoData';
 import { PatientEncounterSummary } from '../app/views/patients/components/PatientEncounterSummary';
 
 const patient = createDummyPatient();

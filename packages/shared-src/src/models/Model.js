@@ -87,9 +87,14 @@ export class Model extends sequelize.Model {
     return this.getListReferenceAssociations(models);
   }
 
-  static async findByIds(ids) {
+  static async findByIds(ids, paranoid = true) {
+    if (ids.length === 0) return [];
+
     return this.findAll({
-      where: { id: { [Op.in]: ids } },
+      where: {
+        id: { [Op.in]: ids },
+      },
+      paranoid,
     });
   }
 

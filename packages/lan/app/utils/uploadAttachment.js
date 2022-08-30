@@ -1,7 +1,7 @@
 import fs, { promises as asyncFs } from 'fs';
 import { InvalidParameterError, RemoteCallFailedError } from 'shared/errors';
+import { getUploadedData } from 'shared/utils/getUploadedData';
 import { CentralServerConnection } from '../sync';
-import { getUploadedData } from '../admin/getUploadedData';
 
 // Helper function for uploading one file to the sync server
 // req: express request, maxFileSize: integer (size in bytes)
