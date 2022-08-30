@@ -33,7 +33,7 @@ async function writeToPatientFields(models, questions, answers, patientId) {
   const patientAdditionalDataValues = {};
 
   const patientDataQuestions = questions.filter(
-    q => q.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA
+    q => q.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA,
   );
   for (const question of patientDataQuestions) {
     const { dataElement, config: configString } = question;

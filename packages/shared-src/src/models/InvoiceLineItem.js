@@ -2,6 +2,7 @@ import { Sequelize } from 'sequelize';
 import { INVOICE_LINE_ITEM_STATUSES, SYNC_DIRECTIONS } from 'shared/constants';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { Model } from './Model';
+import { dateType } from './dateTimeTypes';
 
 export class InvoiceLineItem extends Model {
   static init({ primaryKey, ...options }) {
@@ -9,7 +10,7 @@ export class InvoiceLineItem extends Model {
       {
         id: primaryKey,
         percentageChange: Sequelize.DECIMAL,
-        dateGenerated: Sequelize.DATE,
+        dateGenerated: dateType('dateGenerated'),
         status: {
           type: Sequelize.STRING,
           allowNull: false,
