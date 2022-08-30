@@ -24,7 +24,7 @@ export async function up(query) {
 
     await query.sequelize.query(
       `
-      INSERT INTO note_items(id, note_page_id, content, date, author_id, created_at, updated_at, deleted_at)
+      INSERT INTO note_items(id, note_page_id, content, date, author_id, on_behalf_of_id, created_at, updated_at, deleted_at)
       VALUES(:id, :notePageId, :content, :date, :authorId, :onBehalfOfId, :createdAt, :updatedAt, :deletedAt)
       `,
       {
