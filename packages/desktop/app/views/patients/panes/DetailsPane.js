@@ -1,6 +1,7 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import { Typography } from '@material-ui/core';
+import { useQueryClient } from '@tanstack/react-query';
 import { useApi } from '../../../api';
 import { useAuth } from '../../../contexts/Auth';
 import { ContentPane } from '../../../components';
@@ -18,12 +19,16 @@ const ForbiddenMessage = () => (
   </ContentPane>
 );
 
-export const PatientDetailsPane = React.memo(({ patient, additionalData }) => {
+export const PatientDetailsPane = React.memo(({ patient, additionalData, birthData }) => {
   const api = useApi();
+  const queryClient = useQueryClient();
   const dispatch = useDispatch();
   const { ability } = useAuth();
+
   const handleSubmit = async data => {
     await api.put(`patient/${patient.id}`, data);
+    queryClient.invalidateQueries(['additionalData', patient.id]);
+    queryClient.invalidateQueries(['birthData', patient.id]);
     dispatch(reloadPatient(patient.id));
   };
 
@@ -40,6 +45,7 @@ export const PatientDetailsPane = React.memo(({ patient, additionalData }) => {
       <PatientDetailsForm
         patient={patient}
         additionalData={additionalData}
+        birthData={birthData}
         onSubmit={handleSubmit}
       />
     </ContentPane>

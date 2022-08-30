@@ -1,12 +1,14 @@
 import { keyBy } from 'lodash';
 import { Grid, Typography } from '@material-ui/core';
 import { red } from '@material-ui/core/colors';
-import React, { useCallback, useState, useEffect } from 'react';
-import { connect } from 'react-redux';
+import React, { useCallback, useState, useEffect, useMemo } from 'react';
 import styled from 'styled-components';
 import * as Yup from 'yup';
+import { REPORT_DATA_SOURCES, REPORT_DATA_SOURCE_VALUES } from 'shared/constants';
+
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { connectApi, useApi } from '../../api';
+import { useAuth } from '../../contexts/Auth';
 import {
   AutocompleteField,
   Button,
@@ -19,8 +21,7 @@ import {
   MultiselectField,
 } from '../../components';
 import { FormGrid } from '../../components/FormGrid';
-import { Colors, MUI_SPACING_UNIT, REPORT_DATA_SOURCES } from '../../constants';
-import { getCurrentUser } from '../../store/auth';
+import { Colors, MUI_SPACING_UNIT } from '../../constants';
 
 import { VillageField } from './VillageField';
 import { LabTestLaboratoryField } from './LabTestLaboratoryField';
@@ -30,11 +31,12 @@ import { saveExcelFile } from '../../utils/saveExcelFile';
 import { VaccineCategoryField } from './VaccineCategoryField';
 import { VaccineField } from './VaccineField';
 import { Suggester } from '../../utils/suggester';
+import { ImagingTypeField } from './ImagingTypeField';
 
 const EmptyField = styled.div``;
 
 const ParameterAutocompleteField = connectApi((api, _, props) => ({
-  suggester: new Suggester(api, props.suggesterEndpoint),
+  suggester: new Suggester(api, props.suggesterEndpoint, props.suggesterOptions),
 }))(props => <Field component={AutocompleteField} suggester={props.suggester} {...props} />);
 
 const ParameterSelectField = props => <Field component={SelectField} {...props} />;
@@ -51,6 +53,7 @@ const PARAMETER_FIELD_COMPONENTS = {
   ParameterAutocompleteField,
   ParameterSelectField,
   ParameterMultiselectField,
+  ImagingTypeField,
 };
 
 const Spacer = styled.div`
@@ -142,23 +145,38 @@ const ReportTypeField = ({ onValueChange, ...props }) => {
   return <AutocompleteField {...props} onChange={changeCallback} />;
 };
 
-const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
+export const ReportGeneratorForm = ({ onSuccessfulSubmit }) => {
   const api = useApi();
+  const { currentUser } = useAuth();
+
   const [requestError, setRequestError] = useState();
-  const [parameters, setParameters] = useState([]);
+  const [availableReports, setAvailableReports] = useState([]);
   const [dataSource, setDataSource] = useState(REPORT_DATA_SOURCES.THIS_FACILITY);
-  const [isDataSourceFieldDisabled, setIsDataSourceFieldDisabled] = useState(false);
-  const [availableReports, setAvailableReports] = useState(null);
-  const [reportsById, setReportsById] = useState({});
-  const [reportOptions, setReportOptions] = useState([]);
-  const [dateRangeLabel, setDateRangeLabel] = useState('Date range');
+  const [selectedReportId, setSelectedReportId] = useState(null);
+
+  const reportsById = useMemo(() => keyBy(availableReports, 'id'), [availableReports]);
+  const reportOptions = useMemo(() => availableReports.map(r => ({ value: r.id, label: r.name })), [
+    availableReports,
+  ]);
+
+  const {
+    parameters = [],
+    dateRangeLabel = 'Date range',
+    dataSourceOptions = REPORT_DATA_SOURCE_VALUES,
+  } = reportsById[selectedReportId] || {};
+
+  const isDataSourceFieldDisabled = dataSourceOptions.length === 1;
+
+  useEffect(() => {
+    if (!dataSourceOptions.includes(dataSource)) {
+      setDataSource(dataSourceOptions[0]);
+    }
+  }, [dataSourceOptions, dataSource]);
 
   useEffect(() => {
     (async () => {
       try {
         const reports = await getAvailableReports(api);
-        setReportsById(keyBy(reports, 'id'));
-        setReportOptions(reports.map(r => ({ value: r.id, label: r.name })));
         setAvailableReports(reports);
       } catch (error) {
         // eslint-disable-next-line no-console
@@ -167,26 +185,6 @@ const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
       }
     })();
   }, [api]);
-
-  const selectReportHandle = useCallback(
-    id => {
-      const reportDefinition = reportsById[id];
-      if (!reportDefinition) {
-        return;
-      }
-
-      setParameters(reportDefinition.parameters || []);
-      setDateRangeLabel(reportDefinition.dateRangeLabel);
-      if (reportDefinition.allFacilities) {
-        setIsDataSourceFieldDisabled(true);
-        setDataSource(REPORT_DATA_SOURCES.ALL_FACILITIES);
-      } else {
-        setIsDataSourceFieldDisabled(false);
-        setDataSource(REPORT_DATA_SOURCES.THIS_FACILITY);
-      }
-    },
-    [reportsById],
-  );
 
   const submitRequestReport = useCallback(
     async formValues => {
@@ -251,7 +249,7 @@ const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
               component={ReportTypeField}
               options={reportOptions}
               required
-              onValueChange={selectReportHandle}
+              onValueChange={setSelectedReportId}
             />
             <Field
               name="dataSource"
@@ -319,7 +317,3 @@ const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
     />
   );
 };
-
-export const ReportGeneratorForm = connect(state => ({
-  currentUser: getCurrentUser(state),
-}))(DumbReportGeneratorForm);

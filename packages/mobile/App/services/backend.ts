@@ -1,7 +1,7 @@
 import { Database } from '../infra/db';
 import { SyncManager, WebSyncSource } from './sync';
 import { AuthService } from './auth';
-import { AuthenticationError } from './auth/error';
+import { AuthenticationError } from './error';
 import { LocalisationService } from './localisation';
 import { PermissionsService } from './permissions';
 import { MODELS_MAP } from '../models/modelsMap';
