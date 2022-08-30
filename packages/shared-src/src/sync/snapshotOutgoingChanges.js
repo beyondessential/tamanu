@@ -1,9 +1,23 @@
 import config from 'config';
-import { Op, DATE } from 'sequelize';
+import { Op, DataTypes } from 'sequelize';
+import { toDateTimeString, toDateString } from '../utils/dateTime';
 
 const { readOnly } = config.sync;
 
 const COLUMNS_EXCLUDED_FROM_SYNC = ['createdAt', 'updatedAt', 'markedForSync'];
+
+const formatValue = (columnType, value) => {
+  if (columnType instanceof DataTypes.DATE) {
+    return value?.toISOString();
+  }
+  if (columnType instanceof DataTypes.DATETIMESTRING) {
+    return toDateTimeString(value) ?? undefined;
+  }
+  if (columnType instanceof DataTypes.DATESTRING) {
+    return toDateString(value) ?? undefined;
+  }
+  return value;
+};
 
 const snapshotChangesForModel = async (model, fromSessionIndex) => {
   const recordsChanged = await model.findAll({
@@ -18,7 +32,7 @@ const snapshotChangesForModel = async (model, fromSessionIndex) => {
         // sanitize values, e.g. dates to iso strings
         .map(name => {
           const columnType = model.tableAttributes[name].type;
-          const value = columnType instanceof DATE ? record[name]?.toISOString() : record[name];
+          const value = formatValue(columnType, record[name]);
           return [name, value];
         }),
     );
