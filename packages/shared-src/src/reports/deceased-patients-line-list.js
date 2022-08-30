@@ -129,8 +129,8 @@ from
   left join reference_data rd7 on rd7.id=pdd.carrier_existing_condition_id
 where
   to_char(e.end_date::timestamp::date, 'dd/mm/yyyy') = to_char(p.date_of_death::timestamp::date, 'dd/mm/yyyy')
-  and case when :from_date is not null then e.start_date::date >= :from_date::date else true end
-  and case when :to_date is not null then e.start_date::date <= :to_date::date else true end
+  and case when :from_date is not null then p.date_of_death::date >= :from_date::date else true end
+  and case when :to_date is not null then p.date_of_death::date <= :to_date::date else true end
   and case when :cause_of_death is not null then rd4.id = :cause_of_death else true end
   and case when :antecedent_cause is not null then (rd5.id = :antecedent_cause OR rd6.id = :antecedent_cause) else true end
   and case when :other_contributing_condition is not null then os.id = :other_contributing_condition else true end
