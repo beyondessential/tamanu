@@ -73,7 +73,7 @@ select distinct on (p.date_of_death, p.id)
   p.first_name  as "Patient first name",
   p.last_name as "Patient last name",
   p.date_of_birth as "DOB",
-  age(p.date_of_death,p.date_of_birth) as "Age",
+  age(p.date_of_death::date, p.date_of_birth) as "Age",
   p.sex as "Sex",
   village.name as "Village",
   nationality.name as "Nationality",
