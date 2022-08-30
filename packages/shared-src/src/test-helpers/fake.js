@@ -8,7 +8,7 @@ import {
   REFERENCE_TYPE_VALUES,
   VISIBILITY_STATUSES,
 } from 'shared/constants';
-import { toDateTimeString } from '../utils/dateTime';
+import { toDateTimeString, toDateString } from '../utils/dateTime';
 
 const chance = new Chance();
 
@@ -181,13 +181,16 @@ export function fakeEncounterMedication(prefix = 'test-') {
 
 const fakeDate = () => new Date(random(0, Date.now()));
 const fakeString = (model, { fieldName }, id) => `${model.name}.${fieldName}.${id}`;
-const fakeDateString = () => toDateTimeString(fakeDate());
+const fakeDateTimeString = () => toDateTimeString(fakeDate());
+const fakeDateString = () => toDateString(fakeDate());
 const fakeInt = () => random(0, 10);
 const fakeFloat = () => Math.random() * 1000;
 const fakeBool = () => sample([true, false]);
 const FIELD_HANDLERS = {
   'TIMESTAMP WITH TIME ZONE': fakeDate,
   DATETIME: fakeDate,
+  date_time_string: fakeDateTimeString, // custom type used for datetime string storage
+  date_string: fakeDateString, // custom type used for date string storage
   'VARCHAR(19)': fakeDateString, // VARCHAR(19) are used for date string storage
   'VARCHAR(255)': fakeString,
   'VARCHAR(31)': (...args) => fakeString(...args).slice(0, 31),
@@ -268,6 +271,15 @@ const MODEL_SPECIFIC_OVERRIDES = {
     emergencyContactName: chance.name(),
     emergencyContactNumber: chance.phone(),
   }),
+  PatientDeathData: () => {
+    const options = ['yes', 'no', 'unknown', null];
+    return {
+      wasPregnant: sample(options),
+      pregnancyContributed: sample(options),
+      recentSurgery: sample(options),
+      stillborn: sample(options),
+    }
+  },
   User: () => ({
     email: chance.email(),
     displayName: chance.name(),
