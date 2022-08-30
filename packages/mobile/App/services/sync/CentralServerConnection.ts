@@ -5,10 +5,11 @@ import { LoginResponse, SyncRecord, FetchOptions } from './types';
 import {
   AuthenticationError,
   OutdatedVersionError,
+  RemoteError,
   invalidUserCredentialsMessage,
   invalidTokenMessage,
   generalErrorMessage,
-} from '../auth/error';
+} from '../error';
 import { version } from '/root/package.json';
 
 import { callWithBackoff, getResponseJsonSafely, fetchWithTimeout } from './utils';
@@ -70,14 +71,15 @@ export class CentralServerConnection {
 
     if (response.status === 422) {
       const { error } = await getResponseJsonSafely(response);
-      throw new Error(error.message);
+      throw new RemoteError(error?.message, error, response.status);
     }
 
     if (!response.ok) {
+      const { error } = await getResponseJsonSafely(response);
       // User will be shown a generic error message;
       // log it out here to help with debugging
       console.error('Response had non-OK value', { url, response });
-      throw new Error(generalErrorMessage);
+      throw new RemoteError(generalErrorMessage, error, response.status);
     }
 
     return response.json();

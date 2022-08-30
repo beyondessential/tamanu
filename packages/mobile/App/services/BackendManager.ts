@@ -2,7 +2,7 @@ import { Database } from '../infra/db';
 import { MobileSyncManager, CentralServerConnection } from './sync';
 import { readConfig } from './config';
 import { AuthService } from './auth';
-import { AuthenticationError } from './auth/error';
+import { AuthenticationError } from './error';
 import { LocalisationService } from './localisation';
 import { PermissionsService } from './permissions';
 import { MODELS_MAP } from '../models/modelsMap';

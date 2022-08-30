@@ -12,6 +12,7 @@ export * from './PatientSecondaryId';
 export * from './PatientFacility';
 
 export * from './PatientDeathData';
+export * from './PatientBirthData';
 export * from './ContributingDeathCause';
 
 export * from './Encounter';
