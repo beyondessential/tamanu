@@ -1,12 +1,11 @@
 import React from 'react';
 
-import shortid from 'shortid';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 
-import { DataDocumentUploadForm } from '../app/views/administration/DataDocumentUploadForm';
 import { ImportErrorsTable } from '../app/views/administration/components/ImportErrorsTable';
 import { ImportStatsDisplay } from '../app/views/administration/components/ImportStatsDisplay';
+import { ImporterView } from '../app/views/administration/components/ImporterView';
 
 const sampleResponse = {
   sentData: false,
@@ -74,9 +73,9 @@ const dummySubmit = overrides => async formData => {
   };
 };
 
-storiesOf('Admin/DataDocumentUploadForm', module)
+storiesOf('Admin/ImporterView', module)
   .add('Whole view', () => (
-    <DataDocumentUploadForm
+    <ImporterView
       onSubmit={dummySubmit()}
       onReceiveResult={action('result')}
       onCancel={action('cancel')}

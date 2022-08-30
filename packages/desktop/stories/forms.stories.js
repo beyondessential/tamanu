@@ -11,7 +11,7 @@ import {
   FACILITIES,
   LOCATIONS,
   USERS,
-} from 'Shared/demoData';
+} from 'shared/demoData';
 import { EncounterForm } from '../app/forms/EncounterForm';
 import { TriageForm } from '../app/forms/TriageForm';
 import { VitalsForm } from '../app/forms/VitalsForm';

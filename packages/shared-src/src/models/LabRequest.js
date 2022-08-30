@@ -4,7 +4,7 @@ import { InvalidOperationError } from 'shared/errors';
 import { LAB_REQUEST_STATUSES, NOTE_TYPES, SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
-import { dateTimeType } from './dateTimeType';
+import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 
 export class LabRequest extends Model {
