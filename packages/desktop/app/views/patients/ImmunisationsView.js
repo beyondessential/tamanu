@@ -58,7 +58,7 @@ export const ImmunisationsView = () => {
         onClose={() => setModalOpen(false)}
       />
       <TopBar title="Immunisation register" />
-      <PatientSearchBar onSearch={setSearchParameters} />
+      <PatientSearchBar onSearch={setSearchParameters} suggestByFacility={false} />
       <ContentPane>
         <PatientImmunisationsTable onPatientSelect={onRowClick} fetchOptions={searchParameters} />
       </ContentPane>

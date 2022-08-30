@@ -31,7 +31,6 @@ describe('Sync API', () => {
   // The sync api joins patients to notes but the faker doesn't include them so we add it here for a later comparison
   const fakeSyncRecordPatient = overrides =>
     convertFromDbRecord({
-      notes: [],
       ...fake(ctx.store.models.Patient),
       ...overrides,
     });

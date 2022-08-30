@@ -19,7 +19,7 @@ const MEDICATION_COLUMNS = [
   {
     key: 'endDate',
     title: 'End Date',
-    accessor: data => <DateDisplay date={data?.endDate ?? ''} />,
+    accessor: data => (data?.endDate ? <DateDisplay date={data?.endDate} /> : ''),
   },
   { key: 'prescriber', title: 'Prescriber', accessor: data => data?.prescriber?.displayName ?? '' },
 ];

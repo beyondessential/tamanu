@@ -100,7 +100,7 @@ const TABS = [
 
 const EncounterActionDropdown = ({ encounter }) => {
   const { navigateToEncounter, navigateToSummary } = usePatientNavigation();
-  const onChangeEncounterType = type => navigateToEncounter(encounter.id, `changeType/${type}`);
+  const onChangeEncounterType = type => navigateToEncounter(encounter.id, `changeType`, { type });
   const onChangeLocation = () => navigateToEncounter(encounter.id, 'move');
   const onDischargeOpen = () => navigateToEncounter(encounter.id, 'discharge');
   const onChangeDepartment = () => navigateToEncounter(encounter.id, 'changeDepartment');
