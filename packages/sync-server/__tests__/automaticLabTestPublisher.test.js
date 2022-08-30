@@ -31,46 +31,41 @@ describe('Lab test publisher', () => {
   let patient;
 
   const makeLabRequest = async testType => {
-    try {
-      const examiner = await models.User.create(fakeUser());
-      const facility = await models.Facility.create({ ...fake(models.Facility) });
-      const department = await models.Department.create({
-        ...fake(models.Department),
-        facilityId: facility.id,
+    const examiner = await models.User.create(fakeUser());
+    const facility = await models.Facility.create(fake(models.Facility));
+    const department = await models.Department.create({
+      ...fake(models.Department),
+      facilityId: facility.id,
+    });
+    const location = await models.Location.create({
+      ...fake(models.Location),
+      facilityId: facility.id,
+    });
+    const encounter = await models.Encounter.create({
+      patientId: patient.id,
+      startDate: new Date(),
+      encounterType: ENCOUNTER_TYPES.IMAGING,
+      departmentId: department.id,
+      locationId: location.id,
+      examinerId: examiner.id,
+    });
+    const labRequest = await models.LabRequest.create({
+      encounterId: encounter.id,
+      displayId: `${Math.random()}`,
+    });
+    if (!(await models.LabTestType.findByPk(testType))) {
+      await models.LabTestType.create({
+        id: testType,
+        name: testType,
+        code: testType,
+        labTestCategoryId: testCategory.id,
       });
-      const location = await models.Location.create({
-        ...fake(models.Location),
-        facilityId: facility.id,
-      });
-      const encounter = await models.Encounter.create({
-        patientId: patient.id,
-        startDate: new Date(),
-        encounterType: ENCOUNTER_TYPES.IMAGING,
-        departmentId: department.id,
-        locationId: location.id,
-        examinerId: examiner.id,
-      });
-      const labRequest = await models.LabRequest.create({
-        encounterId: encounter.id,
-        displayId: `${Math.random()}`,
-      });
-      if (!(await models.LabTestType.findByPk(testType))) {
-        await models.LabTestType.create({
-          id: testType,
-          name: testType,
-          code: testType,
-          labTestCategoryId: testCategory.id,
-        });
-      }
-      const labTest = await models.LabTest.create({
-        labRequestId: labRequest.id,
-        labTestTypeId: testType,
-      });
-      return { encounter, labRequest, labTest };
-    } catch (e) {
-      console.log(e);
-      throw e;
     }
+    const labTest = await models.LabTest.create({
+      labRequestId: labRequest.id,
+      labTestTypeId: testType,
+    });
+    return { encounter, labRequest, labTest };
   };
 
   beforeAll(async () => {
