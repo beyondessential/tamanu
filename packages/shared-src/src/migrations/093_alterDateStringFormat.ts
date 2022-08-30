@@ -1,6 +1,5 @@
 import { QueryInterface } from 'sequelize';
 
-const ISO9075_DATE_TIME_FMT_PREVIOUS = 'YYYY-MM-DD HH:mm:ss';
 const ISO9075_DATE_TIME_FMT_CORRECTION = 'YYYY-MM-DD HH24:MI:SS';
 
 const tableColumns = {
@@ -32,23 +31,7 @@ export async function up(query: QueryInterface) {
   await Promise.all(promises);
 }
 
-export async function down(query: QueryInterface) {
-  const promises = [];
-  Object.entries(tableColumns).forEach(([tableName, columns]) => {
-    columns.forEach(columnName => {
-      promises.push(
-        query.sequelize.query(
-          `
-          UPDATE ${tableName}
-          SET ${columnName} = TO_CHAR(${`${columnName}_legacy`}, :dateTimeFmt);`,
-          {
-            replacements: {
-              dateTimeFmt: ISO9075_DATE_TIME_FMT_PREVIOUS,
-            },
-          },
-        ),
-      );
-    });
-  });
-  await Promise.all(promises);
+export async function down() {
+  // No down as correction
+  return null;
 }
