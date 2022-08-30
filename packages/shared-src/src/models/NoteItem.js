@@ -47,5 +47,10 @@ export class NoteItem extends Model {
       foreignKey: 'authorId',
       as: 'author',
     });
+
+    this.belongsTo(models.User, {
+      foreignKey: 'onBehalfOfId',
+      as: 'onBehalfOf',
+    });
   }
 }
