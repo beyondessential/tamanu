@@ -6,21 +6,26 @@ import { Model } from './Model';
 const DEFAULT_SALT_ROUNDS = 10;
 
 export class User extends Model {
+  static SALT_ROUNDS = DEFAULT_SALT_ROUNDS;
+
+  static hashPassword(pw) {
+    return hash(pw, User.SALT_ROUNDS ?? DEFAULT_SALT_ROUNDS);
+  }
+
   forResponse() {
     const { password, ...otherValues } = this.dataValues;
     return otherValues;
   }
 
   async setPassword(pw) {
-    const hashedPassword = await hash(pw, this.SALT_ROUNDS);
-    this.password = hashedPassword;
+    this.password = await User.hashPassword(pw);
   }
 
   static async sanitizeForInsert(values) {
     const { password, ...otherValues } = values;
     if (!password) return values;
 
-    return { ...otherValues, password: await hash(password, this.SALT_ROUNDS) };
+    return { ...otherValues, password: await User.hashPassword(password) };
   }
 
   static async update(values, ...args) {
@@ -75,10 +80,16 @@ export class User extends Model {
         },
         indexes: [{ fields: ['email'] }],
         syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
+        hooks: {
+          async beforeUpdate(user) {
+            if (user.changed('password')) {
+              // eslint-disable-next-line no-param-reassign
+              user.password = await User.hashPassword(user.password);
+            }
+          },
+        },
       },
     );
-
-    this.SALT_ROUNDS = this.SALT_ROUNDS || DEFAULT_SALT_ROUNDS;
   }
 
   static initRelations(models) {
