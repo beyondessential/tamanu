@@ -38,7 +38,7 @@ triage.post(
     // so put it into a single note record
     if (notes) {
       await triageRecord.createNote({
-        type: NOTE_TYPES.OTHER,
+        noteType: NOTE_TYPES.OTHER,
         content: notes,
       });
     }

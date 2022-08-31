@@ -24,7 +24,7 @@ patientCarePlan.post(
     await newCarePlan.createNote({
       date: req.body.date,
       content: req.body.content,
-      type: NOTE_TYPES.TREATMENT_PLAN,
+      noteType: NOTE_TYPES.TREATMENT_PLAN,
       authorId: req.user.id,
       onBehalfOfId: req.body.examinerId,
     });
