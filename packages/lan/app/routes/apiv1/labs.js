@@ -60,7 +60,7 @@ labRequest.post(
     const object = await models.LabRequest.createWithTests(req.body);
     if (note) {
       object.createNotePage({
-        type: NOTE_TYPES.OTHER,
+        noteType: NOTE_TYPES.OTHER,
         content: note,
       });
     }

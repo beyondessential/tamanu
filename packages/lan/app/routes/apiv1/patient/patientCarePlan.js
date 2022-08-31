@@ -23,7 +23,7 @@ patientCarePlan.post(
     await newCarePlan.createNotePage({
       date: req.body.date,
       content: req.body.content,
-      type: NOTE_TYPES.TREATMENT_PLAN,
+      noteType: NOTE_TYPES.TREATMENT_PLAN,
       authorId: req.user.id,
       onBehalfOfId: req.body.examinerId,
     });
@@ -41,7 +41,7 @@ patientCarePlan.get(
       where: {
         recordId: params.id,
         recordType: NOTE_RECORD_TYPES.PATIENT_CARE_PLAN,
-        type: NOTE_TYPES.TREATMENT_PLAN,
+        noteType: NOTE_TYPES.TREATMENT_PLAN,
       },
       include: [
         { model: models.User, as: 'author' },
@@ -62,7 +62,7 @@ patientCarePlan.post(
       recordId: req.params.id,
       recordType: NOTE_RECORD_TYPES.PATIENT_CARE_PLAN,
       date: req.body.date,
-      type: NOTE_TYPES.TREATMENT_PLAN,
+      noteType: NOTE_TYPES.TREATMENT_PLAN,
     });
 
     const newNoteItem = await req.models.NoteItem.create({
