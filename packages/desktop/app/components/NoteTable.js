@@ -3,7 +3,7 @@ import React, { useCallback, useState } from 'react';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { noteTypes } from '../constants';
-import { NoteModal } from './NoteModal';
+import { NotePageModal } from './NotePageModal';
 
 const getTypeLabel = ({ type }) => noteTypes.find(x => x.value === type).label;
 const getContent = ({ noteItems }) => noteItems[0]?.content || '';
@@ -15,28 +15,17 @@ const COLUMNS = [
 ];
 
 export const NoteTable = ({ encounterId }) => {
-  const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
+  const [isNotePageModalOpen, setNotePageModalOpen] = useState(false);
   const [refreshCount, setRefreshCount] = useState(0);
-  const [noteId, setNoteId] = useState(null);
-  const [editedObject, setEditedObject] = useState({});
+  const [notePage, setNotePage] = useState({});
   const handleRowClick = useCallback(
     data => {
-      const { id, noteType, authorId, priority, content, date } = data;
-      setIsNoteModalOpen(true);
-      setNoteId(data.id);
-      setEditedObject({
-        id,
-        noteType,
-        authorId,
-        priority,
-        content,
-        date,
-      });
+      setNotePageModalOpen(true);
+      setNotePage(data);
     },
-    [setIsNoteModalOpen, setNoteId, setEditedObject],
+    [setNotePageModalOpen, setNotePage],
   );
   const sortNotes = useCallback(notes => {
-    console.log('notes', notes);
     // The sorting rule for Notes is to pin the Treatment Plans to the top
     // And sort everything chronologically
     const treatmentPlanNotes = notes
@@ -50,16 +39,14 @@ export const NoteTable = ({ encounterId }) => {
 
   return (
     <div>
-      <NoteModal
-        open={isNoteModalOpen}
+      <NotePageModal
+        open={isNotePageModalOpen}
         encounterId={encounterId}
-        noteId={noteId}
-        editedObject={editedObject}
-        onClose={() => setIsNoteModalOpen(false)}
+        onClose={() => setNotePageModalOpen(false)}
         onSaved={() => {
-          setIsNoteModalOpen(false);
           setRefreshCount(refreshCount + 1);
         }}
+        notePage={notePage}
       />
       <DataFetchingTable
         columns={COLUMNS}

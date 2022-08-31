@@ -130,6 +130,22 @@ encounterRelations.get(
 encounterRelations.get('/:id/imagingRequests', simpleGetList('ImagingRequest', 'encounterId'));
 encounterRelations.get('/:id/notePages', notePageListHandler);
 encounterRelations.get(
+  '/:id/notePages/noteTypes',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const encounterId = params.id;
+    const noteTypeCounts = await models.NotePage.count({
+      group: ['type'],
+      where: { recordId: encounterId, recordType: 'Encounter' },
+    });
+    const noteTypeToCount = {};
+    noteTypeCounts.forEach(n => {
+      noteTypeToCount[n.type] = n.count;
+    });
+    res.send({ data: noteTypeToCount });
+  }),
+);
+encounterRelations.get(
   '/:id/invoice',
   simpleGetHasOne('Invoice', 'encounterId', {
     additionalFilters: { status: { [Op.ne]: INVOICE_STATUSES.CANCELLED } },

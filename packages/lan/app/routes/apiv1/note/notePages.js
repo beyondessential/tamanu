@@ -1,5 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { noteItems } from './noteItems';
 
 const notePageRoute = express.Router();
 export { notePageRoute as notePages };
@@ -23,8 +24,9 @@ notePageRoute.post(
     const noteItem = await models.NoteItem.create({
       notePageId: notePage.id,
       authorId: noteData.authorId,
+      onBehalfOfId: noteData.onBehalfOfId,
       date: noteData.date,
-      content: noteData.content,
+      content: noteData.content.trim(),
     });
 
     res.send({ notePage, noteItem });
@@ -41,12 +43,18 @@ notePageRoute.get(
     const notePage = await models.NotePage.findOne({
       include: [
         {
-          model: models.Encounter,
-          as: 'encounter',
-        },
-        {
           model: models.NoteItem,
           as: 'noteItems',
+          include: [
+            {
+              model: models.User,
+              as: 'author',
+            },
+            {
+              model: models.User,
+              as: 'onBehalfOf',
+            },
+          ],
         },
       ],
       where: { id: notePageId },
@@ -57,3 +65,5 @@ notePageRoute.get(
     res.send(notePage);
   }),
 );
+
+notePageRoute.use(noteItems);

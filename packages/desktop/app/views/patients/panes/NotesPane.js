@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useEncounter } from '../../../contexts/Encounter';
-import { NoteModal } from '../../../components/NoteModal';
+import { NotePageModal } from '../../../components/NotePageModal';
 import { NoteTable } from '../../../components/NoteTable';
 import { ButtonWithPermissionCheck, TableButtonRow } from '../../../components';
 import { TabPane } from '../components';
@@ -11,7 +11,7 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
 
   return (
     <TabPane>
-      <NoteModal
+      <NotePageModal
         title="New Note"
         open={modalOpen}
         encounterId={encounter.id}

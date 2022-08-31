@@ -5,28 +5,19 @@ import { Suggester } from '../utils/suggester';
 
 import { Modal } from './Modal';
 import { NoteForm } from '../forms/NoteForm';
+import { useAuth } from '../contexts/Auth';
 
-export const NoteModal = ({
-  title = 'Note',
-  open,
-  onClose,
-  onSaved,
-  encounterId,
-  noteId,
-  editedObject,
-}) => {
+export const NewNoteModal = ({ title = 'Note', open, onClose, onSaved, encounterId }) => {
   const api = useApi();
+  const { currentUser } = useAuth();
   const practitionerSuggester = new Suggester(api, 'practitioner');
-  // Don't allow users to modify encounter notes
-  // (currently this component only manages those)
-  const isReadOnly = !!editedObject?.id;
 
   return (
     <Modal title={title} open={open} width="md" onClose={onClose}>
       <NoteForm
         onSubmit={async data => {
-          // TODO: Add support for PUT
           const newData = { ...data };
+          newData.authorId = currentUser.id;
           newData.recordId = encounterId;
           newData.recordType = 'Encounter';
           await api.post('notePages', newData);
@@ -34,8 +25,6 @@ export const NoteModal = ({
         }}
         onCancel={onClose}
         practitionerSuggester={practitionerSuggester}
-        editedObject={editedObject}
-        isReadOnly={isReadOnly}
       />
     </Modal>
   );

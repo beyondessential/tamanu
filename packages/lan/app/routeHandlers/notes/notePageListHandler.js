@@ -2,17 +2,24 @@ export const notePageListHandler = async (req, res) => {
   const { models, params } = req;
   const recordId = params.id;
 
-  const { rows, count } = await models.NotePage.findAndCountAll({
+  const rows = await models.NotePage.findAll({
     include: [
       {
         model: models.NoteItem,
         as: 'noteItems',
-        where: { revisedById: null },
+        include: [
+          {
+            model: models.User,
+            as: 'author',
+          },
+        ],
+        where: {
+          revisedById: null,
+        },
       },
     ],
     where: { recordId },
   });
 
-  console.log('notePages', rows);
-  res.send({ data: rows, count });
+  res.send({ data: rows, count: rows.length });
 };
