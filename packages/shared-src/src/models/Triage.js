@@ -39,7 +39,7 @@ export class Triage extends Model {
 
     this.hasMany(models.NotePage, {
       foreignKey: 'recordId',
-      as: 'notes',
+      as: 'notePages',
       constraints: false,
       scope: {
         recordType: this.name,

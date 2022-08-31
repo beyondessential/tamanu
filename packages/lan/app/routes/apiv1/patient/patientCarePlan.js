@@ -1,11 +1,9 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { NOTE_TYPES } from 'shared/constants';
+import { NOTE_TYPES, NOTE_RECORD_TYPES } from 'shared/constants';
 import { InvalidParameterError } from 'shared/errors';
-import { NOTE_RECORD_TYPES } from 'shared/models/Note';
 
 import { simpleGet, simplePut } from '../crudHelpers';
-import { note } from '../note';
 
 export const patientCarePlan = express.Router();
 
@@ -22,10 +20,12 @@ patientCarePlan.post(
       throw new InvalidParameterError('Content is a required field');
     }
     const newCarePlan = await PatientCarePlan.create(req.body);
-    await newCarePlan.createNote({
+    const notePage = await newCarePlan.createNotePage({
+      noteType: NOTE_TYPES.TREATMENT_PLAN,
+    });
+    await notePage.createNoteItem({
       date: req.body.date,
       content: req.body.content,
-      type: NOTE_TYPES.TREATMENT_PLAN,
       authorId: req.user.id,
       onBehalfOfId: req.body.examinerId,
     });
@@ -39,7 +39,7 @@ patientCarePlan.get(
     const { models, params } = req;
     req.checkPermission('read', 'PatientCarePlan');
 
-    const notes = await models.NotePage.findPagesWithSingleItem(models, {
+    const notes = await models.NotePage.findAllWithSingleNoteItem(models, {
       where: {
         recordId: params.id,
         recordType: NOTE_RECORD_TYPES.PATIENT_CARE_PLAN,
@@ -64,7 +64,7 @@ patientCarePlan.post(
       recordId: req.params.id,
       recordType: NOTE_RECORD_TYPES.PATIENT_CARE_PLAN,
       date: req.body.date,
-      type: NOTE_TYPES.TREATMENT_PLAN,
+      noteType: NOTE_TYPES.TREATMENT_PLAN,
     });
 
     const newNoteItem = await req.models.NoteItem.create({

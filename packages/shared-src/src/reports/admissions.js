@@ -54,19 +54,19 @@ const stringifyDiagnoses = (diagnoses, shouldBePrimary) =>
     .join('; ');
 
 const getAllNotes = async (models, encounterIds) => {
-  const locationChangeNotes = await models.NotePage.findPagesWithSingleItem(models, {
+  const locationChangeNotes = await models.NotePage.findAllWithSingleNoteItem(models, {
     where: {
       recordId: encounterIds,
-      noteType: NOTE_TYPES.SYSTEM,
+      type: NOTE_TYPES.SYSTEM,
       content: {
         [Op.like]: 'Changed location from%',
       },
     },
   });
-  const departmentChangeNotes = await models.NotePage.findPagesWithSingleItem(models, {
+  const departmentChangeNotes = await models.NotePage.findAllWithSingleNoteItem(models, {
     where: {
       recordId: encounterIds,
-      noteType: NOTE_TYPES.SYSTEM,
+      type: NOTE_TYPES.SYSTEM,
       content: {
         [Op.like]: 'Changed department from%',
       },

@@ -2,8 +2,12 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
 import { NotFoundError } from 'shared/errors';
-import { LAB_REQUEST_STATUSES, DOCUMENT_SIZE_LIMIT, INVOICE_STATUSES } from 'shared/constants';
-import { NOTE_RECORD_TYPES } from 'shared/models/Note';
+import {
+  LAB_REQUEST_STATUSES,
+  DOCUMENT_SIZE_LIMIT,
+  INVOICE_STATUSES,
+  NOTE_RECORD_TYPES,
+} from 'shared/constants';
 import { uploadAttachment } from '../../utils/uploadAttachment';
 import { notePageListHandler } from '../../routeHandlers';
 import {
@@ -73,9 +77,9 @@ encounter.post(
       throw new NotFoundError();
     }
     req.checkPermission('write', owner);
-    const createdNote = await owner.createNote(body);
-
-    res.send(createdNote);
+    const notePage = await owner.createNotePage(body);
+    const noteItem = await notePage.createNoteItem(body);
+    res.send({ ...notePage, content: noteItem.content });
   }),
 );
 

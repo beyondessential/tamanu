@@ -5,15 +5,15 @@ export async function up(query) {
   const [oldNotes] = await query.sequelize.query('SELECT * FROM notes');
   for (const note of oldNotes) {
     await query.sequelize.query(
-      `INSERT INTO note_pages(id, record_id, record_type, type, date, created_at, updated_at, deleted_at)
-       VALUES(:id, :recordId, :recordType, :type, :date, :createdAt, :updatedAt, :deletedAt)
+      `INSERT INTO note_pages(id, record_id, record_type, note_type, date, created_at, updated_at, deleted_at)
+       VALUES(:id, :recordId, :recordType, :noteType, :date, :createdAt, :updatedAt, :deletedAt)
       `,
       {
         replacements: {
           id: note.id,
           recordId: note.record_id,
           recordType: note.record_type,
-          type: note.note_type,
+          noteType: note.note_type,
           date: note.date,
           createdAt: note.created_at,
           updatedAt: note.updated_at,
@@ -48,7 +48,7 @@ export async function up(query) {
 }
 
 export async function down(query) {
-  await query.createTable('note_items', {
+  await query.createTable('notes', {
     id: {
       type: Sequelize.STRING,
       allowNull: false,

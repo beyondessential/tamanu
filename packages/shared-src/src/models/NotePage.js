@@ -1,5 +1,4 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 import { NoteItem } from './NoteItem';
 import { NOTE_RECORD_TYPE_VALUES, NOTE_TYPE_VALUES } from '../constants';
@@ -9,7 +8,7 @@ export class NotePage extends Model {
     super.init(
       {
         id: primaryKey,
-        type: {
+        noteType: {
           type: Sequelize.STRING,
           allowNull: false,
         },
@@ -25,7 +24,9 @@ export class NotePage extends Model {
       },
       {
         ...options,
-        syncConfig: { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
+        syncConfig: {
+          includedRelations: ['noteItems'],
+        },
         validate: {
           mustHaveValidRelationType() {
             if (!NOTE_RECORD_TYPE_VALUES.includes(this.recordType)) {
@@ -35,10 +36,8 @@ export class NotePage extends Model {
             }
           },
           mustHaveValidType() {
-            if (!NOTE_TYPE_VALUES.includes(this.type)) {
-              throw new Error(
-                `NotePage: Must have a valid note type (got ${this.type}), id: '${JSON.stringify(this)}'`,
-              );
+            if (!NOTE_TYPE_VALUES.includes(this.noteType)) {
+              throw new Error(`NotePage: Must have a valid note type (got ${this.noteType})`);
             }
           },
         },
@@ -61,32 +60,31 @@ export class NotePage extends Model {
     });
   }
 
-  static async createForRecord(record, type, content) {
-    await NotePage.create({
-      recordId: record.id,
-      recordType: record.getModelName(),
-      type,
-    });
-
-    return NoteItem.create({
-      content,
-    });
-  }
-
-  static async createWithItem({ recordId, recordType, type, content, authorId }) {
-    await NotePage.create({
+  static async createForRecord(recordId, recordType, type, content, authorId) {
+    const notePage = await NotePage.create({
       recordId,
       recordType,
       type,
+      date: Date.now(),
     });
 
     return NoteItem.create({
+      notePageId: notePage.id,
       content,
+      date: Date.now(),
       authorId,
     });
   }
 
-  static async findPagesWithSingleItem(models, options = {}) {
+  /**
+   * This is a util method that allows finding multiple note pages associated record that
+   * should only have 1 single attached note item to the note page.
+   * Eg: ImagingRequest
+   * @param {*} models
+   * @param {*} options
+   * @returns
+   */
+  static async findAllWithSingleNoteItem(models, options = {}) {
     const notePages = await this.findAll({
       include: [
         ...options.includes,
@@ -107,12 +105,19 @@ export class NotePage extends Model {
       .map(notePage => {
         const newNotePage = { ...notePage };
         newNotePage.content = newNotePage.noteItems[0]?.content;
-        delete newNotePage.noteItems;
         return newNotePage;
       });
   }
 
-  static async findSinglePageWithSingleItem(models, options = {}) {
+  /**
+   * This is a util method that allows finding a single note page associated record that
+   * should only have 1 single attached note item to the note page.
+   * Eg: ImagingRequest
+   * @param {*} models
+   * @param {*} options
+   * @returns
+   */
+  static async findOneWithSingleNoteItem(models, options = {}) {
     const notePage = await this.findOne({
       include: [
         ...options.includes,
@@ -130,8 +135,15 @@ export class NotePage extends Model {
 
     const notePageJSON = notePage.toJSON();
     notePageJSON.content = notePageJSON.noteItems[0]?.content;
-    delete notePageJSON.noteItems;
 
     return notePageJSON;
+  }
+
+  async getParentRecord(options) {
+    if (!this.recordType) {
+      return Promise.resolve(null);
+    }
+    const parentGetter = `get${this.recordType}`;
+    return this[parentGetter](options);
   }
 }

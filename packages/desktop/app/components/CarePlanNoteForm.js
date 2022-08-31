@@ -27,7 +27,7 @@ export function CarePlanNoteForm({
   const submitNote = async (patientCarePlanId, body) =>
     api.post(`patientCarePlan/${patientCarePlanId}/notes`, body);
 
-  const updateNote = async updatedNote => api.put(`note/${updatedNote.id}`, updatedNote);
+  const updateNote = async updatedNote => api.put(`notePages/${updatedNote.id}`, updatedNote);
   return (
     <Form
       onSubmit={async values => {

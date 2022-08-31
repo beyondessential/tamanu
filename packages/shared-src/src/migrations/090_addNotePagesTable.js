@@ -22,7 +22,7 @@ export async function up(query) {
       type: Sequelize.DATE,
       allowNull: true,
     },
-    type: {
+    note_type: {
       type: Sequelize.STRING,
       allowNull: false,
     },

@@ -21,7 +21,6 @@ export * from './Triage';
 
 export * from './ReferenceData';
 
-export { Note } from './Note';
 export * from './Vitals';
 export * from './Procedure';
 export * from './EncounterDiagnosis';

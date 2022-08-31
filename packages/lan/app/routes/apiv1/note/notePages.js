@@ -1,9 +1,17 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { NotFoundError, ForbiddenError } from 'shared/errors';
+import { NOTE_RECORD_TYPES } from 'shared/constants';
+
 import { noteItems } from './noteItems';
 
 const notePageRoute = express.Router();
 export { notePageRoute as notePages };
+
+// Encounter notes cannot be edited
+function canModifyNote(noteObject) {
+  return noteObject.recordType !== NOTE_RECORD_TYPES.ENCOUNTER;
+}
 
 notePageRoute.post(
   '/$',
@@ -11,8 +19,6 @@ notePageRoute.post(
     req.checkPermission('read', 'Encounter');
 
     const { models, body: noteData } = req;
-
-    // req.checkPermission('write', 'NotePage');
 
     const notePage = await models.NotePage.create({
       recordType: noteData.recordType,
@@ -36,8 +42,6 @@ notePageRoute.post(
 notePageRoute.get(
   '/:id',
   asyncHandler(async (req, res) => {
-    // req.checkPermission('read', 'NotePage');
-
     const { models, params } = req;
     const notePageId = params.id;
     const notePage = await models.NotePage.findOne({
@@ -60,9 +64,66 @@ notePageRoute.get(
       where: { id: notePageId },
     });
 
-    // req.checkPermission('read', notePage);
-
     res.send(notePage);
+  }),
+);
+
+notePageRoute.put(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const { models, body, params } = req;
+
+    const editedNotePage = await models.NotePage.findOneWithSingleNoteItem(models, {
+      where: { id: params.id },
+    });
+    if (!editedNotePage) {
+      throw new NotFoundError();
+    }
+
+    if (canModifyNote(editedNotePage) === false) {
+      throw new ForbiddenError('Cannot edit encounter notes.');
+    }
+
+    req.checkPermission('write', editedNotePage.recordType);
+
+    const owner = await models[editedNotePage.recordType].findByPk(editedNotePage.recordId);
+    req.checkPermission('write', owner);
+
+    await models.NoteItem.update({ ...body }, { where: { id: editedNotePage.noteItems[0].id } });
+
+    res.send({ ...editedNotePage, content: body.content });
+  }),
+);
+
+notePageRoute.delete(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const { models } = req;
+    const notePageToBeDeleted = await models.NotePage.findOneWithSingleNoteItem(models, {
+      where: { id: req.params.id },
+    });
+    if (!notePageToBeDeleted) {
+      throw new NotFoundError();
+    }
+
+    if (canModifyNote(notePageToBeDeleted) === false) {
+      throw new ForbiddenError('Cannot delete encounter notes.');
+    }
+
+    req.checkPermission('write', notePageToBeDeleted.recordType);
+
+    await req.models.NotePage.destroy({
+      where: {
+        id: req.params.id,
+      },
+    });
+
+    await req.models.NoteItem.destroy({
+      where: {
+        notePageId: req.params.id,
+      },
+    });
+    res.send({});
   }),
 );
 
