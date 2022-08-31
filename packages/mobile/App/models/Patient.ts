@@ -10,6 +10,7 @@ import { IPatient, IPatientAdditionalData } from '~/types';
 import { formatDateForQuery } from '~/infra/db/helpers';
 import { PatientAdditionalData } from './PatientAdditionalData';
 import { ReferenceData, NullableReferenceDataRelation } from './ReferenceData';
+import { ISO9075_SQLITE_DEFAULT } from './columnDefaults';
 const TIME_OFFSET = 3;
 
 @Entity('patient')
@@ -32,7 +33,7 @@ export class Patient extends BaseModel implements IPatient {
   @Column({ nullable: true })
   culturalName?: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: ISO9075_SQLITE_DEFAULT })
   dateOfBirth?: string;
 
   @Column({ nullable: true })
