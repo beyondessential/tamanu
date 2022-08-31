@@ -24,7 +24,7 @@ notePageRoute.post(
       recordType: noteData.recordType,
       recordId: noteData.recordId,
       date: noteData.date,
-      type: noteData.type,
+      noteType: noteData.noteType,
     });
 
     const noteItem = await models.NoteItem.create({

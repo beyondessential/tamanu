@@ -53,7 +53,7 @@ export const NotePageForm = ({
 
       <StyledFormGrid columns={3}>
         <Field
-          name="type"
+          name="noteType"
           label="Type"
           required
           component={SelectField}
@@ -80,10 +80,10 @@ export const NotePageForm = ({
       render={renderForm}
       initialValues={{
         date: new Date(),
-        type: notePage?.type,
+        noteType: notePage?.noteType,
       }}
       validationSchema={yup.object().shape({
-        type: yup
+        noteType: yup
           .string()
           .oneOf(Object.values(NOTE_TYPES))
           .required(),
