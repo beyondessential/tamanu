@@ -137,4 +137,12 @@ export class NotePage extends Model {
 
     return notePageJSON;
   }
+
+  async getParentRecord(options) {
+    if (!this.recordType) {
+      return Promise.resolve(null);
+    }
+    const parentGetter = `get${this.recordType}`;
+    return this[parentGetter](options);
+  }
 }
