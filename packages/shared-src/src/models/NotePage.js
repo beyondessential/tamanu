@@ -9,7 +9,7 @@ export class NotePage extends Model {
     super.init(
       {
         id: primaryKey,
-        type: {
+        noteType: {
           type: Sequelize.STRING,
           allowNull: false,
         },
@@ -33,8 +33,8 @@ export class NotePage extends Model {
             }
           },
           mustHaveValidType() {
-            if (!NOTE_TYPE_VALUES.includes(this.type)) {
-              throw new Error(`NotePage: Must have a valid note type (got ${this.type})`);
+            if (!NOTE_TYPE_VALUES.includes(this.noteType)) {
+              throw new Error(`NotePage: Must have a valid note type (got ${this.noteType})`);
             }
           },
         },

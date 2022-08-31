@@ -48,7 +48,7 @@ export async function up(query) {
 }
 
 export async function down(query) {
-  await query.createTable('note_items', {
+  await query.createTable('notes', {
     id: {
       type: Sequelize.STRING,
       allowNull: false,
