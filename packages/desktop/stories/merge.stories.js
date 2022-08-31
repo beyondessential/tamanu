@@ -12,6 +12,7 @@ import {
 } from '../app/views/administration/patientMerge';
 
 const baseDetails = {
+  id: '123123123',
   firstName: 'Ugyen',
   lastName: 'Wangdi',
   culturalName: 'Ugyen',
@@ -21,16 +22,18 @@ const baseDetails = {
 };
 const firstPatient = {
   ...baseDetails,
+  id: '000001',
   displayId: 'TEMP001',
 };
 const secondPatient = {
   ...baseDetails,
+  id: '000002',
   displayId: 'TEMP002',
 }
 
 const fakeGetPatient = displayId => ({
   ...baseDetails,
-  displayId,
+  displayId: displayId.toUpperCase(),
   id: (Math.random() * 10000.0).toFixed(0),
 });
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ConfirmCancelRow } from '../../../components';
+import { ButtonRow, Button, OutlinedButton } from '../../../components';
 import { Modal } from '../../../components/Modal'
 
 import { PatientSummary } from './PatientSummary';
@@ -20,16 +20,23 @@ const ConfirmInstructions = () => (
   </div>
 );
 
+const Spacer = styled.div`
+  flex-grow: 1;
+`;
+
 export const ConfirmationModal = ({
   mergePlan,
   onCancel,
+  onBack,
   onConfirm,
 }) => {
   const actions = (
-    <ConfirmCancelRow
-      onConfirm={onConfirm}
-      onCancel={onCancel}
-    />
+    <ButtonRow>
+      <OutlinedButton onClick={onBack}>Back</OutlinedButton>
+      <Spacer />
+      <OutlinedButton onClick={onCancel}>Cancel</OutlinedButton>
+      <Button onClick={onConfirm}>Confirm</Button>
+    </ButtonRow>
   );
   return (
     <Modal 

@@ -1,29 +1,7 @@
 import React, { useState, useCallback } from 'react';
-import { Button } from '../../../components';
 import { ConfirmationModal } from './ConfirmationModal';
 import { KeepPatientDecisionForm } from './KeepPatientDecisionForm';
-
-export const PatientMergeSearch = ({
-  fetchPatient,
-  onBeginMerge,
-}) => {
-  const [firstPatient, setFirstPatient] = useState();
-  const [secondPatient, setSecondPatient] = useState();
-  return (
-    <div>
-      <div onClick={() => setFirstPatient(firstPatient ? null : fetchPatient('patient1'))}>
-        {firstPatient ? firstPatient.displayId : 'select 1'}
-      </div>
-      <div onClick={() => setSecondPatient(secondPatient ? null : fetchPatient('patient2'))}>
-        {secondPatient ? secondPatient.displayId : 'select 2'}
-      </div>
-      <Button 
-        disabled={!(firstPatient && secondPatient)}
-        onClick={() => onBeginMerge(firstPatient, secondPatient)}
-      >Select these two</Button>
-    </div>
-  );
-};
+import { PatientMergeSearch } from './PatientMergeSearch';
 
 export const PatientMergeView = ({ 
   fetchPatient,

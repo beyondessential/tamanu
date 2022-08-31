@@ -22,7 +22,7 @@ const IDFrame = styled.div`
 
 const IDDisplay = ({ patient, selectable, selected }) => (
   <IDFrame>
-    {patient.displayId}
+    <span title={patient.id}>{patient.displayId}</span>
     {selectable && <input type="radio" checked={selected} />}
   </IDFrame>
 );
@@ -56,6 +56,8 @@ const Columns = styled.div`
   }
 `;
 
+const getDisplaySex = s => s; // TODO
+
 export const PatientSummary = ({ heading = "Patient details", patient, onSelect, selected }) => (
   <SummaryFrame onClick={onSelect} selected={selected}>
     <Header>
@@ -70,7 +72,7 @@ export const PatientSummary = ({ heading = "Patient details", patient, onSelect,
       </div>
       <div>
       <LabelledValue label="Village" value={patient.village?.name} />
-      <LabelledValue label="Sex" value={patient.sex} />
+      <LabelledValue label="Sex" value={getDisplaySex(patient.sex)} />
       <LabelledValue label="Date of birth" value={<DateDisplay date={patient.dateOfBirth}/>} />
       </div>
     </Columns>
