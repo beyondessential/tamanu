@@ -91,13 +91,6 @@ export class LabRequest extends Model {
     });
   }
 
-  async addLabNote(content) {
-    await this.createNotePage({
-      noteType: NOTE_TYPES.OTHER,
-      content,
-    });
-  }
-
   static initRelations(models) {
     this.belongsTo(models.User, {
       foreignKey: 'requestedById',

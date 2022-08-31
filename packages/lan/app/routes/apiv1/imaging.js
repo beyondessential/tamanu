@@ -127,12 +127,14 @@ imagingRequest.put(
     }
     // Else, create a new one only if it has content
     else if (req.body.note) {
-      const newNoteObject = await imagingRequestObject.createNotePage({
+      const notePage = await imagingRequestObject.createNotePage({
         noteType: NOTE_TYPES.OTHER,
+      });
+      const noteItem = await notePage.createNoteItem({
         content: req.body.note,
         authorId: req.user.id,
       });
-      noteContent = newNoteObject.content;
+      noteContent = noteItem.content;
     }
 
     // Update the content of the area to be imaged note object if it exists
@@ -142,12 +144,15 @@ imagingRequest.put(
     }
     // Else, create a new one only if it has content
     else if (req.body.areaNote) {
-      const newAreaNoteObject = await imagingRequestObject.createNotePage({
+      const notePage = await imagingRequestObject.createNotePage({
         noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
-        content: req.body.areaNote,
+      });
+      const noteItem = await notePage.createNoteItem({
+        content: req.body.note,
         authorId: req.user.id,
       });
-      areaNoteContent = newAreaNoteObject.content;
+
+      areaNoteContent = noteItem.content;
     }
 
     // Convert Sequelize model to use a custom object as response
@@ -184,26 +189,32 @@ imagingRequest.post(
 
     // Only create a note if it has content
     if (req.body.note) {
-      const newNote = await newImagingRequest.createNotePage({
+      const notePage = await newImagingRequest.createNotePage({
         noteType: NOTE_TYPES.OTHER,
+      });
+
+      const noteItem = await notePage.createNoteItem({
         content: req.body.note,
         authorId: req.user.id,
       });
 
       // Update note content for response with saved data
-      noteContent = newNote.content;
+      noteContent = noteItem.content;
     }
 
     // Only create an area to be imaged note if it has content
     if (req.body.areaNote) {
-      const newAreaNote = await newImagingRequest.createNotePage({
+      const notePage = await newImagingRequest.createNotePage({
         noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
-        content: req.body.areaNote,
+      });
+
+      const noteItem = await notePage.createNoteItem({
+        content: req.body.note,
         authorId: req.user.id,
       });
 
       // Update area to be imaged content for response with saved data
-      areaNoteContent = newAreaNote.content;
+      areaNoteContent = noteItem.content;
     }
 
     // Convert Sequelize model to use a custom object as response

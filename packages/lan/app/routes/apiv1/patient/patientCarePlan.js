@@ -20,10 +20,12 @@ patientCarePlan.post(
       throw new InvalidParameterError('Content is a required field');
     }
     const newCarePlan = await PatientCarePlan.create(req.body);
-    await newCarePlan.createNotePage({
+    const notePage = await newCarePlan.createNotePage({
+      noteType: NOTE_TYPES.TREATMENT_PLAN,
+    });
+    await notePage.createNoteItem({
       date: req.body.date,
       content: req.body.content,
-      noteType: NOTE_TYPES.TREATMENT_PLAN,
       authorId: req.user.id,
       onBehalfOfId: req.body.examinerId,
     });

@@ -78,9 +78,9 @@ encounter.post(
       throw new NotFoundError();
     }
     req.checkPermission('write', owner);
-    const createdNote = await owner.createNotePage(body);
-
-    res.send(createdNote);
+    const notePage = await owner.createNotePage(body);
+    const noteItem = await notePage.createNoteItem(body);
+    res.send({ ...notePage, content: noteItem.content });
   }),
 );
 

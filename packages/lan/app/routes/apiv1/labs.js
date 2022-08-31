@@ -59,10 +59,10 @@ labRequest.post(
     req.checkPermission('create', 'LabRequest');
     const object = await models.LabRequest.createWithTests(req.body);
     if (note) {
-      object.createNotePage({
+      const notePage = object.createNotePage({
         noteType: NOTE_TYPES.OTHER,
-        content: note,
       });
+      await notePage.createNoteItem({ content: note });
     }
     res.send(object);
   }),
@@ -210,9 +210,9 @@ labRequest.post(
       throw new NotFoundError();
     }
     req.checkPermission('write', lab);
-    const createdNote = await lab.createNotePage(body);
-
-    res.send(createdNote);
+    const notePage = await lab.createNotePage(body);
+    const noteItem = notePage.createNoteItem(body);
+    res.send({ ...notePage, content: noteItem.content });
   }),
 );
 

@@ -126,6 +126,8 @@ export class SyncManager {
   }
 
   async exportAndPush(model, patientId) {
+    console.log('model', model.name);
+    console.log('channels', await model.syncConfig.getChannels(patientId));
     for (const channel of await model.syncConfig.getChannels(patientId)) {
       await this.exportAndPushChannel(model, channel);
     }

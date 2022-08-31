@@ -302,12 +302,10 @@ export class Encounter extends Model {
   }
 
   async addSystemNote(content) {
-    const note = await this.createNotePage({
+    const notePage = await this.createNotePage({
       noteType: NOTE_TYPES.SYSTEM,
-      content,
     });
-
-    return note;
+    await notePage.createNoteItem({ content });
   }
 
   async getLinkedTriage() {
