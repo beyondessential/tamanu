@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { getReportModule, REPORT_DEFINITIONS, REPORT_OBJECTS } from 'shared/reports';
+import * as reportUtils from 'shared/reports';
 import { assertReportEnabled } from '../../utils/assertReportEnabled';
 
 export const reports = express.Router();
@@ -17,8 +17,9 @@ reports.get(
     });
 
     const disabledReports = localisation?.disabledReports || [];
-    const availableReports = REPORT_DEFINITIONS.filter(
-      ({ id }) => !disabledReports.includes(id) && ability.can('run', REPORT_OBJECTS[id]),
+    const availableReports = reportUtils.REPORT_DEFINITIONS.filter(
+      ({ id }) =>
+        !disabledReports.includes(id) && ability.can('run', reportUtils.REPORT_OBJECTS[id]),
     ).map(report => ({ ...report, legacyReport: true }));
 
     const reportsDefinitions = await ReportDefinition.findAll({
@@ -59,20 +60,30 @@ reports.post(
       params,
       getLocalisation,
     } = req;
+    // Permissions are checked per report module
+    req.flagPermissionChecked();
     const { reportId } = params;
-
     const localisation = await getLocalisation();
     assertReportEnabled(localisation, reportId);
 
-    const reportModule = await getReportModule(reportId, models);
+    const reportModule = await reportUtils.getReportModule(reportId, models);
 
     if (!reportModule) {
-      res.status(400).send({ message: 'invalid reportId' });
+      res.status(400).send({ error: { message: 'invalid reportId' } });
       return;
     }
+
     req.checkPermission('read', reportModule.permission);
 
-    const excelData = await reportModule.dataGenerator({ sequelize: db, models }, parameters);
-    res.send(excelData);
+    try {
+      const excelData = await reportModule.dataGenerator({ sequelize: db, models }, parameters);
+      res.send(excelData);
+    } catch (error) {
+      res.status(400).send({
+        error: {
+          message: error.message,
+        },
+      });
+    }
   }),
 );
