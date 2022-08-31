@@ -40,10 +40,12 @@ export const ConfirmationModal = ({
     >
       <ConfirmInstructions />
       <PatientSummary 
+        heading="Patient to keep"
         patient={mergePlan.keepPatient} 
         selected 
       />
       <PatientSummary
+        heading="Patient to merge"
         patient={mergePlan.removePatient}
       />
     </Modal>
