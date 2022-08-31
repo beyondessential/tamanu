@@ -1,5 +1,4 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS } from 'shared/constants';
 
 import { Model } from './Model';
 
@@ -25,7 +24,6 @@ export class NoteItem extends Model {
       },
       {
         ...options,
-        // syncConfig: { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
         validate: {
           mustHaveContent() {
             if (!this.content) {
