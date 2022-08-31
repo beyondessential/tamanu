@@ -6,6 +6,7 @@ import { action } from '@storybook/addon-actions';
 import { ImportErrorsTable } from '../app/views/administration/components/ImportErrorsTable';
 import { ImportStatsDisplay } from '../app/views/administration/components/ImportStatsDisplay';
 import { ImporterView } from '../app/views/administration/components/ImporterView';
+import { PatientMergeView } from '../app/views/administration/patientMerge';
 
 const sampleResponse = {
   sentData: false,
@@ -93,4 +94,9 @@ storiesOf('Admin/ErrorTable', module)
   ))
   .add('No errors', () => (
     <ImportErrorsTable errors={[]} />
+  ));
+
+storiesOf('Admin/PatientMerge', module)
+  .add('Default', () => (
+    <PatientMergeView />
   ));
