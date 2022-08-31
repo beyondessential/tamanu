@@ -92,7 +92,7 @@ export class LabRequest extends Model {
   }
 
   async addLabNote(content) {
-    await this.createNote({
+    await this.createNotePage({
       type: NOTE_TYPES.OTHER,
       content,
     });
@@ -136,7 +136,7 @@ export class LabRequest extends Model {
 
     this.hasMany(models.NotePage, {
       foreignKey: 'recordId',
-      as: 'notes',
+      as: 'notePages',
       constraints: false,
       scope: {
         recordType: this.name,

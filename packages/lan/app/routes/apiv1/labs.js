@@ -3,9 +3,13 @@ import asyncHandler from 'express-async-handler';
 import moment from 'moment';
 import { QueryTypes, Sequelize } from 'sequelize';
 
-import { NOTE_RECORD_TYPES } from 'shared/models/Note';
 import { NotFoundError, InvalidOperationError } from 'shared/errors';
-import { REFERENCE_TYPES, LAB_REQUEST_STATUSES, NOTE_TYPES } from 'shared/constants';
+import {
+  REFERENCE_TYPES,
+  LAB_REQUEST_STATUSES,
+  NOTE_TYPES,
+  NOTE_RECORD_TYPES,
+} from 'shared/constants';
 import { makeFilter, makeSimpleTextFilterFactory } from '../../utils/query';
 import { renameObjectKeys } from '../../utils/renameObjectKeys';
 import {
@@ -55,7 +59,7 @@ labRequest.post(
     req.checkPermission('create', 'LabRequest');
     const object = await models.LabRequest.createWithTests(req.body);
     if (note) {
-      object.createNote({
+      object.createNotePage({
         type: NOTE_TYPES.OTHER,
         content: note,
       });
@@ -206,7 +210,7 @@ labRequest.post(
       throw new NotFoundError();
     }
     req.checkPermission('write', lab);
-    const createdNote = await lab.createNote(body);
+    const createdNote = await lab.createNotePage(body);
 
     res.send(createdNote);
   }),

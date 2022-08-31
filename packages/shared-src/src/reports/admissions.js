@@ -57,7 +57,7 @@ const getAllNotes = async (models, encounterIds) => {
   const locationChangeNotes = await models.NotePage.findAllWithSingleNoteItem(models, {
     where: {
       recordId: encounterIds,
-      noteType: NOTE_TYPES.SYSTEM,
+      type: NOTE_TYPES.SYSTEM,
       content: {
         [Op.like]: 'Changed location from%',
       },
@@ -66,7 +66,7 @@ const getAllNotes = async (models, encounterIds) => {
   const departmentChangeNotes = await models.NotePage.findAllWithSingleNoteItem(models, {
     where: {
       recordId: encounterIds,
-      noteType: NOTE_TYPES.SYSTEM,
+      type: NOTE_TYPES.SYSTEM,
       content: {
         [Op.like]: 'Changed department from%',
       },

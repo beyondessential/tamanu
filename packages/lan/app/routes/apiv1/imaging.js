@@ -127,7 +127,7 @@ imagingRequest.put(
     }
     // Else, create a new one only if it has content
     else if (req.body.note) {
-      const newNoteObject = await imagingRequestObject.createNote({
+      const newNoteObject = await imagingRequestObject.createNotePage({
         type: NOTE_TYPES.OTHER,
         content: req.body.note,
         authorId: req.user.id,
@@ -142,7 +142,7 @@ imagingRequest.put(
     }
     // Else, create a new one only if it has content
     else if (req.body.areaNote) {
-      const newAreaNoteObject = await imagingRequestObject.createNote({
+      const newAreaNoteObject = await imagingRequestObject.createNotePage({
         type: NOTE_TYPES.AREA_TO_BE_IMAGED,
         content: req.body.areaNote,
         authorId: req.user.id,
@@ -184,7 +184,7 @@ imagingRequest.post(
 
     // Only create a note if it has content
     if (req.body.note) {
-      const newNote = await newImagingRequest.createNote({
+      const newNote = await newImagingRequest.createNotePage({
         type: NOTE_TYPES.OTHER,
         content: req.body.note,
         authorId: req.user.id,
@@ -196,7 +196,7 @@ imagingRequest.post(
 
     // Only create an area to be imaged note if it has content
     if (req.body.areaNote) {
-      const newAreaNote = await newImagingRequest.createNote({
+      const newAreaNote = await newImagingRequest.createNotePage({
         type: NOTE_TYPES.AREA_TO_BE_IMAGED,
         content: req.body.areaNote,
         authorId: req.user.id,

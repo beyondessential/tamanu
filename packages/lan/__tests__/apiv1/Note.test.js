@@ -3,8 +3,7 @@ import {
   createDummyEncounter,
   randomReferenceId,
 } from 'shared/demoData/patients';
-import { NOTE_RECORD_TYPES } from 'shared/models/Note';
-import { NOTE_TYPES } from 'shared/constants';
+import { NOTE_RECORD_TYPES, NOTE_TYPES } from 'shared/constants';
 import Chance from 'chance';
 import { createTestContext } from '../utilities';
 

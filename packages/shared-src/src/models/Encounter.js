@@ -50,21 +50,21 @@ export class Encounter extends Model {
         'medications',
         'labRequests',
         'labRequests.tests',
-        'labRequests.notes',
+        'labRequests.notePages',
         'imagingRequests',
-        'imagingRequests.notes',
+        'imagingRequests.notePages',
         'procedures',
         'initiatedReferrals',
         'completedReferrals',
         'vitals',
         'discharge',
         'triages',
-        'triages.notes',
+        'triages.notePages',
         'invoice',
         'invoice.invoiceLineItems',
         'invoice.invoicePriceChangeItems',
         'documents',
-        'notes',
+        'notePages',
       ],
       ...nestedSyncConfig,
       channelRoutes: [
@@ -268,7 +268,7 @@ export class Encounter extends Model {
 
     this.hasMany(models.NotePage, {
       foreignKey: 'recordId',
-      as: 'notes',
+      as: 'notePages',
       constraints: false,
       scope: {
         recordType: this.name,
@@ -302,7 +302,7 @@ export class Encounter extends Model {
   }
 
   async addSystemNote(content) {
-    const note = await this.createNote({
+    const note = await this.createNotePage({
       type: NOTE_TYPES.SYSTEM,
       content,
     });

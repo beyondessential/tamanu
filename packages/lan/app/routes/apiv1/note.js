@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 
 import { NotFoundError, InappropriateEndpointError, ForbiddenError } from 'shared/errors';
-import { NOTE_RECORD_TYPES } from 'shared/models/Note';
+import { NOTE_RECORD_TYPES } from 'shared/constants';
 
 export const note = express.Router();
 

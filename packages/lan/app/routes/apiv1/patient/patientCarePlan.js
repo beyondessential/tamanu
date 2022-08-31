@@ -1,11 +1,9 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { NOTE_TYPES } from 'shared/constants';
+import { NOTE_TYPES, NOTE_RECORD_TYPES } from 'shared/constants';
 import { InvalidParameterError } from 'shared/errors';
-import { NOTE_RECORD_TYPES } from 'shared/models/Note';
 
 import { simpleGet, simplePut } from '../crudHelpers';
-import { note } from '../note';
 
 export const patientCarePlan = express.Router();
 
@@ -22,7 +20,7 @@ patientCarePlan.post(
       throw new InvalidParameterError('Content is a required field');
     }
     const newCarePlan = await PatientCarePlan.create(req.body);
-    await newCarePlan.createNote({
+    await newCarePlan.createNotePage({
       date: req.body.date,
       content: req.body.content,
       type: NOTE_TYPES.TREATMENT_PLAN,
@@ -43,7 +41,7 @@ patientCarePlan.get(
       where: {
         recordId: params.id,
         recordType: NOTE_RECORD_TYPES.PATIENT_CARE_PLAN,
-        noteType: NOTE_TYPES.TREATMENT_PLAN,
+        type: NOTE_TYPES.TREATMENT_PLAN,
       },
       include: [
         { model: models.User, as: 'author' },
