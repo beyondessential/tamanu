@@ -17,7 +17,7 @@ export class NoteItem extends Model {
           allowNull: false,
           defaultValue: '',
         },
-        entryDate: {
+        date: {
           type: Sequelize.DATE,
           allowNull: false,
           defaultValue: Sequelize.NOW,
