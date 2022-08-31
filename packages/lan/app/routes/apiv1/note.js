@@ -16,7 +16,7 @@ note.put(
   asyncHandler(async (req, res) => {
     const { models, body, params } = req;
 
-    const editedNote = await models.NotePage.findSinglePageWithSingleItem(models, {
+    const editedNote = await models.NotePage.findOneWithSingleNoteItem(models, {
       where: { id: params.id },
     });
     if (!editedNote) {
@@ -51,7 +51,7 @@ note.delete(
   '/:id',
   asyncHandler(async (req, res) => {
     const { models } = req;
-    const noteToBeDeleted = await models.NotePage.findSinglePageWithSingleItem(models, {
+    const noteToBeDeleted = await models.NotePage.findOneWithSingleNoteItem(models, {
       where: { id: req.params.id },
     });
     if (!noteToBeDeleted) {

@@ -39,7 +39,7 @@ patientCarePlan.get(
     const { models, params } = req;
     req.checkPermission('read', 'PatientCarePlan');
 
-    const notes = await models.NotePage.findPagesWithSingleItem(models, {
+    const notes = await models.NotePage.findAllWithSingleNoteItem(models, {
       where: {
         recordId: params.id,
         recordType: NOTE_RECORD_TYPES.PATIENT_CARE_PLAN,

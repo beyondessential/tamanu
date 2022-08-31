@@ -66,7 +66,7 @@ describe('Note', () => {
 
       expect(response).toHaveSucceeded();
 
-      const note = await models.NotePage.findSinglePageWithSingleItem(models, {
+      const note = await models.NotePage.findOneWithSingleNoteItem(models, {
         where: { id: response.body.id },
       });
       expect(note.content).toEqual(content);
@@ -94,7 +94,7 @@ describe('Note', () => {
 
       expect(response).toHaveSucceeded();
 
-      const note = await models.NotePage.findSinglePageWithSingleItem(models, {
+      const note = await models.NotePage.findOneWithSingleNoteItem(models, {
         where: { id: response.body.id },
       });
       expect(note.content).toEqual(content);
@@ -129,12 +129,12 @@ describe('Note', () => {
       });
 
       it('should forbid editing notes on a forbidden record', async () => {
-        const note = await models.NotePage.createWithItem({
-          content: chance.paragraph(),
-          recordId: encounter.id,
-          recordType: NOTE_RECORD_TYPES.ENCOUNTER,
-          type: NOTE_TYPES.SYSTEM,
-        });
+        const note = await models.NotePage.createForRecord(
+          encounter.id,
+          NOTE_RECORD_TYPES.ENCOUNTER,
+          NOTE_TYPES.SYSTEM,
+          chance.paragraph(),
+        );
 
         const response = await noPermsApp.put(`/v1/note/${note.id}`).send({
           content: 'forbidden',
@@ -144,13 +144,13 @@ describe('Note', () => {
       });
 
       it('should forbid editing an encounter note', async () => {
-        const note = await models.NotePage.createWithItem({
-          content: chance.paragraph(),
-          recordId: encounter.id,
-          recordType: NOTE_RECORD_TYPES.ENCOUNTER,
-          noteType: NOTE_TYPES.SYSTEM,
-          authorId: app.user.id,
-        });
+        const note = await models.NotePage.createForRecord(
+          encounter.id,
+          NOTE_RECORD_TYPES.ENCOUNTER,
+          NOTE_TYPES.SYSTEM,
+          chance.paragraph(),
+          app.user.id,
+        );
 
         const response = await app.put(`/v1/note/${note.id}`).send({
           content: 'updated',
@@ -171,13 +171,13 @@ describe('Note', () => {
     });
 
     it('should allow editing a patient care plan note regardless of the author', async () => {
-      const note = await models.NotePage.createWithItem({
-        content: chance.paragraph(),
-        recordId: patientCarePlan.id,
-        recordType: NOTE_RECORD_TYPES.PATIENT_CARE_PLAN,
-        noteType: NOTE_TYPES.TREATMENT_PLAN,
-        authorId: testUser.id,
-      });
+      const note = await models.NotePage.createForRecord(
+        patientCarePlan.id,
+        NOTE_RECORD_TYPES.PATIENT_CARE_PLAN,
+        NOTE_TYPES.TREATMENT_PLAN,
+        chance.paragraph(),
+        testUser.id,
+      );
 
       const response = await app.put(`/v1/note/${note.id}`).send({
         content: 'updated',
