@@ -71,6 +71,11 @@ async function simpleMergeRecordAcross(model, keepPatientId, unwantedPatientId) 
 
 export async function mergePatient(models, keepPatientId, unwantedPatientId) {
   const { sequelize } = models.Patient;
+
+  if (keepPatientId == unwantedPatientId) {
+    throw new InvalidParameterError("Cannot merge a patient record into itself.");
+  }
+
   return sequelize.transaction(async () => {
     const keepPatient = await models.Patient.findByPk(keepPatientId);
     if (!keepPatient) {
