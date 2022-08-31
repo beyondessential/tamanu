@@ -93,7 +93,7 @@ export class LabRequest extends Model {
 
   async addLabNote(content) {
     await this.createNotePage({
-      type: NOTE_TYPES.OTHER,
+      noteType: NOTE_TYPES.OTHER,
       content,
     });
   }
