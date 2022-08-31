@@ -55,7 +55,7 @@ export async function up(query) {
       allowNull: false,
       defaultValue: '',
     },
-    entry_date: {
+    date: {
       type: Sequelize.DATE,
       allowNull: false,
       defaultValue: Sequelize.NOW,
