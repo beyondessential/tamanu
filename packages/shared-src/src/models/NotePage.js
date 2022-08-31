@@ -17,7 +17,7 @@ export class NotePage extends Model {
           type: Sequelize.STRING,
           allowNull: false,
         },
-        date: {
+        entryDate: {
           type: Sequelize.DATE,
           allowNull: false,
           defaultValue: Sequelize.NOW,

@@ -5,16 +5,16 @@ export async function up(query) {
   const [oldNotes] = await query.sequelize.query('SELECT * FROM notes');
   for (const note of oldNotes) {
     await query.sequelize.query(
-      `INSERT INTO note_pages(id, record_id, record_type, type, date, created_at, updated_at, deleted_at)
-       VALUES(:id, :recordId, :recordType, :type, :date, :createdAt, :updatedAt, :deletedAt)
+      `INSERT INTO note_pages(id, record_id, record_type, note_type, entry_date, created_at, updated_at, deleted_at)
+       VALUES(:id, :recordId, :recordType, :noteType, :entryDate, :createdAt, :updatedAt, :deletedAt)
       `,
       {
         replacements: {
           id: note.id,
           recordId: note.record_id,
           recordType: note.record_type,
-          type: note.note_type,
-          date: note.date,
+          noteType: note.note_type,
+          entryDate: note.date,
           createdAt: note.created_at,
           updatedAt: note.updated_at,
           deletedAt: note.deleted_at,
@@ -24,15 +24,15 @@ export async function up(query) {
 
     await query.sequelize.query(
       `
-      INSERT INTO note_items(id, note_page_id, content, date, author_id, on_behalf_of_id, created_at, updated_at, deleted_at)
-      VALUES(:id, :notePageId, :content, :date, :authorId, :onBehalfOfId, :createdAt, :updatedAt, :deletedAt)
+      INSERT INTO note_items(id, note_page_id, content, entry_date, author_id, on_behalf_of_id, created_at, updated_at, deleted_at)
+      VALUES(:id, :notePageId, :content, :entryDate, :authorId, :onBehalfOfId, :createdAt, :updatedAt, :deletedAt)
       `,
       {
         replacements: {
           id: note.id,
           notePageId: note.id,
           content: note.content,
-          date: note.date,
+          entryDate: note.date,
           authorId: note.author_id,
           onBehalfOfId: note.on_behalf_of_id,
           createdAt: note.created_at,
@@ -130,7 +130,7 @@ export async function down(query) {
           content: noteItem.content,
           authorId: noteItem.author_id,
           onBehalfOfId: noteItem.on_behalf_of_id,
-          date: noteItem.date,
+          date: noteItem.entry_date,
           recordId: notePage.record_id,
           recordType: notePage.record_type,
           createdAt: notePage.created_at,
