@@ -6,10 +6,7 @@ import {
 import { randomLabRequest } from 'shared/demoData/labRequests';
 import { fake } from 'shared/test-helpers/fake';
 import { LAB_REQUEST_STATUSES, REFERENCE_TYPES } from 'shared/constants';
-import {
-  makeVaccineCertificate,
-  makeCovidTestCertificate,
-} from '../app/utils/makePatientCertificate';
+import { makeVaccineCertificate, makeCovidCertificate } from '../app/utils/makePatientCertificate';
 
 import { createTestContext } from './utilities';
 
@@ -175,7 +172,7 @@ describe('Certificate', () => {
     await createLabTests();
     const patientRecord = await models.Patient.findByPk(patient.id);
     const printedBy = 'Initial Admin';
-    const result = await makeCovidTestCertificate(patientRecord, printedBy, models, [
+    const result = await makeCovidCertificate('test', patientRecord, printedBy, models, [
       { foo: 'bar' },
     ]);
     expect(result.status).toEqual('success');
@@ -185,7 +182,9 @@ describe('Certificate', () => {
     await createVaccines();
     const patientRecord = await models.Patient.findByPk(patient.id);
     const printedBy = 'Initial Admin';
-    const result = await makeVaccineCertificate(patientRecord, printedBy, models, 'TEST UVCI', [{ foo: 'bar' }]);
+    const result = await makeVaccineCertificate(patientRecord, printedBy, models, 'TEST UVCI', [
+      { foo: 'bar' },
+    ]);
     expect(result.status).toEqual('success');
   });
 });
