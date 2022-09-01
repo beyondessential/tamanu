@@ -3,4 +3,4 @@ export { UserAdminView } from './UserAdminView';
 export { ProgramsAdminView } from './ProgramsAdminView';
 export { PermissionsAdminView } from './PermissionsAdminView';
 export { ReferenceDataAdminView } from './ReferenceDataAdminView';
-export * from './patientMerge';
+export { PatientMergeView } from './patientMerge';

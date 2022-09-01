@@ -193,7 +193,7 @@ export const FACILITY_MENU_ITEMS = [
 export const SYNC_MENU_ITEMS = [
   {
     key: 'refdata',
-    label: 'Data Import',
+    label: 'Data import',
     path: '/admin/refdata',
   },
   {
@@ -206,5 +206,10 @@ export const SYNC_MENU_ITEMS = [
     key: 'programs',
     label: 'Programs',
     path: '/admin/programs',
+  },
+  {
+    key: 'patientMerge',
+    label: 'Patient merge',
+    path: '/admin/patientMerge',
   },
 ];
