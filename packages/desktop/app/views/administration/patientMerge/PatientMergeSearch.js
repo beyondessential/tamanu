@@ -3,6 +3,8 @@ import { Button, TextInput } from "../../../components";
 import { PatientSummary } from './PatientSummary';
 import styled from 'styled-components';
 
+import { useApi } from "../../../api";
+
 const Row = styled.div`
   display: flex;
   flex-direction: row;
@@ -13,15 +15,18 @@ const Row = styled.div`
 `;
 
 export const PatientFetcher = ({
-  fetchPatient,
   onPatientFound,
   label,
 }) => {
   const [currentPatient, setCurrentPatient] = useState(null);
   const [searchText, setSearchText] = useState('');
 
-  const onClick = useCallback(() => {
-    const patient = fetchPatient(searchText);
+  const api = useApi();
+
+  const onClick = useCallback(async () => {
+    setCurrentPatient(null);
+    onPatientFound(null);
+    const patient = await api.get(`admin/patientSearch/${searchText}`);
     setCurrentPatient(patient);
     onPatientFound(patient);
   });
@@ -37,28 +42,35 @@ export const PatientFetcher = ({
   )
 }
 
+const MergeFrame = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin: 1rem;
+  > * {
+    margin-bottom: 2rem;
+  }
+`;
+
 export const PatientMergeSearch = ({
-  fetchPatient,
   onBeginMerge,
 }) => {
   const [firstPatient, setFirstPatient] = useState();
   const [secondPatient, setSecondPatient] = useState();
   return (
-    <div>
+    <MergeFrame>
+      <h3>Select patients to merge</h3>
       <PatientFetcher 
         label="First patient display ID"
-        fetchPatient={fetchPatient}
         onPatientFound={setFirstPatient}
       />
       <PatientFetcher 
         label="Second patient display ID"
-        fetchPatient={fetchPatient}
         onPatientFound={setSecondPatient}
-      />      
+      />
       <Button 
         disabled={!(firstPatient && secondPatient)}
         onClick={() => onBeginMerge(firstPatient, secondPatient)}
       >Merge</Button>
-    </div>
+    </MergeFrame>
   )
 };

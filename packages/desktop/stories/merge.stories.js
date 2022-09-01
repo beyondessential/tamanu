@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
+import { MockedApi } from './utils/mockedApi';
 
 import { 
   PatientMergeView,
@@ -9,6 +10,7 @@ import {
   KeepPatientDecisionForm,
   PatientSummary,
   ConfirmationModal,
+  MergeResultModal,
 } from '../app/views/administration/patientMerge';
 
 const baseDetails = {
@@ -37,10 +39,28 @@ const fakeGetPatient = displayId => ({
   id: (Math.random() * 10000.0).toFixed(0),
 });
 
+const endpoints = {
+  'admin/patientSearch/:id': (data, id) => {
+    return fakeGetPatient(id);
+  },
+  'admin/mergePatient': (data) => {
+    action('call admin/mergePatient')(data);
+    return {
+      updates: { 
+        Patient: 1,
+        PatientEncounter: (1 + Math.random() * 3).toFixed(0),
+        PatientAllergy: (1 + Math.random() * 3).toFixed(0),
+        PatientCarePlan: (1 + Math.random() * 3).toFixed(0),
+        PatientIssue: (1 + Math.random() * 3).toFixed(0),
+      },
+    };
+  }
+};
+
 storiesOf('Admin/PatientMerge', module)
+  .addDecorator(Story => <MockedApi endpoints={endpoints}><Story /></MockedApi>)
   .add('Patient search', () => (
     <PatientMergeSearch 
-      fetchPatient={fakeGetPatient}
       onBeginMerge={action('beginMerge')}
     />
   ))
@@ -59,7 +79,7 @@ storiesOf('Admin/PatientMerge', module)
       firstPatient={firstPatient}
       secondPatient={secondPatient}
       onCancel={action('cancel')}
-      onSelectPatient={action('confirm')}
+      onSelectPlan={action('selectPlan')}
     />
   ))
   .add('Confirmation form', () => (
@@ -72,9 +92,21 @@ storiesOf('Admin/PatientMerge', module)
       onConfirm={action('confirm')}
     />
   ))
+  .add('Result modal', () => (
+    <MergeResultModal
+      result={{
+        updates: {
+          Patient: 1,
+          PatientEncounter: 3,
+          PatientAdditionalData: 1,
+          PatientIssue: 3,
+        }
+      }}
+      onClose={action('close')}
+    />
+  ))
   .add('Entire flow', () => (
     <PatientMergeView
-      fetchPatient={fakeGetPatient}
       onMergePatients={action('merge')}
     />
   ));
