@@ -58,7 +58,12 @@ const Columns = styled.div`
 
 const getDisplaySex = s => s; // TODO
 
-export const PatientSummary = ({ heading = "Patient details", patient, onSelect, selected }) => (
+export const PatientSummary = ({ 
+  heading = "Patient details", 
+  patient = {}, 
+  onSelect, 
+  selected
+}) => (
   <SummaryFrame onClick={onSelect} selected={selected}>
     <Header>
       <h3>{heading}</h3>

@@ -1,12 +1,18 @@
 import React, { useState } from 'react';
+import styled from 'styled-components';
+
 import { ConfirmCancelRow } from '../../../components';
 import { Modal } from '../../../components/Modal'
 
 import { PatientSummary } from './PatientSummary';
 
+const MainInstruction = styled.p`
+  font-weight: bold;
+`;
+
 const SelectInstructions = () => (
   <div>
-    <p>Select which version of the patient should be kept.</p>
+    <MainInstruction>Select which version of the patient should be kept.</MainInstruction>
     <p>
       Basic data, including name, patient ID, DOB, sex, location, blood
       type and contact details will be retained from the selected patient

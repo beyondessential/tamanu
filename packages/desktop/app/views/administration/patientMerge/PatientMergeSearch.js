@@ -1,9 +1,21 @@
 import React, { useState, useCallback } from 'react';
-import { Button } from "../../../components";
+import { Button, TextInput } from "../../../components";
+import { PatientSummary } from './PatientSummary';
+import styled from 'styled-components';
+
+const Row = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  > * {
+    margin-right: 1rem;
+  }
+`;
 
 export const PatientFetcher = ({
   fetchPatient,
-  onPatientFound
+  onPatientFound,
+  label,
 }) => {
   const [currentPatient, setCurrentPatient] = useState(null);
   const [searchText, setSearchText] = useState('');
@@ -16,9 +28,11 @@ export const PatientFetcher = ({
 
   return (
     <div>
-      <input type="text" value={searchText} onChange={e => setSearchText(e.target.value)} />
+      <Row>
+      <TextInput label={label} value={searchText} onChange={e => setSearchText(e.target.value)} />
       <Button onClick={onClick}>Get</Button>
-      <div>{currentPatient ? currentPatient.id : 'waiting'}</div>
+      </Row>
+      <PatientSummary heading="Patient" patient={currentPatient || {}} />
     </div>
   )
 }
@@ -32,10 +46,12 @@ export const PatientMergeSearch = ({
   return (
     <div>
       <PatientFetcher 
+        label="First patient display ID"
         fetchPatient={fetchPatient}
         onPatientFound={setFirstPatient}
       />
       <PatientFetcher 
+        label="Second patient display ID"
         fetchPatient={fetchPatient}
         onPatientFound={setSecondPatient}
       />      
