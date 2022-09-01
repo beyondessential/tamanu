@@ -1,8 +1,47 @@
-import Sequelize from 'sequelize';
+import Sequelize, { QueryInterface } from 'sequelize';
 import { keyBy } from 'lodash';
 
-export async function up(query) {
-  const [oldNotes] = await query.sequelize.query('SELECT * FROM notes');
+type Note = {
+  id: string;
+  record_id: string;
+  record_type: string;
+  note_type: string;
+  content: string;
+  author_id: string;
+  on_behalf_of_id: string;
+  date: Date;
+  created_at: Date;
+  updated_at: Date;
+  deleted_at: Date;
+};
+
+type NotePage = {
+  id: string;
+  record_id: string;
+  record_type: string;
+  note_type: string;
+  date: Date;
+  created_at: Date;
+  updated_at: Date;
+  deleted_at: Date;
+};
+
+type NoteItem = {
+  id: string;
+  note_page_id: string;
+  author_id: string;
+  on_behalf_of_id: string;
+  content: string;
+  date: Date;
+  created_at: Date;
+  updated_at: Date;
+  deleted_at: Date;
+};
+
+export async function up(query: QueryInterface): Promise<void> {
+  const results = await query.sequelize.query('SELECT * FROM notes');
+  const oldNotes = results[0] as Note[];
+
   for (const note of oldNotes) {
     await query.sequelize.query(
       `INSERT INTO note_pages(id, record_id, record_type, note_type, date, created_at, updated_at, deleted_at)
@@ -44,10 +83,9 @@ export async function up(query) {
   }
 
   await query.dropTable('notes');
-
 }
 
-export async function down(query) {
+export async function down(query: QueryInterface): Promise<void> {
   await query.createTable('notes', {
     id: {
       type: Sequelize.STRING,
@@ -111,8 +149,11 @@ export async function down(query) {
     },
   });
 
-  const [notePages] = await query.sequelize.query('SELECT * FROM note_pages');
-  const [noteItems] = await query.sequelize.query('SELECT * FROM note_items');
+  const notePageResults = await query.sequelize.query('SELECT * FROM note_pages');
+  const noteItemResults = await query.sequelize.query('SELECT * FROM note_items');
+
+  const notePages = notePageResults[0] as NotePage[];
+  const noteItems = noteItemResults[0] as NoteItem[];
 
   const notePageById = keyBy(notePages, 'id');
 

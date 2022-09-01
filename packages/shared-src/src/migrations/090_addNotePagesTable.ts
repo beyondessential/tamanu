@@ -1,7 +1,7 @@
-import Sequelize from 'sequelize';
+import Sequelize, { QueryInterface } from 'sequelize';
 
-export async function up(query) {
-  await query.createTable('note_items', {
+export async function up(query: QueryInterface): Promise<void> {
+  await query.createTable('note_pages', {
     id: {
       type: Sequelize.STRING,
       allowNull: false,
@@ -22,38 +22,17 @@ export async function up(query) {
       type: Sequelize.DATE,
       allowNull: true,
     },
-    note_page_id: {
+    note_type: {
       type: Sequelize.STRING,
-      references: {
-        model: 'note_pages',
-        key: 'id',
-      },
       allowNull: false,
     },
-    revised_by_id: {
+    record_id: {
       type: Sequelize.STRING,
-      allowNull: true,
-    },
-    author_id: {
-      type: Sequelize.STRING,
-      references: {
-        model: 'users',
-        key: 'id',
-      },
-      allowNull: true,
-    },
-    on_behalf_of_id: {
-      type: Sequelize.STRING,
-      references: {
-        model: 'users',
-        key: 'id',
-      },
-      allowNull: true,
-    },
-    content: {
-      type: Sequelize.TEXT,
       allowNull: false,
-      defaultValue: '',
+    },
+    record_type: {
+      type: Sequelize.STRING,
+      allowNull: false,
     },
     date: {
       type: Sequelize.DATE,
@@ -63,6 +42,6 @@ export async function up(query) {
   });
 }
 
-export async function down(query) {
-  await query.dropTable('note_items');
+export async function down(query: QueryInterface): Promise<void> {
+  await query.dropTable('note_pages');
 }
