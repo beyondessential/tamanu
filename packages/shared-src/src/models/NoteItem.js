@@ -13,7 +13,7 @@ export class NoteItem extends Model {
           allowNull: true,
         },
         content: {
-          type: Sequelize.STRING,
+          type: Sequelize.TEXT,
           allowNull: false,
           defaultValue: '',
         },
