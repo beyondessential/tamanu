@@ -1,7 +1,7 @@
 import { QueryInterface, DataTypes } from 'sequelize';
-import { ISO9075_DATETIME_FORMAT } from '../constants';
 
 const TABLE_NAME = 'lab_requests';
+const ISO9075_DATE_TIME_FMT = 'YYYY-MM-DD HH24:MI:SS';
 
 export async function up(query: QueryInterface) {
   // 1. Create legacy columns
@@ -23,8 +23,8 @@ export async function up(query: QueryInterface) {
   // 3.Change column types from of original columns from date to string & convert data to string
   await query.sequelize.query(`
     ALTER TABLE ${TABLE_NAME} 
-    ALTER COLUMN sample_time TYPE CHAR(19) USING TO_CHAR(sample_time, '${ISO9075_DATETIME_FORMAT}'),
-    ALTER COLUMN requested_date TYPE CHAR(19) USING TO_CHAR(requested_date, '${ISO9075_DATETIME_FORMAT}');
+    ALTER COLUMN sample_time TYPE CHAR(19) USING TO_CHAR(sample_time, '${ISO9075_DATE_TIME_FMT}'),
+    ALTER COLUMN requested_date TYPE CHAR(19) USING TO_CHAR(requested_date, '${ISO9075_DATE_TIME_FMT}');
   `);
 }
 

@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize';
 import config from 'config';
 import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES } from 'shared/constants';
+import { dateTimeType } from './dateTimeTypes';
 import { Model } from './Model';
 
 export class Patient extends Model {
@@ -19,7 +20,7 @@ export class Patient extends Model {
         culturalName: Sequelize.STRING,
 
         dateOfBirth: Sequelize.DATE,
-        dateOfDeath: Sequelize.DATE,
+        dateOfDeath: dateTimeType('dateOfDeath'),
         sex: {
           type: Sequelize.ENUM('male', 'female', 'other'),
           allowNull: false,
@@ -30,6 +31,7 @@ export class Patient extends Model {
           allowNull: false,
           defaultValue: false,
         },
+        visibilityStatus: Sequelize.STRING,
       },
       {
         ...options,
@@ -63,8 +65,7 @@ export class Patient extends Model {
       foreignKey: 'patientId',
       as: 'deathData',
     });
-
-    // this one is actually a hasMany
+    
     this.hasMany(models.PatientSecondaryId, {
       foreignKey: 'patientId',
       as: 'secondaryIds',
@@ -72,6 +73,11 @@ export class Patient extends Model {
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'villageId',
       as: 'village',
+    });
+
+    this.hasMany(models.Patient, {
+      foreignKey: 'mergedIntoId',
+      as: 'mergedPatients',
     });
 
     this.hasMany(models.NotePage, {

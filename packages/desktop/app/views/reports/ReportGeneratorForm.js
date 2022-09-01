@@ -32,6 +32,7 @@ import { VaccineCategoryField } from './VaccineCategoryField';
 import { VaccineField } from './VaccineField';
 import { Suggester } from '../../utils/suggester';
 import { ImagingTypeField } from './ImagingTypeField';
+import { LabTestCategoryField } from './LabTestCategoryField';
 
 const EmptyField = styled.div``;
 
@@ -54,6 +55,7 @@ const PARAMETER_FIELD_COMPONENTS = {
   ParameterSelectField,
   ParameterMultiselectField,
   ImagingTypeField,
+  LabTestCategoryField,
 };
 
 const Spacer = styled.div`

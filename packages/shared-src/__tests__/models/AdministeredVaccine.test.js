@@ -55,6 +55,7 @@ describe('AdministeredVaccine.lastVaccinationForPatient', () => {
       locationId: loc.id,
     });
   });
+  afterAll(() => context.sequelize.close());
 
   afterEach(async () => {
     await models.AdministeredVaccine.truncate();
