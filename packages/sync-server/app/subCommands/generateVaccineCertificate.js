@@ -13,7 +13,7 @@ export const generateCertificate = async ({ patientId }) => {
     const pdf = await makeVaccineCertificate(patient, 'Admin', store.models, 'uvci123');
     log.info(`Certificate output: `, pdf);
   } catch (error) {
-    process.stderr.write(`Report failed: ${error.message}\n`);
+    process.stderr.write(`Report failed: ${error.stack}\n`);
     process.exit(1);
   }
   process.exit(0);
