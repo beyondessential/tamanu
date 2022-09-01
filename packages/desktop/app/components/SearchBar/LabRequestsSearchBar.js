@@ -1,13 +1,8 @@
 import React from 'react';
+import { LAB_REQUEST_STATUS_OPTIONS } from 'shared/constants';
 import { DateField, SelectField, LocalisedField } from '../Field';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
-import { LAB_REQUEST_STATUS_LABELS, LAB_REQUEST_STATUSES } from '../../constants';
 import { useLabRequest } from '../../contexts/LabRequest';
-
-const STATUS_OPTIONS = Object.values(LAB_REQUEST_STATUSES).map(s => ({
-  label: LAB_REQUEST_STATUS_LABELS[s],
-  value: s,
-}));
 
 export const LabRequestsSearchBar = () => {
   const { searchParameters, setSearchParameters } = useLabRequest();
@@ -26,7 +21,7 @@ export const LabRequestsSearchBar = () => {
         name="status"
         defaultLabel="Status"
         component={SelectField}
-        options={STATUS_OPTIONS}
+        options={LAB_REQUEST_STATUS_OPTIONS}
       />
       <LocalisedField name="priority" defaultLabel="Priority" />
       <LocalisedField name="laboratory" defaultLabel="Laboratory" />
