@@ -1,11 +1,13 @@
-import { mergePatient, getTablesWithNoMergeCoverage } from "../../app/admin/patientMerge/mergePatient";
-import { fake } from 'shared/test-helpers/fake';
+import {
+  mergePatient,
+  getTablesWithNoMergeCoverage,
+} from '../../app/admin/patientMerge/mergePatient';
+import { fake, fakeUser } from 'shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
 import { VISIBILITY_STATUSES } from 'shared/constants';
 import { InvalidParameterError } from 'shared/errors';
 
-describe("Patient merge", () => {
-
+describe('Patient merge', () => {
   let ctx;
   let models;
   let baseApp;
@@ -43,7 +45,7 @@ describe("Patient merge", () => {
     expect(tables).toHaveLength(0);
   });
 
-  it("Should merge a patient with no additional records", async () => {
+  it('Should merge a patient with no additional records', async () => {
     const [keep, merge] = await makeTwoPatients();
 
     const { updates } = await mergePatient(models, keep.id, merge.id);
@@ -59,22 +61,48 @@ describe("Patient merge", () => {
     expect(merge).toHaveProperty('visibilityStatus', VISIBILITY_STATUSES.MERGED);
     expect(merge.deletedAt).toBeTruthy();
   });
-  
+
   it('Should merge encounters across', async () => {
-    const { Encounter } = models;
+    const { Encounter, Facility, Department, Location, User } = models;
 
     const [keep, merge] = await makeTwoPatients();
 
+    const facility = await Facility.create({
+      ...fake(Facility),
+      name: 'Utopia HQ',
+    });
+
+    const location = await Location.create({
+      ...fake(Location),
+      facilityId: facility.id,
+    });
+
+    const department = await Department.create({
+      ...fake(Department),
+      facilityId: facility.id,
+    });
+
+    const examiner = await User.create(fakeUser());
+
+    const baseEncounter = {
+      locationId: location.id,
+      departmentId: department.id,
+      examinerId: examiner.id,
+    };
+
     const mergeEnc = await models.Encounter.create({
       ...fake(Encounter),
+      ...baseEncounter,
       patientId: merge.id,
     });
     const mergeEnc2 = await models.Encounter.create({
       ...fake(Encounter),
+      ...baseEncounter,
       patientId: merge.id,
     });
     const keepEnc = await models.Encounter.create({
       ...fake(Encounter),
+      ...baseEncounter,
       patientId: keep.id,
     });
 
@@ -87,9 +115,9 @@ describe("Patient merge", () => {
 
     for (const e of [mergeEnc, mergeEnc2, keepEnc]) {
       await e.reload();
-      expect(e).toHaveProperty('patientId', keep.id);  
+      expect(e).toHaveProperty('patientId', keep.id);
     }
-  
+
     expect(await keep.getEncounters()).toHaveLength(3);
     expect(await merge.getEncounters()).toHaveLength(0);
   });
@@ -119,10 +147,10 @@ describe("Patient merge", () => {
     await issue.reload();
     expect(issue).toHaveProperty('patientId', keep.id);
   });
-  
+
   it('Should merge death data cleanly', async () => {
-    // Theoretically this should behave the same as other records but I (@mclean) 
-    // encountered a validation issue* during dev, so I'm just including this 
+    // Theoretically this should behave the same as other records but I (@mclean)
+    // encountered a validation issue* during dev, so I'm just including this
     // additional test to be safe.
     // *complaints of a missing clinicianId despite not updating any records
     const [keep, merge] = await makeTwoPatients();
@@ -190,11 +218,11 @@ describe("Patient merge", () => {
     it('Should merge patient additional data even if the keep patient PAD is null', async () => {
       const { PatientAdditionalData } = models;
       const [keep, merge] = await makeTwoPatients();
-  
+
       const keepPatientPad = await PatientAdditionalData.create({
         patientId: keep.id,
       });
-  
+
       const mergePatientPad = await PatientAdditionalData.create({
         patientId: merge.id,
         primaryContactNumber: 'merge-phone',
@@ -228,7 +256,7 @@ describe("Patient merge", () => {
       expect(response.body.updates).toEqual({
         Patient: 1,
       });
-  
+
       await keep.reload({ paranoid: false });
       await merge.reload({ paranoid: false });
       expect(keep).toHaveProperty('mergedIntoId', null);
@@ -249,7 +277,7 @@ describe("Patient merge", () => {
       expect(response).toBeForbidden();
     });
 
-    it("Should return any encountered error", async () => {
+    it('Should return any encountered error', async () => {
       const { Patient } = models;
       const patient = await Patient.create(fake(Patient));
 
