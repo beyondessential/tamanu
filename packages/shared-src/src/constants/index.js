@@ -532,3 +532,12 @@ export const MANNER_OF_DEATH_OPTIONS = Object.values(MANNER_OF_DEATHS).map(type 
   label: type,
   value: type,
 }));
+
+export const TIME_UNIT_OPTIONS = [
+  { unit: 'minutes', minutes: 1 },
+  { unit: 'hours', minutes: 60 },
+  { unit: 'days', minutes: 60 * 24 },
+  { unit: 'weeks', minutes: 60 * 24 * 7 },
+  { unit: 'months', minutes: 60 * 24 * 30 },
+  { unit: 'years', minutes: 60 * 24 * 365 },
+];

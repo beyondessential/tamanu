@@ -1,5 +1,18 @@
 import { subDays } from 'date-fns';
+import { TIME_UNIT_OPTIONS } from 'shared/constants';
 import { generateReportFromQueryData } from './utilities';
+
+// Creates a string with the time unit that it was added
+// when registering the field. See TimeWithUnitField component.
+const parseWithTimeUnit = valueInMinutes => {
+  if (!valueInMinutes) return null;
+
+  const option = TIME_UNIT_OPTIONS.sort((a, b) => b.minutes - a.minutes).find(
+    o => valueInMinutes % o.minutes === 0,
+  );
+
+  return `${valueInMinutes / option.minutes} ${option.unit}`;
+};
 
 const FIELDS = [
   'Patient ID',
@@ -16,7 +29,10 @@ const FIELDS = [
   'Date and time of death',
   'Attending clinician',
   'Cause of death',
-  'Time between onset of cause and death',
+  {
+    title: 'Time between onset of cause and death',
+    accessor: data => parseWithTimeUnit(data['Time between onset of cause and death']),
+  },
   'Due to (or as a consequence of) 1',
   'Due to (or as a consequence of) 2',
   'Other contributing conditions 1',
@@ -41,10 +57,14 @@ const FIELDS = [
   'Number of hours survived',
 ];
 
-const reportColumnTemplate = FIELDS.map(field => ({
-  title: field,
-  accessor: data => data[field],
-}));
+const reportColumnTemplate = FIELDS.map(field =>
+  typeof field === 'string'
+    ? {
+        title: field,
+        accessor: data => data[field],
+      }
+    : field,
+);
 
 const query = `
 with
