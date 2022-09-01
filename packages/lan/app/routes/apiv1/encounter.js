@@ -135,7 +135,10 @@ encounterRelations.get(
   paginatedGetList('DocumentMetadata', 'encounterId'),
 );
 encounterRelations.get('/:id/imagingRequests', simpleGetList('ImagingRequest', 'encounterId'));
-encounterRelations.get('/:id/notes', notePagesWithSingleItemListHandler(NOTE_RECORD_TYPES.ENCOUNTER));
+encounterRelations.get(
+  '/:id/notes',
+  notePagesWithSingleItemListHandler(NOTE_RECORD_TYPES.ENCOUNTER),
+);
 encounterRelations.get(
   '/:id/invoice',
   simpleGetHasOne('Invoice', 'encounterId', {

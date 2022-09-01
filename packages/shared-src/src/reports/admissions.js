@@ -90,9 +90,13 @@ const getAllNotes = async (models, encounterIds) => {
     },
   });
 
-  const locationChangeNotes = await Promise.all(locationChangeNotePages.map(l => l.getCombinedNoteObject(models)));
-  const departmentChangeNotes = await Promise.all(departmentChangeNotePages.map(d => d.getCombinedNoteObject(models)));;
-  
+  const locationChangeNotes = await Promise.all(
+    locationChangeNotePages.map(l => l.getCombinedNoteObject(models)),
+  );
+  const departmentChangeNotes = await Promise.all(
+    departmentChangeNotePages.map(d => d.getCombinedNoteObject(models)),
+  );
+
   return { locationChangeNotes, departmentChangeNotes };
 };
 
