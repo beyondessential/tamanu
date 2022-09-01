@@ -23,7 +23,7 @@ export const PatientFetcher = ({ onPatientFound, label }) => {
   const onClick = useCallback(async () => {
     setCurrentPatient(null);
     onPatientFound(null);
-    const patient = await api.get(`admin/patientSearch/${searchText}`);
+    const patient = await api.get(`admin/lookup/patient/${searchText}`);
     setCurrentPatient(patient);
     onPatientFound(patient);
   });

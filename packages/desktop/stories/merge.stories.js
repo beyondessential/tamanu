@@ -40,7 +40,7 @@ const fakeGetPatient = displayId => ({
 });
 
 const endpoints = {
-  'admin/patientSearch/:id': (data, id) => {
+  'admin/lookup/patient/:id': (data, id) => {
     return fakeGetPatient(id);
   },
   'admin/mergePatient': (data) => {

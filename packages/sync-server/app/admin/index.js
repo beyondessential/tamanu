@@ -38,3 +38,24 @@ adminRoutes.post(
 );
 
 adminRoutes.post('/mergePatient', mergePatientHandler);
+
+// A temporary lookup-patient-by-displayId endpoint, just to 
+// support patient merge because the patient search functionality is only
+// available on LAN and there was some time pressure to get it out the door. 
+// This should be replaced by the full-fledged patient search once some
+// more consideration has been put into how that functionality should best
+// be shared between the server modules.
+adminRoutes.get('/lookup/patient/:displayId', asyncHandler(async (req, res) => {
+  // Note there is no permission check for this endpoint as it's mounted under the 
+  // admin routes
+  const { models, params } = req;
+  const { displayId } = params;
+  const patient = await models.Patient.find({
+    where: {
+      displayId,
+    },
+    include: model.getFullReferenceAssociations(),
+  });
+  if (!patient) throw new NotFoundError();
+  res.send(patient);
+}));
