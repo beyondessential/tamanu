@@ -16,38 +16,23 @@ export class LabRequest extends Model {
           allowNull: false,
           defaultValue: getCurrentDateTimeString,
         },
-        // Legacy column has historical date time data as a backup
-        sampleTimeLegacy: {
-          type: Sequelize.DATE,
-          allowNull: false,
-          defaultValue: Sequelize.NOW,
-        },
         requestedDate: {
           ...dateTimeType('requestedDate'),
           allowNull: false,
           defaultValue: getCurrentDateTimeString,
         },
-        // Legacy column has historical date time data as a backup
-        requestedDateLegacy: {
-          type: Sequelize.DATE,
-          allowNull: false,
-          defaultValue: Sequelize.NOW,
-        },
         specimenAttached: {
           type: Sequelize.BOOLEAN,
           defaultValue: false,
         },
-
         urgent: {
           type: Sequelize.BOOLEAN,
           defaultValue: false,
         },
-
         status: {
           type: Sequelize.STRING,
           defaultValue: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
         },
-
         senaiteId: {
           type: Sequelize.STRING,
           allowNull: true,
@@ -56,7 +41,6 @@ export class LabRequest extends Model {
           type: Sequelize.STRING,
           allowNull: true,
         },
-
         displayId: {
           type: Sequelize.STRING,
           allowNull: false,
