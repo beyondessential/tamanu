@@ -32,7 +32,7 @@ export class ImagingRequest extends Model {
         },
 
         results: {
-          type: Sequelize.STRING,
+          type: Sequelize.TEXT,
           defaultValue: '',
         },
 

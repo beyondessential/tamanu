@@ -17,7 +17,7 @@ export async function up(query: QueryInterface) {
         query.sequelize.query(
           `
         UPDATE ${tableName}
-        SET ${columnName} = TO_CHAR(${`${columnName}_legacy`}, :dateTimeFmt);
+        SET ${columnName} = COALESCE(TO_CHAR(${`${columnName}_legacy`}, :dateTimeFmt), ${columnName});
         `,
           {
             replacements: {
