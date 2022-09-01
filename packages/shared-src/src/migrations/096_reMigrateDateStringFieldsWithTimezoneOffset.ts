@@ -18,11 +18,19 @@ export async function up(query: QueryInterface) {
   Object.entries(tableColumns).forEach(([tableName, columns]) => {
     columns.forEach(columnName => {
       promises.push(
-        query.sequelize.query(`UPDATE ${tableName}
-        SET ${columnName} = to_char(${columnName}_legacy::TIMESTAMPTZ AT TIME ZONE 'UTC', ${ISO9075_DATE_TIME_FMT})
-        WHERE ${columnName} = to_char(${columnName}_legacy, ${ISO9075_DATE_TIME_FMT})
-        OR ${columnName} = to_char(${columnName}_legacy, ${JAVASCRIPT_ISO9075_DATE_TIME_FMT});
-        `),
+        query.sequelize.query(
+          `UPDATE ${tableName}
+        SET ${columnName} = to_char(${columnName}_legacy::TIMESTAMPTZ AT TIME ZONE 'UTC', :dateTimeFmt)
+        WHERE ${columnName} = to_char(${columnName}_legacy, :dateTimeFmt)
+        OR ${columnName} = to_char(${columnName}_legacy, :oldDateTimeFmt);
+        `,
+          {
+            replacements: {
+              dateTimeFmt: ISO9075_DATE_TIME_FMT,
+              oldDateTimeFmt: JAVASCRIPT_ISO9075_DATE_TIME_FMT,
+            },
+          },
+        ),
       );
     });
   });
