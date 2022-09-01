@@ -19,6 +19,7 @@ import {
   permissionCheckingRouter,
   createNoteListingHandler,
 } from './crudHelpers';
+import { notePagesWithSingleItemListHandler } from '../../routeHandlers';
 
 export const labRequest = express.Router();
 
@@ -211,14 +212,15 @@ labRequest.post(
     }
     req.checkPermission('write', lab);
     const notePage = await lab.createNotePage(body);
-    const noteItem = notePage.createNoteItem(body);
-    res.send({ ...notePage, content: noteItem.content });
+    await notePage.createNoteItem(body);
+    const response = await notePage.getCombinedNoteObject(models);
+    res.send(response);
   }),
 );
 
 const labRelations = permissionCheckingRouter('read', 'LabRequest');
 labRelations.get('/:id/tests', simpleGetList('LabTest', 'labRequestId'));
-labRelations.get('/:id/notes', createNoteListingHandler(NOTE_RECORD_TYPES.LAB_REQUEST));
+labRelations.get('/:id/notes', notePagesWithSingleItemListHandler(NOTE_RECORD_TYPES.LAB_REQUEST));
 
 labRequest.use(labRelations);
 

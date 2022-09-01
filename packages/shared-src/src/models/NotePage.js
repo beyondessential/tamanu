@@ -60,83 +60,49 @@ export class NotePage extends Model {
     });
   }
 
-  static async createForRecord(recordId, recordType, type, content, authorId) {
+  /**
+   * This is a util method that combines the NotePage instance with its single associated NoteItem.
+   * This method should only be used for records that always only have 1 note item associated to it.
+   * Eg: Lab Request, Patient Care Plan
+   * @param {*} models
+   * @returns
+   */
+  async getCombinedNoteObject(models) {
+    const noteItem = await models.NoteItem.findOne({
+      include: [
+        { model: models.User, as: 'author' },
+        { model: models.User, as: 'onBehalfOf' },
+      ],
+      where: {
+        notePageId: this.id,
+      },
+    });
+
+    return {
+      ...noteItem.toJSON(),
+      id: this.id,
+      recordType: this.recordType,
+      recordId: this.recordId,
+      noteType: this.noteType,
+    };
+  }
+
+  static async createForRecord(recordId, recordType, noteType, content, authorId) {
     const notePage = await NotePage.create({
       recordId,
       recordType,
-      type,
+      noteType,
       date: Date.now(),
     });
 
-    return NoteItem.create({
+    await NoteItem.create({
       notePageId: notePage.id,
       content,
       date: Date.now(),
       authorId,
     });
-  }
 
-  /**
-   * This is a util method that allows finding multiple note pages associated record that
-   * should only have 1 single attached note item to the note page.
-   * Eg: ImagingRequest
-   * @param {*} models
-   * @param {*} options
-   * @returns
-   */
-  static async findAllWithSingleNoteItem(models, options = {}) {
-    const notePages = await this.findAll({
-      include: [
-        ...options.includes,
-        {
-          model: models.NoteItem,
-          as: 'noteItems',
-          where: {
-            revisedById: null,
-          },
-          limit: 1,
-        },
-      ],
-      ...options,
-    });
-
-    return notePages
-      .map(notePage => notePage.toJSON())
-      .map(notePage => {
-        const newNotePage = { ...notePage };
-        newNotePage.content = newNotePage.noteItems[0]?.content;
-        return newNotePage;
-      });
-  }
-
-  /**
-   * This is a util method that allows finding a single note page associated record that
-   * should only have 1 single attached note item to the note page.
-   * Eg: ImagingRequest
-   * @param {*} models
-   * @param {*} options
-   * @returns
-   */
-  static async findOneWithSingleNoteItem(models, options = {}) {
-    const notePage = await this.findOne({
-      include: [
-        ...options.includes,
-        {
-          model: models.NoteItem,
-          as: 'noteItems',
-          where: {
-            revisedById: null,
-          },
-          limit: 1,
-        },
-      ],
-      ...options,
-    });
-
-    const notePageJSON = notePage.toJSON();
-    notePageJSON.content = notePageJSON.noteItems[0]?.content;
-
-    return notePageJSON;
+    return notePage;
   }
 
   async getParentRecord(options) {

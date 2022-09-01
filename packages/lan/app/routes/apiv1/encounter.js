@@ -10,6 +10,7 @@ import {
 } from 'shared/constants';
 import { uploadAttachment } from '../../utils/uploadAttachment';
 import { notePageListHandler } from '../../routeHandlers';
+
 import {
   simpleGet,
   simpleGetHasOne,
@@ -78,8 +79,10 @@ encounter.post(
     }
     req.checkPermission('write', owner);
     const notePage = await owner.createNotePage(body);
-    const noteItem = await notePage.createNoteItem(body);
-    res.send({ ...notePage, content: noteItem.content });
+    await notePage.createNoteItem(body);
+    const response = await notePage.getCombinedNoteObject(models);
+
+    res.send(response);
   }),
 );
 
@@ -132,7 +135,9 @@ encounterRelations.get(
   paginatedGetList('DocumentMetadata', 'encounterId'),
 );
 encounterRelations.get('/:id/imagingRequests', simpleGetList('ImagingRequest', 'encounterId'));
+
 encounterRelations.get('/:id/notePages', notePageListHandler);
+
 encounterRelations.get(
   '/:id/notePages/noteTypes',
   asyncHandler(async (req, res) => {
@@ -149,6 +154,7 @@ encounterRelations.get(
     res.send({ data: noteTypeToCount });
   }),
 );
+
 encounterRelations.get(
   '/:id/invoice',
   simpleGetHasOne('Invoice', 'encounterId', {

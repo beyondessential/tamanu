@@ -73,9 +73,20 @@ notePageRoute.put(
   asyncHandler(async (req, res) => {
     const { models, body, params } = req;
 
-    const editedNotePage = await models.NotePage.findOneWithSingleNoteItem(models, {
+    const editedNotePage = await models.NotePage.findOne({
+      include: [
+        {
+          model: models.NoteItem,
+          as: 'noteItems',
+          include: [
+            { model: models.User, as: 'author' },
+            { model: models.User, as: 'onBehalfOf' },
+          ],
+        },
+      ],
       where: { id: params.id },
     });
+
     if (!editedNotePage) {
       throw new NotFoundError();
     }
@@ -87,11 +98,12 @@ notePageRoute.put(
     req.checkPermission('write', editedNotePage.recordType);
 
     const owner = await models[editedNotePage.recordType].findByPk(editedNotePage.recordId);
+
     req.checkPermission('write', owner);
 
-    await models.NoteItem.update({ ...body }, { where: { id: editedNotePage.noteItems[0].id } });
+    editedNotePage.noteItems[0].update({ ...body });
 
-    res.send({ ...editedNotePage, content: body.content });
+    res.send(editedNotePage);
   }),
 );
 

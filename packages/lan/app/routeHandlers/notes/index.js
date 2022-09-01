@@ -1,1 +1,1 @@
-export { notePageListHandler } from './notePageListHandler';
+export * from './notePageListHandler';
