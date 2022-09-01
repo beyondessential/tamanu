@@ -4,6 +4,7 @@ import {
   REPORT_DATA_SOURCE_VALUES,
   IMAGING_REQUEST_STATUS_OPTIONS,
   MANNER_OF_DEATH_OPTIONS,
+  LAB_REQUEST_STATUS_OPTIONS,
 } from 'shared/constants';
 
 const LAST_30_DAYS_DATE_LABEL = 'Date range (or leave blank for the past 30 days of data)';
@@ -466,6 +467,27 @@ export const REPORT_DEFINITIONS = [
         label: 'Manner of death',
         name: 'mannerOfDeath',
         options: MANNER_OF_DEATH_OPTIONS,
+      },
+    ],
+  },
+  {
+    name: 'Lab requests - Line list',
+    id: 'lab-requests-line-list',
+    dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
+    dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
+    parameters: [
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Requesting clinician',
+        name: 'requestedById',
+        suggesterEndpoint: 'practitioner',
+      },
+      { parameterField: 'LabTestCategoryField' },
+      {
+        parameterField: 'ParameterSelectField',
+        label: 'Status',
+        name: 'status',
+        options: LAB_REQUEST_STATUS_OPTIONS,
       },
     ],
   },
