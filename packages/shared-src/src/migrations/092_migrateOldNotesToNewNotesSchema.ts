@@ -109,10 +109,6 @@ export async function down(query: QueryInterface): Promise<void> {
     },
     note_type: {
       type: Sequelize.STRING,
-      references: {
-        model: 'note_pages',
-        key: 'id',
-      },
       allowNull: false,
     },
     content: {
