@@ -28,8 +28,11 @@ const dateTableColumns = {
 export async function up(query: QueryInterface) {
   const promises = [];
 
-  // migrate date_time_string columns
+  // Migrate date_time_string columns
   // only include data that still matches the legacy column
+  // Note there are 2 where conditions to update data was incorrectly updated twice
+  // one for the first JS-date-string-in-SQL incorrect format (081_updateLabRequestDateTimeColumns),
+  // and one for the second non-UTC-corrected incorrect format (093_alterDateStringFormats)
   Object.entries(dateTimeTableColumns).forEach(([tableName, columns]) => {
     columns.forEach(columnName => {
       promises.push(
@@ -50,7 +53,7 @@ export async function up(query: QueryInterface) {
     });
   });
 
-  // migrate date_string columns
+  // Migrate date_string columns
   // only include data that still matches the legacy column
   Object.entries(dateTableColumns).forEach(([tableName, columns]) => {
     columns.forEach(columnName => {
