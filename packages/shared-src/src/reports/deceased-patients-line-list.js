@@ -105,13 +105,21 @@ select distinct on (p.date_of_death, p.id)
   pdd.external_cause_location as "Location of external cause",
   pdd.was_pregnant as "If female, was the woman pregnant",
   pdd.pregnancy_contributed as "Did the pregnancy contribute to the death",
-  pdd.fetal_or_infant as "Fetal or infant death",
+  case
+    when pdd.fetal_or_infant = true then 'yes'
+    when pdd.fetal_or_infant = false then 'no'
+    else null
+    end as "Fetal or infant death",
   pdd.stillborn as "Stillbirth",
   pdd.birth_weight as "Birth weight (g)",
   pdd.carrier_pregnancy_weeks as "Number of completed weeks of pregnancy",
   pdd.carrier_age as "Age of mother",
   rd7.name as "Condition in mother affecting the fetus or newborn",
-  pdd.within_day_of_birth as "Death within 24 hours of birth",
+  case
+    when pdd.within_day_of_birth = true then 'yes'
+    when pdd.within_day_of_birth = false then 'no'
+    else null
+    end as "Death within 24 hours of birth",
   pdd.hours_survived_since_birth as "Number of hours survived"
 from
   patient_death_data pdd
