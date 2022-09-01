@@ -12,6 +12,7 @@ import { SignerRenewalSender } from './SignerRenewalSender';
 import { CertificateNotificationProcessor } from './CertificateNotificationProcessor';
 import { AutomaticLabTestResultPublisher } from './AutomaticLabTestResultPublisher';
 import { DuplicateAdditionalDataDeleter } from './DuplicateAdditionalDataDeleter';
+import { CovidClearanceCertificatePublisher } from './CovidClearanceCertificatePublisher';
 
 export async function startScheduledTasks(context) {
   const taskClasses = [
@@ -30,9 +31,14 @@ export async function startScheduledTasks(context) {
     taskClasses.push(DuplicateAdditionalDataDeleter);
   }
 
+  if (config.schedules.covidClearanceCertificatePublisher.enabled) {
+    taskClasses.push(CovidClearanceCertificatePublisher);
+  }
+
   if (config.integrations.fijiVrs.enabled) {
     taskClasses.push(VRSActionRetrier);
   }
+
   if (config.integrations.signer.enabled) {
     taskClasses.push(SignerWorkingPeriodChecker, SignerRenewalChecker, SignerRenewalSender);
   }
