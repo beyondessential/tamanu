@@ -1,3 +1,18 @@
+type RemoteErrorPayload = {
+  name?: string;
+  message?: string;
+}
+
+export class RemoteError extends Error {
+  status?: number;
+  remoteError?: RemoteErrorPayload;
+  constructor(message: string, remoteError: RemoteErrorPayload | undefined, status: number) {
+    super(message);
+    this.remoteError = remoteError;
+    this.status = status;
+  }
+}
+
 export class AuthenticationError extends Error {
   constructor(message: string) {
     super(message);

@@ -3,6 +3,8 @@ import {
   REPORT_DATA_SOURCES,
   REPORT_DATA_SOURCE_VALUES,
   IMAGING_REQUEST_STATUS_OPTIONS,
+  MANNER_OF_DEATH_OPTIONS,
+  LAB_REQUEST_STATUS_OPTIONS,
 } from 'shared/constants';
 
 const LAST_30_DAYS_DATE_LABEL = 'Date range (or leave blank for the past 30 days of data)';
@@ -418,7 +420,7 @@ export const REPORT_DEFINITIONS = [
   {
     name: 'Imaging requests - Line list',
     id: 'imaging-requests-line-list',
-    dateRangeLabel: ALL_TIME_DATE_LABEL,
+    dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
     parameters: [
       {
@@ -433,6 +435,59 @@ export const REPORT_DEFINITIONS = [
         label: 'Status',
         name: 'status',
         options: IMAGING_REQUEST_STATUS_OPTIONS,
+      },
+    ],
+  },
+  {
+    name: 'Deceased patients - Line list',
+    id: 'deceased-patients-line-list',
+    dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
+    dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
+    parameters: [
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Cause of death',
+        name: 'causeOfDeath',
+        suggesterEndpoint: 'icd10',
+      },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Due to (or as a consequence of)',
+        name: 'antecedentCause',
+        suggesterEndpoint: 'icd10',
+      },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Other contributing condition',
+        name: 'otherContributingCondition',
+        suggesterEndpoint: 'icd10',
+      },
+      {
+        parameterField: 'ParameterSelectField',
+        label: 'Manner of death',
+        name: 'mannerOfDeath',
+        options: MANNER_OF_DEATH_OPTIONS,
+      },
+    ],
+  },
+  {
+    name: 'Lab requests - Line list',
+    id: 'lab-requests-line-list',
+    dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
+    dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
+    parameters: [
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Requesting clinician',
+        name: 'requestedById',
+        suggesterEndpoint: 'practitioner',
+      },
+      { parameterField: 'LabTestCategoryField' },
+      {
+        parameterField: 'ParameterSelectField',
+        label: 'Status',
+        name: 'status',
+        options: LAB_REQUEST_STATUS_OPTIONS,
       },
     ],
   },

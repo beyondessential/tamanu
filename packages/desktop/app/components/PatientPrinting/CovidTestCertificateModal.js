@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { CovidLabCertificate } from 'shared/utils/patientCertificates';
+import { CovidLabCertificate, CertificateTypes } from 'shared/utils/patientCertificates';
 import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
 import { Modal } from '../Modal';
 import { useApi } from '../../api';
@@ -59,6 +59,7 @@ export const CovidTestCertificateModal = ({ patient }) => {
           logoSrc={logo}
           getLocalisation={getLocalisation}
           printedBy={printedBy}
+          certType={CertificateTypes.test}
         />
       </PDFViewer>
     </Modal>

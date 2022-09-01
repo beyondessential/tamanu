@@ -28,6 +28,7 @@ export const PatientDetailsPane = React.memo(({ patient, additionalData, birthDa
   const handleSubmit = async data => {
     await api.put(`patient/${patient.id}`, data);
     queryClient.invalidateQueries(['additionalData', patient.id]);
+    queryClient.invalidateQueries(['birthData', patient.id]);
     dispatch(reloadPatient(patient.id));
   };
 

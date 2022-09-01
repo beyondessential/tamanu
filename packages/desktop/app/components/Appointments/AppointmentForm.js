@@ -59,7 +59,7 @@ export const AppointmentForm = props => {
       validationSchema={yup.object().shape({
         patientId: yup.string().required('Please select a patient'),
         type: yup.string().required('Please choose an appointment type'),
-        startTime: yup.string().required(),
+        startTime: yup.string().required('Please select a start time'),
         clinicianId: yup.string().required('Please select a clinician'),
         locationId: yup.string().required('Please choose a location'),
       })}
@@ -84,8 +84,14 @@ export const AppointmentForm = props => {
           </FormGrid>
           <div style={{ marginTop: '1rem' }}>
             <FormGrid>
-              <Field label="Start time" name="startTime" component={DateTimeField} required />
-              <Field label="End time" name="endTime" component={DateTimeField} />
+              <Field
+                label="Start time"
+                name="startTime"
+                component={DateTimeField}
+                saveDateAsString
+                required
+              />
+              <Field label="End time" name="endTime" saveDateAsString component={DateTimeField} />
               <Field
                 label="Clinician"
                 name="clinicianId"
