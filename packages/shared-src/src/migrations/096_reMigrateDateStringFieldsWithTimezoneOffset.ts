@@ -35,9 +35,9 @@ export async function up(query: QueryInterface) {
       promises.push(
         query.sequelize.query(
           `UPDATE ${tableName}
-        SET ${columnName} = to_char(${columnName}_legacy::TIMESTAMPTZ AT TIME ZONE 'UTC', :dateTimeFmt)
-        WHERE ${columnName} = to_char(${columnName}_legacy, :dateTimeFmt)
-        OR ${columnName} = to_char(${columnName}_legacy, :oldDateTimeFmt);
+        SET ${columnName} = TO_CHAR(${columnName}_legacy::TIMESTAMPTZ AT TIME ZONE 'UTC', :dateTimeFmt)
+        WHERE ${columnName} = TO_CHAR(${columnName}_legacy, :dateTimeFmt)
+        OR ${columnName} = TO_CHAR(${columnName}_legacy, :oldDateTimeFmt);
         `,
           {
             replacements: {
@@ -57,8 +57,8 @@ export async function up(query: QueryInterface) {
       promises.push(
         query.sequelize.query(
           `UPDATE ${tableName}
-        SET ${columnName} = to_char(${columnName}_legacy::TIMESTAMPTZ AT TIME ZONE 'UTC', :dateFmt)
-        WHERE ${columnName} = to_char(${columnName}_legacy, :dateFmt);
+        SET ${columnName} = TO_CHAR(${columnName}_legacy::TIMESTAMPTZ AT TIME ZONE 'UTC', :dateFmt)
+        WHERE ${columnName} = TO_CHAR(${columnName}_legacy, :dateFmt);
         `,
           {
             replacements: {
