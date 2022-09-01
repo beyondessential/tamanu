@@ -111,3 +111,31 @@ noteItemRoute.get(
     res.send({ data: noteItems });
   }),
 );
+
+noteItemRoute.get(
+  '/:rootNoteItemId/noteItems',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'Encounter');
+
+    const { models, params } = req;
+    const { rootNoteItemId } = params;
+    // req.checkPermission('write', 'NotePage');
+
+    const noteItems = await models.NoteItem.findAll({
+      include: [
+        {
+          model: models.User,
+          as: 'author',
+        },
+        {
+          model: models.User,
+          as: 'onBehalfOf',
+        },
+      ],
+      where: { revisedById: rootNoteItemId },
+      order: [['created_at', 'DESC']],
+    });
+
+    res.send({ data: noteItems });
+  }),
+);

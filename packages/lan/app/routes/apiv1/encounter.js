@@ -136,7 +136,7 @@ encounterRelations.get(
 );
 encounterRelations.get('/:id/imagingRequests', simpleGetList('ImagingRequest', 'encounterId'));
 
-encounterRelations.get('/:id/notePages', notePageListHandler);
+encounterRelations.get('/:id/notePages', notePageListHandler(NOTE_RECORD_TYPES.ENCOUNTER));
 
 encounterRelations.get(
   '/:id/notePages/noteTypes',

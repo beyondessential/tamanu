@@ -101,7 +101,7 @@ notePageRoute.put(
 
     req.checkPermission('write', owner);
 
-    editedNotePage.noteItems[0].update({ ...body });
+    await editedNotePage.noteItems[0].update({ ...body });
 
     res.send(editedNotePage);
   }),
@@ -111,7 +111,7 @@ notePageRoute.delete(
   '/:id',
   asyncHandler(async (req, res) => {
     const { models } = req;
-    const notePageToBeDeleted = await models.NotePage.findOneWithSingleNoteItem(models, {
+    const notePageToBeDeleted = await models.NotePage.findOne(models, {
       where: { id: req.params.id },
     });
     if (!notePageToBeDeleted) {

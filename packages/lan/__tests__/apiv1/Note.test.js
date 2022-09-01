@@ -186,21 +186,21 @@ describe('Note', () => {
     });
 
     it('should allow editing a patient care plan note regardless of the author', async () => {
-      const note = await models.NotePage.createForRecord(
+      const notePage = await models.NotePage.createForRecord(
         patientCarePlan.id,
         NOTE_RECORD_TYPES.PATIENT_CARE_PLAN,
         NOTE_TYPES.TREATMENT_PLAN,
         chance.paragraph(),
         testUser.id,
       );
-
-      const response = await app.put(`/v1/notePages/${note.id}`).send({
+      await notePage.getNoteItems();
+      const response = await app.put(`/v1/notePages/${notePage.id}`).send({
         content: 'updated',
       });
 
       expect(response).toHaveSucceeded();
-      expect(response.body.id).toEqual(note.id);
-      expect(response.body.content).toEqual('updated');
+      expect(response.body.id).toEqual(notePage.id);
+      expect(response.body.noteItems[0].content).toEqual('updated');
     });
   });
 });
