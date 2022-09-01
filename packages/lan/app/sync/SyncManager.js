@@ -113,14 +113,7 @@ export class SyncManager {
         ...(this.remoteUntil ? { until: this.remoteUntil } : {}),
       });
       cursor = result.cursor;
-      try {
-        this.remoteUntil = this.remoteUntil || parseInt(result.serverTime, 10);
-      } catch (e) {
-        log.warn('SyncManager.pullAndImport: remote sent invalid serverTime', {
-          message: e.message,
-          serverTime: result.serverTime,
-        });
-      }
+      this.remoteUntil = this.remoteUntil || parseInt(result.serverTime, 10) || null;
       const syncRecords = result.records;
       if (syncRecords.length === 0) {
         log.debug(`SyncManager.pullAndImport: reached end of channel`, { channel });
