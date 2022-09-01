@@ -1,6 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import * as reportUtils from 'shared/reports';
+import { log } from 'shared/services/logging/log';
 import { assertReportEnabled } from '../../utils/assertReportEnabled';
 
 export const reports = express.Router();
@@ -69,6 +70,7 @@ reports.post(
     const reportModule = await reportUtils.getReportModule(reportId, models);
 
     if (!reportModule) {
+      log.error('FacilityReportError - Report module not found', { reportId });
       res.status(400).send({ error: { message: 'invalid reportId' } });
       return;
     }
@@ -78,10 +80,14 @@ reports.post(
     try {
       const excelData = await reportModule.dataGenerator({ sequelize: db, models }, parameters);
       res.send(excelData);
-    } catch (error) {
+    } catch (e) {
+      log.error('FacilityReportError - Report module failed to generate data', {
+        reportId,
+      });
+      log.error(e.stack);
       res.status(400).send({
         error: {
-          message: error.message,
+          message: e.message,
         },
       });
     }
