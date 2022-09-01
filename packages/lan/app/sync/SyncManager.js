@@ -51,6 +51,12 @@ export class SyncManager {
 
   workerPromise = null;
 
+  // don't request records newer than this
+  remoteUntil = null;
+
+  // don't export records newer than this
+  localUntil = null;
+
   constructor(context) {
     this.context = context;
   }
@@ -104,8 +110,17 @@ export class SyncManager {
         since: cursor,
         limit,
         noCount: 'true',
+        ...(this.remoteUntil ? { until: this.remoteUntil } : {}),
       });
       cursor = result.cursor;
+      try {
+        this.remoteUntil = this.remoteUntil || parseInt(result.serverTime, 10);
+      } catch (e) {
+        log.warn('SyncManager.pullAndImport: remote sent invalid serverTime', {
+          message: e.message,
+          serverTime: result.serverTime,
+        });
+      }
       const syncRecords = result.records;
       if (syncRecords.length === 0) {
         log.debug(`SyncManager.pullAndImport: reached end of channel`, { channel });
@@ -134,6 +149,9 @@ export class SyncManager {
   async exportAndPushChannel(model, channel) {
     log.debug(`SyncManager.exportAndPush: syncing`, { channel, model: model.name });
 
+    // don't push records created since we started syncing
+    this.localUntil = this.localUntil || Date.now();
+
     // export
     const plan = createExportPlan(model.sequelize, channel);
     const exportRecords = (cursor = null, limit = EXPORT_LIMIT) => {
@@ -141,7 +159,7 @@ export class SyncManager {
         limit,
         cursor,
       });
-      return executeExportPlan(plan, { since: cursor, limit });
+      return executeExportPlan(plan, { since: cursor, limit, until: this.localUntil });
     };
 
     // mark + unmark
@@ -201,22 +219,27 @@ export class SyncManager {
     }
 
     const run = async () => {
-      const startTimestampMs = Date.now();
-      log.info(`SyncManager.runSync.run: began sync run`);
-      const { models } = this.context;
+      try {
+        const startTimestampMs = Date.now();
+        log.info(`SyncManager.runSync.run: began sync run`);
+        const { models } = this.context;
 
-      const modelsToSync = MODEL_DEPENDENCY_ORDER.map(name => models[name]);
+        const modelsToSync = MODEL_DEPENDENCY_ORDER.map(name => models[name]);
 
-      for (const model of modelsToSync) {
-        if (!readOnly && shouldPush(model)) {
-          await this.exportAndPush(model, patientId);
+        for (const model of modelsToSync) {
+          if (!readOnly && shouldPush(model)) {
+            await this.exportAndPush(model, patientId);
+          }
+          if (shouldPull(model)) {
+            await this.pullAndImport(model, patientId);
+          }
         }
-        if (shouldPull(model)) {
-          await this.pullAndImport(model, patientId);
-        }
+        const elapsedTimeMs = Date.now() - startTimestampMs;
+        log.info(`SyncManager.runSync.run: finished sync run in ${elapsedTimeMs}ms`);
+      } finally {
+        this.localUntil = null;
+        this.remoteUntil = null;
       }
-      const elapsedTimeMs = Date.now() - startTimestampMs;
-      log.info(`SyncManager.runSync.run: finished sync run in ${elapsedTimeMs}ms`);
     };
 
     // queue up new job
