@@ -11,16 +11,14 @@ export class LabRequest extends Model {
     super.init(
       {
         id: primaryKey,
-        sampleTime: {
-          ...dateTimeType('sampleTime'),
+        sampleTime: dateTimeType('sampleTime', {
           allowNull: false,
           defaultValue: getCurrentDateTimeString,
-        },
-        requestedDate: {
-          ...dateTimeType('requestedDate'),
+        }),
+        requestedDate: dateTimeType('requestedDate', {
           allowNull: false,
           defaultValue: getCurrentDateTimeString,
-        },
+        }),
         specimenAttached: {
           type: Sequelize.BOOLEAN,
           defaultValue: false,
