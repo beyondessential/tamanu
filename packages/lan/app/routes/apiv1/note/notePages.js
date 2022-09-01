@@ -16,7 +16,7 @@ function canModifyNote(notePage) {
 notePageRoute.post(
   '/$',
   asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'Note');
+    req.checkPermission('create', 'Note');
 
     const { models, body: noteData } = req;
 
@@ -73,8 +73,6 @@ notePageRoute.get(
 notePageRoute.put(
   '/:id',
   asyncHandler(async (req, res) => {
-    req.checkPermission('write', 'Note');
-
     const { models, body, params } = req;
 
     const editedNotePage = await models.NotePage.findOne({
