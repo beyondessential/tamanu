@@ -77,7 +77,8 @@ imagingRequest.get(
 
     // Free text area content fallback
     const areaNoteContent =
-      getNoteWithType(relatedNotes, NOTE_TYPES.AREA_TO_BE_IMAGED)?.content || '';
+      getNoteWithType(relatedNotePages, NOTE_TYPES.AREA_TO_BE_IMAGED)?.noteItems?.[0]?.content ||
+      '';
 
     // Convert Sequelize model to use a custom object as response
     const responseObject = {
@@ -112,7 +113,7 @@ imagingRequest.put(
 
     // Get related notes (general, area to be imaged)
     const relatedNotePages = await imagingRequestObject.getNotePages();
-    const noteItems = await otherNotePage.getNoteItems();
+    await otherNotePage.getNoteItems();
 
     // Get separate note objects
     const otherNotePage = getNoteWithType(relatedNotePages, NOTE_TYPES.OTHER);
