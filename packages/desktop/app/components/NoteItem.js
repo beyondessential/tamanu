@@ -74,7 +74,7 @@ const ItemTooltip = ({ childNoteItems = [] }) => {
   return childNoteItems.map(n => (
     <>
       <span>{n.author.displayName} </span>
-      {n.onBehalfOf ? <span>on behalf of {n.author.displayName} </span> : null}
+      {n.onBehalfOf ? <span>on behalf of {n.onBehalfOf.displayName} </span> : null}
       <DateDisplay date={n.date} showTime />
       <p>{n.content}</p>
       <br />

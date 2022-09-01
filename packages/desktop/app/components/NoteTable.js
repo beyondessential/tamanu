@@ -5,12 +5,12 @@ import { DateDisplay } from './DateDisplay';
 import { noteTypes } from '../constants';
 import { NotePageModal } from './NotePageModal';
 
-const getTypeLabel = ({ type }) => noteTypes.find(x => x.value === type).label;
+const getTypeLabel = ({ noteType }) => noteTypes.find(x => x.value === noteType).label;
 const getContent = ({ noteItems }) => noteItems[0]?.content || '';
 
 const COLUMNS = [
   { key: 'date', title: 'Date', accessor: ({ date }) => <DateDisplay date={date} showTime /> },
-  { key: 'type', title: 'Type', accessor: getTypeLabel },
+  { key: 'noteType', title: 'Type', accessor: getTypeLabel },
   { key: 'content', title: 'Content', maxWidth: 300, accessor: getContent },
 ];
 
