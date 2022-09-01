@@ -1,7 +1,7 @@
 import React, { useCallback, useState, useEffect, useMemo } from 'react';
 import { keyBy } from 'lodash';
 import { format } from 'date-fns';
-import { Grid, Typography } from '@material-ui/core';
+import { Grid, Typography, Box } from '@material-ui/core';
 import { red } from '@material-ui/core/colors';
 import styled from 'styled-components';
 import * as Yup from 'yup';
@@ -162,7 +162,7 @@ export const ReportGeneratorForm = ({ onSuccessfulSubmit }) => {
         setRequestError(`Unable to submit report request - ${e.message}`);
       }
     },
-    [api, dataSource, onSuccessfulSubmit, reportsById],
+    [api, dataSource, onSuccessfulSubmit, reportsById, getFileName],
   );
 
   // Wait until available reports are loaded to render.
@@ -192,7 +192,7 @@ export const ReportGeneratorForm = ({ onSuccessfulSubmit }) => {
       })}
       render={({ values }) => (
         <>
-          <FormGrid columns={3}>
+          <FormGrid columns={2}>
             <Field
               name="reportId"
               label="Report"
@@ -203,7 +203,7 @@ export const ReportGeneratorForm = ({ onSuccessfulSubmit }) => {
             />
             <Field
               name="dataSource"
-              label="For"
+              label=" "
               value={dataSource}
               onChange={e => {
                 setDataSource(e.target.value);
@@ -246,8 +246,9 @@ export const ReportGeneratorForm = ({ onSuccessfulSubmit }) => {
             {dataSource === REPORT_DATA_SOURCES.ALL_FACILITIES ? <EmailField /> : null}
           </EmailInputContainer>
           {requestError && <RequestErrorMessage errorMessage={requestError} />}
-          <Spacer />
-          <Button type="submit">Generate</Button>
+          <Box display="flex" justifyContent="flex-end">
+            <Button type="submit">Generate</Button>
+          </Box>
         </>
       )}
     />
