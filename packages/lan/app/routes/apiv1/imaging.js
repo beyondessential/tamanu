@@ -68,10 +68,12 @@ imagingRequest.get(
     if (!imagingRequestObject) throw new NotFoundError();
 
     // Get related notes (general, area to be imaged)
-    const relatedNotes = await imagingRequestObject.getNotes();
+    const relatedNotePages = await imagingRequestObject.getNotePages();
+    const otherNotePage = getNoteWithType(relatedNotePages, NOTE_TYPES.OTHER);
+    const noteItems = await otherNotePage.getNoteItems();
 
     // Extract note content if note exists, else default content to empty string
-    const noteContent = getNoteWithType(relatedNotes, NOTE_TYPES.OTHER)?.content || '';
+    const noteContent = noteItems[0]?.content || '';
 
     // Free text area content fallback
     const areaNoteContent =
@@ -109,11 +111,12 @@ imagingRequest.put(
     }
 
     // Get related notes (general, area to be imaged)
-    const relatedNotes = await imagingRequestObject.getNotes();
+    const relatedNotePages = await imagingRequestObject.getNotePages();
+    const noteItems = await otherNotePage.getNoteItems();
 
     // Get separate note objects
-    const noteObject = getNoteWithType(relatedNotes, NOTE_TYPES.OTHER);
-    const areaNoteObject = getNoteWithType(relatedNotes, NOTE_TYPES.AREA_TO_BE_IMAGED);
+    const otherNotePage = getNoteWithType(relatedNotePages, NOTE_TYPES.OTHER);
+    const areaNotePage = getNoteWithType(relatedNotePages, NOTE_TYPES.AREA_TO_BE_IMAGED);
 
     // The returned note content will read its value depending if
     // note exists or gets created, else it should be an empty string
@@ -121,9 +124,11 @@ imagingRequest.put(
     let areaNoteContent = '';
 
     // Update the content of the note object if it exists
-    if (noteObject) {
-      await noteObject.update({ content: req.body.note });
-      noteContent = noteObject.content;
+    if (otherNotePage) {
+      const otherNoteItems = await otherNotePage.getNoteItems();
+      const otherNoteItem = otherNoteItems[0];
+      await otherNoteItem?.update({ content: req.body.note });
+      noteContent = otherNoteItem?.content || '';
     }
     // Else, create a new one only if it has content
     else if (req.body.note) {
@@ -138,9 +143,11 @@ imagingRequest.put(
     }
 
     // Update the content of the area to be imaged note object if it exists
-    if (areaNoteObject) {
-      await areaNoteObject.update({ content: req.body.areaNote });
-      areaNoteContent = areaNoteObject.content;
+    if (areaNotePage) {
+      const areaNoteItems = await areaNotePage.getNoteItems();
+      const areaNoteItem = areaNoteItems[0];
+      await areaNoteItem.update({ content: req.body.areaNote });
+      areaNoteContent = areaNoteItem?.content || '';
     }
     // Else, create a new one only if it has content
     else if (req.body.areaNote) {

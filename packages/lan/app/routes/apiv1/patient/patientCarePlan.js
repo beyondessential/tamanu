@@ -29,6 +29,7 @@ patientCarePlan.post(
       authorId: req.user.id,
       onBehalfOfId: req.body.examinerId,
     });
+
     res.send(newCarePlan);
   }),
 );
@@ -39,19 +40,27 @@ patientCarePlan.get(
     const { models, params } = req;
     req.checkPermission('read', 'PatientCarePlan');
 
-    const notes = await models.NotePage.findAllWithSingleNoteItem(models, {
+    const notePages = await models.NotePage.findAll({
+      include: [
+        {
+          model: models.NoteItem,
+          as: 'noteItems',
+          include: [
+            { model: models.User, as: 'author' },
+            { model: models.User, as: 'onBehalfOf' },
+          ],
+        },
+      ],
       where: {
         recordId: params.id,
         recordType: NOTE_RECORD_TYPES.PATIENT_CARE_PLAN,
         noteType: NOTE_TYPES.TREATMENT_PLAN,
       },
-      include: [
-        { model: models.User, as: 'author' },
-        { model: models.User, as: 'onBehalfOf' },
-      ],
       // TODO add test to verify this order
       order: [['createdAt', 'ASC']],
     });
+
+    const notes = await Promise.all(notePages.map(n => n.getCombinedNoteObject(models)));
     res.send(notes);
   }),
 );
@@ -60,18 +69,27 @@ patientCarePlan.post(
   '/:id/notes',
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'PatientCarePlan');
-    const newNote = await req.models.NotePage.create({
+
+    const { models } = req;
+
+    console.log('jijiji');
+
+
+    const newNotePage = await req.models.NotePage.create({
       recordId: req.params.id,
       recordType: NOTE_RECORD_TYPES.PATIENT_CARE_PLAN,
       date: req.body.date,
       noteType: NOTE_TYPES.TREATMENT_PLAN,
     });
 
-    const newNoteItem = await req.models.NoteItem.create({
-      notePageId: newNote.id,
+    await req.models.NoteItem.create({
+      notePageId: newNotePage.id,
       content: req.body.content,
       authorId: req.user.id,
+      onBehalfOfId: req.body.examinerId,
     });
-    res.send({ note: newNote, noteItem: newNoteItem });
+
+    const response = await newNotePage.getCombinedNoteObject(models);
+    res.send(response);
   }),
 );

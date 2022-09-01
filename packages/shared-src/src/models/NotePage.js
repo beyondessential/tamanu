@@ -58,20 +58,42 @@ export class NotePage extends Model {
     });
   }
 
-  static async createForRecord(recordId, recordType, type, content, authorId) {
+  async getCombinedNoteObject(models) {
+    const noteItem = await models.NoteItem.findOne({
+      include: [
+        { model: models.User, as: 'author' },
+        { model: models.User, as: 'onBehalfOf' },
+      ],
+      where: {
+        notePageId: this.id,
+      },
+    });
+
+    return {
+      ...noteItem.toJSON(),
+      id: this.id,
+      recordType: this.recordType,
+      recordId: this.recordId,
+      noteType: this.noteType,
+    };
+  }
+
+  static async createForRecord(recordId, recordType, noteType, content, authorId) {
     const notePage = await NotePage.create({
       recordId,
       recordType,
-      type,
+      noteType,
       date: Date.now(),
     });
 
-    return NoteItem.create({
+    await NoteItem.create({
       notePageId: notePage.id,
       content,
       date: Date.now(),
       authorId,
     });
+
+    return notePage;
   }
 
   /**
@@ -85,7 +107,7 @@ export class NotePage extends Model {
   static async findAllWithSingleNoteItem(models, options = {}) {
     const notePages = await this.findAll({
       include: [
-        ...options.includes,
+        ...(options?.includes || []),
         {
           model: models.NoteItem,
           as: 'noteItems',
@@ -117,9 +139,9 @@ export class NotePage extends Model {
    * @returns
    */
   static async findOneWithSingleNoteItem(models, options = {}) {
-    const notePage = await this.findOne({
+    return this.findOne({
       include: [
-        ...options.includes,
+        ...(options?.includes || []),
         {
           model: models.NoteItem,
           as: 'noteItems',
@@ -131,12 +153,6 @@ export class NotePage extends Model {
       ],
       ...options,
     });
-
-    const notePageJSON = notePage.toJSON();
-    notePageJSON.content = notePageJSON.noteItems[0]?.content;
-    delete notePageJSON.noteItems;
-
-    return notePageJSON;
   }
 
   async getParentRecord(options) {

@@ -16,25 +16,37 @@ note.put(
   asyncHandler(async (req, res) => {
     const { models, body, params } = req;
 
-    const editedNote = await models.NotePage.findOneWithSingleNoteItem(models, {
+    const editedNotePage = await models.NotePage.findOne({
+      include: [
+        {
+          model: models.NoteItem,
+          as: 'noteItems',
+          include: [
+            { model: models.User, as: 'author' },
+            { model: models.User, as: 'onBehalfOf' },
+          ],
+        },
+      ],
       where: { id: params.id },
     });
-    if (!editedNote) {
+
+    if (!editedNotePage) {
       throw new NotFoundError();
     }
 
-    if (canModifyNote(editedNote) === false) {
+    if (canModifyNote(editedNotePage) === false) {
       throw new ForbiddenError('Cannot edit encounter notes.');
     }
 
-    req.checkPermission('write', editedNote.recordType);
+    req.checkPermission('write', editedNotePage.recordType);
 
-    const owner = await models[editedNote.recordType].findByPk(editedNote.recordId);
+    const owner = await models[editedNotePage.recordType].findByPk(editedNotePage.recordId);
     req.checkPermission('write', owner);
 
-    await editedNote.update(body);
+    await editedNotePage.noteItems[0].update(body);
 
-    res.send(editedNote);
+    const response = await editedNotePage.getCombinedNoteObject(models);
+    res.send(response);
   }),
 );
 
@@ -51,9 +63,11 @@ note.delete(
   '/:id',
   asyncHandler(async (req, res) => {
     const { models } = req;
-    const noteToBeDeleted = await models.NotePage.findOneWithSingleNoteItem(models, {
+
+    const noteToBeDeleted = await models.NotePage.findOne({
       where: { id: req.params.id },
     });
+
     if (!noteToBeDeleted) {
       throw new NotFoundError();
     }

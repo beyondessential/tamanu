@@ -9,6 +9,7 @@ import {
   NOTE_RECORD_TYPES,
 } from 'shared/constants';
 import { uploadAttachment } from '../../utils/uploadAttachment';
+import { notePagesWithSingleItemListHandler } from '../../routeHandlers';
 
 import {
   simpleGet,
@@ -18,7 +19,6 @@ import {
   permissionCheckingRouter,
   runPaginatedQuery,
   paginatedGetList,
-  createNoteListingHandler,
 } from './crudHelpers';
 
 export const encounter = express.Router();
@@ -79,8 +79,10 @@ encounter.post(
     }
     req.checkPermission('write', owner);
     const notePage = await owner.createNotePage(body);
-    const noteItem = await notePage.createNoteItem(body);
-    res.send({ ...notePage, content: noteItem.content });
+    await notePage.createNoteItem(body);
+    const response = await notePage.getCombinedNoteObject(models);
+
+    res.send(response);
   }),
 );
 
@@ -133,7 +135,7 @@ encounterRelations.get(
   paginatedGetList('DocumentMetadata', 'encounterId'),
 );
 encounterRelations.get('/:id/imagingRequests', simpleGetList('ImagingRequest', 'encounterId'));
-encounterRelations.get('/:id/notes', createNoteListingHandler(NOTE_RECORD_TYPES.ENCOUNTER));
+encounterRelations.get('/:id/notes', notePagesWithSingleItemListHandler(NOTE_RECORD_TYPES.ENCOUNTER));
 encounterRelations.get(
   '/:id/invoice',
   simpleGetHasOne('Invoice', 'encounterId', {

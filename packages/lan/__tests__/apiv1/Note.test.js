@@ -65,12 +65,19 @@ describe('Note', () => {
 
       expect(response).toHaveSucceeded();
 
-      const note = await models.NotePage.findOneWithSingleNoteItem(models, {
+      const notePage = await models.NotePage.findOne({
+        include: [
+          {
+            model: models.NoteItem,
+            as: 'noteItems',
+          },
+        ],
         where: { id: response.body.id },
       });
-      expect(note.content).toEqual(content);
-      expect(note.recordType).toEqual('LabRequest');
-      expect(note.recordId).toEqual(labRequest.body.id);
+      const noteItem = notePage.noteItems[0];
+      expect(noteItem.content).toEqual(content);
+      expect(notePage.recordType).toEqual('LabRequest');
+      expect(notePage.recordId).toEqual(labRequest.body.id);
     });
   });
 
@@ -93,12 +100,20 @@ describe('Note', () => {
 
       expect(response).toHaveSucceeded();
 
-      const note = await models.NotePage.findOneWithSingleNoteItem(models, {
+      const notePage = await models.NotePage.findOne({
+        include: [
+          {
+            model: models.NoteItem,
+            as: 'noteItems',
+          },
+        ],
         where: { id: response.body.id },
       });
-      expect(note.content).toEqual(content);
-      expect(note.recordType).toEqual('Encounter');
-      expect(note.recordId).toEqual(encounter.id);
+      const noteItem = notePage.noteItems[0];
+
+      expect(noteItem.content).toEqual(content);
+      expect(notePage.recordType).toEqual('Encounter');
+      expect(notePage.recordId).toEqual(encounter.id);
     });
 
     it('should not write a note on an non-existent record', async () => {
@@ -128,14 +143,14 @@ describe('Note', () => {
       });
 
       it('should forbid editing notes on a forbidden record', async () => {
-        const note = await models.NotePage.createForRecord(
+        const notePage = await models.NotePage.createForRecord(
           encounter.id,
           NOTE_RECORD_TYPES.ENCOUNTER,
           NOTE_TYPES.SYSTEM,
           chance.paragraph(),
         );
 
-        const response = await noPermsApp.put(`/v1/note/${note.id}`).send({
+        const response = await noPermsApp.put(`/v1/note/${notePage.id}`).send({
           content: 'forbidden',
         });
 
