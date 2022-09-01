@@ -58,6 +58,13 @@ export class NotePage extends Model {
     });
   }
 
+  /**
+   * This is a util method that combines the NotePage instance with its single associated NoteItem.
+   * This method should only be used for records that always only have 1 note item associated to it.
+   * Eg: Lab Request, Patient Care Plan
+   * @param {*} models
+   * @returns
+   */
   async getCombinedNoteObject(models) {
     const noteItem = await models.NoteItem.findOne({
       include: [
@@ -94,65 +101,6 @@ export class NotePage extends Model {
     });
 
     return notePage;
-  }
-
-  /**
-   * This is a util method that allows finding multiple note pages associated record that
-   * should only have 1 single attached note item to the note page.
-   * Eg: ImagingRequest
-   * @param {*} models
-   * @param {*} options
-   * @returns
-   */
-  static async findAllWithSingleNoteItem(models, options = {}) {
-    const notePages = await this.findAll({
-      include: [
-        ...(options?.includes || []),
-        {
-          model: models.NoteItem,
-          as: 'noteItems',
-          where: {
-            revisedById: null,
-          },
-          limit: 1,
-        },
-      ],
-      ...options,
-    });
-
-    return notePages
-      .map(notePage => notePage.toJSON())
-      .map(notePage => {
-        const newNotePage = { ...notePage };
-        newNotePage.content = newNotePage.noteItems[0]?.content;
-        delete newNotePage.noteItems;
-        return newNotePage;
-      });
-  }
-
-  /**
-   * This is a util method that allows finding a single note page associated record that
-   * should only have 1 single attached note item to the note page.
-   * Eg: ImagingRequest
-   * @param {*} models
-   * @param {*} options
-   * @returns
-   */
-  static async findOneWithSingleNoteItem(models, options = {}) {
-    return this.findOne({
-      include: [
-        ...(options?.includes || []),
-        {
-          model: models.NoteItem,
-          as: 'noteItems',
-          where: {
-            revisedById: null,
-          },
-          limit: 1,
-        },
-      ],
-      ...options,
-    });
   }
 
   async getParentRecord(options) {
