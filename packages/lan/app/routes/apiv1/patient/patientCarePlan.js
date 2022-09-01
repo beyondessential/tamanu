@@ -72,9 +72,6 @@ patientCarePlan.post(
 
     const { models } = req;
 
-    console.log('jijiji');
-
-
     const newNotePage = await req.models.NotePage.create({
       recordId: req.params.id,
       recordType: NOTE_RECORD_TYPES.PATIENT_CARE_PLAN,
