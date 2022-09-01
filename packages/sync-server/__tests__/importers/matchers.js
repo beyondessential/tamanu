@@ -1,12 +1,20 @@
-import matchers from 'expect/build/matchers';
-
 import { ValidationError, ForeignkeyResolutionError } from '../../app/admin/errors';
 
 function toContainError(errors, { ofType, inSheet, atRow, withMessage }) {
-  return matchers.toContain(
-    errors.map(error => `${error.constructor.name}: ${error.message}`),
-    `${ofType.name}: ${withMessage} on ${inSheet} at row ${atRow}`,
-  );
+  const suffix = `on ${inSheet} at row ${atRow}`;
+  const matchingErrors = errors.filter(err => {
+      if (err.constructor !== ofType) return false;
+      if (!err.message.endsWith(suffix)) return false;
+      if (!err.message.includes(withMessage)) return false;
+      return true;
+  });
+  const pass = matchingErrors.length > 0;
+  const not_ = pass ? "not " : "";
+  return {
+    message: () =>
+      `Expected ${not_}to have a ${ofType.name} error containing "${withMessage}" ${suffix}; found ${matchingErrors.length}.`,
+    pass,
+  };
 }
 
 function toContainValidationError(errors, inSheet, atRow, withMessage) {

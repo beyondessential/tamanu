@@ -11,13 +11,16 @@
     - name: run migrations
       service: app-with-db
       command: scripts/apply_and_revert_sync_server_migrations.sh
-    - name: lint (on PR branches)
+    - name: hygiene checks (on PR branches)
       type: parallel
       exclude: ^(master$|dev$|staging-|ci-|uat-)
       steps:
-        - name: the desktop app and servers
+        - name: lint desktop app and servers
           service: app-without-db
           command: scripts/lint.sh pr-lints
+        - name: ensure storybook builds
+          service: app-without-db
+          command: "yarn workspace desktop run verify-storybook"
         # - TODO(WAITM-215): mobile lints
     - name: test
       type: serial
@@ -89,7 +92,7 @@
             - name: onto staging
               tag: ^(staging-)
               service: awsdeployment
-              command: ./scripts/deploy_sync.sh staging tamanu-sync-server-staging
+              command: ./scripts/deploy_sync.sh staging tamanu-central-server-staging-16
             - name: onto demo
               tag: ^(master$)
               service: awsdeployment
@@ -118,10 +121,14 @@
               tag: ^uat-
               service: awsdeployment
               command: ./scripts/deploy_lan.sh uat tamanu-lan-server-uat
-            - name: onto staging
+            - name: onto staging A
               tag: ^(staging-)
               service: awsdeployment
-              command: ./scripts/deploy_lan.sh staging tamanu-lan-server-staging
+              command: ./scripts/deploy_lan.sh staging tamanu-facility-server-staging-16a
+            - name: onto staging B
+              tag: ^(staging-)
+              service: awsdeployment
+              command: ./scripts/deploy_lan.sh staging tamanu-facility-server-staging-16b
             - name: onto demo
               tag: ^(master$)
               service: awsdeployment

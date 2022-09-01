@@ -44,6 +44,14 @@ export const LAB_REQUEST_STATUS_LABELS = {
   [LAB_REQUEST_STATUSES.PUBLISHED]: 'Published',
 };
 
+// Leave out deleted status from options
+export const LAB_REQUEST_STATUS_OPTIONS = Object.values(LAB_REQUEST_STATUSES)
+  .filter(status => status !== LAB_REQUEST_STATUSES.DELETED)
+  .map(s => ({
+    label: LAB_REQUEST_STATUS_LABELS[s],
+    value: s,
+  }));
+
 export const LAB_TEST_STATUSES = LAB_REQUEST_STATUSES;
 
 export const NOTE_RECORD_TYPES = {
@@ -358,6 +366,8 @@ export const ICAO_DOCUMENT_TYPES = {
   },
 };
 
+export const COVID_19_CLEARANCE_CERTIFICATE = 'covid_19_clearance';
+
 export const EUDCC_CERTIFICATE_TYPES = {
   VACCINATION: 'v',
   TEST: 't',
@@ -487,6 +497,7 @@ export const SERVER_TYPES = {
 export const VISIBILITY_STATUSES = {
   CURRENT: 'current',
   HISTORICAL: 'historical',
+  MERGED: 'merged',
 };
 
 export const PATIENT_REGISTRY_TYPES = {
@@ -525,3 +536,19 @@ export const ATTENDANT_OF_BIRTH_TYPES = {
 
 export const ISO9075_DATETIME_FORMAT = 'YYYY-MM-DD HH:mm:ss';
 export const ISO9075_DATE_FORMAT = 'YYYY-MM-DD';
+
+export const MANNER_OF_DEATHS = [
+  'Disease',
+  'Assault',
+  'Accident',
+  'Legal Intervention',
+  'Pending Investigation',
+  'Intentional Self Harm',
+  'War',
+  'Unknown/Could not be determined',
+];
+
+export const MANNER_OF_DEATH_OPTIONS = Object.values(MANNER_OF_DEATHS).map(type => ({
+  label: type,
+  value: type,
+}));

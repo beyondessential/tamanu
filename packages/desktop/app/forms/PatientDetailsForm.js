@@ -1,10 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 import { isEmpty } from 'lodash';
+import { toDateTimeString } from 'shared-src/src/utils/dateTime';
 import { format } from 'date-fns';
 import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from 'shared/constants';
-
-import { toDateTimeString } from '../utils/dateTime';
 import { useSexValues } from '../hooks';
 
 import {
@@ -21,7 +20,7 @@ import {
   ATTENDANT_OF_BIRTH_OPTIONS,
 } from '../constants';
 import { useLocalisation } from '../contexts/Localisation';
-import { useSuggester, usePatientSuggester, useApi } from '../api';
+import { useSuggester, usePatientSuggester } from '../api';
 import { getPatientDetailsValidation } from '../validations';
 import {
   FormGrid,
