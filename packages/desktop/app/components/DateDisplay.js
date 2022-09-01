@@ -105,3 +105,4 @@ export const DateDisplay = React.memo(
   },
 );
 
+DateDisplay.rawFormat = formatShort;

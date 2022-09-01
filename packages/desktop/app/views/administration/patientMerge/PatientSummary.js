@@ -28,8 +28,8 @@ const IDDisplay = ({ patient, selectable, selected }) => (
 );
 
 const SummaryFrame = styled.div`
-  border: 1px solid ${p => p.selected ? theme.palette.primary.main : '#ccc'};
-  background: ${p => p.selected ? 'white' : 'none'};
+  border: 1px solid ${p => (p.selected ? theme.palette.primary.main : '#ccc')};
+  background: ${p => (p.selected ? 'white' : 'none')};
   padding: 1rem;
   margin-top: 1rem;
 `;
@@ -51,18 +51,18 @@ const Columns = styled.div`
   display: flex;
   flex-direction: row;
   width: 100%;
-  * { 
+  * {
     flex-grow: 1;
   }
 `;
 
 const getDisplaySex = s => s; // TODO
 
-export const PatientSummary = ({ 
-  heading = "Patient details", 
-  patient = {}, 
-  onSelect, 
-  selected
+export const PatientSummary = ({
+  heading = 'Patient details',
+  patient = {},
+  onSelect,
+  selected,
 }) => (
   <SummaryFrame onClick={onSelect} selected={selected}>
     <Header>
@@ -71,14 +71,14 @@ export const PatientSummary = ({
     </Header>
     <Columns>
       <div>
-      <LabelledValue label="First name" value={patient.firstName} />
-      <LabelledValue label="Last name" value={patient.lastName} />
-      <LabelledValue label="Cultural name" value={patient.culturalName} />
+        <LabelledValue label="First name" value={patient.firstName} />
+        <LabelledValue label="Last name" value={patient.lastName} />
+        <LabelledValue label="Cultural name" value={patient.culturalName} />
       </div>
       <div>
-      <LabelledValue label="Village" value={patient.village?.name} />
-      <LabelledValue label="Sex" value={getDisplaySex(patient.sex)} />
-      <LabelledValue label="Date of birth" value={<DateDisplay date={patient.dateOfBirth}/>} />
+        <LabelledValue label="Village" value={patient.village?.name} />
+        <LabelledValue label="Sex" value={getDisplaySex(patient.sex)} />
+        <LabelledValue label="Date of birth" value={<DateDisplay date={patient.dateOfBirth} />} />
       </div>
     </Columns>
   </SummaryFrame>

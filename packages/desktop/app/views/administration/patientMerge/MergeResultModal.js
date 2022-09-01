@@ -1,11 +1,8 @@
 import React from 'react';
 import { ButtonRow, Button } from '../../../components';
-import { Modal } from '../../../components/Modal'
+import { Modal } from '../../../components/Modal';
 
-export const MergeResultModal = ({
-  result,
-  onClose,
-}) => {
+export const MergeResultModal = ({ result, onClose }) => {
   const { updates = {} } = result;
 
   const actions = (
@@ -14,23 +11,18 @@ export const MergeResultModal = ({
     </ButtonRow>
   );
   return (
-    <Modal 
-      title="Merge patients"
-      actions={actions}
-      open
-      onClose={onClose}
-    >    
-    <p><strong>Merge successful.</strong> Records updated:</p>
-    <ul>
-      { 
-      Object.entries(updates).map(([modelName, count]) => (
-        <li key={modelName}>
-          <span>{ `${modelName}: ` }</span>
-          <strong>{ count }</strong>
-        </li>
-      )) 
-      }
-    </ul>
+    <Modal title="Merge patients" actions={actions} open onClose={onClose}>
+      <p>
+        <strong>Merge successful.</strong> Records updated:
+      </p>
+      <ul>
+        {Object.entries(updates).map(([modelName, count]) => (
+          <li key={modelName}>
+            <span>{`${modelName}: `}</span>
+            <strong>{count}</strong>
+          </li>
+        ))}
+      </ul>
     </Modal>
   );
-}
+};

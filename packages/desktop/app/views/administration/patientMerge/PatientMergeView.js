@@ -3,11 +3,9 @@ import { ConfirmationModal } from './ConfirmationModal';
 import { KeepPatientDecisionForm } from './KeepPatientDecisionForm';
 import { PatientMergeSearch } from './PatientMergeSearch';
 import { MergeResultModal } from './MergeResultModal';
-import { useApi } from "../../../api";
+import { useApi } from '../../../api';
 
-export const PatientMergeView = ({ 
-  fetchPatient,
-}) => {
+export const PatientMergeView = ({ fetchPatient }) => {
   const [regenKey, setRegenKey] = useState(Math.random());
   const [patients, setPatients] = useState(null);
   const [mergePlan, setMergePlan] = useState(null);
@@ -16,7 +14,7 @@ export const PatientMergeView = ({
   const clear = useCallback(() => {
     setPatients(null);
     setMergePlan(null);
-  })
+  });
 
   const api = useApi();
   const onMergePatients = async () => {
@@ -25,7 +23,7 @@ export const PatientMergeView = ({
       unwantedPatientId: mergePlan.removePatient.id,
     });
     setResult(result);
-  }
+  };
 
   const reset = () => {
     setPatients(null);
@@ -36,12 +34,7 @@ export const PatientMergeView = ({
 
   let modal = null;
   if (result) {
-    modal = (
-      <MergeResultModal
-        result={result}
-        onClose={reset}
-      />
-    );
+    modal = <MergeResultModal result={result} onClose={reset} />;
   } else if (mergePlan) {
     modal = (
       <ConfirmationModal
@@ -57,19 +50,19 @@ export const PatientMergeView = ({
         firstPatient={patients[0]}
         secondPatient={patients[1]}
         onCancel={clear}
-        onSelectPlan={(plan) => setMergePlan(plan)}
+        onSelectPlan={plan => setMergePlan(plan)}
       />
     );
   }
 
   return (
-    <React.Fragment>
+    <>
       <PatientMergeSearch
         key={regenKey}
         fetchPatient={fetchPatient}
         onBeginMerge={(a, b) => setPatients([a, b])}
       />
       {modal}
-    </React.Fragment>
+    </>
   );
 };

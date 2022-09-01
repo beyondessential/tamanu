@@ -1,9 +1,9 @@
 import React, { useState, useCallback } from 'react';
-import { Button, TextInput } from "../../../components";
-import { PatientSummary } from './PatientSummary';
 import styled from 'styled-components';
+import { Button, TextInput } from '../../../components';
+import { PatientSummary } from './PatientSummary';
 
-import { useApi } from "../../../api";
+import { useApi } from '../../../api';
 
 const Row = styled.div`
   display: flex;
@@ -14,10 +14,7 @@ const Row = styled.div`
   }
 `;
 
-export const PatientFetcher = ({
-  onPatientFound,
-  label,
-}) => {
+export const PatientFetcher = ({ onPatientFound, label }) => {
   const [currentPatient, setCurrentPatient] = useState(null);
   const [searchText, setSearchText] = useState('');
 
@@ -34,13 +31,13 @@ export const PatientFetcher = ({
   return (
     <div>
       <Row>
-      <TextInput label={label} value={searchText} onChange={e => setSearchText(e.target.value)} />
-      <Button onClick={onClick}>Get</Button>
+        <TextInput label={label} value={searchText} onChange={e => setSearchText(e.target.value)} />
+        <Button onClick={onClick}>Get</Button>
       </Row>
       <PatientSummary heading="Patient" patient={currentPatient || {}} />
     </div>
-  )
-}
+  );
+};
 
 const MergeFrame = styled.div`
   display: flex;
@@ -51,26 +48,20 @@ const MergeFrame = styled.div`
   }
 `;
 
-export const PatientMergeSearch = ({
-  onBeginMerge,
-}) => {
+export const PatientMergeSearch = ({ onBeginMerge }) => {
   const [firstPatient, setFirstPatient] = useState();
   const [secondPatient, setSecondPatient] = useState();
   return (
     <MergeFrame>
       <h3>Select patients to merge</h3>
-      <PatientFetcher 
-        label="First patient display ID"
-        onPatientFound={setFirstPatient}
-      />
-      <PatientFetcher 
-        label="Second patient display ID"
-        onPatientFound={setSecondPatient}
-      />
-      <Button 
+      <PatientFetcher label="First patient display ID" onPatientFound={setFirstPatient} />
+      <PatientFetcher label="Second patient display ID" onPatientFound={setSecondPatient} />
+      <Button
         disabled={!(firstPatient && secondPatient)}
         onClick={() => onBeginMerge(firstPatient, secondPatient)}
-      >Merge</Button>
+      >
+        Merge
+      </Button>
     </MergeFrame>
-  )
+  );
 };
