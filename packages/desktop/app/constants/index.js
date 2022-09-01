@@ -16,6 +16,7 @@ import {
   BIRTH_TYPES,
   PLACE_OF_BIRTH_TYPES,
   ATTENDANT_OF_BIRTH_TYPES,
+  LAB_REQUEST_STATUSES,
 } from 'shared/constants';
 
 import {
@@ -64,22 +65,6 @@ export const Colors = {
 
 export const MAX_AUTO_COMPLETE_ITEMS = {
   DIAGNOSES: 10,
-};
-
-export const LAB_REQUEST_STATUSES = {
-  RECEPTION_PENDING: 'reception_pending',
-  RESULTS_PENDING: 'results_pending',
-  TO_BE_VERIFIED: 'to_be_verified',
-  VERIFIED: 'verified',
-  PUBLISHED: 'published',
-};
-
-export const LAB_REQUEST_STATUS_LABELS = {
-  [LAB_REQUEST_STATUSES.RECEPTION_PENDING]: 'Reception pending',
-  [LAB_REQUEST_STATUSES.RESULTS_PENDING]: 'Results pending',
-  [LAB_REQUEST_STATUSES.TO_BE_VERIFIED]: 'To be verified',
-  [LAB_REQUEST_STATUSES.VERIFIED]: 'Verified',
-  [LAB_REQUEST_STATUSES.PUBLISHED]: 'Published',
 };
 
 export const LAB_REQUEST_COLORS = {

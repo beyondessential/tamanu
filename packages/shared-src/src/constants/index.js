@@ -44,6 +44,14 @@ export const LAB_REQUEST_STATUS_LABELS = {
   [LAB_REQUEST_STATUSES.PUBLISHED]: 'Published',
 };
 
+// Leave out deleted status from options
+export const LAB_REQUEST_STATUS_OPTIONS = Object.values(LAB_REQUEST_STATUSES)
+  .filter(status => status !== LAB_REQUEST_STATUSES.DELETED)
+  .map(s => ({
+    label: LAB_REQUEST_STATUS_LABELS[s],
+    value: s,
+  }));
+
 export const LAB_TEST_STATUSES = LAB_REQUEST_STATUSES;
 
 export const NOTE_TYPES = {
