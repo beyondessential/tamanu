@@ -144,6 +144,14 @@
         }
       }
     },
+    "covidClearanceCertificatePublisher": {
+      "enabled": false,
+      "schedule": "*/30 * * * *",
+      "daysSinceSampleTime": 13,
+      "after": "2022-09-01",
+      "labTestCategories": [],
+      "labTestTypes": []
+    },
     "duplicateAdditionalDataDeleter": {
       "enabled": true,
       "schedule": "*/15 * * * *"
@@ -513,7 +521,8 @@
         "registerNewPatient": true,
         "hideOtherSex": true,
         "enablePatientDeaths": false,
-        "mergePopulatedPADRecords": true
+        "mergePopulatedPADRecords": true,
+        "enableCovidClearanceCertificate": false
       },
       "templates": {
         "letterhead": {
@@ -530,7 +539,11 @@
         },
         "covidTestCertificateEmail": {
           "subject": "Medical Certificate now available",
-          "body": "A medical certificate has been generated for you.\nYour certificate is available attached to this email."
+          "body": "A medical certificate has been generated for you.\nYour certificate is attached to this email."
+        },
+        "covidClearanceCertificateEmail": {
+          "subject": "COVID-19 Clearance Certificate now available",
+          "body": "A COVID-19 clearance certificate has been generated for you.\nYour certificate is attached to this email."
         },
         "vaccineCertificate": {
           "emailAddress": "tamanu@health.gov",
