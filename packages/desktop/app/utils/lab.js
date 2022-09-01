@@ -1,7 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { LAB_REQUEST_STATUS_LABELS, LAB_REQUEST_COLORS } from '../constants';
+import { LAB_REQUEST_STATUS_LABELS } from 'shared/constants';
+import { LAB_REQUEST_COLORS } from '../constants';
 
 import { DateDisplay } from '../components';
 import { PatientNameDisplay } from '../components/PatientNameDisplay';
