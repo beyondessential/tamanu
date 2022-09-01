@@ -181,6 +181,7 @@ export async function down(query: QueryInterface): Promise<void> {
       },
     );
   }
-  await query.dropTable('note_pages');
+
   await query.dropTable('note_items');
+  await query.dropTable('note_pages');
 }
