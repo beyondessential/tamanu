@@ -1,6 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 import { add } from 'date-fns';
-import { fake, fakeUser, fakeReferenceData } from '../../src/test-helpers';
+import { fake, fakeUser } from 'shared/test-helpers';
+import { fakeReferenceData } from 'shared/test-helpers/fake';
+
 import { initDb } from '../initDb';
 
 async function prepopulate(models) {
@@ -51,34 +53,6 @@ async function prepopulate(models) {
     name: 'COVID-19 AZ',
   });
 
-  const scheduledVaccineId = uuidv4();
-
-  await ScheduledVaccine.create({
-    ...fake(ScheduledVaccine),
-    id: scheduledVaccineId,
-    vaccineId: 'drug-Placebo',
-  });
-
-  const now = new Date();
-
-  await AdministeredVaccine.create({
-    ...fake(AdministeredVaccine),
-    id: 'first',
-    status: 'GIVEN',
-    date: add(now, { minutes: 1 }),
-    scheduledVaccineId,
-    encounterId,
-  });
-
-  await AdministeredVaccine.create({
-    ...fake(AdministeredVaccine),
-    id: 'last',
-    status: 'GIVEN',
-    date: add(now, { minutes: 2 }),
-    scheduledVaccineId,
-    encounterId,
-  });
-
   await Encounter.create({
     ...fake(Encounter),
     id: encounterId,
@@ -125,43 +99,98 @@ async function prepopulate(models) {
     status: 'published',
   });
 
-  return patientId;
+  const scheduledVaccineId = uuidv4();
+
+  await ScheduledVaccine.create({
+    ...fake(ScheduledVaccine),
+    id: scheduledVaccineId,
+    vaccineId: 'drug-Placebo',
+  });
+
+  const now = new Date();
+
+  await AdministeredVaccine.create({
+    ...fake(AdministeredVaccine),
+    id: 'first',
+    status: 'GIVEN',
+    date: add(now, { minutes: 1 }),
+    scheduledVaccineId,
+    encounterId,
+  });
+
+  await AdministeredVaccine.create({
+    ...fake(AdministeredVaccine),
+    id: 'last',
+    status: 'GIVEN',
+    date: add(now, { minutes: 2 }),
+    scheduledVaccineId,
+    encounterId,
+  });
+
+  return { patientId, encounterId };
 }
 
 describe('Patient', () => {
   let models;
   let context;
-  let patientId;
+  let testIds;
 
   beforeAll(async () => {
     context = await initDb({ testMode: true });
     models = context.models;
-    patientId = await prepopulate(models);
+    testIds = await prepopulate(models);
   });
+  afterAll(() => context.sequelize.close());
 
-  describe('Patient -> getLabRequests', () => {
+  describe('Patient.getLabRequests', () => {
     it('should return the correct amount of lab requests', async () => {
       // Arrange
       const { Patient } = models;
+      const { patientId } = testIds;
       // Act
       const patient = await Patient.findByPk(patientId);
       const results = await patient.getCovidLabTests();
-      console.log('results', results);
       // Assert
       expect(results.length).toEqual(2);
     });
   });
 
-  describe('Patient -> getAdministeredVaccines', () => {
+  describe('Patient.getAdministeredVaccines', () => {
     it('should return the correct amount of administered vaccines', async () => {
       // Arrange
       const { Patient } = models;
+      const { patientId } = testIds;
       // Act
       const patient = await Patient.findByPk(patientId);
       const results = await patient.getAdministeredVaccines();
-      console.log('results', results);
       // Assert
       expect(results.length).toEqual(2);
+    });
+
+    it('should return the most recent vaccines first', async () => {
+      // Arrange
+      const { Patient } = models;
+      const { patientId } = testIds;
+      // Act
+      const patient = await Patient.findByPk(patientId);
+      const results = await patient.getAdministeredVaccines();
+      const firstResult = results[0];
+
+      // Assert
+      expect(firstResult.id).toEqual('last');
+    });
+
+    it('should return the correct format', async () => {
+      // Arrange
+      const { Patient } = models;
+      const { patientId, encounterId } = testIds;
+      // Act
+      const patient = await Patient.findByPk(patientId);
+      const results = await patient.getAdministeredVaccines();
+      const firstResult = results[0];
+      // Assert
+      expect(firstResult).toHaveProperty('status', 'GIVEN');
+      expect(firstResult).toHaveProperty('encounter.id', encounterId);
     });
   });
 });
