@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useEncounter } from '../../../contexts/Encounter';
 import { NotePageModal } from '../../../components/NotePageModal';
-import { NoteTable } from '../../../components/NoteTable';
+import { NotePageTable } from '../../../components/NotePageTable';
 import { ButtonWithPermissionCheck, TableButtonRow } from '../../../components';
 import { TabPane } from '../components';
 
@@ -31,7 +31,7 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
           New note
         </ButtonWithPermissionCheck>
       </TableButtonRow>
-      <NoteTable encounterId={encounter.id} />
+      <NotePageTable encounterId={encounter.id} />
     </TabPane>
   );
 });

@@ -22,7 +22,13 @@ import { noteTypes } from '../constants';
 const getSelectableNoteTypes = noteTypeCountByType =>
   noteTypes
     .filter(x => !x.hideFromDropdown)
-    .map(x => ({ ...x, isDisabled: noteTypeCountByType && !!noteTypeCountByType[x.value] }));
+    .map(x => ({
+      ...x,
+      isDisabled:
+        noteTypeCountByType &&
+        x.value === NOTE_TYPES.TREATMENT_PLAN &&
+        !!noteTypeCountByType[x.value],
+    }));
 
 const StyledFormGrid = styled(FormGrid)`
   margin-bottom: 20px;

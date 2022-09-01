@@ -14,7 +14,7 @@ const COLUMNS = [
   { key: 'content', title: 'Content', maxWidth: 300, accessor: getContent },
 ];
 
-export const NoteTable = ({ encounterId }) => {
+export const NotePageTable = ({ encounterId }) => {
   const [isNotePageModalOpen, setNotePageModalOpen] = useState(false);
   const [refreshCount, setRefreshCount] = useState(0);
   const [notePage, setNotePage] = useState({});

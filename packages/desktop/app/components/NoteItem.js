@@ -44,14 +44,6 @@ const StyledListItemText = styled(ListItemText)`
     white-space: pre-line;
   }
 `;
-const StyledTooltip = styled(Tooltip)`
-  .MuiTooltip-tooltip {
-    background-color: ${Colors.white};
-    color: ${Colors.darkText};
-    font-size: 11px;
-    white-space: pre-line;
-  }
-`;
 const StyledNoteItemSecondaryWrapper = styled.div`
   float: right;
   font-size: 11px;
@@ -64,6 +56,24 @@ const StyledViewChangeLogWrapper = styled.span`
   font-weight: bold;
   text-decoration: underline;
   color: ${Colors.primary};
+`;
+const StyledTooltip = styled(props => (
+  <Tooltip classes={{ popper: props.className }} {...props}>
+    {props.children}
+  </Tooltip>
+))`
+  & .MuiTooltip-tooltip {
+    background-color: ${Colors.white};
+    color: ${Colors.darkText};
+    border: 1px solid ${Colors.outline};
+    box-shadow: 0 1px 3px ${Colors.outline};
+    font-size: 11px;
+    font-weight: 400;
+    white-space: pre-line;
+    cursor: pointer;
+    max-height: 700px;
+    width: 500px;
+  }
 `;
 
 const ItemTooltip = ({ childNoteItems = [] }) => {

@@ -61,7 +61,7 @@ export const NotePageModal = ({
     })();
   }, [api, notePage, encounterId]);
 
-  const handleCreateNewNoteItem = async data => {
+  const handleCreateNewNoteItem = async (data, { resetForm }) => {
     const newData = { ...data };
     newData.authorId = currentUser.id;
     newData.recordId = encounterId;
@@ -80,6 +80,8 @@ export const NotePageModal = ({
     const rootNoteItems = groupNoteItems(newNoteItems);
 
     setNoteItems(rootNoteItems);
+
+    resetForm();
 
     onSaved();
   };
