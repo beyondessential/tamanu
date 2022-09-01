@@ -16,10 +16,12 @@ const COLUMNS = [
 
 export const NotePageTable = ({ encounterId }) => {
   const [isNotePageModalOpen, setNotePageModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState('');
   const [refreshCount, setRefreshCount] = useState(0);
   const [notePage, setNotePage] = useState({});
   const handleRowClick = useCallback(
     data => {
+      setModalTitle(`Note - ${getTypeLabel(data)}`);
       setNotePageModalOpen(true);
       setNotePage(data);
     },
@@ -47,6 +49,7 @@ export const NotePageTable = ({ encounterId }) => {
           setRefreshCount(refreshCount + 1);
         }}
         notePage={notePage}
+        title={modalTitle}
       />
       <DataFetchingTable
         columns={COLUMNS}

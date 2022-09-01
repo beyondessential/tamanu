@@ -30,9 +30,7 @@ export class NotePage extends Model {
         validate: {
           mustHaveValidRelationType() {
             if (!NOTE_RECORD_TYPE_VALUES.includes(this.recordType)) {
-              throw new Error(
-                `NotePage: Must have a valid record type (got ${this.recordType}), id: '${this.id}'`,
-              );
+              throw new Error(`NotePage: Must have a valid record type (got ${this.recordType})`);
             }
           },
           mustHaveValidType() {
@@ -62,8 +60,8 @@ export class NotePage extends Model {
 
   /**
    * This is a util method that combines the NotePage instance with its single associated NoteItem.
-   * This method should only be used for records that always only have 1 note item associated to it.
-   * Eg: Lab Request, Patient Care Plan
+   * This method should only be used for records that always only have 1 note item attached it.
+   * Eg: LabRequest, PatientCarePlan
    * @param {*} models
    * @returns
    */

@@ -81,12 +81,12 @@ const ItemTooltip = ({ childNoteItems = [] }) => {
     return null;
   }
 
-  return childNoteItems.map(n => (
+  return childNoteItems.map(noteItem => (
     <>
-      <span>{n.author.displayName} </span>
-      {n.onBehalfOf ? <span>on behalf of {n.onBehalfOf.displayName} </span> : null}
-      <DateDisplay date={n.date} showTime />
-      <p>{n.content}</p>
+      <span>{noteItem.author.displayName} </span>
+      {noteItem.onBehalfOf ? <span>on behalf of {noteItem.onBehalfOf.displayName} </span> : null}
+      <DateDisplay date={noteItem.date} showTime />
+      <p>{noteItem.content}</p>
       <br />
     </>
   ));
@@ -96,15 +96,12 @@ const NoteItemMain = ({ noteItem }) => <span>{noteItem.content} </span>;
 
 const NoteItemSecondary = ({ noteItem, isEditting, onEditClick }) => {
   const [isTooltipOpen, setTooltipOpen] = useState(false);
+
   return (
     <StyledNoteItemSecondaryWrapper>
-      {!isEditting && (
-        <div>
-          <StyledEditIcon onClick={onEditClick} />
-        </div>
-      )}
+      {!isEditting && <StyledEditIcon onClick={onEditClick} />}
       <br />
-      <div>
+      <>
         <span>{noteItem.author.displayName} </span>
         {noteItem.onBehalfOf ? <span>on behalf of {noteItem.onBehalfOf.displayName} </span> : null}
         <DateDisplay date={noteItem.date} showTime />
@@ -119,18 +116,19 @@ const NoteItemSecondary = ({ noteItem, isEditting, onEditClick }) => {
             </StyledViewChangeLogWrapper>
           </StyledTooltip>
         )}
-      </div>
+      </>
     </StyledNoteItemSecondaryWrapper>
   );
 };
 
-export const NoteItem = ({ noteItem, onSaveItem }) => {
+export const NoteItem = ({ noteItem, onEditNoteItem }) => {
   const [isEditting, setIsEditting] = useState(false);
   const [content, setContent] = useState(noteItem.content);
   const handleDone = () => {
-    onSaveItem(noteItem, content);
+    onEditNoteItem(noteItem, content);
     setIsEditting(!isEditting);
   };
+
   return (
     <>
       <Divider />
@@ -151,7 +149,7 @@ export const NoteItem = ({ noteItem, onSaveItem }) => {
           <StyledListItemText
             primary={
               <>
-                <NoteItemMain noteItem={noteItem} />{' '}
+                <NoteItemMain noteItem={noteItem} />
                 <NoteItemSecondary
                   noteItem={noteItem}
                   isEditting={isEditting}

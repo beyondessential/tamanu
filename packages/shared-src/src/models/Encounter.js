@@ -65,6 +65,7 @@ export class Encounter extends Model {
         'invoice.invoicePriceChangeItems',
         'documents',
         'notePages',
+        'notePages.noteItems',
       ],
       ...nestedSyncConfig,
       channelRoutes: [

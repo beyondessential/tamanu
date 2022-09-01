@@ -7,36 +7,18 @@ export { noteItemRoute as noteItems };
 noteItemRoute.post(
   '/:notePageId/noteItems',
   asyncHandler(async (req, res) => {
-    req.checkPermission('read', 'Encounter');
+    req.checkPermission('write', 'NotePage');
 
     const { models, body: noteItemData, params } = req;
     const { notePageId } = params;
 
-    // req.checkPermission('write', 'NotePage');
-
-    const createdNoteItem = await models.NoteItem.create({
+    await models.NoteItem.create({
       notePageId,
       authorId: noteItemData.authorId,
       onBehalfOfId: noteItemData.onBehalfOfId,
       date: Date.now(),
       content: noteItemData.content.trim(),
       revisedById: noteItemData.revisedById,
-    });
-
-    await models.NoteItem.findOne({
-      where: {
-        id: createdNoteItem.id,
-      },
-      include: [
-        {
-          model: models.User,
-          as: 'author',
-        },
-        {
-          model: models.User,
-          as: 'onBehalfOf',
-        },
-      ],
     });
 
     const noteItems = await models.NoteItem.findAll({
@@ -60,11 +42,10 @@ noteItemRoute.post(
 noteItemRoute.get(
   '/:notePageId/noteItems',
   asyncHandler(async (req, res) => {
-    req.checkPermission('read', 'Encounter');
+    req.checkPermission('read', 'Note');
 
     const { models, params } = req;
     const { notePageId } = params;
-    // req.checkPermission('write', 'NotePage');
 
     const noteItems = await models.NoteItem.findAll({
       include: [
@@ -91,7 +72,8 @@ noteItemRoute.get(
 
     const { models, params } = req;
     const { rootNoteItemId } = params;
-    // req.checkPermission('write', 'NotePage');
+
+    req.checkPermission('write', 'Note');
 
     const noteItems = await models.NoteItem.findAll({
       include: [
@@ -115,11 +97,10 @@ noteItemRoute.get(
 noteItemRoute.get(
   '/:rootNoteItemId/noteItems',
   asyncHandler(async (req, res) => {
-    req.checkPermission('read', 'Encounter');
+    req.checkPermission('read', 'Note');
 
     const { models, params } = req;
     const { rootNoteItemId } = params;
-    // req.checkPermission('write', 'NotePage');
 
     const noteItems = await models.NoteItem.findAll({
       include: [

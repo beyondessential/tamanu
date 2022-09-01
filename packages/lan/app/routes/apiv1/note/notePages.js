@@ -9,14 +9,14 @@ const notePageRoute = express.Router();
 export { notePageRoute as notePages };
 
 // Encounter notes cannot be edited
-function canModifyNote(noteObject) {
-  return noteObject.recordType !== NOTE_RECORD_TYPES.ENCOUNTER;
+function canModifyNote(notePage) {
+  return notePage.recordType !== NOTE_RECORD_TYPES.ENCOUNTER;
 }
 
 notePageRoute.post(
   '/$',
   asyncHandler(async (req, res) => {
-    req.checkPermission('read', 'Encounter');
+    req.checkPermission('write', 'Note');
 
     const { models, body: noteData } = req;
 
@@ -42,6 +42,8 @@ notePageRoute.post(
 notePageRoute.get(
   '/:id',
   asyncHandler(async (req, res) => {
+    req.checkPermission('read', 'Note');
+
     const { models, params } = req;
     const notePageId = params.id;
     const notePage = await models.NotePage.findOne({
@@ -71,6 +73,8 @@ notePageRoute.get(
 notePageRoute.put(
   '/:id',
   asyncHandler(async (req, res) => {
+    req.checkPermission('write', 'Note');
+
     const { models, body, params } = req;
 
     const editedNotePage = await models.NotePage.findOne({
@@ -110,10 +114,11 @@ notePageRoute.put(
 notePageRoute.delete(
   '/:id',
   asyncHandler(async (req, res) => {
+    req.checkPermission('delete', 'Note');
+
     const { models } = req;
-    const notePageToBeDeleted = await models.NotePage.findOne(models, {
-      where: { id: req.params.id },
-    });
+    const notePageToBeDeleted = await models.NotePage.findByPk(req.params.id);
+
     if (!notePageToBeDeleted) {
       throw new NotFoundError();
     }
@@ -124,17 +129,17 @@ notePageRoute.delete(
 
     req.checkPermission('write', notePageToBeDeleted.recordType);
 
+    await req.models.NoteItem.destroy({
+      where: {
+        notePageId: req.params.id,
+      },
+    });
     await req.models.NotePage.destroy({
       where: {
         id: req.params.id,
       },
     });
 
-    await req.models.NoteItem.destroy({
-      where: {
-        notePageId: req.params.id,
-      },
-    });
     res.send({});
   }),
 );

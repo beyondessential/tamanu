@@ -12,13 +12,7 @@ import {
 } from 'shared/constants';
 import { makeFilter, makeSimpleTextFilterFactory } from '../../utils/query';
 import { renameObjectKeys } from '../../utils/renameObjectKeys';
-import {
-  simpleGet,
-  simplePut,
-  simpleGetList,
-  permissionCheckingRouter,
-  createNoteListingHandler,
-} from './crudHelpers';
+import { simpleGet, simplePut, simpleGetList, permissionCheckingRouter } from './crudHelpers';
 import { notePagesWithSingleItemListHandler } from '../../routeHandlers';
 
 export const labRequest = express.Router();

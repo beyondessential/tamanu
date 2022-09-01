@@ -41,7 +41,7 @@ export const NotePageForm = ({
   noteItems,
   noteTypeCountByType,
   onSubmit,
-  onSaveItem,
+  onEditNoteItem,
 }) => {
   const { currentUser } = useAuth();
 
@@ -52,7 +52,7 @@ export const NotePageForm = ({
           <NoteItemList
             noteItems={noteItems}
             currentUserId={currentUser.id}
-            onSaveItem={onSaveItem}
+            onEditNoteItem={onEditNoteItem}
           />
         </StyledFormGrid>
       )}

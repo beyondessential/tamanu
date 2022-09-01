@@ -50,6 +50,7 @@ export const PatientCarePlanDetails = React.memo(({ item }) => {
 
   useEffect(() => {
     api.get(`patientCarePlan/${item.id}/notes`).then(notes => {
+      console.log('patientCarePlan notes', notes);
       if (notes.length) {
         // first note is the main care plan
         setFirstNote(notes[0]);
@@ -59,6 +60,8 @@ export const PatientCarePlanDetails = React.memo(({ item }) => {
           setSubsequentNotes(
             notes.slice(1).sort((a, b) => (moment(a.date).isBefore(b.date) ? 1 : -1)),
           );
+        } else {
+          setSubsequentNotes([]);
         }
       }
     });

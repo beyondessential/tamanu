@@ -183,10 +183,3 @@ export async function runPaginatedQuery(db, model, countQuery, selectQuery, para
     data: forResponse,
   };
 }
-
-export const createNoteListingHandler = recordType =>
-  simpleGetList('NotePage', 'recordId', {
-    additionalFilters: { recordType },
-    // this is designed to be mounted inside a permission checking router
-    skipPermissionCheck: true,
-  });

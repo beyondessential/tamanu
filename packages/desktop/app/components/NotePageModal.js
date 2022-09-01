@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import moment from 'moment';
-import { groupBy, keyBy } from 'lodash';
+import { groupBy } from 'lodash';
+import { NOTE_RECORD_TYPES } from 'shared/constants';
 
 import { useApi } from '../api';
 import { Suggester } from '../utils/suggester';
@@ -9,6 +10,19 @@ import { Modal } from './Modal';
 import { NotePageForm } from '../forms/NotePageForm';
 import { useAuth } from '../contexts/Auth';
 
+/**
+ * Group flat note items into nested ones:
+ * eg:
+ * [note1, note2, note3]
+ * [
+ *  {
+ *    'note1'
+ *    noteItems: [note2, note3]
+ *  }
+ * ]
+ * @param {*} noteItems
+ * @returns
+ */
 const groupNoteItems = noteItems => {
   const noteItemByRevisedId = groupBy(noteItems, noteItem => noteItem.revisedById || 'root');
   const rootNoteItems = [];
@@ -61,55 +75,64 @@ export const NotePageModal = ({
     })();
   }, [api, notePage, encounterId]);
 
-  const handleCreateNewNoteItem = async (data, { resetForm }) => {
-    const newData = { ...data };
-    newData.authorId = currentUser.id;
-    newData.recordId = encounterId;
-    newData.recordType = 'Encounter';
+  const handleCreateNewNoteItem = useCallback(
+    async (data, { resetForm }) => {
+      const newData = {
+        ...data,
+        authorId: currentUser.id,
+        recordId: encounterId,
+        recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+      };
 
-    let response;
-    let newNoteItems;
-    if (notePage?.id) {
-      response = await api.post(`notePages/${notePage.id}/noteItems`, newData);
-      newNoteItems = response.data;
-    } else {
-      response = await api.post('notePages', newData);
-      newNoteItems = [response.noteItem];
-    }
+      let newNoteItems;
 
-    const rootNoteItems = groupNoteItems(newNoteItems);
+      if (notePage?.id) {
+        await api.post(`notePages/${notePage.id}/noteItems`, newData);
+        const response = await api.get(`notePages/${notePage.id}/noteItems`);
+        newNoteItems = response.data;
+      } else {
+        const response = await api.post('notePages', newData);
+        newNoteItems = [response.noteItem];
+      }
 
-    setNoteItems(rootNoteItems);
+      const rootNoteItems = groupNoteItems(newNoteItems);
 
-    resetForm();
+      setNoteItems(rootNoteItems);
+      resetForm();
+      onSaved();
+    },
+    [api, currentUser.id, encounterId, notePage, setNoteItems, onSaved],
+  );
 
-    onSaved();
-  };
+  const handleEditNoteItem = useCallback(
+    async (noteItem, content) => {
+      if (!notePage) {
+        return;
+      }
 
-  const handleSaveItem = async (noteItem, content) => {
-    if (!notePage) {
-      return;
-    }
+      const newNoteItem = {
+        authorId: currentUser.id,
+        onBehalfOfId: noteItem.authorId,
+        revisedById: noteItem.revisedById || noteItem.id,
+        content,
+      };
 
-    const newNoteItem = {
-      authorId: currentUser.id,
-      onBehalfOfId: noteItem.authorId,
-      revisedById: noteItem.revisedById || noteItem.id,
-      content,
-    };
+      await api.post(`notePages/${notePage.id}/noteItems`, newNoteItem);
+      const response = await api.get(`notePages/${notePage.id}/noteItems`);
 
-    const response = await api.post(`notePages/${notePage.id}/noteItems`, newNoteItem);
-    const newNoteItems = response.data;
-    const rootNoteItems = groupNoteItems(newNoteItems);
+      const newNoteItems = response.data;
+      const rootNoteItems = groupNoteItems(newNoteItems);
 
-    setNoteItems(rootNoteItems);
-  };
+      setNoteItems(rootNoteItems);
+    },
+    [api, currentUser.id, notePage],
+  );
 
   return (
     <Modal title={title} open={open} width="md" onClose={onClose}>
       <NotePageForm
         onSubmit={handleCreateNewNoteItem}
-        onSaveItem={handleSaveItem}
+        onEditNoteItem={handleEditNoteItem}
         onCancel={onClose}
         practitionerSuggester={practitionerSuggester}
         notePage={notePage}
