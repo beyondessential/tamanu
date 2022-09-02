@@ -63,7 +63,7 @@ export class Patient extends Model {
       foreignKey: 'patientId',
       as: 'deathData',
     });
-    
+
     this.hasMany(models.PatientSecondaryId, {
       foreignKey: 'patientId',
       as: 'secondaryIds',
@@ -142,7 +142,7 @@ export class Patient extends Model {
       }
     }
 
-    return results;
+    return results.map(x => x.get({ plain: true }));
   }
 
   async getCovidLabTests(queryOptions) {
