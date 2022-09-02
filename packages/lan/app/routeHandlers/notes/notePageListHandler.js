@@ -1,3 +1,6 @@
+import { Op } from 'sequelize';
+import { NOTE_TYPES } from 'shared/constants';
+
 export const notePageListHandler = recordType => async (req, res) => {
   const { models, params } = req;
 
@@ -23,7 +26,7 @@ export const notePageListHandler = recordType => async (req, res) => {
         ],
       },
     ],
-    where: { recordType, recordId },
+    where: { recordType, recordId, noteType: { [Op.not]: NOTE_TYPES.SYSTEM } },
   });
 
   res.send({ data: rows, count: rows.length });
@@ -49,8 +52,9 @@ export const notePagesWithSingleItemListHandler = recordType => async (req, res)
       },
     ],
     where: {
-      recordId: params.id,
+      recordId,
       recordType,
+      noteType: { [Op.not]: NOTE_TYPES.SYSTEM },
     },
     order: [['createdAt', 'ASC']],
   });
