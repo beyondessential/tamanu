@@ -20,6 +20,9 @@ notePageRoute.post(
 
     const { models, body: noteData } = req;
 
+    const owner = await models[noteData.recordType].findByPk(noteData.recordId);
+    req.checkPermission('write', owner);
+
     const notePage = await models.NotePage.create({
       recordType: noteData.recordType,
       recordId: noteData.recordId,
@@ -65,6 +68,9 @@ notePageRoute.get(
       ],
       where: { id: notePageId },
     });
+
+    const owner = await models[notePage.recordType].findByPk(notePage.recordId);
+    req.checkPermission('write', owner);
 
     res.send(notePage);
   }),
@@ -112,20 +118,18 @@ notePageRoute.put(
 notePageRoute.delete(
   '/:id',
   asyncHandler(async (req, res) => {
-    req.checkPermission('delete', 'Note');
-
     const { models } = req;
-    const notePageToBeDeleted = await models.NotePage.findByPk(req.params.id);
+    const notePageToDelete = await models.NotePage.findByPk(req.params.id);
 
-    if (!notePageToBeDeleted) {
+    if (!notePageToDelete) {
       throw new NotFoundError();
     }
 
-    if (canModifyNote(notePageToBeDeleted) === false) {
+    if (canModifyNote(notePageToDelete) === false) {
       throw new ForbiddenError('Cannot delete encounter notes.');
     }
 
-    req.checkPermission('write', notePageToBeDeleted.recordType);
+    req.checkPermission('write', notePageToDelete.recordType);
 
     await req.models.NoteItem.destroy({
       where: {
