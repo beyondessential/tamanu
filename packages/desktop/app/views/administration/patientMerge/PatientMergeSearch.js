@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Button, TextInput } from '../../../components';
 import { PatientSummary } from './PatientSummary';
@@ -21,7 +21,7 @@ export const PatientFetcher = ({ onPatientFound, label }) => {
 
   const api = useApi();
 
-  const onClick = useCallback(async () => {
+  const onClick = async () => {
     setCurrentPatient(null);
     setError(null);
     onPatientFound(null);
@@ -32,7 +32,7 @@ export const PatientFetcher = ({ onPatientFound, label }) => {
     } catch (e) {
       setError(e);
     }
-  });
+  };
 
   return (
     <div>

@@ -48,12 +48,12 @@ export const KeepPatientDecisionForm = ({
       <PatientSummary
         patient={firstPatient}
         onSelect={() => setSelectedPatient(firstPatient)}
-        selected={selectedPatient == firstPatient}
+        selected={selectedPatient === firstPatient}
       />
       <PatientSummary
         patient={secondPatient}
         onSelect={() => setSelectedPatient(secondPatient)}
-        selected={selectedPatient == secondPatient}
+        selected={selectedPatient === secondPatient}
       />
     </Modal>
   );

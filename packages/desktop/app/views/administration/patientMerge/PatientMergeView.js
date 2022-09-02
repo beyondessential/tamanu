@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import { ConfirmationModal } from './ConfirmationModal';
 import { KeepPatientDecisionForm } from './KeepPatientDecisionForm';
 import { PatientMergeSearch } from './PatientMergeSearch';
@@ -13,21 +13,21 @@ export const PatientMergeView = ({ fetchPatient }) => {
   const [result, setResult] = useState(null);
   const [mergeError, setMergeError] = useState(null);
 
-  const clear = useCallback(() => {
+  const clear = () => {
     setPatients(null);
     setMergePlan(null);
-  });
+  };
 
   const api = useApi();
   const onMergePatients = async () => {
     try {
-      const result = await api.post('admin/mergePatient', {
+      const mergeResult = await api.post('admin/mergePatient', {
         keepPatientId: mergePlan.keepPatient.id,
         unwantedPatientId: mergePlan.removePatient.id,
       });
-      setResult(result);
+      setResult(mergeResult);
     } catch (e) {
-      setMergeError(error);
+      setMergeError(e);
     }
   };
 
@@ -41,7 +41,7 @@ export const PatientMergeView = ({ fetchPatient }) => {
 
   let modal = null;
   if (mergeError) {
-    modal = <MergeErrorModal error={error} onClose={reset} />;
+    modal = <MergeErrorModal error={mergeError} onClose={reset} />;
   } else if (result) {
     modal = <MergeResultModal result={result} onClose={reset} />;
   } else if (mergePlan) {
