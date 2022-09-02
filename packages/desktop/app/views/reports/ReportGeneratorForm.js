@@ -129,26 +129,42 @@ export const ReportGeneratorForm = ({ onSuccessfulSubmit }) => {
 
   const submitRequestReport = useCallback(
     async formValues => {
-      const { reportId, emails, ...restValues } = formValues;
+      const { reportId, emails, ...filterValues } = formValues;
 
       try {
         if (dataSource === REPORT_DATA_SOURCES.THIS_FACILITY) {
           const excelData = await api.post(`reports/${reportId}`, {
-            parameters: restValues,
+            parameters: filterValues,
           });
+
+          const filterString = Object.entries(filterValues)
+            .map(([key, value]) => `${key}: ${value}`)
+            .join(', ');
 
           const reportName = reportsById[reportId].name;
 
-          const filePath = await saveExcelFile(excelData, {
-            promptForFilePath: true,
-            defaultFileName: getFileName(reportName),
-          });
+          const date = format(new Date(), 'dd/MM/yyyy');
+
+          const metadata = [
+            ['Report Name:', reportName],
+            ['Date Generated:', date],
+            ['User:', currentUser.email],
+            ['Filters:', filterString],
+          ];
+
+          const filePath = await saveExcelFile(
+            { data: excelData, metadata },
+            {
+              promptForFilePath: true,
+              defaultFileName: getFileName(reportName),
+            },
+          );
           // eslint-disable-next-line no-console
           console.log('file saved at ', filePath);
         } else {
           await api.post(`reportRequest`, {
             reportId,
-            restValues,
+            filterValues,
             emailList: parseEmails(formValues.emails),
           });
         }
@@ -162,7 +178,7 @@ export const ReportGeneratorForm = ({ onSuccessfulSubmit }) => {
         setRequestError(`Unable to submit report request - ${e.message}`);
       }
     },
-    [api, dataSource, onSuccessfulSubmit, reportsById],
+    [getFileName, currentUser.email, api, dataSource, onSuccessfulSubmit, reportsById],
   );
 
   // Wait until available reports are loaded to render.

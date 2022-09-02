@@ -42,7 +42,7 @@ async function report(options) {
   const store = await initDatabase({ testMode: false });
   setupEnv();
   try {
-    const { reportId, parameters, recipients } = options;
+    const { reportId, parameters, recipients, userId } = options;
 
     await validateReportId(reportId, store.models);
 
@@ -71,9 +71,10 @@ async function report(options) {
       reportRecipients,
       store,
       emailService,
+      userId,
     );
     log.info(
-      `Running report "${reportId}" with parameters "${parameters}" and recipients "${recipients}"`,
+      `Running report "${reportId}" with parameters "${parameters}", recipients "${recipients}" and userId ${userId}`,
     );
     await reportRunner.run();
   } catch (error) {
@@ -100,4 +101,5 @@ export const reportCommand = new Command('report')
     }),
   )
   .option('-p, --parameters <json>', 'JSON parameters')
+  .option('-u, --userId <string>', 'Requested by userId')
   .action(report);
