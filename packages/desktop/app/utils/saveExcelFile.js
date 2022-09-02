@@ -1,14 +1,14 @@
 import XLSX from 'xlsx';
 import { showFileDialog } from './dialog';
 
-const xlsxFilters = [{ name: 'Excel spreadsheet (.xlsx)', extensions: ['xlsx'] }];
+const xlsxFilters = [{ name: 'Excel spreadsheet', extensions: ['csv'] }];
 
 const stringifyIfNonDateObject = val =>
   typeof val === 'object' && !(val instanceof Date) && val !== null ? JSON.stringify(val) : val;
 
 export async function saveExcelFile(
   { data, metadata },
-  { promptForFilePath, filePath, defaultFileName },
+  { promptForFilePath, filePath, defaultFileName, bookType },
 ) {
   let path;
   if (promptForFilePath) {
@@ -25,6 +25,7 @@ export async function saveExcelFile(
   }
   const stringifiedData = data.map(row => row.map(stringifyIfNonDateObject));
 
+  // Todo: Put meta data tab second so that csv exports the actual report
   const book = XLSX.utils.book_new();
   const metadataSheet = XLSX.utils.aoa_to_sheet(metadata);
   metadataSheet['!cols'] = [{ wch: 30 }, { wch: 30 }];
@@ -34,7 +35,7 @@ export async function saveExcelFile(
   XLSX.utils.book_append_sheet(book, dataSheet, 'report');
 
   return new Promise((resolve, reject) => {
-    XLSX.writeFileAsync(path, book, null, err => {
+    XLSX.writeFileAsync(path, book, { type: bookType }, err => {
       if (err) {
         reject(err);
       } else {

@@ -51,6 +51,7 @@ export class Form extends React.PureComponent {
   }) => async event => {
     event.preventDefault();
     event.persist();
+    console.log('submit form...');
 
     // avoid multiple submissions
     if (isSubmitting) {

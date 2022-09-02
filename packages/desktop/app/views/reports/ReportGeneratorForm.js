@@ -9,15 +9,8 @@ import { REPORT_DATA_SOURCES, REPORT_DATA_SOURCE_VALUES } from 'shared/constants
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useApi } from '../../api';
 import { useAuth } from '../../contexts/Auth';
-import {
-  AutocompleteField,
-  Button,
-  FormGrid,
-  DateField,
-  Field,
-  Form,
-  RadioField,
-} from '../../components';
+import { AutocompleteField, FormGrid, DateField, Field, Form, RadioField } from '../../components';
+import { DropdownButton } from '../../components/DropdownButton';
 import { Colors, MUI_SPACING_UNIT } from '../../constants';
 import { saveExcelFile } from '../../utils/saveExcelFile';
 import { EmailField, parseEmails } from './EmailField';
@@ -42,7 +35,7 @@ const EmailInputContainer = styled.div`
 const ErrorMessageContainer = styled(Grid)`
   padding: ${MUI_SPACING_UNIT * 2}px ${MUI_SPACING_UNIT * 3}px;
   background-color: ${red[50]};
-  margin-top: 20px;
+  margin-bottom: 20px;
 `;
 
 const RequestErrorMessage = ({ errorMessage }) => (
@@ -85,12 +78,17 @@ const useFileName = () => {
     return `tamanu-report-${date}-${dashedName}`;
   };
 };
+const EXPORT_FORMATS = {
+  XLSX: 'xlsx',
+  CSV: 'csv',
+};
 
 export const ReportGeneratorForm = ({ onSuccessfulSubmit }) => {
   const api = useApi();
   const getFileName = useFileName();
   const { currentUser } = useAuth();
   const [requestError, setRequestError] = useState();
+  const [bookType, setBookFormat] = useState(EXPORT_FORMATS.XLSX);
   const [availableReports, setAvailableReports] = useState([]);
   const [dataSource, setDataSource] = useState(REPORT_DATA_SOURCES.THIS_FACILITY);
   const [selectedReportId, setSelectedReportId] = useState(null);
@@ -127,59 +125,58 @@ export const ReportGeneratorForm = ({ onSuccessfulSubmit }) => {
     })();
   }, [api]);
 
-  const submitRequestReport = useCallback(
-    async formValues => {
-      const { reportId, emails, ...filterValues } = formValues;
+  const submitRequestReport = async formValues => {
+    const { reportId, emails, ...filterValues } = formValues;
 
-      try {
-        if (dataSource === REPORT_DATA_SOURCES.THIS_FACILITY) {
-          const excelData = await api.post(`reports/${reportId}`, {
-            parameters: filterValues,
-          });
+    try {
+      if (dataSource === REPORT_DATA_SOURCES.THIS_FACILITY) {
+        const excelData = await api.post(`reports/${reportId}`, {
+          parameters: filterValues,
+        });
 
-          const filterString = Object.entries(filterValues)
-            .map(([key, value]) => `${key}: ${value}`)
-            .join(', ');
+        const filterString = Object.entries(filterValues)
+          .map(([key, value]) => `${key}: ${value}`)
+          .join(', ');
 
-          const reportName = reportsById[reportId].name;
+        const reportName = reportsById[reportId].name;
 
-          const date = format(new Date(), 'dd/MM/yyyy');
+        const date = format(new Date(), 'dd/MM/yyyy');
 
-          const metadata = [
-            ['Report Name:', reportName],
-            ['Date Generated:', date],
-            ['User:', currentUser.email],
-            ['Filters:', filterString],
-          ];
+        const metadata = [
+          ['Report Name:', reportName],
+          ['Date Generated:', date],
+          ['User:', currentUser.email],
+          ['Filters:', filterString],
+        ];
 
-          const filePath = await saveExcelFile(
-            { data: excelData, metadata },
-            {
-              promptForFilePath: true,
-              defaultFileName: getFileName(reportName),
-            },
-          );
-          // eslint-disable-next-line no-console
-          console.log('file saved at ', filePath);
-        } else {
-          await api.post(`reportRequest`, {
-            reportId,
-            filterValues,
-            emailList: parseEmails(formValues.emails),
-          });
-        }
-
-        if (onSuccessfulSubmit) {
-          onSuccessfulSubmit();
-        }
-      } catch (e) {
+        const filePath = await saveExcelFile(
+          { data: excelData, metadata },
+          {
+            promptForFilePath: true,
+            defaultFileName: getFileName(reportName),
+            bookType,
+          },
+        );
         // eslint-disable-next-line no-console
-        console.error('Unable to submit report request', e);
-        setRequestError(`Unable to submit report request - ${e.message}`);
+        console.log('file saved at ', filePath);
+      } else {
+        await api.post(`reportRequest`, {
+          reportId,
+          filterValues,
+          emailList: parseEmails(formValues.emails),
+          bookType,
+        });
       }
-    },
-    [getFileName, currentUser.email, api, dataSource, onSuccessfulSubmit, reportsById],
-  );
+
+      if (onSuccessfulSubmit) {
+        onSuccessfulSubmit();
+      }
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error('Unable to submit report request', e);
+      setRequestError(`Unable to submit report request - ${e.message}`);
+    }
+  };
 
   // Wait until available reports are loaded to render.
   // This is a workaround because of an issue that the onChange callback (when selecting a report)
@@ -206,7 +203,7 @@ export const ReportGeneratorForm = ({ onSuccessfulSubmit }) => {
           {},
         ),
       })}
-      render={({ values }) => (
+      render={({ values, submitForm }) => (
         <>
           <FormGrid columns={2}>
             <Field
@@ -263,7 +260,27 @@ export const ReportGeneratorForm = ({ onSuccessfulSubmit }) => {
           </EmailInputContainer>
           {requestError && <RequestErrorMessage errorMessage={requestError} />}
           <Box display="flex" justifyContent="flex-end">
-            <Button type="submit">Generate</Button>
+            <DropdownButton
+              size="large"
+              actions={[
+                {
+                  label: 'Generate XLSX',
+                  onClick: event => {
+                    console.log('generate xlsx');
+                    setBookFormat(EXPORT_FORMATS.XLSX);
+                    submitForm(event);
+                  },
+                },
+                {
+                  label: 'Generate CSV',
+                  onClick: event => {
+                    console.log('generate csv');
+                    setBookFormat(EXPORT_FORMATS.CSV);
+                    submitForm(event);
+                  },
+                },
+              ]}
+            />
           </Box>
         </>
       )}
