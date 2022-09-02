@@ -1,5 +1,18 @@
 import { subDays } from 'date-fns';
+import { TIME_UNIT_OPTIONS } from 'shared/constants';
 import { generateReportFromQueryData } from './utilities';
+
+// Creates a string with the time unit that it was added
+// when registering the field. See TimeWithUnitField component.
+const parseWithTimeUnit = valueInMinutes => {
+  if (!valueInMinutes) return '0 minutes';
+
+  const option = TIME_UNIT_OPTIONS.sort((a, b) => b.minutes - a.minutes).find(
+    o => valueInMinutes % o.minutes === 0,
+  );
+
+  return `${valueInMinutes / option.minutes} ${option.unit}`;
+};
 
 const FIELDS = [
   'Patient ID',
@@ -16,7 +29,10 @@ const FIELDS = [
   'Date and time of death',
   'Attending clinician',
   'Cause of death',
-  'Time between onset of cause and death',
+  {
+    title: 'Time between onset of cause and death',
+    accessor: data => parseWithTimeUnit(data['Time between onset of cause and death']),
+  },
   'Due to (or as a consequence of) 1',
   'Due to (or as a consequence of) 2',
   'Other contributing conditions 1',
@@ -41,16 +57,21 @@ const FIELDS = [
   'Number of hours survived',
 ];
 
-const reportColumnTemplate = FIELDS.map(field => ({
-  title: field,
-  accessor: data => data[field],
-}));
+const reportColumnTemplate = FIELDS.map(field =>
+  typeof field === 'string'
+    ? {
+        title: field,
+        accessor: data => data[field],
+      }
+    : field,
+);
 
 const query = `
 with
   other_causes as (
     select
       id,
+      condition_id,
       max(case when rnum = 1 then time_after_onset end) as "Time between onset of cause and death",
       max(case when rnum = 1 then name end) as "Other contributing conditions 1",
       max(case when rnum = 2 then name end) as "Other contributing conditions 2",
@@ -60,6 +81,7 @@ with
       select
         pdd.id,
         dc.time_after_onset,
+        dc.condition_id,
         rd.name,
         row_number() OVER (PARTITION BY pdd.id ORDER BY dc.created_at) as rnum
       from
@@ -69,13 +91,13 @@ with
       where dc.id not in (SELECT DISTINCT unnest(string_to_array(pdd2.primary_cause_condition_id || '#' || pdd2.antecedent_cause1_condition_id || '#' || pdd2.antecedent_cause2_condition_id, '#')) FROM patient_death_data pdd2 )
       order by pdd.id, rnum
     ) as d
-    group by d.id
+    group by d.id, d.condition_id
   )
 select distinct on (p.date_of_death, p.id)
   p.display_id as "Patient ID",
   p.first_name  as "Patient first name",
   p.last_name as "Patient last name",
-  p.date_of_birth as "DOB",
+  to_char(p.date_of_birth, 'DD/MM/YYYY') as "DOB",
   age(p.date_of_death::date, p.date_of_birth) as "Age",
   p.sex as "Sex",
   village.name as "Village",
@@ -85,8 +107,16 @@ select distinct on (p.date_of_death, p.id)
     then f.name
     else 'Died outside health facility'
     end as "Place of Death",
-  department.name as "Department",
-  loc.name as "Location",
+  case
+    when pdd.facility_id is not null
+    then department.name
+    else null
+    end as "Department",
+  case
+    when pdd.facility_id is not null
+    then loc.name
+    else null
+    end as "Location",
   to_char(p.date_of_death::timestamp, 'dd/mm/yyyy HH12:MI AM') as "Date and time of death",
   u.display_name as "Attending clinician",
   rd4.name as "Cause of death",
@@ -105,13 +135,21 @@ select distinct on (p.date_of_death, p.id)
   pdd.external_cause_location as "Location of external cause",
   pdd.was_pregnant as "If female, was the woman pregnant",
   pdd.pregnancy_contributed as "Did the pregnancy contribute to the death",
-  pdd.fetal_or_infant as "Fetal or infant death",
+  case
+    when pdd.fetal_or_infant = true then 'yes'
+    when pdd.fetal_or_infant = false then 'no'
+    else null
+    end as "Fetal or infant death",
   pdd.stillborn as "Stillbirth",
   pdd.birth_weight as "Birth weight (g)",
   pdd.carrier_pregnancy_weeks as "Number of completed weeks of pregnancy",
   pdd.carrier_age as "Age of mother",
   rd7.name as "Condition in mother affecting the fetus or newborn",
-  pdd.within_day_of_birth as "Death within 24 hours of birth",
+  case
+    when pdd.within_day_of_birth = true then 'yes'
+    when pdd.within_day_of_birth = false then 'no'
+    else null
+    end as "Death within 24 hours of birth",
   pdd.hours_survived_since_birth as "Number of hours survived"
 from
   patient_death_data pdd
@@ -131,12 +169,11 @@ from
   left join reference_data rd3 on rd3.id=pdd.last_surgery_reason_id
   left join reference_data rd7 on rd7.id=pdd.carrier_existing_condition_id
 where
-  to_char(e.end_date::timestamp::date, 'dd/mm/yyyy') = to_char(p.date_of_death::timestamp::date, 'dd/mm/yyyy')
-  and case when :from_date is not null then p.date_of_death::date >= :from_date::date else true end
+  case when :from_date is not null then p.date_of_death::date >= :from_date::date else true end
   and case when :to_date is not null then p.date_of_death::date <= :to_date::date else true end
   and case when :cause_of_death is not null then rd4.id = :cause_of_death else true end
   and case when :antecedent_cause is not null then (rd5.id = :antecedent_cause OR rd6.id = :antecedent_cause) else true end
-  and case when :other_contributing_condition is not null then os.id = :other_contributing_condition else true end
+  and case when :other_contributing_condition is not null then os.condition_id = :other_contributing_condition else true end
   and case when :manner_of_death is not null then pdd.manner = :manner_of_death else true end
 order by p.date_of_death, p.id, e.end_date;
 `;
