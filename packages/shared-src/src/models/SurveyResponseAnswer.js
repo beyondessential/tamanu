@@ -28,8 +28,12 @@ export class SurveyResponseAnswer extends Model {
     });
   }
 
-  static buildSyncFilter(patientIds) {
-    return buildEncounterLinkedSyncFilter(patientIds, ['surveyResponse', 'encounter']);
+  static buildSyncFilter(patientIds, facilitySettings) {
+    return buildEncounterLinkedSyncFilter(
+      patientIds,
+      ['surveyResponse', 'encounter'],
+      facilitySettings,
+    );
   }
 
   static getDefaultId = async resource => {

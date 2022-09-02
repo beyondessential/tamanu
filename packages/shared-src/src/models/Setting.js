@@ -100,12 +100,18 @@ export class Setting extends Model {
     return key.split('.').reduce((object, index) => object[index], settingsObject);
   }
 
+  static async forFacility(facilityId) {
+    return this.get('', facilityId);
+  }
+
   static async set(key, value, facilityId = null) {
     const records = buildSettingsRecords(key, value, facilityId);
     return Promise.all(
       records.map(async r => {
         // can't use upsert as there is no unique constraint on key/facilityId combo
-        const existing = await this.findOne({ where: { key: r.key, facilityId: r.facilityId } });
+        const existing = await this.findOne({
+          where: { key: r.key, facilityId: r.facilityId },
+        });
         if (existing) {
           await this.update({ value: r.value }, { where: { id: existing.id } });
         }

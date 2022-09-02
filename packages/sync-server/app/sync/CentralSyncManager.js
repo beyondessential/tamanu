@@ -66,6 +66,8 @@ export class CentralSyncManager {
   async setPullFilter(sessionIndex, { fromSessionIndex, facilityId }, { models }) {
     const session = this.connectToSession(sessionIndex);
 
+    const facilitySettings = await models.Setting.forFacility(facilityId);
+
     // work out if any patients were newly marked for sync since this device last connected, and
     // include changes from all time for those patients
     const newPatientFacilities = await models.PatientFacility.findAll({
@@ -88,6 +90,7 @@ export class CentralSyncManager {
       getModelsForDirection(models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
       fromSessionIndex,
       patientIdsForRegularSync,
+      facilitySettings,
     );
 
     const changes = [...fullSyncChanges, ...regularChanges];
