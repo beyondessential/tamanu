@@ -26,7 +26,7 @@ export const PatientMergeView = ({ fetchPatient }) => {
         unwantedPatientId: mergePlan.removePatient.id,
       });
       setResult(result);
-    } catch(e) {
+    } catch (e) {
       setMergeError(error);
     }
   };

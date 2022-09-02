@@ -1,7 +1,7 @@
 import { VISIBILITY_STATUSES } from 'shared/constants';
 import { InvalidParameterError } from 'shared/errors';
-import { reconcilePatient } from '../../utils/removeDuplicatedPatientAdditionalData';
 import { log } from 'shared/services/logging';
+import { reconcilePatient } from '../../utils/removeDuplicatedPatientAdditionalData';
 
 // These ones just need a patientId switched over.
 // Models included here will just have their patientId field
@@ -42,15 +42,15 @@ export async function getTablesWithNoMergeCoverage(models) {
 }
 
 async function simpleMergeRecordAcross(model, keepPatientId, unwantedPatientId) {
-  // We need to go via a raw query as Model.update({}) performs validation on the 
+  // We need to go via a raw query as Model.update({}) performs validation on the
   // whole record, so we'll be rejected for failing to include required fields -
   //  even though we only want to update patientId!
   // Note that this also means that *even if a record has been soft-deleted* its
   // patientId will be shifted over to the "keep" patient. This is desirable! The
-  // two patients are the same person, we're not meaningfully *updating* data 
+  // two patients are the same person, we're not meaningfully *updating* data
   // here, we're correcting it.
   const tableName = model.getTableName();
-  const [, result] = await model.sequelize.query( // ignoring the first returned element, # records
+  const [, result] = await model.sequelize.query(
     `
     UPDATE ${tableName} 
     SET 
@@ -80,9 +80,7 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
   return sequelize.transaction(async () => {
     const keepPatient = await models.Patient.findByPk(keepPatientId);
     if (!keepPatient) {
-      throw new InvalidParameterError(
-        `Patient to keep (with id ${keepPatientId}) does not exist.`
-      );
+      throw new InvalidParameterError(`Patient to keep (with id ${keepPatientId}) does not exist.`);
     }
 
     const unwantedPatient = await models.Patient.findByPk(unwantedPatientId);
@@ -93,7 +91,7 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
       );
     }
 
-    log.info("patientMerge: starting", { keepPatientId, unwantedPatientId });
+    log.info('patientMerge: starting', { keepPatientId, unwantedPatientId });
 
     const updates = {};
 
@@ -119,8 +117,8 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
     }
 
     // Now reconcile patient additional data.
-    // Note that we basically use the same logic as above; I've just separated 
-    // it out to highlight the fact that it requires special treatment. 
+    // Note that we basically use the same logic as above; I've just separated
+    // it out to highlight the fact that it requires special treatment.
     // (If a later update to this code would make more sense to consolidate
     // them that should be fine.)
     const padRecordsMerged = await simpleMergeRecordAcross(
@@ -134,7 +132,7 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
       await reconcilePatient(sequelize, keepPatientId);
     }
 
-    log.info("patientMerge: finished", { keepPatientId, unwantedPatientId, updates });
+    log.info('patientMerge: finished', { keepPatientId, unwantedPatientId, updates });
 
     return {
       updates,

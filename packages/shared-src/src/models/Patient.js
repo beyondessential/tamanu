@@ -63,7 +63,7 @@ export class Patient extends Model {
       foreignKey: 'patientId',
       as: 'deathData',
     });
-    
+
     this.hasMany(models.PatientSecondaryId, {
       foreignKey: 'patientId',
       as: 'secondaryIds',

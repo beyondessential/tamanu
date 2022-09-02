@@ -32,10 +32,16 @@ export const ConfirmationModal = ({ mergePlan, onCancel, onBack, onConfirm }) =>
 
   const actions = (
     <ButtonRow>
-      <OutlinedButton disabled={inProgress} onClick={onBack}>Back</OutlinedButton>
+      <OutlinedButton disabled={inProgress} onClick={onBack}>
+        Back
+      </OutlinedButton>
       <Spacer />
-      <OutlinedButton disabled={inProgress} onClick={onCancel}>Cancel</OutlinedButton>
-      <Button disabled={inProgress} onClick={onConfirmClicked}>Confirm</Button>
+      <OutlinedButton disabled={inProgress} onClick={onCancel}>
+        Cancel
+      </OutlinedButton>
+      <Button disabled={inProgress} onClick={onConfirmClicked}>
+        Confirm
+      </Button>
     </ButtonRow>
   );
   return (
