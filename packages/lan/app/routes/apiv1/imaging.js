@@ -113,7 +113,6 @@ imagingRequest.put(
 
     // Get related notes (general, area to be imaged)
     const relatedNotePages = await imagingRequestObject.getNotePages();
-    await otherNotePage.getNoteItems();
 
     // Get separate note objects
     const otherNotePage = getNoteWithType(relatedNotePages, NOTE_TYPES.OTHER);
