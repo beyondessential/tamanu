@@ -8,7 +8,7 @@ import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from 'shared/constants';
 import { Form, Field } from '../components/Field';
 import { IdField } from '../components/Field/IdField';
 import { ModalActionRow } from '../components/ModalActionRow';
-import { PlusIconButton, MinusIconButton, RadioField, ImageButton } from '../components';
+import { RadioField } from '../components';
 import { IdBanner } from '../components/IdBanner';
 import { Colors, PATIENT_REGISTRY_OPTIONS } from '../constants';
 import { toDateTimeString } from '../utils/dateTime';
