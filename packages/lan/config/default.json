@@ -25,7 +25,6 @@
     "timeout": 10000,
     "readOnly": false,
     "enabled": true,
-    "syncAllLabRequests": false,
     "backoff": {
       "multiplierMs": 300,
       "maxAttempts": 15,
