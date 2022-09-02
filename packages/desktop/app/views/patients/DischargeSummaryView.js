@@ -166,7 +166,7 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
         </div>
         {discharge && <div>
           <Label>Discharge disposition: </Label>
-          {discharge?.disposition?.name}
+          {discharge.disposition?.name}
         </div>}
         <div />
       </Content>
