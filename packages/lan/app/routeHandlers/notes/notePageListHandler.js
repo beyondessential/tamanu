@@ -1,6 +1,10 @@
 export const notePageListHandler = recordType => async (req, res) => {
   const { models, params } = req;
+
   const recordId = params.id;
+  const owner = await models[recordType].findByPk(recordId);
+
+  req.checkPermission('read', owner);
 
   const rows = await models.NotePage.findAll({
     include: [
@@ -27,7 +31,11 @@ export const notePageListHandler = recordType => async (req, res) => {
 
 export const notePagesWithSingleItemListHandler = recordType => async (req, res) => {
   const { models, params } = req;
-  req.checkPermission('read', 'PatientCarePlan');
+
+  const recordId = params.id;
+  const owner = await models[recordType].findByPk(recordId);
+
+  req.checkPermission('read', owner);
 
   const notePages = await models.NotePage.findAll({
     include: [
