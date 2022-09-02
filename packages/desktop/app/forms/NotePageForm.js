@@ -19,6 +19,11 @@ import { ConfirmCancelRow } from '../components/ButtonRow';
 import { NoteItemList } from '../components/NoteItemList';
 import { noteTypes } from '../constants';
 
+/**
+ * If there's already a treatment plan note, don't allow users to add another one
+ * @param {*} noteTypeCountByType
+ * @returns
+ */
 const getSelectableNoteTypes = noteTypeCountByType =>
   noteTypes
     .filter(x => !x.hideFromDropdown)
