@@ -9,7 +9,7 @@ import {
   NOTE_RECORD_TYPES,
 } from 'shared/constants';
 import { uploadAttachment } from '../../utils/uploadAttachment';
-import { notePagesWithSingleItemListHandler } from '../../routeHandlers';
+import { notePageListHandler } from '../../routeHandlers';
 
 import {
   simpleGet,
@@ -135,10 +135,26 @@ encounterRelations.get(
   paginatedGetList('DocumentMetadata', 'encounterId'),
 );
 encounterRelations.get('/:id/imagingRequests', simpleGetList('ImagingRequest', 'encounterId'));
+
+encounterRelations.get('/:id/notePages', notePageListHandler(NOTE_RECORD_TYPES.ENCOUNTER));
+
 encounterRelations.get(
-  '/:id/notes',
-  notePagesWithSingleItemListHandler(NOTE_RECORD_TYPES.ENCOUNTER),
+  '/:id/notePages/noteTypes',
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
+    const encounterId = params.id;
+    const noteTypeCounts = await models.NotePage.count({
+      group: ['noteType'],
+      where: { recordId: encounterId, recordType: 'Encounter' },
+    });
+    const noteTypeToCount = {};
+    noteTypeCounts.forEach(n => {
+      noteTypeToCount[n.noteType] = n.count;
+    });
+    res.send({ data: noteTypeToCount });
+  }),
 );
+
 encounterRelations.get(
   '/:id/invoice',
   simpleGetHasOne('Invoice', 'encounterId', {

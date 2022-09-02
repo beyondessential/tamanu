@@ -117,10 +117,10 @@ describe('Encounter', () => {
       models.NotePage.createForRecord(otherEncounter.id, 'Encounter', 'treatmentPlan', 'Fail'),
     ]);
 
-    const result = await app.get(`/v1/encounter/${encounter.id}/notes`);
+    const result = await app.get(`/v1/encounter/${encounter.id}/notePages`);
     expect(result).toHaveSucceeded();
     expect(result.body.count).toEqual(3);
-    expect(result.body.data.every(x => x.content.match(/^Test \d$/))).toEqual(true);
+    expect(result.body.data.every(x => x.noteItems[0].content.match(/^Test \d$/))).toEqual(true);
   });
 
   test.todo('should get a list of procedures');

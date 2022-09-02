@@ -60,8 +60,8 @@ export class NotePage extends Model {
 
   /**
    * This is a util method that combines the NotePage instance with its single associated NoteItem.
-   * This method should only be used for records that always only have 1 note item associated to it.
-   * Eg: Lab Request, Patient Care Plan
+   * This method should only be used for records that always only have 1 note item attached it.
+   * Eg: LabRequest, PatientCarePlan
    * @param {*} models
    * @returns
    */

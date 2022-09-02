@@ -13,7 +13,7 @@ export class PatientCarePlan extends Model {
         ...options,
         syncConfig: {
           ...initSyncForModelNestedUnderPatient(this, 'carePlan'),
-          includedRelations: ['notePages'],
+          includedRelations: ['notePages', 'notePages.noteItems'],
         },
       },
     );
