@@ -96,7 +96,6 @@ export const ImmunisationForm = React.memo(
   ({
     onCancel,
     onSubmit,
-    practitionerSuggester,
     departmentSuggester,
     getScheduledVaccines,
     locationSuggester,
