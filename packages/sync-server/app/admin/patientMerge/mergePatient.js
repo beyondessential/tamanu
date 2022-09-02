@@ -136,7 +136,7 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
       keepPatientId,
       unwantedPatientId,
       updates,
-      name: 'PatientMerge'
+      name: 'PatientMerge',
     });
 
     return {
