@@ -71,6 +71,7 @@ with
   other_causes as (
     select
       id,
+      condition_id,
       max(case when rnum = 1 then time_after_onset end) as "Time between onset of cause and death",
       max(case when rnum = 1 then name end) as "Other contributing conditions 1",
       max(case when rnum = 2 then name end) as "Other contributing conditions 2",
@@ -80,6 +81,7 @@ with
       select
         pdd.id,
         dc.time_after_onset,
+        dc.condition_id,
         rd.name,
         row_number() OVER (PARTITION BY pdd.id ORDER BY dc.created_at) as rnum
       from
@@ -89,7 +91,7 @@ with
       where dc.id not in (SELECT DISTINCT unnest(string_to_array(pdd2.primary_cause_condition_id || '#' || pdd2.antecedent_cause1_condition_id || '#' || pdd2.antecedent_cause2_condition_id, '#')) FROM patient_death_data pdd2 )
       order by pdd.id, rnum
     ) as d
-    group by d.id
+    group by d.id, d.condition_id
   )
 select distinct on (p.date_of_death, p.id)
   p.display_id as "Patient ID",
@@ -163,7 +165,7 @@ where
   and case when :to_date is not null then p.date_of_death::date <= :to_date::date else true end
   and case when :cause_of_death is not null then rd4.id = :cause_of_death else true end
   and case when :antecedent_cause is not null then (rd5.id = :antecedent_cause OR rd6.id = :antecedent_cause) else true end
-  and case when :other_contributing_condition is not null then os.id = :other_contributing_condition else true end
+  and case when :other_contributing_condition is not null then os.condition_id = :other_contributing_condition else true end
   and case when :manner_of_death is not null then pdd.manner = :manner_of_death else true end
 order by p.date_of_death, p.id, e.end_date;
 `;
