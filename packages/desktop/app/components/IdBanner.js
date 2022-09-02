@@ -15,7 +15,7 @@ const IdFieldContainer = styled.div`
 `;
 
 const IdFieldTitle = styled.div`
-  color: ${Colors.secondary};
+  color: ${Colors.white};
   font-weight: 500;
   font-size: 18px;
   margin-bottom: 20px;
