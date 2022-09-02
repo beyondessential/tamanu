@@ -59,7 +59,7 @@ export const PatientMergeView = ({ fetchPatient }) => {
         firstPatient={patients[0]}
         secondPatient={patients[1]}
         onCancel={clear}
-        onSelectPlan={plan => setMergePlan(plan)}
+        onSelectPlan={setMergePlan}
       />
     );
   }

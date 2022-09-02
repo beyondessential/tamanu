@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-import { ConfirmCancelRow } from '../../../components';
-import { Modal } from '../../../components/Modal';
+import { ConfirmCancelRow, Modal } from '../../../components';
 
 import { PatientSummary } from './PatientSummary';
 

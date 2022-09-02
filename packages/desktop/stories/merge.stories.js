@@ -15,7 +15,6 @@ import {
 } from '../app/views/administration/patientMerge';
 
 const baseDetails = {
-  id: '123123123',
   firstName: 'Ugyen',
   lastName: 'Wangdi',
   culturalName: 'Ugyen',
