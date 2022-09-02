@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
+import { remote } from 'electron';
 import Tooltip from '@material-ui/core/Tooltip';
 import format from 'date-fns/format';
 
-const getLocale = () => navigator.language;
+const getLocale = () => remote.app.getLocale() || 'default';
 
 const intlFormatDate = (date, formatOptions, fallback = 'Unknown') => {
   if (!date) return fallback;
