@@ -97,7 +97,7 @@ select distinct on (p.date_of_death, p.id)
   p.display_id as "Patient ID",
   p.first_name  as "Patient first name",
   p.last_name as "Patient last name",
-  to_char(p.date_of_birth ::timestamp::date, 'DD/MM/YYYY') as "DOB",
+  to_char(p.date_of_birth, 'DD/MM/YYYY') as "DOB",
   age(p.date_of_death::date, p.date_of_birth) as "Age",
   p.sex as "Sex",
   village.name as "Village",
