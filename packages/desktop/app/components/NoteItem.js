@@ -11,6 +11,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { DateDisplay } from './DateDisplay';
 import { TextInput } from './Field/TextField';
 import { Colors } from '../constants';
+import { useAuth } from '../contexts/Auth';
 
 const EditTextWrapper = styled.div`
   width: 100%;
@@ -48,6 +49,7 @@ const StyledNoteItemSecondaryWrapper = styled.div`
   float: right;
   font-size: 11px;
   line-height: 18px;
+  color: ${Colors.softText};
 `;
 const StyledViewChangeLogWrapper = styled.span`
   float: right;
@@ -56,6 +58,12 @@ const StyledViewChangeLogWrapper = styled.span`
   font-weight: bold;
   text-decoration: underline;
   color: ${Colors.primary};
+`;
+const StyledNoteItemLogMetadata = styled.div`
+  color: ${Colors.softText};
+`;
+const StyledNoteItemLogContent = styled.div`
+  color: ${Colors.darkestText};
 `;
 const StyledTooltip = styled(props => (
   <Tooltip classes={{ popper: props.className }} {...props}>
@@ -86,10 +94,13 @@ const ItemTooltip = ({ childNoteItems = [] }) => {
 
   return childNoteItems.map(noteItem => (
     <>
-      <span>{noteItem.author.displayName} </span>
-      {noteItem.onBehalfOf ? <span>on behalf of {noteItem.onBehalfOf.displayName} </span> : null}
-      <DateDisplay date={noteItem.date} showTime />
-      <p>{noteItem.content}</p>
+      <StyledNoteItemLogMetadata>
+        <span>{noteItem.author.displayName} </span>
+        {noteItem.onBehalfOf ? <span>on behalf of {noteItem.onBehalfOf.displayName} </span> : null}
+        <DateDisplay date={noteItem.date} showTime />
+      </StyledNoteItemLogMetadata>
+
+      <StyledNoteItemLogContent>{noteItem.content}</StyledNoteItemLogContent>
       <br />
     </>
   ));
@@ -99,25 +110,30 @@ const NoteItemMain = ({ noteItem }) => <span>{noteItem.content} </span>;
 
 const NoteItemSecondary = ({ noteItem, isEditting, onEditClick }) => {
   const [isTooltipOpen, setTooltipOpen] = useState(false);
+  const { currentUser } = useAuth();
 
   return (
     <StyledNoteItemSecondaryWrapper>
-      {!isEditting && <StyledEditIcon onClick={onEditClick} />}
+      {!isEditting && currentUser.id === noteItem.author.id && (
+        <StyledEditIcon onClick={onEditClick} />
+      )}
       <br />
       <>
         <span>{noteItem.author.displayName} </span>
         {noteItem.onBehalfOf ? <span>on behalf of {noteItem.onBehalfOf.displayName} </span> : null}
         <DateDisplay date={noteItem.date} showTime />
-        {noteItem?.noteItems?.length > 0 && <span> (edited) </span>}
         {noteItem?.noteItems?.length > 0 && (
-          <StyledTooltip
-            open={isTooltipOpen}
-            title={<ItemTooltip childNoteItems={noteItem.noteItems} />}
-          >
-            <StyledViewChangeLogWrapper onClick={() => setTooltipOpen(!isTooltipOpen)}>
-              View change log
-            </StyledViewChangeLogWrapper>
-          </StyledTooltip>
+          <>
+            <span> (edited) </span>
+            <StyledTooltip
+              open={isTooltipOpen}
+              title={<ItemTooltip childNoteItems={noteItem.noteItems} />}
+            >
+              <StyledViewChangeLogWrapper onClick={() => setTooltipOpen(!isTooltipOpen)}>
+                View change log
+              </StyledViewChangeLogWrapper>
+            </StyledTooltip>
+          </>
         )}
       </>
     </StyledNoteItemSecondaryWrapper>

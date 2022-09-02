@@ -111,7 +111,7 @@ export const NotePageModal = ({
 
       const newNoteItem = {
         authorId: currentUser.id,
-        onBehalfOfId: noteItem.authorId,
+        onBehalfOfId: noteItem.onBehalfOfId,
         revisedById: noteItem.revisedById || noteItem.id,
         content,
       };
