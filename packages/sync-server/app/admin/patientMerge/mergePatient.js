@@ -91,7 +91,7 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
       );
     }
 
-    log.info('patientMerge: starting', { keepPatientId, unwantedPatientId });
+    log.info('patientMerge: starting', { keepPatientId, unwantedPatientId, name: 'PatientMerge' });
 
     const updates = {};
 
@@ -132,7 +132,12 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
       await reconcilePatient(sequelize, keepPatientId);
     }
 
-    log.info('patientMerge: finished', { keepPatientId, unwantedPatientId, updates });
+    log.info('patientMerge: finished', {
+      keepPatientId,
+      unwantedPatientId,
+      updates,
+      name: 'PatientMerge'
+    });
 
     return {
       updates,

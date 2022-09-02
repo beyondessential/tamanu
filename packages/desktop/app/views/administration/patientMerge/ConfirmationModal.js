@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { ButtonRow, Button, OutlinedButton } from '../../../components';
-import { Modal } from '../../../components/Modal';
+import { ButtonRow, Button, OutlinedButton, Modal } from '../../../components';
 
 import { PatientSummary } from './PatientSummary';
 
@@ -12,7 +11,7 @@ const Red = styled.p`
 const ConfirmInstructions = () => (
   <div>
     <Red>Confirm merging of patients - this action is irreversible.</Red>
-    <p>{`Merging patients can't be undone. Please allow 24 hours for for this change to be synced
+    <p>{`Merging patients can't be undone. Please allow 24 hours for this change to be synced
       throughout the entire system.`}</p>
   </div>
 );
