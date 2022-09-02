@@ -470,18 +470,18 @@
           "hidden": false
         },
         "apgarScoreOneMinute": {
-          "shortLabel": "Apgar score 1 minute",
-          "longLabel": "Apgar score 1 minute",
+          "shortLabel": "Apgar score 1 min",
+          "longLabel": "Apgar score 1 min",
           "hidden": false
         },
         "apgarScoreFiveMinutes": {
-          "shortLabel": "Apgar score 5 minutes",
-          "longLabel": "Apgar score 5 minutes",
+          "shortLabel": "Apgar score 5 min",
+          "longLabel": "Apgar score 5 min",
           "hidden": false
         },
         "apgarScoreTenMinutes": {
-          "shortLabel": "Apgar score 10 minutes",
-          "longLabel": "Apgar score 10 minutes",
+          "shortLabel": "Apgar score 10 min",
+          "longLabel": "Apgar score 10 min",
           "hidden": false
         },
         "timeOfBirth": {

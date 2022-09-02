@@ -22,6 +22,7 @@ const MARKED_FOR_PUSH_MODELS = [
   'DocumentMetadata',
   'CertificateNotification',
   'PatientDeathData',
+  'PatientBirthData',
   'ContributingDeathCause',
 ];
 
