@@ -1,4 +1,3 @@
-
 export const ENCOUNTER_TAB_NAMES = {
   VITALS: 'vitals',
   NOTES: 'notes',

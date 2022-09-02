@@ -156,7 +156,9 @@ export const ImporterView = memo(({ title, endpoint, whitelist }) => {
     [api, endpoint],
   );
 
-  const renderForm = useCallback(props => <UploadForm whitelist={whitelist} {...props} />, [whitelist]);
+  const renderForm = useCallback(props => <UploadForm whitelist={whitelist} {...props} />, [
+    whitelist,
+  ]);
 
   return (
     <ContentPane>

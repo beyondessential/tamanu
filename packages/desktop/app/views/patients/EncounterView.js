@@ -38,7 +38,6 @@ const getConnectRoutedModal = ({ category, patientId, encounterId }, suffix) =>
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
 
-
 const TABS = [
   {
     label: 'Vitals',

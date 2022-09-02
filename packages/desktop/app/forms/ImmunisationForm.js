@@ -93,13 +93,7 @@ const findVaccinesByAdministeredStatus = (vaccine, administered) =>
     : [];
 
 export const ImmunisationForm = React.memo(
-  ({
-    onCancel,
-    onSubmit,
-    departmentSuggester,
-    getScheduledVaccines,
-    locationSuggester,
-  }) => {
+  ({ onCancel, onSubmit, departmentSuggester, getScheduledVaccines, locationSuggester }) => {
     const [vaccineOptions, setVaccineOptions] = useState([]);
     const [category, setCategory] = useState();
     const [vaccineLabel, setVaccineLabel] = useState();
