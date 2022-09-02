@@ -1,6 +1,7 @@
 import { VISIBILITY_STATUSES } from 'shared/constants';
 import { InvalidParameterError } from 'shared/errors';
 import { reconcilePatient } from '../../utils/removeDuplicatedPatientAdditionalData';
+import { log } from 'shared/services/logging';
 
 // These ones just need a patientId switched over.
 // Models included here will just have their patientId field
@@ -92,6 +93,8 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
       );
     }
 
+    log.info("patientMerge: starting", { keepPatientId, unwantedPatientId });
+
     const updates = {};
 
     // update core patient record
@@ -130,6 +133,8 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
       // this is the only different bit:
       await reconcilePatient(sequelize, keepPatientId);
     }
+
+    log.info("patientMerge: finished", { keepPatientId, unwantedPatientId, updates });
 
     return {
       updates,

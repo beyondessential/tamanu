@@ -11,6 +11,7 @@ import {
   PatientSummary,
   ConfirmationModal,
   MergeResultModal,
+  MergeErrorModal,
 } from '../app/views/administration/patientMerge';
 
 const baseDetails = {
@@ -64,6 +65,15 @@ storiesOf('Admin/PatientMerge', module)
       onBeginMerge={action('beginMerge')}
     />
   ))
+  .add('Patient search with error', () => (
+    <MockedApi endpoints={{ 
+      'admin/lookup/patient/:id': () => { throw new Error('Not found') }
+    }} >
+      <PatientMergeSearch 
+        onBeginMerge={action('beginMerge')}
+      />
+    </MockedApi>
+  ))
   .add('Patient summary', () => {
     const [selected, setSelected] = useState(false);
     return (
@@ -102,6 +112,12 @@ storiesOf('Admin/PatientMerge', module)
           PatientIssue: 3,
         }
       }}
+      onClose={action('close')}
+    />
+  ))
+  .add('Error modal', () => (
+    <MergeErrorModal
+      error={new Error("A test error occurred.")}
       onClose={action('close')}
     />
   ))

@@ -17,15 +17,21 @@ const Row = styled.div`
 export const PatientFetcher = ({ onPatientFound, label }) => {
   const [currentPatient, setCurrentPatient] = useState(null);
   const [searchText, setSearchText] = useState('');
+  const [error, setError] = useState(null);
 
   const api = useApi();
-
+  
   const onClick = useCallback(async () => {
     setCurrentPatient(null);
+    setError(null);
     onPatientFound(null);
-    const patient = await api.get(`admin/lookup/patient/${searchText}`);
-    setCurrentPatient(patient);
-    onPatientFound(patient);
+    try {
+      const patient = await api.get(`admin/lookup/patient/${searchText}`);
+      setCurrentPatient(patient);
+      onPatientFound(patient);
+    } catch (e) {
+      setError(e);
+    }
   });
 
   return (
@@ -34,6 +40,7 @@ export const PatientFetcher = ({ onPatientFound, label }) => {
         <TextInput label={label} value={searchText} onChange={e => setSearchText(e.target.value)} />
         <Button onClick={onClick}>Get</Button>
       </Row>
+      { error && <pre>{error.name}: {error.message}</pre>}
       <PatientSummary heading="Patient" patient={currentPatient || {}} />
     </div>
   );

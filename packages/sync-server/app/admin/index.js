@@ -27,16 +27,6 @@ adminRoutes.use(
   }),
 );
 
-adminRoutes.post(
-  '/importRefData',
-  createDataImporterEndpoint(refdataImporter, REFDATA_PERMISSIONS),
-);
-
-adminRoutes.post(
-  '/importProgram',
-  createDataImporterEndpoint(programImporter, PROGRAM_PERMISSIONS),
-);
-
 adminRoutes.post('/mergePatient', mergePatientHandler);
 
 // A temporary lookup-patient-by-displayId endpoint, just to 
@@ -48,14 +38,24 @@ adminRoutes.post('/mergePatient', mergePatientHandler);
 adminRoutes.get('/lookup/patient/:displayId', asyncHandler(async (req, res) => {
   // Note there is no permission check for this endpoint as it's mounted under the 
   // admin routes
-  const { models, params } = req;
-  const { displayId } = params;
-  const patient = await models.Patient.find({
+  const { Patient } = req.store.models;
+  const { displayId } = req.params;
+  const patient = await Patient.find({
     where: {
       displayId,
     },
-    include: model.getFullReferenceAssociations(),
+    include: Patient.getFullReferenceAssociations(),
   });
   if (!patient) throw new NotFoundError();
   res.send(patient);
 }));
+
+adminRoutes.post(
+  '/importRefData',
+  createDataImporterEndpoint(refdataImporter, REFDATA_PERMISSIONS),
+);
+
+adminRoutes.post(
+  '/importProgram',
+  createDataImporterEndpoint(programImporter, PROGRAM_PERMISSIONS),
+);

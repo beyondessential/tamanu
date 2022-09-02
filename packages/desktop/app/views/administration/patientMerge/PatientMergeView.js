@@ -3,6 +3,7 @@ import { ConfirmationModal } from './ConfirmationModal';
 import { KeepPatientDecisionForm } from './KeepPatientDecisionForm';
 import { PatientMergeSearch } from './PatientMergeSearch';
 import { MergeResultModal } from './MergeResultModal';
+import { MergeErrorModal } from './MergeErrorModal';
 import { useApi } from '../../../api';
 
 export const PatientMergeView = ({ fetchPatient }) => {
@@ -10,6 +11,7 @@ export const PatientMergeView = ({ fetchPatient }) => {
   const [patients, setPatients] = useState(null);
   const [mergePlan, setMergePlan] = useState(null);
   const [result, setResult] = useState(null);
+  const [mergeError, setMergeError] = useState(null);
 
   const clear = useCallback(() => {
     setPatients(null);
@@ -18,22 +20,29 @@ export const PatientMergeView = ({ fetchPatient }) => {
 
   const api = useApi();
   const onMergePatients = async () => {
-    const result = await api.post('admin/mergePatient', {
-      keepPatientId: mergePlan.keepPatient.id,
-      unwantedPatientId: mergePlan.removePatient.id,
-    });
-    setResult(result);
+    try {
+      const result = await api.post('admin/mergePatient', {
+        keepPatientId: mergePlan.keepPatient.id,
+        unwantedPatientId: mergePlan.removePatient.id,
+      });
+      setResult(result);
+    } catch(e) {
+      setMergeError(error);
+    }
   };
 
   const reset = () => {
     setPatients(null);
     setMergePlan(null);
     setRegenKey(Math.random());
+    setMergeError(null);
     setResult(null);
   };
 
   let modal = null;
-  if (result) {
+  if (mergeError) {
+    modal = <MergeErrorModal error={error} onClose={reset} />;
+  } else if (result) {
     modal = <MergeResultModal result={result} onClose={reset} />;
   } else if (mergePlan) {
     modal = (

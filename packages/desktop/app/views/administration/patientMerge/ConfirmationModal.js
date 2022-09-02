@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { ButtonRow, Button, OutlinedButton } from '../../../components';
 import { Modal } from '../../../components/Modal';
@@ -24,12 +24,18 @@ const Spacer = styled.div`
 `;
 
 export const ConfirmationModal = ({ mergePlan, onCancel, onBack, onConfirm }) => {
+  const [inProgress, setInProgress] = useState(false);
+  const onConfirmClicked = () => {
+    setInProgress(true);
+    onConfirm();
+  };
+
   const actions = (
     <ButtonRow>
-      <OutlinedButton onClick={onBack}>Back</OutlinedButton>
+      <OutlinedButton disabled={inProgress} onClick={onBack}>Back</OutlinedButton>
       <Spacer />
-      <OutlinedButton onClick={onCancel}>Cancel</OutlinedButton>
-      <Button onClick={onConfirm}>Confirm</Button>
+      <OutlinedButton disabled={inProgress} onClick={onCancel}>Cancel</OutlinedButton>
+      <Button disabled={inProgress} onClick={onConfirmClicked}>Confirm</Button>
     </ButtonRow>
   );
   return (
