@@ -3,7 +3,7 @@ import Sequelize, { QueryInterface } from 'sequelize';
 export async function up(query: QueryInterface): Promise<void> {
   await query.createTable('note_items', {
     id: {
-      type: Sequelize.STRING,
+      type: Sequelize.UUID,
       allowNull: false,
       primaryKey: true,
       defaultValue: Sequelize.UUIDV4,
@@ -23,7 +23,7 @@ export async function up(query: QueryInterface): Promise<void> {
       allowNull: true,
     },
     note_page_id: {
-      type: Sequelize.STRING,
+      type: Sequelize.UUID,
       references: {
         model: 'note_pages',
         key: 'id',
