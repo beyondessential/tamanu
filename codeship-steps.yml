@@ -11,13 +11,16 @@
     - name: run migrations
       service: app-with-db
       command: scripts/apply_and_revert_sync_server_migrations.sh
-    - name: lint (on PR branches)
+    - name: hygiene checks (on PR branches)
       type: parallel
       exclude: ^(master$|dev$|staging-|ci-|uat-)
       steps:
-        - name: the desktop app and servers
+        - name: lint desktop app and servers
           service: app-without-db
           command: scripts/lint.sh pr-lints
+        - name: ensure storybook builds
+          service: app-without-db
+          command: "yarn workspace desktop run verify-storybook"
         # - TODO(WAITM-215): mobile lints
     - name: test
       type: serial

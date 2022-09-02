@@ -47,7 +47,10 @@ select
   else 'Standard'
   end as "Priority",
   ir.imaging_type as "Imaging type",
-  n.content as "Area to be imaged",
+  case
+    when ira.id is not null then rdi.name
+    else n.content
+    end as "Area to be imaged",
   ir.status as "Status"
 from
   imaging_requests ir
@@ -60,10 +63,12 @@ from
   left join users u_supervising on u_supervising.id=e.examiner_id
   left join users u_requesting on u_requesting.id=ir.requested_by_id
   left join notes n on n.record_id = ir.id
+  left join imaging_request_areas ira on ira.imaging_request_id = ir.id
+  left join reference_data rdi on rdi.id = ira.area_id
 where
-  n.note_type = 'areaToBeImaged' or n.note_type is null
-  and case when :from_date is not null then e.start_date::date >= :from_date::date else true end
-  and case when :to_date is not null then e.start_date::date <= :to_date::date else true end
+  case when ira.id is null then (n.note_type = 'areaToBeImaged' OR n.id is null) else true end
+  and case when :from_date is not null then ir.requested_date::date >= :from_date::date else true end
+  and case when :to_date is not null then ir.requested_date::date <= :to_date::date else true end
   and case when :requested_by_id is not null then ir.requested_by_id = :requested_by_id else true end
   and case when :imaging_type is not null then ir.imaging_type = :imaging_type else true end
   and case when :status is not null then ir.status = :status else true end

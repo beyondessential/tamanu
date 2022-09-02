@@ -48,32 +48,35 @@ const reportColumnTemplate = FIELDS.map(field => ({
 
 const query = `
 with
-	other_causes as (
-		select id,
-			max(case when rnum = 1 then time_after_onset end) as "Time between onset of cause and death",
-       		max(case when rnum = 1 then name end) as "Other contributing conditions 1",
-       		max(case when rnum = 2 then name end) as "Other contributing conditions 2",
-       		max(case when rnum = 3 then name end) as "Other contributing conditions 3",
-       		max(case when rnum = 4 then name end) as "Other contributing conditions 4"
-		from (
-			select pdd.id,
-				dc.time_after_onset,
-				rd.name,
-				row_number() OVER (PARTITION BY pdd.id ORDER BY dc.created_at) as rnum
-			from patient_death_data pdd
-			left join contributing_death_causes dc on dc.patient_death_data_id = pdd.id
-			left join reference_data rd on rd.id=dc.condition_id
-			where dc.id not in (SELECT DISTINCT unnest(string_to_array(pdd2.primary_cause_condition_id || '#' || pdd2.antecedent_cause1_condition_id || '#' || pdd2.antecedent_cause2_condition_id, '#')) FROM patient_death_data pdd2 )
-			order by pdd.id, rnum
+  other_causes as (
+    select
+      id,
+      max(case when rnum = 1 then time_after_onset end) as "Time between onset of cause and death",
+      max(case when rnum = 1 then name end) as "Other contributing conditions 1",
+      max(case when rnum = 2 then name end) as "Other contributing conditions 2",
+      max(case when rnum = 3 then name end) as "Other contributing conditions 3",
+      max(case when rnum = 4 then name end) as "Other contributing conditions 4"
+    from (
+      select
+        pdd.id,
+        dc.time_after_onset,
+        rd.name,
+        row_number() OVER (PARTITION BY pdd.id ORDER BY dc.created_at) as rnum
+      from
+        patient_death_data pdd
+        left join contributing_death_causes dc on dc.patient_death_data_id = pdd.id
+        left join reference_data rd on rd.id=dc.condition_id
+      where dc.id not in (SELECT DISTINCT unnest(string_to_array(pdd2.primary_cause_condition_id || '#' || pdd2.antecedent_cause1_condition_id || '#' || pdd2.antecedent_cause2_condition_id, '#')) FROM patient_death_data pdd2 )
+      order by pdd.id, rnum
     ) as d
     group by d.id
-	)
+  )
 select distinct on (p.date_of_death, p.id)
   p.display_id as "Patient ID",
   p.first_name  as "Patient first name",
   p.last_name as "Patient last name",
   p.date_of_birth as "DOB",
-  age(p.date_of_death,p.date_of_birth) as "Age",
+  age(p.date_of_death::date, p.date_of_birth) as "Age",
   p.sex as "Sex",
   village.name as "Village",
   nationality.name as "Nationality",
@@ -81,7 +84,7 @@ select distinct on (p.date_of_death, p.id)
     when pdd.facility_id is not null
     then f.name
     else 'Died outside health facility'
-		end as "Place of Death",
+    end as "Place of Death",
   department.name as "Department",
   loc.name as "Location",
   to_char(p.date_of_death::timestamp, 'dd/mm/yyyy HH12:MI AM') as "Date and time of death",
@@ -129,8 +132,8 @@ from
   left join reference_data rd7 on rd7.id=pdd.carrier_existing_condition_id
 where
   to_char(e.end_date::timestamp::date, 'dd/mm/yyyy') = to_char(p.date_of_death::timestamp::date, 'dd/mm/yyyy')
-  and case when :from_date is not null then e.start_date::date >= :from_date::date else true end
-  and case when :to_date is not null then e.start_date::date <= :to_date::date else true end
+  and case when :from_date is not null then p.date_of_death::date >= :from_date::date else true end
+  and case when :to_date is not null then p.date_of_death::date <= :to_date::date else true end
   and case when :cause_of_death is not null then rd4.id = :cause_of_death else true end
   and case when :antecedent_cause is not null then (rd5.id = :antecedent_cause OR rd6.id = :antecedent_cause) else true end
   and case when :other_contributing_condition is not null then os.id = :other_contributing_condition else true end
