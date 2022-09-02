@@ -53,6 +53,8 @@ export class ReportRequestProcessor extends ScheduledTask {
         request.parameters,
         '--recipients',
         request.recipients,
+        '--user',
+        request.requestedByUserId,
       ],
       {
         timeout: REPORT_TIME_OUT_DURATION_MILLISECONDS,
@@ -118,6 +120,7 @@ export class ReportRequestProcessor extends ScheduledTask {
       request.getRecipients(),
       this.context.store,
       this.context.emailService,
+      request.requestedByUserId,
     );
 
     await reportRunner.run();

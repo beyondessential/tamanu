@@ -1,6 +1,12 @@
 import config from 'config';
 
-import { ICAO_DOCUMENT_TYPES, CERTIFICATE_NOTIFICATION_STATUSES } from 'shared/constants';
+import { Op } from 'sequelize';
+import {
+  ICAO_DOCUMENT_TYPES,
+  LAB_REQUEST_STATUSES,
+  COVID_19_CLEARANCE_CERTIFICATE,
+  CERTIFICATE_NOTIFICATION_STATUSES,
+} from 'shared/constants';
 import { log } from 'shared/services/logging';
 import { ScheduledTask } from 'shared/tasks';
 import { getPatientSurveyResponseAnswer } from 'shared/utils';
@@ -21,7 +27,7 @@ export class LabRequestNotificationGenerator extends ScheduledTask {
     const { CertificateNotification, LabRequest } = this.context.store.models;
     return LabRequest.count({
       where: {
-        status: 'published',
+        status: LAB_REQUEST_STATUSES.PUBLISHED,
         '$certificate_notification.id$': null,
       },
       include: [
@@ -29,6 +35,11 @@ export class LabRequestNotificationGenerator extends ScheduledTask {
           model: CertificateNotification,
           as: 'certificate_notification',
           required: false,
+          where: {
+            type: {
+              [Op.ne]: COVID_19_CLEARANCE_CERTIFICATE,
+            },
+          },
         },
       ],
     });
@@ -72,7 +83,8 @@ export class LabRequestNotificationGenerator extends ScheduledTask {
         type: ICAO_DOCUMENT_TYPES.PROOF_OF_TESTING.JSON,
         requiresSigning: false,
         patientId: labRequest.encounter.patientId,
-        // If forward address is null, the communication service will attempt to use the patient.email field
+        // If forward address is null, the communication service will
+        // attempt to use the patient.email field
         forwardAddress: emailAddress,
         // Queue up emails for white listed categories
         status: categories.includes(labRequest.labTestCategoryId)

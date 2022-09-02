@@ -21,6 +21,9 @@ export async function initDatabase({ testMode = false }) {
   // drop and recreate db
   if (testMode) {
     await store.sequelize.drop({});
+    // sequelize sync doesn't interpret and create custom types
+    await store.sequelize.query(`CREATE DOMAIN date_time_string as CHAR(19)`);
+    await store.sequelize.query(`CREATE DOMAIN date_string as CHAR(10)`);
     await store.sequelize.sync({});
   }
 

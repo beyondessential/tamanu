@@ -101,7 +101,7 @@ const StyledTextSpan = styled.span`
   color: ${props => (props.color ? props.color : Colors.darkText)};
 `;
 
-/* 
+/*
 A custom check field was needed because the label resides on
 the table headers and there is a need to display two text descriptions
 alongside the checkbox with different stylings.
@@ -184,7 +184,12 @@ const EncounterOverview = ({
   );
 };
 
-export const DischargeForm = ({ practitionerSuggester, onCancel, onSubmit }) => {
+export const DischargeForm = ({
+  dispositionSuggester,
+  practitionerSuggester,
+  onCancel,
+  onSubmit,
+}) => {
   const { encounter } = useEncounter();
   const [dischargeNotes, setDischargeNotes] = useState([]);
   const api = useApi();
@@ -223,6 +228,13 @@ export const DischargeForm = ({ practitionerSuggester, onCancel, onSubmit }) => 
           label="Discharging physician"
           component={AutocompleteField}
           suggester={practitionerSuggester}
+          required
+        />
+        <Field
+          name="discharge.dispositionId"
+          label="Discharge disposition"
+          component={AutocompleteField}
+          suggester={dispositionSuggester}
           required
         />
         <OuterLabelFieldWrapper label="Discharge medications" style={{ gridColumn: '1 / -1' }}>
