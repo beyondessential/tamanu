@@ -8,6 +8,7 @@ const Row = styled.div`
   align-items: stretch;
   justify-content: flex-end;
   margin-top: 10px;
+  width: 100%;
 
   // ensure the button row takes up the full width if it's used in a grid context
   grid-column: 1 / -1;

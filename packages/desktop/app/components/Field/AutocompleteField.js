@@ -35,6 +35,7 @@ const SuggestionsList = styled(Paper)`
 
     .MuiButtonBase-root {
       padding: 12px 12px 12px 20px;
+      white-space: normal;
 
       .MuiTypography-root {
         font-size: 14px;

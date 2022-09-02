@@ -22,6 +22,7 @@ export const MODEL_DEPENDENCY_ORDER = [
   'PatientSecondaryId',
 
   'PatientDeathData',
+  'PatientBirthData',
   'ContributingDeathCause',
 
   'EncounterDiagnosis',

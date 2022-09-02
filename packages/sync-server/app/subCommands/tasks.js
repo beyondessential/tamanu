@@ -4,10 +4,10 @@ import { log } from 'shared/services/logging';
 
 import { ApplicationContext } from '../ApplicationContext';
 import { startScheduledTasks } from '../tasks';
-import { version } from '../../package.json';
+import pkg from '../../package.json';
 
 export const tasks = async ({ skipMigrationCheck }) => {
-  log.info(`Starting sync tasks runner version ${version}.`);
+  log.info(`Starting sync tasks runner version ${pkg.version}.`);
 
   const context = await new ApplicationContext().init();
   const { store } = context;
@@ -16,7 +16,7 @@ export const tasks = async ({ skipMigrationCheck }) => {
 
   const stopScheduledTasks = await startScheduledTasks(context);
   for (const sig of ['SIGINT', 'SIGTERM']) {
-    process.on(sig, () => {
+    process.once(sig, () => {
       log.info(`Received ${sig}, stopping scheduled tasks`);
       stopScheduledTasks();
     });

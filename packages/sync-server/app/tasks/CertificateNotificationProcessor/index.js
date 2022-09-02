@@ -7,14 +7,13 @@ import {
   PATIENT_COMMUNICATION_TYPES,
   ICAO_DOCUMENT_TYPES,
   CERTIFICATE_NOTIFICATION_STATUSES,
+  COVID_19_CLEARANCE_CERTIFICATE,
 } from 'shared/constants';
 import { log } from 'shared/services/logging';
 import { ScheduledTask } from 'shared/tasks';
 import { generateUVCI } from 'shared/utils/uvci';
-import {
-  makeVaccineCertificate,
-  makeCovidTestCertificate,
-} from '../../utils/makePatientCertificate';
+import { CertificateTypes } from 'shared/utils/patientCertificates';
+import { makeVaccineCertificate, makeCovidCertificate } from '../../utils/makePatientCertificate';
 import { getLocalisation } from '../../localisation';
 import { createVdsNcVaccinationData, VdsNcDocument } from '../../integrations/VdsNc';
 import { createEuDccVaccinationData, HCERTPack } from '../../integrations/EuDcc';
@@ -150,9 +149,28 @@ export class CertificateNotificationProcessor extends ScheduledTask {
             }
 
             sublog.info('Generating test certificate PDF');
-            pdf = await makeCovidTestCertificate(patient, printedBy, models, qrData);
+            pdf = await makeCovidCertificate(
+              CertificateTypes.test,
+              patient,
+              printedBy,
+              models,
+              qrData,
+            );
             break;
           }
+
+          case COVID_19_CLEARANCE_CERTIFICATE:
+            template = 'covidClearanceCertificateEmail';
+
+            sublog.info('Generating clearance certificate PDF');
+            pdf = await makeCovidCertificate(
+              CertificateTypes.clearance,
+              patient,
+              printedBy,
+              models,
+              qrData,
+            );
+            break;
 
           default:
             throw new Error(`Unknown certificate type ${type}`);
