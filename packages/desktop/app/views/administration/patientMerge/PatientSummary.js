@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import { theme } from '../../../theme';
 import { DateDisplay } from '../../../components/DateDisplay';
+import { SEX_VALUE_INDEX } from '../../../constants';
 
 const Label = styled.span`
   color: ${theme.palette.text.tertiary};
@@ -56,8 +57,6 @@ const Columns = styled.div`
   }
 `;
 
-const getDisplaySex = s => s; // TODO
-
 export const PatientSummary = ({
   heading = 'Patient details',
   patient = {},
@@ -77,7 +76,7 @@ export const PatientSummary = ({
       </div>
       <div>
         <LabelledValue label="Village" value={patient.village?.name} />
-        <LabelledValue label="Sex" value={getDisplaySex(patient.sex)} />
+        <LabelledValue label="Sex" value={SEX_VALUE_INDEX[patient.sex]?.label} />
         <LabelledValue label="Date of birth" value={<DateDisplay date={patient.dateOfBirth} />} />
       </div>
     </Columns>

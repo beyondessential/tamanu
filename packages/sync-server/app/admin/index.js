@@ -44,7 +44,7 @@ adminRoutes.get('/lookup/patient/:displayId', asyncHandler(async (req, res) => {
     where: {
       displayId,
     },
-    include: Patient.getFullReferenceAssociations(),
+    include: ['village'],
   });
   if (!patient) throw new NotFoundError(`Could not find patient with display ID ${displayId}.`);
   res.send(patient);
