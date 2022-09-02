@@ -1,5 +1,4 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 import { NoteItem } from './NoteItem';
 import { NOTE_RECORD_TYPE_VALUES, NOTE_TYPE_VALUES } from '../constants';
@@ -25,7 +24,9 @@ export class NotePage extends Model {
       },
       {
         ...options,
-        syncConfig: { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
+        syncConfig: {
+          includedRelations: ['noteItems'],
+        },
         validate: {
           mustHaveValidRelationType() {
             if (!NOTE_RECORD_TYPE_VALUES.includes(this.recordType)) {
@@ -42,18 +43,6 @@ export class NotePage extends Model {
     );
   }
 
-  static async createForRecord(record, type, content) {
-    await NotePage.create({
-      recordId: record.id,
-      recordType: record.getModelName(),
-      type,
-    });
-
-    return NoteItem.create({
-      content,
-    });
-  }
-
   static initRelations(models) {
     NOTE_RECORD_TYPE_VALUES.forEach(modelName => {
       this.belongsTo(models[modelName], {
@@ -67,5 +56,58 @@ export class NotePage extends Model {
       as: 'noteItems',
       constraints: false,
     });
+  }
+
+  /**
+   * This is a util method that combines the NotePage instance with its single associated NoteItem.
+   * This method should only be used for records that always only have 1 note item attached it.
+   * Eg: LabRequest, PatientCarePlan
+   * @param {*} models
+   * @returns
+   */
+  async getCombinedNoteObject(models) {
+    const noteItem = await models.NoteItem.findOne({
+      include: [
+        { model: models.User, as: 'author' },
+        { model: models.User, as: 'onBehalfOf' },
+      ],
+      where: {
+        notePageId: this.id,
+      },
+    });
+
+    return {
+      ...noteItem.toJSON(),
+      id: this.id,
+      recordType: this.recordType,
+      recordId: this.recordId,
+      noteType: this.noteType,
+    };
+  }
+
+  static async createForRecord(recordId, recordType, noteType, content, authorId) {
+    const notePage = await NotePage.create({
+      recordId,
+      recordType,
+      noteType,
+      date: Date.now(),
+    });
+
+    await NoteItem.create({
+      notePageId: notePage.id,
+      content,
+      date: Date.now(),
+      authorId,
+    });
+
+    return notePage;
+  }
+
+  async getParentRecord(options) {
+    if (!this.recordType) {
+      return null;
+    }
+    const parentGetter = `get${this.recordType}`;
+    return this[parentGetter](options);
   }
 }

@@ -1,5 +1,4 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS } from 'shared/constants';
 
 import { Model } from './Model';
 
@@ -25,7 +24,6 @@ export class NoteItem extends Model {
       },
       {
         ...options,
-        syncConfig: { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
         validate: {
           mustHaveContent() {
             if (!this.content) {
@@ -40,7 +38,7 @@ export class NoteItem extends Model {
   static initRelations(models) {
     this.belongsTo(models.NotePage, {
       foreignKey: 'notePageId',
-      as: 'notes',
+      as: 'notePages',
     });
 
     this.belongsTo(models.User, {

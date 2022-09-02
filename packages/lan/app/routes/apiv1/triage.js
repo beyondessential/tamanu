@@ -38,8 +38,10 @@ triage.post(
     // The triage form groups notes as a single string for submission
     // so put it into a single note record
     if (notes) {
-      await triageRecord.createNote({
+      const notePage = await triageRecord.createNotePage({
         noteType: NOTE_TYPES.OTHER,
+      });
+      await notePage.createNoteItem({
         content: notes,
       });
     }

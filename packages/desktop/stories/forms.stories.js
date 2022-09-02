@@ -27,7 +27,6 @@ import { ReferralForm } from '../app/forms/ReferralForm';
 import { MedicationForm } from '../app/forms/MedicationForm';
 import { DeathForm } from '../app/forms/DeathForm';
 import { FamilyHistoryForm } from '../app/forms/FamilyHistoryForm';
-import { NoteForm } from '../app/forms/NoteForm';
 import { createDummySuggester, mapToSuggestions } from './utils';
 import { TestSelectorInput } from '../app/components/TestSelector';
 import { Modal } from '../app/components/Modal';
@@ -119,10 +118,6 @@ storiesOf('Forms/VisitForm', module)
       editedObject={createDummyVisit()}
     />
   ));
-
-storiesOf('Forms', module).add('NoteForm', () => (
-  <NoteForm onSubmit={action('submit')} practitionerSuggester={practitionerSuggester} />
-));
 
 storiesOf('Forms', module).add('TriageForm', () => (
   <TriageForm
