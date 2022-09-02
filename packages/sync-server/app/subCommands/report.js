@@ -74,7 +74,7 @@ async function report(options) {
       userId,
     );
     log.info(
-      `Running report "${reportId}" with parameters "${parameters}" and recipients "${recipients}"`,
+      `Running report "${reportId}" with parameters "${parameters}", recipients "${recipients}" and userId ${userId}`,
     );
     await reportRunner.run();
   } catch (error) {

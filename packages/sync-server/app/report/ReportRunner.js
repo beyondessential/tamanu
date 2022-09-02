@@ -51,7 +51,7 @@ export class ReportRunner {
 
   /**
    *
-   * @returns {Promise<(string[]|(string|string)[]|(string|*)[])[]>}
+   * @returns {Promise<string[][]>}
    */
   async getMetadata() {
     const user = await this.getRequestedByUser();
