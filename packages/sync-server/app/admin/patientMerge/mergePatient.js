@@ -29,14 +29,14 @@ const simpleUpdateModels = [
 const specificUpdateModels = ['Patient', 'PatientAdditionalData'];
 
 const fieldReferencesPatient = field => field.references?.model === 'patients';
-const modelReferencesPatient = ([name, model]) =>
+const modelReferencesPatient = ([, model]) =>
   Object.values(model.getAttributes()).some(fieldReferencesPatient);
 
 export async function getTablesWithNoMergeCoverage(models) {
   const modelsToUpdate = Object.entries(models).filter(modelReferencesPatient);
 
   const coveredModels = [...simpleUpdateModels, ...specificUpdateModels];
-  const missingModels = modelsToUpdate.filter(([name, model]) => !coveredModels.includes(name));
+  const missingModels = modelsToUpdate.filter(([name]) => !coveredModels.includes(name));
 
   return missingModels;
 }
@@ -50,7 +50,7 @@ async function simpleMergeRecordAcross(model, keepPatientId, unwantedPatientId) 
   // two patients are the same person, we're not meaningfully *updating* data 
   // here, we're correcting it.
   const tableName = model.getTableName();
-  const [records, result] = await model.sequelize.query(
+  const [, result] = await model.sequelize.query( // ignoring the first returned element, # records
     `
     UPDATE ${tableName} 
     SET 
