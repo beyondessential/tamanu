@@ -5,7 +5,7 @@ import { generateReportFromQueryData } from './utilities';
 // Creates a string with the time unit that it was added
 // when registering the field. See TimeWithUnitField component.
 const parseWithTimeUnit = valueInMinutes => {
-  if (!valueInMinutes) return null;
+  if (!valueInMinutes) return '0 minutes';
 
   const option = TIME_UNIT_OPTIONS.sort((a, b) => b.minutes - a.minutes).find(
     o => valueInMinutes % o.minutes === 0,
