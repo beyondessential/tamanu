@@ -62,6 +62,9 @@ const StyledTooltip = styled(props => (
     {props.children}
   </Tooltip>
 ))`
+  z-index: 1500;
+  pointer-events: auto;
+
   & .MuiTooltip-tooltip {
     background-color: ${Colors.white};
     color: ${Colors.darkText};
@@ -72,7 +75,7 @@ const StyledTooltip = styled(props => (
     white-space: pre-line;
     cursor: pointer;
     max-height: 700px;
-    width: 500px;
+    max-width: 700px;
   }
 `;
 

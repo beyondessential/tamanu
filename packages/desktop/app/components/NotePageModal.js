@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import moment from 'moment';
 import { groupBy } from 'lodash';
 import { NOTE_RECORD_TYPES } from 'shared/constants';
 
@@ -29,19 +28,19 @@ const groupNoteItems = noteItems => {
 
   // noteItemByRevisedId.root should never be empty but just in case
   if (noteItemByRevisedId.root) {
-    noteItemByRevisedId.root.forEach(rootNoteItem => {
-      let newRootNodeItem = { ...rootNoteItem };
-      let childNoteItems = noteItemByRevisedId[rootNoteItem.id];
-      if (childNoteItems?.length) {
-        childNoteItems = childNoteItems.sort((a, b) =>
-          moment(a.createdAt).isBefore(b.createdAt) ? 1 : -1,
-        );
-        childNoteItems = [...childNoteItems, newRootNodeItem];
-        newRootNodeItem = childNoteItems.shift();
-      }
-      newRootNodeItem.noteItems = childNoteItems;
-      rootNoteItems.push(newRootNodeItem);
-    });
+    noteItemByRevisedId.root
+      .sort((n1, n2) => n1.date.localeCompare(n2.date))
+      .forEach(rootNoteItem => {
+        let newRootNodeItem = { ...rootNoteItem };
+        let childNoteItems = noteItemByRevisedId[rootNoteItem.id];
+        if (childNoteItems?.length) {
+          childNoteItems = childNoteItems.sort((n1, n2) => n2.date.localeCompare(n1.date));
+          childNoteItems = [...childNoteItems, newRootNodeItem];
+          newRootNodeItem = childNoteItems.shift();
+        }
+        newRootNodeItem.noteItems = childNoteItems;
+        rootNoteItems.push(newRootNodeItem);
+      });
   }
 
   return rootNoteItems;

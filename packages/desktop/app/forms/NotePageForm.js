@@ -76,7 +76,12 @@ export const NotePageForm = ({
       </StyledFormGrid>
 
       <Field name="content" label="Add note" required component={TextField} multiline rows={6} />
-      <ConfirmCancelRow onConfirm={submitForm} confirmText="Save" onCancel={onCancel} />
+      <ConfirmCancelRow
+        onConfirm={submitForm}
+        confirmText="Add note"
+        cancelText="Close"
+        onCancel={onCancel}
+      />
     </>
   );
 
