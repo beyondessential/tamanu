@@ -10,6 +10,7 @@ const ALLOWLIST = [
   'country',
   'department',
   'diagnosis',
+  'dischargeDisposition',
   'division',
   'drug',
   'ethnicity',

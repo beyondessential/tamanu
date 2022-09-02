@@ -170,6 +170,7 @@ export const REFERENCE_TYPES = {
   PATIENT_BILLING_TYPE: 'patientBillingType',
   MANUFACTURER: 'manufacturer',
   SECONDARY_ID_TYPE: 'secondaryIdType',
+  DISCHARGE_DISPOSITION: 'dischargeDisposition',
   ...IMAGING_AREA_TYPES,
 };
 
