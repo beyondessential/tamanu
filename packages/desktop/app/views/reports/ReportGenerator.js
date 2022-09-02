@@ -1,45 +1,35 @@
 import React, { useState } from 'react';
-import { Grid } from '@material-ui/core';
 import { green } from '@material-ui/core/colors';
 import styled from 'styled-components';
 import { Button, PageContainer, TopBar, ContentPane } from '../../components';
-import { MUI_SPACING_UNIT } from '../../constants';
+import { Colors } from '../../constants';
 import { ReportGeneratorForm } from './ReportGeneratorForm';
 
-const SuccessMessageContainer = styled(Grid)`
-  padding: ${MUI_SPACING_UNIT * 2}px ${MUI_SPACING_UNIT * 3}px;
-  background-color: ${green[50]};
+const ContentContainer = styled.div`
+  background: ${props => (props.submitted ? green[50] : Colors.white)};
+  padding: 32px 30px;
+  border: 1px solid ${Colors.outline};
 `;
 
-const SuccessfulSubmitMessage = ({ resetForm }) => (
-  <SuccessMessageContainer>
-    <Button variant="outlined" color="primary" onClick={resetForm}>
-      Generate another report
-    </Button>
-  </SuccessMessageContainer>
-);
-
 export const ReportGenerator = () => {
-  const [formState, setFormState] = useState('initial');
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmitted = () => setSubmitted(true);
+  const handleReset = () => setSubmitted(false);
 
   return (
     <PageContainer>
       <TopBar title="Report generator" />
       <ContentPane>
-        {formState === 'initial' && (
-          <ReportGeneratorForm
-            onSuccessfulSubmit={() => {
-              setFormState('submitted');
-            }}
-          />
-        )}
-        {formState === 'submitted' && (
-          <SuccessfulSubmitMessage
-            resetForm={() => {
-              setFormState('initial');
-            }}
-          />
-        )}
+        <ContentContainer submitted={submitted}>
+          {submitted ? (
+            <Button variant="contained" color="primary" onClick={handleReset}>
+              Generate another report
+            </Button>
+          ) : (
+            <ReportGeneratorForm onSuccessfulSubmit={handleSubmitted} />
+          )}
+        </ContentContainer>
       </ContentPane>
     </PageContainer>
   );
