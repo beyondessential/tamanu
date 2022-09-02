@@ -4,7 +4,28 @@ import * as reportUtils from 'shared/reports';
 import { log } from 'shared/services/logging/log';
 import { assertReportEnabled } from '../../utils/assertReportEnabled';
 
+export const REPORT_TYPES = {
+  FACILITY: 'facility',
+  ALL: 'all',
+};
+
+const REPORT_TYPE_LOG_NAMES = {
+  [REPORT_TYPES.FACILITY]: 'FacilityReport',
+  [REPORT_TYPES.ALL]: 'AllFacilitiesReport',
+};
+
+export const logReportError = (type, message, reportId, userId, e) => {
+  const name = REPORT_TYPE_LOG_NAMES[type];
+  log.error(`${name} - ${message}`, {
+    name,
+    reportId,
+    userId,
+    stack: e?.stack,
+  });
+};
+
 export const reports = express.Router();
+
 reports.get(
   '/$',
   asyncHandler(async (req, res) => {
@@ -58,6 +79,7 @@ reports.post(
       db,
       models,
       body: { parameters },
+      user,
       params,
       getLocalisation,
     } = req;
@@ -70,7 +92,7 @@ reports.post(
     const reportModule = await reportUtils.getReportModule(reportId, models);
 
     if (!reportModule) {
-      log.error('FacilityReportError - Report module not found', { reportId });
+      logReportError(REPORT_TYPES.FACILITY, 'Report module not found', reportId, user.id);
       res.status(400).send({ error: { message: 'invalid reportId' } });
       return;
     }
@@ -81,10 +103,13 @@ reports.post(
       const excelData = await reportModule.dataGenerator({ sequelize: db, models }, parameters);
       res.send(excelData);
     } catch (e) {
-      log.error('FacilityReportError - Report module failed to generate data', {
+      logReportError(
+        REPORT_TYPES.FACILITY,
+        'Report module failed to generate data',
         reportId,
-      });
-      log.error(e.stack);
+        user.id,
+        e,
+      );
       res.status(400).send({
         error: {
           message: e.message,

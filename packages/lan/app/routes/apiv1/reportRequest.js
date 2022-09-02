@@ -2,7 +2,9 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { REPORT_REQUEST_STATUSES } from 'shared/constants';
 import { getReportModule } from 'shared/reports';
+import { log } from 'shared/services/logging/log';
 import { assertReportEnabled } from '../../utils/assertReportEnabled';
+import { logReportError, REPORT_TYPES } from './reports';
 
 export const reportRequest = express.Router();
 
@@ -15,7 +17,8 @@ reportRequest.post(
 
     req.checkPermission('create', 'ReportRequest');
     if (!reportId) {
-      res.status(400).send({ message: 'reportId missing' });
+      logReportError(REPORT_TYPES.ALL, 'Report id not specified', user.id);
+      res.status(400).send({ error: { message: 'reportId missing' } });
       return;
     }
 
@@ -25,7 +28,8 @@ reportRequest.post(
     const reportModule = await getReportModule(reportId, models);
 
     if (!reportModule) {
-      res.status(400).send({ message: 'invalid reportId' });
+      log.error(REPORT_TYPES.FACILITY, 'Report module not found', user.id, reportId);
+      res.status(400).send({ error: { message: 'invalid reportId' } });
       return;
     }
 
