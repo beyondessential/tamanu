@@ -107,8 +107,16 @@ select distinct on (p.date_of_death, p.id)
     then f.name
     else 'Died outside health facility'
     end as "Place of Death",
-  department.name as "Department",
-  loc.name as "Location",
+  case
+    when pdd.facility_id is not null
+    then department.name
+    else null
+    end as "Department",
+  case
+    when pdd.facility_id is not null
+    then loc.name
+    else null
+    end as "Location",
   to_char(p.date_of_death::timestamp, 'dd/mm/yyyy HH12:MI AM') as "Date and time of death",
   u.display_name as "Attending clinician",
   rd4.name as "Cause of death",
