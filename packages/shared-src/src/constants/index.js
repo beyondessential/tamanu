@@ -54,13 +54,33 @@ export const LAB_REQUEST_STATUS_OPTIONS = Object.values(LAB_REQUEST_STATUSES)
 
 export const LAB_TEST_STATUSES = LAB_REQUEST_STATUSES;
 
+export const NOTE_RECORD_TYPES = {
+  ENCOUNTER: 'Encounter',
+  PATIENT: 'Patient',
+  TRIAGE: 'Triage',
+  PATIENT_CARE_PLAN: 'PatientCarePlan',
+  LAB_REQUEST: 'LabRequest',
+  IMAGING_REQUEST: 'ImagingRequest',
+};
+
 export const NOTE_TYPES = {
-  SYSTEM: 'system',
-  OTHER: 'other',
   TREATMENT_PLAN: 'treatmentPlan',
+  MEDICAL: 'medical',
+  SURGICAL: 'surgical',
+  NURSING: 'nursing',
+  DIETARY: 'dietary',
+  PHARMACY: 'pharmacy',
+  PHYSIOTHERAPY: 'physiotherapy',
+  SOCIAL: 'social',
+  DISCHARGE: 'discharge',
   AREA_TO_BE_IMAGED: 'areaToBeImaged',
   RESULT_DESCRIPTION: 'resultDescription',
+  SYSTEM: 'system',
+  OTHER: 'other',
 };
+
+export const NOTE_RECORD_TYPE_VALUES = Object.values(NOTE_RECORD_TYPES);
+export const NOTE_TYPE_VALUES = Object.values(NOTE_TYPES);
 
 export const PATIENT_ISSUE_TYPES = {
   ISSUE: 'issue',

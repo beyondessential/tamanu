@@ -3,36 +3,29 @@ import React, { useCallback, useState } from 'react';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { noteTypes } from '../constants';
-import { NoteModal } from './NoteModal';
+import { NotePageModal } from './NotePageModal';
 
 const getTypeLabel = ({ noteType }) => noteTypes.find(x => x.value === noteType).label;
+const getContent = ({ noteItems }) => noteItems[0]?.content || '';
 
 const COLUMNS = [
   { key: 'date', title: 'Date', accessor: ({ date }) => <DateDisplay date={date} showTime /> },
   { key: 'noteType', title: 'Type', accessor: getTypeLabel },
-  { key: 'content', title: 'Content', maxWidth: 300 },
+  { key: 'content', title: 'Content', maxWidth: 300, accessor: getContent },
 ];
 
-export const NoteTable = ({ encounterId }) => {
-  const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
+export const NotePageTable = ({ encounterId }) => {
+  const [isNotePageModalOpen, setNotePageModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState('');
   const [refreshCount, setRefreshCount] = useState(0);
-  const [noteId, setNoteId] = useState(null);
-  const [editedObject, setEditedObject] = useState({});
+  const [notePage, setNotePage] = useState({});
   const handleRowClick = useCallback(
     data => {
-      const { id, noteType, authorId, priority, content, date } = data;
-      setIsNoteModalOpen(true);
-      setNoteId(data.id);
-      setEditedObject({
-        id,
-        noteType,
-        authorId,
-        priority,
-        content,
-        date,
-      });
+      setModalTitle(`Note - ${getTypeLabel(data)}`);
+      setNotePageModalOpen(true);
+      setNotePage(data);
     },
-    [setIsNoteModalOpen, setNoteId, setEditedObject],
+    [setNotePageModalOpen, setNotePage],
   );
   const sortNotes = useCallback(notes => {
     // The sorting rule for Notes is to pin the Treatment Plans to the top
@@ -48,20 +41,19 @@ export const NoteTable = ({ encounterId }) => {
 
   return (
     <div>
-      <NoteModal
-        open={isNoteModalOpen}
+      <NotePageModal
+        open={isNotePageModalOpen}
         encounterId={encounterId}
-        noteId={noteId}
-        editedObject={editedObject}
-        onClose={() => setIsNoteModalOpen(false)}
+        onClose={() => setNotePageModalOpen(false)}
         onSaved={() => {
-          setIsNoteModalOpen(false);
           setRefreshCount(refreshCount + 1);
         }}
+        notePage={notePage}
+        title={modalTitle}
       />
       <DataFetchingTable
         columns={COLUMNS}
-        endpoint={`encounter/${encounterId}/notes`}
+        endpoint={`encounter/${encounterId}/notePages`}
         onRowClick={handleRowClick}
         customSort={sortNotes}
         refreshCount={refreshCount}
