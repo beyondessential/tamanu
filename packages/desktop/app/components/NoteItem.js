@@ -114,12 +114,12 @@ const NoteItemSecondary = ({ noteItem, isEditting, onEditClick }) => {
 
   return (
     <StyledNoteItemSecondaryWrapper>
-      {!isEditting && currentUser.id === noteItem.author.id && (
+      {!isEditting && currentUser.id === noteItem.authorId && (
         <StyledEditIcon onClick={onEditClick} />
       )}
       <br />
       <>
-        <span>{noteItem.author.displayName} </span>
+        <span>{noteItem.author?.displayName || ''} </span>
         {noteItem.onBehalfOf ? <span>on behalf of {noteItem.onBehalfOf.displayName} </span> : null}
         <DateDisplay date={noteItem.date} showTime />
         {noteItem?.noteItems?.length > 0 && (
