@@ -7,6 +7,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import DoneIcon from '@material-ui/icons/Done';
 import CloseIcon from '@material-ui/icons/Close';
 import Tooltip from '@material-ui/core/Tooltip';
+import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 
 import { DateDisplay } from './DateDisplay';
 import { TextInput } from './Field/TextField';
@@ -66,9 +67,11 @@ const StyledNoteItemLogContent = styled.div`
   color: ${Colors.darkestText};
 `;
 const StyledTooltip = styled(props => (
-  <Tooltip classes={{ popper: props.className }} {...props}>
-    {props.children}
-  </Tooltip>
+  <ClickAwayListener onClickAway={props.onClickAway}>
+    <Tooltip classes={{ popper: props.className }} {...props}>
+      {props.children}
+    </Tooltip>
+  </ClickAwayListener>
 ))`
   z-index: 1500;
   pointer-events: auto;
@@ -127,9 +130,10 @@ const NoteItemSecondary = ({ noteItem, isEditting, onEditClick }) => {
             <span> (edited) </span>
             <StyledTooltip
               open={isTooltipOpen}
+              onClickAway={() => setTooltipOpen(false)}
               title={<ItemTooltip childNoteItems={noteItem.noteItems} />}
             >
-              <StyledViewChangeLogWrapper onClick={() => setTooltipOpen(!isTooltipOpen)}>
+              <StyledViewChangeLogWrapper onClick={() => setTooltipOpen(true)}>
                 View change log
               </StyledViewChangeLogWrapper>
             </StyledTooltip>
