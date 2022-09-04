@@ -28,7 +28,7 @@ reportRequest.post(
     const reportModule = await getReportModule(reportId, models);
 
     if (!reportModule) {
-      log.error(REPORT_TYPES.FACILITY, 'Report module not found', user.id, reportId);
+      log.error(REPORT_TYPES.ALL, 'Report module not found', user.id, reportId);
       res.status(400).send({ error: { message: 'invalid reportId' } });
       return;
     }
@@ -46,7 +46,12 @@ reportRequest.post(
       requestedByUserId: user.id,
       parameters: JSON.stringify(body.parameters),
     };
-    const createdRequest = await ReportRequest.create(newReportRequest);
-    res.send(createdRequest);
+    try {
+      const createdRequest = await ReportRequest.create(newReportRequest);
+      res.send(createdRequest);
+    } catch (err) {
+      log.error(REPORT_TYPES.ALL, 'Report request failed to create', user.id, err);
+      res.status(400).send({ error: { message: err.message } });
+    }
   }),
 );
