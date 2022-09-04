@@ -5,12 +5,14 @@ import { VillageField } from './VillageField';
 import { LabTestLaboratoryField } from './LabTestLaboratoryField';
 import { PractitionerField } from './PractitionerField';
 import { DiagnosisField } from './DiagnosisField';
+import { LabTestCategoryField } from './LabTestCategoryField';
 import { VaccineCategoryField } from './VaccineCategoryField';
+import { ImagingTypeField } from './ImagingTypeField';
 import { VaccineField } from './VaccineField';
 import { useSuggester } from '../../api';
 
-const ParameterAutocompleteField = ({ suggesterEndpoint, name, ...props }) => {
-  const suggester = useSuggester(suggesterEndpoint);
+const ParameterAutocompleteField = ({ suggesterEndpoint, suggesterOptions, name, ...props }) => {
+  const suggester = useSuggester(suggesterEndpoint, suggesterOptions);
   return <Field component={AutocompleteField} suggester={suggester} name={name} {...props} />;
 };
 
@@ -35,6 +37,8 @@ const PARAMETER_FIELD_COMPONENTS = {
   ParameterAutocompleteField,
   ParameterSelectField,
   ParameterMultiselectField,
+  ImagingTypeField,
+  LabTestCategoryField,
 };
 
 export const ParameterField = ({ parameterField, name, required, label, values, ...props }) => {

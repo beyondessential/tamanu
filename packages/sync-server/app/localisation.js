@@ -78,6 +78,21 @@ const HIDEABLE_FIELDS = [
   'passport',
   'religionId',
   'patientBillingTypeId',
+  'motherId',
+  'fatherId',
+  'birthWeight',
+  'birthLength',
+  'birthDeliveryType',
+  'gestationalAgeEstimate',
+  'apgarScoreOneMinute',
+  'apgarScoreFiveMinutes',
+  'apgarScoreTenMinutes',
+  'timeOfBirth',
+  'attendantAtBirth',
+  'nameOfAttendantAtBirth',
+  'birthFacilityId',
+  'birthType',
+  'registeredBirthPlace',
 ];
 
 const templatesSchema = yup
@@ -126,6 +141,23 @@ const templatesSchema = yup
       .noUnknown(),
 
     covidTestCertificateEmail: yup
+      .object()
+      .shape({
+        subject: yup
+          .string()
+          .trim()
+          .min(1)
+          .required(),
+        body: yup
+          .string()
+          .trim()
+          .min(1)
+          .required(),
+      })
+      .required()
+      .noUnknown(),
+
+    covidClearanceCertificateEmail: yup
       .object()
       .shape({
         subject: yup
@@ -290,6 +322,7 @@ const rootLocalisationSchema = yup
         registerNewPatient: yup.boolean().required(),
         enablePatientDeaths: yup.boolean().required(),
         mergePopulatedPADRecords: yup.boolean().required(),
+        enableCovidClearanceCertificate: yup.boolean().required(),
       })
       .required()
       .noUnknown(),

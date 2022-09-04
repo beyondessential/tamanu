@@ -6,7 +6,10 @@ const xlsxFilters = [{ name: 'Excel spreadsheet (.xlsx)', extensions: ['xlsx'] }
 const stringifyIfNonDateObject = val =>
   typeof val === 'object' && !(val instanceof Date) && val !== null ? JSON.stringify(val) : val;
 
-export async function saveExcelFile(data, { promptForFilePath, filePath, defaultFileName }) {
+export async function saveExcelFile(
+  { data, metadata },
+  { promptForFilePath, filePath, defaultFileName },
+) {
   let path;
   if (promptForFilePath) {
     path = await showFileDialog(xlsxFilters, defaultFileName || '');
@@ -21,9 +24,15 @@ export async function saveExcelFile(data, { promptForFilePath, filePath, default
     throw Error('No path found');
   }
   const stringifiedData = data.map(row => row.map(stringifyIfNonDateObject));
+
   const book = XLSX.utils.book_new();
-  const sheet = XLSX.utils.aoa_to_sheet(stringifiedData);
-  XLSX.utils.book_append_sheet(book, sheet, 'values');
+  const metadataSheet = XLSX.utils.aoa_to_sheet(metadata);
+  metadataSheet['!cols'] = [{ wch: 30 }, { wch: 30 }];
+
+  const dataSheet = XLSX.utils.aoa_to_sheet(stringifiedData);
+  XLSX.utils.book_append_sheet(book, metadataSheet, 'metadata');
+  XLSX.utils.book_append_sheet(book, dataSheet, 'report');
+
   return new Promise((resolve, reject) => {
     XLSX.writeFileAsync(path, book, null, err => {
       if (err) {

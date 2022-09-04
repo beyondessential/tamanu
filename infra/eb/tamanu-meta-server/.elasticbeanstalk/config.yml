@@ -1,8 +1,8 @@
 branch-defaults:
   default:
-    environment: tamanu-meta-server-dev
+    environment: tamanu-meta-server-dev-16
 environment-defaults:
-  tamanu-meta-server-dev:
+  tamanu-meta-server-dev-16:
     branch: null
     repository: null
 global:

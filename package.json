@@ -35,7 +35,7 @@
     "build-report": "yarn build-shared && yarn workspace sync-server build && yarn workspace sync-server start report"
   },
   "engines": {
-    "node": "^16.15.1"
+    "node": "^16.16.0"
   },
   "private": true,
   "workspaces": {

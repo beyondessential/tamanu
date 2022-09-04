@@ -13,6 +13,7 @@ export class ScheduledTask {
     this.job = null;
     this.log = log;
     this.currentlyRunningTask = null;
+    this.start = null;
     this.subtasks = [];
   }
 
@@ -39,7 +40,10 @@ export class ScheduledTask {
     }
 
     if (this.currentlyRunningTask) {
-      this.log.info(`ScheduledTask: ${name}: Not running (previous task still running)`);
+      const durationMs = Date.now() - this.start;
+      this.log.info(`ScheduledTask: ${name}: Not running (previous task still running)`, {
+        durationMs,
+      });
       return false;
     }
 
@@ -61,19 +65,20 @@ export class ScheduledTask {
 
     const runId = shortid();
     this.log.info(`ScheduledTask: ${name}: Running`, { id: runId });
-    const start = Date.now();
+    this.start = Date.now();
     try {
       this.currentlyRunningTask = this.run();
       await this.currentlyRunningTask;
-      const durationMs = Date.now() - start;
+      const durationMs = Date.now() - this.start;
       this.log.info(`ScheduledTask: ${name}: Succeeded`, { id: runId, durationMs });
       return true;
     } catch (e) {
-      const durationMs = Date.now() - start;
+      const durationMs = Date.now() - this.start;
       this.log.error(`ScheduledTask: ${name}: Failed`, { id: runId, durationMs });
       this.log.error(e.stack);
       return false;
     } finally {
+      this.start = null;
       this.currentlyRunningTask = null;
     }
   }

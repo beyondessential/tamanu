@@ -38,7 +38,9 @@ reportRequest.post(
     const isDatabaseDefinedReport = reportModule instanceof ReportDefinitionVersion;
 
     const newReportRequest = {
-      ...(isDatabaseDefinedReport ? { versionId: reportId } : { reportType: reportId }),
+      ...(isDatabaseDefinedReport
+        ? { reportDefinitionVersionId: reportId }
+        : { reportType: reportId }),
       recipients: JSON.stringify({
         email: body.emailList,
       }),
