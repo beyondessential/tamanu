@@ -104,7 +104,7 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
         noun="Patient"
         onClick={showNewPatient}
       >
-        + Create new patient
+        + Add new patient
       </ButtonWithPermissionCheck>
       <NewPatientModal
         title="New patient"
