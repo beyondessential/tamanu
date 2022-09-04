@@ -2,7 +2,6 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { REPORT_REQUEST_STATUSES } from 'shared/constants';
 import { getReportModule } from 'shared/reports';
-import { log } from 'shared/services/logging/log';
 import { assertReportEnabled } from '../../utils/assertReportEnabled';
 import { logReportError, REPORT_TYPES } from './reports';
 
@@ -28,7 +27,7 @@ reportRequest.post(
     const reportModule = await getReportModule(reportId, models);
 
     if (!reportModule) {
-      log.error(REPORT_TYPES.ALL, 'Report module not found', user.id, reportId);
+      logReportError(REPORT_TYPES.ALL, 'Report module not found', user.id, reportId);
       res.status(400).send({ error: { message: 'invalid reportId' } });
       return;
     }
@@ -52,7 +51,7 @@ reportRequest.post(
       const createdRequest = await ReportRequest.create(newReportRequest);
       res.send(createdRequest);
     } catch (err) {
-      log.error(REPORT_TYPES.ALL, 'Report request failed to create', user.id, err);
+      logReportError(REPORT_TYPES.ALL, 'Report request failed to create', user.id, err);
       res.status(400).send({ error: { message: err.message } });
     }
   }),
