@@ -3,9 +3,14 @@ import asyncHandler from 'express-async-handler';
 import { REPORT_REQUEST_STATUSES } from 'shared/constants';
 import { getReportModule } from 'shared/reports';
 import { assertReportEnabled } from '../../utils/assertReportEnabled';
-import { logReportError, REPORT_TYPES } from './reports';
+import { reportLogWithContext, REPORT_LOG_NAMES } from './reports';
 
 export const reportRequest = express.Router();
+
+const reportLog = {
+  error: reportLogWithContext('error', REPORT_LOG_NAMES.REQUEST),
+  info: reportLogWithContext('info', REPORT_LOG_NAMES.REQUEST),
+};
 
 reportRequest.post(
   '/$',
@@ -16,8 +21,9 @@ reportRequest.post(
 
     req.checkPermission('create', 'ReportRequest');
     if (!reportId) {
-      logReportError(REPORT_TYPES.ALL, 'Report id not specified', user.id);
-      res.status(400).send({ error: { message: 'reportId missing' } });
+      const message = 'Report id not specifed';
+      reportLog.error(message, reportId, user.id);
+      res.status(400).send({ error: { message } });
       return;
     }
 
@@ -27,8 +33,9 @@ reportRequest.post(
     const reportModule = await getReportModule(reportId, models);
 
     if (!reportModule) {
-      logReportError(REPORT_TYPES.ALL, 'Report module not found', user.id, reportId);
-      res.status(400).send({ error: { message: 'invalid reportId' } });
+      const message = 'Report module not found';
+      reportLog.error(message, reportId, user.id);
+      res.status(400).send({ error: { message } });
       return;
     }
 
@@ -48,11 +55,22 @@ reportRequest.post(
       parameters: JSON.stringify(body.parameters),
     };
     try {
+      reportLog.info('Report request creating', reportId, user.id, {
+        recipients: newReportRequest.recipients,
+        parameters: newReportRequest.parameters,
+      });
+
       const createdRequest = await ReportRequest.create(newReportRequest);
+
+      reportLog.info('Report request created', reportId, user.id, {
+        recipients: newReportRequest.recipients,
+        parameters: newReportRequest.parameters,
+      });
+
       res.send(createdRequest);
-    } catch (err) {
-      logReportError(REPORT_TYPES.ALL, 'Report request failed to create', user.id, err);
-      res.status(400).send({ error: { message: err.message } });
+    } catch (e) {
+      reportLog.error('Report request failed to create', reportId, user.id, { stack: e.stack });
+      res.status(400).send({ error: { message: e.message } });
     }
   }),
 );

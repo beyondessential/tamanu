@@ -4,24 +4,22 @@ import * as reportUtils from 'shared/reports';
 import { log } from 'shared/services/logging/log';
 import { assertReportEnabled } from '../../utils/assertReportEnabled';
 
-export const REPORT_TYPES = {
-  FACILITY: 'facility',
-  ALL: 'all',
+export const REPORT_LOG_NAMES = {
+  FACILITY: 'FacilityReport',
+  REQUEST: 'ReportRequest',
 };
 
-const REPORT_TYPE_LOG_NAMES = {
-  [REPORT_TYPES.FACILITY]: 'FacilityReport',
-  [REPORT_TYPES.ALL]: 'AllFacilitiesReport',
-};
-
-export const logReportError = (type, message, reportId, userId, e) => {
-  const name = REPORT_TYPE_LOG_NAMES[type];
-  log.error(`${name} - ${message}`, {
+export const reportLogWithContext = (severity, name) => (message, reportId, userId, data = {}) =>
+  log[severity](`${name} - ${message}`, {
     name,
     reportId,
     userId,
-    stack: e?.stack,
+    ...data,
   });
+
+const reportLog = {
+  error: reportLogWithContext('error', REPORT_LOG_NAMES.FACILITY),
+  info: reportLogWithContext('info', REPORT_LOG_NAMES.FACILITY),
 };
 
 export const reports = express.Router();
@@ -92,7 +90,7 @@ reports.post(
     const reportModule = await reportUtils.getReportModule(reportId, models);
 
     if (!reportModule) {
-      logReportError(REPORT_TYPES.FACILITY, 'Report module not found', reportId, user.id);
+      reportLog.error('Report module not found', reportId, user.id);
       res.status(400).send({ error: { message: 'invalid reportId' } });
       return;
     }
@@ -100,16 +98,14 @@ reports.post(
     req.checkPermission('read', reportModule.permission);
 
     try {
+      reportLog.log('info', 'Running report', reportId, user.id, { parameters });
       const excelData = await reportModule.dataGenerator({ sequelize: db, models }, parameters);
+      reportLog.log('info', 'Report run successfully', reportId, user.id, { excelData });
       res.send(excelData);
     } catch (e) {
-      logReportError(
-        REPORT_TYPES.FACILITY,
-        'Report module failed to generate data',
-        reportId,
-        user.id,
-        e,
-      );
+      reportLog.error('Report module failed to generate data', reportId, user.id, {
+        stack: e.stack,
+      });
       res.status(400).send({
         error: {
           message: e.message,
