@@ -85,7 +85,7 @@ export class ReportRunner {
 
       log.info(`ReportRunner - Running report "${this.reportId}" finished`);
     } catch (e) {
-      throw new Error(`${e.stack}\nReportRunner - Failed to generate report`);
+      this.sendErrorToEmail(e);
     }
 
     try {
@@ -93,6 +93,13 @@ export class ReportRunner {
     } catch (e) {
       throw new Error(`${e.stack}\nReportRunner - Failed to send`);
     }
+  }
+
+  async sendError(e) {
+    if (this.recipients.email) {
+      await this.sendErrorToEmail(e);
+    }
+    throw new Error(`${e.stack}\nReportRunner - Failed to generate report`);
   }
 
   /**
@@ -193,7 +200,7 @@ export class ReportRunner {
         from: config.mailgun.from,
         to: this.recipients.email.join(','),
         subject: 'Report delivery',
-        text: `Report requested: ${this.reportName}`,
+        text: `Report requested: ${reportName}`,
         attachment: zipFile,
       });
       if (result.status === COMMUNICATION_STATUSES.SENT) {
@@ -204,6 +211,16 @@ export class ReportRunner {
     } finally {
       if (zipFile) await removeFile(zipFile);
     }
+  }
+
+  async sendErrorToEmail(err) {
+    const reportName = await this.getReportName();
+    this.emailService.sendEmail({
+      from: config.mailgun.from,
+      to: this.recipients.email.join(','),
+      subject: 'Failed to generate report',
+      message: `Report requested: ${reportName} failed to generate with error: ${err.message}`,
+    });
   }
 
   /**
