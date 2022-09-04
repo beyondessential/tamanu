@@ -12,6 +12,8 @@ import { log } from 'shared/services/logging';
 import { removeFile, createZippedSpreadsheet, writeToSpreadsheet } from '../utils/files';
 import { getLocalisation } from '../localisation';
 
+const REPORT_RUNNER_LOG_NAME = 'ReportRunner';
+
 export class ReportRunner {
   constructor(reportId, parameters, recipients, store, emailService, userId) {
     this.reportId = reportId;
@@ -78,12 +80,18 @@ export class ReportRunner {
     let reportData = null;
     let metadata = [];
     try {
-      log.info(`ReportRunner - Running report "${this.reportId}"`);
+      log.info(`${REPORT_RUNNER_LOG_NAME} - Running report`, {
+        name: REPORT_RUNNER_LOG_NAME,
+        reportId: this.reportId,
+      });
 
       reportData = await reportModule.dataGenerator(this.store, this.parameters);
       metadata = await this.getMetadata();
 
-      log.info(`ReportRunner - Running report "${this.reportId}" finished`);
+      log.info(`${REPORT_RUNNER_LOG_NAME} - Running report finished`, {
+        name: REPORT_RUNNER_LOG_NAME,
+        reportId: this.reportId,
+      });
     } catch (e) {
       this.sendErrorToEmail(e);
     }
@@ -122,7 +130,13 @@ export class ReportRunner {
       sent = true;
     }
     if (!sent) {
-      throw new Error('ReportRunner - No recipients');
+      const error = new Error(`${REPORT_RUNNER_LOG_NAME} - No recipients`);
+      log.error(`${REPORT_RUNNER_LOG_NAME} - No recipients specified`, {
+        name: REPORT_RUNNER_LOG_NAME,
+        stack: error.stack,
+        reportId: this.reportId,
+      });
+      throw error;
     }
   }
 
@@ -137,9 +151,16 @@ export class ReportRunner {
       const { format, path: reportFolder } = recipient;
       if (!format || !reportFolder) {
         const str = JSON.stringify(recipient);
-        throw new Error(
-          `ReportRunner - local recipients must specifiy a format and a path, got: ${str}`,
+        const error = new Error(
+          `${REPORT_RUNNER_LOG_NAME} - local recipients must specifiy a format and a path, got: ${str}`,
         );
+        log.error(`${REPORT_RUNNER_LOG_NAME} - format or path missing in local recipient`, {
+          name: REPORT_RUNNER_LOG_NAME,
+          recipient: str,
+          stack: error.stack,
+          reportId: this.reportId,
+        });
+        throw error;
       }
       await mkdirp(reportFolder);
 
@@ -192,9 +213,11 @@ export class ReportRunner {
     try {
       zipFile = await createZippedSpreadsheet(reportName, reportData);
 
-      log.info(
-        `ReportRunner - Sending report "${zipFile}" to "${this.recipients.email.join(',')}"`,
-      );
+      log.info(`${REPORT_RUNNER_LOG_NAME} - Sending report`, {
+        name: REPORT_RUNNER_LOG_NAME,
+        recipients: this.recipients.join(','),
+        reportId: this.reportId,
+      });
 
       const result = await this.emailService.sendEmail({
         from: config.mailgun.from,
@@ -204,9 +227,18 @@ export class ReportRunner {
         attachment: zipFile,
       });
       if (result.status === COMMUNICATION_STATUSES.SENT) {
-        log.info(`ReportRunner - Sent report "${zipFile}" to "${this.recipients.email.join(',')}"`);
+        log.info(`${REPORT_RUNNER_LOG_NAME} - Mailgun sent report`, {
+          name: REPORT_RUNNER_LOG_NAME,
+          recipients: this.recipients.join(','),
+          reportId: this.reportId,
+        });
       } else {
-        throw new Error(`ReportRunner - Mailgun error: ${result.error}`);
+        log.error(`${REPORT_RUNNER_LOG_NAME} - Mailgun error`, {
+          name: REPORT_RUNNER_LOG_NAME,
+          stack: result.error,
+          reportId: this.reportId,
+        });
+        throw new Error(`${REPORT_RUNNER_LOG_NAME} - Mailgun error: ${result.error}`);
       }
     } finally {
       if (zipFile) await removeFile(zipFile);
@@ -243,9 +275,12 @@ export class ReportRunner {
 
       const filename = path.basename(zipFile);
 
-      log.info(
-        `ReportRunner - Uploading report to s3 "${bucketName}/${bucketPath}/${filename}" (${region})`,
-      );
+      log.info(`${REPORT_RUNNER_LOG_NAME} - Uploading report to s3`, {
+        name: REPORT_RUNNER_LOG_NAME,
+        path: `${bucketName}/${bucketPath}/${filename}`,
+        region,
+        reportId: this.reportId,
+      });
 
       const client = new AWS.S3({ region });
 
@@ -259,7 +294,11 @@ export class ReportRunner {
         }),
       );
 
-      log.info(`ReportRunner - Uploaded report "${zipFile}" to s3`);
+      log.info(`${REPORT_RUNNER_LOG_NAME} - Uploaded report to s3`, {
+        name: REPORT_RUNNER_LOG_NAME,
+        zipFile,
+        reportId: this.reportId,
+      });
     } finally {
       if (zipFile) await removeFile(zipFile);
     }
