@@ -1,15 +1,13 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { createNamedLogger } from 'shared-src/src/utils/reportLog';
 import { REPORT_REQUEST_STATUSES } from 'shared/constants';
 import { getReportModule } from 'shared/reports';
+import { createNamedLogger } from 'shared/services/logging/createNamedLogger';
 import { assertReportEnabled } from '../../utils/assertReportEnabled';
 
 export const reportRequest = express.Router();
 
 const REPORT_REQUEST_LOG_NAME = 'ReportRequest';
-
-const reportRequestLog = createNamedLogger(REPORT_REQUEST_LOG_NAME);
 
 reportRequest.post(
   '/$',
@@ -17,6 +15,10 @@ reportRequest.post(
     const { models, body, user, getLocalisation } = req;
     const { ReportRequest, ReportDefinitionVersion } = models;
     const { reportId } = body;
+    const reportRequestLog = createNamedLogger(REPORT_REQUEST_LOG_NAME, {
+      reportId,
+      userId: user.id,
+    });
 
     req.checkPermission('create', 'ReportRequest');
     if (!reportId) {

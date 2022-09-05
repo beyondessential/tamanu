@@ -1,12 +1,10 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { createNamedLogger } from 'shared-src/src/utils/createNamedLogger';
 import * as reportUtils from 'shared/reports';
+import { createNamedLogger } from 'shared/services/logging/createNamedLogger';
 import { assertReportEnabled } from '../../utils/assertReportEnabled';
 
 const FACILITY_REPORT_LOG_NAME = 'FacilityReport';
-
-const facilityReportLog = createNamedLogger(FACILITY_REPORT_LOG_NAME);
 
 export const reports = express.Router();
 
@@ -70,6 +68,10 @@ reports.post(
     // Permissions are checked per report module
     req.flagPermissionChecked();
     const { reportId } = params;
+    const facilityReportLog = createNamedLogger(FACILITY_REPORT_LOG_NAME, {
+      userId: user.id,
+      reportId,
+    });
     const localisation = await getLocalisation();
     assertReportEnabled(localisation, reportId);
 

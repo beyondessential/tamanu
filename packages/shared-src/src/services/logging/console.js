@@ -19,10 +19,10 @@ const additionalDataFormatter = (obj = {}) => {
 
 // formatter for all logging:
 // 2022-03-25T06:52:30.003Z info: My console message! additionalItem=additionalValue
-const logFormat = winston.format.printf(({ level, message, timestamp, ...rest }) => {
+const logFormat = winston.format.printf(({ level, message, name, timestamp, ...rest }) => {
   const restString = additionalDataFormatter(rest);
   if (restString === '') {
-    return `${COLORS.grey(timestamp)} ${level}: ${message}`;
+    return `${COLORS.grey(timestamp)} ${level}:${name ? `${name} - ` : ''}${message}`;
   }
 
   return `${COLORS.grey(timestamp)} ${level}: ${message} ${COLORS.grey(restString)}`;

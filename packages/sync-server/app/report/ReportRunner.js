@@ -7,14 +7,12 @@ import mkdirp from 'mkdirp';
 
 import { COMMUNICATION_STATUSES } from 'shared/constants';
 import { getReportModule } from 'shared/reports';
+import { createNamedLogger } from 'shared/services/logging/createNamedLogger';
 
-import { createNamedLogger } from 'shared-src/src/utils/createNamedLogger';
 import { removeFile, createZippedSpreadsheet, writeToSpreadsheet } from '../utils/files';
 import { getLocalisation } from '../localisation';
 
 const REPORT_RUNNER_LOG_NAME = 'ReportRunner';
-
-const reportRunnerLog = createNamedLogger(REPORT_RUNNER_LOG_NAME);
 
 export class ReportRunner {
   constructor(reportId, parameters, recipients, store, emailService, userId) {
@@ -24,6 +22,7 @@ export class ReportRunner {
     this.store = store;
     this.emailService = emailService;
     this.userId = userId;
+    this.log = createNamedLogger(REPORT_RUNNER_LOG_NAME, { reportId, userId });
   }
 
   async validate(reportModule, reportDataGenerator) {
@@ -82,16 +81,16 @@ export class ReportRunner {
     let reportData = null;
     let metadata = [];
     try {
-      reportRunnerLog.info('Running report', this.reportId, { parameters: this.parameters });
+      this.log.info('Running report', { parameters: this.parameters });
 
       reportData = await reportModule.dataGenerator(this.store, this.parameters);
       metadata = await this.getMetadata();
 
-      reportRunnerLog.info('Running report finished', this.reportId, {
+      this.log.info('Running report finished', {
         parameters: this.parameters,
       });
     } catch (e) {
-      reportRunnerLog.error('Error running report', this.reportId, {
+      this.log.error('Error running report', {
         stack: e.stack,
         parameters: this.parameters,
       });
@@ -199,7 +198,7 @@ export class ReportRunner {
       zipFile = await createZippedSpreadsheet(reportName, reportData);
       const recipients = this.recipients.email.join(',');
 
-      reportRunnerLog.info('Sending report', this.reportId, {
+      this.log.info('Sending report', {
         recipients,
         zipFile,
       });
@@ -212,12 +211,12 @@ export class ReportRunner {
         attachment: zipFile,
       });
       if (result.status === COMMUNICATION_STATUSES.SENT) {
-        reportRunnerLog.info('Mailgun sent report', this.reportId, {
+        this.log.info('Mailgun sent report', {
           recipients,
           zipFile,
         });
       } else {
-        reportRunnerLog.error('Mailgun error', this.reportId, {
+        this.log.error('Mailgun error', {
           recipients,
           stack: result.error,
         });
@@ -258,7 +257,7 @@ export class ReportRunner {
 
       const filename = path.basename(zipFile);
 
-      reportRunnerLog.info('Uploading report to S3', this.reportId, {
+      this.log.info('Uploading report to S3', {
         path: `${bucketName}/${bucketPath}/${filename}`,
         region,
       });
@@ -275,7 +274,7 @@ export class ReportRunner {
         }),
       );
 
-      reportRunnerLog.info('Uploaded report to S3', this.reportId, {
+      this.log.info('Uploaded report to S3', {
         zipFile,
       });
     } finally {
