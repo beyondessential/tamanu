@@ -99,6 +99,12 @@ export async function up(query: QueryInterface) {
     references: { model: 'facilities', key: 'id' },
   });
 
+  await query.addColumn('report_requests', 'export_format', {
+    type: STRING,
+    allowNull: false,
+    defaultValue: 'xlsx',
+  });
+
   await query.addColumn('report_requests', 'report_definition_version_id', {
     type: STRING,
     allowNull: true,

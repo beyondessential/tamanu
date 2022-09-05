@@ -43,6 +43,7 @@ reportRequest.post(
       status: REPORT_REQUEST_STATUSES.RECEIVED,
       requestedByUserId: user.id,
       parameters: JSON.stringify(body.parameters),
+      exportFormat: body.exportFormat,
     };
 
     const createdRequest = await ReportRequest.create(newReportRequest);

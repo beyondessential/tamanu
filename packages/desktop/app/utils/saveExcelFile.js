@@ -1,8 +1,6 @@
 import XLSX from 'xlsx';
 import { showFileDialog } from './dialog';
 
-const xlsxFilters = [{ name: 'Excel spreadsheet', extensions: ['csv'] }];
-
 const stringifyIfNonDateObject = val =>
   typeof val === 'object' && !(val instanceof Date) && val !== null ? JSON.stringify(val) : val;
 
@@ -12,7 +10,10 @@ export async function saveExcelFile(
 ) {
   let path;
   if (promptForFilePath) {
-    path = await showFileDialog(xlsxFilters, defaultFileName || '');
+    path = await showFileDialog(
+      [{ name: 'Excel spreadsheet', extensions: [bookType] }],
+      defaultFileName || '',
+    );
     if (!path) {
       // user cancelled
       return '';
@@ -25,14 +26,14 @@ export async function saveExcelFile(
   }
   const stringifiedData = data.map(row => row.map(stringifyIfNonDateObject));
 
-  // Todo: Put meta data tab second so that csv exports the actual report
   const book = XLSX.utils.book_new();
   const metadataSheet = XLSX.utils.aoa_to_sheet(metadata);
   metadataSheet['!cols'] = [{ wch: 30 }, { wch: 30 }];
 
   const dataSheet = XLSX.utils.aoa_to_sheet(stringifiedData);
-  XLSX.utils.book_append_sheet(book, metadataSheet, 'metadata');
+  // For csv bookTypes, only the first sheet will be exported
   XLSX.utils.book_append_sheet(book, dataSheet, 'report');
+  XLSX.utils.book_append_sheet(book, metadataSheet, 'metadata');
 
   return new Promise((resolve, reject) => {
     XLSX.writeFileAsync(path, book, { type: bookType }, err => {
