@@ -302,7 +302,9 @@ patientRoute.get(
           CASE
             WHEN patients.date_of_death IS NOT NULL THEN 'deceased'
             WHEN encounters.encounter_type = 'emergency' THEN 'emergency'
+            WHEN encounters.encounter_type = 'triage' THEN 'emergency'
             WHEN encounters.encounter_type = 'clinic' THEN 'outpatient'
+            WHEN encounters.encounter_type = 'imaging' THEN 'outpatient'
             WHEN encounters.encounter_type IS NOT NULL THEN 'inpatient'
             ELSE NULL
           END AS patient_status,
