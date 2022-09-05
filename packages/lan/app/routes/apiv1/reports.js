@@ -1,12 +1,12 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { createNamedLog } from 'shared-src/src/utils/reportLog';
+import { createNamedLogger } from 'shared-src/src/utils/createNamedLogger';
 import * as reportUtils from 'shared/reports';
 import { assertReportEnabled } from '../../utils/assertReportEnabled';
 
 const FACILITY_REPORT_LOG_NAME = 'FacilityReport';
 
-const facilityReportLog = createNamedLog(FACILITY_REPORT_LOG_NAME);
+const facilityReportLog = createNamedLogger(FACILITY_REPORT_LOG_NAME);
 
 export const reports = express.Router();
 
