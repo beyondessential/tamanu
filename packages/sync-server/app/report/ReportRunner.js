@@ -222,7 +222,7 @@ export class ReportRunner {
           zipFile,
         });
       } else {
-        reportLog.error(result.error, 'Mailgun error', this.reportId, {
+        reportLog.error('Mailgun error', this.reportId, {
           recipients,
           stack: result.error,
         });
