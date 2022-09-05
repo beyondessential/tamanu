@@ -21,7 +21,6 @@ const FIELDS = [
   'Priority',
   'Test category',
   'Tests',
-  'Area to be imaged',
   'Status',
 ];
 
