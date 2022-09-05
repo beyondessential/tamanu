@@ -3,13 +3,15 @@ import asyncHandler from 'express-async-handler';
 import { REPORT_REQUEST_STATUSES } from 'shared/constants';
 import { getReportModule } from 'shared/reports';
 import { assertReportEnabled } from '../../utils/assertReportEnabled';
-import { reportLogWithContext, REPORT_LOG_NAMES } from './reports';
+import { reportLogWithContext } from './reports';
 
 export const reportRequest = express.Router();
 
+const REPORT_REQUEST_LOG_NAME = 'ReportRequest';
+
 const reportRequestLog = {
-  error: reportLogWithContext('error', REPORT_LOG_NAMES.REQUEST),
-  info: reportLogWithContext('info', REPORT_LOG_NAMES.REQUEST),
+  error: reportLogWithContext('error', REPORT_REQUEST_LOG_NAME),
+  info: reportLogWithContext('info', REPORT_REQUEST_LOG_NAME),
 };
 
 reportRequest.post(

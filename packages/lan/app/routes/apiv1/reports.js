@@ -4,10 +4,7 @@ import * as reportUtils from 'shared/reports';
 import { log } from 'shared/services/logging/log';
 import { assertReportEnabled } from '../../utils/assertReportEnabled';
 
-export const REPORT_LOG_NAMES = {
-  FACILITY: 'FacilityReport',
-  REQUEST: 'ReportRequest',
-};
+const FACILITY_REPORT_LOG_NAME = 'FacilityReport';
 
 export const reportLogWithContext = (severity, name) => (message, reportId, userId, data = {}) =>
   log[severity](`${name} - ${message}`, {
@@ -18,8 +15,8 @@ export const reportLogWithContext = (severity, name) => (message, reportId, user
   });
 
 const reportLog = {
-  error: reportLogWithContext('error', REPORT_LOG_NAMES.FACILITY),
-  info: reportLogWithContext('info', REPORT_LOG_NAMES.FACILITY),
+  error: reportLogWithContext('error', FACILITY_REPORT_LOG_NAME),
+  info: reportLogWithContext('info', FACILITY_REPORT_LOG_NAME),
 };
 
 export const reports = express.Router();
