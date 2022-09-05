@@ -420,3 +420,18 @@ export const PATIENT_REGISTRY_OPTIONS = [
   { value: PATIENT_REGISTRY_TYPES.NEW_PATIENT, label: 'Create new patient' },
   { value: PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY, label: 'Register birth' },
 ];
+
+export const PATIENT_STATUS = {
+  INPATIENT: 'inpatient',
+  OUTPATIENT: 'outpatient',
+  EMERGENCY: 'emergency',
+  DECEASED: 'deceased',
+};
+
+export const PATIENT_STATUS_COLORS = {
+  [PATIENT_STATUS.INPATIENT]: Colors.safe, // Green
+  [PATIENT_STATUS.OUTPATIENT]: Colors.secondary, // Yellow
+  [PATIENT_STATUS.EMERGENCY]: Colors.orange, // Orange
+  [PATIENT_STATUS.DECEASED]: Colors.midText, // grey
+  [undefined]: Colors.primary, // Blue
+};
