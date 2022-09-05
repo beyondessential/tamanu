@@ -1,7 +1,7 @@
 import { Sequelize, Op } from 'sequelize';
 import { chunk, flatten, without, pick, pickBy } from 'lodash';
-import { propertyPathsToTree } from './metadata';
 import { log } from 'shared/services/logging';
+import { propertyPathsToTree } from './metadata';
 
 // SQLite < v3.32 has a hard limit of 999 bound parameters per query
 // see https://www.sqlite.org/limits.html for more
@@ -75,21 +75,26 @@ export const executeImportPlan = async (plan, syncRecords) => {
       if (model.syncConfig.undeleteOnUpdate) {
         // restore the deleted records
         const idsToRestore = deletedUpdates.map(e => e.id);
-        await model.update({
-          deletedAt: null,
-        }, {
-          where: {
-            id: {
-              [Op.in]: idsToRestore,
+        await model.update(
+          {
+            deletedAt: null,
+          },
+          {
+            where: {
+              id: {
+                [Op.in]: idsToRestore,
+              },
             },
           },
-        });
+        );
       } else {
-        log.error("Sync includes updates to deleted records", { ids: deletedUpdates.map(r => r.id) });
-        throw new Error("Sync payload includes updates to deleted records");
+        log.error('Sync includes updates to deleted records', {
+          ids: deletedUpdates.map(r => r.id),
+        });
+        throw new Error('Sync payload includes updates to deleted records');
       }
     }
-  
+
     // run each import process
     const createSuccessCount = await executeCreates(plan, recordsForCreate);
     const updateSuccessCount = await executeUpdates(plan, recordsForUpdate);
@@ -203,7 +208,10 @@ const executeUpdateOrCreates = async (
       }),
     );
     if (childRecords && childRecords.length > 0) {
-      const existing = await relationPlan.model.findByIds(childRecords.map(r => r.id), false);
+      const existing = await relationPlan.model.findByIds(
+        childRecords.map(r => r.id),
+        false,
+      );
       const existingIdSet = new Set(existing.map(e => e.id));
       const recordsForCreate = childRecords.filter(r => !existingIdSet.has(r.id));
       const recordsForUpdate = childRecords.filter(r => existingIdSet.has(r.id));

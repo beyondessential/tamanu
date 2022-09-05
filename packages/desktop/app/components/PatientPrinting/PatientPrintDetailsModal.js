@@ -45,7 +45,7 @@ const PrintOptionList = ({ setCurrentlyPrinting }) => {
   return (
     <div style={{ display: 'flex', flexDirection: 'row' }}>
       {Object.entries(PRINT_OPTIONS)
-        .filter(([_, { condition }]) => !condition || condition(getLocalisation))
+        .filter(([, { condition }]) => !condition || condition(getLocalisation))
         .map(([type, { label, icon }]) => (
           <PrintOption
             key={type}

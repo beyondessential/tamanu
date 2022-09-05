@@ -1,6 +1,5 @@
 import React, { isValidElement } from 'react';
 import ReactDOMServer from 'react-dom/server';
-import { Button } from '@material-ui/core';
 import GetAppIcon from '@material-ui/icons/GetApp';
 import cheerio from 'cheerio';
 import XLSX from 'xlsx';
