@@ -90,17 +90,18 @@ reports.post(
     const reportModule = await reportUtils.getReportModule(reportId, models);
 
     if (!reportModule) {
-      reportLog.error('Report module not found', reportId, user.id);
-      res.status(400).send({ error: { message: 'invalid reportId' } });
+      const message = 'Report module not found';
+      reportLog.error(message, reportId, user.id);
+      res.status(400).send({ error: { message } });
       return;
     }
 
     req.checkPermission('read', reportModule.permission);
 
     try {
-      reportLog.log('info', 'Running report', reportId, user.id, { parameters });
+      reportLog.info('Running report', reportId, user.id, { parameters });
       const excelData = await reportModule.dataGenerator({ sequelize: db, models }, parameters);
-      reportLog.log('info', 'Report run successfully', reportId, user.id, { excelData });
+      reportLog.info('Report run successfully', reportId, user.id, { excelData });
       res.send(excelData);
     } catch (e) {
       reportLog.error('Report module failed to generate data', reportId, user.id, {

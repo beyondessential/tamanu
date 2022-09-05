@@ -207,6 +207,7 @@ export class ReportRunner {
 
       reportLog.info('Sending report', this.reportId, {
         recipients,
+        zipFile,
       });
 
       const result = await this.emailService.sendEmail({

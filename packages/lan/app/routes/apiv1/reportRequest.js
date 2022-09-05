@@ -7,7 +7,7 @@ import { reportLogWithContext, REPORT_LOG_NAMES } from './reports';
 
 export const reportRequest = express.Router();
 
-const reportLog = {
+const reportRequestLog = {
   error: reportLogWithContext('error', REPORT_LOG_NAMES.REQUEST),
   info: reportLogWithContext('info', REPORT_LOG_NAMES.REQUEST),
 };
@@ -22,7 +22,7 @@ reportRequest.post(
     req.checkPermission('create', 'ReportRequest');
     if (!reportId) {
       const message = 'Report id not specifed';
-      reportLog.error(message, reportId, user.id);
+      reportRequestLog.error(message, reportId, user.id);
       res.status(400).send({ error: { message } });
       return;
     }
@@ -34,7 +34,7 @@ reportRequest.post(
 
     if (!reportModule) {
       const message = 'Report module not found';
-      reportLog.error(message, reportId, user.id);
+      reportRequestLog.error(message, reportId, user.id);
       res.status(400).send({ error: { message } });
       return;
     }
@@ -55,21 +55,23 @@ reportRequest.post(
       parameters: JSON.stringify(body.parameters),
     };
     try {
-      reportLog.info('Report request creating', reportId, user.id, {
+      reportRequestLog.info('Report request creating', reportId, user.id, {
         recipients: newReportRequest.recipients,
         parameters: newReportRequest.parameters,
       });
 
       const createdRequest = await ReportRequest.create(newReportRequest);
 
-      reportLog.info('Report request created', reportId, user.id, {
+      reportRequestLog.info('Report request created', reportId, user.id, {
         recipients: newReportRequest.recipients,
         parameters: newReportRequest.parameters,
       });
 
       res.send(createdRequest);
     } catch (e) {
-      reportLog.error('Report request failed to create', reportId, user.id, { stack: e.stack });
+      reportRequestLog.error('Report request failed to create', reportId, user.id, {
+        stack: e.stack,
+      });
       res.status(400).send({ error: { message: e.message } });
     }
   }),

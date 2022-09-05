@@ -25,7 +25,7 @@ describe('Reports', () => {
       jest.spyOn(reportsUtils, 'getReportModule').mockResolvedValue(null);
       const res = await app.post('/v1/reports/invalid-report', {});
       expect(res).toHaveStatus(400);
-      expect(res.body).toEqual({ error: { message: 'invalid reportId' } });
+      expect(res.body).toEqual({ error: { message: 'Report module not found' } });
     });
     it('should fail with 400 and error message if dataGenerator encounters error', async () => {
       jest.spyOn(reportsUtils, 'getReportModule').mockResolvedValue({

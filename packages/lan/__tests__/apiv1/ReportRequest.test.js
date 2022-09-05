@@ -30,7 +30,7 @@ describe('ReportRequest', () => {
         emailList: [],
       });
       expect(res).toHaveStatus(400);
-      expect(res.body).toEqual({ error: { message: 'invalid reportId' } });
+      expect(res.body).toEqual({ error: { message: 'Report module not found' } });
     });
 
     it('should create a new report request', async () => {
