@@ -1,6 +1,5 @@
 import { ENCOUNTER_TYPES } from 'shared/constants';
 import { PATIENT_STATUS } from '../constants';
-import { capitaliseFirstLetter } from './capitalise';
 
 const ENCOUNTER_TYPE_TO_STATUS = {
   [ENCOUNTER_TYPES.ADMISSION]: PATIENT_STATUS.INPATIENT,
@@ -12,8 +11,8 @@ const ENCOUNTER_TYPE_TO_STATUS = {
 };
 
 export const getPatientStatus = encounterType => {
-  if (encounterType) {
+  if (!encounterType) {
     return '';
   }
-  return capitaliseFirstLetter(ENCOUNTER_TYPE_TO_STATUS[encounterType]);
+  return ENCOUNTER_TYPE_TO_STATUS[encounterType];
 };

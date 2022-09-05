@@ -422,10 +422,10 @@ export const PATIENT_REGISTRY_OPTIONS = [
 ];
 
 export const PATIENT_STATUS = {
-  INPATIENT: 'inpatient',
-  OUTPATIENT: 'outpatient',
-  EMERGENCY: 'emergency',
-  DECEASED: 'deceased',
+  INPATIENT: 'Inpatient',
+  OUTPATIENT: 'Outpatient',
+  EMERGENCY: 'Emergency',
+  DECEASED: 'Deceased',
 };
 
 export const PATIENT_STATUS_COLORS = {
