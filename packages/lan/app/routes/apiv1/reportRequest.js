@@ -23,7 +23,7 @@ reportRequest.post(
     req.checkPermission('create', 'ReportRequest');
     if (!reportId) {
       const message = 'Report id not specifed';
-      reportRequestLog.error(message, reportId, user.id);
+      reportRequestLog.error(message);
       res.status(400).send({ error: { message } });
       return;
     }
@@ -35,7 +35,7 @@ reportRequest.post(
 
     if (!reportModule) {
       const message = 'Report module not found';
-      reportRequestLog.error(message, reportId, user.id);
+      reportRequestLog.error(message);
       res.status(400).send({ error: { message } });
       return;
     }
@@ -56,21 +56,21 @@ reportRequest.post(
       parameters: JSON.stringify(body.parameters),
     };
     try {
-      reportRequestLog.info('Report request creating', reportId, user.id, {
+      reportRequestLog.info('Report request creating', {
         recipients: newReportRequest.recipients,
         parameters: newReportRequest.parameters,
       });
 
       const createdRequest = await ReportRequest.create(newReportRequest);
 
-      reportRequestLog.info('Report request created', reportId, user.id, {
+      reportRequestLog.info('Report request created', {
         recipients: newReportRequest.recipients,
         parameters: newReportRequest.parameters,
       });
 
       res.send(createdRequest);
     } catch (e) {
-      reportRequestLog.error('Report request failed to create', reportId, user.id, {
+      reportRequestLog.error('Report request failed to create', {
         stack: e.stack,
       });
       res.status(400).send({ error: { message: e.message } });

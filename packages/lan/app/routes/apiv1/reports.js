@@ -79,7 +79,7 @@ reports.post(
 
     if (!reportModule) {
       const message = 'Report module not found';
-      facilityReportLog.error(message, reportId, user.id);
+      facilityReportLog.error(message);
       res.status(400).send({ error: { message } });
       return;
     }
@@ -87,12 +87,12 @@ reports.post(
     req.checkPermission('read', reportModule.permission);
 
     try {
-      facilityReportLog.info('Running report', reportId, user.id, { parameters });
+      facilityReportLog.info('Running report', { parameters });
       const excelData = await reportModule.dataGenerator({ sequelize: db, models }, parameters);
-      facilityReportLog.info('Report run successfully', reportId, user.id, { excelData });
+      facilityReportLog.info('Report run successfully', { excelData });
       res.send(excelData);
     } catch (e) {
-      facilityReportLog.error('Report module failed to generate data', reportId, user.id, {
+      facilityReportLog.error('Report module failed to generate data', {
         stack: e.stack,
       });
       res.status(400).send({
