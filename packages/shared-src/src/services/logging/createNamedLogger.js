@@ -10,4 +10,5 @@ import { log } from './log';
  * @example const reportRunnerLogger = createNamedLogger('ReportRunner');
  * reportRunnerLogger.info('Running report', { reportName }); // => ReportRunner - Running report
  */
-export const createNamedLogger = (name, params = {}) => log.child({ name, ...params });
+export const createNamedLogger = (name, params = {}) =>
+  log.child({ name, childLabel: name, ...params });
