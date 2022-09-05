@@ -1,23 +1,12 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { createNamedLog } from 'shared-src/src/utils/reportLog';
 import * as reportUtils from 'shared/reports';
-import { log } from 'shared/services/logging/log';
 import { assertReportEnabled } from '../../utils/assertReportEnabled';
 
 const FACILITY_REPORT_LOG_NAME = 'FacilityReport';
 
-export const reportLogWithContext = (severity, name) => (message, reportId, userId, data = {}) =>
-  log[severity](`${name} - ${message}`, {
-    name,
-    reportId,
-    userId,
-    ...data,
-  });
-
-const reportLog = {
-  error: reportLogWithContext('error', FACILITY_REPORT_LOG_NAME),
-  info: reportLogWithContext('info', FACILITY_REPORT_LOG_NAME),
-};
+const facilityReportLog = createNamedLog(FACILITY_REPORT_LOG_NAME);
 
 export const reports = express.Router();
 
@@ -88,7 +77,7 @@ reports.post(
 
     if (!reportModule) {
       const message = 'Report module not found';
-      reportLog.error(message, reportId, user.id);
+      facilityReportLog.error(message, reportId, user.id);
       res.status(400).send({ error: { message } });
       return;
     }
@@ -96,12 +85,12 @@ reports.post(
     req.checkPermission('read', reportModule.permission);
 
     try {
-      reportLog.info('Running report', reportId, user.id, { parameters });
+      facilityReportLog.info('Running report', reportId, user.id, { parameters });
       const excelData = await reportModule.dataGenerator({ sequelize: db, models }, parameters);
-      reportLog.info('Report run successfully', reportId, user.id, { excelData });
+      facilityReportLog.info('Report run successfully', reportId, user.id, { excelData });
       res.send(excelData);
     } catch (e) {
-      reportLog.error('Report module failed to generate data', reportId, user.id, {
+      facilityReportLog.error('Report module failed to generate data', reportId, user.id, {
         stack: e.stack,
       });
       res.status(400).send({

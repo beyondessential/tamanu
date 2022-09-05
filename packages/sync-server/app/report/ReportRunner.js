@@ -7,22 +7,14 @@ import mkdirp from 'mkdirp';
 
 import { COMMUNICATION_STATUSES } from 'shared/constants';
 import { getReportModule } from 'shared/reports';
-import { log } from 'shared/services/logging';
 
+import { createNamedLogger } from 'shared-src/src/utils/createNamedLogger';
 import { removeFile, createZippedSpreadsheet, writeToSpreadsheet } from '../utils/files';
 import { getLocalisation } from '../localisation';
 
-const LOG_NAME = 'ReportRunner';
+const REPORT_RUNNER_LOG_NAME = 'ReportRunner';
 
-const logWithContext = severity => (message, reportId, data = {}) => {
-  const logData = { name: LOG_NAME, reportId, ...data };
-  log[severity](`${LOG_NAME} - ${message}`, logData);
-};
-
-const reportLog = {
-  info: logWithContext('info'),
-  error: logWithContext('error'),
-};
+const reportRunnerLog = createNamedLogger(REPORT_RUNNER_LOG_NAME);
 
 export class ReportRunner {
   constructor(reportId, parameters, recipients, store, emailService, userId) {
@@ -90,14 +82,16 @@ export class ReportRunner {
     let reportData = null;
     let metadata = [];
     try {
-      reportLog.info('Running report', this.reportId, { parameters: this.parameters });
+      reportRunnerLog.info('Running report', this.reportId, { parameters: this.parameters });
 
       reportData = await reportModule.dataGenerator(this.store, this.parameters);
       metadata = await this.getMetadata();
 
-      reportLog.info('Running report finished', this.reportId, { parameters: this.parameters });
+      reportRunnerLog.info('Running report finished', this.reportId, {
+        parameters: this.parameters,
+      });
     } catch (e) {
-      reportLog.error('Error running report', this.reportId, {
+      reportRunnerLog.error('Error running report', this.reportId, {
         stack: e.stack,
         parameters: this.parameters,
       });
@@ -205,7 +199,7 @@ export class ReportRunner {
       zipFile = await createZippedSpreadsheet(reportName, reportData);
       const recipients = this.recipients.email.join(',');
 
-      reportLog.info('Sending report', this.reportId, {
+      reportRunnerLog.info('Sending report', this.reportId, {
         recipients,
         zipFile,
       });
@@ -218,12 +212,12 @@ export class ReportRunner {
         attachment: zipFile,
       });
       if (result.status === COMMUNICATION_STATUSES.SENT) {
-        reportLog.info('Mailgun sent report', this.reportId, {
+        reportRunnerLog.info('Mailgun sent report', this.reportId, {
           recipients,
           zipFile,
         });
       } else {
-        reportLog.error('Mailgun error', this.reportId, {
+        reportRunnerLog.error('Mailgun error', this.reportId, {
           recipients,
           stack: result.error,
         });
@@ -264,7 +258,7 @@ export class ReportRunner {
 
       const filename = path.basename(zipFile);
 
-      reportLog.info('Uploading report to S3', this.reportId, {
+      reportRunnerLog.info('Uploading report to S3', this.reportId, {
         path: `${bucketName}/${bucketPath}/${filename}`,
         region,
       });
@@ -281,7 +275,7 @@ export class ReportRunner {
         }),
       );
 
-      reportLog.info('Uploaded report to S3', this.reportId, {
+      reportRunnerLog.info('Uploaded report to S3', this.reportId, {
         zipFile,
       });
     } finally {
