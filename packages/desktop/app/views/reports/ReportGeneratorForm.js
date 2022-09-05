@@ -170,125 +170,123 @@ export const ReportGeneratorForm = () => {
   }
 
   return (
-    <>
-      <Form
-        initialValues={{
-          reportId: '',
-          emails: currentUser.email,
-          ...parameters.reduce((acc, { name }) => ({ ...acc, [name]: null }), {}),
-        }}
-        onSubmit={submitRequestReport}
-        validationSchema={Yup.object().shape({
-          reportId: Yup.string().required('Report id is required'),
-          ...parameters.reduce(
-            (schema, field) => ({
-              ...schema,
-              [field.name]: buildParameterFieldValidation(field),
-            }),
-            {},
-          ),
-        })}
-        render={({ values, submitForm }) => (
-          <>
-            <FormGrid columns={2}>
-              <Field
-                name="reportId"
-                label="Report"
-                component={ReportIdField}
-                options={reportOptions}
-                required
-                onValueChange={setSelectedReportId}
-              />
-              <Field
-                name="dataSource"
-                label=" "
-                value={dataSource}
-                onChange={e => {
-                  setDataSource(e.target.value);
-                }}
-                options={[
-                  { label: 'This facility', value: REPORT_DATA_SOURCES.THIS_FACILITY },
-                  { label: 'All facilities', value: REPORT_DATA_SOURCES.ALL_FACILITIES },
-                ]}
-                component={RadioField}
-                disabled={isDataSourceFieldDisabled}
-              />
-            </FormGrid>
-            {parameters.length > 0 ? (
-              <>
-                <Spacer />
-                <FormGrid columns={3}>
-                  {parameters.map(({ parameterField, required, name, label, ...restOfProps }) => {
-                    return (
-                      <ParameterField
-                        key={name || parameterField}
-                        required={required}
-                        name={name}
-                        label={label}
-                        parameterValues={values}
-                        parameterField={parameterField}
-                        {...restOfProps}
-                      />
-                    );
-                  })}
-                </FormGrid>
-              </>
-            ) : null}
-            <DateRangeLabel variant="body1">{dateRangeLabel}</DateRangeLabel>
-            <FormGrid columns={2} style={{ marginBottom: 30 }}>
-              <Field name="fromDate" label="From date" component={DateField} />
-              <Field name="toDate" label="To date" component={DateField} />
-            </FormGrid>
-            {dataSource === REPORT_DATA_SOURCES.ALL_FACILITIES ? (
-              <EmailInputContainer>
-                <EmailField />
-              </EmailInputContainer>
-            ) : null}
-            {requestError && (
-              <Alert
-                severity="error"
-                style={{ marginBottom: 20 }}
-                onClose={() => {
-                  setRequestError(null);
-                }}
-              >{`Error: ${requestError}`}</Alert>
-            )}
-            {successMessage && (
-              <Alert
-                severity="success"
-                style={{ marginBottom: 20 }}
-                onClose={() => {
-                  setSuccessMessage(null);
-                }}
-              >
-                <AlertTitle>Success</AlertTitle>
-                {successMessage}
-              </Alert>
-            )}
-            <Box display="flex" justifyContent="flex-end">
-              <DropdownButton
-                size="large"
-                actions={[
-                  {
-                    label: 'Generate XLSX',
-                    onClick: event => {
-                      setBookFormat(REPORT_EXPORT_FORMATS.XLSX);
-                      submitForm(event);
-                    },
+    <Form
+      initialValues={{
+        reportId: '',
+        emails: currentUser.email,
+        ...parameters.reduce((acc, { name }) => ({ ...acc, [name]: null }), {}),
+      }}
+      onSubmit={submitRequestReport}
+      validationSchema={Yup.object().shape({
+        reportId: Yup.string().required('Report id is required'),
+        ...parameters.reduce(
+          (schema, field) => ({
+            ...schema,
+            [field.name]: buildParameterFieldValidation(field),
+          }),
+          {},
+        ),
+      })}
+      render={({ values, submitForm }) => (
+        <>
+          <FormGrid columns={2}>
+            <Field
+              name="reportId"
+              label="Report"
+              component={ReportIdField}
+              options={reportOptions}
+              required
+              onValueChange={setSelectedReportId}
+            />
+            <Field
+              name="dataSource"
+              label=" "
+              value={dataSource}
+              onChange={e => {
+                setDataSource(e.target.value);
+              }}
+              options={[
+                { label: 'This facility', value: REPORT_DATA_SOURCES.THIS_FACILITY },
+                { label: 'All facilities', value: REPORT_DATA_SOURCES.ALL_FACILITIES },
+              ]}
+              component={RadioField}
+              disabled={isDataSourceFieldDisabled}
+            />
+          </FormGrid>
+          {parameters.length > 0 ? (
+            <>
+              <Spacer />
+              <FormGrid columns={3}>
+                {parameters.map(({ parameterField, required, name, label, ...restOfProps }) => {
+                  return (
+                    <ParameterField
+                      key={name || parameterField}
+                      required={required}
+                      name={name}
+                      label={label}
+                      parameterValues={values}
+                      parameterField={parameterField}
+                      {...restOfProps}
+                    />
+                  );
+                })}
+              </FormGrid>
+            </>
+          ) : null}
+          <DateRangeLabel variant="body1">{dateRangeLabel}</DateRangeLabel>
+          <FormGrid columns={2} style={{ marginBottom: 30 }}>
+            <Field name="fromDate" label="From date" component={DateField} />
+            <Field name="toDate" label="To date" component={DateField} />
+          </FormGrid>
+          {dataSource === REPORT_DATA_SOURCES.ALL_FACILITIES ? (
+            <EmailInputContainer>
+              <EmailField />
+            </EmailInputContainer>
+          ) : null}
+          {requestError && (
+            <Alert
+              severity="error"
+              style={{ marginBottom: 20 }}
+              onClose={() => {
+                setRequestError(null);
+              }}
+            >{`Error: ${requestError}`}</Alert>
+          )}
+          {successMessage && (
+            <Alert
+              severity="success"
+              style={{ marginBottom: 20 }}
+              onClose={() => {
+                setSuccessMessage(null);
+              }}
+            >
+              <AlertTitle>Success</AlertTitle>
+              {successMessage}
+            </Alert>
+          )}
+          <Box display="flex" justifyContent="flex-end">
+            <DropdownButton
+              size="large"
+              actions={[
+                {
+                  label: 'Generate XLSX',
+                  onClick: event => {
+                    setBookFormat(REPORT_EXPORT_FORMATS.XLSX);
+                    submitForm(event);
                   },
-                  {
-                    label: 'Generate CSV',
-                    onClick: event => {
-                      setBookFormat(REPORT_EXPORT_FORMATS.CSV);
-                      submitForm(event);
-                    },
+                },
+                {
+                  label: 'Generate CSV',
+                  onClick: event => {
+                    setBookFormat(REPORT_EXPORT_FORMATS.CSV);
+                    submitForm(event);
                   },
-                ]}
-              />
-            </Box>
-          </>
-        )}
-      />
-    </>
+                },
+              ]}
+            />
+          </Box>
+        </>
+      )}
+    />
   );
 };
