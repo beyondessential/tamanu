@@ -1,50 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { groupBy } from 'lodash';
 import { NOTE_RECORD_TYPES } from 'shared/constants';
 
 import { useApi } from '../api';
 import { Suggester } from '../utils/suggester';
+import { groupRootNoteItems } from '../utils/groupRootNoteItems';
 
 import { Modal } from './Modal';
 import { NotePageForm } from '../forms/NotePageForm';
 import { useAuth } from '../contexts/Auth';
-
-/**
- * Group flat note items into nested ones:
- * eg:
- * [note1, note2, note3]
- * [
- *  {
- *    'note1'
- *    noteItems: [note2, note3]
- *  }
- * ]
- * @param {*} noteItems
- * @returns
- */
-const groupNoteItems = noteItems => {
-  const noteItemByRevisedId = groupBy(noteItems, noteItem => noteItem.revisedById || 'root');
-  const rootNoteItems = [];
-
-  // noteItemByRevisedId.root should never be empty but just in case
-  if (noteItemByRevisedId.root) {
-    noteItemByRevisedId.root
-      .sort((n1, n2) => n1.date.localeCompare(n2.date))
-      .forEach(rootNoteItem => {
-        let newRootNodeItem = { ...rootNoteItem };
-        let childNoteItems = noteItemByRevisedId[rootNoteItem.id];
-        if (childNoteItems?.length) {
-          childNoteItems = childNoteItems.sort((n1, n2) => n2.date.localeCompare(n1.date));
-          childNoteItems = [...childNoteItems, newRootNodeItem];
-          newRootNodeItem = childNoteItems.shift();
-        }
-        newRootNodeItem.noteItems = childNoteItems;
-        rootNoteItems.push(newRootNodeItem);
-      });
-  }
-
-  return rootNoteItems;
-};
 
 export const NotePageModal = ({
   title = 'Note',
@@ -65,7 +28,7 @@ export const NotePageModal = ({
       if (notePage) {
         const noteItemsResponse = await api.get(`notePages/${notePage.id}/noteItems`);
         const newNoteItems = noteItemsResponse.data;
-        const rootNoteItems = groupNoteItems(newNoteItems);
+        const rootNoteItems = groupRootNoteItems(newNoteItems);
 
         setNoteItems(rootNoteItems);
       }
@@ -94,7 +57,7 @@ export const NotePageModal = ({
         newNoteItems = [response.noteItem];
       }
 
-      const rootNoteItems = groupNoteItems(newNoteItems);
+      const rootNoteItems = groupRootNoteItems(newNoteItems);
 
       setNoteItems(rootNoteItems);
       resetForm();
@@ -120,7 +83,7 @@ export const NotePageModal = ({
       const response = await api.get(`notePages/${notePage.id}/noteItems`);
 
       const newNoteItems = response.data;
-      const rootNoteItems = groupNoteItems(newNoteItems);
+      const rootNoteItems = groupRootNoteItems(newNoteItems);
 
       setNoteItems(rootNoteItems);
     },

@@ -1,12 +1,71 @@
 import React, { useCallback, useState } from 'react';
+import styled from 'styled-components';
+import Tooltip from '@material-ui/core/Tooltip';
 
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
-import { noteTypes } from '../constants';
+import { noteTypes, Colors } from '../constants';
+import { groupRootNoteItems } from '../utils/groupRootNoteItems';
 import { NotePageModal } from './NotePageModal';
 
+const StyledTooltip = styled(props => (
+  <Tooltip classes={{ popper: props.className }} {...props}>
+    {props.children}
+  </Tooltip>
+))`
+  z-index: 1500;
+  pointer-events: auto;
+
+  & .MuiTooltip-tooltip {
+    background-color: ${Colors.primary};
+    color: ${Colors.white};
+    font-weight: 400;
+    font-size: 11px;
+    line-height: 15px;
+    white-space: pre-line;
+    cursor: pointer;
+  }
+`;
+const StyledNoteItemLogMetadata = styled.div`
+  color: ${Colors.white};
+`;
+
+const ItemTooltip = ({ childNoteItems = [] }) => {
+  if (!childNoteItems.length) {
+    return null;
+  }
+
+  // only show the first 5 items
+  const newChildNoteItems = childNoteItems.slice(0, 5);
+  return newChildNoteItems.map(noteItem => (
+    <div key={noteItem.id}>
+      <StyledNoteItemLogMetadata>
+        <p>{noteItem.content}</p>
+        <span>{noteItem.author.displayName} </span>
+        {noteItem.onBehalfOf ? <span>on behalf of {noteItem.onBehalfOf.displayName} </span> : null}
+        {Boolean(noteItem.noteItems) && <span> (edited) </span>}
+        <DateDisplay date={noteItem.date} showTime />
+      </StyledNoteItemLogMetadata>
+      <br />
+    </div>
+  ));
+};
+
 const getTypeLabel = ({ noteType }) => noteTypes.find(x => x.value === noteType).label;
-const getContent = ({ noteItems }) => noteItems[0]?.content || '';
+const getContent = ({ noteItems }) => {
+  const rootNoteItems = groupRootNoteItems(noteItems);
+  return (
+    <StyledTooltip
+      arrow
+      enterDelay={500}
+      leaveDelay={200}
+      followCursor
+      title={<ItemTooltip childNoteItems={rootNoteItems} />}
+    >
+      <span>{rootNoteItems[0]?.content || ''}</span>
+    </StyledTooltip>
+  );
+};
 
 const COLUMNS = [
   { key: 'date', title: 'Date', accessor: ({ date }) => <DateDisplay date={date} showTime /> },
@@ -18,7 +77,7 @@ export const NotePageTable = ({ encounterId }) => {
   const [isNotePageModalOpen, setNotePageModalOpen] = useState(false);
   const [modalTitle, setModalTitle] = useState('');
   const [refreshCount, setRefreshCount] = useState(0);
-  const [notePage, setNotePage] = useState({});
+  const [notePage, setNotePage] = useState(null);
   const handleRowClick = useCallback(
     data => {
       setModalTitle(`Note - ${getTypeLabel(data)}`);

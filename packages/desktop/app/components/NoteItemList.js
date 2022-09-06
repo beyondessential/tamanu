@@ -1,6 +1,13 @@
 import React from 'react';
 import Box from '@material-ui/core/Box';
+import styled from 'styled-components';
 import { NoteItem } from './NoteItem';
+
+const StyledBox = styled(Box)`
+  .MuiListItem-root {
+    padding-bottom: 0;
+  }
+`;
 
 export const NoteItemList = ({ noteItems = [], currentUserId, onEditNoteItem }) => {
   if (!noteItems?.length) {
@@ -8,7 +15,9 @@ export const NoteItemList = ({ noteItems = [], currentUserId, onEditNoteItem }) 
   }
 
   return (
-    <Box sx={{ width: '100%', maxHeight: 300, overflowY: 'scroll', bgcolor: 'background.paper' }}>
+    <StyledBox
+      sx={{ width: '100%', maxHeight: 300, overflowY: 'auto', bgcolor: 'background.paper' }}
+    >
       {noteItems.map(noteItem => (
         <NoteItem
           key={noteItem.id}
@@ -17,6 +26,6 @@ export const NoteItemList = ({ noteItems = [], currentUserId, onEditNoteItem }) 
           onEditNoteItem={onEditNoteItem}
         />
       ))}
-    </Box>
+    </StyledBox>
   );
 };

@@ -27,6 +27,7 @@ export const notePageListHandler = recordType => async (req, res) => {
       },
     ],
     where: { recordType, recordId, noteType: { [Op.not]: NOTE_TYPES.SYSTEM } },
+    order: [['createdAt', 'DESC']],
   });
 
   res.send({ data: rows, count: rows.length });

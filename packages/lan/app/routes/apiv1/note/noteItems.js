@@ -7,6 +7,8 @@ export { noteItemRoute as noteItems };
 noteItemRoute.post(
   '/:notePageId/noteItems',
   asyncHandler(async (req, res) => {
+    req.checkPermission('write', 'OtherPractitionerEncounterNote');
+
     const { models, body: noteItemData, params } = req;
     const { notePageId } = params;
 
@@ -44,8 +46,6 @@ noteItemRoute.post(
 noteItemRoute.get(
   '/:notePageId/noteItems',
   asyncHandler(async (req, res) => {
-    req.checkPermission('list', 'Note');
-
     const { models, params } = req;
     const { notePageId } = params;
 
