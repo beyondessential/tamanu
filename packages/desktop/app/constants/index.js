@@ -420,3 +420,10 @@ export const PATIENT_REGISTRY_OPTIONS = [
   { value: PATIENT_REGISTRY_TYPES.NEW_PATIENT, label: 'Create new patient' },
   { value: PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY, label: 'Register birth' },
 ];
+
+export const PATIENT_STATUS = {
+  INPATIENT: 'Inpatient',
+  OUTPATIENT: 'Outpatient',
+  EMERGENCY: 'Emergency',
+  DECEASED: 'Deceased',
+};
