@@ -1,10 +1,12 @@
 import React from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 import { Table } from './Table';
 import { DateDisplay } from './DateDisplay';
 
 import { capitaliseFirstLetter } from '../utils/capitalise';
 import { useEncounter } from '../contexts/Encounter';
+import { useApi } from '../api';
 
 const vitalsRows = [
   { key: 'height', title: 'Height', rounding: 0, unit: 'cm' },
@@ -26,9 +28,12 @@ function unitDisplay({ amount, unit, rounding }) {
 }
 
 export const VitalsTable = React.memo(() => {
-  const {
-    encounter: { vitals: readings },
-  } = useEncounter();
+  const { encounter } = useEncounter();
+  const api = useApi();
+  const { data, error, isLoading } = useQuery(['encounterVitals', encounter.id], () =>
+    api.get(`encounter/${encounter.id}/vitals`),
+  );
+  const readings = data?.data || [];
 
   // create a column for each reading
   const dataColumns = [
@@ -59,5 +64,13 @@ export const VitalsTable = React.memo(() => {
     ...transposeColumnToRow(row),
   }));
   // and return the table
-  return <Table columns={dataColumns} data={rows} elevated={false} />;
+  return (
+    <Table
+      columns={dataColumns}
+      data={rows}
+      elevated={false}
+      isLoading={isLoading}
+      errorMessage={error?.message}
+    />
+  );
 });
