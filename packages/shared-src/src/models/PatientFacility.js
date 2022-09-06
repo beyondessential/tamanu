@@ -1,11 +1,35 @@
+import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
 export class PatientFacility extends Model {
-  static init({ primaryKey, ...options }) {
+  static init(options) {
     super.init(
       {
-        id: primaryKey,
+        id: {
+          type: `TEXT GENERATED ALWAYS AS ("patient_id" || '-' || "facility_id") STORED`,
+          set() {
+            throw new Error(
+              'Patient facility records use a composite primary key - the convenience generated "id" field should not be set directly',
+            );
+          },
+        },
+        facility_id: {
+          type: DataTypes.STRING,
+          primaryKey: true, // composite primary key
+          references: {
+            model: 'facilities',
+            key: 'id',
+          },
+        },
+        patient_id: {
+          type: DataTypes.STRING,
+          primaryKey: true, // composite primary key
+          references: {
+            model: 'patients',
+            key: 'id',
+          },
+        },
       },
       {
         ...options,
