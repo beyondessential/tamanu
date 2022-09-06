@@ -235,7 +235,6 @@ export const DischargeForm = ({
           label="Discharge disposition"
           component={AutocompleteField}
           suggester={dispositionSuggester}
-          required
         />
         <OuterLabelFieldWrapper label="Discharge medications" style={{ gridColumn: '1 / -1' }}>
           <TableFormFields columns={medicationColumns} data={activeMedications} />
