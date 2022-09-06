@@ -15,11 +15,12 @@ notes_info as (
     json_agg(
       json_build_object(
         'note_type', note_type,
-        'content', 'TODO',
-        'note_date', "date"
+        'content', "content",
+        'note_date', ni."date"
       ) 
     ) aggregated_notes
-  from note_pages
+  from note_pages np
+  join note_items ni on ni.note_page_id = np.id
   group by record_id
 ),
 lab_test_info as (
@@ -167,12 +168,14 @@ encounter_notes_info as (
     json_agg(
       json_build_object(
         'note_type', note_type,
-        'content', 'TODO',
-        'note_date', "date"
+        'content', "content",
+        'note_date', ni."date"
       ) 
     ) "Notes"
-  from note_pages
+  from note_pages np
+  join note_items ni on ni.note_page_id = np.id
   where note_type != 'system'
+  and record_type = 'encounter' -- TODO: Hard code?
   group by record_id
 ),
 note_history as (
@@ -183,10 +186,7 @@ note_history as (
     matched_vals[3] "to",
     date
   from note_pages n,
-    lateral (select regexp_matches('TODO', 'Changed (.*) from (.*) to (.*)') matched_vals) matched_vals,
-    lateral (select matched_vals[1] place) place,
-    lateral (select matched_vals[2] "from") "from",
-    lateral (select matched_vals[3] "to") "to"
+    lateral (select regexp_matches('TODO', 'Changed (.*) from (.*) to (.*)') matched_vals) matched_vals
   where note_type = 'system'
   and record_type = 'encounter'
   and 'TODO' ~ 'Changed (.*) from (.*) to (.*)'
