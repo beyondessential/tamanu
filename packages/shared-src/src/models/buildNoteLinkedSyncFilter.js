@@ -1,7 +1,7 @@
 import { Op } from 'sequelize';
 
 function buildNoteLinkedSyncFilter(patientIds, isNotePage) {
-  const pathToNotePage = isNotePage ? '' : 'notePages.';
+  const pathToNotePage = isNotePage ? '' : 'notePage.';
 
   const includeFromNotePage = [
     'encounter',
@@ -24,7 +24,7 @@ function buildNoteLinkedSyncFilter(patientIds, isNotePage) {
     },
     include: isNotePage
       ? includeFromNotePage
-      : [{ association: 'notePages', include: includeFromNotePage }],
+      : [{ association: 'notePage', include: includeFromNotePage }],
   };
 }
 
