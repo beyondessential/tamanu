@@ -195,7 +195,7 @@ export const DischargeForm = ({
   const [dischargeNotes, setDischargeNotes] = useState([]);
   const api = useApi();
   const { getLocalisation } = useLocalisation();
-  const dischargeDisposition = !!getLocalisation('features.enableDischargeDisposition');
+  const dischargeDisposition = Boolean(getLocalisation('features.enableDischargeDisposition'));
 
   // Only display medications that are not discontinued
   // Might need to update condition to compare by end date (decision pending)
