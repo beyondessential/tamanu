@@ -293,13 +293,19 @@ case e.encounter_type
   when 'surveyResponse' then 'Survey response'
   else e.encounter_type
 end "encounterType",
+0 "weight",
+0 "hoursOfVentilation",
+0 "leaveDays",
+'TODO' "episodeEndStatus",
+'TODO' "visitType",
+'TODO' "encounterDischargeDisposition",
 case t.score
   when '1' then  'Emergency'
   when '2' then  'Priority'
   when '3' then  'Non-urgent'
   else t.score
 end "triageCategory",
-${"'hi'"
+${"'TODO'"
 //   case when t.closed_time is null 
 //   then age(t.triage_time)
 //   else age(t.closed_time, t.triage_time)

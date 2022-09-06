@@ -81,16 +81,22 @@ describe('fijiAspenMediciReport', () => {
           sex: expect.any(String), // TODO: one of x, y, z?
 
           // Encounter Details
-          patientBillingType: null,
           encounterId,
+          patientBillingType: null,
           encounterStartDate: expect.any(String), // TODO
           encounterEndDate: expect.any(String), // TODO
           encounterType: expect.any(String), // TODO
           reasonForEncounter: expect.any(String), // 'Survey response for Generic Referral',
+          weight: expect.any(Number), // Integer in grams
+          hoursOfVentilation: 0, // Placeholder - always 0
+          leaveDays: 0, // Placeholder - always 0
+          episodeEndStatus: expect.any(String),
+          visitType: expect.any(String),
+          encounterDischargeDisposition: expect.any(String),
 
           // Triage Details
           triageCategory: null,
-          waitTime: 'hi',
+          waitTime: 'TODO',
 
           // Location/Department
           location: [
@@ -119,6 +125,7 @@ describe('fijiAspenMediciReport', () => {
             {
               name: expect.any(String), // 'Glucose (hypertonic) 10%',
               discontinued: expect.any(Boolean),
+              discontinued_date: expect.any(String), // ISO8601
               discontinuing_reason: expect.any(String), // 'No longer clinically indicated',
             },
           ],
