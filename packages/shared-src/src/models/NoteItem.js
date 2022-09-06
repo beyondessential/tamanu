@@ -1,4 +1,5 @@
 import { Sequelize } from 'sequelize';
+import { SYNC_DIRECTIONS } from '../constants';
 
 import { Model } from './Model';
 import { buildNoteItemLinkedSyncFilter } from './buildNoteLinkedSyncFilter';
