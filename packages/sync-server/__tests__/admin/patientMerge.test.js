@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import {
   mergePatient,
   getTablesWithNoMergeCoverage,
@@ -241,6 +242,61 @@ describe('Patient merge', () => {
       expect(mergePatientPad).toHaveProperty('primaryContactNumber', 'merge-phone');
       expect(mergePatientPad).toHaveProperty('patientId', keep.id);
       expect(keepPatientPad.deletedAt).toBeTruthy();
+    });
+  });
+
+  describe('PatientFacility', () => {
+    it('Should replace patient facility records with a new one per facility', async () => {
+      const { Facility, PatientFacility } = models;
+      const [keep, merge] = await makeTwoPatients();
+
+      const facilityWithNone = await Facility.create(fake(Facility)); // eslint-disable-line no-unused-vars
+
+      const facilityWithKeep = await Facility.create(fake(Facility));
+      await PatientFacility.create({
+        id: PatientFacility.generateId(),
+        patientId: keep.id,
+        facilityId: facilityWithKeep.id,
+      });
+
+      const facilityWithMerge = await Facility.create(fake(Facility));
+      await PatientFacility.create({
+        id: PatientFacility.generateId(),
+        patientId: merge.id,
+        facilityId: facilityWithMerge.id,
+      });
+
+      const facilityWithBoth = await Facility.create(fake(Facility));
+      await PatientFacility.create({
+        id: PatientFacility.generateId(),
+        patientId: keep.id,
+        facilityId: facilityWithBoth.id,
+      });
+      await PatientFacility.create({
+        id: PatientFacility.generateId(),
+        patientId: merge.id,
+        facilityId: facilityWithBoth.id,
+      });
+
+      const prePatientFacilities = await PatientFacility.findAll({});
+      expect(prePatientFacilities.length).toEqual(4);
+
+      const { updates } = await mergePatient(models, keep.id, merge.id);
+      expect(updates).toEqual({
+        Patient: 1,
+        PatientFacility: 3,
+      });
+
+      const postPatientFacilities = await PatientFacility.findAll({});
+      expect(postPatientFacilities.length).toEqual(3);
+      expect(postPatientFacilities.map(p => p.facilityId).sort()).toEqual(
+        [facilityWithKeep.id, facilityWithMerge.id, facilityWithBoth.id].sort(),
+      );
+
+      const sameRecords = await PatientFacility.findAll({
+        where: { id: { [Op.in]: prePatientFacilities.map(p => p.id) } },
+      });
+      expect(sameRecords.length).toEqual(0); // old ones should all be deleted and replaced
     });
   });
 

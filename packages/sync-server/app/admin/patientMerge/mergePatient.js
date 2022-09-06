@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import { VISIBILITY_STATUSES } from 'shared/constants';
 import { InvalidParameterError } from 'shared/errors';
 import { reconcilePatient } from '../../utils/removeDuplicatedPatientAdditionalData';
@@ -25,7 +26,7 @@ const simpleUpdateModels = [
 // These ones need a little more attention.
 // Models in this array will be ignored by the automatic pass
 // so that they can be handled elsewhere.
-const specificUpdateModels = ['Patient', 'PatientAdditionalData'];
+const specificUpdateModels = ['Patient', 'PatientAdditionalData', 'PatientFacility'];
 
 const fieldReferencesPatient = field => field.references?.model === 'patients';
 const modelReferencesPatient = ([name, model]) =>
@@ -41,18 +42,18 @@ export async function getTablesWithNoMergeCoverage(models) {
 }
 
 async function simpleMergeRecordAcross(model, keepPatientId, unwantedPatientId) {
-  // We need to go via a raw query as Model.update({}) performs validation on the 
+  // We need to go via a raw query as Model.update({}) performs validation on the
   // whole record, so we'll be rejected for failing to include required fields -
   //  even though we only want to update patientId!
   // Note that this also means that *even if a record has been soft-deleted* its
   // patientId will be shifted over to the "keep" patient. This is desirable! The
-  // two patients are the same person, we're not meaningfully *updating* data 
+  // two patients are the same person, we're not meaningfully *updating* data
   // here, we're correcting it.
   const tableName = model.getTableName();
   const [records, result] = await model.sequelize.query(
     `
-    UPDATE ${tableName} 
-    SET 
+    UPDATE ${tableName}
+    SET
       patient_id = :keepPatientId,
       updated_at = current_timestamp(3)
     WHERE
@@ -74,9 +75,7 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
   return sequelize.transaction(async () => {
     const keepPatient = await models.Patient.findByPk(keepPatientId);
     if (!keepPatient) {
-      throw new InvalidParameterError(
-        `Patient to keep (with id ${keepPatientId}) does not exist.`
-      );
+      throw new InvalidParameterError(`Patient to keep (with id ${keepPatientId}) does not exist.`);
     }
 
     const unwantedPatient = await models.Patient.findByPk(unwantedPatientId);
@@ -111,8 +110,8 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
     }
 
     // Now reconcile patient additional data.
-    // Note that we basically use the same logic as above; I've just separated 
-    // it out to highlight the fact that it requires special treatment. 
+    // Note that we basically use the same logic as above; I've just separated
+    // it out to highlight the fact that it requires special treatment.
     // (If a later update to this code would make more sense to consolidate
     // them that should be fine.)
     const padRecordsMerged = await simpleMergeRecordAcross(
@@ -124,6 +123,38 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
       updates.PatientAdditionalData = padRecordsMerged;
       // this is the only different bit:
       await reconcilePatient(sequelize, keepPatientId);
+    }
+
+    // Finally reconcile patient_facilities records
+    // This is a special case that helps with syncing the now-merged patient to any facilities
+    // that track it
+    // For any facility with a patient_facilities record on _either_ patient, we create a brand new
+    // patient_facilities record, then delete the old one(s). This is the simplest way of making sure
+    // that no matter what, all facilities that previously tracked either patient will track the
+    // merged one, _and_ will resync it from scratch and get any history that was associated by the
+    // one that wasn't tracked (obviously there are individual cases that could be handled more
+    // specifically, but better to have a simple rule to rule them all, at the expense of a bit of
+    // extra sync bandwidth)
+    const where = { patientId: { [Op.in]: [keepPatientId, unwantedPatientId] } };
+    const existingPatientFacilityRecords = await models.PatientFacility.findAll({
+      where,
+    });
+    await models.PatientFacility.destroy({ where, force: true }); // hard delete
+    const facilitiesTrackingPatient = [
+      ...new Set(existingPatientFacilityRecords.map(r => r.facilityId)),
+    ];
+    const newPatientFacilities = facilitiesTrackingPatient.map(facilityId => ({
+      patientId: keepPatientId,
+      facilityId,
+    }));
+    if (newPatientFacilities.length > 0) {
+      try {
+        await models.PatientFacility.bulkCreate(newPatientFacilities);
+      } catch (e) {
+        console.log(e);
+        throw e;
+      }
+      updates.PatientFacility = newPatientFacilities.length;
     }
 
     return {
