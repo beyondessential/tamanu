@@ -1,4 +1,3 @@
-import { useSelector } from 'react-redux';
 import { createStatePreservingReducer } from '../utils/createStatePreservingReducer';
 
 // actions

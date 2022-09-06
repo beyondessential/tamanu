@@ -13,7 +13,7 @@ export class PatientCarePlan extends Model {
         ...options,
         syncConfig: {
           ...initSyncForModelNestedUnderPatient(this, 'carePlan'),
-          includedRelations: ['notes'],
+          includedRelations: ['notePages', 'notePages.noteItems'],
         },
       },
     );
@@ -24,9 +24,9 @@ export class PatientCarePlan extends Model {
     this.belongsTo(models.ReferenceData, { foreignKey: 'carePlanId', as: 'carePlan' });
     this.belongsTo(models.User, { foreignKey: 'examinerId', as: 'examiner' });
 
-    this.hasMany(models.Note, {
+    this.hasMany(models.NotePage, {
       foreignKey: 'recordId',
-      as: 'notes',
+      as: 'notePages',
       constraints: false,
       scope: {
         recordType: this.name,
