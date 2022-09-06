@@ -1,5 +1,6 @@
 import { VISIBILITY_STATUSES } from 'shared/constants';
 import { InvalidParameterError } from 'shared/errors';
+import { log } from 'shared/services/logging';
 import { reconcilePatient } from '../../utils/removeDuplicatedPatientAdditionalData';
 
 // These ones just need a patientId switched over.
@@ -28,28 +29,28 @@ const simpleUpdateModels = [
 const specificUpdateModels = ['Patient', 'PatientAdditionalData'];
 
 const fieldReferencesPatient = field => field.references?.model === 'patients';
-const modelReferencesPatient = ([name, model]) =>
+const modelReferencesPatient = ([, model]) =>
   Object.values(model.getAttributes()).some(fieldReferencesPatient);
 
 export async function getTablesWithNoMergeCoverage(models) {
   const modelsToUpdate = Object.entries(models).filter(modelReferencesPatient);
 
   const coveredModels = [...simpleUpdateModels, ...specificUpdateModels];
-  const missingModels = modelsToUpdate.filter(([name, model]) => !coveredModels.includes(name));
+  const missingModels = modelsToUpdate.filter(([name]) => !coveredModels.includes(name));
 
   return missingModels;
 }
 
 async function simpleMergeRecordAcross(model, keepPatientId, unwantedPatientId) {
-  // We need to go via a raw query as Model.update({}) performs validation on the 
+  // We need to go via a raw query as Model.update({}) performs validation on the
   // whole record, so we'll be rejected for failing to include required fields -
   //  even though we only want to update patientId!
   // Note that this also means that *even if a record has been soft-deleted* its
   // patientId will be shifted over to the "keep" patient. This is desirable! The
-  // two patients are the same person, we're not meaningfully *updating* data 
+  // two patients are the same person, we're not meaningfully *updating* data
   // here, we're correcting it.
   const tableName = model.getTableName();
-  const [records, result] = await model.sequelize.query(
+  const [, result] = await model.sequelize.query(
     `
     UPDATE ${tableName} 
     SET 
@@ -71,12 +72,15 @@ async function simpleMergeRecordAcross(model, keepPatientId, unwantedPatientId) 
 
 export async function mergePatient(models, keepPatientId, unwantedPatientId) {
   const { sequelize } = models.Patient;
+
+  if (keepPatientId === unwantedPatientId) {
+    throw new InvalidParameterError('Cannot merge a patient record into itself.');
+  }
+
   return sequelize.transaction(async () => {
     const keepPatient = await models.Patient.findByPk(keepPatientId);
     if (!keepPatient) {
-      throw new InvalidParameterError(
-        `Patient to keep (with id ${keepPatientId}) does not exist.`
-      );
+      throw new InvalidParameterError(`Patient to keep (with id ${keepPatientId}) does not exist.`);
     }
 
     const unwantedPatient = await models.Patient.findByPk(unwantedPatientId);
@@ -86,6 +90,8 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
         `Patient to merge (with id ${unwantedPatientId}) does not exist.`,
       );
     }
+
+    log.info('patientMerge: starting', { keepPatientId, unwantedPatientId, name: 'PatientMerge' });
 
     const updates = {};
 
@@ -111,8 +117,8 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
     }
 
     // Now reconcile patient additional data.
-    // Note that we basically use the same logic as above; I've just separated 
-    // it out to highlight the fact that it requires special treatment. 
+    // Note that we basically use the same logic as above; I've just separated
+    // it out to highlight the fact that it requires special treatment.
     // (If a later update to this code would make more sense to consolidate
     // them that should be fine.)
     const padRecordsMerged = await simpleMergeRecordAcross(
@@ -125,6 +131,13 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
       // this is the only different bit:
       await reconcilePatient(sequelize, keepPatientId);
     }
+
+    log.info('patientMerge: finished', {
+      keepPatientId,
+      unwantedPatientId,
+      updates,
+      name: 'PatientMerge',
+    });
 
     return {
       updates,
