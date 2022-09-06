@@ -48,6 +48,7 @@ export const MODEL_DEPENDENCY_ORDER = [
   'LabTest',
   'LabRequest',
   'ImagingRequest',
+  'ImagingRequestAreas',
 
   'NotePage',
   'NoteItem',
