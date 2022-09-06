@@ -34,7 +34,6 @@ describe('fijiAspenMediciReport', () => {
           name: 'Bicarbonate',
         }),
       );
-
       const patient = await models.Patient.create(
         fake(models.Patient, {
           displayId: 'BTIO864386',
@@ -50,6 +49,11 @@ describe('fijiAspenMediciReport', () => {
           reasonForEncounter: 'Severe Migrane',
         }),
       );
+      const triage = models.Triage.build(
+        fake(models.Triage, { encounterId, score: 2 }), {
+        options: { raw: true },
+      });
+      await triage.save();
       await models.EncounterDiagnosis.create(
         fake(models.EncounterDiagnosis, { encounterId, diagnosisId }),
       );
@@ -106,6 +110,8 @@ describe('fijiAspenMediciReport', () => {
           encounterEndDate: '2022-06-12T00:02:54.225Z',
           encounterType: ENCOUNTER_TYPES.ADMISSION,
           reasonForEncounter: 'Severe Migrane',
+
+          // New fields
           weight: expect.any(Number), // TODO: Integer in grams
           hoursOfVentilation: 0, // Placeholder - always 0
           leaveDays: 0, // Placeholder - always 0
@@ -114,7 +120,7 @@ describe('fijiAspenMediciReport', () => {
           encounterDischargeDisposition: expect.any(String),
 
           // Triage Details
-          triageCategory: null,
+          triageCategory: 'Priority',
           waitTime: 'TODO',
 
           // Location/Department
