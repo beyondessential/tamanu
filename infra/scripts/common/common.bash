@@ -61,8 +61,9 @@ function connect_postgres {
 
 # determine eb environment
 if [ -n "${1:-}" ] && [ -n "${2:-}" ]; then
-    ENVIRONMENT="$1-$2"
-    pushd "$SCRIPT_DIR/../../eb/$1" > /dev/null
+    APPLICATION="$1"
+    ENVIRONMENT="$2"
+    pushd "$SCRIPT_DIR/../../eb/$APPLICATION" > /dev/null
 else
     prusage
 fi
