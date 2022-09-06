@@ -1,7 +1,6 @@
 import { subDays } from 'date-fns';
 
-import { REFERENCE_TYPES } from 'shared/constants';
-import { NOTE_RECORD_TYPES } from 'shared/models/Note';
+import { REFERENCE_TYPES, NOTE_RECORD_TYPES, NOTE_TYPES } from 'shared/constants';
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 
@@ -54,8 +53,12 @@ describe('fijiAspenMediciReport', () => {
         fake(models.LabRequest, { encounterId }),
       );
       await models.LabTest.create(fake(models.LabTest, { labRequestId, labTestTypeId }));
-      await models.Note.create(
-        fake(models.Note, { recordId: labRequestId, recordType: NOTE_RECORD_TYPES.LAB_REQUEST }),
+      await models.NotePage.create(
+        fake(models.NotePage, {
+          recordId: labRequestId,
+          noteType: NOTE_TYPES.OTHER,
+          recordType: NOTE_RECORD_TYPES.LAB_REQUEST,
+        }),
       );
 
       // act
@@ -151,9 +154,9 @@ describe('fijiAspenMediciReport', () => {
               ],
               notes: [
                 {
-                  note_type: expect.any(String), //'other',
-                  content: expect.any(String), //'Add lab request note',
-                  note_date: expect.any(String), //'2022-06-09T02:04:54.225+00:00',
+                  note_type: expect.any(String), // 'other',
+                  content: expect.any(String), // 'Add lab request note',
+                  note_date: expect.any(String), // '2022-06-09T02:04:54.225+00:00',
                 },
               ],
             },
