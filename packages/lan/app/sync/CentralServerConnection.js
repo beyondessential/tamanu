@@ -259,8 +259,8 @@ export class CentralServerConnection {
     return channelsWithPendingChanges;
   }
 
-  async pull(channel, { since = 0, until, limit = 100, page = 0, noCount = 'false' } = {}) {
-    const query = { since, limit, page, noCount, until };
+  async pull(channel, { since = 0, limit = 100, page = 0, noCount = 'false' } = {}) {
+    const query = { since, limit, page, noCount };
     const path = `sync/${encodeURIComponent(channel)}?${objectToQueryString(query)}`;
     return this.fetch(path);
   }
