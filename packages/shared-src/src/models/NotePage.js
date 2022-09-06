@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { Model } from './Model';
 import { NoteItem } from './NoteItem';
-import { NOTE_RECORD_TYPE_VALUES, NOTE_TYPE_VALUES } from '../constants';
+import { NOTE_RECORD_TYPE_VALUES, NOTE_TYPE_VALUES, SYNC_DIRECTIONS } from '../constants';
 
 export class NotePage extends Model {
   static init({ primaryKey, ...options }) {
