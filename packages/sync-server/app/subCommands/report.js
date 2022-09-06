@@ -42,13 +42,7 @@ async function report(options) {
   const store = await initDatabase({ testMode: false });
   setupEnv();
   try {
-    const {
-      reportId,
-      parameters,
-      recipients,
-      userId,
-      format = REPORT_EXPORT_FORMATS.XLSX,
-    } = options;
+    const { reportId, parameters, recipients, userId, format } = options;
 
     await validateReportId(reportId, store.models);
 
@@ -109,5 +103,5 @@ export const reportCommand = new Command('report')
   )
   .option('-p, --parameters <json>', 'JSON parameters')
   .option('-u, --userId <string>', 'Requested by userId')
-  .option('-f, --format <string>', 'Export format (xslx or csv)')
+  .option('-f, --format <string>', 'Export format (xslx or csv)', REPORT_EXPORT_FORMATS.XLSX)
   .action(report);

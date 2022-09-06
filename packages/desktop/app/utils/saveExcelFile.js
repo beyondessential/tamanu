@@ -6,13 +6,13 @@ const stringifyIfNonDateObject = val =>
 
 export async function saveExcelFile(
   { data, metadata },
-  { promptForFilePath, filePath, defaultFileName, bookType },
+  { promptForFilePath, filePath, defaultFileName = '', bookType },
 ) {
   let path;
   if (promptForFilePath) {
     path = await showFileDialog(
-      [{ name: 'Excel spreadsheet', extensions: [bookType] }],
-      defaultFileName || '',
+      [{ name: `Excel spreadsheet (${bookType})`, extensions: [bookType] }],
+      defaultFileName,
     );
     if (!path) {
       // user cancelled
@@ -31,7 +31,8 @@ export async function saveExcelFile(
   metadataSheet['!cols'] = [{ wch: 30 }, { wch: 30 }];
 
   const dataSheet = XLSX.utils.aoa_to_sheet(stringifiedData);
-  // For csv bookTypes, only the first sheet will be exported
+  // For csv bookTypes, only the first sheet will be exported as CSV book types don't support
+  // multiple tabs
   XLSX.utils.book_append_sheet(book, dataSheet, 'report');
   XLSX.utils.book_append_sheet(book, metadataSheet, 'metadata');
 

@@ -13,7 +13,15 @@ import {
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useApi } from '../../api';
 import { useAuth } from '../../contexts/Auth';
-import { AutocompleteField, FormGrid, DateField, Field, Form, RadioField } from '../../components';
+import {
+  AutocompleteField,
+  FormGrid,
+  DateField,
+  Field,
+  Form,
+  RadioField,
+  formatShort,
+} from '../../components';
 import { DropdownButton } from '../../components/DropdownButton';
 import { Colors } from '../../constants';
 import { saveExcelFile } from '../../utils/saveExcelFile';
@@ -128,7 +136,7 @@ export const ReportGeneratorForm = () => {
 
         const reportName = reportsById[reportId].name;
 
-        const date = format(new Date(), 'dd/MM/yyyy');
+        const date = formatShort(new Date());
 
         const metadata = [
           ['Report Name:', reportName],
@@ -238,11 +246,11 @@ export const ReportGeneratorForm = () => {
             <Field name="fromDate" label="From date" component={DateField} />
             <Field name="toDate" label="To date" component={DateField} />
           </FormGrid>
-          {dataSource === REPORT_DATA_SOURCES.ALL_FACILITIES ? (
+          {dataSource === REPORT_DATA_SOURCES.ALL_FACILITIES && (
             <EmailInputContainer>
               <EmailField />
             </EmailInputContainer>
-          ) : null}
+          )}
           {requestError && (
             <Alert
               severity="error"
