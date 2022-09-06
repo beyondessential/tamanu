@@ -72,7 +72,6 @@ with
     select
       id,
       condition_id,
-      max(case when rnum = 1 then time_after_onset end) as "Time between onset of cause and death",
       max(case when rnum = 1 then name end) as "Other contributing conditions 1",
       max(case when rnum = 2 then name end) as "Other contributing conditions 2",
       max(case when rnum = 3 then name end) as "Other contributing conditions 3",
@@ -120,7 +119,7 @@ select distinct on (p.date_of_death, p.id)
   to_char(p.date_of_death::timestamp, 'dd/mm/yyyy HH12:MI AM') as "Date and time of death",
   u.display_name as "Attending clinician",
   rd4.name as "Cause of death",
-  os."Time between onset of cause and death",
+  pdd.primary_cause_time_after_onset as "Time between onset of cause and death",
   rd5.name as "Due to (or as a consequence of) 1",
   rd6.name as "Due to (or as a consequence of) 2",
   os."Other contributing conditions 1",
