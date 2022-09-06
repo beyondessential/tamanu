@@ -21,7 +21,7 @@ import {
 import { useApi, useSuggester } from '../../api';
 import { ImagingRequestPrintout } from '../../components/PatientPrinting/ImagingRequestPrintout';
 import { useLocalisation } from '../../contexts/Localisation';
-import { ENCOUNTER_TAB_NAMES } from './EncounterView';
+import { ENCOUNTER_TAB_NAMES } from './encounterTabNames';
 
 const statusOptions = [
   { value: 'pending', label: 'Pending' },

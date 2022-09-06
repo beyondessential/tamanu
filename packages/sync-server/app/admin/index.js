@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { ForbiddenError } from 'shared/errors';
+import { ForbiddenError, NotFoundError } from 'shared/errors';
 import { constructPermission } from 'shared/permissions/middleware';
 import asyncHandler from 'express-async-handler';
 import { createDataImporterEndpoint } from './importerEndpoint';
@@ -21,9 +21,37 @@ adminRoutes.use(constructPermission);
 adminRoutes.use(
   asyncHandler((req, res, next) => {
     if (!req.ability.can('write', 'ReferenceData') || !req.ability.can('write', 'User')) {
-      throw new ForbiddenError('You do not have permission to access the central server admin panel.');
+      throw new ForbiddenError(
+        'You do not have permission to access the central server admin panel.',
+      );
     }
     next();
+  }),
+);
+
+adminRoutes.post('/mergePatient', mergePatientHandler);
+
+// A temporary lookup-patient-by-displayId endpoint, just to
+// support patient merge because the patient search functionality is only
+// available on LAN and there was some time pressure to get it out the door.
+// This should be replaced by the full-fledged patient search once some
+// more consideration has been put into how that functionality should best
+// be shared between the server modules.
+adminRoutes.get(
+  '/lookup/patient/:displayId',
+  asyncHandler(async (req, res) => {
+    // Note there is no permission check for this endpoint as it's mounted under the
+    // admin routes
+    const { Patient } = req.store.models;
+    const { displayId } = req.params;
+    const patient = await Patient.findOne({
+      where: {
+        displayId,
+      },
+      include: ['village'],
+    });
+    if (!patient) throw new NotFoundError(`Could not find patient with display ID ${displayId}.`);
+    res.send(patient);
   }),
 );
 
@@ -36,5 +64,3 @@ adminRoutes.post(
   '/importProgram',
   createDataImporterEndpoint(programImporter, PROGRAM_PERMISSIONS),
 );
-
-adminRoutes.post('/mergePatient', mergePatientHandler);

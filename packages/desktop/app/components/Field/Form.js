@@ -54,7 +54,7 @@ export class Form extends React.PureComponent {
 
     // avoid multiple submissions
     if (isSubmitting) {
-      return;
+      return null;
     }
 
     setSubmitting(true);
