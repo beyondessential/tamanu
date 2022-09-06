@@ -1,6 +1,6 @@
 import { subDays } from 'date-fns';
 
-import { REFERENCE_TYPES, NOTE_RECORD_TYPES, NOTE_TYPES } from 'shared/constants';
+import { REFERENCE_TYPES, NOTE_RECORD_TYPES, NOTE_TYPES, ENCOUNTER_TYPES } from 'shared/constants';
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 
@@ -35,14 +35,20 @@ describe('fijiAspenMediciReport', () => {
         }),
       );
 
-      const { id: patientId } = await models.Patient.create(
+      const patient = await models.Patient.create(
         fake(models.Patient, {
           displayId: 'BTIO864386',
           dateOfBirth: '1952-10-12',
         }),
       );
       const { id: encounterId } = await models.Encounter.create(
-        fake(models.Encounter, { patientId }),
+        fake(models.Encounter, {
+          patientId: patient.id,
+          startDate: '2022-06-09T00:02:54.225+00:00',
+          endDate: '2022-06-12T00:02:54.225+00:00',
+          encounterType: ENCOUNTER_TYPES.ADMISSION,
+          reasonForEncounter: 'Severe Migrane',
+        }),
       );
       await models.EncounterDiagnosis.create(
         fake(models.EncounterDiagnosis, { encounterId, diagnosisId }),
@@ -66,7 +72,7 @@ describe('fijiAspenMediciReport', () => {
       await models.NoteItem.create(
         fake(models.NoteItem, {
           notePageId,
-          content: 'This is a test note',
+          content: 'This is a lab request note',
           date: '2022-06-09T02:04:54.225+00:00',
         }),
       );
@@ -87,20 +93,20 @@ describe('fijiAspenMediciReport', () => {
         {
           // Patient Details
           patientId: 'BTIO864386',
-          firstname: expect.any(String),
-          lastname: expect.any(String),
+          firstname: patient.firstName,
+          lastname: patient.lastName,
           dateOfBirth: '1952-10-12',
-          age: expect.any(Number),
-          sex: expect.any(String), // TODO: one of x, y, z?
+          age: expect.any(Number), // TODO
+          sex: patient.sex,
 
           // Encounter Details
           encounterId,
           patientBillingType: null,
-          encounterStartDate: expect.any(String), // TODO
-          encounterEndDate: expect.any(String), // TODO
-          encounterType: expect.any(String), // TODO
-          reasonForEncounter: expect.any(String), // 'Survey response for Generic Referral',
-          weight: expect.any(Number), // Integer in grams
+          encounterStartDate: '2022-06-09T00:02:54.225Z',
+          encounterEndDate: '2022-06-12T00:02:54.225Z',
+          encounterType: ENCOUNTER_TYPES.ADMISSION,
+          reasonForEncounter: 'Severe Migrane',
+          weight: expect.any(Number), // TODO: Integer in grams
           hoursOfVentilation: 0, // Placeholder - always 0
           leaveDays: 0, // Placeholder - always 0
           episodeEndStatus: expect.any(String),
@@ -163,8 +169,8 @@ describe('fijiAspenMediciReport', () => {
               ],
               notes: [
                 {
-                  note_type: 'other',
-                  content: 'This is a test note', // 'Add lab request note',
+                  note_type: NOTE_TYPES.OTHER,
+                  content: 'This is a lab request note',
                   note_date: '2022-06-09T02:04:54.225+00:00',
                 },
               ],

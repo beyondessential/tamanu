@@ -28,8 +28,7 @@ lab_test_info as (
     lab_request_id,
     json_agg(
       json_build_object(
-        'name', ltt.name,
-        'notes', 'TODO'
+        'name', ltt.name
       )
     ) tests
   from lab_tests lt
@@ -282,8 +281,8 @@ extract(year from age(p.date_of_birth::date)) "age",
 p.sex "sex",
 billing.name "patientBillingType",
 e.id "encounterId",
-to_char(e.start_date, 'YYYY-MM-DD HH24' || CHR(58) || 'MI') "encounterStartDate",
-to_char(e.end_date, 'YYYY-MM-DD HH24' || CHR(58) || 'MI') "encounterEndDate",
+e.start_date "encounterStartDate",
+e.end_date "encounterEndDate",
 case e.encounter_type
   when 'triage' then  'Triage'
   when 'observation' then  'Active ED patient'
