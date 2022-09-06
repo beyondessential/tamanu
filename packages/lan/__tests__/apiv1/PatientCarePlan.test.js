@@ -34,12 +34,14 @@ describe('PatientCarePlan', () => {
     });
 
     it('should create a care plan with note', async () => {
+      const onBehalfOfUserId = await randomUser(models);
       const noteDate = new Date().toISOString();
       const result = await app.post('/v1/patientCarePlan').send({
         date: noteDate,
         carePlanId,
         patientId: patient.get('id'),
         content: 'Main care plan',
+        examinerId: onBehalfOfUserId,
       });
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveProperty('id');
@@ -63,25 +65,27 @@ describe('PatientCarePlan', () => {
     });
 
     it('should return return notes in order of creation', async () => {
+      const onBehalfOfUserId = await randomUser(models);
       const createCarePlanRequest = await app.post('/v1/patientCarePlan').send({
         date: new Date().toISOString(),
         carePlanId,
         patientId: patient.get('id'),
+        examinerId: onBehalfOfUserId,
         content: 'Main care plan',
       });
       expect(createCarePlanRequest).toHaveSucceeded();
-      const onBehalfOfUserId = await randomUser(models);
       const additionalNoteRequest = await app
         .post(`/v1/patientCarePlan/${createCarePlanRequest.body.id}/notes`)
         .send({
           date: new Date().toISOString(),
           content: 'Second note',
-          onBehalfOfId: onBehalfOfUserId,
+          examinerId: onBehalfOfUserId,
         });
       expect(additionalNoteRequest).toHaveSucceeded();
       const noteResult = await app.get(
         `/v1/patientCarePlan/${createCarePlanRequest.body.id}/notes`,
       );
+
       expect(noteResult).toHaveSucceeded();
       expect(noteResult.body.length).toBeGreaterThan(0);
       expect(noteResult.body[0].content).toBe('Main care plan');
@@ -98,7 +102,7 @@ describe('PatientCarePlan', () => {
         content: 'Main care plan',
       });
       const noteResult = await app.get(`/v1/patientCarePlan/${result.body.id}/notes`);
-      const deleteResult = await app.delete(`/v1/note/${noteResult.body[0].id}`);
+      const deleteResult = await app.delete(`/v1/notePages/${noteResult.body[0].id}`);
       expect(deleteResult).toHaveSucceeded();
       const emptyNotesResult = await app.get(`/v1/patientCarePlan/${result.body.id}/notes`);
       expect(emptyNotesResult.body.length).toBe(0);

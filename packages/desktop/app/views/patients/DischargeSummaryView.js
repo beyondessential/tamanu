@@ -164,6 +164,12 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
           <Label>Department: </Label>
           {location && location.name}
         </div>
+        {discharge && (
+          <div>
+            <Label>Discharge disposition: </Label>
+            {discharge.disposition?.name}
+          </div>
+        )}
         <div />
       </Content>
       <HorizontalLine />

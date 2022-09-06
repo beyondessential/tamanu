@@ -144,6 +144,12 @@ describe("Patient merge", () => {
     expect(death).toHaveProperty('patientId', keep.id);
   });
 
+  it("Should throw if the keep patient and merge patient are the same", async () => {
+    const { Patient } = models;
+    const keep = await Patient.create(fake(Patient));
+    expect(() => mergePatient(models, keep.id, keep.id)).rejects.toThrow(InvalidParameterError);
+  });
+
   it("Should throw if the keep patient doesn't exist", async () => {
     const { Patient } = models;
     const keep = await Patient.create(fake(Patient));
