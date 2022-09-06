@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize';
+import { DataTypes } from 'sequelize';
 import { Model } from './Model';
 import { NoteItem } from './NoteItem';
 import { buildNotePageLinkedSyncFilter } from './buildNoteLinkedSyncFilter';
@@ -8,19 +8,22 @@ export class NotePage extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
-        id: primaryKey,
+        id: {
+          ...primaryKey,
+          type: DataTypes.UUID,
+        },
         noteType: {
-          type: Sequelize.STRING,
+          type: DataTypes.STRING,
           allowNull: false,
         },
         recordType: {
-          type: Sequelize.STRING,
+          type: DataTypes.STRING,
           allowNull: false,
         },
         date: {
-          type: Sequelize.DATE,
+          type: DataTypes.DATE,
           allowNull: false,
-          defaultValue: Sequelize.NOW,
+          defaultValue: DataTypes.NOW,
         },
       },
       {

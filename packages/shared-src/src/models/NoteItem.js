@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize';
+import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '../constants';
 
 import { Model } from './Model';
@@ -8,20 +8,23 @@ export class NoteItem extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
-        id: primaryKey,
+        id: {
+          ...primaryKey,
+          type: DataTypes.UUID,
+        },
         revisedById: {
-          type: Sequelize.STRING,
+          type: DataTypes.STRING,
           allowNull: true,
         },
         content: {
-          type: Sequelize.TEXT,
+          type: DataTypes.TEXT,
           allowNull: false,
           defaultValue: '',
         },
         date: {
-          type: Sequelize.DATE,
+          type: DataTypes.DATE,
           allowNull: false,
-          defaultValue: Sequelize.NOW,
+          defaultValue: DataTypes.NOW,
         },
       },
       {
@@ -41,7 +44,7 @@ export class NoteItem extends Model {
   static initRelations(models) {
     this.belongsTo(models.NotePage, {
       foreignKey: 'notePageId',
-      as: 'notePages',
+      as: 'notePage',
     });
 
     this.belongsTo(models.User, {
