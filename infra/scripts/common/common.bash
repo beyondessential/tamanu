@@ -22,7 +22,7 @@ function prwarn {
 }
 
 function prusage {
-    >&2 echo "Usage: $0 <application name> <short environment name>"
+    >&2 echo "Usage: $0 <application name> <environment name>"
     >&2 echo "  e.g. '$0 tamanu-sync-server demo'"
     >&2 echo
     >&2 echo "  You will also need:"
