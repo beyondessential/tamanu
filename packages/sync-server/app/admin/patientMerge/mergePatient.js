@@ -1,4 +1,5 @@
-import { VISIBILITY_STATUSES } from 'shared/constants';
+import config from 'config';
+import { VISIBILITY_STATUSES, PATIENT_MERGE_DELETION_ACTIONS } from 'shared/constants';
 import { InvalidParameterError } from 'shared/errors';
 import { log } from 'shared/services/logging';
 import { reconcilePatient } from '../../utils/removeDuplicatedPatientAdditionalData';
@@ -100,7 +101,18 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
       mergedIntoId: keepPatientId,
       visibilityStatus: VISIBILITY_STATUSES.MERGED,
     });
-    await unwantedPatient.destroy(); // this will just set deletedAt
+
+    const action = config.patientMerge?.deletionAction;
+    if (action === PATIENT_MERGE_DELETION_ACTIONS.RENAME) {
+      await unwantedPatient.update({ firstName: 'Deleted', lastName: 'Patient' });
+    } else if (action === PATIENT_MERGE_DELETION_ACTIONS.DESTROY) {
+      await unwantedPatient.destroy(); // this will just set deletedAt
+    } else if (action === PATIENT_MERGE_DELETION_ACTIONS.NONE) {
+      // do nothing
+    } else {
+      throw new Error(`Unknown config option for patientMerge.deletionAction: ${action}`);
+    }
+
     updates.Patient = 1;
 
     // update associated records

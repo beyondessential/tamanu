@@ -645,5 +645,12 @@
     // As of 29/08/2022 all our deployments are behind a local nginx proxy and so
     // this shouldn't need to be changed.
     "trusted": ["loopback"]
+  },
+  "patientMerge": {
+    // can be one of "RENAME", "DESTROY", or "NONE"
+    // RENAME sets the patient's firstName to 'Deleted' and lastName to 'Patient'
+    // DESTROY sets deleted_at to a timestamp
+    // NONE is a no-op and does nothing
+    "deletionAction": "RENAME"
   }
 }

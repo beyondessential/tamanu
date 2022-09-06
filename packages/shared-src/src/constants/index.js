@@ -542,3 +542,9 @@ export const TIME_UNIT_OPTIONS = [
   { unit: 'months', minutes: 60 * 24 * 30 },
   { unit: 'years', minutes: 60 * 24 * 365 },
 ];
+
+export const PATIENT_MERGE_DELETION_ACTIONS = {
+  RENAME: 'RENAME',
+  DESTROY: 'DESTROY',
+  NONE: 'NONE',
+};
