@@ -22,8 +22,8 @@ function prwarn {
 }
 
 function prusage {
-    >&2 echo "Usage: $0 <application name> <short environment name>"
-    >&2 echo "  e.g. '$0 tamanu-sync-server demo'"
+    >&2 echo "Usage: $0 <application name> <environment name>"
+    >&2 echo "  e.g. '$0 tamanu-sync-server tamanu-sync-server-demo'"
     >&2 echo
     >&2 echo "  You will also need:"
     >&2 echo "    - jq installed"
@@ -61,8 +61,9 @@ function connect_postgres {
 
 # determine eb environment
 if [ -n "${1:-}" ] && [ -n "${2:-}" ]; then
-    ENVIRONMENT="$1-$2"
-    pushd "$SCRIPT_DIR/../../eb/$1" > /dev/null
+    APPLICATION="$1"
+    ENVIRONMENT="$2"
+    pushd "$SCRIPT_DIR/../../eb/$APPLICATION" > /dev/null
 else
     prusage
 fi
