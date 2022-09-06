@@ -77,7 +77,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
     newParameters.fromDate = subDays(new Date(), 30).toISOString();
   }
 
-  baseDataGenerator({ models }, parameters, {
+  return baseDataGenerator({ models }, parameters, {
     surveyId: SURVEY_ID,
     surveyQuestionCodes: SURVEY_QUESTION_CODES,
     reportColumnTemplate,
