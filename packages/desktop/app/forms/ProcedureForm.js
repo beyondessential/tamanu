@@ -92,7 +92,7 @@ export const ProcedureForm = React.memo(
                   suggester={practitionerSuggester}
                 />
                 <Field
-                  name="anaestheticTypeId"
+                  name="anaestheticId"
                   label="Anaesthetic type"
                   component={AutocompleteField}
                   suggester={anaestheticSuggester}
@@ -143,7 +143,7 @@ export const ProcedureForm = React.memo(
         physicianId: foreignKey('Physician must be selected'),
         assistantId: optionalForeignKey(),
         anaesthetistId: optionalForeignKey(),
-        anaestheticTypeId: optionalForeignKey(),
+        anaestheticId: optionalForeignKey(),
         note: yup.string(),
         completed: yup.boolean(),
         completedNote: yup.string(),

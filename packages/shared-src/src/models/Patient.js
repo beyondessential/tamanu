@@ -70,9 +70,9 @@ export class Patient extends Model {
       as: 'mergedPatients',
     });
 
-    this.hasMany(models.Note, {
+    this.hasMany(models.NotePage, {
       foreignKey: 'recordId',
-      as: 'notes',
+      as: 'notePages',
       constraints: false,
       scope: {
         recordType: this.name,
@@ -134,7 +134,7 @@ export class Patient extends Model {
       }
     }
 
-    return results;
+    return results.map(x => x.get({ plain: true }));
   }
 
   async getCovidLabTests(queryOptions) {

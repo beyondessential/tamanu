@@ -1,9 +1,8 @@
 import React from 'react';
 import styled, { css } from 'styled-components';
-import { ENCOUNTER_TYPES } from 'shared/constants';
 import { Box, Typography } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
-import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
+import { Colors, ENCOUNTER_OPTIONS_BY_VALUE, PATIENT_STATUS } from '../../../constants';
 import {
   DateDisplay,
   ViewButton,
@@ -11,13 +10,7 @@ import {
   ButtonWithPermissionCheck,
 } from '../../../components';
 import { useApi } from '../../../api';
-
-const PATIENT_STATUS = {
-  INPATIENT: 'inpatient',
-  OUTPATIENT: 'outpatient',
-  EMERGENCY: 'emergency',
-  DECEASED: 'deceased',
-};
+import { getPatientStatus } from '../../../utils/getPatientStatus';
 
 const PATIENT_STATUS_COLORS = {
   [PATIENT_STATUS.INPATIENT]: Colors.safe, // Green
@@ -25,15 +18,6 @@ const PATIENT_STATUS_COLORS = {
   [PATIENT_STATUS.EMERGENCY]: Colors.orange, // Orange
   [PATIENT_STATUS.DECEASED]: Colors.midText, // grey
   [undefined]: Colors.primary, // Blue
-};
-
-const ENCOUNTER_TYPE_TO_STATUS = {
-  [ENCOUNTER_TYPES.ADMISSION]: PATIENT_STATUS.INPATIENT,
-  [ENCOUNTER_TYPES.CLINIC]: PATIENT_STATUS.OUTPATIENT,
-  [ENCOUNTER_TYPES.IMAGING]: PATIENT_STATUS.OUTPATIENT,
-  [ENCOUNTER_TYPES.OBSERVATION]: PATIENT_STATUS.OUTPATIENT,
-  [ENCOUNTER_TYPES.EMERGENCY]: PATIENT_STATUS.EMERGENCY,
-  [ENCOUNTER_TYPES.TRIAGE]: PATIENT_STATUS.EMERGENCY,
 };
 
 const Border = css`
@@ -206,7 +190,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
   }
 
   const { startDate, location, encounterType, reasonForEncounter, id, examiner } = encounter;
-  const patientStatus = ENCOUNTER_TYPE_TO_STATUS[encounterType];
+  const patientStatus = getPatientStatus(encounterType);
 
   return (
     <Container patientStatus={patientStatus}>

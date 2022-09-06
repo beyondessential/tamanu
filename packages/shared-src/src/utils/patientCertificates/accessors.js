@@ -23,6 +23,7 @@ export const getRequestId = ({ displayId }) => displayId || 'Unknown';
 
 export const getPlaceOfBirth = ({ additionalData }) => (additionalData || {}).placeOfBirth;
 
-export const getNationality = ({ additionalData }) => ((additionalData || {}).nationality || {}).name;
+export const getNationality = ({ additionalData }) =>
+  ((additionalData || {}).nationality || {}).name;
 
 export const getPassportNumber = ({ additionalData }) => (additionalData || {}).passport;

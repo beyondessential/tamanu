@@ -171,9 +171,9 @@ export class Encounter extends Model {
       as: 'patientBillingType',
     });
 
-    this.hasMany(models.Note, {
+    this.hasMany(models.NotePage, {
       foreignKey: 'recordId',
-      as: 'notes',
+      as: 'notePages',
       constraints: false,
       scope: {
         recordType: this.name,
@@ -211,12 +211,10 @@ export class Encounter extends Model {
   }
 
   async addSystemNote(content) {
-    const note = await this.createNote({
+    const notePage = await this.createNotePage({
       noteType: NOTE_TYPES.SYSTEM,
-      content,
     });
-
-    return note;
+    await notePage.createNoteItem({ content });
   }
 
   async getLinkedTriage() {
