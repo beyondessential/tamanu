@@ -201,14 +201,14 @@ export const nonEmergencyDiagnosisCertaintyOptions = diagnosisCertaintyOptions.f
 
 export const noteTypes = [
   { value: NOTE_TYPES.TREATMENT_PLAN, label: 'Treatment plan' },
-  { value: 'medical', label: 'Medical' },
-  { value: 'surgical', label: 'Surgical' },
-  { value: 'nursing', label: 'Nursing' },
-  { value: 'dietary', label: 'Dietary' },
-  { value: 'pharmacy', label: 'Pharmacy' },
-  { value: 'physiotherapy', label: 'Physiotherapy' },
-  { value: 'social', label: 'Social welfare' },
-  { value: 'discharge', label: 'Discharge planning' },
+  { value: NOTE_TYPES.MEDICAL, label: 'Medical' },
+  { value: NOTE_TYPES.SURGICAL, label: 'Surgical' },
+  { value: NOTE_TYPES.NURSING, label: 'Nursing' },
+  { value: NOTE_TYPES.DIETARY, label: 'Dietary' },
+  { value: NOTE_TYPES.PHARMACY, label: 'Pharmacy' },
+  { value: NOTE_TYPES.PHYSIOTHERAPY, label: 'Physiotherapy' },
+  { value: NOTE_TYPES.SOCIAL, label: 'Social welfare' },
+  { value: NOTE_TYPES.DISCHARGE, label: 'Discharge planning' },
   { value: NOTE_TYPES.OTHER, label: 'Other' },
   { value: NOTE_TYPES.SYSTEM, label: 'System', hideFromDropdown: true },
 ];
@@ -418,3 +418,10 @@ export const PATIENT_REGISTRY_OPTIONS = [
   { value: PATIENT_REGISTRY_TYPES.NEW_PATIENT, label: 'Create new patient' },
   { value: PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY, label: 'Register birth' },
 ];
+
+export const PATIENT_STATUS = {
+  INPATIENT: 'Inpatient',
+  OUTPATIENT: 'Outpatient',
+  EMERGENCY: 'Emergency',
+  DECEASED: 'Deceased',
+};

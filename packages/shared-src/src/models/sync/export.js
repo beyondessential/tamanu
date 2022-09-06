@@ -1,5 +1,6 @@
 import { Op, DataTypes } from 'sequelize';
 import { without } from 'lodash';
+import config from 'config';
 import { propertyPathsToTree } from './metadata';
 import { getSyncCursorFromRecord, syncCursorToWhereCondition } from './cursor';
 import { toDateTimeString, toDateString } from '../../utils/dateTime';
@@ -43,7 +44,7 @@ const createExportPlanInner = (model, relationTree, query) => {
   return { model, associations, columns, query };
 };
 
-export const executeExportPlan = async (plan, { since, limit = 100 }) => {
+export const executeExportPlan = async (plan, { since, until, limit = 100 }) => {
   const { syncClientMode } = plan.model;
 
   // add clauses to where query
@@ -61,6 +62,11 @@ export const executeExportPlan = async (plan, { since, limit = 100 }) => {
   }
   if (since) {
     whereClauses.push(syncCursorToWhereCondition(since));
+  }
+  if (config?.sync?.allowUntil && until && typeof until === 'number') {
+    whereClauses.push({
+      updatedAt: { [Op.lt]: new Date(until) },
+    });
   }
 
   // build options
