@@ -1,6 +1,7 @@
 import { Op } from 'sequelize';
 import { VISIBILITY_STATUSES } from 'shared/constants';
 import { InvalidParameterError } from 'shared/errors';
+import { log } from 'shared/services/logging';
 import { reconcilePatient } from '../../utils/removeDuplicatedPatientAdditionalData';
 
 // These ones just need a patientId switched over.
@@ -29,14 +30,14 @@ const simpleUpdateModels = [
 const specificUpdateModels = ['Patient', 'PatientAdditionalData', 'PatientFacility'];
 
 const fieldReferencesPatient = field => field.references?.model === 'patients';
-const modelReferencesPatient = ([name, model]) =>
+const modelReferencesPatient = ([, model]) =>
   Object.values(model.getAttributes()).some(fieldReferencesPatient);
 
 export async function getTablesWithNoMergeCoverage(models) {
   const modelsToUpdate = Object.entries(models).filter(modelReferencesPatient);
 
   const coveredModels = [...simpleUpdateModels, ...specificUpdateModels];
-  const missingModels = modelsToUpdate.filter(([name, model]) => !coveredModels.includes(name));
+  const missingModels = modelsToUpdate.filter(([name]) => !coveredModels.includes(name));
 
   return missingModels;
 }
@@ -50,7 +51,7 @@ async function simpleMergeRecordAcross(model, keepPatientId, unwantedPatientId) 
   // two patients are the same person, we're not meaningfully *updating* data
   // here, we're correcting it.
   const tableName = model.getTableName();
-  const [records, result] = await model.sequelize.query(
+  const [, result] = await model.sequelize.query(
     `
     UPDATE ${tableName}
     SET
@@ -72,6 +73,11 @@ async function simpleMergeRecordAcross(model, keepPatientId, unwantedPatientId) 
 
 export async function mergePatient(models, keepPatientId, unwantedPatientId) {
   const { sequelize } = models.Patient;
+
+  if (keepPatientId === unwantedPatientId) {
+    throw new InvalidParameterError('Cannot merge a patient record into itself.');
+  }
+
   return sequelize.transaction(async () => {
     const keepPatient = await models.Patient.findByPk(keepPatientId);
     if (!keepPatient) {
@@ -85,6 +91,8 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
         `Patient to merge (with id ${unwantedPatientId}) does not exist.`,
       );
     }
+
+    log.info('patientMerge: starting', { keepPatientId, unwantedPatientId, name: 'PatientMerge' });
 
     const updates = {};
 
@@ -156,6 +164,13 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
       }
       updates.PatientFacility = newPatientFacilities.length;
     }
+
+    log.info('patientMerge: finished', {
+      keepPatientId,
+      unwantedPatientId,
+      updates,
+      name: 'PatientMerge',
+    });
 
     return {
       updates,
