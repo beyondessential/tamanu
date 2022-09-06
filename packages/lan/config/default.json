@@ -57,12 +57,7 @@
     },
     // embedPatientNotes is a workaround for TAN-1757
     // TODO: remove after 1.21 release
-    "embedPatientNotes": false,
-    // allowUntil makes sync only export records that were updated before the sync started
-    // this stops sync from sending newly updated records that might cause conflicts
-    // however, it could also prevent sync from syncing frequently changing records
-    // TODO: remove after 1.21 release
-    "allowUntil": true
+    "embedPatientNotes": false
   },
   "port": 4000,
   "db": {
@@ -112,6 +107,8 @@
     //
     // As of 29/08/2022 all our deployments are behind a local nginx proxy and so
     // this shouldn't need to be changed.
-    "trusted": ["loopback"]
+    "trusted": [
+      "loopback"
+    ]
   }
 }
