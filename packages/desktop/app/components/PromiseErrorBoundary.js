@@ -15,6 +15,7 @@ export const PromiseErrorBoundary = ({ children }) => {
       if (event.reason instanceof ForbiddenError) {
         dispatch(setForbiddenError());
       } else {
+        // eslint-disable-next-line no-console
         console.error(event.reason);
       }
     };

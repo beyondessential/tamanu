@@ -14,6 +14,8 @@ import installExtension, {
   REACT_DEVELOPER_TOOLS,
 } from 'electron-devtools-installer';
 
+import {findCountryLocales} from 'iso-lang-codes'
+
 // production only
 import sourceMapSupport from 'source-map-support';
 
@@ -64,6 +66,11 @@ app.on('ready', async () => {
       enableRemoteModule: true,
     },
   });
+
+  // The most accurate method of getting locale in electron is getLocaleCountryCode
+  // which unlike getLocale is determined by native os settings
+  const osLocales = findCountryLocales(app.getLocaleCountryCode())
+  global.osLocales = osLocales;
 
   const htmlLocation =
     __dirname.indexOf('dist') > 0

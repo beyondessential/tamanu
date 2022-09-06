@@ -1,6 +1,7 @@
-import express from 'express';
 import bodyParser from 'body-parser';
 import compression from 'compression';
+import config from 'config';
+import express from 'express';
 
 import { getLoggingMiddleware } from 'shared/services/logging';
 import { constructPermission } from 'shared/permissions/middleware';
@@ -26,6 +27,8 @@ export function createApp(ctx) {
   app.use(bodyParser.json({ limit: '50mb' }));
   app.use(bodyParser.urlencoded({ extended: true }));
 
+  // trust the x-forwarded-for header from addresses in `config.proxy.trusted`
+  app.set('trust proxy', config.proxy.trusted);
   app.use(getLoggingMiddleware());
 
   app.use((req, res, next) => {

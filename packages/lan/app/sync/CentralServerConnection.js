@@ -33,6 +33,7 @@ const getVersionIncompatibleMessage = (error, response) => {
 
 const objectToQueryString = obj =>
   Object.entries(obj)
+    .filter(([k, v]) => k !== undefined && v !== undefined)
     .map(kv => kv.map(str => encodeURIComponent(str)).join('='))
     .join('&');
 
