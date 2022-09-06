@@ -18,9 +18,6 @@
       "maxAttempts": 1,
       "multiplierMs": 0,
       "maxWaitMs": 0
-    },
-    // disabled in tests because it breaks stuff that calls pullAndImport directly
-    // and we're going to remove it in 1.21 anyway
-    "allowUntil": false
+    }
   }
 }
