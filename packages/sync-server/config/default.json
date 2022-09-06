@@ -472,18 +472,18 @@
           "hidden": false
         },
         "apgarScoreOneMinute": {
-          "shortLabel": "Apgar score 1 minute",
-          "longLabel": "Apgar score 1 minute",
+          "shortLabel": "Apgar score 1 min",
+          "longLabel": "Apgar score 1 min",
           "hidden": false
         },
         "apgarScoreFiveMinutes": {
-          "shortLabel": "Apgar score 5 minutes",
-          "longLabel": "Apgar score 5 minutes",
+          "shortLabel": "Apgar score 5 min",
+          "longLabel": "Apgar score 5 min",
           "hidden": false
         },
         "apgarScoreTenMinutes": {
-          "shortLabel": "Apgar score 10 minutes",
-          "longLabel": "Apgar score 10 minutes",
+          "shortLabel": "Apgar score 10 min",
+          "longLabel": "Apgar score 10 min",
           "hidden": false
         },
         "timeOfBirth": {
@@ -649,5 +649,18 @@
     "certificates": {
       "labTestCategoryIds": []
     }
+  },
+  "proxy": {
+    // Possible values: https://expressjs.com/en/guide/behind-proxies.html
+    //
+    // This should only be set to servers we trust! `loopback` is a safe default
+    // because it means we only trust proxies running on the machine itself, e.g.
+    // local nginx.
+    //
+    // As of 29/08/2022 all our deployments are behind a local nginx proxy and so
+    // this shouldn't need to be changed.
+    "trusted": [
+      "loopback"
+    ]
   }
 }

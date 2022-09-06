@@ -147,9 +147,11 @@ export const SecondaryDetailsGroup = ({ patientRegistryType, values = {} }) => {
       <StyledFormGrid>
         <LocalisedField name="birthCertificate" component={TextField} />
         {patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT && (
-          <LocalisedField name="drivingLicense" component={TextField} />
+          <>
+            <LocalisedField name="drivingLicense" component={TextField} />
+            <LocalisedField name="passport" component={TextField} />
+          </>
         )}
-        <LocalisedField name="passport" component={TextField} />
       </StyledFormGrid>
 
       <StyledHeading>Contact information</StyledHeading>

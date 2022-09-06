@@ -1,8 +1,9 @@
 import Sequelize from 'sequelize';
-import { SYNC_DIRECTIONS } from 'shared/constants';
 import { InvalidOperationError } from 'shared/errors';
+import { SYNC_DIRECTIONS } from '../constants';
 
 import { Model } from './Model';
+import { buildPatientLinkedSyncFilter } from './buildPatientLinkedSyncFilter';
 
 export class PatientBirthData extends Model {
   static init({ primaryKey, ...options }) {
@@ -67,4 +68,6 @@ export class PatientBirthData extends Model {
     'birthFacilityId',
     'registeredBirthPlace',
   ];
+
+  static buildSyncFilter = buildPatientLinkedSyncFilter;
 }
