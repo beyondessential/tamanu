@@ -37,7 +37,9 @@ export class Patient extends Model {
         ...options,
         syncConfig: {
           syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
-          includedRelations: config.sync?.embedPatientNotes ? ['notes'] : [],
+          includedRelations: config.sync?.embedPatientNotes
+            ? ['notePages', 'notePages.noteItems']
+            : [],
         },
         indexes: [
           { fields: ['date_of_death'] },
@@ -63,7 +65,7 @@ export class Patient extends Model {
       foreignKey: 'patientId',
       as: 'deathData',
     });
-    
+
     this.hasMany(models.PatientSecondaryId, {
       foreignKey: 'patientId',
       as: 'secondaryIds',
@@ -78,9 +80,9 @@ export class Patient extends Model {
       as: 'mergedPatients',
     });
 
-    this.hasMany(models.Note, {
+    this.hasMany(models.NotePage, {
       foreignKey: 'recordId',
-      as: 'notes',
+      as: 'notePages',
       constraints: false,
       scope: {
         recordType: this.name,
@@ -142,7 +144,7 @@ export class Patient extends Model {
       }
     }
 
-    return results;
+    return results.map(x => x.get({ plain: true }));
   }
 
   async getCovidLabTests(queryOptions) {

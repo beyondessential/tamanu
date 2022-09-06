@@ -59,6 +59,8 @@ export const PatientCarePlanDetails = React.memo(({ item }) => {
           setSubsequentNotes(
             notes.slice(1).sort((a, b) => (moment(a.date).isBefore(b.date) ? 1 : -1)),
           );
+        } else {
+          setSubsequentNotes([]);
         }
       }
     });

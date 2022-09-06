@@ -55,7 +55,7 @@ const NoteContent = styled.p`
 
 export const CarePlanNoteDisplay = ({ note, isMainCarePlan, onEditClicked, onNoteDeleted }) => {
   const api = useApi();
-  const deleteNote = async noteId => api.delete(`note/${noteId}`);
+  const deleteNote = async noteId => api.delete(`notePages/${noteId}`);
   return (
     <NoteContainer>
       <NoteHeaderContainer>

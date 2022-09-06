@@ -1,6 +1,6 @@
 {
   "name": "tamanu",
-  "version": "1.20.0",
+  "version": "1.21.0",
   "description": "This repo contains all the packages for Tamanu",
   "main": "index.js",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -16,6 +16,7 @@
     "lint-fix": "yarn workspace shared-src run lint --fix; yarn workspace lan run lint --fix; yarn workspace sync-server run lint --fix; yarn workspace meta-server run lint --fix; yarn workspace desktop run lint --fix; yarn workspace csca run lint --fix",
     "upgrade-lint-rules": "yarn workspaces run yarn upgrade @beyondessential/eslint-config-js --latest",
     "desktop-start-dev": "yarn workspace desktop run start-dev",
+    "storybook": "yarn run watch-shared-and desktop storybook",
     "watch-shared-and": "node scripts/watch-shared-and.js",
     "lan-test": "yarn run build-shared && yarn workspace lan run test",
     "lan-start-dev": "yarn run watch-shared-and lan start-dev",

@@ -1,18 +1,29 @@
 import React, { memo, useState } from 'react';
 import styled from 'styled-components';
 import Collapse from '@material-ui/core/Collapse';
+import Button from '@material-ui/core/Button';
+
 import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from 'shared/constants';
 
 import { Form, Field } from '../components/Field';
 import { IdField } from '../components/Field/IdField';
 import { ModalActionRow } from '../components/ModalActionRow';
-import { PlusIconButton, MinusIconButton, RadioField } from '../components';
+import { RadioField } from '../components';
 import { IdBanner } from '../components/IdBanner';
 import { Colors, PATIENT_REGISTRY_OPTIONS } from '../constants';
 import { toDateTimeString } from '../utils/dateTime';
 import { getPatientDetailsValidation } from '../validations';
 import { PrimaryDetailsGroup, SecondaryDetailsGroup } from './PatientDetailsForm';
 import { useSexValues } from '../hooks';
+
+import plusCircle from '../assets/images/plus_circle.svg';
+import minusCircle from '../assets/images/minus_circle.svg';
+
+const StyledImageButton = styled(Button)`
+  min-width: 30px;
+  margin-right: 5px;
+  background: ${Colors.background};
+`;
 
 const IdBannerContainer = styled.div`
   margin: -20px -32px 0 -32px;
@@ -94,19 +105,23 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
         <PrimaryDetailsGroup />
         <AdditionalInformationRow>
           <div>
+            {isExpanded ? (
+              <StyledImageButton onClick={() => setExpanded(false)}>
+                <img alt="Minus button" src={minusCircle} />
+              </StyledImageButton>
+            ) : (
+              <StyledImageButton onClick={() => setExpanded(true)}>
+                <img alt="Plus button" src={plusCircle} />
+              </StyledImageButton>
+            )}
             Add additional information
             <span> (religion, occupation, blood type...)</span>
           </div>
-          {isExpanded ? (
-            <MinusIconButton onClick={() => setExpanded(false)} />
-          ) : (
-            <PlusIconButton onClick={() => setExpanded(true)} />
-          )}
         </AdditionalInformationRow>
         <Collapse in={isExpanded} style={{ gridColumn: 'span 2' }}>
           <SecondaryDetailsGroup patientRegistryType={patientRegistryType} values={values} />
         </Collapse>
-        <ModalActionRow confirmText="Create" onConfirm={submitForm} onCancel={onCancel} />
+        <ModalActionRow confirmText="Confirm" onConfirm={submitForm} onCancel={onCancel} />
       </>
     );
   };
