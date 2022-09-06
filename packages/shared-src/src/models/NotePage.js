@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { Model } from './Model';
 import { NoteItem } from './NoteItem';
+import { buildNotePageLinkedSyncFilter } from './buildNoteLinkedSyncFilter';
 import { NOTE_RECORD_TYPE_VALUES, NOTE_TYPE_VALUES } from '../constants';
 
 export class NotePage extends Model {
@@ -108,4 +109,6 @@ export class NotePage extends Model {
     const parentGetter = `get${this.recordType}`;
     return this[parentGetter](options);
   }
+
+  static buildSyncFilter = buildNotePageLinkedSyncFilter;
 }

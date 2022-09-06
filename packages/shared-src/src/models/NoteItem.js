@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize';
 
 import { Model } from './Model';
+import { buildNoteItemLinkedSyncFilter } from './buildNoteLinkedSyncFilter';
 
 export class NoteItem extends Model {
   static init({ primaryKey, ...options }) {
@@ -52,4 +53,6 @@ export class NoteItem extends Model {
       as: 'onBehalfOf',
     });
   }
+
+  static buildSyncFilter = buildNoteItemLinkedSyncFilter;
 }
