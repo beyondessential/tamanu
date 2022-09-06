@@ -54,7 +54,7 @@ labRequest.post(
     req.checkPermission('create', 'LabRequest');
     const object = await models.LabRequest.createWithTests(req.body);
     if (note) {
-      const notePage = object.createNotePage({
+      const notePage = await object.createNotePage({
         noteType: NOTE_TYPES.OTHER,
       });
       await notePage.createNoteItem({ content: note });
