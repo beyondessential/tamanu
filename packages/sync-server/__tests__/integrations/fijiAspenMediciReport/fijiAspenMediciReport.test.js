@@ -53,11 +53,17 @@ describe('fijiAspenMediciReport', () => {
         fake(models.LabRequest, { encounterId }),
       );
       await models.LabTest.create(fake(models.LabTest, { labRequestId, labTestTypeId }));
-      await models.NotePage.create(
+      const { id: notePageId } = await models.NotePage.create(
         fake(models.NotePage, {
           recordId: labRequestId,
           noteType: NOTE_TYPES.OTHER,
           recordType: NOTE_RECORD_TYPES.LAB_REQUEST,
+        }),
+      );
+      await models.NoteItem.create(
+        fake(models.NoteItem, {
+          notePageId,
+          content: 'This is a test note',
         }),
       );
 
@@ -155,7 +161,7 @@ describe('fijiAspenMediciReport', () => {
               notes: [
                 {
                   note_type: expect.any(String), // 'other',
-                  content: expect.any(String), // 'Add lab request note',
+                  content: 'This is a test note', // 'Add lab request note',
                   note_date: expect.any(String), // '2022-06-09T02:04:54.225+00:00',
                 },
               ],
