@@ -3,8 +3,7 @@ import {
   createDummyEncounter,
   randomReferenceId,
 } from 'shared/demoData/patients';
-import { NOTE_RECORD_TYPES } from 'shared/models/Note';
-import { NOTE_TYPES } from 'shared/constants';
+import { NOTE_RECORD_TYPES, NOTE_TYPES } from 'shared/constants';
 import Chance from 'chance';
 import { createTestContext } from '../utilities';
 
@@ -66,10 +65,19 @@ describe('Note', () => {
 
       expect(response).toHaveSucceeded();
 
-      const note = await models.Note.findByPk(response.body.id);
-      expect(note.content).toEqual(content);
-      expect(note.recordType).toEqual('LabRequest');
-      expect(note.recordId).toEqual(labRequest.body.id);
+      const notePage = await models.NotePage.findOne({
+        include: [
+          {
+            model: models.NoteItem,
+            as: 'noteItems',
+          },
+        ],
+        where: { id: response.body.id },
+      });
+      const noteItem = notePage.noteItems[0];
+      expect(noteItem.content).toEqual(content);
+      expect(notePage.recordType).toEqual('LabRequest');
+      expect(notePage.recordId).toEqual(labRequest.body.id);
     });
   });
 
@@ -92,10 +100,20 @@ describe('Note', () => {
 
       expect(response).toHaveSucceeded();
 
-      const note = await models.Note.findByPk(response.body.id);
-      expect(note.content).toEqual(content);
-      expect(note.recordType).toEqual('Encounter');
-      expect(note.recordId).toEqual(encounter.id);
+      const notePage = await models.NotePage.findOne({
+        include: [
+          {
+            model: models.NoteItem,
+            as: 'noteItems',
+          },
+        ],
+        where: { id: response.body.id },
+      });
+      const noteItem = notePage.noteItems[0];
+
+      expect(noteItem.content).toEqual(content);
+      expect(notePage.recordType).toEqual('Encounter');
+      expect(notePage.recordId).toEqual(encounter.id);
     });
 
     it('should not write a note on an non-existent record', async () => {
@@ -125,14 +143,15 @@ describe('Note', () => {
       });
 
       it('should forbid editing notes on a forbidden record', async () => {
-        const note = await models.Note.create({
-          content: chance.paragraph(),
-          recordId: encounter.id,
-          recordType: NOTE_RECORD_TYPES.ENCOUNTER,
-          noteType: NOTE_TYPES.SYSTEM,
-        });
+        const notePage = await models.NotePage.createForRecord(
+          encounter.id,
+          NOTE_RECORD_TYPES.ENCOUNTER,
+          NOTE_TYPES.SYSTEM,
+          chance.paragraph(),
+        );
+        await notePage.getNoteItems();
 
-        const response = await noPermsApp.put(`/v1/note/${note.id}`).send({
+        const response = await noPermsApp.put(`/v1/notePages/${notePage.id}`).send({
           content: 'forbidden',
         });
 
@@ -140,15 +159,15 @@ describe('Note', () => {
       });
 
       it('should forbid editing an encounter note', async () => {
-        const note = await models.Note.create({
-          content: chance.paragraph(),
-          recordId: encounter.id,
-          recordType: NOTE_RECORD_TYPES.ENCOUNTER,
-          noteType: NOTE_TYPES.SYSTEM,
-          authorId: app.user.id,
-        });
+        const note = await models.NotePage.createForRecord(
+          encounter.id,
+          NOTE_RECORD_TYPES.ENCOUNTER,
+          NOTE_TYPES.SYSTEM,
+          chance.paragraph(),
+          app.user.id,
+        );
 
-        const response = await app.put(`/v1/note/${note.id}`).send({
+        const response = await app.put(`/v1/notePages/${note.id}`).send({
           content: 'updated',
         });
 
@@ -167,21 +186,21 @@ describe('Note', () => {
     });
 
     it('should allow editing a patient care plan note regardless of the author', async () => {
-      const note = await models.Note.create({
-        content: chance.paragraph(),
-        recordId: patientCarePlan.id,
-        recordType: NOTE_RECORD_TYPES.PATIENT_CARE_PLAN,
-        noteType: NOTE_TYPES.TREATMENT_PLAN,
-        authorId: testUser.id,
-      });
-
-      const response = await app.put(`/v1/note/${note.id}`).send({
+      const notePage = await models.NotePage.createForRecord(
+        patientCarePlan.id,
+        NOTE_RECORD_TYPES.PATIENT_CARE_PLAN,
+        NOTE_TYPES.TREATMENT_PLAN,
+        chance.paragraph(),
+        testUser.id,
+      );
+      await notePage.getNoteItems();
+      const response = await app.put(`/v1/notePages/${notePage.id}`).send({
         content: 'updated',
       });
 
       expect(response).toHaveSucceeded();
-      expect(response.body.id).toEqual(note.id);
-      expect(response.body.content).toEqual('updated');
+      expect(response.body.id).toEqual(notePage.id);
+      expect(response.body.noteItems[0].content).toEqual('updated');
     });
   });
 });

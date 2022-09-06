@@ -31,21 +31,12 @@ import {
 } from './panes';
 import { DropdownButton } from '../../components/DropdownButton';
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../constants';
+import { ENCOUNTER_TAB_NAMES } from './encounterTabNames';
 
 const getConnectRoutedModal = ({ category, patientId, encounterId }, suffix) =>
   connectRoutedModal(`/patients/${category}/${patientId}/encounter/${encounterId}`, suffix);
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
-
-export const ENCOUNTER_TAB_NAMES = {
-  VITALS: 'vitals',
-  NOTES: 'notes',
-  PROCEDURES: 'procedures',
-  LABS: 'labs',
-  IMAGING: 'imaging',
-  MEDICATION: 'medication',
-  PROGRAMS: 'programs',
-};
 
 const TABS = [
   {
