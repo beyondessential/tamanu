@@ -9,9 +9,9 @@ export class PatientFacility extends Model {
         id: {
           type: `TEXT GENERATED ALWAYS AS ("patient_id" || '-' || "facility_id") STORED`,
           set() {
-            throw new Error(
-              'Patient facility records use a composite primary key - the convenience generated "id" field should not be set directly',
-            );
+            // patient facility records use a composite primary key
+            // any sets of the convenience generated "id" field can be ignored
+            return;
           },
         },
         facility_id: {

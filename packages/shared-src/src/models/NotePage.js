@@ -46,6 +46,7 @@ export class NotePage extends Model {
     NOTE_RECORD_TYPE_VALUES.forEach(modelName => {
       this.belongsTo(models[modelName], {
         foreignKey: 'recordId',
+        as: `${modelName.charAt(0).toLowerCase()}${modelName.slice(1)}`, // lower case first letter
         constraints: false,
       });
     });

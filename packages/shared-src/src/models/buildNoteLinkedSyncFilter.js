@@ -1,7 +1,7 @@
 import { Op } from 'sequelize';
 
 function buildNoteLinkedSyncFilter(patientIds, isNotePage) {
-  const pathToNotePage = isNotePage ? '' : 'notePage.';
+  const pathToNotePage = isNotePage ? '' : 'notePages.';
 
   const includeFromNotePage = [
     'encounter',
@@ -14,7 +14,7 @@ function buildNoteLinkedSyncFilter(patientIds, isNotePage) {
   return {
     where: {
       [Op.or]: [
-        { [`$${pathToNotePage}recordId$`]: { [Op.in]: patientIds } },
+        { [`$${pathToNotePage}record_id$`]: { [Op.in]: patientIds } },
         { [`$${pathToNotePage}encounter.patient_id$`]: { [Op.in]: patientIds } },
         { [`$${pathToNotePage}patientCarePlan.patient_id$`]: { [Op.in]: patientIds } },
         { [`$${pathToNotePage}triage.encounter.patient_id$`]: { [Op.in]: patientIds } },
@@ -24,7 +24,7 @@ function buildNoteLinkedSyncFilter(patientIds, isNotePage) {
     },
     include: isNotePage
       ? includeFromNotePage
-      : [{ association: 'notePage', include: includeFromNotePage }],
+      : [{ association: 'notePages', include: includeFromNotePage }],
   };
 }
 
@@ -33,5 +33,5 @@ export function buildNotePageLinkedSyncFilter(patientIds) {
 }
 
 export function buildNoteItemLinkedSyncFilter(patientIds) {
-  return buildNoteItemLinkedSyncFilter(patientIds, false);
+  return buildNoteLinkedSyncFilter(patientIds, false);
 }
