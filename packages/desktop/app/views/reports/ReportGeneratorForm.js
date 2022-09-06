@@ -1,24 +1,29 @@
 import React, { useCallback, useState, useEffect, useMemo } from 'react';
 import { keyBy } from 'lodash';
 import { format } from 'date-fns';
-import { Grid, Typography, Box } from '@material-ui/core';
-import { red } from '@material-ui/core/colors';
+import { Typography, Box } from '@material-ui/core';
+import { Alert, AlertTitle } from '@material-ui/lab';
 import styled from 'styled-components';
 import * as Yup from 'yup';
-import { REPORT_DATA_SOURCES, REPORT_DATA_SOURCE_VALUES } from 'shared/constants';
+import {
+  REPORT_DATA_SOURCES,
+  REPORT_DATA_SOURCE_VALUES,
+  REPORT_EXPORT_FORMATS,
+} from 'shared/constants';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useApi } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 import {
   AutocompleteField,
-  Button,
   FormGrid,
   DateField,
   Field,
   Form,
   RadioField,
+  formatShort,
 } from '../../components';
-import { Colors, MUI_SPACING_UNIT } from '../../constants';
+import { DropdownButton } from '../../components/DropdownButton';
+import { Colors } from '../../constants';
 import { saveExcelFile } from '../../utils/saveExcelFile';
 import { EmailField, parseEmails } from './EmailField';
 import { ParameterField } from './ParameterField';
@@ -31,25 +36,14 @@ const Spacer = styled.div`
 const DateRangeLabel = styled(Typography)`
   font-weight: 500;
   margin-bottom: 5px;
+  padding-top: 30px;
   color: ${Colors.darkText};
 `;
 
 const EmailInputContainer = styled.div`
-  padding-top: 30px;
+  margin-bottom: 30px;
   width: 60%;
 `;
-
-const ErrorMessageContainer = styled(Grid)`
-  padding: ${MUI_SPACING_UNIT * 2}px ${MUI_SPACING_UNIT * 3}px;
-  background-color: ${red[50]};
-  margin-top: 20px;
-`;
-
-const RequestErrorMessage = ({ errorMessage }) => (
-  <ErrorMessageContainer>
-    <Typography color="error">{`Error: ${errorMessage}`}</Typography>
-  </ErrorMessageContainer>
-);
 
 // adding an onValueChange hook to the report id field
 // so we can keep internal state of the report id
@@ -86,11 +80,13 @@ const useFileName = () => {
   };
 };
 
-export const ReportGeneratorForm = ({ onSuccessfulSubmit }) => {
+export const ReportGeneratorForm = () => {
   const api = useApi();
   const getFileName = useFileName();
   const { currentUser } = useAuth();
-  const [requestError, setRequestError] = useState();
+  const [successMessage, setSuccessMessage] = useState(null);
+  const [requestError, setRequestError] = useState(null);
+  const [bookType, setBookFormat] = useState(REPORT_EXPORT_FORMATS.XLSX);
   const [availableReports, setAvailableReports] = useState([]);
   const [dataSource, setDataSource] = useState(REPORT_DATA_SOURCES.THIS_FACILITY);
   const [selectedReportId, setSelectedReportId] = useState(null);
@@ -120,66 +116,59 @@ export const ReportGeneratorForm = ({ onSuccessfulSubmit }) => {
         const reports = await api.get('reports');
         setAvailableReports(reports);
       } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error(`Unable to load available reports`, error);
         setRequestError(`Unable to load available reports - ${error.message}`);
       }
     })();
   }, [api]);
 
-  const submitRequestReport = useCallback(
-    async formValues => {
-      const { reportId, emails, ...filterValues } = formValues;
+  const submitRequestReport = async formValues => {
+    const { reportId, emails, ...filterValues } = formValues;
 
-      try {
-        if (dataSource === REPORT_DATA_SOURCES.THIS_FACILITY) {
-          const excelData = await api.post(`reports/${reportId}`, {
-            parameters: filterValues,
-          });
+    try {
+      if (dataSource === REPORT_DATA_SOURCES.THIS_FACILITY) {
+        const excelData = await api.post(`reports/${reportId}`, {
+          parameters: filterValues,
+        });
 
-          const filterString = Object.entries(filterValues)
-            .map(([key, value]) => `${key}: ${value}`)
-            .join(', ');
+        const filterString = Object.entries(filterValues)
+          .map(([key, value]) => `${key}: ${value}`)
+          .join(', ');
 
-          const reportName = reportsById[reportId].name;
+        const reportName = reportsById[reportId].name;
 
-          const date = format(new Date(), 'dd/MM/yyyy');
+        const date = formatShort(new Date());
 
-          const metadata = [
-            ['Report Name:', reportName],
-            ['Date Generated:', date],
-            ['User:', currentUser.email],
-            ['Filters:', filterString],
-          ];
+        const metadata = [
+          ['Report Name:', reportName],
+          ['Date Generated:', date],
+          ['User:', currentUser.email],
+          ['Filters:', filterString],
+        ];
 
-          const filePath = await saveExcelFile(
-            { data: excelData, metadata },
-            {
-              promptForFilePath: true,
-              defaultFileName: getFileName(reportName),
-            },
-          );
-          // eslint-disable-next-line no-console
-          console.log('file saved at ', filePath);
-        } else {
-          await api.post(`reportRequest`, {
-            reportId,
-            filterValues,
-            emailList: parseEmails(formValues.emails),
-          });
+        const filePath = await saveExcelFile(
+          { data: excelData, metadata },
+          {
+            promptForFilePath: true,
+            defaultFileName: getFileName(reportName),
+            bookType,
+          },
+        );
+        if (filePath) {
+          setSuccessMessage(`Report successfully exported. File saved at: ${filePath}.`);
         }
-
-        if (onSuccessfulSubmit) {
-          onSuccessfulSubmit();
-        }
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.error('Unable to submit report request', e);
-        setRequestError(`Unable to submit report request - ${e.message}`);
+      } else {
+        await api.post(`reportRequest`, {
+          reportId,
+          filterValues,
+          emailList: parseEmails(formValues.emails),
+          bookType,
+        });
+        setSuccessMessage('Report successfully requested. You will receive an email soon.');
       }
-    },
-    [getFileName, currentUser.email, api, dataSource, onSuccessfulSubmit, reportsById],
-  );
+    } catch (e) {
+      setRequestError(`Unable to submit report request - ${e.message}`);
+    }
+  };
 
   // Wait until available reports are loaded to render.
   // This is a workaround because of an issue that the onChange callback (when selecting a report)
@@ -206,7 +195,7 @@ export const ReportGeneratorForm = ({ onSuccessfulSubmit }) => {
           {},
         ),
       })}
-      render={({ values }) => (
+      render={({ values, submitForm }) => (
         <>
           <FormGrid columns={2}>
             <Field
@@ -252,18 +241,57 @@ export const ReportGeneratorForm = ({ onSuccessfulSubmit }) => {
               </FormGrid>
             </>
           ) : null}
-          <Spacer />
           <DateRangeLabel variant="body1">{dateRangeLabel}</DateRangeLabel>
-          <FormGrid columns={2}>
+          <FormGrid columns={2} style={{ marginBottom: 30 }}>
             <Field name="fromDate" label="From date" component={DateField} />
             <Field name="toDate" label="To date" component={DateField} />
           </FormGrid>
-          <EmailInputContainer>
-            {dataSource === REPORT_DATA_SOURCES.ALL_FACILITIES ? <EmailField /> : null}
-          </EmailInputContainer>
-          {requestError && <RequestErrorMessage errorMessage={requestError} />}
+          {dataSource === REPORT_DATA_SOURCES.ALL_FACILITIES && (
+            <EmailInputContainer>
+              <EmailField />
+            </EmailInputContainer>
+          )}
+          {requestError && (
+            <Alert
+              severity="error"
+              style={{ marginBottom: 20 }}
+              onClose={() => {
+                setRequestError(null);
+              }}
+            >{`Error: ${requestError}`}</Alert>
+          )}
+          {successMessage && (
+            <Alert
+              severity="success"
+              style={{ marginBottom: 20 }}
+              onClose={() => {
+                setSuccessMessage(null);
+              }}
+            >
+              <AlertTitle>Success</AlertTitle>
+              {successMessage}
+            </Alert>
+          )}
           <Box display="flex" justifyContent="flex-end">
-            <Button type="submit">Generate</Button>
+            <DropdownButton
+              size="large"
+              actions={[
+                {
+                  label: 'Generate XLSX',
+                  onClick: event => {
+                    setBookFormat(REPORT_EXPORT_FORMATS.XLSX);
+                    submitForm(event);
+                  },
+                },
+                {
+                  label: 'Generate CSV',
+                  onClick: event => {
+                    setBookFormat(REPORT_EXPORT_FORMATS.CSV);
+                    submitForm(event);
+                  },
+                },
+              ]}
+            />
           </Box>
         </>
       )}

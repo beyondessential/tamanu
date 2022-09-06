@@ -1,5 +1,9 @@
 import { Sequelize } from 'sequelize';
-import { REPORT_REQUEST_STATUS_VALUES, SYNC_DIRECTIONS } from 'shared/constants';
+import {
+  REPORT_REQUEST_STATUS_VALUES,
+  SYNC_DIRECTIONS,
+  REPORT_EXPORT_FORMATS,
+} from 'shared/constants';
 import { log } from 'shared/services/logging';
 import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
@@ -13,6 +17,11 @@ export class ReportRequest extends Model {
         recipients: { type: Sequelize.TEXT, allowNull: false },
         parameters: Sequelize.TEXT,
         status: { type: Sequelize.ENUM(REPORT_REQUEST_STATUS_VALUES), allowNull: false },
+        exportFormat: {
+          type: Sequelize.ENUM(Object.values(REPORT_EXPORT_FORMATS)),
+          allowNull: false,
+          defaultValue: REPORT_EXPORT_FORMATS.XLSX,
+        },
         error: Sequelize.TEXT,
         processStartedTime: Sequelize.DATE,
       },

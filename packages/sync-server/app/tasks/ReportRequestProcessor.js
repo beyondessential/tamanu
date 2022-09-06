@@ -121,6 +121,7 @@ export class ReportRequestProcessor extends ScheduledTask {
       this.context.store,
       this.context.emailService,
       request.requestedByUserId,
+      request.exportFormat,
     );
 
     await reportRunner.run();
