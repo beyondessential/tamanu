@@ -427,11 +427,3 @@ export const PATIENT_STATUS = {
   EMERGENCY: 'Emergency',
   DECEASED: 'Deceased',
 };
-
-export const PATIENT_STATUS_COLORS = {
-  [PATIENT_STATUS.INPATIENT]: Colors.safe, // Green
-  [PATIENT_STATUS.OUTPATIENT]: Colors.secondary, // Yellow
-  [PATIENT_STATUS.EMERGENCY]: Colors.orange, // Orange
-  [PATIENT_STATUS.DECEASED]: Colors.midText, // grey
-  [undefined]: Colors.primary, // Blue
-};

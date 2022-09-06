@@ -67,6 +67,7 @@ const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
       noDataMessage="No patients found"
       onRowClick={handleViewPatient}
       rowStyle={({ dateOfDeath }) => {
+        // Style rows for deceased patients red
         return dateOfDeath ? '& > td:not(:first-child) { color: #ed333a; }' : '';
       }}
       fetchOptions={fetchOptionsWithSearchParameters}

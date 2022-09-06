@@ -2,12 +2,7 @@ import React from 'react';
 import styled, { css } from 'styled-components';
 import { Box, Typography } from '@material-ui/core';
 import { useQuery } from '@tanstack/react-query';
-import {
-  Colors,
-  ENCOUNTER_OPTIONS_BY_VALUE,
-  PATIENT_STATUS_COLORS,
-  PATIENT_STATUS,
-} from '../../../constants';
+import { Colors, ENCOUNTER_OPTIONS_BY_VALUE, PATIENT_STATUS } from '../../../constants';
 import {
   DateDisplay,
   ViewButton,
@@ -16,6 +11,14 @@ import {
 } from '../../../components';
 import { useApi } from '../../../api';
 import { getPatientStatus } from '../../../utils/getPatientStatus';
+
+const PATIENT_STATUS_COLORS = {
+  [PATIENT_STATUS.INPATIENT]: Colors.safe, // Green
+  [PATIENT_STATUS.OUTPATIENT]: Colors.secondary, // Yellow
+  [PATIENT_STATUS.EMERGENCY]: Colors.orange, // Orange
+  [PATIENT_STATUS.DECEASED]: Colors.midText, // grey
+  [undefined]: Colors.primary, // Blue
+};
 
 const Border = css`
   border: 1px solid ${Colors.outline};

@@ -75,13 +75,8 @@ export const status = {
   key: 'patientStatus',
   title: 'Status',
   minWidth: 100,
-  accessor: ({ dateOfDeath: dod, encounterType }) => {
-    if (dod) {
-      return <strong>Deceased</strong>;
-    }
-
-    return getPatientStatus(encounterType);
-  },
+  accessor: ({ dateOfDeath: dod, encounterType }) =>
+    dod ? <strong>Deceased</strong> : getPatientStatus(encounterType),
 };
 
 export const vaccinationStatus = {
