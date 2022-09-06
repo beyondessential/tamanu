@@ -20,7 +20,6 @@ export * from './Triage';
 
 export * from './ReferenceData';
 
-export { Note } from './Note';
 export * from './Vitals';
 export * from './Procedure';
 export * from './EncounterDiagnosis';
@@ -73,3 +72,5 @@ export * from './InvoicePriceChangeType';
 export * from './Signer';
 
 export * from './CertificateNotification';
+export * from './NotePage';
+export * from './NoteItem';

@@ -21,4 +21,3 @@ export function generateUVCI(vaccinationId, { format, countryCode }) {
     }
   }
 }
-

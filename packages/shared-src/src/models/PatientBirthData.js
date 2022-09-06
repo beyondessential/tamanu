@@ -24,7 +24,7 @@ export class PatientBirthData extends Model {
       },
       {
         ...options,
-        syncConfig: { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         tableName: 'patient_birth_data',
         validate: {
           mustHavePatient() {

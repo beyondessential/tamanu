@@ -7,7 +7,7 @@ import config from 'config';
 
 import { log } from 'shared/services/logging';
 import { tmpdir, VaccineCertificate, getPatientSurveyResponseAnswer } from 'shared/utils';
-import { CovidLabCertificate, CertificateTypes } from 'shared/utils/patientCertificates';
+import { CovidLabCertificate } from 'shared/utils/patientCertificates';
 import { getLocalisation } from '../localisation';
 
 export const makeVaccineCertificate = async (patient, printedBy, models, uvci, qrData = null) => {
