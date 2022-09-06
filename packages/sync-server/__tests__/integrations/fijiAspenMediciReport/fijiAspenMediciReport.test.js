@@ -29,7 +29,10 @@ describe('fijiAspenMediciReport', () => {
         fake(models.ReferenceData, { type: REFERENCE_TYPES.LAB_TEST_CATEGORY }),
       );
       const { id: labTestTypeId } = await models.LabTestType.create(
-        fake(models.LabTestType, { labTestCategoryId }),
+        fake(models.LabTestType, {
+          labTestCategoryId,
+          name: 'Bicarbonate',
+        }),
       );
 
       const { id: patientId } = await models.Patient.create(
@@ -64,6 +67,7 @@ describe('fijiAspenMediciReport', () => {
         fake(models.NoteItem, {
           notePageId,
           content: 'This is a test note',
+          date: '2022-06-09T02:04:54.225+00:00',
         }),
       );
 
@@ -79,7 +83,7 @@ describe('fijiAspenMediciReport', () => {
 
       // assert
       expect(response).toHaveSucceeded();
-      expect(response.body.data).toMatchObject([
+      expect(response.body.data).toEqual([
         {
           // Patient Details
           patientId: 'BTIO864386',
@@ -154,15 +158,14 @@ describe('fijiAspenMediciReport', () => {
             {
               tests: [
                 {
-                  name: expect.any(String), // 'Bicarbonate',
-                  notes: expect.any(String), // 'TODO',
+                  name: 'Bicarbonate',
                 },
               ],
               notes: [
                 {
-                  note_type: expect.any(String), // 'other',
+                  note_type: 'other',
                   content: 'This is a test note', // 'Add lab request note',
-                  note_date: expect.any(String), // '2022-06-09T02:04:54.225+00:00',
+                  note_date: '2022-06-09T02:04:54.225+00:00',
                 },
               ],
             },
