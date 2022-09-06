@@ -24,6 +24,7 @@ export class NoteItem extends Model {
       },
       {
         ...options,
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         validate: {
           mustHaveContent() {
             if (!this.content) {

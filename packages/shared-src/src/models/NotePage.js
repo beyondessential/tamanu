@@ -24,9 +24,7 @@ export class NotePage extends Model {
       },
       {
         ...options,
-        syncConfig: {
-          includedRelations: ['noteItems'],
-        },
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         validate: {
           mustHaveValidRelationType() {
             if (!NOTE_RECORD_TYPE_VALUES.includes(this.recordType)) {
