@@ -7,6 +7,7 @@ import {
   createDummyVisit,
   createDummyPatient,
   DIAGNOSES,
+  DISPOSITIONS,
   DRUGS,
   FACILITIES,
   LOCATIONS,
@@ -27,7 +28,6 @@ import { ReferralForm } from '../app/forms/ReferralForm';
 import { MedicationForm } from '../app/forms/MedicationForm';
 import { DeathForm } from '../app/forms/DeathForm';
 import { FamilyHistoryForm } from '../app/forms/FamilyHistoryForm';
-import { NoteForm } from '../app/forms/NoteForm';
 import { createDummySuggester, mapToSuggestions } from './utils';
 import { TestSelectorInput } from '../app/components/TestSelector';
 import { Modal } from '../app/components/Modal';
@@ -38,6 +38,7 @@ const PATIENTS = new Array(20).fill(0).map(x => createDummyPatient());
 
 const practitionerSuggester = createDummySuggester(mapToSuggestions(USERS));
 const locationSuggester = createDummySuggester(mapToSuggestions(LOCATIONS));
+const dispositionSuggester = createDummySuggester(mapToSuggestions(DISPOSITIONS));
 const facilitySuggester = createDummySuggester(mapToSuggestions(FACILITIES));
 const icd10Suggester = createDummySuggester(mapToSuggestions(DIAGNOSES));
 const patientSuggester = createDummySuggester(
@@ -120,10 +121,6 @@ storiesOf('Forms/VisitForm', module)
     />
   ));
 
-storiesOf('Forms', module).add('NoteForm', () => (
-  <NoteForm onSubmit={action('submit')} practitionerSuggester={practitionerSuggester} />
-));
-
 storiesOf('Forms', module).add('TriageForm', () => (
   <TriageForm
     onSubmit={action('submit')}
@@ -165,6 +162,7 @@ storiesOf('Forms', module).add('DischargeForm', () => (
     onSubmit={action('submit')}
     onCancel={action('cancel')}
     practitionerSuggester={practitionerSuggester}
+    dispositionSuggester={dispositionSuggester}
   />
 ));
 
