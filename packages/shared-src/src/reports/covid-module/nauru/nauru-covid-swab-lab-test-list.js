@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+import { format, subDays } from 'date-fns';
 import { baseDataGenerator } from '../covid-swab-lab-test-list';
 
 const SURVEY_ID = 'program-naurucovid19-naurucovidtestregistration';
@@ -71,11 +71,17 @@ const reportColumnTemplate = [
   })),
 ];
 
-export const dataGenerator = async ({ models }, parameters = {}) =>
+export const dataGenerator = async ({ models }, parameters = {}) => {
+  const newParameters = { ...parameters };
+  if (!newParameters.fromDate) {
+    newParameters.fromDate = subDays(new Date(), 30).toISOString();
+  }
+
   baseDataGenerator({ models }, parameters, {
     surveyId: SURVEY_ID,
     surveyQuestionCodes: SURVEY_QUESTION_CODES,
     reportColumnTemplate,
   });
+};
 
 export const permission = 'LabTest';

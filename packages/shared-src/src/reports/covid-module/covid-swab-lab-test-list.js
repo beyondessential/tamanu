@@ -55,15 +55,6 @@ const parametersToLabTestSqlWhere = parameters => {
 };
 
 const parametersToSurveyResponseSqlWhere = (parameters, { surveyId }) => {
-  // In the meantime, only apply the default to the nauru report.
-  // Then, it will just be a matter of removing that check to include in all
-  // other covid swab reports.
-  const NAURU_SURVEY_ID = 'program-naurucovid19-naurucovidtestregistration';
-  if (surveyId === NAURU_SURVEY_ID && !parameters.fromDate) {
-    // eslint-disable-next-line no-param-reassign
-    parameters.fromDate = subDays(new Date(), 30).toISOString();
-  }
-
   const defaultWhereClause = {
     '$surveyResponse.survey_id$': surveyId,
   };
