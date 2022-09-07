@@ -1,16 +1,10 @@
-import { groupBy } from 'lodash';
 import { Op } from 'sequelize';
+import config from 'config';
 import { sortInDependencyOrder } from 'shared/models/sortInDependencyOrder';
-import {
-  findSessionSyncRecordsForFacility,
-  findSessionSyncRecordsForCentral,
-} from './findSessionSyncRecords';
-import {
-  countSessionSyncRecordsForFacility,
-  countSessionSyncRecordsForCentral,
-} from './countSessionSyncRecords';
+import { findSessionSyncRecords } from './findSessionSyncRecords';
+import { countSessionSyncRecords } from './countSessionSyncRecords';
 
-const BATCH_SIZE = 10000;
+const { persistedCacheBatchSize } = config.sync;
 
 const saveCreates = async (model, records) => model.bulkCreate(records);
 
@@ -66,30 +60,30 @@ const saveChangesForModelInBatches = async (
   recordType,
   isCentralServer,
 ) => {
-  const syncRecordsCount = isCentralServer
-    ? await countSessionSyncRecordsForCentral(models, model.tableName, sessionIndex)
-    : await countSessionSyncRecordsForFacility(models, model.tableName);
+  const syncRecordsCount = await countSessionSyncRecords(
+    isCentralServer,
+    models,
+    model.tableName,
+    sessionIndex,
+  );
 
-  const batchCount = Math.ceil(syncRecordsCount / BATCH_SIZE);
+  const batchCount = Math.ceil(syncRecordsCount / persistedCacheBatchSize);
 
-  await sequelize.transaction(async () => {
-    for (let batchIndex = 0; batchIndex < batchCount; batchIndex++) {
-      const offset = BATCH_SIZE * batchIndex;
+  for (let batchIndex = 0; batchIndex < batchCount; batchIndex++) {
+    const offset = persistedCacheBatchSize * batchIndex;
 
-      const batchRecords = isCentralServer
-        ? await findSessionSyncRecordsForCentral(
-            models,
-            recordType,
-            sessionIndex,
-            BATCH_SIZE,
-            offset,
-          )
-        : await findSessionSyncRecordsForFacility(models, recordType, BATCH_SIZE, offset);
+    const batchRecords = await findSessionSyncRecords(
+      isCentralServer,
+      models,
+      recordType,
+      persistedCacheBatchSize,
+      offset,
+      sessionIndex,
+    );
 
-      const batchRecordsToSave = batchRecords.map(r => r.dataValues);
-      await saveChangesForModel(model, batchRecordsToSave, isCentralServer);
-    }
-  });
+    const batchRecordsToSave = batchRecords.map(r => r.dataValues);
+    await saveChangesForModel(model, batchRecordsToSave, isCentralServer);
+  }
 };
 
 export const saveIncomingChanges = async (

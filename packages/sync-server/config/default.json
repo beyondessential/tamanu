@@ -25,7 +25,7 @@
   },
   "sync": {
     "readOnly": false,
-    "queryBatchSize": 10000
+    "persistedCacheBatchSize": 20000
   },
   "loadshedder": {
     // paths are checked sequentially until a path matches a prefix

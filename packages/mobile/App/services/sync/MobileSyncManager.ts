@@ -119,7 +119,7 @@ export class MobileSyncManager {
     this.isSyncing = true;
     this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STARTED);
 
-    // Clear previous temp data for persisting
+    // clear persisted cache from last session
     await clearPersistedSyncSessionRecords();
 
     // the first step of sync is to start a session and retrieve the index used as both the id of
@@ -141,7 +141,7 @@ export class MobileSyncManager {
 
     await this.centralServer.endSyncSession(currentSessionIndex);
 
-    // Clear previous temp data for persisting
+    // clear persisted cache from last session
     await clearPersistedSyncSessionRecords();
   }
 

@@ -1,22 +1,26 @@
 import { readFileInDocuments, deleteFileInDocuments } from '../../../ui/helpers/file';
 
+const readBatchString = async (fileName): Promise<string> => {
+  try {
+    return readFileInDocuments(fileName, 'utf8');
+  } catch (e) {
+    //ignore
+  }
+
+  return '';
+};
+
 export const clearPersistedSyncSessionRecords = async (): Promise<void> => {
   let currentBatchIndex = 0;
   while (true) {
     const fileName = `batch${currentBatchIndex}.json`;
-    let batchString;
-    try {
-      batchString = await readFileInDocuments(fileName, 'utf8');
-    } catch (e) {
-      batchString = '';
-      //ignore
-    }
+    const batchString = await readBatchString(fileName);
 
     if (!batchString) {
       break;
-    } else {
-      deleteFileInDocuments(fileName);
     }
+
+    deleteFileInDocuments(fileName);
 
     currentBatchIndex++;
   }

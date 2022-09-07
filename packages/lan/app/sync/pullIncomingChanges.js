@@ -1,11 +1,11 @@
 import config from 'config';
 import { chunk } from 'lodash';
 import { log } from 'shared/services/logging';
-import { SESSION_SYNC_DIRECTION } from 'shared/sync';
+import { SYNC_SESSION_DIRECTION } from 'shared/sync';
 
 import { calculatePageLimit } from './calculatePageLimit';
 
-const { queryBatchSize } = config.sync;
+const { persistedCacheBatchSize } = config.sync;
 
 export const pullIncomingChanges = async (
   centralServer,
@@ -40,7 +40,7 @@ export const pullIncomingChanges = async (
 
     const recordsToSave = records.map(r => ({
       ...r,
-      direction: SESSION_SYNC_DIRECTION.INCOMING,
+      direction: SYNC_SESSION_DIRECTION.INCOMING,
     }));
 
     // This is an attempt to avoid storing all the pulled data
@@ -48,7 +48,7 @@ export const pullIncomingChanges = async (
     // 1. During the first sync when there is a lot of data to load
     // 2. When a huge number of data is imported to sync and the facility syncs it down
     // So store the data in session_sync_records table instead and will persist it to the actual tables later
-    for (const batchOfRows of chunk(recordsToSave, queryBatchSize)) {
+    for (const batchOfRows of chunk(recordsToSave, persistedCacheBatchSize)) {
       await models.SessionSyncRecord.bulkCreate(batchOfRows);
     }
 

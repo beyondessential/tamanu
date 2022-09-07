@@ -1,4 +1,4 @@
-import { SESSION_SYNC_DIRECTION } from './constants';
+import { SYNC_SESSION_DIRECTION } from './constants';
 
 export const getOutgoingChangesCount = async (store, sessionIndex) => {
   const [rows] = await store.sequelize.query(
@@ -11,7 +11,7 @@ export const getOutgoingChangesCount = async (store, sessionIndex) => {
     {
       replacements: {
         sessionIndex,
-        direction: SESSION_SYNC_DIRECTION.OUTGOING,
+        direction: SYNC_SESSION_DIRECTION.OUTGOING,
       },
     },
   );

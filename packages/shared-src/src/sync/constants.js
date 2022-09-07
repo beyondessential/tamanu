@@ -1,4 +1,4 @@
-export const SESSION_SYNC_DIRECTION = {
+export const SYNC_SESSION_DIRECTION = {
   INCOMING: 'incoming',
   OUTGOING: 'outgoing',
 };

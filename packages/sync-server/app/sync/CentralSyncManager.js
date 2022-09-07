@@ -3,12 +3,12 @@ import { log } from 'shared/services/logging';
 import {
   getModelsForDirection,
   snapshotOutgoingChangesForCentral,
-  getSessionOutgoingChanges,
-  deleteEchoChanges,
+  getOutgoingChangesForSession,
+  removeEchoedChanges,
   saveIncomingChanges,
   deleteSyncSession,
   getOutgoingChangesCount,
-  SESSION_SYNC_DIRECTION,
+  SYNC_SESSION_DIRECTION,
 } from 'shared/sync';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { getPatientLinkedModels } from './getPatientLinkedModels';
@@ -105,7 +105,7 @@ export class CentralSyncManager {
         sessionIndex,
       );
 
-      await deleteEchoChanges(store, sessionIndex);
+      await removeEchoedChanges(store, sessionIndex);
     });
 
     const total = await getOutgoingChangesCount(store, sessionIndex);
@@ -114,10 +114,10 @@ export class CentralSyncManager {
   }
 
   async getOutgoingChanges(store, sessionIndex, { offset, limit }) {
-    return getSessionOutgoingChanges(
+    return getOutgoingChangesForSession(
       store,
       sessionIndex,
-      SESSION_SYNC_DIRECTION.OUTGOING,
+      SYNC_SESSION_DIRECTION.OUTGOING,
       offset,
       limit,
     );
@@ -125,10 +125,10 @@ export class CentralSyncManager {
 
   async addIncomingChanges(sessionIndex, changes, { pageNumber, totalPages }, store) {
     const { sequelize, models } = store;
-    await this.connectToSession(store, sessionIndex); // just to update lastConnectionTime, maybe not necessary?
+    await this.connectToSession(store, sessionIndex);
     const sessionSyncRecords = changes.map(c => ({
       ...c,
-      direction: SESSION_SYNC_DIRECTION.INCOMING,
+      direction: SYNC_SESSION_DIRECTION.INCOMING,
       sessionIndex,
     }));
 

@@ -1,9 +1,9 @@
 import config from 'config';
 import { getModelOutgoingQueryOptions } from './getModelOutgoingQueryOptions';
 import { sanitizeRecord } from './sanitizeRecord';
-import { SESSION_SYNC_DIRECTION } from './constants';
+import { SYNC_SESSION_DIRECTION } from './constants';
 
-const { readOnly, queryBatchSize } = config.sync;
+const { readOnly, persistedCacheBatchSize } = config.sync;
 
 const snapshotChangesForModel = async (
   model,
@@ -19,18 +19,18 @@ const snapshotChangesForModel = async (
   }
 
   const recordsChangedCount = await model.count(queryOptions);
-  const batchCount = Math.ceil(recordsChangedCount / queryBatchSize);
+  const batchCount = Math.ceil(recordsChangedCount / persistedCacheBatchSize);
 
   for (let batchNumber = 0; batchNumber < batchCount; batchNumber++) {
     const recordsChanged = await model.findAll({
       ...queryOptions,
       order: [['id', 'ASC']],
-      offset: batchNumber * queryBatchSize,
-      limit: queryBatchSize,
+      offset: batchNumber * persistedCacheBatchSize,
+      limit: persistedCacheBatchSize,
     });
     const sanitizedRecords = recordsChanged.map(r => ({
       sessionIndex,
-      direction: SESSION_SYNC_DIRECTION.OUTGOING,
+      direction: SYNC_SESSION_DIRECTION.OUTGOING,
       isDeleted: !!r.deletedAt,
       recordType: model.tableName,
       recordId: r.id,

@@ -1,10 +1,9 @@
 import { CentralServerConnection } from '../CentralServerConnection';
-import { MODELS_MAP } from '../../../models/modelsMap';
 import { calculatePageLimit } from './calculatePageLimit';
-import { SESSION_SYNC_DIRECTION } from '../constants';
+import { SYNC_SESSION_DIRECTION } from '../constants';
 import { saveFileInDocuments } from '/helpers/file';
 
-const FILE_BATCH_SIZE = 20000;
+const APPROX_PERSISTED_BATCH_SIZE = 20000;
 
 /**
  * Pull incoming changes in batches and save them in session_sync_record table,
@@ -18,12 +17,15 @@ const FILE_BATCH_SIZE = 20000;
  */
 export const pullIncomingChanges = async (
   centralServer: CentralServerConnection,
-  models: typeof MODELS_MAP,
   currentSessionIndex: number,
   lastSessionIndex: number,
   progressCallback: (total: number, progressCount: number) => void,
 ): Promise<number> => {
   const totalToPull = await centralServer.setPullFilter(currentSessionIndex, lastSessionIndex);
+
+  if (!totalToPull) {
+    return 0;
+  }
 
   let offset = 0;
   let limit = calculatePageLimit();
@@ -35,14 +37,9 @@ export const pullIncomingChanges = async (
     const startTime = Date.now();
     const records = await centralServer.pull(currentSessionIndex, limit, offset);
     const pullTime = Date.now() - startTime;
-
-    if (!records.length) {
-      break;
-    }
-
     const recordsToSave = records.map(r => ({
       ...r,
-      direction: SESSION_SYNC_DIRECTION.INCOMING,
+      direction: SYNC_SESSION_DIRECTION.INCOMING,
     }));
 
     // This is an attempt to avoid storing all the pulled data
@@ -53,7 +50,7 @@ export const pullIncomingChanges = async (
     //  the actual tables later
 
     currentRows.push(...recordsToSave);
-    if (currentRows.length >= FILE_BATCH_SIZE) {
+    if (currentRows.length >= APPROX_PERSISTED_BATCH_SIZE) {
       const fileName = `batch${currentBatchIndex}.json`;
 
       await saveFileInDocuments(

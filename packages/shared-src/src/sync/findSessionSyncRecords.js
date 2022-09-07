@@ -1,23 +1,22 @@
-import { SESSION_SYNC_DIRECTION } from './constants';
+import { SYNC_SESSION_DIRECTION } from './constants';
 
-export const findSessionSyncRecordsForFacility = async (models, recordType, limit, offset) =>
-  models.SessionSyncRecord.findAll({
-    where: { recordType },
-    order: [['id', 'ASC']],
-    limit,
-    offset,
-  });
-
-export const findSessionSyncRecordsForCentral = async (
+export const findSessionSyncRecords = async (
+  isCentralServer,
   models,
   recordType,
-  sessionIndex,
   limit,
   offset,
-) =>
-  models.SessionSyncRecord.findAll({
-    where: { recordType, sessionIndex, direction: SESSION_SYNC_DIRECTION.INCOMING },
+  sessionIndex,
+) => {
+  const where = {
+    recordType,
+    ...(isCentralServer ? { sessionIndex, direction: SYNC_SESSION_DIRECTION.INCOMING } : {}),
+  };
+
+  return models.SessionSyncRecord.findAll({
+    where,
     order: [['id', 'ASC']],
     limit,
     offset,
   });
+};

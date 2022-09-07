@@ -1,6 +1,6 @@
 export const QUERY_BATCH_SIZE = 10000;
 
-export enum SESSION_SYNC_DIRECTION {
+export enum SYNC_SESSION_DIRECTION {
   INCOMING = 'incoming',
   OUTGOING = 'outgoing',
 }
