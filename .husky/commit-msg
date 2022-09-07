@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+if ! yarn commitlint --edit "$1"; then
+    echo "
+        Commit message needs this format:
+            <ticket-number>: [message]
+
+        This is an example of a valid commit message:
+            EPI-000: stuff about the commit
+    "
+
+    exit 1
+fi
