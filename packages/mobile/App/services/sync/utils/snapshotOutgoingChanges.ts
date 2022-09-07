@@ -7,7 +7,6 @@ import { MODELS_MAP } from '../../../models/modelsMap';
 import { extractIncludedColumns } from './extractIncludedColumns';
 
 const buildToSyncRecord = (model: typeof BaseModel, record: object): SyncRecord => {
-  // TODO: handle lazy and/or embedded relations
   const includedColumns = extractIncludedColumns(model);
   const data = pick(record, includedColumns) as SyncRecordData;
 

@@ -55,6 +55,7 @@ export class BackendManager {
 
     const run = async (): Promise<void> => {
       try {
+        // Don't start the sync service yet until the facility for the device is selected
         const facilityId = await readConfig('facilityId', '');
         if (facilityId) {
           await this.syncManager.triggerSync();
