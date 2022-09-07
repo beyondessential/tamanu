@@ -65,7 +65,6 @@ export class Encounter extends Model {
 
   static getFullReferenceAssociations() {
     return [
-      'vitals',
       'department',
       'examiner',
       {
