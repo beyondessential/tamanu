@@ -19,9 +19,9 @@ const formatValue = (columnType, value) => {
   return value;
 };
 
-const snapshotChangesForModel = async (model, fromSessionIndex) => {
+const snapshotChangesForModel = async (model, since) => {
   const recordsChanged = await model.findAll({
-    where: { updatedAtSyncIndex: { [Op.gte]: fromSessionIndex } },
+    where: { updatedAtSyncTick: { [Op.gt]: since } },
   });
 
   const sanitizeRecord = record =>
@@ -44,14 +44,14 @@ const snapshotChangesForModel = async (model, fromSessionIndex) => {
   }));
 };
 
-export const snapshotOutgoingChanges = async (models, fromSessionIndex) => {
+export const snapshotOutgoingChanges = async (models, since) => {
   if (readOnly) {
     return [];
   }
 
   const outgoingChanges = [];
   for (const model of Object.values(models)) {
-    const changesForModel = await snapshotChangesForModel(model, fromSessionIndex);
+    const changesForModel = await snapshotChangesForModel(model, since);
     outgoingChanges.push(...changesForModel);
   }
   return outgoingChanges;
