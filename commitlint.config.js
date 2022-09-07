@@ -5,7 +5,7 @@ module.exports = {
   ignores: [message => message.toUpperCase().startsWith('NO-ISSUE')], // allow bypassing the validation (if wanted)
   parserPreset: {
     parserOpts: {
-      issuePrefixes: ['EPI-', 'TAN-', 'WAITM-', 'RN-', 'NOT-'], // case insensitive
+      issuePrefixes: ['EPI-', 'TAN-', 'WAITM-', 'WAITP-', 'TAV-', 'MAUI-', 'RN-', 'NOT-'], // case insensitive
     },
   },
 };
