@@ -1,5 +1,7 @@
 import { Sequelize } from 'sequelize';
+import config from 'config';
 import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES } from 'shared/constants';
+import { dateTimeType } from './dateTimeTypes';
 import { Model } from './Model';
 
 export class Patient extends Model {
@@ -18,12 +20,13 @@ export class Patient extends Model {
         culturalName: Sequelize.STRING,
 
         dateOfBirth: Sequelize.DATE,
-        dateOfDeath: Sequelize.DATE,
+        dateOfDeath: dateTimeType('dateOfDeath'),
         sex: {
           type: Sequelize.ENUM('male', 'female', 'other'),
           allowNull: false,
         },
         email: Sequelize.STRING,
+        visibilityStatus: Sequelize.STRING,
       },
       {
         ...options,
@@ -53,7 +56,6 @@ export class Patient extends Model {
       as: 'deathData',
     });
 
-    // this one is actually a hasMany
     this.hasMany(models.PatientSecondaryId, {
       foreignKey: 'patientId',
       as: 'secondaryIds',
@@ -63,9 +65,14 @@ export class Patient extends Model {
       as: 'village',
     });
 
-    this.hasMany(models.Note, {
+    this.hasMany(models.Patient, {
+      foreignKey: 'mergedIntoId',
+      as: 'mergedPatients',
+    });
+
+    this.hasMany(models.NotePage, {
       foreignKey: 'recordId',
-      as: 'notes',
+      as: 'notePages',
       constraints: false,
       scope: {
         recordType: this.name,
@@ -127,7 +134,7 @@ export class Patient extends Model {
       }
     }
 
-    return results;
+    return results.map(x => x.get({ plain: true }));
   }
 
   async getCovidLabTests(queryOptions) {

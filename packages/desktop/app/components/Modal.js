@@ -15,7 +15,7 @@ import { Colors } from '../constants';
 import { useElectron } from '../contexts/Electron';
 import { Button } from './Button';
 
-const MODAL_PADDING = 32;
+export const MODAL_PADDING = 32;
 
 /*  To keep consistent use of styled-components,
     re-define dialog paper classes here instead of
@@ -161,7 +161,6 @@ export const connectRoutedModal = (baseRoute, suffix) =>
   connect(
     state => ({
       open: getCurrentRoute(state).startsWith(`${baseRoute}/${suffix}`),
-      extraRoute: getCurrentRoute(state).replace(`${baseRoute}/${suffix}/`, ''),
     }),
     dispatch => ({
       onClose: () => dispatch(push(baseRoute)),

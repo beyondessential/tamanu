@@ -11,6 +11,12 @@ import {
   REFERRAL_STATUSES,
   INVOICE_STATUSES,
   INVOICE_PAYMENT_STATUSES,
+  PATIENT_REGISTRY_TYPES,
+  BIRTH_DELIVERY_TYPES,
+  BIRTH_TYPES,
+  PLACE_OF_BIRTH_TYPES,
+  ATTENDANT_OF_BIRTH_TYPES,
+  LAB_REQUEST_STATUSES,
 } from 'shared/constants';
 
 import {
@@ -59,22 +65,6 @@ export const MAX_AUTO_COMPLETE_ITEMS = {
   DIAGNOSES: 10,
 };
 
-export const LAB_REQUEST_STATUSES = {
-  RECEPTION_PENDING: 'reception_pending',
-  RESULTS_PENDING: 'results_pending',
-  TO_BE_VERIFIED: 'to_be_verified',
-  VERIFIED: 'verified',
-  PUBLISHED: 'published',
-};
-
-export const LAB_REQUEST_STATUS_LABELS = {
-  [LAB_REQUEST_STATUSES.RECEPTION_PENDING]: 'Reception pending',
-  [LAB_REQUEST_STATUSES.RESULTS_PENDING]: 'Results pending',
-  [LAB_REQUEST_STATUSES.TO_BE_VERIFIED]: 'To be verified',
-  [LAB_REQUEST_STATUSES.VERIFIED]: 'Verified',
-  [LAB_REQUEST_STATUSES.PUBLISHED]: 'Published',
-};
-
 export const LAB_REQUEST_COLORS = {
   [LAB_REQUEST_STATUSES.RECEPTION_PENDING]: '#faa',
   [LAB_REQUEST_STATUSES.RESULTS_PENDING]: '#aaf',
@@ -82,12 +72,6 @@ export const LAB_REQUEST_COLORS = {
   [LAB_REQUEST_STATUSES.VERIFIED]: '#5af',
   [LAB_REQUEST_STATUSES.PUBLISHED]: '#afa',
   unknown: '#333',
-};
-
-export const IMAGING_REQUEST_STATUS_LABELS = {
-  [IMAGING_REQUEST_STATUS_TYPES.PENDING]: 'Pending',
-  [IMAGING_REQUEST_STATUS_TYPES.COMPLETED]: 'Completed',
-  [IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS]: 'In progress',
 };
 
 export const IMAGING_REQUEST_COLORS = {
@@ -217,14 +201,14 @@ export const nonEmergencyDiagnosisCertaintyOptions = diagnosisCertaintyOptions.f
 
 export const noteTypes = [
   { value: NOTE_TYPES.TREATMENT_PLAN, label: 'Treatment plan' },
-  { value: 'medical', label: 'Medical' },
-  { value: 'surgical', label: 'Surgical' },
-  { value: 'nursing', label: 'Nursing' },
-  { value: 'dietary', label: 'Dietary' },
-  { value: 'pharmacy', label: 'Pharmacy' },
-  { value: 'physiotherapy', label: 'Physiotherapy' },
-  { value: 'social', label: 'Social welfare' },
-  { value: 'discharge', label: 'Discharge planning' },
+  { value: NOTE_TYPES.MEDICAL, label: 'Medical' },
+  { value: NOTE_TYPES.SURGICAL, label: 'Surgical' },
+  { value: NOTE_TYPES.NURSING, label: 'Nursing' },
+  { value: NOTE_TYPES.DIETARY, label: 'Dietary' },
+  { value: NOTE_TYPES.PHARMACY, label: 'Pharmacy' },
+  { value: NOTE_TYPES.PHYSIOTHERAPY, label: 'Physiotherapy' },
+  { value: NOTE_TYPES.SOCIAL, label: 'Social welfare' },
+  { value: NOTE_TYPES.DISCHARGE, label: 'Discharge planning' },
   { value: NOTE_TYPES.OTHER, label: 'Other' },
   { value: NOTE_TYPES.SYSTEM, label: 'System', hideFromDropdown: true },
 ];
@@ -397,3 +381,47 @@ export const INVOICE_PAYMENT_STATUS_OPTIONS = [
   { label: 'Unpaid', value: INVOICE_PAYMENT_STATUSES.UNPAID },
   { label: 'Paid', value: INVOICE_PAYMENT_STATUSES.PAID },
 ];
+
+export const BIRTH_DELIVERY_TYPE_OPTIONS = [
+  { value: BIRTH_DELIVERY_TYPES.NORMAL_VAGINAL_DELIVERY, label: 'Normal vaginal delivery' },
+  { value: BIRTH_DELIVERY_TYPES.BREECH, label: 'Breech' },
+  { value: BIRTH_DELIVERY_TYPES.EMERGENCY_C_SECTION, label: 'Emergency C-section' },
+  { value: BIRTH_DELIVERY_TYPES.ELECTIVE_C_SECTION, label: 'Elective C-section' },
+  { value: BIRTH_DELIVERY_TYPES.VACUUM_EXTRACTION, label: 'Vacuum extraction' },
+  { value: BIRTH_DELIVERY_TYPES.FORCEPS, label: 'Forceps' },
+  { value: BIRTH_DELIVERY_TYPES.OTHER, label: 'Other' },
+];
+
+export const BIRTH_TYPE_OPTIONS = [
+  { value: BIRTH_TYPES.SINGLE, label: 'Single' },
+  { value: BIRTH_TYPES.PLURAL, label: 'Plural' },
+];
+
+export const PLACE_OF_BIRTH_OPTIONS = [
+  { value: PLACE_OF_BIRTH_TYPES.HEALTH_FACILITY, label: 'Health facility' },
+  { value: PLACE_OF_BIRTH_TYPES.HOME, label: 'Home' },
+  { value: PLACE_OF_BIRTH_TYPES.OTHER, label: 'Other' },
+];
+
+export const ATTENDANT_OF_BIRTH_OPTIONS = [
+  { value: ATTENDANT_OF_BIRTH_TYPES.DOCTOR, label: 'Doctor' },
+  { value: ATTENDANT_OF_BIRTH_TYPES.MIDWIFE, label: 'Midwife' },
+  { value: ATTENDANT_OF_BIRTH_TYPES.NURSE, label: 'Nurse' },
+  {
+    value: ATTENDANT_OF_BIRTH_TYPES.TRADITIONAL_BIRTH_ATTENDANT,
+    label: 'Traditional birth attendant',
+  },
+  { value: ATTENDANT_OF_BIRTH_TYPES.OTHER, label: 'Other' },
+];
+
+export const PATIENT_REGISTRY_OPTIONS = [
+  { value: PATIENT_REGISTRY_TYPES.NEW_PATIENT, label: 'Create new patient' },
+  { value: PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY, label: 'Register birth' },
+];
+
+export const PATIENT_STATUS = {
+  INPATIENT: 'Inpatient',
+  OUTPATIENT: 'Outpatient',
+  EMERGENCY: 'Emergency',
+  DECEASED: 'Deceased',
+};

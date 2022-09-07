@@ -2,7 +2,7 @@ import { Database } from '../infra/db';
 import { MobileSyncManager, CentralServerConnection } from './sync';
 import { readConfig } from './config';
 import { AuthService } from './auth';
-import { AuthenticationError } from './auth/error';
+import { AuthenticationError } from './error';
 import { LocalisationService } from './localisation';
 import { PermissionsService } from './permissions';
 import { MODELS_MAP } from '../models/modelsMap';
@@ -55,6 +55,7 @@ export class BackendManager {
 
     const run = async (): Promise<void> => {
       try {
+        // Don't start the sync service yet until the facility for the device is selected
         const facilityId = await readConfig('facilityId', '');
         if (facilityId) {
           await this.syncManager.triggerSync();

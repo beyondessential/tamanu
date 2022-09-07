@@ -33,7 +33,7 @@ export class ImagingRequest extends Model {
         },
 
         results: {
-          type: Sequelize.STRING,
+          type: Sequelize.TEXT,
           defaultValue: '',
         },
 
@@ -92,9 +92,9 @@ export class ImagingRequest extends Model {
       foreignKey: 'imagingRequestId',
     });
 
-    this.hasMany(models.Note, {
+    this.hasMany(models.NotePage, {
       foreignKey: 'recordId',
-      as: 'notes',
+      as: 'notePages',
       constraints: false,
       scope: {
         recordType: this.name,

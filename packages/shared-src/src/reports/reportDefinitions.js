@@ -2,6 +2,9 @@ import {
   APPOINTMENT_STATUSES,
   REPORT_DATA_SOURCES,
   REPORT_DATA_SOURCE_VALUES,
+  IMAGING_REQUEST_STATUS_OPTIONS,
+  MANNER_OF_DEATH_OPTIONS,
+  LAB_REQUEST_STATUS_OPTIONS,
 } from 'shared/constants';
 
 const LAST_30_DAYS_DATE_LABEL = 'Date range (or leave blank for the past 30 days of data)';
@@ -54,12 +57,14 @@ export const REPORT_DEFINITIONS = [
         label: 'Location',
         name: 'location',
         suggesterEndpoint: 'location',
+        suggesterOptions: { baseQueryParameters: { filterByFacility: true } },
       },
       {
         parameterField: 'ParameterAutocompleteField',
         label: 'Department',
         name: 'department',
         suggesterEndpoint: 'department',
+        suggesterOptions: { baseQueryParameters: { filterByFacility: true } },
       },
     ],
   },
@@ -148,7 +153,7 @@ export const REPORT_DEFINITIONS = [
     name: 'Palau COVID-19 Test - Line list',
     id: 'palau-covid-swab-lab-test-list',
     dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
-    dataSourceOptions: [REPORT_DATA_SOURCES.ALL_FACILITIES],
+    dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
   },
   {
     name: 'Nauru COVID-19 Test - Line list',
@@ -355,12 +360,14 @@ export const REPORT_DEFINITIONS = [
         label: 'Department',
         name: 'department',
         suggesterEndpoint: 'department',
+        suggesterOptions: { baseQueryParameters: { filterByFacility: true } },
       },
       {
         parameterField: 'ParameterAutocompleteField',
         label: 'Location',
         name: 'location',
         suggesterEndpoint: 'location',
+        suggesterOptions: { baseQueryParameters: { filterByFacility: true } },
       },
     ],
   },
@@ -391,6 +398,7 @@ export const REPORT_DEFINITIONS = [
         label: 'Location',
         name: 'location',
         suggesterEndpoint: 'location',
+        suggesterOptions: { baseQueryParameters: { filterByFacility: true } },
       },
       {
         parameterField: 'ParameterAutocompleteField',
@@ -406,6 +414,80 @@ export const REPORT_DEFINITIONS = [
           label: status,
           value: status,
         })),
+      },
+    ],
+  },
+  {
+    name: 'Imaging requests - Line list',
+    id: 'imaging-requests-line-list',
+    dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
+    dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
+    parameters: [
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Requesting clinician',
+        name: 'requestedById',
+        suggesterEndpoint: 'practitioner',
+      },
+      { parameterField: 'ImagingTypeField' },
+      {
+        parameterField: 'ParameterSelectField',
+        label: 'Status',
+        name: 'status',
+        options: IMAGING_REQUEST_STATUS_OPTIONS,
+      },
+    ],
+  },
+  {
+    name: 'Deceased patients - Line list',
+    id: 'deceased-patients-line-list',
+    dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
+    dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
+    parameters: [
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Cause of death',
+        name: 'causeOfDeath',
+        suggesterEndpoint: 'icd10',
+      },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Due to (or as a consequence of)',
+        name: 'antecedentCause',
+        suggesterEndpoint: 'icd10',
+      },
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Other contributing condition',
+        name: 'otherContributingCondition',
+        suggesterEndpoint: 'icd10',
+      },
+      {
+        parameterField: 'ParameterSelectField',
+        label: 'Manner of death',
+        name: 'mannerOfDeath',
+        options: MANNER_OF_DEATH_OPTIONS,
+      },
+    ],
+  },
+  {
+    name: 'Lab requests - Line list',
+    id: 'lab-requests-line-list',
+    dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
+    dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
+    parameters: [
+      {
+        parameterField: 'ParameterAutocompleteField',
+        label: 'Requesting clinician',
+        name: 'requestedById',
+        suggesterEndpoint: 'practitioner',
+      },
+      { parameterField: 'LabTestCategoryField' },
+      {
+        parameterField: 'ParameterSelectField',
+        label: 'Status',
+        name: 'status',
+        options: LAB_REQUEST_STATUS_OPTIONS,
       },
     ],
   },

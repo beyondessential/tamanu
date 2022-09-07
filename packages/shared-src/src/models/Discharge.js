@@ -31,7 +31,7 @@ export class Discharge extends Model {
   }
 
   static getFullReferenceAssociations() {
-    return ['discharger'];
+    return ['discharger', 'disposition'];
   }
 
   static initRelations(models) {
@@ -42,6 +42,10 @@ export class Discharge extends Model {
     this.belongsTo(models.User, {
       foreignKey: 'dischargerId',
       as: 'discharger',
+    });
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'dispositionId',
+      as: 'disposition',
     });
   }
 

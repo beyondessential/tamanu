@@ -1,6 +1,7 @@
 import { format } from 'date-fns';
 
 import { fake } from 'shared/test-helpers/fake';
+import { getCurrentDateString } from 'shared/utils/dateTime';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 
 export function testSingleResourceHandler(integrationName, requestHeaders = {}) {
@@ -16,7 +17,9 @@ export function testSingleResourceHandler(integrationName, requestHeaders = {}) 
     describe('Patient', () => {
       it('fetches a patient resource', async () => {
         const { Patient, PatientAdditionalData } = ctx.store.models;
-        const patient = await Patient.create(fake(Patient, { dateOfDeath: new Date() }));
+        const patient = await Patient.create(
+          fake(Patient, { dateOfDeath: getCurrentDateString() }),
+        );
         const additionalData = await PatientAdditionalData.create({
           ...fake(PatientAdditionalData),
           patientId: patient.id,
@@ -37,7 +40,7 @@ export function testSingleResourceHandler(integrationName, requestHeaders = {}) 
             },
           ],
           birthDate: format(patient.dateOfBirth, 'yyyy-MM-dd'),
-          deceasedDateTime: format(patient.dateOfDeath, "yyyy-MM-dd'T'HH:mm:ssXXX"),
+          deceasedDateTime: format(new Date(patient.dateOfDeath), "yyyy-MM-dd'T'HH:mm:ssXXX"),
           gender: patient.sex,
           id: patient.id,
           identifier: [

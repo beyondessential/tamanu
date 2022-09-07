@@ -33,8 +33,6 @@ export class MobileSyncManager {
 
   emitter = mitt();
 
-  errors = [];
-
   models: typeof MODELS_MAP;
 
   centralServer: CentralServerConnection;
@@ -119,7 +117,6 @@ export class MobileSyncManager {
     console.log('MobileSyncManager.runSync(): Began sync run');
 
     this.isSyncing = true;
-    this.errors = [];
     this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STARTED);
 
     // Clear previous temp data for persisting

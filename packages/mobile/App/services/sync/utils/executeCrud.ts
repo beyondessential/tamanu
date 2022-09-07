@@ -20,6 +20,8 @@ export const executeInserts = async (
       const progressMessage = `Stage 3/3: Creating ${totalRowsCount} ${model.name} records`;
       progressCallback(totalRowsCount, insertedRowsCount, progressMessage);
     } catch (e) {
+      // try records individually, some may succeed and we want to capture the
+      // specific one with the error
       await Promise.all(
         batchOfRows.map(async row => {
           try {
@@ -49,7 +51,8 @@ export const executeUpdates = async (
       const progressMessage = `Stage 3/3: Updating ${totalRowsCount} ${model.name} records`;
       progressCallback(totalRowsCount, updatedRowsCount, progressMessage);
     } catch (e) {
-      // try records individually, some may succeed
+      // try records individually, some may succeed and we want to capture the
+      // specific one with the error
       await Promise.all(
         batchOfRows.map(async row => {
           try {
@@ -79,7 +82,8 @@ export const executeDeletes = async (
       const progressMessage = `Stage 3/3: Deleting ${totalRowsCount} ${model.name} records`;
       progressCallback(totalRowsCount, deletedRowsCount, progressMessage);
     } catch (e) {
-      //try records individually, some may succeed
+      // try records individually, some may succeed and we want to capture the
+      // specific one with the error
       await Promise.all(
         batchOfIds.map(async id => {
           try {

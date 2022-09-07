@@ -31,11 +31,13 @@ import { saveExcelFile } from '../../utils/saveExcelFile';
 import { VaccineCategoryField } from './VaccineCategoryField';
 import { VaccineField } from './VaccineField';
 import { Suggester } from '../../utils/suggester';
+import { ImagingTypeField } from './ImagingTypeField';
+import { LabTestCategoryField } from './LabTestCategoryField';
 
 const EmptyField = styled.div``;
 
 const ParameterAutocompleteField = connectApi((api, _, props) => ({
-  suggester: new Suggester(api, props.suggesterEndpoint),
+  suggester: new Suggester(api, props.suggesterEndpoint, props.suggesterOptions),
 }))(props => <Field component={AutocompleteField} suggester={props.suggester} {...props} />);
 
 const ParameterSelectField = props => <Field component={SelectField} {...props} />;
@@ -52,6 +54,8 @@ const PARAMETER_FIELD_COMPONENTS = {
   ParameterAutocompleteField,
   ParameterSelectField,
   ParameterMultiselectField,
+  ImagingTypeField,
+  LabTestCategoryField,
 };
 
 const Spacer = styled.div`
