@@ -1,5 +1,4 @@
 import { Sequelize } from 'sequelize';
-import config from 'config';
 import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES } from 'shared/constants';
 import { Model } from './Model';
 import { dateType, dateTimeType } from './dateTimeTypes';
