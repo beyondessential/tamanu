@@ -34,6 +34,7 @@ export const TriageWaitTimeCell = React.memo(({ encounterType, triageTime, close
     return () => {};
   }, [closedTime]);
 
+  // Todo: add arrivalTime tooltip
   switch (encounterType) {
     case 'triage':
       return (

@@ -76,6 +76,7 @@ triage.get(
 
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
 
+    // Todo: add sorting
     const result = await db.query(
       `
         SELECT
@@ -101,7 +102,7 @@ triage.get(
             encounters.encounter_type = 'triage'
             OR encounters.encounter_type = 'observation'
           )
-        ORDER BY ${sortKey} ${sortDirection} NULLS LAST
+        ORDER BY ${sortKey} ${sortDirection} NULLS LAST, arrival_time ASC
       `,
       {
         model: Triage,
