@@ -53,11 +53,6 @@ export class PatientAdditionalData extends Model {
       as: 'patient',
     });
 
-    this.belongsTo(models.PatientAdditionalData, {
-      foreignKey: 'mergedIntoId',
-      as: 'mergedInto',
-    });
-
     this.belongsTo(models.User, {
       foreignKey: 'registeredById',
       as: 'registeredBy',
