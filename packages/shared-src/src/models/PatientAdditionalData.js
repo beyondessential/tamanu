@@ -11,8 +11,7 @@ export class PatientAdditionalData extends Model {
           set() {
             // patient additional data records use a patient_id as the primary key, acting as a
             // db-level enforcement of one per patient, and simplifying sync
-            // any sets of the convenience generated "id" field can be ignored
-            return;
+            // any sets of the convenience generated "id" field can be ignored, so do nothing here
           },
         },
         patientId: {
