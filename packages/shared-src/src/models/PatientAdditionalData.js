@@ -6,7 +6,23 @@ export class PatientAdditionalData extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
-        id: primaryKey,
+        id: {
+          type: `TEXT GENERATED ALWAYS AS ("patient_id")`,
+          set() {
+            // patient additional data records use a patient_id as the primary key, acting as a
+            // db-level enforcement of one per patient, and simplifying sync
+            // any sets of the convenience generated "id" field can be ignored
+            return;
+          },
+        },
+        patientId: {
+          type: DataTypes.STRING,
+          primaryKey: true,
+          references: {
+            model: 'patients',
+            key: 'id',
+          },
+        },
         placeOfBirth: Sequelize.STRING,
         bloodType: Sequelize.STRING,
         primaryContactNumber: Sequelize.STRING,
