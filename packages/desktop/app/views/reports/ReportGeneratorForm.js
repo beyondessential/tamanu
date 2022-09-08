@@ -164,7 +164,7 @@ export const ReportGeneratorForm = ({ onSuccessfulSubmit }) => {
         } else {
           await api.post(`reportRequest`, {
             reportId,
-            filterValues,
+            parameters: filterValues,
             emailList: parseEmails(formValues.emails),
           });
         }

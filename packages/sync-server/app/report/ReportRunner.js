@@ -227,14 +227,21 @@ export class ReportRunner {
     }
   }
 
-  async sendErrorToEmail(err) {
-    const reportName = await this.getReportName();
-    this.emailService.sendEmail({
-      from: config.mailgun.from,
-      to: this.recipients.email.join(','),
-      subject: 'Failed to generate report',
-      message: `Report requested: ${reportName} failed to generate with error: ${err.message}`,
-    });
+  async sendErrorToEmail(e) {
+    try {
+      const user = await this.getRequestedByUser();
+      const reportName = await this.getReportName();
+      this.emailService.sendEmail({
+        from: config.mailgun.from,
+        to: user.email,
+        subject: 'Failed to generate report',
+        message: `Report requested: ${reportName} failed to generate with error: ${e.message}`,
+      });
+    } catch (e2) {
+      this.log.error('Issue sending error to email', {
+        stack: e2.stack,
+      });
+    }
   }
 
   /**
