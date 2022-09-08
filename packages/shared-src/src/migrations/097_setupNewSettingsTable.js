@@ -19,7 +19,7 @@ const COMMON_COLUMNS = {
     type: Sequelize.DATE,
     defaultValue: Sequelize.NOW,
   },
-  updated_at_sync_index: {
+  updated_at_sync_tick: {
     type: Sequelize.BIGINT,
   },
 };
@@ -46,6 +46,20 @@ module.exports = {
         allowNull: true,
       },
     });
+    await query.sequelize.query(`
+      CREATE TRIGGER set_settings_updated_at_sync_tick_on_insert
+      BEFORE INSERT ON settings
+      FOR EACH ROW
+      WHEN (NEW.updated_at_sync_tick IS NULL) -- i.e. when an override value has not been passed in
+      EXECUTE FUNCTION set_updated_at_sync_tick();
+    `);
+    await query.sequelize.query(`
+      CREATE TRIGGER set_settings_updated_at_sync_tick_on_update
+      BEFORE UPDATE ON settings
+      FOR EACH ROW
+      WHEN (NEW.updated_at_sync_tick IS NULL OR NEW.updated_at_sync_tick = OLD.updated_at_sync_tick) -- i.e. when an override value has not been passed in
+      EXECUTE FUNCTION set_updated_at_sync_tick();
+    `);
   },
   down: async query => {
     await query.dropTable('settings');
@@ -57,5 +71,19 @@ module.exports = {
       },
       settingContent: Sequelize.STRING,
     });
+    await query.sequelize.query(`
+      CREATE TRIGGER set_settings_updated_at_sync_tick_on_insert
+      BEFORE INSERT ON settings
+      FOR EACH ROW
+      WHEN (NEW.updated_at_sync_tick IS NULL) -- i.e. when an override value has not been passed in
+      EXECUTE FUNCTION set_updated_at_sync_tick();
+    `);
+    await query.sequelize.query(`
+      CREATE TRIGGER set_settings_updated_at_sync_tick_on_update
+      BEFORE UPDATE ON settings
+      FOR EACH ROW
+      WHEN (NEW.updated_at_sync_tick IS NULL OR NEW.updated_at_sync_tick = OLD.updated_at_sync_tick) -- i.e. when an override value has not been passed in
+      EXECUTE FUNCTION set_updated_at_sync_tick();
+    `);
   },
 };
