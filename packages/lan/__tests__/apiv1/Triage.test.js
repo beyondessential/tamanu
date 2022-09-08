@@ -207,7 +207,7 @@ describe('Triage', () => {
       await Promise.all(promises);
     });
 
-    it.only('should get a list of triages ordered by score and arrival time', async () => {
+    it('should get a list of triages ordered by score and arrival time', async () => {
       const response = await app.get('/v1/triage');
       const results = response.body;
       expect(results.count).toEqual(5);
