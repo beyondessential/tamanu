@@ -27,7 +27,7 @@ const snapshotChangesForModel = async (model, since, patientIds) => {
   const patientFilter = shouldFilterByPatient && model.buildSyncFilter(patientIds);
 
   const baseFilter = {
-    where: { updatedAtSyncIndex: { [Op.gt]: since } },
+    where: { updatedAtSyncTick: { [Op.gt]: since } },
   };
 
   const recordsChanged = await model.findAll(
