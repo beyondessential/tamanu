@@ -58,7 +58,6 @@ export const EncounterProvider = ({ children }) => {
     );
     setEncounterData({ ...data, diagnoses, procedures, medications });
     setIsLoadingEncounter(false);
-    window.encounter = encounter;
   };
 
   // write, fetch and set encounter.
