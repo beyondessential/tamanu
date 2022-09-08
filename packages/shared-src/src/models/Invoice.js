@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { Model } from './Model';
+import { dateType } from './dateTimeTypes';
 
 export class Invoice extends Model {
   static init({ primaryKey, ...options }) {
@@ -11,7 +12,7 @@ export class Invoice extends Model {
         total: Sequelize.DECIMAL,
         paymentStatus: Sequelize.STRING,
         receiptNumber: Sequelize.STRING,
-        date: Sequelize.DATE,
+        date: dateType('date'),
       },
       options,
     );

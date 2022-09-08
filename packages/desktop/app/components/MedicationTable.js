@@ -6,7 +6,7 @@ import { DateDisplay } from './DateDisplay';
 import { useEncounter } from '../contexts/Encounter';
 import { MedicationModal } from './MedicationModal';
 import { reloadPatient } from '../store';
-import { ENCOUNTER_TAB_NAMES } from '../views/patients/EncounterView';
+import { ENCOUNTER_TAB_NAMES } from '../views/patients/encounterTabNames';
 import { Colors } from '../constants';
 
 const getMedicationName = ({ medication }) => medication.name;
@@ -19,7 +19,7 @@ const MEDICATION_COLUMNS = [
   {
     key: 'endDate',
     title: 'End Date',
-    accessor: data => <DateDisplay date={data?.endDate ?? ''} />,
+    accessor: data => (data?.endDate ? <DateDisplay date={data?.endDate} /> : ''),
   },
   { key: 'prescriber', title: 'Prescriber', accessor: data => data?.prescriber?.displayName ?? '' },
 ];

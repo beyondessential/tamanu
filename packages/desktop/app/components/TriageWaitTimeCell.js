@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { format } from 'date-fns';
+import Tooltip from '@material-ui/core/Tooltip';
 
 const MINUTE = 60 * 1000;
 const HOUR = 60 * MINUTE;
@@ -17,34 +18,47 @@ const PlainCell = styled.div`
   line-height: 18px;
 `;
 
-const TriageCell = styled(PlainCell)`
+const ColourCell = styled(PlainCell)`
   font-weight: 500;
   color: white;
 `;
 
-export const TriageWaitTimeCell = React.memo(({ encounterType, triageTime, closedTime }) => {
-  const [, updateState] = useState({});
+const TriageCell = ({ arrivalTime, children }) => (
+  <Tooltip title={`Arrival time: ${arrivalTime}`} arrow placement="top">
+    <ColourCell>{children}</ColourCell>
+  </Tooltip>
+);
 
-  // recalculate every 30 seconds
-  useEffect(() => {
-    if (!closedTime) {
-      const interval = setInterval(() => updateState({}), MINUTE * 0.5);
-      return () => clearInterval(interval);
+export const TriageWaitTimeCell = React.memo(
+  ({ encounterType, triageTime, closedTime, arrivalTime }) => {
+    const [, updateState] = useState({});
+
+    // recalculate every 30 seconds
+    useEffect(() => {
+      if (!closedTime) {
+        const interval = setInterval(() => updateState({}), MINUTE * 0.5);
+        return () => clearInterval(interval);
+      }
+      return () => {};
+    }, [closedTime]);
+
+    switch (encounterType) {
+      case 'triage':
+        return (
+          <TriageCell arrivalTime={arrivalTime}>
+            <div>{getDuration(triageTime)}</div>
+            <div>{`Triage at ${format(new Date(triageTime), 'h:mma')}`}</div>
+          </TriageCell>
+        );
+      case 'observation':
+        return (
+          <TriageCell arrivalTime={arrivalTime}>{`Seen at ${format(
+            new Date(closedTime),
+            'h:mma',
+          )}`}</TriageCell>
+        );
+      default:
+        return <PlainCell>Admitted</PlainCell>;
     }
-    return () => {};
-  }, [closedTime]);
-
-  switch (encounterType) {
-    case 'triage':
-      return (
-        <TriageCell>
-          <div>{getDuration(triageTime)}</div>
-          <div>{`Triage at ${format(triageTime, 'h:mma')}`}</div>
-        </TriageCell>
-      );
-    case 'observation':
-      return <TriageCell>{`Seen at ${format(closedTime, 'h:mma')}`}</TriageCell>;
-    default:
-      return <PlainCell>Admitted</PlainCell>;
-  }
-});
+  },
+);

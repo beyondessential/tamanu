@@ -35,15 +35,14 @@ export const usePatientNavigation = () => {
     );
   };
 
-  const navigateToEncounter = (encounterId, modal) => {
+  const navigateToEncounter = (encounterId, modal, search) => {
     const existingParams = getParams(PATIENT_PATHS.PATIENT);
-    navigate(
-      generatePath(`${PATIENT_PATHS.ENCOUNTER}/:modal?`, {
-        ...existingParams,
-        encounterId,
-        modal,
-      }),
-    );
+    const encounterRoute = generatePath(`${PATIENT_PATHS.ENCOUNTER}/:modal?`, {
+      ...existingParams,
+      encounterId,
+      modal,
+    });
+    navigate(`${encounterRoute}${search ? `?${new URLSearchParams(search)}` : ''}`);
   };
 
   const navigateToSummary = () => {
@@ -77,19 +76,6 @@ export const usePatientNavigation = () => {
     );
   };
 
-  const navigateBack = () => {
-    const requestParams = getParams(`${PATIENT_PATHS.ENCOUNTER}/*`);
-    if (requestParams) {
-      return navigateToEncounter(requestParams.encounterId);
-    }
-    const encounterParams = getParams(PATIENT_PATHS.ENCOUNTER);
-    if (encounterParams) {
-      return navigateToPatient(encounterParams.patientId);
-    }
-    const patientParams = getParams(PATIENT_PATHS.PATIENT);
-    return navigateToCategory(patientParams.category);
-  };
-
   return {
     navigateToPatient,
     navigateToEncounter,
@@ -97,6 +83,5 @@ export const usePatientNavigation = () => {
     navigateToImagingRequest,
     navigateToCategory,
     navigateToSummary,
-    navigateBack,
   };
 };

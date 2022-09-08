@@ -1,4 +1,4 @@
-import { isBefore } from 'date-fns';
+import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useApi } from '../../api';
@@ -56,7 +56,11 @@ export const PatientCarePlanDetails = React.memo(({ item }) => {
 
         if (notes.length > 1) {
           // display the latest note first
-          setSubsequentNotes(notes.slice(1).sort((a, b) => (isBefore(a.date, b.date) ? 1 : -1)));
+          setSubsequentNotes(
+            notes.slice(1).sort((a, b) => (moment(a.date).isBefore(b.date) ? 1 : -1)),
+          );
+        } else {
+          setSubsequentNotes([]);
         }
       }
     });

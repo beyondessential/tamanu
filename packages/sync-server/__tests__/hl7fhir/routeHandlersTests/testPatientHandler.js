@@ -3,6 +3,7 @@ import moment from 'moment';
 
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
+import { getCurrentDateString } from '../../../../shared-src/src/utils/dateTime';
 import { IDENTIFIER_NAMESPACE } from '../../../app/hl7fhir/utils';
 
 export function testPatientHandler(integrationName, requestHeaders = {}) {
@@ -19,7 +20,9 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
       it('fetches a patient', async () => {
         // arrange
         const { Patient, PatientAdditionalData } = ctx.store.models;
-        const patient = await Patient.create(fake(Patient, { dateOfDeath: new Date() }));
+        const patient = await Patient.create(
+          fake(Patient, { dateOfDeath: getCurrentDateString() }),
+        );
         const additionalData = await PatientAdditionalData.create({
           ...fake(PatientAdditionalData),
           patientId: patient.id,
@@ -59,7 +62,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
                 },
               ],
               birthDate: format(patient.dateOfBirth, 'yyyy-MM-dd'),
-              deceasedDateTime: format(patient.dateOfDeath, "yyyy-MM-dd'T'HH:mm:ssXXX"),
+              deceasedDateTime: format(new Date(patient.dateOfDeath), "yyyy-MM-dd'T'HH:mm:ssXXX"),
               gender: patient.sex,
               id: patient.id,
               identifier: [
@@ -607,7 +610,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
         await Promise.all([
           Patient.create(fake(Patient)),
           Patient.create(fake(Patient)),
-          Patient.create(fake(Patient, { dateOfDeath: moment.utc() })),
+          Patient.create(fake(Patient, { dateOfDeath: getCurrentDateString() })),
         ]);
 
         // Query deceased=true
