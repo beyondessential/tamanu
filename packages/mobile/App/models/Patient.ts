@@ -54,12 +54,6 @@ export class Patient extends BaseModel implements IPatient {
   )
   additionalData: IPatientAdditionalData;
 
-  //----------------------------------------------------------
-  // sync info
-
-  @Column({ default: false })
-  markedForSync: boolean; // TODO: should markedForUpload on children cascade upward to this?
-
   @OneToMany(
     () => Encounter,
     encounter => encounter.patient,
@@ -105,10 +99,6 @@ export class Patient extends BaseModel implements IPatient {
         // filter removes patients who couldn't be found (which occurs when a patient was deleted)
         .filter(patient => !!patient)
     );
-  }
-
-  static async getSyncable(): Promise<Patient[]> {
-    return this.find({ markedForSync: true });
   }
 
   static async getRecentVisitors(surveyId: string): Promise<any[]> {
