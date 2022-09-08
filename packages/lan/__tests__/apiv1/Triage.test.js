@@ -200,11 +200,11 @@ describe('Triage', () => {
         );
       };
 
-      const promises = [];
-      triageConfigs.forEach(config => {
-        promises.push(createTriagePatient(config));
-      });
-      await Promise.all(promises);
+      await createTriagePatient(triageConfigs[0]);
+      await createTriagePatient(triageConfigs[1]);
+      await createTriagePatient(triageConfigs[2]);
+      await createTriagePatient(triageConfigs[3]);
+      await createTriagePatient(triageConfigs[4]);
     });
 
     it('should get a list of triages ordered by score and arrival time', async () => {
