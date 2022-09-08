@@ -5,17 +5,10 @@ import {
   randomRecordId,
   randomReferenceId,
 } from 'shared/demoData';
-import config from 'config';
 import { fake } from 'shared/test-helpers';
 import { ENCOUNTER_TYPES } from 'shared/constants';
 import { toDateTimeString } from 'shared/utils/dateTime';
 import { createTestContext } from '../utilities';
-
-const CONFIG_LOCATION_ID = 'ref/facility/ba';
-
-jest.mock('config', () => ({
-  serverFacilityId: CONFIG_LOCATION_ID,
-}));
 
 describe('Triage', () => {
   let app = null;
@@ -164,7 +157,7 @@ describe('Triage', () => {
       // create a few test triages
       const { Facility, Location } = models;
       const fac = await Facility.create({
-        ...fake(models.Facility, { id: CONFIG_LOCATION_ID }),
+        ...fake(models.Facility, { id: 'ref/facility/ba' }),
       });
       const { id: locationId } = await Location.create({
         ...fake(Location),
