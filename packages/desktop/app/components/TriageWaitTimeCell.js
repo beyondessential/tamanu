@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import Tooltip from '@material-ui/core/Tooltip';
 import { format } from 'date-fns';
+import Tooltip from '@material-ui/core/Tooltip';
 
 const MINUTE = 60 * 1000;
 const HOUR = 60 * MINUTE;

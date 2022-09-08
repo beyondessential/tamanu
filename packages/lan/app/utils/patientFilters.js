@@ -1,5 +1,5 @@
 import config from 'config';
-import moment from 'moment';
+import { sub, startOfDay, endOfDay } from 'date-fns';
 import { makeFilter } from './query';
 
 export const createPatientFilters = filterParams => {
@@ -35,21 +35,15 @@ export const createPatientFilters = filterParams => {
       filterParams.ageMax,
       `DATE(patients.date_of_birth) >= DATE(:dobMin)`,
       ({ ageMax }) => ({
-        dobMin: moment()
-          .startOf('day')
-          .subtract(ageMax + 1, 'years')
-          .add(1, 'day')
-          .toDate(),
+        // Subtract the number of years, but add one day
+        dobMin: sub(new Date(), { years: ageMax + 1, days: -1 }),
       }),
     ),
     makeFilter(
       filterParams.ageMin,
       `DATE(patients.date_of_birth) <= DATE(:dobMax)`,
       ({ ageMin }) => ({
-        dobMax: moment()
-          .startOf('day')
-          .subtract(ageMin, 'years')
-          .toDate(),
+        dobMax: sub(new Date(), { years: ageMin }),
       }),
     ),
     // For DOB filter
@@ -57,18 +51,14 @@ export const createPatientFilters = filterParams => {
       filterParams.dateOfBirthFrom,
       `DATE(patients.date_of_birth) >= :dateOfBirthFrom`,
       ({ dateOfBirthFrom }) => ({
-        dateOfBirthFrom: moment(dateOfBirthFrom)
-          .startOf('day')
-          .toISOString(),
+        dateOfBirthFrom: startOfDay(dateOfBirthFrom).toISOString(),
       }),
     ),
     makeFilter(
       filterParams.dateOfBirthTo,
       `DATE(patients.date_of_birth) <= :dateOfBirthTo`,
       ({ dateOfBirthTo }) => ({
-        dateOfBirthTo: moment(dateOfBirthTo)
-          .endOf('day')
-          .toISOString(),
+        dateOfBirthTo: endOfDay(dateOfBirthTo).toISOString(),
       }),
     ),
     makeFilter(
