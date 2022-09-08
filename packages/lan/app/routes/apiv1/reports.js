@@ -1,10 +1,13 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import * as reportUtils from 'shared/reports';
-import { log } from 'shared/services/logging/log';
+import { createNamedLogger } from 'shared/services/logging/createNamedLogger';
 import { assertReportEnabled } from '../../utils/assertReportEnabled';
 
+const FACILITY_REPORT_LOG_NAME = 'FacilityReport';
+
 export const reports = express.Router();
+
 reports.get(
   '/$',
   asyncHandler(async (req, res) => {
@@ -58,33 +61,40 @@ reports.post(
       db,
       models,
       body: { parameters },
+      user,
       params,
       getLocalisation,
     } = req;
     // Permissions are checked per report module
     req.flagPermissionChecked();
     const { reportId } = params;
+    const facilityReportLog = createNamedLogger(FACILITY_REPORT_LOG_NAME, {
+      userId: user.id,
+      reportId,
+    });
     const localisation = await getLocalisation();
     assertReportEnabled(localisation, reportId);
 
     const reportModule = await reportUtils.getReportModule(reportId, models);
 
     if (!reportModule) {
-      log.error('FacilityReportError - Report module not found', { reportId });
-      res.status(400).send({ error: { message: 'invalid reportId' } });
+      const message = 'Report module not found';
+      facilityReportLog.error(message);
+      res.status(400).send({ error: { message } });
       return;
     }
 
     req.checkPermission('read', reportModule.permission);
 
     try {
+      facilityReportLog.info('Running report', { parameters });
       const excelData = await reportModule.dataGenerator({ sequelize: db, models }, parameters);
+      facilityReportLog.info('Report run successfully', { excelData });
       res.send(excelData);
     } catch (e) {
-      log.error('FacilityReportError - Report module failed to generate data', {
-        reportId,
+      facilityReportLog.error('Report module failed to generate data', {
+        stack: e.stack,
       });
-      log.error(e.stack);
       res.status(400).send({
         error: {
           message: e.message,

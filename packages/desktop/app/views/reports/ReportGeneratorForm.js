@@ -159,7 +159,7 @@ export const ReportGeneratorForm = () => {
       } else {
         await api.post(`reportRequest`, {
           reportId,
-          filterValues,
+          parameters: filterValues,
           emailList: parseEmails(formValues.emails),
           bookType,
         });

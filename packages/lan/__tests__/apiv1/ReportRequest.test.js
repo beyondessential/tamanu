@@ -1,3 +1,4 @@
+import * as reportsUtils from 'shared/reports';
 import { createTestContext } from '../utilities';
 
 describe('ReportRequest', () => {
@@ -21,6 +22,17 @@ describe('ReportRequest', () => {
     beforeAll(async () => {
       app = await baseApp.asRole('practitioner');
     });
+
+    it('should fail with 400 and message if report module is not found', async () => {
+      jest.spyOn(reportsUtils, 'getReportModule').mockResolvedValueOnce(null);
+      const res = await app.post('/v1/reportRequest').send({
+        reportId: 'invalid-report',
+        emailList: [],
+      });
+      expect(res).toHaveStatus(400);
+      expect(res.body).toEqual({ error: { message: 'Report module not found' } });
+    });
+
     it('should create a new report request', async () => {
       const result = await app.post('/v1/reportRequest').send({
         reportId: 'incomplete-referrals',
