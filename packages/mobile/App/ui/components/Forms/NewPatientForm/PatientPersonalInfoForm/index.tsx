@@ -61,9 +61,9 @@ export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): 
     const newPatient = await Patient.createAndSaveOne({
       ...values,
       displayId: generateId(),
-      markedForSync: true,
       markedForUpload: true,
     });
+    await Patient.markForSync(newPatient.id);
 
     // Reload instance to get the complete village fields
     // (related fields won't display all info otherwise)

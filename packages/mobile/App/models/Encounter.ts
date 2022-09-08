@@ -10,7 +10,7 @@ import {
 } from 'typeorm/browser';
 import { startOfDay, addHours, subDays } from 'date-fns';
 import { getUniqueId } from 'react-native-device-info';
-import { BaseModel, FindMarkedForUploadOptions, IdRelation } from './BaseModel';
+import { BaseModel, IdRelation } from './BaseModel';
 import { IEncounter, EncounterType } from '~/types';
 import { Patient } from './Patient';
 import { Diagnosis } from './Diagnosis';
@@ -235,28 +235,6 @@ export class Encounter extends BaseModel implements IEncounter {
     if (parent) {
       await Patient.markForSync(parent.id)
     }
-  }
-
-  static async findMarkedForUpload(opts: FindMarkedForUploadOptions): Promise<BaseModel[]> {
-    const patientId = (opts.channel.match(/^patient\/(.*)\/encounter$/) || [])[1];
-    const scheduledVaccineId = (opts.channel.match(/^scheduledVaccine\/(.*)\/encounter/) || [])[1];
-    if (patientId) {
-      const records = await this.findMarkedForUploadQuery(opts)
-        .andWhere('patientId = :patientId', { patientId })
-        .getMany();
-      return records as BaseModel[];
-    }
-    if (scheduledVaccineId) {
-      const records = await this.findMarkedForUploadQuery(opts)
-        .innerJoinAndSelect('Encounter.administeredVaccines', 'AdministeredVaccine')
-        .andWhere('AdministeredVaccine.scheduledVaccineId = :scheduledVaccineId', {
-          scheduledVaccineId,
-        })
-        .getMany();
-      return records as BaseModel[];
-    }
-
-    throw new Error(`Could not extract marked for upload from ${opts.channel}`);
   }
 
   static includedSyncRelations = [
