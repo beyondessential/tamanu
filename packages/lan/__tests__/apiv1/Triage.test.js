@@ -5,10 +5,17 @@ import {
   randomRecordId,
   randomReferenceId,
 } from 'shared/demoData';
+import config from 'config';
 import { fake } from 'shared/test-helpers';
 import { ENCOUNTER_TYPES } from 'shared/constants';
 import { toDateTimeString } from 'shared/utils/dateTime';
 import { createTestContext } from '../utilities';
+
+const CONFIG_LOCATION_ID = 'ref/facility/ba';
+
+jest.mock('config', () => ({
+  serverFacilityId: CONFIG_LOCATION_ID,
+}));
 
 describe('Triage', () => {
   let app = null;
@@ -155,10 +162,9 @@ describe('Triage', () => {
   describe('listing & filtering', () => {
     beforeAll(async () => {
       // create a few test triages
-      const facilityId = 'ref/facility/ba';
       const { Facility, Location } = models;
       const fac = await Facility.create({
-        ...fake(models.Facility, { id: facilityId }),
+        ...fake(models.Facility, { id: CONFIG_LOCATION_ID }),
       });
       const { id: locationId } = await Location.create({
         ...fake(Location),
@@ -200,11 +206,11 @@ describe('Triage', () => {
         );
       };
 
-      await createTriagePatient(triageConfigs[0]);
-      await createTriagePatient(triageConfigs[1]);
-      await createTriagePatient(triageConfigs[2]);
-      await createTriagePatient(triageConfigs[3]);
-      await createTriagePatient(triageConfigs[4]);
+      const promises = [];
+      triageConfigs.forEach(c => {
+        promises.push(createTriagePatient(c));
+      });
+      await Promise.all(promises);
     });
 
     it('should get a list of triages ordered by score and arrival time', async () => {
