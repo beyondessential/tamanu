@@ -17,5 +17,4 @@ export interface IPatient {
   villageId?: string,
   additionalData?: IPatientAdditionalData;
   secondaryIds?: IPatientSecondaryId[];
-  markedForSync?: boolean;
 }

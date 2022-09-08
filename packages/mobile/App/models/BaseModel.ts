@@ -8,9 +8,6 @@ import {
   Column,
   BeforeInsert,
   BeforeUpdate,
-  Index,
-  MoreThan,
-  FindOptionsUtils,
   Repository,
 } from 'typeorm/browser';
 import { SYNC_DIRECTIONS } from './types';
@@ -18,12 +15,6 @@ import { getSyncSessionIndex } from '../services/sync/utils';
 
 export type ModelPojo = {
   id: string;
-};
-
-export type FindMarkedForUploadOptions = {
-  channel: string;
-  limit?: number;
-  after?: string;
 };
 
 // https://stackoverflow.com/questions/54281631/is-it-possible-to-get-instancetypet-to-work-on-an-abstract-class
@@ -98,10 +89,6 @@ export abstract class BaseModel extends BaseEntity {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @Index()
-  @Column({ default: true })
-  markedForUpload: boolean;
-
   @Column({ nullable: true })
   uploadedAt: Date;
 
@@ -118,8 +105,6 @@ export abstract class BaseModel extends BaseEntity {
     ) {
       this.updatedAtSyncIndex = index;
     }
-
-    this.markedForUpload = true;
   }
 
   @BeforeInsert()
@@ -166,10 +151,6 @@ export abstract class BaseModel extends BaseEntity {
         .loadOne();
     }
     return entity;
-  }
-
-  static async markUploaded(ids: string | string[], uploadedAt: Date): Promise<void> {
-    await this.getRepository().update(ids, { uploadedAt, markedForUpload: false });
   }
 
   /*
@@ -219,28 +200,6 @@ export abstract class BaseModel extends BaseEntity {
     return instance.save();
   }
 
-  static async findMarkedForUpload(opts: FindMarkedForUploadOptions): Promise<BaseModel[]> {
-    // query is built separately so it can be modified in child classes
-    return this.findMarkedForUploadQuery(opts).getMany();
-  }
-
-  static findMarkedForUploadQuery({ limit, after }: FindMarkedForUploadOptions) {
-    const whereAfter = typeof after === 'string' ? { id: MoreThan(after) } : {};
-
-    const qb = this.getRepository().createQueryBuilder();
-    return FindOptionsUtils.applyOptionsToQueryBuilder(qb, {
-      where: {
-        markedForUpload: true,
-        ...whereAfter,
-      },
-      order: {
-        id: 'ASC',
-      },
-      take: limit,
-      relations: this.includedSyncRelations,
-    });
-  }
-
   static async filterExportRecords(ids: string[]) {
     return ids;
   }
@@ -257,7 +216,6 @@ export abstract class BaseModel extends BaseEntity {
     'createdAt',
     'updatedAt',
     'markedForUpload',
-    'markedForSync',
     'uploadedAt',
   ];
 

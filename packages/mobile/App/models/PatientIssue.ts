@@ -1,5 +1,5 @@
 import { Entity, Column, ManyToOne, RelationId, BeforeUpdate, BeforeInsert } from 'typeorm/browser';
-import { BaseModel, FindMarkedForUploadOptions } from './BaseModel';
+import { BaseModel } from './BaseModel';
 import { Patient } from './Patient';
 import { IPatientIssue, PatientIssueType } from '~/types';
 import { SYNC_DIRECTIONS } from './types';
@@ -32,22 +32,7 @@ export class PatientIssue extends BaseModel implements IPatientIssue {
     // we don't need to upload the patient, so we only set markedForSync
     const parent = await this.findParent(Patient, 'patient');
     if (parent) {
-      await Patient.markForSync(parent.id)
+      await Patient.markForSync(parent.id);
     }
-  }
-
-  static async findMarkedForUpload(
-    opts: FindMarkedForUploadOptions,
-  ): Promise<BaseModel[]> {
-    const patientId = opts.channel.match(/^patient\/(.*)\/issue$/)[1];
-    if (!patientId) {
-      throw new Error(`Could not extract patientId from ${opts.channel}`);
-    }
-
-    const records = await this.findMarkedForUploadQuery(opts)
-      .andWhere('patientId = :patientId', { patientId })
-      .getMany();
-
-    return records as BaseModel[];
   }
 }
