@@ -5,7 +5,9 @@ import {
   randomRecordId,
   randomReferenceId,
 } from 'shared/demoData';
+import { fake } from 'shared/test-helpers';
 import { ENCOUNTER_TYPES } from 'shared/constants';
+import { toDateTimeString } from 'shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 
 describe('Triage', () => {
@@ -151,9 +153,73 @@ describe('Triage', () => {
   });
 
   describe('listing & filtering', () => {
-    beforeAll(() => {
+    beforeAll(async () => {
       // create a few test triages
-      // Todo: add tests
+      const facilityId = 'ref/facility/ba';
+      const { Facility, Location } = models;
+      const fac = await Facility.create({
+        ...fake(models.Facility, { id: facilityId }),
+      });
+      const { id: locationId } = await Location.create({
+        ...fake(Location),
+        facilityId: fac.id,
+      });
+
+      const triageConfigs = [
+        {
+          score: 1,
+          arrivalTime: toDateTimeString(new Date('01/03/2022 06:15 am')),
+        },
+        {
+          score: 2,
+          arrivalTime: toDateTimeString(new Date('01/03/2022 06:15 am')),
+        },
+        {
+          score: 3,
+          arrivalTime: toDateTimeString(new Date('01/03/2022 10:15 am')),
+        },
+        {
+          score: 3,
+          arrivalTime: toDateTimeString(new Date('01/03/2022 9:15 am')),
+        },
+        {
+          score: 3,
+          arrivalTime: toDateTimeString(new Date('01/03/2022 8:15 am')),
+        },
+      ];
+
+      const createTriagePatient = async overrides => {
+        const { Patient, Triage } = models;
+        const encounterPatient = await Patient.create(await createDummyPatient(models));
+        await Triage.create(
+          await createDummyTriage(models, {
+            patientId: encounterPatient.id,
+            locationId,
+            ...overrides,
+          }),
+        );
+      };
+
+      const promises = [];
+      triageConfigs.forEach(config => {
+        promises.push(createTriagePatient(config));
+      });
+      await Promise.all(promises);
+    });
+
+    it.only('should get a list of triages ordered by score and arrival time', async () => {
+      const response = await app.get('/v1/triage');
+      const results = response.body;
+      expect(results.count).toEqual(5);
+      // Test Score
+      expect(results.data[0]).toHaveProperty('score', '1');
+      expect(results.data[1]).toHaveProperty('score', '2');
+      expect(results.data[2]).toHaveProperty('score', '3');
+
+      // Test Arrival Time
+      expect(results.data[2]).toHaveProperty('arrivalTime', '2022-01-03 08:15:00');
+      expect(results.data[3]).toHaveProperty('arrivalTime', '2022-01-03 09:15:00');
+      expect(results.data[4]).toHaveProperty('arrivalTime', '2022-01-03 10:15:00');
     });
 
     test.todo('should get a list of all triages with relevant attached data');

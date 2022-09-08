@@ -52,9 +52,12 @@ triage.post(
 
 const sortKeys = {
   score: 'score',
+  arrivalTime: 'arrival_time',
   patientName: 'UPPER(patients.last_name || patients.first_name)',
   chiefComplaint: 'chief_complaint',
   id: 'patients.display_id',
+  displayId: 'patients.display_id',
+  sex: 'patients.sex',
   dateOfBirth: 'patients.date_of_birth',
   locationName: 'location_name',
 };
@@ -76,7 +79,6 @@ triage.get(
 
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
 
-    // Todo: add sorting
     const result = await db.query(
       `
         SELECT
