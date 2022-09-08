@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
 
-import { LAB_REQUEST_STATUSES, NOTE_TYPES, SYNC_DIRECTIONS } from 'shared/constants';
+import { LAB_REQUEST_STATUSES, SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
@@ -74,13 +74,6 @@ export class LabRequest extends Model {
     });
   }
 
-  async addLabNote(content) {
-    await this.createNote({
-      noteType: NOTE_TYPES.OTHER,
-      content,
-    });
-  }
-
   static initRelations(models) {
     this.belongsTo(models.User, {
       foreignKey: 'requestedById',
@@ -117,9 +110,9 @@ export class LabRequest extends Model {
       as: 'certificate_notification',
     });
 
-    this.hasMany(models.Note, {
+    this.hasMany(models.NotePage, {
       foreignKey: 'recordId',
-      as: 'notes',
+      as: 'notePages',
       constraints: false,
       scope: {
         recordType: this.name,

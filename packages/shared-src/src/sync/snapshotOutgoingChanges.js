@@ -19,7 +19,7 @@ const formatValue = (columnType, value) => {
   return value;
 };
 
-const snapshotChangesForModel = async (model, fromSessionIndex, patientIds, facilitySettings) => {
+const snapshotChangesForModel = async (model, since, patientIds, facilitySettings) => {
   const shouldFilterByPatient = !!model.buildSyncFilter && patientIds;
   if (shouldFilterByPatient && patientIds.length === 0) {
     return [];
@@ -29,7 +29,7 @@ const snapshotChangesForModel = async (model, fromSessionIndex, patientIds, faci
     shouldFilterByPatient && model.buildSyncFilter(patientIds, facilitySettings);
 
   const baseFilter = {
-    where: { updatedAtSyncIndex: { [Op.gte]: fromSessionIndex } },
+    where: { updatedAtSyncTick: { [Op.gt]: since } },
   };
 
   const recordsChanged = await model.findAll(
@@ -61,12 +61,7 @@ const snapshotChangesForModel = async (model, fromSessionIndex, patientIds, faci
   }));
 };
 
-export const snapshotOutgoingChanges = async (
-  models,
-  fromSessionIndex,
-  patientIds,
-  facilitySettings,
-) => {
+export const snapshotOutgoingChanges = async (models, since, patientIds, facilitySettings) => {
   if (readOnly) {
     return [];
   }
@@ -75,7 +70,7 @@ export const snapshotOutgoingChanges = async (
   for (const model of Object.values(models)) {
     const changesForModel = await snapshotChangesForModel(
       model,
-      fromSessionIndex,
+      since,
       patientIds,
       facilitySettings,
     );

@@ -3,11 +3,9 @@ import Sequelize from 'sequelize';
 
 module.exports = {
   up: async query => {
-    // thanks Félix for this uuid generator, copied from migration 81
-    const uuidgen = `uuid_in(overlay(overlay(md5(random()::text || ':' || random()::text) placing '4' from 13) placing to_hex(floor(random()*(11-8+1) + 8)::int)::text from 17)::cstring)`;
     await query.sequelize.query(`
-      INSERT INTO patient_facilities (id, patient_id, facility_id, created_at, updated_at)
-      SELECT ${uuidgen}, patients.id, '${config.serverFacilityId}', now(), now()
+      INSERT INTO patient_facilities (patient_id, facility_id, created_at, updated_at)
+      SELECT patients.id, '${config.serverFacilityId}', now(), now()
       FROM patients
       WHERE patients.marked_for_sync = TRUE;
     `);
