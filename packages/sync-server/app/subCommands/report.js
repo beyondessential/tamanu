@@ -3,7 +3,7 @@ import path from 'path';
 
 import { log } from 'shared/services/logging';
 import { REPORT_DEFINITIONS } from 'shared/reports';
-
+import { REPORT_EXPORT_FORMATS } from 'shared/constants';
 import { EmailService } from '../services/EmailService';
 import { ReportRunner } from '../report/ReportRunner';
 import { initDatabase } from '../database';
@@ -42,7 +42,7 @@ async function report(options) {
   const store = await initDatabase({ testMode: false });
   setupEnv();
   try {
-    const { reportId, parameters, recipients, userId } = options;
+    const { reportId, parameters, recipients, userId, format } = options;
 
     await validateReportId(reportId, store.models);
 
@@ -72,6 +72,7 @@ async function report(options) {
       store,
       emailService,
       userId,
+      format,
     );
     log.info(
       `Running report "${reportId}" with parameters "${parameters}", recipients "${recipients}" and userId ${userId}`,
@@ -102,4 +103,5 @@ export const reportCommand = new Command('report')
   )
   .option('-p, --parameters <json>', 'JSON parameters')
   .option('-u, --userId <string>', 'Requested by userId')
+  .option('-f, --format <string>', 'Export format (xslx or csv)', REPORT_EXPORT_FORMATS.XLSX)
   .action(report);

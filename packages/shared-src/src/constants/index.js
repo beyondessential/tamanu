@@ -537,3 +537,8 @@ export const MANNER_OF_DEATH_OPTIONS = Object.values(MANNER_OF_DEATHS).map(type 
   label: type,
   value: type,
 }));
+
+export const REPORT_EXPORT_FORMATS = {
+  XLSX: 'xlsx',
+  CSV: 'csv',
+};

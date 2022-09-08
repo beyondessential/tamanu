@@ -15,7 +15,7 @@ import { getLocalisation } from '../localisation';
 const REPORT_RUNNER_LOG_NAME = 'ReportRunner';
 
 export class ReportRunner {
-  constructor(reportId, parameters, recipients, store, emailService, userId) {
+  constructor(reportId, parameters, recipients, store, emailService, userId, exportFormat) {
     this.reportId = reportId;
     this.parameters = parameters;
     this.recipients = recipients;
@@ -23,6 +23,9 @@ export class ReportRunner {
     this.emailService = emailService;
     this.userId = userId;
     this.log = createNamedLogger(REPORT_RUNNER_LOG_NAME, { reportId, userId });
+    // Export format is only used for emailed recipients. Local reports have the export format
+    // defined in the recipients object and reports sent to s3 are always csv.
+    this.exportFormat = exportFormat;
   }
 
   async validate(reportModule, reportDataGenerator) {
@@ -143,7 +146,7 @@ export class ReportRunner {
       if (!format || !reportFolder) {
         const str = JSON.stringify(recipient);
         throw new Error(
-          `ReportRunner - local recipients must specifiy a format and a path, got: ${str}`,
+          `ReportRunner - local recipients must specify a format and a path, got: ${str}`,
         );
       }
       await mkdirp(reportFolder);

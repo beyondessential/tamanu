@@ -26,8 +26,10 @@ export async function writeToSpreadsheet({ data, metadata }, filePath, bookType)
   metadataSheet['!cols'] = [{ wch: 30 }, { wch: 30 }];
   const stringifiedData = data.map(row => row.map(stringifyIfNonDateObject));
   const sheet = XLSX.utils.aoa_to_sheet(stringifiedData);
-  XLSX.utils.book_append_sheet(book, metadataSheet, 'metadata');
+
+  // For csv bookTypes, only the first sheet will be exported
   XLSX.utils.book_append_sheet(book, sheet, 'report');
+  XLSX.utils.book_append_sheet(book, metadataSheet, 'metadata');
 
   return new Promise((resolve, reject) => {
     XLSX.writeFileAsync(filePath, book, { type: bookType }, err => {
