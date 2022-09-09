@@ -1,8 +1,11 @@
 import { Op } from 'sequelize';
+import { chunk } from 'lodash';
 import { VISIBILITY_STATUSES } from 'shared/constants';
 import { InvalidParameterError } from 'shared/errors';
 import { log } from 'shared/services/logging';
 import { reconcilePatient } from '../../utils/removeDuplicatedPatientAdditionalData';
+
+const BULK_CREATE_BATCH_SIZE = 100;
 
 // These ones just need a patientId switched over.
 // Models included here will just have their patientId field
@@ -155,12 +158,10 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
       patientId: keepPatientId,
       facilityId,
     }));
+
     if (newPatientFacilities.length > 0) {
-      try {
+      for (const chunkOfRecords of chunk(newPatientFacilities, BULK_CREATE_BATCH_SIZE)) {
         await models.PatientFacility.bulkCreate(newPatientFacilities);
-      } catch (e) {
-        console.log(e);
-        throw e;
       }
       updates.PatientFacility = newPatientFacilities.length;
     }
