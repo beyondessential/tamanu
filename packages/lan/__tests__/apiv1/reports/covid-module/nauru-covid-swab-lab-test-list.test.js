@@ -149,7 +149,7 @@ describe('Nauru covid case report tests', () => {
           Result: 'Positive',
           'Requested by': null,
           'Requested date': format(new Date(labRequest.requestedDate), 'yyyy/MM/dd'),
-          'Submitted date': format(labTest.date, 'yyyy/MM/dd'),
+          'Submitted date': format(new Date(labTest.date), 'yyyy/MM/dd'),
           Priority: null,
           'Testing laboratory': null,
           'Testing date': format(labTest.completedDate, 'yyyy/MM/dd'),
