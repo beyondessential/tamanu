@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 
-import moment from 'moment';
+import { format } from 'date-fns';
 import { groupBy, keyBy } from 'lodash';
 import { generateReportFromQueryData } from '../utilities';
 
@@ -305,9 +305,9 @@ export const dataGenerator = async ({ sequelize }, parameters = {}) => {
       ...sumObjectsByKey(resultsForDate.map(({ date: _, ...summableKeys }) => summableKeys)), // eslint-disable-line no-unused-vars
     }))
     // Sort oldest to most recent
-    .sort(({ date: date1 }, { date: date2 }) => moment(date1) - moment(date2))
+    .sort(({ date: date1 }, { date: date2 }) => date1 - date2)
     .map(({ date, ...otherFields }) => ({
-      date: moment(date).format('DD-MM-YYYY'),
+      date: format(new Date(date), 'dd-MM-yyyy'),
       ...otherFields,
     }));
 

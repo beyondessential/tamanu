@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { subDays, format } from 'date-fns';
+import { addDays, subDays, format } from 'date-fns';
 import {
   buildNestedEncounter,
   expectDeepSyncRecordMatch,
@@ -15,15 +15,15 @@ const makeUpdatedAt = daysAgo =>
   format(subDays(new Date(), daysAgo), 'yyyy-MM-dd hh:mm:ss.SSS +00:00');
 
 describe('export', () => {
-  let models;
-  let context;
-  const patientId = uuidv4();
-  const userId = uuidv4();
-  const facilityId = uuidv4();
-  const scheduledVaccineId = uuidv4();
-
   [true, false].forEach(syncClientMode => {
     describe(`in ${syncClientMode ? 'client' : 'server'} mode`, () => {
+      let models;
+      let context;
+      const patientId = uuidv4();
+      const userId = uuidv4();
+      const facilityId = uuidv4();
+      const scheduledVaccineId = uuidv4();
+
       beforeAll(async () => {
         context = await initDb({ syncClientMode });
         models = context.models;
@@ -35,6 +35,10 @@ describe('export', () => {
           ...fake(ScheduledVaccine),
           id: scheduledVaccineId,
         });
+      });
+
+      afterAll(async () => {
+        await context.sequelize.close();
       });
 
       const testCases = [
@@ -138,6 +142,45 @@ describe('export', () => {
             expect(thirdRecords.length).toEqual(0);
           });
         });
+      });
+
+      it('respects until', async () => {
+        // arrange
+        const { Patient } = models;
+        await Patient.truncate();
+        const channel = Patient.syncConfig.getChannels()[0];
+        const plan = createExportPlan(Patient.sequelize, channel);
+
+        const patient1 = await Patient.create({
+          ...fake(Patient),
+          isPushing: syncClientMode,
+        });
+        const patient2 = await Patient.create({
+          ...fake(Patient),
+          isPushing: syncClientMode,
+        });
+        const until = addDays(new Date(), 1);
+        await unsafeSetUpdatedAt(context.sequelize, {
+          table: Patient.tableName,
+          id: patient2.id,
+          updated_at: addDays(until, 1).toISOString(),
+        });
+
+        // act
+        const { records } = await executeExportPlan(plan, {
+          limit: 10,
+          until: until.getTime(),
+        });
+
+        // assert
+        expect(records).toEqual([
+          {
+            data: expect.objectContaining({
+              id: patient1.id,
+            }),
+          },
+        ]);
+        expect(records.length).toEqual(1);
       });
     });
   });

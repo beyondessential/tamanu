@@ -33,6 +33,8 @@ import * as palauCovidCaseReportLineList from './covid-module/palau/palau-covid-
 import * as genericSurveyExportLineList from './generic-survey-export-line-list';
 import * as appointmentsLineList from './appointments-line-list';
 import * as imagingRequestsLineList from './imaging-requests-line-list';
+import * as deceasedPatientsLineList from './deceased-patients-line-list';
+import * as labRequestsLineList from './lab-requests-line-list';
 
 export function getReportModule(reportType) {
   switch (reportType) {
@@ -108,6 +110,10 @@ export function getReportModule(reportType) {
       return appointmentsLineList;
     case 'imaging-requests-line-list':
       return imagingRequestsLineList;
+    case 'deceased-patients-line-list':
+      return deceasedPatientsLineList;
+    case 'lab-requests-line-list':
+      return labRequestsLineList;
   }
 }
 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import EmailIcon from '@material-ui/icons/Email';
-import { EmailAddressConfirmationModal } from './EmailAddressConfirmationModal';
-import { Button } from '..';
+import { EmailAddressConfirmationForm } from '../../forms/EmailAddressConfirmationForm';
+import { Button, Modal } from '..';
 
 export const EmailButton = ({ onEmail }) => {
   const [openModal, setOpenModal] = useState(false);
@@ -18,11 +18,15 @@ export const EmailButton = ({ onEmail }) => {
       >
         Email
       </Button>
-      <EmailAddressConfirmationModal
-        open={openModal}
-        onClose={() => setOpenModal(false)}
-        onEmail={onEmail}
-      />
+      <Modal title="Enter email address" open={openModal} onClose={() => setOpenModal(false)}>
+        <EmailAddressConfirmationForm
+          onSubmit={data => {
+            onEmail(data);
+            setOpenModal(false);
+          }}
+          onCancel={() => setOpenModal(false)}
+        />
+      </Modal>
     </>
   );
 };
