@@ -33,7 +33,7 @@ export class Patient extends BaseModel implements IPatient {
   culturalName?: string;
 
   @Column({ nullable: true })
-  dateOfBirth?: Date;
+  dateOfBirth?: string;
 
   @Column({ nullable: true })
   email?: string;
