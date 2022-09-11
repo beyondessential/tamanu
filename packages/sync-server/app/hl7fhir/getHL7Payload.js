@@ -26,6 +26,7 @@ export async function getHL7Payload({
   const baseWhere = getWhere(displayId, query);
   const afterWhere = addPaginationToWhere(baseWhere, after);
   const include = getInclude(displayId, query);
+  const baseUrl = getBaseUrl(req);
 
   const [records, total, remaining] = await Promise.all([
     model.findAll({
@@ -59,7 +60,6 @@ export async function getHL7Payload({
     }
   }
 
-  const baseUrl = getBaseUrl(req);
   const link = [
     {
       relation: 'self',
