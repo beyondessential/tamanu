@@ -3,7 +3,7 @@ export function dbRecordToResponse(patientRecord) {
     ...patientRecord.get({
       plain: true,
     }),
-    markedForSync: !!patientRecord.patientFacilities?.length > 0,
+    markedForSync: patientRecord.patientFacilities?.length > 0,
   };
 }
 

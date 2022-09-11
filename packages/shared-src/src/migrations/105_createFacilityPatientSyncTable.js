@@ -5,13 +5,15 @@ module.exports = {
     await query.createTable(
       'patient_facilities',
       {
-        // for patient_facilities, we use a composite primary key of patient_id plus facility_id,
+        // For patient_facilities, we use a composite primary key of patient_id plus facility_id,
         // so that if two users on different devices mark the same patient for sync, the join
         // record is treated as the same record, making the sync merge strategy trivial
         // id is still produced, but just as a deterministically generated convenience column for
         // consistency and to maintain the assumption of "id" existing in various places
+        // N.B. because ':' is used to join the two, we replace any actual occurrence of ':' with ';'
+        // to avoid clashes on the joined id
         id: {
-          type: `TEXT GENERATED ALWAYS AS ("patient_id" || '-' || "facility_id") STORED`,
+          type: `TEXT GENERATED ALWAYS AS (REPLACE("patient_id", ';', ':') || ';' || REPLACE("facility_id", ';', ':')) STORED`,
         },
         created_at: {
           type: Sequelize.DATE,

@@ -7,7 +7,7 @@ export class PatientFacility extends Model {
     super.init(
       {
         id: {
-          type: `TEXT GENERATED ALWAYS AS ("patient_id" || '-' || "facility_id") STORED`,
+          type: `TEXT GENERATED ALWAYS AS (REPLACE("patient_id", ';', ':') || ';' || REPLACE("facility_id", ';', ':')) STORED`,
           set() {
             // patient facility records use a composite primary key
             // any sets of the convenience generated "id" field can be ignored

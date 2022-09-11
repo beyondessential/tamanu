@@ -1,33 +1,32 @@
 import { Op } from 'sequelize';
-import config from 'config';
+import baseConfig from 'config';
 
 function buildNestedInclude(associations) {
-  const include = [];
-  associations.forEach((association, depth) => {
-    let parentInclude = include;
-    for (let i = 0; i <= depth; i++) {
-      if (i === depth) {
-        parentInclude.push({ association, include: [] });
-      }
-      [parentInclude] = parentInclude;
-      parentInclude = parentInclude.include;
-    }
+  const topLevel = { include: [] };
+  let currentLevel = topLevel;
+  associations.forEach(association => {
+    const nextLevel = { association, include: [] };
+    currentLevel.include.push(nextLevel);
+    currentLevel = nextLevel;
   });
-  return include;
+  return topLevel.include;
 }
 
 function includeWithinEncounter(include, association) {
-  let [parentInclude] = include;
-  while (parentInclude.association !== 'encounter') {
-    [parentInclude] = parentInclude.include;
+  let currentLevel = { association: null, include };
+  while (currentLevel.association !== 'encounter') {
+    const nextLevel = currentLevel.include[0];
+    currentLevel = nextLevel;
   }
-  parentInclude.include.push(association);
+  currentLevel.include.push({ association, include: [] });
 }
 
 export function buildEncounterLinkedSyncFilter(
   patientIds,
   associationsToTraverse = ['encounter'], // e.g. ['surveyResponse', 'encounter'] to traverse up from SurveyResponseAnswer
+  configOverride, // used in tests
 ) {
+  const config = { ...baseConfig, ...configOverride };
   const isEncounter = associationsToTraverse.length === 0;
   const pathToEncounter = isEncounter ? '' : `${associationsToTraverse.join('.')}.`;
   const include = buildNestedInclude(associationsToTraverse);
