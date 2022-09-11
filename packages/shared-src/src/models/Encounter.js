@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import moment from 'moment';
+import { endOfDay, startOfDay, isBefore } from 'date-fns';
 import config from 'config';
 
 import { ENCOUNTER_TYPES, ENCOUNTER_TYPE_VALUES, NOTE_TYPES } from 'shared/constants';
@@ -50,21 +50,22 @@ export class Encounter extends Model {
         'medications',
         'labRequests',
         'labRequests.tests',
-        'labRequests.notes',
+        'labRequests.notePages',
         'imagingRequests',
-        'imagingRequests.notes',
+        'imagingRequests.notePages',
         'procedures',
         'initiatedReferrals',
         'completedReferrals',
         'vitals',
         'discharge',
         'triages',
-        'triages.notes',
+        'triages.notePages',
         'invoice',
         'invoice.invoiceLineItems',
         'invoice.invoicePriceChangeItems',
         'documents',
-        'notes',
+        'notePages',
+        'notePages.noteItems',
       ],
       ...nestedSyncConfig,
       channelRoutes: [
@@ -161,7 +162,6 @@ export class Encounter extends Model {
 
   static getFullReferenceAssociations() {
     return [
-      'vitals',
       'department',
       'examiner',
       {
@@ -266,9 +266,9 @@ export class Encounter extends Model {
       as: 'patientBillingType',
     });
 
-    this.hasMany(models.Note, {
+    this.hasMany(models.NotePage, {
       foreignKey: 'recordId',
-      as: 'notes',
+      as: 'notePages',
       constraints: false,
       scope: {
         recordType: this.name,
@@ -282,15 +282,13 @@ export class Encounter extends Model {
   static checkNeedsAutoDischarge({ encounterType, startDate, endDate }) {
     return (
       encounterType === ENCOUNTER_TYPES.CLINIC &&
-      moment(startDate).isBefore(new Date(), 'day') &&
+      isBefore(new Date(startDate), startOfDay(new Date())) &&
       !endDate
     );
   }
 
   static getAutoDischargeEndDate({ startDate }) {
-    return moment(startDate)
-      .endOf('day')
-      .toDate();
+    return endOfDay(new Date(startDate));
   }
 
   static sanitizeForSyncServer(values) {
@@ -302,12 +300,10 @@ export class Encounter extends Model {
   }
 
   async addSystemNote(content) {
-    const note = await this.createNote({
+    const notePage = await this.createNotePage({
       noteType: NOTE_TYPES.SYSTEM,
-      content,
     });
-
-    return note;
+    await notePage.createNoteItem({ content });
   }
 
   async getLinkedTriage() {

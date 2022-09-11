@@ -76,19 +76,6 @@ export const usePatientNavigation = () => {
     );
   };
 
-  const navigateBack = () => {
-    const requestParams = getParams(`${PATIENT_PATHS.ENCOUNTER}/*`);
-    if (requestParams) {
-      return navigateToEncounter(requestParams.encounterId);
-    }
-    const encounterParams = getParams(PATIENT_PATHS.ENCOUNTER);
-    if (encounterParams) {
-      return navigateToPatient(encounterParams.patientId);
-    }
-    const patientParams = getParams(PATIENT_PATHS.PATIENT);
-    return navigateToCategory(patientParams.category);
-  };
-
   return {
     navigateToPatient,
     navigateToEncounter,
@@ -96,6 +83,5 @@ export const usePatientNavigation = () => {
     navigateToImagingRequest,
     navigateToCategory,
     navigateToSummary,
-    navigateBack,
   };
 };

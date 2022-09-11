@@ -1,5 +1,6 @@
 export * from './calculateSurveyResults';
 export * from './generate';
+export * from './generateVaccineCertificate';
 export * from './loadSigner';
 export * from './migrate';
 export * from './printRoutes';
