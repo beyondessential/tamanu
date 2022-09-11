@@ -252,7 +252,7 @@ const getLabTestRecords = async (
       }
 
       const labTest = patientLabTests[i];
-      const currentLabTestDate = startOfDay(labTest.date);
+      const currentLabTestDate = startOfDay(new Date(labTest.date));
 
       // Get all lab tests regardless and filter fromDate and toDate in memory
       // to ensure that we have the date range from current lab test to the next lab test correctly.
