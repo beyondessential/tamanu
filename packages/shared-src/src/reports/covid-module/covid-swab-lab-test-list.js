@@ -8,6 +8,7 @@ import {
   endOfDay,
   format,
   isSameDay,
+  parseISO,
 } from 'date-fns';
 import { groupBy } from 'lodash';
 import { Op } from 'sequelize';
@@ -252,7 +253,7 @@ const getLabTestRecords = async (
       }
 
       const labTest = patientLabTests[i];
-      const currentLabTestDate = startOfDay(new Date(labTest.date));
+      const currentLabTestDate = startOfDay(parseISO(labTest.date));
 
       // Get all lab tests regardless and filter fromDate and toDate in memory
       // to ensure that we have the date range from current lab test to the next lab test correctly.
@@ -268,7 +269,7 @@ const getLabTestRecords = async (
       let nextLabTestDate;
 
       if (nextLabTest) {
-        const { date: nextLabTestTimestamp } = nextLabTest;
+        const nextLabTestTimestamp = parseISO(nextLabTest.date);
         // if next lab test not on the same date (next one on a different date,
         // startOf('day') to exclude the next date when comparing range later
         if (!isSameDay(currentLabTestDate, nextLabTestTimestamp)) {
