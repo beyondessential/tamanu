@@ -54,7 +54,7 @@ export async function getHL7Payload({
   const hl7FhirIncludedResources = [];
   for (const r of records) {
     const { mainResource, includedResources } = await toHL7(r, query);
-    hl7FhirResources.push(mainResource);
+    hl7FhirResources.push(createBundledResource(baseUrl, mainResource));
     if (includedResources) {
       hl7FhirIncludedResources.push(...includedResources);
     }
@@ -138,4 +138,13 @@ function parseQuery(unsafeQuery, querySchema) {
   required fields and possibly type coercion.
   */
   return querySchema.validate(values, { stripUnknown: false, abortEarly: false });
+}
+
+// When a resource is included in a bundle it needs an extra wrapping.
+// This should only be done for main resources ATM.
+function createBundledResource(baseUrl, resource) {
+  return {
+    fullUrl: `${baseUrl}/${resource.id}`,
+    resource,
+  };
 }
