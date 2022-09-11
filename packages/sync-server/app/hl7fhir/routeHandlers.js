@@ -72,9 +72,7 @@ export function diagnosticReportHandler() {
           includedResources.push(labTestToHL7Device(labTest));
         }
         return {
-          mainResource: {
-            resource: labTestToHL7DiagnosticReport(labTest),
-          },
+          mainResource: labTestToHL7DiagnosticReport(labTest),
           includedResources: includedResources.map(resource => ({ resource })),
         };
       },
