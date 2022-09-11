@@ -1,6 +1,6 @@
 import XLSX from 'xlsx';
 import React, { useCallback, useEffect } from 'react';
-import moment from 'moment';
+import { subMonths } from 'date-fns';
 
 import { ContentPane } from 'desktop/app/components/ContentPane';
 import { FormGrid } from 'desktop/app/components/FormGrid';
@@ -134,10 +134,8 @@ const DumbReportScreen = React.memo(({ fetchAvailableReports, fetchReportData })
           render={renderParamsForm}
           key={currentReport.id}
           initialValues={{
-            endDate: moment().toDate(),
-            startDate: moment()
-              .subtract(1, 'month')
-              .toDate(),
+            endDate: new Date(),
+            startDate: subMonths(new Date(), 1),
           }}
           onSubmit={onWrite}
         />

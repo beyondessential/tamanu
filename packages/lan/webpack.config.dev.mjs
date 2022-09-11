@@ -2,6 +2,7 @@ import baseConfig, { nodemon } from '../../common.webpack.config.mjs';
 
 export default {
   ...baseConfig,
+  watch: true,
   devtool: 'eval',
   mode: 'development',
   plugins: [

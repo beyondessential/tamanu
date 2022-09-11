@@ -4,6 +4,7 @@ import Chance from 'chance';
 import {
   DIAGNOSIS_CERTAINTY_VALUES,
   ENCOUNTER_TYPE_VALUES,
+  IMAGING_REQUEST_STATUS_TYPES,
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
   REFERENCE_TYPE_VALUES,
   VISIBILITY_STATUSES,
@@ -223,6 +224,9 @@ const MODEL_SPECIFIC_OVERRIDES = {
     type: chance.pickone(['hospital', 'clinic']),
     visibilityStatus: VISIBILITY_STATUSES.CURRENT,
   }),
+  ImagingRequest: () => ({
+    status: chance.pickone(Object.values(IMAGING_REQUEST_STATUS_TYPES)),
+  }),
   Patient: () => {
     const sex = chance.pickone(['male', 'female', 'other']);
     let nameGender;
@@ -271,6 +275,15 @@ const MODEL_SPECIFIC_OVERRIDES = {
     emergencyContactName: chance.name(),
     emergencyContactNumber: chance.phone(),
   }),
+  PatientDeathData: () => {
+    const options = ['yes', 'no', 'unknown', null];
+    return {
+      wasPregnant: sample(options),
+      pregnancyContributed: sample(options),
+      recentSurgery: sample(options),
+      stillborn: sample(options),
+    };
+  },
   User: () => ({
     email: chance.email(),
     displayName: chance.name(),

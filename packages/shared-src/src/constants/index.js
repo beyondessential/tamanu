@@ -44,15 +44,43 @@ export const LAB_REQUEST_STATUS_LABELS = {
   [LAB_REQUEST_STATUSES.PUBLISHED]: 'Published',
 };
 
+// Leave out deleted status from options
+export const LAB_REQUEST_STATUS_OPTIONS = Object.values(LAB_REQUEST_STATUSES)
+  .filter(status => status !== LAB_REQUEST_STATUSES.DELETED)
+  .map(s => ({
+    label: LAB_REQUEST_STATUS_LABELS[s],
+    value: s,
+  }));
+
 export const LAB_TEST_STATUSES = LAB_REQUEST_STATUSES;
 
+export const NOTE_RECORD_TYPES = {
+  ENCOUNTER: 'Encounter',
+  PATIENT: 'Patient',
+  TRIAGE: 'Triage',
+  PATIENT_CARE_PLAN: 'PatientCarePlan',
+  LAB_REQUEST: 'LabRequest',
+  IMAGING_REQUEST: 'ImagingRequest',
+};
+
 export const NOTE_TYPES = {
-  SYSTEM: 'system',
-  OTHER: 'other',
   TREATMENT_PLAN: 'treatmentPlan',
+  MEDICAL: 'medical',
+  SURGICAL: 'surgical',
+  NURSING: 'nursing',
+  DIETARY: 'dietary',
+  PHARMACY: 'pharmacy',
+  PHYSIOTHERAPY: 'physiotherapy',
+  SOCIAL: 'social',
+  DISCHARGE: 'discharge',
   AREA_TO_BE_IMAGED: 'areaToBeImaged',
   RESULT_DESCRIPTION: 'resultDescription',
+  SYSTEM: 'system',
+  OTHER: 'other',
 };
+
+export const NOTE_RECORD_TYPE_VALUES = Object.values(NOTE_RECORD_TYPES);
+export const NOTE_TYPE_VALUES = Object.values(NOTE_TYPES);
 
 export const PATIENT_ISSUE_TYPES = {
   ISSUE: 'issue',
@@ -162,6 +190,7 @@ export const REFERENCE_TYPES = {
   PATIENT_BILLING_TYPE: 'patientBillingType',
   MANUFACTURER: 'manufacturer',
   SECONDARY_ID_TYPE: 'secondaryIdType',
+  DISCHARGE_DISPOSITION: 'dischargeDisposition',
   ...IMAGING_AREA_TYPES,
 };
 
@@ -338,6 +367,8 @@ export const ICAO_DOCUMENT_TYPES = {
   },
 };
 
+export const COVID_19_CLEARANCE_CERTIFICATE = 'covid_19_clearance';
+
 export const EUDCC_CERTIFICATE_TYPES = {
   VACCINATION: 'v',
   TEST: 't',
@@ -467,6 +498,7 @@ export const SERVER_TYPES = {
 export const VISIBILITY_STATUSES = {
   CURRENT: 'current',
   HISTORICAL: 'historical',
+  MERGED: 'merged',
 };
 
 export const PATIENT_REGISTRY_TYPES = {
@@ -502,3 +534,31 @@ export const ATTENDANT_OF_BIRTH_TYPES = {
   TRADITIONAL_BIRTH_ATTENDANT: 'traditional_birth_attentdant',
   OTHER: 'other',
 };
+
+export const ISO9075_DATETIME_FORMAT = 'YYYY-MM-DD HH:mm:ss';
+export const ISO9075_DATE_FORMAT = 'YYYY-MM-DD';
+
+export const MANNER_OF_DEATHS = [
+  'Disease',
+  'Assault',
+  'Accident',
+  'Legal Intervention',
+  'Pending Investigation',
+  'Intentional Self Harm',
+  'War',
+  'Unknown/Could not be determined',
+];
+
+export const MANNER_OF_DEATH_OPTIONS = Object.values(MANNER_OF_DEATHS).map(type => ({
+  label: type,
+  value: type,
+}));
+
+export const TIME_UNIT_OPTIONS = [
+  { unit: 'minutes', minutes: 1 },
+  { unit: 'hours', minutes: 60 },
+  { unit: 'days', minutes: 60 * 24 },
+  { unit: 'weeks', minutes: 60 * 24 * 7 },
+  { unit: 'months', minutes: 60 * 24 * 30 },
+  { unit: 'years', minutes: 60 * 24 * 365 },
+];

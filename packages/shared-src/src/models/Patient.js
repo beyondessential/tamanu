@@ -31,12 +31,15 @@ export class Patient extends Model {
           allowNull: false,
           defaultValue: false,
         },
+        visibilityStatus: Sequelize.STRING,
       },
       {
         ...options,
         syncConfig: {
           syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
-          includedRelations: config.sync?.embedPatientNotes ? ['notes'] : [],
+          includedRelations: config.sync?.embedPatientNotes
+            ? ['notePages', 'notePages.noteItems']
+            : [],
         },
         indexes: [
           { fields: ['date_of_death'] },
@@ -63,7 +66,6 @@ export class Patient extends Model {
       as: 'deathData',
     });
 
-    // this one is actually a hasMany
     this.hasMany(models.PatientSecondaryId, {
       foreignKey: 'patientId',
       as: 'secondaryIds',
@@ -73,9 +75,14 @@ export class Patient extends Model {
       as: 'village',
     });
 
-    this.hasMany(models.Note, {
+    this.hasMany(models.Patient, {
+      foreignKey: 'mergedIntoId',
+      as: 'mergedPatients',
+    });
+
+    this.hasMany(models.NotePage, {
       foreignKey: 'recordId',
-      as: 'notes',
+      as: 'notePages',
       constraints: false,
       scope: {
         recordType: this.name,
@@ -137,7 +144,7 @@ export class Patient extends Model {
       }
     }
 
-    return results;
+    return results.map(x => x.get({ plain: true }));
   }
 
   async getCovidLabTests(queryOptions) {
