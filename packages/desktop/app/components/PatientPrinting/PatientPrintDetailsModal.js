@@ -5,10 +5,12 @@ import { Modal } from '../Modal';
 import { Button } from '../Button';
 import { Colors } from '../../constants';
 import { useApi } from '../../api';
+import { useLocalisation } from '../../contexts/Localisation';
 
 import { PatientIDCardPage } from './PatientIDCardPage';
 import { PatientStickerLabelPage } from './PatientStickerLabelPage';
 import { CovidTestCertificateModal } from './CovidTestCertificateModal';
+import { CovidClearanceCertificateModal } from './CovidClearanceCertificateModal';
 import { StickerIcon } from './StickerIcon';
 import { IDCardIcon } from './IDCardIcon';
 import { CertificateIcon } from './CertificateIcon';
@@ -29,20 +31,32 @@ const PRINT_OPTIONS = {
     component: CovidTestCertificateModal,
     icon: CertificateIcon,
   },
+  covidClearanceCert: {
+    label: 'Print COVID-19 clearance certificate',
+    component: CovidClearanceCertificateModal,
+    icon: CertificateIcon,
+    condition: getLocalisation => getLocalisation('features.enableCovidClearanceCertificate'),
+  },
 };
 
-const PrintOptionList = ({ setCurrentlyPrinting }) => (
-  <div style={{ display: 'flex', flexDirection: 'row' }}>
-    {Object.entries(PRINT_OPTIONS).map(([type, { label, icon }]) => (
-      <PrintOption
-        key={type}
-        label={label}
-        onPress={() => setCurrentlyPrinting(type)}
-        icon={icon}
-      />
-    ))}
-  </div>
-);
+const PrintOptionList = ({ setCurrentlyPrinting }) => {
+  const { getLocalisation } = useLocalisation();
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'row' }}>
+      {Object.entries(PRINT_OPTIONS)
+        .filter(([, { condition }]) => !condition || condition(getLocalisation))
+        .map(([type, { label, icon }]) => (
+          <PrintOption
+            key={type}
+            label={label}
+            onPress={() => setCurrentlyPrinting(type)}
+            icon={icon}
+          />
+        ))}
+    </div>
+  );
+};
 
 const PrintOptionButton = styled(Button)`
   background: ${Colors.white};
