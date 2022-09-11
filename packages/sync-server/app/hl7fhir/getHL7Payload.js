@@ -91,6 +91,7 @@ export async function getHL7Payload({
       lastUpdated: lastUpdated ? lastUpdated.toISOString() : null,
     },
     type: 'searchset',
+    timestamp: new Date().toISOString(),
     total,
     link,
     entry: [...hl7FhirResources, ...hl7FhirIncludedResources],

@@ -43,6 +43,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
             lastUpdated: patient.updatedAt.toISOString(),
           },
           type: 'searchset',
+          timestamp: expect.any(String),
           total: 1,
           link: [
             {
@@ -123,6 +124,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
             lastUpdated: null,
           },
           type: 'searchset',
+          timestamp: expect.any(String),
           total: 0,
           link: [
             {
