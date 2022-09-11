@@ -184,7 +184,7 @@ export class Encounter extends Model {
   }
 
   static buildSyncFilter(patientIds, facilitySettings) {
-    return buildEncounterLinkedSyncFilter(patientIds, [], facilitySettings);
+    return buildEncounterLinkedSyncFilter(patientIds, facilitySettings, []);
   }
 
   static checkNeedsAutoDischarge({ encounterType, startDate, endDate }) {

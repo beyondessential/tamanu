@@ -54,6 +54,6 @@ export class InvoicePriceChangeItem extends Model {
   }
 
   static buildSyncFilter(patientIds, facilitySettings) {
-    return buildEncounterLinkedSyncFilter(patientIds, ['invoice', 'encounter'], facilitySettings);
+    return buildEncounterLinkedSyncFilter(patientIds, facilitySettings, ['invoice', 'encounter']);
   }
 }

@@ -67,10 +67,9 @@ export class LabTest extends Model {
   }
 
   static buildSyncFilter(patientIds, facilitySettings) {
-    return buildEncounterLinkedSyncFilter(
-      patientIds,
-      ['labRequest', 'encounter'],
-      facilitySettings,
-    );
+    return buildEncounterLinkedSyncFilter(patientIds, facilitySettings, [
+      'labRequest',
+      'encounter',
+    ]);
   }
 }
