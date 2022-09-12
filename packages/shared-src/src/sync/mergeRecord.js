@@ -9,7 +9,6 @@ const pickLatest = (existing, incoming, existingUpdateTick = 0, incomingUpdateTi
 // perform advanced conflict resolution, merging two versions of the record using the latest version
 // of each field
 const lastWriteWinsPerField = (existing, incoming) => {
-  console.log('merging');
   const merged = { ...existing, ...incoming }; // make sure it has all fields in both
   const mergedupdatedAtByField = {};
   Object.keys(merged)

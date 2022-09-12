@@ -5,14 +5,16 @@ export async function up(query) {
       LANGUAGE plpgsql AS
       $func$
       BEGIN
-        RAISE NOTICE 'here';
-        SELECT COALESCE(OLD.updated_at_by_field::jsonb, '{}'::jsonb) || JSON_OBJECT_AGG(changed_columns.column_name, (SELECT last_value FROM sync_session_sequence))::jsonb FROM (
-          SELECT old_json.key AS column_name
-          FROM jsonb_each(to_jsonb(OLD)) AS old_json
-          CROSS JOIN jsonb_each(to_jsonb(NEW)) AS new_json
-          WHERE old_json.key = new_json.key AND new_json.value IS DISTINCT FROM old_json.value
-        ) as changed_columns INTO NEW.updated_at_by_field;
-        RAISE NOTICE 'Value: %', NEW.updated_at_by_field;
+        -- unless the updated_at_by_field was explicitly provided (i.e. by a sync merge update),
+        -- set any fields updated in this query to use the latest sync tick
+        IF (OLD.updated_at_by_field IS NULL OR OLD.updated_at_by_field::text = NEW.updated_at_by_field::text) THEN
+          SELECT COALESCE(OLD.updated_at_by_field::jsonb, '{}'::jsonb) || COALESCE(JSON_OBJECT_AGG(changed_columns.column_name, (SELECT last_value FROM sync_session_sequence))::jsonb, '{}'::jsonb) FROM (
+            SELECT old_json.key AS column_name
+            FROM jsonb_each(to_jsonb(OLD)) AS old_json
+            CROSS JOIN jsonb_each(to_jsonb(NEW)) AS new_json
+            WHERE old_json.key = new_json.key AND new_json.value IS DISTINCT FROM old_json.value AND old_json.key <> 'updated_at_sync_index'
+          ) as changed_columns INTO NEW.updated_at_by_field;
+        END IF;
         RETURN NEW;
       END
       $func$;
