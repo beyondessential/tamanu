@@ -270,7 +270,7 @@ export const SecondaryDetailsGroup = ({ patientRegistryType, values = {} }) => {
   );
 };
 
-function sanitiseRecordForValues(data) {
+function sanitiseRecordForValues(data = {}) {
   const {
     // unwanted ids
     id,
