@@ -1,4 +1,3 @@
-
 export const LAB_REQUEST_STATUSES = {
   RECEPTION_PENDING: 'reception_pending',
   RESULTS_PENDING: 'results_pending',

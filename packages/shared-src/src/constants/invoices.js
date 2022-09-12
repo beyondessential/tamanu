@@ -1,4 +1,3 @@
-
 export const INVOICE_STATUSES = {
   CANCELLED: 'cancelled',
   IN_PROGRESS: 'in_progress',

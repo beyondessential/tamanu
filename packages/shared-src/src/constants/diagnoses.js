@@ -1,4 +1,3 @@
-
 export const PATIENT_ISSUE_TYPES = {
   ISSUE: 'issue',
   WARNING: 'warning',

@@ -1,4 +1,3 @@
-
 export const ENCOUNTER_TYPES = {
   ADMISSION: 'admission',
   CLINIC: 'clinic',

@@ -1,4 +1,3 @@
-
 export const PATIENT_REGISTRY_TYPES = {
   NEW_PATIENT: 'new_patient',
   BIRTH_REGISTRY: 'birth_registry',

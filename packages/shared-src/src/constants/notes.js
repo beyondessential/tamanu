@@ -1,4 +1,3 @@
-
 export const NOTE_RECORD_TYPES = {
   ENCOUNTER: 'Encounter',
   PATIENT: 'Patient',

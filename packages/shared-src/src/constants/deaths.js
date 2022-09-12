@@ -1,4 +1,3 @@
-
 export const MANNER_OF_DEATHS = [
   'Disease',
   'Assault',

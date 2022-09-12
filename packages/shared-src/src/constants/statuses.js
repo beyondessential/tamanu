@@ -1,4 +1,3 @@
-
 export const MEDICATION_STATUSES = {
   COMPLETED: 'Completed',
   FULFILLED: 'Fulfilled',

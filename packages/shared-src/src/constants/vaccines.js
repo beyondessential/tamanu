@@ -1,4 +1,3 @@
-
 export const VACCINE_CATEGORIES = {
   ROUTINE: 'Routine',
   CATCHUP: 'Catchup',

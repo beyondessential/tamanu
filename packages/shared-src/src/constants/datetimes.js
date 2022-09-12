@@ -1,4 +1,3 @@
-
 export const ISO9075_DATETIME_FORMAT = 'YYYY-MM-DD HH:mm:ss';
 export const ISO9075_DATE_FORMAT = 'YYYY-MM-DD';
 

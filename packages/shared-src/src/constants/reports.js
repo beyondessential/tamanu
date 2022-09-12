@@ -1,4 +1,3 @@
-
 export const REPORT_REQUEST_STATUSES = {
   RECEIVED: 'Received',
   PROCESSING: 'Processing',
