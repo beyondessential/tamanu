@@ -35,7 +35,6 @@ const PRINT_OPTIONS = {
     label: 'Print COVID-19 clearance certificate',
     component: CovidClearanceCertificateModal,
     icon: CertificateIcon,
-    condition: getLocalisation => getLocalisation('features.enableCovidClearanceCertificate'),
   },
 };
 
