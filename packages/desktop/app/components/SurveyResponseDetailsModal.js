@@ -76,6 +76,7 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose }) => {
   const { data: surveyDetails, isLoading, error } = useQuery(
     ['surveyResponse', surveyResponseId],
     () => api.get(`surveyResponse/${surveyResponseId}`),
+    { enabled: !!surveyResponseId },
   );
 
   if (error) {
