@@ -1,6 +1,6 @@
 import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
 import { getTable } from './utils/queryRunner';
-const ISO9075_FORMAT = 'YYYY-MM-DD HH:mm:ss';
+const ISO9075_FORMAT = 'YYYY-MM-DD';
 const ISO9075_FORMAT_LENGTH = ISO9075_FORMAT.length;
 
 async function createDateTimeStringUpMigration(
