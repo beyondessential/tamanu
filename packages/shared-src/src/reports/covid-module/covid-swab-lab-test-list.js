@@ -145,7 +145,11 @@ const getLabTests = async (models, parameters) =>
       },
     ],
     where: parametersToLabTestSqlWhere(parameters),
-    order: [['date', 'ASC']],
+    order: [
+      // The date column only has daily resolution, so will return in non-deterministic order
+      ['date', 'ASC'],
+      ['created_at', 'ASC'],
+    ],
     raw: true,
     nest: true,
   });
