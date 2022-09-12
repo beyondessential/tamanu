@@ -119,6 +119,7 @@ export function testDiagnosticReportHandler(integrationName, requestHeaders = {}
           ],
           entry: [
             {
+              fullUrl: expect.stringContaining(labTest.id),
               resource: {
                 resourceType: 'DiagnosticReport',
                 id: labTest.id,
