@@ -1,8 +1,11 @@
-import { Sequelize } from 'sequelize';
+import Sequelize, { QueryInterface } from 'sequelize';
+import config from 'config';
 
-const TABLE = { schema: 'fhir', tableName: 'patients' };
+const TABLE = { schema: 'fhir', tableName: 'practitioners' };
 
-export async function up(query) {
+export async function up(query: QueryInterface): Promise<void> {
+  if (config.serverFacilityId) return;
+
   await query.createTable(TABLE, {
     id: {
       type: Sequelize.UUID,
@@ -40,26 +43,11 @@ export async function up(query) {
       allowNull: false,
       defaultValue: '{}',
     },
-    gender: {
-      type: Sequelize.STRING(10),
-      allowNull: false,
-    },
-    birth_date: {
-      type: 'date_string',
-      allowNull: true,
-    },
-    deceased_date_time: {
-      type: 'date_string',
-      allowNull: true,
-    },
-    address: {
-      type: 'fhir.address[]',
-      allowNull: false,
-      defaultValue: '{}',
-    },
   });
 }
 
-export async function down(query) {
+export async function down(query: QueryInterface): Promise<void> {
+  if (config.serverFacilityId) return;
+
   await query.dropTable(TABLE);
 }

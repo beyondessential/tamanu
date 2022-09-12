@@ -2,8 +2,8 @@ export async function up(query) {
   await query.createSchema('fhir', {});
 
   await query.sequelize.query(`CREATE TYPE fhir.period AS (
-    start           date_time_string,
-    end             date_time_string,
+    "start"         date_time_string,
+    "end"           date_time_string
   )`);
 
   await query.sequelize.query(`CREATE TYPE fhir.identifier AS (

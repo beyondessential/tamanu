@@ -8,12 +8,12 @@ export async function up(query) {
       type: Sequelize.UUID,
       allowNull: false,
       primaryKey: true,
-      defaultValue: Sequelize.UUIDV4,
+      defaultValue: Sequelize.fn('uuid_generate_v4'),
     },
     version_id: {
       type: Sequelize.UUID,
       allowNull: false,
-      defaultValue: Sequelize.UUIDV4,
+      defaultValue: Sequelize.fn('uuid_generate_v4'),
     },
     last_updated: {
       type: Sequelize.DATE,
@@ -47,12 +47,26 @@ export async function up(query) {
       allowNull: false,
       defaultValue: '{}',
     },
-    // subject
+    subject: {
+      type: Sequelize.UUID,
+      allowNull: false,
+      references: {
+        model: { schema: 'fhir', tableName: 'patients' },
+        key: 'id',
+      },
+    },
     occurrence_date_time: {
-      type: Sequelize.DATETIMESTRING,
+      type: 'date_time_string',
       allowNull: true,
     },
-    // requester
+    requester: {
+      type: Sequelize.UUID,
+      allowNull: false,
+      references: {
+        model: { schema: 'fhir', tableName: 'practitioners' },
+        key: 'id',
+      },
+    },
     location_code: {
       type: 'fhir.codeable_concept[]',
       allowNull: false,
