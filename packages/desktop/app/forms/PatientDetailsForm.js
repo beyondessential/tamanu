@@ -281,6 +281,7 @@ function sanitiseRecordForValues(data) {
     updatedAt,
     pushedAt,
     pulledAt,
+    isPushing,
 
     // state fields
     loading,
