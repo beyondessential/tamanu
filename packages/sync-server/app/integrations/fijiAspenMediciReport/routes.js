@@ -14,9 +14,9 @@ notes_info as (
     record_id,
     json_agg(
       json_build_object(
-        'note_type', note_type,
+        'noteType', note_type,
         'content', "content",
-        'note_date', ni."date"
+        'noteDate', ni."date"
       ) 
     ) aggregated_notes
   from note_pages np
@@ -59,7 +59,7 @@ procedure_info as (
         'date', to_char(date, 'yyyy-dd-mm'),
         'location', loc.name,
         'notes', p.note,
-        'completed_notes', completed_note
+        'completedNotes', completed_note
       ) 
     ) "Procedures"
   from "procedures" p
@@ -74,8 +74,8 @@ medications_info as (
       json_build_object(
         'name', medication.name,
         'discontinued', coalesce(discontinued, false),
-        'discontinued_date', discontinued_date,
-        'discontinuing_reason', discontinuing_reason
+        'discontinuedDate', discontinued_date,
+        'discontinuingReason', discontinuing_reason
       ) order by date desc
     ) "Medications"
   from encounter_medications em
@@ -89,7 +89,7 @@ diagnosis_info as (
       json_build_object(
         'name', diagnosis.name,
         'code', diagnosis.code,
-        'is_primary', is_primary,
+        'isPrimary', is_primary,
         'certainty', certainty
       ) order by date desc
     ) "Diagnosis"
@@ -206,17 +206,17 @@ department_info as (
     case when count("from") = 0
       then json_build_array(json_build_object(
         'department', d.name,
-        'assigned_time', e.start_date
+        'assignedTime', e.start_date
       ))
       else 
         array_to_json(json_build_object(
           'department', first_from, --first "from" from note
-          'assigned_time', e.start_date
+          'assignedTime', e.start_date
         ) ||
         array_agg(
           json_build_object(
             'department', "to",
-            'assigned_time', nh.date
+            'assignedTime', nh.date
           ) ORDER BY nh.date
         ))
     end department_history
@@ -242,17 +242,17 @@ location_info as (
     case when count("from") = 0
       then json_build_array(json_build_object(
         'location', l.name,
-        'assigned_time', e.start_date
+        'assignedTime', e.start_date
       ))
       else 
         array_to_json(json_build_object(
           'location', first_from, --first "from" from note
-          'assigned_time', e.start_date
+          'assignedTime', e.start_date
         ) ||
         array_agg(
           json_build_object(
             'location', "to",
-            'assigned_time', nh.date
+            'assignedTime', nh.date
           ) ORDER BY nh.date
         ))
     end location_history
@@ -337,10 +337,10 @@ case t.score
   else t.score
 end "triageCategory",
 ti."waitTimeFollowingTriage" "waitTime",
-di2.department_history "department",
-li.location_history "location",
+di2.department_history "departments",
+li.location_history "locations",
 e.reason_for_encounter "reasonForEncounter",
-di."Diagnosis" diagnosis,
+di."Diagnosis" diagnoses,
 mi."Medications" medications,
 vi."Vaccinations" vaccinations,
 pi."Procedures" as "procedures",

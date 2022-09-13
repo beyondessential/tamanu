@@ -248,35 +248,35 @@ describe('fijiAspenMediciReport', () => {
           waitTime: '1:3', // h:m
 
           // Location/Department
-          location: [
+          locations: [
             {
               location: 'Emergency room 1',
-              assigned_time: '2022-06-09T00:02:54.225+00:00',
+              assignedTime: '2022-06-09T00:02:54.225+00:00',
             },
             {
               location: 'Emergency room 2',
-              assigned_time: '2022-06-09T08:04:54.225+00:00',
+              assignedTime: '2022-06-09T08:04:54.225+00:00',
             },
           ],
-          department: [
+          departments: [
             {
               department: 'Emergency dept.',
-              assigned_time: '2022-06-09T00:02:54.225+00:00',
+              assignedTime: '2022-06-09T00:02:54.225+00:00',
             },
           ],
 
           // Encounter Relations
-          diagnosis: [
+          diagnoses: [
             {
               name: 'Acute subdural hematoma',
               code: 'S06.5',
-              is_primary: true,
+              isPrimary: true,
               certainty: DIAGNOSIS_CERTAINTY.CONFIRMED,
             },
             {
               name: 'Acute subdural hematoma',
               code: 'S06.5',
-              is_primary: false,
+              isPrimary: false,
               certainty: DIAGNOSIS_CERTAINTY.SUSPECTED,
             },
           ],
@@ -284,14 +284,14 @@ describe('fijiAspenMediciReport', () => {
             {
               name: 'Glucose (hypertonic) 10%',
               discontinued: false,
-              discontinued_date: null,
-              discontinuing_reason: null,
+              discontinuedDate: null,
+              discontinuingReason: null,
             },
             {
               name: 'Glucose (hypertonic) 5%',
               discontinued: true,
-              discontinued_date: '2022-06-10T01:19:54.225+00:00',
-              discontinuing_reason: 'It was not enough',
+              discontinuedDate: '2022-06-10T01:19:54.225+00:00',
+              discontinuingReason: 'It was not enough',
             },
           ],
           vaccinations: null,
@@ -303,7 +303,7 @@ describe('fijiAspenMediciReport', () => {
               date: expect.any(String), // '2022-10-06',
               location: null, // expect.any(String), //'Ba Mission Sub-divisional Hospital General Clinic',
               notes: expect.any(String), // null,
-              completed_notes: expect.any(String), // null,
+              completedNotes: expect.any(String), // null,
             },
           ],
           labRequests: [
@@ -315,9 +315,9 @@ describe('fijiAspenMediciReport', () => {
               ],
               notes: [
                 {
-                  note_type: NOTE_TYPES.OTHER,
+                  noteType: NOTE_TYPES.OTHER,
                   content: 'This is a lab request note',
-                  note_date: '2022-06-09T02:04:54.225+00:00',
+                  noteDate: '2022-06-09T02:04:54.225+00:00',
                 },
               ],
             },
@@ -326,17 +326,17 @@ describe('fijiAspenMediciReport', () => {
           // [
           //   {
           //     name: 'CT Scan',
-          //     area_to_be_imaged: null,
+          //     areaToBeImaged: null,
           //     notes: [
           //       {
-          //         note_type: 'other',
+          //         noteType: 'other',
           //         content: 'image request note',
-          //         note_date: '2022-06-09T02:02:31.648+00:00',
+          //         noteDate: '2022-06-09T02:02:31.648+00:00',
           //       },
           //       {
-          //         note_type: 'areaToBeImaged',
+          //         noteType: 'areaToBeImaged',
           //         content: 'pelvis',
-          //         note_date: '2022-06-09T02:02:31.712+00:00',
+          //         noteDate: '2022-06-09T02:02:31.712+00:00',
           //       },
           //     ],
           //   },
@@ -344,9 +344,9 @@ describe('fijiAspenMediciReport', () => {
           notes: null,
           //  [
           //   {
-          //     note_type: 'nursing',
+          //     noteType: 'nursing',
           //     content: 'A\nB\nC\nD\nE\nF\nG\n',
-          //     note_date: '2022-06-10T03:39:57.617+00:00',
+          //     noteDate: '2022-06-10T03:39:57.617+00:00',
           //   },
           // ],
         },
