@@ -272,6 +272,21 @@ location_info as (
   on e.id = first_from.enc_id
   group by e.id, l.name, e.start_date, first_from
 ),
+triage_info as (
+  select
+    encounter_id,
+    hours::text || CHR(58) || remaining_minutes::text "waitTimeFollowingTriage"
+  from triages t,
+  lateral (
+    select
+      case when t.closed_time is null
+        then (extract(EPOCH from now()) - extract(EPOCH from t.triage_time::timestamp))/60
+        else (extract(EPOCH from t.closed_time::timestamp) - extract(EPOCH from t.triage_time::timestamp))/60
+      end total_minutes
+  ) total_minutes,
+  lateral (select floor(total_minutes / 60) hours) hours,
+  lateral (select floor(total_minutes - hours*60) remaining_minutes) remaining_minutes
+),
 discharge_disposition_info as (
   select
     encounter_id,
@@ -321,10 +336,7 @@ case t.score
   when '3' then  'Non-urgent'
   else t.score
 end "triageCategory",
-case when t.closed_time is null
-    then age(t.triage_time::timestamp)
-    else age(t.closed_time::timestamp, t.triage_time::timestamp)
-end "waitTime",
+ti."waitTimeFollowingTriage" "waitTime",
 di2.department_history "department",
 li.location_history "location",
 e.reason_for_encounter "reasonForEncounter",
@@ -347,6 +359,7 @@ left join lab_request_info lri on lri.encounter_id = e.id
 left join imaging_info ii on ii.encounter_id = e.id
 left join encounter_notes_info ni on ni.encounter_id = e.id
 left join triages t on t.encounter_id = e.id
+left join triage_info ti on ti.encounter_id = e.id
 left join location_info li on li.encounter_id = e.id
 left join department_info di2 on di2.encounter_id = e.id
 left join discharge_disposition_info ddi on ddi.encounter_id = e.id
