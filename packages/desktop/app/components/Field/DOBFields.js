@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { getCurrentDateString } from 'shared/utils/dateTime';
 import { DateField } from './DateField';
 import { Field } from './Field';
 
@@ -19,8 +20,26 @@ const JoinedField = styled(Field)`
 
 export const DOBFields = () => (
   <>
-    <Field name="dateOfBirthExact" component={DateField} saveDateAsString label="DOB" />
-    <JoinedField name="dateOfBirthFrom" component={DateField} saveDateAsString label="DOB from" />
-    <Field name="dateOfBirthTo" component={DateField} saveDateAsString label="DOB to" />
+    <Field
+      name="dateOfBirthExact"
+      component={DateField}
+      saveDateAsString
+      label="DOB"
+      max={getCurrentDateString()}
+    />
+    <JoinedField
+      name="dateOfBirthFrom"
+      component={DateField}
+      saveDateAsString
+      label="DOB from"
+      max={getCurrentDateString()}
+    />
+    <Field
+      name="dateOfBirthTo"
+      component={DateField}
+      saveDateAsString
+      label="DOB to"
+      max={getCurrentDateString()}
+    />
   </>
 );
