@@ -113,55 +113,27 @@ vaccine_info as (
   join reference_data drug on drug.id = sv.vaccine_id 
   group by encounter_id
 ),
-single_image_info as (
+imaging_areas_by_request as (
   select
-    ir.encounter_id,
-    json_build_object(
-      'name', ir.imaging_type,
-      'area_to_be_imaged', area_notes.aggregated_notes,
-      'notes', non_area_notes.aggregated_notes
-    ) "data"
-  from imaging_requests ir
-  left join (
-    select 
-      record_id,
-      json_agg(note) aggregated_notes
-    from notes_info
-    cross join json_array_elements(aggregated_notes) note
-    where note->>'note_type' != '${
-      NOTE_TYPES.AREA_TO_BE_IMAGED
-    }' --cross join ok here as only 1 record will be matched
-    group by record_id
-  ) non_area_notes
-  on non_area_notes.record_id = ir.id 
-  left join (
-    select 
-      record_id,
-      string_agg(note->>'content', 'ERROR - SHOULD ONLY BE ONE AREA TO BE IMAGED') aggregated_notes
-    from notes_info
-    cross join json_array_elements(aggregated_notes) note
-    where note->>'note_type' = '${
-      NOTE_TYPES.AREA_TO_BE_IMAGED
-    }' --cross join ok here as only 1 record will be matched
-    group by record_id
-  ) area_notes
-  on area_notes.record_id = ir.id
-  left join (
-    select
-      imaging_request_id,
-      array_agg(reference_data.name) as area_names
-    from imaging_request_areas
-    inner join reference_data
-    on area_id = reference_data.id
-    group by imaging_request_id
-  ) reference_list 
-  on reference_list.imaging_request_id = ir.id
+    imaging_request_id,
+    json_agg(coalesce(area.name, '__UNKNOWN__AREA__') order by area.name) areas_to_be_imaged
+  from imaging_request_areas ira
+  left join reference_data area on area.id =  ira.area_id
+  group by imaging_request_id
 ),
 imaging_info as (
   select
-    encounter_id,
-    json_agg("data") "Imaging requests"
-  from single_image_info
+    ir.encounter_id,
+    json_agg(
+      json_build_object(
+        'name', ir.imaging_type,
+        'areasToBeImaged', areas_to_be_imaged,
+        'notes', to_json(aggregated_notes)
+      )
+    ) "Imaging requests"
+  from imaging_requests ir
+  left join notes_info ni on ni.record_id = ir.id
+  left join imaging_areas_by_request iabr on iabr.imaging_request_id = ir.id 
   group by encounter_id
 ),
 encounter_notes_info as (

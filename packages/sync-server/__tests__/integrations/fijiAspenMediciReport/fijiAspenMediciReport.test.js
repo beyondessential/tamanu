@@ -5,6 +5,8 @@ import {
   NOTE_RECORD_TYPES,
   NOTE_TYPES,
   ENCOUNTER_TYPES,
+  IMAGING_AREA_TYPES,
+  IMAGING_TYPES,
   DIAGNOSIS_CERTAINTY,
 } from 'shared/constants';
 import { fake } from 'shared/test-helpers/fake';
@@ -78,6 +80,20 @@ describe('fijiAspenMediciReport', () => {
           type: REFERENCE_TYPES.ICD10,
           name: 'Acute subdural hematoma',
           code: 'S06.5',
+        }),
+      );
+      const { id: leftImagingAreaId } = await models.ReferenceData.create(
+        fake(models.ReferenceData, {
+          type: REFERENCE_TYPES.X_RAY_IMAGING_AREA,
+          name: 'Left Leg',
+          code: 'LL',
+        }),
+      );
+      const { id: rightImagingAreaId } = await models.ReferenceData.create(
+        fake(models.ReferenceData, {
+          type: REFERENCE_TYPES.X_RAY_IMAGING_AREA,
+          name: 'Right Leg',
+          code: 'RL',
         }),
       );
       const { id: labTestCategoryId } = await models.ReferenceData.create(
@@ -184,6 +200,41 @@ describe('fijiAspenMediciReport', () => {
           date: '2022-06-11T01:20:54.225+00:00',
           note: 'All ready for procedure here',
           completedNote: 'Everything went smoothly, no issues',
+        }),
+      );
+      const { id: imagingRequestId } = await models.ImagingRequest.create(
+        fake(models.ImagingRequest, {
+          encounterId,
+          procedureTypeId,
+          requestedById: userId,
+          imagingType: IMAGING_TYPES.X_RAY,
+          requestedDate: '2022-06-11T01:20:54.225+00:00',
+        }),
+      );
+      await models.ImagingRequestAreas.create(
+        fake(models.ImagingRequestAreas, {
+          imagingRequestId,
+          areaId: leftImagingAreaId,
+        }),
+      );
+      await models.ImagingRequestAreas.create(
+        fake(models.ImagingRequestAreas, {
+          imagingRequestId,
+          areaId: rightImagingAreaId,
+        }),
+      );
+      const { id: imagingNotePageId } = await models.NotePage.create(
+        fake(models.NotePage, {
+          recordId: imagingRequestId,
+          noteType: NOTE_TYPES.OTHER,
+          recordType: NOTE_RECORD_TYPES.IMAGING_REQUEST,
+        }),
+      );
+      await models.NoteItem.create(
+        fake(models.NoteItem, {
+          notePageId: imagingNotePageId,
+          content: 'Check for fractured knees please',
+          date: '2022-06-10T06:04:54.225Z',
         }),
       );
 
@@ -382,25 +433,19 @@ describe('fijiAspenMediciReport', () => {
               ],
             },
           ],
-          imagingRequests: null,
-          // [
-          //   {
-          //     name: 'CT Scan',
-          //     areaToBeImaged: null,
-          //     notes: [
-          //       {
-          //         noteType: 'other',
-          //         content: 'image request note',
-          //         noteDate: '2022-06-09T02:02:31.648+00:00',
-          //       },
-          //       {
-          //         noteType: 'areaToBeImaged',
-          //         content: 'pelvis',
-          //         noteDate: '2022-06-09T02:02:31.712+00:00',
-          //       },
-          //     ],
-          //   },
-          // ],
+          imagingRequests: [
+            {
+              name: 'xRay',
+              areasToBeImaged: ['Left Leg', 'Right Leg'],
+              notes: [
+                {
+                  noteType: 'other',
+                  content: 'Check for fractured knees please',
+                  noteDate: '2022-06-10T06:04:54.225+00:00',
+                },
+              ],
+            },
+          ],
           notes: [
             {
               noteType: NOTE_TYPES.NURSING,
