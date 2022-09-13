@@ -44,13 +44,13 @@
       "packages/csca",
       "packages/scripts",
       "packages/qr-tester",
-      "packages/desktop",
       "packages/lan",
       "packages/server",
       "packages/sync-server",
       "packages/meta-server",
       "packages/shared",
-      "packages/shared-src"
+      "packages/shared-src",
+      "packages/web"
     ],
     "nohoist": [
       "**/webpack",
@@ -73,8 +73,10 @@
   },
   "dependencies": {
     "babel-eslint": "^10.0.1",
-    "concurrently": "^5.2.0",
+    "chalk": "^5.0.1",
+    "concurrently": "^7.4.0",
     "config": "3.0.1",
+    "craco": "^0.0.3",
     "pm2": "^4.5.0"
   }
 }

@@ -1,6 +1,7 @@
 import bodyParser from 'body-parser';
 import compression from 'compression';
 import config from 'config';
+import cors from 'cors';
 import express from 'express';
 
 import { SERVER_TYPES } from 'shared/constants';
@@ -24,6 +25,12 @@ export function createApp({ sequelize, models, syncManager }) {
     res.setHeader('X-Version', version);
     next();
   });
+
+  app.use(cors({
+    origin: 'http://localhost:3001',
+  }))
+
+  console.log('this')
 
   // trust the x-forwarded-for header from addresses in `config.proxy.trusted`
   app.set('trust proxy', config.proxy.trusted);

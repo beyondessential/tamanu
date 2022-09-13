@@ -1,36 +1,36 @@
-{
-  "extends": ["@beyondessential/eslint-config-js", "plugin:prettier/recommended"],
-  "parser": "babel-eslint",
-  "env": {
-    "browser": true,
-    "node": true
-  },
-  "plugins": [
-    "react-hooks"
-  ],
-  "rules": {
-    // get around an issue in how electron sets up its packages
-    // where it can't detect certain dependencies even if they're installed
-    // (missing deps should break CI anyway so it's not a big deal)
-    // https://github.com/benmosher/eslint-plugin-import/issues/479
-    "import/no-extraneous-dependencies": false,
+// {
+//   "extends": ["@beyondessential/eslint-config-js"],
+//   "parser": "babel-eslint",
+//   "env": {
+//     "browser": true,
+//     "node": true
+//   },
+//   "plugins": [
+//     "react-hooks"
+//   ],
+//   "rules": {
+//     // get around an issue in how electron sets up its packages
+//     // where it can't detect certain dependencies even if they're installed
+//     // (missing deps should break CI anyway so it's not a big deal)
+//     // https://github.com/benmosher/eslint-plugin-import/issues/479
+//     "import/no-extraneous-dependencies": 0,
 
-    "no-underscore-dangle": "off",
-    "react/prop-types": false,
-    "react-hooks/exhaustive-deps": "error",
-    "react-hooks/rules-of-hooks": "error",
+//     "no-underscore-dangle": "off",
+//     "react/prop-types": 0,
+//     "react-hooks/exhaustive-deps": "error",
+//     "react-hooks/rules-of-hooks": "error",
 
-    // prettier enforces the following jsx rules, and sometimes the styles conflict
-    "react/jsx-indent": false,
-    "react/jsx-wrap-multilines": false,
-  },
-  "overrides": [
-    {
-      "files": ["**/*.test.js", "**/__tests__/**/*.js"],
-      "env": {
-        "jest": true // now **/*.test.js files' env has both es6 *and* jest
-      },
-      "plugins": ["jest"]
-    }
-  ]
-}
+//     // prettier enforces the following jsx rules, and sometimes the styles conflict
+//     "react/jsx-indent": 0,
+//     "react/jsx-wrap-multilines": 0,
+//   },
+//   "overrides": [
+//     {
+//       "files": ["**/*.test.js", "**/__tests__/**/*.js"],
+//       "env": {
+//         "jest": true // now **/*.test.js files' env has both es6 *and* jest
+//       },
+//       "plugins": ["jest"]
+//     }
+//   ]
+// }

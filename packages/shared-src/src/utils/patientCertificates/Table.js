@@ -1,40 +1,43 @@
 import React from 'react';
-import { StyleSheet, Text, View } from '@react-pdf/renderer';
+// import { StyleSheet, Text, View } from '@react-pdf/renderer';
 
-const tableStyles = StyleSheet.create({
-  table: {
-    borderTop: '1 solid black',
-    borderLeft: '1 solid black',
-  },
-  tr: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    borderBottom: '1 solid black',
-  },
-  th: {
-    flex: 1,
-    fontFamily: 'Helvetica-Bold',
-    fontSize: 10,
-    fontWeight: 500,
-    padding: 3,
-    borderRight: '1 solid black',
-    margin: 0,
-  },
-  td: {
-    flex: 1,
-    padding: 3,
-    fontSize: 10,
-    margin: 0,
-    borderRight: '1 solid black',
-  },
-});
+// const tableStyles = StyleSheet.create({
+//   table: {
+//     borderTop: '1 solid black',
+//     borderLeft: '1 solid black',
+//   },
+//   tr: {
+//     flexDirection: 'row',
+//     flexWrap: 'wrap',
+//     borderBottom: '1 solid black',
+//   },
+//   th: {
+//     flex: 1,
+//     fontFamily: 'Helvetica-Bold',
+//     fontSize: 10,
+//     fontWeight: 500,
+//     padding: 3,
+//     borderRight: '1 solid black',
+//     margin: 0,
+//   },
+//   td: {
+//     flex: 1,
+//     padding: 3,
+//     fontSize: 10,
+//     margin: 0,
+//     borderRight: '1 solid black',
+//   },
+// });
 
-const TR = props => <View {...props} style={tableStyles.tr} />;
+const View = () => null
+const Text = () => null
+
+const TR = props => <View {...props} style={{}} />;
 const TH = ({ customStyles, ...props }) => (
-  <Text {...props} style={[tableStyles.th, customStyles]} />
+  <Text {...props} style={[{}, customStyles]} />
 );
 const TD = ({ customStyles, ...props }) => (
-  <Text {...props} style={[tableStyles.td, customStyles]} />
+  <Text {...props} style={[{}, customStyles]} />
 );
 
 export const Table = ({ data, columns, getLocalisation }) => {
@@ -42,7 +45,7 @@ export const Table = ({ data, columns, getLocalisation }) => {
     ({ key }) => getLocalisation(`fields.${key}.hidden`) !== true,
   );
   return (
-    <View style={tableStyles.table}>
+    <View style={{}.table}>
       <TR>
         {visibleColumns.map(({ title, key, customStyles }) => (
           <TH key={key} customStyles={customStyles}>

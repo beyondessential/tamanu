@@ -1,5 +1,5 @@
 import React from 'react';
-import { Document, Page } from '@react-pdf/renderer';
+// import { Document, Page } from '@react-pdf/renderer';
 import { Table } from './Table';
 import { styles, Col, Box, Row, Watermark } from './Layout';
 import { LetterheadSection } from './LetterheadSection';
@@ -86,8 +86,7 @@ export const CovidLabCertificate = ({
   printedBy,
   certType,
 }) => (
-  <Document>
-    <Page size="A4" style={styles.page}>
+  <>
       {watermarkSrc && <Watermark src={watermarkSrc} />}
       <LetterheadSection getLocalisation={getLocalisation} logoSrc={logoSrc} />
       <Box mb={0}>
@@ -114,6 +113,5 @@ export const CovidLabCertificate = ({
         </Row>
       </Box>
       <SigningSection signingSrc={signingSrc} />
-    </Page>
-  </Document>
+    </>
 );

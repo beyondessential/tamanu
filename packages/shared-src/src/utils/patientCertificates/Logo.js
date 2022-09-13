@@ -1,5 +1,11 @@
 import React from 'react';
-import { Svg, G, Path, Defs, ClipPath } from '@react-pdf/renderer';
+// import { Svg, G, Path, Defs, ClipPath } from '@react-pdf/renderer';
+
+const Svg = () => null
+const G = () => null
+const Path = () => null
+const Defs = () => null
+const ClipPath = () => null
 
 const Path1 = props => (
   <Path {...props} fill="#326699" fillOpacity={1} fillRule="nonzero" stroke="none" />
