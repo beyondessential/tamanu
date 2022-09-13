@@ -54,9 +54,10 @@ const getActiveFilters = (filters: ActiveFilters, filter: FieldProp): ActiveFilt
 const applyActiveFilters = (
   models,
   { filters }: ActiveFilters,
-  { value }: FieldInputProps<any>,
-): IPatient[] =>
-  models.Patient.find({
+  { value: searchValue }: FieldInputProps<any>,
+): IPatient[] => {
+  const value = searchValue.trim();
+  return models.Patient.find({
     order: {
       lastName: 'ASC',
       firstName: 'ASC',
@@ -74,6 +75,7 @@ const applyActiveFilters = (
     take: 100,
     cache: true,
   });
+};
 
 const Screen: FC<ViewAllScreenProps> = ({
   navigation,
