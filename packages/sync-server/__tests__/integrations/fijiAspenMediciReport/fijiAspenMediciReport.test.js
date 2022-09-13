@@ -50,8 +50,14 @@ describe('fijiAspenMediciReport', () => {
           name: 'Public',
         }),
       );
-      const { id: medicationId } = await models.ReferenceData.create(
-        fake(models.ReferenceData, { type: REFERENCE_TYPES.DRUG }),
+      const { id: medication5Id } = await models.ReferenceData.create(
+        fake(models.ReferenceData, { type: REFERENCE_TYPES.DRUG, name: 'Glucose (hypertonic) 5%' }),
+      );
+      const { id: medication10Id } = await models.ReferenceData.create(
+        fake(models.ReferenceData, {
+          type: REFERENCE_TYPES.DRUG,
+          name: 'Glucose (hypertonic) 10%',
+        }),
       );
       const { id: labTestCategoryId } = await models.ReferenceData.create(
         fake(models.ReferenceData, { type: REFERENCE_TYPES.LAB_TEST_CATEGORY }),
@@ -107,7 +113,8 @@ describe('fijiAspenMediciReport', () => {
       await models.PatientBirthData.create(
         fake(models.PatientBirthData, { patientId: patient.id, birthWeight: 2100 }),
       );
-      await models.EncounterDiagnosis.create( // Yes - diagnosed with the same thing twice
+      await models.EncounterDiagnosis.create(
+        // Yes - diagnosed with the same thing twice
         fake(models.EncounterDiagnosis, {
           encounterId,
           diagnosisId,
@@ -126,7 +133,24 @@ describe('fijiAspenMediciReport', () => {
         }),
       );
       await models.EncounterMedication.create(
-        fake(models.EncounterMedication, { encounterId, medicationId }),
+        fake(models.EncounterMedication, {
+          encounterId,
+          medicationId: medication5Id,
+          discontinued: true,
+          date: '2022-06-10T01:10:54.225+00:00',
+          discontinuedDate: '2022-06-10T01:19:54.225+00:00',
+          discontinuingReason: 'It was not enough',
+        }),
+        );
+        await models.EncounterMedication.create(
+          fake(models.EncounterMedication, {
+            encounterId,
+            medicationId: medication10Id,
+            discontinued: null,
+            date: '2022-06-10T01:20:54.225+00:00',
+            discontinuedDate: null,
+            discontinuingReason: null,
+        }),
       );
       await models.Procedure.create(fake(models.Procedure, { encounterId }));
 
@@ -258,10 +282,16 @@ describe('fijiAspenMediciReport', () => {
           ],
           medications: [
             {
-              name: expect.any(String), // 'Glucose (hypertonic) 10%',
-              discontinued: expect.any(Boolean),
-              discontinued_date: expect.any(String), // ISO8601
-              discontinuing_reason: expect.any(String), // 'No longer clinically indicated',
+              name: 'Glucose (hypertonic) 10%',
+              discontinued: false,
+              discontinued_date: null,
+              discontinuing_reason: null,
+            },
+            {
+              name: 'Glucose (hypertonic) 5%',
+              discontinued: true,
+              discontinued_date: '2022-06-10T01:19:54.225+00:00',
+              discontinuing_reason: 'It was not enough',
             },
           ],
           vaccinations: null,

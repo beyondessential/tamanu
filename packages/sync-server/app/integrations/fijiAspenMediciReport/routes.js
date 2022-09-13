@@ -74,9 +74,9 @@ medications_info as (
       json_build_object(
         'name', medication.name,
         'discontinued', coalesce(discontinued, false),
-        'discontinued_date', "date",
+        'discontinued_date', discontinued_date,
         'discontinuing_reason', discontinuing_reason
-      ) 
+      ) order by date desc
     ) "Medications"
   from encounter_medications em
   join reference_data medication on medication.id = em.medication_id
