@@ -56,11 +56,11 @@ procedure_info as (
       json_build_object(
         'name', proc.name,
         'code', proc.code,
-        'date', to_char(date, 'yyyy-dd-mm'),
+        'date', date,
         'location', loc.name,
         'notes', p.note,
         'completedNotes', completed_note
-      ) 
+      ) order by date desc
     ) "Procedures"
   from "procedures" p
   left join reference_data proc ON proc.id = procedure_type_id
@@ -170,15 +170,14 @@ encounter_notes_info as (
     record_id encounter_id,
     json_agg(
       json_build_object(
-        'note_type', note_type,
+        'noteType', note_type,
         'content', "content",
-        'note_date', ni."date"
-      ) 
+        'noteDate', ni."date"
+      ) order by ni.date desc
     ) "Notes"
   from note_pages np
   join note_items ni on ni.note_page_id = np.id
   where note_type != 'system'
-  and record_type = 'encounter' -- TODO: Hard code?
   group by record_id
 ),
 note_history as (

@@ -43,6 +43,13 @@ describe('fijiAspenMediciReport', () => {
           name: 'Public',
         }),
       );
+      const { id: procedureTypeId } = await models.ReferenceData.create(
+        fake(models.ReferenceData, {
+          type: REFERENCE_TYPES.PATIENT_BILLING_TYPE,
+          code: '61340',
+          name: 'Subtemporal cranial decompression (pseudotumor cerebri, slit ventricle syndrome)',
+        }),
+      );
       const { id: medication5Id } = await models.ReferenceData.create(
         fake(models.ReferenceData, { type: REFERENCE_TYPES.DRUG, name: 'Glucose (hypertonic) 5%' }),
       );
@@ -169,13 +176,22 @@ describe('fijiAspenMediciReport', () => {
       await models.AdministeredVaccine.create(
         fake(models.AdministeredVaccine, { encounterId, scheduledVaccineId }),
       );
-      await models.Procedure.create(fake(models.Procedure, { encounterId }));
+      await models.Procedure.create(
+        fake(models.Procedure, {
+          encounterId,
+          procedureTypeId,
+          locationId: location1Id,
+          date: '2022-06-11T01:20:54.225+00:00',
+          note: 'All ready for procedure here',
+          completedNote: 'Everything went smoothly, no issues',
+        }),
+      );
 
       const { id: labRequestId } = await models.LabRequest.create(
         fake(models.LabRequest, { encounterId }),
       );
       await models.LabTest.create(fake(models.LabTest, { labRequestId, labTestTypeId }));
-      const { id: notePageId } = await models.NotePage.create(
+      const { id: labsNotePageId } = await models.NotePage.create(
         fake(models.NotePage, {
           recordId: labRequestId,
           noteType: NOTE_TYPES.OTHER,
@@ -184,8 +200,8 @@ describe('fijiAspenMediciReport', () => {
       );
       await models.NoteItem.create(
         fake(models.NoteItem, {
-          notePageId,
-          content: 'This is a lab request note',
+          notePageId: labsNotePageId,
+          content: 'Please perform this lab test very carefully',
           date: '2022-06-09T02:04:54.225Z',
         }),
       );
@@ -197,6 +213,27 @@ describe('fijiAspenMediciReport', () => {
         }),
       );
 
+      const { id: encounterNotePageId } = await models.NotePage.create(
+        fake(models.NotePage, {
+          recordId: encounterId,
+          noteType: NOTE_TYPES.NURSING,
+          recordType: NOTE_RECORD_TYPES.ENCOUNTER,
+        }),
+      );
+      await models.NoteItem.create(
+        fake(models.NoteItem, {
+          notePageId: encounterNotePageId,
+          content: 'A\nB\nC\nD\nE\nF\nG\n',
+          date: '2022-06-10T03:39:57.617+00:00',
+        }),
+      );
+      await models.NoteItem.create(
+        fake(models.NoteItem, {
+          notePageId: encounterNotePageId,
+          content: 'H\nI\nJ\nK\nL... nopqrstuv',
+          date: '2022-06-10T04:39:57.617+00:00',
+        }),
+      );
       // Location/departments:
       const encounter = await models.Encounter.findByPk(encounterId);
       await encounter.update({
@@ -320,13 +357,13 @@ describe('fijiAspenMediciReport', () => {
           ],
           procedures: [
             {
-              name: null, // expect.any(String),
-              // 'Subtemporal cranial decompression (pseudotumor cerebri, slit ventricle syndrome)',
-              code: null, // expect.any(String), // '61340',
-              date: expect.any(String), // '2022-10-06',
-              location: null, // expect.any(String), //'Ba Mission Sub-divisional Hospital General Clinic',
-              notes: expect.any(String), // null,
-              completedNotes: expect.any(String), // null,
+              name:
+                'Subtemporal cranial decompression (pseudotumor cerebri, slit ventricle syndrome)',
+              code: '61340',
+              date: '2022-06-11T01:20:54.225+00:00',
+              location: 'Emergency room 1',
+              notes: 'All ready for procedure here',
+              completedNotes: 'Everything went smoothly, no issues',
             },
           ],
           labRequests: [
@@ -339,7 +376,7 @@ describe('fijiAspenMediciReport', () => {
               notes: [
                 {
                   noteType: NOTE_TYPES.OTHER,
-                  content: 'This is a lab request note',
+                  content: 'Please perform this lab test very carefully',
                   noteDate: '2022-06-09T02:04:54.225+00:00',
                 },
               ],
@@ -364,14 +401,18 @@ describe('fijiAspenMediciReport', () => {
           //     ],
           //   },
           // ],
-          notes: null,
-          //  [
-          //   {
-          //     noteType: 'nursing',
-          //     content: 'A\nB\nC\nD\nE\nF\nG\n',
-          //     noteDate: '2022-06-10T03:39:57.617+00:00',
-          //   },
-          // ],
+          notes: [
+            {
+              noteType: NOTE_TYPES.NURSING,
+              content: 'H\nI\nJ\nK\nL... nopqrstuv',
+              noteDate: '2022-06-10T04:39:57.617+00:00',
+            },
+            {
+              noteType: NOTE_TYPES.NURSING,
+              content: 'A\nB\nC\nD\nE\nF\nG\n',
+              noteDate: '2022-06-10T03:39:57.617+00:00',
+            },
+          ],
         },
       ]);
     });
