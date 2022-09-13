@@ -89,7 +89,7 @@ diagnosis_info as (
       json_build_object(
         'name', diagnosis.name,
         'code', diagnosis.code,
-        'is_primary', case when is_primary then 'primary' else 'secondary' end,
+        'is_primary', is_primary,
         'certainty', certainty
       ) order by date desc
     ) "Diagnosis"

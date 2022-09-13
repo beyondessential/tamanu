@@ -246,13 +246,13 @@ describe('fijiAspenMediciReport', () => {
             {
               name: 'Acute subdural hematoma',
               code: 'S06.5',
-              is_primary: 'primary',
+              is_primary: true,
               certainty: DIAGNOSIS_CERTAINTY.CONFIRMED,
             },
             {
               name: 'Acute subdural hematoma',
               code: 'S06.5',
-              is_primary: 'secondary',
+              is_primary: false,
               certainty: DIAGNOSIS_CERTAINTY.SUSPECTED,
             },
           ],
