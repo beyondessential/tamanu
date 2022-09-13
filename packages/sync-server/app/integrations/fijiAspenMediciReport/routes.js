@@ -1,9 +1,7 @@
 import { QueryTypes } from 'sequelize';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { format } from 'date-fns';
 
-import { toDateString, convertISO9075toRFC3339 } from 'shared/utils/dateTime';
 import { requireClientHeaders } from '../../middleware/requireClientHeaders';
 
 export const routes = express.Router();
@@ -355,12 +353,13 @@ routes.get(
   '/',
   asyncHandler(async (req, res) => {
     const { sequelize } = req.store;
+    const { 'period.start': fromDate, 'period.end': toDate } = req.params;
 
     const data = await sequelize.query(reportQuery, {
       type: QueryTypes.SELECT,
       replacements: {
-        from_date: null,
-        to_date: null,
+        from_date: fromDate ?? null,
+        to_date: toDate ?? null,
         billing_type: null,
       },
     });
