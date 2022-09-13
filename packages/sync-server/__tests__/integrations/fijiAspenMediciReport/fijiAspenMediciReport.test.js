@@ -19,9 +19,8 @@ describe('fijiAspenMediciReport', () => {
   describe('success', () => {
     it(`Should produce a simple report`, async () => {
       // arrange
-      const { id: userId } = await models.User.create(
-        fake(models.User),
-      );
+      // Data already in the system
+      const { id: userId } = await models.User.create(fake(models.User));
       const { id: diagnosisId } = await models.ReferenceData.create(
         fake(models.ReferenceData, { type: REFERENCE_TYPES.ICD10 }),
       );
@@ -44,6 +43,8 @@ describe('fijiAspenMediciReport', () => {
           name: 'Bicarbonate',
         }),
       );
+
+      // Data related to the encounter
       const patient = await models.Patient.create(
         fake(models.Patient, {
           displayId: 'BTIO864386',
@@ -59,11 +60,16 @@ describe('fijiAspenMediciReport', () => {
           reasonForEncounter: 'Severe Migrane',
         }),
       );
-      const triage = models.Triage.build(
-        fake(models.Triage, { encounterId, score: 2 }), {
+      // Call build and save to avoid custom triage.create logic
+      const triage = models.Triage.build(fake(models.Triage, { encounterId, score: 2 }), {
         options: { raw: true },
       });
       await triage.save();
+
+      // Data referenced by the encounter
+      await models.PatientBirthData.create(
+        fake(models.PatientBirthData, { patientId: patient.id, birthWeight: 2100 }),
+      );
       await models.EncounterDiagnosis.create(
         fake(models.EncounterDiagnosis, { encounterId, diagnosisId }),
       );
@@ -129,7 +135,7 @@ describe('fijiAspenMediciReport', () => {
           reasonForEncounter: 'Severe Migrane',
 
           // New fields
-          weight: expect.any(Number), // TODO: Integer in grams
+          weight: 2100,
           hoursOfVentilation: 0, // Placeholder - always 0
           leaveDays: 0, // Placeholder - always 0
           episodeEndStatus: expect.any(String),

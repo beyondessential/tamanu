@@ -128,7 +128,9 @@ single_image_info as (
       json_agg(note) aggregated_notes
     from notes_info
     cross join json_array_elements(aggregated_notes) note
-    where note->>'note_type' != '${NOTE_TYPES.AREA_TO_BE_IMAGED}' --cross join ok here as only 1 record will be matched
+    where note->>'note_type' != '${
+      NOTE_TYPES.AREA_TO_BE_IMAGED
+    }' --cross join ok here as only 1 record will be matched
     group by record_id
   ) non_area_notes
   on non_area_notes.record_id = ir.id 
@@ -138,7 +140,9 @@ single_image_info as (
       string_agg(note->>'content', 'ERROR - SHOULD ONLY BE ONE AREA TO BE IMAGED') aggregated_notes
     from notes_info
     cross join json_array_elements(aggregated_notes) note
-    where note->>'note_type' = '${NOTE_TYPES.AREA_TO_BE_IMAGED}' --cross join ok here as only 1 record will be matched
+    where note->>'note_type' = '${
+      NOTE_TYPES.AREA_TO_BE_IMAGED
+    }' --cross join ok here as only 1 record will be matched
     group by record_id
   ) area_notes
   on area_notes.record_id = ir.id
@@ -309,7 +313,7 @@ case e.encounter_type
   when 'clinic' then 'SOPD'
   else e.encounter_type
 end "encounterType",
-0 "weight",
+birth_data.birth_weight "weight",
 0 "hoursOfVentilation",
 0 "leaveDays",
 'TODO' "episodeEndStatus",
@@ -321,11 +325,12 @@ case t.score
   when '3' then  'Non-urgent'
   else t.score
 end "triageCategory",
-${"'TODO'"
-//   case when t.closed_time is null 
-//   then age(t.triage_time)
-//   else age(t.closed_time, t.triage_time)
-// end 
+${
+  "'TODO'"
+  //   case when t.closed_time is null
+  //   then age(t.triage_time)
+  //   else age(t.closed_time, t.triage_time)
+  // end
 } "waitTime",
 di2.department_history "department",
 li.location_history "location",
@@ -340,6 +345,7 @@ ni."Notes" notes
 from patients p
 join encounters e on e.patient_id = p.id
 left join reference_data billing on billing.id = e.patient_billing_type_id
+left join patient_birth_data birth_data on birth_data.patient_id = p.id
 left join medications_info mi on e.id = mi.encounter_id
 left join vaccine_info vi on e.id = vi.encounter_id
 left join diagnosis_info di on e.id = di.encounter_id
@@ -377,6 +383,11 @@ routes.get(
       },
     });
 
-    res.status(200).send({ data });
+    const mappedData = data.map(enounter => ({
+      ...enounter,
+      weight: parseFloat(enounter.weight),
+    }));
+
+    res.status(200).send({ data: mappedData });
   }),
 );
