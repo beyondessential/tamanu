@@ -91,7 +91,7 @@ diagnosis_info as (
         'code', diagnosis.code,
         'is_primary', case when is_primary then 'primary' else 'secondary' end,
         'certainty', certainty
-      ) 
+      ) order by date desc
     ) "Diagnosis"
   from encounter_diagnoses ed
   join reference_data diagnosis on diagnosis.id = ed.diagnosis_id

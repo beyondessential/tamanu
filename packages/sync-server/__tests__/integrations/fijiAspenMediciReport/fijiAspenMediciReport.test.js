@@ -1,6 +1,12 @@
 import { subDays } from 'date-fns';
 
-import { REFERENCE_TYPES, NOTE_RECORD_TYPES, NOTE_TYPES, ENCOUNTER_TYPES } from 'shared/constants';
+import {
+  REFERENCE_TYPES,
+  NOTE_RECORD_TYPES,
+  NOTE_TYPES,
+  ENCOUNTER_TYPES,
+  DIAGNOSIS_CERTAINTY,
+} from 'shared/constants';
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 
@@ -22,10 +28,21 @@ describe('fijiAspenMediciReport', () => {
       // Data already in the system
       const { id: userId } = await models.User.create(fake(models.User));
       const { id: facilityId } = await models.Facility.create(fake(models.Facility));
-      const { id: location1Id } = await models.Location.create(fake(models.Location, { facilityId, name: 'Emergency room 1' }));
-      const { id: location2Id } = await models.Location.create(fake(models.Location, { facilityId, name: 'Emergency room 2' }));
+      const { id: departmentId } = await models.Department.create(
+        fake(models.Department, { facilityId, name: 'Emergency dept.' }),
+      );
+      const { id: location1Id } = await models.Location.create(
+        fake(models.Location, { facilityId, name: 'Emergency room 1' }),
+      );
+      const { id: location2Id } = await models.Location.create(
+        fake(models.Location, { facilityId, name: 'Emergency room 2' }),
+      );
       const { id: diagnosisId } = await models.ReferenceData.create(
-        fake(models.ReferenceData, { type: REFERENCE_TYPES.ICD10 }),
+        fake(models.ReferenceData, {
+          type: REFERENCE_TYPES.ICD10,
+          name: 'Acute subdural hematoma',
+          code: 'S06.5',
+        }),
       );
       const { id: patientBillingTypeId } = await models.ReferenceData.create(
         fake(models.ReferenceData, {
@@ -69,6 +86,7 @@ describe('fijiAspenMediciReport', () => {
           reasonForEncounter: 'Severe Migrane',
           patientBillingTypeId,
           locationId: location1Id,
+          departmentId,
         }),
       );
       // Call build and save to avoid custom triage.create logic
@@ -89,8 +107,23 @@ describe('fijiAspenMediciReport', () => {
       await models.PatientBirthData.create(
         fake(models.PatientBirthData, { patientId: patient.id, birthWeight: 2100 }),
       );
+      await models.EncounterDiagnosis.create( // Yes - diagnosed with the same thing twice
+        fake(models.EncounterDiagnosis, {
+          encounterId,
+          diagnosisId,
+          isPrimary: false,
+          certainty: DIAGNOSIS_CERTAINTY.SUSPECTED,
+          date: '2022-06-09T11:09:54.225+00:00',
+        }),
+      );
       await models.EncounterDiagnosis.create(
-        fake(models.EncounterDiagnosis, { encounterId, diagnosisId }),
+        fake(models.EncounterDiagnosis, {
+          encounterId,
+          diagnosisId,
+          isPrimary: true,
+          certainty: DIAGNOSIS_CERTAINTY.CONFIRMED,
+          date: '2022-06-09T11:10:54.225+00:00',
+        }),
       );
       await models.EncounterMedication.create(
         fake(models.EncounterMedication, { encounterId, medicationId }),
@@ -128,17 +161,20 @@ describe('fijiAspenMediciReport', () => {
       await encounter.update({
         locationId: location2Id,
       });
-      const { id: resultantNotePageId } = await models.NotePage.findOne({ where: {
-        noteType: NOTE_TYPES.SYSTEM,
-      }})
-      const systemNoteItem = await models.NoteItem.findOne({ where: {
-        notePageId: resultantNotePageId,
-      }})
+
+      const { id: resultantNotePageId } = await models.NotePage.findOne({
+        where: {
+          noteType: NOTE_TYPES.SYSTEM,
+        },
+      });
+      const systemNoteItem = await models.NoteItem.findOne({
+        where: {
+          notePageId: resultantNotePageId,
+        },
+      });
       systemNoteItem.date = '2022-06-09T08:04:54.225Z';
       await systemNoteItem.save();
-      console.log(systemNoteItem)
 
-      console.log(await models.NoteItem.findAll());
       // act
       const response = await app
         .get(
@@ -200,18 +236,24 @@ describe('fijiAspenMediciReport', () => {
           ],
           department: [
             {
-              department: null, // expect.any(String),
-              assigned_time: expect.any(String),
+              department: 'Emergency dept.',
+              assigned_time: '2022-06-09T00:02:54.225+00:00',
             },
           ],
 
           // Encounter Relations
           diagnosis: [
             {
-              name: expect.any(String), // 'Acute subdural hematoma',
-              code: expect.any(String), // 'S06.5',
-              is_primary: expect.any(String), // 'primary',
-              certainty: expect.any(String), // 'confirmed',
+              name: 'Acute subdural hematoma',
+              code: 'S06.5',
+              is_primary: 'primary',
+              certainty: DIAGNOSIS_CERTAINTY.CONFIRMED,
+            },
+            {
+              name: 'Acute subdural hematoma',
+              code: 'S06.5',
+              is_primary: 'secondary',
+              certainty: DIAGNOSIS_CERTAINTY.SUSPECTED,
             },
           ],
           medications: [
