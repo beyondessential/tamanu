@@ -1,8 +1,9 @@
 import { QueryTypes } from 'sequelize';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { format } from 'date-fns';
 
-import { NOTE_TYPES } from 'shared/constants';
+import { toDateString, convertISO9075toRFC3339 } from 'shared/utils/dateTime';
 import { requireClientHeaders } from '../../middleware/requireClientHeaders';
 
 export const routes = express.Router();
@@ -283,8 +284,8 @@ extract(year from age(p.date_of_birth::date)) "age",
 p.sex "sex",
 billing.name "patientBillingType",
 e.id "encounterId",
-e.start_date "encounterStartDate",
-e.end_date "encounterEndDate",
+to_char (e.start_date at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') "encounterStartDate",
+to_char (e.end_date at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') "encounterEndDate",
 case e.encounter_type
   when 'admission' then 'AR-DRG'
   when 'imaging' then 'AR-DRG'
@@ -353,26 +354,21 @@ routes.use(requireClientHeaders);
 routes.get(
   '/',
   asyncHandler(async (req, res) => {
-    // req.checkPermission('read', 'Signer');
-    console.log('Success');
     const { sequelize } = req.store;
+
     const data = await sequelize.query(reportQuery, {
       type: QueryTypes.SELECT,
       replacements: {
         from_date: null,
         to_date: null,
         billing_type: null,
-        department_id: null,
-        location_id: null,
       },
     });
 
-    const mappedData = data.map(enounter => ({
-      ...enounter,
-      weight: parseFloat(enounter.weight),
+    const mappedData = data.map(encounter => ({
+      ...encounter,
+      weight: parseFloat(encounter.weight),
     }));
-
-    console.log(mappedData)
 
     res.status(200).send({ data: mappedData });
   }),
