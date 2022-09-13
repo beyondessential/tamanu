@@ -125,7 +125,7 @@ describe('fijiAspenMediciReport', () => {
           patientBillingType: null,
           encounterStartDate: '2022-06-09T00:02:54.225Z',
           encounterEndDate: '2022-06-12T00:02:54.225Z',
-          encounterType: ENCOUNTER_TYPES.ADMISSION,
+          encounterType: 'AR-DRG',
           reasonForEncounter: 'Severe Migrane',
 
           // New fields

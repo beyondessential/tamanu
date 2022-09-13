@@ -300,13 +300,13 @@ e.id "encounterId",
 e.start_date "encounterStartDate",
 e.end_date "encounterEndDate",
 case e.encounter_type
-  when 'triage' then  'Triage'
-  when 'observation' then  'Active ED patient'
-  when 'emergency' then  'Emergency short stay'
-  when 'admission' then  'Hospital admission'
-  when 'clinic' then 'Clinic'
-  when 'imaging' then 'Imaging'
-  when 'surveyResponse' then 'Survey response'
+  when 'admission' then 'AR-DRG'
+  when 'imaging' then 'AR-DRG'
+  when 'emergency' then 'URG/UDG'
+  when 'observation' then 'URG/UDG'
+  when 'triage' then 'URG/UDG'
+  when 'surveyResponse' then 'URG/UDG'
+  when 'clinic' then 'SOPD'
   else e.encounter_type
 end "encounterType",
 0 "weight",
