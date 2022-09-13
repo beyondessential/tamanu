@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import moment from 'moment';
+import { startOfDay, endOfDay } from 'date-fns';
 import { Op } from 'sequelize';
 import { NOTE_TYPES, AREA_TYPE_TO_IMAGING_TYPE, IMAGING_AREA_TYPES } from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
@@ -68,14 +68,17 @@ imagingRequest.get(
     if (!imagingRequestObject) throw new NotFoundError();
 
     // Get related notes (general, area to be imaged)
-    const relatedNotes = await imagingRequestObject.getNotes();
+    const relatedNotePages = await imagingRequestObject.getNotePages();
+    const otherNotePage = getNoteWithType(relatedNotePages, NOTE_TYPES.OTHER);
+    const noteItems = await otherNotePage.getNoteItems();
 
     // Extract note content if note exists, else default content to empty string
-    const noteContent = getNoteWithType(relatedNotes, NOTE_TYPES.OTHER)?.content || '';
+    const noteContent = noteItems[0]?.content || '';
 
     // Free text area content fallback
     const areaNoteContent =
-      getNoteWithType(relatedNotes, NOTE_TYPES.AREA_TO_BE_IMAGED)?.content || '';
+      getNoteWithType(relatedNotePages, NOTE_TYPES.AREA_TO_BE_IMAGED)?.noteItems?.[0]?.content ||
+      '';
 
     // Convert Sequelize model to use a custom object as response
     const responseObject = {
@@ -109,11 +112,11 @@ imagingRequest.put(
     }
 
     // Get related notes (general, area to be imaged)
-    const relatedNotes = await imagingRequestObject.getNotes();
+    const relatedNotePages = await imagingRequestObject.getNotePages();
 
     // Get separate note objects
-    const noteObject = getNoteWithType(relatedNotes, NOTE_TYPES.OTHER);
-    const areaNoteObject = getNoteWithType(relatedNotes, NOTE_TYPES.AREA_TO_BE_IMAGED);
+    const otherNotePage = getNoteWithType(relatedNotePages, NOTE_TYPES.OTHER);
+    const areaNotePage = getNoteWithType(relatedNotePages, NOTE_TYPES.AREA_TO_BE_IMAGED);
 
     // The returned note content will read its value depending if
     // note exists or gets created, else it should be an empty string
@@ -121,33 +124,42 @@ imagingRequest.put(
     let areaNoteContent = '';
 
     // Update the content of the note object if it exists
-    if (noteObject) {
-      await noteObject.update({ content: req.body.note });
-      noteContent = noteObject.content;
+    if (otherNotePage) {
+      const otherNoteItems = await otherNotePage.getNoteItems();
+      const otherNoteItem = otherNoteItems[0];
+      await otherNoteItem?.update({ content: req.body.note });
+      noteContent = otherNoteItem?.content || '';
     }
     // Else, create a new one only if it has content
     else if (req.body.note) {
-      const newNoteObject = await imagingRequestObject.createNote({
+      const notePage = await imagingRequestObject.createNotePage({
         noteType: NOTE_TYPES.OTHER,
+      });
+      const noteItem = await notePage.createNoteItem({
         content: req.body.note,
         authorId: req.user.id,
       });
-      noteContent = newNoteObject.content;
+      noteContent = noteItem.content;
     }
 
     // Update the content of the area to be imaged note object if it exists
-    if (areaNoteObject) {
-      await areaNoteObject.update({ content: req.body.areaNote });
-      areaNoteContent = areaNoteObject.content;
+    if (areaNotePage) {
+      const areaNoteItems = await areaNotePage.getNoteItems();
+      const areaNoteItem = areaNoteItems[0];
+      await areaNoteItem.update({ content: req.body.areaNote });
+      areaNoteContent = areaNoteItem?.content || '';
     }
     // Else, create a new one only if it has content
     else if (req.body.areaNote) {
-      const newAreaNoteObject = await imagingRequestObject.createNote({
+      const notePage = await imagingRequestObject.createNotePage({
         noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
-        content: req.body.areaNote,
+      });
+      const noteItem = await notePage.createNoteItem({
+        content: req.body.note,
         authorId: req.user.id,
       });
-      areaNoteContent = newAreaNoteObject.content;
+
+      areaNoteContent = noteItem.content;
     }
 
     // Convert Sequelize model to use a custom object as response
@@ -184,26 +196,32 @@ imagingRequest.post(
 
     // Only create a note if it has content
     if (req.body.note) {
-      const newNote = await newImagingRequest.createNote({
+      const notePage = await newImagingRequest.createNotePage({
         noteType: NOTE_TYPES.OTHER,
+      });
+
+      const noteItem = await notePage.createNoteItem({
         content: req.body.note,
         authorId: req.user.id,
       });
 
       // Update note content for response with saved data
-      noteContent = newNote.content;
+      noteContent = noteItem.content;
     }
 
     // Only create an area to be imaged note if it has content
     if (req.body.areaNote) {
-      const newAreaNote = await newImagingRequest.createNote({
+      const notePage = await newImagingRequest.createNotePage({
         noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
-        content: req.body.areaNote,
+      });
+
+      const noteItem = await notePage.createNoteItem({
+        content: req.body.note,
         authorId: req.user.id,
       });
 
       // Update area to be imaged content for response with saved data
-      areaNoteContent = newAreaNote.content;
+      areaNoteContent = noteItem.content;
     }
 
     // Convert Sequelize model to use a custom object as response
@@ -252,9 +270,7 @@ globalImagingRequests.get(
         operator: Op.gte,
         mapFn: (fieldName, operator, value) => ({
           [fieldName]: {
-            [operator]: moment(value)
-              .startOf('day')
-              .toISOString(),
+            [operator]: startOfDay(value).toISOString(),
           },
         }),
       },
@@ -264,9 +280,7 @@ globalImagingRequests.get(
         operator: Op.lte,
         mapFn: (fieldName, operator, value) => ({
           [fieldName]: {
-            [operator]: moment(value)
-              .endOf('day')
-              .toISOString(),
+            [operator]: endOfDay(value).toISOString(),
           },
         }),
       },
