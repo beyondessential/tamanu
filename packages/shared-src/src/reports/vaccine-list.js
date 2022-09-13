@@ -123,7 +123,7 @@ export async function queryCovidVaccineListData(models, parameters) {
       patientId,
       patientName: `${firstName} ${lastName}`,
       uid: displayId,
-      dob: format(dateOfBirth, 'dd-MM-yyyy'),
+      dob: format(new Date(dateOfBirth), 'dd-MM-yyyy'),
       sex,
       village: village?.name,
       vaccineName,
