@@ -24,6 +24,12 @@ describe('fijiAspenMediciReport', () => {
       const { id: diagnosisId } = await models.ReferenceData.create(
         fake(models.ReferenceData, { type: REFERENCE_TYPES.ICD10 }),
       );
+      const { id: patientBillingTypeId } = await models.ReferenceData.create(
+        fake(models.ReferenceData, {
+          type: REFERENCE_TYPES.PATIENT_BILLING_TYPE,
+          name: 'Public',
+        }),
+      );
       const { id: medicationId } = await models.ReferenceData.create(
         fake(models.ReferenceData, { type: REFERENCE_TYPES.DRUG }),
       );
@@ -58,6 +64,7 @@ describe('fijiAspenMediciReport', () => {
           endDate: '2022-06-12T00:02:54.225+00:00',
           encounterType: ENCOUNTER_TYPES.ADMISSION,
           reasonForEncounter: 'Severe Migrane',
+          patientBillingTypeId,
         }),
       );
       // Call build and save to avoid custom triage.create logic
@@ -128,7 +135,7 @@ describe('fijiAspenMediciReport', () => {
 
           // Encounter Details
           encounterId,
-          patientBillingType: null,
+          patientBillingType: 'Public',
           encounterStartDate: '2022-06-09T00:02:54.225Z',
           encounterEndDate: '2022-06-12T00:02:54.225Z',
           encounterType: 'AR-DRG',
