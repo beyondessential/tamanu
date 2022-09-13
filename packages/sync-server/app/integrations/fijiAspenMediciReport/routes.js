@@ -106,7 +106,7 @@ vaccine_info as (
         'name', drug.name,
         'label', sv.label,
         'schedule', sv.schedule
-      ) 
+      ) order by date desc
     ) "Vaccinations"
   from administered_vaccines av
   join scheduled_vaccines sv on sv.id = av.scheduled_vaccine_id 

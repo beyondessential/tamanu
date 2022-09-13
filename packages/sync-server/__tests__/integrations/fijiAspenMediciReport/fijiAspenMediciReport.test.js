@@ -37,13 +37,6 @@ describe('fijiAspenMediciReport', () => {
       const { id: location2Id } = await models.Location.create(
         fake(models.Location, { facilityId, name: 'Emergency room 2' }),
       );
-      const { id: diagnosisId } = await models.ReferenceData.create(
-        fake(models.ReferenceData, {
-          type: REFERENCE_TYPES.ICD10,
-          name: 'Acute subdural hematoma',
-          code: 'S06.5',
-        }),
-      );
       const { id: patientBillingTypeId } = await models.ReferenceData.create(
         fake(models.ReferenceData, {
           type: REFERENCE_TYPES.PATIENT_BILLING_TYPE,
@@ -57,6 +50,27 @@ describe('fijiAspenMediciReport', () => {
         fake(models.ReferenceData, {
           type: REFERENCE_TYPES.DRUG,
           name: 'Glucose (hypertonic) 10%',
+        }),
+      );
+      const { id: vaccineDrugId } = await models.ReferenceData.create(
+        fake(models.ReferenceData, {
+          type: REFERENCE_TYPES.DRUG,
+          name: 'Covid AZ',
+        }),
+      );
+      const { id: scheduledVaccineId } = await models.ScheduledVaccine.create(
+        fake(models.ScheduledVaccine, {
+          type: REFERENCE_TYPES.VACCINE,
+          label: 'Covid Schedule Label',
+          schedule: 'Dose 1',
+          vaccineId: vaccineDrugId,
+        }),
+      );
+      const { id: diagnosisId } = await models.ReferenceData.create(
+        fake(models.ReferenceData, {
+          type: REFERENCE_TYPES.ICD10,
+          name: 'Acute subdural hematoma',
+          code: 'S06.5',
         }),
       );
       const { id: labTestCategoryId } = await models.ReferenceData.create(
@@ -141,16 +155,19 @@ describe('fijiAspenMediciReport', () => {
           discontinuedDate: '2022-06-10T01:19:54.225+00:00',
           discontinuingReason: 'It was not enough',
         }),
-        );
-        await models.EncounterMedication.create(
-          fake(models.EncounterMedication, {
-            encounterId,
-            medicationId: medication10Id,
-            discontinued: null,
-            date: '2022-06-10T01:20:54.225+00:00',
-            discontinuedDate: null,
-            discontinuingReason: null,
+      );
+      await models.EncounterMedication.create(
+        fake(models.EncounterMedication, {
+          encounterId,
+          medicationId: medication10Id,
+          discontinued: null,
+          date: '2022-06-10T01:20:54.225+00:00',
+          discontinuedDate: null,
+          discontinuingReason: null,
         }),
+      );
+      await models.AdministeredVaccine.create(
+        fake(models.AdministeredVaccine, { encounterId, scheduledVaccineId }),
       );
       await models.Procedure.create(fake(models.Procedure, { encounterId }));
 
@@ -294,7 +311,13 @@ describe('fijiAspenMediciReport', () => {
               discontinuingReason: 'It was not enough',
             },
           ],
-          vaccinations: null,
+          vaccinations: [
+            {
+              label: 'Covid Schedule Label',
+              name: 'Covid AZ',
+              schedule: 'Dose 1',
+            },
+          ],
           procedures: [
             {
               name: null, // expect.any(String),
