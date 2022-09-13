@@ -316,8 +316,8 @@ end "encounterType",
 birth_data.birth_weight "weight",
 0 "hoursOfVentilation",
 0 "leaveDays",
-'TODO' "episodeEndStatus",
 'TODO' "visitType",
+ddi."encounterDischargeDisposition" "episodeEndStatus",
 ddi."encounterDischargeDisposition",
 case t.score
   when '1' then  'Emergency'
@@ -325,13 +325,10 @@ case t.score
   when '3' then  'Non-urgent'
   else t.score
 end "triageCategory",
-${
-  "'TODO'"
-  //   case when t.closed_time is null
-  //   then age(t.triage_time)
-  //   else age(t.closed_time, t.triage_time)
-  // end
-} "waitTime",
+case when t.closed_time is null
+    then age(t.triage_time::timestamp)
+    else age(t.closed_time::timestamp, t.triage_time::timestamp)
+end "waitTime",
 di2.department_history "department",
 li.location_history "location",
 e.reason_for_encounter "reasonForEncounter",

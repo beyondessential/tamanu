@@ -145,8 +145,11 @@ describe('fijiAspenMediciReport', () => {
           weight: 2100,
           hoursOfVentilation: 0, // Placeholder - always 0
           leaveDays: 0, // Placeholder - always 0
-          episodeEndStatus: expect.any(String),
           visitType: expect.any(String),
+          episodeEndStatus: {
+            code: 'TRANSFER',
+            name: 'Transfer to another facility',
+          },
           encounterDischargeDisposition: {
             code: 'TRANSFER',
             name: 'Transfer to another facility',
