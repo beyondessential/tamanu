@@ -21,6 +21,9 @@ describe('fijiAspenMediciReport', () => {
       // arrange
       // Data already in the system
       const { id: userId } = await models.User.create(fake(models.User));
+      const { id: facilityId } = await models.Facility.create(fake(models.Facility));
+      const { id: location1Id } = await models.Location.create(fake(models.Location, { facilityId, name: 'Emergency room 1' }));
+      const { id: location2Id } = await models.Location.create(fake(models.Location, { facilityId, name: 'Emergency room 2' }));
       const { id: diagnosisId } = await models.ReferenceData.create(
         fake(models.ReferenceData, { type: REFERENCE_TYPES.ICD10 }),
       );
@@ -60,17 +63,26 @@ describe('fijiAspenMediciReport', () => {
       const { id: encounterId } = await models.Encounter.create(
         fake(models.Encounter, {
           patientId: patient.id,
-          startDate: '2022-06-09T00:02:54.225+00:00',
-          endDate: '2022-06-12T00:02:54.225+00:00',
+          startDate: '2022-06-09T00:02:54.225Z',
+          endDate: '2022-06-12T00:02:54.225+00:00', // Make sure this works
           encounterType: ENCOUNTER_TYPES.ADMISSION,
           reasonForEncounter: 'Severe Migrane',
           patientBillingTypeId,
+          locationId: location1Id,
         }),
       );
       // Call build and save to avoid custom triage.create logic
-      const triage = models.Triage.build(fake(models.Triage, { encounterId, score: 2 }), {
-        options: { raw: true },
-      });
+      const triage = models.Triage.build(
+        fake(models.Triage, {
+          encounterId,
+          score: 2,
+          triageTime: '2022-06-09T02:04:54.225Z',
+          closedTime: '2022-06-09T03:07:54.225Z',
+        }),
+        {
+          options: { raw: true },
+        },
+      );
       await triage.save();
 
       // Data referenced by the encounter
@@ -100,7 +112,7 @@ describe('fijiAspenMediciReport', () => {
         fake(models.NoteItem, {
           notePageId,
           content: 'This is a lab request note',
-          date: '2022-06-09T02:04:54.225+00:00',
+          date: '2022-06-09T02:04:54.225Z',
         }),
       );
       await models.Discharge.create(
@@ -111,6 +123,22 @@ describe('fijiAspenMediciReport', () => {
         }),
       );
 
+      // Location/departments:
+      const encounter = await models.Encounter.findByPk(encounterId);
+      await encounter.update({
+        locationId: location2Id,
+      });
+      const { id: resultantNotePageId } = await models.NotePage.findOne({ where: {
+        noteType: NOTE_TYPES.SYSTEM,
+      }})
+      const systemNoteItem = await models.NoteItem.findOne({ where: {
+        notePageId: resultantNotePageId,
+      }})
+      systemNoteItem.date = '2022-06-09T08:04:54.225Z';
+      await systemNoteItem.save();
+      console.log(systemNoteItem)
+
+      console.log(await models.NoteItem.findAll());
       // act
       const response = await app
         .get(
@@ -162,8 +190,12 @@ describe('fijiAspenMediciReport', () => {
           // Location/Department
           location: [
             {
-              location: null, // expect.any(String),
-              assigned_time: expect.any(String),
+              location: 'Emergency room 1',
+              assigned_time: '2022-06-09T00:02:54.225+00:00',
+            },
+            {
+              location: 'Emergency room 2',
+              assigned_time: '2022-06-09T08:04:54.225+00:00',
             },
           ],
           department: [
