@@ -271,6 +271,22 @@ location_info as (
   on l2.name = nh."to" or l2.name = nh."from" or l2.id = l.id
   where place = 'location' or place is null
   group by e.id, l.name, e.start_date, first_from
+),
+discharge_disposition_info as (
+  select
+    encounter_id,
+    json_build_object(
+      'code', disposition.code,
+      'name', disposition.name
+    ) "encounterDischargeDisposition"
+  from encounters e
+  join discharges d on d.id =
+   (SELECT id
+        FROM discharges
+        WHERE encounter_id = e.id
+        order by updated_at desc
+        LIMIT 1)
+  join reference_data disposition on disposition.id = d.disposition_id
 )
 select
 p.display_id "patientId",
@@ -298,7 +314,7 @@ end "encounterType",
 0 "leaveDays",
 'TODO' "episodeEndStatus",
 'TODO' "visitType",
-'TODO' "encounterDischargeDisposition",
+ddi."encounterDischargeDisposition",
 case t.score
   when '1' then  'Emergency'
   when '2' then  'Priority'
@@ -334,6 +350,7 @@ left join encounter_notes_info ni on ni.encounter_id = e.id
 left join triages t on t.encounter_id = e.id
 left join location_info li on li.encounter_id = e.id
 left join department_info di2 on di2.encounter_id = e.id
+left join discharge_disposition_info ddi on ddi.encounter_id = e.id
 where coalesce(billing.id, '-') like coalesce(:billing_type, '%%')
 and CASE WHEN :department_id IS NOT NULL THEN dept_id_list::jsonb ? :department_id ELSE true end 
 and CASE WHEN :location_id IS NOT NULL THEN loc_id_list::jsonb ? :location_id ELSE true end 

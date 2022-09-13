@@ -19,6 +19,9 @@ describe('fijiAspenMediciReport', () => {
   describe('success', () => {
     it(`Should produce a simple report`, async () => {
       // arrange
+      const { id: userId } = await models.User.create(
+        fake(models.User),
+      );
       const { id: diagnosisId } = await models.ReferenceData.create(
         fake(models.ReferenceData, { type: REFERENCE_TYPES.ICD10 }),
       );
@@ -27,6 +30,13 @@ describe('fijiAspenMediciReport', () => {
       );
       const { id: labTestCategoryId } = await models.ReferenceData.create(
         fake(models.ReferenceData, { type: REFERENCE_TYPES.LAB_TEST_CATEGORY }),
+      );
+      const { id: dischargeDispositionId } = await models.ReferenceData.create(
+        fake(models.ReferenceData, {
+          type: REFERENCE_TYPES.DISCHARGE_DISPOSITION,
+          code: 'TRANSFER',
+          name: 'Transfer to another facility',
+        }),
       );
       const { id: labTestTypeId } = await models.LabTestType.create(
         fake(models.LabTestType, {
@@ -80,6 +90,13 @@ describe('fijiAspenMediciReport', () => {
           date: '2022-06-09T02:04:54.225+00:00',
         }),
       );
+      await models.Discharge.create(
+        fake(models.Discharge, {
+          encounterId,
+          dischargerId: userId,
+          dispositionId: dischargeDispositionId,
+        }),
+      );
 
       // act
       const response = await app
@@ -117,7 +134,10 @@ describe('fijiAspenMediciReport', () => {
           leaveDays: 0, // Placeholder - always 0
           episodeEndStatus: expect.any(String),
           visitType: expect.any(String),
-          encounterDischargeDisposition: expect.any(String),
+          encounterDischargeDisposition: {
+            code: 'TRANSFER',
+            name: 'Transfer to another facility',
+          },
 
           // Triage Details
           triageCategory: 'Priority',
