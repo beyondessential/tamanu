@@ -298,7 +298,16 @@ end "encounterType",
 birth_data.birth_weight "weight",
 0 "hoursOfVentilation",
 0 "leaveDays",
-'TODO' "visitType",
+case e.encounter_type
+    when 'triage' then  'Triage'
+    when 'observation' then  'Active ED patient'
+    when 'emergency' then  'Emergency short stay'
+    when 'admission' then  'Hospital admission'
+    when 'clinic' then 'Clinic'
+    when 'imaging' then 'Imaging'
+    when 'surveyResponse' then 'Survey response'
+    else e.encounter_type
+end "visitType",
 ddi."encounterDischargeDisposition" "episodeEndStatus",
 ddi."encounterDischargeDisposition",
 case t.score

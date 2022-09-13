@@ -338,7 +338,7 @@ describe('fijiAspenMediciReport', () => {
           weight: 2100,
           hoursOfVentilation: 0, // Placeholder - always 0
           leaveDays: 0, // Placeholder - always 0
-          visitType: expect.any(String),
+          visitType: 'Hospital admission',
           episodeEndStatus: {
             code: 'TRANSFER',
             name: 'Transfer to another facility',
