@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import * as yup from 'yup';
 import { Typography } from '@material-ui/core';
 import styled from 'styled-components';
+import { differenceInYears, differenceInMonths } from 'date-fns';
 import MuiBox from '@material-ui/core/Box';
+import { MANNER_OF_DEATHS, MANNER_OF_DEATH_OPTIONS } from 'shared/constants';
 import { ageInMonths, ageInYears } from 'shared/utils/dateTime';
 import {
   ArrayField,
@@ -140,22 +142,6 @@ const PLACES = [
 ];
 
 const placeOptions = Object.values(PLACES).map(type => ({
-  label: type,
-  value: type,
-}));
-
-const MANNER_OF_DEATHS = [
-  'Disease',
-  'Assault',
-  'Accident',
-  'Legal Intervention',
-  'Pending Investigation',
-  'Intentional Self Harm',
-  'War',
-  'Unknown/Could not be determined',
-];
-
-const mannerOfDeathOptions = Object.values(MANNER_OF_DEATHS).map(type => ({
   label: type,
   value: type,
 }));
@@ -338,7 +324,7 @@ export const DeathForm = React.memo(
             name="mannerOfDeath"
             label="What was the manner of death?"
             component={SelectField}
-            options={mannerOfDeathOptions}
+            options={MANNER_OF_DEATH_OPTIONS}
             required
           />
           <Field

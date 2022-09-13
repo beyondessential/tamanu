@@ -1,4 +1,4 @@
-import moment from 'moment';
+import { formatInTimeZone } from 'date-fns-tz';
 import { transliterate as tr } from 'transliteration';
 import { log } from 'shared/services/logging';
 
@@ -29,8 +29,8 @@ const METHOD_CODE = {
   RDT: 'antigen',
 };
 
-const MOMENT_FORMAT_ISODATE = 'YYYY-MM-DD';
-const MOMENT_FORMAT_RFC3339 = 'YYYY-MM-DDTHH:mm:ssZ';
+const DATE_FORMAT_ISODATE = 'yyyy-MM-dd';
+const DATE_FORMAT_RFC3339 = "yyyy-MM-dd'T'HH:mm:ssxxx";
 
 export const createVdsNcVaccinationData = async (patientId, { models }) => {
   const {
@@ -152,9 +152,7 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
     }
 
     const event = {
-      dvc: moment(date)
-        .tz(timeZone)
-        .format(MOMENT_FORMAT_ISODATE),
+      dvc: formatInTimeZone(date, timeZone, DATE_FORMAT_ISODATE),
       seq: SCHEDULE_TO_SEQUENCE[schedule],
       ctr: countryCode,
       lot: batch || 'Unknown', // If batch number was not recorded, we add a indicative string value to complete ICAO validation
@@ -282,12 +280,8 @@ export const createVdsNcTestData = async (labTestId, { models }) => {
       },
     },
     dat: {
-      sc: moment(request.sampleTime)
-        .utc()
-        .format(MOMENT_FORMAT_RFC3339),
-      ri: moment(test.completedDate)
-        .utc()
-        .format(MOMENT_FORMAT_RFC3339),
+      sc: formatInTimeZone(request.sampleTime, 'UTC', DATE_FORMAT_RFC3339),
+      ri: formatInTimeZone(test.completedDate, 'UTC', DATE_FORMAT_RFC3339),
     },
     tr: {
       tc: METHOD_CODE[method.code] ?? method.code,

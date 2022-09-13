@@ -151,14 +151,20 @@ describe('Admissions report', () => {
         departmentId: expectedDepartment2.id,
       });
 
-      const departmentChangeNote = await models.Note.findOne({
+      const departmentChangeNotePage = await models.NotePage.findOne({
+        include: [
+          {
+            model: models.NoteItem,
+            as: 'noteItems',
+          },
+        ],
         where: {
           recordId: expectedEncounter.id,
           noteType: 'system',
         },
       });
 
-      await departmentChangeNote.update({
+      await departmentChangeNotePage.noteItems?.[0].update({
         date: new Date(2021, 1, 20, 11, 10),
       });
 

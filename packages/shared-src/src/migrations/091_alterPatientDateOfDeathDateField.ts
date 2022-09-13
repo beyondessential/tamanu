@@ -1,7 +1,7 @@
 import { QueryInterface, DataTypes } from 'sequelize';
 
 const TABLE_NAME = 'patients';
-const ISO9075_DATE_TIME_FMT = 'YYYY-MM-DD HH:mm:ss';
+const ISO9075_DATE_TIME_FMT = 'YYYY-MM-DD HH24:MI:SS';
 
 export async function up(query: QueryInterface) {
   // 1. Create legacy columns

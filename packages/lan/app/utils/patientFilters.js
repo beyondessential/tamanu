@@ -1,4 +1,5 @@
-import moment from 'moment';
+import config from 'config';
+import { sub, startOfDay, endOfDay } from 'date-fns';
 import { makeFilter } from './query';
 
 export const createPatientFilters = filterParams => {
@@ -31,35 +32,25 @@ export const createPatientFilters = filterParams => {
     ),
     // For age filter
     makeFilter(filterParams.ageMax, `DATE(patients.date_of_birth) >= DATE(:dobMin)`, ({ ageMax }) => ({
-      dobMin: moment()
-        .startOf('day')
-        .subtract(ageMax + 1, 'years')
-        .add(1, 'day')
-        .toDate(),
+      // Subtract the number of years, but add one day
+        dobMin: sub(new Date(), { years: ageMax + 1, days: -1 }),
     })),
     makeFilter(filterParams.ageMin, `DATE(patients.date_of_birth) <= DATE(:dobMax)`, ({ ageMin }) => ({
-      dobMax: moment()
-        .startOf('day')
-        .subtract(ageMin, 'years')
-        .toDate(),
+      dobMax: sub(new Date(), { years: ageMin }),
     })),
     // For DOB filter
     makeFilter(
       filterParams.dateOfBirthFrom,
       `DATE(patients.date_of_birth) >= :dateOfBirthFrom`,
       ({ dateOfBirthFrom }) => ({
-        dateOfBirthFrom: moment(dateOfBirthFrom)
-          .startOf('day')
-          .toISOString(),
+        dateOfBirthFrom: startOfDay(dateOfBirthFrom).toISOString(),
       }),
     ),
     makeFilter(
       filterParams.dateOfBirthTo,
       `DATE(patients.date_of_birth) <= :dateOfBirthTo`,
       ({ dateOfBirthTo }) => ({
-        dateOfBirthTo: moment(dateOfBirthTo)
-          .endOf('day')
-          .toISOString(),
+        dateOfBirthTo: endOfDay(dateOfBirthTo).toISOString(),
       }),
     ),
     makeFilter(
@@ -72,7 +63,10 @@ export const createPatientFilters = filterParams => {
     makeFilter(filterParams.villageId, `patients.village_id = :villageId`),
     makeFilter(filterParams.locationId, `location.id = :locationId`),
     makeFilter(filterParams.departmentId, `department.id = :departmentId`),
-    makeFilter(filterParams.facilityId, `department.facility_id = :facilityId`),
+    makeFilter(
+      filterParams.facilityId === ':local' ? config.serverFacilityId : filterParams.facilityId,
+      `department.facility_id = :facilityId`,
+    ),
     makeFilter(filterParams.inpatient, `encounters.encounter_type = 'admission'`),
     makeFilter(filterParams.outpatient, `encounters.encounter_type = 'clinic'`),
     makeFilter(filterParams.clinicianId, `encounters.examiner_id = :clinicianId`),

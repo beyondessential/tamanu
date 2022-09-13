@@ -1,5 +1,5 @@
 import Chance from 'chance';
-import moment from 'moment';
+import { subMinutes } from 'date-fns';
 
 import { ENCOUNTER_TYPES } from '../constants';
 import { generateId } from '../utils/generateId';
@@ -71,9 +71,7 @@ export function randomVitals(overrides) {
 }
 
 export async function createDummyTriage(models, overrides) {
-  const arrivalTime = moment()
-    .subtract(chance.integer({ min: 2, max: 80 }), 'minutes')
-    .toDate();
+  const arrivalTime = subMinutes(new Date(), chance.integer({ min: 2, max: 80 }));
   return {
     score: chance.integer({ min: 1, max: 5 }),
     notes: chance.sentence(),

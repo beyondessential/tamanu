@@ -1,6 +1,6 @@
 import { keyBy } from 'lodash';
 import { Op } from 'sequelize';
-import moment from 'moment';
+import { isAfter, format, differenceInYears, parse } from 'date-fns';
 import { REFERRAL_STATUSES } from '../../constants';
 import { generateReportFromQueryData, getAnswers } from '../utilities';
 import {
@@ -82,7 +82,7 @@ const sortReferrals = (r1, r2) => {
   return (
     patientId1.localeCompare(patientId2) ||
     surveyGroupKey1.localeCompare(surveyGroupKey2) ||
-    moment(responseTime1).isAfter(responseTime2)
+    isAfter(responseTime1, responseTime2)
   );
 };
 
@@ -100,7 +100,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
   );
   const patientById = await getPatientById(models, rawAnswers);
   const answersByPatientSurveyDataElement = keyBy(filteredAnswers, a => {
-    const responseDate = moment(a.responseEndTime).format('DD-MM-YYYY');
+    const responseDate = format(a.responseEndTime, 'dd-MM-yyyy');
     const surveyGroupKey = getSurveyGroupKey(a.surveyId);
     return getPerPatientPerSurveyPerDatePerElementKey(
       a.patientId,
@@ -123,7 +123,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
     const { patientId } = referral.initiatingEncounter;
     const patient = patientById[patientId];
     const patientAdditionalData = patient.additionalData?.[0];
-    const referralDate = moment(referralSurveyResponse.endTime).format('DD-MM-YYYY');
+    const referralDate = format(referralSurveyResponse.endTime, 'dd-MM-yyyy');
     const { surveyId } = referralSurveyResponse;
     const surveyGroupKey = getSurveyGroupKey(surveyId);
     const age = patient.dateOfBirth ? ageInYears(patient.dateOfBirth) : '';
@@ -174,7 +174,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
       if (!date1 && !date2) return 0;
 
       // Sort oldest to most recent
-      return moment(date1, 'DD-MM-YYYY') - moment(date2, 'DD-MM-YYYY');
+      return parse(date1, 'dd-MM-yyyy', new Date()) - parse(date2, 'dd-MM-yyyy', new Date());
     },
   );
 

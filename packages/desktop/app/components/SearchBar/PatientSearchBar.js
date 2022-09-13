@@ -12,7 +12,6 @@ import {
 import { useSuggester } from '../../api';
 
 export const PatientSearchBar = React.memo(({ onSearch, suggestByFacility = true }) => {
-  const facilitySuggester = useSuggester('facility');
   const locationSuggester = useSuggester('location', {
     baseQueryParameters: suggestByFacility ? { filterByFacility: true } : {},
   });
@@ -29,6 +28,7 @@ export const PatientSearchBar = React.memo(({ onSearch, suggestByFacility = true
       onSearch={onSearch}
       initialValues={{ displayIdExact: true }}
     >
+      <input name="facilityId" type="hidden" value=":local" />
       <LocalisedField name="firstName" />
       <LocalisedField name="lastName" />
       <Field
@@ -39,12 +39,6 @@ export const PatientSearchBar = React.memo(({ onSearch, suggestByFacility = true
         saveDateAsString
       />
       <DisplayIdField />
-      <LocalisedField
-        name="facilityId"
-        defaultLabel="Facility"
-        component={AutocompleteField}
-        suggester={facilitySuggester}
-      />
       <LocalisedField
         name="locationId"
         defaultLabel="Location"

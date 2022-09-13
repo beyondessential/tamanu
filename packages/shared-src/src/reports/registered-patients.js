@@ -1,4 +1,5 @@
 import { Sequelize, Op } from 'sequelize';
+import { format } from 'date-fns';
 import { generateReportFromQueryData } from './utilities';
 import { toDateString } from '../utils/dateTime';
 
