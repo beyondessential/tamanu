@@ -15,7 +15,6 @@ import { EncounterProvider } from './contexts/Encounter';
 import { LabRequestProvider } from './contexts/LabRequest';
 import { LocalisationProvider } from './contexts/Localisation';
 import { ReferralProvider } from './contexts/Referral';
-import { ElectronProvider } from './contexts/ElectronProvider';
 import { ImagingRequestsProvider } from './contexts/ImagingRequests';
 import { PatientSearchProvider } from './contexts/PatientSearch';
 import { EncounterNotesProvider } from './contexts/EncounterNotes';
@@ -56,7 +55,6 @@ export default function Root({ api, store, history }) {
                 <ThemeProvider theme={theme}>
                   <StateContextProviders store={store}>
                     <ReactQueryDevtools initialIsOpen={false} />
-                    <ElectronProvider>
                       <ToastContainer
                         hideProgressBar
                         transition={Slide}
@@ -70,7 +68,6 @@ export default function Root({ api, store, history }) {
                       />
                       <CssBaseline />
                       <RoutingApp />
-                    </ElectronProvider>
                   </StateContextProviders>
                 </ThemeProvider>
               </MuiThemeProvider>

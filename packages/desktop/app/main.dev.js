@@ -16,20 +16,20 @@ import installExtension, {
 
 import { findCountryLocales } from 'iso-lang-codes';
 
-// production only
-import sourceMapSupport from 'source-map-support';
+// // production only
+// import sourceMapSupport from 'source-map-support';
 
-// debug only
-// TODO: exclude these from production builds entirely
-import electronDebug from 'electron-debug';
+// // debug only
+// // TODO: exclude these from production builds entirely
+// import electronDebug from 'electron-debug';
 
-import MenuBuilder from './menu';
-import { registerPrintListener } from './print';
+// import MenuBuilder from './menu';
+// import { registerPrintListener } from './print';
 
 let mainWindow = null;
 
-const isProduction = process.env.NODE_ENV === 'production';
-const isDebug = process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
+// const isProduction = process.env.NODE_ENV === 'production';
+// const isDebug = process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
 
 if (isProduction) {
   sourceMapSupport.install();
@@ -41,17 +41,13 @@ if (isDebug) {
   electronDebug({ isEnabled: true });
 }
 
-/**
- * Add event listeners...
- */
+// // if (isDebug) { temporarily allowing debug on prod
+// electronDebug({ isEnabled: true });
+// // }
 
-app.on('window-all-closed', () => {
-  // Respect the OSX convention of having the application in memory even
-  // after all windows have been closed
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
+// /**
+//  * Add event listeners...
+//  */
 
 app.on('ready', async () => {
   // testers can run multiple instances of the app mode by passing the --multi-window flag
@@ -87,11 +83,10 @@ app.on('ready', async () => {
   const osLocales = findCountryLocales(app.getLocaleCountryCode());
   global.osLocales = osLocales;
 
-  const htmlLocation =
-    __dirname.indexOf('dist') > 0
-      ? `file://${__dirname}/../app.html`
-      : `file://${__dirname}/app.html`;
-  mainWindow.loadURL(htmlLocation);
+//   // The most accurate method of getting locale in electron is getLocaleCountryCode
+//   // which unlike getLocale is determined by native os settings
+//   const osLocales = findCountryLocales(app.getLocaleCountryCode())
+//   global.osLocales = osLocales;
 
   ipcMain.handle('update-available', (_event, host) => {
     const autoUpdater = new NsisUpdater({
@@ -106,18 +101,17 @@ app.on('ready', async () => {
     autoUpdater.checkForUpdatesAndNotify(notificationDetails);
   });
 
-  // @TODO: Use 'ready-to-show' event
-  //        https://github.com/electron/electron/blob/master/docs/api/browser-window.md#using-ready-to-show-event
-  mainWindow.webContents.on('did-finish-load', () => {
-    if (!mainWindow) {
-      throw new Error('"mainWindow" is not defined');
-    }
-    if (process.env.START_MINIMIZED) {
-      mainWindow.minimize();
-    } else {
-      mainWindow.showInactive();
-    }
-  });
+//   mainWindow.on('ready-to-show', () => {
+//     const notificationDetails = {
+//       title: 'A new update is ready to install',
+//       body: `To update to {version}, please close {appName} and wait for 30 seconds before re-opening.`,
+//     };
+//     autoUpdater.checkForUpdatesAndNotify(notificationDetails);
+//     setInterval(
+//       () => autoUpdater.checkForUpdatesAndNotify(notificationDetails),
+//       UPDATE_CHECK_INTERVAL,
+//     );
+//   });
 
   // To open redirect link in default browser
   mainWindow.webContents.on('new-window', function(e, url) {
@@ -129,9 +123,9 @@ app.on('ready', async () => {
     mainWindow = null;
   });
 
-  const menuBuilder = new MenuBuilder(mainWindow);
-  menuBuilder.buildMenu();
-});
+//   mainWindow.on('closed', () => {
+//     mainWindow = null;
+//   });
 
 app.on('second-instance', () => {
   // This is called when a second instance of the app is attempted to be run (i.e., when it calls
@@ -153,4 +147,12 @@ if (isDebug) {
   });
 }
 
-registerPrintListener();
+// // if (isDebug) {
+// app.whenReady().then(() => {
+//   installExtension([REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS])
+//     .then(name => console.log(`Added Extension:  ${name}`))
+//     .catch(err => console.log('An error occurred: ', err));
+// });
+// // }
+
+// registerPrintListener();

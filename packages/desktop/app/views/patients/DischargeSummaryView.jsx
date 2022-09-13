@@ -12,7 +12,6 @@ import { useApi, isErrorUnknownAllow404s } from '../../api';
 import { Button } from '../../components/Button';
 import { DateDisplay, getDateDisplay } from '../../components/DateDisplay';
 import { useEncounter } from '../../contexts/Encounter';
-import { useElectron } from '../../contexts/Electron';
 import { Colors } from '../../constants';
 import { useCertificate } from '../../utils/useCertificate';
 import { getDepartmentName } from '../../utils/department';
@@ -360,7 +359,6 @@ export const DischargeSummaryView = React.memo(() => {
   const api = useApi();
   const [discharge, setDischarge] = useState(null);
   const { encounter } = useEncounter();
-  const { printPage } = useElectron();
 
   useEffect(() => {
     (async () => {
@@ -387,7 +385,7 @@ export const DischargeSummaryView = React.memo(() => {
           variant="outlined"
           color="primary"
           size="small"
-          onClick={() => printPage()}
+          // onClick={() => printPage()} // TODO(web)
           startIcon={<PrintIcon />}
         >
           Print Summary

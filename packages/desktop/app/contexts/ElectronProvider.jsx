@@ -1,6 +1,4 @@
 import React from 'react';
-import { shell } from 'electron';
-import { readFile, writeFile, stat } from 'fs/promises';
 
 import { ElectronContext } from './Electron';
 
@@ -12,11 +10,9 @@ export const ElectronProvider = ({ children }) => {
   const { dialog } = require('@electron/remote');
 
   // just pass directly to electron
-  const showOpenDialog = (...args) => dialog.showOpenDialog(...args);
-  const showSaveDialog = (...args) => dialog.showSaveDialog(...args);
-  const openPath = path => shell.openPath(path);
-  const showItemInFolder = path => shell.showItemInFolder(path);
-  const openUrl = url => shell.openExternal(url);
+  const showOpenDialog = (...args) => {};
+  const showSaveDialog = (...args) => {};
+  const openPath = path => {};
 
   return (
     <ElectronContext.Provider

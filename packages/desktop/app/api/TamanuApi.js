@@ -1,4 +1,3 @@
-import { promises } from 'fs';
 import qs from 'qs';
 import { ipcRenderer } from 'electron';
 
@@ -158,6 +157,7 @@ export class TamanuApi {
       { returnResponse: true },
     );
     const serverType = response.headers.get('X-Tamanu-Server');
+
     if (![SERVER_TYPES.LAN, SERVER_TYPES.SYNC].includes(serverType)) {
       throw new Error(`Tamanu server type '${serverType}' is not supported.`);
     }
@@ -292,7 +292,9 @@ export class TamanuApi {
   }
 
   async postWithFileUpload(endpoint, filePath, body, options = {}) {
-    const fileData = await promises.readFile(filePath);
+    // const fileData = await promises.readFile(filePath);
+    // TODO(web)
+    const fileData = {};
     const blob = new Blob([fileData]);
 
     // We have to use multipart/formdata to support sending the file data,

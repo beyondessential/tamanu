@@ -1,5 +1,5 @@
 import React from 'react';
-import { render } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { persistStore } from 'redux-persist';
 
 import Root from './Root';
@@ -50,10 +50,10 @@ function start() {
 
   const persistor = initPersistor(API, store);
 
-  render(
-    <Root api={API} persistor={persistor} store={store} history={history} />,
-    document.getElementById('root'),
-  );
+  const container = document.getElementById('root');
+
+  const root = createRoot(container); // createRoot(container!) if you use TypeScript
+  root.render(<Root api={API} persistor={persistor} store={store} history={history} />);
 }
 
 start();

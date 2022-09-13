@@ -1,41 +1,41 @@
-import { app, Menu, shell } from 'electron';
+// import { app, Menu, shell } from 'electron';
 
-export default class MenuBuilder {
-  mainWindow;
+// export default class MenuBuilder {
+//   mainWindow;
 
-  constructor(mainWindow) {
-    this.mainWindow = mainWindow;
-  }
+//   constructor(mainWindow) {
+//     this.mainWindow = mainWindow;
+//   }
 
-  buildMenu() {
-    if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
-      this.setupDevelopmentEnvironment();
-    }
+//   buildMenu() {
+//     if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
+//       this.setupDevelopmentEnvironment();
+//     }
 
-    const template =
-      process.platform === 'darwin' ? this.buildDarwinTemplate() : this.buildDefaultTemplate();
+//     const template =
+//       process.platform === 'darwin' ? this.buildDarwinTemplate() : this.buildDefaultTemplate();
 
-    const menu = Menu.buildFromTemplate(template);
-    Menu.setApplicationMenu(menu);
+//     const menu = Menu.buildFromTemplate(template);
+//     Menu.setApplicationMenu(menu);
 
-    return menu;
-  }
+//     return menu;
+//   }
 
-  setupDevelopmentEnvironment() {
-    this.mainWindow.openDevTools();
-    this.mainWindow.webContents.on('context-menu', (e, props) => {
-      const { x, y } = props;
+//   setupDevelopmentEnvironment() {
+//     this.mainWindow.openDevTools();
+//     this.mainWindow.webContents.on('context-menu', (e, props) => {
+//       const { x, y } = props;
 
-      Menu.buildFromTemplate([
-        {
-          label: 'Inspect element',
-          click: () => {
-            this.mainWindow.inspectElement(x, y);
-          },
-        },
-      ]).popup(this.mainWindow);
-    });
-  }
+//       Menu.buildFromTemplate([
+//         {
+//           label: 'Inspect element',
+//           click: () => {
+//             this.mainWindow.inspectElement(x, y);
+//           },
+//         },
+//       ]).popup(this.mainWindow);
+//     });
+//   }
 
   buildDarwinTemplate() {
     const subMenuAbout = {
@@ -133,10 +133,10 @@ export default class MenuBuilder {
       ],
     };
 
-    const subMenuView = process.env.NODE_ENV === 'development' ? subMenuViewDev : subMenuViewProd;
+//     const subMenuView = process.env.NODE_ENV === 'development' ? subMenuViewDev : subMenuViewProd;
 
-    return [subMenuAbout, subMenuEdit, subMenuView, subMenuWindow, subMenuHelp];
-  }
+//     return [subMenuAbout, subMenuEdit, subMenuView, subMenuWindow, subMenuHelp];
+//   }
 
   buildDefaultTemplate() {
     const templateDefault = [
@@ -206,6 +206,6 @@ export default class MenuBuilder {
       },
     ];
 
-    return templateDefault;
-  }
-}
+//     return templateDefault;
+//   }
+// }

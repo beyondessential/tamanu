@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
 import { useLocalisation } from '../../../contexts/Localisation';
-import { useElectron } from '../../../contexts/Electron';
 import { SEX_VALUE_INDEX } from '../../../constants';
 import { DateDisplay } from '../../DateDisplay';
 
@@ -132,22 +131,22 @@ const PatientPhoto = ({ imageData }) => (
 );
 
 export const PatientIDCardPage = ({ patient, imageData }) => {
-  const { printPage } = useElectron();
+  // const { printPage } = useElectron();
   const { getLocalisation } = useLocalisation();
   const measures = getLocalisation('printMeasures.idCardPage');
-  useEffect(() => {
-    printPage({
-      landscape: true,
-      margins: {
-        marginType: 'none',
-      },
-      pageSize: {
-        // it expects dimensions in microns
-        height: cardDimensions.width * 1000,
-        width: cardDimensions.height * 1000,
-      },
-    });
-  }, [printPage]);
+  // useEffect(() => {
+  //   printPage({
+  //     landscape: true,
+  //     margins: {
+  //       marginType: 'none',
+  //     },
+  //     pageSize: {
+  //       // it expects dimensions in microns
+  //       height: cardDimensions.width * 1000,
+  //       width: cardDimensions.height * 1000,
+  //     },
+  //   });
+  // }, [printPage]);
 
   return (
     <PrintPortal>
