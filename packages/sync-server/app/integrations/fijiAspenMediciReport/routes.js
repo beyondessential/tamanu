@@ -353,7 +353,7 @@ routes.get(
   '/',
   asyncHandler(async (req, res) => {
     const { sequelize } = req.store;
-    const { 'period.start': fromDate, 'period.end': toDate } = req.params;
+    const { 'period.start': fromDate, 'period.end': toDate } = req.query;
 
     const data = await sequelize.query(reportQuery, {
       type: QueryTypes.SELECT,
