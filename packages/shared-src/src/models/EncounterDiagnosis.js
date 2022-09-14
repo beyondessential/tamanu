@@ -15,7 +15,7 @@ export class EncounterDiagnosis extends Model {
         },
         isPrimary: Sequelize.BOOLEAN,
         date: {
-          type: Sequelize.DATE,
+          type: 'date_time_string', // TODO: Magic string
           allowNull: false,
           defaultValue: Sequelize.NOW,
         },
