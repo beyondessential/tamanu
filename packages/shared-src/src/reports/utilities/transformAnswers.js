@@ -1,4 +1,4 @@
-import moment from 'moment';
+import { format, differenceInMilliseconds } from 'date-fns';
 import { keyBy, groupBy } from 'lodash';
 
 const MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE = {
@@ -36,8 +36,8 @@ const convertBinaryToYesNo = answer => {
   }
 };
 
-const convertDateAnswer = (answer, { dateFormat = 'DD-MM-YYYY' }) =>
-  answer ? moment(answer).format(dateFormat) : '';
+const convertDateAnswer = (answer, { dateFormat = 'dd-MM-yyyy' }) =>
+  answer ? format(new Date(answer), dateFormat) : '';
 
 export const getAnswerBody = async (models, componentConfig, type, answer, transformConfig) => {
   switch (type) {
@@ -115,7 +115,7 @@ export const takeMostRecentAnswers = answers => {
   const results = [];
   for (const groupedAnswers of Object.values(answersPerElement)) {
     const sortedLatestToOldestAnswers = groupedAnswers.sort((a1, a2) =>
-      moment(a2.responseEndTime).diff(moment(a1.responseEndTime)),
+      differenceInMilliseconds(a2.responseEndTime, a1.responseEndTime),
     );
     results.push(sortedLatestToOldestAnswers[0]);
   }
