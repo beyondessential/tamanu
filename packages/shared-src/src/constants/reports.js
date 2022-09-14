@@ -13,3 +13,8 @@ export const REPORT_DATA_SOURCES = {
 };
 
 export const REPORT_DATA_SOURCE_VALUES = Object.values(REPORT_DATA_SOURCES);
+
+export const REPORT_EXPORT_FORMATS = {
+  XLSX: 'xlsx',
+  CSV: 'csv',
+};
