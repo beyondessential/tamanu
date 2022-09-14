@@ -224,7 +224,8 @@ export class TamanuApi {
         throw new Error(versionIncompatibleMessage);
       }
     }
-    throw new Error(error?.message || response.status);
+    const message = error?.message || response.status;
+    throw new Error(`Facility server error response: ${message}`);
   }
 
   async get(endpoint, query, options = {}) {
