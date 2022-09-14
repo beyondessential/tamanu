@@ -15,7 +15,7 @@ const useColumns = () => {
 
   return [
     {
-      key: 'score',
+      key: 'arrivalTime',
       title: 'Wait time',
       // Cell color cannot be set on the component due to the way table cells are configured so the
       // cell color must be calculated and set in the table config separately
