@@ -102,7 +102,7 @@ const Screen = ({ navigation, selectedPatient }: BaseAppProps): ReactElement => 
               fontSize={screenPercentageToDP(2, Orientation.Height)}
             >
               {`${getGender(selectedPatient.sex)}, `}
-              {`${getAgeFromDate(new Date(selectedPatient.dateOfBirth))} years old`}
+              {`${getAgeFromDate(selectedPatient.dateOfBirth)} years old`}
             </StyledText>
           </StyledView>
         </RowView>

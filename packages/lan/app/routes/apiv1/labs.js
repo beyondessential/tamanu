@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import moment from 'moment';
+import { startOfDay, endOfDay } from 'date-fns';
 import { QueryTypes, Sequelize } from 'sequelize';
 
 import { NotFoundError, InvalidOperationError } from 'shared/errors';
@@ -91,18 +91,14 @@ labRequest.get(
         filterParams.requestedDateFrom,
         `DATE(lab_requests.requested_date) >= :requestedDateFrom`,
         ({ requestedDateFrom }) => ({
-          requestedDateFrom: moment(requestedDateFrom)
-            .startOf('day')
-            .toISOString(),
+          requestedDateFrom: startOfDay(requestedDateFrom).toISOString(),
         }),
       ),
       makeFilter(
         filterParams.requestedDateTo,
         `DATE(lab_requests.requested_date) <= :requestedDateTo`,
         ({ requestedDateTo }) => ({
-          requestedDateTo: moment(requestedDateTo)
-            .endOf('day')
-            .toISOString(),
+          requestedDateTo: endOfDay(requestedDateTo).toISOString(),
         }),
       ),
     ].filter(f => f);
