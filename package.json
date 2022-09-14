@@ -50,7 +50,8 @@
       "packages/sync-server",
       "packages/meta-server",
       "packages/shared",
-      "packages/shared-src"
+      "packages/shared-src",
+      "packages/fhir-models"
     ],
     "nohoist": [
       "**/webpack",
