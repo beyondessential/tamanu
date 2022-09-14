@@ -1,5 +1,5 @@
-import moment from 'moment';
-import { chance } from '../../../chance';
+import { addMinutes } from 'date-fns';
+import { chance } from 'chance';
 
 export const insertSurveyResponse = async (
   { SurveyResponse, SurveyResponseAnswer },
@@ -11,7 +11,7 @@ export const insertSurveyResponse = async (
     encounterId,
     surveyId: survey.id,
     startTime,
-    endTime: moment(startTime).add(10, 'minutes'),
+    endTime: addMinutes(startTime, 10),
   });
 
   const readableAnswers = generateAnswers(setupData);
