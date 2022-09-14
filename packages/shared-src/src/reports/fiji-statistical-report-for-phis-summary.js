@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign, camelcase, no-unused-vars */
 
-import moment from 'moment';
+import { format, differenceInMilliseconds } from 'date-fns';
 import { groupBy } from 'lodash';
 
 import { generateReportFromQueryData } from './utilities';
@@ -329,9 +329,11 @@ export const dataGenerator = async ({ sequelize }, parameters = {}) => {
   const reportData = Object.entries(groupBy(results, 'date'))
     .map(([date, resultsForDate]) => transformResultsForDate(date, resultsForDate))
     // Sort oldest to most recent
-    .sort(({ date: date1 }, { date: date2 }) => moment(date1) - moment(date2))
+    .sort(({ date: date1 }, { date: date2 }) =>
+      differenceInMilliseconds(new Date(date1), new Date(date2)),
+    )
     .map(({ date, ...otherFields }) => ({
-      date: moment(date).format('DD-MM-YYYY'),
+      date: format(new Date(date), 'dd-MM-yyyy'),
       ...otherFields,
     }));
 

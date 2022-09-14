@@ -98,14 +98,19 @@ class BaseAutocomplete extends Component {
 
   handleSuggestionChange = option => {
     const { onChange, name } = this.props;
-    const { value } = option;
+    const { value, label } = option;
 
     onChange({ target: { value, name } });
-    return value;
+    return label;
   };
 
-  fetchOptions = async ({ value }) => {
+  fetchOptions = async ({ value, reason }) => {
     const { suggester, options } = this.props;
+
+    if (reason === 'suggestion-selected') {
+      this.clearOptions();
+      return;
+    }
 
     const suggestions = suggester
       ? await suggester.fetchSuggestions(value)
