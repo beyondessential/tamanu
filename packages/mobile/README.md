@@ -25,6 +25,7 @@ The rest of the Tamanu system is in [a separate monorepo](https://github.com/bey
 - [Run MockServer](#Run-Mockserver)
 - [Base App Structure](#Base-app-structure)
   - [Configuration files](#File-configurations)
+  - [Migration files](#Migrations)
 
 ## Install
 
@@ -236,3 +237,14 @@ App folder structure:
 | android | Gradle configuration, debug signing key  |
 | ios | Pods (cocoa-pods) installed. Some RN libraries require a native syncing that is done by running "pod install" in this folder. |
 | _mocks_ | fixed mocks for jest test runner  |
+
+#### Migrations
+The sqlite instance on mobile is kept up to date using TypeORM migration files, these are stored in `App/migrations`
+
+Run the following command to generate a new template migration and automatically add it to the `App/migrations/index.ts` file:
+
+```
+yarn migrate-create <migration_name>
+```
+
+The migration file will include the current unix timestamp, all migrations will be run in chronological order

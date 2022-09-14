@@ -5,8 +5,8 @@ export function formatDate(date: Date, dateFormat: string): string {
   return format(date, dateFormat);
 }
 
-export function getAgeFromDate(date: Date): number {
-  return differenceInYears(new Date(), new Date(date));
+export function getAgeFromDate(date: string): number {
+  return differenceInYears(new Date(), parseISO9075(date));
 }
 
 export function formatStringDate(date: string, dateFormat: string): string {
