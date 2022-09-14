@@ -7,6 +7,7 @@ import {
 import { DevSettings } from 'react-native';
 import { MODELS_ARRAY, MODELS_MAP } from '~/models/modelsMap';
 import { clear } from '~/services/config';
+import { migrationList } from '~/migrations';
 
 const LOG_LEVELS = __DEV__ ? [
   'error' as const,
@@ -21,6 +22,7 @@ const CONNECTION_CONFIG = {
   logging: LOG_LEVELS,
   synchronize: false,
   entities: MODELS_ARRAY,
+  migrations: migrationList,
 } as const;
 
 const TEST_CONNECTION_CONFIG = {
@@ -60,7 +62,7 @@ class DatabaseHelper {
       // pointed to the table being altered, the query will fail)
       await this.client.query(`PRAGMA foreign_keys = OFF;`);
 
-      await this.client.synchronize();
+      await this.client.runMigrations();
       console.log("Synchronising database schema: OK");
       this.syncError = null;
     } catch(e) {
