@@ -1,15 +1,3 @@
-export const MEDICATION_STATUSES = {
-  COMPLETED: 'Completed',
-  FULFILLED: 'Fulfilled',
-  REQUESTED: 'Requested',
-};
-
-export const OPERATION_PLAN_STATUSES = {
-  PLANNED: 'Planned',
-  DROPPED: 'Dropped',
-  COMPLETED: 'Completed',
-};
-
 export const IMAGING_REQUEST_STATUS_TYPES = {
   PENDING: 'pending',
   IN_PROGRESS: 'in_progress',
@@ -26,7 +14,7 @@ export const IMAGING_REQUEST_STATUS_OPTIONS = Object.values(IMAGING_REQUEST_STAT
   s => ({
     label: IMAGING_REQUEST_STATUS_LABELS[s],
     value: s,
-  })
+  }),
 );
 
 export const APPOINTMENT_TYPES = {
