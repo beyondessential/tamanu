@@ -52,9 +52,12 @@ triage.post(
 
 const sortKeys = {
   score: 'score',
+  arrivalTime: 'arrival_time',
   patientName: 'UPPER(patients.last_name || patients.first_name)',
   chiefComplaint: 'chief_complaint',
   id: 'patients.display_id',
+  displayId: 'patients.display_id',
+  sex: 'patients.sex',
   dateOfBirth: 'patients.date_of_birth',
   locationName: 'location_name',
 };
@@ -101,7 +104,7 @@ triage.get(
             encounters.encounter_type = 'triage'
             OR encounters.encounter_type = 'observation'
           )
-        ORDER BY ${sortKey} ${sortDirection} NULLS LAST
+        ORDER BY ${sortKey} ${sortDirection} NULLS LAST, arrival_time ASC
       `,
       {
         model: Triage,

@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import moment from 'moment';
+import { formatInTimeZone } from 'date-fns-tz';
 import Box from '@material-ui/core/Box';
 import { LargeButton, LargeOutlineButton } from '../Button';
 import { Form } from '../Field';
@@ -40,9 +40,7 @@ export const CustomisableSearchBar = ({
         // if filtering by date of birth exact, send the formatted date
         // to the server instead of the date object
         const dateOfBirthExact = values.dateOfBirthExact
-          ? moment(values.dateOfBirthExact)
-              .utc()
-              .format('YYYY-MM-DD')
+          ? formatInTimeZone(values.dateOfBirthExact, 'UTC', 'yyyy-MM-dd')
           : undefined;
 
         onSearch({ ...values, dateOfBirthExact });
