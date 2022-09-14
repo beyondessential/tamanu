@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { random, sample } from 'lodash';
+import { formatISO9075 } from 'date-fns';
 
 import {
   DataElementType,
@@ -36,7 +37,7 @@ export const fakePatient = (): IPatient => {
     lastName: `patient_lastName-${uuid}`,
     culturalName: `patient_culturalName-${uuid}`,
     villageId: null,
-    dateOfBirth: new Date(),
+    dateOfBirth: formatISO9075(new Date()),
     sex: `female-${uuid}`,
     email: `${uuid}@email.com`,
   };
