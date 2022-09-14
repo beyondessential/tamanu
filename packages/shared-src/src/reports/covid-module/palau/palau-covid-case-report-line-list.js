@@ -1,8 +1,7 @@
 /* eslint-disable import/no-unresolved, import/extensions */
 
-import { subDays, format } from 'date-fns';
+import { subDays, format, isBefore, startOfDay } from 'date-fns';
 import { groupBy } from 'lodash';
-import moment from 'moment';
 import { Op } from 'sequelize';
 import { getAgeFromDate } from '../../../utils/date';
 import { generateReportFromQueryData } from '../../utilities';
@@ -181,10 +180,10 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
       // only take the latest initial survey response
       const surveyResponse = patientSurveyResponses[0];
       // only select follow up surveys after the current initial survey
-      const followUpSurveyResponseFromDate = moment(surveyResponse.endTime).startOf('day');
+      const followUpSurveyResponseFromDate = startOfDay(surveyResponse.endTime);
       const followUpSurvey = followUpSurveyResponsesByPatient[patientId]?.find(
         followUpSurveyResponse =>
-          !moment(followUpSurveyResponse.endTime).isBefore(followUpSurveyResponseFromDate),
+          !isBefore(followUpSurveyResponse.endTime, followUpSurveyResponseFromDate),
       );
       async function transform() {
         const resultResponse = surveyResponse;
@@ -197,7 +196,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
           }),
           initialSurveyComponents,
           {
-            dateFormat: 'YYYY/MM/DD',
+            dateFormat: 'yyyy/MM/dd',
           },
         );
         if (followUpSurvey) {
@@ -210,7 +209,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
             }),
             followUpSurveyComponents,
             {
-              dateFormat: 'YYYY/MM/DD',
+              dateFormat: 'yyyy/MM/dd',
             },
           );
         }
