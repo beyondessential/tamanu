@@ -103,19 +103,6 @@ describe('import', () => {
         },
       ],
     ];
-    
-    async function rethrow(fn) {
-      try {
-        if (typeof fn === 'function') {
-          return await fn();
-        } else {
-          return await fn;
-        }
-      } catch (err) {
-        console.log(err);
-        throw err;
-      }
-    }
 
     rootTestCases.forEach(([modelName, fakeRecord, overrideChannel = null]) => {
       describe(modelName, () => {
@@ -127,7 +114,7 @@ describe('import', () => {
 
           // act
           const plan = createImportPlan(model.sequelize, channel);
-          await rethrow(executeImportPlan(plan, [toSyncRecord(record)]));
+          await executeImportPlan(plan, [toSyncRecord(record)]);
 
           // assert
           const dbRecord = await model.findByPk(record.id);
