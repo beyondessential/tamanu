@@ -41,7 +41,7 @@ export const DB_OBJECTS_MAX_DEPTH = {
 
 const INVOICE_STATUS_TYPES = {
   FINALISED: 'FINALISED',
-}
+};
 
 // Should only be colours that are defined as constants in Figma
 // (with the exception of searchTintColor)

@@ -6,9 +6,9 @@ import { printPage } from '../print';
 
 export const ElectronProvider = ({ children }) => {
   // just pass directly to electron
-  const showOpenDialog = (...args) => {}
-  const showSaveDialog = (...args) => {}
-  const openPath = path => {}
+  const showOpenDialog = (...args) => {};
+  const showSaveDialog = (...args) => {};
+  const openPath = path => {};
 
   return (
     <ElectronContext.Provider

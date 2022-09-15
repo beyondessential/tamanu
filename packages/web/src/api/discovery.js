@@ -8,10 +8,8 @@ const BROADCAST_IP = '255.255.255.255';
 
 export async function discoverServer() {
   // const socket = dgram.createSocket('udp4');
-
   // const promise = new Promise((resolve, reject) => {
   //   const servers = [];
-
   //   socket.on('message', (msg, rinfo) => {
   //     if (`${msg}`.includes(DISCOVERY_MAGIC_STRING)) {
   //       try {
@@ -33,7 +31,6 @@ export async function discoverServer() {
   //       }
   //     }
   //   });
-
   //   socket.on('listening', () => {
   //     socket.setBroadcast(true);
   //     socket.send(DISCOVERY_MAGIC_STRING, PORT, BROADCAST_IP);
@@ -46,9 +43,7 @@ export async function discoverServer() {
   //     }, 2000);
   //   });
   // });
-
   // socket.bind();
-
   // try {
   //   const response = await promise;
   //   return response;

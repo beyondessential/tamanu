@@ -31,7 +31,7 @@ const Loader = styled.div`
 // width, height and toolbar settings in one place
 export const PDFViewer = ({ id, children }) => {
   const [loaded, setLoaded] = useState(false);
-  const [instance, updateInstance] = useState(null)
+  const [instance, updateInstance] = useState(null);
 
   useEffect(() => {
     updateInstance();

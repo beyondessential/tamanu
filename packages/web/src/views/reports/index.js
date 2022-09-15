@@ -4,7 +4,6 @@ import { subMonths } from 'date-fns';
 
 import { ContentPane } from '../../components/ContentPane';
 import { FormGrid } from '../../components/FormGrid';
-import { showFileDialog } from '../../utils/dialog';
 import { ButtonRow } from '../../components/ButtonRow';
 import { Button } from '../../components/Button';
 import { Form, Field, TextField, DateField, SelectInput } from '../../components/Field';
@@ -66,7 +65,10 @@ const DumbReportScreen = React.memo(({ fetchAvailableReports, fetchReportData })
   const onWrite = useCallback(
     async params => {
       try {
-        const path = await showFileDialog(xlsxFilters, '');
+        // TODO
+        // const path = await showFileDialog(xlsxFilters, '');
+        const path = '';
+
         if (!path) return;
         const minWait = new Promise(resolve => setTimeout(resolve, 1000));
         setIsDownloading(true);

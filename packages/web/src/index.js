@@ -52,9 +52,7 @@ function start() {
   const container = document.getElementById('root');
 
   const root = createRoot(container); // createRoot(container!) if you use TypeScript
-  root.render(
-    <Root api={API} persistor={persistor} store={store} history={history} />,
-  );
+  root.render(<Root api={API} persistor={persistor} store={store} history={history} />);
 }
 
 start();

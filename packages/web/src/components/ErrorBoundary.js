@@ -37,7 +37,7 @@ const DumbErrorView = React.memo(({ error, state }) => {
   );
 });
 
-const ErrorView = DumbErrorView
+const ErrorView = DumbErrorView;
 
 export class ErrorBoundary extends React.PureComponent {
   static getDerivedStateFromProps(props, state) {

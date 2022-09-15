@@ -97,7 +97,6 @@ export class TamanuApi {
   }
 
   setHost(host) {
-    console.log*(`Setting host to ${host}`);
     this.host = host;
     this.prefix = `${host}/v1`;
 
@@ -127,35 +126,27 @@ export class TamanuApi {
   }
 
   async login(host, email, password) {
-    console.log('start login', host)
-    try {
+    this.setHost(host);
+    const response = await this.post('login', { email, password }, { returnResponse: true });
+    const serverType = response.headers.get('X-Tamanu-Server');
 
-      this.setHost(host);
-      const response = await this.post('login', { email, password }, { returnResponse: true });
-      const serverType = response.headers.get('X-Tamanu-Server');
-
-      console.log([...response.headers.keys()])
-
-      if (![SERVER_TYPES.LAN, SERVER_TYPES.SYNC].includes(serverType)) {
-        throw new Error(`Tamanu server type '${serverType}' is not supported.`);
-      }
-
-      const { token, localisation, server = {}, permissions } = await response.json();
-      server.type = serverType;
-      saveToLocalStorage({ token, localisation, server, permissions });
-      this.setToken(token);
-      this.lastRefreshed = Date.now();
-
-      const user = await this.get('user/me');
-      this.user = user;
-      const ability = buildAbilityForUser(user, permissions);
-
-      console.log('end login api')
-
-      return { user, token, localisation, server, ability };
-    } catch(err) {
-      console.error(err)
+    if (![SERVER_TYPES.LAN, SERVER_TYPES.SYNC].includes(serverType)) {
+      throw new Error(`Tamanu server type '${serverType}' is not supported.`);
     }
+
+    const { token, localisation, server = {}, permissions } = await response.json();
+    server.type = serverType;
+    saveToLocalStorage({ token, localisation, server, permissions });
+    this.setToken(token);
+    this.lastRefreshed = Date.now();
+
+    const user = await this.get('user/me');
+    this.user = user;
+    const ability = buildAbilityForUser(user, permissions);
+
+    console.log('end login api');
+
+    return { user, token, localisation, server, ability };
   }
 
   async requestPasswordReset(host, email) {
@@ -243,10 +234,9 @@ export class TamanuApi {
   }
 
   async postWithFileUpload(endpoint, filePath, body, options = {}) {
-
     // const fileData = await promises.readFile(filePath);
     // TODO web fix:
-    const fileData = {}
+    const fileData = {};
     const blob = new Blob([fileData]);
 
     // We have to use multipart/formdata to support sending the file data,

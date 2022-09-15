@@ -22,7 +22,7 @@ export const ServerDetectingField = memo(({ setFieldValue, ...props }) => {
     setStatusMessage('Detecting server, please wait...');
     try {
       const serverDetails = await discoverServer();
-      console.log(serverDetails)
+      console.log(serverDetails);
       if (!serverDetails) {
         setStatusMessage('Could not detect a server. Click retry or enter manually');
         return;

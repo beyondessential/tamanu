@@ -1,11 +1,10 @@
 import React, { useState, useCallback } from 'react';
 
+import styled from 'styled-components';
 import { Button } from '../../components/Button';
 import { ButtonRow } from '../../components/ButtonRow';
 
 import { SelectInput } from '../../components/Field/SelectField';
-
-import styled from 'styled-components';
 
 const StyledButtonRow = styled(ButtonRow)`
   margin-top: 24px;

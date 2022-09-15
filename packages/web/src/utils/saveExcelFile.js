@@ -1,15 +1,16 @@
 import XLSX from 'xlsx';
-import { showFileDialog } from './dialog';
 
-const xlsxFilters = [{ name: 'Excel spreadsheet (.xlsx)', extensions: ['xlsx'] }];
+// const xlsxFilters = [{ name: 'Excel spreadsheet (.xlsx)', extensions: ['xlsx'] }];
 
 const stringifyIfNonDateObject = val =>
   typeof val === 'object' && !(val instanceof Date) && val !== null ? JSON.stringify(val) : val;
 
+
+// eslint-disable-next-line no-unused-vars
 export async function saveExcelFile(data, { promptForFilePath, filePath, defaultFileName }) {
   let path;
   if (promptForFilePath) {
-    path = await showFileDialog(xlsxFilters, defaultFileName || '');
+    // path = await showFileDialog(xlsxFilters, defaultFileName || '');
     if (!path) {
       // user cancelled
       return '';

@@ -74,7 +74,7 @@ export function DownloadDataButton({ exportName, columns, data }) {
 
     // show a file-save dialog and write the workbook
     // const path = await showSaveDialog();
-    const path = {}
+    const path = {};
     if (path.canceled) return; // Dialog was cancelled - don't write file.
     XLSX.writeFile(wb, `${path.filePath}.xlsx`);
     openPath(`${path.filePath}.xlsx`);

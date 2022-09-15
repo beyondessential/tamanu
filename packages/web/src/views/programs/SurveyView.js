@@ -2,6 +2,7 @@ import React, { useCallback, useState, useEffect } from 'react';
 import styled from 'styled-components';
 import Alert from '@material-ui/lab/Alert';
 import { Typography } from '@material-ui/core';
+import { runCalculations } from 'shared/utils/calculations';
 import { Form, Field, usePaginatedForm } from '../../components/Field';
 import { FormGrid } from '../../components/FormGrid';
 import { Button, OutlinedButton } from '../../components/Button';
@@ -13,7 +14,6 @@ import {
   getFormInitialValues,
   getConfigObject,
 } from '../../utils';
-import { runCalculations } from 'shared/utils/calculations';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 import { Colors } from '../../constants';
 

@@ -1,5 +1,6 @@
 const concurrently = require('concurrently');
 
+// eslint-disable-next-line no-unused-vars
 const [_node, _script, workspace, command] = process.argv;
 
 concurrently(

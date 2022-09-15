@@ -1,3 +1,4 @@
+import React from 'react'
 import { Provider } from 'react-redux';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
@@ -45,15 +46,15 @@ export default function Root({ api, store, history }) {
                 <ThemeProvider theme={theme}>
                   <QueryClientProvider client={queryClient}>
                     <ReactQueryDevtools initialIsOpen={false} />
-                      <ToastContainer
-                        closeOnClick
-                        pauseOnFocusLoss
-                        draggable
-                        pauseOnHover
-                        limit={5}
-                      />
-                      <CssBaseline />
-                      <RoutingApp />
+                    <ToastContainer
+                      closeOnClick
+                      pauseOnFocusLoss
+                      draggable
+                      pauseOnHover
+                      limit={5}
+                    />
+                    <CssBaseline />
+                    <RoutingApp />
                   </QueryClientProvider>
                 </ThemeProvider>
               </MuiThemeProvider>
