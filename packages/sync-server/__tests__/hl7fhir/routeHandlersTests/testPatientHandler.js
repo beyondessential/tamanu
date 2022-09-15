@@ -726,6 +726,20 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
         expect(response.body.total).toBe(2);
       });
 
+      it('filters patient by visibilityStatus (active)', async () => {
+        const { Patient } = ctx.store.models;
+        await Promise.all([
+          Patient.create(fake(Patient)),
+          Patient.create(fake(Patient, { visibilityStatus: 'whatever' })),
+        ]);
+
+        const path = `/v1/integration/${integrationName}/Patient?active=true`;
+        const response = await app.get(path).set(requestHeaders);
+
+        expect(response).toHaveSucceeded();
+        expect(response.body.total).toBe(1);
+      });
+
       it('filters patients by params with supported modifiers', async () => {
         const { Patient } = ctx.store.models;
         const firstName = 'Jane';
