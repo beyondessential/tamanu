@@ -140,13 +140,15 @@ export class Patient extends Model {
       },
     });
 
-    for (const result of results) {
-      if (certifiableVaccineIds.includes(result.scheduledVaccine.vaccineId)) {
-        result.certifiable = true;
+    const data = results.map(x => x.get({ plain: true }));
+
+    for (const record of data) {
+      if (certifiableVaccineIds.includes(record.scheduledVaccine.vaccineId)) {
+        record.certifiable = true;
       }
     }
 
-    return results.map(x => x.get({ plain: true }));
+    return data;
   }
 
   async getCovidLabTests(queryOptions) {
