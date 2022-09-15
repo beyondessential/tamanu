@@ -5,7 +5,7 @@ import { addHooks } from './hooks';
 
 let existingConnection = null;
 
-export async function initDatabase({ testMode = false }) {
+export async function initDatabase({ testMode = false, syncClientMode = false }) {
   // connect to database
   if (existingConnection) {
     return existingConnection;
@@ -16,6 +16,7 @@ export async function initDatabase({ testMode = false }) {
     testMode,
     makeEveryModelParanoid: true,
     saltRounds: config.auth.saltRounds,
+    syncClientMode,
   }).init();
 
   // drop and recreate db
