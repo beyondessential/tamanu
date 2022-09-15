@@ -1,4 +1,4 @@
-import { QueryInterface, DataTypes } from 'sequelize';
+import { DataTypes } from 'sequelize';
 
 export async function up(query) {
   await query.changeColumn('patient_death_data', 'last_surgery_date', {

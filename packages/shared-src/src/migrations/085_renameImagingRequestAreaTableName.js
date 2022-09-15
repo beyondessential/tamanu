@@ -1,5 +1,3 @@
-import { QueryInterface } from 'sequelize';
-
 export async function up(query) {
   await query.renameTable('imaging_request_area', 'imaging_request_areas');
 }

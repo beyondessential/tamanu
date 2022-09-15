@@ -1,5 +1,3 @@
-import { QueryInterface } from 'sequelize';
-
 export async function up(query) {
   await query.renameColumn('roles', 'createdAt', 'created_at');
   await query.renameColumn('roles', 'updatedAt', 'updated_at');

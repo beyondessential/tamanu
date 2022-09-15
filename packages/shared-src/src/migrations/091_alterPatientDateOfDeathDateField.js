@@ -1,4 +1,4 @@
-import { QueryInterface, DataTypes } from 'sequelize';
+import { DataTypes } from 'sequelize';
 
 const TABLE_NAME = 'patients';
 const ISO9075_DATE_TIME_FMT = 'YYYY-MM-DD HH24:MI:SS';
@@ -12,13 +12,13 @@ export async function up(query) {
   // 2. Copy data to legacy columns for backup
   await query.sequelize.query(`
     UPDATE ${TABLE_NAME}
-    SET 
+    SET
       date_of_death_legacy = date_of_death;
   `);
 
   // 3.Change column types from of original columns from date to string & convert data to string
   await query.sequelize.query(`
-    ALTER TABLE ${TABLE_NAME} 
+    ALTER TABLE ${TABLE_NAME}
     ALTER COLUMN date_of_death TYPE date_time_string USING TO_CHAR(date_of_death, '${ISO9075_DATE_TIME_FMT}');
 `);
 }

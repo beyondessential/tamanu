@@ -1,4 +1,4 @@
-import { QueryInterface, DataTypes } from 'sequelize';
+import { DataTypes } from 'sequelize';
 
 export async function up(query) {
   await query.changeColumn('lab_requests', 'sample_time', {

@@ -1,4 +1,4 @@
-import { QueryInterface, DataTypes } from 'sequelize';
+import { DataTypes } from 'sequelize';
 
 const ISO9075_DATE_FMT = 'YYYY-MM-DD';
 const INVOICES_TABLE = 'invoices';
@@ -20,7 +20,7 @@ export async function up(query) {
   // 2. Copy data to legacy columns for backup
   await query.sequelize.query(`
     UPDATE ${INVOICES_TABLE}
-    SET 
+    SET
       date_legacy = date;
   `);
   await query.sequelize.query(`
@@ -30,21 +30,21 @@ export async function up(query) {
   `);
   await query.sequelize.query(`
     UPDATE ${PRICE_CHANGE_ITEMS_TABLE}
-    SET 
+    SET
       date_legacy = date;
   `);
 
   // 3.Change column types from of original columns from date to string & convert data to string
   await query.sequelize.query(`
-    ALTER TABLE ${INVOICES_TABLE} 
+    ALTER TABLE ${INVOICES_TABLE}
     ALTER COLUMN date TYPE date_string USING TO_CHAR(date, '${ISO9075_DATE_FMT}');
   `);
   await query.sequelize.query(`
-    ALTER TABLE ${LINE_ITEMS_TABLE} 
+    ALTER TABLE ${LINE_ITEMS_TABLE}
     ALTER COLUMN date_generated TYPE date_string USING TO_CHAR(date_generated, '${ISO9075_DATE_FMT}');
   `);
   await query.sequelize.query(`
-    ALTER TABLE ${PRICE_CHANGE_ITEMS_TABLE} 
+    ALTER TABLE ${PRICE_CHANGE_ITEMS_TABLE}
     ALTER COLUMN date TYPE date_string USING TO_CHAR(date, '${ISO9075_DATE_FMT}');
   `);
 }

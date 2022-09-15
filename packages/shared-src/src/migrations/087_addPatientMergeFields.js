@@ -1,4 +1,4 @@
-import Sequelize, { QueryInterface } from 'sequelize';
+import Sequelize from 'sequelize';
 
 export async function up(query) {
   await query.addColumn('patients', 'merged_into_id', {

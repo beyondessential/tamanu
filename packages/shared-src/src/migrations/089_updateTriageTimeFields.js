@@ -1,4 +1,4 @@
-import { QueryInterface, DataTypes } from 'sequelize';
+import { DataTypes } from 'sequelize';
 
 const TABLE_NAME = 'triages';
 const ISO9075_DATE_TIME_FMT = 'YYYY-MM-DD HH24:MI:SS';

@@ -1,5 +1,3 @@
-import { QueryInterface } from 'sequelize';
-
 const INVOICE_LINE_TYPES_TABLE_NAME = 'invoice_line_types';
 const INVOICE_LINE_ITEMS_TABLE_NAME = 'invoice_line_items';
 
@@ -64,7 +62,7 @@ export async function up(query) {
   );
   await query.sequelize.query(
     `DELETE FROM ${INVOICE_LINE_TYPES_TABLE_NAME}
-    WHERE item_type = :itemTypeImaging 
+    WHERE item_type = :itemTypeImaging
     AND item_id = :unknownFallback`,
     { replacements },
   );

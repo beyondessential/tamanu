@@ -1,4 +1,4 @@
-import Sequelize, { QueryInterface } from 'sequelize';
+import Sequelize from 'sequelize';
 
 export async function up(query) {
   await query.createTable('patient_birth_data', {

@@ -1,5 +1,3 @@
-import { QueryInterface } from 'sequelize';
-
 // This is the correct format for postgres date_time_string fields
 const ISO9075_DATE_TIME_FMT = 'YYYY-MM-DD HH24:MI:SS';
 

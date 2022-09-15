@@ -1,4 +1,4 @@
-import Sequelize, { QueryInterface } from 'sequelize';
+import Sequelize from 'sequelize';
 
 const tables = [
   'departments',
@@ -13,7 +13,7 @@ export async function up(query) {
   for (let table of tables) {
     await query.addColumn(
       table,
-      'visibility_status', 
+      'visibility_status',
       {
         type: Sequelize.TEXT,
         defaultValue: 'current',

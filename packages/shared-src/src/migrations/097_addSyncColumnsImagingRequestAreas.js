@@ -1,4 +1,4 @@
-import Sequelize, { QueryInterface } from 'sequelize';
+import Sequelize from 'sequelize';
 
 export async function up(query) {
   await query.addColumn('imaging_request_areas', 'marked_for_push', {

@@ -1,4 +1,4 @@
-import { QueryInterface, STRING, TEXT } from 'sequelize';
+import { STRING, TEXT } from 'sequelize';
 
 export async function up(query) {
   await query.changeColumn('imaging_requests', 'results', {
