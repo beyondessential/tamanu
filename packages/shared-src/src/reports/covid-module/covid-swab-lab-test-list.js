@@ -311,7 +311,9 @@ const getLabTestRecords = async (
         submittedDate: formatDate(labTest.date),
         requestedDate: formatDate(labRequest.requestedDate),
         testingDate: formatDate(labTest.completedDate),
-        testingTime: labTest.completedDate ? format(labTest.completedDate, 'h:mm:ss aa') : '',
+        testingTime: labTest.completedDate
+          ? format(new Date(labTest.completedDate), 'h:mm:ss aa')
+          : '',
         priority: labRequest?.priority?.name,
         testingLaboratory: labRequest?.laboratory?.name,
         laboratoryOfficer: labTest?.laboratoryOfficer,
