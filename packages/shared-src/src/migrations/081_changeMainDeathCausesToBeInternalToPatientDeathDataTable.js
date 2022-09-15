@@ -67,7 +67,7 @@ export async function down(query) {
     });
 
     if (config.db.sqlitePath) {
-      console.warn('Losing data on the down migration');
+      // console.warn('Losing data on the down migration');
     } else {
       // https://stackoverflow.com/a/21327318
       // can't rely on postgres extensions being present ;_;

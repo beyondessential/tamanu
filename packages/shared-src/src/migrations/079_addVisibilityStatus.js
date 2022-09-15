@@ -10,7 +10,7 @@ const tables = [
 ];
 
 export async function up(query) {
-  for (let table of tables) {
+  for (const table of tables) {
     await query.addColumn(
       table,
       'visibility_status',
@@ -23,7 +23,7 @@ export async function up(query) {
 }
 
 export async function down(query) {
-  for (let table of tables) {
+  for (const table of tables) {
     await query.removeColumn(table, 'visibility_status');
   }
 }
