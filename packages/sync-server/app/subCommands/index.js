@@ -10,5 +10,6 @@ export * from './saveCertificateRequest';
 export * from './serve';
 export * from './serveAll';
 export * from './setup';
+export * from './shell';
 export * from './tasks';
 export * from './user';
