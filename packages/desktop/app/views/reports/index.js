@@ -143,7 +143,11 @@ const DumbReportScreen = React.memo(({ fetchAvailableReports, fetchReportData })
       {error && (
         <div>
           <div>An error was encountered while generating the report: </div>
-          <div>{error.message === '500' ? 'Server error' : error.message}</div>
+          <div>
+            {error.message === 'Facility server error response: 500'
+              ? 'Server error'
+              : error.message}
+          </div>
         </div>
       )}
     </ContentPane>
