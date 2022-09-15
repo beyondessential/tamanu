@@ -77,7 +77,7 @@ describe('AdministeredVaccine.lastVaccinationForPatient', () => {
 
       await AdministeredVaccine.create({
         ...fake(AdministeredVaccine),
-        id: 'first',
+        id: 'first1',
         status: 'GIVEN',
         date: add(now, { minutes: 1 }),
         scheduledVaccineId,
@@ -86,7 +86,7 @@ describe('AdministeredVaccine.lastVaccinationForPatient', () => {
 
       const vax = await AdministeredVaccine.create({
         ...fake(AdministeredVaccine),
-        id: 'last',
+        id: 'last1',
         status: 'GIVEN',
         date: add(now, { minutes: 2 }),
         scheduledVaccineId,
@@ -142,7 +142,7 @@ describe('AdministeredVaccine.lastVaccinationForPatient', () => {
 
       await AdministeredVaccine.create({
         ...fake(AdministeredVaccine),
-        id: 'first',
+        id: 'first2',
         status: 'GIVEN',
         date: add(now, { minutes: 1 }),
         scheduledVaccineId,
@@ -151,7 +151,7 @@ describe('AdministeredVaccine.lastVaccinationForPatient', () => {
 
       await AdministeredVaccine.create({
         ...fake(AdministeredVaccine),
-        id: 'first-covid',
+        id: 'first2-covid',
         status: 'GIVEN',
         date: add(now, { minutes: 2 }),
         scheduledVaccineId: covidScheduledVaccineId,
@@ -160,7 +160,7 @@ describe('AdministeredVaccine.lastVaccinationForPatient', () => {
 
       const vax = await AdministeredVaccine.create({
         ...fake(AdministeredVaccine),
-        id: 'last-covid',
+        id: 'last2-covid',
         status: 'GIVEN',
         date: add(now, { minutes: 3 }),
         scheduledVaccineId: covidScheduledVaccineId,
@@ -169,7 +169,7 @@ describe('AdministeredVaccine.lastVaccinationForPatient', () => {
 
       await AdministeredVaccine.create({
         ...fake(AdministeredVaccine),
-        id: 'last',
+        id: 'last2',
         status: 'GIVEN',
         date: add(now, { minutes: 4 }),
         scheduledVaccineId,
@@ -200,7 +200,7 @@ describe('AdministeredVaccine.lastVaccinationForPatient', () => {
 
       await AdministeredVaccine.create({
         ...fake(AdministeredVaccine),
-        id: 'first',
+        id: 'first3',
         status: 'GIVEN',
         date: add(now, { minutes: 1 }),
         scheduledVaccineId,
@@ -209,7 +209,7 @@ describe('AdministeredVaccine.lastVaccinationForPatient', () => {
 
       await AdministeredVaccine.create({
         ...fake(AdministeredVaccine),
-        id: 'last',
+        id: 'last3',
         status: 'GIVEN',
         date: add(now, { minutes: 2 }),
         scheduledVaccineId,
@@ -239,7 +239,7 @@ describe('AdministeredVaccine.lastVaccinationForPatient', () => {
 
       await AdministeredVaccine.create({
         ...fake(AdministeredVaccine),
-        id: 'first',
+        id: 'first4',
         status: 'GIVEN',
         date: add(now, { minutes: 1 }),
         scheduledVaccineId,
@@ -248,7 +248,7 @@ describe('AdministeredVaccine.lastVaccinationForPatient', () => {
 
       await AdministeredVaccine.create({
         ...fake(AdministeredVaccine),
-        id: 'last',
+        id: 'last4',
         status: 'GIVEN',
         date: add(now, { minutes: 2 }),
         scheduledVaccineId,
