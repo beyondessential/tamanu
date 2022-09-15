@@ -1,6 +1,8 @@
 import { ValidationError } from 'sequelize';
-import yup from 'yup';
-import { toDateTimeString } from '../../utils/dateTime';
+import * as yup from 'yup';
+import { isPlainObject } from 'lodash';
+
+import { toDateTimeString } from 'shared/utils/dateTime';
 import { COMPOSITE, stringify } from './common';
 
 export const PERIOD_SCHEMA = yup
@@ -13,7 +15,7 @@ export const PERIOD_SCHEMA = yup
 export class PERIOD extends COMPOSITE {
   constructor(start, end) {
     super();
-    const options = _.isPlainObject(type) ? type : { start, end };
+    const options = isPlainObject(start) ? start : { start, end };
     this.options = options;
     this.start = options.start;
     this.end = options.end;

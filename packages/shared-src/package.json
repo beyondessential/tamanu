@@ -49,7 +49,6 @@
     "node-schedule": "^2.0.0",
     "semver-compare": "^1.0.0",
     "semver-diff": "^3.1.1",
-    "shortid": "^2.2.14",
-    "yup": "^0.32.9"
+    "shortid": "^2.2.14"
   }
 }

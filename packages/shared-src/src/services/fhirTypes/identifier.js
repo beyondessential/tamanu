@@ -1,7 +1,9 @@
 import { ValidationError } from 'sequelize';
-import yup from 'yup';
+import * as yup from 'yup';
+import { isPlainObject } from 'lodash';
 
 import { COMPOSITE, stringify } from './common';
+import { PERIOD_SCHEMA } from './period';
 
 const IDENTIFIER_SCHEMA = yup
   .object({
@@ -16,7 +18,7 @@ const IDENTIFIER_SCHEMA = yup
 export class IDENTIFIER extends COMPOSITE {
   constructor(use, system, value, period, assigner) {
     super();
-    const options = _.isPlainObject(type) ? type : { use, system, value, period, assigner };
+    const options = isPlainObject(use) ? use : { use, system, value, period, assigner };
     this.options = options;
     this.use = options.use;
     this.system = options.system;
