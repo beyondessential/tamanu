@@ -10,7 +10,7 @@ import { ISO9075_DATE_SQLITE_DEFAULT } from './columnDefaults';
 @Entity('labTest')
 export class LabTest extends BaseModel implements ILabTest {
   // https://github.com/typeorm/typeorm/issues/877#issuecomment-772051282 (+ timezones??)
-  @Column({ nullable: false, default: () => ISO9075_DATE_SQLITE_DEFAULT })
+  @Column({ nullable: false, default: ISO9075_DATE_SQLITE_DEFAULT })
   date: string;
 
   @Column({ type: 'varchar', nullable: false, default: LabTestStatus.RECEPTION_PENDING })
