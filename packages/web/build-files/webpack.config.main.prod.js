@@ -10,8 +10,6 @@ import CheckNodeEnv from './internals/scripts/CheckNodeEnv';
 
 CheckNodeEnv('production');
 
-console.log('shouldnt be')
-
 export default merge.smart(baseConfig, {
   devtool: 'source-map',
 

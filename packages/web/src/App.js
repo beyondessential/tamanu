@@ -27,7 +27,6 @@ const AppContentsContainer = styled.div`
 export function App({ sidebar, children }) {
   const isUserLoggedIn = useSelector(checkIsLoggedIn);
   const currentRoute = useSelector(getCurrentRoute);
-  console.log(currentRoute, isUserLoggedIn)
   if (!isUserLoggedIn) {
     return <LoginView />;
   }

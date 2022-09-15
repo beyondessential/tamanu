@@ -1,5 +1,4 @@
-import React from 'react';
-import { Provider, ReactReduxContext } from 'react-redux';
+import { Provider } from 'react-redux';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { ConnectedRouter } from 'connected-react-router';
@@ -39,7 +38,7 @@ export default function Root({ api, store, history }) {
   return (
     <Provider store={store}>
       <ApiContext.Provider value={api}>
-        <ConnectedRouter history={history} context={ReactReduxContext}>
+        <ConnectedRouter history={history}>
           <StateContextProviders store={store}>
             <StylesProvider injectFirst>
               <MuiThemeProvider theme={theme}>

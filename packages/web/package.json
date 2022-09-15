@@ -12,10 +12,10 @@
     ]
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
+    "eject": "react-app-rewired eject",
     "build-main": "cross-env NODE_ENV=production CONFIG=webpack.config.main.prod node babel-register-pack",
     "build-renderer": "cross-env NODE_ENV=production CONFIG=webpack.config.renderer.prod node babel-register-pack",
     "dev": "cross-env START_HOT=1 node -r ./babel-register ./internals/scripts/CheckPortInUse.js && cross-env START_HOT=1 npm run start-renderer-dev",
@@ -86,6 +86,7 @@
     "optimize-css-assets-webpack-plugin": "^5.0.0",
     "prettier": "^1.14.0",
     "qrcode": "^1.5.0",
+    "react-app-rewired": "^2.2.1",
     "react-test-renderer": "^16.4.1",
     "redux-logger": "^3.0.6",
     "rimraf": "^2.6.2",
