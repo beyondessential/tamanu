@@ -38,12 +38,12 @@ export const DiagnosisView = React.memo(({ encounter, isTriage, readonly }) => {
   const { ability } = useAuth();
   const canListDiagnoses = ability.can('list', 'EncounterDiagnosis');
 
-  const displayedDiagnoses = diagnoses.filter(d => !['error', 'disproven'].includes(d.certainty));
+  const validDiagnoses = diagnoses.filter(d => !['error', 'disproven'].includes(d.certainty));
 
   const DiagnosesDisplay = canListDiagnoses ? (
     <>
-      <DiagnosisLabel numberOfDiagnoses={displayedDiagnoses.length} />
-      <DiagnosisList diagnoses={displayedDiagnoses} onEditDiagnosis={!readonly && editDiagnosis} />
+      <DiagnosisLabel numberOfDiagnoses={validDiagnoses.length} />
+      <DiagnosisList diagnoses={validDiagnoses} onEditDiagnosis={!readonly && editDiagnosis} />
     </>
   ) : (
     <>
@@ -60,7 +60,7 @@ export const DiagnosisView = React.memo(({ encounter, isTriage, readonly }) => {
         diagnosis={diagnosis}
         isTriage={isTriage}
         encounterId={id}
-        excludeDiagnoses={displayedDiagnoses}
+        excludeDiagnoses={validDiagnoses}
         onClose={() => editDiagnosis(null)}
       />
       <DiagnosisGrid>
