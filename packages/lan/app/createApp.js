@@ -28,9 +28,9 @@ export function createApp({ sequelize, models, syncManager }) {
 
   app.use(cors({
     origin: 'http://localhost:3001',
+    allowedHeaders: '*',
+    exposedHeaders: ['X-Tamanu-Server', 'X-Version'],
   }))
-
-  console.log('this')
 
   // trust the x-forwarded-for header from addresses in `config.proxy.trusted`
   app.set('trust proxy', config.proxy.trusted);

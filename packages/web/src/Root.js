@@ -1,5 +1,5 @@
 import React from 'react';
-import { Provider } from 'react-redux';
+import { Provider, ReactReduxContext } from 'react-redux';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { ConnectedRouter } from 'connected-react-router';
@@ -15,7 +15,6 @@ import { EncounterProvider } from './contexts/Encounter';
 import { LabRequestProvider } from './contexts/LabRequest';
 import { LocalisationProvider } from './contexts/Localisation';
 import { ReferralProvider } from './contexts/Referral';
-import { ElectronProvider } from './contexts/ElectronProvider';
 
 const StateContextProviders = ({ children, store }) => (
   <EncounterProvider store={store}>
@@ -40,7 +39,7 @@ export default function Root({ api, store, history }) {
   return (
     <Provider store={store}>
       <ApiContext.Provider value={api}>
-        <ConnectedRouter history={history}>
+        <ConnectedRouter history={history} context={ReactReduxContext}>
           <StateContextProviders store={store}>
             <StylesProvider injectFirst>
               <MuiThemeProvider theme={theme}>

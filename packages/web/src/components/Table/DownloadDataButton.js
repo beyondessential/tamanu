@@ -23,7 +23,7 @@ function getHeaderValue(column) {
 }
 
 export function DownloadDataButton({ exportName, columns, data }) {
-  const { showSaveDialog, openPath } = useElectron();
+  // const { showSaveDialog, openPath } = useElectron();
   const onDownloadData = async () => {
     const header = columns.map(getHeaderValue);
     const rows = await Promise.all(
@@ -73,7 +73,8 @@ export function DownloadDataButton({ exportName, columns, data }) {
     XLSX.utils.book_append_sheet(wb, ws, exportName);
 
     // show a file-save dialog and write the workbook
-    const path = await showSaveDialog();
+    // const path = await showSaveDialog();
+    const path = {}
     if (path.canceled) return; // Dialog was cancelled - don't write file.
     XLSX.writeFile(wb, `${path.filePath}.xlsx`);
     openPath(`${path.filePath}.xlsx`);

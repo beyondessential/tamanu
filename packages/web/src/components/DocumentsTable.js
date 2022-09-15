@@ -7,7 +7,6 @@ import { DateDisplay } from './DateDisplay';
 import { DropdownButton } from './DropdownButton';
 import { DeleteButton } from './Button';
 import { ConfirmModal } from './ConfirmModal';
-import { useElectron } from '../contexts/Electron';
 import { useApi } from '../api';
 import { notify, notifySuccess, notifyError } from '../utils';
 
@@ -46,7 +45,7 @@ const getDepartmentName = ({ department }) => department?.name || '';
 
 export const DocumentsTable = React.memo(
   ({ endpoint, searchParameters, refreshCount, canInvokeDocumentAction, elevated }) => {
-    const { showSaveDialog, openPath } = useElectron();
+    // const { showSaveDialog, openPath } = useElectron();
     const api = useApi();
 
     // Confirm delete modal will be open/close if it has a document ID
@@ -96,7 +95,7 @@ export const DocumentsTable = React.memo(
         //   notifyError(error.message);
         // }
       },
-      [api, openPath, showSaveDialog, canInvokeDocumentAction],
+      [api, openPath, canInvokeDocumentAction],
     );
 
     // Define columns inside component to pass callbacks to getActions

@@ -127,24 +127,35 @@ export class TamanuApi {
   }
 
   async login(host, email, password) {
-    this.setHost(host);
-    const response = await this.post('login', { email, password }, { returnResponse: true });
-    const serverType = response.headers.get('X-Tamanu-Server');
-    if (![SERVER_TYPES.LAN, SERVER_TYPES.SYNC].includes(serverType)) {
-      throw new Error(`Tamanu server type '${serverType}' is not supported.`);
+    console.log('start login', host)
+    try {
+
+      this.setHost(host);
+      const response = await this.post('login', { email, password }, { returnResponse: true });
+      const serverType = response.headers.get('X-Tamanu-Server');
+
+      console.log([...response.headers.keys()])
+
+      if (![SERVER_TYPES.LAN, SERVER_TYPES.SYNC].includes(serverType)) {
+        throw new Error(`Tamanu server type '${serverType}' is not supported.`);
+      }
+
+      const { token, localisation, server = {}, permissions } = await response.json();
+      server.type = serverType;
+      saveToLocalStorage({ token, localisation, server, permissions });
+      this.setToken(token);
+      this.lastRefreshed = Date.now();
+
+      const user = await this.get('user/me');
+      this.user = user;
+      const ability = buildAbilityForUser(user, permissions);
+
+      console.log('end login api')
+
+      return { user, token, localisation, server, ability };
+    } catch(err) {
+      console.error(err)
     }
-
-    const { token, localisation, server = {}, permissions } = await response.json();
-    server.type = serverType;
-    saveToLocalStorage({ token, localisation, server, permissions });
-    this.setToken(token);
-    this.lastRefreshed = Date.now();
-
-    const user = await this.get('user/me');
-    this.user = user;
-    const ability = buildAbilityForUser(user, permissions);
-
-    return { user, token, localisation, server, ability };
   }
 
   async requestPasswordReset(host, email) {

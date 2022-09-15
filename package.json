@@ -73,10 +73,8 @@
   },
   "dependencies": {
     "babel-eslint": "^10.0.1",
-    "chalk": "^5.0.1",
-    "concurrently": "^7.4.0",
     "config": "3.0.1",
-    "craco": "^0.0.3",
+
     "pm2": "^4.5.0"
   }
 }
