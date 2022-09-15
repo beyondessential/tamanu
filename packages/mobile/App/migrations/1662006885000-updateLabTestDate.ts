@@ -7,7 +7,7 @@ export class updateLabTestDate1662006885000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
     const tableObject = await getTable(queryRunner, 'labTest');
     // Move old data to legacy column
-    await queryRunner.query('ALTER TABLE labTest RENAME COLUMN sampleTime TO sampleTime_legacy');
+    await queryRunner.query('ALTER TABLE labTest RENAME COLUMN sampleTime TO date_legacy');
     // Add new column (with rename sampleTime -> date)
     await queryRunner.addColumn(
       tableObject,
@@ -21,7 +21,7 @@ export class updateLabTestDate1662006885000 implements MigrationInterface {
     );
     // Fill data
     queryRunner.query(
-      'UPDATE labTest SET date = sampleTime_legacy',
+      'UPDATE labTest SET date = date_legacy',
     );
   }
 
@@ -29,6 +29,6 @@ export class updateLabTestDate1662006885000 implements MigrationInterface {
     // 1. Drop the string column
     await queryRunner.query('ALTER TABLE labTest DROP COLUMN date');
     // 2. Move legacy data back to main column (with undo rename
-    await queryRunner.query('ALTER TABLE labTest RENAME COLUMN sampleTime_legacy TO sampleTime');
+    await queryRunner.query('ALTER TABLE labTest RENAME COLUMN date_legacy TO sampleTime');
   }
 }
