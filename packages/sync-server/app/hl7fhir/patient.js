@@ -11,6 +11,7 @@ import {
   getBaseUrl,
   getHL7Link,
 } from './utils';
+
 import { modifiers } from './hl7Parameters';
 import { hl7PatientFields } from './hl7PatientFields';
 
@@ -83,10 +84,15 @@ function patientTelecom(patient, additional) {
     }));
 }
 
+function isPatientActive(patient) {
+  if (patient.visibilityStatus === VISIBILITY_STATUSES.CURRENT) return true;
+  return false;
+}
+
 const convertPatientToHL7Patient = (patient, additional = {}) => ({
   resourceType: 'Patient',
   id: patient.id,
-  active: true, // currently unused in Tamanu, always true
+  active: isPatientActive(patient),
   identifier: patientIds(patient, additional),
   name: patientName(patient, additional),
   birthDate: patient.dateOfBirth && format(patient.dateOfBirth, 'yyyy-MM-dd'),
