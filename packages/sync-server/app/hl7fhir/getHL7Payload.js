@@ -22,7 +22,7 @@ export async function getHL7Payload({
   bundleId,
   toHL7,
   toHL7List,
-  extraOptions,
+  extraOptions = {},
 }) {
   const query = await parseQuery(req.query, querySchema);
   const [, displayId] = decodeIdentifier(query['subject:identifier']);

@@ -1,4 +1,5 @@
 import { Op } from 'sequelize';
+import { VISIBILITY_STATUSES } from 'shared/constants/importable';
 import { createDummyPatient, createDummyPatientAdditionalData } from 'shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
@@ -49,6 +50,7 @@ describe('HL7 Patient', () => {
       firstName: 'John',
       lastName: 'Doe',
       sex: 'male',
+      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
     });
     const patient = await models.Patient.create(patientData);
     await models.PatientAdditionalData.create({
@@ -86,7 +88,7 @@ describe('HL7 Patient', () => {
     const displayId = 'test-display-id-123456';
     const whereClause = getPatientWhereClause(displayId, query);
     const filters = whereClause[Op.and];
-    const keys = filters.map(obj => Object.keys(obj)[0]);
-    expect(keys).toMatchObject(['displayId', 'firstName']);
+    const keys = filters.map(obj => Reflect.ownKeys(obj)[0]);
+    expect(keys).toMatchObject([Op.or, 'displayId', 'firstName']);
   });
 });

@@ -119,7 +119,7 @@ function findSingleResource(modelName, include, toHL7Fn, where = {}, extraOption
       throw new NotFoundError(`Unable to find resource ${id}`);
     }
 
-    const resource = await toHL7Fn(req, record);
+    const resource = await toHL7Fn(record, req);
     res.send(resource);
   });
 }
@@ -128,7 +128,7 @@ export function singlePatientHandler() {
   return findSingleResource(
     'Patient',
     [{ association: 'additionalData' }],
-    (req, patient) => patientToHL7Patient(req, patient, patient.additionalData[0]),
+    (patient, req) => patientToHL7Patient(req, patient, patient.additionalData[0]),
     { visibilityStatus: { [Op.in]: [VISIBILITY_STATUSES.CURRENT, VISIBILITY_STATUSES.MERGED] } }, // to only get active or merged patients
     { paranoid: false }, // to allow getting inactive patient
   );

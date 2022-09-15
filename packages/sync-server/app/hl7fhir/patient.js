@@ -257,7 +257,12 @@ export const patientToHL7PatientList = async (req, patients) => {
 export function getPatientWhereClause(displayId, query = {}) {
   // to only get active or merged patients
   const filters = [
-    { visibilityStatus: { [Op.in]: [VISIBILITY_STATUSES.CURRENT, VISIBILITY_STATUSES.MERGED] } },
+    {
+      [Op.or]: [
+        { visibilityStatus: VISIBILITY_STATUSES.CURRENT, deletedAt: null },
+        { visibilityStatus: VISIBILITY_STATUSES.MERGED, deletedAt: { [Op.not]: null } },
+      ],
+    },
   ];
 
   // Handle search by ID separately
