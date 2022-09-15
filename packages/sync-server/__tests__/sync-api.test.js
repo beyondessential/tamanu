@@ -316,7 +316,7 @@ describe('Sync API', () => {
 
       beforeAll(async () => {
         await ctx.store.models.Encounter.destroy({ where: {}, force: true });
-        encounterData = await buildNestedEncounter(ctx.store, patientId);
+        encounterData = await buildNestedEncounter(ctx.store.models, patientId);
 
         // Get already created non sensitive survey to grab the programId
         const nonSensitiveSurveyId = encounterData.surveyResponses[0].surveyId;
@@ -472,7 +472,7 @@ describe('Sync API', () => {
         it('should return nested encounter relationships', async () => {
           // arrange
           await ctx.store.models.Encounter.destroy({ where: {}, force: true });
-          const encounter = await buildNestedEncounter(ctx.store, patientId);
+          const encounter = await buildNestedEncounter(ctx.store.models, patientId);
           await ctx.store.models.Encounter.create(encounter);
           await upsertAssociations(ctx.store.models.Encounter, encounter);
 
@@ -595,7 +595,7 @@ describe('Sync API', () => {
         it('should upsert nested encounter relationships', async () => {
           // arrange
           await ctx.store.models.Encounter.destroy({ where: {}, force: true });
-          const encounterToInsert = await buildNestedEncounter(ctx.store, patientId);
+          const encounterToInsert = await buildNestedEncounter(ctx.store.models, patientId);
           await ctx.store.models.Encounter.create(encounterToInsert);
           await upsertAssociations(ctx.store.models.Encounter, encounterToInsert);
 

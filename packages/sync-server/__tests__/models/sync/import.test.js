@@ -13,7 +13,8 @@ import {
 } from 'shared/test-helpers';
 import { createImportPlan, executeImportPlan } from 'shared/models/sync';
 import { REFERENCE_TYPES } from 'shared/constants';
-import { initDb } from '../../initDb';
+
+import { createTestContext } from '../../utilities';
 
 // converts a db record and all its relations to a sync record
 const toSyncRecord = record => ({
@@ -30,27 +31,27 @@ const toSyncRecord = record => ({
 
 describe('import', () => {
   describe('in client mode', () => {
+    let ctx;
     let models;
-    let context;
     const patientId = uuidv4();
     const userId = uuidv4();
     const facilityId = uuidv4();
     beforeAll(async () => {
-      context = await initDb({ syncClientMode: true }); // TODO: test server mode too
-      models = context.models;
+      ctx = await createTestContext({ syncClientMode: true });
+      models = ctx.store.models;
       const { Patient, User, Facility } = models;
       await Patient.create({ ...fake(Patient), id: patientId });
       await User.create({ ...fakeUser(), id: userId });
       await Facility.create({ ...fake(Facility), id: facilityId });
     });
-    afterAll(() => context.sequelize.close());
+    afterAll(() => ctx.close());
 
     const rootTestCases = [
       ['Patient', () => fake(models.Patient)],
       ['Program', fakeProgram],
       ['ProgramDataElement', fakeProgramDataElement],
       ['ReferenceData', fakeReferenceData],
-      ['ScheduledVaccine', () => buildScheduledVaccine(context)],
+      ['ScheduledVaccine', () => buildScheduledVaccine(models)],
       ['Survey', fakeSurvey],
       ['SurveyScreenComponent', fakeSurveyScreenComponent],
       ['User', fakeUser],
@@ -187,7 +188,7 @@ describe('import', () => {
       });
 
       const buildEncounterWithId = optionalEncounterId =>
-        buildNestedEncounter(context, patientId, optionalEncounterId);
+        buildNestedEncounter(models, patientId, optionalEncounterId);
 
       [
         [`patient/${patientId}/encounter`, buildEncounterWithId],
@@ -291,15 +292,16 @@ describe('import', () => {
   });
 
   describe('in server mode', () => {
-    let context;
+    let ctx;
     let models;
     const patientId = uuidv4();
     beforeAll(async () => {
-      context = await initDb({ syncClientMode: false });
-      models = context.models;
+      ctx = await createTestContext({ syncClientMode: false });
+      models = ctx.store.models;
       const { Patient } = models;
       await Patient.create({ ...fake(Patient), id: patientId });
     });
+    afterAll(() => ctx.close());
 
     it('removes null or undefined fields when importing', async () => {
       // arrange
@@ -397,13 +399,13 @@ describe('import', () => {
       const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
       const endOfYesterday = new Date(new Date(yesterday).setHours(23, 59, 59, 999));
       const todayEncounter = {
-        ...(await buildEncounter(context, patientId)),
+        ...(await buildEncounter(models, patientId)),
         startDate: today.toISOString(),
         endDate: null,
         encounterType: 'clinic',
       };
       const yesterdayEncounter = {
-        ...(await buildEncounter(context, patientId)),
+        ...(await buildEncounter(models, patientId)),
         startDate: yesterday.toISOString(),
         endDate: null,
         encounterType: 'clinic',
