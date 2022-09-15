@@ -1,11 +1,13 @@
 import { Op } from 'sequelize';
 import config from 'config';
+import asyncPool from 'tiny-async-pool';
 import { sortInDependencyOrder } from 'shared/models/sortInDependencyOrder';
 import { findSessionSyncRecords } from './findSessionSyncRecords';
 import { countSessionSyncRecords } from './countSessionSyncRecords';
 import { mergeRecord } from './mergeRecord';
 
 const { persistedCacheBatchSize } = config.sync;
+const UPDATE_WORKER_POOL_SIZE = 100;
 
 const saveCreates = async (model, records) => model.bulkCreate(records);
 
@@ -14,7 +16,9 @@ const saveUpdates = async (model, incomingRecords, idToExistingRecord) => {
     const existing = idToExistingRecord[incoming.id];
     return mergeRecord(existing, incoming);
   });
-  return Promise.all(mergedRecords.map(async r => model.update(r, { where: { id: r.id } })));
+  await asyncPool(UPDATE_WORKER_POOL_SIZE, mergedRecords, async r =>
+    model.update(r, { where: { id: r.id } }),
+  );
 };
 
 const saveDeletes = async (model, recordIds) =>
