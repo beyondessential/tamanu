@@ -281,7 +281,7 @@ export const createVdsNcTestData = async (labTestId, { models }) => {
     },
     dat: {
       sc: formatInTimeZone(request.sampleTime, 'UTC', DATE_FORMAT_RFC3339),
-      ri: formatInTimeZone(test.completedDate, 'UTC', DATE_FORMAT_RFC3339),
+      ri: formatInTimeZone(new Date(test.completedDate), 'UTC', DATE_FORMAT_RFC3339),
     },
     tr: {
       tc: METHOD_CODE[method.code] ?? method.code,
