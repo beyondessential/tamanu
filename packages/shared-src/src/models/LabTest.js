@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { LAB_TEST_STATUSES } from 'shared/constants';
 import { Model } from './Model';
-import { dateType } from './dateTimeTypes';
+import { dateType, dateTimeType } from './dateTimeTypes';
 import { getCurrentDateString } from '../utils/dateTime';
 
 const LAB_TEST_STATUS_VALUES = Object.values(LAB_TEST_STATUSES);
@@ -11,11 +11,7 @@ export class LabTest extends Model {
     super.init(
       {
         id: primaryKey,
-        date: {
-          ...dateType('date'),
-          allowNull: false,
-          defaultValue: getCurrentDateString,
-        },
+        date: dateType('date', { allowNull: false, defaultValue: getCurrentDateString }),
         status: {
           type: Sequelize.STRING(31),
           allowNull: false,
@@ -33,9 +29,7 @@ export class LabTest extends Model {
         verification: {
           type: Sequelize.STRING,
         },
-        completedDate: {
-          type: Sequelize.DATE,
-        },
+        completedDate: dateTimeType('completedDate'),
       },
       options,
     );

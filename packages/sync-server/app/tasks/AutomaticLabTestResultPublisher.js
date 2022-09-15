@@ -54,7 +54,7 @@ export class AutomaticLabTestResultPublisher extends ScheduledTask {
           await test.update({
             labTestMethodId: resultData.labTestMethodId,
             result: resultData.result,
-            completedDate: new Date(),
+            completedDate: new Date().toISOString(),
           });
 
           // publish the lab request (where it will be picked up by certificate notification if relevant)
