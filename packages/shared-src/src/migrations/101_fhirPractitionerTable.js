@@ -1,11 +1,8 @@
-import Sequelize, { QueryInterface } from 'sequelize';
-import config from 'config';
+import { Sequelize } from 'sequelize';
 
 const TABLE = { schema: 'fhir', tableName: 'practitioners' };
 
-export async function up(query: QueryInterface): Promise<void> {
-  if (config.serverFacilityId) return;
-
+export async function up(query) {
   await query.createTable(TABLE, {
     id: {
       type: Sequelize.UUID,
@@ -46,8 +43,6 @@ export async function up(query: QueryInterface): Promise<void> {
   });
 }
 
-export async function down(query: QueryInterface): Promise<void> {
-  if (config.serverFacilityId) return;
-
+export async function down(query) {
   await query.dropTable(TABLE);
 }
