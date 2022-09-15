@@ -99,7 +99,8 @@ export class ReportDefinitionVersion extends Model {
   }
 
   getParameters() {
-    return this.queryOptions.parameters;
+    const options = JSON.parse(this.queryOptions);
+    return options.parameters;
   }
 
   async dataGenerator(context, parameters) {
