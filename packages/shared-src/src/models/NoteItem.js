@@ -1,6 +1,8 @@
 import { Sequelize } from 'sequelize';
 
 import { Model } from './Model';
+import { dateTimeType } from './dateTimeTypes';
+import { getCurrentDateTimeString } from '../utils/dateTime';
 
 export class NoteItem extends Model {
   static init({ primaryKey, ...options }) {
@@ -16,11 +18,10 @@ export class NoteItem extends Model {
           allowNull: false,
           defaultValue: '',
         },
-        date: {
-          type: Sequelize.DATE,
+        date: dateTimeType('date', {
           allowNull: false,
-          defaultValue: Sequelize.NOW,
-        },
+          defaultValue: getCurrentDateTimeString,
+        }),
       },
       {
         ...options,

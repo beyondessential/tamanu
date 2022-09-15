@@ -2,6 +2,8 @@ import { Sequelize } from 'sequelize';
 import { Model } from './Model';
 import { NoteItem } from './NoteItem';
 import { NOTE_RECORD_TYPE_VALUES, NOTE_TYPE_VALUES } from '../constants';
+import { dateTimeType } from './dateTimeTypes';
+import { getCurrentDateTimeString } from '../utils/dateTime';
 
 export class NotePage extends Model {
   static init({ primaryKey, ...options }) {
@@ -16,11 +18,10 @@ export class NotePage extends Model {
           type: Sequelize.STRING,
           allowNull: false,
         },
-        date: {
-          type: Sequelize.DATE,
+        date: dateTimeType('date', {
           allowNull: false,
-          defaultValue: Sequelize.NOW,
-        },
+          defaultValue: getCurrentDateTimeString,
+        }),
       },
       {
         ...options,
