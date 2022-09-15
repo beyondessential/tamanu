@@ -21,7 +21,7 @@ export async function initDatabase({ testMode = false, syncClientMode = false })
 
   // drop and recreate db
   if (testMode) {
-    await store.sequelize.drop({});
+    await store.sequelize.drop({ cascade: true });
     await store.sequelize.migrate('up');
   }
 
