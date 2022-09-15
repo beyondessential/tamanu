@@ -1,7 +1,9 @@
-import { Sequelize, Model } from 'sequelize';
+import { Sequelize } from 'sequelize';
+import { SYNC_DIRECTIONS } from 'shared/constants';
+import { Model } from '../Model';
 
 export class FhirResource extends Model {
-  static init(attributes, options = {}) {
+  static init(attributes, options) {
     super.init(
       {
         id: {
@@ -26,7 +28,13 @@ export class FhirResource extends Model {
         },
         ...attributes,
       },
-      { ...options, schema: 'fhir' },
+      {
+        ...options,
+        syncConfig: {
+          syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
+        },
+        schema: 'fhir',
+      },
     );
   }
 }

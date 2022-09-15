@@ -194,13 +194,15 @@ const FIELD_HANDLERS = {
   date_string: fakeDateString, // custom type used for date string storage
   'VARCHAR(19)': fakeDateString, // VARCHAR(19) are used for date string storage
   'VARCHAR(255)': fakeString,
-  'VARCHAR(31)': (...args) => fakeString(...args).slice(0, 31),
+  'VARCHAR(N)': (model, attrs, id, length) => fakeString(model, attrs, id).slice(0, length),
   TEXT: fakeString,
   INTEGER: fakeInt,
   FLOAT: fakeFloat,
   'TINYINT(1)': fakeBool,
   BOOLEAN: fakeBool,
   ENUM: (model, { type }) => sample(type.values),
+  UUID: () => uuidv4(),
+  'ABSTRACT[]': () => [],
 };
 
 const IGNORED_FIELDS = [
@@ -318,6 +320,8 @@ export const fake = (model, passedOverrides = {}) => {
       // ignore metadata fields
     } else if (FIELD_HANDLERS[type]) {
       record[name] = FIELD_HANDLERS[type](model, attribute, id);
+    } else if (type && FIELD_HANDLERS[type.replace(/[(](\d+)[)]$/, '(N)')]) {
+      record[name] = FIELD_HANDLERS[type](model, attribute, id, +type.match(/[(](\d+)[)]/)[1]);
     } else {
       // if you hit this error, you probably need to add a new field handler or a model-specific override
       throw new Error(`Could not fake field ${model.name}.${name} of type ${type}`);

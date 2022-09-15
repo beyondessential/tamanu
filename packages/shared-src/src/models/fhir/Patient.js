@@ -1,17 +1,17 @@
-import { DataType } from 'sequelize';
+import { Sequelize, DataTypes } from 'sequelize';
 import { FhirResource } from './Resource';
 import { dateType } from '../dateTimeTypes';
 
 export class FhirPatient extends FhirResource {
-  static init() {
+  static init(options) {
     super.init({
       identifier: {
-        type: DataType.ARRAY(DataType.IDENTIFIER),
+        type: Sequelize.ARRAY(DataTypes.IDENTIFIER),
         allowNull: false,
         defaultValue: [],
       },
       active: {
-        type: DataType.BOOLEAN,
+        type: Sequelize.BOOLEAN,
         allowNull: false,
         defaultValue: true,
       },
@@ -26,7 +26,7 @@ export class FhirPatient extends FhirResource {
       //   defaultValue: '{}',
       // },
       gender: {
-        type: DataType.STRING(10),
+        type: Sequelize.STRING(10),
         allowNull: false,
       },
       birthDate: {
@@ -42,7 +42,7 @@ export class FhirPatient extends FhirResource {
       //   allowNull: false,
       //   defaultValue: '{}',
       // },
-    });
+    }, options);
   }
 
   static initRelations(models) {}
