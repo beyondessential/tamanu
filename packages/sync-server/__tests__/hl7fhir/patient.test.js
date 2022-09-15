@@ -9,10 +9,16 @@ import { validate } from './hl7utilities';
 describe('HL7 Patient', () => {
   let models;
   let ctx;
+  let req;
 
   beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.store.models;
+    req = {
+      store: {
+        models,
+      },
+    };
   });
 
   afterAll(() => ctx.close());
@@ -25,14 +31,14 @@ describe('HL7 Patient', () => {
       ...(await createDummyPatientAdditionalData()),
     });
 
-    const hl7 = patientToHL7Patient(patient, additional || {});
+    const hl7 = patientToHL7Patient(req, patient, additional || {});
     const { result, errors } = validate(hl7);
     expect(errors).toHaveLength(0);
     expect(result).toEqual(true);
   });
 
   it('Should produce a valid HL7 patient from minimal data', async () => {
-    const hl7 = patientToHL7Patient({}, {});
+    const hl7 = patientToHL7Patient(req, {}, {});
     const { result, errors } = validate(hl7);
     expect(errors).toHaveLength(0);
     expect(result).toEqual(true);
