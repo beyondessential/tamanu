@@ -1,8 +1,8 @@
-import { QueryInterface, DataTypes } from 'sequelize';
+import { DataTypes } from 'sequelize';
 
 const ISO9075_DATE_TIME = 'YYYY-MM-DD HH24:MI:SS';
 
-async function updateTableColumn(query: QueryInterface, table: string, column: string) {
+async function updateTableColumn(query, table, column) {
   // 1. Create legacy column
   await query.addColumn(table, `${column}_legacy`, {
     type: DataTypes.DATE,
@@ -22,7 +22,7 @@ async function updateTableColumn(query: QueryInterface, table: string, column: s
   `);
 }
 
-async function downdateTableColumn(query: QueryInterface, table: string, column: string) {
+async function downdateTableColumn(query, table, column) {
   await query.sequelize.query(`
     ALTER TABLE ${table}
     ALTER COLUMN ${column} TYPE timestamp with time zone USING ${column}_legacy;
@@ -30,7 +30,7 @@ async function downdateTableColumn(query: QueryInterface, table: string, column:
   await query.removeColumn(table, `${column}_legacy`);
 }
 
-export async function up(query: QueryInterface) {
+export async function up(query) {
   await updateTableColumn(query, 'encounter_diagnoses', 'date');
   await updateTableColumn(query, 'encounter_medications', 'date');
   await updateTableColumn(query, 'encounter_medications', 'end_date');
@@ -44,7 +44,7 @@ export async function up(query: QueryInterface) {
   await updateTableColumn(query, 'administered_vaccines', 'date');
 }
 
-export async function down(query: QueryInterface) {
+export async function down(query) {
   await downdateTableColumn(query, 'encounter_diagnoses', 'date');
   await downdateTableColumn(query, 'encounter_medications', 'date');
   await downdateTableColumn(query, 'encounter_medications', 'end_date');
