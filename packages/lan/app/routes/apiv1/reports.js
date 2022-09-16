@@ -45,7 +45,7 @@ reports.get(
         id: version.id,
         name: r.name,
         dateRangeLabel: 'Date range (or leave blank for all data)',
-        parameters: version.getParameters(),
+        parameters: version.queryOptions.parameters,
         version: version.versionNumber,
       };
     });

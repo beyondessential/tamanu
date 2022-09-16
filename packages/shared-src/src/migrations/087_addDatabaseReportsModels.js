@@ -1,4 +1,4 @@
-import { STRING, DATE, BOOLEAN, NOW, UUIDV4, QueryInterface, INTEGER, JSON, TEXT } from 'sequelize';
+import { STRING, DATE, BOOLEAN, NOW, UUIDV4, INTEGER, JSON, TEXT } from 'sequelize';
 
 const REPORT_STATUSES = { DRAFT: 'draft', PUBLISHED: 'published' };
 
@@ -44,7 +44,7 @@ const syncColumns = {
   },
 };
 
-export async function up(query: QueryInterface) {
+export async function up(query) {
   // Add Report Definition Table
   await query.createTable('report_definitions', {
     ...basics,
@@ -117,7 +117,7 @@ export async function up(query: QueryInterface) {
   });
 }
 
-export async function down(query: QueryInterface) {
+export async function down(query) {
   // Undo Updates to Report Requests Table
   await query.removeColumn('report_requests', 'facility_id');
   await query.removeColumn('report_requests', 'report_definition_version_id');

@@ -107,7 +107,7 @@ export class ReportDefinitionVersion extends Model {
     const { sequelize } = context;
     const reportQuery = this.get('query');
 
-    const parametersDefinition = this.getParameters();
+    const parametersDefinition = this.queryOptions.parameters;
     const replacements = getQueryReplacementsFromParams(parametersDefinition, parameters);
 
     const queryResults = await sequelize.query(reportQuery, {
