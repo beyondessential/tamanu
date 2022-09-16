@@ -1,6 +1,5 @@
-import Inflection from 'inflection';
 import { snakeCase } from 'lodash';
-import { Sequelize } from 'sequelize';
+import { Sequelize, Utils } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from '../Model';
 
@@ -36,7 +35,7 @@ export class FhirResource extends Model {
           syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
         },
         schema: 'fhir',
-        tableName: snakeCase(Inflection.pluralize(this.name.replace(/^Fhir/, ''))),
+        tableName: snakeCase(Utils.pluralize(this.name.replace(/^Fhir/, ''))),
         timestamps: false,
       },
     );

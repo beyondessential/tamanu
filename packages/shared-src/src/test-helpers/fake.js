@@ -13,6 +13,7 @@ import {
   VISIBILITY_STATUSES,
 } from 'shared/constants';
 import { toDateTimeString, toDateString } from '../utils/dateTime';
+import { FhirIdentifier, FhirPeriod } from '../services/fhirTypes';
 
 const chance = new Chance();
 
@@ -215,8 +216,8 @@ const FIELD_HANDLERS = {
   ENUM: (model, { type }) => sample(type.values),
   UUID: () => uuidv4(),
 
-  // arrays just generate empty arrays
-  'ABSTRACT[]': () => [],
+  FHIR_IDENTIFIER: (...args) => FhirIdentifier.fake(...args),
+  FHIR_PERIOD: (...args) => FhirPeriod.fake(...args),
 };
 
 const IGNORED_FIELDS = [
@@ -322,22 +323,25 @@ export const fake = (model, passedOverrides = {}) => {
   const overrides = { ...modelOverrides, ...passedOverrides };
   const overrideFields = Object.keys(overrides);
 
-  for (const [name, attribute] of Object.entries(model.tableAttributes)) {
+  function fakeField(name, attribute, throwError = true) {
     const { type, fieldName } = attribute;
-
     if (overrideFields.includes(fieldName)) {
-      record[name] = overrides[fieldName];
+      return overrides[fieldName];
     } else if (attribute.references) {
       // null out id fields
-      record[name] = null;
+      return null;
     } else if (IGNORED_FIELDS.includes(fieldName)) {
       // ignore metadata fields
     } else if (FIELD_HANDLERS[type]) {
-      record[name] = FIELD_HANDLERS[type](model, attribute, id);
+      return FIELD_HANDLERS[type](model, attribute, id);
     } else if (type.type && FIELD_HANDLERS[type.type]) {
-      record[name] = FIELD_HANDLERS[type.type](model, attribute, id);
+      return FIELD_HANDLERS[type.type](model, attribute, id);
+    } else if (type instanceof DataTypes.ARRAY && type.options.type) {
+      return Array(random(0, 3))
+        .fill(0)
+        .map(() => fakeField(name, { ...attribute, type: type.options.type }));
     } else if (type instanceof DataTypes.STRING && type.options.length) {
-      record[name] = FIELD_HANDLERS['VARCHAR(N)'](model, attribute, id, type.options.length);
+      return FIELD_HANDLERS['VARCHAR(N)'](model, attribute, id, type.options.length);
     } else {
       // if you hit this error, you probably need to add a new field handler or a model-specific override
       throw new Error(
@@ -346,6 +350,10 @@ export const fake = (model, passedOverrides = {}) => {
         )}`,
       );
     }
+  }
+
+  for (const [name, attribute] of Object.entries(model.tableAttributes)) {
+    record[name] = fakeField(name, attribute);
   }
 
   return record;

@@ -6,7 +6,7 @@ export class FhirPatient extends FhirResource {
   static init(options) {
     super.init({
       identifier: {
-        type: Sequelize.ARRAY(DataTypes.IDENTIFIER),
+        type: Sequelize.ARRAY(DataTypes.FHIR_IDENTIFIER),
         allowNull: false,
         defaultValue: [],
       },
