@@ -142,9 +142,6 @@ export class SyncManager {
   async exportAndPushChannel(model, channel) {
     log.debug(`SyncManager.exportAndPush: syncing`, { channel, model: model.name });
 
-    // don't push records created since we started syncing
-    this.localUntil = this.localUntil || Date.now();
-
     // export
     const plan = createExportPlan(model.sequelize, channel);
     const exportRecords = (cursor = null, limit = EXPORT_LIMIT) => {
@@ -213,6 +210,8 @@ export class SyncManager {
 
     const run = async () => {
       try {
+        this.localUntil = Date.now(); // don't push records created since we started syncing
+
         const startTimestampMs = Date.now();
         log.info(`SyncManager.runSync.run: began sync run`);
         const { models } = this.context;
