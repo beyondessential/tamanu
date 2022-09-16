@@ -231,7 +231,7 @@ describe('Patient', () => {
           createdAt: condition.createdAt.toISOString(),
           updatedAt: condition.updatedAt.toISOString(),
         };
-      }
+      };
 
       commons = {
         clinicianId,
