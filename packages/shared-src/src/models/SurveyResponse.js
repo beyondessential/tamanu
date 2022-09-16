@@ -5,6 +5,7 @@ import {
   SYNC_DIRECTIONS,
 } from 'shared/constants';
 import { Model } from './Model';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { runCalculations } from '../utils/calculations';
 import { getStringValue, getResultValue } from '../utils/fields';
 
@@ -112,6 +113,8 @@ export class SurveyResponse extends Model {
       as: 'referral',
     });
   }
+
+  static buildSyncFilter = buildEncounterLinkedSyncFilter;
 
   static async getSurveyEncounter({ encounterId, patientId, reasonForEncounter, ...responseData }) {
     const { Encounter } = this.sequelize.models;

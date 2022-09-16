@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
+import { buildPatientLinkedSyncFilter } from './buildPatientLinkedSyncFilter';
 export class DocumentMetadata extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
@@ -53,4 +54,6 @@ export class DocumentMetadata extends Model {
       as: 'department',
     });
   }
+
+  static buildSyncFilter = buildPatientLinkedSyncFilter;
 }

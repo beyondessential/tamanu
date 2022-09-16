@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { AVPU_OPTIONS, SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 
 export class Vitals extends Model {
   static init({ primaryKey, ...options }) {
@@ -56,4 +57,6 @@ export class Vitals extends Model {
       as: 'encounter',
     });
   }
+
+  static buildSyncFilter = buildEncounterLinkedSyncFilter;
 }

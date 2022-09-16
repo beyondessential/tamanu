@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { REFERRAL_STATUSES, SYNC_DIRECTIONS } from 'shared/constants';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { Model } from './Model';
 
 export class Referral extends Model {
@@ -35,5 +36,9 @@ export class Referral extends Model {
       foreignKey: 'surveyResponseId',
       as: 'surveyResponse',
     });
+  }
+
+  static buildSyncFilter(patientIds) {
+    return buildEncounterLinkedSyncFilter(patientIds, ['initiatingEncounter']);
   }
 }

@@ -2,6 +2,7 @@ import config from 'config';
 import { upperFirst } from 'lodash';
 import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { Model } from './Model';
 
 export class SurveyResponseAnswer extends Model {
@@ -25,6 +26,10 @@ export class SurveyResponseAnswer extends Model {
       foreignKey: 'responseId',
       as: 'surveyResponse',
     });
+  }
+
+  static buildSyncFilter(patientIds) {
+    return buildEncounterLinkedSyncFilter(patientIds, ['surveyResponse', 'encounter']);
   }
 
   static getDefaultId = async resource => {

@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
+import { buildPatientLinkedSyncFilter } from './buildPatientLinkedSyncFilter';
 
 export class PatientCondition extends Model {
   static init({ primaryKey, ...options }) {
@@ -31,4 +32,6 @@ export class PatientCondition extends Model {
   static getListReferenceAssociations() {
     return ['condition'];
   }
+
+  static buildSyncFilter = buildPatientLinkedSyncFilter;
 }

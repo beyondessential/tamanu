@@ -2,6 +2,7 @@ import { ENCOUNTER_TYPES, SYNC_DIRECTIONS } from 'shared/constants';
 import { Sequelize, Op } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
 
 export class Triage extends Model {
@@ -46,6 +47,8 @@ export class Triage extends Model {
       },
     });
   }
+
+  static buildSyncFilter = buildEncounterLinkedSyncFilter;
 
   static async create(data) {
     const { Department, Encounter, ReferenceData } = this.sequelize.models;

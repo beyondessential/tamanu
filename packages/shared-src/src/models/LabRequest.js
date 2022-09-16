@@ -3,6 +3,7 @@ import { InvalidOperationError } from 'shared/errors';
 
 import { LAB_REQUEST_STATUSES, SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 
@@ -122,6 +123,8 @@ export class LabRequest extends Model {
   static getListReferenceAssociations() {
     return ['requestedBy', 'category', 'priority', 'laboratory'];
   }
+
+  static buildSyncFilter = buildEncounterLinkedSyncFilter;
 
   getTests() {
     return this.sequelize.models.LabTest.findAll({

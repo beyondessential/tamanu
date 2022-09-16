@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { dateType } from './dateTimeTypes';
 
 export class Invoice extends Model {
@@ -35,4 +36,6 @@ export class Invoice extends Model {
       as: 'invoicePriceChangeItems',
     });
   }
+
+  static buildSyncFilter = buildEncounterLinkedSyncFilter;
 }

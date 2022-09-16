@@ -2,6 +2,7 @@ import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { PATIENT_ISSUE_TYPES } from '../constants';
 import { Model } from './Model';
+import { buildPatientLinkedSyncFilter } from './buildPatientLinkedSyncFilter';
 
 export class PatientIssue extends Model {
   static init({ primaryKey, ...options }) {
@@ -30,4 +31,6 @@ export class PatientIssue extends Model {
   static initRelations(models) {
     this.belongsTo(models.Patient, { foreignKey: 'patientId' });
   }
+
+  static buildSyncFilter = buildPatientLinkedSyncFilter;
 }

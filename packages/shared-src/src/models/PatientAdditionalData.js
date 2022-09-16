@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
+import { buildPatientLinkedSyncFilter } from './buildPatientLinkedSyncFilter';
 
 export class PatientAdditionalData extends Model {
   static init({ primaryKey, ...options }) {
@@ -81,6 +82,8 @@ export class PatientAdditionalData extends Model {
   static getFullReferenceAssociations() {
     return ['countryOfBirth', 'nationality'];
   }
+
+  static buildSyncFilter = buildPatientLinkedSyncFilter;
 
   static async getForPatient(patientId) {
     return this.findOne({ where: { patientId } });

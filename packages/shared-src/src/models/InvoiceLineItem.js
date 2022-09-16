@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { INVOICE_LINE_ITEM_STATUSES, SYNC_DIRECTIONS } from 'shared/constants';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { Model } from './Model';
 import { dateType } from './dateTimeTypes';
 
@@ -49,5 +50,9 @@ export class InvoiceLineItem extends Model {
         as: 'orderedBy',
       },
     ];
+  }
+
+  static buildSyncFilter(patientIds) {
+    return buildEncounterLinkedSyncFilter(patientIds, ['invoice', 'encounter']);
   }
 }

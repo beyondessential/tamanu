@@ -202,7 +202,7 @@ export class CentralServerConnection {
   }
 
   async setPullFilter(sessionId, since) {
-    const body = { since };
+    const body = { since, facilityId: config.serverFacilityId };
     return this.fetch(`sync/${sessionId}/pullFilter`, { method: 'POST', body });
   }
 

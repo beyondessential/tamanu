@@ -1,6 +1,7 @@
 import { DataTypes } from 'sequelize';
 import { Model } from './Model';
 import { NoteItem } from './NoteItem';
+import { buildNotePageLinkedSyncFilter } from './buildNoteLinkedSyncFilter';
 import { NOTE_RECORD_TYPE_VALUES, NOTE_TYPE_VALUES, SYNC_DIRECTIONS } from '../constants';
 
 export class NotePage extends Model {
@@ -48,6 +49,7 @@ export class NotePage extends Model {
     NOTE_RECORD_TYPE_VALUES.forEach(modelName => {
       this.belongsTo(models[modelName], {
         foreignKey: 'recordId',
+        as: `${modelName.charAt(0).toLowerCase()}${modelName.slice(1)}`, // lower case first letter
         constraints: false,
       });
     });
@@ -111,4 +113,6 @@ export class NotePage extends Model {
     const parentGetter = `get${this.recordType}`;
     return this[parentGetter](options);
   }
+
+  static buildSyncFilter = buildNotePageLinkedSyncFilter;
 }
