@@ -24,11 +24,11 @@
     "enabled": true
   },
   "sync": {
-    "concurrentChannelChecks": 8
+    "readOnly": false
   },
   "loadshedder": {
     // paths are checked sequentially until a path matches a prefix
-    // (e.g. the path `/v1/sync/patient` would match the prefix `/v1/sync/`)
+    // (e.g. the path `/v1/sync/xxx/pull` would match the prefix `/v1/sync/`)
     //
     // if the path of a request matches a prefix it is added to that queue and
     // may be dropped under heavy load

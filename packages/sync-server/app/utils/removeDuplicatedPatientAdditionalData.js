@@ -8,6 +8,7 @@ const METADATA_COLUMNS = [
   'id',
   'createdAt',
   'updatedAt',
+  'updatedAtSyncTick',
   'deletedAt',
   'patientId',
   'mergedIntoId',
