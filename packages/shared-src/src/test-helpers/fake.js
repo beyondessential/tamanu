@@ -337,7 +337,7 @@ export const fake = (model, passedOverrides = {}) => {
     } else if (type.type && FIELD_HANDLERS[type.type]) {
       record[name] = FIELD_HANDLERS[type.type](model, attribute, id);
     } else if (type instanceof DataTypes.STRING && type.options.length) {
-      record[name] = FIELD_HANDLERS['VARCHAR(N)'](model, attribute, id, type.length);
+      record[name] = FIELD_HANDLERS['VARCHAR(N)'](model, attribute, id, type.options.length);
     } else {
       // if you hit this error, you probably need to add a new field handler or a model-specific override
       throw new Error(
