@@ -1,6 +1,9 @@
 import { random, sample } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import Chance from 'chance';
+import { DataTypes } from 'sequelize';
+import { inspect } from 'util';
+
 import {
   DIAGNOSIS_CERTAINTY_VALUES,
   ENCOUNTER_TYPE_VALUES,
@@ -190,11 +193,20 @@ const fakeBool = () => sample([true, false]);
 const FIELD_HANDLERS = {
   'TIMESTAMP WITH TIME ZONE': fakeDate,
   DATETIME: fakeDate,
-  date_time_string: fakeDateTimeString, // custom type used for datetime string storage
-  date_string: fakeDateString, // custom type used for date string storage
+
+  // custom type used for datetime string storage
+  date_time_string: fakeDateTimeString,
+  DATETIMESTRING: fakeDateTimeString,
+  // custom type used for date string storage
+  date_string: fakeDateString,
+  DATESTRING: fakeDateString,
+
   'VARCHAR(19)': fakeDateString, // VARCHAR(19) are used for date string storage
   'VARCHAR(255)': fakeString,
+
+  // fallback for all other varchar lengths
   'VARCHAR(N)': (model, attrs, id, length) => fakeString(model, attrs, id).slice(0, length),
+
   TEXT: fakeString,
   INTEGER: fakeInt,
   FLOAT: fakeFloat,
@@ -202,6 +214,8 @@ const FIELD_HANDLERS = {
   BOOLEAN: fakeBool,
   ENUM: (model, { type }) => sample(type.values),
   UUID: () => uuidv4(),
+
+  // arrays just generate empty arrays
   'ABSTRACT[]': () => [],
 };
 
@@ -320,12 +334,19 @@ export const fake = (model, passedOverrides = {}) => {
       // ignore metadata fields
     } else if (FIELD_HANDLERS[type]) {
       record[name] = FIELD_HANDLERS[type](model, attribute, id);
-    } else if (type && FIELD_HANDLERS[type.replace(/[(](\d+)[)]$/, '(N)')]) {
-      record[name] = FIELD_HANDLERS[type](model, attribute, id, +type.match(/[(](\d+)[)]/)[1]);
+    } else if (type.type && FIELD_HANDLERS[type.type]) {
+      record[name] = FIELD_HANDLERS[type.type](model, attribute, id);
+    } else if (type instanceof DataTypes.STRING && type.options.length) {
+      record[name] = FIELD_HANDLERS['VARCHAR(N)'](model, attribute, id, type.length);
     } else {
       // if you hit this error, you probably need to add a new field handler or a model-specific override
-      throw new Error(`Could not fake field ${model.name}.${name} of type ${type}`);
+      throw new Error(
+        `Could not fake field ${model.name}.${name} of type ${type} / ${type.type} / ${inspect(
+          type,
+        )}`,
+      );
     }
   }
+
   return record;
 };
