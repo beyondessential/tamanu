@@ -1,4 +1,5 @@
 import config from 'config';
+import { Op } from 'sequelize';
 
 import {
   shouldPush,
@@ -149,16 +150,20 @@ export class SyncManager {
         limit,
         cursor,
       });
-      return executeExportPlan(plan, { since: cursor, limit, until: this.localUntil });
+      return executeExportPlan(plan, { since: cursor, limit });
     };
 
     // mark + unmark
     const markRecords = async () => {
+      const until = config?.sync?.allowUntil
+        ? { updatedAt: { [Op.lt]: new Date(this.localUntil) } }
+        : {};
       await model.update(
         { isPushing: true, markedForPush: false },
         {
           where: {
             markedForPush: true,
+            ...until,
           },
           // skip validation - no sync fields should be used in model validation
           validate: false,
