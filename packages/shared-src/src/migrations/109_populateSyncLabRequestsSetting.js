@@ -16,7 +16,6 @@ module.exports = {
     if (!serverFacilityId) {
       return; // probably a central server, this migration is not required
     }
-    const now = new Date();
     await query.sequelize.query(`
       INSERT INTO settings
         (id, key, value, facility_id, created_at, updated_at)
