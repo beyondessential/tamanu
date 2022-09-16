@@ -1,4 +1,4 @@
-import { ENCOUNTER_TYPES } from 'shared/constants';
+import { ENCOUNTER_TYPES, SYNC_DIRECTIONS } from 'shared/constants';
 import { Sequelize, Op } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
@@ -14,13 +14,14 @@ export class Triage extends Model {
         closedTime: dateTimeType('closedTime'),
         score: Sequelize.TEXT,
       },
-      options,
+      { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );
   }
 
   static initRelations(models) {
     this.belongsTo(models.Encounter, {
       foreignKey: 'encounterId',
+      as: 'encounter',
     });
 
     this.belongsTo(models.User, {

@@ -1,10 +1,9 @@
 import { Sequelize } from 'sequelize';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
-import { initSyncForModelNestedUnderPatient } from './sync';
 
 export class PatientAdditionalData extends Model {
   static init({ primaryKey, ...options }) {
-    const nestedSyncConfig = initSyncForModelNestedUnderPatient(this, 'additionalData');
     super.init(
       {
         id: primaryKey,
@@ -28,16 +27,7 @@ export class PatientAdditionalData extends Model {
       },
       {
         ...options,
-        syncConfig: {
-          ...nestedSyncConfig,
-          channelRoutes: [
-            ...nestedSyncConfig.channelRoutes,
-            {
-              route: 'import/patientAdditionalData',
-            },
-          ],
-          undeleteOnUpdate: true,
-        },
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
   }

@@ -1,6 +1,6 @@
 import Sequelize from 'sequelize';
-import { SYNC_DIRECTIONS } from 'shared/constants';
 import { InvalidOperationError } from 'shared/errors';
+import { SYNC_DIRECTIONS } from '../constants';
 
 import { Model } from './Model';
 
@@ -24,7 +24,7 @@ export class PatientBirthData extends Model {
       },
       {
         ...options,
-        syncConfig: { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         tableName: 'patient_birth_data',
         validate: {
           mustHavePatient() {

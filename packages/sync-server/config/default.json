@@ -24,10 +24,7 @@
     "enabled": true
   },
   "sync": {
-    "concurrentChannelChecks": 8,
-    // embedPatientNotes is a workaround for TAN-1757
-    // TODO: remove after 1.21 release
-    "embedPatientNotes": false
+    "concurrentChannelChecks": 8
   },
   "loadshedder": {
     // paths are checked sequentially until a path matches a prefix

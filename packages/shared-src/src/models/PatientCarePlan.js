@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { initSyncForModelNestedUnderPatient } from './sync';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
 export class PatientCarePlan extends Model {
@@ -11,10 +11,7 @@ export class PatientCarePlan extends Model {
       },
       {
         ...options,
-        syncConfig: {
-          ...initSyncForModelNestedUnderPatient(this, 'carePlan'),
-          includedRelations: ['notePages', 'notePages.noteItems'],
-        },
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
   }

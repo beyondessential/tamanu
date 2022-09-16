@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { REFERRAL_STATUSES } from 'shared/constants';
+import { REFERRAL_STATUSES, SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
 export class Referral extends Model {
@@ -14,7 +14,7 @@ export class Referral extends Model {
           defaultValue: REFERRAL_STATUSES.PENDING,
         },
       },
-      options,
+      { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );
   }
 

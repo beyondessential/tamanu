@@ -31,7 +31,7 @@ export class PatientDeathData extends Model {
       },
       {
         ...options,
-        syncConfig: { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         tableName: 'patient_death_data',
         validate: {
           mustHavePatient() {

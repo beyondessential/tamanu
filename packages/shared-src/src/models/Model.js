@@ -1,33 +1,24 @@
 import * as sequelize from 'sequelize';
-import { SyncConfig } from './sync';
 
-const { Sequelize, Op, Utils } = sequelize;
+const { Op, Utils, Sequelize } = sequelize;
 
 const firstLetterLowercase = s => (s[0] || '').toLowerCase() + s.slice(1);
 
 export class Model extends sequelize.Model {
-  static init(originalAttributes, { syncClientMode, syncConfig, ...options }) {
-    const attributes = { ...originalAttributes };
-    if (syncClientMode && MARKED_FOR_PUSH_MODELS.includes(this.name)) {
-      attributes.markedForPush = {
-        type: Sequelize.BOOLEAN,
-        allowNull: false,
-        defaultValue: true,
-      };
-      attributes.isPushing = {
-        type: Sequelize.BOOLEAN,
-        allowNull: false,
-        defaultValue: false,
-      };
-      attributes.deletedAt = Sequelize.DATE;
-      attributes.pushedAt = Sequelize.DATE;
-      attributes.pulledAt = Sequelize.DATE;
-    }
-    attributes.deletedAt = Sequelize.DATE;
-    super.init(attributes, options);
-    this.syncClientMode = syncClientMode;
+  static init(attributes, { syncDirection, ...options }) {
+    super.init(
+      {
+        ...attributes,
+      },
+      options,
+    );
     this.defaultIdValue = attributes.id.defaultValue;
-    this.syncConfig = new SyncConfig(this, syncConfig);
+    if (!syncDirection) {
+      throw new Error(
+        `Every model must specify a sync direction, even if that is "DO_NOT_SYNC". Check the model definition for ${this.name}`,
+      );
+    }
+    this.syncDirection = syncDirection;
   }
 
   static generateId() {
@@ -106,7 +97,13 @@ export class Model extends sequelize.Model {
     });
   }
 
+  static sanitizeForCentralServer(values) {
+    // implement on the specific model if needed
+    return values;
   }
 
-  static syncConfig = {};
+  static sanitizeForFacilityServer(values) {
+    // implement on the specific model if needed
+    return values;
+  }
 }

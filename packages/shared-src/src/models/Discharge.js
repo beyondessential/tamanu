@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
 export class Discharge extends Model {
@@ -24,7 +25,7 @@ export class Discharge extends Model {
           allowNull: true,
         },
       },
-      { ...options, validate },
+      { ...options, syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, validate },
     );
   }
 

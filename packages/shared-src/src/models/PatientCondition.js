@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { initSyncForModelNestedUnderPatient } from './sync';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
 export class PatientCondition extends Model {
@@ -8,12 +8,16 @@ export class PatientCondition extends Model {
       {
         id: primaryKey,
         note: Sequelize.STRING,
-        recordedDate: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false },
+        recordedDate: {
+          type: Sequelize.DATE,
+          defaultValue: Sequelize.NOW,
+          allowNull: false,
+        },
         resolved: { type: Sequelize.BOOLEAN, defaultValue: false },
       },
       {
         ...options,
-        syncConfig: initSyncForModelNestedUnderPatient(this, 'condition'),
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
   }

@@ -1,4 +1,5 @@
 import { Sequelize } from 'sequelize';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 import { dateType } from './dateTimeTypes';
 
@@ -14,7 +15,7 @@ export class Invoice extends Model {
         receiptNumber: Sequelize.STRING,
         date: dateType('date'),
       },
-      options,
+      { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );
   }
 

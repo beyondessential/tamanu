@@ -54,10 +54,7 @@
       "maxPullLimit": 10000,
       "optimalPullTimePerPageMs": 2000, // aim for 2 seconds per page
       "maxLimitChangePerBatch": 0.2 // max 20% increase/decrease from batch to batch
-    },
-    // embedPatientNotes is a workaround for TAN-1757
-    // TODO: remove after 1.21 release
-    "embedPatientNotes": false
+    }
   },
   "port": 4000,
   "db": {
