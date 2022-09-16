@@ -1,7 +1,7 @@
-import { getToken, remoteLogin } from 'lan/app/middleware/auth';
+import { getToken, centralServerLogin } from 'lan/app/middleware/auth';
 import Chance from 'chance';
 import { pick } from 'lodash';
-import { WebRemote } from '../../app/sync/WebRemote';
+import { CentralServerConnection } from '../../app/sync/CentralServerConnection';
 import { createTestContext } from '../utilities';
 
 const chance = new Chance();
@@ -20,15 +20,15 @@ describe('User', () => {
   let adminApp = null;
   let baseApp = null;
   let models = null;
-  let remote = null;
+  let centralServer = null;
   let ctx;
 
   beforeAll(async () => {
     ctx = await createTestContext();
     baseApp = ctx.baseApp;
     models = ctx.models;
-    remote = ctx.remote;
-    WebRemote.mockImplementation(() => remote);
+    centralServer = ctx.centralServer;
+    CentralServerConnection.mockImplementation(() => centralServer);
     adminApp = await baseApp.asRole('admin');
   });
   afterAll(() => ctx.close());
@@ -115,12 +115,12 @@ describe('User', () => {
       expect(result.body.localisation).toEqual(localisation);
     });
 
-    it('should pass feature flags through from a remote login request', async () => {
-      remote.fetch.mockResolvedValueOnce({
+    it('should pass feature flags through from a central server login request', async () => {
+      centralServer.fetch.mockResolvedValueOnce({
         user: pick(authUser, ['id', 'role', 'email', 'displayName']),
         localisation,
       });
-      const result = await remoteLogin(models, authUser.email, rawPassword);
+      const result = await centralServerLogin(models, authUser.email, rawPassword);
       expect(result).toHaveProperty('localisation', localisation);
       const cache = await models.UserLocalisationCache.findOne({
         where: {

@@ -13,9 +13,9 @@ import { allSeeds } from './seed';
 import { deleteAllTestIds } from './setupUtilities';
 
 import { SyncManager } from '../app/sync/SyncManager';
-import { WebRemote } from '../app/sync/WebRemote';
+import { CentralServerConnection } from '../app/sync/CentralServerConnection';
 
-jest.mock('../app/sync/WebRemote');
+jest.mock('../app/sync/CentralServerConnection');
 jest.mock('../app/utils/uploadAttachment');
 
 const chance = new Chance();
@@ -146,9 +146,9 @@ export async function createTestContext() {
 
   jest.setTimeout(30 * 1000); // more generous than the default 5s but not crazy
 
-  const remote = new WebRemote();
+  const centralServer = new CentralServerConnection();
 
-  const context = { baseApp, sequelize, models, remote };
+  const context = { baseApp, sequelize, models, centralServer };
 
   context.syncManager = new SyncManager(context);
 

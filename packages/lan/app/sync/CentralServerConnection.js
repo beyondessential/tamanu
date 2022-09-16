@@ -37,7 +37,7 @@ const objectToQueryString = obj =>
     .map(kv => kv.map(str => encodeURIComponent(str)).join('='))
     .join('&');
 
-export class WebRemote {
+export class CentralServerConnection {
   connectionPromise = null;
 
   // test mocks don't always apply properly - this ensures the mock will be used
@@ -131,7 +131,7 @@ export class WebRemote {
             `Server responded with status code ${response.status} (${errorMessage})`,
           );
           // attach status and body from response
-          err.remoteResponse = {
+          err.centralServerResponse = {
             status: response.status,
             body: responseBody,
           };
@@ -210,7 +210,7 @@ export class WebRemote {
     };
 
     log.info(
-      `WebRemote.fetchChannelsWithChanges: Beginning channel check for ${channelsToCheck.length} total patients`,
+      `CentralServerConnection.fetchChannelsWithChanges: Beginning channel check for ${channelsToCheck.length} total patients`,
     );
     const channelsWithPendingChanges = [];
     const channelsLeftToCheck = [...channelsToCheck];
@@ -219,7 +219,7 @@ export class WebRemote {
       const batchOfChannels = channelsLeftToCheck.splice(0, batchSize);
       try {
         log.debug(
-          `WebRemote.fetchChannelsWithChanges: Checking channels for ${batchOfChannels.length} patients`,
+          `CentralServerConnection.fetchChannelsWithChanges: Checking channels for ${batchOfChannels.length} patients`,
         );
         const body = batchOfChannels.reduce(
           (acc, { channel, cursor }) => ({
@@ -233,7 +233,9 @@ export class WebRemote {
           body,
           backoff: config.sync.channelsWithChanges.backoff,
         });
-        log.debug(`WebRemote.fetchChannelsWithChanges: OK! ${channelsLeftToCheck.length} left.`);
+        log.debug(
+          `CentralServerConnection.fetchChannelsWithChanges: OK! ${channelsLeftToCheck.length} left.`,
+        );
         channelsWithPendingChanges.push(...channelsWithChanges);
         throttle(algorithmConfig.throttleFactorUp);
       } catch (e) {
@@ -246,13 +248,13 @@ export class WebRemote {
         channelsLeftToCheck.push(...batchOfChannels);
         throttle(algorithmConfig.throttleFactorDown);
         log.debug(
-          `WebRemote.fetchChannelsWithChanges: Failed! Returning records to the back of the queue and slowing to batches of ${batchSize}; ${channelsLeftToCheck.length} left.`,
+          `CentralServerConnection.fetchChannelsWithChanges: Failed! Returning records to the back of the queue and slowing to batches of ${batchSize}; ${channelsLeftToCheck.length} left.`,
         );
       }
     }
 
     log.info(
-      `WebRemote.fetchChannelsWithChanges: Channel check finished. Found ${channelsWithPendingChanges.length} channels with pending changes.`,
+      `CentralServerConnection.fetchChannelsWithChanges: Channel check finished. Found ${channelsWithPendingChanges.length} channels with pending changes.`,
     );
     return channelsWithPendingChanges;
   }
@@ -281,11 +283,11 @@ export class WebRemote {
 
       return response;
     } catch (err) {
-      if (err.remoteResponse) {
+      if (err.centralServerResponse) {
         // pass sync server response back
-        const remoteErrorMsg = err.remoteResponse.body.error?.message;
-        const passThroughError = new Error(remoteErrorMsg ?? err);
-        passThroughError.status = err.remoteResponse.status;
+        const centralServerErrorMsg = err.centralServerResponse.body.error?.message;
+        const passThroughError = new Error(centralServerErrorMsg ?? err);
+        passThroughError.status = err.centralServerResponse.status;
         throw passThroughError;
       } else {
         // fallback

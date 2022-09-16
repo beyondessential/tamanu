@@ -3,10 +3,9 @@ import {
   FacilityAndSyncVersionIncompatibleError,
   RemoteCallFailedError,
   BadAuthenticationError,
-  InvalidOperationError,
 } from 'shared/errors';
 
-const { WebRemote } = jest.requireActual('../../app/sync/WebRemote');
+const { CentralServerConnection } = jest.requireActual('../../app/sync/CentralServerConnection');
 
 const fakeResponse = (response, body, headers) => {
   const validBody = JSON.parse(JSON.stringify(body));
@@ -31,13 +30,13 @@ const fakeTimeout = message => (url, opts) =>
 
 const fetch = jest.fn();
 
-const createRemote = () => {
-  const remote = new WebRemote();
-  remote.fetchImplementation = fetch;
-  return remote;
+const createCentralServerConnection = () => {
+  const centralServer = new CentralServerConnection();
+  centralServer.fetchImplementation = fetch;
+  return centralServer;
 };
 
-describe('WebRemote', () => {
+describe('CentralServerConnection', () => {
   const authSuccess = fakeSuccess({
     token: 'this-is-not-real',
     user: {
@@ -76,104 +75,71 @@ describe('WebRemote', () => {
   );
 
   describe('authentication', () => {
-    it('authenticates against a remote sync-server', async () => {
-      const remote = createRemote();
+    it('authenticates against a central server', async () => {
+      const centralServer = createCentralServerConnection();
       fetch.mockReturnValueOnce(authSuccess);
-      await remote.connect();
-      expect(remote.token).toEqual('this-is-not-real');
+      await centralServer.connect();
+      expect(centralServer.token).toEqual('this-is-not-real');
     });
 
     it('throws a BadAuthenticationError if the credentials are invalid', async () => {
-      const remote = createRemote();
+      const centralServer = createCentralServerConnection();
       fetch.mockReturnValueOnce(authInvalid);
-      await expect(remote.connect()).rejects.toThrow(BadAuthenticationError);
+      await expect(centralServer.connect()).rejects.toThrow(BadAuthenticationError);
     });
 
     it('throws a FacilityAndSyncVersionIncompatibleError with an appropriate message if the client version is too low', async () => {
-      const remote = createRemote();
+      const centralServer = createCentralServerConnection();
       fetch.mockReturnValueOnce(clientVersionLow);
-      await expect(remote.connect()).rejects.toThrow(/please upgrade.*v1\.0\.0/i);
+      await expect(centralServer.connect()).rejects.toThrow(/please upgrade.*v1\.0\.0/i);
       fetch.mockReturnValueOnce(clientVersionLow);
-      await expect(remote.connect()).rejects.toThrow(FacilityAndSyncVersionIncompatibleError);
+      await expect(centralServer.connect()).rejects.toThrow(
+        FacilityAndSyncVersionIncompatibleError,
+      );
     });
 
     it('throws a FacilityAndSyncVersionIncompatibleError with an appropriate message if the client version is too high', async () => {
-      const remote = createRemote();
+      const centralServer = createCentralServerConnection();
       fetch.mockReturnValueOnce(clientVersionHigh);
-      await expect(remote.connect()).rejects.toThrow(/only supports up to v2\.0\.0/i);
+      await expect(centralServer.connect()).rejects.toThrow(/only supports up to v2\.0\.0/i);
       fetch.mockReturnValueOnce(clientVersionHigh);
-      await expect(remote.connect()).rejects.toThrow(FacilityAndSyncVersionIncompatibleError);
+      await expect(centralServer.connect()).rejects.toThrow(
+        FacilityAndSyncVersionIncompatibleError,
+      );
     });
 
     it('throws a RemoteCallFailedError if any other server error is returned', async () => {
-      const remote = createRemote();
+      const centralServer = createCentralServerConnection();
       fetch.mockReturnValueOnce(authFailure);
-      await expect(remote.connect()).rejects.toThrow(RemoteCallFailedError);
+      await expect(centralServer.connect()).rejects.toThrow(RemoteCallFailedError);
     });
 
     it('retrieves user data', async () => {
-      const remote = createRemote();
+      const centralServer = createCentralServerConnection();
       fetch
         .mockReturnValueOnce(authSuccess)
         .mockReturnValueOnce(fakeSuccess({ displayName: 'Fake User' }));
-      expect(await remote.whoami()).toMatchObject({ displayName: 'Fake User' });
+      expect(await centralServer.whoami()).toMatchObject({ displayName: 'Fake User' });
     });
 
     it('retries if a token is invalid', async () => {
-      const remote = createRemote();
+      const centralServer = createCentralServerConnection();
       fetch
         .mockReturnValueOnce(authSuccess)
         .mockReturnValueOnce(authInvalid)
         .mockReturnValueOnce(authSuccess)
         .mockReturnValueOnce(fakeSuccess({ displayName: 'Fake User' }));
-      expect(await remote.whoami()).toMatchObject({ displayName: 'Fake User' });
+      expect(await centralServer.whoami()).toMatchObject({ displayName: 'Fake User' });
     });
 
     it('times out requests', async () => {
       jest.setTimeout(2000); // fail quickly
       jest.useFakeTimers();
-      const remote = createRemote();
+      const centralServer = createCentralServerConnection();
       fetch.mockImplementationOnce(fakeTimeout('fake timeout'));
-      const connectPromise = remote.connect();
+      const connectPromise = centralServer.connect();
       jest.runAllTimers();
       await await expect(connectPromise).rejects.toThrow('fake timeout');
-    });
-  });
-
-  describe('pull', () => {
-    it('pulls records', async () => {
-      const remote = createRemote();
-      const body = {
-        records: [{ id: 'abc' }],
-        count: 1,
-        requestedAt: 123456,
-      };
-      fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(fakeSuccess(body));
-      expect(remote.pull('reference')).resolves.toEqual(body);
-    });
-
-    it('throws an error on an invalid response', async () => {
-      const remote = createRemote();
-      fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(fakeFailure(403));
-      await expect(remote.pull('reference')).rejects.toThrow(RemoteCallFailedError);
-    });
-  });
-
-  describe('push', () => {
-    it('pushes records', async () => {
-      const remote = createRemote();
-      const body = {
-        count: 1,
-        requestedAt: 123456,
-      };
-      fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(fakeSuccess(body));
-      expect(remote.push('reference', [{ id: 'abc' }])).resolves.toEqual(body);
-    });
-
-    it('throws an error on an invalid response', async () => {
-      const remote = createRemote();
-      fetch.mockReturnValueOnce(authSuccess).mockReturnValueOnce(fakeFailure(403));
-      await expect(remote.push('reference')).rejects.toThrow(RemoteCallFailedError);
     });
   });
 });
