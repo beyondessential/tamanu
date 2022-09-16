@@ -1,6 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import * as reportUtils from 'shared/reports';
+import { REPORT_STATUSES } from 'shared/constants';
 import { createNamedLogger } from 'shared/services/logging/createNamedLogger';
 import { assertReportEnabled } from '../../utils/assertReportEnabled';
 
@@ -31,7 +32,7 @@ reports.get(
         {
           model: models.ReportDefinitionVersion,
           as: 'versions',
-          where: { status: 'published' },
+          where: { status: REPORT_STATUSES.PUBLISHED },
         },
       ],
       order: [['versions', 'version_number', 'DESC']],
@@ -44,7 +45,8 @@ reports.get(
       return {
         id: version.id,
         name: r.name,
-        dateRangeLabel: 'Date range (or leave blank for all data)',
+        dataSourceOptions: version.queryOptions.dataSources,
+        dateRangeLabel: version.queryOptions.dateRangeLabel,
         parameters: version.queryOptions.parameters,
         version: version.versionNumber,
       };

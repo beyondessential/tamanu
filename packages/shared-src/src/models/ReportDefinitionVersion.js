@@ -15,6 +15,7 @@ const optionsValidator = yup.object({
       }),
     ),
   dataSources: yup.array(),
+  dateRangeLabel: yup.string(),
 });
 
 const generateReportFromQueryData = queryData => {
