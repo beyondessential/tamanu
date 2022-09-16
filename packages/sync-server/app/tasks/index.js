@@ -1,5 +1,5 @@
 import config from 'config';
-
+import { findUser } from '../auth/utils';
 import { PatientEmailCommunicationProcessor } from './PatientEmailCommunicationProcessor';
 import { OutpatientDischarger } from './OutpatientDischarger';
 import { DeceasedPatientDischarger } from './DeceasedPatientDischarger';
@@ -50,7 +50,7 @@ export async function startScheduledTasks(context) {
 }
 
 async function getReportSchedulers(context) {
-  const initialUser = await context.store.findUser(config.auth.initialUser.email);
+  const initialUser = await findUser(context.store.models, config.auth.initialUser.email);
 
   const schedulers = [];
   for (const options of config.scheduledReports) {
