@@ -18,7 +18,7 @@ describe('buildEncounterLinkedSyncFilter', () => {
   });
 
   it('assumes it is the encounter if an empty array is passed', () => {
-    const filter = buildEncounterLinkedSyncFilter(PATIENT_IDS, []);
+    const filter = buildEncounterLinkedSyncFilter(PATIENT_IDS, {}, []);
     expect(filter).toEqual({
       where: {
         [Op.or]: [{ $patient_id$: IN_PATIENT_IDS }],
@@ -28,7 +28,11 @@ describe('buildEncounterLinkedSyncFilter', () => {
   });
 
   it('traverses the associations in the array to build a filter', () => {
-    const filter = buildEncounterLinkedSyncFilter(PATIENT_IDS, ['potato', 'lunch', 'encounter']);
+    const filter = buildEncounterLinkedSyncFilter(PATIENT_IDS, {}, [
+      'potato',
+      'lunch',
+      'encounter',
+    ]);
     expect(filter).toEqual({
       where: {
         [Op.or]: [{ '$potato.lunch.encounter.patient_id$': IN_PATIENT_IDS }],
@@ -53,6 +57,7 @@ describe('buildEncounterLinkedSyncFilter', () => {
     };
     const filter = buildEncounterLinkedSyncFilter(
       PATIENT_IDS,
+      {},
       ['surveyResponse', 'encounter'],
       config,
     );
@@ -82,13 +87,12 @@ describe('buildEncounterLinkedSyncFilter', () => {
   });
 
   it('adds in lab requests if that flag is turned on', () => {
-    const config = {
-      sync: { syncAllLabRequests: true },
-    };
     const filter = buildEncounterLinkedSyncFilter(
       PATIENT_IDS,
+      {
+        syncAllLabRequests: true,
+      },
       ['surveyResponse', 'encounter'],
-      config,
     );
     expect(filter).toEqual({
       where: {
@@ -123,13 +127,13 @@ describe('buildEncounterLinkedSyncFilter', () => {
           },
         },
       },
-      sync: {
-        syncAllLabRequests: true,
-      },
     };
 
     const filter = buildEncounterLinkedSyncFilter(
       PATIENT_IDS,
+      {
+        syncAllLabRequests: true,
+      },
       ['surveyResponse', 'encounter'],
       config,
     );

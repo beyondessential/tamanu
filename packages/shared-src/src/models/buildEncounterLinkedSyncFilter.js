@@ -23,6 +23,7 @@ function includeWithinEncounter(include, association) {
 
 export function buildEncounterLinkedSyncFilter(
   patientIds,
+  facilitySettings = {},
   associationsToTraverse = ['encounter'], // e.g. ['surveyResponse', 'encounter'] to traverse up from SurveyResponseAnswer
   configOverride, // used in tests
 ) {
@@ -34,9 +35,8 @@ export function buildEncounterLinkedSyncFilter(
   // basic patient filter to only include data from encounters related to patients marked for sync
   const or = [{ [`$${pathToEncounter}patient_id$`]: { [Op.in]: patientIds } }];
 
-  // add any encounters with a lab request, if syncing labs everywhere is turned on
-  // TODO this config exists on the lan not sync server
-  if (config.sync?.syncAllLabRequests) {
+  // add any encounters with a lab request, if syncing all labs is turned on for facility
+  if (facilitySettings.syncAllLabRequests) {
     or.push({ [`$${pathToEncounter}labRequest.id$`]: { [Op.not]: null } });
     if (isEncounter) {
       include.push('labRequest');
