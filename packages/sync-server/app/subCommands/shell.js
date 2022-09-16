@@ -1,7 +1,6 @@
-import repl from 'node:repl';
-import { promisify } from 'node:util';
-import { homedir } from 'node:os';
-import { join } from 'node:path';
+import repl from 'repl';
+import { homedir } from 'os';
+import { join } from 'path';
 
 import { Command } from 'commander';
 
@@ -30,13 +29,8 @@ export const shell = async ({ skipMigrationCheck }) => {
     store,
     models: store.models,
   });
-  return new Promise(resolve =>
-    replServer.on('exit', () => {
-      console.log('Received "exit" event from repl!');
-      resolve();
-      process.exit();
-    }),
-  );
+
+  return new Promise(resolve => replServer.on('exit', () => resolve()));
 };
 
 export const shellCommand = new Command('shell').description('Start a Node.js shell').action(shell);
