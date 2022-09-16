@@ -31,7 +31,7 @@ describe('Reports', () => {
         versionNumber: 1,
         status: 'published',
         userId: user.id,
-        queryOptions: '{"parameters":[{"parameterField":"EmailField","name":"email"}]}',
+        queryOptions: { parameters: [{ parameterField: 'EmailField', name: 'email' }] },
         query: 'SELECT * from users WHERE email LIKE :email;',
       });
     });
