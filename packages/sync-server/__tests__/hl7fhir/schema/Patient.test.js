@@ -1,7 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { add } from 'date-fns';
-import { fake, fakeUser } from 'shared/test-helpers';
-import { fakeReferenceData } from 'shared/test-helpers/fake';
+import { fake, fakeUser, fakeReferenceData, showError } from 'shared/test-helpers';
 import { createTestContext } from '../../utilities';
 
 describe('Patient', () => {
@@ -14,7 +13,7 @@ describe('Patient', () => {
   });
   afterAll(() => ctx.close());
 
-  it('should create', async () => {
+  it('should create', () => showError(async () => {
     // Arrange
     const { FhirPatient } = models;
     const patientId = uuidv4();
@@ -24,5 +23,5 @@ describe('Patient', () => {
 
     // Assert
     expect(patient.versionId).toExist();
-  });
+  }));
 });
