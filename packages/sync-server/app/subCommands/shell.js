@@ -1,4 +1,8 @@
 import repl from 'node:repl';
+import { promisify } from 'node:util';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
+
 import { Command } from 'commander';
 
 import { log } from 'shared/services/logging';
@@ -14,7 +18,13 @@ export const shell = async ({ skipMigrationCheck }) => {
 
   await store.sequelize.assertUpToDate({ skipMigrationCheck });
 
-  const replServer = repl.start();
+  const replServer = await new Promise((resolve, reject) =>
+    repl.start().setupHistory(join(homedir(), '.tamanu_repl_history'), (err, srv) => {
+      if (err) reject(err);
+      else resolve(srv);
+    }),
+  );
+
   Object.assign(replServer.context, {
     context,
     store,
