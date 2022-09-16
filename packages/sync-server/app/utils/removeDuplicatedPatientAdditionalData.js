@@ -10,10 +10,6 @@ const METADATA_COLUMNS = [
   'updatedAt',
   'deletedAt',
   'patientId',
-  'markedForPush',
-  'pushedAt',
-  'pulledAt',
-  'isPushing',
   'mergedIntoId',
 ];
 

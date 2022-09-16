@@ -203,16 +203,7 @@ const FIELD_HANDLERS = {
   ENUM: (model, { type }) => sample(type.values),
 };
 
-const IGNORED_FIELDS = [
-  'createdAt',
-  'updatedAt',
-  'deletedAt',
-  'pushedAt',
-  'pulledAt',
-  'markedForPush',
-  'markedForSync',
-  'isPushing',
-];
+const IGNORED_FIELDS = ['createdAt', 'updatedAt', 'deletedAt'];
 
 const MODEL_SPECIFIC_OVERRIDES = {
   Facility: () => ({
