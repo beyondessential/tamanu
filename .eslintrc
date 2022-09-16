@@ -5,9 +5,7 @@
     "browser": true,
     "node": true
   },
-  "plugins": [
-    "react-hooks"
-  ],
+  "plugins": ["react-hooks"],
   "rules": {
     // get around an issue in how electron sets up its packages
     // where it can't detect certain dependencies even if they're installed
@@ -15,14 +13,14 @@
     // https://github.com/benmosher/eslint-plugin-import/issues/479
     "import/no-extraneous-dependencies": false,
 
-    "no-underscore-dangle": "off",
+    "no-underscore-dangle": 0,
     "react/prop-types": false,
     "react-hooks/exhaustive-deps": "error",
     "react-hooks/rules-of-hooks": "error",
 
     // prettier enforces the following jsx rules, and sometimes the styles conflict
     "react/jsx-indent": false,
-    "react/jsx-wrap-multilines": false,
+    "react/jsx-wrap-multilines": false
   },
   "overrides": [
     {
