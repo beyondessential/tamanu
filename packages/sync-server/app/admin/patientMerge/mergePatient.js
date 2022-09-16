@@ -1,7 +1,11 @@
+import { Op } from 'sequelize';
+import { chunk } from 'lodash';
 import { VISIBILITY_STATUSES } from 'shared/constants';
 import { InvalidParameterError } from 'shared/errors';
 import { log } from 'shared/services/logging';
 import { reconcilePatient } from '../../utils/removeDuplicatedPatientAdditionalData';
+
+const BULK_CREATE_BATCH_SIZE = 100;
 
 // These ones just need a patientId switched over.
 // Models included here will just have their patientId field
@@ -26,7 +30,7 @@ const simpleUpdateModels = [
 // These ones need a little more attention.
 // Models in this array will be ignored by the automatic pass
 // so that they can be handled elsewhere.
-const specificUpdateModels = ['Patient', 'PatientAdditionalData'];
+const specificUpdateModels = ['Patient', 'PatientAdditionalData', 'PatientFacility'];
 
 const fieldReferencesPatient = field => field.references?.model === 'patients';
 const modelReferencesPatient = ([, model]) =>
@@ -52,8 +56,8 @@ async function simpleMergeRecordAcross(model, keepPatientId, unwantedPatientId) 
   const tableName = model.getTableName();
   const [, result] = await model.sequelize.query(
     `
-    UPDATE ${tableName} 
-    SET 
+    UPDATE ${tableName}
+    SET
       patient_id = :keepPatientId,
       updated_at = current_timestamp(3)
     WHERE
@@ -130,6 +134,36 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
       updates.PatientAdditionalData = padRecordsMerged;
       // this is the only different bit:
       await reconcilePatient(sequelize, keepPatientId);
+    }
+
+    // Finally reconcile patient_facilities records
+    // This is a special case that helps with syncing the now-merged patient to any facilities
+    // that track it
+    // For any facility with a patient_facilities record on _either_ patient, we create a brand new
+    // patient_facilities record, then delete the old one(s). This is the simplest way of making sure
+    // that no matter what, all facilities that previously tracked either patient will track the
+    // merged one, _and_ will resync it from scratch and get any history that was associated by the
+    // one that wasn't tracked (obviously there are individual cases that could be handled more
+    // specifically, but better to have a simple rule to rule them all, at the expense of a bit of
+    // extra sync bandwidth)
+    const where = { patientId: { [Op.in]: [keepPatientId, unwantedPatientId] } };
+    const existingPatientFacilityRecords = await models.PatientFacility.findAll({
+      where,
+    });
+    await models.PatientFacility.destroy({ where, force: true }); // hard delete
+    const facilitiesTrackingPatient = [
+      ...new Set(existingPatientFacilityRecords.map(r => r.facilityId)),
+    ];
+    const newPatientFacilities = facilitiesTrackingPatient.map(facilityId => ({
+      patientId: keepPatientId,
+      facilityId,
+    }));
+
+    if (newPatientFacilities.length > 0) {
+      for (const chunkOfRecords of chunk(newPatientFacilities, BULK_CREATE_BATCH_SIZE)) {
+        await models.PatientFacility.bulkCreate(newPatientFacilities);
+      }
+      updates.PatientFacility = newPatientFacilities.length;
     }
 
     log.info('patientMerge: finished', {
