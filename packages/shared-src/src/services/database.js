@@ -1,7 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { createNamespace } from 'cls-hooked';
 import pg from 'pg';
-import wayfarer from 'wayfarer';
 import util from 'util';
 
 // an issue in how webpack's require handling interacts with sequelize means we need
@@ -13,7 +12,6 @@ import { log } from './logging';
 
 import { migrate, assertUpToDate } from './migrations';
 import * as models from '../models';
-import { initSyncHooks } from '../models/sync';
 import { createDateTypes } from './createDateTypes';
 
 createDateTypes();
@@ -123,7 +121,6 @@ export async function initDatabase(dbOptions) {
     saltRounds = null,
     primaryKeyDefault = Sequelize.UUIDV4,
     hackToSkipEncounterValidation = false, // TODO: remove once mobile implements all relationships
-    syncClientMode = false,
     sqlitePath,
   } = dbOptions;
 
@@ -164,7 +161,6 @@ export async function initDatabase(dbOptions) {
         sequelize,
         paranoid: makeEveryModelParanoid,
         hackToSkipEncounterValidation,
-        syncClientMode,
       },
       models,
     );
@@ -175,27 +171,6 @@ export async function initDatabase(dbOptions) {
       modelClass.initRelations(models);
     }
   });
-
-  // init global sync hooks that live in shared-src
-  initSyncHooks(models);
-
-  // router to convert channelRoutes (e.g. `[patient/:patientId/issue]`) to a model + params
-  // (e.g. PatientIssue + { patientId: 'abc123', route: '...' })
-  sequelize.channelRouter = wayfarer();
-  for (const model of modelClasses) {
-    /*
-     * add channel route to channelRouter
-     *
-     *   a channel route: `patient/:patientId/foobar`
-     *   a channel:       `patient/1234abcd/foobar`
-     */
-    for (const channelRoute of model.syncConfig.channelRoutes) {
-      sequelize.channelRouter.on(channelRoute.route, (params, f) => f(model, params, channelRoute));
-    }
-
-    // run afterInit callbacks for model
-    await Promise.all(model.afterInitCallbacks.map(fn => fn()));
-  }
 
   // add isInsideTransaction helper to avoid exposing the namespace
   sequelize.isInsideTransaction = () => !!namespace.get('transaction');
