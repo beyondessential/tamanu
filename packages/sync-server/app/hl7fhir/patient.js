@@ -15,7 +15,7 @@ import {
 import { modifiers } from './hl7Parameters';
 import { hl7PatientFields } from './hl7PatientFields';
 
-import { PATIENT_MERGE_TYPE } from './constants';
+import { PATIENT_LINK_TYPES } from './constants';
 
 function patientName(patient, additional) {
   const official = {
@@ -132,7 +132,7 @@ export function getFlattenMergedPatientReplaceLinks(
   for (const mergedPatient of mergedPatients) {
     links.push({
       other: getHL7Link(`${baseUrl}/Patient/${mergedPatient.id}`),
-      type: PATIENT_MERGE_TYPE.REPLACES,
+      type: PATIENT_LINK_TYPES.REPLACES,
     });
     // get deeper level of merged patients if there's any
     links.push(
@@ -167,13 +167,13 @@ export function getFlattenMergedPatientReplacecByLinks(baseUrl, patient, patient
   if (patient.mergedIntoId && supersededPatient?.mergedIntoId) {
     links.push({
       other: getHL7Link(`${baseUrl}/Patient/${patient.mergedIntoId}`),
-      type: PATIENT_MERGE_TYPE.SEE_ALSO,
+      type: PATIENT_LINK_TYPES.SEE_ALSO,
     });
     links.push(...getFlattenMergedPatientReplacecByLinks(baseUrl, supersededPatient, patientById));
   } else {
     links.push({
       other: getHL7Link(`${baseUrl}/Patient/${patient.mergedIntoId}`),
-      type: PATIENT_MERGE_TYPE.REPLACED_BY,
+      type: PATIENT_LINK_TYPES.REPLACED_BY,
     });
   }
 

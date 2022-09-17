@@ -13,5 +13,7 @@ export function getHL7Link(baseUrl, params = {}) {
     })
     .flat()
     .join('&');
-  return [baseUrl, query].filter(c => c).join('?');
+  const url = new URL(baseUrl);
+  url.search = new URLSearchParams(query);
+  return url.toString();
 }
