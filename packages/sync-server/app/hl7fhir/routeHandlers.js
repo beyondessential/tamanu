@@ -129,7 +129,7 @@ export function singlePatientHandler() {
     'Patient',
     [{ association: 'additionalData' }],
     (patient, req) => patientToHL7Patient(req, patient, patient.additionalData[0]),
-    { visibilityStatus: { [Op.in]: [VISIBILITY_STATUSES.CURRENT, VISIBILITY_STATUSES.MERGED] } }, // to only get active or merged patients
+    getPatientWhereClause(null, {}), // to only get active or merged patients
     { paranoid: false }, // to allow getting inactive patient
   );
 }
