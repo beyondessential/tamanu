@@ -18,6 +18,7 @@ export class FhirIdentifier extends Composite {
         .default(null),
       system: yup
         .string()
+        .url()
         .nullable()
         .default(null),
       value: yup
@@ -38,7 +39,7 @@ export class FhirIdentifier extends Composite {
   static fake(model, { fieldName }, id) {
     return new this({
       use: sample(USES),
-      system: `${model.name}.${uuidv4()}`,
+      system: `https://tamanu.io/${model.name}/${uuidv4()}`,
       value: `${fieldName}.${id}`,
     });
   }
