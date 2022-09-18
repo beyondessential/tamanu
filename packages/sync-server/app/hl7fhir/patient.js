@@ -243,7 +243,7 @@ export const patientToHL7PatientList = async (req, patients) => {
   const hl7Patients = [];
 
   for (const patient of patients) {
-    const hl7Patient = convertPatientToHL7Patient(patient, patient.additionalData[0]);
+    const hl7Patient = convertPatientToHL7Patient(patient, patient.additionalData?.[0]);
     const links = getPatientLinks(baseUrl, patient, patientById, mergedPatientsByMergedIntoId);
 
     hl7Patients.push({ ...hl7Patient, ...(links.length ? { link: links } : {}) });

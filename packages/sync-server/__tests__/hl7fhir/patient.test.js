@@ -3,7 +3,11 @@ import { VISIBILITY_STATUSES } from 'shared/constants/importable';
 import { createDummyPatient, createDummyPatientAdditionalData } from 'shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
-import { patientToHL7Patient, getPatientWhereClause } from '../../app/hl7fhir/patient';
+import {
+  patientToHL7Patient,
+  patientToHL7PatientList,
+  getPatientWhereClause,
+} from '../../app/hl7fhir/patient';
 
 import { validate } from './hl7utilities';
 import { PATIENT_LINK_TYPES } from '../../app/hl7fhir/constants';
@@ -96,64 +100,80 @@ describe('HL7 Patient', () => {
     });
   });
 
-  describe('Merged patients', () => {
-    let primaryPatientA;
-    let mergedPatientB;
-    let mergedPatientC;
-    let mergedPatientD;
+  describe('Patient links', () => {
+    describe('Merged patients', () => {
+      let primaryPatientA;
+      let mergedPatientB;
+      let mergedPatientC;
+      let mergedPatientD;
+      let mergedPatients;
 
-    beforeAll(async () => {
-      const primaryPatientAData = await createDummyPatient(models);
-      primaryPatientA = await models.Patient.create({
-        ...primaryPatientAData,
-        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      beforeAll(async () => {
+        const primaryPatientAData = await createDummyPatient(models);
+        primaryPatientA = await models.Patient.create({
+          ...primaryPatientAData,
+          visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+        });
+
+        const mergedPatientBData = await createDummyPatient(models);
+        mergedPatientB = await models.Patient.create({
+          ...mergedPatientBData,
+          visibilityStatus: VISIBILITY_STATUSES.MERGED,
+          mergedIntoId: primaryPatientA.id,
+        });
+
+        const mergedPatientCData = await createDummyPatient(models);
+        mergedPatientC = await models.Patient.create({
+          ...mergedPatientCData,
+          visibilityStatus: VISIBILITY_STATUSES.MERGED,
+          mergedIntoId: mergedPatientB.id,
+        });
+
+        const mergedPatientDData = await createDummyPatient(models);
+        mergedPatientD = await models.Patient.create({
+          ...mergedPatientDData,
+          visibilityStatus: VISIBILITY_STATUSES.MERGED,
+          mergedIntoId: mergedPatientB.id,
+        });
+
+        mergedPatients = [primaryPatientA, mergedPatientB, mergedPatientC, mergedPatientD];
       });
 
-      const mergedPatientBData = await createDummyPatient(models);
-      mergedPatientB = await models.Patient.create({
-        ...mergedPatientBData,
-        visibilityStatus: VISIBILITY_STATUSES.MERGED,
-        mergedIntoId: primaryPatientA.id,
+      describe('Multiple entries', () => {
+        it('should contain links if applicable', async () => {
+          const hl7Patients = await patientToHL7PatientList(req, mergedPatients);
+          expect(hl7Patients.length).toEqual(4);
+
+          for (const hl7Patient of hl7Patients) {
+            expect(hl7Patient).toHaveProperty('link');
+          }
+        });
       });
 
-      const mergedPatientCData = await createDummyPatient(models);
-      mergedPatientC = await models.Patient.create({
-        ...mergedPatientCData,
-        visibilityStatus: VISIBILITY_STATUSES.MERGED,
-        mergedIntoId: mergedPatientB.id,
-      });
+      describe('Single entry', () => {
+        it("should contain 'replaces' link pointing to the merged patient from primary patient", async () => {
+          const hl7Patient = await patientToHL7Patient(req, primaryPatientA);
+          expect(hl7Patient.link[0].type).toEqual(PATIENT_LINK_TYPES.REPLACES);
+          expect(hl7Patient.link[0].other).toMatch(`Patient/${mergedPatientB.id}`);
+        });
 
-      const mergedPatientDData = await createDummyPatient(models);
-      mergedPatientD = await models.Patient.create({
-        ...mergedPatientDData,
-        visibilityStatus: VISIBILITY_STATUSES.MERGED,
-        mergedIntoId: mergedPatientB.id,
-      });
-    });
+        it("should contain 'replaced-by' link pointing to the primary patient from merged patient", async () => {
+          const hl7Patient = await patientToHL7Patient(req, mergedPatientB);
+          expect(hl7Patient.link[0].type).toEqual(PATIENT_LINK_TYPES.REPLACED_BY);
+          expect(hl7Patient.link[0].other).toMatch(`Patient/${primaryPatientA.id}`);
+        });
 
-    describe('Patient links', () => {
-      it("should contain 'replaces' link pointing to the merged patient from primary patient", async () => {
-        const hl7Patient = await patientToHL7Patient(req, primaryPatientA);
-        expect(hl7Patient.link[0].type).toEqual(PATIENT_LINK_TYPES.REPLACES);
-        expect(hl7Patient.link[0].other).toMatch(`Patient/${mergedPatientB.id}`);
-      });
+        it("should contain 'seealso' link pointing to the merged patient from main patient when there are 2 level of merges", async () => {
+          const hl7Patient = await patientToHL7Patient(req, mergedPatientC);
+          expect(hl7Patient.link[0].type).toEqual(PATIENT_LINK_TYPES.SEE_ALSO);
+          expect(hl7Patient.link[0].other).toMatch(`Patient/${mergedPatientB.id}`);
+        });
 
-      it("should contain 'replaced-by' link pointing to the primary patient from merged patient", async () => {
-        const hl7Patient = await patientToHL7Patient(req, mergedPatientB);
-        expect(hl7Patient.link[0].type).toEqual(PATIENT_LINK_TYPES.REPLACED_BY);
-        expect(hl7Patient.link[0].other).toMatch(`Patient/${primaryPatientA.id}`);
-      });
-
-      it("should contain 'seealso' link pointing to the merged patient from main patient when there are 2 level of merges", async () => {
-        const hl7Patient = await patientToHL7Patient(req, mergedPatientC);
-        expect(hl7Patient.link[0].type).toEqual(PATIENT_LINK_TYPES.SEE_ALSO);
-        expect(hl7Patient.link[0].other).toMatch(`Patient/${mergedPatientB.id}`);
-      });
-
-      it("should contain 'replaces' link pointing to the latest active primary patient from merged patient when there are 2 level of merges", async () => {
-        const hl7Patient = await patientToHL7Patient(req, mergedPatientD);
-        expect(hl7Patient.link[0].type).toEqual(PATIENT_LINK_TYPES.SEE_ALSO);
-        expect(hl7Patient.link[0].other).toMatch(`Patient/${mergedPatientB.id}`);
+        it("should contain 'replaces' link pointing to the latest active primary patient from merged patient when there are 2 level of merges", async () => {
+          const hl7Patient = await patientToHL7Patient(req, mergedPatientD);
+          expect(hl7Patient.link[0].type).toEqual(PATIENT_LINK_TYPES.SEE_ALSO);
+          expect(hl7Patient.link[0].other).toMatch(`Patient/${mergedPatientB.id}`);
+        });
       });
     });
   });
