@@ -3,7 +3,7 @@ import QRCode from 'qrcode';
 import { storiesOf } from '@storybook/react';
 import { createDummyPatient, createDummyPatientAdditionalData } from 'shared/demoData';
 import { CovidLabCertificate, VaccineCertificate } from 'shared/utils/patientCertificates';
-// import { PDFViewer } from '@react-pdf/renderer';
+import { PDFViewer } from '@react-pdf/renderer';
 import { DeathCertificate } from '../app/components/PatientPrinting/DeathCertificate';
 import { LabRequestPrintout } from '../app/components/PatientPrinting/LabRequestPrintout';
 import SigningImage from './assets/signing-image.png';

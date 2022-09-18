@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useCallback, memo } from 'react';
 import InputAdornment from '@material-ui/core/InputAdornment';
 
-import { discoverServer } from '../../api/discovery';
 import { LOCAL_STORAGE_KEYS } from '../../constants';
 import { TextField } from './TextField';
 import { RefreshIconButton } from '../Button';

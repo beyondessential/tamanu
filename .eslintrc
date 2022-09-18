@@ -1,5 +1,5 @@
 {
-  "extends": ["@beyondessential/eslint-config-js"],
+  "extends": ["@beyondessential/eslint-config-js", "plugin:prettier/recommended"],
   "parser": "babel-eslint",
   "env": {
     "browser": true,

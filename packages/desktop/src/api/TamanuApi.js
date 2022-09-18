@@ -144,8 +144,6 @@ export class TamanuApi {
     this.user = user;
     const ability = buildAbilityForUser(user, permissions);
 
-    console.log('end login api');
-
     return { user, token, localisation, server, ability };
   }
 
