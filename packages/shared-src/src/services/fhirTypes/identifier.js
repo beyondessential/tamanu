@@ -24,9 +24,7 @@ export class FhirIdentifier extends Composite {
         .string()
         .nullable()
         .default(null),
-      period: yup
-        .mixed()
-        .test('is-fhir-period', 'must be a FhirPeriod', t => (t ? t instanceof FhirPeriod : true))
+      period: FhirPeriod.asYup()
         .nullable()
         .default(null),
       // could also be a reference (per spec) but we're using text
