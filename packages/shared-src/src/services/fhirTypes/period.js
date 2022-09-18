@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 
-import { toDateTimeString } from 'shared/utils/dateTime';
-import { COMPOSITE, Composite } from './common';
+import { toDateTimeString } from '../../utils/dateTime';
+import { COMPOSITE, Composite } from '../../utils/pgComposite';
 
 export class FhirPeriod extends Composite {
   static FIELD_ORDER = ['start', 'end'];
@@ -15,7 +15,11 @@ export class FhirPeriod extends Composite {
         .date()
         .when('start', (start, schema) =>
           start
-            ? schema.test('is-later-than-start', 'end must be later than start', end => end === null || end > start)
+            ? schema.test(
+                'is-later-than-start',
+                'end must be later than start',
+                end => end === null || end > start,
+              )
             : schema,
         )
         .nullable()

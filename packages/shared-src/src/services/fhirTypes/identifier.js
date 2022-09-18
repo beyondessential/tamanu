@@ -2,7 +2,7 @@ import { sample } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import * as yup from 'yup';
 
-import { COMPOSITE, Composite } from './common';
+import { COMPOSITE, Composite } from '../../utils/pgComposite';
 import { FhirPeriod } from './period';
 
 const USES = ['usual', 'official', 'temp', 'secondary', 'old'];

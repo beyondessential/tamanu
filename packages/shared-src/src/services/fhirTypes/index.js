@@ -1,6 +1,10 @@
-import { newPgDataType } from './common';
-import { FHIR_PERIOD } from './period';
+import { DataTypes, Utils } from 'sequelize';
+
 import { FHIR_IDENTIFIER } from './identifier';
+import { FHIR_PERIOD } from './period';
+
+export { FhirIdentifier } from './identifier';
+export { FhirPeriod } from './period';
 
 /**
  * Register a new type with sequelize.
