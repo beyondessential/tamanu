@@ -5,11 +5,7 @@ import { dateType } from '../dateTimeTypes';
 export class FhirPatient extends FhirResource {
   static init(options) {
     super.init({
-      identifier: {
-        type: Sequelize.ARRAY(DataTypes.FHIR_IDENTIFIER),
-        allowNull: false,
-        defaultValue: [],
-      },
+      identifier: this.ArrayOf('identifier', DataTypes.FHIR_IDENTIFIER),
       active: {
         type: Sequelize.BOOLEAN,
         allowNull: false,

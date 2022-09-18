@@ -1,5 +1,5 @@
 import { fake, showError } from 'shared/test-helpers';
-import { FhirIdentifier } from 'shared/services/fhirTypes/identifier';
+import { FhirIdentifier, FhirPeriod } from 'shared/services/fhirTypes';
 import { createTestContext } from '../../utilities';
 
 describe('Patient', () => {
@@ -45,13 +45,20 @@ describe('Patient', () => {
     const patient = await FhirPatient.create({
       ...fake(FhirPatient),
       gender: 'male',
-      identifier: [new FhirIdentifier({
-        use: 'usual',
-        value: 'HE770WOR7D',
-      })],
+      identifier: [
+        new FhirIdentifier({
+          use: 'usual',
+          value: 'HE770 WOR7D',
+          period: new FhirPeriod({
+            start: new Date,
+          }),
+        }),
+      ],
     });
+    await patient.reload();
 
     // Assert
     expect(patient.identifier).toBeTruthy();
+    console.log(patient.identifier);
   }));
 });

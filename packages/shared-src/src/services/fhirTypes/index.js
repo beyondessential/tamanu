@@ -7,5 +7,6 @@ export function initFhirTypes() {
   newPgDataType(FHIR_IDENTIFIER);
 }
 
+export { setupQuote } from './common';
 export * from './period';
 export * from './identifier';
