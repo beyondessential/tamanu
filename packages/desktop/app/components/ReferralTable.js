@@ -125,7 +125,7 @@ const ReferralBy = ({ surveyResponse: { survey, answers } }) => {
   return name;
 };
 
-const getDate = ({ initiatingEncounter }) => <DateDisplay date={initiatingEncounter.startDate} />;
+const getDate = ({ surveyResponse }) => <DateDisplay date={surveyResponse.endTime} />;
 const getReferralType = ({ surveyResponse: { survey } }) => survey.name;
 const getReferralBy = ({ surveyResponse }) => <ReferralBy surveyResponse={surveyResponse} />;
 const getStatus = ({ status }) => REFERRAL_STATUS_LABELS[status] || 'Unknown';

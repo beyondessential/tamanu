@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import moment from 'moment';
+import { endOfDay, startOfDay, isBefore } from 'date-fns';
 import config from 'config';
 
 import { ENCOUNTER_TYPES, ENCOUNTER_TYPE_VALUES, NOTE_TYPES } from 'shared/constants';
@@ -162,7 +162,6 @@ export class Encounter extends Model {
 
   static getFullReferenceAssociations() {
     return [
-      'vitals',
       'department',
       'examiner',
       {
@@ -283,15 +282,13 @@ export class Encounter extends Model {
   static checkNeedsAutoDischarge({ encounterType, startDate, endDate }) {
     return (
       encounterType === ENCOUNTER_TYPES.CLINIC &&
-      moment(startDate).isBefore(new Date(), 'day') &&
+      isBefore(new Date(startDate), startOfDay(new Date())) &&
       !endDate
     );
   }
 
   static getAutoDischargeEndDate({ startDate }) {
-    return moment(startDate)
-      .endOf('day')
-      .toDate();
+    return endOfDay(new Date(startDate));
   }
 
   static sanitizeForSyncServer(values) {
