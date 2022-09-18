@@ -12,53 +12,60 @@ describe('Patient', () => {
   });
   afterAll(() => ctx.close());
 
-  it('should create', () => showError(async () => {
-    // Arrange
-    const { FhirPatient } = models;
+  it('should create', () =>
+    showError(async () => {
+      // Arrange
+      const { FhirPatient } = models;
 
-    // Act
-    const patient = await FhirPatient.create(fake(FhirPatient));
+      // Act
+      const patient = await FhirPatient.create(fake(FhirPatient));
 
-    // Assert
-    expect(patient.versionId).toBeTruthy();
-  }));
+      // Assert
+      expect(patient.versionId).toBeTruthy();
+    }));
 
-  it('should update the version id on update', () => showError(async () => {
-    // Arrange
-    const { FhirPatient } = models;
-    const patient = await FhirPatient.create(fake(FhirPatient));
-    const { versionId } = patient;
+  it('should update the version id on update', () =>
+    showError(async () => {
+      // Arrange
+      const { FhirPatient } = models;
+      const patient = await FhirPatient.create(fake(FhirPatient));
+      const { versionId } = patient;
 
-    // Act
-    await patient.update({ gender: 'other' });
-    await patient.reload();
+      // Act
+      await patient.update({ gender: 'other' });
+      await patient.reload();
 
-    // Assert
-    expect(patient.versionId).not.toEqual(versionId);
-  }));
+      // Assert
+      expect(patient.versionId).not.toEqual(versionId);
+    }));
 
-  it('should support filling in the identifier', () => showError(async () => {
-    // Arrange
-    const { FhirPatient } = models;
-
-    // Act
-    const patient = await FhirPatient.create({
-      ...fake(FhirPatient),
-      gender: 'male',
-      identifier: [
-        new FhirIdentifier({
-          use: 'usual',
-          value: 'HE770 WOR7D',
-          period: new FhirPeriod({
-            start: new Date,
-          }),
+  it('should round-trip a composite field', () =>
+    showError(async () => {
+      // Arrange
+      const { FhirPatient } = models;
+      const idA = new FhirIdentifier({
+        use: 'usual',
+        value: 'HE770 WOR7D',
+        period: new FhirPeriod({
+          // something to note: because we use DATETIMESTRING internally, subseconds are cut off
+          start: new Date('2022-02-02 22:02:02'),
         }),
-      ],
-    });
-    await patient.reload();
+      });
+      const idB = new FhirIdentifier({
+        use: 'official',
+        value: 'P126362813',
+        system: 'passport',
+      });
 
-    // Assert
-    expect(patient.identifier).toBeTruthy();
-    console.log(patient.identifier);
-  }));
+      // Act
+      const patient = await FhirPatient.create({
+        ...fake(FhirPatient),
+        gender: 'male',
+        identifier: [idA, idB],
+      });
+      await patient.reload();
+
+      // Assert
+      expect(patient.identifier).toEqual([idA, idB]);
+    }));
 });
