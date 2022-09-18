@@ -18,7 +18,7 @@ noteItemRoute.post(
 
     const notePage = await models.NotePage.findByPk(notePageId);
     const owner = await models[notePage.recordType].findByPk(notePage.recordId);
-    req.checkPermission('create', owner);
+    req.checkPermission('write', owner);
 
     await models.NoteItem.create({
       notePageId,
