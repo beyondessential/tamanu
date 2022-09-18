@@ -61,6 +61,10 @@ describe('Composite parser', () => {
     expect(parse('("hello """)')).toEqual(['hello "']);
   });
 
+  it('should parse quoted with quote-escape double quote at start of string', () => {
+    expect(parse('(""" hello")')).toEqual(['" hello']);
+  });
+
   it('should parse trailing empty field', () => {
     expect(parse('(hello,world,)')).toEqual(['hello', 'world', null]);
   });
@@ -73,7 +77,23 @@ describe('Composite parser', () => {
     expect(parse('(hello,,world)')).toEqual(['hello', null, 'world']);
   });
 
+  it('should parse all empty fields', () => {
+    expect(parse('(,,)')).toEqual([null, null, null]);
+  });
+
+  it('should parse escaped comma', () => {
+    expect(parse('(hello\\, world)')).toEqual(["hello, world"]);
+  });
+
+  it('should parse escaped parens', () => {
+    expect(parse('(hello \\(bonjour\\) world)')).toEqual(["hello (bonjour) world"]);
+  });
+
   it('should parse empty string field', () => {
     expect(parse('(hello,"",world)')).toEqual(['hello', '', 'world']);
+  });
+
+  it('should parse empty quoted in the middle of a bare string', () => {
+    expect(parse('(hello "" world)')).toEqual(['hello  world']);
   });
 });
