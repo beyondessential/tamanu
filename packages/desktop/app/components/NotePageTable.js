@@ -7,6 +7,7 @@ import { DateDisplay } from './DateDisplay';
 import { noteTypes, Colors } from '../constants';
 import { groupRootNoteItems } from '../utils/groupRootNoteItems';
 import { NotePageModal } from './NotePageModal';
+import { withPermissionCheck } from './withPermissionCheck';
 
 const StyledTooltip = styled(props => (
   <Tooltip classes={{ popper: props.className }} {...props}>
@@ -73,18 +74,22 @@ const COLUMNS = [
   { key: 'content', title: 'Content', maxWidth: 300, accessor: getContent },
 ];
 
-export const NotePageTable = ({ encounterId }) => {
+const NotePageTable = ({ encounterId, hasPermission }) => {
   const [isNotePageModalOpen, setNotePageModalOpen] = useState(false);
   const [modalTitle, setModalTitle] = useState('');
   const [refreshCount, setRefreshCount] = useState(0);
   const [notePage, setNotePage] = useState(null);
   const handleRowClick = useCallback(
     data => {
+      if (!hasPermission) {
+        return;
+      }
+
       setModalTitle(`Note - ${getTypeLabel(data)}`);
       setNotePageModalOpen(true);
       setNotePage(data);
     },
-    [setNotePageModalOpen, setNotePage],
+    [hasPermission, setNotePageModalOpen, setNotePage],
   );
   const sortNotes = useCallback(notes => {
     // The sorting rule for Notes is to pin the Treatment Plans to the top
@@ -99,17 +104,20 @@ export const NotePageTable = ({ encounterId }) => {
   }, []);
 
   return (
-    <div>
-      <NotePageModal
-        open={isNotePageModalOpen}
-        encounterId={encounterId}
-        onClose={() => setNotePageModalOpen(false)}
-        onSaved={() => {
-          setRefreshCount(refreshCount + 1);
-        }}
-        notePage={notePage}
-        title={modalTitle}
-      />
+    <>
+      {hasPermission && (
+        <NotePageModal
+          open={isNotePageModalOpen}
+          encounterId={encounterId}
+          onClose={() => setNotePageModalOpen(false)}
+          onSaved={() => {
+            setRefreshCount(refreshCount + 1);
+          }}
+          notePage={notePage}
+          title={modalTitle}
+        />
+      )}
+
       <DataFetchingTable
         columns={COLUMNS}
         endpoint={`encounter/${encounterId}/notePages`}
@@ -118,6 +126,8 @@ export const NotePageTable = ({ encounterId }) => {
         refreshCount={refreshCount}
         elevated={false}
       />
-    </div>
+    </>
   );
 };
+
+export const NotePageTableWithPermission = withPermissionCheck(NotePageTable);
