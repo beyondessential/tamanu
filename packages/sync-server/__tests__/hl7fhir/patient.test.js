@@ -143,6 +143,18 @@ describe('HL7 Patient', () => {
         expect(hl7Patient.link[0].type).toEqual(PATIENT_LINK_TYPES.REPLACED_BY);
         expect(hl7Patient.link[0].other).toMatch(`Patient/${primaryPatientA.id}`);
       });
+
+      it("should contain 'seealso' link pointing to the merged patient from main patient when there are 2 level of merges", async () => {
+        const hl7Patient = await patientToHL7Patient(req, mergedPatientC);
+        expect(hl7Patient.link[0].type).toEqual(PATIENT_LINK_TYPES.SEE_ALSO);
+        expect(hl7Patient.link[0].other).toMatch(`Patient/${mergedPatientB.id}`);
+      });
+
+      it("should contain 'replaces' link pointing to the latest active primary patient from merged patient when there are 2 level of merges", async () => {
+        const hl7Patient = await patientToHL7Patient(req, mergedPatientD);
+        expect(hl7Patient.link[0].type).toEqual(PATIENT_LINK_TYPES.SEE_ALSO);
+        expect(hl7Patient.link[0].other).toMatch(`Patient/${mergedPatientB.id}`);
+      });
     });
   });
 });
