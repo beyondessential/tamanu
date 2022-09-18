@@ -84,6 +84,7 @@ export function parse(raw) {
         fieldLength(tokens) > 1 &&
         isQuoting(tokens.slice(0, -1))
       ) {
+        tokens[tokens.length - 1] = new EscapeOpen('"');
         tokens.push(new EscapeClose(c));
         continue;
       } else if (isQuoting(tokens)) {
@@ -108,6 +109,9 @@ export function parse(raw) {
     if (c === ',') {
       if (lastIsEscapeBackslash) {
         tokens.push(new EscapeClose(c));
+        continue;
+      } else if (isQuoting(tokens)) {
+        tokens.push(new Char(c));
         continue;
       } else {
         tokens.push(new FieldSeparator());
