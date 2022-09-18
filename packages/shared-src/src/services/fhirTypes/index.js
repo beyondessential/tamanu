@@ -1,8 +1,10 @@
 import { DataTypes, Utils } from 'sequelize';
 
+import { FHIR_CODING } from './coding';
 import { FHIR_IDENTIFIER } from './identifier';
 import { FHIR_PERIOD } from './period';
 
+export { FhirCoding } from './coding';
 export { FhirIdentifier } from './identifier';
 export { FhirPeriod } from './period';
 
@@ -18,6 +20,7 @@ function newPgDataType(Klass) {
 }
 
 export function createFhirTypes() {
+  newPgDataType(FHIR_CODING);
   newPgDataType(FHIR_PERIOD);
   newPgDataType(FHIR_IDENTIFIER);
 }
