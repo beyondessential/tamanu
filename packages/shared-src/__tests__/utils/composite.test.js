@@ -96,4 +96,14 @@ describe('Composite parser', () => {
   it('should parse empty quoted in the middle of a bare string', () => {
     expect(parse('(hello "" world)')).toEqual(['hello  world']);
   });
+
+  it('should not parse inside nested composites', () => {
+    expect(parse('(usual,,"HE770 WOR7D","(""2022-09-19 10:34:34"",)",)')).toEqual([
+      'usual',
+      null,
+      'HE770 WOR7D',
+      '("2022-09-19 10:34:34",)',
+      null,
+    ]);
+  });
 });
