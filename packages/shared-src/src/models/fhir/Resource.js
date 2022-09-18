@@ -1,5 +1,7 @@
 import { snakeCase } from 'lodash';
 import { Sequelize, Utils } from 'sequelize';
+import array from 'postgres-array';
+
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from '../Model';
 
@@ -39,5 +41,18 @@ export class FhirResource extends Model {
         timestamps: false,
       },
     );
+  }
+
+  static ArrayOf(fieldName, type, overrides = {}) {
+    const entryType = typeof type === 'function' ? new type() : type;
+    return {
+      type: Sequelize.ARRAY(type),
+      allowNull: false,
+      defaultValue: [],
+      get() {
+        return array.parse(this.getDataValue(fieldName), entry => entryType._sanitize(entry));
+      },
+      ...overrides,
+    };
   }
 }

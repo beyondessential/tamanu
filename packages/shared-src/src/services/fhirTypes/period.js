@@ -15,7 +15,7 @@ export class FhirPeriod extends Composite {
         .date()
         .when('start', (start, schema) =>
           start
-            ? schema.test('is-later-than-start', 'end must be later than start', end => end > start)
+            ? schema.test('is-later-than-start', 'end must be later than start', end => end === null || end > start)
             : schema,
         )
         .nullable()

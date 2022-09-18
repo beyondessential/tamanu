@@ -10,7 +10,7 @@ import { migrate, assertUpToDate } from './migrations';
 import * as models from '../models';
 import { initSyncHooks } from '../models/sync';
 import { createDateTypes } from './createDateTypes';
-import { initFhirTypes } from './fhirTypes';
+import { initFhirTypes, setupQuote } from './fhirTypes';
 
 createDateTypes();
 initFhirTypes();
@@ -85,6 +85,7 @@ async function connectToDatabase(dbOptions) {
     port,
     logging,
   });
+  setupQuote(sequelize);
   await sequelize.authenticate();
 
   if (!testMode) {
