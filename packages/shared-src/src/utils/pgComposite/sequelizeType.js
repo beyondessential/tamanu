@@ -1,4 +1,5 @@
 import { object } from 'yup';
+import { parse } from './parse';
 
 export class Composite {
   static SCHEMA = object();
@@ -12,9 +13,24 @@ export class Composite {
     return this.constructor.FIELD_ORDER.map(name => this.params[name]);
   }
 
-  static fromSql(value) {
-    console.error({ fromSql: value });
-    return value;
+  /**
+   * Implements a parser for a composite record literal. Unlike the stringifier, we can't take the
+   * easy route; we have to implement parsing of values as they'll come back from Postgres.
+   *
+   * The parser starts by reading every field as a string, then does more passes to interpret them.
+   */
+  static fromSql(raw) {
+    const fields = parse(raw);
+    if (fields.length !== this.FIELD_ORDER.length) {
+      throw new Error(`wrong amount of fields for composite: expected ${this.FIELD_ORDER.length}, found ${fields.length}\nRAW: ${raw}`);
+    }
+
+    const assembled = {};
+    for (const [n, name] of enumerate(this.FIELD_ORDER)) {
+      assembled[name] = fields[n];
+    }
+
+    return new this(assembled);
   }
 
   static fake() {
