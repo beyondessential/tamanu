@@ -1,4 +1,5 @@
 import config from 'config';
+import { log } from 'shared/services/logging';
 
 import { PatientEmailCommunicationProcessor } from './PatientEmailCommunicationProcessor';
 import { OutpatientDischarger } from './OutpatientDischarger';
@@ -44,12 +45,20 @@ export async function startScheduledTasks(context) {
     taskClasses.push(SignerWorkingPeriodChecker, SignerRenewalChecker, SignerRenewalSender);
   }
 
-  if (config.integrations.fhir.enabled) {
+  if (config.integrations.fhir.enabled && config.schedules.fhirMaterialiser.enabled) {
     taskClasses.push(FhirMaterialiser);
   }
 
   const reportSchedulers = await getReportSchedulers(context);
-  const tasks = [...taskClasses.map(Task => new Task(context)), ...reportSchedulers];
+  const tasks = [...taskClasses.map(Task => {
+    try {
+      log.debug(`Starting to initialise scheduled task ${Task.name}`);
+      return new Task(context);
+    } catch (err) {
+      log.warn(`Failed to initialise scheduled task ${Task.name}:\n${err}`);
+      return null;
+    }
+  }), ...reportSchedulers].filter(x => x);
   tasks.forEach(t => t.beginPolling());
   return () => tasks.forEach(t => t.cancelPolling());
 }
