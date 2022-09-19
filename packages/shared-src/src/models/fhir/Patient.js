@@ -19,11 +19,11 @@ export class FhirPatient extends FhirResource {
           allowNull: false,
         },
         birthDate: {
-          type: dateType('birthDate'),
+          ...dateType('birthDate'),
           allowNull: true,
         },
         deceasedDateTime: {
-          type: dateType('deceasedDateTime'),
+          ...dateType('deceasedDateTime'),
           allowNull: true,
         },
         address: this.ArrayOf('address', DataTypes.FHIR_ADDRESS),
