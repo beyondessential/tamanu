@@ -105,7 +105,7 @@ describe('Lab test publisher', () => {
     expect(updatedLabTest.labRequest).toHaveProperty('status', LAB_REQUEST_STATUSES.PUBLISHED);
   });
 
-  it.skip('Should set the updatedAt of its lab request and its encounter', async () => {
+  it('Should set the updatedAt of its lab request and its encounter', async () => {
     const { labTest, encounter } = await makeLabRequest('labTestType-RATPositive');
     const then = Date.now();
 
