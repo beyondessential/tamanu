@@ -21,7 +21,7 @@ export class FhirResource extends Model {
           default: Sequelize.UUIDV4,
         },
         upstreamId: {
-          type: Sequelize.STRING(36),
+          type: this.UPSTREAM_UUID ? Sequelize.UUID : Sequelize.STRING(36),
           allowNull: false,
         },
         lastUpdated: {
@@ -55,4 +55,29 @@ export class FhirResource extends Model {
       ...overrides,
     };
   }
+
+  // main Tamanu model this resource is based on
+  static UpstreamModel;
+
+  // switch to true if the upstream's ID is the UUID pg type
+  static UPSTREAM_UUID = false;
+
+  // set upstream_id, call updateMaterialisation
+  static async materialiseFromUpstream(id) {}
+
+  // fetch upstream and necessary includes, diff and update
+  async updateMaterialisation() {
+    throw new Error('must be overridden');
+  }
+
+  // call updateMat in a transaction, don't commit, output bool
+  async isUpToDate() {}
+
+  // fetch (single) upstream with query options (e.g. includes)
+  getUpstream(queryOptions) {
+    return this.constructor.UpstreamModel.findByPk(this.upstreamId, queryOptions);
+  }
+
+  // lookup list of non-deleted upstream records that are not present in the FHIR materialisations
+  static async missingRecords(limit = 1000) {}
 }
