@@ -1,15 +1,25 @@
 import { Op } from 'sequelize';
 import config from 'config';
+import asyncPool from 'tiny-async-pool';
 import { sortInDependencyOrder } from 'shared/models/sortInDependencyOrder';
 import { findSessionSyncRecords } from './findSessionSyncRecords';
 import { countSessionSyncRecords } from './countSessionSyncRecords';
+import { mergeRecord } from './mergeRecord';
 
 const { persistedCacheBatchSize } = config.sync;
+const UPDATE_WORKER_POOL_SIZE = 100;
 
 const saveCreates = async (model, records) => model.bulkCreate(records);
 
-const saveUpdates = async (model, records) =>
-  Promise.all(records.map(async r => model.update(r, { where: { id: r.id } })));
+const saveUpdates = async (model, incomingRecords, idToExistingRecord) => {
+  const mergedRecords = incomingRecords.map(incoming => {
+    const existing = idToExistingRecord[incoming.id];
+    return mergeRecord(existing, incoming);
+  });
+  await asyncPool(UPDATE_WORKER_POOL_SIZE, mergedRecords, async r =>
+    model.update(r, { where: { id: r.id } }),
+  );
+};
 
 const saveDeletes = async (model, recordIds) =>
   model.destroy({ where: { id: { [Op.in]: recordIds } } });
@@ -22,25 +32,16 @@ const saveChangesForModel = async (model, changes, isCentralServer) => {
   // split changes into create, update, delete
   const idsForDelete = changes.filter(c => c.isDeleted).map(c => c.data.id);
   const idsForUpsert = changes.filter(c => !c.isDeleted && c.data.id).map(c => c.data.id);
-  const existing = await model.findByIds(idsForUpsert);
-  const idToUpdatedSinceSession = Object.fromEntries(
-    existing.map(e => [e.id, e.updatedAtSyncIndex]),
-  );
+  const existingRecords = await model.findByIds(idsForUpsert);
+  const idToExistingRecord = Object.fromEntries(existingRecords.map(e => [e.id, e]));
   const recordsForCreate = changes
-    .filter(c => !c.isDeleted && idToUpdatedSinceSession[c.data.id] === undefined)
+    .filter(c => !c.isDeleted && idToExistingRecord[c.data.id] === undefined)
     .map(({ data }) => {
       // validateRecord(data, null); TODO add in validation
       return sanitizeData(data);
     });
   const recordsForUpdate = changes
-    .filter(
-      r =>
-        !r.isDeleted &&
-        !!idToUpdatedSinceSession[r.data.id] &&
-        // perform basic conflict resolution using last write wins, with "last" defined using sync
-        // session index as a system-wide logical clock
-        r.data.updatedAtSyncIndex > idToUpdatedSinceSession[r.data.id],
-    )
+    .filter(r => !r.isDeleted && !!idToExistingRecord[r.data.id])
     .map(({ data }) => {
       // validateRecord(data, null); TODO add in validation
       return sanitizeData(data);
@@ -48,7 +49,7 @@ const saveChangesForModel = async (model, changes, isCentralServer) => {
 
   // run each import process
   await saveCreates(model, recordsForCreate);
-  await saveUpdates(model, recordsForUpdate);
+  await saveUpdates(model, recordsForUpdate, idToExistingRecord);
   await saveDeletes(model, idsForDelete);
 };
 
