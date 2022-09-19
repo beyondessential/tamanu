@@ -1,6 +1,6 @@
-import { QueryInterface, DataTypes } from 'sequelize';
+import { DataTypes } from 'sequelize';
 
-export async function up(query: QueryInterface): Promise<void> {
+export async function up(query) {
   await query.addColumn('survey_responses', 'user_id', {
     type: DataTypes.STRING,
     allowNull: true,
@@ -11,6 +11,6 @@ export async function up(query: QueryInterface): Promise<void> {
   });
 }
 
-export async function down(query: QueryInterface): Promise<void> {
+export async function down(query) {
   await query.removeColumn('survey_responses', 'user_id');
 }
