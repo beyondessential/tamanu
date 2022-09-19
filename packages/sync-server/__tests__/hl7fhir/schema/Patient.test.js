@@ -3,6 +3,7 @@ import {
   FhirAddress,
   FhirCodeableConcept,
   FhirCoding,
+  FhirHumanName,
   FhirIdentifier,
   FhirPeriod,
 } from 'shared/services/fhirTypes';
@@ -164,5 +165,35 @@ describe('Patient', () => {
       // Assert
       expect(patient.identifier).toEqual([id]);
       expect(patient.address).toEqual([address]);
+    }));
+
+  it('should materialise', () =>
+    showError(async () => {
+      // Arrange
+      const { FhirPatient, Patient, PatientAdditionalData } = models;
+      const patient = await Patient.create(fake(Patient));
+      const pad = await PatientAdditionalData.create({
+        ...fake(PatientAdditionalData),
+        patientId: patient.id,
+      });
+
+      // Act
+      const fhirPatient = await FhirPatient.materialiseFromUpstream(patient.id);
+      await fhirPatient.reload();
+
+      // Assert
+      expect(fhirPatient.gender).toEqual(patient.sex);
+      expect(fhirPatient.name).toEqual([
+        new FhirHumanName({
+          use: 'official',
+          prefix: [pad.title],
+          family: patient.lastName,
+          given: [patient.firstName, patient.middleName],
+        }),
+        new FhirHumanName({
+          use: 'nickname',
+          text: patient.culturalName,
+        }),
+      ]);
     }));
 });
