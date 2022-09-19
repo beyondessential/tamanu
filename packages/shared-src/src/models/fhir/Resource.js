@@ -66,11 +66,15 @@ export class FhirResource extends Model {
 
   // set upstream_id, call updateMaterialisation
   static async materialiseFromUpstream(id) {
-    const resource = this.build({
-      id: Sequelize.fn('uuid_generate_v4'),
-      versionId: Sequelize.fn('uuid_generate_v4'),
-      upstreamId: id,
-    });
+    let resource = await this.findByPk(this.id);
+    if (!resource) {
+      resource = this.build({
+        id: Sequelize.fn('uuid_generate_v4'),
+        versionId: Sequelize.fn('uuid_generate_v4'),
+        upstreamId: id,
+      });
+    }
+
     await resource.updateMaterialisation();
     await resource.save();
     return resource;
@@ -84,6 +88,8 @@ export class FhirResource extends Model {
   // call updateMat, don't save, output bool
   async isUpToDate() {
     const resource = await this.constructor.findByPk(this.id);
+    if (!resource) return false;
+
     await resource.updateMaterialisation();
     return !resource.changed();
   }
@@ -93,9 +99,9 @@ export class FhirResource extends Model {
     return this.constructor.UpstreamModel.findByPk(this.upstreamId, queryOptions);
   }
 
-  // lookup list of non-deleted upstream records that are not present in the FHIR materialisations
-  static missingRecords(limit = 1000) {
-    return this.UpstreamModel.find({
+  // query to do lookup of non-deleted upstream records that are not present in the FHIR tables
+  static missingRecords() {
+    return {
       where: {
         '$downstream.id$': null,
       },
@@ -105,8 +111,21 @@ export class FhirResource extends Model {
           as: 'downstream',
         },
       ],
-    })
-      .select('id')
-      .limit(limit);
+      order: [['updated_at', 'ASC']],
+    };
+  }
+
+  static findMissingRecords(options = {}) {
+    return this.UpstreamModel.findAll({
+      ...this.missingRecords(),
+      ...options,
+    });
+  }
+
+  static countMissingRecords(options = {}) {
+    return this.UpstreamModel.count({
+      ...this.missingRecords(),
+      ...options,
+    });
   }
 }
