@@ -12,13 +12,13 @@ export class FhirResource extends Model {
         id: {
           type: Sequelize.UUID,
           allowNull: false,
-          default: Sequelize.UUIDV4,
+          default: Sequelize.fn('uuid_generate_v4'),
           primaryKey: true,
         },
         versionId: {
           type: Sequelize.UUID,
           allowNull: false,
-          default: Sequelize.UUIDV4,
+          default: Sequelize.fn('uuid_generate_v4'),
         },
         upstreamId: {
           type: this.UPSTREAM_UUID ? Sequelize.UUID : Sequelize.STRING(36),
