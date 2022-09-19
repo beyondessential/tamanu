@@ -9,6 +9,8 @@ export class ScheduledTask {
   }
 
   constructor(schedule, log) {
+    log.info(`Initialising scheduled task ${this.getName()}`);
+
     this.schedule = schedule;
     this.job = null;
     this.log = log;
