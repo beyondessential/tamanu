@@ -13,7 +13,6 @@ const InvisibleButton = styled(MuiButton)`
 
 const ErrorMessage = styled.div`
   word-break: break-word;
-  width: 300px;
 `;
 
 const Error = ({ errorMessage }) => (
