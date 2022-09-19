@@ -336,9 +336,11 @@ export const fake = (model, passedOverrides = {}) => {
   const overrides = { ...modelOverrides, ...passedOverrides };
   const overrideFields = Object.keys(overrides);
 
-  function fakeField(name, attribute, throwError = true) {
+  function fakeField(name, attribute) {
     const { type, fieldName } = attribute;
-    if (overrideFields.includes(fieldName)) {
+    if (fieldName === 'id') {
+      return uuidv4();
+    } else if (overrideFields.includes(fieldName)) {
       return overrides[fieldName];
     } else if (attribute.references) {
       // null out id fields
