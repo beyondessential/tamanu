@@ -25,9 +25,9 @@ export async function up(query) {
   )`);
 
   await query.sequelize.query(`CREATE TYPE fhir.contact_point AS (
-    use             varchar(10),
     system          varchar(10),
     value           text,
+    use             varchar(10),
     rank            integer,
     period          fhir.period
   )`);
