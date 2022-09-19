@@ -18,14 +18,8 @@ export class FhirPatient extends FhirResource {
           type: Sequelize.STRING(10),
           allowNull: false,
         },
-        birthDate: {
-          ...dateType('birthDate'),
-          allowNull: true,
-        },
-        deceasedDateTime: {
-          ...dateType('deceasedDateTime'),
-          allowNull: true,
-        },
+        birthDate: dateType('birthDate', { allowNull: true }),
+        deceasedDateTime: dateType('deceasedDateTime', { allowNull: true }),
         address: this.ArrayOf('address', DataTypes.FHIR_ADDRESS),
       },
       options,
