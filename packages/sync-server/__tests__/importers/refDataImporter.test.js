@@ -1,4 +1,3 @@
-import { VISIBILITY_STATUSES } from 'shared/constants';
 import { importerTransaction } from '../../app/admin/importerEndpoint';
 import { importer } from '../../app/admin/refdataImporter';
 import { createTestContext } from '../utilities';
@@ -44,6 +43,7 @@ describe('Data definition import', () => {
       'ReferenceData/labTestCategory': { created: 5, updated: 0, errored: 0 },
       'ReferenceData/labTestType': { created: 10, updated: 0, errored: 0 },
       'ReferenceData/village': { created: 13, updated: 0, errored: 0 },
+      'ReferenceData/procedureType': { created: 10, updated: 0, errored: 0 },
       User: { created: 10, updated: 0, errored: 0 },
       Facility: { created: 10, updated: 0, errored: 0 },
       ScheduledVaccine: { created: 1, updated: 0, errored: 0 },
