@@ -256,7 +256,7 @@ describe('Generic survey export', () => {
           'Patient ID': expectedPatient.displayId,
           'First name': expectedPatient.firstName,
           'Last name': expectedPatient.lastName,
-          'Date of birth': format(expectedPatient.dateOfBirth, 'yyyy-MM-dd'),
+          'Date of birth': expectedPatient.dateOfBirth,
           Age: 1,
           Sex: expectedPatient.sex,
           Village: expectedVillage.name,

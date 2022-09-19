@@ -1,8 +1,8 @@
 import { Sequelize } from 'sequelize';
 import config from 'config';
 import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES } from 'shared/constants';
-import { dateTimeType } from './dateTimeTypes';
 import { Model } from './Model';
+import { dateType, dateTimeType } from './dateTimeTypes';
 
 export class Patient extends Model {
   static init({ primaryKey, ...options }) {
@@ -19,8 +19,9 @@ export class Patient extends Model {
         lastName: Sequelize.STRING,
         culturalName: Sequelize.STRING,
 
-        dateOfBirth: Sequelize.DATE,
+        dateOfBirth: dateType('dateOfBirth'),
         dateOfDeath: dateTimeType('dateOfDeath'),
+
         sex: {
           type: Sequelize.ENUM('male', 'female', 'other'),
           allowNull: false,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { format } from 'date-fns';
+import { getCurrentDateString } from 'shared/utils/dateTime';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import {
   AutocompleteField,
@@ -34,8 +34,9 @@ export const PatientSearchBar = React.memo(({ onSearch, suggestByFacility = true
       <Field
         name="dateOfBirthExact"
         label="DOB"
-        max={format(new Date(), 'yyyy-MM-dd')}
+        max={getCurrentDateString()}
         component={DateField}
+        saveDateAsString
       />
       <DisplayIdField />
       <LocalisedField
