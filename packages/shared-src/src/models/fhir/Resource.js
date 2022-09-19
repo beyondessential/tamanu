@@ -50,7 +50,9 @@ export class FhirResource extends Model {
       allowNull: false,
       defaultValue: [],
       get() {
-        return array.parse(this.getDataValue(fieldName), entry => entryType._sanitize(entry));
+        const original = this.getDataValue(fieldName);
+        if (Array.isArray(original)) return original;
+        return array.parse(original, entry => entryType._sanitize(entry));
       },
       ...overrides,
     };
