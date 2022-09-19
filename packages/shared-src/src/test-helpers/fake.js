@@ -340,7 +340,9 @@ export const fake = (model, passedOverrides = {}) => {
 
   function fakeField(name, attribute) {
     const { type, fieldName } = attribute;
-    if (overrideFields.includes(fieldName)) {
+    if (fieldName === 'id') {
+      return uuidv4();
+    } else if (overrideFields.includes(fieldName)) {
       return overrides[fieldName];
     }
 
