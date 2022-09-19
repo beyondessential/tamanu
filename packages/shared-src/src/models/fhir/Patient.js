@@ -62,7 +62,7 @@ export class FhirPatient extends FhirResource {
       birthDate: upstream.dateOfBirth,
       deceasedDateTime: upstream.dateOfDeath,
       address: addresses(upstream),
-      lastUpdated: latestDateTime(upstream.updatedAt, upstream.additionalData.updatedAt),
+      lastUpdated: latestDateTime(upstream.updatedAt, upstream.additionalData?.updatedAt),
     });
   }
 }
@@ -83,12 +83,12 @@ function identifiers(patient) {
       {
         use: 'secondary',
         assigner: 'Fiji Passport Office',
-        value: patient.additionalData.passportNumber,
+        value: patient.additionalData?.passportNumber,
       },
       {
         use: 'secondary',
         assigner: 'RTA',
-        value: patient.additionalData.drivingLicense,
+        value: patient.additionalData?.drivingLicense,
       },
     ],
     x => x.value,
@@ -99,7 +99,7 @@ function names(patient) {
   return compact([
     new FhirHumanName({
       use: 'official',
-      prefix: compact([patient.additionalData.title]),
+      prefix: compact([patient.additionalData?.title]),
       family: patient.lastName,
       given: compact([patient.firstName, patient.middleName]),
     }),
@@ -113,8 +113,8 @@ function names(patient) {
 
 function telecoms(patient) {
   return compact([
-    patient.additionalData.primaryContactNumber,
-    patient.additionalData.secondaryContactNumber,
+    patient.additionalData?.primaryContactNumber,
+    patient.additionalData?.secondaryContactNumber,
   ]).map(
     (value, index) =>
       new FhirContactPoint({
@@ -126,7 +126,7 @@ function telecoms(patient) {
 }
 
 function addresses(patient) {
-  const { cityTown, streetVillage } = patient.additionalData;
+  const { cityTown, streetVillage } = patient.additionalData || {};
   if (!cityTown && !streetVillage) return [];
 
   return [
