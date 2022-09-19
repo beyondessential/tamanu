@@ -1,5 +1,6 @@
 import { DataTypes, Utils } from 'sequelize';
 
+import { FHIR_ADDRESS } from './address';
 import { FHIR_CODING } from './coding';
 import { FHIR_CODEABLE_CONCEPT } from './codeableConcept';
 import { FHIR_CONTACT_POINT } from './contactPoint';
@@ -7,6 +8,7 @@ import { FHIR_HUMAN_NAME } from './humanName';
 import { FHIR_IDENTIFIER } from './identifier';
 import { FHIR_PERIOD } from './period';
 
+export { FhirAddress } from './address';
 export { FhirCoding } from './coding';
 export { FhirCodeableConcept } from './codeableConcept';
 export { FhirContactPoint } from './contactPoint';
@@ -26,6 +28,7 @@ function newPgDataType(Klass) {
 }
 
 export function createFhirTypes() {
+  newPgDataType(FHIR_ADDRESS);
   newPgDataType(FHIR_CODING);
   newPgDataType(FHIR_CODEABLE_CONCEPT);
   newPgDataType(FHIR_CONTACT_POINT);
