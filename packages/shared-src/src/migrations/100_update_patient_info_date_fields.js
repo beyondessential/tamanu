@@ -35,7 +35,7 @@ export async function down(query) {
   for (const migration of MIGRATIONS) {
     await query.sequelize.query(`
       ALTER TABLE ${migration.TABLE}
-      ALTER COLUMN recorded_date TYPE timestamp with time zone USING recorded_date_legacy;
+      ALTER COLUMN ${migration.FIELD} TYPE timestamp with time zone USING ${migration.FIELD}_legacy;
     `);
     await query.removeColumn(migration.TABLE, `${migration.FIELD}_legacy`);
   }
