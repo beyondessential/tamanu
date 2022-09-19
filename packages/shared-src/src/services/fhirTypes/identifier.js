@@ -13,7 +13,7 @@ export class FhirIdentifier extends Composite {
     .object({
       use: yup
         .string()
-        .oneOf(USES)
+        .oneOf([null, ...USES])
         .nullable()
         .default(null),
       system: yup
@@ -35,6 +35,13 @@ export class FhirIdentifier extends Composite {
         .default(null),
     })
     .noUnknown();
+
+  static validateAndTransformFromSql({ period, ...fields }) {
+    return new this({
+      period: period && FhirPeriod.fromSql(period),
+      ...fields,
+    });
+  }
 
   static fake(model, { fieldName }, id) {
     return new this({

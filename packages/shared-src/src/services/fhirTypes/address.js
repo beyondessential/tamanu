@@ -27,12 +27,12 @@ export class FhirAddress extends Composite {
     .object({
       use: yup
         .string()
-        .oneOf(USES)
+        .oneOf([null, ...USES])
         .nullable()
         .default(null),
       type: yup
         .string()
-        .oneOf(TYPES)
+        .oneOf([null, ...TYPES])
         .nullable()
         .default(null),
       text: yup
@@ -77,8 +77,12 @@ export class FhirAddress extends Composite {
   // > included in the text that isn't found in a part.
   // -- https://www.hl7.org/fhir/datatypes.html#Address
 
-  static validateAndTransformFromSql({ line, ...fields }) {
-    return new this({ line: array.parse(line, l => l), ...fields });
+  static validateAndTransformFromSql({ line, period, ...fields }) {
+    return new this({
+      line: line && array.parse(line, l => l),
+      period: period && FhirPeriod.fromSql(period),
+      ...fields,
+    });
   }
 
   static fake() {
