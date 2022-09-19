@@ -15,6 +15,10 @@ export async function up(query) {
       allowNull: false,
       defaultValue: Sequelize.fn('uuid_generate_v4'),
     },
+    upstream_id: {
+      type: Sequelize.STRING(36),
+      allowNull: false,
+    },
     last_updated: {
       type: Sequelize.DATE,
       defaultValue: Sequelize.NOW,
@@ -58,6 +62,9 @@ export async function up(query) {
       defaultValue: '{}',
     },
   });
+
+  await query.addIndex(TABLE, ['id', 'version_id']);
+  await query.addIndex(TABLE, ['upstream_id']);
 }
 
 export async function down(query) {
