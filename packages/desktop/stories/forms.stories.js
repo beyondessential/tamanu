@@ -7,11 +7,12 @@ import {
   createDummyVisit,
   createDummyPatient,
   DIAGNOSES,
+  DISPOSITIONS,
   DRUGS,
   FACILITIES,
   LOCATIONS,
   USERS,
-} from 'Shared/demoData';
+} from 'shared/demoData';
 import { EncounterForm } from '../app/forms/EncounterForm';
 import { TriageForm } from '../app/forms/TriageForm';
 import { VitalsForm } from '../app/forms/VitalsForm';
@@ -38,6 +39,7 @@ const PATIENTS = new Array(20).fill(0).map(x => createDummyPatient());
 
 const practitionerSuggester = createDummySuggester(mapToSuggestions(USERS));
 const locationSuggester = createDummySuggester(mapToSuggestions(LOCATIONS));
+const dispositionSuggester = createDummySuggester(mapToSuggestions(DISPOSITIONS));
 const facilitySuggester = createDummySuggester(mapToSuggestions(FACILITIES));
 const icd10Suggester = createDummySuggester(mapToSuggestions(DIAGNOSES));
 const patientSuggester = createDummySuggester(
@@ -165,6 +167,7 @@ storiesOf('Forms', module).add('DischargeForm', () => (
     onSubmit={action('submit')}
     onCancel={action('cancel')}
     practitionerSuggester={practitionerSuggester}
+    dispositionSuggester={dispositionSuggester}
   />
 ));
 

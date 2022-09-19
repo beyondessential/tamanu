@@ -22,6 +22,7 @@ const MARKED_FOR_PUSH_MODELS = [
   'DocumentMetadata',
   'CertificateNotification',
   'PatientDeathData',
+  'PatientBirthData',
   'ContributingDeathCause',
 ];
 
@@ -39,6 +40,7 @@ export class Model extends sequelize.Model {
         allowNull: false,
         defaultValue: false,
       };
+      attributes.deletedAt = Sequelize.DATE;
       attributes.pushedAt = Sequelize.DATE;
       attributes.pulledAt = Sequelize.DATE;
     }

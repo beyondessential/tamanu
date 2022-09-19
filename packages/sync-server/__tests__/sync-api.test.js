@@ -252,8 +252,8 @@ describe('Sync API', () => {
       expect(result).toHaveSucceeded();
 
       const { body } = result;
-      const firstRecord = body.records[0];
-      expect(firstRecord).toHaveProperty('id', secondOldestPatient.id);
+      const firstRecord = body.records[0].data;
+      expect(firstRecord).toHaveProperty('id', secondOldestPatient.data.id);
     });
 
     it('should split updatedAt conflicts using id', async () => {

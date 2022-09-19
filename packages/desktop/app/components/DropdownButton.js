@@ -11,7 +11,10 @@ import {
   Popper as MuiPopper,
   MenuList as MuiMenuList,
 } from '@material-ui/core';
+import LockIcon from '@material-ui/icons/Lock';
 import { Colors } from '../constants';
+import { withPermissionCheck } from './withPermissionCheck';
+import { withPermissionTooltip } from './withPermissionTooltip';
 
 const Container = styled.div`
   position: relative;
@@ -43,6 +46,17 @@ const MainButton = styled(Button)`
 
   &.MuiButton-containedPrimary {
     border-color: transparent;
+  }
+
+  &.MuiButtonGroup-groupedContainedHorizontal:not(:last-child).Mui-disabled {
+    border-right: none;
+  }
+
+  .MuiSvgIcon-root {
+    width: 19.5px;
+    height: auto;
+    margin-left: 5px;
+    margin-right: 10px;
   }
 `;
 
@@ -102,76 +116,83 @@ const MenuList = styled(MuiMenuList)`
   }
 `;
 
-export const DropdownButton = React.memo(({ variant, size, actions, style, className }) => {
-  const [anchorEl, setAnchorEl] = useState(null);
-  const anchorRef = useRef(null);
+export const DropdownButton = React.memo(
+  ({ variant, size, actions, style, className, hasPermission = true }) => {
+    const [anchorEl, setAnchorEl] = useState(null);
+    const anchorRef = useRef(null);
 
-  const handleClick = (event, index) => {
-    actions[index].onClick(event);
-    setAnchorEl(null);
-  };
+    const handleClick = (event, index) => {
+      actions[index].onClick(event);
+      setAnchorEl(null);
+    };
 
-  const handleToggle = () => {
-    setAnchorEl(anchorEl ? null : anchorRef.current);
-  };
+    const handleToggle = () => {
+      setAnchorEl(anchorEl ? null : anchorRef.current);
+    };
 
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
+    const handleClose = () => {
+      setAnchorEl(null);
+    };
 
-  const [mainAction, ...otherActions] = actions;
+    const [mainAction, ...otherActions] = actions;
 
-  if (otherActions.length === 0) {
+    if (otherActions.length === 0) {
+      return (
+        <MainButton
+          variant={variant}
+          size={size}
+          color="primary"
+          disableElevation
+          style={{ borderColor: Colors.primary }}
+          onClick={event => handleClick(event, 0)}
+        >
+          {!hasPermission && <LockIcon />}
+          {mainAction.label}
+        </MainButton>
+      );
+    }
+
+    const isOpen = Boolean(anchorEl);
+
     return (
-      <MainButton
-        variant={variant}
-        size={size}
-        color="primary"
-        disableElevation
-        style={{ borderColor: Colors.primary }}
-        onClick={event => handleClick(event, 0)}
-      >
-        {mainAction.label}
-      </MainButton>
+      <Container style={style} className={className} ref={anchorRef}>
+        <ButtonGroup
+          variant={variant}
+          size={size}
+          color="primary"
+          disableElevation
+          style={{ width: '100%' }}
+          disabled={!hasPermission}
+        >
+          <MainButton onClick={event => handleClick(event, 0)}>
+            {!hasPermission && <LockIcon />}
+            {mainAction.label}
+          </MainButton>
+          <MenuButton onClick={handleToggle}>
+            <KeyboardArrowDownIcon />
+          </MenuButton>
+        </ButtonGroup>
+        <Popper open={isOpen} anchorEl={anchorEl} placement="bottom-start">
+          <Paper elevation={0} variant="outlined">
+            <ClickAwayListener onClickAway={handleClose}>
+              <MenuList>
+                {otherActions.map((action, index) => (
+                  <MenuItem
+                    key={action.label}
+                    disabled={!action.onClick}
+                    onClick={event => handleClick(event, index + 1)}
+                  >
+                    {action.label}
+                  </MenuItem>
+                ))}
+              </MenuList>
+            </ClickAwayListener>
+          </Paper>
+        </Popper>
+      </Container>
     );
-  }
-
-  const isOpen = Boolean(anchorEl);
-
-  return (
-    <Container style={style} className={className} ref={anchorRef}>
-      <ButtonGroup
-        variant={variant}
-        size={size}
-        color="primary"
-        disableElevation
-        style={{ width: '100%' }}
-      >
-        <MainButton onClick={event => handleClick(event, 0)}>{mainAction.label}</MainButton>
-        <MenuButton onClick={handleToggle}>
-          <KeyboardArrowDownIcon />
-        </MenuButton>
-      </ButtonGroup>
-      <Popper open={isOpen} anchorEl={anchorEl} placement="bottom-start">
-        <Paper elevation={0} variant="outlined">
-          <ClickAwayListener onClickAway={handleClose}>
-            <MenuList>
-              {otherActions.map((action, index) => (
-                <MenuItem
-                  key={action.label}
-                  disabled={!action.onClick}
-                  onClick={event => handleClick(event, index + 1)}
-                >
-                  {action.label}
-                </MenuItem>
-              ))}
-            </MenuList>
-          </ClickAwayListener>
-        </Paper>
-      </Popper>
-    </Container>
-  );
-});
+  },
+);
 
 DropdownButton.propTypes = {
   actions: PropTypes.arrayOf(
@@ -188,3 +209,8 @@ DropdownButton.defaultProps = {
   variant: 'contained',
   size: 'medium',
 };
+
+const DropdownButtonWithPermissionTooltip = withPermissionTooltip(DropdownButton);
+export const DropdownButtonWithPermissionCheck = withPermissionCheck(
+  DropdownButtonWithPermissionTooltip,
+);

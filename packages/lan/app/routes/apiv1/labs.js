@@ -13,8 +13,9 @@ import {
   simplePut,
   simpleGetList,
   permissionCheckingRouter,
-  createNoteListingHandler
+  createNoteListingHandler,
 } from './crudHelpers';
+
 export const labRequest = express.Router();
 
 labRequest.get('/:id', simpleGet('LabRequest'));
