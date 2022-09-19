@@ -100,6 +100,7 @@ export const ReportGeneratorForm = () => {
     parameters = [],
     dateRangeLabel = 'Date range',
     dataSourceOptions = REPORT_DATA_SOURCE_VALUES,
+    filterDateRangeAsStrings = false,
   } = reportsById[selectedReportId] || {};
 
   const isDataSourceFieldDisabled = dataSourceOptions.length === 1;
@@ -243,8 +244,18 @@ export const ReportGeneratorForm = () => {
           ) : null}
           <DateRangeLabel variant="body1">{dateRangeLabel}</DateRangeLabel>
           <FormGrid columns={2} style={{ marginBottom: 30 }}>
-            <Field name="fromDate" label="From date" component={DateField} />
-            <Field name="toDate" label="To date" component={DateField} />
+            <Field
+              name="fromDate"
+              label="From date"
+              component={DateField}
+              saveDateAsString={filterDateRangeAsStrings}
+            />
+            <Field
+              name="toDate"
+              label="To date"
+              component={DateField}
+              saveDateAsString={filterDateRangeAsStrings}
+            />
           </FormGrid>
           {dataSource === REPORT_DATA_SOURCES.ALL_FACILITIES && (
             <EmailInputContainer>
