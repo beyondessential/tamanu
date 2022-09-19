@@ -52,6 +52,7 @@ export function parseISO9075(date) {
 }
 
 export function latestDateTime(...args) {
-  args.sort(compareDesc);
-  return args[0];
+  const times = args.filter(x => x);
+  times.sort(compareDesc);
+  return times[0];
 }
