@@ -13,3 +13,12 @@ export const REPORT_DATA_SOURCES = {
 };
 
 export const REPORT_DATA_SOURCE_VALUES = Object.values(REPORT_DATA_SOURCES);
+
+export const REPORT_EXPORT_FORMATS = {
+  XLSX: 'xlsx',
+  CSV: 'csv',
+};
+
+export const REPORT_STATUSES = { DRAFT: 'draft', PUBLISHED: 'published' };
+
+export const REPORT_STATUSES_VALUES = Object.values(REPORT_STATUSES);
