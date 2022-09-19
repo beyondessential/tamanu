@@ -29,17 +29,11 @@ const InvisibleSyncButton = () => {
   const onClick = async () => {
     setLoading(true);
 
-    // eslint-disable-next-line no-console
-    console.log('Triggering manual sync on LAN server');
     toast.info('Starting manual sync...');
     try {
       await api.post(`sync/run`);
-      // eslint-disable-next-line no-console
-      console.log('Manual sync complete');
       toast.success('Manual sync complete');
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log('Manual sync failed', error);
       toast.error(<Error errorMessage={error.message} />);
     } finally {
       setLoading(false);
