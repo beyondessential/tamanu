@@ -1,10 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
-import moment from 'moment';
 
 import { Colors } from '../constants';
 import { MoreDropdownMenu } from './MoreDropdownMenu';
 import { useApi } from '../api';
+import { DateDisplay } from './DateDisplay';
 
 const NoteContainer = styled.div`
   border: 1px solid ${Colors.outline};
@@ -55,7 +55,7 @@ const NoteContent = styled.p`
 
 export const CarePlanNoteDisplay = ({ note, isMainCarePlan, onEditClicked, onNoteDeleted }) => {
   const api = useApi();
-  const deleteNote = async noteId => api.delete(`note/${noteId}`);
+  const deleteNote = async noteId => api.delete(`notePages/${noteId}`);
   return (
     <NoteContainer>
       <NoteHeaderContainer>
@@ -70,7 +70,9 @@ export const CarePlanNoteDisplay = ({ note, isMainCarePlan, onEditClicked, onNot
           {isMainCarePlan ? <MainCarePlanIndicator>Main care plan</MainCarePlanIndicator> : null}
         </VerticalCenter>
         <VerticalCenter>
-          <Timestamp>{moment(note.date).format('LLLL')}</Timestamp>
+          <Timestamp>
+            <DateDisplay date={note.date} />
+          </Timestamp>
           <MoreDropdownMenu
             iconColor={Colors.midText}
             actions={[
