@@ -1,16 +1,15 @@
-import React, { useCallback } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useCallback, useState } from 'react';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
 import { useEncounter } from '../../../contexts/Encounter';
 
 import { ContentPane } from '../../../components';
 import { PatientEncounterSummary } from '../components/PatientEncounterSummary';
 import { PatientHistory } from '../../../components/PatientHistory';
+import { EncounterModal } from '../../../components/EncounterModal';
 
-export const HistoryPane = React.memo(({ disabled }) => {
-  const { navigateToEncounter, navigateToPatient } = usePatientNavigation();
-  const patient = useSelector(state => state.patient);
-
+export const HistoryPane = React.memo(({ patient, additionalData, disabled }) => {
+  const [isModalOpen, setModalOpen] = useState(false);
+  const { navigateToEncounter } = usePatientNavigation();
   const { loadEncounter } = useEncounter();
 
   const onViewEncounter = useCallback(
@@ -23,16 +22,14 @@ export const HistoryPane = React.memo(({ disabled }) => {
     [loadEncounter, navigateToEncounter],
   );
 
-  const onOpenCheckin = () => navigateToPatient(patient.id, 'checkin');
-  const onOpenTriage = () => navigateToPatient(patient.id, 'triage');
+  const onCloseModal = useCallback(() => setModalOpen(false), []);
 
   return (
     <>
       <ContentPane>
         <PatientEncounterSummary
           viewEncounter={onViewEncounter}
-          openCheckin={onOpenCheckin}
-          openTriage={onOpenTriage}
+          openCheckin={() => setModalOpen(true)}
           patient={patient}
           disabled={disabled}
         />
@@ -40,6 +37,11 @@ export const HistoryPane = React.memo(({ disabled }) => {
       <ContentPane>
         <PatientHistory patient={patient} onItemClick={onViewEncounter} />
       </ContentPane>
+      <EncounterModal
+        open={isModalOpen}
+        onClose={onCloseModal}
+        patientBillingTypeId={additionalData?.patientBillingTypeId}
+      />
     </>
   );
 });

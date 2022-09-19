@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+import { format, subDays } from 'date-fns';
 import { baseDataGenerator } from '../covid-swab-lab-test-list';
 
 const SURVEY_ID = 'program-fijicovidtourism-fijicovidtravform';
@@ -110,11 +110,17 @@ const reportColumnTemplate = [
   { title: 'Reason for test', accessor: data => data.reasonForTest },
 ];
 
-export const dataGenerator = async ({ models }, parameters = {}) =>
-  baseDataGenerator({ models }, parameters, {
+export const dataGenerator = async ({ models }, parameters = {}) => {
+  const newParameters = { ...parameters };
+  if (!newParameters.fromDate) {
+    newParameters.fromDate = subDays(new Date(), 30).toISOString();
+  }
+
+  return baseDataGenerator({ models }, newParameters, {
     surveyId: SURVEY_ID,
     surveyQuestionCodes: SURVEY_QUESTION_CODES,
     reportColumnTemplate,
   });
+};
 
 export const permission = 'LabTest';

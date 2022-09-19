@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize';
 import config from 'config';
 import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES } from 'shared/constants';
+import { dateTimeType } from './dateTimeTypes';
 import { Model } from './Model';
 
 export class Patient extends Model {
@@ -19,7 +20,7 @@ export class Patient extends Model {
         culturalName: Sequelize.STRING,
 
         dateOfBirth: Sequelize.DATE,
-        dateOfDeath: Sequelize.DATE,
+        dateOfDeath: dateTimeType('dateOfDeath'),
         sex: {
           type: Sequelize.ENUM('male', 'female', 'other'),
           allowNull: false,
@@ -30,6 +31,7 @@ export class Patient extends Model {
           allowNull: false,
           defaultValue: false,
         },
+        visibilityStatus: Sequelize.STRING,
       },
       {
         ...options,
@@ -61,8 +63,11 @@ export class Patient extends Model {
       foreignKey: 'patientId',
       as: 'deathData',
     });
+    this.hasMany(models.PatientBirthData, {
+      foreignKey: 'patientId',
+      as: 'birthData',
+    });
 
-    // this one is actually a hasMany
     this.hasMany(models.PatientSecondaryId, {
       foreignKey: 'patientId',
       as: 'secondaryIds',
@@ -70,6 +75,11 @@ export class Patient extends Model {
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'villageId',
       as: 'village',
+    });
+
+    this.hasMany(models.Patient, {
+      foreignKey: 'mergedIntoId',
+      as: 'mergedPatients',
     });
 
     this.hasMany(models.Note, {
@@ -122,8 +132,6 @@ export class Patient extends Model {
     const results = await models.AdministeredVaccine.findAll({
       order: [['date', 'DESC']],
       ...optRest,
-      raw: true,
-      nest: true,
       include,
       where: {
         ...optWhere,
@@ -132,13 +140,15 @@ export class Patient extends Model {
       },
     });
 
-    for (const result of results) {
-      if (certifiableVaccineIds.includes(result.scheduledVaccine.vaccineId)) {
-        result.certifiable = true;
+    const data = results.map(x => x.get({ plain: true }));
+
+    for (const record of data) {
+      if (certifiableVaccineIds.includes(record.scheduledVaccine.vaccineId)) {
+        record.certifiable = true;
       }
     }
 
-    return results;
+    return data;
   }
 
   async getCovidLabTests(queryOptions) {

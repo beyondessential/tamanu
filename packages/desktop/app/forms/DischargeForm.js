@@ -27,6 +27,7 @@ import { TableFormFields } from '../components/Table';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { DiagnosisList } from '../components/DiagnosisList';
 import { useEncounter } from '../contexts/Encounter';
+import { useLocalisation } from '../contexts/Localisation';
 
 const MAX_REPEATS = 12;
 const REPEATS_OPTIONS = range(MAX_REPEATS + 1).map(value => ({ label: value, value }));
@@ -101,7 +102,7 @@ const StyledTextSpan = styled.span`
   color: ${props => (props.color ? props.color : Colors.darkText)};
 `;
 
-/* 
+/*
 A custom check field was needed because the label resides on
 the table headers and there is a need to display two text descriptions
 alongside the checkbox with different stylings.
@@ -184,10 +185,18 @@ const EncounterOverview = ({
   );
 };
 
-export const DischargeForm = ({ practitionerSuggester, onCancel, onSubmit }) => {
+export const DischargeForm = ({
+  dispositionSuggester,
+  practitionerSuggester,
+  onCancel,
+  onSubmit,
+}) => {
   const { encounter } = useEncounter();
   const [dischargeNotes, setDischargeNotes] = useState([]);
   const api = useApi();
+  const { getLocalisation } = useLocalisation();
+  const dischargeDisposition = Boolean(getLocalisation('features.enableDischargeDisposition'));
+
   // Only display medications that are not discontinued
   // Might need to update condition to compare by end date (decision pending)
   const activeMedications = encounter.medications?.filter(medication => !medication.discontinued);
@@ -225,6 +234,12 @@ export const DischargeForm = ({ practitionerSuggester, onCancel, onSubmit }) => 
           suggester={practitionerSuggester}
           required
         />
+        {dischargeDisposition && <Field
+          name="discharge.dispositionId"
+          label="Discharge disposition"
+          component={AutocompleteField}
+          suggester={dispositionSuggester}
+        />}
         <OuterLabelFieldWrapper label="Discharge medications" style={{ gridColumn: '1 / -1' }}>
           <TableFormFields columns={medicationColumns} data={activeMedications} />
         </OuterLabelFieldWrapper>

@@ -9,6 +9,8 @@ export const DisplayIdLabel = styled.span`
 `;
 
 export const InvertedDisplayIdLabel = styled(DisplayIdLabel)`
-  background: ${Colors.secondary};
-  color: ${Colors.primary};
+  background: ${Colors.primary};
+  color: ${Colors.white};
+  border: 1px solid ${Colors.white};
+  border-radius: 3px;
 `;

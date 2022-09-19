@@ -60,7 +60,11 @@ export class SqlWrapper {
 
   async findUser(email) {
     const user = await this.models.User.scope('withPassword').findOne({
-      where: { email },
+      // email addresses are case insensitive so compare them as such
+      where: Sequelize.where(
+        Sequelize.fn('lower', Sequelize.col('email')),
+        Sequelize.fn('lower', email),
+      ),
     });
     if (!user) {
       return null;

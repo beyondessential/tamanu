@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { startOfDay } from 'date-fns';
-import { Op } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
 import config from 'config';
 import { simplePost, simplePut } from './crudHelpers';
 import { escapePatternWildcard } from '../../utils/query';
@@ -21,6 +21,20 @@ const searchableFields = [
   'patient.last_name',
   'patient.display_id',
 ];
+
+const sortKeys = {
+  patientName: Sequelize.fn(
+    'concat',
+    Sequelize.col('patient.first_name'),
+    ' ',
+    Sequelize.col('patient.last_name'),
+  ),
+  displayId: Sequelize.col('patient.display_id'),
+  sex: Sequelize.col('patient.sex'),
+  dateOfBirth: Sequelize.col('patient.date_of_birth'),
+  location: Sequelize.col('location.name'),
+  clinician: Sequelize.col('clinician.display_name'),
+};
 
 appointments.get(
   '/$',
@@ -77,7 +91,7 @@ appointments.get(
     const { rows, count } = await Appointment.findAndCountAll({
       limit: all ? undefined : rowsPerPage,
       offset: all ? undefined : page * rowsPerPage,
-      order: [[orderBy, order]],
+      order: [[sortKeys[orderBy] || orderBy, order]],
       where: {
         startTime: startTimeQuery,
         ...filters,

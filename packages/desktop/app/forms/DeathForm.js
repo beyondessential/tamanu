@@ -4,6 +4,7 @@ import { Typography } from '@material-ui/core';
 import styled from 'styled-components';
 import moment from 'moment';
 import MuiBox from '@material-ui/core/Box';
+import { MANNER_OF_DEATHS, MANNER_OF_DEATH_OPTIONS } from 'shared/constants';
 import {
   ArrayField,
   Button,
@@ -144,22 +145,6 @@ const placeOptions = Object.values(PLACES).map(type => ({
   value: type,
 }));
 
-const MANNER_OF_DEATHS = [
-  'Disease',
-  'Assault',
-  'Accident',
-  'Legal Intervention',
-  'Pending Investigation',
-  'Intentional Self Harm',
-  'War',
-  'Unknown/Could not be determined',
-];
-
-const mannerOfDeathOptions = Object.values(MANNER_OF_DEATHS).map(type => ({
-  label: type,
-  value: type,
-}));
-
 const mannerOfDeathVisibilityCriteria = {
   mannerOfDeath: MANNER_OF_DEATHS.filter(x => x !== 'Disease'),
 };
@@ -282,6 +267,7 @@ export const DeathForm = React.memo(
             name="timeOfDeath"
             label="Date/Time"
             component={props => <DateTimeField {...props} InputProps={{}} />}
+            saveDateAsString
             required
           />
           <Field
@@ -307,7 +293,8 @@ export const DeathForm = React.memo(
           <Field
             name="lastSurgeryDate"
             label="What was the date of surgery"
-            component={DateTimeField}
+            component={DateField}
+            saveDateAsString
             visibilityCriteria={{ surgeryInLast4Weeks: 'yes' }}
           />
           <Field
@@ -340,13 +327,14 @@ export const DeathForm = React.memo(
             name="mannerOfDeath"
             label="What was the manner of death?"
             component={SelectField}
-            options={mannerOfDeathOptions}
+            options={MANNER_OF_DEATH_OPTIONS}
             required
           />
           <Field
             name="mannerOfDeathDate"
             label="What date did this external cause occur?"
             component={DateField}
+            saveDateAsString
             visibilityCriteria={mannerOfDeathVisibilityCriteria}
           />
           <Field
