@@ -1,6 +1,6 @@
-import Sequelize, { QueryInterface } from 'sequelize';
+import Sequelize from 'sequelize';
 
-export async function up(query: QueryInterface): Promise<void> {
+export async function up(query) {
   await query.addColumn('administered_vaccines', 'marked_for_push', {
     type: Sequelize.BOOLEAN,
     allowNull: false,
@@ -22,7 +22,7 @@ export async function up(query: QueryInterface): Promise<void> {
   });
 }
 
-export async function down(query: QueryInterface): Promise<void> {
+export async function down(query) {
   await query.removeColumn('administered_vaccines', 'marked_for_push');
   await query.removeColumn('administered_vaccines', 'is_pushing');
   await query.removeColumn('administered_vaccines', 'pushed_at');
