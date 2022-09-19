@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import { CssBaseline } from '@material-ui/core';
 import { ThemeProvider } from 'styled-components';
 import { MuiThemeProvider, StylesProvider } from '@material-ui/core/styles';
-import { ToastContainer } from 'react-toastify';
+import { Slide, ToastContainer } from 'react-toastify';
 import { ApiContext } from './api';
 import { RoutingApp } from './RoutingApp';
 import { theme } from './theme';
@@ -49,10 +49,14 @@ export default function Root({ api, store, history }) {
                     <ReactQueryDevtools initialIsOpen={false} />
                     <ElectronProvider>
                       <ToastContainer
+                        hideProgressBar
+                        transition={Slide}
                         closeOnClick
                         pauseOnFocusLoss
                         draggable
                         pauseOnHover
+                        theme="colored"
+                        icon={false}
                         limit={5}
                       />
                       <CssBaseline />

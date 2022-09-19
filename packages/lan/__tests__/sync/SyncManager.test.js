@@ -5,6 +5,7 @@ import { REFERENCE_TYPES } from 'shared/constants';
 import { fake, buildNestedEncounter, upsertAssociations } from 'shared/test-helpers';
 
 import { createTestContext } from '../utilities';
+import { toDateString } from 'shared/utils/dateTime';
 
 describe('SyncManager', () => {
   let ctx;
@@ -217,7 +218,7 @@ describe('SyncManager', () => {
       expect(calls[0][1]).toHaveLength(1);
       expect(calls[0][1][0].data).toMatchObject({
         ...record,
-        dateOfBirth: record?.dateOfBirth?.toISOString(),
+        dateOfBirth: toDateString(record?.dateOfBirth),
         dateOfDeath: undefined,
       });
     });
