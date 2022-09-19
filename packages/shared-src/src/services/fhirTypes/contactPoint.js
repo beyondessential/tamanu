@@ -13,7 +13,7 @@ export class FhirContactPoint extends Composite {
     .object({
       system: yup
         .string()
-        .oneOf(SYSTEMS)
+        .oneOf([null, ...SYSTEMS])
         .nullable()
         .default(null),
       value: yup
@@ -22,7 +22,7 @@ export class FhirContactPoint extends Composite {
         .default(null),
       use: yup
         .string()
-        .oneOf(USES)
+        .oneOf([null, ...USES])
         .nullable()
         .default(null),
       rank: yup
@@ -37,6 +37,13 @@ export class FhirContactPoint extends Composite {
         .default(null),
     })
     .noUnknown();
+
+  static validateAndTransformFromSql({ period, ...fields }) {
+    return new this({
+      period: period && FhirPeriod.fromSql(period),
+      ...fields,
+    });
+  }
 
   static fake(model, { fieldName }, id) {
     return new this({
