@@ -63,15 +63,28 @@ export class FhirResource extends Model {
   static UPSTREAM_UUID = false;
 
   // set upstream_id, call updateMaterialisation
-  static async materialiseFromUpstream(id) {}
+  static async materialiseFromUpstream(id) {
+    const resource = this.build({
+      id: Sequelize.fn('uuid_generate_v4'),
+      versionId: Sequelize.fn('uuid_generate_v4'),
+      upstreamId: id,
+    });
+    await resource.updateMaterialisation();
+    await resource.save();
+    return resource;
+  }
 
   // fetch upstream and necessary includes, diff and update
   async updateMaterialisation() {
     throw new Error('must be overridden');
   }
 
-  // call updateMat in a transaction, don't commit, output bool
-  async isUpToDate() {}
+  // call updateMat, don't save, output bool
+  async isUpToDate() {
+    const resource = await this.constructor.findByPk(this.id);
+    await resource.updateMaterialisation();
+    return !resource.changed();
+  }
 
   // fetch (single) upstream with query options (e.g. includes)
   getUpstream(queryOptions) {
@@ -79,5 +92,19 @@ export class FhirResource extends Model {
   }
 
   // lookup list of non-deleted upstream records that are not present in the FHIR materialisations
-  static async missingRecords(limit = 1000) {}
+  static missingRecords(limit = 1000) {
+    return this.UpstreamModel.find({
+      where: {
+        '$downstream.id$': null,
+      },
+      include: [
+        {
+          model: this.UpstreamModel,
+          as: 'downstream',
+        },
+      ],
+    })
+      .select('id')
+      .limit(limit);
+  }
 }
