@@ -31,6 +31,4 @@ export class FhirPatient extends FhirResource {
       options,
     );
   }
-
-  static initRelations(models) {}
 }
