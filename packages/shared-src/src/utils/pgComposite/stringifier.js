@@ -54,6 +54,10 @@ function compositeField(field) {
         return '';
       }
 
+      if (Array.isArray(field)) {
+        return compositeString(arrayToSql(field));
+      }
+
       if (field instanceof Composite) {
         return compositeString(compositeToSql(field.sqlFields()));
       }
@@ -89,4 +93,8 @@ function compositeString(string) {
 
   // Let's do this simply by double-quoting everything.
   return `"${string.replace('"', '\\"').replace('\\', '\\\\')}"`;
+}
+
+function arrayToSql(arr) {
+  return `{${arr.map(compositeField).join(',')}}`;
 }
