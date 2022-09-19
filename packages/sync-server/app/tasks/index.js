@@ -13,6 +13,7 @@ import { CertificateNotificationProcessor } from './CertificateNotificationProce
 import { AutomaticLabTestResultPublisher } from './AutomaticLabTestResultPublisher';
 import { DuplicateAdditionalDataDeleter } from './DuplicateAdditionalDataDeleter';
 import { CovidClearanceCertificatePublisher } from './CovidClearanceCertificatePublisher';
+import { FhirMaterialiser } from './FhirMaterialiser';
 
 export async function startScheduledTasks(context) {
   const taskClasses = [
@@ -41,6 +42,10 @@ export async function startScheduledTasks(context) {
 
   if (config.integrations.signer.enabled) {
     taskClasses.push(SignerWorkingPeriodChecker, SignerRenewalChecker, SignerRenewalSender);
+  }
+
+  if (config.integrations.fhir.enabled) {
+    taskClasses.push(FhirMaterialiser);
   }
 
   const reportSchedulers = await getReportSchedulers(context);
