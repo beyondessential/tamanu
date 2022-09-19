@@ -64,7 +64,6 @@ export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): 
       ...otherValues,
       dateOfBirth: formatISO9075(dateOfBirth),
       displayId: generateId(),
-      markedForUpload: true,
     });
     await Patient.markForSync(newPatient.id);
 
