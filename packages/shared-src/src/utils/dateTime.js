@@ -1,4 +1,11 @@
-import { isValid, format, formatISO9075, differenceInMonths, differenceInYears } from 'date-fns';
+import {
+  isValid,
+  format,
+  formatISO9075,
+  differenceInMonths,
+  differenceInYears,
+  compareDesc,
+} from 'date-fns';
 
 export function toDateTimeString(date) {
   if (date === null || date === undefined) return null;
@@ -42,4 +49,9 @@ export function ageInYears(dob) {
 // parsing strings to dates.
 export function parseISO9075(date) {
   return new Date(date.replace(' ', 'T'));
+}
+
+export function latestDateTime(...args) {
+  args.sort(compareDesc);
+  return args[0];
 }
