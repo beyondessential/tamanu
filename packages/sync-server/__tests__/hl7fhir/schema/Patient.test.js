@@ -18,7 +18,7 @@ describe('Patient', () => {
   });
   afterAll(() => ctx.close());
 
-  it('should create', () =>
+  it('should create directly', () =>
     showError(async () => {
       // Arrange
       const { FhirPatient } = models;
@@ -73,6 +73,51 @@ describe('Patient', () => {
 
       // Assert
       expect(patient.identifier).toEqual([idA, idB]);
+    }));
+
+  it('should round-trip a composite field with update', () =>
+    showError(async () => {
+      // Arrange
+      const { FhirPatient } = models;
+      const id = new FhirIdentifier({
+        use: 'official',
+        value: 'P126362813',
+        system: 'https://tamanu.io/passport',
+      });
+
+      // Act
+      const patient = await FhirPatient.create({
+        ...fake(FhirPatient),
+        gender: 'male',
+      });
+      await patient.update({ identifier: [id] });
+      await patient.reload();
+
+      // Assert
+      expect(patient.identifier).toEqual([id]);
+    }));
+
+  it('should round-trip a composite field with build', () =>
+    showError(async () => {
+      // Arrange
+      const { FhirPatient } = models;
+      const id = new FhirIdentifier({
+        use: 'official',
+        value: 'P126362813',
+        system: 'https://tamanu.io/passport',
+      });
+
+      // Act
+      const patient = FhirPatient.build({
+        ...fake(FhirPatient),
+        gender: 'male',
+      });
+      patient.set({ identifier: [id] });
+      await patient.save();
+      await patient.reload();
+
+      // Assert
+      expect(patient.identifier).toEqual([id]);
     }));
 
   it('should round-trip a composite field containing an array', () =>
