@@ -27,17 +27,17 @@ export class FhirHumanName extends Composite {
       given: yup
         .array()
         .of(yup.string())
-        .ensure()
+        .nullable()
         .default([]),
       prefix: yup
         .array()
         .of(yup.string())
-        .ensure()
+        .nullable()
         .default([]),
       suffix: yup
         .array()
         .of(yup.string())
-        .ensure()
+        .nullable()
         .default([]),
       period: FhirPeriod.asYup()
         .nullable()

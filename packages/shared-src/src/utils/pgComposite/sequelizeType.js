@@ -14,10 +14,8 @@ export class Composite {
   }
 
   /**
-   * Implements a parser for a composite record literal. Unlike the stringifier, we can't take the
-   * easy route; we have to implement parsing of values as they'll come back from Postgres.
-   *
-   * The parser starts by reading every field as a string, then does more passes to interpret them.
+   * Parses a composite record literal. Unlike the stringifier, we can't take the easy route; we
+   * have to implement parsing of values as they'll come back from Postgres.
    */
   static fromSql(raw) {
     const fields = parse(raw);
@@ -32,7 +30,12 @@ export class Composite {
       assembled[name] = fields[n];
     }
 
-    return new this(assembled);
+    return this.validateAndTransformFromSql(assembled);
+  }
+
+  // override this if you want to customise parsing
+  static validateAndTransformFromSql(fields) {
+    return new this(fields);
   }
 
   /**

@@ -1,5 +1,11 @@
 import { fake, showError } from 'shared/test-helpers';
-import { FhirIdentifier, FhirPeriod } from 'shared/services/fhirTypes';
+import {
+  FhirAddress,
+  FhirCodeableConcept,
+  FhirCoding,
+  FhirIdentifier,
+  FhirPeriod,
+} from 'shared/services/fhirTypes';
 import { createTestContext } from '../../utilities';
 
 describe('Patient', () => {
@@ -67,5 +73,51 @@ describe('Patient', () => {
 
       // Assert
       expect(patient.identifier).toEqual([idA, idB]);
+    }));
+
+  it('should round-trip a composite field containing an array', () =>
+    showError(async () => {
+      // Arrange
+      const { FhirPatient } = models;
+
+      const id = new FhirIdentifier({
+        use: 'official',
+        value: 'P126362813',
+        type: new FhirCodeableConcept({
+          text: 'marriage certificate',
+          coding: [
+            new FhirCoding({
+              code: 'MARCRT',
+              version: '1.3',
+              userSelected: true,
+            }),
+          ],
+        }),
+      });
+
+      const address = new FhirAddress({
+        use: 'home',
+        type: 'physical',
+        line: ['123 street lane', 'RD5'],
+        city: 'Metropolis',
+        postalCode: '00000',
+        country: 'Placeland',
+        period: new FhirPeriod({
+          start: new Date('2022-02-02 22:02:02'),
+          end: new Date('2022-02-22 20:22:02'),
+        }),
+      });
+
+      // Act
+      const patient = await FhirPatient.create({
+        ...fake(FhirPatient),
+        identifier: [id],
+        address: [address],
+      });
+      await patient.reload();
+
+      // Assert
+      expect(patient.identifier).toEqual([id]);
+      expect(patient.address).toEqual([address]);
     }));
 });
