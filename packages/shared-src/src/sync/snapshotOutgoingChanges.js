@@ -4,7 +4,7 @@ import { toDateTimeString, toDateString } from '../utils/dateTime';
 
 const { readOnly } = config.sync;
 
-const COLUMNS_EXCLUDED_FROM_SYNC = ['createdAt', 'updatedAt', 'markedForSync'];
+const COLUMNS_EXCLUDED_FROM_SYNC = ['createdAt', 'updatedAt'];
 
 const formatValue = (columnType, value) => {
   if (columnType instanceof DataTypes.DATE) {
