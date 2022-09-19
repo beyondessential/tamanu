@@ -230,10 +230,9 @@ export class Encounter extends BaseModel implements IEncounter {
   @BeforeUpdate()
   async markPatient() {
     // adding an encounter to a patient should mark them for syncing in future
-    // we don't need to upload the patient, so we only set markedForSync
     const parent = await this.findParent(Patient, 'patient');
     if (parent) {
-      await Patient.markForSync(parent.id)
+      await Patient.markForSync(parent.id);
     }
   }
 
