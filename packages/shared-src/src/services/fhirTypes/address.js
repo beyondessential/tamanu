@@ -6,8 +6,8 @@ import * as yup from 'yup';
 import { COMPOSITE, Composite } from '../../utils/pgComposite';
 import { FhirPeriod } from './period';
 
-const USES = ['home | work | temp | old | billing'];
-const TYPES = ['postal | physical | both'];
+const USES = ['home', 'work', 'temp', 'old', 'billing'];
+const TYPES = ['postal', 'physical', 'both'];
 
 export class FhirAddress extends Composite {
   static FIELD_ORDER = [

@@ -54,7 +54,7 @@ describe('Patient', () => {
       const idB = new FhirIdentifier({
         use: 'official',
         value: 'P126362813',
-        system: 'passport',
+        system: 'https://tamanu.io/passport',
       });
 
       // Act

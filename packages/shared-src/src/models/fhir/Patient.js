@@ -4,41 +4,32 @@ import { dateType } from '../dateTimeTypes';
 
 export class FhirPatient extends FhirResource {
   static init(options) {
-    super.init({
-      identifier: this.ArrayOf('identifier', DataTypes.FHIR_IDENTIFIER),
-      active: {
-        type: Sequelize.BOOLEAN,
-        allowNull: false,
-        defaultValue: true,
+    super.init(
+      {
+        identifier: this.ArrayOf('identifier', DataTypes.FHIR_IDENTIFIER),
+        active: {
+          type: Sequelize.BOOLEAN,
+          allowNull: false,
+          defaultValue: true,
+        },
+        name: this.ArrayOf('name', DataTypes.FHIR_HUMAN_NAME),
+        telecom: this.ArrayOf('telecom', DataTypes.FHIR_CONTACT_POINT),
+        gender: {
+          type: Sequelize.STRING(10),
+          allowNull: false,
+        },
+        birthDate: {
+          type: dateType('birthDate'),
+          allowNull: true,
+        },
+        deceasedDateTime: {
+          type: dateType('deceasedDateTime'),
+          allowNull: true,
+        },
+        address: this.ArrayOf('address', DataTypes.FHIR_ADDRESS),
       },
-      // name: {
-      //   type: 'fhir.human_name[]',
-      //   allowNull: false,
-      //   defaultValue: '{}',
-      // },
-      // telecom: {
-      //   type: 'fhir.contact_point[]',
-      //   allowNull: false,
-      //   defaultValue: '{}',
-      // },
-      gender: {
-        type: Sequelize.STRING(10),
-        allowNull: false,
-      },
-      birthDate: {
-        type: dateType('birthDate'),
-        allowNull: true,
-      },
-      deceasedDateTime: {
-        type: dateType('deceasedDateTime'),
-        allowNull: true,
-      },
-      // address: {
-      //   type: 'fhir.address[]',
-      //   allowNull: false,
-      //   defaultValue: '{}',
-      // },
-    }, options);
+      options,
+    );
   }
 
   static initRelations(models) {}

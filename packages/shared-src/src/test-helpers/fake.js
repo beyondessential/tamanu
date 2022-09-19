@@ -13,7 +13,15 @@ import {
   VISIBILITY_STATUSES,
 } from 'shared/constants';
 import { toDateTimeString, toDateString } from '../utils/dateTime';
-import { FhirIdentifier, FhirPeriod } from '../services/fhirTypes';
+import {
+  FhirIdentifier,
+  FhirPeriod,
+  FhirAddress,
+  FhirCoding,
+  FhirCodeableConcept,
+  FhirContactPoint,
+  FhirHumanName,
+} from '../services/fhirTypes';
 
 const chance = new Chance();
 
@@ -218,6 +226,11 @@ const FIELD_HANDLERS = {
 
   FHIR_IDENTIFIER: (...args) => FhirIdentifier.fake(...args),
   FHIR_PERIOD: (...args) => FhirPeriod.fake(...args),
+  FHIR_ADDRESS: (...args) => FhirAddress.fake(...args),
+  FHIR_CODING: (...args) => FhirCoding.fake(...args),
+  FHIR_CODEABLE_CONCEPT: (...args) => FhirCodeableConcept.fake(...args),
+  FHIR_CONTACT_POINT: (...args) => FhirContactPoint.fake(...args),
+  FHIR_HUMAN_NAME: (...args) => FhirHumanName.fake(...args),
 };
 
 const IGNORED_FIELDS = [
