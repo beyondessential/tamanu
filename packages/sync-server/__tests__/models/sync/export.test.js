@@ -98,12 +98,16 @@ describe('export', () => {
       ];
       testCases.forEach(([modelName, fakeRecord, overrideChannel]) => {
         describe(modelName, () => {
+          beforeEach(async () => {
+            const model = models[modelName];
+            await model.truncate({ cascade: true, force: true });
+          });
+
           it('exports pages of records', async () => {
             // arrange
             const model = models[modelName];
             const channel = overrideChannel || (await model.syncConfig.getChannels())[0];
             const plan = createExportPlan(model.sequelize, channel);
-            await model.truncate();
             const records = [await fakeRecord(), await fakeRecord()];
             const updatedAts = [makeUpdatedAt(20), makeUpdatedAt(0)];
             await Promise.all(
@@ -148,7 +152,7 @@ describe('export', () => {
       it('respects until', async () => {
         // arrange
         const { Patient } = models;
-        await Patient.truncate();
+        await Patient.truncate({ cascade: true, force: true });
         const channel = Patient.syncConfig.getChannels()[0];
         const plan = createExportPlan(Patient.sequelize, channel);
 

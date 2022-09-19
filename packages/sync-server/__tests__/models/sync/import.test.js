@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+import { Sequelize } from 'sequelize';
 import {
   fakeProgram,
   fakeProgramDataElement,
@@ -336,9 +337,7 @@ describe('import', () => {
         const patient = await Patient.create(data);
 
         // delete the record in the db
-        await patient.update({ 
-          deletedAt: new Date(),
-        });
+        await patient.destroy();
 
         // create an edit to the record without a deleted-at
         const syncRecord = toSyncRecord({
@@ -354,7 +353,8 @@ describe('import', () => {
         await expect(executePromise).rejects.toHaveProperty('message', "Sync payload includes updates to deleted records");
 
         // and the name change should not have stuck
-        const dbPatient = await Patient.findByPk(patient.id);
+        // paranoid: false as the patient has already been deleted
+        const dbPatient = await Patient.findByPk(patient.id, { paranoid: false });
         expect(dbPatient).not.toHaveProperty('firstName', 'Changed');
       });
 
