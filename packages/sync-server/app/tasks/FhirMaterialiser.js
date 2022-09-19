@@ -52,11 +52,9 @@ export class FhirMaterialiser extends ScheduledTask {
     for (const resource of Object.values(FHIR_RESOURCE_TYPES)) {
       if (total >= limit) return;
 
-      const missing = await this.models[`Fhir${resource}`].findMissingRecords({
-        limit: limit - total,
-      });
+      const missing = await this.models[`Fhir${resource}`].findMissingRecordsIds(limit - total);
 
-      for (const { id } of missing) {
+      for (const id of missing) {
         total += 1;
         await this.materialise(
           log.child({ nth: total, limit, resource, upstreamId: id }),

@@ -1,6 +1,7 @@
 import { snakeCase } from 'lodash';
-import { Sequelize, Utils } from 'sequelize';
+import { Sequelize, Utils, QueryTypes } from 'sequelize';
 import array from 'postgres-array';
+import * as yup from 'yup';
 
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from '../Model';
@@ -100,32 +101,38 @@ export class FhirResource extends Model {
   }
 
   // query to do lookup of non-deleted upstream records that are not present in the FHIR tables
-  static missingRecords() {
-    return {
-      where: {
-        '$downstream.id$': null,
-      },
-      include: [
-        {
-          model: this.UpstreamModel,
-          as: 'downstream',
-        },
-      ],
-      order: [['updated_at', 'ASC']],
-    };
+  // does direct sql interpolation, NEVER use with user or variable input
+  static missingRecords(select, trail = '') {
+    return `
+      SELECT ${select}
+      FROM ${this.UpstreamModel.tableName} upstream
+      LEFT JOIN fhir.${this.tableName} downstream ON downstream.upstream_id = upstream.id
+      WHERE upstream.deleted_at IS NULL AND downstream.id IS NULL
+      ${trail}
+    `;
   }
 
-  static findMissingRecords(options = {}) {
-    return this.UpstreamModel.findAll({
-      ...this.missingRecords(),
-      ...options,
-    });
+  static async findMissingRecordsIds(limit = 1000) {
+    if (!this.UpstreamModel) return [];
+
+    const limitValid = yup
+      .number()
+      .positive()
+      .integer()
+      .validateSync(limit);
+    const rows = await this.sequelize.query(
+      this.missingRecords('upstream.id', `ORDER BY upstream.updated_at ASC LIMIT ${limitValid}`),
+      { type: QueryTypes.SELECT },
+    );
+    return rows.map(({ id }) => id);
   }
 
-  static countMissingRecords(options = {}) {
-    return this.UpstreamModel.count({
-      ...this.missingRecords(),
-      ...options,
+  static async countMissingRecords() {
+    if (!this.UpstreamModel) return 0;
+    const rows = await this.sequelize.query(this.missingRecords('count(upstream.*) as count'), {
+      type: QueryTypes.SELECT,
     });
+
+    return Number(rows[0]?.count || 0);
   }
 }

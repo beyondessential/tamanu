@@ -6,16 +6,14 @@ import { FHIR_RESOURCE_TYPES } from 'shared/constants';
 import { log } from 'shared/services/logging';
 
 export async function addHooks(store) {
-  if (config.notifications) {
-    if (config.notifications.referralCreated) {
-      store.models.Referral.addHook(
-        'afterCreate',
-        'create referral notification hook',
-        referral => {
-          createReferralNotification(referral, store.models);
-        },
-      );
-    }
+  if (config.notifications?.referralCreated) {
+    store.models.Referral.addHook(
+      'afterCreate',
+      'create referral notification hook',
+      referral => {
+        createReferralNotification(referral, store.models);
+      },
+    );
   }
 
   if (config.integrations?.fhir) {
