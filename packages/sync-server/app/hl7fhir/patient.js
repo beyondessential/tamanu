@@ -125,6 +125,7 @@ export function getFlattenMergedPatientReplaceLinks(
   baseUrl,
   patient,
   mergedPatientsByMergedIntoId,
+  isRootPatientActive,
 ) {
   const links = [];
   const mergedPatients = mergedPatientsByMergedIntoId[patient.id] || [];
@@ -132,11 +133,11 @@ export function getFlattenMergedPatientReplaceLinks(
   for (const mergedPatient of mergedPatients) {
     links.push({
       other: getHL7Link(`${baseUrl}/Patient/${mergedPatient.id}`),
-      type: PATIENT_LINK_TYPES.REPLACES,
+      type: isRootPatientActive ? PATIENT_LINK_TYPES.REPLACES : PATIENT_LINK_TYPES.SEE_ALSO,
     });
     // get deeper level of merged patients if there's any
     links.push(
-      ...getFlattenMergedPatientReplaceLinks(baseUrl, mergedPatient, mergedPatientsByMergedIntoId),
+      ...getFlattenMergedPatientReplaceLinks(baseUrl, mergedPatient, mergedPatientsByMergedIntoId, isRootPatientActive),
     );
   }
 
@@ -204,7 +205,13 @@ const getPatientById = async models => {
   return keyBy(patients, 'id');
 };
 
-const getPatientLinks = (baseUrl, patient, patientById, mergedPatientsByMergedIntoId) => {
+const getPatientLinks = (
+  baseUrl,
+  patient,
+  patientById,
+  mergedPatientsByMergedIntoId,
+  isRootPatientActive,
+) => {
   const links = [];
 
   // Get 'replaced-by/seealso' links of a patient if there's any
@@ -217,11 +224,20 @@ const getPatientLinks = (baseUrl, patient, patientById, mergedPatientsByMergedIn
   // Get 'replaces' links of a patient if there's any
   if (mergedPatients.length) {
     links.push(
-      ...getFlattenMergedPatientReplaceLinks(baseUrl, patient, mergedPatientsByMergedIntoId),
+      ...getFlattenMergedPatientReplaceLinks(
+        baseUrl,
+        patient,
+        mergedPatientsByMergedIntoId,
+        isRootPatientActive,
+      ),
     );
   }
 
-  return links;
+  // Reorder seealso links to be after replaces/replaced-by links
+  const seeAlsoLinks = links.filter(l => l.type === PATIENT_LINK_TYPES.SEE_ALSO);
+  const otherLinks = links.filter(l => l.type !== PATIENT_LINK_TYPES.SEE_ALSO);
+
+  return [...otherLinks, ...seeAlsoLinks];
 };
 
 export const patientToHL7Patient = async (req, patient, additional = {}) => {
@@ -229,7 +245,14 @@ export const patientToHL7Patient = async (req, patient, additional = {}) => {
   const baseUrl = getBaseUrl(req, false);
   const mergedPatientsByMergedIntoId = await getMergedPatientByMergedIntoId(models);
   const patientById = await getPatientById(models);
-  const links = getPatientLinks(baseUrl, patient, patientById, mergedPatientsByMergedIntoId);
+  const isRootPatientActive = Boolean(!patient.mergedIntoId);
+  const links = getPatientLinks(
+    baseUrl,
+    patient,
+    patientById,
+    mergedPatientsByMergedIntoId,
+    isRootPatientActive,
+  );
   const hl7Patient = convertPatientToHL7Patient(patient, additional);
 
   return { ...hl7Patient, ...(links.length ? { link: links } : {}) };
@@ -244,7 +267,14 @@ export const patientToHL7PatientList = async (req, patients) => {
 
   for (const patient of patients) {
     const hl7Patient = convertPatientToHL7Patient(patient, patient.additionalData?.[0]);
-    const links = getPatientLinks(baseUrl, patient, patientById, mergedPatientsByMergedIntoId);
+    const isRootPatientActive = Boolean(!patient.mergedIntoId);
+    const links = getPatientLinks(
+      baseUrl,
+      patient,
+      patientById,
+      mergedPatientsByMergedIntoId,
+      isRootPatientActive,
+    );
 
     hl7Patients.push({ ...hl7Patient, ...(links.length ? { link: links } : {}) });
   }

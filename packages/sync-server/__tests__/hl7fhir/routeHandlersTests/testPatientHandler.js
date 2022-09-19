@@ -171,7 +171,6 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
         const path = `/v1/integration/${integrationName}/Patient?_sort=given`;
         const response = await app.get(path).set(requestHeaders);
 
-        console.log('test response.body', JSON.stringify(response.body));
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(3);
         expect(response.body.entry[0].name[0].given[0]).toBe('Alice');

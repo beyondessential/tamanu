@@ -1,7 +1,5 @@
 import asyncHandler from 'express-async-handler';
-import { Op } from 'sequelize';
 import { NotFoundError } from 'shared/errors';
-import { VISIBILITY_STATUSES } from 'shared/constants';
 
 import { getHL7Payload } from './getHL7Payload';
 import { patientToHL7Patient, patientToHL7PatientList, getPatientWhereClause } from './patient';
