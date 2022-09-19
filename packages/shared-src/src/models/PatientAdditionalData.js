@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize';
+import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 import { buildPatientLinkedSyncFilter } from './buildPatientLinkedSyncFilter';
@@ -7,24 +7,39 @@ export class PatientAdditionalData extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
-        id: primaryKey,
-        placeOfBirth: Sequelize.STRING,
-        bloodType: Sequelize.STRING,
-        primaryContactNumber: Sequelize.STRING,
-        secondaryContactNumber: Sequelize.STRING,
-        maritalStatus: Sequelize.STRING,
-        cityTown: Sequelize.STRING,
-        streetVillage: Sequelize.STRING,
-        educationalLevel: Sequelize.STRING,
-        socialMedia: Sequelize.STRING,
-        title: Sequelize.STRING,
-        birthCertificate: Sequelize.STRING,
-        drivingLicense: Sequelize.STRING,
-        passport: Sequelize.STRING,
-        emergencyContactName: Sequelize.STRING,
-        emergencyContactNumber: Sequelize.STRING,
-        motherId: Sequelize.STRING,
-        fatherId: Sequelize.STRING,
+        id: {
+          type: `TEXT GENERATED ALWAYS AS ("patient_id")`,
+          set() {
+            // patient additional data records use a patient_id as the primary key, acting as a
+            // db-level enforcement of one per patient, and simplifying sync
+            // any sets of the convenience generated "id" field can be ignored, so do nothing here
+          },
+        },
+        patientId: {
+          type: DataTypes.STRING,
+          primaryKey: true,
+          references: {
+            model: 'patients',
+            key: 'id',
+          },
+        },
+        placeOfBirth: DataTypes.STRING,
+        bloodType: DataTypes.STRING,
+        primaryContactNumber: DataTypes.STRING,
+        secondaryContactNumber: DataTypes.STRING,
+        maritalStatus: DataTypes.STRING,
+        cityTown: DataTypes.STRING,
+        streetVillage: DataTypes.STRING,
+        educationalLevel: DataTypes.STRING,
+        socialMedia: DataTypes.STRING,
+        title: DataTypes.STRING,
+        birthCertificate: DataTypes.STRING,
+        drivingLicense: DataTypes.STRING,
+        passport: DataTypes.STRING,
+        emergencyContactName: DataTypes.STRING,
+        emergencyContactNumber: DataTypes.STRING,
+        motherId: DataTypes.STRING,
+        fatherId: DataTypes.STRING,
       },
       {
         ...options,
@@ -37,11 +52,6 @@ export class PatientAdditionalData extends Model {
     this.belongsTo(models.Patient, {
       foreignKey: 'patientId',
       as: 'patient',
-    });
-
-    this.belongsTo(models.PatientAdditionalData, {
-      foreignKey: 'mergedIntoId',
-      as: 'mergedInto',
     });
 
     this.belongsTo(models.User, {

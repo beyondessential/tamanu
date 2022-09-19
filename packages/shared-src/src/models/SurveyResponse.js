@@ -93,6 +93,10 @@ export class SurveyResponse extends Model {
   }
 
   static initRelations(models) {
+    this.belongsTo(models.User, {
+      foreignKey: 'userId',
+      as: 'user',
+    });
     this.belongsTo(models.Survey, {
       foreignKey: 'surveyId',
       as: 'survey',
@@ -141,15 +145,15 @@ export class SurveyResponse extends Model {
       return openEncounter;
     }
 
-    const { departmentId, examinerId, locationId } = responseData;
+    const { departmentId, userId, locationId } = responseData;
 
-    // need to create a new encounter
+    // need to create a new encounter with examiner set as the user who submitted the survey.
     return Encounter.create({
       patientId,
       encounterType: 'surveyResponse',
       reasonForEncounter,
       departmentId,
-      examinerId,
+      examinerId: userId,
       locationId,
       startDate: Date.now(),
       endDate: Date.now(),

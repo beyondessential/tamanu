@@ -2,6 +2,7 @@ import config from 'config';
 import { format } from 'date-fns';
 import { Op } from 'sequelize';
 
+import { VISIBILITY_STATUSES } from 'shared/constants';
 import { getParamAndModifier, getQueryObject, getDefaultOperator } from './utils';
 import { modifiers } from './hl7Parameters';
 import { hl7PatientFields } from './hl7PatientFields';
@@ -73,11 +74,16 @@ function patientTelecom(patient, additional) {
     }));
 }
 
+function isPatientActive(patient) {
+  if (patient.visibilityStatus === VISIBILITY_STATUSES.CURRENT) return true;
+  return false;
+}
+
 export function patientToHL7Patient(patient, additional = {}) {
   return {
     resourceType: 'Patient',
     id: patient.id,
-    active: true, // currently unused in Tamanu, always true
+    active: isPatientActive(patient),
     identifier: patientIds(patient, additional),
     name: patientName(patient, additional),
     birthDate: patient.dateOfBirth && format(patient.dateOfBirth, 'yyyy-MM-dd'),

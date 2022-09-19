@@ -188,8 +188,8 @@ encounterRelations.get(
         SELECT
           survey_responses.*,
           surveys.name as survey_name,
-          programs.name as program_name,
-          users.display_name as assessor_name
+          programs.name as program_name, 
+          COALESCE(survey_user.display_name, encounter_user.display_name) as submitted_by
         FROM
           survey_responses
           LEFT JOIN surveys
@@ -198,8 +198,10 @@ encounterRelations.get(
             ON (programs.id = surveys.program_id)
           LEFT JOIN encounters
             ON (encounters.id = survey_responses.encounter_id)
-          LEFT JOIN users
-            ON (users.id = encounters.examiner_id)
+          LEFT JOIN users encounter_user
+            ON (encounter_user.id = encounters.examiner_id)
+          LEFT JOIN users survey_user
+            ON (survey_user.id = survey_responses.user_id)
         WHERE
           survey_responses.encounter_id = :encounterId
         AND
