@@ -11,7 +11,6 @@ export class PatientFacility extends Model {
           set() {
             // patient facility records use a composite primary key
             // any sets of the convenience generated "id" field can be ignored
-            return;
           },
         },
         facility_id: {

@@ -161,7 +161,7 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
 
     if (newPatientFacilities.length > 0) {
       for (const chunkOfRecords of chunk(newPatientFacilities, BULK_CREATE_BATCH_SIZE)) {
-        await models.PatientFacility.bulkCreate(newPatientFacilities);
+        await models.PatientFacility.bulkCreate(chunkOfRecords);
       }
       updates.PatientFacility = newPatientFacilities.length;
     }
