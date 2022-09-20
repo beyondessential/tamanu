@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { CovidLabCertificate, CertificateTypes } from 'shared/utils/patientCertificates';
 import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
 import { Modal } from '../Modal';
@@ -8,16 +7,15 @@ import { useLocalisation } from '../../contexts/Localisation';
 import { EmailButton } from '../Email/EmailButton';
 import { PDFViewer, printPDF } from './PDFViewer';
 import { useCertificate } from '../../utils/useCertificate';
+import { usePatientAdditionalData } from '../../api/queries';
 
-export const CovidTestCertificateModal = ({ patient }) => {
+export const CovidTestCertificateModal = React.memo(({ patient }) => {
   const [open, setOpen] = useState(true);
   const [labs, setLabs] = useState([]);
   const { getLocalisation } = useLocalisation();
   const api = useApi();
   const { watermark, logo, footerImg, printedBy } = useCertificate();
-  const { data: additionalData } = useQuery(['additionalData', patient.id], () =>
-    api.get(`patient/${patient.id}/additionalData`),
-  );
+  const { data: additionalData } = usePatientAdditionalData(patient.id);
 
   useEffect(() => {
     api.get(`patient/${patient.id}/covidLabTests`).then(response => {
@@ -64,4 +62,4 @@ export const CovidTestCertificateModal = ({ patient }) => {
       </PDFViewer>
     </Modal>
   );
-};
+});
