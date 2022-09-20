@@ -18,12 +18,15 @@ const MARKED_FOR_PUSH_MODELS = [
   'PatientIssue',
   'PatientSecondaryId',
   'ReportRequest',
+  'ReportDefinition',
+  'ReportDefinitionVersion',
   'UserFacility',
   'DocumentMetadata',
   'CertificateNotification',
   'PatientDeathData',
   'PatientBirthData',
   'ContributingDeathCause',
+  'AdministeredVaccine',
   'ImagingRequestAreas',
 ];
 

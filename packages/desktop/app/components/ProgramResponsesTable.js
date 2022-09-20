@@ -6,14 +6,14 @@ import { SurveyResultBadge } from './SurveyResultBadge';
 import { SurveyResponseDetailsModal } from './SurveyResponseDetailsModal';
 
 const getDate = ({ endTime }) => <DateDisplay date={endTime} />;
-const getAssessorName = ({ assessorName }) => assessorName;
+const getSubmittedBy = ({ submittedBy }) => submittedBy;
 const getProgramName = ({ programName }) => programName;
 const getSurveyName = ({ surveyName }) => surveyName;
 const getResults = ({ resultText }) => <SurveyResultBadge resultText={resultText} />;
 
 const columns = [
   { key: 'endTime', title: 'Date submitted', accessor: getDate },
-  { key: 'assessorId', title: 'Submitted by', accessor: getAssessorName },
+  { key: 'assessorId', title: 'Submitted by', accessor: getSubmittedBy },
   { key: 'program', title: 'Program', accessor: getProgramName },
   { key: 'survey', title: 'Survey', accessor: getSurveyName },
   { key: 'results', title: 'Results', accessor: getResults },
