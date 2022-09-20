@@ -342,16 +342,16 @@ describe('fijiAspenMediciReport', () => {
         'Encounter type': 'Hospital admission',
         'Triage category': "Priority",
         'Time seen following triage/Wait time (hh:mm)': "1:3",
-        'Department': "department: Emergency dept., assignedTime: 2022-06-09T00:02:54.225+00:00",
-        'Location': "location: Emergency room 1, assignedTime: 2022-06-09T00:02:54.225+00:00; location: Emergency room 2, assignedTime: 2022-06-09T08:04:54.225+00:00",
+        'Department': "Department: Emergency dept., Assigned time: 2022-06-09 02:54 AM",
+        'Location': "Location: Emergency room 1, Assigned time: 2022-06-09 02:54 AM; Location: Emergency room 2, Assigned time: 2022-06-09 08:04 AM",
         'Reason for encounter': "Severe Migrane",
         'Diagnosis': "Name: Acute subdural hematoma, Code: S06.5, Is primary?: primary, Certainty: confirmed; Name: Acute subdural hematoma, Code: S06.5, Is primary?: secondary, Certainty: suspected",
         'Medications': "Name: Glucose (hypertonic) 5%, Discontinued: true, Discontinuing reason: It was not enough; Name: Glucose (hypertonic) 10%, Discontinued: false, Discontinuing reason: null",
         'Vaccinations': "Name: Covid AZ, Label: Covid Schedule Label, Schedule: Dose 1",
         'Procedures': "Name: Subtemporal cranial decompression (pseudotumor cerebri, slit ventricle syndrome), Code: 61340, Date: 2022-11-06, Location: Emergency room 1, Notes: All ready for procedure here, Completed notes: Everything went smoothly, no issues",
-        'Lab requests': "Tests: Name: Bicarbonate, Notes: noteType: other, content: Please perform this lab test very carefully, noteDate: 2022-06-09T02:04:54.225+00:00",
-        'Imaging requests': "name: xRay, areasToBeImaged: Left Leg; Right Leg, notes: noteType: other, content: Check for fractured knees please, noteDate: 2022-06-10T06:04:54.225+00:00",
-        'Notes': "noteType: nursing, content: H\nI\nJ\nK\nL... nopqrstuv, noteDate: 2022-06-10T04:39:57.617+00:00; noteType: nursing, content: A\nB\nC\nD\nE\nF\nG\n, noteDate: 2022-06-10T03:39:57.617+00:00",
+        'Lab requests': "Tests: Name: Bicarbonate, Notes: Note type: other, Content: Please perform this lab test very carefully, Note date: 2022-06-09 02:04 AM",
+        'Imaging requests': "Name: xRay, Areas to be imaged: Left Leg; Right Leg, Notes: Note type: other, Content: Check for fractured knees please, Note date: 2022-06-09 06:04 AM",
+        'Notes': "Note type: nursing, Content: H\nI\nJ\nK\nL... nopqrstuv, Note date: 2022-0asdf6-10T04:39:57.617+00:00; Note type: nursing, Content: A\nB\nC\nD\nE\nF\nG\n, Note date: 2022-06-09 06:04 AM",
       }
     ]);
   });
