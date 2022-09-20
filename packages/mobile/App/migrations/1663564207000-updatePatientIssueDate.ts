@@ -22,7 +22,7 @@ export class updatePatientIssueDate1663564207000 implements MigrationInterface {
       }),
     );
     // Fill data
-    queryRunner.query('UPDATE patientIssue SET recordedDate = recordedDate_legacy');
+    await queryRunner.query('UPDATE patientIssue SET recordedDate = recordedDate_legacy');
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
