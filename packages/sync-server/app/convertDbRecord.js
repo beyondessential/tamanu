@@ -17,7 +17,7 @@ export const convertToDbRecord = syncRecord => {
 };
 
 export const convertFromDbRecord = dbRecord => {
-  const { id, updatedAt, createdAt, deletedAt, updatedAtSyncIndex, password, ...data } = dbRecord;
+  const { id, updatedAt, createdAt, deletedAt, updatedAtSyncTick, password, ...data } = dbRecord;
 
   return {
     ...(deletedAt ? { isDeleted: true } : {}),

@@ -15,7 +15,6 @@
   },
   "serverFacilityId": "balwyn",
   "sync": {
-    "syncAllLabRequests": true,
     "backoff": {
       "maxAttempts": 1,
       "multiplierMs": 0,

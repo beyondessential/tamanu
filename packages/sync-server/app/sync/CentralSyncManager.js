@@ -1,4 +1,6 @@
 import { Op } from 'sequelize';
+import { getModelsForDirection, snapshotOutgoingChanges, saveIncomingChanges } from 'shared/sync';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { log } from 'shared/services/logging';
 import {
   getModelsForDirection,
@@ -19,6 +21,8 @@ const LAPSE_AFTER_MILLISECONDS = 20 * 60 * 1000;
 const CHECK_LAPSED_SESSIONS_INTERVAL = 1 * 60 * 1000; // check once per minute
 
 export class CentralSyncManager {
+  currentSyncTick;
+
   sessions = {};
 
   constructor() {
@@ -31,12 +35,14 @@ export class CentralSyncManager {
   };
 
   async startSession({ sequelize }) {
-    const startTime = Date.now();
-    const [[{ nextval: sessionIndex }]] = await sequelize.query(
-      `SELECT nextval('sync_session_sequence')`,
+    // as a side effect of starting a new session, cause a tick on the global sync clock
+    // this is a convenient way to tick the clock, as it means that no two sync sessions will
+    // happen at the same global sync time, meaning there's no ambiguity when resolving conflicts
+    const [[{ nextval: syncClockTick }]] = await sequelize.query(
+      `SELECT nextval('sync_clock_sequence')`,
     );
     await sequelize.models.SyncSession.create({
-      id: sessionIndex,
+      sessionIndex: syncClockTick,
       startTime,
       lastConnectionTime: startTime,
     });
@@ -47,8 +53,9 @@ export class CentralSyncManager {
     const session = await sequelize.models.SyncSession.findOne({
       where: { id: sessionIndex },
     });
+
     if (!session) {
-      throw new Error(`Sync session ${sessionIndex} not found`);
+      throw new Error(`Sync session ${sessionId} not found`);
     }
     await session.update({ lastConnectionTime: Date.now() });
 
@@ -61,21 +68,23 @@ export class CentralSyncManager {
     await deleteSyncSession(store, sessionIndex);
   }
 
-  // The hardest thing about sync is knowing what happens at the session index border - do we want
-  // records strictly >, or >= the cursor being requested? The truth is, it doesn't matter! A session
-  // index is unique to one device, and gets updated at the end of its sync session, so if a device
-  // is requesting records "from" index x, we know that it only has records from the central server
-  // that are _below_ that index, but also has all records locally _at_ that index already - it must
-  // have been the one that changed them, if they have an index unique to that device!
-  // For sanity's sake, we use >= consistently, because it aligns with the "from" of "fromSessionIndex"
+  // The hardest thing about sync is knowing what happens at the clock tick border - do we want
+  // records strictly >, or >= the cursor being requested? The truth is, it doesn't matter! A given
+  // tick is unique to one device, and gets updated at the end of its sync session, so if a device
+  // is requesting records "since" tick x, we know that it only has records from the central server
+  // that are _below_ that tick, but also has all records locally _at_ that tick already - it must
+  // have been the one that changed them, if they have an update tick unique to that device!
+  // For sanity's sake, we use > consistently, because it aligns with "since"
   async setPullFilter(sessionIndex, { fromSessionIndex, facilityId }, store) {
     await this.connectToSession(store, sessionIndex);
+
+    const facilitySettings = await models.Setting.forFacility(facilityId);
 
     const { models } = store;
     // work out if any patients were newly marked for sync since this device last connected, and
     // include changes from all time for those patients
     const newPatientFacilities = await models.PatientFacility.findAll({
-      where: { facilityId, updatedAtSyncIndex: { [Op.gte]: fromSessionIndex } },
+      where: { facilityId, updatedAtSyncTick: { [Op.gt]: since } },
     });
     const patientIdsForFullSync = newPatientFacilities.map(n => n.patientId);
 
@@ -113,23 +122,24 @@ export class CentralSyncManager {
     return total;
   }
 
-  async getOutgoingChanges(store, sessionIndex, { offset, limit }) {
+  async getOutgoingChanges(store, sessionId, { offset, limit }) {
+    const session = this.connectToSession(sessionId);
     return getOutgoingChangesForSession(
       store,
-      sessionIndex,
+      sessionId,
       SYNC_SESSION_DIRECTION.OUTGOING,
       offset,
       limit,
     );
   }
 
-  async addIncomingChanges(sessionIndex, changes, { pageNumber, totalPages }, store) {
+  async addIncomingChanges(sessionId, changes, { pageNumber, totalPages }, store) {
     const { sequelize, models } = store;
-    await this.connectToSession(store, sessionIndex);
+    await this.connectToSession(store, sessionId);
     const sessionSyncRecords = changes.map(c => ({
       ...c,
       direction: SYNC_SESSION_DIRECTION.INCOMING,
-      sessionIndex,
+      sessionId,
     }));
 
     await models.SessionSyncRecord.bulkCreate(sessionSyncRecords);

@@ -215,7 +215,6 @@ export abstract class BaseModel extends BaseEntity {
   static excludedSyncColumns: string[] = [
     'createdAt',
     'updatedAt',
-    'markedForUpload',
     'uploadedAt',
   ];
 

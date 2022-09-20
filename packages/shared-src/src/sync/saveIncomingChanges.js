@@ -32,16 +32,23 @@ const saveChangesForModel = async (model, changes, isCentralServer) => {
   // split changes into create, update, delete
   const idsForDelete = changes.filter(c => c.isDeleted).map(c => c.data.id);
   const idsForUpsert = changes.filter(c => !c.isDeleted && c.data.id).map(c => c.data.id);
-  const existingRecords = await model.findByIds(idsForUpsert);
-  const idToExistingRecord = Object.fromEntries(existingRecords.map(e => [e.id, e]));
+  const existing = await model.findByIds(idsForUpsert);
+  const idToUpdatedAtTick = Object.fromEntries(existing.map(e => [e.id, e.updatedAtSyncTick]));
   const recordsForCreate = changes
-    .filter(c => !c.isDeleted && idToExistingRecord[c.data.id] === undefined)
+    .filter(c => !c.isDeleted && idToUpdatedAtTick[c.data.id] === undefined)
     .map(({ data }) => {
       // validateRecord(data, null); TODO add in validation
       return sanitizeData(data);
     });
   const recordsForUpdate = changes
-    .filter(r => !r.isDeleted && !!idToExistingRecord[r.data.id])
+    .filter(
+      r =>
+        !r.isDeleted &&
+        !!idToUpdatedAtTick[r.data.id] &&
+        // perform basic conflict resolution using last write wins, with respect to the
+        // system-wide logical sync clock
+        r.data.updatedAtSyncTick > idToUpdatedAtTick[r.data.id],
+    )
     .map(({ data }) => {
       // validateRecord(data, null); TODO add in validation
       return sanitizeData(data);

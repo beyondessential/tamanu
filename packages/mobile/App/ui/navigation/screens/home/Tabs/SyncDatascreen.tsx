@@ -1,6 +1,6 @@
 import React, { ReactElement, useCallback, useContext, useEffect, useState } from 'react';
 import { activateKeepAwake, deactivateKeepAwake } from '@sayem314/react-native-keep-awake';
-import moment from 'moment';
+import { formatDistance } from 'date-fns';
 import { CenterView, StyledText, StyledView } from '../../../../styled/common';
 import { theme } from '../../../../styled/theme';
 import { Orientation, screenPercentageToDP, setStatusBar } from '../../../../helpers/screen';
@@ -15,7 +15,7 @@ export const SyncDataScreen = (): ReactElement => {
   const syncManager: MobileSyncManager = backend.syncManager;
 
   const formatLastSyncTime = (lastSyncTime: string): string =>
-    lastSyncTime ? moment(lastSyncTime).fromNow() : '';
+    lastSyncTime ? formatDistance(new Date(lastSyncTime), new Date(), { addSuffix: true }) : '';
 
   const [isSyncing, setIsSyncing] = useState(syncManager.isSyncing);
   const [progress, setProgress] = useState(syncManager.progress);

@@ -14,40 +14,34 @@ syncRoutes.post(
   '/',
   asyncHandler(async (req, res) => {
     const { store } = req;
-    const sessionIndex = await syncManager.startSession(store);
-    res.send(sessionIndex);
+    const { sessionId, syncClockTick } = await syncManager.startSession(store);
+    res.send({ sessionId, syncClockTick });
   }),
 );
 
-// set the "fromSessionIndex" for a pull session
+// set the since and facilityId for a pull session
 syncRoutes.post(
-  '/:sessionIndex/pullFilter',
+  '/:sessionId/pullFilter',
   asyncHandler(async (req, res) => {
     const { params, body, store } = req;
-    const { fromSessionIndex: fromSessionIndexString, facilityId } = body;
-    const fromSessionIndex = parseInt(fromSessionIndexString, 10);
-    if (isNaN(fromSessionIndex)) {
-      throw new Error(
-        'Must provide "fromSessionIndex" when creating a pull filter, even if it is 0',
-      );
+    const { since: sinceString, facilityId } = body;
+    const since = parseInt(sinceString, 10);
+    if (isNaN(since)) {
+      throw new Error('Must provide "since" when creating a pull filter, even if it is 0');
     }
-    const count = await syncManager.setPullFilter(
-      params.sessionIndex,
-      { fromSessionIndex, facilityId },
-      store,
-    );
+    const count = await syncManager.setPullFilter(params.sessionId, { since, facilityId }, store);
     res.json(count);
   }),
 );
 
 // pull changes down to facility
 syncRoutes.get(
-  '/:sessionIndex/pull',
+  '/:sessionId/pull',
   asyncHandler(async (req, res) => {
     const { query, params, store } = req;
-    const { sessionIndex } = params;
+    const { sessionId } = params;
     const { offset = '', limit = '100' } = query;
-    const changes = await syncManager.getOutgoingChanges(store, sessionIndex, {
+    const changes = await syncManager.getOutgoingChanges(store, sessionId, {
       offset: parseInt(offset, 10),
       limit: parseInt(limit, 10),
     });
@@ -58,24 +52,24 @@ syncRoutes.get(
 
 // push changes in from facility
 syncRoutes.post(
-  '/:sessionIndex/push',
+  '/:sessionId/push',
   asyncHandler(async (req, res) => {
     const { params, body: changes, query, store } = req;
-    const { sessionIndex } = params;
+    const { sessionId } = params;
 
-    await syncManager.addIncomingChanges(sessionIndex, changes, query, store);
-    log.info(`POST to ${sessionIndex} : ${changes.length} records`);
+    await syncManager.addIncomingChanges(sessionId, changes, query, store);
+    log.info(`POST to ${sessionId} : ${changes.length} records`);
     res.json({});
   }),
 );
 
 // end session
 syncRoutes.delete(
-  '/:sessionIndex',
+  '/:sessionId',
   asyncHandler(async (req, res) => {
-    const { params, store } = req;
-    const { sessionIndex } = params;
-    await syncManager.endSession(store, sessionIndex);
+    const { params } = req;
+    const { sessionId } = params;
+    await syncManager.endSession(store, sessionId);
     res.json({});
   }),
 );

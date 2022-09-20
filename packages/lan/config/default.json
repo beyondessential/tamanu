@@ -26,7 +26,6 @@
     "readOnly": false,
     "persistedCacheBatchSize": 10000,
     "enabled": true,
-    "syncAllLabRequests": false,
     "backoff": {
       "multiplierMs": 300,
       "maxAttempts": 15,
