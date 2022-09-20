@@ -10,7 +10,7 @@ import {
   pullIncomingChanges,
   saveIncomingChanges,
   getModelsForDirection,
-  getSyncSessionIndex,
+  getSyncTick,
   clearPersistedSyncSessionRecords,
 } from './utils';
 import { SYNC_DIRECTIONS } from '../../models/types';
@@ -124,22 +124,22 @@ export class MobileSyncManager {
 
     // the first step of sync is to start a session and retrieve the index used as both the id of
     // the session, and a marker on the global sync timeline
-    const currentSessionIndex = await this.centralServer.startSyncSession();
-    const lastSuccessfulSessionIndex = await getSyncSessionIndex('LastSuccessfulSyncSession');
+    const { sessionId, syncTick: currentSyncTick } = await this.centralServer.startSyncSession();
+    const lastSuccessfulSyncTick = await getSyncTick('LastSuccessfulSyncTime');
 
     console.log(
-      `MobileSyncManager.runSync(): Sync started with session index ${currentSessionIndex}, last successful session index: ${lastSuccessfulSessionIndex}`,
+      `MobileSyncManager.runSync(): Sync started with sync tick ${currentSyncTick}, last successful sync tick: ${lastSuccessfulSyncTick}`,
     );
 
     // persist the session index in LocalSystemFact table now
     // so that any records that are created or updated from this point on, even mid way through this
     // sync, are marked using the new index and will be captured in the next sync
-    await setSyncSessionSequence(this.models, currentSessionIndex, 'CurrentSyncSession');
+    await setSyncSessionSequence(this.models, currentSyncTick, 'CurrentSyncTime');
 
-    await this.syncOutgoingChanges(currentSessionIndex, lastSuccessfulSessionIndex);
-    await this.syncIncomingChanges(currentSessionIndex, lastSuccessfulSessionIndex);
+    await this.syncOutgoingChanges(sessionId, lastSuccessfulSyncTick);
+    await this.syncIncomingChanges(sessionId, currentSyncTick, lastSuccessfulSyncTick);
 
-    await this.centralServer.endSyncSession(currentSessionIndex);
+    await this.centralServer.endSyncSession(sessionId);
 
     // clear persisted cache from last session
     await clearPersistedSyncSessionRecords();
@@ -147,22 +147,22 @@ export class MobileSyncManager {
 
   /**
    * Syncing outgoing changes in batches
-   * @param currentSessionIndex
-   * @param lastSuccessfulSessionIndex
+   * @param currentSyncTick
+   * @param lastSuccessfulSyncTick
    */
   async syncOutgoingChanges(
-    currentSessionIndex: number,
-    lastSuccessfulSessionIndex: number,
+    currentSyncTick: number,
+    lastSuccessfulSyncTick: number,
   ): Promise<void> {
     console.log('MobileSyncManager.syncOutgoingChanges(): Begin sync outgoing changes');
 
     const modelsToPush = getModelsForDirection(this.models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL);
-    const outgoingChanges = await snapshotOutgoingChanges(modelsToPush, lastSuccessfulSessionIndex);
+    const outgoingChanges = await snapshotOutgoingChanges(modelsToPush, lastSuccessfulSyncTick);
 
     if (outgoingChanges.length > 0) {
       await pushOutgoingChanges(
         this.centralServer,
-        currentSessionIndex,
+        currentSyncTick,
         outgoingChanges,
         (total, pushedRecords) =>
           this.updateProgress(total, pushedRecords, 'Stage 1/3: Pushing all new changes'),
@@ -181,17 +181,21 @@ export class MobileSyncManager {
    * pulling all the records from the server (in batches),
    * then saving all those records into the local database
    * this avoids a period of time where the the local database may be "partially synced"
-   * @param currentSessionIndex
-   * @param lastSessionIndex
+   * @param sessionId
+   * @param lastSuccessfulSyncTick
    */
-  async syncIncomingChanges(currentSessionIndex: number, lastSessionIndex: number): Promise<void> {
+  async syncIncomingChanges(
+    sessionId: string,
+    currentSyncTick: number,
+    lastSuccessfulSyncTick: number,
+  ): Promise<void> {
     console.log('MobileSyncManager.syncIncomingChanges(): Begin sync incoming changes');
 
     const incomingChangesCount = await pullIncomingChanges(
       this.centralServer,
       this.models,
-      currentSessionIndex,
-      lastSessionIndex,
+      sessionId,
+      lastSuccessfulSyncTick,
       (total, downloadedChangesTotal) =>
         this.updateProgress(total, downloadedChangesTotal, 'Stage 2/3: Pulling all new changes'),
     );
@@ -203,25 +207,17 @@ export class MobileSyncManager {
 
       const incomingModels = getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
 
-      await saveIncomingChanges(this.models, incomingModels, this.updateProgress);
+      // Save all incoming changes in 1 transaction so that the whole sync session save
+      // either fail 100% or suceed 100%, no partial save.
+      await Database.client.transaction(async () => {
+        await saveIncomingChanges(this.models, incomingModels, this.updateProgress);
 
-      // update the last successful sync in the same save transaction,
-      // if updating the cursor fails, we want to roll back the rest of the saves
-      // so that we don't end up detecting them as needing a sync up
-      // to the central server when we attempt to resync from the same old cursor
-      await setSyncSessionSequence(this.models, currentSessionIndex, 'LastSuccessfulSyncSession');
-
-      // // Save all incoming changes in 1 transaction so that the whole sync session save
-      // // either fail 100% or suceed 100%, no partial save.
-      // await Database.client.transaction(async () => {
-      //   await saveIncomingChanges(this.models, incomingModels, this.updateProgress);
-
-      //   // update the last successful sync in the same save transaction,
-      //   // if updating the cursor fails, we want to roll back the rest of the saves
-      //   // so that we don't end up detecting them as needing a sync up
-      //   // to the central server when we attempt to resync from the same old cursor
-      //   await setSyncSessionSequence(this.models, currentSessionIndex, 'LastSuccessfulSyncSession');
-      // });
+        // update the last successful sync in the same save transaction,
+        // if updating the cursor fails, we want to roll back the rest of the saves
+        // so that we don't end up detecting them as needing a sync up
+        // to the central server when we attempt to resync from the same old cursor
+        await setSyncSessionSequence(this.models, currentSyncTick, 'LastSuccessfulSyncTime');
+      });
     }
 
     this.lastSyncPulledRecordsCount = incomingChangesCount;

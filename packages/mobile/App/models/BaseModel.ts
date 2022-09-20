@@ -11,7 +11,7 @@ import {
   Repository,
 } from 'typeorm/browser';
 import { SYNC_DIRECTIONS } from './types';
-import { getSyncSessionIndex } from '../services/sync/utils';
+import { getSyncTick } from '../services/sync/utils';
 
 export type ModelPojo = {
   id: string;
@@ -93,25 +93,25 @@ export abstract class BaseModel extends BaseEntity {
   uploadedAt: Date;
 
   @Column({ nullable: false, default: 0 })
-  updatedAtSyncIndex: number;
+  updatedAtSyncTick: number;
 
   @BeforeUpdate()
   async markForUpload(): Promise<void> {
     const thisModel = this.constructor as typeof BaseModel;
-    const index = await getSyncSessionIndex('CurrentSyncSession');
+    const syncTick = await getSyncTick('CurrentSyncTime');
     if (
-      [null, undefined].includes(this.updatedAtSyncIndex) ||
-      (await thisModel.findOne({ id: this.id }))?.updatedAtSyncIndex === this.updatedAtSyncIndex
+      [null, undefined].includes(this.updatedAtSyncTick) ||
+      (await thisModel.findOne({ id: this.id }))?.updatedAtSyncTick === this.updatedAtSyncTick
     ) {
-      this.updatedAtSyncIndex = index;
+      this.updatedAtSyncTick = syncTick;
     }
   }
 
   @BeforeInsert()
-  async assignUpdatedAtSyncIndex(): Promise<void> {
-    if ([null, undefined].includes(this.updatedAtSyncIndex)) {
-      const index = await getSyncSessionIndex('CurrentSyncSession');
-      this.updatedAtSyncIndex = index;
+  async assignUpdatedAtSyncTick(): Promise<void> {
+    if ([null, undefined].includes(this.updatedAtSyncTick)) {
+      const syncTick = await getSyncTick('CurrentSyncTime');
+      this.updatedAtSyncTick = syncTick;
     }
   }
 

@@ -101,7 +101,7 @@ export const DumbViewHistoryScreen = ({ selectedPatient, navigation }): ReactEle
   );
 
   const [lastSuccessfulSync] = useBackendEffect(
-    ({ models }) => models.LocalSystemFact.findOne('LastSuccessfulSyncSession'),
+    ({ models }) => models.LocalSystemFact.findOne('LastSuccessfulSyncTime'),
     [],
   );
 
@@ -117,7 +117,7 @@ export const DumbViewHistoryScreen = ({ selectedPatient, navigation }): ReactEle
 
   const rows = data.map(labRequest => {
     const synced =
-      lastSuccessfulSync && labRequest.updatedAtSyncIndex <= parseInt(lastSuccessfulSync.value, 10);
+      lastSuccessfulSync && labRequest.updatedAtSyncTick <= parseInt(lastSuccessfulSync.value, 10);
 
     return <LabRequestRow key={labRequest.id} labRequest={labRequest} synced={synced} />;
   });

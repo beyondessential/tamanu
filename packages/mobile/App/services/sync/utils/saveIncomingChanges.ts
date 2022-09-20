@@ -29,10 +29,10 @@ const saveChangesForModel = async (
 
   for (const batchOfIds of chunk(idsForUpsert, SQLITE_MAX_PARAMETERS)) {
     const batchOfExisting = await model.findByIds(batchOfIds, {
-      select: ['id', 'updatedAtSyncIndex'],
+      select: ['id', 'updatedAtSyncTick'],
     });
     const batchOfRecords = Object.fromEntries(
-      batchOfExisting.map(e => [e.id, e.updatedAtSyncIndex]),
+      batchOfExisting.map(e => [e.id, e.updatedAtSyncTick]),
     );
     idToUpdatedSinceSession = { ...idToUpdatedSinceSession, ...batchOfRecords };
   }
@@ -46,7 +46,7 @@ const saveChangesForModel = async (
       r =>
         !r.isDeleted &&
         !!idToUpdatedSinceSession[r.data.id] &&
-        r.data.updatedAtSyncIndex > idToUpdatedSinceSession[r.data.id],
+        r.data.updatedAtSyncTick > idToUpdatedSinceSession[r.data.id],
     )
     .map(({ data }) => buildFromSyncRecord(model, data));
 

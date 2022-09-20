@@ -108,23 +108,23 @@ export class CentralServerConnection {
     return this.post('sync', {}, {});
   }
 
-  async endSyncSession(sessionIndex: number) {
-    return this.delete(`sync/${sessionIndex}`, {});
+  async endSyncSession(sessionId: string) {
+    return this.delete(`sync/${sessionId}`, {});
   }
 
-  async setPullFilter(sessionIndex: number, fromSessionIndex: number) {
+  async setPullFilter(sessionId: string, since: number) {
     const facilityId = await readConfig('facilityId', '');
-    const body = { fromSessionIndex, facilityId };
-    return this.post(`sync/${sessionIndex}/pullFilter`, {}, body, {});
+    const body = { since, facilityId };
+    return this.post(`sync/${sessionId}/pullFilter`, {}, body, {});
   }
 
-  async pull(sessionIndex: number, limit: number = 100, offset: number = 0): Promise<SyncRecord[]> {
+  async pull(sessionId: string, limit: number = 100, offset: number = 0): Promise<SyncRecord[]> {
     const query = { limit, offset };
-    return this.get(`sync/${sessionIndex}/pull`, query);
+    return this.get(`sync/${sessionId}/pull`, query);
   }
 
-  async push(sessionIndex: number, body, pageNumber: number, totalPages: number) {
-    return this.post(`sync/${sessionIndex}/push`, { pageNumber, totalPages }, body);
+  async push(sessionId: string, body, pageNumber: number, totalPages: number) {
+    return this.post(`sync/${sessionId}/push`, { pageNumber, totalPages }, body);
   }
 
   setToken(token: string): void {

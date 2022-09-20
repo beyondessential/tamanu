@@ -1,7 +1,7 @@
 import { MobileSyncManager } from './MobileSyncManager';
 import { CentralServerConnection } from './CentralServerConnection';
 import {
-  getSyncSessionIndex,
+  getSyncTick,
   getModelsForDirection,
   snapshotOutgoingChanges,
   pushOutgoingChanges,
@@ -14,7 +14,7 @@ jest.mock('./utils', () => ({
   pullIncomingChanges: jest.fn(),
   saveIncomingChanges: jest.fn(),
   getModelsForDirection: jest.fn(),
-  getSyncSessionIndex: jest.fn(),
+  getSyncTick: jest.fn(),
 }));
 
 describe('MobileSyncManager', () => {
@@ -92,7 +92,7 @@ describe('MobileSyncManager', () => {
       expect(syncOutgoingChangesCallOrder).toBeLessThan(syncIncomingChangesCallOrder);
     });
 
-    it("should call syncOutgoingChanges() with the correct 'currentSessionIndex' and 'lastSuccessfulSessionIndex", async () => {
+    it("should call syncOutgoingChanges() with the correct 'currentSyncTick' and 'lastSuccessfulSyncTick", async () => {
       jest.spyOn(mobileSyncManager, 'syncOutgoingChanges').mockImplementationOnce(jest.fn());
       jest.spyOn(mobileSyncManager, 'syncIncomingChanges').mockImplementationOnce(jest.fn());
       jest
@@ -100,7 +100,7 @@ describe('MobileSyncManager', () => {
         .mockReturnValueOnce(new Promise(resolve => resolve(2)));
       jest.spyOn(centralServerConnection, 'endSyncSession').mockImplementationOnce(jest.fn());
 
-      getSyncSessionIndex.mockReturnValueOnce(new Promise(resolve => resolve(1)));
+      getSyncTick.mockReturnValueOnce(new Promise(resolve => resolve(1)));
 
       await mobileSyncManager.runSync();
 
@@ -108,7 +108,7 @@ describe('MobileSyncManager', () => {
       expect(mobileSyncManager.syncOutgoingChanges).toBeCalledWith(2, 1);
     });
 
-    it("should call syncIncomingChanges() with the correct 'currentSessionIndex' and 'lastSuccessfulSessionIndex", async () => {
+    it("should call syncIncomingChanges() with the correct 'currentSyncTick' and 'lastSuccessfulSyncTick", async () => {
       jest.spyOn(mobileSyncManager, 'syncOutgoingChanges').mockImplementationOnce(jest.fn());
       jest.spyOn(mobileSyncManager, 'syncIncomingChanges').mockImplementationOnce(jest.fn());
       jest
@@ -116,7 +116,7 @@ describe('MobileSyncManager', () => {
         .mockReturnValueOnce(new Promise(resolve => resolve(2)));
       jest.spyOn(centralServerConnection, 'endSyncSession').mockImplementationOnce(jest.fn());
 
-      getSyncSessionIndex.mockReturnValueOnce(new Promise(resolve => resolve(1)));
+      getSyncTick.mockReturnValueOnce(new Promise(resolve => resolve(1)));
 
       await mobileSyncManager.runSync();
 
@@ -126,26 +126,26 @@ describe('MobileSyncManager', () => {
   });
 
   describe('syncOutgoingChanges()', () => {
-    it('should snapshotOutgoingChanges with the right models and correct lastSuccessfulSessionIndex', () => {
+    it('should snapshotOutgoingChanges with the right models and correct lastSuccessfulSyncTick', () => {
       const modelsToPush = ['Patient', 'PatientAdditionalData', 'PatientDeathData'];
-      const lastSuccessfulSyncIndex = 2;
-      const currentSessionIndex = 3;
+      const since = 2;
+      const currentSyncTick = 3;
       getModelsForDirection.mockReturnValueOnce(modelsToPush);
       snapshotOutgoingChanges.mockImplementationOnce(() => []);
 
-      mobileSyncManager.syncOutgoingChanges(currentSessionIndex, lastSuccessfulSyncIndex);
+      mobileSyncManager.syncOutgoingChanges(currentSyncTick, since);
 
-      expect(snapshotOutgoingChanges).toBeCalledWith(modelsToPush, lastSuccessfulSyncIndex);
+      expect(snapshotOutgoingChanges).toBeCalledWith(modelsToPush, since);
     });
 
     it('should not push outgoing changes if there are no changes', () => {
       const modelsToPush = ['Patient', 'PatientAdditionalData', 'PatientDeathData'];
-      const lastSuccessfulSyncIndex = 2;
-      const currentSessionIndex = 3;
+      const since = 2;
+      const currentSyncTick = 3;
       getModelsForDirection.mockReturnValueOnce(modelsToPush);
       snapshotOutgoingChanges.mockImplementationOnce(() => []);
 
-      mobileSyncManager.syncOutgoingChanges(currentSessionIndex, lastSuccessfulSyncIndex);
+      mobileSyncManager.syncOutgoingChanges(currentSyncTick, since);
 
       expect(pushOutgoingChanges).not.toBeCalled();
     });

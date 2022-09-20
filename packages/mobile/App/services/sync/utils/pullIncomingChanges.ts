@@ -10,18 +10,18 @@ const APPROX_PERSISTED_BATCH_SIZE = 20000;
  * which will be used to persist to actual tables later
  * @param centralServer
  * @param models
- * @param currentSessionIndex
- * @param lastSessionIndex
+ * @param sessionId
+ * @param lastSuccessfulSyncTick
  * @param progressCallback
  * @returns
  */
 export const pullIncomingChanges = async (
   centralServer: CentralServerConnection,
-  currentSessionIndex: number,
-  lastSessionIndex: number,
+  sessionId: string,
+  lastSuccessfulSyncTick: number,
   progressCallback: (total: number, progressCount: number) => void,
 ): Promise<number> => {
-  const totalToPull = await centralServer.setPullFilter(currentSessionIndex, lastSessionIndex);
+  const totalToPull = await centralServer.setPullFilter(sessionId, lastSuccessfulSyncTick);
 
   if (!totalToPull) {
     return 0;
@@ -35,7 +35,7 @@ export const pullIncomingChanges = async (
   // pull changes a page at a time
   while (offset < totalToPull) {
     const startTime = Date.now();
-    const records = await centralServer.pull(currentSessionIndex, limit, offset);
+    const records = await centralServer.pull(currentSyncTick, limit, offset);
     const pullTime = Date.now() - startTime;
     const recordsToSave = records.map(r => ({
       ...r,
