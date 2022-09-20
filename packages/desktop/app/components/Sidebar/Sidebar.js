@@ -54,7 +54,7 @@ const UserName = styled(Typography)`
   line-height: 18px;
 `;
 
-const ConnectedTo = styled(Typography)`
+const Facility = styled(Typography)`
   font-weight: 400;
   font-size: 11px;
   line-height: 15px;
@@ -112,7 +112,7 @@ const isHighlighted = (currentPath, menuItemPath, sectionIsOpen) => {
 
 export const Sidebar = React.memo(({ items }) => {
   const [selectedParentItem, setSelectedParentItem] = useState('');
-  const { facility, centralHost, currentUser, onLogout } = useAuth();
+  const { facility, currentUser, onLogout } = useAuth();
   const currentPath = useSelector(getCurrentRoute);
   const dispatch = useDispatch();
 
@@ -175,7 +175,7 @@ export const Sidebar = React.memo(({ items }) => {
           <StyledAvatar>{initials}</StyledAvatar>
           <Box flex={1}>
             <UserName>{currentUser?.displayName}</UserName>
-            <ConnectedTo>{facility?.name ? facility.name : centralHost}</ConnectedTo>
+            {facility?.name && <Facility>{facility.name}</Facility>}
             <Box display="flex" justifyContent="space-between">
               <Version>Version {version}</Version>
               <LogoutButton

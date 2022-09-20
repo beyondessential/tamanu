@@ -28,6 +28,7 @@ export const PatientSearchBar = React.memo(({ onSearch, suggestByFacility = true
       onSearch={onSearch}
       initialValues={{ displayIdExact: true }}
     >
+      <input name="facilityId" type="hidden" value=":local" />
       <LocalisedField name="firstName" />
       <LocalisedField name="lastName" />
       <Field

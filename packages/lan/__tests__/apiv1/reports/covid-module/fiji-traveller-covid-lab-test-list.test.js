@@ -245,9 +245,7 @@ describe('Fiji traveller covid lab test report', () => {
         expectedPatient1,
         `2022-03-03${timePart}`,
       );
-      const reportResult = await app.post(REPORT_URL).send({
-        parameters: { fromDate: `2022-02-15${timePart}`, toDate: `2022-03-15${timePart}` },
-      });
+      const reportResult = await app.post(REPORT_URL).send({});
       expect(reportResult).toHaveSucceeded();
       expect(reportResult.body).toHaveLength(3);
       expect(reportResult.body[0]).toStrictEqual(REPORT_COLUMNS);

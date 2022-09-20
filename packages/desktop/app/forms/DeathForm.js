@@ -291,8 +291,7 @@ export const DeathForm = React.memo(
           <Field
             name="lastSurgeryDate"
             label="What was the date of surgery"
-            component={DateField}
-            saveDateAsString
+            component={DateTimeField}
             visibilityCriteria={{ surgeryInLast4Weeks: 'yes' }}
           />
           <Field
