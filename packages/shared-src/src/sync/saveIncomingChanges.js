@@ -56,7 +56,7 @@ const saveChangesForModel = async (model, changes, isCentralServer) => {
 
   // run each import process
   await saveCreates(model, recordsForCreate);
-  await saveUpdates(model, recordsForUpdate, idToExistingRecord);
+  await saveUpdates(model, recordsForUpdate);
   await saveDeletes(model, idsForDelete);
 };
 
@@ -102,12 +102,6 @@ export const saveIncomingChanges = async (
   const sortedModels = sortInDependencyOrder(pulledModels);
 
   for (const model of sortedModels) {
-    await saveChangesForModelInBatches(
-      model,
-      models,
-      sessionId,
-      model.tableName,
-      isCentralServer,
-    );
+    await saveChangesForModelInBatches(model, models, sessionId, model.tableName, isCentralServer);
   }
 };

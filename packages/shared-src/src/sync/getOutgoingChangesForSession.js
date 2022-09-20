@@ -2,7 +2,7 @@ import { sortInDependencyOrder } from '../models/sortInDependencyOrder';
 
 export const getOutgoingChangesForSession = async (
   store,
-  sessionIndex,
+  sessionId,
   direction,
   offset,
   limit,
@@ -15,10 +15,10 @@ export const getOutgoingChangesForSession = async (
         record_id as "recordId", 
         record_type as "recordType", 
         is_deleted as "isDeleted", 
-        session_index as "sessionIndex",
+        session_id as "sessionId",
         data
       FROM session_sync_records
-      WHERE session_index = :sessionIndex
+      WHERE session_id = :sessionId
         AND direction = :direction
       ORDER BY array_position(ARRAY[:recordTypeOrder]::varchar[], record_type), id ASC
       LIMIT :limit
@@ -26,7 +26,7 @@ export const getOutgoingChangesForSession = async (
     `,
     {
       replacements: {
-        sessionIndex,
+        sessionId,
         direction,
         limit,
         offset,

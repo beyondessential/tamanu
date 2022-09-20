@@ -25,10 +25,12 @@ export async function up(query: QueryInterface): Promise<void> {
     start_time: {
       type: Sequelize.DATE,
       allowNull: false,
+      defaultValue: Sequelize.NOW,
     },
     last_connection_time: {
       type: Sequelize.DATE,
       allowNull: false,
+      defaultValue: Sequelize.NOW,
     },
     sync_tick: {
       type: Sequelize.BIGINT,

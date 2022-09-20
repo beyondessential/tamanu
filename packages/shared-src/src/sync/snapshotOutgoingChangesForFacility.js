@@ -4,8 +4,8 @@ import { getModelOutgoingQueryOptions } from './getModelOutgoingQueryOptions';
 
 const { readOnly } = config.sync;
 
-const snapshotChangesForModel = async (model, fromSessionIndex, patientIds) => {
-  const queryOptions = getModelOutgoingQueryOptions(model, fromSessionIndex, patientIds);
+const snapshotChangesForModel = async (model, since, patientIds) => {
+  const queryOptions = getModelOutgoingQueryOptions(model, since, patientIds);
   if (!queryOptions) {
     return [];
   }
@@ -19,14 +19,14 @@ const snapshotChangesForModel = async (model, fromSessionIndex, patientIds) => {
   }));
 };
 
-export const snapshotOutgoingChangesForFacility = async (models, fromSessionIndex, patientIds) => {
+export const snapshotOutgoingChangesForFacility = async (models, since, patientIds) => {
   if (readOnly) {
     return [];
   }
 
   const outgoingChanges = [];
   for (const model of Object.values(models)) {
-    const changesForModel = await snapshotChangesForModel(model, fromSessionIndex, patientIds);
+    const changesForModel = await snapshotChangesForModel(model, since, patientIds);
     outgoingChanges.push(...changesForModel);
   }
   return outgoingChanges;

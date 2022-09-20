@@ -1,5 +1,4 @@
 import { Op } from 'sequelize';
-import { getModelsForDirection, snapshotOutgoingChanges, saveIncomingChanges } from 'shared/sync';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { log } from 'shared/services/logging';
 import {
@@ -12,7 +11,6 @@ import {
   getOutgoingChangesCount,
   SYNC_SESSION_DIRECTION,
 } from 'shared/sync';
-import { SYNC_DIRECTIONS } from 'shared/constants';
 import { getPatientLinkedModels } from './getPatientLinkedModels';
 
 // after 20 minutes of no activity, consider a session lapsed and wipe it to avoid holding invalid
@@ -41,12 +39,12 @@ export class CentralSyncManager {
     const [[{ nextval: syncClockTick }]] = await sequelize.query(
       `SELECT nextval('sync_clock_sequence')`,
     );
-    await sequelize.models.SyncSession.create({
+
+    const syncSession = await sequelize.models.SyncSession.create({
       syncTick: syncClockTick,
-      startTime,
-      lastConnectionTime: startTime,
     });
-    return { sessionId, syncClockTick };
+
+    return { sessionId: syncSession.id, syncClockTick };
   }
 
   async connectToSession({ sequelize }, sessionId) {
@@ -90,6 +88,7 @@ export class CentralSyncManager {
     const patientIdsForFullSync = newPatientFacilities.map(n => n.patientId);
 
     await store.sequelize.transaction(async () => {
+      // full changes
       await snapshotOutgoingChangesForCentral(
         getPatientLinkedModels(models),
         models,
@@ -105,12 +104,14 @@ export class CentralSyncManager {
         .map(p => p.patientId)
         .filter(patientId => !patientIdsForFullSync.includes(patientId));
 
+      // regular changes
       await snapshotOutgoingChangesForCentral(
         getModelsForDirection(models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
         models,
         since,
         patientIdsForRegularSync,
         sessionId,
+        facilitySettings,
       );
 
       await removeEchoedChanges(store, sessionId);
@@ -120,7 +121,7 @@ export class CentralSyncManager {
   }
 
   async getOutgoingChanges(store, sessionId, { offset, limit }) {
-    const session = this.connectToSession(sessionId);
+    this.connectToSession(sessionId);
     return getOutgoingChangesForSession(
       store,
       sessionId,
@@ -131,7 +132,7 @@ export class CentralSyncManager {
   }
 
   async addIncomingChanges(sessionId, changes, { pageNumber, totalPages }, store) {
-    const { sequelize, models } = store;
+    const { models } = store;
     await this.connectToSession(store, sessionId);
     const sessionSyncRecords = changes.map(c => ({
       ...c,

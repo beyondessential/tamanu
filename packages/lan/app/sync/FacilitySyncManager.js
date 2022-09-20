@@ -68,7 +68,7 @@ export class FacilitySyncManager {
     // this avoids any of the records to be pushed being changed during the push period and
     // causing data that isn't internally coherent from ending up on the sync server
     const since = (await this.models.LocalSystemFact.get('LastSuccessfulSyncTime')) || 0;
-    const outgoingChanges = await snapshotOutgoingChanges(
+    const outgoingChanges = await snapshotOutgoingChangesForFacility(
       getModelsForDirection(this.models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL),
       since,
     );
@@ -79,14 +79,14 @@ export class FacilitySyncManager {
     // syncing incoming changes happens in two phases: pulling all the records from the server,
     // then saving all those records into the local database
     // this avoids a period of time where the the local database may be "partially synced"
-    const incomingChanges = await pullIncomingChanges(this.centralServer, this.models, sessionId, since);
+    const incomingChangesCount = await pullIncomingChanges(this.centralServer, this.models, sessionId, since);
     await this.sequelize.transaction(async () => {
       if (incomingChangesCount > 0) {
         await saveIncomingChanges(
           this.sequelize,
           this.models,
           getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
-          sessionIndex,
+          sessionId,
         );
       }
 

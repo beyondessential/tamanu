@@ -11,8 +11,9 @@ const snapshotChangesForModel = async (
   since,
   patientIds,
   sessionId,
+  facilitySettings,
 ) => {
-  const queryOptions = getModelOutgoingQueryOptions(model, patientIds, since);
+  const queryOptions = getModelOutgoingQueryOptions(model, patientIds, since, facilitySettings);
 
   if (!queryOptions) {
     return 0;
@@ -49,6 +50,7 @@ export const snapshotOutgoingChangesForCentral = async (
   since,
   patientIds,
   sessionId,
+  facilitySettings,
 ) => {
   if (readOnly) {
     return [];
@@ -63,6 +65,7 @@ export const snapshotOutgoingChangesForCentral = async (
       since,
       patientIds,
       sessionId,
+      facilitySettings,
     );
 
     changesCount += modelChangesCount || 0;
