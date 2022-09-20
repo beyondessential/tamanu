@@ -9,6 +9,7 @@ export class SyncSession extends Model {
         id: primaryKey,
         startTime: { type: Sequelize.DATE },
         lastConnectionTime: { type: Sequelize.DATE },
+        syncTick: { type: Sequelize.BIGINT },
       },
       { ...options, syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC },
     );
@@ -16,7 +17,7 @@ export class SyncSession extends Model {
 
   static initRelations(models) {
     this.hasMany(models.SessionSyncRecord, {
-      foreignKey: 'sessionIndex',
+      foreignKey: 'sessionId',
     });
   }
 }
