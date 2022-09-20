@@ -221,7 +221,8 @@ with
               'Assigned time', to_char(nh.date, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
             ) ORDER BY nh.date
           ))
-      end department_history
+      end department_history,
+      json_agg(d.id) dept_id_list
     from encounters e
     left join departments d on e.department_id = d.id
     left join note_history nh
@@ -257,7 +258,8 @@ with
               'Assigned time', to_char(nh.date, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
             ) ORDER BY nh.date
           ))
-      end location_history
+      end location_history,
+      json_agg(l.id) loc_id_list
     from encounters e
     left join locations l on e.location_id = l.id
     left join note_history nh
@@ -343,8 +345,8 @@ left join location_info li on li.encounter_id = e.id
 left join department_info di2 on di2.encounter_id = e.id
 where e.end_date is not null
 and coalesce(billing.id, '-') like coalesce(:billing_type, '%%')
--- and CASE WHEN :department_id IS NOT NULL THEN dept_id_list::jsonb ? :department_id ELSE true end 
--- and CASE WHEN :location_id IS NOT NULL THEN loc_id_list::jsonb ? :location_id ELSE true end 
+and CASE WHEN :department_id IS NOT NULL THEN dept_id_list::jsonb ? :department_id ELSE true end 
+and CASE WHEN :location_id IS NOT NULL THEN loc_id_list::jsonb ? :location_id ELSE true end 
 AND CASE WHEN :from_date IS NOT NULL THEN e.start_date::date >= :from_date::date ELSE true END
 AND CASE WHEN :to_date IS NOT NULL THEN e.start_date::date <= :to_date::date ELSE true END
 order by e.start_date desc;
