@@ -63,8 +63,10 @@ export class CentralSyncManager {
   }
 
   async endSession(store, sessionIndex) {
-    const session = await this.connectToSession(store, sessionIndex);
-    log.info(`Sync session performed in ${(Date.now() - session.startTime) / 1000} seconds`);
+    const session = await this.connectToSession(sessionId);
+    log.info('Sync session ended', {
+      time: Date.now() - session.startTime,
+    });
     await deleteSyncSession(store, sessionIndex);
   }
 

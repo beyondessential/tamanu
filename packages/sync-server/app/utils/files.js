@@ -20,11 +20,17 @@ export function removeFile(filePath) {
 const stringifyIfNonDateObject = val =>
   typeof val === 'object' && !(val instanceof Date) && val !== null ? JSON.stringify(val) : val;
 
-export async function writeToSpreadsheet(data, filePath, bookType) {
+export async function writeToSpreadsheet({ data, metadata }, filePath, bookType) {
   const book = XLSX.utils.book_new();
+  const metadataSheet = XLSX.utils.aoa_to_sheet(metadata);
+  metadataSheet['!cols'] = [{ wch: 30 }, { wch: 30 }];
   const stringifiedData = data.map(row => row.map(stringifyIfNonDateObject));
   const sheet = XLSX.utils.aoa_to_sheet(stringifiedData);
-  XLSX.utils.book_append_sheet(book, sheet, 'values');
+
+  // For csv bookTypes, only the first sheet will be exported
+  XLSX.utils.book_append_sheet(book, sheet, 'report');
+  XLSX.utils.book_append_sheet(book, metadataSheet, 'metadata');
+
   return new Promise((resolve, reject) => {
     XLSX.writeFileAsync(filePath, book, { type: bookType }, err => {
       if (err) {

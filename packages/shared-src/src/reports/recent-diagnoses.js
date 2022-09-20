@@ -1,8 +1,9 @@
 /* eslint-disable no-param-reassign */
 
 import { Op } from 'sequelize';
-import { differenceInYears, subDays } from 'date-fns';
+import { subDays } from 'date-fns';
 import { generateReportFromQueryData } from './utilities';
+import { ageInYears } from '../utils/dateTime';
 
 const reportColumnTemplate = [
   { title: 'Date', accessor: data => data.date },
@@ -12,7 +13,7 @@ const reportColumnTemplate = [
   { title: 'National Health Number', accessor: data => data.encounter.patient.displayId },
   {
     title: 'Age',
-    accessor: data => differenceInYears(new Date(), data.encounter.patient.dateOfBirth),
+    accessor: data => ageInYears(data.encounter.patient.dateOfBirth),
   },
   { title: 'Sex', accessor: data => data.encounter.patient.sex },
   {

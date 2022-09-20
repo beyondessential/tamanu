@@ -45,6 +45,8 @@ export * from './ScheduledVaccine';
 export * from './AdministeredVaccine';
 
 export * from './ReportRequest';
+export * from './ReportDefinition';
+export * from './ReportDefinitionVersion';
 export * from './PatientCarePlan';
 
 export * from './Setting';

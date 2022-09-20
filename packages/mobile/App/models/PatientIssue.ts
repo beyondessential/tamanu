@@ -15,7 +15,10 @@ export class PatientIssue extends BaseModel implements IPatientIssue {
   @Column('text')
   type: PatientIssueType;
 
-  @ManyToOne(() => Patient, patient => patient.issues)
+  @ManyToOne(
+    () => Patient,
+    patient => patient.issues,
+  )
   patient: Patient;
   @RelationId(({ patient }) => patient)
   patientId: string;
@@ -29,7 +32,6 @@ export class PatientIssue extends BaseModel implements IPatientIssue {
   @BeforeUpdate()
   async markPatient() {
     // adding an issue to a patient should mark them for syncing in future
-    // we don't need to upload the patient, so we only set markedForSync
     const parent = await this.findParent(Patient, 'patient');
     if (parent) {
       await Patient.markForSync(parent.id);

@@ -79,20 +79,17 @@ export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): 
       // Update patient values (helper function uses .save()
       // so it will mark the record for upload).
       const { dateOfBirth, ...otherValues } = values;
-      await Patient.updateValues(
-        selectedPatient.id,
-        {
-          dateOfBirth: formatISO9075(dateOfBirth),
-          ...otherValues,
-        },
-      );
+      await Patient.updateValues(selectedPatient.id, {
+        dateOfBirth: formatISO9075(dateOfBirth),
+        ...otherValues,
+      });
 
       // Loading the instance is necessary to get all of the fields
       // from the relations that were updated, not just their IDs.
       const editedPatient = await Patient.findOne(selectedPatient.id);
 
       // Mark patient for sync and update redux state
-      await Patient.markForSync(editedPatient.id)
+      await Patient.markForSync(editedPatient.id);
 
       setSelectedPatient(editedPatient);
 

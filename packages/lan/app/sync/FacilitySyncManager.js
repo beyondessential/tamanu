@@ -93,7 +93,7 @@ export class FacilitySyncManager {
       // update the last successful sync in the same save transaction - if updating the cursor fails,
       // we want to roll back the rest of the saves so that we don't end up detecting them as
       // needing a sync up to the central server when we attempt to resync from the same old cursor
-      await this.models.LocalSystemFact.set('LastSuccessfulSyncTime', currentSyncTick);
+      await this.models.LocalSystemFact.set('LastSuccessfulSyncTime', syncClockTick);
     });
     await this.centralServer.endSyncSession(sessionId);
 
