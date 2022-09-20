@@ -1,4 +1,5 @@
 export * from './calculateSurveyResults';
+export * from './fhir';
 export * from './generate';
 export * from './generateVaccineCertificate';
 export * from './loadSigner';
