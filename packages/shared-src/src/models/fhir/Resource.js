@@ -69,7 +69,12 @@ export class FhirResource extends Model {
 
   // set upstream_id, call updateMaterialisation
   static async materialiseFromUpstream(id) {
-    let resource = await this.findByPk(this.id);
+    let resource = await this.findOne({
+      where: {
+        upstreamId: id,
+      },
+    });
+
     if (!resource) {
       resource = this.build({
         id: Sequelize.fn('uuid_generate_v4'),
