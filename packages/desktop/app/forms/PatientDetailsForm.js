@@ -1,11 +1,10 @@
 import React from 'react';
+import { getCurrentDateString } from 'shared/utils/dateTime';
 import styled from 'styled-components';
 import { isEmpty } from 'lodash';
 import { toDateTimeString } from 'shared-src/src/utils/dateTime';
-import { format } from 'date-fns';
 import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from 'shared/constants';
 import { useSexValues } from '../hooks';
-
 import {
   Colors,
   sexOptions,
@@ -72,9 +71,10 @@ export const PrimaryDetailsGroup = () => {
       <LocalisedField name="culturalName" component={TextField} />
       <LocalisedField
         name="dateOfBirth"
-        max={format(new Date(), 'yyyy-MM-dd')}
+        max={getCurrentDateString()}
         component={DateField}
         required
+        saveDateAsString
       />
       <LocalisedField name="villageId" component={AutocompleteField} suggester={villageSuggester} />
       <LocalisedField name="sex" component={RadioField} options={filteredSexOptions} required />

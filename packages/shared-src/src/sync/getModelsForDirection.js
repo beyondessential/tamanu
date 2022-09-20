@@ -6,7 +6,7 @@ export const getModelsForDirection = (models, direction) => {
       return modelSyncDirection === SYNC_DIRECTIONS.DO_NOT_SYNC;
     }
     // other sync directions include bidirectional models
-    return [direction, SYNC_DIRECTIONS.BIDIRECTIONAL].includes(model.syncDirection);
+    return [direction, SYNC_DIRECTIONS.BIDIRECTIONAL].includes(modelSyncDirection);
   };
 
   return Object.fromEntries(

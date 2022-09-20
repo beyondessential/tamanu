@@ -56,11 +56,11 @@ export class CentralSyncManager {
   }
 
   async endSession(sessionId) {
-    const session = this.connectToSession(sessionId);
-    log.info('Sync session ended', { 
-      time: Date.now() - session.startTime,
+    const { incomingChanges, outgoingChanges, startTime } = this.connectToSession(sessionId);
+    log.info('Sync session ended', {
+      time: Date.now() - startTime,
       incomingChanges: incomingChanges.length,
-      outgoingChanges: outgoingChanges.length
+      outgoingChanges: outgoingChanges.length,
     });
     delete this.sessions[sessionId];
   }
