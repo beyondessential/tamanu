@@ -137,7 +137,12 @@ describe('Generic survey export', () => {
       const result = await app.post(REPORT_URL).send({
         parameters: {},
       });
-      expect(result).toHaveStatus(500);
+      expect(result).toHaveStatus(400);
+      expect(result.body).toEqual({
+        error: {
+          message: 'parameter "survey" must be supplied',
+        },
+      });
     });
 
     it('should return an error if trying to access a sensitive survey', async () => {
@@ -153,7 +158,12 @@ describe('Generic survey export', () => {
           surveyId: SENSITIVE_SURVEY_ID,
         },
       });
-      expect(result).toHaveStatus(500);
+      expect(result).toHaveStatus(400);
+      expect(result.body).toEqual({
+        error: {
+          message: 'Cannot export a survey marked as "sensitive"',
+        },
+      });
     });
 
     it('should default to filtering for 30 days of data', async () => {
@@ -257,7 +267,7 @@ describe('Generic survey export', () => {
           'Patient ID': expectedPatient.displayId,
           'First name': expectedPatient.firstName,
           'Last name': expectedPatient.lastName,
-          'Date of birth': format(expectedPatient.dateOfBirth, 'yyyy-MM-dd'),
+          'Date of birth': expectedPatient.dateOfBirth,
           Age: 1,
           Sex: expectedPatient.sex,
           Village: expectedVillage.name,

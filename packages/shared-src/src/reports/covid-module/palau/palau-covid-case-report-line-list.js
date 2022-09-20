@@ -3,7 +3,8 @@
 import { subDays, format, isBefore, startOfDay } from 'date-fns';
 import { groupBy } from 'lodash';
 import { Op } from 'sequelize';
-import { getAgeFromDate } from '../../../utils/date';
+
+import { ageInYears, parseISO9075 } from '../../../utils/dateTime';
 import { generateReportFromQueryData } from '../../utilities';
 import { transformAnswers } from '../../utilities/transformAnswers';
 
@@ -22,11 +23,11 @@ const reportColumnTemplate = [
   { title: 'Last name', accessor: data => data.patient.lastName },
   { title: 'First name', accessor: data => data.patient.firstName },
   { title: 'Middle name', accessor: data => data.patient.middleName },
-  { title: 'DOB', accessor: data => format(data.patient.dateOfBirth, 'yyyy/MM/dd') },
+  { title: 'DOB', accessor: data => format(parseISO9075(data.patient.dateOfBirth), 'yyyy/MM/dd') },
   {
     title: 'Age',
     accessor: data => {
-      return data.patient.dateOfBirth ? getAgeFromDate(data.patient.dateOfBirth) : '';
+      return data.patient.dateOfBirth ? ageInYears(data.patient.dateOfBirth) : '';
     },
   },
   { title: 'Sex', accessor: data => data.patient.sex },
