@@ -277,7 +277,7 @@ select
 p.display_id "patientId",
 p.first_name "firstname",
 p.last_name "lastname",
-to_char(p.date_of_birth, 'YYYY-MM-DD') "dateOfBirth",
+p.date_of_birth "dateOfBirth",
 extract(year from age(p.date_of_birth::date)) "age",
 p.sex "sex",
 billing.name "patientBillingType",
