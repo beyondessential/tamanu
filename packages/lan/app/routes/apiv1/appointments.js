@@ -76,15 +76,10 @@ appointments.get(
         column = `$${queryField}$`;
       }
 
-      let searchOperator = Op.iLike;
-      if (config.db.sqlitePath) {
-        searchOperator = Op.like;
-      }
-
       return {
         ..._filters,
         [column]: {
-          [searchOperator]: `%${escapePatternWildcard(queryValue)}%`,
+          [Op.iLike]: `%${escapePatternWildcard(queryValue)}%`,
         },
       };
     }, {});
