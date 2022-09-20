@@ -266,9 +266,5 @@ patientDeath.post(
 );
 
 async function transactionOnPostgres(db, transaction) {
-  if (config.db.sqlitePath) {
-    return transaction();
-  }
-
   return db.transaction(transaction);
 }

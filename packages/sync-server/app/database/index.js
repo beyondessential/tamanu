@@ -5,7 +5,7 @@ import { addHooks } from './hooks';
 
 let existingConnection = null;
 
-export async function initDatabase({ testMode = false }) {
+export async function initDatabase({ testMode = false, syncClientMode = false }) {
   // connect to database
   if (existingConnection) {
     return existingConnection;
@@ -20,7 +20,7 @@ export async function initDatabase({ testMode = false }) {
 
   // drop and recreate db
   if (testMode) {
-    await store.sequelize.drop({});
+    await store.sequelize.drop({ cascade: true });
     await store.sequelize.migrate('up');
   }
 
