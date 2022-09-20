@@ -27,7 +27,6 @@ import { TableFormFields } from '../components/Table';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { DiagnosisList } from '../components/DiagnosisList';
 import { useEncounter } from '../contexts/Encounter';
-import { useLocalisation } from '../contexts/Localisation';
 
 const MAX_REPEATS = 12;
 const REPEATS_OPTIONS = range(MAX_REPEATS + 1).map(value => ({ label: value, value }));
@@ -194,9 +193,6 @@ export const DischargeForm = ({
   const { encounter } = useEncounter();
   const [dischargeNotes, setDischargeNotes] = useState([]);
   const api = useApi();
-  const { getLocalisation } = useLocalisation();
-  const dischargeDisposition = Boolean(getLocalisation('features.enableDischargeDisposition'));
-
   // Only display medications that are not discontinued
   // Might need to update condition to compare by end date (decision pending)
   const activeMedications = encounter.medications?.filter(medication => !medication.discontinued);
@@ -234,12 +230,13 @@ export const DischargeForm = ({
           suggester={practitionerSuggester}
           required
         />
-        {dischargeDisposition && <Field
+        <Field
           name="discharge.dispositionId"
           label="Discharge disposition"
           component={AutocompleteField}
           suggester={dispositionSuggester}
-        />}
+          required
+        />
         <OuterLabelFieldWrapper label="Discharge medications" style={{ gridColumn: '1 / -1' }}>
           <TableFormFields columns={medicationColumns} data={activeMedications} />
         </OuterLabelFieldWrapper>

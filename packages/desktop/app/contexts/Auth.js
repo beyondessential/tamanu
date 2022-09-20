@@ -13,7 +13,6 @@ export const useAuth = () => {
       currentUser: state.auth.user,
       ability: state.auth.ability,
       facility: state.auth.server?.facility || {},
-      centralHost: state.auth.server?.centralHost,
     })),
     onLogout: () => dispatch(logout()),
   };

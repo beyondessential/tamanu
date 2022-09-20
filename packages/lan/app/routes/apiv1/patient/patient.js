@@ -79,7 +79,14 @@ patientRoute.put(
       const recordData = requestBodyToRecord(req.body);
       const patientBirthRecordData = pickPatientBirthData(PatientBirthData, recordData);
 
-      if (patientBirth) {
+      if (!patientBirth) {
+        if (!isEqual(req.body, { markedForSync: true })) {
+          await PatientBirthData.create({
+            ...patientBirthRecordData,
+            patientId: patient.id,
+          });
+        }
+      } else {
         await patientBirth.update(patientBirthRecordData);
       }
     });

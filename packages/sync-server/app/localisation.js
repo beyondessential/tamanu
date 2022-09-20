@@ -323,7 +323,6 @@ const rootLocalisationSchema = yup
         enablePatientDeaths: yup.boolean().required(),
         mergePopulatedPADRecords: yup.boolean().required(),
         enableCovidClearanceCertificate: yup.boolean().required(),
-        enableDischargeDisposition: yup.boolean().default(true),
       })
       .required()
       .noUnknown(),

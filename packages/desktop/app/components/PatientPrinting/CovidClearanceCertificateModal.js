@@ -7,15 +7,13 @@ import { useLocalisation } from '../../contexts/Localisation';
 import { EmailButton } from '../Email/EmailButton';
 import { PDFViewer, printPDF } from './PDFViewer';
 import { useCertificate } from '../../utils/useCertificate';
-import { usePatientAdditionalData } from '../../api/queries';
 
-export const CovidClearanceCertificateModal = React.memo(({ patient }) => {
+export const CovidClearanceCertificateModal = ({ patient }) => {
   const [open, setOpen] = useState(true);
   const [labs, setLabs] = useState([]);
   const { getLocalisation } = useLocalisation();
   const api = useApi();
   const { watermark, logo, footerImg, printedBy } = useCertificate();
-  const { data: additionalData } = usePatientAdditionalData(patient.id);
 
   useEffect(() => {
     api.get(`patient/${patient.id}/covidLabTests`).then(response => {
@@ -36,8 +34,6 @@ export const CovidClearanceCertificateModal = React.memo(({ patient }) => {
     [api, patient.id, printedBy],
   );
 
-  const patientData = { ...patient, additionalData };
-
   return (
     <Modal
       open={open}
@@ -50,7 +46,7 @@ export const CovidClearanceCertificateModal = React.memo(({ patient }) => {
     >
       <PDFViewer id="clearance-certificate">
         <CovidLabCertificate
-          patient={patientData}
+          patient={patient}
           labs={labs}
           watermarkSrc={watermark}
           signingSrc={footerImg}
@@ -62,4 +58,4 @@ export const CovidClearanceCertificateModal = React.memo(({ patient }) => {
       </PDFViewer>
     </Modal>
   );
-});
+};

@@ -26,7 +26,7 @@ export const IMAGING_REQUEST_STATUS_OPTIONS = Object.values(IMAGING_REQUEST_STAT
   s => ({
     label: IMAGING_REQUEST_STATUS_LABELS[s],
     value: s,
-  }),
+  })
 );
 
 export const APPOINTMENT_TYPES = {
@@ -59,9 +59,3 @@ export const COMMUNICATION_STATUSES = {
 };
 
 export const COMMUNICATION_STATUSES_VALUES = Object.values(COMMUNICATION_STATUSES);
-
-export const PATIENT_MERGE_DELETION_ACTIONS = {
-  RENAME: 'RENAME',
-  DESTROY: 'DESTROY',
-  NONE: 'NONE',
-};

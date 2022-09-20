@@ -1,4 +1,5 @@
 import React, { useEffect, useCallback, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
 import { VaccineCertificate } from 'shared/utils/patientCertificates';
 import { Modal } from './Modal';
@@ -7,14 +8,15 @@ import { EmailButton } from './Email/EmailButton';
 import { useCertificate } from '../utils/useCertificate';
 import { PDFViewer, printPDF } from './PatientPrinting/PDFViewer';
 import { useLocalisation } from '../contexts/Localisation';
-import { usePatientAdditionalData } from '../api/queries';
 
-export const ImmunisationCertificateModal = React.memo(({ open, onClose, patient }) => {
+export const ImmunisationCertificateModal = ({ open, onClose, patient }) => {
   const api = useApi();
   const [vaccinations, setVaccinations] = useState([]);
   const { getLocalisation } = useLocalisation();
   const { watermark, logo, footerImg, printedBy } = useCertificate();
-  const { data: additionalData } = usePatientAdditionalData(patient.id);
+  const { data: additionalData } = useQuery(['additionalData', patient.id], () =>
+    api.get(`patient/${patient.id}/additionalData`),
+  );
 
   useEffect(() => {
     api.get(`patient/${patient.id}/administeredVaccines`).then(response => {
@@ -61,4 +63,4 @@ export const ImmunisationCertificateModal = React.memo(({ open, onClose, patient
       </PDFViewer>
     </Modal>
   );
-});
+};

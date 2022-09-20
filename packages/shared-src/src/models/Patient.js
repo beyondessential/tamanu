@@ -66,10 +66,6 @@ export class Patient extends Model {
       foreignKey: 'patientId',
       as: 'deathData',
     });
-    this.hasMany(models.PatientBirthData, {
-      foreignKey: 'patientId',
-      as: 'birthData',
-    });
 
     this.hasMany(models.PatientSecondaryId, {
       foreignKey: 'patientId',
@@ -143,15 +139,13 @@ export class Patient extends Model {
       },
     });
 
-    const data = results.map(x => x.get({ plain: true }));
-
-    for (const record of data) {
-      if (certifiableVaccineIds.includes(record.scheduledVaccine.vaccineId)) {
-        record.certifiable = true;
+    for (const result of results) {
+      if (certifiableVaccineIds.includes(result.scheduledVaccine.vaccineId)) {
+        result.certifiable = true;
       }
     }
 
-    return data;
+    return results.map(x => x.get({ plain: true }));
   }
 
   async getCovidLabTests(queryOptions) {
