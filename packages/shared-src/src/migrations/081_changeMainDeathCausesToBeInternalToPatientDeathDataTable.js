@@ -66,28 +66,24 @@ export async function down(query) {
       },
     });
 
-    if (config.db.sqlitePath) {
-      // console.warn('Losing data on the down migration');
-    } else {
-      // https://stackoverflow.com/a/21327318
-      // can't rely on postgres extensions being present ;_;
-      const uuidgen = `SELECT uuid_in(overlay(overlay(md5(random()::text || ':' || random()::text) placing '4' from 13) placing to_hex(floor(random()*(11-8+1) + 8)::int)::text from 17)::cstring)`;
+    // https://stackoverflow.com/a/21327318
+    // can't rely on postgres extensions being present ;_;
+    const uuidgen = `SELECT uuid_in(overlay(overlay(md5(random()::text || ':' || random()::text) placing '4' from 13) placing to_hex(floor(random()*(11-8+1) + 8)::int)::text from 17)::cstring)`;
 
-      // only postgres supports using this syntax
-      await query.sequelize.query(`
-        WITH inserted AS (
-          INSERT INTO death_causes (id, patient_death_data_id, condition_id, time_after_onset)
-          SELECT (${uuidgen}), pdd.id, pdd.${col}_condition_id, pdd.${col}_time_after_onset
-          FROM patient_death_data pdd
-          WHERE pdd.${col}_condition_id IS NOT NULL
-          RETURNING id, patient_death_data_id
-        )
-        UPDATE patient_death_data pdd
-        SET ${col}_id = inserted.id
-        FROM inserted
-        WHERE pdd.id = inserted.patient_death_data_id
-      `);
-    }
+    // only postgres supports using this syntax
+    await query.sequelize.query(`
+      WITH inserted AS (
+        INSERT INTO death_causes (id, patient_death_data_id, condition_id, time_after_onset)
+        SELECT (${uuidgen}), pdd.id, pdd.${col}_condition_id, pdd.${col}_time_after_onset
+        FROM patient_death_data pdd
+        WHERE pdd.${col}_condition_id IS NOT NULL
+        RETURNING id, patient_death_data_id
+      )
+      UPDATE patient_death_data pdd
+      SET ${col}_id = inserted.id
+      FROM inserted
+      WHERE pdd.id = inserted.patient_death_data_id
+    `);
 
     await query.removeColumn('patient_death_data', `${col}_condition_id`);
     await query.removeColumn('patient_death_data', `${col}_time_after_onset`);

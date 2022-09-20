@@ -95,7 +95,7 @@ const convertPatientToHL7Patient = (patient, additional = {}) => ({
   active: isPatientActive(patient),
   identifier: patientIds(patient, additional),
   name: patientName(patient, additional),
-  birthDate: patient.dateOfBirth && format(patient.dateOfBirth, 'yyyy-MM-dd'),
+  birthDate: patient.dateOfBirth,
   gender: patient.sex,
   address: patientAddress(patient, additional),
   telecom: patientTelecom(patient, additional),
@@ -137,7 +137,12 @@ export function getFlattenMergedPatientReplaceLinks(
     });
     // get deeper level of merged patients if there's any
     links.push(
-      ...getFlattenMergedPatientReplaceLinks(baseUrl, mergedPatient, mergedPatientsByMergedIntoId, isRootPatientActive),
+      ...getFlattenMergedPatientReplaceLinks(
+        baseUrl,
+        mergedPatient,
+        mergedPatientsByMergedIntoId,
+        isRootPatientActive,
+      ),
     );
   }
 

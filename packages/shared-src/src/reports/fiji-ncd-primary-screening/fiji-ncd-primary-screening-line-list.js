@@ -13,6 +13,7 @@ import {
   getCachedAnswer,
   parametersToAnswerSqlWhere,
 } from './utils';
+import { ageInYears } from '../../utils/dateTime';
 
 import {
   ALL_SURVEY_IDS,
@@ -101,7 +102,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
     // Group the answers by survey and date. So for per patient per date, we should 1 row per survey (maximum 3 surveys)
     for (const [key] of Object.entries(groupedScreeningFormAnswers)) {
       const [surveyGroupKey, responseDate] = key.split('|');
-      const age = patient.dateOfBirth ? differenceInYears(new Date(), patient.dateOfBirth) : '';
+      const age = patient.dateOfBirth ? ageInYears(patient.dateOfBirth) : '';
 
       const recordData = {
         firstName: patient.firstName,

@@ -1,9 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 import { add } from 'date-fns';
-import { fake, fakeUser } from 'shared/test-helpers';
-import { fakeReferenceData } from 'shared/test-helpers/fake';
+import { fake, fakeUser, fakeReferenceData } from 'shared/test-helpers/fake';
 
-import { initDb } from '../initDb';
+import { createTestContext } from '../utilities';
 
 async function prepopulate(models) {
   const patientId = uuidv4();
@@ -131,16 +130,16 @@ async function prepopulate(models) {
 }
 
 describe('Patient', () => {
+  let ctx;
   let models;
-  let context;
   let testIds;
 
   beforeAll(async () => {
-    context = await initDb({ testMode: true });
-    models = context.models;
+    ctx = await createTestContext();
+    models = ctx.store.models;
     testIds = await prepopulate(models);
   });
-  afterAll(() => context.sequelize.close());
+  afterAll(() => ctx.close());
 
   describe('Patient.getLabRequests', () => {
     it('should return the correct amount of lab requests', async () => {

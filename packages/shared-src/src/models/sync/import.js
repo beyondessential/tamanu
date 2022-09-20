@@ -3,13 +3,18 @@ import { chunk, flatten, without, pick, pickBy } from 'lodash';
 import { log } from 'shared/services/logging';
 import { propertyPathsToTree } from './metadata';
 
-// SQLite < v3.32 has a hard limit of 999 bound parameters per query
-// see https://www.sqlite.org/limits.html for more
-// All newer versions and Postgres limits are higher
-const SQLITE_MAX_PARAMETERS = 999;
+// Postgres has a hard limit of 65535 bound parameters per query
+//
+// > Int16
+// > The number of parameter format codes that follow
+// -- https://www.postgresql.org/docs/13/protocol-message-formats.html
+//
+// There are ways to burst that limit, see:
+// https://klotzandrew.com/blog/postgres-passing-65535-parameter-limit
+const MAX_PARAMETERS = 65535;
 export const chunkRows = rows => {
   const maxColumnsPerRow = rows.reduce((max, r) => Math.max(Object.keys(r).length, max), 0);
-  const rowsPerChunk = Math.floor(SQLITE_MAX_PARAMETERS / maxColumnsPerRow);
+  const rowsPerChunk = Math.floor(MAX_PARAMETERS / maxColumnsPerRow);
   return chunk(rows, rowsPerChunk);
 };
 

@@ -1,11 +1,13 @@
-import { mergePatient, getTablesWithNoMergeCoverage } from "../../app/admin/patientMerge/mergePatient";
 import { fake } from 'shared/test-helpers/fake';
-import { createTestContext } from '../utilities';
 import { VISIBILITY_STATUSES } from 'shared/constants';
 import { InvalidParameterError } from 'shared/errors';
+import {
+  mergePatient,
+  getTablesWithNoMergeCoverage,
+} from '../../app/admin/patientMerge/mergePatient';
+import { createTestContext } from '../utilities';
 
-describe("Patient merge", () => {
-
+describe('Patient merge', () => {
   let ctx;
   let models;
   let baseApp;
@@ -43,7 +45,7 @@ describe("Patient merge", () => {
     expect(tables).toHaveLength(0);
   });
 
-  it("Should merge a patient with no additional records", async () => {
+  it('Should merge a patient with no additional records', async () => {
     const [keep, merge] = await makeTwoPatients();
 
     const { updates } = await mergePatient(models, keep.id, merge.id);
@@ -57,9 +59,12 @@ describe("Patient merge", () => {
     expect(keep).toHaveProperty('deletedAt', null);
     expect(merge).toHaveProperty('mergedIntoId', keep.id);
     expect(merge).toHaveProperty('visibilityStatus', VISIBILITY_STATUSES.MERGED);
-    expect(merge.deletedAt).toBeTruthy();
+    // TODO: TAN-1802 removed this, but it should be added back once we've fixed
+    // the underlying issue
+    // expect(merge.deletedAt).toBeTruthy();
+    expect(merge).toMatchObject({ firstName: 'Deleted', lastName: 'Patient' });
   });
-  
+
   it('Should merge encounters across', async () => {
     const { Encounter } = models;
 
@@ -87,9 +92,9 @@ describe("Patient merge", () => {
 
     for (const e of [mergeEnc, mergeEnc2, keepEnc]) {
       await e.reload();
-      expect(e).toHaveProperty('patientId', keep.id);  
+      expect(e).toHaveProperty('patientId', keep.id);
     }
-  
+
     expect(await keep.getEncounters()).toHaveLength(3);
     expect(await merge.getEncounters()).toHaveLength(0);
   });
@@ -119,10 +124,10 @@ describe("Patient merge", () => {
     await issue.reload();
     expect(issue).toHaveProperty('patientId', keep.id);
   });
-  
+
   it('Should merge death data cleanly', async () => {
-    // Theoretically this should behave the same as other records but I (@mclean) 
-    // encountered a validation issue* during dev, so I'm just including this 
+    // Theoretically this should behave the same as other records but I (@mclean)
+    // encountered a validation issue* during dev, so I'm just including this
     // additional test to be safe.
     // *complaints of a missing clinicianId despite not updating any records
     const [keep, merge] = await makeTwoPatients();
@@ -144,7 +149,7 @@ describe("Patient merge", () => {
     expect(death).toHaveProperty('patientId', keep.id);
   });
 
-  it("Should throw if the keep patient and merge patient are the same", async () => {
+  it('Should throw if the keep patient and merge patient are the same', async () => {
     const { Patient } = models;
     const keep = await Patient.create(fake(Patient));
     expect(() => mergePatient(models, keep.id, keep.id)).rejects.toThrow(InvalidParameterError);
@@ -196,11 +201,11 @@ describe("Patient merge", () => {
     it('Should merge patient additional data even if the keep patient PAD is null', async () => {
       const { PatientAdditionalData } = models;
       const [keep, merge] = await makeTwoPatients();
-  
+
       const keepPatientPad = await PatientAdditionalData.create({
         patientId: keep.id,
       });
-  
+
       const mergePatientPad = await PatientAdditionalData.create({
         patientId: merge.id,
         primaryContactNumber: 'merge-phone',
@@ -234,14 +239,17 @@ describe("Patient merge", () => {
       expect(response.body.updates).toEqual({
         Patient: 1,
       });
-  
+
       await keep.reload({ paranoid: false });
       await merge.reload({ paranoid: false });
       expect(keep).toHaveProperty('mergedIntoId', null);
       expect(keep).toHaveProperty('deletedAt', null);
       expect(merge).toHaveProperty('mergedIntoId', keep.id);
       expect(merge).toHaveProperty('visibilityStatus', VISIBILITY_STATUSES.MERGED);
-      expect(merge.deletedAt).toBeTruthy();
+      // TODO: TAN-1802 removed this, but it should be added back once we've fixed
+      // the underlying issue
+      // expect(merge.deletedAt).toBeTruthy();
+      expect(merge).toMatchObject({ firstName: 'Deleted', lastName: 'Patient' });
     });
 
     it('Should only allow admins to merge patients', async () => {
@@ -255,7 +263,7 @@ describe("Patient merge", () => {
       expect(response).toBeForbidden();
     });
 
-    it("Should return any encountered error", async () => {
+    it('Should return any encountered error', async () => {
       const { Patient } = models;
       const patient = await Patient.create(fake(Patient));
 
