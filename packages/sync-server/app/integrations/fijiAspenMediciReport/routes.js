@@ -250,7 +250,7 @@ triage_info as (
   lateral (
     select
       case when t.closed_time is null
-        then (extract(EPOCH from now()) - extract(EPOCH from t.triage_time::timestamp))/60
+        then (extract(EPOCH from now()) - extract(EPOCH from t.triage_time::timestamp))/60 -- TODO: Potential Timezone bug here
         else (extract(EPOCH from t.closed_time::timestamp) - extract(EPOCH from t.triage_time::timestamp))/60
       end total_minutes
   ) total_minutes,
@@ -366,6 +366,7 @@ routes.get(
 
     const mappedData = data.map(encounter => ({
       ...encounter,
+      age: parseInt(encounter.age),
       weight: parseFloat(encounter.weight),
     }));
 
