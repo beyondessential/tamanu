@@ -17,7 +17,7 @@ export async function addHooks(store) {
     const singleHooks = ['afterCreate', 'afterUpdate'];
     const bulkHooks = ['afterBulkCreate'];
 
-    for (const resource of Object.values(FHIR_RESOURCE_TYPES)) {
+    for (const resource of FHIR_RESOURCE_TYPES) {
       const Upstream = store.models[`Fhir${resource}`].UpstreamModel;
       if (!Upstream) continue;
 
