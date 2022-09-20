@@ -90,12 +90,7 @@ patientRoute.put(
         const recordData = requestBodyToRecord(req.body);
         const patientBirthRecordData = pickPatientBirthData(PatientBirthData, recordData);
 
-        if (!patientBirth) {
-          await PatientBirthData.create({
-            ...patientBirthRecordData,
-            patientId: patient.id,
-          });
-        } else {
+        if (patientBirth) {
           await patientBirth.update(patientBirthRecordData);
         }
       });
