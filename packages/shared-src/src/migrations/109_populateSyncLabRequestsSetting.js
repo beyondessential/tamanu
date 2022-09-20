@@ -17,7 +17,7 @@ module.exports = {
       return; // probably a central server, this migration is not required
     }
     const [[facilityCount]] = await query.sequelize.query(`SELECT count(*) FROM facilities;`);
-    if (facilityCount.count === 0) {
+    if (facilityCount.count === '0') {
       return; // db not yet populated with facilities, probably a new setup or test db that should have the setting manually set
     }
     await query.sequelize.query(`
