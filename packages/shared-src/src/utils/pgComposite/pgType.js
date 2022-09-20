@@ -1,5 +1,5 @@
 import { snakeCase } from 'lodash';
-import { DataTypes } from 'sequelize';
+import { DataTypes, ValidationError } from 'sequelize';
 import { compositeToSql } from './stringifier';
 
 const ABSTRACT = DataTypes.ABSTRACT.prototype.constructor;
@@ -26,7 +26,7 @@ export class COMPOSITE extends ABSTRACT {
 
   validate(value) {
     if (value instanceof this.constructor.ValueClass) return true;
-    throw new ValidationError(`value is not a ${this.constructor.ValueClass}`);
+    throw new ValidationError(`value is not a ${this.constructor.ValueClass}`, []);
   }
 
   fieldSet(value) {
