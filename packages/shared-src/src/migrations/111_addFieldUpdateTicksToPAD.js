@@ -1,6 +1,6 @@
-import Sequelize, { QueryInterface } from 'sequelize';
+import Sequelize from 'sequelize';
 
-export async function up(query: QueryInterface): Promise<void> {
+export async function up(query) {
   await query.addColumn('patient_additional_data', 'updated_at_by_field', {
     type: Sequelize.JSON,
   });
@@ -12,7 +12,7 @@ export async function up(query: QueryInterface): Promise<void> {
   `);
 }
 
-export async function down(query: QueryInterface): Promise<void> {
+export async function down(query) {
   await query.removeColumn('patient_additional_data', 'updated_at_by_field');
   await query.sequelize.query(`
     DROP TRIGGER IF EXISTS set_patient_additional_data_updated_at_by_field

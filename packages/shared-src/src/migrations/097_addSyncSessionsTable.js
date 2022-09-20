@@ -1,6 +1,6 @@
-import Sequelize, { QueryInterface } from 'sequelize';
+import Sequelize from 'sequelize';
 
-export async function up(query: QueryInterface): Promise<void> {
+export async function up(query) {
   await query.createTable('sync_sessions', {
     id: {
       type: Sequelize.UUID,
@@ -42,6 +42,6 @@ export async function up(query: QueryInterface): Promise<void> {
   });
 }
 
-export async function down(query: QueryInterface): Promise<void> {
+export async function down(query) {
   await query.dropTable('sync_sessions');
 }
