@@ -8,7 +8,7 @@ export async function up(query) {
         -- unless the updated_at_by_field was explicitly provided (i.e. by a sync merge update),
         -- set any fields updated in this query to use the latest sync tick
         IF (OLD.updated_at_by_field IS NULL OR OLD.updated_at_by_field::text = NEW.updated_at_by_field::text) THEN
-          SELECT COALESCE(OLD.updated_at_by_field::jsonb, '{}'::jsonb) || COALESCE(JSON_OBJECT_AGG(changed_columns.column_name, (SELECT last_value FROM sync_session_sequence))::jsonb, '{}'::jsonb) FROM (
+          SELECT COALESCE(OLD.updated_at_by_field::jsonb, '{}'::jsonb) || COALESCE(JSON_OBJECT_AGG(changed_columns.column_name, (SELECT last_value FROM sync_clock_sequence))::jsonb, '{}'::jsonb) FROM (
             SELECT old_json.key AS column_name
             FROM jsonb_each(to_jsonb(OLD)) AS old_json
             CROSS JOIN jsonb_each(to_jsonb(NEW)) AS new_json

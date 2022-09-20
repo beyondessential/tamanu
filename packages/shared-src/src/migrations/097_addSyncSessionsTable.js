@@ -36,9 +36,6 @@ export async function up(query) {
       type: Sequelize.BIGINT,
       allowNull: false,
     },
-    updated_at_sync_tick: {
-      type: Sequelize.BIGINT,
-    },
   });
 }
 

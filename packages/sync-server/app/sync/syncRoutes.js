@@ -67,7 +67,7 @@ syncRoutes.post(
 syncRoutes.delete(
   '/:sessionId',
   asyncHandler(async (req, res) => {
-    const { params } = req;
+    const { params, store } = req;
     const { sessionId } = params;
     await syncManager.endSession(store, sessionId);
     res.json({});

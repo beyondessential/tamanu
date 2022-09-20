@@ -9,11 +9,11 @@ export const removeEchoedChanges = async (store, sessionId) =>
     JOIN session_sync_records AS outgoingchanges 
       ON incomingchanges.session_id = outgoingchanges.session_id 
       AND incomingchanges.record_type = outgoingchanges.record_type
-      AND incomingchanges.data->>'updatedAtSyncTick' = outgoingchanges.data->>'updatedAtSyncTick')
-      incomingchanges.record_id = outgoingchanges.record_id
+      AND incomingchanges.data->>'updatedAtSyncTick' = outgoingchanges.data->>'updatedAtSyncTick'
+      AND incomingchanges.record_id = outgoingchanges.record_id
     WHERE incomingchanges.direction = :incomingDirection
       AND outgoingchanges.direction = :outgoingDirection
-      AND incomingchanges.session_id = :sessionId
+      AND incomingchanges.session_id = :sessionId)
   `,
     {
       replacements: {

@@ -5,9 +5,7 @@ export const getOutgoingChangesCount = async (store, sessionId) => {
     `
         SELECT COUNT(*) AS total
         FROM session_sync_records
-        JOIN sync_sessions
-          ON session.id = session_sync_records.session_id
-        WHERE session.id = :sessionId
+        WHERE session_id = :sessionId
           AND direction = :direction
     `,
     {

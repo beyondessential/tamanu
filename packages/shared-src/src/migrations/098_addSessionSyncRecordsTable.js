@@ -50,9 +50,6 @@ export async function up(query) {
       type: Sequelize.JSON,
       allowNull: false,
     },
-    updated_at_sync_tick: {
-      type: Sequelize.BIGINT,
-    },
   });
 }
 

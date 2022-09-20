@@ -17,10 +17,9 @@ export class SessionSyncRecord extends Model {
     );
   }
 
-
   static initRelations(models) {
     this.belongsTo(models.SyncSession, {
-      foreignKey: 'sesssionId',
+      foreignKey: 'sessionId',
     });
   }
 }

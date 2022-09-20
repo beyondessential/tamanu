@@ -40,15 +40,18 @@ export class CentralSyncManager {
       `SELECT nextval('sync_clock_sequence')`,
     );
 
+    const startTime = new Date();
     const syncSession = await sequelize.models.SyncSession.create({
       syncTick: syncClockTick,
+      startTime,
+      lastConnectionTime: startTime,
     });
 
     return { sessionId: syncSession.id, syncClockTick };
   }
 
-  async connectToSession({ sequelize }, sessionId) {
-    const session = await sequelize.models.SyncSession.findOne({
+  async connectToSession(store, sessionId) {
+    const session = await store.sequelize.models.SyncSession.findOne({
       where: { id: sessionId },
     });
 
@@ -74,11 +77,11 @@ export class CentralSyncManager {
   // have been the one that changed them, if they have an update tick unique to that device!
   // For sanity's sake, we use > consistently, because it aligns with "since"
   async setPullFilter(sessionId, { since, facilityId }, store) {
+    const { models } = store;
+
     await this.connectToSession(store, sessionId);
 
     const facilitySettings = await models.Setting.forFacility(facilityId);
-
-    const { models } = store;
 
     // work out if any patients were newly marked for sync since this device last connected, and
     // include changes from all time for those patients
@@ -121,7 +124,7 @@ export class CentralSyncManager {
   }
 
   async getOutgoingChanges(store, sessionId, { offset, limit }) {
-    this.connectToSession(sessionId);
+    this.connectToSession(store, sessionId);
     return getOutgoingChangesForSession(
       store,
       sessionId,
