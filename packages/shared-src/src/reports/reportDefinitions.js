@@ -392,6 +392,7 @@ export const REPORT_DEFINITIONS = [
     id: 'appointments-line-list',
     dateRangeLabel: 'Date range (or leave blank for the next 30 days of data)',
     dataSourceOptions: [REPORT_DATA_SOURCES.THIS_FACILITY],
+    filterDateRangeAsStrings: true,
     parameters: [
       {
         parameterField: 'ParameterAutocompleteField',
@@ -443,6 +444,7 @@ export const REPORT_DEFINITIONS = [
     id: 'deceased-patients-line-list',
     dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
+    filterDateRangeAsStrings: true,
     parameters: [
       {
         parameterField: 'ParameterAutocompleteField',

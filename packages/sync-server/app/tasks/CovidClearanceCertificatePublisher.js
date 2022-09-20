@@ -54,6 +54,11 @@ export class CovidClearanceCertificatePublisher extends ScheduledTask {
           model: LabTest,
           as: 'tests',
           required: true,
+          // We only want to generate clearance notifications for patients who had positive tests
+          // Note that LabTest.status is not a used field so we don't need to filter on it
+          where: {
+            result: 'Positive',
+          },
         },
         {
           model: CertificateNotification,

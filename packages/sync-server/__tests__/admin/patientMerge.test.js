@@ -1,12 +1,12 @@
 import { Op } from 'sequelize';
+import { fake, fakeUser } from 'shared/test-helpers/fake';
+import { VISIBILITY_STATUSES } from 'shared/constants';
+import { InvalidParameterError } from 'shared/errors';
 import {
   mergePatient,
   getTablesWithNoMergeCoverage,
 } from '../../app/admin/patientMerge/mergePatient';
-import { fake, fakeUser } from 'shared/test-helpers/fake';
 import { createTestContext } from '../utilities';
-import { VISIBILITY_STATUSES } from 'shared/constants';
-import { InvalidParameterError } from 'shared/errors';
 
 describe('Patient merge', () => {
   let ctx;
@@ -60,7 +60,10 @@ describe('Patient merge', () => {
     expect(keep).toHaveProperty('deletedAt', null);
     expect(merge).toHaveProperty('mergedIntoId', keep.id);
     expect(merge).toHaveProperty('visibilityStatus', VISIBILITY_STATUSES.MERGED);
-    expect(merge.deletedAt).toBeTruthy();
+    // TODO: TAN-1802 removed this, but it should be added back once we've fixed
+    // the underlying issue
+    // expect(merge.deletedAt).toBeTruthy();
+    expect(merge).toMatchObject({ firstName: 'Deleted', lastName: 'Patient' });
   });
 
   it('Should merge encounters across', async () => {
@@ -173,7 +176,7 @@ describe('Patient merge', () => {
     expect(death).toHaveProperty('patientId', keep.id);
   });
 
-  it("Should throw if the keep patient and merge patient are the same", async () => {
+  it('Should throw if the keep patient and merge patient are the same', async () => {
     const { Patient } = models;
     const keep = await Patient.create(fake(Patient));
     expect(() => mergePatient(models, keep.id, keep.id)).rejects.toThrow(InvalidParameterError);
@@ -325,7 +328,10 @@ describe('Patient merge', () => {
       expect(keep).toHaveProperty('deletedAt', null);
       expect(merge).toHaveProperty('mergedIntoId', keep.id);
       expect(merge).toHaveProperty('visibilityStatus', VISIBILITY_STATUSES.MERGED);
-      expect(merge.deletedAt).toBeTruthy();
+      // TODO: TAN-1802 removed this, but it should be added back once we've fixed
+      // the underlying issue
+      // expect(merge.deletedAt).toBeTruthy();
+      expect(merge).toMatchObject({ firstName: 'Deleted', lastName: 'Patient' });
     });
 
     it('Should only allow admins to merge patients', async () => {
