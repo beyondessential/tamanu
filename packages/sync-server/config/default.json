@@ -478,18 +478,18 @@
           "hidden": false
         },
         "apgarScoreOneMinute": {
-          "shortLabel": "Apgar score 1 min",
-          "longLabel": "Apgar score 1 min",
+          "shortLabel": "Apgar score at 1 min",
+          "longLabel": "Apgar score at 1 min",
           "hidden": false
         },
         "apgarScoreFiveMinutes": {
-          "shortLabel": "Apgar score 5 min",
-          "longLabel": "Apgar score 5 min",
+          "shortLabel": "Apgar score at 5 min",
+          "longLabel": "Apgar score at 5 min",
           "hidden": false
         },
         "apgarScoreTenMinutes": {
-          "shortLabel": "Apgar score 10 min",
-          "longLabel": "Apgar score 10 min",
+          "shortLabel": "Apgar score at 10 min",
+          "longLabel": "Apgar score at 10 min",
           "hidden": false
         },
         "timeOfBirth": {
@@ -648,5 +648,12 @@
     // As of 29/08/2022 all our deployments are behind a local nginx proxy and so
     // this shouldn't need to be changed.
     "trusted": ["loopback"]
+  },
+  "patientMerge": {
+    // can be one of "RENAME", "DESTROY", or "NONE"
+    // RENAME sets the patient's firstName to 'Deleted' and lastName to 'Patient'
+    // DESTROY sets deleted_at to a timestamp
+    // NONE is a no-op and does nothing
+    "deletionAction": "RENAME"
   }
 }

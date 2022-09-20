@@ -1,8 +1,8 @@
 import { Sequelize } from 'sequelize';
 import config from 'config';
 import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES } from 'shared/constants';
-import { dateTimeType } from './dateTimeTypes';
 import { Model } from './Model';
+import { dateType, dateTimeType } from './dateTimeTypes';
 
 export class Patient extends Model {
   static init({ primaryKey, ...options }) {
@@ -19,8 +19,9 @@ export class Patient extends Model {
         lastName: Sequelize.STRING,
         culturalName: Sequelize.STRING,
 
-        dateOfBirth: Sequelize.DATE,
+        dateOfBirth: dateType('dateOfBirth'),
         dateOfDeath: dateTimeType('dateOfDeath'),
+
         sex: {
           type: Sequelize.ENUM('male', 'female', 'other'),
           allowNull: false,
@@ -64,6 +65,10 @@ export class Patient extends Model {
     this.hasMany(models.PatientDeathData, {
       foreignKey: 'patientId',
       as: 'deathData',
+    });
+    this.hasMany(models.PatientBirthData, {
+      foreignKey: 'patientId',
+      as: 'birthData',
     });
 
     this.hasMany(models.PatientSecondaryId, {
@@ -138,13 +143,15 @@ export class Patient extends Model {
       },
     });
 
-    for (const result of results) {
-      if (certifiableVaccineIds.includes(result.scheduledVaccine.vaccineId)) {
-        result.certifiable = true;
+    const data = results.map(x => x.get({ plain: true }));
+
+    for (const record of data) {
+      if (certifiableVaccineIds.includes(record.scheduledVaccine.vaccineId)) {
+        record.certifiable = true;
       }
     }
 
-    return results.map(x => x.get({ plain: true }));
+    return data;
   }
 
   async getCovidLabTests(queryOptions) {

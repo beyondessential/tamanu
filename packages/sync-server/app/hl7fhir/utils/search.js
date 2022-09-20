@@ -2,6 +2,7 @@ import { Sequelize, Op } from 'sequelize';
 import moment from 'moment';
 import { jsonFromBase64, jsonToBase64 } from 'shared/utils/encodings';
 import { InvalidParameterError } from 'shared/errors';
+import { toDateString } from 'shared/utils/dateTime';
 
 import { hl7ParameterTypes } from '../hl7Parameters';
 
@@ -53,8 +54,13 @@ export function getQueryObject(columnName, value, operator, modifier, parameterT
   if (parameterType === hl7ParameterTypes.date && ['eq', undefined].includes(modifier)) {
     // Create and return range
     const timeUnit = getSmallestTimeUnit(value);
-    const startDate = parseHL7Date(value).startOf(timeUnit);
-    const endDate = parseHL7Date(value).endOf(timeUnit);
+    const startDate = parseHL7Date(value).startOf(timeUnit).toDate();
+    const endDate = parseHL7Date(value).endOf(timeUnit).toDate();
+    
+    if (['date_of_birth', 'date_of_death'].includes(columnName)) {
+      return { [operator]: [toDateString(startDate), toDateString(endDate)] };
+    }
+    
     return { [operator]: [startDate, endDate] };
   }
 

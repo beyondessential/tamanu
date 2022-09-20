@@ -18,7 +18,7 @@ describe('Vaccine list report', () => {
 
   beforeAll(async () => {
     ctx = await createTestContext();
-    const models = ctx.models;
+    const { models } = ctx;
     baseApp = ctx.baseApp;
     village = await randomReferenceId(models, 'village');
 
@@ -79,7 +79,7 @@ describe('Vaccine list report', () => {
   describe('returns data based on parameters', () => {
     it('should return data for patients of the right village', async () => {
       const result = await app.post('/v1/reports/vaccine-list').send({
-        parameters: { village: village, fromDate: '2021-03-15' },
+        parameters: { village, fromDate: '2021-03-15' },
       });
 
       expect(result).toHaveSucceeded();

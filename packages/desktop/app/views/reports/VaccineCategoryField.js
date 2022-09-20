@@ -9,9 +9,9 @@ const VACCINE_CATEGORY_OPTIONS = Object.values(VACCINE_CATEGORIES).map(category 
   value: category,
 }));
 
-export const VaccineCategoryField = ({ required }) => (
+export const VaccineCategoryField = ({ name = 'category', required }) => (
   <Field
-    name="category"
+    name={name}
     label="Category"
     component={SelectField}
     required={required}
