@@ -46,9 +46,9 @@ with
       record_id,
       json_agg(
         json_build_object(
-          'noteType', note_type,
-          'content', "content",
-          'noteDate', ni."date"
+          'Note type', note_type,
+          'Content', "content",
+          'Note date', to_char(ni."date", 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
         ) 
       ) aggregated_notes
     from note_pages np
@@ -157,9 +157,9 @@ with
       ir.encounter_id,
       json_agg(
         json_build_object(
-          'name', ir.imaging_type,
-          'areasToBeImaged', areas_to_be_imaged,
-          'notes', to_json(aggregated_notes)
+          'Name', ir.imaging_type,
+          'Areas to be imaged', areas_to_be_imaged,
+          'Notes', to_json(aggregated_notes)
         )
       ) "Imaging requests"
     from imaging_requests ir
@@ -173,9 +173,9 @@ with
       record_id encounter_id,
       json_agg(
         json_build_object(
-          'noteType', note_type,
-          'content', "content",
-          'noteDate', ni."date"
+          'Note type', note_type,
+          'Content', "content",
+          'Note date', to_char(ni."date", 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
         ) order by ni.date desc
       ) "Notes"
     from note_pages np
@@ -207,18 +207,18 @@ with
       e.id encounter_id,
       case when count("from") = 0
         then json_build_array(json_build_object(
-          'department', d.name,
-          'assignedTime', e.start_date
+          'Department', d.name,
+          'Assigned time', to_char(e.start_date, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
         ))
         else 
           array_to_json(json_build_object(
-            'department', first_from, --first "from" from note
-            'assignedTime', e.start_date
+            'Department', first_from, --first "from" from note
+            'Assigned time', to_char(e.start_date, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
           ) ||
           array_agg(
             json_build_object(
-              'department', "to",
-              'assignedTime', nh.date
+              'Department', "to",
+              'Assigned time', to_char(nh.date, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
             ) ORDER BY nh.date
           ))
       end department_history
@@ -243,18 +243,18 @@ with
       e.id encounter_id,
       case when count("from") = 0
         then json_build_array(json_build_object(
-          'location', l.name,
-          'assignedTime', e.start_date
+          'Location', l.name,
+          'Assigned time', to_char(e.start_date, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
         ))
         else 
           array_to_json(json_build_object(
-            'location', first_from, --first "from" from note
-            'assignedTime', e.start_date
+            'Location', first_from, --first "from" from note
+            'Assigned time', to_char(e.start_date, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
           ) ||
           array_agg(
             json_build_object(
-              'location', "to",
-              'assignedTime', nh.date
+              'Location', "to",
+              'Assigned time', to_char(nh.date, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
             ) ORDER BY nh.date
           ))
       end location_history
