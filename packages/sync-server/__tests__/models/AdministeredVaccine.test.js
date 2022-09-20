@@ -1,18 +1,19 @@
 import { v4 as uuidv4 } from 'uuid';
-import { fake, fakeUser } from 'shared/test-helpers';
 import { add } from 'date-fns';
-import { fakeReferenceData } from 'shared/test-helpers/fake';
-import { initDb } from '../initDb';
+import { fake, fakeUser, fakeReferenceData } from 'shared/test-helpers/fake';
+
+import { createTestContext } from '../utilities';
+
 
 describe('AdministeredVaccine.lastVaccinationForPatient', () => {
+  let ctx;
   let models;
-  let context;
   const patientId = uuidv4();
   const encounterId = uuidv4();
 
   beforeAll(async () => {
-    context = await initDb({ testMode: true });
-    models = context.models;
+    ctx = await createTestContext();
+    models = ctx.store.models;
     const { Patient, Encounter, Department, Location, User, Facility, ReferenceData } = models;
 
     const examiner = await User.create(fakeUser());
@@ -55,7 +56,7 @@ describe('AdministeredVaccine.lastVaccinationForPatient', () => {
       locationId: loc.id,
     });
   });
-  afterAll(() => context.sequelize.close());
+  afterAll(() => ctx.close());
 
   afterEach(async () => {
     await models.AdministeredVaccine.truncate();
@@ -76,7 +77,7 @@ describe('AdministeredVaccine.lastVaccinationForPatient', () => {
 
       await AdministeredVaccine.create({
         ...fake(AdministeredVaccine),
-        id: 'first',
+        id: 'first1',
         status: 'GIVEN',
         date: add(now, { minutes: 1 }),
         scheduledVaccineId,
@@ -85,7 +86,7 @@ describe('AdministeredVaccine.lastVaccinationForPatient', () => {
 
       const vax = await AdministeredVaccine.create({
         ...fake(AdministeredVaccine),
-        id: 'last',
+        id: 'last1',
         status: 'GIVEN',
         date: add(now, { minutes: 2 }),
         scheduledVaccineId,
@@ -141,7 +142,7 @@ describe('AdministeredVaccine.lastVaccinationForPatient', () => {
 
       await AdministeredVaccine.create({
         ...fake(AdministeredVaccine),
-        id: 'first',
+        id: 'first2',
         status: 'GIVEN',
         date: add(now, { minutes: 1 }),
         scheduledVaccineId,
@@ -150,7 +151,7 @@ describe('AdministeredVaccine.lastVaccinationForPatient', () => {
 
       await AdministeredVaccine.create({
         ...fake(AdministeredVaccine),
-        id: 'first-covid',
+        id: 'first2-covid',
         status: 'GIVEN',
         date: add(now, { minutes: 2 }),
         scheduledVaccineId: covidScheduledVaccineId,
@@ -159,7 +160,7 @@ describe('AdministeredVaccine.lastVaccinationForPatient', () => {
 
       const vax = await AdministeredVaccine.create({
         ...fake(AdministeredVaccine),
-        id: 'last-covid',
+        id: 'last2-covid',
         status: 'GIVEN',
         date: add(now, { minutes: 3 }),
         scheduledVaccineId: covidScheduledVaccineId,
@@ -168,7 +169,7 @@ describe('AdministeredVaccine.lastVaccinationForPatient', () => {
 
       await AdministeredVaccine.create({
         ...fake(AdministeredVaccine),
-        id: 'last',
+        id: 'last2',
         status: 'GIVEN',
         date: add(now, { minutes: 4 }),
         scheduledVaccineId,
@@ -199,7 +200,7 @@ describe('AdministeredVaccine.lastVaccinationForPatient', () => {
 
       await AdministeredVaccine.create({
         ...fake(AdministeredVaccine),
-        id: 'first',
+        id: 'first3',
         status: 'GIVEN',
         date: add(now, { minutes: 1 }),
         scheduledVaccineId,
@@ -208,7 +209,7 @@ describe('AdministeredVaccine.lastVaccinationForPatient', () => {
 
       await AdministeredVaccine.create({
         ...fake(AdministeredVaccine),
-        id: 'last',
+        id: 'last3',
         status: 'GIVEN',
         date: add(now, { minutes: 2 }),
         scheduledVaccineId,
@@ -238,7 +239,7 @@ describe('AdministeredVaccine.lastVaccinationForPatient', () => {
 
       await AdministeredVaccine.create({
         ...fake(AdministeredVaccine),
-        id: 'first',
+        id: 'first4',
         status: 'GIVEN',
         date: add(now, { minutes: 1 }),
         scheduledVaccineId,
@@ -247,7 +248,7 @@ describe('AdministeredVaccine.lastVaccinationForPatient', () => {
 
       await AdministeredVaccine.create({
         ...fake(AdministeredVaccine),
-        id: 'last',
+        id: 'last4',
         status: 'GIVEN',
         date: add(now, { minutes: 2 }),
         scheduledVaccineId,

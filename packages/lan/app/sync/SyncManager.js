@@ -1,4 +1,5 @@
 import config from 'config';
+import { Op } from 'sequelize';
 
 import {
   shouldPush,
@@ -142,9 +143,6 @@ export class SyncManager {
   async exportAndPushChannel(model, channel) {
     log.debug(`SyncManager.exportAndPush: syncing`, { channel, model: model.name });
 
-    // don't push records created since we started syncing
-    this.localUntil = this.localUntil || Date.now();
-
     // export
     const plan = createExportPlan(model.sequelize, channel);
     const exportRecords = (cursor = null, limit = EXPORT_LIMIT) => {
@@ -152,16 +150,20 @@ export class SyncManager {
         limit,
         cursor,
       });
-      return executeExportPlan(plan, { since: cursor, limit, until: this.localUntil });
+      return executeExportPlan(plan, { since: cursor, limit });
     };
 
     // mark + unmark
     const markRecords = async () => {
+      const until = config?.sync?.allowUntil
+        ? { updatedAt: { [Op.lt]: new Date(this.localUntil) } }
+        : {};
       await model.update(
         { isPushing: true, markedForPush: false },
         {
           where: {
             markedForPush: true,
+            ...until,
           },
           // skip validation - no sync fields should be used in model validation
           validate: false,
@@ -213,6 +215,8 @@ export class SyncManager {
 
     const run = async () => {
       try {
+        this.localUntil = Date.now(); // don't push records created since we started syncing
+
         const startTimestampMs = Date.now();
         log.info(`SyncManager.runSync.run: began sync run`);
         const { models } = this.context;
