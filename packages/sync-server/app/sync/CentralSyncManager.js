@@ -42,32 +42,30 @@ export class CentralSyncManager {
       `SELECT nextval('sync_clock_sequence')`,
     );
     await sequelize.models.SyncSession.create({
-      sessionIndex: syncClockTick,
+      syncTick: syncClockTick,
       startTime,
       lastConnectionTime: startTime,
     });
-    return sessionIndex;
+    return { sessionId, syncClockTick };
   }
 
-  async connectToSession({ sequelize }, sessionIndex) {
+  async connectToSession({ sequelize }, sessionId) {
     const session = await sequelize.models.SyncSession.findOne({
-      where: { id: sessionIndex },
+      where: { id: sessionId },
     });
 
     if (!session) {
-      throw new Error(`Sync session ${sessionId} not found`);
+      throw new Error(`Sync session '${sessionId}' not found`);
     }
     await session.update({ lastConnectionTime: Date.now() });
 
     return session;
   }
 
-  async endSession(store, sessionIndex) {
-    const session = await this.connectToSession(sessionId);
-    log.info('Sync session ended', {
-      time: Date.now() - session.startTime,
-    });
-    await deleteSyncSession(store, sessionIndex);
+  async endSession(store, sessionId) {
+    const session = await this.connectToSession(store, sessionId);
+    log.info(`Sync session performed in ${(Date.now() - session.startTime) / 1000} seconds`);
+    await deleteSyncSession(store, sessionId);
   }
 
   // The hardest thing about sync is knowing what happens at the clock tick border - do we want
@@ -77,12 +75,13 @@ export class CentralSyncManager {
   // that are _below_ that tick, but also has all records locally _at_ that tick already - it must
   // have been the one that changed them, if they have an update tick unique to that device!
   // For sanity's sake, we use > consistently, because it aligns with "since"
-  async setPullFilter(sessionIndex, { fromSessionIndex, facilityId }, store) {
-    await this.connectToSession(store, sessionIndex);
+  async setPullFilter(sessionId, { since, facilityId }, store) {
+    await this.connectToSession(store, sessionId);
 
     const facilitySettings = await models.Setting.forFacility(facilityId);
 
     const { models } = store;
+
     // work out if any patients were newly marked for sync since this device last connected, and
     // include changes from all time for those patients
     const newPatientFacilities = await models.PatientFacility.findAll({
@@ -90,15 +89,13 @@ export class CentralSyncManager {
     });
     const patientIdsForFullSync = newPatientFacilities.map(n => n.patientId);
 
-    // Persisting records require multiple INSERT/DELETE steps.
-    // So need to bundle all the steps in 1 transaction so it can be all or nothing.
     await store.sequelize.transaction(async () => {
       await snapshotOutgoingChangesForCentral(
         getPatientLinkedModels(models),
         models,
         0,
         patientIdsForFullSync,
-        sessionIndex,
+        sessionId,
       );
 
       // get changes since the last successful sync for all other synced patients and independent
@@ -111,17 +108,15 @@ export class CentralSyncManager {
       await snapshotOutgoingChangesForCentral(
         getModelsForDirection(models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
         models,
-        fromSessionIndex,
+        since,
         patientIdsForRegularSync,
-        sessionIndex,
+        sessionId,
       );
 
-      await removeEchoedChanges(store, sessionIndex);
+      await removeEchoedChanges(store, sessionId);
     });
 
-    const total = await getOutgoingChangesCount(store, sessionIndex);
-
-    return total;
+    return getOutgoingChangesCount(store, sessionId);
   }
 
   async getOutgoingChanges(store, sessionId, { offset, limit }) {
@@ -149,10 +144,9 @@ export class CentralSyncManager {
     if (pageNumber === totalPages) {
       await store.sequelize.transaction(async () => {
         await saveIncomingChanges(
-          sequelize,
           models,
           getModelsForDirection(models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL),
-          sessionIndex,
+          sessionId,
           true,
         );
       });

@@ -1,16 +1,18 @@
 import { SYNC_SESSION_DIRECTION } from './constants';
 
-export const getOutgoingChangesCount = async (store, sessionIndex) => {
+export const getOutgoingChangesCount = async (store, sessionId) => {
   const [rows] = await store.sequelize.query(
     `
         SELECT COUNT(*) AS total
         FROM session_sync_records
-        WHERE session_index = :sessionIndex
+        JOIN sync_sessions
+          ON session.id = session_sync_records.session_id
+        WHERE session.id = :sessionId
           AND direction = :direction
     `,
     {
       replacements: {
-        sessionIndex,
+        sessionId,
         direction: SYNC_SESSION_DIRECTION.OUTGOING,
       },
     },

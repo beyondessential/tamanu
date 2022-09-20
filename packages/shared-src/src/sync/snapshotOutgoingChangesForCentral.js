@@ -8,11 +8,11 @@ const { readOnly, persistedCacheBatchSize } = config.sync;
 const snapshotChangesForModel = async (
   model,
   models,
-  fromSessionIndex,
+  since,
   patientIds,
-  sessionIndex,
+  sessionId,
 ) => {
-  const queryOptions = getModelOutgoingQueryOptions(model, patientIds, fromSessionIndex);
+  const queryOptions = getModelOutgoingQueryOptions(model, patientIds, since);
 
   if (!queryOptions) {
     return 0;
@@ -29,7 +29,7 @@ const snapshotChangesForModel = async (
       limit: persistedCacheBatchSize,
     });
     const sanitizedRecords = recordsChanged.map(r => ({
-      sessionIndex,
+      sessionId,
       direction: SYNC_SESSION_DIRECTION.OUTGOING,
       isDeleted: !!r.deletedAt,
       recordType: model.tableName,
@@ -46,9 +46,9 @@ const snapshotChangesForModel = async (
 export const snapshotOutgoingChangesForCentral = async (
   outgoingModels,
   models,
-  fromSessionIndex,
+  since,
   patientIds,
-  sessionIndex,
+  sessionId,
 ) => {
   if (readOnly) {
     return [];
@@ -60,9 +60,9 @@ export const snapshotOutgoingChangesForCentral = async (
     const modelChangesCount = await snapshotChangesForModel(
       model,
       models,
-      fromSessionIndex,
+      since,
       patientIds,
-      sessionIndex,
+      sessionId,
     );
 
     changesCount += modelChangesCount || 0;

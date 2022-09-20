@@ -3,9 +3,10 @@ import Sequelize, { QueryInterface } from 'sequelize';
 export async function up(query: QueryInterface): Promise<void> {
   await query.createTable('sync_sessions', {
     id: {
-      type: Sequelize.BIGINT,
+      type: Sequelize.UUID,
       allowNull: false,
       primaryKey: true,
+      defaultValue: Sequelize.UUIDV4,
     },
     created_at: {
       type: Sequelize.DATE,
@@ -29,7 +30,11 @@ export async function up(query: QueryInterface): Promise<void> {
       type: Sequelize.DATE,
       allowNull: false,
     },
-    updated_at_sync_index: {
+    sync_tick: {
+      type: Sequelize.BIGINT,
+      allowNull: false,
+    },
+    updated_at_sync_tick: {
       type: Sequelize.BIGINT,
     },
   });

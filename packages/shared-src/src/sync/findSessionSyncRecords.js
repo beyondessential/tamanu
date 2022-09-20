@@ -6,11 +6,11 @@ export const findSessionSyncRecords = async (
   recordType,
   limit,
   offset,
-  sessionIndex,
+  sessionId,
 ) => {
   const where = {
     recordType,
-    ...(isCentralServer ? { sessionIndex, direction: SYNC_SESSION_DIRECTION.INCOMING } : {}),
+    ...(isCentralServer ? { sessionId, direction: SYNC_SESSION_DIRECTION.INCOMING } : {}),
   };
 
   return models.SessionSyncRecord.findAll({

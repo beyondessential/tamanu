@@ -3,7 +3,7 @@ import Sequelize, { QueryInterface } from 'sequelize';
 export async function up(query: QueryInterface): Promise<void> {
   await query.createTable('session_sync_records', {
     id: {
-      type: Sequelize.STRING,
+      type: Sequelize.UUID,
       defaultValue: Sequelize.UUIDV4,
       allowNull: false,
       primaryKey: true,
@@ -22,8 +22,8 @@ export async function up(query: QueryInterface): Promise<void> {
       type: Sequelize.DATE,
       allowNull: true,
     },
-    session_index: {
-      type: Sequelize.BIGINT,
+    session_id: {
+      type: Sequelize.UUID,
       references: {
         model: 'sync_sessions',
         key: 'id',
@@ -50,7 +50,7 @@ export async function up(query: QueryInterface): Promise<void> {
       type: Sequelize.JSON,
       allowNull: false,
     },
-    updated_at_sync_index: {
+    updated_at_sync_tick: {
       type: Sequelize.BIGINT,
     },
   });

@@ -1,6 +1,6 @@
 import { Op } from 'sequelize';
 
-export const getModelOutgoingQueryOptions = (model, patientIds, fromSessionIndex) => {
+export const getModelOutgoingQueryOptions = (model, patientIds, since) => {
   const shouldFilterByPatient = !!model.buildSyncFilter && patientIds;
   if (shouldFilterByPatient && patientIds.length === 0) {
     return null;
@@ -8,7 +8,7 @@ export const getModelOutgoingQueryOptions = (model, patientIds, fromSessionIndex
 
   const patientFilter = shouldFilterByPatient && model.buildSyncFilter(patientIds);
   const baseFilter = {
-    where: { updatedAtSyncIndex: { [Op.gte]: fromSessionIndex } },
+    where: { updatedAtSyncTick: { [Op.gte]: since } },
   };
 
   return patientFilter

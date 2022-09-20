@@ -61,10 +61,9 @@ const saveChangesForModel = async (model, changes, isCentralServer) => {
 };
 
 const saveChangesForModelInBatches = async (
-  sequelize,
   model,
   models,
-  sessionIndex,
+  sessionId,
   recordType,
   isCentralServer,
 ) => {
@@ -72,7 +71,7 @@ const saveChangesForModelInBatches = async (
     isCentralServer,
     models,
     model.tableName,
-    sessionIndex,
+    sessionId,
   );
 
   const batchCount = Math.ceil(syncRecordsCount / persistedCacheBatchSize);
@@ -86,7 +85,7 @@ const saveChangesForModelInBatches = async (
       recordType,
       persistedCacheBatchSize,
       offset,
-      sessionIndex,
+      sessionId,
     );
 
     const batchRecordsToSave = batchRecords.map(r => r.dataValues);
@@ -95,20 +94,18 @@ const saveChangesForModelInBatches = async (
 };
 
 export const saveIncomingChanges = async (
-  sequelize,
   models,
   pulledModels,
-  sessionIndex,
+  sessionId,
   isCentralServer = false,
 ) => {
   const sortedModels = sortInDependencyOrder(pulledModels);
 
   for (const model of sortedModels) {
     await saveChangesForModelInBatches(
-      sequelize,
       model,
       models,
-      sessionIndex,
+      sessionId,
       model.tableName,
       isCentralServer,
     );
