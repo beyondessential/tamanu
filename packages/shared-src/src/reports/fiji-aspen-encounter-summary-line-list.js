@@ -405,5 +405,3 @@ export const dataGenerator = async ({ sequelize }, parameters = {}) => {
 };
 
 export const permission = 'Encounter';
-
-
