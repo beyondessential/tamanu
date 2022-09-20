@@ -13,7 +13,7 @@
       command: scripts/apply_and_revert_sync_server_migrations.sh
     - name: hygiene checks (on PR branches)
       type: parallel
-      exclude: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|klaus-|sima-|sepi-|da-)
+      exclude: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|stress-test-|klaus-|sima-|sepi-|da-)
       steps:
         - name: lint desktop app and servers
           service: app-without-db
@@ -31,39 +31,39 @@
           steps:
             - name: on main branches
               command: scripts/test.sh
-              tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-)
+              tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-)
             - name: on PR branches
               command: scripts/test.sh pr-coverage
-              exclude: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-)
+              exclude: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-)
         - name: the mobile app
           service: mobile
           command: "yarn test:coverage"
     - name: fix ssh for builds
-      tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|klaus-|sima-|sepi-|da-)
+      tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|stress-test-|klaus-|sima-|sepi-|da-)
       service: app-without-db
       command: /pre/scripts/fix_ssh.sh
     - name: build packages
-      tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|klaus-|sima-|sepi-|da-)
+      tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|stress-test-|klaus-|sima-|sepi-|da-)
       type: parallel
       steps:
         - name: for lan
-          tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|klaus-|sima-|sepi-|da-)
+          tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|stress-test-|klaus-|sima-|sepi-|da-)
           service: app-without-db
           command: ./scripts/build_package_release.sh lan
         - name: for desktop installer
           service: app-without-db
-          tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|klaus-|sima-|sepi-|da-)
+          tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|stress-test-|klaus-|sima-|sepi-|da-)
           command: ./scripts/build_desktop.sh build-only
         - name: for sync release
-          tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|klaus-|sima-|sepi-|da-)
+          tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|stress-test-|klaus-|sima-|sepi-|da-)
           service: app-without-db
           command: ./scripts/build_package_release.sh sync-server
         - name: for meta release
-          tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|klaus-|sima-|sepi-|da-)
+          tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|stress-test-|klaus-|sima-|sepi-|da-)
           service: app-without-db
           command: ./scripts/build_package_release.sh meta-server
     - name: push and deploy
-      tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|release-desktop-|klaus-|sima-|sepi-|da-)
+      tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|stress-test-|release-desktop-|klaus-|sima-|sepi-|da-)
       type: parallel
       steps:
         - name: the desktop installer
@@ -72,13 +72,13 @@
           command: ./scripts/build_desktop.sh build-and-release
         - name: all artefacts to s3
           service: awsdeployment
-          tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|klaus-|sima-|sepi-|da-)
+          tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|stress-test-|klaus-|sima-|sepi-|da-)
           command: ./scripts/push.sh
         # the following serial steps are a fix for a bug where version names can
         # collide if an application is deployed in parallel
         # see https://github.com/codeship-library/aws-utilities/issues/115
         - name: the sync server
-          tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|klaus-|sima-|sepi-|da-)
+          tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|stress-test-|klaus-|sima-|sepi-|da-)
           type: serial
           steps:
             - name: onto dev
@@ -93,6 +93,14 @@
               tag: ^uatrispacs-
               service: awsdeployment
               command: ./scripts/deploy_sync.sh uatrispacs tamanu-sync-server-uat-rispacs-16
+            - name: onto pmi uat
+              tag: ^uatpmi-
+              service: awsdeployment
+              command: ./scripts/deploy_sync.sh uatpmi tamanu-central-server-uat-pmi
+            - name: onto stress-test
+              tag: ^stress-tests-
+              service: awsdeployment
+              command: ./scripts/deploy_sync.sh stress-test tamanu-sync-server-stress-test
             - name: onto staging
               tag: ^(staging-)
               service: awsdeployment
@@ -126,7 +134,7 @@
               service: awsdeployment
               command: ./scripts/deploy_sync.sh da tamanu-central-server-da  
         - name: the lan server
-          tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|klaus-|sima-|sepi-|da-)
+          tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|klaus-|sima-|sepi-|da-)
           type: serial
           steps:
             - name: onto dev A
@@ -169,6 +177,10 @@
               tag: ^uatrispacs-
               service: awsdeployment
               command: ./scripts/deploy_lan.sh uatrispacs tamanu-facility-server-rispacs
+            - name: onto pmi uat
+              tag: ^uatpmi-
+              service: awsdeployment
+              command: ./scripts/deploy_lan.sh uatpmi tamanu-facility-server-uat-pmi
             - name: onto staging A
               tag: ^(staging-)
               service: awsdeployment
