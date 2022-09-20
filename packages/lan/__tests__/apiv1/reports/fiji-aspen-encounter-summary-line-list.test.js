@@ -10,6 +10,7 @@ import {
 } from 'shared/constants';
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from '../../utilities';
+import { MATCH_ANY } from '../../toMatchTabularReport';
 
 const fakeAllData = async models => {
   const { id: userId } = await models.User.create(fake(models.User));
@@ -328,174 +329,30 @@ describe('fijiAspenMediciReport', () => {
     expect(response).toHaveSucceeded();
     expect(response.body).toMatchTabularReport([
       {
-        'Patient ID': 0,
-        'First name': 0,
-        'Last name': 0,
-        'Date of birth': 0,
-        'Age': 0,
-        'Sex': 0,
-        'Patient billing type': 0,
-        'Encounter ID': 0,
-        'Encounter start date': 0,
-        'Encounter end date': 0,
-        'Encounter type': 0,
-        'Triage category': 0,
-        'Time seen following triage/Wait time (hh:mm)': 0,
-        'Department': 0,
-        'Location': 0,
-        'Reason for encounter': 0,
-        'Diagnosis': 0,
-        'Medications': 0,
-        'Vaccinations': 0,
-        'Procedures': 0,
-        'Lab requests': 0,
-        'Imaging requests': 0,
-        'Notes': 0,
+        'Patient ID': 'BTIO864386',
+        'First name': patient.firstName,
+        'Last name': patient.lastName,
+        'Date of birth': '1952-10-12',
+        'Age': MATCH_ANY,
+        'Sex': patient.sex,
+        'Patient billing type': 'Public',
+        'Encounter ID': encounterId,
+        'Encounter start date': "2022-06-09 12:02 AM",
+        'Encounter end date': "2022-06-12 12:02 AM",
+        'Encounter type': 'Hospital admission',
+        'Triage category': "Priority",
+        'Time seen following triage/Wait time (hh:mm)': "1:3",
+        'Department': "department: Emergency dept., assignedTime: 2022-06-09T00:02:54.225+00:00",
+        'Location': "location: Emergency room 1, assignedTime: 2022-06-09T00:02:54.225+00:00; location: Emergency room 2, assignedTime: 2022-06-09T08:04:54.225+00:00",
+        'Reason for encounter': "Severe Migrane",
+        'Diagnosis': "Name: Acute subdural hematoma, Code: S06.5, Is primary?: primary, Certainty: confirmed; Name: Acute subdural hematoma, Code: S06.5, Is primary?: secondary, Certainty: suspected",
+        'Medications': "Name: Glucose (hypertonic) 5%, Discontinued: true, Discontinuing reason: It was not enough; Name: Glucose (hypertonic) 10%, Discontinued: false, Discontinuing reason: null",
+        'Vaccinations': "Name: Covid AZ, Label: Covid Schedule Label, Schedule: Dose 1",
+        'Procedures': "Name: Subtemporal cranial decompression (pseudotumor cerebri, slit ventricle syndrome), Code: 61340, Date: 2022-11-06, Location: Emergency room 1, Notes: All ready for procedure here, Completed notes: Everything went smoothly, no issues",
+        'Lab requests': "Tests: Name: Bicarbonate, Notes: noteType: other, content: Please perform this lab test very carefully, noteDate: 2022-06-09T02:04:54.225+00:00",
+        'Imaging requests': "name: xRay, areasToBeImaged: Left Leg; Right Leg, notes: noteType: other, content: Check for fractured knees please, noteDate: 2022-06-10T06:04:54.225+00:00",
+        'Notes': "noteType: nursing, content: H\nI\nJ\nK\nL... nopqrstuv, noteDate: 2022-06-10T04:39:57.617+00:00; noteType: nursing, content: A\nB\nC\nD\nE\nF\nG\n, noteDate: 2022-06-10T03:39:57.617+00:00",
       }
     ]);
-
-    const hi = [{
-        // Patient Details
-        patientId: 'BTIO864386',
-        firstname: patient.firstName,
-        lastname: patient.lastName,
-        dateOfBirth: '1952-10-12',
-        age: expect.any(Number), // TODO
-        sex: patient.sex,
-
-        // Encounter Details
-        encounterId,
-        patientBillingType: 'Public',
-        encounterStartDate: '2022-06-09T00:02:54.225Z',
-        encounterEndDate: '2022-06-12T00:02:54.225Z',
-        encounterType: 'AR-DRG',
-        reasonForEncounter: 'Severe Migrane',
-
-        // New fields
-        weight: 2100,
-        hoursOfVentilation: 0, // Placeholder - always 0
-        leaveDays: 0, // Placeholder - always 0
-        visitType: 'Hospital admission',
-        episodeEndStatus: {
-          code: 'TRANSFER',
-          name: 'Transfer to another facility',
-        },
-        encounterDischargeDisposition: {
-          code: 'TRANSFER',
-          name: 'Transfer to another facility',
-        },
-
-        // Triage Details
-        triageCategory: 'Priority',
-        waitTime: '1:3', // h:m
-
-        // Location/Department
-        locations: [
-          {
-            location: 'Emergency room 1',
-            assignedTime: '2022-06-09T00:02:54.225+00:00',
-          },
-          {
-            location: 'Emergency room 2',
-            assignedTime: '2022-06-09T08:04:54.225+00:00',
-          },
-        ],
-        departments: [
-          {
-            department: 'Emergency dept.',
-            assignedTime: '2022-06-09T00:02:54.225+00:00',
-          },
-        ],
-
-        // Encounter Relations
-        diagnoses: [
-          {
-            name: 'Acute subdural hematoma',
-            code: 'S06.5',
-            isPrimary: true,
-            certainty: DIAGNOSIS_CERTAINTY.CONFIRMED,
-          },
-          {
-            name: 'Acute subdural hematoma',
-            code: 'S06.5',
-            isPrimary: false,
-            certainty: DIAGNOSIS_CERTAINTY.SUSPECTED,
-          },
-        ],
-        medications: [
-          {
-            name: 'Glucose (hypertonic) 10%',
-            discontinued: false,
-            discontinuedDate: null,
-            discontinuingReason: null,
-          },
-          {
-            name: 'Glucose (hypertonic) 5%',
-            discontinued: true,
-            discontinuedDate: '2022-06-10T01:19:54.225+00:00',
-            discontinuingReason: 'It was not enough',
-          },
-        ],
-        vaccinations: [
-          {
-            label: 'Covid Schedule Label',
-            name: 'Covid AZ',
-            schedule: 'Dose 1',
-          },
-        ],
-        procedures: [
-          {
-            name:
-              'Subtemporal cranial decompression (pseudotumor cerebri, slit ventricle syndrome)',
-            code: '61340',
-            date: '2022-06-11T01:20:54.225+00:00',
-            location: 'Emergency room 1',
-            notes: 'All ready for procedure here',
-            completedNotes: 'Everything went smoothly, no issues',
-          },
-        ],
-        labRequests: [
-          {
-            tests: [
-              {
-                name: 'Bicarbonate',
-              },
-            ],
-            notes: [
-              {
-                noteType: NOTE_TYPES.OTHER,
-                content: 'Please perform this lab test very carefully',
-                noteDate: '2022-06-09T02:04:54.225+00:00',
-              },
-            ],
-          },
-        ],
-        imagingRequests: [
-          {
-            name: 'xRay',
-            areasToBeImaged: ['Left Leg', 'Right Leg'],
-            notes: [
-              {
-                noteType: 'other',
-                content: 'Check for fractured knees please',
-                noteDate: '2022-06-10T06:04:54.225+00:00',
-              },
-            ],
-          },
-        ],
-        notes: [
-          {
-            noteType: NOTE_TYPES.NURSING,
-            content: 'H\nI\nJ\nK\nL... nopqrstuv',
-            noteDate: '2022-06-10T04:39:57.617+00:00',
-          },
-          {
-            noteType: NOTE_TYPES.NURSING,
-            content: 'A\nB\nC\nD\nE\nF\nG\n',
-            noteDate: '2022-06-10T03:39:57.617+00:00',
-          },
-        ],
-      },
-    ];
   });
 });
