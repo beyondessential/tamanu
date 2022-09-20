@@ -16,6 +16,10 @@ module.exports = {
     if (!serverFacilityId) {
       return; // probably a central server, this migration is not required
     }
+    const [[facilityCount]] = await query.sequelize.query(`SELECT count(*) FROM facilities;`);
+    if (facilityCount === 0) {
+      return; // db not yet populated with facilities, probably a new setup or test db that should have the setting manually set
+    }
     await query.sequelize.query(`
       INSERT INTO settings
         (id, key, value, facility_id, created_at, updated_at)
