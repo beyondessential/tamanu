@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { Model } from './Model';
+import { dateTimeType } from './dateTimeTypes';
 
 export class OneTimeLogin extends Model {
   static init({ primaryKey, ...options }) {
@@ -7,8 +8,8 @@ export class OneTimeLogin extends Model {
       {
         id: primaryKey,
         token: { type: Sequelize.STRING, allowNull: false },
-        expiresAt: { type: Sequelize.DATE, allowNull: false },
-        usedAt: { type: Sequelize.DATE, allowNull: true },
+        expiresAt: dateTimeType('expiresAt', { allowNull: false }),
+        usedAt: dateTimeType('usedAt', { allowNull: false }),
       },
       options,
     );

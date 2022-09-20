@@ -4,6 +4,7 @@ import { PROGRAM_DATA_ELEMENT_TYPES } from 'shared/constants';
 import { Model } from './Model';
 import { runCalculations } from '../utils/calculations';
 import { getStringValue, getResultValue } from '../utils/fields';
+import { dateTimeType } from './dateTimeTypes';
 
 async function createPatientIssues(models, questions, patientId) {
   const issueQuestions = questions.filter(
@@ -75,9 +76,8 @@ export class SurveyResponse extends Model {
     super.init(
       {
         id: primaryKey,
-
-        startTime: { type: Sequelize.DATE, allowNull: true },
-        endTime: { type: Sequelize.DATE, allowNull: true },
+        startTime: dateTimeType('startTime', { allowNull: true }),
+        endTime: dateTimeType('endTime', { allowNull: true }),
         result: { type: Sequelize.FLOAT, allowNull: true },
         resultText: { type: Sequelize.TEXT, allowNull: true },
       },
