@@ -46,12 +46,13 @@ with
       record_id,
       json_agg(
         json_build_object(
-          'Note type', note_type,
-          'Content', "content",
-          'Note date', to_char("date", 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
+          'noteType', note_type,
+          'content', "content",
+          'noteDate', ni."date"
         ) 
       ) aggregated_notes
-    from notes
+    from note_pages np
+    join note_items ni on ni.note_page_id = np.id
     group by record_id
   ),
   lab_test_info as (
@@ -143,60 +144,27 @@ with
     join reference_data drug on drug.id = sv.vaccine_id 
     group by encounter_id
   ),
-  single_image_info as (
+  imaging_areas_by_request as (
     select
-      ir.encounter_id,
-      json_build_object(
-        'Name', imaging_types.imaging_type_label,
-        'Area to be imaged', array_to_string(coalesce(area_names, array[area_notes.aggregated_notes]), ','), 
-        'Notes', non_area_notes.aggregated_notes
-      ) "data"
-    from imaging_requests ir
-
-    inner join (
-      select 
-        key, trim('"' from value::text) as imaging_type_label from jsonb_each(:imaging_area_labels)) as imaging_types
-    on ir.imaging_type = imaging_types.key
-
-    left join (
-      select
-        record_id,
-        json_agg(note) aggregated_notes
-      from notes_info
-      cross join json_array_elements(aggregated_notes) note
-      where note->>'Note type' != '${NOTE_TYPES.AREA_TO_BE_IMAGED}' --cross join ok here as only 1 record will be matched
-      group by record_id
-    ) non_area_notes
-    on non_area_notes.record_id = ir.id 
-
-    left join (
-      select
-        record_id,
-        string_agg(note->>'Content', 'ERROR - SHOULD ONLY BE ONE AREA TO BE IMAGED') aggregated_notes
-      from notes_info
-      cross join json_array_elements(aggregated_notes) note
-      where note->>'Note type' = '${NOTE_TYPES.AREA_TO_BE_IMAGED}' --cross join ok here as only 1 record will be matched
-      group by record_id
-    ) area_notes
-    on area_notes.record_id = ir.id
-    
-    left join (
-      select
-        imaging_request_id,
-        array_agg(reference_data.name) as area_names
-      from imaging_request_areas
-      inner join reference_data
-      on area_id = reference_data.id
-      group by imaging_request_id)
-    reference_list 
-    on reference_list.imaging_request_id = ir.id
+      imaging_request_id,
+      json_agg(coalesce(area.name, '__UNKNOWN__AREA__') order by area.name) areas_to_be_imaged
+    from imaging_request_areas ira
+    left join reference_data area on area.id =  ira.area_id
+    group by imaging_request_id
   ),
-
   imaging_info as (
     select
-      encounter_id,
-      json_agg("data") "Imaging requests"
-    from single_image_info
+      ir.encounter_id,
+      json_agg(
+        json_build_object(
+          'name', ir.imaging_type,
+          'areasToBeImaged', areas_to_be_imaged,
+          'notes', to_json(aggregated_notes)
+        )
+      ) "Imaging requests"
+    from imaging_requests ir
+    left join notes_info ni on ni.record_id = ir.id
+    left join imaging_areas_by_request iabr on iabr.imaging_request_id = ir.id 
     group by encounter_id
   ),
   encounter_notes_info as (
@@ -205,12 +173,13 @@ with
       record_id encounter_id,
       json_agg(
         json_build_object(
-          'Note type', note_type,
-          'Content', "content",
-          'Note date', to_char("date", 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
-        ) order by "date" desc
+          'noteType', note_type,
+          'content', "content",
+          'noteDate', ni."date"
+        ) order by ni.date desc
       ) "Notes"
-    from notes
+    from note_pages np
+    join note_items ni on ni.note_page_id = np.id
     where note_type != 'system'
     group by record_id
   ),
@@ -220,42 +189,43 @@ with
       matched_vals[1] place,
       matched_vals[2] "from",
       matched_vals[3] "to",
-      date
-    from notes n,
-      lateral (select regexp_matches("content", 'Changed (.*) from (.*) to (.*)') matched_vals) matched_vals,
-      lateral (select matched_vals[1] place) place,
-      lateral (select matched_vals[2] "from") "from",
-      lateral (select matched_vals[3] "to") "to"
-    where note_type = 'system'
-    and record_type = 'encounter'
-    and "content" ~ 'Changed (.*) from (.*) to (.*)'
+      ni.date
+      from note_pages np
+      join note_items ni on ni.note_page_id = np.id
+      join (
+        select
+          id,
+          regexp_matches(content, 'Changed (.*) from (.*) to (.*)') matched_vals
+        from note_items
+      ) matched_vals
+      on matched_vals.id = ni.id 
+      where note_type = 'system'
+      and ni.content ~ 'Changed (.*) from (.*) to (.*)'
   ),
   department_info as (
-    select
+    select 
       e.id encounter_id,
       case when count("from") = 0
         then json_build_array(json_build_object(
-          'Department', d.name,
-          'Assigned time', to_char(e.start_date, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
+          'department', d.name,
+          'assignedTime', e.start_date
         ))
-        else json_build_array(
-          json_build_object(
-            'Department', first_from, --first "from" from note
-            'Assigned time', to_char(e.start_date, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
-          ),
-          json_agg(
+        else 
+          array_to_json(json_build_object(
+            'department', first_from, --first "from" from note
+            'assignedTime', e.start_date
+          ) ||
+          array_agg(
             json_build_object(
-              'Department', "to",
-              'Assigned time', to_char(nh.date, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
+              'department', "to",
+              'assignedTime', nh.date
             ) ORDER BY nh.date
-          )
-        )
-      end department_history,
-      json_agg(d2.id) dept_id_list
+          ))
+      end department_history
     from encounters e
     left join departments d on e.department_id = d.id
     left join note_history nh
-    on nh.encounter_id = e.id
+    on nh.encounter_id = e.id and nh.place = 'department'
     left join (
       select
         nh2.encounter_id enc_id,
@@ -266,37 +236,32 @@ with
       limit 1
     ) first_from
     on e.id = first_from.enc_id
-    left join departments d2 -- note: this may contain duplicates
-    on d2.name = nh."to" or d2.name = nh."from" or d2.id = d.id
-    where place = 'department' or place is null
     group by e.id, d.name, e.start_date, first_from
   ),
   location_info as (
-    select
+    select 
       e.id encounter_id,
       case when count("from") = 0
         then json_build_array(json_build_object(
-          'Location', l.name,
-          'Assigned time', to_char(e.start_date, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
+          'location', l.name,
+          'assignedTime', e.start_date
         ))
-        else json_build_array(
-          json_build_object(
-            'Location', first_from, --first "from" from note
-            'Assigned time', to_char(e.start_date, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
-          ),
-          json_agg(
+        else 
+          array_to_json(json_build_object(
+            'location', first_from, --first "from" from note
+            'assignedTime', e.start_date
+          ) ||
+          array_agg(
             json_build_object(
-              'Location', "to",
-              'Assigned time', to_char(nh.date, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
+              'location', "to",
+              'assignedTime', nh.date
             ) ORDER BY nh.date
-          )
-        )
-      end location_history,
-      json_agg(l2.id) loc_id_list
+          ))
+      end location_history
     from encounters e
     left join locations l on e.location_id = l.id
     left join note_history nh
-    on nh.encounter_id = e.id
+    on nh.encounter_id = e.id and nh.place = 'location'
     left join (
       select
         nh2.encounter_id enc_id,
@@ -307,9 +272,6 @@ with
       limit 1
     ) first_from
     on e.id = first_from.enc_id
-    left join locations l2 -- note: this may contain duplicates
-    on l2.name = nh."to" or l2.name = nh."from" or l2.id = l.id
-    where place = 'location' or place is null
     group by e.id, l.name, e.start_date, first_from
   ),
   triage_info as (
@@ -320,8 +282,8 @@ with
     lateral (
       select
         case when t.closed_time is null
-          then (extract(EPOCH from now()) - extract(EPOCH from t.triage_time))/60
-          else (extract(EPOCH from t.closed_time) - extract(EPOCH from t.triage_time))/60
+          then (extract(EPOCH from now()) - extract(EPOCH from t.triage_time::timestamp))/60
+          else (extract(EPOCH from t.closed_time::timestamp) - extract(EPOCH from t.triage_time::timestamp))/60
         end total_minutes
     ) total_minutes,
     lateral (select floor(total_minutes / 60) hours) hours,
@@ -381,8 +343,8 @@ left join location_info li on li.encounter_id = e.id
 left join department_info di2 on di2.encounter_id = e.id
 where e.end_date is not null
 and coalesce(billing.id, '-') like coalesce(:billing_type, '%%')
-and CASE WHEN :department_id IS NOT NULL THEN dept_id_list::jsonb ? :department_id ELSE true end 
-and CASE WHEN :location_id IS NOT NULL THEN loc_id_list::jsonb ? :location_id ELSE true end 
+-- and CASE WHEN :department_id IS NOT NULL THEN dept_id_list::jsonb ? :department_id ELSE true end 
+-- and CASE WHEN :location_id IS NOT NULL THEN loc_id_list::jsonb ? :location_id ELSE true end 
 AND CASE WHEN :from_date IS NOT NULL THEN e.start_date::date >= :from_date::date ELSE true END
 AND CASE WHEN :to_date IS NOT NULL THEN e.start_date::date <= :to_date::date ELSE true END
 order by e.start_date desc;
@@ -443,3 +405,5 @@ export const dataGenerator = async ({ sequelize }, parameters = {}) => {
 };
 
 export const permission = 'Encounter';
+
+

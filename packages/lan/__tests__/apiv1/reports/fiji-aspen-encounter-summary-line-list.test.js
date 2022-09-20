@@ -328,6 +328,33 @@ describe('fijiAspenMediciReport', () => {
     expect(response).toHaveSucceeded();
     expect(response.body).toMatchTabularReport([
       {
+        'Patient ID': 0,
+        'First name': 0,
+        'Last name': 0,
+        'Date of birth': 0,
+        'Age': 0,
+        'Sex': 0,
+        'Patient billing type': 0,
+        'Encounter ID': 0,
+        'Encounter start date': 0,
+        'Encounter end date': 0,
+        'Encounter type': 0,
+        'Triage category': 0,
+        'Time seen following triage/Wait time (hh:mm)': 0,
+        'Department': 0,
+        'Location': 0,
+        'Reason for encounter': 0,
+        'Diagnosis': 0,
+        'Medications': 0,
+        'Vaccinations': 0,
+        'Procedures': 0,
+        'Lab requests': 0,
+        'Imaging requests': 0,
+        'Notes': 0,
+      }
+    ]);
+
+    const hi = [{
         // Patient Details
         patientId: 'BTIO864386',
         firstname: patient.firstName,
@@ -469,6 +496,6 @@ describe('fijiAspenMediciReport', () => {
           },
         ],
       },
-    ]);
+    ];
   });
 });

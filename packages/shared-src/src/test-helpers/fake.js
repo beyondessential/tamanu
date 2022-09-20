@@ -198,6 +198,7 @@ const FIELD_HANDLERS = {
   TEXT: fakeString,
   INTEGER: fakeInt,
   FLOAT: fakeFloat,
+  DECIMAL: fakeFloat,
   'TINYINT(1)': fakeBool,
   BOOLEAN: fakeBool,
   ENUM: (model, { type }) => sample(type.values),
