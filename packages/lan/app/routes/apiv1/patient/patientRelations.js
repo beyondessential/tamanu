@@ -72,9 +72,7 @@ patientRelations.get(
   '/:id/referrals',
   asyncHandler(async (req, res) => {
     const { models, params } = req;
-
-    req.checkPermission('read', 'Patient');
-    req.checkPermission('read', 'Encounter');
+    req.checkPermission('list', 'SurveyResponse');
 
     const patientReferrals = await models.Referral.findAll({
       include: [
