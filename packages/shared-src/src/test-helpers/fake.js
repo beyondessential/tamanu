@@ -338,33 +338,49 @@ export const fake = (model, passedOverrides = {}) => {
 
   function fakeField(name, attribute) {
     const { type, fieldName } = attribute;
+
     if (fieldName === 'id') {
       return fakeUUID();
-    } else if (overrideFields.includes(fieldName)) {
+    }
+
+    if (overrideFields.includes(fieldName)) {
       return overrides[fieldName];
-    } else if (attribute.references) {
+    }
+
+    if (attribute.references) {
       // null out id fields
       return null;
-    } else if (IGNORED_FIELDS.includes(fieldName)) {
+    }
+
+    if (IGNORED_FIELDS.includes(fieldName)) {
       // ignore metadata fields
-    } else if (FIELD_HANDLERS[type]) {
+      return null;
+    }
+
+    if (FIELD_HANDLERS[type]) {
       return FIELD_HANDLERS[type](model, attribute, id);
-    } else if (type.type && FIELD_HANDLERS[type.type]) {
+    }
+
+    if (type.type && FIELD_HANDLERS[type.type]) {
       return FIELD_HANDLERS[type.type](model, attribute, id);
-    } else if (type instanceof DataTypes.ARRAY && type.options.type) {
+    }
+
+    if (type instanceof DataTypes.ARRAY && type.options.type) {
       return Array(random(0, 3))
         .fill(0)
         .map(() => fakeField(name, { ...attribute, type: type.options.type }));
-    } else if (type instanceof DataTypes.STRING && type.options.length) {
-      return FIELD_HANDLERS['VARCHAR(N)'](model, attribute, id, type.options.length);
-    } else {
-      // if you hit this error, you probably need to add a new field handler or a model-specific override
-      throw new Error(
-        `Could not fake field ${model.name}.${name} of type ${type} / ${type.type} / ${inspect(
-          type,
-        )}`,
-      );
     }
+
+    if (type instanceof DataTypes.STRING && type.options.length) {
+      return FIELD_HANDLERS['VARCHAR(N)'](model, attribute, id, type.options.length);
+    }
+
+    // if you hit this error, you probably need to add a new field handler or a model-specific override
+    throw new Error(
+      `Could not fake field ${model.name}.${name} of type ${type} / ${type.type} / ${inspect(
+        type,
+      )}`,
+    );
   }
 
   for (const [name, attribute] of Object.entries(model.tableAttributes)) {

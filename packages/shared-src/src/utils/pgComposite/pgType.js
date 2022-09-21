@@ -30,11 +30,9 @@ export class COMPOSITE extends ABSTRACT {
   }
 
   fieldSet(value) {
-    if (value instanceof this.constructor.ValueClass) {
-      return value.sqlFields();
-    } else {
-      return new this.constructor.ValueClass(value).sqlFields();
-    }
+    return value instanceof this.constructor.ValueClass
+      ? value.sqlFields()
+      : new this.constructor.ValueClass(value).sqlFields();
   }
 
   _stringify(value, options) {

@@ -34,10 +34,10 @@ async function showStatus(models) {
 
 async function doRefresh(resource, { existing, missing, models, since }) {
   if (resource.toLowerCase() === 'all') {
-    for (const resource of FHIR_RESOURCE_TYPES) {
-      const Resource = models[`Fhir${resource}`];
+    for (const res of FHIR_RESOURCE_TYPES) {
+      const Resource = models[`Fhir${res}`];
       if (!Resource?.UpstreamModel) continue;
-      await doRefresh(resource, { missing, models, since });
+      await doRefresh(res, { missing, models, since });
     }
     return;
   }
