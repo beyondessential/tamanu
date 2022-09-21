@@ -1,4 +1,5 @@
 import { Op } from 'sequelize';
+import config from 'config';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { log } from 'shared/services/logging';
 import {
@@ -8,15 +9,16 @@ import {
   removeEchoedChanges,
   saveIncomingChanges,
   deleteSyncSession,
+  deleteInactiveSyncSessions,
   getOutgoingChangesCount,
   SYNC_SESSION_DIRECTION,
 } from 'shared/sync';
+import { initDatabase } from '../database';
 import { getPatientLinkedModels } from './getPatientLinkedModels';
 
-// after 20 minutes of no activity, consider a session lapsed and wipe it to avoid holding invalid
-// changes in memory when a sync fails on the facility server end
-const LAPSE_AFTER_MILLISECONDS = 20 * 60 * 1000;
-const CHECK_LAPSED_SESSIONS_INTERVAL = 1 * 60 * 1000; // check once per minute
+// after x minutes of no activity, consider a session lapsed and wipe it to avoid holding invalid
+// changes in the database when a sync fails on the facility server end
+const { lapsedSessionSeconds, lapsedSessionCheckFrequencySeconds } = config.sync;
 
 export class CentralSyncManager {
   currentSyncTick;
@@ -24,12 +26,12 @@ export class CentralSyncManager {
   sessions = {};
 
   constructor() {
-    setInterval(this.purgeLapsedSessions, CHECK_LAPSED_SESSIONS_INTERVAL);
+    setInterval(this.purgeLapsedSessions, lapsedSessionCheckFrequencySeconds * 1000);
   }
 
-  purgeLapsedSessions = () => {
-    const oldestValidTime = Date.now() - LAPSE_AFTER_MILLISECONDS;
-    //TODO: Delete session and session records in the db
+  purgeLapsedSessions = async () => {
+    const store = await initDatabase({ testMode: false, syncClientMode: false });
+    await deleteInactiveSyncSessions(store, lapsedSessionSeconds);
   };
 
   async startSession({ sequelize }) {
