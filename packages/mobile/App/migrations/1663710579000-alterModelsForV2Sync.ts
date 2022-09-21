@@ -9,16 +9,16 @@ import {
 import { TABLE_DEFINITIONS } from './firstTimeSetup/databaseDefinition';
 import { getTable } from './utils/queryRunner';
 
-const ifExists = true;
-const ifNotExists = true;
+const ifExists = false;
+const ifNotExists = false;
 
-const updatedAtSyncTickIndex = new TableIndex({
+const updatedAtSyncTickIndex = {
   columnNames: ['updatedAtSyncTick'],
-});
+};
 
-const markedForUploadIndex = new TableIndex({
+const markedForUploadIndex = {
   columnNames: ['markedForUpload'],
-});
+};
 
 const BaseColumns = [
   new TableColumn({
@@ -87,10 +87,11 @@ const PatientFacilitiesTable = new Table({
   indices: [updatedAtSyncTickIndex],
 });
 
-export class updatePatientDateTimeColumns1661717539000 implements MigrationInterface {
+export class alterModelsForV2Sync1663710579000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
-    for (const table of TABLE_DEFINITIONS) {
-      const tableObject = await getTable(queryRunner, table);
+    console.log('RUNNING');
+    for (const tableName of TABLE_DEFINITIONS.map(t => t.name)) {
+      const table = await getTable(queryRunner, tableName);
 
       // remove column markedForUpload from all tables
       await queryRunner.dropColumn(table, 'markedForUpload');
@@ -100,7 +101,7 @@ export class updatePatientDateTimeColumns1661717539000 implements MigrationInter
 
       // add column updatedAtSyncTick to every model
       await queryRunner.addColumn(
-        tableObject,
+        table,
         new TableColumn({
           name: 'updatedAtSyncTick',
           type: 'bigint',
@@ -109,7 +110,7 @@ export class updatePatientDateTimeColumns1661717539000 implements MigrationInter
       );
 
       // add index on updatedAtSyncTick to every model
-      await queryRunner.createIndex(tableObject, updatedAtSyncTickIndex);
+      await queryRunner.createIndex(table, new TableIndex(updatedAtSyncTickIndex));
     }
 
     // remove column markedForSync from patient_additional_data
@@ -123,18 +124,19 @@ export class updatePatientDateTimeColumns1661717539000 implements MigrationInter
 
     // add table patient_facility
     await queryRunner.createTable(PatientFacilitiesTable, ifNotExists);
+    console.log('COMPLETE');
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
-    for (const table of TABLE_DEFINITIONS) {
-      const tableObject = await getTable(queryRunner, table);
+    for (const tableName of TABLE_DEFINITIONS.map(t => t.name)) {
+      const table = await getTable(queryRunner, tableName);
 
       // remove column updatedAtSyncTick from all tables
       await queryRunner.dropColumn(table, 'updatedAtSyncTick');
 
       // add column markedForUpload to every model
       await queryRunner.addColumn(
-        tableObject,
+        table,
         new TableColumn({
           name: 'markedForUpload',
           type: 'boolean',
@@ -144,7 +146,7 @@ export class updatePatientDateTimeColumns1661717539000 implements MigrationInter
 
       // add column upoadedAt to every model
       await queryRunner.addColumn(
-        tableObject,
+        table,
         new TableColumn({
           name: 'uploadedAt',
           type: 'datetime',
@@ -153,7 +155,7 @@ export class updatePatientDateTimeColumns1661717539000 implements MigrationInter
       );
 
       // add index on markedForUpload to every model
-      await queryRunner.createIndex(tableObject, markedForUploadIndex);
+      await queryRunner.createIndex(table, new TableIndex(markedForUploadIndex));
     }
 
     // add column markedForSync to patient_additional_data
@@ -181,7 +183,7 @@ export class updatePatientDateTimeColumns1661717539000 implements MigrationInter
     // drop table local_system_fact
     await queryRunner.dropTable('local_system_fact', ifExists);
 
-    // add table patient_facility
-    await queryRunner.createTable('patient_facility', ifExists);
+    // drop table patient_facility
+    await queryRunner.dropTable('patient_facility', ifExists);
   }
 }
