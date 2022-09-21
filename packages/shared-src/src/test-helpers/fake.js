@@ -1,5 +1,4 @@
 import { random, sample } from 'lodash';
-import { v4 as uuidv4 } from 'uuid';
 import Chance from 'chance';
 import { DataTypes } from 'sequelize';
 import { inspect } from 'util';
@@ -11,8 +10,9 @@ import {
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
   REFERENCE_TYPE_VALUES,
   VISIBILITY_STATUSES,
-} from 'shared/constants';
+} from '../constants';
 import { toDateTimeString, toDateString } from '../utils/dateTime';
+import { fakeUUID } from '../utils/generateId';
 import {
   FhirIdentifier,
   FhirPeriod,
@@ -36,7 +36,7 @@ export function fakeStringFields(prefix, fields) {
 }
 
 export function fakeScheduledVaccine(prefix = 'test-') {
-  const id = uuidv4();
+  const id = fakeUUID();
   return {
     weeksFromBirthDue: random(0, 1000),
     weeksFromLastVaccinationDue: null,
@@ -53,7 +53,7 @@ export function fakeScheduledVaccine(prefix = 'test-') {
 }
 
 export function fakeSurvey(prefix = 'test-') {
-  const id = uuidv4();
+  const id = fakeUUID();
   return {
     programId: null,
     surveyType: 'programs',
@@ -63,7 +63,7 @@ export function fakeSurvey(prefix = 'test-') {
 }
 
 export function fakeSurveyScreenComponent(prefix = 'test-') {
-  const id = uuidv4();
+  const id = fakeUUID();
   return {
     surveyId: null,
     dataElementId: null,
@@ -83,7 +83,7 @@ export function fakeSurveyScreenComponent(prefix = 'test-') {
 }
 
 export function fakeProgramDataElement(prefix = 'test-') {
-  const id = uuidv4();
+  const id = fakeUUID();
   return {
     type: sample(PROGRAM_DATA_ELEMENT_TYPE_VALUES),
     ...fakeStringFields(`${prefix}programDataElement_${id}_`, [
@@ -98,7 +98,7 @@ export function fakeProgramDataElement(prefix = 'test-') {
 }
 
 export function fakeReferenceData(prefix = 'test-') {
-  const id = uuidv4();
+  const id = fakeUUID();
   return {
     type: sample(REFERENCE_TYPE_VALUES),
     visibilityStatus: VISIBILITY_STATUSES.CURRENT,
@@ -107,17 +107,17 @@ export function fakeReferenceData(prefix = 'test-') {
 }
 
 export function fakeUser(prefix = 'test-') {
-  const id = uuidv4();
+  const id = fakeUUID();
   return fakeStringFields(`${prefix}user_${id}_`, ['id', 'email', 'displayName', 'role']);
 }
 
 export function fakeProgram(prefix = 'test-') {
-  const id = uuidv4();
+  const id = fakeUUID();
   return fakeStringFields(`${prefix}program_${id})_`, ['id', 'name', 'code']);
 }
 
 export function fakeAdministeredVaccine(prefix = 'test-', scheduledVaccineId) {
-  const id = uuidv4();
+  const id = fakeUUID();
   return {
     encounterId: null,
     scheduledVaccineId,
@@ -127,7 +127,7 @@ export function fakeAdministeredVaccine(prefix = 'test-', scheduledVaccineId) {
 }
 
 export function fakeEncounter(prefix = 'test-') {
-  const id = uuidv4();
+  const id = fakeUUID();
   return {
     deviceId: null,
     surveyResponses: [],
@@ -140,7 +140,7 @@ export function fakeEncounter(prefix = 'test-') {
 }
 
 export function fakeSurveyResponse(prefix = 'test-') {
-  const id = uuidv4();
+  const id = fakeUUID();
   return {
     answers: [],
     encounterId: null,
@@ -153,7 +153,7 @@ export function fakeSurveyResponse(prefix = 'test-') {
 }
 
 export function fakeSurveyResponseAnswer(prefix = 'test-') {
-  const id = uuidv4();
+  const id = fakeUUID();
   return {
     dataElementId: null,
     responseId: null,
@@ -162,7 +162,7 @@ export function fakeSurveyResponseAnswer(prefix = 'test-') {
 }
 
 export function fakeEncounterDiagnosis(prefix = 'test-') {
-  const id = uuidv4();
+  const id = fakeUUID();
   return {
     certainty: sample(DIAGNOSIS_CERTAINTY_VALUES),
     date: new Date(random(0, Date.now())),
@@ -174,7 +174,7 @@ export function fakeEncounterDiagnosis(prefix = 'test-') {
 }
 
 export function fakeEncounterMedication(prefix = 'test-') {
-  const id = uuidv4();
+  const id = fakeUUID();
   return {
     date: new Date(random(0, Date.now())),
     endDate: new Date(random(0, Date.now())),
@@ -222,7 +222,7 @@ const FIELD_HANDLERS = {
   'TINYINT(1)': fakeBool,
   BOOLEAN: fakeBool,
   ENUM: (model, { type }) => sample(type.values),
-  UUID: () => uuidv4(),
+  UUID: () => fakeUUID(),
 
   FHIR_IDENTIFIER: (...args) => FhirIdentifier.fake(...args),
   FHIR_PERIOD: (...args) => FhirPeriod.fake(...args),
@@ -329,7 +329,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
 };
 
 export const fake = (model, passedOverrides = {}) => {
-  const id = uuidv4();
+  const id = fakeUUID();
   const record = {};
   const modelOverridesFn = MODEL_SPECIFIC_OVERRIDES[model.name];
   const modelOverrides = modelOverridesFn ? modelOverridesFn() : {};
@@ -339,7 +339,7 @@ export const fake = (model, passedOverrides = {}) => {
   function fakeField(name, attribute) {
     const { type, fieldName } = attribute;
     if (fieldName === 'id') {
-      return uuidv4();
+      return fakeUUID();
     } else if (overrideFields.includes(fieldName)) {
       return overrides[fieldName];
     }

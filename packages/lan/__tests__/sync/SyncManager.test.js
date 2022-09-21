@@ -1,11 +1,11 @@
 import { Op } from 'sequelize';
-import { v4 as uuidv4 } from 'uuid';
 
 import { REFERENCE_TYPES } from 'shared/constants';
 import { fake, buildNestedEncounter, upsertAssociations } from 'shared/test-helpers';
+import { toDateString } from 'shared/utils/dateTime';
+import { fakeUUID } from 'shared/utils/generateId';
 
 import { createTestContext } from '../utilities';
-import { toDateString } from 'shared/utils/dateTime';
 
 describe('SyncManager', () => {
   let ctx;
@@ -28,8 +28,8 @@ describe('SyncManager', () => {
     it('pulls pages of records and imports them', async () => {
       // arrange
       const records = [
-        { id: `test-${uuidv4()}`, code: 'r1', name: 'r1', type: REFERENCE_TYPES.DRUG },
-        { id: `test-${uuidv4()}`, code: 'new', name: 'r2', type: REFERENCE_TYPES.DRUG },
+        { id: fakeUUID(), code: 'r1', name: 'r1', type: REFERENCE_TYPES.DRUG },
+        { id: fakeUUID(), code: 'new', name: 'r2', type: REFERENCE_TYPES.DRUG },
       ];
       await ctx.models.ReferenceData.create({
         ...records[1],
@@ -67,7 +67,7 @@ describe('SyncManager', () => {
 
     it('stores and retrieves the last sync timestamp', async () => {
       // arrange
-      const data = { id: `test-${uuidv4()}`, code: 'r1', name: 'r1', type: REFERENCE_TYPES.DRUG };
+      const data = { id: fakeUUID(), code: 'r1', name: 'r1', type: REFERENCE_TYPES.DRUG };
       const channel = 'reference';
       const now = Date.now();
       ctx.remote.pull
@@ -249,7 +249,7 @@ describe('SyncManager', () => {
   describe('encounters on channels other than patient', () => {
     it('pushes them', async () => {
       // * arrange
-      const patientId = uuidv4();
+      const patientId = fakeUUID();
 
       // unrelated encounter
       const unrelatedEncounter = await buildNestedEncounter(ctx.models, patientId);

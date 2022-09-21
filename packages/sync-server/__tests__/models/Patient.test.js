@@ -1,12 +1,12 @@
-import { v4 as uuidv4 } from 'uuid';
 import { add } from 'date-fns';
 import { fake, fakeUser, fakeReferenceData } from 'shared/test-helpers/fake';
+import { fakeUUID } from 'shared/utils/generateId';
 
 import { createTestContext } from '../utilities';
 
 async function prepopulate(models) {
-  const patientId = uuidv4();
-  const encounterId = uuidv4();
+  const patientId = fakeUUID();
+  const encounterId = fakeUUID();
 
   const {
     AdministeredVaccine,
@@ -98,7 +98,7 @@ async function prepopulate(models) {
     status: 'published',
   });
 
-  const scheduledVaccineId = uuidv4();
+  const scheduledVaccineId = fakeUUID();
 
   await ScheduledVaccine.create({
     ...fake(ScheduledVaccine),
