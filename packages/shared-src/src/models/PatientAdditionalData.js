@@ -40,6 +40,7 @@ export class PatientAdditionalData extends Model {
         emergencyContactNumber: DataTypes.STRING,
         motherId: DataTypes.STRING,
         fatherId: DataTypes.STRING,
+        updatedAtByField: DataTypes.JSON,
       },
       {
         ...options,

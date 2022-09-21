@@ -4,7 +4,6 @@ export * from './generateVaccineCertificate';
 export * from './loadSigner';
 export * from './migrate';
 export * from './printRoutes';
-export * from './removeDuplicatedPatientAdditionalData';
 export * from './report';
 export * from './saveCertificateRequest';
 export * from './serve';
