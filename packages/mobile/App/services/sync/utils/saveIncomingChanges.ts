@@ -20,7 +20,6 @@ import { readFileInDocuments } from '../../../ui/helpers/file';
 const saveChangesForModel = async (
   model: typeof BaseModel,
   changes: SyncRecord[],
-  progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
 ): Promise<void> => {
   // split changes into create, update, delete
   const idsForDelete = changes.filter(c => c.isDeleted).map(c => c.data.id);
@@ -51,9 +50,9 @@ const saveChangesForModel = async (
     .map(({ data }) => buildFromSyncRecord(model, data));
 
   // run each import process
-  await executeInserts(model, recordsForCreate, progressCallback);
-  await executeUpdates(model, recordsForUpdate, progressCallback);
-  await executeDeletes(model, idsForDelete, progressCallback);
+  await executeInserts(model, recordsForCreate);
+  await executeUpdates(model, recordsForUpdate);
+  await executeDeletes(model, idsForDelete);
 };
 
 /**
@@ -65,13 +64,14 @@ const saveChangesForModel = async (
  * @returns
  */
 export const saveIncomingChanges = async (
-  models: typeof MODELS_MAP,
+  incomingChangesCount: number,
   incomingModels: typeof MODELS_MAP,
   progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
 ): Promise<void> => {
   const sortedModels = await sortInDependencyOrder(incomingModels);
 
   let currentBatchIndex = 0;
+  let savedRecordsCount = 0;
 
   while (true) {
     const fileName = `batch${currentBatchIndex}.json`;
@@ -88,6 +88,7 @@ export const saveIncomingChanges = async (
     if (!batchString) {
       break;
     }
+
     const batch = JSON.parse(batchString);
     const recordsByType = groupBy(batch, 'recordType');
 
@@ -96,7 +97,11 @@ export const saveIncomingChanges = async (
       if (modelRecords === undefined) {
         continue;
       }
-      await saveChangesForModel(model, modelRecords, progressCallback);
+      await saveChangesForModel(model, modelRecords);
+
+      savedRecordsCount += modelRecords.length;
+      const progressMessage = `Stage 3/3: Saving ${incomingChangesCount} records`;
+      progressCallback(incomingChangesCount, savedRecordsCount, progressMessage);
     }
 
     currentBatchIndex++;

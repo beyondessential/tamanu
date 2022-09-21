@@ -212,7 +212,7 @@ export class MobileSyncManager {
       // Save all incoming changes in 1 transaction so that the whole sync session save
       // either fail 100% or suceed 100%, no partial save.
       await Database.client.transaction(async () => {
-        await saveIncomingChanges(this.models, incomingModels, this.updateProgress);
+        await saveIncomingChanges(incomingChangesCount, incomingModels, this.updateProgress);
 
         // update the last successful sync in the same save transaction,
         // if updating the cursor fails, we want to roll back the rest of the saves
