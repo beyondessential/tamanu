@@ -3,6 +3,7 @@ import Chance from 'chance';
 import http from 'http';
 
 import { seedDepartments, seedFacilities, seedLocations, seedLabTests } from 'shared/demoData';
+import { showError } from 'shared/test-helpers';
 
 import { createApp } from 'lan/app/createApp';
 import { initDatabase, closeDatabase } from 'lan/app/database';
@@ -107,7 +108,7 @@ export async function createTestContext() {
   // sync db and remove old test dat
   await sequelize.sync({});
 
-  await deleteAllTestIds(dbResult);
+  await showError(deleteAllTestIds(dbResult));
 
   // populate with reference data
   const tasks = allSeeds
