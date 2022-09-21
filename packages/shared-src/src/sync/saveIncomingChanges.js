@@ -60,12 +60,7 @@ const saveChangesForModelInBatches = async (
   recordType,
   isCentralServer,
 ) => {
-  const syncRecordsCount = await countSessionSyncRecords(
-    isCentralServer,
-    models,
-    model.tableName,
-    sessionId,
-  );
+  const syncRecordsCount = await countSessionSyncRecords(models, model.tableName, sessionId);
 
   const batchCount = Math.ceil(syncRecordsCount / persistedCacheBatchSize);
 
@@ -73,7 +68,6 @@ const saveChangesForModelInBatches = async (
     const offset = persistedCacheBatchSize * batchIndex;
 
     const batchRecords = await findSessionSyncRecords(
-      isCentralServer,
       models,
       recordType,
       persistedCacheBatchSize,
