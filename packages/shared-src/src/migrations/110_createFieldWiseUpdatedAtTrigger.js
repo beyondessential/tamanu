@@ -7,12 +7,17 @@ export async function up(query) {
       BEGIN
         -- unless the updated_at_by_field was explicitly provided (i.e. by a sync merge update),
         -- set any fields updated in this query to use the latest sync tick
-        IF (OLD.updated_at_by_field IS NULL OR OLD.updated_at_by_field::text = NEW.updated_at_by_field::text) THEN
+        IF (OLD IS NULL) THEN
+          SELECT JSON_OBJECT_AGG(new_json.key, (SELECT last_value FROM sync_clock_sequence))::jsonb
+          FROM jsonb_each(to_jsonb(NEW)) AS new_json
+          WHERE new_json.value <> 'null'::jsonb AND new_json.key <> 'updated_at_sync_tick' AND new_json.key <> 'updated_at_by_field'
+          INTO NEW.updated_at_by_field;
+        ELSIF (OLD.updated_at_by_field IS NULL OR OLD.updated_at_by_field::text = NEW.updated_at_by_field::text) THEN
           SELECT COALESCE(OLD.updated_at_by_field::jsonb, '{}'::jsonb) || COALESCE(JSON_OBJECT_AGG(changed_columns.column_name, (SELECT last_value FROM sync_clock_sequence))::jsonb, '{}'::jsonb) FROM (
             SELECT old_json.key AS column_name
             FROM jsonb_each(to_jsonb(OLD)) AS old_json
             CROSS JOIN jsonb_each(to_jsonb(NEW)) AS new_json
-            WHERE old_json.key = new_json.key AND new_json.value IS DISTINCT FROM old_json.value AND old_json.key <> 'updated_at_sync_index'
+            WHERE old_json.key = new_json.key AND new_json.value IS DISTINCT FROM old_json.value AND old_json.key <> 'updated_at_sync_tick' AND old_json.key <> 'updated_at_by_field'
           ) as changed_columns INTO NEW.updated_at_by_field;
         END IF;
         RETURN NEW;

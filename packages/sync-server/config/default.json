@@ -155,10 +155,6 @@
       "after": "2022-09-01",
       "labTestCategories": [],
       "labTestTypes": []
-    },
-    "duplicateAdditionalDataDeleter": {
-      "enabled": true,
-      "schedule": "*/15 * * * *"
     }
   },
   "integrations": {
