@@ -33,6 +33,8 @@ const TIME_OFFSET = 3;
 
 @Entity('encounter')
 export class Encounter extends BaseModel implements IEncounter {
+  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
+
   @Column({ type: 'varchar' })
   encounterType: EncounterType;
 
@@ -223,8 +225,6 @@ export class Encounter extends BaseModel implements IEncounter {
 
     return query.getRawMany();
   }
-
-  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
   @BeforeInsert()
   @BeforeUpdate()

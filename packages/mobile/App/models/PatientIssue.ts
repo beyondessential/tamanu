@@ -6,6 +6,8 @@ import { SYNC_DIRECTIONS } from './types';
 
 @Entity('patient_issue')
 export class PatientIssue extends BaseModel implements IPatientIssue {
+  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
+
   @Column({ nullable: true })
   note?: string;
 
@@ -22,8 +24,6 @@ export class PatientIssue extends BaseModel implements IPatientIssue {
   patient: Patient;
   @RelationId(({ patient }) => patient)
   patientId: string;
-
-  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
   // TODO: add everything below here to a mixin
   // https://www.typescriptlang.org/docs/handbook/mixins.html

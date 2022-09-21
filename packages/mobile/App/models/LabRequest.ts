@@ -12,8 +12,8 @@ import {
   IDataRequiredToCreateLabRequest,
   ILabRequest,
   LabRequestStatus,
-  DateString,
 } from '~/types';
+import { SYNC_DIRECTIONS } from './types';
 import { Encounter } from './Encounter';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { LabTest } from './LabTest';
@@ -22,6 +22,8 @@ import { ISO9075_SQLITE_DEFAULT } from './columnDefaults';
 
 @Entity('labRequest')
 export class LabRequest extends BaseModel implements ILabRequest {
+  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL
+
   @Column({ nullable: false, default: ISO9075_SQLITE_DEFAULT })
   sampleTime: string;
 

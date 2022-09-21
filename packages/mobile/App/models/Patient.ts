@@ -11,10 +11,14 @@ import { formatDateForQuery } from '~/infra/db/helpers';
 import { PatientAdditionalData } from './PatientAdditionalData';
 import { PatientFacility } from './PatientFacility';
 import { ReferenceData, NullableReferenceDataRelation } from './ReferenceData';
+import { SYNC_DIRECTIONS } from './types';
+
 const TIME_OFFSET = 3;
 
 @Entity('patient')
 export class Patient extends BaseModel implements IPatient {
+  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL
+
   @Column()
   displayId: string;
 
@@ -71,8 +75,6 @@ export class Patient extends BaseModel implements IPatient {
     secondaryId => secondaryId.patient,
   )
   secondaryIds: PatientSecondaryId[];
-
-  static shouldExport = true;
 
   static async markForSync(patientId: string): Promise<void> {
     const facilityId = await readConfig('facilityId', '');

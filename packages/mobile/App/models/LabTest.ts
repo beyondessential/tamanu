@@ -5,9 +5,12 @@ import { ILabTest, LabTestStatus } from '~/types';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { LabRequest } from './LabRequest';
 import { LabTestType } from './LabTestType';
+import { SYNC_DIRECTIONS } from './types';
 
 @Entity('labTest')
 export class LabTest extends BaseModel implements ILabTest {
+  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL
+
   // https://github.com/typeorm/typeorm/issues/877#issuecomment-772051282 (+ timezones??)
   @Column({ nullable: false, default: () => 'CURRENT_TIMESTAMP' })
   sampleTime: Date;

@@ -4,9 +4,12 @@ import { BaseModel } from './BaseModel';
 import { Department } from './Department';
 import { Location } from './Location';
 import { VisibilityStatus } from '../visibilityStatuses';
+import { SYNC_DIRECTIONS } from './types';
 
 @Entity('facility')
 export class Facility extends BaseModel implements IFacility {
+  static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
+
   @Column({ nullable: true })
   code?: string;
 

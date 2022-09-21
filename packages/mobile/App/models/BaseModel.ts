@@ -95,6 +95,15 @@ export abstract class BaseModel extends BaseEntity {
   @Column({ nullable: false, default: 0 })
   updatedAtSyncTick: number;
 
+  constructor() {
+    super();
+    const thisModel = this.constructor as typeof BaseModel;
+
+    if (!thisModel.syncDirection) {
+      throw new Error(`syncDirection is required for model ${this.constructor.name}`);
+    }
+  }
+
   @BeforeUpdate()
   async markForUpload(): Promise<void> {
     const thisModel = this.constructor as typeof BaseModel;
@@ -206,17 +215,13 @@ export abstract class BaseModel extends BaseEntity {
 
   static async postExportCleanUp() {}
 
-  static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
+  static syncDirection = null;
 
   static uploadLimit = 100;
 
   // Exclude these properties from uploaded model
   // May be columns or relationIds
-  static excludedSyncColumns: string[] = [
-    'createdAt',
-    'updatedAt',
-    'uploadedAt',
-  ];
+  static excludedSyncColumns: string[] = ['createdAt', 'updatedAt', 'uploadedAt'];
 
   // Include these relations on uploaded model
   // Does not currently handle lazy or embedded relations

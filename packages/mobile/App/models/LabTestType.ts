@@ -4,9 +4,12 @@ import { ILabTestType, LabTestResultType } from '~/types';
 import { BaseModel } from './BaseModel';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { VisibilityStatus } from '../visibilityStatuses';
+import { SYNC_DIRECTIONS } from './types';
 
 @Entity('labTestType')
 export class LabTestType extends BaseModel implements ILabTestType {
+  static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
+
   @Column({ nullable: false })
   code: string;
 
