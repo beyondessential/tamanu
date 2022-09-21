@@ -1,4 +1,5 @@
-/* global WeakRef -- https://github.com/eslint/eslint/issues/13602 */
+/* global WeakRef */
+// https://github.com/eslint/eslint/issues/13602
 
 import { Utils } from 'sequelize';
 import { formatISO9075 } from 'date-fns';

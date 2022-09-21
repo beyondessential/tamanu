@@ -44,13 +44,14 @@ async function doRefresh(resource, { existing, missing, models, since }) {
 
   const normalised = FHIR_RESOURCE_TYPES.find(r => r.toLowerCase() === resource.toLowerCase());
   if (!normalised) throw new Error(`No such FHIR Resource: ${resource}`);
-  
+
   const Resource = models[`Fhir${normalised}`];
   if (!Resource) throw new Error(`No matching FHIR Resource model: ${resource}`);
   if (!Resource.UpstreamModel) throw new Error('FHIR model is not configured for materialisation');
-  
-  const recordsToDo = (await Resource.sequelize.query(
-    `
+
+  const recordsToDo = (
+    await Resource.sequelize.query(
+      `
       SELECT upstream.id AS id
       FROM ${Resource.UpstreamModel.tableName} upstream
       LEFT JOIN fhir.${Resource.tableName} downstream ON downstream.upstream_id = upstream.id
@@ -60,9 +61,10 @@ async function doRefresh(resource, { existing, missing, models, since }) {
         ${existing ? 'AND downstream.id IS NOT NULL' : ''}
         ${since ? `AND upstream.updated_at > $1` : ''}
     `,
-    { type: QueryTypes.SELECT, bind: since ? [since] : [] },
-  )).map(({ id }) => id);
-  
+      { type: QueryTypes.SELECT, bind: since ? [since] : [] },
+    )
+  ).map(({ id }) => id);
+
   let done = 0;
   log.info(`Going to refresh ${recordsToDo.length} records...`);
   for (const upstreamId of recordsToDo) {

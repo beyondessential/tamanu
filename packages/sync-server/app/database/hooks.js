@@ -8,13 +8,9 @@ import { fhirQueue } from '../tasks/FhirMaterialiser';
 
 export async function addHooks(store) {
   if (config.notifications?.referralCreated) {
-    store.models.Referral.addHook(
-      'afterCreate',
-      'create referral notification hook',
-      referral => {
-        createReferralNotification(referral, store.models);
-      },
-    );
+    store.models.Referral.addHook('afterCreate', 'create referral notification hook', referral => {
+      createReferralNotification(referral, store.models);
+    });
   }
 
   if (config.integrations?.fhir) {

@@ -10,6 +10,7 @@ const USES = ['usual', 'official', 'temp', 'nickname', 'anonymous', 'old', 'maid
 
 export class FhirHumanName extends Composite {
   static FIELD_ORDER = ['use', 'text', 'family', 'given', 'prefix', 'suffix', 'period'];
+
   static SCHEMA = yup
     .object({
       use: yup
