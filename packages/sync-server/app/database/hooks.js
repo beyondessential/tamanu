@@ -1,19 +1,16 @@
 import config from 'config';
 
 import { createReferralNotification } from 'shared/tasks/CreateReferralNotification';
-import { fhirQueue } from '../tasks/FhirMaterialiser';
 import { FHIR_RESOURCE_TYPES } from 'shared/constants';
 import { log } from 'shared/services/logging';
 
+import { fhirQueue } from '../tasks/FhirMaterialiser';
+
 export async function addHooks(store) {
   if (config.notifications?.referralCreated) {
-    store.models.Referral.addHook(
-      'afterCreate',
-      'create referral notification hook',
-      referral => {
-        createReferralNotification(referral, store.models);
-      },
-    );
+    store.models.Referral.addHook('afterCreate', 'create referral notification hook', referral => {
+      createReferralNotification(referral, store.models);
+    });
   }
 
   if (config.integrations?.fhir) {

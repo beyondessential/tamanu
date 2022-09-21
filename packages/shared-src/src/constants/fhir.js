@@ -4,8 +4,6 @@
 // - add the migration for the versioning table:
 //   - the fhir.resource_enum type
 //   - the fhir.resource_type enum
-export const FHIR_RESOURCE_TYPES = {
-  PATIENT: 'Patient',
-  PRACTITIONER: 'Practitioner',
-  SERVICE_REQUEST: 'ServiceRequest',
-};
+
+// must be in dependency order
+export const FHIR_RESOURCE_TYPES = ['Patient', 'Practitioner', 'ServiceRequest'];

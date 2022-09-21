@@ -6,6 +6,7 @@ import { COMPOSITE, Composite } from '../../utils/pgComposite';
 
 export class FhirCoding extends Composite {
   static FIELD_ORDER = ['system', 'version', 'code', 'display', 'userSelected'];
+
   static SCHEMA = yup
     .object({
       system: yup

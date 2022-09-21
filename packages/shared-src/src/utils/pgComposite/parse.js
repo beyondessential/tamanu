@@ -71,7 +71,7 @@ export function parse(raw) {
   if (raw[raw.length - 1] !== ')') throw new Error('not a composite value: missing right paren');
 
   const tokens = [];
-  for (const [i, c] of enumerate(raw.slice(1, raw.length - 1))) {
+  for (const c of raw.slice(1, raw.length - 1)) {
     const last = tokens[tokens.length - 1];
     const lastIsEscapeBackslash = last instanceof EscapeOpen && last.char === '\\';
 

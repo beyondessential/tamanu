@@ -50,15 +50,18 @@ export async function startScheduledTasks(context) {
   }
 
   const reportSchedulers = await getReportSchedulers(context);
-  const tasks = [...taskClasses.map(Task => {
-    try {
-      log.debug(`Starting to initialise scheduled task ${Task.name}`);
-      return new Task(context);
-    } catch (err) {
-      log.warn(`Failed to initialise scheduled task ${Task.name}:\n${err}`);
-      return null;
-    }
-  }), ...reportSchedulers].filter(x => x);
+  const tasks = [
+    ...taskClasses.map(Task => {
+      try {
+        log.debug(`Starting to initialise scheduled task ${Task.name}`);
+        return new Task(context);
+      } catch (err) {
+        log.warn(`Failed to initialise scheduled task ${Task.name}:\n${err}`);
+        return null;
+      }
+    }),
+    ...reportSchedulers,
+  ].filter(x => x);
   tasks.forEach(t => t.beginPolling());
   return () => tasks.forEach(t => t.cancelPolling());
 }
