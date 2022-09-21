@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { fake } from 'shared/test-helpers/fake';
+import { fake, fakeUser } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 import { createEuDccVaccinationData } from '../../../app/integrations/EuDcc';
 
@@ -48,12 +48,14 @@ describe('EU DCC: Vaccination', () => {
   it('translates a vaccine to EU DCC format', async () => {
     // Arrange
     const {
-      Patient,
+      AdministeredVaccine,
+      Department,
       Encounter,
       Facility,
       Location,
+      Patient,
       ScheduledVaccine,
-      AdministeredVaccine,
+      User,
     } = ctx.store.models;
 
     const patient = await Patient.create({
@@ -81,10 +83,19 @@ describe('EU DCC: Vaccination', () => {
       facilityId: facility.id,
     });
 
+    const department = await Department.create({
+      ...fake(Department),
+      facilityId: facility.id,
+    });
+
+    const examiner = await User.create(fakeUser());
+
     const vaccineEncounter = await Encounter.create({
       ...fake(Encounter),
       patientId: patient.id,
       locationId: location.id,
+      departmentId: department.id,
+      examinerId: examiner.id,
     });
 
     const vax = await AdministeredVaccine.create({

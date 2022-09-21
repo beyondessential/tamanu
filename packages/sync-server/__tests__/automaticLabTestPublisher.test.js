@@ -105,18 +105,6 @@ describe('Lab test publisher', () => {
     expect(updatedLabTest.labRequest).toHaveProperty('status', LAB_REQUEST_STATUSES.PUBLISHED);
   });
 
-  it('Should set the updatedAt of its lab request and its encounter', async () => {
-    const { labTest, encounter } = await makeLabRequest('labTestType-RATPositive');
-    const then = Date.now();
-
-    await publisher.run();
-
-    const updatedLabTest = await models.LabTest.findByPk(labTest.id, { include: ['labRequest'] });
-    expect(updatedLabTest.labRequest.updatedAt.getTime()).toBeGreaterThan(then);
-    const updatedEncounter = await models.Encounter.findByPk(encounter.id);
-    expect(updatedEncounter.updatedAt.getTime()).toBeGreaterThan(then);
-  });
-
   it('Should publish a negative result', async () => {
     const { labTest, labRequest } = await makeLabRequest('labTestType-RATNegative');
     expect(labTest).toHaveProperty('result', '');
