@@ -124,7 +124,10 @@ export class MobileSyncManager {
 
     // the first step of sync is to start a session and retrieve the index used as both the id of
     // the session, and a marker on the global sync timeline
-    const { sessionId, syncTick: currentSyncTick } = await this.centralServer.startSyncSession();
+    const {
+      sessionId,
+      syncClockTick: currentSyncTick,
+    } = await this.centralServer.startSyncSession();
     const lastSuccessfulSyncTick = await getSyncTick('LastSuccessfulSyncTime');
 
     console.log(
@@ -193,7 +196,6 @@ export class MobileSyncManager {
 
     const incomingChangesCount = await pullIncomingChanges(
       this.centralServer,
-      this.models,
       sessionId,
       lastSuccessfulSyncTick,
       (total, downloadedChangesTotal) =>

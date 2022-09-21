@@ -221,7 +221,7 @@ export abstract class BaseModel extends BaseEntity {
 
   // Exclude these properties from uploaded model
   // May be columns or relationIds
-  static excludedSyncColumns: string[] = ['createdAt', 'updatedAt', 'uploadedAt'];
+  static excludedSyncColumns: string[] = ['createdAt', 'updatedAt'];
 
   // Include these relations on uploaded model
   // Does not currently handle lazy or embedded relations

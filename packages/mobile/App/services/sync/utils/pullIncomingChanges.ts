@@ -35,7 +35,7 @@ export const pullIncomingChanges = async (
   // pull changes a page at a time
   while (offset < totalToPull) {
     const startTime = Date.now();
-    const records = await centralServer.pull(currentSyncTick, limit, offset);
+    const records = await centralServer.pull(sessionId, limit, offset);
     const pullTime = Date.now() - startTime;
     const recordsToSave = records.map(r => ({
       ...r,

@@ -2,7 +2,8 @@ import { readFileInDocuments, deleteFileInDocuments } from '../../../ui/helpers/
 
 const readBatchString = async (fileName): Promise<string> => {
   try {
-    return readFileInDocuments(fileName, 'utf8');
+    // deliberately have return await here to catch error if file cannot be found
+    return await readFileInDocuments(fileName, 'utf8');
   } catch (e) {
     //ignore
   }
