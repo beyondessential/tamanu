@@ -39,10 +39,18 @@ const servers = [
   { name: 'Demo (Tuvalu)', type: 'demo', host: 'https://sync-demo-tuvalu.tamanu.io' },
 
   // development servers
+  { name: 'Beta', type: 'dev', host: 'https://central-beta.tamanu.io' },
   { name: 'Dev', type: 'dev', host: 'https://central-dev.tamanu.io' },
   { name: 'Staging', type: 'dev', host: 'https://central-staging.tamanu.io' },
-  { name: 'Stress testing', type: 'dev', host: 'https://sync-stress-test.tamanu.io' },
   { name: 'UAT', type: 'dev', host: 'https://sync-uat.tamanu.io' },
+  { name: 'UAT-PMI', type: 'dev', host: 'https://central-uat-pmi.tamanu.io' },
+  { name: 'UAT-Rispacs', type: 'dev', host: 'https://sync-uat-rispacs.tamanu.io' },
+
+  // tester maintained servers
+  { name: 'Tester (Da)', type: 'dev', host: 'https://central-da.tamanu.io' },
+  { name: 'Tester (Klaus)', type: 'dev', host: 'https://central-klaus.tamanu.io' },
+  { name: 'Tester (Sepi)', type: 'dev', host: 'https://central-sepi.tamanu.io' },
+  { name: 'Tester (Sima)', type: 'dev', host: 'https://central-sima.tamanu.io' },
 ];
 
 serversRouter.get('/', (req, res) => {

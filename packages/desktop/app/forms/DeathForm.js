@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { differenceInYears, differenceInMonths } from 'date-fns';
 import MuiBox from '@material-ui/core/Box';
 import { MANNER_OF_DEATHS, MANNER_OF_DEATH_OPTIONS } from 'shared/constants';
+import { ageInMonths, ageInYears } from 'shared/utils/dateTime';
 import {
   ArrayField,
   Button,
@@ -159,11 +160,8 @@ export const DeathForm = React.memo(
     icd10Suggester,
     facilitySuggester,
   }) => {
-    const patientYearsOld = differenceInYears(new Date(), patient.dateOfBirth);
-    const isAdultFemale = patient.sex === 'female' && patientYearsOld >= 12;
-
-    const patientMonthsOld = differenceInMonths(new Date(), patient.dateOfBirth);
-    const isInfant = patientMonthsOld <= 2;
+    const canBePregnant = patient.sex === 'female' && ageInYears(patient.dateOfBirth) >= 12;
+    const isInfant = ageInMonths(patient.dateOfBirth) <= 2;
 
     return (
       <PaginatedForm
@@ -293,7 +291,8 @@ export const DeathForm = React.memo(
           <Field
             name="lastSurgeryDate"
             label="What was the date of surgery"
-            component={DateTimeField}
+            component={DateField}
+            saveDateAsString
             visibilityCriteria={{ surgeryInLast4Weeks: 'yes' }}
           />
           <Field
@@ -304,7 +303,7 @@ export const DeathForm = React.memo(
             visibilityCriteria={{ surgeryInLast4Weeks: 'yes' }}
           />
         </StyledFormGrid>
-        {isAdultFemale ? (
+        {canBePregnant ? (
           <StyledFormGrid columns={1}>
             <Field
               name="pregnant"
