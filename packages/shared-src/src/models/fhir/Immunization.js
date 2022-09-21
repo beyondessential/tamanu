@@ -15,7 +15,7 @@ export class FhirImmunization extends FhirResource {
           allowNull: false,
         },
         vaccineCode: this.ArrayOf('vaccineCode', DataTypes.FHIR_CODEABLE_CONCEPT),
-        occurenceDateTime: dateType('occuranceDateTime', { allowNull: true }),
+        occurrenceDateTime: dateType('occuranceDateTime', { allowNull: true }),
         lotNumber: Sequelize.TEXT,
         site: this.ArrayOf('site', DataTypes.FHIR_CODEABLE_CONCEPT),
         performer: {}, // TODO: figure out field?
@@ -37,7 +37,6 @@ export class FhirImmunization extends FhirResource {
     });
   }
 
-  // TODO: add fields and check if any other models are missing from include (hint: yes)
   async updateMaterialisation() {
     const { ScheduledVaccine, Encounter, Patient, ReferenceData } = this.sequelize.models;
 

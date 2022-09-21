@@ -35,7 +35,6 @@ export class FhirDiagnosticReport extends FhirResource {
     });
   }
 
-  // TODO: add fields and check if any other models are missing from include (hint: yes)
   async updateMaterialisation() {
     const { LabRequest, LabTestType, ReferenceData, Encounter, Patient } = this.sequelize.models;
 
