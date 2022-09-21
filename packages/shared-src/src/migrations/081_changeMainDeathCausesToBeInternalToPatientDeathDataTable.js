@@ -1,4 +1,3 @@
-import config from 'config';
 import { STRING, INTEGER, QueryTypes } from 'sequelize';
 
 const MAIN_CAUSES = ['primary_cause', 'antecedent_cause1', 'antecedent_cause2'];
