@@ -37,11 +37,6 @@ export async function up(query) {
       type: Sequelize.STRING(16),
       allowNull: false,
     },
-    category: {
-      type: 'fhir.codeable_concept[]',
-      allowNull: false,
-      defaultValue: '{}',
-    },
     code: {
       type: 'fhir.codeable_concept[]',
       allowNull: false,
