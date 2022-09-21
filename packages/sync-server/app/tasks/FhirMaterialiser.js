@@ -65,11 +65,11 @@ export class FhirMaterialiser extends ScheduledTask {
     }
   }
 
-  async materialise(log, resource, upstreamId) {
-    log.debug('Starting materialise');
+  async materialise(logger, resource, upstreamId) {
+    logger.debug('Starting materialise');
     const start = +new Date();
     const result = await this.models[`Fhir${resource}`].materialiseFromUpstream(upstreamId);
-    log.debug('Done materialising', {
+    logger.debug('Done materialising', {
       resourceId: result.id,
       versionId: result.versionId,
       duration: +new Date() - start,

@@ -51,7 +51,8 @@ export class FhirPatient extends FhirResource {
       ],
     });
 
-    upstream.additionalData = (upstream.additionalData || [])[0];
+    const [first] = upstream.additionalData || [];
+    upstream.additionalData = first;
 
     this.set({
       identifier: identifiers(upstream),

@@ -9,6 +9,7 @@ const USES = ['home', 'work', 'temp', 'old', 'mobile'];
 
 export class FhirContactPoint extends Composite {
   static FIELD_ORDER = ['system', 'value', 'use', 'rank', 'period'];
+
   static SCHEMA = yup
     .object({
       system: yup

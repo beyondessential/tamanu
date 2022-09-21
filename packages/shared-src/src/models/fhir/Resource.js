@@ -46,10 +46,10 @@ export class FhirResource extends Model {
     );
   }
 
-  static ArrayOf(fieldName, type, overrides = {}) {
-    const entryType = typeof type === 'function' ? new type() : type;
+  static ArrayOf(fieldName, Type, overrides = {}) {
+    const entryType = typeof Type === 'function' ? new Type() : Type;
     return {
-      type: Sequelize.ARRAY(type),
+      type: Sequelize.ARRAY(Type),
       allowNull: false,
       defaultValue: [],
       get() {

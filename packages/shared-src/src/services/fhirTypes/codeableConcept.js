@@ -7,6 +7,7 @@ import { FhirCoding } from './coding';
 
 export class FhirCodeableConcept extends Composite {
   static FIELD_ORDER = ['coding', 'text'];
+
   static SCHEMA = yup
     .object({
       coding: yup

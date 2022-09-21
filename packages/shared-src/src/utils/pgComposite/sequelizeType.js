@@ -3,6 +3,7 @@ import { enumerate, parse } from './parse';
 
 export class Composite {
   static SCHEMA = object();
+
   static FIELD_ORDER = [];
 
   constructor(params) {
