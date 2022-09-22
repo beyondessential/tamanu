@@ -19,11 +19,13 @@ export function resourceHandler() {
 
     const sqlQuery = buildQuery(query, parameters, FhirResource);
     const total = await FhirResource.count(sqlQuery);
+    const records = await FhirResource.findAll(sqlQuery);
 
     res.send({
       total,
       sqlQuery,
       query: [...query],
+      records,
     });
   });
 }
