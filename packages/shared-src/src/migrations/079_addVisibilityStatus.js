@@ -11,14 +11,10 @@ const tables = [
 
 export async function up(query) {
   for (const table of tables) {
-    await query.addColumn(
-      table,
-      'visibility_status',
-      {
-        type: Sequelize.TEXT,
-        defaultValue: 'current',
-      },
-    );
+    await query.addColumn(table, 'visibility_status', {
+      type: Sequelize.TEXT,
+      defaultValue: 'current',
+    });
   }
 }
 

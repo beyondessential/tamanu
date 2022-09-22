@@ -1,4 +1,4 @@
-import { padStart, capitalize } from 'lodash';
+import { capitalize } from 'lodash';
 
 import { createValueIndex } from 'shared/utils/valueIndex';
 import {

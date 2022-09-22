@@ -32,7 +32,7 @@ describe('Reports', () => {
         status: 'published',
         userId: user.id,
         queryOptions: { parameters: [{ parameterField: 'EmailField', name: 'email' }] },
-        query: 'SELECT * from users WHERE email LIKE :email;',
+        query: 'SELECT id, email from users WHERE email LIKE :email;',
       });
     });
     it('should run a simple database defined report', async () => {

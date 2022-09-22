@@ -31,13 +31,21 @@ export const createPatientFilters = filterParams => {
       `patients.date_of_death IS NULL`,
     ),
     // For age filter
-    makeFilter(filterParams.ageMax, `DATE(patients.date_of_birth) >= DATE(:dobMin)`, ({ ageMax }) => ({
-      // Subtract the number of years, but add one day
+    makeFilter(
+      filterParams.ageMax,
+      `DATE(patients.date_of_birth) >= DATE(:dobMin)`,
+      ({ ageMax }) => ({
+        // Subtract the number of years, but add one day
         dobMin: sub(new Date(), { years: ageMax + 1, days: -1 }),
-    })),
-    makeFilter(filterParams.ageMin, `DATE(patients.date_of_birth) <= DATE(:dobMax)`, ({ ageMin }) => ({
-      dobMax: sub(new Date(), { years: ageMin }),
-    })),
+      }),
+    ),
+    makeFilter(
+      filterParams.ageMin,
+      `DATE(patients.date_of_birth) <= DATE(:dobMax)`,
+      ({ ageMin }) => ({
+        dobMax: sub(new Date(), { years: ageMin }),
+      }),
+    ),
     // For DOB filter
     makeFilter(
       filterParams.dateOfBirthFrom,

@@ -113,7 +113,7 @@ describe('Fiji NCD Primary Screening Summary', () => {
       await createDummyPatient(models, { sex: 'female', dateOfBirth: '2021-03-01T01:00:00.133Z' }),
     );
     await models.PatientAdditionalData.create({
-      patientId: expectedPatient3.id,
+      patientId: unusedPatient.id,
       ethnicityId: ETHNICITY_IDS.OTHERS,
     });
 

@@ -22,5 +22,4 @@ export async function up(query) {
 export async function down(query) {
   await query.removeColumn('patient_additional_data', 'mother_id');
   await query.removeColumn('patient_additional_data', 'father_id');
-
 }
