@@ -31,7 +31,7 @@ const ALLOWLIST = [
   'occupation',
   'patientBillingType',
   'patient',
-  'procedure',
+  'procedureType',
   'religion',
   'settlement',
   'subdivision',
