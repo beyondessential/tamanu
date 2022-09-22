@@ -6,6 +6,7 @@ import {
   decodeIdentifier,
   getHL7Link,
   parseQuery,
+  createBundledResource,
 } from './utils';
 
 // TODO (TAN-943): fix auth to throw an error if X-Tamanu-Client and X-Tamanu-Version aren't set
@@ -115,14 +116,5 @@ export async function getHL7Payload({
     total,
     link,
     entry,
-  };
-}
-
-// When a resource is included in a bundle it needs an extra wrapping.
-// This should only be done for main resources ATM.
-function createBundledResource(baseUrl, resource) {
-  return {
-    fullUrl: `${baseUrl}/${resource.id}`,
-    resource,
   };
 }
