@@ -347,6 +347,12 @@ export const fake = (model, passedOverrides = {}) => {
       return FIELD_HANDLERS[type.type](model, attribute, id);
     }
 
+    if (type instanceof DataTypes.ARRAY && type.options.type) {
+      return Array(random(0, 3))
+        .fill(0)
+        .map(() => fakeField(name, { ...attribute, type: type.options.type }));
+    }
+
     if (type instanceof DataTypes.STRING && type.options.length) {
       return FIELD_HANDLERS['VARCHAR(N)'](model, attribute, id, type.options.length);
     }
