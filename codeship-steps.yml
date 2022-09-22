@@ -34,7 +34,7 @@
               tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-)
             - name: on PR branches
               command: scripts/test.sh pr-coverage
-              exclude: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-)
+              exclude: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-)
         - name: the mobile app
           service: mobile
           command: "yarn test:coverage"
