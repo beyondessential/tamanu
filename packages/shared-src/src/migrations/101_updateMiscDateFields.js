@@ -2,13 +2,13 @@ import { DataTypes } from 'sequelize';
 
 const ISO9075_DATE_TIME_FMT = 'YYYY-MM-DD HH24:MI:SS';
 const MIGRATIONS = [
-  { TABLE: 'report_requests', FIELD: 'processStartedTime' },
-  { TABLE: 'survey_responses', FIELD: 'startTime' },
-  { TABLE: 'survey_responses', FIELD: 'endTime' },
-  { TABLE: 'one_time_logins', FIELD: 'expiresAt' },
-  { TABLE: 'one_time_logins', FIELD: 'usedAt' },
-  { TABLE: 'document_metadata', FIELD: 'documentCreatedAt' },
-  { TABLE: 'document_metadata', FIELD: 'documentUploadedAt' },
+  { TABLE: 'report_requests', FIELD: 'process_started_time' },
+  { TABLE: 'survey_responses', FIELD: 'start_time' },
+  { TABLE: 'survey_responses', FIELD: 'end_time' },
+  { TABLE: 'one_time_logins', FIELD: 'expires_at' },
+  { TABLE: 'one_time_logins', FIELD: 'used_at' },
+  { TABLE: 'document_metadata', FIELD: 'document_created_at' },
+  { TABLE: 'document_metadata', FIELD: 'document_Uploaded_at' },
 ];
 
 export async function up(query) {
