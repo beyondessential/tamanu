@@ -270,7 +270,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
       passport: chance.character() + chance.natural({ min: 10000000, max: 99999999 }).toString(),
       emergencyContactName: chance.name(),
       emergencyContactNumber: chance.phone(),
-      updatedByField: {},
+      updatedAtByField: {},
     };
   },
   PatientFacility: ({ patientId = uuidv4(), facilityId = uuidv4() }) => {

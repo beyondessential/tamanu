@@ -25,8 +25,17 @@ export class CentralSyncManager {
 
   sessions = {};
 
+  purgeInterval;
+
   constructor() {
-    setInterval(this.purgeLapsedSessions, lapsedSessionCheckFrequencySeconds * 1000);
+    this.purgeInterval = setInterval(
+      this.purgeLapsedSessions,
+      lapsedSessionCheckFrequencySeconds * 1000,
+    );
+  }
+
+  tearDown() {
+    clearInterval(this.purgeInterval);
   }
 
   purgeLapsedSessions = async () => {
