@@ -1,5 +1,9 @@
 import { Op, Sequelize } from 'sequelize';
-import { FHIR_SEARCH_PARAMETERS, FHIR_SEARCH_PREFIXES, MAX_RESOURCES_PER_PAGE } from 'shared/constants';
+import {
+  FHIR_SEARCH_PARAMETERS,
+  FHIR_SEARCH_PREFIXES,
+  MAX_RESOURCES_PER_PAGE,
+} from 'shared/constants';
 
 import { Unsupported } from './errors';
 import { RESULT_PARAMETER_NAMES } from './parameters';
@@ -7,9 +11,19 @@ import { RESULT_PARAMETER_NAMES } from './parameters';
 export function buildQuery(query, parameters, FhirResource) {
   const sql = {};
   if (query.has('_sort')) {
-    sql.order = query
-      .get('_sort')
-      .value.map(({ order, by }) => [findField(FhirResource, by).field, order]);
+    const ordering = [];
+    for (const { order, by } of query.get('_sort').value) {
+      const def = parameters.get(by);
+      if (def.path.length === 0) continue;
+
+      const alternates = def.path.map(([field, ...path]) => {
+        const resolvedPath = [findField(FhirResource, field).field, ...path];
+        return singleOrder(resolvedPath, order, def, FhirResource);
+      });
+
+      ordering.push(...alternates);
+    }
+    sql.order = ordering;
   }
 
   sql.limit = query.get('_count')?.value[0] ?? MAX_RESOURCES_PER_PAGE;
@@ -62,6 +76,19 @@ function singleMatch(path, paramQuery, paramDef, Model) {
         : Model.sequelize.escape(val);
     return Sequelize.where(Sequelize.literal(escaped), op, selector);
   });
+}
+
+function singleOrder(path, order, paramDef, Model) {
+  if (!path.includes('[]')) {
+    // path: ['a', 'b', 'c']
+    // sql: order by c(b(a)) desc
+    return [nestPath(path), order];
+  }
+
+  const runs = pathRuns(path);
+  if (runs.length > 1) {
+    throw new Error('cant do that yet');
+  }
 }
 
 function typedMatch(value, query, def) {
