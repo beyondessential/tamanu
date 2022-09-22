@@ -6,6 +6,6 @@ export async function up(query) {
 
 export async function down(query) {
   await query.sequelize.query(`
-    DROP INDEX session_sync_record_session_index_direction_index;
+    DROP INDEX session_sync_record_session_id_direction_index;
   `);
 }
