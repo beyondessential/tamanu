@@ -323,30 +323,45 @@ export const fake = (model, passedOverrides = {}) => {
   const overrides = { ...modelOverrides, ...passedOverrides };
   const overrideFields = Object.keys(overrides);
 
-  for (const [name, attribute] of Object.entries(model.tableAttributes)) {
+  function fakeField(name, attribute) {
     const { type, fieldName } = attribute;
-
     if (overrideFields.includes(fieldName)) {
-      record[name] = overrides[fieldName];
-    } else if (attribute.references) {
-      // null out id fields
-      record[name] = null;
-    } else if (IGNORED_FIELDS.includes(fieldName)) {
-      // ignore metadata fields
-    } else if (FIELD_HANDLERS[type]) {
-      record[name] = FIELD_HANDLERS[type](model, attribute, id);
-    } else if (type.type && FIELD_HANDLERS[type.type]) {
-      record[name] = FIELD_HANDLERS[type.type](model, attribute, id);
-    } else if (type instanceof DataTypes.STRING && type.options.length) {
-      record[name] = FIELD_HANDLERS['VARCHAR(N)'](model, attribute, id, type.options.length);
-    } else {
-      // if you hit this error, you probably need to add a new field handler or a model-specific override
-      throw new Error(
-        `Could not fake field ${model.name}.${name} of type ${type} / ${type.type} / ${inspect(
-          type,
-        )}`,
-      );
+      return overrides[fieldName];
     }
+
+    if (attribute.references) {
+      // null out id fields
+      return null;
+    }
+
+    if (IGNORED_FIELDS.includes(fieldName)) {
+      // ignore metadata fields
+      return undefined;
+    }
+
+    if (FIELD_HANDLERS[type]) {
+      return FIELD_HANDLERS[type](model, attribute, id);
+    }
+
+    if (type.type && FIELD_HANDLERS[type.type]) {
+      return FIELD_HANDLERS[type.type](model, attribute, id);
+    }
+
+    if (type instanceof DataTypes.STRING && type.options.length) {
+      return FIELD_HANDLERS['VARCHAR(N)'](model, attribute, id, type.options.length);
+    }
+
+    // if you hit this error, you probably need to add a new field handler or a model-specific override
+    throw new Error(
+      `Could not fake field ${model.name}.${name} of type ${type} / ${type.type} / ${inspect(
+        type,
+      )}`,
+    );
+  }
+
+  for (const [name, attribute] of Object.entries(model.tableAttributes)) {
+    const fakeValue = fakeField(name, attribute)
+    if (fakeValue !== undefined) record[name] = fakeValue;
   }
 
   return record;
