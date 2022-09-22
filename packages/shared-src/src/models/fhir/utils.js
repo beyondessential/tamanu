@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize';
 import array from 'postgres-array';
 
+import { VISIBILITY_STATUSES } from '../../constants';
 
 export function arrayOf(fieldName, Type, overrides = {}) {
   const entryType = typeof Type === 'function' ? new Type() : Type;
@@ -15,4 +16,11 @@ export function arrayOf(fieldName, Type, overrides = {}) {
     },
     ...overrides,
   };
+}
+
+export function activeFromVisibility(upstream) {
+  return (
+    (upstream.visibilityStatus === VISIBILITY_STATUSES.CURRENT && !upstream.deletedAt) ||
+    (upstream.visibilityStatus === VISIBILITY_STATUSES.MERGED && !!upstream.deletedAt)
+  );
 }

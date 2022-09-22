@@ -2,7 +2,7 @@ import config from 'config';
 import { Sequelize, DataTypes } from 'sequelize';
 
 import { FhirResource } from './Resource';
-import { arrayOf } from './utils';
+import { arrayOf, activeFromVisibility } from './utils';
 import { dateType } from '../dateTimeTypes';
 import { latestDateTime } from '../../utils/dateTime';
 import { VISIBILITY_STATUSES } from '../../constants';
@@ -57,7 +57,7 @@ export class FhirPatient extends FhirResource {
 
     this.set({
       identifier: identifiers(upstream),
-      active: upstream.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
+      active: activeFromVisibility(upstream.visibilityStatus),
       name: names(upstream),
       telecom: telecoms(upstream),
       gender: upstream.sex,
