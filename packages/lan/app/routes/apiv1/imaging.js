@@ -270,7 +270,7 @@ globalImagingRequests.get(
         operator: Op.gte,
         mapFn: (fieldName, operator, value) => ({
           [fieldName]: {
-            [operator]: startOfDay(value).toISOString(),
+            [operator]: startOfDay(new Date(value)).toISOString(),
           },
         }),
       },
@@ -280,7 +280,7 @@ globalImagingRequests.get(
         operator: Op.lte,
         mapFn: (fieldName, operator, value) => ({
           [fieldName]: {
-            [operator]: endOfDay(value).toISOString(),
+            [operator]: endOfDay(new Date(value)).toISOString(),
           },
         }),
       },
@@ -314,6 +314,7 @@ globalImagingRequests.get(
       include: [requestedBy, encounter, areas],
       limit: rowsPerPage,
       offset: page * rowsPerPage,
+      distinct: true,
     });
 
     // Extract and normalize data calling a base model method
