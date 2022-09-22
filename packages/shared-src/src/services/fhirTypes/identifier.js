@@ -1,51 +1,51 @@
-import { ValidationError } from 'sequelize';
+import { sample } from 'lodash';
+import { v4 as uuidv4 } from 'uuid';
 import * as yup from 'yup';
-import { isPlainObject } from 'lodash';
 
-import { COMPOSITE, stringify } from './common';
-import { PERIOD_SCHEMA } from './period';
+import { COMPOSITE, Composite } from './common';
+import { FhirPeriod } from './period';
 
-const IDENTIFIER_SCHEMA = yup
-  .object({
-    use: yup.string().optional(),
-    system: yup.string().optional(),
-    value: yup.string().optional(),
-    period: PERIOD_SCHEMA,
-    assigner: yup.string().optional(),
-  })
-  .noUnknown();
+const USES = ['usual', 'official', 'temp', 'secondary', 'old'];
 
-export class IDENTIFIER extends COMPOSITE {
-  constructor(use, system, value, period, assigner) {
-    super();
-    const options = isPlainObject(use) ? use : { use, system, value, period, assigner };
-    this.options = options;
-    this.use = options.use;
-    this.system = options.system;
-    this.value = options.value;
-    this.period = options.period;
-    this.assigner = options.assigner;
+export class FhirIdentifier extends Composite {
+  static FIELD_ORDER = ['use', 'system', 'value', 'period', 'assigner'];
+  static SCHEMA = yup
+    .object({
+      use: yup
+        .string()
+        .oneOf(USES)
+        .nullable()
+        .default(null),
+      system: yup
+        .string()
+        .nullable()
+        .default(null),
+      value: yup
+        .string()
+        .nullable()
+        .default(null),
+      period: yup
+        .mixed()
+        .test('is-fhir-period', 'must be a FhirPeriod', t => (t ? t instanceof FhirPeriod : true))
+        .nullable()
+        .default(null),
+      // could also be a reference (per spec) but we're using text
+      assigner: yup
+        .string()
+        .nullable()
+        .default(null),
+    })
+    .noUnknown();
+
+  static fake(model, { fieldName }, id) {
+    return new this({
+      use: sample(USES),
+      system: `${model.name}.${uuidv4()}`,
+      value: `${fieldName}.${id}`,
+    });
   }
+}
 
-  toSql() {
-    return 'fhir.identifier';
-  }
-
-  _stringify() {
-    return stringify([this.use, this.system, this.value, this.period._stringify(), this.assigner]);
-  }
-
-  validate(value) {
-    try {
-      IDENTIFIER_SCHEMA.validateSync(value);
-      return true;
-    } catch (err) {
-      throw new ValidationError(err.toString());
-    }
-  }
-
-  static parse(value) {
-    console.log(value);
-    return value;
-  }
+export class FHIR_IDENTIFIER extends COMPOSITE {
+  static ValueClass = FhirIdentifier;
 }

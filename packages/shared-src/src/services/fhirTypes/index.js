@@ -1,8 +1,11 @@
 import { newPgDataType } from './common';
-import { PERIOD } from './period';
-import { IDENTIFIER } from './identifier';
+import { FHIR_PERIOD } from './period';
+import { FHIR_IDENTIFIER } from './identifier';
 
 export function initFhirTypes() {
-  newPgDataType('PERIOD', PERIOD);
-  newPgDataType('IDENTIFIER', IDENTIFIER);
+  newPgDataType(FHIR_PERIOD);
+  newPgDataType(FHIR_IDENTIFIER);
 }
+
+export * from './period';
+export * from './identifier';

@@ -1,45 +1,43 @@
-import { ValidationError } from 'sequelize';
 import * as yup from 'yup';
-import { isPlainObject } from 'lodash';
 
 import { toDateTimeString } from 'shared/utils/dateTime';
-import { COMPOSITE, stringify } from './common';
+import { COMPOSITE, Composite } from './common';
 
-export const PERIOD_SCHEMA = yup
-  .object({
-    start: yup.string().optional(),
-    end: yup.string().optional(),
-  })
-  .noUnknown();
+export class FhirPeriod extends Composite {
+  static FIELD_ORDER = ['start', 'end'];
+  static SCHEMA = yup
+    .object({
+      start: yup
+        .date()
+        .nullable()
+        .default(null),
+      end: yup
+        .date()
+        .when('start', (start, schema) =>
+          start
+            ? schema.test('is-later-than-start', 'end must be later than start', end => end > start)
+            : schema,
+        )
+        .nullable()
+        .default(null),
+    })
+    .noUnknown();
 
-export class PERIOD extends COMPOSITE {
-  constructor(start, end) {
-    super();
-    const options = isPlainObject(start) ? start : { start, end };
-    this.options = options;
-    this.start = options.start;
-    this.end = options.end;
+  sqlFields(options) {
+    return super.sqlFields(options).map(toDateTimeString);
   }
 
-  toSql() {
-    return 'fhir.period';
-  }
+  static fake() {
+    const end = random(0, Date.now());
+    const start = end - random(0, end);
 
-  _stringify() {
-    return stringify(toDateTimeString(this.start), toDateTimeString(this.end));
+    return new this({
+      start: new Date(start),
+      end: new Date(end),
+    });
   }
+}
 
-  validate(value) {
-    try {
-      PERIOD_SCHEMA.validateSync(value);
-      return true;
-    } catch (err) {
-      throw new ValidationError(err.toString());
-    }
-  }
-
-  static parse(value) {
-    console.log(value);
-    return value;
-  }
+export class FHIR_PERIOD extends COMPOSITE {
+  static ValueClass = FhirPeriod;
 }
