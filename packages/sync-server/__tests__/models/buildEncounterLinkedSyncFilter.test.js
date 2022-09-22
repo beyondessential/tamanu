@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { buildEncounterLinkedSyncFilter } from '../../src/models/buildEncounterLinkedSyncFilter';
+import { buildEncounterLinkedSyncFilter } from 'shared/models/buildEncounterLinkedSyncFilter';
 
 const PATIENT_IDS = ['xxx', 'yyy', 'zzz'];
 const IN_PATIENT_IDS = {
