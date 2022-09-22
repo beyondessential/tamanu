@@ -127,6 +127,22 @@ export class FhirResource extends Model {
     return Number(rows[0]?.count || 0);
   }
 
+  asRecord() {
+    const meta = {
+      id: this.id,
+      versionId: this.versionId,
+      lastUpdated: this.lastUpdated,
+    };
+
+    const fields = {};
+    for (const name of Object.keys(this.constructor.getAttributes())) {
+      if (['id', 'versionId', 'upstreamId', 'lastUpdated'].includes(name)) continue;
+      fields[name] = this.get(name);
+    }
+
+    return { meta, fields };
+  }
+
   /**
    * FHIR search parameter configuration for the Resource.
    */

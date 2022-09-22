@@ -23,21 +23,7 @@ export function resourceHandler() {
     const total = await FhirResource.count(sqlQuery);
     const records = await FhirResource.findAll(sqlQuery);
 
-    const resources = records.map(resource => {
-      const meta = {
-        id: resource.id,
-        versionId: resource.versionId,
-        lastUpdated: resource.lastUpdated,
-      };
-
-      const fields = {};
-      for (const [name, attr] of Object.entries(FhirResource.getAttributes())) {
-        if (['id', 'versionId', 'upstreamId', 'lastUpdated'].includes(name)) continue;
-        fields[name] = resource.get(name);
-      }
-
-      return { meta, fields };
-    });
+    const resources = records.map(resource => resource.asRecord());
 
     res.send(bundle(resources, total, FhirResource));
   });
