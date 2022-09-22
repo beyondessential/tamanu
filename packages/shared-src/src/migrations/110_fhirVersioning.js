@@ -1,5 +1,3 @@
-import { Sequelize } from 'sequelize';
-
 const RESOURCE_TABLES = ['patients', 'practitioners', 'service_requests'];
 
 export async function up(query) {

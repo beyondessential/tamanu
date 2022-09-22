@@ -5,8 +5,8 @@ import { buildQuery } from './query';
 
 export function resourceHandler() {
   return asyncHandler(async (req, res) => {
-    const method = req.method;
-    if (method != 'GET') throw new Unsupported('methods other than get are not supported');
+    const { method } = req;
+    if (method !== 'GET') throw new Unsupported('methods other than get are not supported');
 
     const path = req.path.split('/').slice(1);
     if (path.length > 1) throw new Unsupported('nested paths are not supported');
@@ -29,7 +29,7 @@ export function resourceHandler() {
 }
 
 function parseRequest(req, parameters) {
-  const method = req.method;
+  const { method } = req;
   const path = req.path.split('/').slice(1);
   const query = new Map(
     Object.entries(req.query).map(([name, value]) => {

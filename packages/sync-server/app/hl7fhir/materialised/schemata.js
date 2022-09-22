@@ -7,7 +7,7 @@ const SEARCH_PREFIXES_ENUM = Object.values(FHIR_SEARCH_PREFIXES);
 export const DEFAULT_SCHEMA_FOR_TYPE = {
   [FHIR_SEARCH_PARAMETERS.NUMBER]: yup
     .object()
-    .transform(function(value, originalValue) {
+    .transform(function numberParse(value, originalValue) {
       if (this.isType(value)) return value;
 
       const prefix = SEARCH_PREFIXES_ENUM.find(pref => originalValue.startsWith(pref));
@@ -25,7 +25,7 @@ export const DEFAULT_SCHEMA_FOR_TYPE = {
     .noUnknown(),
   [FHIR_SEARCH_PARAMETERS.DATE]: yup
     .object()
-    .transform(function(value, originalValue) {
+    .transform(function dateParse(value, originalValue) {
       if (this.isType(value)) return value;
 
       const prefix = SEARCH_PREFIXES_ENUM.find(pref => originalValue.startsWith(pref));
@@ -46,7 +46,7 @@ export const DEFAULT_SCHEMA_FOR_TYPE = {
   [FHIR_SEARCH_PARAMETERS.STRING]: yup.string(),
   [FHIR_SEARCH_PARAMETERS.TOKEN]: yup
     .object()
-    .transform(function(value, originalValue) {
+    .transform(function tokenParse(value, originalValue) {
       if (this.isType(value)) return value;
 
       const [system, code] = originalValue.includes('|')
@@ -64,7 +64,7 @@ export const DEFAULT_SCHEMA_FOR_TYPE = {
     .noUnknown(),
   [FHIR_SEARCH_PARAMETERS.REFERENCE]: yup
     .object()
-    .transform(function(value, originalValue) {
+    .transform(function referenceParse(value, originalValue) {
       if (this.isType(value)) return value;
 
       try {
@@ -90,7 +90,7 @@ export const DEFAULT_SCHEMA_FOR_TYPE = {
     .noUnknown(),
   [FHIR_SEARCH_PARAMETERS.QUANTITY]: yup
     .object()
-    .transform(function(value, originalValue) {
+    .transform(function quantityParse(value, originalValue) {
       if (this.isType(value)) return value;
 
       const [quantity, system, code] = originalValue.split('|', 3);
@@ -114,7 +114,7 @@ export const DEFAULT_SCHEMA_FOR_TYPE = {
     .noUnknown(),
   [FHIR_SEARCH_PARAMETERS.URI]: yup
     .mixed()
-    .transform(function(value, originalValue) {
+    .transform(function uriParse(value, originalValue) {
       if (this.isType(value)) return value;
 
       try {
@@ -129,7 +129,7 @@ export const DEFAULT_SCHEMA_FOR_TYPE = {
 
 export const INCLUDE_SCHEMA = yup
   .object()
-  .transform(function(value, originalValue) {
+  .transform(function includeParse(value, originalValue) {
     if (this.isType(value)) return value;
 
     const [resource, parameter, targetType] = originalValue.split(':', 3);

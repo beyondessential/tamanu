@@ -64,7 +64,7 @@ function sortParameter(sortableParameters) {
       type: FHIR_SEARCH_PARAMETERS.SPECIAL,
       parameterSchema: yup
         .object()
-        .transform(function(value, originalValue) {
+        .transform(function sortParse(value, originalValue) {
           if (this.isType(value)) return value;
 
           if (originalValue.startsWith('-')) {
@@ -98,6 +98,7 @@ export function normaliseParameters(FhirResource) {
   const resourceParameters = Object.entries(FhirResource.searchParameters()).map(
     normaliseParameter,
   );
+  // eslint-disable-next-line no-unused-vars
   const sortableParameters = resourceParameters.filter(([_, v]) => v.sortable);
 
   const resultParameters = Object.entries({

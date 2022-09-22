@@ -119,7 +119,7 @@ export class FhirPatient extends FhirResource {
       deceased: {
         type: FHIR_SEARCH_PARAMETERS.TOKEN,
         path: ['deceasedDateTime'],
-        getOperator: value => (value ? Op.not : Op.is),
+        presenceMatch: true,
       },
       active: {
         type: FHIR_SEARCH_PARAMETERS.TOKEN,

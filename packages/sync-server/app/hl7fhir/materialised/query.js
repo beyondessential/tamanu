@@ -12,7 +12,7 @@ export function buildQuery(query, parameters, FhirResource) {
       .value.map(({ order, by }) => [findField(FhirResource, by).field, order]);
   }
 
-  query.limit = query.get('_count')?.value[0] ?? MAX_RESOURCES_PER_PAGE;
+  sql.limit = query.get('_count')?.value[0] ?? MAX_RESOURCES_PER_PAGE;
 
   const andWhere = [];
   for (const [name, paramQuery] of query.entries()) {
