@@ -82,8 +82,11 @@ export function extendExpect(expect) {
 }
 
 class MockApplicationContext {
+  closeHooks = [];
+
   async init() {
     this.store = await initDatabase({ testMode: true });
+    this.onClose(async () => await closeDatabase());
     this.emailService = {
       sendEmail: jest.fn().mockImplementation(() =>
         Promise.resolve({
@@ -95,12 +98,21 @@ class MockApplicationContext {
     await initIntegrations(this);
     return this;
   }
+
+  onClose(hook) {
+    this.closeHooks.push(hook);
+  }
+
+  async close() {
+    await Promise.all(this.closeHooks.map(async hook => hook()));
+  }
 }
 
 export async function createTestContext() {
   const ctx = await new MockApplicationContext().init();
   const expressApp = createApp(ctx);
   const appServer = http.createServer(expressApp);
+  ctx.onClose(() => new Promise(resolve => appServer.close(resolve)));
   const baseApp = supertest(appServer);
 
   baseApp.asUser = async user => {
@@ -122,12 +134,7 @@ export async function createTestContext() {
     return baseApp.asUser(newUser);
   };
 
-  const close = async () => {
-    await new Promise(resolve => appServer.close(resolve));
-    await closeDatabase();
-  };
-
-  return { ...ctx, baseApp, close };
+  return { ...ctx, baseApp };
 }
 
 export async function withDate(fakeDate, fn) {

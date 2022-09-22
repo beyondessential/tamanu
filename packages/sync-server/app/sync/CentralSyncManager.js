@@ -34,7 +34,7 @@ export class CentralSyncManager {
     );
   }
 
-  tearDown() {
+  close() {
     clearInterval(this.purgeInterval);
   }
 
