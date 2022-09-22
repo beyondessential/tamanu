@@ -32,7 +32,7 @@ describe('mergeRecord', () => {
       const existing = {
         ...EXISTING,
         updatedAtSyncTick: 3,
-        updatedAtByField: { id: 1, foreignId: 3, number: 2 },
+        updatedAtByField: { id: 1, foreign_id: 3, number: 2 },
       };
       const incoming = {
         ...INCOMING,
@@ -50,7 +50,7 @@ describe('mergeRecord', () => {
       const incoming = {
         ...INCOMING,
         updatedAtSyncTick: 5,
-        updatedAtByField: { id: 1, foreignId: 5, number: 5, empty: 2 },
+        updatedAtByField: { id: 1, foreign_id: 5, number: 5, empty: 2 },
       };
       const merged = mergeRecord(existing, incoming);
       expect(merged).toEqual(incoming);
@@ -62,12 +62,12 @@ describe('mergeRecord', () => {
       const existing = {
         ...EXISTING,
         updatedAtSyncTick: 3,
-        updatedAtByField: { id: 1, foreignId: 3, number: 3 },
+        updatedAtByField: { id: 1, foreign_id: 3, number: 3 },
       };
       const incoming = {
         ...INCOMING,
         updatedAtSyncTick: 5,
-        updatedAtByField: { id: 1, foreignId: 5, number: 2, empty: 2 },
+        updatedAtByField: { id: 1, foreign_id: 5, number: 2, empty: 2 },
       };
       const merged = mergeRecord(existing, incoming);
       expect(merged).toEqual({
@@ -76,7 +76,7 @@ describe('mergeRecord', () => {
         number: existing.number,
         empty: incoming.empty,
         updatedAtSyncTick: incoming.updatedAtSyncTick,
-        updatedAtByField: { id: 1, foreignId: 5, number: 3, empty: 2 },
+        updatedAtByField: { id: 1, foreign_id: 5, number: 3, empty: 2 },
       });
     });
 
