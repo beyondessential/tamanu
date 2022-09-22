@@ -16,7 +16,7 @@ export class OneTimeLogin extends Model {
   }
 
   isExpired() {
-    return this.expiresAt < new Date();
+    return new Date(this.expiresAt) < new Date();
   }
 
   static initRelations(models) {

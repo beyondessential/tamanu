@@ -4,6 +4,7 @@ import { Op } from 'sequelize';
 import { generateReportFromQueryData } from './utilities';
 
 function parametersToSqlWhere(parameters) {
+  // Todo: test startTime
   const whereClause = Object.entries(parameters)
     .filter(([, val]) => val)
     .reduce((where, [key, value]) => {
