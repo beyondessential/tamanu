@@ -109,6 +109,7 @@ function typedMatch(value, query, def) {
         case undefined:
         case null:
         case 'starts-with':
+          // FIXME: does this actually do startsWith?
           return { op: Op.startsWith, val: value };
         case 'ends-with':
           return { op: Op.endsWith, val: value };
