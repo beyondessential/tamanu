@@ -1,6 +1,6 @@
 import { keyBy } from 'lodash';
 import { Op } from 'sequelize';
-import { isAfter, format, differenceInYears, parse } from 'date-fns';
+import { isAfter, format, parse } from 'date-fns';
 import { REFERRAL_STATUSES } from '../../constants';
 import { generateReportFromQueryData, getAnswers } from '../utilities';
 import {

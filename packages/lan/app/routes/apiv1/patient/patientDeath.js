@@ -1,4 +1,3 @@
-import config from 'config';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { InvalidOperationError, NotFoundError } from 'shared/errors';
