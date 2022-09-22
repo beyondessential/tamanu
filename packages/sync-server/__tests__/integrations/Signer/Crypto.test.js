@@ -33,7 +33,9 @@ describe('VDS-NC: Signer cryptography', () => {
   beforeAll(async () => {
     ctx = await createTestContext();
   });
-  afterAll(() => ctx.close());
+  afterAll(async () => {
+    await ctx.close();
+  });
 
   it('creates a well-formed keypair', async () => {
     const { publicKey, privateKey } = await newKeypairAndCsr();

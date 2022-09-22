@@ -384,7 +384,9 @@ describe('VDS: Proof of Test', () => {
     ctx = await createTestContext();
   });
 
-  afterAll(() => ctx.close());
+  afterAll(async () => {
+    await ctx.close();
+  });
 
   it('fetches data for a lab test result', async () => {
     // Arrange

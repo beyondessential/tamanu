@@ -107,7 +107,9 @@ export function testImmunizationHandler(integrationName, requestHeaders = {}) {
         }),
       ]);
     });
-    afterAll(() => ctx.close());
+    afterAll(async () => {
+      await ctx.close();
+    });
 
     describe('success', () => {
       it("returns no error but no results when patient reference doesn't match", async () => {

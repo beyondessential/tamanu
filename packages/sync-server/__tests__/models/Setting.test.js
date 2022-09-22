@@ -7,12 +7,12 @@ import { createTestContext } from '../utilities';
 describe('Setting', () => {
   let Setting;
   let Facility;
-  let context;
+  let ctx;
 
   beforeAll(async () => {
-    context = await createTestContext();
-    Setting = context.store.models.Setting;
-    Facility = context.store.models.Facility;
+    ctx = await createTestContext();
+    Setting = ctx.store.models.Setting;
+    Facility = ctx.store.models.Facility;
   });
 
   afterEach(async () => {
@@ -20,7 +20,7 @@ describe('Setting', () => {
   });
 
   afterAll(async () => {
-    context.close();
+    await ctx.close();
   });
 
   it('sets and gets basic settings', async () => {

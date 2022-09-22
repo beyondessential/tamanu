@@ -8,6 +8,9 @@
   "log": {
     "consoleLevel": "warn"
   },
+  "cors": {
+    "allowedOrigin": "https://fake-place-xxx-yyy.com"
+  },
   "localisation": {
     "data": {
       "timeZone": "UTC",
@@ -22,7 +25,9 @@
     "fijiVrs": {
       "enabled": true,
       "host": "http://localhost:8080",
-      "expectAccessToken": ["test-access-token"]
+      "expectAccessToken": [
+        "test-access-token"
+      ]
     },
     "fijiVps": {
       "enabled": true
@@ -48,7 +53,9 @@
   },
   "notifications": {
     "certificates": {
-      "labTestCategoryIds": ["labTestCategory-COVID"]
+      "labTestCategoryIds": [
+        "labTestCategory-COVID"
+      ]
     }
   }
 }

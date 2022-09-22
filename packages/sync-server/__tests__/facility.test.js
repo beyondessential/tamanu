@@ -28,7 +28,9 @@ describe('facility routes', () => {
     facilities = [facilityOne, facilityTwo, facilityThree];
   });
 
-  afterAll(async () => ctx.close());
+  afterAll(async () => {
+    await ctx.close();
+  });
 
   it('should receive the correct count of facilities', async () => {
     const { body: result } = await app.get('/v1/facility');

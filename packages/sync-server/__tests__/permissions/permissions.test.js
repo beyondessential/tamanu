@@ -34,7 +34,9 @@ describe('Permissions', () => {
     ]);
   });
 
-  afterAll(() => ctx.close());
+  afterAll(async () => {
+    await ctx.close();
+  });
 
   it('should make sure permissions are unique', async () => {
     await expect(

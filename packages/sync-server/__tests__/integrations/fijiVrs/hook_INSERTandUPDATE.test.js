@@ -15,7 +15,9 @@ describe('VRS integration hook: INSERT and UPDATE operations', () => {
     ctx = await createTestContext();
     app = await ctx.baseApp.asRole('practitioner');
   });
-  afterAll(() => ctx.close());
+  afterAll(async () => {
+    await ctx.close();
+  });
 
   beforeEach(() => {
     // clear token before each test case

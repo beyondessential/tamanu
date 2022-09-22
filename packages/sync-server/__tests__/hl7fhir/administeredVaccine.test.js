@@ -70,7 +70,9 @@ describe('HL7 Administered Vaccines', () => {
     administeredVaccineId = administeredVaccine.id;
   });
 
-  afterAll(() => ctx.close());
+  afterAll(async () => {
+    await ctx.close();
+  });
 
   it('Should produce a valid HL7 immunization', async () => {
     // Get vaccine and include everything needed

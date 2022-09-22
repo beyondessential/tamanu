@@ -117,7 +117,9 @@ describe('HL7 Labs', () => {
     };
   });
 
-  afterAll(() => ctx.close());
+  afterAll(async () => {
+    await ctx.close();
+  });
 
   it('Should produce valid hl7 data for an Observation', async () => {
     const labTest = await createLabTest({});

@@ -38,7 +38,9 @@ describe('Auth', () => {
     ]);
   });
 
-  afterAll(async () => close());
+  afterAll(async () => {
+    await close();
+  });
 
   describe('Logging in', () => {
     it('Should get a token for correct credentials', async () => {

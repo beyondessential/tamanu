@@ -12,7 +12,9 @@ describe('HL7FHIR module utils', () => {
     models = ctx.store.models;
   });
 
-  afterAll(() => ctx.close());
+  afterAll(async () => {
+    await ctx.close();
+  });
 
   describe('hl7SortToTamanu', () => {
     it('Allows -issued (descending) sort for DiagnosticReport', () => {

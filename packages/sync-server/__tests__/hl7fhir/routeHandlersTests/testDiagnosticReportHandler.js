@@ -10,11 +10,15 @@ export function testDiagnosticReportHandler(integrationName, requestHeaders = {}
     const chance = new Chance();
     let ctx;
     let app;
+
     beforeAll(async () => {
       ctx = await createTestContext();
       app = await ctx.baseApp.asRole('practitioner');
     });
-    afterAll(() => ctx.close());
+
+    afterAll(async () => {
+      await ctx.close();
+    });
 
     async function createLabTestHierarchy(patient, { isRDT = false } = {}) {
       const {
