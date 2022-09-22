@@ -103,7 +103,6 @@ function singleOrder(path, order, paramDef, Model) {
 }
 
 function typedMatch(value, query, def) {
-  const [mod] = query.modifiers; // currently only support zero or one modifier
   switch (def.type) {
     case FHIR_SEARCH_PARAMETERS.NUMBER:
       return {
@@ -116,7 +115,7 @@ function typedMatch(value, query, def) {
         val: value.date,
       };
     case FHIR_SEARCH_PARAMETERS.STRING: {
-      switch (mod) {
+      switch (query.modifier) {
         case undefined:
         case null:
         case 'starts-with':
@@ -129,7 +128,7 @@ function typedMatch(value, query, def) {
         case 'exact':
           return { op: Op.eq, val: value };
         default:
-          throw new Unsupported(`unsupported string modifier: ${mod}`);
+          throw new Unsupported(`unsupported string modifier: ${query.modifier}`);
       }
     }
     default:
