@@ -1,4 +1,6 @@
 import asyncHandler from 'express-async-handler';
+import { kebabCase } from 'lodash';
+import { latestDateTime } from 'shared/utils/dateTime';
 import { Unsupported } from './errors';
 import { normaliseParameters } from './parameters';
 import { buildQuery } from './query';
@@ -20,7 +22,7 @@ export function resourceHandler() {
     const sqlQuery = buildQuery(query, parameters, FhirResource);
     const total = await FhirResource.count(sqlQuery);
     const records = await FhirResource.findAll(sqlQuery);
-    
+
     const resources = records.map(resource => {
       const meta = {
         id: resource.id,
@@ -37,12 +39,7 @@ export function resourceHandler() {
       return { meta, fields };
     });
 
-    res.send({
-      total,
-      sqlQuery,
-      query: [...query],
-      resources,
-    });
+    res.send(bundle(resources, total, FhirResource));
   });
 }
 
@@ -67,4 +64,23 @@ function parseRequest(req, parameters) {
   );
 
   return { method, path, query };
+}
+
+function bundle(resources, total, Model) {
+  return {
+    resourceType: 'Bundle',
+    id: kebabCase(Model.name.replace(/^Fhir/, '')),
+    meta: {
+      lastUpdated: latestDateTime(...resources.map(r => r.meta.lastUpdated)).toISOString(),
+    },
+    type: 'searchset',
+    total,
+    link: [
+      // {
+      //   relation: 'self',
+      //   url: ,
+      // },
+    ],
+    entry: resources.map(r => r.fields),
+  };
 }
