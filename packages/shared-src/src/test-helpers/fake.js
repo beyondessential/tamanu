@@ -216,8 +216,6 @@ const FIELD_HANDLERS = {
   ENUM: (model, { type }) => sample(type.values),
   UUID: () => uuidv4(),
 
-  // arrays just generate empty arrays
-  'ABSTRACT[]': () => [],
   FHIR_IDENTIFIER: (...args) => FhirIdentifier.fake(...args),
   FHIR_PERIOD: (...args) => FhirPeriod.fake(...args),
 };
