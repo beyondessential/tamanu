@@ -14,7 +14,8 @@ import { parseHL7Date } from './utils/search';
 export const hl7PatientFields = {
   identifier: {
     parameterType: hl7ParameterTypes.token,
-    path: 'identifier[].value',
+    fieldName: 'displayId',
+    columnName: 'display_id',
     supportedModifiers: [],
     validationSchema: yup
       .string()
@@ -30,28 +31,32 @@ export const hl7PatientFields = {
   },
   given: {
     parameterType: hl7ParameterTypes.string,
-    path: 'name[].given[]',
+    fieldName: 'firstName',
+    columnName: 'first_name',
     supportedModifiers: stringTypeModifiers,
     validationSchema: yup.string(),
     sortable: true,
   },
   family: {
     parameterType: hl7ParameterTypes.string,
-    path: 'name[].family',
+    fieldName: 'lastName',
+    columnName: 'last_name',
     supportedModifiers: stringTypeModifiers,
     validationSchema: yup.string(),
     sortable: true,
   },
   gender: {
     parameterType: hl7ParameterTypes.token,
-    path: 'gender',
+    fieldName: 'sex',
+    columnName: 'sex',
     supportedModifiers: [],
     validationSchema: yup.string().oneOf(['male', 'female', 'other']),
     sortable: false,
   },
   birthdate: {
     parameterType: hl7ParameterTypes.date,
-    path: 'birthDate',
+    fieldName: 'dateOfBirth',
+    columnName: 'date_of_birth',
     supportedModifiers: [],
     validationSchema: yup
       .string()
@@ -65,46 +70,65 @@ export const hl7PatientFields = {
   // TODO: address should match a bunch of other fields
   address: {
     parameterType: hl7ParameterTypes.string,
-    path: [
-      'address[].line[]',
-      'address[].city',
-      'address[].district',
-      'address[].state',
-      'address[].country',
-      'address[].postalCode',
-      'address[].text',
-    ],
+    fieldName: '$additionalData.city_town$',
+    columnName: 'additionalData.city_town',
     supportedModifiers: stringTypeModifiers,
     validationSchema: yup.string(),
     sortable: true,
+    sortArguments: ['additionalData', 'cityTown'],
   },
   'address-city': {
     parameterType: hl7ParameterTypes.string,
-    path: 'address[].city',
+    fieldName: '$additionalData.city_town$',
+    columnName: 'additionalData.city_town',
     supportedModifiers: stringTypeModifiers,
     validationSchema: yup.string(),
     sortable: true,
+    sortArguments: ['additionalData', 'cityTown'],
   },
+  // TODO: telecom could also be email or other phones
   telecom: {
     parameterType: hl7ParameterTypes.token,
-    path: 'telecom[].value',
+    fieldName: '$additionalData.primary_contact_number$',
+    columnName: 'additionalData.primary_contact_number',
     supportedModifiers: [],
     validationSchema: yup.string(),
     sortable: true,
+    sortArguments: ['additionalData', 'primaryContactNumber'],
   },
   deceased: {
     parameterType: hl7ParameterTypes.token,
-    path: 'deceasedDateTime',
+    fieldName: 'dateOfDeath',
+    columnName: 'date_of_death',
     supportedModifiers: [],
-    validationSchema: yup.boolean(),
+    validationSchema: yup.string().oneOf(['true', 'false']),
     getValue: () => null,
-    getOperator: value => value ? Op.not : Op.is,
+    getOperator: value => {
+      if (value === 'true') {
+        return Op.not;
+      }
+      if (value === 'false') {
+        return Op.is;
+      }
+      throw new InvalidParameterError(`Invalid value for deceased parameter: ${value}`);
+    },
   },
   active: {
     parameterType: hl7ParameterTypes.token,
-    path: 'active',
+    fieldName: 'visibilityStatus',
+    columnName: 'visibility_status',
     supportedModifiers: [],
-    validationSchema: yup.boolean(),
+    validationSchema: yup.string().oneOf(['true', 'false']),
+    getValue: () => VISIBILITY_STATUSES.CURRENT,
+    getOperator: value => {
+      if (value === 'true') {
+        return Op.eq;
+      }
+      if (value === 'false') {
+        return Op.ne;
+      }
+      throw new InvalidParameterError(`Invalid value for active parameter: ${value}`);
+    },
   },
 };
 
