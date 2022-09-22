@@ -265,7 +265,7 @@ describe('Patient merge', () => {
     });
   });
 
-  describe.only('PatientFacility', () => {
+  describe('PatientFacility', () => {
     it('Should replace patient facility records with a new one per facility', async () => {
       const { Facility, PatientFacility } = models;
       const [keep, merge] = await makeTwoPatients();

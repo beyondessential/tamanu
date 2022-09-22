@@ -61,7 +61,7 @@ describe('MobileSyncManager', () => {
     });
   });
 
-  describe.only('runSync()', () => {
+  describe('runSync()', () => {
     it('should start sync session when running sync', async () => {
       const syncOutgoingChangesSpy = jest
         .spyOn(mobileSyncManager, 'syncOutgoingChanges')
