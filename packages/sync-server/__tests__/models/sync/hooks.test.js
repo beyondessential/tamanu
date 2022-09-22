@@ -4,20 +4,21 @@ import {
   fakeSurveyResponseAnswer,
   fake,
 } from 'shared/test-helpers';
-import { initDb } from '../../initDb';
+
+import { createTestContext } from '../../utilities';
 
 describe('sync-related hooks', () => {
+  let ctx;
   let models;
-  let context;
   beforeAll(async () => {
-    context = await initDb({ syncClientMode: true });
-    models = context.models;
+    ctx = await createTestContext({ syncClientMode: true });
+    models = ctx.store.models;
   });
-  afterAll(() => context.sequelize.close());
+  afterAll(() => ctx.close());
 
   it('marks root sync objects for push', async () => {
     // arrange
-    const encounter = await buildNestedEncounter(context);
+    const encounter = await buildNestedEncounter(models);
     await models.Encounter.create(encounter);
     await upsertAssociations(models.Encounter, encounter);
     const dbEncounter = await models.Encounter.findByPk(encounter.id);
@@ -48,7 +49,7 @@ describe('sync-related hooks', () => {
 
   it('does not mark for push if pulledAt changes', async () => {
     // arrange
-    const encounter = await buildNestedEncounter(context);
+    const encounter = await buildNestedEncounter(models);
     await models.Encounter.create(encounter);
     await upsertAssociations(models.Encounter, encounter);
     const dbEncounter = await models.Encounter.findByPk(encounter.id);
@@ -76,7 +77,7 @@ describe('sync-related hooks', () => {
 
   it('does not mark for push if only sync info columns change', async () => {
     // arrange
-    const encounter = await buildNestedEncounter(context);
+    const encounter = await buildNestedEncounter(models);
     await models.Encounter.create(encounter);
     await upsertAssociations(models.Encounter, encounter);
     const dbEncounter = await models.Encounter.findByPk(encounter.id);
@@ -104,12 +105,12 @@ describe('sync-related hooks', () => {
 
   it('marks patients for push when patient subchannel models are updated', async () => {
     // arrange
-    const { Patient, Encounter } = context.models;
+    const { Patient, Encounter } = models;
     const patient = await Patient.create(fake(Patient));
     expect(patient.markedForSync).toEqual(false);
 
     // act
-    await Encounter.create(await buildNestedEncounter(context, patient.id));
+    await Encounter.create(await buildNestedEncounter(models, patient.id));
 
     // assert
     expect(await Patient.findByPk(patient.id)).toHaveProperty('markedForSync', true);

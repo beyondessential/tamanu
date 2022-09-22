@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import * as yup from 'yup';
 import { Typography } from '@material-ui/core';
 import styled from 'styled-components';
-import { differenceInYears, differenceInMonths } from 'date-fns';
 import MuiBox from '@material-ui/core/Box';
 import { MANNER_OF_DEATHS, MANNER_OF_DEATH_OPTIONS } from 'shared/constants';
 import { ageInMonths, ageInYears } from 'shared/utils/dateTime';
@@ -291,7 +290,8 @@ export const DeathForm = React.memo(
           <Field
             name="lastSurgeryDate"
             label="What was the date of surgery"
-            component={DateTimeField}
+            component={DateField}
+            saveDateAsString
             visibilityCriteria={{ surgeryInLast4Weeks: 'yes' }}
           />
           <Field

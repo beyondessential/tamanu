@@ -1,9 +1,9 @@
-import { QueryInterface, DataTypes } from 'sequelize';
+import { DataTypes } from 'sequelize';
 
 const ISO9075_DATE_FMT = 'YYYY-MM-DD';
 const TABLE_NAME = 'patients';
 
-export async function up(query: QueryInterface) {
+export async function up(query) {
   // 1. Create legacy columns
   await query.addColumn(TABLE_NAME, 'date_of_birth_legacy', {
     type: DataTypes.DATE,
@@ -23,7 +23,7 @@ export async function up(query: QueryInterface) {
   `);
 }
 
-export async function down(query: QueryInterface) {
+export async function down(query) {
   await query.sequelize.query(`
     ALTER TABLE ${TABLE_NAME}
     ALTER COLUMN date_of_birth TYPE timestamp with time zone USING date_of_birth_legacy;

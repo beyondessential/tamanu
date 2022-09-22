@@ -1,6 +1,5 @@
 import { Sequelize, Op } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
-import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 import { Encounter } from './Encounter';
 import { ScheduledVaccine } from './ScheduledVaccine';
@@ -26,7 +25,6 @@ export class AdministeredVaccine extends Model {
       },
       {
         ...options,
-        syncConfig: { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
         validate: {
           mustHaveScheduledVaccine() {
             if (!this.deletedAt && !this.scheduledVaccineId) {
