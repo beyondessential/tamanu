@@ -153,6 +153,21 @@ describe('Data definition import', () => {
     expect(historical).toHaveProperty('visibilityStatus', 'historical');
   });
 
+  it('should import if column headings are padded with whitespace', async () => {
+    const { ReferenceData } = ctx.store.models;
+    const { errors, stats } = await doImport({
+      file: 'valid-whitespace',
+    });
+    expect(errors).toBeEmpty();
+    expect(stats).toEqual({
+      'ReferenceData/village': { created: 3, updated: 0, errored: 0 },
+    });
+    const historical = await ReferenceData.findOne({
+      where: { id: 'village-historical-whitespace' },
+    });
+    expect(historical).toHaveProperty('visibilityStatus', 'historical');
+  });
+
   it('should hash user passwords on creates', async () => {
     const { User } = ctx.store.models;
     const testUserPre = await User.findByPk('test-password-hashing');
