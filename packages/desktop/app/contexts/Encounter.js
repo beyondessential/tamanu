@@ -12,6 +12,7 @@ async function getDataOrDefaultOnError(getDataFn, defaultData) {
     const data = await getDataFn();
     return data;
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error(error);
     return defaultData;
   }

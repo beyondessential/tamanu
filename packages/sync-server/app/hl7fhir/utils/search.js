@@ -54,13 +54,17 @@ export function getQueryObject(columnName, value, operator, modifier, parameterT
   if (parameterType === hl7ParameterTypes.date && ['eq', undefined].includes(modifier)) {
     // Create and return range
     const timeUnit = getSmallestTimeUnit(value);
-    const startDate = parseHL7Date(value).startOf(timeUnit).toDate();
-    const endDate = parseHL7Date(value).endOf(timeUnit).toDate();
-    
+    const startDate = parseHL7Date(value)
+      .startOf(timeUnit)
+      .toDate();
+    const endDate = parseHL7Date(value)
+      .endOf(timeUnit)
+      .toDate();
+
     if (['date_of_birth', 'date_of_death'].includes(columnName)) {
       return { [operator]: [toDateString(startDate), toDateString(endDate)] };
     }
-    
+
     return { [operator]: [startDate, endDate] };
   }
 
