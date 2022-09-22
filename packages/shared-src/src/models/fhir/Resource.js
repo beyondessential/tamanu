@@ -163,6 +163,24 @@ export class FhirResource extends Model {
       // _profile: {},
       // _security: {},
       // _source: {},
+
+      // legacy for mSupply support
+      'subject:identifier': {
+        type: FHIR_SEARCH_PARAMETERS.TOKEN,
+        path: [['id']],
+      },
+      status: {
+        type: FHIR_SEARCH_PARAMETERS.STRING,
+        path: [],
+      },
+      after: {
+        type: FHIR_SEARCH_PARAMETERS.DATE,
+        path: [['lastUpdated']],
+      },
+      issued: {
+        type: FHIR_SEARCH_PARAMETERS.DATE,
+        path: [['lastUpdated']],
+      },
     };
   }
 }
