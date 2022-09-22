@@ -53,7 +53,7 @@ export class Model extends sequelize.Model {
       attributes.deletedAt = Sequelize.DATE;
     }
 
-    super.init(attributes, { timestamps, ... options });
+    super.init(attributes, { timestamps, ...options });
     this.syncClientMode = syncClientMode;
     this.defaultIdValue = attributes.id.defaultValue;
     this.syncConfig = new SyncConfig(this, syncConfig);
