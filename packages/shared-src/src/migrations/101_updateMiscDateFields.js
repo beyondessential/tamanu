@@ -8,7 +8,7 @@ const MIGRATIONS = [
   { TABLE: 'one_time_logins', FIELD: 'expires_at' },
   { TABLE: 'one_time_logins', FIELD: 'used_at' },
   { TABLE: 'document_metadata', FIELD: 'document_created_at' },
-  { TABLE: 'document_metadata', FIELD: 'document_Uploaded_at' },
+  { TABLE: 'document_metadata', FIELD: 'document_uploaded_at' },
 ];
 
 export async function up(query) {
