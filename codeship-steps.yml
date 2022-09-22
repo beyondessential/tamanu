@@ -38,6 +38,7 @@
         - name: the mobile app
           service: mobile
           command: "yarn test:coverage"
+          exclude: ^(beta-|klaus-|sima-|sepi-|da-)
     - name: fix ssh for builds
       tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-)
       service: app-without-db
