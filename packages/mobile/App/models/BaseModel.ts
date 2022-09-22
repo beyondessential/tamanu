@@ -89,9 +89,6 @@ export abstract class BaseModel extends BaseEntity {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @Column({ nullable: true })
-  uploadedAt: Date;
-
   @Column({ nullable: false, default: 0 })
   updatedAtSyncTick: number;
 
