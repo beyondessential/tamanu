@@ -167,7 +167,7 @@ export class FhirResource extends Model {
       // legacy for mSupply support
       'subject:identifier': {
         type: FHIR_SEARCH_PARAMETERS.TOKEN,
-        path: [['id']],
+        path: [['identifier', '[]']],
       },
       status: {
         type: FHIR_SEARCH_PARAMETERS.STRING,
