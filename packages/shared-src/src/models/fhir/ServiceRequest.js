@@ -1,12 +1,13 @@
 import { Sequelize, DataTypes } from 'sequelize';
 import { FhirResource } from './Resource';
+import { arrayOf } from './utils';
 import { dateTimeType } from '../dateTimeTypes';
 
 export class FhirServiceRequest extends FhirResource {
   static init(options) {
     super.init(
       {
-        identifier: this.ArrayOf('identifier', DataTypes.FHIR_IDENTIFIER),
+        identifier: arrayOf('identifier', DataTypes.FHIR_IDENTIFIER),
         status: {
           type: Sequelize.STRING(16),
           allowNull: false,
@@ -15,17 +16,17 @@ export class FhirServiceRequest extends FhirResource {
           type: Sequelize.STRING(16),
           allowNull: false,
         },
-        category: this.ArrayOf('category', DataTypes.FHIR_CODEABLE_CONCEPT),
+        category: arrayOf('category', DataTypes.FHIR_CODEABLE_CONCEPT),
         priority: {
           type: Sequelize.STRING(10),
           allowNull: true,
         },
-        orderDetail: this.ArrayOf('orderDetail', DataTypes.FHIR_CODEABLE_CONCEPT),
+        orderDetail: arrayOf('orderDetail', DataTypes.FHIR_CODEABLE_CONCEPT),
         occurrenceDateTime: {
           ...dateTimeType('occurrenceDateTime'),
           allowNull: true,
         },
-        locationCode: this.ArrayOf('locationCode', DataTypes.FHIR_CODEABLE_CONCEPT),
+        locationCode: arrayOf('locationCode', DataTypes.FHIR_CODEABLE_CONCEPT),
       },
       options,
     );
