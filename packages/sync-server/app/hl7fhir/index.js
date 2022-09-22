@@ -18,7 +18,7 @@ export function fhirRoutes({ requireClientHeaders } = {}) {
   if (requireClientHeaders) {
     routes.use(requireClientHeadersMiddleware);
   }
-  
+
   routes.use('/mat', resourceHandler());
 
   routes.get('/Patient', patientHandler());

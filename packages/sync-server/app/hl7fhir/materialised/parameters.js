@@ -56,6 +56,8 @@ const RESULT_PARAMETERS = {
   },
 };
 
+export const RESULT_PARAMETER_NAMES = ['_sort', ...Object.keys(RESULT_PARAMETERS)];
+
 function sortParameter(sortableParameters) {
   return {
     _sort: {
