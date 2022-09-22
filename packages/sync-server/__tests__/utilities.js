@@ -83,7 +83,7 @@ export function extendExpect(expect) {
 
 class MockApplicationContext {
   async init() {
-    this.store = await initDatabase({ testMode: true, syncClientMode: false });
+    this.store = await initDatabase({ testMode: true });
     this.emailService = {
       sendEmail: jest.fn().mockImplementation(() =>
         Promise.resolve({
@@ -97,8 +97,8 @@ class MockApplicationContext {
   }
 }
 
-export async function createTestContext({ syncClientMode } = {}) {
-  const ctx = await new MockApplicationContext().init({ syncClientMode });
+export async function createTestContext() {
+  const ctx = await new MockApplicationContext().init();
   const expressApp = createApp(ctx);
   const appServer = http.createServer(expressApp);
   const baseApp = supertest(appServer);

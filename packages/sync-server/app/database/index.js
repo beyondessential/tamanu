@@ -5,7 +5,7 @@ import { addHooks } from './hooks';
 
 let existingConnection = null;
 
-export async function initDatabase({ testMode = false, syncClientMode = false }) {
+export async function initDatabase({ testMode = false }) {
   // connect to database
   if (existingConnection) {
     return existingConnection;

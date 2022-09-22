@@ -39,7 +39,7 @@ export class CentralSyncManager {
   }
 
   purgeLapsedSessions = async () => {
-    const store = await initDatabase({ testMode: false, syncClientMode: false });
+    const store = await initDatabase({ testMode: false });
     await deleteInactiveSyncSessions(store, lapsedSessionSeconds);
   };
 
