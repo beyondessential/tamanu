@@ -5,7 +5,7 @@ import { FhirResource } from './Resource';
 import { arrayOf, activeFromVisibility } from './utils';
 import { dateType } from '../dateTimeTypes';
 import { latestDateTime } from '../../utils/dateTime';
-import { VISIBILITY_STATUSES } from '../../constants';
+import { FHIR_SEARCH_PARAMETERS } from '../../constants';
 import {
   FhirAddress,
   FhirContactPoint,
@@ -66,6 +66,80 @@ export class FhirPatient extends FhirResource {
       address: addresses(upstream),
       lastUpdated: latestDateTime(upstream.updatedAt, upstream.additionalData?.updatedAt),
     });
+  }
+
+  static searchParameters() {
+    return {
+      ...super.searchParameters(),
+      identifier: {
+        type: FHIR_SEARCH_PARAMETERS.TOKEN,
+        path: [['identifier', '[]']],
+        getValue: value => {
+          const [, identifier] = decodeIdentifier(value);
+          return identifier;
+        },
+      },
+      given: {
+        type: FHIR_SEARCH_PARAMETERS.STRING,
+        path: [['name', '[]', 'given', '[]']],
+        sortable: true,
+      },
+      family: {
+        type: FHIR_SEARCH_PARAMETERS.STRING,
+        path: [['name', '[]', 'family']],
+        sortable: true,
+      },
+      gender: {
+        type: FHIR_SEARCH_PARAMETERS.TOKEN,
+        path: [['gender']],
+        parameterSchema: yup.string().oneOf(['male', 'female', 'other']),
+        sortable: false,
+      },
+      birthdate: {
+        type: FHIR_SEARCH_PARAMETERS.DATE,
+        path: [['birthDate']],
+        parameterSchema: yup
+          .string()
+          // eslint-disable-next-line no-template-curly-in-string
+          .test('is-valid-date', 'Invalid date/time format: ${value}', value => {
+            if (!value) return true;
+            return parseHL7Date(value).isValid();
+          }),
+        sortable: true,
+      },
+      address: {
+        type: FHIR_SEARCH_PARAMETERS.STRING,
+        path: [
+          ['address', '[]', 'line', '[]'],
+          ['address', '[]', 'city'],
+          ['address', '[]', 'district'],
+          ['address', '[]', 'state'],
+          ['address', '[]', 'country'],
+          ['address', '[]', 'postalCode'],
+          ['address', '[]', 'text'],
+        ],
+        sortable: true,
+      },
+      'address-city': {
+        type: FHIR_SEARCH_PARAMETERS.STRING,
+        path: [['address', '[]', 'city']],
+        sortable: true,
+      },
+      telecom: {
+        type: FHIR_SEARCH_PARAMETERS.TOKEN,
+        path: [['telecom', '[]']],
+        sortable: true,
+      },
+      deceased: {
+        type: FHIR_SEARCH_PARAMETERS.TOKEN,
+        path: ['deceasedDateTime'],
+        getOperator: value => (value ? Op.not : Op.is),
+      },
+      active: {
+        type: FHIR_SEARCH_PARAMETERS.TOKEN,
+        path: ['active'],
+      },
+    };
   }
 }
 

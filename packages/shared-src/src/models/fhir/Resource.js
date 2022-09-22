@@ -2,7 +2,7 @@ import { snakeCase } from 'lodash';
 import { Sequelize, Utils, QueryTypes } from 'sequelize';
 import * as yup from 'yup';
 
-import { SYNC_DIRECTIONS } from 'shared/constants';
+import { SYNC_DIRECTIONS, FHIR_SEARCH_PARAMETERS } from 'shared/constants';
 import { Model } from '../Model';
 
 const missingRecordsPrivateMethod = Symbol('missingRecords');
@@ -125,5 +125,44 @@ export class FhirResource extends Model {
     });
 
     return Number(rows[0]?.count || 0);
+  }
+
+  /**
+   * FHIR search parameter configuration for the Resource.
+   */
+  static searchParameters() {
+    return {
+      _id: {
+        type: FHIR_SEARCH_PARAMETERS.TOKEN,
+        path: ['id'],
+      },
+      _lastUpdated: {
+        type: FHIR_SEARCH_PARAMETERS.DATE,
+        path: ['lastUpdated'],
+      },
+
+      // whole record search:
+      // _text: {},
+      // _content: {},
+
+      // lists:
+      // _list: {},
+
+      // reverse chaining:
+      // _has: {},
+
+      // multi-type search:
+      // _type: {},
+
+      // advanced search:
+      // _query: {},
+      // _filter: {},
+
+      // meta fields:
+      // _tag: {},
+      // _profile: {},
+      // _security: {},
+      // _source: {},
+    };
   }
 }
