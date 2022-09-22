@@ -122,6 +122,7 @@ export function testImmunizationHandler(integrationName, requestHeaders = {}) {
             lastUpdated: null,
           },
           type: 'searchset',
+          timestamp: expect.any(String),
           total: 0,
           link: [
             {
@@ -144,6 +145,7 @@ export function testImmunizationHandler(integrationName, requestHeaders = {}) {
             lastUpdated: null,
           },
           type: 'searchset',
+          timestamp: expect.any(String),
           total: 0,
           link: [
             {
