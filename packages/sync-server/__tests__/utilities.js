@@ -134,7 +134,9 @@ export async function createTestContext() {
     return baseApp.asUser(newUser);
   };
 
-  return { ...ctx, baseApp };
+  ctx.baseApp = baseApp;
+
+  return ctx;
 }
 
 export async function withDate(fakeDate, fn) {

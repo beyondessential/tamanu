@@ -74,4 +74,6 @@ export const buildSyncRoutes = ctx => {
       res.json({});
     }),
   );
+
+  return syncRoutes;
 };
