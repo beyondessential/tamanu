@@ -6,13 +6,13 @@ export async function up(query) {
   for (const table of RESOURCE_TABLES) {
     await query.sequelize.query(`
       CREATE OR REPLACE FUNCTION fhir.trigger_versioning_${table}()
-      RETURNS TRIGGER
+      RETURNS TRIGGER LANGUAGE plpgsql VOLATILE
       AS $vers$
         BEGIN
           NEW.version_id := uuid_generate_v4();
           RETURN NEW;
         END;
-      $vers$ LANGUAGE plpgsql VOLATILE
+      $vers$
     `);
 
     await query.sequelize.query(`
