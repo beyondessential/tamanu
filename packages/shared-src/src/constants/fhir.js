@@ -17,7 +17,7 @@ export const FHIR_SEARCH_PARAMETERS = {
   STRING: 'string',
   TOKEN: 'token',
   REFERENCE: 'reference',
-  COMPOSITE: 'composite',
+  COMPOSITE: 'composite', // not supported yet
   QUANTITY: 'quantity',
   URI: 'uri',
   SPECIAL: 'special',
