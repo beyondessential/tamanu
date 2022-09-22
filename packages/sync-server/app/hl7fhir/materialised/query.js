@@ -1,5 +1,5 @@
 import { Op, Sequelize } from 'sequelize';
-import { FHIR_SEARCH_PARAMETERS, FHIR_SEARCH_PREFIXES } from 'shared/constants';
+import { FHIR_SEARCH_PARAMETERS, FHIR_SEARCH_PREFIXES, MAX_RESOURCES_PER_PAGE } from 'shared/constants';
 
 import { Unsupported } from './errors';
 import { RESULT_PARAMETER_NAMES } from './parameters';
@@ -11,6 +11,8 @@ export function buildQuery(query, parameters, FhirResource) {
       .get('_sort')
       .value.map(({ order, by }) => [findField(FhirResource, by).field, order]);
   }
+
+  query.limit = query.get('_count')?.value[0] ?? MAX_RESOURCES_PER_PAGE;
 
   const andWhere = [];
   for (const [name, paramQuery] of query.entries()) {
