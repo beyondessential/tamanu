@@ -13,6 +13,7 @@ import {
   VISIBILITY_STATUSES,
 } from 'shared/constants';
 import { toDateTimeString, toDateString } from '../utils/dateTime';
+import { FhirIdentifier, FhirPeriod } from '../services/fhirTypes';
 
 const chance = new Chance();
 
@@ -217,6 +218,8 @@ const FIELD_HANDLERS = {
 
   // arrays just generate empty arrays
   'ABSTRACT[]': () => [],
+  FHIR_IDENTIFIER: (...args) => FhirIdentifier.fake(...args),
+  FHIR_PERIOD: (...args) => FhirPeriod.fake(...args),
 };
 
 const IGNORED_FIELDS = [
