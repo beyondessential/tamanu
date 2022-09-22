@@ -45,6 +45,11 @@ export function buildQuery(query, parameters, FhirResource) {
     }
   }
 
+  if (query.has('_page')) {
+    const page = last(query.get('_page').flatMap(v => v.value));
+    sql.offset = page * sql.limit;
+  }
+
   const andWhere = [];
   for (const [name, paramQueries] of query.entries()) {
     if (RESULT_PARAMETER_NAMES.includes(name)) continue;
