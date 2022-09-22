@@ -134,11 +134,11 @@ export class FhirResource extends Model {
     return {
       _id: {
         type: FHIR_SEARCH_PARAMETERS.TOKEN,
-        path: ['id'],
+        path: [['id']],
       },
       _lastUpdated: {
         type: FHIR_SEARCH_PARAMETERS.DATE,
-        path: ['lastUpdated'],
+        path: [['lastUpdated']],
       },
 
       // whole record search:

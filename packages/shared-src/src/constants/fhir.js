@@ -73,3 +73,5 @@ export const FHIR_PATIENT_LINK_TYPES = {
   REPLACED_BY: 'replaced-by',
   SEE_ALSO: 'seealso',
 };
+
+export const FHIR_MAX_RESOURCES_PER_PAGE = 20;

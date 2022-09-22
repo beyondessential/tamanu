@@ -1,5 +1,6 @@
 import config from 'config';
 import { Sequelize, DataTypes } from 'sequelize';
+import * as yup from 'yup';
 
 import { FhirResource } from './Resource';
 import { arrayOf, activeFromVisibility } from './utils';
