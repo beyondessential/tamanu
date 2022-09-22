@@ -6,6 +6,7 @@ import {
   singleDiagnosticReportHandler,
   singleImmunizationHandler,
 } from './routeHandlers';
+import { resourceHandler } from './materialisedHandlers';
 
 import { requireClientHeaders as requireClientHeadersMiddleware } from '../../middleware/requireClientHeaders';
 
@@ -15,6 +16,8 @@ export function fhirRoutes({ requireClientHeaders }) {
   if (requireClientHeaders) {
     routes.use(requireClientHeadersMiddleware);
   }
+  
+  routes.get('/mat/Patient', resourceHandler('Patient'));
 
   routes.get('/Patient', patientHandler());
   routes.get('/DiagnosticReport', diagnosticReportHandler());
