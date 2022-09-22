@@ -15,6 +15,7 @@ jest.mock('./utils', () => ({
   saveIncomingChanges: jest.fn(),
   getModelsForDirection: jest.fn(),
   getSyncTick: jest.fn(),
+  clearPersistedSyncSessionRecords: jest.fn(),
 }));
 
 describe('MobileSyncManager', () => {
