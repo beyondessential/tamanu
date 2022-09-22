@@ -28,12 +28,12 @@ function parseRequest(req, parameters) {
   const path = req.path.split('/').slice(1);
   const query = Object.entries(req.query).map(([name, value]) => {
     const [param, ...modifiers] = name.split(':');
+    if (!parameters.has(param)) throw new Unsupported(`parameter is not supported: ${param}`);
+
     return {
       param,
       modifiers,
-      value,
-      supported: parameters.has(param),
-      parsed: parameters.get(param)?.parameterSchema.validateSync(value),
+      value: value.split(',').map(part => parameters.get(param).parameterSchema.validateSync(part)),
     };
   });
 
