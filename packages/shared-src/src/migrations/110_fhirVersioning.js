@@ -1,6 +1,8 @@
-import { Sequelize } from 'sequelize';
-
-const RESOURCE_TABLES = ['patients', 'practitioners', 'service_requests'];
+const RESOURCE_TABLES = [
+  'patients',
+  'practitioners',
+  'service_requests',
+];
 
 export async function up(query) {
   for (const table of RESOURCE_TABLES) {
