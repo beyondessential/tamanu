@@ -1,3 +1,4 @@
+import config from 'config';
 import {
   createDummyEncounter,
   createDummyEncounterMedication,
@@ -5,7 +6,7 @@ import {
   randomReferenceId,
 } from 'shared/demoData/patients';
 import { fake } from 'shared/test-helpers/fake';
-import { toDateString, parseISO9075 } from 'shared/utils/dateTime';
+import { toDateString } from 'shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 
 describe('Patient', () => {
@@ -20,6 +21,8 @@ describe('Patient', () => {
     baseApp = ctx.baseApp;
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
+    // set up facility for patient to be marked for sync at
+    await models.Facility.create(fake(models.Facility, { id: config.serverFacilityId }));
     patient = await models.Patient.create(await createDummyPatient(models));
   });
   afterAll(() => ctx.close());
