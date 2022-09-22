@@ -1,3 +1,5 @@
+import { Router } from 'express';
+
 import {
   patientHandler,
   diagnosticReportHandler,
@@ -8,10 +10,10 @@ import {
 } from './routeHandlers';
 import { resourceHandler } from './materialisedHandlers';
 
-import { requireClientHeaders as requireClientHeadersMiddleware } from '../../middleware/requireClientHeaders';
+import { requireClientHeaders as requireClientHeadersMiddleware } from '../middleware/requireClientHeaders';
 
-export function fhirRoutes({ requireClientHeaders }) {
-  const routes = express.Router();
+export function fhirRoutes({ requireClientHeaders } = {}) {
+  const routes = Router();
 
   if (requireClientHeaders) {
     routes.use(requireClientHeadersMiddleware);
