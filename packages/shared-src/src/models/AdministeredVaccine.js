@@ -4,6 +4,7 @@ import { Model } from './Model';
 import { Encounter } from './Encounter';
 import { ScheduledVaccine } from './ScheduledVaccine';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
+import { SYNC_DIRECTIONS } from 'shared/constants/sync';
 
 export class AdministeredVaccine extends Model {
   static init({ primaryKey, ...options }) {
