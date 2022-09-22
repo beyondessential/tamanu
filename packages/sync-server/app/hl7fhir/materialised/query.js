@@ -1,3 +1,4 @@
+import { last } from 'lodash';
 import { Op, Sequelize } from 'sequelize';
 import {
   FHIR_SEARCH_PARAMETERS,
@@ -35,7 +36,14 @@ export function buildQuery(query, parameters, FhirResource) {
     sql.order = ordering;
   }
 
-  sql.limit = query.get('_count')?.value[0] ?? MAX_RESOURCES_PER_PAGE;
+  if (query.has('_count')) {
+    const count = last(query.get('_count').flatMap(v => v.value));
+    if (count === 0) {
+      pushToQuery(query, '_summary', { value: ['count'] });
+    } else {
+      sql.limit = count;
+    }
+  }
 
   const andWhere = [];
   for (const [name, paramQueries] of query.entries()) {
