@@ -12,7 +12,7 @@ import { RESULT_PARAMETER_NAMES } from './parameters';
 export function pushToQuery(query, param, value) {
   const insert = query.get(param) ?? [];
   insert.push(value);
-  query.set(insert);
+  query.set(param, insert);
 }
 
 export function buildQuery(query, parameters, FhirResource) {
