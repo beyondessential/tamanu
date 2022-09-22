@@ -7,7 +7,9 @@ import { RESULT_PARAMETER_NAMES } from './parameters';
 export function buildQuery(query, parameters, FhirResource) {
   const sql = {};
   if (query.has('_sort')) {
-    sql.order = query.get('_sort').value.map(({ order, by }) => [by, order]);
+    sql.order = query
+      .get('_sort')
+      .value.map(({ order, by }) => [findField(FhirResource, by).field, order]);
   }
 
   const andWhere = [];
