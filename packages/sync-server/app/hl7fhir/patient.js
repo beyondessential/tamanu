@@ -2,7 +2,7 @@ import config from 'config';
 import { format } from 'date-fns';
 import { Op } from 'sequelize';
 import { groupBy, keyBy } from 'lodash';
-import { VISIBILITY_STATUSES } from 'shared/constants';
+import { VISIBILITY_STATUSES, FHIR_PATIENT_LINK_TYPES } from 'shared/constants';
 
 import {
   getParamAndModifier,
@@ -14,8 +14,6 @@ import {
 
 import { modifiers } from './hl7Parameters';
 import { hl7PatientFields } from './hl7PatientFields';
-
-import { PATIENT_LINK_TYPES } from './constants';
 
 function patientName(patient, additional) {
   const official = {
@@ -133,7 +131,7 @@ export function getFlattenMergedPatientReplaceLinks(
   for (const mergedPatient of mergedPatients) {
     links.push({
       other: getHL7Link(`${baseUrl}/Patient/${mergedPatient.id}`),
-      type: isRootPatientActive ? PATIENT_LINK_TYPES.REPLACES : PATIENT_LINK_TYPES.SEE_ALSO,
+      type: isRootPatientActive ? FHIR_PATIENT_LINK_TYPES.REPLACES : FHIR_PATIENT_LINK_TYPES.SEE_ALSO,
     });
     // get deeper level of merged patients if there's any
     links.push(
@@ -173,13 +171,13 @@ export function getFlattenMergedPatientReplacecByLinks(baseUrl, patient, patient
   if (patient.mergedIntoId && supersededPatient?.mergedIntoId) {
     links.push({
       other: getHL7Link(`${baseUrl}/Patient/${patient.mergedIntoId}`),
-      type: PATIENT_LINK_TYPES.SEE_ALSO,
+      type: FHIR_PATIENT_LINK_TYPES.SEE_ALSO,
     });
     links.push(...getFlattenMergedPatientReplacecByLinks(baseUrl, supersededPatient, patientById));
   } else {
     links.push({
       other: getHL7Link(`${baseUrl}/Patient/${patient.mergedIntoId}`),
-      type: PATIENT_LINK_TYPES.REPLACED_BY,
+      type: FHIR_PATIENT_LINK_TYPES.REPLACED_BY,
     });
   }
 
@@ -239,8 +237,8 @@ const getPatientLinks = (
   }
 
   // Reorder seealso links to be after replaces/replaced-by links
-  const seeAlsoLinks = links.filter(l => l.type === PATIENT_LINK_TYPES.SEE_ALSO);
-  const otherLinks = links.filter(l => l.type !== PATIENT_LINK_TYPES.SEE_ALSO);
+  const seeAlsoLinks = links.filter(l => l.type === FHIR_PATIENT_LINK_TYPES.SEE_ALSO);
+  const otherLinks = links.filter(l => l.type !== FHIR_PATIENT_LINK_TYPES.SEE_ALSO);
 
   return [...otherLinks, ...seeAlsoLinks];
 };
