@@ -65,7 +65,8 @@ export async function getHL7Payload({
   // data) before iterating the records.
   if (toHL7List) {
     const resources = await toHL7List(records, query);
-    entry.push(...resources);
+    const bundledResources = resources.map(resource => createBundledResource(baseUrl, resource));
+    entry.push(...bundledResources);
   } else {
     // run in a loop instead of using `.map()` so embedded queries run in serial
     const hl7FhirResources = [];
