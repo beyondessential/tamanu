@@ -1,13 +1,5 @@
-import {
-  differenceInMilliseconds,
-  isWithinInterval,
-  isBefore,
-  isAfter,
-  startOfDay,
-  endOfDay,
-  format,
-  isSameDay,
-} from 'date-fns';
+import { isBefore, isAfter, startOfDay, endOfDay, format, isSameDay } from 'date-fns';
+import { differenceInMilliseconds, isWithinInterval } from 'shared/utils/dateTime';
 import { groupBy } from 'lodash';
 import { Op } from 'sequelize';
 import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_LABELS } from '../../constants';

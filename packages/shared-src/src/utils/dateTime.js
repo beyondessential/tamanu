@@ -1,4 +1,12 @@
-import { isValid, format, formatISO9075, differenceInMonths, differenceInYears } from 'date-fns';
+import {
+  isValid,
+  format as dateFnsFormat,
+  formatISO9075,
+  differenceInMonths,
+  differenceInYears,
+  differenceInMilliseconds as dateFnsDifferenceInMilliseconds,
+  isWithinInterval as dateFnsIsWithinInterval,
+} from 'date-fns';
 
 export function toDateTimeString(date) {
   if (date === null || date === undefined) return null;
@@ -27,7 +35,7 @@ export function getCurrentDateString() {
 }
 
 export function convertISO9075toRFC3339(dateString) {
-  return format(new Date(dateString), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+  return dateFnsFormat(new Date(dateString), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 }
 
 export function ageInMonths(dob) {
@@ -43,3 +51,18 @@ export function ageInYears(dob) {
 export function parseISO9075(date) {
   return new Date(date.replace(' ', 'T'));
 }
+
+/*
+ * date-fns wrappers
+ * Wrapper functions around date-fns functions that parse date_string and date_time_string types
+ * For date-fns docs @see https://date-fns.org
+ */
+
+// It seems that some JS implementations have problems
+// parsing strings to dates.
+export const format = date => format(new Date(date.replace(' ', 'T')));
+
+export const differenceInMilliseconds = (a, b) =>
+  dateFnsDifferenceInMilliseconds(new Date(a), new Date(b));
+
+export const isWithinInterval = (a, b) => dateFnsIsWithinInterval(new Date(a), new Date(b));

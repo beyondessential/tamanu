@@ -5,6 +5,7 @@ import {
   createLabTests,
   createPatient,
 } from './covid-swab-lab-test-report-utils';
+import { getCurrentDateTimeString } from 'shared-src/src/utils/dateTime';
 
 const REPORT_URL = '/v1/reports/samoa-covid-swab-lab-test-list';
 const PROGRAM_ID = 'program-samoacovid19';
@@ -76,12 +77,12 @@ async function createSampleCollectionSurvey(models) {
 
 async function createFormAnswerForPatient(app, models, patient, formData) {
   if (!formData.formDate) {
-    formData.formDate = new Date().toISOString();
+    formData.formDate = getCurrentDateTimeString();
   }
   const encounter = await models.Encounter.create(
     await createDummyEncounter(models, { patientId: patient.id }),
   );
-  return await app.post('/v1/surveyResponse').send({
+  return app.post('/v1/surveyResponse').send({
     surveyId: SURVEY_ID,
     startTime: formData.formDate,
     patientId: patient.id,
