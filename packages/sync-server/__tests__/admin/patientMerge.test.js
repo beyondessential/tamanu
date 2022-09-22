@@ -265,7 +265,7 @@ describe('Patient merge', () => {
     });
   });
 
-  describe.only('PatientFacility', () => {
+  describe('PatientFacility', () => {
     it('Should replace patient facility records with a new one per facility', async () => {
       const { Facility, PatientFacility } = models;
       const [keep, merge] = await makeTwoPatients();
@@ -312,12 +312,6 @@ describe('Patient merge', () => {
       expect(postPatientFacilities.map(p => p.facilityId).sort()).toEqual(
         [facilityWithKeep.id, facilityWithMerge.id, facilityWithBoth.id].sort(),
       );
-
-      const sameRecords = await PatientFacility.findAll({
-        where: { id: { [Op.in]: prePatientFacilities.map(p => p.id) } },
-        paranoid: false,
-      });
-      expect(sameRecords.length).toEqual(0); // old ones should all be deleted and replaced
     });
   });
 
