@@ -1,6 +1,6 @@
 import config from 'config';
 import { Sequelize, DataTypes } from 'sequelize';
-import * as yup from 'yup';
+import { string } from 'yup';
 
 import { FhirResource } from './Resource';
 import { arrayOf, activeFromVisibility } from './utils';
@@ -75,61 +75,46 @@ export class FhirPatient extends FhirResource {
       identifier: {
         type: FHIR_SEARCH_PARAMETERS.TOKEN,
         path: [['identifier', '[]']],
-        getValue: value => {
-          const [, identifier] = decodeIdentifier(value);
-          return identifier;
-        },
       },
       given: {
         type: FHIR_SEARCH_PARAMETERS.STRING,
         path: [['name', '[]', 'given', '[]']],
-        sortable: true,
       },
       family: {
         type: FHIR_SEARCH_PARAMETERS.STRING,
         path: [['name', '[]', 'family']],
-        sortable: true,
       },
       gender: {
         type: FHIR_SEARCH_PARAMETERS.TOKEN,
         path: [['gender']],
-        parameterSchema: yup.string().oneOf(['male', 'female', 'other']),
+        parameterSchema: yup => yup.shape({
+          code: string().oneOf(['female', 'male', 'other']).required(),
+        }),
         sortable: false,
       },
       birthdate: {
         type: FHIR_SEARCH_PARAMETERS.DATE,
         path: [['birthDate']],
-        parameterSchema: yup
-          .string()
-          // eslint-disable-next-line no-template-curly-in-string
-          .test('is-valid-date', 'Invalid date/time format: ${value}', value => {
-            if (!value) return true;
-            return parseHL7Date(value).isValid();
-          }),
-        sortable: true,
       },
       address: {
         type: FHIR_SEARCH_PARAMETERS.STRING,
         path: [
-          ['address', '[]', 'line', '[]'],
+          // ['address', '[]', 'line', '[]'], // TODO
           ['address', '[]', 'city'],
           ['address', '[]', 'district'],
           ['address', '[]', 'state'],
           ['address', '[]', 'country'],
-          ['address', '[]', 'postalCode'],
+          ['address', '[]', 'postal_code'],
           ['address', '[]', 'text'],
         ],
-        sortable: true,
       },
       'address-city': {
         type: FHIR_SEARCH_PARAMETERS.STRING,
         path: [['address', '[]', 'city']],
-        sortable: true,
       },
       telecom: {
         type: FHIR_SEARCH_PARAMETERS.TOKEN,
         path: [['telecom', '[]']],
-        sortable: true,
       },
       deceased: {
         type: FHIR_SEARCH_PARAMETERS.TOKEN,
