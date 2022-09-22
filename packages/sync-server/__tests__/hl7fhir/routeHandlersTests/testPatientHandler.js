@@ -1,5 +1,4 @@
 import { format } from 'date-fns';
-import moment from 'moment';
 
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
@@ -235,10 +234,10 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
       it('sorts by dateOfBirth ascending (birthdate)', async () => {
         const { Patient } = ctx.store.models;
         await Promise.all([
-          Patient.create(fake(Patient, { dateOfBirth: moment('1984-10-20') })),
-          Patient.create(fake(Patient, { dateOfBirth: moment('1985-02-20') })),
-          Patient.create(fake(Patient, { dateOfBirth: moment('1985-03-20') })),
-          Patient.create(fake(Patient, { dateOfBirth: moment('1985-03-21') })),
+          Patient.create(fake(Patient, { dateOfBirth: '1984-10-20' })),
+          Patient.create(fake(Patient, { dateOfBirth: '1985-02-20' })),
+          Patient.create(fake(Patient, { dateOfBirth: '1985-03-20' })),
+          Patient.create(fake(Patient, { dateOfBirth: '1985-03-21' })),
         ]);
 
         const path = `/v1/integration/${integrationName}/Patient?_sort=birthdate`;
@@ -255,10 +254,10 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
       it('sorts by dateOfBirth descending (-birthdate)', async () => {
         const { Patient } = ctx.store.models;
         await Promise.all([
-          Patient.create(fake(Patient, { dateOfBirth: moment('1984-10-20') })),
-          Patient.create(fake(Patient, { dateOfBirth: moment('1985-02-20') })),
-          Patient.create(fake(Patient, { dateOfBirth: moment('1985-03-20') })),
-          Patient.create(fake(Patient, { dateOfBirth: moment('1985-03-21') })),
+          Patient.create(fake(Patient, { dateOfBirth: '1984-10-20' })),
+          Patient.create(fake(Patient, { dateOfBirth: '1985-02-20' })),
+          Patient.create(fake(Patient, { dateOfBirth: '1985-03-20' })),
+          Patient.create(fake(Patient, { dateOfBirth: '1985-03-21' })),
         ]);
 
         const path = `/v1/integration/${integrationName}/Patient?_sort=-birthdate`;
@@ -590,15 +589,14 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
 
       it('filters patients by dateOfBirth (birthdate)', async () => {
         const { Patient } = ctx.store.models;
-        const dateString = '1990-05-25';
-        const dateOfBirth = moment.utc(dateString);
+        const dateOfBirth = '1990-05-25';
         await Promise.all([
           Patient.create(fake(Patient, { dateOfBirth })),
           Patient.create(fake(Patient, { dateOfBirth })),
-          Patient.create(fake(Patient, { dateOfBirth: moment.utc('1985-10-20') })),
+          Patient.create(fake(Patient, { dateOfBirth: '1985-10-20' })),
         ]);
 
-        const path = `/v1/integration/${integrationName}/Patient?birthdate=${dateString}`;
+        const path = `/v1/integration/${integrationName}/Patient?birthdate=${dateOfBirth}`;
         const response = await app.get(path).set(requestHeaders);
 
         expect(response).toHaveSucceeded();
@@ -763,8 +761,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
         const { Patient } = ctx.store.models;
         const firstName = 'Jane';
         const lastName = 'Doe';
-        const dateString = '1990-05-20';
-        const dateOfBirth = moment.utc(dateString);
+        const dateOfBirth = '1990-05-20';
         await Promise.all([
           Patient.create(fake(Patient, { firstName, lastName, dateOfBirth })),
           Patient.create(fake(Patient, { firstName, lastName, dateOfBirth })),
@@ -772,7 +769,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
         ]);
 
         const slicedName = firstName.slice(1, 3);
-        const path = `/v1/integration/${integrationName}/Patient?given:contains=${slicedName}&family=${lastName}&birthdate=${dateString}`;
+        const path = `/v1/integration/${integrationName}/Patient?given:contains=${slicedName}&family=${lastName}&birthdate=${dateOfBirth}`;
         const response = await app.get(path).set(requestHeaders);
 
         expect(response).toHaveSucceeded();
