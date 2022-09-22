@@ -33,7 +33,8 @@ const createImportPlanInner = (model, relationTree, validateRecord) => {
   // relations
   const children = Object.entries(relationTree).reduce((memo, [relationName, childTree]) => {
     const association = model.associations[relationName];
-    const childModel = association.target;
+    const { through, target } = association;
+    const childModel = through ? through.model : target;
     if (!childModel) {
       throw new Error(
         `createImportPlan: no such relation ${relationName} (defined in includedRelations on ${model.name}.syncConfig)`,

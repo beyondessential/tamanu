@@ -16,10 +16,11 @@ const createExportPlanInner = (model, relationTree, query) => {
   // generate nested association exporters
   const associations = Object.entries(relationTree).reduce((memo, [associationName, subTree]) => {
     const association = model.associations[associationName];
-    const { foreignKey } = association;
+    const { foreignKey, through } = association;
+    const target = through ? through.model : association.target;
     return {
       ...memo,
-      [associationName]: createExportPlanInner(association.target, subTree, { foreignKey }),
+      [associationName]: createExportPlanInner(target, subTree, { foreignKey }),
     };
   }, {});
 

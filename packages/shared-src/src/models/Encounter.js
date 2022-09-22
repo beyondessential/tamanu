@@ -53,6 +53,7 @@ export class Encounter extends Model {
         'labRequests.notePages',
         'imagingRequests',
         'imagingRequests.notePages',
+        'imagingRequests.areas',
         'procedures',
         'initiatedReferrals',
         'completedReferrals',
