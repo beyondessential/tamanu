@@ -25,29 +25,29 @@ export class CentralSyncManager {
 
   sessions = {};
 
-  purgeInterval;
+  // purgeInterval;
 
-  constructor() {
-    this.purgeInterval = setInterval(
-      this.purgeLapsedSessions,
-      lapsedSessionCheckFrequencySeconds * 1000,
-    );
-  }
+  // constructor() {
+  //   this.purgeInterval = setInterval(
+  //     this.purgeLapsedSessions,
+  //     lapsedSessionCheckFrequencySeconds * 1000,
+  //   );
+  // }
 
-  close() {
-    console.log('clearing');
-    try {
-      clearInterval(this.purgeInterval);
-    } catch (e) {
-      console.log(e);
-    }
-    console.log('cleared');
-  }
+  // close() {
+  //   console.log('clearing');
+  //   try {
+  //     clearInterval(this.purgeInterval);
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
+  //   console.log('cleared');
+  // }
 
-  purgeLapsedSessions = async () => {
-    const store = await initDatabase({ testMode: false });
-    await deleteInactiveSyncSessions(store, lapsedSessionSeconds);
-  };
+  // purgeLapsedSessions = async () => {
+  //   const store = await initDatabase({ testMode: false });
+  //   await deleteInactiveSyncSessions(store, lapsedSessionSeconds);
+  // };
 
   async startSession({ sequelize }) {
     // as a side effect of starting a new session, cause a tick on the global sync clock
