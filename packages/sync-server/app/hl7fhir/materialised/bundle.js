@@ -1,9 +1,9 @@
-import { formatRFC3339 } from "date-fns";
+import { formatRFC3339 } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
 
 import { latestDateTime } from 'shared/utils/dateTime';
 
-import { getBaseUrl, getHL7Link } from "../utils";
+import { getBaseUrl, getHL7Link } from '../utils';
 
 export class Bundle {
   constructor(type, resources, options = {}) {
@@ -11,22 +11,26 @@ export class Bundle {
     this.resources = resources;
     this.options = options;
   }
-  
+
   addSelfUrl(req) {
     const baseUrl = getBaseUrl(req);
     this.options.selfurl = getHL7Link(baseUrl, req.query);
   }
 
   asFhir() {
-    const fields =  {
+    const fields = {
       resourceType: 'Bundle',
       id: uuidv4(),
       type: this.type,
-      timestamp: formatRFC3339(new Date),
-      meta: {
-        lastUpdated: formatRFC3339(latestDateTime(...this.resources.map(r => r.lastUpdated))),
-      },
+      timestamp: formatRFC3339(new Date()),
     };
+
+    const latestUpdated = latestDateTime(...this.resources.map(r => r.lastUpdated));
+    if (latestUpdated) {
+      fields.meta = {
+        lastUpdated: formatRFC3339(latestUpdated),
+      };
+    }
 
     if (this.options.total) {
       fields.total = this.options.total;
@@ -35,7 +39,7 @@ export class Bundle {
     if (this.options.link) {
       fields.link = this.options.link;
     }
-    
+
     if (this.options.selfurl) {
       fields.link ||= [];
       fields.link.push({
