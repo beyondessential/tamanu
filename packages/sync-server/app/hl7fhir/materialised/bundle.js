@@ -1,5 +1,4 @@
 import { formatRFC3339 } from "date-fns";
-import { kebabCase } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
 import { latestDateTime } from 'shared/utils/dateTime';

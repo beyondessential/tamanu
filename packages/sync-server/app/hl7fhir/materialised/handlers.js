@@ -3,35 +3,41 @@ import asyncHandler from 'express-async-handler';
 import { FHIR_BUNDLE_TYPES } from 'shared/constants';
 import { Bundle } from './bundle';
 
-import { Unsupported } from './errors';
+import { OperationOutcome, Unsupported } from './errors';
 import { normaliseParameters } from './parameters';
 import { buildQuery, pushToQuery } from './query';
 
 export function resourceHandler() {
   return asyncHandler(async (req, res) => {
-    const { method } = req;
-    if (method !== 'GET') throw new Unsupported('methods other than get are not supported');
+    try { // TODO: make it a middleware
+      const { method } = req;
+      if (method !== 'GET') throw new Unsupported('methods other than get are not supported');
 
-    const path = req.path.split('/').slice(1);
-    if (path.length > 1) throw new Unsupported('nested paths are not supported');
+      const path = req.path.split('/').slice(1);
+      if (path.length > 1) throw new Unsupported('nested paths are not supported');
 
-    const FhirResource = req.store.models[`Fhir${path[0]}`];
-    if (!FhirResource) throw new Unsupported('this resource is not supported');
+      const FhirResource = req.store.models[`Fhir${path[0]}`];
+      if (!FhirResource) throw new Unsupported('this resource is not supported');
 
-    const parameters = normaliseParameters(FhirResource);
-    const query = parseRequest(req, parameters);
+      const parameters = normaliseParameters(FhirResource);
+      const query = parseRequest(req, parameters);
 
-    const sqlQuery = buildQuery(query, parameters, FhirResource);
-    const total = await FhirResource.count(sqlQuery);
-    const records = await FhirResource.findAll(sqlQuery);
-    
-    const bundle = new Bundle(FHIR_BUNDLE_TYPES.SEARCHSET, records, {
-      total
-    });
+      const sqlQuery = buildQuery(query, parameters, FhirResource);
+      const total = await FhirResource.count(sqlQuery);
+      const records = await FhirResource.findAll(sqlQuery);
+      
+      const bundle = new Bundle(FHIR_BUNDLE_TYPES.SEARCHSET, records, {
+        total
+      });
 
-    bundle.addSelfUrl(req);
+      bundle.addSelfUrl(req);
 
-    res.send(bundle.asFhir());
+      res.send(bundle.asFhir());
+    } catch (err) {
+      // TODO: multiple errors?
+      const oo = new OperationOutcome([err]);
+      res.status(oo.status()).send(oo.asFhir());
+    }
   });
 }
 
