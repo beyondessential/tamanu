@@ -27,7 +27,7 @@ export const serve = async ({ skipMigrationCheck }) => {
     log.info(`Server is running on port ${port}!`);
   });
 
-  app.onClose(() => server.close());
+  context.onClose(() => server.close());
 
   for (const sig of ['SIGINT', 'SIGTERM']) {
     process.once(sig, () => {
