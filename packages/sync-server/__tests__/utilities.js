@@ -131,7 +131,10 @@ export async function createTestContext() {
     await ctx.close();
   };
 
-  return { ...ctx, baseApp, close };
+  ctx.close = close;
+  ctx.baseApp = baseApp;
+
+  return ctx;
 }
 
 export async function withDate(fakeDate, fn) {
