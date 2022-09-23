@@ -48,7 +48,7 @@
                 - name: the shared library
                   command: yarn shared-test
                 - name: the sync server
-                  command: yarn sync
+                  command: yarn sync-test
                 - name: the lan server
                   command: yarn lan-test
                 - name: the meta server
