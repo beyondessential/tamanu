@@ -125,7 +125,7 @@ function typedMatch(value, query, def) {
     case FHIR_SEARCH_PARAMETERS.DATE:
       return {
         op: prefixToOp(value.prefix),
-        val: value.date,
+        val: value.date.sql,
       };
     case FHIR_SEARCH_PARAMETERS.STRING: {
       switch (query.modifier) {

@@ -1,6 +1,8 @@
 import * as yup from 'yup';
 
 import { FHIR_SEARCH_PARAMETERS, FHIR_SEARCH_PREFIXES } from 'shared/constants';
+import { DATE_OBJECT_SCHEMA, parseDateTime } from './datetime';
+export { DATE_OBJECT_SCHEMA };
 
 const SEARCH_PREFIXES_ENUM = Object.values(FHIR_SEARCH_PREFIXES);
 
@@ -29,18 +31,19 @@ export const DEFAULT_SCHEMA_FOR_TYPE = {
       if (this.isType(value)) return value;
 
       const prefix = SEARCH_PREFIXES_ENUM.find(pref => originalValue.startsWith(pref));
-      const date = originalValue.replace(new RegExp(`^${prefix}`), '');
+      const date = prefix ? originalValue.slice(prefix.length) : originalValue;
 
-      return { prefix, date };
+      const parsed = parseDateTime(date);
+      if (parsed === false) return false;
+
+      return { prefix, date: parsed };
     })
     .shape({
       prefix: yup
         .string()
         .oneOf(SEARCH_PREFIXES_ENUM)
         .nullable(),
-      date: yup
-        .string()
-        .matches(/^\d{4}(-\d{2}(-\d{2})?)?$/, 'Dates must be either YYYY or YYYY-MM or YYYY-MM-DD'),
+      date: DATE_OBJECT_SCHEMA.required(),
     })
     .noUnknown(),
   [FHIR_SEARCH_PARAMETERS.STRING]: yup.string(),

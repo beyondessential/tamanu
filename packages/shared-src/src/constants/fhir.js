@@ -75,3 +75,15 @@ export const FHIR_PATIENT_LINK_TYPES = {
 };
 
 export const FHIR_MAX_RESOURCES_PER_PAGE = 20;
+
+export const FHIR_DATETIME_PRECISION = {
+  SECONDS_WITH_TIMEZONE: 's+tz',
+  MINUTES_WITH_TIMEZONE: 'm+tz',
+  HOURS_WITH_TIMEZONE: 'h+tz',
+  SECONDS: 's',
+  MINUTES: 'm',
+  HOURS: 'h',
+  DAYS: 'D',
+  MONTHS: 'M',
+  YEARS: 'Y',
+};
