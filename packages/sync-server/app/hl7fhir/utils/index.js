@@ -5,3 +5,4 @@ export * from './sort';
 export * from './getHL7Link';
 export * from './getBaseUrl';
 export * from './parseQuery';
+export * from './createBundledResource';
