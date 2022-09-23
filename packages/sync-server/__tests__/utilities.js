@@ -96,7 +96,12 @@ class MockApplicationContext {
     return this;
   }
 
+  injectCloseAppServer(closeAppServer) {
+    this.closeAppServer = closeAppServer;
+  }
+
   async close() {
+    await this.closeAppServer();
     await closeDatabase();
   }
 }
@@ -126,12 +131,7 @@ export async function createTestContext() {
     return baseApp.asUser(newUser);
   };
 
-  const close = async () => {
-    await new Promise(resolve => appServer.close(resolve));
-    await ctx.close();
-  };
-
-  ctx.close = close;
+  ctx.injectCloseAppServer(() => new Promise(resolve => appServer.close(resolve)));
   ctx.baseApp = baseApp;
 
   return ctx;
