@@ -1,4 +1,5 @@
 import { Op } from 'sequelize';
+import config from 'config';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { log } from 'shared/services/logging';
 import {
@@ -8,18 +9,39 @@ import {
   removeEchoedChanges,
   saveIncomingChanges,
   deleteSyncSession,
+  deleteInactiveSyncSessions,
   getOutgoingChangesCount,
   SYNC_SESSION_DIRECTION,
 } from 'shared/sync';
+import { initDatabase } from '../database';
 import { getPatientLinkedModels } from './getPatientLinkedModels';
 
 // after x minutes of no activity, consider a session lapsed and wipe it to avoid holding invalid
 // changes in the database when a sync fails on the facility server end
+const { lapsedSessionSeconds, lapsedSessionCheckFrequencySeconds } = config.sync;
 
 export class CentralSyncManager {
   currentSyncTick;
 
   sessions = {};
+
+  purgeInterval;
+
+  constructor() {
+    this.purgeInterval = setInterval(
+      this.purgeLapsedSessions,
+      lapsedSessionCheckFrequencySeconds * 1000,
+    );
+  }
+
+  close() {
+    clearInterval(this.purgeInterval);
+  }
+
+  purgeLapsedSessions = async () => {
+    const store = await initDatabase({ testMode: false });
+    await deleteInactiveSyncSessions(store, lapsedSessionSeconds);
+  };
 
   async startSession({ sequelize }) {
     // as a side effect of starting a new session, cause a tick on the global sync clock
