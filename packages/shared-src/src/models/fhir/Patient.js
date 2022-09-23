@@ -87,12 +87,13 @@ export class FhirPatient extends FhirResource {
       gender: {
         type: FHIR_SEARCH_PARAMETERS.TOKEN,
         path: [['gender']],
-        parameterSchema: yup =>
-          yup.shape({
-            code: string()
-              .oneOf(['female', 'male', 'other'])
-              .required(),
-          }),
+        // FIXME
+        // parameterSchema: yup =>
+        //   yup.shape({
+        //     code: string()
+        //       .oneOf(['female', 'male', 'other'])
+        //       .required(),
+        //   }),
         sortable: false,
         tokenType: FHIR_SEARCH_TOKEN_TYPES.STRING,
       },
