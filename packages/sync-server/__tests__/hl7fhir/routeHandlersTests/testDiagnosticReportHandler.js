@@ -137,6 +137,7 @@ export function testDiagnosticReportHandler(integrationName, requestHeaders = {}
             lastUpdated: labTest.updatedAt.toISOString(),
           },
           type: 'searchset',
+          timestamp: expect.any(String),
           total: 1,
           link: [
             {
@@ -146,6 +147,7 @@ export function testDiagnosticReportHandler(integrationName, requestHeaders = {}
           ],
           entry: [
             {
+              fullUrl: expect.stringContaining(labTest.id),
               resource: {
                 resourceType: 'DiagnosticReport',
                 id: labTest.id,
@@ -328,6 +330,7 @@ export function testDiagnosticReportHandler(integrationName, requestHeaders = {}
             lastUpdated: null,
           },
           type: 'searchset',
+          timestamp: expect.any(String),
           total: 0,
           link: [
             {

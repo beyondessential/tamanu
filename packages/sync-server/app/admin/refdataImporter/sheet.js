@@ -79,8 +79,11 @@ export async function importSheet({ errors, log, models }, { loader, sheetName, 
   const tableRows = [];
   const idCache = new Set();
   for (const [sheetRow, data] of sheetRows.entries()) {
+    const trimmed = Object.fromEntries(
+      Object.entries(data).map(([key, value]) => [key.trim(), value]),
+    );
     try {
-      for (const { model, values } of loader(data)) {
+      for (const { model, values } of loader(trimmed)) {
         if (!models[model]) throw new Error(`No such type of data: ${model}`);
 
         if (values.id && idCache.has(values.id)) {

@@ -1,8 +1,8 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { format as formatDate, isAfter, parse } from 'date-fns';
+import { parseISO9075, toDateTimeString } from 'shared/utils/dateTime';
 import PropTypes from 'prop-types';
 import { TextInput } from './TextField';
-import { toDateTimeString } from '../../utils/dateTime';
 
 // This component is pretty tricky! It has to keep track of two layers of state:
 //
@@ -24,6 +24,9 @@ import { toDateTimeString } from '../../utils/dateTime';
 function fromRFC3339(rfc3339Date, format) {
   if (!rfc3339Date) return '';
 
+  if (typeof rfc3339Date === 'string') {
+    return formatDate(parseISO9075(rfc3339Date), format);
+  }
   return formatDate(new Date(rfc3339Date), format);
 }
 

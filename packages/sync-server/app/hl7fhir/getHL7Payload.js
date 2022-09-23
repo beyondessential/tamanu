@@ -6,6 +6,7 @@ import {
   decodeIdentifier,
   getHL7Link,
   parseQuery,
+  createBundledResource,
 } from './utils';
 
 // TODO (TAN-943): fix auth to throw an error if X-Tamanu-Client and X-Tamanu-Version aren't set
@@ -31,6 +32,7 @@ export async function getHL7Payload({
   const baseWhere = getWhere(displayId, query);
   const afterWhere = addPaginationToWhere(baseWhere, after);
   const include = getInclude(displayId, query);
+  const baseUrl = getBaseUrl(req);
 
   const [records, total, remaining] = await Promise.all([
     model.findAll({
@@ -63,14 +65,15 @@ export async function getHL7Payload({
   // data) before iterating the records.
   if (toHL7List) {
     const resources = await toHL7List(records, query);
-    entry.push(...resources);
+    const bundledResources = resources.map(resource => createBundledResource(baseUrl, resource));
+    entry.push(...bundledResources);
   } else {
     // run in a loop instead of using `.map()` so embedded queries run in serial
     const hl7FhirResources = [];
     const hl7FhirIncludedResources = [];
     for (const r of records) {
       const { mainResource, includedResources } = await toHL7(r, query);
-      hl7FhirResources.push(mainResource);
+      hl7FhirResources.push(createBundledResource(baseUrl, mainResource));
       if (includedResources) {
         hl7FhirIncludedResources.push(...includedResources);
       }
@@ -79,7 +82,6 @@ export async function getHL7Payload({
     entry.push(...hl7FhirResources, ...hl7FhirIncludedResources);
   }
 
-  const baseUrl = getBaseUrl(req);
   const link = [
     {
       relation: 'self',
@@ -111,6 +113,7 @@ export async function getHL7Payload({
       lastUpdated: lastUpdated ? lastUpdated.toISOString() : null,
     },
     type: 'searchset',
+    timestamp: new Date().toISOString(),
     total,
     link,
     entry,
