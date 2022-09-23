@@ -24,7 +24,10 @@ import { TextInput } from './TextField';
 function fromRFC3339(rfc3339Date, format) {
   if (!rfc3339Date) return '';
 
-  return formatDate(parseISO9075(rfc3339Date), format);
+  if (typeof rfc3339Date === 'string') {
+    return formatDate(parseISO9075(rfc3339Date), format);
+  }
+  return formatDate(new Date(rfc3339Date), format);
 }
 
 export const DateInput = ({
