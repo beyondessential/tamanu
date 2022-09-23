@@ -8,20 +8,20 @@
     - name: install dependencies
       service: app-without-db
       command: scripts/build_shared.sh
-    # - name: run migrations
-    #   service: app-with-db
-    #   command: scripts/apply_and_revert_sync_server_migrations.sh
-    # - name: hygiene checks (on PR branches)
-    #   type: parallel
-    #   exclude: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-)
-    #   steps:
-    #     - name: lint desktop app and servers
-    #       service: app-without-db
-    #       command: scripts/lint.sh pr-lints
-    #     - name: ensure storybook builds
-    #       service: app-without-db
-    #       command: 'yarn workspace desktop run verify-storybook'
-    # - TODO(WAITM-215): mobile lints
+    - name: run migrations
+      service: app-with-db
+      command: scripts/apply_and_revert_sync_server_migrations.sh
+    - name: hygiene checks (on PR branches)
+      type: parallel
+      exclude: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-)
+      steps:
+        - name: lint desktop app and servers
+          service: app-without-db
+          command: scripts/lint.sh pr-lints
+        - name: ensure storybook builds
+          service: app-without-db
+          command: 'yarn workspace desktop run verify-storybook'
+        # - TODO(WAITM-215): mobile lints
     - name: test
       type: serial
       steps:
