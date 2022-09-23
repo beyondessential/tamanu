@@ -102,12 +102,12 @@ class MockApplicationContext {
     this.closeHooks.push(hook);
   }
 
-  async close() {
+  close = async () => {
     for (const hook of this.closeHooks) {
       await hook();
     }
     await closeDatabase();
-  }
+  };
 }
 
 export async function createTestContext() {
