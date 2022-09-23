@@ -34,15 +34,15 @@ export class CentralSyncManager {
   //   );
   // }
 
-  // close() {
-  //   console.log('clearing');
-  //   try {
-  //     clearInterval(this.purgeInterval);
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  //   console.log('cleared');
-  // }
+  close() {
+    //   console.log('clearing');
+    //   try {
+    //     clearInterval(this.purgeInterval);
+    //   } catch (e) {
+    //     console.log(e);
+    //   }
+    //   console.log('cleared');
+  }
 
   // purgeLapsedSessions = async () => {
   //   const store = await initDatabase({ testMode: false });
