@@ -30,9 +30,7 @@ describe('EU DCC: HCERT Formatting', () => {
     await signer.update(signedCert);
     expect(signer?.isActive()).to.be.true;
   });
-  afterAll(async () => {
-    await ctx.close();
-  });
+  afterAll(() => ctx.close());
 
   it('Packs and verifies HCERT data', async () => {
     const testMessageData = {

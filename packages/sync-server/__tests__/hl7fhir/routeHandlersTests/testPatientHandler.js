@@ -13,9 +13,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
       ctx = await createTestContext();
       app = await ctx.baseApp.asRole('practitioner');
     });
-    afterAll(async () => {
-      await ctx.close();
-    });
+    afterAll(() => ctx.close());
 
     describe('success', () => {
       it('fetches a patient', async () => {

@@ -24,9 +24,7 @@ describe('user', () => {
     ctx = await createTestContext();
     User = ctx.store.models.User;
   });
-  afterAll(async () => {
-    await ctx.close();
-  });
+  afterAll(() => ctx.close());
 
   describe('changePassword', () => {
     it("changes a user's password", async () => {

@@ -169,9 +169,7 @@ describe('Certificate', () => {
     };
   });
 
-  afterAll(async () => {
-    await ctx.close();
-  });
+  afterAll(() => ctx.close());
 
   it('Generates a Patient Covid Certificate', async () => {
     await createLabTests();

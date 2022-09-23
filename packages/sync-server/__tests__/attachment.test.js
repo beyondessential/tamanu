@@ -24,9 +24,7 @@ describe('Attachment (sync-server)', () => {
     });
   });
 
-  afterAll(async () => {
-    await ctx.close();
-  });
+  afterAll(async () => ctx.close());
 
   it('should send an error if attachment does not exist', async () => {
     const result = await app.get('/v1/attachment/1');

@@ -12,9 +12,7 @@ export function testSingleResourceHandler(integrationName, requestHeaders = {}) 
       ctx = await createTestContext();
       app = await ctx.baseApp.asRole('practitioner');
     });
-    afterAll(async () => {
-      await ctx.close();
-    });
+    afterAll(() => ctx.close());
 
     describe('Patient', () => {
       it('fetches a patient resource', async () => {

@@ -36,9 +36,7 @@ describe('VDS-NC: Document cryptography', () => {
     await signer.update(signedCert);
     expect(signer?.isActive()).to.be.true;
   });
-  afterAll(async () => {
-    await ctx.close();
-  });
+  afterAll(() => ctx.close());
 
   it('can sign a test document', async () => {
     const { Signer } = ctx.store.models;

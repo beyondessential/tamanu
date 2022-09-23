@@ -6,9 +6,7 @@ describe('Basics', () => {
     ctx = await createTestContext();
   });
 
-  afterAll(async () => {
-    await ctx.close();
-  });
+  afterAll(async () => ctx.close());
 
   it('should respond with an index page', async () => {
     const result = await ctx.baseApp.get('/');

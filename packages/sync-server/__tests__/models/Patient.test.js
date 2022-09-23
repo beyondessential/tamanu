@@ -139,9 +139,7 @@ describe('Patient', () => {
     models = ctx.store.models;
     testIds = await prepopulate(models);
   });
-  afterAll(async () => {
-    await ctx.close();
-  });
+  afterAll(() => ctx.close());
 
   describe('Patient.getLabRequests', () => {
     it('should return the correct amount of lab requests', async () => {

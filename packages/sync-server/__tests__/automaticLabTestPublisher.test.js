@@ -89,9 +89,7 @@ describe('Lab test publisher', () => {
     });
   });
 
-  afterAll(async () => {
-    await ctx.close();
-  });
+  afterAll(() => ctx.close());
 
   it('Should publish a positive result', async () => {
     const { labTest, labRequest } = await makeLabRequest('labTestType-RATPositive');

@@ -10,9 +10,7 @@ describe('ImagingRequest', () => {
   beforeAll(async () => {
     ctx = await createTestContext();
   });
-  afterAll(async () => {
-    await ctx.close();
-  });
+  afterAll(() => ctx.close());
 
   it('allows more than 255 characters in the results', async () => {
     // arrange

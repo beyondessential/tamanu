@@ -13,9 +13,7 @@ describe('VRS integration - hook - DELETE', () => {
     ctx = await createTestContext();
     app = await ctx.baseApp.asRole('practitioner');
   });
-  afterAll(async () => {
-    await ctx.close();
-  });
+  afterAll(async () => ctx.close());
 
   // skipped while integrations.fijiVrs.flagInsteadOfDeleting is still enabled
   it.skip('deletes a record successfully', async () => {

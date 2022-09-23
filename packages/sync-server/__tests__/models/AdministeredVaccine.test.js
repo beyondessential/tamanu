@@ -4,6 +4,7 @@ import { fake, fakeUser, fakeReferenceData } from 'shared/test-helpers/fake';
 
 import { createTestContext } from '../utilities';
 
+
 describe('AdministeredVaccine.lastVaccinationForPatient', () => {
   let ctx;
   let models;
@@ -55,9 +56,7 @@ describe('AdministeredVaccine.lastVaccinationForPatient', () => {
       locationId: loc.id,
     });
   });
-  afterAll(async () => {
-    await ctx.close();
-  });
+  afterAll(() => ctx.close());
 
   afterEach(async () => {
     await models.AdministeredVaccine.truncate();

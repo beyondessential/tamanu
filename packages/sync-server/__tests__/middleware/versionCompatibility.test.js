@@ -18,9 +18,7 @@ describe('Version compatibility', () => {
     app = await baseApp.asRole('practitioner');
   });
 
-  afterAll(async () => {
-    await close();
-  });
+  afterAll(async () => close());
 
   describe('LAN server client version checking', () => {
     it('Should allow a supported client', async () => {
