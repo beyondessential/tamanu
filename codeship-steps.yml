@@ -31,6 +31,7 @@
           steps:
             - name: on main branches
               tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-)
+              type: serial
               steps:
                 - name: the desktop app
                   command: yarn test-desktop
@@ -40,6 +41,7 @@
                   command: yarn test-lan
             - name: on PR branches
               exclude: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-)
+              type: serial
               steps:
                 - name: the desktop app
                   command: yarn test-desktop
