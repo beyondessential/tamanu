@@ -35,7 +35,13 @@ export class CentralSyncManager {
   }
 
   close() {
-    clearInterval(this.purgeInterval);
+    console.log('clearing');
+    try {
+      clearInterval(this.purgeInterval);
+    } catch (e) {
+      console.log(e);
+    }
+    console.log('cleared');
   }
 
   purgeLapsedSessions = async () => {
