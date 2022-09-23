@@ -23,6 +23,13 @@ export const FHIR_SEARCH_PARAMETERS = {
   SPECIAL: 'special',
 };
 
+export const FHIR_SEARCH_TOKEN_TYPES = {
+  CODING: 'coding',
+  STRING: 'string',
+  BOOLEAN: 'boolean',
+  PRESENCE: 'presence',
+};
+
 // All supported search modifiers, by parameter type,
 // mapped to their Sequelize operator, or to a function
 // (param) => Sequelize.where/.or/.and...

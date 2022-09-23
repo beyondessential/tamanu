@@ -1,6 +1,10 @@
 import * as yup from 'yup';
 
-import { FHIR_SEARCH_PARAMETERS, FHIR_MAX_RESOURCES_PER_PAGE } from 'shared/constants';
+import {
+  FHIR_SEARCH_PARAMETERS,
+  FHIR_MAX_RESOURCES_PER_PAGE,
+  FHIR_SEARCH_TOKEN_TYPES,
+} from 'shared/constants';
 
 import { DEFAULT_SCHEMA_FOR_TYPE, INCLUDE_SCHEMA } from './schemata';
 
@@ -16,6 +20,10 @@ function normaliseParameter([key, param], overrides = {}) {
     ...param,
     ...overrides,
   };
+  
+  if (param.type === FHIR_SEARCH_PARAMETERS.TOKEN && !norm.tokenType) {
+    norm.tokenType = FHIR_SEARCH_TOKEN_TYPES.CODING;
+  }
 
   return [key, norm];
 }

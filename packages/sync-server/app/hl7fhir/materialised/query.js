@@ -1,12 +1,15 @@
 import { last } from 'lodash';
 import { Op, Sequelize } from 'sequelize';
+import * as yup from 'yup';
+
 import {
   FHIR_SEARCH_PARAMETERS,
   FHIR_SEARCH_PREFIXES,
   MAX_RESOURCES_PER_PAGE,
+  FHIR_SEARCH_TOKEN_TYPES,
 } from 'shared/constants';
 
-import { Unsupported } from './errors';
+import { Invalid, Unsupported } from './errors';
 import { RESULT_PARAMETER_NAMES } from './parameters';
 
 export function pushToQuery(query, param, value) {
@@ -154,6 +157,74 @@ function typedMatch(value, query, def) {
           return [{ op: Op.eq, val: value }];
         default:
           throw new Unsupported(`unsupported string modifier: ${query.modifier}`);
+      }
+    }
+    case FHIR_SEARCH_PARAMETERS.TOKEN: {
+      console.log({ value, query, def });
+      const { system, code } = value;
+      switch (def.tokenType) {
+        case FHIR_SEARCH_TOKEN_TYPES.CODING: {
+            if (system && code) {
+                // FIXME: i think this needs to be ANDed (at caller)
+                return [
+                  {
+                    op: Op.eq,
+                    val: system,
+                    extraPath: ['system'],
+                  },
+                  {
+                    op: Op.eq,
+                    val: code,
+                    extraPath: ['code'],
+                  },
+                ];
+            } else if (system) {
+                return [
+                  {
+                    op: Op.eq,
+                    val: system,
+                    extraPath: ['system'],
+                  },
+                ];
+            } else if (code) {
+              return [
+                {
+                  op: Op.eq,
+                  val: code,
+                  extraPath: ['code'],
+                },
+              ];
+            } else {
+              throw new Invalid('token searches require either or both of system|code');
+            }
+        }
+        case FHIR_SEARCH_TOKEN_TYPES.BOOLEAN: {
+            return [
+              {
+                op: Op.eq,
+                val: yup.boolean().validateSync(code), // just to cast it
+              },
+            ];
+        }
+        case FHIR_SEARCH_TOKEN_TYPES.PRESENCE: {
+            const present = yup.boolean().validateSync(code);
+            return [
+              {
+                op: present ? Op.not : Op.is,
+                val: null,
+              },
+            ];
+        }
+        case FHIR_SEARCH_TOKEN_TYPES.STRING: {
+            return [
+              {
+                op: Op.eq,
+                val: code,
+              },
+            ];
+        }
+        default:
+            throw new Unsupported(`unsupported search token type ${def.tokenType}`);
       }
     }
     default:

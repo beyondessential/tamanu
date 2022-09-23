@@ -6,7 +6,7 @@ import { FhirResource } from './Resource';
 import { arrayOf, activeFromVisibility } from './utils';
 import { dateType } from '../dateTimeTypes';
 import { latestDateTime } from '../../utils/dateTime';
-import { FHIR_SEARCH_PARAMETERS } from '../../constants';
+import { FHIR_SEARCH_PARAMETERS, FHIR_SEARCH_TOKEN_TYPES } from '../../constants';
 import {
   FhirAddress,
   FhirContactPoint,
@@ -87,10 +87,14 @@ export class FhirPatient extends FhirResource {
       gender: {
         type: FHIR_SEARCH_PARAMETERS.TOKEN,
         path: [['gender']],
-        parameterSchema: yup => yup.shape({
-          code: string().oneOf(['female', 'male', 'other']).required(),
-        }),
+        parameterSchema: yup =>
+          yup.shape({
+            code: string()
+              .oneOf(['female', 'male', 'other'])
+              .required(),
+          }),
         sortable: false,
+        tokenType: FHIR_SEARCH_TOKEN_TYPES.STRING,
       },
       birthdate: {
         type: FHIR_SEARCH_PARAMETERS.DATE,
@@ -118,12 +122,13 @@ export class FhirPatient extends FhirResource {
       },
       deceased: {
         type: FHIR_SEARCH_PARAMETERS.TOKEN,
-        path: ['deceasedDateTime'],
-        presenceMatch: true,
+        path: [['deceasedDateTime']],
+        tokenType: FHIR_SEARCH_TOKEN_TYPES.PRESENCE,
       },
       active: {
         type: FHIR_SEARCH_PARAMETERS.TOKEN,
-        path: ['active'],
+        path: [['active']],
+        tokenType: FHIR_SEARCH_TOKEN_TYPES.BOOLEAN,
       },
     };
   }
