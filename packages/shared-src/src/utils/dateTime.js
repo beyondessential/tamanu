@@ -5,7 +5,6 @@ import {
   differenceInMonths,
   differenceInYears,
   differenceInMilliseconds as dateFnsDifferenceInMilliseconds,
-  isWithinInterval as dateFnsIsWithinInterval,
 } from 'date-fns';
 
 export function toDateTimeString(date) {
@@ -64,5 +63,3 @@ export const format = date => format(new Date(date.replace(' ', 'T')));
 
 export const differenceInMilliseconds = (a, b) =>
   dateFnsDifferenceInMilliseconds(new Date(a), new Date(b));
-
-export const isWithinInterval = (a, b) => dateFnsIsWithinInterval(new Date(a), new Date(b));

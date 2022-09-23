@@ -1,11 +1,11 @@
 import { createDummyEncounter } from 'shared/demoData/patients';
+import { getCurrentDateTimeString } from 'shared-src/src/utils/dateTime';
 import { createTestContext } from '../../../utilities';
 import {
   createCovidTestForPatient,
   createLabTests,
   createPatient,
 } from './covid-swab-lab-test-report-utils';
-import { getCurrentDateTimeString } from 'shared-src/src/utils/dateTime';
 
 const REPORT_URL = '/v1/reports/samoa-covid-swab-lab-test-list';
 const PROGRAM_ID = 'program-samoacovid19';
@@ -127,6 +127,7 @@ describe('Samoa covid lab test report', () => {
     afterEach(async () => {
       await testContext.models.LabRequest.destroy({ where: {} });
       await testContext.models.LabTest.destroy({ where: {} });
+      await testContext.models.SurveyResponseAnswer.destroy({ where: {} });
     });
 
     it('should produce the right columns', async () => {
@@ -183,15 +184,18 @@ describe('Samoa covid lab test report', () => {
       await createFormAnswerForPatient(app, testContext.models, expectedPatient1, {
         phoneNumber,
         village: 'patient 1 village',
+        formDate: '2022-09-23 11:00:00.000',
       });
       await createFormAnswerForPatient(app, testContext.models, expectedPatient1, {
         phoneNumber,
         village: 'patient 1 village 2',
+        formDate: '2022-09-23 13:00:00.000',
       });
       await createCovidTestForPatient(testContext.models, expectedPatient2);
       await createFormAnswerForPatient(app, testContext.models, expectedPatient2, {
         phoneNumber,
         village: 'patient 2 village',
+        formDate: '2022-09-23 00:00:00.000',
       });
       const reportResult = await app.post(REPORT_URL).send({});
       expect(reportResult).toHaveSucceeded();
