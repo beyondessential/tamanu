@@ -12,7 +12,7 @@ import {
 import { validate } from './hl7utilities';
 import { PATIENT_LINK_TYPES } from '../../app/hl7fhir/constants';
 
-describe('HL7 Patient', () => {
+describe('HL7 Patient', async () => {
   let models;
   let ctx;
   let req;

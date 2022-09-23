@@ -5,7 +5,7 @@ import { prepareVRSMocks } from './sharedHookHelpers';
 
 const { host } = config.integrations.fijiVrs;
 
-describe('VRS integration - VRSActionRetrier', () => {
+describe('VRS integration - VRSActionRetrier', async () => {
   let ctx;
   beforeAll(async () => {
     ctx = await createTestContext();

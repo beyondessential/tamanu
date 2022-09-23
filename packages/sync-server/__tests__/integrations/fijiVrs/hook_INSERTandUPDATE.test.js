@@ -8,7 +8,7 @@ import { fakeVRSPatient, prepareVRSMocks } from './sharedHookHelpers';
 
 const { host } = config.integrations.fijiVrs;
 
-describe('VRS integration hook: INSERT and UPDATE operations', () => {
+describe('VRS integration hook: INSERT and UPDATE operations', async () => {
   let ctx;
   let app;
   beforeAll(async () => {

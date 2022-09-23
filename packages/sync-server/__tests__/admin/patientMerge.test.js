@@ -8,7 +8,7 @@ import {
 } from '../../app/admin/patientMerge/mergePatient';
 import { createTestContext } from '../utilities';
 
-describe('Patient merge', () => {
+describe('Patient merge', async () => {
   let ctx;
   let models;
   let baseApp;

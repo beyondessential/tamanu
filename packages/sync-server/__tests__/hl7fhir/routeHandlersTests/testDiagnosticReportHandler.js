@@ -6,7 +6,7 @@ import { createTestContext } from 'sync-server/__tests__/utilities';
 import { IDENTIFIER_NAMESPACE } from '../../../app/hl7fhir/utils';
 
 export function testDiagnosticReportHandler(integrationName, requestHeaders = {}) {
-  describe(`${integrationName} integration - DiagnosticReport`, () => {
+  describe(`${integrationName} integration - DiagnosticReport`, async () => {
     const chance = new Chance();
     let ctx;
     let app;

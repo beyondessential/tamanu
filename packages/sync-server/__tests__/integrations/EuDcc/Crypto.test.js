@@ -10,7 +10,7 @@ import {
 import { expect } from 'chai';
 import { getLocalisation } from 'sync-server/app/localisation';
 
-describe('EU DCC: HCERT Formatting', () => {
+describe('EU DCC: HCERT Formatting', async () => {
   let ctx;
   beforeAll(async () => {
     ctx = await createTestContext();

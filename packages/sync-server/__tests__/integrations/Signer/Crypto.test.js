@@ -28,7 +28,7 @@ setEngine(
 );
 
 // essential tool: https://lapo.it/asn1js/
-describe('VDS-NC: Signer cryptography', () => {
+describe('VDS-NC: Signer cryptography', async () => {
   let ctx;
   beforeAll(async () => {
     ctx = await createTestContext();

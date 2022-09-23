@@ -17,7 +17,7 @@ readSync.mockImplementation((options, cb) => {
   cb(null, 'DefaultPassword');
 });
 
-describe('user', () => {
+describe('user', async () => {
   let ctx;
   let User;
   beforeAll(async () => {

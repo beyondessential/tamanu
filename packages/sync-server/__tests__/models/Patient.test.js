@@ -129,7 +129,7 @@ async function prepopulate(models) {
   return { patientId, encounterId };
 }
 
-describe('Patient', () => {
+describe('Patient', async () => {
   let ctx;
   let models;
   let testIds;

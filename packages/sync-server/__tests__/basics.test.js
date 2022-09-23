@@ -1,6 +1,6 @@
 import { createTestContext } from './utilities';
 
-describe('Basics', () => {
+describe('Basics', async () => {
   let ctx;
   beforeAll(async () => {
     ctx = await createTestContext();

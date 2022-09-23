@@ -3,7 +3,7 @@ import { fake, fakeUser } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 import { createEuDccVaccinationData } from '../../../app/integrations/EuDcc';
 
-describe('EU DCC: Vaccination', () => {
+describe('EU DCC: Vaccination', async () => {
   let ctx;
   const data = {};
 

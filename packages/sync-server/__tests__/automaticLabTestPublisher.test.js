@@ -23,7 +23,7 @@ const testConfig = {
   },
 };
 
-describe('Lab test publisher', () => {
+describe('Lab test publisher', async () => {
   let ctx;
   let models;
   let publisher;

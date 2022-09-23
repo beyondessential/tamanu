@@ -5,7 +5,7 @@ import { getCurrentDateString } from 'shared/utils/dateTime';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 
 export function testSingleResourceHandler(integrationName, requestHeaders = {}) {
-  describe(`${integrationName} integration - Single resource`, () => {
+  describe(`${integrationName} integration - Single resource`, async () => {
     let ctx;
     let app;
     beforeAll(async () => {

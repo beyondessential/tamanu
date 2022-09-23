@@ -4,7 +4,7 @@ import { fake, fakeUser, fakeReferenceData } from 'shared/test-helpers/fake';
 
 import { createTestContext } from '../utilities';
 
-describe('AdministeredVaccine.lastVaccinationForPatient', () => {
+describe('AdministeredVaccine.lastVaccinationForPatient', async () => {
   let ctx;
   let models;
   const patientId = uuidv4();

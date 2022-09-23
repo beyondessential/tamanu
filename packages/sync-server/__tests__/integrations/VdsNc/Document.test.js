@@ -16,7 +16,7 @@ import { canonicalize } from 'json-canonicalize';
 import { base64UrlDecode } from 'shared/utils/encodings';
 import { getLocalisation } from 'sync-server/app/localisation';
 
-describe('VDS-NC: Document cryptography', () => {
+describe('VDS-NC: Document cryptography', async () => {
   let ctx;
   beforeAll(async () => {
     ctx = await createTestContext();
