@@ -60,7 +60,7 @@ export function buildQuery(query, parameters, FhirResource) {
     for (const paramQuery of paramQueries) {
       const alternates = def.path.flatMap(([field, ...path]) => {
         const resolvedPath = [findField(FhirResource, field).field, ...path];
-        return singleMatch(resolvedPath, paramQuery, def, FhirResource);
+        return tap(singleMatch(resolvedPath, paramQuery, def, FhirResource));
       });
 
       andWhere.push({ [Op.or]: alternates });
@@ -71,29 +71,37 @@ export function buildQuery(query, parameters, FhirResource) {
   return sql;
 }
 
+function tap(arg) {
+    console.log({ tap: arg });
+    return arg;
+} 
+
 function singleMatch(path, paramQuery, paramDef, Model) {
-  const matches = paramQuery.value.map(value => typedMatch(value, paramQuery, paramDef));
+  const matches = paramQuery.value.flatMap(value => typedMatch(value, paramQuery, paramDef));
 
-  if (!path.includes('[]')) {
-    // path: ['a', 'b', 'c']
-    // sql: c(b(a)) operator value
-    return matches.map(({ op, val }) => Sequelize.where(nestPath(path), op, val));
-  }
+  return matches.map(({ op, val, extraPath = [] }) => {
+    const entirePath = [...path, ...extraPath];
+    console.log({ op, val, extraPath, entirePath });
 
-  const runs = pathRuns(path);
-  if (runs.length !== 2) {
-    throw new Error('cant do that yet');
-  }
+    if (!path.includes('[]')) {
+      // path: ['a', 'b', 'c']
+      // sql: c(b(a)) operator value
+      return Sequelize.where(nestPath(entirePath), op, val);
+    }
 
-  // path: ['a', 'b', '[]', 'c', 'd']
-  // sql: value operator any(select(d(c(unnest(b(a))))))
-  const [inner, outer] = runs;
-  const selector = Sequelize.fn(
-    'any',
-    Sequelize.fn('select', nestPath([...inner, 'unnest', ...outer])),
-  );
+    const runs = pathRuns(entirePath);
+    if (runs.length !== 2) {
+      throw new Unsupported('not yet implemented');
+    }
 
-  return matches.map(({ op, val }) => {
+    // path: ['a', 'b', '[]', 'c', 'd']
+    // sql: value operator any(select(d(c(unnest(b(a))))))
+    const [inner, outer] = runs;
+    const selector = Sequelize.fn(
+      'any',
+      Sequelize.fn('select', nestPath([...inner, 'unnest', ...outer])),
+    );
+
     const escaped =
       paramDef.type === FHIR_SEARCH_PARAMETERS.NUMBER
         ? val.toString()
@@ -111,41 +119,45 @@ function singleOrder(path, order, paramDef, Model) {
 
   const runs = pathRuns(path);
   if (runs.length > 1) {
-    throw new Error('cant do that yet');
+    throw new Unsupported('not yet implemented');
   }
 }
 
 function typedMatch(value, query, def) {
   switch (def.type) {
     case FHIR_SEARCH_PARAMETERS.NUMBER:
-      return {
-        op: prefixToOp(value.prefix),
-        val: value.number,
-      };
+      return [
+        {
+          op: prefixToOp(value.prefix),
+          val: value.number,
+        },
+      ];
     case FHIR_SEARCH_PARAMETERS.DATE:
-      return {
-        op: prefixToOp(value.prefix),
-        val: value.date.sql,
-      };
+      return [
+        {
+          op: prefixToOp(value.prefix),
+          val: value.date.sql,
+        },
+      ];
     case FHIR_SEARCH_PARAMETERS.STRING: {
       switch (query.modifier) {
         case undefined:
         case null:
         case 'starts-with':
           // FIXME: does this actually do startsWith?
-          return { op: Op.startsWith, val: value };
+          return [{ op: Op.startsWith, val: value }];
         case 'ends-with':
-          return { op: Op.endsWith, val: value };
+          return [{ op: Op.endsWith, val: value }];
         case 'contains':
-          return { op: Op.iLike, val: `%${value}%` };
+          return [{ op: Op.iLike, val: `%${value}%` }];
         case 'exact':
-          return { op: Op.eq, val: value };
+          return [{ op: Op.eq, val: value }];
         default:
           throw new Unsupported(`unsupported string modifier: ${query.modifier}`);
       }
     }
     default:
-      throw new Unsupported(`TODO: unsupported type ${def.type}`);
+      throw new Unsupported(`unsupported search type ${def.type}`);
   }
 }
 
@@ -164,7 +176,7 @@ function prefixToOp(prefix) {
     case FHIR_SEARCH_PREFIXES.GE:
       return Op.gte;
     default:
-      throw new Unsupported(`unsupported prefix: ${prefix}`);
+      throw new Unsupported(`unsupported search prefix: ${prefix}`);
   }
 }
 
