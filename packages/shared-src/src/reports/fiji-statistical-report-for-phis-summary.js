@@ -24,8 +24,8 @@ with
       greatest(:from_date::date, least(oldest_sr, oldest_encounter)) oldest_date
     FROM (
       select
-        (select min(sr.end_time) from survey_responses sr) oldest_sr,
-        (select min(e.start_date) from encounters e) oldest_encounter
+        (select min(sr.end_time::date) from survey_responses sr) oldest_sr,
+        (select min(e.start_date::date) from encounters e) oldest_encounter
     ) old_date_options_table
   ),
   cte_newest_date as (
@@ -74,7 +74,7 @@ with
       (SELECT
           e.patient_id,
           sr4.end_time::date as date_group,
-          max(sr4.end_time) AS max_end_time
+          max(sr4.end_time::date) AS max_end_time
         FROM
           survey_responses sr4
       join encounters e on e.id = sr4.encounter_id
@@ -82,7 +82,7 @@ with
       GROUP by e.patient_id, date_group
     ) max_time_per_group_table
     JOIN survey_responses AS sr
-    ON sr.end_time = max_time_per_group_table.max_end_time
+    ON sr.end_time::date = max_time_per_group_table.max_end_time
     left join survey_response_answers sra
     on sra.response_id = sr.id and sra.data_element_id = 'pde-FijCVD021'
     join encounters sr_encounter
@@ -313,30 +313,37 @@ const transformResultsForDate = (thisDate, resultsForDate) => {
 
 export const dataGenerator = async ({ sequelize }, parameters = {}) => {
   const { medicalArea, nursingZone, division, village, fromDate, toDate } = parameters;
-
-  const results = await sequelize.query(query, {
-    type: sequelize.QueryTypes.SELECT,
-    replacements: {
-      medical_area: medicalArea ?? null,
-      nursing_zone: nursingZone ?? null,
-      division: division ?? null,
-      village: village ?? null,
-      from_date: fromDate ?? null,
-      to_date: toDate ?? null,
-    },
-  });
-
-  const reportData = Object.entries(groupBy(results, 'date'))
-    .map(([date, resultsForDate]) => transformResultsForDate(date, resultsForDate))
-    // Sort oldest to most recent
-    .sort(({ date: date1 }, { date: date2 }) =>
-      differenceInMilliseconds(new Date(date1), new Date(date2)),
-    )
-    .map(({ date, ...otherFields }) => ({
-      date: format(new Date(date), 'dd-MM-yyyy'),
-      ...otherFields,
-    }));
-
+  let results;
+  try {
+    results = await sequelize.query(query, {
+      type: sequelize.QueryTypes.SELECT,
+      replacements: {
+        medical_area: medicalArea ?? null,
+        nursing_zone: nursingZone ?? null,
+        division: division ?? null,
+        village: village ?? null,
+        from_date: fromDate ?? null,
+        to_date: toDate ?? null,
+      },
+    });
+  } catch (error) {
+    console.log(' ----', error);
+  }
+  let reportData;
+  try {
+    reportData = Object.entries(groupBy(results, 'date'))
+      .map(([date, resultsForDate]) => transformResultsForDate(date, resultsForDate))
+      // Sort oldest to most recent
+      .sort(({ date: date1 }, { date: date2 }) =>
+        differenceInMilliseconds(new Date(date1), new Date(date2)),
+      )
+      .map(({ date, ...otherFields }) => ({
+        date: format(new Date(date), 'dd-MM-yyyy'),
+        ...otherFields,
+      }));
+  } catch (error) {
+    console.log(' ----', error);
+  }
   return generateReportFromQueryData(reportData, reportColumnTemplate);
 };
 
