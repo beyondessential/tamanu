@@ -136,8 +136,8 @@ describe('MobileSyncManager', () => {
       expect(mobileSyncManager.syncIncomingChanges).toBeCalledTimes(1);
       expect(mobileSyncManager.syncIncomingChanges).toBeCalledWith(
         mockedStartSyncSessionResponse.sessionId,
-        1,
         mockedStartSyncSessionResponse.syncClockTick,
+        1,
       );
     });
   });
