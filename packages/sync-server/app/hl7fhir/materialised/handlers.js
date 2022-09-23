@@ -1,6 +1,8 @@
 import asyncHandler from 'express-async-handler';
-import { kebabCase } from 'lodash';
-import { latestDateTime } from 'shared/utils/dateTime';
+
+import { FHIR_BUNDLE_TYPES } from 'shared/constants';
+import { Bundle } from './bundle';
+
 import { Unsupported } from './errors';
 import { normaliseParameters } from './parameters';
 import { buildQuery, pushToQuery } from './query';
@@ -22,10 +24,14 @@ export function resourceHandler() {
     const sqlQuery = buildQuery(query, parameters, FhirResource);
     const total = await FhirResource.count(sqlQuery);
     const records = await FhirResource.findAll(sqlQuery);
+    
+    const bundle = new Bundle(FHIR_BUNDLE_TYPES.SEARCHSET, records, {
+      total
+    });
 
-    const resources = records.map(resource => resource.asRecord());
+    bundle.addSelfUrl(req);
 
-    res.send(bundle(resources, total, FhirResource));
+    res.send(bundle.asFhir());
   });
 }
 
@@ -54,23 +60,4 @@ function parseRequest(req, parameters) {
     pushToQuery(query, param, parse);
   }
   return query;
-}
-
-function bundle(resources, total, Model) {
-  return {
-    resourceType: 'Bundle',
-    id: kebabCase(Model.name.replace(/^Fhir/, '')),
-    meta: {
-      lastUpdated: latestDateTime(...resources.map(r => r.meta.lastUpdated)).toISOString(),
-    },
-    type: 'searchset',
-    total,
-    link: [
-      // {
-      //   relation: 'self',
-      //   url: ,
-      // },
-    ],
-    entry: resources.map(r => r.fields),
-  };
 }

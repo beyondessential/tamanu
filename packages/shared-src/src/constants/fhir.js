@@ -87,3 +87,15 @@ export const FHIR_DATETIME_PRECISION = {
   MONTHS: 'M',
   YEARS: 'Y',
 };
+
+export const FHIR_BUNDLE_TYPES = {
+  DOCUMENT: 'document',
+  MESSAGE: 'message',
+  TRANSACTION: 'transaction',
+  TRANSACTION_RESPONSE: 'transaction-response',
+  BATCH: 'batch',
+  BATCH_RESPONSE: 'batch-response',
+  HISTORY: 'history',
+  SEARCHSET: 'searchset',
+  COLLECTION: 'collection',
+};

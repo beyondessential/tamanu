@@ -6,6 +6,10 @@ export class Composite {
 
   static FIELD_ORDER = [];
 
+  static get fhirName() {
+    return this.name.replace(/^Fhir/, '');
+  }
+
   constructor(params) {
     this.params = this.constructor.SCHEMA.validateSync(params);
   }

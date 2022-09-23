@@ -39,10 +39,15 @@ export class FhirResource extends Model {
           syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
         },
         schema: 'fhir',
-        tableName: snakeCase(Utils.pluralize(this.name.replace(/^Fhir/, ''))),
+        tableName: snakeCase(Utils.pluralize(this.fhirName)),
         timestamps: false,
       },
     );
+  }
+
+  // name in FHIR
+  static get fhirName() {
+    return this.name.replace(/^Fhir/, '');
   }
 
   // main Tamanu model this resource is based on
@@ -127,20 +132,22 @@ export class FhirResource extends Model {
     return Number(rows[0]?.count || 0);
   }
 
-  asRecord() {
-    const meta = {
-      id: this.id,
-      versionId: this.versionId,
-      lastUpdated: this.lastUpdated,
-    };
-
+  asFhir() {
     const fields = {};
     for (const name of Object.keys(this.constructor.getAttributes())) {
       if (['id', 'versionId', 'upstreamId', 'lastUpdated'].includes(name)) continue;
       fields[name] = this.get(name);
     }
 
-    return { meta, fields };
+    return {
+      resourceType: this.constructor.name,
+      id: this.id,
+      meta: {
+        versionId: this.versionId,
+        lastUpdated: this.lastUpdated,
+      },
+      ...fields,
+    };
   }
 
   /**

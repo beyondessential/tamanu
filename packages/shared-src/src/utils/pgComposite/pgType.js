@@ -11,7 +11,7 @@ export class COMPOSITE extends ABSTRACT {
   }
 
   static get pgName() {
-    return `fhir.${snakeCase(this.ValueClass.name.replace(/^Fhir/, ''))}`;
+    return `fhir.${snakeCase(this.ValueClass.fhirName)}`;
   }
 
   constructor(options) {
