@@ -6,8 +6,7 @@ import { log } from 'shared/services/logging';
 import { CentralSyncManager } from './CentralSyncManager';
 
 export const buildSyncRoutes = ctx => {
-  const syncManager = new CentralSyncManager();
-  ctx.onClose(() => syncManager.close());
+  const syncManager = new CentralSyncManager(ctx);
   const syncRoutes = express.Router();
 
   // create new sync session

@@ -25,22 +25,23 @@ export class CentralSyncManager {
 
   sessions = {};
 
+  store;
+
   purgeInterval;
 
-  constructor() {
+  constructor(ctx) {
+    this.store = ctx.store;
     this.purgeInterval = setInterval(
       this.purgeLapsedSessions,
       lapsedSessionCheckFrequencySeconds * 1000,
     );
+    ctx.onClose(this.close);
   }
 
-  close() {
-    clearInterval(this.purgeInterval);
-  }
+  close = () => clearInterval(this.purgeInterval);
 
   purgeLapsedSessions = async () => {
-    const store = await initDatabase({ testMode: false });
-    await deleteInactiveSyncSessions(store, lapsedSessionSeconds);
+    await deleteInactiveSyncSessions(this.store, lapsedSessionSeconds);
   };
 
   async startSession({ sequelize }) {
