@@ -82,6 +82,8 @@ export function extendExpect(expect) {
 }
 
 class MockApplicationContext {
+  closeHooks = [];
+
   async init() {
     this.store = await initDatabase({ testMode: true });
     this.emailService = {
@@ -96,12 +98,14 @@ class MockApplicationContext {
     return this;
   }
 
-  injectCloseAppServer(closeAppServer) {
-    this.closeAppServer = closeAppServer;
+  onClose(hook) {
+    this.closeHooks.push(hook);
   }
 
   async close() {
-    await this.closeAppServer();
+    for (const hook of this.closeHooks) {
+      await hook();
+    }
     await closeDatabase();
   }
 }
@@ -131,7 +135,7 @@ export async function createTestContext() {
     return baseApp.asUser(newUser);
   };
 
-  ctx.injectCloseAppServer(() => new Promise(resolve => appServer.close(resolve)));
+  ctx.onClose(() => new Promise(resolve => appServer.close(resolve)));
   ctx.baseApp = baseApp;
 
   return ctx;
