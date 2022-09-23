@@ -63,7 +63,7 @@ export function buildQuery(query, parameters, FhirResource) {
     for (const paramQuery of paramQueries) {
       const alternates = def.path.flatMap(([field, ...path]) => {
         const resolvedPath = [findField(FhirResource, field).field, ...path];
-        return tap(singleMatch(resolvedPath, paramQuery, def, FhirResource));
+        return singleMatch(resolvedPath, paramQuery, def, FhirResource);
       });
 
       andWhere.push({ [Op.or]: alternates });
@@ -74,17 +74,12 @@ export function buildQuery(query, parameters, FhirResource) {
   return sql;
 }
 
-function tap(arg) {
-    console.log({ tap: arg });
-    return arg;
-} 
 
 function singleMatch(path, paramQuery, paramDef, Model) {
   const matches = paramQuery.value.flatMap(value => typedMatch(value, paramQuery, paramDef));
 
   return matches.map(({ op, val, extraPath = [] }) => {
     const entirePath = [...path, ...extraPath];
-    console.log({ op, val, extraPath, entirePath });
 
     if (!path.includes('[]')) {
       // path: ['a', 'b', 'c']
@@ -160,7 +155,6 @@ function typedMatch(value, query, def) {
       }
     }
     case FHIR_SEARCH_PARAMETERS.TOKEN: {
-      console.log({ value, query, def });
       const { system, code } = value;
       switch (def.tokenType) {
         case FHIR_SEARCH_TOKEN_TYPES.CODING: {
