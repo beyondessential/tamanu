@@ -25,34 +25,16 @@
     - name: test
       type: serial
       steps:
-        - name: the servers
+        - name: the desktop app and servers
           service: app-with-db
           type: parallel
           steps:
             - name: on main branches
+              command: scripts/test.sh
               tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-)
-              type: serial
-              steps:
-                - name: the shared library
-                  command: yarn shared-test
-                - name: the sync server
-                  command: yarn sync-test
-                - name: the lan server
-                  command: yarn lan-test
-                - name: the meta server
-                  command: yarn lan-test
             - name: on PR branches
+              command: scripts/test.sh pr-coverage
               exclude: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-)
-              type: serial
-              steps:
-                # - name: the shared library
-                #   command: yarn shared-test
-                - name: the sync server
-                  command: yarn sync-test
-                - name: the lan server
-                  command: yarn lan-test
-                - name: the meta server
-                  command: yarn meta-test
         - name: the mobile app
           service: mobile
           command: 'yarn test:coverage'
