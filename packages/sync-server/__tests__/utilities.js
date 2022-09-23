@@ -86,7 +86,6 @@ class MockApplicationContext {
 
   async init() {
     this.store = await initDatabase({ testMode: true });
-    this.onClose(async () => closeDatabase());
     this.emailService = {
       sendEmail: jest.fn().mockImplementation(() =>
         Promise.resolve({
@@ -101,6 +100,7 @@ class MockApplicationContext {
 
   onClose(hook) {
     this.closeHooks.push(hook);
+    closeDatabase();
   }
 
   async close() {
