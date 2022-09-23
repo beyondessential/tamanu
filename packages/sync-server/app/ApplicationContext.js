@@ -14,17 +14,13 @@ export class ApplicationContext {
   async init({ testMode } = {}) {
     this.emailService = new EmailService();
     this.store = await initDatabase({ testMode });
-    this.onClose(async () => await closeDatabase());
+    this.onClose(async () => closeDatabase());
     await initIntegrations(this);
     return this;
   }
 
   onClose(hook) {
     this.closeHooks.push(hook);
-  }
-
-  close() {
-    this.closeHooks.forEach(hook => hook());
   }
 
   async close() {
