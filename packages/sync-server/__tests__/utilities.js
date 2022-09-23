@@ -95,6 +95,10 @@ class MockApplicationContext {
     await initIntegrations(this);
     return this;
   }
+
+  async close() {
+    await closeDatabase();
+  }
 }
 
 export async function createTestContext() {
@@ -124,7 +128,7 @@ export async function createTestContext() {
 
   const close = async () => {
     await new Promise(resolve => appServer.close(resolve));
-    await closeDatabase();
+    await ctx.close();
   };
 
   return { ...ctx, baseApp, close };
