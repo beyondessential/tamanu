@@ -7,7 +7,7 @@ import { SUPPORTED_CLIENT_VERSIONS } from '../../app/middleware/versionCompatibi
 const MIN_MOBILE_VERSION = SUPPORTED_CLIENT_VERSIONS['Tamanu Mobile'].min;
 const MIN_LAN_VERSION = SUPPORTED_CLIENT_VERSIONS['Tamanu LAN Server'].min;
 
-describe('Version compatibility', async () => {
+describe('Version compatibility', () => {
   let baseApp;
   let app;
   let close;

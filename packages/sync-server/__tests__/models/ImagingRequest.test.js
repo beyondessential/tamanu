@@ -5,7 +5,7 @@ import { createTestContext } from '../utilities';
 
 const chance = new Chance();
 
-describe('ImagingRequest', async () => {
+describe('ImagingRequest', () => {
   let ctx;
   beforeAll(async () => {
     ctx = await createTestContext();

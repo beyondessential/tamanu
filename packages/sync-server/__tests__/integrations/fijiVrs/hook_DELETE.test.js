@@ -6,7 +6,7 @@ import { prepareVRSMocks } from './sharedHookHelpers';
 
 const { host } = config.integrations.fijiVrs;
 
-describe('VRS integration - hook - DELETE', async () => {
+describe('VRS integration - hook - DELETE', () => {
   let ctx;
   let app;
   beforeAll(async () => {

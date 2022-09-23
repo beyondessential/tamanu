@@ -56,7 +56,7 @@ async function prepopulate(models) {
   return { category, method, labTestType, facility, location, department, user };
 }
 
-describe('HL7 Labs', async () => {
+describe('HL7 Labs', () => {
   let ctx;
   let models;
   let createLabTest;

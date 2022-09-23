@@ -5,7 +5,7 @@ import { createTestContext } from '../utilities';
 // the importer can take a little while
 jest.setTimeout(30000);
 
-describe('Programs import', async () => {
+describe('Programs import', () => {
   let ctx;
   beforeAll(async () => {
     ctx = await createTestContext();

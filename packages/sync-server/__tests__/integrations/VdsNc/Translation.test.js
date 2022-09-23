@@ -3,7 +3,7 @@ import { fake, fakeUser } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 import { createVdsNcTestData, createVdsNcVaccinationData } from '../../../app/integrations/VdsNc';
 
-describe('VDS: Proof of Vaccination', async () => {
+describe('VDS: Proof of Vaccination', () => {
   let ctx;
   const data = {};
 
@@ -377,7 +377,7 @@ describe('VDS: Proof of Vaccination', async () => {
   });
 });
 
-describe('VDS: Proof of Test', async () => {
+describe('VDS: Proof of Test', () => {
   let ctx;
 
   beforeAll(async () => {

@@ -7,7 +7,7 @@ async function getAbilityForRoles(roleString) {
   return buildAbilityForTests(perms);
 }
 
-describe('Permissions', async () => {
+describe('Permissions', () => {
   let ctx;
 
   const makeRoleWithPermissions = async (roleName, perms) => {

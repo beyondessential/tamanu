@@ -6,7 +6,7 @@ import { getCurrentDateString } from '../../../../shared-src/src/utils/dateTime'
 import { IDENTIFIER_NAMESPACE } from '../../../app/hl7fhir/utils';
 
 export function testPatientHandler(integrationName, requestHeaders = {}) {
-  describe(`${integrationName} integration - Patient`, async () => {
+  describe(`${integrationName} integration - Patient`, () => {
     let ctx;
     let app;
     beforeAll(async () => {

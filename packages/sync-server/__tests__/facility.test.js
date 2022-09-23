@@ -1,6 +1,6 @@
 import { createTestContext } from './utilities';
 
-describe('facility routes', async () => {
+describe('facility routes', () => {
   let ctx;
   let baseApp;
   let models;

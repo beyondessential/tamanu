@@ -80,7 +80,7 @@ async function prepopulate(models) {
   };
 }
 
-describe('Certificate', async () => {
+describe('Certificate', () => {
   let ctx;
   let models;
   let createLabTests;

@@ -10,7 +10,7 @@ const BAD_ID_ERROR_MESSAGE = 'id must not have spaces or punctuation other than 
 const BAD_CODE_ERROR_MESSAGE = 'code must not have spaces or punctuation other than -./';
 const BAD_VIS_ERROR_MESSAGE = `visibilityStatus must be one of the following values:`;
 
-describe('Data definition import', async () => {
+describe('Data definition import', () => {
   let ctx;
   beforeAll(async () => {
     ctx = await createTestContext();

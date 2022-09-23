@@ -2,7 +2,7 @@ import { fake, fakeReferenceData, fakeUser } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
 
 export function testImmunizationHandler(integrationName, requestHeaders = {}) {
-  describe(`${integrationName} integration - Immunization`, async () => {
+  describe(`${integrationName} integration - Immunization`, () => {
     let ctx;
     let app;
     let models;

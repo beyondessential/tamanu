@@ -4,7 +4,7 @@ import { createTestContext } from '../utilities';
 import { hl7SortToTamanu } from '../../app/hl7fhir/utils';
 import { sortableHL7PatientFields } from '../../app/hl7fhir/hl7PatientFields';
 
-describe('HL7FHIR module utils', async () => {
+describe('HL7FHIR module utils', () => {
   let models;
   let ctx;
   beforeAll(async () => {

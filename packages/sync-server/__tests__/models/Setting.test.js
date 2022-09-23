@@ -4,7 +4,7 @@ import { createTestContext } from '../utilities';
 // the test cases in here ignore the way the data is stored (which is currently with a record per
 // leaf value, and dot notation keys) in favour of testing that setting then getting a setting
 // functions correctly - slightly higher level, to be more robust to changes in implementation detail
-describe('Setting', async () => {
+describe('Setting', () => {
   let Setting;
   let Facility;
   let ctx;

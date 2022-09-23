@@ -18,7 +18,7 @@ const USERS = [
   },
 ];
 
-describe('Auth', async () => {
+describe('Auth', () => {
   let baseApp;
   let app;
   let store;

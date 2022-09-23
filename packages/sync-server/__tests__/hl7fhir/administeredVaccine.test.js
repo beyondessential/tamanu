@@ -7,7 +7,7 @@ import { createTestContext } from '../utilities';
 
 import { validate } from './hl7utilities';
 
-describe('HL7 Administered Vaccines', async () => {
+describe('HL7 Administered Vaccines', () => {
   let models;
   let ctx;
 
