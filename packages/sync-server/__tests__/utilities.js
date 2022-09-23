@@ -100,11 +100,11 @@ class MockApplicationContext {
 
   onClose(hook) {
     this.closeHooks.push(hook);
-    closeDatabase();
   }
 
   async close() {
     await Promise.all(this.closeHooks.map(async hook => hook()));
+    closeDatabase();
   }
 }
 
