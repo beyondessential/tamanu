@@ -52,7 +52,7 @@ const DiagnosticInfo = ({ date: rawDate }) => {
       Display date: {displayDate} <br />
       Raw date: {date.toString()} <br />
       Time zone: {timeZone} <br />
-      Time zone offset: {timeZoneOffset}
+      Time zone offset: {timeZoneOffset} <br />
       Locale: {getLocale()}
     </div>
   );
