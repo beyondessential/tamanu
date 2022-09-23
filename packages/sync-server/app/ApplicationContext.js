@@ -14,7 +14,6 @@ export class ApplicationContext {
   async init({ testMode } = {}) {
     this.emailService = new EmailService();
     this.store = await initDatabase({ testMode });
-    this.onClose(async () => closeDatabase());
     await initIntegrations(this);
     return this;
   }
@@ -25,5 +24,6 @@ export class ApplicationContext {
 
   async close() {
     await Promise.all(this.closeHooks.map(async hook => hook()));
+    await closeDatabase();
   }
 }
