@@ -33,7 +33,13 @@
               command: scripts/test.sh
               tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-)
             - name: on PR branches
-              command: scripts/test.sh pr-coverage
+              steps:
+                - name: the desktop app
+                  command: yarn test-desktop
+                - name: the sync server
+                  command: yarn test-sync
+                - name: the lan server
+                  command: yarn test-lan
               exclude: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-)
         - name: the mobile app
           service: mobile
