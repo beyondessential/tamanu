@@ -29,10 +29,20 @@ export class FhirError extends Error {
   }
 }
 
+export class Invalid extends FhirError {
+  constructor(message) {
+    super(message, {
+      status: 400,
+      code: FHIR_ISSUE_TYPE.INVALID._
+    });
+  }
+}
+
 export class Unsupported extends FhirError {
   constructor(message) {
     super(message, {
       status: 501,
+      code: FHIR_ISSUE_TYPE.PROCESSING.NOT_SUPPORTED,
     });
   }
 }
