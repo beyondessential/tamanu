@@ -104,7 +104,7 @@ export class FhirPatient extends FhirResource {
       address: {
         type: FHIR_SEARCH_PARAMETERS.STRING,
         path: [
-          // ['address', '[]', 'line', '[]'], // TODO
+          ['address', '[]', 'line', '[]'],
           ['address', '[]', 'city'],
           ['address', '[]', 'district'],
           ['address', '[]', 'state'],

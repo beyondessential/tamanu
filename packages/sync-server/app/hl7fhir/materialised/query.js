@@ -74,30 +74,24 @@ export function buildQuery(query, parameters, FhirResource) {
   return sql;
 }
 
-
 function singleMatch(path, paramQuery, paramDef, Model) {
   const matches = paramQuery.value.flatMap(value => typedMatch(value, paramQuery, paramDef));
 
   return matches.map(({ op, val, extraPath = [] }) => {
     const entirePath = [...path, ...extraPath];
 
+    // optimisation in the simple case
     if (!path.includes('[]')) {
       // path: ['a', 'b', 'c']
       // sql: c(b(a)) operator value
       return Sequelize.where(nestPath(entirePath), op, val);
     }
 
-    const runs = pathRuns(entirePath);
-    if (runs.length !== 2) {
-      throw new Unsupported('not yet implemented');
-    }
-
-    // path: ['a', 'b', '[]', 'c', 'd']
-    // sql: value operator any(select(d(c(unnest(b(a))))))
-    const [inner, outer] = runs;
+    // path: ['a', 'b', '[]', 'c', '[]', 'd']
+    // sql: value operator any(select(d(unnest(c(unnest(b(a)))))))
     const selector = Sequelize.fn(
       'any',
-      Sequelize.fn('select', nestPath([...inner, 'unnest', ...outer])),
+      Sequelize.fn('select', nestPath(entirePath.map(step => (step === '[]' ? 'unnest' : step)))),
     );
 
     const escaped =
@@ -158,67 +152,67 @@ function typedMatch(value, query, def) {
       const { system, code } = value;
       switch (def.tokenType) {
         case FHIR_SEARCH_TOKEN_TYPES.CODING: {
-            if (system && code) {
-                // FIXME: i think this needs to be ANDed (at caller)
-                return [
-                  {
-                    op: Op.eq,
-                    val: system,
-                    extraPath: ['system'],
-                  },
-                  {
-                    op: Op.eq,
-                    val: code,
-                    extraPath: ['code'],
-                  },
-                ];
-            } else if (system) {
-                return [
-                  {
-                    op: Op.eq,
-                    val: system,
-                    extraPath: ['system'],
-                  },
-                ];
-            } else if (code) {
-              return [
-                {
-                  op: Op.eq,
-                  val: code,
-                  extraPath: ['code'],
-                },
-              ];
-            } else {
-              throw new Invalid('token searches require either or both of system|code');
-            }
-        }
-        case FHIR_SEARCH_TOKEN_TYPES.BOOLEAN: {
+          if (system && code) {
+            // FIXME: i think this needs to be ANDed (at caller)
             return [
               {
                 op: Op.eq,
-                val: yup.boolean().validateSync(code), // just to cast it
+                val: system,
+                extraPath: ['system'],
+              },
+              {
+                op: Op.eq,
+                val: code,
+                extraPath: ['code'],
               },
             ];
-        }
-        case FHIR_SEARCH_TOKEN_TYPES.PRESENCE: {
-            const present = yup.boolean().validateSync(code);
+          } else if (system) {
             return [
               {
-                op: present ? Op.not : Op.is,
-                val: null,
+                op: Op.eq,
+                val: system,
+                extraPath: ['system'],
               },
             ];
-        }
-        case FHIR_SEARCH_TOKEN_TYPES.STRING: {
+          } else if (code) {
             return [
               {
                 op: Op.eq,
                 val: code,
+                extraPath: ['code'],
               },
             ];
+          } else {
+            throw new Invalid('token searches require either or both of system|code');
+          }
+        }
+        case FHIR_SEARCH_TOKEN_TYPES.BOOLEAN: {
+          return [
+            {
+              op: Op.eq,
+              val: yup.boolean().validateSync(code), // just to cast it
+            },
+          ];
+        }
+        case FHIR_SEARCH_TOKEN_TYPES.PRESENCE: {
+          const present = yup.boolean().validateSync(code);
+          return [
+            {
+              op: present ? Op.not : Op.is,
+              val: null,
+            },
+          ];
+        }
+        case FHIR_SEARCH_TOKEN_TYPES.STRING: {
+          return [
+            {
+              op: Op.eq,
+              val: code,
+            },
+          ];
         }
         default:
-            throw new Unsupported(`unsupported search token type ${def.tokenType}`);
+          throw new Unsupported(`unsupported search token type ${def.tokenType}`);
       }
     }
     default:
