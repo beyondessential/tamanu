@@ -33,6 +33,11 @@ export class LocalSystemFact extends Model {
   }
 
   static async set(key, value) {
-    await this.upsert({ key, value }, { fields: ['key'] });
+    const existing = await this.findOne({ where: { key } });
+    if (existing) {
+      await this.update({ value }, { where: { key } });
+    } else {
+      await this.create({ key, value });
+    }
   }
 }
