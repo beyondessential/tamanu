@@ -51,16 +51,17 @@ export class CentralSyncManager {
       `SELECT nextval('sync_clock_sequence')`,
     );
 
-    log.debug(
-      `CentralSyncManager.startSession: Facility ${facilityId} started a new session, at tick ${syncClockTick}`,
-    );
-
     const startTime = new Date();
     const syncSession = await this.store.models.SyncSession.create({
       syncTick: syncClockTick,
       startTime,
       lastConnectionTime: startTime,
+      // facilityId, TODO - needs migration and model edit
     });
+
+    log.debug(
+      `CentralSyncManager.startSession: Facility ${facilityId} started a new session ${syncSession.id}, at tick ${syncClockTick}`,
+    );
 
     return { sessionId: syncSession.id, syncClockTick };
   }
@@ -80,7 +81,9 @@ export class CentralSyncManager {
 
   async endSession(sessionId) {
     const session = await this.connectToSession(sessionId);
-    log.info(`Sync session performed in ${(Date.now() - session.startTime) / 1000} seconds`);
+    log.info(
+      `Sync session ${session.id} performed in ${(Date.now() - session.startTime) / 1000} seconds`,
+    );
     await deleteSyncSession(this.store, sessionId);
   }
 
@@ -103,6 +106,9 @@ export class CentralSyncManager {
     const newPatientFacilities = await models.PatientFacility.findAll({
       where: { facilityId, updatedAtSyncTick: { [Op.gt]: since } },
     });
+    log.debug(
+      `CentralSyncManager.setPullFilter: ${newPatientFacilities.length} patients newly marked for sync for ${facilityId}`,
+    );
     const patientIdsForFullSync = newPatientFacilities.map(n => n.patientId);
 
     await this.store.sequelize.transaction(async () => {
@@ -158,6 +164,9 @@ export class CentralSyncManager {
       sessionId,
     }));
 
+    log.debug(
+      `CentralSyncManager.addIncomingChanges: Adding ${sessionSyncRecords.length} changes for ${sessionId}`,
+    );
     await models.SessionSyncRecord.bulkCreate(sessionSyncRecords);
 
     if (pageNumber === totalPages) {

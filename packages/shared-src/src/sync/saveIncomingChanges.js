@@ -5,6 +5,7 @@ import { sortInDependencyOrder } from 'shared/models/sortInDependencyOrder';
 import { findSessionSyncRecords } from './findSessionSyncRecords';
 import { countSessionSyncRecords } from './countSessionSyncRecords';
 import { mergeRecord } from './mergeRecord';
+import { log } from 'shared/services/logging/log';
 
 const { persistedCacheBatchSize } = config.sync;
 const UPDATE_WORKER_POOL_SIZE = 100;
@@ -50,8 +51,11 @@ const saveChangesForModel = async (model, changes, isCentralServer) => {
     });
 
   // run each import process
+  log.debug(`saveIncomingChanges: Creating ${recordsForCreate.length} new records`);
   await saveCreates(model, recordsForCreate);
+  log.debug(`saveIncomingChanges: Updating ${recordsForUpdate.length} existing records`);
   await saveUpdates(model, recordsForUpdate, idToExistingRecord);
+  log.debug(`saveIncomingChanges: Deleting ${idsForDelete.length} old records`);
   await saveDeletes(model, idsForDelete);
 };
 
@@ -63,6 +67,7 @@ const saveChangesForModelInBatches = async (
   isCentralServer,
 ) => {
   const syncRecordsCount = await countSessionSyncRecords(models, model.tableName, sessionId);
+  log.debug(`saveIncomingChagnes: Saving ${syncRecordsCount} changes for ${model.tableName}`);
 
   const batchCount = Math.ceil(syncRecordsCount / persistedCacheBatchSize);
 
@@ -78,7 +83,12 @@ const saveChangesForModelInBatches = async (
     );
 
     const batchRecordsToSave = batchRecords.map(r => r.dataValues);
-    await saveChangesForModel(model, batchRecordsToSave, isCentralServer);
+    try {
+      await saveChangesForModel(model, batchRecordsToSave, isCentralServer);
+    } catch (error) {
+      log.error(`Failed to save changes for ${model}`);
+      throw error;
+    }
   }
 };
 

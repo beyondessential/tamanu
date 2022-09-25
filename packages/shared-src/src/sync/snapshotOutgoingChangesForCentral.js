@@ -2,6 +2,7 @@ import config from 'config';
 import { getModelOutgoingQueryOptions } from './getModelOutgoingQueryOptions';
 import { sanitizeRecord } from './sanitizeRecord';
 import { SYNC_SESSION_DIRECTION } from './constants';
+import { log } from 'shared/services/logging/log';
 
 const { readOnly, persistedCacheBatchSize } = config.sync;
 
@@ -41,6 +42,10 @@ const snapshotChangesForModel = async (
     await models.SessionSyncRecord.bulkCreate(sanitizedRecords);
   }
 
+  log.debug(
+    `snapshotChangesForModel: Found ${recordsChangedCount} for model ${model.tableName} since ${since}, in session ${sessionId}`,
+  );
+
   return recordsChangedCount;
 };
 
@@ -70,6 +75,10 @@ export const snapshotOutgoingChangesForCentral = async (
 
     changesCount += modelChangesCount || 0;
   }
+
+  log.debug(
+    `snapshotChangesForModel: Found a total of ${changesCount} for all models since ${since}, in session ${sessionId}`,
+  );
 
   return changesCount;
 };

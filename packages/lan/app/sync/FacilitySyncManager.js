@@ -71,6 +71,7 @@ export class FacilitySyncManager {
     // so that any records that are created or updated from this point on, even mid way through this
     // sync, are marked using the new tick and will be captured in the next sync
     await setSyncClockTime(this.sequelize, syncClockTick);
+    log.debug(`FacilitySyncManager.runSync: Local sync clock time set to ${syncClockTick}`);
 
     // syncing outgoing changes happens in two phases: taking a point-in-time copy of all records
     // to be pushed, and then pushing those up in batches
@@ -83,6 +84,9 @@ export class FacilitySyncManager {
       since,
     );
     if (outgoingChanges.length > 0) {
+      log.debug(
+        `FacilitySyncManager.runSync: Pushing a total of ${outgoingChanges.length} changes`,
+      );
       await pushOutgoingChanges(this.centralServer, sessionId, outgoingChanges);
     }
 
@@ -97,6 +101,9 @@ export class FacilitySyncManager {
     );
     await this.sequelize.transaction(async () => {
       if (incomingChangesCount > 0) {
+        log.debug(
+          `FacilitySyncManager.runSync: Saving a total of ${incomingChangesCount.length} changes`,
+        );
         await saveIncomingChanges(
           this.models,
           getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
@@ -107,6 +114,9 @@ export class FacilitySyncManager {
       // update the last successful sync in the same save transaction - if updating the cursor fails,
       // we want to roll back the rest of the saves so that we don't end up detecting them as
       // needing a sync up to the central server when we attempt to resync from the same old cursor
+      log.debug(
+        `FacilitySyncManager.runSync: Setting the last successful sync time to ${syncClockTick}`,
+      );
       await this.models.LocalSystemFact.set('LastSuccessfulSyncTime', syncClockTick);
     });
     await this.centralServer.endSyncSession(sessionId);

@@ -30,8 +30,11 @@ export const pullIncomingChanges = async (centralServer, models, sessionId, sinc
     const pullTime = Date.now() - startTime;
 
     if (!records.length) {
+      log.debug(`pullIncomingChanges: Pull returned no more changes, finishing`);
       break;
     }
+
+    log.debug(`pullIncomingChanges: Pulled ${records.length} changes, saving to local cache`);
 
     const recordsToSave = records.map(r => ({
       ...r,
