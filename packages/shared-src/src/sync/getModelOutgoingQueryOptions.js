@@ -9,7 +9,7 @@ export const getModelOutgoingQueryOptions = (model, patientIds, since, facilityS
   const patientFilter =
     shouldFilterByPatient && model.buildSyncFilter(patientIds, facilitySettings);
   const baseFilter = {
-    where: { updatedAtSyncTick: { [Op.gte]: since } },
+    where: { updatedAtSyncTick: { [Op.gt]: since } },
   };
 
   return patientFilter
