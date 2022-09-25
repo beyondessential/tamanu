@@ -47,7 +47,7 @@ export class CentralSyncManager {
     // as a side effect of starting a new session, cause a tick on the global sync clock
     // this is a convenient way to tick the clock, as it means that no two sync sessions will
     // happen at the same global sync time, meaning there's no ambiguity when resolving conflicts
-    const [[{ nextval: syncClockTick }]] = await this.store.query(
+    const [[{ nextval: syncClockTick }]] = await this.store.sequelize.query(
       `SELECT nextval('sync_clock_sequence')`,
     );
 
