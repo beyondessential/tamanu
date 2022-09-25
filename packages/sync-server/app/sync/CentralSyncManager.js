@@ -87,13 +87,6 @@ export class CentralSyncManager {
     await deleteSyncSession(this.store, sessionId);
   }
 
-  // The hardest thing about sync is knowing what happens at the clock tick border - do we want
-  // records strictly >, or >= the cursor being requested? The truth is, it doesn't matter! A given
-  // tick is unique to one device, and gets updated at the end of its sync session, so if a device
-  // is requesting records "since" tick x, we know that it only has records from the central server
-  // that are _below_ that tick, but also has all records locally _at_ that tick already - it must
-  // have been the one that changed them, if they have an update tick unique to that device!
-  // For sanity's sake, we use > consistently, because it aligns with "since"
   async setPullFilter(sessionId, { since, facilityId }) {
     const { models } = this.store;
 
