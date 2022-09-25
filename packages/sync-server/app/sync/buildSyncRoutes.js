@@ -13,8 +13,8 @@ export const buildSyncRoutes = ctx => {
   syncRoutes.post(
     '/',
     asyncHandler(async (req, res) => {
-      const { store } = req;
-      const { sessionId, syncClockTick } = await syncManager.startSession(store);
+      const { facilityId } = req.query;
+      const { sessionId, syncClockTick } = await syncManager.startSession(facilityId);
       res.send({ sessionId, syncClockTick });
     }),
   );
@@ -23,13 +23,13 @@ export const buildSyncRoutes = ctx => {
   syncRoutes.post(
     '/:sessionId/pullFilter',
     asyncHandler(async (req, res) => {
-      const { params, body, store } = req;
+      const { params, body } = req;
       const { since: sinceString, facilityId } = body;
       const since = parseInt(sinceString, 10);
       if (isNaN(since)) {
         throw new Error('Must provide "since" when creating a pull filter, even if it is 0');
       }
-      const count = await syncManager.setPullFilter(params.sessionId, { since, facilityId }, store);
+      const count = await syncManager.setPullFilter(params.sessionId, { since, facilityId });
       res.json(count);
     }),
   );
@@ -38,10 +38,10 @@ export const buildSyncRoutes = ctx => {
   syncRoutes.get(
     '/:sessionId/pull',
     asyncHandler(async (req, res) => {
-      const { query, params, store } = req;
+      const { query, params } = req;
       const { sessionId } = params;
       const { offset = '', limit = '100' } = query;
-      const changes = await syncManager.getOutgoingChanges(store, sessionId, {
+      const changes = await syncManager.getOutgoingChanges(sessionId, {
         offset: parseInt(offset, 10),
         limit: parseInt(limit, 10),
       });
@@ -54,10 +54,10 @@ export const buildSyncRoutes = ctx => {
   syncRoutes.post(
     '/:sessionId/push',
     asyncHandler(async (req, res) => {
-      const { params, body: changes, query, store } = req;
+      const { params, body: changes, query } = req;
       const { sessionId } = params;
 
-      await syncManager.addIncomingChanges(sessionId, changes, query, store);
+      await syncManager.addIncomingChanges(sessionId, changes, query);
       log.info(`POST to ${sessionId} : ${changes.length} records`);
       res.json({});
     }),
@@ -67,9 +67,9 @@ export const buildSyncRoutes = ctx => {
   syncRoutes.delete(
     '/:sessionId',
     asyncHandler(async (req, res) => {
-      const { params, store } = req;
+      const { params } = req;
       const { sessionId } = params;
-      await syncManager.endSession(store, sessionId);
+      await syncManager.endSession(sessionId);
       res.json({});
     }),
   );
