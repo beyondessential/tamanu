@@ -135,7 +135,7 @@
               service: awsdeployment
               command: ./scripts/deploy_sync.sh da tamanu-central-server-da
         - name: the lan server
-          tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|klaus-|sima-|sepi-|da-)
+          tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-)
           type: serial
           steps:
             - name: onto dev A
