@@ -34,7 +34,7 @@ export const createPatientFilters = filterParams => {
     // For age filter
     makeFilter(filterParams.ageMax, `patients.date_of_birth >= :dobMin`, ({ ageMax }) => ({
       // Subtract the number of years, but add one day
-      dobMin: sub(new Date(), { years: ageMax + 1, days: -1 }),
+      dobMin: sub(new Date(), { years: ageMax + 1 }),
     })),
     makeFilter(filterParams.ageMin, `patients.date_of_birth <= :dobMax`, ({ ageMin }) => ({
       dobMax: sub(new Date(), { years: ageMin }),
