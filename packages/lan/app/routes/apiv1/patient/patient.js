@@ -56,7 +56,10 @@ patientRoute.put(
       throw new NotFoundError();
     }
 
-    const markingForSync = isEqual(req.body, { markedForSync: true });
+    const alreadyMarkedForSync = await PatientFacility.findOne({
+      where: { patientId: patient.id, facilityId: serverFacilityId },
+    });
+    const markingForSync = !alreadyMarkedForSync && isEqual(req.body, { markedForSync: true });
     if (markingForSync) {
       // no need to check write permission or update patient record itself,
       // just create a link between the patient and this facility
