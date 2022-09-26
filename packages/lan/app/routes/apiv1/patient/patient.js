@@ -292,12 +292,10 @@ patientRoute.get(
         }),
         filterParams,
       );
+    filterReplacements.facilityId = config.serverFacilityId;
 
     const countResult = await req.db.query(`SELECT COUNT(1) AS count ${from}`, {
-      replacements: {
-        ...filterReplacements,
-        facilityId: config.serverFacilityId,
-      },
+      replacements: filterReplacements,
       type: QueryTypes.SELECT,
     });
 
