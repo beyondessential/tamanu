@@ -18,9 +18,10 @@ export const NoteItemList = ({ noteItems = [], currentUserId, onEditNoteItem }) 
     <StyledBox
       sx={{ width: '100%', maxHeight: 300, overflowY: 'auto', bgcolor: 'background.paper' }}
     >
-      {noteItems.map(noteItem => (
+      {noteItems.map((noteItem, index) => (
         <NoteItem
           key={noteItem.id}
+          index={index}
           noteItem={noteItem}
           editable={currentUserId === noteItem.authorId}
           onEditNoteItem={onEditNoteItem}

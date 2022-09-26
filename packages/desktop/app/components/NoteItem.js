@@ -15,6 +15,7 @@ import { withPermissionCheck } from './withPermissionCheck';
 
 const EditTextWrapper = styled.div`
   width: 100%;
+  margin-bottom: 10px;
 `;
 const StyledEditIcon = styled(EditIcon)`
   float: right;
@@ -35,6 +36,7 @@ const StyledSaveText = styled.span`
 const StyledCancelText = styled.span`
   float: right;
   font-size: 11px;
+  text-decoration: underline;
   bottom: 0;
   right: 30px;
   margin-right: 10px;
@@ -150,7 +152,7 @@ const NoteItemSecondary = ({ noteItem, isEditting, onEditClick, hasPermission })
 
 const NoteItemSecondaryWithPermission = withPermissionCheck(NoteItemSecondary);
 
-export const NoteItem = ({ noteItem, onEditNoteItem }) => {
+export const NoteItem = ({ index, noteItem, onEditNoteItem }) => {
   const [isEditting, setIsEditting] = useState(false);
   const [content, setContent] = useState(noteItem.content);
   const handleDone = () => {
@@ -160,7 +162,7 @@ export const NoteItem = ({ noteItem, onEditNoteItem }) => {
 
   return (
     <>
-      <Divider />
+      {index !== 0 && <Divider />}
       <ListItem>
         {isEditting ? (
           <EditTextWrapper>
@@ -172,7 +174,15 @@ export const NoteItem = ({ noteItem, onEditNoteItem }) => {
               onChange={event => setContent(event.target.value)}
             />
             <StyledSaveText onClick={handleDone}>Save</StyledSaveText>
-            <StyledCancelText onClick={() => setIsEditting(!isEditting)}>Cancel</StyledCancelText>
+            <StyledCancelText
+              onClick={() => {
+                // resetting note item content
+                setContent(noteItem.content);
+                setIsEditting(!isEditting);
+              }}
+            >
+              Cancel
+            </StyledCancelText>
           </EditTextWrapper>
         ) : (
           <StyledListItemText

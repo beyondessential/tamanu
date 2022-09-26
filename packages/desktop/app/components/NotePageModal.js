@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { isEmpty } from 'lodash';
 import { NOTE_RECORD_TYPES } from 'shared/constants';
 
 import { useApi } from '../api';
@@ -7,6 +8,7 @@ import { groupRootNoteItems } from '../utils/groupRootNoteItems';
 
 import { Modal } from './Modal';
 import { NotePageForm } from '../forms/NotePageForm';
+import { ConfirmModal } from './ConfirmModal';
 import { useAuth } from '../contexts/Auth';
 
 export const NotePageModal = ({
@@ -16,11 +18,15 @@ export const NotePageModal = ({
   onSaved,
   encounterId,
   notePage,
+  cancelText,
 }) => {
   const api = useApi();
   const { currentUser } = useAuth();
   const [noteItems, setNoteItems] = useState([]);
   const [noteTypeCountByType, setNoteTypeCountByType] = useState({});
+  const [openNoteItemCancelConfirmModal, setOpenNoteItemCancelConfirmModal] = useState(false);
+  const contentRef = useRef(null);
+
   const practitionerSuggester = new Suggester(api, 'practitioner');
 
   useEffect(() => {
@@ -86,21 +92,60 @@ export const NotePageModal = ({
       const rootNoteItems = groupRootNoteItems(newNoteItems);
 
       setNoteItems(rootNoteItems);
+      onSaved();
     },
-    [api, currentUser.id, notePage],
+    [api, currentUser.id, notePage, onSaved],
   );
 
   return (
-    <Modal title={title} open={open} width="md" onClose={onClose}>
-      <NotePageForm
-        onSubmit={handleCreateNewNoteItem}
-        onEditNoteItem={handleEditNoteItem}
-        onCancel={onClose}
-        practitionerSuggester={practitionerSuggester}
-        notePage={notePage}
-        noteItems={noteItems}
-        noteTypeCountByType={noteTypeCountByType}
+    <>
+      <ConfirmModal
+        title="Discard add note"
+        open={openNoteItemCancelConfirmModal}
+        width="sm"
+        onCancel={() => setOpenNoteItemCancelConfirmModal(false)}
+        onConfirm={() => {
+          setOpenNoteItemCancelConfirmModal(false);
+          onClose();
+        }}
+        customContent={<p>Are you sure you want to remove any changes you have made?</p>}
       />
-    </Modal>
+      <Modal
+        title={title}
+        open={open}
+        width="md"
+        onClose={() => {
+          const content = contentRef.current.textContent
+            .replace(/\s+/g, '')
+            .replace(/([\u200B]+|[\u200C]+|[\u200D]+|[\u200E]+|[\u200F]+|[\uFEFF]+)/g, '');
+          if (!isEmpty(content)) {
+            setOpenNoteItemCancelConfirmModal(true);
+          } else {
+            onClose();
+          }
+        }}
+      >
+        <NotePageForm
+          onSubmit={handleCreateNewNoteItem}
+          onEditNoteItem={handleEditNoteItem}
+          onCancel={() => {
+            const content = contentRef.current.textContent
+              .replace(/\s+/g, '')
+              .replace(/([\u200B]+|[\u200C]+|[\u200D]+|[\u200E]+|[\u200F]+|[\uFEFF]+)/g, '');
+            if (!isEmpty(content)) {
+              setOpenNoteItemCancelConfirmModal(true);
+            } else {
+              onClose();
+            }
+          }}
+          practitionerSuggester={practitionerSuggester}
+          notePage={notePage}
+          noteItems={noteItems}
+          noteTypeCountByType={noteTypeCountByType}
+          cancelText={cancelText}
+          contentRef={contentRef}
+        />
+      </Modal>
+    </>
   );
 };
