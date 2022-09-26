@@ -43,13 +43,18 @@ export class CentralSyncManager {
     await deleteInactiveSyncSessions(this.store, lapsedSessionSeconds);
   };
 
+  async tickSyncClock() {
+    const [[{ nextval: newTick }]] = await this.store.sequelize.query(
+      `SELECT nextval('sync_clock_sequence')`,
+    );
+    return newTick;
+  }
+
   async startSession(facilityId) {
     // as a side effect of starting a new session, cause a tick on the global sync clock
     // this is a convenient way to tick the clock, as it means that no two sync sessions will
     // happen at the same global sync time, meaning there's no ambiguity when resolving conflicts
-    const [[{ nextval: syncClockTick }]] = await this.store.sequelize.query(
-      `SELECT nextval('sync_clock_sequence')`,
-    );
+    const syncClockTick = await this.tickSyncClock();
 
     const startTime = new Date();
     const syncSession = await this.store.models.SyncSession.create({
@@ -163,6 +168,11 @@ export class CentralSyncManager {
     await models.SessionSyncRecord.bulkCreate(sessionSyncRecords);
 
     if (pageNumber === totalPages) {
+      // commit the changes to the db
+      // first bump the current sync tick, so that these changes are saved with a higher tick than
+      // any currently underway sync session, to make sure they get picked up on the next sync for
+      // every sync client
+      await this.tickSyncClock();
       await this.store.sequelize.transaction(async () => {
         await saveIncomingChanges(
           models,
