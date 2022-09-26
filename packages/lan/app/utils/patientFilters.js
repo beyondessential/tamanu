@@ -1,6 +1,6 @@
 import config from 'config';
-import { sub, startOfDay, endOfDay } from 'date-fns';
-import { toDateString, toDateTimeString } from 'shared/utils/dateTime';
+import { sub } from 'date-fns';
+import { toDateString } from 'shared/utils/dateTime';
 import { makeFilter } from './query';
 
 export const createPatientFilters = filterParams => {
@@ -40,27 +40,9 @@ export const createPatientFilters = filterParams => {
       dobMax: toDateString(sub(new Date(), { years: ageMin })),
     })),
     // For DOB filter
-    makeFilter(
-      filterParams.dateOfBirthFrom,
-      `patients.date_of_birth >= :dateOfBirthFrom`,
-      ({ dateOfBirthFrom }) => ({
-        dateOfBirthFrom,
-      }),
-    ),
-    makeFilter(
-      filterParams.dateOfBirthTo,
-      `patients.date_of_birth <= :dateOfBirthTo`,
-      ({ dateOfBirthTo }) => ({
-        dateOfBirthTo,
-      }),
-    ),
-    makeFilter(
-      filterParams.dateOfBirthExact,
-      `patients.date_of_birth = :dateOfBirthExact`,
-      ({ dateOfBirthExact }) => ({
-        dateOfBirthExact,
-      }),
-    ),
+    makeFilter(filterParams.dateOfBirthFrom, `patients.date_of_birth >= :dateOfBirthFrom`),
+    makeFilter(filterParams.dateOfBirthTo, `patients.date_of_birth <= :dateOfBirthTo`),
+    makeFilter(filterParams.dateOfBirthExact, `patients.date_of_birth = :dateOfBirthExact`),
     makeFilter(filterParams.villageId, `patients.village_id = :villageId`),
     makeFilter(filterParams.locationId, `location.id = :locationId`),
     makeFilter(filterParams.departmentId, `department.id = :departmentId`),
