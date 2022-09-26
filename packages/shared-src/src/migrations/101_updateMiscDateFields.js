@@ -28,7 +28,7 @@ export async function up(query) {
     // 3.Change column types from of original columns from date to string & convert data to string
     await query.sequelize.query(`
       ALTER TABLE ${migration.TABLE}
-      ALTER COLUMN ${migration.FIELD} TYPE date_time_string USING TO_CHAR(${migration.FIELD}, '${ISO9075_DATE_TIME_FMT}');
+      ALTER COLUMN ${migration.FIELD} TYPE date_time_string USING TO_CHAR(${migration.FIELD}::TIMESTAMPTZ AT TIME ZONE 'UTC, '${ISO9075_DATE_TIME_FMT}');
     `);
   }
 }
