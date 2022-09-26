@@ -39,10 +39,7 @@ module.exports = {
     const syncingTables = await getAllTables(query.sequelize);
     for (const table of syncingTables) {
       await query.sequelize.query(`
-        DROP TRIGGER IF EXISTS set_${table}_updated_at_sync_tick_on_insert ON ${table};
-      `);
-      await query.sequelize.query(`
-        DROP TRIGGER IF EXISTS set_${table}_updated_at_sync_tick_on_update ON ${table};
+        DROP TRIGGER IF EXISTS set_${table}_updated_at_sync_tick ON ${table};
       `);
       await query.removeColumn(table, 'updated_at_sync_tick');
     }
