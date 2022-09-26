@@ -14,7 +14,7 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   batch?: string;
 
   @Column()
-  status: string;
+  status: VaccineStatus;
 
   @Column({ nullable: true })
   reason?: string;
@@ -26,7 +26,7 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   consent: boolean;
 
   @Column()
-  date: Date;
+  date: string;
 
   @Column({ nullable: true })
   givenBy?: string;

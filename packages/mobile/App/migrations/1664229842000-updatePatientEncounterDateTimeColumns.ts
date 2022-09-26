@@ -65,6 +65,7 @@ export class updatePatientEncounterDateTimeColumns1664229842000 implements Migra
     await createDateTimeStringUpMigration(queryRunner, 'encounter', 'start_date');
     await createDateTimeStringUpMigration(queryRunner, 'encounter', 'end_date');
     await createDateTimeStringUpMigration(queryRunner, 'vitals', 'date_recorded');
+    await createDateTimeStringUpMigration(queryRunner, 'administered_vaccine', 'date')
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
@@ -74,6 +75,6 @@ export class updatePatientEncounterDateTimeColumns1664229842000 implements Migra
     await createDateTimeStringDownMigration(queryRunner, 'encounter', 'start_date');
     await createDateTimeStringDownMigration(queryRunner, 'encounter', 'end_date');
     await createDateTimeStringDownMigration(queryRunner, 'vitals', 'date_recorded');
-
+    await createDateTimeStringDownMigration(queryRunner, 'administered_vaccine', 'date')
   }
 }
