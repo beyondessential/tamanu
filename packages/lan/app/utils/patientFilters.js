@@ -41,7 +41,7 @@ export const createPatientFilters = filterParams => {
     })),
     // For DOB filter
     makeFilter(filterParams.dateOfBirthFrom, `patients.date_of_birth >= :dateOfBirthFrom`),
-    makeFilter(filterParams.dateOfBirthTo, `patients.date_of_birth <= :dateOfBirthTo`),
+    makeFilter(filterParams.dateOfBirthTo, `patients.date_of_birth<= :dateOfBirthTo`),
     makeFilter(filterParams.dateOfBirthExact, `patients.date_of_birth = :dateOfBirthExact`),
     makeFilter(filterParams.villageId, `patients.village_id = :villageId`),
     makeFilter(filterParams.locationId, `location.id = :locationId`),
