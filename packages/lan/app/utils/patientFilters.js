@@ -1,6 +1,6 @@
 import config from 'config';
 import { sub, startOfDay, endOfDay } from 'date-fns';
-import { toDateTimeString } from 'shared/utils/dateTime';
+import { toDateString, toDateTimeString } from 'shared/utils/dateTime';
 import { makeFilter } from './query';
 
 export const createPatientFilters = filterParams => {
@@ -34,24 +34,24 @@ export const createPatientFilters = filterParams => {
     // For age filter
     makeFilter(filterParams.ageMax, `patients.date_of_birth >= :dobMin`, ({ ageMax }) => ({
       // Subtract the number of years, but add one day
-      dobMin: sub(new Date(), { years: ageMax + 1 }),
+      dobMin: toDateString(sub(new Date(), { years: ageMax + 1, days: -1 })),
     })),
     makeFilter(filterParams.ageMin, `patients.date_of_birth <= :dobMax`, ({ ageMin }) => ({
-      dobMax: sub(new Date(), { years: ageMin }),
+      dobMax: toDateString(sub(new Date(), { years: ageMin })),
     })),
     // For DOB filter
     makeFilter(
       filterParams.dateOfBirthFrom,
       `patients.date_of_birth >= :dateOfBirthFrom`,
       ({ dateOfBirthFrom }) => ({
-        dateOfBirthFrom: toDateTimeString(startOfDay(new Date(dateOfBirthFrom))),
+        dateOfBirthFrom,
       }),
     ),
     makeFilter(
       filterParams.dateOfBirthTo,
       `patients.date_of_birth <= :dateOfBirthTo`,
       ({ dateOfBirthTo }) => ({
-        dateOfBirthTo: toDateTimeString(endOfDay(new Date(dateOfBirthTo))),
+        dateOfBirthTo,
       }),
     ),
     makeFilter(
