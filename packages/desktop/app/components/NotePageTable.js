@@ -68,9 +68,14 @@ const getContent = ({ noteItems }) => {
 };
 
 const COLUMNS = [
-  { key: 'date', title: 'Date', accessor: ({ date }) => <DateDisplay date={date} showTime /> },
-  { key: 'noteType', title: 'Type', accessor: getTypeLabel },
-  { key: 'content', title: 'Content', maxWidth: 300, accessor: getContent },
+  {
+    key: 'date',
+    title: 'Date',
+    accessor: ({ date }) => <DateDisplay date={date} showTime />,
+    sortable: false,
+  },
+  { key: 'noteType', title: 'Type', accessor: getTypeLabel, sortable: false },
+  { key: 'content', title: 'Content', maxWidth: 300, accessor: getContent, sortable: false },
 ];
 
 const NotePageTable = ({ encounterId, hasPermission }) => {
