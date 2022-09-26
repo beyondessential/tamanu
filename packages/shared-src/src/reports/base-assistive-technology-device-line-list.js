@@ -1,6 +1,6 @@
 import { keyBy, groupBy, uniqWith, isEqual } from 'lodash';
 import { Op } from 'sequelize';
-import { differenceInMilliseconds } from 'date-fns';
+import { differenceInMilliseconds, format as dateFnsFormat } from 'date-fns';
 import { generateReportFromQueryData } from './utilities';
 import { transformAnswers } from './utilities/transformAnswers';
 import { format, ageInYears } from '../utils/dateTime';
@@ -78,7 +78,7 @@ const getLatestAnswerPerGroup = groupedTransformAnswers => {
   const results = {};
   for (const [key, groupedAnswers] of Object.entries(groupedTransformAnswers)) {
     const sortedLatestToOldestAnswers = groupedAnswers.sort((a1, a2) =>
-      differenceInMilliseconds(a2.responseEndTime, a1.responseEndTime),
+      differenceInMilliseconds(new Date(a2.responseEndTime), new Date(a1.responseEndTime)),
     );
     results[key] = sortedLatestToOldestAnswers[0]?.body;
   }
@@ -94,7 +94,7 @@ const getLatestAnswerPerPatient = answers => {
 
 const getLatestAnswerPerPatientPerDate = answers => {
   const groupedAnswers = groupBy(answers, a => {
-    const responseDate = format(a.responseEndTime, 'dd-MM-yyyy');
+    const responseDate = dateFnsFormat(a.responseEndTime, 'dd-MM-yyyy');
     return getPerPatientPerDateAnswerKey(a.patientId, a.dataElementId, responseDate);
   });
   return getLatestAnswerPerGroup(groupedAnswers);

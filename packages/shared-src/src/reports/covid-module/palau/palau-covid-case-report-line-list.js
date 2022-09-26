@@ -181,10 +181,10 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
       // only take the latest initial survey response
       const surveyResponse = patientSurveyResponses[0];
       // only select follow up surveys after the current initial survey
-      const followUpSurveyResponseFromDate = startOfDay(surveyResponse.endTime);
+      const followUpSurveyResponseFromDate = startOfDay(new Date(surveyResponse.endTime));
       const followUpSurvey = followUpSurveyResponsesByPatient[patientId]?.find(
         followUpSurveyResponse =>
-          !isBefore(followUpSurveyResponse.endTime, followUpSurveyResponseFromDate),
+          !isBefore(new Date(followUpSurveyResponse.endTime), followUpSurveyResponseFromDate),
       );
       async function transform() {
         const resultResponse = surveyResponse;

@@ -242,15 +242,18 @@ const getLabTestRecords = async (
       }
 
       const labTest = patientLabTests[i];
-      const currentLabTestDate = startOfDay(labTest.date);
+      const currentLabTestDate = startOfDay(new Date(labTest.date));
 
       // Get all lab tests regardless and filter fromDate and toDate in memory
       // to ensure that we have the date range from current lab test to the next lab test correctly.
-      if (parameters.fromDate && isBefore(currentLabTestDate, startOfDay(parameters.fromDate))) {
+      if (
+        parameters.fromDate &&
+        isBefore(currentLabTestDate, startOfDay(new Date(parameters.fromDate)))
+      ) {
         continue;
       }
 
-      if (parameters.toDate && isAfter(currentLabTestDate, endOfDay(parameters.toDate))) {
+      if (parameters.toDate && isAfter(currentLabTestDate, endOfDay(new Date(parameters.toDate)))) {
         continue;
       }
 
@@ -262,7 +265,7 @@ const getLabTestRecords = async (
         // if next lab test not on the same date (next one on a different date,
         // startOf('day') to exclude the next date when comparing range later
         if (!isSameDay(currentLabTestDate, nextLabTestTimestamp)) {
-          nextLabTestDate = startOfDay(nextLabTestTimestamp);
+          nextLabTestDate = startOfDay(new Date(nextLabTestTimestamp));
         } else {
           // if next lab test on the same date, just use its raw timestamp
           nextLabTestDate = nextLabTestTimestamp;
