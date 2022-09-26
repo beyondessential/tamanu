@@ -59,7 +59,10 @@ export function parseISO9075(date) {
 
 // It seems that some JS implementations have problems
 // parsing strings to dates.
-export const format = date => format(new Date(date.replace(' ', 'T')));
+export const format = (date, f) => {
+  const dateObj = typeof date === 'string' ? new Date(date.replace(' ', 'T')) : date;
+  return dateFnsFormat(dateObj, f);
+};
 
 export const differenceInMilliseconds = (a, b) =>
   dateFnsDifferenceInMilliseconds(new Date(a), new Date(b));
