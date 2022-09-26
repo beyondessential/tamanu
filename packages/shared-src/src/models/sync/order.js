@@ -53,7 +53,10 @@ export const MODEL_DEPENDENCY_ORDER = [
   'NotePage',
   'NoteItem',
 
+  'ReportDefinition',
+  'ReportDefinitionVersion',
   'ReportRequest',
+
   'PatientCommunication',
   'CertificateNotification',
 

@@ -1,5 +1,4 @@
 import {
-  subDays,
   differenceInMilliseconds,
   isWithinInterval,
   isBefore,
@@ -64,15 +63,6 @@ const parametersToLabTestSqlWhere = parameters => {
 };
 
 const parametersToSurveyResponseSqlWhere = (parameters, { surveyId }) => {
-  // In the meantime, only apply the default to the nauru report.
-  // Then, it will just be a matter of removing that check to include in all
-  // other covid swab reports.
-  const NAURU_SURVEY_ID = 'program-naurucovid19-naurucovidtestregistration';
-  if (surveyId === NAURU_SURVEY_ID && !parameters.fromDate) {
-    // eslint-disable-next-line no-param-reassign
-    parameters.fromDate = subDays(new Date(), 30).toISOString();
-  }
-
   const defaultWhereClause = {
     '$surveyResponse.survey_id$': surveyId,
   };
@@ -256,11 +246,14 @@ const getLabTestRecords = async (
 
       // Get all lab tests regardless and filter fromDate and toDate in memory
       // to ensure that we have the date range from current lab test to the next lab test correctly.
-      if (parameters.fromDate && isBefore(currentLabTestDate, startOfDay(parameters.fromDate))) {
+      if (
+        parameters.fromDate &&
+        isBefore(currentLabTestDate, startOfDay(new Date(parameters.fromDate)))
+      ) {
         continue;
       }
 
-      if (parameters.toDate && isAfter(currentLabTestDate, endOfDay(parameters.toDate))) {
+      if (parameters.toDate && isAfter(currentLabTestDate, endOfDay(new Date(parameters.toDate)))) {
         continue;
       }
 
