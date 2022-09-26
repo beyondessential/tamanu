@@ -279,7 +279,7 @@ patientRoute.get(
         LEFT JOIN reference_data AS village
           ON (village.type = 'village' AND village.id = patients.village_id)
         LEFT JOIN patient_facilities
-          ON (patient_facilities.patient_id = patients.id AND facility_id = :facilityId)
+          ON (patient_facilities.patient_id = patients.id AND patient_facilities.facility_id = :facilityId)
       ${whereClauses && `WHERE ${whereClauses}`}
     `;
 
