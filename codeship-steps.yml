@@ -190,14 +190,6 @@
               tag: ^uatpmi-
               service: awsdeployment
               command: ./scripts/deploy_lan.sh uatpmi tamanu-facility-server-uat-pmi
-            - name: onto beta A
-              tag: ^(beta-)
-              service: awsdeployment
-              command: ./scripts/deploy_lan.sh beta tamanu-facility-server-beta-a
-            - name: onto beta B
-              tag: ^(beta-)
-              service: awsdeployment
-              command: ./scripts/deploy_lan.sh beta tamanu-facility-server-beta-b
             - name: onto staging A
               tag: ^(staging-)
               service: awsdeployment
