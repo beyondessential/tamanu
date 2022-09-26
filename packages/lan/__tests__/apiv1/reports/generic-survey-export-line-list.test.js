@@ -1,6 +1,7 @@
 import { randomReferenceDataObjects } from 'shared/demoData/patients';
 import { PROGRAM_DATA_ELEMENT_TYPES } from 'shared/constants';
 import { fake } from 'shared/test-helpers';
+import { toDateTimeString } from 'shared/utils/dateTime';
 import { subDays, format } from 'date-fns';
 import { createTestContext } from '../../utilities';
 
@@ -85,9 +86,9 @@ const createDummySurvey = async models => {
 const submitSurveyForPatient = (app, patient, date, expectedVillage) =>
   app.post('/v1/surveyResponse').send({
     surveyId: SURVEY_ID,
-    startTime: date,
+    startTime: toDateTimeString(date),
     patientId: patient.id,
-    endTime: date,
+    endTime: toDateTimeString(date),
     answers: {
       'pde-Test1': 'Data point 1',
       'pde-CheckboxQ': 'true',
@@ -193,11 +194,12 @@ describe('Generic survey export', () => {
 
     it('should not error if given an empty survey response', async () => {
       const date = subDays(new Date(), 25);
+      console.log('date', date);
       await app.post('/v1/surveyResponse').send({
         surveyId: SURVEY_ID,
-        startTime: date,
+        startTime: toDateTimeString(date),
         patientId: expectedPatient.id,
-        endTime: date,
+        endTime: toDateTimeString(date),
         answers: {},
       });
 
