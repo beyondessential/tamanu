@@ -26,9 +26,8 @@ const saveDeletes = async (model, recordIds) =>
   model.destroy({ where: { id: { [Op.in]: recordIds } } });
 
 const saveChangesForModel = async (model, changes, isCentralServer) => {
-  const sanitizeData = isCentralServer
-    ? model.sanitizeForCentralServer
-    : model.sanitizeForFacilityServer;
+  const sanitizeData = d =>
+    isCentralServer ? model.sanitizeForCentralServer(d) : model.sanitizeForFacilityServer(d);
 
   // split changes into create, update, delete
   const idsForDelete = changes.filter(c => c.isDeleted).map(c => c.data.id);

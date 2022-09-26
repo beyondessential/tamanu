@@ -279,7 +279,7 @@ patientRoute.get(
         LEFT JOIN reference_data AS village
           ON (village.type = 'village' AND village.id = patients.village_id)
         LEFT JOIN patient_facilities
-          ON (patient_facilities.patient_id = patients.id)
+          ON (patient_facilities.patient_id = patients.id AND facility_id = :facilityId)
       ${whereClauses && `WHERE ${whereClauses}`}
     `;
 
@@ -294,7 +294,10 @@ patientRoute.get(
       );
 
     const countResult = await req.db.query(`SELECT COUNT(1) AS count ${from}`, {
-      replacements: filterReplacements,
+      replacements: {
+        ...filterReplacements,
+        facilityId: config.serverFacilityId,
+      },
       type: QueryTypes.SELECT,
     });
 
