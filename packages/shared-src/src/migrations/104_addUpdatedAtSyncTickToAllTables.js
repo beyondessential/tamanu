@@ -26,21 +26,19 @@ module.exports = {
         ALTER TABLE ${table} ALTER COLUMN updated_at_sync_tick SET NOT NULL;
       `);
 
-      // before insert, set updated_at if not provided
+      // before insert, set updated_at (overriding any that is passed in)
       await query.sequelize.query(`
         CREATE TRIGGER set_${table}_updated_at_sync_tick_on_insert
         BEFORE INSERT ON ${table}
         FOR EACH ROW
-        WHEN (NEW.updated_at_sync_tick IS NULL) -- i.e. when an override value has not been passed in
         EXECUTE FUNCTION set_updated_at_sync_tick();
       `);
 
-      // before updates, set updated_at if not provided or unchanged
+      // before updates, set updated_at (overriding any that is passed in)
       await query.sequelize.query(`
         CREATE TRIGGER set_${table}_updated_at_sync_tick_on_update
         BEFORE UPDATE ON ${table}
         FOR EACH ROW
-        WHEN (NEW.updated_at_sync_tick IS NULL OR NEW.updated_at_sync_tick = OLD.updated_at_sync_tick) -- i.e. when an override value has not been passed in
         EXECUTE FUNCTION set_updated_at_sync_tick();
       `);
     }
