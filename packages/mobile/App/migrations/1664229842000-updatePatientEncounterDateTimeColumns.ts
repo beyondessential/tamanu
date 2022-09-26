@@ -59,14 +59,18 @@ async function createDateTimeStringDownMigration(
 
 export class updatePatientEncounterDateTimeColumns1664229842000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
-    await createDateTimeStringUpMigration(queryRunner, 'encounter', 'startDate');
-    await createDateTimeStringUpMigration(queryRunner, 'encounter', 'endDate');
+    await createDateTimeStringUpMigration(queryRunner, 'encounter', 'start_date');
+    await createDateTimeStringUpMigration(queryRunner, 'encounter', 'end_date');
     await createDateTimeStringUpMigration(queryRunner, 'diagnosis', 'date');
+    await createDateTimeStringUpMigration(queryRunner, 'medication', 'date')
+    await createDateTimeStringUpMigration(queryRunner, 'medication', 'end_date')
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
-    await createDateTimeStringDownMigration(queryRunner, 'encounter', 'startDate');
-    await createDateTimeStringDownMigration(queryRunner, 'encounter', 'endDate');
+    await createDateTimeStringDownMigration(queryRunner, 'encounter', 'start_date');
+    await createDateTimeStringDownMigration(queryRunner, 'encounter', 'end_date');
     await createDateTimeStringDownMigration(queryRunner, 'diagnosis', 'date');
+    await createDateTimeStringDownMigration(queryRunner, 'medication', 'date')
+    await createDateTimeStringDownMigration(queryRunner, 'medication', 'end_date')
   }
 }
