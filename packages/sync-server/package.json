@@ -25,7 +25,7 @@
     "test": "NODE_ENV=test jest",
     "test-coverage": "yarn test --coverage",
     "test-watch": "yarn test --watch",
-    "build": "rm -rf ./dist/ && webpack --config webpack.config.prod.mjs",
+    "build": "rimraf ./dist/ && webpack --config webpack.config.prod.mjs",
     "build-dev": "rimraf ./dist/ && NOWATCH=true webpack --config webpack.config.dev.mjs",
     "lint": "eslint app",
     "lint-stats": "eslint app --format ../scripts/eslint-stats.js",
