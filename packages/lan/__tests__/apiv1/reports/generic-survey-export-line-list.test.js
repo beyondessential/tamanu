@@ -194,7 +194,6 @@ describe('Generic survey export', () => {
 
     it('should not error if given an empty survey response', async () => {
       const date = subDays(new Date(), 25);
-      console.log('date', date);
       await app.post('/v1/surveyResponse').send({
         surveyId: SURVEY_ID,
         startTime: toDateTimeString(date),
@@ -212,9 +211,10 @@ describe('Generic survey export', () => {
     });
 
     it('should return data ordered by date', async () => {
-      const date1 = subDays(new Date(), 25);
-      const date2 = subDays(new Date(), 25);
-      const date3 = subDays(new Date(), 25);
+      const date1 = toDateTimeString(subDays(new Date(), 25));
+      const date2 = toDateTimeString(subDays(new Date(), 25));
+      const date3 = toDateTimeString(subDays(new Date(), 25));
+
       // Submit in a different order just in case
       await submitSurveyForPatient(app, expectedPatient, date2, expectedVillage);
       await submitSurveyForPatient(app, expectedPatient, date3, expectedVillage);
@@ -229,13 +229,13 @@ describe('Generic survey export', () => {
       expect(result.body).toMatchTabularReport(
         [
           {
-            'Submission Time': format(getExpectedDate(date1), 'yyyy-MM-dd hh:mm a'),
+            'Submission Time': format(new Date(date1), 'yyyy-MM-dd hh:mm a'),
           },
           {
-            'Submission Time': format(getExpectedDate(date2), 'yyyy-MM-dd hh:mm a'),
+            'Submission Time': format(new Date(date2), 'yyyy-MM-dd hh:mm a'),
           },
           {
-            'Submission Time': format(getExpectedDate(date3), 'yyyy-MM-dd hh:mm a'),
+            'Submission Time': format(new Date(date3), 'yyyy-MM-dd hh:mm a'),
           },
         ],
         { partialMatching: true },
@@ -243,9 +243,7 @@ describe('Generic survey export', () => {
     });
 
     it('should return basic data for a survey', async () => {
-      const date = subDays(new Date(), 25);
-
-      const expectedDate = getExpectedDate(date);
+      const date = toDateTimeString(subDays(new Date(), 25));
 
       await submitSurveyForPatient(app, expectedPatient, date, expectedVillage);
 
@@ -272,7 +270,7 @@ describe('Generic survey export', () => {
           Age: 1,
           Sex: expectedPatient.sex,
           Village: expectedVillage.name,
-          'Submission Time': format(expectedDate, 'yyyy-MM-dd hh:mm a'),
+          'Submission Time': format(new Date(date), 'yyyy-MM-dd hh:mm a'),
           'name-pde-CheckboxQ': 'Yes', // screenIndex: 1, componentIndex: 1
           'name-pde-Test1': 'Data point 1', // screenIndex: 1, componentIndex: 2
           'name-pde-Autocomplete': expectedVillage.name, // screenIndex: 2, componentIndex: 1
