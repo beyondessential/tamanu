@@ -48,6 +48,7 @@ export const NotePageModal = ({
       const newData = {
         ...data,
         authorId: currentUser.id,
+        onBehalfOfId: currentUser.id !== data.writtenById ? data.writtenById : undefined,
         recordId: encounterId,
         recordType: NOTE_RECORD_TYPES.ENCOUNTER,
       };
