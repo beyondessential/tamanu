@@ -115,8 +115,9 @@ export const NotePageForm = ({
           formatOptionLabel={renderOptionLabel}
         />
         <Field
-          name="onBehalfOfId"
-          label="On behalf of"
+          name="writtenById"
+          label="Written by (or on behalf of)"
+          required
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
@@ -152,6 +153,7 @@ export const NotePageForm = ({
       initialValues={{
         date: new Date(),
         noteType: notePage?.noteType,
+        writtenById: currentUser.id,
       }}
       validationSchema={yup.object().shape({
         noteType: yup
@@ -160,6 +162,7 @@ export const NotePageForm = ({
           .required(),
         date: yup.date().required(),
         content: yup.string().required(),
+        writtenById: yup.string().required(),
       })}
     />
   );
