@@ -47,7 +47,7 @@ reports.get(
         name: r.name,
         dataSourceOptions: version.queryOptions.dataSources,
         dateRangeLabel: version.queryOptions.dateRangeLabel,
-        parameters: version.queryOptions.parameters,
+        parameters: version.getParameters(),
         version: version.versionNumber,
       };
     });
