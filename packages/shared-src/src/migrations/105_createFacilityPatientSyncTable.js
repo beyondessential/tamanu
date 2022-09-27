@@ -57,18 +57,10 @@ module.exports = {
     );
 
     await query.sequelize.query(`
-      CREATE TRIGGER set_patient_facilities_updated_at_sync_tick_on_insert
-      BEFORE INSERT ON patient_facilities
-      FOR EACH ROW
-      WHEN (NEW.updated_at_sync_tick IS NULL) -- i.e. when an override value has not been passed in
-      EXECUTE FUNCTION set_updated_at_sync_tick();
-    `);
-    await query.sequelize.query(`
-      CREATE TRIGGER set_patient_facilities_updated_at_sync_tick_on_update
-      BEFORE UPDATE ON patient_facilities
-      FOR EACH ROW
-      WHEN (NEW.updated_at_sync_tick IS NULL OR NEW.updated_at_sync_tick = OLD.updated_at_sync_tick) -- i.e. when an override value has not been passed in
-      EXECUTE FUNCTION set_updated_at_sync_tick();
+      CREATE TRIGGER set_patient_facilities_updated_at_sync_tick
+        BEFORE INSERT OR UPDATE ON patient_facilities
+        FOR EACH ROW
+        EXECUTE FUNCTION set_updated_at_sync_tick();
     `);
   },
   down: async query => {
