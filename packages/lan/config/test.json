@@ -1,7 +1,6 @@
 {
   "db": {
     "name": "tamanu-lan-test",
-    "sqlitePath": null,
     "migrateOnStartup": true
   },
   "log": {

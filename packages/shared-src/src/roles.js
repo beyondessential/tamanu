@@ -202,6 +202,8 @@ export const practitioner = [
   { verb: 'create', noun: 'PatientSecondaryId' },
 
   { verb: 'run', noun: 'Report' },
+
+  { verb: 'write', noun: 'OtherPractitionerEncounterNote' },
 ];
 
 // "Manage all" is a special case in CASL for the admin to grant everything

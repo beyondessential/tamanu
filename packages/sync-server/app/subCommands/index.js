@@ -1,6 +1,7 @@
 export * from './calculateSurveyResults';
 export * from './generate';
 export * from './generateVaccineCertificate';
+export * from './importReport';
 export * from './loadSigner';
 export * from './migrate';
 export * from './printRoutes';
@@ -10,6 +11,6 @@ export * from './saveCertificateRequest';
 export * from './serve';
 export * from './serveAll';
 export * from './setup';
+export * from './shell';
 export * from './tasks';
 export * from './user';
-export * from './importReport';
