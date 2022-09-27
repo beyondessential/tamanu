@@ -12,7 +12,7 @@ export const DEFAULT_SCHEMA_FOR_TYPE = {
     .transform(function numberParse(value, originalValue) {
       if (this.isType(value)) return value;
 
-      const prefix = SEARCH_PREFIXES_ENUM.find(pref => originalValue.startsWith(pref));
+      const prefix = SEARCH_PREFIXES_ENUM.find(pref => originalValue.startsWith(pref)) || null;
       const number = originalValue.replace(new RegExp(`^${prefix}`), '');
 
       return { prefix, number };
@@ -20,7 +20,7 @@ export const DEFAULT_SCHEMA_FOR_TYPE = {
     .shape({
       prefix: yup
         .string()
-        .oneOf(SEARCH_PREFIXES_ENUM)
+        .oneOf([null, ...SEARCH_PREFIXES_ENUM])
         .nullable(),
       number: yup.number().required(),
     })
@@ -30,7 +30,7 @@ export const DEFAULT_SCHEMA_FOR_TYPE = {
     .transform(function dateParse(value, originalValue) {
       if (this.isType(value)) return value;
 
-      const prefix = SEARCH_PREFIXES_ENUM.find(pref => originalValue.startsWith(pref));
+      const prefix = SEARCH_PREFIXES_ENUM.find(pref => originalValue.startsWith(pref)) || null;
       const date = prefix ? originalValue.slice(prefix.length) : originalValue;
 
       const parsed = parseDateTime(date);
@@ -41,7 +41,7 @@ export const DEFAULT_SCHEMA_FOR_TYPE = {
     .shape({
       prefix: yup
         .string()
-        .oneOf(SEARCH_PREFIXES_ENUM)
+        .oneOf([null, ...SEARCH_PREFIXES_ENUM])
         .nullable(),
       date: DATE_OBJECT_SCHEMA.required(),
     })
@@ -97,7 +97,7 @@ export const DEFAULT_SCHEMA_FOR_TYPE = {
       if (this.isType(value)) return value;
 
       const [quantity, system, code] = originalValue.split('|', 3);
-      const prefix = SEARCH_PREFIXES_ENUM.find(pref => quantity.startsWith(pref));
+      const prefix = SEARCH_PREFIXES_ENUM.find(pref => quantity.startsWith(pref)) || null;
       const number = quantity.replace(new RegExp(`^${prefix}`), '');
 
       return { prefix, number, system, code };
@@ -105,7 +105,7 @@ export const DEFAULT_SCHEMA_FOR_TYPE = {
     .shape({
       prefix: yup
         .string()
-        .oneOf(SEARCH_PREFIXES_ENUM)
+        .oneOf([null, ...SEARCH_PREFIXES_ENUM])
         .nullable(),
       number: yup.number().required(),
       system: yup
