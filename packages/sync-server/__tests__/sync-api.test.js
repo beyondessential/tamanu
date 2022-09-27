@@ -315,8 +315,8 @@ describe('Sync API', () => {
       let sensitiveSurveyResponseAnswer;
 
       beforeAll(async () => {
-        await ctx.store.models.Encounter.destroy({ where: {}, force: true });
-        encounterData = await buildNestedEncounter(ctx.store, patientId);
+        await ctx.store.models.Encounter.truncate({ cascade: true, force: true });
+        encounterData = await buildNestedEncounter(ctx.store.models, patientId);
 
         // Get already created non sensitive survey to grab the programId
         const nonSensitiveSurveyId = encounterData.surveyResponses[0].surveyId;
@@ -391,7 +391,7 @@ describe('Sync API', () => {
       let records = null;
 
       beforeAll(async () => {
-        await ctx.store.models.Patient.destroy({ where: {}, force: true });
+        await ctx.store.models.Patient.truncate({ cascade: true, force: true });
 
         // instantiate 20 records
         records = new Array(TOTAL_RECORDS)
@@ -471,8 +471,8 @@ describe('Sync API', () => {
       describe(`from the url ${url}`, () => {
         it('should return nested encounter relationships', async () => {
           // arrange
-          await ctx.store.models.Encounter.destroy({ where: {}, force: true });
-          const encounter = await buildNestedEncounter(ctx.store, patientId);
+          await ctx.store.models.Encounter.truncate({ cascade: true, force: true });
+          const encounter = await buildNestedEncounter(ctx.store.models, patientId);
           await ctx.store.models.Encounter.create(encounter);
           await upsertAssociations(ctx.store.models.Encounter, encounter);
 
@@ -532,7 +532,7 @@ describe('Sync API', () => {
 
   describe('Writes', () => {
     beforeAll(async () => {
-      await ctx.store.models.Patient.destroy({ where: {}, force: true });
+      await ctx.store.models.Patient.truncate({ cascade: true, force: true });
     });
 
     it('should add a record to a channel', async () => {
@@ -594,8 +594,8 @@ describe('Sync API', () => {
       describe(`from the url ${url}`, () => {
         it('should upsert nested encounter relationships', async () => {
           // arrange
-          await ctx.store.models.Encounter.destroy({ where: {}, force: true });
-          const encounterToInsert = await buildNestedEncounter(ctx.store, patientId);
+          await ctx.store.models.Encounter.truncate({ cascade: true, force: true });
+          const encounterToInsert = await buildNestedEncounter(ctx.store.models, patientId);
           await ctx.store.models.Encounter.create(encounterToInsert);
           await upsertAssociations(ctx.store.models.Encounter, encounterToInsert);
 
@@ -649,7 +649,7 @@ describe('Sync API', () => {
 
   describe('Deletes', () => {
     beforeEach(async () => {
-      await ctx.store.models.Patient.destroy({ where: {}, force: true });
+      await ctx.store.models.Patient.truncate({ cascade: true, force: true });
     });
 
     describe('on success', () => {

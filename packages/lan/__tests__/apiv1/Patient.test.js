@@ -5,6 +5,7 @@ import {
   randomReferenceId,
 } from 'shared/demoData/patients';
 import { fake } from 'shared/test-helpers/fake';
+import { toDateString, parseISO9075 } from 'shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 
 describe('Patient', () => {
@@ -231,7 +232,7 @@ describe('Patient', () => {
           createdAt: condition.createdAt.toISOString(),
           updatedAt: condition.updatedAt.toISOString(),
         };
-      }
+      };
 
       commons = {
         clinicianId,
@@ -343,6 +344,7 @@ describe('Patient', () => {
         causeOfDeathInterval: 100,
         mannerOfDeath: 'Disease',
       });
+
       expect(result).toHaveSucceeded();
 
       const encounter = await Encounter.findByPk(encId);
@@ -362,7 +364,7 @@ describe('Patient', () => {
       expect(result).toHaveStatus(404);
       expect(result.body).toMatchObject({
         patientId: id,
-        dateOfBirth: dateOfBirth.toISOString(),
+        dateOfBirth: toDateString(dateOfBirth),
         dateOfDeath: null,
       });
     });
@@ -405,11 +407,9 @@ describe('Patient', () => {
 
       expect(result).toHaveSucceeded();
       expect(result.body.dateOfDeath).toEqual(dod);
-
       expect(result.body).toMatchObject({
         patientId: id,
-
-        dateOfBirth: dateOfBirth.toISOString(),
+        dateOfBirth: toDateString(dateOfBirth),
         dateOfDeath: dod,
         manner: 'Accident',
         causes: {

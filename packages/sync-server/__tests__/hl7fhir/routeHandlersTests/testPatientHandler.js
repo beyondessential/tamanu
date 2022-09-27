@@ -1,5 +1,4 @@
 import { format } from 'date-fns';
-import moment from 'moment';
 
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
@@ -43,6 +42,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
             lastUpdated: patient.updatedAt.toISOString(),
           },
           type: 'searchset',
+          timestamp: expect.any(String),
           total: 1,
           link: [
             {
@@ -52,55 +52,58 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
           ],
           entry: [
             {
-              active: true,
-              address: [
-                {
-                  city: additionalData.cityTown,
-                  line: [additionalData.streetVillage],
-                  type: 'physical',
-                  use: 'home',
-                },
-              ],
-              birthDate: format(patient.dateOfBirth, 'yyyy-MM-dd'),
-              deceasedDateTime: format(new Date(patient.dateOfDeath), "yyyy-MM-dd'T'HH:mm:ssXXX"),
-              gender: patient.sex,
-              id: patient.id,
-              identifier: [
-                {
-                  assigner: 'Tamanu',
-                  system: 'http://tamanu.io/data-dictionary/application-reference-number.html',
-                  use: 'usual',
-                  value: patient.displayId,
-                },
-                {
-                  assigner: 'RTA',
-                  use: 'secondary',
-                  value: additionalData.drivingLicense,
-                },
-              ],
-              name: [
-                {
-                  family: patient.lastName,
-                  given: [patient.firstName, patient.middleName],
-                  prefix: [additionalData.title],
-                  use: 'official',
-                },
-                {
-                  text: patient.culturalName,
-                  use: 'nickname',
-                },
-              ],
-              resourceType: 'Patient',
-              telecom: [
-                {
-                  rank: 1,
-                  value: additionalData.primaryContactNumber,
-                },
-                {
-                  rank: 2,
-                  value: additionalData.secondaryContactNumber,
-                },
-              ],
+              fullUrl: expect.stringContaining(patient.id),
+              resource: {
+                active: true,
+                address: [
+                  {
+                    city: additionalData.cityTown,
+                    line: [additionalData.streetVillage],
+                    type: 'physical',
+                    use: 'home',
+                  },
+                ],
+                birthDate: format(new Date(patient.dateOfBirth), 'yyyy-MM-dd'),
+                deceasedDateTime: format(new Date(patient.dateOfDeath), "yyyy-MM-dd'T'HH:mm:ssXXX"),
+                gender: patient.sex,
+                id: patient.id,
+                identifier: [
+                  {
+                    assigner: 'Tamanu',
+                    system: 'http://tamanu.io/data-dictionary/application-reference-number.html',
+                    use: 'usual',
+                    value: patient.displayId,
+                  },
+                  {
+                    assigner: 'RTA',
+                    use: 'secondary',
+                    value: additionalData.drivingLicense,
+                  },
+                ],
+                name: [
+                  {
+                    family: patient.lastName,
+                    given: [patient.firstName, patient.middleName],
+                    prefix: [additionalData.title],
+                    use: 'official',
+                  },
+                  {
+                    text: patient.culturalName,
+                    use: 'nickname',
+                  },
+                ],
+                resourceType: 'Patient',
+                telecom: [
+                  {
+                    rank: 1,
+                    value: additionalData.primaryContactNumber,
+                  },
+                  {
+                    rank: 2,
+                    value: additionalData.secondaryContactNumber,
+                  },
+                ],
+              },
             },
           ],
         });
@@ -123,6 +126,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
             lastUpdated: null,
           },
           type: 'searchset',
+          timestamp: expect.any(String),
           total: 0,
           link: [
             {
@@ -173,9 +177,9 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
 
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(3);
-        expect(response.body.entry[0].name[0].given[0]).toBe('Alice');
-        expect(response.body.entry[1].name[0].given[0]).toBe('Bob');
-        expect(response.body.entry[2].name[0].given[0]).toBe('Charlie');
+        expect(response.body.entry[0].resource.name[0].given[0]).toBe('Alice');
+        expect(response.body.entry[1].resource.name[0].given[0]).toBe('Bob');
+        expect(response.body.entry[2].resource.name[0].given[0]).toBe('Charlie');
       });
 
       it('sorts by firstName descending (-given)', async () => {
@@ -191,9 +195,9 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
 
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(3);
-        expect(response.body.entry[0].name[0].given[0]).toBe('Charlie');
-        expect(response.body.entry[1].name[0].given[0]).toBe('Bob');
-        expect(response.body.entry[2].name[0].given[0]).toBe('Alice');
+        expect(response.body.entry[0].resource.name[0].given[0]).toBe('Charlie');
+        expect(response.body.entry[1].resource.name[0].given[0]).toBe('Bob');
+        expect(response.body.entry[2].resource.name[0].given[0]).toBe('Alice');
       });
 
       it('sorts by lastName ascending (family)', async () => {
@@ -209,9 +213,9 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
 
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(3);
-        expect(response.body.entry[0].name[0].family).toBe('Adams');
-        expect(response.body.entry[1].name[0].family).toBe('Brown');
-        expect(response.body.entry[2].name[0].family).toBe('Carter');
+        expect(response.body.entry[0].resource.name[0].family).toBe('Adams');
+        expect(response.body.entry[1].resource.name[0].family).toBe('Brown');
+        expect(response.body.entry[2].resource.name[0].family).toBe('Carter');
       });
 
       it('sorts by lastName descending (-family)', async () => {
@@ -227,18 +231,18 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
 
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(3);
-        expect(response.body.entry[0].name[0].family).toBe('Carter');
-        expect(response.body.entry[1].name[0].family).toBe('Brown');
-        expect(response.body.entry[2].name[0].family).toBe('Adams');
+        expect(response.body.entry[0].resource.name[0].family).toBe('Carter');
+        expect(response.body.entry[1].resource.name[0].family).toBe('Brown');
+        expect(response.body.entry[2].resource.name[0].family).toBe('Adams');
       });
 
       it('sorts by dateOfBirth ascending (birthdate)', async () => {
         const { Patient } = ctx.store.models;
         await Promise.all([
-          Patient.create(fake(Patient, { dateOfBirth: moment('1984-10-20') })),
-          Patient.create(fake(Patient, { dateOfBirth: moment('1985-02-20') })),
-          Patient.create(fake(Patient, { dateOfBirth: moment('1985-03-20') })),
-          Patient.create(fake(Patient, { dateOfBirth: moment('1985-03-21') })),
+          Patient.create(fake(Patient, { dateOfBirth: '1984-10-20' })),
+          Patient.create(fake(Patient, { dateOfBirth: '1985-02-20' })),
+          Patient.create(fake(Patient, { dateOfBirth: '1985-03-20' })),
+          Patient.create(fake(Patient, { dateOfBirth: '1985-03-21' })),
         ]);
 
         const path = `/v1/integration/${integrationName}/Patient?_sort=birthdate`;
@@ -246,19 +250,19 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
 
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(4);
-        expect(response.body.entry[0].birthDate).toBe('1984-10-20');
-        expect(response.body.entry[1].birthDate).toBe('1985-02-20');
-        expect(response.body.entry[2].birthDate).toBe('1985-03-20');
-        expect(response.body.entry[3].birthDate).toBe('1985-03-21');
+        expect(response.body.entry[0].resource.birthDate).toBe('1984-10-20');
+        expect(response.body.entry[1].resource.birthDate).toBe('1985-02-20');
+        expect(response.body.entry[2].resource.birthDate).toBe('1985-03-20');
+        expect(response.body.entry[3].resource.birthDate).toBe('1985-03-21');
       });
 
       it('sorts by dateOfBirth descending (-birthdate)', async () => {
         const { Patient } = ctx.store.models;
         await Promise.all([
-          Patient.create(fake(Patient, { dateOfBirth: moment('1984-10-20') })),
-          Patient.create(fake(Patient, { dateOfBirth: moment('1985-02-20') })),
-          Patient.create(fake(Patient, { dateOfBirth: moment('1985-03-20') })),
-          Patient.create(fake(Patient, { dateOfBirth: moment('1985-03-21') })),
+          Patient.create(fake(Patient, { dateOfBirth: '1984-10-20' })),
+          Patient.create(fake(Patient, { dateOfBirth: '1985-02-20' })),
+          Patient.create(fake(Patient, { dateOfBirth: '1985-03-20' })),
+          Patient.create(fake(Patient, { dateOfBirth: '1985-03-21' })),
         ]);
 
         const path = `/v1/integration/${integrationName}/Patient?_sort=-birthdate`;
@@ -266,10 +270,10 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
 
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(4);
-        expect(response.body.entry[0].birthDate).toBe('1985-03-21');
-        expect(response.body.entry[1].birthDate).toBe('1985-03-20');
-        expect(response.body.entry[2].birthDate).toBe('1985-02-20');
-        expect(response.body.entry[3].birthDate).toBe('1984-10-20');
+        expect(response.body.entry[0].resource.birthDate).toBe('1985-03-21');
+        expect(response.body.entry[1].resource.birthDate).toBe('1985-03-20');
+        expect(response.body.entry[2].resource.birthDate).toBe('1985-02-20');
+        expect(response.body.entry[3].resource.birthDate).toBe('1984-10-20');
       });
 
       it('sorts by additionalData.cityTown ascending (address)', async () => {
@@ -300,9 +304,9 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
 
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(3);
-        expect(response.body.entry[0].address[0].city).toBe('Amsterdam');
-        expect(response.body.entry[1].address[0].city).toBe('Berlin');
-        expect(response.body.entry[2].address[0].city).toBe('Cabo');
+        expect(response.body.entry[0].resource.address[0].city).toBe('Amsterdam');
+        expect(response.body.entry[1].resource.address[0].city).toBe('Berlin');
+        expect(response.body.entry[2].resource.address[0].city).toBe('Cabo');
       });
 
       it('sorts by additionalData.cityTown descending (-address)', async () => {
@@ -333,9 +337,9 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
 
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(3);
-        expect(response.body.entry[0].address[0].city).toBe('Cabo');
-        expect(response.body.entry[1].address[0].city).toBe('Berlin');
-        expect(response.body.entry[2].address[0].city).toBe('Amsterdam');
+        expect(response.body.entry[0].resource.address[0].city).toBe('Cabo');
+        expect(response.body.entry[1].resource.address[0].city).toBe('Berlin');
+        expect(response.body.entry[2].resource.address[0].city).toBe('Amsterdam');
       });
 
       it('sorts by additionalData.cityTown ascending (address-city)', async () => {
@@ -366,9 +370,9 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
 
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(3);
-        expect(response.body.entry[0].address[0].city).toBe('Amsterdam');
-        expect(response.body.entry[1].address[0].city).toBe('Berlin');
-        expect(response.body.entry[2].address[0].city).toBe('Cabo');
+        expect(response.body.entry[0].resource.address[0].city).toBe('Amsterdam');
+        expect(response.body.entry[1].resource.address[0].city).toBe('Berlin');
+        expect(response.body.entry[2].resource.address[0].city).toBe('Cabo');
       });
 
       it('sorts by additionalData.cityTown descending (-address-city)', async () => {
@@ -399,9 +403,9 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
 
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(3);
-        expect(response.body.entry[0].address[0].city).toBe('Cabo');
-        expect(response.body.entry[1].address[0].city).toBe('Berlin');
-        expect(response.body.entry[2].address[0].city).toBe('Amsterdam');
+        expect(response.body.entry[0].resource.address[0].city).toBe('Cabo');
+        expect(response.body.entry[1].resource.address[0].city).toBe('Berlin');
+        expect(response.body.entry[2].resource.address[0].city).toBe('Amsterdam');
       });
 
       it('sorts by additionalData.primaryContactNumber ascending (telecom)', async () => {
@@ -432,9 +436,9 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
 
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(3);
-        expect(response.body.entry[0].telecom[0].value).toBe('123456781');
-        expect(response.body.entry[1].telecom[0].value).toBe('123456782');
-        expect(response.body.entry[2].telecom[0].value).toBe('123456783');
+        expect(response.body.entry[0].resource.telecom[0].value).toBe('123456781');
+        expect(response.body.entry[1].resource.telecom[0].value).toBe('123456782');
+        expect(response.body.entry[2].resource.telecom[0].value).toBe('123456783');
       });
 
       it('sorts by additionalData.primaryContactNumber descending (-telecom)', async () => {
@@ -465,9 +469,9 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
 
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(3);
-        expect(response.body.entry[0].telecom[0].value).toBe('123456783');
-        expect(response.body.entry[1].telecom[0].value).toBe('123456782');
-        expect(response.body.entry[2].telecom[0].value).toBe('123456781');
+        expect(response.body.entry[0].resource.telecom[0].value).toBe('123456783');
+        expect(response.body.entry[1].resource.telecom[0].value).toBe('123456782');
+        expect(response.body.entry[2].resource.telecom[0].value).toBe('123456781');
       });
 
       it('sorts by multiple fields', async () => {
@@ -510,11 +514,11 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
         expect(response).toHaveSucceeded();
         expect(response.body.total).toBe(5);
         // Numbers don't repeat so everything else should be in place
-        expect(response.body.entry[0].telecom[0].value).toBe('123456783');
-        expect(response.body.entry[1].telecom[0].value).toBe('123456781');
-        expect(response.body.entry[2].telecom[0].value).toBe('123456782');
-        expect(response.body.entry[3].telecom[0].value).toBe('123456785');
-        expect(response.body.entry[4].telecom[0].value).toBe('123456784');
+        expect(response.body.entry[0].resource.telecom[0].value).toBe('123456783');
+        expect(response.body.entry[1].resource.telecom[0].value).toBe('123456781');
+        expect(response.body.entry[2].resource.telecom[0].value).toBe('123456782');
+        expect(response.body.entry[3].resource.telecom[0].value).toBe('123456785');
+        expect(response.body.entry[4].resource.telecom[0].value).toBe('123456784');
       });
     });
 
@@ -590,15 +594,14 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
 
       it('filters patients by dateOfBirth (birthdate)', async () => {
         const { Patient } = ctx.store.models;
-        const dateString = '1990-05-25';
-        const dateOfBirth = moment.utc(dateString);
+        const dateOfBirth = '1990-05-25';
         await Promise.all([
           Patient.create(fake(Patient, { dateOfBirth })),
           Patient.create(fake(Patient, { dateOfBirth })),
-          Patient.create(fake(Patient, { dateOfBirth: moment.utc('1985-10-20') })),
+          Patient.create(fake(Patient, { dateOfBirth: '1985-10-20' })),
         ]);
 
-        const path = `/v1/integration/${integrationName}/Patient?birthdate=${dateString}`;
+        const path = `/v1/integration/${integrationName}/Patient?birthdate=${dateOfBirth}`;
         const response = await app.get(path).set(requestHeaders);
 
         expect(response).toHaveSucceeded();
@@ -763,8 +766,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
         const { Patient } = ctx.store.models;
         const firstName = 'Jane';
         const lastName = 'Doe';
-        const dateString = '1990-05-20';
-        const dateOfBirth = moment.utc(dateString);
+        const dateOfBirth = '1990-05-20';
         await Promise.all([
           Patient.create(fake(Patient, { firstName, lastName, dateOfBirth })),
           Patient.create(fake(Patient, { firstName, lastName, dateOfBirth })),
@@ -772,7 +774,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
         ]);
 
         const slicedName = firstName.slice(1, 3);
-        const path = `/v1/integration/${integrationName}/Patient?given:contains=${slicedName}&family=${lastName}&birthdate=${dateString}`;
+        const path = `/v1/integration/${integrationName}/Patient?given:contains=${slicedName}&family=${lastName}&birthdate=${dateOfBirth}`;
         const response = await app.get(path).set(requestHeaders);
 
         expect(response).toHaveSucceeded();

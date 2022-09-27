@@ -5,6 +5,7 @@ import { REFERENCE_TYPES } from 'shared/constants';
 import { fake, buildNestedEncounter, upsertAssociations } from 'shared/test-helpers';
 
 import { createTestContext } from '../utilities';
+import { toDateString } from 'shared/utils/dateTime';
 
 describe('SyncManager', () => {
   let ctx;
@@ -217,7 +218,7 @@ describe('SyncManager', () => {
       expect(calls[0][1]).toHaveLength(1);
       expect(calls[0][1][0].data).toMatchObject({
         ...record,
-        dateOfBirth: record?.dateOfBirth?.toISOString(),
+        dateOfBirth: toDateString(record?.dateOfBirth),
         dateOfDeath: undefined,
       });
     });
@@ -251,19 +252,19 @@ describe('SyncManager', () => {
       const patientId = uuidv4();
 
       // unrelated encounter
-      const unrelatedEncounter = await buildNestedEncounter(ctx, patientId);
+      const unrelatedEncounter = await buildNestedEncounter(ctx.models, patientId);
       unrelatedEncounter.labRequests = [];
       await ctx.models.Encounter.create(unrelatedEncounter);
       await upsertAssociations(ctx.models.Encounter, unrelatedEncounter);
 
       // encounter for lab request
-      const labEncounter = await buildNestedEncounter(ctx, patientId);
+      const labEncounter = await buildNestedEncounter(ctx.models, patientId);
       labEncounter.administeredVaccines = [];
       await ctx.models.Encounter.create(labEncounter);
       await upsertAssociations(ctx.models.Encounter, labEncounter);
 
       // encounter for scheduledVaccine
-      const vaccineEncounter = await buildNestedEncounter(ctx, patientId);
+      const vaccineEncounter = await buildNestedEncounter(ctx.models, patientId);
       vaccineEncounter.labRequests = [];
       await ctx.models.Encounter.create(vaccineEncounter);
       await upsertAssociations(ctx.models.Encounter, vaccineEncounter);

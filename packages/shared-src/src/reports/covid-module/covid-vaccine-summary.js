@@ -1,7 +1,8 @@
 /* eslint-disable no-param-reassign */
 
 import { Op } from 'sequelize';
-import { differenceInYears, subDays } from 'date-fns';
+import { subDays } from 'date-fns';
+import { ageInYears } from '../../utils/dateTime';
 
 function parametersToSqlWhere(parameters) {
   if (!parameters.fromDate) {
@@ -65,7 +66,6 @@ async function queryCovidVaccineSummaryData(models, parameters) {
     where: parametersToSqlWhere(parameters),
   });
   const administeredVaccines = result.map(r => r.get({ plain: true }));
-  const today = new Date();
   const countBySheet = administeredVaccines.reduce(
     (acc, vaccine) => {
       if (!vaccine.encounter?.patientId) {
@@ -88,7 +88,7 @@ async function queryCovidVaccineSummaryData(models, parameters) {
       }
       acc[sex][villageName] += 1;
 
-      const patientAge = differenceInYears(today, dateOfBirth);
+      const patientAge = ageInYears(dateOfBirth);
       if (acc.over65[villageName] === undefined) {
         acc.over65[villageName] = 0;
       }

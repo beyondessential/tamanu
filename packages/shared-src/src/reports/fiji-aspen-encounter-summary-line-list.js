@@ -159,7 +159,7 @@ with
     on ir.imaging_type = imaging_types.key
 
     left join (
-      select 
+      select
         record_id,
         json_agg(note) aggregated_notes
       from notes_info
@@ -170,7 +170,7 @@ with
     on non_area_notes.record_id = ir.id 
 
     left join (
-      select 
+      select
         record_id,
         string_agg(note->>'Content', 'ERROR - SHOULD ONLY BE ONE AREA TO BE IMAGED') aggregated_notes
       from notes_info
@@ -231,7 +231,7 @@ with
     and "content" ~ 'Changed (.*) from (.*) to (.*)'
   ),
   department_info as (
-    select 
+    select
       e.id encounter_id,
       case when count("from") = 0
         then json_build_array(json_build_object(
@@ -272,7 +272,7 @@ with
     group by e.id, d.name, e.start_date, first_from
   ),
   location_info as (
-    select 
+    select
       e.id encounter_id,
       case when count("from") = 0
         then json_build_array(json_build_object(
@@ -320,8 +320,8 @@ with
     lateral (
       select
         case when t.closed_time is null
-          then (extract(EPOCH from now()) - extract(EPOCH from t.triage_time))/60
-          else (extract(EPOCH from t.closed_time) - extract(EPOCH from t.triage_time))/60
+          then (extract(EPOCH from now()) - extract(EPOCH from t.triage_time::timestamp))/60
+          else (extract(EPOCH from t.closed_time::timestamp) - extract(EPOCH from t.triage_time::timestamp))/60
         end total_minutes
     ) total_minutes,
     lateral (select floor(total_minutes / 60) hours) hours,
@@ -331,8 +331,8 @@ select
   p.display_id "Patient ID",
   p.first_name "First name",
   p.last_name "Last name",
-  to_char(p.date_of_birth, 'YYYY-MM-DD') "Date of birth",
-  extract(year from age(p.date_of_birth)) "Age",
+  p.date_of_birth "Date of birth",
+  extract(year from age(p.date_of_birth::date)) "Age",
   p.sex "Sex",
   billing.name "Patient billing type",
   e.id "Encounter ID",

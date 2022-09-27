@@ -9,6 +9,7 @@ import {
 import { subDays, format } from 'date-fns';
 import { ENCOUNTER_TYPES } from 'shared/constants';
 import { findOneOrCreate } from 'shared/test-helpers';
+import { parseISO9075 } from 'shared/utils/dateTime';
 import { createTestContext } from '../../utilities';
 
 describe('Admissions report', () => {
@@ -40,22 +41,22 @@ describe('Admissions report', () => {
       }),
     );
     app = await baseApp.asRole('practitioner');
-    expectedLocation = await findOneOrCreate(ctx, models.Location, { name: 'Clinic' });
-    wrongLocation = await findOneOrCreate(ctx, models.Location, { name: 'Not-Clinic' });
-    expectedDepartment1 = await findOneOrCreate(ctx, models.Department, { name: 'Radiology' });
-    expectedDepartment2 = await findOneOrCreate(ctx, models.Department, { name: 'Cardiology' });
+    expectedLocation = await findOneOrCreate(ctx.models, models.Location, { name: 'Clinic' });
+    wrongLocation = await findOneOrCreate(ctx.models, models.Location, { name: 'Not-Clinic' });
+    expectedDepartment1 = await findOneOrCreate(ctx.models, models.Department, { name: 'Radiology' });
+    expectedDepartment2 = await findOneOrCreate(ctx.models, models.Department, { name: 'Cardiology' });
     expectedExaminer = await randomRecord(models, 'User');
-    expectedDiagnosis1 = await findOneOrCreate(ctx, models.ReferenceData, {
+    expectedDiagnosis1 = await findOneOrCreate(ctx.models, models.ReferenceData, {
       type: 'icd10',
       code: 'H60.5',
       name: 'Acute bacterial otitis externa',
     });
-    expectedDiagnosis2 = await findOneOrCreate(ctx, models.ReferenceData, {
+    expectedDiagnosis2 = await findOneOrCreate(ctx.models, models.ReferenceData, {
       type: 'icd10',
       code: 'L74.4',
       name: 'Anhidrosis',
     });
-    expectedBillingType = await findOneOrCreate(ctx, models.ReferenceData, {
+    expectedBillingType = await findOneOrCreate(ctx.models, models.ReferenceData, {
       type: 'patientBillingType',
       name: 'Charity',
     });
@@ -182,7 +183,7 @@ describe('Admissions report', () => {
           'Patient ID': expectedPatient.displayId,
           Sex: expectedPatient.sex,
           Village: expectedVillage.name,
-          'Date of Birth': format(expectedPatient.dateOfBirth, 'dd/MM/yyyy'),
+          'Date of Birth': format(parseISO9075(expectedPatient.dateOfBirth), 'dd/MM/yyyy'),
           Age: 1,
           'Patient Type': 'Charity',
           'Admitting Doctor/Nurse': expectedExaminer.displayName,

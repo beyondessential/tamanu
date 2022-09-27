@@ -9,7 +9,8 @@ import {
   upsertAssociations,
 } from 'shared/test-helpers';
 import { createExportPlan, executeExportPlan } from 'shared/models/sync';
-import { initDb } from '../../initDb';
+
+import { createTestContext } from '../../utilities';
 
 const makeUpdatedAt = daysAgo =>
   format(subDays(new Date(), daysAgo), 'yyyy-MM-dd hh:mm:ss.SSS +00:00');
@@ -17,16 +18,16 @@ const makeUpdatedAt = daysAgo =>
 describe('export', () => {
   [true, false].forEach(syncClientMode => {
     describe(`in ${syncClientMode ? 'client' : 'server'} mode`, () => {
+      let ctx;
       let models;
-      let context;
       const patientId = uuidv4();
       const userId = uuidv4();
       const facilityId = uuidv4();
       const scheduledVaccineId = uuidv4();
 
       beforeAll(async () => {
-        context = await initDb({ syncClientMode });
-        models = context.models;
+        ctx = await createTestContext({ syncClientMode });
+        models = ctx.store.models;
         const { Patient, User, Facility, ScheduledVaccine } = models;
         await Patient.create({ ...fake(Patient), id: patientId });
         await User.create({ ...fakeUser(), id: userId });
@@ -38,21 +39,21 @@ describe('export', () => {
       });
 
       afterAll(async () => {
-        await context.sequelize.close();
+        await ctx.close();
       });
 
       const testCases = [
         ['Patient', () => fake(models.Patient)],
         [
           'Encounter',
-          () => buildNestedEncounter(context, patientId),
+          () => buildNestedEncounter(models, patientId),
           `patient/${patientId}/encounter`,
         ],
-        ['Encounter', () => buildNestedEncounter(context, patientId), 'labRequest/all/encounter'],
+        ['Encounter', () => buildNestedEncounter(models, patientId), 'labRequest/all/encounter'],
         [
           'Encounter',
           async () => {
-            const encounter = await buildNestedEncounter(context, patientId);
+            const encounter = await buildNestedEncounter(models, patientId);
             encounter.administeredVaccines = encounter.administeredVaccines.map(v => ({
               ...v,
               scheduledVaccineId,
@@ -97,19 +98,23 @@ describe('export', () => {
       ];
       testCases.forEach(([modelName, fakeRecord, overrideChannel]) => {
         describe(modelName, () => {
+          beforeEach(async () => {
+            const model = models[modelName];
+            await model.truncate({ cascade: true, force: true });
+          });
+
           it('exports pages of records', async () => {
             // arrange
             const model = models[modelName];
             const channel = overrideChannel || (await model.syncConfig.getChannels())[0];
             const plan = createExportPlan(model.sequelize, channel);
-            await model.truncate();
             const records = [await fakeRecord(), await fakeRecord()];
             const updatedAts = [makeUpdatedAt(20), makeUpdatedAt(0)];
             await Promise.all(
               records.map(async (record, i) => {
                 await model.create({ ...record, isPushing: syncClientMode }); // only set isPushing in client mode
                 await upsertAssociations(model, record);
-                await unsafeSetUpdatedAt(context.sequelize, {
+                await unsafeSetUpdatedAt(ctx.store.sequelize, {
                   table: model.tableName,
                   id: record.id,
                   updated_at: updatedAts[i],
@@ -147,7 +152,7 @@ describe('export', () => {
       it('respects until', async () => {
         // arrange
         const { Patient } = models;
-        await Patient.truncate();
+        await Patient.truncate({ cascade: true, force: true });
         const channel = Patient.syncConfig.getChannels()[0];
         const plan = createExportPlan(Patient.sequelize, channel);
 
@@ -160,7 +165,7 @@ describe('export', () => {
           isPushing: syncClientMode,
         });
         const until = addDays(new Date(), 1);
-        await unsafeSetUpdatedAt(context.sequelize, {
+        await unsafeSetUpdatedAt(ctx.store.sequelize, {
           table: Patient.tableName,
           id: patient2.id,
           updated_at: addDays(until, 1).toISOString(),
