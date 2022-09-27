@@ -15,7 +15,6 @@ export async function addHooks(store) {
 
   if (config.integrations?.fhir) {
     const singleHooks = ['afterCreate', 'afterUpdate'];
-    const bulkHooks = ['afterBulkCreate'];
 
     for (const resource of FHIR_RESOURCE_TYPES) {
       const Upstream = store.models[`Fhir${resource}`].UpstreamModel;
@@ -29,11 +28,13 @@ export async function addHooks(store) {
         });
       }
 
-      for (const hook of bulkHooks) {
-        Upstream.addHook(hook, 'fhirMaterialisation', patients => {
-          patients.forEach(patient => fhirQueue(resource, patient.id));
-        });
-      }
+      Upstream.addHook('afterBulkCreate', 'fhirMaterialisation', patients => {
+        patients.forEach(patient => fhirQueue(resource, patient.id));
+      });
+
+      Upstream.addHook('afterBulkUpdate', 'fhirMaterialisation', async ({ where }) => {
+        (await Upstream.findAll({ where })).forEach(patient => fhirQueue(resource, patient.id));
+      });
     }
   }
 }
