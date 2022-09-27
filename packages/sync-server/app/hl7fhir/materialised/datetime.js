@@ -12,10 +12,11 @@ import {
   formatRFC3339,
 } from 'date-fns';
 import { pick } from 'lodash';
-import { date, number, object, string } from 'yup';
+import { date as yupDate, number, object, string } from 'yup';
 import { FHIR_DATETIME_PRECISION } from 'shared/constants';
 
 function extractTz(str) {
+  // eslint-disable-next-line no-unused-vars
   const [_date, time] = str.split('T');
 
   const plus = time.lastIndexOf('+');
@@ -58,7 +59,7 @@ export const DATE_OBJECT_SCHEMA = object({
   precision: string()
     .oneOf(Object.values(FHIR_DATETIME_PRECISION))
     .required(),
-  plain: date().required(),
+  plain: yupDate().required(),
   sql: string().required(),
   iso: string().required(),
   value: object({

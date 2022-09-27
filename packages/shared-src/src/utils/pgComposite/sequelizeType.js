@@ -65,9 +65,9 @@ export class Composite {
   }
 }
 
-export function objectAsFhir(object) {
+export function objectAsFhir(input) {
   const obj = {};
-  for (const [name, value] of Object.entries(object)) {
+  for (const [name, value] of Object.entries(input)) {
     const val = valueAsFhir(value);
     if (val === null || val === undefined) continue;
     obj[name] = val;

@@ -105,17 +105,16 @@ function singleMatch(path, paramQuery, paramDef, Model) {
   });
 }
 
-function singleOrder(path, order, paramDef, Model) {
-  if (!path.includes('[]')) {
+// eslint-disable-next-line no-unused-vars
+function singleOrder(path, order, _paramDef, _Model) {
+  const runs = pathRuns(path);
+  if (runs.length === 1) {
     // path: ['a', 'b', 'c']
     // sql: order by c(b(a)) desc
     return [nestPath(path), order];
   }
 
-  const runs = pathRuns(path);
-  if (runs.length > 1) {
-    throw new Unsupported('order with nested arrays is not yet implemented');
-  }
+  throw new Unsupported('order with nested arrays is not yet implemented');
 }
 
 function typedMatch(value, query, def) {
@@ -174,7 +173,9 @@ function typedMatch(value, query, def) {
                 extraPath: [valuePath],
               },
             ];
-          } else if (system) {
+          }
+
+          if (system) {
             return [
               {
                 op: Op.eq,
@@ -182,7 +183,9 @@ function typedMatch(value, query, def) {
                 extraPath: ['system'],
               },
             ];
-          } else if (code) {
+          }
+
+          if (code) {
             return [
               {
                 op: Op.eq,
@@ -190,9 +193,9 @@ function typedMatch(value, query, def) {
                 extraPath: [valuePath],
               },
             ];
-          } else {
-            throw new Invalid('token searches require either or both of system|code');
           }
+
+          throw new Invalid('token searches require either or both of system|code');
         }
         case FHIR_SEARCH_TOKEN_TYPES.BOOLEAN: {
           return [
