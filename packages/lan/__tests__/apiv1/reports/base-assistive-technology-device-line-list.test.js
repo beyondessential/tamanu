@@ -224,7 +224,7 @@ describe('Assistive technology device line list', () => {
           // patient details
           expectedPatient2.displayId,
           expectedPatient2.sex,
-          moment(expectedPatient2.dateOfBirth).format('DD-MM-YYYY'),
+          expectedPatient2.dateOfBirth,
           expect.any(Number),
           null,
 
@@ -253,7 +253,7 @@ describe('Assistive technology device line list', () => {
           // patient details
           expectedPatient1.displayId,
           expectedPatient1.sex,
-          moment(expectedPatient1.dateOfBirth).format('DD-MM-YYYY'),
+          expectedPatient1.dateOfBirth,
           expect.any(Number),
           null,
 
@@ -281,7 +281,7 @@ describe('Assistive technology device line list', () => {
           // patient details
           expectedPatient1.displayId,
           expectedPatient1.sex,
-          moment(expectedPatient1.dateOfBirth).format('DD-MM-YYYY'),
+          expectedPatient1.dateOfBirth,
           expect.any(Number),
           null,
 
@@ -309,14 +309,14 @@ describe('Assistive technology device line list', () => {
     it('should return data within date range', async () => {
       const result = await app
         .post('/v1/reports/iraq-assistive-technology-device-line-list')
-        .send({ parameters: { fromDate: '2021-03-18T00:00:00Z', toDate: '2021-03-21T00:00:00Z' } });
+        .send({ parameters: { fromDate: '2021-03-18T00:00:00Z', toDate: '2021-03-2T00:00:00Z' } });
 
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveLength(2);
 
       expect(result.body[1][0]).toBe(expectedPatient1.displayId);
       expect(result.body[1][1]).toBe(expectedPatient1.sex);
-      expect(result.body[1][2]).toBe(moment(expectedPatient1.dateOfBirth).format('DD-MM-YYYY'));
+      expect(result.body[1][2]).toBe(expectedPatient1.dateOfBirth);
       expect(result.body[1][6]).toBe('pde-IrqPreMob-2-on-2021-03-20T10:53:15.708Z-Patient1');
       expect(result.body[1][7]).toBe('pde-IrqPreMob-1-on-2021-03-20T10:53:15.708Z-Patient1');
       expect(result.body[1][8]).toBe('pde-IrqPreMob-6-on-2021-03-20T10:53:15.708Z-Patient1');
