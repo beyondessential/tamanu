@@ -2,7 +2,8 @@ import { Op } from 'sequelize';
 import { NOTE_TYPES } from 'shared/constants';
 
 export const notePageListHandler = recordType => async (req, res) => {
-  const { models, params } = req;
+  const { models, params, query } = req;
+  const { order = 'ASC', orderBy } = query;
 
   const recordId = params.id;
   const owner = await models[recordType].findByPk(recordId);
@@ -27,6 +28,7 @@ export const notePageListHandler = recordType => async (req, res) => {
       },
     ],
     where: { recordType, recordId, noteType: { [Op.not]: NOTE_TYPES.SYSTEM } },
+    order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
   });
 
   res.send({ data: rows, count: rows.length });
