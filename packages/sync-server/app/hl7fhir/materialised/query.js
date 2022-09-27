@@ -75,30 +75,32 @@ export function buildQuery(query, parameters, FhirResource) {
 }
 
 function singleMatch(path, paramQuery, paramDef, Model) {
-  const matches = paramQuery.value.flatMap(value => typedMatch(value, paramQuery, paramDef));
+  return paramQuery.value.map(value => {
+    const matches = typedMatch(value, paramQuery, paramDef).map(({ op, val, extraPath = [] }) => {
+      const entirePath = [...path, ...extraPath];
 
-  return matches.map(({ op, val, extraPath = [] }) => {
-    const entirePath = [...path, ...extraPath];
+      // optimisation in the simple case
+      if (!path.includes('[]')) {
+        // path: ['a', 'b', 'c']
+        // sql: c(b(a)) operator value
+        return Sequelize.where(nestPath(entirePath), op, val);
+      }
 
-    // optimisation in the simple case
-    if (!path.includes('[]')) {
-      // path: ['a', 'b', 'c']
-      // sql: c(b(a)) operator value
-      return Sequelize.where(nestPath(entirePath), op, val);
-    }
+      // path: ['a', 'b', '[]', 'c', '[]', 'd']
+      // sql: value operator any(select(d(unnest(c(unnest(b(a)))))))
+      const selector = Sequelize.fn(
+        'any',
+        Sequelize.fn('select', nestPath(entirePath.map(step => (step === '[]' ? 'unnest' : step)))),
+      );
 
-    // path: ['a', 'b', '[]', 'c', '[]', 'd']
-    // sql: value operator any(select(d(unnest(c(unnest(b(a)))))))
-    const selector = Sequelize.fn(
-      'any',
-      Sequelize.fn('select', nestPath(entirePath.map(step => (step === '[]' ? 'unnest' : step)))),
-    );
+      const escaped =
+        paramDef.type === FHIR_SEARCH_PARAMETERS.NUMBER
+          ? val.toString()
+          : Model.sequelize.escape(val);
+      return Sequelize.where(Sequelize.literal(escaped), op, selector);
+    });
 
-    const escaped =
-      paramDef.type === FHIR_SEARCH_PARAMETERS.NUMBER
-        ? val.toString()
-        : Model.sequelize.escape(val);
-    return Sequelize.where(Sequelize.literal(escaped), op, selector);
+    return matches.length === 1 ? matches[0] : Sequelize.and(matches);
   });
 }
 
@@ -155,7 +157,6 @@ function typedMatch(value, query, def) {
         case FHIR_SEARCH_TOKEN_TYPES.VALUE: {
           const valuePath = def.tokenType === FHIR_SEARCH_TOKEN_TYPES.VALUE ? 'value' : 'code';
           if (system && code) {
-            // FIXME: i think this needs to be ANDed (at caller)
             return [
               {
                 op: Op.eq,
