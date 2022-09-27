@@ -14,6 +14,7 @@ import { fetchWithTimeout } from 'shared/utils/fetchWithTimeout';
 
 import { version } from '../serverInfo';
 import { callWithBackoff } from './callWithBackoff';
+import { sleepAsync } from 'shared/utils/sleepAsync';
 
 const API_VERSION = 'v1';
 
@@ -206,16 +207,31 @@ export class CentralServerConnection {
     return this.fetch(`sync/${sessionId}/pullFilter`, { method: 'POST', body });
   }
 
+  async fetchPullCount(sessionId) {
+    // poll the pull count endpoint until we get a valid response - it takes a while for
+    // setPullFilter to finish populating the snapshot of changes
+    const waitTime = 1000; // retry once per second
+    const maxAttempts = 300; // for a maximum of five minutes
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      const count = await this.fetch(`sync/${sessionId}/pull/count`);
+      if (count !== null) {
+        return count;
+      }
+      await sleepAsync(waitTime);
+    }
+    throw new Error(`Could not fetch a valid pull count after ${maxAttempts} attempts`);
+  }
+
   async pull(sessionId, { limit = 100, offset = 0 } = {}) {
     const query = { limit, offset };
     const path = `sync/${sessionId}/pull?${objectToQueryString(query)}`;
     return this.fetch(path);
   }
 
-  async push(sessionId, body, { pageNumber, totalPages }) {
+  async push(sessionId, body, { pushedSoFar, totalToPush }) {
     const path = `sync/${sessionId}/push?${objectToQueryString({
-      pageNumber,
-      totalPages,
+      pushedSoFar,
+      totalToPush,
     })}`;
     return this.fetch(path, { method: 'POST', body });
   }

@@ -22,9 +22,9 @@ const { lapsedSessionSeconds, lapsedSessionCheckFrequencySeconds } = config.sync
 export class CentralSyncManager {
   currentSyncTick;
 
-  sessions = {};
-
   store;
+
+  sessionsUndergoingSnapshot = new Set();
 
   purgeInterval;
 
@@ -93,6 +93,8 @@ export class CentralSyncManager {
   }
 
   async setPullFilter(sessionId, { since, facilityId }) {
+    this.sessionsUndergoingSnapshot.add(sessionId);
+
     const { models } = this.store;
 
     await this.connectToSession(sessionId);
@@ -139,11 +141,19 @@ export class CentralSyncManager {
       await removeEchoedChanges(this.store, sessionId);
     });
 
+    this.sessionsUndergoingSnapshot.delete(sessionId);
+  }
+
+  async fetchPullCount(sessionId) {
+    await this.connectToSession(sessionId);
+    if (this.sessionsUndergoingSnapshot.has(sessionId)) {
+      return null;
+    }
     return getOutgoingChangesCount(this.store, sessionId);
   }
 
   async getOutgoingChanges(sessionId, { offset, limit }) {
-    this.connectToSession(sessionId);
+    await this.connectToSession(sessionId);
     return getOutgoingChangesForSession(
       this.store,
       sessionId,
@@ -153,7 +163,7 @@ export class CentralSyncManager {
     );
   }
 
-  async addIncomingChanges(sessionId, changes, { pageNumber, totalPages }) {
+  async addIncomingChanges(sessionId, changes, { pushedSoFar, totalToPush }) {
     const { models } = this.store;
     await this.connectToSession(sessionId);
     const sessionSyncRecords = changes.map(c => ({
@@ -167,7 +177,7 @@ export class CentralSyncManager {
     );
     await models.SessionSyncRecord.bulkCreate(sessionSyncRecords);
 
-    if (pageNumber === totalPages) {
+    if (pushedSoFar === totalToPush) {
       // commit the changes to the db
       // first bump the current sync tick, so that these changes are saved with a higher tick than
       // any currently underway sync session, to make sure they get picked up on the next sync for
