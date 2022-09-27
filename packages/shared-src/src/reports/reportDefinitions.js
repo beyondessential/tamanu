@@ -493,4 +493,11 @@ export const REPORT_DEFINITIONS = [
       },
     ],
   },
+  {
+    name: 'Fiji Aspen hospital admissions - Summary',
+    id: 'fiji-aspen-hospital-admissions-summary',
+    dateRangeLabel: ALL_TIME_DATE_LABEL,
+    dataSourceOptions: [REPORT_DATA_SOURCES.THIS_FACILITY],
+    parameters: [],
+  },
 ];
