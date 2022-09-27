@@ -2,7 +2,7 @@ import asyncHandler from 'express-async-handler';
 import { NotFoundError } from 'shared/errors';
 
 import { getHL7Payload } from './getHL7Payload';
-import { patientToHL7Patient, getPatientWhereClause } from './patient';
+import { patientToHL7Patient, patientToHL7PatientList, getPatientWhereClause } from './patient';
 import {
   hl7StatusToLabRequestStatus,
   labTestToHL7Device,
@@ -25,7 +25,8 @@ export function patientHandler() {
       getWhere: getPatientWhereClause,
       getInclude: () => [{ association: 'additionalData' }],
       bundleId: 'patients',
-      toHL7: patient => ({ mainResource: patientToHL7Patient(patient, patient.additionalData[0]) }),
+      toHL7List: patients => patientToHL7PatientList(req, patients),
+      extraOptions: { paranoid: false }, // to allow getting inactive patient
     });
 
     res.send(payload);
@@ -72,9 +73,7 @@ export function diagnosticReportHandler() {
           includedResources.push(labTestToHL7Device(labTest));
         }
         return {
-          mainResource: {
-            resource: labTestToHL7DiagnosticReport(labTest),
-          },
+          mainResource: labTestToHL7DiagnosticReport(labTest),
           includedResources: includedResources.map(resource => ({ resource })),
         };
       },
@@ -102,27 +101,32 @@ export function immunizationHandler() {
   });
 }
 
-function findSingleResource(modelName, include, toHL7Fn) {
+function findSingleResource(modelName, include, toHL7Fn, where = {}, extraOptions = {}) {
   return asyncHandler(async (req, res) => {
     const { models } = req.store;
     const { id } = req.params;
     const record = await models[modelName].findOne({
-      where: { id },
+      where: { id, ...where },
       include,
+      ...extraOptions,
     });
 
     if (!record) {
       throw new NotFoundError(`Unable to find resource ${id}`);
     }
 
-    const resource = toHL7Fn(record);
+    const resource = await toHL7Fn(record, req);
     res.send(resource);
   });
 }
 
 export function singlePatientHandler() {
-  return findSingleResource('Patient', [{ association: 'additionalData' }], patient =>
-    patientToHL7Patient(patient, patient.additionalData[0]),
+  return findSingleResource(
+    'Patient',
+    [{ association: 'additionalData' }],
+    (patient, req) => patientToHL7Patient(req, patient, patient.additionalData[0]),
+    getPatientWhereClause(null, {}), // to only get active or merged patients
+    { paranoid: false }, // to allow getting inactive patient
   );
 }
 

@@ -86,17 +86,13 @@ with testing. You can set up predictable test data rather than having to click t
 UI screens every time, and the live-reload turnaround is way faster than the desktop version. (this
 is in addition to the fact that any backend functionality should have tests against it anyway)
 
-The lan server uses sequelize to manage database connections, and can switch between sqlite and postgres.
-The development config (`packages/lan/config/development.json`) sets the `db.sqlitePath` config variable,
-which causes the app to use sqlite as a database - this is to make initial setup easier. If you have
-postgres available, set the appropriate connection variables in your `local.json`, making sure to
-set `sqlitePath` to `""` so the postgres connection is respected.
+The lan server uses sequelize to manage database connections, and uses postgres exclusively.
+As soons as you have postgres available, set the appropriate connection variables in your `local.json`.
 
 When the app detects an empty or missing db on startup, it'll run an importer on an excel file to populate all the initial patients, users and reference data.
 
 - the app will classify the db as empty if it has no users in it
 - the initial definitions file to import is defined in `config.initialDataPath` (`packages/lan/data/demo_definitions.xlsx` by default)
-- by default, the database is an sqlite db at `packages/lan/data/tamanu-dev.db`; deleting that file and restarting the lan process to trigger the import is the quickest way to get a fresh database
 - this is also true for production! initial production deployment expects a data definition document to be provided
 </details>
 

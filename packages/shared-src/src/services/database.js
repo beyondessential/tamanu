@@ -4,11 +4,6 @@ import pg from 'pg';
 import wayfarer from 'wayfarer';
 import util from 'util';
 
-// an issue in how webpack's require handling interacts with sequelize means we need
-// to provide the module to sequelize manually
-// issue & resolution here: https://github.com/sequelize/sequelize/issues/9489#issuecomment-486047783
-import sqlite3 from 'sqlite3';
-
 import { log } from './logging';
 
 import { migrate, assertUpToDate } from './migrations';
@@ -61,30 +56,19 @@ async function connectToDatabase(dbOptions) {
     port = null,
     verbose = false,
   } = dbOptions;
-  let { name, sqlitePath = null } = dbOptions;
+  let { name } = dbOptions;
 
   // configure one test db per jest worker
   const workerId = process.env.JEST_WORKER_ID;
   if (testMode && workerId) {
-    if (sqlitePath) {
-      const sections = sqlitePath.split('.');
-      const extension = sections[sections.length - 1];
-      const rest = sections.slice(0, -1).join('.');
-      sqlitePath = `${rest}-${workerId}.${extension}`;
-    } else {
-      name = `${name}-${workerId}`;
-      await unsafeRecreatePgDb({ ...dbOptions, name });
-    }
+    name = `${name}-${workerId}`;
+    await unsafeRecreatePgDb({ ...dbOptions, name });
   }
 
-  if (sqlitePath) {
-    log.info(`Connecting to sqlite database at ${sqlitePath}...`);
-  } else {
-    log.info(
-      `Connecting to database ${username || '<no username>'}:*****@${host || '<no host>'}:${port ||
-        '<no port>'}/${name || '<no name>'}...`,
-    );
-  }
+  log.info(
+    `Connecting to database ${username || '<no username>'}:*****@${host || '<no host>'}:${port ||
+      '<no port>'}/${name || '<no name>'}...`,
+  );
 
   const logging = verbose
     ? (query, obj) =>
@@ -92,9 +76,7 @@ async function connectToDatabase(dbOptions) {
           `${util.inspect(query)}; -- ${util.inspect(obj.bind || [], { breakLength: Infinity })}`,
         )
     : null;
-  const options = sqlitePath
-    ? { dialect: 'sqlite', dialectModule: sqlite3, storage: sqlitePath }
-    : { dialect: 'postgres' };
+  const options = { dialect: 'postgres' };
   const sequelize = new Sequelize(name, username, password, {
     ...options,
     host,
@@ -124,7 +106,6 @@ export async function initDatabase(dbOptions) {
     primaryKeyDefault = Sequelize.UUIDV4,
     hackToSkipEncounterValidation = false, // TODO: remove once mobile implements all relationships
     syncClientMode = false,
-    sqlitePath,
   } = dbOptions;
 
   const sequelize = await connectToDatabase(dbOptions);
@@ -136,12 +117,6 @@ export async function initDatabase(dbOptions) {
   // of calling it to the implementing server (this allows for skipping migrations
   // in favour of calling sequelize.sync() during test mode)
   sequelize.migrate = async direction => {
-    if (sqlitePath) {
-      log.info('Syncing sqlite schema...');
-      await sequelize.sync({});
-      return;
-    }
-
     await migrate(log, sequelize, direction);
   };
 

@@ -25,9 +25,11 @@
     "test": "NODE_ENV=test jest",
     "test-coverage": "yarn test --coverage",
     "test-watch": "yarn test --watch",
-    "build": "rm -rf ./dist/ && webpack --config webpack.config.prod.mjs",
+    "build": "rimraf ./dist/ && webpack --config webpack.config.prod.mjs",
+    "build-dev": "rimraf ./dist/ && NOWATCH=true webpack --config webpack.config.dev.mjs",
     "lint": "eslint app",
-    "lint-stats": "eslint app --format ../scripts/eslint-stats.js"
+    "lint-stats": "eslint app --format ../scripts/eslint-stats.js",
+    "shell": "yarn build-dev && node ./dist/app.bundle.js shell"
   },
   "devDependencies": {
     "@babel/core": "^7.17.12",
@@ -113,7 +115,6 @@
     "semver-diff": "^3.1.1",
     "sequelize": "^6.21.3",
     "shortid": "^2.2.13",
-    "sqlite3": "^5.0.3",
     "tiny-async-pool": "^1.2.0",
     "transliteration": "^2.2.0",
     "umzug": "^2.3.0",
