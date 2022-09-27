@@ -26,21 +26,11 @@ module.exports = {
         ALTER TABLE ${table} ALTER COLUMN updated_at_sync_tick SET NOT NULL;
       `);
 
-      // before insert, set updated_at if not provided
+      // before insert or update, set updated_at (overriding any that is passed in)
       await query.sequelize.query(`
-        CREATE TRIGGER set_${table}_updated_at_sync_tick_on_insert
-        BEFORE INSERT ON ${table}
+        CREATE TRIGGER set_${table}_updated_at_sync_tick
+        BEFORE INSERT OR UPDATE ON ${table}
         FOR EACH ROW
-        WHEN (NEW.updated_at_sync_tick IS NULL) -- i.e. when an override value has not been passed in
-        EXECUTE FUNCTION set_updated_at_sync_tick();
-      `);
-
-      // before updates, set updated_at if not provided or unchanged
-      await query.sequelize.query(`
-        CREATE TRIGGER set_${table}_updated_at_sync_tick_on_update
-        BEFORE UPDATE ON ${table}
-        FOR EACH ROW
-        WHEN (NEW.updated_at_sync_tick IS NULL OR NEW.updated_at_sync_tick = OLD.updated_at_sync_tick) -- i.e. when an override value has not been passed in
         EXECUTE FUNCTION set_updated_at_sync_tick();
       `);
     }
@@ -49,10 +39,7 @@ module.exports = {
     const syncingTables = await getAllTables(query.sequelize);
     for (const table of syncingTables) {
       await query.sequelize.query(`
-        DROP TRIGGER IF EXISTS set_${table}_updated_at_sync_tick_on_insert ON ${table};
-      `);
-      await query.sequelize.query(`
-        DROP TRIGGER IF EXISTS set_${table}_updated_at_sync_tick_on_update ON ${table};
+        DROP TRIGGER IF EXISTS set_${table}_updated_at_sync_tick ON ${table};
       `);
       await query.removeColumn(table, 'updated_at_sync_tick');
     }
