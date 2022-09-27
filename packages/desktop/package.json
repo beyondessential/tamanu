@@ -86,7 +86,7 @@
       ]
     },
     "nsis": {
-      "perMachine": true
+      "perMachine": false
     },
     "linux": {
       "target": [
@@ -208,7 +208,6 @@
     "classnames": "^2.2.5",
     "connected-react-router": "^6.5.2",
     "date-fns": "^2.25.0",
-    "date-fns-tz": "^1.3.6",
     "deep-equal": "^1.0.1",
     "devtron": "^1.4.0",
     "electron-debug": "^2.0.0",

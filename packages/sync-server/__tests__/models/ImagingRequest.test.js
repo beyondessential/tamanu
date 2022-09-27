@@ -1,19 +1,20 @@
 import Chance from 'chance';
 import { fake } from 'shared/test-helpers';
-import { initDb } from '../initDb';
+
+import { createTestContext } from '../utilities';
 
 const chance = new Chance();
 
 describe('ImagingRequest', () => {
-  let context;
+  let ctx;
   beforeAll(async () => {
-    context = await initDb({ testMode: true });
+    ctx = await createTestContext();
   });
-  afterAll(() => context.sequelize.close());
+  afterAll(() => ctx.close());
 
   it('allows more than 255 characters in the results', async () => {
     // arrange
-    const { ImagingRequest, User } = context.models;
+    const { ImagingRequest, User } = ctx.store.models;
     const results = chance.string({ length: 5000 });
     const { id: requestedById } = await User.create(fake(User));
 

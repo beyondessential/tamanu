@@ -20,6 +20,7 @@ export function normaliseSheetName(name) {
   );
 
   if (norm === 'vaccineSchedule') return 'scheduledVaccine';
+  if (norm === 'procedure') return 'procedureType';
 
   return norm;
 }
