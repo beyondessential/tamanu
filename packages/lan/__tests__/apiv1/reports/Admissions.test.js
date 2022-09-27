@@ -9,7 +9,7 @@ import {
 import { subDays, format } from 'date-fns';
 import { ENCOUNTER_TYPES } from 'shared/constants';
 import { findOneOrCreate } from 'shared/test-helpers';
-import { parseISO9075 } from 'shared/utils/dateTime';
+import { parseISO9075, toDateTimeString } from 'shared/utils/dateTime';
 import { createTestContext } from '../../utilities';
 
 describe('Admissions report', () => {
@@ -43,8 +43,12 @@ describe('Admissions report', () => {
     app = await baseApp.asRole('practitioner');
     expectedLocation = await findOneOrCreate(ctx.models, models.Location, { name: 'Clinic' });
     wrongLocation = await findOneOrCreate(ctx.models, models.Location, { name: 'Not-Clinic' });
-    expectedDepartment1 = await findOneOrCreate(ctx.models, models.Department, { name: 'Radiology' });
-    expectedDepartment2 = await findOneOrCreate(ctx.models, models.Department, { name: 'Cardiology' });
+    expectedDepartment1 = await findOneOrCreate(ctx.models, models.Department, {
+      name: 'Radiology',
+    });
+    expectedDepartment2 = await findOneOrCreate(ctx.models, models.Department, {
+      name: 'Cardiology',
+    });
     expectedExaminer = await randomRecord(models, 'User');
     expectedDiagnosis1 = await findOneOrCreate(ctx.models, models.ReferenceData, {
       type: 'icd10',
@@ -76,8 +80,8 @@ describe('Admissions report', () => {
     it('should return only admitted patient', async () => {
       const baseEncounterData = {
         encounterType: ENCOUNTER_TYPES.ADMISSION,
-        startDate: new Date(2021, 1, 20, 9, 7, 26), // Months are 0 indexed so this is Feburary
-        endDate: new Date(2021, 1, 21, 11, 3, 7), // Months are 0 indexed so this is Feburary
+        startDate: toDateTimeString(new Date(2021, 1, 20, 9, 7, 26)), // Months are 0 indexed so this is Feburary
+        endDate: toDateTimeString(new Date(2021, 1, 21, 11, 3, 7)), // Months are 0 indexed so this is Feburary
         patientId: expectedPatient.dataValues.id,
         locationId: expectedLocation.id,
         departmentId: expectedDepartment1.id,
@@ -143,7 +147,7 @@ describe('Admissions report', () => {
       await models.Encounter.create(
         await createDummyEncounter(models, {
           ...baseEncounterData,
-          startDate: new Date(2020, 0, 20).toISOString(),
+          startDate: toDateTimeString(new Date(2020, 0, 20)),
         }),
       );
 
@@ -165,12 +169,12 @@ describe('Admissions report', () => {
       });
 
       await departmentChangeNotePage.noteItems?.[0].update({
-        date: new Date(2021, 1, 20, 11, 10),
+        date: toDateTimeString(new Date(2021, 1, 20, 11, 10)),
       });
 
       const result = await app.post('/v1/reports/admissions').send({
         parameters: {
-          fromDate: new Date(2021, 1, 1),
+          fromDate: toDateTimeString(new Date(2021, 1, 1)),
           location: expectedLocation.id,
           department: expectedDepartment1.id, // Historical department filtered for
         },
