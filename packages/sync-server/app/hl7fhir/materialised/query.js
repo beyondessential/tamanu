@@ -113,7 +113,7 @@ function singleOrder(path, order, paramDef, Model) {
 
   const runs = pathRuns(path);
   if (runs.length > 1) {
-    throw new Unsupported('not yet implemented');
+    throw new Unsupported('order with nested arrays is not yet implemented');
   }
 }
 
