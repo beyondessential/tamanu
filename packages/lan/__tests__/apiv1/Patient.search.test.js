@@ -1,9 +1,8 @@
 import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
 import moment from 'moment';
-import Chance from 'chance';
+import { startOfDay, subDays, subYears } from 'date-fns';
+import { toDateString } from 'shared/utils/dateTime';
 import { createTestContext } from '../utilities';
-
-const chance = new Chance();
 
 // helper function to check we've found the intended samples
 // (we're using first name as the field that indicates which
@@ -12,13 +11,7 @@ const withFirstName = name => ({ firstName }) => firstName === name;
 
 // function to pick a random time x years ago today
 const yearsAgo = (years, days = 0) =>
-  moment
-    .utc()
-    .startOf('day')
-    .add(chance.integer({ min: 1, max: 23.9 * 60 }), 'minutes')
-    .subtract(years, 'years')
-    .subtract(days, 'days')
-    .toISOString();
+  toDateString(subDays(subYears(startOfDay(new Date()), years), days));
 
 // add a bunch of patients at the top rather than per-search, so that the
 // tests have a healthy population of negative examples as well
