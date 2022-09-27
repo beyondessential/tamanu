@@ -1,15 +1,17 @@
 import asyncHandler from 'express-async-handler';
 
 import { FHIR_BUNDLE_TYPES } from 'shared/constants';
+import { ValidationError } from 'yup';
 import { Bundle } from './bundle';
 
-import { OperationOutcome, Unsupported } from './errors';
+import { Invalid, OperationOutcome, Unsupported } from './errors';
 import { normaliseParameters } from './parameters';
 import { buildQuery, pushToQuery } from './query';
 
 export function resourceHandler() {
   return asyncHandler(async (req, res) => {
-    try { // TODO: make it a middleware
+    try {
+      // TODO: make it a middleware
       const { method } = req;
       if (method !== 'GET') throw new Unsupported('methods other than get are not supported');
 
@@ -20,50 +22,64 @@ export function resourceHandler() {
       if (!FhirResource) throw new Unsupported('this resource is not supported');
 
       const parameters = normaliseParameters(FhirResource);
-      const query = parseRequest(req, parameters);
+      const query = await parseRequest(req, parameters);
 
       const sqlQuery = buildQuery(query, parameters, FhirResource);
       const total = await FhirResource.count(sqlQuery);
       const records = await FhirResource.findAll(sqlQuery);
-      
+
       const bundle = new Bundle(FHIR_BUNDLE_TYPES.SEARCHSET, records, {
-        total
+        total,
       });
 
       bundle.addSelfUrl(req);
 
       res.send(bundle.asFhir());
     } catch (err) {
-      // TODO: multiple errors?
       const oo = new OperationOutcome([err]);
       res.status(oo.status()).send(oo.asFhir());
     }
   });
 }
 
-function parseRequest(req, parameters) {
-  const parsedPairs = Object.entries(req.query)
-    .flatMap(([name, values]) =>
-      Array.isArray(values) ? values.map(v => [name, v]) : [[name, values]],
-    )
-    .map(([name, value]) => {
-      const [param, modifier] = name.split(':', 2);
-      if (!parameters.has(param)) throw new Unsupported(`parameter is not supported: ${param}`);
+async function parseRequest(req, parameters) {
+  const pairs = Object.entries(req.query).flatMap(([name, values]) =>
+    Array.isArray(values) ? values.map(v => [name, v]) : [[name, values]],
+  );
 
-      return [
-        param,
-        {
-          modifier,
-          value: value
-            .split(',')
-            .map(part => parameters.get(param).parameterSchema.validateSync(part)),
-        },
-      ];
-    });
-
+  const errors = [];
   const query = new Map();
-  for (const [param, parse] of parsedPairs) {
-    pushToQuery(query, param, parse);
+  for (const [name, value] of pairs) {
+    const [param, modifier] = name.split(':', 2);
+    if (!parameters.has(param)) {
+      errors.push(new Unsupported(`parameter is not supported: ${param}`));
+      continue;
+    }
+
+    const values = [];
+    for (const part of value.split(',')) {
+      try {
+        values.push(await parameters.get(param).parameterSchema.validate(part));
+      } catch (err) {
+        if (err instanceof ValidationError) {
+          errors.push(OperationOutcome.fromYupError(err, param));
+        } else {
+          errors.push(new Invalid(err.message, {
+            expression: param,
+          }));
+        }
+      }
+    }
+
+    pushToQuery(query, param, {
+      modifier,
+      value: values,
+    });
   }
+
+  if (errors.length > 0) {
+    throw new OperationOutcome(errors);
+  }
+
   return query;
 }
