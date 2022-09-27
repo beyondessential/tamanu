@@ -4,6 +4,7 @@ import {
   FHIR_SEARCH_PARAMETERS,
   FHIR_MAX_RESOURCES_PER_PAGE,
   FHIR_SEARCH_TOKEN_TYPES,
+  FHIR_DATETIME_PRECISION,
 } from 'shared/constants';
 
 import { DEFAULT_SCHEMA_FOR_TYPE, INCLUDE_SCHEMA } from './schemata';
@@ -20,9 +21,13 @@ function normaliseParameter([key, param], overrides = {}) {
     ...param,
     ...overrides,
   };
-  
+
   if (param.type === FHIR_SEARCH_PARAMETERS.TOKEN && !norm.tokenType) {
     norm.tokenType = FHIR_SEARCH_TOKEN_TYPES.CODING;
+  }
+
+  if (param.type === FHIR_SEARCH_PARAMETERS.DATE && !norm.datePrecision) {
+    norm.datePrecision = FHIR_DATETIME_PRECISION.SECONDS;
   }
 
   return [key, norm];
@@ -94,7 +99,10 @@ function sortParameter(sortableParameters) {
             .required(),
           by: yup
             .string()
-            .oneOf(['_score', ...sortableParameters.map(([k]) => k)], '_sort key is not an allowed value')
+            .oneOf(
+              ['_score', ...sortableParameters.map(([k]) => k)],
+              '_sort key is not an allowed value',
+            )
             .required(),
         })
         .noUnknown(),

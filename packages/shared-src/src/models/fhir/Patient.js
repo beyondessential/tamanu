@@ -1,12 +1,15 @@
 import config from 'config';
 import { Sequelize, DataTypes } from 'sequelize';
-import { string } from 'yup';
 
 import { FhirResource } from './Resource';
 import { arrayOf, activeFromVisibility } from './utils';
 import { dateType } from '../dateTimeTypes';
 import { latestDateTime } from '../../utils/dateTime';
-import { FHIR_SEARCH_PARAMETERS, FHIR_SEARCH_TOKEN_TYPES } from '../../constants';
+import {
+  FHIR_SEARCH_PARAMETERS,
+  FHIR_SEARCH_TOKEN_TYPES,
+  FHIR_DATETIME_PRECISION,
+} from '../../constants';
 import {
   FhirAddress,
   FhirContactPoint,
@@ -88,19 +91,13 @@ export class FhirPatient extends FhirResource {
       gender: {
         type: FHIR_SEARCH_PARAMETERS.TOKEN,
         path: [['gender']],
-        // FIXME
-        // parameterSchema: yup =>
-        //   yup.shape({
-        //     code: string()
-        //       .oneOf(['female', 'male', 'other'])
-        //       .required(),
-        //   }),
         sortable: false,
         tokenType: FHIR_SEARCH_TOKEN_TYPES.STRING,
       },
       birthdate: {
         type: FHIR_SEARCH_PARAMETERS.DATE,
         path: [['birthDate']],
+        datePrecision: FHIR_DATETIME_PRECISION.DAYS,
       },
       address: {
         type: FHIR_SEARCH_PARAMETERS.STRING,

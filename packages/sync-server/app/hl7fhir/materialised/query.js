@@ -7,6 +7,7 @@ import {
   FHIR_SEARCH_PREFIXES,
   MAX_RESOURCES_PER_PAGE,
   FHIR_SEARCH_TOKEN_TYPES,
+  FHIR_DATETIME_PRECISION,
 } from 'shared/constants';
 
 import { Invalid, Unsupported } from './errors';
@@ -119,20 +120,24 @@ function singleOrder(path, order, paramDef, Model) {
 
 function typedMatch(value, query, def) {
   switch (def.type) {
-    case FHIR_SEARCH_PARAMETERS.NUMBER:
+    case FHIR_SEARCH_PARAMETERS.NUMBER: {
       return [
         {
           op: prefixToOp(value.prefix),
           val: value.number,
         },
       ];
-    case FHIR_SEARCH_PARAMETERS.DATE:
-      return [
-        {
-          op: prefixToOp(value.prefix),
-          val: value.date.sql,
-        },
-      ];
+    }
+    case FHIR_SEARCH_PARAMETERS.DATE: {
+      switch (def.datePrecision) {
+        case FHIR_DATETIME_PRECISION.DAYS:
+          return [{ op: prefixToOp(value.prefix), val: value.date.sql.split(' ')[0] }];
+        case FHIR_DATETIME_PRECISION.SECONDS:
+          return [{ op: prefixToOp(value.prefix), val: value.date.sql.split(' ')[0] }];
+        default:
+          throw new Unsupported(`unsupported date precision: ${def.datePrecision}`);
+      }
+    }
     case FHIR_SEARCH_PARAMETERS.STRING: {
       switch (query.modifier) {
         case undefined:

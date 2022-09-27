@@ -7,6 +7,7 @@ import {
   getYear,
   getMinutes,
   getSeconds,
+  format,
   formatISO9075,
   formatRFC3339,
 } from 'date-fns';
@@ -41,6 +42,7 @@ function dateParts(date, str, form) {
   return {
     plain: date,
     sql: formatISO9075(date),
+    sqlDate: format(date, 'yyyy-MM-dd'),
     iso: formatRFC3339(date),
     year: getYear(date),
     month: getMonth(date),
