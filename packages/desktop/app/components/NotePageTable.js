@@ -27,7 +27,7 @@ const StyledTooltip = styled(props => (
     cursor: pointer;
     max-width: 700px;
     display: -webkit-box;
-    -webkit-line-clamp: 20;
+    -webkit-line-clamp: 10;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
@@ -59,7 +59,7 @@ const ItemTooltip = ({ childNoteItems = [] }) => {
 
 const getTypeLabel = ({ noteType }) => noteTypes.find(x => x.value === noteType).label;
 const getContent = ({ noteItems }) => {
-  const rootNoteItems = groupRootNoteItems(noteItems);
+  const rootNoteItems = groupRootNoteItems(noteItems, (n1, n2) => n2.date.localeCompare(n1.date));
   return (
     <StyledTooltip arrow followCursor title={<ItemTooltip childNoteItems={rootNoteItems} />}>
       <span>{rootNoteItems[0]?.content || ''}</span>
