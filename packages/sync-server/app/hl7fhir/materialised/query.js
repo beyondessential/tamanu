@@ -224,6 +224,7 @@ function typedMatch(value, query, def) {
 
 function prefixToOp(prefix) {
   switch (prefix) {
+    case null:
     case FHIR_SEARCH_PREFIXES.EQ:
       return Op.eq;
     case FHIR_SEARCH_PREFIXES.NE:
