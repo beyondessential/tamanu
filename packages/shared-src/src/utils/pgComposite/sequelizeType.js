@@ -18,6 +18,10 @@ export class Composite {
     return this.constructor.FIELD_ORDER.map(name => this.params[name]);
   }
 
+  asFhir() {
+    return objectAsFhir(this.params);
+  }
+
   /**
    * Parses a composite record literal. Unlike the stringifier, we can't take the easy route; we
    * have to implement parsing of values as they'll come back from Postgres.
@@ -59,4 +63,26 @@ export class Composite {
   static fake() {
     throw new Error('Must be overridden');
   }
+}
+
+export function objectAsFhir(object) {
+  const obj = {};
+  for (const [name, value] of Object.entries(object)) {
+    const val = valueAsFhir(value);
+    if (val === null || val === undefined) continue;
+    obj[name] = val;
+  }
+  return obj;
+}
+
+export function valueAsFhir(value) {
+  if (Array.isArray(value)) {
+    return value.map(val => valueAsFhir(val));
+  }
+
+  if (value instanceof Composite) {
+    return value.asFhir();
+  }
+
+  return value;
 }

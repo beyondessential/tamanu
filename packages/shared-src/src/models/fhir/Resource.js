@@ -2,7 +2,8 @@ import { snakeCase } from 'lodash';
 import { Sequelize, Utils, QueryTypes } from 'sequelize';
 import * as yup from 'yup';
 
-import { SYNC_DIRECTIONS, FHIR_SEARCH_PARAMETERS } from 'shared/constants';
+import { SYNC_DIRECTIONS, FHIR_SEARCH_PARAMETERS } from '../../constants';
+import { objectAsFhir } from '../../utils/pgComposite';
 import { Model } from '../Model';
 
 const missingRecordsPrivateMethod = Symbol('missingRecords');
@@ -140,13 +141,13 @@ export class FhirResource extends Model {
     }
 
     return {
-      resourceType: this.constructor.name,
+      resourceType: this.constructor.fhirName,
       id: this.id,
       meta: {
         versionId: this.versionId,
         lastUpdated: this.lastUpdated,
       },
-      ...fields,
+      ...objectAsFhir(fields),
     };
   }
 
