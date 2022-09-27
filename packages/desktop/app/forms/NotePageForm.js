@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import styled from 'styled-components';
@@ -87,6 +87,13 @@ export const NotePageForm = ({
   contentRef,
 }) => {
   const { currentUser } = useAuth();
+  const lastNoteItemRef = useRef(null);
+
+  useEffect(() => {
+    if (lastNoteItemRef.current) {
+      lastNoteItemRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [lastNoteItemRef.current]);
 
   const renderForm = ({ submitForm }) => (
     <>
@@ -97,6 +104,7 @@ export const NotePageForm = ({
               noteItems={noteItems}
               currentUserId={currentUser.id}
               onEditNoteItem={onEditNoteItem}
+              lastNoteItemRef={lastNoteItemRef}
             />
           </StyledFormGrid>
 

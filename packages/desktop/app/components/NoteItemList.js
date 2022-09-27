@@ -9,7 +9,12 @@ const StyledBox = styled(Box)`
   }
 `;
 
-export const NoteItemList = ({ noteItems = [], currentUserId, onEditNoteItem }) => {
+export const NoteItemList = ({
+  noteItems = [],
+  currentUserId,
+  onEditNoteItem,
+  lastNoteItemRef,
+}) => {
   if (!noteItems?.length) {
     return null;
   }
@@ -25,6 +30,7 @@ export const NoteItemList = ({ noteItems = [], currentUserId, onEditNoteItem }) 
           noteItem={noteItem}
           editable={currentUserId === noteItem.authorId}
           onEditNoteItem={onEditNoteItem}
+          lastNoteItemRef={index === noteItems.length - 1 ? lastNoteItemRef : undefined}
         />
       ))}
     </StyledBox>

@@ -152,7 +152,7 @@ const NoteItemSecondary = ({ noteItem, isEditting, onEditClick, hasPermission })
 
 const NoteItemSecondaryWithPermission = withPermissionCheck(NoteItemSecondary);
 
-export const NoteItem = ({ index, noteItem, onEditNoteItem }) => {
+export const NoteItem = ({ index, noteItem, onEditNoteItem, lastNoteItemRef }) => {
   const [isEditting, setIsEditting] = useState(false);
   const [content, setContent] = useState(noteItem.content);
   const handleDone = () => {
@@ -163,7 +163,7 @@ export const NoteItem = ({ index, noteItem, onEditNoteItem }) => {
   return (
     <>
       {index !== 0 && <Divider />}
-      <ListItem>
+      <ListItem ref={lastNoteItemRef}>
         {isEditting ? (
           <EditTextWrapper>
             <TextInput
