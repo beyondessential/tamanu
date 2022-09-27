@@ -147,7 +147,7 @@ function typedMatch(value, query, def) {
         case 'ends-with':
           return [{ op: Op.endsWith, val: value }];
         case 'contains':
-          return [{ op: Op.iLike, val: `%${value}%` }];
+          return [{ op: Op.iLike, val: `%${value.replace(/%/g, '%%')}%` }];
         case 'exact':
           return [{ op: Op.eq, val: value }];
         default:
