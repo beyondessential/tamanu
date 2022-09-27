@@ -34,6 +34,10 @@ export class Model extends sequelize.Model {
   static init(originalAttributes, { syncClientMode, syncConfig, timestamps = true, ...options }) {
     const attributes = { ...originalAttributes };
     if (syncClientMode && MARKED_FOR_PUSH_MODELS.includes(this.name)) {
+      if (!timestamps) {
+        throw new Error('DEV: sync cannot work without timestamps');
+      }
+
       attributes.markedForPush = {
         type: Sequelize.BOOLEAN,
         allowNull: false,
