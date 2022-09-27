@@ -13,7 +13,7 @@ export async function addHooks(store) {
     });
   }
 
-  if (config.integrations?.fhir) {
+  if (config.integrations?.fhir?.enabled) {
     const singleHooks = ['afterCreate', 'afterUpdate'];
 
     for (const resource of FHIR_RESOURCE_TYPES) {
