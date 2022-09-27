@@ -7,6 +7,7 @@ import Divider from '@material-ui/core/Divider';
 import Tooltip from '@material-ui/core/Tooltip';
 import { NOTE_TYPES } from 'shared/constants';
 import { useAuth } from '../contexts/Auth';
+import { foreignKey } from '../utils/validation';
 
 import {
   Form,
@@ -60,8 +61,8 @@ const StyledTooltip = styled(props => (
   }
 `;
 
-const renderOptionLabel = ({ value, label }) => {
-  return value === NOTE_TYPES.TREATMENT_PLAN ? (
+const renderOptionLabel = ({ value, label }, noteTypeCountByType) => {
+  return value === NOTE_TYPES.TREATMENT_PLAN && noteTypeCountByType[NOTE_TYPES.TREATMENT_PLAN] ? (
     <StyledTooltip
       arrow
       placement="top"
@@ -120,7 +121,7 @@ export const NotePageForm = ({
           component={SelectField}
           options={getSelectableNoteTypes(noteTypeCountByType)}
           disabled={!isEmpty(notePage)}
-          formatOptionLabel={renderOptionLabel}
+          formatOptionLabel={option => renderOptionLabel(option, noteTypeCountByType)}
         />
         <Field
           name="writtenById"
@@ -133,11 +134,7 @@ export const NotePageForm = ({
       </StyledFormGrid>
 
       <Field
-        innerRef={el => {
-          // a hack to forwarding ref to Formik Field
-          // eslint-disable-next-line no-param-reassign
-          contentRef.current = el;
-        }}
+        inputRef={contentRef}
         name="content"
         label="Add note"
         required
@@ -158,6 +155,7 @@ export const NotePageForm = ({
     <Form
       onSubmit={onSubmit}
       render={renderForm}
+      showErrorDialog={false}
       initialValues={{
         date: new Date(),
         noteType: notePage?.noteType,
@@ -170,7 +168,7 @@ export const NotePageForm = ({
           .required(),
         date: yup.date().required(),
         content: yup.string().required(),
-        writtenById: yup.string().required(),
+        writtenById: foreignKey('Written by (or on behalf of) is required'),
       })}
     />
   );
