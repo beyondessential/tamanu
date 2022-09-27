@@ -2,48 +2,15 @@ import Sequelize from 'sequelize';
 import { keyBy } from 'lodash';
 
 export async function up(query) {
-  const results = await query.sequelize.query('SELECT * FROM notes');
-  const oldNotes = results[0];
+  await query.sequelize.query(`
+    INSERT INTO note_pages(id, record_id, record_type, note_type, date, created_at, updated_at, deleted_at)
+    SELECT id::uuid, record_id, record_type, note_type, date, created_at, updated_at, deleted_at FROM notes
+  `);
 
-  for (const note of oldNotes) {
-    await query.sequelize.query(
-      `INSERT INTO note_pages(id, record_id, record_type, note_type, date, created_at, updated_at, deleted_at)
-       VALUES(:id, :recordId, :recordType, :noteType, :date, :createdAt, :updatedAt, :deletedAt)
-      `,
-      {
-        replacements: {
-          id: note.id,
-          recordId: note.record_id,
-          recordType: note.record_type,
-          noteType: note.note_type,
-          date: note.date,
-          createdAt: note.created_at,
-          updatedAt: note.updated_at,
-          deletedAt: note.deleted_at,
-        },
-      },
-    );
-
-    await query.sequelize.query(
-      `
-      INSERT INTO note_items(id, note_page_id, content, date, author_id, on_behalf_of_id, created_at, updated_at, deleted_at)
-      VALUES(:id, :notePageId, :content, :date, :authorId, :onBehalfOfId, :createdAt, :updatedAt, :deletedAt)
-      `,
-      {
-        replacements: {
-          id: note.id,
-          notePageId: note.id,
-          content: note.content,
-          date: note.date,
-          authorId: note.author_id,
-          onBehalfOfId: note.on_behalf_of_id,
-          createdAt: note.created_at,
-          updatedAt: note.updated_at,
-          deletedAt: note.deleted_at,
-        },
-      },
-    );
-  }
+  await query.sequelize.query(`
+    INSERT INTO note_items(id, note_page_id, content, date, author_id, on_behalf_of_id, created_at, updated_at, deleted_at)
+    SELECT id::uuid, id::uuid, content, date, author_id, on_behalf_of_id, created_at, updated_at, deleted_at FROM notes
+  `);
 
   await query.dropTable('notes');
 }
