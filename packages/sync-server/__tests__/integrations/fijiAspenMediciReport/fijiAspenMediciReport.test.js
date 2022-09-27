@@ -209,6 +209,7 @@ const fakeAllData = async models => {
   );
   const { id: imagingNotePageId } = await models.NotePage.create(
     fake(models.NotePage, {
+      id: undefined,
       recordId: imagingRequestId,
       noteType: NOTE_TYPES.OTHER,
       recordType: NOTE_RECORD_TYPES.IMAGING_REQUEST,
@@ -216,6 +217,7 @@ const fakeAllData = async models => {
   );
   await models.NoteItem.create(
     fake(models.NoteItem, {
+      id: undefined,
       notePageId: imagingNotePageId,
       content: 'Check for fractured knees please',
       date: '2022-06-10T06:04:54.225Z',
@@ -228,6 +230,7 @@ const fakeAllData = async models => {
   await models.LabTest.create(fake(models.LabTest, { labRequestId, labTestTypeId }));
   const { id: labsNotePageId } = await models.NotePage.create(
     fake(models.NotePage, {
+      id: undefined,
       recordId: labRequestId,
       noteType: NOTE_TYPES.OTHER,
       recordType: NOTE_RECORD_TYPES.LAB_REQUEST,
@@ -235,6 +238,7 @@ const fakeAllData = async models => {
   );
   await models.NoteItem.create(
     fake(models.NoteItem, {
+      id: undefined,
       notePageId: labsNotePageId,
       content: 'Please perform this lab test very carefully',
       date: '2022-06-09T02:04:54.225Z',
@@ -250,6 +254,7 @@ const fakeAllData = async models => {
 
   const { id: encounterNotePageId } = await models.NotePage.create(
     fake(models.NotePage, {
+      id: undefined,
       recordId: encounterId,
       noteType: NOTE_TYPES.NURSING,
       recordType: NOTE_RECORD_TYPES.ENCOUNTER,
@@ -257,6 +262,7 @@ const fakeAllData = async models => {
   );
   await models.NoteItem.create(
     fake(models.NoteItem, {
+      id: undefined,
       notePageId: encounterNotePageId,
       content: 'A\nB\nC\nD\nE\nF\nG\n',
       date: '2022-06-10T03:39:57.617+00:00',
@@ -264,6 +270,7 @@ const fakeAllData = async models => {
   );
   await models.NoteItem.create(
     fake(models.NoteItem, {
+      id: undefined,
       notePageId: encounterNotePageId,
       content: 'H\nI\nJ\nK\nL... nopqrstuv',
       date: '2022-06-10T04:39:57.617+00:00',
