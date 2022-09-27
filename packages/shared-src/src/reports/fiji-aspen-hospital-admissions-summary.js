@@ -1,5 +1,4 @@
 import config from 'config';
-import { subDays } from 'date-fns';
 import { generateReportFromQueryData } from './utilities';
 
 const FIELDS = [
