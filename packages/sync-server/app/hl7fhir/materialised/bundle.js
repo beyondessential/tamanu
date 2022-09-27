@@ -32,7 +32,7 @@ export class Bundle {
       };
     }
 
-    if (this.options.total) {
+    if (typeof this.options.total === 'number') {
       fields.total = this.options.total;
     }
 
