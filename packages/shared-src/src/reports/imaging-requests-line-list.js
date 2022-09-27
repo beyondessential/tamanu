@@ -33,7 +33,7 @@ select
   p.first_name as "Patient first name" ,
   p.last_name as "Patient last name", 
   to_char(p.date_of_birth ::timestamp::date, 'DD/MM/YYYY') as "DOB",
-  date_part('year', age(p.date_of_birth::timestamp)) as "Age",
+  date_part('year', age(p.date_of_birth::date)) as "Age",
   p.sex as "Sex",
   rdv.name as "Village",
   f.name as "Facility",
