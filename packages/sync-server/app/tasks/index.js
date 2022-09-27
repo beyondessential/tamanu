@@ -55,7 +55,9 @@ export async function startScheduledTasks(context) {
       log.debug(`Starting to initialise scheduled task ${Task.name}`);
       return new Task(context);
     } catch (err) {
-      log.warn(`Failed to initialise scheduled task ${Task.name}:\n${err}`);
+      log.warn('Failed to initialise scheduled task',
+       { name: Task.name,  err }
+      );
       return null;
     }
   }), ...reportSchedulers].filter(x => x);
