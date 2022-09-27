@@ -58,7 +58,7 @@ export class FhirPatient extends FhirResource {
 
     this.set({
       identifier: identifiers(upstream),
-      active: activeFromVisibility(upstream.visibilityStatus),
+      active: activeFromVisibility(upstream),
       name: names(upstream),
       telecom: telecoms(upstream),
       gender: upstream.sex,
