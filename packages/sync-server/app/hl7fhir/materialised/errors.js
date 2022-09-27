@@ -88,4 +88,21 @@ export class OperationOutcome extends Error {
       issue: this.errors.map(err => err.asFhir()),
     };
   }
+
+  static fromYupError(validationError /*: ValidationError */, pathPrefix = undefined) {
+    const errors = [];
+    if (validationError.inner.length > 0) {
+      for (const error of validationError.inner) {
+        errors.push(
+          new Invalid(error.message, {
+            expression: [pathPrefix, error.path].filter(x => x).join('.') || undefined,
+          }),
+        );
+      }
+    } else {
+      errors.push(new Invalid(validationError.message, { expression: pathPrefix }));
+    }
+
+    return new this(errors);
+  }
 }
