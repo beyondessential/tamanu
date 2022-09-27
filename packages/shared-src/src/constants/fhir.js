@@ -24,6 +24,7 @@ export const FHIR_SEARCH_PARAMETERS = {
 };
 
 export const FHIR_SEARCH_TOKEN_TYPES = {
+  VALUE: 'value',
   CODING: 'coding',
   STRING: 'string',
   BOOLEAN: 'boolean',

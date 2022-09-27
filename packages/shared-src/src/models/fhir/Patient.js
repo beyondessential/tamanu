@@ -120,6 +120,7 @@ export class FhirPatient extends FhirResource {
       telecom: {
         type: FHIR_SEARCH_PARAMETERS.TOKEN,
         path: [['telecom', '[]']],
+        tokenType: FHIR_SEARCH_TOKEN_TYPES.VALUE,
       },
       deceased: {
         type: FHIR_SEARCH_PARAMETERS.TOKEN,

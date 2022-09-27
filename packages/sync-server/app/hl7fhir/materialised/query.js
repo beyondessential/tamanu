@@ -151,7 +151,9 @@ function typedMatch(value, query, def) {
     case FHIR_SEARCH_PARAMETERS.TOKEN: {
       const { system, code } = value;
       switch (def.tokenType) {
-        case FHIR_SEARCH_TOKEN_TYPES.CODING: {
+        case FHIR_SEARCH_TOKEN_TYPES.CODING:
+        case FHIR_SEARCH_TOKEN_TYPES.VALUE: {
+          const valuePath = def.tokenType === FHIR_SEARCH_TOKEN_TYPES.VALUE ? 'value' : 'code';
           if (system && code) {
             // FIXME: i think this needs to be ANDed (at caller)
             return [
@@ -163,7 +165,7 @@ function typedMatch(value, query, def) {
               {
                 op: Op.eq,
                 val: code,
-                extraPath: ['code'],
+                extraPath: [valuePath],
               },
             ];
           } else if (system) {
@@ -179,7 +181,7 @@ function typedMatch(value, query, def) {
               {
                 op: Op.eq,
                 val: code,
-                extraPath: ['code'],
+                extraPath: [valuePath],
               },
             ];
           } else {
