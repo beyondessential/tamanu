@@ -60,7 +60,7 @@ describe('EU DCC: Vaccination', () => {
       ...fake(Patient),
       firstName: 'Fiamē Naomi',
       lastName: 'Mataʻafa',
-      dateOfBirth: new Date(Date.parse('29 April 1957, UTC')),
+      dateOfBirth: '1957-04-29',
       sex: 'female',
     });
 
@@ -103,6 +103,7 @@ describe('EU DCC: Vaccination', () => {
     });
 
     // Assert
+    expect(msg.dob).to.be.oneOf(['1957-04-28', '1957-04-29', '1957-04-30']); // due to testing timezones :/
     expect(msg).to.deep.equal({
       ver: '1.3.0',
       nam: {
@@ -111,7 +112,7 @@ describe('EU DCC: Vaccination', () => {
         gn: 'Fiamē Naomi',
         gnt: 'FIAME<NAOMI',
       },
-      dob: '1957-04-29',
+      dob: msg.dob, // checked above
       v: [
         {
           ci: 'URN:UVCI:01:UT:2038D06025A74DB1AA335C7E0307B0D4#E',

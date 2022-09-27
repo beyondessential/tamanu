@@ -1,5 +1,4 @@
 import {
-  subDays,
   differenceInMilliseconds,
   isWithinInterval,
   isBefore,
@@ -247,11 +246,14 @@ const getLabTestRecords = async (
 
       // Get all lab tests regardless and filter fromDate and toDate in memory
       // to ensure that we have the date range from current lab test to the next lab test correctly.
-      if (parameters.fromDate && isBefore(currentLabTestDate, startOfDay(parameters.fromDate))) {
+      if (
+        parameters.fromDate &&
+        isBefore(currentLabTestDate, startOfDay(new Date(parameters.fromDate)))
+      ) {
         continue;
       }
 
-      if (parameters.toDate && isAfter(currentLabTestDate, endOfDay(parameters.toDate))) {
+      if (parameters.toDate && isAfter(currentLabTestDate, endOfDay(new Date(parameters.toDate)))) {
         continue;
       }
 

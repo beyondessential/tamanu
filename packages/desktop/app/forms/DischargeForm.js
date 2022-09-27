@@ -234,12 +234,14 @@ export const DischargeForm = ({
           suggester={practitionerSuggester}
           required
         />
-        {dischargeDisposition && <Field
-          name="discharge.dispositionId"
-          label="Discharge disposition"
-          component={AutocompleteField}
-          suggester={dispositionSuggester}
-        />}
+        {dischargeDisposition && (
+          <Field
+            name="discharge.dispositionId"
+            label="Discharge disposition"
+            component={AutocompleteField}
+            suggester={dispositionSuggester}
+          />
+        )}
         <OuterLabelFieldWrapper label="Discharge medications" style={{ gridColumn: '1 / -1' }}>
           <TableFormFields columns={medicationColumns} data={activeMedications} />
         </OuterLabelFieldWrapper>
