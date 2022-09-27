@@ -82,12 +82,12 @@ function identifiers(patient) {
       },
       {
         use: 'secondary',
-        assigner: 'Fiji Passport Office',
+        assigner: config.hl7.assigners.patientPassport,
         value: patient.additionalData?.passportNumber,
       },
       {
         use: 'secondary',
-        assigner: 'RTA',
+        assigner: config.hl7.assigners.patientDrivingLicense,
         value: patient.additionalData?.drivingLicense,
       },
     ],
