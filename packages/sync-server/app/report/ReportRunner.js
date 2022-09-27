@@ -198,7 +198,7 @@ export class ReportRunner {
 
     let zipFile;
     try {
-      zipFile = await createZippedSpreadsheet(reportName, reportData);
+      zipFile = await createZippedSpreadsheet(reportName, reportData, this.exportFormat);
       const recipients = this.recipients.email.join(',');
 
       this.log.info('Sending report', {
