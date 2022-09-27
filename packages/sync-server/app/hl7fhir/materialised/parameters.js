@@ -94,7 +94,7 @@ function sortParameter(sortableParameters) {
             .required(),
           by: yup
             .string()
-            .oneOf(['_score', ...sortableParameters.map(([k]) => k)])
+            .oneOf(['_score', ...sortableParameters.map(([k]) => k)], '_sort key is not an allowed value')
             .required(),
         })
         .noUnknown(),
