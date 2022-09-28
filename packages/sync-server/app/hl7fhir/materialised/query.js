@@ -75,6 +75,21 @@ export function buildQuery(query, parameters, FhirResource) {
   return sql;
 }
 
+function nestPath(path) {
+  // TODO: figure out how to stick the table name on there so it survives joins
+  let nested = Sequelize.col(path[0]);
+  for (const level of path.slice(1)) {
+    nested = Sequelize.fn(level, nested);
+  }
+  return nested;
+}
+
+// path: ['a', 'b', '[]', 'c', '[]', 'd']
+// sql: d(unnest(c(unnest(b(a)))))
+function nestWithUnnests(path) {
+  return nestPath(path.map(step => (step === '[]' ? 'unnest' : step)));
+}
+
 function singleMatch(path, paramQuery, paramDef, Model) {
   return paramQuery.value.map(value => {
     const matches = typedMatch(value, paramQuery, paramDef).map(({ op, val, extraPath = [] }) => {
@@ -89,10 +104,7 @@ function singleMatch(path, paramQuery, paramDef, Model) {
 
       // path: ['a', 'b', '[]', 'c', '[]', 'd']
       // sql: value operator any(select(d(unnest(c(unnest(b(a)))))))
-      const selector = Sequelize.fn(
-        'any',
-        Sequelize.fn('select', nestPath(entirePath.map(step => (step === '[]' ? 'unnest' : step)))),
-      );
+      const selector = Sequelize.fn('any', Sequelize.fn('select', nestWithUnnests(entirePath)));
 
       const escaped =
         paramDef.type === FHIR_SEARCH_PARAMETERS.NUMBER
@@ -106,15 +118,39 @@ function singleMatch(path, paramQuery, paramDef, Model) {
 }
 
 // eslint-disable-next-line no-unused-vars
-function singleOrder(path, order, _paramDef, _Model) {
-  const runs = pathRuns(path);
-  if (runs.length === 1) {
+function singleOrder(path, order, def, _Model) {
+  if (
+    !(
+      [
+        FHIR_SEARCH_PARAMETERS.NUMBER,
+        FHIR_SEARCH_PARAMETERS.DATE,
+        FHIR_SEARCH_PARAMETERS.STRING,
+      ].includes(def.type) ||
+      (def.type === FHIR_SEARCH_PARAMETERS.TOKEN &&
+        [FHIR_SEARCH_TOKEN_TYPES.BOOLEAN, FHIR_SEARCH_TOKEN_TYPES.STRING].includes(def.tokenType))
+    )
+  ) {
+    // TODO (EPI-202)
+    // any search that generates multiple output for typedMatch, or outputs
+    // extraPath at all, ie might need to look in different/multiple places.
+    throw new Unsupported('order with complex types is not supported yet');
+  }
+
+  // optimisation in the simple case
+  if (!path.includes('[]')) {
     // path: ['a', 'b', 'c']
     // sql: order by c(b(a)) desc
     return [nestPath(path), order];
   }
 
-  throw new Unsupported('order with nested arrays is not yet implemented');
+  // TODO (EPI-202)
+  // it *does* generate sql, but it results in inconsistent or maybe random(!)
+  // ordering from run to run so it's disabled for now.
+  throw new Unsupported('order with nested arrays is not supported yet');
+
+  // path: ['a', 'b', '[]', 'c', '[]', 'd']
+  // sql: order by d(unnest(c(unnest(b(a)))))
+  // return [nestWithUnnests(path), order];
 }
 
 function typedMatch(value, query, def) {
@@ -249,32 +285,6 @@ function prefixToOp(prefix) {
     default:
       throw new Unsupported(`unsupported search prefix: ${prefix}`);
   }
-}
-
-function nestPath(path) {
-  // TODO: figure out how to stick the table name on there so it survives joins
-  let nested = Sequelize.col(path[0]);
-  for (const level of path.slice(1)) {
-    nested = Sequelize.fn(level, nested);
-  }
-  return nested;
-}
-
-function pathRuns(path) {
-  const runs = [];
-  let run = [];
-
-  for (const bit of path) {
-    if (bit === '[]') {
-      runs.push(run);
-      run = [];
-    } else {
-      run.push(bit);
-    }
-  }
-
-  runs.push(run);
-  return runs;
 }
 
 // fetch the sequelize field definition

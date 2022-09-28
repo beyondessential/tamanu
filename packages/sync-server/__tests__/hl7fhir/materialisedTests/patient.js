@@ -190,6 +190,8 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
       });
 
       // TODO (EPI-202)
+      // the code *does* support nested arrays, but it results in inconsistent
+      // ordering from run to run so it's disabled in query.js.
       describe.skip('in fields with nested arrays', () => {
         it('sorts by firstName ascending (given)', async () => {
           const { FhirPatient, Patient } = ctx.store.models;
