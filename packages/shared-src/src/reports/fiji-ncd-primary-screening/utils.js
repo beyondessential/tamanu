@@ -156,7 +156,7 @@ export const getPatientById = async (models, rawAnswers) => {
 
 export const removeDuplicatedReferralsPerDate = referrals => {
   const referralByPatientAndDate = groupBy(referrals, r => {
-    const referralDate = format(r.surveyResponse.endTime, 'dd-MM-yyyy');
+    const referralDate = format(new Date(r.surveyResponse.endTime), 'dd-MM-yyyy');
     return `${r.initiatingEncounter.patientId}|${r.surveyResponse.surveyId}|${referralDate}`;
   });
 
@@ -176,14 +176,14 @@ export const removeDuplicatedReferralsPerDate = referrals => {
 
 export const removeDuplicatedAnswersPerDate = answers => {
   const answersPerElement = groupBy(answers, a => {
-    const responseDate = format(a.responseEndTime, 'dd-MM-yyyy');
+    const responseDate = format(new Date(a.responseEndTime), 'dd-MM-yyyy');
     return `${a.patientId}|${a.surveyId}|${responseDate}|${a.dataElementId}`;
   });
 
   const results = [];
   for (const groupedAnswers of Object.values(answersPerElement)) {
     const sortedLatestToOldestAnswers = groupedAnswers.sort((a1, a2) =>
-      differenceInMilliseconds(a2.responseEndTime, a1.responseEndTime),
+      differenceInMilliseconds(new Date(a2.responseEndTime), new Date(a1.responseEndTime)),
     );
     results.push(sortedLatestToOldestAnswers[0]);
   }
