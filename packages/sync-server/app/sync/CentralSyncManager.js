@@ -22,9 +22,9 @@ const { lapsedSessionSeconds, lapsedSessionCheckFrequencySeconds } = config.sync
 export class CentralSyncManager {
   currentSyncTick;
 
-  sessions = {};
-
   store;
+
+  sessionsUndergoingSnapshot = new Set();
 
   purgeInterval;
 
@@ -43,32 +43,39 @@ export class CentralSyncManager {
     await deleteInactiveSyncSessions(this.store, lapsedSessionSeconds);
   };
 
-  async tickSyncClock() {
-    const [[{ nextval: newTick }]] = await this.store.sequelize.query(
-      `SELECT nextval('sync_clock_sequence')`,
-    );
-    return newTick;
+  async tickTockGlobalClock() {
+    // rather than just incrementing by one tick, we "tick, tock" the clock inside a transaction,
+    // so we guarantee the "tick" part to be unique to the requesting client, and any changes made
+    // directly on the central server will be recorded as updated at the "tock", avoiding any
+    // direct changes (e.g. imports) being missed by a client that is at the same sync tick
+    const tickTock = await this.store.sequelize.transaction(async () => {
+      const [[{ nextval: tick }]] = await this.store.sequelize.query(
+        `SELECT nextval('sync_clock_sequence')`,
+      );
+      const [[{ nextval: tock }]] = await this.store.sequelize.query(
+        `SELECT nextval('sync_clock_sequence')`,
+      );
+      return { tick, tock };
+    });
+    return tickTock;
   }
 
   async startSession(facilityId) {
     // as a side effect of starting a new session, cause a tick on the global sync clock
     // this is a convenient way to tick the clock, as it means that no two sync sessions will
     // happen at the same global sync time, meaning there's no ambiguity when resolving conflicts
-    const syncClockTick = await this.tickSyncClock();
 
     const startTime = new Date();
     const syncSession = await this.store.models.SyncSession.create({
-      syncTick: syncClockTick,
       startTime,
       lastConnectionTime: startTime,
-      // facilityId, TODO - needs migration and model edit
     });
 
     log.debug(
-      `CentralSyncManager.startSession: Facility ${facilityId} started a new session ${syncSession.id}, at tick ${syncClockTick}`,
+      `CentralSyncManager.startSession: Facility ${facilityId} started a new session ${syncSession.id}`,
     );
 
-    return { sessionId: syncSession.id, syncClockTick };
+    return syncSession.id;
   }
 
   async connectToSession(sessionId) {
@@ -93,6 +100,8 @@ export class CentralSyncManager {
   }
 
   async setPullFilter(sessionId, { since, facilityId }) {
+    this.sessionsUndergoingSnapshot.add(sessionId);
+
     const { models } = this.store;
 
     await this.connectToSession(sessionId);
@@ -139,11 +148,19 @@ export class CentralSyncManager {
       await removeEchoedChanges(this.store, sessionId);
     });
 
+    this.sessionsUndergoingSnapshot.delete(sessionId);
+  }
+
+  async fetchPullCount(sessionId) {
+    await this.connectToSession(sessionId);
+    if (this.sessionsUndergoingSnapshot.has(sessionId)) {
+      return null;
+    }
     return getOutgoingChangesCount(this.store, sessionId);
   }
 
   async getOutgoingChanges(sessionId, { offset, limit }) {
-    this.connectToSession(sessionId);
+    await this.connectToSession(sessionId);
     return getOutgoingChangesForSession(
       this.store,
       sessionId,
@@ -153,7 +170,7 @@ export class CentralSyncManager {
     );
   }
 
-  async addIncomingChanges(sessionId, changes, { pageNumber, totalPages }) {
+  async addIncomingChanges(sessionId, changes, { pushedSoFar, totalToPush }) {
     const { models } = this.store;
     await this.connectToSession(sessionId);
     const sessionSyncRecords = changes.map(c => ({
@@ -167,12 +184,8 @@ export class CentralSyncManager {
     );
     await models.SessionSyncRecord.bulkCreate(sessionSyncRecords);
 
-    if (pageNumber === totalPages) {
+    if (pushedSoFar === totalToPush) {
       // commit the changes to the db
-      // first bump the current sync tick, so that these changes are saved with a higher tick than
-      // any currently underway sync session, to make sure they get picked up on the next sync for
-      // every sync client
-      await this.tickSyncClock();
       await this.store.sequelize.transaction(async () => {
         await saveIncomingChanges(
           models,

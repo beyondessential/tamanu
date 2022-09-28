@@ -1,17 +1,15 @@
 import { Op } from 'sequelize';
 
 // The hardest thing about sync is knowing what happens at the clock tick border - do we want
-// records strictly >, or >= the cursor being requested? We use >= for the following reasons:
-// - Push to central server: if the last successful sync happened at tick 120, any changes since
-//   that tick will be recorded as updated at tick 120, so we need to include them using >=
-// - Pull from central server: if any changes happen on the central server directly, before another
-//   facility triggers a new tick of the sync clock, they will be recorded as updated at tick 120
-//   also, so when pulling we need to include them using >=
-//   (The downside of this is that we know that 99% of the time it will have all records updated at
-//   120 locally already, so we waste a bit of time adding them. However, for other reasons we need
-//   to filter out any "echoed" records before sending them down to the facility server anyway, so
-//   this just adds some extra records that get filtered during that process and keeps things simple
-//   and robust)
+// records strictly >, or >= the cursor being requested? We use strict > for the following reasons:
+// - Push to central server: because we save the local tick as it was before the push started as the
+//   successful push tick, and increment the local clock just before taking the local snapshot to
+//   push, we know that any changes since starting the push will be recorded using a higher tick.
+//   There is the possibility of changes that are made between the time we increment the local clock
+//   and the time we finish the snapshot being pushed twice, but that's ok because pushing a change
+//   is idempotent (actually not quite under the current conflict resolution model, but good enough)
+// - Pull from central server: using > here just means we definitely don't get any of the same
+//   changes twice, though see above for why it wouldn't actually be a big deal if we did
 export const getModelOutgoingQueryOptions = (model, patientIds, since, facilitySettings) => {
   const shouldFilterByPatient = !!model.buildSyncFilter && patientIds;
   if (shouldFilterByPatient && patientIds.length === 0) {
@@ -21,7 +19,7 @@ export const getModelOutgoingQueryOptions = (model, patientIds, since, facilityS
   const patientFilter =
     shouldFilterByPatient && model.buildSyncFilter(patientIds, facilitySettings);
   const baseFilter = {
-    where: { updatedAtSyncTick: { [Op.gte]: since } },
+    where: { updatedAtSyncTick: { [Op.gt]: since } },
   };
 
   return patientFilter

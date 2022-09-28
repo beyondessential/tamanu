@@ -32,10 +32,6 @@ export async function up(query) {
       allowNull: false,
       defaultValue: Sequelize.NOW,
     },
-    sync_tick: {
-      type: Sequelize.BIGINT,
-      allowNull: false,
-    },
     updated_at_sync_tick: {
       type: Sequelize.BIGINT,
     },
