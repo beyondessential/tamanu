@@ -126,7 +126,7 @@ export const DEFAULT_SCHEMA_FOR_TYPE = {
         return null;
       }
     })
-    .test('is-url', 'must be a URL', url => !!url),
+    .required(),
   // [FHIR_SEARCH_PARAMETERS.COMPOSITE]: ,
 };
 
