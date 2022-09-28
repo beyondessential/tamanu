@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import styled from 'styled-components';
@@ -88,13 +88,12 @@ export const NotePageForm = ({
   contentRef,
 }) => {
   const { currentUser } = useAuth();
-  const lastNoteItemRef = useRef(null);
 
-  useEffect(() => {
-    if (lastNoteItemRef.current) {
-      lastNoteItemRef.current.scrollIntoView({ behavior: 'smooth' });
+  const lastNoteItemRef = useCallback(node => {
+    if (node !== null) {
+      node.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [lastNoteItemRef.current]);
+  }, []);
 
   const renderForm = ({ submitForm }) => (
     <>
