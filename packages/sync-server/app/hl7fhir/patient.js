@@ -54,7 +54,7 @@ function patientIds(patient, additional) {
     },
     {
       use: 'secondary',
-      assigner: config.hl7.assigners.patientDriverLicense,
+      assigner: config.hl7.assigners.patientDrivingLicense,
       value: additional.drivingLicense,
     },
   ].filter(x => x.value);
