@@ -1,3 +1,4 @@
+import { format } from 'date-fns';
 import moment from 'moment-timezone';
 import { createDummyPatient, randomReferenceIds } from 'shared/demoData/patients';
 import { createTestContext } from '../../utilities';
@@ -18,7 +19,6 @@ describe('Assistive technology device line list', () => {
   beforeAll(async () => {
     ctx = await createTestContext();
     const { models } = ctx;
-    moment.tz.setDefault('Etc/UTC');
 
     await models.SurveyResponseAnswer.truncate({ cascade: true });
     await models.SurveyResponse.truncate({ cascade: true });
@@ -224,7 +224,7 @@ describe('Assistive technology device line list', () => {
           // patient details
           expectedPatient2.displayId,
           expectedPatient2.sex,
-          moment(expectedPatient2.dateOfBirth).format('DD-MM-YYYY'),
+          format(new Date(expectedPatient2.dateOfBirth), 'dd-MM-yyyy'),
           expect.any(Number),
           null,
 
@@ -253,7 +253,7 @@ describe('Assistive technology device line list', () => {
           // patient details
           expectedPatient1.displayId,
           expectedPatient1.sex,
-          moment(expectedPatient1.dateOfBirth).format('DD-MM-YYYY'),
+          format(new Date(expectedPatient1.dateOfBirth), 'dd-MM-yyyy'),
           expect.any(Number),
           null,
 
@@ -281,7 +281,7 @@ describe('Assistive technology device line list', () => {
           // patient details
           expectedPatient1.displayId,
           expectedPatient1.sex,
-          moment(expectedPatient1.dateOfBirth).format('DD-MM-YYYY'),
+          format(new Date(expectedPatient1.dateOfBirth), 'dd-MM-yyyy'),
           expect.any(Number),
           null,
 
@@ -316,7 +316,7 @@ describe('Assistive technology device line list', () => {
 
       expect(result.body[1][0]).toBe(expectedPatient1.displayId);
       expect(result.body[1][1]).toBe(expectedPatient1.sex);
-      expect(result.body[1][2]).toBe(moment(expectedPatient1.dateOfBirth).format('DD-MM-YYYY'));
+      expect(result.body[1][2]).toBe(format(new Date(expectedPatient1.dateOfBirth), 'dd-MM-yyyy'));
       expect(result.body[1][6]).toBe('pde-IrqPreMob-2-on-2021-03-20T10:53:15.708Z-Patient1');
       expect(result.body[1][7]).toBe('pde-IrqPreMob-1-on-2021-03-20T10:53:15.708Z-Patient1');
       expect(result.body[1][8]).toBe('pde-IrqPreMob-6-on-2021-03-20T10:53:15.708Z-Patient1');

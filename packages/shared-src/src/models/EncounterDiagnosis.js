@@ -1,6 +1,8 @@
 import { Sequelize } from 'sequelize';
 import { DIAGNOSIS_CERTAINTY, DIAGNOSIS_CERTAINTY_VALUES } from '../constants';
 import { Model } from './Model';
+import { dateTimeType } from './dateTimeTypes';
+import { getCurrentDateTimeString } from '../utils/dateTime';
 
 export class EncounterDiagnosis extends Model {
   static init({ primaryKey, ...options }) {
@@ -14,11 +16,10 @@ export class EncounterDiagnosis extends Model {
           isIn: DIAGNOSIS_CERTAINTY_VALUES, // application-level validation, not db-level
         },
         isPrimary: Sequelize.BOOLEAN,
-        date: {
-          type: Sequelize.DATE,
+        date: dateTimeType('date', {
           allowNull: false,
-          defaultValue: Sequelize.NOW,
-        },
+          defaultValue: getCurrentDateTimeString,
+        }),
       },
       {
         ...options,

@@ -21,7 +21,7 @@ const query = `
 with
   cte_oldest_date as (
     SELECT
-      greatest(:from_date::date, least(oldest_sr, oldest_encounter)) oldest_date
+      greatest(:from_date::date, least(oldest_sr::date, oldest_encounter::date)) oldest_date
     FROM (
       select
         (select min(sr.end_time::timestamp) from survey_responses sr) oldest_sr,
