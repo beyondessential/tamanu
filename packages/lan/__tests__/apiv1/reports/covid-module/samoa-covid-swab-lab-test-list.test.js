@@ -128,6 +128,7 @@ describe('Samoa covid lab test report', () => {
     afterEach(async () => {
       await testContext.models.LabRequest.destroy({ where: {} });
       await testContext.models.LabTest.destroy({ where: {} });
+      await testContext.models.SurveyResponseAnswer.destroy({ where: {} });
     });
 
     it('should produce the right columns', async () => {
