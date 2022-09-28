@@ -21,8 +21,8 @@ const query = `
 with
   admission_data as (
     select
-      timezone('Pacific/Fiji', e.start_date::date)::date start_date,
-      timezone('Pacific/Fiji', e.end_date::date)::date end_date,
+      e.start_date::date start_date,
+      e.end_date::date end_date,
       e.id,
       e.patient_id,
       e.department_id,
@@ -103,7 +103,7 @@ with
       count(p.id) number_of_deaths
     from admission_end_date_base a
     join patients p on a.patient_id = p.id
-    where timezone('Pacific/Fiji', p.date_of_death::date)::date = a.end_date
+    where p.date_of_death::date = a.end_date
     group by reporting_month, facility_name
   ),
   -- patients are still in admission, no end_date
@@ -112,16 +112,16 @@ with
       (select sum(
         case
           -- start_date = current month
-          when a.start_date_m = extract(month from timezone('Pacific/Fiji', current_date)::date) and (a.start_date_m = rp.reporting_month_m) then
+          when a.start_date_m = extract(month from current_date::date) and (a.start_date_m = rp.reporting_month_m) then
              -- patient days = current date - start_date
-            date_part('day', age(timezone('Pacific/Fiji', current_date)::date, a.start_date))
+            date_part('day', age(current_date::date, a.start_date))
           -- start date is in the same month as reporting month
           when a.start_date_m = rp.reporting_month_m then
             -- patient days =last day of the month - start_date
             date_part('day', age((a.start_date_d + interval '1 month')::date, a.start_date))
           -- start date in previous month
-          when (a.start_date_m < rp.reporting_month_m) and (rp.reporting_month_m = extract(month from timezone('Pacific/Fiji', current_date)::date)) then -- less than first day of the reporting month and is not current month
-            date_part('day', age(timezone('Pacific/Fiji', current_date)::date, rp.reporting_month))
+          when (a.start_date_m < rp.reporting_month_m) and (rp.reporting_month_m = extract(month from current_date::date)) then -- less than first day of the reporting month and is not current month
+            date_part('day', age(current_date::date, rp.reporting_month))
           when a.start_date < rp.reporting_month then -- less than first day of the reporting month
             -- patient days = # of days in the reporting month
             date_part('days',(rp.reporting_month + interval '1 month - 1 day'))
@@ -221,8 +221,8 @@ with
       sum(p_days.num_patient_days) tot_patient_days,
       round(avg((p_days.num_patient_days / (ab.num_of_beds *
         case
-          when p_days.reporting_month = date_trunc('month', timezone('Pacific/Fiji', current_date)::date) then
-            date_part('days', timezone('Pacific/Fiji', current_date)::date) - 1
+          when p_days.reporting_month = date_trunc('month', current_date::date) then
+            date_part('days', current_date::date) - 1
           else
             date_part('days',(p_days.reporting_month + interval '1 month - 1 day'))
         end
