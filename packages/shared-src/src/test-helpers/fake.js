@@ -134,8 +134,8 @@ export function fakeSurveyResponse(prefix = 'test-') {
     answers: [],
     encounterId: null,
     surveyId: null,
-    startTime: formatISO9075(new Date(random(0, Date.now()))),
-    endTime: formatISO9075(new Date(random(0, Date.now()))),
+    startTime: new Date(random(0, Date.now())),
+    endTime: new Date(random(0, Date.now())),
     result: Math.random() * 100,
     ...fakeStringFields(`${prefix}surveyResponse_${id}_`, ['id']),
   };
