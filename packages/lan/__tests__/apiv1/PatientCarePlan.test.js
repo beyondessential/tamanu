@@ -1,9 +1,5 @@
-import {
-  createDummyPatient,
-  randomUser,
-  randomReferenceId,
-} from 'shared/demoData/patients';
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { createDummyPatient, randomUser, randomReferenceId } from 'shared/demoData/patients';
+import { convertISO9075toRFC3339, getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 
 describe('PatientCarePlan', () => {
@@ -53,7 +49,7 @@ describe('PatientCarePlan', () => {
       expect(noteResult).toHaveSucceeded();
       expect(noteResult.body.length).toBeGreaterThan(0);
       expect(noteResult.body[0].content).toBe('Main care plan');
-      expect(noteResult.body[0]).toHaveProperty('date', noteDate);
+      expect(noteResult.body[0]).toHaveProperty('date', convertISO9075toRFC3339(noteDate));
     });
 
     it('should reject care plan without notes', async () => {

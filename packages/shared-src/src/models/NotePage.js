@@ -91,13 +91,13 @@ export class NotePage extends Model {
       recordId,
       recordType,
       noteType,
-      date: Date.now(),
+      date: getCurrentDateTimeString(),
     });
 
     await NoteItem.create({
       notePageId: notePage.id,
       content,
-      date: Date.now(),
+      date: getCurrentDateTimeString(),
       authorId,
     });
 
