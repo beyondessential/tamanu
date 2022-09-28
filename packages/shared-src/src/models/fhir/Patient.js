@@ -1,5 +1,6 @@
 import config from 'config';
 import { Sequelize, DataTypes } from 'sequelize';
+import { identity } from 'lodash';
 
 import { FhirResource } from './Resource';
 import { arrayOf, activeFromVisibility } from './utils';
@@ -134,12 +135,12 @@ export class FhirPatient extends FhirResource {
   }
 }
 
-function compact(array, access = a => a) {
+function compactBy(array, access = identity) {
   return array.filter(access);
 }
 
 function identifiers(patient) {
-  return compact(
+  return compactBy(
     [
       {
         use: 'usual',
@@ -163,23 +164,22 @@ function identifiers(patient) {
 }
 
 function names(patient) {
-  return compact([
-    new FhirHumanName({
+  return compactBy([
+    {
       use: 'official',
-      prefix: compact([patient.additionalData?.title]),
+      prefix: compactBy([patient.additionalData?.title]),
       family: patient.lastName,
-      given: compact([patient.firstName, patient.middleName]),
-    }),
-    patient.culturalName &&
-      new FhirHumanName({
-        use: 'nickname',
-        text: patient.culturalName,
-      }),
-  ]);
+      given: compactBy([patient.firstName, patient.middleName]),
+    },
+    patient.culturalName && {
+      use: 'nickname',
+      text: patient.culturalName,
+    },
+  ]).map(i => new FhirHumanName(i));
 }
 
 function telecoms(patient) {
-  return compact([
+  return compactBy([
     patient.additionalData?.primaryContactNumber,
     patient.additionalData?.secondaryContactNumber,
   ]).map(
@@ -201,7 +201,7 @@ function addresses(patient) {
       type: 'physical',
       use: 'home',
       city: cityTown,
-      line: compact([streetVillage]),
+      line: compactBy([streetVillage]),
     }),
   ];
 }
