@@ -14,8 +14,17 @@ export const buildSyncRoutes = ctx => {
     '/',
     asyncHandler(async (req, res) => {
       const { facilityId } = req.query;
-      const { sessionId, syncClockTick } = await syncManager.startSession(facilityId);
-      res.send({ sessionId, syncClockTick });
+      const sessionId = await syncManager.startSession(facilityId);
+      res.json(sessionId);
+    }),
+  );
+
+  // tick global clock
+  syncRoutes.post(
+    '/tick',
+    asyncHandler(async (req, res) => {
+      const { tick } = await syncManager.tickTockGlobalClock();
+      res.json(tick);
     }),
   );
 
@@ -31,7 +40,10 @@ export const buildSyncRoutes = ctx => {
       }
       // we don't await the setPullFilter function before responding, as it takes a long time
       // instead, the client will poll the pull count endpoint until it responds with a valid count
-      syncManager.setPullFilter(params.sessionId, { since, facilityId });
+      syncManager.setPullFilter(params.sessionId, {
+        since,
+        facilityId,
+      });
       res.json(true);
     }),
   );

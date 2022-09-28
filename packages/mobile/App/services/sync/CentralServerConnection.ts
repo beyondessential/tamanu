@@ -112,6 +112,10 @@ export class CentralServerConnection {
     return this.delete(`sync/${sessionId}`, {});
   }
 
+  async tickGlobalClock() {
+    return this.post('sync/tick', {}, {});
+  }
+
   async setPullFilter(sessionId: string, since: number) {
     const facilityId = await readConfig('facilityId', '');
     const body = { since, facilityId };

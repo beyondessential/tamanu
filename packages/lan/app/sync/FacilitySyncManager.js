@@ -8,7 +8,7 @@ import {
   saveIncomingChanges,
 } from 'shared/sync';
 
-import { setSyncClockTime } from './setSyncClockTime';
+import { getSyncClockTime, setSyncClockTime } from './syncClock';
 import { pushOutgoingChanges } from './pushOutgoingChanges';
 import { pullIncomingChanges } from './pullIncomingChanges';
 
@@ -49,39 +49,37 @@ export class FacilitySyncManager {
       );
     }
 
-    // Clear previous temp data stored for persist
+    // clear previous temp data stored for persist
     await this.models.SessionSyncRecord.truncate({ cascade: true, force: true });
     await this.models.SyncSession.truncate({ cascade: true, force: true });
 
-    const startTimestampMs = Date.now();
+    const startTime = new Date();
     log.info(`FacilitySyncManager.runSync: began sync run`);
 
-    // the first step of sync is to start a session and retrieve the id and current global sync time
-    const { sessionId, syncClockTick } = await this.centralServer.startSyncSession();
+    // the first step of sync is to start a session and retrieve the session id
+    const sessionId = await this.centralServer.startSyncSession();
 
-    const startTime = new Date();
-    await this.models.SyncSession.create({
-      id: sessionId,
-      syncTick: syncClockTick,
-      startTime,
-      lastConnectionTime: startTime,
-    });
+    // ~~~ Push phase ~~~ //
 
-    // persist the current global clock time through to the facility's copy of the sync time now
-    // so that any records that are created or updated from this point on, even mid way through this
-    // sync, are marked using the new tick and will be captured in the next sync
-    await setSyncClockTime(this.sequelize, syncClockTick);
-    log.debug(`FacilitySyncManager.runSync: Local sync clock time set to ${syncClockTick}`);
+    // get the sync tick we're up to locally, so that we can store it as the successful push cursor
+    const currentTick = await getSyncClockTime(this.sequelize);
+
+    // tick the global sync clock, and use that new unique tick for any changes from now on so that
+    // any records that are created or updated even mid way through this sync, are marked using the
+    // new tick and will be captured in the push
+    const pushTick = await this.centralServer.tickGlobalClock();
+    await setSyncClockTime(this.sequelize, pushTick);
+    log.debug(`FacilitySyncManager.runSync: Local sync clock time set to ${pushTick}`);
 
     // syncing outgoing changes happens in two phases: taking a point-in-time copy of all records
     // to be pushed, and then pushing those up in batches
     // this avoids any of the records to be pushed being changed during the push period and
     // causing data that isn't internally coherent from ending up on the sync server
-    const since = (await this.models.LocalSystemFact.get('LastSuccessfulSyncTime')) || 0;
+    const pushSince = (await this.models.LocalSystemFact.get('LastSuccessfulSyncPush')) || 0;
     const outgoingChanges = await snapshotOutgoingChangesForFacility(
       getModelsForDirection(this.models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL),
       sessionId,
-      since,
+      pushSince,
     );
     if (outgoingChanges.length > 0) {
       log.debug(
@@ -89,16 +87,37 @@ export class FacilitySyncManager {
       );
       await pushOutgoingChanges(this.centralServer, sessionId, outgoingChanges);
     }
+    log.debug(
+      `FacilitySyncManager.runSync: Setting the last successful sync push time to ${currentTick}`,
+    );
+    await this.models.LocalSystemFact.set('LastSuccessfulSyncPush', currentTick);
+
+    // ~~~ Pull phase ~~~ //
+
+    // tick the global sync clock, and use that as our saved checkpoint for where we've pulled to,
+    // if this pull is successful (important to use a higher unique sync tick than our push tick)
+    // as otherwise we'll end up pulling the same records we just pushed the _next_ time we pull,
+    // given they get saved on the central server using the update tick at the moment they are
+    // persisted
+    const pullTick = await this.centralServer.tickGlobalClock();
 
     // syncing incoming changes happens in two phases: pulling all the records from the server,
     // then saving all those records into the local database
     // this avoids a period of time where the the local database may be "partially synced"
+    const pullSince = (await this.models.LocalSystemFact.get('LastSuccessfulSyncPull')) || 0;
+    await this.models.SyncSession.create({
+      id: sessionId,
+      startTime,
+      lastConnectionTime: startTime,
+    });
     const incomingChangesCount = await pullIncomingChanges(
       this.centralServer,
       this.models,
       sessionId,
-      since,
+      pullSince,
     );
+    // save last successful sync pull cursor, so that we can avoid pulling our own pushed records
+    // again next sync
     await this.sequelize.transaction(async () => {
       if (incomingChangesCount > 0) {
         log.debug(
@@ -115,16 +134,16 @@ export class FacilitySyncManager {
       // we want to roll back the rest of the saves so that we don't end up detecting them as
       // needing a sync up to the central server when we attempt to resync from the same old cursor
       log.debug(
-        `FacilitySyncManager.runSync: Setting the last successful sync time to ${syncClockTick}`,
+        `FacilitySyncManager.runSync: Setting the last successful sync pull time to ${pullTick}`,
       );
-      await this.models.LocalSystemFact.set('LastSuccessfulSyncTime', syncClockTick);
+      await this.models.LocalSystemFact.set('LastSuccessfulSyncPull', pullTick);
     });
     await this.centralServer.endSyncSession(sessionId);
 
-    const elapsedTimeMs = Date.now() - startTimestampMs;
+    const elapsedTimeMs = Date.now() - startTime.getTime();
     log.info(`FacilitySyncManager.runSync: finished sync run in ${elapsedTimeMs}ms`);
 
-    // Clear temp data stored for persist
+    // clear temp data stored for persist
     await this.models.SessionSyncRecord.truncate({ cascade: true, force: true });
     await this.models.SyncSession.truncate({ cascade: true, force: true });
 
