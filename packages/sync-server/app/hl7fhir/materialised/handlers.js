@@ -1,6 +1,6 @@
 import asyncHandler from 'express-async-handler';
 
-import { FHIR_BUNDLE_TYPES } from 'shared/constants';
+import { FHIR_BUNDLE_TYPES, FHIR_RESOURCE_TYPES } from 'shared/constants';
 import { ValidationError } from 'yup';
 import { Bundle } from './bundle';
 
@@ -17,6 +17,7 @@ export function resourceHandler() {
 
       const path = req.path.split('/').slice(1);
       if (path.length > 1) throw new Unsupported('nested paths are not supported');
+      if (!FHIR_RESOURCE_TYPES.includes(path[0])) throw new Unsupported('this resource is not supported');
 
       const FhirResource = req.store.models[`Fhir${path[0]}`];
       if (!FhirResource) throw new Unsupported('this resource is not supported');
