@@ -1,5 +1,3 @@
-import { subDays } from 'date-fns';
-
 import {
   REFERENCE_TYPES,
   NOTE_RECORD_TYPES,
@@ -11,7 +9,6 @@ import {
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from '../../utilities';
 import { MATCH_ANY } from '../../toMatchTabularReport';
-
 
 const fakeAllData = async models => {
   const { id: userId } = await models.User.create(fake(models.User));
@@ -109,8 +106,8 @@ const fakeAllData = async models => {
   const { id: encounterId } = await models.Encounter.create(
     fake(models.Encounter, {
       patientId: patient.id,
-      startDate: '2022-06-09T00:02:54.225Z',
-      endDate: '2022-06-12T00:02:54.225+00:00', // Make sure this works
+      startDate: '2022-06-09 00:02:54',
+      endDate: '2022-06-12 00:02:54', // Make sure this works
       encounterType: ENCOUNTER_TYPES.ADMISSION,
       reasonForEncounter: 'Severe Migrane',
       examinerId: userId,
@@ -124,8 +121,8 @@ const fakeAllData = async models => {
     fake(models.Triage, {
       encounterId,
       score: 2,
-      triageTime: '2022-06-09T02:04:54.225Z',
-      closedTime: '2022-06-09T03:07:54.225Z',
+      triageTime: '2022-06-09 02:04:54',
+      closedTime: '2022-06-09 03:07:54',
     }),
     {
       options: { raw: true },
@@ -144,7 +141,7 @@ const fakeAllData = async models => {
       diagnosisId,
       isPrimary: false,
       certainty: DIAGNOSIS_CERTAINTY.SUSPECTED,
-      date: '2022-06-09T11:09:54.225+00:00',
+      date: '2022-06-09 11:09:54',
     }),
   );
   await models.EncounterDiagnosis.create(
@@ -153,7 +150,7 @@ const fakeAllData = async models => {
       diagnosisId,
       isPrimary: true,
       certainty: DIAGNOSIS_CERTAINTY.CONFIRMED,
-      date: '2022-06-09T11:10:54.225+00:00',
+      date: '2022-06-09 11:10:54',
     }),
   );
   await models.EncounterMedication.create(
@@ -161,8 +158,8 @@ const fakeAllData = async models => {
       encounterId,
       medicationId: medication5Id,
       discontinued: true,
-      date: '2022-06-10T01:10:54.225+00:00',
-      discontinuedDate: '2022-06-10T01:19:54.225+00:00',
+      date: '2022-06-10 01:10:54',
+      discontinuedDate: '2022-06-10 01:19:54',
       discontinuingReason: 'It was not enough',
     }),
   );
@@ -171,7 +168,7 @@ const fakeAllData = async models => {
       encounterId,
       medicationId: medication10Id,
       discontinued: null,
-      date: '2022-06-10T01:20:54.225+00:00',
+      date: '2022-06-10 01:20:54',
       discontinuedDate: null,
       discontinuingReason: null,
     }),
@@ -184,7 +181,7 @@ const fakeAllData = async models => {
       encounterId,
       procedureTypeId,
       locationId: location1Id,
-      date: '2022-06-11T01:20:54.225+00:00',
+      date: '2022-06-11 01:20:54',
       note: 'All ready for procedure here',
       completedNote: 'Everything went smoothly, no issues',
     }),
@@ -195,7 +192,7 @@ const fakeAllData = async models => {
       procedureTypeId,
       requestedById: userId,
       imagingType: IMAGING_TYPES.X_RAY,
-      requestedDate: '2022-06-11T01:20:54.225+00:00',
+      requestedDate: '2022-06-11 01:20:54',
     }),
   );
   await models.ImagingRequestAreas.create(
@@ -221,7 +218,7 @@ const fakeAllData = async models => {
     fake(models.NoteItem, {
       notePageId: imagingNotePageId,
       content: 'Check for fractured knees please',
-      date: '2022-06-10T06:04:54.225Z',
+      date: '2022-06-10 06:04:54',
     }),
   );
 
@@ -240,7 +237,7 @@ const fakeAllData = async models => {
     fake(models.NoteItem, {
       notePageId: labsNotePageId,
       content: 'Please perform this lab test very carefully',
-      date: '2022-06-09T02:04:54.225Z',
+      date: '2022-06-09 02:04:54',
     }),
   );
   await models.Discharge.create(
@@ -262,14 +259,14 @@ const fakeAllData = async models => {
     fake(models.NoteItem, {
       notePageId: encounterNotePageId,
       content: 'A\nB\nC\nD\nE\nF\nG\n',
-      date: '2022-06-10T03:39:57.617+00:00',
+      date: '2022-06-10 03:39:57',
     }),
   );
   await models.NoteItem.create(
     fake(models.NoteItem, {
       notePageId: encounterNotePageId,
       content: 'H\nI\nJ\nK\nL... nopqrstuv',
-      date: '2022-06-10T04:39:57.617+00:00',
+      date: '2022-06-10 04:39:57',
     }),
   );
   // Location/departments:
@@ -288,7 +285,7 @@ const fakeAllData = async models => {
       notePageId: resultantNotePageId,
     },
   });
-  systemNoteItem.date = '2022-06-09T08:04:54.225Z';
+  systemNoteItem.date = '2022-06-09 08:04:54';
   await systemNoteItem.save();
 
   return { patient, encounterId };
@@ -311,9 +308,7 @@ describe('fijiAspenMediciReport', () => {
     const { patient, encounterId } = await fakeAllData(models);
 
     // act
-    const response = await app
-      .post('/v1/reports/fiji-aspen-encounter-summary-line-list')
-      .send({});
+    const response = await app.post('/v1/reports/fiji-aspen-encounter-summary-line-list').send({});
 
     // assert
     expect(response).toHaveSucceeded();
@@ -323,26 +318,33 @@ describe('fijiAspenMediciReport', () => {
         'First name': patient.firstName,
         'Last name': patient.lastName,
         'Date of birth': '1952-10-12',
-        'Age': MATCH_ANY,
-        'Sex': patient.sex,
+        Age: MATCH_ANY,
+        Sex: patient.sex,
         'Patient billing type': 'Public',
         'Encounter ID': encounterId,
-        'Encounter start date': "2022-06-09 12:02 AM",
-        'Encounter end date': "2022-06-12 12:02 AM",
+        'Encounter start date': '2022-06-09 12:02 AM',
+        'Encounter end date': '2022-06-12 12:02 AM',
         'Encounter type': 'Hospital admission',
-        'Triage category': "Priority",
-        'Time seen following triage/Wait time (hh:mm)': "1:3",
-        'Department': "Department: Emergency dept., Assigned time: 2022-06-09 12:02 AM",
-        'Location': "Location: Emergency room 1, Assigned time: 2022-06-09 12:02 AM; Location: Emergency room 2, Assigned time: 2022-06-09 08:04 AM",
-        'Reason for encounter': "Severe Migrane",
-        'Diagnosis': "Name: Acute subdural hematoma, Code: S06.5, Is primary?: primary, Certainty: confirmed; Name: Acute subdural hematoma, Code: S06.5, Is primary?: secondary, Certainty: suspected",
-        'Medications': "Name: Glucose (hypertonic) 5%, Discontinued: true, Discontinuing reason: It was not enough; Name: Glucose (hypertonic) 10%, Discontinued: false, Discontinuing reason: null",
-        'Vaccinations': "Name: Covid AZ, Label: Covid Schedule Label, Schedule: Dose 1",
-        'Procedures': "Name: Subtemporal cranial decompression (pseudotumor cerebri, slit ventricle syndrome), Code: 61340, Date: 2022-11-06, Location: Emergency room 1, Notes: All ready for procedure here, Completed notes: Everything went smoothly, no issues",
-        'Lab requests': "Tests: Name: Bicarbonate, Notes: Note type: other, Content: Please perform this lab test very carefully, Note date: 2022-06-09 02:04 AM",
-        'Imaging requests': "Name: xRay, Areas to be imaged: Left Leg; Right Leg, Notes: Note type: other, Content: Check for fractured knees please, Note date: 2022-06-10 06:04 AM",
-        'Notes': "Note type: nursing, Content: H\nI\nJ\nK\nL... nopqrstuv, Note date: 2022-06-10 04:39 AM; Note type: nursing, Content: A\nB\nC\nD\nE\nF\nG\n, Note date: 2022-06-10 03:39 AM",
-      }
+        'Triage category': 'Priority',
+        'Time seen following triage/Wait time (hh:mm)': '1:3',
+        Department: 'Department: Emergency dept., Assigned time: 2022-06-09 12:02 AM',
+        Location:
+          'Location: Emergency room 1, Assigned time: 2022-06-09 12:02 AM; Location: Emergency room 2, Assigned time: 2022-06-09 08:04 AM',
+        'Reason for encounter': 'Severe Migrane',
+        Diagnosis:
+          'Name: Acute subdural hematoma, Code: S06.5, Is primary?: primary, Certainty: confirmed; Name: Acute subdural hematoma, Code: S06.5, Is primary?: secondary, Certainty: suspected',
+        Medications:
+          'Name: Glucose (hypertonic) 5%, Discontinued: true, Discontinuing reason: It was not enough; Name: Glucose (hypertonic) 10%, Discontinued: false, Discontinuing reason: null',
+        Vaccinations: 'Name: Covid AZ, Label: Covid Schedule Label, Schedule: Dose 1',
+        Procedures:
+          'Name: Subtemporal cranial decompression (pseudotumor cerebri, slit ventricle syndrome), Code: 61340, Date: 2022-11-06, Location: Emergency room 1, Notes: All ready for procedure here, Completed notes: Everything went smoothly, no issues',
+        'Lab requests':
+          'Tests: Name: Bicarbonate, Notes: Note type: other, Content: Please perform this lab test very carefully, Note date: 2022-06-09 02:04 AM',
+        'Imaging requests':
+          'Name: xRay, Areas to be imaged: Left Leg; Right Leg, Notes: Note type: other, Content: Check for fractured knees please, Note date: 2022-06-10 06:04 AM',
+        Notes:
+          'Note type: nursing, Content: H\nI\nJ\nK\nL... nopqrstuv, Note date: 2022-06-10 04:39 AM; Note type: nursing, Content: A\nB\nC\nD\nE\nF\nG\n, Note date: 2022-06-10 03:39 AM',
+      },
     ]);
   });
 });
