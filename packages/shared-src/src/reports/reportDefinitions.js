@@ -500,4 +500,11 @@ export const REPORT_DEFINITIONS = [
     dataSourceOptions: [REPORT_DATA_SOURCES.THIS_FACILITY],
     parameters: [],
   },
+  {
+    name: 'Registered births - Line list',
+    id: 'registered-births-line-list',
+    dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
+    dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
+    parameters: [{ parameterField: 'VillageField' }],
+  },
 ];

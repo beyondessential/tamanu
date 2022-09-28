@@ -36,6 +36,7 @@ import * as imagingRequestsLineList from './imaging-requests-line-list';
 import * as deceasedPatientsLineList from './deceased-patients-line-list';
 import * as labRequestsLineList from './lab-requests-line-list';
 import * as fijiAspenHospitalAdmissionsSummary from './fiji-aspen-hospital-admissions-summary';
+import * as registeredBirthsLineList from './registered-births-line-list';
 
 export async function getReportModule(reportId, models) {
   const dbDefinedReportModule = await models.ReportDefinitionVersion.findByPk(reportId);
@@ -123,6 +124,8 @@ export async function getReportModule(reportId, models) {
       return labRequestsLineList;
     case 'fiji-aspen-hospital-admissions-summary':
       return fijiAspenHospitalAdmissionsSummary;
+    case 'registered-births-line-list':
+      return registeredBirthsLineList;
   }
 }
 
