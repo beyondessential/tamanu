@@ -90,7 +90,7 @@ export async function createDummyEncounter(models, { current, ...overrides } = {
   const endDate = current ? getCurrentDateTimeString() : toDateTimeString(randomDate());
   
   const duration = chance.natural({ min: HOUR, max: HOUR * 10 });
-  const startDate = toDateTimeString(subMilliseconds(new Date(endDate), duration));
+  const startDate = toDateTimeString(new Date(new Date(endDate).getTime() - duration));
 
   return {
     encounterType: chance.pickone(Object.values(ENCOUNTER_TYPES)),
