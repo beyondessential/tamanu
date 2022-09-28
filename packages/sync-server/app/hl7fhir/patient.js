@@ -293,7 +293,7 @@ export function getPatientWhereClause(displayId, query = {}) {
     {
       [Op.or]: [
         { visibilityStatus: VISIBILITY_STATUSES.CURRENT, deletedAt: null },
-        { visibilityStatus: VISIBILITY_STATUSES.MERGED, deletedAt: { [Op.not]: null } },
+        { visibilityStatus: VISIBILITY_STATUSES.MERGED },
       ],
     },
   ];
