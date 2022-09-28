@@ -110,7 +110,18 @@ function sortParameter(sortableParameters) {
   };
 }
 
+const cache = new Map();
+
 export function normaliseParameters(FhirResource) {
+  const cacheKey = FhirResource.fhirName;
+  if (!cacheKey) {
+    throw new Error('DEV: not a proper Resource');
+  }
+
+  if (cache.has(cacheKey)) {
+    return cache.get(cacheKey);
+  }
+
   const resourceParameters = Object.entries(FhirResource.searchParameters()).map(
     normaliseParameter,
   );
@@ -127,5 +138,7 @@ export function normaliseParameters(FhirResource) {
     }),
   );
 
-  return new Map([...resourceParameters, ...resultParameters]);
+  const parameters = new Map([...resourceParameters, ...resultParameters]);
+  cache.set(cacheKey, parameters);
+  return parameters;
 }
