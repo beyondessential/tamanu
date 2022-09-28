@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { endOfDay, startOfDay, isBefore } from 'date-fns';
 import config from 'config';
+import { dateTimeType } from './dateTimeTypes';
 
 import { ENCOUNTER_TYPES, ENCOUNTER_TYPE_VALUES, NOTE_TYPES } from 'shared/constants';
 import { InvalidOperationError } from 'shared/errors';
@@ -144,11 +145,10 @@ export class Encounter extends Model {
       {
         id: primaryKey,
         encounterType: Sequelize.STRING(31),
-        startDate: {
-          type: Sequelize.DATE,
+        startDate: dateTimeType('startDate', {
           allowNull: false,
-        },
-        endDate: Sequelize.DATE,
+        }),
+        endDate: dateTimeType('endDate'),
         reasonForEncounter: Sequelize.TEXT,
         deviceId: Sequelize.TEXT,
       },

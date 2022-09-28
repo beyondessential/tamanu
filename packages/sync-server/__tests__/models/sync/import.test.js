@@ -16,6 +16,7 @@ import { createImportPlan, executeImportPlan } from 'shared/models/sync';
 import { REFERENCE_TYPES } from 'shared/constants';
 
 import { createTestContext } from '../../utilities';
+import { formatISO9075 } from 'date-fns';
 
 // converts a db record and all its relations to a sync record
 const toSyncRecord = record => ({
@@ -422,7 +423,7 @@ describe('import', () => {
       const dbTodayEncounter = await Encounter.findByPk(todayEncounter.id);
       const dbYesterdayEncounter = await Encounter.findByPk(yesterdayEncounter.id);
       expect(dbTodayEncounter.endDate).toEqual(null);
-      expect(dbYesterdayEncounter.endDate).toEqual(endOfYesterday);
+      expect(dbYesterdayEncounter.endDate).toEqual(formatISO9075(endOfYesterday));
     });
   });
 });
