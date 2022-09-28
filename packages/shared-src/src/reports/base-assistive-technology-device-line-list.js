@@ -94,7 +94,7 @@ const getLatestAnswerPerPatient = answers => {
 
 const getLatestAnswerPerPatientPerDate = answers => {
   const groupedAnswers = groupBy(answers, a => {
-    const responseDate = dateFnsFormat(a.responseEndTime, 'dd-MM-yyyy');
+    const responseDate = format(a.responseEndTime, 'dd-MM-yyyy');
     return getPerPatientPerDateAnswerKey(a.patientId, a.dataElementId, responseDate);
   });
   return getLatestAnswerPerGroup(groupedAnswers);

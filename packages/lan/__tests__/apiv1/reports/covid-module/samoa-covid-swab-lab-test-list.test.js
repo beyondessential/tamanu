@@ -1,5 +1,6 @@
 import { createDummyEncounter } from 'shared/demoData/patients';
-import { getCurrentDateTimeString } from 'shared-src/src/utils/dateTime';
+import { getCurrentDateTimeString, toDateTimeString } from 'shared-src/src/utils/dateTime';
+import { subMinutes } from 'date-fns';
 import { createTestContext } from '../../../utilities';
 import {
   createCovidTestForPatient,
@@ -127,7 +128,6 @@ describe('Samoa covid lab test report', () => {
     afterEach(async () => {
       await testContext.models.LabRequest.destroy({ where: {} });
       await testContext.models.LabTest.destroy({ where: {} });
-      await testContext.models.SurveyResponseAnswer.destroy({ where: {} });
     });
 
     it('should produce the right columns', async () => {
@@ -181,21 +181,23 @@ describe('Samoa covid lab test report', () => {
     it('should return results for multiple patients', async () => {
       const phoneNumber = '123-456-7890';
       await createCovidTestForPatient(testContext.models, expectedPatient1);
+
       await createFormAnswerForPatient(app, testContext.models, expectedPatient1, {
         phoneNumber,
         village: 'patient 1 village',
-        formDate: '2022-09-23 11:00:00.000',
+        formDate: toDateTimeString(subMinutes(new Date(), 1)),
       });
+
       await createFormAnswerForPatient(app, testContext.models, expectedPatient1, {
         phoneNumber,
         village: 'patient 1 village 2',
-        formDate: '2022-09-23 13:00:00.000',
+        formDate: getCurrentDateTimeString(),
       });
+
       await createCovidTestForPatient(testContext.models, expectedPatient2);
       await createFormAnswerForPatient(app, testContext.models, expectedPatient2, {
         phoneNumber,
         village: 'patient 2 village',
-        formDate: '2022-09-23 00:00:00.000',
       });
       const reportResult = await app.post(REPORT_URL).send({});
       expect(reportResult).toHaveSucceeded();
