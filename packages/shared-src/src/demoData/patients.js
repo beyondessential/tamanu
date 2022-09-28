@@ -1,10 +1,10 @@
 import Chance from 'chance';
-import { addHours, subMilliseconds, subMinutes } from 'date-fns';
+import { addHours, subMinutes } from 'date-fns';
 
 import { ENCOUNTER_TYPES } from '../constants';
 import { generateId } from '../utils/generateId';
 import { TIME_INTERVALS, randomDate, randomRecordId } from './utilities';
-import { getCurrentDateString, getCurrentDateTimeString, toDateString, toDateTimeString } from '../utils/dateTime';
+import { getCurrentDateTimeString, toDateString, toDateTimeString } from '../utils/dateTime';
 
 const { HOUR } = TIME_INTERVALS;
 
@@ -88,7 +88,7 @@ export async function createDummyTriage(models, overrides) {
 
 export async function createDummyEncounter(models, { current, ...overrides } = {}) {
   const endDate = current ? getCurrentDateTimeString() : toDateTimeString(randomDate());
-  
+
   const duration = chance.natural({ min: HOUR, max: HOUR * 10 });
   const startDate = toDateTimeString(new Date(new Date(endDate).getTime() - duration));
 

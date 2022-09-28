@@ -1,6 +1,5 @@
 import { formatISO9075 } from 'date-fns';
 import { createDummyPatient, randomUser, randomReferenceId } from 'shared/demoData/patients';
-import { convertISO9075toRFC3339 } from 'shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 
 describe('PatientCarePlan', () => {

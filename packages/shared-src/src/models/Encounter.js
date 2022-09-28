@@ -1,10 +1,10 @@
 import { Sequelize } from 'sequelize';
 import { endOfDay, startOfDay, isBefore } from 'date-fns';
 import config from 'config';
-import { dateTimeType } from './dateTimeTypes';
 
 import { ENCOUNTER_TYPES, ENCOUNTER_TYPE_VALUES, NOTE_TYPES } from 'shared/constants';
 import { InvalidOperationError } from 'shared/errors';
+import { dateTimeType } from './dateTimeTypes';
 
 import { initSyncForModelNestedUnderPatient } from './sync';
 import { Model } from './Model';
