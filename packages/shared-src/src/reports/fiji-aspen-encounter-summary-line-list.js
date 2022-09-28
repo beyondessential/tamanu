@@ -1,4 +1,3 @@
-import { NOTE_TYPES } from 'shared/constants';
 import { generateReportFromQueryData } from './utilities';
 
 const FIELDS = [
@@ -48,7 +47,7 @@ with
         json_build_object(
           'Note type', note_type,
           'Content', "content",
-          'Note date', to_char(ni."date", 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
+          'Note date', to_char(ni."date"::timestamp, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
         ) 
       ) aggregated_notes
     from note_pages np
@@ -88,7 +87,7 @@ with
         json_build_object(
           'Name', proc.name,
           'Code', proc.code,
-          'Date', to_char(date, 'yyyy-dd-mm'),
+          'Date', to_char(date::timestamp, 'yyyy-dd-mm'),
           'Location', loc.name,
           'Notes', p.note,
           'Completed notes', completed_note
@@ -175,7 +174,7 @@ with
         json_build_object(
           'Note type', note_type,
           'Content', "content",
-          'Note date', to_char(ni."date", 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
+          'Note date', to_char(ni."date"::timestamp, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
         ) order by ni.date desc
       ) "Notes"
     from note_pages np
@@ -208,17 +207,17 @@ with
       case when count("from") = 0
         then json_build_array(json_build_object(
           'Department', d.name,
-          'Assigned time', to_char(e.start_date, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
+          'Assigned time', to_char(e.start_date::timestamp, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
         ))
         else 
           array_to_json(json_build_object(
             'Department', first_from, --first "from" from note
-            'Assigned time', to_char(e.start_date, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
+            'Assigned time', to_char(e.start_date::timestamp, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
           ) ||
           array_agg(
             json_build_object(
               'Department', "to",
-              'Assigned time', to_char(nh.date, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
+              'Assigned time', to_char(nh.date::timestamp, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
             ) ORDER BY nh.date
           ))
       end department_history,
@@ -245,17 +244,17 @@ with
       case when count("from") = 0
         then json_build_array(json_build_object(
           'Location', l.name,
-          'Assigned time', to_char(e.start_date, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
+          'Assigned time', to_char(e.start_date::timestamp, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
         ))
         else 
           array_to_json(json_build_object(
             'Location', first_from, --first "from" from note
-            'Assigned time', to_char(e.start_date, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
+            'Assigned time', to_char(e.start_date::timestamp, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
           ) ||
           array_agg(
             json_build_object(
               'Location', "to",
-              'Assigned time', to_char(nh.date, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
+              'Assigned time', to_char(nh.date::timestamp, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
             ) ORDER BY nh.date
           ))
       end location_history,
@@ -296,12 +295,12 @@ select
   p.first_name "First name",
   p.last_name "Last name",
   p.date_of_birth "Date of birth",
-  extract(year from age(p.date_of_birth::date)) "Age",
+  extract(year from age(p.date_of_birth::timestamp)) "Age",
   p.sex "Sex",
   billing.name "Patient billing type",
   e.id "Encounter ID",
-  to_char(e.start_date, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM') "Encounter start date",
-  to_char(e.end_date, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM') "Encounter end date",
+  to_char(e.start_date::timestamp, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM') "Encounter start date",
+  to_char(e.end_date::timestamp, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM') "Encounter end date",
   case e.encounter_type
     when 'triage' then  'Triage'
     when 'observation' then  'Active ED patient'
@@ -347,8 +346,8 @@ where e.end_date is not null
 and coalesce(billing.id, '-') like coalesce(:billing_type, '%%')
 and CASE WHEN :department_id IS NOT NULL THEN dept_id_list::jsonb ? :department_id ELSE true end 
 and CASE WHEN :location_id IS NOT NULL THEN loc_id_list::jsonb ? :location_id ELSE true end 
-AND CASE WHEN :from_date IS NOT NULL THEN e.start_date::date >= :from_date::date ELSE true END
-AND CASE WHEN :to_date IS NOT NULL THEN e.start_date::date <= :to_date::date ELSE true END
+AND CASE WHEN :from_date IS NOT NULL THEN e.start_date::timestamp >= :from_date::timestamp ELSE true END
+AND CASE WHEN :to_date IS NOT NULL THEN e.start_date::timestamp <= :to_date::timestamp ELSE true END
 order by e.start_date desc;
 `;
 
