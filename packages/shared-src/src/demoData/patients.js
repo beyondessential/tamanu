@@ -157,7 +157,7 @@ export async function createDummyEncounterDiagnosis(models, overrides = {}) {
 // Needs a manually created encounter to be linked with
 export async function createDummyEncounterMedication(models, overrides = {}) {
   return {
-    date: getCurrentDateString(),
+    date: getCurrentDateTimeString(),
     endDate: toDateTimeString(addHours(new Date(), 1)),
     prescription: chance.sentence({ words: chance.integer({ min: 4, max: 8 }) }),
     note: chance.sentence({ words: chance.integer({ min: 4, max: 8 }) }),
