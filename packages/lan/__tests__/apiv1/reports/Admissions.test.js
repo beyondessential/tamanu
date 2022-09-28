@@ -80,8 +80,8 @@ describe('Admissions report', () => {
     it('should return only admitted patient', async () => {
       const baseEncounterData = {
         encounterType: ENCOUNTER_TYPES.ADMISSION,
-        startDate: toDateTimeString(new Date(2021, 1, 20, 9, 7, 26)), // Months are 0 indexed so this is Feburary
-        endDate: toDateTimeString(new Date(2021, 1, 21, 11, 3, 7)), // Months are 0 indexed so this is Feburary
+        startDate: toDateTimeString(new Date(2021, 1, 20, 9, 7, 26)), // Months are 0 indexed so this is February
+        endDate: toDateTimeString(new Date(2021, 1, 21, 11, 3, 7)), // Months are 0 indexed so this is February
         patientId: expectedPatient.dataValues.id,
         locationId: expectedLocation.id,
         departmentId: expectedDepartment1.id,
