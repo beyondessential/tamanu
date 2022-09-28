@@ -3,6 +3,7 @@ import {
   randomUser,
   randomReferenceId,
 } from 'shared/demoData/patients';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 
 describe('PatientCarePlan', () => {
@@ -35,7 +36,7 @@ describe('PatientCarePlan', () => {
 
     it('should create a care plan with note', async () => {
       const onBehalfOfUserId = await randomUser(models);
-      const noteDate = new Date().toISOString();
+      const noteDate = getCurrentDateTimeString();
       const result = await app.post('/v1/patientCarePlan').send({
         date: noteDate,
         carePlanId,
