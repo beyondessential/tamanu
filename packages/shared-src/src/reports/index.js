@@ -35,9 +35,17 @@ import * as appointmentsLineList from './appointments-line-list';
 import * as imagingRequestsLineList from './imaging-requests-line-list';
 import * as deceasedPatientsLineList from './deceased-patients-line-list';
 import * as labRequestsLineList from './lab-requests-line-list';
+import * as fijiAspenHospitalAdmissionsSummary from './fiji-aspen-hospital-admissions-summary';
+import * as registeredBirthsLineList from './registered-births-line-list';
 
-export function getReportModule(reportType) {
-  switch (reportType) {
+export async function getReportModule(reportId, models) {
+  const dbDefinedReportModule = await models.ReportDefinitionVersion.findByPk(reportId);
+
+  if (dbDefinedReportModule) {
+    return dbDefinedReportModule;
+  }
+
+  switch (reportId) {
     default:
       return null;
     case 'admissions':
@@ -114,6 +122,10 @@ export function getReportModule(reportType) {
       return deceasedPatientsLineList;
     case 'lab-requests-line-list':
       return labRequestsLineList;
+    case 'fiji-aspen-hospital-admissions-summary':
+      return fijiAspenHospitalAdmissionsSummary;
+    case 'registered-births-line-list':
+      return registeredBirthsLineList;
   }
 }
 

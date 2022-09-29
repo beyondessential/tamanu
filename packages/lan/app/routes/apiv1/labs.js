@@ -4,6 +4,7 @@ import { startOfDay, endOfDay } from 'date-fns';
 import { QueryTypes, Sequelize } from 'sequelize';
 
 import { NotFoundError, InvalidOperationError } from 'shared/errors';
+import { toDateTimeString } from 'shared/utils/dateTime';
 import {
   REFERENCE_TYPES,
   LAB_REQUEST_STATUSES,
@@ -89,16 +90,16 @@ labRequest.get(
       makeSimpleTextFilter('patientId', 'patient.id'),
       makeFilter(
         filterParams.requestedDateFrom,
-        `DATE(lab_requests.requested_date) >= :requestedDateFrom`,
+        `lab_requests.requested_date >= :requestedDateFrom`,
         ({ requestedDateFrom }) => ({
-          requestedDateFrom: startOfDay(requestedDateFrom).toISOString(),
+          requestedDateFrom: toDateTimeString(startOfDay(new Date(requestedDateFrom))),
         }),
       ),
       makeFilter(
         filterParams.requestedDateTo,
-        `DATE(lab_requests.requested_date) <= :requestedDateTo`,
+        `lab_requests.requested_date <= :requestedDateTo`,
         ({ requestedDateTo }) => ({
-          requestedDateTo: endOfDay(requestedDateTo).toISOString(),
+          requestedDateTo: toDateTimeString(endOfDay(new Date(requestedDateTo))),
         }),
       ),
     ].filter(f => f);

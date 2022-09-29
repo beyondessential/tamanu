@@ -1,6 +1,7 @@
 import { random, sample } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import Chance from 'chance';
+import { formatISO9075 } from 'date-fns';
 import {
   DIAGNOSIS_CERTAINTY_VALUES,
   ENCOUNTER_TYPE_VALUES,
@@ -8,7 +9,7 @@ import {
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
   REFERENCE_TYPE_VALUES,
   VISIBILITY_STATUSES,
-} from 'shared/constants';
+} from '../constants';
 import { toDateTimeString, toDateString } from '../utils/dateTime';
 
 const chance = new Chance();
@@ -109,7 +110,7 @@ export function fakeAdministeredVaccine(prefix = 'test-', scheduledVaccineId) {
   return {
     encounterId: null,
     scheduledVaccineId,
-    date: new Date(random(0, Date.now())),
+    date: formatISO9075(new Date(random(0, Date.now()))),
     ...fakeStringFields(`${prefix}administeredVaccine_${id}_`, ['id', 'batch', 'status', 'reason']),
   };
 }
@@ -121,8 +122,8 @@ export function fakeEncounter(prefix = 'test-') {
     surveyResponses: [],
     administeredVaccines: [],
     encounterType: sample(ENCOUNTER_TYPE_VALUES),
-    startDate: new Date(random(0, Date.now())),
-    endDate: new Date(random(0, Date.now())),
+    startDate: formatISO9075(new Date(random(0, Date.now()))),
+    endDate: formatISO9075(new Date(random(0, Date.now()))),
     ...fakeStringFields(`${prefix}encounter_${id}_`, ['id', 'reasonForEncounter']),
   };
 }
@@ -153,7 +154,7 @@ export function fakeEncounterDiagnosis(prefix = 'test-') {
   const id = uuidv4();
   return {
     certainty: sample(DIAGNOSIS_CERTAINTY_VALUES),
-    date: new Date(random(0, Date.now())),
+    date: formatISO9075(new Date(random(0, Date.now()))),
     isPrimary: sample([true, false]),
     encounterId: null,
     diagnosisId: null,
@@ -164,8 +165,8 @@ export function fakeEncounterDiagnosis(prefix = 'test-') {
 export function fakeEncounterMedication(prefix = 'test-') {
   const id = uuidv4();
   return {
-    date: new Date(random(0, Date.now())),
-    endDate: new Date(random(0, Date.now())),
+    date: formatISO9075(new Date(random(0, Date.now()))),
+    endDate: formatISO9075(new Date(random(0, Date.now()))),
     qtyMorning: random(0, 10),
     qtyLunch: random(0, 10),
     qtyEvening: random(0, 10),
@@ -198,6 +199,7 @@ const FIELD_HANDLERS = {
   TEXT: fakeString,
   INTEGER: fakeInt,
   FLOAT: fakeFloat,
+  DECIMAL: fakeFloat,
   'TINYINT(1)': fakeBool,
   BOOLEAN: fakeBool,
   ENUM: (model, { type }) => sample(type.values),

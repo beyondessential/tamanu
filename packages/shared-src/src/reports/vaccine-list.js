@@ -1,6 +1,8 @@
 import { Op } from 'sequelize';
 import { subDays, format } from 'date-fns';
+import { parseISO9075 } from 'shared/utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
+import { toDateTimeString } from '../utils/dateTime';
 
 export const reportColumnTemplate = [
   {
@@ -22,7 +24,7 @@ export const reportColumnTemplate = [
 function parametersToSqlWhere(parameters) {
   const newParameters = { ...parameters };
   if (!newParameters.fromDate) {
-    newParameters.fromDate = subDays(new Date(), 30).toISOString();
+    newParameters.fromDate = toDateTimeString(subDays(new Date(), 30));
   }
 
   const whereClause = Object.entries(newParameters)
@@ -123,13 +125,13 @@ export async function queryCovidVaccineListData(models, parameters) {
       patientId,
       patientName: `${firstName} ${lastName}`,
       uid: displayId,
-      dob: format(dateOfBirth, 'dd-MM-yyyy'),
+      dob: format(parseISO9075(dateOfBirth), 'dd-MM-yyyy'),
       sex,
       village: village?.name,
       vaccineName,
       schedule,
       vaccineStatus: status === 'GIVEN' ? 'Yes' : 'No',
-      vaccineDate: format(date, 'dd-MM-yyyy'),
+      vaccineDate: format(parseISO9075(date), 'dd-MM-yyyy'),
       batch: status === 'GIVEN' ? batch : '',
       vaccinator: status === 'GIVEN' ? vaccinator : '',
     };

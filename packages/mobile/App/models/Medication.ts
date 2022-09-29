@@ -7,10 +7,10 @@ import { Encounter } from './Encounter';
 @Entity('medication')
 export class Medication extends BaseModel implements IMedication {
   @Column()
-  date: Date;
+  date: string;
 
   @Column({ nullable: true })
-  endDate?: Date;
+  endDate?: string;
 
   @Column({ nullable: true })
   prescription?: string;

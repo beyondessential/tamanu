@@ -38,7 +38,7 @@ describe('sqlWrapper', () => {
     ['program', fakeProgram],
     ['programDataElement', fakeProgramDataElement],
     ['reference', fakeReferenceData],
-    ['scheduledVaccine', () => buildScheduledVaccine(store)],
+    ['scheduledVaccine', () => buildScheduledVaccine(store.models)],
     ['survey', fakeSurvey],
     ['surveyScreenComponent', fakeSurveyScreenComponent],
     ['user', fakeUser],
@@ -76,7 +76,7 @@ describe('sqlWrapper', () => {
   const nestedPatientTestCases = [
     [
       `patient/${patientId}/encounter`,
-      async () => withoutArrays(await buildEncounter(store, patientId)),
+      async () => withoutArrays(await buildEncounter(store.models, patientId)),
     ],
     [`patient/${patientId}/allergy`, () => ({ ...fake(store.models.PatientAllergy), patientId })],
     [`patient/${patientId}/carePlan`, () => ({ ...fake(store.models.PatientCarePlan), patientId })],
