@@ -1,4 +1,3 @@
-import { NOTE_TYPES } from 'shared/constants';
 import { generateReportFromQueryData } from './utilities';
 
 const FIELDS = [
