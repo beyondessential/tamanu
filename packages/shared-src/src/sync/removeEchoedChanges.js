@@ -6,10 +6,10 @@ export const removeEchoedChanges = async (store, sessionId) =>
     DELETE FROM session_sync_records
     WHERE id in (SELECT outgoingchanges.id
     FROM session_sync_records AS incomingchanges
-    JOIN session_sync_records AS outgoingchanges 
-      ON incomingchanges.session_id = outgoingchanges.session_id 
+    JOIN session_sync_records AS outgoingchanges
+      ON incomingchanges.session_id = outgoingchanges.session_id
       AND incomingchanges.record_type = outgoingchanges.record_type
-      AND incomingchanges.data->>'updatedAtSyncTick' = outgoingchanges.data->>'updatedAtSyncTick'
+      AND incomingchanges.data @> outgoingchanges.data AND incomingchanges.data <@ outgoingchanges.data
       AND incomingchanges.record_id = outgoingchanges.record_id
     WHERE incomingchanges.direction = :incomingDirection
       AND outgoingchanges.direction = :outgoingDirection

@@ -39,6 +39,7 @@ export const pullIncomingChanges = async (centralServer, models, sessionId, sinc
 
     const recordsToSave = records.map(r => ({
       ...r,
+      data: { ...r.data, updatedAtSyncTick: -1 }, // mark as never updated, so we don't push it back to the central server until the next local update
       direction: SYNC_SESSION_DIRECTION.INCOMING,
     }));
 
