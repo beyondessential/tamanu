@@ -61,12 +61,10 @@ describe('mergeRecord', () => {
     it('picks the latest version of each field when field information is available', () => {
       const existing = {
         ...EXISTING,
-        updatedAtSyncTick: 3,
         updatedAtByField: { id: 1, foreign_id: 3, number: 3 },
       };
       const incoming = {
         ...INCOMING,
-        updatedAtSyncTick: 5,
         updatedAtByField: { id: 1, foreign_id: 5, number: 2, empty: 2 },
       };
       const merged = mergeRecord(existing, incoming);
@@ -75,11 +73,8 @@ describe('mergeRecord', () => {
         foreignId: incoming.foreignId,
         number: existing.number,
         empty: incoming.empty,
-        updatedAtSyncTick: incoming.updatedAtSyncTick,
         updatedAtByField: { id: 1, foreign_id: 5, number: 3, empty: 2 },
       });
     });
-
-    it('merges two records when the schema has changed', () => {});
   });
 });
