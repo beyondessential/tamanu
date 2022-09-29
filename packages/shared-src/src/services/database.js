@@ -10,8 +10,11 @@ import { migrate, assertUpToDate } from './migrations';
 import * as models from '../models';
 import { initSyncHooks } from '../models/sync';
 import { createDateTypes } from './createDateTypes';
+import { createFhirTypes } from './fhirTypes';
+import { setupQuote } from '../utils/pgComposite';
 
 createDateTypes();
+createFhirTypes();
 
 // this allows us to use transaction callbacks without manually managing a transaction handle
 // https://sequelize.org/master/manual/transactions.html#automatically-pass-transactions-to-all-queries
@@ -83,6 +86,7 @@ async function connectToDatabase(dbOptions) {
     port,
     logging,
   });
+  setupQuote(sequelize);
   await sequelize.authenticate();
 
   if (!testMode) {

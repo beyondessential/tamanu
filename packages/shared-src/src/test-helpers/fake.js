@@ -1,7 +1,10 @@
 import { random, sample } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import Chance from 'chance';
+import { DataTypes } from 'sequelize';
+import { inspect } from 'util';
 import { formatISO9075 } from 'date-fns';
+
 import {
   DIAGNOSIS_CERTAINTY_VALUES,
   ENCOUNTER_TYPE_VALUES,
@@ -11,6 +14,15 @@ import {
   VISIBILITY_STATUSES,
 } from '../constants';
 import { toDateTimeString, toDateString } from '../utils/dateTime';
+import {
+  FhirIdentifier,
+  FhirPeriod,
+  FhirAddress,
+  FhirCoding,
+  FhirCodeableConcept,
+  FhirContactPoint,
+  FhirHumanName,
+} from '../services/fhirTypes';
 
 const chance = new Chance();
 
@@ -191,11 +203,20 @@ const fakeBool = () => sample([true, false]);
 const FIELD_HANDLERS = {
   'TIMESTAMP WITH TIME ZONE': fakeDate,
   DATETIME: fakeDate,
-  date_time_string: fakeDateTimeString, // custom type used for datetime string storage
-  date_string: fakeDateString, // custom type used for date string storage
+
+  // custom type used for datetime string storage
+  date_time_string: fakeDateTimeString,
+  DATETIMESTRING: fakeDateTimeString,
+  // custom type used for date string storage
+  date_string: fakeDateString,
+  DATESTRING: fakeDateString,
+
   'VARCHAR(19)': fakeDateString, // VARCHAR(19) are used for date string storage
   'VARCHAR(255)': fakeString,
-  'VARCHAR(31)': (...args) => fakeString(...args).slice(0, 31),
+
+  // fallback for all other varchar lengths
+  'VARCHAR(N)': (model, attrs, id, length) => fakeString(model, attrs, id).slice(0, length),
+
   TEXT: fakeString,
   INTEGER: fakeInt,
   FLOAT: fakeFloat,
@@ -203,6 +224,15 @@ const FIELD_HANDLERS = {
   'TINYINT(1)': fakeBool,
   BOOLEAN: fakeBool,
   ENUM: (model, { type }) => sample(type.values),
+  UUID: () => uuidv4(),
+
+  FHIR_IDENTIFIER: (...args) => FhirIdentifier.fake(...args),
+  FHIR_PERIOD: (...args) => FhirPeriod.fake(...args),
+  FHIR_ADDRESS: (...args) => FhirAddress.fake(...args),
+  FHIR_CODING: (...args) => FhirCoding.fake(...args),
+  FHIR_CODEABLE_CONCEPT: (...args) => FhirCodeableConcept.fake(...args),
+  FHIR_CONTACT_POINT: (...args) => FhirContactPoint.fake(...args),
+  FHIR_HUMAN_NAME: (...args) => FhirHumanName.fake(...args),
 };
 
 const IGNORED_FIELDS = [
@@ -308,22 +338,52 @@ export const fake = (model, passedOverrides = {}) => {
   const overrides = { ...modelOverrides, ...passedOverrides };
   const overrideFields = Object.keys(overrides);
 
-  for (const [name, attribute] of Object.entries(model.tableAttributes)) {
+  function fakeField(name, attribute) {
     const { type, fieldName } = attribute;
-
     if (overrideFields.includes(fieldName)) {
-      record[name] = overrides[fieldName];
-    } else if (attribute.references) {
-      // null out id fields
-      record[name] = null;
-    } else if (IGNORED_FIELDS.includes(fieldName)) {
-      // ignore metadata fields
-    } else if (FIELD_HANDLERS[type]) {
-      record[name] = FIELD_HANDLERS[type](model, attribute, id);
-    } else {
-      // if you hit this error, you probably need to add a new field handler or a model-specific override
-      throw new Error(`Could not fake field ${model.name}.${name} of type ${type}`);
+      return overrides[fieldName];
     }
+
+    if (attribute.references) {
+      // null out id fields
+      return null;
+    }
+
+    if (IGNORED_FIELDS.includes(fieldName)) {
+      // ignore metadata fields
+      return undefined;
+    }
+
+    if (FIELD_HANDLERS[type]) {
+      return FIELD_HANDLERS[type](model, attribute, id);
+    }
+
+    if (type.type && FIELD_HANDLERS[type.type]) {
+      return FIELD_HANDLERS[type.type](model, attribute, id);
+    }
+
+    if (type instanceof DataTypes.ARRAY && type.options.type) {
+      return Array(random(0, 3))
+        .fill(0)
+        .map(() => fakeField(name, { ...attribute, type: type.options.type }));
+    }
+
+    if (type instanceof DataTypes.STRING && type.options.length) {
+      return FIELD_HANDLERS['VARCHAR(N)'](model, attribute, id, type.options.length);
+    }
+
+    // if you hit this error, you probably need to add a new field handler or a model-specific override
+    throw new Error(
+      `Could not fake field ${model.name}.${name} of type ${type} / ${type.type} / ${inspect(
+        type,
+      )}`,
+    );
   }
+
+  for (const [name, attribute] of Object.entries(model.tableAttributes)) {
+    const fakeValue = fakeField(name, attribute)
+    if (fakeValue !== undefined) record[name] = fakeValue;
+  }
+
   return record;
 };
