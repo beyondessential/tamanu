@@ -41,20 +41,23 @@ export class ReportRequestProcessor extends ScheduledTask {
       ...process.env,
       pm2_env: JSON.stringify(process.env),
     };
+
     const childProcess = spawn(
       node,
       [
         ...parameters,
         scriptPath,
         'report',
-        '--name',
+        '--reportId',
         request.getReportId(),
         '--parameters',
         request.parameters,
         '--recipients',
         request.recipients,
-        '--user',
+        '--userId',
         request.requestedByUserId,
+        '--format',
+        request.exportFormat,
       ],
       {
         timeout: REPORT_TIME_OUT_DURATION_MILLISECONDS,

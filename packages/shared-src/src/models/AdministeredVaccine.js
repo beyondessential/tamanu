@@ -3,6 +3,7 @@ import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
 import { Encounter } from './Encounter';
 import { ScheduledVaccine } from './ScheduledVaccine';
+import { dateTimeType } from './dateTimeTypes';
 
 export class AdministeredVaccine extends Model {
   static init({ primaryKey, ...options }) {
@@ -18,10 +19,9 @@ export class AdministeredVaccine extends Model {
         reason: Sequelize.STRING,
         injectionSite: Sequelize.STRING, // conceptually enum(INJECTION_SITE_OPTIONS)
         givenBy: Sequelize.TEXT,
-        date: {
-          type: Sequelize.DATE,
+        date: dateTimeType('date', {
           allowNull: false,
-        },
+        }),
       },
       {
         ...options,

@@ -100,7 +100,10 @@ export class ReportDefinitionVersion extends Model {
   }
 
   getParameters() {
-    const options = JSON.parse(this.queryOptions);
+    // Make sure that query options is being returned as an object. It seems to come back sometimes
+    // as a string and sometimes as an object otherwise.
+    const options =
+      typeof this.queryOptions === 'string' ? JSON.parse(this.queryOptions) : this.queryOptions;
     return options.parameters;
   }
 
