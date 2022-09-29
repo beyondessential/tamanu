@@ -341,10 +341,6 @@ export const fake = (model, passedOverrides = {}) => {
   function fakeField(name, attribute) {
     const { type, fieldName } = attribute;
 
-    if (fieldName === 'id') {
-      return fakeUUID();
-    }
-
     if (overrideFields.includes(fieldName)) {
       return overrides[fieldName];
     }
@@ -357,6 +353,10 @@ export const fake = (model, passedOverrides = {}) => {
     if (IGNORED_FIELDS.includes(fieldName)) {
       // ignore metadata fields
       return undefined;
+    }
+
+    if (fieldName === 'id') {
+      return fakeUUID();
     }
 
     if (FIELD_HANDLERS[type]) {
