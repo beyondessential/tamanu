@@ -1,10 +1,12 @@
 import { createDummyEncounter } from 'shared/demoData/patients';
+import { subMinutes } from 'date-fns';
 import { createTestContext } from '../../../utilities';
 import {
   createCovidTestForPatient,
   createLabTests,
   createPatient,
 } from './covid-swab-lab-test-report-utils';
+import { getCurrentDateTimeString, toDateTimeString } from 'shared-src/src/utils/dateTime';
 
 const REPORT_URL = '/v1/reports/fiji-traveller-covid-lab-test-list';
 const PROGRAM_ID = 'program-fijicovidtourism';
@@ -205,6 +207,7 @@ describe('Fiji traveller covid lab test report', () => {
     afterEach(async () => {
       await testContext.models.LabRequest.destroy({ where: {} });
       await testContext.models.LabTest.destroy({ where: {} });
+      await testContext.models.SurveyResponseAnswer.destroy({ where: {} });
     });
 
     it('should produce the right columns', async () => {
@@ -261,10 +264,12 @@ describe('Fiji traveller covid lab test report', () => {
       await createFormAnswerForPatient(app, testContext.models, expectedPatient1, {
         testBrand,
         testReason: 'first test',
+        formDate: toDateTimeString(subMinutes(new Date(), 1)),
       });
       await createFormAnswerForPatient(app, testContext.models, expectedPatient1, {
         testBrand,
         testReason: 'second test',
+        formDate: getCurrentDateTimeString(),
       });
       await createCovidTestForPatient(testContext.models, expectedPatient2);
       await createFormAnswerForPatient(app, testContext.models, expectedPatient2, {
