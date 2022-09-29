@@ -139,7 +139,7 @@ const fakeAllData = async models => {
       diagnosisId,
       isPrimary: false,
       certainty: DIAGNOSIS_CERTAINTY.SUSPECTED,
-      date: '2022-06-09T11:09:54.225+00:00',
+      date: '2022-06-09T11:09:54.225',
     }),
   );
   await models.EncounterDiagnosis.create(
@@ -148,7 +148,7 @@ const fakeAllData = async models => {
       diagnosisId,
       isPrimary: true,
       certainty: DIAGNOSIS_CERTAINTY.CONFIRMED,
-      date: '2022-06-09T11:10:54.225+00:00',
+      date: '2022-06-09T11:10:54.225',
     }),
   );
   await models.EncounterMedication.create(
@@ -156,8 +156,8 @@ const fakeAllData = async models => {
       encounterId,
       medicationId: medication5Id,
       discontinued: true,
-      date: '2022-06-10T01:10:54.225+00:00',
-      discontinuedDate: '2022-06-10T01:19:54.225+00:00',
+      date: '2022-06-10T01:10:54.225',
+      discontinuedDate: '2022-06-10T01:19:54.225',
       discontinuingReason: 'It was not enough',
     }),
   );
@@ -166,7 +166,7 @@ const fakeAllData = async models => {
       encounterId,
       medicationId: medication10Id,
       discontinued: null,
-      date: '2022-06-10T01:20:54.225+00:00',
+      date: '2022-06-10T01:20:54.225',
       discontinuedDate: null,
       discontinuingReason: null,
     }),
@@ -179,7 +179,7 @@ const fakeAllData = async models => {
       encounterId,
       procedureTypeId,
       locationId: location1Id,
-      date: '2022-06-11T01:20:54.225+00:00',
+      date: '2022-06-11T01:20:54.225',
       note: 'All ready for procedure here',
       completedNote: 'Everything went smoothly, no issues',
     }),
@@ -190,7 +190,7 @@ const fakeAllData = async models => {
       procedureTypeId,
       requestedById: userId,
       imagingType: IMAGING_TYPES.X_RAY,
-      requestedDate: '2022-06-11T01:20:54.225+00:00',
+      requestedDate: '2022-06-11T01:20:54.225',
     }),
   );
   await models.ImagingRequestAreas.create(
@@ -257,14 +257,14 @@ const fakeAllData = async models => {
     fake(models.NoteItem, {
       notePageId: encounterNotePageId,
       content: 'A\nB\nC\nD\nE\nF\nG\n',
-      date: '2022-06-10T03:39:57.617+00:00',
+      date: '2022-06-10T03:39:57.617',
     }),
   );
   await models.NoteItem.create(
     fake(models.NoteItem, {
       notePageId: encounterNotePageId,
       content: 'H\nI\nJ\nK\nL... nopqrstuv',
-      date: '2022-06-10T04:39:57.617+00:00',
+      date: '2022-06-10T04:39:57.617',
     }),
   );
   // Location/departments:
@@ -336,8 +336,8 @@ describe('fijiAspenMediciReport', () => {
         // Encounter Details
         encounterId,
         patientBillingType: 'Public',
-        encounterStartDate: '2022-06-09T00:02:54.225Z',
-        encounterEndDate: '2022-06-12T00:02:54.225Z',
+        encounterStartDate: '2022-06-09T00:02:54.225',
+        encounterEndDate: '2022-06-12T00:02:54.225',
         encounterType: 'AR-DRG',
         reasonForEncounter: 'Severe Migrane',
 
@@ -363,17 +363,17 @@ describe('fijiAspenMediciReport', () => {
         locations: [
           {
             location: 'Emergency room 1',
-            assignedTime: '2022-06-09T00:02:54.225+00:00',
+            assignedTime: '2022-06-09T00:02:54.225',
           },
           {
             location: 'Emergency room 2',
-            assignedTime: '2022-06-09T08:04:54.225+00:00',
+            assignedTime: '2022-06-09T08:04:54.225',
           },
         ],
         departments: [
           {
             department: 'Emergency dept.',
-            assignedTime: '2022-06-09T00:02:54.225+00:00',
+            assignedTime: '2022-06-09T00:02:54.225',
           },
         ],
 
@@ -402,7 +402,7 @@ describe('fijiAspenMediciReport', () => {
           {
             name: 'Glucose (hypertonic) 5%',
             discontinued: true,
-            discontinuedDate: '2022-06-10T01:19:54.225+00:00',
+            discontinuedDate: '2022-06-10T01:19:54.225',
             discontinuingReason: 'It was not enough',
           },
         ],
@@ -418,7 +418,7 @@ describe('fijiAspenMediciReport', () => {
             name:
               'Subtemporal cranial decompression (pseudotumor cerebri, slit ventricle syndrome)',
             code: '61340',
-            date: '2022-06-11T01:20:54.225+00:00',
+            date: '2022-06-11T01:20:54.225',
             location: 'Emergency room 1',
             notes: 'All ready for procedure here',
             completedNotes: 'Everything went smoothly, no issues',
@@ -435,7 +435,7 @@ describe('fijiAspenMediciReport', () => {
               {
                 noteType: NOTE_TYPES.OTHER,
                 content: 'Please perform this lab test very carefully',
-                noteDate: '2022-06-09T02:04:54.225+00:00',
+                noteDate: '2022-06-09T02:04:54.225',
               },
             ],
           },
@@ -448,7 +448,7 @@ describe('fijiAspenMediciReport', () => {
               {
                 noteType: 'other',
                 content: 'Check for fractured knees please',
-                noteDate: '2022-06-10T06:04:54.225+00:00',
+                noteDate: '2022-06-10T06:04:54.225',
               },
             ],
           },
@@ -457,12 +457,12 @@ describe('fijiAspenMediciReport', () => {
           {
             noteType: NOTE_TYPES.NURSING,
             content: 'H\nI\nJ\nK\nL... nopqrstuv',
-            noteDate: '2022-06-10T04:39:57.617+00:00',
+            noteDate: '2022-06-10T04:39:57.617',
           },
           {
             noteType: NOTE_TYPES.NURSING,
             content: 'A\nB\nC\nD\nE\nF\nG\n',
-            noteDate: '2022-06-10T03:39:57.617+00:00',
+            noteDate: '2022-06-10T03:39:57.617',
           },
         ],
       },
