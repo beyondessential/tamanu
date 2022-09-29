@@ -2,6 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import config from 'config';
 import * as yup from 'yup';
+import { toDateTimeString } from 'shared/utils/dateTime';
 import { addMinutes } from 'date-fns';
 import { randomBytes } from 'crypto';
 
@@ -60,7 +61,7 @@ const createOneTimeLogin = async (models, user) => {
   await models.OneTimeLogin.create({
     userId: user.id,
     token,
-    expiresAt,
+    expiresAt: toDateTimeString(expiresAt),
   });
 
   return token;

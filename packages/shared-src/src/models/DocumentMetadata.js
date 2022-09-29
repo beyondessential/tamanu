@@ -1,6 +1,8 @@
 import { Sequelize } from 'sequelize';
 import { Model } from './Model';
 import { initSyncForModelNestedUnderPatient } from './sync';
+import { dateTimeType } from './dateTimeTypes';
+import { getCurrentDateTimeString } from '../utils/dateTime';
 
 export class DocumentMetadata extends Model {
   static init({ primaryKey, ...options }) {
@@ -15,12 +17,11 @@ export class DocumentMetadata extends Model {
           type: Sequelize.TEXT,
           allowNull: false,
         },
-        documentCreatedAt: Sequelize.DATE,
-        documentUploadedAt: {
-          type: Sequelize.DATE,
+        documentCreatedAt: dateTimeType('documentCreatedAt'),
+        documentUploadedAt: dateTimeType('documentUploadedAt', {
           allowNull: false,
-          defaultValue: Sequelize.NOW,
-        },
+          defaultValue: getCurrentDateTimeString,
+        }),
         documentOwner: Sequelize.TEXT,
         note: Sequelize.STRING,
 

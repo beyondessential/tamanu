@@ -7,6 +7,7 @@ import {
 import { log } from 'shared/services/logging';
 import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
+import { dateTimeType } from './dateTimeTypes';
 
 export class ReportRequest extends Model {
   static init({ primaryKey, ...options }) {
@@ -23,7 +24,7 @@ export class ReportRequest extends Model {
           defaultValue: REPORT_EXPORT_FORMATS.XLSX,
         },
         error: Sequelize.TEXT,
-        processStartedTime: Sequelize.DATE,
+        processStartedTime: dateTimeType('processStartedTime'),
       },
       {
         ...options,

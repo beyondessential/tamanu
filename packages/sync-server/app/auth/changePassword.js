@@ -2,6 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { log } from 'shared/services/logging';
 import * as yup from 'yup';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { ValidationError } from 'yup';
 
 export const changePassword = express.Router();
@@ -64,7 +65,7 @@ const doChangePassword = async (store, { email, newPassword, token }) => {
 
     await models.OneTimeLogin.update(
       {
-        usedAt: Date.now(),
+        usedAt: getCurrentDateTimeString(),
       },
       { where: { id: oneTimeLogin.id } },
     );
