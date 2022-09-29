@@ -85,12 +85,12 @@ export class Patient extends Model {
 
     this.belongsToMany(models.Facility, {
       through: 'PatientFacility',
-      as: 'patientFacilities',
+      as: 'markedForSyncFacilities',
     });
   }
 
   static getFullReferenceAssociations() {
-    return ['patientFacilities'];
+    return ['markedForSyncFacilities'];
   }
 
   async getAdministeredVaccines(queryOptions = {}) {
