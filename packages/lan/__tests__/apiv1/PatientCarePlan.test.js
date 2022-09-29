@@ -1,6 +1,5 @@
 import { createDummyPatient, randomUser, randomReferenceId } from 'shared/demoData/patients';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
-import { formatISO9075 } from 'date-fns';
 import { createTestContext } from '../utilities';
 
 describe('PatientCarePlan', () => {
@@ -34,7 +33,6 @@ describe('PatientCarePlan', () => {
     it('should create a care plan with note', async () => {
       const onBehalfOfUserId = await randomUser(models);
       const carePlanDate = getCurrentDateTimeString();
-      const noteDate = new Date(carePlanDate).toISOString();
       const result = await app.post('/v1/patientCarePlan').send({
         date: carePlanDate,
         carePlanId,
@@ -51,7 +49,7 @@ describe('PatientCarePlan', () => {
       expect(noteResult).toHaveSucceeded();
       expect(noteResult.body.length).toBeGreaterThan(0);
       expect(noteResult.body[0].content).toBe('Main care plan');
-      expect(noteResult.body[0]).toHaveProperty('date', noteDate);
+      expect(noteResult.body[0]).toHaveProperty('date', carePlanDate);
     });
 
     it('should reject care plan without notes', async () => {
