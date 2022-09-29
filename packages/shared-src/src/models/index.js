@@ -77,3 +77,5 @@ export * from './Signer';
 export * from './CertificateNotification';
 export * from './NotePage';
 export * from './NoteItem';
+
+export * from './fhir';
