@@ -1,5 +1,3 @@
-import { subDays } from 'date-fns';
-
 import {
   REFERENCE_TYPES,
   NOTE_RECORD_TYPES,
