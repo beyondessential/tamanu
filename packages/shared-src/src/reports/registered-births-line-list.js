@@ -38,7 +38,7 @@ select
   p.display_id as "Patient ID",
   p.first_name as "Patient first name",
   p.last_name as "Patient last name",
-  to_char(p.date_of_birth::timestamp, 'dd-mm-yyyy') as "DOB",
+  to_char(p.date_of_birth::date, 'dd-mm-yyyy') as "DOB",
   case
     when p.date_of_death is null
     then date_trunc('day', Age(p.date_of_birth::date))
@@ -56,7 +56,7 @@ select
     when p_father.id is not null
     then concat(p_father.first_name, ' ', p_father.last_name, ' (', p_father.display_id, ')')
   end as "Father",
-  pbd.time_of_birth as "Time of birth",
+  pbd.time_of_birth::timestamp::time as "Time of birth",
   pbd.gestational_age_estimate as "Gestational age (weeks)",
   f."type" as "Place of birth",
   f."name" as "Name of health facility (if selected)",
@@ -86,10 +86,7 @@ where
     'c11229a7-b95c-4416-a3ad-560cd75d8f21',
     'cebdd9a4-2744-4ad2-9919-98dc0b15464c'
   )
-  and case when :from_date is not null then p.date_of_birth::date >= :from_date::date else true end
-  and case when :to_date is not null then p.date_of_birth::date <= :to_date::date else true end
-  and case when :village_id is not null then p.village_id = :village_id else true end
-order by (p.date_of_birth::date + pbd.time_of_birth::timestamp::time);
+order by p.date_of_birth::date, pbd.time_of_birth::timestamp::time;
 `;
 
 const getData = async (sequelize, parameters) => {

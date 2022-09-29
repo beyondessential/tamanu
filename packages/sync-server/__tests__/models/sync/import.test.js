@@ -1,5 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
-import { Sequelize } from 'sequelize';
 import {
   fakeProgram,
   fakeProgramDataElement,
@@ -14,6 +12,7 @@ import {
 } from 'shared/test-helpers';
 import { createImportPlan, executeImportPlan } from 'shared/models/sync';
 import { REFERENCE_TYPES } from 'shared/constants';
+import { fakeUUID } from 'shared/utils/generateId';
 
 import { createTestContext } from '../../utilities';
 import { formatISO9075 } from 'date-fns';
@@ -35,9 +34,9 @@ describe('import', () => {
   describe('in client mode', () => {
     let ctx;
     let models;
-    const patientId = uuidv4();
-    const userId = uuidv4();
-    const facilityId = uuidv4();
+    const patientId = fakeUUID();
+    const userId = fakeUUID();
+    const facilityId = fakeUUID();
     beforeAll(async () => {
       ctx = await createTestContext({ syncClientMode: true });
       models = ctx.store.models;
@@ -101,7 +100,7 @@ describe('import', () => {
         'UserFacility',
         async () => {
           const user = await models.User.create(fakeUser());
-          return { id: uuidv4(), userId: user.id, facilityId };
+          return { id: fakeUUID(), userId: user.id, facilityId };
         },
       ],
     ];
@@ -181,7 +180,7 @@ describe('import', () => {
     });
 
     describe('Encounter', () => {
-      const scheduledVaccineId = uuidv4();
+      const scheduledVaccineId = fakeUUID();
       beforeAll(async () => {
         await models.ScheduledVaccine.create({
           ...fake(models.ScheduledVaccine),
@@ -296,7 +295,7 @@ describe('import', () => {
   describe('in server mode', () => {
     let ctx;
     let models;
-    const patientId = uuidv4();
+    const patientId = fakeUUID();
     beforeAll(async () => {
       ctx = await createTestContext({ syncClientMode: false });
       models = ctx.store.models;

@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
 import { omit } from 'lodash';
 import { initDatabase, closeDatabase } from 'sync-server/app/database';
 import {
@@ -12,6 +11,7 @@ import {
   buildScheduledVaccine,
   buildEncounter,
 } from 'shared/test-helpers';
+import { fakeUUID } from 'shared/utils/generateId';
 import { REFERENCE_TYPES } from 'shared/constants';
 
 import { withDate } from './utilities';
@@ -32,7 +32,7 @@ describe('sqlWrapper', () => {
 
   afterAll(closeDatabase);
 
-  const userId = uuidv4();
+  const userId = fakeUUID();
   const rootTestCases = [
     ['patient', () => fake(store.models.Patient)],
     ['program', fakeProgram],
@@ -67,7 +67,7 @@ describe('sqlWrapper', () => {
     ],
   ];
 
-  const patientId = uuidv4();
+  const patientId = fakeUUID();
   beforeAll(async () => {
     const { Patient } = store.models;
     await Patient.create({ ...fake(Patient), id: patientId });
@@ -122,7 +122,7 @@ describe('sqlWrapper', () => {
 
         it('marks records as deleted', async () => {
           const instance = await fakeInstance();
-          instance.id = uuidv4();
+          instance.id = fakeUUID();
           await store.sequelize.channelRouter(channel, model => model.upsert(instance));
 
           await store.markRecordDeleted(channel, instance.id);

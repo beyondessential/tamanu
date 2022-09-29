@@ -1,9 +1,10 @@
 import {
   isValid,
-  format as dateFnsFormat,
   formatISO9075,
   differenceInMonths,
   differenceInYears,
+  compareDesc,
+  format as dateFnsFormat,
   differenceInMilliseconds as dateFnsDifferenceInMilliseconds,
 } from 'date-fns';
 
@@ -51,6 +52,12 @@ export function parseISO9075(date) {
   return new Date(date.replace(' ', 'T'));
 }
 
+export function latestDateTime(...args) {
+  const times = args.filter(x => x);
+  times.sort(compareDesc);
+  return times[0];
+}
+
 /*
  * date-fns wrappers
  * Wrapper functions around date-fns functions that parse date_string and date_time_string types
@@ -66,3 +73,4 @@ export const format = (date, f) => {
 
 export const differenceInMilliseconds = (a, b) =>
   dateFnsDifferenceInMilliseconds(new Date(a), new Date(b));
+
