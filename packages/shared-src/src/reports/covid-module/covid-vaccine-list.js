@@ -5,8 +5,6 @@ import { subDays, format } from 'date-fns';
 import { parseISO9075 } from 'shared/utils/dateTime';
 import { generateReportFromQueryData } from '../utilities';
 
-import { generateReportFromQueryData } from '../utilities';
-
 const DATE_FORMAT = 'yyyy/MM/dd';
 
 const reportColumnTemplate = [
