@@ -31,14 +31,10 @@ const lastWriteWinsPerField = (existing, incoming) => {
   return merged;
 };
 
-// perform basic conflict resolution, choosing one version of the record to use in its entirety
-const lastWriteWinsPerRecord = (existing, incoming) =>
-  pickLatest(existing, incoming, existing.updatedAtSyncTick, incoming.updatedAtSyncTick).latest;
-
 // merge two records, using either a field-by-field merge strategy (if updatedAtByField is defined)
-// or by simply choosing the latest whole record (if field specific information is not available)
+// or by simply choosing the incoming record (if field specific information is not available)
 export const mergeRecord = (existing, incoming) => {
   return existing.updatedAtByField && incoming.updatedAtByField
     ? lastWriteWinsPerField(existing, incoming)
-    : lastWriteWinsPerRecord(existing, incoming);
+    : incoming;
 };

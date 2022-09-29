@@ -2,7 +2,7 @@ export async function getSyncClockTime(sequelize) {
   const [[{ last_value: currentTick }]] = await sequelize.query(
     `SELECT last_value FROM sync_clock_sequence;`,
   );
-  return currentTick;
+  return currentTick || 0;
 }
 
 export async function setSyncClockTime(sequelize, currentSyncTick) {

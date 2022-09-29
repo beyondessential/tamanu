@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 import { toDateTimeString, toDateString } from '../utils/dateTime';
 
-const COLUMNS_EXCLUDED_FROM_SYNC = ['createdAt', 'updatedAt', 'markedForSync'];
+const COLUMNS_EXCLUDED_FROM_SYNC = ['createdAt', 'updatedAt', 'updatedAtSyncTick'];
 
 const formatValue = (columnType, value) => {
   if (columnType instanceof DataTypes.DATE) {

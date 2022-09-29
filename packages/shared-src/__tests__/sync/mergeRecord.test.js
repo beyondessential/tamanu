@@ -15,20 +15,20 @@ const INCOMING = {
 };
 
 describe('mergeRecord', () => {
-  describe('lastWriteWinsPerRecord', () => {
-    it('uses the entire existing record when it had the most recent write', () => {
+  describe('lastSyncWinsPerRecord', () => {
+    it('uses the entire incoming record whenever per field information is not available, ignoring the fact the existing record has the higher sync tick', () => {
       const existing = { ...EXISTING, updatedAtSyncTick: 3 };
       const incoming = { ...INCOMING, updatedAtSyncTick: 2 };
       const merged = mergeRecord(existing, incoming);
-      expect(merged).toEqual(existing);
+      expect(merged).toEqual(incoming);
     });
-    it('uses the entire incoming record when it had the most recent write', () => {
+    it('uses the entire incoming record whenever per field information is not available, including when it has the higher sync tick', () => {
       const existing = { ...EXISTING, updatedAtSyncTick: 3 };
       const incoming = { ...INCOMING, updatedAtSyncTick: 5 };
       const merged = mergeRecord(existing, incoming);
       expect(merged).toEqual(incoming);
     });
-    it('still uses an entire record if only the existing record has field update information', () => {
+    it('still uses the entire incoming record if only the existing record has field update information', () => {
       const existing = {
         ...EXISTING,
         updatedAtSyncTick: 3,
@@ -42,7 +42,7 @@ describe('mergeRecord', () => {
       expect(merged).toEqual(incoming);
     });
 
-    it('still uses an entire record if only the existing record has field update information', () => {
+    it('still uses the entire incoming record if only the incoming record has field update information', () => {
       const existing = {
         ...EXISTING,
         updatedAtSyncTick: 3,

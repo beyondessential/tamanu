@@ -5,8 +5,8 @@ export function dbRecordToResponse(patientRecord) {
     ...patientRecord.get({
       plain: true,
     }),
-    markedForSync: !!patientRecord.patientFacilities?.find(
-      patientFacility => patientFacility.facilityId === config.serverFacilityId,
+    markedForSync: !!patientRecord.markedForSyncFacilities?.find(
+      f => f.id === config.serverFacilityId,
     ),
   };
 }

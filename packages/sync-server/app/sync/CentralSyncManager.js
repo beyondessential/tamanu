@@ -60,7 +60,7 @@ export class CentralSyncManager {
     return tickTock;
   }
 
-  async startSession(facilityId) {
+  async startSession() {
     // as a side effect of starting a new session, cause a tick on the global sync clock
     // this is a convenient way to tick the clock, as it means that no two sync sessions will
     // happen at the same global sync time, meaning there's no ambiguity when resolving conflicts
@@ -71,9 +71,7 @@ export class CentralSyncManager {
       lastConnectionTime: startTime,
     });
 
-    log.debug(
-      `CentralSyncManager.startSession: Facility ${facilityId} started a new session ${syncSession.id}`,
-    );
+    log.debug(`CentralSyncManager.startSession: Started a new session ${syncSession.id}`);
 
     return syncSession.id;
   }
