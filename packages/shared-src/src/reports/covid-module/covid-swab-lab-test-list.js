@@ -213,7 +213,7 @@ const getLabTestRecords = async (
   labTests,
   transformedAnswers,
   parameters,
-  { surveyQuestionCodes, dateFormat },
+  { surveyQuestionCodes, dateFormat, dateFilterBy },
 ) => {
   const transformedAnswersByPatientAndDataElement = groupBy(
     transformedAnswers,
@@ -243,17 +243,21 @@ const getLabTestRecords = async (
 
       const labTest = patientLabTests[i];
       const currentLabTestDate = startOfDay(labTest.date);
+      const dateToFilterBy =
+        dateFilterBy === 'labRequest.sampleTime'
+          ? startOfDay(labTest.labRequest.sampleTime)
+          : currentLabTestDate;
 
       // Get all lab tests regardless and filter fromDate and toDate in memory
       // to ensure that we have the date range from current lab test to the next lab test correctly.
       if (
         parameters.fromDate &&
-        isBefore(currentLabTestDate, startOfDay(new Date(parameters.fromDate)))
+        isBefore(dateToFilterBy, startOfDay(new Date(parameters.fromDate)))
       ) {
         continue;
       }
 
-      if (parameters.toDate && isAfter(currentLabTestDate, endOfDay(new Date(parameters.toDate)))) {
+      if (parameters.toDate && isAfter(dateToFilterBy, endOfDay(new Date(parameters.toDate)))) {
         continue;
       }
 
@@ -330,7 +334,13 @@ const getLabTestRecords = async (
 export const baseDataGenerator = async (
   { models },
   parameters = {},
-  { surveyId, reportColumnTemplate, surveyQuestionCodes, dateFormat = 'yyyy/MM/dd' },
+  {
+    surveyId,
+    reportColumnTemplate,
+    surveyQuestionCodes,
+    dateFormat = 'yyyy/MM/dd',
+    dateFilterBy = 'date',
+  },
 ) => {
   const labTests = await getLabTests(models, parameters);
   const transformedAnswers = await getFijiCovidAnswers(models, parameters, {
@@ -340,6 +350,7 @@ export const baseDataGenerator = async (
   const reportData = await getLabTestRecords(labTests, transformedAnswers, parameters, {
     surveyQuestionCodes,
     dateFormat,
+    dateFilterBy,
   });
 
   return generateReportFromQueryData(reportData, reportColumnTemplate);
