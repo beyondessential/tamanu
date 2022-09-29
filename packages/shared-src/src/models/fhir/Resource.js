@@ -22,7 +22,7 @@ export class FhirResource extends Model {
           default: Sequelize.fn('uuid_generate_v4'),
         },
         upstreamId: {
-          type: this.UPSTREAM_UUID ? Sequelize.UUID : Sequelize.STRING(36),
+          type: this.UPSTREAM_UUID ? Sequelize.UUID : Sequelize.STRING,
           allowNull: false,
         },
         lastUpdated: {
