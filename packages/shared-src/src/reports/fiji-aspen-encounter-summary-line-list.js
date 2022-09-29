@@ -95,12 +95,13 @@ with
   medications_info as (
     select
       encounter_id,
-      json_agg(
-        json_build_object(
-          'Name', medication.name,
-          'Discontinued', coalesce(discontinued, false),
-          'Discontinuing reason', discontinuing_reason
-        ) 
+      string_agg(
+        concat(
+          medication.name,
+          ', Discontinued: ', case when discontinued then 'true' else 'false' end,
+          ', Discontinuing reason: ', coalesce(discontinuing_reason, 'null')
+        ),
+        '; '
       ) "Medications"
     from encounter_medications em
     join reference_data medication on medication.id = em.medication_id
