@@ -16,7 +16,7 @@ export async function up(query) {
       defaultValue: Sequelize.fn('uuid_generate_v4'),
     },
     upstream_id: {
-      type: Sequelize.STRING(36),
+      type: Sequelize.STRING,
       allowNull: false,
     },
     last_updated: {
@@ -45,7 +45,7 @@ export async function up(query) {
       defaultValue: '{}',
     },
     gender: {
-      type: Sequelize.STRING(10),
+      type: Sequelize.TEXT,
       allowNull: false,
     },
     birth_date: {
