@@ -1,3 +1,4 @@
+import config from 'config';
 import {
   createDummyPatient,
   createDummyEncounter,
@@ -157,7 +158,7 @@ describe('Triage', () => {
       // create a few test triages
       const { Facility, Location } = models;
       const fac = await Facility.create({
-        ...fake(models.Facility, { id: 'ref/facility/ba' }),
+        ...fake(models.Facility, { id: config.serverFacilityId }),
       });
       const { id: locationId } = await Location.create({
         ...fake(Location),
@@ -206,8 +207,7 @@ describe('Triage', () => {
       await Promise.all(promises);
     });
 
-    // FIXME
-    it.skip('should get a list of triages ordered by score and arrival time', async () => {
+    it('should get a list of triages ordered by score and arrival time', async () => {
       const response = await app.get('/v1/triage');
       const results = response.body;
       expect(results.count).toEqual(5);
