@@ -2,7 +2,7 @@ import { snakeCase } from 'lodash';
 import { Sequelize, Utils, QueryTypes } from 'sequelize';
 import * as yup from 'yup';
 
-import { SYNC_DIRECTIONS, FHIR_SEARCH_PARAMETERS } from '../../constants';
+import { SYNC_DIRECTIONS, FHIR_SEARCH_PARAMETERS, FHIR_SEARCH_TOKEN_TYPES } from '../../constants';
 import { objectAsFhir } from '../../utils/pgComposite';
 import { Model } from '../Model';
 
@@ -159,6 +159,7 @@ export class FhirResource extends Model {
       _id: {
         type: FHIR_SEARCH_PARAMETERS.TOKEN,
         path: [['id']],
+        tokenType: FHIR_SEARCH_TOKEN_TYPES.STRING,
       },
       _lastUpdated: {
         type: FHIR_SEARCH_PARAMETERS.DATE,
@@ -192,6 +193,7 @@ export class FhirResource extends Model {
       'subject:identifier': {
         type: FHIR_SEARCH_PARAMETERS.TOKEN,
         path: [['identifier', '[]']],
+        tokenType: FHIR_SEARCH_TOKEN_TYPES.VALUE,
       },
       status: {
         type: FHIR_SEARCH_PARAMETERS.STRING,

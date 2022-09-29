@@ -119,21 +119,14 @@ function singleMatch(path, paramQuery, paramDef, Model) {
 
 // eslint-disable-next-line no-unused-vars
 function singleOrder(path, order, def, _Model) {
+  let entirePath = path;
   if (
-    !(
-      [
-        FHIR_SEARCH_PARAMETERS.NUMBER,
-        FHIR_SEARCH_PARAMETERS.DATE,
-        FHIR_SEARCH_PARAMETERS.STRING,
-      ].includes(def.type) ||
-      (def.type === FHIR_SEARCH_PARAMETERS.TOKEN &&
-        [FHIR_SEARCH_TOKEN_TYPES.BOOLEAN, FHIR_SEARCH_TOKEN_TYPES.STRING].includes(def.tokenType))
-    )
+    def.type === FHIR_SEARCH_PARAMETERS.TOKEN &&
+    (def.tokenType === FHIR_SEARCH_TOKEN_TYPES.CODING ||
+      def.tokenType === FHIR_SEARCH_TOKEN_TYPES.VALUE)
   ) {
-    // TODO (EPI-202)
-    // any search that generates multiple output for typedMatch, or outputs
-    // extraPath at all, ie might need to look in different/multiple places.
-    throw new Unsupported('order with complex types is not supported yet');
+    const valuePath = def.tokenType === FHIR_SEARCH_TOKEN_TYPES.VALUE ? 'value' : 'code';
+    entirePath.push(valuePath);
   }
 
   // optimisation in the simple case
