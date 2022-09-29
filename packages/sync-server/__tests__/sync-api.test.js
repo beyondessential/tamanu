@@ -1,5 +1,4 @@
 import { subDays, format } from 'date-fns';
-import { v4 as uuidv4 } from 'uuid';
 
 import {
   buildNestedEncounter,
@@ -12,6 +11,7 @@ import {
   fakeSurveyResponse,
   fakeSurveyResponseAnswer,
 } from 'shared/test-helpers';
+import { fakeUUID } from 'shared/utils/generateId';
 
 import { convertFromDbRecord, convertToDbRecord } from 'sync-server/app/convertDbRecord';
 import { createTestContext } from './utilities';
@@ -310,7 +310,7 @@ describe('Sync API', () => {
     });
 
     describe('Filters sensitive SurveyResponseAnswers', () => {
-      const patientId = uuidv4();
+      const patientId = fakeUUID();
       let encounterData;
       let sensitiveSurveyResponseAnswer;
 
@@ -463,7 +463,7 @@ describe('Sync API', () => {
       });
     });
 
-    const patientId = uuidv4();
+    const patientId = fakeUUID();
     [
       `/v1/sync/patient%2F${patientId}%2Fencounter?since=0`,
       `/v1/sync/labRequest%2Fall%2Fencounter?since=0`,
@@ -586,7 +586,7 @@ describe('Sync API', () => {
       expect(data).toEqual(comparisonData);
     });
 
-    const patientId = uuidv4();
+    const patientId = fakeUUID();
     [
       `/v1/sync/patient%2F${patientId}%2Fencounter?since=0`,
       `/v1/sync/labRequest%2Fall%2Fencounter?since=0`,
@@ -718,7 +718,7 @@ describe('Sync API', () => {
 
     describe('on failure', () => {
       it('returns a 404 if the record was missing', async () => {
-        const result = await app.delete(`/v1/sync/patient/${uuidv4()}`);
+        const result = await app.delete(`/v1/sync/patient/${fakeUUID()}`);
         expect(result).toHaveRequestError(404);
       });
 

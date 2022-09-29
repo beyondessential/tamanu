@@ -3,6 +3,7 @@ import {
   FhirAddress,
   FhirCodeableConcept,
   FhirCoding,
+  FhirHumanName,
   FhirIdentifier,
   FhirPeriod,
 } from 'shared/services/fhirTypes';
@@ -18,7 +19,7 @@ describe('Patient', () => {
   });
   afterAll(() => ctx.close());
 
-  it('should create', () =>
+  it('should create directly', () =>
     showError(async () => {
       // Arrange
       const { FhirPatient } = models;
@@ -75,6 +76,51 @@ describe('Patient', () => {
       expect(patient.identifier).toEqual([idA, idB]);
     }));
 
+  it('should round-trip a composite field with update', () =>
+    showError(async () => {
+      // Arrange
+      const { FhirPatient } = models;
+      const id = new FhirIdentifier({
+        use: 'official',
+        value: 'P126362813',
+        system: 'https://tamanu.io/passport',
+      });
+
+      // Act
+      const patient = await FhirPatient.create({
+        ...fake(FhirPatient),
+        gender: 'male',
+      });
+      await patient.update({ identifier: [id] });
+      await patient.reload();
+
+      // Assert
+      expect(patient.identifier).toEqual([id]);
+    }));
+
+  it('should round-trip a composite field with build', () =>
+    showError(async () => {
+      // Arrange
+      const { FhirPatient } = models;
+      const id = new FhirIdentifier({
+        use: 'official',
+        value: 'P126362813',
+        system: 'https://tamanu.io/passport',
+      });
+
+      // Act
+      const patient = FhirPatient.build({
+        ...fake(FhirPatient),
+        gender: 'male',
+      });
+      patient.set({ identifier: [id] });
+      await patient.save();
+      await patient.reload();
+
+      // Assert
+      expect(patient.identifier).toEqual([id]);
+    }));
+
   it('should round-trip a composite field containing an array', () =>
     showError(async () => {
       // Arrange
@@ -119,5 +165,35 @@ describe('Patient', () => {
       // Assert
       expect(patient.identifier).toEqual([id]);
       expect(patient.address).toEqual([address]);
+    }));
+
+  it('should materialise', () =>
+    showError(async () => {
+      // Arrange
+      const { FhirPatient, Patient, PatientAdditionalData } = models;
+      const patient = await Patient.create(fake(Patient));
+      const pad = await PatientAdditionalData.create({
+        ...fake(PatientAdditionalData),
+        patientId: patient.id,
+      });
+
+      // Act
+      const fhirPatient = await FhirPatient.materialiseFromUpstream(patient.id);
+      await fhirPatient.reload();
+
+      // Assert
+      expect(fhirPatient.gender).toEqual(patient.sex);
+      expect(fhirPatient.name).toEqual([
+        new FhirHumanName({
+          use: 'official',
+          prefix: [pad.title],
+          family: patient.lastName,
+          given: [patient.firstName, patient.middleName],
+        }),
+        new FhirHumanName({
+          use: 'nickname',
+          text: patient.culturalName,
+        }),
+      ]);
     }));
 });

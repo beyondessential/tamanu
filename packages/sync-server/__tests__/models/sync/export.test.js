@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
 import { addDays, subDays, format } from 'date-fns';
 import {
   buildNestedEncounter,
@@ -9,6 +8,7 @@ import {
   upsertAssociations,
 } from 'shared/test-helpers';
 import { createExportPlan, executeExportPlan } from 'shared/models/sync';
+import { fakeUUID } from 'shared/utils/generateId';
 
 import { createTestContext } from '../../utilities';
 
@@ -20,10 +20,10 @@ describe('export', () => {
     describe(`in ${syncClientMode ? 'client' : 'server'} mode`, () => {
       let ctx;
       let models;
-      const patientId = uuidv4();
-      const userId = uuidv4();
-      const facilityId = uuidv4();
-      const scheduledVaccineId = uuidv4();
+      const patientId = fakeUUID();
+      const userId = fakeUUID();
+      const facilityId = fakeUUID();
+      const scheduledVaccineId = fakeUUID();
 
       beforeAll(async () => {
         ctx = await createTestContext({ syncClientMode });
@@ -92,7 +92,7 @@ describe('export', () => {
           'UserFacility',
           async () => {
             const user = await models.User.create(fakeUser());
-            return { id: uuidv4(), userId: user.id, facilityId };
+            return { id: fakeUUID(), userId: user.id, facilityId };
           },
         ],
       ];

@@ -51,12 +51,12 @@ function patientIds(patient, additional) {
     },
     {
       use: 'secondary',
-      assigner: 'Fiji Passport Office',
+      assigner: config.hl7.assigners.patientPassport,
       value: additional.passportNumber,
     },
     {
       use: 'secondary',
-      assigner: 'RTA',
+      assigner: config.hl7.assigners.patientDriverLicense,
       value: additional.drivingLicense,
     },
   ].filter(x => x.value);
