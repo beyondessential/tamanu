@@ -1,7 +1,7 @@
 import React from 'react';
 import { inRange } from 'lodash';
 
-import { getAgeFromDate } from 'shared/utils/date';
+import { ageInYears } from 'shared/utils/dateTime';
 import {
   LimitedTextField,
   MultilineTextField,
@@ -181,7 +181,7 @@ function transformPatientData(patient, config) {
 
   switch (column) {
     case 'age':
-      return getAgeFromDate(dateOfBirth).toString();
+      return ageInYears(dateOfBirth).toString();
     case 'fullName':
       return joinNames({ firstName, lastName });
     default:

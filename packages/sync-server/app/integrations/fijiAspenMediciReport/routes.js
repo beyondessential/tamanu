@@ -250,7 +250,7 @@ triage_info as (
   lateral (
     select
       case when t.closed_time is null
-        then (extract(EPOCH from now()) - extract(EPOCH from t.triage_time::timestamp))/60
+        then (extract(EPOCH from now()) - extract(EPOCH from t.triage_time::timestamp))/60 -- NOTE: Timezone bug here, where now() is server timezone but triage_time is local timezone
         else (extract(EPOCH from t.closed_time::timestamp) - extract(EPOCH from t.triage_time::timestamp))/60
       end total_minutes
   ) total_minutes,
@@ -277,7 +277,7 @@ select
 p.display_id "patientId",
 p.first_name "firstname",
 p.last_name "lastname",
-to_char(p.date_of_birth, 'YYYY-MM-DD') "dateOfBirth",
+p.date_of_birth "dateOfBirth",
 extract(year from age(p.date_of_birth::date)) "age",
 p.sex "sex",
 billing.name "patientBillingType",
@@ -366,6 +366,7 @@ routes.get(
 
     const mappedData = data.map(encounter => ({
       ...encounter,
+      age: parseInt(encounter.age),
       weight: parseFloat(encounter.weight),
     }));
 

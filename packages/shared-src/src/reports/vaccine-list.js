@@ -1,5 +1,6 @@
 import { Op } from 'sequelize';
 import { subDays, format } from 'date-fns';
+import { parseISO9075 } from 'shared/utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
 export const reportColumnTemplate = [
@@ -123,7 +124,7 @@ export async function queryCovidVaccineListData(models, parameters) {
       patientId,
       patientName: `${firstName} ${lastName}`,
       uid: displayId,
-      dob: format(dateOfBirth, 'dd-MM-yyyy'),
+      dob: format(parseISO9075(dateOfBirth), 'dd-MM-yyyy'),
       sex,
       village: village?.name,
       vaccineName,

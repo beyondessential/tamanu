@@ -21,7 +21,6 @@ const FIELDS = [
   'Priority',
   'Test category',
   'Tests',
-  'Area to be imaged',
   'Status',
 ];
 
@@ -46,8 +45,8 @@ select
   to_char(p.date_of_birth::timestamp::date, 'dd/mm/yyyy') as "DOB",
   case
     when p.date_of_death is null
-    then date_part('year', Age(p.date_of_birth))
-    else date_part('year', Age(p.date_of_death::date, p.date_of_birth))
+    then date_part('year', Age(p.date_of_birth::date))
+    else date_part('year', Age(p.date_of_death::date, p.date_of_birth::date))
     end as "Age",
   p.sex as "Sex",
   rd_village.name as "Village",
@@ -86,7 +85,6 @@ from lab_requests lr
   left join reference_data rd_village on rd_village.id = p.village_id
 where
   lr.status != 'deleted'
-  and rd_village.type = 'village'
   and p.id not in (
     '4d719b6f-af55-42ac-99b3-5a27cadaab2b',
     '2d574680-e0fc-4956-a37e-121ccb434995',
