@@ -43,12 +43,13 @@ with
   notes_info as (
     select
       record_id,
-      json_agg(
-        json_build_object(
-          'Note type', note_type,
-          'Content', "content",
-          'Note date', to_char(ni."date"::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
-        ) 
+      string_agg(
+        concat(
+          'Note type: ', note_type,
+          ', Content: ', "content",
+          ', Note date: ', to_char(ni."date"::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
+        ),
+        '; '
       ) aggregated_notes
     from note_pages np
     join note_items ni on ni.note_page_id = np.id
@@ -72,7 +73,6 @@ with
     from lab_requests lr
     join lab_test_info lti
     on lti.lab_request_id  = lr.id
-    left join notes_info ni on ni.record_id = lr.id
     group by encounter_id
   ),
   procedure_info as (
@@ -143,7 +143,7 @@ with
   imaging_areas_by_request as (
     select
       imaging_request_id,
-      json_agg(coalesce(area.name, '__UNKNOWN__AREA__') order by area.name) areas_to_be_imaged
+      array_agg(coalesce(area.name, '__UNKNOWN__AREA__') order by area.name) areas_to_be_imaged
     from imaging_request_areas ira
     left join reference_data area on area.id =  ira.area_id
     group by imaging_request_id
@@ -151,12 +151,13 @@ with
   imaging_info as (
     select
       ir.encounter_id,
-      json_agg(
-        json_build_object(
-          'Name', ir.imaging_type,
-          'Areas to be imaged', areas_to_be_imaged,
-          'Notes', to_json(aggregated_notes)
-        )
+      string_agg(
+        concat(
+          ir.imaging_type,
+          ', Areas to be imaged: ', array_to_string(areas_to_be_imaged, '; '),
+          ', Notes: ', aggregated_notes
+        ),
+        '; '
       ) "Imaging requests"
     from imaging_requests ir
     left join notes_info ni on ni.record_id = ir.id
@@ -186,17 +187,17 @@ with
       matched_vals[2] "from",
       matched_vals[3] "to",
       ni.date
-      from note_pages np
-      join note_items ni on ni.note_page_id = np.id
-      join (
-        select
-          id,
-          regexp_matches(content, 'Changed (.*) from (.*) to (.*)') matched_vals
-        from note_items
-      ) matched_vals
-      on matched_vals.id = ni.id 
-      where note_type = 'system'
-      and ni.content ~ 'Changed (.*) from (.*) to (.*)'
+    from note_pages np
+    join note_items ni on ni.note_page_id = np.id
+    join (
+      select
+        id,
+        regexp_matches(content, 'Changed (.*) from (.*) to (.*)') matched_vals
+      from note_items
+    ) matched_vals
+    on matched_vals.id = ni.id 
+    where note_type = 'system'
+    and ni.content ~ 'Changed (.*) from (.*) to (.*)'
   ),
   department_info as (
     select 
