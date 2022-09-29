@@ -3,17 +3,21 @@ import { v4 as uuidv4 } from 'uuid';
 import * as yup from 'yup';
 
 import { COMPOSITE, Composite } from '../../utils/pgComposite';
+import { FhirCodeableConcept } from './codeableConcept';
 import { FhirPeriod } from './period';
 
 const USES = ['usual', 'official', 'temp', 'secondary', 'old'];
 
 export class FhirIdentifier extends Composite {
-  static FIELD_ORDER = ['use', 'system', 'value', 'period', 'assigner'];
+  static FIELD_ORDER = ['use', 'type', 'system', 'value', 'period', 'assigner'];
   static SCHEMA = yup
     .object({
       use: yup
         .string()
         .oneOf([null, ...USES])
+        .nullable()
+        .default(null),
+      type: FhirCodeableConcept.asYup()
         .nullable()
         .default(null),
       system: yup
