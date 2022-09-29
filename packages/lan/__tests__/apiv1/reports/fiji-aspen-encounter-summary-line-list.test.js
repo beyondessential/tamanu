@@ -341,7 +341,7 @@ describe('fijiAspenMediciReport', () => {
           'Glucose (hypertonic) 5%, Discontinued: true, Discontinuing reason: It was not enough; Glucose (hypertonic) 10%, Discontinued: false, Discontinuing reason: null',
         Vaccinations: 'Covid AZ, Label: Covid Schedule Label, Schedule: Dose 1',
         Procedures:
-          'Subtemporal cranial decompression (pseudotumor cerebri, slit ventricle syndrome), Date: 06-11-2022, Location: Emergency room 1, Notes: All ready for procedure here, Completed notes: Everything went smoothly, no issues',
+          'Subtemporal cranial decompression (pseudotumor cerebri, slit ventricle syndrome), Date: 11-06-2022, Location: Emergency room 1, Notes: All ready for procedure here, Completed notes: Everything went smoothly, no issues',
         'Lab requests': 'Test: Bicarbonate; Test: Bicarbonate',
         'Imaging requests':
           'xRay, Areas to be imaged: Left Leg; Right Leg, Notes: Note type: other, Content: Check for fractured knees please, Note date: 10-06-2022 06:04 AM',

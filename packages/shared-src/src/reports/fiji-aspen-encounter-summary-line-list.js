@@ -78,14 +78,15 @@ with
   procedure_info as (
     select
       encounter_id,
-      json_agg(
-        json_build_object(
-          'Name', proc.name,
-          'Date', to_char(date::timestamp, 'DD-MM-YYYY'),
-          'Location', loc.name,
-          'Notes', p.note,
-          'Completed notes', completed_note
-        ) 
+      string_agg(
+        concat(
+          proc.name,
+          ', Date: ', to_char(date::timestamp, 'DD-MM-YYYY'),
+          ', Location: ', loc.name,
+          ', Notes: ', p.note,
+          ', Completed notes: ', completed_note
+        ),
+        '; '
       ) "Procedures"
     from "procedures" p
     left join reference_data proc ON proc.id = procedure_type_id
