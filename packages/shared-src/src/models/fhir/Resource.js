@@ -6,6 +6,8 @@ import * as yup from 'yup';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from '../Model';
 
+const missingRecordsPrivateMethod = Symbol('missingRecords');
+
 export class FhirResource extends Model {
   static init(attributes, options) {
     super.init(
@@ -102,7 +104,7 @@ export class FhirResource extends Model {
 
   // query to do lookup of non-deleted upstream records that are not present in the FHIR tables
   // does direct sql interpolation, NEVER use with user or variable input
-  static missingRecords(select, trail = '') {
+  static [missingRecordsPrivateMethod](select, trail = '') {
     return `
       SELECT ${select}
       FROM ${this.UpstreamModel.tableName} upstream
@@ -121,7 +123,7 @@ export class FhirResource extends Model {
       .integer()
       .validateSync(limit);
     const rows = await this.sequelize.query(
-      this.missingRecords('upstream.id', `ORDER BY upstream.updated_at ASC LIMIT ${limitValid}`),
+      this[missingRecordsPrivateMethod]('upstream.id', `ORDER BY upstream.updated_at ASC LIMIT ${limitValid}`),
       { type: QueryTypes.SELECT },
     );
     return rows.map(({ id }) => id);
@@ -129,7 +131,7 @@ export class FhirResource extends Model {
 
   static async countMissingRecords() {
     if (!this.UpstreamModel) return 0;
-    const rows = await this.sequelize.query(this.missingRecords('count(upstream.*) as count'), {
+    const rows = await this.sequelize.query(this[missingRecordsPrivateMethod]('count(upstream.*) as count'), {
       type: QueryTypes.SELECT,
     });
 
