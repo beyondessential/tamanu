@@ -30,7 +30,7 @@ export class Composite {
     const fields = parse(raw);
     if (typeof fields.length === 'number' && fields.length !== this.FIELD_ORDER?.length) {
       throw new Error(
-        `wrong amount of fields for composite: expected ${this.FIELD_ORDER?.length}, found ${fields.length}\nRAW: ${raw}`,
+        `wrong amount of fields for composite ${this.name}: expected ${this.FIELD_ORDER?.length}, found ${fields.length}\nRAW: ${raw}`,
       );
     }
 
