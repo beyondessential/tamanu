@@ -69,7 +69,6 @@ with
       json_agg(
         json_build_object(
           'Name', proc.name,
-          'Code', proc.code,
           'Date', to_char(date::timestamp, 'DD-MM-YYYY'),
           'Location', loc.name,
           'Notes', p.note,
@@ -101,7 +100,6 @@ with
       json_agg(
         json_build_object(
           'Name', diagnosis.name,
-          'Code', diagnosis.code,
           'Is primary?', case when is_primary then 'primary' else 'secondary' end,
           'Certainty', certainty
         ) 
