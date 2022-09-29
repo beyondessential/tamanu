@@ -109,12 +109,13 @@ with
   diagnosis_info as (
     select
       encounter_id,
-      json_agg(
-        json_build_object(
-          'Name', diagnosis.name,
-          'Is primary?', case when is_primary then 'primary' else 'secondary' end,
-          'Certainty', certainty
-        ) 
+      string_agg(
+        concat(
+          diagnosis.name,
+          ', Is primary?: ', case when is_primary then 'primary' else 'secondary' end,
+          ', Certainty: ', certainty
+        ),
+        '; '
       ) "Diagnosis"
     from encounter_diagnoses ed
     join reference_data diagnosis on diagnosis.id = ed.diagnosis_id

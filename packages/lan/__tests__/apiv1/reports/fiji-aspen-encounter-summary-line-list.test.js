@@ -336,7 +336,7 @@ describe('fijiAspenMediciReport', () => {
           'Location: Emergency room 1, Assigned time: 09-06-2022 12:02 AM; Location: Emergency room 2, Assigned time: 09-06-2022 08:04 AM',
         'Reason for encounter': 'Severe Migrane',
         Diagnosis:
-          'Acute subdural hematoma, Is primary?: primary, Certainty: confirmed; Acute subdural hematoma, Code: S06.5, Is primary?: secondary, Certainty: suspected',
+          'Acute subdural hematoma, Is primary?: primary, Certainty: confirmed; Acute subdural hematoma, Is primary?: secondary, Certainty: suspected',
         Medications:
           'Glucose (hypertonic) 5%, Discontinued: true, Discontinuing reason: It was not enough; Glucose (hypertonic) 10%, Discontinued: false, Discontinuing reason: null',
         Vaccinations: 'Covid AZ, Label: Covid Schedule Label, Schedule: Dose 1',
