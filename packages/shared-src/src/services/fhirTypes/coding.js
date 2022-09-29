@@ -6,6 +6,7 @@ import { COMPOSITE, Composite } from '../../utils/pgComposite';
 
 export class FhirCoding extends Composite {
   static FIELD_ORDER = ['system', 'version', 'code', 'display', 'userSelected'];
+
   static SCHEMA = yup
     .object({
       system: yup
@@ -27,6 +28,14 @@ export class FhirCoding extends Composite {
         .default(null),
       userSelected: yup
         .boolean()
+        .transform(function quantityParse(value, originalValue) {
+          if (this.isType(value)) return value;
+
+          if (originalValue.startsWith('t')) return true;
+          if (originalValue.startsWith('f')) return false;
+
+          return null;
+        })
         .nullable()
         .default(null),
     })

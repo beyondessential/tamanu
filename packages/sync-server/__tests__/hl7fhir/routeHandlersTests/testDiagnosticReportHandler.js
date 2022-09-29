@@ -17,13 +17,41 @@ export function testDiagnosticReportHandler(integrationName, requestHeaders = {}
     afterAll(() => ctx.close());
 
     async function createLabTestHierarchy(patient, { isRDT = false } = {}) {
-      const { LabTest, LabRequest, ReferenceData, LabTestType, Encounter, User } = ctx.store.models;
+      const {
+        Department,
+        Facility,
+        LabTest,
+        LabRequest,
+        Location,
+        ReferenceData,
+        LabTestType,
+        Encounter,
+        User,
+      } = ctx.store.models;
+
+      const facility = await Facility.create({
+        ...fake(Facility),
+        name: 'Utopia HQ',
+      });
+
+      const location = await Location.create({
+        ...fake(Location),
+        facilityId: facility.id,
+      });
+
+      const department = await Department.create({
+        ...fake(Department),
+        facilityId: facility.id,
+      });
 
       const examiner = await User.create(fake(User));
+
       const encounter = await Encounter.create({
         ...fake(Encounter),
         patientId: patient.id,
         examinerId: examiner.id,
+        locationId: location.id,
+        departmentId: department.id,
       });
       const laboratory = await ReferenceData.create({
         ...fake(ReferenceData),

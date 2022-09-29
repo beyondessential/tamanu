@@ -1,17 +1,18 @@
 import { Sequelize, DataTypes } from 'sequelize';
 import { FhirResource } from './Resource';
+import { arrayOf } from './utils';
 
 export class FhirPractitioner extends FhirResource {
   static init(options) {
     super.init(
       {
-        identifier: this.ArrayOf('identifier', DataTypes.FHIR_IDENTIFIER),
+        identifier: arrayOf('identifier', DataTypes.FHIR_IDENTIFIER),
         active: {
           type: Sequelize.BOOLEAN,
           allowNull: false,
         },
-        name: this.ArrayOf('name', DataTypes.FHIR_HUMAN_NAME),
-        telecom: this.ArrayOf('telecom', DataTypes.FHIR_CONTACT_POINT),
+        name: arrayOf('name', DataTypes.FHIR_HUMAN_NAME),
+        telecom: arrayOf('telecom', DataTypes.FHIR_CONTACT_POINT),
       },
       options,
     );

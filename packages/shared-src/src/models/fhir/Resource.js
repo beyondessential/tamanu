@@ -1,9 +1,9 @@
 import { snakeCase } from 'lodash';
 import { Sequelize, Utils, QueryTypes } from 'sequelize';
-import array from 'postgres-array';
 import * as yup from 'yup';
 
-import { SYNC_DIRECTIONS } from 'shared/constants';
+import { SYNC_DIRECTIONS, FHIR_SEARCH_PARAMETERS, FHIR_SEARCH_TOKEN_TYPES } from '../../constants';
+import { objectAsFhir } from '../../utils/pgComposite';
 import { Model } from '../Model';
 
 const missingRecordsPrivateMethod = Symbol('missingRecords');
@@ -40,25 +40,15 @@ export class FhirResource extends Model {
           syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
         },
         schema: 'fhir',
-        tableName: snakeCase(Utils.pluralize(this.name.replace(/^Fhir/, ''))),
+        tableName: snakeCase(Utils.pluralize(this.fhirName)),
         timestamps: false,
       },
     );
   }
 
-  static ArrayOf(fieldName, type, overrides = {}) {
-    const entryType = typeof type === 'function' ? new type() : type;
-    return {
-      type: Sequelize.ARRAY(type),
-      allowNull: false,
-      defaultValue: [],
-      get() {
-        const original = this.getDataValue(fieldName);
-        if (Array.isArray(original)) return original;
-        return array.parse(original, entry => entryType._sanitize(entry));
-      },
-      ...overrides,
-    };
+  // name in FHIR
+  static get fhirName() {
+    return this.name.replace(/^Fhir/, '');
   }
 
   // main Tamanu model this resource is based on
@@ -69,7 +59,12 @@ export class FhirResource extends Model {
 
   // set upstream_id, call updateMaterialisation
   static async materialiseFromUpstream(id) {
-    let resource = await this.findByPk(this.id);
+    let resource = await this.findOne({
+      where: {
+        upstreamId: id,
+      },
+    });
+
     if (!resource) {
       resource = this.build({
         id: Sequelize.fn('uuid_generate_v4'),
@@ -136,5 +131,82 @@ export class FhirResource extends Model {
     });
 
     return Number(rows[0]?.count || 0);
+  }
+
+  asFhir() {
+    const fields = {};
+    for (const name of Object.keys(this.constructor.getAttributes())) {
+      if (['id', 'versionId', 'upstreamId', 'lastUpdated'].includes(name)) continue;
+      fields[name] = this.get(name);
+    }
+
+    return {
+      resourceType: this.constructor.fhirName,
+      id: this.id,
+      meta: {
+        versionId: this.versionId,
+        lastUpdated: this.lastUpdated,
+      },
+      ...objectAsFhir(fields),
+    };
+  }
+
+  /**
+   * FHIR search parameter configuration for the Resource.
+   */
+  static searchParameters() {
+    return {
+      _id: {
+        type: FHIR_SEARCH_PARAMETERS.TOKEN,
+        path: [['id']],
+        tokenType: FHIR_SEARCH_TOKEN_TYPES.STRING,
+      },
+      _lastUpdated: {
+        type: FHIR_SEARCH_PARAMETERS.DATE,
+        path: [['lastUpdated']],
+      },
+
+      // whole record search:
+      // _text: {},
+      // _content: {},
+
+      // lists:
+      // _list: {},
+
+      // reverse chaining:
+      // _has: {},
+
+      // multi-type search:
+      // _type: {},
+
+      // advanced search:
+      // _query: {},
+      // _filter: {},
+
+      // meta fields:
+      // _tag: {},
+      // _profile: {},
+      // _security: {},
+      // _source: {},
+
+      // legacy for mSupply support
+      'subject:identifier': {
+        type: FHIR_SEARCH_PARAMETERS.TOKEN,
+        path: [['identifier', '[]']],
+        tokenType: FHIR_SEARCH_TOKEN_TYPES.VALUE,
+      },
+      status: {
+        type: FHIR_SEARCH_PARAMETERS.STRING,
+        path: [],
+      },
+      after: {
+        type: FHIR_SEARCH_PARAMETERS.DATE,
+        path: [['lastUpdated']],
+      },
+      issued: {
+        type: FHIR_SEARCH_PARAMETERS.DATE,
+        path: [['lastUpdated']],
+      },
+    };
   }
 }
