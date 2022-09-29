@@ -10,6 +10,7 @@ import {
   REPORT_DATA_SOURCE_VALUES,
   REPORT_EXPORT_FORMATS,
 } from 'shared/constants';
+import { shell } from 'electron';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useApi } from '../../api';
 import { useAuth } from '../../contexts/Auth';
@@ -21,6 +22,7 @@ import {
   Form,
   RadioField,
   formatShort,
+  TextButton,
 } from '../../components';
 import { DropdownButton } from '../../components/DropdownButton';
 import { Colors } from '../../constants';
@@ -43,6 +45,13 @@ const DateRangeLabel = styled(Typography)`
 const EmailInputContainer = styled.div`
   margin-bottom: 30px;
   width: 60%;
+`;
+
+const PathLink = styled(TextButton)`
+  font-size: 15px;
+  text-transform: none;
+  margin: 0;
+  text-align: left;
 `;
 
 // adding an onValueChange hook to the report id field
@@ -90,6 +99,7 @@ export const ReportGeneratorForm = () => {
   const [availableReports, setAvailableReports] = useState([]);
   const [dataSource, setDataSource] = useState(REPORT_DATA_SOURCES.THIS_FACILITY);
   const [selectedReportId, setSelectedReportId] = useState(null);
+  const [filePath, setFilePath] = useState(null);
 
   const reportsById = useMemo(() => keyBy(availableReports, 'id'), [availableReports]);
   const reportOptions = useMemo(() => availableReports.map(r => ({ value: r.id, label: r.name })), [
@@ -146,7 +156,7 @@ export const ReportGeneratorForm = () => {
           ['Filters:', filterString],
         ];
 
-        const filePath = await saveExcelFile(
+        const savedPath = await saveExcelFile(
           { data: excelData, metadata },
           {
             promptForFilePath: true,
@@ -154,8 +164,9 @@ export const ReportGeneratorForm = () => {
             bookType,
           },
         );
-        if (filePath) {
-          setSuccessMessage(`Report successfully exported. File saved at: ${filePath}.`);
+        if (savedPath) {
+          setFilePath(savedPath);
+          setSuccessMessage(`Report successfully exported. File saved at:`);
         }
       } else {
         await api.post(`reportRequest`, {
@@ -177,6 +188,8 @@ export const ReportGeneratorForm = () => {
   if (Array.isArray(availableReports) === false && !requestError) {
     return <LoadingIndicator backgroundColor="#f7f9fb" />;
   }
+
+  const handleOpenPath = () => shell.openPath(filePath);
 
   return (
     <Form
@@ -280,7 +293,8 @@ export const ReportGeneratorForm = () => {
               }}
             >
               <AlertTitle>Success</AlertTitle>
-              {successMessage}
+              <span>{successMessage}</span>
+              {filePath && <PathLink onClick={handleOpenPath}>{filePath}</PathLink>}
             </Alert>
           )}
           <Box display="flex" justifyContent="flex-end">
