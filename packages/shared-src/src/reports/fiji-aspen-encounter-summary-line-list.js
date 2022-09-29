@@ -126,12 +126,13 @@ with
   vaccine_info as (
     select
       encounter_id,
-      json_agg(
-        json_build_object(
-          'Name', drug.name,
-          'Label', sv.label,
-          'Schedule', sv.schedule
-        ) 
+      string_agg(
+        concat(
+          drug.name,
+          ', Label: ', sv.label,
+          ', Schedule: ', sv.schedule
+        ),
+        '; '
       ) "Vaccinations"
     from administered_vaccines av
     join scheduled_vaccines sv on sv.id = av.scheduled_vaccine_id 
