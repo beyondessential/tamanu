@@ -6,7 +6,6 @@ function parametersToSqlWhere(parameters) {
     .filter(([, val]) => val)
     .reduce((where, [key, value]) => {
       /* eslint-disable no-param-reassign */
-      // Todo: test startTime
       switch (key) {
         case 'village':
           where['$encounter.patient.village_id$'] = value;
