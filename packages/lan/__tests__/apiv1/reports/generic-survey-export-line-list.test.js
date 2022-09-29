@@ -1,25 +1,14 @@
 import { randomReferenceDataObjects } from 'shared/demoData/patients';
 import { PROGRAM_DATA_ELEMENT_TYPES } from 'shared/constants';
 import { fake } from 'shared/test-helpers';
-import { toDateTimeString } from 'shared/utils/dateTime';
-import { subDays, format } from 'date-fns';
+import { toDateTimeString, format } from 'shared/utils/dateTime';
+import { subDays } from 'date-fns';
 import { createTestContext } from '../../utilities';
 
 const REPORT_URL = '/v1/reports/generic-survey-export-line-list';
 const PROGRAM_ID = 'test-program-id';
 const SURVEY_ID = 'test-survey-id';
 const SENSITIVE_SURVEY_ID = 'test-survey-id-sensitive';
-
-// Not entirely sure why this works
-// https://stackoverflow.com/a/66672462
-const getExpectedDate = date =>
-  new Date(
-    date.getUTCFullYear(),
-    date.getUTCMonth(),
-    date.getUTCDate(),
-    date.getUTCHours(),
-    date.getUTCMinutes(),
-  );
 
 const createDummySurvey = async models => {
   await models.Program.create({
@@ -229,13 +218,13 @@ describe('Generic survey export', () => {
       expect(result.body).toMatchTabularReport(
         [
           {
-            'Submission Time': format(new Date(date1), 'yyyy-MM-dd hh:mm a'),
+            'Submission Time': format(date1, 'yyyy-MM-dd hh:mm a'),
           },
           {
-            'Submission Time': format(new Date(date2), 'yyyy-MM-dd hh:mm a'),
+            'Submission Time': format(date2, 'yyyy-MM-dd hh:mm a'),
           },
           {
-            'Submission Time': format(new Date(date3), 'yyyy-MM-dd hh:mm a'),
+            'Submission Time': format(date3, 'yyyy-MM-dd hh:mm a'),
           },
         ],
         { partialMatching: true },
@@ -270,7 +259,7 @@ describe('Generic survey export', () => {
           Age: 1,
           Sex: expectedPatient.sex,
           Village: expectedVillage.name,
-          'Submission Time': format(new Date(date), 'yyyy-MM-dd hh:mm a'),
+          'Submission Time': format(date, 'yyyy-MM-dd hh:mm a'),
           'name-pde-CheckboxQ': 'Yes', // screenIndex: 1, componentIndex: 1
           'name-pde-Test1': 'Data point 1', // screenIndex: 1, componentIndex: 2
           'name-pde-Autocomplete': expectedVillage.name, // screenIndex: 2, componentIndex: 1

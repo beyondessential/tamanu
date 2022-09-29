@@ -1,7 +1,6 @@
 import { groupBy, keyBy } from 'lodash';
 import { Op } from 'sequelize';
-import { differenceInMilliseconds } from 'date-fns';
-import { format } from '../../utils/dateTime';
+import { format, differenceInMilliseconds } from '../../utils/dateTime';
 import { transformAnswers } from '../utilities';
 
 import {
@@ -156,17 +155,14 @@ export const getPatientById = async (models, rawAnswers) => {
 
 export const removeDuplicatedReferralsPerDate = referrals => {
   const referralByPatientAndDate = groupBy(referrals, r => {
-    const referralDate = format(new Date(r.surveyResponse.endTime), 'dd-MM-yyyy');
+    const referralDate = format(r.surveyResponse.endTime, 'dd-MM-yyyy');
     return `${r.initiatingEncounter.patientId}|${r.surveyResponse.surveyId}|${referralDate}`;
   });
 
   const results = [];
   for (const groupedAnswers of Object.values(referralByPatientAndDate)) {
     const sortedLatestToOldestReferrals = groupedAnswers.sort((r1, r2) =>
-      differenceInMilliseconds(
-        new Date(r2.initiatingEncounter.startDate),
-        new Date(r1.initiatingEncounter.startDate),
-      ),
+      differenceInMilliseconds(r2.initiatingEncounter.startDate, r1.initiatingEncounter.startDate),
     );
     results.push(sortedLatestToOldestReferrals[0]);
   }
@@ -176,14 +172,14 @@ export const removeDuplicatedReferralsPerDate = referrals => {
 
 export const removeDuplicatedAnswersPerDate = answers => {
   const answersPerElement = groupBy(answers, a => {
-    const responseDate = format(new Date(a.responseEndTime), 'dd-MM-yyyy');
+    const responseDate = format(a.responseEndTime, 'dd-MM-yyyy');
     return `${a.patientId}|${a.surveyId}|${responseDate}|${a.dataElementId}`;
   });
 
   const results = [];
   for (const groupedAnswers of Object.values(answersPerElement)) {
     const sortedLatestToOldestAnswers = groupedAnswers.sort((a1, a2) =>
-      differenceInMilliseconds(new Date(a2.responseEndTime), new Date(a1.responseEndTime)),
+      differenceInMilliseconds(a2.responseEndTime, a1.responseEndTime),
     );
     results.push(sortedLatestToOldestAnswers[0]);
   }

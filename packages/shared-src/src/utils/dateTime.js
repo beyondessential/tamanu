@@ -73,4 +73,3 @@ export const format = (date, f) => {
 
 export const differenceInMilliseconds = (a, b) =>
   dateFnsDifferenceInMilliseconds(new Date(a), new Date(b));
-
