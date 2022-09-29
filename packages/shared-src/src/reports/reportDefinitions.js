@@ -141,6 +141,7 @@ export const REPORT_DEFINITIONS = [
     dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: [REPORT_DATA_SOURCES.ALL_FACILITIES],
     parameters: [{ parameterField: 'VillageField' }, { parameterField: 'LabTestLaboratoryField' }],
+    filterDateRangeAsStrings: true,
   },
   {
     name: 'Fiji Traveller COVID-19 Tests - Line list',
@@ -160,6 +161,7 @@ export const REPORT_DEFINITIONS = [
     id: 'nauru-covid-swab-lab-test-list',
     dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: [REPORT_DATA_SOURCES.ALL_FACILITIES],
+    filterDateRangeAsStrings: true,
   },
   {
     name: 'Palau COVID-19 Case Report - Line list',
@@ -180,6 +182,7 @@ export const REPORT_DEFINITIONS = [
     dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: [REPORT_DATA_SOURCES.ALL_FACILITIES],
     parameters: [{ parameterField: 'VillageField' }, { parameterField: 'LabTestLaboratoryField' }],
+    filterDateRangeAsStrings: true,
   },
   {
     name: 'COVID-19 Tests - Summary',
@@ -321,6 +324,7 @@ export const REPORT_DEFINITIONS = [
     id: 'fiji-statistical-report-for-phis-summary',
     dateRangeLabel: 'Date range (or leave blank for the past 30 days of data)',
     dataSourceOptions: [REPORT_DATA_SOURCES.ALL_FACILITIES],
+    filterDateRangeAsStrings: true,
     parameters: [
       {
         parameterField: 'ParameterAutocompleteField',

@@ -1,13 +1,13 @@
 import {
-  differenceInMilliseconds,
-  isWithinInterval,
   isBefore,
   isAfter,
+  isWithinInterval,
   startOfDay,
   endOfDay,
   format,
   isSameDay,
 } from 'date-fns';
+import { differenceInMilliseconds } from 'shared/utils/dateTime';
 import { groupBy } from 'lodash';
 import { Op } from 'sequelize';
 import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_LABELS } from '../../constants';
@@ -196,11 +196,11 @@ const getLatestPatientAnswerInDateRange = (
   }
 
   const sortedLatestToOldestAnswers = patientTransformedAnswers.sort((a1, a2) =>
-    differenceInMilliseconds(a2.responseEndTime, a1.responseEndTime),
+    differenceInMilliseconds(new Date(a2.responseEndTime), new Date(a1.responseEndTime)),
   );
 
   const latestAnswer = sortedLatestToOldestAnswers.find(a =>
-    isWithinInterval(a.responseEndTime, {
+    isWithinInterval(new Date(a.responseEndTime), {
       start: currentlabTestDate,
       end: nextLabTestDate,
     }),
@@ -242,7 +242,7 @@ const getLabTestRecords = async (
       }
 
       const labTest = patientLabTests[i];
-      const currentLabTestDate = startOfDay(labTest.date);
+      const currentLabTestDate = startOfDay(new Date(labTest.date));
 
       // Get all lab tests regardless and filter fromDate and toDate in memory
       // to ensure that we have the date range from current lab test to the next lab test correctly.
@@ -265,7 +265,7 @@ const getLabTestRecords = async (
         // if next lab test not on the same date (next one on a different date,
         // startOf('day') to exclude the next date when comparing range later
         if (!isSameDay(currentLabTestDate, nextLabTestTimestamp)) {
-          nextLabTestDate = startOfDay(nextLabTestTimestamp);
+          nextLabTestDate = startOfDay(new Date(nextLabTestTimestamp));
         } else {
           // if next lab test on the same date, just use its raw timestamp
           nextLabTestDate = nextLabTestTimestamp;
@@ -341,7 +341,6 @@ export const baseDataGenerator = async (
     surveyQuestionCodes,
     dateFormat,
   });
-
   return generateReportFromQueryData(reportData, reportColumnTemplate);
 };
 

@@ -1,9 +1,9 @@
 import { keyBy, groupBy, uniqWith, isEqual } from 'lodash';
 import { Op } from 'sequelize';
-import { differenceInMilliseconds, format } from 'date-fns';
+import { differenceInMilliseconds, format as dateFnsFormat } from 'date-fns';
 import { generateReportFromQueryData } from './utilities';
 import { transformAnswers } from './utilities/transformAnswers';
-import { parseISO9075, ageInYears } from '../utils/dateTime';
+import { format, ageInYears } from '../utils/dateTime';
 
 const parametersToSurveyResponseSqlWhere = (parameters, surveyIds) => {
   const defaultWhereClause = {
@@ -78,7 +78,7 @@ const getLatestAnswerPerGroup = groupedTransformAnswers => {
   const results = {};
   for (const [key, groupedAnswers] of Object.entries(groupedTransformAnswers)) {
     const sortedLatestToOldestAnswers = groupedAnswers.sort((a1, a2) =>
-      differenceInMilliseconds(a2.responseEndTime, a1.responseEndTime),
+      differenceInMilliseconds(new Date(a2.responseEndTime), new Date(a1.responseEndTime)),
     );
     results[key] = sortedLatestToOldestAnswers[0]?.body;
   }
@@ -180,9 +180,7 @@ export const dataGenerator = async (
         continue;
       }
 
-      const dateOfBirth = patient.dateOfBirth
-        ? format(parseISO9075(patient.dateOfBirth), 'dd-MM-yyyy')
-        : '';
+      const dateOfBirth = patient.dateOfBirth ? format(patient.dateOfBirth, 'dd-MM-yyyy') : '';
       const age = patient.dateOfBirth ? ageInYears(patient.dateOfBirth) : '';
       const recordData = {
         clientId: patient.displayId,

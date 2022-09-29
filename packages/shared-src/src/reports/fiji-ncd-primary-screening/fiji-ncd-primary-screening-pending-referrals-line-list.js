@@ -1,6 +1,6 @@
 import { keyBy } from 'lodash';
 import { Op } from 'sequelize';
-import { isAfter, format, parse } from 'date-fns';
+import { isAfter, parse } from 'date-fns';
 import { REFERRAL_STATUSES } from '../../constants';
 import { generateReportFromQueryData, getAnswers } from '../utilities';
 import {
@@ -14,7 +14,7 @@ import {
   getCachedAnswer,
   parametersToAnswerSqlWhere,
 } from './utils';
-import { ageInYears } from '../../utils/dateTime';
+import { ageInYears, format } from '../../utils/dateTime';
 
 import {
   REFERRAL_SURVEY_IDS,
