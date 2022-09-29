@@ -3,9 +3,10 @@ import {
   createDummyEncounter,
   createDummyEncounterMedication,
 } from 'shared/demoData/patients';
-import moment from 'moment';
-import { createTestContext } from '../utilities';
+import { toDateTimeString, getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { subWeeks } from 'date-fns';
 import { uploadAttachment } from '../../app/utils/uploadAttachment';
+import { createTestContext } from '../utilities';
 
 describe('Encounter', () => {
   let patient = null;
@@ -382,13 +383,11 @@ describe('Encounter', () => {
         const v = await models.Encounter.create({
           ...(await createDummyEncounter(models)),
           patientId: patient.id,
-          startDate: moment()
-            .subtract(4, 'weeks')
-            .toDate(),
+          startDate: toDateTimeString(subWeeks(new Date(), 4)),
           endDate: null,
           reasonForEncounter: 'before',
         });
-        const endDate = new Date();
+        const endDate = getCurrentDateTimeString();
 
         const result = await app.put(`/v1/encounter/${v.id}`).send({
           endDate,

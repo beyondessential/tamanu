@@ -1,6 +1,6 @@
 import { keyBy, groupBy, uniqWith, isEqual, upperFirst } from 'lodash';
 import { Op } from 'sequelize';
-import { format, differenceInYears, parse } from 'date-fns';
+import { format, parse } from 'date-fns';
 import { generateReportFromQueryData, getAnswers } from '../utilities';
 import {
   transformAndRemoveDuplicatedAnswersPerDate,

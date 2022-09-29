@@ -26,8 +26,6 @@ const MARKED_FOR_PUSH_MODELS = [
   'PatientDeathData',
   'PatientBirthData',
   'ContributingDeathCause',
-  'AdministeredVaccine',
-  'ImagingRequestAreas',
 ];
 
 export class Model extends sequelize.Model {

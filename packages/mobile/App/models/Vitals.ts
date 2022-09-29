@@ -6,7 +6,7 @@ import { Encounter } from './Encounter';
 @Entity('vitals')
 export class Vitals extends BaseModel implements IVitals {
   @Column()
-  dateRecorded: Date;
+  dateRecorded: string;
 
   @Column({ type: 'int', nullable: true })
   weight?: number;

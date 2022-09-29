@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { isEmpty } from 'lodash';
+import Divider from '@material-ui/core/Divider';
+import Tooltip from '@material-ui/core/Tooltip';
 import { NOTE_TYPES } from 'shared/constants';
 import { useAuth } from '../contexts/Auth';
+import { foreignKey } from '../utils/validation';
 
 import {
   Form,
@@ -17,7 +20,7 @@ import {
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { NoteItemList } from '../components/NoteItemList';
-import { noteTypes } from '../constants';
+import { noteTypes, Colors } from '../constants';
 
 /**
  * If there's already a treatment plan note, don't allow users to add another one
@@ -35,9 +38,43 @@ const getSelectableNoteTypes = noteTypeCountByType =>
         !!noteTypeCountByType[x.value],
     }));
 
+const StyledDivider = styled(Divider)`
+  margin-top: 30px;
+  margin-bottom: 20px;
+`;
 const StyledFormGrid = styled(FormGrid)`
   margin-bottom: 20px;
 `;
+const StyledTooltip = styled(props => (
+  <Tooltip classes={{ popper: props.className }} {...props}>
+    {props.children}
+  </Tooltip>
+))`
+  z-index: 1500;
+
+  & .MuiTooltip-tooltip {
+    background-color: ${Colors.primaryDark};
+    color: ${Colors.white};
+    font-weight: 400;
+    font-size: 11px;
+    line-height: 15px;
+  }
+`;
+
+const renderOptionLabel = ({ value, label }, noteTypeCountByType) => {
+  return value === NOTE_TYPES.TREATMENT_PLAN && noteTypeCountByType[NOTE_TYPES.TREATMENT_PLAN] ? (
+    <StyledTooltip
+      arrow
+      placement="top"
+      followCursor
+      title="This note type already exists for this encounter"
+    >
+      <div>{label}</div>
+    </StyledTooltip>
+  ) : (
+    <div>{label}</div>
+  );
+};
 
 export const NotePageForm = ({
   practitionerSuggester,
@@ -47,19 +84,32 @@ export const NotePageForm = ({
   noteTypeCountByType,
   onSubmit,
   onEditNoteItem,
+  cancelText = 'Cancel',
+  contentRef,
 }) => {
   const { currentUser } = useAuth();
+
+  const lastNoteItemRef = useCallback(node => {
+    if (node !== null) {
+      node.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, []);
 
   const renderForm = ({ submitForm }) => (
     <>
       {!isEmpty(notePage) && (
-        <StyledFormGrid columns={1}>
-          <NoteItemList
-            noteItems={noteItems}
-            currentUserId={currentUser.id}
-            onEditNoteItem={onEditNoteItem}
-          />
-        </StyledFormGrid>
+        <>
+          <StyledFormGrid columns={1}>
+            <NoteItemList
+              noteItems={noteItems}
+              currentUserId={currentUser.id}
+              onEditNoteItem={onEditNoteItem}
+              lastNoteItemRef={lastNoteItemRef}
+            />
+          </StyledFormGrid>
+
+          <StyledDivider />
+        </>
       )}
 
       <StyledFormGrid columns={3}>
@@ -70,21 +120,31 @@ export const NotePageForm = ({
           component={SelectField}
           options={getSelectableNoteTypes(noteTypeCountByType)}
           disabled={!isEmpty(notePage)}
+          formatOptionLabel={option => renderOptionLabel(option, noteTypeCountByType)}
         />
         <Field
-          name="onBehalfOfId"
-          label="On behalf of"
+          name="writtenById"
+          label="Written by (or on behalf of)"
+          required
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
         <Field name="date" label="Date & time" component={DateTimeField} required />
       </StyledFormGrid>
 
-      <Field name="content" label="Add note" required component={TextField} multiline rows={6} />
+      <Field
+        inputRef={contentRef}
+        name="content"
+        label="Add note"
+        required
+        component={TextField}
+        multiline
+        rows={6}
+      />
       <ConfirmCancelRow
         onConfirm={submitForm}
         confirmText="Add note"
-        cancelText="Close"
+        cancelText={cancelText}
         onCancel={onCancel}
       />
     </>
@@ -94,9 +154,11 @@ export const NotePageForm = ({
     <Form
       onSubmit={onSubmit}
       render={renderForm}
+      showErrorDialog={false}
       initialValues={{
         date: new Date(),
         noteType: notePage?.noteType,
+        writtenById: currentUser.id,
       }}
       validationSchema={yup.object().shape({
         noteType: yup
@@ -105,6 +167,7 @@ export const NotePageForm = ({
           .required(),
         date: yup.date().required(),
         content: yup.string().required(),
+        writtenById: foreignKey('Written by (or on behalf of) is required'),
       })}
     />
   );
