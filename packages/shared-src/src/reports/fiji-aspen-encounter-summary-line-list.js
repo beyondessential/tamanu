@@ -47,7 +47,7 @@ with
         json_build_object(
           'Note type', note_type,
           'Content', "content",
-          'Note date', to_char(ni."date"::timestamp, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
+          'Note date', to_char(ni."date"::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
         ) 
       ) aggregated_notes
     from note_pages np
@@ -70,7 +70,7 @@ with
         json_build_object(
           'Name', proc.name,
           'Code', proc.code,
-          'Date', to_char(date::timestamp, 'yyyy-dd-mm'),
+          'Date', to_char(date::timestamp, 'DD-MM-YYYY'),
           'Location', loc.name,
           'Notes', p.note,
           'Completed notes', completed_note
@@ -157,7 +157,7 @@ with
         json_build_object(
           'Note type', note_type,
           'Content', "content",
-          'Note date', to_char(ni."date"::timestamp, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
+          'Note date', to_char(ni."date"::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
         ) order by ni.date desc
       ) "Notes"
     from note_pages np
@@ -190,17 +190,17 @@ with
       case when count("from") = 0
         then json_build_array(json_build_object(
           'Department', d.name,
-          'Assigned time', to_char(e.start_date::timestamp, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
+          'Assigned time', to_char(e.start_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
         ))
         else 
           array_to_json(json_build_object(
             'Department', first_from, --first "from" from note
-            'Assigned time', to_char(e.start_date::timestamp, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
+            'Assigned time', to_char(e.start_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
           ) ||
           array_agg(
             json_build_object(
               'Department', "to",
-              'Assigned time', to_char(nh.date::timestamp, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
+              'Assigned time', to_char(nh.date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
             ) ORDER BY nh.date
           ))
       end department_history,
@@ -227,17 +227,17 @@ with
       case when count("from") = 0
         then json_build_array(json_build_object(
           'Location', l.name,
-          'Assigned time', to_char(e.start_date::timestamp, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
+          'Assigned time', to_char(e.start_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
         ))
         else 
           array_to_json(json_build_object(
             'Location', first_from, --first "from" from note
-            'Assigned time', to_char(e.start_date::timestamp, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
+            'Assigned time', to_char(e.start_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
           ) ||
           array_agg(
             json_build_object(
               'Location', "to",
-              'Assigned time', to_char(nh.date::timestamp, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
+              'Assigned time', to_char(nh.date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
             ) ORDER BY nh.date
           ))
       end location_history,
@@ -277,13 +277,13 @@ select
   p.display_id "Patient ID",
   p.first_name "First name",
   p.last_name "Last name",
-  p.date_of_birth "Date of birth",
+  to_char(p.date_of_birth::date, 'DD-MM-YYYY') "Date of birth",
   extract(year from age(p.date_of_birth::timestamp)) "Age",
   p.sex "Sex",
   billing.name "Patient billing type",
   e.id "Encounter ID",
-  to_char(e.start_date::timestamp, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM') "Encounter start date",
-  to_char(e.end_date::timestamp, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM') "Encounter end date",
+  to_char(e.start_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM') "Encounter start date",
+  to_char(e.end_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM') "Encounter end date",
   case e.encounter_type
     when 'triage' then  'Triage'
     when 'observation' then  'Active ED patient'
