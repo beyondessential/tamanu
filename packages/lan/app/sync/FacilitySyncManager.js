@@ -33,13 +33,21 @@ export class FacilitySyncManager {
       return;
     }
 
-    // if there's no existing sync, kick one off
-    if (!this.syncPromise) {
-      this.syncPromise = this.runSync();
+    // if there's an existing sync, just wait for that sync run
+    if (this.syncPromise) {
+      await this.syncPromise;
+      return;
     }
 
-    // wait for the sync run
-    await this.syncPromise;
+    // set up a common sync promise to avoid double sync
+    this.syncPromise = this.runSync();
+
+    // make sure sync promise gets cleared when finished, even if there's an error
+    try {
+      await this.syncPromise;
+    } finally {
+      this.syncPromise = null;
+    }
   }
 
   async runSync() {
@@ -146,7 +154,5 @@ export class FacilitySyncManager {
     // clear temp data stored for persist
     await this.models.SessionSyncRecord.truncate({ cascade: true, force: true });
     await this.models.SyncSession.truncate({ cascade: true, force: true });
-
-    this.syncPromise = null;
   }
 }

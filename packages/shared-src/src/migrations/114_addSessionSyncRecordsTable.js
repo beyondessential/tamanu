@@ -54,6 +54,12 @@ export async function up(query) {
       type: Sequelize.BIGINT,
     },
   });
+  await query.sequelize.query(`
+    CREATE TRIGGER set_session_sync_records_updated_at_sync_tick
+    BEFORE INSERT OR UPDATE ON session_sync_records
+    FOR EACH ROW
+    EXECUTE FUNCTION set_updated_at_sync_tick();
+  `);
 }
 
 export async function down(query) {
