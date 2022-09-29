@@ -54,13 +54,25 @@ with
     join note_items ni on ni.note_page_id = np.id
     group by record_id
   ),
+  lab_test_info as (
+    select 
+      lab_request_id,
+      json_agg(ltt.name) tests
+    from lab_tests lt
+    join lab_test_types ltt on ltt.id = lt.lab_test_type_id 
+    group by lab_request_id 
+  ),
   lab_request_info as (
     select 
       encounter_id,
-      json_agg(ltt.name) "Lab requests"
+      json_agg(
+        json_build_object(
+          'Test', tests
+        )) "Lab requests"
     from lab_requests lr
-    join lab_tests lt on lt.lab_request_id  = lr.id
-    join lab_test_types ltt on ltt.id = lt.lab_test_type_id
+    join lab_test_info lti
+    on lti.lab_request_id  = lr.id
+    left join notes_info ni on ni.record_id = lr.id
     group by encounter_id
   ),
   procedure_info as (
