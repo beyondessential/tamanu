@@ -294,12 +294,7 @@ select
     when 'surveyResponse' then 'Survey response'
     else e.encounter_type
   end "Encounter type",
-  case t.score
-    when '1' then  'Emergency'
-    when '2' then  'Priority'
-    when '3' then  'Non-urgent'
-    else t.score
-  end "Triage category",
+  t.score "Triage category",
   ti."waitTimeFollowingTriage",
   di2.department_history "Department",
   li.location_history "Location",
