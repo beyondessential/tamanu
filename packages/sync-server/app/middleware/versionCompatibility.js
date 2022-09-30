@@ -8,15 +8,15 @@ import { InvalidClientHeadersError } from 'shared/errors';
 export const SUPPORTED_CLIENT_VERSIONS = {
   'Tamanu LAN Server': {
     min: '1.20.0',
-    max: '1.20.0', // note that higher patch versions will be allowed to connect
+    max: '1.20.1', // note that higher patch versions will be allowed to connect
   },
   'Tamanu Desktop': {
     min: '1.20.0',
-    max: '1.20.0', // note that higher patch versions will be allowed to connect
+    max: '1.20.1', // note that higher patch versions will be allowed to connect
   },
   'Tamanu Mobile': {
     min: '1.20.40',
-    max: '1.20.40', // note that higher patch versions will be allowed to connect
+    max: '1.20.42', // note that higher patch versions will be allowed to connect
   },
   'fiji-vps': {
     min: null,
