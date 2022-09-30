@@ -575,6 +575,7 @@
         }
       },
       // The time zone setting is currently only used for Vaccine Certificates
+      // Todo: remove this timeZone once all date fields have been migrated to date_time_strings
       "timeZone": null,
       "triageCategories": [
         { "level": 1, "label": "Emergency", "color": "#F76853" },
@@ -652,5 +653,6 @@
     // DESTROY sets deleted_at to a timestamp
     // NONE is a no-op and does nothing
     "deletionAction": "RENAME"
-  }
+  },
+  "timeZone": null
 }
