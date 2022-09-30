@@ -3,7 +3,7 @@ import { readdirSync } from 'fs';
 import path from 'path';
 
 // before this, we just cut our losses and accept irreversible migrations
-const LAST_REVERSIBLE_MIGRATION = '048_changeNoteRecordTypeColumn.js';
+const LAST_REVERSIBLE_MIGRATION = '098_reMigrateDatesUsingCountryTimezone.js';
 
 export function createMigrationInterface(log, sequelize) {
   // ie, shared/src/migrations
