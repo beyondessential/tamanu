@@ -93,5 +93,5 @@ export async function up(query) {
 
 export async function down() {
   // No down as is a data correction
-  throw new Error('This migration can not be run as it could result in loss of data.');
+  return null;
 }
