@@ -1,3 +1,4 @@
+import { QueryTypes } from 'sequelize';
 import config from 'config';
 
 const ISO9075_DATE_TIME_FMT = 'YYYY-MM-DD HH24:MI:SS';
@@ -18,14 +19,35 @@ const dateTableColumns = {
   patient_death_data: ['external_cause_date', 'last_surgery_date'],
 };
 
+const allColumns = [...Object.entries(dateTimeTableColumns), ...Object.entries(dateTableColumns)];
+
 export async function up(query) {
-  const promises = [];
+  let count = 0;
+
+  for (const [tableName, columns] of allColumns) {
+    const where = columns.map(col => `${col}_legacy IS NOT NULL`).join(' OR ');
+    const countResult = await query.sequelize.query(
+      `SELECT COUNT(*) FROM ${tableName} WHERE ${where};`,
+      {
+        type: QueryTypes.SELECT,
+      },
+    );
+    count += parseInt(countResult[0].count);
+  }
+
+  // If there is no legacy column data, then we don't need to run the migration or check
+  // for the timezone in the config
+  if (count === 0) {
+    return;
+  }
 
   const COUNTRY_TIMEZONE = config.localisation.data.timeZone;
 
   if (!COUNTRY_TIMEZONE) {
     throw Error('Localisation timezone is not set');
   }
+
+  const promises = [];
 
   // Migrate date_time_string columns
   // only include data that still matches the legacy column
