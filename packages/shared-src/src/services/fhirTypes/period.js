@@ -6,6 +6,7 @@ import { COMPOSITE, Composite } from '../../utils/pgComposite';
 
 export class FhirPeriod extends Composite {
   static FIELD_ORDER = ['start', 'end'];
+
   static SCHEMA = yup
     .object({
       start: yup

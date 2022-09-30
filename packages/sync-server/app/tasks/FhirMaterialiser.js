@@ -27,7 +27,7 @@ export class FhirMaterialiser extends ScheduledTask {
 
   async countQueue() {
     let total = frontQueue.length;
-    for (const resource of Object.values(FHIR_RESOURCE_TYPES)) {
+    for (const resource of FHIR_RESOURCE_TYPES) {
       log.debug(`Counting missing records for Fhir${resource}`);
       const Resource = this.models[`Fhir${resource}`];
       total += await Resource.countMissingRecords();
@@ -49,7 +49,7 @@ export class FhirMaterialiser extends ScheduledTask {
       );
     }
 
-    for (const resource of Object.values(FHIR_RESOURCE_TYPES)) {
+    for (const resource of FHIR_RESOURCE_TYPES) {
       if (total >= limit) return;
 
       const missing = await this.models[`Fhir${resource}`].findMissingRecordsIds(limit - total);
@@ -65,11 +65,11 @@ export class FhirMaterialiser extends ScheduledTask {
     }
   }
 
-  async materialise(log, resource, upstreamId) {
-    log.debug('Starting materialise');
+  async materialise(logger, resource, upstreamId) {
+    logger.debug('Starting materialise');
     const start = +new Date();
     const result = await this.models[`Fhir${resource}`].materialiseFromUpstream(upstreamId);
-    log.debug('Done materialising', {
+    logger.debug('Done materialising', {
       resourceId: result.id,
       versionId: result.versionId,
       duration: +new Date() - start,

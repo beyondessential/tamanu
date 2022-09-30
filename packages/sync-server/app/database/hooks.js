@@ -1,26 +1,22 @@
 import config from 'config';
 
 import { createReferralNotification } from 'shared/tasks/CreateReferralNotification';
-import { fhirQueue } from '../tasks/FhirMaterialiser';
 import { FHIR_RESOURCE_TYPES } from 'shared/constants';
 import { log } from 'shared/services/logging';
 
+import { fhirQueue } from '../tasks/FhirMaterialiser';
+
 export async function addHooks(store) {
   if (config.notifications?.referralCreated) {
-    store.models.Referral.addHook(
-      'afterCreate',
-      'create referral notification hook',
-      referral => {
-        createReferralNotification(referral, store.models);
-      },
-    );
+    store.models.Referral.addHook('afterCreate', 'create referral notification hook', referral => {
+      createReferralNotification(referral, store.models);
+    });
   }
 
-  if (config.integrations?.fhir) {
+  if (config.integrations?.fhir?.enabled) {
     const singleHooks = ['afterCreate', 'afterUpdate'];
-    const bulkHooks = ['afterBulkCreate'];
 
-    for (const resource of Object.values(FHIR_RESOURCE_TYPES)) {
+    for (const resource of FHIR_RESOURCE_TYPES) {
       const Upstream = store.models[`Fhir${resource}`].UpstreamModel;
       if (!Upstream) continue;
 
@@ -32,11 +28,13 @@ export async function addHooks(store) {
         });
       }
 
-      for (const hook of bulkHooks) {
-        Upstream.addHook(hook, 'fhirMaterialisation', patients => {
-          patients.forEach(patient => fhirQueue(resource, patient.id));
-        });
-      }
+      Upstream.addHook('afterBulkCreate', 'fhirMaterialisation', patients => {
+        patients.forEach(patient => fhirQueue(resource, patient.id));
+      });
+
+      Upstream.addHook('afterBulkUpdate', 'fhirMaterialisation', async ({ where }) => {
+        (await Upstream.findAll({ where })).forEach(patient => fhirQueue(resource, patient.id));
+      });
     }
   }
 }

@@ -1,10 +1,16 @@
 import config from 'config';
 import { Sequelize, DataTypes } from 'sequelize';
+import { identity } from 'lodash';
 
 import { FhirResource } from './Resource';
+import { arrayOf, activeFromVisibility } from './utils';
 import { dateType } from '../dateTimeTypes';
 import { latestDateTime } from '../../utils/dateTime';
-import { VISIBILITY_STATUSES } from '../../constants';
+import {
+  FHIR_SEARCH_PARAMETERS,
+  FHIR_SEARCH_TOKEN_TYPES,
+  FHIR_DATETIME_PRECISION,
+} from '../../constants';
 import {
   FhirAddress,
   FhirContactPoint,
@@ -16,21 +22,21 @@ export class FhirPatient extends FhirResource {
   static init(options, models) {
     super.init(
       {
-        identifier: this.ArrayOf('identifier', DataTypes.FHIR_IDENTIFIER),
+        identifier: arrayOf('identifier', DataTypes.FHIR_IDENTIFIER),
         active: {
           type: Sequelize.BOOLEAN,
           allowNull: false,
           defaultValue: true,
         },
-        name: this.ArrayOf('name', DataTypes.FHIR_HUMAN_NAME),
-        telecom: this.ArrayOf('telecom', DataTypes.FHIR_CONTACT_POINT),
+        name: arrayOf('name', DataTypes.FHIR_HUMAN_NAME),
+        telecom: arrayOf('telecom', DataTypes.FHIR_CONTACT_POINT),
         gender: {
           type: Sequelize.STRING(10),
           allowNull: false,
         },
         birthDate: dateType('birthDate', { allowNull: true }),
         deceasedDateTime: dateType('deceasedDateTime', { allowNull: true }),
-        address: this.ArrayOf('address', DataTypes.FHIR_ADDRESS),
+        address: arrayOf('address', DataTypes.FHIR_ADDRESS),
       },
       options,
     );
@@ -51,11 +57,12 @@ export class FhirPatient extends FhirResource {
       ],
     });
 
-    upstream.additionalData = (upstream.additionalData || [])[0];
+    const [first] = upstream.additionalData || [];
+    upstream.additionalData = first;
 
     this.set({
       identifier: identifiers(upstream),
-      active: upstream.visibilityStatus === VISIBILITY_STATUSES.CURRENT,
+      active: activeFromVisibility(upstream),
       name: names(upstream),
       telecom: telecoms(upstream),
       gender: upstream.sex,
@@ -65,14 +72,75 @@ export class FhirPatient extends FhirResource {
       lastUpdated: latestDateTime(upstream.updatedAt, upstream.additionalData?.updatedAt),
     });
   }
+
+  static searchParameters() {
+    return {
+      ...super.searchParameters(),
+      identifier: {
+        type: FHIR_SEARCH_PARAMETERS.TOKEN,
+        path: [['identifier', '[]']],
+        tokenType: FHIR_SEARCH_TOKEN_TYPES.VALUE,
+      },
+      given: {
+        type: FHIR_SEARCH_PARAMETERS.STRING,
+        path: [['name', '[]', 'given', '[]']],
+      },
+      family: {
+        type: FHIR_SEARCH_PARAMETERS.STRING,
+        path: [['name', '[]', 'family']],
+      },
+      gender: {
+        type: FHIR_SEARCH_PARAMETERS.TOKEN,
+        path: [['gender']],
+        sortable: false,
+        tokenType: FHIR_SEARCH_TOKEN_TYPES.STRING,
+      },
+      birthdate: {
+        type: FHIR_SEARCH_PARAMETERS.DATE,
+        path: [['birthDate']],
+        datePrecision: FHIR_DATETIME_PRECISION.DAYS,
+      },
+      address: {
+        type: FHIR_SEARCH_PARAMETERS.STRING,
+        path: [
+          ['address', '[]', 'line', '[]'],
+          ['address', '[]', 'city'],
+          ['address', '[]', 'district'],
+          ['address', '[]', 'state'],
+          ['address', '[]', 'country'],
+          ['address', '[]', 'postal_code'],
+          ['address', '[]', 'text'],
+        ],
+      },
+      'address-city': {
+        type: FHIR_SEARCH_PARAMETERS.STRING,
+        path: [['address', '[]', 'city']],
+      },
+      telecom: {
+        type: FHIR_SEARCH_PARAMETERS.TOKEN,
+        path: [['telecom', '[]']],
+        tokenType: FHIR_SEARCH_TOKEN_TYPES.VALUE,
+      },
+      deceased: {
+        type: FHIR_SEARCH_PARAMETERS.TOKEN,
+        path: [['deceasedDateTime']],
+        tokenType: FHIR_SEARCH_TOKEN_TYPES.PRESENCE,
+      },
+      active: {
+        type: FHIR_SEARCH_PARAMETERS.TOKEN,
+        path: [['active']],
+        tokenType: FHIR_SEARCH_TOKEN_TYPES.BOOLEAN,
+      },
+    };
+  }
 }
 
-function compact(array, access = a => a) {
+function compactBy(array, access = identity) {
   return array.filter(access);
 }
 
 function identifiers(patient) {
-  return compact(
+  return compactBy(
     [
       {
         use: 'usual',
@@ -96,23 +164,22 @@ function identifiers(patient) {
 }
 
 function names(patient) {
-  return compact([
-    new FhirHumanName({
+  return compactBy([
+    {
       use: 'official',
-      prefix: compact([patient.additionalData?.title]),
+      prefix: compactBy([patient.additionalData?.title]),
       family: patient.lastName,
-      given: compact([patient.firstName, patient.middleName]),
-    }),
-    patient.culturalName &&
-      new FhirHumanName({
-        use: 'nickname',
-        text: patient.culturalName,
-      }),
-  ]);
+      given: compactBy([patient.firstName, patient.middleName]),
+    },
+    patient.culturalName && {
+      use: 'nickname',
+      text: patient.culturalName,
+    },
+  ]).map(i => new FhirHumanName(i));
 }
 
 function telecoms(patient) {
-  return compact([
+  return compactBy([
     patient.additionalData?.primaryContactNumber,
     patient.additionalData?.secondaryContactNumber,
   ]).map(
@@ -134,7 +201,7 @@ function addresses(patient) {
       type: 'physical',
       use: 'home',
       city: cityTown,
-      line: compact([streetVillage]),
+      line: compactBy([streetVillage]),
     }),
   ];
 }

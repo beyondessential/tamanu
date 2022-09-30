@@ -7,6 +7,7 @@ import { FhirCoding } from './coding';
 
 export class FhirCodeableConcept extends Composite {
   static FIELD_ORDER = ['coding', 'text'];
+
   static SCHEMA = yup
     .object({
       coding: yup
@@ -22,7 +23,7 @@ export class FhirCodeableConcept extends Composite {
     .noUnknown();
 
   static validateAndTransformFromSql({ coding, ...fields }) {
-    return new this({ coding: coding && array.parse(coding, FhirCoding.fromSql), ...fields });
+    return new this({ coding: coding && array.parse(coding, el => FhirCoding.fromSql(el)), ...fields });
   }
 
   static fake(...args) {

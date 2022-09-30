@@ -1,5 +1,5 @@
 import { Chance } from 'chance';
-import { sample } from 'lodash';
+import { identity, sample } from 'lodash';
 import array from 'postgres-array';
 import * as yup from 'yup';
 
@@ -10,6 +10,7 @@ const USES = ['usual', 'official', 'temp', 'nickname', 'anonymous', 'old', 'maid
 
 export class FhirHumanName extends Composite {
   static FIELD_ORDER = ['use', 'text', 'family', 'given', 'prefix', 'suffix', 'period'];
+
   static SCHEMA = yup
     .object({
       use: yup
@@ -47,12 +48,10 @@ export class FhirHumanName extends Composite {
     .noUnknown();
 
   static validateAndTransformFromSql({ given, prefix, suffix, period, ...fields }) {
-    const noop = x => x;
-
     return new this({
-      given: given && array.parse(given, noop),
-      prefix: prefix && array.parse(prefix, noop),
-      suffix: suffix && array.parse(suffix, noop),
+      given: given && array.parse(given, identity),
+      prefix: prefix && array.parse(prefix, identity),
+      suffix: suffix && array.parse(suffix, identity),
       period: period && FhirPeriod.fromSql(period),
       ...fields,
     });
