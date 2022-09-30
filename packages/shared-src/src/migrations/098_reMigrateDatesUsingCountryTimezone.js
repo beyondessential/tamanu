@@ -41,10 +41,10 @@ export async function up(query) {
     return;
   }
 
-  const COUNTRY_TIMEZONE = config?.timeZone;
+  const COUNTRY_TIMEZONE = config?.countryTimeZone;
 
   if (!COUNTRY_TIMEZONE) {
-    throw Error('A timeZone must be configured in local.json for this migration to run.');
+    throw Error('A countryTimeZone must be configured in local.json for this migration to run.');
   }
 
   const promises = [];
