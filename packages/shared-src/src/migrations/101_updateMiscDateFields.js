@@ -1,4 +1,5 @@
-import { DataTypes } from 'sequelize';
+import { QueryTypes, DataTypes } from 'sequelize';
+import config from 'config';
 
 const ISO9075_DATE_TIME_FMT = 'YYYY-MM-DD HH24:MI:SS';
 const MIGRATIONS = [
@@ -9,34 +10,68 @@ const MIGRATIONS = [
   { TABLE: 'document_metadata', FIELD: 'document_uploaded_at' },
 ];
 
+const alterSchemaOnly = async (query, table, field) => {
+  // Change column types from of original columns from date to string
+  await query.sequelize.query(`
+      ALTER TABLE ${table}
+      ALTER COLUMN ${field} TYPE date_time_string);
+    `);
+
+  return true;
+};
+
+const alterSchemaAndBackUpLegacyData = async (query, table, field) => {
+  const COUNTRY_TIMEZONE = config?.countryTimeZone;
+
+  if (!COUNTRY_TIMEZONE) {
+    throw Error('A countryTimeZone must be configured in local.json for this migration to run.');
+  }
+
+  // Change column types from of original columns from date to string & convert data to string
+  await query.sequelize.query(`
+      ALTER TABLE ${table}
+      ALTER COLUMN ${field} TYPE date_time_string
+      USING TO_CHAR(${field}::TIMESTAMPTZ AT TIME ZONE '${COUNTRY_TIMEZONE}', '${ISO9075_DATE_TIME_FMT}');
+    `);
+
+  // Copy data to legacy columns for backup
+  await query.sequelize.query(`
+      UPDATE ${table}
+      SET
+      ${field}_legacy = ${field};
+    `);
+
+  return true;
+};
+
 export async function up(query) {
   for (const migration of MIGRATIONS) {
-    // 1. Create legacy columns
+    // Create legacy columns
     await query.addColumn(migration.TABLE, `${migration.FIELD}_legacy`, {
       type: DataTypes.DATE,
     });
 
-    // 2. Copy data to legacy columns for backup
-    await query.sequelize.query(`
-      UPDATE ${migration.TABLE}
-      SET
-      ${migration.FIELD}_legacy = ${migration.FIELD};
-    `);
+    // Check for legacy data
+    // Check if there is any legacy data in the system
+    // For example, newly deployed instances of tamanu won't have legacy data
+    const legacyDataCount = await query.sequelize.query(
+      `SELECT COUNT(*) FROM ${migration.TABLE} WHERE ${migration.FIELD}_legacy IS NOT NULL;`,
+      {
+        type: QueryTypes.SELECT,
+      },
+    );
 
-    // 3.Change column types from of original columns from date to string & convert data to string
-    await query.sequelize.query(`
-      ALTER TABLE ${migration.TABLE}
-      ALTER COLUMN ${migration.FIELD} TYPE date_time_string USING TO_CHAR(${migration.FIELD}::TIMESTAMPTZ AT TIME ZONE 'UTC', '${ISO9075_DATE_TIME_FMT}');
-    `);
+    // If there is no legacy column data, then we don't need to run the data migration or check
+    // for the timezone in the config
+    if (legacyDataCount === 0) {
+      await alterSchemaOnly(query);
+    } else {
+      await alterSchemaAndBackUpLegacyData(query);
+    }
   }
 }
 
-export async function down(query) {
-  for (const migration of MIGRATIONS) {
-    await query.sequelize.query(`
-      ALTER TABLE ${migration.TABLE}
-      ALTER COLUMN ${migration.FIELD} TYPE timestamp with time zone USING ${migration.FIELD}_legacy;
-    `);
-    await query.removeColumn(migration.TABLE, `${migration.FIELD}_legacy`);
-  }
+export async function down() {
+  // No down as is a data correction
+  return null;
 }
