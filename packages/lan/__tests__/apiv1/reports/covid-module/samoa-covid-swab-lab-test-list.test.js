@@ -1,5 +1,5 @@
 import { createDummyEncounter } from 'shared/demoData/patients';
-import { getCurrentDateTimeString, toDateTimeString } from 'shared-src/src/utils/dateTime';
+import { getCurrentDateTimeString, toDateTimeString } from 'shared/utils/dateTime';
 import { subMinutes } from 'date-fns';
 import { createTestContext } from '../../../utilities';
 import {

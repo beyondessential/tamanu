@@ -1,12 +1,12 @@
 import { createDummyEncounter } from 'shared/demoData/patients';
 import { subMinutes } from 'date-fns';
+import { getCurrentDateTimeString, toDateTimeString } from 'shared/utils/dateTime';
 import { createTestContext } from '../../../utilities';
 import {
   createCovidTestForPatient,
   createLabTests,
   createPatient,
 } from './covid-swab-lab-test-report-utils';
-import { getCurrentDateTimeString, toDateTimeString } from 'shared-src/src/utils/dateTime';
 
 const REPORT_URL = '/v1/reports/fiji-traveller-covid-lab-test-list';
 const PROGRAM_ID = 'program-fijicovidtourism';

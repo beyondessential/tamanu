@@ -9,12 +9,10 @@ const MIGRATIONS = [
 
 const alterSchemaOnly = async (query, table, field) => {
   // Change column types from of original columns from date to string
-  await query.sequelize.query(`
+  return query.sequelize.query(`
       ALTER TABLE ${table}
       ALTER COLUMN ${field} TYPE date_time_string);
     `);
-
-  return true;
 };
 
 const alterSchemaAndBackUpLegacyData = async (query, table, field) => {
@@ -24,21 +22,19 @@ const alterSchemaAndBackUpLegacyData = async (query, table, field) => {
     throw Error('A countryTimeZone must be configured in local.json for this migration to run.');
   }
 
-  // Change column types from of original columns from date to string & convert data to string
-  await query.sequelize.query(`
-      ALTER TABLE ${table}
-      ALTER COLUMN ${field} TYPE date_time_string
-      USING TO_CHAR(${field}::TIMESTAMPTZ AT TIME ZONE '${COUNTRY_TIMEZONE}', '${ISO9075_DATE_TIME_FMT}');
-    `);
-
   // Copy data to legacy columns for backup
   await query.sequelize.query(`
       UPDATE ${table}
       SET
-      ${field}_legacy = ${field};
-    `);
+          ${field}_legacy = ${field};
+  `);
 
-  return true;
+  // Change column types from of original columns from date to string & convert data to string
+  return query.sequelize.query(`
+    ALTER TABLE ${table}
+    ALTER COLUMN ${field} TYPE date_time_string
+    USING TO_CHAR(${field}::TIMESTAMPTZ AT TIME ZONE '${COUNTRY_TIMEZONE}', '${ISO9075_DATE_TIME_FMT}');
+  `);
 };
 
 export async function up(query) {
@@ -52,7 +48,7 @@ export async function up(query) {
     // Check if there is any legacy data in the system
     // For example, newly deployed instances of tamanu won't have legacy data
     const legacyDataCount = await query.sequelize.query(
-      `SELECT COUNT(*) FROM ${migration.TABLE} WHERE ${migration.FIELD}_legacy IS NOT NULL;`,
+      `SELECT COUNT(*) FROM ${migration.TABLE} WHERE ${migration.FIELD} IS NOT NULL;`,
       {
         type: QueryTypes.SELECT,
       },
@@ -61,14 +57,23 @@ export async function up(query) {
     // If there is no legacy column data, then we don't need to run the data migration or check
     // for the timezone in the config
     if (legacyDataCount === 0) {
-      await alterSchemaOnly(query);
+      await alterSchemaOnly(query, migration.TABLE, migration.FIELD);
     } else {
-      await alterSchemaAndBackUpLegacyData(query);
+      try {
+        await alterSchemaAndBackUpLegacyData(query, migration.TABLE, migration.FIELD);
+      } catch (error) {
+        console.log('---', error);
+      }
     }
   }
 }
 
-export async function down() {
-  // No down as is a data correction
-  return null;
+export async function down(query) {
+  for (const migration of MIGRATIONS) {
+    await query.sequelize.query(`
+      ALTER TABLE ${migration.TABLE}
+      ALTER COLUMN ${migration.FIELD} TYPE timestamp with time zone USING ${migration.FIELD}_legacy;
+    `);
+    await query.removeColumn(migration.TABLE, `${migration.FIELD}_legacy`);
+  }
 }
