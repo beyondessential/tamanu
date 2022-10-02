@@ -32,7 +32,7 @@ const allColumns = [...Object.entries(dateTimeTableColumns), ...Object.entries(d
 
 // Check if there is any legacy data in the system
 // For example, newly deployed instances of tamanu won't have legacy data
-const checkForLegacyData = async () => {
+const checkForLegacyData = async query => {
   let count = 0;
 
   for (const [tableName, columns] of allColumns) {
@@ -49,7 +49,7 @@ const checkForLegacyData = async () => {
 };
 
 export async function up(query) {
-  const legacyDataCount = await checkForLegacyData();
+  const legacyDataCount = await checkForLegacyData(query);
 
   // If there is no legacy column data, then we don't need to run the migration or check
   // for the timezone in the config
@@ -73,7 +73,7 @@ export async function up(query) {
       promises.push(
         query.sequelize.query(
           `UPDATE ${tableName}
-           SET ${columnName} = TO_CHAR(${columnName}_legacy::TIMESTAMPTZ AT TIME ZONE '${COUNTRY_TIMEZONE}', :dateFmt)
+           SET ${columnName} = TO_CHAR(${columnName}_legacy::TIMESTAMPTZ AT TIME ZONE '${COUNTRY_TIMEZONE}', :dateTimeFmt)
            WHERE ${columnName} = TO_CHAR(${columnName}_legacy, :dateTimeFmt);
         `,
           {
