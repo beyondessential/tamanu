@@ -1,4 +1,5 @@
 import { subDays } from 'date-fns';
+import { toDateTimeString } from 'shared/utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
 const FIELDS = [
@@ -77,7 +78,7 @@ order by ir.requested_date;
 
 const getData = async (sequelize, parameters) => {
   const {
-    fromDate = subDays(new Date(), 30),
+    fromDate = toDateTimeString(subDays(new Date(), 30)),
     toDate,
     requestedById,
     imagingType,
