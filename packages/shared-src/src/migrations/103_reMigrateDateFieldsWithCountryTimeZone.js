@@ -112,6 +112,5 @@ export async function up(query) {
 
 export async function down() {
   // No down as is a data correction
-  // Question - should we throw an Error here?
   return null;
 }
