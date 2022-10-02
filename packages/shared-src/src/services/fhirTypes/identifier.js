@@ -10,6 +10,7 @@ const USES = ['usual', 'official', 'temp', 'secondary', 'old'];
 
 export class FhirIdentifier extends Composite {
   static FIELD_ORDER = ['use', 'type', 'system', 'value', 'period', 'assigner'];
+
   static SCHEMA = yup
     .object({
       use: yup

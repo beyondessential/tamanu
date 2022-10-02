@@ -117,7 +117,7 @@ function singleMatch(path, paramQuery, paramDef, Model) {
 
 // eslint-disable-next-line no-unused-vars
 function singleOrder(path, order, def, _Model) {
-  let entirePath = path;
+  const entirePath = path;
   if (
     def.type === FHIR_SEARCH_PARAMETERS.TOKEN &&
     (def.tokenType === FHIR_SEARCH_TOKEN_TYPES.CODING ||
