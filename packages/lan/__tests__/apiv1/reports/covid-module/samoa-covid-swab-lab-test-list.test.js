@@ -62,11 +62,13 @@ async function createSampleCollectionSurvey(models) {
       id: 'pde-samcovidsamp02',
       code: 'samcovidsamp02',
       name: 'Phone Number',
+      type: 'FreeText',
     },
     {
       id: 'pde-samcovidsamp03',
       code: 'samcovidsamp03',
       name: 'Village',
+      type: 'FreeText',
     },
   ]);
 
@@ -126,9 +128,9 @@ describe('Samoa covid lab test report', () => {
     });
 
     afterEach(async () => {
-      await testContext.models.LabRequest.destroy({ where: {} });
       await testContext.models.LabTest.destroy({ where: {} });
       await testContext.models.SurveyResponseAnswer.destroy({ where: {} });
+      await testContext.models.LabRequest.destroy({ where: {} });
     });
 
     it('should produce the right columns', async () => {

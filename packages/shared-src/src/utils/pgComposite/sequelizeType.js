@@ -3,7 +3,12 @@ import { enumerate, parse } from './parse';
 
 export class Composite {
   static SCHEMA = object();
+
   static FIELD_ORDER = [];
+
+  static get fhirName() {
+    return this.name.replace(/^Fhir/, '');
+  }
 
   constructor(params) {
     this.params = this.constructor.SCHEMA.validateSync(params);
@@ -13,15 +18,19 @@ export class Composite {
     return this.constructor.FIELD_ORDER.map(name => this.params[name]);
   }
 
+  asFhir() {
+    return objectAsFhir(this.params);
+  }
+
   /**
    * Parses a composite record literal. Unlike the stringifier, we can't take the easy route; we
    * have to implement parsing of values as they'll come back from Postgres.
    */
   static fromSql(raw) {
     const fields = parse(raw);
-    if (fields.length !== this.FIELD_ORDER.length) {
+    if (typeof fields.length === 'number' && fields.length !== this.FIELD_ORDER?.length) {
       throw new Error(
-        `wrong amount of fields for composite: expected ${this.FIELD_ORDER.length}, found ${fields.length}\nRAW: ${raw}`,
+        `wrong amount of fields for composite ${this.name}: expected ${this.FIELD_ORDER?.length}, found ${fields.length}\nRAW: ${raw}`,
       );
     }
 
@@ -54,4 +63,26 @@ export class Composite {
   static fake() {
     throw new Error('Must be overridden');
   }
+}
+
+export function objectAsFhir(input) {
+  const obj = {};
+  for (const [name, value] of Object.entries(input)) {
+    const val = valueAsFhir(value);
+    if (val === null || val === undefined) continue;
+    obj[name] = val;
+  }
+  return obj;
+}
+
+export function valueAsFhir(value) {
+  if (Array.isArray(value)) {
+    return value.map(val => valueAsFhir(val));
+  }
+
+  if (value instanceof Composite) {
+    return value.asFhir();
+  }
+
+  return value;
 }

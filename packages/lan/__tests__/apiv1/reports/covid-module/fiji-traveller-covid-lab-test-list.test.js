@@ -78,54 +78,100 @@ async function createTravellerSurvey(models) {
   });
 
   await models.ProgramDataElement.bulkCreate([
-    { id: 'pde-FijCOVRDT001', code: 'FijCOVRDT001', name: 'Name of person conducting the test' },
+    {
+      id: 'pde-FijCOVRDT001',
+      code: 'FijCOVRDT001',
+      name: 'Name of person conducting the test',
+      type: 'FreeText',
+    },
     {
       id: 'pde-FijCOVRDT002',
       code: 'FijCOVRDT002',
       name: 'International traveller or non-international traveller',
+      type: 'FreeText',
     },
     {
       id: 'pde-FijCOVRDT002a',
       code: 'FijCOVRDT002a',
       name: 'Hotel or international border worker',
+      type: 'FreeText',
     },
     {
       id: 'pde-FijCOVRDT003',
       code: 'FijCOVRDT003',
       name:
         'Name of the facility where test is being conducted (hotel, resort or private testing facility)',
+      type: 'FreeText',
     },
-    { id: 'pde-FijCOVRDT003b', code: 'FijCOVRDT003b', name: 'Brand of Rapid Antigen Test' },
+    {
+      id: 'pde-FijCOVRDT003b',
+      code: 'FijCOVRDT003b',
+      name: 'Brand of Rapid Antigen Test',
+      type: 'FreeText',
+    },
     {
       id: 'pde-FijCOVRDT004',
       code: 'FijCOVRDT004',
       name: 'Purpose of test for international traveller',
+      type: 'FreeText',
     },
-    { id: 'pde-FijCOVRDT005', code: 'FijCOVRDT005', name: 'Passport number' },
-    { id: 'pde-FijCOVRDT007', code: 'FijCOVRDT007', name: 'Phone contact' },
+    { id: 'pde-FijCOVRDT005', code: 'FijCOVRDT005', name: 'Passport number', type: 'FreeText' },
+    { id: 'pde-FijCOVRDT007', code: 'FijCOVRDT007', name: 'Phone contact', type: 'FreeText' },
     {
       id: 'pde-FijCOVRDT008',
       code: 'FijCOVRDT008',
       name: 'Email address (for results certificate)',
+      type: 'FreeText',
     },
-    { id: 'pde-FijCOVRDT008a', code: 'FijCOVRDT008a', name: 'Address in Fiji' },
-    { id: 'pde-FijCOVRDT008b', code: 'FijCOVRDT008b', name: 'Sub-division of address' },
-    { id: 'pde-FijCOVRDT009', code: 'FijCOVRDT009', name: 'Travel Details' },
-    { id: 'pde-FijCOVRDT010', code: 'FijCOVRDT010', name: 'Date of arrival in Fiji' },
-    { id: 'pde-FijCOVRDT011', code: 'FijCOVRDT011', name: 'Arrival flight number or vessel name' },
-    { id: 'pde-FijCOVRDT012', code: 'FijCOVRDT012', name: 'Country of travel origin' },
-    { id: 'pde-FijCOVRDT012a', code: 'FijCOVRDT012a', name: 'Reason for test' },
-    { id: 'pde-FijCOVRDT013', code: 'FijCOVRDT013', name: 'Departure date' },
+    { id: 'pde-FijCOVRDT008a', code: 'FijCOVRDT008a', name: 'Address in Fiji', type: 'FreeText' },
+    {
+      id: 'pde-FijCOVRDT008b',
+      code: 'FijCOVRDT008b',
+      name: 'Sub-division of address',
+      type: 'FreeText',
+    },
+    { id: 'pde-FijCOVRDT009', code: 'FijCOVRDT009', name: 'Travel Details', type: 'FreeText' },
+    {
+      id: 'pde-FijCOVRDT010',
+      code: 'FijCOVRDT010',
+      name: 'Date of arrival in Fiji',
+      type: 'FreeText',
+    },
+    {
+      id: 'pde-FijCOVRDT011',
+      code: 'FijCOVRDT011',
+      name: 'Arrival flight number or vessel name',
+      type: 'FreeText',
+    },
+    {
+      id: 'pde-FijCOVRDT012',
+      code: 'FijCOVRDT012',
+      name: 'Country of travel origin',
+      type: 'FreeText',
+    },
+    { id: 'pde-FijCOVRDT012a', code: 'FijCOVRDT012a', name: 'Reason for test', type: 'FreeText' },
+    { id: 'pde-FijCOVRDT013', code: 'FijCOVRDT013', name: 'Departure date', type: 'FreeText' },
     {
       id: 'pde-FijCOVRDT014',
       code: 'FijCOVRDT014',
       name: 'Departure flight number or vessel name',
+      type: 'FreeText',
     },
-    { id: 'pde-FijCOVRDT015', code: 'FijCOVRDT015', name: 'Destination' },
-    { id: 'pde-FijCOVRDT016', code: 'FijCOVRDT016', name: 'Symptoms status' },
-    { id: 'pde-FijCOVRDT017', code: 'FijCOVRDT017', name: 'Date of first symptom' },
-    { id: 'pde-FijCOVRDT018', code: 'FijCOVRDT018', name: 'Symptoms' },
-    { id: 'pde-PalauCOVSamp7', code: 'PalauCOVSamp7', name: 'Nationality on passport' },
+    { id: 'pde-FijCOVRDT015', code: 'FijCOVRDT015', name: 'Destination', type: 'FreeText' },
+    { id: 'pde-FijCOVRDT016', code: 'FijCOVRDT016', name: 'Symptoms status', type: 'FreeText' },
+    {
+      id: 'pde-FijCOVRDT017',
+      code: 'FijCOVRDT017',
+      name: 'Date of first symptom',
+      type: 'FreeText',
+    },
+    { id: 'pde-FijCOVRDT018', code: 'FijCOVRDT018', name: 'Symptoms', type: 'FreeText' },
+    {
+      id: 'pde-PalauCOVSamp7',
+      code: 'PalauCOVSamp7',
+      name: 'Nationality on passport',
+      type: 'FreeText',
+    },
   ]);
 
   await models.SurveyScreenComponent.bulkCreate([
@@ -205,8 +251,8 @@ describe('Fiji traveller covid lab test report', () => {
     });
 
     afterEach(async () => {
-      await testContext.models.LabRequest.destroy({ where: {} });
       await testContext.models.LabTest.destroy({ where: {} });
+      await testContext.models.LabRequest.destroy({ where: {} });
       await testContext.models.SurveyResponseAnswer.destroy({ where: {} });
     });
 
