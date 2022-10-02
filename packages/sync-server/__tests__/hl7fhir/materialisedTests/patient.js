@@ -634,7 +634,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
         expect(response).toHaveSucceeded();
       });
 
-      it('filters patients by dateOfBirth (birthdate)', async () => {
+      it.only('filters patients by dateOfBirth (birthdate)', async () => {
         const { FhirPatient, Patient } = ctx.store.models;
         const dateOfBirth = '1990-05-25';
         const patients = await Promise.all([

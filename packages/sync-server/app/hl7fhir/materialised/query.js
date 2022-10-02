@@ -9,9 +9,7 @@ import {
   FHIR_SEARCH_TOKEN_TYPES,
   FHIR_DATETIME_PRECISION,
 } from 'shared/constants';
-import { Invalid, Unsupported } from 'shared/utils/fhir/errors';
-
-import { RESULT_PARAMETER_NAMES } from './parameters';
+import { Invalid, Unsupported, RESULT_PARAMETER_NAMES } from 'shared/utils/fhir';
 
 export function pushToQuery(query, param, value) {
   const insert = query.get(param) ?? [];

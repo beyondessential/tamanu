@@ -2,10 +2,9 @@ import asyncHandler from 'express-async-handler';
 import { ValidationError } from 'yup';
 
 import { FHIR_BUNDLE_TYPES, FHIR_RESOURCE_TYPES } from 'shared/constants';
-import { Invalid, OperationOutcome, Unsupported } from 'shared/utils/fhir';
+import { Invalid, OperationOutcome, Unsupported, normaliseParameters } from 'shared/utils/fhir';
 
 import { Bundle } from './bundle';
-import { normaliseParameters } from './parameters';
 import { buildQuery, pushToQuery } from './query';
 
 export function resourceHandler() {
@@ -14,14 +13,14 @@ export function resourceHandler() {
       // TODO: make it a middleware
       const { method } = req;
       if (method !== 'GET') throw new Unsupported('methods other than get are not supported');
-
+      
       const path = req.path.split('/').slice(1);
       if (path.length > 1) throw new Unsupported('nested paths are not supported');
       if (!FHIR_RESOURCE_TYPES.includes(path[0])) throw new Unsupported('this resource is not supported');
-
+      
       const FhirResource = req.store.models[`Fhir${path[0]}`];
       if (!FhirResource) throw new Unsupported('this resource is not supported');
-
+      
       const parameters = normaliseParameters(FhirResource);
       const query = await parseRequest(req, parameters);
 
@@ -44,12 +43,13 @@ export function resourceHandler() {
 }
 
 async function parseRequest(req, parameters) {
+  
   const pairs = Object.entries(req.query).flatMap(([name, values]) =>
     Array.isArray(values) ? values.map(v => [name, v]) : [[name, values]],
-  );
+    );
 
-  const errors = [];
-  const query = new Map();
+    const errors = [];
+    const query = new Map();
   for (const [name, value] of pairs) {
     const [param, modifier] = name.split(':', 2);
     if (!parameters.has(param)) {
