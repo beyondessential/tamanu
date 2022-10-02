@@ -62,10 +62,11 @@ class DatabaseHelper {
       // pointed to the table being altered, the query will fail)
       await this.client.query(`PRAGMA foreign_keys = OFF;`);
 
-      // Returns 0/1 if "migrations" table exists in sqlite
-      const migrationsTableExists = await this.client.query("SELECT count(*) FROM sqlite_master WHERE type='table' AND name='migrations';");
+      // TODO: Remove this once all supported deployments are >= v1.21.0
+      // Get the list of tables named 'migrations'
+      const migrationsTable = await this.client.query("SELECT * FROM sqlite_master WHERE type='table' AND name='migrations';");
 
-      if (migrationsTableExists) {
+      if (!migrationsTable.length) {
         // If we've never run migrations on this device, attempt a synchronize
         console.log("No migrations table found, running final sync from models");
         await this.client.synchronize();
