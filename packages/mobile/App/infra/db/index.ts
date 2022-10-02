@@ -51,7 +51,7 @@ class DatabaseHelper {
 
   async forceSync(): Promise<any> {
     try {
-      console.log("Synchronising database schema to model definitions");
+      console.log("Updating database schema");
       if (this.syncError) {
         console.log("Last seen error from schema sync was:", this.syncError);
       }
@@ -62,8 +62,16 @@ class DatabaseHelper {
       // pointed to the table being altered, the query will fail)
       await this.client.query(`PRAGMA foreign_keys = OFF;`);
 
+      // Returns 0/1 if "migrations" table exists in sqlite
+      const migrationsTableExists = await this.client.query("SELECT count(*) FROM sqlite_master WHERE type='table' AND name='migrations';");
+
+      if (migrationsTableExists) {
+        // If we've never run migrations on this device, attempt a synchronize
+        console.log("No migrations table found, running final sync from models");
+        await this.client.synchronize();
+      }
       await this.client.runMigrations();
-      console.log("Synchronising database schema: OK");
+      console.log("Migrations run: OK");
       this.syncError = null;
     } catch(e) {
       this.syncError = e;
