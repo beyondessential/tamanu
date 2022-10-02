@@ -13,8 +13,9 @@ import {
 } from 'date-fns';
 import { pick } from 'lodash';
 import { date as yupDate, number, object, string } from 'yup';
-import { FHIR_DATETIME_PRECISION } from 'shared/constants';
 
+import { FHIR_DATETIME_PRECISION } from '../../constants';
+import { parseISO9075 } from '../dateTime';
 import { Exception } from './errors';
 
 function extractTz(str) {
@@ -132,6 +133,7 @@ export function parseDateTime(str, ref = new Date()) {
 }
 
 export function formatDateTime(date, precision) {
+  if (date === null || date === undefined) return date;
   const actual = typeof date === 'string' ? parseISO9075(date) : date;
   switch (precision) {
     case FHIR_DATETIME_PRECISION.SECONDS_WITH_TIMEZONE:
