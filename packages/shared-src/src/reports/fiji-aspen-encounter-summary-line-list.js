@@ -43,12 +43,13 @@ with
   notes_info as (
     select
       record_id,
-      json_agg(
-        json_build_object(
-          'Note type', note_type,
-          'Content', "content",
-          'Note date', to_char(ni."date"::timestamp, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
-        ) 
+      string_agg(
+        concat(
+          'Note type: ', note_type,
+          ', Content: ', "content",
+          ', Note date: ', to_char(ni."date"::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
+        ),
+        '; '
       ) aggregated_notes
     from note_pages np
     join note_items ni on ni.note_page_id = np.id
@@ -57,11 +58,7 @@ with
   lab_test_info as (
     select 
       lab_request_id,
-      json_agg(
-        json_build_object(
-          'Name', ltt.name
-        )
-      ) tests
+      json_agg(ltt.name) tests
     from lab_tests lt
     join lab_test_types ltt on ltt.id = lt.lab_test_type_id 
     group by lab_request_id 
@@ -71,27 +68,25 @@ with
       encounter_id,
       json_agg(
         json_build_object(
-          'Tests', tests,
-          'Notes', to_json(aggregated_notes)
+          'Test', tests
         )) "Lab requests"
     from lab_requests lr
     join lab_test_info lti
     on lti.lab_request_id  = lr.id
-    left join notes_info ni on ni.record_id = lr.id
     group by encounter_id
   ),
   procedure_info as (
     select
       encounter_id,
-      json_agg(
-        json_build_object(
-          'Name', proc.name,
-          'Code', proc.code,
-          'Date', to_char(date::timestamp, 'yyyy-dd-mm'),
-          'Location', loc.name,
-          'Notes', p.note,
-          'Completed notes', completed_note
-        ) 
+      string_agg(
+        concat(
+          proc.name,
+          ', Date: ', to_char(date::timestamp, 'DD-MM-YYYY'),
+          ', Location: ', loc.name,
+          ', Notes: ', p.note,
+          ', Completed notes: ', completed_note
+        ),
+        '; '
       ) "Procedures"
     from "procedures" p
     left join reference_data proc ON proc.id = procedure_type_id
@@ -101,12 +96,13 @@ with
   medications_info as (
     select
       encounter_id,
-      json_agg(
-        json_build_object(
-          'Name', medication.name,
-          'Discontinued', coalesce(discontinued, false),
-          'Discontinuing reason', discontinuing_reason
-        ) 
+      string_agg(
+        concat(
+          medication.name,
+          ', Discontinued: ', case when discontinued then 'true' else 'false' end,
+          ', Discontinuing reason: ', coalesce(discontinuing_reason, 'null')
+        ),
+        '; '
       ) "Medications"
     from encounter_medications em
     join reference_data medication on medication.id = em.medication_id
@@ -115,13 +111,13 @@ with
   diagnosis_info as (
     select
       encounter_id,
-      json_agg(
-        json_build_object(
-          'Name', diagnosis.name,
-          'Code', diagnosis.code,
-          'Is primary?', case when is_primary then 'primary' else 'secondary' end,
-          'Certainty', certainty
-        ) 
+      string_agg(
+        concat(
+          diagnosis.name,
+          ', Is primary?: ', case when is_primary then 'primary' else 'secondary' end,
+          ', Certainty: ', certainty
+        ),
+        '; '
       ) "Diagnosis"
     from encounter_diagnoses ed
     join reference_data diagnosis on diagnosis.id = ed.diagnosis_id
@@ -131,12 +127,13 @@ with
   vaccine_info as (
     select
       encounter_id,
-      json_agg(
-        json_build_object(
-          'Name', drug.name,
-          'Label', sv.label,
-          'Schedule', sv.schedule
-        ) 
+      string_agg(
+        concat(
+          drug.name,
+          ', Label: ', sv.label,
+          ', Schedule: ', sv.schedule
+        ),
+        '; '
       ) "Vaccinations"
     from administered_vaccines av
     join scheduled_vaccines sv on sv.id = av.scheduled_vaccine_id 
@@ -146,7 +143,7 @@ with
   imaging_areas_by_request as (
     select
       imaging_request_id,
-      json_agg(coalesce(area.name, '__UNKNOWN__AREA__') order by area.name) areas_to_be_imaged
+      array_agg(coalesce(area.name, '__UNKNOWN__AREA__') order by area.name) areas_to_be_imaged
     from imaging_request_areas ira
     left join reference_data area on area.id =  ira.area_id
     group by imaging_request_id
@@ -154,12 +151,13 @@ with
   imaging_info as (
     select
       ir.encounter_id,
-      json_agg(
-        json_build_object(
-          'Name', ir.imaging_type,
-          'Areas to be imaged', areas_to_be_imaged,
-          'Notes', to_json(aggregated_notes)
-        )
+      string_agg(
+        concat(
+          ir.imaging_type,
+          ', Areas to be imaged: ', array_to_string(areas_to_be_imaged, '; '),
+          ', Notes: ', aggregated_notes
+        ),
+        '; '
       ) "Imaging requests"
     from imaging_requests ir
     left join notes_info ni on ni.record_id = ir.id
@@ -174,7 +172,7 @@ with
         json_build_object(
           'Note type', note_type,
           'Content', "content",
-          'Note date', to_char(ni."date"::timestamp, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
+          'Note date', to_char(ni."date"::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
         ) order by ni.date desc
       ) "Notes"
     from note_pages np
@@ -189,17 +187,17 @@ with
       matched_vals[2] "from",
       matched_vals[3] "to",
       ni.date
-      from note_pages np
-      join note_items ni on ni.note_page_id = np.id
-      join (
-        select
-          id,
-          regexp_matches(content, 'Changed (.*) from (.*) to (.*)') matched_vals
-        from note_items
-      ) matched_vals
-      on matched_vals.id = ni.id 
-      where note_type = 'system'
-      and ni.content ~ 'Changed (.*) from (.*) to (.*)'
+    from note_pages np
+    join note_items ni on ni.note_page_id = np.id
+    join (
+      select
+        id,
+        regexp_matches(content, 'Changed (.*) from (.*) to (.*)') matched_vals
+      from note_items
+    ) matched_vals
+    on matched_vals.id = ni.id 
+    where note_type = 'system'
+    and ni.content ~ 'Changed (.*) from (.*) to (.*)'
   ),
   department_info as (
     select 
@@ -207,17 +205,17 @@ with
       case when count("from") = 0
         then json_build_array(json_build_object(
           'Department', d.name,
-          'Assigned time', to_char(e.start_date::timestamp, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
+          'Assigned time', to_char(e.start_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
         ))
         else 
           array_to_json(json_build_object(
             'Department', first_from, --first "from" from note
-            'Assigned time', to_char(e.start_date::timestamp, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
+            'Assigned time', to_char(e.start_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
           ) ||
           array_agg(
             json_build_object(
               'Department', "to",
-              'Assigned time', to_char(nh.date::timestamp, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
+              'Assigned time', to_char(nh.date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
             ) ORDER BY nh.date
           ))
       end department_history,
@@ -244,17 +242,17 @@ with
       case when count("from") = 0
         then json_build_array(json_build_object(
           'Location', l.name,
-          'Assigned time', to_char(e.start_date::timestamp, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
+          'Assigned time', to_char(e.start_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
         ))
         else 
           array_to_json(json_build_object(
             'Location', first_from, --first "from" from note
-            'Assigned time', to_char(e.start_date::timestamp, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
+            'Assigned time', to_char(e.start_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
           ) ||
           array_agg(
             json_build_object(
               'Location', "to",
-              'Assigned time', to_char(nh.date::timestamp, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM')
+              'Assigned time', to_char(nh.date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
             ) ORDER BY nh.date
           ))
       end location_history,
@@ -294,13 +292,13 @@ select
   p.display_id "Patient ID",
   p.first_name "First name",
   p.last_name "Last name",
-  p.date_of_birth "Date of birth",
+  to_char(p.date_of_birth::date, 'DD-MM-YYYY') "Date of birth",
   extract(year from age(p.date_of_birth::timestamp)) "Age",
   p.sex "Sex",
   billing.name "Patient billing type",
   e.id "Encounter ID",
-  to_char(e.start_date::timestamp, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM') "Encounter start date",
-  to_char(e.end_date::timestamp, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM') "Encounter end date",
+  to_char(e.start_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM') "Encounter start date",
+  to_char(e.end_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM') "Encounter end date",
   case e.encounter_type
     when 'triage' then  'Triage'
     when 'observation' then  'Active ED patient'
@@ -311,12 +309,7 @@ select
     when 'surveyResponse' then 'Survey response'
     else e.encounter_type
   end "Encounter type",
-  case t.score
-    when '1' then  'Emergency'
-    when '2' then  'Priority'
-    when '3' then  'Non-urgent'
-    else t.score
-  end "Triage category",
+  t.score "Triage category",
   ti."waitTimeFollowingTriage",
   di2.department_history "Department",
   li.location_history "Location",
