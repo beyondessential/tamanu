@@ -2,8 +2,9 @@ import { Op } from 'sequelize';
 import { subDays, format } from 'date-fns';
 import { ENCOUNTER_TYPES, DIAGNOSIS_CERTAINTY, NOTE_TYPES } from 'shared/constants';
 import upperFirst from 'lodash/upperFirst';
-import { getAgeFromDate } from 'shared/utils/date';
+import { ageInYears } from 'shared/utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
+import { toDateTimeString } from '../utils/dateTime';
 
 const reportColumnTemplate = [
   { title: 'Patient First Name', accessor: data => data.patient.firstName },
@@ -11,15 +12,24 @@ const reportColumnTemplate = [
   { title: 'Patient ID', accessor: data => data.patient.displayId },
   { title: 'Sex', accessor: data => data.patient.sex },
   { title: 'Village', accessor: data => data.patient.village.name },
-  { title: 'Date of Birth', accessor: data => format(data.patient.dateOfBirth, 'dd/MM/yyyy') },
+  {
+    title: 'Date of Birth',
+    accessor: data => format(new Date(data.patient.dateOfBirth), 'dd/MM/yyyy'),
+  },
   {
     title: 'Age',
-    accessor: data => getAgeFromDate(data.patient.dateOfBirth),
+    accessor: data => ageInYears(data.patient.dateOfBirth),
   },
   { title: 'Patient Type', accessor: data => data.patientBillingType?.name },
   { title: 'Admitting Doctor/Nurse', accessor: data => data.examiner?.displayName },
-  { title: 'Admission Date', accessor: data => format(data.startDate, 'dd/MM/yyyy h:mm:ss a') },
-  { title: 'Discharge Date', accessor: data => format(data.endDate, 'dd/MM/yyyy h:mm:ss a') },
+  {
+    title: 'Admission Date',
+    accessor: data => format(new Date(data.startDate), 'dd/MM/yyyy h:mm:ss a'),
+  },
+  {
+    title: 'Discharge Date',
+    accessor: data => format(new Date(data.endDate), 'dd/MM/yyyy h:mm:ss a'),
+  },
   { title: 'Location', accessor: data => data.locationHistoryString },
   { title: 'Department', accessor: data => data.departmentHistoryString },
   { title: 'Primary diagnoses', accessor: data => data.primaryDiagnoses },
@@ -28,7 +38,7 @@ const reportColumnTemplate = [
 
 function parametersToSqlWhere(parameters) {
   const {
-    fromDate = subDays(new Date(), 30).toISOString(),
+    fromDate = toDateTimeString(subDays(new Date(), 30)),
     toDate,
     practitioner,
     patientBillingType,
@@ -54,24 +64,49 @@ const stringifyDiagnoses = (diagnoses, shouldBePrimary) =>
     .join('; ');
 
 const getAllNotes = async (models, encounterIds) => {
-  const locationChangeNotes = await models.Note.findAll({
+  const locationChangeNotePages = await models.NotePage.findAll({
+    include: [
+      {
+        model: models.NoteItem,
+        as: 'noteItems',
+        where: {
+          content: {
+            [Op.like]: 'Changed location from%',
+          },
+        },
+      },
+    ],
     where: {
       recordId: encounterIds,
       noteType: NOTE_TYPES.SYSTEM,
-      content: {
-        [Op.like]: 'Changed location from%',
-      },
     },
   });
-  const departmentChangeNotes = await models.Note.findAll({
+
+  const departmentChangeNotePages = await models.NotePage.findAll({
+    include: [
+      {
+        model: models.NoteItem,
+        as: 'noteItems',
+        where: {
+          content: {
+            [Op.like]: 'Changed department from%',
+          },
+        },
+      },
+    ],
     where: {
       recordId: encounterIds,
       noteType: NOTE_TYPES.SYSTEM,
-      content: {
-        [Op.like]: 'Changed department from%',
-      },
     },
   });
+
+  const locationChangeNotes = await Promise.all(
+    locationChangeNotePages.map(l => l.getCombinedNoteObject(models)),
+  );
+  const departmentChangeNotes = await Promise.all(
+    departmentChangeNotePages.map(d => d.getCombinedNoteObject(models)),
+  );
+
   return { locationChangeNotes, departmentChangeNotes };
 };
 
@@ -121,7 +156,7 @@ const formatPlaceHistory = (history, placeType) =>
   history
     .map(
       ({ to, date }) =>
-        `${to} (${upperFirst(placeType)} assigned: ${format(date, 'dd/MM/yy h:mm a')})`,
+        `${to} (${upperFirst(placeType)} assigned: ${format(new Date(date), 'dd/MM/yy h:mm a')})`,
     )
     .join('; ');
 

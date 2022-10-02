@@ -9,6 +9,7 @@ import {
 import { subDays, format } from 'date-fns';
 import { ENCOUNTER_TYPES } from 'shared/constants';
 import { findOneOrCreate } from 'shared/test-helpers';
+import { parseISO9075, toDateTimeString } from 'shared/utils/dateTime';
 import { createTestContext } from '../../utilities';
 
 describe('Admissions report', () => {
@@ -40,22 +41,26 @@ describe('Admissions report', () => {
       }),
     );
     app = await baseApp.asRole('practitioner');
-    expectedLocation = await findOneOrCreate(ctx, models.Location, { name: 'Clinic' });
-    wrongLocation = await findOneOrCreate(ctx, models.Location, { name: 'Not-Clinic' });
-    expectedDepartment1 = await findOneOrCreate(ctx, models.Department, { name: 'Radiology' });
-    expectedDepartment2 = await findOneOrCreate(ctx, models.Department, { name: 'Cardiology' });
+    expectedLocation = await findOneOrCreate(ctx.models, models.Location, { name: 'Clinic' });
+    wrongLocation = await findOneOrCreate(ctx.models, models.Location, { name: 'Not-Clinic' });
+    expectedDepartment1 = await findOneOrCreate(ctx.models, models.Department, {
+      name: 'Radiology',
+    });
+    expectedDepartment2 = await findOneOrCreate(ctx.models, models.Department, {
+      name: 'Cardiology',
+    });
     expectedExaminer = await randomRecord(models, 'User');
-    expectedDiagnosis1 = await findOneOrCreate(ctx, models.ReferenceData, {
+    expectedDiagnosis1 = await findOneOrCreate(ctx.models, models.ReferenceData, {
       type: 'icd10',
       code: 'H60.5',
       name: 'Acute bacterial otitis externa',
     });
-    expectedDiagnosis2 = await findOneOrCreate(ctx, models.ReferenceData, {
+    expectedDiagnosis2 = await findOneOrCreate(ctx.models, models.ReferenceData, {
       type: 'icd10',
       code: 'L74.4',
       name: 'Anhidrosis',
     });
-    expectedBillingType = await findOneOrCreate(ctx, models.ReferenceData, {
+    expectedBillingType = await findOneOrCreate(ctx.models, models.ReferenceData, {
       type: 'patientBillingType',
       name: 'Charity',
     });
@@ -75,8 +80,8 @@ describe('Admissions report', () => {
     it('should return only admitted patient', async () => {
       const baseEncounterData = {
         encounterType: ENCOUNTER_TYPES.ADMISSION,
-        startDate: new Date(2021, 1, 20, 9, 7, 26), // Months are 0 indexed so this is Feburary
-        endDate: new Date(2021, 1, 21, 11, 3, 7), // Months are 0 indexed so this is Feburary
+        startDate: toDateTimeString(new Date(2021, 1, 20, 9, 7, 26)), // Months are 0 indexed so this is February
+        endDate: toDateTimeString(new Date(2021, 1, 21, 11, 3, 7)), // Months are 0 indexed so this is February
         patientId: expectedPatient.dataValues.id,
         locationId: expectedLocation.id,
         departmentId: expectedDepartment1.id,
@@ -142,7 +147,7 @@ describe('Admissions report', () => {
       await models.Encounter.create(
         await createDummyEncounter(models, {
           ...baseEncounterData,
-          startDate: new Date(2020, 0, 20).toISOString(),
+          startDate: toDateTimeString(new Date(2020, 0, 20)),
         }),
       );
 
@@ -150,20 +155,26 @@ describe('Admissions report', () => {
         departmentId: expectedDepartment2.id,
       });
 
-      const departmentChangeNote = await models.Note.findOne({
+      const departmentChangeNotePage = await models.NotePage.findOne({
+        include: [
+          {
+            model: models.NoteItem,
+            as: 'noteItems',
+          },
+        ],
         where: {
           recordId: expectedEncounter.id,
           noteType: 'system',
         },
       });
 
-      await departmentChangeNote.update({
-        date: new Date(2021, 1, 20, 11, 10),
+      await departmentChangeNotePage.noteItems?.[0].update({
+        date: toDateTimeString(new Date(2021, 1, 20, 11, 10)),
       });
 
       const result = await app.post('/v1/reports/admissions').send({
         parameters: {
-          fromDate: new Date(2021, 1, 1),
+          fromDate: toDateTimeString(new Date(2021, 1, 1)),
           location: expectedLocation.id,
           department: expectedDepartment1.id, // Historical department filtered for
         },
@@ -176,7 +187,7 @@ describe('Admissions report', () => {
           'Patient ID': expectedPatient.displayId,
           Sex: expectedPatient.sex,
           Village: expectedVillage.name,
-          'Date of Birth': format(expectedPatient.dateOfBirth, 'dd/MM/yyyy'),
+          'Date of Birth': format(parseISO9075(expectedPatient.dateOfBirth), 'dd/MM/yyyy'),
           Age: 1,
           'Patient Type': 'Charity',
           'Admitting Doctor/Nurse': expectedExaminer.displayName,

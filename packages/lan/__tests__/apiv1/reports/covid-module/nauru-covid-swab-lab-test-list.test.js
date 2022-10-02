@@ -1,3 +1,4 @@
+import { format } from 'date-fns';
 import {
   createDummyEncounter,
   createDummyPatient,
@@ -5,7 +6,7 @@ import {
 } from 'shared/demoData/patients';
 import { randomRecord } from 'shared/demoData/utilities';
 import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_LABELS } from 'shared/constants';
-import { format } from 'date-fns';
+import { parseISO9075 } from 'shared/utils/dateTime';
 import { createTestContext } from '../../../utilities';
 import {
   createCovidTestForPatient,
@@ -32,11 +33,11 @@ async function createNauruSurveys(models) {
   });
 
   await models.ProgramDataElement.bulkCreate([
-    { id: 'pde-NauCOVTest002', code: 'NauCOVTest002' },
-    { id: 'pde-NauCOVTest003', code: 'NauCOVTest003' },
-    { id: 'pde-NauCOVTest005', code: 'NauCOVTest005' },
-    { id: 'pde-NauCOVTest006', code: 'NauCOVTest006' },
-    { id: 'pde-NauCOVTest007', code: 'NauCOVTest007' },
+    { id: 'pde-NauCOVTest002', code: 'NauCOVTest002', type: 'FreeText' },
+    { id: 'pde-NauCOVTest003', code: 'NauCOVTest003', type: 'FreeText' },
+    { id: 'pde-NauCOVTest005', code: 'NauCOVTest005', type: 'FreeText' },
+    { id: 'pde-NauCOVTest006', code: 'NauCOVTest006', type: 'FreeText' },
+    { id: 'pde-NauCOVTest007', code: 'NauCOVTest007', type: 'FreeText' },
     {
       id: 'pde-NauCOVTest008',
       code: 'NauCOVTest008',
@@ -104,6 +105,7 @@ describe('Nauru covid case report tests', () => {
     });
 
     beforeEach(async () => {
+      await testContext.models.SurveyResponseAnswer.destroy({ where: {} });
       await testContext.models.SurveyResponse.destroy({ where: {} });
     });
 
@@ -137,7 +139,7 @@ describe('Nauru covid case report tests', () => {
         {
           'Patient first name': expectedPatient.firstName,
           'Patient last name': expectedPatient.lastName,
-          DOB: format(expectedPatient.dateOfBirth, 'yyyy/MM/dd'),
+          DOB: format(parseISO9075(expectedPatient.dateOfBirth), 'yyyy/MM/dd'),
           Sex: expectedPatient.sex,
           'Patient ID': expectedPatient.displayId,
           'Home sub-division': village.name,

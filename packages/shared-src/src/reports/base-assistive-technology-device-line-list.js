@@ -1,8 +1,9 @@
 import { keyBy, groupBy, uniqWith, isEqual } from 'lodash';
 import { Op } from 'sequelize';
-import moment from 'moment';
+import { differenceInMilliseconds, format } from 'date-fns';
 import { generateReportFromQueryData } from './utilities';
 import { transformAnswers } from './utilities/transformAnswers';
+import { parseISO9075, ageInYears } from '../utils/dateTime';
 
 const parametersToSurveyResponseSqlWhere = (parameters, surveyIds) => {
   const defaultWhereClause = {
@@ -77,7 +78,7 @@ const getLatestAnswerPerGroup = groupedTransformAnswers => {
   const results = {};
   for (const [key, groupedAnswers] of Object.entries(groupedTransformAnswers)) {
     const sortedLatestToOldestAnswers = groupedAnswers.sort((a1, a2) =>
-      moment(a2.responseEndTime).diff(moment(a1.responseEndTime)),
+      differenceInMilliseconds(a2.responseEndTime, a1.responseEndTime),
     );
     results[key] = sortedLatestToOldestAnswers[0]?.body;
   }
@@ -93,7 +94,7 @@ const getLatestAnswerPerPatient = answers => {
 
 const getLatestAnswerPerPatientPerDate = answers => {
   const groupedAnswers = groupBy(answers, a => {
-    const responseDate = moment(a.responseEndTime).format('DD-MM-YYYY');
+    const responseDate = format(a.responseEndTime, 'dd-MM-yyyy');
     return getPerPatientPerDateAnswerKey(a.patientId, a.dataElementId, responseDate);
   });
   return getLatestAnswerPerGroup(groupedAnswers);
@@ -116,7 +117,7 @@ const getPatientIdsByResponseDates = transformedAnswers => {
   const patientIdAndResponseDateHavingAnswers = uniqWith(
     transformedAnswers.map(({ patientId, responseEndTime }) => ({
       patientId,
-      responseDate: moment(responseEndTime).format('DD-MM-YYYY'),
+      responseDate: format(responseEndTime, 'dd-MM-yyyy'),
     })),
     isEqual,
   );
@@ -172,16 +173,19 @@ export const dataGenerator = async (
 
   const reportData = [];
 
-  for (const [patientId, surveyResponseDates] of Object.entries(patientIdsByResponseDates)) {
+  for (const [patientId, surveyResponseDates] of Object.entries(
+    patientIdsByResponseDates,
+  ).sort(([p1], [p2]) => p1.localeCompare(p2))) {
     const patient = patientById[patientId];
     for (const surveyResponseDate of surveyResponseDates) {
       if (!patient) {
         continue;
       }
 
-      const dateOfBirthMoment = patient.dateOfBirth ?? moment(patient.dateOfBirth);
-      const dateOfBirth = dateOfBirthMoment ? moment(dateOfBirthMoment).format('DD-MM-YYYY') : '';
-      const age = dateOfBirthMoment ? moment().diff(dateOfBirthMoment, 'years') : '';
+      const dateOfBirth = patient.dateOfBirth
+        ? format(parseISO9075(patient.dateOfBirth), 'dd-MM-yyyy')
+        : '';
+      const age = patient.dateOfBirth ? ageInYears(patient.dateOfBirth) : '';
       const recordData = {
         clientId: patient.displayId,
         gender: patient.sex,

@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 
-import moment from 'moment';
+import { format } from 'date-fns';
 import { groupBy, keyBy } from 'lodash';
 import { generateReportFromQueryData } from '../utilities';
 
@@ -38,11 +38,11 @@ const FIELDS = {
   },
   'screened<30': {
     title: 'Total screening events by <30 years',
-    selectSql: 'extract(year from age(patient.date_of_birth)) < 30',
+    selectSql: 'extract(year from age(patient.date_of_birth::date)) < 30',
   },
   'screened>30': {
     title: 'Total screening events by >30 years',
-    selectSql: 'extract(year from age(patient.date_of_birth)) >= 30',
+    selectSql: 'extract(year from age(patient.date_of_birth::date)) >= 30',
   },
   screenedItaukei: {
     title: 'Total screening events by Itaukei',
@@ -95,11 +95,13 @@ const FIELDS = {
   },
   'referred<30': {
     title: 'Total referred by <30 years',
-    selectSql: 'referral_sr.id is not null and extract(year from age(patient.date_of_birth)) < 30',
+    selectSql:
+      'referral_sr.id is not null and extract(year from age(patient.date_of_birth::date)) < 30',
   },
   'referred>30': {
     title: 'Total referred by >30 years',
-    selectSql: 'referral_sr.id is not null and extract(year from age(patient.date_of_birth)) >= 30',
+    selectSql:
+      'referral_sr.id is not null and extract(year from age(patient.date_of_birth::date)) >= 30',
   },
   referredItaukei: {
     title: 'Total referred by Itaukei',
@@ -170,10 +172,10 @@ const getJoinClauses = () => {
    *  - for the same patient
    */
   const referralJoinClause = `
-    LEFT JOIN survey_responses AS referral_sr ON 
+    LEFT JOIN survey_responses AS referral_sr ON
       referral_sr.id = (
         SELECT sr2.id FROM survey_responses sr2
-        JOIN surveys s2 ON s2.id = sr2.survey_id 
+        JOIN surveys s2 ON s2.id = sr2.survey_id
         JOIN encounters e2 ON e2.id = sr2.encounter_id
         WHERE e2.patient_id = patient.id
         AND sr2.survey_id = :referral_survey_id
@@ -183,17 +185,17 @@ const getJoinClauses = () => {
       )
   `;
   return `
-    JOIN encounters AS sr_encounter ON sr.encounter_id = sr_encounter.id 
+    JOIN encounters AS sr_encounter ON sr.encounter_id = sr_encounter.id
     JOIN patients AS patient ON sr_encounter.patient_id = patient.id
-    LEFT JOIN survey_response_answers eligibilityAnswer on 
+    LEFT JOIN survey_response_answers eligibilityAnswer on
       eligibilityAnswer.id = (
-        SELECT id FROM survey_response_answers sra 
+        SELECT id FROM survey_response_answers sra
         WHERE sra.response_id = sr.id
         AND sra.data_element_id IN ('pde-FijCVD021', 'pde-FijBS14', 'pde-FijCC16')
       )
     LEFT JOIN patient_additional_data AS additional_data
     ON additional_data.id = (
-        SELECT id FROM patient_additional_data 
+        SELECT id FROM patient_additional_data
         WHERE patient_id = patient.id
         LIMIT 1
       )
@@ -220,9 +222,9 @@ const getData = async (sequelize, parameters) => {
   for (const surveyId of surveyIds.split(', ')) {
     const resultsForSurvey = await sequelize.query(
       `
-        SELECT 
+        SELECT
           ${getSelectClause()}
-        FROM survey_responses AS sr 
+        FROM survey_responses AS sr
           ${getJoinClauses()}
         WHERE sr.survey_id = :screening_survey_id
         AND (eligibilityAnswer.body != 'Ineligible' or eligibilityAnswer.body is null)
@@ -266,10 +268,10 @@ const getTotalPatientsScreened = async (sequelize, parameters) => {
 
   return sequelize.query(
     `
-      SELECT 
+      SELECT
         to_char(sr.end_time, 'yyyy-mm-dd') as date,
         count(DISTINCT patient.id) as "patientsScreened"
-      FROM survey_responses AS sr 
+      FROM survey_responses AS sr
         ${getJoinClauses()}
       WHERE sr.survey_id IN (:screening_survey_ids)
       AND (eligibilityAnswer.body != 'Ineligible' or eligibilityAnswer.body is null)
@@ -305,9 +307,9 @@ export const dataGenerator = async ({ sequelize }, parameters = {}) => {
       ...sumObjectsByKey(resultsForDate.map(({ date: _, ...summableKeys }) => summableKeys)), // eslint-disable-line no-unused-vars
     }))
     // Sort oldest to most recent
-    .sort(({ date: date1 }, { date: date2 }) => moment(date1) - moment(date2))
+    .sort(({ date: date1 }, { date: date2 }) => date1 - date2)
     .map(({ date, ...otherFields }) => ({
-      date: moment(date).format('DD-MM-YYYY'),
+      date: format(new Date(date), 'dd-MM-yyyy'),
       ...otherFields,
     }));
 

@@ -22,7 +22,7 @@ const COMMON_FIELDS = [
 const query = `
 with
 	answers_and_results as (
-		select 
+		select
 			response_id,
 			data_element_id,
 			body
@@ -49,8 +49,8 @@ with
 select
   p.first_name "First name",
   p.last_name "Last name",
-  to_char(p.date_of_birth::date, 'yyyy-mm-dd') "Date of birth",
-  extract(year from age(p.date_of_birth))::integer "Age",
+  p.date_of_birth::date "Date of birth",
+  extract(year from age(p.date_of_birth::date))::integer "Age",
   p.sex "Sex",
   p.display_id "Patient ID",
   vil."name" as "Village",
@@ -58,13 +58,13 @@ select
   s.name,
   answers
 from survey_responses sr
-left join responses_with_answers a on sr.id = a.response_id 
+left join responses_with_answers a on sr.id = a.response_id
 left join encounters e on e.id = sr.encounter_id
 left join patients p on p.id = e.patient_id
 left join reference_data vil on vil.id = p.village_id
 join surveys s on s.id = sr.survey_id
-where sr.survey_id  = :survey_id 
-and CASE WHEN :village_id IS NOT NULL THEN p.village_id = :village_id ELSE true end 
+where sr.survey_id  = :survey_id
+and CASE WHEN :village_id IS NOT NULL THEN p.village_id = :village_id ELSE true end
 and CASE WHEN :from_date IS NOT NULL THEN sr.end_time::date >= :from_date::date ELSE true END
 and CASE WHEN :to_date IS NOT NULL THEN sr.end_time::date <= :to_date::date ELSE true END
 order by sr.end_time desc
@@ -141,7 +141,7 @@ export const transformSingleResponse = async (
           dataElementIdToComponent[dataElementId]?.dataElement?.dataValues?.type || 'unknown';
         const componentConfig = autocompleteComponentMap.get(dataElementId);
         newAnswers[key] = await getAnswerBody(models, componentConfig, type, body, {
-          dateFormat: 'YYYY-MM-DD',
+          dateFormat: 'yyyy-MM-dd',
         });
       }
     }),

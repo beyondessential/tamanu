@@ -1,10 +1,10 @@
 /* eslint-disable import/no-unresolved, import/extensions */
 
-import { subDays, format } from 'date-fns';
+import { subDays, format, isBefore, startOfDay } from 'date-fns';
 import { groupBy } from 'lodash';
-import moment from 'moment';
 import { Op } from 'sequelize';
-import { getAgeFromDate } from '../../../utils/date';
+
+import { ageInYears, parseISO9075 } from '../../../utils/dateTime';
 import { generateReportFromQueryData } from '../../utilities';
 import { transformAnswers } from '../../utilities/transformAnswers';
 
@@ -23,11 +23,11 @@ const reportColumnTemplate = [
   { title: 'Last name', accessor: data => data.patient.lastName },
   { title: 'First name', accessor: data => data.patient.firstName },
   { title: 'Middle name', accessor: data => data.patient.middleName },
-  { title: 'DOB', accessor: data => format(data.patient.dateOfBirth, 'yyyy/MM/dd') },
+  { title: 'DOB', accessor: data => format(parseISO9075(data.patient.dateOfBirth), 'yyyy/MM/dd') },
   {
     title: 'Age',
     accessor: data => {
-      return data.patient.dateOfBirth ? getAgeFromDate(data.patient.dateOfBirth) : '';
+      return data.patient.dateOfBirth ? ageInYears(data.patient.dateOfBirth) : '';
     },
   },
   { title: 'Sex', accessor: data => data.patient.sex },
@@ -181,10 +181,10 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
       // only take the latest initial survey response
       const surveyResponse = patientSurveyResponses[0];
       // only select follow up surveys after the current initial survey
-      const followUpSurveyResponseFromDate = moment(surveyResponse.endTime).startOf('day');
+      const followUpSurveyResponseFromDate = startOfDay(surveyResponse.endTime);
       const followUpSurvey = followUpSurveyResponsesByPatient[patientId]?.find(
         followUpSurveyResponse =>
-          !moment(followUpSurveyResponse.endTime).isBefore(followUpSurveyResponseFromDate),
+          !isBefore(followUpSurveyResponse.endTime, followUpSurveyResponseFromDate),
       );
       async function transform() {
         const resultResponse = surveyResponse;
@@ -197,7 +197,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
           }),
           initialSurveyComponents,
           {
-            dateFormat: 'YYYY/MM/DD',
+            dateFormat: 'yyyy/MM/dd',
           },
         );
         if (followUpSurvey) {
@@ -210,7 +210,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
             }),
             followUpSurveyComponents,
             {
-              dateFormat: 'YYYY/MM/DD',
+              dateFormat: 'yyyy/MM/dd',
             },
           );
         }

@@ -1,8 +1,5 @@
-import {
-  createDummyPatient,
-  randomUser,
-  randomReferenceId,
-} from 'shared/demoData/patients';
+import { createDummyPatient, randomUser, randomReferenceId } from 'shared/demoData/patients';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 
 describe('PatientCarePlan', () => {
@@ -34,23 +31,25 @@ describe('PatientCarePlan', () => {
     });
 
     it('should create a care plan with note', async () => {
-      const noteDate = new Date().toISOString();
+      const onBehalfOfUserId = await randomUser(models);
+      const carePlanDate = getCurrentDateTimeString();
       const result = await app.post('/v1/patientCarePlan').send({
-        date: noteDate,
+        date: carePlanDate,
         carePlanId,
         patientId: patient.get('id'),
         content: 'Main care plan',
+        examinerId: onBehalfOfUserId,
       });
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveProperty('id');
-      expect(result.body).toHaveProperty('date', noteDate);
+      expect(result.body).toHaveProperty('date', carePlanDate);
       expect(result.body.patientId).toBe(patient.get('id'));
       expect(result.body.carePlanId).toBe(carePlanId);
       const noteResult = await app.get(`/v1/patientCarePlan/${result.body.id}/notes`);
       expect(noteResult).toHaveSucceeded();
       expect(noteResult.body.length).toBeGreaterThan(0);
       expect(noteResult.body[0].content).toBe('Main care plan');
-      expect(noteResult.body[0]).toHaveProperty('date', noteDate);
+      expect(noteResult.body[0]).toHaveProperty('date', carePlanDate);
     });
 
     it('should reject care plan without notes', async () => {
@@ -63,25 +62,27 @@ describe('PatientCarePlan', () => {
     });
 
     it('should return return notes in order of creation', async () => {
+      const onBehalfOfUserId = await randomUser(models);
       const createCarePlanRequest = await app.post('/v1/patientCarePlan').send({
         date: new Date().toISOString(),
         carePlanId,
         patientId: patient.get('id'),
+        examinerId: onBehalfOfUserId,
         content: 'Main care plan',
       });
       expect(createCarePlanRequest).toHaveSucceeded();
-      const onBehalfOfUserId = await randomUser(models);
       const additionalNoteRequest = await app
         .post(`/v1/patientCarePlan/${createCarePlanRequest.body.id}/notes`)
         .send({
           date: new Date().toISOString(),
           content: 'Second note',
-          onBehalfOfId: onBehalfOfUserId,
+          examinerId: onBehalfOfUserId,
         });
       expect(additionalNoteRequest).toHaveSucceeded();
       const noteResult = await app.get(
         `/v1/patientCarePlan/${createCarePlanRequest.body.id}/notes`,
       );
+
       expect(noteResult).toHaveSucceeded();
       expect(noteResult.body.length).toBeGreaterThan(0);
       expect(noteResult.body[0].content).toBe('Main care plan');
@@ -98,7 +99,7 @@ describe('PatientCarePlan', () => {
         content: 'Main care plan',
       });
       const noteResult = await app.get(`/v1/patientCarePlan/${result.body.id}/notes`);
-      const deleteResult = await app.delete(`/v1/note/${noteResult.body[0].id}`);
+      const deleteResult = await app.delete(`/v1/notePages/${noteResult.body[0].id}`);
       expect(deleteResult).toHaveSucceeded();
       const emptyNotesResult = await app.get(`/v1/patientCarePlan/${result.body.id}/notes`);
       expect(emptyNotesResult.body.length).toBe(0);

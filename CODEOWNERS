@@ -25,8 +25,9 @@
 /packages/sync-server/integrations/VdsNc                  @passcod
 
 # 
-# Nick's a code owner of the default config files just to make sure that
-# he's across any changes that might need to be made to any particular server.
+# The deployment team are code owner of the default config files to make sure
+# that they're across any changes that might need to be made to any particular
+# server.
 # 
-/packages/sync-server/config/default.json   @nick-beyondessential
-/packages/lan/config/default.json           @nick-beyondessential
+/packages/sync-server/config/default.json   @beyondessential/tamanu-deployment-team
+/packages/lan/config/default.json           @beyondessential/tamanu-deployment-team

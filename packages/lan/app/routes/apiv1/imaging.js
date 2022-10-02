@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import moment from 'moment';
+import { startOfDay, endOfDay } from 'date-fns';
 import { Op } from 'sequelize';
 import { NOTE_TYPES, AREA_TYPE_TO_IMAGING_TYPE, IMAGING_AREA_TYPES } from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
@@ -67,24 +67,38 @@ imagingRequest.get(
     });
     if (!imagingRequestObject) throw new NotFoundError();
 
-    // Get related notes (general, area to be imaged)
-    const relatedNotes = await imagingRequestObject.getNotes();
-
-    // Extract note content if note exists, else default content to empty string
-    const noteContent = getNoteWithType(relatedNotes, NOTE_TYPES.OTHER)?.content || '';
-
-    // Free text area content fallback
-    const areaNoteContent =
-      getNoteWithType(relatedNotes, NOTE_TYPES.AREA_TO_BE_IMAGED)?.content || '';
-
-    // Convert Sequelize model to use a custom object as response
-    const responseObject = {
-      ...imagingRequestObject.get({ plain: true }),
-      note: noteContent,
-      areaNote: areaNoteContent,
+    const notes = {
+      note: '',
+      areaNote: '',
     };
 
-    res.send(responseObject);
+    // Get related notes (general, area to be imaged)
+    const relatedNotePages = await imagingRequestObject.getNotePages();
+
+    const otherNotePage = getNoteWithType(relatedNotePages, NOTE_TYPES.OTHER);
+    const areaNotePage = getNoteWithType(relatedNotePages, NOTE_TYPES.AREA_TO_BE_IMAGED);
+
+    if (otherNotePage) {
+      const noteItems = await otherNotePage.getNoteItems();
+      const content = noteItems.length && noteItems[0].content;
+      if (content) {
+        notes.note = content;
+      }
+    }
+
+    if (areaNotePage) {
+      // Free text area content fallback
+      const noteItems = await areaNotePage.getNoteItems();
+      const content = noteItems.length && noteItems[0].content;
+      if (content) {
+        notes.areaNote = content;
+      }
+    }
+
+    res.send({
+      ...imagingRequestObject.get({ plain: true }),
+      ...notes,
+    });
   }),
 );
 
@@ -94,12 +108,13 @@ imagingRequest.put(
     const {
       models: { ImagingRequest },
       params: { id },
+      user,
+      body: { areas, note, areaNote, ...imagingRequestData },
     } = req;
     req.checkPermission('read', 'ImagingRequest');
     const imagingRequestObject = await ImagingRequest.findByPk(id);
     if (!imagingRequestObject) throw new NotFoundError();
     req.checkPermission('write', 'ImagingRequest');
-    const { areas, areaNote, ...imagingRequestData } = req.body;
 
     await imagingRequestObject.update(imagingRequestData);
 
@@ -109,53 +124,58 @@ imagingRequest.put(
     }
 
     // Get related notes (general, area to be imaged)
-    const relatedNotes = await imagingRequestObject.getNotes();
+    const relatedNotePages = await imagingRequestObject.getNotePages();
 
-    // Get separate note objects
-    const noteObject = getNoteWithType(relatedNotes, NOTE_TYPES.OTHER);
-    const areaNoteObject = getNoteWithType(relatedNotes, NOTE_TYPES.AREA_TO_BE_IMAGED);
+    const otherNotePage = getNoteWithType(relatedNotePages, NOTE_TYPES.OTHER);
+    const areaNotePage = getNoteWithType(relatedNotePages, NOTE_TYPES.AREA_TO_BE_IMAGED);
 
-    // The returned note content will read its value depending if
-    // note exists or gets created, else it should be an empty string
-    let noteContent = '';
-    let areaNoteContent = '';
+    const notes = {
+      note: '',
+      areaNote: '',
+    };
 
-    // Update the content of the note object if it exists
-    if (noteObject) {
-      await noteObject.update({ content: req.body.note });
-      noteContent = noteObject.content;
+    // Update or create the note with new content if provided
+    if (note) {
+      if (otherNotePage) {
+        const otherNoteItems = await otherNotePage.getNoteItems();
+        const otherNoteItem = otherNoteItems[0];
+        await otherNoteItem.update({ content: note });
+        notes.note = otherNoteItem.content;
+      } else {
+        const notePage = await imagingRequestObject.createNotePage({
+          noteType: NOTE_TYPES.OTHER,
+        });
+        const noteItem = await notePage.createNoteItem({
+          content: note,
+          authorId: user.id,
+        });
+        notes.note = noteItem.content;
+      }
     }
-    // Else, create a new one only if it has content
-    else if (req.body.note) {
-      const newNoteObject = await imagingRequestObject.createNote({
-        noteType: NOTE_TYPES.OTHER,
-        content: req.body.note,
-        authorId: req.user.id,
-      });
-      noteContent = newNoteObject.content;
-    }
 
-    // Update the content of the area to be imaged note object if it exists
-    if (areaNoteObject) {
-      await areaNoteObject.update({ content: req.body.areaNote });
-      areaNoteContent = areaNoteObject.content;
-    }
-    // Else, create a new one only if it has content
-    else if (req.body.areaNote) {
-      const newAreaNoteObject = await imagingRequestObject.createNote({
-        noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
-        content: req.body.areaNote,
-        authorId: req.user.id,
-      });
-      areaNoteContent = newAreaNoteObject.content;
+    // Update or create the imaging areas note with new content if provided
+    if (areaNote) {
+      if (areaNotePage) {
+        const areaNoteItems = await areaNotePage.getNoteItems();
+        const areaNoteItem = areaNoteItems[0];
+        await areaNoteItem.update({ content: areaNote });
+        notes.areaNote = areaNoteItem?.content || '';
+      } else {
+        const notePage = await imagingRequestObject.createNotePage({
+          noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
+        });
+        const noteItem = await notePage.createNoteItem({
+          content: areaNote,
+          authorId: user.id,
+        });
+        notes.areaNote = noteItem.content;
+      }
     }
 
     // Convert Sequelize model to use a custom object as response
     const responseObject = {
       ...imagingRequestObject.get({ plain: true }),
-      note: noteContent,
-      // Fallback free text area notes
-      areaNote: areaNoteContent,
+      ...notes,
     };
 
     res.send(responseObject);
@@ -167,9 +187,10 @@ imagingRequest.post(
   asyncHandler(async (req, res) => {
     const {
       models: { ImagingRequest },
+      user,
+      body: { areas, note, areaNote, ...imagingRequestData },
     } = req;
     req.checkPermission('create', 'ImagingRequest');
-    const { areas, areaNote, ...imagingRequestData } = req.body;
 
     const newImagingRequest = await ImagingRequest.create(imagingRequestData);
 
@@ -178,39 +199,37 @@ imagingRequest.post(
       await newImagingRequest.setAreas(areas.split(/,\s/));
     }
 
-    // Return notes content or empty string with the response for consistency
-    let noteContent = '';
-    let areaNoteContent = '';
+    const notes = {
+      note: '',
+      areaNote: '',
+    };
 
-    // Only create a note if it has content
-    if (req.body.note) {
-      const newNote = await newImagingRequest.createNote({
+    if (note) {
+      const notePage = await newImagingRequest.createNotePage({
         noteType: NOTE_TYPES.OTHER,
-        content: req.body.note,
-        authorId: req.user.id,
       });
-
-      // Update note content for response with saved data
-      noteContent = newNote.content;
+      const noteItem = await notePage.createNoteItem({
+        content: note,
+        authorId: user.id,
+      });
+      notes.note = noteItem.content;
     }
 
-    // Only create an area to be imaged note if it has content
-    if (req.body.areaNote) {
-      const newAreaNote = await newImagingRequest.createNote({
+    if (areaNote) {
+      const notePage = await newImagingRequest.createNotePage({
         noteType: NOTE_TYPES.AREA_TO_BE_IMAGED,
-        content: req.body.areaNote,
-        authorId: req.user.id,
       });
-
-      // Update area to be imaged content for response with saved data
-      areaNoteContent = newAreaNote.content;
+      const noteItem = await notePage.createNoteItem({
+        content: areaNote,
+        authorId: user.id,
+      });
+      notes.areaNote = noteItem.content;
     }
 
     // Convert Sequelize model to use a custom object as response
     const responseObject = {
       ...newImagingRequest.get({ plain: true }),
-      note: noteContent,
-      areaNote: areaNoteContent,
+      ...notes,
     };
 
     res.send(responseObject);
@@ -252,9 +271,7 @@ globalImagingRequests.get(
         operator: Op.gte,
         mapFn: (fieldName, operator, value) => ({
           [fieldName]: {
-            [operator]: moment(value)
-              .startOf('day')
-              .toISOString(),
+            [operator]: startOfDay(new Date(value)).toISOString(),
           },
         }),
       },
@@ -264,9 +281,7 @@ globalImagingRequests.get(
         operator: Op.lte,
         mapFn: (fieldName, operator, value) => ({
           [fieldName]: {
-            [operator]: moment(value)
-              .endOf('day')
-              .toISOString(),
+            [operator]: endOfDay(new Date(value)).toISOString(),
           },
         }),
       },
@@ -300,6 +315,7 @@ globalImagingRequests.get(
       include: [requestedBy, encounter, areas],
       limit: rowsPerPage,
       offset: page * rowsPerPage,
+      distinct: true,
     });
 
     // Extract and normalize data calling a base model method

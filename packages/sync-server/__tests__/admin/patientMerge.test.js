@@ -1,4 +1,4 @@
-import { fake } from 'shared/test-helpers/fake';
+import { fake, fakeUser } from 'shared/test-helpers/fake';
 import { VISIBILITY_STATUSES } from 'shared/constants';
 import { InvalidParameterError } from 'shared/errors';
 import {
@@ -66,20 +66,46 @@ describe('Patient merge', () => {
   });
 
   it('Should merge encounters across', async () => {
-    const { Encounter } = models;
+    const { Encounter, Facility, Department, Location, User } = models;
 
     const [keep, merge] = await makeTwoPatients();
 
+    const facility = await Facility.create({
+      ...fake(Facility),
+      name: 'Utopia HQ',
+    });
+
+    const location = await Location.create({
+      ...fake(Location),
+      facilityId: facility.id,
+    });
+
+    const department = await Department.create({
+      ...fake(Department),
+      facilityId: facility.id,
+    });
+
+    const examiner = await User.create(fakeUser());
+
+    const baseEncounter = {
+      locationId: location.id,
+      departmentId: department.id,
+      examinerId: examiner.id,
+    };
+
     const mergeEnc = await models.Encounter.create({
       ...fake(Encounter),
+      ...baseEncounter,
       patientId: merge.id,
     });
     const mergeEnc2 = await models.Encounter.create({
       ...fake(Encounter),
+      ...baseEncounter,
       patientId: merge.id,
     });
     const keepEnc = await models.Encounter.create({
       ...fake(Encounter),
+      ...baseEncounter,
       patientId: keep.id,
     });
 

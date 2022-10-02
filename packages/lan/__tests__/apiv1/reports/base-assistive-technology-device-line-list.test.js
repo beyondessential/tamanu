@@ -1,5 +1,6 @@
-import moment from 'moment-timezone';
+import { format } from 'date-fns';
 import { createDummyPatient, randomReferenceIds } from 'shared/demoData/patients';
+import { parseISO9075 } from 'shared/utils/dateTime';
 import { createTestContext } from '../../utilities';
 
 const PROGRAM_ID = 'program-assistivetechnologyproject';
@@ -18,7 +19,6 @@ describe('Assistive technology device line list', () => {
   beforeAll(async () => {
     ctx = await createTestContext();
     const { models } = ctx;
-    moment.tz.setDefault('Etc/UTC');
 
     await models.SurveyResponseAnswer.truncate({ cascade: true });
     await models.SurveyResponse.truncate({ cascade: true });
@@ -33,10 +33,10 @@ describe('Assistive technology device line list', () => {
     [village1, village2] = await randomReferenceIds(models, 'village', 2);
 
     expectedPatient1 = await models.Patient.create(
-      await createDummyPatient(models, { villageId: village1 }),
+      await createDummyPatient(models, { id: 'AAAAAA', villageId: village1 }),
     );
     expectedPatient2 = await models.Patient.create(
-      await createDummyPatient(models, { villageId: village2 }),
+      await createDummyPatient(models, { id: 'BBBBBB', villageId: village2 }),
     );
 
     app = await baseApp.asRole('practitioner');
@@ -47,14 +47,14 @@ describe('Assistive technology device line list', () => {
     });
 
     await models.ProgramDataElement.bulkCreate([
-      { id: 'pde-IrqMAReg-13', code: 'IrqMAReg-13', name: 'pde-IrqMAReg-13' },
+      { id: 'pde-IrqMAReg-13', code: 'IrqMAReg-13', name: 'pde-IrqMAReg-13', type: 'FreeText' },
 
-      { id: 'pde-IrqPreMob-2', code: 'IrqPreMob-2', name: 'pde-IrqPreMob-2' },
-      { id: 'pde-IrqPreMob-1', code: 'IrqPreMob-1', name: 'pde-IrqPreMob-1' },
-      { id: 'pde-IrqPreMob-6', code: 'IrqPreMob-6', name: 'pde-IrqPreMob-6' },
-      { id: 'pde-IrqPreMob-7', code: 'IrqPreMob-7', name: 'pde-IrqPreMob-7' },
-      { id: 'pde-IrqPreMob-8', code: 'IrqPreMob-8', name: 'pde-IrqPreMob-8' },
-      { id: 'pde-IrqPreMob-9', code: 'IrqPreMob-9', name: 'pde-IrqPreMob-9' },
+      { id: 'pde-IrqPreMob-2', code: 'IrqPreMob-2', name: 'pde-IrqPreMob-2', type: 'FreeText' },
+      { id: 'pde-IrqPreMob-1', code: 'IrqPreMob-1', name: 'pde-IrqPreMob-1', type: 'FreeText' },
+      { id: 'pde-IrqPreMob-6', code: 'IrqPreMob-6', name: 'pde-IrqPreMob-6', type: 'FreeText' },
+      { id: 'pde-IrqPreMob-7', code: 'IrqPreMob-7', name: 'pde-IrqPreMob-7', type: 'FreeText' },
+      { id: 'pde-IrqPreMob-8', code: 'IrqPreMob-8', name: 'pde-IrqPreMob-8', type: 'FreeText' },
+      { id: 'pde-IrqPreMob-9', code: 'IrqPreMob-9', name: 'pde-IrqPreMob-9', type: 'FreeText' },
     ]);
 
     await models.Survey.create({
@@ -218,42 +218,13 @@ describe('Assistive technology device line list', () => {
           'Other, other service referrals (ان كان هنالك إجابات أخرى  اوصف ذلك)',
         ],
 
-        /* ******PATIENT 2******** */
-        // -----Row on 2021-03-17-----//, on this date, there are answers submitted for 2 patients: patient1 and patient2
-        [
-          // patient details
-          expectedPatient2.displayId,
-          expectedPatient2.sex,
-          moment(expectedPatient2.dateOfBirth).format('DD-MM-YYYY'),
-          expect.any(Number),
-          null,
-
-          // always grab the latest answer for a data element for that patient.
-          'pde-IrqMAReg-13-on-2021-03-12T10:53:15.708Z-Patient2',
-
-          // always grab the latest answer for a data element within that date, regardless of survey response,
-          'pde-IrqPreMob-2-on-2021-03-17T10:53:15.708Z-Patient2',
-          'pde-IrqPreMob-1-on-2021-03-17T10:53:15.708Z-Patient2',
-          'pde-IrqPreMob-6-on-2021-03-17T10:53:15.708Z-Patient2',
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-        ],
-
         /* ****** PATIENT 1 ******** */
         // -----Row on 2021-03-17-----//, on this date, there are answers submitted for 2 patients: patient1 and patient2
         [
           // patient details
           expectedPatient1.displayId,
           expectedPatient1.sex,
-          moment(expectedPatient1.dateOfBirth).format('DD-MM-YYYY'),
+          format(parseISO9075(expectedPatient1.dateOfBirth), 'dd-MM-yyyy'),
           expect.any(Number),
           null,
 
@@ -281,7 +252,7 @@ describe('Assistive technology device line list', () => {
           // patient details
           expectedPatient1.displayId,
           expectedPatient1.sex,
-          moment(expectedPatient1.dateOfBirth).format('DD-MM-YYYY'),
+          format(parseISO9075(expectedPatient1.dateOfBirth), 'dd-MM-yyyy'),
           expect.any(Number),
           null,
 
@@ -303,6 +274,35 @@ describe('Assistive technology device line list', () => {
           null,
           null,
         ],
+
+        /* ******PATIENT 2******** */
+        // -----Row on 2021-03-17-----//, on this date, there are answers submitted for 2 patients: patient1 and patient2
+        [
+          // patient details
+          expectedPatient2.displayId,
+          expectedPatient2.sex,
+          format(parseISO9075(expectedPatient2.dateOfBirth), 'dd-MM-yyyy'),
+          expect.any(Number),
+          null,
+
+          // always grab the latest answer for a data element for that patient.
+          'pde-IrqMAReg-13-on-2021-03-12T10:53:15.708Z-Patient2',
+
+          // always grab the latest answer for a data element within that date, regardless of survey response,
+          'pde-IrqPreMob-2-on-2021-03-17T10:53:15.708Z-Patient2',
+          'pde-IrqPreMob-1-on-2021-03-17T10:53:15.708Z-Patient2',
+          'pde-IrqPreMob-6-on-2021-03-17T10:53:15.708Z-Patient2',
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+        ],
       ]);
     });
 
@@ -316,7 +316,7 @@ describe('Assistive technology device line list', () => {
 
       expect(result.body[1][0]).toBe(expectedPatient1.displayId);
       expect(result.body[1][1]).toBe(expectedPatient1.sex);
-      expect(result.body[1][2]).toBe(moment(expectedPatient1.dateOfBirth).format('DD-MM-YYYY'));
+      expect(result.body[1][2]).toBe(format(parseISO9075(expectedPatient1.dateOfBirth), 'dd-MM-yyyy'));
       expect(result.body[1][6]).toBe('pde-IrqPreMob-2-on-2021-03-20T10:53:15.708Z-Patient1');
       expect(result.body[1][7]).toBe('pde-IrqPreMob-1-on-2021-03-20T10:53:15.708Z-Patient1');
       expect(result.body[1][8]).toBe('pde-IrqPreMob-6-on-2021-03-20T10:53:15.708Z-Patient1');

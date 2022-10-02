@@ -1,6 +1,6 @@
 {
   "name": "tamanuapp",
-  "version": "1.20.42",
+  "version": "1.21.42",
   "private": true,
   "scripts": {
     "android": "npx react-native run-android",
@@ -21,7 +21,8 @@
     "storybook": "cat storybook/script-usage-instructions.md && (adb reverse tcp:7007 tcp:7007 || true) && start-storybook",
     "prestorybook": "rnstl",
     "postinstall": "npx jetify",
-    "mockserver": "cd mockserver/functions && npm run serve"
+    "mockserver": "cd mockserver/functions && npm run serve",
+    "migrate-create": "../../scripts/create_mobile_migration.sh"
   },
   "dependencies": {
     "@casl/ability": "^4.1.0",

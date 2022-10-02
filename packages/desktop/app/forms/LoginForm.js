@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import Collapse from '@material-ui/core/Collapse';
-import MuiButton from '@material-ui/core/Button';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { FormGrid } from '../components/FormGrid';
