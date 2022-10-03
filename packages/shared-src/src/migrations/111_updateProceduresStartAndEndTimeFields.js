@@ -2,12 +2,16 @@ import { QueryTypes, DataTypes } from 'sequelize';
 import config from 'config';
 
 const ISO9075_DATE_TIME_FMT = 'YYYY-MM-DD HH24:MI:SS';
+const MIGRATIONS = [
+  { TABLE: 'procedures', FIELD: 'start_time', LEGACY_TYPE: { sequelize: DataTypes.STRING, postgres: 'character varying(255)' }},
+  { TABLE: 'procedures', FIELD: 'end_time' },
+];
 
 const alterSchemaOnly = async (query, table, field) => {
   // Change column types from of original columns from date to string
   return query.sequelize.query(`
       ALTER TABLE ${table}
-      ALTER COLUMN ${field} TYPE date_time_string;
+      ALTER COLUMN ${field} TYPE date_time_string);
     `);
 };
 
@@ -34,35 +38,38 @@ const alterSchemaAndBackUpLegacyData = async (query, table, field) => {
 };
 
 export async function up(query) {
-  // 1. Create legacy columns
-  await query.addColumn('procedures', `end_time_legacy`, {
-    type: DataTypes.DATE,
-  });
+  for (const migration of MIGRATIONS) {
+    // Create legacy columns
+    await query.addColumn(migration.TABLE, `${migration.FIELD}_legacy`, {
+      type: migration.LEGACY_TYPE?.sequelize || DataTypes.DATE,
+    });
 
-  const legacyDataCount = await query.sequelize.query(
-    `SELECT COUNT(*) FROM procedures WHERE end_time IS NOT NULL;`,
-    {
-      type: QueryTypes.SELECT,
-    },
-  );
+    // Check for legacy data
+    // Check if there is any legacy data in the system
+    // For example, newly deployed instances of tamanu won't have legacy data
+    const legacyDataCount = await query.sequelize.query(
+      `SELECT COUNT(*) FROM ${migration.TABLE} WHERE ${migration.FIELD} IS NOT NULL;`,
+      {
+        type: QueryTypes.SELECT,
+      },
+    );
 
-  if (legacyDataCount === 0) {
-    await alterSchemaOnly(query, 'procedures', 'end_time');
-  } else {
-    await alterSchemaAndBackUpLegacyData(query, 'procedures', 'end_time');
+    // If there is no legacy column data, then we don't need to run the data migration or check
+    // for the timezone in the config
+    if (legacyDataCount === 0) {
+      await alterSchemaOnly(query, migration.TABLE, migration.FIELD);
+    } else {
+      await alterSchemaAndBackUpLegacyData(query, migration.TABLE, migration.FIELD);
+    }
   }
-  // Special case for start_time which was added as a variable character string
-  // It needs no legacy column, but needs to be converted to a date_time_string
-  await alterSchemaOnly(query, 'procedures', 'start_time');
 }
 
 export async function down(query) {
-  // Special case for start_time see above
-  await query.changeColumn('procedures', 'start_time', {
-    type: DataTypes.STRING,
-  });
-  await query.sequelize.query(`
-      ALTER TABLE procedures
-      ALTER COLUMN end_time TYPE timestamp with time zone USING end_time_legacy;`);
-  await query.removeColumn('procedures', 'end_time_legacy');
+  for (const migration of MIGRATIONS) {
+    await query.sequelize.query(`
+      ALTER TABLE ${migration.TABLE}
+      ALTER COLUMN ${migration.FIELD} TYPE ${migration.LEGACY_TYPE?.postgres || 'timestamp with time zone'} USING ${migration.FIELD}_legacy;
+    `);
+    await query.removeColumn(migration.TABLE, `${migration.FIELD}_legacy`);
+  }
 }
