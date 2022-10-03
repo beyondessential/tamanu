@@ -10,7 +10,7 @@ export class Diagnosis extends BaseModel implements IDiagnosis {
   isPrimary?: boolean;
 
   @Column()
-  date: Date;
+  date: string;
 
   @Column({ type: 'varchar', nullable: true })
   certainty?: Certainty;

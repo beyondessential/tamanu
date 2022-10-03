@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { VISIBILITY_STATUSES } from 'shared/constants/importable';
+import { VISIBILITY_STATUSES, FHIR_PATIENT_LINK_TYPES } from 'shared/constants';
 import { createDummyPatient, createDummyPatientAdditionalData } from 'shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
@@ -10,7 +10,6 @@ import {
 } from '../../app/hl7fhir/patient';
 
 import { validate } from './hl7utilities';
-import { PATIENT_LINK_TYPES } from '../../app/hl7fhir/constants';
 
 describe('HL7 Patient', () => {
   let models;
@@ -158,40 +157,40 @@ describe('HL7 Patient', () => {
       describe('Single entry', () => {
         it("should contain 'replaces' link pointing to all the merged patient B C D from primary patient A", async () => {
           const hl7Patient = await patientToHL7Patient(req, primaryPatientA);
-          expect(hl7Patient.link[0].type).toEqual(PATIENT_LINK_TYPES.REPLACES);
+          expect(hl7Patient.link[0].type).toEqual(FHIR_PATIENT_LINK_TYPES.REPLACES);
           expect(hl7Patient.link[0].other).toMatch(`Patient/${mergedPatientB.id}`);
 
-          expect(hl7Patient.link[1].type).toEqual(PATIENT_LINK_TYPES.REPLACES);
+          expect(hl7Patient.link[1].type).toEqual(FHIR_PATIENT_LINK_TYPES.REPLACES);
           expect(hl7Patient.link[1].other).toMatch(`Patient/${mergedPatientC.id}`);
 
-          expect(hl7Patient.link[2].type).toEqual(PATIENT_LINK_TYPES.REPLACES);
+          expect(hl7Patient.link[2].type).toEqual(FHIR_PATIENT_LINK_TYPES.REPLACES);
           expect(hl7Patient.link[2].other).toMatch(`Patient/${mergedPatientD.id}`);
         });
 
         it("should contain 'replaced-by' link pointing to the primary patient A from merged patient B", async () => {
           const hl7Patient = await patientToHL7Patient(req, mergedPatientB);
-          expect(hl7Patient.link[0].type).toEqual(PATIENT_LINK_TYPES.REPLACED_BY);
+          expect(hl7Patient.link[0].type).toEqual(FHIR_PATIENT_LINK_TYPES.REPLACED_BY);
           expect(hl7Patient.link[0].other).toMatch(`Patient/${primaryPatientA.id}`);
         });
 
         it("should contain multiple 'seealso' links pointing to the merged patients C and D from the merged patient B", async () => {
           const hl7Patient = await patientToHL7Patient(req, mergedPatientB);
-          expect(hl7Patient.link[1].type).toEqual(PATIENT_LINK_TYPES.SEE_ALSO);
+          expect(hl7Patient.link[1].type).toEqual(FHIR_PATIENT_LINK_TYPES.SEE_ALSO);
           expect(hl7Patient.link[1].other).toMatch(`Patient/${mergedPatientC.id}`);
 
-          expect(hl7Patient.link[2].type).toEqual(PATIENT_LINK_TYPES.SEE_ALSO);
+          expect(hl7Patient.link[2].type).toEqual(FHIR_PATIENT_LINK_TYPES.SEE_ALSO);
           expect(hl7Patient.link[2].other).toMatch(`Patient/${mergedPatientD.id}`);
         });
 
         it("should contain 'replaced-by' link pointing to the primary patient A from the merged patient C when there are 2 level of merges", async () => {
           const hl7Patient = await patientToHL7Patient(req, mergedPatientC);
-          expect(hl7Patient.link[0].type).toEqual(PATIENT_LINK_TYPES.REPLACED_BY);
+          expect(hl7Patient.link[0].type).toEqual(FHIR_PATIENT_LINK_TYPES.REPLACED_BY);
           expect(hl7Patient.link[0].other).toMatch(`Patient/${primaryPatientA.id}`);
         });
   
         it("should contain 'seealso' link pointing to the merged patient B from merged patient C when there are 2 level of merges", async () => {
           const hl7Patient = await patientToHL7Patient(req, mergedPatientC);
-          expect(hl7Patient.link[1].type).toEqual(PATIENT_LINK_TYPES.SEE_ALSO);
+          expect(hl7Patient.link[1].type).toEqual(FHIR_PATIENT_LINK_TYPES.SEE_ALSO);
           expect(hl7Patient.link[1].other).toMatch(`Patient/${mergedPatientB.id}`);
         });
       });

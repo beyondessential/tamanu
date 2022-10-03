@@ -1,8 +1,9 @@
 import { format } from 'date-fns';
 
 import { fake } from 'shared/test-helpers/fake';
-import { createTestContext } from 'sync-server/__tests__/utilities';
-import { getCurrentDateString } from '../../../../shared-src/src/utils/dateTime';
+import { getCurrentDateString } from 'shared/utils/dateTime';
+
+import { createTestContext } from '../../utilities';
 import { IDENTIFIER_NAMESPACE } from '../../../app/hl7fhir/utils';
 
 export function testPatientHandler(integrationName, requestHeaders = {}) {

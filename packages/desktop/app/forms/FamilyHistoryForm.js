@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { Form, Field, DateField, AutocompleteField, TextField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
@@ -26,7 +26,13 @@ export const FamilyHistoryForm = ({
           component={AutocompleteField}
           suggester={icd10Suggester}
         />
-        <Field name="recordedDate" label="Date recorded" required component={DateField} />
+        <Field
+          name="recordedDate"
+          label="Date recorded"
+          required
+          component={DateField}
+          saveDateAsString
+        />
         <Field name="relationship" label="Relation to patient" component={TextField} />
         <Field
           name="practitionerId"
@@ -44,7 +50,7 @@ export const FamilyHistoryForm = ({
       </FormGrid>
     )}
     initialValues={{
-      recordedDate: new Date(),
+      recordedDate: getCurrentDateTimeString(),
       ...editedObject,
     }}
     validationSchema={yup.object().shape({

@@ -1,8 +1,5 @@
-import {
-  createDummyPatient,
-  randomUser,
-  randomReferenceId,
-} from 'shared/demoData/patients';
+import { createDummyPatient, randomUser, randomReferenceId } from 'shared/demoData/patients';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 
 describe('PatientCarePlan', () => {
@@ -35,9 +32,9 @@ describe('PatientCarePlan', () => {
 
     it('should create a care plan with note', async () => {
       const onBehalfOfUserId = await randomUser(models);
-      const noteDate = new Date().toISOString();
+      const carePlanDate = getCurrentDateTimeString();
       const result = await app.post('/v1/patientCarePlan').send({
-        date: noteDate,
+        date: carePlanDate,
         carePlanId,
         patientId: patient.get('id'),
         content: 'Main care plan',
@@ -45,14 +42,14 @@ describe('PatientCarePlan', () => {
       });
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveProperty('id');
-      expect(result.body).toHaveProperty('date', noteDate);
+      expect(result.body).toHaveProperty('date', carePlanDate);
       expect(result.body.patientId).toBe(patient.get('id'));
       expect(result.body.carePlanId).toBe(carePlanId);
       const noteResult = await app.get(`/v1/patientCarePlan/${result.body.id}/notes`);
       expect(noteResult).toHaveSucceeded();
       expect(noteResult.body.length).toBeGreaterThan(0);
       expect(noteResult.body[0].content).toBe('Main care plan');
-      expect(noteResult.body[0]).toHaveProperty('date', noteDate);
+      expect(noteResult.body[0]).toHaveProperty('date', carePlanDate);
     });
 
     it('should reject care plan without notes', async () => {
