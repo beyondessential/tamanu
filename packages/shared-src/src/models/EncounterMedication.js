@@ -2,6 +2,8 @@ import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
+import { dateTimeType } from './dateTimeTypes';
+import { getCurrentDateTimeString } from '../utils/dateTime';
 
 export class EncounterMedication extends Model {
   static init({ primaryKey, ...options }) {
@@ -9,12 +11,11 @@ export class EncounterMedication extends Model {
       {
         id: primaryKey,
 
-        date: {
-          type: Sequelize.DATE,
+        date: dateTimeType('date', {
           allowNull: false,
-          defaultValue: Sequelize.NOW,
-        },
-        endDate: Sequelize.DATE,
+          defaultValue: getCurrentDateTimeString,
+        }),
+        endDate: dateTimeType('endDate'),
 
         prescription: Sequelize.STRING,
         note: Sequelize.STRING,

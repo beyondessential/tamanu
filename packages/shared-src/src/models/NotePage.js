@@ -3,6 +3,8 @@ import { Model } from './Model';
 import { NoteItem } from './NoteItem';
 import { buildNotePageLinkedSyncFilter } from './buildNoteLinkedSyncFilter';
 import { NOTE_RECORD_TYPE_VALUES, NOTE_TYPE_VALUES, SYNC_DIRECTIONS } from '../constants';
+import { dateTimeType } from './dateTimeTypes';
+import { getCurrentDateTimeString } from '../utils/dateTime';
 
 export class NotePage extends Model {
   static init({ primaryKey, ...options }) {
@@ -20,11 +22,10 @@ export class NotePage extends Model {
           type: DataTypes.STRING,
           allowNull: false,
         },
-        date: {
-          type: DataTypes.DATE,
+        date: dateTimeType('date', {
           allowNull: false,
-          defaultValue: DataTypes.NOW,
-        },
+          defaultValue: getCurrentDateTimeString,
+        }),
       },
       {
         ...options,
@@ -93,13 +94,13 @@ export class NotePage extends Model {
       recordId,
       recordType,
       noteType,
-      date: Date.now(),
+      date: getCurrentDateTimeString(),
     });
 
     await NoteItem.create({
       notePageId: notePage.id,
       content,
-      date: Date.now(),
+      date: getCurrentDateTimeString(),
       authorId,
     });
 

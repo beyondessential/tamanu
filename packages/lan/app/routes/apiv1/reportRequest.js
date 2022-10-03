@@ -54,7 +54,7 @@ reportRequest.post(
       status: REPORT_REQUEST_STATUSES.RECEIVED,
       requestedByUserId: user.id,
       parameters: JSON.stringify(body.parameters),
-      exportFormat: body.exportFormat,
+      exportFormat: body.bookType,
     };
     try {
       reportRequestLog.info('Report request creating', {

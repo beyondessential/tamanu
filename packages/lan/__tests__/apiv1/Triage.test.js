@@ -1,3 +1,4 @@
+import config from 'config';
 import {
   createDummyPatient,
   createDummyEncounter,
@@ -157,7 +158,7 @@ describe('Triage', () => {
       // create a few test triages
       const { Facility, Location } = models;
       const fac = await Facility.create({
-        ...fake(models.Facility, { id: 'ref/facility/ba' }),
+        ...fake(models.Facility, { id: config.serverFacilityId }),
       });
       const { id: locationId } = await Location.create({
         ...fake(Location),
@@ -167,7 +168,7 @@ describe('Triage', () => {
       const triageConfigs = [
         {
           score: 1,
-          arrivalTime: toDateTimeString(new Date('01/03/2022 06:15 am')),
+          triageTime: toDateTimeString(new Date('01/03/2022 06:15 am')),
         },
         {
           score: 2,
