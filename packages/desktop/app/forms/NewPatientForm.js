@@ -72,10 +72,6 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
   const handleSubmit = data => {
     const newData = { ...data };
     newData.patientRegistryType = patientRegistryType;
-    newData.timeOfBirth =
-      typeof data.timeOfBirth !== 'string'
-        ? toDateTimeString(newData.timeOfBirth)
-        : newData.timeOfBirth;
 
     if (newData.registeredBirthPlace !== PLACE_OF_BIRTH_TYPES.HEALTH_FACILITY) {
       newData.birthFacilityId = null;
