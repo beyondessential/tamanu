@@ -5,6 +5,7 @@ import {
   createDummyPatient,
   randomReferenceId,
 } from 'shared/demoData/patients';
+import { toDateTimeString } from 'shared/utils/dateTime';
 import { createTestContext } from '../../utilities';
 import {
   setupProgramAndSurvey,
@@ -12,7 +13,6 @@ import {
   createBreastCancerFormSurveyResponse,
   createSNAPFormSurveyResponse,
 } from './fiji-ncd-primary-screening/utils';
-import { toDateTimeString, toDateTimeString } from 'shared/utils/dateTime';
 
 const PROGRAM_ID = 'program-fijicovid19';
 const FIJI_SAMP_SURVEY_ID = 'program-fijicovid19-fijicovidsampcollection';
