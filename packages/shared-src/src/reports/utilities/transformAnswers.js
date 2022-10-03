@@ -1,5 +1,5 @@
-import { format, differenceInMilliseconds } from 'date-fns';
 import { keyBy, groupBy } from 'lodash';
+import { format, differenceInMilliseconds } from '../../utils/dateTime';
 
 const MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE = {
   User: 'displayName',
@@ -37,7 +37,7 @@ const convertBinaryToYesNo = answer => {
 };
 
 const convertDateAnswer = (answer, { dateFormat = 'dd-MM-yyyy' }) =>
-  answer ? format(new Date(answer), dateFormat) : '';
+  answer ? format(answer, dateFormat) : '';
 
 export const getAnswerBody = async (models, componentConfig, type, answer, transformConfig) => {
   switch (type) {

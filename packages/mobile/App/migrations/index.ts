@@ -3,10 +3,12 @@ import { databaseSetup1661160427226 } from './1661160427226-databaseSetup';
 import { updatePatientDateTimeColumns1661717539000 } from './1661717539000-updatePatientDateTimeColumns';
 import { updatePatientIssueDate1663564207000 } from './1663564207000-updatePatientIssueDate';
 import { updatePatientEncounterDateTimeColumns1664229842000 } from './1664229842000-updatePatientEncounterDateTimeColumns';
+import { updateSurveyResponseDateTimeColumns1664475769000 } from './1664475769000-updateSurveyResponseDateTimeColumns';
 
 export const migrationList = [
   databaseSetup1661160427226,
   updatePatientDateTimeColumns1661717539000,
   updatePatientIssueDate1663564207000,
   updatePatientEncounterDateTimeColumns1664229842000,
+  updateSurveyResponseDateTimeColumns1664475769000,
 ];
