@@ -42,9 +42,7 @@ export class FhirResource extends Model {
       },
       {
         ...options,
-        syncConfig: {
-          syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
-        },
+        syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
         schema: 'fhir',
         tableName: snakeCase(Utils.pluralize(this.fhirName)),
         timestamps: false,
