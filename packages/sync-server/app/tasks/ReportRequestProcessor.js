@@ -14,7 +14,9 @@ import { getLocalisation } from '../localisation';
 const REPORT_TIME_OUT_DURATION_MILLISECONDS = config.reportProcess.timeOutDurationSeconds * 1000;
 
 export class ReportRequestProcessor extends ScheduledTask {
-  getName = () => 'ReportRequestProcessor';
+  getName() {
+    return 'ReportRequestProcessor';
+  }
 
   constructor(context) {
     // run at 30 seconds interval, process 10 report requests each time
