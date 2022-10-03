@@ -1,6 +1,6 @@
 import { Op } from 'sequelize';
 import config from 'config';
-import { SYNC_DIRECTIONS } from 'shared/constants';
+import { SYNC_DIRECTIONS, CURRENT_SYNC_TIME_KEY } from 'shared/constants';
 import { log } from 'shared/services/logging';
 import {
   getModelsForDirection,
@@ -49,12 +49,8 @@ export class CentralSyncManager {
     // directly on the central server will be recorded as updated at the "tock", avoiding any
     // direct changes (e.g. imports) being missed by a client that is at the same sync tick
     const tickTock = await this.store.sequelize.transaction(async () => {
-      const [[{ nextval: tick }]] = await this.store.sequelize.query(
-        `SELECT nextval('sync_clock_sequence')`,
-      );
-      const [[{ nextval: tock }]] = await this.store.sequelize.query(
-        `SELECT nextval('sync_clock_sequence')`,
-      );
+      const tick = await this.store.models.LocalSystemFact.increment(CURRENT_SYNC_TIME_KEY);
+      const tock = await this.store.models.LocalSystemFact.increment(CURRENT_SYNC_TIME_KEY);
       return { tick, tock };
     });
     return tickTock;
