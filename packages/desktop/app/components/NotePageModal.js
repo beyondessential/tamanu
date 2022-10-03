@@ -116,10 +116,7 @@ export const NotePageModal = ({
         open={open}
         width="md"
         onClose={() => {
-          const content = contentRef.current.textContent
-            .replace(/\s+/g, '')
-            .replace(/([\u200B]+|[\u200C]+|[\u200D]+|[\u200E]+|[\u200F]+|[\uFEFF]+)/g, '');
-          if (!isEmpty(content)) {
+          if (!isEmpty(contentRef.current.textContent)) {
             setOpenNoteItemCancelConfirmModal(true);
           } else {
             onClose();
@@ -130,10 +127,7 @@ export const NotePageModal = ({
           onSubmit={handleCreateNewNoteItem}
           onEditNoteItem={handleEditNoteItem}
           onCancel={() => {
-            const content = contentRef.current.textContent
-              .replace(/\s+/g, '')
-              .replace(/([\u200B]+|[\u200C]+|[\u200D]+|[\u200E]+|[\u200F]+|[\uFEFF]+)/g, '');
-            if (!isEmpty(content)) {
+            if (!isEmpty(contentRef.current.textContent)) {
               setOpenNoteItemCancelConfirmModal(true);
             } else {
               onClose();

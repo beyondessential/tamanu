@@ -1,10 +1,9 @@
 import { Sequelize, Op } from 'sequelize';
 import moment from 'moment';
+import { FHIR_SEARCH_PARAMETERS } from 'shared/constants';
 import { jsonFromBase64, jsonToBase64 } from 'shared/utils/encodings';
 import { InvalidParameterError } from 'shared/errors';
 import { toDateString } from 'shared/utils/dateTime';
-
-import { hl7ParameterTypes } from '../hl7Parameters';
 
 export function toSearchId({ after, ...params }) {
   const result = { ...params };
@@ -29,10 +28,10 @@ export function getParamAndModifier(fullParam) {
 }
 
 export function getDefaultOperator(type) {
-  if (type === hl7ParameterTypes.string) {
+  if (type === FHIR_SEARCH_PARAMETERS.STRING) {
     return Op.startsWith;
   }
-  if (type === hl7ParameterTypes.date) {
+  if (type === FHIR_SEARCH_PARAMETERS.DATE) {
     return Op.between;
   }
 
@@ -42,7 +41,7 @@ export function getDefaultOperator(type) {
 // Helper function to deal with case insensitive searches for strings
 export function getQueryObject(columnName, value, operator, modifier, parameterType) {
   // String searches should be case insensitive unless the modifier is "exact"
-  if (parameterType === hl7ParameterTypes.string && modifier !== 'exact') {
+  if (parameterType === FHIR_SEARCH_PARAMETERS.STRING && modifier !== 'exact') {
     // Perform case insensitive search by using SQL function UPPER
     // and modifying the string to be uppercase.
     return Sequelize.where(Sequelize.fn('upper', Sequelize.col(columnName)), {
@@ -51,7 +50,7 @@ export function getQueryObject(columnName, value, operator, modifier, parameterT
   }
 
   // Dates with eq modifier or no modifier should be looked up as a range
-  if (parameterType === hl7ParameterTypes.date && ['eq', undefined].includes(modifier)) {
+  if (parameterType === FHIR_SEARCH_PARAMETERS.DATE && ['eq', undefined].includes(modifier)) {
     // Create and return range
     const timeUnit = getSmallestTimeUnit(value);
     const startDate = parseHL7Date(value)

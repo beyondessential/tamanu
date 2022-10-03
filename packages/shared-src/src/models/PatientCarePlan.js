@@ -1,13 +1,17 @@
-import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
+import { dateTimeType } from './dateTimeTypes';
+import { getCurrentDateTimeString } from '../utils/dateTime';
 
 export class PatientCarePlan extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
         id: primaryKey,
-        date: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false },
+        date: dateTimeType('date', {
+          defaultValue: getCurrentDateTimeString,
+          allowNull: false,
+        }),
       },
       {
         ...options,

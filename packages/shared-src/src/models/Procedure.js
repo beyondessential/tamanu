@@ -2,6 +2,7 @@ import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
+import { dateTimeType } from './dateTimeTypes';
 
 export class Procedure extends Model {
   static init({ primaryKey, ...options }) {
@@ -12,7 +13,7 @@ export class Procedure extends Model {
           type: Sequelize.BOOLEAN,
           defaultValue: false,
         },
-        date: { type: Sequelize.DATE, allowNull: false },
+        date: dateTimeType('date', { allowNull: false }),
         endTime: { type: Sequelize.DATE, allowNull: true },
         startTime: { type: Sequelize.STRING, allowNull: true },
         note: Sequelize.STRING,

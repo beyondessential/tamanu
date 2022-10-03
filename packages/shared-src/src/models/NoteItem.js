@@ -2,6 +2,8 @@ import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from '../constants';
 
 import { Model } from './Model';
+import { dateTimeType } from './dateTimeTypes';
+import { getCurrentDateTimeString } from '../utils/dateTime';
 import { buildNoteItemLinkedSyncFilter } from './buildNoteLinkedSyncFilter';
 
 export class NoteItem extends Model {
@@ -21,11 +23,10 @@ export class NoteItem extends Model {
           allowNull: false,
           defaultValue: '',
         },
-        date: {
-          type: DataTypes.DATE,
+        date: dateTimeType('date', {
           allowNull: false,
-          defaultValue: DataTypes.NOW,
-        },
+          defaultValue: getCurrentDateTimeString,
+        }),
       },
       {
         ...options,

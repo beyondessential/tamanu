@@ -8,6 +8,7 @@ import {
   SYNC_DIRECTIONS,
 } from 'shared/constants';
 import { InvalidOperationError } from 'shared/errors';
+import { dateTimeType } from './dateTimeTypes';
 
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
@@ -48,11 +49,10 @@ export class Encounter extends Model {
       {
         id: primaryKey,
         encounterType: Sequelize.STRING(31),
-        startDate: {
-          type: Sequelize.DATE,
+        startDate: dateTimeType('startDate', {
           allowNull: false,
-        },
-        endDate: Sequelize.DATE,
+        }),
+        endDate: dateTimeType('endDate'),
         reasonForEncounter: Sequelize.TEXT,
         deviceId: Sequelize.TEXT,
       },
