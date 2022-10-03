@@ -24,6 +24,7 @@ jest.mock(
     },
   }),
   { virtual: true },
+);
 
 describe('Encounter', () => {
   let context = null;
