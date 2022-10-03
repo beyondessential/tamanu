@@ -5,7 +5,6 @@ import { Suggester } from '../utils/suggester';
 
 import { Modal } from './Modal';
 import { ProcedureForm } from '../forms/ProcedureForm';
-import { toDateTimeString } from '../utils/dateTime';
 
 export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure }) => {
   const api = useApi();
@@ -25,15 +24,11 @@ export const ProcedureModal = ({ onClose, onSaved, encounterId, editedProcedure 
     >
       <ProcedureForm
         onSubmit={async data => {
-          const payload = {
-            ...data,
-            startTime: toDateTimeString(data.startTime),
-          };
-          if (payload.id) {
-            await api.put(`procedure/${payload.id}`, payload);
+          if (data.id) {
+            await api.put(`procedure/${data.id}`, data);
           } else {
             await api.post('procedure', {
-              ...payload,
+              ...data,
               encounterId,
             });
           }

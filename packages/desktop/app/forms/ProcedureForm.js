@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import Collapse from '@material-ui/core/Collapse';
 
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import {
   Form,
   Field,
@@ -66,7 +67,13 @@ export const ProcedureForm = React.memo(
                     component={AutocompleteField}
                     suggester={locationSuggester}
                   />
-                  <Field name="date" label="Procedure date" required component={DateField} />
+                  <Field
+                    name="date"
+                    label="Procedure date"
+                    saveDateAsString
+                    required
+                    component={DateField}
+                  />
                 </FormGrid>
                 <FormGrid style={{ gridColumn: 'span 2' }}>
                   <Field name="startTime" label="Time started" component={TimeField} />
@@ -130,8 +137,8 @@ export const ProcedureForm = React.memo(
         );
       }}
       initialValues={{
-        date: new Date(),
-        startTime: new Date(),
+        date: getCurrentDateTimeString(),
+        startTime: getCurrentDateTimeString(),
         ...editedObject,
       }}
       validationSchema={yup.object().shape({
