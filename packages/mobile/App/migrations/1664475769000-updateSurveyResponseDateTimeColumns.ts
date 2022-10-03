@@ -58,7 +58,7 @@ async function createDateTimeStringDownMigration(
     `${columnName}_legacy`,
     new TableColumn({
       name: columnName,
-      type: 'Date',
+      type: 'date',
     }),
   );
 }

@@ -1,13 +1,5 @@
-import {
-  isBefore,
-  isAfter,
-  isWithinInterval,
-  startOfDay,
-  endOfDay,
-  format,
-  isSameDay,
-} from 'date-fns';
-import { differenceInMilliseconds } from 'shared/utils/dateTime';
+import { isBefore, isAfter, isWithinInterval, startOfDay, endOfDay, isSameDay } from 'date-fns';
+import { differenceInMilliseconds, format } from 'shared/utils/dateTime';
 import { groupBy } from 'lodash';
 import { Op } from 'sequelize';
 import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_LABELS } from '../../constants';
@@ -196,7 +188,7 @@ const getLatestPatientAnswerInDateRange = (
   }
 
   const sortedLatestToOldestAnswers = patientTransformedAnswers.sort((a1, a2) =>
-    differenceInMilliseconds(new Date(a2.responseEndTime), new Date(a1.responseEndTime)),
+    differenceInMilliseconds(a2.responseEndTime, a1.responseEndTime),
   );
 
   const latestAnswer = sortedLatestToOldestAnswers.find(a =>
@@ -265,7 +257,7 @@ const getLabTestRecords = async (
         // if next lab test not on the same date (next one on a different date,
         // startOf('day') to exclude the next date when comparing range later
         if (!isSameDay(currentLabTestDate, nextLabTestTimestamp)) {
-          nextLabTestDate = startOfDay(new Date(nextLabTestTimestamp));
+          nextLabTestDate = startOfDay(nextLabTestTimestamp);
         } else {
           // if next lab test on the same date, just use its raw timestamp
           nextLabTestDate = nextLabTestTimestamp;
@@ -281,7 +273,7 @@ const getLabTestRecords = async (
       const village = patient?.village?.name;
       const patientAdditionalData = patient?.additionalData?.[0];
 
-      const formatDate = date => (date ? format(new Date(date), dateFormat) : '');
+      const formatDate = date => (date ? format(date, dateFormat) : '');
 
       const labTestRecord = {
         firstName: patient?.firstName,

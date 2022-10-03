@@ -1,5 +1,5 @@
-import { addDays, endOfDay, format } from 'date-fns';
-import { parseISO9075 } from 'shared/utils/dateTime';
+import { addDays, endOfDay } from 'date-fns';
+import { format } from 'shared/utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
 const FIELDS = [
@@ -13,7 +13,7 @@ const FIELDS = [
   'Patient type',
   {
     title: 'Appointment date and time',
-    accessor: data => format(parseISO9075(data.appointmentDateTime), 'dd/MM/yyyy hh:mm a'),
+    accessor: data => format(data.appointmentDateTime, 'dd/MM/yyyy hh:mm a'),
   },
   'Appointment type',
   'Appointment status',
