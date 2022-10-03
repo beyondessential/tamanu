@@ -31,6 +31,7 @@ import { SurveyResponseAnswer } from './SurveyResponseAnswer';
 import { Referral } from './Referral';
 import { Patient } from './Patient';
 import { PatientAdditionalData } from './PatientAdditionalData';
+import { getCurrentDateTimeString } from '~/ui/helpers/date';
 
 @Entity('survey_response')
 export class SurveyResponse extends BaseModel implements ISurveyResponse {
@@ -110,8 +111,8 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
     try {
       setNote('Creating encounter...');
       const encounter = await Encounter.getOrCreateCurrentEncounter(patientId, userId, {
-        startDate: new Date(),
-        endDate: new Date(),
+        startDate: getCurrentDateTimeString(),
+        endDate: getCurrentDateTimeString(),
         encounterType: EncounterType.SurveyResponse,
         reasonForEncounter: encounterReason,
       });

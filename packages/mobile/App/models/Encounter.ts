@@ -8,7 +8,7 @@ import {
   BeforeInsert,
   RelationId,
 } from 'typeorm/browser';
-import { startOfDay, addHours, subDays, formatISO9075 } from 'date-fns';
+import { startOfDay, addHours, subDays } from 'date-fns';
 import { getUniqueId } from 'react-native-device-info';
 import { BaseModel, FindMarkedForUploadOptions, IdRelation } from './BaseModel';
 import { IEncounter, EncounterType } from '~/types';
@@ -27,6 +27,7 @@ import { Referral } from './Referral';
 import { LabRequest } from './LabRequest';
 import { readConfig } from '~/services/config';
 import { ReferenceData, ReferenceDataRelation } from '~/models/ReferenceData';
+import { getCurrentDateTimeString } from '~/ui/helpers/date';
 
 const TIME_OFFSET = 3;
 
@@ -170,10 +171,10 @@ export class Encounter extends BaseModel implements IEncounter {
       where: { facility: { id: facilityId } },
     });
 
-    const encounterObject = {
+    return Encounter.createAndSaveOne({
       patient: patientId,
       examiner: userId,
-      startDate: new Date(),
+      startDate: getCurrentDateTimeString(),
       endDate: null,
       encounterType: EncounterType.Clinic,
       reasonForEncounter: '',
@@ -181,12 +182,6 @@ export class Encounter extends BaseModel implements IEncounter {
       location: defaultLocation.id,
       deviceId: getUniqueId(),
       ...createdEncounterOptions,
-    };
-
-    return Encounter.createAndSaveOne({
-      ...encounterObject,
-      startDate: encounterObject.startDate ? formatISO9075(encounterObject.startDate) : null,
-      endDate: encounterObject.endDate ? formatISO9075(encounterObject.endDate) : null,
     });
   }
 
