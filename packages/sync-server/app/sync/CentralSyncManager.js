@@ -180,7 +180,12 @@ export class CentralSyncManager {
 
     if (pushedSoFar === totalToPush) {
       // commit the changes to the db
-      await this.store.sequelize.transaction(async () => {
+      await this.store.sequelize.transaction(async transaction => {
+        // acquire a lock on the sync time row in the local system facts table
+        await models.LocalSystemFact.findAll({
+          where: { key: CURRENT_SYNC_TIME_KEY },
+          lock: transaction.LOCK.UPDATE,
+        });
         await saveIncomingChanges(
           models,
           getModelsForDirection(models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL),
