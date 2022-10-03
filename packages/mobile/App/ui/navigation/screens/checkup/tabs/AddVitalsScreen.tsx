@@ -3,6 +3,7 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { compose } from 'redux';
 import { useSelector } from 'react-redux';
+import { formatISO9075 } from 'date-fns';
 import { FullView, StyledView, StyledSafeAreaView } from '/styled/common';
 import { Routes } from '/helpers/routes';
 import { theme } from '/styled/theme';
@@ -158,7 +159,7 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
       await models.Vitals.createAndSaveOne({
         ...values,
         encounter: encounter.id,
-        dateRecorded: new Date(),
+        dateRecorded: formatISO9075(new Date()),
       });
 
       navigateToHistory();

@@ -3,6 +3,7 @@ import { compose } from 'redux';
 import { useSelector } from 'react-redux';
 import { Formik } from 'formik';
 import { ScrollView } from 'react-native-gesture-handler';
+import { formatISO9075 } from 'date-fns';
 import { Field } from '/components/Forms/FormField';
 import { SectionHeader } from '/components/SectionHeader';
 import { FullView, StyledView } from '/styled/common';
@@ -51,7 +52,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
 
       await models.Medication.createAndSaveOne({
         encounter: encounter.id,
-        date: new Date(),
+        date: formatISO9075(new Date()),
         ...values,
       });
 
