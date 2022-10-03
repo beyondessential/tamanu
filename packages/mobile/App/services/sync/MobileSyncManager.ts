@@ -128,7 +128,7 @@ export class MobileSyncManager {
       sessionId,
       syncClockTick: currentSyncTick,
     } = await this.centralServer.startSyncSession();
-    const lastSuccessfulSyncTick = await getSyncTick('LastSuccessfulSyncTime');
+    const lastSuccessfulSyncTick = await getSyncTick('lastSuccessfulSyncTime');
 
     console.log(
       `MobileSyncManager.runSync(): Sync started with sync tick ${currentSyncTick}, last successful sync tick: ${lastSuccessfulSyncTick}`,
@@ -137,7 +137,7 @@ export class MobileSyncManager {
     // persist the session index in LocalSystemFact table now
     // so that any records that are created or updated from this point on, even mid way through this
     // sync, are marked using the new index and will be captured in the next sync
-    await setSyncSessionSequence(this.models, currentSyncTick, 'CurrentSyncTime');
+    await setSyncSessionSequence(this.models, currentSyncTick, 'currentSyncTime');
 
     await this.syncOutgoingChanges(sessionId, lastSuccessfulSyncTick);
     await this.syncIncomingChanges(sessionId, currentSyncTick, lastSuccessfulSyncTick);
@@ -218,7 +218,7 @@ export class MobileSyncManager {
         // if updating the cursor fails, we want to roll back the rest of the saves
         // so that we don't end up detecting them as needing a sync up
         // to the central server when we attempt to resync from the same old cursor
-        await setSyncSessionSequence(this.models, currentSyncTick, 'LastSuccessfulSyncTime');
+        await setSyncSessionSequence(this.models, currentSyncTick, 'lastSuccessfulSyncTime');
       });
     }
 

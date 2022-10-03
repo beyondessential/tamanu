@@ -101,7 +101,7 @@ export const DumbViewHistoryScreen = ({ selectedPatient, navigation }): ReactEle
   );
 
   const [lastSuccessfulSync] = useBackendEffect(
-    ({ models }) => models.LocalSystemFact.findOne('LastSuccessfulSyncTime'),
+    ({ models }) => models.LocalSystemFact.findOne('lastSuccessfulSyncTime'),
     [],
   );
 

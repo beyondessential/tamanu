@@ -83,7 +83,7 @@ export class FacilitySyncManager {
     // to be pushed, and then pushing those up in batches
     // this avoids any of the records to be pushed being changed during the push period and
     // causing data that isn't internally coherent from ending up on the sync server
-    const pushSince = (await this.models.LocalSystemFact.get('LastSuccessfulSyncPush')) || -1;
+    const pushSince = (await this.models.LocalSystemFact.get('lastSuccessfulSyncPush')) || -1;
     const outgoingChanges = await snapshotOutgoingChangesForFacility(
       getModelsForDirection(this.models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL),
       sessionId,
@@ -98,7 +98,7 @@ export class FacilitySyncManager {
     log.debug(
       `FacilitySyncManager.runSync: Setting the last successful sync push time to ${currentTick}`,
     );
-    await this.models.LocalSystemFact.set('LastSuccessfulSyncPush', currentTick);
+    await this.models.LocalSystemFact.set('lastSuccessfulSyncPush', currentTick);
 
     // ~~~ Pull phase ~~~ //
 
@@ -112,7 +112,7 @@ export class FacilitySyncManager {
     // syncing incoming changes happens in two phases: pulling all the records from the server,
     // then saving all those records into the local database
     // this avoids a period of time where the the local database may be "partially synced"
-    const pullSince = (await this.models.LocalSystemFact.get('LastSuccessfulSyncPull')) || -1;
+    const pullSince = (await this.models.LocalSystemFact.get('lastSuccessfulSyncPull')) || -1;
     await this.models.SyncSession.create({
       id: sessionId,
       startTime,
@@ -144,7 +144,7 @@ export class FacilitySyncManager {
       log.debug(
         `FacilitySyncManager.runSync: Setting the last successful sync pull time to ${pullTick}`,
       );
-      await this.models.LocalSystemFact.set('LastSuccessfulSyncPull', pullTick);
+      await this.models.LocalSystemFact.set('lastSuccessfulSyncPull', pullTick);
     });
     await this.centralServer.endSyncSession(sessionId);
 

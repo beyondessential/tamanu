@@ -104,7 +104,7 @@ export abstract class BaseModel extends BaseEntity {
   @BeforeUpdate()
   async markForUpload(): Promise<void> {
     const thisModel = this.constructor as typeof BaseModel;
-    const syncTick = await getSyncTick('CurrentSyncTime');
+    const syncTick = await getSyncTick('currentSyncTime');
     if (
       [null, undefined].includes(this.updatedAtSyncTick) ||
       (await thisModel.findOne({ id: this.id }))?.updatedAtSyncTick === this.updatedAtSyncTick
@@ -116,7 +116,7 @@ export abstract class BaseModel extends BaseEntity {
   @BeforeInsert()
   async assignUpdatedAtSyncTick(): Promise<void> {
     if ([null, undefined].includes(this.updatedAtSyncTick)) {
-      const syncTick = await getSyncTick('CurrentSyncTime');
+      const syncTick = await getSyncTick('currentSyncTime');
       this.updatedAtSyncTick = syncTick;
     }
   }
