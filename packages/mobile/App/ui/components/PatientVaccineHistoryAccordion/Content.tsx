@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react';
-import { format } from 'date-fns';
+import { formatStringDate } from '/helpers/date';
 import { StyleSheet, Text, View } from 'react-native';
 import { StyledView, RowView, ColumnView } from '/styled/common';
 import { theme } from '/styled/theme';
@@ -48,7 +48,7 @@ const VaccinationDetailsList = ({ status, date, scheduledVaccine }): ReactElemen
           Date:
         </Text>
         <Text style={styles.item}>
-          {format(date, 'do MMM yyyy h:mmaa')}
+          {formatStringDate(date, 'do MMM yyyy h:mmaa')}
         </Text>
       </View>
     </View>

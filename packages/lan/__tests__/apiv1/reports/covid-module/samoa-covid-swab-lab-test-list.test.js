@@ -1,4 +1,6 @@
 import { createDummyEncounter } from 'shared/demoData/patients';
+import { getCurrentDateTimeString, toDateTimeString } from 'shared/utils/dateTime';
+import { subMinutes } from 'date-fns';
 import { createTestContext } from '../../../utilities';
 import {
   createCovidTestForPatient,
@@ -78,12 +80,12 @@ async function createSampleCollectionSurvey(models) {
 
 async function createFormAnswerForPatient(app, models, patient, formData) {
   if (!formData.formDate) {
-    formData.formDate = new Date().toISOString();
+    formData.formDate = getCurrentDateTimeString();
   }
   const encounter = await models.Encounter.create(
     await createDummyEncounter(models, { patientId: patient.id }),
   );
-  return await app.post('/v1/surveyResponse').send({
+  return app.post('/v1/surveyResponse').send({
     surveyId: SURVEY_ID,
     startTime: formData.formDate,
     patientId: patient.id,
@@ -127,6 +129,7 @@ describe('Samoa covid lab test report', () => {
 
     afterEach(async () => {
       await testContext.models.LabTest.destroy({ where: {} });
+      await testContext.models.SurveyResponseAnswer.destroy({ where: {} });
       await testContext.models.LabRequest.destroy({ where: {} });
     });
 
@@ -181,14 +184,19 @@ describe('Samoa covid lab test report', () => {
     it('should return results for multiple patients', async () => {
       const phoneNumber = '123-456-7890';
       await createCovidTestForPatient(testContext.models, expectedPatient1);
+
       await createFormAnswerForPatient(app, testContext.models, expectedPatient1, {
         phoneNumber,
         village: 'patient 1 village',
+        formDate: toDateTimeString(subMinutes(new Date(), 1)),
       });
+
       await createFormAnswerForPatient(app, testContext.models, expectedPatient1, {
         phoneNumber,
         village: 'patient 1 village 2',
+        formDate: getCurrentDateTimeString(),
       });
+
       await createCovidTestForPatient(testContext.models, expectedPatient2);
       await createFormAnswerForPatient(app, testContext.models, expectedPatient2, {
         phoneNumber,
