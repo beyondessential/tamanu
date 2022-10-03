@@ -1,4 +1,3 @@
-import { Sequelize } from 'sequelize';
 import { initSyncForModelNestedUnderPatient } from './sync';
 import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';

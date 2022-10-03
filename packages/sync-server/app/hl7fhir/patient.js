@@ -131,7 +131,9 @@ export function getFlattenMergedPatientReplaceLinks(
   for (const mergedPatient of mergedPatients) {
     links.push({
       other: getHL7Link(`${baseUrl}/Patient/${mergedPatient.id}`),
-      type: isRootPatientActive ? FHIR_PATIENT_LINK_TYPES.REPLACES : FHIR_PATIENT_LINK_TYPES.SEE_ALSO,
+      type: isRootPatientActive
+        ? FHIR_PATIENT_LINK_TYPES.REPLACES
+        : FHIR_PATIENT_LINK_TYPES.SEE_ALSO,
     });
     // get deeper level of merged patients if there's any
     links.push(

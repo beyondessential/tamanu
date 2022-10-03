@@ -35,6 +35,17 @@ export class FhirError extends Error {
   }
 }
 
+// Developer error
+export class Exception extends FhirError {
+  constructor(message, options = {}) {
+    super(message, {
+      status: 500,
+      code: FHIR_ISSUE_TYPE.TRANSIENT.EXCEPTION,
+      ...options,
+    });
+  }
+}
+
 export class Invalid extends FhirError {
   constructor(message, options = {}) {
     super(message, {

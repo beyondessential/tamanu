@@ -635,7 +635,7 @@ const ReferralTable = new Table({
     }),
     new TableForeignKey({
       columnNames: ['surveyResponseId'],
-      referencedTableName: 'survey',
+      referencedTableName: 'survey_response',
       referencedColumnNames: ['id'],
     }),
   ],

@@ -13,7 +13,10 @@ import {
 } from 'date-fns';
 import { pick } from 'lodash';
 import { date as yupDate, number, object, string } from 'yup';
-import { FHIR_DATETIME_PRECISION } from 'shared/constants';
+
+import { FHIR_DATETIME_PRECISION } from '../../constants';
+import { parseISO9075 } from '../dateTime';
+import { Exception } from './errors';
 
 function extractTz(str) {
   // eslint-disable-next-line no-unused-vars
@@ -127,4 +130,33 @@ export function parseDateTime(str, ref = new Date()) {
   }
 
   return false;
+}
+
+export function formatDateTime(date, precision) {
+  if (date === null || date === undefined) return date;
+  const actual = typeof date === 'string' ? parseISO9075(date) : date;
+  switch (precision) {
+    case FHIR_DATETIME_PRECISION.SECONDS_WITH_TIMEZONE:
+      return format(actual, "yyyy-MM-dd'T'HH:mm:ssXXX");
+
+    case FHIR_DATETIME_PRECISION.DAYS:
+      return format(actual, 'yyyy-MM-dd');
+
+    case FHIR_DATETIME_PRECISION.MONTHS:
+      return format(actual, 'yyyy-MM');
+
+    case FHIR_DATETIME_PRECISION.YEARS:
+      return format(actual, 'yyyy');
+
+    case FHIR_DATETIME_PRECISION.MINUTES_WITH_TIMEZONE:
+    case FHIR_DATETIME_PRECISION.HOURS_WITH_TIMEZONE:
+    case FHIR_DATETIME_PRECISION.SECONDS:
+    case FHIR_DATETIME_PRECISION.MINUTES:
+    case FHIR_DATETIME_PRECISION.HOURS:
+      // not allowed under FHIR
+      throw new Exception('cannot format to that precision level');
+
+    default:
+      throw new Exception(`unknown datetime precision: ${precision}`);
+  }
 }

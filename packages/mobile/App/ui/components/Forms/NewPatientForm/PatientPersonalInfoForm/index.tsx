@@ -6,6 +6,7 @@ import { KeyboardAvoidingView, StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import * as Yup from 'yup';
 import { FullView } from '/styled/common';
+import { formatISO9075, parseISO } from 'date-fns';
 import { NameSection } from './NameSection';
 import { KeyInformationSection } from './KeyInformationSection';
 import { LocationDetailsSection } from './LocationDetailsSection';
@@ -14,7 +15,6 @@ import { generateId } from '~/ui/helpers/patient';
 import { Patient } from '~/models/Patient';
 import { withPatient } from '~/ui/containers/Patient';
 import { Routes } from '~/ui/helpers/routes';
-import { formatISO9075 } from 'date-fns';
 
 export type FormSection = {
   scrollToField: (fieldName: string) => () => void;
@@ -48,7 +48,7 @@ const getInitialValues = (isEdit: boolean, patient): {} => {
     middleName,
     lastName,
     culturalName,
-    dateOfBirth: new Date(dateOfBirth),
+    dateOfBirth: parseISO(dateOfBirth),
     email,
     sex,
     villageId,

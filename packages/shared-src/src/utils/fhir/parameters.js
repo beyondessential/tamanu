@@ -5,7 +5,7 @@ import {
   FHIR_MAX_RESOURCES_PER_PAGE,
   FHIR_SEARCH_TOKEN_TYPES,
   FHIR_DATETIME_PRECISION,
-} from 'shared/constants';
+} from '../../constants';
 
 import { DEFAULT_SCHEMA_FOR_TYPE, INCLUDE_SCHEMA } from './schemata';
 
