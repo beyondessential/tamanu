@@ -59,11 +59,7 @@ export async function up(query) {
     if (legacyDataCount === 0) {
       await alterSchemaOnly(query, migration.TABLE, migration.FIELD);
     } else {
-      try {
-        await alterSchemaAndBackUpLegacyData(query, migration.TABLE, migration.FIELD);
-      } catch (error) {
-        console.log('---', error);
-      }
+      await alterSchemaAndBackUpLegacyData(query, migration.TABLE, migration.FIELD);
     }
   }
 }
