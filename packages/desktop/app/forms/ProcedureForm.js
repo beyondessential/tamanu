@@ -145,7 +145,7 @@ export const ProcedureForm = React.memo(
         procedureTypeId: foreignKey('Procedure must be selected'),
         locationId: foreignKey('Location must be selected'),
         date: yup.date().required(),
-        startTime: yup.string(),
+        startTime: yup.date(),
         endTime: yup.date(),
         physicianId: foreignKey('Physician must be selected'),
         assistantId: optionalForeignKey(),
