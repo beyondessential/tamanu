@@ -82,6 +82,7 @@ patientCarePlan.post(
     await req.models.NoteItem.create({
       notePageId: newNotePage.id,
       content: req.body.content,
+      date: req.body.date,
       authorId: req.user.id,
       onBehalfOfId: req.body.examinerId,
     });
