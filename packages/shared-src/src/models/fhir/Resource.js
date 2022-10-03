@@ -2,8 +2,14 @@ import { snakeCase } from 'lodash';
 import { Sequelize, Utils, QueryTypes } from 'sequelize';
 import * as yup from 'yup';
 
-import { SYNC_DIRECTIONS, FHIR_SEARCH_PARAMETERS, FHIR_SEARCH_TOKEN_TYPES } from '../../constants';
+import {
+  SYNC_DIRECTIONS,
+  FHIR_SEARCH_PARAMETERS,
+  FHIR_SEARCH_TOKEN_TYPES,
+  FHIR_DATETIME_PRECISION,
+} from '../../constants';
 import { objectAsFhir } from '../../utils/pgComposite';
+import { formatDateTime } from '../../utils/fhir';
 import { Model } from '../Model';
 
 const missingRecordsPrivateMethod = Symbol('missingRecords');
@@ -118,7 +124,10 @@ export class FhirResource extends Model {
       .integer()
       .validateSync(limit);
     const rows = await this.sequelize.query(
-      this[missingRecordsPrivateMethod]('upstream.id', `ORDER BY upstream.updated_at ASC LIMIT ${limitValid}`),
+      this[missingRecordsPrivateMethod](
+        'upstream.id',
+        `ORDER BY upstream.updated_at ASC LIMIT ${limitValid}`,
+      ),
       { type: QueryTypes.SELECT },
     );
     return rows.map(({ id }) => id);
@@ -126,9 +135,12 @@ export class FhirResource extends Model {
 
   static async countMissingRecords() {
     if (!this.UpstreamModel) return 0;
-    const rows = await this.sequelize.query(this[missingRecordsPrivateMethod]('count(upstream.*) as count'), {
-      type: QueryTypes.SELECT,
-    });
+    const rows = await this.sequelize.query(
+      this[missingRecordsPrivateMethod]('count(upstream.*) as count'),
+      {
+        type: QueryTypes.SELECT,
+      },
+    );
 
     return Number(rows[0]?.count || 0);
   }
@@ -145,7 +157,10 @@ export class FhirResource extends Model {
       id: this.id,
       meta: {
         versionId: this.versionId,
-        lastUpdated: this.lastUpdated,
+        lastUpdated: formatDateTime(
+          this.lastUpdated,
+          FHIR_DATETIME_PRECISION.SECONDS_WITH_TIMEZONE,
+        ),
       },
       ...objectAsFhir(fields),
     };

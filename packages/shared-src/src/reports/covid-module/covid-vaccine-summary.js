@@ -2,11 +2,11 @@
 
 import { Op } from 'sequelize';
 import { subDays } from 'date-fns';
-import { ageInYears } from '../../utils/dateTime';
+import { ageInYears, toDateTimeString } from 'shared/utils/dateTime';
 
 function parametersToSqlWhere(parameters) {
   if (!parameters.fromDate) {
-    parameters.fromDate = subDays(new Date(), 30).toISOString();
+    parameters.fromDate = toDateTimeString(subDays(new Date(), 30));
   }
 
   const whereClause = Object.entries(parameters)

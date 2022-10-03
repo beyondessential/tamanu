@@ -386,7 +386,7 @@ export const fake = (model, passedOverrides = {}) => {
   }
 
   for (const [name, attribute] of Object.entries(model.tableAttributes)) {
-    const fakeValue = fakeField(name, attribute)
+    const fakeValue = fakeField(name, attribute);
     if (fakeValue !== undefined) record[name] = fakeValue;
   }
 
