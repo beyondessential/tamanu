@@ -63,11 +63,16 @@ class DatabaseHelper {
       await this.client.query(`PRAGMA foreign_keys = OFF;`);
 
       // TODO: Remove this once all supported deployments are >= v1.21.0
-      // Get the list of tables named 'migrations'
+      // Get the list of tables named 'migrations' and tables named 'patient'
       const migrationsTable = await this.client.query("SELECT * FROM sqlite_master WHERE type='table' AND name='migrations';");
+      const patientTable = await this.client.query("SELECT * FROM sqlite_master WHERE type='table' AND name='patient';");
 
-      if (!migrationsTable.length) {
-        // If we've never run migrations on this device, attempt a synchronize
+      if (!migrationsTable.length && patientTable.length) {
+        // If this device has already been running an earlier version of Tamanu
+        // (i.e. the patients table exists)
+        // but we've never run migrations on this device
+        // (i.e. the migrations table does not exist
+        // attempt a synchronize
         console.log("No migrations table found, running final sync from models");
         await this.client.synchronize();
       }
