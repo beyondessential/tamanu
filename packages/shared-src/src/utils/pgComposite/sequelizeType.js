@@ -28,9 +28,11 @@ export class Composite {
    */
   static fromSql(raw) {
     const fields = parse(raw);
-    if (typeof fields.length === 'number' && fields.length !== this.FIELD_ORDER?.length) {
+
+    const fieldOrderLength = (this.FIELD_ORDER || {}).length;
+    if (typeof fields.length === 'number' && fields.length !== fieldOrderLength) {
       throw new Error(
-        `wrong amount of fields for composite ${this.name}: expected ${this.FIELD_ORDER?.length}, found ${fields.length}\nRAW: ${raw}`,
+        `wrong amount of fields for composite ${this.name}: expected ${fieldOrderLength}, found ${fields.length}\nRAW: ${raw}`,
       );
     }
 
