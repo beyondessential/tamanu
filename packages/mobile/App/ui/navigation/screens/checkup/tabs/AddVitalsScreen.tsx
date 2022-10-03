@@ -3,7 +3,6 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { compose } from 'redux';
 import { useSelector } from 'react-redux';
-import { formatISO9075 } from 'date-fns';
 import { FullView, StyledView, StyledSafeAreaView } from '/styled/common';
 import { Routes } from '/helpers/routes';
 import { theme } from '/styled/theme';
@@ -23,6 +22,7 @@ import { NumberField } from '~/ui/components/NumberField';
 import { Dropdown } from '~/ui/components/Dropdown';
 import { AVPUType } from '~/types';
 import { authUserSelector } from '~/ui/helpers/selectors';
+import { getCurrentDateTimeString } from '~/ui/helpers/date';
 
 export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactElement => {
   const renderFormFields = useCallback(
@@ -159,7 +159,7 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
       await models.Vitals.createAndSaveOne({
         ...values,
         encounter: encounter.id,
-        dateRecorded: formatISO9075(new Date()),
+        dateRecorded: getCurrentDateTimeString(),
       });
 
       navigateToHistory();
