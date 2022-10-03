@@ -35,7 +35,7 @@ const HeaderRightIconContainer = ({
 );
 
 interface HeaderDateProps {
-  startDate: Date;
+  startDate: string;
   isActive: boolean;
 }
 
