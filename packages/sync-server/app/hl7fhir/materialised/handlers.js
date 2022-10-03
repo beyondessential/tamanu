@@ -1,11 +1,10 @@
 import asyncHandler from 'express-async-handler';
+import { ValidationError } from 'yup';
 
 import { FHIR_BUNDLE_TYPES, FHIR_RESOURCE_TYPES } from 'shared/constants';
-import { ValidationError } from 'yup';
-import { Bundle } from './bundle';
+import { Invalid, OperationOutcome, Unsupported, normaliseParameters } from 'shared/utils/fhir';
 
-import { Invalid, OperationOutcome, Unsupported } from './errors';
-import { normaliseParameters } from './parameters';
+import { Bundle } from './bundle';
 import { buildQuery, pushToQuery } from './query';
 
 export function resourceHandler() {
@@ -17,7 +16,8 @@ export function resourceHandler() {
 
       const path = req.path.split('/').slice(1);
       if (path.length > 1) throw new Unsupported('nested paths are not supported');
-      if (!FHIR_RESOURCE_TYPES.includes(path[0])) throw new Unsupported('this resource is not supported');
+      if (!FHIR_RESOURCE_TYPES.includes(path[0]))
+        throw new Unsupported('this resource is not supported');
 
       const FhirResource = req.store.models[`Fhir${path[0]}`];
       if (!FhirResource) throw new Unsupported('this resource is not supported');
@@ -65,9 +65,11 @@ async function parseRequest(req, parameters) {
         if (err instanceof ValidationError) {
           errors.push(OperationOutcome.fromYupError(err, param));
         } else {
-          errors.push(new Invalid(err.message, {
-            expression: param,
-          }));
+          errors.push(
+            new Invalid(err.message, {
+              expression: param,
+            }),
+          );
         }
       }
     }

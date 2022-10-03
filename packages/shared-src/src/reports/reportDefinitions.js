@@ -150,6 +150,7 @@ export const REPORT_DEFINITIONS = [
     dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: [REPORT_DATA_SOURCES.ALL_FACILITIES],
     parameters: [{ parameterField: 'VillageField' }, { parameterField: 'LabTestLaboratoryField' }],
+    filterDateRangeAsStrings: true,
   },
   {
     name: 'Fiji Traveller COVID-19 Tests - Line list',
@@ -157,18 +158,21 @@ export const REPORT_DEFINITIONS = [
     dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: [REPORT_DATA_SOURCES.ALL_FACILITIES],
     parameters: [{ parameterField: 'LabTestLaboratoryField' }],
+    filterDateRangeAsStrings: true,
   },
   {
     name: 'Palau COVID-19 Test - Line list',
     id: 'palau-covid-swab-lab-test-list',
     dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
+    filterDateRangeAsStrings: true,
   },
   {
     name: 'Nauru COVID-19 Test - Line list',
     id: 'nauru-covid-swab-lab-test-list',
     dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: [REPORT_DATA_SOURCES.ALL_FACILITIES],
+    filterDateRangeAsStrings: true,
   },
   {
     name: 'Palau COVID-19 Case Report - Line list',
@@ -182,6 +186,7 @@ export const REPORT_DEFINITIONS = [
     id: 'kiribati-covid-swab-lab-test-list',
     dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: [REPORT_DATA_SOURCES.ALL_FACILITIES],
+    filterDateRangeAsStrings: true,
   },
   {
     name: 'Samoa COVID-19 Test - Line list',
@@ -189,6 +194,7 @@ export const REPORT_DEFINITIONS = [
     dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: [REPORT_DATA_SOURCES.ALL_FACILITIES],
     parameters: [{ parameterField: 'VillageField' }, { parameterField: 'LabTestLaboratoryField' }],
+    filterDateRangeAsStrings: true,
   },
   {
     name: 'COVID-19 Tests - Summary',
@@ -197,24 +203,28 @@ export const REPORT_DEFINITIONS = [
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
     filterDateRangeAsStrings: true,
     parameters: [{ parameterField: 'VillageField' }, { parameterField: 'LabTestLaboratoryField' }],
+    filterDateRangeAsStrings: true,
   },
   {
     name: 'India assistive technology device - Line list',
     id: 'india-assistive-technology-device-line-list',
     dateRangeLabel: ALL_TIME_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
+    filterDateRangeAsStrings: true,
   },
   {
     name: 'Iraq assistive technology device - Line list',
     id: 'iraq-assistive-technology-device-line-list',
     dateRangeLabel: ALL_TIME_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
+    filterDateRangeAsStrings: true,
   },
   {
     name: 'PNG assistive technology device - Line list',
     id: 'png-assistive-technology-device-line-list',
     dateRangeLabel: ALL_TIME_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
+    filterDateRangeAsStrings: true,
   },
   {
     name: 'Fiji recent attendance - Line list',
@@ -232,6 +242,7 @@ export const REPORT_DEFINITIONS = [
     id: 'fiji-ncd-primary-screening-line-list',
     dateRangeLabel: ALL_TIME_DATE_LABEL,
     dataSourceOptions: [REPORT_DATA_SOURCES.ALL_FACILITIES],
+    filterDateRangeAsStrings: true,
     parameters: [
       {
         parameterField: 'ParameterSelectField',
@@ -332,6 +343,7 @@ export const REPORT_DEFINITIONS = [
     id: 'fiji-statistical-report-for-phis-summary',
     dateRangeLabel: 'Date range (or leave blank for the past 30 days of data)',
     dataSourceOptions: [REPORT_DATA_SOURCES.ALL_FACILITIES],
+    filterDateRangeAsStrings: true,
     parameters: [
       {
         parameterField: 'ParameterAutocompleteField',
@@ -388,6 +400,7 @@ export const REPORT_DEFINITIONS = [
     id: 'generic-survey-export-line-list',
     dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
+    filterDateRangeAsStrings: true,
     parameters: [
       { parameterField: 'VillageField' },
       {

@@ -49,7 +49,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
           id: expect.any(String),
           timestamp: expect.any(String),
           meta: {
-            lastUpdated: expect.any(String),
+            lastUpdated: format(new Date(patient.updatedAt), "yyyy-MM-dd'T'HH:mm:ssXXX"),
           },
           type: 'searchset',
           total: 1,
@@ -64,7 +64,10 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
               resource: {
                 resourceType: 'Patient',
                 id: expect.any(String),
-                meta: {},
+                meta: {
+                  versionId: expect.any(String),
+                  lastUpdated: format(new Date(patient.updatedAt), "yyyy-MM-dd'T'HH:mm:ssXXX"),
+                },
                 active: true,
                 address: [
                   {

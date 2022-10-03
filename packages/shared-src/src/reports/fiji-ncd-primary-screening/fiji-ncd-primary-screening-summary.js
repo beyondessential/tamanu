@@ -157,7 +157,7 @@ const parametersToSqlWhereClause = parameterKeys =>
 const buildCase = (name, condition) => `count(case when ${condition} then 1 end) as "${name}"`;
 
 const getSelectClause = () => `
-    to_char(sr.end_time, 'yyyy-mm-dd') as date,
+    to_char(sr.end_time::timestamp, 'yyyy-mm-dd') as date,
     ${Object.entries(FIELDS)
       .filter(([_key, { selectSql }]) => selectSql) // eslint-disable-line no-unused-vars
       .map(([key, { selectSql }]) => buildCase(key, selectSql))
@@ -180,7 +180,7 @@ const getJoinClauses = () => {
         WHERE e2.patient_id = patient.id
         AND sr2.survey_id = :referral_survey_id
         AND sr.end_time < sr2.end_time
-        AND sr2.end_time < sr.end_time + interval '24 hours'
+        AND sr2.end_time::timestamp < sr.end_time::timestamp + interval '24 hours'
         LIMIT 1
       )
   `;
@@ -269,7 +269,7 @@ const getTotalPatientsScreened = async (sequelize, parameters) => {
   return sequelize.query(
     `
       SELECT
-        to_char(sr.end_time, 'yyyy-mm-dd') as date,
+        to_char(sr.end_time::timestamp , 'yyyy-mm-dd') as date,
         count(DISTINCT patient.id) as "patientsScreened"
       FROM survey_responses AS sr
         ${getJoinClauses()}
