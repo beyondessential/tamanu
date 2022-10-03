@@ -1,6 +1,6 @@
-import { v4 as uuidv4 } from 'uuid';
 import { add } from 'date-fns';
 import { fake, fakeUser, fakeReferenceData } from 'shared/test-helpers/fake';
+import { fakeUUID } from 'shared/utils/generateId';
 
 import { createTestContext } from '../utilities';
 
@@ -8,8 +8,8 @@ import { createTestContext } from '../utilities';
 describe('AdministeredVaccine.lastVaccinationForPatient', () => {
   let ctx;
   let models;
-  const patientId = uuidv4();
-  const encounterId = uuidv4();
+  const patientId = fakeUUID();
+  const encounterId = fakeUUID();
 
   beforeAll(async () => {
     ctx = await createTestContext();
@@ -66,7 +66,7 @@ describe('AdministeredVaccine.lastVaccinationForPatient', () => {
     it('should return latest vax', async () => {
       // Arrange
       const { AdministeredVaccine, ScheduledVaccine } = models;
-      const scheduledVaccineId = uuidv4();
+      const scheduledVaccineId = fakeUUID();
       const now = new Date();
 
       await ScheduledVaccine.create({
@@ -104,7 +104,7 @@ describe('AdministeredVaccine.lastVaccinationForPatient', () => {
     it('should return nothing if there are no vax', async () => {
       // Arrange
       const { AdministeredVaccine, ScheduledVaccine } = models;
-      const scheduledVaccineId = uuidv4();
+      const scheduledVaccineId = fakeUUID();
 
       await ScheduledVaccine.create({
         ...fake(ScheduledVaccine),
@@ -124,8 +124,8 @@ describe('AdministeredVaccine.lastVaccinationForPatient', () => {
     it('should return latest COVID19 vax when present', async () => {
       // Arrange
       const { AdministeredVaccine, ScheduledVaccine } = models;
-      const scheduledVaccineId = uuidv4();
-      const covidScheduledVaccineId = uuidv4();
+      const scheduledVaccineId = fakeUUID();
+      const covidScheduledVaccineId = fakeUUID();
       const now = new Date();
 
       await ScheduledVaccine.create({
@@ -189,7 +189,7 @@ describe('AdministeredVaccine.lastVaccinationForPatient', () => {
     it('should return nothing when no COVID19 vax are present', async () => {
       // Arrange
       const { AdministeredVaccine, ScheduledVaccine } = models;
-      const scheduledVaccineId = uuidv4();
+      const scheduledVaccineId = fakeUUID();
       const now = new Date();
 
       await ScheduledVaccine.create({
@@ -228,7 +228,7 @@ describe('AdministeredVaccine.lastVaccinationForPatient', () => {
     it('should return nothing when only COVAX is present', async () => {
       // Arrange
       const { AdministeredVaccine, ScheduledVaccine } = models;
-      const scheduledVaccineId = uuidv4();
+      const scheduledVaccineId = fakeUUID();
       const now = new Date();
 
       await ScheduledVaccine.create({

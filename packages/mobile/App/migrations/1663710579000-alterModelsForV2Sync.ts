@@ -89,7 +89,6 @@ const PatientFacilitiesTable = new Table({
 
 export class alterModelsForV2Sync1663710579000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
-    console.log('RUNNING');
     for (const tableName of TABLE_DEFINITIONS.map(t => t.name)) {
       const table = await getTable(queryRunner, tableName);
 
@@ -124,7 +123,6 @@ export class alterModelsForV2Sync1663710579000 implements MigrationInterface {
 
     // add table patient_facility
     await queryRunner.createTable(PatientFacilitiesTable, ifNotExists);
-    console.log('COMPLETE');
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {

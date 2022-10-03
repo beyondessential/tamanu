@@ -1,6 +1,5 @@
-import { v4 as uuidv4 } from 'uuid';
-
-import { REFERENCE_TYPES, IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
+import { REFERENCE_TYPES, IMAGING_REQUEST_STATUS_TYPES } from '../constants';
+import { fakeUUID } from '../utils/generateId';
 import {
   fakeAdministeredVaccine,
   fakeEncounter,
@@ -138,7 +137,7 @@ export const buildSurveyResponseAnswer = async (models, patientId) => {
 export const buildScheduledVaccine = async models => {
   const scheduledVaccine = fakeScheduledVaccine();
 
-  const vaccineId = uuidv4();
+  const vaccineId = fakeUUID();
   const vaccine = {
     id: vaccineId,
     type: REFERENCE_TYPES.VACCINE,

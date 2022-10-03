@@ -4,6 +4,7 @@ import { ENCOUNTER_TYPES, DIAGNOSIS_CERTAINTY, NOTE_TYPES } from 'shared/constan
 import upperFirst from 'lodash/upperFirst';
 import { ageInYears } from 'shared/utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
+import { toDateTimeString } from '../utils/dateTime';
 
 const reportColumnTemplate = [
   { title: 'Patient First Name', accessor: data => data.patient.firstName },
@@ -21,8 +22,14 @@ const reportColumnTemplate = [
   },
   { title: 'Patient Type', accessor: data => data.patientBillingType?.name },
   { title: 'Admitting Doctor/Nurse', accessor: data => data.examiner?.displayName },
-  { title: 'Admission Date', accessor: data => format(data.startDate, 'dd/MM/yyyy h:mm:ss a') },
-  { title: 'Discharge Date', accessor: data => format(data.endDate, 'dd/MM/yyyy h:mm:ss a') },
+  {
+    title: 'Admission Date',
+    accessor: data => format(new Date(data.startDate), 'dd/MM/yyyy h:mm:ss a'),
+  },
+  {
+    title: 'Discharge Date',
+    accessor: data => format(new Date(data.endDate), 'dd/MM/yyyy h:mm:ss a'),
+  },
   { title: 'Location', accessor: data => data.locationHistoryString },
   { title: 'Department', accessor: data => data.departmentHistoryString },
   { title: 'Primary diagnoses', accessor: data => data.primaryDiagnoses },
@@ -31,7 +38,7 @@ const reportColumnTemplate = [
 
 function parametersToSqlWhere(parameters) {
   const {
-    fromDate = subDays(new Date(), 30).toISOString(),
+    fromDate = toDateTimeString(subDays(new Date(), 30)),
     toDate,
     practitioner,
     patientBillingType,
@@ -149,7 +156,7 @@ const formatPlaceHistory = (history, placeType) =>
   history
     .map(
       ({ to, date }) =>
-        `${to} (${upperFirst(placeType)} assigned: ${format(date, 'dd/MM/yy h:mm a')})`,
+        `${to} (${upperFirst(placeType)} assigned: ${format(new Date(date), 'dd/MM/yy h:mm a')})`,
     )
     .join('; ');
 

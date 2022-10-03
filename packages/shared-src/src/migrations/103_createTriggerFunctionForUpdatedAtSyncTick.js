@@ -1,3 +1,5 @@
+const CURRENT_SYNC_TIME_KEY = 'currentSyncTime';
+
 export async function up(query) {
   await query.sequelize.query(`
     CREATE FUNCTION set_updated_at_sync_tick()
@@ -13,7 +15,7 @@ export async function up(query) {
         IF NEW.updated_at_sync_tick = -1 THEN
           NEW.updated_at_sync_tick := -999;
         ELSE
-          SELECT last_value FROM sync_clock_sequence INTO NEW.updated_at_sync_tick;
+          SELECT value FROM local_system_facts WHERE key = '${CURRENT_SYNC_TIME_KEY}' INTO NEW.updated_at_sync_tick;
         END IF;
         RETURN NEW;
       END

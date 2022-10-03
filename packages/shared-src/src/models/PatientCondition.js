@@ -2,6 +2,8 @@ import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 import { buildPatientLinkedSyncFilter } from './buildPatientLinkedSyncFilter';
+import { dateTimeType } from './dateTimeTypes';
+import { getCurrentDateTimeString } from '../utils/dateTime';
 
 export class PatientCondition extends Model {
   static init({ primaryKey, ...options }) {
@@ -9,11 +11,10 @@ export class PatientCondition extends Model {
       {
         id: primaryKey,
         note: Sequelize.STRING,
-        recordedDate: {
-          type: Sequelize.DATE,
-          defaultValue: Sequelize.NOW,
+        recordedDate: dateTimeType('recordedDate', {
+          defaultValue: getCurrentDateTimeString,
           allowNull: false,
-        },
+        }),
         resolved: { type: Sequelize.BOOLEAN, defaultValue: false },
       },
       {

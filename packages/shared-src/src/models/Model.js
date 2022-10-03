@@ -1,17 +1,21 @@
 import * as sequelize from 'sequelize';
+import { SYNC_DIRECTIONS } from '../constants';
 
 const { Op, Utils, Sequelize } = sequelize;
 
 const firstLetterLowercase = s => (s[0] || '').toLowerCase() + s.slice(1);
 
 export class Model extends sequelize.Model {
-  static init(attributes, { syncDirection, ...options }) {
+  static init(attributes, { syncDirection, timestamps = true, ...options }) {
     super.init(
       {
         ...attributes,
         updatedAtSyncTick: Sequelize.BIGINT,
       },
-      options,
+      {
+        timestamps,
+        ...options,
+      },
     );
     this.defaultIdValue = attributes.id.defaultValue;
     if (!syncDirection) {
@@ -20,6 +24,11 @@ export class Model extends sequelize.Model {
       );
     }
     this.syncDirection = syncDirection;
+    if (!timestamps && this.syncDirection !== SYNC_DIRECTIONS.DO_NOT_SYNC) {
+      throw new Error(
+        'DEV: syncing models should all have createdAt, updatedAt, and deletedAt timestamps turned on',
+      );
+    }
   }
 
   static generateId() {

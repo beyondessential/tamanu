@@ -4,6 +4,7 @@ import { SYNC_DIRECTIONS } from 'shared/constants/sync';
 import { Model } from './Model';
 import { Encounter } from './Encounter';
 import { ScheduledVaccine } from './ScheduledVaccine';
+import { dateTimeType } from './dateTimeTypes';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 
 export class AdministeredVaccine extends Model {
@@ -20,10 +21,9 @@ export class AdministeredVaccine extends Model {
         reason: Sequelize.STRING,
         injectionSite: Sequelize.STRING, // conceptually enum(INJECTION_SITE_OPTIONS)
         givenBy: Sequelize.TEXT,
-        date: {
-          type: Sequelize.DATE,
+        date: dateTimeType('date', {
           allowNull: false,
-        },
+        }),
       },
       {
         ...options,
