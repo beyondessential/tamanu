@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import * as yup from 'yup';
 import styled from 'styled-components';
 import { useApi, useSuggester } from '../api';
 import { Colors } from '../constants';
@@ -46,6 +47,9 @@ export function CarePlanNoteForm({
         onReloadNotes();
       }}
       initialValues={note || { date: new Date() }}
+      validationSchema={yup.object().shape({
+        content: yup.string().required('Content is required'),
+      })}
       render={() => (
         <>
           <FormGrid columns={2}>
@@ -62,6 +66,7 @@ export function CarePlanNoteForm({
               name="content"
               placeholder="Write a note..."
               component={TextField}
+              required
               multiline
               rows={4}
             />
