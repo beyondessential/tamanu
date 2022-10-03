@@ -163,7 +163,10 @@ export const removeDuplicatedReferralsPerDate = referrals => {
   const results = [];
   for (const groupedAnswers of Object.values(referralByPatientAndDate)) {
     const sortedLatestToOldestReferrals = groupedAnswers.sort((r1, r2) =>
-      differenceInMilliseconds(r2.initiatingEncounter.startDate, r1.initiatingEncounter.startDate),
+      differenceInMilliseconds(
+        new Date(r2.initiatingEncounter.startDate),
+        new Date(r1.initiatingEncounter.startDate),
+      ),
     );
     results.push(sortedLatestToOldestReferrals[0]);
   }

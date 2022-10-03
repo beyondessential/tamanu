@@ -23,6 +23,7 @@ export const REPORT_DEFINITIONS = [
     id: 'recent-diagnoses',
     dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
+    filterDateRangeAsStrings: true,
     parameters: [
       {
         parameterField: 'DiagnosisField',
@@ -44,6 +45,7 @@ export const REPORT_DEFINITIONS = [
     id: 'admissions',
     dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
+    filterDateRangeAsStrings: true,
     parameters: [
       { parameterField: 'PractitionerField' },
       {
@@ -73,6 +75,7 @@ export const REPORT_DEFINITIONS = [
     id: 'vaccine-list',
     dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
+    filterDateRangeAsStrings: true,
     parameters: [
       { parameterField: 'VillageField' },
       { parameterField: 'VaccineCategoryField' },
@@ -84,6 +87,7 @@ export const REPORT_DEFINITIONS = [
     id: 'tuvalu-vaccine-list',
     dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: [REPORT_DATA_SOURCES.ALL_FACILITIES],
+    filterDateRangeAsStrings: true,
     parameters: [
       { parameterField: 'VillageField' },
       { parameterField: 'VaccineCategoryField' },
@@ -95,17 +99,20 @@ export const REPORT_DEFINITIONS = [
     id: 'covid-vaccine-list',
     dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
+    filterDateRangeAsStrings: true,
     parameters: [{ parameterField: 'VillageField' }],
   },
   {
     name: 'COVID vaccine campaign - First dose summary',
     id: 'covid-vaccine-summary-dose1',
+    filterDateRangeAsStrings: true,
     dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: [REPORT_DATA_SOURCES.ALL_FACILITIES],
   },
   {
     name: 'COVID vaccine campaign - Second dose summary',
     id: 'covid-vaccine-summary-dose2',
+    filterDateRangeAsStrings: true,
     dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: [REPORT_DATA_SOURCES.ALL_FACILITIES],
   },
@@ -128,12 +135,14 @@ export const REPORT_DEFINITIONS = [
     id: 'number-patients-registered-by-date',
     dateRangeLabel: ALL_TIME_DATE_LABEL,
     dataSourceOptions: [REPORT_DATA_SOURCES.ALL_FACILITIES],
+    filterDateRangeAsStrings: true,
   },
   {
     name: 'Registered patients - Line list',
     id: 'registered-patients',
     dateRangeLabel: ALL_TIME_DATE_LABEL,
     dataSourceOptions: [REPORT_DATA_SOURCES.ALL_FACILITIES],
+    filterDateRangeAsStrings: true,
   },
   {
     name: 'COVID-19 Tests - Line list',
@@ -186,6 +195,7 @@ export const REPORT_DEFINITIONS = [
     id: 'covid-swab-lab-tests-summary',
     dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
+    filterDateRangeAsStrings: true,
     parameters: [{ parameterField: 'VillageField' }, { parameterField: 'LabTestLaboratoryField' }],
   },
   {
@@ -211,6 +221,7 @@ export const REPORT_DEFINITIONS = [
     id: 'fiji-recent-attendance-list',
     dateRangeLabel: ALL_TIME_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
+    filterDateRangeAsStrings: true,
     parameters: [
       { parameterField: 'VillageField' },
       { parameterField: 'DiagnosisField', name: 'diagnosis', label: 'Diagnosis' },
@@ -348,6 +359,7 @@ export const REPORT_DEFINITIONS = [
     id: 'fiji-aspen-encounter-summary-line-list',
     dateRangeLabel: ALL_TIME_DATE_LABEL, // TODO: Changed in new PR
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
+    filterDateRangeAsStrings: true,
     parameters: [
       {
         parameterField: 'ParameterAutocompleteField',
@@ -423,6 +435,7 @@ export const REPORT_DEFINITIONS = [
     id: 'imaging-requests-line-list',
     dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
+    filterDateRangeAsStrings: true,
     parameters: [
       {
         parameterField: 'ParameterAutocompleteField',
@@ -492,5 +505,20 @@ export const REPORT_DEFINITIONS = [
         options: LAB_REQUEST_STATUS_OPTIONS,
       },
     ],
+  },
+  {
+    name: 'Fiji Aspen hospital admissions - Summary',
+    id: 'fiji-aspen-hospital-admissions-summary',
+    dateRangeLabel: ALL_TIME_DATE_LABEL,
+    dataSourceOptions: [REPORT_DATA_SOURCES.THIS_FACILITY],
+    parameters: [],
+  },
+  {
+    name: 'Registered births - Line list',
+    id: 'registered-births-line-list',
+    dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
+    dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
+    parameters: [{ parameterField: 'VillageField' }],
+    filterDateRangeAsStrings: true,
   },
 ];

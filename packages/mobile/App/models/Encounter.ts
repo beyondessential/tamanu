@@ -39,10 +39,10 @@ export class Encounter extends BaseModel implements IEncounter {
   encounterType: EncounterType;
 
   @Column()
-  startDate: Date;
+  startDate: string;
 
   @Column({ nullable: true })
-  endDate?: Date;
+  endDate?: string;
 
   @Column({ default: '', nullable: true })
   reasonForEncounter?: string;

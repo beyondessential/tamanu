@@ -1,13 +1,16 @@
+import { Op, Sequelize } from 'sequelize';
 import { sortInDependencyOrder } from 'shared/models/sortInDependencyOrder';
+import { FAKE_UUID_PATTERN } from 'shared/utils/generateId';
 
-export function deleteAllTestIds({ models, sequelize }) {
+export function deleteAllTestIds({ models }) {
   const sortedModels = sortInDependencyOrder(models).reverse();
-  const tableNames = sortedModels.map(m => m.tableName);
-  const deleteTasks = tableNames.map(x =>
-    sequelize.query(`
-    DELETE FROM ${x} WHERE id::text LIKE 'abcd%';  -- automatically generated test ids use this pattern
-    DELETE FROM ${x} WHERE id::text LIKE 'test-%'; -- some manually constructed test data uses this pattern
-  `),
+  const deleteTasks = sortedModels.map(Model =>
+    Model.destroy({
+      force: true,
+      where: Sequelize.where(Sequelize.cast(Sequelize.col('id'), 'text'), {
+        [Op.like]: FAKE_UUID_PATTERN,
+      }),
+    }),
   );
   return Promise.all(deleteTasks);
 }

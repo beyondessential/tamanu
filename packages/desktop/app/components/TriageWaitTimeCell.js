@@ -33,6 +33,11 @@ export const TriageWaitTimeCell = React.memo(
   ({ encounterType, triageTime, closedTime, arrivalTime }) => {
     const [, updateState] = useState({});
 
+    // arrivalTime is an optional field and the ui prompts the user to enter it only if arrivalTime
+    // is different to triageTime so we should assume the arrivalTime is the triageTime if arrivalTime
+    // is undefined
+    const assumedArrivalTime = arrivalTime || triageTime;
+
     // recalculate every 30 seconds
     useEffect(() => {
       if (!closedTime) {
@@ -45,8 +50,8 @@ export const TriageWaitTimeCell = React.memo(
     switch (encounterType) {
       case 'triage':
         return (
-          <TriageCell arrivalTime={arrivalTime}>
-            <div>{getDuration(triageTime)}</div>
+          <TriageCell arrivalTime={assumedArrivalTime}>
+            <div>{getDuration(assumedArrivalTime)}</div>
             <div>{`Triage at ${format(new Date(triageTime), 'h:mma')}`}</div>
           </TriageCell>
         );

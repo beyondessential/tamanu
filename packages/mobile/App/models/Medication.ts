@@ -10,10 +10,10 @@ export class Medication extends BaseModel implements IMedication {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
   @Column()
-  date: Date;
+  date: string;
 
   @Column({ nullable: true })
-  endDate?: Date;
+  endDate?: string;
 
   @Column({ nullable: true })
   prescription?: string;

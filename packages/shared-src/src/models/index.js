@@ -81,3 +81,5 @@ export * from './NoteItem';
 
 export * from './SyncSession';
 export * from './SessionSyncRecord';
+
+export * from './fhir';
