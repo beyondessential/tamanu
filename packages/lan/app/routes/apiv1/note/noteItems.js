@@ -1,6 +1,8 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 
+import { NOTE_RECORD_TYPES } from 'shared/constants';
+
 const noteItemRoute = express.Router();
 export { noteItemRoute as noteItems };
 
@@ -17,8 +19,14 @@ noteItemRoute.post(
     }
 
     const notePage = await models.NotePage.findByPk(notePageId);
-    const owner = await models[notePage.recordType].findByPk(notePage.recordId);
-    req.checkPermission('write', owner);
+
+    // Encounter notes check their own permissions
+    if (notePage.recordType === NOTE_RECORD_TYPES.ENCOUNTER) {
+      req.checkPermission('create', 'EncounterNote');
+    } else {
+      const owner = await models[notePage.recordType].findByPk(notePage.recordId);
+      req.checkPermission('write', owner);
+    }
 
     await models.NoteItem.create({
       notePageId,
@@ -54,8 +62,14 @@ noteItemRoute.get(
     const { notePageId } = params;
 
     const notePage = await models.NotePage.findByPk(notePageId);
-    const owner = await models[notePage.recordType].findByPk(notePage.recordId);
-    req.checkPermission('read', owner);
+
+    // Encounter notes check their own permissions
+    if (notePage.recordType === NOTE_RECORD_TYPES.ENCOUNTER) {
+      req.checkPermission('list', 'EncounterNote');
+    } else {
+      const owner = await models[notePage.recordType].findByPk(notePage.recordId);
+      req.checkPermission('read', owner);
+    }
 
     const noteItems = await models.NoteItem.findAll({
       include: [
