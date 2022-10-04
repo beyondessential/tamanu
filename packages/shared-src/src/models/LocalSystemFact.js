@@ -42,7 +42,9 @@ export class LocalSystemFact extends Model {
   }
 
   static async increment(key) {
-    const rowsAffected = await this.sequelize.query(
+    const [
+      rowsAffected,
+    ] = await this.sequelize.query(
       `UPDATE local_system_facts SET value = value::integer + 1 WHERE key = :key RETURNING value;`,
       { replacements: { key } },
     );
