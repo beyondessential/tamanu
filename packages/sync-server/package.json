@@ -1,6 +1,6 @@
 {
   "name": "sync-server",
-  "version": "1.21.0",
+  "version": "1.22.0",
   "description": "Sync server for Tamanu desktop app",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
@@ -25,9 +25,11 @@
     "test": "NODE_ENV=test jest",
     "test-coverage": "yarn test --coverage",
     "test-watch": "yarn test --watch",
-    "build": "rm -rf ./dist/ && webpack --config webpack.config.prod.mjs",
+    "build": "rimraf ./dist/ && webpack --config webpack.config.prod.mjs",
+    "build-dev": "rimraf ./dist/ && NOWATCH=true webpack --config webpack.config.dev.mjs",
     "lint": "eslint app",
-    "lint-stats": "eslint app --format ../scripts/eslint-stats.js"
+    "lint-stats": "eslint app --format ../scripts/eslint-stats.js",
+    "shell": "yarn build-dev && node ./dist/app.bundle.js shell"
   },
   "devDependencies": {
     "@babel/core": "^7.17.12",

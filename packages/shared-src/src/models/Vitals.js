@@ -2,6 +2,8 @@ import { Sequelize } from 'sequelize';
 import { AVPU_OPTIONS, SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
+import { dateTimeType } from './dateTimeTypes';
+import { getCurrentDateTimeString } from '../utils/dateTime';
 
 export class Vitals extends Model {
   static init({ primaryKey, ...options }) {
@@ -9,11 +11,10 @@ export class Vitals extends Model {
       {
         id: primaryKey,
 
-        dateRecorded: {
-          type: Sequelize.DATE,
+        dateRecorded: dateTimeType('dateRecorded', {
           allowNull: false,
-          defaultValue: Sequelize.NOW,
-        },
+          defaultValue: getCurrentDateTimeString,
+        }),
         temperature: Sequelize.FLOAT,
         weight: Sequelize.FLOAT,
         height: Sequelize.FLOAT,

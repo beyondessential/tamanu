@@ -1,6 +1,6 @@
 {
   "name": "meta-server",
-  "version": "1.21.0",
+  "version": "1.22.0",
   "description": "Meta server for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
@@ -65,6 +65,7 @@
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
     "sanitize-html": "^2.4.0",
+    "sequelize": "^6.23.2",
     "winston": "^3.2.1"
   }
 }

@@ -46,7 +46,7 @@ export const fakePatient = (): IPatient => {
 export const fakeEncounter = (): IEncounter => ({
   id: `encounter-id-${uuidv4()}`,
   encounterType: EncounterType.Clinic,
-  startDate: new Date(),
+  startDate: formatISO9075(new Date()),
   reasonForEncounter: 'encounter-reason',
   deviceId: null,
 });
@@ -54,7 +54,7 @@ export const fakeEncounter = (): IEncounter => ({
 export const fakeAdministeredVaccine = (): IAdministeredVaccine => ({
   id: `administered-vaccine-id-${uuidv4()}`,
   status: VaccineStatus.GIVEN,
-  date: new Date(),
+  date: formatISO9075(new Date()),
 });
 
 export const fakeProgramDataElement = (): IProgramDataElement => ({

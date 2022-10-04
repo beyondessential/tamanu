@@ -9,7 +9,7 @@ export class Vitals extends BaseModel implements IVitals {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
   @Column()
-  dateRecorded: Date;
+  dateRecorded: string;
 
   @Column({ type: 'int', nullable: true })
   weight?: number;

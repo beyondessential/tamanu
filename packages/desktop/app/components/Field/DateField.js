@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { format as formatDate, isAfter, parse } from 'date-fns';
-import { parseISO9075, toDateTimeString } from 'shared/utils/dateTime';
+import { parseISO9075, toDateString, toDateTimeString } from 'shared/utils/dateTime';
 import PropTypes from 'prop-types';
 import { TextInput } from './TextField';
 
@@ -56,8 +56,13 @@ export const DateInput = ({
         }
       }
 
-      const outputValue = saveDateAsString ? toDateTimeString(date) : date.toISOString();
-
+      let outputValue;
+      if (saveDateAsString) {
+        if (type === 'date') outputValue = toDateString(date);
+        else if (type === 'datetime-local') outputValue = toDateTimeString(date);
+      } else {
+        outputValue = date.toISOString();
+      }
       setCurrentText(formattedValue);
       if (outputValue === 'Invalid date') {
         onChange({ target: { value: '', name } });
@@ -66,7 +71,7 @@ export const DateInput = ({
 
       onChange({ target: { value: outputValue, name } });
     },
-    [onChange, format, name, max, saveDateAsString],
+    [onChange, format, name, max, saveDateAsString, type],
   );
 
   useEffect(() => {

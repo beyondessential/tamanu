@@ -6,6 +6,8 @@ import { SYNC_DIRECTIONS, IMAGING_REQUEST_STATUS_TYPES, IMAGING_TYPES } from 'sh
 
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
+import { dateTimeType } from './dateTimeTypes';
+import { getCurrentDateTimeString } from '../utils/dateTime';
 
 const ALL_IMAGING_REQUEST_STATUS_TYPES = Object.values(IMAGING_REQUEST_STATUS_TYPES);
 const ALL_IMAGING_TYPES = Object.values(IMAGING_TYPES);
@@ -26,11 +28,10 @@ export class ImagingRequest extends Model {
           defaultValue: IMAGING_REQUEST_STATUS_TYPES.PENDING,
         },
 
-        requestedDate: {
-          type: Sequelize.DATE,
+        requestedDate: dateTimeType('requestedDate', {
           allowNull: false,
-          defaultValue: Sequelize.NOW,
-        },
+          defaultValue: getCurrentDateTimeString,
+        }),
 
         results: {
           type: Sequelize.TEXT,
