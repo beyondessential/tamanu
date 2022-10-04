@@ -211,7 +211,7 @@ with
           concat(
             first_from, --first "from" from note
             ', Assigned time: ', to_char(e.start_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
-          ) ||
+          ) || '; ' ||
           string_agg(
             concat(
               "to",
