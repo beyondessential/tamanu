@@ -26,6 +26,11 @@ const lastWriteWinsPerField = (existing, incoming) => {
       mergedUpdatedAtByField[snake(key)] = latestTick;
     });
   merged.updatedAtByField = mergedUpdatedAtByField;
+  // overall updatedAtSyncTick should be the highest of the two
+  merged.updatedAtSyncTick = Math.max(
+    existing.updatedAtSyncTick || 0,
+    incoming.updatedAtSyncTick || 0,
+  );
   return merged;
 };
 
