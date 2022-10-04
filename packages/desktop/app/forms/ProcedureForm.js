@@ -76,8 +76,13 @@ export const ProcedureForm = React.memo(
                   />
                 </FormGrid>
                 <FormGrid style={{ gridColumn: 'span 2' }}>
-                  <Field name="startTime" label="Time started" component={TimeField} />
-                  <Field name="endTime" label="Time ended" component={TimeField} />
+                  <Field
+                    name="startTime"
+                    label="Time started"
+                    component={TimeField}
+                    saveDateAsString
+                  />
+                  <Field name="endTime" label="Time ended" component={TimeField} saveDateAsString />
                 </FormGrid>
                 <Field
                   name="physicianId"
