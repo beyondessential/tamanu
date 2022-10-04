@@ -1,3 +1,4 @@
+import config from 'config';
 import {
   createDummyPatient,
   createDummyEncounter,
@@ -157,7 +158,7 @@ describe('Triage', () => {
       // create a few test triages
       const { Facility, Location } = models;
       const fac = await Facility.create({
-        ...fake(models.Facility, { id: 'ref/facility/ba' }),
+        ...fake(models.Facility, { id: config.serverFacilityId }),
       });
       const { id: locationId } = await Location.create({
         ...fake(Location),

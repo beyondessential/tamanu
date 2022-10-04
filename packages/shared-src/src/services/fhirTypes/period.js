@@ -1,11 +1,14 @@
 import { random } from 'lodash';
 import * as yup from 'yup';
+import { FHIR_DATETIME_PRECISION } from '../../constants';
 
 import { toDateTimeString } from '../../utils/dateTime';
+import { formatDateTime } from '../../utils/fhir';
 import { COMPOSITE, Composite } from '../../utils/pgComposite';
 
 export class FhirPeriod extends Composite {
   static FIELD_ORDER = ['start', 'end'];
+
   static SCHEMA = yup
     .object({
       start: yup
@@ -30,6 +33,13 @@ export class FhirPeriod extends Composite {
 
   sqlFields(options) {
     return super.sqlFields(options).map(toDateTimeString);
+  }
+
+  asFhir() {
+    return {
+      start: formatDateTime(this.params.start, FHIR_DATETIME_PRECISION.SECONDS_WITH_TIMEZONE),
+      end: formatDateTime(this.params.end, FHIR_DATETIME_PRECISION.SECONDS_WITH_TIMEZONE),
+    };
   }
 
   static fake() {

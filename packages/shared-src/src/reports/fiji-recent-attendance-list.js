@@ -1,7 +1,7 @@
 import { Op } from 'sequelize';
 import { startOfDay, endOfDay, format } from 'date-fns';
 import { DIAGNOSIS_CERTAINTY } from 'shared/constants';
-import { ageInYears } from 'shared/utils/dateTime';
+import { toDateTimeString, ageInYears, parseISO9075 } from 'shared/utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
 const FIELD_TO_TITLE = {
@@ -45,13 +45,13 @@ const parametersToEncounterSqlWhere = parameters =>
           if (!newWhere.startDate) {
             newWhere.startDate = {};
           }
-          newWhere.startDate[Op.gte] = startOfDay(value);
+          newWhere.startDate[Op.gte] = toDateTimeString(startOfDay(new Date(value)));
           break;
         case 'toDate':
           if (!newWhere.startDate) {
             newWhere.startDate = {};
           }
-          newWhere.startDate[Op.lte] = endOfDay(value);
+          newWhere.startDate[Op.lte] = toDateTimeString(endOfDay(new Date(value)));
           break;
         default:
           break;
@@ -147,7 +147,7 @@ const transformDataPoint = encounter => {
     medicalArea: patientAdditionalData?.medicalArea?.name,
     nursingZone: patientAdditionalData?.nursingZone?.name,
     clinician: examiner?.displayName,
-    dateOfAttendance: format(encounter.startDate, 'dd-MM-yyyy'),
+    dateOfAttendance: format(parseISO9075(encounter.startDate), 'dd-MM-yyyy'),
     department: encounter.department?.name,
     location: encounter.location?.name,
     reasonForAttendance: encounter.reasonForEncounter,

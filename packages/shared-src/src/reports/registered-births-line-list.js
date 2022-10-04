@@ -1,4 +1,5 @@
 import { subDays } from 'date-fns';
+import { toDateTimeString } from 'shared/utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
 const FIELDS = [
@@ -86,11 +87,14 @@ where
     'c11229a7-b95c-4416-a3ad-560cd75d8f21',
     'cebdd9a4-2744-4ad2-9919-98dc0b15464c'
   )
+  and case when :from_date is not null then p.date_of_birth::date >= :from_date::date else true end
+  and case when :to_date is not null then p.date_of_birth::date <= :to_date::date else true end
+  and case when :village_id is not null then p.village_id = :village_id else true end
 order by p.date_of_birth::date, pbd.time_of_birth::timestamp::time;
 `;
 
 const getData = async (sequelize, parameters) => {
-  const { fromDate = subDays(new Date(), 30), toDate, village } = parameters;
+  const { fromDate = toDateTimeString(subDays(new Date(), 30)), toDate, village } = parameters;
 
   return sequelize.query(query, {
     type: sequelize.QueryTypes.SELECT,

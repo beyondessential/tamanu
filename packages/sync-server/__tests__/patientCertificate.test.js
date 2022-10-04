@@ -97,6 +97,7 @@ describe('Certificate', () => {
       labTestType1,
       labTestType2,
       lab,
+      department,
       location,
       pfVaxDrug,
     } = await prepopulate(models);
@@ -133,6 +134,8 @@ describe('Certificate', () => {
             ...fake(models.Encounter),
             patientId: patient.id,
             locationId: location.id,
+            departmentId: department.id,
+            examinerId: user.id,
           })
         ).id,
         batch: '001',
