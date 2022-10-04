@@ -12,6 +12,7 @@ import { groupBy } from 'lodash';
 import { Op } from 'sequelize';
 import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_LABELS } from '../../constants';
 import { generateReportFromQueryData } from '../utilities';
+import { parseISO9075 } from '../../utils/dateTime';
 import { transformAnswers } from '../utilities/transformAnswers';
 
 const WILLIAM_HOROTO_IDS = [
@@ -245,9 +246,17 @@ const getLabTestRecords = async (
       const currentLabTestDate = startOfDay(labTest.date);
       const dateToFilterBy =
         dateFilterBy === 'labRequest.sampleTime'
-          ? startOfDay(labTest.labRequest.sampleTime)
+          ? startOfDay(parseISO9075(labTest.labRequest.sampleTime))
           : currentLabTestDate;
 
+      console.log(
+        dateFilterBy,
+        dateToFilterBy,
+        parameters.fromDate,
+        isBefore(dateToFilterBy, startOfDay(new Date(parameters.fromDate))),
+        parameters.toDate,
+        isAfter(dateToFilterBy, endOfDay(new Date(parameters.toDate))),
+      );
       // Get all lab tests regardless and filter fromDate and toDate in memory
       // to ensure that we have the date range from current lab test to the next lab test correctly.
       if (
