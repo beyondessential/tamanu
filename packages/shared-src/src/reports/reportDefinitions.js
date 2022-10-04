@@ -203,7 +203,6 @@ export const REPORT_DEFINITIONS = [
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
     filterDateRangeAsStrings: true,
     parameters: [{ parameterField: 'VillageField' }, { parameterField: 'LabTestLaboratoryField' }],
-    filterDateRangeAsStrings: true,
   },
   {
     name: 'India assistive technology device - Line list',
