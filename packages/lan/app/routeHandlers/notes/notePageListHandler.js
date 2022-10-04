@@ -1,5 +1,14 @@
 import { Op } from 'sequelize';
-import { NOTE_TYPES } from 'shared/constants';
+import { NOTE_TYPES, NOTE_RECORD_TYPES } from 'shared/constants';
+
+// Encounter notes should check for their own permission, otherwise,
+// check parent permission.
+function checkListNotePermission(req, owner, noteRecordType) {
+  if (noteRecordType === NOTE_RECORD_TYPES.ENCOUNTER) {
+    return req.checkPermission('list', 'EncounterNote');
+  }
+  return req.checkPermission('read', owner);
+}
 
 export const notePageListHandler = recordType => async (req, res) => {
   const { models, params, query } = req;
@@ -8,7 +17,7 @@ export const notePageListHandler = recordType => async (req, res) => {
   const recordId = params.id;
   const owner = await models[recordType].findByPk(recordId);
 
-  req.checkPermission('read', owner);
+  checkListNotePermission(req, owner, recordType);
 
   const rows = await models.NotePage.findAll({
     include: [
@@ -40,7 +49,7 @@ export const notePagesWithSingleItemListHandler = recordType => async (req, res)
   const recordId = params.id;
   const owner = await models[recordType].findByPk(recordId);
 
-  req.checkPermission('read', owner);
+  checkListNotePermission(req, owner, recordType);
 
   const notePages = await models.NotePage.findAll({
     include: [
