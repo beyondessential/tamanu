@@ -269,7 +269,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
     };
   },
   PatientAdditionalData: ({ id, patientId }) => {
-    const commonId = id || patientId || uuidv4();
+    const commonId = id || patientId || fakeUUID();
     return {
       id: commonId,
       patientId: commonId,
@@ -305,7 +305,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
       updatedAtByField: {},
     };
   },
-  PatientFacility: ({ patientId = uuidv4(), facilityId = uuidv4() }) => {
+  PatientFacility: ({ patientId = fakeUUID(), facilityId = fakeUUID() }) => {
     return {
       id: `${patientId};${facilityId}`,
       patientId,

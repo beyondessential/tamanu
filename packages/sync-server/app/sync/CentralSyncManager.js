@@ -1,6 +1,7 @@
 import { Op } from 'sequelize';
 import config from 'config';
-import { SYNC_DIRECTIONS, CURRENT_SYNC_TIME_KEY } from 'shared/constants';
+import { SYNC_DIRECTIONS } from 'shared/constants';
+import { CURRENT_SYNC_TIME_KEY } from 'shared/sync/constants';
 import { log } from 'shared/services/logging';
 import {
   getModelsForDirection,
