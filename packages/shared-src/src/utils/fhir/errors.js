@@ -26,7 +26,7 @@ export class FhirError extends Error {
     return {
       severity: this.severity,
       code: this.code,
-      diagnostics: this.diagnostics ?? this.stack,
+      diagnostics: this.diagnostics || this.stack,
       expression: this.expression,
       details: {
         text: this.message,
