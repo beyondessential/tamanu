@@ -310,7 +310,7 @@ const fakeAllData = async models => {
   systemNoteItem.date = '2022-06-09 08:04:54';
   await systemNoteItem.save();
 
-  return { patient, encounterId };
+  return { patient, encounterId, location1Id };
 };
 
 describe('fijiAspenMediciReport', () => {
@@ -332,7 +332,7 @@ describe('fijiAspenMediciReport', () => {
     // act
     const response = await app.post('/v1/reports/fiji-aspen-encounter-summary-line-list').send({
       parameters: {
-        locationId: location1Id,
+        location: location1Id,
       }
     });
 
