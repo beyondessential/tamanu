@@ -63,14 +63,14 @@ async function createDateTimeStringDownMigration(
   );
 }
 
-export class updatePatientIssueDate1663564207000 implements MigrationInterface {
+export class updateSurveyResponseDateTimeColumns1664475769000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
-    await createDateTimeStringUpMigration(queryRunner, 'survey_responses', 'startTime');
-    await createDateTimeStringUpMigration(queryRunner, 'survey_responses', 'endTime');
+    await createDateTimeStringUpMigration(queryRunner, 'survey_response', 'startTime');
+    await createDateTimeStringUpMigration(queryRunner, 'survey_response', 'endTime');
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
-    await createDateTimeStringDownMigration(queryRunner, 'survey_responses', 'startTime');
-    await createDateTimeStringDownMigration(queryRunner, 'survey_responses', 'endTime');
+    await createDateTimeStringDownMigration(queryRunner, 'survey_response', 'startTime');
+    await createDateTimeStringDownMigration(queryRunner, 'survey_response', 'endTime');
   }
 }
