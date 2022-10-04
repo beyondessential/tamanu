@@ -10,7 +10,7 @@ export async function up(query) {
         -- unless the updated_at_by_field was explicitly provided (i.e. by a sync merge update),
         -- set any fields updated in this query to use the latest sync tick
         IF (OLD IS NULL) THEN
-          SELECT JSON_OBJECT_AGG(new_json.key, (SELECT value FROM local_system_facts WHERE key = '${CURRENT_SYNC_TIME_KEY}')::jsonb
+          SELECT JSON_OBJECT_AGG(new_json.key, (SELECT value FROM local_system_facts WHERE key = '${CURRENT_SYNC_TIME_KEY}'))::jsonb
           FROM jsonb_each(to_jsonb(NEW)) AS new_json
           WHERE new_json.value <> 'null'::jsonb AND new_json.key <> 'updated_at_sync_tick' AND new_json.key <> 'updated_at_by_field'
           INTO NEW.updated_at_by_field;
