@@ -16,12 +16,15 @@ function canModifyNote(notePage) {
 notePageRoute.post(
   '/$',
   asyncHandler(async (req, res) => {
-    req.checkPermission('create', 'Note');
-
     const { models, body: noteData } = req;
 
-    const owner = await models[noteData.recordType].findByPk(noteData.recordId);
-    req.checkPermission('write', owner);
+    // Encounter notes check their own permissions
+    if (noteData.recordType === NOTE_RECORD_TYPES.ENCOUNTER) {
+      req.checkPermission('create', 'EncounterNote');
+    } else {
+      const owner = await models[noteData.recordType].findByPk(noteData.recordId);
+      req.checkPermission('write', owner);
+    }
 
     const notePage = await models.NotePage.create({
       recordType: noteData.recordType,
@@ -45,8 +48,6 @@ notePageRoute.post(
 notePageRoute.get(
   '/:id',
   asyncHandler(async (req, res) => {
-    req.checkPermission('read', 'Note');
-
     const { models, params } = req;
     const notePageId = params.id;
     const notePage = await models.NotePage.findOne({
@@ -69,8 +70,13 @@ notePageRoute.get(
       where: { id: notePageId },
     });
 
-    const owner = await models[notePage.recordType].findByPk(notePage.recordId);
-    req.checkPermission('write', owner);
+    // Encounter notes check their own permissions
+    if (notePage.recordType === NOTE_RECORD_TYPES.ENCOUNTER) {
+      req.checkPermission('read', 'EncounterNote');
+    } else {
+      const owner = await models[notePage.recordType].findByPk(notePage.recordId);
+      req.checkPermission('read', owner);
+    }
 
     res.send(notePage);
   }),
