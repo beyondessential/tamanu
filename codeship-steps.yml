@@ -18,10 +18,9 @@
         - name: lint desktop app and servers
           service: app-without-db
           command: scripts/lint.sh pr-lints
-        # FIXME: broken with PMI for some incomprehensible reason
-        # - name: ensure storybook builds
-        #   service: app-without-db
-        #   command: "yarn workspace desktop run verify-storybook"
+        #- name: ensure storybook builds
+        #  service: app-without-db
+        #  command: "yarn workspace desktop run verify-storybook"
         # - TODO(WAITM-215): mobile lints
     - name: test
       type: serial
