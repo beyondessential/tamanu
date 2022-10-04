@@ -2,6 +2,7 @@ import React, { useCallback, useState, useEffect } from 'react';
 import * as yup from 'yup';
 import Select from 'react-select';
 import styled from 'styled-components';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import Checkbox from '@material-ui/core/Checkbox';
 import { range } from 'lodash';
 import { Colors } from '../constants';
@@ -226,7 +227,13 @@ export const DischargeForm = ({
     <>
       <FormGrid>
         <EncounterOverview encounter={encounter} />
-        <Field name="endDate" label="Discharge date" component={DateField} required />
+        <Field
+          name="endDate"
+          label="Discharge date"
+          component={DateField}
+          required
+          saveDateAsString
+        />
         <Field
           name="discharge.dischargerId"
           label="Discharging physician"
@@ -272,7 +279,7 @@ export const DischargeForm = ({
       render={renderForm}
       enableReinitialize
       initialValues={{
-        endDate: new Date(),
+        endDate: getCurrentDateTimeString(),
         discharge: {
           note: dischargeNotes.map(n => n.content).join('\n'),
         },
