@@ -203,21 +203,23 @@ with
     select 
       e.id encounter_id,
       case when count("from") = 0
-        then json_build_array(json_build_object(
-          'Department', d.name,
-          'Assigned time', to_char(e.start_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
-        ))
+        then concat(
+          d.name,
+          ', Assigned time: ', to_char(e.start_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
+        )
         else 
-          array_to_json(json_build_object(
-            'Department', first_from, --first "from" from note
-            'Assigned time', to_char(e.start_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
+          concat(
+            first_from, --first "from" from note
+            ', Assigned time: ', to_char(e.start_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
           ) ||
-          array_agg(
-            json_build_object(
-              'Department', "to",
-              'Assigned time', to_char(nh.date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
-            ) ORDER BY nh.date
-          ))
+          string_agg(
+            concat(
+              "to",
+              ', Assigned time: ', to_char(nh.date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
+            ),
+            '; '
+            ORDER BY nh.date
+          )
       end department_history,
       json_agg(d.id) dept_id_list
     from encounters e
@@ -240,21 +242,23 @@ with
     select 
       e.id encounter_id,
       case when count("from") = 0
-        then json_build_array(json_build_object(
-          'Location', l.name,
-          'Assigned time', to_char(e.start_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
-        ))
+        then concat(
+          l.name,
+          ', Assigned time: ', to_char(e.start_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
+        )
         else 
-          array_to_json(json_build_object(
-            'Location', first_from, --first "from" from note
-            'Assigned time', to_char(e.start_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
-          ) ||
-          array_agg(
-            json_build_object(
-              'Location', "to",
-              'Assigned time', to_char(nh.date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
-            ) ORDER BY nh.date
-          ))
+          concat(
+            first_from, --first "from" from note
+            ', Assigned time: ', to_char(e.start_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
+          ) || '; ' ||
+          string_agg(
+            concat(
+              "to",
+              ', Assigned time: ', to_char(nh.date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
+            ),
+            '; '
+            ORDER BY nh.date
+          )
       end location_history,
       json_agg(l.id) loc_id_list
     from encounters e
