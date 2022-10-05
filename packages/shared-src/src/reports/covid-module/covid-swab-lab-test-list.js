@@ -1,14 +1,13 @@
 import {
-  differenceInMilliseconds,
   isWithinInterval,
   isBefore,
   isAfter,
   startOfDay,
   endOfDay,
-  format,
   isSameDay,
   parseISO,
 } from 'date-fns';
+import { differenceInMilliseconds, format } from 'shared/utils/dateTime';
 import { groupBy } from 'lodash';
 import { Op } from 'sequelize';
 import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_LABELS } from '../../constants';
@@ -205,7 +204,7 @@ const getLatestPatientAnswerInDateRange = (
   );
 
   const latestAnswer = sortedLatestToOldestAnswers.find(a =>
-    isWithinInterval(a.responseEndTime, {
+    isWithinInterval(new Date(a.responseEndTime), {
       start: currentlabTestDate,
       end: nextLabTestDate,
     }),
@@ -286,7 +285,7 @@ const getLabTestRecords = async (
       const village = patient?.village?.name;
       const patientAdditionalData = patient?.additionalData?.[0];
 
-      const formatDate = date => (date ? format(new Date(date), dateFormat) : '');
+      const formatDate = date => (date ? format(date, dateFormat) : '');
 
       const labTestRecord = {
         firstName: patient?.firstName,
@@ -348,7 +347,6 @@ export const baseDataGenerator = async (
     surveyQuestionCodes,
     dateFormat,
   });
-
   return generateReportFromQueryData(reportData, reportColumnTemplate);
 };
 

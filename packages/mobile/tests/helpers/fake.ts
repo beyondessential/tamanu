@@ -24,6 +24,7 @@ import {
 import { BaseModel } from '~/models/BaseModel';
 import { ID } from '~/types/ID';
 import { VaccineStatus } from '~/ui/helpers/patient';
+import { getCurrentDateTimeString } from '../../App/ui/helpers/date';
 import { VisibilityStatus } from '~/visibilityStatuses';
 
 export const fakePatient = (): IPatient => {
@@ -96,8 +97,8 @@ export const fakeSurveyScreenComponent = (): ISurveyScreenComponent => ({
 
 export const fakeSurveyResponse = (survey: ISurvey): ISurveyResponse => ({
   id: `survey-response-id-${uuidv4()}`,
-  startTime: new Date(),
-  endTime: new Date(),
+  startTime: getCurrentDateTimeString(),
+  endTime: getCurrentDateTimeString(),
   surveyId: survey.id,
 });
 

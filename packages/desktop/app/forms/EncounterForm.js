@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { foreignKey } from '../utils/validation';
 import {
   Form,
@@ -40,7 +40,13 @@ export const EncounterForm = React.memo(
             component={SelectField}
             options={encounterOptions}
           />
-          <Field name="startDate" label="Check-in date" required component={DateField} />
+          <Field
+            name="startDate"
+            label="Check-in date"
+            required
+            component={DateField}
+            saveDateAsString
+          />
           <Field
             name="departmentId"
             label="Department"
@@ -89,7 +95,7 @@ export const EncounterForm = React.memo(
         onSubmit={onSubmit}
         render={renderForm}
         initialValues={{
-          startDate: new Date(),
+          startDate: getCurrentDateTimeString(),
           encounterType,
           patientBillingTypeId,
           ...editedObject,

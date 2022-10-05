@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import * as yup from 'yup';
-
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { INJECTION_SITE_OPTIONS } from 'shared/constants';
 import { OuterLabelFieldWrapper } from '../components/Field/OuterLabelFieldWrapper';
 import { ConfirmCancelRow } from '../components/ButtonRow';
@@ -147,7 +147,7 @@ export const ImmunisationForm = React.memo(
       <Form
         onSubmit={onSubmitWithRecorder}
         initialValues={{
-          date: new Date(),
+          date: getCurrentDateTimeString(),
         }}
         validationSchema={yup.object().shape({
           consent: yup
@@ -210,7 +210,7 @@ export const ImmunisationForm = React.memo(
               )}
             </FullWidthCol>
 
-            <Field name="date" label="Date" component={DateField} required />
+            <Field name="date" label="Date" component={DateField} required saveDateAsString />
             <Field name="givenBy" label="Given by" component={TextField} />
             <Field
               name="locationId"

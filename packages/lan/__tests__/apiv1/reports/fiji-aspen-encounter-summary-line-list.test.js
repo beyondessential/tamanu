@@ -331,9 +331,9 @@ describe('fijiAspenMediciReport', () => {
         'Encounter type': 'Hospital admission',
         'Triage category': '2',
         'Time seen following triage/Wait time (hh:mm)': '1:3',
-        Department: 'Department: Emergency dept., Assigned time: 09-06-2022 12:02 AM',
+        Department: 'Emergency dept., Assigned time: 09-06-2022 12:02 AM',
         Location:
-          'Location: Emergency room 1, Assigned time: 09-06-2022 12:02 AM; Location: Emergency room 2, Assigned time: 09-06-2022 08:04 AM',
+          'Emergency room 1, Assigned time: 09-06-2022 12:02 AM; Emergency room 2, Assigned time: 09-06-2022 08:04 AM',
         'Reason for encounter': 'Severe Migrane',
         Diagnosis:
           'Acute subdural hematoma, Is primary?: primary, Certainty: confirmed; Acute subdural hematoma, Is primary?: secondary, Certainty: suspected',

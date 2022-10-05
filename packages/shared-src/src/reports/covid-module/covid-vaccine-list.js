@@ -1,8 +1,8 @@
 /* eslint-disable no-param-reassign */
 
 import { Op } from 'sequelize';
-import { subDays, format } from 'date-fns';
-import { parseISO9075 } from 'shared/utils/dateTime';
+import { subDays } from 'date-fns';
+import { parseISO9075, toDateTimeString, format } from 'shared/utils/dateTime';
 import { generateReportFromQueryData } from '../utilities';
 
 const DATE_FORMAT = 'yyyy/MM/dd';
@@ -13,19 +13,25 @@ const reportColumnTemplate = [
     accessor: data => data.patientName,
   },
   { title: 'UID', accessor: data => data.uid },
-  { title: 'DOB', accessor: data => format(parseISO9075(data.dob), DATE_FORMAT) },
+  { title: 'DOB', accessor: data => format(data.dob, DATE_FORMAT) },
   { title: 'Sex', accessor: data => data.sex },
   { title: 'Village', accessor: data => data.village },
   { title: 'First dose given', accessor: data => data.dose1 },
-  { title: 'First dose date', accessor: data => format(new Date(data.dose1Date), DATE_FORMAT) },
+  {
+    title: 'First dose date',
+    accessor: data => format(parseISO9075(data.dose1Date), DATE_FORMAT),
+  },
   { title: 'Second dose given', accessor: data => data.dose2 },
-  { title: 'Second dose date', accessor: data => format(new Date(data.dose2Date), DATE_FORMAT) },
+  {
+    title: 'Second dose date',
+    accessor: data => format(parseISO9075(data.dose2Date), DATE_FORMAT),
+  },
   { title: 'Vaccine Name', accessor: data => data.vaccineLabel },
 ];
 
 function parametersToSqlWhere(parameters) {
   if (!parameters.fromDate) {
-    parameters.fromDate = subDays(new Date(), 30).toISOString();
+    parameters.fromDate = toDateTimeString(subDays(new Date(), 30));
   }
 
   const whereClause = Object.entries(parameters)

@@ -59,7 +59,7 @@ export class PatientEmailCommunicationProcessor extends ScheduledTask {
         communicationId: emailPlain.id,
         type: emailPlain.type,
         patientId: emailPlain.patient?.id,
-        email: maskEmail(toAddress),
+        email: toAddress ? maskEmail(toAddress) : null,
       });
 
       try {

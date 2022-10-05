@@ -1,7 +1,6 @@
 import { groupBy, keyBy } from 'lodash';
 import { Op } from 'sequelize';
-import { differenceInMilliseconds, format } from 'date-fns';
-
+import { format, differenceInMilliseconds } from '../../utils/dateTime';
 import { transformAnswers } from '../utilities';
 
 import {
@@ -163,10 +162,7 @@ export const removeDuplicatedReferralsPerDate = referrals => {
   const results = [];
   for (const groupedAnswers of Object.values(referralByPatientAndDate)) {
     const sortedLatestToOldestReferrals = groupedAnswers.sort((r1, r2) =>
-      differenceInMilliseconds(
-        new Date(r2.initiatingEncounter.startDate),
-        new Date(r1.initiatingEncounter.startDate),
-      ),
+      differenceInMilliseconds(r2.initiatingEncounter.startDate, r1.initiatingEncounter.startDate),
     );
     results.push(sortedLatestToOldestReferrals[0]);
   }

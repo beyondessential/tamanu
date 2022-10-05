@@ -2,10 +2,12 @@ import React, { ReactElement } from 'react';
 import { VitalsTableRowHeader } from './VitalsTableRowHeader';
 import { VitalsTableCell } from './VitalsTableCell';
 import { Row } from '../Table';
+import { formatStringDate } from '../../helpers/date';
+import { DateFormats } from '../../helpers/constants';
 
 export const vitalsColumns = (
   patientData,
-): string[] => patientData.map(d => d.dateRecorded.toString());
+): string[] => patientData.map(d => formatStringDate(d.dateRecorded, DateFormats.DATE_AND_TIME));
 
 export const vitalRowFieldsToNames = {
   weight: 'Weight (kg)',
@@ -36,6 +38,6 @@ export const vitalsRows: Row[] = [
     <VitalsTableRowHeader title={r} />
   ),
   cell: (cellData): ReactElement => (
-    <VitalsTableCell data={cellData} />
+    <VitalsTableCell data={cellData} key={cellData.id}/>
   ),
 }));

@@ -9,9 +9,7 @@ import {
   FHIR_SEARCH_TOKEN_TYPES,
   FHIR_DATETIME_PRECISION,
 } from 'shared/constants';
-
-import { Invalid, Unsupported } from './errors';
-import { RESULT_PARAMETER_NAMES } from './parameters';
+import { Invalid, Unsupported, RESULT_PARAMETER_NAMES } from 'shared/utils/fhir';
 
 export function pushToQuery(query, param, value) {
   const insert = query.get(param) ?? [];
@@ -119,7 +117,7 @@ function singleMatch(path, paramQuery, paramDef, Model) {
 
 // eslint-disable-next-line no-unused-vars
 function singleOrder(path, order, def, _Model) {
-  let entirePath = path;
+  const entirePath = path;
   if (
     def.type === FHIR_SEARCH_PARAMETERS.TOKEN &&
     (def.tokenType === FHIR_SEARCH_TOKEN_TYPES.CODING ||

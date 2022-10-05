@@ -1,5 +1,5 @@
-import { addDays, endOfDay, format } from 'date-fns';
-import { parseISO9075 } from 'shared/utils/dateTime';
+import { addDays, endOfDay } from 'date-fns';
+import { getCurrentDateTimeString, toDateTimeString, format } from 'shared/utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
 const FIELDS = [
@@ -13,7 +13,7 @@ const FIELDS = [
   'Patient type',
   {
     title: 'Appointment date and time',
-    accessor: data => format(parseISO9075(data.appointmentDateTime), 'dd/MM/yyyy hh:mm a'),
+    accessor: data => format(data.appointmentDateTime, 'dd/MM/yyyy hh:mm a'),
   },
   'Appointment type',
   'Appointment status',
@@ -74,8 +74,8 @@ const getData = async (sequelize, parameters) => {
   // Only default if both date parameters are blank
   let { fromDate, toDate } = parameters;
   if (!fromDate && !toDate) {
-    fromDate = new Date();
-    toDate = endOfDay(addDays(new Date(), 30));
+    fromDate = getCurrentDateTimeString();
+    toDate = toDateTimeString(endOfDay(addDays(new Date(), 30)));
   }
 
   return sequelize.query(query, {
