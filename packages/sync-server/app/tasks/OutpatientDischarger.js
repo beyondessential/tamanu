@@ -1,5 +1,5 @@
 import config from 'config';
-import { startOfDay } from 'date-fns';
+import { startOfDay, sub } from 'date-fns';
 import { Op } from 'sequelize';
 
 import { ScheduledTask } from 'shared/tasks';
@@ -65,6 +65,7 @@ export class OutpatientDischarger extends ScheduledTask {
       `Auto-closing ${oldEncountersCount} clinic encounters in ${batchCount} batches (${batchSize} records per batch)`,
     );
 
+    const justBeforeMidnight = sub(startOfToday, { minutes: 1 });
     for (let i = 0; i < batchCount; i++) {
       const oldEncounters = await this.models.Encounter.findAll({
         where,
@@ -73,7 +74,7 @@ export class OutpatientDischarger extends ScheduledTask {
 
       for (const oldEncounter of oldEncounters) {
         await oldEncounter.update({
-          endDate: startOfToday,
+          endDate: justBeforeMidnight,
           dischargeNote: 'Automatically discharged',
         });
         log.info(`Auto-closed encounter with id ${oldEncounter.id}`);
