@@ -1,10 +1,10 @@
 /* eslint-disable import/no-unresolved, import/extensions */
 
-import { subDays, isBefore, startOfDay } from 'date-fns';
+import { subDays, isBefore, startOfDay, endOfDay } from 'date-fns';
 import { groupBy } from 'lodash';
 import { Op } from 'sequelize';
 
-import { ageInYears, format } from '../../../utils/dateTime';
+import { ageInYears, format, toDateTimeString } from '../../../utils/dateTime';
 import { generateReportFromQueryData } from '../../utilities';
 import { transformAnswers } from '../../utilities/transformAnswers';
 
@@ -104,13 +104,15 @@ const parametersToSurveyResponseSqlWhere = (parameters, surveyId) => {
           if (!where.endTime) {
             where.endTime = {};
           }
-          where.endTime[Op.gte] = value;
+          where.endTime[Op.gte] = toDateTimeString(
+            startOfDay(value ? new Date(value) : subDays(new Date(), 30)),
+          );
           break;
         case 'toDate':
           if (!where.endTime) {
             where.endTime = {};
           }
-          where.endTime[Op.lte] = value;
+          where.endTime[Op.lte] = value && toDateTimeString(endOfDay(new Date(value)));
           break;
         default:
           break;

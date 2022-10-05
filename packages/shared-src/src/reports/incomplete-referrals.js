@@ -1,6 +1,8 @@
 /* eslint-disable no-param-reassign */
 
+import { endOfDay, startOfDay, subDays } from 'date-fns';
 import { Op } from 'sequelize';
+import { toDateTimeString } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
 const reportColumnTemplate = [
@@ -56,20 +58,20 @@ function parametersToSqlWhere(parameters) {
           case 'practitioner':
             where.referredById = value;
             break;
-          case 'fromDate': {
+          case 'fromDate':
             if (!where.date) {
               where.date = {};
             }
-            where.date[Op.gte] = value;
+            where.date[Op.gte] = toDateTimeString(
+              startOfDay(value ? new Date(value) : subDays(new Date(), 30)),
+            );
             break;
-          }
-          case 'toDate': {
+          case 'toDate':
             if (!where.date) {
               where.date = {};
             }
-            where.date[Op.lte] = value;
+            where.date[Op.lte] = value && toDateTimeString(endOfDay(new Date(value)));
             break;
-          }
           default:
             break;
         }

@@ -1,8 +1,9 @@
 import { keyBy, groupBy, uniqWith, isEqual } from 'lodash';
 import { Op } from 'sequelize';
+import { endOfDay, startOfDay } from 'date-fns';
 import { generateReportFromQueryData } from './utilities';
 import { transformAnswers } from './utilities/transformAnswers';
-import { format, ageInYears, differenceInMilliseconds } from '../utils/dateTime';
+import { format, ageInYears, differenceInMilliseconds, toDateTimeString } from '../utils/dateTime';
 
 const parametersToSurveyResponseSqlWhere = (parameters, surveyIds) => {
   const defaultWhereClause = {
@@ -22,13 +23,15 @@ const parametersToSurveyResponseSqlWhere = (parameters, surveyIds) => {
           if (!newWhere['$surveyResponse.end_time$']) {
             newWhere['$surveyResponse.end_time$'] = {};
           }
-          newWhere['$surveyResponse.end_time$'][Op.gte] = value;
+          newWhere['$surveyResponse.end_time$'][Op.gte] =
+            value && toDateTimeString(startOfDay(new Date(value)));
           break;
         case 'toDate':
           if (!newWhere['$surveyResponse.end_time$']) {
             newWhere['$surveyResponse.end_time$'] = {};
           }
-          newWhere['$surveyResponse.end_time$'][Op.lte] = value;
+          newWhere['$surveyResponse.end_time$'][Op.lte] =
+            value && toDateTimeString(endOfDay(new Date(value)));
           break;
         default:
           break;

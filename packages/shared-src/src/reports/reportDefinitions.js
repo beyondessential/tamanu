@@ -135,14 +135,16 @@ export const REPORT_DEFINITIONS = [
     id: 'number-patients-registered-by-date',
     dateRangeLabel: ALL_TIME_DATE_LABEL,
     dataSourceOptions: [REPORT_DATA_SOURCES.ALL_FACILITIES],
-    filterDateRangeAsStrings: true,
+    // This report queries against column created_at which is a timestamp, not a date
+    filterDateRangeAsStrings: false,
   },
   {
     name: 'Registered patients - Line list',
     id: 'registered-patients',
     dateRangeLabel: ALL_TIME_DATE_LABEL,
     dataSourceOptions: [REPORT_DATA_SOURCES.ALL_FACILITIES],
-    filterDateRangeAsStrings: true,
+    // This report queries against column created_at which is a timestamp, not a date
+    filterDateRangeAsStrings: false,
   },
   {
     name: 'COVID-19 Tests - Line list',
@@ -269,6 +271,7 @@ export const REPORT_DEFINITIONS = [
     id: 'fiji-ncd-primary-screening-pending-referrals-line-list',
     dateRangeLabel: ALL_TIME_DATE_LABEL,
     dataSourceOptions: [REPORT_DATA_SOURCES.ALL_FACILITIES],
+    filterDateRangeAsStrings: true,
     parameters: [
       {
         parameterField: 'ParameterSelectField',
@@ -296,6 +299,7 @@ export const REPORT_DEFINITIONS = [
     id: 'fiji-ncd-primary-screening-summary',
     dateRangeLabel: ALL_TIME_DATE_LABEL,
     dataSourceOptions: [REPORT_DATA_SOURCES.ALL_FACILITIES],
+    filterDateRangeAsStrings: true,
     parameters: [
       {
         parameterField: 'ParameterMultiselectField',

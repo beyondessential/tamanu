@@ -1,7 +1,8 @@
 /* eslint-disable no-param-reassign */
 
-import { format } from 'date-fns';
+import { endOfDay, format, startOfDay } from 'date-fns';
 import { groupBy, keyBy } from 'lodash';
+import { toDateTimeString } from '../../utils/dateTime';
 import { generateReportFromQueryData } from '../utilities';
 
 const REFERRAL_SCREENING_FORM_MAPPING = {
@@ -266,6 +267,9 @@ const getTotalPatientsScreened = async (sequelize, parameters) => {
     surveyIds = Object.keys(REFERRAL_SCREENING_FORM_MAPPING).join(', '),
   } = parameters;
 
+  const queryFromDate = fromDate && toDateTimeString(startOfDay(new Date(fromDate)));
+  const queryToDate = toDate && toDateTimeString(endOfDay(new Date(toDate)));
+
   return sequelize.query(
     `
       SELECT
@@ -284,8 +288,8 @@ const getTotalPatientsScreened = async (sequelize, parameters) => {
       replacements: {
         screening_survey_ids: surveyIds.split(', '),
         referral_survey_id: null,
-        from_date: fromDate,
-        to_date: toDate,
+        from_date: queryFromDate,
+        to_date: queryToDate,
         village_id: village,
         medical_area_id: medicalArea,
         nursing_zone_id: nursingZone,

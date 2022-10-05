@@ -11,7 +11,6 @@ import { ModalActionRow } from '../components/ModalActionRow';
 import { RadioField } from '../components';
 import { IdBanner } from '../components/IdBanner';
 import { Colors, PATIENT_REGISTRY_OPTIONS } from '../constants';
-import { toDateTimeString } from '../utils/dateTime';
 import { getPatientDetailsValidation } from '../validations';
 import { PrimaryDetailsGroup, SecondaryDetailsGroup } from './PatientDetailsForm';
 import { useSexValues } from '../hooks';

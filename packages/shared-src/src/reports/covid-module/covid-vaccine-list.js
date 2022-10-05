@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 
 import { Op } from 'sequelize';
-import { subDays } from 'date-fns';
+import { endOfDay, startOfDay, subDays } from 'date-fns';
 import { parseISO9075, toDateTimeString, format } from 'shared/utils/dateTime';
 import { generateReportFromQueryData } from '../utilities';
 
@@ -46,13 +46,15 @@ function parametersToSqlWhere(parameters) {
             if (!where.date) {
               where.date = {};
             }
-            where.date[Op.gte] = value;
+            where.date[Op.gte] = toDateTimeString(
+              startOfDay(value ? new Date(value) : subDays(new Date(), 30)),
+            );
             break;
           case 'toDate':
             if (!where.date) {
               where.date = {};
             }
-            where.date[Op.lte] = value;
+            where.date[Op.lte] = value && toDateTimeString(endOfDay(new Date(value)));
             break;
           default:
             break;
