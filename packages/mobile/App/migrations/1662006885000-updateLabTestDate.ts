@@ -41,7 +41,7 @@ export class updateLabTestDate1662006885000 implements MigrationInterface {
 
   async down(queryRunner: QueryRunner): Promise<void> {
     // 1. Drop the string column
-    await queryRunner.query('ALTER TABLE labTest DROP COLUMN date');
+    await queryRunner.dropColumn('labTest', 'date');
     // 2. Move legacy data back to main column (with undo rename
     await queryRunner.renameColumn(
       'labTest',
