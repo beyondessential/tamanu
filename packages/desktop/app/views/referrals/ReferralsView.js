@@ -30,7 +30,7 @@ const ReferralFlow = ({ patient, currentUser }) => {
     async id => {
       const response = await api.get(`survey/${encodeURIComponent(id)}`);
       setReferralSurvey(response);
-      setStartTime(new Date());
+      setStartTime(getCurrentDateTimeString());
     },
     [api],
   );
