@@ -5,6 +5,7 @@ import { Model } from './Model';
 import { runCalculations } from '../utils/calculations';
 import { getStringValue, getResultValue } from '../utils/fields';
 import { dateTimeType } from './dateTimeTypes';
+import { getCurrentDateTimeString } from '../utils/dateTime';
 
 async function createPatientIssues(models, questions, patientId) {
   const issueQuestions = questions.filter(
@@ -146,8 +147,8 @@ export class SurveyResponse extends Model {
       departmentId,
       examinerId: userId,
       locationId,
-      startDate: Date.now(),
-      endDate: Date.now(),
+      startDate: getCurrentDateTimeString(),
+      endDate: getCurrentDateTimeString(),
     });
   }
 
