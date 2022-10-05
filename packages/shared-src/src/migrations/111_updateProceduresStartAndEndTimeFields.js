@@ -3,7 +3,11 @@ import config from 'config';
 
 const ISO9075_DATE_TIME_FMT = 'YYYY-MM-DD HH24:MI:SS';
 const MIGRATIONS = [
-  { TABLE: 'procedures', FIELD: 'start_time', LEGACY_TYPE: { sequelize: DataTypes.STRING, postgres: 'character varying(255)' }},
+  {
+    TABLE: 'procedures',
+    FIELD: 'start_time',
+    LEGACY_TYPE: { sequelize: DataTypes.STRING, postgres: 'character varying(255)' },
+  },
   { TABLE: 'procedures', FIELD: 'end_time' },
 ];
 
@@ -68,7 +72,8 @@ export async function down(query) {
   for (const migration of MIGRATIONS) {
     await query.sequelize.query(`
       ALTER TABLE ${migration.TABLE}
-      ALTER COLUMN ${migration.FIELD} TYPE ${migration.LEGACY_TYPE?.postgres || 'timestamp with time zone'} USING ${migration.FIELD}_legacy;
+      ALTER COLUMN ${migration.FIELD} TYPE ${migration.LEGACY_TYPE?.postgres ||
+      'timestamp with time zone'} USING ${migration.FIELD}_legacy;
     `);
     await query.removeColumn(migration.TABLE, `${migration.FIELD}_legacy`);
   }

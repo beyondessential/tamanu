@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { subDays, format } from 'date-fns';
+import { subDays, format, endOfDay, startOfDay } from 'date-fns';
 import { parseISO9075 } from 'shared/utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 import { toDateTimeString } from '../utils/dateTime';
@@ -23,9 +23,11 @@ export const reportColumnTemplate = [
 
 function parametersToSqlWhere(parameters) {
   const newParameters = { ...parameters };
-  if (!newParameters.fromDate) {
-    newParameters.fromDate = toDateTimeString(subDays(new Date(), 30));
-  }
+
+  const queryFromDate = toDateTimeString(
+    startOfDay(parameters.fromDate ? new Date(parameters.fromDate) : subDays(new Date(), 30)),
+  );
+  const queryToDate = parameters.toDate && toDateTimeString(endOfDay(new Date(parameters.toDate)));
 
   const whereClause = Object.entries(newParameters)
     .filter(([, val]) => val)
@@ -39,13 +41,13 @@ function parametersToSqlWhere(parameters) {
           if (!newWhere.date) {
             newWhere.date = {};
           }
-          newWhere.date[Op.gte] = value;
+          newWhere.date[Op.gte] = queryFromDate;
           break;
         case 'toDate':
           if (!newWhere.date) {
             newWhere.date = {};
           }
-          newWhere.date[Op.lte] = value;
+          newWhere.date[Op.lte] = queryToDate;
           break;
         case 'category':
           newWhere['$scheduledVaccine.category$'] = value;

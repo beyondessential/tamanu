@@ -2,7 +2,6 @@ import React from 'react';
 import { getCurrentDateString } from 'shared/utils/dateTime';
 import styled from 'styled-components';
 import { isEmpty } from 'lodash';
-import { toDateTimeString } from 'shared-src/src/utils/dateTime';
 import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from 'shared/constants';
 import { useSexValues } from '../hooks';
 import {

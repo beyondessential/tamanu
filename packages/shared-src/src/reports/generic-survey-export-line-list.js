@@ -1,6 +1,7 @@
-import { subDays } from 'date-fns';
+import { endOfDay, startOfDay, subDays } from 'date-fns';
 import { keyBy } from 'lodash';
 import { NON_ANSWERABLE_DATA_ELEMENT_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '../constants';
+import { toDateTimeString } from '../utils/dateTime';
 import {
   generateReportFromQueryData,
   getAnswerBody,
@@ -86,14 +87,19 @@ order by sr.end_time desc
  * },
  */
 const getData = async (sequelize, parameters) => {
-  const { surveyId, fromDate = subDays(new Date(), 30), toDate, village } = parameters;
+  const { surveyId, fromDate, toDate, village } = parameters;
+
+  const queryFromDate = toDateTimeString(
+    startOfDay(fromDate ? new Date(fromDate) : subDays(new Date(), 30)),
+  );
+  const queryToDate = toDate && toDateTimeString(endOfDay(new Date(toDate)));
 
   return sequelize.query(query, {
     type: sequelize.QueryTypes.SELECT,
     replacements: {
       survey_id: surveyId,
-      from_date: fromDate ?? null,
-      to_date: toDate ?? null,
+      from_date: queryFromDate ?? null,
+      to_date: queryToDate ?? null,
       village_id: village ?? null,
     },
   });
