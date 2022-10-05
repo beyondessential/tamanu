@@ -25,13 +25,13 @@ export const NotesPane = React.memo(({ encounter, readonly }) => {
         <ButtonWithPermissionCheck
           onClick={() => setModalOpen(true)}
           disabled={readonly}
-          verb="write"
-          noun="Encounter"
+          verb="create"
+          noun="EncounterNote"
         >
           New note
         </ButtonWithPermissionCheck>
       </TableButtonRow>
-      <NotePageTableWithPermission encounterId={encounter.id} verb="write" noun="Encounter" />
+      <NotePageTableWithPermission encounterId={encounter.id} verb="write" noun="EncounterNote" />
     </TabPane>
   );
 });
