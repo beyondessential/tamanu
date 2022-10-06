@@ -78,7 +78,7 @@ from
   left join reference_data rd_nationality on rd_nationality.id = pad.nationality_id
   left join reference_data rd_ethnicity on rd_ethnicity.id = pad.ethnicity_id
   left join patients p_mother on p_mother.id = pad.mother_id
-  left join patients p_father on p_mother.id = pad.father_id
+  left join patients p_father on p_father.id = pad.father_id
   left join facilities f on f.id = pbd.birth_facility_id
 where
   p.id not in (
