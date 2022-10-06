@@ -109,10 +109,10 @@ describe('importReport actions', () => {
         query: 'test-query',
         queryOptions: {
           parameters: [{ parameterField: 'TestField', name: 'test' }],
+          defaultDateRange: 'allTime',
         },
         userId: 'test-user-id',
         versionNumber: 3,
-        defaultDateRange: 'allTime',
       });
     });
     it('calls the correct functions and updates version when versionNumber supplied', async () => {
@@ -125,10 +125,10 @@ describe('importReport actions', () => {
         query: 'test-query',
         queryOptions: {
           parameters: [{ parameterField: 'TestField', name: 'test' }],
+          defaultDateRange: 'allTime',
         },
         userId: 'test-user-id',
         versionNumber: 1,
-        defaultDateRange: 'allTime',
       });
     });
     it('throws error when versionNumber is invalid', async () => {
