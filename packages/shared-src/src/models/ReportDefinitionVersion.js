@@ -23,7 +23,8 @@ const optionsValidator = yup.object({
   dateRangeLabel: yup.string(),
   defaultDateRange: yup
     .string()
-    .oneOf(REPORT_DEFAULT_DATE_RANGES_VALUES),
+    .oneOf(REPORT_DEFAULT_DATE_RANGES_VALUES)
+    .required(),
 });
 
 const generateReportFromQueryData = queryData => {
