@@ -6,6 +6,7 @@ import {
   endOfDay,
   isSameDay,
   parseISO,
+  subDays,
 } from 'date-fns';
 import { differenceInMilliseconds, format } from 'shared/utils/dateTime';
 import { groupBy } from 'lodash';
@@ -251,8 +252,10 @@ const getLabTestRecords = async (
       // Get all lab tests regardless and filter fromDate and toDate in memory
       // to ensure that we have the date range from current lab test to the next lab test correctly.
       if (
-        parameters.fromDate &&
-        isBefore(currentLabTestDate, startOfDay(new Date(parameters.fromDate)))
+        isBefore(
+          currentLabTestDate,
+          startOfDay(parameters.fromDate ? new Date(parameters.fromDate) : subDays(new Date(), 30)),
+        )
       ) {
         continue;
       }

@@ -39,11 +39,11 @@ export const parametersToAnswerSqlWhere = parameters => {
   }
   if (parameters.fromDate) {
     where['$surveyResponse.end_time$'][Op.gte] =
-      parameters.fromDate && toDateTimeString(startOfDay(parameters.fromDate));
+      parameters.fromDate && toDateTimeString(startOfDay(new Date(parameters.fromDate)));
   }
   if (parameters.toDate) {
     where['$surveyResponse.end_time$'][Op.lte] =
-      parameters.toDate && toDateTimeString(endOfDay(parameters.toDate));
+      parameters.toDate && toDateTimeString(endOfDay(new Date(parameters.toDate)));
   }
   if (parameters.surveyId) {
     delete where['$surveyResponse.survey_id$'][Op.in];

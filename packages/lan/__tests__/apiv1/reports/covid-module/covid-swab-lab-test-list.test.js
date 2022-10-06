@@ -80,7 +80,7 @@ const createLabTests = async (models, app, expectedPatient1, expectedPatient2) =
   const labRequest1Data = await randomLabRequest(models, {
     labTestCategoryId: 'labTestCategory-COVID',
     patientId: expectedPatient1.id,
-    requestedDate: '2021-03-10T10:50:28.133Z',
+    requestedDate: '2021-03-10 10:50:28',
     displayId: 'labRequest1',
     encounterId: encounter1.id,
   });
@@ -88,7 +88,7 @@ const createLabTests = async (models, app, expectedPatient1, expectedPatient2) =
   await models.LabTest.create({
     labTestTypeId: labRequest1Data.labTestTypeIds[0],
     labRequestId: labRequest1.id,
-    date: '2021-03-10T10:50:28.133Z',
+    date: '2021-03-10 10:50:28',
     labTestMethodId: 'labTestMethod-SWAB',
   });
 
@@ -98,7 +98,7 @@ const createLabTests = async (models, app, expectedPatient1, expectedPatient2) =
   const labRequest2Data = await randomLabRequest(models, {
     labTestCategoryId: 'labTestCategory-COVID',
     patientId: expectedPatient1.id,
-    requestedDate: '2021-03-16T10:50:28.133Z',
+    requestedDate: '2021-03-16 10:50:28',
     displayId: 'labRequest2',
     encounterId: encounter2.id,
   });
@@ -106,7 +106,7 @@ const createLabTests = async (models, app, expectedPatient1, expectedPatient2) =
   await models.LabTest.create({
     labTestTypeId: labRequest2Data.labTestTypeIds[0],
     labRequestId: labRequest2.id,
-    date: '2021-03-16T10:50:28.133Z',
+    date: '2021-03-16 10:50:28',
   });
 
   const encounter3 = await models.Encounter.create(
@@ -115,7 +115,7 @@ const createLabTests = async (models, app, expectedPatient1, expectedPatient2) =
   const labRequest3Data = await randomLabRequest(models, {
     labTestCategoryId: 'labTestCategory-COVID',
     patientId: expectedPatient2.id,
-    requestedDate: '2021-03-17T10:50:28.133Z',
+    requestedDate: '2021-03-17 10:50:28',
     displayId: 'labRequest3',
     encounterId: encounter3.id,
   });
@@ -123,7 +123,7 @@ const createLabTests = async (models, app, expectedPatient1, expectedPatient2) =
   await models.LabTest.create({
     labTestTypeId: labRequest3Data.labTestTypeIds[0],
     labRequestId: labRequest3.id,
-    date: '2021-03-17T10:50:28.133Z',
+    date: '2021-03-17 10:50:28',
   });
 
   const encounter4 = await models.Encounter.create(
@@ -132,7 +132,7 @@ const createLabTests = async (models, app, expectedPatient1, expectedPatient2) =
   const labRequest4Data = await randomLabRequest(models, {
     labTestCategoryId: 'labTestCategory-COVID',
     patientId: expectedPatient2.id,
-    requestedDate: '2021-03-20T10:50:28.133Z',
+    requestedDate: '2021-03-20 10:50:28',
     displayId: 'labRequest4',
     encounterId: encounter4.id,
   });
@@ -140,7 +140,7 @@ const createLabTests = async (models, app, expectedPatient1, expectedPatient2) =
   await models.LabTest.create({
     labTestTypeId: labRequest4Data.labTestTypeIds[0],
     labRequestId: labRequest4.id,
-    date: '2021-03-20T10:50:28.133Z',
+    date: '2021-03-20 10:50:28',
   });
 
   // SHOULD NOT DISPLAY - Due to it's deleted status
@@ -150,7 +150,7 @@ const createLabTests = async (models, app, expectedPatient1, expectedPatient2) =
   const labRequest5Data = await randomLabRequest(models, {
     labTestCategoryId: 'labTestCategory-COVID',
     patientId: expectedPatient2.id,
-    requestedDate: '2021-03-20T10:50:28.133Z',
+    requestedDate: '2021-03-20 10:50:28',
     displayId: 'labRequest4',
     encounterId: encounter5.id,
     status: LAB_REQUEST_STATUSES.DELETED,
@@ -159,7 +159,7 @@ const createLabTests = async (models, app, expectedPatient1, expectedPatient2) =
   await models.LabTest.create({
     labTestTypeId: labRequest5Data.labTestTypeIds[0],
     labRequestId: labRequest5.id,
-    date: '2021-03-20T10:50:28.133Z',
+    date: '2021-03-20 10:50:28',
   });
 
   // SHOULD NOT DISPLAY - Due to it's patient_id being William Horoto's
@@ -177,7 +177,7 @@ const createLabTests = async (models, app, expectedPatient1, expectedPatient2) =
   const labRequest6Data = await randomLabRequest(models, {
     labTestCategoryId: 'labTestCategory-COVID',
     patientId: williamHoroto.id,
-    requestedDate: '2021-03-20T10:50:28.133Z',
+    requestedDate: '2021-03-20 10:50:28',
     displayId: 'labRequest4',
     encounterId: encounter6.id,
     status: LAB_REQUEST_STATUSES.DELETED,
@@ -186,7 +186,7 @@ const createLabTests = async (models, app, expectedPatient1, expectedPatient2) =
   await models.LabTest.create({
     labTestTypeId: labRequest6Data.labTestTypeIds[0],
     labRequestId: labRequest6.id,
-    date: '2021-03-20T10:50:28.133Z',
+    date: '2021-03-20 10:50:28',
   });
 
   return [labRequest1, labRequest2, labRequest3, labRequest4];
@@ -253,116 +253,116 @@ const createSurveys = async (models, app, expectedPatient1, expectedPatient2) =>
   // ----Submit answers for patient 1----
   await app.post('/v1/surveyResponse').send({
     surveyId: FIJI_SAMP_SURVEY_ID,
-    startTime: '2021-03-11T10:50:28.133Z',
+    startTime: '2021-03-11 10:50:28',
     patientId: expectedPatient1.id,
-    endTime: '2021-03-11T10:53:15.708Z',
+    endTime: '2021-03-11 10:53:15',
     encounterId: encounter1.id,
     answers: {
-      'pde-FijCOVSamp4': 'pde-FijCOVSamp4-on-2021-03-13T10:53:15.708Z-Patient1',
-      'pde-FijCOVSamp6': 'pde-FijCOVSamp6-on-2021-03-13T10:53:15.708Z-Patient1',
-      'pde-FijCOVSamp7': 'pde-FijCOVSamp7-on-2021-03-13T10:53:15.708Z-Patient1',
-      'pde-FijCOVSamp10': 'pde-FijCOVSamp10-on-2021-03-13T10:53:15.708Z-Patient1',
-      'pde-FijCOVSamp11': 'pde-FijCOVSamp11-on-2021-03-13T10:53:15.708Z-Patient1',
+      'pde-FijCOVSamp4': 'pde-FijCOVSamp4-on-2021-03-13 10:53:15-Patient1',
+      'pde-FijCOVSamp6': 'pde-FijCOVSamp6-on-2021-03-13 10:53:15-Patient1',
+      'pde-FijCOVSamp7': 'pde-FijCOVSamp7-on-2021-03-13 10:53:15-Patient1',
+      'pde-FijCOVSamp10': 'pde-FijCOVSamp10-on-2021-03-13 10:53:15-Patient1',
+      'pde-FijCOVSamp11': 'pde-FijCOVSamp11-on-2021-03-13 10:53:15-Patient1',
     },
   });
   await app.post('/v1/surveyResponse').send({
     surveyId: FIJI_SAMP_SURVEY_ID,
-    startTime: '2021-03-14T10:50:28.133Z',
+    startTime: '2021-03-14 10:50:28',
     patientId: expectedPatient1.id,
-    endTime: '2021-03-14T10:53:15.708Z',
+    endTime: '2021-03-14 10:53:15',
     encounterId: encounter2.id,
     answers: {
-      'pde-FijCOVSamp4': 'pde-FijCOVSamp4-on-2021-03-14T10:53:15.708Z-Patient1',
-      'pde-FijCOVSamp6': 'pde-FijCOVSamp6-on-2021-03-14T10:53:15.708Z-Patient1',
-      'pde-FijCOVSamp7': 'pde-FijCOVSamp7-on-2021-03-14T10:53:15.708Z-Patient1',
-      'pde-FijCOVSamp10': 'pde-FijCOVSamp10-on-2021-03-14T10:53:15.708Z-Patient1',
-      'pde-FijCOVSamp11': 'pde-FijCOVSamp11-on-2021-03-14T10:53:15.708Z-Patient1',
+      'pde-FijCOVSamp4': 'pde-FijCOVSamp4-on-2021-03-14 10:53:15-Patient1',
+      'pde-FijCOVSamp6': 'pde-FijCOVSamp6-on-2021-03-14 10:53:15-Patient1',
+      'pde-FijCOVSamp7': 'pde-FijCOVSamp7-on-2021-03-14 10:53:15-Patient1',
+      'pde-FijCOVSamp10': 'pde-FijCOVSamp10-on-2021-03-14 10:53:15-Patient1',
+      'pde-FijCOVSamp11': 'pde-FijCOVSamp11-on-2021-03-14 10:53:15-Patient1',
     },
   });
   await app.post('/v1/surveyResponse').send({
     surveyId: FIJI_SAMP_SURVEY_ID,
-    startTime: '2021-03-16T10:50:28.133Z',
+    startTime: '2021-03-16 10:50:28',
     patientId: expectedPatient1.id,
-    endTime: '2021-03-16T10:53:15.708Z',
+    endTime: '2021-03-16 10:53:15',
     encounterId: encounter3.id,
     answers: {
-      'pde-FijCOVSamp4': 'pde-FijCOVSamp4-on-2021-03-16T10:53:15.708Z-Patient1',
-      'pde-FijCOVSamp6': 'pde-FijCOVSamp6-on-2021-03-16T10:53:15.708Z-Patient1',
-      'pde-FijCOVSamp7': 'pde-FijCOVSamp7-on-2021-03-16T10:53:15.708Z-Patient1',
-      'pde-FijCOVSamp10': 'pde-FijCOVSamp10-on-2021-03-16T10:53:15.708Z-Patient1',
-      'pde-FijCOVSamp11': 'pde-FijCOVSamp11-on-2021-03-16T10:53:15.708Z-Patient1',
+      'pde-FijCOVSamp4': 'pde-FijCOVSamp4-on-2021-03-16 10:53:15-Patient1',
+      'pde-FijCOVSamp6': 'pde-FijCOVSamp6-on-2021-03-16 10:53:15-Patient1',
+      'pde-FijCOVSamp7': 'pde-FijCOVSamp7-on-2021-03-16 10:53:15-Patient1',
+      'pde-FijCOVSamp10': 'pde-FijCOVSamp10-on-2021-03-16 10:53:15-Patient1',
+      'pde-FijCOVSamp11': 'pde-FijCOVSamp11-on-2021-03-16 10:53:15-Patient1',
     },
   });
   await app.post('/v1/surveyResponse').send({
     surveyId: FIJI_SAMP_SURVEY_ID,
-    startTime: '2021-03-18T10:50:28.133Z',
+    startTime: '2021-03-18 10:50:28',
     patientId: expectedPatient1.id,
-    endTime: '2021-03-18T10:53:15.708Z',
+    endTime: '2021-03-18 10:53:15',
     encounterId: encounter4.id,
     answers: {
-      'pde-FijCOVSamp4': 'pde-FijCOVSamp4-on-2021-03-18T10:53:15.708Z-Patient1',
-      'pde-FijCOVSamp6': 'pde-FijCOVSamp6-on-2021-03-18T10:53:15.708Z-Patient1',
-      'pde-FijCOVSamp7': 'pde-FijCOVSamp7-on-2021-03-18T10:53:15.708Z-Patient1',
-      'pde-FijCOVSamp10': 'pde-FijCOVSamp10-on-2021-03-18T10:53:15.708Z-Patient1',
-      'pde-FijCOVSamp11': 'pde-FijCOVSamp11-on-2021-03-18T10:53:15.708Z-Patient1',
+      'pde-FijCOVSamp4': 'pde-FijCOVSamp4-on-2021-03-18 10:53:15-Patient1',
+      'pde-FijCOVSamp6': 'pde-FijCOVSamp6-on-2021-03-18 10:53:15-Patient1',
+      'pde-FijCOVSamp7': 'pde-FijCOVSamp7-on-2021-03-18 10:53:15-Patient1',
+      'pde-FijCOVSamp10': 'pde-FijCOVSamp10-on-2021-03-18 10:53:15-Patient1',
+      'pde-FijCOVSamp11': 'pde-FijCOVSamp11-on-2021-03-18 10:53:15-Patient1',
     },
   });
 
   // ----Submit answers for patient 2----
   await app.post('/v1/surveyResponse').send({
     surveyId: FIJI_SAMP_SURVEY_ID,
-    startTime: '2021-03-18T10:50:28.133Z',
+    startTime: '2021-03-18 10:50:28',
     patientId: expectedPatient2.id,
-    endTime: '2021-03-18T10:53:15.708Z',
+    endTime: '2021-03-18 10:53:15',
     encounterId: encounter5.id,
     answers: {
-      'pde-FijCOVSamp4': 'pde-FijCOVSamp4-on-2021-03-18T10:53:15.708Z-Patient2',
-      'pde-FijCOVSamp6': 'pde-FijCOVSamp6-on-2021-03-18T10:53:15.708Z-Patient2',
-      'pde-FijCOVSamp7': 'pde-FijCOVSamp7-on-2021-03-18T10:53:15.708Z-Patient2',
-      'pde-FijCOVSamp10': 'pde-FijCOVSamp10-on-2021-03-18T10:53:15.708Z-Patient2',
-      'pde-FijCOVSamp11': 'pde-FijCOVSamp11-on-2021-03-18T10:53:15.708Z-Patient2',
+      'pde-FijCOVSamp4': 'pde-FijCOVSamp4-on-2021-03-18 10:53:15-Patient2',
+      'pde-FijCOVSamp6': 'pde-FijCOVSamp6-on-2021-03-18 10:53:15-Patient2',
+      'pde-FijCOVSamp7': 'pde-FijCOVSamp7-on-2021-03-18 10:53:15-Patient2',
+      'pde-FijCOVSamp10': 'pde-FijCOVSamp10-on-2021-03-18 10:53:15-Patient2',
+      'pde-FijCOVSamp11': 'pde-FijCOVSamp11-on-2021-03-18 10:53:15-Patient2',
     },
   });
   await app.post('/v1/surveyResponse').send({
     surveyId: FIJI_SAMP_SURVEY_ID,
-    startTime: '2021-03-19T10:50:28.133Z',
+    startTime: '2021-03-19 10:50:28',
     patientId: expectedPatient2.id,
-    endTime: '2021-03-19T10:53:15.708Z',
+    endTime: '2021-03-19 10:53:15',
     encounterId: encounter6.id,
     answers: {
-      'pde-FijCOVSamp4': 'pde-FijCOVSamp4-on-2021-03-19T10:53:15.708Z-Patient2',
-      'pde-FijCOVSamp6': 'pde-FijCOVSamp6-on-2021-03-19T10:53:15.708Z-Patient2',
-      'pde-FijCOVSamp7': 'pde-FijCOVSamp7-on-2021-03-19T10:53:15.708Z-Patient2',
-      'pde-FijCOVSamp10': 'pde-FijCOVSamp10-on-2021-03-19T10:53:15.708Z-Patient2',
-      'pde-FijCOVSamp11': 'pde-FijCOVSamp11-on-2021-03-19T10:53:15.708Z-Patient2',
+      'pde-FijCOVSamp4': 'pde-FijCOVSamp4-on-2021-03-19 10:53:15-Patient2',
+      'pde-FijCOVSamp6': 'pde-FijCOVSamp6-on-2021-03-19 10:53:15-Patient2',
+      'pde-FijCOVSamp7': 'pde-FijCOVSamp7-on-2021-03-19 10:53:15-Patient2',
+      'pde-FijCOVSamp10': 'pde-FijCOVSamp10-on-2021-03-19 10:53:15-Patient2',
+      'pde-FijCOVSamp11': 'pde-FijCOVSamp11-on-2021-03-19 10:53:15-Patient2',
     },
   });
   await app.post('/v1/surveyResponse').send({
     surveyId: FIJI_SAMP_SURVEY_ID,
-    startTime: '2021-03-21T10:50:28.133Z',
+    startTime: '2021-03-21 10:50:28',
     patientId: expectedPatient2.id,
-    endTime: '2021-03-21T10:53:15.708Z',
+    endTime: '2021-03-21 10:53:15',
     encounterId: encounter7.id,
     answers: {
-      'pde-FijCOVSamp4': 'pde-FijCOVSamp4-on-2021-03-21T10:53:15.708Z-Patient2',
-      'pde-FijCOVSamp6': 'pde-FijCOVSamp6-on-2021-03-21T10:53:15.708Z-Patient2',
-      'pde-FijCOVSamp7': 'pde-FijCOVSamp7-on-2021-03-21T10:53:15.708Z-Patient2',
-      'pde-FijCOVSamp10': 'pde-FijCOVSamp10-on-2021-03-21T10:53:15.708Z-Patient2',
-      'pde-FijCOVSamp11': 'pde-FijCOVSamp11-on-2021-03-21T10:53:15.708Z-Patient2',
+      'pde-FijCOVSamp4': 'pde-FijCOVSamp4-on-2021-03-21 10:53:15-Patient2',
+      'pde-FijCOVSamp6': 'pde-FijCOVSamp6-on-2021-03-21 10:53:15-Patient2',
+      'pde-FijCOVSamp7': 'pde-FijCOVSamp7-on-2021-03-21 10:53:15-Patient2',
+      'pde-FijCOVSamp10': 'pde-FijCOVSamp10-on-2021-03-21 10:53:15-Patient2',
+      'pde-FijCOVSamp11': 'pde-FijCOVSamp11-on-2021-03-21 10:53:15-Patient2',
     },
   });
   await app.post('/v1/surveyResponse').send({
     surveyId: FIJI_SAMP_SURVEY_ID,
-    startTime: '2021-03-23T10:50:28.133Z',
+    startTime: '2021-03-23 10:50:28',
     patientId: expectedPatient2.id,
-    endTime: '2021-03-23T10:53:15.708Z',
+    endTime: '2021-03-23 10:53:15',
     encounterId: encounter8.id,
     answers: {
-      'pde-FijCOVSamp4': 'pde-FijCOVSamp4-on-2021-03-23T10:53:15.708Z-Patient2',
-      'pde-FijCOVSamp6': 'pde-FijCOVSamp6-on-2021-03-23T10:53:15.708Z-Patient2',
-      'pde-FijCOVSamp7': 'pde-FijCOVSamp7-on-2021-03-23T10:53:15.708Z-Patient2',
-      'pde-FijCOVSamp10': 'pde-FijCOVSamp10-on-2021-03-23T10:53:15.708Z-Patient2',
-      'pde-FijCOVSamp11': 'pde-FijCOVSamp11-on-2021-03-23T10:53:15.708Z-Patient2',
+      'pde-FijCOVSamp4': 'pde-FijCOVSamp4-on-2021-03-23 10:53:15-Patient2',
+      'pde-FijCOVSamp6': 'pde-FijCOVSamp6-on-2021-03-23 10:53:15-Patient2',
+      'pde-FijCOVSamp7': 'pde-FijCOVSamp7-on-2021-03-23 10:53:15-Patient2',
+      'pde-FijCOVSamp10': 'pde-FijCOVSamp10-on-2021-03-23 10:53:15-Patient2',
+      'pde-FijCOVSamp11': 'pde-FijCOVSamp11-on-2021-03-23 10:53:15-Patient2',
     },
   });
 };
@@ -419,6 +419,7 @@ describe('Covid swab lab test list', () => {
       const result = await app.post('/v1/reports/fiji-covid-swab-lab-test-list').send({
         parameters: {
           village: village1,
+          fromDate: '2021-03-01',
         },
       });
       expect(result).toHaveSucceeded();
@@ -431,7 +432,11 @@ describe('Covid swab lab test list', () => {
     });
 
     it('should return latest data per patient and latest data per patient per date', async () => {
-      const result = await app.post('/v1/reports/fiji-covid-swab-lab-test-list').send({});
+      const result = await app.post('/v1/reports/fiji-covid-swab-lab-test-list').send({
+        parameters: {
+          fromDate: '2021-03-01',
+        },
+      });
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveLength(5);
 
@@ -451,10 +456,10 @@ describe('Covid swab lab test list', () => {
         status: 'Reception pending',
         requestedDate: '2021/03/10',
         submittedDate: '2021/03/10',
-        publicHealthFacility: 'pde-FijCOVSamp4-on-2021-03-14T10:53:15.708Z-Patient1',
-        subDivision: 'pde-FijCOVSamp7-on-2021-03-14T10:53:15.708Z-Patient1',
-        ethnicity: 'pde-FijCOVSamp10-on-2021-03-14T10:53:15.708Z-Patient1',
-        contactPhone: 'pde-FijCOVSamp11-on-2021-03-14T10:53:15.708Z-Patient1',
+        publicHealthFacility: 'pde-FijCOVSamp4-on-2021-03-14 10:53:15-Patient1',
+        subDivision: 'pde-FijCOVSamp7-on-2021-03-14 10:53:15-Patient1',
+        ethnicity: 'pde-FijCOVSamp10-on-2021-03-14 10:53:15-Patient1',
+        contactPhone: 'pde-FijCOVSamp11-on-2021-03-14 10:53:15-Patient1',
       };
       for (const entry of Object.entries(expectedDetails1)) {
         const [key, expectedValue] = entry;
@@ -476,10 +481,10 @@ describe('Covid swab lab test list', () => {
         status: 'Reception pending',
         requestedDate: '2021/03/16',
         submittedDate: '2021/03/16',
-        publicHealthFacility: 'pde-FijCOVSamp4-on-2021-03-18T10:53:15.708Z-Patient1',
-        subDivision: 'pde-FijCOVSamp7-on-2021-03-18T10:53:15.708Z-Patient1',
-        ethnicity: 'pde-FijCOVSamp10-on-2021-03-18T10:53:15.708Z-Patient1',
-        contactPhone: 'pde-FijCOVSamp11-on-2021-03-18T10:53:15.708Z-Patient1',
+        publicHealthFacility: 'pde-FijCOVSamp4-on-2021-03-18 10:53:15-Patient1',
+        subDivision: 'pde-FijCOVSamp7-on-2021-03-18 10:53:15-Patient1',
+        ethnicity: 'pde-FijCOVSamp10-on-2021-03-18 10:53:15-Patient1',
+        contactPhone: 'pde-FijCOVSamp11-on-2021-03-18 10:53:15-Patient1',
       };
       for (const entry of Object.entries(expectedDetails2)) {
         const [key, expectedValue] = entry;
@@ -501,10 +506,10 @@ describe('Covid swab lab test list', () => {
         status: 'Reception pending',
         requestedDate: '2021/03/17',
         submittedDate: '2021/03/17',
-        publicHealthFacility: 'pde-FijCOVSamp4-on-2021-03-19T10:53:15.708Z-Patient2',
-        subDivision: 'pde-FijCOVSamp7-on-2021-03-19T10:53:15.708Z-Patient2',
-        ethnicity: 'pde-FijCOVSamp10-on-2021-03-19T10:53:15.708Z-Patient2',
-        contactPhone: 'pde-FijCOVSamp11-on-2021-03-19T10:53:15.708Z-Patient2',
+        publicHealthFacility: 'pde-FijCOVSamp4-on-2021-03-19 10:53:15-Patient2',
+        subDivision: 'pde-FijCOVSamp7-on-2021-03-19 10:53:15-Patient2',
+        ethnicity: 'pde-FijCOVSamp10-on-2021-03-19 10:53:15-Patient2',
+        contactPhone: 'pde-FijCOVSamp11-on-2021-03-19 10:53:15-Patient2',
       };
       for (const entry of Object.entries(expectedDetails3)) {
         const [key, expectedValue] = entry;
@@ -525,10 +530,10 @@ describe('Covid swab lab test list', () => {
         status: 'Reception pending',
         requestedDate: '2021/03/20',
         submittedDate: '2021/03/20',
-        publicHealthFacility: 'pde-FijCOVSamp4-on-2021-03-23T10:53:15.708Z-Patient2',
-        subDivision: 'pde-FijCOVSamp7-on-2021-03-23T10:53:15.708Z-Patient2',
-        ethnicity: 'pde-FijCOVSamp10-on-2021-03-23T10:53:15.708Z-Patient2',
-        contactPhone: 'pde-FijCOVSamp11-on-2021-03-23T10:53:15.708Z-Patient2',
+        publicHealthFacility: 'pde-FijCOVSamp4-on-2021-03-23 10:53:15-Patient2',
+        subDivision: 'pde-FijCOVSamp7-on-2021-03-23 10:53:15-Patient2',
+        ethnicity: 'pde-FijCOVSamp10-on-2021-03-23 10:53:15-Patient2',
+        contactPhone: 'pde-FijCOVSamp11-on-2021-03-23 10:53:15-Patient2',
       };
       for (const entry of Object.entries(expectedDetails4)) {
         const [key, expectedValue] = entry;

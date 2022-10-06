@@ -114,7 +114,7 @@ export async function dataGenerator({ models }, parameters = {}) {
 }
 
 async function getMostRecentVaccineForPatientBeforeSurveyDate(models, patientId, surveyDate) {
-  const vaccines = await models.AdministeredVaccine.findAll({
+  const vaccine = await models.AdministeredVaccine.findOne({
     include: [
       {
         model: models.Encounter,
@@ -130,6 +130,6 @@ async function getMostRecentVaccineForPatientBeforeSurveyDate(models, patientId,
       date: { [Op.lte]: surveyDate },
     },
     order: [['date', 'DESC']],
-  }).map(r => r.get({ plain: true }));
-  return vaccines[0];
+  });
+  return vaccine?.get({ plain: true });
 }
