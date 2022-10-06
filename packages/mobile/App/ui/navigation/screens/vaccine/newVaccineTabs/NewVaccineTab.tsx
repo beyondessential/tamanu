@@ -4,6 +4,8 @@ import { Route } from 'react-native-tab-view';
 import { SvgProps } from 'react-native-svg';
 import { compose } from 'redux';
 import { useSelector } from 'react-redux';
+import { formatISO9075 } from 'date-fns';
+
 import { withPatient } from '~/ui/containers/Patient';
 import { StyledSafeAreaView } from '/styled/common';
 import { VaccineForm, VaccineFormValues } from '/components/Forms/VaccineForms';
@@ -42,13 +44,15 @@ export const NewVaccineTabComponent = ({
     async (values: VaccineFormValues): Promise<void> => {
       if (isSubmitting) return;
       setSubmitting(true);
-      const { scheduledVaccineId, recorderId, ...otherValues } = values;
+      const { scheduledVaccineId, recorderId, date, ...otherValues } = values;
       const encounter = await models.Encounter.getOrCreateCurrentEncounter(
         selectedPatient.id,
         user.id,
       );
+
       await models.AdministeredVaccine.createAndSaveOne({
         ...otherValues,
+        date: date ? formatISO9075(date) : null,
         id: administeredVaccine?.id,
         scheduledVaccine: scheduledVaccineId,
         recorder: recorderId,
