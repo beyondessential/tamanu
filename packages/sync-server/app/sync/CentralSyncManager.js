@@ -25,7 +25,7 @@ export class CentralSyncManager {
 
   store;
 
-  sessionsUndergoingSnapshot = new Set();
+  sessionsWithCompletedSnapshots = new Set();
 
   purgeInterval;
 
@@ -95,8 +95,6 @@ export class CentralSyncManager {
   }
 
   async setPullFilter(sessionId, { since, facilityId }) {
-    this.sessionsUndergoingSnapshot.add(sessionId);
-
     const { models } = this.store;
 
     await this.connectToSession(sessionId);
@@ -125,7 +123,9 @@ export class CentralSyncManager {
 
       // get changes since the last successful sync for all other synced patients and independent
       // record types
-      const patientFacilities = await models.PatientFacility.findAll({ where: { facilityId } });
+      const patientFacilities = await models.PatientFacility.findAll({
+        where: { facilityId },
+      });
       const patientIdsForRegularSync = patientFacilities
         .map(p => p.patientId)
         .filter(patientId => !patientIdsForFullSync.includes(patientId));
@@ -143,12 +143,12 @@ export class CentralSyncManager {
       await removeEchoedChanges(this.store, sessionId);
     });
 
-    this.sessionsUndergoingSnapshot.delete(sessionId);
+    this.sessionsWithCompletedSnapshots.add(sessionId);
   }
 
   async fetchPullCount(sessionId) {
     await this.connectToSession(sessionId);
-    if (this.sessionsUndergoingSnapshot.has(sessionId)) {
+    if (!this.sessionsWithCompletedSnapshots.has(sessionId)) {
       return null;
     }
     return getOutgoingChangesCount(this.store, sessionId);
