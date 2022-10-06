@@ -47,6 +47,12 @@ const reportColumnTemplate = [
 ];
 
 function parametersToSqlWhere(parameters) {
+  if (parameters.fromDate) {
+    parameters.fromDate = toDateTimeString(startOfDay(new Date(parameters.fromDate)));
+  }
+  if (parameters.toDate) {
+    parameters.toDate = toDateTimeString(endOfDay(new Date(parameters.toDate)));
+  }
   const whereClause = Object.entries(parameters)
     .filter(([, val]) => val)
     .reduce(
@@ -62,15 +68,13 @@ function parametersToSqlWhere(parameters) {
             if (!where.date) {
               where.date = {};
             }
-            where.date[Op.gte] = toDateTimeString(
-              startOfDay(value ? new Date(value) : subDays(new Date(), 30)),
-            );
+            where.date[Op.gte] = value;
             break;
           case 'toDate':
             if (!where.date) {
               where.date = {};
             }
-            where.date[Op.lte] = value && toDateTimeString(endOfDay(new Date(value)));
+            where.date[Op.lte] = value;
             break;
           default:
             break;
