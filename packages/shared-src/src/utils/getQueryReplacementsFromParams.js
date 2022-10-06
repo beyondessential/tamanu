@@ -1,7 +1,7 @@
 import { subDays, startOfDay } from 'date-fns';
 import { REPORT_DEFAULT_DATE_RANGES } from 'shared/constants';
 
-const CATCH_ALL_FROM_DATE = '01-01-1970';
+const CATCH_ALL_FROM_DATE = '1970-01-01';
 
 export const getQueryReplacementsFromParams = (
   paramDefinitions,
