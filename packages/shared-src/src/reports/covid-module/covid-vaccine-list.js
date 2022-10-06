@@ -50,13 +50,15 @@ function parametersToSqlWhere(parameters) {
             if (!where.date) {
               where.date = {};
             }
-            where.date[Op.gte] = value;
+            where.date[Op.gte] = toDateTimeString(
+              startOfDay(value ? new Date(value) : subDays(new Date(), 30)),
+            );
             break;
           case 'toDate':
             if (!where.date) {
               where.date = {};
             }
-            where.date[Op.lte] = value;
+            where.date[Op.lte] = value && toDateTimeString(endOfDay(new Date(value)));
             break;
           default:
             break;

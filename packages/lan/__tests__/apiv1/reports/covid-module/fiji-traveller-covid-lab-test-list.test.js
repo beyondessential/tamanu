@@ -274,11 +274,7 @@ describe('Fiji traveller covid lab test report', () => {
     it('should pick the latest answer between the current and the next lab request', async () => {
       const testBrand = 'Rapid Test';
       const timePart = 'T00:00:00.000Z';
-      await createCovidTestForPatient(
-        testContext.models,
-        expectedPatient1,
-        `2022-03-01${timePart}`,
-      );
+      await createCovidTestForPatient(testContext.models, expectedPatient1, `2022-03-01`);
       await createFormAnswerForPatient(app, testContext.models, expectedPatient1, {
         formDate: `2022-03-01${timePart}`,
         testBrand,
@@ -289,11 +285,7 @@ describe('Fiji traveller covid lab test report', () => {
         testBrand,
         testReason: 'second test',
       });
-      await createCovidTestForPatient(
-        testContext.models,
-        expectedPatient1,
-        `2022-03-03${timePart}`,
-      );
+      await createCovidTestForPatient(testContext.models, expectedPatient1, `2022-03-03`);
       const reportResult = await app.post(REPORT_URL).send({
         parameters: { fromDate: `2022-02-15${timePart}`, toDate: `2022-03-15${timePart}` },
       });

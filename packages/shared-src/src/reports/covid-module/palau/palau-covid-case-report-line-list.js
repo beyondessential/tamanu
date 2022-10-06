@@ -110,13 +110,15 @@ const parametersToSurveyResponseSqlWhere = (parameters, surveyId) => {
           if (!where.endTime) {
             where.endTime = {};
           }
-          where.endTime[Op.gte] = value;
+          where.endTime[Op.gte] = toDateTimeString(
+            startOfDay(value ? new Date(value) : subDays(new Date(), 30)),
+          );
           break;
         case 'toDate':
           if (!where.endTime) {
             where.endTime = {};
           }
-          where.endTime[Op.lte] = value;
+          where.endTime[Op.lte] = value && toDateTimeString(endOfDay(new Date(value)));
           break;
         default:
           break;
