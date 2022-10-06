@@ -57,6 +57,12 @@ export const notePagesWithSingleItemListHandler = recordType => async (req, res)
     order: [['createdAt', 'ASC']],
   });
 
-  const notes = await Promise.all(notePages.map(n => n.getCombinedNoteObject(models)));
-  res.send({ data: notes, count: notes.length });
+  const notes = [];
+  for (const notePage of notePages) {
+    const combinedNoteObject = await notePage.getCombinedNoteObject(models);
+    notes.push(combinedNoteObject);
+  }
+
+  const resultNotes = notes.filter(n => !!n);
+  res.send({ data: resultNotes, count: resultNotes.length });
 };
