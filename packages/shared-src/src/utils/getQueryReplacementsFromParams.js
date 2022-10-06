@@ -20,7 +20,7 @@ export const getQueryReplacementsFromParams = (
     default:
       throw new Error('Unknown date range for report generation');
   }
-  const paramDefaults = paramDefinitions.reduce((obj, { name }) => ({ ...obj, [name]: '%' }), {
+  const paramDefaults = paramDefinitions.reduce((obj, { name }) => ({ ...obj, [name]: null }), {
     fromDate,
     toDate: new Date(),
   });
