@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import Tooltip from '@material-ui/core/Tooltip';
+import { isAfter } from 'date-fns';
 
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
@@ -48,8 +49,10 @@ const ItemTooltip = ({ childNoteItems = [] }) => {
     <div key={noteItem.id}>
       <StyledNoteItemLogMetadata>
         <StyledTooltipNoteContent>{noteItem.content}</StyledTooltipNoteContent>
-        <span>{noteItem.author.displayName} </span>
-        {noteItem.onBehalfOf ? <span>on behalf of {noteItem.onBehalfOf.displayName} </span> : null}
+        {noteItem.author?.displayName ? <span>{noteItem.author.displayName} </span> : null}
+        {noteItem.onBehalfOf?.displayName ? (
+          <span>on behalf of {noteItem.onBehalfOf.displayName} </span>
+        ) : null}
         {Boolean(noteItem.noteItems) && <span> (edited) </span>}
         <DateDisplay date={noteItem.date} showTime />
       </StyledNoteItemLogMetadata>
@@ -59,7 +62,9 @@ const ItemTooltip = ({ childNoteItems = [] }) => {
 
 const getTypeLabel = ({ noteType }) => noteTypes.find(x => x.value === noteType).label;
 const getContent = ({ noteItems }) => {
-  const rootNoteItems = groupRootNoteItems(noteItems, (n1, n2) => n2.date.localeCompare(n1.date));
+  const rootNoteItems = groupRootNoteItems(noteItems, (n1, n2) =>
+    isAfter(new Date(n2.date), new Date(n1.date)) ? 1 : -1,
+  );
   return (
     <StyledTooltip arrow followCursor title={<ItemTooltip childNoteItems={rootNoteItems} />}>
       <span>{rootNoteItems[0]?.content || ''}</span>
