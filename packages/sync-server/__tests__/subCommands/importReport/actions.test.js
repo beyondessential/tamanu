@@ -17,7 +17,8 @@ const getUnparsedVersionData = num =>
   `{ ${num ? `"versionNumber": ${num},` : ''} "query": "test-query", "queryOptions": {
     "parameters": [ 
         { "parameterField": "TestField", "name": "test" }
-    ]
+    ],
+    "defaultDateRange": "allTime"
   } }`;
 
 jest.mock('shared/services/logging', () => ({
