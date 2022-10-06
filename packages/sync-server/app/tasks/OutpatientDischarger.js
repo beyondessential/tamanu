@@ -1,5 +1,5 @@
 import config from 'config';
-import { startOfDay, sub } from 'date-fns';
+import { endOfDay, startOfDay, sub, parseISO } from 'date-fns';
 import { Op } from 'sequelize';
 
 import { ScheduledTask } from 'shared/tasks';
@@ -14,14 +14,19 @@ export class OutpatientDischarger extends ScheduledTask {
     return 'OutpatientDischarger';
   }
 
-  constructor(context) {
-    const conf = config.schedules.outpatientDischarger;
+  constructor(context, overrideConfig = null) {
+    const conf = {
+      ...config.schedules.outpatientDischarger,
+      ...overrideConfig 
+    };
     super(conf.schedule, log);
     this.config = conf;
     this.models = context.store.models;
 
     // run once on startup (in case the server was down when it was scheduled)
-    this.runImmediately();
+    if (!conf.suppressInitialRun) {
+      this.runImmediately();
+    }
   }
 
   async countQueue() {
@@ -40,6 +45,7 @@ export class OutpatientDischarger extends ScheduledTask {
 
   async run() {
     const startOfToday = startOfDay(new Date());
+    console.log("running with start", startOfToday);
 
     const where = {
       encounterType: 'clinic',
@@ -65,7 +71,6 @@ export class OutpatientDischarger extends ScheduledTask {
       `Auto-closing ${oldEncountersCount} clinic encounters in ${batchCount} batches (${batchSize} records per batch)`,
     );
 
-    const justBeforeMidnight = sub(startOfToday, { minutes: 1 });
     for (let i = 0; i < batchCount; i++) {
       const oldEncounters = await this.models.Encounter.findAll({
         where,
@@ -73,6 +78,7 @@ export class OutpatientDischarger extends ScheduledTask {
       });
 
       for (const oldEncounter of oldEncounters) {
+        const justBeforeMidnight = sub(endOfDay(parseISO(oldEncounter.startDate)), { minutes: 1 });
         await oldEncounter.update({
           endDate: justBeforeMidnight,
           dischargeNote: 'Automatically discharged',
