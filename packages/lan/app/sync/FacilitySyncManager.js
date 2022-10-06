@@ -70,14 +70,14 @@ export class FacilitySyncManager {
     // ~~~ Push phase ~~~ //
 
     // get the sync tick we're up to locally, so that we can store it as the successful push cursor
-    const currentTick = await this.models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY);
+    const currentSyncClockTime = await this.models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY);
 
     // tick the global sync clock, and use that new unique tick for any changes from now on so that
     // any records that are created or updated even mid way through this sync, are marked using the
     // new tick and will be captured in the push
-    const pushTick = await this.centralServer.tickGlobalClock();
-    await this.models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, pushTick);
-    log.debug(`FacilitySyncManager.runSync: Local sync clock time set to ${pushTick}`);
+    const newSyncClockTime = await this.centralServer.tickGlobalClock();
+    await this.models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, newSyncClockTime);
+    log.debug(`FacilitySyncManager.runSync: Local sync clock time set to ${newSyncClockTime}`);
 
     // syncing outgoing changes happens in two phases: taking a point-in-time copy of all records
     // to be pushed, and then pushing those up in batches
@@ -96,9 +96,9 @@ export class FacilitySyncManager {
       await pushOutgoingChanges(this.centralServer, sessionId, outgoingChanges);
     }
     log.debug(
-      `FacilitySyncManager.runSync: Setting the last successful sync push time to ${currentTick}`,
+      `FacilitySyncManager.runSync: Setting the last successful sync push time to ${currentSyncClockTime}`,
     );
-    await this.models.LocalSystemFact.set('lastSuccessfulSyncPush', currentTick);
+    await this.models.LocalSystemFact.set('lastSuccessfulSyncPush', currentSyncClockTime);
 
     // ~~~ Pull phase ~~~ //
 
