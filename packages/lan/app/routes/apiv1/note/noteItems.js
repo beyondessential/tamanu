@@ -1,5 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 
 const noteItemRoute = express.Router();
 export { noteItemRoute as noteItems };
@@ -24,7 +25,7 @@ noteItemRoute.post(
       notePageId,
       authorId: noteItemData.authorId,
       onBehalfOfId: noteItemData.onBehalfOfId,
-      date: Date.now(),
+      date: getCurrentDateTimeString(),
       content: noteItemData.content.trim(),
       revisedById: noteItemData.revisedById,
     });
