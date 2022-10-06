@@ -125,7 +125,13 @@ const ReferralBy = ({ surveyResponse: { survey, answers } }) => {
   return name;
 };
 
-const getDate = ({ surveyResponse }) => <DateDisplay date={surveyResponse.endTime} />;
+const getDate = ({ surveyResponse }) => {
+  const dataElementId = surveyResponse.survey.components.find(
+    x => x.dataElement.type === 'SubmissionDate',
+  )?.dataElement.id;
+  const submissionDate = surveyResponse.answers.find(x => x.dataElementId === dataElementId)?.body;
+  return <DateDisplay date={submissionDate || surveyResponse.endTime} />;
+};
 const getReferralType = ({ surveyResponse: { survey } }) => survey.name;
 const getReferralBy = ({ surveyResponse }) => <ReferralBy surveyResponse={surveyResponse} />;
 const getStatus = ({ status }) => REFERRAL_STATUS_LABELS[status] || 'Unknown';
