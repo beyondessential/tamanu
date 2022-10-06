@@ -35,6 +35,7 @@ describe('Reports', () => {
           parameters: [{ parameterField: 'EmailField', name: 'email' }],
         }),
         query: 'SELECT id, email from users WHERE email LIKE :email;',
+        defaultDateRange: 'allTime',
       });
     });
     it('should run a simple database defined report', async () => {
