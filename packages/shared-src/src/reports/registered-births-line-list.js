@@ -42,7 +42,11 @@ select
   to_char(p.date_of_birth::date, 'dd-mm-yyyy') as "DOB",
   case
     when p.date_of_death is null
-    then date_trunc('day', Age(p.date_of_birth::date))::text
+    then case
+      when p.date_of_birth::date = CURRENT_DATE
+      then '0 days'
+      else date_trunc('day', Age(p.date_of_birth::date))::text
+    end
     else date_trunc('day', Age(p.date_of_death::date, p.date_of_birth::date))::text
   end as "Age",
   p.sex as "Sex",
