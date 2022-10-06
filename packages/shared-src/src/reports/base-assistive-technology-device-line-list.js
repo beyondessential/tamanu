@@ -6,12 +6,21 @@ import { transformAnswers } from './utilities/transformAnswers';
 import { format, ageInYears, differenceInMilliseconds, toDateTimeString } from '../utils/dateTime';
 
 const parametersToSurveyResponseSqlWhere = (parameters, surveyIds) => {
+  const newParameters = { ...parameters };
   const defaultWhereClause = {
     '$surveyResponse.survey_id$': surveyIds,
   };
 
   if (!parameters || !Object.keys(parameters).length) {
     return defaultWhereClause;
+  }
+
+  if (parameters.fromDate) {
+    newParameters.fromDate = toDateTimeString(startOfDay(new Date(parameters.fromDate)));
+  }
+
+  if (parameters.endDate) {
+    newParameters.endDate = toDateTimeString(endOfDay(new Date(parameters.endDate)));
   }
 
   const whereClause = Object.entries(parameters)
@@ -23,15 +32,13 @@ const parametersToSurveyResponseSqlWhere = (parameters, surveyIds) => {
           if (!newWhere['$surveyResponse.end_time$']) {
             newWhere['$surveyResponse.end_time$'] = {};
           }
-          newWhere['$surveyResponse.end_time$'][Op.gte] =
-            value && toDateTimeString(startOfDay(new Date(value)));
+          newWhere['$surveyResponse.end_time$'][Op.gte] = value;
           break;
         case 'toDate':
           if (!newWhere['$surveyResponse.end_time$']) {
             newWhere['$surveyResponse.end_time$'] = {};
           }
-          newWhere['$surveyResponse.end_time$'][Op.lte] =
-            value && toDateTimeString(endOfDay(new Date(value)));
+          newWhere['$surveyResponse.end_time$'][Op.lte] = value;
           break;
         default:
           break;

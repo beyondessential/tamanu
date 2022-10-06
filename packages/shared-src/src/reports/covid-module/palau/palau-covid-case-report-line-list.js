@@ -76,11 +76,6 @@ const WILLIAM_HOROTO_IDS = [
 ];
 
 const parametersToSurveyResponseSqlWhere = (parameters, surveyId) => {
-  if (!parameters.fromDate) {
-    // eslint-disable-next-line no-param-reassign
-    parameters.fromDate = subDays(new Date(), 30).toISOString();
-  }
-
   const defaultWhereClause = {
     surveyId,
     '$encounter->patient.id$': {
@@ -92,8 +87,19 @@ const parametersToSurveyResponseSqlWhere = (parameters, surveyId) => {
     return defaultWhereClause;
   }
 
+  const newParameters = {
+    ...parameters,
+    fromDate: startOfDay(
+      parameters.fromDate ? new Date(parameters.fromDate) : subDays(new Date(), 30),
+    ),
+  };
+
+  if (newParameters.toDate) {
+    newParameters.toDate = toDateTimeString(endOfDay(new Date(newParameters.toDate)));
+  }
+
   /* eslint-disable no-param-reassign */
-  const whereClause = Object.entries(parameters)
+  const whereClause = Object.entries(newParameters)
     .filter(([, val]) => val)
     .reduce((where, [key, value]) => {
       switch (key) {
@@ -104,15 +110,13 @@ const parametersToSurveyResponseSqlWhere = (parameters, surveyId) => {
           if (!where.endTime) {
             where.endTime = {};
           }
-          where.endTime[Op.gte] = toDateTimeString(
-            startOfDay(value ? new Date(value) : subDays(new Date(), 30)),
-          );
+          where.endTime[Op.gte] = value;
           break;
         case 'toDate':
           if (!where.endTime) {
             where.endTime = {};
           }
-          where.endTime[Op.lte] = value && toDateTimeString(endOfDay(new Date(value)));
+          where.endTime[Op.lte] = value;
           break;
         default:
           break;

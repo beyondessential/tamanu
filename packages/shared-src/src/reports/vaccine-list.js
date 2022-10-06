@@ -22,12 +22,16 @@ export const reportColumnTemplate = [
 ];
 
 function parametersToSqlWhere(parameters) {
-  const newParameters = { ...parameters };
+  const newParameters = {
+    ...parameters,
+    fromDate: toDateTimeString(
+      startOfDay(parameters.fromDate ? new Date(parameters.fromDate) : subDays(new Date(), 30)),
+    ),
+  };
 
-  const queryFromDate = toDateTimeString(
-    startOfDay(parameters.fromDate ? new Date(parameters.fromDate) : subDays(new Date(), 30)),
-  );
-  const queryToDate = parameters.toDate && toDateTimeString(endOfDay(new Date(parameters.toDate)));
+  if (parameters.toDate) {
+    newParameters.toDate = toDateTimeString(endOfDay(new Date(parameters.toDate)));
+  }
 
   const whereClause = Object.entries(newParameters)
     .filter(([, val]) => val)
@@ -41,13 +45,13 @@ function parametersToSqlWhere(parameters) {
           if (!newWhere.date) {
             newWhere.date = {};
           }
-          newWhere.date[Op.gte] = queryFromDate;
+          newWhere.date[Op.gte] = value;
           break;
         case 'toDate':
           if (!newWhere.date) {
             newWhere.date = {};
           }
-          newWhere.date[Op.lte] = queryToDate;
+          newWhere.date[Op.lte] = value;
           break;
         case 'category':
           newWhere['$scheduledVaccine.category$'] = value;
