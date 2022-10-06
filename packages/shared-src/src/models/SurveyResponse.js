@@ -147,8 +147,10 @@ export class SurveyResponse extends Model {
       departmentId,
       examinerId: userId,
       locationId,
-      startDate: getCurrentDateTimeString(),
-      endDate: getCurrentDateTimeString(),
+      // Survey responses will usually have a startTime and endTime and we prefer to use that
+      // for the encounter to ensure the times are set in the browser timezone
+      startDate: responseData.startTime ? responseData.startTime : getCurrentDateTimeString(),
+      endDate: responseData.endTime ? responseData.endTime : getCurrentDateTimeString(),
     });
   }
 
