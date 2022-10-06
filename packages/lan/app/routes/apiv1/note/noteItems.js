@@ -25,7 +25,7 @@ noteItemRoute.post(
       notePageId,
       authorId: noteItemData.authorId,
       onBehalfOfId: noteItemData.onBehalfOfId,
-      date: getCurrentDateTimeString(),
+      date: noteItemData.date || getCurrentDateTimeString(),
       content: noteItemData.content.trim(),
       revisedById: noteItemData.revisedById,
     });
