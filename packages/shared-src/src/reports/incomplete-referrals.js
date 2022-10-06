@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 
-import { endOfDay, startOfDay, subDays } from 'date-fns';
+import { endOfDay, startOfDay } from 'date-fns';
 import { Op } from 'sequelize';
 import { toDateTimeString } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
