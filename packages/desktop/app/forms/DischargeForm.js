@@ -193,7 +193,7 @@ export const DischargeForm = ({
   onSubmit,
 }) => {
   const { encounter } = useEncounter();
-  const [dischargeNotes, setDischargeNotes] = useState([]);
+  const [dischargeNotePages, setDischargeNotePages] = useState([]);
   const api = useApi();
   const { getLocalisation } = useLocalisation();
   const dischargeDisposition = Boolean(getLocalisation('features.enableDischargeDisposition'));
@@ -218,8 +218,8 @@ export const DischargeForm = ({
 
   useEffect(() => {
     (async () => {
-      const { data: notes } = await api.get(`encounter/${encounter.id}/notes`);
-      setDischargeNotes(notes.filter(n => n.noteType === 'discharge'));
+      const { data: notePages } = await api.get(`encounter/${encounter.id}/notePages`);
+      setDischargeNotePages(notePages.filter(n => n.noteType === 'discharge'));
     })();
   }, [api, encounter.id]);
 
@@ -281,7 +281,7 @@ export const DischargeForm = ({
       initialValues={{
         endDate: getCurrentDateTimeString(),
         discharge: {
-          note: dischargeNotes.map(n => n.content).join('\n'),
+          note: dischargeNotePages.map(np => np.noteItems?.[0]?.content).join('\n'),
         },
         medications: medicationInitialValues,
       }}
