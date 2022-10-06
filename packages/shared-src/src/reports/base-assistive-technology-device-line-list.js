@@ -19,8 +19,8 @@ const parametersToSurveyResponseSqlWhere = (parameters, surveyIds) => {
     newParameters.fromDate = toDateTimeString(startOfDay(new Date(parameters.fromDate)));
   }
 
-  if (parameters.endDate) {
-    newParameters.endDate = toDateTimeString(endOfDay(new Date(parameters.endDate)));
+  if (parameters.toDate) {
+    newParameters.toDate = toDateTimeString(endOfDay(new Date(parameters.toDate)));
   }
 
   const whereClause = Object.entries(parameters)
@@ -32,15 +32,13 @@ const parametersToSurveyResponseSqlWhere = (parameters, surveyIds) => {
           if (!newWhere['$surveyResponse.end_time$']) {
             newWhere['$surveyResponse.end_time$'] = {};
           }
-          newWhere['$surveyResponse.end_time$'][Op.gte] =
-            value && toDateTimeString(startOfDay(new Date(value)));
+          newWhere['$surveyResponse.end_time$'][Op.gte] = value;
           break;
         case 'toDate':
           if (!newWhere['$surveyResponse.end_time$']) {
             newWhere['$surveyResponse.end_time$'] = {};
           }
-          newWhere['$surveyResponse.end_time$'][Op.lte] =
-            value && toDateTimeString(endOfDay(new Date(value)));
+          newWhere['$surveyResponse.end_time$'][Op.lte] = value;
           break;
         default:
           break;

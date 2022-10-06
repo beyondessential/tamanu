@@ -46,7 +46,9 @@ function parametersToSqlWhere(parameters) {
     // department, -- handled elsewhere
   } = parameters;
 
-  const queryFromDate = toDateTimeString(startOfDay(new Date(fromDate) || subDays(new Date(), 30)));
+  const queryFromDate = toDateTimeString(
+    startOfDay(fromDate ? new Date(fromDate) : subDays(new Date(), 30)),
+  );
   const queryToDate = toDate && toDateTimeString(endOfDay(new Date(toDate)));
 
   return {

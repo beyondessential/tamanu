@@ -19,19 +19,19 @@ const reportColumnTemplate = [
   { title: 'First dose given', accessor: data => data.dose1 },
   {
     title: 'First dose date',
-    accessor: data => format(parseISO9075(data.dose1Date), DATE_FORMAT),
+    accessor: data => format(data.dose1Date, DATE_FORMAT),
   },
   { title: 'Second dose given', accessor: data => data.dose2 },
   {
     title: 'Second dose date',
-    accessor: data => format(parseISO9075(data.dose2Date), DATE_FORMAT),
+    accessor: data => format(data.dose2Date, DATE_FORMAT),
   },
   { title: 'Vaccine Name', accessor: data => data.vaccineLabel },
 ];
 
 function parametersToSqlWhere(parameters) {
   parameters.fromDate = toDateTimeString(
-    parameters.fromDate ? new Date(parameters.fromDate) : subDays(new Date(), 30),
+    startOfDay(parameters.fromDate ? new Date(parameters.fromDate) : subDays(new Date(), 30)),
   );
 
   if (parameters.toDate) {
@@ -50,15 +50,13 @@ function parametersToSqlWhere(parameters) {
             if (!where.date) {
               where.date = {};
             }
-            where.date[Op.gte] = toDateTimeString(
-              startOfDay(value ? new Date(value) : subDays(new Date(), 30)),
-            );
+            where.date[Op.gte] = value;
             break;
           case 'toDate':
             if (!where.date) {
               where.date = {};
             }
-            where.date[Op.lte] = value && toDateTimeString(endOfDay(new Date(value)));
+            where.date[Op.lte] = value;
             break;
           default:
             break;
@@ -123,11 +121,11 @@ async function queryCovidVaccineListData(models, parameters) {
     }
     if (schedule === 'Dose 1') {
       acc[patientId].dose1 = 'Yes';
-      acc[patientId].dose1Date = date.toLocaleDateString();
+      acc[patientId].dose1Date = parseISO9075(date).toLocaleDateString();
     }
     if (schedule === 'Dose 2') {
       acc[patientId].dose2 = 'Yes';
-      acc[patientId].dose2Date = date.toLocaleDateString();
+      acc[patientId].dose2Date = parseISO9075(date).toLocaleDateString();
     }
     return acc;
   }, {});
