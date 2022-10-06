@@ -1,11 +1,12 @@
 import React, { ReactElement, useEffect, useState } from 'react';
 import { Text } from 'react-native-paper';
-import { format } from 'date-fns';
+import { formatStringDate } from '/helpers/date';
 import { useFormikContext } from 'formik';
 import { ISurveyResponse } from '~/types';
 import { useBackend } from '~/ui/hooks';
 import { Field } from '../FormField';
 import { TextField } from '../../TextField/TextField';
+import { DateFormats } from '~/ui/helpers/constants';
 
 export const SurveyLink = ({ patient, config, name }): ReactElement => {
   const [surveyResponse, setSurveyResponse] = useState<ISurveyResponse | undefined>();
@@ -35,7 +36,7 @@ export const SurveyLink = ({ patient, config, name }): ReactElement => {
 
   const attachedScreeningValue = `${
     typeof surveyResponse.survey === 'string' ? surveyResponse.survey : surveyResponse.survey.name
-  } (${format(surveyResponse.endTime, 'dd-MM-yyyy')})`;
+  } (${formatStringDate(surveyResponse.endTime, DateFormats.DDMMYY)})`;
 
   return (
     <Field

@@ -129,8 +129,8 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       const responseRecord: SurveyResponse = await SurveyResponse.createAndSaveOne({
         encounter: encounter.id,
         survey: surveyId,
-        startTime: Date.now(),
-        endTime: Date.now(),
+        startTime: getCurrentDateTimeString(),
+        endTime: getCurrentDateTimeString(),
         result,
         resultText,
         ...otherData,
