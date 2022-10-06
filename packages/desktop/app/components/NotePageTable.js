@@ -63,7 +63,7 @@ const ItemTooltip = ({ childNoteItems = [] }) => {
 const getTypeLabel = ({ noteType }) => noteTypes.find(x => x.value === noteType).label;
 const getContent = ({ noteItems }) => {
   const rootNoteItems = groupRootNoteItems(noteItems, (n1, n2) =>
-    isAfter(new Date(n1.date), new Date(n2.date)) ? 1 : -1,
+    isAfter(new Date(n2.date), new Date(n1.date)) ? 1 : -1,
   );
   return (
     <StyledTooltip arrow followCursor title={<ItemTooltip childNoteItems={rootNoteItems} />}>
