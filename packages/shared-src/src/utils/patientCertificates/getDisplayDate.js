@@ -9,9 +9,9 @@ export const getDisplayDate = (date, format = DEFAULT_DATE_FORMAT, getLocalisati
     return formatDate(date, format);
   }
 
-  // Display the date in a configured timezone if one is set
+  // Display the current date in a configured timezone if one is set
   if (getLocalisation && getLocalisation('timeZone')) {
-    return formatInTimeZone(new Date(date), getLocalisation('timeZone'), format);
+    return formatInTimeZone(new Date(), getLocalisation('timeZone'), format);
   }
 
   // Finally return a current date
