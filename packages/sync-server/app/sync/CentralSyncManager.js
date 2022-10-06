@@ -92,6 +92,7 @@ export class CentralSyncManager {
       `Sync session ${session.id} performed in ${(Date.now() - session.startTime) / 1000} seconds`,
     );
     await deleteSyncSession(this.store, sessionId);
+    this.sessionsWithCompletedSnapshots.delete(sessionId);
   }
 
   async setPullFilter(sessionId, { since, facilityId }) {
