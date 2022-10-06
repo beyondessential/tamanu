@@ -6,20 +6,24 @@ import {
   MANNER_OF_DEATH_OPTIONS,
   LAB_REQUEST_STATUS_OPTIONS,
   REPORT_DATE_RANGE_LABELS,
+  REPORT_DEFAULT_DATE_RANGES,
 } from 'shared/constants';
+
+const LAST_30_DAYS_DATE_LABEL = REPORT_DATE_RANGE_LABELS[REPORT_DEFAULT_DATE_RANGES.THIRTY_DAYS];
+const ALL_TIME_DATE_LABEL = REPORT_DATE_RANGE_LABELS[REPORT_DEFAULT_DATE_RANGES.ALL_TIME];
 
 export const REPORT_DEFINITIONS = [
   {
     name: 'Incomplete referrals',
     id: 'incomplete-referrals',
-    dateRangeLabel: REPORT_DATE_RANGE_LABELS.ALL_TIME,
+    dateRangeLabel: ALL_TIME_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
     parameters: [{ parameterField: 'VillageField' }, { parameterField: 'PractitionerField' }],
   },
   {
     name: 'Recent Diagnoses',
     id: 'recent-diagnoses',
-    dateRangeLabel: REPORT_DATE_RANGE_LABELS.THIRTY_DAYS,
+    dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
     filterDateRangeAsStrings: true,
     parameters: [
@@ -41,7 +45,7 @@ export const REPORT_DEFINITIONS = [
   {
     name: 'Admissions - Line list',
     id: 'admissions',
-    dateRangeLabel: REPORT_DATE_RANGE_LABELS.THIRTY_DAYS,
+    dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
     filterDateRangeAsStrings: true,
     parameters: [
@@ -71,7 +75,7 @@ export const REPORT_DEFINITIONS = [
   {
     name: 'Vaccine - Line list',
     id: 'vaccine-list',
-    dateRangeLabel: REPORT_DATE_RANGE_LABELS.THIRTY_DAYS,
+    dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
     filterDateRangeAsStrings: true,
     parameters: [
@@ -83,7 +87,7 @@ export const REPORT_DEFINITIONS = [
   {
     name: 'Tuvalu Vaccine - Line list with consent',
     id: 'tuvalu-vaccine-list',
-    dateRangeLabel: REPORT_DATE_RANGE_LABELS.THIRTY_DAYS,
+    dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: [REPORT_DATA_SOURCES.ALL_FACILITIES],
     filterDateRangeAsStrings: true,
     parameters: [
@@ -95,7 +99,7 @@ export const REPORT_DEFINITIONS = [
   {
     name: 'COVID vaccine campaign - Line list',
     id: 'covid-vaccine-list',
-    dateRangeLabel: REPORT_DATE_RANGE_LABELS.THIRTY_DAYS,
+    dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
     filterDateRangeAsStrings: true,
     parameters: [{ parameterField: 'VillageField' }],
@@ -104,94 +108,94 @@ export const REPORT_DEFINITIONS = [
     name: 'COVID vaccine campaign - First dose summary',
     id: 'covid-vaccine-summary-dose1',
     filterDateRangeAsStrings: true,
-    dateRangeLabel: REPORT_DATE_RANGE_LABELS.THIRTY_DAYS,
+    dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: [REPORT_DATA_SOURCES.ALL_FACILITIES],
   },
   {
     name: 'COVID vaccine campaign - Second dose summary',
     id: 'covid-vaccine-summary-dose2',
     filterDateRangeAsStrings: true,
-    dateRangeLabel: REPORT_DATE_RANGE_LABELS.THIRTY_DAYS,
+    dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: [REPORT_DATA_SOURCES.ALL_FACILITIES],
   },
   {
     name: 'Adverse Event Following Immunization',
     id: 'aefi',
-    dateRangeLabel: REPORT_DATE_RANGE_LABELS.ALL_TIME,
+    dateRangeLabel: ALL_TIME_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
     parameters: [{ parameterField: 'VillageField' }],
   },
   {
     name: 'Samoa Adverse Event Following Immunisation',
     id: 'samoa-aefi',
-    dateRangeLabel: REPORT_DATE_RANGE_LABELS.ALL_TIME,
+    dateRangeLabel: ALL_TIME_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
     parameters: [{ parameterField: 'VillageField' }],
   },
   {
     name: 'Number of patients registered by date',
     id: 'number-patients-registered-by-date',
-    dateRangeLabel: REPORT_DATE_RANGE_LABELS.ALL_TIME,
+    dateRangeLabel: ALL_TIME_DATE_LABEL,
     dataSourceOptions: [REPORT_DATA_SOURCES.ALL_FACILITIES],
     filterDateRangeAsStrings: true,
   },
   {
     name: 'Registered patients - Line list',
     id: 'registered-patients',
-    dateRangeLabel: REPORT_DATE_RANGE_LABELS.ALL_TIME,
+    dateRangeLabel: ALL_TIME_DATE_LABEL,
     dataSourceOptions: [REPORT_DATA_SOURCES.ALL_FACILITIES],
     filterDateRangeAsStrings: true,
   },
   {
     name: 'COVID-19 Tests - Line list',
     id: 'fiji-covid-swab-lab-test-list',
-    dateRangeLabel: REPORT_DATE_RANGE_LABELS.THIRTY_DAYS,
+    dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: [REPORT_DATA_SOURCES.ALL_FACILITIES],
     parameters: [{ parameterField: 'VillageField' }, { parameterField: 'LabTestLaboratoryField' }],
   },
   {
     name: 'Fiji Traveller COVID-19 Tests - Line list',
     id: 'fiji-traveller-covid-lab-test-list',
-    dateRangeLabel: REPORT_DATE_RANGE_LABELS.THIRTY_DAYS,
+    dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: [REPORT_DATA_SOURCES.ALL_FACILITIES],
     parameters: [{ parameterField: 'LabTestLaboratoryField' }],
   },
   {
     name: 'Palau COVID-19 Test - Line list',
     id: 'palau-covid-swab-lab-test-list',
-    dateRangeLabel: REPORT_DATE_RANGE_LABELS.THIRTY_DAYS,
+    dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
   },
   {
     name: 'Nauru COVID-19 Test - Line list',
     id: 'nauru-covid-swab-lab-test-list',
-    dateRangeLabel: REPORT_DATE_RANGE_LABELS.THIRTY_DAYS,
+    dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: [REPORT_DATA_SOURCES.ALL_FACILITIES],
   },
   {
     name: 'Palau COVID-19 Case Report - Line list',
     id: 'palau-covid-case-report-line-list',
-    dateRangeLabel: REPORT_DATE_RANGE_LABELS.THIRTY_DAYS,
+    dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: [REPORT_DATA_SOURCES.ALL_FACILITIES],
     parameters: [{ parameterField: 'VillageField' }],
   },
   {
     name: 'Kiribati COVID-19 Test - Line list',
     id: 'kiribati-covid-swab-lab-test-list',
-    dateRangeLabel: REPORT_DATE_RANGE_LABELS.THIRTY_DAYS,
+    dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: [REPORT_DATA_SOURCES.ALL_FACILITIES],
   },
   {
     name: 'Samoa COVID-19 Test - Line list',
     id: 'samoa-covid-swab-lab-test-list',
-    dateRangeLabel: REPORT_DATE_RANGE_LABELS.THIRTY_DAYS,
+    dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: [REPORT_DATA_SOURCES.ALL_FACILITIES],
     parameters: [{ parameterField: 'VillageField' }, { parameterField: 'LabTestLaboratoryField' }],
   },
   {
     name: 'COVID-19 Tests - Summary',
     id: 'covid-swab-lab-tests-summary',
-    dateRangeLabel: REPORT_DATE_RANGE_LABELS.THIRTY_DAYS,
+    dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
     filterDateRangeAsStrings: true,
     parameters: [{ parameterField: 'VillageField' }, { parameterField: 'LabTestLaboratoryField' }],
@@ -199,25 +203,25 @@ export const REPORT_DEFINITIONS = [
   {
     name: 'India assistive technology device - Line list',
     id: 'india-assistive-technology-device-line-list',
-    dateRangeLabel: REPORT_DATE_RANGE_LABELS.ALL_TIME,
+    dateRangeLabel: ALL_TIME_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
   },
   {
     name: 'Iraq assistive technology device - Line list',
     id: 'iraq-assistive-technology-device-line-list',
-    dateRangeLabel: REPORT_DATE_RANGE_LABELS.ALL_TIME,
+    dateRangeLabel: ALL_TIME_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
   },
   {
     name: 'PNG assistive technology device - Line list',
     id: 'png-assistive-technology-device-line-list',
-    dateRangeLabel: REPORT_DATE_RANGE_LABELS.ALL_TIME,
+    dateRangeLabel: ALL_TIME_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
   },
   {
     name: 'Fiji recent attendance - Line list',
     id: 'fiji-recent-attendance-list',
-    dateRangeLabel: REPORT_DATE_RANGE_LABELS.ALL_TIME,
+    dateRangeLabel: ALL_TIME_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
     filterDateRangeAsStrings: true,
     parameters: [
@@ -228,7 +232,7 @@ export const REPORT_DEFINITIONS = [
   {
     name: 'Fiji NCD primary screening  - Line list',
     id: 'fiji-ncd-primary-screening-line-list',
-    dateRangeLabel: REPORT_DATE_RANGE_LABELS.ALL_TIME,
+    dateRangeLabel: ALL_TIME_DATE_LABEL,
     dataSourceOptions: [REPORT_DATA_SOURCES.ALL_FACILITIES],
     parameters: [
       {
@@ -255,7 +259,7 @@ export const REPORT_DEFINITIONS = [
   {
     name: 'Fiji NCD primary screening pending referrals - Line list',
     id: 'fiji-ncd-primary-screening-pending-referrals-line-list',
-    dateRangeLabel: REPORT_DATE_RANGE_LABELS.ALL_TIME,
+    dateRangeLabel: ALL_TIME_DATE_LABEL,
     dataSourceOptions: [REPORT_DATA_SOURCES.ALL_FACILITIES],
     parameters: [
       {
@@ -282,7 +286,7 @@ export const REPORT_DEFINITIONS = [
   {
     name: 'Fiji NCD primary screening - Summary',
     id: 'fiji-ncd-primary-screening-summary',
-    dateRangeLabel: REPORT_DATE_RANGE_LABELS.ALL_TIME,
+    dateRangeLabel: ALL_TIME_DATE_LABEL,
     dataSourceOptions: [REPORT_DATA_SOURCES.ALL_FACILITIES],
     parameters: [
       {
@@ -355,7 +359,7 @@ export const REPORT_DEFINITIONS = [
   {
     name: 'Fiji Aspen encounter summary - Line list',
     id: 'fiji-aspen-encounter-summary-line-list',
-    dateRangeLabel: REPORT_DATE_RANGE_LABELS.ALL_TIME, // TODO: Changed in new PR
+    dateRangeLabel: ALL_TIME_DATE_LABEL, // TODO: Changed in new PR
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
     filterDateRangeAsStrings: true,
     parameters: [
@@ -384,7 +388,7 @@ export const REPORT_DEFINITIONS = [
   {
     name: 'Generic Survey Export - Line List',
     id: 'generic-survey-export-line-list',
-    dateRangeLabel: REPORT_DATE_RANGE_LABELS.THIRTY_DAYS,
+    dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
     parameters: [
       { parameterField: 'VillageField' },
@@ -431,7 +435,7 @@ export const REPORT_DEFINITIONS = [
   {
     name: 'Imaging requests - Line list',
     id: 'imaging-requests-line-list',
-    dateRangeLabel: REPORT_DATE_RANGE_LABELS.THIRTY_DAYS,
+    dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
     filterDateRangeAsStrings: true,
     parameters: [
@@ -453,7 +457,7 @@ export const REPORT_DEFINITIONS = [
   {
     name: 'Deceased patients - Line list',
     id: 'deceased-patients-line-list',
-    dateRangeLabel: REPORT_DATE_RANGE_LABELS.THIRTY_DAYS,
+    dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
     filterDateRangeAsStrings: true,
     parameters: [
@@ -486,7 +490,7 @@ export const REPORT_DEFINITIONS = [
   {
     name: 'Lab requests - Line list',
     id: 'lab-requests-line-list',
-    dateRangeLabel: REPORT_DATE_RANGE_LABELS.THIRTY_DAYS,
+    dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
     parameters: [
       {
@@ -507,14 +511,14 @@ export const REPORT_DEFINITIONS = [
   {
     name: 'Fiji Aspen hospital admissions - Summary',
     id: 'fiji-aspen-hospital-admissions-summary',
-    dateRangeLabel: REPORT_DATE_RANGE_LABELS.ALL_TIME,
+    dateRangeLabel: ALL_TIME_DATE_LABEL,
     dataSourceOptions: [REPORT_DATA_SOURCES.THIS_FACILITY],
     parameters: [],
   },
   {
     name: 'Registered births - Line list',
     id: 'registered-births-line-list',
-    dateRangeLabel: REPORT_DATE_RANGE_LABELS.THIRTY_DAYS,
+    dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
     parameters: [{ parameterField: 'VillageField' }],
     filterDateRangeAsStrings: true,
