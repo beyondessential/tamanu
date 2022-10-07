@@ -206,7 +206,7 @@ describe('Patient merge', () => {
       Patient: 1,
       NotePage: 1,
     });
-    await note.reload();1
+    await note.reload();
     expect(note.recordId).toEqual(keep.id);
   });
 
