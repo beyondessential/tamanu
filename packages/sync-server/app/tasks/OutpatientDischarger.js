@@ -45,7 +45,6 @@ export class OutpatientDischarger extends ScheduledTask {
 
   async run() {
     const startOfToday = startOfDay(new Date());
-    console.log("running with start", startOfToday);
 
     const where = {
       encounterType: 'clinic',
