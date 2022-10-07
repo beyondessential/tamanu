@@ -1,5 +1,5 @@
 import { formatInTimeZone } from 'date-fns-tz';
-import { format as formatDate } from '../../utils/dateTime';
+import { format as formatDate } from '../dateTime';
 
 const DEFAULT_DATE_FORMAT = 'dd/MM/yyyy';
 
