@@ -42,8 +42,12 @@ select
   to_char(p.date_of_birth::date, 'dd-mm-yyyy') as "DOB",
   case
     when p.date_of_death is null
-    then date_trunc('day', Age(p.date_of_birth::date))
-    else date_trunc('day', Age(p.date_of_death::date, p.date_of_birth::date))
+    then case
+      when p.date_of_birth::date = CURRENT_DATE
+      then '0 days'
+      else date_trunc('day', Age(p.date_of_birth::date))::text
+    end
+    else date_trunc('day', Age(p.date_of_death::date, p.date_of_birth::date))::text
   end as "Age",
   p.sex as "Sex",
   rd_village.name as "Village",
@@ -59,7 +63,7 @@ select
   end as "Father",
   to_char(pbd.time_of_birth::timestamp, 'HH12:MI AM') as "Time of birth",
   pbd.gestational_age_estimate as "Gestational age (weeks)",
-  f."type" as "Place of birth",
+  pad.place_of_birth as "Place of birth",
   f."name" as "Name of health facility (if selected)",
   pbd.attendant_at_birth as "Attendant at birth",
   pbd.name_of_attendant_at_birth as "Name of attendant",
@@ -78,7 +82,7 @@ from
   left join reference_data rd_nationality on rd_nationality.id = pad.nationality_id
   left join reference_data rd_ethnicity on rd_ethnicity.id = pad.ethnicity_id
   left join patients p_mother on p_mother.id = pad.mother_id
-  left join patients p_father on p_mother.id = pad.father_id
+  left join patients p_father on p_father.id = pad.father_id
   left join facilities f on f.id = pbd.birth_facility_id
 where
   p.id not in (
