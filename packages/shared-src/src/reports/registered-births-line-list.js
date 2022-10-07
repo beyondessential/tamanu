@@ -63,7 +63,7 @@ select
   end as "Father",
   to_char(pbd.time_of_birth::timestamp, 'HH12:MI AM') as "Time of birth",
   pbd.gestational_age_estimate as "Gestational age (weeks)",
-  f."type" as "Place of birth",
+  pad.place_of_birth as "Place of birth",
   f."name" as "Name of health facility (if selected)",
   pbd.attendant_at_birth as "Attendant at birth",
   pbd.name_of_attendant_at_birth as "Name of attendant",
