@@ -17,7 +17,7 @@ export class OutpatientDischarger extends ScheduledTask {
   constructor(context, overrideConfig = null) {
     const conf = {
       ...config.schedules.outpatientDischarger,
-      ...overrideConfig 
+      ...overrideConfig,
     };
     super(conf.schedule, log);
     this.config = conf;

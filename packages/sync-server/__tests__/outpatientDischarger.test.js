@@ -52,6 +52,8 @@ describe('Outpatient discharger', () => {
     
   });
 
+  afterAll(() => ctx.close());
+
   it('Should discharge a patient that was left open a few days ago', async () => {
     const enc = await createEncounter({ 
       startDate: sub(new Date(), { days: 2 }), 
