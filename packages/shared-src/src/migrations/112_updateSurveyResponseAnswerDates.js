@@ -12,7 +12,7 @@ export async function up(query) {
     `
     SELECT COUNT(*) FROM survey_response_answers sra
     JOIN program_data_elements pde ON sra.data_element_id = pde.id
-    WHERE pde.type IN ('Date', 'SubmissionDate') AND sra.body IS NOT NULL;`,
+    WHERE pde.type IN ('Date', 'SubmissionDate') AND sra.body NOT IN('', 'Yes', 'No') AND sra.body IS NOT NULL;`,
     {
       type: QueryTypes.SELECT,
     },
@@ -35,7 +35,7 @@ export async function up(query) {
       body_legacy = body,
       body = COALESCE(TO_CHAR(body::TIMESTAMPTZ AT TIME ZONE '${COUNTRY_TIMEZONE}', '${ISO9075_DATE_TIME_FMT}'), body)
   FROM program_data_elements pde
-  WHERE sra.data_element_id = pde.id AND pde.type IN('Date', 'SubmissionDate');
+  WHERE sra.data_element_id = pde.id AND pde.type IN('Date', 'SubmissionDate') AND sra.body NOT IN('', 'Yes', 'No') AND sra.body IS NOT NULL;
 `);
 }
 
@@ -45,7 +45,7 @@ export async function down(query) {
   SET
       body = body_legacy
   FROM program_data_elements pde
-  WHERE sra.data_element_id = pde.id AND pde.type IN('Date', 'SubmissionDate');
+  WHERE sra.data_element_id = pde.id AND pde.type IN('Date', 'SubmissionDate') AND sra.body NOT IN('', 'Yes', 'No') AND sra.body IS NOT NULL;
 `);
 
   await query.removeColumn('survey_response_answers', 'body_legacy');
