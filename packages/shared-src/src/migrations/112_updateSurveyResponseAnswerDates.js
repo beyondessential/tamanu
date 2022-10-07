@@ -1,0 +1,52 @@
+import { DataTypes, QueryTypes } from 'sequelize';
+import config from 'config';
+
+const ISO9075_DATE_TIME_FMT = 'YYYY-MM-DD HH24:MI:SS';
+
+export async function up(query) {
+  await query.addColumn('survey_response_answers', 'body_legacy', {
+    type: DataTypes.TEXT,
+  });
+
+  const countResult = await query.sequelize.query(
+    `
+    SELECT COUNT(*) FROM survey_response_answers sra
+    JOIN program_data_elements pde ON sra.data_element_id = pde.id
+    WHERE pde.type IN ('Date', 'SubmissionDate') AND sra.body IS NOT NULL;`,
+    {
+      type: QueryTypes.SELECT,
+    },
+  );
+
+  if (parseInt(countResult[0].count, 10) === 0) {
+    // Skipping migration of survey_response_answers.body dates as no relevant data
+    return;
+  }
+
+  const COUNTRY_TIMEZONE = config?.countryTimeZone;
+
+  if (!COUNTRY_TIMEZONE) {
+    throw Error('A countryTimeZone must be configured in local.json for this migration to run.');
+  }
+
+  await query.sequelize.query(`
+  UPDATE survey_response_answers sra
+  SET
+      body_legacy = body,
+      body = COALESCE(TO_CHAR(body::TIMESTAMPTZ AT TIME ZONE '${COUNTRY_TIMEZONE}', '${ISO9075_DATE_TIME_FMT}'), body)
+  FROM program_data_elements pde
+  WHERE sra.data_element_id = pde.id AND pde.type IN('Date', 'SubmissionDate');
+`);
+}
+
+export async function down(query) {
+  await query.sequelize.query(`
+  UPDATE survey_response_answers sra
+  SET
+      body = body_legacy
+  FROM program_data_elements pde
+  WHERE sra.data_element_id = pde.id AND pde.type IN('Date', 'SubmissionDate');
+`);
+
+  await query.removeColumn('survey_response_answers', 'body_legacy');
+}

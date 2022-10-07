@@ -18,7 +18,6 @@ import {
 const REPORT_URL = '/v1/reports/nauru-covid-swab-lab-test-list';
 const PROGRAM_ID = 'program-naurucovid19';
 const SURVEY_ID = 'program-naurucovid19-naurucovidtestregistration';
-const timePart = 'T00:00:00.000Z';
 
 async function createNauruSurveys(models) {
   await models.Program.create({
