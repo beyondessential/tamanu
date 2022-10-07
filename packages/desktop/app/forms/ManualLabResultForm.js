@@ -16,10 +16,14 @@ import { ConfirmCancelRow } from '../components/ButtonRow';
 import { capitaliseFirstLetter } from '../utils/capitalise';
 import { useSuggester } from '../api';
 
-function getComponentForTest(resultType, options) {
-  if (options && options.length) return SelectField;
-  if (resultType === LAB_TEST_RESULT_TYPES.FREE_TEXT) return TextField;
-  return NumberField;
+const componentsByResultType = {
+  [LAB_TEST_RESULT_TYPES.FREE_TEXT]: TextField,
+  [LAB_TEST_RESULT_TYPES.SELECT]: SelectField,
+  [LAB_TEST_RESULT_TYPES.NUMBER]: NumberField,
+}
+
+function getComponentForTest(resultType) {
+  return componentsByResultType[resultType] || TextField;
 }
 
 function renderOptions(options) {
@@ -39,7 +43,7 @@ function renderOptions(options) {
 
 export const ManualLabResultForm = ({ onSubmit, onClose, labTest }) => {
   const { resultType, options } = labTest.labTestType;
-  const component = getComponentForTest(resultType, options);
+  const component = getComponentForTest(resultType);
   const methodSuggester = useSuggester('labTestMethod');
 
   const renderForm = useCallback(
