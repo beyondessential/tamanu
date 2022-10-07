@@ -3,6 +3,8 @@ import styled from 'styled-components';
 import Tooltip from '@material-ui/core/Tooltip';
 import { isAfter } from 'date-fns';
 
+import { NOTE_TYPES } from 'shared/constants';
+
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { noteTypes, Colors } from '../constants';
@@ -91,6 +93,10 @@ const NotePageTable = ({ encounterId, hasPermission }) => {
   const handleRowClick = useCallback(
     data => {
       if (!hasPermission) {
+        return;
+      }
+
+      if (data.noteType === NOTE_TYPES.SYSTEM) {
         return;
       }
 
