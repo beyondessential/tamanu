@@ -1,10 +1,5 @@
-// This file is the typeORM equivalent to the same utility in shared-src/migrations
-//
-// THESE FUNCTIONS ARE TEMPLATES, COPY PASTE THEM TO YOUR MIGRATION
-// DON'T EXPORT
-// IF THE TEMPLATE CHANGES OLD MIGRATIONS SHOULD NOT CHANGE WITH IT
-import { QueryRunner, TableColumn } from 'typeorm';
-import { getTable } from './queryRunner';
+import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
+import { getTable } from './utils/queryRunner';
 const ISO9075_FORMAT = 'YYYY-MM-DD HH:mm:ss';
 const ISO9075_FORMAT_LENGTH = ISO9075_FORMAT.length;
 
@@ -58,5 +53,24 @@ async function createDateTimeStringDownMigration(
   await queryRunner.dropColumn(tableName, columnName);
 
   // 2. Move legacy data back to main column
-  await queryRunner.query(`ALTER TABLE ${tableName} RENAME COLUMN ${columnName}_legacy TO ${columnName}`);
+  await queryRunner.renameColumn(
+    tableName,
+    `${columnName}_legacy`,
+    new TableColumn({
+      name: columnName,
+      type: 'date',
+    }),
+  );
+}
+
+export class updateSurveyResponseDateTimeColumns1664475769000 implements MigrationInterface {
+  async up(queryRunner: QueryRunner): Promise<void> {
+    await createDateTimeStringUpMigration(queryRunner, 'survey_response', 'startTime');
+    await createDateTimeStringUpMigration(queryRunner, 'survey_response', 'endTime');
+  }
+
+  async down(queryRunner: QueryRunner): Promise<void> {
+    await createDateTimeStringDownMigration(queryRunner, 'survey_response', 'startTime');
+    await createDateTimeStringDownMigration(queryRunner, 'survey_response', 'endTime');
+  }
 }

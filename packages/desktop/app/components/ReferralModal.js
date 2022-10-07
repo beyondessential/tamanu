@@ -31,6 +31,7 @@ const DumbReferralModal = React.memo(
   ),
 );
 
+// Todo: delete this if it's not being used
 export const ReferralModal = connectApi((api, dispatch, { patientId }) => ({
   onCreateReferral: async data => {
     await api.post(`referral`, { ...data, patientId });

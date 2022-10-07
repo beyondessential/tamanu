@@ -1,6 +1,6 @@
 import { keyBy, groupBy, uniqWith, isEqual, upperFirst } from 'lodash';
 import { Op } from 'sequelize';
-import { format, parse } from 'date-fns';
+import { parse } from 'date-fns';
 import { generateReportFromQueryData, getAnswers } from '../utilities';
 import {
   transformAndRemoveDuplicatedAnswersPerDate,
@@ -13,7 +13,7 @@ import {
   getCachedAnswer,
   parametersToAnswerSqlWhere,
 } from './utils';
-import { ageInYears } from '../../utils/dateTime';
+import { ageInYears, format } from '../../utils/dateTime';
 
 import {
   ALL_SURVEY_IDS,

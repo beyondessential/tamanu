@@ -1,0 +1,55 @@
+import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
+import { getTable } from './utils/queryRunner';
+const ISO9075_FORMAT = 'YYYY-MM-DD';
+const ISO9075_FORMAT_LENGTH = ISO9075_FORMAT.length;
+
+export class updateLabTestDate1662006885000 implements MigrationInterface {
+  async up(queryRunner: QueryRunner): Promise<void> {
+    const tableObject = await getTable(queryRunner, 'labTest');
+    // 1. Create legacy columns
+    await queryRunner.addColumn(
+      tableObject,
+      new TableColumn({
+        name: 'date_legacy',
+        type: 'date',
+        isNullable: true,
+      }),
+    );
+    // 2. Copy datat to legacy columns for backup
+    await queryRunner.query(
+      'UPDATE labTest SET date_legacy = sampleTime',
+    );
+
+    // 3.Change column types from of original columns from date to string & convert data to string
+    // NOTE: SQLite doesn't like to update columns, drop the column and recreate it as the new type
+    await queryRunner.dropColumn('labTest', 'sampleTime');
+    await queryRunner.addColumn(
+      tableObject,
+      new TableColumn({
+        name: 'date',
+        type: 'string',
+        length: `${ISO9075_FORMAT_LENGTH}`,
+        isNullable: false,
+        default: "strftime('%Y-%m-%d', CURRENT_TIMESTAMP)",
+      }),
+    );
+    // Fill data
+    await queryRunner.query(
+      'UPDATE labTest SET date = date_legacy',
+    );
+  }
+
+  async down(queryRunner: QueryRunner): Promise<void> {
+    // 1. Drop the string column
+    await queryRunner.dropColumn('labTest', 'date');
+    // 2. Move legacy data back to main column (with undo rename
+    await queryRunner.renameColumn(
+      'labTest',
+      'date_legacy',
+      new TableColumn({
+        name: 'date',
+        type: 'Date',
+      }),
+    );
+  }
+}

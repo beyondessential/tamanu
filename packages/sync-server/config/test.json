@@ -51,5 +51,6 @@
     "certificates": {
       "labTestCategoryIds": ["labTestCategory-COVID"]
     }
-  }
+  },
+  "countryTimeZone": "Pacific/Auckland"
 }

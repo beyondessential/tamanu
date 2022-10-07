@@ -1,6 +1,3 @@
-import { Op } from 'sequelize';
-import { NOTE_TYPES } from 'shared/constants';
-
 export const notePageListHandler = recordType => async (req, res) => {
   const { models, params, query } = req;
   const { order = 'ASC', orderBy } = query;
@@ -27,7 +24,7 @@ export const notePageListHandler = recordType => async (req, res) => {
         ],
       },
     ],
-    where: { recordType, recordId, noteType: { [Op.not]: NOTE_TYPES.SYSTEM } },
+    where: { recordType, recordId },
     order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
   });
 
@@ -56,11 +53,16 @@ export const notePagesWithSingleItemListHandler = recordType => async (req, res)
     where: {
       recordId,
       recordType,
-      noteType: { [Op.not]: NOTE_TYPES.SYSTEM },
     },
     order: [['createdAt', 'ASC']],
   });
 
-  const notes = await Promise.all(notePages.map(n => n.getCombinedNoteObject(models)));
-  res.send({ data: notes, count: notes.length });
+  const notes = [];
+  for (const notePage of notePages) {
+    const combinedNoteObject = await notePage.getCombinedNoteObject(models);
+    notes.push(combinedNoteObject);
+  }
+
+  const resultNotes = notes.filter(n => !!n);
+  res.send({ data: resultNotes, count: resultNotes.length });
 };
