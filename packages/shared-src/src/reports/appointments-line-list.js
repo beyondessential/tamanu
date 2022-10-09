@@ -1,5 +1,5 @@
-import { addDays, endOfDay } from 'date-fns';
-import { getCurrentDateTimeString, toDateTimeString, format } from 'shared/utils/dateTime';
+import { addDays, endOfDay, startOfDay } from 'date-fns';
+import { toDateTimeString, format } from 'shared/utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
 const FIELDS = [
@@ -73,9 +73,13 @@ const getData = async (sequelize, parameters) => {
 
   // Only default if both date parameters are blank
   let { fromDate, toDate } = parameters;
+
   if (!fromDate && !toDate) {
-    fromDate = getCurrentDateTimeString();
+    fromDate = toDateTimeString(startOfDay(new Date()));
     toDate = toDateTimeString(endOfDay(addDays(new Date(), 30)));
+  } else {
+    fromDate = fromDate && toDateTimeString(startOfDay(new Date(fromDate)));
+    toDate = toDate && toDateTimeString(endOfDay(new Date(toDate)));
   }
 
   return sequelize.query(query, {

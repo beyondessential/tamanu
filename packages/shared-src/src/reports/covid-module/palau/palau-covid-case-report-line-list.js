@@ -1,10 +1,10 @@
 /* eslint-disable import/no-unresolved, import/extensions */
 
-import { subDays, isBefore, startOfDay } from 'date-fns';
+import { subDays, isBefore, startOfDay, endOfDay } from 'date-fns';
 import { groupBy } from 'lodash';
 import { Op } from 'sequelize';
 
-import { ageInYears, format } from '../../../utils/dateTime';
+import { ageInYears, format, toDateTimeString } from '../../../utils/dateTime';
 import { generateReportFromQueryData } from '../../utilities';
 import { transformAnswers } from '../../utilities/transformAnswers';
 
@@ -76,11 +76,6 @@ const WILLIAM_HOROTO_IDS = [
 ];
 
 const parametersToSurveyResponseSqlWhere = (parameters, surveyId) => {
-  if (!parameters.fromDate) {
-    // eslint-disable-next-line no-param-reassign
-    parameters.fromDate = subDays(new Date(), 30).toISOString();
-  }
-
   const defaultWhereClause = {
     surveyId,
     '$encounter->patient.id$': {
@@ -92,8 +87,19 @@ const parametersToSurveyResponseSqlWhere = (parameters, surveyId) => {
     return defaultWhereClause;
   }
 
+  const newParameters = {
+    ...parameters,
+    fromDate: startOfDay(
+      parameters.fromDate ? new Date(parameters.fromDate) : subDays(new Date(), 30),
+    ),
+  };
+
+  if (newParameters.toDate) {
+    newParameters.toDate = toDateTimeString(endOfDay(new Date(newParameters.toDate)));
+  }
+
   /* eslint-disable no-param-reassign */
-  const whereClause = Object.entries(parameters)
+  const whereClause = Object.entries(newParameters)
     .filter(([, val]) => val)
     .reduce((where, [key, value]) => {
       switch (key) {

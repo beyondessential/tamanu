@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 
 import { Op } from 'sequelize';
-import { subDays } from 'date-fns';
+import { endOfDay, startOfDay, subDays } from 'date-fns';
 import { parseISO9075, toDateTimeString, format } from 'shared/utils/dateTime';
 import { generateReportFromQueryData } from '../utilities';
 
@@ -19,19 +19,23 @@ const reportColumnTemplate = [
   { title: 'First dose given', accessor: data => data.dose1 },
   {
     title: 'First dose date',
-    accessor: data => format(parseISO9075(data.dose1Date), DATE_FORMAT),
+    accessor: data => format(data.dose1Date, DATE_FORMAT),
   },
   { title: 'Second dose given', accessor: data => data.dose2 },
   {
     title: 'Second dose date',
-    accessor: data => format(parseISO9075(data.dose2Date), DATE_FORMAT),
+    accessor: data => format(data.dose2Date, DATE_FORMAT),
   },
   { title: 'Vaccine Name', accessor: data => data.vaccineLabel },
 ];
 
 function parametersToSqlWhere(parameters) {
-  if (!parameters.fromDate) {
-    parameters.fromDate = toDateTimeString(subDays(new Date(), 30));
+  parameters.fromDate = toDateTimeString(
+    startOfDay(parameters.fromDate ? new Date(parameters.fromDate) : subDays(new Date(), 30)),
+  );
+
+  if (parameters.toDate) {
+    parameters.toDate = toDateTimeString(endOfDay(new Date(parameters.toDate)));
   }
 
   const whereClause = Object.entries(parameters)
@@ -117,11 +121,11 @@ async function queryCovidVaccineListData(models, parameters) {
     }
     if (schedule === 'Dose 1') {
       acc[patientId].dose1 = 'Yes';
-      acc[patientId].dose1Date = date.toLocaleDateString();
+      acc[patientId].dose1Date = parseISO9075(date).toLocaleDateString();
     }
     if (schedule === 'Dose 2') {
       acc[patientId].dose2 = 'Yes';
-      acc[patientId].dose2Date = date.toLocaleDateString();
+      acc[patientId].dose2Date = parseISO9075(date).toLocaleDateString();
     }
     return acc;
   }, {});

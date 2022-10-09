@@ -1,6 +1,5 @@
-import { Op } from 'sequelize';
 import asyncHandler from 'express-async-handler';
-import { NOTE_TYPES, NOTE_RECORD_TYPES } from 'shared/constants';
+import { NOTE_RECORD_TYPES } from 'shared/constants';
 
 // Encounter notes should check for their own permission, otherwise,
 // check parent permission.
@@ -38,7 +37,7 @@ export const notePageListHandler = recordType =>
           ],
         },
       ],
-      where: { recordType, recordId, noteType: { [Op.not]: NOTE_TYPES.SYSTEM } },
+      where: { recordType, recordId },
       order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
     });
 
@@ -68,11 +67,16 @@ export const notePagesWithSingleItemListHandler = recordType =>
       where: {
         recordId,
         recordType,
-        noteType: { [Op.not]: NOTE_TYPES.SYSTEM },
       },
       order: [['createdAt', 'ASC']],
     });
 
-    const notes = await Promise.all(notePages.map(n => n.getCombinedNoteObject(models)));
-    res.send({ data: notes, count: notes.length });
+    const notes = [];
+    for (const notePage of notePages) {
+      const combinedNoteObject = await notePage.getCombinedNoteObject(models);
+      notes.push(combinedNoteObject);
+    }
+
+    const resultNotes = notes.filter(n => !!n);
+    res.send({ data: resultNotes, count: resultNotes.length });
   });

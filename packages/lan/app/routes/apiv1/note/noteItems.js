@@ -1,5 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 
 import { NOTE_RECORD_TYPES } from 'shared/constants';
 
@@ -32,7 +33,7 @@ noteItemRoute.post(
       notePageId,
       authorId: noteItemData.authorId,
       onBehalfOfId: noteItemData.onBehalfOfId,
-      date: Date.now(),
+      date: noteItemData.date || getCurrentDateTimeString(),
       content: noteItemData.content.trim(),
       revisedById: noteItemData.revisedById,
     });

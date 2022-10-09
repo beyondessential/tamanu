@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { isEmpty } from 'lodash';
 import { NOTE_RECORD_TYPES } from 'shared/constants';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 
 import { useApi } from '../api';
 import { Suggester } from '../utils/suggester';
@@ -49,6 +50,7 @@ export const NotePageModal = ({
         ...data,
         authorId: currentUser.id,
         onBehalfOfId: currentUser.id !== data.writtenById ? data.writtenById : undefined,
+        date: getCurrentDateTimeString(),
         recordId: encounterId,
         recordType: NOTE_RECORD_TYPES.ENCOUNTER,
       };
@@ -81,6 +83,7 @@ export const NotePageModal = ({
 
       const newNoteItem = {
         authorId: currentUser.id,
+        date: getCurrentDateTimeString(),
         onBehalfOfId: noteItem.onBehalfOfId,
         revisedById: noteItem.revisedById || noteItem.id,
         content,

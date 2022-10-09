@@ -1,4 +1,13 @@
-import { isBefore, isAfter, isWithinInterval, startOfDay, endOfDay, isSameDay } from 'date-fns';
+import {
+  isWithinInterval,
+  isBefore,
+  isAfter,
+  startOfDay,
+  endOfDay,
+  isSameDay,
+  parseISO,
+  subDays,
+} from 'date-fns';
 import { differenceInMilliseconds, format } from 'shared/utils/dateTime';
 import { groupBy } from 'lodash';
 import { Op } from 'sequelize';
@@ -126,7 +135,11 @@ const getLabTests = async (models, parameters) =>
       },
     ],
     where: parametersToLabTestSqlWhere(parameters),
-    order: [['date', 'ASC']],
+    order: [
+      // The date column only has daily resolution, so will return in non-deterministic order
+      ['date', 'ASC'],
+      ['created_at', 'ASC'],
+    ],
     raw: true,
     nest: true,
   });
@@ -234,13 +247,15 @@ const getLabTestRecords = async (
       }
 
       const labTest = patientLabTests[i];
-      const currentLabTestDate = startOfDay(new Date(labTest.date));
+      const currentLabTestDate = startOfDay(parseISO(labTest.date));
 
       // Get all lab tests regardless and filter fromDate and toDate in memory
       // to ensure that we have the date range from current lab test to the next lab test correctly.
       if (
-        parameters.fromDate &&
-        isBefore(currentLabTestDate, startOfDay(new Date(parameters.fromDate)))
+        isBefore(
+          currentLabTestDate,
+          startOfDay(parameters.fromDate ? new Date(parameters.fromDate) : subDays(new Date(), 30)),
+        )
       ) {
         continue;
       }
@@ -253,7 +268,7 @@ const getLabTestRecords = async (
       let nextLabTestDate;
 
       if (nextLabTest) {
-        const { date: nextLabTestTimestamp } = nextLabTest;
+        const nextLabTestTimestamp = parseISO(nextLabTest.date);
         // if next lab test not on the same date (next one on a different date,
         // startOf('day') to exclude the next date when comparing range later
         if (!isSameDay(currentLabTestDate, nextLabTestTimestamp)) {
@@ -291,7 +306,9 @@ const getLabTestRecords = async (
         submittedDate: formatDate(labTest.date),
         requestedDate: formatDate(labRequest.requestedDate),
         testingDate: formatDate(labTest.completedDate),
-        testingTime: labTest.completedDate ? format(labTest.completedDate, 'h:mm:ss aa') : '',
+        testingTime: labTest.completedDate
+          ? format(new Date(labTest.completedDate), 'h:mm:ss aa')
+          : '',
         priority: labRequest?.priority?.name,
         testingLaboratory: labRequest?.laboratory?.name,
         laboratoryOfficer: labTest?.laboratoryOfficer,

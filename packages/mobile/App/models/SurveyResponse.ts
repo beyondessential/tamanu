@@ -36,10 +36,10 @@ import { getCurrentDateTimeString } from '~/ui/helpers/date';
 @Entity('survey_response')
 export class SurveyResponse extends BaseModel implements ISurveyResponse {
   @Column({ nullable: true })
-  startTime?: Date;
+  startTime?: string;
 
   @Column({ nullable: true })
-  endTime?: Date;
+  endTime?: string;
 
   @Column({ default: 0, nullable: true })
   result?: number;
@@ -129,8 +129,8 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       const responseRecord: SurveyResponse = await SurveyResponse.createAndSaveOne({
         encounter: encounter.id,
         survey: surveyId,
-        startTime: Date.now(),
-        endTime: Date.now(),
+        startTime: getCurrentDateTimeString(),
+        endTime: getCurrentDateTimeString(),
         result,
         resultText,
         ...otherData,

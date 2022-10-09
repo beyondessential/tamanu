@@ -1,16 +1,26 @@
 import { keyBy, groupBy, uniqWith, isEqual } from 'lodash';
 import { Op } from 'sequelize';
+import { endOfDay, startOfDay } from 'date-fns';
 import { generateReportFromQueryData } from './utilities';
 import { transformAnswers } from './utilities/transformAnswers';
-import { format, ageInYears, differenceInMilliseconds } from '../utils/dateTime';
+import { format, ageInYears, differenceInMilliseconds, toDateTimeString } from '../utils/dateTime';
 
 const parametersToSurveyResponseSqlWhere = (parameters, surveyIds) => {
+  const newParameters = { ...parameters };
   const defaultWhereClause = {
     '$surveyResponse.survey_id$': surveyIds,
   };
 
   if (!parameters || !Object.keys(parameters).length) {
     return defaultWhereClause;
+  }
+
+  if (parameters.fromDate) {
+    newParameters.fromDate = toDateTimeString(startOfDay(new Date(parameters.fromDate)));
+  }
+
+  if (parameters.toDate) {
+    newParameters.toDate = toDateTimeString(endOfDay(new Date(parameters.toDate)));
   }
 
   const whereClause = Object.entries(parameters)

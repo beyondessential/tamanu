@@ -1,5 +1,7 @@
+import { endOfDay, startOfDay } from 'date-fns';
 import { groupBy, keyBy } from 'lodash';
 import { Op } from 'sequelize';
+import { toDateTimeString } from 'shared/utils/dateTime';
 import { format, differenceInMilliseconds } from '../../utils/dateTime';
 import { transformAnswers } from '../utilities';
 
@@ -36,10 +38,12 @@ export const parametersToAnswerSqlWhere = parameters => {
     where['$surveyResponse.end_time$'] = {};
   }
   if (parameters.fromDate) {
-    where['$surveyResponse.end_time$'][Op.gte] = parameters.fromDate;
+    where['$surveyResponse.end_time$'][Op.gte] =
+      parameters.fromDate && toDateTimeString(startOfDay(new Date(parameters.fromDate)));
   }
   if (parameters.toDate) {
-    where['$surveyResponse.end_time$'][Op.lte] = parameters.toDate;
+    where['$surveyResponse.end_time$'][Op.lte] =
+      parameters.toDate && toDateTimeString(endOfDay(new Date(parameters.toDate)));
   }
   if (parameters.surveyId) {
     delete where['$surveyResponse.survey_id$'][Op.in];

@@ -150,28 +150,23 @@ describe('Samoa covid lab test report', () => {
 
     it('should pick the latest answer between the current and the next lab request', async () => {
       const phoneNumber = '123-456-7890';
-      const timePart = 'T00:00:00.000Z';
-      await createCovidTestForPatient(
-        testContext.models,
-        expectedPatient1,
-        '2022-03-01' + timePart,
-      );
+      await createCovidTestForPatient(testContext.models, expectedPatient1, '2022-03-01');
       await createFormAnswerForPatient(app, testContext.models, expectedPatient1, {
-        formDate: '2022-03-01' + timePart,
+        formDate: '2022-03-01 10:50:28',
         phoneNumber,
         village: 'village 1',
       });
       await createFormAnswerForPatient(app, testContext.models, expectedPatient1, {
-        formDate: '2022-03-02' + timePart,
+        formDate: '2022-03-02 10:50:28',
         phoneNumber,
         village: 'village 2',
       });
-      await createCovidTestForPatient(
-        testContext.models,
-        expectedPatient1,
-        '2022-03-03' + timePart,
-      );
-      const reportResult = await app.post(REPORT_URL).send({});
+      await createCovidTestForPatient(testContext.models, expectedPatient1, '2022-03-03 10:50:28');
+      const reportResult = await app.post(REPORT_URL).send({
+        parameters: {
+          fromDate: '2022-03-01',
+        },
+      });
       expect(reportResult).toHaveSucceeded();
       expect(reportResult.body).toHaveLength(3);
       expect(reportResult.body[0]).toStrictEqual(REPORT_COLUMNS);

@@ -1,4 +1,6 @@
 import { DataTypes } from 'sequelize';
+import { log } from 'shared/services/logging';
+
 import { Model } from './Model';
 import { NoteItem } from './NoteItem';
 import { NOTE_RECORD_TYPE_VALUES, NOTE_TYPE_VALUES } from '../constants';
@@ -79,6 +81,11 @@ export class NotePage extends Model {
         notePageId: this.id,
       },
     });
+
+    if (!noteItem) {
+      log.warn(`Cannot find note item of note page '${this.id}'`);
+      return null;
+    }
 
     return {
       ...noteItem.toJSON(),
