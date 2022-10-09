@@ -1,6 +1,6 @@
 import { keyBy } from 'lodash';
 import { Op } from 'sequelize';
-import { endOfDay, isAfter, parse, startOfDay } from 'date-fns';
+import { endOfDay, isAfter, startOfDay } from 'date-fns';
 import { REFERRAL_STATUSES } from '../../constants';
 import { generateReportFromQueryData, getAnswers } from '../utilities';
 import {

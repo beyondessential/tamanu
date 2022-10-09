@@ -43,7 +43,7 @@ export async function down(query) {
   await query.sequelize.query(`
   UPDATE survey_response_answers sra
   SET
-      body = body_legacy
+      body = COALESCE(body_legacy, body)
   FROM program_data_elements pde
   WHERE sra.data_element_id = pde.id AND pde.type IN('Date', 'SubmissionDate') AND sra.body NOT IN('', 'Yes', 'No') AND sra.body IS NOT NULL;
 `);
