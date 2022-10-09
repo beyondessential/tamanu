@@ -1,14 +1,6 @@
 import asyncHandler from 'express-async-handler';
-import { NOTE_RECORD_TYPES } from 'shared/constants';
 
-// Encounter notes should check for their own permission, otherwise,
-// check parent permission.
-function checkListNotePermission(req, owner, noteRecordType) {
-  if (noteRecordType === NOTE_RECORD_TYPES.ENCOUNTER) {
-    return req.checkPermission('list', 'EncounterNote');
-  }
-  return req.checkPermission('read', owner);
-}
+import { checkNotePermission } from '../../utils/checkNotePermission';
 
 export const notePageListHandler = recordType =>
   asyncHandler(async (req, res) => {
@@ -16,9 +8,7 @@ export const notePageListHandler = recordType =>
     const { order = 'ASC', orderBy } = query;
 
     const recordId = params.id;
-    const owner = await models[recordType].findByPk(recordId);
-
-    checkListNotePermission(req, owner, recordType);
+    checkNotePermission(req, { recordType, recordId }, 'list');
 
     const rows = await models.NotePage.findAll({
       include: [
@@ -49,9 +39,7 @@ export const notePagesWithSingleItemListHandler = recordType =>
     const { models, params } = req;
 
     const recordId = params.id;
-    const owner = await models[recordType].findByPk(recordId);
-
-    checkListNotePermission(req, owner, recordType);
+    checkNotePermission(req, { recordType, recordId }, 'list');
 
     const notePages = await models.NotePage.findAll({
       include: [

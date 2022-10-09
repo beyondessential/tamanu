@@ -4,6 +4,7 @@ import { NotFoundError, ForbiddenError } from 'shared/errors';
 import { NOTE_RECORD_TYPES } from 'shared/constants';
 
 import { noteItems } from './noteItems';
+import { checkNotePermission } from '../../../utils/checkNotePermission';
 
 const notePageRoute = express.Router();
 export { notePageRoute as notePages };
@@ -18,13 +19,7 @@ notePageRoute.post(
   asyncHandler(async (req, res) => {
     const { models, body: noteData } = req;
 
-    // Encounter notes check their own permissions
-    if (noteData.recordType === NOTE_RECORD_TYPES.ENCOUNTER) {
-      req.checkPermission('create', 'EncounterNote');
-    } else {
-      const owner = await models[noteData.recordType].findByPk(noteData.recordId);
-      req.checkPermission('write', owner);
-    }
+    checkNotePermission(req, noteData, 'create');
 
     const notePage = await models.NotePage.create({
       recordType: noteData.recordType,
@@ -70,13 +65,7 @@ notePageRoute.get(
       where: { id: notePageId },
     });
 
-    // Encounter notes check their own permissions
-    if (notePage.recordType === NOTE_RECORD_TYPES.ENCOUNTER) {
-      req.checkPermission('read', 'EncounterNote');
-    } else {
-      const owner = await models[notePage.recordType].findByPk(notePage.recordId);
-      req.checkPermission('read', owner);
-    }
+    checkNotePermission(req, notePage, 'read');
 
     res.send(notePage);
   }),

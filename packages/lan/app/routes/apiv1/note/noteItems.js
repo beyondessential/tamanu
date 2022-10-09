@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 
-import { NOTE_RECORD_TYPES } from 'shared/constants';
+import { checkNotePermission } from '../../../utils/checkNotePermission';
 
 const noteItemRoute = express.Router();
 export { noteItemRoute as noteItems };
@@ -20,14 +20,7 @@ noteItemRoute.post(
     }
 
     const notePage = await models.NotePage.findByPk(notePageId);
-
-    // Encounter notes check their own permissions
-    if (notePage.recordType === NOTE_RECORD_TYPES.ENCOUNTER) {
-      req.checkPermission('create', 'EncounterNote');
-    } else {
-      const owner = await models[notePage.recordType].findByPk(notePage.recordId);
-      req.checkPermission('write', owner);
-    }
+    checkNotePermission(req, notePage, 'create');
 
     await models.NoteItem.create({
       notePageId,
@@ -63,14 +56,7 @@ noteItemRoute.get(
     const { notePageId } = params;
 
     const notePage = await models.NotePage.findByPk(notePageId);
-
-    // Encounter notes check their own permissions
-    if (notePage.recordType === NOTE_RECORD_TYPES.ENCOUNTER) {
-      req.checkPermission('list', 'EncounterNote');
-    } else {
-      const owner = await models[notePage.recordType].findByPk(notePage.recordId);
-      req.checkPermission('read', owner);
-    }
+    checkNotePermission(req, notePage, 'list');
 
     const noteItems = await models.NoteItem.findAll({
       include: [
