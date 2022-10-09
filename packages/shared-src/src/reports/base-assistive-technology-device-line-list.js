@@ -23,7 +23,7 @@ const parametersToSurveyResponseSqlWhere = (parameters, surveyIds) => {
     newParameters.toDate = toDateTimeString(endOfDay(new Date(parameters.toDate)));
   }
 
-  const whereClause = Object.entries(parameters)
+  const whereClause = Object.entries(newParameters)
     .filter(([, val]) => val)
     .reduce((where, [key, value]) => {
       const newWhere = { ...where };
