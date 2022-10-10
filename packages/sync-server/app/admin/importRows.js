@@ -25,9 +25,9 @@ function loadExisting(Model, id) {
   if (!id) return null;
 
   // user model needs to have access to password to hash it
-  if (Model.name === 'User') return Model.scope('withPassword').findByPk(id);
+  if (Model.name === 'User') return Model.scope('withPassword').findByPk(id, { paranoid: false });
 
-  return Model.findByPk(id);
+  return Model.findByPk(id, { paranoid: false });
 }
 
 export async function importRows(
@@ -169,8 +169,17 @@ export async function importRows(
     const existing = await loadExisting(Model, values.id);
     try {
       if (existing) {
-        await existing.update(values);
-        updateStat(stats, statkey(model, sheetName), 'updated');
+        if (values.deletedAt) {
+          await existing.destroy();
+          updateStat(stats, statkey(model, sheetName), 'deleted');
+        } else {
+          if (existing.deletedAt) {
+            await existing.restore();
+            updateStat(stats, statkey(model, sheetName), 'restored');  
+          }
+          await existing.update(values);
+          updateStat(stats, statkey(model, sheetName), 'updated');  
+        }
       } else {
         await Model.create(values);
         updateStat(stats, statkey(model, sheetName), 'created');
