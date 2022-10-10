@@ -5,5 +5,5 @@ export const getSyncTick = async (key: string): Promise<number> => {
     key,
   });
 
-  return localSystemFact ? parseInt(localSystemFact.value, 10) : 0;
+  return localSystemFact ? parseInt(localSystemFact.value, 10) : -1;
 };

@@ -15,6 +15,7 @@ import { theme } from '/styled/theme';
 import { formatDate, parseISO9075 } from '/helpers/date';
 import { DateFormats } from '~/ui/helpers/constants';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { getSyncTick, LAST_SUCCESSFUL_PUSH } from '~/services/sync';
 
 const SyncStatusindicator = ({ synced }): JSX.Element => (
   <StyledView flexDirection="row">
@@ -101,7 +102,7 @@ export const DumbViewHistoryScreen = ({ selectedPatient, navigation }): ReactEle
   );
 
   const [lastSuccessfulSync] = useBackendEffect(
-    ({ models }) => models.LocalSystemFact.findOne('lastSuccessfulSyncTime'),
+    ({ models }) => getSyncTick(LAST_SUCCESSFUL_PUSH)
     [],
   );
 

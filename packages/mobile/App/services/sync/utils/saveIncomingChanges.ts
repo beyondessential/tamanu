@@ -58,8 +58,8 @@ const saveChangesForModel = async (
 /**
  * Save all the incoming changes in the right order of dependency,
  * using the data stored in session_sync_record previously
- * @param models
- * @param changes
+ * @param incomingChangesCount
+ * @param incomingModels
  * @param progressCallback
  * @returns
  */

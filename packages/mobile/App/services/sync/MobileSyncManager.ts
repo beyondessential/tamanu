@@ -4,19 +4,20 @@ import { Database } from '../../infra/db';
 import { MODELS_MAP } from '../../models/modelsMap';
 import { CentralServerConnection } from './CentralServerConnection';
 import {
-  setSyncSessionSequence,
   snapshotOutgoingChanges,
   pushOutgoingChanges,
   pullIncomingChanges,
   saveIncomingChanges,
   getModelsForDirection,
   getSyncTick,
+  setSyncTick,
   clearPersistedSyncSessionRecords,
 } from './utils';
 import { SYNC_DIRECTIONS } from '../../models/types';
 import { SYNC_EVENT_ACTIONS } from './types';
 import { formatDate } from '../../ui/helpers/date';
 import { DateFormats } from '../../ui/helpers/constants';
+import { CURRENT_SYNC_TIME, LAST_SUCCESSFUL_PULL, LAST_SUCCESSFUL_PUSH } from './constants';
 
 export class MobileSyncManager {
   isSyncing = false;
@@ -122,25 +123,24 @@ export class MobileSyncManager {
     // clear persisted cache from last session
     await clearPersistedSyncSessionRecords();
 
-    // the first step of sync is to start a session and retrieve the index used as both the id of
-    // the session, and a marker on the global sync timeline
-    const {
-      sessionId,
-      syncClockTick: currentSyncTick,
-    } = await this.centralServer.startSyncSession();
-    const lastSuccessfulSyncTick = await getSyncTick('lastSuccessfulSyncTime');
+    // the first step of sync is to start a session and retrieve the session id
+    const sessionId = await this.centralServer.startSyncSession();
 
-    console.log(
-      `MobileSyncManager.runSync(): Sync started with sync tick ${currentSyncTick}, last successful sync tick: ${lastSuccessfulSyncTick}`,
-    );
+    // ~~~ Push phase ~~~ //
 
-    // persist the session index in LocalSystemFact table now
-    // so that any records that are created or updated from this point on, even mid way through this
-    // sync, are marked using the new index and will be captured in the next sync
-    await setSyncSessionSequence(this.models, currentSyncTick, 'currentSyncTime');
+    // get the sync tick we're up to locally, so that we can store it as the successful push cursor
+    const currentSyncTick = await getSyncTick(CURRENT_SYNC_TIME);
 
-    await this.syncOutgoingChanges(sessionId, lastSuccessfulSyncTick);
-    await this.syncIncomingChanges(sessionId, currentSyncTick, lastSuccessfulSyncTick);
+    // tick the global sync clock, and use that new unique tick for any changes from now on so that
+    // any records that are created or updated even mid way through this sync, are marked using the
+    // new tick and will be captured in the push
+    const newSyncClockTime = await this.centralServer.tickGlobalClock();
+    await setSyncTick(this.models, CURRENT_SYNC_TIME, newSyncClockTime);
+
+    console.log(`MobileSyncManager.runSync(): Sync started with sync tick ${currentSyncTick}`);
+
+    await this.syncOutgoingChanges(sessionId, currentSyncTick);
+    await this.syncIncomingChanges(sessionId);
 
     await this.centralServer.endSyncSession(sessionId);
 
@@ -150,22 +150,22 @@ export class MobileSyncManager {
 
   /**
    * Syncing outgoing changes in batches
+   * @param sessionId
    * @param currentSyncTick
-   * @param lastSuccessfulSyncTick
    */
-  async syncOutgoingChanges(
-    currentSyncTick: number,
-    lastSuccessfulSyncTick: number,
-  ): Promise<void> {
-    console.log('MobileSyncManager.syncOutgoingChanges(): Begin sync outgoing changes');
+  async syncOutgoingChanges(sessionId: string, currentSyncTick: number): Promise<void> {
+    const pushSince = await getSyncTick(LAST_SUCCESSFUL_PUSH);
+    console.log(
+      `MobileSyncManager.syncOutgoingChanges(): Begin sync outgoing changes since ${pushSince}`,
+    );
 
     const modelsToPush = getModelsForDirection(this.models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL);
-    const outgoingChanges = await snapshotOutgoingChanges(modelsToPush, lastSuccessfulSyncTick);
+    const outgoingChanges = await snapshotOutgoingChanges(modelsToPush, pushSince);
 
     if (outgoingChanges.length > 0) {
       await pushOutgoingChanges(
         this.centralServer,
-        currentSyncTick,
+        sessionId,
         outgoingChanges,
         (total, pushedRecords) =>
           this.updateProgress(total, pushedRecords, 'Stage 1/3: Pushing all new changes'),
@@ -173,6 +173,8 @@ export class MobileSyncManager {
     }
 
     this.lastSyncPushedRecordsCount = outgoingChanges.length;
+
+    await setSyncTick(this.models, LAST_SUCCESSFUL_PUSH, currentSyncTick);
 
     console.log(
       `MobileSyncManager.syncOutgoingChanges(): End sync outgoing changes, outgoing changes count: ${outgoingChanges.length}`,
@@ -185,19 +187,24 @@ export class MobileSyncManager {
    * then saving all those records into the local database
    * this avoids a period of time where the the local database may be "partially synced"
    * @param sessionId
-   * @param lastSuccessfulSyncTick
    */
-  async syncIncomingChanges(
-    sessionId: string,
-    currentSyncTick: number,
-    lastSuccessfulSyncTick: number,
-  ): Promise<void> {
-    console.log('MobileSyncManager.syncIncomingChanges(): Begin sync incoming changes');
+  async syncIncomingChanges(sessionId: string): Promise<void> {
+    const pullSince = await getSyncTick(LAST_SUCCESSFUL_PULL);
+    console.log(
+      `MobileSyncManager.syncIncomingChanges(): Begin sync incoming changes since ${pullSince}`,
+    );
+
+    // tick the global sync clock, and use that as our saved checkpoint for where we've pulled to,
+    // if this pull is successful (important to use a higher unique sync tick than our push tick)
+    // as otherwise we'll end up pulling the same records we just pushed the _next_ time we pull,
+    // given they get saved on the central server using the update tick at the moment they are
+    // persisted
+    const startOfPullTick = await this.centralServer.tickGlobalClock();
 
     const incomingChangesCount = await pullIncomingChanges(
       this.centralServer,
       sessionId,
-      lastSuccessfulSyncTick,
+      pullSince,
       (total, downloadedChangesTotal) =>
         this.updateProgress(total, downloadedChangesTotal, 'Stage 2/3: Pulling all new changes'),
     );
@@ -210,7 +217,7 @@ export class MobileSyncManager {
       const incomingModels = getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
 
       // Save all incoming changes in 1 transaction so that the whole sync session save
-      // either fail 100% or suceed 100%, no partial save.
+      // either fail 100% or succeed 100%, no partial save.
       await Database.client.transaction(async () => {
         await saveIncomingChanges(incomingChangesCount, incomingModels, this.updateProgress);
 
@@ -218,7 +225,7 @@ export class MobileSyncManager {
         // if updating the cursor fails, we want to roll back the rest of the saves
         // so that we don't end up detecting them as needing a sync up
         // to the central server when we attempt to resync from the same old cursor
-        await setSyncSessionSequence(this.models, currentSyncTick, 'lastSuccessfulSyncTime');
+        await setSyncTick(this.models, LAST_SUCCESSFUL_PULL, startOfPullTick);
       });
     }
 

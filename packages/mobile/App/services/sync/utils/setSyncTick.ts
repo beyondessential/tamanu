@@ -1,9 +1,9 @@
 import { MODELS_MAP } from '../../../models/modelsMap';
 
-export const setSyncSessionSequence = async (
+export const setSyncTick = async (
   models: typeof MODELS_MAP,
-  syncTick: number,
   key: string,
+  syncTick: number,
 ): Promise<void> => {
   const localSystemFact = await models.LocalSystemFact.findOne({ key });
 

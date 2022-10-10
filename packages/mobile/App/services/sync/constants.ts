@@ -4,3 +4,7 @@ export enum SYNC_SESSION_DIRECTION {
   INCOMING = 'incoming',
   OUTGOING = 'outgoing',
 }
+
+export const CURRENT_SYNC_TIME = 'currentSyncTime';
+export const LAST_SUCCESSFUL_PUSH = 'lastSuccessfulSyncPush';
+export const LAST_SUCCESSFUL_PULL = 'lastSuccessfulSyncPull';
