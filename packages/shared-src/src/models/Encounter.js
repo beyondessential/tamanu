@@ -324,12 +324,9 @@ export class Encounter extends Model {
     await this.closeTriage(endDate);
   }
 
-  async onEncounterProgression(newEncounterType, date) {
-    await this.addSystemNote(
-      `Changed type from ${this.encounterType} to ${newEncounterType}`,
-      date,
-    );
-    await this.closeTriage(new Date());
+  async onEncounterProgression(newEncounterType, submittedTime) {
+    await this.addSystemNote(`Changed type from ${this.encounterType} to ${newEncounterType}`);
+    await this.closeTriage(submittedTime);
   }
 
   async closeTriage(endDate) {
@@ -365,7 +362,7 @@ export class Encounter extends Model {
       }
 
       if (data.encounterType && data.encounterType !== this.encounterType) {
-        await this.onEncounterProgression(data.encounterType, data.endDate);
+        await this.onEncounterProgression(data.encounterType, data.submittedTime);
       }
 
       if (data.locationId && data.locationId !== this.locationId) {
