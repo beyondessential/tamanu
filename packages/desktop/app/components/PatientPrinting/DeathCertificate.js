@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Typography, Box } from '@material-ui/core';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { PrintLetterhead } from './PrintLetterhead';
 import { DateDisplay } from '../DateDisplay';
 import {
@@ -8,7 +9,6 @@ import {
   CertificateLabel as Label,
 } from './CertificateLabels';
 import { CertificateWrapper } from './CertificateWrapper';
-import { getCurrentDateTimeString } from '../../utils/dateTime';
 
 const Grid = styled(Box)`
   display: grid;
