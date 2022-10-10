@@ -107,7 +107,7 @@ triage.get(
             encounters.encounter_type = 'triage'
             OR encounters.encounter_type = 'observation'
           )
-        ORDER BY ${sortKey} ${sortDirection} NULLS LAST, Coalesce(arrival_time,triage_time) ASC
+        ORDER BY encounter_type = 'observation' ASC, ${sortKey} ${sortDirection} NULLS LAST, Coalesce(arrival_time,triage_time) ASC 
       `,
       {
         model: Triage,

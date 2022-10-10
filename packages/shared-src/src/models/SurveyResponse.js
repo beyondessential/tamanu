@@ -8,6 +8,8 @@ import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { runCalculations } from '../utils/calculations';
 import { getStringValue, getResultValue } from '../utils/fields';
+import { dateTimeType } from './dateTimeTypes';
+import { getCurrentDateTimeString } from '../utils/dateTime';
 
 async function createPatientIssues(models, questions, patientId) {
   const issueQuestions = questions.filter(
@@ -79,9 +81,8 @@ export class SurveyResponse extends Model {
     super.init(
       {
         id: primaryKey,
-
-        startTime: { type: Sequelize.DATE, allowNull: true },
-        endTime: { type: Sequelize.DATE, allowNull: true },
+        startTime: dateTimeType('startTime', { allowNull: true }),
+        endTime: dateTimeType('endTime', { allowNull: true }),
         result: { type: Sequelize.FLOAT, allowNull: true },
         resultText: { type: Sequelize.TEXT, allowNull: true },
       },
@@ -155,8 +156,10 @@ export class SurveyResponse extends Model {
       departmentId,
       examinerId: userId,
       locationId,
-      startDate: Date.now(),
-      endDate: Date.now(),
+      // Survey responses will usually have a startTime and endTime and we prefer to use that
+      // for the encounter to ensure the times are set in the browser timezone
+      startDate: responseData.startTime ? responseData.startTime : getCurrentDateTimeString(),
+      endDate: responseData.endTime ? responseData.endTime : getCurrentDateTimeString(),
     });
   }
 

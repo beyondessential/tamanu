@@ -59,7 +59,7 @@ export const DateInput = ({
       let outputValue;
       if (saveDateAsString) {
         if (type === 'date') outputValue = toDateString(date);
-        else if (type === 'datetime-local') outputValue = toDateTimeString(date);
+        else if (['time', 'datetime-local'].includes(type)) outputValue = toDateTimeString(date);
       } else {
         outputValue = date.toISOString();
       }
