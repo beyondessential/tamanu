@@ -129,7 +129,7 @@ export class MobileSyncManager {
     // ~~~ Push phase ~~~ //
 
     // get the sync tick we're up to locally, so that we can store it as the successful push cursor
-    const currentSyncTick = await getSyncTick(CURRENT_SYNC_TIME);
+    const currentSyncTick = await getSyncTick(this.models, CURRENT_SYNC_TIME);
 
     // tick the global sync clock, and use that new unique tick for any changes from now on so that
     // any records that are created or updated even mid way through this sync, are marked using the
@@ -154,7 +154,7 @@ export class MobileSyncManager {
    * @param currentSyncTick
    */
   async syncOutgoingChanges(sessionId: string, currentSyncTick: number): Promise<void> {
-    const pushSince = await getSyncTick(LAST_SUCCESSFUL_PUSH);
+    const pushSince = await getSyncTick(this.models, LAST_SUCCESSFUL_PUSH);
     console.log(
       `MobileSyncManager.syncOutgoingChanges(): Begin sync outgoing changes since ${pushSince}`,
     );
@@ -189,7 +189,7 @@ export class MobileSyncManager {
    * @param sessionId
    */
   async syncIncomingChanges(sessionId: string): Promise<void> {
-    const pullSince = await getSyncTick(LAST_SUCCESSFUL_PULL);
+    const pullSince = await getSyncTick(this.models, LAST_SUCCESSFUL_PULL);
     console.log(
       `MobileSyncManager.syncIncomingChanges(): Begin sync incoming changes since ${pullSince}`,
     );

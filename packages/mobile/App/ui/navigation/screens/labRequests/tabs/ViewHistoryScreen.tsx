@@ -102,7 +102,7 @@ export const DumbViewHistoryScreen = ({ selectedPatient, navigation }): ReactEle
   );
 
   const [lastSuccessfulSync] = useBackendEffect(
-    ({ models }) => getSyncTick(LAST_SUCCESSFUL_PUSH)
+    ({ models }) => getSyncTick(models, LAST_SUCCESSFUL_PUSH),
     [],
   );
 
