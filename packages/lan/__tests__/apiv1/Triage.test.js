@@ -8,7 +8,7 @@ import {
 } from 'shared/demoData';
 import { fake } from 'shared/test-helpers';
 import { ENCOUNTER_TYPES } from 'shared/constants';
-import { toDateTimeString, getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 
 describe('Triage', () => {

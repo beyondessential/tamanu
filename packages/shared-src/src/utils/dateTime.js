@@ -9,7 +9,9 @@ import {
   parseISO,
   isMatch,
 } from 'date-fns';
-import { ISO9075_DATE_FORMAT, ISO9075_DATETIME_FORMAT } from '../constants';
+
+const ISO9075_DATE_FORMAT = 'yyyy-MM-dd';
+const ISO9075_DATETIME_FORMAT = 'yyyy-MM-dd HH:mm:ss';
 
 export const isISOString = dateString =>
   isMatch(dateString, ISO9075_DATETIME_FORMAT) || isMatch(dateString, ISO9075_DATE_FORMAT);
@@ -26,14 +28,11 @@ export const parseDate = date => {
   if (date === null || date === undefined) {
     return null;
   }
-
   let dateObj = date;
 
   if (isISOString(date)) {
     dateObj = parseISO(date);
-  }
-
-  if (date === 'string') {
+  } else if (typeof date === 'string') {
     dateObj = new Date(date);
   }
 
@@ -45,11 +44,17 @@ export const parseDate = date => {
 };
 
 export function toDateTimeString(date) {
+  if (date === null || date === undefined) {
+    return null;
+  }
   const dateObj = parseDate(date);
   return formatISO9075(dateObj, { representation: 'complete' });
 }
 
 export function toDateString(date) {
+  if (date === null || date === undefined) {
+    return null;
+  }
   const dateObj = parseDate(date);
   return formatISO9075(dateObj, { representation: 'date' });
 }
@@ -93,6 +98,9 @@ export function latestDateTime(...args) {
  */
 
 export const format = (date, f) => {
+  if (date === null || date === undefined) {
+    return null;
+  }
   const dateObj = parseDate(date);
   return dateFnsFormat(dateObj, f);
 };
