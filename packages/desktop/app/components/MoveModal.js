@@ -1,4 +1,6 @@
 import React, { useCallback } from 'react';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+
 import { useEncounter } from '../contexts/Encounter';
 import { useSuggester } from '../api';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
@@ -56,7 +58,7 @@ const MoveForm = ({ onSubmit, onClose, encounter, locationSuggester }) => {
     <Form
       onSubmit={onSubmit}
       render={renderForm}
-      initialValues={{ locationId: encounter.location.id }}
+      initialValues={{ locationId: encounter.location.id, endDate: getCurrentDateTimeString() }}
     />
   );
 };
