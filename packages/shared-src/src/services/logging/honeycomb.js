@@ -2,6 +2,7 @@ import Transport from 'winston-transport';
 import Libhoney from 'libhoney';
 import config from 'config';
 import shortid from 'shortid';
+import os from 'os';
 
 const serverInfo = {
   deployment: config?.canonicalHostName || config?.sync?.host,
