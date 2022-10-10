@@ -201,11 +201,11 @@ const getLatestPatientAnswerInDateRange = (
   }
 
   const sortedLatestToOldestAnswers = patientTransformedAnswers.sort((a1, a2) =>
-    differenceInMilliseconds(a2.responseEndTime, a1.responseEndTime),
+    differenceInMilliseconds(parseISO(a2.responseEndTime), parseISO(a1.responseEndTime)),
   );
 
   const latestAnswer = sortedLatestToOldestAnswers.find(a =>
-    isWithinInterval(new Date(a.responseEndTime), {
+    isWithinInterval(parseISO(a.responseEndTime), {
       start: currentlabTestDate,
       end: nextLabTestDate,
     }),
@@ -254,13 +254,13 @@ const getLabTestRecords = async (
       if (
         isBefore(
           currentLabTestDate,
-          startOfDay(parameters.fromDate ? new Date(parameters.fromDate) : subDays(new Date(), 30)),
+          startOfDay(parameters.fromDate ? parseISO(parameters.fromDate) : subDays(new Date(), 30)),
         )
       ) {
         continue;
       }
 
-      if (parameters.toDate && isAfter(currentLabTestDate, endOfDay(new Date(parameters.toDate)))) {
+      if (parameters.toDate && isAfter(currentLabTestDate, endOfDay(parseISO(parameters.toDate)))) {
         continue;
       }
 
@@ -306,9 +306,7 @@ const getLabTestRecords = async (
         submittedDate: formatDate(labTest.date),
         requestedDate: formatDate(labRequest.requestedDate),
         testingDate: formatDate(labTest.completedDate),
-        testingTime: labTest.completedDate
-          ? format(new Date(labTest.completedDate), 'h:mm:ss aa')
-          : '',
+        testingTime: labTest.completedDate ? format(labTest.completedDate, 'h:mm:ss aa') : '',
         priority: labRequest?.priority?.name,
         testingLaboratory: labRequest?.laboratory?.name,
         laboratoryOfficer: labTest?.laboratoryOfficer,
