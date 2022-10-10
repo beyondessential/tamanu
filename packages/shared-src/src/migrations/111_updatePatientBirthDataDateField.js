@@ -39,14 +39,14 @@ export async function up(query) {
     type: DataTypes.STRING,
   });
 
-  const legacyDataCount = await query.sequelize.query(
+  const countResult = await query.sequelize.query(
     `SELECT COUNT(*) FROM patient_birth_data WHERE time_of_birth IS NOT NULL;`,
     {
       type: QueryTypes.SELECT,
     },
   );
 
-  if (legacyDataCount === 0) {
+  if (parseInt(countResult[0].count, 10) === 0) {
     await alterSchemaOnly(query, 'patient_birth_data', 'time_of_birth');
   } else {
     await alterSchemaAndBackUpLegacyData(query, 'patient_birth_data', 'time_of_birth');

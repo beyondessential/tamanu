@@ -5,6 +5,7 @@ import { SvgProps } from 'react-native-svg';
 import { compose } from 'redux';
 import { useSelector } from 'react-redux';
 import { formatISO9075 } from 'date-fns';
+import { parseISO9075 } from '../../../../helpers/date';
 
 import { withPatient } from '~/ui/containers/Patient';
 import { StyledSafeAreaView } from '/styled/common';
@@ -64,12 +65,17 @@ export const NewVaccineTabComponent = ({
     [isSubmitting],
   );
 
+  const vaccineObject = { ...vaccine, ...administeredVaccine };
+
   return (
     <StyledSafeAreaView flex={1}>
       <VaccineForm
         onSubmit={recordVaccination}
         onCancel={onPressCancel}
-        initialValues={{ ...vaccine, ...administeredVaccine }}
+        initialValues={{
+          ...vaccineObject,
+          date: vaccineObject.date ? parseISO9075(vaccineObject.date) : null,
+        }}
         status={route.key as VaccineStatus}
       />
     </StyledSafeAreaView>

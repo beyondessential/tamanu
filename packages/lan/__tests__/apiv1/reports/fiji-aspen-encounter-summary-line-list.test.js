@@ -103,11 +103,29 @@ const fakeAllData = async models => {
       dateOfBirth: '1952-10-12',
     }),
   );
+
+  // Decoy encounter to test
+  // - location filtering
+  // - first_from logic
+  await models.Encounter.create(
+    fake(models.Encounter, {
+      patientId: patient.id,
+      startDate: '2015-06-09 00:02:54',
+      endDate: '2015-06-12 00:02:54',
+      encounterType: ENCOUNTER_TYPES.ADMISSION,
+      reasonForEncounter: 'Severe Migrane',
+      examinerId: userId,
+      patientBillingTypeId,
+      locationId: location2Id,
+      departmentId,
+    }),
+  );
+
   const { id: encounterId } = await models.Encounter.create(
     fake(models.Encounter, {
       patientId: patient.id,
       startDate: '2022-06-09 00:02:54',
-      endDate: '2022-06-12 00:02:54', // Make sure this works
+      endDate: '2022-06-12 00:02:54',
       encounterType: ENCOUNTER_TYPES.ADMISSION,
       reasonForEncounter: 'Severe Migrane',
       examinerId: userId,
@@ -292,7 +310,7 @@ const fakeAllData = async models => {
   systemNoteItem.date = '2022-06-09 08:04:54';
   await systemNoteItem.save();
 
-  return { patient, encounterId };
+  return { patient, encounterId, location1Id };
 };
 
 describe('fijiAspenMediciReport', () => {
@@ -309,10 +327,14 @@ describe('fijiAspenMediciReport', () => {
   afterAll(() => ctx.close());
 
   it(`Should produce a simple report`, async () => {
-    const { patient, encounterId } = await fakeAllData(models);
+    const { patient, encounterId, location1Id } = await fakeAllData(models);
 
     // act
-    const response = await app.post('/v1/reports/fiji-aspen-encounter-summary-line-list').send({});
+    const response = await app.post('/v1/reports/fiji-aspen-encounter-summary-line-list').send({
+      parameters: {
+        location: location1Id,
+      }
+    });
 
     // assert
     expect(response).toHaveSucceeded();
