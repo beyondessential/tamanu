@@ -325,7 +325,10 @@ export class Encounter extends Model {
   }
 
   async onEncounterProgression(newEncounterType, submittedTime) {
-    await this.addSystemNote(`Changed type from ${this.encounterType} to ${newEncounterType}`);
+    await this.addSystemNote(
+      `Changed type from ${this.encounterType} to ${newEncounterType}`,
+      submittedTime,
+    );
     await this.closeTriage(submittedTime);
   }
 
