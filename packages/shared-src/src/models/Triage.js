@@ -77,7 +77,7 @@ export class Triage extends Model {
     return this.sequelize.transaction(async () => {
       const encounter = await Encounter.create({
         encounterType: ENCOUNTER_TYPES.TRIAGE,
-        startDate: data.triageTime || new Date(),
+        startDate: data.triageTime,
         reasonForEncounter,
         patientId: data.patientId,
         departmentId: data.departmentId || department.dataValues.id,

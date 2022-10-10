@@ -1,5 +1,4 @@
 import { Sequelize } from 'sequelize';
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { endOfDay, startOfDay, isBefore } from 'date-fns';
 import config from 'config';
 
@@ -333,7 +332,7 @@ export class Encounter extends Model {
     const triage = await this.getLinkedTriage();
     if (triage) {
       await triage.update({
-        closedTime: endDate || getCurrentDateTimeString(),
+        closedTime: endDate,
       });
     }
   }
