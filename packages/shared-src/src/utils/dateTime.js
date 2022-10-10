@@ -11,7 +11,7 @@ import {
 export function toDateTimeString(date) {
   if (date === null || date === undefined) return null;
 
-  const dateObj = new Date(date);
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
   if (!isValid(dateObj)) throw new Error('Not a valid date');
 
   return formatISO9075(dateObj, { representation: 'complete' });
@@ -20,7 +20,7 @@ export function toDateTimeString(date) {
 export function toDateString(date) {
   if (date === null || date === undefined) return null;
 
-  const dateObj = new Date(date);
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
   if (!isValid(dateObj)) throw new Error('Not a valid date');
 
   return formatISO9075(dateObj, { representation: 'date' });
