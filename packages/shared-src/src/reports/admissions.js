@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { subDays, format, startOfDay, endOfDay } from 'date-fns';
+import { subDays, format, startOfDay, endOfDay, parseISO } from 'date-fns';
 import { ENCOUNTER_TYPES, DIAGNOSIS_CERTAINTY, NOTE_TYPES } from 'shared/constants';
 import upperFirst from 'lodash/upperFirst';
 import { ageInYears } from 'shared/utils/dateTime';
@@ -14,7 +14,7 @@ const reportColumnTemplate = [
   { title: 'Village', accessor: data => data.patient.village.name },
   {
     title: 'Date of Birth',
-    accessor: data => format(new Date(data.patient.dateOfBirth), 'dd/MM/yyyy'),
+    accessor: data => format(parseISO(data.patient.dateOfBirth), 'dd/MM/yyyy'),
   },
   {
     title: 'Age',
@@ -24,11 +24,11 @@ const reportColumnTemplate = [
   { title: 'Admitting Doctor/Nurse', accessor: data => data.examiner?.displayName },
   {
     title: 'Admission Date',
-    accessor: data => format(new Date(data.startDate), 'dd/MM/yyyy h:mm:ss a'),
+    accessor: data => format(parseISO(data.startDate), 'dd/MM/yyyy h:mm:ss a'),
   },
   {
     title: 'Discharge Date',
-    accessor: data => data.endDate && format(new Date(data.endDate), 'dd/MM/yyyy h:mm:ss a'),
+    accessor: data => data.endDate && format(parseISO(data.endDate), 'dd/MM/yyyy h:mm:ss a'),
   },
   { title: 'Location', accessor: data => data.locationHistoryString },
   { title: 'Department', accessor: data => data.departmentHistoryString },
@@ -47,9 +47,9 @@ function parametersToSqlWhere(parameters) {
   } = parameters;
 
   const queryFromDate = toDateTimeString(
-    startOfDay(fromDate ? new Date(fromDate) : subDays(new Date(), 30)),
+    startOfDay(fromDate ? parseISO(fromDate) : subDays(new Date(), 30)),
   );
-  const queryToDate = toDate && toDateTimeString(endOfDay(new Date(toDate)));
+  const queryToDate = toDate && toDateTimeString(endOfDay(parseISO(toDate)));
 
   return {
     encounterType: ENCOUNTER_TYPES.ADMISSION,
@@ -161,7 +161,7 @@ const formatPlaceHistory = (history, placeType) =>
   history
     .map(
       ({ to, date }) =>
-        `${to} (${upperFirst(placeType)} assigned: ${format(new Date(date), 'dd/MM/yy h:mm a')})`,
+        `${to} (${upperFirst(placeType)} assigned: ${format(parseISO(date), 'dd/MM/yy h:mm a')})`,
     )
     .join('; ');
 

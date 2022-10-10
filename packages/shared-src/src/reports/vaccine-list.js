@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { subDays, format, endOfDay, startOfDay } from 'date-fns';
+import { subDays, format, endOfDay, startOfDay, parseISO } from 'date-fns';
 import { parseISO9075 } from 'shared/utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 import { toDateTimeString } from '../utils/dateTime';
@@ -25,12 +25,12 @@ function parametersToSqlWhere(parameters) {
   const newParameters = {
     ...parameters,
     fromDate: toDateTimeString(
-      startOfDay(parameters.fromDate ? new Date(parameters.fromDate) : subDays(new Date(), 30)),
+      startOfDay(parameters.fromDate ? parseISO(parameters.fromDate) : subDays(new Date(), 30)),
     ),
   };
 
   if (parameters.toDate) {
-    newParameters.toDate = toDateTimeString(endOfDay(new Date(parameters.toDate)));
+    newParameters.toDate = toDateTimeString(endOfDay(parseISO(parameters.toDate)));
   }
 
   const whereClause = Object.entries(newParameters)

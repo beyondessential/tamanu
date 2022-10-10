@@ -1,6 +1,6 @@
 /* eslint-disable import/no-unresolved, import/extensions */
 
-import { subDays, isBefore, startOfDay, endOfDay } from 'date-fns';
+import { subDays, isBefore, startOfDay, endOfDay, parseISO } from 'date-fns';
 import { groupBy } from 'lodash';
 import { Op } from 'sequelize';
 
@@ -90,12 +90,12 @@ const parametersToSurveyResponseSqlWhere = (parameters, surveyId) => {
   const newParameters = {
     ...parameters,
     fromDate: toDateTimeString(
-      startOfDay(parameters.fromDate ? new Date(parameters.fromDate) : subDays(new Date(), 30)),
+      startOfDay(parameters.fromDate ? parseISO(parameters.fromDate) : subDays(new Date(), 30)),
     ),
   };
 
   if (newParameters.toDate) {
-    newParameters.toDate = toDateTimeString(endOfDay(new Date(newParameters.toDate)));
+    newParameters.toDate = toDateTimeString(endOfDay(parseISO(newParameters.toDate)));
   }
 
   /* eslint-disable no-param-reassign */
@@ -187,10 +187,10 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
       // only take the latest initial survey response
       const surveyResponse = patientSurveyResponses[0];
       // only select follow up surveys after the current initial survey
-      const followUpSurveyResponseFromDate = startOfDay(new Date(surveyResponse.endTime));
+      const followUpSurveyResponseFromDate = startOfDay(parseISO(surveyResponse.endTime));
       const followUpSurvey = followUpSurveyResponsesByPatient[patientId]?.find(
         followUpSurveyResponse =>
-          !isBefore(new Date(followUpSurveyResponse.endTime), followUpSurveyResponseFromDate),
+          !isBefore(parseISO(followUpSurveyResponse.endTime), followUpSurveyResponseFromDate),
       );
       async function transform() {
         const resultResponse = surveyResponse;

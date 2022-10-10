@@ -205,7 +205,7 @@ const getLatestPatientAnswerInDateRange = (
   );
 
   const latestAnswer = sortedLatestToOldestAnswers.find(a =>
-    isWithinInterval(new Date(a.responseEndTime), {
+    isWithinInterval(parseISO(a.responseEndTime), {
       start: currentlabTestDate,
       end: nextLabTestDate,
     }),
@@ -254,13 +254,13 @@ const getLabTestRecords = async (
       if (
         isBefore(
           currentLabTestDate,
-          startOfDay(parameters.fromDate ? new Date(parameters.fromDate) : subDays(new Date(), 30)),
+          startOfDay(parameters.fromDate ? parseISO(parameters.fromDate) : subDays(new Date(), 30)),
         )
       ) {
         continue;
       }
 
-      if (parameters.toDate && isAfter(currentLabTestDate, endOfDay(new Date(parameters.toDate)))) {
+      if (parameters.toDate && isAfter(currentLabTestDate, endOfDay(parseISO(parameters.toDate)))) {
         continue;
       }
 
@@ -307,7 +307,7 @@ const getLabTestRecords = async (
         requestedDate: formatDate(labRequest.requestedDate),
         testingDate: formatDate(labTest.completedDate),
         testingTime: labTest.completedDate
-          ? format(new Date(labTest.completedDate), 'h:mm:ss aa')
+          ? format(parseISO(labTest.completedDate), 'h:mm:ss aa')
           : '',
         priority: labRequest?.priority?.name,
         testingLaboratory: labRequest?.laboratory?.name,
