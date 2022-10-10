@@ -4,8 +4,7 @@ import {
   OutdatedVersionError,
   RemoteError,
 } from '~/services/error';
-
-const sleepAsync = (ms: number): Promise<void> => new Promise(resolve => setTimeout(resolve, ms));
+import { sleepAsync } from './sleepAsync';
 
 export type callWithBackoffOptions = Partial<{
   maxAttempts: number;
@@ -14,9 +13,11 @@ export type callWithBackoffOptions = Partial<{
 }>;
 
 const IRRECOVERABLE_ERRORS = [AuthenticationError, InvalidCredentialsError, OutdatedVersionError];
-const isErrorOnIrrecoverableList = (e: unknown) => IRRECOVERABLE_ERRORS.some(irrecErr => e instanceof irrecErr);
+const isErrorOnIrrecoverableList = (e: unknown) =>
+  IRRECOVERABLE_ERRORS.some(irrecErr => e instanceof irrecErr);
 const is4xx = (e: unknown) => e instanceof RemoteError && e.status >= 400 && e.status < 500;
-const isInsufficientStorage = (e: unknown) => e instanceof RemoteError && e?.remoteError?.name === 'InsufficientStorage';
+const isInsufficientStorage = (e: unknown) =>
+  e instanceof RemoteError && e?.remoteError?.name === 'InsufficientStorage';
 const isIrrecoverable = (e: unknown) => {
   return isErrorOnIrrecoverableList(e) || is4xx(e) || isInsufficientStorage(e);
 };
@@ -25,11 +26,7 @@ const isIrrecoverable = (e: unknown) => {
 export const callWithBackoff = async <T>(
   fn: () => Promise<T>,
   // TODO: load from localisation, maybe?
-  {
-    maxAttempts = 15,
-    maxWaitMs = 10000,
-    multiplierMs = 300,
-  }: callWithBackoffOptions = {},
+  { maxAttempts = 15, maxWaitMs = 10000, multiplierMs = 300 }: callWithBackoffOptions = {},
 ): Promise<T> => {
   if (!Number.isFinite(maxAttempts) || maxAttempts < 1) {
     throw new Error(

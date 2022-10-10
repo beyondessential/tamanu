@@ -11,10 +11,10 @@ import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
 import { getResponseJsonSafely } from 'shared/utils';
 import { log } from 'shared/services/logging';
 import { fetchWithTimeout } from 'shared/utils/fetchWithTimeout';
+import { sleepAsync } from 'shared/utils/sleepAsync';
 
 import { version } from '../serverInfo';
 import { callWithBackoff } from './callWithBackoff';
-import { sleepAsync } from 'shared/utils/sleepAsync';
 
 const API_VERSION = 'v1';
 

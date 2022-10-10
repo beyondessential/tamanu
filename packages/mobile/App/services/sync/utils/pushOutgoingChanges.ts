@@ -12,7 +12,7 @@ import { calculatePageLimit } from './calculatePageLimit';
  */
 export const pushOutgoingChanges = async (
   centralServer: CentralServerConnection,
-  sessionId: number,
+  sessionId: string,
   changes: SyncRecord[],
   progressCallback: (total: number, progressCount: number) => void,
 ): Promise<void> => {
