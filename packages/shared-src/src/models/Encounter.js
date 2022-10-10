@@ -1,4 +1,5 @@
 import { Sequelize } from 'sequelize';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { endOfDay, startOfDay, isBefore } from 'date-fns';
 import config from 'config';
 
@@ -323,16 +324,16 @@ export class Encounter extends Model {
     await this.closeTriage(endDate);
   }
 
-  async onEncounterProgression(newEncounterType) {
+  async onEncounterProgression(newEncounterType, submittedTime) {
     await this.addSystemNote(`Changed type from ${this.encounterType} to ${newEncounterType}`);
-    await this.closeTriage(new Date());
+    await this.closeTriage(submittedTime);
   }
 
   async closeTriage(endDate) {
     const triage = await this.getLinkedTriage();
     if (triage) {
       await triage.update({
-        closedTime: endDate,
+        closedTime: endDate || getCurrentDateTimeString(),
       });
     }
   }
@@ -361,7 +362,7 @@ export class Encounter extends Model {
       }
 
       if (data.encounterType && data.encounterType !== this.encounterType) {
-        await this.onEncounterProgression(data.encounterType);
+        await this.onEncounterProgression(data.encounterType, data.submittedTime);
       }
 
       if (data.locationId && data.locationId !== this.locationId) {
