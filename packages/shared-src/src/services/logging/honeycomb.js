@@ -1,11 +1,14 @@
 import Transport from 'winston-transport';
 import Libhoney from 'libhoney';
 import config from 'config';
+import shortid from 'shortid';
 
 const serverInfo = {
-  syncHost: config?.canonicalHostName,
+  deployment: config?.canonicalHostName || config?.sync?.host,
   facilityId: config?.serverFacilityId,
   nodeEnv: process.env.NODE_ENV,
+  processId: shortid.generate(),
+  hostname: os.hostname(),
   ...global.serverInfo,
 };
 
