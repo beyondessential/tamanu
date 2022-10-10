@@ -13,11 +13,14 @@ export class FhirReference extends Composite {
           .string()
           .nullable()
           .default(null),
-      type: yup
-        .string()
-        .url()
-        .nullable()
-        .default(null),
+
+        // In spec's schema, this is of type "uri", but it is later
+        // mentioned that it can be `"Patient"` as a shorthand, so
+        // it can't be the `url()` type in yup.
+        type: yup
+          .string()
+          .nullable()
+          .default(null),
 
         identifier: FhirIdentifier.asYup()
           .nullable()
@@ -32,14 +35,15 @@ export class FhirReference extends Composite {
 
   static validateAndTransformFromSql({ identifier, ...fields }) {
     return new this({
-      identifier: identifier && FhirIdentifier.fromSql(identifier),
+      // stored in postgres as JSONB to avoid type cycle
+      identifier: identifier && new FhirIdentifier(JSON.parse(identifier)),
       ...fields,
     });
   }
 
   static fake(model, { fieldName }, id) {
     return new this({
-      type: `http://hl7.org/fhir/resource-types/${model}`,
+      type: model,
       display: `${fieldName}.${id}`,
     });
   }
