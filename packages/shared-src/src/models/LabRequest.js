@@ -55,7 +55,9 @@ export class LabRequest extends Model {
         throw new InvalidOperationError('A request must have at least one test');
       }
 
-      const base = await this.create(data);
+      const { date, ...requestData } = data;
+
+      const base = await this.create(requestData);
 
       // then create tests
       const { LabTest } = this.sequelize.models;
@@ -65,6 +67,7 @@ export class LabRequest extends Model {
           LabTest.create({
             labTestTypeId: t,
             labRequestId: base.id,
+            date,
           }),
         ),
       );
