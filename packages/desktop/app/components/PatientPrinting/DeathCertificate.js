@@ -8,6 +8,7 @@ import {
   CertificateLabel as Label,
 } from './CertificateLabels';
 import { CertificateWrapper } from './CertificateWrapper';
+import { getCurrentDateTimeString } from '../../utils/dateTime';
 
 const Grid = styled(Box)`
   display: grid;
@@ -105,7 +106,7 @@ export const DeathCertificate = React.memo(({ patientData, certificateData }) =>
   const causeOfDeath = getCauseName(causes?.primary);
   const antecedentCause1 = getCauseName(causes?.antecedent1);
   const antecedentCause2 = getCauseName(causes?.antecedent2);
-  const dateOfPrinting = new Date();
+  const dateOfPrinting = getCurrentDateTimeString();
 
   return (
     <CertificateWrapper watermarkSrc={watermark}>
