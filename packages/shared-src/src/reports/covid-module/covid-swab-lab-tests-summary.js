@@ -1,8 +1,8 @@
 import { Sequelize, Op } from 'sequelize';
 import { groupBy } from 'lodash';
-import { endOfDay, format, startOfDay, subDays } from 'date-fns';
+import { endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
 import { generateReportFromQueryData } from '../utilities';
-import { toDateTimeString } from '../../utils/dateTime';
+import { toDateTimeString, format } from '../../utils/dateTime';
 
 const parametersToSqlWhere = parameters => {
   const defaultWhereClause = {
@@ -19,11 +19,11 @@ const parametersToSqlWhere = parameters => {
   const newParameters = { ...parameters };
 
   if (parameters.fromDate) {
-    toDateTimeString(startOfDay(new Date(parameters.fromDate)));
+    toDateTimeString(startOfDay(parseISO(parameters.fromDate)));
   }
 
   if (parameters.toDate) {
-    toDateTimeString(endOfDay(new Date(parameters.toDate)));
+    toDateTimeString(endOfDay(parseISO(parameters.toDate)));
   }
 
   const whereClause = Object.entries(newParameters)
@@ -64,7 +64,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
   const reportColumnTemplate = [
     {
       title: 'Date',
-      accessor: data => format(new Date(data.testDate), 'yyyy/MM/dd'),
+      accessor: data => format(data.testDate, 'yyyy/MM/dd'),
     },
     {
       title: 'Total tests',
