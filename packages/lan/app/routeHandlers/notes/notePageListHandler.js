@@ -1,68 +1,70 @@
-export const notePageListHandler = recordType => async (req, res) => {
-  const { models, params, query } = req;
-  const { order = 'ASC', orderBy } = query;
+import asyncHandler from 'express-async-handler';
 
-  const recordId = params.id;
-  const owner = await models[recordType].findByPk(recordId);
+import { checkNotePermission } from '../../utils/checkNotePermission';
 
-  req.checkPermission('read', owner);
+export const notePageListHandler = recordType =>
+  asyncHandler(async (req, res) => {
+    const { models, params, query } = req;
+    const { order = 'ASC', orderBy } = query;
 
-  const rows = await models.NotePage.findAll({
-    include: [
-      {
-        model: models.NoteItem,
-        as: 'noteItems',
-        include: [
-          {
-            model: models.User,
-            as: 'author',
-          },
-          {
-            model: models.User,
-            as: 'onBehalfOf',
-          },
-        ],
-      },
-    ],
-    where: { recordType, recordId },
-    order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
+    const recordId = params.id;
+    checkNotePermission(req, { recordType, recordId }, 'list');
+
+    const rows = await models.NotePage.findAll({
+      include: [
+        {
+          model: models.NoteItem,
+          as: 'noteItems',
+          include: [
+            {
+              model: models.User,
+              as: 'author',
+            },
+            {
+              model: models.User,
+              as: 'onBehalfOf',
+            },
+          ],
+        },
+      ],
+      where: { recordType, recordId },
+      order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
+    });
+
+    res.send({ data: rows, count: rows.length });
   });
 
-  res.send({ data: rows, count: rows.length });
-};
+export const notePagesWithSingleItemListHandler = recordType =>
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
 
-export const notePagesWithSingleItemListHandler = recordType => async (req, res) => {
-  const { models, params } = req;
+    const recordId = params.id;
+    checkNotePermission(req, { recordType, recordId }, 'list');
 
-  const recordId = params.id;
-  const owner = await models[recordType].findByPk(recordId);
-
-  req.checkPermission('read', owner);
-
-  const notePages = await models.NotePage.findAll({
-    include: [
-      {
-        model: models.NoteItem,
-        as: 'noteItems',
-        include: [
-          { model: models.User, as: 'author' },
-          { model: models.User, as: 'onBehalfOf' },
-        ],
+    const notePages = await models.NotePage.findAll({
+      include: [
+        {
+          model: models.NoteItem,
+          as: 'noteItems',
+          include: [
+            { model: models.User, as: 'author' },
+            { model: models.User, as: 'onBehalfOf' },
+          ],
+        },
+      ],
+      where: {
+        recordId,
+        recordType,
       },
-    ],
-    where: {
-      recordId,
-      recordType,
-    },
-    order: [['createdAt', 'ASC']],
+      order: [['createdAt', 'ASC']],
+    });
+
+    const notes = [];
+    for (const notePage of notePages) {
+      const combinedNoteObject = await notePage.getCombinedNoteObject(models);
+      notes.push(combinedNoteObject);
+    }
+
+    const resultNotes = notes.filter(n => !!n);
+    res.send({ data: resultNotes, count: resultNotes.length });
   });
-
-  const notes = [];
-  for (const notePage of notePages) {
-    const combinedNoteObject = await notePage.getCombinedNoteObject(models);
-    notes.push(combinedNoteObject);
-  }
-
-  const resultNotes = notes.filter(n => !!n);
-  res.send({ data: resultNotes, count: resultNotes.length });
-};

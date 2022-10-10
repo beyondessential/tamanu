@@ -302,11 +302,12 @@ export class Encounter extends Model {
     return values;
   }
 
-  async addSystemNote(content) {
+  async addSystemNote(content, date) {
     const notePage = await this.createNotePage({
       noteType: NOTE_TYPES.SYSTEM,
+      date,
     });
-    await notePage.createNoteItem({ content });
+    await notePage.createNoteItem({ content, date });
   }
 
   async getLinkedTriage() {
@@ -319,7 +320,7 @@ export class Encounter extends Model {
   }
 
   async onDischarge(endDate, note) {
-    await this.addSystemNote(note || `Discharged patient.`);
+    await this.addSystemNote(note || `Discharged patient.`, endDate);
     await this.closeTriage(endDate);
   }
 
@@ -372,6 +373,7 @@ export class Encounter extends Model {
         }
         await this.addSystemNote(
           `Changed location from ${oldLocation.name} to ${newLocation.name}`,
+          data.endDate,
         );
       }
 
@@ -383,6 +385,7 @@ export class Encounter extends Model {
         }
         await this.addSystemNote(
           `Changed department from ${oldDepartment.name} to ${newDepartment.name}`,
+          data.endDate,
         );
       }
 

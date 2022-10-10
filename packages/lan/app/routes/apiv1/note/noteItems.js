@@ -2,6 +2,8 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 
+import { checkNotePermission } from '../../../utils/checkNotePermission';
+
 const noteItemRoute = express.Router();
 export { noteItemRoute as noteItems };
 
@@ -18,8 +20,7 @@ noteItemRoute.post(
     }
 
     const notePage = await models.NotePage.findByPk(notePageId);
-    const owner = await models[notePage.recordType].findByPk(notePage.recordId);
-    req.checkPermission('write', owner);
+    checkNotePermission(req, notePage, 'create');
 
     await models.NoteItem.create({
       notePageId,
@@ -55,8 +56,7 @@ noteItemRoute.get(
     const { notePageId } = params;
 
     const notePage = await models.NotePage.findByPk(notePageId);
-    const owner = await models[notePage.recordType].findByPk(notePage.recordId);
-    req.checkPermission('read', owner);
+    checkNotePermission(req, notePage, 'list');
 
     const noteItems = await models.NoteItem.findAll({
       include: [

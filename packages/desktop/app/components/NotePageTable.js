@@ -62,6 +62,12 @@ const ItemTooltip = ({ childNoteItems = [] }) => {
   ));
 };
 
+const getDate = ({ noteItems }) => {
+  const rootNoteItems = groupRootNoteItems(noteItems, (n1, n2) =>
+    isAfter(new Date(n2.date), new Date(n1.date)) ? 1 : -1,
+  );
+  return <DateDisplay date={rootNoteItems[0]?.date} showTime />;
+};
 const getTypeLabel = ({ noteType }) => noteTypes.find(x => x.value === noteType).label;
 const getContent = ({ noteItems }) => {
   const rootNoteItems = groupRootNoteItems(noteItems, (n1, n2) =>
@@ -78,7 +84,7 @@ const COLUMNS = [
   {
     key: 'date',
     title: 'Date',
-    accessor: ({ date }) => <DateDisplay date={date} showTime />,
+    accessor: getDate,
     sortable: false,
   },
   { key: 'noteType', title: 'Type', accessor: getTypeLabel, sortable: false },
