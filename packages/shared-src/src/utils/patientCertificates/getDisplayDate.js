@@ -1,16 +1,19 @@
-import { format as formatDate } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
+import { format as formatDate } from '../dateTime';
 
 const DEFAULT_DATE_FORMAT = 'dd/MM/yyyy';
 
-// Display the date in a configured timezone if one is set
 export const getDisplayDate = (date, format = DEFAULT_DATE_FORMAT, getLocalisation) => {
-  const timeZone = getLocalisation('timeZone');
-  const dateObject = date ? new Date(date) : new Date();
-
-  if (timeZone) {
-    return formatInTimeZone(dateObject, timeZone, format);
+  // Format the date if it's passed in
+  if (date) {
+    return formatDate(date, format);
   }
 
-  return formatDate(dateObject, format);
+  // Display the current date in a configured timezone if one is set
+  if (getLocalisation && getLocalisation('timeZone')) {
+    return formatInTimeZone(new Date(), getLocalisation('timeZone'), format);
+  }
+
+  // Finally return a current date
+  return formatDate(new Date(), format);
 };

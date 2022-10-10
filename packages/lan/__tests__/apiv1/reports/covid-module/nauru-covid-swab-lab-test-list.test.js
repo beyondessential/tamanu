@@ -18,7 +18,6 @@ import {
 const REPORT_URL = '/v1/reports/nauru-covid-swab-lab-test-list';
 const PROGRAM_ID = 'program-naurucovid19';
 const SURVEY_ID = 'program-naurucovid19-naurucovidtestregistration';
-const timePart = 'T00:00:00.000Z';
 
 async function createNauruSurveys(models) {
   await models.Program.create({
@@ -151,10 +150,10 @@ describe('Nauru covid case report tests', () => {
           Result: 'Positive',
           'Requested by': null,
           'Requested date': format(new Date(labRequest.requestedDate), 'yyyy/MM/dd'),
-          'Submitted date': format(labTest.date, 'yyyy/MM/dd'),
+          'Submitted date': format(new Date(labTest.date), 'yyyy/MM/dd'),
           Priority: null,
           'Testing laboratory': null,
-          'Testing date': format(labTest.completedDate, 'yyyy/MM/dd'),
+          'Testing date': format(new Date(labTest.completedDate), 'yyyy/MM/dd'),
           'Laboratory officer': 'Officer Number 8',
           'Sample collection date': format(new Date(labRequest.sampleTime), 'yyyy/MM/dd'),
           'Sample collection time': format(new Date(labRequest.sampleTime), 'hh:mm a'),

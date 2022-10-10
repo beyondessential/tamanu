@@ -1,6 +1,7 @@
 import Sequelize from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
 import { SYNC_DIRECTIONS } from '../constants';
+import { dateTimeType } from './dateTimeTypes';
 
 import { Model } from './Model';
 import { buildPatientLinkedSyncFilter } from './buildPatientLinkedSyncFilter';
@@ -19,7 +20,7 @@ export class PatientBirthData extends Model {
         apgarScoreOneMinute: { type: Sequelize.INTEGER },
         apgarScoreFiveMinutes: { type: Sequelize.INTEGER },
         apgarScoreTenMinutes: { type: Sequelize.INTEGER },
-        timeOfBirth: { type: Sequelize.STRING },
+        timeOfBirth: dateTimeType('timeOfBirth'),
         birthType: { type: Sequelize.STRING }, // Single/Plural
         registeredBirthPlace: { type: Sequelize.STRING },
       },

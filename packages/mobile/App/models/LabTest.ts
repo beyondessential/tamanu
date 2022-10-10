@@ -1,19 +1,20 @@
 import { Entity, Column, ManyToOne, RelationId } from 'typeorm/browser';
 
-import { BaseModel } from './BaseModel';
 import { ILabTest, LabTestStatus } from '~/types';
+import { BaseModel } from './BaseModel';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { LabRequest } from './LabRequest';
 import { LabTestType } from './LabTestType';
 import { SYNC_DIRECTIONS } from './types';
+import { ISO9075_DATE_SQLITE_DEFAULT } from './columnDefaults';
 
 @Entity('labTest')
 export class LabTest extends BaseModel implements ILabTest {
-  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL
+  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
   // https://github.com/typeorm/typeorm/issues/877#issuecomment-772051282 (+ timezones??)
-  @Column({ nullable: false, default: () => 'CURRENT_TIMESTAMP' })
-  sampleTime: Date;
+  @Column({ nullable: false, default: ISO9075_DATE_SQLITE_DEFAULT })
+  date: string;
 
   @Column({ type: 'varchar', nullable: false, default: LabTestStatus.RECEPTION_PENDING })
   status: LabTestStatus;
@@ -21,7 +22,10 @@ export class LabTest extends BaseModel implements ILabTest {
   @Column({ type: 'varchar', nullable: false, default: '' })
   result: string;
 
-  @ManyToOne(() => LabRequest, labRequest => labRequest.tests)
+  @ManyToOne(
+    () => LabRequest,
+    labRequest => labRequest.tests,
+  )
   labRequest: LabRequest;
   @RelationId(({ labRequest }) => labRequest)
   labRequestId: string;

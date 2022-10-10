@@ -1,4 +1,5 @@
 import config from 'config';
+import { isEmpty } from 'lodash';
 import { buildAbility, buildAbilityForUser } from './buildAbility';
 import { Permission } from '../models';
 
@@ -20,6 +21,11 @@ let permissionCache = {};
 
 export function resetPermissionCache() {
   permissionCache = {};
+}
+
+// helper for testing
+export function isPermissionCacheEmpty() {
+  return isEmpty(permissionCache);
 }
 
 const commaSplit = s =>

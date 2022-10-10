@@ -17,7 +17,8 @@ const getUnparsedVersionData = num =>
   `{ ${num ? `"versionNumber": ${num},` : ''} "query": "test-query", "queryOptions": {
     "parameters": [ 
         { "parameterField": "TestField", "name": "test" }
-    ]
+    ],
+    "defaultDateRange": "allTime"
   } }`;
 
 jest.mock('shared/services/logging', () => ({
@@ -109,6 +110,7 @@ describe('importReport actions', () => {
         query: 'test-query',
         queryOptions: {
           parameters: [{ parameterField: 'TestField', name: 'test' }],
+          defaultDateRange: 'allTime',
         },
         userId: 'test-user-id',
         versionNumber: 3,
@@ -124,6 +126,7 @@ describe('importReport actions', () => {
         query: 'test-query',
         queryOptions: {
           parameters: [{ parameterField: 'TestField', name: 'test' }],
+          defaultDateRange: 'allTime',
         },
         userId: 'test-user-id',
         versionNumber: 1,

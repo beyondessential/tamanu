@@ -2,7 +2,7 @@ import React, { FunctionComponent } from 'react';
 import { SvgProps } from 'react-native-svg';
 import { StyledView, RowView, StyledText, ColumnView } from '/styled/common';
 import { theme } from '/styled/theme';
-import { formatDate } from '/helpers/date';
+import { formatStringDate } from '/helpers/date';
 import { DateFormats, HeaderIcons, EncounterTypeNames } from '/helpers/constants';
 import * as Icons from '../Icons';
 import { Separator } from '../Separator';
@@ -35,7 +35,7 @@ const HeaderRightIconContainer = ({
 );
 
 interface HeaderDateProps {
-  startDate: Date;
+  startDate: string;
   isActive: boolean;
 }
 
@@ -44,7 +44,7 @@ const HeaderDate = ({ startDate, date, isActive }: HeaderDateProps): JSX.Element
     fontSize={14}
     color={isActive ? theme.colors.WHITE : theme.colors.TEXT_DARK}
   >
-    {formatDate((startDate || date), DateFormats.DAY_MONTH_YEAR_SHORT)}
+    {formatStringDate((startDate || date), DateFormats.DAY_MONTH_YEAR_SHORT)}
   </StyledText>
 );
 
