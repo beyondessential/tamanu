@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { remote } from 'electron';
 import Tooltip from '@material-ui/core/Tooltip';
-import format from 'date-fns/format';
+import { format, parseISO } from 'date-fns';
 
 const getLocale = () => remote.getGlobal('osLocales') || remote.app.getLocale() || 'default';
 
@@ -87,7 +87,7 @@ const DateTooltip = ({ date, children }) => {
 
 export const DateDisplay = React.memo(
   ({ date: dateValue, showDate = true, showTime = false, showExplicitDate = false }) => {
-    const date = typeof dateValue === 'string' ? new Date(dateValue) : dateValue;
+    const date = typeof dateValue === 'string' ? parseISO(dateValue) : dateValue;
 
     const parts = [];
     if (showDate) {
