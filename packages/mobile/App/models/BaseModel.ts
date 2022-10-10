@@ -10,7 +10,6 @@ import {
   BeforeUpdate,
   Repository,
 } from 'typeorm/browser';
-import { SYNC_DIRECTIONS } from './types';
 import { getSyncTick } from '../services/sync/utils';
 
 export type ModelPojo = {
@@ -79,6 +78,8 @@ const getMappedFormValues = (values: object): object => {
 };
 
 export abstract class BaseModel extends BaseEntity {
+  static allModels = undefined;
+
   @PrimaryColumn()
   @Generated('uuid')
   id: string;
@@ -101,10 +102,14 @@ export abstract class BaseModel extends BaseEntity {
     }
   }
 
+  static injectAllModels(allModels: Record<string, typeof BaseModel>): void {
+    this.allModels = allModels;
+  }
+
   @BeforeUpdate()
   async markForUpload(): Promise<void> {
     const thisModel = this.constructor as typeof BaseModel;
-    const syncTick = await getSyncTick('currentSyncTime');
+    const syncTick = await getSyncTick(thisModel.allModels, 'currentSyncTime');
     if (
       [null, undefined].includes(this.updatedAtSyncTick) ||
       (await thisModel.findOne({ id: this.id }))?.updatedAtSyncTick === this.updatedAtSyncTick
@@ -116,7 +121,8 @@ export abstract class BaseModel extends BaseEntity {
   @BeforeInsert()
   async assignUpdatedAtSyncTick(): Promise<void> {
     if ([null, undefined].includes(this.updatedAtSyncTick)) {
-      const syncTick = await getSyncTick('currentSyncTime');
+      const thisModel = this.constructor as typeof BaseModel;
+      const syncTick = await getSyncTick(thisModel.allModels, 'currentSyncTime');
       this.updatedAtSyncTick = syncTick;
     }
   }
