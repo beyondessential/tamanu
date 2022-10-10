@@ -17,7 +17,9 @@ export const isISOString = dateString =>
 /**
  *
  * @param date - usually we are working with a ISO9075 date_time_string or date_string but could
- * also be a ISO8061 date string or a date object so we need to gracefully handle all of them
+ * also be a ISO8061 date string or a date object so we need to gracefully handle all of them.
+ * If you know you are working with an ISO9075 date_time_string or date_string, just use parseIso
+ * from date-fns
  * @returns {null|Date} Outputs a Date object
  */
 export const parseDate = date => {
