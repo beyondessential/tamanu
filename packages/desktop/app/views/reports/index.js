@@ -40,6 +40,7 @@ const writeToExcel = async (path, { metadata, data }) => {
 
 const xlsxFilters = [{ name: 'Excel spreadsheet (.xlsx)', extensions: ['xlsx'] }];
 
+// Todo: Check if this file is being used and delete it if note
 const DumbReportScreen = React.memo(({ fetchAvailableReports, fetchReportData }) => {
   const [currentReport, setCurrentReport] = React.useState(null);
   const [isDownloading, setIsDownloading] = React.useState(false);

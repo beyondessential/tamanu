@@ -1,13 +1,14 @@
 import {
-  differenceInMilliseconds,
   isWithinInterval,
   isBefore,
   isAfter,
   startOfDay,
   endOfDay,
-  format,
   isSameDay,
+  parseISO,
+  subDays,
 } from 'date-fns';
+import { differenceInMilliseconds, format } from 'shared/utils/dateTime';
 import { groupBy } from 'lodash';
 import { Op } from 'sequelize';
 import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_LABELS } from '../../constants';
@@ -135,7 +136,11 @@ const getLabTests = async (models, parameters) =>
       },
     ],
     where: parametersToLabTestSqlWhere(parameters),
-    order: [['date', 'ASC']],
+    order: [
+      // The date column only has daily resolution, so will return in non-deterministic order
+      ['date', 'ASC'],
+      ['created_at', 'ASC'],
+    ],
     raw: true,
     nest: true,
   });
@@ -201,7 +206,7 @@ const getLatestPatientAnswerInDateRange = (
   );
 
   const latestAnswer = sortedLatestToOldestAnswers.find(a =>
-    isWithinInterval(a.responseEndTime, {
+    isWithinInterval(new Date(a.responseEndTime), {
       start: currentlabTestDate,
       end: nextLabTestDate,
     }),
@@ -243,7 +248,7 @@ const getLabTestRecords = async (
       }
 
       const labTest = patientLabTests[i];
-      const currentLabTestDate = startOfDay(labTest.date);
+      const currentLabTestDate = startOfDay(parseISO(labTest.date));
       const dateToFilterBy =
         dateFilterBy === 'labRequest.sampleTime'
           ? startOfDay(parseISO9075(labTest.labRequest.sampleTime))
@@ -261,7 +266,7 @@ const getLabTestRecords = async (
       // to ensure that we have the date range from current lab test to the next lab test correctly.
       if (
         parameters.fromDate &&
-        isBefore(dateToFilterBy, startOfDay(new Date(parameters.fromDate)))
+        isBefore(currentLabTestDate, startOfDay(new Date(parameters.fromDate)))
       ) {
         continue;
       }
@@ -274,7 +279,7 @@ const getLabTestRecords = async (
       let nextLabTestDate;
 
       if (nextLabTest) {
-        const { date: nextLabTestTimestamp } = nextLabTest;
+        const nextLabTestTimestamp = parseISO(nextLabTest.date);
         // if next lab test not on the same date (next one on a different date,
         // startOf('day') to exclude the next date when comparing range later
         if (!isSameDay(currentLabTestDate, nextLabTestTimestamp)) {
@@ -294,7 +299,7 @@ const getLabTestRecords = async (
       const village = patient?.village?.name;
       const patientAdditionalData = patient?.additionalData?.[0];
 
-      const formatDate = date => (date ? format(new Date(date), dateFormat) : '');
+      const formatDate = date => (date ? format(date, dateFormat) : '');
 
       const labTestRecord = {
         firstName: patient?.firstName,
@@ -312,7 +317,9 @@ const getLabTestRecords = async (
         submittedDate: formatDate(labTest.date),
         requestedDate: formatDate(labRequest.requestedDate),
         testingDate: formatDate(labTest.completedDate),
-        testingTime: labTest.completedDate ? format(labTest.completedDate, 'h:mm:ss aa') : '',
+        testingTime: labTest.completedDate
+          ? format(new Date(labTest.completedDate), 'h:mm:ss aa')
+          : '',
         priority: labRequest?.priority?.name,
         testingLaboratory: labRequest?.laboratory?.name,
         laboratoryOfficer: labTest?.laboratoryOfficer,
@@ -361,7 +368,6 @@ export const baseDataGenerator = async (
     dateFormat,
     dateFilterBy,
   });
-
   return generateReportFromQueryData(reportData, reportColumnTemplate);
 };
 

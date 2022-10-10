@@ -29,8 +29,15 @@ const reportColumnTemplate = Object.entries(FIELD_TO_TITLE).map(([key, title]) =
   accessor: data => data[key],
 }));
 
-const parametersToEncounterSqlWhere = parameters =>
-  Object.entries(parameters)
+const parametersToEncounterSqlWhere = parameters => {
+  const newParameters = { ...parameters };
+  if (parameters.fromDate) {
+    newParameters.fromDate = toDateTimeString(startOfDay(new Date(parameters.fromDate)));
+  }
+  if (parameters.toDate) {
+    newParameters.toDate = toDateTimeString(endOfDay(new Date(parameters.toDate)));
+  }
+  return Object.entries(newParameters)
     .filter(([, val]) => val)
     .reduce((where, [key, value]) => {
       const newWhere = { ...where };
@@ -45,19 +52,20 @@ const parametersToEncounterSqlWhere = parameters =>
           if (!newWhere.startDate) {
             newWhere.startDate = {};
           }
-          newWhere.startDate[Op.gte] = toDateTimeString(startOfDay(new Date(value)));
+          newWhere.startDate[Op.gte] = value;
           break;
         case 'toDate':
           if (!newWhere.startDate) {
             newWhere.startDate = {};
           }
-          newWhere.startDate[Op.lte] = toDateTimeString(endOfDay(new Date(value)));
+          newWhere.startDate[Op.lte] = value;
           break;
         default:
           break;
       }
       return newWhere;
     }, {});
+};
 
 const getEncounters = async (models, parameters) => {
   const encounters = await models.Encounter.findAll({
