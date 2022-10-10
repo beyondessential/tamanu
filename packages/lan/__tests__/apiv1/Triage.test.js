@@ -8,7 +8,7 @@ import {
 } from 'shared/demoData';
 import { fake } from 'shared/test-helpers';
 import { ENCOUNTER_TYPES } from 'shared/constants';
-import { toDateTimeString } from 'shared/utils/dateTime';
+import { toDateTimeString, getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 
 describe('Triage', () => {
@@ -94,6 +94,7 @@ describe('Triage', () => {
 
     const progressResponse = await app.put(`/v1/encounter/${createdEncounter.id}`).send({
       encounterType: ENCOUNTER_TYPES.EMERGENCY,
+      submittedTime: getCurrentDateTimeString(),
     });
     expect(progressResponse).toHaveSucceeded();
     const updatedTriage = await models.Triage.findByPk(createdTriage.id);
