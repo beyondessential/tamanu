@@ -254,14 +254,6 @@ const getLabTestRecords = async (
           ? startOfDay(parseISO9075(labTest.labRequest.sampleTime))
           : currentLabTestDate;
 
-      console.log(
-        dateFilterBy,
-        dateToFilterBy,
-        parameters.fromDate,
-        isBefore(dateToFilterBy, startOfDay(new Date(parameters.fromDate))),
-        parameters.toDate,
-        isAfter(dateToFilterBy, endOfDay(new Date(parameters.toDate))),
-      );
       // Get all lab tests regardless and filter fromDate and toDate in memory
       // to ensure that we have the date range from current lab test to the next lab test correctly.
       if (
