@@ -3,6 +3,7 @@ import { compose } from 'redux';
 import { useSelector } from 'react-redux';
 import { Formik } from 'formik';
 import { ScrollView } from 'react-native-gesture-handler';
+
 import { Field } from '/components/Forms/FormField';
 import { SectionHeader } from '/components/SectionHeader';
 import { FullView, StyledView } from '/styled/common';
@@ -22,10 +23,10 @@ import { Routes } from '~/ui/helpers/routes';
 import { AutocompleteModalField } from '~/ui/components/AutocompleteModal/AutocompleteModalField';
 import { CERTAINTY_OPTIONS, Certainty, ReferenceDataType } from '~/types';
 import { Suggester } from '~/ui/helpers/suggester';
-import { ReferenceData } from '~/models/ReferenceData';
 import { Dropdown } from '~/ui/components/Dropdown';
 import { authUserSelector } from '~/ui/helpers/selectors';
 import { CurrentUserField } from '~/ui/components/CurrentUserField/CurrentUserField';
+import { getCurrentDateTimeString } from '~/ui/helpers/date';
 
 const IllnessFormSchema = Yup.object().shape({
   certainty: Yup.mixed().oneOf(Object.values(Certainty)).required(),
@@ -62,7 +63,7 @@ export const DumbAddIllnessScreen = ({ selectedPatient, navigation }): ReactElem
         // TODO: support selecting multiple diagnoses and flagging as primary/non primary
         isPrimary: true,
         encounter: encounter.id,
-        date: new Date(),
+        date: getCurrentDateTimeString(),
         diagnosis,
         certainty,
       });

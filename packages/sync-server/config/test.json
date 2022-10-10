@@ -3,7 +3,8 @@
     "name": "tamanu-sync-test"
   },
   "auth": {
-    "reportNoUserError": true
+    "reportNoUserError": true,
+    "useHardcodedPermissions": false
   },
   "log": {
     "consoleLevel": "warn"
@@ -57,5 +58,6 @@
         "labTestCategory-COVID"
       ]
     }
-  }
+  },
+  "countryTimeZone": "Pacific/Auckland"
 }
