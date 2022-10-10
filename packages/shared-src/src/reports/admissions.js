@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { subDays, format } from 'date-fns';
+import { subDays, format, startOfDay, endOfDay } from 'date-fns';
 import { ENCOUNTER_TYPES, DIAGNOSIS_CERTAINTY, NOTE_TYPES } from 'shared/constants';
 import upperFirst from 'lodash/upperFirst';
 import { ageInYears } from 'shared/utils/dateTime';
@@ -28,7 +28,7 @@ const reportColumnTemplate = [
   },
   {
     title: 'Discharge Date',
-    accessor: data => format(new Date(data.endDate), 'dd/MM/yyyy h:mm:ss a'),
+    accessor: data => data.endDate && format(new Date(data.endDate), 'dd/MM/yyyy h:mm:ss a'),
   },
   { title: 'Location', accessor: data => data.locationHistoryString },
   { title: 'Department', accessor: data => data.departmentHistoryString },
@@ -38,7 +38,7 @@ const reportColumnTemplate = [
 
 function parametersToSqlWhere(parameters) {
   const {
-    fromDate = toDateTimeString(subDays(new Date(), 30)),
+    fromDate,
     toDate,
     practitioner,
     patientBillingType,
@@ -46,13 +46,18 @@ function parametersToSqlWhere(parameters) {
     // department, -- handled elsewhere
   } = parameters;
 
+  const queryFromDate = toDateTimeString(
+    startOfDay(fromDate ? new Date(fromDate) : subDays(new Date(), 30)),
+  );
+  const queryToDate = toDate && toDateTimeString(endOfDay(new Date(toDate)));
+
   return {
     encounterType: ENCOUNTER_TYPES.ADMISSION,
     ...(patientBillingType && { patientBillingTypeId: patientBillingType }),
     ...(practitioner && { examinerId: practitioner }),
     startDate: {
-      [Op.gte]: fromDate,
-      ...(toDate && { [Op.lte]: toDate }),
+      [Op.gte]: queryFromDate,
+      ...(queryToDate && { [Op.lte]: queryToDate }),
     },
   };
 }

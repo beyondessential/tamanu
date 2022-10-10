@@ -28,6 +28,7 @@ import { LabRequest } from './LabRequest';
 import { readConfig } from '~/services/config';
 import { ReferenceData, ReferenceDataRelation } from '~/models/ReferenceData';
 import { SYNC_DIRECTIONS } from './types';
+import { getCurrentDateTimeString } from '~/ui/helpers/date';
 
 const TIME_OFFSET = 3;
 
@@ -176,7 +177,7 @@ export class Encounter extends BaseModel implements IEncounter {
     return Encounter.createAndSaveOne({
       patient: patientId,
       examiner: userId,
-      startDate: new Date(),
+      startDate: getCurrentDateTimeString(),
       endDate: null,
       encounterType: EncounterType.Clinic,
       reasonForEncounter: '',

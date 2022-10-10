@@ -15,6 +15,7 @@ import { MedicationDiscontinuer } from '../../app/tasks/MedicationDiscontinuer';
 jest.mock(
   'config',
   () => ({
+    ...jest.requireActual('config'),
     serverFacilityId: 'test-facility-id-for-discontinuer',
     schedules: {
       medicationDiscontinuer: {

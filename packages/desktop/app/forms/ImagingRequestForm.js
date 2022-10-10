@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import shortid from 'shortid';
-
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { useDispatch } from 'react-redux';
 import { foreignKey } from '../utils/validation';
 import { encounterOptions } from '../constants';
@@ -100,7 +100,7 @@ export const ImagingRequestForm = React.memo(
         onSubmit={onSubmit}
         initialValues={{
           id: generateId(),
-          requestedDate: new Date(),
+          requestedDate: getCurrentDateTimeString(),
           ...editedObject,
         }}
         validationSchema={yup.object().shape({
@@ -117,6 +117,7 @@ export const ImagingRequestForm = React.memo(
                 label="Order date and time"
                 required
                 component={DateTimeField}
+                saveDateAsString
               />
               <TextInput label="Supervising doctor" disabled value={examinerLabel} />
               <Field

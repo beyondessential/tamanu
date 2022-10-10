@@ -1,6 +1,8 @@
 /* eslint-disable no-param-reassign */
 
+import { endOfDay, startOfDay } from 'date-fns';
 import { Op } from 'sequelize';
+import { toDateTimeString } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
 const reportColumnTemplate = [
@@ -45,6 +47,12 @@ const reportColumnTemplate = [
 ];
 
 function parametersToSqlWhere(parameters) {
+  if (parameters.fromDate) {
+    parameters.fromDate = toDateTimeString(startOfDay(new Date(parameters.fromDate)));
+  }
+  if (parameters.toDate) {
+    parameters.toDate = toDateTimeString(endOfDay(new Date(parameters.toDate)));
+  }
   const whereClause = Object.entries(parameters)
     .filter(([, val]) => val)
     .reduce(
@@ -56,20 +64,18 @@ function parametersToSqlWhere(parameters) {
           case 'practitioner':
             where.referredById = value;
             break;
-          case 'fromDate': {
+          case 'fromDate':
             if (!where.date) {
               where.date = {};
             }
             where.date[Op.gte] = value;
             break;
-          }
-          case 'toDate': {
+          case 'toDate':
             if (!where.date) {
               where.date = {};
             }
             where.date[Op.lte] = value;
             break;
-          }
           default:
             break;
         }

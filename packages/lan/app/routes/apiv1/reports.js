@@ -1,7 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import * as reportUtils from 'shared/reports';
-import { REPORT_STATUSES } from 'shared/constants';
+import { REPORT_STATUSES, REPORT_DATE_RANGE_LABELS } from 'shared/constants';
 import { createNamedLogger } from 'shared/services/logging/createNamedLogger';
 import { assertReportEnabled } from '../../utils/assertReportEnabled';
 
@@ -46,7 +46,9 @@ reports.get(
         id: version.id,
         name: r.name,
         dataSourceOptions: version.queryOptions.dataSources,
-        dateRangeLabel: version.queryOptions.dateRangeLabel,
+        dateRangeLabel:
+          version.queryOptions.dateRangeLabel ||
+          REPORT_DATE_RANGE_LABELS[version.queryOptions.defaultDateRange],
         parameters: version.getParameters(),
         version: version.versionNumber,
       };

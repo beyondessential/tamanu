@@ -10,7 +10,7 @@ export const ImagingRequestsProvider = ({ children }) => {
   const [searchParameters, setSearchParameters] = useState({});
   const api = useApi();
 
-  const { data: imagingRequestAreas } = useQuery(['imagingRequestAreas'], () =>
+  const { data: imagingRequestAreas = {} } = useQuery(['imagingRequestAreas'], () =>
     api.get('imagingRequest/areas'),
   );
 

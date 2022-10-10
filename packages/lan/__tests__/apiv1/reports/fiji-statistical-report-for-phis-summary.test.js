@@ -1,12 +1,11 @@
-import moment from 'moment';
 import { REFERENCE_TYPES } from 'shared/constants';
 import {
   createDummyEncounter,
   createDummyEncounterDiagnosis,
   createDummyPatient,
   randomReferenceId,
-  randomReferenceDataObjects,
 } from 'shared/demoData/patients';
+import { toDateTimeString } from 'shared/utils/dateTime';
 import { createTestContext } from '../../utilities';
 import {
   setupProgramAndSurvey,
@@ -145,19 +144,28 @@ describe('Fiji statistical report for phis summary', () => {
      * */
 
     // 2019-05-02: Had a non-CVD survey response submitted
-    await createBreastCancerFormSurveyResponse(app, expectedPatient1, moment.utc('2019-05-02'));
+    await createBreastCancerFormSurveyResponse(
+      app,
+      expectedPatient1,
+      toDateTimeString(new Date('2019-05-02')),
+    );
 
     // 2019-05-03: Had a CVD survey response submitted - marked 'ineligble' - no SNAP councilling
-    await createCVDFormSurveyResponse(app, expectedPatient1, moment.utc('2019-05-03'), {
-      answerOverrides: {
-        'pde-FijCVD021': 'Ineligible',
+    await createCVDFormSurveyResponse(
+      app,
+      expectedPatient1,
+      toDateTimeString(new Date('2019-05-03')),
+      {
+        answerOverrides: {
+          'pde-FijCVD021': 'Ineligible',
+        },
       },
-    });
+    );
 
     // 1960-05-02: Diagnosed with diabetes
     const diagnosisEncounter0 = await models.Encounter.create(
       await createDummyEncounter(models, {
-        startDate: moment.utc('1960-05-02'),
+        startDate: toDateTimeString(new Date('1960-05-02')),
         patientId: expectedPatient1.id,
       }),
     );
@@ -166,7 +174,7 @@ describe('Fiji statistical report for phis summary', () => {
       await createDummyEncounterDiagnosis(models, {
         diagnosisId: diabetesDiagnosis.id,
         encounterId: diagnosisEncounter0.id,
-        date: moment.utc('1960-05-02'),
+        date: toDateTimeString(new Date('1960-05-02')),
         certainty: 'suspected',
       }),
     );
@@ -174,7 +182,7 @@ describe('Fiji statistical report for phis summary', () => {
     // 2020-05-02: Diagnosed with diabetes
     const diagnosisEncounter1 = await models.Encounter.create(
       await createDummyEncounter(models, {
-        startDate: moment.utc('2020-05-02'),
+        startDate: toDateTimeString(new Date('2020-05-02')),
         patientId: expectedPatient1.id,
       }),
     );
@@ -183,31 +191,46 @@ describe('Fiji statistical report for phis summary', () => {
       await createDummyEncounterDiagnosis(models, {
         diagnosisId: diabetesDiagnosis.id,
         encounterId: diagnosisEncounter1.id,
-        date: moment.utc('2020-05-02'),
+        date: toDateTimeString(new Date('2020-05-02')),
         certainty: 'suspected',
       }),
     );
 
     // 2020-05-02: 1pm Had a CVD screening - no SNAP councilling
-    await createCVDFormSurveyResponse(app, expectedPatient1, moment.utc('2020-05-02T13:00:00'), {
-      answerOverrides: {
-        'pde-FijCVD038': 'No',
+    await createCVDFormSurveyResponse(
+      app,
+      expectedPatient1,
+      toDateTimeString(new Date('2020-05-02 13:00:00')),
+      {
+        answerOverrides: {
+          'pde-FijCVD038': 'No',
+        },
       },
-    });
+    );
 
     // 2020-05-02: 5pm Had a CVD screening - no SNAP councilling
-    await createCVDFormSurveyResponse(app, expectedPatient1, moment.utc('2020-05-02T17:00:00'), {
-      answerOverrides: {
-        'pde-FijCVD038': 'No',
+    await createCVDFormSurveyResponse(
+      app,
+      expectedPatient1,
+      toDateTimeString(new Date('2020-05-02 17:00:00')),
+      {
+        answerOverrides: {
+          'pde-FijCVD038': 'No',
+        },
       },
-    });
+    );
 
     // 2020-05-03: Had SNAP councilling - no CVD screening
-    await createSNAPFormSurveyResponse(app, expectedPatient1, moment.utc('2020-05-03'), {
-      answerOverrides: {
-        'pde-FijSNAP13': 'Yes',
+    await createSNAPFormSurveyResponse(
+      app,
+      expectedPatient1,
+      toDateTimeString(new Date('2020-05-03')),
+      {
+        answerOverrides: {
+          'pde-FijSNAP13': 'Yes',
+        },
       },
-    });
+    );
 
     /*
      * Patient 2
@@ -220,7 +243,7 @@ describe('Fiji statistical report for phis summary', () => {
     // 2020-05-02: Diagnosed with diabetes and hypertension
     const diagnosisEncounter2 = await models.Encounter.create(
       await createDummyEncounter(models, {
-        startDate: moment.utc('2020-05-02'),
+        startDate: toDateTimeString(new Date('2020-05-02')),
         patientId: expectedPatient2.id,
       }),
     );
@@ -229,7 +252,7 @@ describe('Fiji statistical report for phis summary', () => {
       await createDummyEncounterDiagnosis(models, {
         diagnosisId: diabetesDiagnosis.id,
         encounterId: diagnosisEncounter2.id,
-        date: moment.utc('2020-05-02'),
+        date: toDateTimeString(new Date('2020-05-02')),
         certainty: 'suspected',
       }),
     );
@@ -238,17 +261,22 @@ describe('Fiji statistical report for phis summary', () => {
       await createDummyEncounterDiagnosis(models, {
         diagnosisId: hypertensionDiagnosis.id,
         encounterId: diagnosisEncounter2.id,
-        date: moment.utc('2020-05-02'),
+        date: toDateTimeString(new Date('2020-05-02')),
         certainty: 'suspected',
       }),
     );
 
     // 2020-05-02: Had a CVD screening - yes SNAP councilling
-    await createCVDFormSurveyResponse(app, expectedPatient2, moment.utc('2020-05-02'), {
-      answerOverrides: {
-        'pde-FijCVD038': 'Yes',
+    await createCVDFormSurveyResponse(
+      app,
+      expectedPatient2,
+      toDateTimeString(new Date('2020-05-02')),
+      {
+        answerOverrides: {
+          'pde-FijCVD038': 'Yes',
+        },
       },
-    });
+    );
 
     /*
      * Patient 3 - Under 30, ethnicity: ITAUKEI
@@ -264,7 +292,7 @@ describe('Fiji statistical report for phis summary', () => {
     // 2020-05-02: Diagnosed with hypertension
     const diagnosisEncounter3 = await models.Encounter.create(
       await createDummyEncounter(models, {
-        startDate: moment.utc('2020-05-02'),
+        startDate: toDateTimeString(new Date('2020-05-02')),
         patientId: expectedPatient3.id,
       }),
     );
@@ -273,7 +301,7 @@ describe('Fiji statistical report for phis summary', () => {
       await createDummyEncounterDiagnosis(models, {
         diagnosisId: hypertensionDiagnosis.id,
         encounterId: diagnosisEncounter3.id,
-        date: moment.utc('2020-05-02'),
+        date: toDateTimeString(new Date('2020-05-02')),
         certainty: 'suspected',
       }),
     );
@@ -281,7 +309,7 @@ describe('Fiji statistical report for phis summary', () => {
     // 2020-05-02: Diagnosed with diabetes (separate encounter)
     const diagnosisEncounter4 = await models.Encounter.create(
       await createDummyEncounter(models, {
-        startDate: moment.utc('2020-05-02'),
+        startDate: toDateTimeString(new Date('2020-05-02')),
         patientId: expectedPatient3.id,
       }),
     );
@@ -289,22 +317,27 @@ describe('Fiji statistical report for phis summary', () => {
       await createDummyEncounterDiagnosis(models, {
         diagnosisId: diabetesDiagnosis.id,
         encounterId: diagnosisEncounter4.id,
-        date: moment.utc('2020-05-02'),
+        date: toDateTimeString(new Date('2020-05-02')),
         certainty: 'suspected',
       }),
     );
 
     // 2020-05-02: Had a CVD screening - yes SNAP councilling
-    await createCVDFormSurveyResponse(app, expectedPatient3, moment.utc('2020-05-02'), {
-      answerOverrides: {
-        'pde-FijCVD038': 'Yes',
+    await createCVDFormSurveyResponse(
+      app,
+      expectedPatient3,
+      toDateTimeString(new Date('2020-05-02')),
+      {
+        answerOverrides: {
+          'pde-FijCVD038': 'Yes',
+        },
       },
-    });
+    );
 
     // 2020-05-03: Diagnosed with hypertension
     const diagnosisEncounter5 = await models.Encounter.create(
       await createDummyEncounter(models, {
-        startDate: moment.utc('2020-05-03'),
+        startDate: toDateTimeString(new Date('2020-05-03')),
         patientId: expectedPatient3.id,
       }),
     );
@@ -313,7 +346,7 @@ describe('Fiji statistical report for phis summary', () => {
       await createDummyEncounterDiagnosis(models, {
         diagnosisId: hypertensionDiagnosis.id,
         encounterId: diagnosisEncounter5.id,
-        date: moment.utc('2020-05-03'),
+        date: toDateTimeString(new Date('2020-05-03')),
         certainty: 'suspected',
       }),
     );
@@ -325,7 +358,7 @@ describe('Fiji statistical report for phis summary', () => {
      */
     const diagnosisEncounter6 = await models.Encounter.create(
       await createDummyEncounter(models, {
-        startDate: moment.utc('2020-05-02'),
+        startDate: toDateTimeString(new Date('2020-05-02')),
         patientId: expectedPatient4.id,
       }),
     );
@@ -334,7 +367,7 @@ describe('Fiji statistical report for phis summary', () => {
       await createDummyEncounterDiagnosis(models, {
         diagnosisId: diabetesDiagnosis.id,
         encounterId: diagnosisEncounter6.id,
-        date: moment.utc('2020-05-02'),
+        date: toDateTimeString(new Date('2020-05-02')),
         certainty: 'disproven',
       }),
     );
@@ -345,28 +378,33 @@ describe('Fiji statistical report for phis summary', () => {
   describe('checks permissions', () => {
     it('should reject creating a report with insufficient permissions', async () => {
       const noPermsApp = await baseApp.asRole('base');
-      const result = await noPermsApp.post(
-        `/v1/reports/fiji-statistical-report-for-phis-summary`,
-        {},
-      );
+      const result = await noPermsApp.post(`/v1/reports/fiji-statistical-report-for-phis-summary`, {
+        parameters: {
+          fromDate: '1960-01-01',
+        },
+      });
       expect(result).toBeForbidden();
     });
   });
 
   describe('returns the correct data', () => {
     it('should sort the dates from oldest to most recent', async () => {
-      const result = await app
-        .post('/v1/reports/fiji-statistical-report-for-phis-summary')
-        .send({});
+      const result = await app.post('/v1/reports/fiji-statistical-report-for-phis-summary').send({
+        parameters: {
+          fromDate: '1960-01-01',
+        },
+      });
       expect(result).toHaveSucceeded();
       // 2nd row, 1st column (2A) should have the most recent date in it.
       expect(result.body[1][0]).toBe('02-05-1960');
     });
 
     it('should return latest data per patient and latest data per patient per date', async () => {
-      const result = await app
-        .post('/v1/reports/fiji-statistical-report-for-phis-summary')
-        .send({});
+      const result = await app.post('/v1/reports/fiji-statistical-report-for-phis-summary').send({
+        parameters: {
+          fromDate: '1960-01-01',
+        },
+      });
       expect(result).toHaveSucceeded();
 
       expect(result.body).toMatchTabularReport([
@@ -484,6 +522,7 @@ describe('Fiji statistical report for phis summary', () => {
     it('should return correct data after filtering', async () => {
       const result = await app.post('/v1/reports/fiji-statistical-report-for-phis-summary').send({
         parameters: {
+          fromDate: '1960-01-01',
           medicalArea: medicalArea.id,
         },
       });
