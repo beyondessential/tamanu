@@ -83,9 +83,9 @@ describe('Assistive technology device line list', () => {
     // ----Submit answers for patient 1----
     await app.post('/v1/surveyResponse').send({
       surveyId: REGISTRATION_FORM_SURVEY_ID,
-      startTime: '2021-03-12T10:50:28.133Z',
+      startTime: '2021-03-12 10:50:28',
       patientId: expectedPatient1.id,
-      endTime: '2021-03-12T10:53:15.708Z',
+      endTime: '2021-03-12 10:53:15',
       answers: {
         'pde-IrqMAReg-13': 'pde-IrqMAReg-13-on-2021-03-12T10:53:15.708Z-Patient1',
       },
@@ -93,9 +93,9 @@ describe('Assistive technology device line list', () => {
 
     await app.post('/v1/surveyResponse').send({
       surveyId: REGISTRATION_FORM_SURVEY_ID,
-      startTime: '2021-03-15T10:50:28.133Z',
+      startTime: '2021-03-15 10:50:28',
       patientId: expectedPatient1.id,
-      endTime: '2021-03-15T10:53:15.708Z',
+      endTime: '2021-03-15 10:53:15',
       answers: {
         'pde-IrqMAReg-13': 'pde-IrqMAReg-13-on-2021-03-15T10:53:15.708Z-Patient1',
       },
@@ -103,9 +103,9 @@ describe('Assistive technology device line list', () => {
 
     await app.post('/v1/surveyResponse').send({
       surveyId: MOBILITY_SURVEY_ID,
-      startTime: '2021-03-17T10:50:28.133Z',
+      startTime: '2021-03-17 10:50:28',
       patientId: expectedPatient1.id,
-      endTime: '2021-03-17T10:53:15.708Z',
+      endTime: '2021-03-17 10:53:15',
       answers: {
         'pde-IrqPreMob-2': 'pde-IrqPreMob-2-on-2021-03-17T10:53:15.708Z-Patient1',
         'pde-IrqPreMob-1': 'pde-IrqPreMob-1-on-2021-03-17T10:53:15.708Z-Patient1',
@@ -115,9 +115,9 @@ describe('Assistive technology device line list', () => {
 
     await app.post('/v1/surveyResponse').send({
       surveyId: MOBILITY_SURVEY_ID,
-      startTime: '2021-03-17T11:50:28.133Z',
+      startTime: '2021-03-17 11:50:28',
       patientId: expectedPatient1.id,
-      endTime: '2021-03-17T11:53:15.708Z',
+      endTime: '2021-03-17 11:53:15',
       answers: {
         'pde-IrqPreMob-7': 'pde-IrqPreMob-7-on-2021-03-17T11:53:15.708Z-Patient1',
         'pde-IrqPreMob-8': 'pde-IrqPreMob-8-on-2021-03-17T11:53:15.708Z-Patient1',
@@ -127,9 +127,9 @@ describe('Assistive technology device line list', () => {
 
     await app.post('/v1/surveyResponse').send({
       surveyId: MOBILITY_SURVEY_ID,
-      startTime: '2021-03-20T10:50:28.133Z',
+      startTime: '2021-03-20 10:50:28',
       patientId: expectedPatient1.id,
-      endTime: '2021-03-20T10:53:15.708Z',
+      endTime: '2021-03-20 10:53:15',
       answers: {
         'pde-IrqPreMob-2': 'pde-IrqPreMob-2-on-2021-03-20T10:53:15.708Z-Patient1',
         'pde-IrqPreMob-1': 'pde-IrqPreMob-1-on-2021-03-20T10:53:15.708Z-Patient1',
@@ -139,9 +139,9 @@ describe('Assistive technology device line list', () => {
 
     await app.post('/v1/surveyResponse').send({
       surveyId: MOBILITY_SURVEY_ID,
-      startTime: '2021-03-20T11:50:28.133Z',
+      startTime: '2021-03-20 11:50:28',
       patientId: expectedPatient1.id,
-      endTime: '2021-03-20T11:53:15.708Z',
+      endTime: '2021-03-20 11:53:15',
       answers: {
         'pde-IrqPreMob-7': 'pde-IrqPreMob-7-on-2021-03-20T11:53:15.708Z-Patient1',
         'pde-IrqPreMob-8': 'pde-IrqPreMob-8-on-2021-03-20T11:53:15.708Z-Patient1',
@@ -152,9 +152,9 @@ describe('Assistive technology device line list', () => {
     // ----Submit answers for patient 2----
     await app.post('/v1/surveyResponse').send({
       surveyId: REGISTRATION_FORM_SURVEY_ID,
-      startTime: '2021-03-12T10:50:28.133Z',
+      startTime: '2021-03-12 10:50:28',
       patientId: expectedPatient2.id,
-      endTime: '2021-03-12T10:53:15.708Z',
+      endTime: '2021-03-12 10:53:15',
       answers: {
         'pde-IrqMAReg-13': 'pde-IrqMAReg-13-on-2021-03-12T10:53:15.708Z-Patient2',
       },
@@ -162,9 +162,9 @@ describe('Assistive technology device line list', () => {
 
     await app.post('/v1/surveyResponse').send({
       surveyId: MOBILITY_SURVEY_ID,
-      startTime: '2021-03-17T10:50:28.133Z',
+      startTime: '2021-03-17 10:50:28',
       patientId: expectedPatient2.id,
-      endTime: '2021-03-17T10:53:15.708Z',
+      endTime: '2021-03-17 10:53:15',
       answers: {
         'pde-IrqPreMob-2': 'pde-IrqPreMob-2-on-2021-03-17T10:53:15.708Z-Patient2',
         'pde-IrqPreMob-1': 'pde-IrqPreMob-1-on-2021-03-17T10:53:15.708Z-Patient2',

@@ -13,7 +13,7 @@ export enum LabTestStatus {
 
 export interface ILabTest {
   id: ID;
-  sampleTime: Date;
+  date: string;
   status: LabTestStatus;
   result: string;
 

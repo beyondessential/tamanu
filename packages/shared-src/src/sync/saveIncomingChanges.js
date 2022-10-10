@@ -66,7 +66,7 @@ const saveChangesForModelInBatches = async (
   isCentralServer,
 ) => {
   const syncRecordsCount = await countSessionSyncRecords(models, model.tableName, sessionId);
-  log.debug(`saveIncomingChagnes: Saving ${syncRecordsCount} changes for ${model.tableName}`);
+  log.debug(`saveIncomingChanges: Saving ${syncRecordsCount} changes for ${model.tableName}`);
 
   const batchCount = Math.ceil(syncRecordsCount / persistedCacheBatchSize);
 

@@ -1,6 +1,5 @@
 import { keyBy, groupBy, uniqWith, isEqual, upperFirst } from 'lodash';
 import { Op } from 'sequelize';
-import { format, parse } from 'date-fns';
 import { generateReportFromQueryData, getAnswers } from '../utilities';
 import {
   transformAndRemoveDuplicatedAnswersPerDate,
@@ -13,7 +12,7 @@ import {
   getCachedAnswer,
   parametersToAnswerSqlWhere,
 } from './utils';
-import { ageInYears } from '../../utils/dateTime';
+import { ageInYears, format, parseISO9075 } from '../../utils/dateTime';
 
 import {
   ALL_SURVEY_IDS,
@@ -161,7 +160,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
       if (!date1 && !date2) return 0;
 
       // Sort oldest to most recent
-      return parse(date1, 'dd-MM-yyyy', new Date()) - parse(date2, 'dd-MM-yyyy', new Date());
+      return parseISO9075(date1) - parseISO9075(date2);
     },
   );
 

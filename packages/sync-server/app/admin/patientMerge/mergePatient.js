@@ -2,6 +2,7 @@ import { Op } from 'sequelize';
 import { chunk } from 'lodash';
 import config from 'config';
 import { VISIBILITY_STATUSES, PATIENT_MERGE_DELETION_ACTIONS } from 'shared/constants';
+import { NOTE_RECORD_TYPES } from 'shared/constants/notes';
 import { InvalidParameterError } from 'shared/errors';
 import { log } from 'shared/services/logging';
 import { mergeRecord } from 'shared/sync/mergeRecord';
@@ -46,7 +47,13 @@ export async function getTablesWithNoMergeCoverage(models) {
   return missingModels;
 }
 
-async function simpleMergeRecordAcross(model, keepPatientId, unwantedPatientId) {
+async function mergeRecordsForModel(
+  model,
+  keepPatientId,
+  unwantedPatientId,
+  patientFieldName = 'patient_id',
+  additionalWhere = '',
+) {
   // We need to go via a raw query as Model.update({}) performs validation on the
   // whole record, so we'll be rejected for failing to include required fields -
   //  even though we only want to update patientId!
@@ -59,10 +66,11 @@ async function simpleMergeRecordAcross(model, keepPatientId, unwantedPatientId) 
     `
     UPDATE ${tableName}
     SET
-      patient_id = :keepPatientId,
+      ${patientFieldName} = :keepPatientId,
       updated_at = current_timestamp(3)
     WHERE
-      patient_id = :unwantedPatientId
+      ${patientFieldName} = :unwantedPatientId
+      ${additionalWhere}
   `,
     {
       replacements: {
@@ -121,7 +129,7 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
 
     // update associated records
     for (const modelName of simpleUpdateModels) {
-      const affectedCount = await simpleMergeRecordAcross(
+      const affectedCount = await mergeRecordsForModel(
         models[modelName],
         keepPatientId,
         unwantedPatientId,
@@ -154,6 +162,19 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
       delete mergedPAD.id; // id is a generated field, delete it before creating the new one
       await models.PatientAdditionalData.create(mergedPAD);
       updates.PatientAdditionalData = 1;
+    }
+
+    // Merge notes - these don't have a patient_id due to their polymorphic FK setup
+    // so need to be handled slightly differently.
+    const notesMerged = await mergeRecordsForModel(
+      models.NotePage,
+      keepPatientId,
+      unwantedPatientId,
+      'record_id',
+      `AND record_type = '${NOTE_RECORD_TYPES.PATIENT}'`,
+    );
+    if (notesMerged > 0) {
+      updates.NotePage = notesMerged;
     }
 
     // Finally reconcile patient_facilities records

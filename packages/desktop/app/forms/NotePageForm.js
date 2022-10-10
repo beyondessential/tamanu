@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import styled from 'styled-components';
 import { isEmpty } from 'lodash';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import Divider from '@material-ui/core/Divider';
 import Tooltip from '@material-ui/core/Tooltip';
 import { NOTE_TYPES } from 'shared/constants';
@@ -129,7 +130,13 @@ export const NotePageForm = ({
           component={AutocompleteField}
           suggester={practitionerSuggester}
         />
-        <Field name="date" label="Date & time" component={DateTimeField} required />
+        <Field
+          name="date"
+          label="Date & time"
+          component={DateTimeField}
+          required
+          saveDateAsString
+        />
       </StyledFormGrid>
 
       <Field
@@ -156,7 +163,7 @@ export const NotePageForm = ({
       render={renderForm}
       showErrorDialog={false}
       initialValues={{
-        date: new Date(),
+        date: getCurrentDateTimeString(),
         noteType: notePage?.noteType,
         writtenById: currentUser.id,
       }}

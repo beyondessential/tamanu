@@ -5,6 +5,7 @@ import { List } from 'react-native-paper';
 import { format } from 'date-fns';
 
 import { FieldTypes } from '../../../helpers/fields';
+import { formatStringDate } from '../../../helpers/date';
 import { Routes } from '../../../helpers/routes';
 import { DateFormats } from '../../../helpers/constants';
 import { ISurveyResponse } from '../../../../types';
@@ -41,21 +42,19 @@ export const ReferralHistoryScreen = (): ReactElement => {
           return (
             <List.Accordion
               key={`${survey.id}-${startTime}`}
-              title={`${survey.name} (${format(startTime, DateFormats.DDMMYY)})`}
-              left={(props): ReactElement => (
-                <List.Icon {...props} icon="clipboard-plus-outline" />
-              )}
+              title={`${survey.name} (${formatStringDate(
+                startTime,
+                DateFormats.DDMMYY,
+              )})`}
+              left={(props): ReactElement => <List.Icon {...props} icon="clipboard-plus-outline" />}
             >
-              {answers.map((answer) => (
+              {answers.map(answer => (
                 <List.Item
                   key={answer.id}
                   title={answer.dataElement.defaultText}
                   description={(): ReactNode => {
                     const { dataElement, body } = answer;
-                    const [
-                      programResponse,
-                      programResponseError,
-                    ] = useBackendEffect(
+                    const [programResponse, programResponseError] = useBackendEffect(
                       async ({ models }): Promise<ISurveyResponse> => {
                         if (dataElement.type !== FieldTypes.SURVEY_LINK) {
                           return null;
@@ -74,8 +73,7 @@ export const ReferralHistoryScreen = (): ReactElement => {
                       <SurveyResponseLink
                         surveyResponse={programResponse}
                         detailsRouteName={
-                          Routes.HomeStack.ReferralStack.ViewHistory
-                            .SurveyResponseDetailsScreen
+                          Routes.HomeStack.ReferralStack.ViewHistory.SurveyResponseDetailsScreen
                         }
                       />
                     );
