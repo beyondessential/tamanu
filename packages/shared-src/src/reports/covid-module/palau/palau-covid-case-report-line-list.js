@@ -89,8 +89,8 @@ const parametersToSurveyResponseSqlWhere = (parameters, surveyId) => {
 
   const newParameters = {
     ...parameters,
-    fromDate: startOfDay(
-      parameters.fromDate ? new Date(parameters.fromDate) : subDays(new Date(), 30),
+    fromDate: toDateTimeString(
+      startOfDay(parameters.fromDate ? new Date(parameters.fromDate) : subDays(new Date(), 30)),
     ),
   };
 

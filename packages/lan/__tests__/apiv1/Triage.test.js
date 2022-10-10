@@ -169,23 +169,23 @@ describe('Triage', () => {
       const triageConfigs = [
         {
           score: 1,
-          triageTime: toDateTimeString(new Date('01/03/2022 06:15 am')),
+          triageTime: '2022-01-03 06:15:00',
         },
         {
           score: 2,
-          arrivalTime: toDateTimeString(new Date('01/03/2022 06:15 am')),
+          arrivalTime: '2022-01-03 06:15:00',
         },
         {
           score: 3,
-          arrivalTime: toDateTimeString(new Date('01/03/2022 10:15 am')),
+          arrivalTime: '2022-01-03 10:15:00',
         },
         {
           score: 3,
-          arrivalTime: toDateTimeString(new Date('01/03/2022 9:15 am')),
+          arrivalTime: '2022-01-03 09:15:00',
         },
         {
           score: 3,
-          arrivalTime: toDateTimeString(new Date('01/03/2022 8:15 am')),
+          arrivalTime: '2022-01-03 08:15:00',
         },
       ];
 

@@ -1,5 +1,5 @@
 import { subDays } from 'date-fns';
-import { toDateTimeString } from 'shared/utils/dateTime';
+import { toDateString } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
 const FIELDS = [
@@ -98,12 +98,12 @@ order by p.date_of_birth::date, pbd.time_of_birth::timestamp::time;
 `;
 
 const getData = async (sequelize, parameters) => {
-  const { fromDate = toDateTimeString(subDays(new Date(), 30)), toDate, village } = parameters;
+  const { fromDate, toDate, village } = parameters;
 
   return sequelize.query(query, {
     type: sequelize.QueryTypes.SELECT,
     replacements: {
-      from_date: fromDate ?? null,
+      from_date: fromDate || toDateString(subDays(new Date(), 30)),
       to_date: toDate ?? null,
       village_id: village ?? null,
     },

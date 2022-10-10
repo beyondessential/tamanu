@@ -1,4 +1,5 @@
-import { subDays } from 'date-fns';
+import { endOfDay, startOfDay, subDays } from 'date-fns';
+import { toDateTimeString } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
 const FIELDS = [
@@ -100,19 +101,16 @@ order by lr.requested_date;
 `;
 
 const getData = async (sequelize, parameters) => {
-  const {
-    fromDate = subDays(new Date(), 30),
-    toDate,
-    requestedById,
-    labTestCategoryId,
-    status,
-  } = parameters;
+  const { fromDate, toDate, requestedById, labTestCategoryId, status } = parameters;
+
+  const queryFromDate = toDateTimeString(startOfDay(fromDate || subDays(new Date(), 30)));
+  const queryToDate = toDate && toDateTimeString(endOfDay(toDate));
 
   return sequelize.query(query, {
     type: sequelize.QueryTypes.SELECT,
     replacements: {
-      from_date: fromDate ?? null,
-      to_date: toDate ?? null,
+      from_date: queryFromDate,
+      to_date: queryToDate ?? null,
       requested_by_id: requestedById ?? null,
       lab_test_category_id: labTestCategoryId ?? null,
       status: status ?? null,

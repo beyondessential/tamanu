@@ -87,7 +87,7 @@ describe('Assistive technology device line list', () => {
       patientId: expectedPatient1.id,
       endTime: '2021-03-12 10:53:15',
       answers: {
-        'pde-IrqMAReg-13': 'pde-IrqMAReg-13-on-2021-03-12T10:53:15.708Z-Patient1',
+        'pde-IrqMAReg-13': 'pde-IrqMAReg-13-on-2021-03-12 10:53:15-Patient1',
       },
     });
 
@@ -97,7 +97,7 @@ describe('Assistive technology device line list', () => {
       patientId: expectedPatient1.id,
       endTime: '2021-03-15 10:53:15',
       answers: {
-        'pde-IrqMAReg-13': 'pde-IrqMAReg-13-on-2021-03-15T10:53:15.708Z-Patient1',
+        'pde-IrqMAReg-13': 'pde-IrqMAReg-13-on-2021-03-15 10:53:15-Patient1',
       },
     });
 
@@ -107,9 +107,9 @@ describe('Assistive technology device line list', () => {
       patientId: expectedPatient1.id,
       endTime: '2021-03-17 10:53:15',
       answers: {
-        'pde-IrqPreMob-2': 'pde-IrqPreMob-2-on-2021-03-17T10:53:15.708Z-Patient1',
-        'pde-IrqPreMob-1': 'pde-IrqPreMob-1-on-2021-03-17T10:53:15.708Z-Patient1',
-        'pde-IrqPreMob-6': 'pde-IrqPreMob-6-on-2021-03-17T10:53:15.708Z-Patient1',
+        'pde-IrqPreMob-2': 'pde-IrqPreMob-2-on-2021-03-17 10:53:15-Patient1',
+        'pde-IrqPreMob-1': 'pde-IrqPreMob-1-on-2021-03-17 10:53:15-Patient1',
+        'pde-IrqPreMob-6': 'pde-IrqPreMob-6-on-2021-03-17 10:53:15-Patient1',
       },
     });
 
@@ -119,9 +119,9 @@ describe('Assistive technology device line list', () => {
       patientId: expectedPatient1.id,
       endTime: '2021-03-17 11:53:15',
       answers: {
-        'pde-IrqPreMob-7': 'pde-IrqPreMob-7-on-2021-03-17T11:53:15.708Z-Patient1',
-        'pde-IrqPreMob-8': 'pde-IrqPreMob-8-on-2021-03-17T11:53:15.708Z-Patient1',
-        'pde-IrqPreMob-9': 'pde-IrqPreMob-9-on-2021-03-17T11:53:15.708Z-Patient1',
+        'pde-IrqPreMob-7': 'pde-IrqPreMob-7-on-2021-03-17 11:53:15-Patient1',
+        'pde-IrqPreMob-8': 'pde-IrqPreMob-8-on-2021-03-17 11:53:15-Patient1',
+        'pde-IrqPreMob-9': 'pde-IrqPreMob-9-on-2021-03-17 11:53:15-Patient1',
       },
     });
 
@@ -131,9 +131,9 @@ describe('Assistive technology device line list', () => {
       patientId: expectedPatient1.id,
       endTime: '2021-03-20 10:53:15',
       answers: {
-        'pde-IrqPreMob-2': 'pde-IrqPreMob-2-on-2021-03-20T10:53:15.708Z-Patient1',
-        'pde-IrqPreMob-1': 'pde-IrqPreMob-1-on-2021-03-20T10:53:15.708Z-Patient1',
-        'pde-IrqPreMob-6': 'pde-IrqPreMob-6-on-2021-03-20T10:53:15.708Z-Patient1',
+        'pde-IrqPreMob-2': 'pde-IrqPreMob-2-on-2021-03-20 10:53:15-Patient1',
+        'pde-IrqPreMob-1': 'pde-IrqPreMob-1-on-2021-03-20 10:53:15-Patient1',
+        'pde-IrqPreMob-6': 'pde-IrqPreMob-6-on-2021-03-20 10:53:15-Patient1',
       },
     });
 
@@ -143,9 +143,9 @@ describe('Assistive technology device line list', () => {
       patientId: expectedPatient1.id,
       endTime: '2021-03-20 11:53:15',
       answers: {
-        'pde-IrqPreMob-7': 'pde-IrqPreMob-7-on-2021-03-20T11:53:15.708Z-Patient1',
-        'pde-IrqPreMob-8': 'pde-IrqPreMob-8-on-2021-03-20T11:53:15.708Z-Patient1',
-        'pde-IrqPreMob-9': 'pde-IrqPreMob-9-on-2021-03-20T11:53:15.708Z-Patient1',
+        'pde-IrqPreMob-7': 'pde-IrqPreMob-7-on-2021-03-20 11:53:15-Patient1',
+        'pde-IrqPreMob-8': 'pde-IrqPreMob-8-on-2021-03-20 11:53:15-Patient1',
+        'pde-IrqPreMob-9': 'pde-IrqPreMob-9-on-2021-03-20 11:53:15-Patient1',
       },
     });
 
@@ -156,7 +156,7 @@ describe('Assistive technology device line list', () => {
       patientId: expectedPatient2.id,
       endTime: '2021-03-12 10:53:15',
       answers: {
-        'pde-IrqMAReg-13': 'pde-IrqMAReg-13-on-2021-03-12T10:53:15.708Z-Patient2',
+        'pde-IrqMAReg-13': 'pde-IrqMAReg-13-on-2021-03-12 10:53:15-Patient2',
       },
     });
 
@@ -166,9 +166,9 @@ describe('Assistive technology device line list', () => {
       patientId: expectedPatient2.id,
       endTime: '2021-03-17 10:53:15',
       answers: {
-        'pde-IrqPreMob-2': 'pde-IrqPreMob-2-on-2021-03-17T10:53:15.708Z-Patient2',
-        'pde-IrqPreMob-1': 'pde-IrqPreMob-1-on-2021-03-17T10:53:15.708Z-Patient2',
-        'pde-IrqPreMob-6': 'pde-IrqPreMob-6-on-2021-03-17T10:53:15.708Z-Patient2',
+        'pde-IrqPreMob-2': 'pde-IrqPreMob-2-on-2021-03-17 10:53:15-Patient2',
+        'pde-IrqPreMob-1': 'pde-IrqPreMob-1-on-2021-03-17 10:53:15-Patient2',
+        'pde-IrqPreMob-6': 'pde-IrqPreMob-6-on-2021-03-17 10:53:15-Patient2',
       },
     });
   });
@@ -229,15 +229,15 @@ describe('Assistive technology device line list', () => {
           null,
 
           // always grab the latest answer for a data element for that patient.
-          'pde-IrqMAReg-13-on-2021-03-15T10:53:15.708Z-Patient1',
+          'pde-IrqMAReg-13-on-2021-03-15 10:53:15-Patient1',
 
           // always grab the latest answer for a data element within that date, regardless of survey response,
-          'pde-IrqPreMob-2-on-2021-03-17T10:53:15.708Z-Patient1',
-          'pde-IrqPreMob-1-on-2021-03-17T10:53:15.708Z-Patient1',
-          'pde-IrqPreMob-6-on-2021-03-17T10:53:15.708Z-Patient1',
-          'pde-IrqPreMob-7-on-2021-03-17T11:53:15.708Z-Patient1',
-          'pde-IrqPreMob-8-on-2021-03-17T11:53:15.708Z-Patient1',
-          'pde-IrqPreMob-9-on-2021-03-17T11:53:15.708Z-Patient1',
+          'pde-IrqPreMob-2-on-2021-03-17 10:53:15-Patient1',
+          'pde-IrqPreMob-1-on-2021-03-17 10:53:15-Patient1',
+          'pde-IrqPreMob-6-on-2021-03-17 10:53:15-Patient1',
+          'pde-IrqPreMob-7-on-2021-03-17 11:53:15-Patient1',
+          'pde-IrqPreMob-8-on-2021-03-17 11:53:15-Patient1',
+          'pde-IrqPreMob-9-on-2021-03-17 11:53:15-Patient1',
           null,
           null,
           null,
@@ -257,15 +257,15 @@ describe('Assistive technology device line list', () => {
           null,
 
           // always grab the latest answer for a data element for that patient.
-          'pde-IrqMAReg-13-on-2021-03-15T10:53:15.708Z-Patient1',
+          'pde-IrqMAReg-13-on-2021-03-15 10:53:15-Patient1',
 
           // always grab the latest answer for a data element within that date, regardless of survey response
-          'pde-IrqPreMob-2-on-2021-03-20T10:53:15.708Z-Patient1',
-          'pde-IrqPreMob-1-on-2021-03-20T10:53:15.708Z-Patient1',
-          'pde-IrqPreMob-6-on-2021-03-20T10:53:15.708Z-Patient1',
-          'pde-IrqPreMob-7-on-2021-03-20T11:53:15.708Z-Patient1',
-          'pde-IrqPreMob-8-on-2021-03-20T11:53:15.708Z-Patient1',
-          'pde-IrqPreMob-9-on-2021-03-20T11:53:15.708Z-Patient1',
+          'pde-IrqPreMob-2-on-2021-03-20 10:53:15-Patient1',
+          'pde-IrqPreMob-1-on-2021-03-20 10:53:15-Patient1',
+          'pde-IrqPreMob-6-on-2021-03-20 10:53:15-Patient1',
+          'pde-IrqPreMob-7-on-2021-03-20 11:53:15-Patient1',
+          'pde-IrqPreMob-8-on-2021-03-20 11:53:15-Patient1',
+          'pde-IrqPreMob-9-on-2021-03-20 11:53:15-Patient1',
           null,
           null,
           null,
@@ -286,12 +286,12 @@ describe('Assistive technology device line list', () => {
           null,
 
           // always grab the latest answer for a data element for that patient.
-          'pde-IrqMAReg-13-on-2021-03-12T10:53:15.708Z-Patient2',
+          'pde-IrqMAReg-13-on-2021-03-12 10:53:15-Patient2',
 
           // always grab the latest answer for a data element within that date, regardless of survey response,
-          'pde-IrqPreMob-2-on-2021-03-17T10:53:15.708Z-Patient2',
-          'pde-IrqPreMob-1-on-2021-03-17T10:53:15.708Z-Patient2',
-          'pde-IrqPreMob-6-on-2021-03-17T10:53:15.708Z-Patient2',
+          'pde-IrqPreMob-2-on-2021-03-17 10:53:15-Patient2',
+          'pde-IrqPreMob-1-on-2021-03-17 10:53:15-Patient2',
+          'pde-IrqPreMob-6-on-2021-03-17 10:53:15-Patient2',
           null,
           null,
           null,
@@ -309,7 +309,7 @@ describe('Assistive technology device line list', () => {
     it('should return data within date range', async () => {
       const result = await app
         .post('/v1/reports/iraq-assistive-technology-device-line-list')
-        .send({ parameters: { fromDate: '2021-03-18T00:00:00Z', toDate: '2021-03-21T00:00:00Z' } });
+        .send({ parameters: { fromDate: '2021-03-18', toDate: '2021-03-21' } });
 
       expect(result).toHaveSucceeded();
       expect(result.body).toHaveLength(2);
@@ -319,12 +319,12 @@ describe('Assistive technology device line list', () => {
       expect(result.body[1][2]).toBe(
         format(parseISO9075(expectedPatient1.dateOfBirth), 'dd-MM-yyyy'),
       );
-      expect(result.body[1][6]).toBe('pde-IrqPreMob-2-on-2021-03-20T10:53:15.708Z-Patient1');
-      expect(result.body[1][7]).toBe('pde-IrqPreMob-1-on-2021-03-20T10:53:15.708Z-Patient1');
-      expect(result.body[1][8]).toBe('pde-IrqPreMob-6-on-2021-03-20T10:53:15.708Z-Patient1');
-      expect(result.body[1][9]).toBe('pde-IrqPreMob-7-on-2021-03-20T11:53:15.708Z-Patient1');
-      expect(result.body[1][10]).toBe('pde-IrqPreMob-8-on-2021-03-20T11:53:15.708Z-Patient1');
-      expect(result.body[1][11]).toBe('pde-IrqPreMob-9-on-2021-03-20T11:53:15.708Z-Patient1');
+      expect(result.body[1][6]).toBe('pde-IrqPreMob-2-on-2021-03-20 10:53:15-Patient1');
+      expect(result.body[1][7]).toBe('pde-IrqPreMob-1-on-2021-03-20 10:53:15-Patient1');
+      expect(result.body[1][8]).toBe('pde-IrqPreMob-6-on-2021-03-20 10:53:15-Patient1');
+      expect(result.body[1][9]).toBe('pde-IrqPreMob-7-on-2021-03-20 11:53:15-Patient1');
+      expect(result.body[1][10]).toBe('pde-IrqPreMob-8-on-2021-03-20 11:53:15-Patient1');
+      expect(result.body[1][11]).toBe('pde-IrqPreMob-9-on-2021-03-20 11:53:15-Patient1');
     });
   });
 });
