@@ -72,6 +72,7 @@ export const ReferralForm = React.memo(
         onSubmit={onSubmit}
         validationSchema={ReferralFormSchema}
         initialValues={{
+          // Todo: check to see if this is used
           date: new Date(),
           certainty: 'confirmed',
           ...referral,

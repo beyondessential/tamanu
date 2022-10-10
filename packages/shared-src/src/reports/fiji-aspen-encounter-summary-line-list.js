@@ -1,3 +1,5 @@
+import { endOfDay, startOfDay } from 'date-fns';
+import { toDateTimeString } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
 const FIELDS = [
@@ -199,79 +201,59 @@ with
     where note_type = 'system'
     and ni.content ~ 'Changed (.*) from (.*) to (.*)'
   ),
-  department_info as (
+  place_history_if_changed as (
     select 
       e.id encounter_id,
-      case when count("from") = 0
-        then json_build_array(json_build_object(
-          'Department', d.name,
-          'Assigned time', to_char(e.start_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
-        ))
-        else 
-          array_to_json(json_build_object(
-            'Department', first_from, --first "from" from note
-            'Assigned time', to_char(e.start_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
-          ) ||
-          array_agg(
-            json_build_object(
-              'Department', "to",
-              'Assigned time', to_char(nh.date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
-            ) ORDER BY nh.date
-          ))
-      end department_history,
-      json_agg(d.id) dept_id_list
-    from encounters e
-    left join departments d on e.department_id = d.id
-    left join note_history nh
-    on nh.encounter_id = e.id and nh.place = 'department'
-    left join (
-      select
-        nh2.encounter_id enc_id,
-        "from" first_from,
-        date
-      from note_history nh2
-      order by date
-      limit 1
-    ) first_from
-    on e.id = first_from.enc_id
-    group by e.id, d.name, e.start_date, first_from
+      nh.place,
+      concat(
+        max(first_from), --first "from" from note
+        ', Assigned time: ', to_char(e.start_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
+      ) || '; ' ||
+      string_agg(
+        concat(
+          "to",
+          ', Assigned time: ', to_char(nh.date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
+        ),
+        '; '
+        ORDER BY nh.date
+      ) place_history,
+      jsonb_build_array(case when nh.place = 'location' then e.location_id else e.department_id end) || jsonb_agg(case when nh.place = 'location' then l.id else d.id end) place_id_list -- Duplicates here are ok, but not required, as it will be used for searching
+    from note_history nh
+    join encounters e on nh.encounter_id = e.id
+    left join locations l on l.name = "from"
+    left join departments d on d.name = "from"
+    join (
+    	select
+    		encounter_id,
+    		place,
+    		first_value("from") over(
+    			partition by encounter_id, place
+    			order by nh2."date"
+    		) first_from
+    	from note_history nh2
+    ) first_val_table on nh.encounter_id = first_val_table.encounter_id and first_val_table.place = nh.place
+    group by e.id, e.start_date, nh.place
   ),
-  location_info as (
-    select 
+  place_info as (
+    select
       e.id encounter_id,
-      case when count("from") = 0
-        then json_build_array(json_build_object(
-          'Location', l.name,
-          'Assigned time', to_char(e.start_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
-        ))
-        else 
-          array_to_json(json_build_object(
-            'Location', first_from, --first "from" from note
-            'Assigned time', to_char(e.start_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
-          ) ||
-          array_agg(
-            json_build_object(
-              'Location', "to",
-              'Assigned time', to_char(nh.date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
-            ) ORDER BY nh.date
-          ))
-      end location_history,
-      json_agg(l.id) loc_id_list
+      places.column1 place,
+      coalesce(
+        place_history,
+        concat(
+          case when places.column1 = 'location' then l.name else d.name end,
+          ', Assigned time: ', to_char(e.start_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
+        )
+      ) place_history,
+      coalesce(
+        place_id_list,
+        jsonb_build_array(case when places.column1 = 'location' then l.id else d.id end)
+      ) place_id_list
     from encounters e
-    left join locations l on e.location_id = l.id
-    left join note_history nh
-    on nh.encounter_id = e.id and nh.place = 'location'
-    left join (
-      select
-        nh2.encounter_id enc_id,
-        "from" first_from,
-        date
-      from note_history nh2
-      order by date
-      limit 1
-    ) first_from
-    on e.id = first_from.enc_id
-    group by e.id, l.name, e.start_date, first_from
+    cross join (values ('location'), ('department')) places
+    left join locations l on l.id = e.location_id
+    left join departments d on d.id = e.department_id
+    left join place_history_if_changed ph on ph.encounter_id = e.id and ph.place = places.column1
   ),
   triage_info as (
     select
@@ -311,8 +293,8 @@ select
   end "Encounter type",
   t.score "Triage category",
   ti."waitTimeFollowingTriage",
-  di2.department_history "Department",
-  li.location_history "Location",
+  di2.place_history "Department",
+  li.place_history "Location",
   e.reason_for_encounter "Reason for encounter",
   di."Diagnosis",
   mi."Medications",
@@ -333,12 +315,12 @@ left join imaging_info ii on ii.encounter_id = e.id
 left join encounter_notes_info ni on ni.encounter_id = e.id
 left join triages t on t.encounter_id = e.id
 left join triage_info ti on ti.encounter_id = e.id
-left join location_info li on li.encounter_id = e.id
-left join department_info di2 on di2.encounter_id = e.id
+left join place_info li on li.encounter_id = e.id and li.place = 'location'
+left join place_info di2 on di2.encounter_id = e.id and di2.place = 'department'
 where e.end_date is not null
 and coalesce(billing.id, '-') like coalesce(:billing_type, '%%')
-and CASE WHEN :department_id IS NOT NULL THEN dept_id_list::jsonb ? :department_id ELSE true end 
-and CASE WHEN :location_id IS NOT NULL THEN loc_id_list::jsonb ? :location_id ELSE true end 
+and CASE WHEN :department_id IS NOT NULL THEN di2.place_id_list::jsonb ? :department_id ELSE true end 
+and CASE WHEN :location_id IS NOT NULL THEN li.place_id_list::jsonb ? :location_id ELSE true end 
 AND CASE WHEN :from_date IS NOT NULL THEN e.start_date::timestamp >= :from_date::timestamp ELSE true END
 AND CASE WHEN :to_date IS NOT NULL THEN e.start_date::timestamp <= :to_date::timestamp ELSE true END
 order by e.start_date desc;
@@ -347,11 +329,14 @@ order by e.start_date desc;
 const getData = async (sequelize, parameters) => {
   const { fromDate, toDate, patientBillingType, department, location } = parameters;
 
+  const queryFromDate = fromDate && toDateTimeString(startOfDay(new Date(fromDate)));
+  const queryToDate = toDate && toDateTimeString(endOfDay(new Date(toDate)));
+
   return sequelize.query(query, {
     type: sequelize.QueryTypes.SELECT,
     replacements: {
-      from_date: fromDate ?? null,
-      to_date: toDate ?? null,
+      from_date: queryFromDate ?? null,
+      to_date: queryToDate ?? null,
       billing_type: patientBillingType ?? null,
       department_id: department ?? null,
       location_id: location ?? null,

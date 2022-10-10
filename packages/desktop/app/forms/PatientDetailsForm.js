@@ -2,7 +2,6 @@ import React from 'react';
 import { getCurrentDateString } from 'shared/utils/dateTime';
 import styled from 'styled-components';
 import { isEmpty } from 'lodash';
-import { toDateTimeString } from 'shared-src/src/utils/dateTime';
 import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from 'shared/constants';
 import { useSexValues } from '../hooks';
 import {
@@ -108,7 +107,7 @@ export const SecondaryDetailsGroup = ({ patientRegistryType, values = {} }) => {
         <>
           <StyledHeading>Birth details</StyledHeading>
           <StyledFormGrid>
-            <LocalisedField name="timeOfBirth" component={TimeField} />
+            <LocalisedField name="timeOfBirth" component={TimeField} saveDateAsString />
             <LocalisedField name="gestationalAgeEstimate" component={TextField} type="number" />
             <LocalisedField
               name="registeredBirthPlace"
@@ -316,10 +315,6 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
 
   const handleSubmit = data => {
     const newData = { ...data };
-    newData.timeOfBirth =
-      typeof newData.timeOfBirth !== 'string'
-        ? toDateTimeString(newData.timeOfBirth)
-        : newData.timeOfBirth;
 
     if (newData.registeredBirthPlace !== PLACE_OF_BIRTH_TYPES.HEALTH_FACILITY) {
       newData.birthFacilityId = null;

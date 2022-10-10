@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import styled from 'styled-components';
 
 import { AVPU_OPTIONS } from 'shared/constants';
@@ -21,7 +21,12 @@ export class VitalsForm extends React.PureComponent {
     return (
       <FormGrid columns={2}>
         <div style={{ gridColumn: 'span 2' }}>
-          <Field name="dateRecorded" label="Date recorded" component={DateTimeField} />
+          <Field
+            name="dateRecorded"
+            label="Date recorded"
+            component={DateTimeField}
+            saveDateAsString
+          />
         </div>
         <Field name="height" label="Height (cm)" component={NumberField} />
         <Field name="weight" label="Weight (kg)" component={NumberField} />
@@ -46,7 +51,7 @@ export class VitalsForm extends React.PureComponent {
         onSubmit={onSubmit}
         render={this.renderForm}
         initialValues={{
-          dateRecorded: new Date(),
+          dateRecorded: getCurrentDateTimeString(),
           ...editedObject,
         }}
         validationSchema={yup.object().shape({
