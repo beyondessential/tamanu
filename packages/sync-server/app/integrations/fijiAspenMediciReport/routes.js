@@ -1,10 +1,13 @@
 import { QueryTypes } from 'sequelize';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import config from 'config';
 
 import { requireClientHeaders } from '../../middleware/requireClientHeaders';
 
 export const routes = express.Router();
+
+const COUNTRY_TIMEZONE = config?.countryTimeZone;
 
 const reportQuery = `
 with
@@ -15,7 +18,7 @@ notes_info as (
       json_build_object(
         'noteType', note_type,
         'content', "content",
-        'noteDate', ni."date"
+        'noteDate', ni."date"::timestamp at time zone :timezone_string
       ) 
     ) aggregated_notes
   from note_pages np
@@ -55,7 +58,7 @@ procedure_info as (
       json_build_object(
         'name', proc.name,
         'code', proc.code,
-        'date', date,
+        'date', date::timestamp at time zone :timezone_string,
         'location', loc.name,
         'notes', p.note,
         'completedNotes', completed_note
@@ -143,7 +146,7 @@ encounter_notes_info as (
       json_build_object(
         'noteType', note_type,
         'content', "content",
-        'noteDate', ni."date"
+        'noteDate', ni."date"::timestamp at time zone :timezone_string
       ) order by ni.date desc
     ) "Notes"
   from note_pages np
@@ -176,17 +179,17 @@ department_info as (
     case when count("from") = 0
       then json_build_array(json_build_object(
         'department', d.name,
-        'assignedTime', e.start_date
+        'assignedTime', e.start_date::timestamp at time zone :timezone_string
       ))
       else 
         array_to_json(json_build_object(
           'department', first_from, --first "from" from note
-          'assignedTime', e.start_date
+          'assignedTime', e.start_date::timestamp at time zone :timezone_string
         ) ||
         array_agg(
           json_build_object(
             'department', "to",
-            'assignedTime', nh.date
+            'assignedTime', nh.date::timestamp at time zone :timezone_string
           ) ORDER BY nh.date
         ))
     end department_history
@@ -212,17 +215,17 @@ location_info as (
     case when count("from") = 0
       then json_build_array(json_build_object(
         'location', l.name,
-        'assignedTime', e.start_date
+        'assignedTime', e.start_date::timestamp at time zone :timezone_string
       ))
       else 
         array_to_json(json_build_object(
           'location', first_from, --first "from" from note
-          'assignedTime', e.start_date
+          'assignedTime', e.start_date::timestamp at time zone :timezone_string
         ) ||
         array_agg(
           json_build_object(
             'location', "to",
-            'assignedTime', nh.date
+            'assignedTime', nh.date::timestamp at time zone :timezone_string
           ) ORDER BY nh.date
         ))
     end location_history
@@ -282,8 +285,8 @@ extract(year from age(p.date_of_birth::date)) "age",
 p.sex "sex",
 billing.name "patientBillingType",
 e.id "encounterId",
-to_char (e.start_date at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') "encounterStartDate",
-to_char (e.end_date at time zone 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') "encounterEndDate",
+e.start_date::timestamp at time zone :timezone_string "encounterStartDate",
+e.end_date::timestamp at time zone :timezone_string "encounterEndDate",
 case e.encounter_type
   when 'admission' then 'AR-DRG'
   when 'imaging' then 'AR-DRG'
@@ -343,8 +346,8 @@ left join location_info li on li.encounter_id = e.id
 left join department_info di2 on di2.encounter_id = e.id
 left join discharge_disposition_info ddi on ddi.encounter_id = e.id
 where coalesce(billing.id, '-') like coalesce(:billing_type, '%%')
-AND CASE WHEN :from_date IS NOT NULL THEN e.start_date::date >= :from_date::date ELSE true END
-AND CASE WHEN :to_date IS NOT NULL THEN e.start_date::date <= :to_date::date ELSE true END
+AND CASE WHEN :from_date IS NOT NULL THEN (e.start_date::timestamp at time zone :timezone_string)::date >= :from_date::date ELSE true END
+AND CASE WHEN :to_date IS NOT NULL THEN (e.start_date::timestamp at time zone :timezone_string)::date <= :to_date::date ELSE true END
 order by e.start_date desc;
 `;
 
@@ -355,12 +358,17 @@ routes.get(
     const { sequelize } = req.store;
     const { 'period.start': fromDate, 'period.end': toDate } = req.query;
 
+    if (!COUNTRY_TIMEZONE) {
+      throw Error('A countryTimeZone must be configured in local.json for this report to run');
+    }
+
     const data = await sequelize.query(reportQuery, {
       type: QueryTypes.SELECT,
       replacements: {
         from_date: fromDate ?? null,
         to_date: toDate ?? null,
         billing_type: null,
+        timezone_string: COUNTRY_TIMEZONE,
       },
     });
 
