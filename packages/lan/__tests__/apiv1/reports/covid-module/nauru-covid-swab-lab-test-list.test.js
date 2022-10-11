@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import {
   createDummyEncounter,
   createDummyPatient,
@@ -149,14 +149,14 @@ describe('Nauru covid case report tests', () => {
           Status: LAB_REQUEST_STATUS_LABELS[LAB_REQUEST_STATUSES.RECEPTION_PENDING],
           Result: 'Positive',
           'Requested by': null,
-          'Requested date': format(new Date(labRequest.requestedDate), 'yyyy/MM/dd'),
-          'Submitted date': format(new Date(labTest.date), 'yyyy/MM/dd'),
+          'Requested date': format(parseISO(labRequest.requestedDate), 'yyyy/MM/dd'),
+          'Submitted date': format(parseISO(labTest.date), 'yyyy/MM/dd'),
           Priority: null,
           'Testing laboratory': null,
-          'Testing date': format(new Date(labTest.completedDate), 'yyyy/MM/dd'),
+          'Testing date': format(parseISO(labTest.completedDate), 'yyyy/MM/dd'),
           'Laboratory officer': 'Officer Number 8',
-          'Sample collection date': format(new Date(labRequest.sampleTime), 'yyyy/MM/dd'),
-          'Sample collection time': format(new Date(labRequest.sampleTime), 'hh:mm a'),
+          'Sample collection date': format(parseISO(labRequest.sampleTime), 'yyyy/MM/dd'),
+          'Sample collection time': format(parseISO(labRequest.sampleTime), 'hh:mm a'),
           'Patient contact number': '435355781',
           'Test location': 'Community',
           'Does patient have symptoms': 'Yes',

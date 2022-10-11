@@ -6,7 +6,6 @@ import { FhirResource } from './Resource';
 import { arrayOf, activeFromVisibility } from './utils';
 import { dateType } from '../dateTimeTypes';
 import { latestDateTime } from '../../utils/dateTime';
-import { formatDateTime } from '../../utils/fhir';
 import {
   FHIR_SEARCH_PARAMETERS,
   FHIR_SEARCH_TOKEN_TYPES,
@@ -72,13 +71,6 @@ export class FhirPatient extends FhirResource {
       address: addresses(upstream),
       lastUpdated: latestDateTime(upstream.updatedAt, upstream.additionalData?.updatedAt),
     });
-  }
-
-  asFhir() {
-    const resource = super.asFhir();
-    resource.birthDate = formatDateTime(this.birthDate, FHIR_DATETIME_PRECISION.DAYS);
-    resource.deceasedDateTime = formatDateTime(this.deceasedDateTime, FHIR_DATETIME_PRECISION.DAYS);
-    return resource;
   }
 
   static searchParameters() {

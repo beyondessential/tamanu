@@ -1,6 +1,6 @@
 import { keyBy, groupBy, uniqWith, isEqual } from 'lodash';
 import { Op } from 'sequelize';
-import { endOfDay, startOfDay } from 'date-fns';
+import { endOfDay, startOfDay, parseISO } from 'date-fns';
 import { generateReportFromQueryData } from './utilities';
 import { transformAnswers } from './utilities/transformAnswers';
 import { format, ageInYears, differenceInMilliseconds, toDateTimeString } from '../utils/dateTime';
@@ -16,11 +16,11 @@ const parametersToSurveyResponseSqlWhere = (parameters, surveyIds) => {
   }
 
   if (parameters.fromDate) {
-    newParameters.fromDate = toDateTimeString(startOfDay(new Date(parameters.fromDate)));
+    newParameters.fromDate = toDateTimeString(startOfDay(parseISO(parameters.fromDate)));
   }
 
   if (parameters.toDate) {
-    newParameters.toDate = toDateTimeString(endOfDay(new Date(parameters.toDate)));
+    newParameters.toDate = toDateTimeString(endOfDay(parseISO(parameters.toDate)));
   }
 
   const whereClause = Object.entries(newParameters)

@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { startOfDay, endOfDay, format } from 'date-fns';
+import { startOfDay, endOfDay, format, parseISO } from 'date-fns';
 import { DIAGNOSIS_CERTAINTY } from 'shared/constants';
 import { toDateTimeString, ageInYears, parseISO9075 } from 'shared/utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
@@ -32,10 +32,10 @@ const reportColumnTemplate = Object.entries(FIELD_TO_TITLE).map(([key, title]) =
 const parametersToEncounterSqlWhere = parameters => {
   const newParameters = { ...parameters };
   if (parameters.fromDate) {
-    newParameters.fromDate = toDateTimeString(startOfDay(new Date(parameters.fromDate)));
+    newParameters.fromDate = toDateTimeString(startOfDay(parseISO(parameters.fromDate)));
   }
   if (parameters.toDate) {
-    newParameters.toDate = toDateTimeString(endOfDay(new Date(parameters.toDate)));
+    newParameters.toDate = toDateTimeString(endOfDay(parseISO(parameters.toDate)));
   }
   return Object.entries(newParameters)
     .filter(([, val]) => val)

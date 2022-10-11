@@ -1,6 +1,5 @@
 import { groupBy } from 'lodash';
 import { isAfter } from 'date-fns';
-import { parseISO9075 } from 'shared/utils/dateTime';
 
 /**
  * Group flat note items into nested ones:
