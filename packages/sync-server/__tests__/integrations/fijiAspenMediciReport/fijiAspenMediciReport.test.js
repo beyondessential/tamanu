@@ -11,21 +11,21 @@ import {
 import { toDateTimeString } from 'shared/utils/dateTime';
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
-import { milliseconds } from 'date-fns';
 
 const COUNTRY_TIMEZONE = config?.countryTimeZone;
 
 const createTime = (year, month, day, hour, minute, second, millisecond) => {
   // This is wrong, because we want to interpret the input as UTC
-  const unzonedTimeImplicitlyLocal = new Date(year, month, day, hour, minute, second);
+  const unzonedTimeImplicitlyLocal = new Date(year, month, day, hour, minute, second, millisecond);
   console.log('unzonedTimeImplicitlyLocal', unzonedTimeImplicitlyLocal);
   const fijiTime2 = toDateTimeString(unzonedTimeImplicitlyLocal);
   console.log('fijiTime2', fijiTime2);
-  const unzonedTimeOfUtcDateAssumingTheUnzonedTimeWasFJT = zonedTimeToUtc(unzonedTimeImplicitlyLocal, 'FJT');
+  const unzonedTimeOfUtcDateAssumingTheUnzonedTimeWasFJT = zonedTimeToUtc(unzonedTimeImplicitlyLocal, COUNTRY_TIMEZONE);
   console.log('unzonedTimeOfUtcDateAssumingTheUnzonedTimeWasFJT', unzonedTimeOfUtcDateAssumingTheUnzonedTimeWasFJT);
-  // const fijiTime1 = toDateTimeString(unzonedTimeOfUtcDateAssumingTheUnzonedTimeWasFJT);
-  // console.log('fijiTime1', fijiTime1);
-
+  console.log(unzonedTimeOfUtcDateAssumingTheUnzonedTimeWasFJT.toISOString())
+  const fijiTime1 = toDateTimeString(unzonedTimeOfUtcDateAssumingTheUnzonedTimeWasFJT.toISOString());
+  console.log('fijiTime1', fijiTime1);
+  return fijiTime1;
 }
 createTime(2022, 5, 15, 4, 12, 16, 258);
 
@@ -130,7 +130,7 @@ const fakeAllData = async models => {
     fake(models.Encounter, {
       patientId: patient.id,
       startDate: toDateTimeString(new Date(2022, 6-1, 9, 0, 2, 54, 225)),
-      endDate: '2022-06-12T00:02:54.225', // Make sure this works
+      endDate: createTime(2022, 6-1, 12, 0, 2, 54, 225), // Make sure this works
       encounterType: ENCOUNTER_TYPES.ADMISSION,
       reasonForEncounter: 'Severe Migrane',
       patientBillingTypeId,
