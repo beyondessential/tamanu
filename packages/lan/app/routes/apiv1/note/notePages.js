@@ -19,7 +19,7 @@ notePageRoute.post(
   asyncHandler(async (req, res) => {
     const { models, body: noteData } = req;
 
-    checkNotePermission(req, noteData, 'create');
+    await checkNotePermission(req, noteData, 'create');
 
     const notePage = await models.NotePage.create({
       recordType: noteData.recordType,
@@ -65,7 +65,7 @@ notePageRoute.get(
       where: { id: notePageId },
     });
 
-    checkNotePermission(req, notePage, 'read');
+    await checkNotePermission(req, notePage, 'read');
 
     res.send(notePage);
   }),
