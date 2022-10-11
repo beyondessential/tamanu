@@ -1,6 +1,7 @@
 import { QueryTypes } from 'sequelize';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { upperFirst } from 'lodash';
 import config from 'config';
 
 import { requireClientHeaders } from '../../middleware/requireClientHeaders';
@@ -282,7 +283,7 @@ p.first_name "firstname",
 p.last_name "lastname",
 p.date_of_birth "dateOfBirth",
 extract(year from age(p.date_of_birth::date)) "age",
-INITCAP(p.sex) "sex",
+p.sex "sex",
 billing.name "patientBillingType",
 e.id "encounterId",
 e.start_date::timestamp at time zone :timezone_string "encounterStartDate",
@@ -378,6 +379,7 @@ routes.get(
       ...encounter,
       age: parseInt(encounter.age),
       weight: parseFloat(encounter.weight),
+      sex: upperFirst(encounter.sex),
     }));
 
     res.status(200).send({ data: mappedData });
