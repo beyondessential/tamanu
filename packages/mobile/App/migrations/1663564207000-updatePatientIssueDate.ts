@@ -6,8 +6,16 @@ const ISO9075_FORMAT_LENGTH = ISO9075_FORMAT.length;
 const tableName = 'patient_issue';
 const columnName = 'recordedDate';
 
+async function testSkipMigration(queryRunner: QueryRunner) : Promise<boolean> {
+  const legacyColumn = await queryRunner.query("SELECT * FROM pragma_table_info('patient_issue') WHERE name='recordedDate_legacy';");
+  return legacyColumn.length > 0;
+}
+
 export class updatePatientIssueDate1663564207000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
+    if (await testSkipMigration(queryRunner)) {
+      return;
+    }
     const tableObject = await getTable(queryRunner, tableName);
 
     // 1. Create legacy columns
