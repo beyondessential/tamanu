@@ -257,8 +257,10 @@ const getLabTestRecords = async (
       // Get all lab tests regardless and filter fromDate and toDate in memory
       // to ensure that we have the date range from current lab test to the next lab test correctly.
       if (
-        parameters.fromDate &&
-        isBefore(dateToFilterBy, startOfDay(new Date(parameters.fromDate)))
+        isBefore(
+          dateToFilterBy,
+          startOfDay(parameters.fromDate ? new Date(parameters.fromDate) : subDays(new Date(), 30)),
+        )
       ) {
         continue;
       }
