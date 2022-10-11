@@ -47,7 +47,8 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
           resourceType: 'Patient',
           id: expect.any(String),
           meta: {
-            versionId: expect.any(String),
+            // TODO: uncomment when we support versioning
+            // versionId: expect.any(String),
             lastUpdated: format(new Date(patient.updatedAt), "yyyy-MM-dd'T'HH:mm:ssXXX"),
           },
           active: true,
@@ -143,7 +144,8 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
                 resourceType: 'Patient',
                 id: expect.any(String),
                 meta: {
-                  versionId: expect.any(String),
+                  // TODO: uncomment when we support versioning
+                  // versionId: expect.any(String),
                   lastUpdated: format(new Date(patient.updatedAt), "yyyy-MM-dd'T'HH:mm:ssXXX"),
                 },
                 active: true,
