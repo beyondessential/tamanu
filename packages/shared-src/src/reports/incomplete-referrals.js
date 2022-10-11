@@ -65,16 +65,16 @@ function parametersToSqlWhere(parameters) {
             where.referredById = value;
             break;
           case 'fromDate':
-            if (!where.date) {
-              where.date = {};
+            if (!where['$initiatingEncounter.start_date$']) {
+              where['$initiatingEncounter.start_date$'] = {};
             }
-            where.date[Op.gte] = value;
+            where['$initiatingEncounter.start_date$'][Op.gte] = value;
             break;
           case 'toDate':
-            if (!where.date) {
-              where.date = {};
+            if (!where['$initiatingEncounter.start_date$']) {
+              where['$initiatingEncounter.start_date$'] = {};
             }
-            where.date[Op.lte] = value;
+            where['$initiatingEncounter.start_date$'][Op.lte] = value;
             break;
           default:
             break;
