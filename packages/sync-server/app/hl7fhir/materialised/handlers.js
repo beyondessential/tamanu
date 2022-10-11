@@ -1,3 +1,4 @@
+import { formatRFC7231 } from 'date-fns';
 import { Router } from 'express';
 import asyncHandler from 'express-async-handler';
 import { ValidationError } from 'yup';
@@ -17,7 +18,6 @@ import { Bundle } from './bundle';
 import { buildSearchQuery, pushToQuery } from './query';
 
 import { requireClientHeaders as requireClientHeadersMiddleware } from '../../middleware/requireClientHeaders';
-import { formatRFC7231 } from 'date-fns';
 
 export function fhirRoutes({ requireClientHeaders } = {}) {
   const routes = Router();
