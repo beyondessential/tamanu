@@ -37,6 +37,8 @@ export function fhirRoutes({ requireClientHeaders } = {}) {
 
 const fetchHandler = resource =>
   asyncHandler(async (req, res) => {
+    res.header('Content-Type', 'application/fhir+json; fhirVersion=4.3');
+
     try {
       const FhirResource = req.store.models[`Fhir${resource}`];
       const { id } = req.params;
@@ -53,6 +55,7 @@ const fetchHandler = resource =>
       const record = await FhirResource.findByPk(id);
       if (!record) throw new NotFound(`no ${resource} with id ${id}`);
 
+      // TODO: support _pretty
       res.send(record.asFhir());
     } catch (err) {
       const oo = new OperationOutcome([err]);
@@ -62,6 +65,8 @@ const fetchHandler = resource =>
 
 const searchHandler = resource =>
   asyncHandler(async (req, res) => {
+    res.header('Content-Type', 'application/fhir+json; fhirVersion=4.3');
+
     try {
       const FhirResource = req.store.models[`Fhir${resource}`];
 
