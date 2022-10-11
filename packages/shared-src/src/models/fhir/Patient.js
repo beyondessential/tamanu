@@ -17,6 +17,7 @@ import {
   FhirContactPoint,
   FhirHumanName,
   FhirIdentifier,
+  FhirReference,
 } from '../../services/fhirTypes';
 
 export class FhirPatient extends FhirResource {
@@ -153,17 +154,23 @@ function identifiers(patient) {
       {
         use: 'usual',
         value: patient.displayId,
-        assigner: config.hl7.assigners.patientDisplayId,
+        assigner: new FhirReference({
+          display: config.hl7.assigners.patientDisplayId,
+        }),
         system: config.hl7.dataDictionaries.patientDisplayId,
       },
       {
         use: 'secondary',
-        assigner: config.hl7.assigners.patientPassport,
+        assigner: new FhirReference({
+          display: config.hl7.assigners.patientPassport,
+        }),
         value: patient.additionalData?.passportNumber,
       },
       {
         use: 'secondary',
-        assigner: config.hl7.assigners.patientDrivingLicense,
+        assigner: new FhirReference({
+          display: config.hl7.assigners.patientDrivingLicense,
+        }),
         value: patient.additionalData?.drivingLicense,
       },
     ],
