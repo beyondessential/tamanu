@@ -40,6 +40,7 @@ const BaseColumns = [
     name: 'updatedAtSyncTick',
     type: 'bigint',
     isNullable: true,
+    default: -999,
   }),
 ];
 
@@ -105,6 +106,7 @@ export class alterModelsForV2Sync1663710579000 implements MigrationInterface {
           name: 'updatedAtSyncTick',
           type: 'bigint',
           isNullable: true,
+          default: -999,
         }),
       );
 

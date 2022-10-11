@@ -90,7 +90,7 @@ export abstract class BaseModel extends BaseEntity {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, default: -999 })
   updatedAtSyncTick: number;
 
   constructor() {
