@@ -14,11 +14,19 @@ import { createTestContext } from 'sync-server/__tests__/utilities';
 
 const COUNTRY_TIMEZONE = config?.countryTimeZone;
 
-const createLocalDateTimeStringFromUTC = (year, month, day, hour, minute, second, millisecond) => {
+const createLocalDateTimeStringFromUTC = (
+  year,
+  month,
+  day,
+  hour,
+  minute,
+  second,
+  millisecond = 0,
+) => {
   const utcTime = Date.UTC(year, month, day, hour, minute, second, millisecond);
   const localTimeWithoutTimezone = toDateTimeString(utcToZonedTime(utcTime, COUNTRY_TIMEZONE));
   return localTimeWithoutTimezone;
-}
+};
 
 const fakeAllData = async models => {
   const { id: userId } = await models.User.create(fake(models.User));
@@ -113,15 +121,11 @@ const fakeAllData = async models => {
       dateOfBirth: '1952-10-12',
     }),
   );
-  // console.log(formatInTimeZone(utcToZonedTime('2022-06-09T00:02:54.225', COUNTRY_TIMEZONE), 'UTC'));
-  // console.log(utcToZonedTime('2022-06-09T00:02:54.225', COUNTRY_TIMEZONE).toISOString());
-  // console.log(utcToZonedTime('2022-06-09T00:02:54.225', COUNTRY_TIMEZONE));
-  // console.log(toDateTimeString('2022-06-09T00:02:54.225'));
   const { id: encounterId } = await models.Encounter.create(
     fake(models.Encounter, {
       patientId: patient.id,
-      startDate: createLocalDateTimeStringFromUTC(2022, 6-1, 9, 0, 2, 54, 225),
-      endDate: createLocalDateTimeStringFromUTC(2022, 6-1, 12, 0, 2, 54, 225), // Make sure this works
+      startDate: createLocalDateTimeStringFromUTC(2022, 6 - 1, 9, 0, 2, 54, 225),
+      endDate: createLocalDateTimeStringFromUTC(2022, 6 - 1, 12, 0, 2, 54, 225), // Make sure this works
       encounterType: ENCOUNTER_TYPES.ADMISSION,
       reasonForEncounter: 'Severe Migrane',
       patientBillingTypeId,
@@ -194,7 +198,7 @@ const fakeAllData = async models => {
       encounterId,
       procedureTypeId,
       locationId: location1Id,
-      date: '2022-06-11T01:20:54.225+00:00',
+      date: createLocalDateTimeStringFromUTC(2022, 6 - 1, 11, 1, 20, 54),
       note: 'All ready for procedure here',
       completedNote: 'Everything went smoothly, no issues',
     }),
@@ -231,7 +235,7 @@ const fakeAllData = async models => {
     fake(models.NoteItem, {
       notePageId: imagingNotePageId,
       content: 'Check for fractured knees please',
-      date: '2022-06-10T06:04:54.225Z',
+      date: createLocalDateTimeStringFromUTC(2022, 6 - 1, 10, 6, 4, 54),
     }),
   );
 
@@ -250,7 +254,7 @@ const fakeAllData = async models => {
     fake(models.NoteItem, {
       notePageId: labsNotePageId,
       content: 'Please perform this lab test very carefully',
-      date: '2022-06-09T02:04:54.225Z',
+      date: createLocalDateTimeStringFromUTC(2022, 6 - 1, 9, 2, 4, 54),
     }),
   );
   await models.Discharge.create(
@@ -272,14 +276,14 @@ const fakeAllData = async models => {
     fake(models.NoteItem, {
       notePageId: encounterNotePageId,
       content: 'A\nB\nC\nD\nE\nF\nG\n',
-      date: '2022-06-10T03:39:57.617+00:00',
+      date: createLocalDateTimeStringFromUTC(2022, 6 - 1, 10, 3, 39, 57),
     }),
   );
   await models.NoteItem.create(
     fake(models.NoteItem, {
       notePageId: encounterNotePageId,
       content: 'H\nI\nJ\nK\nL... nopqrstuv',
-      date: '2022-06-10T04:39:57.617+00:00',
+      date: createLocalDateTimeStringFromUTC(2022, 6 - 1, 10, 4, 39, 57),
     }),
   );
   // Location/departments:
@@ -298,7 +302,7 @@ const fakeAllData = async models => {
       notePageId: resultantNotePageId,
     },
   });
-  systemNoteItem.date = '2022-06-09T08:04:54.225Z';
+  systemNoteItem.date = createLocalDateTimeStringFromUTC(2022, 6 - 1, 9, 8, 4, 54);
   await systemNoteItem.save();
 
   return { patient, encounterId };
@@ -351,8 +355,9 @@ describe('fijiAspenMediciReport', () => {
         // Encounter Details
         encounterId,
         patientBillingType: 'Public',
-        encounterStartDate: '2022-06-09T00:02:54.225Z',
-        encounterEndDate: '2022-06-12T00:02:54.225Z',
+        // Note that seconds is the highest level of precision - so the milliseconds are truncated
+        encounterStartDate: '2022-06-09T00:02:54.000Z',
+        encounterEndDate: '2022-06-12T00:02:54.000Z',
         encounterType: 'AR-DRG',
         reasonForEncounter: 'Severe Migrane',
 
@@ -378,17 +383,17 @@ describe('fijiAspenMediciReport', () => {
         locations: [
           {
             location: 'Emergency room 1',
-            assignedTime: '2022-06-09T00:02:54.225+00:00',
+            assignedTime: '2022-06-09T00:02:54+00:00',
           },
           {
             location: 'Emergency room 2',
-            assignedTime: '2022-06-09T08:04:54.225+00:00',
+            assignedTime: '2022-06-09T08:04:54+00:00',
           },
         ],
         departments: [
           {
             department: 'Emergency dept.',
-            assignedTime: '2022-06-09T00:02:54.225+00:00',
+            assignedTime: '2022-06-09T00:02:54+00:00',
           },
         ],
 
@@ -433,7 +438,7 @@ describe('fijiAspenMediciReport', () => {
             name:
               'Subtemporal cranial decompression (pseudotumor cerebri, slit ventricle syndrome)',
             code: '61340',
-            date: '2022-06-11T01:20:54.225+00:00',
+            date: '2022-06-11T01:20:54+00:00',
             location: 'Emergency room 1',
             notes: 'All ready for procedure here',
             completedNotes: 'Everything went smoothly, no issues',
@@ -450,7 +455,7 @@ describe('fijiAspenMediciReport', () => {
               {
                 noteType: NOTE_TYPES.OTHER,
                 content: 'Please perform this lab test very carefully',
-                noteDate: '2022-06-09T02:04:54.225+00:00',
+                noteDate: '2022-06-09T02:04:54+00:00',
               },
             ],
           },
@@ -463,7 +468,7 @@ describe('fijiAspenMediciReport', () => {
               {
                 noteType: 'other',
                 content: 'Check for fractured knees please',
-                noteDate: '2022-06-10T06:04:54.225+00:00',
+                noteDate: '2022-06-10T06:04:54+00:00',
               },
             ],
           },
@@ -472,12 +477,12 @@ describe('fijiAspenMediciReport', () => {
           {
             noteType: NOTE_TYPES.NURSING,
             content: 'H\nI\nJ\nK\nL... nopqrstuv',
-            noteDate: '2022-06-10T04:39:57.617+00:00',
+            noteDate: '2022-06-10T04:39:57+00:00',
           },
           {
             noteType: NOTE_TYPES.NURSING,
             content: 'A\nB\nC\nD\nE\nF\nG\n',
-            noteDate: '2022-06-10T03:39:57.617+00:00',
+            noteDate: '2022-06-10T03:39:57+00:00',
           },
         ],
       },
