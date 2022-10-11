@@ -1,3 +1,5 @@
+import config from 'config';
+import { utcToZonedTime, zonedTimeToUtc, formatInTimeZone } from 'date-fns-tz';
 import {
   REFERENCE_TYPES,
   NOTE_RECORD_TYPES,
@@ -6,8 +8,26 @@ import {
   IMAGING_TYPES,
   DIAGNOSIS_CERTAINTY,
 } from 'shared/constants';
+import { toDateTimeString } from 'shared/utils/dateTime';
 import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
+import { milliseconds } from 'date-fns';
+
+const COUNTRY_TIMEZONE = config?.countryTimeZone;
+
+const createTime = (year, month, day, hour, minute, second, millisecond) => {
+  // This is wrong, because we want to interpret the input as UTC
+  const unzonedTimeImplicitlyLocal = new Date(year, month, day, hour, minute, second);
+  console.log('unzonedTimeImplicitlyLocal', unzonedTimeImplicitlyLocal);
+  const fijiTime2 = toDateTimeString(unzonedTimeImplicitlyLocal);
+  console.log('fijiTime2', fijiTime2);
+  const unzonedTimeOfUtcDateAssumingTheUnzonedTimeWasFJT = zonedTimeToUtc(unzonedTimeImplicitlyLocal, 'FJT');
+  console.log('unzonedTimeOfUtcDateAssumingTheUnzonedTimeWasFJT', unzonedTimeOfUtcDateAssumingTheUnzonedTimeWasFJT);
+  // const fijiTime1 = toDateTimeString(unzonedTimeOfUtcDateAssumingTheUnzonedTimeWasFJT);
+  // console.log('fijiTime1', fijiTime1);
+
+}
+createTime(2022, 5, 15, 4, 12, 16, 258);
 
 const fakeAllData = async models => {
   const { id: userId } = await models.User.create(fake(models.User));
@@ -102,11 +122,15 @@ const fakeAllData = async models => {
       dateOfBirth: '1952-10-12',
     }),
   );
+  // console.log(formatInTimeZone(utcToZonedTime('2022-06-09T00:02:54.225', COUNTRY_TIMEZONE), 'UTC'));
+  // console.log(utcToZonedTime('2022-06-09T00:02:54.225', COUNTRY_TIMEZONE).toISOString());
+  // console.log(utcToZonedTime('2022-06-09T00:02:54.225', COUNTRY_TIMEZONE));
+  // console.log(toDateTimeString('2022-06-09T00:02:54.225'));
   const { id: encounterId } = await models.Encounter.create(
     fake(models.Encounter, {
       patientId: patient.id,
-      startDate: '2022-06-09T00:02:54.225Z',
-      endDate: '2022-06-12T00:02:54.225+00:00', // Make sure this works
+      startDate: toDateTimeString(new Date(2022, 6-1, 9, 0, 2, 54, 225)),
+      endDate: '2022-06-12T00:02:54.225', // Make sure this works
       encounterType: ENCOUNTER_TYPES.ADMISSION,
       reasonForEncounter: 'Severe Migrane',
       patientBillingTypeId,
