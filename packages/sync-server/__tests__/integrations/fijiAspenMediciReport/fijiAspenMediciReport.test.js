@@ -14,16 +14,17 @@ import { createTestContext } from 'sync-server/__tests__/utilities';
 
 const COUNTRY_TIMEZONE = config?.countryTimeZone;
 
+
 const createTime = (year, month, day, hour, minute, second, millisecond) => {
   // This is wrong, because we want to interpret the input as UTC
-  const unzonedTimeImplicitlyLocal = new Date(year, month, day, hour, minute, second, millisecond);
+  const unzonedTimeImplicitlyLocal = Date.UTC(year, month, day, hour, minute, second, millisecond);
   console.log('unzonedTimeImplicitlyLocal', unzonedTimeImplicitlyLocal);
   const fijiTime2 = toDateTimeString(unzonedTimeImplicitlyLocal);
   console.log('fijiTime2', fijiTime2);
-  const unzonedTimeOfUtcDateAssumingTheUnzonedTimeWasFJT = zonedTimeToUtc(unzonedTimeImplicitlyLocal, COUNTRY_TIMEZONE);
+  const unzonedTimeOfUtcDateAssumingTheUnzonedTimeWasFJT = utcToZonedTime(unzonedTimeImplicitlyLocal, COUNTRY_TIMEZONE);
   console.log('unzonedTimeOfUtcDateAssumingTheUnzonedTimeWasFJT', unzonedTimeOfUtcDateAssumingTheUnzonedTimeWasFJT);
   console.log(unzonedTimeOfUtcDateAssumingTheUnzonedTimeWasFJT.toISOString())
-  const fijiTime1 = toDateTimeString(unzonedTimeOfUtcDateAssumingTheUnzonedTimeWasFJT.toISOString());
+  const fijiTime1 = toDateTimeString(unzonedTimeOfUtcDateAssumingTheUnzonedTimeWasFJT);
   console.log('fijiTime1', fijiTime1);
   return fijiTime1;
 }
