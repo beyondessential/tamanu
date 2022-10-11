@@ -93,6 +93,11 @@ export class Patient extends Model {
         recordType: this.name,
       },
     });
+
+    this.hasMany(models.PatientFieldValue, {
+      foreignKey: 'patientId',
+      as: 'fieldValues',
+    });
   }
 
   static async getSyncIds() {
