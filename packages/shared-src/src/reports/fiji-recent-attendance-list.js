@@ -1,7 +1,7 @@
 import { Op } from 'sequelize';
 import { startOfDay, endOfDay, format, parseISO } from 'date-fns';
 import { DIAGNOSIS_CERTAINTY } from 'shared/constants';
-import { toDateTimeString, ageInYears, parseISO9075 } from 'shared/utils/dateTime';
+import { toDateTimeString, ageInYears } from 'shared/utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
 const FIELD_TO_TITLE = {
@@ -155,7 +155,7 @@ const transformDataPoint = encounter => {
     medicalArea: patientAdditionalData?.medicalArea?.name,
     nursingZone: patientAdditionalData?.nursingZone?.name,
     clinician: examiner?.displayName,
-    dateOfAttendance: format(parseISO9075(encounter.startDate), 'dd-MM-yyyy'),
+    dateOfAttendance: format(encounter.startDate, 'dd-MM-yyyy'),
     department: encounter.department?.name,
     location: encounter.location?.name,
     reasonForAttendance: encounter.reasonForEncounter,

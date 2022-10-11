@@ -2,7 +2,7 @@
 
 import { Op } from 'sequelize';
 import { endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
-import { toDateTimeString, format, parseISO9075 } from 'shared/utils/dateTime';
+import { toDateTimeString, format } from 'shared/utils/dateTime';
 import { generateReportFromQueryData } from '../utilities';
 
 const DATE_FORMAT = 'yyyy/MM/dd';
@@ -111,7 +111,7 @@ async function queryCovidVaccineListData(models, parameters) {
       acc[patientId] = {
         patientName: `${firstName} ${lastName}`,
         uid: displayId,
-        dob: parseISO9075(dateOfBirth).toLocaleDateString(),
+        dob: parseISO(dateOfBirth).toLocaleDateString(),
         village: village?.name,
         dose1: 'No',
         dose2: 'No',
@@ -121,11 +121,11 @@ async function queryCovidVaccineListData(models, parameters) {
     }
     if (schedule === 'Dose 1') {
       acc[patientId].dose1 = 'Yes';
-      acc[patientId].dose1Date = parseISO9075(date).toLocaleDateString();
+      acc[patientId].dose1Date = parseISO(date).toLocaleDateString();
     }
     if (schedule === 'Dose 2') {
       acc[patientId].dose2 = 'Yes';
-      acc[patientId].dose2Date = parseISO9075(date).toLocaleDateString();
+      acc[patientId].dose2Date = parseISO(date).toLocaleDateString();
     }
     return acc;
   }, {});

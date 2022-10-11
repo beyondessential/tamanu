@@ -1,4 +1,3 @@
-import { format, parseISO } from 'date-fns';
 import {
   createDummyEncounter,
   createDummyPatient,
@@ -6,7 +5,7 @@ import {
 } from 'shared/demoData/patients';
 import { randomRecord } from 'shared/demoData/utilities';
 import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_LABELS } from 'shared/constants';
-import { parseISO9075 } from 'shared/utils/dateTime';
+import { format } from 'shared/utils/dateTime';
 import { createTestContext } from '../../../utilities';
 import {
   createCovidTestForPatient,
@@ -138,7 +137,7 @@ describe('Nauru covid case report tests', () => {
         {
           'Patient first name': expectedPatient.firstName,
           'Patient last name': expectedPatient.lastName,
-          DOB: format(parseISO9075(expectedPatient.dateOfBirth), 'yyyy/MM/dd'),
+          DOB: format(expectedPatient.dateOfBirth, 'yyyy/MM/dd'),
           Sex: expectedPatient.sex,
           'Patient ID': expectedPatient.displayId,
           'Home sub-division': village.name,
@@ -149,14 +148,14 @@ describe('Nauru covid case report tests', () => {
           Status: LAB_REQUEST_STATUS_LABELS[LAB_REQUEST_STATUSES.RECEPTION_PENDING],
           Result: 'Positive',
           'Requested by': null,
-          'Requested date': format(parseISO(labRequest.requestedDate), 'yyyy/MM/dd'),
-          'Submitted date': format(parseISO(labTest.date), 'yyyy/MM/dd'),
+          'Requested date': format(labRequest.requestedDate, 'yyyy/MM/dd'),
+          'Submitted date': format(labTest.date, 'yyyy/MM/dd'),
           Priority: null,
           'Testing laboratory': null,
-          'Testing date': format(parseISO(labTest.completedDate), 'yyyy/MM/dd'),
+          'Testing date': format(labTest.completedDate, 'yyyy/MM/dd'),
           'Laboratory officer': 'Officer Number 8',
-          'Sample collection date': format(parseISO(labRequest.sampleTime), 'yyyy/MM/dd'),
-          'Sample collection time': format(parseISO(labRequest.sampleTime), 'hh:mm a'),
+          'Sample collection date': format(labRequest.sampleTime, 'yyyy/MM/dd'),
+          'Sample collection time': format(labRequest.sampleTime, 'hh:mm a'),
           'Patient contact number': '435355781',
           'Test location': 'Community',
           'Does patient have symptoms': 'Yes',
