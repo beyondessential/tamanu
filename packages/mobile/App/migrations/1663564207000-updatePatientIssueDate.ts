@@ -6,8 +6,18 @@ const ISO9075_FORMAT_LENGTH = ISO9075_FORMAT.length;
 const tableName = 'patient_issue';
 const columnName = 'recordedDate';
 
+// When we're upgrading into a version that uses migrations, we may have run a model sync
+// Test if this is the case, and if it was, skip this migration
+async function testSkipMigration(queryRunner: QueryRunner) : Promise<boolean> {
+  const legacyColumn = await queryRunner.query("SELECT * FROM pragma_table_info('patient_issue') WHERE name='recordedDate_legacy';");
+  return legacyColumn.length > 0;
+}
+
 export class updatePatientIssueDate1663564207000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
+    if (await testSkipMigration(queryRunner)) {
+      return;
+    }
     const tableObject = await getTable(queryRunner, tableName);
 
     // 1. Create legacy columns

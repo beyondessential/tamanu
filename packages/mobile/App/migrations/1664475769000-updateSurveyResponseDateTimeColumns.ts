@@ -3,6 +3,13 @@ import { getTable } from './utils/queryRunner';
 const ISO9075_FORMAT = 'YYYY-MM-DD HH:mm:ss';
 const ISO9075_FORMAT_LENGTH = ISO9075_FORMAT.length;
 
+// When we're upgrading into a version that uses migrations, we may have run a model sync
+// Test if this is the case, and if it was, skip this migration
+async function testSkipMigration(queryRunner: QueryRunner) : Promise<boolean> {
+  const legacyColumn = await queryRunner.query("SELECT * FROM pragma_table_info('survey_response') WHERE name='startTime_legacy';");
+  return legacyColumn.length > 0;
+}
+
 async function createDateTimeStringUpMigration(
   queryRunner: QueryRunner,
   tableName: string,
