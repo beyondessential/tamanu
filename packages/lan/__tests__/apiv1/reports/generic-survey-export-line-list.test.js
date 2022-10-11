@@ -81,7 +81,7 @@ const submitSurveyForPatient = (app, patient, date, expectedVillage) =>
     answers: {
       'pde-Test1': 'Data point 1',
       'pde-CheckboxQ': 'true',
-      'pde-DateQ': '2022-05-30T02:37:12.826Z',
+      'pde-DateQ': '2022-05-30 02:37:12',
       'pde-Autocomplete': expectedVillage.id,
     },
   });
@@ -250,6 +250,7 @@ describe('Generic survey export', () => {
           village: expectedVillage.id,
         },
       });
+      
       expect(result).toHaveSucceeded();
       expect(result.body).toMatchTabularReport([
         {

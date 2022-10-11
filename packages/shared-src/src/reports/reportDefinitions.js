@@ -19,7 +19,7 @@ export const REPORT_DEFINITIONS = [
     dateRangeLabel: ALL_TIME_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
     parameters: [{ parameterField: 'VillageField' }, { parameterField: 'PractitionerField' }],
-    filterDateRangeAsString: true,
+    filterDateRangeAsStrings: true,
   },
   {
     name: 'Recent Diagnoses',
@@ -122,7 +122,7 @@ export const REPORT_DEFINITIONS = [
   {
     name: 'Adverse Event Following Immunization',
     id: 'aefi',
-    filterDateRangeAsString: true,
+    filterDateRangeAsStrings: true,
     dateRangeLabel: ALL_TIME_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
     parameters: [{ parameterField: 'VillageField' }],
