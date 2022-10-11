@@ -319,8 +319,8 @@ export class Encounter extends Model {
     });
   }
 
-  async onDischarge(endDate, note) {
-    await this.addSystemNote(note || `Discharged patient.`, endDate);
+  async onDischarge(endDate, submittedTime, note) {
+    await this.addSystemNote(note || `Discharged patient.`, submittedTime);
     await this.closeTriage(endDate);
   }
 
@@ -357,7 +357,7 @@ export class Encounter extends Model {
 
     const updateEncounter = async () => {
       if (data.endDate && !this.endDate) {
-        await this.onDischarge(data.endDate, data.dischargeNote);
+        await this.onDischarge(data.endDate, data.submittedTime, data.dischargeNote);
       }
 
       if (data.patientId && data.patientId !== this.patientId) {
