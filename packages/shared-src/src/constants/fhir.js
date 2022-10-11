@@ -2,6 +2,11 @@ import { Op } from 'sequelize';
 
 export const FHIR_RESOURCE_TYPES = ['Patient'];
 
+// The resource:upstreams relationship. Used to set up hooks.
+export const FHIR_UPSTREAMS = {
+  Patient: ['Patient', 'PatientAdditionalData'],
+};
+
 // All possible search parameter types
 export const FHIR_SEARCH_PARAMETERS = {
   NUMBER: 'number',
