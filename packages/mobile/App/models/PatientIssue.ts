@@ -25,17 +25,4 @@ export class PatientIssue extends BaseModel implements IPatientIssue {
   patient: Patient;
   @RelationId(({ patient }) => patient)
   patientId: string;
-
-  // TODO: add everything below here to a mixin
-  // https://www.typescriptlang.org/docs/handbook/mixins.html
-
-  @BeforeInsert()
-  @BeforeUpdate()
-  async markPatient() {
-    // adding an issue to a patient should mark them for syncing in future
-    const parent = await this.findParent(Patient, 'patient');
-    if (parent) {
-      await Patient.markForSync(parent.id);
-    }
-  }
 }
