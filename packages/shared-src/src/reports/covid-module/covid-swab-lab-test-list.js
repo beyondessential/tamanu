@@ -13,6 +13,7 @@ import { groupBy } from 'lodash';
 import { Op } from 'sequelize';
 import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_LABELS } from '../../constants';
 import { generateReportFromQueryData } from '../utilities';
+import { parseISO9075 } from '../../utils/dateTime';
 import { transformAnswers } from '../utilities/transformAnswers';
 
 const WILLIAM_HOROTO_IDS = [
@@ -218,7 +219,7 @@ const getLabTestRecords = async (
   labTests,
   transformedAnswers,
   parameters,
-  { surveyQuestionCodes, dateFormat },
+  { surveyQuestionCodes, dateFormat, dateFilterBy },
 ) => {
   const transformedAnswersByPatientAndDataElement = groupBy(
     transformedAnswers,
@@ -248,19 +249,23 @@ const getLabTestRecords = async (
 
       const labTest = patientLabTests[i];
       const currentLabTestDate = startOfDay(parseISO(labTest.date));
+      const dateToFilterBy =
+        dateFilterBy === 'labRequest.sampleTime'
+          ? startOfDay(parseISO9075(labTest.labRequest.sampleTime))
+          : currentLabTestDate;
 
       // Get all lab tests regardless and filter fromDate and toDate in memory
       // to ensure that we have the date range from current lab test to the next lab test correctly.
       if (
         isBefore(
-          currentLabTestDate,
+          dateToFilterBy,
           startOfDay(parameters.fromDate ? new Date(parameters.fromDate) : subDays(new Date(), 30)),
         )
       ) {
         continue;
       }
 
-      if (parameters.toDate && isAfter(currentLabTestDate, endOfDay(new Date(parameters.toDate)))) {
+      if (parameters.toDate && isAfter(dateToFilterBy, endOfDay(new Date(parameters.toDate)))) {
         continue;
       }
 
@@ -339,7 +344,13 @@ const getLabTestRecords = async (
 export const baseDataGenerator = async (
   { models },
   parameters = {},
-  { surveyId, reportColumnTemplate, surveyQuestionCodes, dateFormat = 'yyyy/MM/dd' },
+  {
+    surveyId,
+    reportColumnTemplate,
+    surveyQuestionCodes,
+    dateFormat = 'yyyy/MM/dd',
+    dateFilterBy = 'date',
+  },
 ) => {
   const labTests = await getLabTests(models, parameters);
   const transformedAnswers = await getFijiCovidAnswers(models, parameters, {
@@ -349,6 +360,7 @@ export const baseDataGenerator = async (
   const reportData = await getLabTestRecords(labTests, transformedAnswers, parameters, {
     surveyQuestionCodes,
     dateFormat,
+    dateFilterBy,
   });
   return generateReportFromQueryData(reportData, reportColumnTemplate);
 };

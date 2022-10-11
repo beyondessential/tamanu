@@ -156,7 +156,7 @@ export class MobileSyncManager {
   async syncOutgoingChanges(sessionId: string, currentSyncTick: number): Promise<void> {
     const pushSince = await getSyncTick(this.models, LAST_SUCCESSFUL_PUSH);
     console.log(
-      `MobileSyncManager.syncOutgoingChanges(): Begin sync outgoing changes since ${pushSince}`,
+      `MobileSyncManager.syncOutgoingChanges(): Begin syncing outgoing changes since ${pushSince}`,
     );
 
     const modelsToPush = getModelsForDirection(this.models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL);
@@ -195,10 +195,10 @@ export class MobileSyncManager {
     );
 
     // tick the global sync clock, and use that as our saved checkpoint for where we've pulled to,
-    // if this pull is successful (important to use a higher unique sync tick than our push tick)
-    // as otherwise we'll end up pulling the same records we just pushed the _next_ time we pull,
-    // given they get saved on the central server using the update tick at the moment they are
-    // persisted
+    // if this pull is successful
+    // n.b. important to use a higher unique sync tick than our push tick as otherwise we'll end up
+    // pulling the same records we just pushed the _next_ time we pull, given they get saved on the
+    // central server using the update tick at the moment they are persisted
     const startOfPullTick = await this.centralServer.tickGlobalClock();
 
     const incomingChangesCount = await pullIncomingChanges(
@@ -209,25 +209,23 @@ export class MobileSyncManager {
         this.updateProgress(total, downloadedChangesTotal, 'Stage 2/3: Pulling all new changes'),
     );
 
-    if (incomingChangesCount > 0) {
-      console.log(
-        `MobileSyncManager.syncIncomingChanges(): Saving ${incomingChangesCount} changes`,
-      );
+    console.log(`MobileSyncManager.syncIncomingChanges(): Saving ${incomingChangesCount} changes`);
 
-      const incomingModels = getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
+    const incomingModels = getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
 
-      // Save all incoming changes in 1 transaction so that the whole sync session save
-      // either fail 100% or succeed 100%, no partial save.
-      await Database.client.transaction(async () => {
+    // Save all incoming changes in 1 transaction so that the whole sync session save
+    // either fail 100% or succeed 100%, no partial save.
+    await Database.client.transaction(async () => {
+      if (incomingChangesCount > 0) {
         await saveIncomingChanges(incomingChangesCount, incomingModels, this.updateProgress);
+      }
 
-        // update the last successful sync in the same save transaction,
-        // if updating the cursor fails, we want to roll back the rest of the saves
-        // so that we don't end up detecting them as needing a sync up
-        // to the central server when we attempt to resync from the same old cursor
-        await setSyncTick(this.models, LAST_SUCCESSFUL_PULL, startOfPullTick);
-      });
-    }
+      // update the last successful sync in the same save transaction,
+      // if updating the cursor fails, we want to roll back the rest of the saves
+      // so that we don't end up detecting them as needing a sync up
+      // to the central server when we attempt to resync from the same old cursor
+      await setSyncTick(this.models, LAST_SUCCESSFUL_PULL, startOfPullTick);
+    });
 
     this.lastSyncPulledRecordsCount = incomingChangesCount;
 

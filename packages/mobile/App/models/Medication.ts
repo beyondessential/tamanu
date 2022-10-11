@@ -35,7 +35,10 @@ export class Medication extends BaseModel implements IMedication {
   @RelationId(({ medication }) => medication)
   medicationId?: string;
 
-  @ManyToOne(() => Encounter, encounter => encounter.medications)
+  @ManyToOne(
+    () => Encounter,
+    encounter => encounter.medications,
+  )
   encounter: Encounter;
   @RelationId(({ encounter }) => encounter)
   encounterId?: string;
@@ -54,9 +57,7 @@ export class Medication extends BaseModel implements IMedication {
   @Column({ nullable: true })
   qtyNight?: number;
 
-  @BeforeInsert()
-  @BeforeUpdate()
-  async markEncounterForUpload() {
-    await this.markParentForUpload(Encounter, 'encounter');
+  static getTableNameForSync(): string {
+    return 'encounter_medications';
   }
 }

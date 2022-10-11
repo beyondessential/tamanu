@@ -37,13 +37,19 @@ export class Facility extends BaseModel implements IFacility {
   @Column({ default: VisibilityStatus.Current })
   visibilityStatus: string;
 
-  @OneToMany(() => Location, ({ facility }) => facility)
+  @OneToMany(
+    () => Location,
+    ({ facility }) => facility,
+  )
   locations: Location[];
 
-  @OneToMany(() => Department, ({ facility }) => facility)
+  @OneToMany(
+    () => Department,
+    ({ facility }) => facility,
+  )
   departments: Department[];
 
-  static getPluralTableName(): string {
+  static getTableNameForSync(): string {
     return 'facilities';
   }
 }

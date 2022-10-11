@@ -300,4 +300,35 @@ describe('Permissions import', () => {
       'valid foreign key expected in column role (corresponding to roleId) but found: invalid',
     );
   });
+
+  it('should revoke (and reinstate) a permission', async () => {
+    const { Permission } = ctx.store.models;
+
+    const where = {
+      noun: 'RevokeTest'
+    };
+
+    const beforeImport = await Permission.findOne({ where });
+    expect(beforeImport).toBeFalsy();
+
+    await doImport({ file: 'revoke-a' });
+
+    const afterImport = await Permission.findOne({ where });
+    expect(afterImport).toBeTruthy();
+    expect(afterImport.deletedAt).toEqual(null);
+
+    await doImport({ file: 'revoke-b' });
+
+    const afterRevoke = await Permission.findOne({ where, paranoid: false });
+    expect(afterRevoke).toBeTruthy();
+    expect(afterRevoke.deletedAt).toBeTruthy();
+
+    await doImport({ file: 'revoke-a' });
+
+    const afterReinstate = await Permission.findOne({ where, paranoid: false });
+    expect(afterReinstate).toBeTruthy();
+    expect(afterReinstate.deletedAt).toEqual(null);
+
+  });
+
 });

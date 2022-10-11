@@ -23,15 +23,16 @@ export class Diagnosis extends BaseModel implements IDiagnosis {
   @RelationId(({ diagnosis }) => diagnosis)
   diagnosisId?: string;
 
-  @ManyToOne(() => Encounter, encounter => encounter.diagnoses)
+  @ManyToOne(
+    () => Encounter,
+    encounter => encounter.diagnoses,
+  )
   encounter: Encounter;
   @RelationId(({ encounter }) => encounter)
   encounterId?: string;
 
-  @BeforeInsert()
-  @BeforeUpdate()
-  async markEncounterForUpload() {
-    await this.markParentForUpload(Encounter, 'encounter');
+  static getTableNameForSync(): string {
+    return 'encounter_diagnoses';
   }
 
   static async getForPatient(patientId: string): Promise<Diagnosis[]> {

@@ -9,7 +9,10 @@ import { SYNC_DIRECTIONS } from './types';
 export class PatientAdditionalData extends BaseModel implements IPatientAdditionalData {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
-  @ManyToOne(() => Patient, (patient) => patient.additionalData)
+  @ManyToOne(
+    () => Patient,
+    patient => patient.additionalData,
+  )
   patient: Patient;
   @RelationId(({ patient }) => patient)
   patientId: string;
@@ -119,19 +122,13 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
   @IdRelation()
   countryOfBirthId?: string | null;
 
-  @BeforeInsert()
-  @BeforeUpdate()
-  async markPatient() {
-    // Adding or editing additional data should mark the patient for sync
-    const parent = await this.findParent(Patient, 'patient');
-    if (parent) {
-      await Patient.markForSync(parent.id)
-    }
+  static getTableNameForSync(): string {
+    return 'patient_additional_data';
   }
 
   static async getForPatient(patientId: string): Promise<PatientAdditionalData> {
     // use a query builder instead of find, as apparently there's some
-    // misbehaviour around how typeorm traverses this relation 
+    // misbehaviour around how typeorm traverses this relation
     return await PatientAdditionalData.getRepository()
       .createQueryBuilder('patient_additional_data')
       .where('patient_additional_data.patientId = :patientId', { patientId })
