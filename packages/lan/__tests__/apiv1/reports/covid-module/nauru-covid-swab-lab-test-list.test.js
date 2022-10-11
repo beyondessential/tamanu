@@ -6,7 +6,7 @@ import {
 } from 'shared/demoData/patients';
 import { randomRecord } from 'shared/demoData/utilities';
 import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_LABELS } from 'shared/constants';
-import { parseISO9075 } from 'shared/utils/dateTime';
+import { parseISO9075, toDateTimeString } from 'shared/utils/dateTime';
 import { createTestContext } from '../../../utilities';
 import {
   createCovidTestForPatient,
@@ -104,8 +104,42 @@ describe('Nauru covid case report tests', () => {
     });
 
     beforeEach(async () => {
+      // Note: can't use cascade here or it'll delete the data created in beforeAll
       await testContext.models.SurveyResponseAnswer.destroy({ where: {} });
       await testContext.models.SurveyResponse.destroy({ where: {} });
+      await testContext.models.LabTest.destroy({ where: {} });
+      await testContext.models.LabRequest.destroy({ where: {} });
+    });
+
+    it('should filter by sample time', async () => {
+      await submitInitialFormForPatient(app, models, expectedPatient, new Date(2022, 3, 10, 4), {
+        'pde-NauCOVTest002': 435355781, // 'Patient contact number'
+        'pde-NauCOVTest003': 'Community', // 'Test location'
+        'pde-NauCOVTest005': 'Yes', // 'Does patient have symptoms'
+        'pde-NauCOVTest006': 'dateOfFirstSymptom', // 'If Yes, date of first symptom onset'
+        'pde-NauCOVTest007': 'Loss of smell or taste', // Symptoms
+        'pde-NauCOVTest008': facility.id, // 'Health Clinic'
+      });
+
+      await createCovidTestForPatient(
+        models,
+        expectedPatient,
+        new Date(2022, 3, 10, 5),
+        {
+          laboratoryOfficer: 'Officer Number 8',
+          result: 'Positive',
+        },
+        { sampleTime: toDateTimeString(new Date(2022, 3, 15, 5)) },
+      );
+
+      const reportResult = await app.post(REPORT_URL).send({
+        parameters: {
+          fromDate: new Date(2022, 3, 1, 4),
+          toDate: new Date(2022, 3, 12, 4),
+        },
+      });
+      expect(reportResult).toHaveSucceeded();
+      expect(reportResult.body).toMatchTabularReport([]);
     });
 
     it('should return only one line per patient', async () => {
@@ -126,13 +160,16 @@ describe('Nauru covid case report tests', () => {
           laboratoryOfficer: 'Officer Number 8',
           result: 'Positive',
         },
+        {
+          sampleTime: toDateTimeString(new Date(2022, 3, 15, 5)),
+        },
       );
 
       const labTestType = await models.LabTestType.findByPk(labTest.labTestTypeId);
 
       const reportResult = await app
         .post(REPORT_URL)
-        .send({ parameters: { fromDate: new Date(2022, 3, 1, 4) } });
+        .send({ parameters: { fromDate: new Date(2022, 3, 12, 4) } });
       expect(reportResult).toHaveSucceeded();
       expect(reportResult.body).toMatchTabularReport([
         {
