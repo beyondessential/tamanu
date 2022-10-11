@@ -24,7 +24,85 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
         await PatientAdditionalData.destroy({ where: {} });
       });
 
-      it('fetches a patient', async () => {
+      it('fetches a patient by materialised ID', async () => {
+        // arrange
+        const { FhirPatient, Patient, PatientAdditionalData } = ctx.store.models;
+        const patient = await Patient.create(
+          fake(Patient, { dateOfDeath: getCurrentDateString() }),
+        );
+        const additionalData = await PatientAdditionalData.create({
+          ...fake(PatientAdditionalData),
+          patientId: patient.id,
+        });
+        await patient.reload(); // saving PatientAdditionalData updates the patient too
+        const mat = await FhirPatient.materialiseFromUpstream(patient.id);
+
+        const path = `/v1/integration/${integrationName}/Patient/${mat.id}`;
+
+        // act
+        const response = await app.get(path).set(requestHeaders);
+
+        // assert
+        expect(response.body).toMatchObject({
+          resourceType: 'Patient',
+          id: expect.any(String),
+          meta: {
+            versionId: expect.any(String),
+            lastUpdated: format(new Date(patient.updatedAt), "yyyy-MM-dd'T'HH:mm:ssXXX"),
+          },
+          active: true,
+          address: [
+            {
+              city: additionalData.cityTown,
+              line: [additionalData.streetVillage],
+              type: 'physical',
+              use: 'home',
+            },
+          ],
+          birthDate: format(new Date(patient.dateOfBirth), 'yyyy-MM-dd'),
+          deceasedDateTime: format(new Date(patient.dateOfDeath), 'yyyy-MM-dd'),
+          gender: patient.sex,
+          identifier: [
+            {
+              assigner: 'Tamanu',
+              system: 'http://tamanu.io/data-dictionary/application-reference-number.html',
+              use: 'usual',
+              value: patient.displayId,
+            },
+            {
+              assigner: 'RTA',
+              use: 'secondary',
+              value: additionalData.drivingLicense,
+            },
+          ],
+          name: [
+            {
+              family: patient.lastName,
+              given: [patient.firstName, patient.middleName],
+              prefix: [additionalData.title],
+              use: 'official',
+            },
+            {
+              text: patient.culturalName,
+              use: 'nickname',
+            },
+          ],
+          resourceType: 'Patient',
+          telecom: [
+            {
+              rank: 1,
+              value: additionalData.primaryContactNumber,
+            },
+            {
+              rank: 2,
+              value: additionalData.secondaryContactNumber,
+            },
+          ],
+        });
+        expect(response).toHaveSucceeded();
+      });
+
+      it('searches a single patient by display ID', async () => {
         // arrange
         const { FhirPatient, Patient, PatientAdditionalData } = ctx.store.models;
         const patient = await Patient.create(
