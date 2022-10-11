@@ -215,16 +215,13 @@
               service: awsdeployment
               command: ./scripts/deploy_lan.sh demo-nauru tamanu-lan-server-demo-nauru
         - name: the meta server
-          tag: ^(dev$|ci-)
           type: serial
           steps:
             - name: onto dev
               tag: ^(dev$|ci-)
               service: awsdeployment
               command: ./scripts/deploy_meta.sh dev tamanu-meta-server-dev-16
-            # meta production environment is deployed from dev so we can quickly add/remove features
-            # TODO: revist whether this is a good idea at some later date
             - name: onto prod
-              tag: ^dev$
+              tag: ^(master|deploy-meta)$
               service: awsdeployment
               command: ./scripts/deploy_meta.sh prod tamanu-meta-server-prod-16
