@@ -1,7 +1,8 @@
-import { Sequelize } from 'sequelize';
+import { Sequelize, Op } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 import { buildPatientLinkedSyncFilter } from './buildPatientLinkedSyncFilter';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 export class DocumentMetadata extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
@@ -55,5 +56,12 @@ export class DocumentMetadata extends Model {
     });
   }
 
-  static buildSyncFilter = buildPatientLinkedSyncFilter;
+  static buildSyncFilter(patientIds, facilitySettings) {
+    const patientFilter = buildPatientLinkedSyncFilter(patientIds);
+    const encounterFilter = buildEncounterLinkedSyncFilter(patientIds, facilitySettings);
+    return {
+      where: { [Op.or]: [patientFilter.where, encounterFilter.where] },
+      include: encounterFilter.include,
+    };
+  }
 }
