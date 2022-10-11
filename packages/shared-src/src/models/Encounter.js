@@ -392,7 +392,8 @@ export class Encounter extends Model {
         );
       }
 
-      return super.update(data);
+      const { submittedTime, ...encounterData } = data;
+      return super.update(encounterData);
     };
 
     if (this.sequelize.isInsideTransaction()) {
