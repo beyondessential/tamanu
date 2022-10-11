@@ -377,7 +377,7 @@ describe('fijiAspenMediciReport', () => {
         },
 
         // Triage Details
-        triageCategory: 'Priority',
+        triageCategory: '2',
         waitTime: '1:3', // h:m
 
         // Location/Department

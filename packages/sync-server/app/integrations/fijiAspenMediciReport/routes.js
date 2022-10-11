@@ -312,12 +312,7 @@ case e.encounter_type
 end "visitType",
 ddi."encounterDischargeDisposition" "episodeEndStatus",
 ddi."encounterDischargeDisposition",
-case t.score
-  when '1' then  'Emergency'
-  when '2' then  'Priority'
-  when '3' then  'Non-urgent'
-  else t.score
-end "triageCategory",
+t.score "triageCategory",
 ti."waitTimeFollowingTriage" "waitTime",
 di2.department_history "departments",
 li.location_history "locations",
@@ -351,6 +346,10 @@ AND CASE WHEN :to_date IS NOT NULL THEN (e.start_date::timestamp at time zone :t
 order by e.start_date desc;
 `;
 
+const validateDateParam = date => {
+  return true;
+}
+
 routes.use(requireClientHeaders);
 routes.get(
   '/',
@@ -358,8 +357,11 @@ routes.get(
     const { sequelize } = req.store;
     const { 'period.start': fromDate, 'period.end': toDate } = req.query;
 
+    validateDateParam(fromDate);
+    validateDateParam(toDate);
+
     if (!COUNTRY_TIMEZONE) {
-      throw Error('A countryTimeZone must be configured in local.json for this report to run');
+      throw new Error('A countryTimeZone must be configured in local.json for this report to run');
     }
 
     const data = await sequelize.query(reportQuery, {
