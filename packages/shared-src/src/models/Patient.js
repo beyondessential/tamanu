@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize';
+import { Sequelize, Op } from 'sequelize';
 import config from 'config';
 import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES } from 'shared/constants';
 import { Model } from './Model';
@@ -193,5 +193,29 @@ export class Patient extends Model {
     });
 
     return labTests.slice().sort((a, b) => Date.parse(b.date) - Date.parse(a.date));
+  }
+
+  /** Patients this one was merged into */
+  async getMergedUp() {
+    return this.constructor.findAll({
+      where: {
+        [Op.and]: [
+          { id: Sequelize.fn('any', Sequelize.fn('patients_merge_chain_up', this.id)) },
+          { id: { [Op.ne]: this.id } },
+        ],
+      },
+    });
+  }
+
+  /** Patients that were merged into this one */
+  async getMergedDown() {
+    return this.constructor.findAll({
+      where: {
+        [Op.and]: [
+          { id: Sequelize.fn('any', Sequelize.fn('patients_merge_chain_down', this.id)) },
+          { id: { [Op.ne]: this.id } },
+        ],
+      },
+    });
   }
 }

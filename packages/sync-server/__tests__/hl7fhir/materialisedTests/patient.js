@@ -1,5 +1,6 @@
 import { format } from 'date-fns';
 
+import { VISIBILITY_STATUSES } from 'shared/constants';
 import { fake } from 'shared/test-helpers/fake';
 import { getCurrentDateString } from 'shared/utils/dateTime';
 
@@ -910,6 +911,58 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
         });
         expect(response).toHaveRequestError(501);
       });
+    });
+
+    describe('merges', () => {
+      let ids;
+
+      // a <- b <- c
+      //      b <- d
+      beforeAll(async () => {
+        const { FhirPatient, Patient } = ctx.store.models;
+
+        const primaryA = await Patient.create(
+          fake(Patient, {
+            visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+          }),
+        );
+
+        const mergedB = await Patient.create(
+          fake(Patient, {
+            visibilityStatus: VISIBILITY_STATUSES.MERGED,
+            mergedIntoId: primaryA.id,
+          }),
+        );
+
+        const mergedC = await Patient.create(
+          fake(Patient, {
+            visibilityStatus: VISIBILITY_STATUSES.MERGED,
+            mergedIntoId: mergedB.id,
+          }),
+        );
+
+        const mergedD = await Patient.create(
+          fake(Patient, {
+            visibilityStatus: VISIBILITY_STATUSES.MERGED,
+            mergedIntoId: mergedB.id,
+          }),
+        );
+
+        const [a, b, c, d] = (
+          await Promise.all(
+            [primaryA, mergedB, mergedC, mergedD].map(({ id }) =>
+              FhirPatient.materialiseFromUpstream(id),
+            ),
+          )
+        ).map(row => row.id);
+
+        ids = { a, b, c, d };
+      });
+
+      it.todo('shows patients that were merged into the top level patient A');
+      it.todo('shows patients that were merged into the mid level patient B');
+      it.todo('shows patients that replaced the mid level patient B');
+      it.todo('shows patients that replaced the mid level patients C and D');
     });
   });
 }

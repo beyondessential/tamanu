@@ -1,6 +1,6 @@
 import config from 'config';
 import { Sequelize, DataTypes } from 'sequelize';
-import { identity } from 'lodash';
+import { identity, last } from 'lodash';
 
 import { FhirResource } from './Resource';
 import { arrayOf, activeFromVisibility } from './utils';
@@ -17,6 +17,7 @@ import {
   FhirContactPoint,
   FhirHumanName,
   FhirIdentifier,
+  FhirPatientLink,
   FhirReference,
 } from '../../services/fhirTypes';
 
@@ -39,6 +40,7 @@ export class FhirPatient extends FhirResource {
         birthDate: dateType('birthDate', { allowNull: true }),
         deceasedDateTime: dateType('deceasedDateTime', { allowNull: true }),
         address: arrayOf('address', DataTypes.FHIR_ADDRESS),
+        link: arrayOf('link', DataTypes.FHIR_PATIENT_LINK),
       },
       options,
     );
@@ -71,6 +73,7 @@ export class FhirPatient extends FhirResource {
       birthDate: upstream.dateOfBirth,
       deceasedDateTime: upstream.dateOfDeath,
       address: addresses(upstream),
+      link: await links(upstream),
       lastUpdated: latestDateTime(upstream.updatedAt, upstream.additionalData?.updatedAt),
     });
   }
@@ -219,4 +222,47 @@ function addresses(patient) {
       line: compactBy([streetVillage]),
     }),
   ];
+}
+
+async function links(patient) {
+  const links = [];
+
+  if (patient.mergedIntoId) {
+    const mergeTargets = await patient.getMergedUp();
+    const ultimateTarget = last(mergeTargets);
+    if (ultimateTarget) {
+      links.push(
+        new FhirPatientLink({
+          type: 'replaced-by',
+          other: new FhirReference({
+            reference: `Patient/${ultimateTarget.id}`,
+          }),
+        }),
+      );
+    }
+  }
+
+  const down = await patient.getMergedDown();
+  for (const mergedPatient of down) {
+    if (mergedPatient.mergedIntoId === patient.id) {
+      // if it's a merge directly into this patient
+      links.push(new FhirPatientLink({
+        type: 'replaces',
+        other: new FhirReference({
+          reference: `Patient/${mergedPatient.id}`,
+        })
+      }));
+    } else {
+      links.push(
+        new FhirPatientLink({
+          type: 'seealso',
+          other: new FhirReference({
+            reference: `Patient/${mergedPatient.id}`,
+          }),
+        }),
+      );
+    }
+  }
+
+  return links;
 }
