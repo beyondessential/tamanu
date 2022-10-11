@@ -33,7 +33,8 @@ export const parseDate = date => {
   if (isISOString(date)) {
     dateObj = parseISO(date);
   } else if (typeof date === 'string') {
-    dateObj = new Date(date);
+    // It seems that some JS implementations have problems parsing strings to dates.
+    dateObj = new Date(date.replace(' ', 'T'));
   }
 
   if (!isValid(dateObj)) {
@@ -77,12 +78,6 @@ export function ageInMonths(dob) {
 
 export function ageInYears(dob) {
   return differenceInYears(new Date(), new Date(dob));
-}
-
-// It seems that some JS implementations have problems
-// parsing strings to dates.
-export function parseISO9075(date) {
-  return new Date(date.replace(' ', 'T'));
 }
 
 export function latestDateTime(...args) {
