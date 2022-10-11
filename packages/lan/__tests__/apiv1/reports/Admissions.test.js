@@ -5,10 +5,10 @@ import {
   randomRecord,
   randomReferenceData,
 } from 'shared/demoData';
-import { subDays, format } from 'date-fns';
+import { subDays } from 'date-fns';
 import { ENCOUNTER_TYPES } from 'shared/constants';
 import { findOneOrCreate } from 'shared/test-helpers';
-import { parseISO9075 } from 'shared/utils/dateTime';
+import { format } from 'shared/utils/dateTime';
 import { createTestContext } from '../../utilities';
 
 describe('Admissions report', () => {
@@ -186,7 +186,7 @@ describe('Admissions report', () => {
           'Patient ID': expectedPatient.displayId,
           Sex: expectedPatient.sex,
           Village: expectedVillage.name,
-          'Date of Birth': format(parseISO9075(expectedPatient.dateOfBirth), 'dd/MM/yyyy'),
+          'Date of Birth': format(expectedPatient.dateOfBirth, 'dd/MM/yyyy'),
           Age: 1,
           'Patient Type': 'Charity',
           'Admitting Doctor/Nurse': expectedExaminer.displayName,

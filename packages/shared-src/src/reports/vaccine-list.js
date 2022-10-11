@@ -1,6 +1,6 @@
 import { Op } from 'sequelize';
-import { subDays, format, endOfDay, startOfDay, parseISO } from 'date-fns';
-import { parseISO9075 } from 'shared/utils/dateTime';
+import { subDays, endOfDay, startOfDay, parseISO } from 'date-fns';
+import { format } from 'shared/utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 import { toDateTimeString } from '../utils/dateTime';
 
@@ -131,13 +131,13 @@ export async function queryCovidVaccineListData(models, parameters) {
       patientId,
       patientName: `${firstName} ${lastName}`,
       uid: displayId,
-      dob: format(parseISO9075(dateOfBirth), 'dd-MM-yyyy'),
+      dob: format(dateOfBirth, 'dd-MM-yyyy'),
       sex,
       village: village?.name,
       vaccineName,
       schedule,
       vaccineStatus: status === 'GIVEN' ? 'Yes' : 'No',
-      vaccineDate: format(parseISO9075(date), 'dd-MM-yyyy'),
+      vaccineDate: format(date, 'dd-MM-yyyy'),
       batch: status === 'GIVEN' ? batch : '',
       vaccinator: status === 'GIVEN' ? vaccinator : '',
     };
