@@ -101,7 +101,7 @@ export const DateDisplay = React.memo(
     }
 
     return (
-      <DateTooltip date={dateValue}>
+      <DateTooltip date={dateObj}>
         <span>{parts.join(' ')}</span>
       </DateTooltip>
     );
