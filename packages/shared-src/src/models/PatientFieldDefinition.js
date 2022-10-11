@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize';
 import {
   PATIENT_FIELD_DEFINITION_TYPE_VALUES,
+  PATIENT_FIELD_DEFINITION_STATES,
   PATIENT_FIELD_DEFINITION_STATE_VALUES,
 } from 'shared/constants';
 import { Model } from './Model';
@@ -25,7 +26,7 @@ export class PatientFieldDefinition extends Model {
         state: {
           type: Sequelize.STRING,
           allowNull: false,
-          default: 'CURRENT',
+          defaultValue: PATIENT_FIELD_DEFINITION_STATES.CURRENT,
           validate: {
             isIn: [PATIENT_FIELD_DEFINITION_STATE_VALUES],
           },
@@ -41,7 +42,7 @@ export class PatientFieldDefinition extends Model {
   }
 
   static initRelations(models) {
-    this.belongsTo(models.PatientFieldCategory, {
+    this.belongsTo(models.PatientFieldDefinitionCategory, {
       foreignKey: 'categoryId',
       as: 'category',
     });

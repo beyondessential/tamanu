@@ -1,4 +1,8 @@
 import { createDummyPatient, randomReferenceId } from 'shared/demoData/patients';
+import {
+  PATIENT_FIELD_DEFINITION_TYPES,
+  PATIENT_FIELD_DEFINITION_STATES,
+} from 'shared/constants/patientFields';
 import { createTestContext } from '../utilities';
 
 describe('Patient', () => {
@@ -263,6 +267,66 @@ describe('Patient', () => {
       });
       expect(result).toHaveSucceeded();
       expect(result.body.visibilityStatus).toBe(newVisibilityStatus);
+    });
+  });
+
+  describe('fields', () => {
+    it('should get a tree of field categories, definitions, and values', async () => {
+      // Arrange
+      const {
+        Patient,
+        PatientFieldDefinitionCategory,
+        PatientFieldDefinition,
+        PatientFieldValue,
+      } = models;
+
+      const category1 = await PatientFieldDefinitionCategory.create({
+        name: 'Test Category 1',
+      });
+      const definition1 = await PatientFieldDefinition.create({
+        name: 'Test Field 1',
+        fieldType: PATIENT_FIELD_DEFINITION_TYPES.STRING,
+        categoryId: category1.id,
+      });
+
+      const patient = await Patient.create(await createDummyPatient(models));
+      await PatientFieldValue.create({
+        value: 'Oldest',
+        definitionId: definition1.id,
+        patientId: patient.id,
+      });
+      await PatientFieldValue.create({
+        value: 'Newest',
+        definitionId: definition1.id,
+        patientId: patient.id,
+      });
+
+      const otherPatient = await Patient.create(await createDummyPatient(models));
+      await PatientFieldValue.create({
+        value: 'Other',
+        definitionId: definition1.id,
+        patientId: otherPatient.id,
+      });
+
+      // Act
+      const result = await app.get(`/v1/patient/${patient.id}/fields`);
+
+      // Assert
+      expect(result).toHaveSucceeded();
+      expect(result.body.data).toHaveLength(1);
+      expect(result.body.data[0]).toMatchObject({
+        name: 'Test Category 1',
+      });
+      expect(result.body.data[0].definitions).toHaveLength(1);
+      expect(result.body.data[0].definitions[0]).toMatchObject({
+        name: 'Test Field 1',
+        fieldType: PATIENT_FIELD_DEFINITION_TYPES.STRING,
+        state: PATIENT_FIELD_DEFINITION_STATES.CURRENT,
+      });
+      expect(result.body.data[0].definitions[0].values).toHaveLength(1);
+      expect(result.body.data[0].definitions[0].values[0]).toMatchObject({
+        value: 'Newest',
+      });
     });
   });
 });

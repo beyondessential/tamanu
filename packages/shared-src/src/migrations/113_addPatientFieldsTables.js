@@ -50,7 +50,7 @@ const tables = [
       state: {
         type: Sequelize.STRING,
         allowNull: false,
-        default: 'CURRENT',
+        defaultValue: 'CURRENT',
       },
       category_id: {
         type: Sequelize.STRING,
