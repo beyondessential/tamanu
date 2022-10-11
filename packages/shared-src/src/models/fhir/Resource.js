@@ -181,6 +181,9 @@ export class FhirResource extends Model {
         path: [['lastUpdated']],
       },
 
+      // selecting fields to return:
+      // _elements: {},
+
       // whole record search:
       // _text: {},
       // _content: {},
