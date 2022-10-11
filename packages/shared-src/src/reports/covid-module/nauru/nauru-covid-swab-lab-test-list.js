@@ -1,5 +1,5 @@
-import { subDays } from 'date-fns';
-import { format } from '../../../utils/dateTime';
+import { startOfDay, subDays } from 'date-fns';
+import { toDateTimeString, format } from '../../../utils/dateTime';
 import { baseDataGenerator } from '../covid-swab-lab-test-list';
 
 const SURVEY_ID = 'program-naurucovid19-naurucovidtestregistration';
@@ -75,7 +75,7 @@ const reportColumnTemplate = [
 export const dataGenerator = async ({ models }, parameters = {}) => {
   const newParameters = { ...parameters };
   if (!newParameters.fromDate) {
-    newParameters.fromDate = subDays(new Date(), 30).toISOString();
+    newParameters.fromDate = toDateTimeString(startOfDay(subDays(new Date(), 30)));
   }
 
   return baseDataGenerator({ models }, parameters, {
