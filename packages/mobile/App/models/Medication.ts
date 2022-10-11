@@ -60,10 +60,4 @@ export class Medication extends BaseModel implements IMedication {
   static getTableNameForSync(): string {
     return 'encounter_medications';
   }
-
-  @BeforeInsert()
-  @BeforeUpdate()
-  async markEncounterForUpload() {
-    await this.markParentForUpload(Encounter, 'encounter');
-  }
 }

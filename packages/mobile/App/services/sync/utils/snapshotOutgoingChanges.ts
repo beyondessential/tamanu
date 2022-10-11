@@ -1,4 +1,4 @@
-import { MoreThanOrEqual } from 'typeorm';
+import { MoreThan } from 'typeorm';
 import { pick } from 'lodash';
 
 import { BaseModel } from '../../../models/BaseModel';
@@ -19,7 +19,7 @@ const buildToSyncRecord = (model: typeof BaseModel, record: object): SyncRecord 
 };
 
 /**
- * Get all the records that have updatedAtSyncTick >= the last successful sync index,
+ * Get all the records that have updatedAtSyncTick > the last successful sync index,
  * meaning that these records have been updated since the last successful sync
  * @param models
  * @param since
@@ -33,7 +33,7 @@ export const snapshotOutgoingChanges = async (
 
   for (const model of Object.values(models)) {
     const changesForModel = await model.find({
-      where: { updatedAtSyncTick: MoreThanOrEqual(since) },
+      where: { updatedAtSyncTick: MoreThan(since) },
     });
     const syncRecordsForModel = changesForModel.map(change => buildToSyncRecord(model, change));
     outgoingChanges.push(...syncRecordsForModel);

@@ -35,12 +35,6 @@ export class Diagnosis extends BaseModel implements IDiagnosis {
     return 'encounter_diagnoses';
   }
 
-  @BeforeInsert()
-  @BeforeUpdate()
-  async markEncounterForUpload() {
-    await this.markParentForUpload(Encounter, 'encounter');
-  }
-
   static async getForPatient(patientId: string): Promise<Diagnosis[]> {
     return this.getRepository()
       .createQueryBuilder('diagnosis')

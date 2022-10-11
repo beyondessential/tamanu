@@ -106,37 +106,21 @@ export abstract class BaseModel extends BaseEntity {
     this.allModels = allModels;
   }
 
-  @BeforeUpdate()
-  async markForUpload(): Promise<void> {
-    const thisModel = this.constructor as typeof BaseModel;
-    const syncTick = await getSyncTick(thisModel.allModels, 'currentSyncTime');
-    console.log('updating', thisModel.name);
-    if (
-      [null, undefined].includes(this.updatedAtSyncTick) ||
-      (await thisModel.findOne({ id: this.id }))?.updatedAtSyncTick === this.updatedAtSyncTick
-    ) {
-      this.updatedAtSyncTick = syncTick;
-    }
-  }
-
   @BeforeInsert()
+  @BeforeUpdate()
   async assignUpdatedAtSyncTick(): Promise<void> {
-    if ([null, undefined].includes(this.updatedAtSyncTick)) {
-      const thisModel = this.constructor as typeof BaseModel;
-      const syncTick = await getSyncTick(thisModel.allModels, 'currentSyncTime');
-      this.updatedAtSyncTick = syncTick;
-    }
-  }
-
-  async markParentForUpload<T extends typeof BaseModel>(
-    parentModel: T,
-    parentProperty: string,
-  ): Promise<void> {
-    const parent = await this.findParent(parentModel, parentProperty);
-    if (!parent) {
+    // If setting to "-1" (i.e. "freshly synced into this device") we actually use "-999" instead.
+    // That way we can tell when other fields have been updated without the updatedAtSyncTick being
+    // altered (in which case this.updatedAtSyncTick will be -999, easily distinguished from -1)
+    if (this.updatedAtSyncTick === -1) {
+      this.updatedAtSyncTick = -999;
       return;
     }
-    await parent.markForUpload();
+
+    // In any other case, we set the updatedAtSyncTick to match the currentSyncTime
+    const thisModel = this.constructor as typeof BaseModel;
+    const syncTick = await getSyncTick(thisModel.allModels, 'currentSyncTime');
+    this.updatedAtSyncTick = syncTick;
   }
 
   async findParent<T extends typeof BaseModel>(
@@ -225,7 +209,7 @@ export abstract class BaseModel extends BaseEntity {
 
   // Exclude these properties from uploaded model
   // May be columns or relationIds
-  static excludedSyncColumns: string[] = ['createdAt', 'updatedAt'];
+  static excludedSyncColumns: string[] = ['createdAt', 'updatedAt', 'updatedAtSyncTick'];
 
   // Include these relations on uploaded model
   // Does not currently handle lazy or embedded relations

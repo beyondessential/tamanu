@@ -34,7 +34,6 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   @Column({ nullable: true })
   givenBy?: string;
 
-
   @ManyToOne(
     () => Encounter,
     encounter => encounter.administeredVaccines,
@@ -43,7 +42,6 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
 
   @RelationId(({ encounter }: AdministeredVaccine) => encounter)
   encounterId: string;
-
 
   @ManyToOne(
     () => ScheduledVaccine,
@@ -54,7 +52,6 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   @RelationId(({ scheduledVaccine }: AdministeredVaccine) => scheduledVaccine)
   scheduledVaccineId: string;
 
-
   @ManyToOne(
     () => User,
     user => user.recordedVaccines,
@@ -63,7 +60,6 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
 
   @RelationId(({ recorder }: AdministeredVaccine) => recorder)
   recorderId: string;
-
 
   @ManyToOne(
     () => Location,
@@ -74,7 +70,6 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   @RelationId(({ location }: AdministeredVaccine) => location)
   locationId: string;
 
-
   @ManyToOne(
     () => Department,
     dep => dep.administeredVaccines,
@@ -83,13 +78,6 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
 
   @RelationId(({ department }: AdministeredVaccine) => department)
   departmentId: string;
-
-
-  @BeforeInsert()
-  @BeforeUpdate()
-  async markEncounterForUpload() {
-    await this.markParentForUpload(Encounter, 'encounter');
-  }
 
   static async getForPatient(patientId: string): Promise<IAdministeredVaccine[]> {
     return this.getRepository()

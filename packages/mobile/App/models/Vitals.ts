@@ -1,6 +1,12 @@
 import { Entity, Column, ManyToOne, RelationId, BeforeInsert, BeforeUpdate } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
-import { AVPUType, IVitals, DetectedPresenceType, UrineNitritesType, UrineProteinType } from '../types/IVitals';
+import {
+  AVPUType,
+  IVitals,
+  DetectedPresenceType,
+  UrineNitritesType,
+  UrineProteinType,
+} from '../types/IVitals';
 import { Encounter } from './Encounter';
 import { SYNC_DIRECTIONS } from './types';
 
@@ -81,12 +87,6 @@ export class Vitals extends BaseModel implements IVitals {
   encounter: Encounter;
   @RelationId(({ encounter }) => encounter)
   encounterId?: string;
-
-  @BeforeInsert()
-  @BeforeUpdate()
-  async markEncounterForUpload() {
-    await this.markParentForUpload(Encounter, 'encounter');
-  }
 
   static async getForPatient(patientId: string): Promise<Vitals[]> {
     return this.getRepository()

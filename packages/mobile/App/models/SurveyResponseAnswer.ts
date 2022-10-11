@@ -35,12 +35,6 @@ export class SurveyResponseAnswer extends BaseModel implements ISurveyResponseAn
   @RelationId(({ dataElement }) => dataElement)
   dataElementId: string;
 
-  @BeforeInsert()
-  @BeforeUpdate()
-  async markResponseForUpload() {
-    await this.markParentForUpload(SurveyResponse, 'response');
-  }
-
   static async getLatestAnswerForPatient(
     patientId: string,
     dataElementCode: string,

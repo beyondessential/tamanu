@@ -75,12 +75,6 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
   )
   answers: SurveyResponseAnswer[];
 
-  @BeforeInsert()
-  @BeforeUpdate()
-  async markEncounterForUpload() {
-    await this.markParentForUpload(Encounter, 'encounter');
-  }
-
   static async getFullResponse(surveyId: string) {
     const repo = this.getRepository();
     const response = await repo.findOne(surveyId, {
