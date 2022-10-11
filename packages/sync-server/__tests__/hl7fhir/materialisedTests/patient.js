@@ -5,6 +5,7 @@ import { getCurrentDateString } from 'shared/utils/dateTime';
 
 import { createTestContext } from '../../utilities';
 import { IDENTIFIER_NAMESPACE } from '../../../app/hl7fhir/utils';
+import { fakeUUID } from 'shared/utils/generateId';
 
 export function testPatientHandler(integrationName, requestHeaders = {}) {
   describe(`${integrationName} materialised integration - Patient`, () => {
@@ -22,6 +23,32 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
         await FhirPatient.destroy({ where: {} });
         await Patient.destroy({ where: {} });
         await PatientAdditionalData.destroy({ where: {} });
+      });
+
+      it('returns not found when fetching a non-existent patient', async () => {
+        // arrange
+        const id = fakeUUID();
+        const path = `/v1/integration/${integrationName}/Patient/${id}`;
+
+        // act
+        const response = await app.get(path).set(requestHeaders);
+
+        // assert
+        expect(response.body).toMatchObject({
+          resourceType: 'OperationOutcome',
+          id: expect.any(String),
+          issue: [
+            {
+              severity: 'error',
+              code: 'not-found',
+              diagnostics: expect.any(String),
+              details: {
+                text: `no Patient with id ${id}`,
+              },
+            },
+          ],
+        });
+        expect(response.status).toBe(404);
       });
 
       it('fetches a patient by materialised ID', async () => {
@@ -100,9 +127,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
             },
           ],
         });
-        expect(response.headers['last-modified']).toBe(
-          formatRFC7231(new Date(patient.updatedAt)),
-        );
+        expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(patient.updatedAt)));
         expect(response).toHaveSucceeded();
       });
 

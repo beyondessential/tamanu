@@ -7,6 +7,7 @@ import {
   Invalid,
   OperationOutcome,
   Unsupported,
+  NotFound,
   // normaliseParameter,
   normaliseParameters,
   // RESULT_PARAMETERS,
