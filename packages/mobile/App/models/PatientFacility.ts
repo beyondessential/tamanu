@@ -22,7 +22,7 @@ export class PatientFacility extends BaseModel {
   @RelationId(({ facility }) => facility)
   facilityId: string;
 
-  static getPluralTableName(): string {
+  static getTableNameForSync(): string {
     return 'patient_facilities';
   }
 }

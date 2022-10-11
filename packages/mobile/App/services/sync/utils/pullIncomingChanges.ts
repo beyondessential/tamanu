@@ -49,7 +49,7 @@ export const pullIncomingChanges = async (
     const recordsToSave = records.map(r => ({
       ...r,
       // mark as never updated, so we don't push it back to the central server until the next update
-      data: { ...r.data, updatedAtSyncTick: -1 },
+      data: { ...r.data, updated_at_sync_tick: -1 },
       direction: SYNC_SESSION_DIRECTION.INCOMING,
     }));
 

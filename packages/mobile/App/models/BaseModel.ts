@@ -90,7 +90,7 @@ export abstract class BaseModel extends BaseEntity {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @Column({ nullable: false, default: 0 })
+  @Column({ nullable: false })
   updatedAtSyncTick: number;
 
   constructor() {
@@ -110,6 +110,7 @@ export abstract class BaseModel extends BaseEntity {
   async markForUpload(): Promise<void> {
     const thisModel = this.constructor as typeof BaseModel;
     const syncTick = await getSyncTick(thisModel.allModels, 'currentSyncTime');
+    console.log('updating', thisModel.name);
     if (
       [null, undefined].includes(this.updatedAtSyncTick) ||
       (await thisModel.findOne({ id: this.id }))?.updatedAtSyncTick === this.updatedAtSyncTick
@@ -230,7 +231,10 @@ export abstract class BaseModel extends BaseEntity {
   // Does not currently handle lazy or embedded relations
   static includedSyncRelations: string[] = [];
 
-  static getPluralTableName(): string {
+  static getTableNameForSync(): string {
+    // most tables in the wider sync universe are the same as the name on mobile, but pluralised
+    // specific plural handling, and a couple of other unique cases, are handled on the relevant
+    // model (see Diagnosis and Medication)
     return `${this.getRepository().metadata.tableName}s`;
   }
 

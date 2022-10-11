@@ -93,7 +93,7 @@ export const saveIncomingChanges = async (
     const recordsByType = groupBy(batch, 'recordType');
 
     for (const model of sortedModels) {
-      const modelRecords = recordsByType[model.getPluralTableName()];
+      const modelRecords = recordsByType[model.getTableNameForSync()];
       if (modelRecords === undefined) {
         continue;
       }

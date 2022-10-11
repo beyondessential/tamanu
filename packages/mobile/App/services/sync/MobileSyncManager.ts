@@ -156,7 +156,7 @@ export class MobileSyncManager {
   async syncOutgoingChanges(sessionId: string, currentSyncTick: number): Promise<void> {
     const pushSince = await getSyncTick(this.models, LAST_SUCCESSFUL_PUSH);
     console.log(
-      `MobileSyncManager.syncOutgoingChanges(): Begin sync outgoing changes since ${pushSince}`,
+      `MobileSyncManager.syncOutgoingChanges(): Begin syncing outgoing changes since ${pushSince}`,
     );
 
     const modelsToPush = getModelsForDirection(this.models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL);
