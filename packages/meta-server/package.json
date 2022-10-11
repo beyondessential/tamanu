@@ -66,6 +66,7 @@
     "request-promise": "^4.2.2",
     "sanitize-html": "^2.4.0",
     "sequelize": "^6.23.2",
+    "shortid": "^2.2.13",
     "winston": "^3.2.1"
   }
 }
