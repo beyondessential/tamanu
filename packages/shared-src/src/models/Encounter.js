@@ -376,7 +376,7 @@ export class Encounter extends Model {
         }
         await this.addSystemNote(
           `Changed location from ${oldLocation.name} to ${newLocation.name}`,
-          data.endDate,
+          data.submittedTime,
         );
       }
 
@@ -388,11 +388,12 @@ export class Encounter extends Model {
         }
         await this.addSystemNote(
           `Changed department from ${oldDepartment.name} to ${newDepartment.name}`,
-          data.endDate,
+          data.submittedTime,
         );
       }
 
-      return super.update(data);
+      const { submittedTime, ...encounterData } = data;
+      return super.update(encounterData);
     };
 
     if (this.sequelize.isInsideTransaction()) {
