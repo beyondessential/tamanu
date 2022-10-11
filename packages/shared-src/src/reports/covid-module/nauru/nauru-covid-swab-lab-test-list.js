@@ -1,4 +1,5 @@
-import { format, subDays } from 'date-fns';
+import { subDays } from 'date-fns';
+import { format } from '../../../utils/dateTime';
 import { baseDataGenerator } from '../covid-swab-lab-test-list';
 
 const SURVEY_ID = 'program-naurucovid19-naurucovidtestregistration';
@@ -59,11 +60,11 @@ const reportColumnTemplate = [
   },
   {
     title: 'Sample collection date',
-    accessor: data => format(new Date(data.sampleTime), 'yyyy/MM/dd'),
+    accessor: data => format(data.sampleTime, 'yyyy/MM/dd'),
   },
   {
     title: 'Sample collection time',
-    accessor: data => format(new Date(data.sampleTime), 'hh:mm a'),
+    accessor: data => format(data.sampleTime, 'hh:mm a'),
   },
   ...Object.keys(SURVEY_QUESTION_CODES).map(name => ({
     title: name,

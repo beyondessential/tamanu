@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Typography, Box } from '@material-ui/core';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { PrintLetterhead } from './PrintLetterhead';
 import { DateDisplay } from '../DateDisplay';
 import {
@@ -105,7 +106,7 @@ export const DeathCertificate = React.memo(({ patientData, certificateData }) =>
   const causeOfDeath = getCauseName(causes?.primary);
   const antecedentCause1 = getCauseName(causes?.antecedent1);
   const antecedentCause2 = getCauseName(causes?.antecedent2);
-  const dateOfPrinting = new Date();
+  const dateOfPrinting = getCurrentDateTimeString();
 
   return (
     <CertificateWrapper watermarkSrc={watermark}>

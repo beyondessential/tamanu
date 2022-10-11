@@ -1,4 +1,5 @@
-import { format, subDays } from 'date-fns';
+import { subDays } from 'date-fns';
+import { format } from '../../../utils/dateTime';
 import { baseDataGenerator } from '../covid-swab-lab-test-list';
 
 const SURVEY_ID = 'program-fijicovidtourism-fijicovidtravform';
@@ -67,11 +68,11 @@ const reportColumnTemplate = [
   { title: 'Facility of user', accessor: data => data.facilityName },
   {
     title: 'Date of sample',
-    accessor: data => format(new Date(data.sampleTime), 'yyyy/MM/dd'),
+    accessor: data => format(data.sampleTime, 'yyyy/MM/dd'),
   },
   {
     title: 'Time of sample',
-    accessor: data => format(new Date(data.sampleTime), 'hh:mm a'),
+    accessor: data => format(data.sampleTime, 'hh:mm a'),
   },
   { title: 'Requested date', accessor: data => data.requestedDate },
   { title: 'Submitted date', accessor: data => data.submittedDate },
