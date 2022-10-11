@@ -54,7 +54,7 @@ describe('PatientCarePlan', () => {
 
     it('should reject care plan without notes', async () => {
       const result = await app.post('/v1/patientCarePlan').send({
-        date: new Date().toISOString(),
+        date: getCurrentDateTimeString(),
         carePlanId,
         patientId: patient.get('id'),
       });
@@ -64,7 +64,7 @@ describe('PatientCarePlan', () => {
     it('should return return notes in order of creation', async () => {
       const onBehalfOfUserId = await randomUser(models);
       const createCarePlanRequest = await app.post('/v1/patientCarePlan').send({
-        date: new Date().toISOString(),
+        date: getCurrentDateTimeString(),
         carePlanId,
         patientId: patient.get('id'),
         examinerId: onBehalfOfUserId,
@@ -74,7 +74,7 @@ describe('PatientCarePlan', () => {
       const additionalNoteRequest = await app
         .post(`/v1/patientCarePlan/${createCarePlanRequest.body.id}/notes`)
         .send({
-          date: new Date().toISOString(),
+          date: getCurrentDateTimeString(),
           content: 'Second note',
           examinerId: onBehalfOfUserId,
         });
@@ -91,7 +91,7 @@ describe('PatientCarePlan', () => {
     });
 
     it('should delete a note', async () => {
-      const noteDate = new Date().toISOString();
+      const noteDate = getCurrentDateTimeString();
       const result = await app.post('/v1/patientCarePlan').send({
         date: noteDate,
         carePlanId,

@@ -175,10 +175,10 @@ export async function importRows(
         } else {
           if (existing.deletedAt) {
             await existing.restore();
-            updateStat(stats, statkey(model, sheetName), 'restored');  
+            updateStat(stats, statkey(model, sheetName), 'restored');
           }
           await existing.update(values);
-          updateStat(stats, statkey(model, sheetName), 'updated');  
+          updateStat(stats, statkey(model, sheetName), 'updated');
         }
       } else {
         await Model.create(values);

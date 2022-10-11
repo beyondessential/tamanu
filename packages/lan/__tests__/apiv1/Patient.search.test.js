@@ -1,5 +1,4 @@
 import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
-import moment from 'moment';
 import { startOfDay, subDays, subYears } from 'date-fns';
 import { toDateString } from 'shared/utils/dateTime';
 import { createTestContext } from '../utilities';
@@ -63,19 +62,19 @@ const searchTestPatients = [
         id: 'should-be-ignored-1',
         encounterType: 'clinic',
         current: false,
-        startDate: moment.utc([2015, 0, 1, 8]).toISOString(),
+        startDate: '2015-01-01 08:00:00',
       },
       {
         id: 'should-be-chosen',
         encounterType: 'admission',
         current: true,
-        startDate: moment.utc([2014, 0, 1, 8]).toISOString(),
+        startDate: '2014-01-01 08:00:00',
       },
       {
         id: 'should-be-ignored-2',
         encounterType: 'clinic',
         current: true,
-        startDate: moment.utc([2013, 0, 1, 8]).toISOString(),
+        startDate: '2013-01-01 08:00:00',
       },
     ],
   },
