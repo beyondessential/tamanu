@@ -18,7 +18,7 @@ export async function addHooks(store) {
 
     for (const [resource, upstreams] of Object.entries(FHIR_UPSTREAMS)) {
       for (const upstream of upstreams) {
-        const Upstream = models[upstream];
+        const Upstream = store.models[upstream];
         if (!Upstream) continue;
 
         log.info(`Installing ${upstream} hooks for FHIR materialisation of ${resource}`);
