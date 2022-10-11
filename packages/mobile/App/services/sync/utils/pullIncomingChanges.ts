@@ -5,6 +5,15 @@ import { SYNC_SESSION_DIRECTION } from '../constants';
 
 const APPROX_PERSISTED_BATCH_SIZE = 20000;
 
+const persistBatch = async (batchIndex: number, rows: [Record<string, any>?]): Promise<void> => {
+  const fileName = `batch${batchIndex}.json`;
+
+  await saveFileInDocuments(
+    Buffer.from(JSON.stringify(rows), 'utf-8').toString('base64'),
+    fileName,
+  );
+};
+
 /**
  * Pull incoming changes in batches and save them in session_sync_record table,
  * which will be used to persist to actual tables later
@@ -20,7 +29,8 @@ export const pullIncomingChanges = async (
   since: number,
   progressCallback: (total: number, progressCount: number) => void,
 ): Promise<number> => {
-  const totalToPull = await centralServer.setPullFilter(sessionId, since);
+  centralServer.setPullFilter(sessionId, since);
+  const totalToPull = await centralServer.fetchPullCount(sessionId);
 
   if (!totalToPull) {
     return 0;
@@ -29,7 +39,7 @@ export const pullIncomingChanges = async (
   let offset = 0;
   let limit = calculatePageLimit();
   let currentBatchIndex = 0;
-  let currentRows = [];
+  let currentRows: [Record<string, any>?] = [];
 
   // pull changes a page at a time
   while (offset < totalToPull) {
@@ -52,13 +62,7 @@ export const pullIncomingChanges = async (
 
     currentRows.push(...recordsToSave);
     if (currentRows.length >= APPROX_PERSISTED_BATCH_SIZE) {
-      const fileName = `batch${currentBatchIndex}.json`;
-
-      await saveFileInDocuments(
-        Buffer.from(JSON.stringify(currentRows), 'utf-8').toString('base64'),
-        fileName,
-      );
-
+      await persistBatch(currentBatchIndex, currentRows);
       currentRows = [];
       currentBatchIndex++;
     }
@@ -68,6 +72,8 @@ export const pullIncomingChanges = async (
 
     progressCallback(totalToPull, offset);
   }
+
+  await persistBatch(currentBatchIndex, currentRows);
 
   return totalToPull;
 };
