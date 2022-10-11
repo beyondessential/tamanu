@@ -60,6 +60,7 @@ const MoveForm = ({ onSubmit, onClose, encounter, locationSuggester }) => {
       render={renderForm}
       initialValues={{
         locationId: encounter.location.id,
+        // Used in creation of associated notes
         submittedTime: getCurrentDateTimeString(),
       }}
     />

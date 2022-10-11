@@ -14,6 +14,7 @@ export const ChangeEncounterTypeForm = ({ onSubmit, onCancel, encounter }) => {
     <Form
       initialValues={{
         encounterType: query.get('type'),
+        // Used in creation of associated notes
         submittedTime: getCurrentDateTimeString(),
       }}
       render={({ submitForm, values }) => {

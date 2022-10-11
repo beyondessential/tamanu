@@ -279,6 +279,7 @@ export const DischargeForm = ({
       render={renderForm}
       enableReinitialize
       initialValues={{
+        // Used in creation of associated notes
         submittedTime: getCurrentDateTimeString(),
         discharge: {
           note: dischargeNotePages.map(np => np.noteItems?.[0]?.content).join('\n'),
