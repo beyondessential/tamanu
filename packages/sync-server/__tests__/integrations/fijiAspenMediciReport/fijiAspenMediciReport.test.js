@@ -1,4 +1,5 @@
 import config from 'config';
+import { capitalize } from 'lodash';
 import { utcToZonedTime, zonedTimeToUtc, formatInTimeZone } from 'date-fns-tz';
 import {
   REFERENCE_TYPES,
@@ -350,7 +351,7 @@ describe('fijiAspenMediciReport', () => {
         lastname: patient.lastName,
         dateOfBirth: '1952-10-12',
         age: expect.any(Number), // TODO
-        sex: patient.sex,
+        sex: capitalize(patient.sex),
 
         // Encounter Details
         encounterId,
