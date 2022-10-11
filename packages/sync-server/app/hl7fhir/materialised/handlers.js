@@ -16,6 +16,7 @@ import { Bundle } from './bundle';
 import { buildSearchQuery, pushToQuery } from './query';
 
 import { requireClientHeaders as requireClientHeadersMiddleware } from '../../middleware/requireClientHeaders';
+import { formatRFC7231 } from 'date-fns';
 
 export function fhirRoutes({ requireClientHeaders } = {}) {
   const routes = Router();
@@ -54,6 +55,9 @@ const fetchHandler = resource =>
 
       const record = await FhirResource.findByPk(id);
       if (!record) throw new NotFound(`no ${resource} with id ${id}`);
+
+      res.header('Last-Modified', formatRFC7231(record.lastUpdated));
+      // TODO: support ETag when we have full versioning support
 
       // TODO: support _pretty
       res.send(record.asFhir());
@@ -100,6 +104,7 @@ async function parseRequest(req, parameters) {
   for (const [name, value] of pairs) {
     const [param, modifier] = name.split(':', 2);
     if (!parameters.has(param)) {
+      // TODO: support Prefer: handling=lenient
       errors.push(new Unsupported(`parameter is not supported: ${param}`));
       continue;
     }

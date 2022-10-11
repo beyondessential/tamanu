@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+import { format, formatRFC7231 } from 'date-fns';
 
 import { fake } from 'shared/test-helpers/fake';
 import { getCurrentDateString } from 'shared/utils/dateTime';
@@ -100,6 +100,9 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
             },
           ],
         });
+        expect(response.headers['last-modified']).toBe(
+          formatRFC7231(new Date(patient.updatedAt)),
+        );
         expect(response).toHaveSucceeded();
       });
 
