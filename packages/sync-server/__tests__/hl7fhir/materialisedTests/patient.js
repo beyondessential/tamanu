@@ -190,13 +190,17 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
                 gender: patient.sex,
                 identifier: [
                   {
-                    assigner: 'Tamanu',
+                    assigner: {
+                      display: 'Tamanu',
+                    },
                     system: 'http://tamanu.io/data-dictionary/application-reference-number.html',
                     use: 'usual',
                     value: patient.displayId,
                   },
                   {
-                    assigner: 'RTA',
+                    assigner: {
+                      display: 'RTA',
+                    },
                     use: 'secondary',
                     value: additionalData.drivingLicense,
                   },

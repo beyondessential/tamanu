@@ -10,34 +10,36 @@ const USES = ['home', 'work', 'temp', 'old', 'mobile'];
 export class FhirContactPoint extends Composite {
   static FIELD_ORDER = ['system', 'value', 'use', 'rank', 'period'];
 
-  static SCHEMA = yup
-    .object({
-      system: yup
-        .string()
-        .oneOf([null, ...SYSTEMS])
-        .nullable()
-        .default(null),
-      value: yup
-        .string()
-        .nullable()
-        .default(null),
-      use: yup
-        .string()
-        .oneOf([null, ...USES])
-        .nullable()
-        .default(null),
-      rank: yup
-        .number()
-        .positive()
-        .integer()
-        .min(1)
-        .nullable()
-        .default(null),
-      period: FhirPeriod.asYup()
-        .nullable()
-        .default(null),
-    })
-    .noUnknown();
+  static SCHEMA() {
+    return yup
+      .object({
+        system: yup
+          .string()
+          .oneOf([null, ...SYSTEMS])
+          .nullable()
+          .default(null),
+        value: yup
+          .string()
+          .nullable()
+          .default(null),
+        use: yup
+          .string()
+          .oneOf([null, ...USES])
+          .nullable()
+          .default(null),
+        rank: yup
+          .number()
+          .positive()
+          .integer()
+          .min(1)
+          .nullable()
+          .default(null),
+        period: FhirPeriod.asYup()
+          .nullable()
+          .default(null),
+      })
+      .noUnknown();
+  }
 
   static validateAndTransformFromSql({ period, ...fields }) {
     return new this({

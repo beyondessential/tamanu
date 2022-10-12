@@ -7,6 +7,7 @@ import { FHIR_CONTACT_POINT } from './contactPoint';
 import { FHIR_HUMAN_NAME } from './humanName';
 import { FHIR_IDENTIFIER } from './identifier';
 import { FHIR_PERIOD } from './period';
+import { FHIR_REFERENCE } from './reference';
 
 export { FhirAddress } from './address';
 export { FhirCoding } from './coding';
@@ -15,6 +16,7 @@ export { FhirContactPoint } from './contactPoint';
 export { FhirHumanName } from './humanName';
 export { FhirIdentifier } from './identifier';
 export { FhirPeriod } from './period';
+export { FhirReference } from './reference';
 
 /**
  * Register a new type with sequelize.
@@ -35,4 +37,5 @@ export function createFhirTypes() {
   newPgDataType(FHIR_HUMAN_NAME);
   newPgDataType(FHIR_IDENTIFIER);
   newPgDataType(FHIR_PERIOD);
+  newPgDataType(FHIR_REFERENCE);
 }
