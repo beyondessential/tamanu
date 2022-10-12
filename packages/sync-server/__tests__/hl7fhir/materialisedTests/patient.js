@@ -93,13 +93,17 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
           gender: patient.sex,
           identifier: [
             {
-              assigner: 'Tamanu',
+              assigner: {
+                display: 'Tamanu',
+              },
               system: 'http://tamanu.io/data-dictionary/application-reference-number.html',
               use: 'usual',
               value: patient.displayId,
             },
             {
-              assigner: 'RTA',
+              assigner: {
+                display: 'RTA',
+              },
               use: 'secondary',
               value: additionalData.drivingLicense,
             },
@@ -1086,7 +1090,6 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
           active: true,
           address: expect.any(Array),
           birthDate: expect.any(String),
-          deceasedDateTime: null,
           gender: expect.any(String),
           identifier: expect.any(Array),
           name: expect.any(Array),
@@ -1137,7 +1140,6 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
           active: false,
           address: expect.any(Array),
           birthDate: expect.any(String),
-          deceasedDateTime: null,
           gender: expect.any(String),
           identifier: expect.any(Array),
           name: expect.any(Array),
@@ -1193,7 +1195,6 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
           active: false,
           address: expect.any(Array),
           birthDate: expect.any(String),
-          deceasedDateTime: null,
           gender: expect.any(String),
           identifier: expect.any(Array),
           name: expect.any(Array),
@@ -1219,7 +1220,6 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
           active: false,
           address: expect.any(Array),
           birthDate: expect.any(String),
-          deceasedDateTime: null,
           gender: expect.any(String),
           identifier: expect.any(Array),
           name: expect.any(Array),
