@@ -110,7 +110,6 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
                     use: 'nickname',
                   },
                 ],
-                resourceType: 'Patient',
                 telecom: [
                   {
                     rank: 1,
@@ -956,13 +955,181 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
           )
         ).map(row => row.id);
 
+        await FhirPatient.resolveUpstreamLinks();
+
         ids = { a, b, c, d };
       });
 
-      it.todo('shows patients that were merged into the top level patient A');
-      it.todo('shows patients that were merged into the mid level patient B');
-      it.todo('shows patients that replaced the mid level patient B');
-      it.todo('shows patients that replaced the mid level patients C and D');
+      // TODO: re-enabled when the fetch API bit is merged
+      it.skip('links patients that were merged into the top level patient A (as fetch)', async () => {
+        const path = `/v1/integration/${integrationName}/Patient/${ids.a}`;
+
+        // act
+        const response = await app.get(path).set(requestHeaders);
+
+        // assert
+        expect(response.body).toMatchObject({
+          resourceType: 'Patient',
+          id: ids.a,
+          meta: {
+            lastUpdated: expect.any(String),
+          },
+          active: true,
+          address: expect.any(Array),
+          birthDate: expect.any(String),
+          deceasedDateTime: null,
+          gender: expect.any(String),
+          identifier: expect.any(Array),
+          name: expect.any(Array),
+          telecom: expect.any(Array),
+          link: [
+            {
+              type: 'replaces',
+              other: {
+                reference: `Patient/${ids.b}`,
+                type: 'Patient',
+                display: expect.any(String),
+              },
+            },
+            {
+              type: 'seealso',
+              other: {
+                reference: `Patient/${ids.c}`,
+                type: 'Patient',
+                display: expect.any(String),
+              },
+            },
+            {
+              type: 'seealso',
+              other: {
+                reference: `Patient/${ids.d}`,
+                type: 'Patient',
+                display: expect.any(String),
+              },
+            },
+          ],
+        });
+        expect(response).toHaveSucceeded();
+      });
+
+      it.skip('links patients that were merged into, and patients that replaced, the mid level patient B (as fetch)', async () => {
+        const path = `/v1/integration/${integrationName}/Patient/${ids.b}`;
+
+        // act
+        const response = await app.get(path).set(requestHeaders);
+
+        // assert
+        expect(response.body).toMatchObject({
+          resourceType: 'Patient',
+          id: ids.b,
+          meta: {
+            lastUpdated: expect.any(String),
+          },
+          active: false,
+          address: expect.any(Array),
+          birthDate: expect.any(String),
+          deceasedDateTime: null,
+          gender: expect.any(String),
+          identifier: expect.any(Array),
+          name: expect.any(Array),
+          telecom: expect.any(Array),
+          link: [
+            {
+              type: 'replaced-by',
+              other: {
+                reference: `Patient/${ids.a}`,
+                type: 'Patient',
+                display: expect.any(String),
+              },
+            },
+            {
+              type: 'replaces',
+              other: {
+                reference: `Patient/${ids.c}`,
+                type: 'Patient',
+                display: expect.any(String),
+              },
+            },
+            {
+              type: 'replaces',
+              other: {
+                reference: `Patient/${ids.d}`,
+                type: 'Patient',
+                display: expect.any(String),
+              },
+            },
+          ],
+        });
+        expect(response).toHaveSucceeded();
+      });
+
+      it('links patients that replaced the mid level patients C and D (as search)', async () => {
+        const path = `/v1/integration/${integrationName}/Patient?_id=${ids.c},${ids.d}`;
+
+        // act
+        const response = await app.get(path).set(requestHeaders);
+
+        // assert
+        const resourceC = response.body?.entry.find(({ resource }) => resource.id === ids.c)
+          ?.resource;
+        const resourceD = response.body?.entry.find(({ resource }) => resource.id === ids.d)
+          ?.resource;
+
+        expect(resourceC).toMatchObject({
+          resourceType: 'Patient',
+          id: ids.c,
+          meta: {
+            lastUpdated: expect.any(String),
+          },
+          active: false,
+          address: expect.any(Array),
+          birthDate: expect.any(String),
+          deceasedDateTime: null,
+          gender: expect.any(String),
+          identifier: expect.any(Array),
+          name: expect.any(Array),
+          telecom: expect.any(Array),
+          link: [
+            {
+              type: 'replaced-by',
+              other: {
+                reference: `Patient/${ids.a}`,
+                type: 'Patient',
+                display: expect.any(String),
+              },
+            },
+          ],
+        });
+
+        expect(resourceD).toMatchObject({
+          resourceType: 'Patient',
+          id: ids.d,
+          meta: {
+            lastUpdated: expect.any(String),
+          },
+          active: false,
+          address: expect.any(Array),
+          birthDate: expect.any(String),
+          deceasedDateTime: null,
+          gender: expect.any(String),
+          identifier: expect.any(Array),
+          name: expect.any(Array),
+          telecom: expect.any(Array),
+          link: [
+            {
+              type: 'replaced-by',
+              other: {
+                reference: `Patient/${ids.a}`,
+                type: 'Patient',
+                display: expect.any(String),
+              },
+            },
+          ],
+        });
+
+        expect(response.body.total).toBe(2);
+        expect(response).toHaveSucceeded();
+      });
     });
   });
 }
