@@ -76,7 +76,7 @@ export class Triage extends Model {
     const reasonForEncounter = `Presented at emergency department with ${reasonsText}`;
 
     const department = await Department.findOne({
-      where: { name: 'Emergency', facilityId: config?.serverFacilityId },
+      where: { name: 'Emergency', facilityId: config.serverFacilityId },
     });
 
     if (!data.departmentId && !department) {
