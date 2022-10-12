@@ -809,6 +809,8 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
               visibilityStatus: 'current',
             }),
           ),
+          Patient.create(fake(Patient, { visibilityStatus: 'historical' })),
+          Patient.create(fake(Patient, { visibilityStatus: 'merged' })),
           Patient.create(fake(Patient, { visibilityStatus: 'whatever' })),
         ]);
         await Promise.all(patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id)));
