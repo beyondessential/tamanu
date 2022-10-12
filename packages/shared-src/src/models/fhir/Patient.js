@@ -242,7 +242,7 @@ async function mergeLinks(patient) {
   // after materialisation by calling FhirPatient.resolveUpstreamLinks().
 
   if (patient.mergedIntoId) {
-    const mergeTarget = await patient.getMergedInto();
+    const mergeTarget = await patient.getUltimateMergedInto();
     if (mergeTarget) {
       links.push(
         new FhirPatientLink({

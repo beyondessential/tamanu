@@ -196,7 +196,7 @@ export class Patient extends Model {
   }
 
   /** Patient this one was merged into (end of the chain) */
-  async getMergedInto() {
+  async getUltimateMergedInto() {
     return this.constructor.findOne({
       where: {
         [Op.and]: [
