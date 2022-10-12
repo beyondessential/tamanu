@@ -17,7 +17,7 @@ export function pushToQuery(query, param, value) {
   query.set(param, insert);
 }
 
-export function buildQuery(query, parameters, FhirResource) {
+export function buildSearchQuery(query, parameters, FhirResource) {
   const sql = {
     limit: MAX_RESOURCES_PER_PAGE,
   };
@@ -51,6 +51,8 @@ export function buildQuery(query, parameters, FhirResource) {
     const page = last(query.get('_page').flatMap(v => v.value));
     sql.offset = page * sql.limit;
   }
+  
+  // TODO: support _summary and _elements
 
   const andWhere = [];
   for (const [name, paramQueries] of query.entries()) {
