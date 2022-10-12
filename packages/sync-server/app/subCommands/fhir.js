@@ -72,6 +72,12 @@ async function doRefresh(resource, { existing, missing, models, since }) {
     done += 1;
     if (done % 100 === 0) log.info(`Refreshed ${done} out of ${recordsToDo.length}`);
   }
+
+  if (normalised === 'Patient') {
+    log.info('Resolving patient upstream references...');
+    Resource.sequelize.query('CALL fhir.patients_resolve_upstream_links()');
+  }
+
   log.info(`Done refreshing ${done} ${normalised} records`);
 }
 

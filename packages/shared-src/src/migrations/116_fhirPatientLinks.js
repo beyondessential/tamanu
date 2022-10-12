@@ -61,7 +61,7 @@ export async function up(query) {
         links AS (
           SELECT id, UNNEST(link) link
             FROM fhir.patients
-            WHERE 'upstream://patient' = ANY(SELECT(type(other(UNNEST(link)))))
+            WHERE 'upstream://patient' = ANY(SELECT type(other(UNNEST(link))))
         ),
         downstreamed AS (
           SELECT links.id, type(links.link), other(links.link), fhir.patients.id link_id
