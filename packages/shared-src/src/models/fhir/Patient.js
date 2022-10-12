@@ -82,6 +82,13 @@ export class FhirPatient extends FhirResource {
     const resource = super.asFhir();
     resource.birthDate = formatDateTime(this.birthDate, FHIR_DATETIME_PRECISION.DAYS);
     resource.deceasedDateTime = formatDateTime(this.deceasedDateTime, FHIR_DATETIME_PRECISION.DAYS);
+
+    // Exclude upstream links if they remain in the materialised data.
+    // This can occur if there are records in the Tamanu data that have not been
+    // materialised into the FHIR data, but are referred to by the patient links.
+    // Although that should not really happen, but it's better to be safe and not
+    // expose the upstream link data.
+    resource.link = resource.link.filter(link => link.other.type != 'upstream://patient');
     return resource;
   }
 
