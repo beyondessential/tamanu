@@ -73,7 +73,7 @@ export class FhirPatient extends FhirResource {
       birthDate: upstream.dateOfBirth,
       deceasedDateTime: upstream.dateOfDeath,
       address: addresses(upstream),
-      link: await links(upstream),
+      link: await mergeLinks(upstream),
       lastUpdated: latestDateTime(upstream.updatedAt, upstream.additionalData?.updatedAt),
     });
   }
@@ -224,8 +224,12 @@ function addresses(patient) {
   ];
 }
 
-async function links(patient) {
+async function mergeLinks(patient) {
   const links = [];
+
+  // Populates "upstream" links, which must be resolved to FHIR resource links
+  // before serialisation time (when absolute URLs are also output) by calling
+  // the procedure fhir.resolve_upstream_links().
 
   if (patient.mergedIntoId) {
     const mergeTargets = await patient.getMergedUp();
@@ -235,7 +239,9 @@ async function links(patient) {
         new FhirPatientLink({
           type: 'replaced-by',
           other: new FhirReference({
-            reference: `Patient/${ultimateTarget.id}`,
+            reference: ultimateTarget.id,
+            type: 'upstream://patient',
+            display: ultimateTarget.displayId,
           }),
         }),
       );
@@ -249,7 +255,9 @@ async function links(patient) {
       links.push(new FhirPatientLink({
         type: 'replaces',
         other: new FhirReference({
-          reference: `Patient/${mergedPatient.id}`,
+          reference: mergedPatient.id,
+          type: 'upstream://patient',
+          display: mergedPatient.displayId,
         })
       }));
     } else {
@@ -257,7 +265,9 @@ async function links(patient) {
         new FhirPatientLink({
           type: 'seealso',
           other: new FhirReference({
-            reference: `Patient/${mergedPatient.id}`,
+            reference: mergedPatient.id,
+            type: 'upstream://patient',
+            display: mergedPatient.displayId,
           }),
         }),
       );
