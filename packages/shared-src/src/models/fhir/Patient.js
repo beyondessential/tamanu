@@ -6,7 +6,6 @@ import { FhirResource } from './Resource';
 import { arrayOf, activeFromVisibility } from './utils';
 import { dateType } from '../dateTimeTypes';
 import { latestDateTime } from '../../utils/dateTime';
-import { formatDateTime } from '../../utils/fhir';
 import {
   FHIR_SEARCH_PARAMETERS,
   FHIR_SEARCH_TOKEN_TYPES,
@@ -84,9 +83,6 @@ export class FhirPatient extends FhirResource {
 
   asFhir() {
     const resource = super.asFhir();
-    resource.birthDate = formatDateTime(this.birthDate, FHIR_DATETIME_PRECISION.DAYS);
-    resource.deceasedDateTime = formatDateTime(this.deceasedDateTime, FHIR_DATETIME_PRECISION.DAYS);
-
     // Exclude upstream links if they remain in the materialised data.
     // This can occur if there are records in the Tamanu data that have not been
     // materialised into the FHIR data, but are referred to by the patient links.

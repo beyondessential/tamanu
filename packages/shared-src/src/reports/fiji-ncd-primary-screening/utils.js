@@ -1,4 +1,4 @@
-import { endOfDay, startOfDay } from 'date-fns';
+import { endOfDay, parseISO, startOfDay } from 'date-fns';
 import { groupBy, keyBy } from 'lodash';
 import { Op } from 'sequelize';
 import { toDateTimeString } from 'shared/utils/dateTime';
@@ -39,12 +39,12 @@ export const parametersToAnswerSqlWhere = parameters => {
   }
   if (parameters.fromDate) {
     where['$surveyResponse.end_time$'][Op.gte] = toDateTimeString(
-      startOfDay(new Date(parameters.fromDate)),
+      startOfDay(parseISO(parameters.fromDate)),
     );
   }
   if (parameters.toDate) {
     where['$surveyResponse.end_time$'][Op.lte] = toDateTimeString(
-      endOfDay(new Date(parameters.toDate)),
+      endOfDay(parseISO(parameters.toDate)),
     );
   }
   if (parameters.surveyId) {
