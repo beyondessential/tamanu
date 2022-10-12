@@ -2,8 +2,8 @@ import { Op } from 'sequelize';
 import config from 'config';
 import asyncPool from 'tiny-async-pool';
 import { sortInDependencyOrder } from 'shared/models/sortInDependencyOrder';
-import { findSessionSyncRecords } from './findSessionSyncRecords';
-import { countSessionSyncRecords } from './countSessionSyncRecords';
+import { findSyncSessionRecords } from './findSyncSessionRecords';
+import { countSyncSessionRecords } from './countSyncSessionRecords';
 import { mergeRecord } from './mergeRecord';
 import { log } from 'shared/services/logging/log';
 
@@ -65,7 +65,7 @@ const saveChangesForModelInBatches = async (
   recordType,
   isCentralServer,
 ) => {
-  const syncRecordsCount = await countSessionSyncRecords(models, model.tableName, sessionId);
+  const syncRecordsCount = await countSyncSessionRecords(models, model.tableName, sessionId);
   log.debug(`saveIncomingChanges: Saving ${syncRecordsCount} changes for ${model.tableName}`);
 
   const batchCount = Math.ceil(syncRecordsCount / persistedCacheBatchSize);
@@ -73,7 +73,7 @@ const saveChangesForModelInBatches = async (
   for (let batchIndex = 0; batchIndex < batchCount; batchIndex++) {
     const offset = persistedCacheBatchSize * batchIndex;
 
-    const batchRecords = await findSessionSyncRecords(
+    const batchRecords = await findSyncSessionRecords(
       models,
       recordType,
       persistedCacheBatchSize,

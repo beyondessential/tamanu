@@ -2,7 +2,7 @@ import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
-export class SessionSyncRecord extends Model {
+export class SyncSessionRecord extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {

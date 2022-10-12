@@ -169,16 +169,16 @@ export class CentralSyncManager {
   async addIncomingChanges(sessionId, changes, { pushedSoFar, totalToPush }) {
     const { models } = this.store;
     await this.connectToSession(sessionId);
-    const sessionSyncRecords = changes.map(c => ({
+    const syncSessionRecords = changes.map(c => ({
       ...c,
       direction: SYNC_SESSION_DIRECTION.INCOMING,
       sessionId,
     }));
 
     log.debug(
-      `CentralSyncManager.addIncomingChanges: Adding ${sessionSyncRecords.length} changes for ${sessionId}`,
+      `CentralSyncManager.addIncomingChanges: Adding ${syncSessionRecords.length} changes for ${sessionId}`,
     );
-    await models.SessionSyncRecord.bulkCreate(sessionSyncRecords);
+    await models.SyncSessionRecord.bulkCreate(syncSessionRecords);
 
     if (pushedSoFar === totalToPush) {
       // commit the changes to the db

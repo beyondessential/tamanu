@@ -39,7 +39,7 @@ const snapshotChangesForModel = async (
       data: sanitizeRecord(model, r),
     }));
 
-    await models.SessionSyncRecord.bulkCreate(sanitizedRecords);
+    await models.SyncSessionRecord.bulkCreate(sanitizedRecords);
   }
 
   log.debug(

@@ -15,7 +15,7 @@ export class SyncSession extends Model {
   }
 
   static initRelations(models) {
-    this.hasMany(models.SessionSyncRecord, {
+    this.hasMany(models.SyncSessionRecord, {
       foreignKey: 'sessionId',
     });
   }
