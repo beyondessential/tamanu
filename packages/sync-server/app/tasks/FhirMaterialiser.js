@@ -64,8 +64,7 @@ export class FhirMaterialiser extends ScheduledTask {
       }
     }
 
-    // resolve patient links
-    this.context.store.sequelize.query('CALL fhir.patients_resolve_upstream_links()');
+    await this.models.FhirPatient.resolveUpstreamLinks();
   }
 
   async materialise(logger, resource, upstreamId) {

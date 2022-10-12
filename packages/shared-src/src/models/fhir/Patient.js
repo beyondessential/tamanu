@@ -78,6 +78,10 @@ export class FhirPatient extends FhirResource {
     });
   }
 
+  static async resolveUpstreamLinks() {
+    await this.sequelize.query('CALL fhir.patients_resolve_upstream_links()');
+  }
+
   asFhir() {
     const resource = super.asFhir();
     resource.birthDate = formatDateTime(this.birthDate, FHIR_DATETIME_PRECISION.DAYS);
@@ -235,20 +239,18 @@ async function mergeLinks(patient) {
   const links = [];
 
   // Populates "upstream" links, which must be resolved to FHIR resource links
-  // before serialisation time (when absolute URLs are also output) by calling
-  // the procedure fhir.patients_resolve_upstream_links().
+  // after materialisation by calling FhirPatient.resolveUpstreamLinks().
 
   if (patient.mergedIntoId) {
-    const mergeTargets = await patient.getMergedUp();
-    const ultimateTarget = last(mergeTargets);
-    if (ultimateTarget) {
+    const mergeTarget = await patient.getMergedInto();
+    if (mergeTarget) {
       links.push(
         new FhirPatientLink({
           type: 'replaced-by',
           other: new FhirReference({
-            reference: ultimateTarget.id,
+            reference: mergeTarget.id,
             type: 'upstream://patient',
-            display: ultimateTarget.displayId,
+            display: mergeTarget.displayId,
           }),
         }),
       );

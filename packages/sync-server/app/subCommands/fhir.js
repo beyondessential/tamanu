@@ -75,7 +75,7 @@ async function doRefresh(resource, { existing, missing, models, since }) {
 
   if (normalised === 'Patient') {
     log.info('Resolving patient upstream references...');
-    Resource.sequelize.query('CALL fhir.patients_resolve_upstream_links()');
+    await Resource.resolveUpstreamLinks();
   }
 
   log.info(`Done refreshing ${done} ${normalised} records`);
