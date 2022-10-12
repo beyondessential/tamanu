@@ -30,7 +30,7 @@ export class FhirPatientLink extends Composite {
 
   static fake(model, { fieldName }, id) {
     return new this({
-      type: sample(USES),
+      type: sample(TYPES),
       other: FhirReference.fake(model, { fieldName }, id),
     });
   }
