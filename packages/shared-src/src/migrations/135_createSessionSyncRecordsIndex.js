@@ -1,11 +1,11 @@
 export async function up(query) {
   await query.sequelize.query(`
-    CREATE INDEX session_sync_record_session_id_direction_index ON session_sync_records(session_id, direction);
+    CREATE INDEX sync_session_record_session_id_direction_index ON sync_session_records(session_id, direction);
   `);
 }
 
 export async function down(query) {
   await query.sequelize.query(`
-    DROP INDEX session_sync_record_session_id_direction_index;
+    DROP INDEX sync_session_record_session_id_direction_index;
   `);
 }

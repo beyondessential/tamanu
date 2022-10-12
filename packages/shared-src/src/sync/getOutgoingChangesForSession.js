@@ -11,7 +11,7 @@ export const getOutgoingChangesForSession = async (store, sessionId, direction, 
         is_deleted as "isDeleted",
         session_id as "sessionId",
         data
-      FROM session_sync_records
+      FROM sync_session_records
       WHERE session_id = :sessionId
         AND direction = :direction
       ORDER BY array_position(ARRAY[:recordTypeOrder]::varchar[], record_type), id ASC

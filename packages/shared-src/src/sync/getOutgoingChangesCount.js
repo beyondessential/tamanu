@@ -4,7 +4,7 @@ export const getOutgoingChangesCount = async (store, sessionId) => {
   const [rows] = await store.sequelize.query(
     `
         SELECT COUNT(*) AS total
-        FROM session_sync_records
+        FROM sync_session_records
         WHERE session_id = :sessionId
           AND direction = :direction
     `,

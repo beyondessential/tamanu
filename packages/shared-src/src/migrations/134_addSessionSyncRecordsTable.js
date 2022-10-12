@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
 
 export async function up(query) {
-  await query.createTable('session_sync_records', {
+  await query.createTable('sync_session_records', {
     id: {
       type: Sequelize.UUID,
       defaultValue: Sequelize.UUIDV4,
@@ -55,13 +55,13 @@ export async function up(query) {
     },
   });
   await query.sequelize.query(`
-    CREATE TRIGGER set_session_sync_records_updated_at_sync_tick
-    BEFORE INSERT OR UPDATE ON session_sync_records
+    CREATE TRIGGER set_sync_session_records_updated_at_sync_tick
+    BEFORE INSERT OR UPDATE ON sync_session_records
     FOR EACH ROW
     EXECUTE FUNCTION set_updated_at_sync_tick();
   `);
 }
 
 export async function down(query) {
-  await query.dropTable('session_sync_records');
+  await query.dropTable('sync_session_records');
 }

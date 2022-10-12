@@ -3,10 +3,10 @@ import { SYNC_SESSION_DIRECTION } from './constants';
 export const removeEchoedChanges = async (store, sessionId) =>
   store.sequelize.query(
     `
-    DELETE FROM session_sync_records
+    DELETE FROM sync_session_records
     WHERE id in (SELECT outgoingchanges.id
-    FROM session_sync_records AS incomingchanges
-    JOIN session_sync_records AS outgoingchanges
+    FROM sync_session_records AS incomingchanges
+    JOIN sync_session_records AS outgoingchanges
       ON incomingchanges.session_id = outgoingchanges.session_id
       AND incomingchanges.record_type = outgoingchanges.record_type
       AND incomingchanges.data @> outgoingchanges.data AND incomingchanges.data <@ outgoingchanges.data

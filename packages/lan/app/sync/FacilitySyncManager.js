@@ -58,7 +58,7 @@ export class FacilitySyncManager {
     }
 
     // clear previous temp data stored for persist
-    await this.models.SessionSyncRecord.truncate({ cascade: true, force: true });
+    await this.models.SyncSessionRecord.truncate({ cascade: true, force: true });
     await this.models.SyncSession.truncate({ cascade: true, force: true });
 
     const startTime = new Date();
@@ -152,7 +152,7 @@ export class FacilitySyncManager {
     log.info(`FacilitySyncManager.runSync: finished sync run in ${elapsedTimeMs}ms`);
 
     // clear temp data stored for persist
-    await this.models.SessionSyncRecord.truncate({ cascade: true, force: true });
+    await this.models.SyncSessionRecord.truncate({ cascade: true, force: true });
     await this.models.SyncSession.truncate({ cascade: true, force: true });
   }
 }
