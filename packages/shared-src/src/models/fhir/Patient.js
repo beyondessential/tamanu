@@ -229,7 +229,7 @@ async function mergeLinks(patient) {
 
   // Populates "upstream" links, which must be resolved to FHIR resource links
   // before serialisation time (when absolute URLs are also output) by calling
-  // the procedure fhir.resolve_upstream_links().
+  // the procedure fhir.patients_resolve_upstream_links().
 
   if (patient.mergedIntoId) {
     const mergeTargets = await patient.getMergedUp();
