@@ -80,6 +80,6 @@ export * from './NotePage';
 export * from './NoteItem';
 
 export * from './SyncSession';
-export * from './SessionSyncRecord';
+export * from './SyncSessionRecord';
 
 export * from './fhir';
