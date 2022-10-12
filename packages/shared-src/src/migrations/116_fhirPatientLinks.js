@@ -56,7 +56,7 @@ export async function up(query) {
   await query.sequelize.query(`
     CREATE OR REPLACE PROCEDURE fhir.patients_resolve_upstream_links()
     LANGUAGE SQL
-    BEGIN ATOMIC
+    AS $$
       WITH
         links AS (
           SELECT id, UNNEST(link) link
@@ -87,7 +87,7 @@ export async function up(query) {
         SET link = n.new_link
         FROM new_links n
         WHERE p.id = n.id;
-    END
+    $$
   `);
 }
 
