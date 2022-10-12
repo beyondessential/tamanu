@@ -19,7 +19,8 @@ export const ChangeDepartmentForm = ({ onCancel, departmentSuggester, onSubmit }
     <Form
       initialValues={{
         departmentId: encounter.departmentId,
-        endDate: getCurrentDateTimeString(),
+        // Used in creation of associated notes
+        submittedTime: getCurrentDateTimeString(),
       }}
       render={renderForm}
       onSubmit={onSubmit}
