@@ -195,6 +195,19 @@ export class Patient extends Model {
     return labTests.slice().sort((a, b) => Date.parse(b.date) - Date.parse(a.date));
   }
 
+  /** Patient this one was merged into (end of the chain) */
+  async getMergedInto() {
+    return this.constructor.findOne({
+      where: {
+        [Op.and]: [
+          { id: Sequelize.fn('any', Sequelize.fn('patients_merge_chain_up', this.id)) },
+          { id: { [Op.ne]: this.id } },
+          { mergedIntoId: null },
+        ],
+      },
+    });
+  }
+
   /** Patients this one was merged into */
   async getMergedUp() {
     return this.constructor.findAll({
