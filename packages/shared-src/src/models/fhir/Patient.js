@@ -1,6 +1,6 @@
 import config from 'config';
 import { Sequelize, DataTypes } from 'sequelize';
-import { identity, last } from 'lodash';
+import { identity } from 'lodash';
 
 import { FhirResource } from './Resource';
 import { arrayOf, activeFromVisibility } from './utils';
@@ -88,7 +88,7 @@ export class FhirPatient extends FhirResource {
     // materialised into the FHIR data, but are referred to by the patient links.
     // Although that should not really happen, but it's better to be safe and not
     // expose the upstream link data.
-    resource.link = resource.link.filter(link => link.other.type != 'upstream://patient');
+    resource.link = resource.link.filter(link => link.other.type !== 'upstream://patient');
     return resource;
   }
 
