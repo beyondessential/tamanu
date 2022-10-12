@@ -1070,8 +1070,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
         ids = { a, b, c, d };
       });
 
-      // TODO: re-enabled when the fetch API bit is merged
-      it.skip('links patients that were merged into the top level patient A (as fetch)', async () => {
+      it('links patients that were merged into the top level patient A (as fetch)', async () => {
         const path = `/v1/integration/${integrationName}/Patient/${ids.a}`;
 
         // act
@@ -1122,7 +1121,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
         expect(response).toHaveSucceeded();
       });
 
-      it.skip('links patients that were merged into, and patients that replaced, the mid level patient B (as fetch)', async () => {
+      it('links patients that were merged into, and patients that replaced, the mid level patient B (as fetch)', async () => {
         const path = `/v1/integration/${integrationName}/Patient/${ids.b}`;
 
         // act
