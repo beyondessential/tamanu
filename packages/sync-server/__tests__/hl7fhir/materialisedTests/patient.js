@@ -18,38 +18,12 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
     });
     afterAll(() => ctx.close());
 
-    describe('success', () => {
+    describe('full resource checks', () => {
       beforeEach(async () => {
         const { FhirPatient, Patient, PatientAdditionalData } = ctx.store.models;
         await FhirPatient.destroy({ where: {} });
         await Patient.destroy({ where: {} });
         await PatientAdditionalData.destroy({ where: {} });
-      });
-
-      it('returns not found when fetching a non-existent patient', async () => {
-        // arrange
-        const id = fakeUUID();
-        const path = `/v1/integration/${integrationName}/Patient/${id}`;
-
-        // act
-        const response = await app.get(path).set(requestHeaders);
-
-        // assert
-        expect(response.body).toMatchObject({
-          resourceType: 'OperationOutcome',
-          id: expect.any(String),
-          issue: [
-            {
-              severity: 'error',
-              code: 'not-found',
-              diagnostics: expect.any(String),
-              details: {
-                text: `no Patient with id ${id}`,
-              },
-            },
-          ],
-        });
-        expect(response.status).toBe(404);
       });
 
       it('fetches a patient by materialised ID', async () => {
@@ -258,7 +232,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
       });
     });
 
-    describe('sorts correctly', () => {
+    describe('sorting', () => {
       beforeEach(async () => {
         const { FhirPatient, Patient, PatientAdditionalData } = ctx.store.models;
         await FhirPatient.destroy({ where: {} });
@@ -676,7 +650,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
       });
     });
 
-    describe('filters search', () => {
+    describe('filtering', () => {
       beforeEach(async () => {
         const { FhirPatient, Patient, PatientAdditionalData } = ctx.store.models;
         await FhirPatient.destroy({ where: {} });
@@ -941,7 +915,33 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
       });
     });
 
-    describe('failure', () => {
+    describe('errors', () => {
+      it('returns not found when fetching a non-existent patient', async () => {
+        // arrange
+        const id = fakeUUID();
+        const path = `/v1/integration/${integrationName}/Patient/${id}`;
+
+        // act
+        const response = await app.get(path).set(requestHeaders);
+
+        // assert
+        expect(response.body).toMatchObject({
+          resourceType: 'OperationOutcome',
+          id: expect.any(String),
+          issue: [
+            {
+              severity: 'error',
+              code: 'not-found',
+              diagnostics: expect.any(String),
+              details: {
+                text: `no Patient with id ${id}`,
+              },
+            },
+          ],
+        });
+        expect(response.status).toBe(404);
+      });
+
       it('returns some errors when passed wrong query params', async () => {
         // arrange
         const { Patient, PatientAdditionalData } = ctx.store.models;
