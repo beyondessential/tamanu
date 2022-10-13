@@ -5,5 +5,35 @@
     "jasmine": true,
     "jest": true,
     "es6": true
-  }
+  },
+  "overrides": [
+    {
+      "files": ["**/migrations/**/*.js"],
+      "rules": {
+        "no-restricted-properties": [1, {
+          "object": "Sequelize",
+          "property": "DATE",
+          "message": "use DataTypes.DATESTRING or DataTypes.DATETIMESTRING types for all new columns"
+      }, {
+        "object": "DataTypes",
+        "property": "DATE",
+        "message": "use DataTypes.DATESTRING or DataTypes.DATETIMESTRING types for all new columns"
+      }]
+      }
+    },
+    {
+      "files": ["**/models/**/*.js"],
+      "rules": {
+        "no-restricted-properties": [1, {
+          "object": "Sequelize",
+          "property": "DATE",
+          "message": "use custom dateTimeTypes.js types for all new columns"
+      }, {
+        "object": "DataTypes",
+        "property": "DATE",
+        "message": "use custom dateTimeTypes.js types for all new columns"
+      }]
+      }
+    }
+  ]
 }
