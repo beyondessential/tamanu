@@ -79,6 +79,9 @@ export class CentralSyncManager {
     if (!session) {
       throw new Error(`Sync session '${sessionId}' not found`);
     }
+    if (session.error) {
+      throw new Error(`Sync session '${sessionId}' encountered an error: ${session.error}`);
+    }
     await session.update({ lastConnectionTime: Date.now() });
 
     return session;
@@ -107,38 +110,43 @@ export class CentralSyncManager {
     );
     const patientIdsForFullSync = newPatientFacilities.map(n => n.patientId);
 
-    await this.store.sequelize.transaction(async () => {
-      // full changes
-      await snapshotOutgoingChanges(
-        getPatientLinkedModels(models),
-        models,
-        0,
-        patientIdsForFullSync,
-        sessionId,
-        facilityId,
-      );
+    try {
+      await this.store.sequelize.transaction(async () => {
+        // full changes
+        await snapshotOutgoingChanges(
+          getPatientLinkedModels(models),
+          models,
+          0,
+          patientIdsForFullSync,
+          sessionId,
+          facilityId,
+        );
 
-      // get changes since the last successful sync for all other synced patients and independent
-      // record types
-      const patientFacilities = await models.PatientFacility.findAll({
-        where: { facilityId },
+        // get changes since the last successful sync for all other synced patients and independent
+        // record types
+        const patientFacilities = await models.PatientFacility.findAll({
+          where: { facilityId },
+        });
+        const patientIdsForRegularSync = patientFacilities
+          .map(p => p.patientId)
+          .filter(patientId => !patientIdsForFullSync.includes(patientId));
+
+        // regular changes
+        await snapshotOutgoingChanges(
+          getModelsForDirection(models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
+          models,
+          since,
+          patientIdsForRegularSync,
+          sessionId,
+          facilityId,
+        );
+
+        await removeEchoedChanges(this.store, sessionId);
       });
-      const patientIdsForRegularSync = patientFacilities
-        .map(p => p.patientId)
-        .filter(patientId => !patientIdsForFullSync.includes(patientId));
-
-      // regular changes
-      await snapshotOutgoingChanges(
-        getModelsForDirection(models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
-        models,
-        since,
-        patientIdsForRegularSync,
-        sessionId,
-        facilityId,
-      );
-
-      await removeEchoedChanges(this.store, sessionId);
-    });
+    } catch (error) {
+      log.error('CentralSyncManager.setPullFilter encountered an error', error);
+      await session.update({ error: error.message });
+    }
 
     await session.update({ snapshotCompletedAt: Sequelize.NOW });
   }

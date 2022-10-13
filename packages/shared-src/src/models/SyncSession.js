@@ -10,6 +10,7 @@ export class SyncSession extends Model {
         startTime: { type: DataTypes.DATE },
         lastConnectionTime: { type: DataTypes.DATE },
         snapshotCompletedAt: { type: DataTypes.BOOLEAN },
+        error: { type: DataTypes.STRING },
       },
       { ...options, syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC },
     );
