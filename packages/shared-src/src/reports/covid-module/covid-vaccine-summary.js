@@ -1,14 +1,16 @@
 /* eslint-disable no-param-reassign */
 
 import { Op } from 'sequelize';
-import { subDays } from 'date-fns';
+import { endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
 import { ageInYears, toDateTimeString } from 'shared/utils/dateTime';
 
 function parametersToSqlWhere(parameters) {
-  if (!parameters.fromDate) {
-    parameters.fromDate = toDateTimeString(subDays(new Date(), 30));
+  parameters.fromDate = toDateTimeString(
+    startOfDay(parameters.fromDate ? parseISO(parameters.fromDate) : subDays(new Date(), 30)),
+  );
+  if (parameters.toDate) {
+    parameters.toDate = toDateTimeString(endOfDay(parseISO(parameters.toDate)));
   }
-
   const whereClause = Object.entries(parameters)
     .filter(([, val]) => val)
     .reduce(

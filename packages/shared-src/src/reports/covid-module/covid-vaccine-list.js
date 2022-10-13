@@ -1,8 +1,8 @@
 /* eslint-disable no-param-reassign */
 
 import { Op } from 'sequelize';
-import { subDays, format } from 'date-fns';
-import { parseISO9075, toDateTimeString } from 'shared/utils/dateTime';
+import { endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
+import { toDateTimeString, format } from 'shared/utils/dateTime';
 import { generateReportFromQueryData } from '../utilities';
 
 const DATE_FORMAT = 'yyyy/MM/dd';
@@ -13,25 +13,29 @@ const reportColumnTemplate = [
     accessor: data => data.patientName,
   },
   { title: 'UID', accessor: data => data.uid },
-  { title: 'DOB', accessor: data => format(parseISO9075(data.dob), DATE_FORMAT) },
+  { title: 'DOB', accessor: data => format(data.dob, DATE_FORMAT) },
   { title: 'Sex', accessor: data => data.sex },
   { title: 'Village', accessor: data => data.village },
   { title: 'First dose given', accessor: data => data.dose1 },
   {
     title: 'First dose date',
-    accessor: data => format(parseISO9075(data.dose1Date), DATE_FORMAT),
+    accessor: data => format(data.dose1Date, DATE_FORMAT),
   },
   { title: 'Second dose given', accessor: data => data.dose2 },
   {
     title: 'Second dose date',
-    accessor: data => format(parseISO9075(data.dose2Date), DATE_FORMAT),
+    accessor: data => format(data.dose2Date, DATE_FORMAT),
   },
   { title: 'Vaccine Name', accessor: data => data.vaccineLabel },
 ];
 
 function parametersToSqlWhere(parameters) {
-  if (!parameters.fromDate) {
-    parameters.fromDate = toDateTimeString(subDays(new Date(), 30));
+  parameters.fromDate = toDateTimeString(
+    startOfDay(parameters.fromDate ? parseISO(parameters.fromDate) : subDays(new Date(), 30)),
+  );
+
+  if (parameters.toDate) {
+    parameters.toDate = toDateTimeString(endOfDay(parseISO(parameters.toDate)));
   }
 
   const whereClause = Object.entries(parameters)
@@ -107,7 +111,7 @@ async function queryCovidVaccineListData(models, parameters) {
       acc[patientId] = {
         patientName: `${firstName} ${lastName}`,
         uid: displayId,
-        dob: parseISO9075(dateOfBirth).toLocaleDateString(),
+        dob: parseISO(dateOfBirth).toLocaleDateString(),
         village: village?.name,
         dose1: 'No',
         dose2: 'No',
@@ -117,11 +121,11 @@ async function queryCovidVaccineListData(models, parameters) {
     }
     if (schedule === 'Dose 1') {
       acc[patientId].dose1 = 'Yes';
-      acc[patientId].dose1Date = date.toLocaleDateString();
+      acc[patientId].dose1Date = parseISO(date).toLocaleDateString();
     }
     if (schedule === 'Dose 2') {
       acc[patientId].dose2 = 'Yes';
-      acc[patientId].dose2Date = date.toLocaleDateString();
+      acc[patientId].dose2Date = parseISO(date).toLocaleDateString();
     }
     return acc;
   }, {});

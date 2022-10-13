@@ -1,4 +1,6 @@
 import { createDummyEncounter } from 'shared/demoData/patients';
+import { subMinutes } from 'date-fns';
+import { getCurrentDateTimeString, toDateTimeString } from 'shared/utils/dateTime';
 import { createTestContext } from '../../../utilities';
 import {
   createCovidTestForPatient,
@@ -201,12 +203,13 @@ async function createTravellerSurvey(models) {
 
 async function createFormAnswerForPatient(app, models, patient, formData) {
   if (!formData.formDate) {
-    formData.formDate = new Date().toISOString();
+    formData.formDate = getCurrentDateTimeString();
   }
   const encounter = await models.Encounter.create(
     await createDummyEncounter(models, { patientId: patient.id }),
   );
-  return await app.post('/v1/surveyResponse').send({
+
+  return app.post('/v1/surveyResponse').send({
     surveyId: SURVEY_ID,
     startTime: formData.formDate,
     patientId: patient.id,
@@ -251,6 +254,7 @@ describe('Fiji traveller covid lab test report', () => {
     afterEach(async () => {
       await testContext.models.LabTest.destroy({ where: {} });
       await testContext.models.LabRequest.destroy({ where: {} });
+      await testContext.models.SurveyResponseAnswer.destroy({ where: {} });
     });
 
     it('should produce the right columns', async () => {
@@ -270,29 +274,20 @@ describe('Fiji traveller covid lab test report', () => {
 
     it('should pick the latest answer between the current and the next lab request', async () => {
       const testBrand = 'Rapid Test';
-      const timePart = 'T00:00:00.000Z';
-      await createCovidTestForPatient(
-        testContext.models,
-        expectedPatient1,
-        `2022-03-01${timePart}`,
-      );
+      await createCovidTestForPatient(testContext.models, expectedPatient1, '2022-03-01');
       await createFormAnswerForPatient(app, testContext.models, expectedPatient1, {
-        formDate: `2022-03-01${timePart}`,
+        formDate: '2022-03-01 00:00:00',
         testBrand,
         testReason: 'first test',
       });
       await createFormAnswerForPatient(app, testContext.models, expectedPatient1, {
-        formDate: `2022-03-02${timePart}`,
+        formDate: '2022-03-02 00:00:00',
         testBrand,
         testReason: 'second test',
       });
-      await createCovidTestForPatient(
-        testContext.models,
-        expectedPatient1,
-        `2022-03-03${timePart}`,
-      );
+      await createCovidTestForPatient(testContext.models, expectedPatient1, '2022-03-03');
       const reportResult = await app.post(REPORT_URL).send({
-        parameters: { fromDate: `2022-02-15${timePart}`, toDate: `2022-03-15${timePart}` },
+        parameters: { fromDate: '2022-02-15 00:00:00', toDate: '2022-03-15 00:00:00' },
       });
       expect(reportResult).toHaveSucceeded();
       expect(reportResult.body).toHaveLength(3);
@@ -307,10 +302,12 @@ describe('Fiji traveller covid lab test report', () => {
       await createFormAnswerForPatient(app, testContext.models, expectedPatient1, {
         testBrand,
         testReason: 'first test',
+        formDate: toDateTimeString(subMinutes(new Date(), 1)),
       });
       await createFormAnswerForPatient(app, testContext.models, expectedPatient1, {
         testBrand,
         testReason: 'second test',
+        formDate: getCurrentDateTimeString(),
       });
       await createCovidTestForPatient(testContext.models, expectedPatient2);
       await createFormAnswerForPatient(app, testContext.models, expectedPatient2, {

@@ -1,6 +1,11 @@
 import { Sequelize, QueryTypes } from 'sequelize';
 import * as yup from 'yup';
-import { SYNC_DIRECTIONS, REPORT_STATUSES, REPORT_STATUSES_VALUES } from 'shared/constants';
+import {
+  SYNC_DIRECTIONS,
+  REPORT_STATUSES,
+  REPORT_STATUSES_VALUES,
+  REPORT_DEFAULT_DATE_RANGES_VALUES,
+} from 'shared/constants';
 import { Model } from './Model';
 import { getQueryReplacementsFromParams } from '../utils/getQueryReplacementsFromParams';
 
@@ -16,6 +21,10 @@ const optionsValidator = yup.object({
     ),
   dataSources: yup.array(),
   dateRangeLabel: yup.string(),
+  defaultDateRange: yup
+    .string()
+    .oneOf(REPORT_DEFAULT_DATE_RANGES_VALUES)
+    .required(),
 });
 
 const generateReportFromQueryData = queryData => {
@@ -99,11 +108,16 @@ export class ReportDefinitionVersion extends Model {
     this.hasMany(models.ReportRequest);
   }
 
-  getParameters() {
+  getQueryOptions() {
     // Make sure that query options is being returned as an object. It seems to come back sometimes
     // as a string and sometimes as an object otherwise.
-    const options =
-      typeof this.queryOptions === 'string' ? JSON.parse(this.queryOptions) : this.queryOptions;
+    return typeof this.queryOptions === 'string'
+      ? JSON.parse(this.queryOptions)
+      : this.queryOptions;
+  }
+
+  getParameters() {
+    const options = this.getQueryOptions();
     return options.parameters;
   }
 
@@ -111,8 +125,12 @@ export class ReportDefinitionVersion extends Model {
     const { sequelize } = context;
     const reportQuery = this.get('query');
 
-    const parametersDefinition = this.getParameters();
-    const replacements = getQueryReplacementsFromParams(parametersDefinition, parameters);
+    const queryOptions = this.getQueryOptions();
+    const replacements = getQueryReplacementsFromParams(
+      queryOptions.parameters,
+      parameters,
+      queryOptions.defaultDateRange,
+    );
 
     const queryResults = await sequelize.query(reportQuery, {
       type: QueryTypes.SELECT,

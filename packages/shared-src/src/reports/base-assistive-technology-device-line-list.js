@@ -1,11 +1,12 @@
 import { keyBy, groupBy, uniqWith, isEqual } from 'lodash';
 import { Op } from 'sequelize';
-import { differenceInMilliseconds, format } from 'date-fns';
+import { endOfDay, startOfDay, parseISO } from 'date-fns';
 import { generateReportFromQueryData } from './utilities';
 import { transformAnswers } from './utilities/transformAnswers';
-import { parseISO9075, ageInYears } from '../utils/dateTime';
+import { format, ageInYears, differenceInMilliseconds, toDateTimeString } from '../utils/dateTime';
 
 const parametersToSurveyResponseSqlWhere = (parameters, surveyIds) => {
+  const newParameters = { ...parameters };
   const defaultWhereClause = {
     '$surveyResponse.survey_id$': surveyIds,
   };
@@ -14,7 +15,15 @@ const parametersToSurveyResponseSqlWhere = (parameters, surveyIds) => {
     return defaultWhereClause;
   }
 
-  const whereClause = Object.entries(parameters)
+  if (parameters.fromDate) {
+    newParameters.fromDate = toDateTimeString(startOfDay(parseISO(parameters.fromDate)));
+  }
+
+  if (parameters.toDate) {
+    newParameters.toDate = toDateTimeString(endOfDay(parseISO(parameters.toDate)));
+  }
+
+  const whereClause = Object.entries(newParameters)
     .filter(([, val]) => val)
     .reduce((where, [key, value]) => {
       const newWhere = { ...where };
@@ -182,9 +191,7 @@ export const dataGenerator = async (
         continue;
       }
 
-      const dateOfBirth = patient.dateOfBirth
-        ? format(parseISO9075(patient.dateOfBirth), 'dd-MM-yyyy')
-        : '';
+      const dateOfBirth = patient.dateOfBirth ? format(patient.dateOfBirth, 'dd-MM-yyyy') : '';
       const age = patient.dateOfBirth ? ageInYears(patient.dateOfBirth) : '';
       const recordData = {
         clientId: patient.displayId,

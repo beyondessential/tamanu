@@ -1,5 +1,5 @@
 import { subDays } from 'date-fns';
-import { toDateTimeString } from 'shared/utils/dateTime';
+import { toDateString } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
 const FIELDS = [
@@ -42,8 +42,12 @@ select
   to_char(p.date_of_birth::date, 'dd-mm-yyyy') as "DOB",
   case
     when p.date_of_death is null
-    then date_trunc('day', Age(p.date_of_birth::date))
-    else date_trunc('day', Age(p.date_of_death::date, p.date_of_birth::date))
+    then case
+      when p.date_of_birth::date = CURRENT_DATE
+      then '0 days'
+      else date_trunc('day', Age(p.date_of_birth::date))::text
+    end
+    else date_trunc('day', Age(p.date_of_death::date, p.date_of_birth::date))::text
   end as "Age",
   p.sex as "Sex",
   rd_village.name as "Village",
@@ -57,9 +61,9 @@ select
     when p_father.id is not null
     then concat(p_father.first_name, ' ', p_father.last_name, ' (', p_father.display_id, ')')
   end as "Father",
-  pbd.time_of_birth::timestamp::time as "Time of birth",
+  to_char(pbd.time_of_birth::timestamp, 'HH12:MI AM') as "Time of birth",
   pbd.gestational_age_estimate as "Gestational age (weeks)",
-  f."type" as "Place of birth",
+  pbd.registered_birth_place as "Place of birth",
   f."name" as "Name of health facility (if selected)",
   pbd.attendant_at_birth as "Attendant at birth",
   pbd.name_of_attendant_at_birth as "Name of attendant",
@@ -78,7 +82,7 @@ from
   left join reference_data rd_nationality on rd_nationality.id = pad.nationality_id
   left join reference_data rd_ethnicity on rd_ethnicity.id = pad.ethnicity_id
   left join patients p_mother on p_mother.id = pad.mother_id
-  left join patients p_father on p_mother.id = pad.father_id
+  left join patients p_father on p_father.id = pad.father_id
   left join facilities f on f.id = pbd.birth_facility_id
 where
   p.id not in (
@@ -94,12 +98,12 @@ order by p.date_of_birth::date, pbd.time_of_birth::timestamp::time;
 `;
 
 const getData = async (sequelize, parameters) => {
-  const { fromDate = toDateTimeString(subDays(new Date(), 30)), toDate, village } = parameters;
+  const { fromDate, toDate, village } = parameters;
 
   return sequelize.query(query, {
     type: sequelize.QueryTypes.SELECT,
     replacements: {
-      from_date: fromDate ?? null,
+      from_date: fromDate || toDateString(subDays(new Date(), 30)),
       to_date: toDate ?? null,
       village_id: village ?? null,
     },

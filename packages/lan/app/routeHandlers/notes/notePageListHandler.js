@@ -1,66 +1,70 @@
-import { Op } from 'sequelize';
-import { NOTE_TYPES } from 'shared/constants';
+import asyncHandler from 'express-async-handler';
 
-export const notePageListHandler = recordType => async (req, res) => {
-  const { models, params, query } = req;
-  const { order = 'ASC', orderBy } = query;
+import { checkNotePermission } from '../../utils/checkNotePermission';
 
-  const recordId = params.id;
-  const owner = await models[recordType].findByPk(recordId);
+export const notePageListHandler = recordType =>
+  asyncHandler(async (req, res) => {
+    const { models, params, query } = req;
+    const { order = 'ASC', orderBy } = query;
 
-  req.checkPermission('read', owner);
+    const recordId = params.id;
+    await checkNotePermission(req, { recordType, recordId }, 'list');
 
-  const rows = await models.NotePage.findAll({
-    include: [
-      {
-        model: models.NoteItem,
-        as: 'noteItems',
-        include: [
-          {
-            model: models.User,
-            as: 'author',
-          },
-          {
-            model: models.User,
-            as: 'onBehalfOf',
-          },
-        ],
-      },
-    ],
-    where: { recordType, recordId, noteType: { [Op.not]: NOTE_TYPES.SYSTEM } },
-    order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
+    const rows = await models.NotePage.findAll({
+      include: [
+        {
+          model: models.NoteItem,
+          as: 'noteItems',
+          include: [
+            {
+              model: models.User,
+              as: 'author',
+            },
+            {
+              model: models.User,
+              as: 'onBehalfOf',
+            },
+          ],
+        },
+      ],
+      where: { recordType, recordId },
+      order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
+    });
+
+    res.send({ data: rows, count: rows.length });
   });
 
-  res.send({ data: rows, count: rows.length });
-};
+export const notePagesWithSingleItemListHandler = recordType =>
+  asyncHandler(async (req, res) => {
+    const { models, params } = req;
 
-export const notePagesWithSingleItemListHandler = recordType => async (req, res) => {
-  const { models, params } = req;
+    const recordId = params.id;
+    await checkNotePermission(req, { recordType, recordId }, 'list');
 
-  const recordId = params.id;
-  const owner = await models[recordType].findByPk(recordId);
-
-  req.checkPermission('read', owner);
-
-  const notePages = await models.NotePage.findAll({
-    include: [
-      {
-        model: models.NoteItem,
-        as: 'noteItems',
-        include: [
-          { model: models.User, as: 'author' },
-          { model: models.User, as: 'onBehalfOf' },
-        ],
+    const notePages = await models.NotePage.findAll({
+      include: [
+        {
+          model: models.NoteItem,
+          as: 'noteItems',
+          include: [
+            { model: models.User, as: 'author' },
+            { model: models.User, as: 'onBehalfOf' },
+          ],
+        },
+      ],
+      where: {
+        recordId,
+        recordType,
       },
-    ],
-    where: {
-      recordId,
-      recordType,
-      noteType: { [Op.not]: NOTE_TYPES.SYSTEM },
-    },
-    order: [['createdAt', 'ASC']],
-  });
+      order: [['createdAt', 'ASC']],
+    });
 
-  const notes = await Promise.all(notePages.map(n => n.getCombinedNoteObject(models)));
-  res.send({ data: notes, count: notes.length });
-};
+    const notes = [];
+    for (const notePage of notePages) {
+      const combinedNoteObject = await notePage.getCombinedNoteObject(models);
+      notes.push(combinedNoteObject);
+    }
+
+    const resultNotes = notes.filter(n => !!n);
+    res.send({ data: resultNotes, count: resultNotes.length });
+  });

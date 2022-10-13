@@ -1,7 +1,7 @@
 import { Op } from 'sequelize';
-import { startOfDay, endOfDay, format } from 'date-fns';
+import { startOfDay, endOfDay, parseISO } from 'date-fns';
 import { DIAGNOSIS_CERTAINTY } from 'shared/constants';
-import { toDateTimeString, ageInYears, parseISO9075 } from 'shared/utils/dateTime';
+import { toDateTimeString, ageInYears, format } from 'shared/utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
 const FIELD_TO_TITLE = {
@@ -29,8 +29,15 @@ const reportColumnTemplate = Object.entries(FIELD_TO_TITLE).map(([key, title]) =
   accessor: data => data[key],
 }));
 
-const parametersToEncounterSqlWhere = parameters =>
-  Object.entries(parameters)
+const parametersToEncounterSqlWhere = parameters => {
+  const newParameters = { ...parameters };
+  if (parameters.fromDate) {
+    newParameters.fromDate = toDateTimeString(startOfDay(parseISO(parameters.fromDate)));
+  }
+  if (parameters.toDate) {
+    newParameters.toDate = toDateTimeString(endOfDay(parseISO(parameters.toDate)));
+  }
+  return Object.entries(newParameters)
     .filter(([, val]) => val)
     .reduce((where, [key, value]) => {
       const newWhere = { ...where };
@@ -45,19 +52,20 @@ const parametersToEncounterSqlWhere = parameters =>
           if (!newWhere.startDate) {
             newWhere.startDate = {};
           }
-          newWhere.startDate[Op.gte] = toDateTimeString(startOfDay(new Date(value)));
+          newWhere.startDate[Op.gte] = value;
           break;
         case 'toDate':
           if (!newWhere.startDate) {
             newWhere.startDate = {};
           }
-          newWhere.startDate[Op.lte] = toDateTimeString(endOfDay(new Date(value)));
+          newWhere.startDate[Op.lte] = value;
           break;
         default:
           break;
       }
       return newWhere;
     }, {});
+};
 
 const getEncounters = async (models, parameters) => {
   const encounters = await models.Encounter.findAll({
@@ -147,7 +155,7 @@ const transformDataPoint = encounter => {
     medicalArea: patientAdditionalData?.medicalArea?.name,
     nursingZone: patientAdditionalData?.nursingZone?.name,
     clinician: examiner?.displayName,
-    dateOfAttendance: format(parseISO9075(encounter.startDate), 'dd-MM-yyyy'),
+    dateOfAttendance: format(encounter.startDate, 'dd-MM-yyyy'),
     department: encounter.department?.name,
     location: encounter.location?.name,
     reasonForAttendance: encounter.reasonForEncounter,

@@ -1,31 +1,84 @@
+import { formatRFC7231 } from 'date-fns';
+import { Router } from 'express';
 import asyncHandler from 'express-async-handler';
 import { ValidationError } from 'yup';
 
 import { FHIR_BUNDLE_TYPES, FHIR_RESOURCE_TYPES } from 'shared/constants';
-import { Invalid, OperationOutcome, Unsupported, normaliseParameters } from 'shared/utils/fhir';
+import {
+  Invalid,
+  OperationOutcome,
+  Unsupported,
+  NotFound,
+  // normaliseParameter,
+  normaliseParameters,
+  // RESULT_PARAMETERS,
+} from 'shared/utils/fhir';
 
 import { Bundle } from './bundle';
-import { buildQuery, pushToQuery } from './query';
+import { buildSearchQuery, pushToQuery } from './query';
 
-export function resourceHandler() {
-  return asyncHandler(async (req, res) => {
+import { requireClientHeaders as requireClientHeadersMiddleware } from '../../middleware/requireClientHeaders';
+
+export function fhirRoutes({ requireClientHeaders } = {}) {
+  const routes = Router();
+
+  if (requireClientHeaders) {
+    routes.use(requireClientHeadersMiddleware);
+  }
+
+  for (const resource of FHIR_RESOURCE_TYPES) {
+    routes.get(`/${resource}/:id`, fetchHandler(resource));
+    routes.get(`/${resource}`, searchHandler(resource));
+  }
+
+  // TODO: handle method/route errors with FHIR errors
+  // and/or use a generic FHIR error handler middleware
+
+  return routes;
+}
+
+const fetchHandler = resource =>
+  asyncHandler(async (req, res) => {
+    res.header('Content-Type', 'application/fhir+json; fhirVersion=4.3');
+
     try {
-      // TODO: make it a middleware
-      const { method } = req;
-      if (method !== 'GET') throw new Unsupported('methods other than get are not supported');
+      const FhirResource = req.store.models[`Fhir${resource}`];
+      const { id } = req.params;
 
-      const path = req.path.split('/').slice(1);
-      if (path.length > 1) throw new Unsupported('nested paths are not supported');
-      if (!FHIR_RESOURCE_TYPES.includes(path[0]))
-        throw new Unsupported('this resource is not supported');
+      // TODO: support _summary and _elements
+      // const parameters = new Map([
+      //   normaliseParameter(['_summary', RESULT_PARAMETERS._summary], {
+      //     path: [],
+      //     sortable: false,
+      //   }),
+      // ]);
+      // const query = await parseRequest(req, parameters);
 
-      const FhirResource = req.store.models[`Fhir${path[0]}`];
-      if (!FhirResource) throw new Unsupported('this resource is not supported');
+      const record = await FhirResource.findByPk(id);
+      if (!record) throw new NotFound(`no ${resource} with id ${id}`);
+
+      res.header('Last-Modified', formatRFC7231(record.lastUpdated));
+      // TODO: support ETag when we have full versioning support
+
+      // TODO: support _pretty
+      res.send(record.asFhir());
+    } catch (err) {
+      const oo = new OperationOutcome([err]);
+      res.status(oo.status()).send(oo.asFhir());
+    }
+  });
+
+const searchHandler = resource =>
+  asyncHandler(async (req, res) => {
+    res.header('Content-Type', 'application/fhir+json; fhirVersion=4.3');
+
+    try {
+      const FhirResource = req.store.models[`Fhir${resource}`];
 
       const parameters = normaliseParameters(FhirResource);
       const query = await parseRequest(req, parameters);
 
-      const sqlQuery = buildQuery(query, parameters, FhirResource);
+      const sqlQuery = buildSearchQuery(query, parameters, FhirResource);
       const total = await FhirResource.count(sqlQuery);
       const records = await FhirResource.findAll(sqlQuery);
 
@@ -41,7 +94,6 @@ export function resourceHandler() {
       res.status(oo.status()).send(oo.asFhir());
     }
   });
-}
 
 async function parseRequest(req, parameters) {
   const pairs = Object.entries(req.query).flatMap(([name, values]) =>
@@ -53,6 +105,7 @@ async function parseRequest(req, parameters) {
   for (const [name, value] of pairs) {
     const [param, modifier] = name.split(':', 2);
     if (!parameters.has(param)) {
+      // TODO: support Prefer: handling=lenient
       errors.push(new Unsupported(`parameter is not supported: ${param}`));
       continue;
     }

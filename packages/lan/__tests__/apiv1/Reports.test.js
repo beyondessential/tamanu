@@ -33,8 +33,10 @@ describe('Reports', () => {
         userId: user.id,
         queryOptions: JSON.stringify({
           parameters: [{ parameterField: 'EmailField', name: 'email' }],
+          defaultDateRange: 'allTime',
         }),
-        query: 'SELECT id, email from users WHERE email LIKE :email;',
+        query:
+          'SELECT id, email from users WHERE CASE WHEN :email IS NOT NULL THEN email = :email ELSE TRUE END;',
       });
     });
     it('should run a simple database defined report', async () => {

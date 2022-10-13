@@ -1,6 +1,7 @@
-import { subDays } from 'date-fns';
+import { endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
 import { keyBy } from 'lodash';
 import { NON_ANSWERABLE_DATA_ELEMENT_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '../constants';
+import { toDateTimeString } from '../utils/dateTime';
 import {
   generateReportFromQueryData,
   getAnswerBody,
@@ -52,9 +53,9 @@ select
   p.date_of_birth::date "Date of birth",
   extract(year from age(p.date_of_birth::date))::integer "Age",
   p.sex "Sex",
-  p.display_id "Patient ID",
+  p.display_id "Patient ID", 
   vil."name" as "Village",
-  to_char(sr.end_time, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM') "Submission Time", -- Need to use "|| CHR(58)" here or else sequelize thinks "<colon>MI" is a variable (it even replaces in comments!!)
+  to_char(sr.end_time::timestamp, 'YYYY-MM-DD HH12' || CHR(58) || 'MI AM') "Submission Time", -- Need to use "|| CHR(58)" here or else sequelize thinks "<colon>MI" is a variable (it even replaces in comments!!)
   s.name,
   answers
 from survey_responses sr
@@ -86,14 +87,19 @@ order by sr.end_time desc
  * },
  */
 const getData = async (sequelize, parameters) => {
-  const { surveyId, fromDate = subDays(new Date(), 30), toDate, village } = parameters;
+  const { surveyId, fromDate, toDate, village } = parameters;
+
+  const queryFromDate = toDateTimeString(
+    startOfDay(fromDate ? parseISO(fromDate) : subDays(new Date(), 30)),
+  );
+  const queryToDate = toDate && toDateTimeString(endOfDay(parseISO(toDate)));
 
   return sequelize.query(query, {
     type: sequelize.QueryTypes.SELECT,
     replacements: {
       survey_id: surveyId,
-      from_date: fromDate ?? null,
-      to_date: toDate ?? null,
+      from_date: queryFromDate ?? null,
+      to_date: queryToDate ?? null,
       village_id: village ?? null,
     },
   });

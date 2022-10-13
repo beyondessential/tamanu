@@ -22,6 +22,8 @@ import {
   FhirCodeableConcept,
   FhirContactPoint,
   FhirHumanName,
+  FhirPatientLink,
+  FhirReference,
 } from '../services/fhirTypes';
 
 const chance = new Chance();
@@ -146,8 +148,8 @@ export function fakeSurveyResponse(prefix = 'test-') {
     answers: [],
     encounterId: null,
     surveyId: null,
-    startTime: new Date(random(0, Date.now())),
-    endTime: new Date(random(0, Date.now())),
+    startTime: fakeDateTimeString(),
+    endTime: fakeDateTimeString(),
     result: Math.random() * 100,
     ...fakeStringFields(`${prefix}surveyResponse_${id}_`, ['id']),
   };
@@ -233,6 +235,8 @@ const FIELD_HANDLERS = {
   FHIR_CODEABLE_CONCEPT: (...args) => FhirCodeableConcept.fake(...args),
   FHIR_CONTACT_POINT: (...args) => FhirContactPoint.fake(...args),
   FHIR_HUMAN_NAME: (...args) => FhirHumanName.fake(...args),
+  FHIR_PATIENT_LINK: (...args) => FhirPatientLink.fake(...args),
+  FHIR_REFERENCE: (...args) => FhirReference.fake(...args),
 };
 
 const IGNORED_FIELDS = [

@@ -1,6 +1,6 @@
 import { keyBy } from 'lodash';
 import { Op } from 'sequelize';
-import { isAfter, format, parse } from 'date-fns';
+import { endOfDay, isAfter, parseISO, startOfDay } from 'date-fns';
 import { REFERRAL_STATUSES } from '../../constants';
 import { generateReportFromQueryData, getAnswers } from '../utilities';
 import {
@@ -14,7 +14,7 @@ import {
   getCachedAnswer,
   parametersToAnswerSqlWhere,
 } from './utils';
-import { ageInYears } from '../../utils/dateTime';
+import { ageInYears, format, toDateTimeString } from '../../utils/dateTime';
 
 import {
   REFERRAL_SURVEY_IDS,
@@ -39,10 +39,14 @@ const parametersToReferralSqlWhere = parameters => {
     where['$surveyResponse.end_time$'] = {};
   }
   if (parameters.fromDate) {
-    where['$surveyResponse.end_time$'][Op.gte] = parameters.fromDate;
+    where['$surveyResponse.end_time$'][Op.gte] = toDateTimeString(
+      startOfDay(parseISO(parameters.fromDate)),
+    );
   }
   if (parameters.toDate) {
-    where['$surveyResponse.end_time$'][Op.lte] = parameters.toDate;
+    where['$surveyResponse.end_time$'][Op.lte] = toDateTimeString(
+      endOfDay(parseISO(parameters.toDate)),
+    );
   }
   if (parameters.surveyId) {
     delete where['$surveyResponse.survey_id$'][Op.in];
@@ -174,7 +178,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
       if (!date1 && !date2) return 0;
 
       // Sort oldest to most recent
-      return parse(date1, 'dd-MM-yyyy', new Date()) - parse(date2, 'dd-MM-yyyy', new Date());
+      return parseISO(date1) - parseISO(date2);
     },
   );
 

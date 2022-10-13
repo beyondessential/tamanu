@@ -1,10 +1,10 @@
 import { Op } from 'sequelize';
-import { subDays, format } from 'date-fns';
+import { subDays, startOfDay, endOfDay, parseISO } from 'date-fns';
 import { ENCOUNTER_TYPES, DIAGNOSIS_CERTAINTY, NOTE_TYPES } from 'shared/constants';
 import upperFirst from 'lodash/upperFirst';
 import { ageInYears } from 'shared/utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
-import { toDateTimeString } from '../utils/dateTime';
+import { toDateTimeString, format } from '../utils/dateTime';
 
 const reportColumnTemplate = [
   { title: 'Patient First Name', accessor: data => data.patient.firstName },
@@ -14,7 +14,7 @@ const reportColumnTemplate = [
   { title: 'Village', accessor: data => data.patient.village.name },
   {
     title: 'Date of Birth',
-    accessor: data => format(new Date(data.patient.dateOfBirth), 'dd/MM/yyyy'),
+    accessor: data => format(data.patient.dateOfBirth, 'dd/MM/yyyy'),
   },
   {
     title: 'Age',
@@ -24,11 +24,11 @@ const reportColumnTemplate = [
   { title: 'Admitting Doctor/Nurse', accessor: data => data.examiner?.displayName },
   {
     title: 'Admission Date',
-    accessor: data => format(new Date(data.startDate), 'dd/MM/yyyy h:mm:ss a'),
+    accessor: data => format(data.startDate, 'dd/MM/yyyy h:mm:ss a'),
   },
   {
     title: 'Discharge Date',
-    accessor: data => format(new Date(data.endDate), 'dd/MM/yyyy h:mm:ss a'),
+    accessor: data => data.endDate && format(data.endDate, 'dd/MM/yyyy h:mm:ss a'),
   },
   { title: 'Location', accessor: data => data.locationHistoryString },
   { title: 'Department', accessor: data => data.departmentHistoryString },
@@ -38,7 +38,7 @@ const reportColumnTemplate = [
 
 function parametersToSqlWhere(parameters) {
   const {
-    fromDate = toDateTimeString(subDays(new Date(), 30)),
+    fromDate,
     toDate,
     practitioner,
     patientBillingType,
@@ -46,13 +46,18 @@ function parametersToSqlWhere(parameters) {
     // department, -- handled elsewhere
   } = parameters;
 
+  const queryFromDate = toDateTimeString(
+    startOfDay(fromDate ? parseISO(fromDate) : subDays(new Date(), 30)),
+  );
+  const queryToDate = toDate && toDateTimeString(endOfDay(parseISO(toDate)));
+
   return {
     encounterType: ENCOUNTER_TYPES.ADMISSION,
     ...(patientBillingType && { patientBillingTypeId: patientBillingType }),
     ...(practitioner && { examinerId: practitioner }),
     startDate: {
-      [Op.gte]: fromDate,
-      ...(toDate && { [Op.lte]: toDate }),
+      [Op.gte]: queryFromDate,
+      ...(queryToDate && { [Op.lte]: queryToDate }),
     },
   };
 }
@@ -156,7 +161,7 @@ const formatPlaceHistory = (history, placeType) =>
   history
     .map(
       ({ to, date }) =>
-        `${to} (${upperFirst(placeType)} assigned: ${format(new Date(date), 'dd/MM/yy h:mm a')})`,
+        `${to} (${upperFirst(placeType)} assigned: ${format(date, 'dd/MM/yy h:mm a')})`,
     )
     .join('; ');
 
