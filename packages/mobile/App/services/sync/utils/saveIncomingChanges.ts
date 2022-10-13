@@ -24,29 +24,21 @@ const saveChangesForModel = async (
   // split changes into create, update, delete
   const idsForDelete = changes.filter(c => c.isDeleted).map(c => c.data.id);
   const idsForUpsert = changes.filter(c => !c.isDeleted && c.data.id).map(c => c.data.id);
-  let idToUpdatedSinceSession = {};
+  const idsForUpdate = new Set();
 
   for (const batchOfIds of chunk(idsForUpsert, SQLITE_MAX_PARAMETERS)) {
     const batchOfExisting = await model.findByIds(batchOfIds, {
-      select: ['id', 'updatedAtSyncTick'],
+      select: ['id'],
     });
-    const batchOfRecords = Object.fromEntries(
-      batchOfExisting.map(e => [e.id, e.updatedAtSyncTick]),
-    );
-    idToUpdatedSinceSession = { ...idToUpdatedSinceSession, ...batchOfRecords };
+    batchOfExisting.map(e => idsForUpdate.add(e.id));
   }
 
   const recordsForCreate = changes
-    .filter(c => !c.isDeleted && idToUpdatedSinceSession[c.recordId] === undefined)
+    .filter(c => !c.isDeleted && !idsForUpdate.has(c.recordId))
     .map(({ data }) => buildFromSyncRecord(model, data));
 
   const recordsForUpdate = changes
-    .filter(
-      r =>
-        !r.isDeleted &&
-        !!idToUpdatedSinceSession[r.data.id] &&
-        r.data.updatedAtSyncTick > idToUpdatedSinceSession[r.data.id],
-    )
+    .filter(c => !c.isDeleted && idsForUpdate.has(c.recordId))
     .map(({ data }) => buildFromSyncRecord(model, data));
 
   // run each import process

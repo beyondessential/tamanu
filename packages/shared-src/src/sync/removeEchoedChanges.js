@@ -7,13 +7,13 @@ export const removeEchoedChanges = async (store, sessionId) =>
     WHERE id in (SELECT outgoingchanges.id
     FROM sync_session_records AS incomingchanges
     JOIN sync_session_records AS outgoingchanges
-      ON incomingchanges.session_id = outgoingchanges.session_id
-      AND incomingchanges.record_type = outgoingchanges.record_type
-      AND incomingchanges.data @> outgoingchanges.data AND incomingchanges.data <@ outgoingchanges.data
+      ON incomingchanges.record_type = outgoingchanges.record_type
+      AND incomingchanges.saved_at_sync_tick = outgoingchanges.saved_at_sync_tick
       AND incomingchanges.record_id = outgoingchanges.record_id
     WHERE incomingchanges.direction = :incomingDirection
       AND outgoingchanges.direction = :outgoingDirection
-      AND incomingchanges.session_id = :sessionId)
+      AND incomingchanges.session_id = :sessionId
+      AND outgoingchanges.session_id = :sessionId)
   `,
     {
       replacements: {

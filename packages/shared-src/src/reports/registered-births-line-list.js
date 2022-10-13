@@ -1,5 +1,5 @@
 import { subDays } from 'date-fns';
-import { toDateTimeString } from 'shared/utils/dateTime';
+import { toDateString } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
 const FIELDS = [
@@ -63,7 +63,7 @@ select
   end as "Father",
   to_char(pbd.time_of_birth::timestamp, 'HH12:MI AM') as "Time of birth",
   pbd.gestational_age_estimate as "Gestational age (weeks)",
-  pad.place_of_birth as "Place of birth",
+  pbd.registered_birth_place as "Place of birth",
   f."name" as "Name of health facility (if selected)",
   pbd.attendant_at_birth as "Attendant at birth",
   pbd.name_of_attendant_at_birth as "Name of attendant",
@@ -98,12 +98,12 @@ order by p.date_of_birth::date, pbd.time_of_birth::timestamp::time;
 `;
 
 const getData = async (sequelize, parameters) => {
-  const { fromDate = toDateTimeString(subDays(new Date(), 30)), toDate, village } = parameters;
+  const { fromDate, toDate, village } = parameters;
 
   return sequelize.query(query, {
     type: sequelize.QueryTypes.SELECT,
     replacements: {
-      from_date: fromDate ?? null,
+      from_date: fromDate || toDateString(subDays(new Date(), 30)),
       to_date: toDate ?? null,
       village_id: village ?? null,
     },

@@ -154,7 +154,8 @@ export class FhirResource extends Model {
       resourceType: this.constructor.fhirName,
       id: this.id,
       meta: {
-        versionId: this.versionId,
+        // TODO: uncomment when we support versioning
+        // versionId: this.versionId,
         lastUpdated: formatDateTime(
           this.lastUpdated,
           FHIR_DATETIME_PRECISION.SECONDS_WITH_TIMEZONE,
@@ -178,6 +179,9 @@ export class FhirResource extends Model {
         type: FHIR_SEARCH_PARAMETERS.DATE,
         path: [['lastUpdated']],
       },
+
+      // selecting fields to return:
+      // _elements: {},
 
       // whole record search:
       // _text: {},
