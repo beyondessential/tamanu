@@ -1,4 +1,4 @@
-import { Op } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
 import config from 'config';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { CURRENT_SYNC_TIME_KEY } from 'shared/sync/constants';
@@ -24,8 +24,6 @@ export class CentralSyncManager {
   currentSyncTick;
 
   store;
-
-  sessionsWithCompletedSnapshots = new Set();
 
   purgeInterval;
 
@@ -92,13 +90,12 @@ export class CentralSyncManager {
       `Sync session ${session.id} performed in ${(Date.now() - session.startTime) / 1000} seconds`,
     );
     await deleteSyncSession(this.store, sessionId);
-    this.sessionsWithCompletedSnapshots.delete(sessionId);
   }
 
   async setPullFilter(sessionId, { since, facilityId }) {
     const { models } = this.store;
 
-    await this.connectToSession(sessionId);
+    const session = await this.connectToSession(sessionId);
 
     // work out if any patients were newly marked for sync since this device last connected, and
     // include changes from all time for those patients
@@ -143,12 +140,12 @@ export class CentralSyncManager {
       await removeEchoedChanges(this.store, sessionId);
     });
 
-    this.sessionsWithCompletedSnapshots.add(sessionId);
+    await session.update({ snapshotCompletedAt: Sequelize.NOW });
   }
 
   async fetchPullCount(sessionId) {
-    await this.connectToSession(sessionId);
-    if (!this.sessionsWithCompletedSnapshots.has(sessionId)) {
+    const session = await this.connectToSession(sessionId);
+    if (session.snapshotCompletedAt === null) {
       return null;
     }
     return getOutgoingChangesCount(this.store, sessionId);
