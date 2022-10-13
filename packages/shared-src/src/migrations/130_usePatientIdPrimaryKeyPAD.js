@@ -27,6 +27,5 @@ export async function down(query) {
   await query.addColumn('patient_additional_data', 'merged_into_id', {
     type: Sequelize.TEXT,
     allowNull: true,
-    references: { model: 'patient_additional_data', key: 'id' },
   });
 }
