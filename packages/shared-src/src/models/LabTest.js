@@ -62,7 +62,7 @@ export class LabTest extends Model {
     return ['category', 'labTestType', 'labTestMethod'];
   }
 
-  static buildSyncFilter(patientIds, facilityConfig) {
-    return buildEncounterLinkedSyncFilter(patientIds, facilityConfig, ['labRequest', 'encounter']);
+  static buildSyncFilter(patientIds, sessionConfig) {
+    return buildEncounterLinkedSyncFilter(patientIds, sessionConfig, ['labRequest', 'encounter']);
   }
 }

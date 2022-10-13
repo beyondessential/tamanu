@@ -133,7 +133,7 @@ export class CentralServerConnection {
 
   async setPullFilter(sessionId: string, since: number, tableNames: [string]) {
     const facilityId = await readConfig('facilityId', '');
-    const body = { since, facilityId, tablesToInclude: tableNames };
+    const body = { since, facilityId, tablesToInclude: tableNames, isMobile: true };
     return this.post(`sync/${sessionId}/pullFilter`, {}, body, {});
   }
 

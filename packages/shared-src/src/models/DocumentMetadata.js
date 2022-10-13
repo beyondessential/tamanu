@@ -56,12 +56,12 @@ export class DocumentMetadata extends Model {
     });
   }
 
-  static buildSyncFilter(patientIds, facilityConfig) {
+  static buildSyncFilter(patientIds, sessionConfig) {
     if (patientIds.length === 0) {
       return null;
     }
     const patientFilter = buildPatientLinkedSyncFilter(patientIds);
-    const encounterFilter = buildEncounterLinkedSyncFilter(patientIds, facilityConfig);
+    const encounterFilter = buildEncounterLinkedSyncFilter(patientIds, sessionConfig);
     return {
       where: { [Op.or]: [patientFilter.where, encounterFilter.where] },
       include: encounterFilter.include,

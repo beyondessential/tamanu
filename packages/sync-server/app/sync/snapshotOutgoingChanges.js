@@ -22,10 +22,10 @@ const snapshotChangesForModel = async (
   since,
   patientIds,
   sessionId,
-  facilityConfig,
+  sessionConfig,
 ) => {
   const modelHasSyncFilter = !!model.buildSyncFilter;
-  const modelSyncFilter = modelHasSyncFilter && model.buildSyncFilter(patientIds, facilityConfig);
+  const modelSyncFilter = modelHasSyncFilter && model.buildSyncFilter(patientIds, sessionConfig);
   if (modelHasSyncFilter && modelSyncFilter === null) {
     // if model has sync filter but it is built as null, it indicates no records will be available
     // so no point in going further (e.g. patientIds is empty, so a patient linked filter will
@@ -67,18 +67,13 @@ const snapshotChangesForModel = async (
   return recordsChangedCount;
 };
 
-const getConfigForFacility = async (models, facilityId) => {
-  const facilitySettings = await models.Setting.forFacility(facilityId);
-  return { facilityId, ...facilitySettings };
-};
-
 export const snapshotOutgoingChanges = async (
   outgoingModels,
   models,
   since,
   patientIds,
   sessionId,
-  facilityId,
+  sessionConfig,
 ) => {
   if (readOnly) {
     return [];
@@ -86,7 +81,7 @@ export const snapshotOutgoingChanges = async (
 
   let changesCount = 0;
 
-  const facilityConfig = facilityId ? await getConfigForFacility(models, facilityId) : null;
+  const facilitySettings = await models.Setting.forFacility(sessionConfig.facilityId);
 
   for (const model of Object.values(outgoingModels)) {
     const modelChangesCount = await snapshotChangesForModel(
@@ -95,7 +90,7 @@ export const snapshotOutgoingChanges = async (
       since,
       patientIds,
       sessionId,
-      facilityConfig,
+      { ...sessionConfig, ...facilitySettings },
     );
 
     changesCount += modelChangesCount || 0;
