@@ -38,7 +38,7 @@ export class Referral extends Model {
     });
   }
 
-  static buildSyncFilter(patientIds, facilityConfig) {
-    return buildEncounterLinkedSyncFilter(patientIds, facilityConfig, ['initiatingEncounter']);
+  static buildSyncFilter(patientIds, sessionConfig) {
+    return buildEncounterLinkedSyncFilter(patientIds, sessionConfig, ['initiatingEncounter']);
   }
 }

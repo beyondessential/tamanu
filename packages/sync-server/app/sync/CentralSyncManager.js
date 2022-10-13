@@ -95,7 +95,7 @@ export class CentralSyncManager {
     this.sessionsWithCompletedSnapshots.delete(sessionId);
   }
 
-  async setPullFilter(sessionId, { since, facilityId, tablesToInclude }) {
+  async setPullFilter(sessionId, { since, facilityId, tablesToInclude, isMobile }) {
     const { models } = this.store;
 
     await this.connectToSession(sessionId);
@@ -124,7 +124,7 @@ export class CentralSyncManager {
         0,
         patientIdsForFullSync,
         sessionId,
-        facilityId,
+        { facilityId, isMobile },
       );
 
       // get changes since the last successful sync for all other synced patients and independent
@@ -143,7 +143,7 @@ export class CentralSyncManager {
         since,
         patientIdsForRegularSync,
         sessionId,
-        facilityId,
+        { facilityId, isMobile },
       );
 
       await removeEchoedChanges(this.store, sessionId);

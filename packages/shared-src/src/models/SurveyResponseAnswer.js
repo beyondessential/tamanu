@@ -1,6 +1,6 @@
 import config from 'config';
 import { upperFirst } from 'lodash';
-import { Sequelize } from 'sequelize';
+import { DataTypes, Op } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { Model } from './Model';
@@ -10,8 +10,8 @@ export class SurveyResponseAnswer extends Model {
     super.init(
       {
         id: primaryKey,
-        name: Sequelize.STRING,
-        body: Sequelize.TEXT,
+        name: DataTypes.STRING,
+        body: DataTypes.TEXT,
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );
@@ -28,11 +28,30 @@ export class SurveyResponseAnswer extends Model {
     });
   }
 
-  static buildSyncFilter(patientIds, facilityConfig) {
-    return buildEncounterLinkedSyncFilter(patientIds, facilityConfig, [
+  static buildSyncFilter(patientIds, sessionConfig) {
+    const baseFilter = buildEncounterLinkedSyncFilter(patientIds, sessionConfig, [
       'surveyResponse',
       'encounter',
     ]);
+    if (baseFilter === null) {
+      return null;
+    }
+    if (sessionConfig.isMobile) {
+      // remove answers to sensitive surveys from mobile
+      const where = {
+        [Op.and]: [baseFilter.where, { '$surveyResponse.survey.is_sensitive$': false }],
+      };
+
+      // manually create include, silly amounts of complication to inject "survey" into the include
+      // from baseFilter
+      const include = [{ association: 'surveyResponse', include: ['encounter', 'survey'] }];
+
+      return {
+        where,
+        include,
+      };
+    }
+    return baseFilter;
   }
 
   static getDefaultId = async resource => {
