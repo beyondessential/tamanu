@@ -123,7 +123,7 @@ export const MedicationForm = React.memo(
             prescription: medication?.prescription ?? '',
             date: medication?.date ?? getCurrentDateTimeString(),
             qtyMorning: medication?.qtyMorning ?? 0,
-            qtyLunch: medication?.qtyMorning ?? 0,
+            qtyLunch: medication?.qtyLunch ?? 0,
             qtyEvening: medication?.qtyEvening ?? 0,
             qtyNight: medication?.qtyNight ?? 0,
             quantity: medication?.quantity ?? 0,

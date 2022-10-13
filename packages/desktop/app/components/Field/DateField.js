@@ -1,6 +1,11 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { format as formatDate, isAfter, parse } from 'date-fns';
-import { parseISO9075, toDateString, toDateTimeString } from 'shared/utils/dateTime';
+import { isAfter, isValid, parse, parseISO } from 'date-fns';
+import {
+  toDateString,
+  toDateTimeString,
+  format as formatDate,
+  isISOString,
+} from 'shared/utils/dateTime';
 import PropTypes from 'prop-types';
 import { TextInput } from './TextField';
 
@@ -23,11 +28,7 @@ import { TextInput } from './TextField';
 
 function fromRFC3339(rfc3339Date, format) {
   if (!rfc3339Date) return '';
-
-  if (typeof rfc3339Date === 'string') {
-    return formatDate(parseISO9075(rfc3339Date), format);
-  }
-  return formatDate(new Date(rfc3339Date), format);
+  return formatDate(rfc3339Date, format);
 }
 
 export const DateInput = ({

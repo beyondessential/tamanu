@@ -19,8 +19,10 @@ export function arrayOf(fieldName, Type, overrides = {}) {
 }
 
 export function activeFromVisibility(upstream) {
-  return (
-    (upstream.visibilityStatus === VISIBILITY_STATUSES.CURRENT && !upstream.deletedAt) ||
-    upstream.visibilityStatus === VISIBILITY_STATUSES.MERGED
-  );
+  switch (upstream.visibilityStatus) {
+    case VISIBILITY_STATUSES.CURRENT:
+      return !upstream.deletedAt;
+    default:
+      return false;
+  }
 }

@@ -1,4 +1,6 @@
 import config from 'config';
+import { endOfDay, parseISO, startOfDay } from 'date-fns';
+import { toDateTimeString } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
 const FIELDS = [
@@ -157,11 +159,14 @@ order by a.month;
 const getData = async (sequelize, parameters) => {
   const { fromDate, toDate } = parameters;
 
+  const queryFromDate = fromDate && toDateTimeString(startOfDay(parseISO(fromDate)));
+  const queryToDate = toDate && toDateTimeString(endOfDay(parseISO(toDate)));
+
   return sequelize.query(query, {
     type: sequelize.QueryTypes.SELECT,
     replacements: {
-      from_date: fromDate ?? null,
-      to_date: toDate ?? null,
+      from_date: queryFromDate ?? null,
+      to_date: queryToDate ?? null,
     },
   });
 };

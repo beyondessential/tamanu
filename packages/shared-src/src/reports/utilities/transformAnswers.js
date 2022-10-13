@@ -1,5 +1,6 @@
+import { parseISO } from 'date-fns';
 import { keyBy, groupBy } from 'lodash';
-import { format, differenceInMilliseconds } from '../../utils/dateTime';
+import { format, differenceInMilliseconds, isISOString } from '../../utils/dateTime';
 
 const MODEL_COLUMN_TO_ANSWER_DISPLAY_VALUE = {
   User: 'displayName',
@@ -36,8 +37,12 @@ const convertBinaryToYesNo = answer => {
   }
 };
 
-const convertDateAnswer = (answer, { dateFormat = 'dd-MM-yyyy' }) =>
-  answer ? format(answer, dateFormat) : '';
+const convertDateAnswer = (answer, { dateFormat = 'dd-MM-yyyy' }) => {
+  if (isISOString(answer)) {
+    return format(answer, dateFormat);
+  }
+  return '';
+};
 
 export const getAnswerBody = async (models, componentConfig, type, answer, transformConfig) => {
   switch (type) {
@@ -115,7 +120,7 @@ export const takeMostRecentAnswers = answers => {
   const results = [];
   for (const groupedAnswers of Object.values(answersPerElement)) {
     const sortedLatestToOldestAnswers = groupedAnswers.sort((a1, a2) =>
-      differenceInMilliseconds(a2.responseEndTime, a1.responseEndTime),
+      differenceInMilliseconds(parseISO(a2.responseEndTime), parseISO(a1.responseEndTime)),
     );
     results.push(sortedLatestToOldestAnswers[0]);
   }

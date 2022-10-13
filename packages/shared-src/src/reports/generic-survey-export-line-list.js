@@ -1,4 +1,4 @@
-import { endOfDay, startOfDay, subDays } from 'date-fns';
+import { endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
 import { keyBy } from 'lodash';
 import { NON_ANSWERABLE_DATA_ELEMENT_TYPES, PROGRAM_DATA_ELEMENT_TYPES } from '../constants';
 import { toDateTimeString } from '../utils/dateTime';
@@ -90,9 +90,9 @@ const getData = async (sequelize, parameters) => {
   const { surveyId, fromDate, toDate, village } = parameters;
 
   const queryFromDate = toDateTimeString(
-    startOfDay(fromDate ? new Date(fromDate) : subDays(new Date(), 30)),
+    startOfDay(fromDate ? parseISO(fromDate) : subDays(new Date(), 30)),
   );
-  const queryToDate = toDate && toDateTimeString(endOfDay(new Date(toDate)));
+  const queryToDate = toDate && toDateTimeString(endOfDay(parseISO(toDate)));
 
   return sequelize.query(query, {
     type: sequelize.QueryTypes.SELECT,

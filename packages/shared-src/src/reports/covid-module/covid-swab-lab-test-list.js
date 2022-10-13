@@ -13,7 +13,6 @@ import { groupBy } from 'lodash';
 import { Op } from 'sequelize';
 import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_LABELS } from '../../constants';
 import { generateReportFromQueryData } from '../utilities';
-import { parseISO9075 } from '../../utils/dateTime';
 import { transformAnswers } from '../utilities/transformAnswers';
 
 const WILLIAM_HOROTO_IDS = [
@@ -202,11 +201,11 @@ const getLatestPatientAnswerInDateRange = (
   }
 
   const sortedLatestToOldestAnswers = patientTransformedAnswers.sort((a1, a2) =>
-    differenceInMilliseconds(a2.responseEndTime, a1.responseEndTime),
+    differenceInMilliseconds(parseISO(a2.responseEndTime), parseISO(a1.responseEndTime)),
   );
 
   const latestAnswer = sortedLatestToOldestAnswers.find(a =>
-    isWithinInterval(new Date(a.responseEndTime), {
+    isWithinInterval(parseISO(a.responseEndTime), {
       start: currentlabTestDate,
       end: nextLabTestDate,
     }),
@@ -251,7 +250,7 @@ const getLabTestRecords = async (
       const currentLabTestDate = startOfDay(parseISO(labTest.date));
       const dateToFilterBy =
         dateFilterBy === 'labRequest.sampleTime'
-          ? startOfDay(parseISO9075(labTest.labRequest.sampleTime))
+          ? startOfDay(parseISO(labTest.labRequest.sampleTime))
           : currentLabTestDate;
 
       // Get all lab tests regardless and filter fromDate and toDate in memory
@@ -259,13 +258,13 @@ const getLabTestRecords = async (
       if (
         isBefore(
           dateToFilterBy,
-          startOfDay(parameters.fromDate ? new Date(parameters.fromDate) : subDays(new Date(), 30)),
+          startOfDay(parameters.fromDate ? parseISO(parameters.fromDate) : subDays(new Date(), 30)),
         )
       ) {
         continue;
       }
 
-      if (parameters.toDate && isAfter(dateToFilterBy, endOfDay(new Date(parameters.toDate)))) {
+      if (parameters.toDate && isAfter(dateToFilterBy, endOfDay(parseISO(parameters.toDate)))) {
         continue;
       }
 
@@ -312,7 +311,7 @@ const getLabTestRecords = async (
         requestedDate: formatDate(labRequest.requestedDate),
         testingDate: formatDate(labTest.completedDate),
         testingTime: labTest.completedDate
-          ? format(new Date(labTest.completedDate), 'h:mm:ss aa')
+          ? format(parseISO(labTest.completedDate), 'h:mm:ss aa')
           : '',
         priority: labRequest?.priority?.name,
         testingLaboratory: labRequest?.laboratory?.name,
