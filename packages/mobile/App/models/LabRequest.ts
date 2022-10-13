@@ -76,6 +76,10 @@ export class LabRequest extends BaseModel implements ILabRequest {
   )
   tests: LabTest[];
 
+  static getTableNameForSync(): string {
+    return 'lab_requests'; // unusual camel case table here on mobile
+  }
+
   static async getForPatient(patientId: string): Promise<LabRequest[]> {
     return this.getRepository()
       .createQueryBuilder('labRequest')

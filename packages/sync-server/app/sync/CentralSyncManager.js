@@ -5,7 +5,6 @@ import { CURRENT_SYNC_TIME_KEY } from 'shared/sync/constants';
 import { log } from 'shared/services/logging';
 import {
   getModelsForDirection,
-  snapshotOutgoingChangesForCentral,
   getOutgoingChangesForSession,
   removeEchoedChanges,
   saveIncomingChanges,
@@ -15,6 +14,7 @@ import {
   SYNC_SESSION_DIRECTION,
 } from 'shared/sync';
 import { getPatientLinkedModels } from './getPatientLinkedModels';
+import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 
 // after x minutes of no activity, consider a session lapsed and wipe it to avoid holding invalid
 // changes in the database when a sync fails on the facility server end
@@ -95,12 +95,16 @@ export class CentralSyncManager {
     this.sessionsWithCompletedSnapshots.delete(sessionId);
   }
 
-  async setPullFilter(sessionId, { since, facilityId }) {
+  async setPullFilter(sessionId, { since, facilityId, tablesToInclude }) {
     const { models } = this.store;
 
     await this.connectToSession(sessionId);
 
-    const facilitySettings = await models.Setting.forFacility(facilityId);
+    const modelsToInclude = tablesToInclude
+      ? Object.fromEntries(
+          Object.entries(models).filter(([, m]) => tablesToInclude.includes(m.tableName)),
+        )
+      : models;
 
     // work out if any patients were newly marked for sync since this device last connected, and
     // include changes from all time for those patients
@@ -114,12 +118,13 @@ export class CentralSyncManager {
 
     await this.store.sequelize.transaction(async () => {
       // full changes
-      await snapshotOutgoingChangesForCentral(
-        getPatientLinkedModels(models),
+      await snapshotOutgoingChanges(
+        getPatientLinkedModels(modelsToInclude),
         models,
         0,
         patientIdsForFullSync,
         sessionId,
+        facilityId,
       );
 
       // get changes since the last successful sync for all other synced patients and independent
@@ -132,13 +137,13 @@ export class CentralSyncManager {
         .filter(patientId => !patientIdsForFullSync.includes(patientId));
 
       // regular changes
-      await snapshotOutgoingChangesForCentral(
-        getModelsForDirection(models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
+      await snapshotOutgoingChanges(
+        getModelsForDirection(modelsToInclude, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
         models,
         since,
         patientIdsForRegularSync,
         sessionId,
-        facilitySettings,
+        facilityId,
       );
 
       await removeEchoedChanges(this.store, sessionId);

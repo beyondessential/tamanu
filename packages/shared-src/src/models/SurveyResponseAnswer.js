@@ -28,8 +28,8 @@ export class SurveyResponseAnswer extends Model {
     });
   }
 
-  static buildSyncFilter(patientIds, facilitySettings) {
-    return buildEncounterLinkedSyncFilter(patientIds, facilitySettings, [
+  static buildSyncFilter(patientIds, facilityConfig) {
+    return buildEncounterLinkedSyncFilter(patientIds, facilityConfig, [
       'surveyResponse',
       'encounter',
     ]);
