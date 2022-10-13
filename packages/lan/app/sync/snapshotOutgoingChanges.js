@@ -1,8 +1,7 @@
 import config from 'config';
 import { Op } from 'sequelize';
-import { SYNC_SESSION_DIRECTION } from 'shared/constants';
 import { log } from 'shared/services/logging/log';
-import { sanitizeRecord } from 'shared/sync';
+import { sanitizeRecord, SYNC_SESSION_DIRECTION } from 'shared/sync';
 
 const { readOnly } = config.sync;
 

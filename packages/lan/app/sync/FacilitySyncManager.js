@@ -1,7 +1,8 @@
 import config from 'config';
 
 import { log } from 'shared/services/logging';
-import { CURRENT_SYNC_TIME_KEY, SYNC_DIRECTIONS } from 'shared/sync/constants';
+import { SYNC_DIRECTIONS } from 'shared/constants';
+import { CURRENT_SYNC_TIME_KEY } from 'shared/sync/constants';
 import { getModelsForDirection, saveIncomingChanges } from 'shared/sync';
 
 import { pushOutgoingChanges } from './pushOutgoingChanges';
