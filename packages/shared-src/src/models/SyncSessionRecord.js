@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize';
+import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
@@ -7,11 +7,12 @@ export class SyncSessionRecord extends Model {
     super.init(
       {
         id: primaryKey,
-        direction: { type: Sequelize.STRING },
-        recordType: { type: Sequelize.STRING },
-        recordId: { type: Sequelize.STRING },
-        isDeleted: { type: Sequelize.BOOLEAN },
-        data: { type: Sequelize.JSON },
+        direction: { type: DataTypes.STRING },
+        recordType: { type: DataTypes.STRING },
+        recordId: { type: DataTypes.STRING },
+        isDeleted: { type: DataTypes.BOOLEAN },
+        savedAtSyncTick: { type: DataTypes.BIGINT },
+        data: { type: DataTypes.JSON },
       },
       { ...options, syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC },
     );

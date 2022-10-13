@@ -9,27 +9,29 @@ import { COMPOSITE, Composite } from '../../utils/pgComposite';
 export class FhirPeriod extends Composite {
   static FIELD_ORDER = ['start', 'end'];
 
-  static SCHEMA = yup
-    .object({
-      start: yup
-        .date()
-        .nullable()
-        .default(null),
-      end: yup
-        .date()
-        .when('start', (start, schema) =>
-          start
-            ? schema.test(
-                'is-later-than-start',
-                'end must be later than start',
-                end => end === null || end > start,
-              )
-            : schema,
-        )
-        .nullable()
-        .default(null),
-    })
-    .noUnknown();
+  static SCHEMA() {
+    return yup
+      .object({
+        start: yup
+          .date()
+          .nullable()
+          .default(null),
+        end: yup
+          .date()
+          .when('start', (start, schema) =>
+            start
+              ? schema.test(
+                  'is-later-than-start',
+                  'end must be later than start',
+                  end => end === null || end > start,
+                )
+              : schema,
+          )
+          .nullable()
+          .default(null),
+      })
+      .noUnknown();
+  }
 
   sqlFields(options) {
     return super.sqlFields(options).map(toDateTimeString);

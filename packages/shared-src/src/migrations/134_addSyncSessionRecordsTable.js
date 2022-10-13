@@ -47,7 +47,7 @@ export async function up(query) {
       allowNull: false,
     },
     data: {
-      type: Sequelize.JSONB,
+      type: Sequelize.JSON,
       allowNull: false,
     },
     updated_at_sync_tick: {

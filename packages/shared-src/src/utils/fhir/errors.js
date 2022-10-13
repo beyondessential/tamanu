@@ -66,6 +66,26 @@ export class Unsupported extends FhirError {
   }
 }
 
+export class NotFound extends FhirError {
+  constructor(message, options = {}) {
+    super(message, {
+      status: 404,
+      code: FHIR_ISSUE_TYPE.PROCESSING.NOT_FOUND._,
+      ...options,
+    });
+  }
+}
+
+export class Deleted extends FhirError {
+  constructor(message, options = {}) {
+    super(message, {
+      status: 410,
+      code: FHIR_ISSUE_TYPE.PROCESSING.NOT_FOUND.DELETED,
+      ...options,
+    });
+  }
+}
+
 export class OperationOutcome extends Error {
   constructor(errors) {
     super('OperationOutcome: one or more errors (THIS SHOULD NEVER BE SEEN)');

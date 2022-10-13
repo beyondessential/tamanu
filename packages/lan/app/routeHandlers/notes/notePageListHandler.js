@@ -8,7 +8,7 @@ export const notePageListHandler = recordType =>
     const { order = 'ASC', orderBy } = query;
 
     const recordId = params.id;
-    checkNotePermission(req, { recordType, recordId }, 'list');
+    await checkNotePermission(req, { recordType, recordId }, 'list');
 
     const rows = await models.NotePage.findAll({
       include: [
@@ -39,7 +39,7 @@ export const notePagesWithSingleItemListHandler = recordType =>
     const { models, params } = req;
 
     const recordId = params.id;
-    checkNotePermission(req, { recordType, recordId }, 'list');
+    await checkNotePermission(req, { recordType, recordId }, 'list');
 
     const notePages = await models.NotePage.findAll({
       include: [

@@ -9,7 +9,7 @@ import {
 
 import { DEFAULT_SCHEMA_FOR_TYPE, INCLUDE_SCHEMA } from './schemata';
 
-function normaliseParameter([key, param], overrides = {}) {
+export function normaliseParameter([key, param], overrides = {}) {
   const defaultSchema = DEFAULT_SCHEMA_FOR_TYPE[param.type];
   const norm = {
     path: [[key]],
@@ -33,7 +33,7 @@ function normaliseParameter([key, param], overrides = {}) {
   return [key, norm];
 }
 
-const RESULT_PARAMETERS = {
+export const RESULT_PARAMETERS = {
   _total: {
     type: FHIR_SEARCH_PARAMETERS.SPECIAL,
     parameterSchema: yup.string().oneOf(['none', 'estimate', 'accurate']),

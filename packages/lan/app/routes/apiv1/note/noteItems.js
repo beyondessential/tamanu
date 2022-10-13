@@ -20,7 +20,7 @@ noteItemRoute.post(
     }
 
     const notePage = await models.NotePage.findByPk(notePageId);
-    checkNotePermission(req, notePage, 'create');
+    await checkNotePermission(req, notePage, 'create');
 
     await models.NoteItem.create({
       notePageId,
@@ -56,7 +56,7 @@ noteItemRoute.get(
     const { notePageId } = params;
 
     const notePage = await models.NotePage.findByPk(notePageId);
-    checkNotePermission(req, notePage, 'list');
+    await checkNotePermission(req, notePage, 'list');
 
     const noteItems = await models.NoteItem.findAll({
       include: [
