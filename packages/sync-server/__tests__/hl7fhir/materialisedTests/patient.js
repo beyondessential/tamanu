@@ -1,10 +1,12 @@
-import { format } from 'date-fns';
+import { format, formatRFC7231 } from 'date-fns';
 
+import { VISIBILITY_STATUSES } from 'shared/constants';
 import { fake } from 'shared/test-helpers/fake';
 import { getCurrentDateString } from 'shared/utils/dateTime';
 
 import { createTestContext } from '../../utilities';
 import { IDENTIFIER_NAMESPACE } from '../../../app/hl7fhir/utils';
+import { fakeUUID } from 'shared/utils/generateId';
 
 export function testPatientHandler(integrationName, requestHeaders = {}) {
   describe(`${integrationName} materialised integration - Patient`, () => {
@@ -24,7 +26,117 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
         await PatientAdditionalData.destroy({ where: {} });
       });
 
-      it('fetches a patient', async () => {
+      it('returns not found when fetching a non-existent patient', async () => {
+        // arrange
+        const id = fakeUUID();
+        const path = `/v1/integration/${integrationName}/Patient/${id}`;
+
+        // act
+        const response = await app.get(path).set(requestHeaders);
+
+        // assert
+        expect(response.body).toMatchObject({
+          resourceType: 'OperationOutcome',
+          id: expect.any(String),
+          issue: [
+            {
+              severity: 'error',
+              code: 'not-found',
+              diagnostics: expect.any(String),
+              details: {
+                text: `no Patient with id ${id}`,
+              },
+            },
+          ],
+        });
+        expect(response.status).toBe(404);
+      });
+
+      it('fetches a patient by materialised ID', async () => {
+        // arrange
+        const { FhirPatient, Patient, PatientAdditionalData } = ctx.store.models;
+        const patient = await Patient.create(
+          fake(Patient, { dateOfDeath: getCurrentDateString() }),
+        );
+        const additionalData = await PatientAdditionalData.create({
+          ...fake(PatientAdditionalData),
+          patientId: patient.id,
+        });
+        await patient.reload(); // saving PatientAdditionalData updates the patient too
+        const mat = await FhirPatient.materialiseFromUpstream(patient.id);
+
+        const path = `/v1/integration/${integrationName}/Patient/${mat.id}`;
+
+        // act
+        const response = await app.get(path).set(requestHeaders);
+
+        // assert
+        expect(response.body).toMatchObject({
+          resourceType: 'Patient',
+          id: expect.any(String),
+          meta: {
+            // TODO: uncomment when we support versioning
+            // versionId: expect.any(String),
+            lastUpdated: format(new Date(patient.updatedAt), "yyyy-MM-dd'T'HH:mm:ssXXX"),
+          },
+          active: true,
+          address: [
+            {
+              city: additionalData.cityTown,
+              line: [additionalData.streetVillage],
+              type: 'physical',
+              use: 'home',
+            },
+          ],
+          birthDate: format(new Date(patient.dateOfBirth), 'yyyy-MM-dd'),
+          deceasedDateTime: format(new Date(patient.dateOfDeath), 'yyyy-MM-dd'),
+          gender: patient.sex,
+          identifier: [
+            {
+              assigner: {
+                display: 'Tamanu',
+              },
+              system: 'http://tamanu.io/data-dictionary/application-reference-number.html',
+              use: 'usual',
+              value: patient.displayId,
+            },
+            {
+              assigner: {
+                display: 'RTA',
+              },
+              use: 'secondary',
+              value: additionalData.drivingLicense,
+            },
+          ],
+          name: [
+            {
+              family: patient.lastName,
+              given: [patient.firstName, patient.middleName],
+              prefix: [additionalData.title],
+              use: 'official',
+            },
+            {
+              text: patient.culturalName,
+              use: 'nickname',
+            },
+          ],
+          resourceType: 'Patient',
+          telecom: [
+            {
+              rank: 1,
+              value: additionalData.primaryContactNumber,
+            },
+            {
+              rank: 2,
+              value: additionalData.secondaryContactNumber,
+            },
+          ],
+        });
+        expect(response.headers['last-modified']).toBe(formatRFC7231(new Date(patient.updatedAt)));
+        expect(response).toHaveSucceeded();
+      });
+
+      it('searches a single patient by display ID', async () => {
         // arrange
         const { FhirPatient, Patient, PatientAdditionalData } = ctx.store.models;
         const patient = await Patient.create(
@@ -65,7 +177,8 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
                 resourceType: 'Patient',
                 id: expect.any(String),
                 meta: {
-                  versionId: expect.any(String),
+                  // TODO: uncomment when we support versioning
+                  // versionId: expect.any(String),
                   lastUpdated: format(new Date(patient.updatedAt), "yyyy-MM-dd'T'HH:mm:ssXXX"),
                 },
                 active: true,
@@ -82,13 +195,17 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
                 gender: patient.sex,
                 identifier: [
                   {
-                    assigner: 'Tamanu',
+                    assigner: {
+                      display: 'Tamanu',
+                    },
                     system: 'http://tamanu.io/data-dictionary/application-reference-number.html',
                     use: 'usual',
                     value: patient.displayId,
                   },
                   {
-                    assigner: 'RTA',
+                    assigner: {
+                      display: 'RTA',
+                    },
                     use: 'secondary',
                     value: additionalData.drivingLicense,
                   },
@@ -105,7 +222,6 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
                     use: 'nickname',
                   },
                 ],
-                resourceType: 'Patient',
                 telecom: [
                   {
                     rank: 1,
@@ -805,6 +921,8 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
               visibilityStatus: 'current',
             }),
           ),
+          Patient.create(fake(Patient, { visibilityStatus: 'historical' })),
+          Patient.create(fake(Patient, { visibilityStatus: 'merged' })),
           Patient.create(fake(Patient, { visibilityStatus: 'whatever' })),
         ]);
         await Promise.all(patients.map(({ id }) => FhirPatient.materialiseFromUpstream(id)));
@@ -905,6 +1023,221 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
           ],
         });
         expect(response).toHaveRequestError(501);
+      });
+    });
+
+    describe('merges', () => {
+      let ids;
+
+      // a <- b <- c
+      //      b <- d
+      beforeAll(async () => {
+        const { FhirPatient, Patient } = ctx.store.models;
+
+        const primaryA = await Patient.create(
+          fake(Patient, {
+            visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+          }),
+        );
+
+        const mergedB = await Patient.create(
+          fake(Patient, {
+            visibilityStatus: VISIBILITY_STATUSES.MERGED,
+            mergedIntoId: primaryA.id,
+          }),
+        );
+
+        const mergedC = await Patient.create(
+          fake(Patient, {
+            visibilityStatus: VISIBILITY_STATUSES.MERGED,
+            mergedIntoId: mergedB.id,
+          }),
+        );
+
+        const mergedD = await Patient.create(
+          fake(Patient, {
+            visibilityStatus: VISIBILITY_STATUSES.MERGED,
+            mergedIntoId: mergedB.id,
+          }),
+        );
+
+        const [a, b, c, d] = (
+          await Promise.all(
+            [primaryA, mergedB, mergedC, mergedD].map(({ id }) =>
+              FhirPatient.materialiseFromUpstream(id),
+            ),
+          )
+        ).map(row => row.id);
+
+        await FhirPatient.resolveUpstreamLinks();
+
+        ids = { a, b, c, d };
+      });
+
+      it('links patients that were merged into the top level patient A (as fetch)', async () => {
+        const path = `/v1/integration/${integrationName}/Patient/${ids.a}`;
+
+        // act
+        const response = await app.get(path).set(requestHeaders);
+
+        // assert
+        expect(response.body).toMatchObject({
+          resourceType: 'Patient',
+          id: ids.a,
+          meta: {
+            lastUpdated: expect.any(String),
+          },
+          active: true,
+          address: expect.any(Array),
+          birthDate: expect.any(String),
+          gender: expect.any(String),
+          identifier: expect.any(Array),
+          name: expect.any(Array),
+          telecom: expect.any(Array),
+          link: [
+            {
+              type: 'replaces',
+              other: {
+                reference: `Patient/${ids.b}`,
+                type: 'Patient',
+                display: expect.any(String),
+              },
+            },
+            {
+              type: 'seealso',
+              other: {
+                reference: `Patient/${ids.c}`,
+                type: 'Patient',
+                display: expect.any(String),
+              },
+            },
+            {
+              type: 'seealso',
+              other: {
+                reference: `Patient/${ids.d}`,
+                type: 'Patient',
+                display: expect.any(String),
+              },
+            },
+          ],
+        });
+        expect(response).toHaveSucceeded();
+      });
+
+      it('links patients that were merged into, and patients that replaced, the mid level patient B (as fetch)', async () => {
+        const path = `/v1/integration/${integrationName}/Patient/${ids.b}`;
+
+        // act
+        const response = await app.get(path).set(requestHeaders);
+
+        // assert
+        expect(response.body).toMatchObject({
+          resourceType: 'Patient',
+          id: ids.b,
+          meta: {
+            lastUpdated: expect.any(String),
+          },
+          active: false,
+          address: expect.any(Array),
+          birthDate: expect.any(String),
+          gender: expect.any(String),
+          identifier: expect.any(Array),
+          name: expect.any(Array),
+          telecom: expect.any(Array),
+          link: [
+            {
+              type: 'replaced-by',
+              other: {
+                reference: `Patient/${ids.a}`,
+                type: 'Patient',
+                display: expect.any(String),
+              },
+            },
+            {
+              type: 'replaces',
+              other: {
+                reference: `Patient/${ids.c}`,
+                type: 'Patient',
+                display: expect.any(String),
+              },
+            },
+            {
+              type: 'replaces',
+              other: {
+                reference: `Patient/${ids.d}`,
+                type: 'Patient',
+                display: expect.any(String),
+              },
+            },
+          ],
+        });
+        expect(response).toHaveSucceeded();
+      });
+
+      it('links patients that replaced the mid level patients C and D (as search)', async () => {
+        const path = `/v1/integration/${integrationName}/Patient?_id=${ids.c},${ids.d}`;
+
+        // act
+        const response = await app.get(path).set(requestHeaders);
+
+        // assert
+        const resourceC = response.body?.entry.find(({ resource }) => resource.id === ids.c)
+          ?.resource;
+        const resourceD = response.body?.entry.find(({ resource }) => resource.id === ids.d)
+          ?.resource;
+
+        expect(resourceC).toMatchObject({
+          resourceType: 'Patient',
+          id: ids.c,
+          meta: {
+            lastUpdated: expect.any(String),
+          },
+          active: false,
+          address: expect.any(Array),
+          birthDate: expect.any(String),
+          gender: expect.any(String),
+          identifier: expect.any(Array),
+          name: expect.any(Array),
+          telecom: expect.any(Array),
+          link: [
+            {
+              type: 'replaced-by',
+              other: {
+                reference: `Patient/${ids.a}`,
+                type: 'Patient',
+                display: expect.any(String),
+              },
+            },
+          ],
+        });
+
+        expect(resourceD).toMatchObject({
+          resourceType: 'Patient',
+          id: ids.d,
+          meta: {
+            lastUpdated: expect.any(String),
+          },
+          active: false,
+          address: expect.any(Array),
+          birthDate: expect.any(String),
+          gender: expect.any(String),
+          identifier: expect.any(Array),
+          name: expect.any(Array),
+          telecom: expect.any(Array),
+          link: [
+            {
+              type: 'replaced-by',
+              other: {
+                reference: `Patient/${ids.a}`,
+                type: 'Patient',
+                display: expect.any(String),
+              },
+            },
+          ],
+        });
+
+        expect(response.body.total).toBe(2);
+        expect(response).toHaveSucceeded();
       });
     });
   });

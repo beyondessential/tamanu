@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 
-import { endOfDay, startOfDay } from 'date-fns';
+import { endOfDay, parseISO, startOfDay } from 'date-fns';
 import { Op } from 'sequelize';
 import { toDateTimeString } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
@@ -48,10 +48,10 @@ const reportColumnTemplate = [
 
 function parametersToSqlWhere(parameters) {
   if (parameters.fromDate) {
-    parameters.fromDate = toDateTimeString(startOfDay(new Date(parameters.fromDate)));
+    parameters.fromDate = toDateTimeString(startOfDay(parseISO(parameters.fromDate)));
   }
   if (parameters.toDate) {
-    parameters.toDate = toDateTimeString(endOfDay(new Date(parameters.toDate)));
+    parameters.toDate = toDateTimeString(endOfDay(parseISO(parameters.toDate)));
   }
   const whereClause = Object.entries(parameters)
     .filter(([, val]) => val)
@@ -65,16 +65,16 @@ function parametersToSqlWhere(parameters) {
             where.referredById = value;
             break;
           case 'fromDate':
-            if (!where.date) {
-              where.date = {};
+            if (!where['$initiatingEncounter.start_date$']) {
+              where['$initiatingEncounter.start_date$'] = {};
             }
-            where.date[Op.gte] = value;
+            where['$initiatingEncounter.start_date$'][Op.gte] = value;
             break;
           case 'toDate':
-            if (!where.date) {
-              where.date = {};
+            if (!where['$initiatingEncounter.start_date$']) {
+              where['$initiatingEncounter.start_date$'] = {};
             }
-            where.date[Op.lte] = value;
+            where['$initiatingEncounter.start_date$'][Op.lte] = value;
             break;
           default:
             break;

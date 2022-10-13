@@ -5,6 +5,7 @@ import { ButtonGroup, IconButton, Typography } from '@material-ui/core';
 import ArrowBackIcon from '@material-ui/icons/KeyboardArrowLeft';
 import ArrowForwardIcon from '@material-ui/icons/KeyboardArrowRight';
 
+import { toDateTimeString } from 'shared-src/src/utils/dateTime';
 import { PageContainer, TopBar } from '../../components';
 import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { DailySchedule } from '../../components/Appointments/DailySchedule';
@@ -99,8 +100,8 @@ export const AppointmentsCalendar = () => {
   useEffect(() => {
     (async () => {
       const { data } = await api.get('appointments', {
-        after: startOfDay(date).toISOString(),
-        before: endOfDay(date).toISOString(),
+        after: toDateTimeString(startOfDay(date)),
+        before: toDateTimeString(endOfDay(date)),
         all: true,
       });
       setAppointments(data);

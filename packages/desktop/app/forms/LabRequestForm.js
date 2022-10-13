@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { connect } from 'react-redux';
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { getCurrentDateString, getCurrentDateTimeString } from 'shared/utils/dateTime';
 
 import { foreignKey } from '../utils/validation';
 import { encounterOptions } from '../constants';
@@ -188,6 +188,8 @@ export class LabRequestForm extends React.PureComponent {
           displayId: generateDisplayId(),
           requestedDate: getCurrentDateTimeString(),
           sampleTime: getCurrentDateTimeString(),
+          // LabTest date
+          date: getCurrentDateString(),
           ...editedObject,
         }}
         validationSchema={yup.object().shape({

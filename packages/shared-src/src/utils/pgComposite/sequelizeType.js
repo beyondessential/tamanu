@@ -2,7 +2,9 @@ import { object, mixed } from 'yup';
 import { enumerate, parse } from './parse';
 
 export class Composite {
-  static SCHEMA = object();
+  static SCHEMA() {
+    return object();
+  }
 
   static FIELD_ORDER = [];
 
@@ -11,7 +13,7 @@ export class Composite {
   }
 
   constructor(params) {
-    this.params = this.constructor.SCHEMA.validateSync(params);
+    this.params = this.constructor.SCHEMA().validateSync(params);
   }
 
   sqlFields() {

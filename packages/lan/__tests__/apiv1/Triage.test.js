@@ -8,13 +8,15 @@ import {
 } from 'shared/demoData';
 import { fake } from 'shared/test-helpers';
 import { ENCOUNTER_TYPES } from 'shared/constants';
-import { toDateTimeString, getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 
 describe('Triage', () => {
   let app = null;
   let baseApp = null;
   let models = null;
+  let facility = null;
+  let emergencyDepartment = null;
   let ctx;
 
   beforeAll(async () => {
@@ -22,7 +24,21 @@ describe('Triage', () => {
     baseApp = ctx.baseApp;
     models = ctx.models;
     app = await baseApp.asRole('practitioner');
+
+    facility = await models.Facility.create({
+      ...fake(models.Facility, { id: config.serverFacilityId }),
+    });
+
+    [emergencyDepartment] = await models.Department.findOrCreate({
+      where: {
+        id: 'emergency',
+        code: 'emergency',
+        name: 'Emergency',
+        facilityId: config.serverFacilityId,
+      },
+    });
   });
+
   afterAll(() => ctx.close());
 
   it('should admit a patient to triage', async () => {
@@ -154,18 +170,45 @@ describe('Triage', () => {
     expect(createdEncounter.reasonForEncounter).toContain(secondaryReason.name);
   });
 
+  it("should use Emergency department for encounter's department", async () => {
+    const encounterPatient = await models.Patient.create(await createDummyPatient(models));
+    const createdTriage = await models.Triage.create(
+      await createDummyTriage(models, {
+        patientId: encounterPatient.id,
+        chiefComplaintId: await randomReferenceId(models, 'triageReason'),
+        secondaryComplaintId: await randomReferenceId(models, 'triageReason'),
+      }),
+    );
+    const createdEncounter = await models.Encounter.findByPk(createdTriage.encounterId);
+    expect(createdEncounter.departmentId).toEqual(emergencyDepartment.id);
+  });
+
+  it('should throw error when there is no Emergency department for the current facility', async () => {
+    const testFacility = await models.Facility.create({
+      ...fake(models.Facility, { id: 'testFacility' }),
+    });
+    await emergencyDepartment.update({ facilityId: testFacility.id });
+    const encounterPatient = await models.Patient.create(await createDummyPatient(models));
+    await expect(
+      models.Triage.create(
+        await createDummyTriage(models, {
+          patientId: encounterPatient.id,
+          chiefComplaintId: await randomReferenceId(models, 'triageReason'),
+          secondaryComplaintId: await randomReferenceId(models, 'triageReason'),
+        }),
+      ),
+    ).rejects.toThrow('Cannot find Emergency department for current facility');
+
+    await emergencyDepartment.update({ facilityId: config.serverFacilityId });
+  });
+
   describe('listing & filtering', () => {
     beforeAll(async () => {
       // create a few test triages
-      const { Facility, Location } = models;
-      const fac = await Facility.create({
-        ...fake(models.Facility, { id: config.serverFacilityId }),
+      const { id: locationId } = await models.Location.create({
+        ...fake(models.Location),
+        facilityId: facility.id,
       });
-      const { id: locationId } = await Location.create({
-        ...fake(Location),
-        facilityId: fac.id,
-      });
-
       const triageConfigs = [
         {
           score: 1,
