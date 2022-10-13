@@ -1,7 +1,7 @@
 import { Op } from 'sequelize';
-import { startOfDay, endOfDay, format, parseISO } from 'date-fns';
+import { startOfDay, endOfDay, parseISO } from 'date-fns';
 import { DIAGNOSIS_CERTAINTY } from 'shared/constants';
-import { toDateTimeString, ageInYears } from 'shared/utils/dateTime';
+import { toDateTimeString, ageInYears, format } from 'shared/utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
 const FIELD_TO_TITLE = {

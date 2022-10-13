@@ -1,6 +1,5 @@
 import { Sequelize, Op } from 'sequelize';
 import { generateReportFromQueryData } from './utilities';
-import { toDateString } from '../utils/dateTime';
 
 export const permission = 'Patient';
 
@@ -113,7 +112,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
   });
 
   const reportData = patientsData.map(({ dataValues }) => {
-    const dateOfBirth = dataValues.date_of_birth ? toDateString(dataValues.date_of_birth) : '';
+    const dateOfBirth = dataValues.date_of_birth ?? null;
 
     const villageName = dataValues.village?.dataValues?.name ?? null;
 
