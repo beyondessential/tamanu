@@ -95,10 +95,16 @@ export class CentralSyncManager {
     this.sessionsWithCompletedSnapshots.delete(sessionId);
   }
 
-  async setPullFilter(sessionId, { since, facilityId }) {
+  async setPullFilter(sessionId, { since, facilityId, tablesToInclude }) {
     const { models } = this.store;
 
     await this.connectToSession(sessionId);
+
+    const modelsToInclude = tablesToInclude
+      ? Object.fromEntries(
+          Object.entries(models).filter(([, m]) => tablesToInclude.includes(m.tableName)),
+        )
+      : models;
 
     // work out if any patients were newly marked for sync since this device last connected, and
     // include changes from all time for those patients
@@ -113,7 +119,7 @@ export class CentralSyncManager {
     await this.store.sequelize.transaction(async () => {
       // full changes
       await snapshotOutgoingChanges(
-        getPatientLinkedModels(models),
+        getPatientLinkedModels(modelsToInclude),
         models,
         0,
         patientIdsForFullSync,
@@ -132,7 +138,7 @@ export class CentralSyncManager {
 
       // regular changes
       await snapshotOutgoingChanges(
-        getModelsForDirection(models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
+        getModelsForDirection(modelsToInclude, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
         models,
         since,
         patientIdsForRegularSync,

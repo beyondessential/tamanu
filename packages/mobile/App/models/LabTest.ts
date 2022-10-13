@@ -39,4 +39,8 @@ export class LabTest extends BaseModel implements ILabTest {
   labTestType: LabTestType;
   @RelationId(({ labTestType }) => labTestType)
   labTestTypeId: string;
+
+  static getTableNameForSync(): string {
+    return 'lab_tests'; // unusual camel case table here on mobile
+  }
 }

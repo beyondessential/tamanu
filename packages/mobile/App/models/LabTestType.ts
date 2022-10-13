@@ -48,4 +48,8 @@ export class LabTestType extends BaseModel implements ILabTestType {
 
   @Column({ default: VisibilityStatus.Current })
   visibilityStatus: string;
+
+  static getTableNameForSync(): string {
+    return 'lab_test_types'; // unusual camel case table here on mobile
+  }
 }

@@ -205,6 +205,7 @@ export class MobileSyncManager {
       this.centralServer,
       sessionId,
       pullSince,
+      Object.values(this.models).map(m => m.getTableNameForSync()),
       (total, downloadedChangesTotal) =>
         this.updateProgress(total, downloadedChangesTotal, 'Stage 2/3: Pulling all new changes'),
     );
