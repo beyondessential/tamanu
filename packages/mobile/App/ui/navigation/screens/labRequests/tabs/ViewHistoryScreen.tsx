@@ -101,7 +101,7 @@ export const DumbViewHistoryScreen = ({ selectedPatient, navigation }): ReactEle
     [selectedPatient],
   );
 
-  const [lastSuccessfulSync] = useBackendEffect(
+  const [lastSuccessfulPushTick] = useBackendEffect(
     ({ models }) => getSyncTick(models, LAST_SUCCESSFUL_PUSH),
     [],
   );
@@ -114,11 +114,10 @@ export const DumbViewHistoryScreen = ({ selectedPatient, navigation }): ReactEle
   }, [data]);
 
   if (error) return <ErrorScreen error={error} />;
-  if (!data || !lastSuccessfulSync) return <LoadingScreen />;
+  if (!data || !lastSuccessfulPushTick) return <LoadingScreen />;
 
   const rows = data.map(labRequest => {
-    const synced =
-      lastSuccessfulSync && labRequest.updatedAtSyncTick <= parseInt(lastSuccessfulSync.value, 10);
+    const synced = labRequest.updatedAtSyncTick <= lastSuccessfulPushTick;
 
     return <LabRequestRow key={labRequest.id} labRequest={labRequest} synced={synced} />;
   });
