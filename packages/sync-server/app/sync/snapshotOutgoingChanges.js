@@ -54,6 +54,7 @@ const snapshotChangesForModel = async (
       isDeleted: !!r.deletedAt,
       recordType: model.tableName,
       recordId: r.id,
+      savedAtSyncTick: r.updatedAtSyncTick,
       data: sanitizeRecord(model, r),
     }));
 

@@ -188,7 +188,7 @@ export class CentralSyncManager {
       // commit the changes to the db
       await this.store.sequelize.transaction(async transaction => {
         // acquire a lock on the sync time row in the local system facts table
-        await models.LocalSystemFact.findAll({
+        const [{ value: syncTick }] = await models.LocalSystemFact.findAll({
           where: { key: CURRENT_SYNC_TIME_KEY },
           lock: transaction.LOCK.UPDATE,
         });
@@ -198,6 +198,9 @@ export class CentralSyncManager {
           sessionId,
           true,
         );
+        // store the sync tick on save with the incoming changes, so they can be compared for
+        // edits with the outgoing changes
+        await models.SyncSessionRecord.update({ savedAtSyncTick: syncTick }, { where: sessionId });
       });
     }
   }
