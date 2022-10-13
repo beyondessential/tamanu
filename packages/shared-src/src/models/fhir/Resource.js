@@ -120,8 +120,11 @@ export class FhirResource extends Model {
   }
 
   // fetch (single) upstream with query options (e.g. includes)
-  getUpstream(queryOptions) {
-    return this.constructor.UpstreamModel.findByPk(this.upstreamId, queryOptions);
+  getUpstream(queryOptions = {}) {
+    return this.constructor.UpstreamModel.findByPk(this.upstreamId, {
+      ...queryOptions,
+      paranoid: false,
+    });
   }
 
   // query to do lookup of non-deleted upstream records that are not present in the FHIR tables
