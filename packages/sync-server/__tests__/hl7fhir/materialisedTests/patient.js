@@ -1032,7 +1032,10 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
       // a <- b <- c
       //      b <- d
       beforeAll(async () => {
-        const { FhirPatient, Patient } = ctx.store.models;
+        const { FhirPatient, Patient, PatientAdditionalData } = ctx.store.models;
+        await FhirPatient.destroy({ where: {} });
+        await Patient.destroy({ where: {} });
+        await PatientAdditionalData.destroy({ where: {} });
 
         const primaryA = await Patient.create(
           fake(Patient, {
