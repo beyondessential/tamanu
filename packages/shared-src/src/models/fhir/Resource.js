@@ -100,6 +100,8 @@ export class FhirResource extends Model {
 
   // fetch (single) upstream with query options (e.g. includes)
   getUpstream(queryOptions) {
+    queryOptions = queryOptions || {};
+    queryOptions.paranoid = false;
     return this.constructor.UpstreamModel.findByPk(this.upstreamId, queryOptions);
   }
 
