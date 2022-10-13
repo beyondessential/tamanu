@@ -13,7 +13,6 @@ import { groupBy } from 'lodash';
 import { Op } from 'sequelize';
 import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_LABELS } from '../../constants';
 import { generateReportFromQueryData } from '../utilities';
-import { parseISO9075 } from '../../utils/dateTime';
 import { transformAnswers } from '../utilities/transformAnswers';
 
 const WILLIAM_HOROTO_IDS = [
@@ -251,7 +250,7 @@ const getLabTestRecords = async (
       const currentLabTestDate = startOfDay(parseISO(labTest.date));
       const dateToFilterBy =
         dateFilterBy === 'labRequest.sampleTime'
-          ? startOfDay(parseISO9075(labTest.labRequest.sampleTime))
+          ? startOfDay(parseISO(labTest.labRequest.sampleTime))
           : currentLabTestDate;
 
       // Get all lab tests regardless and filter fromDate and toDate in memory
