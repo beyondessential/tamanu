@@ -6,6 +6,7 @@ import { FHIR_CODEABLE_CONCEPT } from './codeableConcept';
 import { FHIR_CONTACT_POINT } from './contactPoint';
 import { FHIR_HUMAN_NAME } from './humanName';
 import { FHIR_IDENTIFIER } from './identifier';
+import { FHIR_PATIENT_LINK } from './patientLink';
 import { FHIR_PERIOD } from './period';
 import { FHIR_REFERENCE } from './reference';
 
@@ -15,6 +16,7 @@ export { FhirCodeableConcept } from './codeableConcept';
 export { FhirContactPoint } from './contactPoint';
 export { FhirHumanName } from './humanName';
 export { FhirIdentifier } from './identifier';
+export { FhirPatientLink } from './patientLink';
 export { FhirPeriod } from './period';
 export { FhirReference } from './reference';
 
@@ -36,6 +38,7 @@ export function createFhirTypes() {
   newPgDataType(FHIR_CONTACT_POINT);
   newPgDataType(FHIR_HUMAN_NAME);
   newPgDataType(FHIR_IDENTIFIER);
+  newPgDataType(FHIR_PATIENT_LINK);
   newPgDataType(FHIR_PERIOD);
   newPgDataType(FHIR_REFERENCE);
 }

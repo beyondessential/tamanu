@@ -1,4 +1,4 @@
-import { endOfDay, startOfDay, subDays } from 'date-fns';
+import { endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
 import { toDateTimeString } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
@@ -103,8 +103,10 @@ order by lr.requested_date;
 const getData = async (sequelize, parameters) => {
   const { fromDate, toDate, requestedById, labTestCategoryId, status } = parameters;
 
-  const queryFromDate = toDateTimeString(startOfDay(fromDate || subDays(new Date(), 30)));
-  const queryToDate = toDate && toDateTimeString(endOfDay(toDate));
+  const queryFromDate = toDateTimeString(
+    startOfDay(fromDate ? parseISO(fromDate) : subDays(new Date(), 30)),
+  );
+  const queryToDate = toDate && toDateTimeString(endOfDay(parseISO(toDate)));
 
   return sequelize.query(query, {
     type: sequelize.QueryTypes.SELECT,
