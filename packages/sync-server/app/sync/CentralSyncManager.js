@@ -1,4 +1,4 @@
-import { Op } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
 import config from 'config';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { CURRENT_SYNC_TIME_KEY } from 'shared/sync/constants';
@@ -24,8 +24,6 @@ export class CentralSyncManager {
   currentSyncTick;
 
   store;
-
-  sessionsWithCompletedSnapshots = new Set();
 
   purgeInterval;
 
@@ -81,6 +79,9 @@ export class CentralSyncManager {
     if (!session) {
       throw new Error(`Sync session '${sessionId}' not found`);
     }
+    if (session.error) {
+      throw new Error(`Sync session '${sessionId}' encountered an error: ${session.error}`);
+    }
     await session.update({ lastConnectionTime: Date.now() });
 
     return session;
@@ -92,13 +93,12 @@ export class CentralSyncManager {
       `Sync session ${session.id} performed in ${(Date.now() - session.startTime) / 1000} seconds`,
     );
     await deleteSyncSession(this.store, sessionId);
-    this.sessionsWithCompletedSnapshots.delete(sessionId);
   }
 
   async setPullFilter(sessionId, { since, facilityId, tablesToInclude, isMobile }) {
     const { models } = this.store;
 
-    await this.connectToSession(sessionId);
+    const session = await this.connectToSession(sessionId);
 
     const modelsToInclude = tablesToInclude
       ? Object.fromEntries(
@@ -116,45 +116,50 @@ export class CentralSyncManager {
     );
     const patientIdsForFullSync = newPatientFacilities.map(n => n.patientId);
 
-    await this.store.sequelize.transaction(async () => {
-      // full changes
-      await snapshotOutgoingChanges(
-        getPatientLinkedModels(modelsToInclude),
-        models,
-        0,
-        patientIdsForFullSync,
-        sessionId,
-        { facilityId, isMobile },
-      );
+    try {
+      await this.store.sequelize.transaction(async () => {
+        // full changes
+        await snapshotOutgoingChanges(
+          getPatientLinkedModels(modelsToInclude),
+          models,
+          0,
+          patientIdsForFullSync,
+          sessionId,
+          { facilityId, isMobile },
+        );
 
-      // get changes since the last successful sync for all other synced patients and independent
-      // record types
-      const patientFacilities = await models.PatientFacility.findAll({
-        where: { facilityId },
+        // get changes since the last successful sync for all other synced patients and independent
+        // record types
+        const patientFacilities = await models.PatientFacility.findAll({
+          where: { facilityId },
+        });
+        const patientIdsForRegularSync = patientFacilities
+          .map(p => p.patientId)
+          .filter(patientId => !patientIdsForFullSync.includes(patientId));
+
+        // regular changes
+        await snapshotOutgoingChanges(
+          getModelsForDirection(modelsToInclude, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
+          models,
+          since,
+          patientIdsForRegularSync,
+          sessionId,
+          { facilityId, isMobile },
+        );
+
+        await removeEchoedChanges(this.store, sessionId);
       });
-      const patientIdsForRegularSync = patientFacilities
-        .map(p => p.patientId)
-        .filter(patientId => !patientIdsForFullSync.includes(patientId));
+    } catch (error) {
+      log.error('CentralSyncManager.setPullFilter encountered an error', error);
+      await session.update({ error: error.message });
+    }
 
-      // regular changes
-      await snapshotOutgoingChanges(
-        getModelsForDirection(modelsToInclude, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
-        models,
-        since,
-        patientIdsForRegularSync,
-        sessionId,
-        { facilityId, isMobile },
-      );
-
-      await removeEchoedChanges(this.store, sessionId);
-    });
-
-    this.sessionsWithCompletedSnapshots.add(sessionId);
+    await session.update({ snapshotCompletedAt: Sequelize.NOW });
   }
 
   async fetchPullCount(sessionId) {
-    await this.connectToSession(sessionId);
-    if (!this.sessionsWithCompletedSnapshots.has(sessionId)) {
+    const session = await this.connectToSession(sessionId);
+    if (session.snapshotCompletedAt === null) {
       return null;
     }
     return getOutgoingChangesCount(this.store, sessionId);

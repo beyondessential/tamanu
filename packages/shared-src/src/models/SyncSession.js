@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize';
+import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
@@ -7,8 +7,10 @@ export class SyncSession extends Model {
     super.init(
       {
         id: primaryKey,
-        startTime: { type: Sequelize.DATE },
-        lastConnectionTime: { type: Sequelize.DATE },
+        startTime: { type: DataTypes.DATE },
+        lastConnectionTime: { type: DataTypes.DATE },
+        snapshotCompletedAt: { type: DataTypes.BOOLEAN },
+        error: { type: DataTypes.STRING },
       },
       { ...options, syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC },
     );
