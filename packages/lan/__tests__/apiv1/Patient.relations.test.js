@@ -283,6 +283,9 @@ describe('Patient', () => {
       const category1 = await PatientFieldDefinitionCategory.create({
         name: 'Test Category 1',
       });
+      await PatientFieldDefinitionCategory.create({
+        name: 'Test Category 2 (empty)',
+      });
       const definition1 = await PatientFieldDefinition.create({
         name: 'Test Field 1',
         fieldType: PATIENT_FIELD_DEFINITION_TYPES.STRING,
@@ -323,10 +326,11 @@ describe('Patient', () => {
         fieldType: PATIENT_FIELD_DEFINITION_TYPES.STRING,
         state: PATIENT_FIELD_DEFINITION_STATES.CURRENT,
       });
-      expect(result.body.data[0].definitions[0].values).toHaveLength(1);
-      expect(result.body.data[0].definitions[0].values[0]).toMatchObject({
-        value: 'Newest',
-      });
+      expect(result.body.data[0].definitions[0].values).toHaveLength(2);
+      expect(result.body.data[0].definitions[0].values.map(v => v.value)).toEqual([
+        'Newest',
+        'Oldest',
+      ]);
     });
   });
 });

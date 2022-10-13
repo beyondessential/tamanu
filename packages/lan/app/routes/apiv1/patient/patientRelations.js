@@ -83,7 +83,6 @@ patientRelations.get(
       include: [
         {
           association: 'definitions',
-          required: true,
           where: {
             state: {
               [Op.not]: PATIENT_FIELD_DEFINITION_STATES.HISTORICAL,
@@ -97,8 +96,7 @@ patientRelations.get(
               },
               // TODO: order values by logical clock once sync is merged
               order: [['updatedAt', 'DESC']],
-              separate: true, // needed for limit
-              limit: 1, // TODO: this doesn't work, write a custom SQL query
+              separate: true, // needed for nested order
             },
           ],
         },
@@ -106,14 +104,15 @@ patientRelations.get(
     });
     res.send({
       count: categories.length,
-      data: categories.map(category => ({
-        // TODO: is this necessary?
-        ...category.toJSON(),
-        definitions: category.definitions.map(definition => ({
-          ...definition.toJSON(),
-          values: definition.values.map(v => v.toJSON()),
+      data: categories
+        .filter(category => category.definitions.length > 0)
+        .map(category => ({
+          ...category.toJSON(),
+          definitions: category.definitions.map(definition => ({
+            ...definition.toJSON(),
+            values: definition.values.map(v => v.toJSON()),
+          })),
         })),
-      })),
     });
   }),
 );
