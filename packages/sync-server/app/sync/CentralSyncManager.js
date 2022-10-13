@@ -200,7 +200,10 @@ export class CentralSyncManager {
         );
         // store the sync tick on save with the incoming changes, so they can be compared for
         // edits with the outgoing changes
-        await models.SyncSessionRecord.update({ savedAtSyncTick: syncTick }, { where: sessionId });
+        await models.SyncSessionRecord.update(
+          { savedAtSyncTick: syncTick },
+          { where: { sessionId } },
+        );
       });
     }
   }
