@@ -183,8 +183,8 @@ export class Encounter extends Model {
     // this.hasMany(models.Report);
   }
 
-  static buildSyncFilter(patientIds, facilitySettings) {
-    return buildEncounterLinkedSyncFilter(patientIds, facilitySettings, []);
+  static buildSyncFilter(patientIds, facilityConfig) {
+    return buildEncounterLinkedSyncFilter(patientIds, facilityConfig, []);
   }
 
   static checkNeedsAutoDischarge({ encounterType, startDate, endDate }) {

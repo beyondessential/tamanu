@@ -37,10 +37,7 @@ export class LabRequestLog extends Model {
     return ['labRequest', 'updatedBy'];
   }
 
-  static buildSyncFilter(patientIds, facilitySettings) {
-    return buildEncounterLinkedSyncFilter(patientIds, facilitySettings, [
-      'labRequest',
-      'encounter',
-    ]);
+  static buildSyncFilter(patientIds, facilityConfig) {
+    return buildEncounterLinkedSyncFilter(patientIds, facilityConfig, ['labRequest', 'encounter']);
   }
 }

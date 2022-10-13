@@ -1,6 +1,10 @@
 import { Op } from 'sequelize';
 
 function buildNoteLinkedSyncFilter(patientIds, isNotePage) {
+  if (patientIds.length === 0) {
+    return null;
+  }
+
   const pathToNotePage = isNotePage ? '' : 'notePage.';
 
   const includeFromNotePage = [

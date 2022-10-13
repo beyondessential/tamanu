@@ -1,4 +1,4 @@
-import { SYNC_DIRECTIONS } from 'shared/constants/sync';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
 export class ImagingRequestAreas extends Model {
