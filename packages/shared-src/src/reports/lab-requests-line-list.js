@@ -103,7 +103,9 @@ order by lr.requested_date;
 const getData = async (sequelize, parameters) => {
   const { fromDate, toDate, requestedById, labTestCategoryId, status } = parameters;
 
-  const queryFromDate = toDateTimeString(startOfDay(parseISO(fromDate) || subDays(new Date(), 30)));
+  const queryFromDate = toDateTimeString(
+    startOfDay(fromDate ? parseISO(fromDate) : subDays(new Date(), 30)),
+  );
   const queryToDate = toDate && toDateTimeString(endOfDay(parseISO(toDate)));
 
   return sequelize.query(query, {
