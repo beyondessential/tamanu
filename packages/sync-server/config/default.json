@@ -562,6 +562,11 @@
         },
         "covidTestCertificate": {
           "laboratoryName": "Approved test provider"
+        },
+        "vitals": {
+          "temperature": {
+            "unit": "C"
+          }
         }
       },
       "imagingTypes": {},
