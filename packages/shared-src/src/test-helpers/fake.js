@@ -22,6 +22,7 @@ import {
   FhirCodeableConcept,
   FhirContactPoint,
   FhirHumanName,
+  FhirPatientLink,
   FhirReference,
 } from '../services/fhirTypes';
 
@@ -234,6 +235,7 @@ const FIELD_HANDLERS = {
   FHIR_CODEABLE_CONCEPT: (...args) => FhirCodeableConcept.fake(...args),
   FHIR_CONTACT_POINT: (...args) => FhirContactPoint.fake(...args),
   FHIR_HUMAN_NAME: (...args) => FhirHumanName.fake(...args),
+  FHIR_PATIENT_LINK: (...args) => FhirPatientLink.fake(...args),
   FHIR_REFERENCE: (...args) => FhirReference.fake(...args),
 };
 
