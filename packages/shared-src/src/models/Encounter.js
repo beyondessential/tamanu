@@ -302,11 +302,12 @@ export class Encounter extends Model {
     return values;
   }
 
-  async addSystemNote(content) {
+  async addSystemNote(content, date) {
     const notePage = await this.createNotePage({
       noteType: NOTE_TYPES.SYSTEM,
+      date,
     });
-    await notePage.createNoteItem({ content });
+    await notePage.createNoteItem({ content, date });
   }
 
   async getLinkedTriage() {
@@ -318,14 +319,17 @@ export class Encounter extends Model {
     });
   }
 
-  async onDischarge(endDate, note) {
-    await this.addSystemNote(note || `Discharged patient.`);
+  async onDischarge(endDate, submittedTime, note) {
+    await this.addSystemNote(note || `Discharged patient.`, submittedTime);
     await this.closeTriage(endDate);
   }
 
-  async onEncounterProgression(newEncounterType) {
-    await this.addSystemNote(`Changed type from ${this.encounterType} to ${newEncounterType}`);
-    await this.closeTriage(new Date());
+  async onEncounterProgression(newEncounterType, submittedTime) {
+    await this.addSystemNote(
+      `Changed type from ${this.encounterType} to ${newEncounterType}`,
+      submittedTime,
+    );
+    await this.closeTriage(submittedTime);
   }
 
   async closeTriage(endDate) {
@@ -353,7 +357,7 @@ export class Encounter extends Model {
 
     const updateEncounter = async () => {
       if (data.endDate && !this.endDate) {
-        await this.onDischarge(data.endDate, data.dischargeNote);
+        await this.onDischarge(data.endDate, data.submittedTime, data.dischargeNote);
       }
 
       if (data.patientId && data.patientId !== this.patientId) {
@@ -361,7 +365,7 @@ export class Encounter extends Model {
       }
 
       if (data.encounterType && data.encounterType !== this.encounterType) {
-        await this.onEncounterProgression(data.encounterType);
+        await this.onEncounterProgression(data.encounterType, data.submittedTime);
       }
 
       if (data.locationId && data.locationId !== this.locationId) {
@@ -372,6 +376,7 @@ export class Encounter extends Model {
         }
         await this.addSystemNote(
           `Changed location from ${oldLocation.name} to ${newLocation.name}`,
+          data.submittedTime,
         );
       }
 
@@ -383,10 +388,12 @@ export class Encounter extends Model {
         }
         await this.addSystemNote(
           `Changed department from ${oldDepartment.name} to ${newDepartment.name}`,
+          data.submittedTime,
         );
       }
 
-      return super.update(data);
+      const { submittedTime, ...encounterData } = data;
+      return super.update(encounterData);
     };
 
     if (this.sequelize.isInsideTransaction()) {

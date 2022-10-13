@@ -3,13 +3,12 @@ import {
   createDummyEncounter,
   createDummyEncounterDiagnosis,
   randomRecord,
-  randomRecords,
   randomReferenceData,
 } from 'shared/demoData';
-import { subDays, format } from 'date-fns';
+import { subDays } from 'date-fns';
 import { ENCOUNTER_TYPES } from 'shared/constants';
 import { findOneOrCreate } from 'shared/test-helpers';
-import { parseISO9075, toDateTimeString } from 'shared/utils/dateTime';
+import { format } from 'shared/utils/dateTime';
 import { createTestContext } from '../../utilities';
 
 describe('Admissions report', () => {
@@ -80,8 +79,8 @@ describe('Admissions report', () => {
     it('should return only admitted patient', async () => {
       const baseEncounterData = {
         encounterType: ENCOUNTER_TYPES.ADMISSION,
-        startDate: toDateTimeString(new Date(2021, 1, 20, 9, 7, 26)), // Months are 0 indexed so this is February
-        endDate: toDateTimeString(new Date(2021, 1, 21, 11, 3, 7)), // Months are 0 indexed so this is February
+        startDate: '2021-02-20 09:07:26',
+        endDate: '2021-02-21 11:03:07',
         patientId: expectedPatient.dataValues.id,
         locationId: expectedLocation.id,
         departmentId: expectedDepartment1.id,
@@ -147,7 +146,7 @@ describe('Admissions report', () => {
       await models.Encounter.create(
         await createDummyEncounter(models, {
           ...baseEncounterData,
-          startDate: toDateTimeString(new Date(2020, 0, 20)),
+          startDate: '2020-01-20 00:00:00',
         }),
       );
 
@@ -169,12 +168,12 @@ describe('Admissions report', () => {
       });
 
       await departmentChangeNotePage.noteItems?.[0].update({
-        date: toDateTimeString(new Date(2021, 1, 20, 11, 10)),
+        date: '2021-02-20 11:10:00',
       });
 
       const result = await app.post('/v1/reports/admissions').send({
         parameters: {
-          fromDate: toDateTimeString(new Date(2021, 1, 1)),
+          fromDate: '2021-02-01 00:00:00',
           location: expectedLocation.id,
           department: expectedDepartment1.id, // Historical department filtered for
         },
@@ -187,7 +186,7 @@ describe('Admissions report', () => {
           'Patient ID': expectedPatient.displayId,
           Sex: expectedPatient.sex,
           Village: expectedVillage.name,
-          'Date of Birth': format(parseISO9075(expectedPatient.dateOfBirth), 'dd/MM/yyyy'),
+          'Date of Birth': format(expectedPatient.dateOfBirth, 'dd/MM/yyyy'),
           Age: 1,
           'Patient Type': 'Charity',
           'Admitting Doctor/Nurse': expectedExaminer.displayName,

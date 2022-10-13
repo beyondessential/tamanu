@@ -11,41 +11,43 @@ const USES = ['usual', 'official', 'temp', 'nickname', 'anonymous', 'old', 'maid
 export class FhirHumanName extends Composite {
   static FIELD_ORDER = ['use', 'text', 'family', 'given', 'prefix', 'suffix', 'period'];
 
-  static SCHEMA = yup
-    .object({
-      use: yup
-        .string()
-        .oneOf([null, ...USES])
-        .nullable()
-        .default(null),
-      text: yup
-        .string()
-        .nullable()
-        .default(null),
-      family: yup
-        .string()
-        .nullable()
-        .default(null),
-      given: yup
-        .array()
-        .of(yup.string())
-        .nullable()
-        .default([]),
-      prefix: yup
-        .array()
-        .of(yup.string())
-        .nullable()
-        .default([]),
-      suffix: yup
-        .array()
-        .of(yup.string())
-        .nullable()
-        .default([]),
-      period: FhirPeriod.asYup()
-        .nullable()
-        .default(null),
-    })
-    .noUnknown();
+  static SCHEMA() {
+    return yup
+      .object({
+        use: yup
+          .string()
+          .oneOf([null, ...USES])
+          .nullable()
+          .default(null),
+        text: yup
+          .string()
+          .nullable()
+          .default(null),
+        family: yup
+          .string()
+          .nullable()
+          .default(null),
+        given: yup
+          .array()
+          .of(yup.string())
+          .nullable()
+          .default([]),
+        prefix: yup
+          .array()
+          .of(yup.string())
+          .nullable()
+          .default([]),
+        suffix: yup
+          .array()
+          .of(yup.string())
+          .nullable()
+          .default([]),
+        period: FhirPeriod.asYup()
+          .nullable()
+          .default(null),
+      })
+      .noUnknown();
+  }
 
   static validateAndTransformFromSql({ given, prefix, suffix, period, ...fields }) {
     return new this({

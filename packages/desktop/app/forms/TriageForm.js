@@ -151,6 +151,7 @@ export const TriageForm = ({ onCancel, editedObject }) => {
 
     await api.post('triage', {
       ...updatedValues,
+      startDate: getCurrentDateTimeString(),
       patientId: patient.id,
     });
     dispatch(push('/patients/emergency'));
