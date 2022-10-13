@@ -3,14 +3,11 @@ import config from 'config';
 import { log } from 'shared/services/logging';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { CURRENT_SYNC_TIME_KEY } from 'shared/sync/constants';
-import {
-  getModelsForDirection,
-  snapshotOutgoingChangesForFacility,
-  saveIncomingChanges,
-} from 'shared/sync';
+import { getModelsForDirection, saveIncomingChanges } from 'shared/sync';
 
 import { pushOutgoingChanges } from './pushOutgoingChanges';
 import { pullIncomingChanges } from './pullIncomingChanges';
+import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 
 export class FacilitySyncManager {
   models = null;
@@ -84,7 +81,7 @@ export class FacilitySyncManager {
     // this avoids any of the records to be pushed being changed during the push period and
     // causing data that isn't internally coherent from ending up on the sync server
     const pushSince = (await this.models.LocalSystemFact.get('lastSuccessfulSyncPush')) || -1;
-    const outgoingChanges = await snapshotOutgoingChangesForFacility(
+    const outgoingChanges = await snapshotOutgoingChanges(
       getModelsForDirection(this.models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL),
       sessionId,
       pushSince,

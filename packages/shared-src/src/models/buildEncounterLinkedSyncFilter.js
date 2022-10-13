@@ -23,10 +23,14 @@ function includeWithinEncounter(include, association) {
 
 export function buildEncounterLinkedSyncFilter(
   patientIds,
-  facilitySettings = {},
+  facilityConfig = {},
   associationsToTraverse = ['encounter'], // e.g. ['surveyResponse', 'encounter'] to traverse up from SurveyResponseAnswer
   configOverride, // used in tests
 ) {
+  if (patientIds.length === 0) {
+    return null;
+  }
+
   const config = { ...baseConfig, ...configOverride };
   const isEncounter = associationsToTraverse.length === 0;
   const pathToEncounter = isEncounter ? '' : `${associationsToTraverse.join('.')}.`;
@@ -36,7 +40,7 @@ export function buildEncounterLinkedSyncFilter(
   const or = [{ [`$${pathToEncounter}patient_id$`]: { [Op.in]: patientIds } }];
 
   // add any encounters with a lab request, if syncing all labs is turned on for facility
-  if (facilitySettings.syncAllLabRequests) {
+  if (facilityConfig.syncAllLabRequests) {
     or.push({ [`$${pathToEncounter}labRequest.id$`]: { [Op.not]: null } });
     if (isEncounter) {
       include.push('labRequest');
