@@ -114,41 +114,6 @@ export const LabTestType = Base.shape({
   visibilityStatus,
 });
 
-const jsonString = () =>
-  // The template curly two lines down is valid in a yup message
-  // eslint-disable-next-line no-template-curly-in-string
-  yup.string().test('is-json', '${path} is not valid JSON', value => {
-    if (!value) return true;
-    try {
-      JSON.parse(value);
-      return true;
-    } catch (e) {
-      return false;
-    }
-  });
-
-export const ProgramDataElement = Base.shape({
-  indicator: yup.string(),
-  type: yup
-    .string()
-    .required()
-    .oneOf(PROGRAM_DATA_ELEMENT_TYPE_VALUES),
-  defaultOptions: jsonString(),
-});
-
-export const SurveyScreenComponent = Base.shape({
-  visibilityCriteria: jsonString(),
-  validationCriteria: jsonString(),
-  config: jsonString(),
-  screenIndex: yup.number().required(),
-  componentIndex: yup.number().required(),
-  options: jsonString(),
-  calculation: yup.string(),
-  surveyId: yup.string().required(),
-  detail: yup.string().max(255),
-  dataElementId: yup.string().required(),
-});
-
 export const ScheduledVaccine = Base.shape({
   category: yup.string().required(),
   label: yup.string().required(),
@@ -193,14 +158,6 @@ export const CertifiableVaccine = Base.shape({
   manufacturerId: yup.string().optional(),
 });
 
-export const Survey = Base.shape({
-  surveyType: yup
-    .string()
-    .required()
-    .oneOf(['programs', 'referral', 'obsolete']),
-  isSensitive: yup.boolean().required(),
-});
-
 export const AdministeredVaccine = Base.shape({
   batch: yup.string(),
   consent: yup.boolean().required(),
@@ -227,4 +184,76 @@ export const Encounter = Base.shape({
   departmentId: yup.string().required(),
   examinerId: yup.string().required(),
   patientId: yup.string().required(),
+});
+
+function isValidJson(value) {
+  if (!value) return true;
+  try {
+    JSON.parse(value);
+    return true;
+  } catch (e) {
+    return false;
+  }
+};
+
+yup.addMethod(yup.string, "validJson", function(errorMessage) {
+  return this.test('test-json', errorMessage, function (value) {
+    const { path, createError } = this;
+
+    return (
+      isValidJson(value) || createError({ path, message: errorMessage })
+    )
+  });
+});
+
+yup.addMethod(yup.string, "validJsonWithSchema", function(schema, errorMessage) {
+  return this.validJson().test('test-json-schema', errorMessage, function(value) {
+    if (!value) return true;
+
+    const json = JSON.parse(value);
+
+    try {
+      schema.validate(json);
+    } catch(e) {
+      console.log("ERRORED JSON", json, e);
+      return e;
+    }
+
+    console.log("valid vis json:", json)
+    return true;
+  });
+});
+
+export const ProgramDataElement = Base.shape({
+  indicator: yup.string(),
+  type: yup
+    .string()
+    .required()
+    .oneOf(PROGRAM_DATA_ELEMENT_TYPE_VALUES),
+  defaultOptions: yup.string().validJson(),
+});
+
+const visibilityCriteria = yup.object().shape({
+  optional: yup.number(),
+});
+
+export const SurveyScreenComponent = Base.shape({
+  visibilityCriteria: yup.string().validJsonWithSchema(visibilityCriteria),
+  validationCriteria: yup.string().validJson(),
+  config: yup.string().validJson(),
+  screenIndex: yup.number().required(),
+  componentIndex: yup.number().required(),
+  options: yup.string().validJson(),
+  calculation: yup.string(),
+  surveyId: yup.string().required(),
+  detail: yup.string().max(255),
+  dataElementId: yup.string().required(),
+});
+
+export const Survey = Base.shape({
+  surveyType: yup
+    .string()
+    .required()
+    .oneOf(['programs', 'referral', 'obsolete']),
+  isSensitive: yup.boolean().required(),
 });

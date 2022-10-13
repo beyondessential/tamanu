@@ -18,7 +18,7 @@ describe('Programs import', () => {
     const { file, ...opts } = options;
     return importerTransaction({
       importer,
-      file: `./__tests__/importers/programs-${file}.xlsx`,
+      file: `./__tests__/importers/programs/${file}.xlsx`,
       models: ctx.store.models,
       ...opts,
     });
@@ -57,7 +57,22 @@ describe('Programs import', () => {
 
     expect(errors[0]).toHaveProperty(
       'message',
-      `ENOENT: no such file or directory, open './__tests__/importers/programs-nofile.xlsx'`,
+      `ENOENT: no such file or directory, open './__tests__/importers/programs/nofile.xlsx'`,
     );
+  });
+
+  describe('Config validation', () => {
+
+    it('should fail on an invalid validation', async () => {
+      const { errors, stats } = await doImport({
+        file: 'config',
+        dryRun: true,
+      });
+
+      errors.forEach(e => {
+        console.log('E', e.message, e.rowNumber);
+      })
+    });
+
   });
 });

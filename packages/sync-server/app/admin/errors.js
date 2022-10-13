@@ -1,6 +1,6 @@
 export class DataImportError extends Error {
   constructor(sheetName, rowIndex, error) {
-    const rowNumber = rowIndex + 2; // correcting for zero-index and for header row
+    const rowNumber = rowIndex + 1; // correcting for header row
 
     let previous;
     if (typeof error === 'string') {
