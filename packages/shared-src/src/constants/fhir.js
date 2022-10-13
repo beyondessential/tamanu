@@ -1,5 +1,6 @@
 import { Op } from 'sequelize';
 
+// The resource types that are supported at an API level.
 export const FHIR_RESOURCE_TYPES = ['Patient'];
 
 // All possible search parameter types

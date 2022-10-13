@@ -8,19 +8,21 @@ import { FhirCoding } from './coding';
 export class FhirCodeableConcept extends Composite {
   static FIELD_ORDER = ['coding', 'text'];
 
-  static SCHEMA = yup
-    .object({
-      coding: yup
-        .array()
-        .of(FhirCoding.asYup())
-        .nullable()
-        .default([]),
-      text: yup
-        .string()
-        .nullable()
-        .default(null),
-    })
-    .noUnknown();
+  static SCHEMA() {
+    return yup
+      .object({
+        coding: yup
+          .array()
+          .of(FhirCoding.asYup())
+          .nullable()
+          .default([]),
+        text: yup
+          .string()
+          .nullable()
+          .default(null),
+      })
+      .noUnknown();
+  }
 
   static validateAndTransformFromSql({ coding, ...fields }) {
     return new this({

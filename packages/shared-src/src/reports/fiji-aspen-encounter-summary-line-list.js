@@ -1,4 +1,4 @@
-import { endOfDay, startOfDay } from 'date-fns';
+import { endOfDay, startOfDay, parseISO } from 'date-fns';
 import { toDateTimeString } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
@@ -329,8 +329,8 @@ order by e.start_date desc;
 const getData = async (sequelize, parameters) => {
   const { fromDate, toDate, patientBillingType, department, location } = parameters;
 
-  const queryFromDate = fromDate && toDateTimeString(startOfDay(new Date(fromDate)));
-  const queryToDate = toDate && toDateTimeString(endOfDay(new Date(toDate)));
+  const queryFromDate = fromDate && toDateTimeString(startOfDay(parseISO(fromDate)));
+  const queryToDate = toDate && toDateTimeString(endOfDay(parseISO(toDate)));
 
   return sequelize.query(query, {
     type: sequelize.QueryTypes.SELECT,

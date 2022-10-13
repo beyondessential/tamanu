@@ -6,7 +6,6 @@ import { FhirResource } from './Resource';
 import { arrayOf, activeFromVisibility } from './utils';
 import { dateType } from '../dateTimeTypes';
 import { latestDateTime } from '../../utils/dateTime';
-import { formatDateTime } from '../../utils/fhir';
 import {
   FHIR_SEARCH_PARAMETERS,
   FHIR_SEARCH_TOKEN_TYPES,
@@ -17,6 +16,7 @@ import {
   FhirContactPoint,
   FhirHumanName,
   FhirIdentifier,
+  FhirReference,
 } from '../../services/fhirTypes';
 
 export class FhirPatient extends FhirResource {
@@ -72,13 +72,6 @@ export class FhirPatient extends FhirResource {
       address: addresses(upstream),
       lastUpdated: latestDateTime(upstream.updatedAt, upstream.additionalData?.updatedAt),
     });
-  }
-
-  asFhir() {
-    const resource = super.asFhir();
-    resource.birthDate = formatDateTime(this.birthDate, FHIR_DATETIME_PRECISION.DAYS);
-    resource.deceasedDateTime = formatDateTime(this.deceasedDateTime, FHIR_DATETIME_PRECISION.DAYS);
-    return resource;
   }
 
   static searchParameters() {
@@ -153,17 +146,23 @@ function identifiers(patient) {
       {
         use: 'usual',
         value: patient.displayId,
-        assigner: config.hl7.assigners.patientDisplayId,
+        assigner: new FhirReference({
+          display: config.hl7.assigners.patientDisplayId,
+        }),
         system: config.hl7.dataDictionaries.patientDisplayId,
       },
       {
         use: 'secondary',
-        assigner: config.hl7.assigners.patientPassport,
+        assigner: new FhirReference({
+          display: config.hl7.assigners.patientPassport,
+        }),
         value: patient.additionalData?.passportNumber,
       },
       {
         use: 'secondary',
-        assigner: config.hl7.assigners.patientDrivingLicense,
+        assigner: new FhirReference({
+          display: config.hl7.assigners.patientDrivingLicense,
+        }),
         value: patient.additionalData?.drivingLicense,
       },
     ],

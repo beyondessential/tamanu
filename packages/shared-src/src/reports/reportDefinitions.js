@@ -19,6 +19,7 @@ export const REPORT_DEFINITIONS = [
     dateRangeLabel: ALL_TIME_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
     parameters: [{ parameterField: 'VillageField' }, { parameterField: 'PractitionerField' }],
+    filterDateRangeAsStrings: true,
   },
   {
     name: 'Recent Diagnoses',
@@ -121,6 +122,7 @@ export const REPORT_DEFINITIONS = [
   {
     name: 'Adverse Event Following Immunization',
     id: 'aefi',
+    filterDateRangeAsStrings: true,
     dateRangeLabel: ALL_TIME_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
     parameters: [{ parameterField: 'VillageField' }],
@@ -128,6 +130,7 @@ export const REPORT_DEFINITIONS = [
   {
     name: 'Samoa Adverse Event Following Immunisation',
     id: 'samoa-aefi',
+    filterDateRangeAsString: true,
     dateRangeLabel: ALL_TIME_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
     parameters: [{ parameterField: 'VillageField' }],
@@ -184,6 +187,7 @@ export const REPORT_DEFINITIONS = [
     dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: [REPORT_DATA_SOURCES.ALL_FACILITIES],
     parameters: [{ parameterField: 'VillageField' }],
+    filterDateRangeAsStrings: true,
   },
   {
     name: 'Kiribati COVID-19 Test - Line list',
@@ -508,6 +512,7 @@ export const REPORT_DEFINITIONS = [
     id: 'lab-requests-line-list',
     dateRangeLabel: LAST_30_DAYS_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
+    filterDateRangeAsString: true,
     parameters: [
       {
         parameterField: 'ParameterAutocompleteField',
@@ -530,6 +535,7 @@ export const REPORT_DEFINITIONS = [
     dateRangeLabel: ALL_TIME_DATE_LABEL,
     dataSourceOptions: [REPORT_DATA_SOURCES.THIS_FACILITY],
     parameters: [],
+    filterDateRangeAsString: true,
   },
   {
     name: 'Registered births - Line list',

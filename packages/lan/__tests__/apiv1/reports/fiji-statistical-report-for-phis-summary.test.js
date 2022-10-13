@@ -14,9 +14,6 @@ import {
   createSNAPFormSurveyResponse,
 } from './fiji-ncd-primary-screening/utils';
 
-const PROGRAM_ID = 'program-fijicovid19';
-const FIJI_SAMP_SURVEY_ID = 'program-fijicovid19-fijicovidsampcollection';
-
 const ETHNICITY_IDS = {
   ITAUKEI: 'ethnicity-ITaukei',
   INDIAN: 'ethnicity-FID',
@@ -72,13 +69,13 @@ describe('Fiji statistical report for phis summary', () => {
     const expectedPatient1 = await models.Patient.create(
       await createDummyPatient(models, {
         villageId: village1,
-        dateOfBirth: new Date(1950, 1, 1),
+        dateOfBirth: '1950-02-01',
       }),
     );
     const expectedPatient2 = await models.Patient.create(
       await createDummyPatient(models, {
         villageId: village2,
-        dateOfBirth: new Date(2010, 1, 1),
+        dateOfBirth: '2010-02-01',
       }),
     );
     await models.PatientAdditionalData.create({
@@ -86,10 +83,10 @@ describe('Fiji statistical report for phis summary', () => {
       ethnicityId: ETHNICITY_IDS.OTHERS,
     });
     const expectedPatient3 = await models.Patient.create(
-      await createDummyPatient(models, { dateOfBirth: new Date(2010, 1, 1) }),
+      await createDummyPatient(models, { dateOfBirth: '2010-02-01' }),
     );
     const expectedPatient4 = await models.Patient.create(
-      await createDummyPatient(models, { dateOfBirth: new Date(2010, 1, 1) }),
+      await createDummyPatient(models, { dateOfBirth: '2010-02-01' }),
     );
     await models.PatientAdditionalData.create({
       patientId: expectedPatient3.id,
@@ -144,28 +141,19 @@ describe('Fiji statistical report for phis summary', () => {
      * */
 
     // 2019-05-02: Had a non-CVD survey response submitted
-    await createBreastCancerFormSurveyResponse(
-      app,
-      expectedPatient1,
-      toDateTimeString(new Date('2019-05-02')),
-    );
+    await createBreastCancerFormSurveyResponse(app, expectedPatient1, '2019-05-02 00:00:00');
 
     // 2019-05-03: Had a CVD survey response submitted - marked 'ineligble' - no SNAP councilling
-    await createCVDFormSurveyResponse(
-      app,
-      expectedPatient1,
-      toDateTimeString(new Date('2019-05-03')),
-      {
-        answerOverrides: {
-          'pde-FijCVD021': 'Ineligible',
-        },
+    await createCVDFormSurveyResponse(app, expectedPatient1, '2019-05-03 00:00:00', {
+      answerOverrides: {
+        'pde-FijCVD021': 'Ineligible',
       },
-    );
+    });
 
     // 1960-05-02: Diagnosed with diabetes
     const diagnosisEncounter0 = await models.Encounter.create(
       await createDummyEncounter(models, {
-        startDate: toDateTimeString(new Date('1960-05-02')),
+        startDate: '1960-05-02 00:00:00',
         patientId: expectedPatient1.id,
       }),
     );
@@ -174,7 +162,7 @@ describe('Fiji statistical report for phis summary', () => {
       await createDummyEncounterDiagnosis(models, {
         diagnosisId: diabetesDiagnosis.id,
         encounterId: diagnosisEncounter0.id,
-        date: toDateTimeString(new Date('1960-05-02')),
+        date: '1960-05-02 00:00:00',
         certainty: 'suspected',
       }),
     );
@@ -182,7 +170,7 @@ describe('Fiji statistical report for phis summary', () => {
     // 2020-05-02: Diagnosed with diabetes
     const diagnosisEncounter1 = await models.Encounter.create(
       await createDummyEncounter(models, {
-        startDate: toDateTimeString(new Date('2020-05-02')),
+        startDate: '2020-05-02 00:00:00',
         patientId: expectedPatient1.id,
       }),
     );
@@ -191,46 +179,31 @@ describe('Fiji statistical report for phis summary', () => {
       await createDummyEncounterDiagnosis(models, {
         diagnosisId: diabetesDiagnosis.id,
         encounterId: diagnosisEncounter1.id,
-        date: toDateTimeString(new Date('2020-05-02')),
+        date: '2020-05-02 00:00:00',
         certainty: 'suspected',
       }),
     );
 
     // 2020-05-02: 1pm Had a CVD screening - no SNAP councilling
-    await createCVDFormSurveyResponse(
-      app,
-      expectedPatient1,
-      toDateTimeString(new Date('2020-05-02 13:00:00')),
-      {
-        answerOverrides: {
-          'pde-FijCVD038': 'No',
-        },
+    await createCVDFormSurveyResponse(app, expectedPatient1, '2020-05-02 13:00:00', {
+      answerOverrides: {
+        'pde-FijCVD038': 'No',
       },
-    );
+    });
 
     // 2020-05-02: 5pm Had a CVD screening - no SNAP councilling
-    await createCVDFormSurveyResponse(
-      app,
-      expectedPatient1,
-      toDateTimeString(new Date('2020-05-02 17:00:00')),
-      {
-        answerOverrides: {
-          'pde-FijCVD038': 'No',
-        },
+    await createCVDFormSurveyResponse(app, expectedPatient1, '2020-05-02 17:00:00', {
+      answerOverrides: {
+        'pde-FijCVD038': 'No',
       },
-    );
+    });
 
     // 2020-05-03: Had SNAP councilling - no CVD screening
-    await createSNAPFormSurveyResponse(
-      app,
-      expectedPatient1,
-      toDateTimeString(new Date('2020-05-03')),
-      {
-        answerOverrides: {
-          'pde-FijSNAP13': 'Yes',
-        },
+    await createSNAPFormSurveyResponse(app, expectedPatient1, '2020-05-03 00:00:00', {
+      answerOverrides: {
+        'pde-FijSNAP13': 'Yes',
       },
-    );
+    });
 
     /*
      * Patient 2
@@ -243,7 +216,7 @@ describe('Fiji statistical report for phis summary', () => {
     // 2020-05-02: Diagnosed with diabetes and hypertension
     const diagnosisEncounter2 = await models.Encounter.create(
       await createDummyEncounter(models, {
-        startDate: toDateTimeString(new Date('2020-05-02')),
+        startDate: '2020-05-02 00:00:00',
         patientId: expectedPatient2.id,
       }),
     );
@@ -252,7 +225,7 @@ describe('Fiji statistical report for phis summary', () => {
       await createDummyEncounterDiagnosis(models, {
         diagnosisId: diabetesDiagnosis.id,
         encounterId: diagnosisEncounter2.id,
-        date: toDateTimeString(new Date('2020-05-02')),
+        date: '2020-05-02 00:00:00',
         certainty: 'suspected',
       }),
     );
@@ -261,22 +234,17 @@ describe('Fiji statistical report for phis summary', () => {
       await createDummyEncounterDiagnosis(models, {
         diagnosisId: hypertensionDiagnosis.id,
         encounterId: diagnosisEncounter2.id,
-        date: toDateTimeString(new Date('2020-05-02')),
+        date: '2020-05-02 00:00:00',
         certainty: 'suspected',
       }),
     );
 
     // 2020-05-02: Had a CVD screening - yes SNAP councilling
-    await createCVDFormSurveyResponse(
-      app,
-      expectedPatient2,
-      toDateTimeString(new Date('2020-05-02')),
-      {
-        answerOverrides: {
-          'pde-FijCVD038': 'Yes',
-        },
+    await createCVDFormSurveyResponse(app, expectedPatient2, '2020-05-02 00:00:00', {
+      answerOverrides: {
+        'pde-FijCVD038': 'Yes',
       },
-    );
+    });
 
     /*
      * Patient 3 - Under 30, ethnicity: ITAUKEI
@@ -292,7 +260,7 @@ describe('Fiji statistical report for phis summary', () => {
     // 2020-05-02: Diagnosed with hypertension
     const diagnosisEncounter3 = await models.Encounter.create(
       await createDummyEncounter(models, {
-        startDate: toDateTimeString(new Date('2020-05-02')),
+        startDate: '2020-05-02 00:00:00',
         patientId: expectedPatient3.id,
       }),
     );
@@ -301,7 +269,7 @@ describe('Fiji statistical report for phis summary', () => {
       await createDummyEncounterDiagnosis(models, {
         diagnosisId: hypertensionDiagnosis.id,
         encounterId: diagnosisEncounter3.id,
-        date: toDateTimeString(new Date('2020-05-02')),
+        date: '2020-05-02 00:00:00',
         certainty: 'suspected',
       }),
     );
@@ -309,7 +277,7 @@ describe('Fiji statistical report for phis summary', () => {
     // 2020-05-02: Diagnosed with diabetes (separate encounter)
     const diagnosisEncounter4 = await models.Encounter.create(
       await createDummyEncounter(models, {
-        startDate: toDateTimeString(new Date('2020-05-02')),
+        startDate: '2020-05-02 00:00:00',
         patientId: expectedPatient3.id,
       }),
     );
@@ -317,27 +285,22 @@ describe('Fiji statistical report for phis summary', () => {
       await createDummyEncounterDiagnosis(models, {
         diagnosisId: diabetesDiagnosis.id,
         encounterId: diagnosisEncounter4.id,
-        date: toDateTimeString(new Date('2020-05-02')),
+        date: '2020-05-02 00:00:00',
         certainty: 'suspected',
       }),
     );
 
     // 2020-05-02: Had a CVD screening - yes SNAP councilling
-    await createCVDFormSurveyResponse(
-      app,
-      expectedPatient3,
-      toDateTimeString(new Date('2020-05-02')),
-      {
-        answerOverrides: {
-          'pde-FijCVD038': 'Yes',
-        },
+    await createCVDFormSurveyResponse(app, expectedPatient3, '2020-05-02 00:00:00', {
+      answerOverrides: {
+        'pde-FijCVD038': 'Yes',
       },
-    );
+    });
 
     // 2020-05-03: Diagnosed with hypertension
     const diagnosisEncounter5 = await models.Encounter.create(
       await createDummyEncounter(models, {
-        startDate: toDateTimeString(new Date('2020-05-03')),
+        startDate: '2020-05-03 00:00:00',
         patientId: expectedPatient3.id,
       }),
     );
@@ -346,7 +309,7 @@ describe('Fiji statistical report for phis summary', () => {
       await createDummyEncounterDiagnosis(models, {
         diagnosisId: hypertensionDiagnosis.id,
         encounterId: diagnosisEncounter5.id,
-        date: toDateTimeString(new Date('2020-05-03')),
+        date: '2020-05-03 00:00:00',
         certainty: 'suspected',
       }),
     );
@@ -358,7 +321,7 @@ describe('Fiji statistical report for phis summary', () => {
      */
     const diagnosisEncounter6 = await models.Encounter.create(
       await createDummyEncounter(models, {
-        startDate: toDateTimeString(new Date('2020-05-02')),
+        startDate: '2020-05-02 00:00:00',
         patientId: expectedPatient4.id,
       }),
     );
@@ -367,7 +330,7 @@ describe('Fiji statistical report for phis summary', () => {
       await createDummyEncounterDiagnosis(models, {
         diagnosisId: diabetesDiagnosis.id,
         encounterId: diagnosisEncounter6.id,
-        date: toDateTimeString(new Date('2020-05-02')),
+        date: '2020-05-02 00:00:00',
         certainty: 'disproven',
       }),
     );

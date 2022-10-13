@@ -23,52 +23,54 @@ export class FhirAddress extends Composite {
     'period',
   ];
 
-  static SCHEMA = yup
-    .object({
-      use: yup
-        .string()
-        .oneOf([null, ...USES])
-        .nullable()
-        .default(null),
-      type: yup
-        .string()
-        .oneOf([null, ...TYPES])
-        .nullable()
-        .default(null),
-      text: yup
-        .string()
-        .nullable()
-        .default(null),
-      line: yup
-        .array()
-        .of(yup.string())
-        .nullable()
-        .default([]),
-      city: yup
-        .string()
-        .nullable()
-        .default(null),
-      district: yup
-        .string()
-        .nullable()
-        .default(null),
-      state: yup
-        .string()
-        .nullable()
-        .default(null),
-      postalCode: yup
-        .string()
-        .nullable()
-        .default(null),
-      country: yup
-        .string()
-        .nullable()
-        .default(null),
-      period: FhirPeriod.asYup()
-        .nullable()
-        .default(null),
-    })
-    .noUnknown();
+  static SCHEMA() {
+    return yup
+      .object({
+        use: yup
+          .string()
+          .oneOf([null, ...USES])
+          .nullable()
+          .default(null),
+        type: yup
+          .string()
+          .oneOf([null, ...TYPES])
+          .nullable()
+          .default(null),
+        text: yup
+          .string()
+          .nullable()
+          .default(null),
+        line: yup
+          .array()
+          .of(yup.string())
+          .nullable()
+          .default([]),
+        city: yup
+          .string()
+          .nullable()
+          .default(null),
+        district: yup
+          .string()
+          .nullable()
+          .default(null),
+        state: yup
+          .string()
+          .nullable()
+          .default(null),
+        postalCode: yup
+          .string()
+          .nullable()
+          .default(null),
+        country: yup
+          .string()
+          .nullable()
+          .default(null),
+        period: FhirPeriod.asYup()
+          .nullable()
+          .default(null),
+      })
+      .noUnknown();
+  }
 
   // FIXME: Check this mention of the spec via Yup:
   // > The text element specifies the entire address as it should be displayed e.g. on a postal
