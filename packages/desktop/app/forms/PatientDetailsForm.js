@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { getCurrentDateString } from 'shared/utils/dateTime';
 import styled from 'styled-components';
-import { isEmpty } from 'lodash';
+import { isEmpty, groupBy } from 'lodash';
 import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from 'shared/constants';
 import { useSexValues } from '../hooks';
 import {
@@ -33,6 +33,7 @@ import {
   SelectField,
   SuggesterSelectField,
   TimeField,
+  Field,
 } from '../components';
 
 const StyledHeading = styled.div`
@@ -270,6 +271,29 @@ export const SecondaryDetailsGroup = ({ patientRegistryType, values = {}, isEdit
   );
 };
 
+const FieldsGroup = ({ patientFields }) => {
+  const groupedFields = Object.entries(groupBy(patientFields.data, 'category'));
+  return (
+    <div>
+      {groupedFields.map(([category, fields]) => (
+        <Fragment key={category}>
+          <StyledHeading>{category}</StyledHeading>
+          <StyledFormGrid>
+            {fields.map(({ definitionId, name }) => (
+              <Field
+                key={definitionId}
+                name={`patientFields.${definitionId}`}
+                component={TextField}
+                label={name}
+              />
+            ))}
+          </StyledFormGrid>
+        </Fragment>
+      ))}
+    </div>
+  );
+};
+
 function sanitiseRecordForValues(data) {
   const {
     // unwanted ids
@@ -301,7 +325,15 @@ function sanitiseRecordForValues(data) {
     .reduce((state, [k, v]) => ({ ...state, [k]: v }), {});
 }
 
-function stripPatientData(patient, additionalData, birthData) {
+function extractFieldValues(patientFields) {
+  const values = {};
+  for (const { definitionId, value } of patientFields.data) {
+    values[definitionId] = value || '';
+  }
+  return { patientFields: values };
+}
+
+function stripPatientData(patient, additionalData, birthData, patientFields) {
   // The patient object includes the entirety of patient state, not just the
   // fields on the db record, and whatever we pass to initialValues will get
   // sent on to the server if it isn't modified by a field on the form.
@@ -311,10 +343,17 @@ function stripPatientData(patient, additionalData, birthData) {
     ...sanitiseRecordForValues(patient),
     ...sanitiseRecordForValues(additionalData),
     ...sanitiseRecordForValues(birthData),
+    ...extractFieldValues(patientFields),
   };
 }
 
-export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmit }) => {
+export const PatientDetailsForm = ({
+  patient,
+  additionalData,
+  birthData,
+  patientFields,
+  onSubmit,
+}) => {
   const patientRegistryType = !isEmpty(birthData)
     ? PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY
     : PATIENT_REGISTRY_TYPES.NEW_PATIENT;
@@ -343,6 +382,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
               isEdit
             />
           </StyledPatientDetailSecondaryDetailsGroupWrapper>
+          <FieldsGroup patientFields={patientFields} />
           <ButtonRow>
             <Button variant="contained" color="primary" onClick={submitForm}>
               Save
@@ -350,7 +390,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
           </ButtonRow>
         </>
       )}
-      initialValues={stripPatientData(patient, additionalData, birthData)}
+      initialValues={stripPatientData(patient, additionalData, birthData, patientFields)}
       onSubmit={handleSubmit}
       validationSchema={getPatientDetailsValidation(sexValues)}
     />

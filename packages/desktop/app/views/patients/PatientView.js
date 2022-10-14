@@ -100,8 +100,12 @@ export const PatientView = () => {
     ['birthData', patient.id],
     () => api.get(`patient/${patient.id}/birthData`),
   );
+  const { data: patientFields, isLoading: isLoadingFields } = useQuery(
+    ['patientFields', patient.id],
+    () => api.get(`patient/${patient.id}/fields`),
+  );
 
-  if (patient.loading || isLoadingAdditionalData || isLoadingBirthData) {
+  if (patient.loading || isLoadingAdditionalData || isLoadingBirthData || isLoadingFields) {
     return <LoadingIndicator />;
   }
 
@@ -117,6 +121,7 @@ export const PatientView = () => {
         patient={patient}
         additionalData={additionalData}
         birthData={birthData}
+        patientFields={patientFields}
         disabled={disabled}
       />
     </>
