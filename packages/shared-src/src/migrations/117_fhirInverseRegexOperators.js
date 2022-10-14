@@ -43,7 +43,6 @@ export async function up(query) {
       RIGHTARG = text,
       NEGATOR = OPERATOR(fhir.<!~),
       RESTRICT = eqsel,
-      JOIN = matchingjoinsel
     );
   `);
   await query.sequelize.query(`
@@ -53,7 +52,6 @@ export async function up(query) {
       RIGHTARG = text,
       NEGATOR = OPERATOR(fhir.<~),
       RESTRICT = neqsel,
-      JOIN = matchingjoinsel
     );
   `);
   await query.sequelize.query(`
@@ -63,7 +61,6 @@ export async function up(query) {
       RIGHTARG = text,
       NEGATOR = OPERATOR(fhir.<!~*),
       RESTRICT = eqsel,
-      JOIN = matchingjoinsel
     );
   `);
   await query.sequelize.query(`
@@ -73,7 +70,6 @@ export async function up(query) {
       RIGHTARG = text,
       NEGATOR = OPERATOR(fhir.<~*),
       RESTRICT = neqsel,
-      JOIN = matchingjoinsel
     );
   `);
 }
