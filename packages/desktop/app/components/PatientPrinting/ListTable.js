@@ -6,18 +6,18 @@ import { Typography, Box } from '@material-ui/core';
 const Table = styled(Box)`
   border-top: 1px solid black;
   border-left: 1px solid black;
+  margin-top: 10px;
   margin-bottom: 16px;
 `;
 
 const Row = styled(Box)`
   display: grid;
-  grid-template-columns: repeat(${props => props.$columnLength}, minmax(30px, 5fr));
+  grid-template-columns: ${props => props.$gridTemplateColumns};
   border-bottom: 1px solid black;
 `;
 
 const Cell = styled(Box)`
   border-right: 1px solid black;
-  padding-left: 1rem;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
 `;
@@ -29,21 +29,21 @@ const StrongText = styled(Text)`
   font-weight: 600;
 `;
 
-export const ListTable = ({ columns, data }) => {
+export const ListTable = ({ columns, data, gridTemplateColumns }) => {
   return (
     <Table>
-      <Row $columnLength={columns.length}>
-        {columns.map(({ title }) => (
+      <Row $gridTemplateColumns={gridTemplateColumns}>
+        {columns.map(({ title, style = { paddingLeft: '1rem' } }) => (
           <Cell>
-            <StrongText>{title}</StrongText>
+            <StrongText style={style}>{title}</StrongText>
           </Cell>
         ))}
       </Row>
       {data.map(row => (
-        <Row $columnLength={columns.length}>
-          {columns.map(({ key, accessor }) => (
+        <Row $gridTemplateColumns={gridTemplateColumns}>
+          {columns.map(({ key, accessor, style = { paddingLeft: '1rem' } }) => (
             <Cell>
-              <Text>{accessor ? accessor(row) : row[key]}</Text>
+              <Text style={style}>{accessor ? accessor(row) : row[key]}</Text>
             </Cell>
           ))}
         </Row>

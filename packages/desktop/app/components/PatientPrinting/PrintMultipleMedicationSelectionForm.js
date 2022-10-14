@@ -17,6 +17,7 @@ import { useApi, useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
 
 const REPEAT_OPTIONS = [
+  { label: 0, value: 0 },
   { label: 1, value: 1 },
   { label: 2, value: 2 },
   { label: 3, value: 3 },
@@ -63,7 +64,7 @@ const COLUMNS = [
     sortable: false,
     maxWidth: 70,
     accessor: ({ quantity, onChange }) => (
-      <TextInput type="number" value={quantity} onChange={onChange} />
+      <TextInput type="number" min="0" max="5" value={quantity} onChange={onChange} />
     ),
   },
   {
@@ -95,7 +96,9 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
   const { currentUser } = useAuth();
 
   useEffect(() => {
-    setMedicationData(data?.data || []);
+    const medications = data?.data || [];
+    const newMedications = medications.map(m => ({ ...m, repeats: 0 }));
+    setMedicationData(newMedications);
   }, [data]);
 
   useEffect(() => {
@@ -116,7 +119,7 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
         newMedicationData[rowIndex][key] = event.target.value;
       }
 
-      const newSelectedMedicationData = newMedicationData.filter(m => m.selected && !!m.quantity);
+      const newSelectedMedicationData = newMedicationData.filter(m => m.selected);
 
       if (newSelectedMedicationData.length === newMedicationData.length) {
         setTitleData({ selected: true });
@@ -137,7 +140,7 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
 
         setTitleData({ selected: event.target.checked });
         setMedicationData(newMedicationData);
-        const newSelectedMedicationData = newMedicationData.filter(m => m.selected && !!m.quantity);
+        const newSelectedMedicationData = newMedicationData.filter(m => m.selected);
         setSelectedMedicationData(newSelectedMedicationData);
       }
     },

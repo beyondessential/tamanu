@@ -6,6 +6,7 @@ import { MultiplePrescriptionPrintout } from './MultiplePrescriptionPrintout';
 import { LoadingIndicator } from '../LoadingIndicator';
 import { useCertificate } from '../../utils/useCertificate';
 import { useApi } from '../../api';
+import { Colors } from '../../constants';
 
 export const MultiplePrescriptionPrintoutModal = ({
   encounter,
@@ -41,7 +42,14 @@ export const MultiplePrescriptionPrintoutModal = ({
   );
 
   return (
-    <Modal title="Print prescriptions" width="md" open={open} onClose={onClose} printable>
+    <Modal
+      title="Print prescriptions"
+      width="md"
+      open={open}
+      onClose={onClose}
+      color={Colors.white}
+      printable
+    >
       {patientLoading || additionalDataLoading || villageLoading || prescriberLoading ? (
         <LoadingIndicator />
       ) : (

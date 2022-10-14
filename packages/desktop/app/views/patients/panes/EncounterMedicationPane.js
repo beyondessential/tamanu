@@ -34,6 +34,8 @@ export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
           disabled={readonly}
           verb="read"
           noun="EncounterMedication"
+          variant="outlined"
+          color="primary"
         >
           Print
         </ButtonWithPermissionCheck>

@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Typography, Box } from '@material-ui/core';
+import { Typography } from '@material-ui/core';
 import Divider from '@material-ui/core/Divider';
 
 import { getCurrentDateString } from 'shared/utils/dateTime';
@@ -13,19 +13,41 @@ import { ListTable } from './ListTable';
 import { PatientDetailPrintout } from './PatientDetailPrintout';
 import { CertificateLabel } from './CertificateLabels';
 import { useAuth } from '../../contexts/Auth';
+import { Colors, DRUG_ROUTE_VALUE_TO_LABEL } from '../../constants';
 
 const RowContainer = styled.div`
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
 `;
 
-const Text = styled(Typography)`
+const SignatureText = styled(Typography)`
+  font-weight: 500;
+  display: inline;
   font-size: 14px;
+  margin-right: 20px;
 `;
 
-const SignatureBox = styled(Box)`
-  border: 1px solid black;
-  height: 60px;
+const SignatureLine = styled(Divider)`
+  display: inline-block;
+  background-color: ${Colors.darkestText};
+  width: 300px;
+  position: absolute;
+  bottom: 14px;
+`;
+
+const StyledDivider = styled(Divider)`
+  margin-top: 20px;
+  margin-bottom: 20px;
+  background-color: ${Colors.darkestText};
+`;
+
+const StyledNotesSectionWrapper = styled.div`
+  margin-top: 30px;
+  margin-bottom: 40px;
+`;
+
+const StyledDiv = styled.div`
+  ${props => (props.$marginLeft ? `margin-left: ${props.$marginLeft}px;` : '')}
 `;
 
 const columns = [
@@ -41,14 +63,17 @@ const columns = [
   {
     key: 'route',
     title: 'Route',
+    accessor: ({ route }) => DRUG_ROUTE_VALUE_TO_LABEL[route] || '',
   },
   {
     key: 'quantity',
     title: 'Quantity',
+    style: { textAlign: 'center' },
   },
   {
     key: 'repeats',
     title: 'Repeats',
+    style: { textAlign: 'center' },
   },
 ];
 
@@ -67,24 +92,38 @@ export const MultiplePrescriptionPrintout = React.memo(
         />
         <PatientDetailPrintout patientData={patientData} />
 
-        <Divider />
+        <StyledDivider />
 
         <RowContainer>
-          <div>
-            <CertificateLabel name="Date">
+          <StyledDiv>
+            <CertificateLabel margin="9px" name="Date" size="14">
               <DateDisplay date={getCurrentDateString()} showDate={false} showExplicitDate />
             </CertificateLabel>
-            <LocalisedLabel name="prescriber">{prescriber?.displayName}</LocalisedLabel>
-          </div>
-          <div>
-            <LocalisedLabel name="facility">{facility.name}</LocalisedLabel>
-          </div>
+            <LocalisedLabel name="prescriber" size="14">
+              {prescriber?.displayName}
+            </LocalisedLabel>
+          </StyledDiv>
+          <StyledDiv $marginLeft="150">
+            {/* We don't currently store prescriberId in the db, add it later */}
+            <LocalisedLabel name="prescriberId" size="14">
+              {prescriber?.displayId}
+            </LocalisedLabel>
+            <LocalisedLabel name="facility" size="14">
+              {facility.name}
+            </LocalisedLabel>
+          </StyledDiv>
         </RowContainer>
 
-        <ListTable data={prescriptions} columns={columns} />
-        <NotesSection notes={[]} />
-        <Text>Signed:</Text>
-        <SignatureBox />
+        <ListTable
+          data={prescriptions}
+          columns={columns}
+          gridTemplateColumns="5fr 5fr 2fr 2fr 2fr"
+        />
+        <StyledNotesSectionWrapper>
+          <NotesSection title="Notes" boldTitle />
+        </StyledNotesSectionWrapper>
+        <SignatureText>Signed</SignatureText>
+        <SignatureLine />
       </CertificateWrapper>
     );
   },
