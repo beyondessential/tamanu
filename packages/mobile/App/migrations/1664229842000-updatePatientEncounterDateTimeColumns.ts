@@ -33,7 +33,7 @@ async function createDateTimeStringUpMigration(
     tableObject,
     new TableColumn({
       name: columnName,
-      type: 'string',
+      type: 'varchar',
       length: `${ISO9075_FORMAT_LENGTH}`,
       isNullable: true,
     }),

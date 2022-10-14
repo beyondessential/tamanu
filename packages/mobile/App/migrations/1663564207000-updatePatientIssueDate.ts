@@ -33,7 +33,7 @@ export class updatePatientIssueDate1663564207000 implements MigrationInterface {
       tableObject,
       new TableColumn({
         name: columnName,
-        type: 'string',
+        type: 'varchar',
         length: `${ISO9075_FORMAT_LENGTH}`,
         isNullable: true,
       }),

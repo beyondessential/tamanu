@@ -27,7 +27,7 @@ export class updateLabTestDate1662006885000 implements MigrationInterface {
       tableObject,
       new TableColumn({
         name: 'date',
-        type: 'string',
+        type: 'varchar',
         length: `${ISO9075_FORMAT_LENGTH}`,
         isNullable: false,
         default: "strftime('%Y-%m-%d', CURRENT_TIMESTAMP)",
