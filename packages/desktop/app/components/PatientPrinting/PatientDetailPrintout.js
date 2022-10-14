@@ -22,7 +22,7 @@ export const PatientDetailPrintout = React.memo(({ patientData }) => {
         <LocalisedLabel name="firstName">{firstName}</LocalisedLabel>
         <LocalisedLabel name="lastName">{lastName}</LocalisedLabel>
         <LocalisedLabel name="dateOfBirth">
-          <DateDisplay date={dateOfBirth} showDate={false} showExplicitDate />
+          <DateDisplay date={dateOfBirth} />
         </LocalisedLabel>
         <LocalisedLabel name="sex">{capitaliseFirstLetter(sex)}</LocalisedLabel>
         <LocalisedLabel name="streetVillage">{streetVillage}</LocalisedLabel>

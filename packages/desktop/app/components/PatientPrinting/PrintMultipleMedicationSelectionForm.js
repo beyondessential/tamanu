@@ -140,7 +140,7 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
     [medicationData],
   );
 
-  const titleOnChange = useCallback(
+  const headerOnChange = useCallback(
     (event, key) => {
       if (key === COLUMN_KEYS.SELECTED) {
         const newMedicationData = medicationData.map(m => ({
@@ -196,7 +196,7 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
           noDataMessage="No medication requests found"
           allowExport={false}
           cellOnChange={cellOnChange}
-          titleOnChange={titleOnChange}
+          headerOnChange={headerOnChange}
         />
       </OuterLabelFieldWrapper>
       <ConfirmCancelRow

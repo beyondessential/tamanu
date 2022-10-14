@@ -215,10 +215,10 @@ class TableComponent extends React.Component {
       onChangeOrderBy,
       getLocalisation,
       titleData,
-      titleOnChange,
+      headerOnChange,
     } = this.props;
     const getContent = (key, sortable, title, titleAccessor) => {
-      const onChange = titleOnChange ? event => titleOnChange(event, key) : null;
+      const onChange = headerOnChange ? event => headerOnChange(event, key) : null;
       const displayTitle = titleAccessor
         ? React.createElement(titleAccessor, { onChange, ...titleData, title })
         : title;
@@ -358,7 +358,7 @@ TableComponent.propTypes = {
   rowsPerPage: PropTypes.number,
   onRowClick: PropTypes.func,
   cellOnChange: PropTypes.func,
-  titleOnChange: PropTypes.func,
+  headerOnChange: PropTypes.func,
   rowsPerPageOptions: PropTypes.arrayOf(PropTypes.number),
   rowIdKey: PropTypes.string,
   className: PropTypes.string,
@@ -383,7 +383,7 @@ TableComponent.defaultProps = {
   elevated: true,
   onRowClick: null,
   cellOnChange: null,
-  titleOnChange: null,
+  headerOnChange: null,
   rowsPerPage: DEFAULT_ROWS_PER_PAGE_OPTIONS[0],
   rowsPerPageOptions: DEFAULT_ROWS_PER_PAGE_OPTIONS,
   rowIdKey: 'id', // specific to data expected for tamanu REST api fetches

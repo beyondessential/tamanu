@@ -30,7 +30,7 @@ const SignatureText = styled(Typography)`
 const SignatureLine = styled(Divider)`
   display: inline-block;
   background-color: ${Colors.darkestText};
-  width: 300px;
+  width: 400px;
   position: absolute;
   bottom: 14px;
 `;
@@ -97,7 +97,7 @@ export const MultiplePrescriptionPrintout = React.memo(
         <RowContainer>
           <StyledDiv>
             <CertificateLabel margin="9px" name="Date" size="14">
-              <DateDisplay date={getCurrentDateString()} showDate={false} showExplicitDate />
+              <DateDisplay date={getCurrentDateString()} />
             </CertificateLabel>
             <LocalisedLabel name="prescriber" size="14">
               {prescriber?.displayName}
