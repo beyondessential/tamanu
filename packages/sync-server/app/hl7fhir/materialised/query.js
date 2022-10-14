@@ -283,8 +283,8 @@ function typedMatch(value, query, def) {
         case FHIR_SEARCH_TOKEN_TYPES.STRING: {
           return [
             {
-              op: Op.iRegexp,
-              val: escapeRegExp(code),
+              op: Op.eq,
+              val: code,
             },
           ];
         }
