@@ -693,6 +693,54 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
         expect(response).toHaveSucceeded();
       });
 
+      it('filters patients by firstName (case-insensitive)', async () => {
+        const { FhirPatient, Patient } = ctx.store.models;
+        const patient = await Patient.create(fake(Patient, { firstName: 'Bob' }));
+        await FhirPatient.materialiseFromUpstream(patient.id);
+
+        const path = `/v1/integration/${integrationName}/Patient?given=bob`;
+        const response = await app.get(path).set(requestHeaders);
+
+        expect(response.body.total).toBe(1);
+        expect(response).toHaveSucceeded();
+      });
+
+      it('filters patients by firstName (starts with)', async () => {
+        const { FhirPatient, Patient } = ctx.store.models;
+        const patient = await Patient.create(fake(Patient, { firstName: 'Bob' }));
+        await FhirPatient.materialiseFromUpstream(patient.id);
+
+        const path = `/v1/integration/${integrationName}/Patient?given:starts-with=bo`;
+        const response = await app.get(path).set(requestHeaders);
+
+        expect(response.body.total).toBe(1);
+        expect(response).toHaveSucceeded();
+      });
+
+      it('filters patients by firstName (ends with)', async () => {
+        const { FhirPatient, Patient } = ctx.store.models;
+        const patient = await Patient.create(fake(Patient, { firstName: 'Bob' }));
+        await FhirPatient.materialiseFromUpstream(patient.id);
+
+        const path = `/v1/integration/${integrationName}/Patient?given:ends-with=ob`;
+        const response = await app.get(path).set(requestHeaders);
+
+        expect(response.body.total).toBe(1);
+        expect(response).toHaveSucceeded();
+      });
+
+      it('filters patients by firstName (contains)', async () => {
+        const { FhirPatient, Patient } = ctx.store.models;
+        const patient = await Patient.create(fake(Patient, { firstName: 'Bob' }));
+        await FhirPatient.materialiseFromUpstream(patient.id);
+
+        const path = `/v1/integration/${integrationName}/Patient?given:contains=o`;
+        const response = await app.get(path).set(requestHeaders);
+
+        expect(response.body.total).toBe(1);
+        expect(response).toHaveSucceeded();
+      });
+
       it('filters patients by lastName (family)', async () => {
         const { FhirPatient, Patient } = ctx.store.models;
         const lastName = 'Doe';
