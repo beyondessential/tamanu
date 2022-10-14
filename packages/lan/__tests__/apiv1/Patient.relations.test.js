@@ -1,8 +1,5 @@
 import { createDummyPatient, randomReferenceId } from 'shared/demoData/patients';
-import {
-  PATIENT_FIELD_DEFINITION_TYPES,
-  PATIENT_FIELD_DEFINITION_STATES,
-} from 'shared/constants/patientFields';
+import { PATIENT_FIELD_DEFINITION_TYPES } from 'shared/constants/patientFields';
 import { createTestContext } from '../utilities';
 
 describe('Patient', () => {
@@ -318,19 +315,11 @@ describe('Patient', () => {
       expect(result).toHaveSucceeded();
       expect(result.body.data).toHaveLength(1);
       expect(result.body.data[0]).toMatchObject({
-        name: 'Test Category 1',
-      });
-      expect(result.body.data[0].definitions).toHaveLength(1);
-      expect(result.body.data[0].definitions[0]).toMatchObject({
+        definitionId: definition1.id,
         name: 'Test Field 1',
-        fieldType: PATIENT_FIELD_DEFINITION_TYPES.STRING,
-        state: PATIENT_FIELD_DEFINITION_STATES.CURRENT,
+        category: 'Test Category 1',
+        value: 'Newest',
       });
-      expect(result.body.data[0].definitions[0].values).toHaveLength(2);
-      expect(result.body.data[0].definitions[0].values.map(v => v.value)).toEqual([
-        'Newest',
-        'Oldest',
-      ]);
     });
   });
 });

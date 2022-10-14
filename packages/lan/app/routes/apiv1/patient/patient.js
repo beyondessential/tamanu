@@ -43,7 +43,7 @@ patientRoute.put(
   asyncHandler(async (req, res) => {
     const {
       db,
-      models: { Patient, PatientAdditionalData, PatientBirthData, PatientSecondaryId },
+      models: { Patient, PatientAdditionalData, PatientBirthData, PatientSecondaryId, PatientFieldDefinition },
       params,
     } = req;
     req.checkPermission('read', 'Patient');
@@ -96,6 +96,8 @@ patientRoute.put(
       if (patientBirth) {
         await patientBirth.update(patientBirthRecordData);
       }
+
+      await PatientFieldDefinition.createOrUpdateValues(patient.id, req.body.patientFields);
     });
 
     res.send(dbRecordToResponse(patient));
@@ -107,7 +109,7 @@ patientRoute.post(
   asyncHandler(async (req, res) => {
     const {
       db,
-      models: { Patient, PatientAdditionalData, PatientBirthData },
+      models: { Patient, PatientAdditionalData, PatientBirthData, PatientFieldDefinition },
     } = req;
     req.checkPermission('create', 'Patient');
     const requestData = requestBodyToRecord(req.body);
@@ -125,6 +127,7 @@ patientRoute.post(
         ...patientAdditionalBirthData,
         patientId: createdPatient.id,
       });
+      await PatientFieldDefinition.createOrUpdateValues(createdPatient.id, req.body.patientFields);
 
       if (patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY) {
         await PatientBirthData.create({

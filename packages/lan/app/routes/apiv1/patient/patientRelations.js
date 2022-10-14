@@ -1,5 +1,5 @@
 import asyncHandler from 'express-async-handler';
-import { Op } from 'sequelize';
+import { QueryTypes } from 'sequelize';
 
 import { getPatientAdditionalData } from 'shared/utils';
 import { PATIENT_FIELD_DEFINITION_STATES } from 'shared/constants/patientFields';
@@ -73,46 +73,40 @@ patientRelations.get(
 patientRelations.get(
   '/:id/fields',
   asyncHandler(async (req, res) => {
-    const { models, params } = req;
-    const { PatientFieldDefinitionCategory } = models;
-
+    const { params } = req;
     req.checkPermission('read', 'Patient');
-
-    const categories = await PatientFieldDefinitionCategory.findAll({
-      where: {},
-      include: [
-        {
-          association: 'definitions',
-          where: {
-            state: {
-              [Op.not]: PATIENT_FIELD_DEFINITION_STATES.HISTORICAL,
-            },
-          },
-          include: [
-            {
-              association: 'values',
-              where: {
-                patientId: params.id,
-              },
-              // TODO: order values by logical clock once sync is merged
-              order: [['updatedAt', 'DESC']],
-              separate: true, // needed for nested order
-            },
-          ],
+    const values = await req.db.query(
+      `
+        SELECT
+          d.id AS "definitionId",
+          d.name AS name,
+          v.value AS value,
+          c.name AS category
+        FROM patient_field_definitions d
+        LEFT JOIN patient_field_definition_categories c
+          ON d.category_id = c.id
+            AND d.state NOT IN (:disallowedStates)
+        LEFT JOIN LATERAL (
+          SELECT value
+          FROM patient_field_values v
+          WHERE v.definition_id = d.id
+            AND patient_id = :patientId
+          -- TODO: order by logical clock
+          ORDER BY updated_at DESC LIMIT 1
+        ) v ON true
+        ORDER BY category ASC, name ASC;
+      `,
+      {
+        replacements: {
+          patientId: params.id,
+          disallowedStates: [PATIENT_FIELD_DEFINITION_STATES.HISTORICAL],
         },
-      ],
-    });
+        type: QueryTypes.SELECT,
+      },
+    );
     res.send({
-      count: categories.length,
-      data: categories
-        .filter(category => category.definitions.length > 0)
-        .map(category => ({
-          ...category.toJSON(),
-          definitions: category.definitions.map(definition => ({
-            ...definition.toJSON(),
-            values: definition.values.map(v => v.toJSON()),
-          })),
-        })),
+      count: values.length,
+      data: values,
     });
   }),
 );
