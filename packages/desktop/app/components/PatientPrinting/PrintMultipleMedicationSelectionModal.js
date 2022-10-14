@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import { Modal } from '../Modal';
 import { PrintMultipleMedicationSelectionForm } from './PrintMultipleMedicationSelectionForm';
@@ -13,4 +14,10 @@ export const PrintMultipleMedicationSelectionModal = ({ encounter, open, onClose
       />
     </Modal>
   );
+};
+
+PrintMultipleMedicationSelectionForm.propTypes = {
+  encounter: PropTypes.object.isRequired,
+  open: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
 };

@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import PropTypes from 'prop-types';
 import { Typography } from '@material-ui/core';
 import Divider from '@material-ui/core/Divider';
 
@@ -128,3 +129,10 @@ export const MultiplePrescriptionPrintout = React.memo(
     );
   },
 );
+
+MultiplePrescriptionPrintout.propTypes = {
+  patientData: PropTypes.object.isRequired,
+  prescriber: PropTypes.object.isRequired,
+  prescriptions: PropTypes.array.isRequired,
+  certificateData: PropTypes.object.isRequired,
+};

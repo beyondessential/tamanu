@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import PropTypes from 'prop-types';
 
 import { Typography, Box } from '@material-ui/core';
 
@@ -50,4 +51,10 @@ export const ListTable = ({ columns, data, gridTemplateColumns }) => {
       ))}
     </Table>
   );
+};
+
+ListTable.propTypes = {
+  columns: PropTypes.array.isRequired,
+  data: PropTypes.array.isRequired,
+  gridTemplateColumns: PropTypes.string.isRequired,
 };

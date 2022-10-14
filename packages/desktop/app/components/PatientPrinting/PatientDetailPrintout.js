@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
 
 import { LocalisedLabel } from './SimplePrintout';
@@ -35,3 +36,7 @@ export const PatientDetailPrintout = React.memo(({ patientData }) => {
     </RowContainer>
   );
 });
+
+PatientDetailPrintout.propTypes = {
+  patientData: PropTypes.object.isRequired,
+};

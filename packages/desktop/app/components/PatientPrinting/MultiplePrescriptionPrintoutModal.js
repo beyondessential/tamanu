@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
 
 import { Modal } from '../Modal';
@@ -53,7 +54,6 @@ export const MultiplePrescriptionPrintoutModal = ({
       {patientLoading || additionalDataLoading || villageLoading || prescriberLoading ? (
         <LoadingIndicator />
       ) : (
-        // <PDFViewer id="multiple-prescriptions">
         <MultiplePrescriptionPrintout
           certificateData={certificateData}
           patientData={{ ...patient, additionalData, village }}
@@ -62,8 +62,15 @@ export const MultiplePrescriptionPrintoutModal = ({
           onSubmit={() => true}
           onClose={onClose}
         />
-        // </PDFViewer>
       )}
     </Modal>
   );
+};
+
+MultiplePrescriptionPrintout.propTypes = {
+  encounter: PropTypes.object.isRequired,
+  prescriberId: PropTypes.string.isRequired,
+  prescriptions: PropTypes.array.isRequired,
+  open: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
 };

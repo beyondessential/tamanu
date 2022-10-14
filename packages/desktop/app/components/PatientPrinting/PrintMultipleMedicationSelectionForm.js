@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
 
@@ -208,3 +209,8 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
     </>
   );
 });
+
+PrintMultipleMedicationSelectionForm.propTypes = {
+  encounter: PropTypes.object.isRequired,
+  onClose: PropTypes.func.isRequired,
+};
