@@ -15,6 +15,7 @@ import { DateDisplay } from '../DateDisplay';
 import { MultiplePrescriptionPrintoutModal } from './MultiplePrescriptionPrintoutModal';
 import { useApi, useSuggester } from '../../api';
 import { useAuth } from '../../contexts/Auth';
+import { Colors } from '../../constants';
 
 const REPEAT_OPTIONS = [
   { label: 0, value: 0 },
@@ -64,7 +65,16 @@ const COLUMNS = [
     sortable: false,
     maxWidth: 70,
     accessor: ({ quantity, onChange }) => (
-      <TextInput type="number" min="0" max="5" value={quantity} onChange={onChange} />
+      <TextInput
+        type="number"
+        InputProps={{
+          inputProps: {
+            min: 0,
+          },
+        }}
+        value={quantity}
+        onChange={onChange}
+      />
     ),
   },
   {
@@ -176,6 +186,7 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
 
       <OuterLabelFieldWrapper label="Select the prescriptions you would like to print">
         <Table
+          headerColor={Colors.white}
           columns={COLUMNS}
           titleData={titleData}
           data={medicationData || []}

@@ -107,7 +107,7 @@ const StyledTable = styled(MaterialTable)`
 `;
 
 const StyledTableHead = styled(TableHead)`
-  background: ${Colors.background};
+  background: ${props => (props.$headerColor ? props.$headerColor : Colors.background)};
 `;
 
 const StyledTableFooter = styled(TableFooter)`
@@ -128,9 +128,7 @@ const Row = React.memo(
   ({ rowIndex, columns, data, onClick, cellOnChange, rowStyle, refreshTable }) => {
     const cells = columns.map(
       ({ key, accessor, CellComponent, numeric, maxWidth, cellColor, dontCallRowInput }) => {
-        const onChange = cellOnChange
-          ? event => cellOnChange(event, key, rowIndex, data)
-          : null;
+        const onChange = cellOnChange ? event => cellOnChange(event, key, rowIndex, data) : null;
         const value = accessor
           ? React.createElement(accessor, { refreshTable, onChange, ...data, rowIndex })
           : data[key];
@@ -322,11 +320,11 @@ class TableComponent extends React.Component {
   }
 
   render() {
-    const { className, elevated } = this.props;
+    const { className, elevated, headerColor } = this.props;
     return (
       <StyledTableContainer className={className} $elevated={elevated}>
         <StyledTable>
-          <StyledTableHead>
+          <StyledTableHead $headerColor={headerColor}>
             <TableRow>{this.renderHeaders()}</TableRow>
           </StyledTableHead>
           <TableBody>{this.renderBodyContent()}</TableBody>
