@@ -40,7 +40,7 @@ async function createDateTimeStringUpMigration(
   );
   await queryRunner.query(
     `UPDATE ${tableName}
-      SET ${columnName} = ${columnName}_legacy`,
+      SET ${columnName} = strftime('%Y-%m-%d %H:%M:%S', ${columnName}_legacy) WHERE ${columnName}_legacy IS NOT NULL`,
   );
 }
 
@@ -53,7 +53,14 @@ async function createDateTimeStringDownMigration(
   await queryRunner.dropColumn(tableName, columnName);
 
   // 2. Move legacy data back to main column
-  await queryRunner.query(`ALTER TABLE ${tableName} RENAME COLUMN ${columnName}_legacy TO ${columnName}`);
+  await queryRunner.renameColumn(
+    tableName,
+    `${columnName}_legacy`,
+    new TableColumn({
+      name: columnName,
+      type: 'date',
+    }),
+  );
 }
 
 export class updatePatientEncounterDateTimeColumns1664229842000 implements MigrationInterface {

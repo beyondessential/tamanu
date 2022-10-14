@@ -40,7 +40,7 @@ async function createDateTimeStringUpMigration(
   );
   await queryRunner.query(
     `UPDATE ${tableName}
-      SET ${columnName} = ${columnName}_legacy`,
+      SET ${columnName} = strftime('%Y-%m-%d %H:%M:%S',${columnName}_legacy) WHERE ${columnName}_legacy IS NOT NULL`,
   );
 }
 

@@ -7,6 +7,7 @@ import { Department } from './Department';
 import { ScheduledVaccine } from './ScheduledVaccine';
 import { User } from './User';
 import { VaccineStatus } from '~/ui/helpers/patient';
+import { DateTimeStringColumn } from './DateColumns';
 
 @Entity('administered_vaccine')
 export class AdministeredVaccine extends BaseModel implements IAdministeredVaccine {
@@ -25,7 +26,7 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   @Column({ nullable: true, default: true })
   consent: boolean;
 
-  @Column()
+  @DateTimeStringColumn()
   date: string;
 
   @Column({ nullable: true })
