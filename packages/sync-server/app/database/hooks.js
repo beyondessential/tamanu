@@ -34,7 +34,9 @@ export async function addHooks(store) {
         });
 
         Upstream.addHook('afterBulkUpdate', 'fhirMaterialisation', async ({ where }) => {
-          (await Upstream.findAll({ where })).forEach(row => fhirQueue(resource, row.id));
+          (await Upstream.findAll({ where, paranoid: false })).forEach(row =>
+            fhirQueue(resource, row.id),
+          );
         });
       }
     }
