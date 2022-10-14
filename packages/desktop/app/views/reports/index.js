@@ -1,6 +1,6 @@
 import XLSX from 'xlsx';
 import React, { useCallback, useEffect } from 'react';
-import moment from 'moment';
+import { subMonths } from 'date-fns';
 
 import { ContentPane } from 'desktop/app/components/ContentPane';
 import { FormGrid } from 'desktop/app/components/FormGrid';
@@ -40,6 +40,7 @@ const writeToExcel = async (path, { metadata, data }) => {
 
 const xlsxFilters = [{ name: 'Excel spreadsheet (.xlsx)', extensions: ['xlsx'] }];
 
+// Todo: Check if this file is being used and delete it if note
 const DumbReportScreen = React.memo(({ fetchAvailableReports, fetchReportData }) => {
   const [currentReport, setCurrentReport] = React.useState(null);
   const [isDownloading, setIsDownloading] = React.useState(false);
@@ -134,10 +135,8 @@ const DumbReportScreen = React.memo(({ fetchAvailableReports, fetchReportData })
           render={renderParamsForm}
           key={currentReport.id}
           initialValues={{
-            endDate: moment().toDate(),
-            startDate: moment()
-              .subtract(1, 'month')
-              .toDate(),
+            endDate: new Date(),
+            startDate: subMonths(new Date(), 1),
           }}
           onSubmit={onWrite}
         />
@@ -145,7 +144,11 @@ const DumbReportScreen = React.memo(({ fetchAvailableReports, fetchReportData })
       {error && (
         <div>
           <div>An error was encountered while generating the report: </div>
-          <div>{error.message === '500' ? 'Server error' : error.message}</div>
+          <div>
+            {error.message === 'Facility server error response: 500'
+              ? 'Server error'
+              : error.message}
+          </div>
         </div>
       )}
     </ContentPane>

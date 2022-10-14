@@ -1,8 +1,8 @@
 import React from 'react';
 import { CloudDownload, CloudOff } from '@material-ui/icons';
-
 import { DateDisplay } from '../../components';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
+import { getPatientStatus } from '../../utils/getPatientStatus';
 
 const DateCell = React.memo(({ value }) => <DateDisplay date={value} />);
 const SexCell = React.memo(({ value = '' }) => <span>{capitaliseFirstLetter(value)}</span>);
@@ -75,10 +75,8 @@ export const status = {
   key: 'patientStatus',
   title: 'Status',
   minWidth: 100,
-  accessor: ({ patientStatus }) => {
-    const stat = capitaliseFirstLetter(patientStatus ?? '');
-    return stat === 'Deceased' ? <strong>{stat}</strong> : stat;
-  },
+  accessor: ({ dateOfDeath: dod, encounterType }) =>
+    dod ? <strong>Deceased</strong> : getPatientStatus(encounterType),
 };
 
 export const vaccinationStatus = {

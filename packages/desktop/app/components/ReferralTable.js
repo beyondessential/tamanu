@@ -20,12 +20,12 @@ const ACTION_MODAL_STATES = {
 };
 
 const ActionDropdown = React.memo(({ row, refreshTable }) => {
-  const [openModal, setOpenModal] = useState(ACTION_MODAL_STATES.CLOSED);
+  const [modalStatus, setModalStatus] = useState(ACTION_MODAL_STATES.CLOSED);
   const { loadEncounter } = useEncounter();
   const api = useApi();
 
   // Modal callbacks
-  const onCloseModal = useCallback(() => setOpenModal(ACTION_MODAL_STATES.CLOSED), []);
+  const onCloseModal = useCallback(() => setModalStatus(ACTION_MODAL_STATES.CLOSED), []);
   const onCancelReferral = useCallback(async () => {
     await api.put(`referral/${row.id}`, { status: REFERRAL_STATUSES.CANCELLED });
     onCloseModal();
@@ -45,7 +45,7 @@ const ActionDropdown = React.memo(({ row, refreshTable }) => {
     {
       label: 'Admit',
       condition: () => row.status === REFERRAL_STATUSES.PENDING,
-      onClick: () => setOpenModal(ACTION_MODAL_STATES.ENCOUNTER_OPEN),
+      onClick: () => setModalStatus(ACTION_MODAL_STATES.ENCOUNTER_OPEN),
     },
     // Worth keeping around to address in proper linear card
     {
@@ -61,7 +61,7 @@ const ActionDropdown = React.memo(({ row, refreshTable }) => {
     {
       label: 'Cancel',
       condition: () => row.status === REFERRAL_STATUSES.PENDING,
-      onClick: () => setOpenModal(ACTION_MODAL_STATES.WARNING_OPEN),
+      onClick: () => setModalStatus(ACTION_MODAL_STATES.WARNING_OPEN),
     },
   ].filter(action => !action.condition || action.condition());
 
@@ -69,13 +69,12 @@ const ActionDropdown = React.memo(({ row, refreshTable }) => {
     <>
       <DropdownButton actions={actions} variant="outlined" size="small" />
       <EncounterModal
-        open={openModal === ACTION_MODAL_STATES.ENCOUNTER_OPEN}
+        open={modalStatus === ACTION_MODAL_STATES.ENCOUNTER_OPEN}
         onClose={onCloseModal}
-        patientId={row.initiatingEncounter.patientId}
         referral={row}
       />
       <ConfirmModal
-        open={openModal === ACTION_MODAL_STATES.WARNING_OPEN}
+        open={modalStatus === ACTION_MODAL_STATES.WARNING_OPEN}
         title="Cancel referral"
         text="WARNING: This action is irreversible!"
         subText="Are you sure you want to cancel this referral?"
@@ -126,7 +125,13 @@ const ReferralBy = ({ surveyResponse: { survey, answers } }) => {
   return name;
 };
 
-const getDate = ({ initiatingEncounter }) => <DateDisplay date={initiatingEncounter.startDate} />;
+const getDate = ({ surveyResponse }) => {
+  const dataElementId = surveyResponse.survey.components.find(
+    x => x.dataElement.type === 'SubmissionDate',
+  )?.dataElement.id;
+  const submissionDate = surveyResponse.answers.find(x => x.dataElementId === dataElementId)?.body;
+  return <DateDisplay date={submissionDate || surveyResponse.endTime} />;
+};
 const getReferralType = ({ surveyResponse: { survey } }) => survey.name;
 const getReferralBy = ({ surveyResponse }) => <ReferralBy surveyResponse={surveyResponse} />;
 const getStatus = ({ status }) => REFERRAL_STATUS_LABELS[status] || 'Unknown';

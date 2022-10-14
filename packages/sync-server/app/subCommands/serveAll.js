@@ -3,13 +3,13 @@ import { Command } from 'commander';
 
 import { log } from 'shared/services/logging';
 
-import { version } from '../../package.json';
+import pkg from '../../package.json';
 import { ApplicationContext } from '../ApplicationContext';
 import { serve } from './serve';
 import { tasks } from './tasks';
 
 export const serveAll = async ({ skipMigrationCheck }) => {
-  log.info(`Starting sync server and tasks runner version ${version}.`);
+  log.info(`Starting sync server and tasks runner version ${pkg.version}.`);
 
   if (config.db.migrateOnStartup) {
     const { store } = await new ApplicationContext().init();

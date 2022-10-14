@@ -1,18 +1,20 @@
-import { ENCOUNTER_TYPES } from 'shared/constants';
+import config from 'config';
 import { Sequelize, Op } from 'sequelize';
+
+import { ENCOUNTER_TYPES } from 'shared/constants';
 import { InvalidOperationError } from 'shared/errors';
+
 import { Model } from './Model';
+import { dateTimeType } from './dateTimeTypes';
 
 export class Triage extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
         id: primaryKey,
-
-        arrivalTime: Sequelize.DATE,
-        triageTime: Sequelize.DATE,
-        closedTime: Sequelize.DATE,
-
+        arrivalTime: dateTimeType('arrivalTime'),
+        triageTime: dateTimeType('triageTime'),
+        closedTime: dateTimeType('closedTime'),
         score: Sequelize.TEXT,
       },
       options,
@@ -37,9 +39,9 @@ export class Triage extends Model {
       foreignKey: 'secondaryComplaintId',
     });
 
-    this.hasMany(models.Note, {
+    this.hasMany(models.NotePage, {
       foreignKey: 'recordId',
-      as: 'notes',
+      as: 'notePages',
       constraints: false,
       scope: {
         recordType: this.name,
@@ -73,12 +75,18 @@ export class Triage extends Model {
       .join(' and ');
     const reasonForEncounter = `Presented at emergency department with ${reasonsText}`;
 
-    const department = await Department.findOne({ where: { name: 'Emergency' } });
+    const department = await Department.findOne({
+      where: { name: 'Emergency', facilityId: config.serverFacilityId },
+    });
+
+    if (!data.departmentId && !department) {
+      throw new Error('Cannot find Emergency department for current facility');
+    }
 
     return this.sequelize.transaction(async () => {
       const encounter = await Encounter.create({
         encounterType: ENCOUNTER_TYPES.TRIAGE,
-        startDate: data.triageTime || new Date(),
+        startDate: data.triageTime,
         reasonForEncounter,
         patientId: data.patientId,
         departmentId: data.departmentId || department.dataValues.id,

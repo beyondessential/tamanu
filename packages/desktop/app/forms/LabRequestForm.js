@@ -188,6 +188,8 @@ export class LabRequestForm extends React.PureComponent {
           displayId: generateDisplayId(),
           requestedDate: getCurrentDateTimeString(),
           sampleTime: getCurrentDateTimeString(),
+          // LabTest date
+          date: getCurrentDateString(),
           ...editedObject,
         }}
         validationSchema={yup.object().shape({

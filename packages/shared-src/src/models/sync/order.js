@@ -22,6 +22,7 @@ export const MODEL_DEPENDENCY_ORDER = [
   'PatientSecondaryId',
 
   'PatientDeathData',
+  'PatientBirthData',
   'ContributingDeathCause',
 
   'EncounterDiagnosis',
@@ -47,10 +48,15 @@ export const MODEL_DEPENDENCY_ORDER = [
   'LabTest',
   'LabRequest',
   'ImagingRequest',
+  'ImagingRequestAreas',
 
-  'Note',
+  'NotePage',
+  'NoteItem',
 
+  'ReportDefinition',
+  'ReportDefinitionVersion',
   'ReportRequest',
+
   'PatientCommunication',
   'CertificateNotification',
 

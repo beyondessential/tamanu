@@ -1,4 +1,5 @@
-import { format } from 'date-fns';
+import { startOfDay, subDays } from 'date-fns';
+import { toDateTimeString, format } from '../../../utils/dateTime';
 import { baseDataGenerator } from '../covid-swab-lab-test-list';
 
 const SURVEY_ID = 'program-naurucovid19-naurucovidtestregistration';
@@ -59,11 +60,11 @@ const reportColumnTemplate = [
   },
   {
     title: 'Sample collection date',
-    accessor: data => format(new Date(data.sampleTime), 'yyyy/MM/dd'),
+    accessor: data => format(data.sampleTime, 'yyyy/MM/dd'),
   },
   {
     title: 'Sample collection time',
-    accessor: data => format(new Date(data.sampleTime), 'hh:mm a'),
+    accessor: data => format(data.sampleTime, 'hh:mm a'),
   },
   ...Object.keys(SURVEY_QUESTION_CODES).map(name => ({
     title: name,
@@ -71,11 +72,17 @@ const reportColumnTemplate = [
   })),
 ];
 
-export const dataGenerator = async ({ models }, parameters = {}) =>
-  baseDataGenerator({ models }, parameters, {
+export const dataGenerator = async ({ models }, parameters = {}) => {
+  const newParameters = { ...parameters };
+  if (!newParameters.fromDate) {
+    newParameters.fromDate = toDateTimeString(startOfDay(subDays(new Date(), 30)));
+  }
+
+  return baseDataGenerator({ models }, parameters, {
     surveyId: SURVEY_ID,
     surveyQuestionCodes: SURVEY_QUESTION_CODES,
     reportColumnTemplate,
   });
+};
 
 export const permission = 'LabTest';

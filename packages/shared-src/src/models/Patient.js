@@ -1,7 +1,8 @@
-import { Sequelize } from 'sequelize';
+import { Sequelize, Op } from 'sequelize';
 import config from 'config';
 import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES } from 'shared/constants';
 import { Model } from './Model';
+import { dateType, dateTimeType } from './dateTimeTypes';
 
 export class Patient extends Model {
   static init({ primaryKey, ...options }) {
@@ -18,8 +19,9 @@ export class Patient extends Model {
         lastName: Sequelize.STRING,
         culturalName: Sequelize.STRING,
 
-        dateOfBirth: Sequelize.DATE,
-        dateOfDeath: Sequelize.DATE,
+        dateOfBirth: dateType('dateOfBirth'),
+        dateOfDeath: dateTimeType('dateOfDeath'),
+
         sex: {
           type: Sequelize.ENUM('male', 'female', 'other'),
           allowNull: false,
@@ -30,12 +32,15 @@ export class Patient extends Model {
           allowNull: false,
           defaultValue: false,
         },
+        visibilityStatus: Sequelize.STRING,
       },
       {
         ...options,
         syncConfig: {
           syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
-          includedRelations: config.sync?.embedPatientNotes ? ['notes'] : [],
+          includedRelations: config.sync?.embedPatientNotes
+            ? ['notePages', 'notePages.noteItems']
+            : [],
         },
         indexes: [
           { fields: ['date_of_death'] },
@@ -61,8 +66,11 @@ export class Patient extends Model {
       foreignKey: 'patientId',
       as: 'deathData',
     });
+    this.hasMany(models.PatientBirthData, {
+      foreignKey: 'patientId',
+      as: 'birthData',
+    });
 
-    // this one is actually a hasMany
     this.hasMany(models.PatientSecondaryId, {
       foreignKey: 'patientId',
       as: 'secondaryIds',
@@ -72,9 +80,14 @@ export class Patient extends Model {
       as: 'village',
     });
 
-    this.hasMany(models.Note, {
+    this.hasMany(models.Patient, {
+      foreignKey: 'mergedIntoId',
+      as: 'mergedPatients',
+    });
+
+    this.hasMany(models.NotePage, {
       foreignKey: 'recordId',
-      as: 'notes',
+      as: 'notePages',
       constraints: false,
       scope: {
         recordType: this.name,
@@ -122,8 +135,6 @@ export class Patient extends Model {
     const results = await models.AdministeredVaccine.findAll({
       order: [['date', 'DESC']],
       ...optRest,
-      raw: true,
-      nest: true,
       include,
       where: {
         ...optWhere,
@@ -132,13 +143,15 @@ export class Patient extends Model {
       },
     });
 
-    for (const result of results) {
-      if (certifiableVaccineIds.includes(result.scheduledVaccine.vaccineId)) {
-        result.certifiable = true;
+    const data = results.map(x => x.get({ plain: true }));
+
+    for (const record of data) {
+      if (certifiableVaccineIds.includes(record.scheduledVaccine.vaccineId)) {
+        record.certifiable = true;
       }
     }
 
-    return results;
+    return data;
   }
 
   async getCovidLabTests(queryOptions) {
@@ -180,5 +193,42 @@ export class Patient extends Model {
     });
 
     return labTests.slice().sort((a, b) => Date.parse(b.date) - Date.parse(a.date));
+  }
+
+  /** Patient this one was merged into (end of the chain) */
+  async getUltimateMergedInto() {
+    return this.constructor.findOne({
+      where: {
+        [Op.and]: [
+          { id: Sequelize.fn('any', Sequelize.fn('patients_merge_chain_up', this.id)) },
+          { id: { [Op.ne]: this.id } },
+          { mergedIntoId: null },
+        ],
+      },
+    });
+  }
+
+  /** Patients this one was merged into */
+  async getMergedUp() {
+    return this.constructor.findAll({
+      where: {
+        [Op.and]: [
+          { id: Sequelize.fn('any', Sequelize.fn('patients_merge_chain_up', this.id)) },
+          { id: { [Op.ne]: this.id } },
+        ],
+      },
+    });
+  }
+
+  /** Patients that were merged into this one */
+  async getMergedDown() {
+    return this.constructor.findAll({
+      where: {
+        [Op.and]: [
+          { id: Sequelize.fn('any', Sequelize.fn('patients_merge_chain_down', this.id)) },
+          { id: { [Op.ne]: this.id } },
+        ],
+      },
+    });
   }
 }

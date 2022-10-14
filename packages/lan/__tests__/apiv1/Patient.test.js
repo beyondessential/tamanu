@@ -1,4 +1,3 @@
-import { random } from 'lodash';
 import {
   createDummyEncounter,
   createDummyEncounterMedication,
@@ -6,6 +5,7 @@ import {
   randomReferenceId,
 } from 'shared/demoData/patients';
 import { fake } from 'shared/test-helpers/fake';
+import { toDateString } from 'shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 
 describe('Patient', () => {
@@ -232,7 +232,7 @@ describe('Patient', () => {
           createdAt: condition.createdAt.toISOString(),
           updatedAt: condition.updatedAt.toISOString(),
         };
-      }
+      };
 
       commons = {
         clinicianId,
@@ -253,7 +253,7 @@ describe('Patient', () => {
       const { id } = await Patient.create({ ...fake(Patient), dateOfDeath: null });
       const { clinicianId, facilityId, cond1Id, cond2Id, cond3Id } = commons;
 
-      const dod = new Date('2021-09-01T00:00:00.000Z');
+      const dod = '2021-09-01 00:00:00';
       const result = await app.post(`/v1/patient/${id}/death`).send({
         clinicianId,
         facilityId,
@@ -267,11 +267,11 @@ describe('Patient', () => {
         antecedentCause2Interval: 150,
         otherContributingConditions: [{ cause: cond2Id, interval: 400 }],
         surgeryInLast4Weeks: 'yes',
-        lastSurgeryDate: '2021-08-02T20:52:00.000Z',
+        lastSurgeryDate: '2021-08-02',
         lastSurgeryReason: cond1Id,
         pregnant: 'no',
         mannerOfDeath: 'Accident',
-        mannerOfDeathDate: '2021-08-31T12:00:00.000Z',
+        mannerOfDeathDate: '2021-08-31',
         fetalOrInfant: 'yes',
         stillborn: 'unknown',
         birthWeight: 120,
@@ -290,14 +290,14 @@ describe('Patient', () => {
     it('should not mark a dead patient as dead', async () => {
       const { Patient } = models;
       const patientData = fake(Patient);
-      patientData.dateOfDeath = new Date(random(patientData.dateOfBirth.getTime(), Date.now()));
+      patientData.dateOfDeath = '2021-08-31 12:00:00';
       const { id } = await Patient.create(patientData);
       const { clinicianId, facilityId, cond1Id } = commons;
 
       const result = await app.post(`/v1/patient/${id}/death`).send({
         clinicianId,
         facilityId,
-        timeOfDeath: '2021-09-01T00:00:00.000Z',
+        timeOfDeath: '2021-09-01 00:00:00',
         causeOfDeath: cond1Id,
         causeOfDeathInterval: 100,
         mannerOfDeath: 'Disease',
@@ -339,11 +339,12 @@ describe('Patient', () => {
       const result = await app.post(`/v1/patient/${id}/death`).send({
         clinicianId,
         facilityId,
-        timeOfDeath: '2021-09-01T00:00:00.000Z',
+        timeOfDeath: '2021-09-01 00:00:00',
         causeOfDeath: cond1Id,
         causeOfDeathInterval: 100,
         mannerOfDeath: 'Disease',
       });
+
       expect(result).toHaveSucceeded();
 
       const encounter = await Encounter.findByPk(encId);
@@ -363,7 +364,7 @@ describe('Patient', () => {
       expect(result).toHaveStatus(404);
       expect(result.body).toMatchObject({
         patientId: id,
-        dateOfBirth: dateOfBirth.toISOString(),
+        dateOfBirth: toDateString(dateOfBirth),
         dateOfDeath: null,
       });
     });
@@ -373,7 +374,7 @@ describe('Patient', () => {
       const { id, dateOfBirth } = await Patient.create({ ...fake(Patient), dateOfDeath: null });
       const { clinicianId, facilityId, cond1, cond2, cond3, cond1Id, cond2Id, cond3Id } = commons;
 
-      const dod = new Date('2021-09-01T00:00:00.000Z');
+      const dod = '2021-09-01 12:30:25';
       await app.post(`/v1/patient/${id}/death`).send({
         clinicianId,
         facilityId,
@@ -387,11 +388,11 @@ describe('Patient', () => {
         antecedentCause2Interval: 150,
         otherContributingConditions: [{ cause: cond2Id, interval: 400 }],
         surgeryInLast4Weeks: 'yes',
-        lastSurgeryDate: '2021-08-02T20:52:00.000Z',
+        lastSurgeryDate: '2021-08-02',
         lastSurgeryReason: cond1Id,
         pregnant: 'no',
         mannerOfDeath: 'Accident',
-        mannerOfDeathDate: '2021-08-31T12:00:00.000Z',
+        mannerOfDeathDate: '2021-08-31',
         fetalOrInfant: 'yes',
         stillborn: 'unknown',
         birthWeight: 120,
@@ -405,14 +406,11 @@ describe('Patient', () => {
       const result = await app.get(`/v1/patient/${id}/death`);
 
       expect(result).toHaveSucceeded();
-      expect(result.body.dateOfDeath).toEqual(dod.toISOString());
-
+      expect(result.body.dateOfDeath).toEqual(dod);
       expect(result.body).toMatchObject({
         patientId: id,
-
-        dateOfBirth: dateOfBirth.toISOString(),
-        dateOfDeath: dod.toISOString(),
-
+        dateOfBirth: toDateString(dateOfBirth),
+        dateOfDeath: dod,
         manner: 'Accident',
         causes: {
           primary: {
@@ -434,12 +432,12 @@ describe('Patient', () => {
             },
           ],
           external: {
-            date: '2021-08-31T12:00:00.000Z',
+            date: '2021-08-31',
           },
         },
 
         recentSurgery: {
-          date: '2021-08-02T20:52:00.000Z',
+          date: '2021-08-02',
           reasonId: cond1Id,
         },
 

@@ -1,21 +1,15 @@
 import React from 'react';
-import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
+import { IMAGING_REQUEST_STATUS_OPTIONS } from 'shared/constants';
 import { DateField, LocalisedField, SelectField } from '../Field';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
-import { IMAGING_REQUEST_STATUS_LABELS } from '../../constants';
 import { useLocalisation } from '../../contexts/Localisation';
-
-const STATUS_OPTIONS = Object.values(IMAGING_REQUEST_STATUS_TYPES).map(s => ({
-  label: IMAGING_REQUEST_STATUS_LABELS[s],
-  value: s,
-}));
 
 const URGENCY_OPTIONS = [
   { label: 'Urgent', value: 'urgent' },
   { label: 'Non-urgent', value: 'non-urgent' },
 ];
 
-export const ImagingRequestsSearchBar = ({ setSearchParameters }) => {
+export const ImagingRequestsSearchBar = ({ searchParameters, setSearchParameters }) => {
   const { getLocalisation } = useLocalisation();
   const imagingTypes = getLocalisation('imagingTypes') || {};
 
@@ -28,7 +22,7 @@ export const ImagingRequestsSearchBar = ({ setSearchParameters }) => {
     <CustomisableSearchBar
       title="Search imaging requests"
       onSearch={setSearchParameters}
-      initialValues={{ displayIdExact: true }}
+      initialValues={{ displayIdExact: true, ...searchParameters }}
     >
       <LocalisedField name="firstName" />
       <LocalisedField name="lastName" />
@@ -44,7 +38,7 @@ export const ImagingRequestsSearchBar = ({ setSearchParameters }) => {
         name="status"
         defaultLabel="Status"
         component={SelectField}
-        options={STATUS_OPTIONS}
+        options={IMAGING_REQUEST_STATUS_OPTIONS}
       />
       <LocalisedField
         name="urgency"
@@ -55,9 +49,15 @@ export const ImagingRequestsSearchBar = ({ setSearchParameters }) => {
       <LocalisedField
         name="requestedDateFrom"
         defaultLabel="Requested from"
+        saveDateAsString
         component={DateField}
       />
-      <LocalisedField name="requestedDateTo" defaultLabel="Requested to" component={DateField} />
+      <LocalisedField
+        name="requestedDateTo"
+        defaultLabel="Requested to"
+        saveDateAsString
+        component={DateField}
+      />
     </CustomisableSearchBar>
   );
 };

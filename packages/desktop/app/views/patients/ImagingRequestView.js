@@ -21,7 +21,7 @@ import {
 import { useApi, useSuggester } from '../../api';
 import { ImagingRequestPrintout } from '../../components/PatientPrinting/ImagingRequestPrintout';
 import { useLocalisation } from '../../contexts/Localisation';
-import { ENCOUNTER_TAB_NAMES } from './EncounterView';
+import { ENCOUNTER_TAB_NAMES } from './encounterTabNames';
 
 const statusOptions = [
   { value: 'pending', label: 'Pending' },
@@ -181,7 +181,9 @@ export const ImagingRequestView = () => {
   const imagingRequest = useSelector(state => state.imagingRequest);
   const patient = useSelector(state => state.patient);
   const practitionerSuggester = useSuggester('practitioner');
-  const locationSuggester = useSuggester('location');
+  const locationSuggester = useSuggester('location', {
+    baseQueryParameters: { filterByFacility: true },
+  });
 
   const { getLocalisation } = useLocalisation();
   const imagingTypes = getLocalisation('imagingTypes') || {};

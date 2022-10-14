@@ -1,10 +1,10 @@
-import { version as appVersion } from '../package.json';
+import pkg from '../package.json';
 
 // Set a global serverInfo object so that it can be accessed
 // from within the shared modules (eg in honeycomb)
 global.serverInfo = {
-  version: appVersion,
-  serverType: 'lan',
+  version: pkg.version,
+  serverType: 'facility',
 };
 
 export const { version } = global.serverInfo;

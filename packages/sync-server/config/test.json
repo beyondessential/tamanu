@@ -3,7 +3,8 @@
     "name": "tamanu-sync-test"
   },
   "auth": {
-    "reportNoUserError": true
+    "reportNoUserError": true,
+    "useHardcodedPermissions": false
   },
   "log": {
     "consoleLevel": "warn"
@@ -36,6 +37,9 @@
     },
     "mSupply": {
       "enabled": true
+    },
+    "fhir": {
+      "enabled": true
     }
   },
   "disk": {
@@ -47,5 +51,6 @@
     "certificates": {
       "labTestCategoryIds": ["labTestCategory-COVID"]
     }
-  }
+  },
+  "countryTimeZone": "Pacific/Auckland"
 }
