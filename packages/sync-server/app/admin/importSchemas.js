@@ -2,7 +2,6 @@ import * as yup from 'yup';
 import {
   ENCOUNTER_TYPES,
   INJECTION_SITE_OPTIONS,
-  PROGRAM_DATA_ELEMENT_TYPE_VALUES,
   VACCINE_STATUS,
   LAB_TEST_RESULT_TYPES,
   VISIBILITY_STATUSES,
@@ -184,76 +183,4 @@ export const Encounter = Base.shape({
   departmentId: yup.string().required(),
   examinerId: yup.string().required(),
   patientId: yup.string().required(),
-});
-
-function isValidJson(value) {
-  if (!value) return true;
-  try {
-    JSON.parse(value);
-    return true;
-  } catch (e) {
-    return false;
-  }
-};
-
-yup.addMethod(yup.string, "validJson", function(errorMessage) {
-  return this.test('test-json', errorMessage, function (value) {
-    const { path, createError } = this;
-
-    return (
-      isValidJson(value) || createError({ path, message: errorMessage })
-    )
-  });
-});
-
-yup.addMethod(yup.string, "validJsonWithSchema", function(schema, errorMessage) {
-  return this.validJson().test('test-json-schema', errorMessage, function(value) {
-    if (!value) return true;
-
-    const json = JSON.parse(value);
-
-    try {
-      schema.validate(json);
-    } catch(e) {
-      console.log("ERRORED JSON", json, e);
-      return e;
-    }
-
-    console.log("valid vis json:", json)
-    return true;
-  });
-});
-
-export const ProgramDataElement = Base.shape({
-  indicator: yup.string(),
-  type: yup
-    .string()
-    .required()
-    .oneOf(PROGRAM_DATA_ELEMENT_TYPE_VALUES),
-  defaultOptions: yup.string().validJson(),
-});
-
-const visibilityCriteria = yup.object().shape({
-  optional: yup.number(),
-});
-
-export const SurveyScreenComponent = Base.shape({
-  visibilityCriteria: yup.string().validJsonWithSchema(visibilityCriteria),
-  validationCriteria: yup.string().validJson(),
-  config: yup.string().validJson(),
-  screenIndex: yup.number().required(),
-  componentIndex: yup.number().required(),
-  options: yup.string().validJson(),
-  calculation: yup.string(),
-  surveyId: yup.string().required(),
-  detail: yup.string().max(255),
-  dataElementId: yup.string().required(),
-});
-
-export const Survey = Base.shape({
-  surveyType: yup
-    .string()
-    .required()
-    .oneOf(['programs', 'referral', 'obsolete']),
-  isSensitive: yup.boolean().required(),
 });

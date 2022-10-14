@@ -4,7 +4,13 @@ import { ValidationError as YupValidationError } from 'yup';
 
 import { ForeignkeyResolutionError, UpsertionError, ValidationError } from './errors';
 import { statkey, updateStat } from './stats';
-import * as schemas from './importSchemas';
+import * as importSchemas from './importSchemas';
+import * as programsSchemas from './programsSchemas';
+
+const schemas = {
+  ...importSchemas,
+  ...programsSchemas,
+};
 
 function findFieldName(values, fkField) {
   const fkFieldLower = fkField.toLowerCase();
