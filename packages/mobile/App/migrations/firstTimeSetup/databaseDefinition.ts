@@ -1233,7 +1233,7 @@ const VitalsTable = new Table({
       isNullable: true,
     }),
     new TableColumn({
-      name: 'spO2',
+      name: 'spo2',
       type: 'integer',
       isNullable: true,
     }),

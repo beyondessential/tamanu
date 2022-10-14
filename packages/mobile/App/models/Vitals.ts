@@ -39,7 +39,7 @@ export class Vitals extends BaseModel implements IVitals {
   temperature?: number;
 
   @Column({ type: 'int', nullable: true })
-  spO2?: number;
+  spo2?: number;
 
   @Column({ type: 'varchar', nullable: true })
   avpu?: AVPUType;

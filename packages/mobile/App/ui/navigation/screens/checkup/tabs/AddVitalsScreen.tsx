@@ -13,10 +13,7 @@ import { FormValidationMessage } from '/components/Forms/FormValidationMessage';
 import { useBackend } from '~/ui/hooks';
 import { withPatient } from '~/ui/containers/Patient';
 import { SectionHeader } from '/components/SectionHeader';
-import {
-  Orientation,
-  screenPercentageToDP,
-} from '/helpers/screen';
+import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { FormScreenView } from '/components/Forms/FormScreenView';
 import { NumberField } from '~/ui/components/NumberField';
 import { Dropdown } from '~/ui/components/Dropdown';
@@ -33,59 +30,22 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
           justifyContent="space-between"
         >
           <SectionHeader h3>VITALS READINGS</SectionHeader>
-          <Field
-            component={NumberField}
-            label="Weight (kg)"
-            name="weight"
-          />
-          <Field
-            component={NumberField}
-            label="Height (cm)"
-            name="height"
-          />
-          <Field
-            component={NumberField}
-            label="sbp"
-            name="sbp"
-          />
-          <Field
-            component={NumberField}
-            label="dbp"
-            name="dbp"
-          />
-          <Field
-            component={NumberField}
-            label="Heart Rate"
-            name="heartRate"
-          />
-          <Field
-            component={NumberField}
-            label="Respiratory Rate"
-            name="respiratoryRate"
-          />
-          <Field
-            component={NumberField}
-            label="Temperature (ºC)"
-            name="temperature"
-          />
-          <Field
-            component={NumberField}
-            label="SpO2 (%)"
-            name="spO2"
-          />
+          <Field component={NumberField} label="Weight (kg)" name="weight" />
+          <Field component={NumberField} label="Height (cm)" name="height" />
+          <Field component={NumberField} label="sbp" name="sbp" />
+          <Field component={NumberField} label="dbp" name="dbp" />
+          <Field component={NumberField} label="Heart Rate" name="heartRate" />
+          <Field component={NumberField} label="Respiratory Rate" name="respiratoryRate" />
+          <Field component={NumberField} label="Temperature (ºC)" name="temperature" />
+          <Field component={NumberField} label="SpO2 (%)" name="spo2" />
           <Field
             component={Dropdown}
-            options={Object.values(AVPUType).map((t) => ({ value: t, label: t }))}
+            options={Object.values(AVPUType).map(t => ({ value: t, label: t }))}
             label="AVPU"
             name="avpu"
           />
           <SectionHeader h3>COMMENTS</SectionHeader>
-          <Field
-            component={TextField}
-            name="comments"
-            label="comments"
-            multiline
-          />
+          <Field component={TextField} name="comments" label="comments" multiline />
           <FormValidationMessage message={errors.form} />
           <Button
             marginTop={20}
@@ -107,7 +67,7 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
     heartRate: Yup.number(),
     respiratoryRate: Yup.number(),
     temperature: Yup.number(),
-    spO2: Yup.number(),
+    spo2: Yup.number(),
     avpu: Yup.string(), // AVPUType
   };
 
@@ -148,23 +108,21 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
   const user = useSelector(authUserSelector);
 
   const { models } = useBackend();
-  const recordVitals = useCallback(
-    async (values: any): Promise<any> => {
-      const encounter = await models.Encounter.getOrCreateCurrentEncounter(
-        selectedPatient.id,
-        user.id,
-        { reasonForEncounter: values.comments },
-      );
+  const recordVitals = useCallback(async (values: any): Promise<any> => {
+    const encounter = await models.Encounter.getOrCreateCurrentEncounter(
+      selectedPatient.id,
+      user.id,
+      { reasonForEncounter: values.comments },
+    );
 
-      await models.Vitals.createAndSaveOne({
-        ...values,
-        encounter: encounter.id,
-        dateRecorded: getCurrentDateTimeString(),
-      });
+    await models.Vitals.createAndSaveOne({
+      ...values,
+      encounter: encounter.id,
+      dateRecorded: getCurrentDateTimeString(),
+    });
 
-      navigateToHistory();
-    }, [],
-  );
+    navigateToHistory();
+  }, []);
   return (
     <StyledSafeAreaView flex={1}>
       <FullView
