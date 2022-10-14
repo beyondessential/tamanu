@@ -1232,9 +1232,9 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
         const response = await app.get(path).set(requestHeaders);
 
         // assert
-        const resourceC = response.body?.entry.find(({ resource }) => resource.id === ids.c)
+        const resourceC = response.body?.entry?.find(({ resource }) => resource.id === ids.c)
           ?.resource;
-        const resourceD = response.body?.entry.find(({ resource }) => resource.id === ids.d)
+        const resourceD = response.body?.entry?.find(({ resource }) => resource.id === ids.d)
           ?.resource;
 
         expect(resourceC).toMatchObject({
@@ -1337,6 +1337,7 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
         await FhirPatient.resolveUpstreamLinks();
 
         ids = { a, b, c, d };
+        console.log(ids);
       });
 
       it('links patients that were merged into the top level patient A (as fetch)', async () => {
@@ -1446,9 +1447,9 @@ export function testPatientHandler(integrationName, requestHeaders = {}) {
         const response = await app.get(path).set(requestHeaders);
 
         // assert
-        const resourceC = response.body?.entry.find(({ resource }) => resource.id === ids.c)
+        const resourceC = response.body?.entry?.find(({ resource }) => resource.id === ids.c)
           ?.resource;
-        const resourceD = response.body?.entry.find(({ resource }) => resource.id === ids.d)
+        const resourceD = response.body?.entry?.find(({ resource }) => resource.id === ids.d)
           ?.resource;
 
         expect(resourceC).toMatchObject({
