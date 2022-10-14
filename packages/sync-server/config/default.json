@@ -160,6 +160,11 @@
     "duplicateAdditionalDataDeleter": {
       "enabled": true,
       "schedule": "*/15 * * * *"
+    },
+    "fhirMaterialiser": {
+      "enabled": true, // only when integrations.fhir is on
+      "schedule": "*/1 * * * *",
+      "limit": 100
     }
   },
   "integrations": {
@@ -610,7 +615,9 @@
   "hl7": {
     "nullLastNameValue": "NoLastName",
     "assigners": {
-      "patientDisplayId": "Tamanu"
+      "patientDisplayId": "Tamanu",
+      "patientDrivingLicense": "RTA",
+      "patientPassport": "Fiji Passport Office"
     },
     "dataDictionaries": {
       "testMethod": "http://tamanu.io/data-dictionary/covid-test-methods",

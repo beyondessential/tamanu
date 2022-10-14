@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { remote } from 'electron';
 import Tooltip from '@material-ui/core/Tooltip';
-import format from 'date-fns/format';
+import { format } from 'date-fns';
+import { parseDate } from 'shared-src/src/utils/dateTime';
 
-const getLocale = () => remote.app.getLocale() || 'default';
+const getLocale = () => remote.getGlobal('osLocales') || remote.app.getLocale() || 'default';
 
 const intlFormatDate = (date, formatOptions, fallback = 'Unknown') => {
   if (!date) return fallback;
@@ -52,7 +53,8 @@ const DiagnosticInfo = ({ date: rawDate }) => {
       Display date: {displayDate} <br />
       Raw date: {date.toString()} <br />
       Time zone: {timeZone} <br />
-      Time zone offset: {timeZoneOffset}
+      Time zone offset: {timeZoneOffset} <br />
+      Locale: {getLocale()}
     </div>
   );
 };
@@ -86,20 +88,20 @@ const DateTooltip = ({ date, children }) => {
 
 export const DateDisplay = React.memo(
   ({ date: dateValue, showDate = true, showTime = false, showExplicitDate = false }) => {
-    const date = typeof dateValue === 'string' ? new Date(dateValue) : dateValue;
+    const dateObj = parseDate(dateValue);
 
     const parts = [];
     if (showDate) {
-      parts.push(formatShort(date));
+      parts.push(formatShort(dateObj));
     } else if (showExplicitDate) {
-      parts.push(formatShortExplicit(date));
+      parts.push(formatShortExplicit(dateObj));
     }
     if (showTime) {
-      parts.push(formatTime(date));
+      parts.push(formatTime(dateObj));
     }
 
     return (
-      <DateTooltip date={dateValue}>
+      <DateTooltip date={dateObj}>
         <span>{parts.join(' ')}</span>
       </DateTooltip>
     );

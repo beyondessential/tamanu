@@ -24,10 +24,10 @@ export const PatientFetcher = ({ onPatientFound, label }) => {
     setCurrentPatient(null);
     setError(null);
     onPatientFound(null);
-  }
+  };
 
   const onClick = async () => {
-   clear()
+    clear();
     try {
       const patient = await api.get(`admin/lookup/patient/${searchText}`);
       setCurrentPatient(patient);

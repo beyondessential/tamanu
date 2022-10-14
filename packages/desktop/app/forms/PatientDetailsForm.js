@@ -1,11 +1,9 @@
 import React from 'react';
+import { getCurrentDateString } from 'shared/utils/dateTime';
 import styled from 'styled-components';
 import { isEmpty } from 'lodash';
-import { toDateTimeString } from 'shared-src/src/utils/dateTime';
-import { format } from 'date-fns';
 import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from 'shared/constants';
 import { useSexValues } from '../hooks';
-
 import {
   Colors,
   sexOptions,
@@ -72,9 +70,10 @@ export const PrimaryDetailsGroup = () => {
       <LocalisedField name="culturalName" component={TextField} />
       <LocalisedField
         name="dateOfBirth"
-        max={format(new Date(), 'yyyy-MM-dd')}
+        max={getCurrentDateString()}
         component={DateField}
         required
+        saveDateAsString
       />
       <LocalisedField name="villageId" component={AutocompleteField} suggester={villageSuggester} />
       <LocalisedField name="sex" component={RadioField} options={filteredSexOptions} required />
@@ -108,7 +107,7 @@ export const SecondaryDetailsGroup = ({ patientRegistryType, values = {} }) => {
         <>
           <StyledHeading>Birth details</StyledHeading>
           <StyledFormGrid>
-            <LocalisedField name="timeOfBirth" component={TimeField} />
+            <LocalisedField name="timeOfBirth" component={TimeField} saveDateAsString />
             <LocalisedField name="gestationalAgeEstimate" component={TextField} type="number" />
             <LocalisedField
               name="registeredBirthPlace"
@@ -319,10 +318,6 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
 
   const handleSubmit = data => {
     const newData = { ...data };
-    newData.timeOfBirth =
-      typeof newData.timeOfBirth !== 'string'
-        ? toDateTimeString(newData.timeOfBirth)
-        : newData.timeOfBirth;
 
     if (newData.registeredBirthPlace !== PLACE_OF_BIRTH_TYPES.HEALTH_FACILITY) {
       newData.birthFacilityId = null;

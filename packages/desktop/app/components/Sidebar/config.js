@@ -1,5 +1,4 @@
 import {
-  administrationIcon,
   labsIcon,
   medicationIcon,
   patientIcon,

@@ -5,7 +5,7 @@ import {
 } from 'shared/demoData/patients';
 import { randomRecord } from 'shared/demoData/utilities';
 import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_LABELS } from 'shared/constants';
-import { format } from 'date-fns';
+import { format } from 'shared/utils/dateTime';
 import { createTestContext } from '../../../utilities';
 import {
   createCovidTestForPatient,
@@ -17,7 +17,6 @@ import {
 const REPORT_URL = '/v1/reports/nauru-covid-swab-lab-test-list';
 const PROGRAM_ID = 'program-naurucovid19';
 const SURVEY_ID = 'program-naurucovid19-naurucovidtestregistration';
-const timePart = 'T00:00:00.000Z';
 
 async function createNauruSurveys(models) {
   await models.Program.create({
@@ -32,11 +31,11 @@ async function createNauruSurveys(models) {
   });
 
   await models.ProgramDataElement.bulkCreate([
-    { id: 'pde-NauCOVTest002', code: 'NauCOVTest002' },
-    { id: 'pde-NauCOVTest003', code: 'NauCOVTest003' },
-    { id: 'pde-NauCOVTest005', code: 'NauCOVTest005' },
-    { id: 'pde-NauCOVTest006', code: 'NauCOVTest006' },
-    { id: 'pde-NauCOVTest007', code: 'NauCOVTest007' },
+    { id: 'pde-NauCOVTest002', code: 'NauCOVTest002', type: 'FreeText' },
+    { id: 'pde-NauCOVTest003', code: 'NauCOVTest003', type: 'FreeText' },
+    { id: 'pde-NauCOVTest005', code: 'NauCOVTest005', type: 'FreeText' },
+    { id: 'pde-NauCOVTest006', code: 'NauCOVTest006', type: 'FreeText' },
+    { id: 'pde-NauCOVTest007', code: 'NauCOVTest007', type: 'FreeText' },
     {
       id: 'pde-NauCOVTest008',
       code: 'NauCOVTest008',
@@ -104,6 +103,7 @@ describe('Nauru covid case report tests', () => {
     });
 
     beforeEach(async () => {
+      await testContext.models.SurveyResponseAnswer.destroy({ where: {} });
       await testContext.models.SurveyResponse.destroy({ where: {} });
     });
 
@@ -148,14 +148,14 @@ describe('Nauru covid case report tests', () => {
           Status: LAB_REQUEST_STATUS_LABELS[LAB_REQUEST_STATUSES.RECEPTION_PENDING],
           Result: 'Positive',
           'Requested by': null,
-          'Requested date': format(new Date(labRequest.requestedDate), 'yyyy/MM/dd'),
+          'Requested date': format(labRequest.requestedDate, 'yyyy/MM/dd'),
           'Submitted date': format(labTest.date, 'yyyy/MM/dd'),
           Priority: null,
           'Testing laboratory': null,
           'Testing date': format(labTest.completedDate, 'yyyy/MM/dd'),
           'Laboratory officer': 'Officer Number 8',
-          'Sample collection date': format(new Date(labRequest.sampleTime), 'yyyy/MM/dd'),
-          'Sample collection time': format(new Date(labRequest.sampleTime), 'hh:mm a'),
+          'Sample collection date': format(labRequest.sampleTime, 'yyyy/MM/dd'),
+          'Sample collection time': format(labRequest.sampleTime, 'hh:mm a'),
           'Patient contact number': '435355781',
           'Test location': 'Community',
           'Does patient have symptoms': 'Yes',

@@ -1,8 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { NOTE_TYPES } from 'shared/constants';
+import { NOTE_TYPES, NOTE_RECORD_TYPES } from 'shared/constants';
 import { InvalidParameterError } from 'shared/errors';
-import { NOTE_RECORD_TYPES } from 'shared/models/Note';
 
 import { simpleGet, simplePut } from '../crudHelpers';
 
@@ -21,13 +20,16 @@ patientCarePlan.post(
       throw new InvalidParameterError('Content is a required field');
     }
     const newCarePlan = await PatientCarePlan.create(req.body);
-    await newCarePlan.createNote({
+    const notePage = await newCarePlan.createNotePage({
+      noteType: NOTE_TYPES.TREATMENT_PLAN,
+    });
+    await notePage.createNoteItem({
       date: req.body.date,
       content: req.body.content,
-      noteType: NOTE_TYPES.TREATMENT_PLAN,
       authorId: req.user.id,
       onBehalfOfId: req.body.examinerId,
     });
+
     res.send(newCarePlan);
   }),
 );
@@ -38,19 +40,27 @@ patientCarePlan.get(
     const { models, params } = req;
     req.checkPermission('read', 'PatientCarePlan');
 
-    const notes = await models.Note.findAll({
+    const notePages = await models.NotePage.findAll({
+      include: [
+        {
+          model: models.NoteItem,
+          as: 'noteItems',
+          include: [
+            { model: models.User, as: 'author' },
+            { model: models.User, as: 'onBehalfOf' },
+          ],
+        },
+      ],
       where: {
         recordId: params.id,
         recordType: NOTE_RECORD_TYPES.PATIENT_CARE_PLAN,
         noteType: NOTE_TYPES.TREATMENT_PLAN,
       },
-      include: [
-        { model: models.User, as: 'author' },
-        { model: models.User, as: 'onBehalfOf' },
-      ],
       // TODO add test to verify this order
       order: [['createdAt', 'ASC']],
     });
+
+    const notes = await Promise.all(notePages.map(n => n.getCombinedNoteObject(models)));
     res.send(notes);
   }),
 );
@@ -59,15 +69,25 @@ patientCarePlan.post(
   '/:id/notes',
   asyncHandler(async (req, res) => {
     req.checkPermission('create', 'PatientCarePlan');
-    const newNote = await req.models.Note.create({
+
+    const { models } = req;
+
+    const newNotePage = await req.models.NotePage.create({
       recordId: req.params.id,
       recordType: NOTE_RECORD_TYPES.PATIENT_CARE_PLAN,
       date: req.body.date,
-      content: req.body.content,
       noteType: NOTE_TYPES.TREATMENT_PLAN,
-      authorId: req.user.id,
-      onBehalfOfId: req.body.onBehalfOfId,
     });
-    res.send(newNote);
+
+    await req.models.NoteItem.create({
+      notePageId: newNotePage.id,
+      content: req.body.content,
+      date: req.body.date,
+      authorId: req.user.id,
+      onBehalfOfId: req.body.examinerId,
+    });
+
+    const response = await newNotePage.getCombinedNoteObject(models);
+    res.send(response);
   }),
 );

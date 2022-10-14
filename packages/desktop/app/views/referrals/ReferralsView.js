@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { useApi } from 'desktop/app/api';
 import { reloadPatient } from 'desktop/app/store/patient';
 import { SurveyView } from 'desktop/app/views/programs/SurveyView';
@@ -30,7 +30,7 @@ const ReferralFlow = ({ patient, currentUser }) => {
     async id => {
       const response = await api.get(`survey/${encodeURIComponent(id)}`);
       setReferralSurvey(response);
-      setStartTime(new Date());
+      setStartTime(getCurrentDateTimeString());
     },
     [api],
   );
@@ -45,7 +45,7 @@ const ReferralFlow = ({ patient, currentUser }) => {
         surveyId: referralSurvey.id,
         startTime,
         patientId: patient.id,
-        endTime: new Date(),
+        endTime: getCurrentDateTimeString(),
         answers: getAnswersFromData(data, referralSurvey),
         actions: getActionsFromData(data, referralSurvey),
       });

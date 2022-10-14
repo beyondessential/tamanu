@@ -1,4 +1,4 @@
-import moment from 'moment';
+import { formatInTimeZone } from 'date-fns-tz';
 import { transliterate as tr } from 'transliteration';
 import { log } from 'shared/services/logging';
 
@@ -29,8 +29,8 @@ const METHOD_CODE = {
   RDT: 'antigen',
 };
 
-const MOMENT_FORMAT_ISODATE = 'YYYY-MM-DD';
-const MOMENT_FORMAT_RFC3339 = 'YYYY-MM-DDTHH:mm:ssZ';
+const DATE_FORMAT_ISODATE = 'yyyy-MM-dd';
+const DATE_FORMAT_RFC3339 = "yyyy-MM-dd'T'HH:mm:ssxxx";
 
 export const createVdsNcVaccinationData = async (patientId, { models }) => {
   const {
@@ -152,9 +152,7 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
     }
 
     const event = {
-      dvc: moment(date)
-        .tz(timeZone)
-        .format(MOMENT_FORMAT_ISODATE),
+      dvc: formatInTimeZone(date, timeZone, DATE_FORMAT_ISODATE),
       seq: SCHEDULE_TO_SEQUENCE[schedule],
       ctr: countryCode,
       lot: batch || 'Unknown', // If batch number was not recorded, we add a indicative string value to complete ICAO validation
@@ -187,7 +185,7 @@ export const createVdsNcVaccinationData = async (patientId, { models }) => {
 
   return {
     pid: {
-      ...pid(firstName, lastName, dateOfBirth, sex, timeZone),
+      ...pid(firstName, lastName, dateOfBirth, sex),
       ...pidDoc,
     },
     ve: [...vaccines.values()],
@@ -205,7 +203,7 @@ export const createVdsNcTestData = async (labTestId, { models }) => {
     Encounter,
   } = models;
 
-  const { country, timeZone } = await getLocalisation();
+  const { country } = await getLocalisation();
   const countryCode = country['alpha-3'];
 
   const test = await LabTest.findOne({
@@ -269,7 +267,7 @@ export const createVdsNcTestData = async (labTestId, { models }) => {
 
   return {
     pid: {
-      ...pid(firstName, lastName, dateOfBirth, sex, timeZone),
+      ...pid(firstName, lastName, dateOfBirth, sex),
       ...pidDoc,
     },
     sp: {
@@ -282,12 +280,8 @@ export const createVdsNcTestData = async (labTestId, { models }) => {
       },
     },
     dat: {
-      sc: moment(request.sampleTime)
-        .utc()
-        .format(MOMENT_FORMAT_RFC3339),
-      ri: moment(test.completedDate)
-        .utc()
-        .format(MOMENT_FORMAT_RFC3339),
+      sc: formatInTimeZone(request.sampleTime, 'UTC', DATE_FORMAT_RFC3339),
+      ri: formatInTimeZone(new Date(test.completedDate), 'UTC', DATE_FORMAT_RFC3339),
     },
     tr: {
       tc: METHOD_CODE[method.code] ?? method.code,
@@ -296,7 +290,7 @@ export const createVdsNcTestData = async (labTestId, { models }) => {
   };
 };
 
-function pid(firstName, lastName, dateOfBirth, sex, timeZone = 'UTC') {
+function pid(firstName, lastName, dob, sex) {
   const MAX_LEN = 39;
   const primary = tr(lastName);
   const secondary = tr(firstName);
@@ -311,9 +305,7 @@ function pid(firstName, lastName, dateOfBirth, sex, timeZone = 'UTC') {
 
   const data = {
     n: name,
-    dob: moment(dateOfBirth)
-      .tz(timeZone)
-      .format(MOMENT_FORMAT_ISODATE),
+    dob,
   };
 
   if (sex && SEX_TO_CHAR[sex]) {

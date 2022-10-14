@@ -139,7 +139,7 @@ patientRelations.get(
           surveys.id as survey_id,
           surveys.name as survey_name,
           encounters.examiner_id,
-          users.display_name as assessor_name,
+          COALESCE(survey_user.display_name, encounter_user.display_name) as submitted_by,
           programs.name as program_name
         FROM
           survey_responses
@@ -147,8 +147,10 @@ patientRelations.get(
             ON (survey_responses.encounter_id = encounters.id)
           LEFT JOIN surveys
             ON (survey_responses.survey_id = surveys.id)
-          LEFT JOIN users
-            ON (users.id = encounters.examiner_id)
+          LEFT JOIN users encounter_user
+            ON (encounter_user.id = encounters.examiner_id)
+          LEFT JOIN users survey_user
+            ON (survey_user.id = survey_responses.user_id)
           LEFT JOIN programs
             ON (programs.id = surveys.program_id)
         WHERE
