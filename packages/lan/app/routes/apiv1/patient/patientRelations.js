@@ -73,6 +73,7 @@ patientRelations.get(
 patientRelations.get(
   '/:id/fields',
   asyncHandler(async (req, res) => {
+    // if you change this, also look in ./patientFieldDefinition.js
     const { params } = req;
     req.checkPermission('read', 'Patient');
     const values = await req.db.query(

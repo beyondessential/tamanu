@@ -321,5 +321,37 @@ describe('Patient', () => {
         value: 'Newest',
       });
     });
+
+    it('should get a tree of field categories and definitions without values', async () => {
+      // Arrange
+      const { PatientFieldDefinitionCategory, PatientFieldDefinition } = models;
+      await Promise.all([
+        PatientFieldDefinitionCategory.truncate({ cascade: true }),
+        PatientFieldDefinition.truncate({ cascade: true }),
+      ]);
+      const category1 = await PatientFieldDefinitionCategory.create({
+        name: 'Test Category 1',
+      });
+      await PatientFieldDefinitionCategory.create({
+        name: 'Test Category 2 (empty)',
+      });
+      const definition1 = await PatientFieldDefinition.create({
+        name: 'Test Field 1',
+        fieldType: PATIENT_FIELD_DEFINITION_TYPES.STRING,
+        categoryId: category1.id,
+      });
+
+      // Act
+      const result = await app.get(`/v1/patientFieldDefinition`);
+
+      // Assert
+      expect(result).toHaveSucceeded();
+      expect(result.body.data).toHaveLength(1);
+      expect(result.body.data[0]).toMatchObject({
+        definitionId: definition1.id,
+        name: 'Test Field 1',
+        category: 'Test Category 1',
+      });
+    });
   });
 });

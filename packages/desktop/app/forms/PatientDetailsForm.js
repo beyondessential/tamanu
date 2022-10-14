@@ -271,7 +271,7 @@ export const SecondaryDetailsGroup = ({ patientRegistryType, values = {}, isEdit
   );
 };
 
-const FieldsGroup = ({ patientFields }) => {
+export const FieldsGroup = ({ patientFields }) => {
   const groupedFields = Object.entries(groupBy(patientFields.data, 'category'));
   return (
     <div>

@@ -2,6 +2,7 @@ import React, { memo, useState } from 'react';
 import styled from 'styled-components';
 import Collapse from '@material-ui/core/Collapse';
 import Button from '@material-ui/core/Button';
+import { useQuery } from '@tanstack/react-query';
 
 import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from 'shared/constants';
 
@@ -12,8 +13,10 @@ import { RadioField } from '../components';
 import { IdBanner } from '../components/IdBanner';
 import { Colors, PATIENT_REGISTRY_OPTIONS } from '../constants';
 import { getPatientDetailsValidation } from '../validations';
-import { PrimaryDetailsGroup, SecondaryDetailsGroup } from './PatientDetailsForm';
+import { PrimaryDetailsGroup, SecondaryDetailsGroup, FieldsGroup } from './PatientDetailsForm';
 import { useSexValues } from '../hooks';
+import { useApi } from '../api';
+import { LoadingIndicator } from '../components/LoadingIndicator';
 
 import plusCircle from '../assets/images/plus_circle.svg';
 import minusCircle from '../assets/images/minus_circle.svg';
@@ -67,6 +70,16 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
   const [patientRegistryType, setPatientRegistryType] = useState(
     PATIENT_REGISTRY_TYPES.NEW_PATIENT,
   );
+  const api = useApi();
+  const { data: patientFields, error, isLoading: isLoadingFields } = useQuery(
+    ['patientFieldDefinition'],
+    () => api.get(`patientFieldDefinition`),
+  );
+  const sexValues = useSexValues();
+
+  if (error) {
+    throw error;
+  }
 
   const handleSubmit = data => {
     const newData = { ...data };
@@ -115,13 +128,12 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
         </AdditionalInformationRow>
         <Collapse in={isExpanded} style={{ gridColumn: 'span 2' }}>
           <SecondaryDetailsGroup patientRegistryType={patientRegistryType} values={values} />
+          {isLoadingFields ? <LoadingIndicator /> : <FieldsGroup patientFields={patientFields} />}
         </Collapse>
         <ModalActionRow confirmText="Confirm" onConfirm={submitForm} onCancel={onCancel} />
       </>
     );
   };
-
-  const sexValues = useSexValues();
 
   return (
     <Form
