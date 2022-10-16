@@ -10,6 +10,7 @@ async function testSkipMigration(queryRunner: QueryRunner): Promise<boolean> {
 export class changeCaseOfSpo21665717114000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
     if (await testSkipMigration(queryRunner)) {
+      console.log('Skipping migration as the result has already been achieved by a forced sync');
       return;
     }
     await queryRunner.renameColumn('vitals', 'spO2', 'spo2');
