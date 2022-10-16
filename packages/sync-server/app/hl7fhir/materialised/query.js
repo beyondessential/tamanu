@@ -199,7 +199,7 @@ function typedMatch(value, query, def) {
         case FHIR_DATETIME_PRECISION.DAYS:
           return [{ op: prefixToOp(value.prefix), val: value.date.sql.split(' ')[0] }];
         case FHIR_DATETIME_PRECISION.SECONDS:
-          return [{ op: prefixToOp(value.prefix), val: value.date.sql.split(' ')[0] }];
+          return [{ op: prefixToOp(value.prefix), val: value.date.sql }];
         default:
           throw new Unsupported(`unsupported date precision: ${def.datePrecision}`);
       }
