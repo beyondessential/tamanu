@@ -15,28 +15,27 @@ export class updateLabTestDate1662006885000 implements MigrationInterface {
         isNullable: true,
       }),
     );
-    // 2. Copy datat to legacy columns for backup
+    // 2. Copy data to legacy columns for backup
     await queryRunner.query(
-      'UPDATE labTest SET date_legacy = sampleTime',
+      'UPDATE labTest SET date_legacy = date',
     );
 
     // 3.Change column types from of original columns from date to string & convert data to string
     // NOTE: SQLite doesn't like to update columns, drop the column and recreate it as the new type
-    await queryRunner.dropColumn('labTest', 'sampleTime');
+    await queryRunner.dropColumn('labTest', 'date');
     await queryRunner.addColumn(
       tableObject,
       new TableColumn({
         name: 'date',
-        type: 'string',
+        type: 'varchar',
         length: `${ISO9075_FORMAT_LENGTH}`,
         isNullable: false,
         default: "strftime('%Y-%m-%d', CURRENT_TIMESTAMP)",
       }),
     );
     // Fill data
-    await queryRunner.query(
-      'UPDATE labTest SET date = date_legacy',
-    );
+    await queryRunner.query(`UPDATE labTest SET date = strftime('%Y-%m-%d', date_legacy) 
+    WHERE date_legacy IS NOT NULL`);
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
@@ -48,7 +47,7 @@ export class updateLabTestDate1662006885000 implements MigrationInterface {
       'date_legacy',
       new TableColumn({
         name: 'date',
-        type: 'Date',
+        type: 'date',
       }),
     );
   }

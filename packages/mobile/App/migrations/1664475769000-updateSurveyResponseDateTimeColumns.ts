@@ -33,14 +33,14 @@ async function createDateTimeStringUpMigration(
     tableObject,
     new TableColumn({
       name: columnName,
-      type: 'string',
+      type: 'varchar',
       length: `${ISO9075_FORMAT_LENGTH}`,
       isNullable: true,
     }),
   );
   await queryRunner.query(
     `UPDATE ${tableName}
-      SET ${columnName} = ${columnName}_legacy`,
+    SET ${columnName} = strftime('%Y-%m-%d %H:%M:%S',${columnName}_legacy) WHERE ${columnName}_legacy IS NOT NULL`,
   );
 }
 

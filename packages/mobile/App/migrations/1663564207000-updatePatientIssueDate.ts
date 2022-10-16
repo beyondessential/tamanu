@@ -33,14 +33,14 @@ export class updatePatientIssueDate1663564207000 implements MigrationInterface {
       tableObject,
       new TableColumn({
         name: columnName,
-        type: 'string',
+        type: 'varchar',
         length: `${ISO9075_FORMAT_LENGTH}`,
         isNullable: true,
       }),
     );
     await queryRunner.query(
       `UPDATE ${tableName}
-      SET ${columnName} = ${columnName}_legacy`,
+       SET ${columnName} = strftime('%Y-%m-%d %H:%M:%S', ${columnName}_legacy) WHERE ${columnName}_legacy IS NOT NULL`,
     );
   }
 
@@ -54,7 +54,7 @@ export class updatePatientIssueDate1663564207000 implements MigrationInterface {
       `${columnName}_legacy`,
       new TableColumn({
         name: columnName,
-        type: 'Date',
+        type: 'date',
       }),
     );
   }
