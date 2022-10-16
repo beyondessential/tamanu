@@ -10,6 +10,16 @@ export const MODEL_DEPENDENCY_ORDER = [
   'User',
   'UserFacility',
 
+  'LabTestType',
+
+  'Program',
+  'ProgramDataElement',
+  'Survey',
+  'SurveyScreenComponent',
+
+  'InvoiceLineType',
+  'InvoicePriceChangeType',
+
   'Patient',
   'Encounter',
 
@@ -36,15 +46,10 @@ export const MODEL_DEPENDENCY_ORDER = [
   'ScheduledVaccine',
   'AdministeredVaccine',
 
-  'Program',
-  'ProgramDataElement',
-  'Survey',
-  'SurveyScreenComponent',
 
   'SurveyResponse',
   'SurveyResponseAnswer',
 
-  'LabTestType',
   'LabTest',
   'LabRequest',
   'ImagingRequest',
@@ -61,9 +66,7 @@ export const MODEL_DEPENDENCY_ORDER = [
   'CertificateNotification',
 
   'Invoice',
-  'InvoiceLineType',
   'InvoiceLineItem',
-  'InvoicePriceChangeType',
   'InvoicePriceChangeItem',
 
   // 'LabRequestLog',
