@@ -13,7 +13,10 @@ interface GeneralInfoProps {
   patient: IPatient;
 }
 
-export const GeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement => {
+export const GeneralInfo = ({
+  onEdit,
+  patient,
+}: GeneralInfoProps): ReactElement => {
   const fields = [
     ['firstName', patient.firstName],
     ['middleName', patient.middleName || 'None'],
@@ -30,7 +33,10 @@ export const GeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement
   const isEditable = getBool('features.editPatientDetailsOnMobile');
 
   return (
-    <PatientSection title="General Information" onEdit={isEditable ? onEdit : undefined}>
+    <PatientSection
+      title="General Information"
+      onEdit={isEditable ? onEdit : undefined}
+    >
       <FieldRowDisplay fields={fields} />
     </PatientSection>
   );
