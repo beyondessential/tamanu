@@ -51,7 +51,8 @@
       "packages/sync-server",
       "packages/meta-server",
       "packages/shared",
-      "packages/shared-src"
+      "packages/shared-src",
+      "packages/eslint-plugin-custom-date-rules"
     ],
     "nohoist": [
       "**/webpack",
