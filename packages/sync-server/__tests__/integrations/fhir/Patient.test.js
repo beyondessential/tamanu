@@ -1,10 +1,5 @@
-import { testPatientHandler as oldstyleHandler } from '../../hl7fhir/routeHandlersTests';
-import { testPatientHandler as materialHandler } from '../../hl7fhir/materialisedTests';
+import { testPatientHandler } from '../../hl7fhir/routeHandlersTests';
 
 describe('FHIR integration - Patient', () => {
-  oldstyleHandler('fhir');
-});
-
-describe('FHIR Materialised integration - Patient', () => {
-  materialHandler('fhir/mat');
+  testPatientHandler('fhir');
 });

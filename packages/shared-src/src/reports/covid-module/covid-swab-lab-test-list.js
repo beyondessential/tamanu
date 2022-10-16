@@ -218,7 +218,7 @@ const getLabTestRecords = async (
   labTests,
   transformedAnswers,
   parameters,
-  { surveyQuestionCodes, dateFormat },
+  { surveyQuestionCodes, dateFormat, dateFilterBy },
 ) => {
   const transformedAnswersByPatientAndDataElement = groupBy(
     transformedAnswers,
@@ -248,19 +248,23 @@ const getLabTestRecords = async (
 
       const labTest = patientLabTests[i];
       const currentLabTestDate = startOfDay(parseISO(labTest.date));
+      const dateToFilterBy =
+        dateFilterBy === 'labRequest.sampleTime'
+          ? startOfDay(parseISO(labTest.labRequest.sampleTime))
+          : currentLabTestDate;
 
       // Get all lab tests regardless and filter fromDate and toDate in memory
       // to ensure that we have the date range from current lab test to the next lab test correctly.
       if (
         isBefore(
-          currentLabTestDate,
+          dateToFilterBy,
           startOfDay(parameters.fromDate ? parseISO(parameters.fromDate) : subDays(new Date(), 30)),
         )
       ) {
         continue;
       }
 
-      if (parameters.toDate && isAfter(currentLabTestDate, endOfDay(parseISO(parameters.toDate)))) {
+      if (parameters.toDate && isAfter(dateToFilterBy, endOfDay(parseISO(parameters.toDate)))) {
         continue;
       }
 
@@ -339,7 +343,13 @@ const getLabTestRecords = async (
 export const baseDataGenerator = async (
   { models },
   parameters = {},
-  { surveyId, reportColumnTemplate, surveyQuestionCodes, dateFormat = 'yyyy/MM/dd' },
+  {
+    surveyId,
+    reportColumnTemplate,
+    surveyQuestionCodes,
+    dateFormat = 'yyyy/MM/dd',
+    dateFilterBy = 'date',
+  },
 ) => {
   const labTests = await getLabTests(models, parameters);
   const transformedAnswers = await getFijiCovidAnswers(models, parameters, {
@@ -349,6 +359,7 @@ export const baseDataGenerator = async (
   const reportData = await getLabTestRecords(labTests, transformedAnswers, parameters, {
     surveyQuestionCodes,
     dateFormat,
+    dateFilterBy,
   });
   return generateReportFromQueryData(reportData, reportColumnTemplate);
 };

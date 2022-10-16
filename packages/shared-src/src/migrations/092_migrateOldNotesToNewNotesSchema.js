@@ -1,6 +1,3 @@
-import Sequelize from 'sequelize';
-import { keyBy } from 'lodash';
-
 export async function up(query) {
   await query.sequelize.query(`
     INSERT INTO note_pages(id, record_id, record_type, note_type, date, created_at, updated_at, deleted_at)

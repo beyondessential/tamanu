@@ -6,7 +6,7 @@ const DATE_FORMAT = 'yyyy-MM-dd';
 
 const getDateTransformer = (format: string): ValueTransformer => ({
   from: (value: string): string => value,
-  to: (value: Date | string): string => (typeof value === 'string' ? value : formatDate(value, format)),
+  to: (value: Date | string): string => value && (typeof value === 'string' ? value : formatDate(value, format)),
 });
 
 export function DateTimeStringColumn(options = {}): PropertyDecorator {
