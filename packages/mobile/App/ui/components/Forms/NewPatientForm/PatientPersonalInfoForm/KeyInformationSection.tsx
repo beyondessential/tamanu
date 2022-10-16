@@ -18,7 +18,6 @@ export const KeyInformationSection = (): ReactElement => {
     <FormGroup sectionName="KEY INFORMATION" marginTop>
       <LocalisedField name="sex" options={filteredGenderOptions} component={Dropdown} />
       <LocalisedField name="dateOfBirth" max={new Date()} component={DateField} />
-      <LocalisedField name="foo" max={new Date()} component={DateField} />
       <LocalisedField name="email" component={TextField} />
     </FormGroup>
   );

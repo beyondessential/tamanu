@@ -18,7 +18,6 @@ export class Patient extends Model {
         middleName: Sequelize.STRING,
         lastName: Sequelize.STRING,
         culturalName: Sequelize.STRING,
-        foo: Sequelize.DATE,
 
         dateOfBirth: dateType('dateOfBirth'),
         dateOfDeath: dateTimeType('dateOfDeath'),

@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 
-import { formatDate, formatStringDate, parseISO9075 } from '/helpers/date';
+import { formatStringDate } from '/helpers/date';
 import { DateFormats } from '/helpers/constants';
 import { FieldRowDisplay } from '~/ui/components/FieldRowDisplay';
 import { PatientSection } from './PatientSection';
@@ -20,17 +20,15 @@ export const GeneralInfo = ({ onEdit, patient }: GeneralInfoProps): ReactElement
     ['lastName', patient.lastName],
     ['culturalName', patient.culturalName || 'None'],
     ['sex', getGender(patient.sex)],
-    // ['foo', formatDate(parseISO9075(patient.foo), DateFormats.DATE_AND_TIME)],
+    ['dateOfBirth', formatStringDate(patient.dateOfBirth, DateFormats.DDMMYY)],
     ['email', patient.email],
     ['villageId', patient.village?.name ?? ''],
   ];
-  // console.log('----', formatDate(parseISO9075(patient.foo), DateFormats.DATE_AND_TIME));
 
   // Check if patient information should be editable
-  const { getBool, getString } = useLocalisation();
+  const { getBool } = useLocalisation();
   const isEditable = getBool('features.editPatientDetailsOnMobile');
 
-  console.log('----', getString('timeZone'));
   return (
     <PatientSection title="General Information" onEdit={isEditable ? onEdit : undefined}>
       <FieldRowDisplay fields={fields} />

@@ -5,7 +5,6 @@ import { updateLabTestDate1662006885000 } from './1662006885000-updateLabTestDat
 import { updatePatientIssueDate1663564207000 } from './1663564207000-updatePatientIssueDate';
 import { updatePatientEncounterDateTimeColumns1664229842000 } from './1664229842000-updatePatientEncounterDateTimeColumns';
 import { updateSurveyResponseDateTimeColumns1664475769000 } from './1664475769000-updateSurveyResponseDateTimeColumns';
-import { mobileDateTest1665790388000 } from './1665790388000-mobileDateTest';
 import { reMigrateDateFieldsWithCountryTimeZone1665901637000 } from './1665901637000-reMigrateDateFieldsWithCountryTimeZone';
 
 export const migrationList = [
@@ -15,6 +14,5 @@ export const migrationList = [
   updatePatientIssueDate1663564207000,
   updatePatientEncounterDateTimeColumns1664229842000,
   updateSurveyResponseDateTimeColumns1664475769000,
-  mobileDateTest1665790388000,
   reMigrateDateFieldsWithCountryTimeZone1665901637000,
 ];

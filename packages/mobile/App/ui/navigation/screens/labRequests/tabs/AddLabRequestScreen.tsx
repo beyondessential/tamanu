@@ -102,8 +102,6 @@ export const DumbAddLabRequestScreen = ({
       { reasonForEncounter: 'Lab request from mobile' },
     );
 
-    console.log('encounter', encounter);
-
     const {
       requestedDate,
       sampleDate,
