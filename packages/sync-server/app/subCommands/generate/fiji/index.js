@@ -62,6 +62,10 @@ const generateFiji = async ({ patientCount: patientCountStr, steps: stepsStr }) 
   try {
     const setupData = await upsertSetupData();
     await loopAndGenerate(store, patientCount, () => insertPatientData(setupData));
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error(e);
+    throw e;
   } finally {
     await closeDatabase();
   }
