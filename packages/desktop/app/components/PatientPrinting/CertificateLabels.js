@@ -15,7 +15,7 @@ export const CertificateLabel = ({ name, children, margin = '20px', size = '12' 
   </Text>
 );
 
-export const LocalisedCertificateLabel = ({ name, children, margin = '20px', size = '12' }) => (
+export const LocalisedCertificateLabel = ({ name, children, margin = '20px', size = 12 }) => (
   <Text margin={margin} $size={size}>
     <strong>
       <LocalisedText path={`fields.${name}.longLabel`} />:{' '}

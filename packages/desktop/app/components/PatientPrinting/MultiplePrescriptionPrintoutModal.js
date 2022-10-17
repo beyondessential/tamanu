@@ -59,8 +59,6 @@ export const MultiplePrescriptionPrintoutModal = ({
           patientData={{ ...patient, additionalData, village }}
           prescriber={prescriber}
           prescriptions={prescriptions}
-          onSubmit={() => true}
-          onClose={onClose}
         />
       )}
     </Modal>
