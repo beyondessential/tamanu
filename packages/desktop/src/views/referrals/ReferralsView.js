@@ -1,9 +1,8 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-
 import { SURVEY_TYPES } from 'shared/constants';
-import { FormGrid } from '../../components/FormGrid';
 import { useApi } from '../../api';
+import { FormGrid } from '../../components/FormGrid';
 import { reloadPatient } from '../../store/patient';
 import { SurveyView } from '../programs/SurveyView';
 import { PatientListingView } from '..';

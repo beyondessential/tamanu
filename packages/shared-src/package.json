@@ -37,7 +37,7 @@
   },
   "dependencies": {
     "@casl/ability": "^4.1.0",
-    "@react-pdf/renderer": "^2.1.1",
+    "@react-pdf/renderer": "^3.0.0",
     "await-to-js": "^2.0.1",
     "bcrypt": "^3.0.1",
     "calculate-luhn-mod-n": "^2.0.12",
