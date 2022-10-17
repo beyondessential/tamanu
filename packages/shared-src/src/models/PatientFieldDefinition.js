@@ -6,6 +6,13 @@ import {
 } from 'shared/constants';
 import { Model } from './Model';
 
+const FIELD_TYPE_ERR_MSG = `fieldType must be one of ${JSON.stringify(
+  PATIENT_FIELD_DEFINITION_TYPE_VALUES,
+)}`;
+const STATE_ERR_MSG = `state must be one of ${JSON.stringify(
+  PATIENT_FIELD_DEFINITION_STATE_VALUES,
+)}`;
+
 export class PatientFieldDefinition extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
@@ -19,7 +26,10 @@ export class PatientFieldDefinition extends Model {
           type: Sequelize.STRING,
           allowNull: false,
           validate: {
-            isIn: [PATIENT_FIELD_DEFINITION_TYPE_VALUES],
+            isIn: {
+              args: [PATIENT_FIELD_DEFINITION_TYPE_VALUES],
+              msg: FIELD_TYPE_ERR_MSG,
+            },
           },
         },
         options: Sequelize.ARRAY(Sequelize.STRING),
@@ -28,7 +38,10 @@ export class PatientFieldDefinition extends Model {
           allowNull: false,
           defaultValue: PATIENT_FIELD_DEFINITION_STATES.CURRENT,
           validate: {
-            isIn: [PATIENT_FIELD_DEFINITION_STATE_VALUES],
+            isIn: {
+              args: [PATIENT_FIELD_DEFINITION_STATE_VALUES],
+              msg: STATE_ERR_MSG,
+            },
           },
         },
       },
