@@ -1,4 +1,8 @@
-import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
+import {
+  createDummyPatient,
+  createDummyEncounter,
+  randomReferenceId,
+} from 'shared/demoData/patients';
 import moment from 'moment';
 import { startOfDay, subDays, subYears } from 'date-fns';
 import { toDateString } from 'shared/utils/dateTime';
@@ -17,6 +21,7 @@ const yearsAgo = (years, days = 0) =>
 // tests have a healthy population of negative examples as well
 const searchTestPatients = [
   { displayId: 'search-by-display-id' },
+  { displayId: 'search-by-secondary-id' },
   { firstName: 'search-by-name' },
   { firstName: 'search-by-name' },
   { firstName: 'search-by-name' },
@@ -125,6 +130,15 @@ describe('Patient search', () => {
             );
           }
         }
+        if (patient.displayId === 'search-by-secondary-id') {
+          const secondaryIdType = await randomReferenceId(models, 'secondaryIdType');
+          await models.PatientSecondaryId.create({
+            value: 'patient-secondary-id',
+            visibilityStatus: 'historical',
+            typeId: secondaryIdType,
+            patientId: patient.id,
+          });
+        }
       }),
     );
   });
@@ -148,6 +162,36 @@ describe('Patient search', () => {
 
   it('should get a patient by displayId', async () => {
     const response = await app.get('/v1/patient').query({
+      displayId: 'search-by-display-id',
+    });
+    expect(response).toHaveSucceeded();
+    expect(response.body.count).toEqual(1);
+
+    const [responsePatient] = response.body.data;
+    expect(responsePatient).toHaveProperty('displayId', 'search-by-display-id');
+  });
+
+  it('should NOT get a patient by secondary ID by default', async () => {
+    const response = await app.get('/v1/patient').query({
+      displayId: 'patient-secondary-id',
+    });
+    expect(response).toHaveSucceeded();
+    expect(response.body.count).toEqual(0);
+  });
+
+  it('should get a patient by secondary ID if query param matchSecondaryIds is true', async () => {
+    const response = await app.get('/v1/patient?matchSecondaryIds=true').query({
+      displayId: 'patient-secondary-id',
+    });
+    expect(response).toHaveSucceeded();
+    expect(response.body.count).toEqual(1);
+
+    const [responsePatient] = response.body.data;
+    expect(responsePatient).toHaveProperty('displayId', 'search-by-secondary-id');
+  });
+
+  it('should get a patient by displayId even if query param matchSecondaryIds is true', async () => {
+    const response = await app.get('/v1/patient?matchSecondaryIds=true').query({
       displayId: 'search-by-display-id',
     });
     expect(response).toHaveSucceeded();
