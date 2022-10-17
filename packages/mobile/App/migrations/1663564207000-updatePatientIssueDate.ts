@@ -41,7 +41,7 @@ export class updatePatientIssueDate1663564207000 implements MigrationInterface {
     );
     await queryRunner.query(
       `UPDATE ${tableName}
-       SET ${columnName} = datetime(${columnName}_legacy) WHERE ${columnName}_legacy IS NOT NULL`,
+       SET ${columnName} = datetime(${columnName}_legacy, 'localtime') WHERE ${columnName}_legacy IS NOT NULL`,
     );
   }
 
