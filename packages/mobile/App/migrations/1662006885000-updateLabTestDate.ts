@@ -1,5 +1,6 @@
 import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
 import { getTable } from './utils/queryRunner';
+
 const ISO9075_FORMAT = 'YYYY-MM-DD';
 const ISO9075_FORMAT_LENGTH = ISO9075_FORMAT.length;
 
@@ -30,11 +31,11 @@ export class updateLabTestDate1662006885000 implements MigrationInterface {
         type: 'varchar',
         length: `${ISO9075_FORMAT_LENGTH}`,
         isNullable: false,
-        default: "strftime('%Y-%m-%d', CURRENT_TIMESTAMP)",
+        default: 'date(CURRENT_TIMESTAMP)',
       }),
     );
     // Fill data
-    await queryRunner.query(`UPDATE labTest SET date = strftime('%Y-%m-%d', date_legacy) 
+    await queryRunner.query(`UPDATE labTest SET date = date(date_legacy) 
     WHERE date_legacy IS NOT NULL`);
   }
 

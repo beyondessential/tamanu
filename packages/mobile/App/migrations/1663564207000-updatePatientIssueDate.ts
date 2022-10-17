@@ -1,5 +1,6 @@
 import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
 import { getTable } from './utils/queryRunner';
+
 const ISO9075_FORMAT = 'YYYY-MM-DD HH:mm:ss';
 const ISO9075_FORMAT_LENGTH = ISO9075_FORMAT.length;
 
@@ -40,7 +41,7 @@ export class updatePatientIssueDate1663564207000 implements MigrationInterface {
     );
     await queryRunner.query(
       `UPDATE ${tableName}
-       SET ${columnName} = strftime('%Y-%m-%d %H:%M:%S', ${columnName}_legacy) WHERE ${columnName}_legacy IS NOT NULL`,
+       SET ${columnName} = datetime(${columnName}_legacy) WHERE ${columnName}_legacy IS NOT NULL`,
     );
   }
 
