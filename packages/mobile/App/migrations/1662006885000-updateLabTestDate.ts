@@ -8,7 +8,7 @@ const ISO9075_FORMAT_LENGTH = ISO9075_FORMAT.length;
 // Test if this is the case, and if it was, don't try to rename the column
 async function testSyncedBeforeMigration(queryRunner: QueryRunner): Promise<boolean> {
   const legacyColumn = await queryRunner.query(
-    "SELECT * FROM pragma_table_info('labTest') WHERE name='date';",
+  "PRAGMA table_info('labTest') WHERE name='date';"
   );
   return legacyColumn.length > 0;
 }
