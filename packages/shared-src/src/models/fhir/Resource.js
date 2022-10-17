@@ -64,7 +64,8 @@ export class FhirResource extends Model {
   static UPSTREAM_UUID = false;
 
   // set upstream_id, call updateMaterialisation
-  static async materialiseFromUpstream(id) {
+  // do not set relatedToId when calling this, it's for internal use only.
+  static async materialiseFromUpstream(id, relatedToId = null) {
     let resource = await this.findOne({
       where: {
         upstreamId: id,
@@ -81,12 +82,32 @@ export class FhirResource extends Model {
 
     await resource.updateMaterialisation();
     await resource.save();
+
+    // don't look up related records if we're already in the process of doing so
+    // this may miss records that are transitively related, but it avoids infinite
+    // loops: to make sure nothing is missed, write the getRelatedUpstreamIds()
+    // to traverse the entire graph or tree upfront as needed.
+    if (!relatedToId) {
+      for (const relatedId of await resource.getRelatedUpstreamIds()) {
+        if (relatedId === id) continue;
+        if (relatedId === relatedToId) continue;
+        await this.materialiseFromUpstream(relatedId, id);
+      }
+    }
+
     return resource;
   }
 
   // fetch upstream and necessary includes, diff and update
   async updateMaterialisation() {
     throw new Error('must be overridden');
+  }
+
+  // return the IDs of upstream records that are not this one's upstream, but
+  // which should be re-materialised when this one is, so that the view of FHIR
+  // data is up to date and consistent.
+  async getRelatedUpstreamIds() {
+    return [];
   }
 
   // call updateMat, don't save, output bool
@@ -99,8 +120,11 @@ export class FhirResource extends Model {
   }
 
   // fetch (single) upstream with query options (e.g. includes)
-  getUpstream(queryOptions) {
-    return this.constructor.UpstreamModel.findByPk(this.upstreamId, queryOptions);
+  getUpstream(queryOptions = {}) {
+    return this.constructor.UpstreamModel.findByPk(this.upstreamId, {
+      ...queryOptions,
+      paranoid: false,
+    });
   }
 
   // query to do lookup of non-deleted upstream records that are not present in the FHIR tables
