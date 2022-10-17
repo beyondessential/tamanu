@@ -77,6 +77,14 @@ export class FhirPatient extends FhirResource {
     });
   }
 
+  async getRelatedUpstreamIds() {
+    const upstream = await this.getUpstream();
+    const mergedUp = await upstream.getMergedUp();
+    const mergedDown = await upstream.getMergedDown();
+
+    return [...mergedUp.map(u => u.id), ...mergedDown.map(u => u.id)];
+  }
+
   static async resolveUpstreamLinks() {
     await this.sequelize.query('CALL fhir.patients_resolve_upstream_links()');
   }
@@ -257,14 +265,16 @@ async function mergeLinks(patient) {
   for (const mergedPatient of down) {
     if (mergedPatient.mergedIntoId === patient.id) {
       // if it's a merge directly into this patient
-      links.push(new FhirPatientLink({
-        type: 'replaces',
-        other: new FhirReference({
-          reference: mergedPatient.id,
-          type: 'upstream://patient',
-          display: mergedPatient.displayId,
-        })
-      }));
+      links.push(
+        new FhirPatientLink({
+          type: 'replaces',
+          other: new FhirReference({
+            reference: mergedPatient.id,
+            type: 'upstream://patient',
+            display: mergedPatient.displayId,
+          }),
+        }),
+      );
     } else {
       links.push(
         new FhirPatientLink({

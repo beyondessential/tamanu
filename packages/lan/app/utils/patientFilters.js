@@ -7,7 +7,11 @@ export const createPatientFilters = filterParams => {
   const filters = [
     makeFilter(
       filterParams.displayId,
-      `UPPER(patients.display_id) LIKE UPPER(:displayId)`,
+      `(UPPER(patients.display_id) LIKE UPPER(:displayId)${
+        filterParams.matchSecondaryIds === 'true'
+          ? ' OR UPPER(patient_secondary_ids.value) LIKE UPPER(:displayId)'
+          : ''
+      })`,
       ({ displayId }) => ({
         displayId: filterParams.displayIdExact === 'true' ? displayId : `%${displayId}%`,
       }),
