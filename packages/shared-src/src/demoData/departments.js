@@ -1,4 +1,5 @@
-import { randomRecordId, splitIds } from './utilities';
+import config from 'config';
+import { splitIds } from './utilities';
 
 export const DEPARTMENTS = splitIds(`
   Medical
@@ -17,7 +18,10 @@ export const DEPARTMENTS = splitIds(`
 `);
 
 export const seedDepartments = async models => {
-  const facilityId = await randomRecordId(models, 'Facility');
-  const departments = DEPARTMENTS.map(d => ({ ...d, code: d.name, facilityId }));
+  const departments = DEPARTMENTS.map(d => ({
+    ...d,
+    code: d.name,
+    facilityId: config.serverFacilityId,
+  }));
   return models.Department.bulkCreate(departments);
 };
