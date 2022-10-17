@@ -17,9 +17,7 @@ export class updateLabTestDate1662006885000 implements MigrationInterface {
       }),
     );
     // 2. Copy data to legacy columns for backup
-    await queryRunner.query(
-      'UPDATE labTest SET date_legacy = date',
-    );
+    await queryRunner.query('UPDATE labTest SET date_legacy = date');
 
     // 3.Change column types from of original columns from date to string & convert data to string
     // NOTE: SQLite doesn't like to update columns, drop the column and recreate it as the new type
@@ -35,7 +33,7 @@ export class updateLabTestDate1662006885000 implements MigrationInterface {
       }),
     );
     // Fill data
-    await queryRunner.query(`UPDATE labTest SET date = date(date_legacy) 
+    await queryRunner.query(`UPDATE labTest SET date = date(date_legacy, 'localtime') 
     WHERE date_legacy IS NOT NULL`);
   }
 
