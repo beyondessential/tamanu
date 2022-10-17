@@ -43,7 +43,7 @@ async function createDateTimeStringUpMigration(
   await queryRunner.query(
     `UPDATE ${tableName}
       SET ${columnName} =  CASE
-      WHEN (${columnName}_legacy IS NOT NULL AND datetime(${columnName}_legacy, 'localtime') IS NULL) THEN datetime(${columnName}_legacy / 1000, 'unixepoch', 'localtime') END
+      WHEN (${columnName}_legacy IS NOT NULL AND datetime(${columnName}_legacy, 'localtime') IS NULL) THEN datetime(${columnName}_legacy / 1000, 'unixepoch', 'localtime')
       WHEN (${columnName}_legacy IS NOT NULL) THEN datetime(${columnName}_legacy, 'localtime')
       ELSE NULL
       END`,
