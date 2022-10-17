@@ -1,21 +1,22 @@
 import { writeFileSync, readFileSync } from 'fs';
 
-// read in desktop's package.json
+// Read in desktop's package.json
 const pkgPath = './packages/desktop/package.json'
 const pkgRaw = readFileSync(pkgPath);
 const pkg = JSON.parse(pkgRaw);
 
-// get which deployment we're going for
+// Get which deployment we're going for
 const branch = process.env.CI_BRANCH;
 const deployment = branch.replace("release-desktop-", "");
 
-// determine build folder
+// Determine build folder
 const buildFolder = `desktop/${deployment}`;
 pkg.build.publish.path = buildFolder;
 
-// determine installation method
-// - false: install to appdata
-// - true: install to Program Files
+// Determine installation method:
+// - perMachine = false: install to appdata
+// - perMachine = true: install to Program Files
+// Add new deployments here as required.
 const programFilesDeployments = [
   'aspen-medical-fiji',
   'aspen-demo',
@@ -23,8 +24,5 @@ const programFilesDeployments = [
 ];
 pkg.build.nsis.perMachine = programFilesDeployments.includes(deployment);
 
-// write back to desktop package.json to be read by build task
-writeFileSync(
-  'packages/desktop/package.json',
-  JSON.stringify(pkg, null, 2)
-);
+// Write back to desktop package.json to be read by build task
+writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
