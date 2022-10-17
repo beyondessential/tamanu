@@ -36,6 +36,12 @@ export const TestSelectorInput = ({ name, testTypes, value = [], onChange, ...pr
 
   const isTestSelected = useCallback(testId => value.some(x => x === testId), [value]);
 
+  const allSelected = value.length === testTypes.length;
+  const selectAll = useCallback(() => {
+    const newValue = allSelected ? [] : testTypes.map(x => x.id);
+    onChange({ target: { value: newValue } });
+  }, [allSelected, testTypes]);
+
   const updateValue = useCallback(
     (testId, isSelected) => {
       const filteredValue = value.filter(v => testTypes.some(tt => v === tt.id));
@@ -75,6 +81,7 @@ export const TestSelectorInput = ({ name, testTypes, value = [], onChange, ...pr
   return (
     <SelectorContainer {...props}>
       <TextInput label="Filter tests" value={filter} onChange={t => setFilter(t.target.value)} />
+      <CheckInput label="Select all" value={allSelected} onChange={selectAll} />
       <SelectorTable>{testDisplay}</SelectorTable>
     </SelectorContainer>
   );

@@ -35,7 +35,7 @@ import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { DropdownButton } from '../components/DropdownButton';
 
 function getEncounterTypeLabel(type) {
-  return encounterOptions.find(x => x.value === type).label;
+  return encounterOptions.find(x => x.value === type)?.label;
 }
 
 function getEncounterLabel(encounter) {

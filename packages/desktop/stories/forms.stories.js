@@ -174,7 +174,7 @@ storiesOf('Forms', module).add('NewPatientForm', () => (
   <NewPatientForm
     onSubmit={action('submit')}
     onCancel={action('cancel')}
-    generateId={shortid.generate}
+    generateDisplayId={shortid.generate}
     facilitySuggester={facilitySuggester}
     patientSuggester={patientSuggester}
   />
@@ -184,7 +184,7 @@ storiesOf('Forms', module).add('PatientDetailsForm', () => (
   <PatientDetailsForm
     onSubmit={action('submit')}
     onCancel={action('cancel')}
-    generateId={shortid.generate}
+    generateDisplayId={shortid.generate}
     facilitySuggester={facilitySuggester}
     patientSuggester={patientSuggester}
   />
@@ -268,7 +268,7 @@ storiesOf('Forms/LabRequestForm', module)
       }}
       testTypes={testTypes}
       testCategories={testCategories}
-      generateId={shortid.generate}
+      generateDisplayId={shortid.generate}
       practitionerSuggester={practitionerSuggester}
     />
   ))
