@@ -38,9 +38,15 @@ async function createDateTimeStringUpMigration(
       isNullable: true,
     }),
   );
+
+  // Some survey responses created on mobile have dates set as Date.now() i.e unix timestamp
   await queryRunner.query(
     `UPDATE ${tableName}
-    SET ${columnName} = datetime(${columnName}_legacy, 'localtime') WHERE ${columnName}_legacy IS NOT NULL`,
+      SET ${columnName} =  CASE
+      WHEN (${columnName}_legacy IS NOT NULL AND datetime(${columnName}_legacy, 'localtime') IS NULL) THEN datetime(${columnName}_legacy / 1000, 'unixepoch', 'localtime')
+      WHEN (${columnName}_legacy IS NOT NULL) THEN datetime(${columnName}_legacy, 'localtime')
+      ELSE NULL
+      END`,
   );
 }
 
