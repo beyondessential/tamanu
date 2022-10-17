@@ -7,7 +7,9 @@ const ISO9075_FORMAT_LENGTH = ISO9075_FORMAT.length;
 // When we're upgrading into a version that uses migrations, we may have run a model sync
 // Test if this is the case, and if it was, don't try to rename the column
 async function testSyncedBeforeMigration(queryRunner: QueryRunner): Promise<boolean> {
-  const legacyColumn = await queryRunner.query("SELECT * FROM pragma_table_info('labTest') WHERE name='date';");
+  const legacyColumn = await queryRunner.query(
+    "SELECT * FROM pragma_table_info('labTest') WHERE name='date';",
+  );
   return legacyColumn.length > 0;
 }
 
@@ -28,9 +30,7 @@ export class updateLabTestDate1662006885000 implements MigrationInterface {
       }),
     );
     // 2. Copy data to legacy columns for backup
-    await queryRunner.query(
-      `UPDATE labTest SET date_legacy = ${columnName}`,
-    );
+    await queryRunner.query(`UPDATE labTest SET date_legacy = ${columnName}`);
 
     // 3.Change column types from of original columns from date to string & convert data to string
     // NOTE: SQLite doesn't like to update columns, drop the column and recreate it as the new type
@@ -46,7 +46,7 @@ export class updateLabTestDate1662006885000 implements MigrationInterface {
       }),
     );
     // Fill data
-    await queryRunner.query(`UPDATE labTest SET date = date(date_legacy) 
+    await queryRunner.query(`UPDATE labTest SET date = date(date_legacy, 'localtime') 
     WHERE date_legacy IS NOT NULL`);
   }
 
