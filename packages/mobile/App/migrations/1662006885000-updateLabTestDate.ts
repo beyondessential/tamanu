@@ -6,9 +6,9 @@ const ISO9075_FORMAT_LENGTH = ISO9075_FORMAT.length;
 
 // When we're upgrading into a version that uses migrations, we may have run a model sync
 // Test if this is the case, and if it was, don't try to rename the column
-async function testSyncedBeforeMigration(queryRunner: QueryRunner): Promise<boolean> {
-  const legacyColumn = await queryRunner.query("SELECT * FROM pragma_table_info('labTest') WHERE name='date';");
-  return legacyColumn.length > 0;
+async function testSyncedBeforeMigration(queryRunner: QueryRunner) : Promise<boolean> {
+  const dateColumn = await queryRunner.query("PRAGMA table_info('labTest') WHERE name='date';");
+  return dateColumn.length > 0;
 }
 
 export class updateLabTestDate1662006885000 implements MigrationInterface {
@@ -17,6 +17,7 @@ export class updateLabTestDate1662006885000 implements MigrationInterface {
     if (await testSyncedBeforeMigration(queryRunner)) {
       columnName = 'date';
     }
+
     const tableObject = await getTable(queryRunner, 'labTest');
     // 1. Create legacy columns
     await queryRunner.addColumn(
