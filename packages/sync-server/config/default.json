@@ -565,6 +565,12 @@
         }
       },
       "imagingTypes": {},
+      "imagingPriorities": [
+        { "value": "routine", "label": "Routine" },
+        { "value": "urgent", "label": "Urgent" },
+        { "value": "asap", "label": "ASAP" },
+        { "value": "stat", "label": "STAT" }
+      ],
       "printMeasures": {
         "stickerLabelPage": {
           "pageWidth": "210mm",
