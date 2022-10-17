@@ -14,15 +14,19 @@ const buildFolder = `desktop/${deployment}`;
 pkg.build.publish.path = buildFolder;
 
 // Determine installation method:
-// - perMachine = false: install to appdata
-// - perMachine = true: install to Program Files
+// - omitted in this list: install to appdata
+// - included: install to Program Files
 // Add new deployments here as required.
 const programFilesDeployments = [
   'aspen-medical-fiji',
   'aspen-demo',
   'tuvalu',
 ];
-pkg.build.nsis.perMachine = programFilesDeployments.includes(deployment);
+const isProgramFiles = programFilesDeployments.includes(deployment);
+pkg.build.nsis.perMachine = isProgramFiles;
 
 // Write back to desktop package.json to be read by build task
 writeFileSync(pkgPath, JSON.stringify(pkg, null, 2));
+
+const installTarget = isProgramFiles ? 'Program Files' : 'appdata';
+console.log(`Publishing to ${buildFolder} (will install to ${installTarget})`);

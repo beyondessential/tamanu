@@ -13,7 +13,6 @@ if [[ $1 == "build-only" ]]; then
 else
     # Update desktop's package.json with any deployment-specific adjustments
     node scripts/build_desktop_update_config.mjs
-    echo "Publishing to ${BUILD_FOLDER}"
     yarn --cwd ${DESKTOP_ROOT} run package-and-publish-win
 fi
 
