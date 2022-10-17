@@ -1,8 +1,4 @@
-import { sortInDependencyOrder } from '../models/sortInDependencyOrder';
-
 export const getOutgoingChangesForSession = async (store, sessionId, direction, offset, limit) => {
-  const sortedModels = sortInDependencyOrder(store.models);
-  const recordTypeOrder = sortedModels.map(m => m.tableName);
   const [results] = await store.sequelize.query(
     `
       SELECT id,
@@ -14,7 +10,7 @@ export const getOutgoingChangesForSession = async (store, sessionId, direction, 
       FROM sync_session_records
       WHERE session_id = :sessionId
         AND direction = :direction
-      ORDER BY array_position(ARRAY[:recordTypeOrder]::varchar[], record_type), id ASC
+      ORDER BY id ASC
       LIMIT :limit
       OFFSET :offset
     `,
@@ -24,7 +20,6 @@ export const getOutgoingChangesForSession = async (store, sessionId, direction, 
         direction,
         limit,
         offset,
-        recordTypeOrder,
       },
     },
   );
