@@ -1007,7 +1007,7 @@ const LabTestTable = new Table({
   columns: [
     ...BaseColumns,
     new TableColumn({
-      name: 'date',
+      name: 'sampleTime',
       type: 'datetime',
       default: 'CURRENT_TIMESTAMP',
     }),

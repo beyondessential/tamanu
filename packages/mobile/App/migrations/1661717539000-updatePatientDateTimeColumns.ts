@@ -1,5 +1,6 @@
 import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
 import { getTable } from './utils/queryRunner';
+
 const ISO9075_FORMAT = 'YYYY-MM-DD';
 const ISO9075_FORMAT_LENGTH = ISO9075_FORMAT.length;
 
@@ -40,7 +41,7 @@ async function createDateStringUpMigration(
   );
   await queryRunner.query(
     `UPDATE ${tableName}
-      SET ${columnName} = strftime('%Y-%m-%d', ${columnName}_legacy)
+      SET ${columnName} = date(${columnName}_legacy)
       WHERE ${columnName}_legacy IS NOT NULL`,
   );
 }
