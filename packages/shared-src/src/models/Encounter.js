@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { endOfDay, startOfDay, isBefore } from 'date-fns';
+import { endOfDay, isBefore, parseISO, startOfToday } from 'date-fns';
 
 import {
   ENCOUNTER_TYPES,
@@ -190,13 +190,13 @@ export class Encounter extends Model {
   static checkNeedsAutoDischarge({ encounterType, startDate, endDate }) {
     return (
       encounterType === ENCOUNTER_TYPES.CLINIC &&
-      isBefore(new Date(startDate), startOfDay(new Date())) &&
+      isBefore(parseISO(startDate), startOfToday()) &&
       !endDate
     );
   }
 
   static getAutoDischargeEndDate({ startDate }) {
-    return endOfDay(new Date(startDate));
+    return endOfDay(parseISO(startDate));
   }
 
   static sanitizeForCentralServer(values) {
