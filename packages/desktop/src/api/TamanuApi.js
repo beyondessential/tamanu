@@ -134,8 +134,9 @@ export class TamanuApi {
       throw new Error(`Tamanu server type '${serverType}' is not supported.`);
     }
 
-    const { token, localisation, server = {}, permissions } = await response.json();
+    const { token, localisation, server = {}, permissions, centralHost } = await response.json();
     server.type = serverType;
+    server.centralHost = centralHost;
     saveToLocalStorage({ token, localisation, server, permissions });
     this.setToken(token);
     this.lastRefreshed = Date.now();
@@ -224,7 +225,8 @@ export class TamanuApi {
         throw new Error(versionIncompatibleMessage);
       }
     }
-    throw new Error(error?.message || response.status);
+    const message = error?.message || response.status;
+    throw new Error(`Facility server error response: ${message}`);
   }
 
   async get(endpoint, query, options = {}) {

@@ -52,7 +52,10 @@ triage.post(
 
 const sortKeys = {
   score: 'score',
-  arrivalTime: 'arrival_time',
+  // arrivalTime is an optional field and the ui prompts the user to enter it only if arrivalTime
+  // is different to triageTime so we should assume the arrivalTime is the triageTime if arrivalTime
+  // is undefined
+  arrivalTime: 'Coalesce(arrival_time,triage_time)',
   patientName: 'UPPER(patients.last_name || patients.first_name)',
   chiefComplaint: 'chief_complaint',
   id: 'patients.display_id',
@@ -97,14 +100,14 @@ triage.get(
            ON (encounters.location_id = location.id)
           LEFT JOIN reference_data AS complaint
            ON (triages.chief_complaint_id = complaint.id)
-        WHERE
-          encounters.end_date IS NULL
+        WHERE true
+          AND encounters.end_date IS NULL
           AND location.facility_id = :facility
           AND (
             encounters.encounter_type = 'triage'
             OR encounters.encounter_type = 'observation'
           )
-        ORDER BY ${sortKey} ${sortDirection} NULLS LAST, arrival_time ASC
+        ORDER BY encounter_type = 'observation' ASC, ${sortKey} ${sortDirection} NULLS LAST, Coalesce(arrival_time,triage_time) ASC 
       `,
       {
         model: Triage,

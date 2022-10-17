@@ -2,7 +2,6 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { startOfDay } from 'date-fns';
 import { Op, Sequelize } from 'sequelize';
-import config from 'config';
 import { simplePost, simplePut } from './crudHelpers';
 import { escapePatternWildcard } from '../../utils/query';
 
@@ -76,15 +75,10 @@ appointments.get(
         column = `$${queryField}$`;
       }
 
-      let searchOperator = Op.iLike;
-      if (config.db.sqlitePath) {
-        searchOperator = Op.like;
-      }
-
       return {
         ..._filters,
         [column]: {
-          [searchOperator]: `%${escapePatternWildcard(queryValue)}%`,
+          [Op.iLike]: `%${escapePatternWildcard(queryValue)}%`,
         },
       };
     }, {});

@@ -125,7 +125,7 @@ const OutcomeDisplay = ({ result }) => {
       <hr />
       <h4>Summary</h4>
       {result.stats && <ImportStatsDisplay stats={result.stats} />}
-      {result?.errors?.length && (
+      {result?.errors?.length > 0 && (
         <>
           <h4>Errors</h4>
           <ImportErrorsTable errors={result?.errors} />

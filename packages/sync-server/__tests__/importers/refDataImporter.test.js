@@ -1,4 +1,3 @@
-import { VISIBILITY_STATUSES } from 'shared/constants';
 import { importerTransaction } from '../../app/admin/importerEndpoint';
 import { importer } from '../../app/admin/refdataImporter';
 import { createTestContext } from '../utilities';
@@ -44,6 +43,7 @@ describe('Data definition import', () => {
       'ReferenceData/labTestCategory': { created: 5, updated: 0, errored: 0 },
       'ReferenceData/labTestType': { created: 10, updated: 0, errored: 0 },
       'ReferenceData/village': { created: 13, updated: 0, errored: 0 },
+      'ReferenceData/procedureType': { created: 10, updated: 0, errored: 0 },
       User: { created: 10, updated: 0, errored: 0 },
       Facility: { created: 10, updated: 0, errored: 0 },
       ScheduledVaccine: { created: 1, updated: 0, errored: 0 },
@@ -150,6 +150,21 @@ describe('Data definition import', () => {
 
     expect(visible).toHaveProperty('visibilityStatus', 'current');
     expect(defaultVis).toHaveProperty('visibilityStatus', 'current');
+    expect(historical).toHaveProperty('visibilityStatus', 'historical');
+  });
+
+  it('should import if column headings are padded with whitespace', async () => {
+    const { ReferenceData } = ctx.store.models;
+    const { errors, stats } = await doImport({
+      file: 'valid-whitespace',
+    });
+    expect(errors).toBeEmpty();
+    expect(stats).toEqual({
+      'ReferenceData/village': { created: 3, updated: 0, errored: 0 },
+    });
+    const historical = await ReferenceData.findOne({
+      where: { id: 'village-historical-whitespace' },
+    });
     expect(historical).toHaveProperty('visibilityStatus', 'historical');
   });
 
@@ -285,4 +300,35 @@ describe('Permissions import', () => {
       'valid foreign key expected in column role (corresponding to roleId) but found: invalid',
     );
   });
+
+  it('should revoke (and reinstate) a permission', async () => {
+    const { Permission } = ctx.store.models;
+
+    const where = {
+      noun: 'RevokeTest'
+    };
+
+    const beforeImport = await Permission.findOne({ where });
+    expect(beforeImport).toBeFalsy();
+
+    await doImport({ file: 'revoke-a' });
+
+    const afterImport = await Permission.findOne({ where });
+    expect(afterImport).toBeTruthy();
+    expect(afterImport.deletedAt).toEqual(null);
+
+    await doImport({ file: 'revoke-b' });
+
+    const afterRevoke = await Permission.findOne({ where, paranoid: false });
+    expect(afterRevoke).toBeTruthy();
+    expect(afterRevoke.deletedAt).toBeTruthy();
+
+    await doImport({ file: 'revoke-a' });
+
+    const afterReinstate = await Permission.findOne({ where, paranoid: false });
+    expect(afterReinstate).toBeTruthy();
+    expect(afterReinstate.deletedAt).toEqual(null);
+
+  });
+
 });

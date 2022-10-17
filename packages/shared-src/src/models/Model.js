@@ -18,19 +18,24 @@ const MARKED_FOR_PUSH_MODELS = [
   'PatientIssue',
   'PatientSecondaryId',
   'ReportRequest',
+  'ReportDefinition',
+  'ReportDefinitionVersion',
   'UserFacility',
   'DocumentMetadata',
   'CertificateNotification',
   'PatientDeathData',
   'PatientBirthData',
   'ContributingDeathCause',
-  'ImagingRequestAreas',
 ];
 
 export class Model extends sequelize.Model {
-  static init(originalAttributes, { syncClientMode, syncConfig, ...options }) {
+  static init(originalAttributes, { syncClientMode, syncConfig, timestamps = true, ...options }) {
     const attributes = { ...originalAttributes };
     if (syncClientMode && MARKED_FOR_PUSH_MODELS.includes(this.name)) {
+      if (!timestamps) {
+        throw new Error('DEV: sync cannot work without timestamps');
+      }
+
       attributes.markedForPush = {
         type: Sequelize.BOOLEAN,
         allowNull: false,
@@ -45,8 +50,12 @@ export class Model extends sequelize.Model {
       attributes.pushedAt = Sequelize.DATE;
       attributes.pulledAt = Sequelize.DATE;
     }
-    attributes.deletedAt = Sequelize.DATE;
-    super.init(attributes, options);
+
+    if (timestamps) {
+      attributes.deletedAt = Sequelize.DATE;
+    }
+
+    super.init(attributes, { timestamps, ...options });
     this.syncClientMode = syncClientMode;
     this.defaultIdValue = attributes.id.defaultValue;
     this.syncConfig = new SyncConfig(this, syncConfig);

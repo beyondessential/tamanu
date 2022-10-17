@@ -1,6 +1,6 @@
 import { keyBy, groupBy, uniqWith, isEqual, upperFirst } from 'lodash';
+import { parseISO } from 'date-fns';
 import { Op } from 'sequelize';
-import { format, differenceInYears, parse } from 'date-fns';
 import { generateReportFromQueryData, getAnswers } from '../utilities';
 import {
   transformAndRemoveDuplicatedAnswersPerDate,
@@ -13,6 +13,7 @@ import {
   getCachedAnswer,
   parametersToAnswerSqlWhere,
 } from './utils';
+import { ageInYears, format } from '../../utils/dateTime';
 
 import {
   ALL_SURVEY_IDS,
@@ -101,7 +102,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
     // Group the answers by survey and date. So for per patient per date, we should 1 row per survey (maximum 3 surveys)
     for (const [key] of Object.entries(groupedScreeningFormAnswers)) {
       const [surveyGroupKey, responseDate] = key.split('|');
-      const age = patient.dateOfBirth ? differenceInYears(new Date(), patient.dateOfBirth) : '';
+      const age = patient.dateOfBirth ? ageInYears(patient.dateOfBirth) : '';
 
       const recordData = {
         firstName: patient.firstName,
@@ -160,7 +161,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
       if (!date1 && !date2) return 0;
 
       // Sort oldest to most recent
-      return parse(date1, 'dd-MM-yyyy', new Date()) - parse(date2, 'dd-MM-yyyy', new Date());
+      return parseISO(date1) - parseISO(date2);
     },
   );
 

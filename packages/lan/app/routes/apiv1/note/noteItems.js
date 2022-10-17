@@ -1,5 +1,8 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+
+import { checkNotePermission } from '../../../utils/checkNotePermission';
 
 const noteItemRoute = express.Router();
 export { noteItemRoute as noteItems };
@@ -7,18 +10,23 @@ export { noteItemRoute as noteItems };
 noteItemRoute.post(
   '/:notePageId/noteItems',
   asyncHandler(async (req, res) => {
-    const { models, body: noteItemData, params } = req;
+    const { models, body: noteItemData, params, user } = req;
     const { notePageId } = params;
 
+    // When users try to edit a note item, only allow users who have OtherPractitionerEncounterNote permission
+    // or the author of that note item
+    if (noteItemData.revisedById && noteItemData.authorId !== user.id) {
+      req.checkPermission('write', 'OtherPractitionerEncounterNote');
+    }
+
     const notePage = await models.NotePage.findByPk(notePageId);
-    const owner = await models[notePage.recordType].findByPk(notePage.recordId);
-    req.checkPermission('create', owner);
+    await checkNotePermission(req, notePage, 'create');
 
     await models.NoteItem.create({
       notePageId,
       authorId: noteItemData.authorId,
       onBehalfOfId: noteItemData.onBehalfOfId,
-      date: Date.now(),
+      date: noteItemData.date || getCurrentDateTimeString(),
       content: noteItemData.content.trim(),
       revisedById: noteItemData.revisedById,
     });
@@ -44,14 +52,11 @@ noteItemRoute.post(
 noteItemRoute.get(
   '/:notePageId/noteItems',
   asyncHandler(async (req, res) => {
-    req.checkPermission('list', 'Note');
-
     const { models, params } = req;
     const { notePageId } = params;
 
     const notePage = await models.NotePage.findByPk(notePageId);
-    const owner = await models[notePage.recordType].findByPk(notePage.recordId);
-    req.checkPermission('read', owner);
+    await checkNotePermission(req, notePage, 'list');
 
     const noteItems = await models.NoteItem.findAll({
       include: [

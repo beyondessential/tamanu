@@ -1,8 +1,8 @@
 import React from 'react';
 import { inRange } from 'lodash';
 
-import { getAgeFromDate } from 'shared/utils/date';
 import { PROGRAM_DATA_ELEMENT_TYPES, ACTION_DATA_ELEMENT_TYPES } from 'shared-src/src/constants';
+import { ageInYears } from 'shared/utils/dateTime';
 import {
   LimitedTextField,
   MultilineTextField,
@@ -31,8 +31,8 @@ const QUESTION_COMPONENTS = {
   [PROGRAM_DATA_ELEMENT_TYPES.SELECT]: SelectField,
   [PROGRAM_DATA_ELEMENT_TYPES.MULTI_SELECT]: MultiselectField,
   [PROGRAM_DATA_ELEMENT_TYPES.AUTOCOMPLETE]: SurveyQuestionAutocomplete,
-  [PROGRAM_DATA_ELEMENT_TYPES.DATE]: DateField,
-  [PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE]: DateField,
+  [PROGRAM_DATA_ELEMENT_TYPES.DATE]: props => <DateField {...props} saveDateAsString />,
+  [PROGRAM_DATA_ELEMENT_TYPES.SUBMISSION_DATE]: props => <DateField {...props} saveDateAsString />,
   [PROGRAM_DATA_ELEMENT_TYPES.NUMBER]: NumberField,
   [PROGRAM_DATA_ELEMENT_TYPES.BINARY]: NullableBooleanField,
   [PROGRAM_DATA_ELEMENT_TYPES.CHECKBOX]: NullableBooleanField,
@@ -181,7 +181,7 @@ function transformPatientData(patient, config) {
 
   switch (column) {
     case 'age':
-      return getAgeFromDate(dateOfBirth).toString();
+      return ageInYears(dateOfBirth).toString();
     case 'fullName':
       return joinNames({ firstName, lastName });
     default:

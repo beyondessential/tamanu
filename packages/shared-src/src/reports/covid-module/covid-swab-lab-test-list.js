@@ -1,14 +1,14 @@
 import {
-  subDays,
-  differenceInMilliseconds,
   isWithinInterval,
   isBefore,
   isAfter,
   startOfDay,
   endOfDay,
-  format,
   isSameDay,
+  parseISO,
+  subDays,
 } from 'date-fns';
+import { differenceInMilliseconds, format } from 'shared/utils/dateTime';
 import { groupBy } from 'lodash';
 import { Op } from 'sequelize';
 import { LAB_REQUEST_STATUSES, LAB_REQUEST_STATUS_LABELS } from '../../constants';
@@ -64,15 +64,6 @@ const parametersToLabTestSqlWhere = parameters => {
 };
 
 const parametersToSurveyResponseSqlWhere = (parameters, { surveyId }) => {
-  // In the meantime, only apply the default to the nauru report.
-  // Then, it will just be a matter of removing that check to include in all
-  // other covid swab reports.
-  const NAURU_SURVEY_ID = 'program-naurucovid19-naurucovidtestregistration';
-  if (surveyId === NAURU_SURVEY_ID && !parameters.fromDate) {
-    // eslint-disable-next-line no-param-reassign
-    parameters.fromDate = subDays(new Date(), 30).toISOString();
-  }
-
   const defaultWhereClause = {
     '$surveyResponse.survey_id$': surveyId,
   };
@@ -144,7 +135,11 @@ const getLabTests = async (models, parameters) =>
       },
     ],
     where: parametersToLabTestSqlWhere(parameters),
-    order: [['date', 'ASC']],
+    order: [
+      // The date column only has daily resolution, so will return in non-deterministic order
+      ['date', 'ASC'],
+      ['created_at', 'ASC'],
+    ],
     raw: true,
     nest: true,
   });
@@ -206,11 +201,11 @@ const getLatestPatientAnswerInDateRange = (
   }
 
   const sortedLatestToOldestAnswers = patientTransformedAnswers.sort((a1, a2) =>
-    differenceInMilliseconds(a2.responseEndTime, a1.responseEndTime),
+    differenceInMilliseconds(parseISO(a2.responseEndTime), parseISO(a1.responseEndTime)),
   );
 
   const latestAnswer = sortedLatestToOldestAnswers.find(a =>
-    isWithinInterval(a.responseEndTime, {
+    isWithinInterval(parseISO(a.responseEndTime), {
       start: currentlabTestDate,
       end: nextLabTestDate,
     }),
@@ -223,7 +218,7 @@ const getLabTestRecords = async (
   labTests,
   transformedAnswers,
   parameters,
-  { surveyQuestionCodes, dateFormat },
+  { surveyQuestionCodes, dateFormat, dateFilterBy },
 ) => {
   const transformedAnswersByPatientAndDataElement = groupBy(
     transformedAnswers,
@@ -252,15 +247,24 @@ const getLabTestRecords = async (
       }
 
       const labTest = patientLabTests[i];
-      const currentLabTestDate = startOfDay(labTest.date);
+      const currentLabTestDate = startOfDay(parseISO(labTest.date));
+      const dateToFilterBy =
+        dateFilterBy === 'labRequest.sampleTime'
+          ? startOfDay(parseISO(labTest.labRequest.sampleTime))
+          : currentLabTestDate;
 
       // Get all lab tests regardless and filter fromDate and toDate in memory
       // to ensure that we have the date range from current lab test to the next lab test correctly.
-      if (parameters.fromDate && isBefore(currentLabTestDate, startOfDay(parameters.fromDate))) {
+      if (
+        isBefore(
+          dateToFilterBy,
+          startOfDay(parameters.fromDate ? parseISO(parameters.fromDate) : subDays(new Date(), 30)),
+        )
+      ) {
         continue;
       }
 
-      if (parameters.toDate && isAfter(currentLabTestDate, endOfDay(parameters.toDate))) {
+      if (parameters.toDate && isAfter(dateToFilterBy, endOfDay(parseISO(parameters.toDate)))) {
         continue;
       }
 
@@ -268,7 +272,7 @@ const getLabTestRecords = async (
       let nextLabTestDate;
 
       if (nextLabTest) {
-        const { date: nextLabTestTimestamp } = nextLabTest;
+        const nextLabTestTimestamp = parseISO(nextLabTest.date);
         // if next lab test not on the same date (next one on a different date,
         // startOf('day') to exclude the next date when comparing range later
         if (!isSameDay(currentLabTestDate, nextLabTestTimestamp)) {
@@ -288,7 +292,7 @@ const getLabTestRecords = async (
       const village = patient?.village?.name;
       const patientAdditionalData = patient?.additionalData?.[0];
 
-      const formatDate = date => (date ? format(new Date(date), dateFormat) : '');
+      const formatDate = date => (date ? format(date, dateFormat) : '');
 
       const labTestRecord = {
         firstName: patient?.firstName,
@@ -306,7 +310,9 @@ const getLabTestRecords = async (
         submittedDate: formatDate(labTest.date),
         requestedDate: formatDate(labRequest.requestedDate),
         testingDate: formatDate(labTest.completedDate),
-        testingTime: labTest.completedDate ? format(labTest.completedDate, 'h:mm:ss aa') : '',
+        testingTime: labTest.completedDate
+          ? format(parseISO(labTest.completedDate), 'h:mm:ss aa')
+          : '',
         priority: labRequest?.priority?.name,
         testingLaboratory: labRequest?.laboratory?.name,
         laboratoryOfficer: labTest?.laboratoryOfficer,
@@ -337,7 +343,13 @@ const getLabTestRecords = async (
 export const baseDataGenerator = async (
   { models },
   parameters = {},
-  { surveyId, reportColumnTemplate, surveyQuestionCodes, dateFormat = 'yyyy/MM/dd' },
+  {
+    surveyId,
+    reportColumnTemplate,
+    surveyQuestionCodes,
+    dateFormat = 'yyyy/MM/dd',
+    dateFilterBy = 'date',
+  },
 ) => {
   const labTests = await getLabTests(models, parameters);
   const transformedAnswers = await getFijiCovidAnswers(models, parameters, {
@@ -347,8 +359,8 @@ export const baseDataGenerator = async (
   const reportData = await getLabTestRecords(labTests, transformedAnswers, parameters, {
     surveyQuestionCodes,
     dateFormat,
+    dateFilterBy,
   });
-
   return generateReportFromQueryData(reportData, reportColumnTemplate);
 };
 

@@ -1,4 +1,5 @@
-import { subDays } from 'date-fns';
+import { endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
+import { toDateTimeString } from '../utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
 const FIELDS = [
@@ -21,7 +22,6 @@ const FIELDS = [
   'Priority',
   'Test category',
   'Tests',
-  'Area to be imaged',
   'Status',
 ];
 
@@ -46,8 +46,8 @@ select
   to_char(p.date_of_birth::timestamp::date, 'dd/mm/yyyy') as "DOB",
   case
     when p.date_of_death is null
-    then date_part('year', Age(p.date_of_birth))
-    else date_part('year', Age(p.date_of_death::date, p.date_of_birth))
+    then date_part('year', Age(p.date_of_birth::date))
+    else date_part('year', Age(p.date_of_death::date, p.date_of_birth::date))
     end as "Age",
   p.sex as "Sex",
   rd_village.name as "Village",
@@ -86,7 +86,6 @@ from lab_requests lr
   left join reference_data rd_village on rd_village.id = p.village_id
 where
   lr.status != 'deleted'
-  and rd_village.type = 'village'
   and p.id not in (
     '4d719b6f-af55-42ac-99b3-5a27cadaab2b',
     '2d574680-e0fc-4956-a37e-121ccb434995',
@@ -102,19 +101,18 @@ order by lr.requested_date;
 `;
 
 const getData = async (sequelize, parameters) => {
-  const {
-    fromDate = subDays(new Date(), 30),
-    toDate,
-    requestedById,
-    labTestCategoryId,
-    status,
-  } = parameters;
+  const { fromDate, toDate, requestedById, labTestCategoryId, status } = parameters;
+
+  const queryFromDate = toDateTimeString(
+    startOfDay(fromDate ? parseISO(fromDate) : subDays(new Date(), 30)),
+  );
+  const queryToDate = toDate && toDateTimeString(endOfDay(parseISO(toDate)));
 
   return sequelize.query(query, {
     type: sequelize.QueryTypes.SELECT,
     replacements: {
-      from_date: fromDate ?? null,
-      to_date: toDate ?? null,
+      from_date: queryFromDate,
+      to_date: queryToDate ?? null,
       requested_by_id: requestedById ?? null,
       lab_test_category_id: labTestCategoryId ?? null,
       status: status ?? null,

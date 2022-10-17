@@ -26,6 +26,7 @@ import {
   location,
   department,
 } from './columns';
+import { useAuth } from '../../contexts/Auth';
 
 const PATIENT_SEARCH_ENDPOINT = 'patient';
 
@@ -105,7 +106,7 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
         noun="Patient"
         onClick={showNewPatient}
       >
-        + Create new patient
+        + Add new patient
       </ButtonWithPermissionCheck>
       <NewPatientModal
         title="New patient"
@@ -128,6 +129,7 @@ export const PatientListingView = ({ onViewPatient }) => {
       <ContentPane>
         <PatientTable
           onViewPatient={onViewPatient}
+          fetchOptions={{ matchSecondaryIds: true }}
           searchParameters={searchParameters}
           columns={LISTING_COLUMNS}
         />
@@ -138,6 +140,8 @@ export const PatientListingView = ({ onViewPatient }) => {
 
 export const AdmittedPatientsView = () => {
   const [searchParameters, setSearchParameters] = useState({});
+  const { facility } = useAuth();
+
   return (
     <PageContainer>
       <TopBar title="Admitted patient listing" />
@@ -145,7 +149,7 @@ export const AdmittedPatientsView = () => {
       <ContentPane>
         <PatientTable
           fetchOptions={{ inpatient: 1 }}
-          searchParameters={searchParameters}
+          searchParameters={{ facilityId: facility.id, ...searchParameters }}
           columns={INPATIENT_COLUMNS}
         />
       </ContentPane>
@@ -155,6 +159,8 @@ export const AdmittedPatientsView = () => {
 
 export const OutpatientsView = () => {
   const [searchParameters, setSearchParameters] = useState({});
+  const { facility } = useAuth();
+
   return (
     <PageContainer>
       <TopBar title="Outpatient listing" />
@@ -162,7 +168,7 @@ export const OutpatientsView = () => {
       <ContentPane>
         <PatientTable
           fetchOptions={{ outpatient: 1 }}
-          searchParameters={searchParameters}
+          searchParameters={{ facilityId: facility.id, ...searchParameters }}
           columns={INPATIENT_COLUMNS}
         />
       </ContentPane>

@@ -23,11 +23,11 @@ export const LabRequestPrintout = React.memo(
         certificateData={{ ...certificateData, pageTitle: 'Lab Request' }}
         tableData={{
           'Test ID': displayId,
-          'Request date': requestedDate ? <DateDisplay date={requestedDate} /> : null,
+          'Request date': requestedDate ? <DateDisplay date={requestedDate} showTime /> : null,
           Facility: encounterData?.location?.facility?.name,
           Department: encounterData?.department?.name,
           'Requested by': requestedBy?.displayName,
-          'Sample time': sampleTime ? <DateDisplay date={sampleTime} /> : null,
+          'Sample time': sampleTime ? <DateDisplay date={sampleTime} showTime /> : null,
           Priority: priority?.name,
           'Test type': category?.name,
           'Test requested': tests.map(test => test.labTestType?.name).join(', '),

@@ -1,6 +1,6 @@
 {
   "name": "tamanu",
-  "version": "1.21.0",
+  "version": "1.22.0",
   "description": "This repo contains all the packages for Tamanu",
   "main": "index.js",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
@@ -24,6 +24,7 @@
     "lan-migrate": "TAMANU_ARGS=\"migrate up\" yarn run lan-start-dev",
     "lan-migrate-down": "TAMANU_ARGS=\"migrate down\" yarn run lan-start-dev",
     "sync-test": "yarn run build-shared && yarn workspace sync-server run test",
+    "sync-shell": "yarn run build-shared && yarn workspace sync-server run shell",
     "sync-start-dev": "yarn run watch-shared-and sync-server start-dev",
     "sync-test-watch": "yarn run watch-shared-and sync-server test-watch",
     "sync-start": "yarn run sync-start-dev",

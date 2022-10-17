@@ -1,26 +1,32 @@
-import { Sequelize } from 'sequelize';
+import { DataTypes } from 'sequelize';
+import { log } from 'shared/services/logging';
+
 import { Model } from './Model';
 import { NoteItem } from './NoteItem';
 import { NOTE_RECORD_TYPE_VALUES, NOTE_TYPE_VALUES } from '../constants';
+import { dateTimeType } from './dateTimeTypes';
+import { getCurrentDateTimeString } from '../utils/dateTime';
 
 export class NotePage extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
-        id: primaryKey,
+        id: {
+          ...primaryKey,
+          type: DataTypes.UUID,
+        },
         noteType: {
-          type: Sequelize.STRING,
+          type: DataTypes.STRING,
           allowNull: false,
         },
         recordType: {
-          type: Sequelize.STRING,
+          type: DataTypes.STRING,
           allowNull: false,
         },
-        date: {
-          type: Sequelize.DATE,
+        date: dateTimeType('date', {
           allowNull: false,
-          defaultValue: Sequelize.NOW,
-        },
+          defaultValue: getCurrentDateTimeString,
+        }),
       },
       {
         ...options,
@@ -76,6 +82,11 @@ export class NotePage extends Model {
       },
     });
 
+    if (!noteItem) {
+      log.warn(`Cannot find note item of note page '${this.id}'`);
+      return null;
+    }
+
     return {
       ...noteItem.toJSON(),
       id: this.id,
@@ -90,13 +101,13 @@ export class NotePage extends Model {
       recordId,
       recordType,
       noteType,
-      date: Date.now(),
+      date: getCurrentDateTimeString(),
     });
 
     await NoteItem.create({
       notePageId: notePage.id,
       content,
-      date: Date.now(),
+      date: getCurrentDateTimeString(),
       authorId,
     });
 

@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 
 import { useSelector, useDispatch } from 'react-redux';
+import { useApi } from 'desktop/app/api';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { SURVEY_TYPES } from 'shared/constants';
 import { useApi } from '../../api';
 
@@ -35,7 +37,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
     async id => {
       const response = await api.get(`survey/${encodeURIComponent(id)}`);
       setSurvey(response);
-      setStartTime(new Date());
+      setStartTime(getCurrentDateTimeString());
     },
     [api],
   );
@@ -68,7 +70,7 @@ const SurveyFlow = ({ patient, currentUser }) => {
         surveyId: survey.id,
         startTime,
         patientId: patient.id,
-        endTime: new Date(),
+        endTime: getCurrentDateTimeString(),
         answers: getAnswersFromData(data, survey),
         actions: getActionsFromData(data, survey),
       }),

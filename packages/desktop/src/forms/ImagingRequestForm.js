@@ -2,14 +2,14 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import shortid from 'shortid';
-
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { useDispatch } from 'react-redux';
 import { foreignKey } from '../utils/validation';
 import { encounterOptions } from '../constants';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { useEncounter } from '../contexts/Encounter';
 import { reloadImagingRequest } from '../store';
-import { useImagingRequestAreas } from '../utils/useImagingRequestAreas';
+import { useImagingRequests } from '../contexts/ImagingRequests';
 import { useLocalisation } from '../contexts/Localisation';
 
 import {
@@ -94,13 +94,13 @@ export const ImagingRequestForm = React.memo(
     const { examiner = {} } = encounter;
     const examinerLabel = examiner.displayName;
     const encounterLabel = getEncounterLabel(encounter);
-    const { getAreasForImagingType } = useImagingRequestAreas();
+    const { getAreasForImagingType } = useImagingRequests();
     return (
       <Form
         onSubmit={onSubmit}
         initialValues={{
           id: generateId(),
-          requestedDate: new Date(),
+          requestedDate: getCurrentDateTimeString(),
           ...editedObject,
         }}
         validationSchema={yup.object().shape({
@@ -117,6 +117,7 @@ export const ImagingRequestForm = React.memo(
                 label="Order date and time"
                 required
                 component={DateTimeField}
+                saveDateAsString
               />
               <TextInput label="Supervising doctor" disabled value={examinerLabel} />
               <Field

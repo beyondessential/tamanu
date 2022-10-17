@@ -1,7 +1,15 @@
 /* eslint-disable no-param-reassign, camelcase, no-unused-vars */
 
-import { format, differenceInMilliseconds } from 'date-fns';
+import {
+  format,
+  differenceInMilliseconds,
+  startOfDay,
+  endOfDay,
+  subDays,
+  parseISO,
+} from 'date-fns';
 import { groupBy } from 'lodash';
+import { toDateTimeString } from '../utils/dateTime';
 
 import { generateReportFromQueryData } from './utilities';
 
@@ -21,7 +29,7 @@ const query = `
 with
   cte_oldest_date as (
     SELECT
-      greatest(:from_date::date, least(oldest_sr, oldest_encounter)) oldest_date
+      greatest(:from_date::date, least(oldest_sr::date, oldest_encounter::date)) oldest_date
     FROM (
       select
         (select min(sr.end_time) from survey_responses sr) oldest_sr,
@@ -38,7 +46,7 @@ with
     select
       p.id,
       coalesce(ethnicity_id, '-') as ethnicity_id, -- join on NULL = NULL returns no rows
-      date_of_birth
+      date_of_birth::date
     from patients p
     left JOIN patient_additional_data AS additional_data ON additional_data.id =
       (SELECT id
@@ -46,20 +54,20 @@ with
         WHERE patient_id = p.id
         order by ethnicity_id asc, medical_area_id asc, nursing_zone_id asc, division_id asc, village_id asc, updated_at desc
         LIMIT 1)
-    where 
+    where
       coalesce(medical_area_id, '-') = coalesce(:medical_area, medical_area_id, '-')
     and coalesce(nursing_zone_id, '-') = coalesce(:nursing_zone, nursing_zone_id, '-')
     and coalesce(division_id, '-') = coalesce(:division, division_id, '-')
     and coalesce(village_id, '-') = coalesce(:village, village_id, '-')
   ),
   cte_all_options as (
-    select distinct 
+    select distinct
       ethnicity_id,
       under_30
     from cte_patient
     cross join (
       select true under_30
-      UNION ALL 
+      UNION ALL
       select false under_30
     ) both_bool_options
   ),
@@ -67,7 +75,7 @@ with
     select
       1 as exist,
       ethnicity_id,
-      (date_of_birth + interval '30 year') > sr.end_time::date as under_30,
+      (date_of_birth::date + interval '30 year') > sr.end_time::date as under_30,
       sr.end_time::date as date,
       count(*) as enc_n
     from -- Only selects the last cvd survey response per patient/date_group
@@ -81,9 +89,9 @@ with
       where survey_id = 'program-fijincdprimaryscreening-fijicvdprimaryscreen2'
       GROUP by e.patient_id, date_group
     ) max_time_per_group_table
-    JOIN survey_responses AS sr 
+    JOIN survey_responses AS sr
     ON sr.end_time = max_time_per_group_table.max_end_time
-    left join survey_response_answers sra 
+    left join survey_response_answers sra
     on sra.response_id = sr.id and sra.data_element_id = 'pde-FijCVD021'
     join encounters sr_encounter
     on sr_encounter.id = sr.encounter_id and sr_encounter.patient_id = max_time_per_group_table.patient_id
@@ -95,7 +103,7 @@ with
     select
       1 as exist,
       ethnicity_id,
-      (date_of_birth + interval '30 year') > snap_response.end_time::date as under_30,
+      (date_of_birth::date + interval '30 year') > snap_response.end_time::date as under_30,
       snap_response.end_time::date as date,
       count(*) as snap_n
     FROM
@@ -110,7 +118,7 @@ with
   ),
   cte_diabetes_diagnoses as (
     select 1 as exist, diagnosis_encounter.start_date::date as diagnosis_date, patient_id from encounter_diagnoses ed
-      join reference_data rd 
+      join reference_data rd
       on rd."type" = 'icd10' and rd.id = ed.diagnosis_id
       join encounters diagnosis_encounter
       on ed.encounter_id = diagnosis_encounter.id
@@ -118,14 +126,14 @@ with
   ),
   cte_hypertension_diagnoses as (
     select 1 as exist, diagnosis_encounter.start_date::date as diagnosis_date, patient_id from encounter_diagnoses ed
-      join reference_data rd 
+      join reference_data rd
       on rd."type" = 'icd10' and rd.id = ed.diagnosis_id
       join encounters diagnosis_encounter
       on ed.encounter_id = diagnosis_encounter.id
       WHERE rd.code in ('icd10-I10') and certainty not in ('disproven','error')
   ),
   cte_diagnoses as (
-    select 
+    select
       cp.id,
       coalesce(cdd.diagnosis_date, chd.diagnosis_date) date,
       max(cdd.exist) as a,
@@ -143,7 +151,7 @@ with
     select
       1 as exist,
       ethnicity_id,
-      (date_of_birth + interval '30 year') > date as under_30,
+      (date_of_birth::date + interval '30 year') > date as under_30,
       date,
       count(case when a is not null and b is null then 1 end) as diabetes_n,
       count(case when a is null and b is not null then 1 end) as hypertension_n,
@@ -164,20 +172,20 @@ select
   sum(coalesce(cdg.dual_n,0)) dual
 from cte_dates cd
 cross join cte_all_options as cao
-left join cte_cvd_responses ce on 
+left join cte_cvd_responses ce on
   ce.date = cd.date
 and ce.ethnicity_id = cao.ethnicity_id
 and ce.under_30 = cao.under_30
-left join cte_snaps cs on 
+left join cte_snaps cs on
   cs.date = cd.date
 and cs.ethnicity_id = cao.ethnicity_id
 and cs.under_30 = cao.under_30
-left join cte_aggregated_diagnoses cdg on 
+left join cte_aggregated_diagnoses cdg on
   cdg.date = cd.date
 and cdg.ethnicity_id = cao.ethnicity_id
 and cdg.under_30 = cao.under_30
 group by cao.ethnicity_id, cao.under_30, cd.date
-having 
+having
     sum(coalesce(ce.enc_n,0)) > 0
 or  sum(coalesce(cs.snap_n,0)) > 0
 or  sum(coalesce(cdg.diabetes_n,0)) > 0
@@ -314,6 +322,11 @@ const transformResultsForDate = (thisDate, resultsForDate) => {
 export const dataGenerator = async ({ sequelize }, parameters = {}) => {
   const { medicalArea, nursingZone, division, village, fromDate, toDate } = parameters;
 
+  const queryFromDate = toDateTimeString(
+    startOfDay(fromDate ? parseISO(fromDate) : subDays(new Date(), 30)),
+  );
+  const queryToDate = toDate && toDateTimeString(endOfDay(parseISO(toDate)));
+
   const results = await sequelize.query(query, {
     type: sequelize.QueryTypes.SELECT,
     replacements: {
@@ -321,8 +334,8 @@ export const dataGenerator = async ({ sequelize }, parameters = {}) => {
       nursing_zone: nursingZone ?? null,
       division: division ?? null,
       village: village ?? null,
-      from_date: fromDate ?? null,
-      to_date: toDate ?? null,
+      from_date: queryFromDate,
+      to_date: queryToDate ?? null,
     },
   });
 
@@ -333,7 +346,7 @@ export const dataGenerator = async ({ sequelize }, parameters = {}) => {
       differenceInMilliseconds(new Date(date1), new Date(date2)),
     )
     .map(({ date, ...otherFields }) => ({
-      date: format(new Date(date), 'dd-MM-yyyy'),
+      date: format(parseISO(date), 'dd-MM-yyyy'),
       ...otherFields,
     }));
 

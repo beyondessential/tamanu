@@ -1,4 +1,5 @@
 import React from 'react';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 
 import { Form } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
@@ -13,6 +14,8 @@ export const ChangeEncounterTypeForm = ({ onSubmit, onCancel, encounter }) => {
     <Form
       initialValues={{
         encounterType: query.get('type'),
+        // Used in creation of associated notes
+        submittedTime: getCurrentDateTimeString(),
       }}
       render={({ submitForm, values }) => {
         const currentType = ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].label;

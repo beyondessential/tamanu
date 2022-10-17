@@ -1,8 +1,13 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { format as formatDate, isAfter, parse } from 'date-fns';
+import { isAfter, isValid, parse, parseISO } from 'date-fns';
+import {
+  toDateString,
+  toDateTimeString,
+  format as formatDate,
+  isISOString,
+} from 'shared/utils/dateTime';
 import PropTypes from 'prop-types';
 import { TextInput } from './TextField';
-import { toDateTimeString } from '../../utils/dateTime';
 
 // This component is pretty tricky! It has to keep track of two layers of state:
 //
@@ -23,8 +28,7 @@ import { toDateTimeString } from '../../utils/dateTime';
 
 function fromRFC3339(rfc3339Date, format) {
   if (!rfc3339Date) return '';
-
-  return formatDate(new Date(rfc3339Date), format);
+  return formatDate(rfc3339Date, format);
 }
 
 export const DateInput = ({
@@ -53,8 +57,13 @@ export const DateInput = ({
         }
       }
 
-      const outputValue = saveDateAsString ? toDateTimeString(date) : date.toISOString();
-
+      let outputValue;
+      if (saveDateAsString) {
+        if (type === 'date') outputValue = toDateString(date);
+        else if (['time', 'datetime-local'].includes(type)) outputValue = toDateTimeString(date);
+      } else {
+        outputValue = date.toISOString();
+      }
       setCurrentText(formattedValue);
       if (outputValue === 'Invalid date') {
         onChange({ target: { value: '', name } });
@@ -63,7 +72,7 @@ export const DateInput = ({
 
       onChange({ target: { value: outputValue, name } });
     },
-    [onChange, format, name, max, saveDateAsString],
+    [onChange, format, name, max, saveDateAsString, type],
   );
 
   useEffect(() => {
