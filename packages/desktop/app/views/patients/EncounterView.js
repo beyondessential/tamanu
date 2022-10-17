@@ -31,6 +31,7 @@ import {
 import { DropdownButton } from '../../components/DropdownButton';
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../constants';
 import { ENCOUNTER_TAB_NAMES } from './encounterTabNames';
+import { ChangeClinicianModal } from '../../components/ChangeClinicianModal';
 
 const getConnectRoutedModal = ({ category, patientId, encounterId }, suffix) =>
   connectRoutedModal(`/patients/${category}/${patientId}/encounter/${encounterId}`, suffix);
@@ -94,6 +95,7 @@ const EncounterActionDropdown = ({ encounter }) => {
   const onChangeLocation = () => navigateToEncounter(encounter.id, 'move');
   const onDischargeOpen = () => navigateToEncounter(encounter.id, 'discharge');
   const onChangeDepartment = () => navigateToEncounter(encounter.id, 'changeDepartment');
+  const onChangeClinician = () => navigateToEncounter(encounter.id, 'changeClinician');
   const onViewSummary = () => navigateToSummary();
 
   if (encounter.endDate) {
@@ -158,6 +160,11 @@ const EncounterActionDropdown = ({ encounter }) => {
       condition: () => !encounter.plannedLocation,
       onClick: onChangeLocation,
     },
+    {
+      label: 'Change clinician',
+      condition: () => !!encounter.examinerId,
+      onClick: onChangeClinician,
+    },
   ].filter(action => !action.condition || action.condition());
 
   return <DropdownButton variant="outlined" actions={actions} />;
@@ -180,6 +187,11 @@ const EncounterActions = ({ encounter }) => {
     [params],
   )(ChangeDepartmentModal);
 
+  const RoutedChangeClinicianModal = useMemo(
+    () => getConnectRoutedModal(params, 'changeClinician'),
+    [params],
+  )(ChangeClinicianModal);
+
   const RoutedMoveModal = useMemo(() => getConnectRoutedModal(params, 'move'), [params])(MoveModal);
 
   return (
@@ -188,6 +200,7 @@ const EncounterActions = ({ encounter }) => {
       <RoutedDischargeModal encounter={encounter} />
       <RoutedChangeEncounterTypeModal encounter={encounter} />
       <RoutedChangeDepartmentModal />
+      <RoutedChangeClinicianModal />
       <RoutedMoveModal encounter={encounter} />
     </>
   );
