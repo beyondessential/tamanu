@@ -4,7 +4,7 @@ const ISO9075_FORMAT = 'YYYY-MM-DD HH:mm:ss';
 const ISO9075_FORMAT_LENGTH = ISO9075_FORMAT.length;
 
 async function testSkipMigration(queryRunner: QueryRunner) : Promise<boolean> {
-  const legacyColumn = await queryRunner.query("SELECT * FROM pragma_table_info('diagnosis') WHERE name='date_legacy';");
+  const legacyColumn = await queryRunner.query("PRAGMA table_info('diagnosis') WHERE name='date_legacy';");
   return legacyColumn.length > 0;
 }
 
@@ -38,14 +38,14 @@ async function createDateTimeStringUpMigration(
     tableObject,
     new TableColumn({
       name: columnName,
-      type: 'string',
+      type: 'varchar',
       length: `${ISO9075_FORMAT_LENGTH}`,
       isNullable: true,
     }),
   );
   await queryRunner.query(
     `UPDATE ${tableName}
-      SET ${columnName} = ${columnName}_legacy`,
+   SET ${columnName} = datetime(${columnName}_legacy) WHERE ${columnName}_legacy IS NOT NULL`,
   );
 }
 
@@ -58,7 +58,14 @@ async function createDateTimeStringDownMigration(
   await queryRunner.dropColumn(tableName, columnName);
 
   // 2. Move legacy data back to main column
-  await queryRunner.query(`ALTER TABLE ${tableName} RENAME COLUMN ${columnName}_legacy TO ${columnName}`);
+  await queryRunner.renameColumn(
+    tableName,
+    `${columnName}_legacy`,
+    new TableColumn({
+      name: columnName,
+      type: 'date',
+    }),
+  );
 }
 
 export class updatePatientEncounterDateTimeColumns1664229842000 implements MigrationInterface {

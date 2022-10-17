@@ -1,18 +1,19 @@
 import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
 import { getTable } from './utils/queryRunner';
+
 const ISO9075_FORMAT = 'YYYY-MM-DD';
 const ISO9075_FORMAT_LENGTH = ISO9075_FORMAT.length;
 
 async function testSkipMigration(queryRunner: QueryRunner) : Promise<boolean> {
   // In theory this is never true
-  const legacyColumn = await queryRunner.query("SELECT * FROM pragma_table_info('labTest') WHERE name='date_legacy';");
+  const legacyColumn = await queryRunner.query("PRAGMA table_info('labTest') WHERE name='date_legacy';");
   return legacyColumn.length > 0;
 }
 
 // When we're upgrading into a version that uses migrations, we may have run a model sync
 // Test if this is the case, and if it was, don't try to rename the column
 async function testSyncedBeforeMigration(queryRunner: QueryRunner) : Promise<boolean> {
-  const dateColumn = await queryRunner.query("SELECT * FROM pragma_table_info('labTest') WHERE name='date';");
+  const dateColumn = await queryRunner.query("PRAGMA table_info('labTest') WHERE name='date';");
   return dateColumn.length > 0;
 }
 
@@ -49,16 +50,15 @@ export class updateLabTestDate1662006885000 implements MigrationInterface {
       tableObject,
       new TableColumn({
         name: 'date',
-        type: 'string',
+        type: 'varchar',
         length: `${ISO9075_FORMAT_LENGTH}`,
         isNullable: false,
-        default: "strftime('%Y-%m-%d', CURRENT_TIMESTAMP)",
+        default: 'date(CURRENT_TIMESTAMP)',
       }),
     );
     // Fill data
-    await queryRunner.query(
-      'UPDATE labTest SET date = date_legacy',
-    );
+    await queryRunner.query(`UPDATE labTest SET date = date(date_legacy) 
+    WHERE date_legacy IS NOT NULL`);
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
@@ -70,7 +70,7 @@ export class updateLabTestDate1662006885000 implements MigrationInterface {
       'date_legacy',
       new TableColumn({
         name: 'date',
-        type: 'Date',
+        type: 'date',
       }),
     );
   }

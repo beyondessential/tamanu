@@ -1,5 +1,6 @@
 import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
 import { getTable } from './utils/queryRunner';
+
 const ISO9075_FORMAT = 'YYYY-MM-DD HH:mm:ss';
 const ISO9075_FORMAT_LENGTH = ISO9075_FORMAT.length;
 
@@ -7,7 +8,7 @@ const tableName = 'patient_issue';
 const columnName = 'recordedDate';
 
 async function testSkipMigration(queryRunner: QueryRunner) : Promise<boolean> {
-  const legacyColumn = await queryRunner.query("SELECT * FROM pragma_table_info('patient_issue') WHERE name='recordedDate_legacy';");
+  const legacyColumn = await queryRunner.query("PRAGMA table_info('patient_issue') WHERE name='recordedDate_legacy';");
   return legacyColumn.length > 0;
 }
 
@@ -41,14 +42,14 @@ export class updatePatientIssueDate1663564207000 implements MigrationInterface {
       tableObject,
       new TableColumn({
         name: columnName,
-        type: 'string',
+        type: 'varchar',
         length: `${ISO9075_FORMAT_LENGTH}`,
         isNullable: true,
       }),
     );
     await queryRunner.query(
       `UPDATE ${tableName}
-      SET ${columnName} = ${columnName}_legacy`,
+       SET ${columnName} = datetime(${columnName}_legacy) WHERE ${columnName}_legacy IS NOT NULL`,
     );
   }
 
@@ -62,7 +63,7 @@ export class updatePatientIssueDate1663564207000 implements MigrationInterface {
       `${columnName}_legacy`,
       new TableColumn({
         name: columnName,
-        type: 'Date',
+        type: 'date',
       }),
     );
   }

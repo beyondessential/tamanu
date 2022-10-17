@@ -4,7 +4,7 @@ const ISO9075_FORMAT = 'YYYY-MM-DD HH:mm:ss';
 const ISO9075_FORMAT_LENGTH = ISO9075_FORMAT.length;
 
 async function testSkipMigration(queryRunner: QueryRunner) : Promise<boolean> {
-  const legacyColumn = await queryRunner.query("SELECT * FROM pragma_table_info('survey_response') WHERE name='startTime_legacy';");
+  const legacyColumn = await queryRunner.query("PRAGMA table_info('survey_response') WHERE name='startTime_legacy';");
   return legacyColumn.length > 0;
 }
 
@@ -38,14 +38,14 @@ async function createDateTimeStringUpMigration(
     tableObject,
     new TableColumn({
       name: columnName,
-      type: 'string',
+      type: 'varchar',
       length: `${ISO9075_FORMAT_LENGTH}`,
       isNullable: true,
     }),
   );
   await queryRunner.query(
     `UPDATE ${tableName}
-      SET ${columnName} = ${columnName}_legacy`,
+    SET ${columnName} = datetime(${columnName}_legacy) WHERE ${columnName}_legacy IS NOT NULL`,
   );
 }
 
