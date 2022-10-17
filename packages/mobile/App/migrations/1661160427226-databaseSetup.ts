@@ -13,6 +13,7 @@ async function testSkipMigration(queryRunner: QueryRunner) : Promise<boolean> {
 export class databaseSetup1661160427226 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
     if (await testSkipMigration(queryRunner)) {
+      console.log('Skipping migration 1661160427226-databaseSetup as the result has already been achieved by a forced sync');
       return;
     }
     for (const table of TABLE_DEFINITIONS) {

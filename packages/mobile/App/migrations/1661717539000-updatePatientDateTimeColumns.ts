@@ -4,11 +4,6 @@ import { getTable } from './utils/queryRunner';
 const ISO9075_FORMAT = 'YYYY-MM-DD';
 const ISO9075_FORMAT_LENGTH = ISO9075_FORMAT.length;
 
-async function testSkipMigration(queryRunner: QueryRunner) : Promise<boolean> {
-  const legacyColumn = await queryRunner.query("PRAGMA table_info('patient') WHERE name='dateOfBirth_legacy';");
-  return legacyColumn.length > 0;
-}
-
 async function createDateStringUpMigration(
   queryRunner: QueryRunner,
   tableName: string,
@@ -72,9 +67,6 @@ async function createDateStringDownMigration(
 
 export class updatePatientDateTimeColumns1661717539000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
-    if (await testSkipMigration(queryRunner)) {
-      return;
-    }
     await createDateStringUpMigration(queryRunner, 'patient', 'dateOfBirth');
   }
 
