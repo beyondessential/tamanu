@@ -10,7 +10,7 @@ import { STEPS } from './steps';
 const POSSIBLE_STEPS = Object.keys(STEPS.PER_PATIENT);
 const MAX_CONSECUTIVE_UNIQUE_CONSTRAINT_ERRORS = 100; // very unlikely to happen 100 times in a row
 
-const generateFiji = async ({ patientCount: patientCountStr, steps: stepsStr }) => {
+export const generateFiji = async ({ patientCount: patientCountStr, steps: stepsStr }) => {
   const patientCount = Number.parseInt(patientCountStr, 10);
   const store = await initDatabase({ testMode: false });
   const stepNames = stepsStr ? stepsStr.split(',') : POSSIBLE_STEPS;
@@ -62,8 +62,15 @@ const generateFiji = async ({ patientCount: patientCountStr, steps: stepsStr }) 
   try {
     const setupData = await upsertSetupData();
     await loopAndGenerate(store, patientCount, () => insertPatientData(setupData));
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error(e);
+    throw e;
   } finally {
-    await closeDatabase();
+    // don't close database on tests
+    if (process.env.NODE_ENV !== 'test') {
+      await closeDatabase();
+    }
   }
 };
 
