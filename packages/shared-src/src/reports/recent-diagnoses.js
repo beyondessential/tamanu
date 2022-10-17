@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 
 import { Op } from 'sequelize';
-import { endOfDay, startOfDay, subDays } from 'date-fns';
+import { endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
 import { ageInYears, toDateTimeString } from 'shared/utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
@@ -33,9 +33,9 @@ const reportColumnTemplate = [
 function parametersToSqlWhere(parameters) {
   // eslint-disable-next-line no-param-reassign
   parameters.fromDate = toDateTimeString(
-    startOfDay(parameters.fromDate ? new Date(parameters.fromDate) : subDays(new Date(), 30)),
+    startOfDay(parameters.fromDate ? parseISO(parameters.fromDate) : subDays(new Date(), 30)),
   );
-  parameters.toDate = parameters.toDate && endOfDay(new Date(parameters.toDate));
+  parameters.toDate = parameters.toDate && endOfDay(parseISO(parameters.toDate));
 
   const whereClause = Object.entries(parameters)
     .filter(([, val]) => val)

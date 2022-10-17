@@ -5,7 +5,7 @@ import {
   randomReferenceId,
 } from 'shared/demoData/patients';
 import { fake } from 'shared/test-helpers/fake';
-import { toDateString, parseISO9075 } from 'shared/utils/dateTime';
+import { toDateString } from 'shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 
 describe('Patient', () => {

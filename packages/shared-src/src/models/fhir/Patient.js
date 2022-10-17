@@ -6,7 +6,6 @@ import { FhirResource } from './Resource';
 import { arrayOf, activeFromVisibility } from './utils';
 import { dateType } from '../dateTimeTypes';
 import { latestDateTime } from '../../utils/dateTime';
-import { formatDateTime } from '../../utils/fhir';
 import {
   FHIR_SEARCH_PARAMETERS,
   FHIR_SEARCH_TOKEN_TYPES,
@@ -17,6 +16,8 @@ import {
   FhirContactPoint,
   FhirHumanName,
   FhirIdentifier,
+  FhirPatientLink,
+  FhirReference,
 } from '../../services/fhirTypes';
 
 export class FhirPatient extends FhirResource {
@@ -38,6 +39,7 @@ export class FhirPatient extends FhirResource {
         birthDate: dateType('birthDate', { allowNull: true }),
         deceasedDateTime: dateType('deceasedDateTime', { allowNull: true }),
         address: arrayOf('address', DataTypes.FHIR_ADDRESS),
+        link: arrayOf('link', DataTypes.FHIR_PATIENT_LINK),
       },
       options,
     );
@@ -70,14 +72,31 @@ export class FhirPatient extends FhirResource {
       birthDate: upstream.dateOfBirth,
       deceasedDateTime: upstream.dateOfDeath,
       address: addresses(upstream),
+      link: await mergeLinks(upstream),
       lastUpdated: latestDateTime(upstream.updatedAt, upstream.additionalData?.updatedAt),
     });
   }
 
+  async getRelatedUpstreamIds() {
+    const upstream = await this.getUpstream();
+    const mergedUp = await upstream.getMergedUp();
+    const mergedDown = await upstream.getMergedDown();
+
+    return [...mergedUp.map(u => u.id), ...mergedDown.map(u => u.id)];
+  }
+
+  static async resolveUpstreamLinks() {
+    await this.sequelize.query('CALL fhir.patients_resolve_upstream_links()');
+  }
+
   asFhir() {
     const resource = super.asFhir();
-    resource.birthDate = formatDateTime(this.birthDate, FHIR_DATETIME_PRECISION.DAYS);
-    resource.deceasedDateTime = formatDateTime(this.deceasedDateTime, FHIR_DATETIME_PRECISION.DAYS);
+    // Exclude upstream links if they remain in the materialised data.
+    // This can occur if there are records in the Tamanu data that have not been
+    // materialised into the FHIR data, but are referred to by the patient links.
+    // Although that should not really happen, but it's better to be safe and not
+    // expose the upstream link data.
+    resource.link = resource.link.filter(link => link.other.type !== 'upstream://patient');
     return resource;
   }
 
@@ -153,17 +172,23 @@ function identifiers(patient) {
       {
         use: 'usual',
         value: patient.displayId,
-        assigner: config.hl7.assigners.patientDisplayId,
+        assigner: new FhirReference({
+          display: config.hl7.assigners.patientDisplayId,
+        }),
         system: config.hl7.dataDictionaries.patientDisplayId,
       },
       {
         use: 'secondary',
-        assigner: config.hl7.assigners.patientPassport,
+        assigner: new FhirReference({
+          display: config.hl7.assigners.patientPassport,
+        }),
         value: patient.additionalData?.passportNumber,
       },
       {
         use: 'secondary',
-        assigner: config.hl7.assigners.patientDrivingLicense,
+        assigner: new FhirReference({
+          display: config.hl7.assigners.patientDrivingLicense,
+        }),
         value: patient.additionalData?.drivingLicense,
       },
     ],
@@ -212,4 +237,57 @@ function addresses(patient) {
       line: compactBy([streetVillage]),
     }),
   ];
+}
+
+async function mergeLinks(patient) {
+  const links = [];
+
+  // Populates "upstream" links, which must be resolved to FHIR resource links
+  // after materialisation by calling FhirPatient.resolveUpstreamLinks().
+
+  if (patient.mergedIntoId) {
+    const mergeTarget = await patient.getUltimateMergedInto();
+    if (mergeTarget) {
+      links.push(
+        new FhirPatientLink({
+          type: 'replaced-by',
+          other: new FhirReference({
+            reference: mergeTarget.id,
+            type: 'upstream://patient',
+            display: mergeTarget.displayId,
+          }),
+        }),
+      );
+    }
+  }
+
+  const down = await patient.getMergedDown();
+  for (const mergedPatient of down) {
+    if (mergedPatient.mergedIntoId === patient.id) {
+      // if it's a merge directly into this patient
+      links.push(
+        new FhirPatientLink({
+          type: 'replaces',
+          other: new FhirReference({
+            reference: mergedPatient.id,
+            type: 'upstream://patient',
+            display: mergedPatient.displayId,
+          }),
+        }),
+      );
+    } else {
+      links.push(
+        new FhirPatientLink({
+          type: 'seealso',
+          other: new FhirReference({
+            reference: mergedPatient.id,
+            type: 'upstream://patient',
+            display: mergedPatient.displayId,
+          }),
+        }),
+      );
+    }
+  }
+
+  return links;
 }

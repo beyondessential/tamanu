@@ -2,7 +2,6 @@ import { Op } from 'sequelize';
 
 import { REFERENCE_TYPES } from 'shared/constants';
 import { fake, buildNestedEncounter, upsertAssociations } from 'shared/test-helpers';
-import { toDateString } from 'shared/utils/dateTime';
 import { fakeUUID } from 'shared/utils/generateId';
 
 import { createTestContext } from '../utilities';
@@ -219,7 +218,6 @@ describe('SyncManager', () => {
       expect(calls[0][1]).toHaveLength(1);
       expect(calls[0][1][0].data).toMatchObject({
         ...record,
-        dateOfBirth: toDateString(record?.dateOfBirth),
         dateOfDeath: undefined,
       });
     });
