@@ -45,4 +45,9 @@ export default {
     loader: permissionLoader,
     needs: ['role'],
   },
+
+  patientFieldDefinitionCategory: {},
+  patientFieldDefinition: {
+    needs: ['patientFieldDefinitionCategory'],
+  },
 };
