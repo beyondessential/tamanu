@@ -16,7 +16,7 @@ async function createDateStringUpMigration(
     tableObject,
     new TableColumn({
       name: `${columnName}_legacy`,
-      type: 'date',
+      type: 'datetime',
       isNullable: true,
     }),
   );
@@ -60,7 +60,7 @@ async function createDateStringDownMigration(
     `${columnName}_legacy`,
     new TableColumn({
       name: columnName,
-      type: 'date',
+      type: 'datetime',
     }),
   );
 }

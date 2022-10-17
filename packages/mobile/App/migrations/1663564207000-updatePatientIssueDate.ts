@@ -55,7 +55,7 @@ export class updatePatientIssueDate1663564207000 implements MigrationInterface {
       `${columnName}_legacy`,
       new TableColumn({
         name: columnName,
-        type: 'date',
+        type: 'datetime',
       }),
     );
   }
