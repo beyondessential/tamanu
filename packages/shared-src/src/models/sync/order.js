@@ -20,6 +20,8 @@ export const MODEL_DEPENDENCY_ORDER = [
   'InvoiceLineType',
   'InvoicePriceChangeType',
 
+  'ScheduledVaccine',
+
   'Patient',
   'Encounter',
 
@@ -43,7 +45,6 @@ export const MODEL_DEPENDENCY_ORDER = [
   'Triage',
 
   'CertifiableVaccine',
-  'ScheduledVaccine',
   'AdministeredVaccine',
 
 
