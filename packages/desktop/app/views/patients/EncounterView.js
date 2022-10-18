@@ -162,7 +162,6 @@ const EncounterActionDropdown = ({ encounter }) => {
     },
     {
       label: 'Change clinician',
-      condition: () => !!encounter.examinerId,
       onClick: onChangeClinician,
     },
   ].filter(action => !action.condition || action.condition());
