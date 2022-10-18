@@ -206,7 +206,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
           <ContentText>{patientStatus}</ContentText>
         </ContentItem>
         <ContentItem>
-          <ContentLabel>Supervising doctor/nurse:</ContentLabel>
+          <ContentLabel>Supervising clinician:</ContentLabel>
           <ContentText>{examiner?.displayName || '-'}</ContentText>
         </ContentItem>
         <ContentItem>

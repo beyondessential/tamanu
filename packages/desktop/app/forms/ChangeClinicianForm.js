@@ -1,4 +1,6 @@
 import React from 'react';
+import * as yup from 'yup';
+
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 
 import { Form, Field, AutocompleteField } from '../components/Field';
@@ -22,10 +24,12 @@ export const ChangeClinicianForm = ({ clinicianSuggester, encounter, onCancel, o
   return (
     <Form
       initialValues={{
-        clinicianId: encounter.examinerId,
         // Used in creation of associated notes
         submittedTime: getCurrentDateTimeString(),
       }}
+      validationSchema={yup.object().shape({
+        examinerId: yup.string().required('Clinician is required'),
+      })}
       render={renderForm}
       onSubmit={onSubmit}
     />
