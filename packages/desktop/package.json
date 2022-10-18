@@ -86,7 +86,7 @@
       ]
     },
     "nsis": {
-      "perMachine": true
+      "perMachine": false
     },
     "linux": {
       "target": [
