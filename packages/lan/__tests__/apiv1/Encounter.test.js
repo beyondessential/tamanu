@@ -3,6 +3,7 @@ import {
   createDummyEncounter,
   createDummyEncounterMedication,
 } from 'shared/demoData/patients';
+import { fakeUser } from 'shared/test-helpers/fake';
 import { toDateTimeString, getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { subWeeks } from 'date-fns';
 import { uploadAttachment } from '../../app/utils/uploadAttachment';
@@ -377,6 +378,33 @@ describe('Encounter', () => {
         const check = x =>
           x.content.includes(fromLocation.name) && x.content.includes(toLocation.name);
         expect(noteItems.some(check)).toEqual(true);
+      });
+
+      it('should change encounter clinician and add a note', async () => {
+        const fromClinician = await models.User.create(fakeUser());
+        const toClinician = await models.User.create(fakeUser());
+
+        const existingEncounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          examinerId: fromClinician.id,
+        });
+
+        const result = await app.put(`/v1/encounter/${existingEncounter.id}`).send({
+          examinerId: toClinician.id,
+        });
+        expect(result).toHaveSucceeded();
+
+        const updatedEncounter = await models.Encounter.findOne({
+          where: { id: existingEncounter.id },
+        });
+        expect(updatedEncounter.examinerId).toEqual(toClinician.id);
+
+        const notePages = await existingEncounter.getNotePages();
+        const noteItems = (await Promise.all(notePages.map(np => np.getNoteItems()))).flat();
+        expect(noteItems[0].content).toEqual(
+          `Changed supervising clinician from ${fromClinician.displayName} to ${toClinician.displayName}`,
+        );
       });
 
       it('should discharge a patient', async () => {
