@@ -10,15 +10,14 @@ import { Modal } from './Modal';
 
 export const ChangeClinicianModal = React.memo(({ open, onClose }) => {
   const { navigateToEncounter } = usePatientNavigation();
-  const encounterCtx = useEncounter();
+  const { encounter, writeAndViewEncounter } = useEncounter();
   const clinicianSuggester = useSuggester('practitioner');
   const onSubmit = useCallback(
     async data => {
-      const { encounter, writeAndViewEncounter } = encounterCtx;
       await writeAndViewEncounter(encounter.id, data);
       navigateToEncounter(encounter.id);
     },
-    [encounterCtx, navigateToEncounter],
+    [encounter, writeAndViewEncounter, navigateToEncounter],
   );
 
   return (
