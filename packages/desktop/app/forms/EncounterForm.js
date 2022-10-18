@@ -27,6 +27,7 @@ export const EncounterForm = React.memo(
     const departmentSuggester = useSuggester('department', {
       baseQueryParameters: { filterByFacility: true },
     });
+    const referredSourceSuggester = useSuggester('referredSource');
 
     const renderForm = ({ submitForm }) => {
       const buttonText = editedObject ? 'Update encounter' : 'Confirm';
@@ -65,6 +66,11 @@ export const EncounterForm = React.memo(
             name="patientBillingTypeId"
             endpoint="patientBillingType"
             component={SuggesterSelectField}
+          />
+          <LocalisedField
+            name="referredSourceId"
+            suggester={referredSourceSuggester}
+            component={AutocompleteField}
           />
           <Field
             name="examinerId"
