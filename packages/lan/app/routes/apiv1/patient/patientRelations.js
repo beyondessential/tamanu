@@ -88,7 +88,6 @@ patientRelations.get(
         FROM patient_field_definitions d
         LEFT JOIN patient_field_definition_categories c
           ON d.category_id = c.id
-            AND d.state NOT IN (:disallowedStates)
         LEFT JOIN LATERAL (
           SELECT value
           FROM patient_field_values v
@@ -97,6 +96,7 @@ patientRelations.get(
           -- TODO: order by logical clock
           ORDER BY updated_at DESC LIMIT 1
         ) v ON true
+        WHERE d.state NOT IN (:disallowedStates)
         ORDER BY category ASC, name ASC;
       `,
       {
