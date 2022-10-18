@@ -358,7 +358,7 @@ const parseDateParam = date => {
   if (typeof date !== 'string' || !isValid(parseISO(date))) {
     throw Error('period.start and period.end must be supplied and in ISO8061 format');
   }
-  return parseISO(date);
+  return date;
 }
 
 routes.use(requireClientHeaders);

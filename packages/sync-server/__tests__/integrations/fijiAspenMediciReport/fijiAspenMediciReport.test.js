@@ -330,13 +330,14 @@ describe('fijiAspenMediciReport', () => {
   it.each([
     // Dates/times inputted without timezone will be server timezone
     // [ expectedResults, period.start, period.end ]
-    [1, '2022-05-09', '2022-10-09'],
+    [1, '2022-06-09', '2022-10-09'],
     [0, '2022-06-10', '2022-10-09'],
-    // [?, '2022-06-09T00:02:54.001', '2022-10-09'], // Undefined behavior
-    [0, '2022-06-09T00:02:53.999+02:00', '2022-10-09'],
+    [0, '2022-06-09T00:02:53.999-02:00', '2022-10-09'],
     [1, '2022-06-09T00:02:53.999Z', '2022-10-09'],
     [0, '2022-06-09T00:02:54.001Z', '2022-10-09'],
-    [1, '2022-06-09T00:02:54.001-18:00', '2022-10-09'],
+    [1, '2022-06-09T00:02:54.001+01:00', '2022-10-09'], // Fails: "period.start and period.end must be supplied and in ISO8061 format"
+    [1, '2022-06-09T00:02:54.001-18:00', '2022-10-09'], // Fails: time zone displacement out of range: \"2022-06-09T00:02:54.001-18:00\"
+    [undefined, '2022-06-09T00:02:54.001', '2022-10-09'], // Undefined behavior - depends on server timezone
   ])('should return %p result between %p and %s', async (expectedResults, start, end) => {
     const response = await app
       .get(`/v1/integration/fijiAspenMediciReport?period.start=${start}&period.end=${end}`)
