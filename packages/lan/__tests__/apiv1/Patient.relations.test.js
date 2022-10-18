@@ -287,6 +287,7 @@ describe('Patient', () => {
         name: 'Test Field 1',
         fieldType: PATIENT_FIELD_DEFINITION_TYPES.STRING,
         categoryId: category1.id,
+        options: ['Oldest', 'Newest', 'Other'],
       });
 
       const patient = await Patient.create(await createDummyPatient(models));
@@ -314,11 +315,13 @@ describe('Patient', () => {
       // Assert
       expect(result).toHaveSucceeded();
       expect(result.body.data).toHaveLength(1);
-      expect(result.body.data[0]).toMatchObject({
+      expect(result.body.data[0]).toEqual({
         definitionId: definition1.id,
         name: 'Test Field 1',
         category: 'Test Category 1',
         value: 'Newest',
+        fieldType: 'STRING',
+        options: ['Oldest', 'Newest', 'Other'],
       });
     });
 
@@ -339,6 +342,7 @@ describe('Patient', () => {
         name: 'Test Field 1',
         fieldType: PATIENT_FIELD_DEFINITION_TYPES.STRING,
         categoryId: category1.id,
+        options: ['a', 'b', 'c'],
       });
 
       // Act
@@ -347,10 +351,12 @@ describe('Patient', () => {
       // Assert
       expect(result).toHaveSucceeded();
       expect(result.body.data).toHaveLength(1);
-      expect(result.body.data[0]).toMatchObject({
+      expect(result.body.data[0]).toEqual({
         definitionId: definition1.id,
         name: 'Test Field 1',
         category: 'Test Category 1',
+        fieldType: 'STRING',
+        options: ['a', 'b', 'c'],
       });
     });
   });

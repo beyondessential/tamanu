@@ -3,37 +3,39 @@ import { getCurrentDateString } from 'shared/utils/dateTime';
 import styled from 'styled-components';
 import { isEmpty, groupBy } from 'lodash';
 import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from 'shared/constants';
+import { PATIENT_FIELD_DEFINITION_TYPES } from 'shared/constants/patientFields';
 import { useSexValues } from '../hooks';
 import {
-  Colors,
-  sexOptions,
-  bloodOptions,
-  titleOptions,
-  socialMediaOptions,
-  maritalStatusOptions,
-  educationalAttainmentOptions,
+  ATTENDANT_OF_BIRTH_OPTIONS,
   BIRTH_DELIVERY_TYPE_OPTIONS,
   BIRTH_TYPE_OPTIONS,
+  Colors,
   PLACE_OF_BIRTH_OPTIONS,
-  ATTENDANT_OF_BIRTH_OPTIONS,
+  bloodOptions,
+  educationalAttainmentOptions,
+  maritalStatusOptions,
+  sexOptions,
+  socialMediaOptions,
+  titleOptions,
 } from '../constants';
 import { useLocalisation } from '../contexts/Localisation';
 import { useSuggester, usePatientSuggester } from '../api';
 import { getPatientDetailsValidation } from '../validations';
 import {
-  FormGrid,
-  ButtonRow,
-  Button,
-  Form,
-  LocalisedField,
-  DateField,
   AutocompleteField,
-  TextField,
+  Button,
+  ButtonRow,
+  DateField,
+  Field,
+  Form,
+  FormGrid,
+  LocalisedField,
+  NumberField,
   RadioField,
   SelectField,
   SuggesterSelectField,
+  TextField,
   TimeField,
-  Field,
 } from '../components';
 
 const StyledHeading = styled.div`
@@ -271,21 +273,31 @@ export const SecondaryDetailsGroup = ({ patientRegistryType, values = {}, isEdit
   );
 };
 
-export const FieldsGroup = ({ patientFields }) => {
+const PatientField = ({ field: { definitionId, name, fieldType, options } }) => {
+  const fieldName = `patientFields.${definitionId}`;
+  if (fieldType === PATIENT_FIELD_DEFINITION_TYPES.SELECT) {
+    const fieldOptions = options.map(o => ({ label: o, value: o }));
+    return <Field name={fieldName} component={SelectField} label={name} options={fieldOptions} />;
+  }
+  if (fieldType === PATIENT_FIELD_DEFINITION_TYPES.STRING) {
+    return <Field name={fieldName} component={TextField} label={name} />;
+  }
+  if (fieldType === PATIENT_FIELD_DEFINITION_TYPES.NUMBER) {
+    return <Field name={fieldName} component={NumberField} label={name} />;
+  }
+  return <p>Unknown field type: {fieldType}</p>;
+};
+
+export const PatientFieldsGroup = ({ patientFields }) => {
   const groupedFields = Object.entries(groupBy(patientFields.data, 'category'));
   return (
-    <div>
+    <div className="PatientFieldsGroup-testing">
       {groupedFields.map(([category, fields]) => (
         <Fragment key={category}>
           <StyledHeading>{category}</StyledHeading>
           <StyledFormGrid>
-            {fields.map(({ definitionId, name }) => (
-              <Field
-                key={definitionId}
-                name={`patientFields.${definitionId}`}
-                component={TextField}
-                label={name}
-              />
+            {fields.map(f => (
+              <PatientField key={f.definitionId} field={f} />
             ))}
           </StyledFormGrid>
         </Fragment>
@@ -382,7 +394,7 @@ export const PatientDetailsForm = ({
               isEdit
             />
           </StyledPatientDetailSecondaryDetailsGroupWrapper>
-          <FieldsGroup patientFields={patientFields} />
+          <PatientFieldsGroup patientFields={patientFields} />
           <ButtonRow>
             <Button variant="contained" color="primary" onClick={submitForm}>
               Save

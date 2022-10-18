@@ -13,7 +13,7 @@ import { RadioField } from '../components';
 import { IdBanner } from '../components/IdBanner';
 import { Colors, PATIENT_REGISTRY_OPTIONS } from '../constants';
 import { getPatientDetailsValidation } from '../validations';
-import { PrimaryDetailsGroup, SecondaryDetailsGroup, FieldsGroup } from './PatientDetailsForm';
+import { PrimaryDetailsGroup, SecondaryDetailsGroup, PatientFieldsGroup } from './PatientDetailsForm';
 import { useSexValues } from '../hooks';
 import { useApi } from '../api';
 import { LoadingIndicator } from '../components/LoadingIndicator';
@@ -128,7 +128,11 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
         </AdditionalInformationRow>
         <Collapse in={isExpanded} style={{ gridColumn: 'span 2' }}>
           <SecondaryDetailsGroup patientRegistryType={patientRegistryType} values={values} />
-          {isLoadingFields ? <LoadingIndicator /> : <FieldsGroup patientFields={patientFields} />}
+          {isLoadingFields ? (
+            <LoadingIndicator />
+          ) : (
+            <PatientFieldsGroup patientFields={patientFields} />
+          )}
         </Collapse>
         <ModalActionRow confirmText="Confirm" onConfirm={submitForm} onCancel={onCancel} />
       </>
