@@ -2,6 +2,7 @@ import { QueryTypes } from 'sequelize';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { upperFirst } from 'lodash';
+import { isValid, parseISO } from 'date-fns';
 import config from 'config';
 
 import { requireClientHeaders } from '../../middleware/requireClientHeaders';
@@ -342,13 +343,22 @@ left join location_info li on li.encounter_id = e.id
 left join department_info di2 on di2.encounter_id = e.id
 left join discharge_disposition_info ddi on ddi.encounter_id = e.id
 where coalesce(billing.id, '-') like coalesce(:billing_type, '%%')
-AND CASE WHEN :from_date IS NOT NULL THEN (e.start_date::timestamp at time zone :timezone_string)::date >= :from_date::date ELSE true END
-AND CASE WHEN :to_date IS NOT NULL THEN (e.start_date::timestamp at time zone :timezone_string)::date <= :to_date::date ELSE true END
+AND CASE WHEN :from_date IS NOT NULL THEN (e.start_date::timestamp at time zone :timezone_string) >= :from_date::timestamptz ELSE true END
+AND CASE WHEN :to_date IS NOT NULL THEN (e.start_date::timestamp at time zone :timezone_string) <= :to_date::timestamptz ELSE true END
 order by e.start_date desc;
 `;
 
-const validateDateParam = date => {
-  return true;
+const parseDateParam = date => {
+  // ** Note that this will return incorrectly if the server timezone is defferent to the countryTimeZone and no timezone is passed **
+  // In fiji this is currently true (18/10/2022) but there must be a way to use countryTimeZone instead.
+  // For the example, imagine the server timezone is +02:00 and the countryTimeZone is +05:00
+  // i.e. '2022-03-10T6:00'       -> 2022-03-10T6:00 (+02:00 implicity)
+  // i.e. '2022-03-10T6:00Z'      -> 2022-03-10T4:00 (+02:00 implicity)
+  // i.e. '2022-03-10T6:00+05:00' -> 2022-03-10T1:00 (+02:00 implicity)
+  if (typeof date !== 'string' || !isValid(parseISO(date))) {
+    throw Error('period.start and period.end must be supplied and in ISO8061 format');
+  }
+  return parseISO(date);
 }
 
 routes.use(requireClientHeaders);
@@ -358,9 +368,6 @@ routes.get(
     const { sequelize } = req.store;
     const { 'period.start': fromDate, 'period.end': toDate } = req.query;
 
-    validateDateParam(fromDate);
-    validateDateParam(toDate);
-
     if (!COUNTRY_TIMEZONE) {
       throw new Error('A countryTimeZone must be configured in local.json for this report to run');
     }
@@ -368,8 +375,8 @@ routes.get(
     const data = await sequelize.query(reportQuery, {
       type: QueryTypes.SELECT,
       replacements: {
-        from_date: fromDate ?? null,
-        to_date: toDate ?? null,
+        from_date: parseDateParam(fromDate, COUNTRY_TIMEZONE),
+        to_date: parseDateParam(toDate, COUNTRY_TIMEZONE),
         billing_type: null,
         timezone_string: COUNTRY_TIMEZONE,
       },

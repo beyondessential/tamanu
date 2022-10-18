@@ -24,6 +24,8 @@ const createLocalDateTimeStringFromUTC = (
   second,
   millisecond = 0,
 ) => {
+  // Interprets inputs AS utc, and "utcTime" is the **local** version of that time
+  // ie. 2022-02-03 2:30 -> 2022-02-03 4:30 (+02:00 (implied by local timezone))
   const utcTime = Date.UTC(year, month, day, hour, minute, second, millisecond);
   const localTimeWithoutTimezone = toDateTimeString(utcToZonedTime(utcTime, COUNTRY_TIMEZONE));
   return localTimeWithoutTimezone;
@@ -313,29 +315,39 @@ describe('fijiAspenMediciReport', () => {
   let ctx;
   let app;
   let models;
+  let fakedata;
 
   // Reset everything between each test. Might be innefficient but there's only 2 tests
-  beforeEach(async () => {
+  beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.store.models;
     app = await ctx.baseApp.asRole('practitioner');
+    fakedata = await fakeAllData(models);
   });
 
-  afterEach(() => ctx.close());
+  afterAll(() => ctx.close());
 
-  it(`Should filter by date`, async () => {
-    const { patient, encounterId } = await fakeAllData(models);
+  it.each([
+    // Dates/times inputted without timezone will be server timezone
+    // [ expectedResults, period.start, period.end ]
+    [1, '2022-05-09', '2022-10-09'],
+    [0, '2022-06-10', '2022-10-09'],
+    // [?, '2022-06-09T00:02:54.001', '2022-10-09'], // Undefined behavior
+    [0, '2022-06-09T00:02:53.999+02:00', '2022-10-09'],
+    [1, '2022-06-09T00:02:53.999Z', '2022-10-09'],
+    [0, '2022-06-09T00:02:54.001Z', '2022-10-09'],
+    [1, '2022-06-09T00:02:54.001-18:00', '2022-10-09'],
+  ])('should return %p result between %p and %s', async (expectedResults, start, end) => {
     const response = await app
-      .get('/v1/integration/fijiAspenMediciReport?period.start=1921-05-09&period.end=1922-05-09')
+      .get(`/v1/integration/fijiAspenMediciReport?period.start=${start}&period.end=${end}`)
       .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });
 
     expect(response).toHaveSucceeded();
-    expect(response.body.data).toEqual([]);
+    expect(response.body.data.length).toEqual(expectedResults);
   });
 
   it(`Should produce a simple report`, async () => {
-    const { patient, encounterId } = await fakeAllData(models);
-
+    const { patient, encounterId } = fakedata;
     // act
     const response = await app
       .get('/v1/integration/fijiAspenMediciReport?period.start=2022-05-09&period.end=2022-10-09')
