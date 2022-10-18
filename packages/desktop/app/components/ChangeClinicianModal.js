@@ -1,4 +1,6 @@
 import React, { useCallback } from 'react';
+import PropTypes from 'prop-types';
+
 import { useSuggester } from '../api';
 import { useEncounter } from '../contexts/Encounter';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
@@ -23,10 +25,14 @@ export const ChangeClinicianModal = React.memo(({ open, onClose }) => {
     <Modal title="Change clinician" open={open} onClose={onClose}>
       <ChangeClinicianForm
         clinicianSuggester={clinicianSuggester}
-        encounter={encounterCtx.encounter}
         onSubmit={onSubmit}
         onCancel={onClose}
       />
     </Modal>
   );
 });
+
+ChangeClinicianModal.propTypes = {
+  open: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+};

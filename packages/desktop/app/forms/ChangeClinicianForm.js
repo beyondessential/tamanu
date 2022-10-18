@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import * as yup from 'yup';
 
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
@@ -7,7 +8,7 @@ import { Form, Field, AutocompleteField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 
-export const ChangeClinicianForm = ({ clinicianSuggester, encounter, onCancel, onSubmit }) => {
+export const ChangeClinicianForm = ({ clinicianSuggester, onCancel, onSubmit }) => {
   const renderForm = ({ submitForm }) => (
     <FormGrid columns={1}>
       <Field
@@ -34,4 +35,13 @@ export const ChangeClinicianForm = ({ clinicianSuggester, encounter, onCancel, o
       onSubmit={onSubmit}
     />
   );
+};
+
+ChangeClinicianForm.propTypes = {
+  clinicianSuggester: PropTypes.shape({
+    fetchCurrentOption: PropTypes.func.isRequired,
+    fetchSuggestions: PropTypes.func.isRequired,
+  }).isRequired,
+  onCancel: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
 };
