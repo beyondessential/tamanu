@@ -21,6 +21,24 @@ const commonColumns = {
     type: Sequelize.DATE,
     allowNull: true,
   },
+  marked_for_push: {
+    type: Sequelize.BOOLEAN,
+    allowNull: false,
+    defaultValue: true,
+  },
+  is_pushing: {
+    type: Sequelize.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  },
+  pushed_at: {
+    type: Sequelize.DATE,
+    allowNull: true,
+  },
+  pulled_at: {
+    type: Sequelize.DATE,
+    allowNull: true,
+  },
 };
 
 const tables = [

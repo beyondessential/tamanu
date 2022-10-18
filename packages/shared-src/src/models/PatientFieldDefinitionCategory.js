@@ -1,4 +1,5 @@
 import { Sequelize } from 'sequelize';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
 export class PatientFieldDefinitionCategory extends Model {
@@ -13,9 +14,7 @@ export class PatientFieldDefinitionCategory extends Model {
       },
       {
         ...options,
-        syncConfig: {
-          // TODO
-        },
+        syncConfig: { syncDirection: SYNC_DIRECTIONS.PULL_ONLY },
       },
     );
   }

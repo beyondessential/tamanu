@@ -33,6 +33,10 @@ export const MODEL_DEPENDENCY_ORDER = [
   'PatientAdditionalData',
   'PatientSecondaryId',
 
+  'PatientFieldDefinitionCategory',
+  'PatientFieldDefinition',
+  'PatientFieldValue',
+
   'PatientDeathData',
   'PatientBirthData',
   'ContributingDeathCause',

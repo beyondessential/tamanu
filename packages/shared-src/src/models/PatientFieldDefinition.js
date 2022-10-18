@@ -3,6 +3,7 @@ import {
   PATIENT_FIELD_DEFINITION_TYPE_VALUES,
   PATIENT_FIELD_DEFINITION_STATES,
   PATIENT_FIELD_DEFINITION_STATE_VALUES,
+  SYNC_DIRECTIONS,
 } from 'shared/constants';
 import { Model } from './Model';
 
@@ -47,9 +48,7 @@ export class PatientFieldDefinition extends Model {
       },
       {
         ...options,
-        syncConfig: {
-          // TODO
-        },
+        syncConfig: { syncDirection: SYNC_DIRECTIONS.PULL_ONLY },
       },
     );
   }

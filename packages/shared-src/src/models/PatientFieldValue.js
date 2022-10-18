@@ -5,7 +5,7 @@ import { initSyncForModelNestedUnderPatient } from './sync';
 export class PatientFieldValue extends Model {
   static init({ primaryKey, ...options }) {
     // TODO: update when new sync lands
-    const nestedSyncConfig = initSyncForModelNestedUnderPatient(this, 'fieldDefinition');
+    const nestedSyncConfig = initSyncForModelNestedUnderPatient(this, 'fieldValue');
     super.init(
       {
         id: primaryKey,
