@@ -74,7 +74,7 @@ export async function up(query) {
         query.sequelize.query(
           `UPDATE ${tableName}
            SET ${columnName} = TO_CHAR(${columnName}_legacy::TIMESTAMPTZ AT TIME ZONE '${COUNTRY_TIMEZONE}', :dateTimeFmt)
-           WHERE ${columnName} = TO_CHAR(${columnName}_legacy, :dateTimeFmt);
+           WHERE ${columnName} = TO_CHAR(${columnName}_legacy::TIMESTAMPTZ AT TIME ZONE 'UTC', :dateTimeFmt);
         `,
           {
             replacements: {
