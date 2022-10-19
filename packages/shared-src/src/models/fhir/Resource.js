@@ -147,6 +147,14 @@ export class FhirResource extends Model {
       .positive()
       .integer()
       .validateSync(limit);
+
+    console.log(
+      'findMissingRecordsIds',
+      this[missingRecordsPrivateMethod](
+        'upstream.id',
+        `ORDER BY upstream.updated_at ASC LIMIT ${limitValid}`,
+      ),
+    );
     const rows = await this.sequelize.query(
       this[missingRecordsPrivateMethod](
         'upstream.id',

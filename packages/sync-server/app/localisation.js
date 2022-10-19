@@ -93,6 +93,7 @@ const HIDEABLE_FIELDS = [
   'birthFacilityId',
   'birthType',
   'registeredBirthPlace',
+  'arrivalModeId',
 ];
 
 const templatesSchema = yup

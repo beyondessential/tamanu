@@ -523,6 +523,11 @@
           "shortLabel": "Place of birth",
           "longLabel":  "Place of birth",
           "hidden": false
+        },
+        "arrivalModeId": {
+          "shortLabel": "Arrival mode",
+          "longLabel":  "Arrival mode",
+          "hidden": false
         }
       },
       "features": {

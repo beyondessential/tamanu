@@ -8,6 +8,7 @@ import { foreignKey } from '../utils/validation';
 import {
   Form,
   Field,
+  LocalisedField,
   DateTimeField,
   AutocompleteField,
   TextField,
@@ -39,6 +40,7 @@ export const TriageForm = ({ onCancel, editedObject }) => {
   });
   const practitionerSuggester = useSuggester('practitioner');
   const triageReasonSuggester = useSuggester('triageReason');
+  const arrivalModeSuggester = useSuggester('arrivalMode');
 
   const renderForm = ({ submitForm }) => {
     return (
@@ -63,6 +65,11 @@ export const TriageForm = ({ onCancel, editedObject }) => {
           required
           component={AutocompleteField}
           suggester={locationSuggester}
+        />
+        <LocalisedField
+          name="arrivalModeId"
+          component={AutocompleteField}
+          suggester={arrivalModeSuggester}
         />
         <Field
           name="score"
