@@ -339,6 +339,7 @@ describe('fijiAspenMediciReport', () => {
     [1, '2022-06-09T00:02:54.001-18:00', '2022-10-09'], // Fails: time zone displacement out of range: \"2022-06-09T00:02:54.001-18:00\"
     [undefined, '2022-06-09T00:02:54.001', '2022-10-09'], // Undefined behavior - depends on server timezone
   ])('should return %p result between %p and %s', async (expectedResults, start, end) => {
+    const query = `period.start=${encodeURIComponent(start)}&period.end=${encodeURIComponent(end)}`;
     const response = await app
       .get(`/v1/integration/fijiAspenMediciReport?period.start=${start}&period.end=${end}`)
       .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });
