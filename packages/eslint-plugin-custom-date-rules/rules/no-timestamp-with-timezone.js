@@ -3,9 +3,9 @@ const reportProblem = (context, node) => {
   if (upper?.block?.superClass?.name === 'Model') {
     context.report({ node, messageId: 'models' });
   } else if (
-    upper.variables.filter(
-      ({ name, scope }) => ['up', 'down'].includes(name) && scope.type === 'module',
-    ).length === 2
+    upper.childScopes.filter(
+      scope => ['up', 'down'].includes(scope.block?.parent?.key?.name).length === 2,
+    )
   ) {
     context.report({
       node,
@@ -26,7 +26,7 @@ module.exports = {
   },
   create(context) {
     return {
-      'MemberExpression[property.name=DATE][object.name=/(Sequelize|DataTypes)/]': node => {
+      'MemberExpression[property.name=DATE][object.name=/([Ss]equelize|DataTypes)/]': node => {
         reportProblem(context, node);
       },
       'ImportDeclaration[source.value=sequelize] > ImportSpecifier > Identifier[name=DATE]': node => {
