@@ -9,6 +9,7 @@ import {
   Form,
   Field,
   LocalisedField,
+  SuggesterSelectField,
   DateTimeField,
   AutocompleteField,
   TextField,
@@ -40,7 +41,6 @@ export const TriageForm = ({ onCancel, editedObject }) => {
   });
   const practitionerSuggester = useSuggester('practitioner');
   const triageReasonSuggester = useSuggester('triageReason');
-  const arrivalModeSuggester = useSuggester('arrivalMode');
 
   const renderForm = ({ submitForm }) => {
     return (
@@ -68,8 +68,8 @@ export const TriageForm = ({ onCancel, editedObject }) => {
         />
         <LocalisedField
           name="arrivalModeId"
-          component={AutocompleteField}
-          suggester={arrivalModeSuggester}
+          component={SuggesterSelectField}
+          endpoint="arrivalMode"
         />
         <Field
           name="score"
