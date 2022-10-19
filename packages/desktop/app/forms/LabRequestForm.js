@@ -115,7 +115,7 @@ export class LabRequestForm extends React.PureComponent {
           component={DateTimeField}
           saveDateAsString
         />
-        <TextInput label="Supervising doctor" disabled value={examinerLabel} />
+        <TextInput label="Supervising clinician" disabled value={examinerLabel} />
         <Field
           name="requestedById"
           label="Requesting doctor"

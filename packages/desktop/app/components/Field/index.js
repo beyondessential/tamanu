@@ -14,6 +14,7 @@ export * from './SurveyQuestionAutocomplete';
 export * from './SurveyResponseSelectField';
 export * from './TextField';
 export * from './UnsupportedPhotoField';
+export * from './ImagingPriorityField';
 
 // fancy fields
 export * from './ArrayField';
