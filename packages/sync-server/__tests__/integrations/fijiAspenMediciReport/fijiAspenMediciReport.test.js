@@ -341,7 +341,7 @@ describe('fijiAspenMediciReport', () => {
   ])('should return %p result between %p and %s', async (expectedResults, start, end) => {
     const query = `period.start=${encodeURIComponent(start)}&period.end=${encodeURIComponent(end)}`;
     const response = await app
-      .get(`/v1/integration/fijiAspenMediciReport?period.start=${start}&period.end=${end}`)
+      .get(`/v1/integration/fijiAspenMediciReport?${query}`)
       .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });
 
     expect(response).toHaveSucceeded();
