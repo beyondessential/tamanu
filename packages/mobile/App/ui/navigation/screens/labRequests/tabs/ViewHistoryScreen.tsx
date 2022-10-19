@@ -4,6 +4,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { compose } from 'redux';
 import { Routes } from '/helpers/routes';
 import { Svg, Circle } from 'react-native-svg';
+import { parseISO } from 'date-fns';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { withPatient } from '~/ui/containers/Patient';
@@ -12,7 +13,7 @@ import { ILabRequest } from '~/types';
 import { navigateAfterTimeout } from '~/ui/helpers/navigators';
 import { StyledView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
-import { formatDate, parseISO9075 } from '/helpers/date';
+import { formatDate } from '/helpers/date';
 import { DateFormats } from '~/ui/helpers/constants';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
@@ -42,7 +43,7 @@ const LabRequestRow = ({ labRequest }: LabRequestRowProps): JSX.Element => {
   let date: string;
   try {
     date = formatDate(
-      parseISO9075(labRequest.requestedDate),
+      parseISO(labRequest.requestedDate),
       DateFormats.DAY_MONTH_YEAR_SHORT,
     );
   } catch (e) {
@@ -100,7 +101,7 @@ const LabRequestRow = ({ labRequest }: LabRequestRowProps): JSX.Element => {
       </StyledView>
     </StyledView>
   );
-}
+};
 
 export const DumbViewHistoryScreen = ({ selectedPatient, navigation }): ReactElement => {
   const [data, error] = useBackendEffect(
