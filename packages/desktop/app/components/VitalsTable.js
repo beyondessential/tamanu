@@ -1,17 +1,31 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-
+import convert from 'convert';
 import { Table } from './Table';
 import { DateDisplay } from './DateDisplay';
-
 import { capitaliseFirstLetter } from '../utils/capitalise';
 import { useEncounter } from '../contexts/Encounter';
 import { useApi } from '../api';
+import { useLocalisation } from '../contexts/Localisation';
 
 const vitalsRows = [
   { key: 'height', title: 'Height', rounding: 0, unit: 'cm' },
   { key: 'weight', title: 'Weight', rounding: 1, unit: 'kg' },
-  { key: 'temperature', title: 'Temperature', rounding: 1, unit: 'ºC' },
+  {
+    key: 'temperature',
+    title: 'Temperature',
+    accessor: ({ amount, unitsLocalisation }) => {
+      if (typeof amount !== 'number') return '-';
+
+      if (unitsLocalisation.temperature === 'celsius') {
+        return `${amount.toFixed(2)}ºC`;
+      }
+
+      return `${convert(amount, 'celsius')
+        .to('fahrenheit')
+        .toFixed(2)}ºF`;
+    },
+  },
   { key: 'sbp', title: 'SBP', rounding: 0, unit: '' },
   { key: 'dbp', title: 'DBP', rounding: 0, unit: '' },
   { key: 'heartRate', title: 'Heart rate', rounding: 0, unit: '/min' },
@@ -20,7 +34,10 @@ const vitalsRows = [
   { key: 'avpu', title: 'AVPU', unit: '/min' },
 ];
 
-function unitDisplay({ amount, unit, rounding }) {
+function unitDisplay({ amount, unit, rounding, accessor, unitsLocalisation }) {
+  if (typeof accessor === 'function') {
+    return accessor({ amount, unitsLocalisation });
+  }
   if (typeof amount === 'string') return capitaliseFirstLetter(amount);
   if (typeof amount !== 'number') return '-';
 
@@ -29,6 +46,8 @@ function unitDisplay({ amount, unit, rounding }) {
 
 export const VitalsTable = React.memo(() => {
   const { encounter } = useEncounter();
+  const { getLocalisation } = useLocalisation();
+  const unitsLocalisation = getLocalisation('units');
   const api = useApi();
   const { data, error, isLoading } = useQuery(['encounterVitals', encounter.id], () =>
     api.get(`encounter/${encounter.id}/vitals`),
@@ -45,8 +64,9 @@ export const VitalsTable = React.memo(() => {
         key: r.dateRecorded,
       })),
   ];
+
   // function to create an object containing a single metric's value for each reading
-  const transposeColumnToRow = ({ key, rounding, unit }) =>
+  const transposeColumnToRow = ({ key, rounding, unit, accessor }) =>
     readings.reduce(
       (state, current) => ({
         ...state,
@@ -54,6 +74,8 @@ export const VitalsTable = React.memo(() => {
           amount: current[key],
           rounding,
           unit,
+          accessor,
+          unitsLocalisation,
         }),
       }),
       {},
