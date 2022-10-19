@@ -11,6 +11,7 @@ import {
 } from '../../../components';
 import { useApi } from '../../../api';
 import { getPatientStatus } from '../../../utils/getPatientStatus';
+import { useLocalisation } from '../../../contexts/Localisation';
 
 const PATIENT_STATUS_COLORS = {
   [PATIENT_STATUS.INPATIENT]: Colors.safe, // Green
@@ -160,9 +161,11 @@ const PatientDeathSummary = React.memo(({ patient }) => {
 
 export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin }) => {
   const api = useApi();
+  const { getLocalisation } = useLocalisation();
   const { data: encounter, error, isLoading } = useQuery(['currentEncounter', patient.id], () =>
     api.get(`patient/${patient.id}/currentEncounter`),
   );
+  const referralSourcePath = 'fields.referralSourceId';
 
   if (patient.dateOfDeath) {
     return <PatientDeathSummary patient={patient} />;
@@ -221,10 +224,12 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
           <ContentLabel>Location:</ContentLabel>
           <ContentText>{location?.name || '-'}</ContentText>
         </ContentItem>
-        <ContentItem>
-          <ContentLabel>Referral source:</ContentLabel>
-          <ContentText>{referralSource?.name || '-'}</ContentText>
-        </ContentItem>
+        {!getLocalisation(`${referralSourcePath}.hidden`) && (
+          <ContentItem>
+            <ContentLabel>{getLocalisation(`${referralSourcePath}.shortLabel`)}:</ContentLabel>
+            <ContentText>{referralSource?.name || '-'}</ContentText>
+          </ContentItem>
+        )}
         <ContentItem>
           <ContentLabel>Arrival date:</ContentLabel>
           <ContentText>
