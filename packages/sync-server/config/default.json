@@ -525,8 +525,8 @@
           "hidden": false
         },
         "referredSourceId": {
-          "shortLabel": "Referred from",
-          "longLabel":  "Referred from",
+          "shortLabel": "Referred source",
+          "longLabel":  "Referred source",
           "hidden": false
         }
       },

@@ -33,7 +33,7 @@ export const EncounterInfoPane = React.memo(({ encounter }) => {
         <CardItem label="Patient type" value={patientTypeData?.name} />
         <CardItem label="Location" value={getLocationName(encounter)} />
         <CardItem label="Encounter type" value={getEncounterType(encounter)} />
-        <CardItem label="Referred from" value={getReferredFrom(encounter)} />
+        <CardItem label="Referred source" value={getReferredFrom(encounter)} />
         {encounter.endDate && (
           <CardItem label="Discharge date" value={formatShort(encounter.endDate)} />
         )}
