@@ -88,6 +88,8 @@ export const PrimaryDetailsGroup = () => {
 };
 
 export const SecondaryDetailsGroup = ({ patientRegistryType, values = {} }) => {
+  const { getLocalisation } = useLocalisation();
+  const canEditDisplayId = getLocalisation('features.editDisplayId');
   const countrySuggester = useSuggester('country');
   const divisionSuggester = useSuggester('division');
   const ethnicitySuggester = useSuggester('ethnicity');
@@ -144,6 +146,7 @@ export const SecondaryDetailsGroup = ({ patientRegistryType, values = {} }) => {
 
       <StyledHeading>Identification information</StyledHeading>
       <StyledFormGrid>
+        {canEditDisplayId && <LocalisedField name="displayId" component={TextField} />}
         <LocalisedField name="birthCertificate" component={TextField} />
         {patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT && (
           <LocalisedField name="drivingLicense" component={TextField} />
