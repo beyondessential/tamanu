@@ -17,8 +17,9 @@ const reportProblem = (context, node) => {
 module.exports = {
   meta: {
     messages: {
-      migrations: 'Use DataTypes.DATESTRING or DataTypes.DATETIMESTRING types for all new columns',
-      models: 'use custom dateTimeTypes.js types for all new columns on models',
+      migrations:
+        'Use DataTypes.DATESTRING or DataTypes.DATETIMESTRING types for all new columns in migrations',
+      models: 'Use custom dateTimeTypes.js types for all new columns on models',
     },
     fixable: 'code',
     type: 'problem',
@@ -26,13 +27,6 @@ module.exports = {
   create(context) {
     return {
       'MemberExpression[property.name=DATE][object.name=/(Sequelize|DataTypes)/]': node => {
-        if (context.getFilename().includes('099_updatePatientEncounterDateFields')) {
-         console.log(context
-            .getScope()
-            .upper.variables.filter(
-              ({ name, scope }) => ['up', 'down'].includes(name) && scope.type === 'module',
-            ))
-        }
         reportProblem(context, node);
       },
       'ImportDeclaration[source.value=sequelize] > ImportSpecifier > Identifier[name=DATE]': node => {

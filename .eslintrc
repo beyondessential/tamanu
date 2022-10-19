@@ -11,6 +11,7 @@
   ],
   "rules": {
     "custom-date-rules/no-timestamp-with-timezone": "error",
+    "custom-date-rules/no-date-constructor-with-param": "error",
     // get around an issue in how electron sets up its packages
     // where it can't detect certain dependencies even if they're installed
     // (missing deps should break CI anyway so it's not a big deal)
