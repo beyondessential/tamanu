@@ -175,7 +175,7 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
       <HorizontalLine />
       <Content>
         <div>
-          <Label>Supervising physician: </Label>
+          <Label>Supervising clinician: </Label>
           <span>{examiner?.displayName}</span>
         </div>
         <div />
