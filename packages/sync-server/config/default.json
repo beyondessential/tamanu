@@ -523,6 +523,11 @@
           "shortLabel": "Place of birth",
           "longLabel":  "Place of birth",
           "hidden": false
+        },
+        "referralSourceId": {
+          "shortLabel": "Referral source",
+          "longLabel":  "Referral source",
+          "hidden": false
         }
       },
       "features": {

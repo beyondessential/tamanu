@@ -171,6 +171,7 @@ export class Encounter extends Model {
         association: 'location',
         include: ['facility'],
       },
+      'referralSource',
     ];
   }
 
@@ -267,6 +268,11 @@ export class Encounter extends Model {
     this.belongsTo(models.ReferenceData, {
       foreignKey: 'patientBillingTypeId',
       as: 'patientBillingType',
+    });
+
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'referralSourceId',
+      as: 'referralSource',
     });
 
     this.hasMany(models.NotePage, {
