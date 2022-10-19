@@ -189,7 +189,15 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
     );
   }
 
-  const { startDate, location, encounterType, reasonForEncounter, id, examiner } = encounter;
+  const {
+    startDate,
+    location,
+    referralSource,
+    encounterType,
+    reasonForEncounter,
+    id,
+    examiner,
+  } = encounter;
   const patientStatus = getPatientStatus(encounterType);
 
   return (
@@ -214,14 +222,18 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
           <ContentText>{location?.name || '-'}</ContentText>
         </ContentItem>
         <ContentItem>
-          <ContentLabel>Reason for encounter:</ContentLabel>
-          <ContentText>{reasonForEncounter}</ContentText>
+          <ContentLabel>Referral source:</ContentLabel>
+          <ContentText>{referralSource?.name || '-'}</ContentText>
         </ContentItem>
         <ContentItem>
           <ContentLabel>Arrival date:</ContentLabel>
           <ContentText>
             <DateDisplay date={startDate} />
           </ContentText>
+        </ContentItem>
+        <ContentItem>
+          <ContentLabel>Reason for encounter:</ContentLabel>
+          <ContentText>{reasonForEncounter}</ContentText>
         </ContentItem>
       </Content>
     </Container>

@@ -524,9 +524,9 @@
           "longLabel":  "Place of birth",
           "hidden": false
         },
-        "referredSourceId": {
-          "shortLabel": "Referred source",
-          "longLabel":  "Referred source",
+        "referralSourceId": {
+          "shortLabel": "Referral source",
+          "longLabel":  "Referral source",
           "hidden": false
         }
       },

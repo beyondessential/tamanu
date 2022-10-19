@@ -1,7 +1,7 @@
 import { STRING } from 'sequelize';
 
 export async function up(query) {
-  await query.addColumn('encounters', 'referred_source_id', {
+  await query.addColumn('encounters', 'referral_source_id', {
     type: STRING,
     allowNull: true,
     references: {
@@ -12,5 +12,5 @@ export async function up(query) {
 }
 
 export async function down(query) {
-  await query.removeColumn('encounters', 'referred_source_id');
+  await query.removeColumn('encounters', 'referral_source_id');
 }

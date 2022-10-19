@@ -12,7 +12,7 @@ import { useReferenceData } from '../../../api/queries';
 
 const getDepartmentName = ({ department }) => (department ? department.name : 'Unknown');
 const getLocationName = ({ location }) => (location ? location.name : 'Unknown');
-const getReferredFrom = ({ referredSource }) => (referredSource ? referredSource.name : 'Unknown');
+const getReferralSource = ({ referralSource }) => (referralSource ? referralSource.name : 'Unknown');
 
 export const getEncounterType = ({ encounterType }) =>
   encounterType ? ENCOUNTER_OPTIONS_BY_VALUE[encounterType]?.label : 'Unknown';
@@ -32,16 +32,12 @@ export const EncounterInfoPane = React.memo(({ encounter }) => {
         <CardItem label="Department" value={getDepartmentName(encounter)} />
         <CardItem label="Patient type" value={patientTypeData?.name} />
         <CardItem label="Location" value={getLocationName(encounter)} />
+        <CardItem label="Referral source" value={getReferralSource(encounter)} />
         <CardItem label="Encounter type" value={getEncounterType(encounter)} />
-        <CardItem label="Referred source" value={getReferredFrom(encounter)} />
         {encounter.endDate && (
           <CardItem label="Discharge date" value={formatShort(encounter.endDate)} />
         )}
-        <CardItem
-          style={{ gridColumn: '1/-1' }}
-          label="Reason for encounter"
-          value={encounter.reasonForEncounter}
-        />
+        <CardItem label="Reason for encounter" value={encounter.reasonForEncounter} />
       </CardBody>
     </Card>
   );
