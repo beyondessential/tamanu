@@ -7,6 +7,7 @@ export * from './MultiselectField';
 export * from './NumberField';
 export * from './NullableBooleanField';
 export * from './TimeWithUnitField';
+export * from './TemperatureField';
 export * from './RadioField';
 export * from './SuggesterSelectField';
 export * from './SelectField';
