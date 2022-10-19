@@ -16,7 +16,8 @@ async function createDateTimeStringUpMigration(
     tableObject,
     new TableColumn({
       name: `${columnName}_legacy`,
-      type: 'datetime',
+      // Note that labRequests are already varchar
+      type: 'varchar',
       isNullable: true,
     }),
   );
@@ -57,31 +58,19 @@ async function createDateTimeStringDownMigration(
   await queryRunner.renameColumn(
     tableName,
     `${columnName}_legacy`,
-    new TableColumn({
-      name: columnName,
-      type: 'datetime',
-    }),
+    columnName,
   );
 }
 
-export class updatePatientEncounterDateTimeColumns1664229842000 implements MigrationInterface {
+export class updateLabRequestDateColumns1666171050000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
-    await createDateTimeStringUpMigration(queryRunner, 'diagnosis', 'date');
-    await createDateTimeStringUpMigration(queryRunner, 'medication', 'date');
-    await createDateTimeStringUpMigration(queryRunner, 'medication', 'endDate');
-    await createDateTimeStringUpMigration(queryRunner, 'encounter', 'startDate');
-    await createDateTimeStringUpMigration(queryRunner, 'encounter', 'endDate');
-    await createDateTimeStringUpMigration(queryRunner, 'vitals', 'dateRecorded');
-    await createDateTimeStringUpMigration(queryRunner, 'administered_vaccine', 'date');
+    // not a mistake this table name is camelcase unlike others
+    await createDateTimeStringUpMigration(queryRunner, 'labRequest', 'sampleTime');
+    await createDateTimeStringUpMigration(queryRunner, 'labRequest', 'requestedDate');
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
-    await createDateTimeStringDownMigration(queryRunner, 'diagnosis', 'date');
-    await createDateTimeStringDownMigration(queryRunner, 'medication', 'date');
-    await createDateTimeStringDownMigration(queryRunner, 'medication', 'endDate');
-    await createDateTimeStringDownMigration(queryRunner, 'encounter', 'startDate');
-    await createDateTimeStringDownMigration(queryRunner, 'encounter', 'endDate');
-    await createDateTimeStringDownMigration(queryRunner, 'vitals', 'dateRecorded');
-    await createDateTimeStringDownMigration(queryRunner, 'administered_vaccine', 'date');
+    await createDateTimeStringDownMigration(queryRunner, 'labRequest', 'sampleTime');
+    await createDateTimeStringDownMigration(queryRunner, 'labRequest', 'requestedDate');
   }
 }
