@@ -524,6 +524,11 @@
           "longLabel":  "Place of birth",
           "hidden": false
         },
+        "referralSourceId": {
+          "shortLabel": "Referral source",
+          "longLabel":  "Referral source",
+          "hidden": false
+        },
         "arrivalModeId": {
           "shortLabel": "Arrival mode",
           "longLabel":  "Arrival mode",
@@ -570,6 +575,12 @@
         }
       },
       "imagingTypes": {},
+      "imagingPriorities": [
+        { "value": "routine", "label": "Routine" },
+        { "value": "urgent", "label": "Urgent" },
+        { "value": "asap", "label": "ASAP" },
+        { "value": "stat", "label": "STAT" }
+      ],
       "printMeasures": {
         "stickerLabelPage": {
           "pageWidth": "210mm",

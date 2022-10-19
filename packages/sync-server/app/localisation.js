@@ -93,6 +93,7 @@ const HIDEABLE_FIELDS = [
   'birthFacilityId',
   'birthType',
   'registeredBirthPlace',
+  'referralSourceId',
   'arrivalModeId',
 ];
 
@@ -301,6 +302,12 @@ const rootLocalisationSchema = yup
     templates: templatesSchema,
     timeZone: yup.string().nullable(),
     imagingTypes: imagingTypesSchema,
+    imagingPriorities: yup.array(
+      yup.object({
+        value: yup.string().required(),
+        label: yup.string().required(),
+      }),
+    ),
     triageCategories: yup
       .array(
         yup.object({

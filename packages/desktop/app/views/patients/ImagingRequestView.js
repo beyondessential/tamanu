@@ -76,102 +76,109 @@ const PrintButton = ({ imagingRequest, patient }) => {
 };
 
 const ImagingRequestInfoPane = React.memo(
-  ({ imagingRequest, onSubmit, practitionerSuggester, locationSuggester, imagingTypes }) => (
-    <Formik
-      // Only submit specific fields for update
-      onSubmit={({ status, completedById, locationId, results }) => {
-        const updatedImagingRequest = {
-          status,
-          completedById,
-          locationId,
-          results,
-        };
-        onSubmit(updatedImagingRequest);
-      }}
-      enableReinitialize // Updates form to reflect changes in initialValues
-      initialValues={{
-        ...imagingRequest,
-      }}
-    >
-      {({ values, dirty, handleChange }) => (
-        <Form>
-          <FormGrid columns={3}>
-            <TextInput value={imagingRequest.id} label="Request ID" disabled />
-            <TextInput
-              value={imagingTypes[imagingRequest.imagingType]?.label || 'Unknown'}
-              label="Request type"
-              disabled
-            />
-            <TextInput
-              value={imagingRequest.urgent ? 'Urgent' : 'Standard'}
-              label="Urgency"
-              disabled
-            />
-            <Field name="status" label="Status" component={SelectField} options={statusOptions} />
-            <DateTimeInput
-              value={imagingRequest.requestedDate}
-              label="Request date and time"
-              disabled
-            />
-            <TextInput
-              multiline
-              value={
-                // Either use free text area or multi-select areas data
-                imagingRequest.areas?.length
-                  ? imagingRequest.areas.map(area => area.name).join(', ')
-                  : imagingRequest.areaNote
-              }
-              label="Areas to be imaged"
-              style={{ gridColumn: '1 / -1', minHeight: '60px' }}
-              disabled
-            />
-            <TextInput
-              multiline
-              value={imagingRequest.note}
-              label="Notes"
-              style={{ gridColumn: '1 / -1', minHeight: '60px' }}
-              disabled
-            />
-            {(values.status === IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS ||
-              values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED) && (
-              <>
-                <Field
-                  name="completedById"
-                  label="Completed by"
-                  component={AutocompleteField}
-                  suggester={practitionerSuggester}
-                />
-                <Field
-                  name="locationId"
-                  label="Location"
-                  component={AutocompleteField}
-                  suggester={locationSuggester}
-                />
-              </>
-            )}
-            {values?.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED && (
+  ({ imagingRequest, onSubmit, practitionerSuggester, locationSuggester, imagingTypes }) => {
+    const { getLocalisation } = useLocalisation();
+    const imagingPriorities = getLocalisation('imagingPriorities') || [];
+
+    return (
+      <Formik
+        // Only submit specific fields for update
+        onSubmit={({ status, completedById, locationId, results }) => {
+          const updatedImagingRequest = {
+            status,
+            completedById,
+            locationId,
+            results,
+          };
+          onSubmit(updatedImagingRequest);
+        }}
+        enableReinitialize // Updates form to reflect changes in initialValues
+        initialValues={{
+          ...imagingRequest,
+        }}
+      >
+        {({ values, dirty, handleChange }) => (
+          <Form>
+            <FormGrid columns={3}>
+              <TextInput value={imagingRequest.id} label="Request ID" disabled />
               <TextInput
-                name="results"
-                label="Results Description"
-                multiline
-                value={values.results}
-                onChange={handleChange}
-                style={{ gridColumn: '1 / -1', minHeight: '60px' }}
+                value={imagingTypes[imagingRequest.imagingType]?.label || 'Unknown'}
+                label="Request type"
+                disabled
               />
-            )}
-            <ButtonRow>
-              {values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED && (
-                <Button color="secondary" disabled>
-                  View image (external link)
-                </Button>
+              <TextInput
+                value={
+                  imagingPriorities.find(p => p.value === imagingRequest.priority)?.label || ''
+                }
+                label="Priority"
+                disabled
+              />
+              <Field name="status" label="Status" component={SelectField} options={statusOptions} />
+              <DateTimeInput
+                value={imagingRequest.requestedDate}
+                label="Request date and time"
+                disabled
+              />
+              <TextInput
+                multiline
+                value={
+                  // Either use free text area or multi-select areas data
+                  imagingRequest.areas?.length
+                    ? imagingRequest.areas.map(area => area.name).join(', ')
+                    : imagingRequest.areaNote
+                }
+                label="Areas to be imaged"
+                style={{ gridColumn: '1 / -1', minHeight: '60px' }}
+                disabled
+              />
+              <TextInput
+                multiline
+                value={imagingRequest.note}
+                label="Notes"
+                style={{ gridColumn: '1 / -1', minHeight: '60px' }}
+                disabled
+              />
+              {(values.status === IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS ||
+                values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED) && (
+                <>
+                  <Field
+                    name="completedById"
+                    label="Completed by"
+                    component={AutocompleteField}
+                    suggester={practitionerSuggester}
+                  />
+                  <Field
+                    name="locationId"
+                    label="Location"
+                    component={AutocompleteField}
+                    suggester={locationSuggester}
+                  />
+                </>
               )}
-              {dirty && <Button type="submit">Save</Button>}
-            </ButtonRow>
-          </FormGrid>
-        </Form>
-      )}
-    </Formik>
-  ),
+              {values?.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED && (
+                <TextInput
+                  name="results"
+                  label="Results Description"
+                  multiline
+                  value={values.results}
+                  onChange={handleChange}
+                  style={{ gridColumn: '1 / -1', minHeight: '60px' }}
+                />
+              )}
+              <ButtonRow>
+                {values.status === IMAGING_REQUEST_STATUS_TYPES.COMPLETED && (
+                  <Button color="secondary" disabled>
+                    View image (external link)
+                  </Button>
+                )}
+                {dirty && <Button type="submit">Save</Button>}
+              </ButtonRow>
+            </FormGrid>
+          </Form>
+        )}
+      </Formik>
+    );
+  },
 );
 
 export const ImagingRequestView = () => {
