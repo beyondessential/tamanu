@@ -287,6 +287,26 @@ describe('Encounter', () => {
         expect(encounter.patientId).toEqual(patient.id);
       });
 
+      it('should record referralSourceId when create a new encounter', async () => {
+        const referralSource = await models.ReferenceData.create({
+          id: 'test-referral-source-id',
+          type: 'referralSource',
+          code: 'test-referral-source-id',
+          name: 'Test referral source',
+        });
+
+        const result = await app.post('/v1/encounter').send({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          referralSourceId: referralSource.id,
+        });
+        expect(result).toHaveSucceeded();
+        expect(result.body.id).toBeTruthy();
+        const encounter = await models.Encounter.findByPk(result.body.id);
+        expect(encounter).toBeDefined();
+        expect(encounter.referralSourceId).toEqual(referralSource.id);
+      });
+
       it('should update encounter details', async () => {
         const v = await models.Encounter.create({
           ...(await createDummyEncounter(models)),
