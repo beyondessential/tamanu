@@ -3,6 +3,7 @@ import {
   createDummyEncounter,
   createDummyEncounterMedication,
 } from 'shared/demoData/patients';
+import { fakeUser } from 'shared/test-helpers/fake';
 import { toDateTimeString, getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { subWeeks } from 'date-fns';
 import { uploadAttachment } from '../../app/utils/uploadAttachment';
@@ -287,6 +288,26 @@ describe('Encounter', () => {
         expect(encounter.patientId).toEqual(patient.id);
       });
 
+      it('should record referralSourceId when create a new encounter', async () => {
+        const referralSource = await models.ReferenceData.create({
+          id: 'test-referral-source-id',
+          type: 'referralSource',
+          code: 'test-referral-source-id',
+          name: 'Test referral source',
+        });
+
+        const result = await app.post('/v1/encounter').send({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          referralSourceId: referralSource.id,
+        });
+        expect(result).toHaveSucceeded();
+        expect(result.body.id).toBeTruthy();
+        const encounter = await models.Encounter.findByPk(result.body.id);
+        expect(encounter).toBeDefined();
+        expect(encounter.referralSourceId).toEqual(referralSource.id);
+      });
+
       it('should update encounter details', async () => {
         const v = await models.Encounter.create({
           ...(await createDummyEncounter(models)),
@@ -377,6 +398,33 @@ describe('Encounter', () => {
         const check = x =>
           x.content.includes(fromLocation.name) && x.content.includes(toLocation.name);
         expect(noteItems.some(check)).toEqual(true);
+      });
+
+      it('should change encounter clinician and add a note', async () => {
+        const fromClinician = await models.User.create(fakeUser());
+        const toClinician = await models.User.create(fakeUser());
+
+        const existingEncounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          examinerId: fromClinician.id,
+        });
+
+        const result = await app.put(`/v1/encounter/${existingEncounter.id}`).send({
+          examinerId: toClinician.id,
+        });
+        expect(result).toHaveSucceeded();
+
+        const updatedEncounter = await models.Encounter.findOne({
+          where: { id: existingEncounter.id },
+        });
+        expect(updatedEncounter.examinerId).toEqual(toClinician.id);
+
+        const notePages = await existingEncounter.getNotePages();
+        const noteItems = (await Promise.all(notePages.map(np => np.getNoteItems()))).flat();
+        expect(noteItems[0].content).toEqual(
+          `Changed supervising clinician from ${fromClinician.displayName} to ${toClinician.displayName}`,
+        );
       });
 
       it('should discharge a patient', async () => {

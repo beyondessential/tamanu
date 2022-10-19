@@ -53,6 +53,7 @@ const ALLOWLIST = [
   'colonoscopyImagingArea',
   'vascularStudyImagingArea',
   'stressTestImagingArea',
+  'referralSource',
 ];
 
 export const ReferenceDataAdminView = () => (
