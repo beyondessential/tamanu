@@ -330,7 +330,7 @@ const rootLocalisationSchema = yup
     printMeasures: printMeasuresSchema,
     sync: yup
       .object({
-        syncAllEncountersForTheseScheduledVaccines: yup.array(yup.string().required()).defined(),
+        syncAllEncountersForTheseVaccines: yup.array(yup.string().required()).defined(),
       })
       .required()
       .noUnknown(),
