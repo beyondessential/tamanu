@@ -231,6 +231,10 @@
       "testTypeWhitelist": ["labTestType-COVID"]
     },
     "data": {
+      // To do: review this section when implementing the patient charts feature
+      "units": {
+        "temperature": "celsius"
+      },
       "country": {
         "name": "",
         "alpha-2": "",

@@ -280,6 +280,9 @@ const printMeasuresSchema = yup
 
 const rootLocalisationSchema = yup
   .object({
+    units: yup.object({
+      temperature: yup.string().oneOf(['celsius', 'fahrenheit']),
+    }),
     country: {
       name: yup
         .string()

@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { PropTypes } from 'prop-types';
 import { NumberInput } from './NumberField';
 import { TextInput } from './TextField';
+import { useLocalisation } from '../../contexts/Localisation';
 
 const HiddenInput = styled(TextInput)`
   position: absolute;
@@ -28,9 +29,6 @@ const TEMPERATURE_OPTIONS = {
   },
 };
 
-// Todo Replace with real config after testing
-const LOCALISATION = { vitals: { temperature: 'celsius' } };
-
 // valueInCelsius is the actual form value. It is stored in the hidden field and externally updated
 // in the onChange handler. The internal value is private to this component and is just used for displaying the
 // date in the unit that is configured.
@@ -44,9 +42,8 @@ export const TemperatureInput = ({
   className,
   ...props
 }) => {
-  const { label, metricConversion } = TEMPERATURE_OPTIONS[LOCALISATION.vitals.temperature];
-
-  // Maybe set to 37 degrees? or null
+  const { getLocalisation } = useLocalisation();
+  const { label, metricConversion } = TEMPERATURE_OPTIONS[getLocalisation('units.temperature')];
   const [internalValue, setInternalValue] = useState(defaultValue);
 
   const onValueChange = event => {
@@ -56,7 +53,9 @@ export const TemperatureInput = ({
       typeof metricConversion === 'function'
         ? metricConversion(newInternalValue)
         : newInternalValue;
-    onChange(newMetricValue);
+
+    // Update external form value (ie. formik)
+    onChange({ target: { value: newMetricValue, name } });
   };
 
   return (
