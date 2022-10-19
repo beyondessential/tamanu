@@ -611,7 +611,7 @@
       // `tamanu` implies that the signing integrations are not enabled.
       "previewUvciFormat": "tamanu",
       "sync": {
-        "syncAllEncountersForTheseScheduledVaccines": []
+        "syncAllEncountersForTheseVaccines": []
       },
       "disabledReports": []
     }

@@ -51,7 +51,7 @@ describe('buildEncounterLinkedSyncFilter', () => {
     const config = {
       localisation: {
         data: {
-          sync: { syncAllEncountersForTheseScheduledVaccines: importantVaccines },
+          sync: { syncAllEncountersForTheseVaccines: importantVaccines },
         },
       },
     };
@@ -123,7 +123,7 @@ describe('buildEncounterLinkedSyncFilter', () => {
       localisation: {
         data: {
           sync: {
-            syncAllEncountersForTheseScheduledVaccines: importantVaccines,
+            syncAllEncountersForTheseVaccines: importantVaccines,
           },
         },
       },
