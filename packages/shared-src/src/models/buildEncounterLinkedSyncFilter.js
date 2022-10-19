@@ -12,13 +12,13 @@ function buildNestedInclude(associations) {
   return topLevel.include;
 }
 
-function includeWithinEncounter(include, association) {
+function includeWithinEncounter(include, includeClauseToAdd) {
   let currentLevel = { association: null, include };
   while (currentLevel.association !== 'encounter') {
     const nextLevel = currentLevel.include[0];
     currentLevel = nextLevel;
   }
-  currentLevel.include.push({ association, include: [] });
+  currentLevel.include.push(includeClauseToAdd);
 }
 
 export function buildEncounterLinkedSyncFilter(
@@ -45,23 +45,26 @@ export function buildEncounterLinkedSyncFilter(
     if (isEncounter) {
       include.push('labRequest');
     } else {
-      includeWithinEncounter(include, 'labRequest');
+      includeWithinEncounter(include, { association: 'labRequest', include: [] });
     }
   }
 
   // add any encounters with a vaccine in the list of scheduled vaccines that sync everywhere
-  const vaccinesToSync =
-    config.localisation?.data?.sync?.syncAllEncountersForTheseScheduledVaccines;
+  const vaccinesToSync = config.localisation?.data?.sync?.syncAllEncountersForTheseVaccines;
   if (vaccinesToSync?.length > 0) {
     or.push({
-      [`$${pathToEncounter}administeredVaccine.scheduled_vaccine_id$`]: {
+      [`$${pathToEncounter}administeredVaccine.scheduledVaccine.vaccine_id$`]: {
         [Op.in]: vaccinesToSync,
       },
     });
+    const includeScheduledVaccineClause = {
+      association: 'administeredVaccine',
+      include: ['scheduledVaccine'],
+    };
     if (isEncounter) {
-      include.push('administeredVaccine');
+      include.push(includeScheduledVaccineClause);
     } else {
-      includeWithinEncounter(include, 'administeredVaccine');
+      includeWithinEncounter(include, includeScheduledVaccineClause);
     }
   }
 

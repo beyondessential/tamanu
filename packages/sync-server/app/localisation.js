@@ -93,6 +93,7 @@ const HIDEABLE_FIELDS = [
   'birthFacilityId',
   'birthType',
   'registeredBirthPlace',
+  'referralSourceId',
 ];
 
 const templatesSchema = yup
@@ -300,6 +301,12 @@ const rootLocalisationSchema = yup
     templates: templatesSchema,
     timeZone: yup.string().nullable(),
     imagingTypes: imagingTypesSchema,
+    imagingPriorities: yup.array(
+      yup.object({
+        value: yup.string().required(),
+        label: yup.string().required(),
+      }),
+    ),
     triageCategories: yup
       .array(
         yup.object({
@@ -330,7 +337,7 @@ const rootLocalisationSchema = yup
     printMeasures: printMeasuresSchema,
     sync: yup
       .object({
-        syncAllEncountersForTheseScheduledVaccines: yup.array(yup.string().required()).defined(),
+        syncAllEncountersForTheseVaccines: yup.array(yup.string().required()).defined(),
       })
       .required()
       .noUnknown(),
