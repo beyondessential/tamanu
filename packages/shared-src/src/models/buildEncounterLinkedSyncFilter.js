@@ -1,4 +1,4 @@
-import { Op } from 'sequelize';
+import Sequelize, { Op } from 'sequelize';
 import baseConfig from 'config';
 
 function buildNestedInclude(associations) {
@@ -40,13 +40,18 @@ export function buildEncounterLinkedSyncFilter(
   const or = [{ [`$${pathToEncounter}patient_id$`]: { [Op.in]: patientIds } }];
 
   // add any encounters with a lab request, if syncing all labs is turned on for facility
-  if (facilityConfig.syncAllLabRequests) {
-    or.push({ [`$${pathToEncounter}labRequest.id$`]: { [Op.not]: null } });
-    if (isEncounter) {
-      include.push('labRequest');
-    } else {
-      includeWithinEncounter(include, { association: 'labRequest', include: [] });
-    }
+  if (facilityConfig.syncAllLabRequests && isEncounter) {
+    or.push({
+      [`$${pathToEncounter}id$`]: {
+        [Op.in]: Sequelize.literal(
+          `(
+            SELECT DISTINCT("encounter_id")
+            FROM "lab_requests"
+            WHERE "deleted_at" IS NULL
+           )`,
+        ),
+      },
+    });
   }
 
   // add any encounters with a vaccine in the list of scheduled vaccines that sync everywhere
@@ -59,7 +64,7 @@ export function buildEncounterLinkedSyncFilter(
     });
     const includeScheduledVaccineClause = {
       association: 'administeredVaccine',
-      include: ['scheduledVaccine'],
+      include: [{ association: 'scheduledVaccine', include: [] }],
     };
     if (isEncounter) {
       include.push(includeScheduledVaccineClause);
