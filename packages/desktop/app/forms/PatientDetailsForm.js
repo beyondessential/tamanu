@@ -273,7 +273,7 @@ export const SecondaryDetailsGroup = ({ patientRegistryType, values = {}, isEdit
   );
 };
 
-const PatientField = ({ field: { definitionId, name, fieldType, options } }) => {
+const PatientField = ({ fieldDefinition: { definitionId, name, fieldType, options } }) => {
   const fieldName = `patientFields.${definitionId}`;
   if (fieldType === PATIENT_FIELD_DEFINITION_TYPES.SELECT) {
     const fieldOptions = options.map(o => ({ label: o, value: o }));
@@ -297,7 +297,7 @@ export const PatientFieldsGroup = ({ patientFields }) => {
           <StyledHeading>{category}</StyledHeading>
           <StyledFormGrid>
             {fields.map(f => (
-              <PatientField key={f.definitionId} field={f} />
+              <PatientField key={f.definitionId} fieldDefinition={f} />
             ))}
           </StyledFormGrid>
         </Fragment>
