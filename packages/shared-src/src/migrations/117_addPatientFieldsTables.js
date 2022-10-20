@@ -85,7 +85,7 @@ const tables = [
     {
       ...commonColumns,
       value: {
-        type: Sequelize.STRING,
+        type: Sequelize.TEXT,
         allowNull: false,
       },
       definition_id: {
