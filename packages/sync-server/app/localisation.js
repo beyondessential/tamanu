@@ -94,6 +94,7 @@ const HIDEABLE_FIELDS = [
   'birthType',
   'registeredBirthPlace',
   'referralSourceId',
+  'arrivalModeId',
 ];
 
 const templatesSchema = yup
@@ -331,6 +332,7 @@ const rootLocalisationSchema = yup
         mergePopulatedPADRecords: yup.boolean().required(),
         enableCovidClearanceCertificate: yup.boolean().required(),
         enableDischargeDisposition: yup.boolean().default(true),
+        editDisplayId: yup.boolean().required(),
       })
       .required()
       .noUnknown(),

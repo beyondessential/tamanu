@@ -1,14 +1,21 @@
 import { Entity, Column, ManyToOne, RelationId, BeforeInsert, BeforeUpdate } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
-import { AVPUType, IVitals, DetectedPresenceType, UrineNitritesType, UrineProteinType } from '../types/IVitals';
+import {
+  AVPUType,
+  IVitals,
+  DetectedPresenceType,
+  UrineNitritesType,
+  UrineProteinType,
+} from '../types/IVitals';
 import { Encounter } from './Encounter';
+import { DateTimeStringColumn } from './DateColumns';
 import { SYNC_DIRECTIONS } from './types';
 
 @Entity('vitals')
 export class Vitals extends BaseModel implements IVitals {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
-  @Column()
+  @DateTimeStringColumn()
   dateRecorded: string;
 
   @Column({ type: 'int', nullable: true })

@@ -13,11 +13,12 @@ import { PatientFacility } from './PatientFacility';
 import { ReferenceData, NullableReferenceDataRelation } from './ReferenceData';
 import { SYNC_DIRECTIONS } from './types';
 
+import { DateStringColumn } from './DateColumns';
 const TIME_OFFSET = 3;
 
 @Entity('patient')
 export class Patient extends BaseModel implements IPatient {
-  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL
+  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
   @Column()
   displayId: string;
@@ -37,7 +38,7 @@ export class Patient extends BaseModel implements IPatient {
   @Column({ nullable: true })
   culturalName?: string;
 
-  @Column({ nullable: true })
+  @DateStringColumn({ nullable: true })
   dateOfBirth?: string;
 
   @Column({ nullable: true })

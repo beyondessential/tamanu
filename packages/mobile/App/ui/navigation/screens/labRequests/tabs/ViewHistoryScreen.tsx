@@ -4,6 +4,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { compose } from 'redux';
 import { Routes } from '/helpers/routes';
 import { Svg, Circle } from 'react-native-svg';
+import { parseISO } from 'date-fns';
 import { ErrorScreen } from '~/ui/components/ErrorScreen';
 import { LoadingScreen } from '~/ui/components/LoadingScreen';
 import { withPatient } from '~/ui/containers/Patient';
@@ -12,7 +13,7 @@ import { ILabRequest } from '~/types';
 import { navigateAfterTimeout } from '~/ui/helpers/navigators';
 import { StyledView, StyledText } from '/styled/common';
 import { theme } from '/styled/theme';
-import { formatDate, parseISO9075 } from '/helpers/date';
+import { formatDate } from '/helpers/date';
 import { DateFormats } from '~/ui/helpers/constants';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 
@@ -44,7 +45,7 @@ const styles = StyleSheet.create({
 const LabRequestRow = ({ labRequest, synced }: LabRequestRowProps): JSX.Element => {
   let date: string;
   try {
-    date = formatDate(parseISO9075(labRequest.requestedDate), DateFormats.DAY_MONTH_YEAR_SHORT);
+    date = formatDate(parseISO(labRequest.requestedDate), DateFormats.DAY_MONTH_YEAR_SHORT);
   } catch (e) {
     console.warn(e, labRequest.requestedDate);
     date = '-';

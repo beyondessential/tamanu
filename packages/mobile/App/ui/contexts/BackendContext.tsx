@@ -3,6 +3,7 @@ import RnBgTask from 'react-native-bg-thread';
 import { BackendManager } from '../../services/BackendManager';
 
 import { LoadingScreen } from '../components/LoadingScreen';
+import { ErrorScreen } from '../components/ErrorScreen';
 
 export const BackendContext = React.createContext<BackendManager>(undefined);
 
@@ -22,12 +23,16 @@ export const BackendProvider = ({ Component }): ReactElement => {
       });
     })();
     return () => {
-      backendManager.stopSyncService(); 
+      backendManager.stopSyncService();
     };
   }, [backendManager]);
 
   if (!initialised) {
     return <LoadingScreen />;
+  }
+
+  if (backendManager.getSyncError()) {
+    return <ErrorScreen error={backendManager.getSyncError()} />;
   }
 
   return (

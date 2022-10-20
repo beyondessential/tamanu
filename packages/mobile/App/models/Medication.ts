@@ -3,16 +3,17 @@ import { BaseModel } from './BaseModel';
 import { IMedication } from '~/types';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { Encounter } from './Encounter';
+import { DateTimeStringColumn } from './DateColumns';
 import { SYNC_DIRECTIONS } from './types';
 
 @Entity('medication')
 export class Medication extends BaseModel implements IMedication {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
-  @Column()
+  @DateTimeStringColumn()
   date: string;
 
-  @Column({ nullable: true })
+  @DateTimeStringColumn({ nullable: true })
   endDate?: string;
 
   @Column({ nullable: true })
@@ -35,7 +36,10 @@ export class Medication extends BaseModel implements IMedication {
   @RelationId(({ medication }) => medication)
   medicationId?: string;
 
-  @ManyToOne(() => Encounter, encounter => encounter.medications)
+  @ManyToOne(
+    () => Encounter,
+    encounter => encounter.medications,
+  )
   encounter: Encounter;
   @RelationId(({ encounter }) => encounter)
   encounterId?: string;

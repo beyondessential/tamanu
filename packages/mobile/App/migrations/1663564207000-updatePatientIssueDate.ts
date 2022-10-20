@@ -1,5 +1,6 @@
 import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
 import { getTable } from './utils/queryRunner';
+
 const ISO9075_FORMAT = 'YYYY-MM-DD HH:mm:ss';
 const ISO9075_FORMAT_LENGTH = ISO9075_FORMAT.length;
 
@@ -15,7 +16,7 @@ export class updatePatientIssueDate1663564207000 implements MigrationInterface {
       tableObject,
       new TableColumn({
         name: `${columnName}_legacy`,
-        type: 'date',
+        type: 'datetime',
         isNullable: true,
       }),
     );
@@ -33,14 +34,14 @@ export class updatePatientIssueDate1663564207000 implements MigrationInterface {
       tableObject,
       new TableColumn({
         name: columnName,
-        type: 'string',
+        type: 'varchar',
         length: `${ISO9075_FORMAT_LENGTH}`,
         isNullable: true,
       }),
     );
     await queryRunner.query(
       `UPDATE ${tableName}
-      SET ${columnName} = ${columnName}_legacy`,
+       SET ${columnName} = datetime(${columnName}_legacy, 'localtime') WHERE ${columnName}_legacy IS NOT NULL`,
     );
   }
 
@@ -54,7 +55,7 @@ export class updatePatientIssueDate1663564207000 implements MigrationInterface {
       `${columnName}_legacy`,
       new TableColumn({
         name: columnName,
-        type: 'Date',
+        type: 'datetime',
       }),
     );
   }

@@ -15,7 +15,7 @@ async function createDateTimeStringUpMigration(
     tableObject,
     new TableColumn({
       name: `${columnName}_legacy`,
-      type: 'date',
+      type: 'datetime',
       isNullable: true,
     }),
   );
@@ -33,14 +33,20 @@ async function createDateTimeStringUpMigration(
     tableObject,
     new TableColumn({
       name: columnName,
-      type: 'string',
+      type: 'varchar',
       length: `${ISO9075_FORMAT_LENGTH}`,
       isNullable: true,
     }),
   );
+
+  // Some survey responses created on mobile have dates set as Date.now() i.e unix timestamp
   await queryRunner.query(
     `UPDATE ${tableName}
-      SET ${columnName} = ${columnName}_legacy`,
+      SET ${columnName} =  CASE
+      WHEN (${columnName}_legacy IS NOT NULL AND ${columnName}_legacy NOT LIKE '____-__-__ __:__:__%') THEN datetime(${columnName}_legacy / 1000, 'unixepoch', 'localtime')
+      WHEN (${columnName}_legacy IS NOT NULL) THEN datetime(${columnName}_legacy, 'localtime')
+      ELSE NULL
+      END`,
   );
 }
 
@@ -58,7 +64,7 @@ async function createDateTimeStringDownMigration(
     `${columnName}_legacy`,
     new TableColumn({
       name: columnName,
-      type: 'date',
+      type: 'datetime',
     }),
   );
 }
