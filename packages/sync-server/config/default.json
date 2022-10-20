@@ -528,6 +528,11 @@
           "shortLabel": "Referral source",
           "longLabel":  "Referral source",
           "hidden": false
+        },
+        "arrivalModeId": {
+          "shortLabel": "Arrival mode",
+          "longLabel":  "Arrival mode",
+          "hidden": false
         }
       },
       "features": {
