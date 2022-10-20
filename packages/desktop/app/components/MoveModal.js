@@ -94,16 +94,23 @@ const BeginMoveForm = ({ onSubmit, onClose, encounter, locationSuggester }) => {
     <Form
       onSubmit={onSubmit}
       render={renderForm}
-      initialValues={{ plannedLocationId: encounter.plannedLocationId }}
+      initialValues={{
+        plannedLocationId: encounter.plannedLocationId,
+        submittedTime: getCurrentDateTimeString(),
+      }}
     />
   );
 };
 const FinaliseMoveForm = ({ onSubmit, encounter, onClose }) => (
   <FormGrid columns={1}>
-    <div>{`Are you sure you want to move ${encounter.patient[0].firstName} to ${encounter.plannedLocation.name}?`}</div>
+    <div>{`Are you sure you want to move patient to ${encounter.plannedLocation.name}?`}</div>
     <ConfirmCancelRow
       onConfirm={() =>
-        onSubmit({ locationId: encounter.plannedLocation.id, plannedLocationId: null })
+        onSubmit({
+          locationId: encounter.plannedLocation.id,
+          plannedLocationId: null,
+          plannedLocationStartTime: null,
+        })
       }
       onCancel={onClose}
     />
@@ -112,9 +119,9 @@ const FinaliseMoveForm = ({ onSubmit, encounter, onClose }) => (
 
 const CancelMoveForm = ({ onSubmit, encounter, onClose }) => (
   <FormGrid columns={1}>
-    <div>{`Are you sure you want to cancel ${encounter.patient[0].firstName}'s scheduled move to ${encounter.plannedLocation.name}?`}</div>
+    <div>{`Are you sure you want to cancel patient's scheduled move to ${encounter.plannedLocation.name}?`}</div>
     <ConfirmCancelRow
-      onConfirm={() => onSubmit({ plannedLocationId: null })}
+      onConfirm={() => onSubmit({ plannedLocationId: null, plannedLocationStartTime: null })}
       confirmText="Yes, cancel"
       cancelText="Keep it"
       onCancel={onClose}

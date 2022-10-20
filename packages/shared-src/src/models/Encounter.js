@@ -154,6 +154,7 @@ export class Encounter extends Model {
         endDate: dateTimeType('endDate'),
         reasonForEncounter: Sequelize.TEXT,
         deviceId: Sequelize.TEXT,
+        plannedLocationStartTime: dateTimeType('plannedLocationStartTime'),
       },
       {
         ...options,
@@ -169,6 +170,10 @@ export class Encounter extends Model {
       'examiner',
       {
         association: 'location',
+        include: ['facility'],
+      },
+      {
+        association: 'plannedLocation',
         include: ['facility'],
       },
       'referralSource',
@@ -379,7 +384,6 @@ export class Encounter extends Model {
   }
 
   async update(data) {
-    console.log('data', data);
     const { Department, Location } = this.sequelize.models;
 
     const updateEncounter = async () => {
@@ -406,7 +410,6 @@ export class Encounter extends Model {
           `Changed location from ${oldLocation.name} to ${newLocation.name}`,
           data.submittedTime,
         );
-        additionalChanges.plannedLocationId = null;
       }
 
       if (

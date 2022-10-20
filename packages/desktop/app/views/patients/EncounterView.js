@@ -140,7 +140,7 @@ const EncounterActionDropdown = ({ encounter }) => {
       condition: () => isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.ADMISSION),
     },
     {
-      label: `Plan location change ${JSON.stringify(encounter)}`,
+      label: 'Plan location change',
       condition: () => !encounter.plannedLocation,
       onClick: onBeginLocationChange,
     },
