@@ -8,15 +8,16 @@ import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { LabTest } from './LabTest';
 import { User } from './User';
 import { ISO9075_SQLITE_DEFAULT } from './columnDefaults';
+import { DateTimeStringColumn } from './DateColumns';
 
 @Entity('labRequest')
 export class LabRequest extends BaseModel implements ILabRequest {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
-  @Column({ nullable: false, default: ISO9075_SQLITE_DEFAULT })
+  @DateTimeStringColumn({ nullable: false, default: ISO9075_SQLITE_DEFAULT })
   sampleTime: string;
 
-  @Column({ nullable: false, default: ISO9075_SQLITE_DEFAULT })
+  @DateTimeStringColumn({ nullable: false, default: ISO9075_SQLITE_DEFAULT })
   requestedDate: string;
 
   @Column({ nullable: true, default: false })

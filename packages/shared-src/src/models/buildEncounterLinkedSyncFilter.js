@@ -55,7 +55,7 @@ export function buildEncounterLinkedSyncFilter(
   }
 
   // add any encounters with a vaccine in the list of scheduled vaccines that sync everywhere
-  const vaccinesToSync = config.localisation?.data?.sync?.syncAllEncountersForTheseVaccines;
+  const vaccinesToSync = config.sync.syncAllEncountersForTheseVaccines;
   if (vaccinesToSync?.length > 0) {
     or.push({
       [`$${pathToEncounter}administeredVaccine.scheduledVaccine.vaccine_id$`]: {
