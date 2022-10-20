@@ -115,7 +115,7 @@ export async function up(query) {
 }
 
 export async function down(query) {
-  for (const [name] of tables) {
+  for (const [name] of tables.reverse()) {
     await query.dropTable(name);
   }
 }
