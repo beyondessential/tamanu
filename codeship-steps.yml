@@ -145,27 +145,27 @@
               tag: ^(dev$|ci-)
               service: awsdeployment
               command: ./scripts/deploy_lan.sh dev tamanu-facility-server-dev-16b
-              name: onto klaus A
+            - name: onto klaus A
               tag: ^(klaus-)
               service: awsdeployment
               command: ./scripts/deploy_lan.sh klaus tamanu-facility-server-klaus-a
-              name: onto klaus B
+            - name: onto klaus B
               tag: ^(klaus-)
               service: awsdeployment
               command: ./scripts/deploy_lan.sh klaus tamanu-facility-server-klaus-b
-              name: onto klaus C
+            - name: onto klaus C
               tag: ^(klaus-)
               service: awsdeployment
               command: ./scripts/deploy_lan.sh klaus tamanu-facility-server-klaus-c
-              name: onto sima A
+            - name: onto sima A
               tag: ^(sima-)
               service: awsdeployment
               command: ./scripts/deploy_lan.sh sima tamanu-facility-server-sima-a
-              name: onto sepi A
+            - name: onto sepi A
               tag: ^(sepi-)
               service: awsdeployment
               command: ./scripts/deploy_lan.sh sepi tamanu-facility-server-sepi-a
-              name: onto da A
+            - name: onto da A
               tag: ^(da-)
               service: awsdeployment
               command: ./scripts/deploy_lan.sh da tamanu-facility-server-da-a

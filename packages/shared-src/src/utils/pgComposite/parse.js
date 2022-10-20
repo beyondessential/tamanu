@@ -67,8 +67,12 @@ function fieldLength(tokens) {
  * @see https://www.postgresql.org/docs/current/rowtypes.html#ROWTYPES-IO-SYNTAX
  */
 export function parse(raw) {
-  if (raw[0] !== '(') throw new Error('not a composite value: missing left paren');
-  if (raw[raw.length - 1] !== ')') throw new Error('not a composite value: missing right paren');
+  if (raw[0] !== '(') {
+    throw new Error(`not a composite value: missing left paren\nRAW: ${raw}`);
+  }
+  if (raw[raw.length - 1] !== ')') {
+    throw new Error(`not a composite value: missing right paren\nRAW: ${raw}`);
+  }
 
   const tokens = [];
   for (const c of raw.slice(1, raw.length - 1)) {

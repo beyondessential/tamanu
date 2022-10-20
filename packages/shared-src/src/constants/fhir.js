@@ -1,6 +1,10 @@
-import { Op } from 'sequelize';
-
+// The resource types that are supported at an API level.
 export const FHIR_RESOURCE_TYPES = ['Patient'];
+
+// The resource:upstreams relationship. Used to set up hooks.
+export const FHIR_UPSTREAMS = {
+  Patient: ['Patient', 'PatientAdditionalData'],
+};
 
 // All possible search parameter types
 export const FHIR_SEARCH_PARAMETERS = {
@@ -26,34 +30,35 @@ export const FHIR_SEARCH_TOKEN_TYPES = {
 // All supported search modifiers, by parameter type,
 // mapped to their Sequelize operator, or to a function
 // (param) => Sequelize.where/.or/.and...
-export const FHIR_SEARCH_MODIFIERS = {
-  [FHIR_SEARCH_PARAMETERS.URI]: {
-    // above
-    // below
-  },
-  [FHIR_SEARCH_PARAMETERS.STRING]: {
-    exact: Op.eq,
-    contains: Op.substring,
-    'starts-with': Op.startsWith,
-    'ends-with': Op.endsWith,
-    // text
-  },
-  [FHIR_SEARCH_PARAMETERS.TOKEN]: {
-    // text
-    // not
-    // above
-    // below
-    // in
-    // not-in
-    // of-type
-  },
-  [FHIR_SEARCH_PARAMETERS.REFERENCE]: {
-    // {type}
-    // identifier
-    // above
-    // below
-  },
-};
+// not used in code, but kept for reference
+// export const FHIR_SEARCH_MODIFIERS = {
+//   [FHIR_SEARCH_PARAMETERS.URI]: {
+//     // above
+//     // below
+//   },
+//   [FHIR_SEARCH_PARAMETERS.STRING]: {
+//     exact: Op.eq,
+//     contains: Op.substring,
+//     'starts-with': Op.startsWith,
+//     'ends-with': Op.endsWith,
+//     // text
+//   },
+//   [FHIR_SEARCH_PARAMETERS.TOKEN]: {
+//     // text
+//     // not
+//     // above
+//     // below
+//     // in
+//     // not-in
+//     // of-type
+//   },
+//   [FHIR_SEARCH_PARAMETERS.REFERENCE]: {
+//     // {type}
+//     // identifier
+//     // above
+//     // below
+//   },
+// };
 
 // All supported search prefixes (for number, date, quantity)
 export const FHIR_SEARCH_PREFIXES = {

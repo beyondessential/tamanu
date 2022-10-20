@@ -5,12 +5,7 @@ import { Op } from 'sequelize';
 import { NOTE_TYPES, AREA_TYPE_TO_IMAGING_TYPE, IMAGING_AREA_TYPES } from 'shared/constants';
 import { NotFoundError } from 'shared/errors';
 import { toDateTimeString } from 'shared/utils/dateTime';
-import {
-  getNoteWithType,
-  mapQueryFilters,
-  getCaseInsensitiveFilter,
-  getTextToBooleanFilter,
-} from '../../database/utils';
+import { getNoteWithType, mapQueryFilters, getCaseInsensitiveFilter } from '../../database/utils';
 import { permissionCheckingRouter } from './crudHelpers';
 
 // Object used to map field names to database column names
@@ -24,7 +19,6 @@ const SNAKE_CASE_COLUMN_NAMES = {
 
 // Filtering functions for sequelize queries
 const caseInsensitiveFilter = getCaseInsensitiveFilter(SNAKE_CASE_COLUMN_NAMES);
-const urgencyTextToBooleanFilter = getTextToBooleanFilter('urgent');
 
 export const imagingRequest = express.Router();
 
@@ -260,12 +254,7 @@ globalImagingRequests.get(
       },
       { key: 'imagingType', operator: Op.eq },
       { key: 'status', operator: Op.eq },
-      {
-        key: 'urgency',
-        alias: 'urgent',
-        operator: Op.eq,
-        mapFn: urgencyTextToBooleanFilter,
-      },
+      { key: 'priority', operator: Op.eq },
       {
         key: 'requestedDateFrom',
         alias: 'requestedDate',

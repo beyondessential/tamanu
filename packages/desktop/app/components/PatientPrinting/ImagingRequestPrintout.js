@@ -10,7 +10,7 @@ export const ImagingRequestPrintout = React.memo(
       id,
       requestedDate,
       requestedBy,
-      urgent,
+      priority,
       imagingType,
       areas,
       areaNote,
@@ -18,6 +18,7 @@ export const ImagingRequestPrintout = React.memo(
     } = imagingRequestData;
     const { getLocalisation } = useLocalisation();
     const imagingTypes = getLocalisation('imagingTypes') || {};
+    const imagingPriorities = getLocalisation('imagingPriorities') || [];
 
     return (
       <SimplePrintout
@@ -30,7 +31,7 @@ export const ImagingRequestPrintout = React.memo(
           Facility: encounterData?.location?.facility?.name,
           Department: encounterData?.department?.name,
           'Requested by': requestedBy?.displayName,
-          Urgent: urgent ? 'Yes' : 'No',
+          Priority: imagingPriorities.find(p => p.value === priority)?.label || '',
           'Imaging type': imagingTypes[imagingType]?.label || 'Unknown',
           'Areas to be imaged': areas?.length ? areas.map(area => area.name).join(', ') : areaNote,
         }}
