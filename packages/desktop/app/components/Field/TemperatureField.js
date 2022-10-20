@@ -22,15 +22,13 @@ const TEMPERATURE_OPTIONS = {
     label: 'Temperature (ºF)',
     // This needs to convert from ºF back to metric as the internal value is in ºF and the
     // actual form value needs to be in metric
-    toMetric: T =>
-      convert(parseFloat(T), 'fahrenheit')
-        .to('celsius');
+    toMetric: T => convert(parseFloat(T), 'fahrenheit').to('celsius'),
   },
 };
 
-// valueInCelsius is the actual form value. It is stored in the hidden field and externally updated
-// in the onChange handler. The internal value is private to this component and is just used for displaying the
-// date in the unit that is configured.
+// metricValue is the actual form value that gets saved to the db. It is stored in the hidden
+// field and externally updated in the onChange handler. The internal value is private to this
+// component and is just used for displaying the value in the unit that is configured.
 export const TemperatureInput = ({
   onChange,
   value: metricValue,

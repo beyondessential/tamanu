@@ -14,16 +14,16 @@ const vitalsRows = [
   {
     key: 'temperature',
     title: 'Temperature',
-    accessor: ({ amount, unitSetting }) => {
+    accessor: ({ amount, unitSettings }) => {
       if (typeof amount !== 'number') return '-';
 
-      if (unitSetting.temperature === 'celsius') {
-        return `${amount.toFixed(2)}ºC`;
+      if (unitSettings?.temperature === 'fahrenheit') {
+        return `${convert(amount, 'celsius')
+          .to('fahrenheit')
+          .toFixed(1)}ºF`;
       }
 
-      return `${convert(amount, 'celsius')
-        .to('fahrenheit')
-        .toFixed(2)}ºF`;
+      return `${amount.toFixed(1)}ºC`;
     },
   },
   { key: 'sbp', title: 'SBP', rounding: 0, unit: '' },
@@ -34,9 +34,9 @@ const vitalsRows = [
   { key: 'avpu', title: 'AVPU', unit: '/min' },
 ];
 
-function unitDisplay({ amount, unit, rounding, accessor, unitSetting }) {
+function unitDisplay({ amount, unit, rounding, accessor, unitSettings }) {
   if (typeof accessor === 'function') {
-    return accessor({ amount, unitSetting });
+    return accessor({ amount, unitSettings });
   }
   if (typeof amount === 'string') return capitaliseFirstLetter(amount);
   if (typeof amount !== 'number') return '-';
@@ -47,7 +47,7 @@ function unitDisplay({ amount, unit, rounding, accessor, unitSetting }) {
 export const VitalsTable = React.memo(() => {
   const { encounter } = useEncounter();
   const { getLocalisation } = useLocalisation();
-  const unitsLocalisation = getLocalisation('units');
+  const unitSettings = getLocalisation('units');
   const api = useApi();
   const { data, error, isLoading } = useQuery(['encounterVitals', encounter.id], () =>
     api.get(`encounter/${encounter.id}/vitals`),
@@ -75,7 +75,7 @@ export const VitalsTable = React.memo(() => {
           rounding,
           unit,
           accessor,
-          unitsLocalisation,
+          unitSettings,
         }),
       }),
       {},

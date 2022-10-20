@@ -27,6 +27,9 @@ export interface TemperatureFieldProps extends BaseInputProps {
   onBlur?: () => void;
 }
 
+// The internal value is private to this component and is just used for displaying the value in the unit
+// that is configured. Formik values are simply updated using the onChange method on mobile rather than being
+// hooked up by the name prop as they are on desktop.
 export const TemperatureField = (props: TemperatureFieldProps): JSX.Element => {
   const {
     isOpen,
@@ -45,27 +48,26 @@ export const TemperatureField = (props: TemperatureFieldProps): JSX.Element => {
 
   const { label, toMetric } = TEMPERATURE_OPTIONS[unitSetting];
 
-  const onChangeTemperature = (newNumber: string): void => {
-    const newInternalValue = parseFloat(newNumber);
-
-    if (Number.isNaN(newInternalValue)) {
+  const onChangeTemperature = (newValue: string): void => {
+    if (Number.isNaN(newValue)) {
       setInternalValue(undefined);
       return;
     }
-    setInternalValue(newInternalValue);
-    // If we are not already in metric than convert to the value to metric
-    const newMetricValue =
-      typeof toMetric === 'function' ? toMetric(newInternalValue) : newInternalValue;
+    setInternalValue(newValue);
 
+    // Update the actual form value
     if (props.onChange) {
-      // Update the actual form value
+      // If we are not already in metric than convert to the value to metric
+      const newMetricValue =
+        typeof toMetric === 'function' ? toMetric(newValue) : parseFloat(newValue);
+
       props.onChange(parseFloat(newMetricValue));
     }
   };
 
-  // Handle default values
+  // Handle passed in values
   useEffect((): void => {
-    if (Number.isNaN(props.value)) {
+    if (props.value === undefined || Number.isNaN(props.value)) {
       setInternalValue(undefined);
       return;
     }
@@ -73,11 +75,6 @@ export const TemperatureField = (props: TemperatureFieldProps): JSX.Element => {
     const newMetricValue = typeof toMetric === 'function' ? toMetric(internalValue) : internalValue;
     if (props.value !== newMetricValue) {
       setInternalValue(props.value);
-
-      if (props.onChange) {
-        // Update the actual form value
-        props.onChange(parseFloat(newMetricValue));
-      }
     }
   }, [props.value]);
 

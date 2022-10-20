@@ -6,25 +6,28 @@ import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { useLocalisation } from '/contexts/LocalisationContext';
 
 const vitalRowFieldsAccessors = {
-  temperature: ({ value, unitSetting }) => {
+  temperature: ({ value, unitSettings }) => {
     if (typeof value !== 'number') return '-';
 
-    if (unitSetting.temperature === 'celsius') {
-      return `${value.toFixed(2)}`;
+    if (unitSettings === 'fahrenheit') {
+      return `${convert(value, 'celsius')
+        .to('fahrenheit')
+        .toFixed(1)}`;
     }
 
-    return `${convert(value, 'celsius')
-      .to('fahrenheit')
-      .toFixed(2)}`;
+    return `${value.toFixed(1)}`;
   },
 };
 
 export const VitalsTableCell = ({ data, rowKey }: PropsWithChildren<any>): JSX.Element => {
   const { getString } = useLocalisation();
-  const unitSetting = getString('units.temperature', 'celsius');
+  const unitSettings = getString('units.temperature', 'celsius');
+
+  console.log('unitSettings', unitSettings);
+
   const cellValue =
     typeof vitalRowFieldsAccessors[rowKey] === 'function'
-      ? vitalRowFieldsAccessors[rowKey]({ value: data.value, unitSetting })
+      ? vitalRowFieldsAccessors[rowKey]({ value: data.value, unitSettings })
       : data.value;
   return (
     <StyledView
