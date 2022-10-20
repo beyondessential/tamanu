@@ -201,6 +201,11 @@ export class Encounter extends Model {
       as: 'location',
     });
 
+    this.belongsTo(models.Location, {
+      foreignKey: 'plannedLocationId',
+      as: 'plannedLocation',
+    });
+
     this.belongsTo(models.Department, {
       foreignKey: 'departmentId',
       as: 'department',
@@ -377,6 +382,7 @@ export class Encounter extends Model {
     const { Department, Location } = this.sequelize.models;
 
     const updateEncounter = async () => {
+      const additionalChanges = {};
       if (data.endDate && !this.endDate) {
         await this.onDischarge(data.endDate, data.submittedTime, data.dischargeNote);
       }
@@ -399,6 +405,32 @@ export class Encounter extends Model {
           `Changed location from ${oldLocation.name} to ${newLocation.name}`,
           data.submittedTime,
         );
+        additionalChanges.plannedLocationId = null;
+      }
+
+      if (
+        data.plannedLocationId &&
+        data.plannedLocationId !== this.plannedLocationId &&
+        data.plannedLocationId !== this.locationId
+      ) {
+        const oldPlannedLocation = await Location.findOne({
+          where: { id: this.plannedLocationId },
+        });
+        const newPlannedLocation = await Location.findOne({
+          where: { id: data.plannedLocationId },
+        });
+
+        if (!newPlannedLocation) {
+          throw new InvalidOperationError('Invalid location specified');
+        }
+
+        await this.addSystemNote(
+          oldPlannedLocation
+            ? `Planned move location changed from ${oldPlannedLocation.name} to ${newPlannedLocation.name}`
+            : `Added a planned move to ${newPlannedLocation.name}`,
+          data.submittedTime,
+        );
+        additionalChanges.plannedLocationStartTime = data.submittedTime;
       }
 
       if (data.departmentId && data.departmentId !== this.departmentId) {
@@ -418,7 +450,7 @@ export class Encounter extends Model {
       }
 
       const { submittedTime, ...encounterData } = data;
-      return super.update(encounterData);
+      return super.update({ ...encounterData, ...additionalChanges });
     };
 
     if (this.sequelize.isInsideTransaction()) {
