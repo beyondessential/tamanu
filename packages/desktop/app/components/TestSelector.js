@@ -1,7 +1,9 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useCallback } from 'react';
 import styled from 'styled-components';
 
-import { TextInput, CheckInput } from './Field';
+import { FormSeparatorLine } from './FormSeparatorLine';
+import { CheckInput } from './Field';
+import { OuterLabelFieldWrapper } from './Field/OuterLabelFieldWrapper';
 
 const NoTestRow = styled.div`
   text-align: center;
@@ -9,8 +11,7 @@ const NoTestRow = styled.div`
 `;
 
 const TestRow = styled.div`
-  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-  padding: 0.2rem;
+  padding: 0.2rem 0;
 `;
 
 const TestItem = ({ value, label, checked, onCheck }) => (
@@ -20,8 +21,11 @@ const TestItem = ({ value, label, checked, onCheck }) => (
 );
 
 const SelectorTable = styled.div`
-  display: grid;
+  display: flex;
+  flex-direction: column;
   height: 14rem;
+  padding: 0;
+  margin: 0;
   overflow-y: scroll;
 `;
 
@@ -29,12 +33,17 @@ const SelectorContainer = styled.div`
   border: 1px solid #ccc;
   padding: 1rem;
   border-radius: 0.3rem;
+  background: white;
 `;
 
-export const TestSelectorInput = ({ name, testTypes, value = [], onChange, ...props }) => {
-  const [filter, setFilter] = useState('');
-
+export const TestSelectorInput = ({ name, testTypes, value = [], onChange, label, style }) => {
   const isTestSelected = useCallback(testId => value.some(x => x === testId), [value]);
+
+  const allSelected = value.length > 0 && value.length === testTypes.length;
+  const selectAll = useCallback(() => {
+    const newValue = allSelected ? [] : testTypes.map(x => x.id);
+    onChange({ target: { name, value: newValue } });
+  }, [allSelected, testTypes]);
 
   const updateValue = useCallback(
     (testId, isSelected) => {
@@ -50,16 +59,9 @@ export const TestSelectorInput = ({ name, testTypes, value = [], onChange, ...pr
     [onChange, name, value, testTypes],
   );
 
-  // clear filter whenever testTypes change
-  useEffect(() => {
-    setFilter('');
-  }, [testTypes]);
-
-  const displayedTests = testTypes.filter(t => t.name.toLowerCase().includes(filter.toLowerCase()));
-
   const testDisplay =
-    displayedTests.length > 0 ? (
-      displayedTests.map(t => (
+    testTypes.length > 0 ? (
+      testTypes.map(t => (
         <TestItem
           label={t.name}
           value={t.id}
@@ -69,14 +71,17 @@ export const TestSelectorInput = ({ name, testTypes, value = [], onChange, ...pr
         />
       ))
     ) : (
-      <NoTestRow>No tests found matching this filter.</NoTestRow>
+      <NoTestRow>No tests found.</NoTestRow>
     );
 
   return (
-    <SelectorContainer {...props}>
-      <TextInput label="Filter tests" value={filter} onChange={t => setFilter(t.target.value)} />
-      <SelectorTable>{testDisplay}</SelectorTable>
-    </SelectorContainer>
+    <OuterLabelFieldWrapper label={label} style={style}>
+      <SelectorContainer>
+        <CheckInput label="Select all" value={allSelected} onChange={selectAll} />
+        <FormSeparatorLine />
+        <SelectorTable>{testDisplay}</SelectorTable>
+      </SelectorContainer>
+    </OuterLabelFieldWrapper>
   );
 };
 
