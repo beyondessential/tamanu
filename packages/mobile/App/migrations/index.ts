@@ -5,6 +5,7 @@ import { updateLabTestDate1662006885000 } from './1662006885000-updateLabTestDat
 import { updatePatientIssueDate1663564207000 } from './1663564207000-updatePatientIssueDate';
 import { updatePatientEncounterDateTimeColumns1664229842000 } from './1664229842000-updatePatientEncounterDateTimeColumns';
 import { updateSurveyResponseDateTimeColumns1664475769000 } from './1664475769000-updateSurveyResponseDateTimeColumns';
+import { updateLabRequestDateColumns1666171050000 } from './1666171050000-updateLabRequestDateColumns';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -13,4 +14,5 @@ export const migrationList = [
   updatePatientIssueDate1663564207000,
   updatePatientEncounterDateTimeColumns1664229842000,
   updateSurveyResponseDateTimeColumns1664475769000,
+  updateLabRequestDateColumns1666171050000,
 ];
