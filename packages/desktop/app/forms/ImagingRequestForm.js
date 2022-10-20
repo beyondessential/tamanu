@@ -17,7 +17,7 @@ import {
   Field,
   AutocompleteField,
   TextField,
-  CheckField,
+  ImagingPriorityField,
   TextInput,
   DateTimeField,
   MultiselectField,
@@ -128,7 +128,7 @@ export const ImagingRequestForm = React.memo(
                 suggester={practitionerSuggester}
               />
               <div>
-                <Field name="urgent" label="Urgent?" component={CheckField} />
+                <ImagingPriorityField name="priority" />
               </div>
               <FormSeparatorLine />
               <TextInput label="Encounter" disabled value={encounterLabel} />

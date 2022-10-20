@@ -54,6 +54,8 @@ const ALLOWLIST = [
   'vascularStudyImagingArea',
   'stressTestImagingArea',
   'secondaryIdType',
+  'referralSource',
+  'arrivalMode',
 ];
 
 export const ReferenceDataAdminView = () => (

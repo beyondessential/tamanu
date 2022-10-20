@@ -4,14 +4,10 @@ import { DateField, LocalisedField, SelectField } from '../Field';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import { useLocalisation } from '../../contexts/Localisation';
 
-const URGENCY_OPTIONS = [
-  { label: 'Urgent', value: 'urgent' },
-  { label: 'Non-urgent', value: 'non-urgent' },
-];
-
 export const ImagingRequestsSearchBar = ({ searchParameters, setSearchParameters }) => {
   const { getLocalisation } = useLocalisation();
   const imagingTypes = getLocalisation('imagingTypes') || {};
+  const imagingPriorities = getLocalisation('imagingPriorities') || [];
 
   const imagingTypeOptions = Object.entries(imagingTypes).map(([key, val]) => ({
     label: val.label,
@@ -41,10 +37,10 @@ export const ImagingRequestsSearchBar = ({ searchParameters, setSearchParameters
         options={IMAGING_REQUEST_STATUS_OPTIONS}
       />
       <LocalisedField
-        name="urgency"
-        defaultLabel="Urgency"
+        name="priority"
+        defaultLabel="Priority"
         component={SelectField}
-        options={URGENCY_OPTIONS}
+        options={imagingPriorities}
       />
       <LocalisedField
         name="requestedDateFrom"
