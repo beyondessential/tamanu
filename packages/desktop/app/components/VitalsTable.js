@@ -14,10 +14,10 @@ const vitalsRows = [
   {
     key: 'temperature',
     title: 'Temperature',
-    accessor: ({ amount, unitsLocalisation }) => {
+    accessor: ({ amount, unitSetting }) => {
       if (typeof amount !== 'number') return '-';
 
-      if (unitsLocalisation.temperature === 'celsius') {
+      if (unitSetting.temperature === 'celsius') {
         return `${amount.toFixed(2)}ºC`;
       }
 
@@ -34,9 +34,9 @@ const vitalsRows = [
   { key: 'avpu', title: 'AVPU', unit: '/min' },
 ];
 
-function unitDisplay({ amount, unit, rounding, accessor, unitsLocalisation }) {
+function unitDisplay({ amount, unit, rounding, accessor, unitSetting }) {
   if (typeof accessor === 'function') {
-    return accessor({ amount, unitsLocalisation });
+    return accessor({ amount, unitSetting });
   }
   if (typeof amount === 'string') return capitaliseFirstLetter(amount);
   if (typeof amount !== 'number') return '-';

@@ -5,9 +5,8 @@ import { Row } from '../Table';
 import { formatStringDate } from '../../helpers/date';
 import { DateFormats } from '../../helpers/constants';
 
-export const vitalsColumns = (
-  patientData,
-): string[] => patientData.map(d => formatStringDate(d.dateRecorded, DateFormats.DATE_AND_TIME));
+export const vitalsColumns = (patientData): string[] =>
+  patientData.map(d => formatStringDate(d.dateRecorded, DateFormats.DATE_AND_TIME));
 
 export const vitalRowFieldsToNames = {
   weight: 'Weight (kg)',
@@ -16,7 +15,7 @@ export const vitalRowFieldsToNames = {
   dbp: 'dbp',
   heartRate: 'Heart Rate',
   respiratoryRate: 'Respiratory Rate',
-  temperature: 'Temperature (ºC)',
+  temperature: 'Temperature (ºF)',
   spO2: 'SpO2 (%)',
   avpu: 'AVPU',
 };
@@ -34,10 +33,8 @@ export const vitalsRows: Row[] = [
 ].map(r => ({
   rowKey: 'label',
   rowTitle: r,
-  rowHeader: (): ReactElement => (
-    <VitalsTableRowHeader title={r} />
-  ),
+  rowHeader: (): ReactElement => <VitalsTableRowHeader title={r} />,
   cell: (cellData): ReactElement => (
-    <VitalsTableCell data={cellData} key={cellData.id}/>
+    <VitalsTableCell rowKey={r} data={cellData} key={cellData.id} />
   ),
 }));

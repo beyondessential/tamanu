@@ -22,10 +22,9 @@ const TEMPERATURE_OPTIONS = {
     label: 'Temperature (ºF)',
     // This needs to convert from ºF back to metric as the internal value is in ºF and the
     // actual form value needs to be in metric
-    metricConversion: T =>
+    toMetric: T =>
       convert(parseFloat(T), 'fahrenheit')
-        .to('celsius')
-        .toFixed(2),
+        .to('celsius');
   },
 };
 
@@ -43,16 +42,14 @@ export const TemperatureInput = ({
   ...props
 }) => {
   const { getLocalisation } = useLocalisation();
-  const { label, metricConversion } = TEMPERATURE_OPTIONS[getLocalisation('units.temperature')];
+  const { label, toMetric } = TEMPERATURE_OPTIONS[getLocalisation('units.temperature')];
   const [internalValue, setInternalValue] = useState(defaultValue);
 
   const onValueChange = event => {
     const newInternalValue = event.target.value;
     setInternalValue(newInternalValue);
     const newMetricValue =
-      typeof metricConversion === 'function'
-        ? metricConversion(newInternalValue)
-        : newInternalValue;
+      typeof toMetric === 'function' ? toMetric(newInternalValue) : newInternalValue;
 
     // Update external form value (ie. formik)
     onChange({ target: { value: newMetricValue, name } });
