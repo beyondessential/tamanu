@@ -36,9 +36,8 @@ export class ImagingRequest extends Model {
           defaultValue: '',
         },
 
-        urgent: {
-          type: Sequelize.BOOLEAN,
-          defaultValue: false,
+        priority: {
+          type: Sequelize.STRING,
         },
       },
       {

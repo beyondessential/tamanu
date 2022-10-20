@@ -37,6 +37,8 @@ export const REFERENCE_TYPES = {
   MANUFACTURER: 'manufacturer',
   SECONDARY_ID_TYPE: 'secondaryIdType',
   DISCHARGE_DISPOSITION: 'dischargeDisposition',
+  REFERRAL_SOURCE: 'referralSource',
+  ARRIVAL_MODE: 'arrivalMode',
   ...IMAGING_AREA_TYPES,
 };
 

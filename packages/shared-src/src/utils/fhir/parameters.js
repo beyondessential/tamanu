@@ -16,7 +16,7 @@ export function normaliseParameter([key, param], overrides = {}) {
     sortable: true,
     parameterSchema:
       typeof param.parameterSchema === 'function'
-        ? param.parameterSchema(defaultSchema ?? yup)
+        ? param.parameterSchema(defaultSchema || yup)
         : defaultSchema,
     ...param,
     ...overrides,

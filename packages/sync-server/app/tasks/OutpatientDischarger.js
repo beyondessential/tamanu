@@ -1,5 +1,5 @@
 import config from 'config';
-import { startOfDay } from 'date-fns';
+import { endOfDay, startOfDay, sub, parseISO } from 'date-fns';
 import { Op } from 'sequelize';
 
 import { ScheduledTask } from 'shared/tasks';
@@ -14,14 +14,19 @@ export class OutpatientDischarger extends ScheduledTask {
     return 'OutpatientDischarger';
   }
 
-  constructor(context) {
-    const conf = config.schedules.outpatientDischarger;
+  constructor(context, overrideConfig = null) {
+    const conf = {
+      ...config.schedules.outpatientDischarger,
+      ...overrideConfig,
+    };
     super(conf.schedule, log);
     this.config = conf;
     this.models = context.store.models;
 
     // run once on startup (in case the server was down when it was scheduled)
-    this.runImmediately();
+    if (!conf.suppressInitialRun) {
+      this.runImmediately();
+    }
   }
 
   async countQueue() {
@@ -72,8 +77,9 @@ export class OutpatientDischarger extends ScheduledTask {
       });
 
       for (const oldEncounter of oldEncounters) {
+        const justBeforeMidnight = sub(endOfDay(parseISO(oldEncounter.startDate)), { minutes: 1 });
         await oldEncounter.update({
-          endDate: startOfToday,
+          endDate: justBeforeMidnight,
           dischargeNote: 'Automatically discharged',
         });
         log.info(`Auto-closed encounter with id ${oldEncounter.id}`);

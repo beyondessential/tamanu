@@ -39,6 +39,11 @@ export class Triage extends Model {
       foreignKey: 'secondaryComplaintId',
     });
 
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'arrivalModeId',
+      as: 'arrivalMode',
+    });
+
     this.hasMany(models.NotePage, {
       foreignKey: 'recordId',
       as: 'notePages',
