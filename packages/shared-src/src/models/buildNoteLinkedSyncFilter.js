@@ -1,6 +1,7 @@
 import { Op } from 'sequelize';
+import { NOTE_RECORD_TYPES } from 'shared/constants';
 
-function buildNoteLinkedSyncFilter(patientIds, isNotePage) {
+function buildNoteLinkedSyncFilter(patientIds, sessionConfig, isNotePage) {
   if (patientIds.length === 0) {
     return null;
   }
@@ -15,16 +16,22 @@ function buildNoteLinkedSyncFilter(patientIds, isNotePage) {
     { association: 'imagingRequest', include: ['encounter'] },
   ];
 
+  const whereClauses = [
+    { [`$${pathToNotePage}record_id$`]: { [Op.in]: patientIds } },
+    { [`$${pathToNotePage}encounter.patient_id$`]: { [Op.in]: patientIds } },
+    { [`$${pathToNotePage}patientCarePlan.patient_id$`]: { [Op.in]: patientIds } },
+    { [`$${pathToNotePage}triage.encounter.patient_id$`]: { [Op.in]: patientIds } },
+    { [`$${pathToNotePage}labRequest.encounter.patient_id$`]: { [Op.in]: patientIds } },
+    { [`$${pathToNotePage}imagingRequest.encounter.patient_id$`]: { [Op.in]: patientIds } },
+  ];
+
+  if (sessionConfig.syncAllLabRequests) {
+    whereClauses.push({ [`$${pathToNotePage}.record_type`]: NOTE_RECORD_TYPES.LAB_REQUEST });
+  }
+
   return {
     where: {
-      [Op.or]: [
-        { [`$${pathToNotePage}record_id$`]: { [Op.in]: patientIds } },
-        { [`$${pathToNotePage}encounter.patient_id$`]: { [Op.in]: patientIds } },
-        { [`$${pathToNotePage}patientCarePlan.patient_id$`]: { [Op.in]: patientIds } },
-        { [`$${pathToNotePage}triage.encounter.patient_id$`]: { [Op.in]: patientIds } },
-        { [`$${pathToNotePage}labRequest.encounter.patient_id$`]: { [Op.in]: patientIds } },
-        { [`$${pathToNotePage}imagingRequest.encounter.patient_id$`]: { [Op.in]: patientIds } },
-      ],
+      [Op.or]: whereClauses,
     },
     include: isNotePage
       ? includeFromNotePage
@@ -32,10 +39,10 @@ function buildNoteLinkedSyncFilter(patientIds, isNotePage) {
   };
 }
 
-export function buildNotePageLinkedSyncFilter(patientIds) {
-  return buildNoteLinkedSyncFilter(patientIds, true);
+export function buildNotePageLinkedSyncFilter(patientIds, sessionConfig) {
+  return buildNoteLinkedSyncFilter(patientIds, sessionConfig, true);
 }
 
-export function buildNoteItemLinkedSyncFilter(patientIds) {
-  return buildNoteLinkedSyncFilter(patientIds, false);
+export function buildNoteItemLinkedSyncFilter(patientIds, sessionConfig) {
+  return buildNoteLinkedSyncFilter(patientIds, sessionConfig, false);
 }
