@@ -144,14 +144,14 @@ export class LabRequestForm extends React.PureComponent {
         <TextInput label="Encounter" disabled value={encounterLabel} />
         <Field
           name="labTestCategoryId"
-          label="Lab request type"
+          label="Test category"
           required
           component={SelectField}
           options={testCategories}
         />
         <Field
           name="labTestTypeIds"
-          label="Tests"
+          label="Test type"
           required
           testTypes={filteredTestTypes}
           component={TestSelectorField}

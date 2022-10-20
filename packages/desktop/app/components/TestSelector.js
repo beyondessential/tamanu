@@ -1,8 +1,9 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import { FormSeparatorLine } from './FormSeparatorLine';
 
-import { TextInput, CheckInput } from './Field';
+import { CheckInput } from './Field';
+import { OuterLabelFieldWrapper } from './Field/OuterLabelFieldWrapper';
 
 const NoTestRow = styled.div`
   text-align: center;
@@ -35,13 +36,20 @@ const SelectorContainer = styled.div`
   background: white;
 `;
 
-export const TestSelectorInput = ({ name, testTypes, value = [], onChange, ...props }) => {
+export const TestSelectorInput = ({ 
+  name,
+  testTypes,
+  value = [],
+  onChange,
+  label,
+  style,
+}) => {
   const isTestSelected = useCallback(testId => value.some(x => x === testId), [value]);
 
   const allSelected = value.length > 0 && value.length === testTypes.length;
   const selectAll = useCallback(() => {
     const newValue = allSelected ? [] : testTypes.map(x => x.id);
-    onChange({ target: { value: newValue } });
+    onChange({ target: { name, value: newValue } });
   }, [allSelected, testTypes]);
 
   const updateValue = useCallback(
@@ -74,11 +82,13 @@ export const TestSelectorInput = ({ name, testTypes, value = [], onChange, ...pr
     );
 
   return (
-    <SelectorContainer {...props}>
-      <CheckInput label="Select all" value={allSelected} onChange={selectAll} />
-      <FormSeparatorLine />
-      <SelectorTable>{testDisplay}</SelectorTable>
-    </SelectorContainer>
+    <OuterLabelFieldWrapper label={label} style={style}>
+      <SelectorContainer>
+        <CheckInput label="Select all" value={allSelected} onChange={selectAll} />
+        <FormSeparatorLine />
+        <SelectorTable>{testDisplay}</SelectorTable>
+      </SelectorContainer>
+    </OuterLabelFieldWrapper>
   );
 };
 
