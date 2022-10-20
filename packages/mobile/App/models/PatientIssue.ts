@@ -3,13 +3,14 @@ import { BaseModel, FindMarkedForUploadOptions } from './BaseModel';
 import { Patient } from './Patient';
 import { IPatientIssue, PatientIssueType } from '~/types';
 import { ISO9075_SQLITE_DEFAULT } from './columnDefaults';
+import { DateTimeStringColumn } from './DateColumns';
 
 @Entity('patient_issue')
 export class PatientIssue extends BaseModel implements IPatientIssue {
   @Column({ nullable: true })
   note?: string;
 
-  @Column({ nullable: false, default: ISO9075_SQLITE_DEFAULT })
+  @DateTimeStringColumn({ nullable: false, default: ISO9075_SQLITE_DEFAULT })
   recordedDate: string;
 
   @Column('text')

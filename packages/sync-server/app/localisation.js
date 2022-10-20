@@ -282,6 +282,9 @@ const printMeasuresSchema = yup
 
 const rootLocalisationSchema = yup
   .object({
+    units: yup.object({
+      temperature: yup.string().oneOf(['celsius', 'fahrenheit']),
+    }),
     country: {
       name: yup
         .string()
@@ -332,6 +335,7 @@ const rootLocalisationSchema = yup
         mergePopulatedPADRecords: yup.boolean().required(),
         enableCovidClearanceCertificate: yup.boolean().required(),
         enableDischargeDisposition: yup.boolean().default(true),
+        editDisplayId: yup.boolean().required(),
       })
       .required()
       .noUnknown(),
