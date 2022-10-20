@@ -3,6 +3,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { upperFirst } from 'lodash';
 import { isValid, parseISO } from 'date-fns';
+import { parseDateTime } from 'shared/utils/fhir/datetime';
 import config from 'config';
 
 import { requireClientHeaders } from '../../middleware/requireClientHeaders';
@@ -349,17 +350,13 @@ order by e.start_date desc;
 `;
 
 const parseDateParam = date => {
-  // ** Note that this will return incorrectly if the server timezone is defferent to the countryTimeZone and no timezone is passed **
-  // In fiji this is currently true (18/10/2022) but there must be a way to use countryTimeZone instead.
-  // For the example, imagine the server timezone is +02:00 and the countryTimeZone is +05:00
-  // i.e. '2022-03-10T6:00'       -> 2022-03-10T6:00 (+02:00 implicity)
-  // i.e. '2022-03-10T6:00Z'      -> 2022-03-10T4:00 (+02:00 implicity)
-  // i.e. '2022-03-10T6:00+05:00' -> 2022-03-10T1:00 (+02:00 implicity)
-  if (typeof date !== 'string' || !isValid(parseISO(date))) {
+  const { plain: parsedDate } = parseDateTime(date, { withTz: COUNTRY_TIMEZONE });
+  if (!parsedDate) {
     throw Error('period.start and period.end must be supplied and in ISO8061 format');
   }
-  return date;
-}
+
+  return parsedDate;
+};
 
 routes.use(requireClientHeaders);
 routes.get(
