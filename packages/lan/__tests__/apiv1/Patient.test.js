@@ -456,4 +456,64 @@ describe('Patient', () => {
       });
     });
   });
+
+  describe('Update display ID (editDisplayId feature flag)', () => {
+    beforeAll(async () => {
+      // Create expected reference data
+      await Promise.all([
+        models.ReferenceData.create({
+          id: 'secondaryIdType-tamanu-display-id',
+          code: 'tamanu-display-id',
+          name: 'Tamanu Display ID',
+          type: 'secondaryIdType',
+        }),
+        models.ReferenceData.create({
+          id: 'secondaryIdType-nhn',
+          code: 'nhn',
+          name: 'National Health Number',
+          type: 'secondaryIdType',
+        }),
+      ]);
+    });
+
+    it('Should create a secondary ID record when changing display ID', async () => {
+      const oldDisplayId = 'ABCD123456';
+      const newPatient = await models.Patient.create({
+        ...fake(models.Patient),
+        displayId: oldDisplayId,
+      });
+
+      const newDisplayId = '123456789';
+      const updateResult = await app.put(`/v1/patient/${newPatient.id}`).send({
+        displayId: newDisplayId,
+      });
+      expect(updateResult).toHaveSucceeded();
+      expect(updateResult.body.displayId).toEqual(newDisplayId);
+
+      const secondaryId = await models.PatientSecondaryId.findOne({
+        where: { value: oldDisplayId },
+      });
+      expect(secondaryId).toBeTruthy();
+    });
+
+    it('Should use the proper secondary ID type', async () => {
+      const oldDisplayId = '0fe8e054-2149-4442-9423-9dcaf7b67c20';
+      const newPatient = await models.Patient.create({
+        ...fake(models.Patient),
+        displayId: oldDisplayId,
+      });
+
+      const newDisplayId = '555666777';
+      const updateResult = await app.put(`/v1/patient/${newPatient.id}`).send({
+        displayId: newDisplayId,
+      });
+      expect(updateResult).toHaveSucceeded();
+      expect(updateResult.body.displayId).toEqual(newDisplayId);
+
+      const secondaryId = await models.PatientSecondaryId.findOne({
+        where: { value: oldDisplayId },
+      });
+      expect(secondaryId.typeId).toBe('secondaryIdType-nhn');
+    });
+  });
 });
