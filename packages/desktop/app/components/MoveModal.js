@@ -73,85 +73,91 @@ const MoveForm = ({ onSubmit, onClose, encounter, locationSuggester }) => {
 // They should just need the endpoints updated to match the new API, and to
 // be re-added to EncounterView.js (PR 786)
 
-// const BeginMoveForm = ({ onSubmit, onClose, encounter, locationSuggester }) => {
-//   const renderForm = React.useCallback(({ submitForm }) => (
-//     <FormGrid columns={1}>
-//       <Field
-//         name="plannedLocation.id"
-//         component={AutocompleteField}
-//         suggester={locationSuggester}
-//         label="New location"
-//         required
-//       />
-//       <ConfirmCancelRow onConfirm={submitForm} onCancel={onClose} />
-//     </FormGrid>
-//   ));
+const BeginMoveForm = ({ onSubmit, onClose, encounter, locationSuggester }) => {
+  const renderForm = useCallback(
+    ({ submitForm }) => (
+      <FormGrid columns={1}>
+        <Field
+          name="plannedLocationId"
+          component={AutocompleteField}
+          suggester={locationSuggester}
+          label="New location"
+          required
+        />
+        <ConfirmCancelRow onConfirm={submitForm} onCancel={onClose} />
+      </FormGrid>
+    ),
+    [locationSuggester, onClose],
+  );
 
-//   return (
-//     <Form
-//       onSubmit={onSubmit}
-//       render={renderForm}
-//       initialValues={{ plannedLocation: encounter.plannedLocation }}
-//     />
-//   );
-// };
-// const FinaliseMoveForm = ({ onSubmit, encounter, onClose }) => (
-//   <FormGrid columns={1}>
-//     <div>{`Are you sure you want to move ${encounter.patient[0].firstName} to ${encounter.plannedLocation.name}?`}</div>
-//     <ConfirmCancelRow
-//       onConfirm={() => onSubmit({ location: encounter.plannedLocation })}
-//       onCancel={onClose}
-//     />
-//   </FormGrid>
-// );
+  return (
+    <Form
+      onSubmit={onSubmit}
+      render={renderForm}
+      initialValues={{ plannedLocationId: encounter.plannedLocationId }}
+    />
+  );
+};
+const FinaliseMoveForm = ({ onSubmit, encounter, onClose }) => (
+  <FormGrid columns={1}>
+    <div>{`Are you sure you want to move ${encounter.patient[0].firstName} to ${encounter.plannedLocation.name}?`}</div>
+    <ConfirmCancelRow
+      onConfirm={() =>
+        onSubmit({ locationId: encounter.plannedLocation.id, plannedLocationId: null })
+      }
+      onCancel={onClose}
+    />
+  </FormGrid>
+);
 
-// const CancelMoveForm = ({ onSubmit, encounter, onClose }) => (
-//   <FormGrid columns={1}>
-//     <div>{`Are you sure you want to cancel ${encounter.patient[0].firstName}'s scheduled move to ${encounter.plannedLocation.name}?`}</div>
-//     <ConfirmCancelRow
-//       onConfirm={() => onSubmit({ plannedLocation: null })}
-//       confirmText="Yes, cancel"
-//       cancelText="Keep it"
-//       onCancel={onClose}
-//     />
-//   </FormGrid>
-// );
+const CancelMoveForm = ({ onSubmit, encounter, onClose }) => (
+  <FormGrid columns={1}>
+    <div>{`Are you sure you want to cancel ${encounter.patient[0].firstName}'s scheduled move to ${encounter.plannedLocation.name}?`}</div>
+    <ConfirmCancelRow
+      onConfirm={() => onSubmit({ plannedLocationId: null })}
+      confirmText="Yes, cancel"
+      cancelText="Keep it"
+      onCancel={onClose}
+    />
+  </FormGrid>
+);
 
-// const BaseMoveModal = connectApi((api, dispatch, { encounter, endpoint }) => ({
-//   locationSuggester: new Suggester(api, 'location'), // If this gets uncommented, check if the location should be filtered by current facility (SEE EPI-87)
-//   onSubmit: async data => {
-//     await api.put(`encounter/${encounter.id}/${endpoint}`, data);
-//     dispatch(viewEncounter(encounter.id));
-//   },
-// }))(({ title, open, onClose, Component, ...rest }) => (
-//   <Modal title={title} open={open} onClose={onClose}>
-//     <Component onClose={onClose} {...rest} />
-//   </Modal>
-// ));
+const BaseMoveModal = ({ title, open, onClose, Component, encounter, ...rest }) => {
+  const { navigateToEncounter } = usePatientNavigation();
+  const locationSuggester = useSuggester('location', {
+    baseQueryParameters: { filterByFacility: true },
+  });
+  const { writeAndViewEncounter } = useEncounter();
+  const onSubmit = useCallback(
+    async data => {
+      await writeAndViewEncounter(encounter.id, data);
+      navigateToEncounter(encounter.id);
+      onClose();
+    },
+    [encounter, writeAndViewEncounter, onClose, navigateToEncounter],
+  );
 
-// const BeginMoveModal = props => (
-//   <BaseMoveModal
-//     {...props}
-//     Component={BeginMoveForm}
-//     title="Move patient"
-//     endpoint="plannedLocation"
-//   />
-// );
+  return (
+    <Modal title={title} open={open} onClose={onClose}>
+      <Component
+        onClose={onClose}
+        onSubmit={onSubmit}
+        encounter={encounter}
+        locationSuggester={locationSuggester}
+        {...rest}
+      />
+    </Modal>
+  );
+};
 
-// const FinaliseMoveModal = props => (
-//   <BaseMoveModal
-//     {...props}
-//     Component={FinaliseMoveForm}
-//     title="Finalise move"
-//     endpoint="location"
-//   />
-// );
+export const BeginMoveModal = props => (
+  <BaseMoveModal {...props} Component={BeginMoveForm} title="Move patient" />
+);
 
-// const CancelMoveModal = props => (
-//   <BaseMoveModal
-//     {...props}
-//     Component={CancelMoveForm}
-//     title="Cancel move"
-//     endpoint="plannedLocation"
-//   />
-// );
+export const FinaliseMoveModal = props => (
+  <BaseMoveModal {...props} Component={FinaliseMoveForm} title="Finalise move" />
+);
+
+export const CancelMoveModal = props => (
+  <BaseMoveModal {...props} Component={CancelMoveForm} title="Cancel move" />
+);

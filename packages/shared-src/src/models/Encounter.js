@@ -379,6 +379,7 @@ export class Encounter extends Model {
   }
 
   async update(data) {
+    console.log('data', data);
     const { Department, Location } = this.sequelize.models;
 
     const updateEncounter = async () => {
