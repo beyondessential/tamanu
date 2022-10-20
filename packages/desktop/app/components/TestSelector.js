@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
-import { FormSeparatorLine } from './FormSeparatorLine';
 
+import { FormSeparatorLine } from './FormSeparatorLine';
 import { CheckInput } from './Field';
 import { OuterLabelFieldWrapper } from './Field/OuterLabelFieldWrapper';
 
@@ -36,14 +36,7 @@ const SelectorContainer = styled.div`
   background: white;
 `;
 
-export const TestSelectorInput = ({ 
-  name,
-  testTypes,
-  value = [],
-  onChange,
-  label,
-  style,
-}) => {
+export const TestSelectorInput = ({ name, testTypes, value = [], onChange, label, style }) => {
   const isTestSelected = useCallback(testId => value.some(x => x === testId), [value]);
 
   const allSelected = value.length > 0 && value.length === testTypes.length;
@@ -68,7 +61,7 @@ export const TestSelectorInput = ({
 
   const testDisplay =
     testTypes.length > 0 ? (
-    testTypes.map(t => (
+      testTypes.map(t => (
         <TestItem
           label={t.name}
           value={t.id}
