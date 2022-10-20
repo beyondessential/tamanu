@@ -42,7 +42,8 @@ async function createDateTimeStringUpMigration(
   );
   await queryRunner.query(
     `UPDATE ${tableName}
-   SET ${columnName} = datetime(${columnName}_legacy, 'localtime') WHERE ${columnName}_legacy IS NOT NULL`,
+   SET ${columnName} = datetime(${columnName}_legacy, 'localtime') WHERE ${columnName}_legacy IS NOT NULL
+   AND ${columnName} = ${columnName}_legacy`,
   );
 }
 
