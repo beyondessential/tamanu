@@ -22,7 +22,9 @@ const SyncStatusindicator = ({ synced }): JSX.Element => (
     <Svg height="20" width="20">
       <Circle fill={synced ? 'green' : 'red'} r={5} cx={10} cy={10} />
     </Svg>
-    <StyledText color={theme.colors.TEXT_DARK} fontSize={13}>{synced ? 'Synced' : 'Syncing'}</StyledText>
+    <StyledText color={theme.colors.TEXT_DARK} fontSize={13}>
+      {synced ? 'Synced' : 'Syncing'}
+    </StyledText>
   </StyledView>
 );
 interface LabRequestRowProps {
@@ -73,9 +75,7 @@ const LabRequestRow = ({ labRequest }: LabRequestRowProps): JSX.Element => {
               color={theme.colors.LIGHT_BLUE}
               textAlign="center"
             >
-              {labRequest.displayId === 'NO_DISPLAY_ID'
-                ? ''
-                : labRequest.displayId}
+              {labRequest.displayId === 'NO_DISPLAY_ID' ? '' : labRequest.displayId}
             </StyledText>
           </View>
         )}
@@ -86,11 +86,7 @@ const LabRequestRow = ({ labRequest }: LabRequestRowProps): JSX.Element => {
         </StyledText>
       </StyledView>
       <StyledView width={screenPercentageToDP(20, Orientation.Width)}>
-        <StyledText
-          fontWeight="bold"
-          color={theme.colors.TEXT_DARK}
-          fontSize={13}
-        >
+        <StyledText fontWeight="bold" color={theme.colors.TEXT_DARK} fontSize={13}>
           {labRequest.labTestCategory.name}
         </StyledText>
       </StyledView>
@@ -112,10 +108,7 @@ export const DumbViewHistoryScreen = ({ selectedPatient, navigation }): ReactEle
   useEffect(() => {
     if (!data) return;
     if (data.length === 0) {
-      navigateAfterTimeout(
-        navigation,
-        Routes.HomeStack.LabRequestStack.LabRequestTabs.NewRequest,
-      );
+      navigateAfterTimeout(navigation, Routes.HomeStack.LabRequestStack.LabRequestTabs.NewRequest);
     }
   }, [data]);
 
