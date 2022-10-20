@@ -4,7 +4,7 @@ import { QueryTypes, Op } from 'sequelize';
 import { isEqual } from 'lodash';
 
 import { NotFoundError } from 'shared/errors';
-import { PATIENT_REGISTRY_TYPES } from 'shared/constants';
+import { PATIENT_REGISTRY_TYPES, VISIBILITY_STATUSES } from 'shared/constants';
 import { isGeneratedDisplayId } from 'shared/utils/generateId';
 
 import { renameObjectKeys } from '../../../utils/renameObjectKeys';
@@ -62,7 +62,7 @@ patientRoute.put(
           : 'secondaryIdType-nhn';
         await PatientSecondaryId.create({
           value: patient.displayId,
-          visibilityStatus: 'historical',
+          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
           typeId: oldDisplayIdType,
           patientId: patient.id,
         });
