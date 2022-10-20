@@ -56,7 +56,7 @@ patientRoute.put(
 
     await db.transaction(async () => {
       // First check if displayId changed to create a secondaryId record
-      if (req.body.displayId !== patient.displayId) {
+      if (req.body.displayId && req.body.displayId !== patient.displayId) {
         const oldDisplayIdType = isGeneratedDisplayId(patient.displayId)
           ? 'secondaryIdType-tamanu-display-id'
           : 'secondaryIdType-nhn';
