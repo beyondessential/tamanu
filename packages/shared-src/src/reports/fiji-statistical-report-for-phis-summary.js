@@ -1,6 +1,13 @@
 /* eslint-disable no-param-reassign, camelcase, no-unused-vars */
 
-import { format, differenceInMilliseconds, startOfDay, endOfDay, subDays } from 'date-fns';
+import {
+  format,
+  differenceInMilliseconds,
+  startOfDay,
+  endOfDay,
+  subDays,
+  parseISO,
+} from 'date-fns';
 import { groupBy } from 'lodash';
 import { toDateTimeString } from '../utils/dateTime';
 
@@ -316,9 +323,9 @@ export const dataGenerator = async ({ sequelize }, parameters = {}) => {
   const { medicalArea, nursingZone, division, village, fromDate, toDate } = parameters;
 
   const queryFromDate = toDateTimeString(
-    startOfDay(fromDate ? new Date(fromDate) : subDays(new Date(), 30)),
+    startOfDay(fromDate ? parseISO(fromDate) : subDays(new Date(), 30)),
   );
-  const queryToDate = toDate && toDateTimeString(endOfDay(new Date(toDate)));
+  const queryToDate = toDate && toDateTimeString(endOfDay(parseISO(toDate)));
 
   const results = await sequelize.query(query, {
     type: sequelize.QueryTypes.SELECT,
@@ -339,7 +346,7 @@ export const dataGenerator = async ({ sequelize }, parameters = {}) => {
       differenceInMilliseconds(new Date(date1), new Date(date2)),
     )
     .map(({ date, ...otherFields }) => ({
-      date: format(new Date(date), 'dd-MM-yyyy'),
+      date: format(parseISO(date), 'dd-MM-yyyy'),
       ...otherFields,
     }));
 

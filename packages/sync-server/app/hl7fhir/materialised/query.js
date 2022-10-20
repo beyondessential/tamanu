@@ -1,4 +1,4 @@
-import { last } from 'lodash';
+import { escapeRegExp, last } from 'lodash';
 import { Op, Sequelize } from 'sequelize';
 import * as yup from 'yup';
 
@@ -17,7 +17,7 @@ export function pushToQuery(query, param, value) {
   query.set(param, insert);
 }
 
-export function buildQuery(query, parameters, FhirResource) {
+export function buildSearchQuery(query, parameters, FhirResource) {
   const sql = {
     limit: MAX_RESOURCES_PER_PAGE,
   };
@@ -52,6 +52,8 @@ export function buildQuery(query, parameters, FhirResource) {
     sql.offset = page * sql.limit;
   }
 
+  // TODO: support _summary and _elements
+
   const andWhere = [];
   for (const [name, paramQueries] of query.entries()) {
     if (RESULT_PARAMETER_NAMES.includes(name)) continue;
@@ -82,11 +84,30 @@ function nestPath(path) {
   return nested;
 }
 
+function addUnnests(path) {
+  return path.map(step => (step === '[]' ? 'unnest' : step));
+}
+
 // path: ['a', 'b', '[]', 'c', '[]', 'd']
 // sql: d(unnest(c(unnest(b(a)))))
 function nestWithUnnests(path) {
-  return nestPath(path.map(step => (step === '[]' ? 'unnest' : step)));
+  return nestPath(addUnnests(path));
 }
+
+const INVERSE_OPS = new Map([
+  [Op.regexp, 'OPERATOR(fhir.<~)'],
+  [Op.iRegexp, 'OPERATOR(fhir.<~*)'],
+  [Op.notRegexp, 'OPERATOR(fhir.<!~)'],
+  [Op.notIRegexp, 'OPERATOR(fhir.<!~*)'],
+  ['OPERATOR(fhir.<~)', Op.regexp],
+  ['OPERATOR(fhir.<~*)', Op.iRegexp],
+  ['OPERATOR(fhir.<!~)', Op.notRegexp],
+  ['OPERATOR(fhir.<!~*)', Op.notIRegexp],
+  [Op.gt, Op.lte],
+  [Op.gte, Op.lt],
+  [Op.lt, Op.gte],
+  [Op.lte, Op.gt],
+]);
 
 function singleMatch(path, paramQuery, paramDef, Model) {
   return paramQuery.value.map(value => {
@@ -100,15 +121,34 @@ function singleMatch(path, paramQuery, paramDef, Model) {
         return Sequelize.where(nestPath(entirePath), op, val);
       }
 
-      // path: ['a', 'b', '[]', 'c', '[]', 'd']
-      // sql: value operator any(select(d(unnest(c(unnest(b(a)))))))
-      const selector = Sequelize.fn('any', Sequelize.fn('select', nestWithUnnests(entirePath)));
-
       const escaped =
         paramDef.type === FHIR_SEARCH_PARAMETERS.NUMBER
           ? val.toString()
           : Model.sequelize.escape(val);
-      return Sequelize.where(Sequelize.literal(escaped), op, selector);
+
+      // need to inverse the ops because we're writing the sql in the opposite
+      // direction (match operator any(...)) instead of (value operator match)
+      const inverseOp = INVERSE_OPS.get(op) ?? op;
+      if (typeof inverseOp === 'string') {
+        // our custom inverse regex operators don't work with sequelize, so we
+        // need to write literals for them. also see:
+        // https://github.com/sequelize/sequelize/issues/13011
+
+        // see below for the expected sql. we're just writing the literal
+        // instead of being able to use sequelize's utilities.
+        const selector = `ANY(SELECT ${addUnnests(path).reduce(
+          (acc, step) => (acc === null ? `"${step}"` : `${step}(${acc})`),
+          null,
+        )})`;
+
+        return Sequelize.literal(`${escaped} ${inverseOp} ${selector}`);
+      }
+
+      // path: ['a', 'b', '[]', 'c', '[]', 'd']
+      // sql: value operator any(select(d(unnest(c(unnest(b(a)))))))
+      const selector = Sequelize.fn('any', Sequelize.fn('select', nestWithUnnests(entirePath)));
+
+      return Sequelize.where(Sequelize.literal(escaped), inverseOp, selector);
     });
 
     return matches.length === 1 ? matches[0] : Sequelize.and(matches);
@@ -159,7 +199,7 @@ function typedMatch(value, query, def) {
         case FHIR_DATETIME_PRECISION.DAYS:
           return [{ op: prefixToOp(value.prefix), val: value.date.sql.split(' ')[0] }];
         case FHIR_DATETIME_PRECISION.SECONDS:
-          return [{ op: prefixToOp(value.prefix), val: value.date.sql.split(' ')[0] }];
+          return [{ op: prefixToOp(value.prefix), val: value.date.sql }];
         default:
           throw new Unsupported(`unsupported date precision: ${def.datePrecision}`);
       }
@@ -169,12 +209,11 @@ function typedMatch(value, query, def) {
         case undefined:
         case null:
         case 'starts-with':
-          // FIXME: does this actually do startsWith?
-          return [{ op: Op.startsWith, val: value }];
+          return [{ op: Op.iRegexp, val: `^${escapeRegExp(value)}.*` }];
         case 'ends-with':
-          return [{ op: Op.endsWith, val: value }];
+          return [{ op: Op.iRegexp, val: `.*${escapeRegExp(value)}$` }];
         case 'contains':
-          return [{ op: Op.iLike, val: `%${value.replace(/%/g, '%%')}%` }];
+          return [{ op: Op.iRegexp, val: `.*${escapeRegExp(value)}.*` }];
         case 'exact':
           return [{ op: Op.eq, val: value }];
         default:

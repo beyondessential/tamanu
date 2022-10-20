@@ -6,6 +6,7 @@ import {
 } from 'shared/demoData/patients';
 import { createAdministeredVaccine, createScheduledVaccine } from 'shared/demoData/vaccines';
 import { createTestContext } from '../../utilities';
+import { parseISO } from 'date-fns';
 
 describe('Vaccine list report', () => {
   let baseApp = null;
@@ -54,7 +55,7 @@ describe('Vaccine list report', () => {
       await createAdministeredVaccine(models, {
         scheduledVaccineId: scheduledVaccine1.id,
         encounterId: encounter1.id,
-        date: new Date('2021-03-10'),
+        date: parseISO('2021-03-10'),
       }),
     );
 
@@ -62,7 +63,7 @@ describe('Vaccine list report', () => {
       await createAdministeredVaccine(models, {
         scheduledVaccineId: scheduledVaccine2.id,
         encounterId: encounter2.id,
-        date: new Date('2021-03-15'),
+        date: parseISO('2021-03-15'),
       }),
     );
   });

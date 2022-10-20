@@ -9,6 +9,7 @@ import { LAB_REQUEST_STATUSES, REFERENCE_TYPES } from 'shared/constants';
 import { makeVaccineCertificate, makeCovidCertificate } from '../app/utils/makePatientCertificate';
 
 import { createTestContext } from './utilities';
+import { getCurrentDateString } from 'shared-src/src/utils/dateTime';
 
 async function prepopulate(models) {
   const lab = await models.ReferenceData.create({
@@ -157,14 +158,14 @@ describe('Certificate', () => {
         labTestTypeId: labTestType1.id,
         labRequestId: labRequest.id,
         labTestMethodId: method.id,
-        completedDate: new Date().toISOString(),
+        completedDate: getCurrentDateString(),
       });
       await models.LabTest.create({
         result: 'Positive',
         labTestTypeId: labTestType2.id,
         labRequestId: labRequest.id,
         labTestMethodId: method.id,
-        completedDate: new Date().toISOString(),
+        completedDate: getCurrentDateString(),
       });
     };
   });
