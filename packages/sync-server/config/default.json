@@ -542,7 +542,8 @@
         "hideOtherSex": true,
         "enablePatientDeaths": false,
         "mergePopulatedPADRecords": true,
-        "enableCovidClearanceCertificate": false
+        "enableCovidClearanceCertificate": false,
+        "editDisplayId": false
       },
       "templates": {
         "letterhead": {
