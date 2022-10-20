@@ -84,4 +84,8 @@ export class BackendManager {
     this.interval = null;
     await this.syncManager.waitForCurrentSyncToEnd();
   }
+
+  getSyncError(): any {
+    return Database.syncError;
+  }
 }

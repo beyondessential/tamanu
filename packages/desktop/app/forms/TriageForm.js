@@ -8,6 +8,8 @@ import { foreignKey } from '../utils/validation';
 import {
   Form,
   Field,
+  LocalisedField,
+  SuggesterSelectField,
   DateTimeField,
   AutocompleteField,
   TextField,
@@ -63,6 +65,11 @@ export const TriageForm = ({ onCancel, editedObject }) => {
           required
           component={AutocompleteField}
           suggester={locationSuggester}
+        />
+        <LocalisedField
+          name="arrivalModeId"
+          component={SuggesterSelectField}
+          endpoint="arrivalMode"
         />
         <Field
           name="score"

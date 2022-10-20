@@ -120,12 +120,8 @@ describe('buildEncounterLinkedSyncFilter', () => {
   it('adds in both scheduled vaccines and lab requests if both are turned on', () => {
     const importantVaccines = ['covax', 'cominarty'];
     const config = {
-      localisation: {
-        data: {
-          sync: {
-            syncAllEncountersForTheseVaccines: importantVaccines,
-          },
-        },
+      sync: {
+        syncAllEncountersForTheseVaccines: importantVaccines,
       },
     };
 

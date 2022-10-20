@@ -87,7 +87,9 @@ export const PrimaryDetailsGroup = () => {
   );
 };
 
-export const SecondaryDetailsGroup = ({ patientRegistryType, values = {} }) => {
+export const SecondaryDetailsGroup = ({ patientRegistryType, values = {}, isEdit = false }) => {
+  const { getLocalisation } = useLocalisation();
+  const canEditDisplayId = isEdit && getLocalisation('features.editDisplayId');
   const countrySuggester = useSuggester('country');
   const divisionSuggester = useSuggester('division');
   const ethnicitySuggester = useSuggester('ethnicity');
@@ -144,6 +146,7 @@ export const SecondaryDetailsGroup = ({ patientRegistryType, values = {} }) => {
 
       <StyledHeading>Identification information</StyledHeading>
       <StyledFormGrid>
+        {canEditDisplayId && <LocalisedField name="displayId" component={TextField} />}
         <LocalisedField name="birthCertificate" component={TextField} />
         {patientRegistryType === PATIENT_REGISTRY_TYPES.NEW_PATIENT && (
           <LocalisedField name="drivingLicense" component={TextField} />
@@ -331,7 +334,11 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
         <>
           <PrimaryDetailsGroup />
           <StyledPatientDetailSecondaryDetailsGroupWrapper>
-            <SecondaryDetailsGroup patientRegistryType={patientRegistryType} values={values} />
+            <SecondaryDetailsGroup
+              patientRegistryType={patientRegistryType}
+              values={values}
+              isEdit
+            />
           </StyledPatientDetailSecondaryDetailsGroupWrapper>
           <ButtonRow>
             <Button variant="contained" color="primary" onClick={submitForm}>

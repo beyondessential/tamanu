@@ -55,6 +55,31 @@ describe('Triage', () => {
     expect(createdEncounter).toBeTruthy();
   });
 
+  it('should record arrival mode when admit a patient to triage', async () => {
+    const arrivalMode = await models.ReferenceData.create({
+      id: 'test-arrival-mode-id',
+      type: 'arrivalMode',
+      code: 'test-arrival-mode-id',
+      name: 'Test arrival mode',
+    });
+    const encounterPatient = await models.Patient.create(await createDummyPatient(models));
+    const response = await app.post('/v1/triage').send(
+      await createDummyTriage(models, {
+        patientId: encounterPatient.id,
+        departmentId: await randomRecordId(models, 'Department'),
+        arrivalModeId: arrivalMode.id,
+      }),
+    );
+    expect(response).toHaveSucceeded();
+
+    const createdTriage = await models.Triage.findByPk(response.body.id);
+    expect(createdTriage).toBeTruthy();
+    expect(createdTriage.arrivalModeId).toEqual(arrivalMode.id);
+
+    const createdEncounter = await models.Encounter.findByPk(createdTriage.encounterId);
+    expect(createdEncounter).toBeTruthy();
+  });
+
   it('should fail to triage if an encounter is already open', async () => {
     const encounterPatient = await models.Patient.create(await createDummyPatient(models));
     const encounter = await models.Encounter.create(

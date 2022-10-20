@@ -27,7 +27,8 @@
     "readOnly": false,
     "persistedCacheBatchSize": 20000,
     "lapsedSessionSeconds": 1200,
-    "lapsedSessionCheckFrequencySeconds": 60
+    "lapsedSessionCheckFrequencySeconds": 60,
+    "syncAllEncountersForTheseVaccines": []
   },
   "loadshedder": {
     // paths are checked sequentially until a path matches a prefix
@@ -521,7 +522,12 @@
         },
         "referralSourceId": {
           "shortLabel": "Referral source",
-          "longLabel":  "Referral source",
+          "longLabel": "Referral source",
+          "hidden": false
+        },
+        "arrivalModeId": {
+          "shortLabel": "Arrival mode",
+          "longLabel":  "Arrival mode",
           "hidden": false
         }
       },
@@ -532,7 +538,8 @@
         "hideOtherSex": true,
         "enablePatientDeaths": false,
         "mergePopulatedPADRecords": true,
-        "enableCovidClearanceCertificate": false
+        "enableCovidClearanceCertificate": false,
+        "editDisplayId": false
       },
       "templates": {
         "letterhead": {
@@ -566,10 +573,22 @@
       },
       "imagingTypes": {},
       "imagingPriorities": [
-        { "value": "routine", "label": "Routine" },
-        { "value": "urgent", "label": "Urgent" },
-        { "value": "asap", "label": "ASAP" },
-        { "value": "stat", "label": "STAT" }
+        {
+          "value": "routine",
+          "label": "Routine"
+        },
+        {
+          "value": "urgent",
+          "label": "Urgent"
+        },
+        {
+          "value": "asap",
+          "label": "ASAP"
+        },
+        {
+          "value": "stat",
+          "label": "STAT"
+        }
       ],
       "printMeasures": {
         "stickerLabelPage": {
@@ -621,9 +640,6 @@
       // generated in the sync server. Can be `tamanu` or `icao` or `eudcc`.
       // `tamanu` implies that the signing integrations are not enabled.
       "previewUvciFormat": "tamanu",
-      "sync": {
-        "syncAllEncountersForTheseVaccines": []
-      },
       "disabledReports": []
     }
   },

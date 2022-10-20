@@ -5,7 +5,8 @@ import { QueryTypes, Op } from 'sequelize';
 import { isEqual } from 'lodash';
 
 import { NotFoundError } from 'shared/errors';
-import { PATIENT_REGISTRY_TYPES } from 'shared/constants';
+import { PATIENT_REGISTRY_TYPES, VISIBILITY_STATUSES } from 'shared/constants';
+import { isGeneratedDisplayId } from 'shared/utils/generateId';
 
 import { renameObjectKeys } from '../../../utils/renameObjectKeys';
 import { createPatientFilters } from '../../../utils/patientFilters';
@@ -45,7 +46,13 @@ patientRoute.put(
   asyncHandler(async (req, res) => {
     const {
       db,
-      models: { Patient, PatientAdditionalData, PatientBirthData, PatientFacility },
+      models: {
+        Patient,
+        PatientAdditionalData,
+        PatientBirthData,
+        PatientSecondaryId,
+        PatientFacility,
+      },
       params,
       syncManager,
     } = req;
@@ -72,6 +79,19 @@ patientRoute.put(
       req.checkPermission('write', patient);
 
       await db.transaction(async () => {
+        // First check if displayId changed to create a secondaryId record
+        if (req.body.displayId && req.body.displayId !== patient.displayId) {
+          const oldDisplayIdType = isGeneratedDisplayId(patient.displayId)
+            ? 'secondaryIdType-tamanu-display-id'
+            : 'secondaryIdType-nhn';
+          await PatientSecondaryId.create({
+            value: patient.displayId,
+            visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+            typeId: oldDisplayIdType,
+            patientId: patient.id,
+          });
+        }
+
         await patient.update(requestBodyToRecord(req.body));
 
         const patientAdditionalData = await PatientAdditionalData.findOne({

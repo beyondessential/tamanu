@@ -94,6 +94,7 @@ const HIDEABLE_FIELDS = [
   'birthType',
   'registeredBirthPlace',
   'referralSourceId',
+  'arrivalModeId',
 ];
 
 const templatesSchema = yup
@@ -331,16 +332,11 @@ const rootLocalisationSchema = yup
         mergePopulatedPADRecords: yup.boolean().required(),
         enableCovidClearanceCertificate: yup.boolean().required(),
         enableDischargeDisposition: yup.boolean().default(true),
+        editDisplayId: yup.boolean().required(),
       })
       .required()
       .noUnknown(),
     printMeasures: printMeasuresSchema,
-    sync: yup
-      .object({
-        syncAllEncountersForTheseVaccines: yup.array(yup.string().required()).defined(),
-      })
-      .required()
-      .noUnknown(),
     disabledReports: yup.array(yup.string().required()).defined(),
   })
   .required()
