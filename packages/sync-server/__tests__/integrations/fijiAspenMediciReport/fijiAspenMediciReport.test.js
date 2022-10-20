@@ -331,14 +331,14 @@ describe('fijiAspenMediciReport', () => {
     // [ expectedResults, period.start, period.end ]
     [1, '2022-06-09', '2022-10-09'],
     [0, '2022-06-10', '2022-10-09'],
-    [0, '2022-06-09T00:02:53.999-02:00', '2022-10-09'],
-    [1, '2022-06-09T00:02:53.999Z', '2022-10-09'],
-    [0, '2022-06-09T00:02:54.001Z', '2022-10-09'],
-    [1, '2022-06-09T00:02:54.001+01:00', '2022-10-09'],
-    [1, '2022-06-09T00:02:54.001-18:00', '2022-10-09'],
+    [0, '2022-06-09T00:02:53-02:00', '2022-10-09'],
+    [1, '2022-06-09T00:02:53Z', '2022-10-09'],
+    [0, '2022-06-09T00:02:55Z', '2022-10-09'],
+    [1, '2022-06-09T00:02:55+01:00', '2022-10-09'],
+    [0, '2022-06-09T00:02:53-01:00', '2022-10-09'],
     // Dates/times inputted without timezone will be server timezone
-    [0, createLocalDateTimeStringFromUTC(2022, 6 + 1, 9, 0, 2, 53, 999).replace(' ', 'T'), '2023'],
-    [1, createLocalDateTimeStringFromUTC(2022, 6 + 1, 9, 0, 2, 54, 1).replace(' ', 'T'), '2023'],
+    [0, createLocalDateTimeStringFromUTC(2022, 6 - 1, 9, 0, 2, 55).replace(' ', 'T'), '2023'],
+    [1, createLocalDateTimeStringFromUTC(2022, 6 - 1, 9, 0, 2, 53).replace(' ', 'T'), '2023'],
   ])('should return %p result between %p and %s', async (expectedResults, start, end) => {
     const query = `period.start=${encodeURIComponent(start)}&period.end=${encodeURIComponent(end)}`;
     const response = await app
