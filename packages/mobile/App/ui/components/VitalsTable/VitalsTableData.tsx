@@ -15,7 +15,7 @@ export const vitalRowFieldsToNames = {
   dbp: 'dbp',
   heartRate: 'Heart Rate',
   respiratoryRate: 'Respiratory Rate',
-  temperature: 'Temperature (ºF)',
+  temperature: 'Temperature (ºC)',
   spO2: 'SpO2 (%)',
   avpu: 'AVPU',
 };
