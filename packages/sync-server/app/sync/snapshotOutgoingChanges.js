@@ -44,7 +44,7 @@ const snapshotChangesForModel = async (
   for (let batchNumber = 0; batchNumber < batchCount; batchNumber++) {
     const recordsChanged = await model.findAll({
       ...queryOptions,
-      order: [['id', 'ASC']],
+      order: [['id', 'ASC']], // need some ordering so that paging works
       offset: batchNumber * persistedCacheBatchSize,
       limit: persistedCacheBatchSize,
     });

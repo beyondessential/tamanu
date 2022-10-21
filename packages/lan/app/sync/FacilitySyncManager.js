@@ -54,7 +54,7 @@ export class FacilitySyncManager {
       );
     }
 
-    // clear previous temp data stored for persist
+    // clear previous temp data, in case last session errored out or server was restarted
     await this.models.SyncSessionRecord.truncate({ cascade: true, force: true });
     await this.models.SyncSession.truncate({ cascade: true, force: true });
 
