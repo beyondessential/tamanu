@@ -26,7 +26,7 @@ export const calculatePageLimit = (currentLimit, lastPageTime) => {
   newLimit = Math.min(
     newLimit,
     maxLimit,
-    Math.floor(currentLimit + currentLimit * maxLimitChangePerPage),
+    Math.ceil(currentLimit + currentLimit * maxLimitChangePerPage),
   );
   return newLimit;
 };
