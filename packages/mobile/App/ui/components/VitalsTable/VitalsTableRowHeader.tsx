@@ -4,7 +4,7 @@ import { theme } from '/styled/theme';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { useLocalisation } from '/contexts/LocalisationContext';
 
-export const vitalRowFieldsToNames = {
+const vitalRowFieldsToNames = {
   weight: 'Weight (kg)',
   height: 'Height (cm)',
   sbp: 'sbp',
