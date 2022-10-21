@@ -59,5 +59,7 @@ export class Vitals extends Model {
     });
   }
 
-  static buildSyncFilter = buildEncounterLinkedSyncFilter;
+  static buildSyncFilter(patientIds, sessionConfig) {
+    return buildEncounterLinkedSyncFilter(this, patientIds, sessionConfig);
+  }
 }

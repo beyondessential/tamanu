@@ -53,6 +53,9 @@ export class InvoiceLineItem extends Model {
   }
 
   static buildSyncFilter(patientIds, sessionConfig) {
-    return buildEncounterLinkedSyncFilter(patientIds, sessionConfig, ['invoice', 'encounter']);
+    return buildEncounterLinkedSyncFilter(this, patientIds, sessionConfig, [
+      'invoice',
+      'encounter',
+    ]);
   }
 }

@@ -29,7 +29,7 @@ export class SurveyResponseAnswer extends Model {
   }
 
   static buildSyncFilter(patientIds, sessionConfig) {
-    const baseFilter = buildEncounterLinkedSyncFilter(patientIds, sessionConfig, [
+    const baseFilter = buildEncounterLinkedSyncFilter(this, patientIds, sessionConfig, [
       'surveyResponse',
       'encounter',
     ]);

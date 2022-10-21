@@ -61,7 +61,7 @@ export class DocumentMetadata extends Model {
       return null;
     }
     const patientFilter = buildPatientLinkedSyncFilter(patientIds);
-    const encounterFilter = buildEncounterLinkedSyncFilter(patientIds, sessionConfig);
+    const encounterFilter = buildEncounterLinkedSyncFilter(this, patientIds, sessionConfig);
     return {
       where: { [Op.or]: [patientFilter.where, encounterFilter.where] },
       include: encounterFilter.include,

@@ -63,6 +63,12 @@ export class LabTest extends Model {
   }
 
   static buildSyncFilter(patientIds, sessionConfig) {
-    return buildEncounterLinkedSyncFilter(patientIds, sessionConfig, ['labRequest', 'encounter']);
+    if (sessionConfig.syncAllLabRequests) {
+      return {}; // include all lab tests
+    }
+    return buildEncounterLinkedSyncFilter(this, patientIds, sessionConfig, [
+      'labRequest',
+      'encounter',
+    ]);
   }
 }

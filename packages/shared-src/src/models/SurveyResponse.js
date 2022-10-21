@@ -116,7 +116,9 @@ export class SurveyResponse extends Model {
     });
   }
 
-  static buildSyncFilter = buildEncounterLinkedSyncFilter;
+  static buildSyncFilter(patientIds, sessionConfig) {
+    return buildEncounterLinkedSyncFilter(this, patientIds, sessionConfig);
+  }
 
   static async getSurveyEncounter({ encounterId, patientId, reasonForEncounter, ...responseData }) {
     const { Encounter } = this.sequelize.models;

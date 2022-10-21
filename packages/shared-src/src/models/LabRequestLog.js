@@ -38,6 +38,9 @@ export class LabRequestLog extends Model {
   }
 
   static buildSyncFilter(patientIds, sessionConfig) {
-    return buildEncounterLinkedSyncFilter(patientIds, sessionConfig, ['labRequest', 'encounter']);
+    return buildEncounterLinkedSyncFilter(this, patientIds, sessionConfig, [
+      'labRequest',
+      'encounter',
+    ]);
   }
 }

@@ -12,16 +12,8 @@ function buildNestedInclude(associations) {
   return topLevel.include;
 }
 
-function includeWithinEncounter(include, includeClauseToAdd) {
-  let currentLevel = { association: null, include };
-  while (currentLevel.association !== 'encounter') {
-    const nextLevel = currentLevel.include[0];
-    currentLevel = nextLevel;
-  }
-  currentLevel.include.push(includeClauseToAdd);
-}
-
 export function buildEncounterLinkedSyncFilter(
+  model,
   patientIds,
   sessionConfig = {},
   associationsToTraverse = ['encounter'], // e.g. ['surveyResponse', 'encounter'] to traverse up from SurveyResponseAnswer
@@ -32,7 +24,7 @@ export function buildEncounterLinkedSyncFilter(
   }
 
   const config = { ...baseConfig, ...configOverride };
-  const isEncounter = associationsToTraverse.length === 0;
+  const isEncounter = model.name === 'Encounter';
   const pathToEncounter = isEncounter ? '' : `${associationsToTraverse.join('.')}.`;
   const include = buildNestedInclude(associationsToTraverse);
 
@@ -42,12 +34,12 @@ export function buildEncounterLinkedSyncFilter(
   // add any encounters with a lab request, if syncing all labs is turned on for facility
   if (sessionConfig.syncAllLabRequests && isEncounter) {
     or.push({
-      [`$${pathToEncounter}id$`]: {
+      id: {
         [Op.in]: Sequelize.literal(
           `(
-            SELECT DISTINCT("encounter_id")
-            FROM "lab_requests"
-            WHERE "deleted_at" IS NULL
+            SELECT DISTINCT(encounter_id)
+            FROM lab_requests
+            WHERE deleted_at IS NULL
            )`,
         ),
       },
@@ -57,19 +49,37 @@ export function buildEncounterLinkedSyncFilter(
   // add any encounters with a vaccine in the list of scheduled vaccines that sync everywhere
   const vaccinesToSync = config.sync.syncAllEncountersForTheseVaccines;
   if (vaccinesToSync?.length > 0) {
-    or.push({
-      [`$${pathToEncounter}administeredVaccine.scheduledVaccine.vaccine_id$`]: {
-        [Op.in]: vaccinesToSync,
-      },
-    });
-    const includeScheduledVaccineClause = {
-      association: 'administeredVaccine',
-      include: [{ association: 'scheduledVaccine', include: [] }],
-    };
+    const escapedVaccineIds = vaccinesToSync.map(id => model.sequelize.escape(id)).join(',');
     if (isEncounter) {
-      include.push(includeScheduledVaccineClause);
-    } else {
-      includeWithinEncounter(include, includeScheduledVaccineClause);
+      or.push({
+        id: {
+          [Op.in]: Sequelize.literal(
+            `(
+            SELECT DISTINCT(encounter_id)
+            FROM administered_vaccines
+            JOIN scheduled_vaccines
+            ON administered_vaccines.id = scheduled_vaccines.id
+            WHERE administered_vaccines.deleted_at IS NULL
+            AND scheduled_vaccines.deleted_at IS NULL
+            AND scheduled_vaccines.vaccine_id IN (${escapedVaccineIds})
+           )`,
+          ),
+        },
+      });
+    }
+    if (model.name === 'AdministeredVaccine') {
+      or.push({
+        scheduled_vaccine_id: {
+          [Op.in]: Sequelize.literal(
+            `(
+            SELECT DISTINCT(scheduled_vaccines.id)
+            FROM scheduled_vaccines
+            WHERE scheduled_vaccines.deleted_at IS NULL
+            AND scheduled_vaccines.vaccine_id IN (${escapedVaccineIds})
+           )`,
+          ),
+        },
+      });
     }
   }
 
