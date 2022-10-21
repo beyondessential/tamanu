@@ -50,7 +50,7 @@ const StyledTooltip = styled(props => (
 `;
 
 export const OuterLabelFieldWrapper = React.memo(
-  React.forwardRef(({ children, required, label, info, style, className }, ref) => (
+  React.forwardRef(({ children, required, label, infoTooltip, style, className }, ref) => (
     <div style={style} className={className} ref={ref}>
       {label && (
         <OuterLabel>
@@ -58,8 +58,8 @@ export const OuterLabelFieldWrapper = React.memo(
           {required && <OuterLabelRequired>*</OuterLabelRequired>}
         </OuterLabel>
       )}
-      {info && (
-        <StyledTooltip arrow placement="top" title={info}>
+      {infoTooltip && (
+        <StyledTooltip arrow placement="top" title={infoTooltip}>
           <Icon className="fa fa-info-circle" color={Colors.softText} />
         </StyledTooltip>
       )}

@@ -4,19 +4,19 @@ import { Typography } from '@material-ui/core';
 import { LocalisedText } from '../LocalisedText';
 
 const Text = styled(Typography)`
-  font-size: ${props => props.$size}px;
-  margin-bottom: ${p => p.margin};
+  font-size: ${props => props.$size};
+  margin-bottom: ${props => props.$margin};
 `;
 
-export const CertificateLabel = ({ name, children, margin = '20px', size = '12' }) => (
-  <Text margin={margin} $size={size}>
+export const CertificateLabel = ({ name, children, margin = '20px', size = '12px' }) => (
+  <Text $margin={margin} $size={size}>
     <strong>{name}: </strong>
     {children}
   </Text>
 );
 
-export const LocalisedCertificateLabel = ({ name, children, margin = '20px', size = 12 }) => (
-  <Text margin={margin} $size={size}>
+export const LocalisedCertificateLabel = ({ name, children, margin = '20px', size = '12px' }) => (
+  <Text $margin={margin} $size={size}>
     <strong>
       <LocalisedText path={`fields.${name}.longLabel`} />:{' '}
     </strong>

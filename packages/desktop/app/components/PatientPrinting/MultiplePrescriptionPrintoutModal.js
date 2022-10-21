@@ -34,13 +34,15 @@ export const MultiplePrescriptionPrintoutModal = ({
     () => api.get(`patient/${encounter.patientId}/additionalData`),
   );
 
-  const { data: village = {}, isLoading: villageLoading } = useQuery(
+  const { data: village = {}, isLoading: villageQueryLoading } = useQuery(
     ['village', encounter.patientId],
     () => api.get(`referenceData/${encodeURIComponent(patient.villageId)}`),
     {
       enabled: !!patient?.villageId,
     },
   );
+
+  const villageLoading = villageQueryLoading && !!patient?.villageId;
 
   return (
     <Modal

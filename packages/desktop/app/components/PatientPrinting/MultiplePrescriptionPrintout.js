@@ -97,18 +97,18 @@ export const MultiplePrescriptionPrintout = React.memo(
 
         <RowContainer>
           <StyledDiv>
-            <CertificateLabel margin="9px" name="Date" size={14}>
+            <CertificateLabel margin="9px" name="Date" size="14px">
               <DateDisplay date={getCurrentDateString()} />
             </CertificateLabel>
-            <LocalisedLabel name="prescriber" size={14}>
+            <LocalisedLabel name="prescriber" size="14px">
               {prescriber?.displayName}
             </LocalisedLabel>
           </StyledDiv>
           <StyledDiv $marginLeft="150">
-            <LocalisedLabel name="prescriberId" size={14}>
+            <LocalisedLabel name="prescriberId" size="14px">
               {prescriber?.displayId}
             </LocalisedLabel>
-            <LocalisedLabel name="facility" size={14}>
+            <LocalisedLabel name="facility" size="14px">
               {facility.name}
             </LocalisedLabel>
           </StyledDiv>

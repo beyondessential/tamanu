@@ -169,7 +169,7 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
 
       <PrescriberWrapper>
         <AutocompleteInput
-          info="The prescriber will appear on the printed prescription"
+          infoTooltip="The prescriber will appear on the printed prescription"
           name="prescriberId"
           label="Prescriber"
           suggester={practitionerSuggester}

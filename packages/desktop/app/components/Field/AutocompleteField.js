@@ -167,9 +167,14 @@ class BaseAutocomplete extends Component {
   };
 
   renderInputComponent = inputProps => {
-    const { label, required, className, info, ...other } = inputProps;
+    const { label, required, className, infoTooltip, ...other } = inputProps;
     return (
-      <OuterLabelFieldWrapper label={label} required={required} className={className} info={info}>
+      <OuterLabelFieldWrapper
+        label={label}
+        required={required}
+        className={className}
+        infoTooltip={infoTooltip}
+      >
         <StyledTextField
           variant="outlined"
           InputProps={{
