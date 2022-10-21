@@ -190,7 +190,7 @@ export class Encounter extends Model {
   }
 
   static buildSyncFilter(patientIds, sessionConfig) {
-    return buildEncounterLinkedSyncFilter(patientIds, sessionConfig, []);
+    return buildEncounterLinkedSyncFilter(this, patientIds, sessionConfig, []);
   }
 
   static checkNeedsAutoDischarge({ encounterType, startDate, endDate }) {

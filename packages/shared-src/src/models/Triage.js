@@ -56,7 +56,9 @@ export class Triage extends Model {
     });
   }
 
-  static buildSyncFilter = buildEncounterLinkedSyncFilter;
+  static buildSyncFilter(patientIds, sessionConfig) {
+    return buildEncounterLinkedSyncFilter(this, patientIds, sessionConfig);
+  }
 
   static async create(data) {
     const { Department, Encounter, ReferenceData } = this.sequelize.models;

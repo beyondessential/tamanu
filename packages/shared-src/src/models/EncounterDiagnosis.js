@@ -57,5 +57,7 @@ export class EncounterDiagnosis extends Model {
     return ['Diagnosis'];
   }
 
-  static buildSyncFilter = buildEncounterLinkedSyncFilter;
+  static buildSyncFilter(patientIds, sessionConfig) {
+    return buildEncounterLinkedSyncFilter(this, patientIds, sessionConfig);
+  }
 }

@@ -77,7 +77,9 @@ export class AdministeredVaccine extends Model {
     });
   }
 
-  static buildSyncFilter = buildEncounterLinkedSyncFilter;
+  static buildSyncFilter(patientIds, sessionConfig) {
+    return buildEncounterLinkedSyncFilter(this, patientIds, sessionConfig);
+  }
 
   static async lastVaccinationForPatient(patientId, vaccineIds = []) {
     const query = {

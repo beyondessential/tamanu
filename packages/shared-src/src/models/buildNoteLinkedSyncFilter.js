@@ -26,7 +26,7 @@ function buildNoteLinkedSyncFilter(patientIds, sessionConfig, isNotePage) {
   ];
 
   if (sessionConfig.syncAllLabRequests) {
-    whereClauses.push({ [`$${pathToNotePage}.record_type`]: NOTE_RECORD_TYPES.LAB_REQUEST });
+    whereClauses.push({ [`$${pathToNotePage}record_type$`]: NOTE_RECORD_TYPES.LAB_REQUEST });
   }
 
   return {
