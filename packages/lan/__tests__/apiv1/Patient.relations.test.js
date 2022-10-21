@@ -268,7 +268,7 @@ describe('Patient', () => {
   });
 
   describe('fields', () => {
-    it('should get a tree of field categories, definitions, and values', async () => {
+    it('should get a map of definitionIds to values', async () => {
       // Arrange
       const {
         Patient,
@@ -314,18 +314,12 @@ describe('Patient', () => {
 
       // Assert
       expect(result).toHaveSucceeded();
-      expect(result.body.data).toHaveLength(1);
-      expect(result.body.data[0]).toEqual({
-        definitionId: definition1.id,
-        name: 'Test Field 1',
-        category: 'Test Category 1',
-        value: 'Newest',
-        fieldType: 'STRING',
-        options: ['Oldest', 'Newest', 'Other'],
+      expect(result.body.data).toMatchObject({
+        [definition1.id]: 'Newest',
       });
     });
 
-    it('should get a tree of field categories and definitions without values', async () => {
+    it('should get field categories and definitions', async () => {
       // Arrange
       const { PatientFieldDefinitionCategory, PatientFieldDefinition } = models;
       await Promise.all([

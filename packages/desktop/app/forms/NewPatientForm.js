@@ -71,14 +71,15 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
     PATIENT_REGISTRY_TYPES.NEW_PATIENT,
   );
   const api = useApi();
-  const { data: patientFields, error, isLoading: isLoadingFields } = useQuery(
-    ['patientFieldDefinition'],
-    () => api.get(`patientFieldDefinition`),
-  );
+  const {
+    data: { data: fieldDefinitions },
+    error,
+    isLoading,
+  } = useQuery(['patientFieldDefinition'], () => api.get(`patientFieldDefinition`));
   const sexValues = useSexValues();
 
   if (error) {
-    throw error;
+    return <pre>{error.stack}</pre>;
   }
 
   const handleSubmit = data => {
@@ -128,10 +129,10 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
         </AdditionalInformationRow>
         <Collapse in={isExpanded} style={{ gridColumn: 'span 2' }}>
           <SecondaryDetailsGroup patientRegistryType={patientRegistryType} values={values} />
-          {isLoadingFields ? (
+          {isLoading ? (
             <LoadingIndicator />
           ) : (
-            <PatientFieldsGroup patientFields={patientFields} />
+            <PatientFieldsGroup fieldDefinitions={fieldDefinitions} />
           )}
         </Collapse>
         <ModalActionRow confirmText="Confirm" onConfirm={submitForm} onCancel={onCancel} />

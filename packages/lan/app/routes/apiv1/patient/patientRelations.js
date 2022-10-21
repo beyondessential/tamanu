@@ -73,31 +73,23 @@ patientRelations.get(
 patientRelations.get(
   '/:id/fields',
   asyncHandler(async (req, res) => {
-    // if you change this, also look in ./patientFieldDefinition.js
     const { params } = req;
     req.checkPermission('read', 'Patient');
     const values = await req.db.query(
       `
         SELECT
           d.id AS "definitionId",
-          d.name AS name,
-          v.value,
-          c.name AS category,
-          d.field_type AS "fieldType",
-          d.options
+          v.value
         FROM patient_field_definitions d
-        LEFT JOIN patient_field_definition_categories c
-          ON d.category_id = c.id
         LEFT JOIN LATERAL (
           SELECT value
           FROM patient_field_values v
           WHERE v.definition_id = d.id
-            AND patient_id = :patientId
+            AND v.patient_id = :patientId
           -- TODO: order by logical clock
           ORDER BY updated_at DESC LIMIT 1
         ) v ON true
-        WHERE d.state NOT IN (:disallowedStates)
-        ORDER BY category ASC, name ASC;
+        WHERE d.state NOT IN (:disallowedStates);
       `,
       {
         replacements: {
@@ -108,8 +100,10 @@ patientRelations.get(
       },
     );
     res.send({
-      count: values.length,
-      data: values,
+      data: values.reduce(
+        (memo, { definitionId, value }) => ({ ...memo, [definitionId]: value }),
+        {},
+      ),
     });
   }),
 );
