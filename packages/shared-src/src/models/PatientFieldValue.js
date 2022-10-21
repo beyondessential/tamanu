@@ -18,6 +18,21 @@ export class PatientFieldValue extends Model {
       {
         ...options,
         syncConfig: nestedSyncConfig,
+        indexes: [
+          // these are used for querying values, to avoid a sequential scan
+          {
+            name: 'patient_field_values_patient_id',
+            fields: ['patient_id'],
+          },
+          {
+            name: 'patient_field_values_definition_id',
+            fields: ['definition_id'],
+          },
+          {
+            name: 'patient_field_values_updated_at',
+            fields: ['updated_at'],
+          },
+        ],
       },
     );
   }

@@ -112,9 +112,24 @@ export async function up(query) {
   for (const [name, def] of tables) {
     await query.createTable(name, def);
   }
+  await query.addIndex('patient_field_values', {
+    name: 'patient_field_values_patient_id',
+    fields: ['patient_id'],
+  });
+  await query.addIndex('patient_field_values', {
+    name: 'patient_field_values_definition_id',
+    fields: ['definition_id'],
+  });
+  await query.addIndex('patient_field_values', {
+    name: 'patient_field_values_updated_at',
+    fields: ['updated_at'],
+  });
 }
 
 export async function down(query) {
+  await query.removeIndex('patient_field_values', 'patient_field_values_updated_at');
+  await query.removeIndex('patient_field_values', 'patient_field_values_definition_id');
+  await query.removeIndex('patient_field_values', 'patient_field_values_patient_id');
   for (const [name] of tables.slice().reverse()) {
     await query.dropTable(name);
   }
