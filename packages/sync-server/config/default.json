@@ -537,6 +537,21 @@
           "shortLabel": "Arrival mode",
           "longLabel":  "Arrival mode",
           "hidden": false
+        },
+        "prescriber": {
+          "shortLabel": "Prescriber",
+          "longLabel":  "Prescriber",
+          "hidden": false
+        },
+        "prescriberId": {
+          "shortLabel": "Prescriber ID",
+          "longLabel":  "Prescriber ID",
+          "hidden": false
+        },
+        "facility": {
+          "shortLabel": "Facility",
+          "longLabel": "Facility",
+          "hidden": false
         }
       },
       "features": {
