@@ -137,12 +137,24 @@ describe('export', () => {
 
             // assert
             expect(firstRecords.length).toEqual(1);
+
+            let nullableDateFields = [];
+            switch (modelName) {
+              case 'Patient':
+                nullableDateFields = ['dateOfDeath'];
+                break;
+              case 'Encounter':
+                nullableDateFields = ['plannedLocationStartTime'];
+                break;
+              default:
+                break;
+            }
             expectDeepSyncRecordMatch(records[0], firstRecords[0], {
-              nullableDateFields: modelName === 'Patient' ? ['dateOfDeath'] : [],
+              nullableDateFields,
             });
             expect(secondRecords.length).toEqual(1);
             expectDeepSyncRecordMatch(records[1], secondRecords[0], {
-              nullableDateFields: modelName === 'Patient' ? ['dateOfDeath'] : [],
+              nullableDateFields,
             });
             expect(thirdRecords.length).toEqual(0);
           });
