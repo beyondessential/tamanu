@@ -7,7 +7,6 @@ import {
   getModelsForDirection,
   getOutgoingChangesForSession,
   removeEchoedChanges,
-  removeDuplicateChanges,
   saveIncomingChanges,
   deleteSyncSession,
   deleteInactiveSyncSessions,
