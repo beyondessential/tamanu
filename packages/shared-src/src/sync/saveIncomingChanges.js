@@ -69,7 +69,7 @@ const saveChangesForModelInBatches = async (
   log.debug(`saveIncomingChanges: Saving ${syncRecordsCount} changes for ${model.tableName}`);
 
   const batchCount = Math.ceil(syncRecordsCount / persistedCacheBatchSize);
-  let fromId = '';
+  let fromId = '00000000-0000-0000-0000-000000000000';
 
   for (let batchIndex = 0; batchIndex < batchCount; batchIndex++) {
     const batchRecords = await findSyncSessionRecords(
@@ -79,7 +79,7 @@ const saveChangesForModelInBatches = async (
       fromId,
       sessionId,
     );
-    fromId = batchRecords[batchRecords.length - 1].recordId;
+    fromId = batchRecords[batchRecords.length - 1].id;
 
     const batchRecordsToSave = batchRecords.map(r => r.dataValues);
     try {
