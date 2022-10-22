@@ -215,7 +215,7 @@ export class CentralServerConnection {
     // poll the pull count endpoint until we get a valid response - it takes a while for
     // setPullFilter to finish populating the snapshot of changes
     const waitTime = 1000; // retry once per second
-    const maxAttempts = 300; // for a maximum of five minutes
+    const maxAttempts = 1200; // for a maximum of twenty minutes
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       const count = await this.fetch(`sync/${sessionId}/pull/count`);
       if (count !== null) {
