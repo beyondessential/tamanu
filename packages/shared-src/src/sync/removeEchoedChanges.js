@@ -11,7 +11,7 @@ export const removeEchoedChanges = async (store, sessionId) =>
       AND incoming.direction = :incomingDirection
       AND outgoing.direction = :outgoingDirection
       AND incoming.session_id = :sessionId
-      AND outgoing.session_id = :sessionId)
+      AND outgoing.session_id = :sessionId
   `,
     {
       replacements: {

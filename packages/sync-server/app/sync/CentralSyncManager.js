@@ -7,6 +7,7 @@ import {
   getModelsForDirection,
   getOutgoingChangesForSession,
   removeEchoedChanges,
+  removeDuplicateChanges,
   saveIncomingChanges,
   deleteSyncSession,
   deleteInactiveSyncSessions,
@@ -116,6 +117,8 @@ export class CentralSyncManager {
     );
     const patientIdsForFullSync = newPatientFacilities.map(n => n.patientId);
 
+    const facilitySettings = await models.Setting.forFacility(facilityId);
+
     try {
       await this.store.sequelize.transaction(async () => {
         // full changes
@@ -125,7 +128,7 @@ export class CentralSyncManager {
           0,
           patientIdsForFullSync,
           sessionId,
-          { facilityId, isMobile },
+          { ...facilitySettings, facilityId, isMobile },
         );
 
         // get changes since the last successful sync for all other synced patients and independent
@@ -144,10 +147,15 @@ export class CentralSyncManager {
           since,
           patientIdsForRegularSync,
           sessionId,
-          { facilityId, isMobile },
+          { ...facilitySettings, facilityId, isMobile },
         );
 
+        // delete any outgoing changes that were just pushed in during the same session
         await removeEchoedChanges(this.store, sessionId);
+
+        // delete any outgoing changes that were added twice (e.g. becaause syncAllLabRequests was
+        // turned on, so the enounter got added as normal plus due to having an attached lab request)
+        await removeDuplicateChanges(this.store, sessionId);
       });
     } catch (error) {
       log.error('CentralSyncManager.setPullFilter encountered an error', error);
