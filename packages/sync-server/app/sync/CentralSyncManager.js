@@ -152,10 +152,6 @@ export class CentralSyncManager {
 
         // delete any outgoing changes that were just pushed in during the same session
         await removeEchoedChanges(this.store, sessionId);
-
-        // delete any outgoing changes that were added twice (e.g. becaause syncAllLabRequests was
-        // turned on, so the enounter got added as normal plus due to having an attached lab request)
-        await removeDuplicateChanges(this.store, sessionId);
       });
     } catch (error) {
       log.error('CentralSyncManager.setPullFilter encountered an error', error);

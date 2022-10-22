@@ -13,11 +13,11 @@ export const pullIncomingChanges = async (centralServer, models, sessionId, sinc
 
   let fromId;
   let limit = calculatePageLimit();
-  const incomingChanges = [];
+  let totalPulled = 0;
   log.debug(`pullIncomingChanges: syncing`, { sessionId, fromId });
 
   // pull changes a page at a time
-  while (incomingChanges.length < totalToPull) {
+  while (totalPulled < totalToPull) {
     log.debug(`pullIncomingChanges: pulling records`, {
       sessionId,
       fromId,
@@ -29,6 +29,7 @@ export const pullIncomingChanges = async (centralServer, models, sessionId, sinc
       limit,
     });
     fromId = records[records.length - 1]?.id;
+    totalPulled += records.length;
     const pullTime = Date.now() - startTime;
 
     if (!records.length) {
