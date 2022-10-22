@@ -1,6 +1,6 @@
 import { SYNC_SESSION_DIRECTION } from './constants';
 
-export const findSyncSessionRecords = async (models, recordType, limit, offset, sessionId) => {
+export const findSyncSessionRecords = async (models, recordType, limit, fromId, sessionId) => {
   const where = {
     recordType,
     sessionId,
@@ -11,6 +11,6 @@ export const findSyncSessionRecords = async (models, recordType, limit, offset, 
     where,
     order: [['id', 'ASC']],
     limit,
-    offset,
+    fromId,
   });
 };

@@ -11,23 +11,24 @@ export const pullIncomingChanges = async (centralServer, models, sessionId, sinc
   centralServer.setPullFilter(sessionId, since);
   const totalToPull = await centralServer.fetchPullCount(sessionId);
 
-  let offset = 0;
+  let fromId;
   let limit = calculatePageLimit();
   const incomingChanges = [];
-  log.debug(`pullIncomingChanges: syncing`, { sessionId, offset });
+  log.debug(`pullIncomingChanges: syncing`, { sessionId, fromId });
 
   // pull changes a page at a time
   while (incomingChanges.length < totalToPull) {
     log.debug(`pullIncomingChanges: pulling records`, {
       sessionId,
-      offset,
+      fromId,
       limit,
     });
     const startTime = Date.now();
     const records = await centralServer.pull(sessionId, {
-      offset,
+      fromId,
       limit,
     });
+    fromId = records[records.length - 1]?.id;
     const pullTime = Date.now() - startTime;
 
     if (!records.length) {
@@ -51,8 +52,6 @@ export const pullIncomingChanges = async (centralServer, models, sessionId, sinc
     for (const batchOfRows of chunk(recordsToSave, persistedCacheBatchSize)) {
       await models.SyncSessionRecord.bulkCreate(batchOfRows);
     }
-
-    offset += records.length;
 
     limit = calculatePageLimit(limit, pullTime);
   }

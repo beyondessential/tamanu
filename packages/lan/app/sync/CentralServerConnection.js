@@ -226,8 +226,11 @@ export class CentralServerConnection {
     throw new Error(`Could not fetch a valid pull count after ${maxAttempts} attempts`);
   }
 
-  async pull(sessionId, { limit = 100, offset = 0 } = {}) {
-    const query = { limit, offset };
+  async pull(sessionId, { limit = 100, fromId } = {}) {
+    const query = { limit };
+    if (fromId) {
+      query.fromId = fromId;
+    }
     const path = `sync/${sessionId}/pull?${objectToQueryString(query)}`;
     return this.fetch(path);
   }

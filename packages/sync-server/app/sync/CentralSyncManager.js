@@ -165,13 +165,13 @@ export class CentralSyncManager {
     return getOutgoingChangesCount(this.store, sessionId);
   }
 
-  async getOutgoingChanges(sessionId, { offset, limit }) {
+  async getOutgoingChanges(sessionId, { fromId, limit }) {
     await this.connectToSession(sessionId);
     return getOutgoingChangesForSession(
       this.store,
       sessionId,
       SYNC_SESSION_DIRECTION.OUTGOING,
-      offset,
+      fromId,
       limit,
     );
   }

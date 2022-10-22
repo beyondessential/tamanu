@@ -37,15 +37,16 @@ export const pullIncomingChanges = async (
     return 0;
   }
 
-  let offset = 0;
+  let fromId;
   let limit = calculatePageLimit();
   let currentBatchIndex = 0;
   let currentRows: [Record<string, any>?] = [];
+  let totalPulled = 0;
 
   // pull changes a page at a time
-  while (offset < totalToPull) {
+  while (totalPulled < totalToPull) {
     const startTime = Date.now();
-    const records = await centralServer.pull(sessionId, limit, offset);
+    const records = await centralServer.pull(sessionId, limit, fromId);
     const pullTime = Date.now() - startTime;
     const recordsToSave = records.map(r => ({
       ...r,
@@ -68,10 +69,11 @@ export const pullIncomingChanges = async (
       currentBatchIndex++;
     }
 
-    offset += recordsToSave.length;
+    fromId = records[records.length - 1].id;
+    totalPulled += recordsToSave.length;
     limit = calculatePageLimit(limit, pullTime);
 
-    progressCallback(totalToPull, offset);
+    progressCallback(totalToPull, totalPulled);
   }
 
   await persistBatch(currentBatchIndex, currentRows);
