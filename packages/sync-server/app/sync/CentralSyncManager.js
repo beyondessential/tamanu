@@ -100,27 +100,27 @@ export class CentralSyncManager {
 
     const session = await this.connectToSession(sessionId);
 
-    await session.update({ debugInfo: { facilityId, since, isMobile } });
-
-    const modelsToInclude = tablesToInclude
-      ? Object.fromEntries(
-          Object.entries(models).filter(([, m]) => tablesToInclude.includes(m.tableName)),
-        )
-      : models;
-
-    // work out if any patients were newly marked for sync since this device last connected, and
-    // include changes from all time for those patients
-    const newPatientFacilities = await models.PatientFacility.findAll({
-      where: { facilityId, updatedAtSyncTick: { [Op.gt]: since } },
-    });
-    log.debug(
-      `CentralSyncManager.setPullFilter: ${newPatientFacilities.length} patients newly marked for sync for ${facilityId}`,
-    );
-    const patientIdsForFullSync = newPatientFacilities.map(n => n.patientId);
-
-    const facilitySettings = await models.Setting.forFacility(facilityId);
-
     try {
+      await session.update({ debugInfo: { facilityId, since, isMobile } });
+
+      const modelsToInclude = tablesToInclude
+        ? Object.fromEntries(
+            Object.entries(models).filter(([, m]) => tablesToInclude.includes(m.tableName)),
+          )
+        : models;
+
+      // work out if any patients were newly marked for sync since this device last connected, and
+      // include changes from all time for those patients
+      const newPatientFacilities = await models.PatientFacility.findAll({
+        where: { facilityId, updatedAtSyncTick: { [Op.gt]: since } },
+      });
+      log.debug(
+        `CentralSyncManager.setPullFilter: ${newPatientFacilities.length} patients newly marked for sync for ${facilityId}`,
+      );
+      const patientIdsForFullSync = newPatientFacilities.map(n => n.patientId);
+
+      const facilitySettings = await models.Setting.forFacility(facilityId);
+
       await this.store.sequelize.transaction(async () => {
         // full changes
         await snapshotOutgoingChanges(
