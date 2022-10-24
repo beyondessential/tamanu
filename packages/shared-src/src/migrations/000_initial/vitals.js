@@ -1,3 +1,4 @@
+/* eslint-disable custom-date-rules/no-timestamp-with-timezone */
 const AVPU_OPTIONS = [
   { value: 'alert', label: 'Alert' },
   { value: 'verbal', label: 'Verbal' },

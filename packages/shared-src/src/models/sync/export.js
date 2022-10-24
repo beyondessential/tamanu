@@ -65,6 +65,7 @@ export const executeExportPlan = async (plan, { since, until, limit = 100 }) => 
   }
   if (config?.sync?.allowUntil && until && typeof until === 'number') {
     whereClauses.push({
+      // eslint-disable-next-line custom-date-rules/no-date-constructor-with-param
       updatedAt: { [Op.lt]: new Date(until) },
     });
   }

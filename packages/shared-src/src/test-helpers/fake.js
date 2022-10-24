@@ -1,3 +1,4 @@
+/* eslint-disable custom-date-rules/no-date-constructor-with-param */
 import { random, sample } from 'lodash';
 import Chance from 'chance';
 import { DataTypes } from 'sequelize';

@@ -34,6 +34,7 @@ export const parseDate = date => {
     dateObj = parseISO(date);
   } else if (typeof date === 'string') {
     // It seems that some JS implementations have problems parsing strings to dates.
+    // eslint-disable-next-line custom-date-rules/no-date-constructor-with-param
     dateObj = new Date(date.replace(' ', 'T'));
   }
 
@@ -69,15 +70,15 @@ export function getCurrentDateString() {
 }
 
 export function convertISO9075toRFC3339(dateString) {
-  return dateFnsFormat(new Date(dateString), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+  return dateFnsFormat(parseISO(dateString), "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 }
 
 export function ageInMonths(dob) {
-  return differenceInMonths(new Date(), new Date(dob));
+  return differenceInMonths(new Date(), parseISO(dob));
 }
 
 export function ageInYears(dob) {
-  return differenceInYears(new Date(), new Date(dob));
+  return differenceInYears(new Date(), parseISO(dob));
 }
 
 export function latestDateTime(...args) {
@@ -101,4 +102,4 @@ export const format = (date, f) => {
 };
 
 export const differenceInMilliseconds = (a, b) =>
-  dateFnsDifferenceInMilliseconds(new Date(a), new Date(b));
+  dateFnsDifferenceInMilliseconds(parseISO(a), parseISO(b));

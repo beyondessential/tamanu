@@ -1,3 +1,4 @@
+/* eslint-disable custom-date-rules/no-timestamp-with-timezone */
 module.exports = ({ Sequelize, foreignKey }) => ({
   fields: {
     date: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false },

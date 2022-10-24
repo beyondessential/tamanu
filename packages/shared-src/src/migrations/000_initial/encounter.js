@@ -1,3 +1,4 @@
+/* eslint-disable custom-date-rules/no-timestamp-with-timezone */
 const ENCOUNTER_TYPES = {
   ADMISSION: 'admission',
   CLINIC: 'clinic',

@@ -1,4 +1,5 @@
 import Chance from 'chance';
+import { subMilliseconds } from 'date-fns';
 
 const HOUR = 1000 * 60 * 60;
 const DAY = HOUR * 24;
@@ -11,7 +12,7 @@ const chance = new Chance();
 
 export const randomDate = (minDaysAgo = 1, maxDaysAgo = 365) => {
   const ago = chance.natural({ min: DAY * minDaysAgo, max: DAY * maxDaysAgo });
-  return new Date(Date.now() - ago);
+  return subMilliseconds(new Date(), ago);
 };
 
 export const randomRecord = (models, modelName) =>

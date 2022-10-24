@@ -1,3 +1,4 @@
+/* eslint-disable custom-date-rules/no-date-constructor-with-param */
 import { random } from 'lodash';
 import * as yup from 'yup';
 import { FHIR_DATETIME_PRECISION } from '../../constants';

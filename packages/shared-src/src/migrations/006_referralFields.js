@@ -1,3 +1,4 @@
+/* eslint-disable custom-date-rules/no-timestamp-with-timezone */
 const Sequelize = require('sequelize');
 
 const DIAGNOSIS_CERTAINTY = {

@@ -1,5 +1,5 @@
 import Chance from 'chance';
-import { addHours, subMinutes } from 'date-fns';
+import { addHours, subMilliseconds, subMinutes } from 'date-fns';
 
 import { ENCOUNTER_TYPES } from '../constants';
 import { generateId } from '../utils/generateId';
@@ -90,7 +90,7 @@ export async function createDummyEncounter(models, { current, ...overrides } = {
   const endDate = current ? getCurrentDateTimeString() : toDateTimeString(randomDate());
 
   const duration = chance.natural({ min: HOUR, max: HOUR * 10 });
-  const startDate = toDateTimeString(new Date(new Date(endDate).getTime() - duration));
+  const startDate = toDateTimeString(subMilliseconds(new Date(), duration));
 
   return {
     encounterType: chance.pickone(Object.values(ENCOUNTER_TYPES)),
@@ -144,7 +144,7 @@ export async function createDummyEncounterDiagnosis(models, overrides = {}) {
     min: HOUR,
     max: HOUR * 10,
   });
-  const date = toDateTimeString(new Date(new Date().getTime() - duration));
+  const date = toDateTimeString(subMilliseconds(new Date(), duration));
   return {
     date,
     certainty: chance.bool() ? 'suspected' : 'confirmed',

@@ -1,3 +1,4 @@
+/* eslint-disable custom-date-rules/no-timestamp-with-timezone */
 import Sequelize from 'sequelize';
 
 const ADMINISTERED_VACCINE_TABLE_NAME = 'administered_vaccines';

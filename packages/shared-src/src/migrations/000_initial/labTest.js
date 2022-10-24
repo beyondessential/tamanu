@@ -1,3 +1,4 @@
+/* eslint-disable custom-date-rules/no-timestamp-with-timezone */
 const LAB_TEST_STATUSES = {
   RECEPTION_PENDING: 'reception_pending',
   RESULTS_PENDING: 'results_pending',

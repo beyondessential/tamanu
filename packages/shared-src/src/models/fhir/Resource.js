@@ -1,3 +1,4 @@
+/* eslint-disable custom-date-rules/no-timestamp-with-timezone */
 import { snakeCase } from 'lodash';
 import { Sequelize, Utils, QueryTypes } from 'sequelize';
 import * as yup from 'yup';

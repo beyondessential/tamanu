@@ -1,4 +1,4 @@
-import { subDays, startOfDay } from 'date-fns';
+import { subDays, startOfDay, parseISO } from 'date-fns';
 import { REPORT_DEFAULT_DATE_RANGES } from 'shared/constants';
 
 const CATCH_ALL_FROM_DATE = '1970-01-01';
@@ -11,11 +11,11 @@ export const getQueryReplacementsFromParams = (
   let fromDate = null;
   switch (dateRange) {
     case REPORT_DEFAULT_DATE_RANGES.ALL_TIME:
-      fromDate = new Date(CATCH_ALL_FROM_DATE);
+      fromDate = parseISO(CATCH_ALL_FROM_DATE);
       break;
     case REPORT_DEFAULT_DATE_RANGES.THIRTY_DAYS:
       // If we have a toDate, but no fromDate, run 30 days prior to the toDate
-      fromDate = startOfDay(subDays(params.toDate ? new Date(params.toDate) : new Date(), 30));
+      fromDate = startOfDay(subDays(params.toDate ? parseISO(params.toDate) : new Date(), 30));
       break;
     default:
       throw new Error('Unknown date range for report generation');

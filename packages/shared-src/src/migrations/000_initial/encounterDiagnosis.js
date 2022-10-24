@@ -1,3 +1,4 @@
+/* eslint-disable custom-date-rules/no-timestamp-with-timezone */
 module.exports = ({ Sequelize, foreignKey }) => ({
   fields: {
     certainty: Sequelize.ENUM(['suspected', 'confirmed', 'made_in_error']),

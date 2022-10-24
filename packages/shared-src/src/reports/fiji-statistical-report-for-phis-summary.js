@@ -343,7 +343,7 @@ export const dataGenerator = async ({ sequelize }, parameters = {}) => {
     .map(([date, resultsForDate]) => transformResultsForDate(date, resultsForDate))
     // Sort oldest to most recent
     .sort(({ date: date1 }, { date: date2 }) =>
-      differenceInMilliseconds(new Date(date1), new Date(date2)),
+      differenceInMilliseconds(parseISO(date1), parseISO(date2)),
     )
     .map(({ date, ...otherFields }) => ({
       date: format(parseISO(date), 'dd-MM-yyyy'),

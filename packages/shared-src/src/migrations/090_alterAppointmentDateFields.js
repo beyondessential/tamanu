@@ -1,3 +1,4 @@
+/* eslint-disable custom-date-rules/no-timestamp-with-timezone */
 import { DataTypes } from 'sequelize';
 
 const TABLE_NAME = 'appointments';

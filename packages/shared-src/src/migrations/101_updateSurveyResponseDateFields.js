@@ -1,3 +1,4 @@
+/* eslint-disable custom-date-rules/no-timestamp-with-timezone */
 import { QueryTypes, DataTypes } from 'sequelize';
 import config from 'config';
 

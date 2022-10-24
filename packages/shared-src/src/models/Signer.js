@@ -1,3 +1,4 @@
+/* eslint-disable custom-date-rules/no-timestamp-with-timezone */
 import crypto from 'crypto';
 import { Sequelize, Op } from 'sequelize';
 import { Model } from './Model';
