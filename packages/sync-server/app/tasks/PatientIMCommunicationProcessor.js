@@ -67,8 +67,9 @@ export class PatientIMCommunicationProcessor extends ScheduledTask {
 
   async onLinkAccount(patientId, chatId) {
     log.info('Linking patient to Telegram', { patientId, chatId });
+    const { models } = this.context.store;
 
-    const patient = await this.context.store.models.Patient.findByPk(patientId);
+    const patient = await models.Patient.findByPk(patientId);
 
     if (!patient) {
       this.api.sendMessage({
@@ -79,17 +80,17 @@ export class PatientIMCommunicationProcessor extends ScheduledTask {
       return;
     }
 
-    // TODO: save chat id to PAD
-    this.patients[patientId] = chatId;
+    await models.PatientAdditionalData.updateForPatient({
+      telegramChatId: chatId,
+    });
 
     // TODO: immediately queue a reminder for testing purposes
     this.messages.push({
       patientId,
-      text: `Here's the reminder we promised for *${patientId}*.`,
+      text: `Here's the reminder we promised for *{patientName}*.`,
     });
 
-    // TODO: use a centralised name formatter
-    const patientName = `${patient.firstName} ${patient.lastName}`;
+    const patientName = patient.getFormattedName();
 
     // Send a confirmation message to the patient
     log.info("Sending telegram link confirmation", { patientId });
@@ -113,11 +114,22 @@ export class PatientIMCommunicationProcessor extends ScheduledTask {
     this.messages = [];
 
     messages.forEach(async m => {
-      // TODO get chat ID from PAD
-      const chatId = this.patients[m.patientId];
+      const { models } = this.context.store;
+
+      const patient = await models.Patient.findByPk(patientId);
+      const pad = await models.PatientAdditionalData.getOrCreateForPatient(patientId);
+
+      const chatId = pad.telegramChatId;
+      if (!chatId) {
+        log.error('Patient does not have a telegram chat ID', { patientId });
+        return;
+      }
+
+      const text = m.text.replace("{patientName}", patient.getFormattedName());
+
       this.api.sendMessage({
         chat_id: chatId,
-        text: m.text,
+        text,
         parse_mode: 'Markdown',
       });
     });
