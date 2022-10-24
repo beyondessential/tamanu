@@ -2,7 +2,6 @@ import { QueryTypes } from 'sequelize';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { upperFirst } from 'lodash';
-import { isValid, parseISO } from 'date-fns';
 import { parseDateTime } from 'shared/utils/fhir/datetime';
 import config from 'config';
 
