@@ -68,7 +68,7 @@ const tables = [
       visibility_status: {
         type: Sequelize.STRING,
         allowNull: false,
-        defaultValue: 'CURRENT',
+        defaultValue: 'current',
       },
       category_id: {
         type: Sequelize.STRING,
