@@ -42,6 +42,7 @@ export interface IPatientAdditionalData {
   countryOfBirthId?: string;
   religionId?: string;
   patientBillingTypeId?: string;
+  telegramChatId?: string;
 
   markedForSync?: boolean;
 }

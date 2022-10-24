@@ -25,6 +25,7 @@ export class PatientAdditionalData extends Model {
         emergencyContactNumber: Sequelize.STRING,
         motherId: Sequelize.STRING,
         fatherId: Sequelize.STRING,
+        telegramChatId: Sequelize.STRING,
       },
       {
         ...options,
