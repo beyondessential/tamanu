@@ -38,7 +38,11 @@ export class PatientIMCommunicationProcessor extends ScheduledTask {
   cancelPolling() {
     super.cancelPolling();
     log.info('Stopping telegram bot');
-    this.api.stop();
+    try {
+      this.api.stop();
+    } catch(e) {
+      log.error("Error stopping telegram bot", e);
+    }
   }
 
   onMessage(message) {
