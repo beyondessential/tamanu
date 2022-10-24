@@ -33,12 +33,14 @@ export type VaccineFormValues = {
   givenBy?: string;
   recorderId?: string;
   status: string | VaccineStatus;
+  registerReminder: boolean;
 };
 
-interface VaccineForm {
+interface VaccineFormProps {
   status: VaccineStatus;
   initialValues: VaccineFormValues;
   patientId: string;
+  telegramChatId: string;
   onSubmit: (values: VaccineFormValues) => Promise<void>;
   onCancel: () => void;
 }
@@ -52,13 +54,14 @@ const createInitialValues = (initialValues: VaccineFormValues): VaccineFormValue
 });
 
 /* eslint-disable @typescript-eslint/no-empty-function */
-export const VaccineForm = ({
+export const VaccineForm : FC<VaccineFormProps> = ({
   initialValues,
   status,
   patientId,
+  telegramChatId,
   onSubmit,
   onCancel,
-}: VaccineForm): JSX.Element => {
+}): JSX.Element => {
   const { Form: StatusForm } = useMemo(() => getFormType(status), [status]);
   const consentSchema = status === VaccineStatus.GIVEN
     ? Yup.boolean()
@@ -77,7 +80,7 @@ export const VaccineForm = ({
       {(): JSX.Element => (
         <ScrollView style={{ flex: 1, paddingLeft: 20, paddingRight: 20 }}>
           <StatusForm />
-          <QRCodeDisplay patientId={patientId} />
+          <QRCodeDisplay patientId={patientId} registrationId={telegramChatId} />
           <RowView paddingTop={20} paddingBottom={20} flex={1}>
             <Button
               width={screenPercentageToDP(43.1, Orientation.Width)}

@@ -9,6 +9,8 @@ import { useLocalisation } from '../../../../../contexts/LocalisationContext';
 import { IPatient, IPatientAdditionalData } from '../../../../../../types';
 import { useBackend } from '../../../../../hooks';
 import { additionalDataSections } from '../../../../../helpers/additionalData';
+import { InformationBox } from './InformationBox';
+import { StyledView } from '~/ui/styled/common';
 
 interface AdditionalInfoProps {
   onEdit: (additionalInfo: IPatientAdditionalData, sectionTitle: string) => void;
@@ -72,7 +74,8 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
   // Add edit callback and map the inner 'fields' array
   const sections = additionalDataSections.map(({ title, fields }) => {
     const onEditCallback = (): void => onEdit(additionalDataRecord, title);
-    const mappedFields = fields.map(fieldName => ([fieldName, getFieldData(additionalDataRecord, fieldName)]));
+    const mappedFields = fields.map(fieldName => 
+      ([fieldName, getFieldData(additionalDataRecord, fieldName)]));
     return { title, fields: mappedFields, onEditCallback };
   });
 
@@ -86,6 +89,15 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
           isClosable
         >
           {loading ? <LoadingScreen /> : <FieldRowDisplay fields={fields} />}
+          {/* HACK this in */}
+          <StyledView marginLeft={20} marginBottom={20}>
+            <InformationBox
+              key="telegram"
+              flex={1}
+              title="Telegram integration"
+              info={additionalDataRecord?.telegramChatId ? 'Enabled' : 'Disabled'}
+            />
+          </StyledView>
         </PatientSection>
       ))}
     </>
