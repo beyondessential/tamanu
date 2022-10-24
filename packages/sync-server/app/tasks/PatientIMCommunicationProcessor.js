@@ -29,9 +29,16 @@ export class PatientIMCommunicationProcessor extends ScheduledTask {
       }
     });
 
+    log.info("Starting telegram bot");
     this.api.start();
 
     this.run();
+  }
+
+  cancelPolling() {
+    super.cancelPolling();
+    log.info('Stopping telegram bot');
+    this.api.stop();
   }
 
   onMessage(message) {
@@ -54,22 +61,39 @@ export class PatientIMCommunicationProcessor extends ScheduledTask {
     }
   }
 
-  onLinkAccount(patientId, chatId) {
+  async onLinkAccount(patientId, chatId) {
     log.info('Linking patient to Telegram', { patientId, chatId });
 
+    const patient = await this.context.store.models.Patient.findByPk(patientId);
+
+    if (!patient) {
+      this.api.sendMessage({
+        chat_id: chatId,
+        text: `No patient was found with ID *${patientId}* - was the link malformed somehow?`,
+        parse_mode: 'Markdown',
+      });
+      return;
+    }
+
+    // TODO: save chat id to PAD
     this.patients[patientId] = chatId;
 
+    // TODO: immediately queue a reminder for testing purposes
     this.messages.push({
       patientId,
       text: `Here's the reminder we promised for *${patientId}*.`,
     });
 
-    log.info("Sending link response for", { patientId });
+    // TODO: use a centralised name formatter
+    const patientName = `${patient.firstName} ${patient.lastName}`;
+
+    // Send a confirmation message to the patient
+    log.info("Sending telegram link confirmation", { patientId });
     this.api.sendMessage({
       chat_id: chatId,
-      text: `Successfully linked to Tamanu patient *${patientId}*.`,
+      text: `Successfully linked to Tamanu patient: *${patientName}*.`,
       parse_mode: 'Markdown',
-    })
+    });
   }
 
   getName() {
@@ -84,7 +108,8 @@ export class PatientIMCommunicationProcessor extends ScheduledTask {
     const messages = this.messages;
     this.messages = [];
 
-    messages.forEach(m => {
+    messages.forEach(async m => {
+      // TODO get chat ID from PAD
       const chatId = this.patients[m.patientId];
       this.api.sendMessage({
         chat_id: chatId,
