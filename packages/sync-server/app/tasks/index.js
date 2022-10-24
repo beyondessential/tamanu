@@ -2,6 +2,7 @@ import config from 'config';
 import { log } from 'shared/services/logging';
 
 import { PatientEmailCommunicationProcessor } from './PatientEmailCommunicationProcessor';
+import { PatientIMCommunicationProcessor } from './PatientIMCommunicationProcessor';
 import { OutpatientDischarger } from './OutpatientDischarger';
 import { DeceasedPatientDischarger } from './DeceasedPatientDischarger';
 import { ReportRequestProcessor } from './ReportRequestProcessor';
@@ -47,6 +48,10 @@ export async function startScheduledTasks(context) {
 
   if (config.integrations.fhir.enabled && config.schedules.fhirMaterialiser.enabled) {
     taskClasses.push(FhirMaterialiser);
+  }
+
+  if (config.telegram.apiKey) {
+    taskClasses.push(PatientIMCommunicationProcessor);
   }
 
   const reportSchedulers = await getReportSchedulers(context);

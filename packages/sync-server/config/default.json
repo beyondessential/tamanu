@@ -23,6 +23,9 @@
     "dataset": "tamanu-general",
     "enabled": true
   },
+  "telegram": {
+    "apiKey": ""
+  },
   "sync": {
     "concurrentChannelChecks": 8,
     // embedPatientNotes is a workaround for TAN-1757
