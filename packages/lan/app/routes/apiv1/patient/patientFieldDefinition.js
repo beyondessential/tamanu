@@ -1,7 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 
-import { PATIENT_FIELD_DEFINITION_HIDDEN_STATUSES } from 'shared/constants/patientFields';
+import { HIDDEN_VISIBILITY_STATUSES } from 'shared/constants/importable';
 import { permissionCheckingRouter } from '../crudHelpers';
 
 export const patientFieldDefinition = permissionCheckingRouter('create', 'Patient');
@@ -25,7 +25,7 @@ patientFieldDefinition.get(
       `,
       {
         replacements: {
-          hiddenStatuses: PATIENT_FIELD_DEFINITION_HIDDEN_STATUSES,
+          hiddenStatuses: HIDDEN_VISIBILITY_STATUSES,
         },
         type: QueryTypes.SELECT,
       },

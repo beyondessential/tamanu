@@ -2,7 +2,7 @@ import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 
 import { getPatientAdditionalData } from 'shared/utils';
-import { PATIENT_FIELD_DEFINITION_HIDDEN_STATUSES } from 'shared/constants/patientFields';
+import { HIDDEN_VISIBILITY_STATUSES } from 'shared/constants/importable';
 
 import { simpleGetList, permissionCheckingRouter, runPaginatedQuery } from '../crudHelpers';
 import { patientSecondaryIdRoutes } from './patientSecondaryId';
@@ -94,7 +94,7 @@ patientRelations.get(
       {
         replacements: {
           patientId: params.id,
-          hiddenStatuses: PATIENT_FIELD_DEFINITION_HIDDEN_STATUSES,
+          hiddenStatuses: HIDDEN_VISIBILITY_STATUSES,
         },
         type: QueryTypes.SELECT,
       },
