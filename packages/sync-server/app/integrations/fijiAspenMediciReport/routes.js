@@ -1,6 +1,8 @@
 import { QueryTypes } from 'sequelize';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import { upperFirst } from 'lodash';
+import { parseDateTime } from 'shared/utils/fhir/datetime';
 import config from 'config';
 
 import { requireClientHeaders } from '../../middleware/requireClientHeaders';
@@ -312,12 +314,7 @@ case e.encounter_type
 end "visitType",
 ddi."encounterDischargeDisposition" "episodeEndStatus",
 ddi."encounterDischargeDisposition",
-case t.score
-  when '1' then  'Emergency'
-  when '2' then  'Priority'
-  when '3' then  'Non-urgent'
-  else t.score
-end "triageCategory",
+t.score "triageCategory",
 ti."waitTimeFollowingTriage" "waitTime",
 di2.department_history "departments",
 li.location_history "locations",
@@ -346,29 +343,41 @@ left join location_info li on li.encounter_id = e.id
 left join department_info di2 on di2.encounter_id = e.id
 left join discharge_disposition_info ddi on ddi.encounter_id = e.id
 where coalesce(billing.id, '-') like coalesce(:billing_type, '%%')
-AND CASE WHEN :from_date IS NOT NULL THEN (e.start_date::timestamp at time zone :timezone_string)::date >= :from_date::date ELSE true END
-AND CASE WHEN :to_date IS NOT NULL THEN (e.start_date::timestamp at time zone :timezone_string)::date <= :to_date::date ELSE true END
-order by e.start_date desc;
+AND CASE WHEN :from_date IS NOT NULL THEN (e.start_date::timestamp at time zone :timezone_string) >= :from_date::timestamptz ELSE true END
+AND CASE WHEN :to_date IS NOT NULL THEN (e.start_date::timestamp at time zone :timezone_string) <= :to_date::timestamptz ELSE true END
+order by e.start_date desc
+limit :limit offset :offset;
 `;
+
+const parseDateParam = date => {
+  const { plain: parsedDate } = parseDateTime(date, { withTz: COUNTRY_TIMEZONE });
+  if (!parsedDate) {
+    throw Error('period.start and period.end must be supplied and in ISO8061 format');
+  }
+
+  return parsedDate;
+};
 
 routes.use(requireClientHeaders);
 routes.get(
   '/',
   asyncHandler(async (req, res) => {
     const { sequelize } = req.store;
-    const { 'period.start': fromDate, 'period.end': toDate } = req.query;
+    const { 'period.start': fromDate, 'period.end': toDate, limit, offset = 0 } = req.query;
 
     if (!COUNTRY_TIMEZONE) {
-      throw Error('A countryTimeZone must be configured in local.json for this report to run');
+      throw new Error('A countryTimeZone must be configured in local.json for this report to run');
     }
 
     const data = await sequelize.query(reportQuery, {
       type: QueryTypes.SELECT,
       replacements: {
-        from_date: fromDate ?? null,
-        to_date: toDate ?? null,
+        from_date: parseDateParam(fromDate, COUNTRY_TIMEZONE),
+        to_date: parseDateParam(toDate, COUNTRY_TIMEZONE),
         billing_type: null,
         timezone_string: COUNTRY_TIMEZONE,
+        limit: limit ?? null, // Limit of null means no limit
+        offset, // Should still be able to offset even with no limit
       },
     });
 
@@ -376,6 +385,7 @@ routes.get(
       ...encounter,
       age: parseInt(encounter.age),
       weight: parseFloat(encounter.weight),
+      sex: upperFirst(encounter.sex),
     }));
 
     res.status(200).send({ data: mappedData });

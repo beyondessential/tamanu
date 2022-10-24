@@ -1,4 +1,5 @@
 import config from 'config';
+import { upperFirst } from 'lodash';
 import { utcToZonedTime, zonedTimeToUtc, formatInTimeZone } from 'date-fns-tz';
 import {
   REFERENCE_TYPES,
@@ -23,6 +24,8 @@ const createLocalDateTimeStringFromUTC = (
   second,
   millisecond = 0,
 ) => {
+  // Interprets inputs AS utc, and "utcTime" is the **local** version of that time
+  // ie. 2022-02-03 2:30 -> 2022-02-03 4:30 (+02:00 (implied by local timezone))
   const utcTime = Date.UTC(year, month, day, hour, minute, second, millisecond);
   const localTimeWithoutTimezone = toDateTimeString(utcToZonedTime(utcTime, COUNTRY_TIMEZONE));
   return localTimeWithoutTimezone;
@@ -312,29 +315,42 @@ describe('fijiAspenMediciReport', () => {
   let ctx;
   let app;
   let models;
+  let fakedata;
 
   // Reset everything between each test. Might be innefficient but there's only 2 tests
-  beforeEach(async () => {
+  beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.store.models;
     app = await ctx.baseApp.asRole('practitioner');
+    fakedata = await fakeAllData(models);
   });
 
-  afterEach(() => ctx.close());
+  afterAll(() => ctx.close());
 
-  it(`Should filter by date`, async () => {
-    const { patient, encounterId } = await fakeAllData(models);
+  it.each([
+    // [ expectedResults, period.start, period.end ]
+    [1, '2022-06-09', '2022-10-09'],
+    [0, '2022-06-10', '2022-10-09'],
+    [0, '2022-06-09T00:02:53-02:00', '2022-10-09'],
+    [1, '2022-06-09T00:02:53Z', '2022-10-09'],
+    [0, '2022-06-09T00:02:55Z', '2022-10-09'],
+    [1, '2022-06-09T00:02:55+01:00', '2022-10-09'],
+    [0, '2022-06-09T00:02:53-01:00', '2022-10-09'],
+    // Dates/times inputted without timezone will be server timezone
+    [0, createLocalDateTimeStringFromUTC(2022, 6 - 1, 9, 0, 2, 55).replace(' ', 'T'), '2023'],
+    [1, createLocalDateTimeStringFromUTC(2022, 6 - 1, 9, 0, 2, 53).replace(' ', 'T'), '2023'],
+  ])('should return %p result between %p and %s', async (expectedResults, start, end) => {
+    const query = `period.start=${encodeURIComponent(start)}&period.end=${encodeURIComponent(end)}`;
     const response = await app
-      .get('/v1/integration/fijiAspenMediciReport?period.start=1921-05-09&period.end=1922-05-09')
+      .get(`/v1/integration/fijiAspenMediciReport?${query}`)
       .set({ 'X-Tamanu-Client': 'medici', 'X-Version': '0.0.1' });
 
     expect(response).toHaveSucceeded();
-    expect(response.body.data).toEqual([]);
+    expect(response.body.data.length).toEqual(expectedResults);
   });
 
   it(`Should produce a simple report`, async () => {
-    const { patient, encounterId } = await fakeAllData(models);
-
+    const { patient, encounterId } = fakedata;
     // act
     const response = await app
       .get('/v1/integration/fijiAspenMediciReport?period.start=2022-05-09&period.end=2022-10-09')
@@ -350,7 +366,7 @@ describe('fijiAspenMediciReport', () => {
         lastname: patient.lastName,
         dateOfBirth: '1952-10-12',
         age: expect.any(Number), // TODO
-        sex: patient.sex,
+        sex: upperFirst(patient.sex),
 
         // Encounter Details
         encounterId,
@@ -376,7 +392,7 @@ describe('fijiAspenMediciReport', () => {
         },
 
         // Triage Details
-        triageCategory: 'Priority',
+        triageCategory: '2',
         waitTime: '1:3', // h:m
 
         // Location/Department
