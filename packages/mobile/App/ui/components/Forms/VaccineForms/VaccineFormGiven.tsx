@@ -10,15 +10,13 @@ import { INJECTION_SITE_OPTIONS } from '~/types';
 import { Dropdown } from '../../Dropdown';
 import { FormSectionHeading } from '../FormSectionHeading';
 
-const InjectionSiteDropdown = ({ onChange, label }): JSX.Element => {
-  return (
-    <Dropdown
-      options={INJECTION_SITE_OPTIONS.map(o => ({ label: o, value: o }))}
-      onChange={onChange}
-      label={label}
-    />
-  );
-};
+const InjectionSiteDropdown = ({ onChange, label }): JSX.Element => (
+  <Dropdown
+    options={INJECTION_SITE_OPTIONS.map(o => ({ label: o, value: o }))}
+    onChange={onChange}
+    label={label}
+  />
+);
 
 export function VaccineFormGiven(): JSX.Element {
   const RowOrCol = getOrientation() === SCREEN_ORIENTATION.PORTRAIT ? ColumnView : RowView;
