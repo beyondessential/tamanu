@@ -1,39 +1,46 @@
-import React from 'react';
-import { getCurrentDateString } from 'shared/utils/dateTime';
+import React, { Fragment } from 'react';
 import styled from 'styled-components';
-import { isEmpty } from 'lodash';
+import { isEmpty, groupBy } from 'lodash';
+import { useQuery } from '@tanstack/react-query';
+
+import { getCurrentDateString } from 'shared/utils/dateTime';
 import { PATIENT_REGISTRY_TYPES, PLACE_OF_BIRTH_TYPES } from 'shared/constants';
+import { PATIENT_FIELD_DEFINITION_TYPES } from 'shared/constants/patientFields';
+
 import { useSexValues } from '../hooks';
 import {
-  Colors,
-  sexOptions,
-  bloodOptions,
-  titleOptions,
-  socialMediaOptions,
-  maritalStatusOptions,
-  educationalAttainmentOptions,
+  ATTENDANT_OF_BIRTH_OPTIONS,
   BIRTH_DELIVERY_TYPE_OPTIONS,
   BIRTH_TYPE_OPTIONS,
+  Colors,
   PLACE_OF_BIRTH_OPTIONS,
-  ATTENDANT_OF_BIRTH_OPTIONS,
+  bloodOptions,
+  educationalAttainmentOptions,
+  maritalStatusOptions,
+  sexOptions,
+  socialMediaOptions,
+  titleOptions,
 } from '../constants';
 import { useLocalisation } from '../contexts/Localisation';
-import { useSuggester, usePatientSuggester } from '../api';
+import { useApi, useSuggester, usePatientSuggester } from '../api';
 import { getPatientDetailsValidation } from '../validations';
 import {
-  FormGrid,
-  ButtonRow,
-  Button,
-  Form,
-  LocalisedField,
-  DateField,
   AutocompleteField,
-  TextField,
+  Button,
+  ButtonRow,
+  DateField,
+  Field,
+  Form,
+  FormGrid,
+  LocalisedField,
+  NumberField,
   RadioField,
   SelectField,
   SuggesterSelectField,
+  TextField,
   TimeField,
 } from '../components';
+import { LoadingIndicator } from '../components/LoadingIndicator';
 
 const StyledHeading = styled.div`
   font-weight: 500;
@@ -270,6 +277,45 @@ export const SecondaryDetailsGroup = ({ patientRegistryType, values = {}, isEdit
   );
 };
 
+const PatientField = ({ definition: { definitionId, name, fieldType, options } }) => {
+  // TODO: temporary placeholder component
+  // the plan is to reuse the survey question components for these fields
+  const fieldName = `patientFields.${definitionId}`;
+  if (fieldType === PATIENT_FIELD_DEFINITION_TYPES.SELECT) {
+    const fieldOptions = options.map(o => ({ label: o, value: o }));
+    return <Field name={fieldName} component={SelectField} label={name} options={fieldOptions} />;
+  }
+  if (fieldType === PATIENT_FIELD_DEFINITION_TYPES.STRING) {
+    return <Field name={fieldName} component={TextField} label={name} />;
+  }
+  if (fieldType === PATIENT_FIELD_DEFINITION_TYPES.NUMBER) {
+    return <Field name={fieldName} component={NumberField} label={name} />;
+  }
+  return <p>Unknown field type: {fieldType}</p>;
+};
+
+export const PatientFieldsGroup = ({ fieldDefinitions, fieldValues }) => {
+  const groupedFieldDefs = Object.entries(groupBy(fieldDefinitions, 'category'));
+  return (
+    <div>
+      {groupedFieldDefs.map(([category, defs]) => (
+        <Fragment key={category}>
+          <StyledHeading>{category}</StyledHeading>
+          <StyledFormGrid>
+            {defs.map(f => (
+              <PatientField
+                key={f.definitionId}
+                definition={f}
+                value={fieldValues ? fieldValues[f.definitionId] : ''}
+              />
+            ))}
+          </StyledFormGrid>
+        </Fragment>
+      ))}
+    </div>
+  );
+};
+
 function sanitiseRecordForValues(data) {
   const {
     // unwanted ids
@@ -299,6 +345,15 @@ function sanitiseRecordForValues(data) {
       return true;
     })
     .reduce((state, [k, v]) => ({ ...state, [k]: v }), {});
+}
+
+function addMissingFieldValues(definitions, knownValues) {
+  const exhaustiveValues = {};
+  for (const { definitionId } of definitions) {
+    const value = knownValues ? knownValues[definitionId] : '';
+    exhaustiveValues[definitionId] = value || '';
+  }
+  return exhaustiveValues;
 }
 
 function stripPatientData(patient, additionalData, birthData) {
@@ -331,6 +386,28 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
 
   const sexValues = useSexValues();
 
+  const api = useApi();
+  const {
+    data: fieldDefinitionsResponse,
+    error: fieldDefError,
+    isLoading: isLoadingFieldDefinitions,
+  } = useQuery(['patientFieldDefinition'], () => api.get(`patientFieldDefinition`));
+  const {
+    data: fieldValuesResponse,
+    error: fieldValError,
+    isLoading: isLoadingFieldValues,
+  } = useQuery(['patientFields', patient.id], () => api.get(`patient/${patient.id}/fields`), {
+    enabled: Boolean(patient.id),
+  });
+  const errors = [fieldDefError, fieldValError].filter(e => Boolean(e));
+  if (errors.length > 0) {
+    return <pre>{errors.map(e => e.stack).join('\n')}</pre>;
+  }
+  const isLoading = isLoadingFieldDefinitions || isLoadingFieldValues;
+  if (isLoading) {
+    return <LoadingIndicator />;
+  }
+
   return (
     <Form
       render={({ submitForm, values }) => (
@@ -343,6 +420,10 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
               isEdit
             />
           </StyledPatientDetailSecondaryDetailsGroupWrapper>
+          <PatientFieldsGroup
+            fieldDefinitions={fieldDefinitionsResponse.data}
+            fieldValues={fieldValuesResponse?.data}
+          />
           <ButtonRow>
             <Button variant="contained" color="primary" onClick={submitForm}>
               Save
@@ -350,7 +431,13 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
           </ButtonRow>
         </>
       )}
-      initialValues={stripPatientData(patient, additionalData, birthData)}
+      initialValues={{
+        ...stripPatientData(patient, additionalData, birthData),
+        patientFields: addMissingFieldValues(
+          fieldDefinitionsResponse.data,
+          fieldValuesResponse?.data,
+        ),
+      }}
       onSubmit={handleSubmit}
       validationSchema={getPatientDetailsValidation(sexValues)}
     />

@@ -96,6 +96,8 @@ patientRoute.put(
       if (patientBirth) {
         await patientBirth.update(patientBirthRecordData);
       }
+
+      await patient.writeFieldValues(req.body.patientFields);
     });
 
     res.send(dbRecordToResponse(patient));
@@ -125,6 +127,7 @@ patientRoute.post(
         ...patientAdditionalBirthData,
         patientId: createdPatient.id,
       });
+      await createdPatient.writeFieldValues(req.body.patientFields);
 
       if (patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY) {
         await PatientBirthData.create({
