@@ -84,8 +84,6 @@ export const snapshotOutgoingChanges = async (
 
   let changesCount = 0;
 
-  const facilityConfig = facilityId ? await getConfigForFacility(models, facilityId) : null;
-
   for (const model of Object.values(outgoingModels)) {
     const modelChangesCount = await snapshotChangesForModel(
       model,
@@ -93,7 +91,7 @@ export const snapshotOutgoingChanges = async (
       since,
       patientIds,
       sessionId,
-      facilityConfig,
+      sessionConfig,
     );
 
     changesCount += modelChangesCount || 0;
