@@ -27,6 +27,9 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
   secondaryContactNumber?: string;
 
   @Column({ nullable: true })
+  telegramChatId?: string;
+
+  @Column({ nullable: true })
   maritalStatus?: string;
 
   @Column({ nullable: true })
