@@ -41,11 +41,12 @@ const snapshotChangesForModel = async (
   const recordsChangedCount = await model.count(queryOptions);
   const batchCount = Math.ceil(recordsChangedCount / persistedCacheBatchSize);
 
+  let cursorId = '00000000-0000-0000-0000-000000000000';
   for (let batchNumber = 0; batchNumber < batchCount; batchNumber++) {
     const recordsChanged = await model.findAll({
       ...queryOptions,
+      where: { ...queryOptions.where, id: { [Op.gt]: cursorId } },
       order: [['id', 'ASC']], // need some ordering so that paging works
-      offset: batchNumber * persistedCacheBatchSize,
       limit: persistedCacheBatchSize,
     });
     const sanitizedRecords = recordsChanged.map(r => ({
@@ -59,6 +60,7 @@ const snapshotChangesForModel = async (
     }));
 
     await models.SyncSessionRecord.bulkCreate(sanitizedRecords);
+    cursorId = sanitizedRecords[sanitizedRecords.length - 1].recordId;
   }
 
   log.debug(
@@ -82,6 +84,8 @@ export const snapshotOutgoingChanges = async (
 
   let changesCount = 0;
 
+  const facilityConfig = facilityId ? await getConfigForFacility(models, facilityId) : null;
+
   for (const model of Object.values(outgoingModels)) {
     const modelChangesCount = await snapshotChangesForModel(
       model,
@@ -89,7 +93,7 @@ export const snapshotOutgoingChanges = async (
       since,
       patientIds,
       sessionId,
-      sessionConfig,
+      facilityConfig,
     );
 
     changesCount += modelChangesCount || 0;
