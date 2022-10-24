@@ -236,4 +236,23 @@ export class Patient extends Model {
       },
     });
   }
+
+  async writeFieldValues(patientFields = {}) {
+    const { PatientFieldValue } = this.constructor.sequelize.models;
+    for (const [definitionId, value] of Object.entries(patientFields)) {
+      // race condition doesn't matter because we take the last value anyway
+      const field = await PatientFieldValue.findOne({
+        where: {
+          definitionId,
+          patientId: this.id,
+        },
+        order: [['updatedAt', 'DESC']],
+      });
+      if (field) {
+        await field.update({ value });
+      } else {
+        await PatientFieldValue.create({ value, definitionId, patientId: this.id });
+      }
+    }
+  }
 }

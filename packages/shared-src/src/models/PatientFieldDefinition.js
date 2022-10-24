@@ -64,23 +64,4 @@ export class PatientFieldDefinition extends Model {
       as: 'values',
     });
   }
-
-  static async createOrUpdateValues(patientId, patientFields = {}) {
-    const { PatientFieldValue } = this.sequelize.models;
-    for (const [definitionId, value] of Object.entries(patientFields)) {
-      // race condition doesn't matter because we take the last value anyway
-      const field = await PatientFieldValue.findOne({
-        where: {
-          definitionId,
-          patientId,
-        },
-        order: [['updatedAt', 'DESC']],
-      });
-      if (field) {
-        await field.update({ value });
-      } else {
-        await PatientFieldValue.create({ value, definitionId, patientId });
-      }
-    }
-  }
 }
