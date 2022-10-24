@@ -278,6 +278,8 @@ export const SecondaryDetailsGroup = ({ patientRegistryType, values = {}, isEdit
 };
 
 const PatientField = ({ definition: { definitionId, name, fieldType, options } }) => {
+  // TODO: temporary placeholder component
+  // the plan is to reuse the survey question components for these fields
   const fieldName = `patientFields.${definitionId}`;
   if (fieldType === PATIENT_FIELD_DEFINITION_TYPES.SELECT) {
     const fieldOptions = options.map(o => ({ label: o, value: o }));
