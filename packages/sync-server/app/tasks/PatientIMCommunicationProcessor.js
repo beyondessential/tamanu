@@ -1,8 +1,14 @@
+import TG from 'telegram-bot-api';
+
 import config from 'config';
-import { PATIENT_COMMUNICATION_CHANNELS, COMMUNICATION_STATUSES } from 'shared/constants';
+
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
-import TG from 'telegram-bot-api';
+import {
+  PATIENT_COMMUNICATION_CHANNELS, 
+  PATIENT_COMMUNICATION_TYPES 
+} from 'shared/constants/comms';
+  import { COMMUNICATION_STATUSES } from 'shared/constants/statuses';
 
 export class PatientIMCommunicationProcessor extends ScheduledTask {
   constructor(context) {
@@ -17,10 +23,6 @@ export class PatientIMCommunicationProcessor extends ScheduledTask {
     const mp = new TG.GetUpdateMessageProvider();
     this.api.setMessageProvider(mp);
     
-    // TODO: replace with actual db records
-    this.patients = {};
-    this.messages = [];
-
     this.api.on('update', ({ message }) => {
       try {
         this.onMessage(message);
@@ -51,8 +53,8 @@ export class PatientIMCommunicationProcessor extends ScheduledTask {
       chat,
     } = message;
 
-    // telegram interaction starts with the user sending us a message that looks like
-    // `/start 1234-1234-1234-1234-abcde`
+    // telegram interaction starts with the user's client sending us
+    // a message that looks like `/start 1234-1234-1234-1234-abcde`
     // with the parameter as their Tamanu patientId
     const match = /\/start (.*)/;
     const startMatch = text.match(match);
@@ -80,15 +82,19 @@ export class PatientIMCommunicationProcessor extends ScheduledTask {
       return;
     }
 
-    await models.PatientAdditionalData.updateForPatient({
+    await models.PatientAdditionalData.updateForPatient(patientId, {
       telegramChatId: chatId,
     });
 
-    // TODO: immediately queue a reminder for testing purposes
-    this.messages.push({
+    // TEMPORARY: immediately queue a reminder for testing purposes
+    // TODO: add a real vaccine reminder system to queue these properly
+    await models.PatientCommunication.create({
+      channel: PATIENT_COMMUNICATION_CHANNELS.WHATSAPP, // TODO: de-enumify and use 'telegram'
+      status: COMMUNICATION_STATUSES.QUEUED,
+      type: PATIENT_COMMUNICATION_TYPES.CERTIFICATE,  // TODO: de-enumify and use 'vaccineReminder'
+      content: `Here's the reminder we promised for *{patientName}*`,
       patientId,
-      text: `Here's the reminder we promised for *{patientName}*.`,
-    });
+    })
 
     const patientName = patient.getFormattedName();
 
@@ -106,32 +112,53 @@ export class PatientIMCommunicationProcessor extends ScheduledTask {
   }
 
   async countQueue() {
-    return this.messages.length;
+    return this.context.store.models.PatientCommunication.count({
+      where: {
+        channel: PATIENT_COMMUNICATION_CHANNELS.WHATSAPP,
+        status: COMMUNICATION_STATUSES.QUEUED,
+      }
+    });
   }
 
   async run() {
-    const messages = this.messages;
-    this.messages = [];
+    const messages = await this.context.store.models.PatientCommunication.findAll({
+      where: {
+        channel: PATIENT_COMMUNICATION_CHANNELS.WHATSAPP,
+        status: COMMUNICATION_STATUSES.QUEUED,
+      }
+    });
 
-    messages.forEach(async m => {
+    const sendTasks = messages.map(async m => {
       const { models } = this.context.store;
 
+      const { patientId, content } = m;
       const patient = await models.Patient.findByPk(patientId);
       const pad = await models.PatientAdditionalData.getOrCreateForPatient(patientId);
 
       const chatId = pad.telegramChatId;
       if (!chatId) {
         log.error('Patient does not have a telegram chat ID', { patientId });
+        await m.update({
+          status: COMMUNICATION_STATUSES.ERROR,
+          error: 'Patient does not have a telegram chat ID',
+        });
         return;
       }
 
-      const text = m.text.replace("{patientName}", patient.getFormattedName());
+      // TODO: Smarter text replacement system
+      const text = content.replace("{patientName}", patient.getFormattedName());
 
       this.api.sendMessage({
         chat_id: chatId,
         text,
         parse_mode: 'Markdown',
       });
+
+      await m.update({
+        status: COMMUNICATION_STATUSES.SENT,
+      });
     });
+
+    return Promise.all(sendTasks);
   }
 }
