@@ -100,6 +100,8 @@ export class CentralSyncManager {
 
     const session = await this.connectToSession(sessionId);
 
+    await session.update({ debugInfo: { facilityId, since, isMobile } });
+
     const modelsToInclude = tablesToInclude
       ? Object.fromEntries(
           Object.entries(models).filter(([, m]) => tablesToInclude.includes(m.tableName)),
