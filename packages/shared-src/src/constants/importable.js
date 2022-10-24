@@ -49,3 +49,5 @@ export const VISIBILITY_STATUSES = {
   HISTORICAL: 'historical',
   MERGED: 'merged',
 };
+
+export const VISIBILITY_STATUS_VALUES = Object.values(VISIBILITY_STATUSES);

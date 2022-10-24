@@ -1,7 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 
-import { PATIENT_FIELD_DEFINITION_HIDDEN_STATE_VALUES } from 'shared/constants/patientFields';
+import { PATIENT_FIELD_DEFINITION_HIDDEN_STATUSES } from 'shared/constants/patientFields';
 import { permissionCheckingRouter } from '../crudHelpers';
 
 export const patientFieldDefinition = permissionCheckingRouter('create', 'Patient');
@@ -20,12 +20,12 @@ patientFieldDefinition.get(
         FROM patient_field_definitions d
         LEFT JOIN patient_field_definition_categories c
           ON d.category_id = c.id
-        WHERE d.state NOT IN (:disallowedStates)
+        WHERE d.visibility_status NOT IN (:hiddenStatuses)
         ORDER BY category ASC, name ASC;
       `,
       {
         replacements: {
-          disallowedStates: PATIENT_FIELD_DEFINITION_HIDDEN_STATE_VALUES,
+          hiddenStatuses: PATIENT_FIELD_DEFINITION_HIDDEN_STATUSES,
         },
         type: QueryTypes.SELECT,
       },

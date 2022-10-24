@@ -2,7 +2,7 @@ import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 
 import { getPatientAdditionalData } from 'shared/utils';
-import { PATIENT_FIELD_DEFINITION_HIDDEN_STATE_VALUES } from 'shared/constants/patientFields';
+import { PATIENT_FIELD_DEFINITION_HIDDEN_STATUSES } from 'shared/constants/patientFields';
 
 import { simpleGetList, permissionCheckingRouter, runPaginatedQuery } from '../crudHelpers';
 import { patientSecondaryIdRoutes } from './patientSecondaryId';
@@ -89,12 +89,12 @@ patientRelations.get(
           -- TODO: order by logical clock
           ORDER BY updated_at DESC LIMIT 1
         ) v ON true
-        WHERE d.state NOT IN (:disallowedStates);
+        WHERE d.visibility_status NOT IN (:hiddenStatuses);
       `,
       {
         replacements: {
           patientId: params.id,
-          disallowedStates: PATIENT_FIELD_DEFINITION_HIDDEN_STATE_VALUES,
+          hiddenStatuses: PATIENT_FIELD_DEFINITION_HIDDEN_STATUSES,
         },
         type: QueryTypes.SELECT,
       },

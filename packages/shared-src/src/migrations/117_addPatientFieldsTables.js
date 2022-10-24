@@ -65,7 +65,7 @@ const tables = [
         allowNull: false,
       },
       options: Sequelize.ARRAY(Sequelize.STRING),
-      state: {
+      visibility_status: {
         type: Sequelize.STRING,
         allowNull: false,
         defaultValue: 'CURRENT',

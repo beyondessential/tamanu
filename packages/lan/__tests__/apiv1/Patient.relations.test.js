@@ -349,7 +349,7 @@ describe('Patient', () => {
         definitionId: definition1.id,
         name: 'Test Field 1',
         category: 'Test Category 1',
-        fieldType: 'STRING',
+        fieldType: 'string',
         options: ['a', 'b', 'c'],
       });
     });

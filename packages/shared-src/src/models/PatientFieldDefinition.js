@@ -1,8 +1,8 @@
 import { Sequelize } from 'sequelize';
 import {
   PATIENT_FIELD_DEFINITION_TYPE_VALUES,
-  PATIENT_FIELD_DEFINITION_STATES,
-  PATIENT_FIELD_DEFINITION_STATE_VALUES,
+  VISIBILITY_STATUSES,
+  VISIBILITY_STATUS_VALUES,
   SYNC_DIRECTIONS,
 } from 'shared/constants';
 import { Model } from './Model';
@@ -10,9 +10,7 @@ import { Model } from './Model';
 const FIELD_TYPE_ERR_MSG = `fieldType must be one of ${JSON.stringify(
   PATIENT_FIELD_DEFINITION_TYPE_VALUES,
 )}`;
-const STATE_ERR_MSG = `state must be one of ${JSON.stringify(
-  PATIENT_FIELD_DEFINITION_STATE_VALUES,
-)}`;
+const VISIBILITY_STATUS_ERR_MSG = `state must be one of ${JSON.stringify(VISIBILITY_STATUSES)}`;
 
 export class PatientFieldDefinition extends Model {
   static init({ primaryKey, ...options }) {
@@ -34,14 +32,14 @@ export class PatientFieldDefinition extends Model {
           },
         },
         options: Sequelize.ARRAY(Sequelize.STRING),
-        state: {
+        visibilityStatus: {
           type: Sequelize.STRING,
           allowNull: false,
-          defaultValue: PATIENT_FIELD_DEFINITION_STATES.CURRENT,
+          defaultValue: VISIBILITY_STATUSES.CURRENT,
           validate: {
             isIn: {
-              args: [PATIENT_FIELD_DEFINITION_STATE_VALUES],
-              msg: STATE_ERR_MSG,
+              args: [VISIBILITY_STATUS_VALUES],
+              msg: VISIBILITY_STATUS_ERR_MSG,
             },
           },
         },
