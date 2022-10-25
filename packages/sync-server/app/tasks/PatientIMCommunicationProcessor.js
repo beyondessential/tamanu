@@ -1,110 +1,25 @@
-import TG from 'telegram-bot-api';
-
-import config from 'config';
-
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
 import {
   PATIENT_COMMUNICATION_CHANNELS, 
-  PATIENT_COMMUNICATION_TYPES 
 } from 'shared/constants/comms';
-  import { COMMUNICATION_STATUSES } from 'shared/constants/statuses';
+import { COMMUNICATION_STATUSES } from 'shared/constants/statuses';
+
+import { TelegramService } from '../services/TelegramService';
 
 export class PatientIMCommunicationProcessor extends ScheduledTask {
   constructor(context) {
     super("0 * * * * *", log);
-    this.config = config.telegram;
     this.context = context;
 
-    this.api = new TG({
-      token: this.config.apiKey,
-    })
+    this.telegramService = new TelegramService(context);
 
-    const mp = new TG.GetUpdateMessageProvider();
-    this.api.setMessageProvider(mp);
-    
-    this.api.on('update', ({ message }) => {
-      try {
-        this.onMessage(message);
-      } catch(e) {
-        console.error(e);
-      }
-    });
-
-    log.info("Starting telegram bot");
-    this.api.start();
-
-    this.run();
+    this.telegramService.start();
   }
 
   cancelPolling() {
     super.cancelPolling();
-    log.info('Stopping telegram bot');
-    try {
-      this.api.stop();
-    } catch(e) {
-      log.error("Error stopping telegram bot", e);
-    }
-  }
-
-  onMessage(message) {
-    const { 
-      text,
-      chat,
-    } = message;
-
-    // telegram interaction starts with the user's client sending us
-    // a message that looks like `/start 1234-1234-1234-1234-abcde`
-    // with the parameter as their Tamanu patientId
-    const match = /\/start (.*)/;
-    const startMatch = text.match(match);
-
-    if (startMatch) {
-      const [, patientId] = startMatch;
-      this.onLinkAccount(patientId, chat.id);
-    } else {
-      log.warn("Unrecognised telegram message", message);
-    }
-  }
-
-  async onLinkAccount(patientId, chatId) {
-    log.info('Linking patient to Telegram', { patientId, chatId });
-    const { models } = this.context.store;
-
-    const patient = await models.Patient.findByPk(patientId);
-
-    if (!patient) {
-      this.api.sendMessage({
-        chat_id: chatId,
-        text: `No patient was found with ID *${patientId}* - was the link malformed somehow?`,
-        parse_mode: 'Markdown',
-      });
-      return;
-    }
-
-    await models.PatientAdditionalData.updateForPatient(patientId, {
-      telegramChatId: chatId,
-    });
-
-    // TEMPORARY: immediately queue a reminder for testing purposes
-    // TODO: add a real vaccine reminder system to queue these properly
-    await models.PatientCommunication.create({
-      channel: PATIENT_COMMUNICATION_CHANNELS.WHATSAPP, // TODO: de-enumify and use 'telegram'
-      status: COMMUNICATION_STATUSES.QUEUED,
-      type: PATIENT_COMMUNICATION_TYPES.CERTIFICATE,  // TODO: de-enumify and use 'vaccineReminder'
-      content: `Here's the reminder we promised for *{patientName}*`,
-      patientId,
-    })
-
-    const patientName = patient.getFormattedName();
-
-    // Send a confirmation message to the patient
-    log.info("Sending telegram link confirmation", { patientId });
-    this.api.sendMessage({
-      chat_id: chatId,
-      text: `Successfully linked to Tamanu patient: *${patientName}*.`,
-      parse_mode: 'Markdown',
-    });
+    this.telegramService.stop();
   }
 
   getName() {
@@ -129,34 +44,15 @@ export class PatientIMCommunicationProcessor extends ScheduledTask {
     });
 
     const sendTasks = messages.map(async m => {
-      const { models } = this.context.store;
-
-      const { patientId, content } = m;
-      const patient = await models.Patient.findByPk(patientId);
-      const pad = await models.PatientAdditionalData.getOrCreateForPatient(patientId);
-
-      const chatId = pad.telegramChatId;
-      if (!chatId) {
-        log.error('Patient does not have a telegram chat ID', { patientId });
+      try {
+        await this.telegramService.sendPatientCommunication(m);
+        await m.update({ status: COMMUNICATION_STATUSES.SENT });
+      } catch(e) {
         await m.update({
           status: COMMUNICATION_STATUSES.ERROR,
-          error: 'Patient does not have a telegram chat ID',
+          error: e.message,
         });
-        return;
       }
-
-      // TODO: Smarter text replacement system
-      const text = content.replace("{patientName}", patient.getFormattedName());
-
-      this.api.sendMessage({
-        chat_id: chatId,
-        text,
-        parse_mode: 'Markdown',
-      });
-
-      await m.update({
-        status: COMMUNICATION_STATUSES.SENT,
-      });
     });
 
     return Promise.all(sendTasks);
