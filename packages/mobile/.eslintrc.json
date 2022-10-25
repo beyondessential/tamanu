@@ -113,7 +113,6 @@
     {
       "files": ["*.ts", "*.tsx"],
       "rules": {
-        "no-undef": "off",
         "@typescript-eslint/explicit-function-return-type": ["error"]
       }
     }

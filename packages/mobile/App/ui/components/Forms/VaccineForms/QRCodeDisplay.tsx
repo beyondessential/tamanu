@@ -26,11 +26,11 @@ export const QRCodeDisplay: React.FC<Props> = ({
   chatAppName = TEMP_TEST_CHAT_APP_NAME,
 }): JSX.Element => {
   const [showQR, setShowQR] = useState<boolean>(false);
-  const [qrData, setQrData] = useState<string | null>(null);
+  const [qrData, setQRData] = useState<string | null>(null);
 
   const createPatientQRCode = async (): Promise<void> => {
     const data = await QRCode.toString(`https://t.me/${botName}?start=${patientId}`, { type: 'svg' });
-    setQrData(data);
+    setQRData(data);
   };
 
   useEffect(() => {
@@ -56,8 +56,7 @@ export const QRCodeDisplay: React.FC<Props> = ({
             id="registerReminder"
             onChange={setShowQR}
             value={showQR}
-            // Force newline to avoid issue with checkbox label being cut off
-            text={`This patient is NOT registered for reminder notifications\nvia ${chatAppName} messaging service. Register this patient for reminder notifications.`}
+            text={`Register this patient for reminder notifications. via ${chatAppName} messaging service.`}
           />
           <Collapsible collapsed={!showQR}>
             <StyledView>
@@ -66,7 +65,7 @@ export const QRCodeDisplay: React.FC<Props> = ({
               </StyledView>
               <StyledView>
                 <StyledText paddingTop={15} fontSize={screenPercentageToDP('1.70', Orientation.Height)}>
-                  Please ask the patient (or their Parent/Guardian) to scan this QR Code to 
+                  Please ask the patient (or their Parent/Guardian) to scan this QR Code to
                   register for reminder notifications via the {chatAppName} messaging app
                   (requires {chatAppName} on their phone).
                 </StyledText>
