@@ -135,7 +135,7 @@ export class ReportRequestProcessor extends ScheduledTask {
   async countQueue() {
     return this.context.store.models.ReportRequest.count({
       where: {
-        status: REPORT_REQUEST_STATUSES.RECEIVED,
+        status: REPORT_REQUEST_STATUSES.RECEIVED_BY_FACILITY,
       },
     });
   }
@@ -144,7 +144,7 @@ export class ReportRequestProcessor extends ScheduledTask {
     const localisation = await getLocalisation();
     const requests = await this.context.store.models.ReportRequest.findAll({
       where: {
-        status: REPORT_REQUEST_STATUSES.RECEIVED,
+        status: REPORT_REQUEST_STATUSES.RECEIVED.RECEIVED_BY_FACILITY,
       },
       order: [['createdAt', 'ASC']], // process in order received
       limit: this.config.limit,
@@ -152,6 +152,10 @@ export class ReportRequestProcessor extends ScheduledTask {
 
     for (const request of requests) {
       const reportId = request.getReportId();
+
+      await request.update({
+        status: REPORT_REQUEST_STATUSES.RECEIVED_BY_CENTRAL,
+      });
 
       if (!config.mailgun.from) {
         log.error(`ReportRequestProcessorError - Email config missing`);
@@ -172,6 +176,10 @@ export class ReportRequestProcessor extends ScheduledTask {
         return;
       }
 
+      await request.update({
+        status: REPORT_REQUEST_STATUSES.PROCESSING_START,
+      });
+
       const reportModule = await getReportModule(reportId, this.context.store.models);
       const reportDataGenerator = reportModule?.dataGenerator;
       if (!reportModule || !reportDataGenerator) {
@@ -187,7 +195,7 @@ export class ReportRequestProcessor extends ScheduledTask {
 
       try {
         await request.update({
-          status: REPORT_REQUEST_STATUSES.PROCESSING,
+          status: REPORT_REQUEST_STATUSES.PROCESSING_FINISHED,
           processStartedTime: new Date(),
         });
 
@@ -198,7 +206,7 @@ export class ReportRequestProcessor extends ScheduledTask {
         }
 
         await request.update({
-          status: REPORT_REQUEST_STATUSES.PROCESSED,
+          status: REPORT_REQUEST_STATUSES.EMAILED,
         });
       } catch (e) {
         log.error(`${e.stack}\nReportRequestProcessorError - Failed to generate report`);
@@ -214,7 +222,7 @@ export class ReportRequestProcessor extends ScheduledTask {
     try {
       const requests = await this.context.store.models.ReportRequest.findAll({
         where: sequelize.literal(
-          `status = '${REPORT_REQUEST_STATUSES.PROCESSING}' AND 
+          `status = '${REPORT_REQUEST_STATUSES.PROCESSING_FINISHED}' AND 
           EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - process_started_time) > ${config.reportProcess.timeOutDurationSeconds}`,
         ), // find processing report requests that have been running more than the timeout limit
         order: [['createdAt', 'ASC']], // process in order received
