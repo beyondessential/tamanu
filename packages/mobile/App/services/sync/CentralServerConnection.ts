@@ -137,8 +137,11 @@ export class CentralServerConnection {
     return this.post(`sync/${sessionId}/pullFilter`, {}, body, {});
   }
 
-  async pull(sessionId: string, limit = 100, fromId = ''): Promise<SyncRecord[]> {
-    const query = { limit, fromId };
+  async pull(sessionId: string, limit = 100, fromId?: string): Promise<SyncRecord[]> {
+    const query: { limit: number; fromId?: string } = { limit };
+    if (fromId) {
+      query.fromId = fromId;
+    }
     return this.get(`sync/${sessionId}/pull`, query);
   }
 
