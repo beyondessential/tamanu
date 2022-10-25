@@ -16,7 +16,11 @@ export class ReportRequest extends Model {
         reportType: { type: Sequelize.STRING },
         recipients: { type: Sequelize.TEXT, allowNull: false },
         parameters: Sequelize.TEXT,
-        status: { type: Sequelize.ENUM(REPORT_REQUEST_STATUS_VALUES), defaultValue: REPORT_REQUEST_STATUS_VALUES.RECEIVED_BY_FACILITY, allowNull: false },
+        status: {
+          type: Sequelize.ENUM(REPORT_REQUEST_STATUS_VALUES),
+          defaultValue: REPORT_REQUEST_STATUS_VALUES.RECEIVED_BY_FACILITY,
+          allowNull: false,
+        },
         exportFormat: {
           type: Sequelize.ENUM(Object.values(REPORT_EXPORT_FORMATS)),
           allowNull: false,
