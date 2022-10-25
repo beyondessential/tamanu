@@ -38,7 +38,7 @@ export class CentralServerConnection {
     const queryString = Object.entries(query)
       .map(([k, v]) => `${k}=${v}`)
       .join('&');
-    const url = `${this.host}/v${API_VERSION}/${path}?${queryString}`;
+    const url = `${this.host}/v${API_VERSION}/${path}${queryString && `?${queryString}`}`;
     const extraHeaders = config?.headers || {};
     const headers = {
       Authorization: `Bearer ${this.token}`,
@@ -58,7 +58,7 @@ export class CentralServerConnection {
 
     if (response.status === 401) {
       throw new AuthenticationError(
-        path.includes('/login') ? invalidTokenMessage : invalidUserCredentialsMessage,
+        path.includes('/login') ? invalidUserCredentialsMessage : invalidTokenMessage,
       );
     }
 
@@ -120,7 +120,7 @@ export class CentralServerConnection {
     // poll the pull count endpoint until we get a valid response - it takes a while for
     // setPullFilter to finish populating the snapshot of changes
     const waitTime = 1000; // retry once per second
-    const maxAttempts = 300; // for a maximum of five minutes
+    const maxAttempts = 1200; // for a maximum of 20 minutes
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       const count = await this.get(`sync/${sessionId}/pull/count`, {});
       if (count !== null) {
