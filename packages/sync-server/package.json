@@ -115,6 +115,7 @@
     "semver-diff": "^3.1.1",
     "sequelize": "^6.21.3",
     "shortid": "^2.2.13",
+    "telegram-bot-api": "^2.0.1",
     "tiny-async-pool": "^1.2.0",
     "transliteration": "^2.2.0",
     "umzug": "^2.3.0",

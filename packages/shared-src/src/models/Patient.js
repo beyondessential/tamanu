@@ -104,6 +104,10 @@ export class Patient extends Model {
     return patients.map(({ id }) => id);
   }
 
+  getFormattedName() {
+    return `${this.firstName} ${this.lastName}`;
+  }
+
   async getAdministeredVaccines(queryOptions = {}) {
     const { models } = this.sequelize;
     const certifiableVaccineIds = await models.CertifiableVaccine.allVaccineIds();
