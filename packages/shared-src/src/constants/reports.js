@@ -1,8 +1,10 @@
 export const REPORT_REQUEST_STATUSES = {
-  RECEIVED: 'Received',
-  PROCESSING: 'Processing',
-  PROCESSED: 'Processed',
-  ERROR: 'Error',
+  RECEIVED_BY_FACILITY: 'received_by_facility',
+  RECEIVED_BY_CENTRAL: 'received_by_central_server',
+  PROCESSING_START: 'processing_started',
+  PROCESSING_FINISHED: 'processing_finished',
+  EMAILED: 'emailed',
+  ERROR: 'error',
 };
 
 export const REPORT_REQUEST_STATUS_VALUES = Object.values(REPORT_REQUEST_STATUSES);
