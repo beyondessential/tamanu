@@ -4,6 +4,7 @@ import { REPORT_REQUEST_STATUSES } from 'shared/constants';
 import { getReportModule } from 'shared/reports';
 import { createNamedLogger } from 'shared/services/logging/createNamedLogger';
 import { assertReportEnabled } from '../../utils/assertReportEnabled';
+import { paginatedGetList } from './crudHelpers';
 
 export const reportRequest = express.Router();
 
@@ -76,5 +77,13 @@ reportRequest.post(
       });
       res.status(400).send({ error: { message: e.message } });
     }
+  }),
+);
+
+reportRequest.get(
+  '/$',
+  asyncHandler(async (req, res) => {
+    req.checkPermission('list', 'ReportRequest');
+    paginatedGetList('ReportRequest')(req, res);
   }),
 );
