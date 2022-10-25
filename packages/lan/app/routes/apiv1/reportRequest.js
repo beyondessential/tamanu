@@ -52,7 +52,7 @@ reportRequest.post(
       recipients: JSON.stringify({
         email: body.emailList,
       }),
-      status: REPORT_REQUEST_STATUSES.RECEIVED,
+      status: REPORT_REQUEST_STATUSES.RECEIVED_BY_FACILITY,
       requestedByUserId: user.id,
       parameters: JSON.stringify(body.parameters),
       exportFormat: body.bookType,
@@ -83,7 +83,17 @@ reportRequest.post(
 reportRequest.get(
   '/$',
   asyncHandler(async (req, res) => {
+    const { user } = req;
     req.checkPermission('list', 'ReportRequest');
-    paginatedGetList('ReportRequest')(req, res);
+    const additionalFilters = user.role === 'admin' ? { } : { requestedByUserId: user.id };
+    paginatedGetList('ReportRequest', null, { additionalFilters, include: ['requestedByUser'] })(req, res);
   }),
 );
+
+// reportRequest.get(
+//   '/forUser/:id',
+//   asyncHandler(async (req, res) => {
+//     req.checkPermission('list', 'ReportRequest');
+//     paginatedGetList('ReportRequest', null, { include: ['requestedByUser'] })(req, res);
+//   }),
+// );

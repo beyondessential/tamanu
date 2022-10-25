@@ -10,7 +10,9 @@ import { DateDisplay, DataFetchingTable } from '../../components';
 // const ADMITTED_PRIORITY_COLOR = '#bdbdbd';
 const getDisplayName = ({ requestedByUser, requestedByUserId }) =>
   (requestedByUser || {}).displayName || requestedByUserId;
-const getDetails = ({ status, error, recipients }) => {
+
+const getDetails = row => {
+  const { status, error, recipients } = row;
   switch (status) {
     case REPORT_REQUEST_STATUSES.RECEIVED_BY_FACILITY:
       return 'Received by facility server, not synced to central';
@@ -21,7 +23,11 @@ const getDetails = ({ status, error, recipients }) => {
     case REPORT_REQUEST_STATUSES.PROCESSING_FINISHED:
       return '100% complete - awaiting email';
     case REPORT_REQUEST_STATUSES.EMAILED:
-      return `Emailed to ${JSON.parse(recipients)?.email ?? recipients}`;
+      let email = null;
+      try {
+        email = JSON.parse(recipients).email;
+      } catch (error) {}
+      return `Emailed to ${email ?? recipients}`;
     case REPORT_REQUEST_STATUSES.ERROR:
       return error || 'Report failed: No further details';
     default:

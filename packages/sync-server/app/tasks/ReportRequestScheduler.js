@@ -28,7 +28,7 @@ export class ReportRequestScheduler extends ScheduledTask {
       reportType,
       recipients: JSON.stringify(recipients),
       parameters: JSON.stringify(parameters),
-      status: REPORT_REQUEST_STATUSES.RECEIVED,
+      status: REPORT_REQUEST_STATUSES.RECEIVED_BY_FACILITY,
       requestedByUserId,
     };
 
