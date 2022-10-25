@@ -4,7 +4,7 @@ import { QueryTypes } from 'sequelize';
 import { HIDDEN_VISIBILITY_STATUSES } from 'shared/constants/importable';
 import { permissionCheckingRouter } from '../crudHelpers';
 
-export const patientFieldDefinition = permissionCheckingRouter('create', 'Patient');
+export const patientFieldDefinition = permissionCheckingRouter('read', 'Patient');
 
 patientFieldDefinition.get(
   '/$',
@@ -33,6 +33,7 @@ patientFieldDefinition.get(
     res.send({
       count: values.length,
       data: values,
+      editable: req.ability.can('create', 'Patient', ''),
     });
   }),
 );

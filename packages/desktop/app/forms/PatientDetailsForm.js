@@ -277,24 +277,32 @@ export const SecondaryDetailsGroup = ({ patientRegistryType, values = {}, isEdit
   );
 };
 
-const PatientField = ({ definition: { definitionId, name, fieldType, options } }) => {
+const PatientField = ({ definition: { definitionId, name, fieldType, options }, disabled }) => {
   // TODO: temporary placeholder component
   // the plan is to reuse the survey question components for these fields
   const fieldName = `patientFields.${definitionId}`;
   if (fieldType === PATIENT_FIELD_DEFINITION_TYPES.SELECT) {
     const fieldOptions = options.map(o => ({ label: o, value: o }));
-    return <Field name={fieldName} component={SelectField} label={name} options={fieldOptions} />;
+    return (
+      <Field
+        name={fieldName}
+        component={SelectField}
+        label={name}
+        options={fieldOptions}
+        disabled={disabled}
+      />
+    );
   }
   if (fieldType === PATIENT_FIELD_DEFINITION_TYPES.STRING) {
-    return <Field name={fieldName} component={TextField} label={name} />;
+    return <Field name={fieldName} component={TextField} label={name} disabled={disabled} />;
   }
   if (fieldType === PATIENT_FIELD_DEFINITION_TYPES.NUMBER) {
-    return <Field name={fieldName} component={NumberField} label={name} />;
+    return <Field name={fieldName} component={NumberField} label={name} disabled={disabled} />;
   }
   return <p>Unknown field type: {fieldType}</p>;
 };
 
-export const PatientFieldsGroup = ({ fieldDefinitions, fieldValues }) => {
+export const PatientFieldsGroup = ({ fieldDefinitions, fieldValues, disabled }) => {
   const groupedFieldDefs = Object.entries(groupBy(fieldDefinitions, 'category'));
   return (
     <div>
@@ -307,6 +315,7 @@ export const PatientFieldsGroup = ({ fieldDefinitions, fieldValues }) => {
                 key={f.definitionId}
                 definition={f}
                 value={fieldValues ? fieldValues[f.definitionId] : ''}
+                disabled={disabled}
               />
             ))}
           </StyledFormGrid>
@@ -389,6 +398,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
   const api = useApi();
   const {
     data: fieldDefinitionsResponse,
+    editable: patientFieldsEditable,
     error: fieldDefError,
     isLoading: isLoadingFieldDefinitions,
   } = useQuery(['patientFieldDefinition'], () => api.get(`patientFieldDefinition`));
@@ -423,6 +433,7 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
           <PatientFieldsGroup
             fieldDefinitions={fieldDefinitionsResponse.data}
             fieldValues={fieldValuesResponse?.data}
+            disabled={!patientFieldsEditable}
           />
           <ButtonRow>
             <Button variant="contained" color="primary" onClick={submitForm}>
