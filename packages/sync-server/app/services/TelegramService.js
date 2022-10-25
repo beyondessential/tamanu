@@ -24,7 +24,7 @@ export class TelegramService {
       try {
         this.onMessage(message);
       } catch(e) {
-        console.error(e);
+        log.error(e);
       }
     });
   }
