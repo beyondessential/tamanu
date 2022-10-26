@@ -144,7 +144,7 @@ export class ReportRequestProcessor extends ScheduledTask {
     const localisation = await getLocalisation();
     const requests = await this.context.store.models.ReportRequest.findAll({
       where: {
-        status: REPORT_REQUEST_STATUSES.RECEIVED.RECEIVED_BY_FACILITY,
+        status: REPORT_REQUEST_STATUSES.RECEIVED_BY_FACILITY,
       },
       order: [['createdAt', 'ASC']], // process in order received
       limit: this.config.limit,
