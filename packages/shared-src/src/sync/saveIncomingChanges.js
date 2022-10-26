@@ -99,7 +99,8 @@ const saveChangesForModelInBatches = async (
     try {
       await saveChangesForModel(model, batchRecordsToSave, isCentralServer);
     } catch (error) {
-      log.error(`Failed to save changes for ${model}`);
+      console.log(error);
+      log.error(`Failed to save changes for ${model.name}`);
       throw error;
     }
   }

@@ -5,4 +5,3 @@ export * from './getOutgoingChangesForSession';
 export * from './removeEchoedChanges';
 export * from './deleteSyncSession';
 export * from './getOutgoingChangesCount';
-export * from './sanitizeRecord';

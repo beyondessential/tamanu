@@ -48,9 +48,7 @@ export class PatientFacility extends Model {
     });
   }
 
-  static buildSyncFilter(patientIds, { facilityId }) {
-    return {
-      where: { facilityId },
-    };
+  static buildSyncFilter() {
+    return 'WHERE facility_id = $facilityId';
   }
 }

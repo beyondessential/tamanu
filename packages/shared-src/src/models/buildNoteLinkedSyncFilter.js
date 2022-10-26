@@ -1,42 +1,58 @@
-import { Op } from 'sequelize';
+import { snake } from 'case';
+import { Utils } from 'sequelize';
 import { NOTE_RECORD_TYPES } from 'shared/constants';
+
+const recordTypesWithPatientViaEncounter = ['TRIAGE', 'LAB_REQUEST', 'IMAGING_REQUEST'];
 
 function buildNoteLinkedSyncFilter(patientIds, sessionConfig, isNotePage) {
   if (patientIds.length === 0) {
     return null;
   }
 
-  const pathToNotePage = isNotePage ? '' : 'notePage.';
+  const recordTypesToTables = {};
+  Object.keys(NOTE_RECORD_TYPES).forEach(r => {
+    recordTypesToTables[r] = Utils.pluralize(snake(r));
+  });
 
-  const includeFromNotePage = [
-    'encounter',
-    'patientCarePlan',
-    { association: 'triage', include: ['encounter'] },
-    { association: 'labRequest', include: ['encounter'] },
-    { association: 'imagingRequest', include: ['encounter'] },
+  const joins = Object.keys(NOTE_RECORD_TYPES).map(
+    r =>
+      `JOIN ${recordTypesToTables[r]} ON note_pages.record_id = ${recordTypesToTables[r]}.id AND note_pages.record_type = '${r}'`,
+  );
+  joins.push(
+    ...recordTypesWithPatientViaEncounter.map(
+      r =>
+        `JOIN encounters AS ${recordTypesToTables[r]}_encounters ON ${recordTypesToTables[r]}.encounter_id = ${recordTypesToTables[r]}_encounters.id`,
+    ),
+  );
+
+  const whereOrs = [
+    `
+      ( note_pages.record_id IN ($patientIds) AND note_pages.record_type = '${NOTE_RECORD_TYPES.PATIENT}')
+    `,
+    ...Object.keys(NOTE_RECORD_TYPES)
+      .filter(r => recordTypesWithPatientViaEncounter.includes(r))
+      .map(r => `${recordTypesToTables[r]}_encounters.patient_id IN ($patientIds)`),
+    ...Object.keys(NOTE_RECORD_TYPES)
+      .filter(r => !recordTypesWithPatientViaEncounter.includes(r) && r !== 'PATIENT')
+      .map(r => `${recordTypesToTables[r]}.patient_id IN ($patientIds)`),
+    `patients.id IN ($patientIds)`,
   ];
 
-  const whereClauses = [
-    { [`$${pathToNotePage}record_id$`]: { [Op.in]: patientIds } },
-    { [`$${pathToNotePage}encounter.patient_id$`]: { [Op.in]: patientIds } },
-    { [`$${pathToNotePage}patientCarePlan.patient_id$`]: { [Op.in]: patientIds } },
-    { [`$${pathToNotePage}triage.encounter.patient_id$`]: { [Op.in]: patientIds } },
-    { [`$${pathToNotePage}labRequest.encounter.patient_id$`]: { [Op.in]: patientIds } },
-    { [`$${pathToNotePage}imagingRequest.encounter.patient_id$`]: { [Op.in]: patientIds } },
-  ];
+  const filter = `
+    ${isNotePage ? '' : 'JOIN note_pages ON note_items.note_page_id = note_pages.id'}
+    ${joins.join('\n')}
+    WHERE
+      ${whereOrs.join('\nOR ')}
+    `;
 
   if (sessionConfig.syncAllLabRequests) {
-    whereClauses.push({ [`$${pathToNotePage}record_type$`]: NOTE_RECORD_TYPES.LAB_REQUEST });
+    return `
+      ${filter}
+      OR note_pages.record_type = '${NOTE_RECORD_TYPES.LAB_REQUEST}'
+    `;
   }
 
-  return {
-    where: {
-      [Op.or]: whereClauses,
-    },
-    include: isNotePage
-      ? includeFromNotePage
-      : [{ association: 'notePage', include: includeFromNotePage }],
-  };
+  return filter;
 }
 
 export function buildNotePageLinkedSyncFilter(patientIds, sessionConfig) {

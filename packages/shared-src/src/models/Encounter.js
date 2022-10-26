@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { endOfDay, isBefore, parseISO, startOfToday } from 'date-fns';
+import config from 'config';
 
 import {
   ENCOUNTER_TYPES,
@@ -11,7 +12,6 @@ import { InvalidOperationError } from 'shared/errors';
 import { dateTimeType } from './dateTimeTypes';
 
 import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 
 export class Encounter extends Model {
   static init({ primaryKey, hackToSkipEncounterValidation, ...options }) {
@@ -190,7 +190,48 @@ export class Encounter extends Model {
   }
 
   static buildSyncFilter(patientIds, sessionConfig) {
-    return buildEncounterLinkedSyncFilter(this, patientIds, sessionConfig, []);
+    const whereOrs = [];
+
+    if (patientIds.length > 0) {
+      whereOrs.push(`
+        patient_id IN ($patientIds)
+      `);
+    }
+
+    // add any encounters with a lab request, if syncing all labs is turned on for facility
+    if (sessionConfig.syncAllLabRequests) {
+      whereOrs.push(`
+        id IN (
+              SELECT DISTINCT(encounter_id)
+              FROM lab_requests
+             )
+      `);
+    }
+
+    // add any encounters with a vaccine in the list of scheduled vaccines that sync everywhere
+    const vaccinesToSync = config.sync.syncAllEncountersForTheseVaccines;
+    if (vaccinesToSync?.length > 0) {
+      const escapedVaccineIds = vaccinesToSync.map(id => this.sequelize.escape(id)).join(',');
+      whereOrs.push(`
+        id IN (
+          SELECT DISTINCT(encounter_id)
+          FROM administered_vaccines
+          JOIN scheduled_vaccines
+          ON administered_vaccines.id = scheduled_vaccines.id
+          WHERE administered_vaccines.deleted_at IS NULL
+          AND scheduled_vaccines.vaccine_id IN (${escapedVaccineIds})
+        )
+      `);
+    }
+
+    if (whereOrs.length === 0) {
+      return null;
+    }
+
+    return `
+      WHERE
+      ${whereOrs.join('\nOR')}
+    `;
   }
 
   static checkNeedsAutoDischarge({ encounterType, startDate, endDate }) {

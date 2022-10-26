@@ -1,7 +1,6 @@
-import { Sequelize, Op } from 'sequelize';
+import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
-import { buildPatientLinkedSyncFilter } from './buildPatientLinkedSyncFilter';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 export class DocumentMetadata extends Model {
   static init({ primaryKey, ...options }) {
@@ -56,15 +55,14 @@ export class DocumentMetadata extends Model {
     });
   }
 
-  static buildSyncFilter(patientIds, sessionConfig) {
+  static buildSyncFilter(patientIds) {
     if (patientIds.length === 0) {
       return null;
     }
-    const patientFilter = buildPatientLinkedSyncFilter(patientIds);
-    const encounterFilter = buildEncounterLinkedSyncFilter(this, patientIds, sessionConfig);
-    return {
-      where: { [Op.or]: [patientFilter.where, encounterFilter.where] },
-      include: encounterFilter.include,
-    };
+    const encounterFilter = buildEncounterLinkedSyncFilter([this.tableName, 'encounters']);
+    return `
+      ${encounterFilter}
+      OR ${this.tableName}.patient_id IN ($patientIds)
+    `;
   }
 }

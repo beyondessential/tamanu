@@ -1,12 +1,22 @@
 import config from 'config';
 import { Op } from 'sequelize';
 import { log } from 'shared/services/logging/log';
-import { sanitizeRecord, SYNC_SESSION_DIRECTION } from 'shared/sync';
+import { COLUMNS_EXCLUDED_FROM_SYNC, SYNC_SESSION_DIRECTION } from 'shared/sync';
 
 const { readOnly } = config.sync;
 
+const sanitizeRecord = record =>
+  Object.fromEntries(
+    Object.entries(record)
+      // don't sync metadata columns like updatedAt
+      .filter(([c]) => !COLUMNS_EXCLUDED_FROM_SYNC.includes(c)),
+  );
+
 const snapshotChangesForModel = async (model, sessionId, since) => {
-  const recordsChanged = await model.findAll({ where: { updatedAtSyncTick: { [Op.gt]: since } } });
+  const recordsChanged = await model.findAll({
+    where: { updatedAtSyncTick: { [Op.gt]: since } },
+    raw: true,
+  });
 
   log.debug(
     `snapshotChangesForModel: Found ${recordsChanged.length} for model ${model.tableName} since ${since}`,
@@ -18,7 +28,7 @@ const snapshotChangesForModel = async (model, sessionId, since) => {
     isDeleted: !!r.deletedAt,
     recordType: model.tableName,
     recordId: r.id,
-    data: sanitizeRecord(model, r),
+    data: sanitizeRecord(r),
   }));
 };
 

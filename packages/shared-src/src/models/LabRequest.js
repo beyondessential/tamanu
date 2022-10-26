@@ -129,9 +129,12 @@ export class LabRequest extends Model {
 
   static buildSyncFilter(patientIds, sessionConfig) {
     if (sessionConfig.syncAllLabRequests) {
-      return {}; // include all lab requests
+      return ''; // include all lab requests
     }
-    return buildEncounterLinkedSyncFilter(this, patientIds, sessionConfig);
+    if (patientIds.length === 0) {
+      return null;
+    }
+    return buildEncounterLinkedSyncFilter([this.tableName, 'encounters']);
   }
 
   getTests() {

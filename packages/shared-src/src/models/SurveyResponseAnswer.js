@@ -1,8 +1,12 @@
 import config from 'config';
 import { upperFirst } from 'lodash';
-import { DataTypes, Op } from 'sequelize';
+import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
-import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
+import {
+  buildEncounterLinkedSyncFilter,
+  buildEncounterLinkedSyncFilterJoins,
+  buildEncounterLinkedSyncFilterWhere,
+} from './buildEncounterLinkedSyncFilter';
 import { Model } from './Model';
 
 export class SurveyResponseAnswer extends Model {
@@ -29,29 +33,31 @@ export class SurveyResponseAnswer extends Model {
   }
 
   static buildSyncFilter(patientIds, sessionConfig) {
-    const baseFilter = buildEncounterLinkedSyncFilter(this, patientIds, sessionConfig, [
-      'surveyResponse',
-      'encounter',
-    ]);
-    if (baseFilter === null) {
+    if (patientIds.length === 0) {
       return null;
     }
+
+    // manually construct "joins", as survey_response join uses a non-conventional join column
+    const joins = `
+      JOIN survey_responses ON survey_response_answers.response_id = survey_responses.id
+      JOIN encounters ON survey_responses.encounter_id = encounters.id
+    `;
+    const where = buildEncounterLinkedSyncFilterWhere();
+
+    // remove answers to sensitive surveys from mobile
     if (sessionConfig.isMobile) {
-      // remove answers to sensitive surveys from mobile
-      const where = {
-        [Op.and]: [baseFilter.where, { '$surveyResponse.survey.is_sensitive$': false }],
-      };
-
-      // manually create include, silly amounts of complication to inject "survey" into the include
-      // from baseFilter
-      const include = [{ association: 'surveyResponse', include: ['encounter', 'survey'] }];
-
-      return {
-        where,
-        include,
-      };
+      return `
+        ${joins}
+        JOIN surveys ON survey_responses.survey_id = surveys.id
+        ${where}
+        AND survey.is_sensitive = FALSE
+      `;
     }
-    return baseFilter;
+
+    return `
+      ${joins}
+      ${where}
+    `;
   }
 
   static getDefaultId = async resource => {

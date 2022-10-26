@@ -64,11 +64,11 @@ export class LabTest extends Model {
 
   static buildSyncFilter(patientIds, sessionConfig) {
     if (sessionConfig.syncAllLabRequests) {
-      return {}; // include all lab tests
+      return ''; // include all lab tests
     }
-    return buildEncounterLinkedSyncFilter(this, patientIds, sessionConfig, [
-      'labRequest',
-      'encounter',
-    ]);
+    if (patientIds.length === 0) {
+      return null;
+    }
+    return buildEncounterLinkedSyncFilter(['lab_tests', 'lab_requests', 'encounters']);
   }
 }

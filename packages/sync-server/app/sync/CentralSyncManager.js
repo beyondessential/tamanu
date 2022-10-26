@@ -125,11 +125,11 @@ export class CentralSyncManager {
         // full changes
         await snapshotOutgoingChanges(
           getPatientLinkedModels(modelsToInclude),
-          models,
           0,
           patientIdsForFullSync,
           sessionId,
-          { ...facilitySettings, facilityId, isMobile },
+          facilityId,
+          { ...facilitySettings, isMobile },
         );
 
         // get changes since the last successful sync for all other synced patients and independent
@@ -144,11 +144,11 @@ export class CentralSyncManager {
         // regular changes
         await snapshotOutgoingChanges(
           getModelsForDirection(modelsToInclude, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
-          models,
           since,
           patientIdsForRegularSync,
           sessionId,
-          { ...facilitySettings, facilityId, isMobile },
+          facilityId,
+          { ...facilitySettings, isMobile },
         );
 
         // delete any outgoing changes that were just pushed in during the same session
