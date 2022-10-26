@@ -190,21 +190,27 @@ export class Encounter extends Model {
   }
 
   static buildSyncFilter(patientIds, sessionConfig) {
-    const whereOrs = [];
+    const { syncAllLabRequests, isMobile } = sessionConfig;
+    const joins = [];
+    const wheres = [];
 
     if (patientIds.length > 0) {
-      whereOrs.push(`
-        patient_id IN ($patientIds)
-      `);
+      wheres.push('patient_id IN ($patientIds)');
     }
 
-    // add any encounters with a lab request, if syncing all labs is turned on for facility
-    if (sessionConfig.syncAllLabRequests) {
-      whereOrs.push(`
-        id IN (
-              SELECT DISTINCT(encounter_id)
-              FROM lab_requests
-             )
+    // add any encounters with a lab request, if syncing all labs is turned on for facility server
+    if (syncAllLabRequests && !isMobile) {
+      joins.push(`
+        JOIN LATERAL (
+          SELECT lab_requests.id, encounters.id AS encounter_id
+          FROM lab_requests
+          WHERE lab_requests.encounter_id = encounters.id
+          LIMIT 1
+        ) AS lr ON lr.encounter_id = encounters.id
+      `);
+
+      wheres.push(`
+        lr.id IS NOT NULL
       `);
     }
 
@@ -212,25 +218,30 @@ export class Encounter extends Model {
     const vaccinesToSync = config.sync.syncAllEncountersForTheseVaccines;
     if (vaccinesToSync?.length > 0) {
       const escapedVaccineIds = vaccinesToSync.map(id => this.sequelize.escape(id)).join(',');
-      whereOrs.push(`
-        id IN (
-          SELECT DISTINCT(encounter_id)
+      joins.push(`
+        JOIN LATERAL (
+          SELECT administered_vaccines.id, encounters.id AS encounter_id
           FROM administered_vaccines
           JOIN scheduled_vaccines
           ON administered_vaccines.id = scheduled_vaccines.id
-          WHERE administered_vaccines.deleted_at IS NULL
+          WHERE administered_vaccines.encounter_id = encounters.id
           AND scheduled_vaccines.vaccine_id IN (${escapedVaccineIds})
-        )
+          LIMIT 1
+        ) AS av ON av.encounter_id = encounters.id
+      `);
+      wheres.push(`
+        av.id IS NOT NULL
       `);
     }
 
-    if (whereOrs.length === 0) {
+    if (wheres.length === 0) {
       return null;
     }
 
     return `
+      ${joins.join('\n')}
       WHERE
-      ${whereOrs.join('\nOR')}
+      ${wheres.join('\nOR')}
     `;
   }
 
