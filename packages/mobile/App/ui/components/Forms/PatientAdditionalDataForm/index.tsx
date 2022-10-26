@@ -42,6 +42,8 @@ export const PatientAdditionalDataForm = ({
         <FormScreenView scrollViewRef={scrollViewRef}>
           <FormSectionHeading text={sectionTitle} />
           <PatientAdditionalDataFields
+            patientId={patientId}
+            registrationId={additionalData.telegramChatId}
             handleSubmit={handleSubmit}
             isSubmitting={isSubmitting}
             fields={fields}

@@ -34,6 +34,7 @@ import {
   SuggesterSelectField,
   TimeField,
 } from '../components';
+import { QRCodeDisplay } from '../components/QRCodeDisplay';
 
 const StyledHeading = styled.div`
   font-weight: 500;
@@ -87,7 +88,13 @@ export const PrimaryDetailsGroup = () => {
   );
 };
 
-export const SecondaryDetailsGroup = ({ patientRegistryType, values = {}, isEdit = false }) => {
+export const SecondaryDetailsGroup = ({
+  patientRegistryType,
+  values = {},
+  isEdit = false,
+  patientId,
+  registrationId,
+}) => {
   const { getLocalisation } = useLocalisation();
   const canEditDisplayId = isEdit && getLocalisation('features.editDisplayId');
   const countrySuggester = useSuggester('country');
@@ -265,6 +272,8 @@ export const SecondaryDetailsGroup = ({ patientRegistryType, values = {}, isEdit
           suggester={nursingZoneSuggester}
         />
         <LocalisedField name="streetVillage" component={TextField} />
+        {/** Hack this in */}
+        <QRCodeDisplay patientId={patientId} registrationId={registrationId} />
       </StyledFormGrid>
     </StyledSecondaryDetailsGroup>
   );
@@ -340,6 +349,8 @@ export const PatientDetailsForm = ({ patient, additionalData, birthData, onSubmi
             <SecondaryDetailsGroup
               patientRegistryType={patientRegistryType}
               values={values}
+              patientId={patient.id}
+              registrationId={additionalData.telegramChatId}
               isEdit
             />
           </StyledPatientDetailSecondaryDetailsGroupWrapper>
