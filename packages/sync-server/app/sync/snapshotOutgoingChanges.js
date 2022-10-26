@@ -58,11 +58,13 @@ const snapshotChangesForModel = async (
         )
       FROM
         ${table}
-      ${filter};
+      ${filter}
+      ${filter.length > 0 ? 'AND' : 'WHERE'} ${table}.updated_at_sync_tick > $since;
     `,
     {
       bind: {
         sessionId,
+        since,
         // include bind params used in some model specific sync filters
         patientIds,
         facilityId,
