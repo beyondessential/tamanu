@@ -13,7 +13,11 @@ import { RadioField } from '../components';
 import { IdBanner } from '../components/IdBanner';
 import { Colors, PATIENT_REGISTRY_OPTIONS } from '../constants';
 import { getPatientDetailsValidation } from '../validations';
-import { PrimaryDetailsGroup, SecondaryDetailsGroup, PatientFieldsGroup } from './PatientDetailsForm';
+import {
+  PrimaryDetailsGroup,
+  SecondaryDetailsGroup,
+  PatientFieldsGroup,
+} from './PatientDetailsForm';
 import { useSexValues } from '../hooks';
 import { useApi } from '../api';
 import { LoadingIndicator } from '../components/LoadingIndicator';
@@ -71,11 +75,9 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
     PATIENT_REGISTRY_TYPES.NEW_PATIENT,
   );
   const api = useApi();
-  const {
-    data: { data: fieldDefinitions },
-    error,
-    isLoading,
-  } = useQuery(['patientFieldDefinition'], () => api.get(`patientFieldDefinition`));
+  const { data: fieldDefinitions, error, isLoading } = useQuery(['patientFieldDefinition'], () =>
+    api.get(`patientFieldDefinition`),
+  );
   const sexValues = useSexValues();
 
   if (error) {
@@ -132,7 +134,7 @@ export const NewPatientForm = memo(({ editedObject, onSubmit, onCancel, generate
           {isLoading ? (
             <LoadingIndicator />
           ) : (
-            <PatientFieldsGroup fieldDefinitions={fieldDefinitions} />
+            <PatientFieldsGroup fieldDefinitions={fieldDefinitions?.data} />
           )}
         </Collapse>
         <ModalActionRow confirmText="Confirm" onConfirm={submitForm} onCancel={onCancel} />
