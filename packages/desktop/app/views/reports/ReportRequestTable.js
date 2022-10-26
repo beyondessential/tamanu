@@ -77,6 +77,7 @@ const useColumns = () => {
   ];
 };
 
+const sortByCreatedAtDescending = { order: 'desc', orderBy: 'createdAt' };
 export const ReportRequestTable = React.memo(() => {
   const columns = useColumns();
 
@@ -85,6 +86,7 @@ export const ReportRequestTable = React.memo(() => {
       endpoint="reportRequest"
       columns={columns}
       noDataMessage="No report requests found"
+      initialSort={sortByCreatedAtDescending}
     />
   );
 });
