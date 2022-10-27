@@ -412,11 +412,17 @@ export class Encounter extends Model {
         );
       }
 
-      if (
-        data.plannedLocationId &&
-        data.plannedLocationId !== this.plannedLocationId &&
-        data.plannedLocationId !== this.locationId
-      ) {
+      if (data.plannedLocationId === null) {
+        additionalChanges.plannedLocationStartTime = null;
+      }
+
+      if (data.plannedLocationId && data.plannedLocationId !== this.plannedLocationId) {
+        if (data.plannedLocationId === this.locationId) {
+          throw new InvalidOperationError(
+            'Planned location cannot be the same as current location',
+          );
+        }
+
         const oldPlannedLocation = await Location.findOne({
           where: { id: this.plannedLocationId },
         });
