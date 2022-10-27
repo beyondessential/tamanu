@@ -27,6 +27,7 @@ import {
   department,
 } from './columns';
 import { useAuth } from '../../contexts/Auth';
+import { RecentPatientSection } from './components/RecentPatientSection';
 
 const PATIENT_SEARCH_ENDPOINT = 'patient';
 
@@ -125,6 +126,9 @@ export const PatientListingView = ({ onViewPatient }) => {
       <TopBar title="Patient listing">
         <NewPatientButton onCreateNewPatient={onViewPatient} />
       </TopBar>
+      <ContentPane>
+        <RecentPatientSection />
+      </ContentPane>
       <AllPatientsSearchBar onSearch={setSearchParameters} />
       <ContentPane>
         <PatientTable
