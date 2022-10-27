@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
 
-import { LAB_REQUEST_STATUSES, NOTE_TYPES } from 'shared/constants';
+import { LAB_REQUEST_STATUSES } from 'shared/constants';
 import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
@@ -55,7 +55,9 @@ export class LabRequest extends Model {
         throw new InvalidOperationError('A request must have at least one test');
       }
 
-      const base = await this.create(data);
+      const { date, ...requestData } = data;
+
+      const base = await this.create(requestData);
 
       // then create tests
       const { LabTest } = this.sequelize.models;
@@ -65,18 +67,12 @@ export class LabRequest extends Model {
           LabTest.create({
             labTestTypeId: t,
             labRequestId: base.id,
+            date,
           }),
         ),
       );
 
       return base;
-    });
-  }
-
-  async addLabNote(content) {
-    await this.createNote({
-      noteType: NOTE_TYPES.OTHER,
-      content,
     });
   }
 
@@ -116,9 +112,9 @@ export class LabRequest extends Model {
       as: 'certificate_notification',
     });
 
-    this.hasMany(models.Note, {
+    this.hasMany(models.NotePage, {
       foreignKey: 'recordId',
-      as: 'notes',
+      as: 'notePages',
       constraints: false,
       scope: {
         recordType: this.name,

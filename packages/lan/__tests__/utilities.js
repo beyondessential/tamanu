@@ -3,6 +3,7 @@ import Chance from 'chance';
 import http from 'http';
 
 import { seedDepartments, seedFacilities, seedLocations, seedLabTests } from 'shared/demoData';
+import { showError } from 'shared/test-helpers';
 
 import { createApp } from 'lan/app/createApp';
 import { initDatabase, closeDatabase } from 'lan/app/database';
@@ -100,14 +101,9 @@ export async function createTestContext() {
   // do NOT time out during create context
   jest.setTimeout(1000 * 60 * 60 * 24);
 
-  // sync does not interpret and create custom types
-  await sequelize.query(`CREATE DOMAIN date_time_string as CHAR(19)`);
-  await sequelize.query(`CREATE DOMAIN date_string as CHAR(10)`);
+  await sequelize.migrate('up');
 
-  // sync db and remove old test dat
-  await sequelize.sync({});
-
-  await deleteAllTestIds(dbResult);
+  await showError(deleteAllTestIds(dbResult));
 
   // populate with reference data
   const tasks = allSeeds

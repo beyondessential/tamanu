@@ -15,7 +15,7 @@ const Row = styled.div`
 
   > button,
   > div {
-    margin-left: 16px;
+    margin-left: 20px;
   }
 `;
 

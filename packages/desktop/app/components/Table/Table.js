@@ -16,7 +16,7 @@ import {
   TableFooter,
   TablePagination,
 } from '@material-ui/core';
-import { Paper, PaperStyles } from '../Paper';
+import { PaperStyles } from '../Paper';
 import { DownloadDataButton } from './DownloadDataButton';
 import { useLocalisation } from '../../contexts/Localisation';
 import { ErrorBoundary } from '../ErrorBoundary';
@@ -163,15 +163,16 @@ const ErrorSpan = styled.span`
   color: #ff0000;
 `;
 
-const DisplayValue = React.memo(({ maxWidth, displayValue }) =>
-  maxWidth ? (
-    <StyledTableCellContent title={displayValue} maxWidth={maxWidth}>
+const DisplayValue = React.memo(({ maxWidth, displayValue }) => {
+  const title = typeof displayValue === 'string' ? displayValue : null;
+  return maxWidth ? (
+    <StyledTableCellContent title={title} maxWidth={maxWidth}>
       {displayValue}
     </StyledTableCellContent>
   ) : (
     displayValue
-  ),
-);
+  );
+});
 
 const ErrorRow = React.memo(({ colSpan, children }) => (
   <RowContainer>

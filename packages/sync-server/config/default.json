@@ -160,6 +160,11 @@
     "duplicateAdditionalDataDeleter": {
       "enabled": true,
       "schedule": "*/15 * * * *"
+    },
+    "fhirMaterialiser": {
+      "enabled": true, // only when integrations.fhir is on
+      "schedule": "*/1 * * * *",
+      "limit": 100
     }
   },
   "integrations": {
@@ -575,6 +580,7 @@
         }
       },
       // The time zone setting is currently only used for Vaccine Certificates
+      // Todo: remove this timeZone once all date fields have been migrated to date_time_strings
       "timeZone": null,
       "triageCategories": [
         { "level": 1, "label": "Emergency", "color": "#F76853" },
@@ -609,7 +615,9 @@
   "hl7": {
     "nullLastNameValue": "NoLastName",
     "assigners": {
-      "patientDisplayId": "Tamanu"
+      "patientDisplayId": "Tamanu",
+      "patientDrivingLicense": "RTA",
+      "patientPassport": "Fiji Passport Office"
     },
     "dataDictionaries": {
       "testMethod": "http://tamanu.io/data-dictionary/covid-test-methods",
@@ -652,5 +660,8 @@
     // DESTROY sets deleted_at to a timestamp
     // NONE is a no-op and does nothing
     "deletionAction": "RENAME"
-  }
+  },
+  // this should be an IANA tzdata timezone
+  // @see here for a list of available options https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  "countryTimeZone": null
 }

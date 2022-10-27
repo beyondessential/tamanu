@@ -1,5 +1,4 @@
 import { Sequelize } from 'sequelize';
-import config from 'config';
 import { chunk } from 'lodash';
 
 import { Model } from './Model';
@@ -36,37 +35,23 @@ export class ChannelSyncPullCursor extends Model {
   static async getCursors(channels) {
     let cursors = [];
     for (const channelBatch of chunk(channels, CURSOR_BATCH_SIZE)) {
-      let cursorBatch;
-      if (config.db.sqlitePath) {
-        // TODO: slow and inefficient, remove when we drop sqlite support
-        cursorBatch = await Promise.all(
-          channelBatch.map(async channel => {
-            const maybeCursor = await this.findOne({
-              where: { channel },
-            });
-            const cursor = maybeCursor?.pullCursor || '0';
-            return { channel, cursor };
-          }),
-        );
-      } else {
-        cursorBatch = await this.sequelize.query(
-          `
-          SELECT
-            text_channel AS channel,
-            CASE
-              WHEN channel_sync_pull_cursors.pull_cursor IS NULL THEN '0'
-              ELSE channel_sync_pull_cursors.pull_cursor
-            END AS cursor
-          FROM unnest(ARRAY[:channelBatch]::text[]) AS text_channel
-          LEFT OUTER JOIN channel_sync_pull_cursors ON channel_sync_pull_cursors.channel = text_channel
-          `,
-          {
-            replacements: { channelBatch },
-            raw: true,
-            type: Sequelize.QueryTypes.SELECT,
-          },
-        );
-      }
+      const cursorBatch = await this.sequelize.query(
+        `
+        SELECT
+          text_channel AS channel,
+          CASE
+            WHEN channel_sync_pull_cursors.pull_cursor IS NULL THEN '0'
+            ELSE channel_sync_pull_cursors.pull_cursor
+          END AS cursor
+        FROM unnest(ARRAY[:channelBatch]::text[]) AS text_channel
+        LEFT OUTER JOIN channel_sync_pull_cursors ON channel_sync_pull_cursors.channel = text_channel
+        `,
+        {
+          replacements: { channelBatch },
+          raw: true,
+          type: Sequelize.QueryTypes.SELECT,
+        },
+      );
       cursors = [...cursors, ...cursorBatch];
     }
     return cursors;

@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { Model } from './Model';
+import { dateTimeType } from './dateTimeTypes';
 
 export class Procedure extends Model {
   static init({ primaryKey, ...options }) {
@@ -10,9 +11,9 @@ export class Procedure extends Model {
           type: Sequelize.BOOLEAN,
           defaultValue: false,
         },
-        date: { type: Sequelize.DATE, allowNull: false },
-        endTime: { type: Sequelize.DATE, allowNull: true },
-        startTime: { type: Sequelize.STRING, allowNull: true },
+        date: dateTimeType('date', { allowNull: false }),
+        endTime: dateTimeType('endTime'),
+        startTime: dateTimeType('startTime'),
         note: Sequelize.STRING,
         completedNote: Sequelize.STRING,
       },

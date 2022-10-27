@@ -3,9 +3,10 @@ import {
   createDummyEncounter,
   createDummyEncounterMedication,
 } from 'shared/demoData/patients';
-import moment from 'moment';
-import { createTestContext } from '../utilities';
+import { toDateTimeString, getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { subWeeks } from 'date-fns';
 import { uploadAttachment } from '../../app/utils/uploadAttachment';
+import { createTestContext } from '../utilities';
 
 describe('Encounter', () => {
   let patient = null;
@@ -111,16 +112,16 @@ describe('Encounter', () => {
       patientId: patient.id,
     });
     await Promise.all([
-      models.Note.createForRecord(encounter, 'Encounter', 'Test 1'),
-      models.Note.createForRecord(encounter, 'Encounter', 'Test 2'),
-      models.Note.createForRecord(encounter, 'Encounter', 'Test 3'),
-      models.Note.createForRecord(otherEncounter, 'Encounter', 'Fail'),
+      models.NotePage.createForRecord(encounter.id, 'Encounter', 'treatmentPlan', 'Test 1'),
+      models.NotePage.createForRecord(encounter.id, 'Encounter', 'treatmentPlan', 'Test 2'),
+      models.NotePage.createForRecord(encounter.id, 'Encounter', 'treatmentPlan', 'Test 3'),
+      models.NotePage.createForRecord(otherEncounter.id, 'Encounter', 'treatmentPlan', 'Fail'),
     ]);
 
-    const result = await app.get(`/v1/encounter/${encounter.id}/notes`);
+    const result = await app.get(`/v1/encounter/${encounter.id}/notePages`);
     expect(result).toHaveSucceeded();
     expect(result.body.count).toEqual(3);
-    expect(result.body.data.every(x => x.content.match(/^Test \d$/))).toEqual(true);
+    expect(result.body.data.every(x => x.noteItems[0].content.match(/^Test \d$/))).toEqual(true);
   });
 
   test.todo('should get a list of procedures');
@@ -314,9 +315,10 @@ describe('Encounter', () => {
         });
         expect(result).toHaveSucceeded();
 
-        const notes = await v.getNotes();
+        const notePages = await v.getNotePages();
+        const noteItems = (await Promise.all(notePages.map(np => np.getNoteItems()))).flat();
         const check = x => x.content.includes('triage') && x.content.includes('admission');
-        expect(notes.some(check)).toEqual(true);
+        expect(noteItems.some(check)).toEqual(true);
       });
 
       it('should fail to change encounter type to an invalid type', async () => {
@@ -331,8 +333,8 @@ describe('Encounter', () => {
         });
         expect(result).toHaveRequestError();
 
-        const notes = await v.getNotes();
-        expect(notes).toHaveLength(0);
+        const notePages = await v.getNotePages();
+        expect(notePages).toHaveLength(0);
       });
 
       it('should change encounter department and add a note', async () => {
@@ -349,10 +351,11 @@ describe('Encounter', () => {
         });
         expect(result).toHaveSucceeded();
 
-        const notes = await v.getNotes();
+        const notePages = await v.getNotePages();
+        const noteItems = (await Promise.all(notePages.map(np => np.getNoteItems()))).flat();
         const check = x =>
           x.content.includes(departments[0].name) && x.content.includes(departments[1].name);
-        expect(notes.some(check)).toEqual(true);
+        expect(noteItems.some(check)).toEqual(true);
       });
 
       it('should change encounter location and add a note', async () => {
@@ -369,23 +372,22 @@ describe('Encounter', () => {
         });
         expect(result).toHaveSucceeded();
 
-        const notes = await v.getNotes();
+        const notePages = await v.getNotePages();
+        const noteItems = (await Promise.all(notePages.map(np => np.getNoteItems()))).flat();
         const check = x =>
           x.content.includes(fromLocation.name) && x.content.includes(toLocation.name);
-        expect(notes.some(check)).toEqual(true);
+        expect(noteItems.some(check)).toEqual(true);
       });
 
       it('should discharge a patient', async () => {
         const v = await models.Encounter.create({
           ...(await createDummyEncounter(models)),
           patientId: patient.id,
-          startDate: moment()
-            .subtract(4, 'weeks')
-            .toDate(),
+          startDate: toDateTimeString(subWeeks(new Date(), 4)),
           endDate: null,
           reasonForEncounter: 'before',
         });
-        const endDate = new Date();
+        const endDate = getCurrentDateTimeString();
 
         const result = await app.put(`/v1/encounter/${v.id}`).send({
           endDate,
@@ -409,9 +411,10 @@ describe('Encounter', () => {
           dischargerId: app.user.id,
         });
 
-        const notes = await v.getNotes();
+        const notePages = await v.getNotePages();
+        const noteItems = (await Promise.all(notePages.map(np => np.getNoteItems()))).flat();
         const check = x => x.content.includes('Discharged');
-        expect(notes.some(check)).toEqual(true);
+        expect(noteItems.some(check)).toEqual(true);
       });
 
       it('should only update medications marked for discharge', async () => {
@@ -504,8 +507,8 @@ describe('Encounter', () => {
         expect(updatedEncounter).toHaveProperty('encounterType', 'clinic');
         expect(updatedEncounter).toHaveProperty('locationId', fromLocation.id);
 
-        const notes = await v.getNotes();
-        expect(notes).toHaveLength(0);
+        const notePages = await v.getNotePages();
+        expect(notePages).toHaveLength(0);
       });
 
       test.todo('should not admit a patient who is already in an encounter');

@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import * as yup from 'yup';
 import { Typography } from '@material-ui/core';
 import styled from 'styled-components';
-import moment from 'moment';
 import MuiBox from '@material-ui/core/Box';
 import { MANNER_OF_DEATHS, MANNER_OF_DEATH_OPTIONS } from 'shared/constants';
+import { ageInMonths, ageInYears } from 'shared/utils/dateTime';
 import {
   ArrayField,
   Button,
@@ -159,11 +159,8 @@ export const DeathForm = React.memo(
     icd10Suggester,
     facilitySuggester,
   }) => {
-    const patientYearsOld = moment().diff(patient.dateOfBirth, 'years');
-    const isAdultFemale = patient.sex === 'female' && patientYearsOld >= 12;
-
-    const patientMonthsOld = moment().diff(patient.dateOfBirth, 'months');
-    const isInfant = patientMonthsOld <= 2;
+    const canBePregnant = patient.sex === 'female' && ageInYears(patient.dateOfBirth) >= 12;
+    const isInfant = ageInMonths(patient.dateOfBirth) <= 2;
 
     return (
       <PaginatedForm
@@ -305,7 +302,7 @@ export const DeathForm = React.memo(
             visibilityCriteria={{ surgeryInLast4Weeks: 'yes' }}
           />
         </StyledFormGrid>
-        {isAdultFemale ? (
+        {canBePregnant ? (
           <StyledFormGrid columns={1}>
             <Field
               name="pregnant"

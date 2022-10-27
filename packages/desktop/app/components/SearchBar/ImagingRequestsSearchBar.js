@@ -9,7 +9,7 @@ const URGENCY_OPTIONS = [
   { label: 'Non-urgent', value: 'non-urgent' },
 ];
 
-export const ImagingRequestsSearchBar = ({ setSearchParameters }) => {
+export const ImagingRequestsSearchBar = ({ searchParameters, setSearchParameters }) => {
   const { getLocalisation } = useLocalisation();
   const imagingTypes = getLocalisation('imagingTypes') || {};
 
@@ -22,7 +22,7 @@ export const ImagingRequestsSearchBar = ({ setSearchParameters }) => {
     <CustomisableSearchBar
       title="Search imaging requests"
       onSearch={setSearchParameters}
-      initialValues={{ displayIdExact: true }}
+      initialValues={{ displayIdExact: true, ...searchParameters }}
     >
       <LocalisedField name="firstName" />
       <LocalisedField name="lastName" />
@@ -49,9 +49,15 @@ export const ImagingRequestsSearchBar = ({ setSearchParameters }) => {
       <LocalisedField
         name="requestedDateFrom"
         defaultLabel="Requested from"
+        saveDateAsString
         component={DateField}
       />
-      <LocalisedField name="requestedDateTo" defaultLabel="Requested to" component={DateField} />
+      <LocalisedField
+        name="requestedDateTo"
+        defaultLabel="Requested to"
+        saveDateAsString
+        component={DateField}
+      />
     </CustomisableSearchBar>
   );
 };

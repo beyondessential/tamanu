@@ -2,7 +2,7 @@ import React, { ReactElement, useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { theme } from '/styled/theme';
-import { formatDate } from '/helpers/date';
+import { formatStringDate } from '/helpers/date';
 import { StyledView, StyledText, FullView } from '/styled/common';
 import { SurveyResultBadge } from '/components/SurveyResultBadge';
 import { ArrowForwardIcon } from '/components/Icons';
@@ -77,7 +77,7 @@ export const SurveyResponseLink = ({
                 fontSize={13}
                 fontWeight="bold"
               >
-                {formatDate(endTime, DateFormats.DATE_AND_TIME)}
+                {formatStringDate(endTime, DateFormats.DATE_AND_TIME)}
               </StyledText>
               {isSensitive ? <SensitiveResponseLabel /> : null}
             </StyledView>

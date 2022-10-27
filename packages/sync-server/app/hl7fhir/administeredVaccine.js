@@ -1,5 +1,5 @@
-import { format } from 'date-fns';
 import { Op } from 'sequelize';
+import { format } from 'shared/utils/dateTime';
 
 import { VACCINE_STATUS, INJECTION_SITE_OPTIONS } from 'shared/constants';
 import { parseHL7Reference } from './utils';
