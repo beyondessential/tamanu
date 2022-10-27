@@ -33,7 +33,6 @@ patientFieldDefinition.get(
     res.send({
       count: values.length,
       data: values,
-      editable: req.ability.can('create', 'Patient', ''),
     });
   }),
 );
