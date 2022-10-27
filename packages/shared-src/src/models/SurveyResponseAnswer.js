@@ -2,11 +2,6 @@ import config from 'config';
 import { upperFirst } from 'lodash';
 import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
-import {
-  buildEncounterLinkedSyncFilter,
-  buildEncounterLinkedSyncFilterJoins,
-  buildEncounterLinkedSyncFilterWhere,
-} from './buildEncounterLinkedSyncFilter';
 import { Model } from './Model';
 
 export class SurveyResponseAnswer extends Model {
@@ -42,21 +37,23 @@ export class SurveyResponseAnswer extends Model {
       JOIN survey_responses ON survey_response_answers.response_id = survey_responses.id
       JOIN encounters ON survey_responses.encounter_id = encounters.id
     `;
-    const where = buildEncounterLinkedSyncFilterWhere();
 
     // remove answers to sensitive surveys from mobile
     if (sessionConfig.isMobile) {
       return `
         ${joins}
         JOIN surveys ON survey_responses.survey_id = surveys.id
-        ${where}
-        AND survey.is_sensitive = FALSE
+        WHERE (
+          encounters.patient_id in ($patientIds)
+          AND
+          survey.is_sensitive = FALSE
+        )
       `;
     }
 
     return `
       ${joins}
-      ${where}
+      WHERE encounters.patient_id in ($patientIds)
     `;
   }
 

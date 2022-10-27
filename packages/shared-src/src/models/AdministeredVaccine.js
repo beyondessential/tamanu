@@ -78,10 +78,10 @@ export class AdministeredVaccine extends Model {
   }
 
   static buildSyncFilter(patientIds) {
-    const whereOrs = [];
+    const wheres = [];
 
     if (patientIds.length > 0) {
-      whereOrs.push(`
+      wheres.push(`
         encounters.patient_id IN ($patientIds)
       `);
     }
@@ -90,7 +90,7 @@ export class AdministeredVaccine extends Model {
     const vaccinesToSync = config.sync.syncAllEncountersForTheseVaccines;
     if (vaccinesToSync?.length > 0) {
       const escapedVaccineIds = vaccinesToSync.map(id => this.sequelize.escape(id)).join(',');
-      whereOrs.push(`
+      wheres.push(`
         scheduled_vaccine_id IN (
           SELECT DISTINCT(scheduled_vaccines.id)
           FROM scheduled_vaccines
@@ -99,14 +99,15 @@ export class AdministeredVaccine extends Model {
       `);
     }
 
-    if (whereOrs.length === 0) {
+    if (wheres.length === 0) {
       return null;
     }
 
     return `
       JOIN encounters ON administered_vaccines.encounter_id = encounters.id
-      WHERE
-      ${whereOrs.join('\nOR')}
+      WHERE (
+        ${wheres.join('\nOR')}
+      )
     `;
   }
 

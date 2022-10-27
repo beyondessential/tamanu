@@ -240,8 +240,9 @@ export class Encounter extends Model {
 
     return `
       ${joins.join('\n')}
-      WHERE
-      ${wheres.join('\nOR')}
+      WHERE (
+        ${wheres.join('\nOR')}
+      )
     `;
   }
 
