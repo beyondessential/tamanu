@@ -1,31 +1,20 @@
 import config from 'config';
-import mailgun from 'mailgun-js';
+import formData from 'form-data';
+import Mailgun from 'mailgun.js';
+import fs from 'fs';
+import { basename } from 'path';
 import { COMMUNICATION_STATUSES } from 'shared/constants';
 import { log } from 'shared/services/logging';
-import { createReadStream } from 'fs';
+
+const fsPromises = fs.promises;
+const mailgun = new Mailgun(formData);
 
 const { apiKey, domain } = config.mailgun;
 
-async function getReadStreamSafe(path) {
-  return new Promise((resolve, reject) => {
-    // Mailgun doesn't do any error handling internally, so we
-    // take charge of opening the attachment, and just pass the
-    // stream to mailgun instead of the path.
-
-    const readStream = createReadStream(path);
-
-    // Don't return the stream until it's actually successfully opened
-    readStream.on('open', () => resolve(readStream));
-
-    // Handle any errors with a reject (if this handler isn't assigned,
-    // node will panic and exit regardless of any try/catch wrappers!)
-    readStream.on('error', e => reject(e));
-  });
-}
-
 export class EmailService {
   constructor() {
-    this.mailgunService = apiKey && domain ? mailgun({ apiKey, domain }) : null;
+    this.mailgunService =
+      apiKey && domain ? mailgun({ usename: 'api', key: apiKey, url: domain }) : null;
   }
 
   async sendEmail({ attachment, ...email }) {
@@ -52,11 +41,11 @@ export class EmailService {
       };
     }
 
-    let attachmentStream;
+    let attachmentData;
     if (attachment) {
       try {
-        // pass mailgun a readable stream instead of the path
-        attachmentStream = await getReadStreamSafe(attachment);
+        // pass mailgun file data instead of the path
+        attachmentData = await fsPromises(attachment);
       } catch (e) {
         log.error('Could not read attachment for email', e);
         return {
@@ -67,9 +56,12 @@ export class EmailService {
     }
 
     try {
-      const emailResult = await this.mailgunService.messages().send({
+      const emailResult = await this.mailgunService.messages.create({
         ...email,
-        attachment: attachmentStream,
+        attachment: {
+          filename: basename(attachment),
+          data: attachmentData,
+        },
       });
       return { status: COMMUNICATION_STATUSES.SENT, result: emailResult };
     } catch (e) {
