@@ -92,16 +92,22 @@ export const snapshotOutgoingChanges = async (
   let changesCount = 0;
 
   for (const model of Object.values(outgoingModels)) {
-    const modelChangesCount = await snapshotChangesForModel(
-      model,
-      since,
-      patientIds,
-      sessionId,
-      facilityId,
-      sessionConfig,
-    );
+    try {
+      const modelChangesCount = await snapshotChangesForModel(
+        model,
+        since,
+        patientIds,
+        sessionId,
+        facilityId,
+        sessionConfig,
+      );
 
-    changesCount += modelChangesCount || 0;
+      changesCount += modelChangesCount || 0;
+    } catch (e) {
+      log.error(`Failed to snapshot ${model.name}: `);
+      log.debug(e);
+      throw new Error(`Failed to snapshot ${model.name}: ${e.message}`);
+    }
   }
 
   log.debug(
