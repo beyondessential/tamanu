@@ -214,9 +214,9 @@ export class Encounter extends Model {
       `);
     }
 
-    // add any encounters with a vaccine in the list of scheduled vaccines that sync everywhere
+    // for mobile, add any encounters with a vaccine in the list of scheduled vaccines that sync everywhere
     const vaccinesToSync = config.sync.syncAllEncountersForTheseVaccines;
-    if (vaccinesToSync?.length > 0) {
+    if (vaccinesToSync?.length > 0 && isMobile) {
       const escapedVaccineIds = vaccinesToSync.map(id => this.sequelize.escape(id)).join(',');
       joins.push(`
         JOIN LATERAL (
