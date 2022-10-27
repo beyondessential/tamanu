@@ -25,7 +25,7 @@ patientRoute.get(
   '/:id',
   asyncHandler(async (req, res) => {
     const {
-      models: { Patient },
+      models: { Patient, RecentPatients },
       params,
     } = req;
     req.checkPermission('read', 'Patient');
@@ -33,6 +33,9 @@ patientRoute.get(
       include: Patient.getFullReferenceAssociations(),
     });
     if (!patient) throw new NotFoundError();
+
+    const newRecord = await RecentPatients.create({ userId: req.user.id, patientId: patient.id });
+    console.log('newRecord', newRecord);
 
     res.send(dbRecordToResponse(patient));
   }),

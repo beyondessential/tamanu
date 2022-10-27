@@ -1,4 +1,3 @@
-import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
@@ -7,10 +6,6 @@ export class RecentPatients extends Model {
     super.init(
       {
         id: primaryKey,
-        name: {
-          type: Sequelize.STRING,
-          allowNull: false,
-        },
       },
       {
         ...options,
@@ -28,7 +23,13 @@ export class RecentPatients extends Model {
     });
   }
 
-  static getForUser(userId) {
-    return this.find({ where: { userId }, limit: 12, order: ['created_at', 'DESC'] });
+  static async getForUser(userId) {
+    const { models } = this.sequelize;
+    return this.findAll({
+      where: { userId },
+      limit: 12,
+      order: [['created_at', 'DESC']],
+      include: models.Patient,
+    });
   }
 }

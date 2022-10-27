@@ -10,6 +10,7 @@ export * from './PatientIssue';
 export * from './PatientAdditionalData';
 export * from './PatientVRSData';
 export * from './PatientSecondaryId';
+export * from './RecentPatients';
 
 export * from './PatientDeathData';
 export * from './PatientBirthData';

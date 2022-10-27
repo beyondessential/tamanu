@@ -4,7 +4,7 @@ import { constructPermission } from 'shared/permissions/middleware';
 import { loginHandler, authMiddleware } from '../../middleware/auth';
 
 import { user } from './user';
-import { patient, patientCarePlan, patientIssue } from './patient';
+import { patient, patientCarePlan, patientIssue, recentPatients } from './patient';
 import { encounter } from './encounter';
 import { vitals } from './vitals';
 import { procedure } from './procedure';
@@ -97,3 +97,5 @@ apiv1.use('/attachment', attachment);
 apiv1.use('/sync', sync);
 
 apiv1.use('/syncHealth', syncHealth);
+
+apiv1.use('/recentPatients', recentPatients);
