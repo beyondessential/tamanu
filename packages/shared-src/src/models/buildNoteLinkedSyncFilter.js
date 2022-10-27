@@ -38,21 +38,27 @@ function buildNoteLinkedSyncFilter(patientIds, sessionConfig, isNotePage) {
     `patients.id IN ($patientIds)`,
   ];
 
-  const filter = `
+  const join = `
     ${isNotePage ? '' : 'JOIN note_pages ON note_items.note_page_id = note_pages.id'}
     ${joins.join('\n')}
-    WHERE
-      ${whereOrs.join('\nOR ')}
-    `;
+  `;
 
   if (sessionConfig.syncAllLabRequests) {
     return `
-      ${filter}
-      OR note_pages.record_type = '${NOTE_RECORD_TYPES.LAB_REQUEST}'
+      ${join}
+      WHERE (
+        ${whereOrs.join('\nOR ')}
+        OR note_pages.record_type = '${NOTE_RECORD_TYPES.LAB_REQUEST}'
+      )
     `;
   }
 
-  return filter;
+  return `
+    ${join}
+    WHERE (
+      ${whereOrs.join('\nOR ')}
+    )
+  `;
 }
 
 export function buildNotePageLinkedSyncFilter(patientIds, sessionConfig) {
