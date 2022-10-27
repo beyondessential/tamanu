@@ -167,9 +167,14 @@ class BaseAutocomplete extends Component {
   };
 
   renderInputComponent = inputProps => {
-    const { label, required, className, ...other } = inputProps;
+    const { label, required, className, infoTooltip, ...other } = inputProps;
     return (
-      <OuterLabelFieldWrapper label={label} required={required} className={className}>
+      <OuterLabelFieldWrapper
+        label={label}
+        required={required}
+        className={className}
+        infoTooltip={infoTooltip}
+      >
         <StyledTextField
           variant="outlined"
           InputProps={{
@@ -193,6 +198,7 @@ class BaseAutocomplete extends Component {
       label,
       required,
       name,
+      infoTooltip,
       disabled,
       error,
       helperText,
@@ -217,6 +223,7 @@ class BaseAutocomplete extends Component {
           helperText,
           name,
           placeholder,
+          infoTooltip,
           value: displayedValue,
           onKeyDown: this.onKeyDown,
           onChange: this.handleInputChange,

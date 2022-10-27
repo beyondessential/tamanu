@@ -27,3 +27,4 @@ export * from './DOBFields';
 export * from './Form';
 export * from './FormGroup';
 export * from './PaginatedForm';
+export * from './OuterLabelFieldWrapper';
