@@ -223,7 +223,7 @@ export class Encounter extends Model {
           SELECT administered_vaccines.id, encounters.id AS encounter_id
           FROM administered_vaccines
           JOIN scheduled_vaccines
-          ON administered_vaccines.id = scheduled_vaccines.id
+          ON administered_vaccines.scheduled_vaccine_id = scheduled_vaccines.id
           WHERE administered_vaccines.encounter_id = encounters.id
           AND scheduled_vaccines.vaccine_id IN (${escapedVaccineIds})
           LIMIT 1

@@ -15,9 +15,7 @@ module.exports = {
   down: async query => {
     const syncingTables = await getAllTables(query.sequelize);
     for (const table of syncingTables) {
-      await query.removeIndex(table, 'vds_nc_signers', {
-        fields: ['updated_at_sync_tick'],
-      });
+      await query.removeIndex(table, ['updated_at_sync_tick']);
     }
   },
 };
