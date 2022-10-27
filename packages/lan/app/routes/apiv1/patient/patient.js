@@ -34,8 +34,7 @@ patientRoute.get(
     });
     if (!patient) throw new NotFoundError();
 
-    const newRecord = await RecentPatients.create({ userId: req.user.id, patientId: patient.id });
-    console.log('newRecord', newRecord);
+    await RecentPatients.create({ userId: req.user.id, patientId: patient.id });
 
     res.send(dbRecordToResponse(patient));
   }),
