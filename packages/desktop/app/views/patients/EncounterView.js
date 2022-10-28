@@ -123,6 +123,7 @@ const EncounterActionDropdown = ({ encounter }) => {
   };
   const isProgressionForward = (currentState, nextState) =>
     progression[nextState] > progression[currentState];
+  const enablePatientMoveActions = getLocalisation('features.patientPlannedMove');
 
   const actions = [
     {
@@ -142,17 +143,17 @@ const EncounterActionDropdown = ({ encounter }) => {
     },
     {
       label: 'Plan location change',
-      condition: () => getLocalisation('features.patientPlannedMove') && !encounter.plannedLocation,
+      condition: () => enablePatientMoveActions && !encounter.plannedLocation,
       onClick: onBeginLocationChange,
     },
     {
       label: 'Finalise location change',
-      condition: () => getLocalisation('features.patientPlannedMove') && encounter.plannedLocation,
+      condition: () => enablePatientMoveActions && encounter.plannedLocation,
       onClick: onFinaliseLocationChange,
     },
     {
       label: 'Cancel location change',
-      condition: () => getLocalisation('features.patientPlannedMove') && encounter.plannedLocation,
+      condition: () => enablePatientMoveActions && encounter.plannedLocation,
       onClick: onCancelLocationChange,
     },
     {
