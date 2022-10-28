@@ -43,7 +43,7 @@ export const genToken = async (keyType, email, { expiresIn }) => {
 
 const issue = async (...args) => {
   // issue() and genToken() are split up to make testing easier
-  const token = genToken(...args);
+  const token = await genToken(...args);
   process.stdout.write(`${token}\n`);
 };
 
