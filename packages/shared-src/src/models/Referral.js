@@ -1,6 +1,5 @@
 import { Sequelize } from 'sequelize';
 import { REFERRAL_STATUSES, SYNC_DIRECTIONS } from 'shared/constants';
-import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { Model } from './Model';
 
 export class Referral extends Model {
@@ -38,7 +37,13 @@ export class Referral extends Model {
     });
   }
 
-  static buildSyncFilter(patientIds, sessionConfig) {
-    return buildEncounterLinkedSyncFilter(this, patientIds, sessionConfig, ['initiatingEncounter']);
+  static buildSyncFilter(patientIds) {
+    if (patientIds.length === 0) {
+      return null;
+    }
+    return `
+      JOIN encounters ON referrals.initiating_encounter_id = encounters.id
+      WHERE encounters.patient_id IN ($patientIds)
+    `;
   }
 }

@@ -81,16 +81,16 @@ export class FacilitySyncManager {
     // this avoids any of the records to be pushed being changed during the push period and
     // causing data that isn't internally coherent from ending up on the sync server
     const pushSince = (await this.models.LocalSystemFact.get('lastSuccessfulSyncPush')) || -1;
-    const outgoingChanges = await snapshotOutgoingChanges(
+    const outgoingChangeCount = await snapshotOutgoingChanges(
       getModelsForDirection(this.models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL),
       sessionId,
       pushSince,
     );
-    if (outgoingChanges.length > 0) {
+    if (outgoingChangeCount.length > 0) {
       log.debug(
-        `FacilitySyncManager.runSync: Pushing a total of ${outgoingChanges.length} changes`,
+        `FacilitySyncManager.runSync: Pushing a total of ${outgoingChangeCount.length} changes`,
       );
-      await pushOutgoingChanges(this.centralServer, sessionId, outgoingChanges);
+      await pushOutgoingChanges(this.centralServer, sessionId, outgoingChangeCount);
     }
     log.debug(
       `FacilitySyncManager.runSync: Setting the last successful sync push time to ${currentSyncClockTime}`,

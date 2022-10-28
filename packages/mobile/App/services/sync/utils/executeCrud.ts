@@ -8,7 +8,20 @@ export const executeInserts = async (
   model: typeof BaseModel,
   rows: DataToPersist[],
 ): Promise<void> => {
-  for (const batchOfRows of chunkRows(rows)) {
+  // can end up with duplicate create records, e.g. if syncAllLabRequests is turned on, an
+  // encounter may turn up twice, once because it is for a marked-for-sync patient, and once more
+  // because it has a lab request attached
+  const deduplicated = [];
+  const idsAdded = new Set();
+  for (const row of rows) {
+    const { id } = row;
+    if (!idsAdded.has(id)) {
+      deduplicated.push(row);
+      idsAdded.add(id);
+    }
+  }
+
+  for (const batchOfRows of chunkRows(deduplicated)) {
     try {
       await model.insert(batchOfRows);
     } catch (e) {
@@ -50,10 +63,7 @@ export const executeUpdates = async (
   }
 };
 
-export const executeDeletes = async (
-  model: typeof BaseModel,
-  rowIds: string[],
-): Promise<void> => {
+export const executeDeletes = async (model: typeof BaseModel, rowIds: string[]): Promise<void> => {
   for (const batchOfIds of chunk(rowIds, SQLITE_MAX_PARAMETERS)) {
     try {
       await model.delete(batchOfIds);

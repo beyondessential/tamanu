@@ -10,7 +10,21 @@ import { log } from 'shared/services/logging/log';
 const { persistedCacheBatchSize } = config.sync;
 const UPDATE_WORKER_POOL_SIZE = 100;
 
-const saveCreates = async (model, records) => model.bulkCreate(records);
+const saveCreates = async (model, records) => {
+  // can end up with duplicate create records, e.g. if syncAllLabRequests is turned on, an
+  // encounter may turn up twice, once because it is for a marked-for-sync patient, and once more
+  // because it has a lab request attached
+  const deduplicated = [];
+  const idsAdded = new Set();
+  for (const record of records) {
+    const { id } = record;
+    if (!idsAdded.has(id)) {
+      deduplicated.push(record);
+      idsAdded.add(id);
+    }
+  }
+  return model.bulkCreate(deduplicated);
+};
 
 const saveUpdates = async (model, incomingRecords, idToExistingRecord) => {
   const mergedRecords = incomingRecords.map(incoming => {
@@ -69,23 +83,24 @@ const saveChangesForModelInBatches = async (
   log.debug(`saveIncomingChanges: Saving ${syncRecordsCount} changes for ${model.tableName}`);
 
   const batchCount = Math.ceil(syncRecordsCount / persistedCacheBatchSize);
+  let fromId = '00000000-0000-0000-0000-000000000000';
 
   for (let batchIndex = 0; batchIndex < batchCount; batchIndex++) {
-    const offset = persistedCacheBatchSize * batchIndex;
-
     const batchRecords = await findSyncSessionRecords(
       models,
       recordType,
       persistedCacheBatchSize,
-      offset,
+      fromId,
       sessionId,
     );
+    fromId = batchRecords[batchRecords.length - 1].id;
 
     const batchRecordsToSave = batchRecords.map(r => r.dataValues);
     try {
       await saveChangesForModel(model, batchRecordsToSave, isCentralServer);
     } catch (error) {
-      log.error(`Failed to save changes for ${model}`);
+      console.log(error);
+      log.error(`Failed to save changes for ${model.name}`);
       throw error;
     }
   }

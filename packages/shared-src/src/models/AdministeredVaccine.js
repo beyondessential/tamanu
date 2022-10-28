@@ -1,11 +1,11 @@
 import { Sequelize, Op } from 'sequelize';
+import config from 'config';
 import { InvalidOperationError } from 'shared/errors';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 import { Encounter } from './Encounter';
 import { ScheduledVaccine } from './ScheduledVaccine';
 import { dateTimeType } from './dateTimeTypes';
-import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 
 export class AdministeredVaccine extends Model {
   static init({ primaryKey, ...options }) {
@@ -77,8 +77,38 @@ export class AdministeredVaccine extends Model {
     });
   }
 
-  static buildSyncFilter(patientIds, sessionConfig) {
-    return buildEncounterLinkedSyncFilter(this, patientIds, sessionConfig);
+  static buildSyncFilter(patientIds) {
+    const wheres = [];
+
+    if (patientIds.length > 0) {
+      wheres.push(`
+        encounters.patient_id IN ($patientIds)
+      `);
+    }
+
+    // add any administered vaccines with a vaccine in the list of scheduled vaccines that sync everywhere
+    const vaccinesToSync = config.sync.syncAllEncountersForTheseVaccines;
+    if (vaccinesToSync?.length > 0) {
+      const escapedVaccineIds = vaccinesToSync.map(id => this.sequelize.escape(id)).join(',');
+      wheres.push(`
+        scheduled_vaccine_id IN (
+          SELECT DISTINCT(scheduled_vaccines.id)
+          FROM scheduled_vaccines
+          WHERE scheduled_vaccines.vaccine_id IN (${escapedVaccineIds})
+        )
+      `);
+    }
+
+    if (wheres.length === 0) {
+      return null;
+    }
+
+    return `
+      JOIN encounters ON administered_vaccines.encounter_id = encounters.id
+      WHERE (
+        ${wheres.join('\nOR')}
+      )
+    `;
   }
 
   static async lastVaccinationForPatient(patientId, vaccineIds = []) {

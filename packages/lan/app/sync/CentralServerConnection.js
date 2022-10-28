@@ -215,7 +215,7 @@ export class CentralServerConnection {
     // poll the pull count endpoint until we get a valid response - it takes a while for
     // setPullFilter to finish populating the snapshot of changes
     const waitTime = 1000; // retry once per second
-    const maxAttempts = 300; // for a maximum of five minutes
+    const maxAttempts = 60 * 60 * 12; // for a maximum of 12 hours
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       const count = await this.fetch(`sync/${sessionId}/pull/count`);
       if (count !== null) {
@@ -226,8 +226,11 @@ export class CentralServerConnection {
     throw new Error(`Could not fetch a valid pull count after ${maxAttempts} attempts`);
   }
 
-  async pull(sessionId, { limit = 100, offset = 0 } = {}) {
-    const query = { limit, offset };
+  async pull(sessionId, { limit = 100, fromId } = {}) {
+    const query = { limit };
+    if (fromId) {
+      query.fromId = fromId;
+    }
     const path = `sync/${sessionId}/pull?${objectToQueryString(query)}`;
     return this.fetch(path);
   }

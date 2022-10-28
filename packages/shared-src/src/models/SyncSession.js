@@ -11,6 +11,7 @@ export class SyncSession extends Model {
         lastConnectionTime: { type: DataTypes.DATE },
         snapshotCompletedAt: { type: DataTypes.BOOLEAN },
         error: { type: DataTypes.STRING },
+        debugInfo: { type: DataTypes.JSONB },
       },
       { ...options, syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC },
     );

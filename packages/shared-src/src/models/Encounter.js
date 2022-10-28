@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { endOfDay, isBefore, parseISO, startOfToday } from 'date-fns';
+import config from 'config';
 
 import {
   ENCOUNTER_TYPES,
@@ -11,7 +12,6 @@ import { InvalidOperationError } from 'shared/errors';
 import { dateTimeType } from './dateTimeTypes';
 
 import { Model } from './Model';
-import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 
 export class Encounter extends Model {
   static init({ primaryKey, hackToSkipEncounterValidation, ...options }) {
@@ -190,7 +190,60 @@ export class Encounter extends Model {
   }
 
   static buildSyncFilter(patientIds, sessionConfig) {
-    return buildEncounterLinkedSyncFilter(this, patientIds, sessionConfig, []);
+    const { syncAllLabRequests, isMobile } = sessionConfig;
+    const joins = [];
+    const wheres = [];
+
+    if (patientIds.length > 0) {
+      wheres.push('patient_id IN ($patientIds)');
+    }
+
+    // add any encounters with a lab request, if syncing all labs is turned on for facility server
+    if (syncAllLabRequests && !isMobile) {
+      joins.push(`
+        JOIN LATERAL (
+          SELECT lab_requests.id, encounters.id AS encounter_id
+          FROM lab_requests
+          WHERE lab_requests.encounter_id = encounters.id
+          LIMIT 1
+        ) AS lr ON lr.encounter_id = encounters.id
+      `);
+
+      wheres.push(`
+        lr.id IS NOT NULL
+      `);
+    }
+
+    // for mobile, add any encounters with a vaccine in the list of scheduled vaccines that sync everywhere
+    const vaccinesToSync = config.sync.syncAllEncountersForTheseVaccines;
+    if (vaccinesToSync?.length > 0 && isMobile) {
+      const escapedVaccineIds = vaccinesToSync.map(id => this.sequelize.escape(id)).join(',');
+      joins.push(`
+        JOIN LATERAL (
+          SELECT administered_vaccines.id, encounters.id AS encounter_id
+          FROM administered_vaccines
+          JOIN scheduled_vaccines
+          ON administered_vaccines.scheduled_vaccine_id = scheduled_vaccines.id
+          WHERE administered_vaccines.encounter_id = encounters.id
+          AND scheduled_vaccines.vaccine_id IN (${escapedVaccineIds})
+          LIMIT 1
+        ) AS av ON av.encounter_id = encounters.id
+      `);
+      wheres.push(`
+        av.id IS NOT NULL
+      `);
+    }
+
+    if (wheres.length === 0) {
+      return null;
+    }
+
+    return `
+      ${joins.join('\n')}
+      WHERE (
+        ${wheres.join('\nOR')}
+      )
+    `;
   }
 
   static checkNeedsAutoDischarge({ encounterType, startDate, endDate }) {

@@ -13,7 +13,8 @@ export type UploadRecordsResponse = {
 };
 
 export interface SyncRecord {
-  recordId: string,
+  id: string;
+  recordId: string;
   recordType: string;
   data: SyncRecordData;
   isDeleted?: boolean;

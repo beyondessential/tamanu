@@ -100,32 +100,36 @@ export class CentralSyncManager {
 
     const session = await this.connectToSession(sessionId);
 
-    const modelsToInclude = tablesToInclude
-      ? Object.fromEntries(
-          Object.entries(models).filter(([, m]) => tablesToInclude.includes(m.tableName)),
-        )
-      : models;
-
-    // work out if any patients were newly marked for sync since this device last connected, and
-    // include changes from all time for those patients
-    const newPatientFacilities = await models.PatientFacility.findAll({
-      where: { facilityId, updatedAtSyncTick: { [Op.gt]: since } },
-    });
-    log.debug(
-      `CentralSyncManager.setPullFilter: ${newPatientFacilities.length} patients newly marked for sync for ${facilityId}`,
-    );
-    const patientIdsForFullSync = newPatientFacilities.map(n => n.patientId);
-
     try {
+      await session.update({ debugInfo: { facilityId, since, isMobile } });
+
+      const modelsToInclude = tablesToInclude
+        ? Object.fromEntries(
+            Object.entries(models).filter(([, m]) => tablesToInclude.includes(m.tableName)),
+          )
+        : models;
+
+      // work out if any patients were newly marked for sync since this device last connected, and
+      // include changes from all time for those patients
+      const newPatientFacilities = await models.PatientFacility.findAll({
+        where: { facilityId, updatedAtSyncTick: { [Op.gt]: since } },
+      });
+      log.debug(
+        `CentralSyncManager.setPullFilter: ${newPatientFacilities.length} patients newly marked for sync for ${facilityId}`,
+      );
+      const patientIdsForFullSync = newPatientFacilities.map(n => n.patientId);
+
+      const facilitySettings = await models.Setting.forFacility(facilityId);
+
       await this.store.sequelize.transaction(async () => {
         // full changes
         await snapshotOutgoingChanges(
           getPatientLinkedModels(modelsToInclude),
-          models,
           0,
           patientIdsForFullSync,
           sessionId,
-          { facilityId, isMobile },
+          facilityId,
+          { ...facilitySettings, isMobile },
         );
 
         // get changes since the last successful sync for all other synced patients and independent
@@ -140,21 +144,21 @@ export class CentralSyncManager {
         // regular changes
         await snapshotOutgoingChanges(
           getModelsForDirection(modelsToInclude, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
-          models,
           since,
           patientIdsForRegularSync,
           sessionId,
-          { facilityId, isMobile },
+          facilityId,
+          { ...facilitySettings, isMobile },
         );
 
+        // delete any outgoing changes that were just pushed in during the same session
         await removeEchoedChanges(this.store, sessionId);
       });
+      await session.update({ snapshotCompletedAt: Sequelize.NOW });
     } catch (error) {
       log.error('CentralSyncManager.setPullFilter encountered an error', error);
       await session.update({ error: error.message });
     }
-
-    await session.update({ snapshotCompletedAt: Sequelize.NOW });
   }
 
   async fetchPullCount(sessionId) {
@@ -165,13 +169,13 @@ export class CentralSyncManager {
     return getOutgoingChangesCount(this.store, sessionId);
   }
 
-  async getOutgoingChanges(sessionId, { offset, limit }) {
+  async getOutgoingChanges(sessionId, { fromId, limit }) {
     await this.connectToSession(sessionId);
     return getOutgoingChangesForSession(
       this.store,
       sessionId,
       SYNC_SESSION_DIRECTION.OUTGOING,
-      offset,
+      fromId,
       limit,
     );
   }

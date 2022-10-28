@@ -1,6 +1,6 @@
 const INITIAL_LIMIT = 100;
 const MIN_LIMIT = 1;
-const MAX_LIMIT = 999; // match sql max params for optimum speed (avoid chunking id fetches)
+const MAX_LIMIT = 10000000;
 const OPTIMAL_TIME_PER_PAGE = 2000; // aim for 2 seconds per page
 const MAX_LIMIT_CHANGE_PER_PAGE = 0.2; // max 20% increase from batch to batch, or it is too jumpy
 

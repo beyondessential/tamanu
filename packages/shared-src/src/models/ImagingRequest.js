@@ -102,7 +102,10 @@ export class ImagingRequest extends Model {
     });
   }
 
-  static buildSyncFilter(patientIds, sessionConfig) {
-    return buildEncounterLinkedSyncFilter(this, patientIds, sessionConfig);
+  static buildSyncFilter(patientIds) {
+    if (patientIds.length === 0) {
+      return null;
+    }
+    return buildEncounterLinkedSyncFilter([this.tableName, 'encounters']);
   }
 }

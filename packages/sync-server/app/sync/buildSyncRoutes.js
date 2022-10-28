@@ -65,9 +65,9 @@ export const buildSyncRoutes = ctx => {
     asyncHandler(async (req, res) => {
       const { query, params } = req;
       const { sessionId } = params;
-      const { offset = '', limit = '100' } = query;
+      const { fromId, limit = '100' } = query;
       const changes = await syncManager.getOutgoingChanges(sessionId, {
-        offset: parseInt(offset, 10),
+        fromId,
         limit: parseInt(limit, 10),
       });
       log.info(`GET /pull : returned ${changes.length} changes`);
