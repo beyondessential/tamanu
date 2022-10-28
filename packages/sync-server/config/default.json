@@ -562,7 +562,8 @@
         "enablePatientDeaths": false,
         "mergePopulatedPADRecords": true,
         "enableCovidClearanceCertificate": false,
-        "editDisplayId": false
+        "editDisplayId": false,
+        "patientPlannedMove": false
       },
       "templates": {
         "letterhead": {

@@ -96,6 +96,7 @@ const TABS = [
 
 const EncounterActionDropdown = ({ encounter }) => {
   const { navigateToEncounter, navigateToSummary } = usePatientNavigation();
+  const { getLocalisation } = useLocalisation();
   const onChangeEncounterType = type => navigateToEncounter(encounter.id, `changeType`, { type });
   const onChangeLocation = () => navigateToEncounter(encounter.id, 'move');
   const onDischargeOpen = () => navigateToEncounter(encounter.id, 'discharge');
@@ -141,17 +142,17 @@ const EncounterActionDropdown = ({ encounter }) => {
     },
     {
       label: 'Plan location change',
-      condition: () => !encounter.plannedLocation,
+      condition: () => getLocalisation('features.patientPlannedMove') && !encounter.plannedLocation,
       onClick: onBeginLocationChange,
     },
     {
       label: 'Finalise location change',
-      condition: () => encounter.plannedLocation,
+      condition: () => getLocalisation('features.patientPlannedMove') && encounter.plannedLocation,
       onClick: onFinaliseLocationChange,
     },
     {
       label: 'Cancel location change',
-      condition: () => encounter.plannedLocation,
+      condition: () => getLocalisation('features.patientPlannedMove') && encounter.plannedLocation,
       onClick: onCancelLocationChange,
     },
     {
