@@ -227,7 +227,10 @@
       "requireClientHeaders": true
     },
     "fhir": {
-      "enabled": false
+      "enabled": false,
+      // Must be set to a random value
+      // If this is changed, all API keys using this secret will be revoked and must be reissued
+      "secret": null
     }
   },
   // on the sync-server, don't read these values from config!
