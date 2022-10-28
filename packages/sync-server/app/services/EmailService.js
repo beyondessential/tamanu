@@ -17,7 +17,7 @@ export class EmailService {
       apiKey && domain ? mailgun({ usename: 'api', key: apiKey, url: domain }) : null;
   }
 
-  async sendEmail({ attachment, ...email }) {
+  async sendEmail({ attachment: untypedAttachment, ...email }) {
     // no mailgun service, unable to send email
     if (!this.mailgunService) {
       return { status: COMMUNICATION_STATUSES.ERROR, error: 'Email service not found' };
@@ -41,11 +41,14 @@ export class EmailService {
       };
     }
 
-    let attachmentData;
-    if (attachment) {
+    let attachment;
+    if (typeof attachment === 'string') {
       try {
         // pass mailgun file data instead of the path
-        attachmentData = await fsPromises(attachment);
+        attachment = {
+          data: await fsPromises(attachment),
+          filename: basename(attachment),
+        };
       } catch (e) {
         log.error('Could not read attachment for email', e);
         return {
@@ -53,15 +56,14 @@ export class EmailService {
           error: 'Attachment missing or unreadable',
         };
       }
+    } else {
+      attachment = untypedAttachment;
     }
 
     try {
       const emailResult = await this.mailgunService.messages.create({
         ...email,
-        attachment: {
-          filename: basename(attachment),
-          data: attachmentData,
-        },
+        attachment,
       });
       return { status: COMMUNICATION_STATUSES.SENT, result: emailResult };
     } catch (e) {
