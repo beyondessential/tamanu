@@ -58,7 +58,8 @@ async function writeToPatientFields(models, questions, answers, patientId) {
   // Save values to database records
   const { Patient, PatientAdditionalData } = models;
   if (Object.keys(patientRecordValues).length) {
-    await Patient.update(patientRecordValues, { where: { id: patientId } });
+    const patient = await Patient.findByPk(patientId);
+    await patient.update(patientRecordValues, { where: { id: patientId } });
   }
   if (Object.keys(patientAdditionalDataValues).length) {
     const pad = await PatientAdditionalData.getOrCreateForPatient(patientId);
