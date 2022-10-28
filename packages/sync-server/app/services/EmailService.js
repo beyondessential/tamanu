@@ -1,15 +1,31 @@
 import config from 'config';
 import formData from 'form-data';
 import Mailgun from 'mailgun.js';
-import fs from 'fs';
+import { createReadStream } from 'fs';
 import { basename } from 'path';
 import { COMMUNICATION_STATUSES } from 'shared/constants';
 import { log } from 'shared/services/logging';
 
-const fsPromises = fs.promises;
 const mailgun = new Mailgun(formData);
 
 const { apiKey, domain } = config.mailgun;
+
+async function getReadStreamSafe(path) {
+  return new Promise((resolve, reject) => {
+    // Mailgun doesn't do any error handling internally, so we
+    // take charge of opening the attachment, and just pass the
+    // stream to mailgun instead of the path.
+
+    const readStream = createReadStream(path);
+
+    // Don't return the stream until it's actually successfully opened
+    readStream.on('open', () => resolve(readStream));
+
+    // Handle any errors with a reject (if this handler isn't assigned,
+    // node will panic and exit regardless of any try/catch wrappers!)
+    readStream.on('error', e => reject(e));
+  });
+}
 
 export class EmailService {
   constructor() {
@@ -44,9 +60,9 @@ export class EmailService {
     let attachment;
     if (typeof attachment === 'string') {
       try {
-        // pass mailgun file data instead of the path
+        // pass mailgun readable stream instead of the path
         attachment = {
-          data: await fsPromises(attachment),
+          data: await getReadStreamSafe(attachment),
           filename: basename(attachment),
         };
       } catch (e) {
