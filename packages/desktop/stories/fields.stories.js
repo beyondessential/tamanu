@@ -24,15 +24,33 @@ import {
 } from '../app/components';
 import { IdInput } from '../app/components/Field/IdField';
 
+const TAGS = {
+  available: {
+    label: 'Available',
+    background: '#E2EEEA',
+    color: '#44AD72',
+  },
+  occupied: {
+    label: 'Occupied',
+    background: '#F4F4F4',
+    color: '#888888',
+  },
+  reserved: {
+    label: 'Reserved',
+    background: '#ff7979',
+    color: '#eb4d4b',
+  },
+};
+
 const FRUITS = [
-  { value: 'apples', label: 'Apples' },
-  { value: 'oranges', label: 'Oranges' },
-  { value: 'bananas', label: 'Bananas' },
-  { value: 'pomegranates', label: 'Pomegranates' },
-  { value: 'durian', label: 'Durian' },
-  { value: 'dragonfruit', label: 'Dragonfruit' },
-  { value: 'tomatoes', label: 'Tomatoes' },
-  { value: 'cherries', label: 'Cherries' },
+  { value: 'apples', label: 'Apples', tag: TAGS.available },
+  { value: 'oranges', label: 'Oranges', tag: TAGS.occupied },
+  { value: 'bananas', label: 'Bananas', tag: TAGS.available },
+  { value: 'pomegranates', label: 'Pomegranates', tag: TAGS.reserved },
+  { value: 'durian', label: 'Durian', tag: TAGS.available },
+  { value: 'dragonfruit', label: 'Dragonfruit', tag: TAGS.available },
+  { value: 'tomatoes', label: 'Tomatoes', tag: TAGS.available },
+  { value: 'cherries', label: 'Cherries', tag: TAGS.available },
 ];
 
 const Container = styled.div`
@@ -106,6 +124,21 @@ addStories('TimeWithUnitInput', props => (
 ));
 
 addStories('TemperatureInput', props => {
+  const [formValue, setFormValue] = React.useState(0);
+  const onChange = newValue => {
+    setFormValue(newValue);
+  };
+  return (
+    <Container>
+      <Box>
+        <TemperatureInput name="temperature" min={0} onChange={onChange} {...props} />
+        <Box m={3}>Form value: {formValue}</Box>
+      </Box>
+    </Container>
+  );
+});
+
+addStories('Dropdown with tags', props => {
   const [formValue, setFormValue] = React.useState(0);
   const onChange = newValue => {
     setFormValue(newValue);
