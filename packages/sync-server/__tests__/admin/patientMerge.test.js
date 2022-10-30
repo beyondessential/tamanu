@@ -1,4 +1,5 @@
 import { fake, fakeUser } from 'shared/test-helpers/fake';
+import { NOTE_TYPES } from 'shared/constants/notes';
 import { VISIBILITY_STATUSES } from 'shared/constants';
 import { InvalidParameterError } from 'shared/errors';
 import {
@@ -191,6 +192,22 @@ describe('Patient merge', () => {
     const { Patient } = models;
     const merge = await Patient.create(fake(Patient));
     expect(() => mergePatient(models, 'not real', merge.id)).rejects.toThrow(InvalidParameterError);
+  });
+
+  it('Should merge a page of notes across', async () => {
+    const [keep, merge] = await makeTwoPatients();
+
+    const note = await merge.createNotePage({
+      noteType: NOTE_TYPES.OTHER,
+    });
+
+    const { updates } = await mergePatient(models, keep.id, merge.id);
+    expect(updates).toEqual({
+      Patient: 1,
+      NotePage: 1,
+    });
+    await note.reload();
+    expect(note.recordId).toEqual(keep.id);
   });
 
   describe('PatientAdditionalData', () => {

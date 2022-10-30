@@ -36,6 +36,7 @@ export const buildEncounter = async (models, patientId, optionalEncounterId) => 
   encounter.patientId = patient.id;
   encounter.examinerId = examiner.id;
   encounter.patientBillingTypeId = null;
+  encounter.referralSourceId = null;
   encounter.locationId = await findOrCreateId(models, models.Location);
   encounter.departmentId = await findOrCreateId(models, models.Department);
 

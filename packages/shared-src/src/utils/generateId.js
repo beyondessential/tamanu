@@ -10,8 +10,16 @@ function createIdGenerator(format) {
 
   return () => generatorPattern.map(generator => generator()).join('');
 }
+const DISPLAY_ID_FORMAT = 'AAAA000000';
+export const generateId = createIdGenerator(DISPLAY_ID_FORMAT);
 
-export const generateId = createIdGenerator('AAAA000000');
+// Checks if the passed displayId was generated using generateId function above
+// with the specific 10 digit format DISPLAY_ID_FORMAT. It will need to be reevaluated
+// if the format ever changes.
+export const isGeneratedDisplayId = displayId => {
+  if (DISPLAY_ID_FORMAT !== 'AAAA000000') return false;
+  return /^[A-Z]{4}\d{6}$/.test(displayId);
+};
 
 /**
  * Makes a 'fake' but valid uuid like '2964ea0d-073d-0000-bda1-ce47fd5de340'.

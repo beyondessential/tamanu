@@ -166,7 +166,7 @@ const EncounterOverview = ({
     <>
       <DateInput label="Admission date" value={startDate} disabled />
       <TextInput
-        label="Supervising physician"
+        label="Supervising clinician"
         value={examiner ? examiner.displayName : '-'}
         disabled
       />
