@@ -26,7 +26,7 @@
   "sync": {
     "readOnly": false,
     "persistedCacheBatchSize": 20000,
-    "lapsedSessionSeconds": 1200,
+    "lapsedSessionSeconds": 3600,
     "lapsedSessionCheckFrequencySeconds": 60,
     "syncAllEncountersForTheseVaccines": []
   },
