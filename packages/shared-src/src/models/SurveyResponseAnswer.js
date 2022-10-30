@@ -46,7 +46,7 @@ export class SurveyResponseAnswer extends Model {
         WHERE (
           encounters.patient_id in ($patientIds)
           AND
-          survey.is_sensitive = FALSE
+          surveys.is_sensitive = FALSE
         )
       `;
     }

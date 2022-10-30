@@ -190,7 +190,7 @@ export class Encounter extends Model {
   }
 
   static buildSyncFilter(patientIds, sessionConfig) {
-    const { syncAllLabRequests, isMobile } = sessionConfig;
+    const { syncAllLabRequests, syncAllEncountersForTheseVaccines } = sessionConfig;
     const joins = [];
     const wheres = [];
 
@@ -199,38 +199,39 @@ export class Encounter extends Model {
     }
 
     // add any encounters with a lab request, if syncing all labs is turned on for facility server
-    if (syncAllLabRequests && !isMobile) {
+    if (syncAllLabRequests) {
       joins.push(`
-        JOIN LATERAL (
-          SELECT lab_requests.id, encounters.id AS encounter_id
-          FROM lab_requests
-          WHERE lab_requests.encounter_id = encounters.id
-          LIMIT 1
-        ) AS lr ON lr.encounter_id = encounters.id
+        LEFT JOIN (
+          SELECT DISTINCT e.id
+          FROM encounters e
+          INNER JOIN lab_requests lr ON lr.encounter_id = e.id
+          WHERE e.updated_at_sync_tick > $since
+        ) AS encounters_with_labs ON encounters_with_labs.id = encounters.id
       `);
 
       wheres.push(`
-        lr.id IS NOT NULL
+        encounters_with_labs.id IS NOT NULL
       `);
     }
 
     // for mobile, add any encounters with a vaccine in the list of scheduled vaccines that sync everywhere
-    const vaccinesToSync = config.sync.syncAllEncountersForTheseVaccines;
-    if (vaccinesToSync?.length > 0 && isMobile) {
-      const escapedVaccineIds = vaccinesToSync.map(id => this.sequelize.escape(id)).join(',');
+    if (syncAllEncountersForTheseVaccines?.length > 0) {
+      const escapedVaccineIds = syncAllEncountersForTheseVaccines
+        .map(id => this.sequelize.escape(id))
+        .join(',');
       joins.push(`
-        JOIN LATERAL (
-          SELECT administered_vaccines.id, encounters.id AS encounter_id
-          FROM administered_vaccines
-          JOIN scheduled_vaccines
-          ON administered_vaccines.scheduled_vaccine_id = scheduled_vaccines.id
-          WHERE administered_vaccines.encounter_id = encounters.id
-          AND scheduled_vaccines.vaccine_id IN (${escapedVaccineIds})
-          LIMIT 1
-        ) AS av ON av.encounter_id = encounters.id
+        LEFT JOIN (
+          SELECT DISTINCT e.id
+          FROM encounters e
+          INNER JOIN administered_vaccines av ON av.encounter_id = e.id
+          INNER JOIN scheduled_vaccines sv ON sv.id = av.scheduled_vaccine_id
+          WHERE sv.vaccine_id IN (${escapedVaccineIds})
+          AND e.updated_at_sync_tick > $since
+        ) AS encounters_with_scheduled_vaccines
+        ON encounters_with_scheduled_vaccines.id = encounters.id
       `);
       wheres.push(`
-        av.id IS NOT NULL
+        encounters_with_scheduled_vaccines.id IS NOT NULL
       `);
     }
 

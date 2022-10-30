@@ -119,7 +119,16 @@ export class CentralSyncManager {
       );
       const patientIdsForFullSync = newPatientFacilities.map(n => n.patientId);
 
-      const facilitySettings = await models.Setting.forFacility(facilityId);
+      const { syncAllLabRequests } = await models.Setting.forFacility(facilityId);
+      const sessionConfig = {
+        // for facilities with a lab, need ongoing lab requests
+        // no need for historical ones on initial sync, and no need on mobile
+        syncAllLabRequests: syncAllLabRequests && !isMobile && since > -1,
+        syncAllEncountersForTheseVaccines: isMobile
+          ? config.sync.syncAllEncountersForTheseVaccines
+          : [],
+        isMobile,
+      };
 
       await this.store.sequelize.transaction(async () => {
         // full changes
@@ -129,7 +138,7 @@ export class CentralSyncManager {
           patientIdsForFullSync,
           sessionId,
           facilityId,
-          { ...facilitySettings, isMobile },
+          sessionConfig,
         );
 
         // get changes since the last successful sync for all other synced patients and independent
@@ -148,7 +157,7 @@ export class CentralSyncManager {
           patientIdsForRegularSync,
           sessionId,
           facilityId,
-          { ...facilitySettings, isMobile },
+          sessionConfig,
         );
 
         // delete any outgoing changes that were just pushed in during the same session
