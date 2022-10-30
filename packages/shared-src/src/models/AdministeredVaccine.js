@@ -77,7 +77,7 @@ export class AdministeredVaccine extends Model {
     });
   }
 
-  static buildSyncFilter(patientIds) {
+  static buildSyncFilter(patientIds, { syncAllEncountersForTheseVaccines }) {
     const joins = [];
     const wheres = [];
 
@@ -93,9 +93,10 @@ export class AdministeredVaccine extends Model {
     }
 
     // add any administered vaccines with a vaccine in the list of scheduled vaccines that sync everywhere
-    const vaccinesToSync = config.sync.syncAllEncountersForTheseVaccines;
-    if (vaccinesToSync?.length > 0) {
-      const escapedVaccineIds = vaccinesToSync.map(id => this.sequelize.escape(id)).join(',');
+    if (syncAllEncountersForTheseVaccines?.length > 0) {
+      const escapedVaccineIds = syncAllEncountersForTheseVaccines
+        .map(id => this.sequelize.escape(id))
+        .join(',');
       joins.push(`
         LEFT JOIN scheduled_vaccines
         ON scheduled_vaccines.id = administered_vaccines.scheduled_vaccine_id

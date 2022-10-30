@@ -190,7 +190,7 @@ export class Encounter extends Model {
   }
 
   static buildSyncFilter(patientIds, sessionConfig) {
-    const { syncAllLabRequests } = sessionConfig;
+    const { syncAllLabRequests, syncAllEncountersForTheseVaccines } = sessionConfig;
     const joins = [];
     const wheres = [];
 
@@ -215,9 +215,10 @@ export class Encounter extends Model {
     }
 
     // for mobile, add any encounters with a vaccine in the list of scheduled vaccines that sync everywhere
-    const vaccinesToSync = config.sync.syncAllEncountersForTheseVaccines;
-    if (vaccinesToSync?.length > 0) {
-      const escapedVaccineIds = vaccinesToSync.map(id => this.sequelize.escape(id)).join(',');
+    if (syncAllEncountersForTheseVaccines?.length > 0) {
+      const escapedVaccineIds = syncAllEncountersForTheseVaccines
+        .map(id => this.sequelize.escape(id))
+        .join(',');
       joins.push(`
         LEFT JOIN (
           SELECT DISTINCT e.id
