@@ -78,11 +78,17 @@ export class AdministeredVaccine extends Model {
   }
 
   static buildSyncFilter(patientIds) {
+    const joins = [];
     const wheres = [];
 
     if (patientIds.length > 0) {
+      joins.push(`
+        LEFT JOIN encounters
+        ON administered_vaccines.encounter_id = encounters.id
+        AND encounters.patient_id IN ($patientIds)
+      `);
       wheres.push(`
-        encounters.patient_id IN ($patientIds)
+        encounters.id IS NOT NULL
       `);
     }
 
@@ -90,12 +96,13 @@ export class AdministeredVaccine extends Model {
     const vaccinesToSync = config.sync.syncAllEncountersForTheseVaccines;
     if (vaccinesToSync?.length > 0) {
       const escapedVaccineIds = vaccinesToSync.map(id => this.sequelize.escape(id)).join(',');
+      joins.push(`
+        LEFT JOIN scheduled_vaccines
+        ON scheduled_vaccines.id = administered_vaccines.scheduled_vaccine_id
+        AND scheduled_vaccines.vaccine_id IN (${escapedVaccineIds})
+      `);
       wheres.push(`
-        scheduled_vaccine_id IN (
-          SELECT DISTINCT(scheduled_vaccines.id)
-          FROM scheduled_vaccines
-          WHERE scheduled_vaccines.vaccine_id IN (${escapedVaccineIds})
-        )
+        scheduled_vaccines.id IS NOT NULL
       `);
     }
 
@@ -104,7 +111,7 @@ export class AdministeredVaccine extends Model {
     }
 
     return `
-      JOIN encounters ON administered_vaccines.encounter_id = encounters.id
+      ${joins.join('\n')}
       WHERE (
         ${wheres.join('\nOR')}
       )

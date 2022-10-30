@@ -5,7 +5,7 @@ export function buildEncounterLinkedSyncFilterJoins(tablesToTraverse) {
     .slice(1)
     .map(
       (table, i) => `
-      JOIN ${table} ON ${tablesToTraverse[i]}.${Utils.singularize(table)}_id = ${table}.id
+      LEFT JOIN ${table} ON ${tablesToTraverse[i]}.${Utils.singularize(table)}_id = ${table}.id
     `,
     )
     .join('\n');

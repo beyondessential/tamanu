@@ -201,7 +201,7 @@ export class Encounter extends Model {
     // add any encounters with a lab request, if syncing all labs is turned on for facility server
     if (syncAllLabRequests) {
       joins.push(`
-        JOIN LATERAL (
+        LEFT JOIN LATERAL (
           SELECT lab_requests.id, encounters.id AS encounter_id
           FROM lab_requests
           WHERE lab_requests.encounter_id = encounters.id
@@ -219,7 +219,7 @@ export class Encounter extends Model {
     if (vaccinesToSync?.length > 0) {
       const escapedVaccineIds = vaccinesToSync.map(id => this.sequelize.escape(id)).join(',');
       joins.push(`
-        JOIN LATERAL (
+        LEFT JOIN LATERAL (
           SELECT administered_vaccines.id, encounters.id AS encounter_id
           FROM administered_vaccines
           JOIN scheduled_vaccines
