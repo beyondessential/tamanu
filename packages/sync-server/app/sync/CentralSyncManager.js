@@ -121,8 +121,12 @@ export class CentralSyncManager {
 
       const { syncAllLabRequests } = await models.Setting.forFacility(facilityId);
       const sessionConfig = {
-        // only need ongoing lab requests, no need for historical ones on initial sync
-        syncAllLabRequests: syncAllLabRequests && since > -1,
+        // for facilities with a lab, need ongoing lab requests
+        // no need for historical ones on initial sync, and no need on mobile
+        syncAllLabRequests: syncAllLabRequests && !isMobile && since > -1,
+        syncAllEncountersForTheseVaccines: isMobile
+          ? config.sync.syncAllEncountersForTheseVaccines
+          : [],
         isMobile,
       };
 
