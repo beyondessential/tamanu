@@ -6,9 +6,23 @@ export const MODEL_DEPENDENCY_ORDER = [
   'Location',
   'Role',
   'Permission',
+  'PatientFieldDefinitionCategory',
+  'PatientFieldDefinition',
 
   'User',
   'UserFacility',
+
+  'LabTestType',
+
+  'Program',
+  'ProgramDataElement',
+  'Survey',
+  'SurveyScreenComponent',
+
+  'InvoiceLineType',
+  'InvoicePriceChangeType',
+
+  'ScheduledVaccine',
 
   'Patient',
   'Encounter',
@@ -20,6 +34,7 @@ export const MODEL_DEPENDENCY_ORDER = [
   'PatientIssue',
   'PatientAdditionalData',
   'PatientSecondaryId',
+  'PatientFieldValue',
 
   'PatientDeathData',
   'PatientBirthData',
@@ -33,18 +48,12 @@ export const MODEL_DEPENDENCY_ORDER = [
   'Triage',
 
   'CertifiableVaccine',
-  'ScheduledVaccine',
   'AdministeredVaccine',
 
-  'Program',
-  'ProgramDataElement',
-  'Survey',
-  'SurveyScreenComponent',
 
   'SurveyResponse',
   'SurveyResponseAnswer',
 
-  'LabTestType',
   'LabTest',
   'LabRequest',
   'ImagingRequest',
@@ -61,9 +70,7 @@ export const MODEL_DEPENDENCY_ORDER = [
   'CertificateNotification',
 
   'Invoice',
-  'InvoiceLineType',
   'InvoiceLineItem',
-  'InvoicePriceChangeType',
   'InvoicePriceChangeItem',
 
   // 'LabRequestLog',

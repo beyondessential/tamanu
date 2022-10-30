@@ -2,10 +2,11 @@ import { Entity, Column, ManyToOne, RelationId, BeforeInsert, BeforeUpdate } fro
 import { BaseModel } from './BaseModel';
 import { AVPUType, IVitals, DetectedPresenceType, UrineNitritesType, UrineProteinType } from '../types/IVitals';
 import { Encounter } from './Encounter';
+import { DateTimeStringColumn } from './DateColumns';
 
 @Entity('vitals')
 export class Vitals extends BaseModel implements IVitals {
-  @Column()
+  @DateTimeStringColumn()
   dateRecorded: string;
 
   @Column({ type: 'int', nullable: true })

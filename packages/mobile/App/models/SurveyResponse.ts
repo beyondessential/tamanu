@@ -32,13 +32,14 @@ import { Referral } from './Referral';
 import { Patient } from './Patient';
 import { PatientAdditionalData } from './PatientAdditionalData';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
+import { DateTimeStringColumn } from './DateColumns';
 
 @Entity('survey_response')
 export class SurveyResponse extends BaseModel implements ISurveyResponse {
-  @Column({ nullable: true })
+  @DateTimeStringColumn({ nullable: true })
   startTime?: string;
 
-  @Column({ nullable: true })
+  @DateTimeStringColumn({ nullable: true })
   endTime?: string;
 
   @Column({ default: 0, nullable: true })

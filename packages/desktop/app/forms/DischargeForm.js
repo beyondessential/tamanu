@@ -166,7 +166,7 @@ const EncounterOverview = ({
     <>
       <DateInput label="Admission date" value={startDate} disabled />
       <TextInput
-        label="Supervising physician"
+        label="Supervising clinician"
         value={examiner ? examiner.displayName : '-'}
         disabled
       />
@@ -279,12 +279,13 @@ export const DischargeForm = ({
       render={renderForm}
       enableReinitialize
       initialValues={{
-        // Used in creation of associated notes
-        submittedTime: getCurrentDateTimeString(),
+        endDate: getCurrentDateTimeString(),
         discharge: {
           note: dischargeNotePages.map(np => np.noteItems?.[0]?.content).join('\n'),
         },
         medications: medicationInitialValues,
+        // Used in creation of associated notes
+        submittedTime: getCurrentDateTimeString(),
       }}
       validationSchema={yup.object().shape({
         endDate: yup.date().required(),

@@ -37,6 +37,8 @@ export const REFERENCE_TYPES = {
   MANUFACTURER: 'manufacturer',
   SECONDARY_ID_TYPE: 'secondaryIdType',
   DISCHARGE_DISPOSITION: 'dischargeDisposition',
+  REFERRAL_SOURCE: 'referralSource',
+  ARRIVAL_MODE: 'arrivalMode',
   ...IMAGING_AREA_TYPES,
 };
 
@@ -47,3 +49,10 @@ export const VISIBILITY_STATUSES = {
   HISTORICAL: 'historical',
   MERGED: 'merged',
 };
+
+export const VISIBILITY_STATUS_VALUES = Object.values(VISIBILITY_STATUSES);
+
+export const HIDDEN_VISIBILITY_STATUSES = [
+  VISIBILITY_STATUSES.HISTORICAL,
+  VISIBILITY_STATUSES.MERGED,
+];

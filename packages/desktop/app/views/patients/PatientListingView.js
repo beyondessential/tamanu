@@ -129,6 +129,7 @@ export const PatientListingView = ({ onViewPatient }) => {
       <ContentPane>
         <PatientTable
           onViewPatient={onViewPatient}
+          fetchOptions={{ matchSecondaryIds: true }}
           searchParameters={searchParameters}
           columns={LISTING_COLUMNS}
         />

@@ -18,10 +18,9 @@
         - name: lint desktop app and servers
           service: app-without-db
           command: scripts/lint.sh pr-lints
-        # FIXME: broken with PMI for some incomprehensible reason
-        # - name: ensure storybook builds
-        #   service: app-without-db
-        #   command: "yarn workspace desktop run verify-storybook"
+        #- name: ensure storybook builds
+        #  service: app-without-db
+        #  command: "yarn workspace desktop run verify-storybook"
         # - TODO(WAITM-215): mobile lints
     - name: test
       type: serial
@@ -146,27 +145,27 @@
               tag: ^(dev$|ci-)
               service: awsdeployment
               command: ./scripts/deploy_lan.sh dev tamanu-facility-server-dev-16b
-              name: onto klaus A
+            - name: onto klaus A
               tag: ^(klaus-)
               service: awsdeployment
               command: ./scripts/deploy_lan.sh klaus tamanu-facility-server-klaus-a
-              name: onto klaus B
+            - name: onto klaus B
               tag: ^(klaus-)
               service: awsdeployment
               command: ./scripts/deploy_lan.sh klaus tamanu-facility-server-klaus-b
-              name: onto klaus C
+            - name: onto klaus C
               tag: ^(klaus-)
               service: awsdeployment
               command: ./scripts/deploy_lan.sh klaus tamanu-facility-server-klaus-c
-              name: onto sima A
+            - name: onto sima A
               tag: ^(sima-)
               service: awsdeployment
               command: ./scripts/deploy_lan.sh sima tamanu-facility-server-sima-a
-              name: onto sepi A
+            - name: onto sepi A
               tag: ^(sepi-)
               service: awsdeployment
               command: ./scripts/deploy_lan.sh sepi tamanu-facility-server-sepi-a
-              name: onto da A
+            - name: onto da A
               tag: ^(da-)
               service: awsdeployment
               command: ./scripts/deploy_lan.sh da tamanu-facility-server-da-a
@@ -207,16 +206,13 @@
               service: awsdeployment
               command: ./scripts/deploy_lan.sh demo-nauru tamanu-lan-server-demo-nauru
         - name: the meta server
-          tag: ^(dev$|ci-)
           type: serial
           steps:
             - name: onto dev
               tag: ^(dev$|ci-)
               service: awsdeployment
               command: ./scripts/deploy_meta.sh dev tamanu-meta-server-dev-16
-            # meta production environment is deployed from dev so we can quickly add/remove features
-            # TODO: revist whether this is a good idea at some later date
             - name: onto prod
-              tag: ^dev$
+              tag: ^(master|deploy-meta)$
               service: awsdeployment
               command: ./scripts/deploy_meta.sh prod tamanu-meta-server-prod-16
