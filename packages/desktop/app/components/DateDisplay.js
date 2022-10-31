@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { remote } from 'electron';
 import Tooltip from '@material-ui/core/Tooltip';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { parseDate } from 'shared-src/src/utils/dateTime';
 
 const getLocale = () => remote.getGlobal('osLocales') || remote.app.getLocale() || 'default';
 
 const intlFormatDate = (date, formatOptions, fallback = 'Unknown') => {
   if (!date) return fallback;
-  return new Date(date).toLocaleString(getLocale(), formatOptions);
+  return parseISO(date).toLocaleString(getLocale(), formatOptions);
 };
 
 export const formatShort = date =>
@@ -43,7 +43,7 @@ const formatLong = date =>
 
 // Diagnostic info for debugging
 const DiagnosticInfo = ({ date: rawDate }) => {
-  const date = new Date(rawDate);
+  const date = parseISO(rawDate);
   const displayDate = formatLong(date);
   const { timeZone } = Intl.DateTimeFormat().resolvedOptions();
   const timeZoneOffset = format(date, 'XXX');

@@ -1,6 +1,7 @@
 import { formatInTimeZone } from 'date-fns-tz';
 import { transliterate as tr } from 'transliteration';
 import { log } from 'shared/services/logging';
+import { parseISO } from 'date-fns';
 
 import { getLocalisation } from '../../localisation';
 
@@ -280,8 +281,8 @@ export const createVdsNcTestData = async (labTestId, { models }) => {
       },
     },
     dat: {
-      sc: formatInTimeZone(request.sampleTime, 'UTC', DATE_FORMAT_RFC3339),
-      ri: formatInTimeZone(new Date(test.completedDate), 'UTC', DATE_FORMAT_RFC3339),
+      sc: formatInTimeZone(parseISO(request.sampleTime), 'UTC', DATE_FORMAT_RFC3339),
+      ri: formatInTimeZone(parseISO(test.completedDate), 'UTC', DATE_FORMAT_RFC3339),
     },
     tr: {
       tc: METHOD_CODE[method.code] ?? method.code,

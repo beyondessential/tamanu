@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import Tooltip from '@material-ui/core/Tooltip';
 
 const MINUTE = 60 * 1000;
 const HOUR = 60 * MINUTE;
 
 const getDuration = startTime => {
-  const time = new Date() - new Date(startTime);
+  const time = new Date() - parseISO(startTime);
   const hours = Math.floor(time / HOUR);
   const minutes = Math.floor((time - hours * HOUR) / MINUTE);
   return `${hours}hrs ${minutes}mins`;
@@ -52,13 +52,13 @@ export const TriageWaitTimeCell = React.memo(
         return (
           <TriageCell arrivalTime={assumedArrivalTime}>
             <div>{getDuration(assumedArrivalTime)}</div>
-            <div>{`Triage at ${format(new Date(triageTime), 'h:mma')}`}</div>
+            <div>{`Triage at ${format(parseISO(triageTime), 'h:mma')}`}</div>
           </TriageCell>
         );
       case 'observation':
         return (
           <TriageCell arrivalTime={arrivalTime}>{`Seen at ${format(
-            new Date(closedTime),
+            parseISO(closedTime),
             'h:mma',
           )}`}</TriageCell>
         );

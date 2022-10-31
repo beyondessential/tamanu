@@ -1,3 +1,4 @@
+/* eslint-disable custom-date-rules/no-date-constructor-with-param */
 import config from 'config';
 import { Op } from 'sequelize';
 

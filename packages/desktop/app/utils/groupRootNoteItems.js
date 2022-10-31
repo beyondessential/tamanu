@@ -1,5 +1,5 @@
 import { groupBy } from 'lodash';
-import { isAfter } from 'date-fns';
+import { isAfter, parseISO } from 'date-fns';
 
 /**
  * Group flat note items into nested ones:
@@ -18,7 +18,7 @@ export const groupRootNoteItems = (noteItems, customSort) => {
   const noteItemByRevisedId = groupBy(noteItems, noteItem => noteItem.revisedById || 'root');
   const rootNoteItems = [];
 
-  const defaultSort = (n1, n2) => (isAfter(new Date(n1.date), new Date(n2.date)) ? 1 : -1);
+  const defaultSort = (n1, n2) => (isAfter(parseISO(n1.date), parseISO(n2.date)) ? 1 : -1);
 
   // noteItemByRevisedId.root should never be empty but just in case
   if (noteItemByRevisedId.root) {

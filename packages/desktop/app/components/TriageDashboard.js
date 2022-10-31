@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import AccessTime from '@material-ui/icons/AccessTime';
+import { parseISO } from 'date-fns';
 import { useApi } from '../api';
 import { StatisticsCard, StatisticsCardContainer } from './StatisticsCard';
 import { Colors } from '../constants';
@@ -12,7 +13,7 @@ const getAverageWaitTime = categoryData => {
   }
 
   const summedWaitTime = categoryData.reduce(
-    (prev, curr) => prev + Math.round(new Date() - new Date(curr.triageTime)),
+    (prev, curr) => prev + Math.round(new Date() - parseISO(curr.triageTime)),
     0,
   );
   return summedWaitTime / categoryData.length;

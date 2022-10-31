@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import Select from 'react-select';
 import CloseIcon from '@material-ui/icons/Close';
 import { IconButton } from '@material-ui/core';
@@ -94,10 +94,10 @@ const PatientInfo = ({ patient }) => {
 
 const AppointmentTime = ({ startTime, endTime }) => (
   <span>
-    {format(new Date(startTime), 'ccc dd LLL')}
+    {format(parseISO(startTime), 'ccc dd LLL')}
     {' - '}
-    {format(new Date(startTime), 'h:mm aaa')}
-    {endTime && ` - ${format(new Date(endTime), 'h:mm aaa')}`}
+    {format(parseISO(startTime), 'h:mm aaa')}
+    {endTime && ` - ${format(parseISO(endTime), 'h:mm aaa')}`}
   </span>
 );
 

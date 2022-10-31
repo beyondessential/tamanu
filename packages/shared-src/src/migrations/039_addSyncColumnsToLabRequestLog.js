@@ -13,7 +13,7 @@ module.exports = {
       allowNull: false,
       defaultValue: false,
     });
-    await query.addColumn('lab_request_logs', 'created_at', Sequelize.DATE);
+    await query.addColumn('lab_request_logs', 'pushed_at', Sequelize.DATE);
     await query.addColumn('lab_request_logs', 'pulled_at', Sequelize.DATE);
   },
   down: async query => {

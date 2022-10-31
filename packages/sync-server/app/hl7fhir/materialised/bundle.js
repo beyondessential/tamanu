@@ -1,3 +1,4 @@
+/* eslint-disable custom-date-rules/no-date-constructor-with-param */
 import { v4 as uuidv4 } from 'uuid';
 
 import { FHIR_DATETIME_PRECISION } from 'shared/constants/fhir';

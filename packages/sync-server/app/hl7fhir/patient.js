@@ -1,5 +1,5 @@
 import config from 'config';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { Op } from 'sequelize';
 import { groupBy, keyBy } from 'lodash';
 import { VISIBILITY_STATUSES, FHIR_PATIENT_LINK_TYPES } from 'shared/constants';
@@ -99,7 +99,7 @@ const convertPatientToHL7Patient = (patient, additional = {}) => ({
   telecom: patientTelecom(patient, additional),
   // Only add deceasedDateTime key if the patient is deceased
   ...(patient.dateOfDeath && {
-    deceasedDateTime: format(new Date(patient.dateOfDeath), "yyyy-MM-dd'T'HH:mm:ssXXX"),
+    deceasedDateTime: format(parseISO(patient.dateOfDeath), "yyyy-MM-dd'T'HH:mm:ssXXX"),
   }),
 });
 

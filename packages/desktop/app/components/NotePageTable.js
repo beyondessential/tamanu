@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import Tooltip from '@material-ui/core/Tooltip';
-import { isAfter } from 'date-fns';
+import { isAfter, parseISO } from 'date-fns';
 
 import { NOTE_TYPES } from 'shared/constants';
 
@@ -64,14 +64,14 @@ const ItemTooltip = ({ childNoteItems = [] }) => {
 
 const getDate = ({ noteItems }) => {
   const rootNoteItems = groupRootNoteItems(noteItems, (n1, n2) =>
-    isAfter(new Date(n2.date), new Date(n1.date)) ? 1 : -1,
+    isAfter(parseISO(n2.date), parseISO(n1.date)) ? 1 : -1,
   );
   return <DateDisplay date={rootNoteItems[0]?.date} showTime />;
 };
 const getTypeLabel = ({ noteType }) => noteTypes.find(x => x.value === noteType).label;
 const getContent = ({ noteItems }) => {
   const rootNoteItems = groupRootNoteItems(noteItems, (n1, n2) =>
-    isAfter(new Date(n2.date), new Date(n1.date)) ? 1 : -1,
+    isAfter(parseISO(n2.date), parseISO(n1.date)) ? 1 : -1,
   );
   return (
     <StyledTooltip arrow followCursor title={<ItemTooltip childNoteItems={rootNoteItems} />}>
