@@ -4,10 +4,10 @@ import styled from 'styled-components';
 import Select, { components } from 'react-select';
 import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
-
 import { Colors } from '../../constants';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
+import { Tag } from '../Tag';
 
 const StyledFormControl = styled(FormControl)`
   display: flex;
@@ -28,38 +28,27 @@ const OptionContainer = styled.div`
   height: 100%;
 `;
 
-const Tag = styled.div`
-  //background: rgba(68, 173, 114, 0.1);
-  background: ${p => p.$background};
-  color: ${p => p.$color};
-  padding: 3px 13px;
-  border-radius: 20px;
-`;
-
 const OptionTag = styled(Tag)`
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  right: 10px;
+  right: 25px;
 `;
 
-const SelectTag = styled(Tag)`
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  right: 10px;
+const SelectTag = styled(OptionTag)`
+  right: 5px;
 `;
 
 const Option = props => {
   const tag = props.data?.tag;
   return (
     <OptionContainer>
+      <components.Option {...props} />
       {tag && (
         <OptionTag $background={tag.background} $color={tag.color}>
           {tag.label}
         </OptionTag>
       )}
-      <components.Option {...props} />
     </OptionContainer>
   );
 };
@@ -67,7 +56,7 @@ const Option = props => {
 const SingleValue = ({ children, ...props }) => {
   const tag = props.data?.tag;
   return (
-    <components.SingleValue {...props}>
+    <components.SingleValue {...props} style={{ overflow: 'visible' }}>
       {children}
       {tag && (
         <SelectTag $background={tag.background} $color={tag.color}>
@@ -129,6 +118,7 @@ export const SelectInput = ({
       ...base,
       display: 'flex',
       width: '100%',
+      overflow: 'visible',
     }),
   };
 

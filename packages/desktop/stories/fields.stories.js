@@ -24,33 +24,15 @@ import {
 } from '../app/components';
 import { IdInput } from '../app/components/Field/IdField';
 
-const TAGS = {
-  available: {
-    label: 'Available',
-    background: '#E2EEEA',
-    color: '#44AD72',
-  },
-  occupied: {
-    label: 'Occupied',
-    background: '#F4F4F4',
-    color: '#888888',
-  },
-  reserved: {
-    label: 'Reserved',
-    background: '#ff7979',
-    color: '#eb4d4b',
-  },
-};
-
 const FRUITS = [
-  { value: 'apples', label: 'Apples', tag: TAGS.available },
-  { value: 'oranges', label: 'Oranges', tag: TAGS.occupied },
-  { value: 'bananas', label: 'Bananas', tag: TAGS.available },
-  { value: 'pomegranates', label: 'Pomegranates', tag: TAGS.reserved },
-  { value: 'durian', label: 'Durian', tag: TAGS.available },
-  { value: 'dragonfruit', label: 'Dragonfruit', tag: TAGS.available },
-  { value: 'tomatoes', label: 'Tomatoes', tag: TAGS.available },
-  { value: 'cherries', label: 'Cherries', tag: TAGS.available },
+  { value: 'apples', label: 'Apples' },
+  { value: 'oranges', label: 'Oranges' },
+  { value: 'bananas', label: 'Bananas' },
+  { value: 'pomegranates', label: 'Pomegranates' },
+  { value: 'durian', label: 'Durian' },
+  { value: 'dragonfruit', label: 'Dragonfruit' },
+  { value: 'tomatoes', label: 'Tomatoes' },
+  { value: 'cherries', label: 'Cherries' },
 ];
 
 const Container = styled.div`
@@ -138,17 +120,68 @@ addStories('TemperatureInput', props => {
   );
 });
 
+const TAGS = {
+  primary: {
+    label: 'Available',
+    color: '#326699',
+    background: '#EBF0F5',
+  },
+  secondary: {
+    label: 'Occupied',
+    color: '#F17F16;',
+    background: '#F4EEE8',
+  },
+  tertiary: {
+    label: 'Reserved',
+    color: '#F76853',
+    background: '#FFF0EE',
+  },
+};
+
+const TAGGED_FRUITS = [
+  { value: 'apples', label: 'Apples', tag: TAGS.primary },
+  { value: 'oranges', label: 'Oranges', tag: TAGS.secondary },
+  { value: 'bananas', label: 'Bananas', tag: TAGS.primary },
+  { value: 'pomegranates', label: 'Pomegranates', tag: TAGS.tertiary },
+  { value: 'durian', label: 'Durian', tag: TAGS.primary },
+  { value: 'dragonfruit', label: 'Dragonfruit', tag: TAGS.secondary },
+  { value: 'tomatoes', label: 'Tomatoes', tag: TAGS.primary },
+  { value: 'cherries', label: 'Cherries', tag: TAGS.tertiary },
+];
+
+const dummyTaggedSuggester = {
+  fetchSuggestions: async search => {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    return TAGGED_FRUITS.filter(x => x.label.toLowerCase().includes(search.toLowerCase()));
+  },
+  fetchCurrentOption: async value => {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    return TAGGED_FRUITS.find(x => x.value === value);
+  },
+};
+
 addStories('Dropdown with tags', props => {
-  const [formValue, setFormValue] = React.useState(0);
-  const onChange = newValue => {
-    setFormValue(newValue);
-  };
   return (
     <Container>
-      <Box>
-        <TemperatureInput name="temperature" min={0} onChange={onChange} {...props} />
-        <Box m={3}>Form value: {formValue}</Box>
-      </Box>
+      <StoryControlWrapper
+        Component={SelectInput}
+        label="Simple Select"
+        options={TAGGED_FRUITS}
+        {...props}
+      />
+      <StoryControlWrapper
+        Component={AutocompleteInput}
+        label="Autocomplete"
+        options={TAGGED_FRUITS}
+        {...props}
+      />
+      <StoryControlWrapper
+        Component={AutocompleteInput}
+        label="Async Autocomplete"
+        options={TAGGED_FRUITS}
+        suggester={dummyTaggedSuggester}
+        {...props}
+      />
     </Container>
   );
 });
