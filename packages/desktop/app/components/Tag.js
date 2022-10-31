@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 
 export const Tag = styled.div`
+  position: relative;
   background: ${p => p.$background};
   color: ${p => p.$color};
   padding: 3px 13px;

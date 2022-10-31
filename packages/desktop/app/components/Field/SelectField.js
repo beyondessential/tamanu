@@ -22,41 +22,32 @@ const StyledFormControl = styled(FormControl)`
   }
 `;
 
-const OptionContainer = styled.div`
-  position: relative;
-  width: 100%;
-  height: 100%;
-`;
-
-const OptionTag = styled(Tag)`
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  right: 25px;
-`;
-
-const SelectTag = styled(OptionTag)`
+const SelectTag = styled(Tag)`
   right: 5px;
 `;
 
-const Option = props => {
+const OptionTag = styled(Tag)`
+  right: 20px;
+`;
+
+const Option = ({ children, ...props }) => {
   const tag = props.data?.tag;
   return (
-    <OptionContainer>
-      <components.Option {...props} />
+    <components.Option {...props}>
+      {children}
       {tag && (
         <OptionTag $background={tag.background} $color={tag.color}>
           {tag.label}
         </OptionTag>
       )}
-    </OptionContainer>
+    </components.Option>
   );
 };
 
 const SingleValue = ({ children, ...props }) => {
   const tag = props.data?.tag;
   return (
-    <components.SingleValue {...props} style={{ overflow: 'visible' }}>
+    <components.SingleValue {...props}>
       {children}
       {tag && (
         <SelectTag $background={tag.background} $color={tag.color}>
@@ -114,11 +105,23 @@ export const SelectInput = ({
       boxShadow: 'none',
       border: `1px solid ${Colors.outline}`,
     }),
+    option: (provided, state) => ({
+      ...provided,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      backgroundColor: state.isFocused || state.isSelected ? Colors.hoverGrey : Colors.white,
+      color: 'initial',
+      cursor: 'pointer',
+    }),
     singleValue: base => ({
       ...base,
       display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
       width: '100%',
       overflow: 'visible',
+      cursor: 'text',
     }),
   };
 
@@ -156,7 +159,6 @@ export const SelectInput = ({
           menuShouldBlockScroll="true"
           placeholder="Select"
           components={{ Option, SingleValue }}
-          // menuIsOpen
           {...props}
         />
         {helperText && <FormHelperText>{helperText}</FormHelperText>}
