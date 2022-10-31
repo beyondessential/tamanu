@@ -1,9 +1,9 @@
 import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
 
-import { LAB_REQUEST_STATUSES, NOTE_TYPES } from 'shared/constants';
+import { LAB_REQUEST_STATUSES } from 'shared/constants';
 import { Model } from './Model';
-import { dateTimeType } from './dateTimeType';
+import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 
 export class LabRequest extends Model {
@@ -11,43 +11,26 @@ export class LabRequest extends Model {
     super.init(
       {
         id: primaryKey,
-        sampleTime: {
-          ...dateTimeType('sampleTime'),
+        sampleTime: dateTimeType('sampleTime', {
           allowNull: false,
           defaultValue: getCurrentDateTimeString,
-        },
-        // Legacy column has historical date time data as a backup
-        sampleTimeLegacy: {
-          type: Sequelize.DATE,
-          allowNull: false,
-          defaultValue: Sequelize.NOW,
-        },
-        requestedDate: {
-          ...dateTimeType('requestedDate'),
+        }),
+        requestedDate: dateTimeType('requestedDate', {
           allowNull: false,
           defaultValue: getCurrentDateTimeString,
-        },
-        // Legacy column has historical date time data as a backup
-        requestedDateLegacy: {
-          type: Sequelize.DATE,
-          allowNull: false,
-          defaultValue: Sequelize.NOW,
-        },
+        }),
         specimenAttached: {
           type: Sequelize.BOOLEAN,
           defaultValue: false,
         },
-
         urgent: {
           type: Sequelize.BOOLEAN,
           defaultValue: false,
         },
-
         status: {
           type: Sequelize.STRING,
           defaultValue: LAB_REQUEST_STATUSES.RECEPTION_PENDING,
         },
-
         senaiteId: {
           type: Sequelize.STRING,
           allowNull: true,
@@ -56,7 +39,6 @@ export class LabRequest extends Model {
           type: Sequelize.STRING,
           allowNull: true,
         },
-
         displayId: {
           type: Sequelize.STRING,
           allowNull: false,
@@ -73,7 +55,9 @@ export class LabRequest extends Model {
         throw new InvalidOperationError('A request must have at least one test');
       }
 
-      const base = await this.create(data);
+      const { date, ...requestData } = data;
+
+      const base = await this.create(requestData);
 
       // then create tests
       const { LabTest } = this.sequelize.models;
@@ -83,18 +67,12 @@ export class LabRequest extends Model {
           LabTest.create({
             labTestTypeId: t,
             labRequestId: base.id,
+            date,
           }),
         ),
       );
 
       return base;
-    });
-  }
-
-  async addLabNote(content) {
-    await this.createNote({
-      noteType: NOTE_TYPES.OTHER,
-      content,
     });
   }
 
@@ -134,9 +112,9 @@ export class LabRequest extends Model {
       as: 'certificate_notification',
     });
 
-    this.hasMany(models.Note, {
+    this.hasMany(models.NotePage, {
       foreignKey: 'recordId',
-      as: 'notes',
+      as: 'notePages',
       constraints: false,
       scope: {
         recordType: this.name,

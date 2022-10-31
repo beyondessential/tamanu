@@ -225,7 +225,7 @@ describe('Programs', () => {
         testSurvey,
         {
           patientId: patient.id,
-          examinerId,
+          userId: examinerId,
           departmentId,
           locationId,
         },
@@ -238,7 +238,7 @@ describe('Programs', () => {
         testSurvey,
         {
           patientId: otherTestPatient.id,
-          examinerId,
+          userId: examinerId,
           departmentId,
           locationId,
         },
@@ -257,7 +257,7 @@ describe('Programs', () => {
 
         // expect encounter details to be included
         expect(response).toHaveProperty('programName');
-        expect(response).toHaveProperty('assessorName');
+        expect(response).toHaveProperty('submittedBy');
         expect(response).toHaveProperty('encounterId');
       };
 
@@ -303,7 +303,7 @@ describe('Programs', () => {
       const result = await app.post(`/v1/surveyResponse`).send({
         ...createDummySurveyResponse(testSurvey),
         patientId: testPatient.id,
-        examinerId,
+        userId: examinerId,
         departmentId,
         locationId,
       });
@@ -329,7 +329,7 @@ describe('Programs', () => {
         const patient = await models.Patient.create(await createDummyPatient(models));
         patientId = patient.id;
 
-        const commonParams = { patientId, examinerId, departmentId, locationId };
+        const commonParams = { patientId, userId: examinerId, departmentId, locationId };
 
         // populate responses
         await submitMultipleSurveyResponses(testReferralSurvey, commonParams);
@@ -384,11 +384,11 @@ describe('Programs', () => {
           config: {
             issueType: 'issue',
             issueNote: 'test-note',
-          }
+          },
         });
 
-        const beforeIssue = await models.PatientIssue.findOne({ 
-          where: { patientId: testPatient.id, note: 'test-note' } 
+        const beforeIssue = await models.PatientIssue.findOne({
+          where: { patientId: testPatient.id, note: 'test-note' },
         });
         expect(beforeIssue).toBeFalsy();
 
@@ -400,8 +400,8 @@ describe('Programs', () => {
         });
         expect(result).toHaveSucceeded();
 
-        const afterIssue = await models.PatientIssue.findAll({ 
-          where: { patientId: testPatient.id, note: 'test-note' }, 
+        const afterIssue = await models.PatientIssue.findAll({
+          where: { patientId: testPatient.id, note: 'test-note' },
         });
         expect(afterIssue).toBeTruthy();
       });
@@ -413,8 +413,8 @@ describe('Programs', () => {
             writeToPatient: {
               fieldName: 'email',
               isAdditionalDataField: false,
-            }
-          }
+            },
+          },
         });
 
         const TEST_EMAIL = 'updated-email@tamanu.io';
@@ -432,7 +432,6 @@ describe('Programs', () => {
         expect(testPatient.email).toEqual(TEST_EMAIL);
       });
 
-
       it('should write data to an existing patientAdditionalData record', async () => {
         const { pdeId, surveyId } = await createWithQuestion({
           type: PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA,
@@ -440,8 +439,8 @@ describe('Programs', () => {
             writeToPatient: {
               fieldName: 'passport',
               isAdditionalDataField: true,
-            }
-          }
+            },
+          },
         });
 
         const TEST_PASSPORT = '123123';
@@ -467,8 +466,8 @@ describe('Programs', () => {
             writeToPatient: {
               fieldName: 'passport',
               isAdditionalDataField: true,
-            }
-          }
+            },
+          },
         });
 
         const freshPatient = await models.Patient.create(await createDummyPatient(models));
@@ -500,7 +499,7 @@ describe('Programs', () => {
       const result = await app.post(`/v1/surveyResponse`).send({
         ...createDummySurveyResponse(testSurvey),
         patientId: testPatient.id,
-        examinerId,
+        userId: examinerId,
         locationId,
       });
       expect(result).toHaveRequestError();
@@ -515,7 +514,7 @@ describe('Programs', () => {
       const result = await app.post(`/v1/surveyResponse`).send({
         ...createDummySurveyResponse(testSurvey),
         patientId: testPatient.id,
-        examinerId,
+        userId: examinerId,
         locationId,
       });
       expect(result).toHaveRequestError();

@@ -9,17 +9,26 @@ import { TriageWaitTimeCell } from './TriageWaitTimeCell';
 import { useLocalisation } from '../contexts/Localisation';
 import { reloadPatient } from '../store';
 
+const ADMITTED_PRIORITY_COLOR = '#bdbdbd';
+
 const useColumns = () => {
   const { getLocalisation } = useLocalisation();
   const triageCategories = getLocalisation('triageCategories');
 
   return [
     {
-      key: 'score',
+      key: 'arrivalTime',
       title: 'Wait time',
       // Cell color cannot be set on the component due to the way table cells are configured so the
       // cell color must be calculated and set in the table config separately
-      cellColor: ({ score }) => triageCategories.find(c => c.level === parseInt(score))?.color,
+      cellColor: ({ score, encounterType }) => {
+        switch (encounterType) {
+          case 'triage':
+            return triageCategories.find(c => c.level === parseInt(score))?.color;
+          default:
+            return ADMITTED_PRIORITY_COLOR;
+        }
+      },
       accessor: TriageWaitTimeCell,
     },
     { key: 'chiefComplaint', title: 'Chief complaint' },

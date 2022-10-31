@@ -1,3 +1,4 @@
+import config from 'config';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
@@ -37,8 +38,10 @@ triage.post(
     // The triage form groups notes as a single string for submission
     // so put it into a single note record
     if (notes) {
-      await triageRecord.createNote({
+      const notePage = await triageRecord.createNotePage({
         noteType: NOTE_TYPES.OTHER,
+      });
+      await notePage.createNoteItem({
         content: notes,
       });
     }
@@ -49,9 +52,15 @@ triage.post(
 
 const sortKeys = {
   score: 'score',
+  // arrivalTime is an optional field and the ui prompts the user to enter it only if arrivalTime
+  // is different to triageTime so we should assume the arrivalTime is the triageTime if arrivalTime
+  // is undefined
+  arrivalTime: 'Coalesce(arrival_time,triage_time)',
   patientName: 'UPPER(patients.last_name || patients.first_name)',
   chiefComplaint: 'chief_complaint',
   id: 'patients.display_id',
+  displayId: 'patients.display_id',
+  sex: 'patients.sex',
   dateOfBirth: 'patients.date_of_birth',
   locationName: 'location_name',
 };
@@ -91,13 +100,22 @@ triage.get(
            ON (encounters.location_id = location.id)
           LEFT JOIN reference_data AS complaint
            ON (triages.chief_complaint_id = complaint.id)
-        WHERE (encounters.encounter_type = 'triage' OR encounters.encounter_type = 'observation') AND encounters.end_date IS NULL
-        ORDER BY ${sortKey} ${sortDirection} NULLS LAST
+        WHERE true
+          AND encounters.end_date IS NULL
+          AND location.facility_id = :facility
+          AND (
+            encounters.encounter_type = 'triage'
+            OR encounters.encounter_type = 'observation'
+          )
+        ORDER BY encounter_type = 'observation' ASC, ${sortKey} ${sortDirection} NULLS LAST, Coalesce(arrival_time,triage_time) ASC 
       `,
       {
         model: Triage,
         type: QueryTypes.SELECT,
         mapToModel: true,
+        replacements: {
+          facility: config.serverFacilityId,
+        },
       },
     );
 

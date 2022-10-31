@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-expressions */
 
 import { createTestContext } from 'sync-server/__tests__/utilities';
-import { fake } from 'shared/test-helpers/fake';
+import { fake, fakeUser } from 'shared/test-helpers/fake';
 import { VdsNcDocument } from 'sync-server/app/integrations/VdsNc';
 import {
   loadCertificateIntoSigner,
@@ -99,6 +99,10 @@ describe('VDS-NC: Document cryptography', () => {
       Patient,
       ReferenceData,
       ScheduledVaccine,
+      Location,
+      Department,
+      User,
+      Facility,
     } = ctx.store.models;
 
     // Arrange
@@ -123,6 +127,23 @@ describe('VDS-NC: Document cryptography', () => {
       vaccineId: azVaxDrug.id,
     });
 
+    const facility = await Facility.create({
+      ...fake(Facility),
+      name: 'Utopia HQ',
+    });
+
+    const location = await Location.create({
+      ...fake(Location),
+      facilityId: facility.id,
+    });
+
+    const department = await Department.create({
+      ...fake(Department),
+      facilityId: facility.id,
+    });
+
+    const examiner = await User.create(fakeUser());
+
     const latestVacc = await AdministeredVaccine.create({
       id: 'e7664992-13c4-42c8-a106-b31f4f825466',
       status: 'GIVEN',
@@ -132,6 +153,9 @@ describe('VDS-NC: Document cryptography', () => {
         await Encounter.create({
           ...fake(Encounter),
           patientId: patient.id,
+          locationId: location.id,
+          departmentId: department.id,
+          examinerId: examiner.id,
         })
       ).id,
       date: new Date(Date.parse('22 February 2022, UTC')),
@@ -146,6 +170,9 @@ describe('VDS-NC: Document cryptography', () => {
         await Encounter.create({
           ...fake(Encounter),
           patientId: patient.id,
+          locationId: location.id,
+          departmentId: department.id,
+          examinerId: examiner.id,
         })
       ).id,
       date: new Date(Date.parse('2 January 2022, UTC')),

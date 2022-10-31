@@ -3,6 +3,12 @@ import { PATIENT_COMMUNICATION_CHANNELS, COMMUNICATION_STATUSES } from 'shared/c
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
 
+// turns 'hello there' into 'h*********e'
+const maskMiddle = s => s.slice(0, 1) + s.slice(1, -1).replace(/./g, '*') + s.slice(-1);
+
+// turns 'test@gmail.com' into 't**t@g*******m'
+const maskEmail = email => email.replace(/[^@]*/g, maskMiddle);
+
 export class PatientEmailCommunicationProcessor extends ScheduledTask {
   constructor(context) {
     const conf = config.schedules.patientEmailCommunicationProcessor;
@@ -48,11 +54,14 @@ export class PatientEmailCommunicationProcessor extends ScheduledTask {
         plain: true,
       });
       const toAddress = emailPlain.destination || emailPlain.patient?.email;
-      log.info('\n');
-      log.info(`Processing email : ${emailPlain.id}`);
-      log.info(`Email type       : ${emailPlain.type}`);
-      log.info(`Email to patient : ${emailPlain.patient?.id}`);
-      log.info(`At address       : ${toAddress}`);
+
+      log.info('Sending email to patient', {
+        communicationId: emailPlain.id,
+        type: emailPlain.type,
+        patientId: emailPlain.patient?.id,
+        email: toAddress ? maskEmail(toAddress) : null,
+      });
+
       try {
         const result = await this.context.emailService.sendEmail({
           to: toAddress,
@@ -61,11 +70,21 @@ export class PatientEmailCommunicationProcessor extends ScheduledTask {
           text: emailPlain.content,
           attachment: emailPlain.attachment,
         });
+        if (result.error) {
+          log.warn('Email failed', {
+            communicationId: emailPlain.id,
+            error: result.error,
+          });
+        }
         return email.update({
           status: result.status,
           error: result.error,
         });
       } catch (e) {
+        log.warn('Email errored', {
+          communicationId: emailPlain.id,
+          error: e.stack,
+        });
         return email.update({
           status: COMMUNICATION_STATUSES.ERROR,
           error: e.message,

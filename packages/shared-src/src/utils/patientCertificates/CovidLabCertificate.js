@@ -55,9 +55,25 @@ const columns = [
   {
     key: 'specimenType',
     title: 'Specimen type',
-    accessor: ({ labTestType }) => labTestType?.name || 'Unknown',
+    accessor: ({ labTestType }) => (labTestType || {}).name || 'Unknown',
   },
 ];
+
+export const CertificateTypes = {
+  test: 'test',
+  clearance: 'clearance',
+};
+
+const CertificateTitle = {
+  test: 'Covid-19 Test History',
+  clearance: 'Covid-19 Clearance Certificate',
+};
+
+const getCertificateRemark = patient => ({
+  test: '',
+  clearance: `This notice certifies that ${patient.firstName || ''} ${patient.lastName ||
+    ''} is no longer considered infectious following 13 days of self-isolation from the date of their first positive SARS-CoV-2 test and are medically cleared from COVID-19.`,
+});
 
 export const CovidLabCertificate = ({
   patient,
@@ -68,13 +84,14 @@ export const CovidLabCertificate = ({
   logoSrc,
   getLocalisation,
   printedBy,
+  certType,
 }) => (
   <Document>
     <Page size="A4" style={styles.page}>
       {watermarkSrc && <Watermark src={watermarkSrc} />}
       <LetterheadSection getLocalisation={getLocalisation} logoSrc={logoSrc} />
       <Box mb={0}>
-        <H3>Covid-19 Test History</H3>
+        <H3>{CertificateTitle[certType] || ''}</H3>
         <PatientDetailsSection
           patient={patient}
           vdsSrc={vdsSrc}
@@ -84,6 +101,8 @@ export const CovidLabCertificate = ({
       <Box mb={30}>
         <Table data={labs} columns={columns} getLocalisation={getLocalisation} />
       </Box>
+      <P>{getCertificateRemark(patient)[certType] || ''}</P>
+      <Box />
       <Box>
         <Row>
           <Col>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 import { Box } from '@material-ui/core';
+import { getCurrentDateTimeString } from 'shared-src/src/utils/dateTime';
 import { foreignKey } from '../utils/validation';
 import { DropdownButton } from '../components/DropdownButton';
 import { PrescriptionPrintModal } from '../components/PatientPrinting/PrescriptionPrintModal';
@@ -120,9 +121,9 @@ export const MedicationForm = React.memo(
             note: medication?.note ?? '',
             route: medication?.route ?? '',
             prescription: medication?.prescription ?? '',
-            date: medication?.date ?? new Date(),
+            date: medication?.date ?? getCurrentDateTimeString(),
             qtyMorning: medication?.qtyMorning ?? 0,
-            qtyLunch: medication?.qtyMorning ?? 0,
+            qtyLunch: medication?.qtyLunch ?? 0,
             qtyEvening: medication?.qtyEvening ?? 0,
             qtyNight: medication?.qtyNight ?? 0,
             quantity: medication?.quantity ?? 0,
@@ -160,6 +161,7 @@ export const MedicationForm = React.memo(
               <Field
                 name="date"
                 label="Prescription date"
+                saveDateAsString
                 component={DateField}
                 required={!readOnly}
                 disabled={readOnly}
@@ -167,6 +169,7 @@ export const MedicationForm = React.memo(
               <Field
                 name="endDate"
                 label="End date"
+                saveDateAsString
                 component={DateField}
                 disabled={readOnly}
                 value={medication?.endDate}

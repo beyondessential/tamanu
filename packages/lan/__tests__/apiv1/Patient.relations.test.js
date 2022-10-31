@@ -1,4 +1,5 @@
 import { createDummyPatient, randomReferenceId } from 'shared/demoData/patients';
+import { PATIENT_FIELD_DEFINITION_TYPES } from 'shared/constants/patientFields';
 import { createTestContext } from '../utilities';
 
 describe('Patient', () => {
@@ -263,6 +264,94 @@ describe('Patient', () => {
       });
       expect(result).toHaveSucceeded();
       expect(result.body.visibilityStatus).toBe(newVisibilityStatus);
+    });
+  });
+
+  describe('fields', () => {
+    it('should get a map of definitionIds to values', async () => {
+      // Arrange
+      const {
+        Patient,
+        PatientFieldDefinitionCategory,
+        PatientFieldDefinition,
+        PatientFieldValue,
+      } = models;
+
+      const category1 = await PatientFieldDefinitionCategory.create({
+        name: 'Test Category 1',
+      });
+      await PatientFieldDefinitionCategory.create({
+        name: 'Test Category 2 (empty)',
+      });
+      const definition1 = await PatientFieldDefinition.create({
+        name: 'Test Field 1',
+        fieldType: PATIENT_FIELD_DEFINITION_TYPES.STRING,
+        categoryId: category1.id,
+        options: ['Oldest', 'Newest', 'Other'],
+      });
+
+      const patient = await Patient.create(await createDummyPatient(models));
+      await PatientFieldValue.create({
+        value: 'Oldest',
+        definitionId: definition1.id,
+        patientId: patient.id,
+      });
+      await PatientFieldValue.create({
+        value: 'Newest',
+        definitionId: definition1.id,
+        patientId: patient.id,
+      });
+
+      const otherPatient = await Patient.create(await createDummyPatient(models));
+      await PatientFieldValue.create({
+        value: 'Other',
+        definitionId: definition1.id,
+        patientId: otherPatient.id,
+      });
+
+      // Act
+      const result = await app.get(`/v1/patient/${patient.id}/fields`);
+
+      // Assert
+      expect(result).toHaveSucceeded();
+      expect(result.body.data).toMatchObject({
+        [definition1.id]: 'Newest',
+      });
+    });
+
+    it('should get field categories and definitions', async () => {
+      // Arrange
+      const { PatientFieldDefinitionCategory, PatientFieldDefinition } = models;
+      await Promise.all([
+        PatientFieldDefinitionCategory.truncate({ cascade: true }),
+        PatientFieldDefinition.truncate({ cascade: true }),
+      ]);
+      const category1 = await PatientFieldDefinitionCategory.create({
+        name: 'Test Category 1',
+      });
+      await PatientFieldDefinitionCategory.create({
+        name: 'Test Category 2 (empty)',
+      });
+      const definition1 = await PatientFieldDefinition.create({
+        name: 'Test Field 1',
+        fieldType: PATIENT_FIELD_DEFINITION_TYPES.STRING,
+        categoryId: category1.id,
+        options: ['a', 'b', 'c'],
+      });
+
+      // Act
+      const result = await app.get(`/v1/patientFieldDefinition`);
+
+      // Assert
+      expect(result).toHaveSucceeded();
+      expect(result.body.data).toHaveLength(1);
+      expect(result.body.data[0]).toEqual({
+        definitionId: definition1.id,
+        name: 'Test Field 1',
+        category: 'Test Category 1',
+        fieldType: 'string',
+        options: ['a', 'b', 'c'],
+      });
     });
   });
 });

@@ -1,10 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
-import moment from 'moment';
 
 import { Colors } from '../constants';
 import { MoreDropdownMenu } from './MoreDropdownMenu';
-import { connectApi } from '../api';
+import { useApi } from '../api';
+import { DateDisplay } from './DateDisplay';
 
 const NoteContainer = styled.div`
   border: 1px solid ${Colors.outline};
@@ -53,53 +53,49 @@ const NoteContent = styled.p`
   white-space: pre-line;
 `;
 
-const DumbCarePlanNoteDisplay = ({
-  note,
-  isMainCarePlan,
-  onEditClicked,
-  deleteNote,
-  onNoteDeleted,
-}) => (
-  <NoteContainer>
-    <NoteHeaderContainer>
-      <VerticalCenter>
-        <NoteAuthorName>{note.author.displayName}</NoteAuthorName>
-        {note.onBehalfOf && note.onBehalfOf.displayName ? (
-          <NoteOnBehalfOf>
-            &nbsp;&nbsp;|&nbsp;&nbsp;
-            {`On behalf of ${note.onBehalfOf.displayName}`}
-          </NoteOnBehalfOf>
-        ) : null}
-        {isMainCarePlan ? <MainCarePlanIndicator>Main care plan</MainCarePlanIndicator> : null}
-      </VerticalCenter>
-      <VerticalCenter>
-        <Timestamp>{moment(note.date).format('LLLL')}</Timestamp>
-        <MoreDropdownMenu
-          iconColor={Colors.midText}
-          actions={[
-            {
-              label: 'Edit',
-              onClick() {
-                onEditClicked();
+export const CarePlanNoteDisplay = ({ note, isMainCarePlan, onEditClicked, onNoteDeleted }) => {
+  const api = useApi();
+  const deleteNote = async noteId => api.delete(`notePages/${noteId}`);
+  return (
+    <NoteContainer>
+      <NoteHeaderContainer>
+        <VerticalCenter>
+          <NoteAuthorName>{note.author.displayName}</NoteAuthorName>
+          {note.onBehalfOf && note.onBehalfOf.displayName ? (
+            <NoteOnBehalfOf>
+              &nbsp;&nbsp;|&nbsp;&nbsp;
+              {`On behalf of ${note.onBehalfOf.displayName}`}
+            </NoteOnBehalfOf>
+          ) : null}
+          {isMainCarePlan ? <MainCarePlanIndicator>Main care plan</MainCarePlanIndicator> : null}
+        </VerticalCenter>
+        <VerticalCenter>
+          <Timestamp>
+            <DateDisplay date={note.date} />
+          </Timestamp>
+          <MoreDropdownMenu
+            iconColor={Colors.midText}
+            actions={[
+              {
+                label: 'Edit',
+                onClick() {
+                  onEditClicked();
+                },
               },
-            },
-            !isMainCarePlan && {
-              label: 'Delete',
-              async onClick() {
-                await deleteNote(note.id);
-                onNoteDeleted();
+              !isMainCarePlan && {
+                label: 'Delete',
+                async onClick() {
+                  await deleteNote(note.id);
+                  onNoteDeleted();
+                },
               },
-            },
-          ]}
-        />
-      </VerticalCenter>
-    </NoteHeaderContainer>
-    <NoteContentContainer>
-      <NoteContent>{note.content}</NoteContent>
-    </NoteContentContainer>
-  </NoteContainer>
-);
-
-export const CarePlanNoteDisplay = connectApi(api => ({
-  deleteNote: async noteId => api.delete(`note/${noteId}`),
-}))(DumbCarePlanNoteDisplay);
+            ]}
+          />
+        </VerticalCenter>
+      </NoteHeaderContainer>
+      <NoteContentContainer>
+        <NoteContent>{note.content}</NoteContent>
+      </NoteContentContainer>
+    </NoteContainer>
+  );
+};

@@ -16,7 +16,7 @@ import {
   TableFooter,
   TablePagination,
 } from '@material-ui/core';
-import { Paper, PaperStyles } from '../Paper';
+import { PaperStyles } from '../Paper';
 import { DownloadDataButton } from './DownloadDataButton';
 import { useLocalisation } from '../../contexts/Localisation';
 import { ErrorBoundary } from '../ErrorBoundary';
@@ -107,7 +107,7 @@ const StyledTable = styled(MaterialTable)`
 `;
 
 const StyledTableHead = styled(TableHead)`
-  background: ${Colors.background};
+  background: ${props => (props.$headerColor ? props.$headerColor : Colors.background)};
 `;
 
 const StyledTableFooter = styled(TableFooter)`
@@ -124,54 +124,60 @@ const RowContainer = React.memo(({ children, rowStyle, onClick }) => (
   </StyledTableRow>
 ));
 
-const Row = React.memo(({ columns, data, onClick, rowStyle, refreshTable }) => {
-  const cells = columns.map(
-    ({ key, accessor, CellComponent, numeric, maxWidth, cellColor, dontCallRowInput }) => {
-      const value = accessor ? React.createElement(accessor, { refreshTable, ...data }) : data[key];
-      const displayValue = value === 0 ? '0' : value;
-      const backgroundColor = typeof cellColor === 'function' ? cellColor(data) : cellColor;
-      return (
-        <StyledTableCell
-          onClick={dontCallRowInput ? preventInputCallback : undefined}
-          background={backgroundColor}
-          key={key}
-          align={numeric ? 'right' : 'left'}
-          data-test-class={`table-column-${key}`}
-        >
-          <ErrorBoundary ErrorComponent={CellError}>
-            {CellComponent ? (
-              <CellComponent value={displayValue} />
-            ) : (
-              <DisplayValue maxWidth={maxWidth} displayValue={displayValue} />
-            )}
-          </ErrorBoundary>
-        </StyledTableCell>
-      );
-    },
-  );
-  return (
-    <RowContainer
-      onClick={onClick && (() => onClick(data))}
-      rowStyle={rowStyle ? rowStyle(data) : ''}
-    >
-      {cells}
-    </RowContainer>
-  );
-});
+const Row = React.memo(
+  ({ rowIndex, columns, data, onClick, cellOnChange, rowStyle, refreshTable }) => {
+    const cells = columns.map(
+      ({ key, accessor, CellComponent, numeric, maxWidth, cellColor, dontCallRowInput }) => {
+        const onChange = cellOnChange ? event => cellOnChange(event, key, rowIndex, data) : null;
+        const value = accessor
+          ? React.createElement(accessor, { refreshTable, onChange, ...data, rowIndex })
+          : data[key];
+        const displayValue = value === 0 ? '0' : value;
+        const backgroundColor = typeof cellColor === 'function' ? cellColor(data) : cellColor;
+        return (
+          <StyledTableCell
+            onClick={dontCallRowInput ? preventInputCallback : undefined}
+            background={backgroundColor}
+            key={key}
+            align={numeric ? 'right' : 'left'}
+            data-test-class={`table-column-${key}`}
+          >
+            <ErrorBoundary ErrorComponent={CellError}>
+              {CellComponent ? (
+                <CellComponent value={displayValue} />
+              ) : (
+                <DisplayValue maxWidth={maxWidth} displayValue={displayValue} />
+              )}
+            </ErrorBoundary>
+          </StyledTableCell>
+        );
+      },
+    );
+    return (
+      <RowContainer
+        onClick={onClick && (() => onClick(data))}
+        rowStyle={rowStyle ? rowStyle(data) : ''}
+      >
+        {cells}
+      </RowContainer>
+    );
+  },
+);
 
 const ErrorSpan = styled.span`
   color: #ff0000;
 `;
 
-const DisplayValue = React.memo(({ maxWidth, displayValue }) =>
-  maxWidth ? (
-    <StyledTableCellContent title={displayValue} maxWidth={maxWidth}>
+const DisplayValue = React.memo(({ maxWidth, displayValue }) => {
+  const title = typeof displayValue === 'string' ? displayValue : null;
+  return maxWidth ? (
+    <StyledTableCellContent title={title} maxWidth={maxWidth}>
       {displayValue}
     </StyledTableCellContent>
   ) : (
     displayValue
-  ),
-);
+  );
+});
 
 const ErrorRow = React.memo(({ colSpan, children }) => (
   <RowContainer>
@@ -202,9 +208,22 @@ class TableComponent extends React.Component {
   };
 
   renderHeaders() {
-    const { columns, order, orderBy, onChangeOrderBy, getLocalisation } = this.props;
-    const getContent = (key, sortable, title) =>
-      sortable ? (
+    const {
+      columns,
+      order,
+      orderBy,
+      onChangeOrderBy,
+      getLocalisation,
+      titleData,
+      headerOnChange,
+    } = this.props;
+    const getContent = (key, sortable, title, titleAccessor) => {
+      const onChange = headerOnChange ? event => headerOnChange(event, key) : null;
+      const displayTitle = titleAccessor
+        ? React.createElement(titleAccessor, { onChange, ...titleData, title })
+        : title;
+
+      return sortable ? (
         <TableSortLabel
           active={orderBy === key}
           direction={order}
@@ -213,12 +232,13 @@ class TableComponent extends React.Component {
           {title || getLocalisation(`fields.${key}.shortLabel`) || key}
         </TableSortLabel>
       ) : (
-        title || getLocalisation(`fields.${key}.shortLabel`) || key
+        displayTitle || getLocalisation(`fields.${key}.shortLabel`) || key
       );
+    };
 
-    return columns.map(({ key, title, numeric, sortable = true }) => (
+    return columns.map(({ key, title, numeric, noTitle, titleAccessor, sortable = true }) => (
       <StyledTableCell key={key} align={numeric ? 'right' : 'left'}>
-        {getContent(key, sortable, title)}
+        {getContent(key, sortable, title, titleAccessor, noTitle)}
       </StyledTableCell>
     ));
   }
@@ -229,11 +249,13 @@ class TableComponent extends React.Component {
       customSort,
       columns,
       onRowClick,
+      cellOnChange,
       errorMessage,
       rowIdKey,
       rowStyle,
       refreshTable,
     } = this.props;
+
     const error = this.getErrorMessage();
     if (error) {
       return (
@@ -243,14 +265,16 @@ class TableComponent extends React.Component {
       );
     }
     const sortedData = customSort ? customSort(data) : data;
-    return sortedData.map(rowData => {
+    return sortedData.map((rowData, rowIndex) => {
       const key = rowData[rowIdKey] || rowData[columns[0].key];
       return (
         <Row
+          rowIndex={rowIndex}
           data={rowData}
           key={key}
           columns={columns}
           onClick={onRowClick}
+          cellOnChange={cellOnChange}
           refreshTable={refreshTable}
           rowStyle={rowStyle}
         />
@@ -296,11 +320,11 @@ class TableComponent extends React.Component {
   }
 
   render() {
-    const { className, elevated } = this.props;
+    const { className, elevated, headerColor } = this.props;
     return (
       <StyledTableContainer className={className} $elevated={elevated}>
         <StyledTable>
-          <StyledTableHead>
+          <StyledTableHead $headerColor={headerColor}>
             <TableRow>{this.renderHeaders()}</TableRow>
           </StyledTableHead>
           <TableBody>{this.renderBodyContent()}</TableBody>
@@ -333,6 +357,8 @@ TableComponent.propTypes = {
   page: PropTypes.number,
   rowsPerPage: PropTypes.number,
   onRowClick: PropTypes.func,
+  cellOnChange: PropTypes.func,
+  headerOnChange: PropTypes.func,
   rowsPerPageOptions: PropTypes.arrayOf(PropTypes.number),
   rowIdKey: PropTypes.string,
   className: PropTypes.string,
@@ -356,6 +382,8 @@ TableComponent.defaultProps = {
   page: null,
   elevated: true,
   onRowClick: null,
+  cellOnChange: null,
+  headerOnChange: null,
   rowsPerPage: DEFAULT_ROWS_PER_PAGE_OPTIONS[0],
   rowsPerPageOptions: DEFAULT_ROWS_PER_PAGE_OPTIONS,
   rowIdKey: 'id', // specific to data expected for tamanu REST api fetches

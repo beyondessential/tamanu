@@ -1,9 +1,11 @@
-import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
-import moment from 'moment';
-import Chance from 'chance';
+import {
+  createDummyPatient,
+  createDummyEncounter,
+  randomReferenceId,
+} from 'shared/demoData/patients';
+import { startOfDay, subDays, subYears } from 'date-fns';
+import { toDateString } from 'shared/utils/dateTime';
 import { createTestContext } from '../utilities';
-
-const chance = new Chance();
 
 // helper function to check we've found the intended samples
 // (we're using first name as the field that indicates which
@@ -12,18 +14,13 @@ const withFirstName = name => ({ firstName }) => firstName === name;
 
 // function to pick a random time x years ago today
 const yearsAgo = (years, days = 0) =>
-  moment
-    .utc()
-    .startOf('day')
-    .add(chance.integer({ min: 1, max: 23.9 * 60 }), 'minutes')
-    .subtract(years, 'years')
-    .subtract(days, 'days')
-    .toISOString();
+  toDateString(subDays(subYears(startOfDay(new Date()), years), days));
 
 // add a bunch of patients at the top rather than per-search, so that the
 // tests have a healthy population of negative examples as well
 const searchTestPatients = [
   { displayId: 'search-by-display-id' },
+  { displayId: 'search-by-secondary-id' },
   { firstName: 'search-by-name' },
   { firstName: 'search-by-name' },
   { firstName: 'search-by-name' },
@@ -70,19 +67,19 @@ const searchTestPatients = [
         id: 'should-be-ignored-1',
         encounterType: 'clinic',
         current: false,
-        startDate: moment.utc([2015, 0, 1, 8]).toISOString(),
+        startDate: '2015-01-01 08:00:00',
       },
       {
         id: 'should-be-chosen',
         encounterType: 'admission',
         current: true,
-        startDate: moment.utc([2014, 0, 1, 8]).toISOString(),
+        startDate: '2014-01-01 08:00:00',
       },
       {
         id: 'should-be-ignored-2',
         encounterType: 'clinic',
         current: true,
-        startDate: moment.utc([2013, 0, 1, 8]).toISOString(),
+        startDate: '2013-01-01 08:00:00',
       },
     ],
   },
@@ -132,6 +129,15 @@ describe('Patient search', () => {
             );
           }
         }
+        if (patient.displayId === 'search-by-secondary-id') {
+          const secondaryIdType = await randomReferenceId(models, 'secondaryIdType');
+          await models.PatientSecondaryId.create({
+            value: 'patient-secondary-id',
+            visibilityStatus: 'historical',
+            typeId: secondaryIdType,
+            patientId: patient.id,
+          });
+        }
       }),
     );
   });
@@ -155,6 +161,36 @@ describe('Patient search', () => {
 
   it('should get a patient by displayId', async () => {
     const response = await app.get('/v1/patient').query({
+      displayId: 'search-by-display-id',
+    });
+    expect(response).toHaveSucceeded();
+    expect(response.body.count).toEqual(1);
+
+    const [responsePatient] = response.body.data;
+    expect(responsePatient).toHaveProperty('displayId', 'search-by-display-id');
+  });
+
+  it('should NOT get a patient by secondary ID by default', async () => {
+    const response = await app.get('/v1/patient').query({
+      displayId: 'patient-secondary-id',
+    });
+    expect(response).toHaveSucceeded();
+    expect(response.body.count).toEqual(0);
+  });
+
+  it('should get a patient by secondary ID if query param matchSecondaryIds is true', async () => {
+    const response = await app.get('/v1/patient?matchSecondaryIds=true').query({
+      displayId: 'patient-secondary-id',
+    });
+    expect(response).toHaveSucceeded();
+    expect(response.body.count).toEqual(1);
+
+    const [responsePatient] = response.body.data;
+    expect(responsePatient).toHaveProperty('displayId', 'search-by-secondary-id');
+  });
+
+  it('should get a patient by displayId even if query param matchSecondaryIds is true', async () => {
+    const response = await app.get('/v1/patient?matchSecondaryIds=true').query({
       displayId: 'search-by-display-id',
     });
     expect(response).toHaveSucceeded();

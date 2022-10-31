@@ -1,7 +1,7 @@
 import { Database } from '../infra/db';
 import { SyncManager, WebSyncSource } from './sync';
 import { AuthService } from './auth';
-import { AuthenticationError } from './auth/error';
+import { AuthenticationError } from './error';
 import { LocalisationService } from './localisation';
 import { PermissionsService } from './permissions';
 import { MODELS_MAP } from '../models/modelsMap';
@@ -77,5 +77,9 @@ export class Backend {
     clearInterval(this.interval);
     this.interval = null;
     await this.syncManager.waitForEnd();
+  }
+
+  getSyncError(): any {
+    return Database.syncError;
   }
 }

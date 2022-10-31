@@ -1,9 +1,10 @@
 import config from 'config';
-import moment from 'moment';
+import { startOfDay } from 'date-fns';
 import { Op, Sequelize } from 'sequelize';
 
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
+import { toDateTimeString } from 'shared/utils/dateTime';
 
 export class MedicationDiscontinuer extends ScheduledTask {
   getName() {
@@ -23,9 +24,7 @@ export class MedicationDiscontinuer extends ScheduledTask {
 
   async run() {
     // Get start of day
-    const startOfToday = moment()
-      .startOf('day')
-      .toDate();
+    const startOfToday = toDateTimeString(startOfDay(new Date()));
 
     // Get all encounters with the same facility as the lan server
     // (found in the config). Note that the facility will be read from

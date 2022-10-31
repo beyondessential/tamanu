@@ -18,7 +18,9 @@ export const FILE_FILTERS = [
 
 export const DocumentForm = ({ actionText, onSubmit, onCancel, editedObject }) => {
   const api = useApi();
-  const departmentSuggester = new Suggester(api, 'department');
+  const departmentSuggester = new Suggester(api, 'department', {
+    baseQueryParameters: { filterByFacility: true },
+  });
 
   const renderForm = ({ submitForm }) => (
     <FormGrid>
