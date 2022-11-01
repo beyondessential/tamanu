@@ -10,7 +10,7 @@ export class Model extends sequelize.Model {
     const attributes = {
       ...modelAttributes,
     };
-    if (timestamps) {
+    if (syncDirection !== SYNC_DIRECTIONS.DO_NOT_SYNC) {
       attributes.updatedAtSyncTick = Sequelize.BIGINT;
     }
     super.init(attributes, {

@@ -43,7 +43,7 @@ export class Referral extends Model {
     }
     return `
       JOIN encounters ON referrals.initiating_encounter_id = encounters.id
-      WHERE encounters.patient_id IN ($patientIds)
+      WHERE encounters.patient_id IN (:patientIds)
     `;
   }
 }

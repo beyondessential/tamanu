@@ -85,7 +85,7 @@ export class AdministeredVaccine extends Model {
       joins.push(`
         LEFT JOIN encounters
         ON administered_vaccines.encounter_id = encounters.id
-        AND encounters.patient_id IN ($patientIds)
+        AND encounters.patient_id IN (:patientIds)
       `);
       wheres.push(`
         encounters.id IS NOT NULL

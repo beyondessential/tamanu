@@ -44,7 +44,7 @@ export class SurveyResponseAnswer extends Model {
         ${joins}
         JOIN surveys ON survey_responses.survey_id = surveys.id
         WHERE (
-          encounters.patient_id in ($patientIds)
+          encounters.patient_id in (:patientIds)
           AND
           surveys.is_sensitive = FALSE
         )
@@ -53,7 +53,7 @@ export class SurveyResponseAnswer extends Model {
 
     return `
       ${joins}
-      WHERE encounters.patient_id in ($patientIds)
+      WHERE encounters.patient_id in (:patientIds)
     `;
   }
 

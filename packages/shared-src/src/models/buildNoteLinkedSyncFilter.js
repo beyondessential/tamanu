@@ -27,15 +27,15 @@ function buildNoteLinkedSyncFilter(patientIds, sessionConfig, isNotePage) {
 
   const whereOrs = [
     `
-      ( note_pages.record_id IN ($patientIds) AND note_pages.record_type = '${NOTE_RECORD_TYPES.PATIENT}')
+      ( note_pages.record_id IN (:patientIds) AND note_pages.record_type = '${NOTE_RECORD_TYPES.PATIENT}')
     `,
     ...Object.keys(NOTE_RECORD_TYPES)
       .filter(r => recordTypesWithPatientViaEncounter.includes(r))
-      .map(r => `${recordTypesToTables[r]}_encounters.patient_id IN ($patientIds)`),
+      .map(r => `${recordTypesToTables[r]}_encounters.patient_id IN (:patientIds)`),
     ...Object.keys(NOTE_RECORD_TYPES)
       .filter(r => !recordTypesWithPatientViaEncounter.includes(r) && r !== 'PATIENT')
-      .map(r => `${recordTypesToTables[r]}.patient_id IN ($patientIds)`),
-    `patients.id IN ($patientIds)`,
+      .map(r => `${recordTypesToTables[r]}.patient_id IN (:patientIds)`),
+    `patients.id IN (:patientIds)`,
   ];
 
   const join = `

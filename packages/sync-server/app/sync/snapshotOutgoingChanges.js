@@ -1,4 +1,5 @@
 import config from 'config';
+import util from 'util';
 import { snake } from 'case';
 import { SYNC_SESSION_DIRECTION, COLUMNS_EXCLUDED_FROM_SYNC } from 'shared/sync';
 import { log } from 'shared/services/logging/log';
@@ -45,7 +46,7 @@ const snapshotChangesForModel = async (
         uuid_generate_v4(),
         now(),
         now(),
-        $sessionId,
+        :sessionId,
         '${SYNC_SESSION_DIRECTION.OUTGOING}',
         ${table}.deleted_at IS NOT NULL,
         '${table}',
@@ -59,13 +60,13 @@ const snapshotChangesForModel = async (
       FROM
         ${table}
       ${filter}
-      ${filter.length > 0 ? 'AND' : 'WHERE'} ${table}.updated_at_sync_tick > $since;
+      ${filter.length > 0 ? 'AND' : 'WHERE'} ${table}.updated_at_sync_tick > :since;
     `,
     {
-      bind: {
+      replacements: {
         sessionId,
         since,
-        // include bind params used in some model specific sync filters
+        // include replacement params used in some model specific sync filters
         patientIds,
         facilityId,
       },
