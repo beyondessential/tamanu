@@ -218,7 +218,12 @@ export class MobileSyncManager {
     // either fail 100% or succeed 100%, no partial save.
     await Database.client.transaction(async () => {
       if (incomingChangesCount > 0) {
-        await saveIncomingChanges(incomingChangesCount, incomingModels, this.updateProgress);
+        await saveIncomingChanges(
+          sessionId,
+          incomingChangesCount,
+          incomingModels,
+          this.updateProgress,
+        );
       }
 
       // update the last successful sync in the same save transaction,

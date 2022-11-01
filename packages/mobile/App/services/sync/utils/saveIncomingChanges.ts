@@ -1,5 +1,5 @@
 import RNFS from 'react-native-fs';
-import { chunk, groupBy } from 'lodash';
+import { chunk } from 'lodash';
 
 import { SyncRecord } from '../types';
 import { sortInDependencyOrder } from './sortInDependencyOrder';
@@ -56,44 +56,33 @@ const saveChangesForModel = async (
  * @returns
  */
 export const saveIncomingChanges = async (
+  sessionId: string,
   incomingChangesCount: number,
   incomingModels: typeof MODELS_MAP,
   progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
 ): Promise<void> => {
   const sortedModels = await sortInDependencyOrder(incomingModels);
 
-  let currentBatchIndex = 0;
   let savedRecordsCount = 0;
 
-  while (true) {
-    const fileName = `batch${currentBatchIndex}.json`;
-    const filePath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
-    let batchString = '';
-    try {
-      const base64 = await readFileInDocuments(filePath);
-      batchString = Buffer.from(base64, 'base64').toString();
-    } catch (e) {
-      batchString = '';
-      //ignore error because most likely it fails because there is not more batch file to be found
-    }
+  for (const model of sortedModels) {
+    const recordType = model.getTableNameForSync();
+    let currentBatchIndex = 0;
+    const directory = `${RNFS.DocumentDirectoryPath}/syncSessions/${sessionId}/${recordType}`;
+    const getFilePath = (batchIndex: number): string => `${directory}/batch${batchIndex}.json`;
 
-    if (!batchString) {
-      break;
-    }
+    while (await RNFS.exists(getFilePath(currentBatchIndex))) {
+      const base64 = await readFileInDocuments(getFilePath(currentBatchIndex));
+      const batchString = Buffer.from(base64, 'base64').toString();
 
-    const batch = JSON.parse(batchString);
-    const recordsByType = groupBy(batch, 'recordType');
+      const batch = JSON.parse(batchString);
 
-    for (const model of sortedModels) {
-      const modelRecords = recordsByType[model.getTableNameForSync()];
-      if (modelRecords === undefined) {
-        continue;
-      }
-      await saveChangesForModel(model, modelRecords);
+      await saveChangesForModel(model, batch);
 
-      savedRecordsCount += modelRecords.length;
+      savedRecordsCount += batch.length;
       const progressMessage = `Stage 3/3: Saving ${incomingChangesCount} records`;
       progressCallback(incomingChangesCount, savedRecordsCount, progressMessage);
+      currentBatchIndex++;
     }
 
     currentBatchIndex++;

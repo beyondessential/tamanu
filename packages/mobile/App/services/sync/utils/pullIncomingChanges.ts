@@ -2,15 +2,28 @@ import { saveFileInDocuments } from '/helpers/file';
 import { CentralServerConnection } from '../CentralServerConnection';
 import { calculatePageLimit } from './calculatePageLimit';
 import { SYNC_SESSION_DIRECTION } from '../constants';
+import { groupBy } from 'lodash';
 
 const APPROX_PERSISTED_BATCH_SIZE = 20000;
 
-const persistBatch = async (batchIndex: number, rows: [Record<string, any>?]): Promise<void> => {
-  const fileName = `batch${batchIndex}.json`;
+const persistBatch = async (
+  sessionId: string,
+  batchIndex: number,
+  rows: [Record<string, any>?],
+): Promise<void> => {
+  const rowsByRecordType = groupBy(rows, 'recordType');
 
-  await saveFileInDocuments(
-    Buffer.from(JSON.stringify(rows), 'utf-8').toString('base64'),
-    fileName,
+  await Promise.all(
+    Object.entries(rowsByRecordType).map(async ([recordType, rowsForRecordType]) => {
+      const filePath = `syncSessions/${sessionId}/${recordType}`;
+      const fileName = `/batch${batchIndex}.json`;
+
+      await saveFileInDocuments(
+        Buffer.from(JSON.stringify(rowsForRecordType), 'utf-8').toString('base64'),
+        fileName,
+        filePath,
+      );
+    }),
   );
 };
 
@@ -64,7 +77,7 @@ export const pullIncomingChanges = async (
 
     currentRows.push(...recordsToSave);
     if (currentRows.length >= APPROX_PERSISTED_BATCH_SIZE) {
-      await persistBatch(currentBatchIndex, currentRows);
+      await persistBatch(sessionId, currentBatchIndex, currentRows);
       currentRows = [];
       currentBatchIndex++;
     }
@@ -76,7 +89,7 @@ export const pullIncomingChanges = async (
     progressCallback(totalToPull, totalPulled);
   }
 
-  await persistBatch(currentBatchIndex, currentRows);
+  await persistBatch(sessionId, currentBatchIndex, currentRows);
 
   return totalToPull;
 };
