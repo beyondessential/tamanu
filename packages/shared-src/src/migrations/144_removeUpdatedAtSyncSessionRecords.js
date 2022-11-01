@@ -16,12 +16,12 @@ module.exports = {
 
     // fill it with some initial values
     await query.sequelize.query(`
-      UPDATE 'sync_session_records' SET updated_at_sync_tick = 0;
+      UPDATE sync_session_records SET updated_at_sync_tick = 0;
     `);
 
     // add a not null constraint
     await query.sequelize.query(`
-      ALTER TABLE 'sync_session_records' ALTER COLUMN updated_at_sync_tick SET NOT NULL;
+      ALTER TABLE sync_session_records ALTER COLUMN updated_at_sync_tick SET NOT NULL;
     `);
 
     // before insert or update, set updated_at (overriding any that is passed in)

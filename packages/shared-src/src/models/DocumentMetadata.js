@@ -63,9 +63,9 @@ export class DocumentMetadata extends Model {
     return `
       ${join}
       WHERE (
-        encounters.patient_id IN ($patientIds)
+        encounters.patient_id IN (:patientIds)
         OR
-        ${this.tableName}.patient_id IN ($patientIds)
+        ${this.tableName}.patient_id IN (:patientIds)
       )
     `;
   }

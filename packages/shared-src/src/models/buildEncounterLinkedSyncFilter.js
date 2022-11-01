@@ -17,6 +17,6 @@ export function buildEncounterLinkedSyncFilter(
   const joins = buildEncounterLinkedSyncFilterJoins(tablesToTraverse);
   return `
     ${joins}
-    WHERE encounters.patient_id IN ($patientIds)
+    WHERE encounters.patient_id IN (:patientIds)
   `;
 }

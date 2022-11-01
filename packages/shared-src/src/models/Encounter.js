@@ -195,7 +195,7 @@ export class Encounter extends Model {
     const wheres = [];
 
     if (patientIds.length > 0) {
-      wheres.push('patient_id IN ($patientIds)');
+      wheres.push('encounters.patient_id IN (:patientIds)');
     }
 
     // add any encounters with a lab request, if syncing all labs is turned on for facility server
@@ -205,7 +205,7 @@ export class Encounter extends Model {
           SELECT DISTINCT e.id
           FROM encounters e
           INNER JOIN lab_requests lr ON lr.encounter_id = e.id
-          WHERE e.updated_at_sync_tick > $since
+          WHERE e.updated_at_sync_tick > :since
         ) AS encounters_with_labs ON encounters_with_labs.id = encounters.id
       `);
 
@@ -226,7 +226,7 @@ export class Encounter extends Model {
           INNER JOIN administered_vaccines av ON av.encounter_id = e.id
           INNER JOIN scheduled_vaccines sv ON sv.id = av.scheduled_vaccine_id
           WHERE sv.vaccine_id IN (${escapedVaccineIds})
-          AND e.updated_at_sync_tick > $since
+          AND e.updated_at_sync_tick > :since
         ) AS encounters_with_scheduled_vaccines
         ON encounters_with_scheduled_vaccines.id = encounters.id
       `);
