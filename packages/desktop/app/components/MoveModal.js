@@ -108,8 +108,6 @@ const FinaliseMoveForm = ({ onSubmit, encounter, onClose }) => (
       onConfirm={() =>
         onSubmit({
           locationId: encounter.plannedLocation.id,
-          plannedLocationId: null,
-          // plannedLocationStartTime: null,
         })
       }
       onCancel={onClose}
@@ -121,7 +119,7 @@ const CancelMoveForm = ({ onSubmit, encounter, onClose }) => (
   <FormGrid columns={1}>
     <div>{`Are you sure you want to cancel patient's scheduled move to ${encounter.plannedLocation.name}?`}</div>
     <ConfirmCancelRow
-      onConfirm={() => onSubmit({ plannedLocationId: null /* , plannedLocationStartTime: null */ })}
+      onConfirm={() => onSubmit({ plannedLocationId: null })}
       confirmText="Yes, cancel"
       cancelText="Keep it"
       onCancel={onClose}
