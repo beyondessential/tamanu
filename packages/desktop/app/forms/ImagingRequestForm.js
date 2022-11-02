@@ -9,8 +9,8 @@ import { encounterOptions } from '../constants';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { useEncounter } from '../contexts/Encounter';
 import { reloadImagingRequest } from '../store';
-import { useImagingRequests } from '../contexts/ImagingRequests';
 import { useLocalisation } from '../contexts/Localisation';
+import { useImagingRequestAreas } from '../utils/useImagingRequestAreas';
 
 import {
   Form,
@@ -94,7 +94,7 @@ export const ImagingRequestForm = React.memo(
     const { examiner = {} } = encounter;
     const examinerLabel = examiner.displayName;
     const encounterLabel = getEncounterLabel(encounter);
-    const { getAreasForImagingType } = useImagingRequests();
+    const { getAreasForImagingType } = useImagingRequestAreas();
     return (
       <Form
         onSubmit={onSubmit}

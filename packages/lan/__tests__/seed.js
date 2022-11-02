@@ -37,33 +37,6 @@ export const testAllergies = splitIds(`
   Dye
 `).map(x => ({ ...x, type: 'allergy' }));
 
-export const testLocations = splitIds(`
-  Ward-1
-  Ward-2
-  Ward-3
-  Ward-4
-  Ward-5
-`).map(x => ({ ...x, type: 'location' }));
-
-export const testDepartments = splitIds(`
-  A&E
-  General
-  ICU
-  Maternity
-  Neurology
-  Oncology
-  Radiology
-`).map(x => ({ ...x, type: 'department' }));
-
-export const testFacilities = splitIds(`
-  Balwyn
-  Hawthorn East
-  Kerang
-  Lake Charm
-  Marla
-  Mont Albert
-`).map(x => ({ ...x, type: 'facility' }));
-
 export const testVillages = splitIds(`
   Auki
   Buala

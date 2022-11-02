@@ -10,6 +10,7 @@ export * from './importable';
 export * from './invoices';
 export * from './labs';
 export * from './notes';
+export * from './patientFields';
 export * from './reports';
 export * from './servers';
 export * from './statuses';

@@ -101,7 +101,9 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
 
   useEffect(() => {
     const medications = data?.data || [];
-    const newMedications = medications.map(m => ({ ...m, repeats: 0 }));
+    const newMedications = medications
+      .filter(m => !m.discontinued)
+      .map(m => ({ ...m, repeats: 0 }));
     setMedicationData(newMedications);
   }, [data]);
 
