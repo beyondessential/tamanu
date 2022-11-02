@@ -15,7 +15,8 @@ const AST_TYPES = {
 const isOfType = (node, ...types) => types.includes(node?.type);
 
 const isSequelizeDate = node =>
-  ['Sequelize', 'DataTypes'].includes(node?.object?.name) && node?.property?.name === 'DATE';
+  ['Sequelize', 'DataTypes'].includes(node?.object?.name) &&
+  ['DATE', 'DATEONLY'].includes(node?.property?.name);
 
 const checkColumn = (colName, colData, context, messageId) => {
   if (
