@@ -3,7 +3,7 @@ import mitt from 'mitt';
 import { MODELS_MAP } from '~/models/modelsMap';
 import { IUser, SyncConnectionParameters } from '~/types';
 import { compare, hash } from './bcrypt';
-import { WebSyncSource } from '~/services/sync';
+import { CentralServerConnection } from '~/services/sync';
 import { readConfig, writeConfig } from '~/services/config';
 import { AuthenticationError, invalidUserCredentialsMessage, OutdatedVersionError } from '../error';
 import { ResetPasswordFormModel } from '/interfaces/forms/ResetPasswordFormProps';
@@ -12,14 +12,14 @@ import { ChangePasswordFormModel } from '/interfaces/forms/ChangePasswordFormPro
 export class AuthService {
   models: typeof MODELS_MAP;
 
-  syncSource: WebSyncSource;
+  centralServer: CentralServerConnection;
 
   emitter = mitt();
 
-  constructor(models: typeof MODELS_MAP, syncSource: WebSyncSource) {
+  constructor(models: typeof MODELS_MAP, centralServer: CentralServerConnection) {
     this.models = models;
-    this.syncSource = syncSource;
-    this.syncSource.emitter.on('error', (err) => {
+    this.centralServer = centralServer;
+    this.centralServer.emitter.on('error', (err) => {
       if (err instanceof AuthenticationError || err instanceof OutdatedVersionError) {
         this.emitter.emit('authError', err);
       }
@@ -28,7 +28,7 @@ export class AuthService {
 
   async initialise(): Promise<void> {
     const server = await readConfig('syncServerLocation');
-    this.syncSource.connect(server);
+    this.centralServer.connect(server);
   }
 
   async saveLocalUser(userData: Partial<IUser>, password: string): Promise<IUser> {
@@ -74,9 +74,9 @@ export class AuthService {
     const server = syncServerLocation || params.server;
 
     // create the sync source and log in to it
-    this.syncSource.connect(server);
+    this.centralServer.connect(server);
     console.log(`Getting token from ${server}`);
-    const { user, token, localisation, permissions } = await this.syncSource.login(
+    const { user, token, localisation, permissions } = await this.centralServer.login(
       params.email,
       params.password,
     );
@@ -97,22 +97,22 @@ export class AuthService {
   }
 
   startSession(token: string): void {
-    this.syncSource.setToken(token);
+    this.centralServer.setToken(token);
   }
 
   endSession(): void {
-    this.syncSource.clearToken();
+    this.centralServer.clearToken();
   }
 
   async requestResetPassword(params: ResetPasswordFormModel): Promise<void> {
     const { server, email } = params;
-    this.syncSource.connect(server);
-    await this.syncSource.post('resetPassword', {}, { email });
+    this.centralServer.connect(server);
+    await this.centralServer.post('resetPassword', {}, { email });
   }
 
   async changePassword(params: ChangePasswordFormModel): Promise<void> {
     const { server, ...rest } = params;
-    this.syncSource.connect(server);
-    await this.syncSource.post('changePassword', {}, { ...rest });
+    this.centralServer.connect(server);
+    await this.centralServer.post('changePassword', {}, { ...rest });
   }
 }

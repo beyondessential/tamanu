@@ -39,4 +39,8 @@ export class Facility extends BaseModel implements IFacility {
 
   @OneToMany(() => Department, ({ facility }) => facility)
   departments: Department[];
+
+  static getPluralTableName(): string {
+    return 'facilities';
+  }
 }

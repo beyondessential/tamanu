@@ -1,4 +1,5 @@
-import { Entity, Column, AfterLoad, AfterRemove } from 'typeorm/browser';
+import { Entity, Column, AfterLoad } from 'typeorm/browser';
+import { SYNC_DIRECTIONS } from './types';
 import { BaseModel } from './BaseModel';
 import { SurveyResponseAnswer } from './SurveyResponseAnswer';
 import { readFileInDocuments, deleteFileInDocuments } from '../ui/helpers/file';
@@ -17,9 +18,7 @@ export class Attachment extends BaseModel {
   @Column()
   filePath: string; // will not be synced up, only for local usage
 
-  static shouldImport = false;
-
-  static shouldExport = true;
+  static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
 
   static uploadLimit = 1;
 
@@ -34,7 +33,7 @@ export class Attachment extends BaseModel {
     return attachmentAnswers.map(a => a.body);
   }
 
-  static async postExportCleanUp() {
+  static async postExportCleanUp(): Promise<void> {
     // Clean up all attachments and their associated files after export.
     // We might have a lot of scenarios that attachments may hang around
     // like exiting while doing survey,... So I feel that it is safest
@@ -50,11 +49,12 @@ export class Attachment extends BaseModel {
   }
 
   @AfterLoad()
-  async populateDataFromPath() {
+  async populateDataFromPath(): Promise<void> {
     // Sqlite cannot handle select query with very large blob.
     // So this is a work around to avoid that.
     // 'data' will also be synced up.
-    // Ideally, with file compressing, attachments should not be too large, but this is just in case.
+    // Ideally, with file compressing, attachments should not
+    // be too large, but this is just in case.
     if (this.filePath) {
       const base64 = await readFileInDocuments(this.filePath);
       this.data = Buffer.from(base64, 'base64');

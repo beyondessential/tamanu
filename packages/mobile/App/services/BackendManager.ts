@@ -1,5 +1,6 @@
 import { Database } from '../infra/db';
-import { SyncManager, WebSyncSource } from './sync';
+import { MobileSyncManager, CentralServerConnection } from './sync';
+import { readConfig } from './config';
 import { AuthService } from './auth';
 import { AuthenticationError } from './error';
 import { LocalisationService } from './localisation';
@@ -8,7 +9,7 @@ import { MODELS_MAP } from '../models/modelsMap';
 
 const SYNC_PERIOD_MINUTES = 5;
 
-export class Backend {
+export class BackendManager {
   randomId: any;
 
   responses: any[];
@@ -17,9 +18,9 @@ export class Backend {
 
   models: typeof MODELS_MAP;
 
-  syncManager: SyncManager;
+  syncManager: MobileSyncManager;
 
-  syncSource: WebSyncSource;
+  centralServer: CentralServerConnection;
 
   auth: AuthService;
 
@@ -32,11 +33,11 @@ export class Backend {
   constructor() {
     const { models } = Database;
     this.models = models;
-    this.syncSource = new WebSyncSource();
-    this.auth = new AuthService(models, this.syncSource);
+    this.centralServer = new CentralServerConnection();
+    this.auth = new AuthService(models, this.centralServer);
     this.localisation = new LocalisationService(this.auth);
     this.permissions = new PermissionsService(this.auth);
-    this.syncManager = new SyncManager(this.syncSource, this.localisation);
+    this.syncManager = new MobileSyncManager(this.centralServer);
   }
 
   async initialise(): Promise<void> {
@@ -49,11 +50,16 @@ export class Backend {
     if (this.interval) {
       return; // already started
     }
-    await this.syncManager.waitForEnd();
+
+    await this.syncManager.waitForCurrentSyncToEnd();
 
     const run = async (): Promise<void> => {
       try {
-        await this.syncManager.runScheduledSync();
+        // Don't start the sync service yet until the facility for the device is selected
+        const facilityId = await readConfig('facilityId', '');
+        if (facilityId) {
+          await this.syncManager.triggerSync();
+        }
       } catch (e) {
         if (e instanceof AuthenticationError) {
           // expected - just log message
@@ -76,6 +82,6 @@ export class Backend {
     }
     clearInterval(this.interval);
     this.interval = null;
-    await this.syncManager.waitForEnd();
+    await this.syncManager.waitForCurrentSyncToEnd();
   }
 }

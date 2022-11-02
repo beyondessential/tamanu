@@ -61,7 +61,6 @@ const applyActiveFilters = (
     order: {
       lastName: 'ASC',
       firstName: 'ASC',
-      markedForSync: 'DESC',
     },
     // Must match ONE of following lines entirely. ([{a}, {b}] is OR, [{a, b}] is AND)
     // Note also that the filters can override 'firstName' for example, (making the search field irrelevant?)

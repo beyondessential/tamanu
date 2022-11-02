@@ -1,8 +1,9 @@
 import { Entity, Column, RelationId, ManyToOne, BeforeUpdate, BeforeInsert } from 'typeorm/browser';
-import { BaseModel, FindMarkedForUploadOptions, IdRelation } from './BaseModel';
+import { BaseModel, IdRelation } from './BaseModel';
 import { IPatientAdditionalData } from '~/types';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { Patient } from './Patient';
+import { SYNC_DIRECTIONS } from './types';
 
 @Entity('patient_additional_data')
 export class PatientAdditionalData extends BaseModel implements IPatientAdditionalData {
@@ -116,10 +117,7 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
   @IdRelation()
   countryOfBirthId?: string | null;
 
-  @Column({ default: false })
-  markedForSync: boolean;
-
-  static shouldExport = true;
+  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
   @BeforeInsert()
   @BeforeUpdate()
@@ -127,24 +125,8 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
     // Adding or editing additional data should mark the patient for sync
     const parent = await this.findParent(Patient, 'patient');
     if (parent) {
-      parent.markedForSync = true;
-      await parent.save();
+      await Patient.markForSync(parent.id)
     }
-  }
-
-  static async findMarkedForUpload(
-    opts: FindMarkedForUploadOptions,
-  ): Promise<BaseModel[]> {
-    const patientId = opts.channel.match(/^patient\/(.*)\/additionalData$/)[1];
-    if (!patientId) {
-      throw new Error(`Could not extract patientId from ${opts.channel}`);
-    }
-
-    const records = await this.findMarkedForUploadQuery(opts)
-      .andWhere('patientId = :patientId', { patientId })
-      .getMany();
-
-    return records as BaseModel[];
   }
 
   static async getForPatient(patientId: string): Promise<PatientAdditionalData> {
