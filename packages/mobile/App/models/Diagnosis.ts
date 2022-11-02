@@ -4,9 +4,12 @@ import { IDiagnosis, Certainty } from '~/types';
 import { Encounter } from './Encounter';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { DateTimeStringColumn } from './DateColumns';
+import { SYNC_DIRECTIONS } from './types';
 
 @Entity('diagnosis')
 export class Diagnosis extends BaseModel implements IDiagnosis {
+  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
+
   @Column({ nullable: true })
   isPrimary?: boolean;
 
@@ -21,7 +24,10 @@ export class Diagnosis extends BaseModel implements IDiagnosis {
   @RelationId(({ diagnosis }) => diagnosis)
   diagnosisId?: string;
 
-  @ManyToOne(() => Encounter, encounter => encounter.diagnoses)
+  @ManyToOne(
+    () => Encounter,
+    encounter => encounter.diagnoses,
+  )
   encounter: Encounter;
   @RelationId(({ encounter }) => encounter)
   encounterId?: string;

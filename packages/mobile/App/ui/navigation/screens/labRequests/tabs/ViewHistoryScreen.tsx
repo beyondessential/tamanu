@@ -29,6 +29,7 @@ const SyncStatusindicator = ({ synced }): JSX.Element => (
 );
 interface LabRequestRowProps {
   labRequest: ILabRequest;
+  synced: boolean;
 }
 
 const styles = StyleSheet.create({
@@ -41,7 +42,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const LabRequestRow = ({ labRequest }: LabRequestRowProps): JSX.Element => {
+const LabRequestRow = ({ labRequest, synced }: LabRequestRowProps): JSX.Element => {
   let date: string;
   try {
     date = formatDate(parseISO(labRequest.requestedDate), DateFormats.DAY_MONTH_YEAR_SHORT);
@@ -88,9 +89,7 @@ const LabRequestRow = ({ labRequest }: LabRequestRowProps): JSX.Element => {
         </StyledText>
       </StyledView>
       <StyledView width={screenPercentageToDP(35, Orientation.Width)}>
-        <SyncStatusindicator
-          synced={!labRequest.markedForUpload || !labRequest.encounter.markedForUpload}
-        />
+        <SyncStatusindicator synced={synced} />
       </StyledView>
     </StyledView>
   );
@@ -102,6 +101,11 @@ export const DumbViewHistoryScreen = ({ selectedPatient, navigation }): ReactEle
     [selectedPatient],
   );
 
+  const [lastSuccessfulSync] = useBackendEffect(
+    ({ models }) => models.LocalSystemFact.findOne('LastSuccessfulSyncTime'),
+    [],
+  );
+
   useEffect(() => {
     if (!data) return;
     if (data.length === 0) {
@@ -110,11 +114,14 @@ export const DumbViewHistoryScreen = ({ selectedPatient, navigation }): ReactEle
   }, [data]);
 
   if (error) return <ErrorScreen error={error} />;
-  if (!data) return <LoadingScreen />;
+  if (!data || !lastSuccessfulSync) return <LoadingScreen />;
 
-  const rows = data.map(labRequest => (
-    <LabRequestRow key={labRequest.id} labRequest={labRequest} />
-  ));
+  const rows = data.map(labRequest => {
+    const synced =
+      lastSuccessfulSync && labRequest.updatedAtSyncTick <= parseInt(lastSuccessfulSync.value, 10);
+
+    return <LabRequestRow key={labRequest.id} labRequest={labRequest} synced={synced} />;
+  });
 
   return (
     <>

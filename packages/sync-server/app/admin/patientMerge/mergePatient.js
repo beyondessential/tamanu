@@ -5,7 +5,7 @@ import { VISIBILITY_STATUSES, PATIENT_MERGE_DELETION_ACTIONS } from 'shared/cons
 import { NOTE_RECORD_TYPES } from 'shared/constants/notes';
 import { InvalidParameterError } from 'shared/errors';
 import { log } from 'shared/services/logging';
-import { reconcilePatient } from '../../utils/removeDuplicatedPatientAdditionalData';
+import { mergeRecord } from 'shared/sync/mergeRecord';
 
 const BULK_CREATE_BATCH_SIZE = 100;
 
@@ -142,19 +142,27 @@ export async function mergePatient(models, keepPatientId, unwantedPatientId) {
     }
 
     // Now reconcile patient additional data.
-    // Note that we basically use the same logic as above; I've just separated
-    // it out to highlight the fact that it requires special treatment.
-    // (If a later update to this code would make more sense to consolidate
-    // them that should be fine.)
-    const padRecordsMerged = await mergeRecordsForModel(
-      models.PatientAdditionalData,
-      keepPatientId,
-      unwantedPatientId,
-    );
-    if (padRecordsMerged > 0) {
-      updates.PatientAdditionalData = padRecordsMerged;
-      // this is the only different bit:
-      await reconcilePatient(sequelize, keepPatientId);
+    // This is a special case as we want to just keep one, merged PAD record
+    const existingUnwantedPAD = await models.PatientAdditionalData.findOne({
+      where: { patientId: unwantedPatientId },
+      raw: true,
+    });
+    if (existingUnwantedPAD) {
+      const existingKeepPAD = await models.PatientAdditionalData.findOne({
+        where: { patientId: keepPatientId },
+        raw: true,
+      });
+      const mergedPAD = mergeRecord(existingKeepPAD || {}, {
+        ...existingUnwantedPAD,
+        patientId: keepPatientId,
+      });
+      await models.PatientAdditionalData.destroy({
+        where: { patientId: { [Op.in]: [keepPatientId, unwantedPatientId] } },
+        force: true,
+      });
+      delete mergedPAD.id; // id is a generated field, delete it before creating the new one
+      await models.PatientAdditionalData.create(mergedPAD);
+      updates.PatientAdditionalData = 1;
     }
 
     // Merge notes - these don't have a patient_id due to their polymorphic FK setup

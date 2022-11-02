@@ -1,14 +1,24 @@
 import { Op } from 'sequelize';
-import { getModelsForDirection, snapshotOutgoingChanges, saveIncomingChanges } from 'shared/sync';
+import config from 'config';
 import { SYNC_DIRECTIONS } from 'shared/constants';
-import { generateId } from 'shared/utils';
 import { log } from 'shared/services/logging';
+import {
+  getModelsForDirection,
+  snapshotOutgoingChangesForCentral,
+  getOutgoingChangesForSession,
+  removeEchoedChanges,
+  saveIncomingChanges,
+  deleteSyncSession,
+  deleteInactiveSyncSessions,
+  getOutgoingChangesCount,
+  SYNC_SESSION_DIRECTION,
+} from 'shared/sync';
+import { initDatabase } from '../database';
 import { getPatientLinkedModels } from './getPatientLinkedModels';
 
-// after 10 minutes of no activity, consider a session lapsed and wipe it to avoid holding invalid
-// changes in memory when a sync fails on the facility server end
-const LAPSE_AFTER_MILLISECONDS = 10 * 60 * 1000;
-const CHECK_LAPSED_SESSIONS_INTERVAL = 1 * 60 * 1000; // check once per minute
+// after x minutes of no activity, consider a session lapsed and wipe it to avoid holding invalid
+// changes in the database when a sync fails on the facility server end
+const { lapsedSessionSeconds, lapsedSessionCheckFrequencySeconds } = config.sync;
 
 export class CentralSyncManager {
   currentSyncTick;
@@ -16,15 +26,12 @@ export class CentralSyncManager {
   sessions = {};
 
   constructor() {
-    setInterval(this.purgeLapsedSessions, CHECK_LAPSED_SESSIONS_INTERVAL);
+    setInterval(this.purgeLapsedSessions, lapsedSessionCheckFrequencySeconds * 1000);
   }
 
-  purgeLapsedSessions = () => {
-    const oldestValidTime = Date.now() - LAPSE_AFTER_MILLISECONDS;
-    const lapsedSessions = Object.keys(this.sessions).filter(
-      sessionId => this.sessions[sessionId].lastConnectionTime < oldestValidTime,
-    );
-    lapsedSessions.forEach(sessionId => delete this.sessions[sessionId]);
+  purgeLapsedSessions = async () => {
+    const store = await initDatabase({ testMode: false, syncClientMode: false });
+    await deleteInactiveSyncSessions(store, lapsedSessionSeconds);
   };
 
   async startSession({ sequelize }) {
@@ -35,34 +42,33 @@ export class CentralSyncManager {
       `SELECT nextval('sync_clock_sequence')`,
     );
 
-    // instantiate the session
-    const startTime = Date.now();
-    const sessionId = generateId(); // TEMPORARY the id will be replaced with a full db UUID in EPI-137
-    this.sessions[sessionId] = {
+    const startTime = new Date();
+    const syncSession = await sequelize.models.SyncSession.create({
+      syncTick: syncClockTick,
       startTime,
       lastConnectionTime: startTime,
-      incomingChanges: [],
-    };
-    return { sessionId, syncClockTick };
+    });
+
+    return { sessionId: syncSession.id, syncClockTick };
   }
 
-  connectToSession(sessionId) {
-    const session = this.sessions[sessionId];
+  async connectToSession(store, sessionId) {
+    const session = await store.sequelize.models.SyncSession.findOne({
+      where: { id: sessionId },
+    });
+
     if (!session) {
-      throw new Error(`Sync session ${sessionId} not found`);
+      throw new Error(`Sync session '${sessionId}' not found`);
     }
-    session.lastConnectionTime = Date.now();
+    await session.update({ lastConnectionTime: Date.now() });
+
     return session;
   }
 
-  async endSession(sessionId) {
-    const { incomingChanges, outgoingChanges, startTime } = this.connectToSession(sessionId);
-    log.info('Sync session ended', {
-      time: Date.now() - startTime,
-      incomingChanges: incomingChanges.length,
-      outgoingChanges: outgoingChanges.length,
-    });
-    delete this.sessions[sessionId];
+  async endSession(store, sessionId) {
+    const session = await this.connectToSession(store, sessionId);
+    log.info(`Sync session performed in ${(Date.now() - session.startTime) / 1000} seconds`);
+    await deleteSyncSession(store, sessionId);
   }
 
   // The hardest thing about sync is knowing what happens at the clock tick border - do we want
@@ -72,8 +78,10 @@ export class CentralSyncManager {
   // that are _below_ that tick, but also has all records locally _at_ that tick already - it must
   // have been the one that changed them, if they have an update tick unique to that device!
   // For sanity's sake, we use > consistently, because it aligns with "since"
-  async setPullFilter(sessionId, { since, facilityId }, { models }) {
-    const session = this.connectToSession(sessionId);
+  async setPullFilter(sessionId, { since, facilityId }, store) {
+    const { models } = store;
+
+    await this.connectToSession(store, sessionId);
 
     const facilitySettings = await models.Setting.forFacility(facilityId);
 
@@ -83,65 +91,71 @@ export class CentralSyncManager {
       where: { facilityId, updatedAtSyncTick: { [Op.gt]: since } },
     });
     const patientIdsForFullSync = newPatientFacilities.map(n => n.patientId);
-    const fullSyncChanges = await snapshotOutgoingChanges(
-      getPatientLinkedModels(models),
-      0,
-      patientIdsForFullSync,
-    );
 
-    // get changes since the last successful sync for all other synced patients and independent
-    // record types
-    const patientFacilities = await models.PatientFacility.findAll({ where: { facilityId } });
-    const patientIdsForRegularSync = patientFacilities
-      .map(p => p.patientId)
-      .filter(patientId => !patientIdsForFullSync.includes(patientId));
-    const regularChanges = await snapshotOutgoingChanges(
-      getModelsForDirection(models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
-      since,
-      patientIdsForRegularSync,
-      facilitySettings,
-    );
-
-    const changes = [...fullSyncChanges, ...regularChanges];
-
-    // filter out any changes that were pushed in during the same sync session
-    const { incomingChanges } = session;
-    const incomingChangesByUniqueKey = Object.fromEntries(
-      incomingChanges.map(c => [`${c.recordType}_${c.data.id}`, c]),
-    );
-    const changesWithoutEcho = changes.filter(c => {
-      // if the detected change just came in, and the updated marker indicates that it hasn't
-      // changed since, don't send it back down to the same device that sent it
-      const sameIncomingChange = incomingChangesByUniqueKey[`${c.recordType}_${c.data.id}`];
-      if (
-        sameIncomingChange &&
-        sameIncomingChange.data.updatedAtSyncTick === c.data.updatedAtSyncTick
-      ) {
-        return false;
-      }
-
-      return true;
-    });
-    session.outgoingChanges = changesWithoutEcho;
-
-    return changesWithoutEcho.length;
-  }
-
-  getOutgoingChanges(sessionId, { offset, limit }) {
-    const session = this.connectToSession(sessionId);
-    return session.outgoingChanges.slice(offset, offset + limit);
-  }
-
-  async addIncomingChanges(sessionId, changes, { pageNumber, totalPages }, { sequelize, models }) {
-    const session = this.connectToSession(sessionId);
-    session.incomingChanges.push(...changes);
-    if (pageNumber === totalPages) {
-      await saveIncomingChanges(
-        sequelize,
-        getModelsForDirection(models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL),
-        session.incomingChanges,
-        true,
+    await store.sequelize.transaction(async () => {
+      // full changes
+      await snapshotOutgoingChangesForCentral(
+        getPatientLinkedModels(models),
+        models,
+        0,
+        patientIdsForFullSync,
+        sessionId,
       );
+
+      // get changes since the last successful sync for all other synced patients and independent
+      // record types
+      const patientFacilities = await models.PatientFacility.findAll({ where: { facilityId } });
+      const patientIdsForRegularSync = patientFacilities
+        .map(p => p.patientId)
+        .filter(patientId => !patientIdsForFullSync.includes(patientId));
+
+      // regular changes
+      await snapshotOutgoingChangesForCentral(
+        getModelsForDirection(models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
+        models,
+        since,
+        patientIdsForRegularSync,
+        sessionId,
+        facilitySettings,
+      );
+
+      await removeEchoedChanges(store, sessionId);
+    });
+
+    return getOutgoingChangesCount(store, sessionId);
+  }
+
+  async getOutgoingChanges(store, sessionId, { offset, limit }) {
+    this.connectToSession(store, sessionId);
+    return getOutgoingChangesForSession(
+      store,
+      sessionId,
+      SYNC_SESSION_DIRECTION.OUTGOING,
+      offset,
+      limit,
+    );
+  }
+
+  async addIncomingChanges(sessionId, changes, { pageNumber, totalPages }, store) {
+    const { models } = store;
+    await this.connectToSession(store, sessionId);
+    const sessionSyncRecords = changes.map(c => ({
+      ...c,
+      direction: SYNC_SESSION_DIRECTION.INCOMING,
+      sessionId,
+    }));
+
+    await models.SessionSyncRecord.bulkCreate(sessionSyncRecords);
+
+    if (pageNumber === totalPages) {
+      await store.sequelize.transaction(async () => {
+        await saveIncomingChanges(
+          models,
+          getModelsForDirection(models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL),
+          sessionId,
+          true,
+        );
+      });
     }
   }
 }

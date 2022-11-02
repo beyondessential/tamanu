@@ -24,7 +24,10 @@
     "enabled": true
   },
   "sync": {
-    "readOnly": false
+    "readOnly": false,
+    "persistedCacheBatchSize": 20000,
+    "lapsedSessionSeconds": 1200,
+    "lapsedSessionCheckFrequencySeconds": 60
   },
   "loadshedder": {
     // paths are checked sequentially until a path matches a prefix
@@ -152,10 +155,6 @@
       "after": "2022-09-01",
       "labTestCategories": [],
       "labTestTypes": []
-    },
-    "duplicateAdditionalDataDeleter": {
-      "enabled": true,
-      "schedule": "*/15 * * * *"
     },
     "fhirMaterialiser": {
       "enabled": true, // only when integrations.fhir is on

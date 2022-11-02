@@ -1,9 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
-import {
-  PROGRAM_DATA_ELEMENT_TYPES,
-  SYNC_DIRECTIONS,
-} from 'shared/constants';
+import { PROGRAM_DATA_ELEMENT_TYPES, SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { runCalculations } from '../utils/calculations';

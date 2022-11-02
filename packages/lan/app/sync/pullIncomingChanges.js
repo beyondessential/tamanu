@@ -1,7 +1,13 @@
+import config from 'config';
+import { chunk } from 'lodash';
 import { log } from 'shared/services/logging';
+import { SYNC_SESSION_DIRECTION } from 'shared/sync';
+
 import { calculatePageLimit } from './calculatePageLimit';
 
-export const pullIncomingChanges = async (centralServer, sessionId, since) => {
+const { persistedCacheBatchSize } = config.sync;
+
+export const pullIncomingChanges = async (centralServer, models, sessionId, since) => {
   const totalToPull = await centralServer.setPullFilter(sessionId, since);
 
   let offset = 0;
@@ -21,12 +27,30 @@ export const pullIncomingChanges = async (centralServer, sessionId, since) => {
       offset,
       limit,
     });
-    incomingChanges.push(...records);
+    const pullTime = Date.now() - startTime;
+
+    if (!records.length) {
+      break;
+    }
+
+    const recordsToSave = records.map(r => ({
+      ...r,
+      direction: SYNC_SESSION_DIRECTION.INCOMING,
+    }));
+
+    // This is an attempt to avoid storing all the pulled data
+    // in the memory because we might run into memory issue when:
+    // 1. During the first sync when there is a lot of data to load
+    // 2. When a huge number of data is imported to sync and the facility syncs it down
+    // So store the data in session_sync_records table instead and will persist it to the actual tables later
+    for (const batchOfRows of chunk(recordsToSave, persistedCacheBatchSize)) {
+      await models.SessionSyncRecord.bulkCreate(batchOfRows);
+    }
+
     offset += records.length;
 
-    const pullTime = Date.now() - startTime;
     limit = calculatePageLimit(limit, pullTime);
   }
 
-  return incomingChanges;
+  return totalToPull;
 };

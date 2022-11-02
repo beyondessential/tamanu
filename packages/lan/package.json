@@ -89,6 +89,7 @@
     "semver-diff": "^3.1.1",
     "sequelize": "^6.21.3",
     "shortid": "^2.2.13",
+    "tiny-async-pool": "^1.2.0",
     "umzug": "^2.3.0",
     "uuid": "^8.1.0",
     "wayfarer": "^7.0.1",

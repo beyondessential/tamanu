@@ -11,9 +11,12 @@ import { BaseModel } from './BaseModel';
 import { IReferral, ISurveyResponse, ISurveyScreenComponent } from '~/types';
 import { Encounter } from './Encounter';
 import { SurveyResponse } from './SurveyResponse';
+import { SYNC_DIRECTIONS } from './types';
 
 @Entity('referral')
 export class Referral extends BaseModel implements IReferral {
+  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
+
   @Column({ nullable: true })
   referredFacility?: string;
 
