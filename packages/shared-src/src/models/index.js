@@ -11,6 +11,10 @@ export * from './PatientAdditionalData';
 export * from './PatientVRSData';
 export * from './PatientSecondaryId';
 
+export * from './PatientFieldDefinitionCategory';
+export * from './PatientFieldDefinition';
+export * from './PatientFieldValue';
+
 export * from './PatientDeathData';
 export * from './PatientBirthData';
 export * from './ContributingDeathCause';

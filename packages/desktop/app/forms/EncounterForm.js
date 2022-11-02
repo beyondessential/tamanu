@@ -62,22 +62,22 @@ export const EncounterForm = React.memo(
             component={AutocompleteField}
             suggester={locationSuggester}
           />
-          <LocalisedField
-            name="patientBillingTypeId"
-            endpoint="patientBillingType"
-            component={SuggesterSelectField}
-          />
-          <LocalisedField
-            name="referralSourceId"
-            suggester={referralSourceSuggester}
-            component={AutocompleteField}
-          />
           <Field
             name="examinerId"
             label="Practitioner"
             required
             component={AutocompleteField}
             suggester={practitionerSuggester}
+          />
+          <LocalisedField
+            name="referralSourceId"
+            suggester={referralSourceSuggester}
+            component={AutocompleteField}
+          />
+          <LocalisedField
+            name="patientBillingTypeId"
+            endpoint="patientBillingType"
+            component={SuggesterSelectField}
           />
           <Field
             name="reasonForEncounter"
