@@ -211,6 +211,9 @@
       // Email address for CSCA signing contact
       "sendRequestTo": "admin@tamanu.io"
     },
+    "fijiAspenMediciReport": {
+      "enabled": false
+    },
     "mSupply": {
       "enabled": false,
       "requireClientHeaders": true

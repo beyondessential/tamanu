@@ -4,6 +4,7 @@ import {
   createDummyPatient,
   randomReferenceId,
 } from 'shared/demoData/patients';
+import { PATIENT_FIELD_DEFINITION_TYPES } from 'shared/constants/patientFields';
 import { fake } from 'shared/test-helpers/fake';
 import { toDateString } from 'shared/utils/dateTime';
 import { createTestContext } from '../utilities';
@@ -149,6 +150,39 @@ describe('Patient', () => {
       expect(additional).toHaveProperty('passport', 'TEST-PASSPORT');
     });
 
+    it('should create a new patient with fields', async () => {
+      // Arrange
+      const { PatientFieldDefinitionCategory, PatientFieldDefinition, PatientFieldValue } = models;
+      const category = await PatientFieldDefinitionCategory.create({
+        name: 'Test Category',
+      });
+      const definition = await PatientFieldDefinition.create({
+        name: 'Test Field',
+        fieldType: PATIENT_FIELD_DEFINITION_TYPES.STRING,
+        categoryId: category.id,
+      });
+      const newPatient = await createDummyPatient(models);
+
+      // Act
+      const result = await app.post('/v1/patient').send({
+        ...newPatient,
+        patientFields: {
+          [definition.id]: 'Test Field Value',
+        },
+      });
+
+      // Assert
+      expect(result).toHaveSucceeded();
+      const values = await PatientFieldValue.findAll({
+        where: { patientId: result.body.id },
+      });
+      expect(values).toEqual([
+        expect.objectContaining({
+          value: 'Test Field Value',
+        }),
+      ]);
+    });
+
     it('should update patient details', async () => {
       // skip middleName, to be added in PUT request
       const newPatient = await createDummyPatient(models, { middleName: '' });
@@ -170,6 +204,46 @@ describe('Patient', () => {
 
       expect(additionalDataResult).toHaveSucceeded();
       expect(additionalDataResult.body).toHaveProperty('bloodType', 'AB+');
+    });
+
+    it('should update patient fields', async () => {
+      // Arrange
+      const { PatientFieldDefinitionCategory, PatientFieldDefinition, PatientFieldValue } = models;
+      const category = await PatientFieldDefinitionCategory.create({
+        name: 'Test Category',
+      });
+      const definition = await PatientFieldDefinition.create({
+        name: 'Test Field',
+        fieldType: PATIENT_FIELD_DEFINITION_TYPES.STRING,
+        categoryId: category.id,
+      });
+      const newPatient = await createDummyPatient(models);
+      const {
+        body: { id: patientId },
+      } = await app.post('/v1/patient').send({
+        ...newPatient,
+        patientFields: {
+          [definition.id]: 'Test Field Value',
+        },
+      });
+
+      // Act
+      const result = await app.put(`/v1/patient/${patientId}`).send({
+        patientFields: {
+          [definition.id]: 'Test Field Value 2',
+        },
+      });
+
+      // Assert
+      expect(result).toHaveSucceeded();
+      const values = await PatientFieldValue.findAll({
+        where: { patientId },
+      });
+      expect(values).toEqual([
+        expect.objectContaining({
+          value: 'Test Field Value 2',
+        }),
+      ]);
     });
 
     test.todo('should create a new patient as a new birth');
