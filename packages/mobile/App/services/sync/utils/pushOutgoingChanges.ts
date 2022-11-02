@@ -6,13 +6,13 @@ import { calculatePageLimit } from './calculatePageLimit';
 /**
  * Push outgoing changes in batches
  * @param centralServer
- * @param sessionIndex
+ * @param sessionId
  * @param changes
  * @param progressCallback
  */
 export const pushOutgoingChanges = async (
   centralServer: CentralServerConnection,
-  sessionIndex: number,
+  sessionId: number,
   changes: SyncRecord[],
   progressCallback: (total: number, progressCount: number) => void,
 ): Promise<void> => {
@@ -24,7 +24,7 @@ export const pushOutgoingChanges = async (
     const endOfPage = Math.min(startOfPage + limit, changes.length);
     const page = changes.slice(startOfPage, endOfPage);
     const startTime = Date.now();
-    await centralServer.push(sessionIndex, page, endOfPage, changes.length);
+    await centralServer.push(sessionId, page, endOfPage, changes.length);
     const endTime = Date.now();
 
     startOfPage = endOfPage;

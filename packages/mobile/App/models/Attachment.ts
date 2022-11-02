@@ -6,6 +6,8 @@ import { readFileInDocuments, deleteFileInDocuments } from '../ui/helpers/file';
 
 @Entity('attachment')
 export class Attachment extends BaseModel {
+  static syncDirection = SYNC_DIRECTIONS.PUSH_TO_CENTRAL;
+
   @Column({ nullable: true })
   size?: number; //size in bytes
 
@@ -17,8 +19,6 @@ export class Attachment extends BaseModel {
 
   @Column()
   filePath: string; // will not be synced up, only for local usage
-
-  static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
 
   static uploadLimit = 1;
 

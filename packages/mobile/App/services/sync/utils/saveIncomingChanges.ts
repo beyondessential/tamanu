@@ -1,12 +1,14 @@
-import { groupBy, chunk } from 'lodash';
+import RNFS from 'react-native-fs';
+import { chunk, groupBy } from 'lodash';
 
-import { SyncRecord, PersistResult } from '../types';
+import { SyncRecord } from '../types';
 import { sortInDependencyOrder } from './sortInDependencyOrder';
 import { SQLITE_MAX_PARAMETERS } from '../../../infra/db/helpers';
 import { buildFromSyncRecord } from './buildFromSyncRecord';
 import { executeInserts, executeUpdates, executeDeletes } from './executeCrud';
 import { MODELS_MAP } from '../../../models/modelsMap';
 import { BaseModel } from '../../../models/BaseModel';
+import { readFileInDocuments } from '../../../ui/helpers/file';
 
 /**
  * Save changes for a single model in batch because SQLite only support limited number of parameters
@@ -18,7 +20,6 @@ import { BaseModel } from '../../../models/BaseModel';
 const saveChangesForModel = async (
   model: typeof BaseModel,
   changes: SyncRecord[],
-  progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
 ): Promise<void> => {
   // split changes into create, update, delete
   const idsForDelete = changes.filter(c => c.isDeleted).map(c => c.data.id);
@@ -27,16 +28,16 @@ const saveChangesForModel = async (
 
   for (const batchOfIds of chunk(idsForUpsert, SQLITE_MAX_PARAMETERS)) {
     const batchOfExisting = await model.findByIds(batchOfIds, {
-      select: ['id', 'updatedAtSyncIndex'],
+      select: ['id', 'updatedAtSyncTick'],
     });
     const batchOfRecords = Object.fromEntries(
-      batchOfExisting.map(e => [e.id, e.updatedAtSyncIndex]),
+      batchOfExisting.map(e => [e.id, e.updatedAtSyncTick]),
     );
     idToUpdatedSinceSession = { ...idToUpdatedSinceSession, ...batchOfRecords };
   }
 
   const recordsForCreate = changes
-    .filter(c => !c.isDeleted && idToUpdatedSinceSession[c.data.id] === undefined)
+    .filter(c => !c.isDeleted && idToUpdatedSinceSession[c.recordId] === undefined)
     .map(({ data }) => buildFromSyncRecord(model, data));
 
   const recordsForUpdate = changes
@@ -44,34 +45,65 @@ const saveChangesForModel = async (
       r =>
         !r.isDeleted &&
         !!idToUpdatedSinceSession[r.data.id] &&
-        r.data.updatedAtSyncIndex > idToUpdatedSinceSession[r.data.id],
+        r.data.updatedAtSyncTick > idToUpdatedSinceSession[r.data.id],
     )
     .map(({ data }) => buildFromSyncRecord(model, data));
 
   // run each import process
-  await executeInserts(model, recordsForCreate, progressCallback);
-  await executeUpdates(model, recordsForUpdate, progressCallback);
-  await executeDeletes(model, idsForDelete, progressCallback);
+  await executeInserts(model, recordsForCreate);
+  await executeUpdates(model, recordsForUpdate);
+  await executeDeletes(model, idsForDelete);
 };
 
 /**
- * Save all the incoming changes in the right order of dependency
+ * Save all the incoming changes in the right order of dependency,
+ * using the data stored in session_sync_record previously
  * @param models
  * @param changes
  * @param progressCallback
  * @returns
  */
 export const saveIncomingChanges = async (
-  models: typeof MODELS_MAP,
-  changes: SyncRecord[],
+  incomingChangesCount: number,
+  incomingModels: typeof MODELS_MAP,
   progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
 ): Promise<void> => {
-  const sortedModels = await sortInDependencyOrder(models);
-  const changesByRecordType = groupBy(changes, c => c.recordType);
+  const sortedModels = await sortInDependencyOrder(incomingModels);
 
-  for (const model of sortedModels) {
-    const modelRecords = changesByRecordType[model.getPluralTableName()] || [];
+  let currentBatchIndex = 0;
+  let savedRecordsCount = 0;
 
-    await saveChangesForModel(model, modelRecords, progressCallback);
+  while (true) {
+    const fileName = `batch${currentBatchIndex}.json`;
+    const filePath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
+    let batchString = '';
+    try {
+      const base64 = await readFileInDocuments(filePath);
+      batchString = Buffer.from(base64, 'base64').toString();
+    } catch (e) {
+      batchString = '';
+      //ignore error because most likely it fails because there is not more batch file to be found
+    }
+
+    if (!batchString) {
+      break;
+    }
+
+    const batch = JSON.parse(batchString);
+    const recordsByType = groupBy(batch, 'recordType');
+
+    for (const model of sortedModels) {
+      const modelRecords = recordsByType[model.getPluralTableName()];
+      if (modelRecords === undefined) {
+        continue;
+      }
+      await saveChangesForModel(model, modelRecords);
+
+      savedRecordsCount += modelRecords.length;
+      const progressMessage = `Stage 3/3: Saving ${incomingChangesCount} records`;
+      progressCallback(incomingChangesCount, savedRecordsCount, progressMessage);
+    }
+
+    currentBatchIndex++;
   }
 };

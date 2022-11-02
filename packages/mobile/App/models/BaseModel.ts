@@ -11,7 +11,7 @@ import {
   Repository,
 } from 'typeorm/browser';
 import { SYNC_DIRECTIONS } from './types';
-import { getSyncSessionIndex } from '../services/sync/utils';
+import { getSyncTick } from '../services/sync/utils';
 
 export type ModelPojo = {
   id: string;
@@ -89,29 +89,35 @@ export abstract class BaseModel extends BaseEntity {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @Column({ nullable: true })
-  uploadedAt: Date;
+  @Column({ nullable: false, default: 0 })
+  updatedAtSyncTick: number;
 
-  @Column({ nullable: false, default: () => 0 })
-  updatedAtSyncIndex: number;
+  constructor() {
+    super();
+    const thisModel = this.constructor as typeof BaseModel;
+
+    if (!thisModel.syncDirection) {
+      throw new Error(`syncDirection is required for model ${this.constructor.name}`);
+    }
+  }
 
   @BeforeUpdate()
   async markForUpload(): Promise<void> {
     const thisModel = this.constructor as typeof BaseModel;
-    const index = await getSyncSessionIndex('CurrentSyncSession');
+    const syncTick = await getSyncTick('CurrentSyncTime');
     if (
-      [null, undefined].includes(this.updatedAtSyncIndex) ||
-      (await thisModel.findOne({ id: this.id }))?.updatedAtSyncIndex === this.updatedAtSyncIndex
+      [null, undefined].includes(this.updatedAtSyncTick) ||
+      (await thisModel.findOne({ id: this.id }))?.updatedAtSyncTick === this.updatedAtSyncTick
     ) {
-      this.updatedAtSyncIndex = index;
+      this.updatedAtSyncTick = syncTick;
     }
   }
 
   @BeforeInsert()
-  async assignUpdatedAtSyncIndex(): Promise<void> {
-    const index = await getSyncSessionIndex('CurrentSyncSession');
-    if ([null, undefined].includes(this.updatedAtSyncIndex)) {
-      this.updatedAtSyncIndex = index;
+  async assignUpdatedAtSyncTick(): Promise<void> {
+    if ([null, undefined].includes(this.updatedAtSyncTick)) {
+      const syncTick = await getSyncTick('CurrentSyncTime');
+      this.updatedAtSyncTick = syncTick;
     }
   }
 
@@ -206,17 +212,13 @@ export abstract class BaseModel extends BaseEntity {
 
   static async postExportCleanUp() {}
 
-  static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
+  static syncDirection = null;
 
   static uploadLimit = 100;
 
   // Exclude these properties from uploaded model
   // May be columns or relationIds
-  static excludedSyncColumns: string[] = [
-    'createdAt',
-    'updatedAt',
-    'uploadedAt',
-  ];
+  static excludedSyncColumns: string[] = ['createdAt', 'updatedAt'];
 
   // Include these relations on uploaded model
   // Does not currently handle lazy or embedded relations

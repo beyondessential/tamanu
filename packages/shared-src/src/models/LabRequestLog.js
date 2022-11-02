@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize';
 
 import { LAB_REQUEST_STATUSES, SYNC_DIRECTIONS } from 'shared/constants';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { Model } from './Model';
 
 const LAB_REQUEST_STATUS_VALUES = Object.values(LAB_REQUEST_STATUSES);
@@ -34,5 +35,12 @@ export class LabRequestLog extends Model {
 
   static getListReferenceAssociations() {
     return ['labRequest', 'updatedBy'];
+  }
+
+  static buildSyncFilter(patientIds, facilitySettings) {
+    return buildEncounterLinkedSyncFilter(patientIds, facilitySettings, [
+      'labRequest',
+      'encounter',
+    ]);
   }
 }

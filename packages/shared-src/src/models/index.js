@@ -75,7 +75,11 @@ export * from './InvoicePriceChangeType';
 export * from './Signer';
 
 export * from './CertificateNotification';
+
 export * from './NotePage';
 export * from './NoteItem';
+
+export * from './SyncSession';
+export * from './SessionSyncRecord';
 
 export * from './fhir';

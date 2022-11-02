@@ -10,24 +10,30 @@ const buildToSyncRecord = (model: typeof BaseModel, record: object): SyncRecord 
   const includedColumns = extractIncludedColumns(model);
   const data = pick(record, includedColumns) as SyncRecordData;
 
-  return { recordType: model.getPluralTableName(), data };
+  return {
+    recordId: data.id,
+    isDeleted: !!data.deletedAt,
+    recordType: model.getPluralTableName(),
+    data,
+  };
 };
 
 /**
- * Get all the records that have updatedAtSyncIndex >= the last successful sync index,
+ * Get all the records that have updatedAtSyncTick >= the last successful sync index,
  * meaning that these records have been updated since the last successful sync
  * @param models
- * @param fromSessionIndex
+ * @param since
  * @returns
  */
 export const snapshotOutgoingChanges = async (
   models: typeof MODELS_MAP,
-  fromSessionIndex: number,
+  since: number,
 ): Promise<SyncRecord[]> => {
   const outgoingChanges = [];
+
   for (const model of Object.values(models)) {
     const changesForModel = await model.find({
-      where: { updatedAtSyncIndex: MoreThanOrEqual(fromSessionIndex) },
+      where: { updatedAtSyncTick: MoreThanOrEqual(since) },
     });
     const syncRecordsForModel = changesForModel.map(change => buildToSyncRecord(model, change));
     outgoingChanges.push(...syncRecordsForModel);

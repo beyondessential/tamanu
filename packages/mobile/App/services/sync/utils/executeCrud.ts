@@ -7,18 +7,10 @@ import { BaseModel } from '../../../models/BaseModel';
 export const executeInserts = async (
   model: typeof BaseModel,
   rows: DataToPersist[],
-  progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
 ): Promise<void> => {
-  let insertedRowsCount = 0;
-
   for (const batchOfRows of chunkRows(rows)) {
     try {
       await model.insert(batchOfRows);
-
-      insertedRowsCount += batchOfRows.length;
-      const totalRowsCount = rows.length;
-      const progressMessage = `Stage 3/3: Creating ${totalRowsCount} ${model.name} records`;
-      progressCallback(totalRowsCount, insertedRowsCount, progressMessage);
     } catch (e) {
       // try records individually, some may succeed and we want to capture the
       // specific one with the error
@@ -38,18 +30,10 @@ export const executeInserts = async (
 export const executeUpdates = async (
   model: typeof BaseModel,
   rows: DataToPersist[],
-  progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
 ): Promise<void> => {
-  let updatedRowsCount = 0;
-
   for (const batchOfRows of chunkRows(rows)) {
     try {
       await Promise.all(batchOfRows.map(async row => model.update({ id: row.id }, row)));
-
-      updatedRowsCount += batchOfRows.length;
-      const totalRowsCount = rows.length;
-      const progressMessage = `Stage 3/3: Updating ${totalRowsCount} ${model.name} records`;
-      progressCallback(totalRowsCount, updatedRowsCount, progressMessage);
     } catch (e) {
       // try records individually, some may succeed and we want to capture the
       // specific one with the error
@@ -69,18 +53,10 @@ export const executeUpdates = async (
 export const executeDeletes = async (
   model: typeof BaseModel,
   rowIds: string[],
-  progressCallback: (total: number, batchTotal: number, progressMessage: string) => void,
 ): Promise<void> => {
-  let deletedRowsCount = 0;
-
   for (const batchOfIds of chunk(rowIds, SQLITE_MAX_PARAMETERS)) {
     try {
       await model.delete(batchOfIds);
-
-      deletedRowsCount += batchOfIds.length;
-      const totalRowsCount = rowIds.length;
-      const progressMessage = `Stage 3/3: Deleting ${totalRowsCount} ${model.name} records`;
-      progressCallback(totalRowsCount, deletedRowsCount, progressMessage);
     } catch (e) {
       // try records individually, some may succeed and we want to capture the
       // specific one with the error

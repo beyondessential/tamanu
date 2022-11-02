@@ -1,6 +1,7 @@
 import { Entity, Column, ManyToOne, BeforeUpdate, BeforeInsert, RelationId } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { IAdministeredVaccine, InjectionSiteType } from '~/types';
+import { SYNC_DIRECTIONS } from './types';
 import { Encounter } from './Encounter';
 import { Location } from './Location';
 import { Department } from './Department';
@@ -10,6 +11,8 @@ import { VaccineStatus } from '~/ui/helpers/patient';
 
 @Entity('administered_vaccine')
 export class AdministeredVaccine extends BaseModel implements IAdministeredVaccine {
+  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
+
   @Column({ nullable: true })
   batch?: string;
 

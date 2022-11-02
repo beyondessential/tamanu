@@ -7,6 +7,8 @@ import { SYNC_DIRECTIONS } from './types';
 
 @Entity('patient_additional_data')
 export class PatientAdditionalData extends BaseModel implements IPatientAdditionalData {
+  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
+
   @ManyToOne(() => Patient, (patient) => patient.additionalData)
   patient: Patient;
   @RelationId(({ patient }) => patient)
@@ -116,8 +118,6 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
   countryOfBirth?: ReferenceData;
   @IdRelation()
   countryOfBirthId?: string | null;
-
-  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
 
   @BeforeInsert()
   @BeforeUpdate()

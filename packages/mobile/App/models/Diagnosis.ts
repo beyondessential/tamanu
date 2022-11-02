@@ -3,9 +3,12 @@ import { BaseModel } from './BaseModel';
 import { IDiagnosis, Certainty } from '~/types';
 import { Encounter } from './Encounter';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
+import { SYNC_DIRECTIONS } from './types';
 
 @Entity('diagnosis')
 export class Diagnosis extends BaseModel implements IDiagnosis {
+  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
+
   @Column({ nullable: true })
   isPrimary?: boolean;
 

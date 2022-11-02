@@ -2,7 +2,11 @@ import config from 'config';
 
 import { log } from 'shared/services/logging';
 import { SYNC_DIRECTIONS } from 'shared/constants';
-import { getModelsForDirection, snapshotOutgoingChanges, saveIncomingChanges } from 'shared/sync';
+import {
+  getModelsForDirection,
+  snapshotOutgoingChangesForFacility,
+  saveIncomingChanges,
+} from 'shared/sync';
 
 import { setSyncClockTime } from './setSyncClockTime';
 import { pushOutgoingChanges } from './pushOutgoingChanges';
@@ -45,11 +49,23 @@ export class FacilitySyncManager {
       );
     }
 
+    // Clear previous temp data stored for persist
+    await this.models.SessionSyncRecord.truncate({ cascade: true, force: true });
+    await this.models.SyncSession.truncate({ cascade: true, force: true });
+
     const startTimestampMs = Date.now();
     log.info(`FacilitySyncManager.runSync: began sync run`);
 
     // the first step of sync is to start a session and retrieve the id and current global sync time
     const { sessionId, syncClockTick } = await this.centralServer.startSyncSession();
+
+    const startTime = new Date();
+    await this.models.SyncSession.create({
+      id: sessionId,
+      syncTick: syncClockTick,
+      startTime,
+      lastConnectionTime: startTime,
+    });
 
     // persist the current global clock time through to the facility's copy of the sync time now
     // so that any records that are created or updated from this point on, even mid way through this
@@ -61,8 +77,9 @@ export class FacilitySyncManager {
     // this avoids any of the records to be pushed being changed during the push period and
     // causing data that isn't internally coherent from ending up on the sync server
     const since = (await this.models.LocalSystemFact.get('LastSuccessfulSyncTime')) || 0;
-    const outgoingChanges = await snapshotOutgoingChanges(
+    const outgoingChanges = await snapshotOutgoingChangesForFacility(
       getModelsForDirection(this.models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL),
+      sessionId,
       since,
     );
     if (outgoingChanges.length > 0) {
@@ -72,13 +89,18 @@ export class FacilitySyncManager {
     // syncing incoming changes happens in two phases: pulling all the records from the server,
     // then saving all those records into the local database
     // this avoids a period of time where the the local database may be "partially synced"
-    const incomingChanges = await pullIncomingChanges(this.centralServer, sessionId, since);
+    const incomingChangesCount = await pullIncomingChanges(
+      this.centralServer,
+      this.models,
+      sessionId,
+      since,
+    );
     await this.sequelize.transaction(async () => {
-      if (incomingChanges.length > 0) {
+      if (incomingChangesCount > 0) {
         await saveIncomingChanges(
-          this.sequelize,
+          this.models,
           getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
-          incomingChanges,
+          sessionId,
         );
       }
 
@@ -91,6 +113,10 @@ export class FacilitySyncManager {
 
     const elapsedTimeMs = Date.now() - startTimestampMs;
     log.info(`FacilitySyncManager.runSync: finished sync run in ${elapsedTimeMs}ms`);
+
+    // Clear temp data stored for persist
+    await this.models.SessionSyncRecord.truncate({ cascade: true, force: true });
+    await this.models.SyncSession.truncate({ cascade: true, force: true });
 
     this.syncPromise = null;
   }

@@ -38,10 +38,10 @@ syncRoutes.post(
 syncRoutes.get(
   '/:sessionId/pull',
   asyncHandler(async (req, res) => {
-    const { query, params } = req;
+    const { query, params, store } = req;
     const { sessionId } = params;
-    const { offset = '0', limit = '100' } = query;
-    const changes = await syncManager.getOutgoingChanges(sessionId, {
+    const { offset = '', limit = '100' } = query;
+    const changes = await syncManager.getOutgoingChanges(store, sessionId, {
       offset: parseInt(offset, 10),
       limit: parseInt(limit, 10),
     });
@@ -67,9 +67,9 @@ syncRoutes.post(
 syncRoutes.delete(
   '/:sessionId',
   asyncHandler(async (req, res) => {
-    const { params } = req;
+    const { params, store } = req;
     const { sessionId } = params;
-    await syncManager.endSession(sessionId);
+    await syncManager.endSession(store, sessionId);
     res.json({});
   }),
 );

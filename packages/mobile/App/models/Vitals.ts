@@ -2,9 +2,12 @@ import { Entity, Column, ManyToOne, RelationId, BeforeInsert, BeforeUpdate } fro
 import { BaseModel } from './BaseModel';
 import { AVPUType, IVitals, DetectedPresenceType, UrineNitritesType, UrineProteinType } from '../types/IVitals';
 import { Encounter } from './Encounter';
+import { SYNC_DIRECTIONS } from './types';
 
 @Entity('vitals')
 export class Vitals extends BaseModel implements IVitals {
+  static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
+
   @Column()
   dateRecorded: string;
 

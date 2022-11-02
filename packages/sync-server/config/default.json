@@ -24,7 +24,10 @@
     "enabled": true
   },
   "sync": {
-    "readOnly": false
+    "readOnly": false,
+    "persistedCacheBatchSize": 20000,
+    "lapsedSessionSeconds": 1200,
+    "lapsedSessionCheckFrequencySeconds": 60
   },
   "loadshedder": {
     // paths are checked sequentially until a path matches a prefix
