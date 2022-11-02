@@ -2,10 +2,10 @@ import { Op } from 'sequelize';
 import config from 'config';
 import asyncPool from 'tiny-async-pool';
 import { sortInDependencyOrder } from 'shared/models/sortInDependencyOrder';
+import { log } from 'shared/services/logging/log';
 import { findSyncSessionRecords } from './findSyncSessionRecords';
 import { countSyncSessionRecords } from './countSyncSessionRecords';
 import { mergeRecord } from './mergeRecord';
-import { log } from 'shared/services/logging/log';
 
 const { persistedCacheBatchSize } = config.sync;
 const UPDATE_WORKER_POOL_SIZE = 100;
@@ -99,7 +99,6 @@ const saveChangesForModelInBatches = async (
     try {
       await saveChangesForModel(model, batchRecordsToSave, isCentralServer);
     } catch (error) {
-      console.log(error);
       log.error(`Failed to save changes for ${model.name}`);
       throw error;
     }

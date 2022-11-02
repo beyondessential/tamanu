@@ -1,5 +1,4 @@
 import { Sequelize, Op } from 'sequelize';
-import config from 'config';
 import { InvalidOperationError } from 'shared/errors';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';

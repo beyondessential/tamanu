@@ -1,5 +1,4 @@
 import config from 'config';
-import util from 'util';
 import { snake } from 'case';
 import { SYNC_SESSION_DIRECTION, COLUMNS_EXCLUDED_FROM_SYNC } from 'shared/sync';
 import { log } from 'shared/services/logging/log';
@@ -76,6 +75,8 @@ const snapshotChangesForModel = async (
   log.debug(
     `snapshotChangesForModel: Found ${count} for model ${model.tableName} since ${since}, in session ${sessionId}`,
   );
+
+  return count;
 };
 
 export const snapshotOutgoingChanges = async (

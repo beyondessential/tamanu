@@ -50,13 +50,6 @@ function buildNoteLinkedSyncFilter(patientIds, sessionConfig, isNotePage) {
     whereOrs.push(`note_pages.record_type = '${NOTE_RECORD_TYPES.LAB_REQUEST}'`);
   }
 
-  console.log(`
-    ${join}
-    WHERE (
-      ${whereOrs.join('\nOR ')}
-    )
-  `);
-
   return `
     ${join}
     WHERE (
