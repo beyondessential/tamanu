@@ -410,6 +410,9 @@ export class Encounter extends Model {
           `Changed location from ${oldLocation.name} to ${newLocation.name}`,
           data.submittedTime,
         );
+        // When we move to a new location, clear the planned location move
+        additionalChanges.plannedLocationId = null;
+        additionalChanges.plannedLocationStartTime = null;
       }
 
       if (data.plannedLocationId === null) {
