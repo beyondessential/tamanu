@@ -203,6 +203,9 @@
       // Email address for CSCA signing contact
       "sendRequestTo": "admin@tamanu.io"
     },
+    "fijiAspenMediciReport": {
+      "enabled": false
+    },
     "mSupply": {
       "enabled": false,
       "requireClientHeaders": true
@@ -227,6 +230,10 @@
       ]
     },
     "data": {
+      // To do: review this section when implementing the patient charts feature
+      "units": {
+        "temperature": "celsius"
+      },
       "country": {
         "name": "",
         "alpha-2": "",
@@ -528,6 +535,21 @@
         "arrivalModeId": {
           "shortLabel": "Arrival mode",
           "longLabel": "Arrival mode",
+          "hidden": false
+        },
+        "prescriber": {
+          "shortLabel": "Prescriber",
+          "longLabel":  "Prescriber",
+          "hidden": false
+        },
+        "prescriberId": {
+          "shortLabel": "Prescriber ID",
+          "longLabel":  "Prescriber ID",
+          "hidden": false
+        },
+        "facility": {
+          "shortLabel": "Facility",
+          "longLabel": "Facility",
           "hidden": false
         }
       },

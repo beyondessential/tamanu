@@ -16,6 +16,7 @@ import { SectionHeader } from '/components/SectionHeader';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
 import { FormScreenView } from '/components/Forms/FormScreenView';
 import { NumberField } from '~/ui/components/NumberField';
+import { TemperatureField } from '~/ui/components/TemperatureField';
 import { Dropdown } from '~/ui/components/Dropdown';
 import { AVPUType } from '~/types';
 import { authUserSelector } from '~/ui/helpers/selectors';
@@ -36,7 +37,7 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
           <Field component={NumberField} label="dbp" name="dbp" />
           <Field component={NumberField} label="Heart Rate" name="heartRate" />
           <Field component={NumberField} label="Respiratory Rate" name="respiratoryRate" />
-          <Field component={NumberField} label="Temperature (ºC)" name="temperature" />
+          <Field component={TemperatureField} label="Temperature (ºC)" name="temperature" />
           <Field component={NumberField} label="SpO2 (%)" name="spo2" />
           <Field
             component={Dropdown}

@@ -50,8 +50,8 @@ patientRoute.put(
         Patient,
         PatientAdditionalData,
         PatientBirthData,
-        PatientSecondaryId,
         PatientFacility,
+        PatientSecondaryId,
       },
       params,
       syncManager,
@@ -116,6 +116,8 @@ patientRoute.put(
         if (patientBirth) {
           await patientBirth.update(patientBirthRecordData);
         }
+
+        await patient.writeFieldValues(req.body.patientFields);
       });
     }
 
@@ -146,6 +148,7 @@ patientRoute.post(
         ...patientAdditionalBirthData,
         patientId: createdPatient.id,
       });
+      await createdPatient.writeFieldValues(req.body.patientFields);
 
       await PatientFacility.create({
         patientId: createdPatient.id,

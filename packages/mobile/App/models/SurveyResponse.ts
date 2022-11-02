@@ -8,12 +8,7 @@ import {
   RelationId,
 } from 'typeorm/browser';
 
-import {
-  ISurveyResponse,
-  IProgramDataElement,
-  ISurveyScreenComponent,
-  EncounterType,
-} from '~/types';
+import { ISurveyResponse, ISurveyScreenComponent, EncounterType } from '~/types';
 
 import { getStringValue, getResultValue, isCalculated, FieldTypes } from '~/ui/helpers/fields';
 

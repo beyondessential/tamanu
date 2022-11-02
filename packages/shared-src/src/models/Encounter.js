@@ -1,6 +1,5 @@
 import { Sequelize } from 'sequelize';
 import { endOfDay, isBefore, parseISO, startOfToday } from 'date-fns';
-import config from 'config';
 
 import {
   ENCOUNTER_TYPES,

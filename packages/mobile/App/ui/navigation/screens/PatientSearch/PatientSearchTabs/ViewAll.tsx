@@ -42,7 +42,7 @@ const getActiveFilters = (filters: ActiveFilters, filter: FieldProp): ActiveFilt
       }
     } else if (field.name === 'dateOfBirth') {
       const date = format(field.value, 'yyyy-MM-dd');
-      activeFilters.filters[field.name] = Like(`%${date}%`);
+      activeFilters.filters[field.name] = date;
     } else {
       activeFilters.filters[field.name] = Like(`%${field.value}%`);
     }
