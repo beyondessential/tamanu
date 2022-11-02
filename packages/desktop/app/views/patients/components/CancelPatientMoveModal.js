@@ -1,26 +1,17 @@
 import React from 'react';
-import { useApi } from '../../../api';
-import { usePatientNavigation } from '../../../utils/usePatientNavigation';
-import { ConfirmCancelRow, Form, FormGrid, Modal } from '../../../components';
+import { usePatientMove } from '../../../api/mutations';
+import { ConfirmCancelRow, Form, FormGrid, Modal, LargeBodyText } from '../../../components';
 
-export const CancelPatientMoveModal = ({ encounter, onClose }) => {
-  const api = useApi();
-  const { navigateToEncounter } = usePatientNavigation();
-
-  const onSubmit = async data => {
-    await api.put(`encounter/${encounter.id}/plannedLocation`, data);
-    navigateToEncounter(encounter.id);
-    onClose();
-  };
-
+export const CancelPatientMoveModal = React.memo(({ encounter, onClose }) => {
+  const { mutate: submit } = usePatientMove(encounter.id, onClose);
   return (
     <Modal title="Cancel move" endpoint="plannedLocation">
       <Form
         initialValues={{ plannedLocation: encounter.plannedLocation }}
-        onSubmit={onSubmit}
+        onSubmit={submit}
         render={({ submitForm }) => (
           <FormGrid columns={1}>
-            <div>{`Are you sure you want to cancel ${encounter.patient[0].firstName}'s scheduled move to ${encounter.plannedLocation.name}?`}</div>
+            <LargeBodyText>Are you sure you want to cancel the planned patient move?</LargeBodyText>
             <ConfirmCancelRow
               onConfirm={submitForm}
               confirmText="Yes, cancel"
@@ -32,4 +23,4 @@ export const CancelPatientMoveModal = ({ encounter, onClose }) => {
       />
     </Modal>
   );
-};
+});

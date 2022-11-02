@@ -1,13 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Typography, Box } from '@material-ui/core';
+import { Box } from '@material-ui/core';
 import SingleBedIcon from '@material-ui/icons/SingleBed';
-import { Modal } from '../../../components';
+import { BodyText, Modal } from '../../../components';
 import { ModalActionRow } from '../../../components/ModalActionRow';
+import { usePatientMove } from '../../../api/mutations';
+import { Colors } from '../../../constants';
 
-const Text = styled(Typography)`
-  font-size: 14px;
-  line-height: 18px;
+const Text = styled(BodyText)`
   color: ${props => props.theme.palette.text.secondary};
   margin-top: 10px;
   margin-bottom: 40px;
@@ -19,7 +19,7 @@ const Container = styled.div`
 `;
 
 const BedIcon = styled(SingleBedIcon)`
-  color: #b8b8b8;
+  color: ${Colors.softText};
   font-size: 50px;
 
   &.MuiSvgIcon-colorPrimary {
@@ -32,14 +32,14 @@ const Dot = styled.div`
   height: 5px;
   width: 5px;
   margin: 10px 0;
-  background: #666666;
+  background: ${Colors.darkText};
   border-radius: 50%;
 `;
 
 const Card = styled.div`
   padding: 20px 35px 20px 30px;
   border-radius: 5px;
-  border: 1px solid #dedede;
+  border: 1px solid ${Colors.outline};
 
   &.active {
     border: 1px solid white;
@@ -48,10 +48,8 @@ const Card = styled.div`
   }
 `;
 
-export const FinalisePatientMoveModal = ({ encounter, open, onClose }) => {
-  const submitForm = () => {
-    console.log('confirm');
-  };
+export const FinalisePatientMoveModal = React.memo(({ encounter, open, onClose }) => {
+  const { mutate: submit } = usePatientMove(encounter.id, onClose);
   return (
     <Modal title="Finalise patient move" open={open} onClose={onClose}>
       <Text>Please confirm the location details below to finalise the patient move.</Text>
@@ -74,7 +72,7 @@ export const FinalisePatientMoveModal = ({ encounter, open, onClose }) => {
           <Card className="active">Current location: ED Bed 2</Card>
         </Box>
       </Container>
-      <ModalActionRow confirmText="Confirm" onConfirm={submitForm} onCancel={onClose} />
+      <ModalActionRow confirmText="Confirm" onConfirm={submit} onCancel={onClose} />
     </Modal>
   );
-};
+});

@@ -1,37 +1,21 @@
 import React from 'react';
-import { useApi, useSuggester } from '../../../api';
-import { usePatientNavigation } from '../../../utils/usePatientNavigation';
-import {
-  AutocompleteField,
-  ConfirmCancelRow,
-  Field,
-  Form,
-  FormGrid,
-  Modal,
-} from '../../../components';
 import styled from 'styled-components';
-import { Typography } from '@material-ui/core';
+import { usePatientMove } from '../../../api/mutations';
+import { useSuggester } from '../../../api';
+import { BodyText, AutocompleteField, Field, Form, FormGrid, Modal } from '../../../components';
 import { ModalActionRow } from '../../../components/ModalActionRow';
 
-const Text = styled(Typography)`
-  font-size: 14px;
-  line-height: 18px;
+const Text = styled(BodyText)`
   color: ${props => props.theme.palette.text.secondary};
   margin-bottom: 30px;
 `;
-export const BeginPatientMoveModal = ({ onClose, open, encounter }) => {
-  const api = useApi();
-  const { navigateToEncounter } = usePatientNavigation();
+
+export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) => {
+  const { mutate: submit } = usePatientMove(encounter.id, onClose);
 
   const locationSuggester = useSuggester('location', {
     baseQueryParameters: { filterByFacility: true },
   });
-
-  const onSubmit = async data => {
-    await api.put(`encounter/${encounter.id}/plannedLocation`, data);
-    navigateToEncounter(encounter.id);
-    onClose();
-  };
 
   return (
     <Modal title="Plan patient move" open={open} onClose={onClose}>
@@ -44,11 +28,11 @@ export const BeginPatientMoveModal = ({ onClose, open, encounter }) => {
       </Text>
       <Form
         initialValues={{ plannedLocation: encounter.plannedLocation }}
-        onSubmit={onSubmit}
+        onSubmit={submit}
         render={({ submitForm }) => (
           <FormGrid columns={1}>
             <Field
-              name="plannedLocation.id"
+              name="plannedLocationId"
               component={AutocompleteField}
               suggester={locationSuggester}
               label="New location"
@@ -64,4 +48,4 @@ export const BeginPatientMoveModal = ({ onClose, open, encounter }) => {
       />
     </Modal>
   );
-};
+});

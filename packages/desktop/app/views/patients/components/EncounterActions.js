@@ -68,7 +68,7 @@ const EncounterActionDropdown = ({ encounter }) => {
       onClick: onFinaliseLocationChange,
     },
     {
-      label: 'Change location',
+      label: 'Cancel location change',
       // Todo: update condition
       condition: () => !encounter.plannedLocation,
       onClick: onCancelLocationChange,
