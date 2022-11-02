@@ -8,7 +8,7 @@ const getLocale = () => remote.getGlobal('osLocales') || remote.app.getLocale() 
 
 const intlFormatDate = (date, formatOptions, fallback = 'Unknown') => {
   if (!date) return fallback;
-  return parseISO(date).toLocaleString(getLocale(), formatOptions);
+  return date.toLocaleString(getLocale(), formatOptions);
 };
 
 export const formatShort = date =>

@@ -14,7 +14,7 @@ export const usePatientSuggester = () => {
     formatter: ({ id, ...patient }) => ({
       label: `${getPatientNameAsString(patient)} (${patient.displayId}) - ${
         patient.sex
-      } - ${formatShort(patient.dateOfBirth)}`,
+      } - ${formatShort(parseISO(patient.dateOfBirth))}`,
       value: id,
     }),
   });

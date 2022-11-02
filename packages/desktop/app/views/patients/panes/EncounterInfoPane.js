@@ -32,7 +32,7 @@ export const EncounterInfoPane = React.memo(({ encounter }) => {
         <CardItem label="Location" value={getLocationName(encounter)} />
         <CardItem label="Encounter type" value={getEncounterType(encounter)} />
         {encounter.endDate && (
-          <CardItem label="Discharge date" value={formatShort(encounter.endDate)} />
+          <CardItem label="Discharge date" value={formatShort(parseISO(encounter.endDate))} />
         )}
         <CardItem
           style={{ gridColumn: '1/-1' }}

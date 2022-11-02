@@ -1,5 +1,5 @@
 {
-    "name": "eslint-plugin-custom-date-rules",
-    "version": "1.0.0",
-    "main": "index.js"
-  }
+  "name": "eslint-plugin-custom-date-rules",
+  "version": "1.0.0",
+  "main": "index.js"
+}

@@ -16,7 +16,7 @@ export const SurveyResponseSelectField = ({ field, patient, options: _, config, 
           .sort((a, b) => compareDesc(parseISO(a.endTime), parseISO(b.endTime)))
           .map(({ id, endTime, surveyName }) => ({
             value: id,
-            label: `${formatShort(endTime)} ${formatTime(endTime)} ${surveyName}`,
+            label: `${formatShort(parseISO(endTime))} ${formatTime(parseISO(endTime))} ${surveyName}`,
           })),
       );
     });
