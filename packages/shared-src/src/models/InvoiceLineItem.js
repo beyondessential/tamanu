@@ -56,6 +56,6 @@ export class InvoiceLineItem extends Model {
     if (patientIds.length === 0) {
       return null;
     }
-    return buildEncounterLinkedSyncFilter(['invoice_line_items', 'invoices', 'encounters']);
+    return buildEncounterLinkedSyncFilter([this.tableName, 'invoices', 'encounters']);
   }
 }

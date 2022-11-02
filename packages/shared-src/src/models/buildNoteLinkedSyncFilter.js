@@ -1,8 +1,8 @@
 import { snake } from 'case';
 import { Utils } from 'sequelize';
-import { NOTE_RECORD_TYPES } from 'shared/constants';
+import { NOTE_RECORD_TYPES, NOTE_RECORD_TYPE_VALUES } from 'shared/constants';
 
-const recordTypesWithPatientViaEncounter = ['TRIAGE', 'LAB_REQUEST', 'IMAGING_REQUEST'];
+const recordTypesWithPatientViaEncounter = ['Triage', 'LabRequest', 'ImagingRequest'];
 
 function buildNoteLinkedSyncFilter(patientIds, sessionConfig, isNotePage) {
   if (patientIds.length === 0) {
@@ -10,11 +10,11 @@ function buildNoteLinkedSyncFilter(patientIds, sessionConfig, isNotePage) {
   }
 
   const recordTypesToTables = {};
-  Object.keys(NOTE_RECORD_TYPES).forEach(r => {
+  NOTE_RECORD_TYPE_VALUES.forEach(r => {
     recordTypesToTables[r] = Utils.pluralize(snake(r));
   });
 
-  const joins = Object.keys(NOTE_RECORD_TYPES).map(
+  const joins = NOTE_RECORD_TYPE_VALUES.filter(r => r !== NOTE_RECORD_TYPES.PATIENT).map(
     r =>
       `JOIN ${recordTypesToTables[r]} ON note_pages.record_id = ${recordTypesToTables[r]}.id AND note_pages.record_type = '${r}'`,
   );
@@ -29,13 +29,16 @@ function buildNoteLinkedSyncFilter(patientIds, sessionConfig, isNotePage) {
     `
       ( note_pages.record_id IN (:patientIds) AND note_pages.record_type = '${NOTE_RECORD_TYPES.PATIENT}')
     `,
-    ...Object.keys(NOTE_RECORD_TYPES)
-      .filter(r => recordTypesWithPatientViaEncounter.includes(r))
-      .map(r => `${recordTypesToTables[r]}_encounters.patient_id IN (:patientIds)`),
-    ...Object.keys(NOTE_RECORD_TYPES)
-      .filter(r => !recordTypesWithPatientViaEncounter.includes(r) && r !== 'PATIENT')
-      .map(r => `${recordTypesToTables[r]}.patient_id IN (:patientIds)`),
-    `patients.id IN (:patientIds)`,
+    ...NOTE_RECORD_TYPE_VALUES.filter(r => recordTypesWithPatientViaEncounter.includes(r)).map(
+      r =>
+        `( ${recordTypesToTables[r]}_encounters.patient_id IN (:patientIds) AND note_pages.record_type = '${r}' )`,
+    ),
+    ...NOTE_RECORD_TYPE_VALUES.filter(
+      r => !recordTypesWithPatientViaEncounter.includes(r) && r !== 'Patient',
+    ).map(
+      r =>
+        `( ${recordTypesToTables[r]}.patient_id IN (:patientIds) AND note_pages.record_type = '${r}' )`,
+    ),
   ];
 
   const join = `
@@ -44,14 +47,15 @@ function buildNoteLinkedSyncFilter(patientIds, sessionConfig, isNotePage) {
   `;
 
   if (sessionConfig.syncAllLabRequests) {
-    return `
-      ${join}
-      WHERE (
-        ${whereOrs.join('\nOR ')}
-        OR note_pages.record_type = '${NOTE_RECORD_TYPES.LAB_REQUEST}'
-      )
-    `;
+    whereOrs.push(`note_pages.record_type = '${NOTE_RECORD_TYPES.LAB_REQUEST}'`);
   }
+
+  console.log(`
+    ${join}
+    WHERE (
+      ${whereOrs.join('\nOR ')}
+    )
+  `);
 
   return `
     ${join}
