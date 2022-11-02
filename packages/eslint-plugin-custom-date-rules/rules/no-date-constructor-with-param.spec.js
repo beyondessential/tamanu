@@ -14,8 +14,7 @@ ruleTester.run('no-date-constructor-with-param', rule, {
       code: 'new Date(stringDate)',
       errors: [
         {
-          message:
-            'When initializing dates with date strings use parseISO() if sure of format or parseDate() instead',
+          messageId: 'main',
         },
       ],
     },
