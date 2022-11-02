@@ -1,3 +1,5 @@
+import { snake } from 'case';
+
 // utility that can pick the latest whole record, or single field, depending on what is passed in
 const pickLatest = (existing, incoming, existingUpdateTick = 0, incomingUpdateTick = 0) => {
   if (incomingUpdateTick > existingUpdateTick) {
@@ -10,22 +12,22 @@ const pickLatest = (existing, incoming, existingUpdateTick = 0, incomingUpdateTi
 // of each field
 const lastWriteWinsPerField = (existing, incoming) => {
   const merged = { ...existing, ...incoming }; // make sure it has all fields in both
-  const mergedupdatedAtByField = {};
+  const mergedUpdatedAtByField = {};
   Object.keys(merged)
     .filter(key => !['updatedAtByField', 'updatedAtSyncTick'].includes(key))
     .forEach(key => {
       const { latest, latestTick } = pickLatest(
         existing[key],
         incoming[key],
-        existing.updatedAtByField[key],
-        incoming.updatedAtByField[key],
+        existing.updatedAtByField[snake(key)],
+        incoming.updatedAtByField[snake(key)],
       );
       merged[key] = latest;
-      mergedupdatedAtByField[key] = latestTick;
+      mergedUpdatedAtByField[key] = latestTick;
     });
   // overall updatedAtSyncTick should be the highest of the two
   merged.updatedAtSyncTick = Math.max(existing.updatedAtSyncTick, incoming.updatedAtSyncTick);
-  merged.updatedAtByField = mergedupdatedAtByField;
+  merged.updatedAtByField = mergedUpdatedAtByField;
   return merged;
 };
 

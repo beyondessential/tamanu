@@ -12,7 +12,6 @@ import { SignerRenewalChecker } from './SignerRenewalChecker';
 import { SignerRenewalSender } from './SignerRenewalSender';
 import { CertificateNotificationProcessor } from './CertificateNotificationProcessor';
 import { AutomaticLabTestResultPublisher } from './AutomaticLabTestResultPublisher';
-import { DuplicateAdditionalDataDeleter } from './DuplicateAdditionalDataDeleter';
 import { CovidClearanceCertificatePublisher } from './CovidClearanceCertificatePublisher';
 import { FhirMaterialiser } from './FhirMaterialiser';
 
@@ -27,10 +26,6 @@ export async function startScheduledTasks(context) {
 
   if (config.schedules.automaticLabTestResultPublisher.enabled) {
     taskClasses.push(AutomaticLabTestResultPublisher);
-  }
-
-  if (config.schedules.duplicateAdditionalDataDeleter.enabled) {
-    taskClasses.push(DuplicateAdditionalDataDeleter);
   }
 
   if (config.schedules.covidClearanceCertificatePublisher.enabled) {

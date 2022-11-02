@@ -33,7 +33,9 @@ const saveChangesForModel = async (model, changes, isCentralServer) => {
   const idsForDelete = changes.filter(c => c.isDeleted).map(c => c.data.id);
   const idsForUpsert = changes.filter(c => !c.isDeleted && c.data.id).map(c => c.data.id);
   const existingRecords = await model.findByIds(idsForUpsert);
-  const idToExistingRecord = Object.fromEntries(existingRecords.map(e => [e.id, e]));
+  const idToExistingRecord = Object.fromEntries(
+    existingRecords.map(e => [e.id, e.get({ plain: true })]),
+  );
   const recordsForCreate = changes
     .filter(c => !c.isDeleted && idToExistingRecord[c.data.id] === undefined)
     .map(({ data }) => {
