@@ -8,6 +8,7 @@ import Search from '@material-ui/icons/Search';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { Colors } from '../../constants';
 import { StyledTextField } from './TextField';
+import { Tag } from '../Tag';
 
 const SuggestionsContainer = styled(Popper)`
   z-index: 9999;
@@ -56,6 +57,17 @@ const Icon = styled(InputAdornment)`
   }
 `;
 
+const OptionTag = styled(Tag)`
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 25px;
+`;
+
+const SelectTag = styled(Tag)`
+  position: relative;
+`;
+
 class BaseAutocomplete extends Component {
   constructor() {
     super();
@@ -64,7 +76,7 @@ class BaseAutocomplete extends Component {
 
     this.state = {
       suggestions: [],
-      displayedValue: '',
+      selectedOption: { value: '', tag: null },
     };
   }
 
@@ -85,12 +97,17 @@ class BaseAutocomplete extends Component {
       return;
     }
     if (value === '') {
-      this.setState({ displayedValue: '' });
+      this.setState({ selectedOption: { value: '', tag: null } });
       return;
     }
     const currentOption = await suggester.fetchCurrentOption(value);
     if (currentOption) {
-      this.setState({ displayedValue: currentOption.label });
+      this.setState({
+        selectedOption: {
+          value: currentOption.label,
+          tag: currentOption.tag,
+        },
+      });
     } else {
       this.handleSuggestionChange({ value: null, label: '' });
     }
@@ -126,11 +143,11 @@ class BaseAutocomplete extends Component {
     }
     if (typeof newValue !== 'undefined') {
       this.setState(prevState => {
-        const newSuggestion = prevState.suggestions.find(suggest => suggest.value === newValue);
+        const newSuggestion = prevState.suggestions.find(suggest => suggest.label === newValue);
         if (!newSuggestion) {
-          return { displayedValue: newValue };
+          return { selectedOption: { value: newValue, tag: null } };
         }
-        return { displayedValue: newSuggestion.label };
+        return { selectedOption: { value: newSuggestion.label, tag: newSuggestion.tag } };
       });
     }
   };
@@ -146,11 +163,21 @@ class BaseAutocomplete extends Component {
     }
   };
 
-  renderSuggestion = (suggestion, { isHighlighted }) => (
-    <MenuItem selected={isHighlighted} component="div">
-      <Typography variant="body2">{suggestion.label}</Typography>
-    </MenuItem>
-  );
+  renderSuggestion = (suggestion, { isHighlighted }) => {
+    const { tag } = suggestion;
+    return (
+      <MenuItem selected={isHighlighted} component="div">
+        <Typography variant="body2">
+          {suggestion.label}
+          {tag && (
+            <OptionTag $background={tag.background} $color={tag.color}>
+              {tag.label}
+            </OptionTag>
+          )}
+        </Typography>
+      </MenuItem>
+    );
+  };
 
   renderContainer = option => (
     <SuggestionsContainer
@@ -167,7 +194,7 @@ class BaseAutocomplete extends Component {
   };
 
   renderInputComponent = inputProps => {
-    const { label, required, className, infoTooltip, ...other } = inputProps;
+    const { label, required, className, infoTooltip, tag, ...other } = inputProps;
     return (
       <OuterLabelFieldWrapper
         label={label}
@@ -180,9 +207,16 @@ class BaseAutocomplete extends Component {
           InputProps={{
             ref: this.setAnchorRefForPopper,
             endAdornment: (
-              <Icon position="end">
-                <Search />
-              </Icon>
+              <>
+                {tag && (
+                  <SelectTag $background={tag.background} $color={tag.color}>
+                    {tag.label}
+                  </SelectTag>
+                )}
+                <Icon position="end">
+                  <Search />
+                </Icon>
+              </>
             ),
           }}
           fullWidth
@@ -193,7 +227,7 @@ class BaseAutocomplete extends Component {
   };
 
   render() {
-    const { displayedValue, suggestions } = this.state;
+    const { selectedOption, suggestions } = this.state;
     const {
       label,
       required,
@@ -224,7 +258,8 @@ class BaseAutocomplete extends Component {
           name,
           placeholder,
           infoTooltip,
-          value: displayedValue,
+          value: selectedOption?.value,
+          tag: selectedOption?.tag,
           onKeyDown: this.onKeyDown,
           onChange: this.handleInputChange,
         }}
