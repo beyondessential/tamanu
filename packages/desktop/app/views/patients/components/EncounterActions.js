@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { ENCOUNTER_TYPES } from 'shared/constants';
+import { useLocalisation } from '../../../contexts/Localisation';
 import { DischargeModal } from '../../../components/DischargeModal';
 import { ChangeEncounterTypeModal } from '../../../components/ChangeEncounterTypeModal';
 import { ChangeDepartmentModal } from '../../../components/ChangeDepartmentModal';
@@ -14,6 +15,8 @@ import { DropdownButton } from '../../../components/DropdownButton';
 
 const EncounterActionDropdown = ({ encounter }) => {
   const { navigateToEncounter, navigateToSummary } = usePatientNavigation();
+  const { getLocalisation } = useLocalisation();
+
   const onChangeEncounterType = type => navigateToEncounter(encounter.id, `changeType`, { type });
   const onDischargeOpen = () => navigateToEncounter(encounter.id, 'discharge');
   const onChangeDepartment = () => navigateToEncounter(encounter.id, 'changeDepartment');
@@ -21,6 +24,7 @@ const EncounterActionDropdown = ({ encounter }) => {
   const onPlanLocationChange = () => navigateToEncounter(encounter.id, 'beginMove');
   const onFinaliseLocationChange = () => navigateToEncounter(encounter.id, 'finaliseMove');
   const onCancelLocationChange = () => navigateToEncounter(encounter.id, 'cancelMove');
+  const onChangeLocation = () => navigateToEncounter(encounter.id, 'move');
   const onViewSummary = () => navigateToSummary();
 
   if (encounter.endDate) {
@@ -40,6 +44,8 @@ const EncounterActionDropdown = ({ encounter }) => {
   const isProgressionForward = (currentState, nextState) =>
     progression[nextState] > progression[currentState];
 
+  const enablePatientMoveActions = getLocalisation('features.patientPlannedMove');
+
   const actions = [
     {
       label: 'Move to active ED care',
@@ -58,20 +64,23 @@ const EncounterActionDropdown = ({ encounter }) => {
     },
     {
       label: 'Plan location change',
-      condition: () => !encounter.plannedLocation,
+      condition: () => enablePatientMoveActions && !encounter.plannedLocation,
       onClick: onPlanLocationChange,
     },
     {
       label: 'Finalise location change',
-      // Todo: update condition
-      condition: () => !encounter.plannedLocation,
+      condition: () => enablePatientMoveActions && encounter.plannedLocation,
       onClick: onFinaliseLocationChange,
     },
     {
       label: 'Cancel location change',
-      // Todo: update condition
-      condition: () => !encounter.plannedLocation,
+      condition: () => enablePatientMoveActions && encounter.plannedLocation,
       onClick: onCancelLocationChange,
+    },
+    {
+      label: 'Change location',
+      condition: () => !enablePatientMoveActions && !encounter.plannedLocation,
+      onClick: onChangeLocation,
     },
     {
       label: 'Discharge without being seen',
@@ -133,6 +142,8 @@ export const EncounterActions = React.memo(({ encounter }) => {
     params,
   ])(FinalisePatientMoveModal);
 
+  const RoutedMoveModal = useMemo(() => getConnectRoutedModal(params, 'move'), [params])(MoveModal);
+
   return (
     <>
       <EncounterActionDropdown encounter={encounter} />
@@ -140,6 +151,7 @@ export const EncounterActions = React.memo(({ encounter }) => {
       <RoutedChangeEncounterTypeModal encounter={encounter} />
       <RoutedChangeDepartmentModal />
       <RoutedChangeClinicianModal />
+      <RoutedMoveModal encounter={encounter} />
       <RoutedBeginMoveModal encounter={encounter} />
       <RoutedFinaliseMoveModal encounter={encounter} />
       <RoutedCancelMoveModal encounter={encounter} />
