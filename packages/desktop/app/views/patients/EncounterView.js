@@ -11,7 +11,12 @@ import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { Button, EncounterTopBar, connectRoutedModal, ContentPane } from '../../components';
 import { DiagnosisView } from '../../components/DiagnosisView';
 import { DischargeModal } from '../../components/DischargeModal';
-import { MoveModal } from '../../components/MoveModal';
+import {
+  MoveModal,
+  BeginMoveModal,
+  CancelMoveModal,
+  FinaliseMoveModal,
+} from '../../components/MoveModal';
 import { ChangeEncounterTypeModal } from '../../components/ChangeEncounterTypeModal';
 import { ChangeDepartmentModal } from '../../components/ChangeDepartmentModal';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
@@ -91,12 +96,16 @@ const TABS = [
 
 const EncounterActionDropdown = ({ encounter }) => {
   const { navigateToEncounter, navigateToSummary } = usePatientNavigation();
+  const { getLocalisation } = useLocalisation();
   const onChangeEncounterType = type => navigateToEncounter(encounter.id, `changeType`, { type });
   const onChangeLocation = () => navigateToEncounter(encounter.id, 'move');
   const onDischargeOpen = () => navigateToEncounter(encounter.id, 'discharge');
   const onChangeDepartment = () => navigateToEncounter(encounter.id, 'changeDepartment');
   const onChangeClinician = () => navigateToEncounter(encounter.id, 'changeClinician');
   const onViewSummary = () => navigateToSummary();
+  const onBeginLocationChange = () => navigateToEncounter(encounter.id, 'beginMove');
+  const onCancelLocationChange = () => navigateToEncounter(encounter.id, 'cancelMove');
+  const onFinaliseLocationChange = () => navigateToEncounter(encounter.id, 'finaliseMove');
 
   if (encounter.endDate) {
     return (
@@ -114,6 +123,7 @@ const EncounterActionDropdown = ({ encounter }) => {
   };
   const isProgressionForward = (currentState, nextState) =>
     progression[nextState] > progression[currentState];
+  const enablePatientMoveActions = getLocalisation('features.patientPlannedMove');
 
   const actions = [
     {
@@ -131,16 +141,21 @@ const EncounterActionDropdown = ({ encounter }) => {
       onClick: () => onChangeEncounterType(ENCOUNTER_TYPES.ADMISSION),
       condition: () => isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.ADMISSION),
     },
-    // {
-    //   label: 'Finalise location change',
-    //   condition: () => encounter.plannedLocation,
-    //   onClick: onFinaliseLocationChange,
-    // },
-    // {
-    //   label: 'Cancel location change',
-    //   condition: () => encounter.plannedLocation,
-    //   onClick: onCancelLocationChange,
-    // },
+    {
+      label: 'Plan location change',
+      condition: () => enablePatientMoveActions && !encounter.plannedLocation,
+      onClick: onBeginLocationChange,
+    },
+    {
+      label: 'Finalise location change',
+      condition: () => enablePatientMoveActions && encounter.plannedLocation,
+      onClick: onFinaliseLocationChange,
+    },
+    {
+      label: 'Cancel location change',
+      condition: () => enablePatientMoveActions && encounter.plannedLocation,
+      onClick: onCancelLocationChange,
+    },
     {
       label: 'Discharge without being seen',
       onClick: onDischargeOpen,
@@ -192,6 +207,15 @@ const EncounterActions = ({ encounter }) => {
   )(ChangeClinicianModal);
 
   const RoutedMoveModal = useMemo(() => getConnectRoutedModal(params, 'move'), [params])(MoveModal);
+  const RoutedBeginMoveModal = useMemo(() => getConnectRoutedModal(params, 'beginMove'), [params])(
+    BeginMoveModal,
+  );
+  const RoutedCancelMoveModal = useMemo(() => getConnectRoutedModal(params, 'cancelMove'), [
+    params,
+  ])(CancelMoveModal);
+  const RoutedFinaliseMoveModal = useMemo(() => getConnectRoutedModal(params, 'finaliseMove'), [
+    params,
+  ])(FinaliseMoveModal);
 
   return (
     <>
@@ -201,6 +225,9 @@ const EncounterActions = ({ encounter }) => {
       <RoutedChangeDepartmentModal />
       <RoutedChangeClinicianModal />
       <RoutedMoveModal encounter={encounter} />
+      <RoutedBeginMoveModal encounter={encounter} />
+      <RoutedCancelMoveModal encounter={encounter} />
+      <RoutedFinaliseMoveModal encounter={encounter} />
     </>
   );
 };
