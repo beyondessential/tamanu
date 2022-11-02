@@ -28,6 +28,7 @@ import { LabRequest } from './LabRequest';
 import { readConfig } from '~/services/config';
 import { ReferenceData, ReferenceDataRelation } from '~/models/ReferenceData';
 import { getCurrentDateTimeString } from '~/ui/helpers/date';
+import { DateTimeStringColumn } from './DateColumns';
 
 const TIME_OFFSET = 3;
 
@@ -36,10 +37,10 @@ export class Encounter extends BaseModel implements IEncounter {
   @Column({ type: 'varchar' })
   encounterType: EncounterType;
 
-  @Column()
+  @DateTimeStringColumn()
   startDate: string;
 
-  @Column({ nullable: true })
+  @DateTimeStringColumn({ nullable: true })
   endDate?: string;
 
   @Column({ default: '', nullable: true })

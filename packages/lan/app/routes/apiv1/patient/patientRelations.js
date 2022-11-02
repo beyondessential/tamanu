@@ -1,6 +1,8 @@
 import asyncHandler from 'express-async-handler';
+import { QueryTypes } from 'sequelize';
 
 import { getPatientAdditionalData } from 'shared/utils';
+import { HIDDEN_VISIBILITY_STATUSES } from 'shared/constants/importable';
 
 import { simpleGetList, permissionCheckingRouter, runPaginatedQuery } from '../crudHelpers';
 import { patientSecondaryIdRoutes } from './patientSecondaryId';
@@ -65,6 +67,44 @@ patientRelations.get(
 
     const recordData = additionalDataRecord ? additionalDataRecord.toJSON() : {};
     res.send({ ...recordData, passport, nationality, nationalityId });
+  }),
+);
+
+patientRelations.get(
+  '/:id/fields',
+  asyncHandler(async (req, res) => {
+    const { params } = req;
+    req.checkPermission('read', 'Patient');
+    const values = await req.db.query(
+      `
+        SELECT
+          d.id AS "definitionId",
+          v.value
+        FROM patient_field_definitions d
+        LEFT JOIN LATERAL (
+          SELECT value
+          FROM patient_field_values v
+          WHERE v.definition_id = d.id
+            AND v.patient_id = :patientId
+          -- TODO: order by logical clock
+          ORDER BY updated_at DESC LIMIT 1
+        ) v ON true
+        WHERE d.visibility_status NOT IN (:hiddenStatuses);
+      `,
+      {
+        replacements: {
+          patientId: params.id,
+          hiddenStatuses: HIDDEN_VISIBILITY_STATUSES,
+        },
+        type: QueryTypes.SELECT,
+      },
+    );
+    res.send({
+      data: values.reduce(
+        (memo, { definitionId, value }) => ({ ...memo, [definitionId]: value }),
+        {},
+      ),
+    });
   }),
 );
 

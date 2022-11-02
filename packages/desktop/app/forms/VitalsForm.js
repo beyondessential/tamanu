@@ -5,7 +5,14 @@ import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import styled from 'styled-components';
 
 import { AVPU_OPTIONS } from 'shared/constants';
-import { Form, Field, DateTimeField, NumberField, SelectField } from '../components/Field';
+import {
+  Form,
+  Field,
+  DateTimeField,
+  NumberField,
+  SelectField,
+  TemperatureField,
+} from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 
@@ -36,7 +43,7 @@ export class VitalsForm extends React.PureComponent {
         </BloodPressureFieldsContainer>
         <Field name="heartRate" label="Heart rate" component={NumberField} />
         <Field name="respiratoryRate" label="Respiratory rate" component={NumberField} />
-        <Field name="temperature" label="Temperature (ºC)" component={NumberField} />
+        <Field name="temperature" component={TemperatureField} />
         <Field name="spo2" label="SpO2 (%)" component={NumberField} />
         <Field name="avpu" label="AVPU" component={SelectField} options={AVPU_OPTIONS} />
         <ConfirmCancelRow confirmText="Record" onConfirm={submitForm} onCancel={onCancel} />

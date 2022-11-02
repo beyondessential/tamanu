@@ -203,6 +203,9 @@
       // Email address for CSCA signing contact
       "sendRequestTo": "admin@tamanu.io"
     },
+    "fijiAspenMediciReport": {
+      "enabled": false
+    },
     "mSupply": {
       "enabled": false,
       "requireClientHeaders": true
@@ -227,6 +230,10 @@
       ]
     },
     "data": {
+      // To do: review this section when implementing the patient charts feature
+      "units": {
+        "temperature": "celsius"
+      },
       "country": {
         "name": "",
         "alpha-2": "",
@@ -519,6 +526,31 @@
           "shortLabel": "Place of birth",
           "longLabel": "Place of birth",
           "hidden": false
+        },
+        "referralSourceId": {
+          "shortLabel": "Referral source",
+          "longLabel":  "Referral source",
+          "hidden": false
+        },
+        "arrivalModeId": {
+          "shortLabel": "Arrival mode",
+          "longLabel":  "Arrival mode",
+          "hidden": false
+        },
+        "prescriber": {
+          "shortLabel": "Prescriber",
+          "longLabel":  "Prescriber",
+          "hidden": false
+        },
+        "prescriberId": {
+          "shortLabel": "Prescriber ID",
+          "longLabel":  "Prescriber ID",
+          "hidden": false
+        },
+        "facility": {
+          "shortLabel": "Facility",
+          "longLabel": "Facility",
+          "hidden": false
         }
       },
       "features": {
@@ -528,7 +560,8 @@
         "hideOtherSex": true,
         "enablePatientDeaths": false,
         "mergePopulatedPADRecords": true,
-        "enableCovidClearanceCertificate": false
+        "enableCovidClearanceCertificate": false,
+        "editDisplayId": false
       },
       "templates": {
         "letterhead": {
@@ -561,6 +594,12 @@
         }
       },
       "imagingTypes": {},
+      "imagingPriorities": [
+        { "value": "routine", "label": "Routine" },
+        { "value": "urgent", "label": "Urgent" },
+        { "value": "asap", "label": "ASAP" },
+        { "value": "stat", "label": "STAT" }
+      ],
       "printMeasures": {
         "stickerLabelPage": {
           "pageWidth": "210mm",

@@ -1,8 +1,7 @@
-import { format } from 'date-fns';
 import { Op } from 'sequelize';
+import { format } from 'shared/utils/dateTime';
 
 import { VACCINE_STATUS, INJECTION_SITE_OPTIONS } from 'shared/constants';
-import { parseISO9075 } from 'shared/utils/dateTime';
 import { parseHL7Reference } from './utils';
 
 // These are the only ones that we support at the moment,
@@ -117,7 +116,7 @@ export function administeredVaccineToHL7Immunization(administeredVaccine) {
     },
     patient: patientToHL7Reference(patient),
     encounter: encounterToHL7Reference(encounter),
-    occurrenceDateTime: format(parseISO9075(administeredVaccine.date), "yyyy-MM-dd'T'HH:mm:ssXXX"),
+    occurrenceDateTime: format(administeredVaccine.date, "yyyy-MM-dd'T'HH:mm:ssXXX"),
     lotNumber: administeredVaccine.batch,
     site: {
       coding: [

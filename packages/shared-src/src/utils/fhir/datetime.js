@@ -11,11 +11,12 @@ import {
   formatISO9075,
   formatRFC3339,
 } from 'date-fns';
+import { getTimezoneOffset, zonedTimeToUtc } from 'date-fns-tz';
 import { pick } from 'lodash';
 import { date as yupDate, number, object, string } from 'yup';
 
 import { FHIR_DATETIME_PRECISION } from '../../constants';
-import { parseISO9075 } from '../dateTime';
+import { parseDate } from '../dateTime';
 import { Exception } from './errors';
 
 function extractTz(str) {
@@ -31,7 +32,26 @@ function extractTz(str) {
   return null;
 }
 
-function dateParts(date, str, form) {
+function normalizeTz(tz, date) {
+  const offset = getTimezoneOffset(tz, date) / 1000;
+  if (isNaN(offset)) return null;
+
+  const sign = offset < 0 ? '-' : '+';
+  const hours = Math.floor(Math.abs(offset) / 3600);
+  const minutes = Math.floor((Math.abs(offset) % 3600) / 60);
+  const seconds = Math.floor(Math.abs(offset) % 60);
+
+  let offsetSuffix = `${sign}${hours.toString().padStart(2, '0')}:${minutes
+    .toString()
+    .padStart(2, '0')}`;
+  if (seconds !== 0) {
+    offsetSuffix += `:${seconds.toString().padStart(2, '0')}`;
+  }
+
+  return offsetSuffix;
+}
+
+function dateParts(date, withTz, str, form) {
   let tz = null;
   if (form.endsWith('X') && str.endsWith('Z')) {
     tz = '+00:00';
@@ -41,7 +61,12 @@ function dateParts(date, str, form) {
   } else if (form.endsWith('X')) {
     const tzh = extractTz(str);
     if (tzh) tz = `${tzh}:00`;
+  } else if (withTz) {
+    // no timezone in the format, use provided timezone
+    date = zonedTimeToUtc(date, withTz);
+    tz = normalizeTz(tz, date);
   }
+  // else: no timezone in the format, using system timezone to parse and no tz in the output
 
   return {
     plain: date,
@@ -116,12 +141,14 @@ const FORMS = {
   yyyy: [FHIR_DATETIME_PRECISION.YEARS, ['year']],
 };
 
-export function parseDateTime(str, ref = new Date()) {
+export function parseDateTime(str, { ref = new Date(), withTz = null } = {}) {
   for (const [form, [precision, extract]] of Object.entries(FORMS)) {
     const date = parse(str, form, ref);
     if (isValid(date)) {
-      const parts = dateParts(date, str, form);
+      const parts = dateParts(date, withTz, str, form);
       return {
+        // note this is the input precision; when using withTz, the value
+        // will include a tz even if the precision isn't *_WITH_TIMEZONE.
         precision,
         ...pick(parts, COMMONS),
         value: pick(parts, extract),
@@ -134,7 +161,7 @@ export function parseDateTime(str, ref = new Date()) {
 
 export function formatDateTime(date, precision) {
   if (date === null || date === undefined) return date;
-  const actual = typeof date === 'string' ? parseISO9075(date) : date;
+  const actual = parseDate(date);
   switch (precision) {
     case FHIR_DATETIME_PRECISION.SECONDS_WITH_TIMEZONE:
       return format(actual, "yyyy-MM-dd'T'HH:mm:ssXXX");

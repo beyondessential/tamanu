@@ -27,6 +27,7 @@ const simpleUpdateModels = [
   'Appointment',
   'DocumentMetadata',
   'CertificateNotification',
+  'PatientFieldValue',
 ];
 
 // These ones need a little more attention.

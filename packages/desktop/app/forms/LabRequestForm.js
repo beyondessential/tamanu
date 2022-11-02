@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { connect } from 'react-redux';
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { getCurrentDateString, getCurrentDateTimeString } from 'shared/utils/dateTime';
 
 import { foreignKey } from '../utils/validation';
 import { encounterOptions } from '../constants';
@@ -35,7 +35,7 @@ import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { DropdownButton } from '../components/DropdownButton';
 
 function getEncounterTypeLabel(type) {
-  return encounterOptions.find(x => x.value === type).label;
+  return encounterOptions.find(x => x.value === type)?.label;
 }
 
 function getEncounterLabel(encounter) {
@@ -115,7 +115,7 @@ export class LabRequestForm extends React.PureComponent {
           component={DateTimeField}
           saveDateAsString
         />
-        <TextInput label="Supervising doctor" disabled value={examinerLabel} />
+        <TextInput label="Supervising clinician" disabled value={examinerLabel} />
         <Field
           name="requestedById"
           label="Requesting doctor"
@@ -144,14 +144,14 @@ export class LabRequestForm extends React.PureComponent {
         <TextInput label="Encounter" disabled value={encounterLabel} />
         <Field
           name="labTestCategoryId"
-          label="Lab request type"
+          label="Test category"
           required
           component={SelectField}
           options={testCategories}
         />
         <Field
           name="labTestTypeIds"
-          label="Tests"
+          label="Test type"
           required
           testTypes={filteredTestTypes}
           component={TestSelectorField}
@@ -188,6 +188,8 @@ export class LabRequestForm extends React.PureComponent {
           displayId: generateDisplayId(),
           requestedDate: getCurrentDateTimeString(),
           sampleTime: getCurrentDateTimeString(),
+          // LabTest date
+          date: getCurrentDateString(),
           ...editedObject,
         }}
         validationSchema={yup.object().shape({

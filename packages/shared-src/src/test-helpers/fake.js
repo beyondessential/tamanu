@@ -22,6 +22,8 @@ import {
   FhirCodeableConcept,
   FhirContactPoint,
   FhirHumanName,
+  FhirPatientLink,
+  FhirReference,
 } from '../services/fhirTypes';
 
 const chance = new Chance();
@@ -233,6 +235,8 @@ const FIELD_HANDLERS = {
   FHIR_CODEABLE_CONCEPT: (...args) => FhirCodeableConcept.fake(...args),
   FHIR_CONTACT_POINT: (...args) => FhirContactPoint.fake(...args),
   FHIR_HUMAN_NAME: (...args) => FhirHumanName.fake(...args),
+  FHIR_PATIENT_LINK: (...args) => FhirPatientLink.fake(...args),
+  FHIR_REFERENCE: (...args) => FhirReference.fake(...args),
 };
 
 const IGNORED_FIELDS = ['createdAt', 'updatedAt', 'deletedAt', 'updatedAtSyncTick'];
@@ -318,6 +322,16 @@ const MODEL_SPECIFIC_OVERRIDES = {
   }),
   Encounter: () => ({
     encounterType: sample(ENCOUNTER_TYPE_VALUES),
+  }),
+  NotePage: () => ({
+    // This is a hack because the type of NotePage.id is UUID, whereas tests might create ids of the form:
+    // NotePage.id.123e4567-e89b-12d3-a456-426614174000
+    // Setting id: undefined allows the model to create a default uuid and therefore avoid erroring
+    // It will be fixed properly as part of EPI-160
+    id: undefined,
+  }),
+  NoteItem: () => ({
+    id: undefined,
   }),
 };
 

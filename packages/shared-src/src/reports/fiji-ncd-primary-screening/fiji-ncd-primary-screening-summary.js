@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 
-import { endOfDay, format, startOfDay } from 'date-fns';
+import { endOfDay, format, parseISO, startOfDay } from 'date-fns';
 import { groupBy, keyBy } from 'lodash';
 import { toDateTimeString } from '../../utils/dateTime';
 import { generateReportFromQueryData } from '../utilities';
@@ -267,8 +267,8 @@ const getTotalPatientsScreened = async (sequelize, parameters) => {
     surveyIds = Object.keys(REFERRAL_SCREENING_FORM_MAPPING).join(', '),
   } = parameters;
 
-  const queryFromDate = fromDate && toDateTimeString(startOfDay(new Date(fromDate)));
-  const queryToDate = toDate && toDateTimeString(endOfDay(new Date(toDate)));
+  const queryFromDate = fromDate && toDateTimeString(startOfDay(parseISO(fromDate)));
+  const queryToDate = toDate && toDateTimeString(endOfDay(parseISO(toDate)));
 
   return sequelize.query(
     `
@@ -313,7 +313,7 @@ export const dataGenerator = async ({ sequelize }, parameters = {}) => {
     // Sort oldest to most recent
     .sort(({ date: date1 }, { date: date2 }) => date1 - date2)
     .map(({ date, ...otherFields }) => ({
-      date: format(new Date(date), 'dd-MM-yyyy'),
+      date: format(parseISO(date), 'dd-MM-yyyy'),
       ...otherFields,
     }));
 

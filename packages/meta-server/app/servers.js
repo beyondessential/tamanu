@@ -36,12 +36,14 @@ const servers = [
   { name: 'Demo (Palau)', type: 'demo', host: 'https://sync-demo.tamanu-palau.org' },
   { name: 'Demo (Samoa)', type: 'demo', host: 'https://sync-samoa-demo.tamanu.io' },
   { name: 'Demo (Solomons)', type: 'demo', host: 'https://sync-demo.tamanu-solomons.org' },
+  { name: 'Demo (Tonga)', type: 'demo', host: 'https://central-tonga-demo.tamanu.io' },
   { name: 'Demo (Tuvalu)', type: 'demo', host: 'https://sync-demo-tuvalu.tamanu.io' },
 
   // development servers
   { name: 'Beta', type: 'dev', host: 'https://central-beta.tamanu.io' },
   { name: 'Dev', type: 'dev', host: 'https://central-dev.tamanu.io' },
   { name: 'Staging', type: 'dev', host: 'https://central-staging.tamanu.io' },
+  { name: 'Stress Test', type: 'dev', host: 'https://central-stress-test.tamanu.io' },
   { name: 'UAT', type: 'dev', host: 'https://sync-uat.tamanu.io' },
   { name: 'UAT-PMI', type: 'dev', host: 'https://central-uat-pmi.tamanu.io' },
   { name: 'UAT-Rispacs', type: 'dev', host: 'https://sync-uat-rispacs.tamanu.io' },
