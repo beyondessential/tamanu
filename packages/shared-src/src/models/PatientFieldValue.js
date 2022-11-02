@@ -1,11 +1,10 @@
 import { Sequelize } from 'sequelize';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
-import { initSyncForModelNestedUnderPatient } from './sync';
 
 export class PatientFieldValue extends Model {
   static init({ primaryKey, ...options }) {
     // TODO: update when new sync lands
-    const nestedSyncConfig = initSyncForModelNestedUnderPatient(this, 'fieldValue');
     super.init(
       {
         id: primaryKey,
@@ -17,7 +16,7 @@ export class PatientFieldValue extends Model {
       },
       {
         ...options,
-        syncConfig: nestedSyncConfig,
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         indexes: [
           // these are used for querying values, to avoid a sequential scan
           {
