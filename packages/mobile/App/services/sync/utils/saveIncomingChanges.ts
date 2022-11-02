@@ -9,6 +9,7 @@ import { executeInserts, executeUpdates, executeDeletes } from './executeCrud';
 import { MODELS_MAP } from '../../../models/modelsMap';
 import { BaseModel } from '../../../models/BaseModel';
 import { readFileInDocuments } from '../../../ui/helpers/file';
+import { getFilePath } from './getFilePath';
 
 /**
  * Save changes for a single model in batch because SQLite only support limited number of parameters
@@ -68,11 +69,11 @@ export const saveIncomingChanges = async (
   for (const model of sortedModels) {
     const recordType = model.getTableNameForSync();
     let currentBatchIndex = 0;
-    const directory = `${RNFS.DocumentDirectoryPath}/syncSessions/${sessionId}/${recordType}`;
-    const getFilePath = (batchIndex: number): string => `${directory}/batch${batchIndex}.json`;
+    const getFullFilePath = (batchIndex: number): string =>
+      `${RNFS.DocumentDirectoryPath}/${getFilePath(sessionId, recordType, batchIndex)}`;
 
-    while (await RNFS.exists(getFilePath(currentBatchIndex))) {
-      const base64 = await readFileInDocuments(getFilePath(currentBatchIndex));
+    while (await RNFS.exists(getFullFilePath(currentBatchIndex))) {
+      const base64 = await readFileInDocuments(getFullFilePath(currentBatchIndex));
       const batchString = Buffer.from(base64, 'base64').toString();
 
       const batch = JSON.parse(batchString);
