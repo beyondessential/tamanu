@@ -1,26 +1,23 @@
-import { saveFileInDocuments } from '/helpers/file';
+import { saveFileInDocuments, makeDirectoryInDocuments } from '/helpers/file';
 import { CentralServerConnection } from '../CentralServerConnection';
 import { calculatePageLimit } from './calculatePageLimit';
 import { SYNC_SESSION_DIRECTION } from '../constants';
 import { groupBy } from 'lodash';
-
-const APPROX_PERSISTED_BATCH_SIZE = 20000;
+import { getFilePath } from './getFilePath';
 
 const persistBatch = async (
   sessionId: string,
   batchIndex: number,
-  rows: [Record<string, any>?],
+  rows: Record<string, any>[],
 ): Promise<void> => {
   const rowsByRecordType = groupBy(rows, 'recordType');
 
   await Promise.all(
     Object.entries(rowsByRecordType).map(async ([recordType, rowsForRecordType]) => {
-      const filePath = `syncSessions/${sessionId}/${recordType}`;
-      const fileName = `/batch${batchIndex}.json`;
+      const filePath = getFilePath(sessionId, recordType, batchIndex);
 
       await saveFileInDocuments(
         Buffer.from(JSON.stringify(rowsForRecordType), 'utf-8').toString('base64'),
-        fileName,
         filePath,
       );
     }),
@@ -50,10 +47,13 @@ export const pullIncomingChanges = async (
     return 0;
   }
 
+  await Promise.all(
+    tableNames.map(t => makeDirectoryInDocuments(`syncSessions/${sessionId}/${t}`)),
+  );
+
   let fromId;
   let limit = calculatePageLimit();
   let currentBatchIndex = 0;
-  let currentRows: [Record<string, any>?] = [];
   let totalPulled = 0;
 
   // pull changes a page at a time
@@ -75,12 +75,8 @@ export const pullIncomingChanges = async (
     // So store the data in sync_session_records table instead and will persist it to
     //  the actual tables later
 
-    currentRows.push(...recordsToSave);
-    if (currentRows.length >= APPROX_PERSISTED_BATCH_SIZE) {
-      await persistBatch(sessionId, currentBatchIndex, currentRows);
-      currentRows = [];
-      currentBatchIndex++;
-    }
+    await persistBatch(sessionId, currentBatchIndex, recordsToSave);
+    currentBatchIndex++;
 
     fromId = records[records.length - 1].id;
     totalPulled += recordsToSave.length;
@@ -88,8 +84,6 @@ export const pullIncomingChanges = async (
 
     progressCallback(totalToPull, totalPulled);
   }
-
-  await persistBatch(sessionId, currentBatchIndex, currentRows);
 
   return totalToPull;
 };

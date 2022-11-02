@@ -45,7 +45,7 @@ export class ReferenceData extends Model {
 
   static initRelations(models) {
     this.belongsToMany(models.ImagingRequest, {
-      through: models.ImagingRequestAreas,
+      through: models.ImagingRequestArea,
       as: 'area',
       foreignKey: 'areaId',
     });

@@ -41,6 +41,6 @@ export class LabRequestLog extends Model {
     if (patientIds.length === 0) {
       return null;
     }
-    return buildEncounterLinkedSyncFilter(['lab_request_logs', 'lab_requests', 'encounters']);
+    return buildEncounterLinkedSyncFilter([this.tableName, 'lab_requests', 'encounters']);
   }
 }

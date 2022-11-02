@@ -9,6 +9,7 @@ import { executeInserts, executeUpdates, executeDeletes } from './executeCrud';
 import { MODELS_MAP } from '../../../models/modelsMap';
 import { BaseModel } from '../../../models/BaseModel';
 import { readFileInDocuments } from '../../../ui/helpers/file';
+import { getDirPath, getFilePath } from './getFilePath';
 
 /**
  * Save changes for a single model in batch because SQLite only support limited number of parameters
@@ -67,12 +68,12 @@ export const saveIncomingChanges = async (
 
   for (const model of sortedModels) {
     const recordType = model.getTableNameForSync();
-    let currentBatchIndex = 0;
-    const directory = `${RNFS.DocumentDirectoryPath}/syncSessions/${sessionId}/${recordType}`;
-    const getFilePath = (batchIndex: number): string => `${directory}/batch${batchIndex}.json`;
+    const files = await RNFS.readDir(
+      `${RNFS.DocumentDirectoryPath}/${getDirPath(sessionId, recordType)}`,
+    );
 
-    while (await RNFS.exists(getFilePath(currentBatchIndex))) {
-      const base64 = await readFileInDocuments(getFilePath(currentBatchIndex));
+    for (const { path } of files) {
+      const base64 = await readFileInDocuments(path);
       const batchString = Buffer.from(base64, 'base64').toString();
 
       const batch = JSON.parse(batchString);
@@ -82,9 +83,6 @@ export const saveIncomingChanges = async (
       savedRecordsCount += batch.length;
       const progressMessage = `Stage 3/3: Saving ${incomingChangesCount} records`;
       progressCallback(incomingChangesCount, savedRecordsCount, progressMessage);
-      currentBatchIndex++;
     }
-
-    currentBatchIndex++;
   }
 };

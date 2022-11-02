@@ -87,7 +87,7 @@ export class ImagingRequest extends Model {
     });
 
     this.belongsToMany(models.ReferenceData, {
-      through: models.ImagingRequestAreas,
+      through: models.ImagingRequestArea,
       as: 'areas',
       foreignKey: 'imagingRequestId',
     });

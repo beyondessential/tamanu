@@ -69,6 +69,6 @@ export class LabTest extends Model {
     if (patientIds.length === 0) {
       return null;
     }
-    return buildEncounterLinkedSyncFilter(['lab_tests', 'lab_requests', 'encounters']);
+    return buildEncounterLinkedSyncFilter([this.tableName, 'lab_requests', 'encounters']);
   }
 }
