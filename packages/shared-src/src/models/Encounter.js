@@ -426,21 +426,17 @@ export class Encounter extends Model {
           );
         }
 
-        const oldPlannedLocation = await Location.findOne({
-          where: { id: this.plannedLocationId },
-        });
-        const newPlannedLocation = await Location.findOne({
+        const currentLocation = await Location.findOne({ where: { id: this.locationId } });
+        const plannedLocation = await Location.findOne({
           where: { id: data.plannedLocationId },
         });
 
-        if (!newPlannedLocation) {
+        if (!plannedLocation) {
           throw new InvalidOperationError('Invalid location specified');
         }
 
         await this.addSystemNote(
-          oldPlannedLocation
-            ? `Planned move location changed from ${oldPlannedLocation.name} to ${newPlannedLocation.name}`
-            : `Added a planned move to ${newPlannedLocation.name}`,
+          `Added a planned location change from ${currentLocation.name} to ${plannedLocation.name}`,
           data.submittedTime,
         );
         additionalChanges.plannedLocationStartTime = data.submittedTime;
