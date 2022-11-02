@@ -1,4 +1,3 @@
-import { parseISO } from 'date-fns';
 import { keyBy, groupBy } from 'lodash';
 import { format, differenceInMilliseconds, isISOString } from '../../utils/dateTime';
 
@@ -120,7 +119,7 @@ export const takeMostRecentAnswers = answers => {
   const results = [];
   for (const groupedAnswers of Object.values(answersPerElement)) {
     const sortedLatestToOldestAnswers = groupedAnswers.sort((a1, a2) =>
-      differenceInMilliseconds(parseISO(a2.responseEndTime), parseISO(a1.responseEndTime)),
+      differenceInMilliseconds(a2.responseEndTime, a1.responseEndTime),
     );
     results.push(sortedLatestToOldestAnswers[0]);
   }

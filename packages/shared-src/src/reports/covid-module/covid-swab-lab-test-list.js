@@ -201,7 +201,7 @@ const getLatestPatientAnswerInDateRange = (
   }
 
   const sortedLatestToOldestAnswers = patientTransformedAnswers.sort((a1, a2) =>
-    differenceInMilliseconds(parseISO(a2.responseEndTime), parseISO(a1.responseEndTime)),
+    differenceInMilliseconds(a2.responseEndTime, a1.responseEndTime),
   );
 
   const latestAnswer = sortedLatestToOldestAnswers.find(a =>
