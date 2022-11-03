@@ -49,7 +49,7 @@ export class Encounter extends Model {
         'surveyResponses.answers',
         'diagnoses',
         'medications',
-        ...(config.sync.doNotSyncRequests
+        ...(config?.sync?.doNotSyncRequests
           ? []
           : [
               'labRequests',

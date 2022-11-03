@@ -56,7 +56,7 @@ export const MODEL_DEPENDENCY_ORDER = [
   'SurveyResponseAnswer',
 
   // TODO: hack to work around Aspen Fiji's issues
-  ...(config.sync.doNotSyncRequests
+  ...(config?.sync?.doNotSyncRequests
     ? []
     : ['LabTest', 'LabRequest', 'ImagingRequest', 'ImagingRequestAreas']),
 
