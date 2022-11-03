@@ -604,7 +604,8 @@
         },
         "covidTestCertificate": {
           "laboratoryName": "Approved test provider"
-        }
+        },
+        "plannedMoveTimeoutHours": 24
       },
       "imagingTypes": {},
       "imagingPriorities": [

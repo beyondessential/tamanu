@@ -7,6 +7,7 @@ import { usePatientMove } from '../../../api/mutations';
 import { useSuggester } from '../../../api';
 import { BodyText, AutocompleteField, Field, Form, Modal } from '../../../components';
 import { ModalActionRow } from '../../../components/ModalActionRow';
+import { useLocalisation } from '../../../contexts/Localisation';
 
 const Container = styled.div`
   padding-bottom: 50px;
@@ -33,6 +34,8 @@ export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) =
     baseQueryParameters: { filterByFacility: true },
   });
 
+  const { getLocalisation } = useLocalisation();
+  const plannedMoveTimeoutHours = getLocalisation('templates.plannedMoveTimeoutHours');
   return (
     <Modal title="Plan patient move" open={open} onClose={onClose}>
       <Text>
@@ -40,7 +43,8 @@ export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) =
         reflected in the patient encounter until you finalise the move.
         <br />
         <br />
-        If the move is not finalised within 24 hours, the location will be deemed ‘Available’ again.
+        If the move is not finalised within {plannedMoveTimeoutHours} hours, the location will be
+        deemed ‘Available’ again.
       </Text>
       <Form
         initialValues={{ plannedLocation: encounter.plannedLocationId }}

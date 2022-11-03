@@ -102,6 +102,8 @@ const HIDEABLE_FIELDS = [
 
 const templatesSchema = yup
   .object({
+    plannedMoveTimeoutHours: yup.number().required(),
+
     letterhead: yup
       .object({
         title: yup.string(),
