@@ -27,6 +27,8 @@ export class CentralSyncManager {
 
   purgeInterval;
 
+  isRunningPurge;
+
   constructor(ctx) {
     this.store = ctx.store;
     this.purgeInterval = setInterval(
@@ -39,7 +41,13 @@ export class CentralSyncManager {
   close = () => clearInterval(this.purgeInterval);
 
   purgeLapsedSessions = async () => {
+    // don't set off another purge if the prior one hasn't yet finished
+    if (this.isRunningPurge) {
+      return;
+    }
+    this.isRunningPurge = true;
     await deleteInactiveSyncSessions(this.store, lapsedSessionSeconds);
+    this.isRunningPurge = false;
   };
 
   async tickTockGlobalClock() {
