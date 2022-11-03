@@ -12,6 +12,7 @@ import { CancelPatientMoveModal } from './CancelPatientMoveModal';
 import { usePatientNavigation } from '../../../utils/usePatientNavigation';
 import { Button, connectRoutedModal } from '../../../components';
 import { DropdownButton } from '../../../components/DropdownButton';
+import { MoveModal } from './MoveModal';
 
 const EncounterActionDropdown = ({ encounter }) => {
   const { navigateToEncounter, navigateToSummary } = usePatientNavigation();

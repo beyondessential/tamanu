@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { Box } from '@material-ui/core';
 import SingleBedIcon from '@material-ui/icons/SingleBed';
@@ -50,6 +51,11 @@ const Card = styled.div`
 
 export const FinalisePatientMoveModal = React.memo(({ encounter, open, onClose }) => {
   const { mutate: submit } = usePatientMove(encounter.id, onClose);
+  const { location } = encounter;
+  const { plannedLocation } = encounter;
+  const onConfirm = () => {
+    submit({ plannedLocationId: null, locationId: plannedLocation.id });
+  };
   return (
     <Modal title="Finalise patient move" open={open} onClose={onClose}>
       <Text>Please confirm the location details below to finalise the patient move.</Text>
@@ -64,15 +70,29 @@ export const FinalisePatientMoveModal = React.memo(({ encounter, open, onClose }
         <Box
           display="flex"
           flexDirection="column"
-          alignItems="center"
+          alignItems="stretch"
           justifyContent="space-between"
           ml={2}
         >
-          <Card>Current location: ED Bed 1</Card>
-          <Card className="active">Current location: ED Bed 2</Card>
+          <Card>Current location: {location?.name}</Card>
+          <Card className="active">New location: {plannedLocation?.name}</Card>
         </Box>
       </Container>
-      <ModalActionRow confirmText="Confirm" onConfirm={submit} onCancel={onClose} />
+      <ModalActionRow confirmText="Confirm" onConfirm={onConfirm} onCancel={onClose} />
     </Modal>
   );
 });
+
+FinalisePatientMoveModal.propTypes = {
+  encounter: PropTypes.shape({
+    location: PropTypes.object,
+    plannedLocation: PropTypes.object,
+  }).isRequired,
+  open: PropTypes.bool,
+  onClose: PropTypes.func,
+};
+
+FinalisePatientMoveModal.defaultProps = {
+  open: false,
+  onClose: null,
+};

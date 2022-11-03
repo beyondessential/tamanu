@@ -1,27 +1,22 @@
 import { useMutation } from '@tanstack/react-query';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { useApi } from '../useApi';
-import { usePatientNavigation } from '../../utils/usePatientNavigation';
+import { useEncounter } from '../../contexts/Encounter';
 
 export const usePatientMove = (encounterId, onClose) => {
-  const { put } = useApi();
-  const { navigateToEncounter } = usePatientNavigation();
+  const api = useApi();
+  const { loadEncounter } = useEncounter();
 
-  return useMutation(
-    ({ plannedLocationId, locationId }) =>
-      put(`encounter/${encounterId}`, {
-        data: {
-          plannedLocationId,
-          locationId,
-          submittedTime: getCurrentDateTimeString(),
-        },
-      }),
-    {
-      onSuccess: () => {
-        console.log('success');
-        navigateToEncounter(encounterId);
-        onClose();
-      },
+  return useMutation({
+    mutationFn: async data => {
+      await api.put(`encounter/${encounterId}`, {
+        ...data,
+        submittedTime: getCurrentDateTimeString(),
+      });
     },
-  );
+    onSuccess: async () => {
+      onClose();
+      await loadEncounter(encounterId);
+    },
+  });
 };

@@ -1,5 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
+import PropTypes from 'prop-types';
+import * as yup from 'yup';
+import { Colors } from '../../../constants';
 import { usePatientMove } from '../../../api/mutations';
 import { useSuggester } from '../../../api';
 import { BodyText, AutocompleteField, Field, Form, FormGrid, Modal } from '../../../components';
@@ -27,8 +30,11 @@ export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) =
         If the move is not finalised within 24 hours, the location will be deemed ‘Available’ again.
       </Text>
       <Form
-        initialValues={{ plannedLocation: encounter.plannedLocation }}
+        initialValues={{ plannedLocation: encounter.plannedLocationId }}
         onSubmit={submit}
+        validationSchema={yup.object().shape({
+          plannedLocationId: yup.string().required('Please select a planned location'),
+        })}
         render={({ submitForm }) => (
           <FormGrid columns={1}>
             <Field
@@ -39,8 +45,8 @@ export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) =
               required
             />
             <Text>
-              *This location has already been reserved for another patient. Please ensure the bed is
-              available before confirming.
+              <span style={{ color: Colors.alert }}>*</span> This location has already been reserved
+              for another patient. Please ensure the bed is available before confirming.
             </Text>
             <ModalActionRow confirmText="Confirm" onConfirm={submitForm} onCancel={onClose} />
           </FormGrid>
@@ -49,3 +55,16 @@ export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) =
     </Modal>
   );
 });
+
+BeginPatientMoveModal.propTypes = {
+  encounter: PropTypes.shape({
+    id: PropTypes.string,
+  }).isRequired,
+  open: PropTypes.bool,
+  onClose: PropTypes.func,
+};
+
+BeginPatientMoveModal.defaultProps = {
+  open: false,
+  onClose: null,
+};

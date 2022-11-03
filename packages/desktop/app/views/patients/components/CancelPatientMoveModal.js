@@ -1,13 +1,13 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { usePatientMove } from '../../../api/mutations';
 import { ConfirmCancelRow, Form, FormGrid, Modal, LargeBodyText } from '../../../components';
 
-export const CancelPatientMoveModal = React.memo(({ encounter, onClose }) => {
+export const CancelPatientMoveModal = React.memo(({ encounter, open, onClose }) => {
   const { mutate: submit } = usePatientMove(encounter.id, onClose);
   return (
-    <Modal title="Cancel move" endpoint="plannedLocation">
+    <Modal title="Cancel move" endpoint="plannedLocation" open={open}>
       <Form
-        initialValues={{ plannedLocation: encounter.plannedLocation }}
         onSubmit={submit}
         render={({ submitForm }) => (
           <FormGrid columns={1}>
@@ -24,3 +24,16 @@ export const CancelPatientMoveModal = React.memo(({ encounter, onClose }) => {
     </Modal>
   );
 });
+
+CancelPatientMoveModal.propTypes = {
+  encounter: PropTypes.shape({
+    id: PropTypes.string,
+  }).isRequired,
+  open: PropTypes.bool,
+  onClose: PropTypes.func,
+};
+
+CancelPatientMoveModal.defaultProps = {
+  open: false,
+  onClose: null,
+};
