@@ -49,6 +49,7 @@ export class Encounter extends Model {
         'surveyResponses.answers',
         'diagnoses',
         'medications',
+        // TODO: hack to work around Aspen Fiji's issues
         ...(config?.sync?.doNotSyncRequests
           ? []
           : [
