@@ -205,6 +205,7 @@ export class CentralSyncManager {
 
     if (pushedSoFar === totalToPush) {
       // commit the changes to the db
+      await this.tickTockGlobalClock(); // make sure there's a unique tick while saving these changes
       await this.store.sequelize.transaction(async transaction => {
         // acquire a lock on the sync time row in the local system facts table
         const [{ value: syncTick }] = await models.LocalSystemFact.findAll({
