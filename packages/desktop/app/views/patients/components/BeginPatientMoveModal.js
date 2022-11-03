@@ -21,6 +21,11 @@ const Text = styled(BodyText)`
   color: ${props => props.theme.palette.text.secondary};
 `;
 
+// Todo: integrate with api statuses
+const STATUSES = {
+  reserved: 'reserved',
+};
+
 export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) => {
   const { mutate: submit } = usePatientMove(encounter.id, onClose);
 
@@ -54,7 +59,7 @@ export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) =
                   label="New location"
                   required
                 />
-                {values?.status === 'reserved' && (
+                {values?.status === STATUSES.reserved && (
                   <Text>
                     <span style={{ color: Colors.alert }}>*</span> This location has already been
                     reserved for another patient. Please ensure the bed is available before

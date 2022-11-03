@@ -8,6 +8,7 @@ export const usePatientMove = (encounterId, onClose) => {
   const { loadEncounter } = useEncounter();
 
   return useMutation({
+    mutationKey: ['patientMove', encounterId],
     mutationFn: async data => {
       await api.put(`encounter/${encounterId}`, {
         ...data,

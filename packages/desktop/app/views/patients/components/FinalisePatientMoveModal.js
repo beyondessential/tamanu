@@ -51,8 +51,7 @@ const Card = styled.div`
 
 export const FinalisePatientMoveModal = React.memo(({ encounter, open, onClose }) => {
   const { mutate: submit } = usePatientMove(encounter.id, onClose);
-  const { location } = encounter;
-  const { plannedLocation } = encounter;
+  const { location, plannedLocation } = encounter;
   const onConfirmMove = () => {
     submit({ plannedLocationId: null, locationId: plannedLocation.id });
   };
