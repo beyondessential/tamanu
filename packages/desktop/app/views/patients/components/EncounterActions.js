@@ -64,6 +64,24 @@ const EncounterActionDropdown = ({ encounter }) => {
       condition: () => isProgressionForward(encounter.encounterType, ENCOUNTER_TYPES.ADMISSION),
     },
     {
+      label: 'Discharge without being seen',
+      onClick: onDischargeOpen,
+      condition: () => encounter.encounterType === ENCOUNTER_TYPES.TRIAGE,
+    },
+    {
+      label: 'Discharge',
+      onClick: onDischargeOpen,
+      condition: () => encounter.encounterType !== ENCOUNTER_TYPES.TRIAGE,
+    },
+    {
+      label: 'Change department',
+      onClick: onChangeDepartment,
+    },
+    {
+      label: 'Change clinician',
+      onClick: onChangeClinician,
+    },
+    {
       label: 'Plan location change',
       condition: () => enablePatientMoveActions && !encounter.plannedLocation,
       onClick: onPlanLocationChange,
@@ -82,24 +100,6 @@ const EncounterActionDropdown = ({ encounter }) => {
       label: 'Change location',
       condition: () => !enablePatientMoveActions && !encounter.plannedLocation,
       onClick: onChangeLocation,
-    },
-    {
-      label: 'Discharge without being seen',
-      onClick: onDischargeOpen,
-      condition: () => encounter.encounterType === ENCOUNTER_TYPES.TRIAGE,
-    },
-    {
-      label: 'Discharge',
-      onClick: onDischargeOpen,
-      condition: () => encounter.encounterType !== ENCOUNTER_TYPES.TRIAGE,
-    },
-    {
-      label: 'Change department',
-      onClick: onChangeDepartment,
-    },
-    {
-      label: 'Change clinician',
-      onClick: onChangeClinician,
     },
   ].filter(action => !action.condition || action.condition());
 

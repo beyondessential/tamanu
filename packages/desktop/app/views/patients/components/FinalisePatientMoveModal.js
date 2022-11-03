@@ -15,8 +15,8 @@ const Text = styled(BodyText)`
 `;
 
 const Container = styled.div`
-  margin: 30px auto 50px 15%;
   display: flex;
+  margin: 30px auto 50px 15%;
 `;
 
 const BedIcon = styled(SingleBedIcon)`
@@ -53,7 +53,7 @@ export const FinalisePatientMoveModal = React.memo(({ encounter, open, onClose }
   const { mutate: submit } = usePatientMove(encounter.id, onClose);
   const { location } = encounter;
   const { plannedLocation } = encounter;
-  const onConfirm = () => {
+  const onConfirmMove = () => {
     submit({ plannedLocationId: null, locationId: plannedLocation.id });
   };
   return (
@@ -78,7 +78,7 @@ export const FinalisePatientMoveModal = React.memo(({ encounter, open, onClose }
           <Card className="active">New location: {plannedLocation?.name}</Card>
         </Box>
       </Container>
-      <ModalActionRow confirmText="Confirm" onConfirm={onConfirm} onCancel={onClose} />
+      <ModalActionRow confirmText="Confirm" onConfirm={onConfirmMove} onCancel={onClose} />
     </Modal>
   );
 });

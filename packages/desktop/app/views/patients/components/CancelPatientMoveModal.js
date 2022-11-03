@@ -1,26 +1,25 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import styled from 'styled-components';
 import { usePatientMove } from '../../../api/mutations';
-import { ConfirmCancelRow, Form, FormGrid, Modal, LargeBodyText } from '../../../components';
+import { Modal, LargeBodyText } from '../../../components';
+import { ModalActionRow } from '../../../components/ModalActionRow';
+
+const Container = styled.div`
+  margin: 80px 0;
+`;
 
 export const CancelPatientMoveModal = React.memo(({ encounter, open, onClose }) => {
   const { mutate: submit } = usePatientMove(encounter.id, onClose);
+  const onCancelMove = () => {
+    submit({ plannedLocationId: null });
+  };
   return (
     <Modal title="Cancel move" endpoint="plannedLocation" open={open}>
-      <Form
-        onSubmit={submit}
-        render={({ submitForm }) => (
-          <FormGrid columns={1}>
-            <LargeBodyText>Are you sure you want to cancel the planned patient move?</LargeBodyText>
-            <ConfirmCancelRow
-              onConfirm={submitForm}
-              confirmText="Yes, cancel"
-              cancelText="Keep it"
-              onCancel={onClose}
-            />
-          </FormGrid>
-        )}
-      />
+      <Container>
+        <LargeBodyText>Are you sure you want to cancel the planned patient move?</LargeBodyText>
+      </Container>
+      <ModalActionRow confirmText="Confirm" onConfirm={onCancelMove} onCancel={onClose} />
     </Modal>
   );
 });
