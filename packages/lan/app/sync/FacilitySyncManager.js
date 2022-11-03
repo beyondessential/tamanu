@@ -126,7 +126,7 @@ export class FacilitySyncManager {
     await this.sequelize.transaction(async () => {
       if (incomingChangesCount > 0) {
         log.debug(
-          `FacilitySyncManager.runSync: Saving a total of ${incomingChangesCount.length} changes`,
+          `FacilitySyncManager.runSync: Saving a total of ${incomingChangesCount} changes`,
         );
         await saveIncomingChanges(
           this.models,
