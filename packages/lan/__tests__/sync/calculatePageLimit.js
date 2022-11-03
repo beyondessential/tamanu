@@ -6,7 +6,7 @@ const defaultConfig = {
   initialLimit: 10,
   minLimit: 1,
   maxLimit: 10000,
-  optimalTimePerPageMs: 2000, 
+  optimalTimePerPageMs: 2000,
   maxLimitChangePerPage: 0.2,
 };
 
