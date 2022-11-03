@@ -57,9 +57,11 @@ export class PlannedMoveTimeout extends ScheduledTask {
 
     const batchCount = Math.ceil(toProcess / batchSize);
 
-    log.info(
-      `Timing out ${toProcess} planned patient moves in ${batchCount} batches (${batchSize} records per batch)`,
-    );
+    log.info('Running batched timeout of encounter planned moves', {
+      recordCount: toProcess,
+      batchCount,
+      batchSize,
+    });
 
     for (let i = 0; i < batchCount; i++) {
       const encounters = await Encounter.findAll({
@@ -76,7 +78,7 @@ export class PlannedMoveTimeout extends ScheduledTask {
           plannedLocationId: null,
         });
 
-        log.info(`Timed out planned move for encounter with id ${encounter.id}`);
+        log.info('Encounter planned move timeout', { encounterId: encounter.id });
       }
 
       await sleepAsync(batchSleepAsyncDurationInMilliseconds);
