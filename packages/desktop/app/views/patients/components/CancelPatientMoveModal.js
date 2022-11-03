@@ -6,7 +6,7 @@ import { Modal, LargeBodyText } from '../../../components';
 import { ModalActionRow } from '../../../components/ModalActionRow';
 
 const Container = styled.div`
-  margin: 80px 0;
+  margin: 70px 0 80px;
 `;
 
 export const CancelPatientMoveModal = React.memo(({ encounter, open, onClose }) => {

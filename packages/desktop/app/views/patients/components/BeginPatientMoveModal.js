@@ -5,12 +5,20 @@ import * as yup from 'yup';
 import { Colors } from '../../../constants';
 import { usePatientMove } from '../../../api/mutations';
 import { useSuggester } from '../../../api';
-import { BodyText, AutocompleteField, Field, Form, FormGrid, Modal } from '../../../components';
+import { BodyText, AutocompleteField, Field, Form, Modal } from '../../../components';
 import { ModalActionRow } from '../../../components/ModalActionRow';
+
+const Container = styled.div`
+  padding-bottom: 50px;
+
+  .react-autosuggest__container {
+    max-width: 320px;
+    margin: 30px auto 40px;
+  }
+`;
 
 const Text = styled(BodyText)`
   color: ${props => props.theme.palette.text.secondary};
-  margin-bottom: 30px;
 `;
 
 export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) => {
@@ -35,22 +43,29 @@ export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) =
         validationSchema={yup.object().shape({
           plannedLocationId: yup.string().required('Please select a planned location'),
         })}
-        render={({ submitForm }) => (
-          <FormGrid columns={1}>
-            <Field
-              name="plannedLocationId"
-              component={AutocompleteField}
-              suggester={locationSuggester}
-              label="New location"
-              required
-            />
-            <Text>
-              <span style={{ color: Colors.alert }}>*</span> This location has already been reserved
-              for another patient. Please ensure the bed is available before confirming.
-            </Text>
-            <ModalActionRow confirmText="Confirm" onConfirm={submitForm} onCancel={onClose} />
-          </FormGrid>
-        )}
+        render={({ submitForm, values }) => {
+          return (
+            <>
+              <Container>
+                <Field
+                  name="plannedLocationId"
+                  component={AutocompleteField}
+                  suggester={locationSuggester}
+                  label="New location"
+                  required
+                />
+                {values?.status === 'reserved' && (
+                  <Text>
+                    <span style={{ color: Colors.alert }}>*</span> This location has already been
+                    reserved for another patient. Please ensure the bed is available before
+                    confirming.
+                  </Text>
+                )}
+              </Container>
+              <ModalActionRow confirmText="Confirm" onConfirm={submitForm} onCancel={onClose} />
+            </>
+          );
+        }}
       />
     </Modal>
   );
