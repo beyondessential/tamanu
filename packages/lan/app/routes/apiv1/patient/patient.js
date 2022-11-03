@@ -277,8 +277,14 @@ patientRoute.get(
           ON (location.id = encounters.location_id)
         LEFT JOIN reference_data AS village
           ON (village.type = 'village' AND village.id = patients.village_id)
-        LEFT JOIN patient_secondary_ids
-          ON (patients.id = patient_secondary_ids.patient_id)
+        LEFT JOIN (
+          SELECT
+            patient_id,
+            STRING_AGG(value, '|') AS concatenated_secondary_ids
+          FROM patient_secondary_ids
+          GROUP BY patient_id
+        ) psi
+          ON (patients.id = psi.patient_id)
       ${whereClauses && `WHERE ${whereClauses}`}
     `;
 

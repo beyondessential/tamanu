@@ -162,7 +162,7 @@ describe('Patient search', () => {
     expect(response.body.count).toEqual(0);
   });
 
-  describe.only('Searching by IDs', () => {
+  describe('Searching by IDs', () => {
     it('should get a patient by displayId', async () => {
       const response = await app.get('/v1/patient').query({
         displayId: 'search-by-display-id',
