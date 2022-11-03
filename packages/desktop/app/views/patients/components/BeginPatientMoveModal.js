@@ -28,7 +28,7 @@ const STATUSES = {
 };
 
 export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) => {
-  const { mutate: submit } = usePatientMove(encounter.id, onClose);
+  const { mutateAsync: submit } = usePatientMove(encounter.id, onClose);
 
   const locationSuggester = useSuggester('location', {
     baseQueryParameters: { filterByFacility: true },
