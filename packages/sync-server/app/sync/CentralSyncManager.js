@@ -215,9 +215,17 @@ export class CentralSyncManager {
       // commit the changes to the db
       await this.tickTockGlobalClock(); // make sure there's a unique tick while saving these changes
       await this.store.sequelize.transaction(async transaction => {
-        // acquire a lock on the sync time row in the local system facts table
+        // acquire a lock on the sync time row in the local system facts table, so that all saved
+        // changes have the same updated_at_sync_tick, and no sync pull snapshot can start while this
+        // save is still in progress
+        // the pull snapshot starts by updating the current time, so this locks that out while the
+        // save transaction happens, to avoid the snapshot missing records that get during this save
+        // but aren't visible in the db to be snapshot until the transaction commits, so would
+        // otherwise be completely skipped over by that sync client
         const [{ value: syncTick }] = await models.LocalSystemFact.findAll({
-          where: { key: CURRENT_SYNC_TIME_KEY },
+          where: {
+            key: CURRENT_SYNC_TIME_KEY,
+          },
           lock: transaction.LOCK.UPDATE,
         });
         await saveIncomingChanges(
