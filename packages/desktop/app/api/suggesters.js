@@ -1,3 +1,4 @@
+import { LOCATION_AVAILABILITY_TAG_CONFIG } from 'shared/constants';
 import { Suggester } from '../utils/suggester';
 import { useApi } from './useApi';
 import { getPatientNameAsString } from '../components/PatientNameDisplay';
@@ -27,7 +28,7 @@ export const useLocationAvailabilitySuggester = () => {
       return {
         label: name,
         value: id,
-        tag: { label: availability },
+        tag: LOCATION_AVAILABILITY_TAG_CONFIG[availability],
       };
     },
     baseQueryParameters: { filterByFacility: true },
