@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { Colors } from '../../../constants';
 import { usePatientMove } from '../../../api/mutations';
-import { useSuggester } from '../../../api';
+import { useLocationAvailabilitySuggester } from '../../../api';
 import { BodyText, AutocompleteField, Field, Form, Modal } from '../../../components';
 import { ModalActionRow } from '../../../components/ModalActionRow';
 import { useLocalisation } from '../../../contexts/Localisation';
@@ -22,17 +22,16 @@ const Text = styled(BodyText)`
   color: ${props => props.theme.palette.text.secondary};
 `;
 
-// Todo: integrate with api statuses
 const STATUSES = {
-  reserved: 'reserved',
+  available: 'Available',
+  reserved: 'Reserved',
+  occupied: 'Occupied',
 };
 
 export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) => {
   const { mutateAsync: submit } = usePatientMove(encounter.id, onClose);
 
-  const locationSuggester = useSuggester('location', {
-    baseQueryParameters: { filterByFacility: true },
-  });
+  const locationSuggester = useLocationAvailabilitySuggester();
 
   const { getLocalisation } = useLocalisation();
   const plannedMoveTimeoutHours = getLocalisation('templates.plannedMoveTimeoutHours');
