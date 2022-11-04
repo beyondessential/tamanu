@@ -565,7 +565,8 @@
         "enablePatientDeaths": false,
         "mergePopulatedPADRecords": true,
         "enableCovidClearanceCertificate": false,
-        "editDisplayId": false
+        "editDisplayId": false,
+        "locationHierarchy": false
       },
       "templates": {
         "letterhead": {
