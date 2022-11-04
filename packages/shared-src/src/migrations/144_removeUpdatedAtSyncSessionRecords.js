@@ -1,4 +1,4 @@
-import { INTEGER } from 'sequelize';
+import { BIGINT } from 'sequelize';
 
 module.exports = {
   up: async query => {
@@ -11,7 +11,8 @@ module.exports = {
   down: async query => {
     // add the updated_at_sync_tick column
     await query.addColumn('sync_session_records', 'updated_at_sync_tick', {
-      type: INTEGER,
+      type: BIGINT,
+      defaultValue: -999,
     });
 
     // fill it with some initial values

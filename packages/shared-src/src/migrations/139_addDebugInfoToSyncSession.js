@@ -2,7 +2,7 @@ import Sequelize from 'sequelize';
 
 export async function up(query) {
   await query.addColumn('sync_sessions', 'debug_info', {
-    type: Sequelize.JSONB,
+    type: Sequelize.JSON,
   });
 }
 

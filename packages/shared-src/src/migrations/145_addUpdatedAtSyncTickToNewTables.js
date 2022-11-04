@@ -1,4 +1,4 @@
-import { INTEGER } from 'sequelize';
+import { BIGINT } from 'sequelize';
 
 async function getNewTables(sequelize) {
   const [tables] = await sequelize.query(`
@@ -34,7 +34,8 @@ module.exports = {
     for (const table of syncingTables) {
       // add the updated_at_sync_tick column
       await query.addColumn(table, 'updated_at_sync_tick', {
-        type: INTEGER,
+        type: BIGINT,
+        defaultValue: -999,
       });
 
       // fill it with some initial values

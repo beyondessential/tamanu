@@ -131,7 +131,7 @@ export class CentralServerConnection {
     throw new Error(`Could not fetch a valid pull count after ${maxAttempts} attempts`);
   }
 
-  async setPullFilter(sessionId: string, since: number, tableNames: [string]) {
+  async setPullFilter(sessionId: string, since: number, tableNames: string[]) {
     const facilityId = await readConfig('facilityId', '');
     const body = { since, facilityId, tablesToInclude: tableNames, isMobile: true };
     return this.post(`sync/${sessionId}/pullFilter`, {}, body, {});

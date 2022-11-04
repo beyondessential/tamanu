@@ -39,7 +39,7 @@ const BaseColumns = [
   new TableColumn({
     name: 'updatedAtSyncTick',
     type: 'bigint',
-    isNullable: true,
+    isNullable: false,
     default: -999,
   }),
 ];

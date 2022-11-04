@@ -81,16 +81,16 @@ export class FacilitySyncManager {
     // this avoids any of the records to be pushed being changed during the push period and
     // causing data that isn't internally coherent from ending up on the sync server
     const pushSince = (await this.models.LocalSystemFact.get('lastSuccessfulSyncPush')) || -1;
-    const outgoingChangeCount = await snapshotOutgoingChanges(
+    const outgoingChanges = await snapshotOutgoingChanges(
       getModelsForDirection(this.models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL),
       sessionId,
       pushSince,
     );
-    if (outgoingChangeCount.length > 0) {
+    if (outgoingChanges.length > 0) {
       log.debug(
-        `FacilitySyncManager.runSync: Pushing a total of ${outgoingChangeCount.length} changes`,
+        `FacilitySyncManager.runSync: Pushing a total of ${outgoingChanges.length} changes`,
       );
-      await pushOutgoingChanges(this.centralServer, sessionId, outgoingChangeCount);
+      await pushOutgoingChanges(this.centralServer, sessionId, outgoingChanges);
     }
     log.debug(
       `FacilitySyncManager.runSync: Setting the last successful sync push time to ${currentSyncClockTime}`,
@@ -125,9 +125,7 @@ export class FacilitySyncManager {
     // again next sync
     await this.sequelize.transaction(async () => {
       if (incomingChangesCount > 0) {
-        log.debug(
-          `FacilitySyncManager.runSync: Saving a total of ${incomingChangesCount} changes`,
-        );
+        log.debug(`FacilitySyncManager.runSync: Saving a total of ${incomingChangesCount} changes`);
         await saveIncomingChanges(
           this.models,
           getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),

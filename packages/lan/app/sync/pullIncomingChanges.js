@@ -14,7 +14,7 @@ export const pullIncomingChanges = async (centralServer, models, sessionId, sinc
   let fromId;
   let limit = calculatePageLimit();
   let totalPulled = 0;
-  log.debug(`pullIncomingChanges: syncing`, { sessionId, fromId });
+  log.debug(`pullIncomingChanges: syncing`, { sessionId });
 
   // pull changes a page at a time
   while (totalPulled < totalToPull) {

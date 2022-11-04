@@ -9,9 +9,9 @@ export class SyncSession extends Model {
         id: primaryKey,
         startTime: { type: DataTypes.DATE },
         lastConnectionTime: { type: DataTypes.DATE },
-        snapshotCompletedAt: { type: DataTypes.BOOLEAN },
-        error: { type: DataTypes.STRING },
-        debugInfo: { type: DataTypes.JSONB },
+        snapshotCompletedAt: { type: DataTypes.DATE },
+        error: { type: DataTypes.TEXT },
+        debugInfo: { type: DataTypes.JSON },
       },
       { ...options, syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC },
     );
