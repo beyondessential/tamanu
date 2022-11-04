@@ -1,3 +1,14 @@
+// NOTE ABOUT IMPORTING CONFIG IN THIS MIGRATION
+// Generally you shouldn't import things into migrations, because then you rely on that import
+// keeping a stable API
+// We import config here in a departure from that rule of thumb, but please don't copy blindly:
+// - It's probably not okay to use config if the schema is altered (not the case here, only data)
+// - Consider the case when the config you're using were to go missing - would this be ok for the
+//   migration? (here, a missing serverFacilityId will set the sync tick to 0, which won't matter
+//   if there is no data, as is the case if this is run in future on a new server by the time we
+//   remove serverFacilityId from the config)
+import config from 'config';
+// End of antipattern
 import { BIGINT } from 'sequelize';
 
 async function getNewTables(sequelize) {
@@ -38,9 +49,11 @@ module.exports = {
         defaultValue: -999,
       });
 
-      // fill it with some initial values
+      // fill it with some initial values, either -999 so that it is not marked for sync on facility
+      // server, or 0 on the central server so that it is caught in any initial sync of a facility
+      const initialValue = config.serverFacilityId ? -999 : 0;
       await query.sequelize.query(`
-        UPDATE ${table} SET updated_at_sync_tick = 0;
+        UPDATE ${table} SET updated_at_sync_tick = ${initialValue};
       `);
 
       // add a not null constraint
