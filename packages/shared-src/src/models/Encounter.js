@@ -49,13 +49,18 @@ export class Encounter extends Model {
         'surveyResponses.answers',
         'diagnoses',
         'medications',
-        'labRequests',
-        'labRequests.tests',
-        'labRequests.notePages',
-        'labRequests.notePages.noteItems',
-        'imagingRequests',
-        'imagingRequests.notePages',
-        'imagingRequests.notePages.noteItems',
+        // TODO: hack to work around Aspen Fiji's issues
+        ...(config?.sync?.doNotSyncRequests
+          ? []
+          : [
+              'labRequests',
+              'labRequests.tests',
+              'labRequests.notePages',
+              'labRequests.notePages.noteItems',
+              'imagingRequests',
+              'imagingRequests.notePages',
+              'imagingRequests.notePages.noteItems',
+            ]),
         'procedures',
         'initiatedReferrals',
         'completedReferrals',
