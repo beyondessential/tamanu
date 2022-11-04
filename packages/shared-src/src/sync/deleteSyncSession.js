@@ -1,8 +1,9 @@
 import { Op } from 'sequelize';
 
 export const deleteSyncSession = async (store, sessionId) => {
-  // will cascade to sync session records
-  await store.models.SyncSession.destroy({ where: { id: sessionId }, force: true });
+  // just delete sync session records, leaving sessions themselves as an artefact that forms a
+  // paper trail
+  await store.models.SyncSessionRecord.destroy({ where: { sessionId }, force: true });
 };
 
 export const deleteInactiveSyncSessions = async (store, lapsedSessionSeconds) => {
