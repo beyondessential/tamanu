@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
+import { LOCATION_AVAILABILITY_STATUS } from 'shared/constants';
 import { Colors } from '../../../constants';
 import { usePatientMove } from '../../../api/mutations';
 import { useLocationAvailabilitySuggester } from '../../../api';
@@ -21,12 +22,6 @@ const Container = styled.div`
 const Text = styled(BodyText)`
   color: ${props => props.theme.palette.text.secondary};
 `;
-
-const STATUSES = {
-  available: 'Available',
-  reserved: 'Reserved',
-  occupied: 'Occupied',
-};
 
 export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) => {
   const { mutateAsync: submit } = usePatientMove(encounter.id, onClose);
@@ -62,7 +57,7 @@ export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) =
                   label="New location"
                   required
                 />
-                {values?.status === STATUSES.reserved && (
+                {values?.status === LOCATION_AVAILABILITY_STATUS.RESERVED && (
                   <Text>
                     <span style={{ color: Colors.alert }}>*</span> This location has already been
                     reserved for another patient. Please ensure the bed is available before

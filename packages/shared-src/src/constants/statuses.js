@@ -65,3 +65,9 @@ export const PATIENT_MERGE_DELETION_ACTIONS = {
   DESTROY: 'DESTROY',
   NONE: 'NONE',
 };
+
+export const LOCATION_AVAILABILITY_STATUS = {
+  AVAILABLE: 'Available',
+  RESERVED: 'Reserved',
+  OCCUPIED: 'Occupied',
+};
