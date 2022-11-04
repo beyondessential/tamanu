@@ -1,4 +1,4 @@
-import { Op, Sequelize } from 'sequelize';
+import { Op } from 'sequelize';
 import config from 'config';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { CURRENT_SYNC_TIME_KEY } from 'shared/sync/constants';
@@ -8,8 +8,8 @@ import {
   getOutgoingChangesForSession,
   removeEchoedChanges,
   saveIncomingChanges,
-  deleteSyncSession,
-  deleteInactiveSyncSessions,
+  completeSyncSession,
+  completeInactiveSyncSessions,
   getOutgoingChangesCount,
   SYNC_SESSION_DIRECTION,
 } from 'shared/sync';
@@ -46,7 +46,7 @@ export class CentralSyncManager {
       return;
     }
     this.isRunningPurge = true;
-    await deleteInactiveSyncSessions(this.store, lapsedSessionSeconds);
+    await completeInactiveSyncSessions(this.store, lapsedSessionSeconds);
     this.isRunningPurge = false;
   };
 
@@ -100,7 +100,7 @@ export class CentralSyncManager {
     log.info(
       `Sync session ${session.id} performed in ${(Date.now() - session.startTime) / 1000} seconds`,
     );
-    await deleteSyncSession(this.store, sessionId);
+    await completeSyncSession(this.store, sessionId);
   }
 
   async setPullFilter(sessionId, { since, facilityId, tablesToInclude, isMobile }) {
