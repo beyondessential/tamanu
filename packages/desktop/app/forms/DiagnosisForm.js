@@ -1,6 +1,6 @@
 import React from 'react';
 import * as yup from 'yup';
-
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { foreignKey } from '../utils/validation';
 import { diagnosisCertaintyOptions } from '../constants';
 
@@ -30,7 +30,7 @@ export const DiagnosisForm = React.memo(
       <Form
         onSubmit={onSave}
         initialValues={{
-          date: new Date(),
+          date: getCurrentDateTimeString(),
           isPrimary: true,
           certainty: defaultCertainty,
           ...diagnosis,
@@ -67,7 +67,7 @@ export const DiagnosisForm = React.memo(
               options={certaintyOptions}
               required
             />
-            <Field name="date" label="Date" component={DateField} required />
+            <Field name="date" label="Date" component={DateField} required saveDateAsString />
             <ConfirmCancelRow onConfirm={submitForm} onCancel={onCancel} />
           </FormGrid>
         )}

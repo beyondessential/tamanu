@@ -1,6 +1,8 @@
+import React, { useState } from 'react';
 import { remote } from 'electron';
-import React from 'react';
-import styled from 'styled-components';
+import Tooltip from '@material-ui/core/Tooltip';
+import { format } from 'date-fns';
+import { parseDate } from 'shared-src/src/utils/dateTime';
 
 const getLocale = () => remote.getGlobal('osLocales') || remote.app.getLocale() || 'default';
 
@@ -39,37 +41,71 @@ const formatLong = date =>
     'Date information not available',
   ); // "Thursday, 14 July 2022, 03:44 pm"
 
-// abbr tag allows a title to be passed in which shows the long format date on hover
-const StyledAbbr = styled.abbr`
-  text-decoration: none;
-`;
+// Diagnostic info for debugging
+const DiagnosticInfo = ({ date: rawDate }) => {
+  const date = new Date(rawDate);
+  const displayDate = formatLong(date);
+  const { timeZone } = Intl.DateTimeFormat().resolvedOptions();
+  const timeZoneOffset = format(date, 'XXX');
 
-export const DateDisplay = ({
-  date: dateValue,
-  showDate = true,
-  showTime = false,
-  showExplicitDate = false,
-}) => {
-  let date = dateValue;
-
-  if (typeof date === 'string') {
-    date = new Date(date);
-  }
-
-  const parts = [];
-  if (showDate) {
-    parts.push(formatShort(date));
-  } else if (showExplicitDate) {
-    parts.push(formatShortExplicit(date));
-  }
-  if (showTime) {
-    parts.push(formatTime(date));
-  }
   return (
-    <StyledAbbr title={formatLong(date)} data-test-class="date-display-abbr">
-      {parts.join(' ')}
-    </StyledAbbr>
+    <div>
+      Display date: {displayDate} <br />
+      Raw date: {date.toString()} <br />
+      Time zone: {timeZone} <br />
+      Time zone offset: {timeZoneOffset} <br />
+      Locale: {getLocale()}
+    </div>
   );
 };
+
+// Tooltip that shows the long date or full diagnostic date info if the shift key is held down
+// before mousing over the date display
+const DateTooltip = ({ date, children }) => {
+  const [tooltipOpen, setTooltipOpen] = useState(false);
+  const [debug, setDebug] = useState(false);
+
+  const handleOpen = event => {
+    if (event.shiftKey) {
+      setDebug(true);
+    }
+    setTooltipOpen(true);
+  };
+
+  const handleClose = () => {
+    setTooltipOpen(false);
+    setDebug(false);
+  };
+
+  const tooltipTitle = debug ? <DiagnosticInfo date={date} /> : formatLong(date);
+
+  return (
+    <Tooltip open={tooltipOpen} onClose={handleClose} onOpen={handleOpen} title={tooltipTitle}>
+      {children}
+    </Tooltip>
+  );
+};
+
+export const DateDisplay = React.memo(
+  ({ date: dateValue, showDate = true, showTime = false, showExplicitDate = false }) => {
+    const dateObj = parseDate(dateValue);
+
+    const parts = [];
+    if (showDate) {
+      parts.push(formatShort(dateObj));
+    } else if (showExplicitDate) {
+      parts.push(formatShortExplicit(dateObj));
+    }
+    if (showTime) {
+      parts.push(formatTime(dateObj));
+    }
+
+    return (
+      <DateTooltip date={dateObj}>
+        <span>{parts.join(' ')}</span>
+      </DateTooltip>
+    );
+  },
+);
 
 DateDisplay.rawFormat = formatShort;

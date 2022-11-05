@@ -7,11 +7,12 @@ import {
   createDummyVisit,
   createDummyPatient,
   DIAGNOSES,
+  DISPOSITIONS,
   DRUGS,
   FACILITIES,
   LOCATIONS,
   USERS,
-} from 'Shared/demoData';
+} from 'shared/demoData';
 import { EncounterForm } from '../app/forms/EncounterForm';
 import { TriageForm } from '../app/forms/TriageForm';
 import { VitalsForm } from '../app/forms/VitalsForm';
@@ -27,7 +28,6 @@ import { ReferralForm } from '../app/forms/ReferralForm';
 import { MedicationForm } from '../app/forms/MedicationForm';
 import { DeathForm } from '../app/forms/DeathForm';
 import { FamilyHistoryForm } from '../app/forms/FamilyHistoryForm';
-import { NoteForm } from '../app/forms/NoteForm';
 import { createDummySuggester, mapToSuggestions } from './utils';
 import { TestSelectorInput } from '../app/components/TestSelector';
 import { Modal } from '../app/components/Modal';
@@ -38,6 +38,7 @@ const PATIENTS = new Array(20).fill(0).map(x => createDummyPatient());
 
 const practitionerSuggester = createDummySuggester(mapToSuggestions(USERS));
 const locationSuggester = createDummySuggester(mapToSuggestions(LOCATIONS));
+const dispositionSuggester = createDummySuggester(mapToSuggestions(DISPOSITIONS));
 const facilitySuggester = createDummySuggester(mapToSuggestions(FACILITIES));
 const icd10Suggester = createDummySuggester(mapToSuggestions(DIAGNOSES));
 const patientSuggester = createDummySuggester(
@@ -120,10 +121,6 @@ storiesOf('Forms/VisitForm', module)
     />
   ));
 
-storiesOf('Forms', module).add('NoteForm', () => (
-  <NoteForm onSubmit={action('submit')} practitionerSuggester={practitionerSuggester} />
-));
-
 storiesOf('Forms', module).add('TriageForm', () => (
   <TriageForm
     onSubmit={action('submit')}
@@ -165,6 +162,7 @@ storiesOf('Forms', module).add('DischargeForm', () => (
     onSubmit={action('submit')}
     onCancel={action('cancel')}
     practitionerSuggester={practitionerSuggester}
+    dispositionSuggester={dispositionSuggester}
   />
 ));
 
@@ -176,7 +174,7 @@ storiesOf('Forms', module).add('NewPatientForm', () => (
   <NewPatientForm
     onSubmit={action('submit')}
     onCancel={action('cancel')}
-    generateId={shortid.generate}
+    generateDisplayId={shortid.generate}
     facilitySuggester={facilitySuggester}
     patientSuggester={patientSuggester}
   />
@@ -186,7 +184,7 @@ storiesOf('Forms', module).add('PatientDetailsForm', () => (
   <PatientDetailsForm
     onSubmit={action('submit')}
     onCancel={action('cancel')}
-    generateId={shortid.generate}
+    generateDisplayId={shortid.generate}
     facilitySuggester={facilitySuggester}
     patientSuggester={patientSuggester}
   />
@@ -198,20 +196,22 @@ const testCategories = [
 ];
 
 const testTypes = [
-  { name: 'Grape', id: 'grape', category: { id: 'sweet' } },
-  { name: 'Vanilla', id: 'vanilla', category: { id: 'sweet' } },
-  { name: 'Chocolate', id: 'chocolate', category: { id: 'sweet' } },
-  { name: 'Boysenberry', id: 'boysenberry', category: { id: 'sweet' } },
-  { name: 'Strawberry', id: 'strawb', category: { id: 'sweet' } },
-  { name: 'Lemon', id: 'lemon', category: { id: 'sweet' } },
-  { name: 'Pepper', id: 'pepper', category: { id: 'savoury' } },
-  { name: 'Cabbage', id: 'cabbage', category: { id: 'savoury' } },
-  { name: 'Sprout', id: 'sprout', category: { id: 'savoury' } },
-  { name: 'Yeast', id: 'yeast', category: { id: 'savoury' } },
-  { name: 'Zucchini', id: 'zuc', category: { id: 'savoury' } },
-  { name: 'Egg', id: 'egg', category: { id: 'savoury' } },
-  { name: 'Chicken', id: 'chicken', category: { id: 'savoury' } },
-  { name: 'Leek', id: 'leek', category: { id: 'savoury' } },
+  { name: 'Grape', id: 'grape', labTestCategoryId: 'sweet' },
+  { name: 'Vanilla', id: 'vanilla', labTestCategoryId: 'sweet' },
+  { name: 'Chocolate', id: 'chocolate', labTestCategoryId: 'sweet' },
+  { name: 'Boysenberry', id: 'boysenberry', labTestCategoryId: 'sweet' },
+  { name: 'Strawberry', id: 'strawb', labTestCategoryId: 'sweet' },
+  { name: 'Lemon', id: 'lemon', labTestCategoryId: 'sweet' },
+  { name: 'Pepper', id: 'pepper', labTestCategoryId: 'savoury' },
+  { name: 'Cabbage', id: 'cabbage', labTestCategoryId: 'savoury' },
+  { name: 'Sprout', id: 'sprout', labTestCategoryId: 'savoury' },
+  { name: 'Yeast', id: 'yeast', labTestCategoryId: 'savoury' },
+  { name: 'Zucchini', id: 'zuc', labTestCategoryId: 'savoury' },
+  { name: 'Egg', id: 'egg', labTestCategoryId: 'savoury' },
+  { name: 'Chicken', id: 'chicken', labTestCategoryId: 'savoury' },
+  { name: 'Leek', id: 'leek', labTestCategoryId: 'savoury' },
+  { name: 'Chilli', id: 'chilli', labTestCategoryId: 'savoury' },
+  { name: 'Fennel', id: 'fennel', labTestCategoryId: 'savoury' },
 ];
 
 const StorybookableTestSelector = () => {
@@ -270,7 +270,7 @@ storiesOf('Forms/LabRequestForm', module)
       }}
       testTypes={testTypes}
       testCategories={testCategories}
-      generateId={shortid.generate}
+      generateDisplayId={shortid.generate}
       practitionerSuggester={practitionerSuggester}
     />
   ))

@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { isEmpty } from 'lodash';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 
@@ -17,15 +16,16 @@ import {
   ChevronLeft,
   ChevronRight,
   Refresh,
+  Lock,
 } from '@material-ui/icons';
 
-import { checkAbility } from '../utils/ability';
 import { Colors } from '../constants';
+import { withPermissionCheck } from './withPermissionCheck';
+import { withPermissionTooltip } from './withPermissionTooltip';
 
-export const ButtonBase = ({ disabled, ...props }) => {
-  const allowed = isAllowed(props);
+export const ButtonBase = props => {
   const locationsProps = getLocationProps(props);
-  return <MuiButtonBase {...props} {...locationsProps} disabled={!allowed || disabled} />;
+  return <MuiButtonBase {...props} {...locationsProps} />;
 };
 
 const StyledButton = styled(MuiButton)`
@@ -35,16 +35,27 @@ const StyledButton = styled(MuiButton)`
   text-transform: none;
   padding: 12px 20px;
   box-shadow: none;
+
+  .MuiSvgIcon-root {
+    width: 19.5px;
+    height: auto;
+    margin-right: 10px;
+  }
 `;
 
-export const Button = ({ children, isSubmitting, disabled, ...props }) => {
-  const allowed = isAllowed(props);
+export const Button = ({ children, isSubmitting, disabled, hasPermission = true, ...props }) => {
   const locationsProps = getLocationProps(props);
+  const displayLock = !isSubmitting && !hasPermission;
   return (
-    <StyledButton {...props} {...locationsProps} disabled={!allowed || disabled || isSubmitting}>
+    <StyledButton
+      {...props}
+      {...locationsProps}
+      disabled={disabled || isSubmitting || !hasPermission}
+    >
       {isSubmitting && (
         <Icon className="fa fa-spinner fa-spin" style={{ marginRight: 4, fontSize: 18 }} />
       )}
+      {displayLock && <Lock />}
       {children}
     </StyledButton>
   );
@@ -254,18 +265,12 @@ export const RefreshIconButton = ({ ...props }) => (
   </IconButton>
 );
 
-const isAllowed = ({ can = {} }) => {
-  let allowed = true;
-  const { do: action, on: subject, field } = can;
-  if (!isEmpty(can)) {
-    allowed = checkAbility({ action, subject, field });
-  }
-  return allowed;
-};
-
 const getLocationProps = ({ to }) => {
   if (to) {
     return { component: Link, to };
   }
   return {};
 };
+
+const ButtonWithPermissionTooltip = withPermissionTooltip(Button);
+export const ButtonWithPermissionCheck = withPermissionCheck(ButtonWithPermissionTooltip);

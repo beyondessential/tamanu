@@ -22,7 +22,7 @@ async function serve({ skipMigrationCheck }) {
   });
 
   const context = await initDatabase();
-  if (config.db.sqlitePath || config.db.migrateOnStartup) {
+  if (config.db.migrateOnStartup) {
     await context.sequelize.migrate('up');
   } else {
     await context.sequelize.assertUpToDate({ skipMigrationCheck });
@@ -41,7 +41,7 @@ async function serve({ skipMigrationCheck }) {
   const server = app.listen(port, () => {
     log.info(`Server is running on port ${port}!`);
   });
-  process.on('SIGTERM', () => {
+  process.once('SIGTERM', () => {
     log.info('Received SIGTERM, closing HTTP server');
     server.close();
   });

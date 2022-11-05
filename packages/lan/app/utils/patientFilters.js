@@ -1,11 +1,17 @@
-import moment from 'moment';
+import config from 'config';
+import { sub } from 'date-fns';
+import { toDateString } from 'shared/utils/dateTime';
 import { makeFilter } from './query';
 
 export const createPatientFilters = filterParams => {
   const filters = [
     makeFilter(
       filterParams.displayId,
-      `UPPER(patients.display_id) LIKE UPPER(:displayId)`,
+      `(UPPER(patients.display_id) LIKE UPPER(:displayId)${
+        filterParams.matchSecondaryIds === 'true'
+          ? ' OR UPPER(patient_secondary_ids.value) LIKE UPPER(:displayId)'
+          : ''
+      })`,
       ({ displayId }) => ({
         displayId: filterParams.displayIdExact === 'true' ? displayId : `%${displayId}%`,
       }),
@@ -30,57 +36,24 @@ export const createPatientFilters = filterParams => {
       `patients.date_of_death IS NULL`,
     ),
     // For age filter
-    makeFilter(
-      filterParams.ageMax,
-      `DATE(patients.date_of_birth) >= DATE(:dobMin)`,
-      ({ ageMax }) => ({
-        dobMin: moment()
-          .startOf('day')
-          .subtract(ageMax + 1, 'years')
-          .add(1, 'day')
-          .toDate(),
-      }),
-    ),
-    makeFilter(
-      filterParams.ageMin,
-      `DATE(patients.date_of_birth) <= DATE(:dobMax)`,
-      ({ ageMin }) => ({
-        dobMax: moment()
-          .startOf('day')
-          .subtract(ageMin, 'years')
-          .toDate(),
-      }),
-    ),
+    makeFilter(filterParams.ageMax, `patients.date_of_birth >= :dobMin`, ({ ageMax }) => ({
+      // Subtract the number of years, but add one day
+      dobMin: toDateString(sub(new Date(), { years: ageMax + 1, days: -1 })),
+    })),
+    makeFilter(filterParams.ageMin, `patients.date_of_birth <= :dobMax`, ({ ageMin }) => ({
+      dobMax: toDateString(sub(new Date(), { years: ageMin })),
+    })),
     // For DOB filter
-    makeFilter(
-      filterParams.dateOfBirthFrom,
-      `DATE(patients.date_of_birth) >= :dateOfBirthFrom`,
-      ({ dateOfBirthFrom }) => ({
-        dateOfBirthFrom: moment(dateOfBirthFrom)
-          .startOf('day')
-          .toISOString(),
-      }),
-    ),
-    makeFilter(
-      filterParams.dateOfBirthTo,
-      `DATE(patients.date_of_birth) <= :dateOfBirthTo`,
-      ({ dateOfBirthTo }) => ({
-        dateOfBirthTo: moment(dateOfBirthTo)
-          .endOf('day')
-          .toISOString(),
-      }),
-    ),
-    makeFilter(
-      filterParams.dateOfBirthExact,
-      `DATE(patients.date_of_birth) = :dateOfBirthExact`,
-      ({ dateOfBirthExact }) => ({
-        dateOfBirthExact,
-      }),
-    ),
+    makeFilter(filterParams.dateOfBirthFrom, `patients.date_of_birth >= :dateOfBirthFrom`),
+    makeFilter(filterParams.dateOfBirthTo, `patients.date_of_birth<= :dateOfBirthTo`),
+    makeFilter(filterParams.dateOfBirthExact, `patients.date_of_birth = :dateOfBirthExact`),
     makeFilter(filterParams.villageId, `patients.village_id = :villageId`),
     makeFilter(filterParams.locationId, `location.id = :locationId`),
     makeFilter(filterParams.departmentId, `department.id = :departmentId`),
-    makeFilter(filterParams.facilityId, `department.facility_id = :facilityId`),
+    makeFilter(
+      filterParams.facilityId === ':local' ? config.serverFacilityId : filterParams.facilityId,
+      `department.facility_id = :facilityId`,
+    ),
     makeFilter(filterParams.inpatient, `encounters.encounter_type = 'admission'`),
     makeFilter(filterParams.outpatient, `encounters.encounter_type = 'clinic'`),
     makeFilter(filterParams.clinicianId, `encounters.examiner_id = :clinicianId`),

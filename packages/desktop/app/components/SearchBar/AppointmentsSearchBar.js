@@ -7,7 +7,9 @@ import { useSuggester } from '../../api';
 
 export const AppointmentsSearchBar = ({ onSearch }) => {
   const practitionerSuggester = useSuggester('practitioner');
-  const locationSuggester = useSuggester('location');
+  const locationSuggester = useSuggester('location', {
+    baseQueryParameters: { filterByFacility: true },
+  });
 
   return (
     <CustomisableSearchBar
@@ -53,8 +55,18 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
         component={SelectField}
         options={appointmentStatusOptions}
       />
-      <LocalisedField name="after" defaultLabel="Start from" component={DateTimeField} />
-      <LocalisedField name="before" defaultLabel="Until" component={DateTimeField} />
+      <LocalisedField
+        saveDateAsString
+        name="after"
+        defaultLabel="Start from"
+        component={DateTimeField}
+      />
+      <LocalisedField
+        saveDateAsString
+        name="before"
+        defaultLabel="Until"
+        component={DateTimeField}
+      />
       <LocalisedField name="displayId" />
     </CustomisableSearchBar>
   );

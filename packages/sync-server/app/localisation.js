@@ -78,6 +78,26 @@ const HIDEABLE_FIELDS = [
   'passport',
   'religionId',
   'patientBillingTypeId',
+  'motherId',
+  'fatherId',
+  'birthWeight',
+  'birthLength',
+  'birthDeliveryType',
+  'gestationalAgeEstimate',
+  'apgarScoreOneMinute',
+  'apgarScoreFiveMinutes',
+  'apgarScoreTenMinutes',
+  'timeOfBirth',
+  'attendantAtBirth',
+  'nameOfAttendantAtBirth',
+  'birthFacilityId',
+  'birthType',
+  'registeredBirthPlace',
+  'referralSourceId',
+  'arrivalModeId',
+  'prescriber',
+  'prescriberId',
+  'facility',
 ];
 
 const templatesSchema = yup
@@ -126,6 +146,23 @@ const templatesSchema = yup
       .noUnknown(),
 
     covidTestCertificateEmail: yup
+      .object()
+      .shape({
+        subject: yup
+          .string()
+          .trim()
+          .min(1)
+          .required(),
+        body: yup
+          .string()
+          .trim()
+          .min(1)
+          .required(),
+      })
+      .required()
+      .noUnknown(),
+
+    covidClearanceCertificateEmail: yup
       .object()
       .shape({
         subject: yup
@@ -248,6 +285,9 @@ const printMeasuresSchema = yup
 
 const rootLocalisationSchema = yup
   .object({
+    units: yup.object({
+      temperature: yup.string().oneOf(['celsius', 'fahrenheit']),
+    }),
     country: {
       name: yup
         .string()
@@ -268,6 +308,12 @@ const rootLocalisationSchema = yup
     templates: templatesSchema,
     timeZone: yup.string().nullable(),
     imagingTypes: imagingTypesSchema,
+    imagingPriorities: yup.array(
+      yup.object({
+        value: yup.string().required(),
+        label: yup.string().required(),
+      }),
+    ),
     triageCategories: yup
       .array(
         yup.object({
@@ -290,6 +336,9 @@ const rootLocalisationSchema = yup
         registerNewPatient: yup.boolean().required(),
         enablePatientDeaths: yup.boolean().required(),
         mergePopulatedPADRecords: yup.boolean().required(),
+        enableCovidClearanceCertificate: yup.boolean().required(),
+        enableDischargeDisposition: yup.boolean().default(true),
+        editDisplayId: yup.boolean().required(),
       })
       .required()
       .noUnknown(),

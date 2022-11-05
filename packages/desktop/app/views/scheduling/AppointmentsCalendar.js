@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { format, add, startOfDay, endOfDay } from 'date-fns';
-import { ButtonGroup, Typography } from '@material-ui/core';
+import { ButtonGroup, IconButton, Typography } from '@material-ui/core';
+import ArrowBackIcon from '@material-ui/icons/KeyboardArrowLeft';
+import ArrowForwardIcon from '@material-ui/icons/KeyboardArrowRight';
 
+import { toDateTimeString } from 'shared-src/src/utils/dateTime';
 import { PageContainer, TopBar } from '../../components';
 import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { DailySchedule } from '../../components/Appointments/DailySchedule';
 import { NewAppointmentButton } from '../../components/Appointments/NewAppointmentButton';
-import { BackButton, ForwardButton, Button } from '../../components/Button';
+import { Button } from '../../components/Button';
 import { AutocompleteInput, MultiselectInput } from '../../components/Field';
 import { Suggester } from '../../utils/suggester';
 import { Colors, appointmentTypeOptions } from '../../constants';
@@ -28,13 +31,12 @@ const DateHeader = styled.div`
 `;
 
 const DateDisplay = styled.span`
-  margin-left: 1rem;
   font-size: 1.2em;
+  margin: 0 12px;
+  min-width: 250px;
+  display: flex;
+  justify-content: center;
   color: ${Colors.darkText};
-`;
-
-const DateNav = styled.div`
-  width: 3.5rem;
 `;
 
 const CalendarContainer = styled.div`
@@ -58,13 +60,27 @@ const FilterSwitch = styled(ButtonGroup)`
   margin-top: 0.5rem;
 `;
 
+const NavigationButton = styled(IconButton)`
+  color: ${Colors.darkText};
+  padding: 4px;
+`;
+
+const TodayButton = styled(Button)`
+  margin-right: 12px;
+  & span {
+    text-decoration: underline;
+  }
+`;
+
 export const AppointmentsCalendar = () => {
   const api = useApi();
   const filters = [
     {
       name: 'location',
       text: 'Locations',
-      suggester: new Suggester(api, 'location'),
+      suggester: new Suggester(api, 'location', {
+        baseQueryParameters: { filterByFacility: true },
+      }),
     },
     {
       name: 'clinician',
@@ -84,8 +100,8 @@ export const AppointmentsCalendar = () => {
   useEffect(() => {
     (async () => {
       const { data } = await api.get('appointments', {
-        after: startOfDay(date).toISOString(),
-        before: endOfDay(date).toISOString(),
+        after: toDateTimeString(startOfDay(date)),
+        before: toDateTimeString(endOfDay(date)),
         all: true,
       });
       setAppointments(data);
@@ -141,28 +157,30 @@ export const AppointmentsCalendar = () => {
         <RightContainer>
           <TopBar>
             <DateHeader>
-              <DateNav>
-                <BackButton
-                  text={false}
-                  onClick={() => {
-                    setDate(add(date, { days: -1 }));
-                  }}
-                />
-                <ForwardButton
-                  onClick={() => {
-                    setDate(add(date, { days: 1 }));
-                  }}
-                />
-              </DateNav>
-              <Button
-                variant="contained"
+              <TodayButton
+                variant="text"
                 onClick={() => {
                   setDate(new Date());
                 }}
               >
                 Today
-              </Button>
+              </TodayButton>
+
+              <NavigationButton
+                onClick={() => {
+                  setDate(add(date, { days: -1 }));
+                }}
+              >
+                <ArrowBackIcon />
+              </NavigationButton>
               <DateDisplay>{format(date, 'EEEE dd MMMM yyyy')}</DateDisplay>
+              <NavigationButton
+                onClick={() => {
+                  setDate(add(date, { days: 1 }));
+                }}
+              >
+                <ArrowForwardIcon />
+              </NavigationButton>
             </DateHeader>
             <NewAppointmentButton onSuccess={updateCalendar} />
           </TopBar>

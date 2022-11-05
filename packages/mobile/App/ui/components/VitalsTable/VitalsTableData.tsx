@@ -2,22 +2,11 @@ import React, { ReactElement } from 'react';
 import { VitalsTableRowHeader } from './VitalsTableRowHeader';
 import { VitalsTableCell } from './VitalsTableCell';
 import { Row } from '../Table';
+import { formatStringDate } from '../../helpers/date';
+import { DateFormats } from '../../helpers/constants';
 
-export const vitalsColumns = (
-  patientData,
-): string[] => patientData.map(d => d.dateRecorded.toString());
-
-export const vitalRowFieldsToNames = {
-  weight: 'Weight (kg)',
-  height: 'Height (cm)',
-  sbp: 'sbp',
-  dbp: 'dbp',
-  heartRate: 'Heart Rate',
-  respiratoryRate: 'Respiratory Rate',
-  temperature: 'Temperature (ºC)',
-  spO2: 'SpO2 (%)',
-  avpu: 'AVPU',
-};
+export const vitalsColumns = (patientData): string[] =>
+  patientData.map(d => formatStringDate(d.dateRecorded, DateFormats.DATE_AND_TIME));
 
 export const vitalsRows: Row[] = [
   'weight',
@@ -32,10 +21,8 @@ export const vitalsRows: Row[] = [
 ].map(r => ({
   rowKey: 'label',
   rowTitle: r,
-  rowHeader: (): ReactElement => (
-    <VitalsTableRowHeader title={r} />
-  ),
+  rowHeader: (): ReactElement => <VitalsTableRowHeader title={r} />,
   cell: (cellData): ReactElement => (
-    <VitalsTableCell data={cellData} />
+    <VitalsTableCell rowKey={r} data={cellData} key={cellData.id} />
   ),
 }));

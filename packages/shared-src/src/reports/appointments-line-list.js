@@ -1,26 +1,34 @@
-import { addDays, endOfDay } from 'date-fns';
+import { addDays, endOfDay, startOfDay, parseISO } from 'date-fns';
+import { toDateTimeString, format } from 'shared/utils/dateTime';
 import { generateReportFromQueryData } from './utilities';
 
 const FIELDS = [
-  'First Name',
-  'Last Name',
-  'MRID',
+  'Patient ID',
+  'Patient first name',
+  'Patient last name',
   'DOB',
+  'Age',
   'Sex',
   'Village',
-  'Patient Type',
-  'Appointment Date',
-  'Appointment Time',
-  'Appointment Type',
-  'Appointment Status',
+  'Patient type',
+  {
+    title: 'Appointment date and time',
+    accessor: data => format(data.appointmentDateTime, 'dd/MM/yyyy hh:mm a'),
+  },
+  'Appointment type',
+  'Appointment status',
   'Clinician',
   'Location',
 ];
 
-const reportColumnTemplate = FIELDS.map(field => ({
-  title: field,
-  accessor: data => data[field],
-}));
+const reportColumnTemplate = FIELDS.map(field =>
+  typeof field === 'string'
+    ? {
+        title: field,
+        accessor: data => data[field],
+      }
+    : field,
+);
 
 const query = `
 with
@@ -33,17 +41,17 @@ with
 		group by patient_id
 	)
 select
-	p.first_name "First Name",
-	p.last_name "Last Name",
-	p.display_id "MRID",
-	to_char(p.date_of_birth, 'YYYY-MM-DD') "DOB",
+	p.display_id "Patient ID",
+	p.first_name "Patient first name",
+	p.last_name "Patient last name",
+	to_char(p.date_of_birth::date, 'DD/MM/YYYY') "DOB",
+	extract(year from age(p.date_of_birth::date)) "Age",
 	p.sex "Sex",
 	vil.name "Village",
-	bt.billing_type_name "Patient Type",
-	to_char(a.start_time, 'YYYY-MM-DD') "Appointment Date",
-	to_char(a.start_time, 'HH12' || CHR(58) || 'MI AM') "Appointment Time",
-	a."type" "Appointment Type",
-	a.status "Appointment Status",
+	bt.billing_type_name "Patient type",
+	a.start_time "appointmentDateTime",
+	a."type" "Appointment type",
+	a.status "Appointment status",
 	u.display_name "Clinician",
 	l.name "Location"
 from appointments a
@@ -65,9 +73,13 @@ const getData = async (sequelize, parameters) => {
 
   // Only default if both date parameters are blank
   let { fromDate, toDate } = parameters;
+
   if (!fromDate && !toDate) {
-    fromDate = new Date();
-    toDate = endOfDay(addDays(new Date(), 30));
+    fromDate = toDateTimeString(startOfDay(new Date()));
+    toDate = toDateTimeString(endOfDay(addDays(new Date(), 30)));
+  } else {
+    fromDate = fromDate && toDateTimeString(startOfDay(parseISO(fromDate)));
+    toDate = toDate && toDateTimeString(endOfDay(parseISO(toDate)));
   }
 
   return sequelize.query(query, {

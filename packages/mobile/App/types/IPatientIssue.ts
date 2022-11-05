@@ -3,7 +3,7 @@ import { IPatient } from './IPatient';
 export interface IPatientIssue {
   id: string;
   note?: string;
-  recordedDate: Date;
+  recordedDate: string;
   type: PatientIssueType;
   patient?: Partial<IPatient>;
   patientId: string;
