@@ -339,6 +339,7 @@ const rootLocalisationSchema = yup
         enableCovidClearanceCertificate: yup.boolean().required(),
         enableDischargeDisposition: yup.boolean().default(true),
         editDisplayId: yup.boolean().required(),
+        locationHierarchy: yup.boolean().required(),
       })
       .required()
       .noUnknown(),
