@@ -55,7 +55,7 @@ process.on('SIGINT', function () {
   process.exit();
 });
 
-process.once('SIGTERM', function () {
+process.on('SIGTERM', function () {
   console.log(chalk.red('stopping.'));
   process.exit();
 });

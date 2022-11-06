@@ -1,10 +1,10 @@
 /* eslint-disable import/no-unresolved, import/extensions */
 
-import { subDays, isBefore, startOfDay, endOfDay, parseISO } from 'date-fns';
+import { subDays, format } from 'date-fns';
 import { groupBy } from 'lodash';
+import moment from 'moment';
 import { Op } from 'sequelize';
-
-import { ageInYears, format, toDateTimeString } from '../../../utils/dateTime';
+import { getAgeFromDate } from '../../../utils/date';
 import { generateReportFromQueryData } from '../../utilities';
 import { transformAnswers } from '../../utilities/transformAnswers';
 
@@ -27,7 +27,7 @@ const reportColumnTemplate = [
   {
     title: 'Age',
     accessor: data => {
-      return data.patient.dateOfBirth ? ageInYears(data.patient.dateOfBirth) : '';
+      return data.patient.dateOfBirth ? getAgeFromDate(data.patient.dateOfBirth) : '';
     },
   },
   { title: 'Sex', accessor: data => data.patient.sex },
@@ -76,6 +76,11 @@ const WILLIAM_HOROTO_IDS = [
 ];
 
 const parametersToSurveyResponseSqlWhere = (parameters, surveyId) => {
+  if (!parameters.fromDate) {
+    // eslint-disable-next-line no-param-reassign
+    parameters.fromDate = subDays(new Date(), 30).toISOString();
+  }
+
   const defaultWhereClause = {
     surveyId,
     '$encounter->patient.id$': {
@@ -87,19 +92,8 @@ const parametersToSurveyResponseSqlWhere = (parameters, surveyId) => {
     return defaultWhereClause;
   }
 
-  const newParameters = {
-    ...parameters,
-    fromDate: toDateTimeString(
-      startOfDay(parameters.fromDate ? parseISO(parameters.fromDate) : subDays(new Date(), 30)),
-    ),
-  };
-
-  if (newParameters.toDate) {
-    newParameters.toDate = toDateTimeString(endOfDay(parseISO(newParameters.toDate)));
-  }
-
   /* eslint-disable no-param-reassign */
-  const whereClause = Object.entries(newParameters)
+  const whereClause = Object.entries(parameters)
     .filter(([, val]) => val)
     .reduce((where, [key, value]) => {
       switch (key) {
@@ -187,10 +181,10 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
       // only take the latest initial survey response
       const surveyResponse = patientSurveyResponses[0];
       // only select follow up surveys after the current initial survey
-      const followUpSurveyResponseFromDate = startOfDay(parseISO(surveyResponse.endTime));
+      const followUpSurveyResponseFromDate = moment(surveyResponse.endTime).startOf('day');
       const followUpSurvey = followUpSurveyResponsesByPatient[patientId]?.find(
         followUpSurveyResponse =>
-          !isBefore(parseISO(followUpSurveyResponse.endTime), followUpSurveyResponseFromDate),
+          !moment(followUpSurveyResponse.endTime).isBefore(followUpSurveyResponseFromDate),
       );
       async function transform() {
         const resultResponse = surveyResponse;
@@ -203,7 +197,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
           }),
           initialSurveyComponents,
           {
-            dateFormat: 'yyyy/MM/dd',
+            dateFormat: 'YYYY/MM/DD',
           },
         );
         if (followUpSurvey) {
@@ -216,7 +210,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
             }),
             followUpSurveyComponents,
             {
-              dateFormat: 'yyyy/MM/dd',
+              dateFormat: 'YYYY/MM/DD',
             },
           );
         }

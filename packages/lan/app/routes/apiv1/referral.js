@@ -18,7 +18,7 @@ referral.post(
     const updatedBody = {
       locationId: body.locationId || (await getDefaultId('location')),
       departmentId: body.departmentId || (await getDefaultId('department')),
-      userId: req.user.id,
+      examinerId: req.user.id,
       ...body,
     };
 

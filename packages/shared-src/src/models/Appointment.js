@@ -1,15 +1,17 @@
 import { Sequelize } from 'sequelize';
 import { APPOINTMENT_TYPES, APPOINTMENT_STATUSES } from 'shared/constants';
 import { Model } from './Model';
-import { dateTimeType } from './dateTimeTypes';
 
 export class Appointment extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
         id: primaryKey,
-        startTime: dateTimeType('startTime', { allowNull: false }),
-        endTime: dateTimeType('endTime'),
+        startTime: {
+          type: Sequelize.DATE,
+          allowNull: false,
+        },
+        endTime: Sequelize.DATE,
         type: {
           type: Sequelize.STRING,
           allowNull: false,

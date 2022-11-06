@@ -4,6 +4,7 @@
     "name": "tamanu-lan",
     "username": "tamanu-lan",
     "password": "tamanu-lan",
+    "sqlitePath": null,
     "migrateOnStartup": true
   },
   "sync": {

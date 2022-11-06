@@ -3,13 +3,10 @@ import * as yup from 'yup';
 import { push } from 'connected-react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { Box } from '@material-ui/core';
-import { getCurrentDateTimeString } from 'shared-src/src/utils/dateTime';
 import { foreignKey } from '../utils/validation';
 import {
   Form,
   Field,
-  LocalisedField,
-  SuggesterSelectField,
   DateTimeField,
   AutocompleteField,
   TextField,
@@ -20,6 +17,7 @@ import { FormGrid } from '../components/FormGrid';
 import { ModalActionRow } from '../components/ModalActionRow';
 import { NestedVitalsModal } from '../components/NestedVitalsModal';
 import { useApi, useSuggester } from '../api';
+import { encounterOptions } from '../constants';
 import { useLocalisation } from '../contexts/Localisation';
 
 const InfoPopupLabel = React.memo(() => (
@@ -36,9 +34,7 @@ export const TriageForm = ({ onCancel, editedObject }) => {
   const patient = useSelector(state => state.patient);
   const { getLocalisation } = useLocalisation();
   const triageCategories = getLocalisation('triageCategories');
-  const locationSuggester = useSuggester('location', {
-    baseQueryParameters: { filterByFacility: true },
-  });
+  const locationSuggester = useSuggester('location');
   const practitionerSuggester = useSuggester('practitioner');
   const triageReasonSuggester = useSuggester('triageReason');
 
@@ -50,14 +46,13 @@ export const TriageForm = ({ onCancel, editedObject }) => {
           label="Arrival date & time"
           component={DateTimeField}
           helperText="If different from triage time"
-          saveDateAsString
         />
         <Field
           name="triageTime"
           label="Triage date & time"
           required
           component={DateTimeField}
-          saveDateAsString
+          options={encounterOptions}
         />
         <Field
           name="locationId"
@@ -65,11 +60,6 @@ export const TriageForm = ({ onCancel, editedObject }) => {
           required
           component={AutocompleteField}
           suggester={locationSuggester}
-        />
-        <LocalisedField
-          name="arrivalModeId"
-          component={SuggesterSelectField}
-          endpoint="arrivalMode"
         />
         <Field
           name="score"
@@ -158,7 +148,6 @@ export const TriageForm = ({ onCancel, editedObject }) => {
 
     await api.post('triage', {
       ...updatedValues,
-      startDate: getCurrentDateTimeString(),
       patientId: patient.id,
     });
     dispatch(push('/patients/emergency'));
@@ -169,7 +158,7 @@ export const TriageForm = ({ onCancel, editedObject }) => {
       onSubmit={onSubmit}
       render={renderForm}
       initialValues={{
-        triageTime: getCurrentDateTimeString(),
+        triageTime: new Date(),
         ...editedObject,
       }}
       validationSchema={yup.object().shape({

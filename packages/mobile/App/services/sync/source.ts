@@ -5,11 +5,10 @@ import { IUser } from '~/types';
 import {
   AuthenticationError,
   OutdatedVersionError,
-  RemoteError,
   invalidUserCredentialsMessage,
   invalidTokenMessage,
   generalErrorMessage,
-} from '~/services/error';
+} from '~/services/auth/error';
 import { version } from '/root/package.json';
 
 import { callWithBackoff, callWithBackoffOptions } from './callWithBackoff';
@@ -144,38 +143,38 @@ export class WebSyncSource implements SyncSource {
       'X-Version': version,
       ...extraHeaders,
     };
-    return callWithBackoff(async () => {
-      const response = await fetchWithTimeout(url, {
+    const response = await callWithBackoff(
+      () => fetchWithTimeout(url, {
         ...config,
         headers,
-      });
+      }),
+      backoff,
+    );
 
-      if (response.status === 401) {
-        throw new AuthenticationError(path.includes('/login') ? invalidTokenMessage : invalidUserCredentialsMessage);
+    if (response.status === 401) {
+      throw new AuthenticationError(path.includes('/login') ? invalidTokenMessage : invalidUserCredentialsMessage);
+    }
+
+    if (response.status === 400) {
+      const { error } = await getResponseJsonSafely(response);
+      if (error?.name === 'InvalidClientVersion') {
+        throw new OutdatedVersionError(error.updateUrl);
       }
+    }
 
-      if (response.status === 400) {
-        const { error } = await getResponseJsonSafely(response);
-        if (error?.name === 'InvalidClientVersion') {
-          throw new OutdatedVersionError(error.updateUrl);
-        }
-      }
+    if (response.status === 422) {
+      const { error } = await getResponseJsonSafely(response);
+      throw new Error(error.message);
+    }
 
-      if (response.status === 422) {
-        const { error } = await getResponseJsonSafely(response);
-        throw new RemoteError(error?.message, error, response.status);
-      }
+    if (!response.ok) {
+      // User will be shown a generic error message;
+      // log it out here to help with debugging
+      console.error("Response had non-OK value", { url, response });
+      throw new Error(generalErrorMessage);
+    }
 
-      if (!response.ok) {
-        const { error } = await getResponseJsonSafely(response);
-        // User will be shown a generic error message;
-        // log it out here to help with debugging
-        console.error("Response had non-OK value", { url, response });
-        throw new RemoteError(generalErrorMessage, error, response.status);
-      }
-
-      return response.json();
-    }, backoff);
+    return response.json();
   }
 
   async get(path: string, query: Record<string, string>) {

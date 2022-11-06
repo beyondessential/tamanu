@@ -1,17 +1,14 @@
 branch-defaults:
   default:
-    environment: tamanu-facility-server-dev-16a
+    environment: tamanu-lan-server-dev
 environment-defaults:
-  tamanu-facility-server-dev-16a:
-    branch: null
-    repository: null
-  tamanu-facility-server-dev-16b:
+  tamanu-lan-server-dev:
     branch: null
     repository: null
 global:
   application_name: tamanu-lan-server
   default_ec2_keyname: tamanu-eb-key-pair
-  default_platform: Node.js 16 running on 64bit Amazon Linux 2
+  default_platform: Node.js 12 running on 64bit Amazon Linux 2
   default_region: ap-southeast-2
   include_git_submodules: true
   instance_profile: null

@@ -26,7 +26,7 @@ export class AdministeredVaccine extends BaseModel implements IAdministeredVacci
   consent: boolean;
 
   @Column()
-  date: string;
+  date: Date;
 
   @Column({ nullable: true })
   givenBy?: string;

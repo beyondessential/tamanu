@@ -7,7 +7,6 @@ import {
 import { DevSettings } from 'react-native';
 import { MODELS_ARRAY, MODELS_MAP } from '~/models/modelsMap';
 import { clear } from '~/services/config';
-import { migrationList } from '~/migrations';
 
 const LOG_LEVELS = __DEV__ ? [
   'error' as const,
@@ -22,7 +21,6 @@ const CONNECTION_CONFIG = {
   logging: LOG_LEVELS,
   synchronize: false,
   entities: MODELS_ARRAY,
-  migrations: migrationList,
 } as const;
 
 const TEST_CONNECTION_CONFIG = {
@@ -51,7 +49,7 @@ class DatabaseHelper {
 
   async forceSync(): Promise<any> {
     try {
-      console.log("Updating database schema");
+      console.log("Synchronising database schema to model definitions");
       if (this.syncError) {
         console.log("Last seen error from schema sync was:", this.syncError);
       }
@@ -62,22 +60,8 @@ class DatabaseHelper {
       // pointed to the table being altered, the query will fail)
       await this.client.query(`PRAGMA foreign_keys = OFF;`);
 
-      // TODO: Remove this once all supported deployments are >= v1.21.0
-      // Get the list of tables named 'migrations' and tables named 'patient'
-      const migrationsTable = await this.client.query("SELECT * FROM sqlite_master WHERE type='table' AND name='migrations';");
-      const patientTable = await this.client.query("SELECT * FROM sqlite_master WHERE type='table' AND name='patient';");
-
-      if (!migrationsTable.length && patientTable.length) {
-        // If this device has already been running an earlier version of Tamanu
-        // (i.e. the patients table exists)
-        // but we've never run migrations on this device
-        // (i.e. the migrations table does not exist
-        // attempt a synchronize
-        console.log("No migrations table found, running final sync from models");
-        await this.client.synchronize();
-      }
-      await this.client.runMigrations();
-      console.log("Migrations run: OK");
+      await this.client.synchronize();
+      console.log("Synchronising database schema: OK");
       this.syncError = null;
     } catch(e) {
       this.syncError = e;

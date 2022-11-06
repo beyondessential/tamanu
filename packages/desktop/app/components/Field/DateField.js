@@ -1,8 +1,8 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { isAfter, parse } from 'date-fns';
-import { toDateString, toDateTimeString, format as formatDate } from 'shared/utils/dateTime';
+import moment from 'moment';
 import PropTypes from 'prop-types';
 import { TextInput } from './TextField';
+import { toDateTimeString } from '../../utils/dateTime';
 
 // This component is pretty tricky! It has to keep track of two layers of state:
 //
@@ -21,15 +21,20 @@ import { TextInput } from './TextField';
 // has some unusual input handling (switching focus between day/month/year etc) that
 // a value change will interfere with.
 
+function toMomentDate(date, format) {
+  return moment(date, format);
+}
+
 function fromRFC3339(rfc3339Date, format) {
   if (!rfc3339Date) return '';
-  return formatDate(rfc3339Date, format);
+
+  return moment(rfc3339Date).format(format);
 }
 
 export const DateInput = ({
   type = 'date',
   value,
-  format = 'yyyy-MM-dd',
+  format = 'YYYY-MM-DD',
   onChange,
   name,
   placeholder,
@@ -42,23 +47,18 @@ export const DateInput = ({
   const onValueChange = useCallback(
     event => {
       const formattedValue = event.target.value;
-      const date = parse(formattedValue, format, new Date());
+      const date = toMomentDate(formattedValue, format);
 
       if (max) {
-        const maxDate = parse(max, format, new Date());
-        if (isAfter(date, maxDate)) {
+        const maxDate = toMomentDate(max, format);
+        if (date.isAfter(maxDate)) {
           onChange({ target: { value: '', name } });
           return;
         }
       }
 
-      let outputValue;
-      if (saveDateAsString) {
-        if (type === 'date') outputValue = toDateString(date);
-        else if (['time', 'datetime-local'].includes(type)) outputValue = toDateTimeString(date);
-      } else {
-        outputValue = date.toISOString();
-      }
+      const outputValue = saveDateAsString ? toDateTimeString(date) : date.toISOString();
+
       setCurrentText(formattedValue);
       if (outputValue === 'Invalid date') {
         onChange({ target: { value: '', name } });
@@ -67,7 +67,7 @@ export const DateInput = ({
 
       onChange({ target: { value: outputValue, name } });
     },
-    [onChange, format, name, max, saveDateAsString, type],
+    [onChange, format, name, max, saveDateAsString],
   );
 
   useEffect(() => {
@@ -95,7 +95,7 @@ export const DateInput = ({
 export const TimeInput = props => <DateInput type="time" format="HH:mm" {...props} />;
 
 export const DateTimeInput = props => (
-  <DateInput type="datetime-local" format="yyyy-MM-dd'T'HH:mm" max="9999-12-31T00:00" {...props} />
+  <DateInput type="datetime-local" format="YYYY-MM-DDTHH:mm" max="9999-12-31T00:00" {...props} />
 );
 
 export const DateField = ({ field, ...props }) => (
@@ -112,7 +112,11 @@ export const DateTimeField = ({ field, ...props }) => (
 
 DateInput.propTypes = {
   name: PropTypes.string,
-  value: PropTypes.oneOfType([PropTypes.string, PropTypes.instanceOf(Date)]),
+  value: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.instanceOf(moment),
+    PropTypes.instanceOf(Date),
+  ]),
   onChange: PropTypes.func,
   fullWidth: PropTypes.bool,
   format: PropTypes.string,
@@ -123,5 +127,5 @@ DateInput.defaultProps = {
   onChange: () => null,
   value: '',
   fullWidth: true,
-  format: 'yyyy-MM-dd',
+  format: 'YYYY-MM-DD',
 };

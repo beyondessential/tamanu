@@ -37,10 +37,7 @@ export const AdditionalInfo = ({ patient, onEdit }: AdditionalInfoProps): ReactE
       (async (): Promise<void> => {
         const { models } = backend;
         try {
-          const record = await models.PatientAdditionalData.find({
-            where: { patient: { id: patient.id } },
-          });
-          const result = record && record[0];
+          const result = await models.PatientAdditionalData.getForPatient(patient.id);
           if (!mounted) {
             return;
           }

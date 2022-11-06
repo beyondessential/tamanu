@@ -28,7 +28,7 @@ export const serve = async ({ skipMigrationCheck }) => {
   });
 
   for (const sig of ['SIGINT', 'SIGTERM']) {
-    process.once(sig, () => {
+    process.on(sig, () => {
       log.info(`Received ${sig}, closing HTTP server`);
       server.close();
     });

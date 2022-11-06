@@ -6,7 +6,6 @@ import { KeyboardAvoidingView, StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import * as Yup from 'yup';
 import { FullView } from '/styled/common';
-import { formatISO9075, parseISO } from 'date-fns';
 import { NameSection } from './NameSection';
 import { KeyInformationSection } from './KeyInformationSection';
 import { LocationDetailsSection } from './LocationDetailsSection';
@@ -48,7 +47,7 @@ const getInitialValues = (isEdit: boolean, patient): {} => {
     middleName,
     lastName,
     culturalName,
-    dateOfBirth: parseISO(dateOfBirth),
+    dateOfBirth: new Date(dateOfBirth),
     email,
     sex,
     villageId,
@@ -59,10 +58,8 @@ export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): 
   const navigation = useNavigation();
   const onCreateNewPatient = useCallback(async values => {
     // submit form to server for new patient
-    const { dateOfBirth, ...otherValues } = values;
     const newPatient = await Patient.createAndSaveOne({
-      ...otherValues,
-      dateOfBirth: formatISO9075(dateOfBirth),
+      ...values,
       displayId: generateId(),
       markedForSync: true,
       markedForUpload: true,
@@ -79,14 +76,7 @@ export const FormComponent = ({ selectedPatient, setSelectedPatient, isEdit }): 
     async values => {
       // Update patient values (helper function uses .save()
       // so it will mark the record for upload).
-      const { dateOfBirth, ...otherValues } = values;
-      await Patient.updateValues(
-        selectedPatient.id,
-        {
-          dateOfBirth: formatISO9075(dateOfBirth),
-          ...otherValues,
-        },
-      );
+      await Patient.updateValues(selectedPatient.id, values);
 
       // Loading the instance is necessary to get all of the fields
       // from the relations that were updated, not just their IDs.

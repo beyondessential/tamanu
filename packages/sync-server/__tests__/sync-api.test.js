@@ -1,4 +1,5 @@
 import { subDays, format } from 'date-fns';
+import { v4 as uuidv4 } from 'uuid';
 
 import {
   buildNestedEncounter,
@@ -11,7 +12,6 @@ import {
   fakeSurveyResponse,
   fakeSurveyResponseAnswer,
 } from 'shared/test-helpers';
-import { fakeUUID } from 'shared/utils/generateId';
 
 import { convertFromDbRecord, convertToDbRecord } from 'sync-server/app/convertDbRecord';
 import { createTestContext } from './utilities';
@@ -252,8 +252,8 @@ describe('Sync API', () => {
       expect(result).toHaveSucceeded();
 
       const { body } = result;
-      const firstRecord = body.records[0].data;
-      expect(firstRecord).toHaveProperty('id', secondOldestPatient.data.id);
+      const firstRecord = body.records[0];
+      expect(firstRecord).toHaveProperty('id', secondOldestPatient.id);
     });
 
     it('should split updatedAt conflicts using id', async () => {
@@ -310,13 +310,13 @@ describe('Sync API', () => {
     });
 
     describe('Filters sensitive SurveyResponseAnswers', () => {
-      const patientId = fakeUUID();
+      const patientId = uuidv4();
       let encounterData;
       let sensitiveSurveyResponseAnswer;
 
       beforeAll(async () => {
-        await ctx.store.models.Encounter.truncate({ cascade: true, force: true });
-        encounterData = await buildNestedEncounter(ctx.store.models, patientId);
+        await ctx.store.models.Encounter.destroy({ where: {}, force: true });
+        encounterData = await buildNestedEncounter(ctx.store, patientId);
 
         // Get already created non sensitive survey to grab the programId
         const nonSensitiveSurveyId = encounterData.surveyResponses[0].surveyId;
@@ -391,7 +391,7 @@ describe('Sync API', () => {
       let records = null;
 
       beforeAll(async () => {
-        await ctx.store.models.Patient.truncate({ cascade: true, force: true });
+        await ctx.store.models.Patient.destroy({ where: {}, force: true });
 
         // instantiate 20 records
         records = new Array(TOTAL_RECORDS)
@@ -463,7 +463,7 @@ describe('Sync API', () => {
       });
     });
 
-    const patientId = fakeUUID();
+    const patientId = uuidv4();
     [
       `/v1/sync/patient%2F${patientId}%2Fencounter?since=0`,
       `/v1/sync/labRequest%2Fall%2Fencounter?since=0`,
@@ -471,8 +471,8 @@ describe('Sync API', () => {
       describe(`from the url ${url}`, () => {
         it('should return nested encounter relationships', async () => {
           // arrange
-          await ctx.store.models.Encounter.truncate({ cascade: true, force: true });
-          const encounter = await buildNestedEncounter(ctx.store.models, patientId);
+          await ctx.store.models.Encounter.destroy({ where: {}, force: true });
+          const encounter = await buildNestedEncounter(ctx.store, patientId);
           await ctx.store.models.Encounter.create(encounter);
           await upsertAssociations(ctx.store.models.Encounter, encounter);
 
@@ -532,7 +532,7 @@ describe('Sync API', () => {
 
   describe('Writes', () => {
     beforeAll(async () => {
-      await ctx.store.models.Patient.truncate({ cascade: true, force: true });
+      await ctx.store.models.Patient.destroy({ where: {}, force: true });
     });
 
     it('should add a record to a channel', async () => {
@@ -586,7 +586,7 @@ describe('Sync API', () => {
       expect(data).toEqual(comparisonData);
     });
 
-    const patientId = fakeUUID();
+    const patientId = uuidv4();
     [
       `/v1/sync/patient%2F${patientId}%2Fencounter?since=0`,
       `/v1/sync/labRequest%2Fall%2Fencounter?since=0`,
@@ -594,8 +594,8 @@ describe('Sync API', () => {
       describe(`from the url ${url}`, () => {
         it('should upsert nested encounter relationships', async () => {
           // arrange
-          await ctx.store.models.Encounter.truncate({ cascade: true, force: true });
-          const encounterToInsert = await buildNestedEncounter(ctx.store.models, patientId);
+          await ctx.store.models.Encounter.destroy({ where: {}, force: true });
+          const encounterToInsert = await buildNestedEncounter(ctx.store, patientId);
           await ctx.store.models.Encounter.create(encounterToInsert);
           await upsertAssociations(ctx.store.models.Encounter, encounterToInsert);
 
@@ -649,7 +649,7 @@ describe('Sync API', () => {
 
   describe('Deletes', () => {
     beforeEach(async () => {
-      await ctx.store.models.Patient.truncate({ cascade: true, force: true });
+      await ctx.store.models.Patient.destroy({ where: {}, force: true });
     });
 
     describe('on success', () => {
@@ -718,7 +718,7 @@ describe('Sync API', () => {
 
     describe('on failure', () => {
       it('returns a 404 if the record was missing', async () => {
-        const result = await app.delete(`/v1/sync/patient/${fakeUUID()}`);
+        const result = await app.delete(`/v1/sync/patient/${uuidv4()}`);
         expect(result).toHaveRequestError(404);
       });
 

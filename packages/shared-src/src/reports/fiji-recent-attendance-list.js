@@ -1,7 +1,7 @@
 import { Op } from 'sequelize';
-import { startOfDay, endOfDay, parseISO } from 'date-fns';
+import moment from 'moment';
 import { DIAGNOSIS_CERTAINTY } from 'shared/constants';
-import { toDateTimeString, ageInYears, format } from 'shared/utils/dateTime';
+import { getAgeFromDate } from 'shared/utils/date';
 import { generateReportFromQueryData } from './utilities';
 
 const FIELD_TO_TITLE = {
@@ -29,15 +29,8 @@ const reportColumnTemplate = Object.entries(FIELD_TO_TITLE).map(([key, title]) =
   accessor: data => data[key],
 }));
 
-const parametersToEncounterSqlWhere = parameters => {
-  const newParameters = { ...parameters };
-  if (parameters.fromDate) {
-    newParameters.fromDate = toDateTimeString(startOfDay(parseISO(parameters.fromDate)));
-  }
-  if (parameters.toDate) {
-    newParameters.toDate = toDateTimeString(endOfDay(parseISO(parameters.toDate)));
-  }
-  return Object.entries(newParameters)
+const parametersToEncounterSqlWhere = parameters =>
+  Object.entries(parameters)
     .filter(([, val]) => val)
     .reduce((where, [key, value]) => {
       const newWhere = { ...where };
@@ -52,20 +45,19 @@ const parametersToEncounterSqlWhere = parameters => {
           if (!newWhere.startDate) {
             newWhere.startDate = {};
           }
-          newWhere.startDate[Op.gte] = value;
+          newWhere.startDate[Op.gte] = moment(value).startOf('day');
           break;
         case 'toDate':
           if (!newWhere.startDate) {
             newWhere.startDate = {};
           }
-          newWhere.startDate[Op.lte] = value;
+          newWhere.startDate[Op.lte] = moment(value).endOf('day');
           break;
         default:
           break;
       }
       return newWhere;
     }, {});
-};
 
 const getEncounters = async (models, parameters) => {
   const encounters = await models.Encounter.findAll({
@@ -147,7 +139,7 @@ const transformDataPoint = encounter => {
     firstName: patient.firstName,
     lastName: patient.lastName,
     displayId: patient.displayId,
-    age: ageInYears(patient.dateOfBirth),
+    age: getAgeFromDate(patient.dateOfBirth),
     sex: patient.sex,
     ethnicity: patientAdditionalData?.ethnicity?.name,
     contactPhone: patientAdditionalData?.primaryContactNumber,
@@ -155,7 +147,7 @@ const transformDataPoint = encounter => {
     medicalArea: patientAdditionalData?.medicalArea?.name,
     nursingZone: patientAdditionalData?.nursingZone?.name,
     clinician: examiner?.displayName,
-    dateOfAttendance: format(encounter.startDate, 'dd-MM-yyyy'),
+    dateOfAttendance: moment(encounter.startDate).format('DD-MM-YYYY'),
     department: encounter.department?.name,
     location: encounter.location?.name,
     reasonForAttendance: encounter.reasonForEncounter,

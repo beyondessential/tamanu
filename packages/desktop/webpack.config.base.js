@@ -35,7 +35,7 @@ function filterDepWithoutEntryPoints(dep) {
 
 export default {
   externals: [
-    ...['pg', 'pg-hstore'], // sequelize backend
+    ...['pg', 'sqlite3', 'tedious', 'pg-hstore'], // sequelize backends
     ...Object.keys(externals || {}),
     ...Object.keys(possibleExternals || {}).filter(filterDepWithoutEntryPoints),
   ],

@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import moment from 'moment';
 import Box from '@material-ui/core/Box';
 import { LargeButton, LargeOutlineButton } from '../Button';
 import { Form } from '../Field';
@@ -35,7 +36,17 @@ export const CustomisableSearchBar = ({
   <Container>
     <SectionLabel>{title}</SectionLabel>
     <Form
-      onSubmit={onSearch}
+      onSubmit={values => {
+        // if filtering by date of birth exact, send the formatted date
+        // to the server instead of the date object
+        const dateOfBirthExact = values.dateOfBirthExact
+          ? moment(values.dateOfBirthExact)
+              .utc()
+              .format('YYYY-MM-DD')
+          : undefined;
+
+        onSearch({ ...values, dateOfBirthExact });
+      }}
       render={({ submitForm, clearForm }) => (
         <>
           <SearchInputContainer>{children}</SearchInputContainer>

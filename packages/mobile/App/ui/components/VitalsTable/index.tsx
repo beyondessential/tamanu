@@ -4,8 +4,7 @@ import { Table } from '../Table';
 import { vitalsRows, vitalsColumns } from './VitalsTableData';
 import { vitalsTableHeader } from './VitalsTableHeader';
 import { VitalsTableTitle } from './VitalsTableTitle';
-import { formatStringDate } from '../../helpers/date';
-import { DateFormats } from '../../helpers/constants';
+
 interface VitalsTableProps {
   patientData: PatientVitalsProps[];
 }
@@ -15,10 +14,9 @@ export const VitalsTable = memo(
     const columns = useCallback(() => vitalsColumns(patientData), [patientData])();
     const cells = {};
     patientData.forEach(vitals => {
-      const recordedDateString = formatStringDate(vitals.dateRecorded, DateFormats.DATE_AND_TIME);
-      cells[recordedDateString] = [];
+      cells[vitals.dateRecorded.toString()] = [];
       Object.entries(vitals).forEach(([key, value]) => {
-        cells[recordedDateString].push({
+        cells[vitals.dateRecorded.toString()].push({
           label: key,
           value,
         });

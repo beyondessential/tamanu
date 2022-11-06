@@ -1,33 +1,57 @@
-import React, { useCallback, useState, useEffect, useMemo } from 'react';
 import { keyBy } from 'lodash';
-import { format } from 'date-fns';
-import { Typography, Box } from '@material-ui/core';
-import { Alert, AlertTitle } from '@material-ui/lab';
+import { Grid, Typography } from '@material-ui/core';
+import { red } from '@material-ui/core/colors';
+import React, { useCallback, useState, useEffect } from 'react';
+import { connect } from 'react-redux';
 import styled from 'styled-components';
 import * as Yup from 'yup';
-import {
-  REPORT_DATA_SOURCES,
-  REPORT_DATA_SOURCE_VALUES,
-  REPORT_EXPORT_FORMATS,
-} from 'shared/constants';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { useApi } from '../../api';
-import { useAuth } from '../../contexts/Auth';
+import { connectApi, useApi } from '../../api';
 import {
   AutocompleteField,
-  FormGrid,
+  Button,
   DateField,
   Field,
   Form,
   RadioField,
-  formatShort,
+  TextField,
+  SelectField,
+  MultiselectField,
 } from '../../components';
-import { DropdownButton } from '../../components/DropdownButton';
-import { Colors } from '../../constants';
+import { FormGrid } from '../../components/FormGrid';
+import { Colors, MUI_SPACING_UNIT, REPORT_DATA_SOURCES } from '../../constants';
+import { getCurrentUser } from '../../store/auth';
+
+import { VillageField } from './VillageField';
+import { LabTestLaboratoryField } from './LabTestLaboratoryField';
+import { PractitionerField } from './PractitionerField';
+import { DiagnosisField } from './DiagnosisField';
 import { saveExcelFile } from '../../utils/saveExcelFile';
-import { EmailField, parseEmails } from './EmailField';
-import { ParameterField } from './ParameterField';
-import { useLocalisation } from '../../contexts/Localisation';
+import { VaccineCategoryField } from './VaccineCategoryField';
+import { VaccineField } from './VaccineField';
+import { Suggester } from '../../utils/suggester';
+
+const EmptyField = styled.div``;
+
+const ParameterAutocompleteField = connectApi((api, _, props) => ({
+  suggester: new Suggester(api, props.suggesterEndpoint),
+}))(props => <Field component={AutocompleteField} suggester={props.suggester} {...props} />);
+
+const ParameterSelectField = props => <Field component={SelectField} {...props} />;
+const ParameterMultiselectField = props => <Field component={MultiselectField} {...props} />;
+
+const PARAMETER_FIELD_COMPONENTS = {
+  VillageField,
+  LabTestLaboratoryField,
+  PractitionerField,
+  DiagnosisField,
+  VaccineCategoryField,
+  VaccineField,
+  EmptyField,
+  ParameterAutocompleteField,
+  ParameterSelectField,
+  ParameterMultiselectField,
+};
 
 const Spacer = styled.div`
   padding-top: 30px;
@@ -36,18 +60,77 @@ const Spacer = styled.div`
 const DateRangeLabel = styled(Typography)`
   font-weight: 500;
   margin-bottom: 5px;
-  padding-top: 30px;
   color: ${Colors.darkText};
 `;
 
 const EmailInputContainer = styled.div`
-  margin-bottom: 30px;
   width: 60%;
 `;
 
-// adding an onValueChange hook to the report id field
-// so we can keep internal state of the report id
-const ReportIdField = ({ onValueChange, ...props }) => {
+function parseEmails(commaSeparatedEmails) {
+  return commaSeparatedEmails
+    .split(/[;,]/)
+    .map(address => address.trim())
+    .filter(email => email);
+}
+
+const emailSchema = Yup.string().email();
+
+async function validateCommaSeparatedEmails(emails) {
+  if (!emails) {
+    return 'At least 1 email address is required';
+  }
+  const emailList = parseEmails(emails);
+
+  if (emailList.length === 0) {
+    return `${emails} is invalid.`;
+  }
+
+  for (let i = 0; i < emailList.length; i++) {
+    const isEmailValid = await emailSchema.isValid(emailList[i]);
+    if (!isEmailValid) {
+      return `${emailList[i]} is invalid.`;
+    }
+  }
+
+  return '';
+}
+
+const buildParameterFieldValidation = ({ name, required }) => {
+  if (required) return Yup.mixed().required(`${name} is a required field`);
+
+  return Yup.mixed();
+};
+
+const ErrorMessageContainer = styled(Grid)`
+  padding: ${MUI_SPACING_UNIT * 2}px ${MUI_SPACING_UNIT * 3}px;
+  background-color: ${red[50]};
+  margin-top: 20px;
+`;
+
+const RequestErrorMessage = ({ errorMessage }) => (
+  <ErrorMessageContainer>
+    <Typography color="error">{`Error: ${errorMessage}`}</Typography>
+  </ErrorMessageContainer>
+);
+
+const getAvailableReports = async api => api.get('reports');
+
+const generateFacilityReport = async (api, reportType, parameters) =>
+  api.post(`reports/${reportType}`, {
+    parameters,
+  });
+
+const submitReportRequest = async (api, reportType, parameters, emails) =>
+  api.post('reportRequest', {
+    reportType,
+    parameters,
+    emailList: parseEmails(emails),
+  });
+
+// adding an onValueChange hook to the report type field
+// so we can keep internal state of the report type
+const ReportTypeField = ({ onValueChange, ...props }) => {
   const { field } = props;
   const changeCallback = useCallback(
     event => {
@@ -59,117 +142,78 @@ const ReportIdField = ({ onValueChange, ...props }) => {
   return <AutocompleteField {...props} onChange={changeCallback} />;
 };
 
-const buildParameterFieldValidation = ({ name, required }) => {
-  if (required) return Yup.mixed().required(`${name} is a required field`);
-
-  return Yup.mixed();
-};
-
-const useFileName = () => {
-  const { getLocalisation } = useLocalisation();
-  const country = getLocalisation('country');
-  const date = format(new Date(), 'ddMMyyyy');
-
-  return reportName => {
-    const dashedName = `${reportName}-${country.name}`
-      .trim()
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .toLowerCase();
-    return `tamanu-report-${date}-${dashedName}`;
-  };
-};
-
-export const ReportGeneratorForm = () => {
+const DumbReportGeneratorForm = ({ currentUser, onSuccessfulSubmit }) => {
   const api = useApi();
-  const getFileName = useFileName();
-  const { currentUser } = useAuth();
-  const [successMessage, setSuccessMessage] = useState(null);
-  const [requestError, setRequestError] = useState(null);
-  const [bookType, setBookFormat] = useState(REPORT_EXPORT_FORMATS.XLSX);
-  const [availableReports, setAvailableReports] = useState([]);
+  const [requestError, setRequestError] = useState();
+  const [parameters, setParameters] = useState([]);
   const [dataSource, setDataSource] = useState(REPORT_DATA_SOURCES.THIS_FACILITY);
-  const [selectedReportId, setSelectedReportId] = useState(null);
-
-  const reportsById = useMemo(() => keyBy(availableReports, 'id'), [availableReports]);
-  const reportOptions = useMemo(() => availableReports.map(r => ({ value: r.id, label: r.name })), [
-    availableReports,
-  ]);
-
-  const {
-    parameters = [],
-    dateRangeLabel = 'Date range',
-    dataSourceOptions = REPORT_DATA_SOURCE_VALUES,
-    filterDateRangeAsStrings = false,
-  } = reportsById[selectedReportId] || {};
-
-  const isDataSourceFieldDisabled = dataSourceOptions.length === 1;
-
-  useEffect(() => {
-    if (!dataSourceOptions.includes(dataSource)) {
-      setDataSource(dataSourceOptions[0]);
-    }
-  }, [dataSourceOptions, dataSource]);
+  const [isDataSourceFieldDisabled, setIsDataSourceFieldDisabled] = useState(false);
+  const [availableReports, setAvailableReports] = useState(null);
+  const [reportsById, setReportsById] = useState({});
+  const [reportOptions, setReportOptions] = useState([]);
 
   useEffect(() => {
     (async () => {
       try {
-        const reports = await api.get('reports');
+        const reports = await getAvailableReports(api);
+        setReportsById(keyBy(reports, 'id'));
+        setReportOptions(reports.map(r => ({ value: r.id, label: r.name })));
         setAvailableReports(reports);
       } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error(`Unable to load available reports`, error);
         setRequestError(`Unable to load available reports - ${error.message}`);
       }
     })();
   }, [api]);
 
-  const submitRequestReport = async formValues => {
-    const { reportId, emails, ...filterValues } = formValues;
-
-    try {
-      if (dataSource === REPORT_DATA_SOURCES.THIS_FACILITY) {
-        const excelData = await api.post(`reports/${reportId}`, {
-          parameters: filterValues,
-        });
-
-        const filterString = Object.entries(filterValues)
-          .map(([key, value]) => `${key}: ${value}`)
-          .join(', ');
-
-        const reportName = reportsById[reportId].name;
-
-        const date = formatShort(new Date());
-
-        const metadata = [
-          ['Report Name:', reportName],
-          ['Date Generated:', date],
-          ['User:', currentUser.email],
-          ['Filters:', filterString],
-        ];
-
-        const filePath = await saveExcelFile(
-          { data: excelData, metadata },
-          {
-            promptForFilePath: true,
-            defaultFileName: getFileName(reportName),
-            bookType,
-          },
-        );
-        if (filePath) {
-          setSuccessMessage(`Report successfully exported. File saved at: ${filePath}.`);
-        }
-      } else {
-        await api.post(`reportRequest`, {
-          reportId,
-          parameters: filterValues,
-          emailList: parseEmails(formValues.emails),
-          bookType,
-        });
-        setSuccessMessage('Report successfully requested. You will receive an email soon.');
+  const selectReportHandle = useCallback(
+    id => {
+      const reportDefinition = reportsById[id];
+      if (!reportDefinition) {
+        return;
       }
-    } catch (e) {
-      setRequestError(`Unable to submit report request - ${e.message}`);
-    }
-  };
+
+      setParameters(reportDefinition.parameters || []);
+      if (reportDefinition.allFacilities) {
+        setIsDataSourceFieldDisabled(true);
+        setDataSource(REPORT_DATA_SOURCES.ALL_FACILITIES);
+      } else {
+        setIsDataSourceFieldDisabled(false);
+        setDataSource(REPORT_DATA_SOURCES.THIS_FACILITY);
+      }
+    },
+    [reportsById],
+  );
+
+  const submitRequestReport = useCallback(
+    async formValues => {
+      const { reportType, emails, ...restValues } = formValues;
+      try {
+        if (dataSource === REPORT_DATA_SOURCES.THIS_FACILITY) {
+          const excelData = await generateFacilityReport(api, reportType, restValues);
+
+          const filePath = await saveExcelFile(excelData, {
+            promptForFilePath: true,
+            defaultFileName: reportType,
+          });
+          // eslint-disable-next-line no-console
+          console.log('file saved at ', filePath);
+        } else {
+          await submitReportRequest(api, reportType, restValues, formValues.emails);
+        }
+
+        if (onSuccessfulSubmit) {
+          onSuccessfulSubmit();
+        }
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error('Unable to submit report request', e);
+        setRequestError(`Unable to submit report request - ${e.message}`);
+      }
+    },
+    [api, dataSource, onSuccessfulSubmit],
+  );
 
   // Wait until available reports are loaded to render.
   // This is a workaround because of an issue that the onChange callback (when selecting a report)
@@ -181,13 +225,13 @@ export const ReportGeneratorForm = () => {
   return (
     <Form
       initialValues={{
-        reportId: '',
+        reportType: '',
         emails: currentUser.email,
         ...parameters.reduce((acc, { name }) => ({ ...acc, [name]: null }), {}),
       }}
       onSubmit={submitRequestReport}
       validationSchema={Yup.object().shape({
-        reportId: Yup.string().required('Report id is required'),
+        reportType: Yup.string().required('Report type is required'),
         ...parameters.reduce(
           (schema, field) => ({
             ...schema,
@@ -196,20 +240,20 @@ export const ReportGeneratorForm = () => {
           {},
         ),
       })}
-      render={({ values, submitForm }) => (
+      render={({ values }) => (
         <>
-          <FormGrid columns={2}>
+          <FormGrid columns={3}>
             <Field
-              name="reportId"
-              label="Report"
-              component={ReportIdField}
+              name="reportType"
+              label="Report type"
+              component={ReportTypeField}
               options={reportOptions}
               required
-              onValueChange={setSelectedReportId}
+              onValueChange={selectReportHandle}
             />
             <Field
               name="dataSource"
-              label=" "
+              label="For"
               value={dataSource}
               onChange={e => {
                 setDataSource(e.target.value);
@@ -227,14 +271,14 @@ export const ReportGeneratorForm = () => {
               <Spacer />
               <FormGrid columns={3}>
                 {parameters.map(({ parameterField, required, name, label, ...restOfProps }) => {
+                  const ParameterFieldComponent = PARAMETER_FIELD_COMPONENTS[parameterField];
                   return (
-                    <ParameterField
-                      key={name || parameterField}
+                    <ParameterFieldComponent
+                      key={name}
                       required={required}
                       name={name}
                       label={label}
                       parameterValues={values}
-                      parameterField={parameterField}
                       {...restOfProps}
                     />
                   );
@@ -242,70 +286,40 @@ export const ReportGeneratorForm = () => {
               </FormGrid>
             </>
           ) : null}
-          <DateRangeLabel variant="body1">{dateRangeLabel}</DateRangeLabel>
-          <FormGrid columns={2} style={{ marginBottom: 30 }}>
-            <Field
-              name="fromDate"
-              label="From date"
-              component={DateField}
-              saveDateAsString={filterDateRangeAsStrings}
-            />
-            <Field
-              name="toDate"
-              label="To date"
-              component={DateField}
-              saveDateAsString={filterDateRangeAsStrings}
-            />
+          <Spacer />
+          <DateRangeLabel variant="body1">
+            Date range (or leave blank for the past 30 days of data)
+          </DateRangeLabel>
+          <FormGrid columns={2}>
+            <Field name="fromDate" label="From date" component={DateField} />
+            <Field name="toDate" label="To date" component={DateField} />
           </FormGrid>
-          {dataSource === REPORT_DATA_SOURCES.ALL_FACILITIES && (
-            <EmailInputContainer>
-              <EmailField />
-            </EmailInputContainer>
-          )}
-          {requestError && (
-            <Alert
-              severity="error"
-              style={{ marginBottom: 20 }}
-              onClose={() => {
-                setRequestError(null);
-              }}
-            >{`Error: ${requestError}`}</Alert>
-          )}
-          {successMessage && (
-            <Alert
-              severity="success"
-              style={{ marginBottom: 20 }}
-              onClose={() => {
-                setSuccessMessage(null);
-              }}
-            >
-              <AlertTitle>Success</AlertTitle>
-              {successMessage}
-            </Alert>
-          )}
-          <Box display="flex" justifyContent="flex-end">
-            <DropdownButton
-              size="large"
-              actions={[
-                {
-                  label: 'Generate XLSX',
-                  onClick: event => {
-                    setBookFormat(REPORT_EXPORT_FORMATS.XLSX);
-                    submitForm(event);
-                  },
-                },
-                {
-                  label: 'Generate CSV',
-                  onClick: event => {
-                    setBookFormat(REPORT_EXPORT_FORMATS.CSV);
-                    submitForm(event);
-                  },
-                },
-              ]}
-            />
-          </Box>
+          <Spacer />
+          <EmailInputContainer>
+            {dataSource === REPORT_DATA_SOURCES.ALL_FACILITIES ? (
+              <Field
+                name="emails"
+                label="Email to (separate emails with a comma)"
+                component={TextField}
+                placeholder="example@example.com"
+                multiline
+                rows={3}
+                validate={validateCommaSeparatedEmails}
+                required={dataSource === REPORT_DATA_SOURCES.ALL_FACILITIES}
+              />
+            ) : null}
+          </EmailInputContainer>
+          {requestError && <RequestErrorMessage errorMessage={requestError} />}
+          <Spacer />
+          <Button variant="contained" color="primary" type="submit">
+            Generate
+          </Button>
         </>
       )}
     />
   );
 };
+
+export const ReportGeneratorForm = connect(state => ({
+  currentUser: getCurrentUser(state),
+}))(DumbReportGeneratorForm);

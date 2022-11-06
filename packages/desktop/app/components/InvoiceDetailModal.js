@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
+
 import { INVOICE_STATUS_TYPES } from 'shared/constants';
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+
 import { useApi } from '../api';
 import { getInvoiceTotal, calculateInvoiceTotal } from '../utils';
+
 import { Modal } from './Modal';
 import { InvoiceDetailForm } from '../forms/InvoiceDetailForm';
 
@@ -16,7 +18,7 @@ export const InvoiceDetailModal = ({ title, open, onClose, onUpdated, invoiceId 
     await api.put(`invoices/${invoiceId}`, {
       status: INVOICE_STATUS_TYPES.FINALISED,
       total,
-      date: getCurrentDateTimeString(),
+      date: new Date(),
     });
     onUpdated();
     onClose();

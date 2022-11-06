@@ -1,10 +1,9 @@
 import { Sequelize } from 'sequelize';
-import { endOfDay, isBefore, parseISO, startOfToday } from 'date-fns';
+import moment from 'moment';
 import config from 'config';
 
 import { ENCOUNTER_TYPES, ENCOUNTER_TYPE_VALUES, NOTE_TYPES } from 'shared/constants';
 import { InvalidOperationError } from 'shared/errors';
-import { dateTimeType } from './dateTimeTypes';
 
 import { initSyncForModelNestedUnderPatient } from './sync';
 import { Model } from './Model';
@@ -51,25 +50,21 @@ export class Encounter extends Model {
         'medications',
         'labRequests',
         'labRequests.tests',
-        'labRequests.notePages',
-        'labRequests.notePages.noteItems',
+        'labRequests.notes',
         'imagingRequests',
-        'imagingRequests.notePages',
-        'imagingRequests.notePages.noteItems',
+        'imagingRequests.notes',
         'procedures',
         'initiatedReferrals',
         'completedReferrals',
         'vitals',
         'discharge',
         'triages',
-        'triages.notePages',
-        'triages.notePages.noteItems',
+        'triages.notes',
         'invoice',
         'invoice.invoiceLineItems',
         'invoice.invoicePriceChangeItems',
         'documents',
-        'notePages',
-        'notePages.noteItems',
+        'notes',
       ],
       ...nestedSyncConfig,
       channelRoutes: [
@@ -148,10 +143,11 @@ export class Encounter extends Model {
       {
         id: primaryKey,
         encounterType: Sequelize.STRING(31),
-        startDate: dateTimeType('startDate', {
+        startDate: {
+          type: Sequelize.DATE,
           allowNull: false,
-        }),
-        endDate: dateTimeType('endDate'),
+        },
+        endDate: Sequelize.DATE,
         reasonForEncounter: Sequelize.TEXT,
         deviceId: Sequelize.TEXT,
       },
@@ -165,13 +161,13 @@ export class Encounter extends Model {
 
   static getFullReferenceAssociations() {
     return [
+      'vitals',
       'department',
       'examiner',
       {
         association: 'location',
         include: ['facility'],
       },
-      'referralSource',
     ];
   }
 
@@ -270,14 +266,9 @@ export class Encounter extends Model {
       as: 'patientBillingType',
     });
 
-    this.belongsTo(models.ReferenceData, {
-      foreignKey: 'referralSourceId',
-      as: 'referralSource',
-    });
-
-    this.hasMany(models.NotePage, {
+    this.hasMany(models.Note, {
       foreignKey: 'recordId',
-      as: 'notePages',
+      as: 'notes',
       constraints: false,
       scope: {
         recordType: this.name,
@@ -291,13 +282,15 @@ export class Encounter extends Model {
   static checkNeedsAutoDischarge({ encounterType, startDate, endDate }) {
     return (
       encounterType === ENCOUNTER_TYPES.CLINIC &&
-      isBefore(parseISO(startDate), startOfToday()) &&
+      moment(startDate).isBefore(new Date(), 'day') &&
       !endDate
     );
   }
 
   static getAutoDischargeEndDate({ startDate }) {
-    return endOfDay(parseISO(startDate));
+    return moment(startDate)
+      .endOf('day')
+      .toDate();
   }
 
   static sanitizeForSyncServer(values) {
@@ -308,12 +301,13 @@ export class Encounter extends Model {
     return values;
   }
 
-  async addSystemNote(content, date) {
-    const notePage = await this.createNotePage({
+  async addSystemNote(content) {
+    const note = await this.createNote({
       noteType: NOTE_TYPES.SYSTEM,
-      date,
+      content,
     });
-    await notePage.createNoteItem({ content, date });
+
+    return note;
   }
 
   async getLinkedTriage() {
@@ -325,17 +319,14 @@ export class Encounter extends Model {
     });
   }
 
-  async onDischarge(endDate, submittedTime, note) {
-    await this.addSystemNote(note || `Discharged patient.`, submittedTime);
+  async onDischarge(endDate, note) {
+    await this.addSystemNote(note || `Discharged patient.`);
     await this.closeTriage(endDate);
   }
 
-  async onEncounterProgression(newEncounterType, submittedTime) {
-    await this.addSystemNote(
-      `Changed type from ${this.encounterType} to ${newEncounterType}`,
-      submittedTime,
-    );
-    await this.closeTriage(submittedTime);
+  async onEncounterProgression(newEncounterType) {
+    await this.addSystemNote(`Changed type from ${this.encounterType} to ${newEncounterType}`);
+    await this.closeTriage(new Date());
   }
 
   async closeTriage(endDate) {
@@ -358,27 +349,12 @@ export class Encounter extends Model {
     await this.update({ endDate });
   }
 
-  async updateClinician(data) {
-    const { User } = this.sequelize.models;
-    const oldClinician = await User.findOne({ where: { id: this.examinerId } });
-    const newClinician = await User.findOne({ where: { id: data.examinerId } });
-
-    if (!newClinician) {
-      throw new InvalidOperationError('Invalid clinician specified');
-    }
-
-    await this.addSystemNote(
-      `Changed supervising clinician from ${oldClinician.displayName} to ${newClinician.displayName}`,
-      data.submittedTime,
-    );
-  }
-
   async update(data) {
     const { Department, Location } = this.sequelize.models;
 
     const updateEncounter = async () => {
       if (data.endDate && !this.endDate) {
-        await this.onDischarge(data.endDate, data.submittedTime, data.dischargeNote);
+        await this.onDischarge(data.endDate, data.dischargeNote);
       }
 
       if (data.patientId && data.patientId !== this.patientId) {
@@ -386,7 +362,7 @@ export class Encounter extends Model {
       }
 
       if (data.encounterType && data.encounterType !== this.encounterType) {
-        await this.onEncounterProgression(data.encounterType, data.submittedTime);
+        await this.onEncounterProgression(data.encounterType);
       }
 
       if (data.locationId && data.locationId !== this.locationId) {
@@ -397,7 +373,6 @@ export class Encounter extends Model {
         }
         await this.addSystemNote(
           `Changed location from ${oldLocation.name} to ${newLocation.name}`,
-          data.submittedTime,
         );
       }
 
@@ -409,16 +384,10 @@ export class Encounter extends Model {
         }
         await this.addSystemNote(
           `Changed department from ${oldDepartment.name} to ${newDepartment.name}`,
-          data.submittedTime,
         );
       }
 
-      if (data.examinerId && data.examinerId !== this.examinerId) {
-        await this.updateClinician(data);
-      }
-
-      const { submittedTime, ...encounterData } = data;
-      return super.update(encounterData);
+      return super.update(data);
     };
 
     if (this.sequelize.isInsideTransaction()) {

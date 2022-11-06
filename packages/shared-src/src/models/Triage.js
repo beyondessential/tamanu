@@ -1,20 +1,18 @@
-import config from 'config';
-import { Sequelize, Op } from 'sequelize';
-
 import { ENCOUNTER_TYPES } from 'shared/constants';
+import { Sequelize, Op } from 'sequelize';
 import { InvalidOperationError } from 'shared/errors';
-
 import { Model } from './Model';
-import { dateTimeType } from './dateTimeTypes';
 
 export class Triage extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
         id: primaryKey,
-        arrivalTime: dateTimeType('arrivalTime'),
-        triageTime: dateTimeType('triageTime'),
-        closedTime: dateTimeType('closedTime'),
+
+        arrivalTime: Sequelize.DATE,
+        triageTime: Sequelize.DATE,
+        closedTime: Sequelize.DATE,
+
         score: Sequelize.TEXT,
       },
       options,
@@ -39,14 +37,9 @@ export class Triage extends Model {
       foreignKey: 'secondaryComplaintId',
     });
 
-    this.belongsTo(models.ReferenceData, {
-      foreignKey: 'arrivalModeId',
-      as: 'arrivalMode',
-    });
-
-    this.hasMany(models.NotePage, {
+    this.hasMany(models.Note, {
       foreignKey: 'recordId',
-      as: 'notePages',
+      as: 'notes',
       constraints: false,
       scope: {
         recordType: this.name,
@@ -80,18 +73,12 @@ export class Triage extends Model {
       .join(' and ');
     const reasonForEncounter = `Presented at emergency department with ${reasonsText}`;
 
-    const department = await Department.findOne({
-      where: { name: 'Emergency', facilityId: config.serverFacilityId },
-    });
-
-    if (!data.departmentId && !department) {
-      throw new Error('Cannot find Emergency department for current facility');
-    }
+    const department = await Department.findOne({ where: { name: 'Emergency' } });
 
     return this.sequelize.transaction(async () => {
       const encounter = await Encounter.create({
         encounterType: ENCOUNTER_TYPES.TRIAGE,
-        startDate: data.triageTime,
+        startDate: data.triageTime || new Date(),
         reasonForEncounter,
         patientId: data.patientId,
         departmentId: data.departmentId || department.dataValues.id,

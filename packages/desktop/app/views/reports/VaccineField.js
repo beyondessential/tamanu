@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useApi } from '../../api';
 import { SelectField, Field, Dialog } from '../../components';
 
-export const VaccineField = ({ name = 'vaccine', required, parameterValues }) => {
+export const VaccineField = ({ required, parameterValues }) => {
   const api = useApi();
   const { category } = parameterValues;
   const [vaccineOptions, setVaccineOptions] = useState([]);
@@ -38,7 +38,7 @@ export const VaccineField = ({ name = 'vaccine', required, parameterValues }) =>
   return (
     <>
       <Field
-        name={name}
+        name="vaccine"
         label="Vaccine"
         component={SelectField}
         required={required}

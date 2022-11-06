@@ -1,8 +1,7 @@
 /* eslint-disable no-param-reassign */
 
 import { Op } from 'sequelize';
-import { endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
-import { ageInYears, toDateTimeString } from 'shared/utils/dateTime';
+import { differenceInYears, subDays } from 'date-fns';
 import { generateReportFromQueryData } from './utilities';
 
 const reportColumnTemplate = [
@@ -13,7 +12,7 @@ const reportColumnTemplate = [
   { title: 'National Health Number', accessor: data => data.Encounter.patient.displayId },
   {
     title: 'Age',
-    accessor: data => ageInYears(data.Encounter.patient.dateOfBirth),
+    accessor: data => differenceInYears(new Date(), data.Encounter.patient.dateOfBirth),
   },
   { title: 'Sex', accessor: data => data.Encounter.patient.sex },
   {
@@ -32,10 +31,7 @@ const reportColumnTemplate = [
 
 function parametersToSqlWhere(parameters) {
   // eslint-disable-next-line no-param-reassign
-  parameters.fromDate = toDateTimeString(
-    startOfDay(parameters.fromDate ? parseISO(parameters.fromDate) : subDays(new Date(), 30)),
-  );
-  parameters.toDate = parameters.toDate && endOfDay(parseISO(parameters.toDate));
+  parameters.fromDate = parameters.fromDate || subDays(new Date(), 30).toISOString();
 
   const whereClause = Object.entries(parameters)
     .filter(([, val]) => val)

@@ -3,15 +3,14 @@ import { BaseModel } from './BaseModel';
 import { IDiagnosis, Certainty } from '~/types';
 import { Encounter } from './Encounter';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
-import { DateTimeStringColumn } from './DateColumns';
 
 @Entity('diagnosis')
 export class Diagnosis extends BaseModel implements IDiagnosis {
   @Column({ nullable: true })
   isPrimary?: boolean;
 
-  @DateTimeStringColumn()
-  date: string;
+  @Column()
+  date: Date;
 
   @Column({ type: 'varchar', nullable: true })
   certainty?: Certainty;

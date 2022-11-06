@@ -1,8 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { initSyncForModelNestedUnderPatient } from './sync';
 import { Model } from './Model';
-import { dateTimeType } from './dateTimeTypes';
-import { getCurrentDateTimeString } from '../utils/dateTime';
 
 export class PatientFamilyHistory extends Model {
   static init({ primaryKey, ...options }) {
@@ -10,10 +8,7 @@ export class PatientFamilyHistory extends Model {
       {
         id: primaryKey,
         note: Sequelize.STRING,
-        recordedDate: dateTimeType('recordedDate', {
-          defaultValue: getCurrentDateTimeString,
-          allowNull: false,
-        }),
+        recordedDate: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false },
         relationship: Sequelize.STRING,
       },
       {

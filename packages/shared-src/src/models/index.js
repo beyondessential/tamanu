@@ -11,12 +11,7 @@ export * from './PatientAdditionalData';
 export * from './PatientVRSData';
 export * from './PatientSecondaryId';
 
-export * from './PatientFieldDefinitionCategory';
-export * from './PatientFieldDefinition';
-export * from './PatientFieldValue';
-
 export * from './PatientDeathData';
-export * from './PatientBirthData';
 export * from './ContributingDeathCause';
 
 export * from './Encounter';
@@ -25,6 +20,7 @@ export * from './Triage';
 
 export * from './ReferenceData';
 
+export { Note } from './Note';
 export * from './Vitals';
 export * from './Procedure';
 export * from './EncounterDiagnosis';
@@ -49,8 +45,6 @@ export * from './ScheduledVaccine';
 export * from './AdministeredVaccine';
 
 export * from './ReportRequest';
-export * from './ReportDefinition';
-export * from './ReportDefinitionVersion';
 export * from './PatientCarePlan';
 
 export * from './Setting';
@@ -79,7 +73,3 @@ export * from './InvoicePriceChangeType';
 export * from './Signer';
 
 export * from './CertificateNotification';
-export * from './NotePage';
-export * from './NoteItem';
-
-export * from './fhir';

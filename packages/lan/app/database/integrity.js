@@ -40,7 +40,13 @@ async function ensureFacilityMatches(context) {
   const lastFacility = await LocalSystemFact.get('facilityId');
 
   if (!lastFacility) {
-    await performInitialIntegritySetup(context);
+    if (config.sync.enabled) {
+      // if sync is enabled and there's no facility set, perform the initial check
+      await performInitialIntegritySetup(context);
+    } else {
+      // if sync is disabled and there's no facility set, don't do anything
+      // this allows a newly-created lan server with sync disabled to import data for the first time
+    }
     return;
   }
 

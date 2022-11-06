@@ -5,8 +5,8 @@ import { ISurvey, IProgramDataElement } from './ISurvey';
 export interface ISurveyResponse {
   id: ID;
   surveyId: ID;
-  startTime?: string;
-  endTime?: string;
+  startTime?: Date;
+  endTime?: Date;
   result?: number;
   resultText?: string;
   encounter?: IEncounter | string;

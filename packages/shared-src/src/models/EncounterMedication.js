@@ -1,7 +1,5 @@
 import { Sequelize } from 'sequelize';
 import { Model } from './Model';
-import { dateTimeType } from './dateTimeTypes';
-import { getCurrentDateTimeString } from '../utils/dateTime';
 
 export class EncounterMedication extends Model {
   static init({ primaryKey, ...options }) {
@@ -9,11 +7,12 @@ export class EncounterMedication extends Model {
       {
         id: primaryKey,
 
-        date: dateTimeType('date', {
+        date: {
+          type: Sequelize.DATE,
           allowNull: false,
-          defaultValue: getCurrentDateTimeString,
-        }),
-        endDate: dateTimeType('endDate'),
+          defaultValue: Sequelize.NOW,
+        },
+        endDate: Sequelize.DATE,
 
         prescription: Sequelize.STRING,
         note: Sequelize.STRING,

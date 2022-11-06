@@ -1,10 +1,9 @@
 import Chance from 'chance';
-import { addHours, subMinutes } from 'date-fns';
+import moment from 'moment';
 
 import { ENCOUNTER_TYPES } from '../constants';
 import { generateId } from '../utils/generateId';
 import { TIME_INTERVALS, randomDate, randomRecordId } from './utilities';
-import { getCurrentDateTimeString, toDateString, toDateTimeString } from '../utils/dateTime';
 
 const { HOUR } = TIME_INTERVALS;
 
@@ -58,7 +57,7 @@ export async function randomReferenceDataObjects(models, type, count) {
 
 export function randomVitals(overrides) {
   return {
-    dateRecorded: toDateTimeString(randomDate()),
+    dateRecorded: randomDate(),
     weight: chance.floating({ min: 60, max: 150 }),
     height: chance.floating({ min: 130, max: 190 }),
     sbp: chance.floating({ min: 115, max: 125 }),
@@ -71,7 +70,9 @@ export function randomVitals(overrides) {
 }
 
 export async function createDummyTriage(models, overrides) {
-  const arrivalTime = subMinutes(new Date(), chance.integer({ min: 2, max: 80 }));
+  const arrivalTime = moment()
+    .subtract(chance.integer({ min: 2, max: 80 }), 'minutes')
+    .toDate();
   return {
     score: chance.integer({ min: 1, max: 5 }),
     notes: chance.sentence(),
@@ -87,13 +88,13 @@ export async function createDummyTriage(models, overrides) {
 }
 
 export async function createDummyEncounter(models, { current, ...overrides } = {}) {
-  const endDate = current ? getCurrentDateTimeString() : toDateTimeString(randomDate());
+  const endDate = current ? new Date() : randomDate();
 
   const duration = chance.natural({ min: HOUR, max: HOUR * 10 });
-  const startDate = toDateTimeString(new Date(new Date(endDate).getTime() - duration));
+  const startDate = new Date(endDate.getTime() - duration);
 
   return {
-    encounterType: chance.pickone(Object.values(ENCOUNTER_TYPES)),
+    encounterType: chance.pick(Object.values(ENCOUNTER_TYPES)),
     startDate,
     endDate: current ? undefined : endDate,
     reasonForEncounter: chance.sentence({ words: chance.integer({ min: 4, max: 8 }) }),
@@ -105,15 +106,15 @@ export async function createDummyEncounter(models, { current, ...overrides } = {
 }
 
 export function createDummyPatient(models, overrides = {}) {
-  const gender = overrides.sex || chance.pickone(['male', 'female']);
-  const title = overrides.title || chance.pickone(['Mr', 'Mrs', 'Ms']);
+  const gender = overrides.sex || chance.pick(['male', 'female']);
+  const title = overrides.title || chance.pick(['Mr', 'Mrs', 'Ms']);
   return {
     displayId: generateId(),
     firstName: chance.first({ gender }),
     lastName: chance.last(),
     culturalName: chance.last(),
     sex: chance.bool({ likelihood: 5 }) ? 'other' : gender,
-    dateOfBirth: toDateString(chance.birthday()),
+    dateOfBirth: chance.birthday(),
     title,
     ...overrides,
   };
@@ -128,10 +129,10 @@ function randomPhoneNumber() {
 export function createDummyPatientAdditionalData() {
   return {
     placeOfBirth: chance.city(),
-    bloodType: chance.pickone(['A+', 'B+', 'A-', 'B-', 'AB+', 'AB-', 'O+', 'O-']),
+    bloodType: chance.pick(['A+', 'B+', 'A-', 'B-', 'AB+', 'AB-', 'O+', 'O-']),
     primaryContactNumber: randomPhoneNumber(),
     secondaryContactNumber: randomPhoneNumber(),
-    maritalStatus: chance.pickone(['Single', 'Married', 'Defacto']),
+    maritalStatus: chance.pick(['Single', 'Married', 'Defacto']),
     cityTown: chance.city(),
     streetVillage: `${Math.floor(Math.random() * 200)} ${chance.street({ short_suffix: true })}`,
     drivingLicense: randomDigits(10),
@@ -144,7 +145,7 @@ export async function createDummyEncounterDiagnosis(models, overrides = {}) {
     min: HOUR,
     max: HOUR * 10,
   });
-  const date = toDateTimeString(new Date(new Date().getTime() - duration));
+  const date = new Date(new Date().getTime() - duration);
   return {
     date,
     certainty: chance.bool() ? 'suspected' : 'confirmed',
@@ -157,8 +158,8 @@ export async function createDummyEncounterDiagnosis(models, overrides = {}) {
 // Needs a manually created encounter to be linked with
 export async function createDummyEncounterMedication(models, overrides = {}) {
   return {
-    date: getCurrentDateTimeString(),
-    endDate: toDateTimeString(addHours(new Date(), 1)),
+    date: new Date(),
+    endDate: new Date(Date.now() + HOUR),
     prescription: chance.sentence({ words: chance.integer({ min: 4, max: 8 }) }),
     note: chance.sentence({ words: chance.integer({ min: 4, max: 8 }) }),
     indication: chance.sentence({ words: chance.integer({ min: 4, max: 8 }) }),

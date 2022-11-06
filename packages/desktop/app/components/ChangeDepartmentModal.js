@@ -8,9 +8,7 @@ import { Modal } from './Modal';
 
 export const ChangeDepartmentModal = React.memo(({ open, onClose }) => {
   const { navigateToEncounter } = usePatientNavigation();
-  const departmentSuggester = useSuggester('department', {
-    baseQueryParameters: { filterByFacility: true },
-  });
+  const departmentSuggester = useSuggester('department');
   const encounterCtx = useEncounter();
   const onSubmit = useCallback(
     async data => {

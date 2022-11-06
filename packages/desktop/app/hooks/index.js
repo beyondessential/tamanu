@@ -1,1 +1,0 @@
-export { useSexValues } from './useSexValues';

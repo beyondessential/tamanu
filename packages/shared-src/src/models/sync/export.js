@@ -1,9 +1,7 @@
-import { Op, DataTypes } from 'sequelize';
+import { Sequelize, Op } from 'sequelize';
 import { without } from 'lodash';
-import config from 'config';
 import { propertyPathsToTree } from './metadata';
 import { getSyncCursorFromRecord, syncCursorToWhereCondition } from './cursor';
-import { toDateTimeString, toDateString } from '../../utils/dateTime';
 
 export const createExportPlan = (sequelize, channel) =>
   sequelize.channelRouter(channel, (model, params, channelRoute) => {
@@ -29,12 +27,8 @@ const createExportPlanInner = (model, relationTree, query) => {
     (memo, columnName) => {
       const columnType = model.tableAttributes[columnName].type;
       let formatter = null; // default to passing the value straight through
-      if (columnType instanceof DataTypes.DATE) {
+      if (columnType instanceof Sequelize.DATE) {
         formatter = date => date?.toISOString();
-      } else if (columnType instanceof DataTypes.DATETIMESTRING) {
-        formatter = date => toDateTimeString(date) ?? undefined;
-      } else if (columnType instanceof DataTypes.DATESTRING) {
-        formatter = date => toDateString(date) ?? undefined;
       }
       return { ...memo, [columnName]: formatter };
     },
@@ -44,7 +38,7 @@ const createExportPlanInner = (model, relationTree, query) => {
   return { model, associations, columns, query };
 };
 
-export const executeExportPlan = async (plan, { since, until, limit = 100 }) => {
+export const executeExportPlan = async (plan, { since, limit = 100 }) => {
   const { syncClientMode } = plan.model;
 
   // add clauses to where query
@@ -62,11 +56,6 @@ export const executeExportPlan = async (plan, { since, until, limit = 100 }) => 
   }
   if (since) {
     whereClauses.push(syncCursorToWhereCondition(since));
-  }
-  if (config?.sync?.allowUntil && until && typeof until === 'number') {
-    whereClauses.push({
-      updatedAt: { [Op.lt]: new Date(until) },
-    });
   }
 
   // build options

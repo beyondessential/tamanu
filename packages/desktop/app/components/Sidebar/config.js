@@ -1,4 +1,5 @@
 import {
+  administrationIcon,
   labsIcon,
   medicationIcon,
   patientIcon,
@@ -187,28 +188,28 @@ export const FACILITY_MENU_ITEMS = [
       },
     ],
   },
+  {
+    key: 'admin',
+    label: 'Administration',
+    path: '/admin',
+    icon: administrationIcon,
+    divider: true,
+    ability: { subject: 'user', action: 'read' },
+    children: [
+      {
+        label: 'Permissions',
+        path: '/admin/permissions',
+      },
+      {
+        label: 'Programs',
+        path: '/admin/programs',
+      },
+      {
+        label: 'Data import',
+        path: '/admin/data-import',
+      },
+    ],
+  },
 ];
 
-export const SYNC_MENU_ITEMS = [
-  {
-    key: 'refdata',
-    label: 'Data import',
-    path: '/admin/refdata',
-  },
-  {
-    key: 'permissions',
-    label: 'Permissions',
-    path: '/admin/permissions',
-    ability: { action: 'read', subject: 'userRole' },
-  },
-  {
-    key: 'programs',
-    label: 'Programs',
-    path: '/admin/programs',
-  },
-  {
-    key: 'patientMerge',
-    label: 'Patient merge',
-    path: '/admin/patientMerge',
-  },
-];
+export const SYNC_MENU_ITEMS = [];

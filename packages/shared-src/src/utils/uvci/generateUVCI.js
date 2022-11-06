@@ -1,8 +1,10 @@
+import { log } from '../../services/logging';
 import { generateDefaultFormatUVCI } from './tamanu';
 import { generateEUDCCFormatUVCI } from './eudcc';
 import { generateICAOFormatUVCI } from './icao';
 
 export function generateUVCI(vaccinationId, { format, countryCode }) {
+  log.debug(`Generating ${format} UVCI for vaccination ${vaccinationId}`);
   switch (format) {
     case 'tamanu': {
       return generateDefaultFormatUVCI(vaccinationId, countryCode);
@@ -17,7 +19,8 @@ export function generateUVCI(vaccinationId, { format, countryCode }) {
     }
 
     default: {
-      throw new Error(`Unrecognised UVCI format: ${format}`);
+      log.error(`Unrecognised UVCI format: ${format}`);
+      return '';
     }
   }
 }

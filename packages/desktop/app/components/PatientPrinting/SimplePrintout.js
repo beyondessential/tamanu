@@ -12,7 +12,6 @@ import { GridTable } from './GridTable';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 
 const Text = styled(Typography)`
-  ${props => (props.$boldTitle ? 'font-weight: 500;' : '')}
   font-size: 14px;
 `;
 
@@ -31,15 +30,15 @@ const NotesBox = styled(Box)`
   overflow: hidden;
 `;
 
-export const NotesSection = ({ notes = [], title = 'Notes:', boldTitle }) => (
+export const NotesSection = ({ notes }) => (
   <>
-    <Text $boldTitle={boldTitle}>{title}</Text>
+    <Text>Notes:</Text>
     <NotesBox>{notes.map(note => note.content).join(' ')}</NotesBox>
   </>
 );
 
-export const LocalisedLabel = ({ name, children, size }) => (
-  <LocalisedCertificateLabel margin="9px" name={name} size={size}>
+export const LocalisedLabel = ({ name, children }) => (
+  <LocalisedCertificateLabel margin="9px" name={name}>
     {children}
   </LocalisedCertificateLabel>
 );

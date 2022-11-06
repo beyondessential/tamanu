@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { Modal } from './Modal';
-import { OutlinedButton } from './Button';
+import { OutlinedButton, Button } from './Button';
 import { ButtonRow } from './ButtonRow';
 
 const Content = styled.div`
@@ -21,17 +21,16 @@ export const ConfirmModal = ({
   ConfirmButton = OutlinedButton,
   confirmButtonText = 'Confirm',
   cancelButtonText = 'Cancel',
-  customContent,
 }) => (
   <Modal width={width} title={title} open={open} onClose={onCancel}>
-    {customContent || (
-      <Content>
-        <h3>{text}</h3>
-        <p>{subText}</p>
-      </Content>
-    )}
+    <Content>
+      <h3>{text}</h3>
+      <p>{subText}</p>
+    </Content>
     <ButtonRow>
-      <OutlinedButton onClick={onCancel}>{cancelButtonText}</OutlinedButton>
+      <Button variant="contained" onClick={onCancel}>
+        {cancelButtonText}
+      </Button>
       <ConfirmButton variant="contained" onClick={onConfirm}>
         {confirmButtonText}
       </ConfirmButton>

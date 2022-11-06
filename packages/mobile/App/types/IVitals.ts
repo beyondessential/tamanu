@@ -32,7 +32,7 @@ export enum UrineProteinType {
 export interface IVitals {
   id: ID;
 
-  dateRecorded: string;
+  dateRecorded: Date;
 
   temperature?: number;
   weight?: number;

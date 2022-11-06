@@ -1,6 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
 import { random, sample } from 'lodash';
-import { formatISO9075 } from 'date-fns';
 
 import {
   DataElementType,
@@ -24,7 +23,6 @@ import {
 import { BaseModel } from '~/models/BaseModel';
 import { ID } from '~/types/ID';
 import { VaccineStatus } from '~/ui/helpers/patient';
-import { getCurrentDateTimeString } from '../../App/ui/helpers/date';
 import { VisibilityStatus } from '~/visibilityStatuses';
 
 export const fakePatient = (): IPatient => {
@@ -38,7 +36,7 @@ export const fakePatient = (): IPatient => {
     lastName: `patient_lastName-${uuid}`,
     culturalName: `patient_culturalName-${uuid}`,
     villageId: null,
-    dateOfBirth: formatISO9075(new Date()),
+    dateOfBirth: new Date(),
     sex: `female-${uuid}`,
     email: `${uuid}@email.com`,
     markedForSync: false,
@@ -48,7 +46,7 @@ export const fakePatient = (): IPatient => {
 export const fakeEncounter = (): IEncounter => ({
   id: `encounter-id-${uuidv4()}`,
   encounterType: EncounterType.Clinic,
-  startDate: formatISO9075(new Date()),
+  startDate: new Date(),
   reasonForEncounter: 'encounter-reason',
   deviceId: null,
 });
@@ -56,7 +54,7 @@ export const fakeEncounter = (): IEncounter => ({
 export const fakeAdministeredVaccine = (): IAdministeredVaccine => ({
   id: `administered-vaccine-id-${uuidv4()}`,
   status: VaccineStatus.GIVEN,
-  date: formatISO9075(new Date()),
+  date: new Date(),
 });
 
 export const fakeProgramDataElement = (): IProgramDataElement => ({
@@ -97,8 +95,8 @@ export const fakeSurveyScreenComponent = (): ISurveyScreenComponent => ({
 
 export const fakeSurveyResponse = (survey: ISurvey): ISurveyResponse => ({
   id: `survey-response-id-${uuidv4()}`,
-  startTime: getCurrentDateTimeString(),
-  endTime: getCurrentDateTimeString(),
+  startTime: new Date(),
+  endTime: new Date(),
   surveyId: survey.id,
 });
 

@@ -3,7 +3,6 @@ export * from './allergies';
 export * from './carePlan';
 export * from './departments';
 export * from './diagnoses';
-export * from './dispositions';
 export * from './drugs';
 export * from './facilities';
 export * from './icd10';

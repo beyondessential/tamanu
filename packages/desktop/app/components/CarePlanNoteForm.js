@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import * as yup from 'yup';
 import styled from 'styled-components';
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
-import { useApi, useSuggester } from '../api';
+import { connectApi } from '../api';
 import { Colors } from '../constants';
+import { Suggester } from '../utils/suggester';
 import { Button } from './Button';
 import { ButtonRow } from './ButtonRow';
+
 import { Form, Field, TextField, DateTimeField, AutocompleteField } from './Field';
 import { FormGrid } from './FormGrid';
 
@@ -14,21 +14,17 @@ const SubmitError = styled.div`
   padding: 0.25rem;
 `;
 
-export function CarePlanNoteForm({
+export function DumbCarePlanNoteForm({
   note,
+  updateNote,
+  submitNote,
   carePlanId,
   onReloadNotes,
+  practitionerSuggester,
   onSuccessfulSubmit,
   onCancel,
 }) {
   const [submitError, setSubmitError] = useState('');
-  const practitionerSuggester = useSuggester('practitioner');
-  const api = useApi();
-
-  const submitNote = async (patientCarePlanId, body) =>
-    api.post(`patientCarePlan/${patientCarePlanId}/notes`, body);
-
-  const updateNote = async updatedNote => api.put(`notePages/${updatedNote.id}`, updatedNote);
   return (
     <Form
       onSubmit={async values => {
@@ -46,10 +42,7 @@ export function CarePlanNoteForm({
         // reload notes on failure just in case it was recorded
         onReloadNotes();
       }}
-      initialValues={note || { date: getCurrentDateTimeString() }}
-      validationSchema={yup.object().shape({
-        content: yup.string().required('Content is required'),
-      })}
+      initialValues={note || { date: new Date() }}
       render={() => (
         <>
           <FormGrid columns={2}>
@@ -59,14 +52,13 @@ export function CarePlanNoteForm({
               component={AutocompleteField}
               suggester={practitionerSuggester}
             />
-            <Field name="date" label="Date recorded" component={DateTimeField} saveDateAsString />
+            <Field name="date" label="Date recorded" component={DateTimeField} />
           </FormGrid>
           <FormGrid columns={1}>
             <Field
               name="content"
               placeholder="Write a note..."
               component={TextField}
-              required
               multiline
               rows={4}
             />
@@ -89,3 +81,10 @@ export function CarePlanNoteForm({
     />
   );
 }
+
+export const CarePlanNoteForm = connectApi(api => ({
+  submitNote: async (patientCarePlanId, body) =>
+    api.post(`patientCarePlan/${patientCarePlanId}/notes`, body),
+  updateNote: async note => api.put(`note/${note.id}`, note),
+  practitionerSuggester: new Suggester(api, 'practitioner'),
+}))(DumbCarePlanNoteForm);

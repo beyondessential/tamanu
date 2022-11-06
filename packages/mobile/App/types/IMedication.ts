@@ -3,10 +3,10 @@ import { IReferenceData } from './IReferenceData';
 
 export interface IMedication {
   id: ID;
-  date: string;
+  date: Date;
   quantity: number;
   medication: IReferenceData;
-  endDate?: string;
+  endDate?: Date;
   note?: string;
   prescription?: string;
   indication?: string;

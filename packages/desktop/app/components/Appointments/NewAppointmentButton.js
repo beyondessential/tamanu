@@ -8,7 +8,7 @@ export const NewAppointmentButton = ({ onSuccess }) => {
     <>
       <Button
         color="primary"
-        variant="contained"
+        variant="outlined"
         onClick={() => {
           setOpenModal(true);
         }}

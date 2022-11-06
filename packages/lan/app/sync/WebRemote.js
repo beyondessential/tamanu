@@ -33,7 +33,6 @@ const getVersionIncompatibleMessage = (error, response) => {
 
 const objectToQueryString = obj =>
   Object.entries(obj)
-    .filter(([k, v]) => k !== undefined && v !== undefined)
     .map(kv => kv.map(str => encodeURIComponent(str)).join('='))
     .join('&');
 
@@ -257,8 +256,8 @@ export class WebRemote {
     return channelsWithPendingChanges;
   }
 
-  async pull(channel, { since = 0, until, limit = 100, page = 0, noCount = 'false' } = {}) {
-    const query = { since, limit, page, noCount, until };
+  async pull(channel, { since = 0, limit = 100, page = 0, noCount = 'false' } = {}) {
+    const query = { since, limit, page, noCount };
     const path = `sync/${encodeURIComponent(channel)}?${objectToQueryString(query)}`;
     return this.fetch(path);
   }

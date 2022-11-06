@@ -44,13 +44,9 @@ export const ImmunisationModal = connectApi((api, dispatch, { patientId }) => ({
     });
     dispatch(reloadPatient(patientId));
   },
-  locationSuggester: new Suggester(api, 'location', {
-    baseQueryParameters: { filterByFacility: true },
-  }),
+  locationSuggester: new Suggester(api, 'location'),
   practitionerSuggester: new Suggester(api, 'practitioner'),
   vaccineSuggester: new Suggester(api, 'vaccine'),
-  departmentSuggester: new Suggester(api, 'department', {
-    baseQueryParameters: { filterByFacility: true },
-  }),
+  departmentSuggester: new Suggester(api, 'department'),
   getScheduledVaccines: async query => api.get(`patient/${patientId}/scheduledVaccines`, query),
 }))(DumbImmunisationModal);

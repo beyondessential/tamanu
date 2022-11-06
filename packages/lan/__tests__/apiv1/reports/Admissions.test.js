@@ -3,12 +3,12 @@ import {
   createDummyEncounter,
   createDummyEncounterDiagnosis,
   randomRecord,
+  randomRecords,
   randomReferenceData,
 } from 'shared/demoData';
-import { subDays } from 'date-fns';
+import { subDays, format } from 'date-fns';
 import { ENCOUNTER_TYPES } from 'shared/constants';
 import { findOneOrCreate } from 'shared/test-helpers';
-import { format } from 'shared/utils/dateTime';
 import { createTestContext } from '../../utilities';
 
 describe('Admissions report', () => {
@@ -40,26 +40,22 @@ describe('Admissions report', () => {
       }),
     );
     app = await baseApp.asRole('practitioner');
-    expectedLocation = await findOneOrCreate(ctx.models, models.Location, { name: 'Clinic' });
-    wrongLocation = await findOneOrCreate(ctx.models, models.Location, { name: 'Not-Clinic' });
-    expectedDepartment1 = await findOneOrCreate(ctx.models, models.Department, {
-      name: 'Radiology',
-    });
-    expectedDepartment2 = await findOneOrCreate(ctx.models, models.Department, {
-      name: 'Cardiology',
-    });
+    expectedLocation = await findOneOrCreate(ctx, models.Location, { name: 'Clinic' });
+    wrongLocation = await findOneOrCreate(ctx, models.Location, { name: 'Not-Clinic' });
+    expectedDepartment1 = await findOneOrCreate(ctx, models.Department, { name: 'Radiology' });
+    expectedDepartment2 = await findOneOrCreate(ctx, models.Department, { name: 'Cardiology' });
     expectedExaminer = await randomRecord(models, 'User');
-    expectedDiagnosis1 = await findOneOrCreate(ctx.models, models.ReferenceData, {
+    expectedDiagnosis1 = await findOneOrCreate(ctx, models.ReferenceData, {
       type: 'icd10',
       code: 'H60.5',
       name: 'Acute bacterial otitis externa',
     });
-    expectedDiagnosis2 = await findOneOrCreate(ctx.models, models.ReferenceData, {
+    expectedDiagnosis2 = await findOneOrCreate(ctx, models.ReferenceData, {
       type: 'icd10',
       code: 'L74.4',
       name: 'Anhidrosis',
     });
-    expectedBillingType = await findOneOrCreate(ctx.models, models.ReferenceData, {
+    expectedBillingType = await findOneOrCreate(ctx, models.ReferenceData, {
       type: 'patientBillingType',
       name: 'Charity',
     });
@@ -79,8 +75,8 @@ describe('Admissions report', () => {
     it('should return only admitted patient', async () => {
       const baseEncounterData = {
         encounterType: ENCOUNTER_TYPES.ADMISSION,
-        startDate: '2021-02-20 09:07:26',
-        endDate: '2021-02-21 11:03:07',
+        startDate: new Date(2021, 1, 20, 9, 7, 26), // Months are 0 indexed so this is Feburary
+        endDate: new Date(2021, 1, 21, 11, 3, 7), // Months are 0 indexed so this is Feburary
         patientId: expectedPatient.dataValues.id,
         locationId: expectedLocation.id,
         departmentId: expectedDepartment1.id,
@@ -146,7 +142,7 @@ describe('Admissions report', () => {
       await models.Encounter.create(
         await createDummyEncounter(models, {
           ...baseEncounterData,
-          startDate: '2020-01-20 00:00:00',
+          startDate: new Date(2020, 0, 20).toISOString(),
         }),
       );
 
@@ -154,26 +150,20 @@ describe('Admissions report', () => {
         departmentId: expectedDepartment2.id,
       });
 
-      const departmentChangeNotePage = await models.NotePage.findOne({
-        include: [
-          {
-            model: models.NoteItem,
-            as: 'noteItems',
-          },
-        ],
+      const departmentChangeNote = await models.Note.findOne({
         where: {
           recordId: expectedEncounter.id,
           noteType: 'system',
         },
       });
 
-      await departmentChangeNotePage.noteItems?.[0].update({
-        date: '2021-02-20 11:10:00',
+      await departmentChangeNote.update({
+        date: new Date(2021, 1, 20, 11, 10),
       });
 
       const result = await app.post('/v1/reports/admissions').send({
         parameters: {
-          fromDate: '2021-02-01 00:00:00',
+          fromDate: new Date(2021, 1, 1),
           location: expectedLocation.id,
           department: expectedDepartment1.id, // Historical department filtered for
         },

@@ -135,7 +135,6 @@ describe('Auth', () => {
         localisation: expect.any(Object),
         permissions: expect.any(Object),
         facility: expect.objectContaining(TEST_FACILITY),
-        centralHost: expect.any(String),
       });
     });
 

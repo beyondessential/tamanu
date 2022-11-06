@@ -13,17 +13,14 @@ export const testTriageReasons = TRIAGE_DIAGNOSES.map(x => ({ ...x, type: 'triag
 export const testImagingAreas = [
   ...X_RAY_IMAGING_AREAS.map(x => ({
     ...x,
-    id: `xray-${x._id}`,
     type: IMAGING_AREA_TYPES.X_RAY_IMAGING_AREA,
   })),
   ...CT_SCAN_IMAGING_AREAS.map(x => ({
     ...x,
-    id: `ct-${x._id}`,
     type: IMAGING_AREA_TYPES.CT_SCAN_IMAGING_AREA,
   })),
   ...ULTRASOUND_IMAGING_AREAS.map(x => ({
     ...x,
-    id: `ultrasound-${x._id}`,
     type: IMAGING_AREA_TYPES.ULTRASOUND_IMAGING_AREA,
   })),
 ];

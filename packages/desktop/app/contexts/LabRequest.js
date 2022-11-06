@@ -19,6 +19,7 @@ export const LabRequestProvider = ({ children }) => {
     setIsLoading(true);
     const data = await api.get(`labRequest/${labRequestId}`);
     setLabRequest({ ...data });
+    window.labRequest = labRequest;
     setIsLoading(false);
   };
 

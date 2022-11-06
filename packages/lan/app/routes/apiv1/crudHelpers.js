@@ -77,7 +77,7 @@ export const simplePost = modelName =>
 export const simpleGetList = (modelName, foreignKey = '', options = {}) =>
   asyncHandler(async (req, res) => {
     const { models, params, query } = req;
-    const { order = 'ASC', orderBy = 'createdAt', rowsPerPage, page } = query;
+    const { order = 'ASC', orderBy } = query;
     const { additionalFilters = {}, include = [], skipPermissionCheck = false } = options;
 
     if (skipPermissionCheck === false) {
@@ -87,29 +87,19 @@ export const simpleGetList = (modelName, foreignKey = '', options = {}) =>
     const model = models[modelName];
     const associations = model.getListReferenceAssociations(models) || [];
 
-    const baseQueryOptions = {
+    const objects = await models[modelName].findAll({
       where: {
         ...(foreignKey && { [foreignKey]: params.id }),
         ...additionalFilters,
       },
       order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
       include: [...associations, ...include],
-    };
-
-    const count = await models[modelName].count({
-      ...baseQueryOptions,
-    });
-
-    const objects = await models[modelName].findAll({
-      ...baseQueryOptions,
-      limit: rowsPerPage,
-      offset: page && rowsPerPage ? page * rowsPerPage : undefined,
     });
 
     const data = objects.map(x => x.forResponse());
 
     res.send({
-      count,
+      count: objects.length,
       data,
     });
   });
@@ -129,15 +119,14 @@ export const paginatedGetList = (modelName, foreignKey = '', options = {}) => {
     const model = models[modelName];
     const associations = model.getListReferenceAssociations(models) || [];
 
-    const queryOpts = {
+    const filters = {
       where: {
         ...(foreignKey && { [foreignKey]: params.id }),
         ...additionalFilters,
       },
-      include: [...associations, ...include],
     };
 
-    const resultsToCount = await models[modelName].findAll(queryOpts);
+    const resultsToCount = await models[modelName].findAll(filters);
     const count = resultsToCount.length;
     // Exit early if there are no results
     if (count === 0) {
@@ -146,10 +135,11 @@ export const paginatedGetList = (modelName, foreignKey = '', options = {}) => {
     }
 
     const objects = await models[modelName].findAll({
-      ...queryOpts,
+      ...filters,
       order: orderBy ? [[orderBy, order.toUpperCase()]] : undefined,
       limit: rowsPerPage || undefined,
       offset,
+      include: [...associations, ...include],
     });
 
     const data = objects.map(x => x.forResponse());
@@ -193,3 +183,9 @@ export async function runPaginatedQuery(db, model, countQuery, selectQuery, para
     data: forResponse,
   };
 }
+
+export const createNoteListingHandler = recordType => simpleGetList('Note', 'recordId', {
+  additionalFilters: { recordType },
+  // this is designed to be mounted inside a permission checking router
+  skipPermissionCheck: true,
+});

@@ -10,7 +10,6 @@ import {
 } from 'shared/demoData';
 import { createAdministeredVaccine, createScheduledVaccine } from 'shared/demoData/vaccines';
 import { createTestContext } from '../../utilities';
-import { parseISO } from 'date-fns';
 
 describe('AEFI report', () => {
   let baseApp = null;
@@ -99,7 +98,7 @@ describe('AEFI report', () => {
       await createAdministeredVaccine(models, {
         scheduledVaccineId: scheduledVaccine1.id,
         encounterId: encounter1.id,
-        date: parseISO('2021-03-10'),
+        date: new Date('2021-03-10'),
       }),
     );
 
@@ -107,7 +106,7 @@ describe('AEFI report', () => {
       await createAdministeredVaccine(models, {
         scheduledVaccineId: scheduledVaccine2.id,
         encounterId: encounter2.id,
-        date: parseISO('2021-03-15'),
+        date: new Date('2021-03-15'),
       }),
     );
   });

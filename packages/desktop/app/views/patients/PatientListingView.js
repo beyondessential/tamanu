@@ -11,7 +11,7 @@ import {
   PatientSearchBar,
   ContentPane,
 } from '../../components';
-import { ButtonWithPermissionCheck } from '../../components/Button';
+import { DropdownButton } from '../../components/DropdownButton';
 import { NewPatientModal } from './components';
 import {
   markedForSync,
@@ -26,7 +26,6 @@ import {
   location,
   department,
 } from './columns';
-import { useAuth } from '../../contexts/Auth';
 
 const PATIENT_SEARCH_ENDPOINT = 'patient';
 
@@ -67,10 +66,9 @@ const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
       columns={columns}
       noDataMessage="No patients found"
       onRowClick={handleViewPatient}
-      rowStyle={({ dateOfDeath }) => {
-        // Style rows for deceased patients red
-        return dateOfDeath ? '& > td:not(:first-child) { color: #ed333a; }' : '';
-      }}
+      rowStyle={({ patientStatus }) =>
+        patientStatus === 'deceased' ? '& > td:not(:first-child) { color: #ed333a; }' : ''
+      }
       fetchOptions={fetchOptionsWithSearchParameters}
       endpoint={PATIENT_SEARCH_ENDPOINT}
     />
@@ -80,11 +78,18 @@ const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
 const NewPatientButton = ({ onCreateNewPatient }) => {
   const { navigateToPatient } = usePatientNavigation();
   const [isCreatingPatient, setCreatingPatient] = useState(false);
+  const [isBirth, setIsBirth] = useState(false);
   const dispatch = useDispatch();
   const hideModal = useCallback(() => setCreatingPatient(false), [setCreatingPatient]);
 
   const showNewPatient = useCallback(() => {
     setCreatingPatient(true);
+    setIsBirth(false);
+  }, []);
+
+  const showNewBirth = useCallback(() => {
+    setCreatingPatient(true);
+    setIsBirth(true);
   }, []);
 
   const handleCreateNewPatient = async newPatient => {
@@ -99,17 +104,15 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
 
   return (
     <>
-      <ButtonWithPermissionCheck
-        variant="outlined"
-        color="primary"
-        verb="create"
-        noun="Patient"
-        onClick={showNewPatient}
-      >
-        + Add new patient
-      </ButtonWithPermissionCheck>
+      <DropdownButton
+        actions={[
+          { label: 'Create new patient', onClick: showNewPatient },
+          { label: 'Register birth', onClick: showNewBirth },
+        ]}
+      />
       <NewPatientModal
         title="New patient"
+        isBirth={isBirth}
         open={isCreatingPatient}
         onCancel={hideModal}
         onCreateNewPatient={handleCreateNewPatient}
@@ -129,7 +132,6 @@ export const PatientListingView = ({ onViewPatient }) => {
       <ContentPane>
         <PatientTable
           onViewPatient={onViewPatient}
-          fetchOptions={{ matchSecondaryIds: true }}
           searchParameters={searchParameters}
           columns={LISTING_COLUMNS}
         />
@@ -140,8 +142,6 @@ export const PatientListingView = ({ onViewPatient }) => {
 
 export const AdmittedPatientsView = () => {
   const [searchParameters, setSearchParameters] = useState({});
-  const { facility } = useAuth();
-
   return (
     <PageContainer>
       <TopBar title="Admitted patient listing" />
@@ -149,7 +149,7 @@ export const AdmittedPatientsView = () => {
       <ContentPane>
         <PatientTable
           fetchOptions={{ inpatient: 1 }}
-          searchParameters={{ facilityId: facility.id, ...searchParameters }}
+          searchParameters={searchParameters}
           columns={INPATIENT_COLUMNS}
         />
       </ContentPane>
@@ -159,8 +159,6 @@ export const AdmittedPatientsView = () => {
 
 export const OutpatientsView = () => {
   const [searchParameters, setSearchParameters] = useState({});
-  const { facility } = useAuth();
-
   return (
     <PageContainer>
       <TopBar title="Outpatient listing" />
@@ -168,7 +166,7 @@ export const OutpatientsView = () => {
       <ContentPane>
         <PatientTable
           fetchOptions={{ outpatient: 1 }}
-          searchParameters={{ facilityId: facility.id, ...searchParameters }}
+          searchParameters={searchParameters}
           columns={INPATIENT_COLUMNS}
         />
       </ContentPane>

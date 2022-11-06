@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { MenuItem } from '@material-ui/core';
-import { TIME_UNIT_OPTIONS } from 'shared/constants';
 import { NumberInput } from './NumberField';
 import { TextInput } from './TextField';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
@@ -33,6 +32,15 @@ const HiddenInput = styled(TextInput)`
 
 const HiddenField = props => <HiddenInput {...props} type="hidden" />;
 
+const UNIT_OPTIONS = [
+  { unit: 'minutes', minutes: 1 },
+  { unit: 'hours', minutes: 60 },
+  { unit: 'days', minutes: 60 * 24 },
+  { unit: 'weeks', minutes: 60 * 24 * 7 },
+  { unit: 'months', minutes: 60 * 24 * 30 },
+  { unit: 'years', minutes: 60 * 24 * 365 },
+];
+
 export const TimeWithUnitInput = ({
   onChange,
   value: valueInMinutes,
@@ -44,16 +52,16 @@ export const TimeWithUnitInput = ({
   className,
   ...props
 }) => {
-  const [unit, setUnit] = useState(TIME_UNIT_OPTIONS[0].unit);
+  const [unit, setUnit] = useState(UNIT_OPTIONS[0].unit);
   const [value, setValue] = useState(0);
-  const selectedOption = TIME_UNIT_OPTIONS.find(o => o.unit === unit);
+  const selectedOption = UNIT_OPTIONS.find(o => o.unit === unit);
 
   useEffect(() => {
     if (!valueInMinutes) {
       return;
     }
 
-    const multiple = TIME_UNIT_OPTIONS.sort((a, b) => b.minutes - a.minutes).find(
+    const multiple = UNIT_OPTIONS.sort((a, b) => b.minutes - a.minutes).find(
       o => valueInMinutes % o.minutes === 0,
     );
     setUnit(multiple.unit);
@@ -76,7 +84,7 @@ export const TimeWithUnitInput = ({
     const newUnit = event.target.value;
     setUnit(newUnit);
 
-    const newOption = TIME_UNIT_OPTIONS.find(o => o.unit === newUnit);
+    const newOption = UNIT_OPTIONS.find(o => o.unit === newUnit);
     updateExternalValue(value * newOption.minutes);
   };
 
@@ -92,7 +100,7 @@ export const TimeWithUnitInput = ({
           {...props}
         />
         <Select select onChange={onUnitChange} value={unit}>
-          {TIME_UNIT_OPTIONS.sort((a, b) => a.minutes - b.minutes).map(option => (
+          {UNIT_OPTIONS.sort((a, b) => a.minutes - b.minutes).map(option => (
             <MenuItem key={option.unit} value={option.unit}>
               {option.unit}
             </MenuItem>

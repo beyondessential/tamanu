@@ -1,32 +1,18 @@
 import { Sequelize, Op } from 'sequelize';
 import { groupBy } from 'lodash';
-import { endOfDay, parseISO, startOfDay, subDays } from 'date-fns';
+import { format } from 'date-fns';
 import { generateReportFromQueryData } from '../utilities';
-import { toDateTimeString, format } from '../../utils/dateTime';
 
 const parametersToSqlWhere = parameters => {
   const defaultWhereClause = {
     '$labRequest.lab_test_category_id$': 'labTestCategory-COVID',
-    date: {
-      [Op.gte]: toDateTimeString(startOfDay(subDays(new Date(), 30))),
-    },
   };
 
   if (!parameters || !Object.keys(parameters).length) {
     return defaultWhereClause;
   }
 
-  const newParameters = { ...parameters };
-
-  if (parameters.fromDate) {
-    toDateTimeString(startOfDay(parseISO(parameters.fromDate)));
-  }
-
-  if (parameters.toDate) {
-    toDateTimeString(endOfDay(parseISO(parameters.toDate)));
-  }
-
-  const whereClause = Object.entries(newParameters)
+  const whereClause = Object.entries(parameters)
     .filter(([, val]) => val)
     .reduce((where, [key, value]) => {
       const newWhere = { ...where };
@@ -64,7 +50,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
   const reportColumnTemplate = [
     {
       title: 'Date',
-      accessor: data => format(data.testDate, 'yyyy/MM/dd'),
+      accessor: data => format(new Date(data.testDate), 'yyyy/MM/dd'),
     },
     {
       title: 'Total tests',

@@ -17,7 +17,7 @@ import { SignInProps } from '/interfaces/Screens/SignUp/SignInProps';
 import { Routes } from '/helpers/routes';
 import { ModalInfo } from '/components/ModalInfo';
 import { authSelector } from '/helpers/selectors';
-import { OutdatedVersionError } from '~/services/error';
+import { OutdatedVersionError } from '~/services/auth/error';
 import { useFacility } from '~/ui/contexts/FacilityContext';
 
 interface ModalContent {

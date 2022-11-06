@@ -24,8 +24,7 @@
       "/domain/*": ["App/domain/*"],
       "/data/*": ["App/data/*"],
       "/infra/*": ["App/infra/*"],
-      "/presentation/*": ["App/presentation/*"],
-      "/migrations/*": ["App/migrations/*"]
+      "/presentation/*": ["App/presentation/*"]
     },    
     "resolveJsonModule": true,
     "jsx": "react",

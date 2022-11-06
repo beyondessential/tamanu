@@ -1,8 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { AVPU_OPTIONS } from 'shared/constants';
 import { Model } from './Model';
-import { dateTimeType } from './dateTimeTypes';
-import { getCurrentDateTimeString } from '../utils/dateTime';
 
 export class Vitals extends Model {
   static init({ primaryKey, ...options }) {
@@ -10,10 +8,11 @@ export class Vitals extends Model {
       {
         id: primaryKey,
 
-        dateRecorded: dateTimeType('dateRecorded', {
+        dateRecorded: {
+          type: Sequelize.DATE,
           allowNull: false,
-          defaultValue: getCurrentDateTimeString,
-        }),
+          defaultValue: Sequelize.NOW,
+        },
         temperature: Sequelize.FLOAT,
         weight: Sequelize.FLOAT,
         height: Sequelize.FLOAT,

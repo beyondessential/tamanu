@@ -1,52 +1,29 @@
 import React, { useState } from 'react';
 import { useEncounter } from '../../../contexts/Encounter';
 import { MedicationModal } from '../../../components/MedicationModal';
-import { PrintMultipleMedicationSelectionModal } from '../../../components/PatientPrinting/PrintMultipleMedicationSelectionModal';
 import { EncounterMedicationTable } from '../../../components/MedicationTable';
-import { ButtonWithPermissionCheck, TableButtonRow } from '../../../components';
+import { Button, TableButtonRow } from '../../../components';
 import { TabPane } from '../components';
 
 export const EncounterMedicationPane = React.memo(({ encounter, readonly }) => {
-  const [createMedicationModalOpen, setCreateMedicationModalOpen] = useState(false);
-  const [printMedicationModalOpen, setPrintMedicationModalOpen] = useState(false);
-
+  const [modalOpen, setModalOpen] = useState(false);
   const { loadEncounter } = useEncounter();
 
   return (
     <TabPane>
       <MedicationModal
-        open={createMedicationModalOpen}
+        open={modalOpen}
         encounterId={encounter.id}
-        onClose={() => setCreateMedicationModalOpen(false)}
+        onClose={() => setModalOpen(false)}
         onSaved={async () => {
-          setCreateMedicationModalOpen(false);
+          setModalOpen(false);
           await loadEncounter(encounter.id);
         }}
       />
-      <PrintMultipleMedicationSelectionModal
-        encounter={encounter}
-        open={printMedicationModalOpen}
-        onClose={() => setPrintMedicationModalOpen(false)}
-      />
       <TableButtonRow variant="small">
-        <ButtonWithPermissionCheck
-          onClick={() => setPrintMedicationModalOpen(true)}
-          disabled={readonly}
-          verb="read"
-          noun="EncounterMedication"
-          variant="outlined"
-          color="primary"
-        >
-          Print
-        </ButtonWithPermissionCheck>
-        <ButtonWithPermissionCheck
-          onClick={() => setCreateMedicationModalOpen(true)}
-          disabled={readonly}
-          verb="create"
-          noun="EncounterMedication"
-        >
+        <Button onClick={() => setModalOpen(true)} disabled={readonly}>
           New prescription
-        </ButtonWithPermissionCheck>
+        </Button>
       </TableButtonRow>
       <EncounterMedicationTable encounterId={encounter.id} />
     </TabPane>

@@ -9,15 +9,10 @@ export class ScheduledTask {
   }
 
   constructor(schedule, log) {
-    log.info('Initialising scheduled task', {
-      name: this.getName(),
-    });
-
     this.schedule = schedule;
     this.job = null;
     this.log = log;
     this.currentlyRunningTask = null;
-    this.start = null;
     this.subtasks = [];
   }
 
@@ -44,10 +39,7 @@ export class ScheduledTask {
     }
 
     if (this.currentlyRunningTask) {
-      const durationMs = Date.now() - this.start;
-      this.log.info(`ScheduledTask: ${name}: Not running (previous task still running)`, {
-        durationMs,
-      });
+      this.log.info(`ScheduledTask: ${name}: Not running (previous task still running)`);
       return false;
     }
 
@@ -69,20 +61,19 @@ export class ScheduledTask {
 
     const runId = shortid();
     this.log.info(`ScheduledTask: ${name}: Running`, { id: runId });
-    this.start = Date.now();
+    const start = Date.now();
     try {
       this.currentlyRunningTask = this.run();
       await this.currentlyRunningTask;
-      const durationMs = Date.now() - this.start;
+      const durationMs = Date.now() - start;
       this.log.info(`ScheduledTask: ${name}: Succeeded`, { id: runId, durationMs });
       return true;
     } catch (e) {
-      const durationMs = Date.now() - this.start;
+      const durationMs = Date.now() - start;
       this.log.error(`ScheduledTask: ${name}: Failed`, { id: runId, durationMs });
       this.log.error(e.stack);
       return false;
     } finally {
-      this.start = null;
       this.currentlyRunningTask = null;
     }
   }

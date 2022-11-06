@@ -3,7 +3,6 @@ import { compose } from 'redux';
 import { useSelector } from 'react-redux';
 import { Formik } from 'formik';
 import { ScrollView } from 'react-native-gesture-handler';
-
 import { Field } from '/components/Forms/FormField';
 import { SectionHeader } from '/components/SectionHeader';
 import { FullView, StyledView } from '/styled/common';
@@ -24,7 +23,6 @@ import { Suggester } from '~/ui/helpers/suggester';
 import { ReferenceData } from '~/models/ReferenceData';
 import { NumberField } from '~/ui/components/NumberField';
 import { authUserSelector } from '~/ui/helpers/selectors';
-import { getCurrentDateTimeString } from '~/ui/helpers/date';
 
 const styles = StyleSheet.create({
   KeyboardAvoidingViewStyles: { flex: 1 },
@@ -53,7 +51,7 @@ export const DumbPrescribeMedicationScreen = ({ selectedPatient, navigation }): 
 
       await models.Medication.createAndSaveOne({
         encounter: encounter.id,
-        date: getCurrentDateTimeString(),
+        date: new Date(),
         ...values,
       });
 

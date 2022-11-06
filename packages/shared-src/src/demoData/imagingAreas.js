@@ -193,7 +193,7 @@ export const ULTRASOUND_IMAGING_AREAS = splitIds(`
   Kidney/Ureter/Bladder
   Chest
   Chest wall
-  Abdomen
+  Abdomen 
   AFI
   Breast
   Doppler - Renal Artery
@@ -255,5 +255,6 @@ export const ULTRASOUND_IMAGING_AREAS = splitIds(`
   Intra Uterine Death - Fetus
   Pancreases
   Neck - Soft Tissue
+  Abdomen
   Kidneys
 `);

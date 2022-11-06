@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import Collapse from '@material-ui/core/Collapse';
 
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import {
   Form,
   Field,
@@ -67,22 +66,11 @@ export const ProcedureForm = React.memo(
                     component={AutocompleteField}
                     suggester={locationSuggester}
                   />
-                  <Field
-                    name="date"
-                    label="Procedure date"
-                    saveDateAsString
-                    required
-                    component={DateField}
-                  />
+                  <Field name="date" label="Procedure date" required component={DateField} />
                 </FormGrid>
                 <FormGrid style={{ gridColumn: 'span 2' }}>
-                  <Field
-                    name="startTime"
-                    label="Time started"
-                    component={TimeField}
-                    saveDateAsString
-                  />
-                  <Field name="endTime" label="Time ended" component={TimeField} saveDateAsString />
+                  <Field name="startTime" label="Time started" component={TimeField} />
+                  <Field name="endTime" label="Time ended" component={TimeField} />
                 </FormGrid>
                 <Field
                   name="physicianId"
@@ -104,7 +92,7 @@ export const ProcedureForm = React.memo(
                   suggester={practitionerSuggester}
                 />
                 <Field
-                  name="anaestheticId"
+                  name="anaestheticTypeId"
                   label="Anaesthetic type"
                   component={AutocompleteField}
                   suggester={anaestheticSuggester}
@@ -142,20 +130,20 @@ export const ProcedureForm = React.memo(
         );
       }}
       initialValues={{
-        date: getCurrentDateTimeString(),
-        startTime: getCurrentDateTimeString(),
+        date: new Date(),
+        startTime: new Date(),
         ...editedObject,
       }}
       validationSchema={yup.object().shape({
         procedureTypeId: foreignKey('Procedure must be selected'),
         locationId: foreignKey('Location must be selected'),
         date: yup.date().required(),
-        startTime: yup.date(),
+        startTime: yup.string(),
         endTime: yup.date(),
         physicianId: foreignKey('Physician must be selected'),
         assistantId: optionalForeignKey(),
         anaesthetistId: optionalForeignKey(),
-        anaestheticId: optionalForeignKey(),
+        anaestheticTypeId: optionalForeignKey(),
         note: yup.string(),
         completed: yup.boolean(),
         completedNote: yup.string(),

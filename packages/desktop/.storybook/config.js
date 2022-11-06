@@ -12,7 +12,7 @@ import { theme } from '../app/theme';
 import { DummyElectronProvider } from '../app/contexts/Electron';
 
 // automatically import all files ending in *.stories.js
-const req = require.context('../stories', true, /stories\.js$/);
+const req = require.context('../stories', true, /stories.js$/);
 function loadStories() {
   const keys = req
     .keys()

@@ -47,6 +47,5 @@ export const login = asyncHandler(async (req, res) => {
     permissions,
     facility,
     localisation,
-    centralHost: config.canonicalHostName,
   });
 });

@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 
-import { formatStringDate } from '/helpers/date';
+import { formatDate } from '/helpers/date';
 import { DateFormats } from '/helpers/constants';
 import { FieldRowDisplay } from '~/ui/components/FieldRowDisplay';
 import { PatientSection } from './PatientSection';
@@ -23,7 +23,7 @@ export const GeneralInfo = ({
     ['lastName', patient.lastName],
     ['culturalName', patient.culturalName || 'None'],
     ['sex', getGender(patient.sex)],
-    ['dateOfBirth', formatStringDate(patient.dateOfBirth, DateFormats.DDMMYY)],
+    ['dateOfBirth', formatDate(new Date(patient.dateOfBirth), DateFormats.DDMMYY)],
     ['email', patient.email],
     ['villageId', patient.village?.name ?? ''],
   ];

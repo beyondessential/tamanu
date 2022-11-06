@@ -4,7 +4,10 @@
 # your local FS - unfortunately REST client doesn't support making variable
 # paths to attachments yet.
 
-@syncserver=http://localhost:3000
+# Note that these are designed to be sent to a LAN server, acting as a
+# go-between for a sync server, rather than directly to the sync server.
+
+@lanserver=http://localhost:4000
 @token=fake-token
 
 # a boundary can be any string that doesn't appear in the body of the upload data
@@ -12,7 +15,7 @@
 
 ##-------
 ### Obtain a token
-POST {{syncserver}}/v1/login
+POST {{lanserver}}/v1/login
 Content-Type: application/json
 
 {
@@ -23,7 +26,7 @@ Content-Type: application/json
 
 ##--------------------------------------------
 ### Import a survey definition
-POST {{syncserver}}/v1/admin/importProgram
+POST {{lanserver}}/v1/admin/importProgram
 Content-Type: multipart/form-data; boundary={{boundary}}
 Authorization: Bearer {{token}}
 
@@ -48,7 +51,7 @@ Content-Type: application/vnd.ms-excel
 
 ##--------------------------------------------
 ### Import a data definition document
-POST {{syncserver}}/v1/admin/importRefData
+POST {{lanserver}}/v1/admin/importData
 Content-Type: multipart/form-data; boundary={{boundary}}
 Authorization: Bearer {{token}}
 

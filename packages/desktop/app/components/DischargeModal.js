@@ -14,7 +14,6 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
   const patient = useSelector(state => state.patient);
   const { encounter, writeAndViewEncounter } = useEncounter();
   const practitionerSuggester = useSuggester('practitioner');
-  const dispositionSuggester = useSuggester('dischargeDisposition');
 
   const handleDischarge = useCallback(
     async data => {
@@ -33,7 +32,6 @@ export const DischargeModal = React.memo(({ open, onClose }) => {
         onCancel={onClose}
         encounter={encounter}
         practitionerSuggester={practitionerSuggester}
-        dispositionSuggester={dispositionSuggester}
       />
     </Modal>
   );

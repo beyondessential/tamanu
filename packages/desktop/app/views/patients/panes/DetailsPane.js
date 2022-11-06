@@ -19,39 +19,33 @@ const ForbiddenMessage = () => (
   </ContentPane>
 );
 
-export const PatientDetailsPane = React.memo(
-  ({ patient, additionalData, birthData, patientFields }) => {
-    const api = useApi();
-    const queryClient = useQueryClient();
-    const dispatch = useDispatch();
-    const { ability } = useAuth();
+export const PatientDetailsPane = React.memo(({ patient, additionalData }) => {
+  const api = useApi();
+  const queryClient = useQueryClient();
+  const dispatch = useDispatch();
+  const { ability } = useAuth();
 
-    const handleSubmit = async data => {
-      await api.put(`patient/${patient.id}`, data);
-      queryClient.invalidateQueries(['additionalData', patient.id]);
-      queryClient.invalidateQueries(['birthData', patient.id]);
-      queryClient.invalidateQueries(['patientFields', patient.id]);
-      dispatch(reloadPatient(patient.id));
-    };
+  const handleSubmit = async data => {
+    await api.put(`patient/${patient.id}`, data);
+    queryClient.invalidateQueries(['additionalData', patient.id]);
+    dispatch(reloadPatient(patient.id));
+  };
 
-    // Display form if user can read, write or create patient additional data.
-    // It's assumed that if a user got this far, they can read a patient.
-    const canViewForm = ['read', 'write', 'create'].some(verb => ability.can(verb, 'Patient'));
+  // Display form if user can read, write or create patient additional data.
+  // It's assumed that if a user got this far, they can read a patient.
+  const canViewForm = ['read', 'write', 'create'].some(verb => ability.can(verb, 'Patient'));
 
-    if (canViewForm === false) {
-      return <ForbiddenMessage />;
-    }
+  if (canViewForm === false) {
+    return <ForbiddenMessage />;
+  }
 
-    return (
-      <ContentPane>
-        <PatientDetailsForm
-          patient={patient}
-          additionalData={additionalData}
-          birthData={birthData}
-          patientFields={patientFields}
-          onSubmit={handleSubmit}
-        />
-      </ContentPane>
-    );
-  },
-);
+  return (
+    <ContentPane>
+      <PatientDetailsForm
+        patient={patient}
+        additionalData={additionalData}
+        onSubmit={handleSubmit}
+      />
+    </ContentPane>
+  );
+});

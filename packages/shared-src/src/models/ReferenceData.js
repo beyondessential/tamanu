@@ -65,10 +65,9 @@ export class ReferenceData extends Model {
   }
 
   async update(values) {
-    if (values.type && values.type !== this.type) {
+    if (values.type) {
       throw new InvalidOperationError('The type of a reference data item cannot be changed');
     }
-
     return super.update(values);
   }
 }

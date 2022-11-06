@@ -1,8 +1,7 @@
-import { endOfDay, parseISO, startOfDay } from 'date-fns';
 import { groupBy, keyBy } from 'lodash';
 import { Op } from 'sequelize';
-import { toDateTimeString } from 'shared/utils/dateTime';
-import { format, differenceInMilliseconds } from '../../utils/dateTime';
+import moment from 'moment';
+
 import { transformAnswers } from '../utilities';
 
 import {
@@ -38,14 +37,10 @@ export const parametersToAnswerSqlWhere = parameters => {
     where['$surveyResponse.end_time$'] = {};
   }
   if (parameters.fromDate) {
-    where['$surveyResponse.end_time$'][Op.gte] = toDateTimeString(
-      startOfDay(parseISO(parameters.fromDate)),
-    );
+    where['$surveyResponse.end_time$'][Op.gte] = parameters.fromDate;
   }
   if (parameters.toDate) {
-    where['$surveyResponse.end_time$'][Op.lte] = toDateTimeString(
-      endOfDay(parseISO(parameters.toDate)),
-    );
+    where['$surveyResponse.end_time$'][Op.lte] = parameters.toDate;
   }
   if (parameters.surveyId) {
     delete where['$surveyResponse.survey_id$'][Op.in];
@@ -161,14 +156,14 @@ export const getPatientById = async (models, rawAnswers) => {
 
 export const removeDuplicatedReferralsPerDate = referrals => {
   const referralByPatientAndDate = groupBy(referrals, r => {
-    const referralDate = format(r.surveyResponse.endTime, 'dd-MM-yyyy');
+    const referralDate = moment(r.surveyResponse.endTime).format('DD-MM-YYYY');
     return `${r.initiatingEncounter.patientId}|${r.surveyResponse.surveyId}|${referralDate}`;
   });
 
   const results = [];
   for (const groupedAnswers of Object.values(referralByPatientAndDate)) {
     const sortedLatestToOldestReferrals = groupedAnswers.sort((r1, r2) =>
-      differenceInMilliseconds(r2.initiatingEncounter.startDate, r1.initiatingEncounter.startDate),
+      moment(r2.initiatingEncounter.startDate).diff(moment(r1.initiatingEncounter.startDate)),
     );
     results.push(sortedLatestToOldestReferrals[0]);
   }
@@ -178,14 +173,14 @@ export const removeDuplicatedReferralsPerDate = referrals => {
 
 export const removeDuplicatedAnswersPerDate = answers => {
   const answersPerElement = groupBy(answers, a => {
-    const responseDate = format(a.responseEndTime, 'dd-MM-yyyy');
+    const responseDate = moment(a.responseEndTime).format('DD-MM-YYYY');
     return `${a.patientId}|${a.surveyId}|${responseDate}|${a.dataElementId}`;
   });
 
   const results = [];
   for (const groupedAnswers of Object.values(answersPerElement)) {
     const sortedLatestToOldestAnswers = groupedAnswers.sort((a1, a2) =>
-      differenceInMilliseconds(a2.responseEndTime, a1.responseEndTime),
+      moment(a2.responseEndTime).diff(moment(a1.responseEndTime)),
     );
     results.push(sortedLatestToOldestAnswers[0]);
   }

@@ -4,8 +4,6 @@ import { InvalidOperationError } from 'shared/errors';
 import { IMAGING_REQUEST_STATUS_TYPES, IMAGING_TYPES } from 'shared/constants';
 
 import { Model } from './Model';
-import { dateTimeType } from './dateTimeTypes';
-import { getCurrentDateTimeString } from '../utils/dateTime';
 
 const ALL_IMAGING_REQUEST_STATUS_TYPES = Object.values(IMAGING_REQUEST_STATUS_TYPES);
 const ALL_IMAGING_TYPES = Object.values(IMAGING_TYPES);
@@ -26,18 +24,20 @@ export class ImagingRequest extends Model {
           defaultValue: IMAGING_REQUEST_STATUS_TYPES.PENDING,
         },
 
-        requestedDate: dateTimeType('requestedDate', {
+        requestedDate: {
+          type: Sequelize.DATE,
           allowNull: false,
-          defaultValue: getCurrentDateTimeString,
-        }),
+          defaultValue: Sequelize.NOW,
+        },
 
         results: {
-          type: Sequelize.TEXT,
+          type: Sequelize.STRING,
           defaultValue: '',
         },
 
-        priority: {
-          type: Sequelize.STRING,
+        urgent: {
+          type: Sequelize.BOOLEAN,
+          defaultValue: false,
         },
       },
       {
@@ -89,9 +89,9 @@ export class ImagingRequest extends Model {
       foreignKey: 'imagingRequestId',
     });
 
-    this.hasMany(models.NotePage, {
+    this.hasMany(models.Note, {
       foreignKey: 'recordId',
-      as: 'notePages',
+      as: 'notes',
       constraints: false,
       scope: {
         recordType: this.name,

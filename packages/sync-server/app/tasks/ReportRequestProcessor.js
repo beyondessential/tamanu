@@ -14,9 +14,7 @@ import { getLocalisation } from '../localisation';
 const REPORT_TIME_OUT_DURATION_MILLISECONDS = config.reportProcess.timeOutDurationSeconds * 1000;
 
 export class ReportRequestProcessor extends ScheduledTask {
-  getName() {
-    return 'ReportRequestProcessor';
-  }
+  getName = () => 'ReportRequestProcessor';
 
   constructor(context) {
     // run at 30 seconds interval, process 10 report requests each time
@@ -32,9 +30,9 @@ export class ReportRequestProcessor extends ScheduledTask {
     const parameters = processOptions || process.execArgv;
 
     log.info(
-      `Spawning child process for report request "${
-        request.id
-      }" for report "${request.getReportId()}" with command [${node}, ${parameters.toString()}, ${scriptPath}].`,
+      `Spawning child process for report request "${request.id}" for report "${
+        request.reportType
+      }" with command [${node}, ${parameters.toString()}, ${scriptPath}].`,
     );
 
     // For some reasons, when running a child process under pm2, pm2_env was not set and caused a problem.
@@ -43,23 +41,18 @@ export class ReportRequestProcessor extends ScheduledTask {
       ...process.env,
       pm2_env: JSON.stringify(process.env),
     };
-
     const childProcess = spawn(
       node,
       [
         ...parameters,
         scriptPath,
         'report',
-        '--reportId',
-        request.getReportId(),
+        '--name',
+        request.reportType,
         '--parameters',
         request.parameters,
         '--recipients',
         request.recipients,
-        '--userId',
-        request.requestedByUserId,
-        '--format',
-        request.exportFormat,
       ],
       {
         timeout: REPORT_TIME_OUT_DURATION_MILLISECONDS,
@@ -78,9 +71,7 @@ export class ReportRequestProcessor extends ScheduledTask {
       childProcess.on('exit', code => {
         if (code === 0) {
           log.info(
-            `Child process running report request "${
-              request.id
-            }" for report "${request.getReportId()}" has finished.`,
+            `Child process running report request "${request.id}" for report "${request.reportType}" has finished.`,
           );
           resolve();
           return;
@@ -88,9 +79,7 @@ export class ReportRequestProcessor extends ScheduledTask {
         reject(
           new Error(
             errorMessage ||
-              `Failed to generate report for report request "${
-                request.id
-              }" for report "${request.getReportId()}"`,
+              `Failed to generate report for report request "${request.id}" for report "${request.reportType}"`,
           ),
         );
       });
@@ -115,18 +104,14 @@ export class ReportRequestProcessor extends ScheduledTask {
 
   async runReportInTheSameProcess(request) {
     log.info(
-      `Running report request "${
-        request.id
-      }" for report "${request.getReportId()}" in main process.`,
+      `Running report request "${request.id}" for report "${request.reportType}" in main process.`,
     );
     const reportRunner = new ReportRunner(
-      request.getReportId(),
+      request.reportType,
       request.getParameters(),
       request.getRecipients(),
       this.context.store,
       this.context.emailService,
-      request.requestedByUserId,
-      request.exportFormat,
     );
 
     await reportRunner.run();
@@ -151,8 +136,6 @@ export class ReportRequestProcessor extends ScheduledTask {
     });
 
     for (const request of requests) {
-      const reportId = request.getReportId();
-
       if (!config.mailgun.from) {
         log.error(`ReportRequestProcessorError - Email config missing`);
         await request.update({
@@ -163,24 +146,24 @@ export class ReportRequestProcessor extends ScheduledTask {
       }
 
       const { disabledReports } = localisation;
-      if (disabledReports.includes(reportId)) {
-        log.error(`Report "${reportId}" is disabled`);
+      if (disabledReports.includes(request.reportType)) {
+        log.error(`Report "${request.reportType}" is disabled`);
         await request.update({
           status: REPORT_REQUEST_STATUSES.ERROR,
-          error: `Report "${reportId}" is disabled`,
+          error: `Report "${request.reportType}" is disabled`,
         });
         return;
       }
 
-      const reportModule = await getReportModule(reportId, this.context.store.models);
+      const reportModule = getReportModule(request.reportType);
       const reportDataGenerator = reportModule?.dataGenerator;
       if (!reportModule || !reportDataGenerator) {
         log.error(
-          `ReportRequestProcessorError - Unable to find report generator for report ${request.id} of type ${reportId}`,
+          `ReportRequestProcessorError - Unable to find report generator for report ${request.id} of type ${request.reportType}`,
         );
         await request.update({
           status: REPORT_REQUEST_STATUSES.ERROR,
-          error: `Unable to find report generator for report ${request.id} of type ${reportId}`,
+          error: `Unable to find report generator for report ${request.id} of type ${request.reportType}`,
         });
         return;
       }

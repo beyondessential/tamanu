@@ -40,8 +40,8 @@ export class SurveyScreenComponent extends Model {
     });
   }
 
-  static async getComponentsForSurveys(surveyIds) {
-    const components = await this.findAll({
+  static getComponentsForSurveys(surveyIds) {
+    return this.findAll({
       where: {
         surveyId: {
           [Op.in]: surveyIds,
@@ -49,9 +49,7 @@ export class SurveyScreenComponent extends Model {
       },
       include: this.getListReferenceAssociations(),
       order: ['screenIndex', 'componentIndex'],
-    });
-
-    return components.map(c => c.forResponse());
+    }).map(c => c.forResponse());
   }
 
   static getComponentsForSurvey(surveyId) {

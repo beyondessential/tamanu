@@ -6,7 +6,7 @@ import { log } from 'shared/services/logging';
 import { initDatabase } from '../database';
 import { checkIntegrationsConfig } from '../integrations';
 
-async function setup({ facility }) {
+async function setup() {
   const store = await initDatabase({ testMode: false });
   const userCount = await store.models.User.count();
   if (userCount > 0) {
@@ -23,21 +23,10 @@ async function setup({ facility }) {
 
   log.info(`Creating initial user account for ${initialUser.email}...`);
   await store.models.User.create(initialUser);
-
-  if (facility) {
-    log.info(`Creating initial facility ${facility}...`);
-    await store.models.Facility.create({
-      id: facility,
-      code: facility,
-      name: facility,
-    });
-  }
-
   log.info(`Done.`);
   process.exit(0);
 }
 
 export const setupCommand = new Command('setup')
   .description('Set up initial data within the Tamanu app')
-  .option('--facility <id>', 'also create a facility')
   .action(setup);

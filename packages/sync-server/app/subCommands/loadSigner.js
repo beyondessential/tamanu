@@ -1,5 +1,5 @@
 import { promises as fs } from 'fs';
-import { format } from 'date-fns';
+import moment from 'moment';
 import { Command } from 'commander';
 
 import { log } from 'shared/services/logging';
@@ -20,8 +20,8 @@ async function loadSigner({ signerCertificate }) {
   }
 
   await pending.update(signerData);
-  const start = format(signerData.workingPeriodStart, 'yyyy-MM-dd');
-  const end = format(signerData.workingPeriodEnd, 'yyyy-MM-dd');
+  const start = moment(signerData.workingPeriodStart).format('YYYY-MM-DD');
+  const end = moment(signerData.workingPeriodEnd).format('YYYY-MM-DD');
   log.info(`Loaded Signer (${start} - ${end})`);
 
   process.exit(0);

@@ -45,7 +45,7 @@ export function buildAbilityForTests(permissions) {
       if (typeof obj === 'string') {
         return obj;
       }
-      return (obj || {}).type;
+      return obj?.type;
     },
   });
 }

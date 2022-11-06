@@ -2,25 +2,9 @@ import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import Select from 'react-select';
 import styled from 'styled-components';
-import FormControl from '@material-ui/core/FormControl';
-import FormHelperText from '@material-ui/core/FormHelperText';
-
 import { Colors } from '../../constants';
 import { OuterLabelFieldWrapper } from './OuterLabelFieldWrapper';
 import { StyledTextField } from './TextField';
-
-const StyledFormControl = styled(FormControl)`
-  display: flex;
-  flex-direction: column;
-
-  // helper text
-  .MuiFormHelperText-root {
-    font-weight: 500;
-    font-size: 12px;
-    line-height: 15px;
-    margin: 4px 2px 2px;
-  }
-`;
 
 export const SelectInput = ({
   options,
@@ -31,7 +15,6 @@ export const SelectInput = ({
   readonly,
   onChange,
   name,
-  helperText,
   ...props
 }) => {
   const handleChange = useCallback(
@@ -42,19 +25,15 @@ export const SelectInput = ({
   );
 
   const customStyles = {
-    control: (provided, state) => {
-      const mainBorderColor = state.isFocused ? Colors.primary : Colors.outline;
-      const borderColor = props.error ? Colors.alert : mainBorderColor;
-      return {
-        ...provided,
-        borderColor,
-        boxShadow: 'none',
-        borderRadius: '3px',
-        paddingTop: '5px',
-        paddingBottom: '3px',
-        paddingLeft: '5px',
-      };
-    },
+    control: (provided, state) => ({
+      ...provided,
+      borderColor: state.isFocused ? Colors.primary : Colors.outline,
+      boxShadow: 'none',
+      borderRadius: '3px',
+      paddingTop: '5px',
+      paddingBottom: '3px',
+      paddingLeft: '5px',
+    }),
     dropdownIndicator: provided => ({
       ...provided,
       color: Colors.midText,
@@ -93,20 +72,17 @@ export const SelectInput = ({
 
   return (
     <OuterLabelFieldWrapper label={label} {...props}>
-      <StyledFormControl {...props}>
-        <Select
-          value={selectedOption}
-          onChange={handleChange}
-          options={options}
-          menuPlacement="auto"
-          menuPosition="fixed"
-          styles={customStyles}
-          menuShouldBlockScroll="true"
-          placeholder="Select"
-          {...props}
-        />
-        {helperText && <FormHelperText>{helperText}</FormHelperText>}
-      </StyledFormControl>
+      <Select
+        value={selectedOption}
+        onChange={handleChange}
+        options={options}
+        menuPlacement="auto"
+        menuPosition="fixed"
+        styles={customStyles}
+        menuShouldBlockScroll="true"
+        placeholder="Select"
+        {...props}
+      />
     </OuterLabelFieldWrapper>
   );
 };

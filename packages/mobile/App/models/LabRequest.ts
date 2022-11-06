@@ -1,20 +1,30 @@
-import { Entity, Column, ManyToOne, RelationId, BeforeInsert, BeforeUpdate } from 'typeorm/browser';
+import {
+  Entity,
+  Column,
+  ManyToOne,
+  RelationId,
+  BeforeInsert,
+  BeforeUpdate,
+} from 'typeorm/browser';
 import { OneToMany } from 'typeorm';
 import { BaseModel } from './BaseModel';
-import { IDataRequiredToCreateLabRequest, ILabRequest, LabRequestStatus } from '~/types';
+import {
+  IDataRequiredToCreateLabRequest,
+  ILabRequest,
+  LabRequestStatus,
+} from '~/types';
 import { Encounter } from './Encounter';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { LabTest } from './LabTest';
 import { User } from './User';
 import { ISO9075_SQLITE_DEFAULT } from './columnDefaults';
-import { DateTimeStringColumn } from './DateColumns';
 
 @Entity('labRequest')
 export class LabRequest extends BaseModel implements ILabRequest {
-  @DateTimeStringColumn({ nullable: false, default: ISO9075_SQLITE_DEFAULT })
+  @Column({ nullable: false, default: ISO9075_SQLITE_DEFAULT })
   sampleTime: string;
 
-  @DateTimeStringColumn({ nullable: false, default: ISO9075_SQLITE_DEFAULT })
+  @Column({ nullable: false, default: ISO9075_SQLITE_DEFAULT })
   requestedDate: string;
 
   @Column({ nullable: true, default: false })
@@ -42,18 +52,12 @@ export class LabRequest extends BaseModel implements ILabRequest {
   @Column({ type: 'varchar', nullable: true })
   note?: string;
 
-  @ManyToOne(
-    () => Encounter,
-    encounter => encounter.labRequests,
-  )
+  @ManyToOne(() => Encounter, (encounter) => encounter.labRequests)
   encounter: Encounter;
   @RelationId(({ encounter }) => encounter)
   encounterId: string;
 
-  @ManyToOne(
-    () => User,
-    user => user.labRequests,
-  )
+  @ManyToOne(() => User, (user) => user.labRequests)
   requestedBy: User;
   @RelationId(({ requestedBy }) => requestedBy)
   requestedById: string;
@@ -68,10 +72,7 @@ export class LabRequest extends BaseModel implements ILabRequest {
   @RelationId(({ labTestPriority }) => labTestPriority)
   labTestPriorityId: string;
 
-  @OneToMany(
-    () => LabTest,
-    labTest => labTest.labRequest,
-  )
+  @OneToMany(() => LabTest, (labTest) => labTest.labRequest)
   tests: LabTest[];
 
   @BeforeInsert()
@@ -89,7 +90,9 @@ export class LabRequest extends BaseModel implements ILabRequest {
       .getMany();
   }
 
-  static async createWithTests(data: IDataRequiredToCreateLabRequest): Promise<BaseModel> {
+  static async createWithTests(
+    data: IDataRequiredToCreateLabRequest,
+  ): Promise<BaseModel> {
     const { labTestTypeIds = [] } = data;
     if (!labTestTypeIds.length) {
       throw new Error('A request must have at least one test');
@@ -99,12 +102,10 @@ export class LabRequest extends BaseModel implements ILabRequest {
 
     // then create tests
     await Promise.all(
-      labTestTypeIds.map(labTestTypeId =>
-        LabTest.createAndSaveOne({
-          labTestType: labTestTypeId,
-          labRequest: labRequest.id,
-        }),
-      ),
+      labTestTypeIds.map((labTestTypeId) => LabTest.createAndSaveOne({
+        labTestType: labTestTypeId,
+        labRequest: labRequest.id,
+      })),
     );
 
     return labRequest;

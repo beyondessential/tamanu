@@ -1,3 +1,4 @@
+import config from 'config';
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { InvalidOperationError, NotFoundError } from 'shared/errors';
@@ -265,5 +266,9 @@ patientDeath.post(
 );
 
 async function transactionOnPostgres(db, transaction) {
+  if (config.db.sqlitePath) {
+    return transaction();
+  }
+
   return db.transaction(transaction);
 }

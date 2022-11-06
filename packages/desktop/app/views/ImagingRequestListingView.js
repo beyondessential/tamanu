@@ -1,17 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { TopBar, PageContainer, ImagingRequestsSearchBar, ContentPane } from '../components';
 import { ImagingRequestsTable } from '../components/ImagingRequestsTable';
-import { useImagingRequests } from '../contexts/ImagingRequests';
 
 export const ImagingRequestListingView = React.memo(() => {
-  const { searchParameters, setSearchParameters } = useImagingRequests();
+  const [searchParameters, setSearchParameters] = useState({});
+
   return (
     <PageContainer>
       <TopBar title="Imaging requests" />
-      <ImagingRequestsSearchBar
-        searchParameters={searchParameters}
-        setSearchParameters={setSearchParameters}
-      />
+      <ImagingRequestsSearchBar setSearchParameters={setSearchParameters} />
       <ContentPane>
         <ImagingRequestsTable searchParameters={searchParameters} />
       </ContentPane>

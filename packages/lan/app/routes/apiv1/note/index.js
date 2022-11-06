@@ -1,1 +1,0 @@
-export { notePages } from './notePages';

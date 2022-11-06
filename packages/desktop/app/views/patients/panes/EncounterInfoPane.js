@@ -9,20 +9,14 @@ import {
 } from '../../../components';
 import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
 import { useReferenceData } from '../../../api/queries';
-import { useLocalisation } from '../../../contexts/Localisation';
 
 const getDepartmentName = ({ department }) => (department ? department.name : 'Unknown');
 const getLocationName = ({ location }) => (location ? location.name : 'Unknown');
-const getReferralSource = ({ referralSource }) =>
-  referralSource ? referralSource.name : 'Unknown';
-
 export const getEncounterType = ({ encounterType }) =>
   encounterType ? ENCOUNTER_OPTIONS_BY_VALUE[encounterType]?.label : 'Unknown';
 
 export const EncounterInfoPane = React.memo(({ encounter }) => {
-  const { getLocalisation } = useLocalisation();
   const patientTypeData = useReferenceData(encounter.patientBillingTypeId);
-  const referralSourcePath = 'fields.referralSourceId';
 
   return (
     <Card>
@@ -36,17 +30,15 @@ export const EncounterInfoPane = React.memo(({ encounter }) => {
         <CardItem label="Department" value={getDepartmentName(encounter)} />
         <CardItem label="Patient type" value={patientTypeData?.name} />
         <CardItem label="Location" value={getLocationName(encounter)} />
-        {!getLocalisation(`${referralSourcePath}.hidden`) && (
-          <CardItem
-            label={getLocalisation(`${referralSourcePath}.shortLabel`)}
-            value={getReferralSource(encounter)}
-          />
-        )}
         <CardItem label="Encounter type" value={getEncounterType(encounter)} />
         {encounter.endDate && (
           <CardItem label="Discharge date" value={formatShort(encounter.endDate)} />
         )}
-        <CardItem label="Reason for encounter" value={encounter.reasonForEncounter} />
+        <CardItem
+          style={{ gridColumn: '1/-1' }}
+          label="Reason for encounter"
+          value={encounter.reasonForEncounter}
+        />
       </CardBody>
     </Card>
   );

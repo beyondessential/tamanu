@@ -1,6 +1,6 @@
 import { keyBy } from 'lodash';
 import { Op } from 'sequelize';
-import { endOfDay, isAfter, parseISO, startOfDay } from 'date-fns';
+import moment from 'moment';
 import { REFERRAL_STATUSES } from '../../constants';
 import { generateReportFromQueryData, getAnswers } from '../utilities';
 import {
@@ -14,7 +14,6 @@ import {
   getCachedAnswer,
   parametersToAnswerSqlWhere,
 } from './utils';
-import { ageInYears, format, toDateTimeString } from '../../utils/dateTime';
 
 import {
   REFERRAL_SURVEY_IDS,
@@ -39,14 +38,10 @@ const parametersToReferralSqlWhere = parameters => {
     where['$surveyResponse.end_time$'] = {};
   }
   if (parameters.fromDate) {
-    where['$surveyResponse.end_time$'][Op.gte] = toDateTimeString(
-      startOfDay(parseISO(parameters.fromDate)),
-    );
+    where['$surveyResponse.end_time$'][Op.gte] = parameters.fromDate;
   }
   if (parameters.toDate) {
-    where['$surveyResponse.end_time$'][Op.lte] = toDateTimeString(
-      endOfDay(parseISO(parameters.toDate)),
-    );
+    where['$surveyResponse.end_time$'][Op.lte] = parameters.toDate;
   }
   if (parameters.surveyId) {
     delete where['$surveyResponse.survey_id$'][Op.in];
@@ -86,7 +81,7 @@ const sortReferrals = (r1, r2) => {
   return (
     patientId1.localeCompare(patientId2) ||
     surveyGroupKey1.localeCompare(surveyGroupKey2) ||
-    isAfter(responseTime1, responseTime2)
+    moment(responseTime1).isAfter(responseTime2)
   );
 };
 
@@ -104,7 +99,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
   );
   const patientById = await getPatientById(models, rawAnswers);
   const answersByPatientSurveyDataElement = keyBy(filteredAnswers, a => {
-    const responseDate = format(a.responseEndTime, 'dd-MM-yyyy');
+    const responseDate = moment(a.responseEndTime).format('DD-MM-YYYY');
     const surveyGroupKey = getSurveyGroupKey(a.surveyId);
     return getPerPatientPerSurveyPerDatePerElementKey(
       a.patientId,
@@ -127,10 +122,11 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
     const { patientId } = referral.initiatingEncounter;
     const patient = patientById[patientId];
     const patientAdditionalData = patient.additionalData?.[0];
-    const referralDate = format(referralSurveyResponse.endTime, 'dd-MM-yyyy');
+    const referralDate = moment(referralSurveyResponse.endTime).format('DD-MM-YYYY');
     const { surveyId } = referralSurveyResponse;
     const surveyGroupKey = getSurveyGroupKey(surveyId);
-    const age = patient.dateOfBirth ? ageInYears(patient.dateOfBirth) : '';
+    const dateOfBirthMoment = patient.dateOfBirth ?? moment(patient.dateOfBirth);
+    const age = dateOfBirthMoment ? moment().diff(dateOfBirthMoment, 'years') : '';
 
     const recordData = {
       firstName: patient.firstName,
@@ -178,7 +174,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
       if (!date1 && !date2) return 0;
 
       // Sort oldest to most recent
-      return parseISO(date1) - parseISO(date2);
+      return moment(date1, 'DD-MM-YYYY') - moment(date2, 'DD-MM-YYYY');
     },
   );
 

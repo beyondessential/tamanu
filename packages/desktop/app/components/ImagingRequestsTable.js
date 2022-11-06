@@ -4,11 +4,10 @@ import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { push } from 'connected-react-router';
 
-import { IMAGING_REQUEST_STATUS_LABELS } from 'shared/constants';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 
-import { IMAGING_REQUEST_COLORS } from '../constants';
+import { IMAGING_REQUEST_STATUS_LABELS, IMAGING_REQUEST_COLORS } from '../constants';
 import { PatientNameDisplay } from './PatientNameDisplay';
 import { reloadPatient } from '../store/patient';
 import { useEncounter } from '../contexts/Encounter';

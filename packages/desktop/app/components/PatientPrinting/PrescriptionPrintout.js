@@ -1,4 +1,5 @@
 import React from 'react';
+import moment from 'moment';
 import styled from 'styled-components';
 import { Typography, Box } from '@material-ui/core';
 
@@ -66,7 +67,7 @@ export const PrescriptionPrintout = React.memo(
         </RowContainer>
         <GridTable
           data={{
-            Date: date ? <DateDisplay date={date} /> : null,
+            Date: date ? moment(date).format('DD/MM/YYYY') : null,
             Prescriber: prescriber?.displayName,
             'Prescriber ID': '', // We don't currently store this in the db, add it later
             Facility: encounterData?.location?.facility?.name,

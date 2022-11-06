@@ -135,7 +135,6 @@ async function getMostRecentVaccineForPatientBeforeSurveyDate(models, patientId,
       date: { [Op.lte]: surveyDate },
     },
     order: [['date', 'DESC']],
-  });
-
-  return vaccines.map(r => r.get({ plain: true }))[0];
+  }).map(r => r.get({ plain: true }));
+  return vaccines[0];
 }

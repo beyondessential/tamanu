@@ -1,6 +1,6 @@
 import { get, post, jar } from 'request';
 import config from 'config';
-import { format } from 'date-fns';
+import moment from 'moment';
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
 
@@ -14,7 +14,7 @@ const TARGET_STATES = ['verified', 'published', 'invalid', SENAITE_ERROR_STATUS]
 const BASE_URL = config.senaite.server;
 
 function formatForSenaite(datetime) {
-  return format(datetime, 'yyyy-MM-dd HH:mm');
+  return moment(datetime).format('YYYY-MM-DD HH:mm');
 }
 
 export class SenaitePoller extends ScheduledTask {

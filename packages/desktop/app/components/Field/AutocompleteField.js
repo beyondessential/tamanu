@@ -35,7 +35,6 @@ const SuggestionsList = styled(Paper)`
 
     .MuiButtonBase-root {
       padding: 12px 12px 12px 20px;
-      white-space: normal;
 
       .MuiTypography-root {
         font-size: 14px;
@@ -98,19 +97,14 @@ class BaseAutocomplete extends Component {
 
   handleSuggestionChange = option => {
     const { onChange, name } = this.props;
-    const { value, label } = option;
+    const { value } = option;
 
     onChange({ target: { value, name } });
-    return label;
+    return value;
   };
 
-  fetchOptions = async ({ value, reason }) => {
+  fetchOptions = async ({ value }) => {
     const { suggester, options } = this.props;
-
-    if (reason === 'suggestion-selected') {
-      this.clearOptions();
-      return;
-    }
 
     const suggestions = suggester
       ? await suggester.fetchSuggestions(value)
@@ -167,14 +161,9 @@ class BaseAutocomplete extends Component {
   };
 
   renderInputComponent = inputProps => {
-    const { label, required, className, infoTooltip, ...other } = inputProps;
+    const { label, required, className, ...other } = inputProps;
     return (
-      <OuterLabelFieldWrapper
-        label={label}
-        required={required}
-        className={className}
-        infoTooltip={infoTooltip}
-      >
+      <OuterLabelFieldWrapper label={label} required={required} className={className}>
         <StyledTextField
           variant="outlined"
           InputProps={{
@@ -198,7 +187,6 @@ class BaseAutocomplete extends Component {
       label,
       required,
       name,
-      infoTooltip,
       disabled,
       error,
       helperText,
@@ -223,7 +211,6 @@ class BaseAutocomplete extends Component {
           helperText,
           name,
           placeholder,
-          infoTooltip,
           value: displayedValue,
           onKeyDown: this.onKeyDown,
           onChange: this.handleInputChange,

@@ -1,5 +1,12 @@
 const filterFromSurveyResponseAnswer = (records, responseIds) => {
-  return records.filter(record => !responseIds.includes(record.data.responseId));
+  return records.filter(record => {
+    // Answer belongs to sensitive survey
+    if (responseIds.includes(record.data.responseId)) {
+      return false;
+    }
+    // Record isn't sensitive
+    return true;
+  });
 };
 
 const filterFromEncounter = (records, responseIds) => {

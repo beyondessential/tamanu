@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
-import { getCurrentDateTimeString } from 'shared-src/src/utils/dateTime';
 import { usePatientNavigation } from '../utils/usePatientNavigation';
 import { useEncounter } from '../contexts/Encounter';
+
 import { Modal } from './Modal';
 import { ChangeEncounterTypeForm } from '../forms/ChangeEncounterTypeForm';
 
@@ -10,10 +10,7 @@ export const ChangeEncounterTypeModal = React.memo(({ open, encounter, onClose }
   const { navigateToEncounter } = usePatientNavigation();
   const changeEncounterType = useCallback(
     async data => {
-      await writeAndViewEncounter(encounter.id, {
-        ...data,
-        submittedTime: getCurrentDateTimeString(),
-      });
+      await writeAndViewEncounter(encounter.id, data);
       navigateToEncounter(encounter.id);
       onClose();
     },

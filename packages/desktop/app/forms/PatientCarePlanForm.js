@@ -1,23 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+
 import { DateTimeField, Form, Field, AutocompleteField, TextField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 
 import { foreignKey } from '../utils/validation';
 
-export const PatientCarePlanForm = ({
-  practitionerSuggester,
-  carePlanSuggester,
-  editedObject,
-  onCancel,
-  onSubmit,
-}) => (
-  <Form
-    onSubmit={onSubmit}
-    render={({ submitForm }) => (
+export class PatientCarePlanForm extends React.PureComponent {
+  renderForm = ({ submitForm }) => {
+    const { editedObject, onCancel, practitionerSuggester, carePlanSuggester } = this.props;
+    const buttonText = editedObject ? 'Save' : 'Add';
+    return (
       <FormGrid columns={1}>
         <Field
           name="carePlanId"
@@ -27,7 +22,7 @@ export const PatientCarePlanForm = ({
           required
         />
         <FormGrid columns={2}>
-          <Field name="date" label="Date recorded" component={DateTimeField} saveDateAsString />
+          <Field name="date" label="Date recorded" component={DateTimeField} />
           <Field
             name="examinerId"
             label="Doctor/nurse"
@@ -43,25 +38,32 @@ export const PatientCarePlanForm = ({
           multiline
           rows={6}
         />
-        <ConfirmCancelRow
-          onCancel={onCancel}
-          onConfirm={submitForm}
-          confirmText={editedObject ? 'Save' : 'Add'}
-        />
+
+        <ConfirmCancelRow onCancel={onCancel} onConfirm={submitForm} confirmText={buttonText} />
       </FormGrid>
-    )}
-    initialValues={{
-      date: getCurrentDateTimeString(),
-      ...editedObject,
-    }}
-    validationSchema={yup.object().shape({
-      carePlanId: foreignKey('Care plan is a required field'),
-      date: yup.date(),
-      examinerId: yup.string(),
-      content: yup.string(),
-    })}
-  />
-);
+    );
+  };
+
+  render() {
+    const { editedObject, onSubmit } = this.props;
+    return (
+      <Form
+        onSubmit={onSubmit}
+        render={this.renderForm}
+        initialValues={{
+          date: new Date(),
+          ...editedObject,
+        }}
+        validationSchema={yup.object().shape({
+          carePlanId: foreignKey('Care plan is a required field'),
+          date: yup.date(),
+          examinerId: yup.string(),
+          content: yup.string(),
+        })}
+      />
+    );
+  }
+}
 
 PatientCarePlanForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,

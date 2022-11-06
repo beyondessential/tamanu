@@ -3,13 +3,9 @@ import { connectApi } from '../../api';
 import { AutocompleteField, Field } from '../../components';
 import { Suggester } from '../../utils/suggester';
 
-const DumbLabTestLaboratoryField = ({
-  name = 'labTestLaboratory',
-  labTestLaboratorySuggester,
-  required,
-}) => (
+const DumbLabTestLaboratoryField = ({ labTestLaboratorySuggester, required }) => (
   <Field
-    name={name}
+    name="labTestLaboratory"
     label="Lab Test Laboratory"
     component={AutocompleteField}
     suggester={labTestLaboratorySuggester}

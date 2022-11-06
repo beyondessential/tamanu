@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { LabRequestModal } from '../../../components/LabRequestModal';
 import { LabRequestsTable } from '../../../components/LabRequestsTable';
-import { TableButtonRow, ButtonWithPermissionCheck } from '../../../components';
+import { TableButtonRow, Button } from '../../../components';
 import { TabPane } from '../components';
 
 export const LabsPane = React.memo(({ encounter, readonly }) => {
@@ -11,14 +11,9 @@ export const LabsPane = React.memo(({ encounter, readonly }) => {
     <TabPane>
       <LabRequestModal open={modalOpen} encounter={encounter} onClose={() => setModalOpen(false)} />
       <TableButtonRow variant="small">
-        <ButtonWithPermissionCheck
-          onClick={() => setModalOpen(true)}
-          disabled={readonly}
-          verb="create"
-          noun="LabRequest"
-        >
+        <Button onClick={() => setModalOpen(true)} disabled={readonly}>
           New lab request
-        </ButtonWithPermissionCheck>
+        </Button>
       </TableButtonRow>
       <LabRequestsTable encounterId={encounter.id} />
     </TabPane>

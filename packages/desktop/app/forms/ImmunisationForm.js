@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import * as yup from 'yup';
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+
 import { INJECTION_SITE_OPTIONS } from 'shared/constants';
 import { OuterLabelFieldWrapper } from '../components/Field/OuterLabelFieldWrapper';
 import { ConfirmCancelRow } from '../components/ButtonRow';
@@ -93,7 +93,14 @@ const findVaccinesByAdministeredStatus = (vaccine, administered) =>
     : [];
 
 export const ImmunisationForm = React.memo(
-  ({ onCancel, onSubmit, departmentSuggester, getScheduledVaccines, locationSuggester }) => {
+  ({
+    onCancel,
+    onSubmit,
+    practitionerSuggester,
+    departmentSuggester,
+    getScheduledVaccines,
+    locationSuggester,
+  }) => {
     const [vaccineOptions, setVaccineOptions] = useState([]);
     const [category, setCategory] = useState();
     const [vaccineLabel, setVaccineLabel] = useState();
@@ -147,7 +154,7 @@ export const ImmunisationForm = React.memo(
       <Form
         onSubmit={onSubmitWithRecorder}
         initialValues={{
-          date: getCurrentDateTimeString(),
+          date: new Date(),
         }}
         validationSchema={yup.object().shape({
           consent: yup
@@ -210,7 +217,7 @@ export const ImmunisationForm = React.memo(
               )}
             </FullWidthCol>
 
-            <Field name="date" label="Date" component={DateField} required saveDateAsString />
+            <Field name="date" label="Date" component={DateField} required />
             <Field name="givenBy" label="Given by" component={TextField} />
             <Field
               name="locationId"

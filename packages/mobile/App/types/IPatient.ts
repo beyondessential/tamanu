@@ -10,7 +10,7 @@ export interface IPatient {
   lastName?: string;
   middleName?: string;
   sex: string;
-  dateOfBirth?: string;
+  dateOfBirth?: Date;
   email?: string;
   culturalName?: string;
   village?: IReferenceData,

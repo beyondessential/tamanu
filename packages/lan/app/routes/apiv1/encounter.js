@@ -2,14 +2,9 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Op } from 'sequelize';
 import { NotFoundError } from 'shared/errors';
-import {
-  LAB_REQUEST_STATUSES,
-  DOCUMENT_SIZE_LIMIT,
-  INVOICE_STATUSES,
-  NOTE_RECORD_TYPES,
-} from 'shared/constants';
+import { LAB_REQUEST_STATUSES, DOCUMENT_SIZE_LIMIT, INVOICE_STATUSES } from 'shared/constants';
+import { NOTE_RECORD_TYPES } from 'shared/models/Note';
 import { uploadAttachment } from '../../utils/uploadAttachment';
-import { notePageListHandler } from '../../routeHandlers';
 
 import {
   simpleGet,
@@ -19,6 +14,7 @@ import {
   permissionCheckingRouter,
   runPaginatedQuery,
   paginatedGetList,
+  createNoteListingHandler,
 } from './crudHelpers';
 
 export const encounter = express.Router();
@@ -78,11 +74,9 @@ encounter.post(
       throw new NotFoundError();
     }
     req.checkPermission('write', owner);
-    const notePage = await owner.createNotePage(body);
-    await notePage.createNoteItem(body);
-    const response = await notePage.getCombinedNoteObject(models);
+    const createdNote = await owner.createNote(body);
 
-    res.send(response);
+    res.send(createdNote);
   }),
 );
 
@@ -135,26 +129,7 @@ encounterRelations.get(
   paginatedGetList('DocumentMetadata', 'encounterId'),
 );
 encounterRelations.get('/:id/imagingRequests', simpleGetList('ImagingRequest', 'encounterId'));
-
-encounterRelations.get('/:id/notePages', notePageListHandler(NOTE_RECORD_TYPES.ENCOUNTER));
-
-encounterRelations.get(
-  '/:id/notePages/noteTypes',
-  asyncHandler(async (req, res) => {
-    const { models, params } = req;
-    const encounterId = params.id;
-    const noteTypeCounts = await models.NotePage.count({
-      group: ['noteType'],
-      where: { recordId: encounterId, recordType: 'Encounter' },
-    });
-    const noteTypeToCount = {};
-    noteTypeCounts.forEach(n => {
-      noteTypeToCount[n.noteType] = n.count;
-    });
-    res.send({ data: noteTypeToCount });
-  }),
-);
-
+encounterRelations.get('/:id/notes', createNoteListingHandler(NOTE_RECORD_TYPES.ENCOUNTER));
 encounterRelations.get(
   '/:id/invoice',
   simpleGetHasOne('Invoice', 'encounterId', {
@@ -188,8 +163,8 @@ encounterRelations.get(
         SELECT
           survey_responses.*,
           surveys.name as survey_name,
-          programs.name as program_name, 
-          COALESCE(survey_user.display_name, encounter_user.display_name) as submitted_by
+          programs.name as program_name,
+          users.display_name as assessor_name
         FROM
           survey_responses
           LEFT JOIN surveys
@@ -198,10 +173,8 @@ encounterRelations.get(
             ON (programs.id = surveys.program_id)
           LEFT JOIN encounters
             ON (encounters.id = survey_responses.encounter_id)
-          LEFT JOIN users encounter_user
-            ON (encounter_user.id = encounters.examiner_id)
-          LEFT JOIN users survey_user
-            ON (survey_user.id = survey_responses.user_id)
+          LEFT JOIN users
+            ON (users.id = encounters.examiner_id)
         WHERE
           survey_responses.encounter_id = :encounterId
         AND

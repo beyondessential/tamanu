@@ -1,21 +1,20 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { startOfDay, endOfDay } from 'date-fns';
+import moment from 'moment';
 import { QueryTypes, Sequelize } from 'sequelize';
 
+import { NOTE_RECORD_TYPES } from 'shared/models/Note';
 import { NotFoundError, InvalidOperationError } from 'shared/errors';
-import { toDateTimeString } from 'shared/utils/dateTime';
-import {
-  REFERENCE_TYPES,
-  LAB_REQUEST_STATUSES,
-  NOTE_TYPES,
-  NOTE_RECORD_TYPES,
-} from 'shared/constants';
+import { REFERENCE_TYPES, LAB_REQUEST_STATUSES, NOTE_TYPES } from 'shared/constants';
 import { makeFilter, makeSimpleTextFilterFactory } from '../../utils/query';
 import { renameObjectKeys } from '../../utils/renameObjectKeys';
-import { simpleGet, simplePut, simpleGetList, permissionCheckingRouter } from './crudHelpers';
-import { notePagesWithSingleItemListHandler } from '../../routeHandlers';
-
+import {
+  simpleGet,
+  simplePut,
+  simpleGetList,
+  permissionCheckingRouter,
+  createNoteListingHandler
+} from './crudHelpers';
 export const labRequest = express.Router();
 
 labRequest.get('/:id', simpleGet('LabRequest'));
@@ -55,10 +54,10 @@ labRequest.post(
     req.checkPermission('create', 'LabRequest');
     const object = await models.LabRequest.createWithTests(req.body);
     if (note) {
-      const notePage = await object.createNotePage({
+      object.createNote({
         noteType: NOTE_TYPES.OTHER,
+        content: note,
       });
-      await notePage.createNoteItem({ content: note });
     }
     res.send(object);
   }),
@@ -90,16 +89,20 @@ labRequest.get(
       makeSimpleTextFilter('patientId', 'patient.id'),
       makeFilter(
         filterParams.requestedDateFrom,
-        `lab_requests.requested_date >= :requestedDateFrom`,
+        `DATE(lab_requests.requested_date) >= :requestedDateFrom`,
         ({ requestedDateFrom }) => ({
-          requestedDateFrom: toDateTimeString(startOfDay(new Date(requestedDateFrom))),
+          requestedDateFrom: moment(requestedDateFrom)
+            .startOf('day')
+            .toISOString(),
         }),
       ),
       makeFilter(
         filterParams.requestedDateTo,
-        `lab_requests.requested_date <= :requestedDateTo`,
+        `DATE(lab_requests.requested_date) <= :requestedDateTo`,
         ({ requestedDateTo }) => ({
-          requestedDateTo: toDateTimeString(endOfDay(new Date(requestedDateTo))),
+          requestedDateTo: moment(requestedDateTo)
+            .endOf('day')
+            .toISOString(),
         }),
       ),
     ].filter(f => f);
@@ -202,16 +205,15 @@ labRequest.post(
       throw new NotFoundError();
     }
     req.checkPermission('write', lab);
-    const notePage = await lab.createNotePage(body);
-    await notePage.createNoteItem(body);
-    const response = await notePage.getCombinedNoteObject(models);
-    res.send(response);
+    const createdNote = await lab.createNote(body);
+
+    res.send(createdNote);
   }),
 );
 
 const labRelations = permissionCheckingRouter('read', 'LabRequest');
 labRelations.get('/:id/tests', simpleGetList('LabTest', 'labRequestId'));
-labRelations.get('/:id/notes', notePagesWithSingleItemListHandler(NOTE_RECORD_TYPES.LAB_REQUEST));
+labRelations.get('/:id/notes', createNoteListingHandler(NOTE_RECORD_TYPES.LAB_REQUEST));
 
 labRequest.use(labRelations);
 

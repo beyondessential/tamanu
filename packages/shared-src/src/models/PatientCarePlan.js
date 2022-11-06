@@ -1,23 +1,19 @@
+import { Sequelize } from 'sequelize';
 import { initSyncForModelNestedUnderPatient } from './sync';
 import { Model } from './Model';
-import { dateTimeType } from './dateTimeTypes';
-import { getCurrentDateTimeString } from '../utils/dateTime';
 
 export class PatientCarePlan extends Model {
   static init({ primaryKey, ...options }) {
     super.init(
       {
         id: primaryKey,
-        date: dateTimeType('date', {
-          defaultValue: getCurrentDateTimeString,
-          allowNull: false,
-        }),
+        date: { type: Sequelize.DATE, defaultValue: Sequelize.NOW, allowNull: false },
       },
       {
         ...options,
         syncConfig: {
           ...initSyncForModelNestedUnderPatient(this, 'carePlan'),
-          includedRelations: ['notePages', 'notePages.noteItems'],
+          includedRelations: ['notes'],
         },
       },
     );
@@ -28,9 +24,9 @@ export class PatientCarePlan extends Model {
     this.belongsTo(models.ReferenceData, { foreignKey: 'carePlanId', as: 'carePlan' });
     this.belongsTo(models.User, { foreignKey: 'examinerId', as: 'examiner' });
 
-    this.hasMany(models.NotePage, {
+    this.hasMany(models.Note, {
       foreignKey: 'recordId',
-      as: 'notePages',
+      as: 'notes',
       constraints: false,
       scope: {
         recordType: this.name,

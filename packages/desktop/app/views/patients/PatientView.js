@@ -1,11 +1,15 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
+import { useParams } from 'react-router-dom';
 
 import { TabDisplay } from '../../components/TabDisplay';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { PatientAlert } from '../../components/PatientAlert';
+import { EncounterModal } from '../../components/EncounterModal';
+import { TriageModal } from '../../components/TriageModal';
+import { connectRoutedModal } from '../../components/Modal';
 import { useLocalisation } from '../../contexts/Localisation';
 import { useApi } from '../../api';
 
@@ -22,6 +26,9 @@ import {
 import { Colors } from '../../constants';
 import { NAVIGATION_CONTAINER_HEIGHT } from '../../components/PatientNavigation';
 
+const getConnectRoutedModal = ({ category, patientId }, suffix) =>
+  connectRoutedModal(`/patients/${category}/${patientId}`, suffix);
+
 const StyledDisplayTabs = styled(TabDisplay)`
   overflow: initial;
   .MuiTabs-root {
@@ -37,7 +44,7 @@ const TABS = [
     label: 'History',
     key: 'history',
     icon: 'fa fa-calendar-day',
-    render: props => <HistoryPane {...props} />,
+    render: () => <HistoryPane />,
   },
   {
     label: 'Details',
@@ -87,23 +94,25 @@ const TABS = [
 ];
 
 export const PatientView = () => {
+  const params = useParams();
   const { getLocalisation } = useLocalisation();
   const patient = useSelector(state => state.patient);
   const [currentTab, setCurrentTab] = React.useState('history');
   const disabled = !!patient.death;
   const api = useApi();
-  const { data: additionalData, isLoading: isLoadingAdditionalData } = useQuery(
-    ['additionalData', patient.id],
-    () => api.get(`patient/${patient.id}/additionalData`),
-  );
-  const { data: birthData, isLoading: isLoadingBirthData } = useQuery(
-    ['birthData', patient.id],
-    () => api.get(`patient/${patient.id}/birthData`),
+  const { data: additionalData, isLoading } = useQuery(['additionalData', patient.id], () =>
+    api.get(`patient/${patient.id}/additionalData`),
   );
 
-  if (patient.loading || isLoadingAdditionalData || isLoadingBirthData) {
-    return <LoadingIndicator />;
-  }
+  const RoutedEncounterModal = useMemo(() => getConnectRoutedModal(params, 'checkin'), [params])(
+    EncounterModal,
+  );
+
+  const RoutedTriageModal = useMemo(() => getConnectRoutedModal(params, 'triage'), [params])(
+    TriageModal,
+  );
+
+  if (patient.loading || isLoading) return <LoadingIndicator />;
 
   const visibleTabs = TABS.filter(tab => !tab.condition || tab.condition(getLocalisation));
 
@@ -116,9 +125,14 @@ export const PatientView = () => {
         onTabSelect={setCurrentTab}
         patient={patient}
         additionalData={additionalData}
-        birthData={birthData}
         disabled={disabled}
       />
+      <RoutedEncounterModal
+        patientId={patient.id}
+        patientBillingTypeId={additionalData?.patientBillingTypeId}
+        referrals={patient.referrals}
+      />
+      <RoutedTriageModal patient={patient} />
     </>
   );
 };

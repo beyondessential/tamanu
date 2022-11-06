@@ -1,4 +1,4 @@
-FROM node:16.16.0 as base
+FROM node:12.20.2 as base
 RUN dpkg --add-architecture i386 \
     && apt update \
     && apt install -y \
@@ -43,7 +43,7 @@ RUN yarn install --non-interactive --frozen-lockfile \
     && rm -rf node_modules packages/*/node_modules
 
 # Tool configs
-COPY babel.config.js .eslintignore .eslintrc .prettierignore .prettierrc common.webpack.config.mjs ./
+COPY babel.config.js .eslintignore .eslintrc .prettierignore .prettierrc ./
 
 # Rest of the source
 COPY scripts/ scripts/

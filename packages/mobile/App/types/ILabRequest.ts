@@ -4,7 +4,6 @@ import { IEncounter } from './IEncounter';
 import { ILabTest } from './ILabTest';
 import { IReferenceData } from './IReferenceData';
 import { IUser } from './IUser';
-import { DateString } from './DateString';
 
 export enum LabRequestStatus {
   RECEPTION_PENDING = 'reception_pending',

@@ -20,6 +20,11 @@ const servers = [
   { name: 'Fiji NCD', type: 'live', host: 'https://sync-ncd-pilot.tamanu-fiji.org' },
   { name: 'Fiji Tourism', type: 'live', host: 'https://sync-tourism.tamanu-fiji.org' },
   { name: 'Kiribati', type: 'live', host: 'https://sync.tamanu-kiribati.org' },
+  {
+    name: 'Motivation Australia - Papua New Guinea',
+    type: 'live',
+    host: 'https://motivation-sync-png.tamanu.io',
+  },
   { name: 'Nauru', type: 'live', host: 'https://sync.tamanu-nauru.org' },
   { name: 'Palau', type: 'live', host: 'https://sync.tamanu-palau.org' },
   { name: 'Samoa', type: 'live', host: 'https://tamanu-sync.health.gov.ws' },
@@ -34,25 +39,15 @@ const servers = [
   { name: 'Demo (Kiribati)', type: 'demo', host: 'https://sync-demo.tamanu-kiribati.org' },
   { name: 'Demo (Nauru)', type: 'demo', host: 'https://sync-demo-nauru.tamanu.io' },
   { name: 'Demo (Palau)', type: 'demo', host: 'https://sync-demo.tamanu-palau.org' },
+  { name: 'Demo (Palau EB)', type: 'demo', host: 'https://sync-demo-palau.tamanu.io' },
   { name: 'Demo (Samoa)', type: 'demo', host: 'https://sync-samoa-demo.tamanu.io' },
-  { name: 'Demo (Solomons)', type: 'demo', host: 'https://sync-demo.tamanu-solomons.org' },
-  { name: 'Demo (Tonga)', type: 'demo', host: 'https://central-tonga-demo.tamanu.io' },
   { name: 'Demo (Tuvalu)', type: 'demo', host: 'https://sync-demo-tuvalu.tamanu.io' },
 
   // development servers
-  { name: 'Beta', type: 'dev', host: 'https://central-beta.tamanu.io' },
-  { name: 'Dev', type: 'dev', host: 'https://central-dev.tamanu.io' },
-  { name: 'Staging', type: 'dev', host: 'https://central-staging.tamanu.io' },
-  { name: 'Stress Test', type: 'dev', host: 'https://central-stress-test.tamanu.io' },
+  { name: 'Dev', type: 'dev', host: 'https://sync-dev.tamanu.io' },
+  { name: 'Staging', type: 'dev', host: 'https://sync-staging.tamanu.io' },
+  { name: 'Stress testing', type: 'dev', host: 'https://sync-stress-test.tamanu.io' },
   { name: 'UAT', type: 'dev', host: 'https://sync-uat.tamanu.io' },
-  { name: 'UAT-PMI', type: 'dev', host: 'https://central-uat-pmi.tamanu.io' },
-  { name: 'UAT-Rispacs', type: 'dev', host: 'https://sync-uat-rispacs.tamanu.io' },
-
-  // tester maintained servers
-  { name: 'Tester (Da)', type: 'dev', host: 'https://central-da.tamanu.io' },
-  { name: 'Tester (Klaus)', type: 'dev', host: 'https://central-klaus.tamanu.io' },
-  { name: 'Tester (Sepi)', type: 'dev', host: 'https://central-sepi.tamanu.io' },
-  { name: 'Tester (Sima)', type: 'dev', host: 'https://central-sima.tamanu.io' },
 ];
 
 serversRouter.get('/', (req, res) => {

@@ -1,8 +1,8 @@
 import React from 'react';
+import moment from 'moment';
 
 import { SimplePrintout } from './SimplePrintout';
 import { useLocalisation } from '../../contexts/Localisation';
-import { DateDisplay } from '../DateDisplay';
 
 export const ImagingRequestPrintout = React.memo(
   ({ imagingRequestData, patientData, encounterData, certificateData }) => {
@@ -10,7 +10,7 @@ export const ImagingRequestPrintout = React.memo(
       id,
       requestedDate,
       requestedBy,
-      priority,
+      urgent,
       imagingType,
       areas,
       areaNote,
@@ -18,7 +18,6 @@ export const ImagingRequestPrintout = React.memo(
     } = imagingRequestData;
     const { getLocalisation } = useLocalisation();
     const imagingTypes = getLocalisation('imagingTypes') || {};
-    const imagingPriorities = getLocalisation('imagingPriorities') || [];
 
     return (
       <SimplePrintout
@@ -27,11 +26,11 @@ export const ImagingRequestPrintout = React.memo(
         certificateData={{ ...certificateData, pageTitle: 'Imaging Request' }}
         tableData={{
           'Request ID': id,
-          'Request date': requestedDate ? <DateDisplay date={requestedDate} /> : null,
+          'Request date': requestedDate ? moment(requestedDate).format('DD/MM/YYYY') : null,
           Facility: encounterData?.location?.facility?.name,
           Department: encounterData?.department?.name,
           'Requested by': requestedBy?.displayName,
-          Priority: imagingPriorities.find(p => p.value === priority)?.label || '',
+          Urgent: urgent ? 'Yes' : 'No',
           'Imaging type': imagingTypes[imagingType]?.label || 'Unknown',
           'Areas to be imaged': areas?.length ? areas.map(area => area.name).join(', ') : areaNote,
         }}

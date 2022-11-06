@@ -4,8 +4,6 @@ import { PROGRAM_DATA_ELEMENT_TYPES } from 'shared/constants';
 import { Model } from './Model';
 import { runCalculations } from '../utils/calculations';
 import { getStringValue, getResultValue } from '../utils/fields';
-import { dateTimeType } from './dateTimeTypes';
-import { getCurrentDateTimeString } from '../utils/dateTime';
 
 async function createPatientIssues(models, questions, patientId) {
   const issueQuestions = questions.filter(
@@ -31,7 +29,7 @@ async function writeToPatientFields(models, questions, answers, patientId) {
   const patientAdditionalDataValues = {};
 
   const patientDataQuestions = questions.filter(
-    q => q.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA,
+    q => q.dataElement.type === PROGRAM_DATA_ELEMENT_TYPES.PATIENT_DATA
   );
   for (const question of patientDataQuestions) {
     const { dataElement, config: configString } = question;
@@ -58,8 +56,7 @@ async function writeToPatientFields(models, questions, answers, patientId) {
   // Save values to database records
   const { Patient, PatientAdditionalData } = models;
   if (Object.keys(patientRecordValues).length) {
-    const patient = await Patient.findByPk(patientId);
-    await patient.update(patientRecordValues);
+    await Patient.update(patientRecordValues, { where: { id: patientId } });
   }
   if (Object.keys(patientAdditionalDataValues).length) {
     const pad = await PatientAdditionalData.getOrCreateForPatient(patientId);
@@ -78,8 +75,9 @@ export class SurveyResponse extends Model {
     super.init(
       {
         id: primaryKey,
-        startTime: dateTimeType('startTime', { allowNull: true }),
-        endTime: dateTimeType('endTime', { allowNull: true }),
+
+        startTime: { type: Sequelize.DATE, allowNull: true },
+        endTime: { type: Sequelize.DATE, allowNull: true },
         result: { type: Sequelize.FLOAT, allowNull: true },
         resultText: { type: Sequelize.TEXT, allowNull: true },
       },
@@ -88,10 +86,6 @@ export class SurveyResponse extends Model {
   }
 
   static initRelations(models) {
-    this.belongsTo(models.User, {
-      foreignKey: 'userId',
-      as: 'user',
-    });
     this.belongsTo(models.Survey, {
       foreignKey: 'surveyId',
       as: 'survey',
@@ -138,20 +132,18 @@ export class SurveyResponse extends Model {
       return openEncounter;
     }
 
-    const { departmentId, userId, locationId } = responseData;
+    const { departmentId, examinerId, locationId } = responseData;
 
-    // need to create a new encounter with examiner set as the user who submitted the survey.
+    // need to create a new encounter
     return Encounter.create({
       patientId,
       encounterType: 'surveyResponse',
       reasonForEncounter,
       departmentId,
-      examinerId: userId,
+      examinerId,
       locationId,
-      // Survey responses will usually have a startTime and endTime and we prefer to use that
-      // for the encounter to ensure the times are set in the browser timezone
-      startDate: responseData.startTime ? responseData.startTime : getCurrentDateTimeString(),
-      endDate: responseData.endTime ? responseData.endTime : getCurrentDateTimeString(),
+      startDate: Date.now(),
+      endDate: Date.now(),
     });
   }
 

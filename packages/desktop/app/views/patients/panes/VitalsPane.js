@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useEncounter } from '../../../contexts/Encounter';
 import { VitalsModal } from '../../../components/VitalsModal';
 import { VitalsTable } from '../../../components/VitalsTable';
 import { TableButtonRow, Button } from '../../../components';
@@ -7,7 +7,7 @@ import { TabPane } from '../components';
 
 export const VitalsPane = React.memo(({ encounter, readonly }) => {
   const [modalOpen, setModalOpen] = useState(false);
-  const queryClient = useQueryClient();
+  const { loadEncounter } = useEncounter();
 
   return (
     <TabPane>
@@ -17,7 +17,7 @@ export const VitalsPane = React.memo(({ encounter, readonly }) => {
         onClose={() => setModalOpen(false)}
         onSaved={async () => {
           setModalOpen(false);
-          queryClient.invalidateQueries(['encounterVitals', encounter.id]);
+          await loadEncounter(encounter.id);
         }}
       />
       <TableButtonRow variant="small">

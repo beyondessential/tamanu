@@ -2,7 +2,7 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import config from 'config';
 import * as yup from 'yup';
-import { addMinutes } from 'date-fns';
+import moment from 'moment';
 import { randomBytes } from 'crypto';
 
 import { COMMUNICATION_STATUSES } from 'shared/constants';
@@ -55,7 +55,9 @@ const createToken = async length => {
 const createOneTimeLogin = async (models, user) => {
   const token = await createToken(config.auth.resetPassword.tokenLength);
 
-  const expiresAt = addMinutes(new Date(), config.auth.resetPassword.tokenExpiry);
+  const expiresAt = moment()
+    .add(config.auth.resetPassword.tokenExpiry, 'minutes')
+    .toDate();
 
   await models.OneTimeLogin.create({
     userId: user.id,

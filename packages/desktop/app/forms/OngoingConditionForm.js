@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import Collapse from '@material-ui/core/Collapse';
+
 import {
   Form,
   Field,
@@ -13,6 +13,7 @@ import {
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ConfirmCancelRow } from '../components/ButtonRow';
+
 import { foreignKey } from '../utils/validation';
 
 export class OngoingConditionForm extends React.PureComponent {
@@ -33,7 +34,6 @@ export class OngoingConditionForm extends React.PureComponent {
         <Field
           name="recordedDate"
           label="Date recorded"
-          saveDateAsString
           component={DateField}
           disabled={resolving}
         />
@@ -82,14 +82,14 @@ export class OngoingConditionForm extends React.PureComponent {
         onSubmit={this.onSubmit}
         render={this.renderForm}
         initialValues={{
-          recordedDate: getCurrentDateTimeString(),
+          date: new Date(),
           resolutionDate: new Date(),
           resolved: false,
           ...editedObject,
         }}
         validationSchema={yup.object().shape({
           conditionId: foreignKey('Condition is a required field'),
-          recordedDate: yup.date(),
+          date: yup.date(),
           practitioner: yup.string(),
           note: yup.string(),
 

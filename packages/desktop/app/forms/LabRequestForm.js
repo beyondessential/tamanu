@@ -35,7 +35,7 @@ import { FormSeparatorLine } from '../components/FormSeparatorLine';
 import { DropdownButton } from '../components/DropdownButton';
 
 function getEncounterTypeLabel(type) {
-  return encounterOptions.find(x => x.value === type)?.label;
+  return encounterOptions.find(x => x.value === type).label;
 }
 
 function getEncounterLabel(encounter) {
@@ -115,7 +115,7 @@ export class LabRequestForm extends React.PureComponent {
           component={DateTimeField}
           saveDateAsString
         />
-        <TextInput label="Supervising clinician" disabled value={examinerLabel} />
+        <TextInput label="Supervising doctor" disabled value={examinerLabel} />
         <Field
           name="requestedById"
           label="Requesting doctor"
@@ -144,14 +144,14 @@ export class LabRequestForm extends React.PureComponent {
         <TextInput label="Encounter" disabled value={encounterLabel} />
         <Field
           name="labTestCategoryId"
-          label="Test category"
+          label="Lab request type"
           required
           component={SelectField}
           options={testCategories}
         />
         <Field
           name="labTestTypeIds"
-          label="Test type"
+          label="Tests"
           required
           testTypes={filteredTestTypes}
           component={TestSelectorField}
@@ -188,8 +188,6 @@ export class LabRequestForm extends React.PureComponent {
           displayId: generateDisplayId(),
           requestedDate: getCurrentDateTimeString(),
           sampleTime: getCurrentDateTimeString(),
-          // LabTest date
-          date: getCurrentDateString(),
           ...editedObject,
         }}
         validationSchema={yup.object().shape({

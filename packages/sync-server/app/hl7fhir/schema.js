@@ -149,13 +149,3 @@ export const diagnosticReport = {
     })
     .noUnknown(true, noUnknownValidationMessage),
 };
-
-export const immunization = {
-  query: yup
-    .object({
-      ...baseParameters,
-      patient: yup.string(),
-      'vaccine-code': yup.string(),
-    })
-    .noUnknown(true, noUnknownValidationMessage),
-};

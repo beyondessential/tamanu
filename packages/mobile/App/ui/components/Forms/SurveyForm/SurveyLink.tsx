@@ -1,7 +1,6 @@
 import React, { ReactElement, useEffect, useState } from 'react';
 import { Text } from 'react-native-paper';
-import { formatStringDate } from '/helpers/date';
-import { DateFormats } from '~/ui/helpers/constants';
+import { format } from 'date-fns';
 import { useFormikContext } from 'formik';
 import { ISurveyResponse } from '~/types';
 import { useBackend } from '~/ui/hooks';
@@ -36,7 +35,7 @@ export const SurveyLink = ({ patient, config, name }): ReactElement => {
 
   const attachedScreeningValue = `${
     typeof surveyResponse.survey === 'string' ? surveyResponse.survey : surveyResponse.survey.name
-  } (${formatStringDate(surveyResponse.endTime, DateFormats.DDMMYY)})`;
+  } (${format(surveyResponse.endTime, 'dd-MM-yyyy')})`;
 
   return (
     <Field

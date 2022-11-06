@@ -22,4 +22,3 @@ export * from './Table';
 export * from './TamanuLogo';
 export * from './ImmunisationsTable';
 export * from './LocalisedText';
-export * from './FormSectionSeparator';

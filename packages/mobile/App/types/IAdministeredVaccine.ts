@@ -22,7 +22,7 @@ export interface IAdministeredVaccine {
   encounter?: IEncounter | string;
   batch?: string;
   status: VaccineStatus;
-  date: string;
+  date: Date;
 }
 
 export enum InjectionSiteType {

@@ -25,15 +25,6 @@ export class Permission extends Model {
           afterSave() {
             resetPermissionCache();
           },
-          afterBulkCreate() {
-            resetPermissionCache();
-          },
-          afterBulkUpdate() {
-            resetPermissionCache();
-          },
-          afterBulkDestroy() {
-            resetPermissionCache();
-          },
         },
         // creating partial indexes as objectId can be null
         indexes: [

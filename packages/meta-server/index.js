@@ -14,7 +14,7 @@ export async function run() {
   const server = app.listen(port, () => {
     log.info(`Server is running on port ${port}!`);
   });
-  process.once('SIGTERM', () => {
+  process.on('SIGTERM', () => {
     log.info('Received SIGTERM, closing HTTP server');
     server.close();
   });

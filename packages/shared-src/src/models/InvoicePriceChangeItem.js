@@ -1,7 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { INVOICE_PRICE_CHANGE_ITEM_STATUSES } from 'shared/constants';
 import { Model } from './Model';
-import { dateType } from './dateTimeTypes';
 
 export class InvoicePriceChangeItem extends Model {
   static init({ primaryKey, ...options }) {
@@ -10,7 +9,7 @@ export class InvoicePriceChangeItem extends Model {
         id: primaryKey,
         description: Sequelize.STRING,
         percentageChange: Sequelize.STRING,
-        date: dateType('date'),
+        date: Sequelize.DATE,
         status: {
           type: Sequelize.STRING,
           allowNull: false,

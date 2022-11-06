@@ -54,7 +54,7 @@ export class Form extends React.PureComponent {
 
     // avoid multiple submissions
     if (isSubmitting) {
-      return null;
+      return;
     }
 
     setSubmitting(true);
@@ -130,7 +130,7 @@ export class Form extends React.PureComponent {
   };
 
   render() {
-    const { onSubmit, showInlineErrorsOnly, showErrorDialog = true, ...props } = this.props;
+    const { onSubmit, showInlineErrorsOnly, ...props } = this.props;
     const { validationErrors, isErrorDialogVisible } = this.state;
 
     // read children from additional props rather than destructuring so
@@ -152,14 +152,12 @@ export class Form extends React.PureComponent {
           render={this.renderFormContents}
         />
 
-        {showErrorDialog && (
-          <Dialog
-            isVisible={isErrorDialogVisible}
-            onClose={this.hideErrorDialog}
-            headerTitle="Please fix below errors to continue"
-            contentText={<FormErrors errors={validationErrors} />}
-          />
-        )}
+        <Dialog
+          isVisible={isErrorDialogVisible}
+          onClose={this.hideErrorDialog}
+          headerTitle="Please fix below errors to continue"
+          contentText={<FormErrors errors={validationErrors} />}
+        />
       </>
     );
   }

@@ -6,8 +6,12 @@ import { get } from 'lodash';
 import config from 'config';
 
 import { log } from 'shared/services/logging';
-import { tmpdir, VaccineCertificate, getPatientSurveyResponseAnswer } from 'shared/utils';
-import { CovidLabCertificate } from 'shared/utils/patientCertificates';
+import {
+  tmpdir,
+  CovidLabCertificate,
+  VaccineCertificate,
+  getPatientSurveyResponseAnswer,
+} from 'shared/utils';
 import { getLocalisation } from '../localisation';
 
 export const makeVaccineCertificate = async (patient, printedBy, models, uvci, qrData = null) => {
@@ -74,18 +78,12 @@ export const makeVaccineCertificate = async (patient, printedBy, models, uvci, q
   };
 };
 
-export const makeCovidCertificate = async (
-  certType,
-  patient,
-  printedBy,
-  models,
-  vdsData = null,
-) => {
+export const makeCovidTestCertificate = async (patient, printedBy, models, vdsData = null) => {
   const localisation = await getLocalisation();
   const getLocalisationData = key => get(localisation, key);
 
   const folder = await tmpdir();
-  const fileName = `covid-${certType}-certificate-${patient.id}.pdf`;
+  const fileName = `covid-test-certificate-${patient.id}.pdf`;
   const filePath = path.join(folder, fileName);
 
   const logo = await models.Asset.findOne({
@@ -152,7 +150,6 @@ export const makeCovidCertificate = async (
         printedBy={printedBy}
         vdsSrc={vds}
         getLocalisation={getLocalisationData}
-        certType={certType}
       />,
       filePath,
     );

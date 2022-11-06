@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-
 import { PrescriptionPrintout } from './PrescriptionPrintout';
 import { Modal } from '../Modal';
 import { useCertificate } from '../../utils/useCertificate';

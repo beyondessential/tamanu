@@ -1,5 +1,5 @@
 import config from 'config';
-import { endOfDay, startOfDay, sub, parseISO } from 'date-fns';
+import moment from 'moment';
 import { Op } from 'sequelize';
 
 import { ScheduledTask } from 'shared/tasks';
@@ -14,23 +14,20 @@ export class OutpatientDischarger extends ScheduledTask {
     return 'OutpatientDischarger';
   }
 
-  constructor(context, overrideConfig = null) {
-    const conf = {
-      ...config.schedules.outpatientDischarger,
-      ...overrideConfig,
-    };
+  constructor(context) {
+    const conf = config.schedules.outpatientDischarger;
     super(conf.schedule, log);
     this.config = conf;
     this.models = context.store.models;
 
     // run once on startup (in case the server was down when it was scheduled)
-    if (!conf.suppressInitialRun) {
-      this.runImmediately();
-    }
+    this.runImmediately();
   }
 
   async countQueue() {
-    const startOfToday = startOfDay(new Date());
+    const startOfToday = moment()
+      .startOf('day')
+      .toDate();
 
     const where = {
       encounterType: 'clinic',
@@ -44,7 +41,9 @@ export class OutpatientDischarger extends ScheduledTask {
   }
 
   async run() {
-    const startOfToday = startOfDay(new Date());
+    const startOfToday = moment()
+      .startOf('day')
+      .toDate();
 
     const where = {
       encounterType: 'clinic',
@@ -77,9 +76,8 @@ export class OutpatientDischarger extends ScheduledTask {
       });
 
       for (const oldEncounter of oldEncounters) {
-        const justBeforeMidnight = sub(endOfDay(parseISO(oldEncounter.startDate)), { minutes: 1 });
         await oldEncounter.update({
-          endDate: justBeforeMidnight,
+          endDate: startOfToday,
           dischargeNote: 'Automatically discharged',
         });
         log.info(`Auto-closed encounter with id ${oldEncounter.id}`);

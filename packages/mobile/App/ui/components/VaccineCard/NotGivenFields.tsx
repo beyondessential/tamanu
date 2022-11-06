@@ -6,8 +6,6 @@ import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { theme } from '/styled/theme';
 import { StyledView } from '/styled/common';
 import { Separator } from '../Separator';
-import { formatStringDate } from '../../helpers/date';
-import { DateFormats } from '../../helpers/constants';
 
 export const NotGivenFields: FC<VaccineDataProps> = ({ administeredVaccine }) => (
   <StyledView
@@ -20,7 +18,7 @@ export const NotGivenFields: FC<VaccineDataProps> = ({ administeredVaccine }) =>
   >
     <ModalField
       label="Date"
-      value={formatStringDate(administeredVaccine.date, DateFormats.DDMMYY)}
+      value={administeredVaccine.date.toDateString()}
       Icon={CalendarIcon}
     />
     <Separator />

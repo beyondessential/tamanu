@@ -1,11 +1,5 @@
 import { buildAbilityForTests } from 'shared/permissions/buildAbility';
-import {
-  getPermissionsForRoles,
-  queryPermissionsForRoles,
-  getAbilityForUser,
-  isPermissionCacheEmpty,
-} from 'shared/permissions/rolesToPermissions';
-import { fake } from 'shared/test-helpers/fake';
+import { queryPermissionsForRoles, getAbilityForUser } from 'shared/permissions/rolesToPermissions';
 import { createTestContext } from '../utilities';
 
 async function getAbilityForRoles(roleString) {
@@ -121,46 +115,6 @@ describe('Permissions', () => {
       const ability = await getAbilityForUser(adminApp.user);
       const hasPermission = ability.can('fakeVerb', 'FakeNoun');
       expect(hasPermission).toBe(true);
-    });
-  });
-
-  describe('Updating permissions', () => {
-    const addNewPermission = async (method = p => ctx.store.models.Permission.create(p)) => {
-      const { Patient } = ctx.store.models;
-      const patient = await Patient.create(fake(Patient));
-      await method({
-        roleId: 'writer',
-        noun: 'Patient',
-        verb: 'write',
-        objectId: patient.id,
-      });
-    };
-
-    it('should reset the permission cache on a single update', async () => {
-      // Arrange
-      await addNewPermission();
-      await getPermissionsForRoles('writer');
-      expect(isPermissionCacheEmpty()).toBe(false);
-
-      // Act
-      await addNewPermission();
-
-      // Assert
-      expect(isPermissionCacheEmpty()).toBe(true);
-    });
-
-    it('should reset the permission cache on a bulk update', async () => {
-      // Arrange
-      const { Permission } = ctx.store.models;
-      await addNewPermission();
-      await getPermissionsForRoles('writer');
-      expect(isPermissionCacheEmpty()).toBe(false);
-
-      // Act
-      await addNewPermission(p => Permission.bulkCreate([p]));
-
-      // Assert
-      expect(isPermissionCacheEmpty()).toBe(true);
     });
   });
 });

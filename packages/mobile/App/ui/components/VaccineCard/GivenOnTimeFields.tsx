@@ -6,8 +6,6 @@ import { VaccineDataProps } from '.';
 import { Separator } from '../Separator';
 import { screenPercentageToDP, Orientation } from '/helpers/screen';
 import { CalendarIcon } from '../Icons';
-import { formatStringDate } from '../../helpers/date';
-import { DateFormats } from '../../helpers/constants';
 
 const GivenOnTimeFields: FC<VaccineDataProps> = ({ administeredVaccine }) => {
   const administeredBy =
@@ -34,7 +32,7 @@ const GivenOnTimeFields: FC<VaccineDataProps> = ({ administeredVaccine }) => {
     >
       <ModalField
         label="Date"
-        value={formatStringDate(administeredVaccine.date, DateFormats.DDMMYY)}
+        value={administeredVaccine.date.toDateString()}
         Icon={CalendarIcon}
       />
       <Separator />

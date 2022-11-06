@@ -20,8 +20,8 @@ export interface IEncounter {
 
   encounterType: EncounterType;
 
-  startDate: string;
-  endDate?: string;
+  startDate: Date;
+  endDate?: Date;
 
   reasonForEncounter?: string;
 

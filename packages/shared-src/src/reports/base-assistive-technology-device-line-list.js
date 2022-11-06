@@ -1,12 +1,10 @@
 import { keyBy, groupBy, uniqWith, isEqual } from 'lodash';
 import { Op } from 'sequelize';
-import { endOfDay, startOfDay, parseISO } from 'date-fns';
+import moment from 'moment';
 import { generateReportFromQueryData } from './utilities';
 import { transformAnswers } from './utilities/transformAnswers';
-import { format, ageInYears, differenceInMilliseconds, toDateTimeString } from '../utils/dateTime';
 
 const parametersToSurveyResponseSqlWhere = (parameters, surveyIds) => {
-  const newParameters = { ...parameters };
   const defaultWhereClause = {
     '$surveyResponse.survey_id$': surveyIds,
   };
@@ -15,15 +13,7 @@ const parametersToSurveyResponseSqlWhere = (parameters, surveyIds) => {
     return defaultWhereClause;
   }
 
-  if (parameters.fromDate) {
-    newParameters.fromDate = toDateTimeString(startOfDay(parseISO(parameters.fromDate)));
-  }
-
-  if (parameters.toDate) {
-    newParameters.toDate = toDateTimeString(endOfDay(parseISO(parameters.toDate)));
-  }
-
-  const whereClause = Object.entries(newParameters)
+  const whereClause = Object.entries(parameters)
     .filter(([, val]) => val)
     .reduce((where, [key, value]) => {
       const newWhere = { ...where };
@@ -87,7 +77,7 @@ const getLatestAnswerPerGroup = groupedTransformAnswers => {
   const results = {};
   for (const [key, groupedAnswers] of Object.entries(groupedTransformAnswers)) {
     const sortedLatestToOldestAnswers = groupedAnswers.sort((a1, a2) =>
-      differenceInMilliseconds(a2.responseEndTime, a1.responseEndTime),
+      moment(a2.responseEndTime).diff(moment(a1.responseEndTime)),
     );
     results[key] = sortedLatestToOldestAnswers[0]?.body;
   }
@@ -103,7 +93,7 @@ const getLatestAnswerPerPatient = answers => {
 
 const getLatestAnswerPerPatientPerDate = answers => {
   const groupedAnswers = groupBy(answers, a => {
-    const responseDate = format(a.responseEndTime, 'dd-MM-yyyy');
+    const responseDate = moment(a.responseEndTime).format('DD-MM-YYYY');
     return getPerPatientPerDateAnswerKey(a.patientId, a.dataElementId, responseDate);
   });
   return getLatestAnswerPerGroup(groupedAnswers);
@@ -126,7 +116,7 @@ const getPatientIdsByResponseDates = transformedAnswers => {
   const patientIdAndResponseDateHavingAnswers = uniqWith(
     transformedAnswers.map(({ patientId, responseEndTime }) => ({
       patientId,
-      responseDate: format(responseEndTime, 'dd-MM-yyyy'),
+      responseDate: moment(responseEndTime).format('DD-MM-YYYY'),
     })),
     isEqual,
   );
@@ -182,17 +172,16 @@ export const dataGenerator = async (
 
   const reportData = [];
 
-  for (const [patientId, surveyResponseDates] of Object.entries(
-    patientIdsByResponseDates,
-  ).sort(([p1], [p2]) => p1.localeCompare(p2))) {
+  for (const [patientId, surveyResponseDates] of Object.entries(patientIdsByResponseDates)) {
     const patient = patientById[patientId];
     for (const surveyResponseDate of surveyResponseDates) {
       if (!patient) {
         continue;
       }
 
-      const dateOfBirth = patient.dateOfBirth ? format(patient.dateOfBirth, 'dd-MM-yyyy') : '';
-      const age = patient.dateOfBirth ? ageInYears(patient.dateOfBirth) : '';
+      const dateOfBirthMoment = patient.dateOfBirth ?? moment(patient.dateOfBirth);
+      const dateOfBirth = dateOfBirthMoment ? moment(dateOfBirthMoment).format('DD-MM-YYYY') : '';
+      const age = dateOfBirthMoment ? moment().diff(dateOfBirthMoment, 'years') : '';
       const recordData = {
         clientId: patient.displayId,
         gender: patient.sex,

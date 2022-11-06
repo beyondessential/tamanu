@@ -1,4 +1,3 @@
-import config from 'config';
 import express from 'express';
 
 import {
@@ -16,37 +15,15 @@ medication.put('/:id', simplePut('EncounterMedication'));
 medication.post('/$', simplePost('EncounterMedication'));
 
 const globalMedicationRequests = permissionCheckingRouter('list', 'EncounterMedication');
-globalMedicationRequests.get('/$', (req, res, next) =>
+globalMedicationRequests.get(
+  '/$',
   paginatedGetList('EncounterMedication', '', {
-    additionalFilters: {
-      '$encounter.location.facility.id$': config.serverFacilityId,
-    },
     include: [
       {
-        model: req.models.Encounter,
-        as: 'encounter',
-        include: [
-          {
-            model: req.models.Patient,
-            as: 'patient',
-          },
-          {
-            model: req.models.Department,
-            as: 'department',
-          },
-          {
-            model: req.models.Location,
-            as: 'location',
-            include: [
-              {
-                model: req.models.Facility,
-                as: 'facility',
-              },
-            ],
-          },
-        ],
+        association: 'encounter',
+        include: ['patient', 'department', 'location'],
       },
     ],
-  })(req, res, next),
+  }),
 );
 medication.use(globalMedicationRequests);

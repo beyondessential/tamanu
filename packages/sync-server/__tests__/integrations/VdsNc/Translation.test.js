@@ -1,7 +1,10 @@
 import { expect } from 'chai';
-import { fake, fakeUser } from 'shared/test-helpers/fake';
+import { fake } from 'shared/test-helpers/fake';
 import { createTestContext } from 'sync-server/__tests__/utilities';
-import { createVdsNcTestData, createVdsNcVaccinationData } from '../../../app/integrations/VdsNc';
+import {
+  createVdsNcTestData,
+  createVdsNcVaccinationData,
+} from '../../../app/integrations/VdsNc';
 
 describe('VDS: Proof of Vaccination', () => {
   let ctx;
@@ -42,19 +45,19 @@ describe('VDS: Proof of Vaccination', () => {
 
   afterAll(async () => {
     const { ReferenceData, CertifiableVaccine } = ctx.store.models;
-
+    
     await CertifiableVaccine.destroy({
       where: {
         id: [data.azCertVax.id, data.pfCertVax.id],
-      },
+      }
     });
-
+    
     await ReferenceData.destroy({
       where: {
         id: [data.azVaxDrug.id, data.pfVaxDrug.id],
       },
     });
-
+    
     await ctx.close();
   });
 
@@ -79,10 +82,7 @@ describe('VDS: Proof of Vaccination', () => {
     const result = await createVdsNcVaccinationData(patient.id, {
       models: ctx.store.models,
       countryCode: 'UTO',
-    }).then(
-      resolved => ({ resolved }),
-      rejected => ({ rejected }),
-    );
+    }).then(resolved => ({ resolved }), rejected => ({ rejected }));
 
     // Assert
     expect(result.resolved).to.be.undefined;
@@ -99,8 +99,6 @@ describe('VDS: Proof of Vaccination', () => {
       Location,
       ScheduledVaccine,
       AdministeredVaccine,
-      Department,
-      User,
     } = ctx.store.models;
 
     const patient = await Patient.create({
@@ -134,19 +132,10 @@ describe('VDS: Proof of Vaccination', () => {
       facilityId: facility.id,
     });
 
-    const department = await Department.create({
-      ...fake(Department),
-      facilityId: facility.id,
-    });
-
-    const examiner = await User.create(fakeUser());
-
     const vaccineEncounter = await Encounter.create({
       ...fake(Encounter),
       patientId: patient.id,
       locationId: location.id,
-      departmentId: department.id,
-      examinerId: examiner.id,
     });
 
     await AdministeredVaccine.create({
@@ -199,8 +188,6 @@ describe('VDS: Proof of Vaccination', () => {
       Encounter,
       Facility,
       Location,
-      Department,
-      User,
       ScheduledVaccine,
       AdministeredVaccine,
     } = ctx.store.models;
@@ -218,8 +205,6 @@ describe('VDS: Proof of Vaccination', () => {
       passport: 'A0101001',
     });
     await patient.reload();
-
-    const examiner = await User.create(fakeUser());
 
     const scheduledPf1 = await ScheduledVaccine.create({
       ...fake(ScheduledVaccine),
@@ -242,33 +227,24 @@ describe('VDS: Proof of Vaccination', () => {
       vaccineId: data.azVaxDrug.id,
     });
 
-    const facility1 = await Facility.create({
-      ...fake(Facility),
-      name: 'Utopia Office',
-    });
-    const facility2 = await Facility.create({
-      ...fake(Facility),
-      name: 'Utopia Bureau',
-    });
-
     const location1 = await Location.create({
       ...fake(Location),
-      facilityId: facility1.id,
+      facilityId: (
+        await Facility.create({
+          ...fake(Facility),
+          name: 'Utopia Office',
+        })
+      ).id,
     });
 
     const location2 = await Location.create({
       ...fake(Location),
-      facilityId: facility2.id,
-    });
-
-    const department1 = await Department.create({
-      ...fake(Department),
-      facilityId: facility1.id,
-    });
-
-    const department2 = await Department.create({
-      ...fake(Department),
-      facilityId: facility2.id,
+      facilityId: (
+        await Facility.create({
+          ...fake(Facility),
+          name: 'Utopia Bureau',
+        })
+      ).id,
     });
 
     await AdministeredVaccine.create({
@@ -280,8 +256,6 @@ describe('VDS: Proof of Vaccination', () => {
           ...fake(Encounter),
           patientId: patient.id,
           locationId: location1.id,
-          departmentId: department1.id,
-          examinerId: examiner.id,
         })
       ).id,
       batch: '001',
@@ -297,8 +271,6 @@ describe('VDS: Proof of Vaccination', () => {
           ...fake(Encounter),
           patientId: patient.id,
           locationId: location2.id,
-          departmentId: department2.id,
-          examinerId: examiner.id,
         })
       ).id,
       batch: '002',
@@ -314,8 +286,6 @@ describe('VDS: Proof of Vaccination', () => {
           ...fake(Encounter),
           patientId: patient.id,
           locationId: location1.id,
-          departmentId: department1.id,
-          examinerId: examiner.id,
         })
       ).id,
       batch: '003',
@@ -391,14 +361,12 @@ describe('VDS: Proof of Test', () => {
     const {
       Patient,
       PatientAdditionalData,
-      Department,
       Encounter,
       Facility,
       Location,
       LabTest,
       ReferenceData,
       LabRequest,
-      User,
     } = ctx.store.models;
 
     const patient = await Patient.create({
@@ -414,25 +382,6 @@ describe('VDS: Proof of Test', () => {
       passport: 'A1920831',
     });
     await patient.reload();
-
-    const facility = await await Facility.create({
-      ...fake(Facility),
-      name: 'Utopia GP',
-      streetAddress: 'Utopia pastoral lease No. 637',
-      cityTown: 'Urapuntja',
-      email: 'reception@utopia.org.au',
-      contactNumber: '+61889569875',
-    });
-    const location = await Location.create({
-      ...fake(Location),
-      facilityId: facility.id,
-    });
-    const department = await Department.create({
-      ...fake(Department),
-      facilityId: facility.id,
-    });
-
-    const examiner = await User.create(fakeUser());
 
     const test = await LabTest.create({
       ...fake(LabTest),
@@ -454,9 +403,21 @@ describe('VDS: Proof of Test', () => {
             await Encounter.create({
               ...fake(Encounter),
               patientId: patient.id,
-              locationId: location.id,
-              departmentId: department.id,
-              examinerId: examiner.id,
+              locationId: (
+                await Location.create({
+                  ...fake(Location),
+                  facilityId: (
+                    await Facility.create({
+                      ...fake(Facility),
+                      name: 'Utopia GP',
+                      streetAddress: 'Utopia pastoral lease No. 637',
+                      cityTown: 'Urapuntja',
+                      email: 'reception@utopia.org.au',
+                      contactNumber: '+61889569875',
+                    })
+                  ).id,
+                })
+              ).id,
             })
           ).id,
         })

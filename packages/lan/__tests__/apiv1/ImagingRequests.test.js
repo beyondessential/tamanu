@@ -1,4 +1,4 @@
-import { IMAGING_TYPES, NOTE_RECORD_TYPES, NOTE_TYPES } from 'shared/constants';
+import { IMAGING_TYPES } from 'shared/constants';
 import { createDummyPatient, createDummyEncounter } from 'shared/demoData/patients';
 import { createTestContext } from '../utilities';
 
@@ -33,19 +33,6 @@ describe('Imaging requests', () => {
     expect(result.body.requestedDate).toBeTruthy();
   });
 
-  it('should return note content when providing note or areaNote', async () => {
-    const result = await app.post('/v1/imagingRequest').send({
-      encounterId: encounter.id,
-      imagingType: IMAGING_TYPES.CT_SCAN,
-      requestedById: app.user.id,
-      note: 'test-note',
-      areaNote: 'test-area-note',
-    });
-    expect(result).toHaveSucceeded();
-    expect(result.body.note).toEqual('test-note');
-    expect(result.body.areaNote).toEqual('test-area-note');
-  });
-
   it('should require a valid status', async () => {
     const result = await app.post('/v1/imagingRequest').send({
       encounterId: encounter.id,
@@ -77,42 +64,10 @@ describe('Imaging requests', () => {
 
     const { body } = result;
 
-    // ID, imagingType, status, requestedBy, requestedDate
+    // ID, type, status, requestedBy, requestedDate
 
     expect(body.count).toBeGreaterThan(0);
-    expect(body.data[0]).toHaveProperty('imagingType', createdImagingRequest.imagingType);
-  });
-
-  it('should get relevant notes for an imagingRequest', async () => {
-    const createdImagingRequest = await models.ImagingRequest.create({
-      encounterId: encounter.id,
-      imagingType: IMAGING_TYPES.CT_SCAN,
-      requestedById: app.user.id,
-    });
-
-    await models.NotePage.createForRecord(
-      createdImagingRequest.id,
-      NOTE_RECORD_TYPES.IMAGING_REQUEST,
-      NOTE_TYPES.AREA_TO_BE_IMAGED,
-      'test-area-note',
-      app.user.id,
-    );
-
-    await models.NotePage.createForRecord(
-      createdImagingRequest.id,
-      NOTE_RECORD_TYPES.IMAGING_REQUEST,
-      NOTE_TYPES.OTHER,
-      'test-note',
-      app.user.id,
-    );
-
-    const result = await app.get(`/v1/imagingRequest/${createdImagingRequest.id}`);
-
-    expect(result).toHaveSucceeded();
-
-    const { body } = result;
-    expect(body).toHaveProperty('note', 'test-note');
-    expect(body).toHaveProperty('areaNote', 'test-area-note');
+    expect(body.data[0]).toHaveProperty('type', createdImagingRequest.type);
   });
 
   it('should get imaging request reference info when listing imaging requests', async () => {

@@ -32,20 +32,9 @@ import * as fijiStatisticalReportForPhisSummary from './fiji-statistical-report-
 import * as palauCovidCaseReportLineList from './covid-module/palau/palau-covid-case-report-line-list';
 import * as genericSurveyExportLineList from './generic-survey-export-line-list';
 import * as appointmentsLineList from './appointments-line-list';
-import * as imagingRequestsLineList from './imaging-requests-line-list';
-import * as deceasedPatientsLineList from './deceased-patients-line-list';
-import * as labRequestsLineList from './lab-requests-line-list';
-import * as fijiAspenHospitalAdmissionsSummary from './fiji-aspen-hospital-admissions-summary';
-import * as registeredBirthsLineList from './registered-births-line-list';
 
-export async function getReportModule(reportId, models) {
-  const dbDefinedReportModule = await models.ReportDefinitionVersion.findByPk(reportId);
-
-  if (dbDefinedReportModule) {
-    return dbDefinedReportModule;
-  }
-
-  switch (reportId) {
+export function getReportModule(reportType) {
+  switch (reportType) {
     default:
       return null;
     case 'admissions':
@@ -116,16 +105,6 @@ export async function getReportModule(reportId, models) {
       return genericSurveyExportLineList;
     case 'appointments-line-list':
       return appointmentsLineList;
-    case 'imaging-requests-line-list':
-      return imagingRequestsLineList;
-    case 'deceased-patients-line-list':
-      return deceasedPatientsLineList;
-    case 'lab-requests-line-list':
-      return labRequestsLineList;
-    case 'fiji-aspen-hospital-admissions-summary':
-      return fijiAspenHospitalAdmissionsSummary;
-    case 'registered-births-line-list':
-      return registeredBirthsLineList;
   }
 }
 

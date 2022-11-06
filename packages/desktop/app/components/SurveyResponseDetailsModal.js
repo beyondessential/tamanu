@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-
+import React, { useState, useEffect } from 'react';
 import { Modal } from './Modal';
+
 import { DateDisplay } from './DateDisplay';
 import { Table } from './Table';
 import { SurveyResultBadge } from './SurveyResultBadge';
 import { ViewPhotoLink } from './ViewPhotoLink';
-import { useApi } from '../api';
+import { connectApi } from '../api/connectApi';
 import { Button } from './Button';
 
 const convertBinaryToYesNo = value => {
@@ -71,24 +70,24 @@ function shouldShow(component) {
   }
 }
 
-export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose }) => {
-  const api = useApi();
-  const { data: surveyDetails, isLoading, error } = useQuery(
-    ['surveyResponse', surveyResponseId],
-    () => api.get(`surveyResponse/${surveyResponseId}`),
-    { enabled: !!surveyResponseId },
-  );
+export const SurveyResponseDetailsModal = connectApi(api => ({
+  fetchResponseDetails: surveyResponseId => api.get(`surveyResponse/${surveyResponseId}`),
+}))(({ surveyResponseId, fetchResponseDetails, onClose }) => {
+  const [surveyDetails, setSurveyDetails] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  if (error) {
-    return (
-      <Modal title="Survey response" open={!!surveyResponseId} onClose={onClose}>
-        <h3>Error fetching response details</h3>
-        <pre>{error.stack}</pre>
-      </Modal>
-    );
-  }
+  useEffect(() => {
+    if (surveyResponseId) {
+      setLoading(true);
+      (async () => {
+        const details = await fetchResponseDetails(surveyResponseId);
+        setSurveyDetails(details);
+        setLoading(false);
+      })();
+    }
+  }, [surveyResponseId, fetchResponseDetails]);
 
-  if (isLoading || !surveyDetails) {
+  if (loading || !surveyDetails) {
     return (
       <Modal title="Survey response" open={!!surveyResponseId} onClose={onClose}>
         Loading...
@@ -118,4 +117,4 @@ export const SurveyResponseDetailsModal = ({ surveyResponseId, onClose }) => {
       <Table data={answerRows} columns={COLUMNS} />
     </Modal>
   );
-};
+});

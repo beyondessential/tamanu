@@ -3,8 +3,7 @@ import {
   createDummyEncounter,
   createDummyEncounterMedication,
 } from 'shared/demoData/patients';
-import { addDays, subDays } from 'date-fns';
-import { getCurrentDateTimeString, toDateTimeString } from 'shared/utils/dateTime';
+import moment from 'moment';
 import { createTestContext } from '../utilities';
 import { MedicationDiscontinuer } from '../../app/tasks/MedicationDiscontinuer';
 
@@ -15,7 +14,6 @@ import { MedicationDiscontinuer } from '../../app/tasks/MedicationDiscontinuer';
 jest.mock(
   'config',
   () => ({
-    ...jest.requireActual('config'),
     serverFacilityId: 'test-facility-id-for-discontinuer',
     schedules: {
       medicationDiscontinuer: {
@@ -36,11 +34,19 @@ describe('Encounter', () => {
   let discontinuer = null;
 
   // Create times
-  const tomorrow = toDateTimeString(addDays(new Date(), 1));
-  const today = getCurrentDateTimeString();
-  const yesterday = toDateTimeString(subDays(new Date(), 1));
-  const twoDaysAgo = toDateTimeString(subDays(new Date(), 2));
-  const threeDaysAgo = toDateTimeString(subDays(new Date(), 3));
+  const tomorrow = moment()
+    .add(1, 'day')
+    .toDate();
+  const today = moment().toDate();
+  const yesterday = moment()
+    .subtract(1, 'day')
+    .toDate();
+  const twoDaysAgo = moment()
+    .subtract(2, 'day')
+    .toDate();
+  const threeDaysAgo = moment()
+    .subtract(3, 'day')
+    .toDate();
 
   beforeAll(async () => {
     context = await createTestContext();

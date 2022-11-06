@@ -69,7 +69,7 @@ syncRoutes.get(
 
     const { store, query, params } = req;
     const { channel } = params;
-    const { since, until, limit = '100', noCount = 'false' } = query;
+    const { since, limit = '100', noCount = 'false' } = query;
 
     if (!since) {
       throw new InvalidParameterError('Sync GET request must include a "since" parameter');
@@ -78,12 +78,10 @@ syncRoutes.get(
     const count = noCount === 'true' ? null : await store.countSince(channel, since);
 
     const limitNum = parseInt(limit, 10) || undefined;
-    const untilNum = parseInt(until, 10) || undefined;
 
     const plan = createExportPlan(store.sequelize, channel);
     const { records, cursor } = await executeExportPlan(plan, {
       since,
-      until: untilNum,
       limit: limitNum,
     });
 
@@ -107,7 +105,6 @@ syncRoutes.get(
       requestedAt,
       records: filteredRecords,
       cursor,
-      serverTime: Date.now(),
     });
   }),
 );

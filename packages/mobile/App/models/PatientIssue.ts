@@ -2,24 +2,19 @@ import { Entity, Column, ManyToOne, RelationId, BeforeUpdate, BeforeInsert } fro
 import { BaseModel, FindMarkedForUploadOptions } from './BaseModel';
 import { Patient } from './Patient';
 import { IPatientIssue, PatientIssueType } from '~/types';
-import { ISO9075_SQLITE_DEFAULT } from './columnDefaults';
-import { DateTimeStringColumn } from './DateColumns';
 
 @Entity('patient_issue')
 export class PatientIssue extends BaseModel implements IPatientIssue {
   @Column({ nullable: true })
   note?: string;
 
-  @DateTimeStringColumn({ nullable: false, default: ISO9075_SQLITE_DEFAULT })
-  recordedDate: string;
+  @Column()
+  recordedDate: Date;
 
   @Column('text')
   type: PatientIssueType;
 
-  @ManyToOne(
-    () => Patient,
-    patient => patient.issues,
-  )
+  @ManyToOne(() => Patient, patient => patient.issues)
   patient: Patient;
   @RelationId(({ patient }) => patient)
   patientId: string;
@@ -41,7 +36,9 @@ export class PatientIssue extends BaseModel implements IPatientIssue {
     }
   }
 
-  static async findMarkedForUpload(opts: FindMarkedForUploadOptions): Promise<BaseModel[]> {
+  static async findMarkedForUpload(
+    opts: FindMarkedForUploadOptions,
+  ): Promise<BaseModel[]> {
     const patientId = opts.channel.match(/^patient\/(.*)\/issue$/)[1];
     if (!patientId) {
       throw new Error(`Could not extract patientId from ${opts.channel}`);

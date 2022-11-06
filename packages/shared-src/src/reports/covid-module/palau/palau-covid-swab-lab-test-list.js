@@ -74,7 +74,7 @@ export const dataGenerator = async ({ models }, parameters = {}) =>
     surveyId: SURVEY_ID,
     surveyQuestionCodes: SURVEY_QUESTION_CODES,
     reportColumnTemplate,
-    dateFormat: 'yyyy/MM/dd',
+    dateFormat: 'YYYY/MM/DD',
   });
 
 export const permission = 'LabTest';

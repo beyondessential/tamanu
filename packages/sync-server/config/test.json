@@ -3,8 +3,7 @@
     "name": "tamanu-sync-test"
   },
   "auth": {
-    "reportNoUserError": true,
-    "useHardcodedPermissions": false
+    "reportNoUserError": true
   },
   "log": {
     "consoleLevel": "warn"
@@ -35,13 +34,7 @@
       "enabled": true,
       "keySecret": "2hcp3wizGFFnGgsgZZDqFZDmUjaFCIppN8HnyBABqck="
     },
-    "fijiAspenMediciReport": {
-      "enabled": true
-    },
     "mSupply": {
-      "enabled": true
-    },
-    "fhir": {
       "enabled": true
     }
   },
@@ -54,6 +47,5 @@
     "certificates": {
       "labTestCategoryIds": ["labTestCategory-COVID"]
     }
-  },
-  "countryTimeZone": "Pacific/Auckland"
+  }
 }

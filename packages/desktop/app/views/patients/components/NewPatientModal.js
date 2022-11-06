@@ -6,9 +6,9 @@ import { connectApi } from '../../../api';
 
 import { generateId } from '../../../../../shared/utils/generateId';
 
-const DumbNewPatientModal = memo(({ open, onCancel, ...formProps }) => (
-  <Modal title="Add new patient" onClose={onCancel} open={open}>
-    <NewPatientForm generateId={generateId} onCancel={onCancel} {...formProps} />
+const DumbNewPatientModal = memo(({ open, onCancel, isBirth, ...formProps }) => (
+  <Modal title={isBirth ? 'Record new birth' : 'Create new patient'} onClose={onCancel} open={open}>
+    <NewPatientForm generateId={generateId} onCancel={onCancel} isBirth={isBirth} {...formProps} />
   </Modal>
 ));
 

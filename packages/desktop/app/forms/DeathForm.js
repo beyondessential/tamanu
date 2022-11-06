@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import * as yup from 'yup';
 import { Typography } from '@material-ui/core';
 import styled from 'styled-components';
+import moment from 'moment';
 import MuiBox from '@material-ui/core/Box';
-import { MANNER_OF_DEATHS, MANNER_OF_DEATH_OPTIONS } from 'shared/constants';
-import { ageInMonths, ageInYears } from 'shared/utils/dateTime';
 import {
   ArrayField,
   Button,
@@ -145,6 +144,22 @@ const placeOptions = Object.values(PLACES).map(type => ({
   value: type,
 }));
 
+const MANNER_OF_DEATHS = [
+  'Disease',
+  'Assault',
+  'Accident',
+  'Legal Intervention',
+  'Pending Investigation',
+  'Intentional Self Harm',
+  'War',
+  'Unknown/Could not be determined',
+];
+
+const mannerOfDeathOptions = Object.values(MANNER_OF_DEATHS).map(type => ({
+  label: type,
+  value: type,
+}));
+
 const mannerOfDeathVisibilityCriteria = {
   mannerOfDeath: MANNER_OF_DEATHS.filter(x => x !== 'Disease'),
 };
@@ -159,8 +174,11 @@ export const DeathForm = React.memo(
     icd10Suggester,
     facilitySuggester,
   }) => {
-    const canBePregnant = patient.sex === 'female' && ageInYears(patient.dateOfBirth) >= 12;
-    const isInfant = ageInMonths(patient.dateOfBirth) <= 2;
+    const patientYearsOld = moment().diff(patient.dateOfBirth, 'years');
+    const isAdultFemale = patient.sex === 'female' && patientYearsOld >= 12;
+
+    const patientMonthsOld = moment().diff(patient.dateOfBirth, 'months');
+    const isInfant = patientMonthsOld <= 2;
 
     return (
       <PaginatedForm
@@ -264,7 +282,6 @@ export const DeathForm = React.memo(
             name="timeOfDeath"
             label="Date/Time"
             component={props => <DateTimeField {...props} InputProps={{}} />}
-            saveDateAsString
             required
           />
           <Field
@@ -290,8 +307,7 @@ export const DeathForm = React.memo(
           <Field
             name="lastSurgeryDate"
             label="What was the date of surgery"
-            component={DateField}
-            saveDateAsString
+            component={DateTimeField}
             visibilityCriteria={{ surgeryInLast4Weeks: 'yes' }}
           />
           <Field
@@ -302,7 +318,7 @@ export const DeathForm = React.memo(
             visibilityCriteria={{ surgeryInLast4Weeks: 'yes' }}
           />
         </StyledFormGrid>
-        {canBePregnant ? (
+        {isAdultFemale ? (
           <StyledFormGrid columns={1}>
             <Field
               name="pregnant"
@@ -324,14 +340,13 @@ export const DeathForm = React.memo(
             name="mannerOfDeath"
             label="What was the manner of death?"
             component={SelectField}
-            options={MANNER_OF_DEATH_OPTIONS}
+            options={mannerOfDeathOptions}
             required
           />
           <Field
             name="mannerOfDeathDate"
             label="What date did this external cause occur?"
             component={DateField}
-            saveDateAsString
             visibilityCriteria={mannerOfDeathVisibilityCriteria}
           />
           <Field

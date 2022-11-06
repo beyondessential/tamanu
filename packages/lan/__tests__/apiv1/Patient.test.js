@@ -1,12 +1,11 @@
+import { random } from 'lodash';
 import {
   createDummyEncounter,
   createDummyEncounterMedication,
   createDummyPatient,
   randomReferenceId,
 } from 'shared/demoData/patients';
-import { PATIENT_FIELD_DEFINITION_TYPES } from 'shared/constants/patientFields';
 import { fake } from 'shared/test-helpers/fake';
-import { toDateString } from 'shared/utils/dateTime';
 import { createTestContext } from '../utilities';
 
 describe('Patient', () => {
@@ -150,39 +149,6 @@ describe('Patient', () => {
       expect(additional).toHaveProperty('passport', 'TEST-PASSPORT');
     });
 
-    it('should create a new patient with fields', async () => {
-      // Arrange
-      const { PatientFieldDefinitionCategory, PatientFieldDefinition, PatientFieldValue } = models;
-      const category = await PatientFieldDefinitionCategory.create({
-        name: 'Test Category',
-      });
-      const definition = await PatientFieldDefinition.create({
-        name: 'Test Field',
-        fieldType: PATIENT_FIELD_DEFINITION_TYPES.STRING,
-        categoryId: category.id,
-      });
-      const newPatient = await createDummyPatient(models);
-
-      // Act
-      const result = await app.post('/v1/patient').send({
-        ...newPatient,
-        patientFields: {
-          [definition.id]: 'Test Field Value',
-        },
-      });
-
-      // Assert
-      expect(result).toHaveSucceeded();
-      const values = await PatientFieldValue.findAll({
-        where: { patientId: result.body.id },
-      });
-      expect(values).toEqual([
-        expect.objectContaining({
-          value: 'Test Field Value',
-        }),
-      ]);
-    });
-
     it('should update patient details', async () => {
       // skip middleName, to be added in PUT request
       const newPatient = await createDummyPatient(models, { middleName: '' });
@@ -204,46 +170,6 @@ describe('Patient', () => {
 
       expect(additionalDataResult).toHaveSucceeded();
       expect(additionalDataResult.body).toHaveProperty('bloodType', 'AB+');
-    });
-
-    it('should update patient fields', async () => {
-      // Arrange
-      const { PatientFieldDefinitionCategory, PatientFieldDefinition, PatientFieldValue } = models;
-      const category = await PatientFieldDefinitionCategory.create({
-        name: 'Test Category',
-      });
-      const definition = await PatientFieldDefinition.create({
-        name: 'Test Field',
-        fieldType: PATIENT_FIELD_DEFINITION_TYPES.STRING,
-        categoryId: category.id,
-      });
-      const newPatient = await createDummyPatient(models);
-      const {
-        body: { id: patientId },
-      } = await app.post('/v1/patient').send({
-        ...newPatient,
-        patientFields: {
-          [definition.id]: 'Test Field Value',
-        },
-      });
-
-      // Act
-      const result = await app.put(`/v1/patient/${patientId}`).send({
-        patientFields: {
-          [definition.id]: 'Test Field Value 2',
-        },
-      });
-
-      // Assert
-      expect(result).toHaveSucceeded();
-      const values = await PatientFieldValue.findAll({
-        where: { patientId },
-      });
-      expect(values).toEqual([
-        expect.objectContaining({
-          value: 'Test Field Value 2',
-        }),
-      ]);
     });
 
     test.todo('should create a new patient as a new birth');
@@ -306,7 +232,7 @@ describe('Patient', () => {
           createdAt: condition.createdAt.toISOString(),
           updatedAt: condition.updatedAt.toISOString(),
         };
-      };
+      }
 
       commons = {
         clinicianId,
@@ -327,7 +253,7 @@ describe('Patient', () => {
       const { id } = await Patient.create({ ...fake(Patient), dateOfDeath: null });
       const { clinicianId, facilityId, cond1Id, cond2Id, cond3Id } = commons;
 
-      const dod = '2021-09-01 00:00:00';
+      const dod = new Date('2021-09-01T00:00:00.000Z');
       const result = await app.post(`/v1/patient/${id}/death`).send({
         clinicianId,
         facilityId,
@@ -341,11 +267,11 @@ describe('Patient', () => {
         antecedentCause2Interval: 150,
         otherContributingConditions: [{ cause: cond2Id, interval: 400 }],
         surgeryInLast4Weeks: 'yes',
-        lastSurgeryDate: '2021-08-02',
+        lastSurgeryDate: '2021-08-02T20:52:00.000Z',
         lastSurgeryReason: cond1Id,
         pregnant: 'no',
         mannerOfDeath: 'Accident',
-        mannerOfDeathDate: '2021-08-31',
+        mannerOfDeathDate: '2021-08-31T12:00:00.000Z',
         fetalOrInfant: 'yes',
         stillborn: 'unknown',
         birthWeight: 120,
@@ -364,14 +290,14 @@ describe('Patient', () => {
     it('should not mark a dead patient as dead', async () => {
       const { Patient } = models;
       const patientData = fake(Patient);
-      patientData.dateOfDeath = '2021-08-31 12:00:00';
+      patientData.dateOfDeath = new Date(random(patientData.dateOfBirth.getTime(), Date.now()));
       const { id } = await Patient.create(patientData);
       const { clinicianId, facilityId, cond1Id } = commons;
 
       const result = await app.post(`/v1/patient/${id}/death`).send({
         clinicianId,
         facilityId,
-        timeOfDeath: '2021-09-01 00:00:00',
+        timeOfDeath: '2021-09-01T00:00:00.000Z',
         causeOfDeath: cond1Id,
         causeOfDeathInterval: 100,
         mannerOfDeath: 'Disease',
@@ -413,12 +339,11 @@ describe('Patient', () => {
       const result = await app.post(`/v1/patient/${id}/death`).send({
         clinicianId,
         facilityId,
-        timeOfDeath: '2021-09-01 00:00:00',
+        timeOfDeath: '2021-09-01T00:00:00.000Z',
         causeOfDeath: cond1Id,
         causeOfDeathInterval: 100,
         mannerOfDeath: 'Disease',
       });
-
       expect(result).toHaveSucceeded();
 
       const encounter = await Encounter.findByPk(encId);
@@ -438,7 +363,7 @@ describe('Patient', () => {
       expect(result).toHaveStatus(404);
       expect(result.body).toMatchObject({
         patientId: id,
-        dateOfBirth: toDateString(dateOfBirth),
+        dateOfBirth: dateOfBirth.toISOString(),
         dateOfDeath: null,
       });
     });
@@ -448,7 +373,7 @@ describe('Patient', () => {
       const { id, dateOfBirth } = await Patient.create({ ...fake(Patient), dateOfDeath: null });
       const { clinicianId, facilityId, cond1, cond2, cond3, cond1Id, cond2Id, cond3Id } = commons;
 
-      const dod = '2021-09-01 12:30:25';
+      const dod = new Date('2021-09-01T00:00:00.000Z');
       await app.post(`/v1/patient/${id}/death`).send({
         clinicianId,
         facilityId,
@@ -462,11 +387,11 @@ describe('Patient', () => {
         antecedentCause2Interval: 150,
         otherContributingConditions: [{ cause: cond2Id, interval: 400 }],
         surgeryInLast4Weeks: 'yes',
-        lastSurgeryDate: '2021-08-02',
+        lastSurgeryDate: '2021-08-02T20:52:00.000Z',
         lastSurgeryReason: cond1Id,
         pregnant: 'no',
         mannerOfDeath: 'Accident',
-        mannerOfDeathDate: '2021-08-31',
+        mannerOfDeathDate: '2021-08-31T12:00:00.000Z',
         fetalOrInfant: 'yes',
         stillborn: 'unknown',
         birthWeight: 120,
@@ -480,11 +405,14 @@ describe('Patient', () => {
       const result = await app.get(`/v1/patient/${id}/death`);
 
       expect(result).toHaveSucceeded();
-      expect(result.body.dateOfDeath).toEqual(dod);
+      expect(result.body.dateOfDeath).toEqual(dod.toISOString());
+
       expect(result.body).toMatchObject({
         patientId: id,
-        dateOfBirth: toDateString(dateOfBirth),
-        dateOfDeath: dod,
+
+        dateOfBirth: dateOfBirth.toISOString(),
+        dateOfDeath: dod.toISOString(),
+
         manner: 'Accident',
         causes: {
           primary: {
@@ -506,12 +434,12 @@ describe('Patient', () => {
             },
           ],
           external: {
-            date: '2021-08-31',
+            date: '2021-08-31T12:00:00.000Z',
           },
         },
 
         recentSurgery: {
-          date: '2021-08-02',
+          date: '2021-08-02T20:52:00.000Z',
           reasonId: cond1Id,
         },
 
@@ -528,66 +456,6 @@ describe('Patient', () => {
           withinDayOfBirth: true,
         },
       });
-    });
-  });
-
-  describe('Update display ID (editDisplayId feature flag)', () => {
-    beforeAll(async () => {
-      // Create expected reference data
-      await Promise.all([
-        models.ReferenceData.create({
-          id: 'secondaryIdType-tamanu-display-id',
-          code: 'tamanu-display-id',
-          name: 'Tamanu Display ID',
-          type: 'secondaryIdType',
-        }),
-        models.ReferenceData.create({
-          id: 'secondaryIdType-nhn',
-          code: 'nhn',
-          name: 'National Health Number',
-          type: 'secondaryIdType',
-        }),
-      ]);
-    });
-
-    it('Should create a secondary ID record when changing display ID', async () => {
-      const oldDisplayId = 'ABCD123456';
-      const newPatient = await models.Patient.create({
-        ...fake(models.Patient),
-        displayId: oldDisplayId,
-      });
-
-      const newDisplayId = '123456789';
-      const updateResult = await app.put(`/v1/patient/${newPatient.id}`).send({
-        displayId: newDisplayId,
-      });
-      expect(updateResult).toHaveSucceeded();
-      expect(updateResult.body.displayId).toEqual(newDisplayId);
-
-      const secondaryId = await models.PatientSecondaryId.findOne({
-        where: { value: oldDisplayId },
-      });
-      expect(secondaryId).toBeTruthy();
-    });
-
-    it('Should use the proper secondary ID type', async () => {
-      const oldDisplayId = '0fe8e054-2149-4442-9423-9dcaf7b67c20';
-      const newPatient = await models.Patient.create({
-        ...fake(models.Patient),
-        displayId: oldDisplayId,
-      });
-
-      const newDisplayId = '555666777';
-      const updateResult = await app.put(`/v1/patient/${newPatient.id}`).send({
-        displayId: newDisplayId,
-      });
-      expect(updateResult).toHaveSucceeded();
-      expect(updateResult.body.displayId).toEqual(newDisplayId);
-
-      const secondaryId = await models.PatientSecondaryId.findOne({
-        where: { value: oldDisplayId },
-      });
-      expect(secondaryId.typeId).toBe('secondaryIdType-nhn');
     });
   });
 });
