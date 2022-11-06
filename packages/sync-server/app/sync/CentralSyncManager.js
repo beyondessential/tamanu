@@ -205,21 +205,16 @@ export class CentralSyncManager {
 
     if (pushedSoFar === totalToPush) {
       // commit the changes to the db
-      await this.tickTockGlobalClock(); // make sure there's a unique tick while saving these changes
-      await this.store.sequelize.transaction(async transaction => {
-        // acquire a lock on the sync time row in the local system facts table, so that all saved
-        // changes have the same updated_at_sync_tick, and no sync pull snapshot can start while this
-        // save is still in progress
+      await this.store.sequelize.transaction(async () => {
+        // we tick-tock the global clock to make sure there is a unique tick for these changes, and
+        // to acquire a lock on the sync time row in the local system facts table, so that no sync
+        // pull snapshot can start while this save is still in progress
         // the pull snapshot starts by updating the current time, so this locks that out while the
         // save transaction happens, to avoid the snapshot missing records that get during this save
         // but aren't visible in the db to be snapshot until the transaction commits, so would
         // otherwise be completely skipped over by that sync client
-        const [{ value: syncTick }] = await models.LocalSystemFact.findAll({
-          where: {
-            key: CURRENT_SYNC_TIME_KEY,
-          },
-          lock: transaction.LOCK.UPDATE,
-        });
+        const { tock } = await this.tickTockGlobalClock();
+
         await saveIncomingChanges(
           models,
           getModelsForDirection(models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL),
@@ -228,10 +223,7 @@ export class CentralSyncManager {
         );
         // store the sync tick on save with the incoming changes, so they can be compared for
         // edits with the outgoing changes
-        await models.SyncSessionRecord.update(
-          { savedAtSyncTick: syncTick },
-          { where: { sessionId } },
-        );
+        await models.SyncSessionRecord.update({ savedAtSyncTick: tock }, { where: { sessionId } });
       });
     }
   }
