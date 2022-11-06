@@ -10,7 +10,10 @@ export const completeSyncSession = async (store, sessionId) => {
 export const completeInactiveSyncSessions = async (store, lapsedSessionSeconds) => {
   const { SyncSession } = store.models;
   const lapsedSessions = await SyncSession.findAll({
-    where: { lastConnectionTime: { [Op.lt]: Date.now() - lapsedSessionSeconds * 1000 } },
+    where: {
+      lastConnectionTime: { [Op.lt]: Date.now() - lapsedSessionSeconds * 1000 },
+      completedAt: { [Op.is]: null },
+    },
     select: ['id'],
     raw: true,
   });
