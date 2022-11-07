@@ -19,11 +19,27 @@ const locationCategorySuggester = api => {
 
 const locationSuggester = (api, categoryValue) => {
   return new Suggester(api, 'location', {
-    // Todo: turn on when api is done
-    // filterer: l => {
-    //   return l.parentId === categoryValue;
-    // },
+    filterer: l => {
+      // return all locations if no category is selected
+      if (!categoryValue) {
+        return true;
+      }
+      return l.parentId === categoryValue;
+    },
     formatter: ({ name, id, availability }) => {
+      // if a category is selected return the comma seperated list of locations
+      if (categoryValue) {
+        // 1. Get children (locations with a parent id)
+        // 2a. Make a library keyed by id
+        // 2. Get the parent and pre-pend it to the child
+
+        return {
+          label: name,
+          value: id,
+          tag: LOCATION_AVAILABILITY_TAG_CONFIG[availability],
+        };
+      }
+
       return {
         label: name,
         value: id,
@@ -44,8 +60,8 @@ export const LocationInput = React.memo(
     helperText,
     required,
     className,
-    locationSuggester,
-    locationCategorySuggester,
+    value,
+    onChange,
   }) => {
     const api = useApi();
     const [categoryValue, setCategoryValue] = useState('');
@@ -61,16 +77,18 @@ export const LocationInput = React.memo(
           disabled={disabled}
           onChange={handleChangeCategory}
           value={categoryValue}
-          suggester={locationCategorySuggester}
+          suggester={locationCategorySuggester(api)}
         />
         <AutocompleteInput
           label={label}
           disabled={disabled}
           name={name}
-          suggester={locationSuggester}
+          suggester={locationSuggester(api, categoryValue)}
           helperText={helperText}
           required={required}
           error={error}
+          value={value}
+          onChange={onChange}
           className={className}
         />
       </>
