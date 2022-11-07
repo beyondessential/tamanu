@@ -5,6 +5,35 @@ import { AutocompleteInput } from './AutocompleteField';
 import { useApi } from '../../api';
 import { Suggester } from '../../utils/suggester';
 
+const locationCategorySuggester = api => {
+  return new Suggester(api, 'location', {
+    formatter: ({ name, id }) => {
+      return {
+        label: name,
+        value: id,
+      };
+    },
+    baseQueryParameters: { filterByFacility: true },
+  });
+};
+
+const locationSuggester = (api, categoryValue) => {
+  return new Suggester(api, 'location', {
+    // Todo: turn on when api is done
+    // filterer: l => {
+    //   return l.parentId === categoryValue;
+    // },
+    formatter: ({ name, id, availability }) => {
+      return {
+        label: name,
+        value: id,
+        tag: LOCATION_AVAILABILITY_TAG_CONFIG[availability],
+      };
+    },
+    baseQueryParameters: { filterByFacility: true },
+  });
+};
+
 export const LocationInput = React.memo(
   ({
     categoryLabel,
@@ -18,6 +47,7 @@ export const LocationInput = React.memo(
     locationSuggester,
     locationCategorySuggester,
   }) => {
+    const api = useApi();
     const [categoryValue, setCategoryValue] = useState('');
 
     const handleChangeCategory = event => {
@@ -48,45 +78,12 @@ export const LocationInput = React.memo(
   },
 );
 
-const locationCategorySuggester = api => {
-  return new Suggester(api, 'location', {
-    formatter: ({ name, id }) => {
-      return {
-        label: name,
-        value: id,
-      };
-    },
-    baseQueryParameters: { filterByFacility: true },
-  });
-};
-
-const locationSuggester = (api, categoryValue) => {
-  return new Suggester(api, 'location', {
-    // Todo: turn on when api is done
-    // filterer: l => {
-    //   return l.parentId === categoryValue;
-    // },
-    formatter: ({ name, id, availability }) => {
-      return {
-        label: name,
-        value: id,
-        tag: LOCATION_AVAILABILITY_TAG_CONFIG[availability],
-      };
-    },
-    baseQueryParameters: { filterByFacility: true },
-  });
-};
-
 export const LocationField = React.memo(({ field, error, ...props }) => {
-  const api = useApi();
-
   return (
     <LocationInput
       name={field.name}
       value={field.value || ''}
       onChange={field.onChange}
-      locationSuggester={locationSuggester(api)}
-      locationCategorySuggester={locationCategorySuggester(api)}
       {...props}
     />
   );
