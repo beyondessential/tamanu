@@ -65,7 +65,8 @@ const snapshotChangesForModel = async (
       replacements: {
         sessionId,
         since,
-        // include replacement params used in some model specific sync filters
+        // include replacement params used in some model specific sync filters outside of this file
+        // see e.g. Referral.buildSyncFilter
         patientIds,
         facilityId,
       },

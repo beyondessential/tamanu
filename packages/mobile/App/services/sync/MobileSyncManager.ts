@@ -126,20 +126,9 @@ export class MobileSyncManager {
     // the first step of sync is to start a session and retrieve the session id
     const sessionId = await this.centralServer.startSyncSession();
 
-    // ~~~ Push phase ~~~ //
+    console.log('MobileSyncManager.runSync(): Sync started');
 
-    // get the sync tick we're up to locally, so that we can store it as the successful push cursor
-    const currentSyncTick = await getSyncTick(this.models, CURRENT_SYNC_TIME);
-
-    // tick the global sync clock, and use that new unique tick for any changes from now on so that
-    // any records that are created or updated even mid way through this sync, are marked using the
-    // new tick and will be captured in the push
-    const newSyncClockTime = await this.centralServer.tickGlobalClock();
-    await setSyncTick(this.models, CURRENT_SYNC_TIME, newSyncClockTime);
-
-    console.log(`MobileSyncManager.runSync(): Sync started with sync tick ${currentSyncTick}`);
-
-    await this.syncOutgoingChanges(sessionId, currentSyncTick);
+    await this.syncOutgoingChanges(sessionId);
     await this.syncIncomingChanges(sessionId);
 
     await this.centralServer.endSyncSession(sessionId);
@@ -151,9 +140,17 @@ export class MobileSyncManager {
   /**
    * Syncing outgoing changes in batches
    * @param sessionId
-   * @param currentSyncTick
    */
-  async syncOutgoingChanges(sessionId: string, currentSyncTick: number): Promise<void> {
+  async syncOutgoingChanges(sessionId: string): Promise<void> {
+    // get the sync tick we're up to locally, so that we can store it as the successful push cursor
+    const currentSyncTick = await getSyncTick(this.models, CURRENT_SYNC_TIME);
+
+    // tick the global sync clock, and use that new unique tick for any changes from now on so that
+    // any records that are created or updated even mid way through this sync, are marked using the
+    // new tick and will be captured in the push
+    const newSyncClockTime = await this.centralServer.tickGlobalClock();
+    await setSyncTick(this.models, CURRENT_SYNC_TIME, newSyncClockTime);
+
     const pushSince = await getSyncTick(this.models, LAST_SUCCESSFUL_PUSH);
     console.log(
       `MobileSyncManager.syncOutgoingChanges(): Begin syncing outgoing changes since ${pushSince}`,
