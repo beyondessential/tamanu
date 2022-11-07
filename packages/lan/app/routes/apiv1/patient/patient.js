@@ -280,7 +280,7 @@ patientRoute.get(
         LEFT JOIN (
           SELECT
             patient_id,
-            STRING_AGG(value, '|') AS concatenated_secondary_ids
+            ARRAY_AGG(value) AS secondary_ids
           FROM patient_secondary_ids
           GROUP BY patient_id
         ) psi

@@ -162,17 +162,18 @@ describe('Patient search', () => {
     expect(response.body.count).toEqual(0);
   });
 
-  describe('Searching by IDs', () => {
-    it('should get a patient by displayId', async () => {
-      const response = await app.get('/v1/patient').query({
-        displayId: 'search-by-display-id',
-      });
-      expect(response).toHaveSucceeded();
-      expect(response.body.count).toEqual(1);
-
-      const [responsePatient] = response.body.data;
-      expect(responsePatient).toHaveProperty('displayId', 'search-by-display-id');
+  it('should get a patient by displayId', async () => {
+    const response = await app.get('/v1/patient').query({
+      displayId: 'search-by-display-id',
     });
+    expect(response).toHaveSucceeded();
+    expect(response.body.count).toEqual(1);
+
+    const [responsePatient] = response.body.data;
+    expect(responsePatient).toHaveProperty('displayId', 'search-by-display-id');
+  });
+
+  describe('Searching by secondary IDs', () => {
 
     it('should NOT get a patient by secondary ID by default', async () => {
       const response = await app.get('/v1/patient').query({
