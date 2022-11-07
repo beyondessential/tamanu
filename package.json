@@ -23,6 +23,7 @@
     "lan-test-watch": "yarn run watch-shared-and lan test-watch",
     "lan-migrate": "TAMANU_ARGS=\"migrate up\" yarn run lan-start-dev",
     "lan-migrate-down": "TAMANU_ARGS=\"migrate down\" yarn run lan-start-dev",
+    "migrate-create": "./scripts/create_server_migration.sh",
     "sync-test": "yarn run build-shared && yarn workspace sync-server run test",
     "sync-shell": "yarn run build-shared && yarn workspace sync-server run shell",
     "sync-start-dev": "yarn run watch-shared-and sync-server start-dev",
