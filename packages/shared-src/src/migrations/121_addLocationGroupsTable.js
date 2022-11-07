@@ -3,7 +3,7 @@ import Sequelize from 'sequelize';
 export async function up(query) {
   await query.createTable('location_groups', {
     id: {
-      type: Sequelize.UUID,
+      type: Sequelize.STRING,
       allowNull: false,
       primaryKey: true,
       defaultValue: Sequelize.UUIDV4,
@@ -43,6 +43,7 @@ export async function up(query) {
   await query.addColumn('locations', 'location_group_id', {
     type: Sequelize.STRING,
     allowNull: true,
+    default: null,
     references: {
       model: 'location_groups',
       key: 'id',
