@@ -118,10 +118,10 @@ export async function initDatabase(dbOptions) {
   models.User.SALT_ROUNDS = saltRounds;
 
   // attach migration function to the sequelize object - leaving the responsibility
-  // of calling it to the implementing server (this allows for skipping migrations
-  // in favour of calling sequelize.sync() during test mode)
-  sequelize.migrate = async direction => {
-    await migrate(log, sequelize, direction);
+  // of calling it to the implementing server (TODO this once allowed for skipping migrations
+  // in favour of calling sequelize.sync() during test mode, which we no longer do)
+  sequelize.migrate = async (action, args) => {
+    await migrate(log, sequelize, action, args);
   };
 
   sequelize.assertUpToDate = async options => assertUpToDate(log, sequelize, options);

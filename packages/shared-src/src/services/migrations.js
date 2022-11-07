@@ -1,4 +1,4 @@
-import Umzug from 'umzug';
+import { Umzug, SequelizeStorage } from 'umzug';
 import { readdirSync } from 'fs';
 import path from 'path';
 
@@ -21,18 +21,15 @@ export function createMigrationInterface(log, sequelize) {
 
   const umzug = new Umzug({
     migrations: {
-      path: migrationsDir,
+      glob: `${migrationsDir}/*.js`,
       params: [sequelize.getQueryInterface()],
       wrap: updown => (...args) => sequelize.transaction(() => updown(...args)),
     },
-    storage: 'sequelize',
-    storageOptions: {
-      sequelize,
-    },
+    storage: new SequelizeStorage({ sequelize }),
   });
 
-  umzug.on('migrating', name => log.info(`Applying migration: ${name}`));
-  umzug.on('reverting', name => log.info(`Reverting migration: ${name}`));
+  umzug.on('migrating', ({ name }) => log.info(`Applying migration: ${name}`));
+  umzug.on('reverting', ({ name }) => log.info(`Reverting migration: ${name}`));
 
   return umzug;
 }
@@ -50,10 +47,15 @@ async function migrateUp(log, sequelize) {
   }
 }
 
-async function migrateDown(log, sequelize, options) {
+async function migrateDown(log, sequelize, { steps, to }) {
   const migrations = createMigrationInterface(log, sequelize);
-  log.info(`Reverting 1 migration...`);
-  const reverted = await migrations.down(options);
+  const step = to ? null : steps || 1;
+  log.info(
+    `Reverting ${step ? `${step} ` : ''}migration${step === null || step > 1 ? 's' : ''}${
+      to ? ` up to ${to}` : ''
+    }...`,
+  );
+  const reverted = await migrations.down({ step, to });
   if (Array.isArray(reverted)) {
     if (reverted.length === 0) {
       log.warn(`No migrations to revert.`);
@@ -77,21 +79,22 @@ export async function assertUpToDate(log, sequelize, options) {
   }
 }
 
-export async function migrate(log, sequelize, direction) {
-  if (direction === 'up') {
+export async function migrate(log, sequelize, action, args) {
+  if (action === 'up') {
     return migrateUp(log, sequelize);
   }
-  if (direction === 'down') {
-    return migrateDown(log, sequelize);
+  if (action === 'down') {
+    const { steps } = args;
+    return migrateDown(log, sequelize, { steps });
   }
-  if (direction === 'downToLastReversibleMigration') {
+  if (action === 'downToLastReversibleMigration') {
     return migrateDown(log, sequelize, { to: LAST_REVERSIBLE_MIGRATION });
   }
-  if (direction === 'redoLatest') {
+  if (action === 'redoLatest') {
     await migrateDown(log, sequelize);
     return migrateUp(log, sequelize);
   }
-  throw new Error(`Unrecognised migrate direction: ${direction}`);
+  throw new Error(`Unrecognised migrate action: ${action}`);
 }
 
 export function createMigrateCommand(Command, migrateCallback) {
@@ -106,8 +109,9 @@ export function createMigrateCommand(Command, migrateCallback) {
 
   migrateCommand
     .command('down')
-    .description('Reverse the most recent migration')
-    .action(() => migrateCallback('down'));
+    .description('Reverse the most recent migration(s)')
+    .argument('<steps>', 'Number of migrations to reverse')
+    .action(steps => migrateCallback('down', { steps }));
 
   migrateCommand
     .command('downToLastReversibleMigration')
