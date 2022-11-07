@@ -55,9 +55,9 @@ export class Location extends Model {
       as: 'facility',
     });
 
-    this.belongsTo(models.Location, {
-      foreignKey: 'parent_location_id',
-      as: 'parentLocation',
+    this.belongsTo(models.LocationGroup, {
+      foreignKey: 'locationGroupId',
+      as: 'locationGroup',
     });
   }
 }
