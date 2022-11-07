@@ -28,8 +28,11 @@ export default {
   department: {
     needs: ['facility'],
   },
-  location: {
+  locationGroup: {
     needs: ['facility'],
+  },
+  location: {
+    needs: ['facility', 'locationGroup'],
   },
 
   certifiableVaccine: {},

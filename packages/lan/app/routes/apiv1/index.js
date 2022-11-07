@@ -36,6 +36,7 @@ import { setting } from './setting';
 import { asset } from './asset';
 import { department } from './department';
 import { location } from './location';
+import { locationGroup } from './locationGroup';
 import { attachment } from './attachment';
 import { scheduledVaccine } from './scheduledVaccine';
 import { sync } from './sync';
@@ -92,6 +93,7 @@ apiv1.use('/asset', asset);
 
 apiv1.use('/department', department);
 apiv1.use('/location', location);
+apiv1.use('/locationGroup', locationGroup);
 
 apiv1.use('/attachment', attachment);
 

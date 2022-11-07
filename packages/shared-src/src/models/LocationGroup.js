@@ -1,14 +1,14 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from 'shared/constants';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
 
-export class Location extends Model {
+export class LocationGroup extends Model {
   static init({ primaryKey, ...options }) {
     const validate = {
       mustHaveFacility() {
         if (!this.deletedAt && !this.facilityId) {
-          throw new InvalidOperationError('A location must have a facility.');
+          throw new InvalidOperationError('A location group must have a facility.');
         }
       },
     };
@@ -23,10 +23,6 @@ export class Location extends Model {
           type: Sequelize.STRING,
           allowNull: false,
         },
-        visibilityStatus: {
-          type: Sequelize.TEXT,
-          defaultValue: VISIBILITY_STATUSES.CURRENT,
-        },
       },
       {
         ...options,
@@ -38,26 +34,8 @@ export class Location extends Model {
   }
 
   static initRelations(models) {
-    this.hasMany(models.Encounter, {
-      foreignKey: 'locationId',
-    });
-
-    this.hasMany(models.Procedure, {
-      foreignKey: 'locationId',
-    });
-
-    this.hasMany(models.ImagingRequest, {
-      foreignKey: 'locationId',
-    });
-
-    this.belongsTo(models.Facility, {
-      foreignKey: 'facilityId',
-      as: 'facility',
-    });
-
-    this.belongsTo(models.LocationGroup, {
+    this.hasMany(models.Location, {
       foreignKey: 'locationGroupId',
-      as: 'locationGroup',
     });
   }
 }
