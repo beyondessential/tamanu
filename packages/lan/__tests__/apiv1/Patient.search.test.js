@@ -194,6 +194,27 @@ describe('Patient search', () => {
       expect(responsePatient).toHaveProperty('displayId', 'search-by-secondary-id');
     });
 
+    it('should get a patient by secondary ID case-insensitively', async () => {
+      const response = await app.get('/v1/patient').query({
+        displayId: 'Patient-Secondary-Id',
+        matchSecondaryIds: true,
+      });
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(1);
+
+      const [responsePatient] = response.body.data;
+      expect(responsePatient).toHaveProperty('displayId', 'search-by-secondary-id');
+    });
+
+    it("should not get a patient by secondaryId if it's only a partial match", async () => {
+      const response = await app.get('/v1/patient').query({
+        displayId: 'patient-seco',
+        matchSecondaryIds: true,
+      });
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(0);
+    });
+
     it('should get a patient by displayId even if query param matchSecondaryIds is true', async () => {
       const response = await app.get('/v1/patient').query({
         displayId: 'search-by-display-id',
