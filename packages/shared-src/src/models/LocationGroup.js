@@ -34,6 +34,11 @@ export class LocationGroup extends Model {
   }
 
   static initRelations(models) {
+    this.belongsTo(models.Facility, {
+      foreignKey: 'facilityId',
+      as: 'facility',
+    });
+
     this.hasMany(models.Location, {
       foreignKey: 'locationGroupId',
     });
