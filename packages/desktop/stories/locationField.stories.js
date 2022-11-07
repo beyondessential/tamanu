@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import Chance from 'chance';
 import { storiesOf } from '@storybook/react';
-import { LocationInput } from '../app/components';
+import { Form, LocationInput } from '../app/components';
+import { MockedApi } from './utils/mockedApi';
 
 const Container = styled.div`
   padding: 1rem;
@@ -35,21 +36,30 @@ for (let i = 0; i < 10; i++) {
   }
 }
 
-storiesOf('LocationSearch', module).add('Location search', () => {
-  const [value, setValue] = useState(null);
+const endpoints = {
+  'locations/:id': () => {
+    return fakeLocations;
+  },
+};
 
-  const selectedOption = fakeLocations.find(x => x.value === value);
-
-  return (
-    <Container>
-      <LocationInput
-        groupLabel="Country"
-        label="City"
-        options={fakeLocations}
-        onChange={setValue}
-        required
-      />
-      {value && <div>Selected value: {selectedOption.label}</div>}
-    </Container>
-  );
-});
+storiesOf('LocationField', module)
+  .addDecorator(Story => (
+    <MockedApi endpoints={endpoints}>
+      <Story />
+    </MockedApi>
+  ))
+  .add('Location search', () => {
+    return (
+      <Container>
+        <Form
+          render={() => {
+            return (
+              <div>
+                <LocationField categoryLabel="Country" label="City" required />
+              </div>
+            );
+          }}
+        />
+      </Container>
+    );
+  });

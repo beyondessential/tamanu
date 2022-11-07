@@ -574,7 +574,8 @@
         "mergePopulatedPADRecords": true,
         "enableCovidClearanceCertificate": false,
         "editDisplayId": false,
-        "patientPlannedMove": false
+        "patientPlannedMove": false,
+        "locationHierarchy": false
       },
       "templates": {
         "letterhead": {

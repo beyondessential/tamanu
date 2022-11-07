@@ -14,6 +14,7 @@ import {
   FormGrid,
   LocalisedField,
   SuggesterSelectField,
+  LocationField,
 } from '../components';
 import { encounterOptions } from '../constants';
 import { useSuggester } from '../api';
@@ -56,19 +57,26 @@ export const EncounterForm = React.memo(
             suggester={departmentSuggester}
           />
           <Field
-            name="locationId"
-            label="Location"
-            required
-            component={AutocompleteField}
-            suggester={locationSuggester}
-          />
-          <Field
             name="examinerId"
             label="Practitioner"
             required
             component={AutocompleteField}
             suggester={practitionerSuggester}
           />
+          <Field
+            name="locationId"
+            required
+            categoryLabel="Ward"
+            label="Bed"
+            component={LocationField}
+          />
+          {/*<Field*/}
+          {/*  name="locationId"*/}
+          {/*  label="Location"*/}
+          {/*  required*/}
+          {/*  component={AutocompleteField}*/}
+          {/*  suggester={locationSuggester}*/}
+          {/*/>*/}
           <LocalisedField
             name="referralSourceId"
             suggester={referralSourceSuggester}

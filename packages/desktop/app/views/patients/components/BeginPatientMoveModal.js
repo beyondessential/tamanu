@@ -5,8 +5,7 @@ import * as yup from 'yup';
 import { LOCATION_AVAILABILITY_STATUS } from 'shared/constants';
 import { Colors } from '../../../constants';
 import { usePatientMove } from '../../../api/mutations';
-import { useLocationAvailabilitySuggester } from '../../../api';
-import { BodyText, AutocompleteField, Field, Form, Modal } from '../../../components';
+import { BodyText, Form, Modal, LocationField } from '../../../components';
 import { ModalActionRow } from '../../../components/ModalActionRow';
 import { useLocalisation } from '../../../contexts/Localisation';
 
@@ -25,8 +24,6 @@ const Text = styled(BodyText)`
 
 export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) => {
   const { mutateAsync: submit } = usePatientMove(encounter.id, onClose);
-
-  const locationSuggester = useLocationAvailabilitySuggester();
 
   const { getLocalisation } = useLocalisation();
   const plannedMoveTimeoutHours = getLocalisation('templates.plannedMoveTimeoutHours');
@@ -50,13 +47,7 @@ export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) =
           return (
             <>
               <Container>
-                <Field
-                  name="plannedLocationId"
-                  component={AutocompleteField}
-                  suggester={locationSuggester}
-                  label="New location"
-                  required
-                />
+                <LocationField name="plannedLocationId" categoryLabel="Ward" label="Bed" required />
                 {values?.status === LOCATION_AVAILABILITY_STATUS.RESERVED && (
                   <Text>
                     <span style={{ color: Colors.alert }}>*</span> This location has already been

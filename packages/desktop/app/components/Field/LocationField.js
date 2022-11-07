@@ -1,75 +1,96 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Box } from '@material-ui/core';
+import { LOCATION_AVAILABILITY_TAG_CONFIG } from 'shared/constants';
 import { AutocompleteInput } from './AutocompleteField';
+import { useApi } from '../../api';
+import { Suggester } from '../../utils/suggester';
 
 export const LocationInput = React.memo(
   ({
-    options,
-    groupLabel,
+    categoryLabel,
     label,
-    onChange,
-    onCategoryChange,
-    required,
-    disabled,
-    className,
     name,
+    disabled,
     error,
     helperText,
+    required,
+    className,
+    locationSuggester,
+    locationCategorySuggester,
   }) => {
-    const [categoryValue, setCategoryValue] = useState(null);
-    const [value, setValue] = useState(null);
+    const [categoryValue, setCategoryValue] = useState('');
 
     const handleChangeCategory = event => {
       setCategoryValue(event.target.value);
-
-      if (typeof onCategoryChange === 'function') {
-        onCategoryChange(event.target.value);
-      }
     };
-
-    const handleChange = event => {
-      setValue(event.target.value);
-
-      if (typeof onChange === 'function') {
-        onChange(event.target.value);
-      }
-    };
-
-    const categoryOptions = options.filter(x => x.parentId === undefined);
-
-    const filteredOptions = categoryValue
-      ? options.filter(x => x.parentId === categoryValue)
-      : options;
 
     return (
-      <Box className={className}>
-        <Box mb={3}>
-          <AutocompleteInput
-            label={groupLabel}
-            onChange={handleChangeCategory}
-            value={categoryValue}
-            options={categoryOptions}
-            disabled={disabled}
-          />
-        </Box>
-        <Box mb={3}>
-          <AutocompleteInput
-            label={label}
-            onChange={handleChange}
-            value={value}
-            options={filteredOptions}
-            required={required}
-            disabled={disabled}
-            name={name}
-            error={error}
-            helperText={helperText}
-          />
-        </Box>
-      </Box>
+      <>
+        <AutocompleteInput
+          label={categoryLabel}
+          disabled={disabled}
+          onChange={handleChangeCategory}
+          value={categoryValue}
+          suggester={locationCategorySuggester}
+        />
+        <AutocompleteInput
+          label={label}
+          disabled={disabled}
+          name={name}
+          suggester={locationSuggester}
+          helperText={helperText}
+          required={required}
+          error={error}
+          className={className}
+        />
+      </>
     );
   },
 );
+
+const locationCategorySuggester = api => {
+  return new Suggester(api, 'location', {
+    formatter: ({ name, id }) => {
+      return {
+        label: name,
+        value: id,
+      };
+    },
+    baseQueryParameters: { filterByFacility: true },
+  });
+};
+
+const locationSuggester = (api, categoryValue) => {
+  return new Suggester(api, 'location', {
+    // Todo: turn on when api is done
+    // filterer: l => {
+    //   return l.parentId === categoryValue;
+    // },
+    formatter: ({ name, id, availability }) => {
+      return {
+        label: name,
+        value: id,
+        tag: LOCATION_AVAILABILITY_TAG_CONFIG[availability],
+      };
+    },
+    baseQueryParameters: { filterByFacility: true },
+  });
+};
+
+export const LocationField = React.memo(({ field, error, ...props }) => {
+  const api = useApi();
+
+  return (
+    <LocationInput
+      name={field.name}
+      value={field.value || ''}
+      onChange={field.onChange}
+      locationSuggester={locationSuggester(api)}
+      locationCategorySuggester={locationCategorySuggester(api)}
+      {...props}
+    />
+  );
+});
 
 LocationInput.propTypes = {
   label: PropTypes.string,
@@ -79,13 +100,6 @@ LocationInput.propTypes = {
   helperText: PropTypes.string,
   name: PropTypes.string,
   className: PropTypes.string,
-  onChange: PropTypes.func.isRequired,
-  options: PropTypes.arrayOf(
-    PropTypes.shape({
-      label: PropTypes.string,
-      value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    }),
-  ),
 };
 
 LocationInput.defaultProps = {
@@ -96,9 +110,4 @@ LocationInput.defaultProps = {
   name: undefined,
   helperText: '',
   className: '',
-  options: [],
 };
-
-export const LocationField = ({ field, ...props }) => (
-  <LocationInput name={field.name} value={field.value || ''} onChange={field.onChange} {...props} />
-);

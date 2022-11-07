@@ -93,6 +93,7 @@ class BaseAutocomplete extends Component {
 
   updateValue = async () => {
     const { value, suggester } = this.props;
+
     if (!suggester || value === undefined) {
       return;
     }
@@ -132,6 +133,7 @@ class BaseAutocomplete extends Component {
     const suggestions = suggester
       ? await suggester.fetchSuggestions(value)
       : options.filter(x => x.label.toLowerCase().includes(value.toLowerCase()));
+    console.log('construct', suggestions);
 
     this.setState({ suggestions });
   };
