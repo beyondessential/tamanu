@@ -25,7 +25,6 @@ const Text = styled(BodyText)`
 
 export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) => {
   const { mutateAsync: submit } = usePatientMove(encounter.id, onClose);
-
   const locationSuggester = useLocationAvailabilitySuggester();
 
   const { getLocalisation } = useLocalisation();
@@ -41,12 +40,12 @@ export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) =
         deemed ‘Available’ again.
       </Text>
       <Form
-        initialValues={{ plannedLocation: encounter.plannedLocationId }}
+        initialValues={{ plannedLocationId: encounter.plannedLocationId }}
         onSubmit={submit}
         validationSchema={yup.object().shape({
           plannedLocationId: yup.string().required('Please select a planned location'),
         })}
-        render={({ submitForm, values }) => {
+        render={({ submitForm }) => {
           return (
             <>
               <Container>
@@ -55,15 +54,34 @@ export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) =
                   component={AutocompleteField}
                   suggester={locationSuggester}
                   label="New location"
+                  renderMessage={({ tag }) => {
+                    // Todo: Move this message handling to the location component @see WAITM-536
+                    const status = tag?.label?.toUpperCase();
+
+                    if (status === LOCATION_AVAILABILITY_STATUS.RESERVED) {
+                      return (
+                        <Text>
+                          <span style={{ color: Colors.alert }}>*</span> This location has already
+                          been reserved for another patient. Please ensure the bed is available
+                          before confirming.
+                        </Text>
+                      );
+                    }
+
+                    if (status === LOCATION_AVAILABILITY_STATUS.OCCUPIED) {
+                      return (
+                        <Text>
+                          <span style={{ color: Colors.alert }}>*</span> This location is already
+                          occupied by another patient. Please ensure the bed is available before
+                          confirming.
+                        </Text>
+                      );
+                    }
+
+                    return null;
+                  }}
                   required
                 />
-                {values?.status === LOCATION_AVAILABILITY_STATUS.RESERVED && (
-                  <Text>
-                    <span style={{ color: Colors.alert }}>*</span> This location has already been
-                    reserved for another patient. Please ensure the bed is available before
-                    confirming.
-                  </Text>
-                )}
               </Container>
               <ModalActionRow confirmText="Confirm" onConfirm={submitForm} onCancel={onClose} />
             </>
