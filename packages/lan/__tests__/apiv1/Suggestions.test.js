@@ -23,31 +23,35 @@ describe('Suggestions', () => {
     let searchPatient;
 
     beforeAll(async () => {
-      searchPatient = await models.Patient.create(await createDummyPatient(models, {
-        firstName: 'Test',
-        lastName: 'Appear',
-        displayId: 'abcabc123123',
-      }));
-      await models.Patient.create(await createDummyPatient(models, {
-        firstName: 'Negative',
-        lastName: 'Negative',
-        displayId: 'negative',
-      }));
+      searchPatient = await models.Patient.create(
+        await createDummyPatient(models, {
+          firstName: 'Test',
+          lastName: 'Appear',
+          displayId: 'abcabc123123',
+        }),
+      );
+      await models.Patient.create(
+        await createDummyPatient(models, {
+          firstName: 'Negative',
+          lastName: 'Negative',
+          displayId: 'negative',
+        }),
+      );
     });
-    
+
     it('should get a patient by first name', async () => {
       const result = await userApp.get('/v1/suggestions/patient').query({ q: 'Test' });
       expect(result).toHaveSucceeded();
 
       const { body } = result;
-      expect(body).toHaveLength(1)
+      expect(body).toHaveLength(1);
       expect(body[0]).toHaveProperty('id', searchPatient.id);
     });
 
     it('should get a patient by last name', async () => {
       const result = await userApp.get('/v1/suggestions/patient').query({ q: 'Appear' });
       expect(result).toHaveSucceeded();
-      
+
       const { body } = result;
       expect(body).toHaveProperty('length', 1);
       expect(body[0]).toHaveProperty('id', searchPatient.id);
@@ -56,7 +60,7 @@ describe('Suggestions', () => {
     it('should get a patient by combined first and last name', async () => {
       const result = await userApp.get('/v1/suggestions/patient').query({ q: 'Test Appear' });
       expect(result).toHaveSucceeded();
-      
+
       const { body } = result;
       expect(body).toHaveProperty('length', 1);
       expect(body[0]).toHaveProperty('id', searchPatient.id);
@@ -65,7 +69,7 @@ describe('Suggestions', () => {
     it('should get a patient by displayId', async () => {
       const result = await userApp.get('/v1/suggestions/patient').query({ q: 'abcabc123123' });
       expect(result).toHaveSucceeded();
-      
+
       const { body } = result;
       expect(body).toHaveProperty('length', 1);
       expect(body[0]).toHaveProperty('id', searchPatient.id);
@@ -246,8 +250,7 @@ describe('Suggestions', () => {
     const { body } = result;
 
     const idArray = body.map(({ id }) => id);
-    expect(idArray).toContain(visible.id); 
-    expect(idArray).not.toContain(invisible.id); 
+    expect(idArray).toContain(visible.id);
+    expect(idArray).not.toContain(invisible.id);
   });
-    
 });
