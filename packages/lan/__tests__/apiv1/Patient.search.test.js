@@ -22,6 +22,7 @@ const searchTestPatients = [
   { displayId: 'search-by-display-id' },
   { displayId: 'search-by-secondary-id', secondaryIds: ['patient-secondary-id'] },
   { displayId: 'multiple-secondary-id', secondaryIds: ['multi-secondary-1', 'multi-secondary-2', 'multi-secondary-3'] },
+  { displayId: 'matching-2ndary-id', secondaryIds: ['matching-2ndary-id'] },
   { firstName: 'search-by-name' },
   { firstName: 'search-by-name' },
   { firstName: 'search-by-name' },
@@ -226,6 +227,14 @@ describe('Patient search', () => {
 
       const [responsePatient] = response.body.data;
       expect(responsePatient).toHaveProperty('displayId', 'search-by-display-id');
+    });
+
+    it('should not see duplicates when patient primary displayId matches a secondary ID', async () => {
+      const response = await app.get('/v1/patient').query({
+        displayId: 'matching-2ndary-id',
+      });
+      expect(response).toHaveSucceeded();
+      expect(response.body.count).toEqual(1);
     });
 
     it('should not see duplicates when patients have multiple secondary IDs', async () => {
