@@ -729,5 +729,66 @@ describe('Encounter', () => {
 
     test.todo('should record a note');
     test.todo('should update a note');
+
+    describe('Planned location move', () => {
+      it('Adding a planned location should also add a planned location time', async () => {
+        const [location, plannedLocation] = await models.Location.findAll({ limit: 2 });
+        const submittedTime = getCurrentDateTimeString();
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          locationId: location.id,
+        });
+
+        const result = await app.put(`/v1/encounter/${encounter.id}`).send({
+          plannedLocationId: plannedLocation.id,
+          submittedTime,
+        });
+        expect(result).toHaveSucceeded();
+
+        const updatedEncounter = await models.Encounter.findByPk(encounter.id);
+        expect(updatedEncounter.plannedLocationId).toEqual(plannedLocation.id);
+        expect(updatedEncounter.plannedLocationStartTime).toEqual(submittedTime);
+      });
+      it('Clearing a planned location should also clear the planned location time', async () => {
+        const [location, plannedLocation] = await models.Location.findAll({ limit: 2 });
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          locationId: location.id,
+          plannedLocationId: plannedLocation.id,
+          submittedTime: getCurrentDateTimeString(),
+        });
+
+        const result = await app.put(`/v1/encounter/${encounter.id}`).send({
+          plannedLocationId: null,
+        });
+        expect(result).toHaveSucceeded();
+
+        const updatedEncounter = await models.Encounter.findByPk(encounter.id);
+        expect(updatedEncounter.plannedLocationId).toBe(null);
+        expect(updatedEncounter.plannedLocationStartTime).toBe(null);
+      });
+      it('Updating the location should also clear the planned location info', async () => {
+        const [location, plannedLocation] = await models.Location.findAll({ limit: 2 });
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          locationId: location.id,
+          plannedLocationId: plannedLocation.id,
+          submittedTime: getCurrentDateTimeString(),
+        });
+
+        const result = await app.put(`/v1/encounter/${encounter.id}`).send({
+          locationId: plannedLocation.id,
+        });
+        expect(result).toHaveSucceeded();
+
+        const updatedEncounter = await models.Encounter.findByPk(encounter.id);
+        expect(updatedEncounter.locationId).toEqual(plannedLocation.id);
+        expect(updatedEncounter.plannedLocationId).toBe(null);
+        expect(updatedEncounter.plannedLocationStartTime).toBe(null);
+      });
+    });
   });
 });

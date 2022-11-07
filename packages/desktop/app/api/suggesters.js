@@ -1,3 +1,4 @@
+import { LOCATION_AVAILABILITY_TAG_CONFIG } from 'shared/constants';
 import { Suggester } from '../utils/suggester';
 import { useApi } from './useApi';
 import { getPatientNameAsString } from '../components/PatientNameDisplay';
@@ -17,5 +18,19 @@ export const usePatientSuggester = () => {
       } - ${formatShort(patient.dateOfBirth)}`,
       value: id,
     }),
+  });
+};
+
+export const useLocationAvailabilitySuggester = () => {
+  const api = useApi();
+  return new Suggester(api, 'location', {
+    formatter: ({ name, id, availability }) => {
+      return {
+        label: name,
+        value: id,
+        tag: LOCATION_AVAILABILITY_TAG_CONFIG[availability],
+      };
+    },
+    baseQueryParameters: { filterByFacility: true },
   });
 };
