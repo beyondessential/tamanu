@@ -155,6 +155,7 @@ export async function initDatabase(dbOptions) {
   modelClasses.forEach(modelClass => {
     if (
       modelClass.syncDirection === SYNC_DIRECTIONS.DO_NOT_SYNC &&
+      modelClass.usesPublicSchema &&
       !NON_SYNCING_TABLES.includes(modelClass.tableName)
     ) {
       throw new Error(

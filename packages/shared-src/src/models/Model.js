@@ -6,7 +6,7 @@ const { Op, Utils, Sequelize } = sequelize;
 const firstLetterLowercase = s => (s[0] || '').toLowerCase() + s.slice(1);
 
 export class Model extends sequelize.Model {
-  static init(modelAttributes, { syncDirection, timestamps = true, ...options }) {
+  static init(modelAttributes, { syncDirection, timestamps = true, schema, ...options }) {
     const attributes = {
       ...modelAttributes,
     };
@@ -15,6 +15,7 @@ export class Model extends sequelize.Model {
     }
     super.init(attributes, {
       timestamps,
+      schema,
       ...options,
     });
     this.defaultIdValue = attributes.id.defaultValue;
@@ -29,6 +30,7 @@ export class Model extends sequelize.Model {
         'DEV: syncing models should all have createdAt, updatedAt, deletedAt, and updatedAtSyncTick timestamps turned on',
       );
     }
+    this.usesPublicSchema = schema === undefined || schema === 'public';
   }
 
   static generateId() {
