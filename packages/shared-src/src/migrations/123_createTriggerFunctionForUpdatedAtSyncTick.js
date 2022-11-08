@@ -24,5 +24,5 @@ export async function up(query) {
 }
 
 export async function down(query) {
-  await query.sequelize.query('DROP FUNCTION set_updated_at_sync_tick');
+  await query.sequelize.query('DROP FUNCTION set_updated_at_sync_tick CASCADE');
 }
