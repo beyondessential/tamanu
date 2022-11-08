@@ -5,7 +5,7 @@ import { Op } from 'sequelize';
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
 import { sleepAsync } from 'shared/utils';
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { getCurrentDateTimeString, toDateTimeString } from 'shared/utils/dateTime';
 import { InvalidConfigError } from 'shared/errors';
 
 export class PlannedMoveTimeout extends ScheduledTask {
@@ -33,7 +33,7 @@ export class PlannedMoveTimeout extends ScheduledTask {
 
     const query = {
       where: {
-        plannedLocationStartTime: { [Op.lt]: subHours(new Date(), this.config.timeoutHours) },
+        plannedLocationStartTime: { [Op.lt]: toDateTimeString(subHours(new Date(), this.config.timeoutHours)) },
       },
       include: [
         {
@@ -76,6 +76,7 @@ export class PlannedMoveTimeout extends ScheduledTask {
         );
         await encounter.update({
           plannedLocationId: null,
+          plannedLocationStartTime: null,
         });
 
         log.info('Encounter planned move timeout', { encounterId: encounter.id });
