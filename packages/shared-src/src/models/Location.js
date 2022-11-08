@@ -1,5 +1,9 @@
 import { Sequelize } from 'sequelize';
-import { SYNC_DIRECTIONS, VISIBILITY_STATUSES } from 'shared/constants';
+import {
+  SYNC_DIRECTIONS,
+  VISIBILITY_STATUSES,
+  LOCATION_AVAILABILITY_STATUS,
+} from 'shared/constants';
 import { InvalidOperationError } from 'shared/errors';
 import { Model } from './Model';
 
@@ -54,5 +58,29 @@ export class Location extends Model {
       foreignKey: 'facilityId',
       as: 'facility',
     });
+
+    this.hasMany(models.Encounter, {
+      foreignKey: 'plannedLocationId',
+      as: 'plannedMoves',
+    });
+  }
+
+  async getAvailability() {
+    const { Encounter } = this.sequelize.models;
+
+    const openEncounters = await Encounter.count({
+      where: { locationId: this.id, endDate: null },
+    });
+    if (openEncounters > 0) {
+      return LOCATION_AVAILABILITY_STATUS.OCCUPIED;
+    }
+
+    const plannedEncounters = await Encounter.count({
+      where: { plannedLocationId: this.id, endDate: null },
+    });
+    if (plannedEncounters > 0) {
+      return LOCATION_AVAILABILITY_STATUS.RESERVED;
+    }
+    return LOCATION_AVAILABILITY_STATUS.AVAILABLE;
   }
 }
