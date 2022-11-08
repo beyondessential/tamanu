@@ -1,8 +1,8 @@
 import styled from 'styled-components';
 
 const DEFAULTS = {
-  color: '#326699',
-  background: '#EBF0F5',
+  color: '#888888',
+  background: '#F4F4F4',
 };
 
 export const Tag = styled.div`

@@ -237,34 +237,38 @@ class BaseAutocomplete extends Component {
       disabled,
       error,
       helperText,
+      renderMessage,
       placeholder = 'Search...',
     } = this.props;
 
     return (
-      <Autosuggest
-        alwaysRenderSuggestions
-        suggestions={suggestions}
-        onSuggestionsFetchRequested={this.debouncedFetchOptions}
-        onSuggestionsClearRequested={this.clearOptions}
-        renderSuggestionsContainer={this.renderContainer}
-        getSuggestionValue={this.handleSuggestionChange}
-        renderSuggestion={this.renderSuggestion}
-        renderInputComponent={this.renderInputComponent}
-        inputProps={{
-          label,
-          required,
-          disabled,
-          error,
-          helperText,
-          name,
-          placeholder,
-          infoTooltip,
-          value: selectedOption?.value,
-          tag: selectedOption?.tag,
-          onKeyDown: this.onKeyDown,
-          onChange: this.handleInputChange,
-        }}
-      />
+      <>
+        <Autosuggest
+          alwaysRenderSuggestions
+          suggestions={suggestions}
+          onSuggestionsFetchRequested={this.debouncedFetchOptions}
+          onSuggestionsClearRequested={this.clearOptions}
+          renderSuggestionsContainer={this.renderContainer}
+          getSuggestionValue={this.handleSuggestionChange}
+          renderSuggestion={this.renderSuggestion}
+          renderInputComponent={this.renderInputComponent}
+          inputProps={{
+            label,
+            required,
+            disabled,
+            error,
+            helperText,
+            name,
+            placeholder,
+            infoTooltip,
+            value: selectedOption?.value,
+            tag: selectedOption?.tag,
+            onKeyDown: this.onKeyDown,
+            onChange: this.handleInputChange,
+          }}
+        />
+        {renderMessage && renderMessage(selectedOption)}
+      </>
     );
   }
 }

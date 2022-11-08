@@ -5,12 +5,13 @@ import * as yup from 'yup';
 import { LOCATION_AVAILABILITY_STATUS } from 'shared/constants';
 import { Colors } from '../../../constants';
 import { usePatientMove } from '../../../api/mutations';
-import { BodyText, Form, Modal, LocationField } from '../../../components';
+import { useLocationAvailabilitySuggester } from '../../../api';
+import { BodyText, AutocompleteField, Field, Form, Modal } from '../../../components';
 import { ModalActionRow } from '../../../components/ModalActionRow';
 import { useLocalisation } from '../../../contexts/Localisation';
 
 const Container = styled.div`
-  padding-bottom: 50px;
+  padding-bottom: 75px;
 
   .react-autosuggest__container {
     max-width: 320px;
@@ -24,6 +25,7 @@ const Text = styled(BodyText)`
 
 export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) => {
   const { mutateAsync: submit } = usePatientMove(encounter.id, onClose);
+  const locationSuggester = useLocationAvailabilitySuggester();
 
   const { getLocalisation } = useLocalisation();
   const plannedMoveTimeoutHours = getLocalisation('templates.plannedMoveTimeoutHours');
@@ -38,23 +40,48 @@ export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) =
         deemed ‘Available’ again.
       </Text>
       <Form
-        initialValues={{ plannedLocation: encounter.plannedLocationId }}
+        initialValues={{ plannedLocationId: encounter.plannedLocationId }}
         onSubmit={submit}
         validationSchema={yup.object().shape({
           plannedLocationId: yup.string().required('Please select a planned location'),
         })}
-        render={({ submitForm, values }) => {
+        render={({ submitForm }) => {
           return (
             <>
               <Container>
-                <LocationField name="plannedLocationId" categoryLabel="Ward" label="Bed" required />
-                {values?.status === LOCATION_AVAILABILITY_STATUS.RESERVED && (
-                  <Text>
-                    <span style={{ color: Colors.alert }}>*</span> This location has already been
-                    reserved for another patient. Please ensure the bed is available before
-                    confirming.
-                  </Text>
-                )}
+                <Field
+                  name="plannedLocationId"
+                  component={AutocompleteField}
+                  suggester={locationSuggester}
+                  label="New location"
+                  renderMessage={({ tag }) => {
+                    // Todo: Move this message handling to the location component @see WAITM-536
+                    const status = tag?.label?.toUpperCase();
+
+                    if (status === LOCATION_AVAILABILITY_STATUS.RESERVED) {
+                      return (
+                        <Text>
+                          <span style={{ color: Colors.alert }}>*</span> This location has already
+                          been reserved for another patient. Please ensure the bed is available
+                          before confirming.
+                        </Text>
+                      );
+                    }
+
+                    if (status === LOCATION_AVAILABILITY_STATUS.OCCUPIED) {
+                      return (
+                        <Text>
+                          <span style={{ color: Colors.alert }}>*</span> This location is already
+                          occupied by another patient. Please ensure the bed is available before
+                          confirming.
+                        </Text>
+                      );
+                    }
+
+                    return null;
+                  }}
+                  required
+                />
               </Container>
               <ModalActionRow confirmText="Confirm" onConfirm={submitForm} onCancel={onClose} />
             </>

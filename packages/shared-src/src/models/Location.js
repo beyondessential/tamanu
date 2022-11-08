@@ -59,6 +59,11 @@ export class Location extends Model {
       as: 'facility',
     });
 
+    this.belongsTo(models.LocationGroup, {
+      foreignKey: 'locationGroupId',
+      as: 'locationGroup',
+    });
+
     this.hasMany(models.Encounter, {
       foreignKey: 'plannedLocationId',
       as: 'plannedMoves',
