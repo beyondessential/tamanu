@@ -11,7 +11,7 @@ import { ModalActionRow } from '../../../components/ModalActionRow';
 import { useLocalisation } from '../../../contexts/Localisation';
 
 const Container = styled.div`
-  padding-bottom: 50px;
+  padding-bottom: 75px;
 
   .react-autosuggest__container {
     max-width: 320px;
