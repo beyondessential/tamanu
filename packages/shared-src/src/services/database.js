@@ -5,11 +5,12 @@ import util from 'util';
 
 import { log } from './logging';
 
-import { migrate, assertUpToDate } from './migrations';
+import { migrate, assertUpToDate, NON_SYNCING_TABLES } from './migrations';
 import * as models from '../models';
 import { createDateTypes } from './createDateTypes';
 import { createFhirTypes } from './fhirTypes';
 import { setupQuote } from '../utils/pgComposite';
+import { SYNC_DIRECTIONS } from '../constants';
 
 createDateTypes();
 createFhirTypes();
@@ -148,6 +149,17 @@ export async function initDatabase(dbOptions) {
   modelClasses.forEach(modelClass => {
     if (modelClass.initRelations) {
       modelClass.initRelations(models);
+    }
+  });
+
+  modelClasses.forEach(modelClass => {
+    if (
+      modelClass.syncDirection === SYNC_DIRECTIONS.DO_NOT_SYNC &&
+      !NON_SYNCING_TABLES.includes(modelClass.tableName)
+    ) {
+      throw new Error(
+        `Any table that does not sync should be added to the "NON_SYNCING_TABLES" list. Please check ${modelClass.tableName}`,
+      );
     }
   });
 
