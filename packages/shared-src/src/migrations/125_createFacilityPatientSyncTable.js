@@ -27,9 +27,6 @@ module.exports = {
           type: Sequelize.DATE,
           defaultValue: Sequelize.NOW,
         },
-        updated_at_sync_tick: {
-          type: Sequelize.BIGINT,
-        },
         facility_id: {
           type: Sequelize.STRING,
           primaryKey: true, // composite primary key
@@ -55,13 +52,6 @@ module.exports = {
         },
       },
     );
-
-    await query.sequelize.query(`
-      CREATE TRIGGER set_patient_facilities_updated_at_sync_tick
-        BEFORE INSERT OR UPDATE ON patient_facilities
-        FOR EACH ROW
-        EXECUTE FUNCTION set_updated_at_sync_tick();
-    `);
   },
   down: async query => {
     await query.dropTable('patient_facilities');

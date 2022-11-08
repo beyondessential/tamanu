@@ -19,9 +19,6 @@ const COMMON_COLUMNS = {
     type: Sequelize.DATE,
     defaultValue: Sequelize.NOW,
   },
-  updated_at_sync_tick: {
-    type: Sequelize.BIGINT,
-  },
 };
 
 module.exports = {
@@ -46,12 +43,6 @@ module.exports = {
         allowNull: true,
       },
     });
-    await query.sequelize.query(`
-      CREATE TRIGGER set_settings_updated_at_sync_tick
-        BEFORE INSERT OR UPDATE ON settings
-        FOR EACH ROW
-        EXECUTE FUNCTION set_updated_at_sync_tick();
-    `);
   },
   down: async query => {
     await query.dropTable('settings');
@@ -63,11 +54,5 @@ module.exports = {
       },
       settingContent: Sequelize.STRING,
     });
-    await query.sequelize.query(`
-      CREATE TRIGGER set_settings_updated_at_sync_tick
-      BEFORE INSERT OR UPDATE ON settings
-      FOR EACH ROW
-      EXECUTE FUNCTION set_updated_at_sync_tick();
-    `);
   },
 };

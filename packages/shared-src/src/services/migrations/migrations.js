@@ -1,13 +1,14 @@
 import Umzug from 'umzug';
 import { readdirSync } from 'fs';
 import path from 'path';
+import { runPostMigration } from './runPostMigration';
 
 // before this, we just cut our losses and accept irreversible migrations
 const LAST_REVERSIBLE_MIGRATION = '048_changeNoteRecordTypeColumn.js';
 
 export function createMigrationInterface(log, sequelize) {
   // ie, shared/src/migrations
-  const migrationsDir = path.join(__dirname, '..', 'migrations');
+  const migrationsDir = path.join(__dirname, '../..', 'migrations');
 
   // Double check the migrations directory exists (should catch any issues
   // arising out of build systems omitting the migrations dir, for eg)
@@ -44,7 +45,9 @@ async function migrateUp(log, sequelize) {
   if (pending.length > 0) {
     log.info(`Applying ${pending.length} migration${pending.length > 1 ? 's' : ''}...`);
     await migrations.up();
-    log.info(`Applied migrations successfully.`);
+    log.info(`Applied migrations successfully, running post-migration steps...`);
+    await runPostMigration(log, sequelize);
+    log.info(`Applied post-migration steps successfully.`);
   } else {
     log.info('Migrations already up-to-date.');
   }

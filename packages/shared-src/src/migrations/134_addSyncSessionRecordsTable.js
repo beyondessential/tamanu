@@ -50,16 +50,7 @@ export async function up(query) {
       type: Sequelize.JSON,
       allowNull: false,
     },
-    updated_at_sync_tick: {
-      type: Sequelize.BIGINT,
-    },
   });
-  await query.sequelize.query(`
-    CREATE TRIGGER set_sync_session_records_updated_at_sync_tick
-    BEFORE INSERT OR UPDATE ON sync_session_records
-    FOR EACH ROW
-    EXECUTE FUNCTION set_updated_at_sync_tick();
-  `);
 }
 
 export async function down(query) {

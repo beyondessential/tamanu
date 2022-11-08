@@ -32,16 +32,7 @@ export async function up(query) {
       allowNull: false,
       defaultValue: Sequelize.NOW,
     },
-    updated_at_sync_tick: {
-      type: Sequelize.BIGINT,
-    },
   });
-  await query.sequelize.query(`
-    CREATE TRIGGER set_sync_sessions_updated_at_sync_tick
-    BEFORE INSERT OR UPDATE ON sync_sessions
-    FOR EACH ROW
-    EXECUTE FUNCTION set_updated_at_sync_tick();
-  `);
 }
 
 export async function down(query) {
