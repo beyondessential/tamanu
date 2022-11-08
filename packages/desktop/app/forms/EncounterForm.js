@@ -66,8 +66,8 @@ export const EncounterForm = React.memo(
           <Field
             name="locationId"
             required
-            categoryLabel="Ward"
-            label="Bed"
+            categoryLabel="Area"
+            label="Location"
             component={LocationField}
           />
           {/*<Field*/}

@@ -155,7 +155,15 @@ createSuggester(
   async location => {
     const availability = await location.getAvailability();
     const { name, code, id } = location;
-    return { name, code, id, availability };
+    const lg = await location.getLocationGroup();
+    const locationGroup = lg ? { name: lg.name, code: lg.code, id: lg.id } : undefined;
+    return {
+      name,
+      code,
+      id,
+      availability,
+      locationGroup,
+    };
   },
   'name',
 );
