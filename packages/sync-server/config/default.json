@@ -227,11 +227,7 @@
       "requireClientHeaders": true
     },
     "fhir": {
-      "enabled": false,
-      // Must be set to a random value
-      // New keys may be issued by running `node dist/app.bundle.js apiKeys issue fhirIntegration <email> -e '100 years'`
-      // If this is changed, all API keys using this secret will be revoked and must be reissued
-      "secret": null
+      "enabled": false
     }
   },
   // on the sync-server, don't read these values from config!

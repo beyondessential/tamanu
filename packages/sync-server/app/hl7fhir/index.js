@@ -12,12 +12,9 @@ import { fhirRoutes as matRoutes } from './materialised';
 
 import { requireClientHeaders as requireClientHeadersMiddleware } from '../middleware/requireClientHeaders';
 
-export function fhirRoutes({ requireClientHeaders, middleware } = {}) {
+export function fhirRoutes({ requireClientHeaders } = {}) {
   const routes = Router();
 
-  if (middleware) {
-    routes.use(...middleware);
-  }
   if (requireClientHeaders) {
     routes.use(requireClientHeadersMiddleware);
   }
