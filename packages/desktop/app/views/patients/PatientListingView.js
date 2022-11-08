@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
+import { Typography } from '@material-ui/core';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { reloadPatient } from '../../store/patient';
 
@@ -23,10 +24,10 @@ import {
   sex,
   dateOfBirth,
   status,
-  location,
   department,
 } from './columns';
 import { useAuth } from '../../contexts/Auth';
+import { Colors } from '../../constants';
 
 const PATIENT_SEARCH_ENDPOINT = 'patient';
 
@@ -41,6 +42,24 @@ const LISTING_COLUMNS = [
   dateOfBirth,
   status,
 ];
+
+const LocationCell = React.memo(({ locationName, plannedLocationName }) => (
+  <>
+    {locationName}
+    {plannedLocationName && (
+      <Typography style={{ fontSize: 14, color: Colors.darkText }}>
+        (Planned - {plannedLocationName})
+      </Typography>
+    )}
+  </>
+));
+
+const location = {
+  key: 'locationName',
+  title: 'Location',
+  minWidth: 100,
+  accessor: LocationCell,
+};
 
 const INPATIENT_COLUMNS = [markedForSync, displayId, firstName, lastName, sex, dateOfBirth]
   .map(column => ({

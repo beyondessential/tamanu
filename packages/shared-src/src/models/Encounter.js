@@ -159,6 +159,7 @@ export class Encounter extends Model {
         endDate: dateTimeType('endDate'),
         reasonForEncounter: Sequelize.TEXT,
         deviceId: Sequelize.TEXT,
+        plannedLocationStartTime: dateTimeType('plannedLocationStartTime'),
       },
       {
         ...options,
@@ -174,6 +175,10 @@ export class Encounter extends Model {
       'examiner',
       {
         association: 'location',
+        include: ['facility'],
+      },
+      {
+        association: 'plannedLocation',
         include: ['facility'],
       },
       'referralSource',
@@ -204,6 +209,11 @@ export class Encounter extends Model {
     this.belongsTo(models.Location, {
       foreignKey: 'locationId',
       as: 'location',
+    });
+
+    this.belongsTo(models.Location, {
+      foreignKey: 'plannedLocationId',
+      as: 'plannedLocation',
     });
 
     this.belongsTo(models.Department, {
@@ -382,6 +392,7 @@ export class Encounter extends Model {
     const { Department, Location } = this.sequelize.models;
 
     const updateEncounter = async () => {
+      const additionalChanges = {};
       if (data.endDate && !this.endDate) {
         await this.onDischarge(data.endDate, data.submittedTime, data.dischargeNote);
       }
@@ -404,6 +415,36 @@ export class Encounter extends Model {
           `Changed location from ${oldLocation.name} to ${newLocation.name}`,
           data.submittedTime,
         );
+        // When we move to a new location, clear the planned location move
+        additionalChanges.plannedLocationId = null;
+        additionalChanges.plannedLocationStartTime = null;
+      }
+
+      if (data.plannedLocationId === null) {
+        additionalChanges.plannedLocationStartTime = null;
+      }
+
+      if (data.plannedLocationId && data.plannedLocationId !== this.plannedLocationId) {
+        if (data.plannedLocationId === this.locationId) {
+          throw new InvalidOperationError(
+            'Planned location cannot be the same as current location',
+          );
+        }
+
+        const currentLocation = await Location.findOne({ where: { id: this.locationId } });
+        const plannedLocation = await Location.findOne({
+          where: { id: data.plannedLocationId },
+        });
+
+        if (!plannedLocation) {
+          throw new InvalidOperationError('Invalid location specified');
+        }
+
+        await this.addSystemNote(
+          `Added a planned location change from ${currentLocation.name} to ${plannedLocation.name}`,
+          data.submittedTime,
+        );
+        additionalChanges.plannedLocationStartTime = data.submittedTime;
       }
 
       if (data.departmentId && data.departmentId !== this.departmentId) {
@@ -423,7 +464,7 @@ export class Encounter extends Model {
       }
 
       const { submittedTime, ...encounterData } = data;
-      return super.update(encounterData);
+      return super.update({ ...encounterData, ...additionalChanges });
     };
 
     if (this.sequelize.isInsideTransaction()) {
