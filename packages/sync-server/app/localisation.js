@@ -102,6 +102,8 @@ const HIDEABLE_FIELDS = [
 
 const templatesSchema = yup
   .object({
+    plannedMoveTimeoutHours: yup.number().required(),
+
     letterhead: yup
       .object({
         title: yup.string(),
@@ -340,6 +342,7 @@ const rootLocalisationSchema = yup
         enableDischargeDisposition: yup.boolean().default(true),
         editDisplayId: yup.boolean().required(),
         locationHierarchy: yup.boolean().required(),
+        patientPlannedMove: yup.boolean().required(),
       })
       .required()
       .noUnknown(),

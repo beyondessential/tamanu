@@ -15,6 +15,7 @@ import { AutomaticLabTestResultPublisher } from './AutomaticLabTestResultPublish
 import { DuplicateAdditionalDataDeleter } from './DuplicateAdditionalDataDeleter';
 import { CovidClearanceCertificatePublisher } from './CovidClearanceCertificatePublisher';
 import { FhirMaterialiser } from './FhirMaterialiser';
+import { PlannedMoveTimeout } from './PlannedMoveTimeout';
 
 export async function startScheduledTasks(context) {
   const taskClasses = [
@@ -47,6 +48,10 @@ export async function startScheduledTasks(context) {
 
   if (config.integrations.fhir.enabled && config.schedules.fhirMaterialiser.enabled) {
     taskClasses.push(FhirMaterialiser);
+  }
+
+  if (config.schedules.plannedMoveTimeout.enabled) {
+    taskClasses.push(PlannedMoveTimeout);
   }
 
   const reportSchedulers = await getReportSchedulers(context);
