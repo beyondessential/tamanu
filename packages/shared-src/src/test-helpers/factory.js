@@ -39,6 +39,8 @@ export const buildEncounter = async (models, patientId, optionalEncounterId) => 
   encounter.referralSourceId = null;
   encounter.locationId = await findOrCreateId(models, models.Location);
   encounter.departmentId = await findOrCreateId(models, models.Department);
+  encounter.plannedLocationId = null;
+  encounter.plannedLocationStartTime = null;
 
   return encounter;
 };

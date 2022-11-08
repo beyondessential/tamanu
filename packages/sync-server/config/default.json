@@ -161,6 +161,14 @@
       "enabled": true, // only when integrations.fhir is on
       "schedule": "*/1 * * * *",
       "limit": 100
+    },
+    "plannedMoveTimeout": {
+      "enabled": true,
+      // Once an hour
+      "schedule": "0 * * * *",
+      "timeoutHours": 24,
+      "batchSize": 100,
+      "batchSleepAsyncDurationInMilliseconds": 50
     }
   },
   "integrations": {
@@ -562,6 +570,7 @@
         "mergePopulatedPADRecords": true,
         "enableCovidClearanceCertificate": false,
         "editDisplayId": false,
+        "patientPlannedMove": false,
         "locationHierarchy": false
       },
       "templates": {
@@ -592,7 +601,8 @@
         },
         "covidTestCertificate": {
           "laboratoryName": "Approved test provider"
-        }
+        },
+        "plannedMoveTimeoutHours": 24
       },
       "imagingTypes": {},
       "imagingPriorities": [

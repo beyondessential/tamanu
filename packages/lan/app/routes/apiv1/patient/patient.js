@@ -302,6 +302,8 @@ patientRoute.get(
           ON (department.id = encounters.department_id)
         LEFT JOIN locations AS location
           ON (location.id = encounters.location_id)
+        LEFT JOIN locations AS planned_location
+          ON (planned_location.id = encounters.planned_location_id)
         LEFT JOIN reference_data AS village
           ON (village.type = 'village' AND village.id = patients.village_id)
         LEFT JOIN patient_secondary_ids
@@ -345,6 +347,9 @@ patientRoute.get(
           department.name AS department_name,
           location.id AS location_id,
           location.name AS location_name,
+          planned_location.id AS planned_location_id,
+          planned_location.name AS planned_location_name,
+          encounters.planned_location_start_time,
           village.id AS village_id,
           village.name AS village_name,
           patient_facilities.patient_id IS NOT NULL as marked_for_sync
