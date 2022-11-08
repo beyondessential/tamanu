@@ -2,6 +2,14 @@ import Sequelize from 'sequelize';
 
 const CURRENT_SYNC_TIME_KEY = 'currentSyncTime';
 
+const METADATA_FIELDS = [
+  'created_at',
+  'updated_at',
+  'deleted_at',
+  'updated_at_sync_tick',
+  'updated_at_by_field',
+];
+
 export async function up(query) {
   await query.addColumn('patient_additional_data', 'updated_at_by_field', {
     type: Sequelize.JSON,
@@ -30,9 +38,7 @@ export async function up(query) {
         WHERE
           row_as_json.value <> 'null'::jsonb
         AND
-          row_as_json.key <> 'updated_at_sync_tick'
-        AND
-          row_as_json.key <> 'updated_at_by_field'
+          row_as_json.key NOT IN (${METADATA_FIELDS.map(m => `'${m}'`).join(',')})
       );
   `);
 }
