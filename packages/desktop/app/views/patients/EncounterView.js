@@ -6,7 +6,6 @@ import { ENCOUNTER_TYPES } from 'shared/constants';
 import { useParams } from 'react-router-dom';
 import { useEncounter } from '../../contexts/Encounter';
 import { useLocalisation } from '../../contexts/Localisation';
-import { useAuth } from '../../contexts/Auth';
 import { useUrlSearchParams } from '../../utils/useUrlSearchParams';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { Button, EncounterTopBar, connectRoutedModal, ContentPane } from '../../components';
@@ -31,21 +30,13 @@ import {
 } from './panes';
 import { DropdownButton } from '../../components/DropdownButton';
 import { Colors, ENCOUNTER_OPTIONS_BY_VALUE } from '../../constants';
+import { ENCOUNTER_TAB_NAMES } from './encounterTabNames';
+import { ChangeClinicianModal } from '../../components/ChangeClinicianModal';
 
 const getConnectRoutedModal = ({ category, patientId, encounterId }, suffix) =>
   connectRoutedModal(`/patients/${category}/${patientId}/encounter/${encounterId}`, suffix);
 
 const getIsTriage = encounter => ENCOUNTER_OPTIONS_BY_VALUE[encounter.encounterType].triageFlowOnly;
-
-export const ENCOUNTER_TAB_NAMES = {
-  VITALS: 'vitals',
-  NOTES: 'notes',
-  PROCEDURES: 'procedures',
-  LABS: 'labs',
-  IMAGING: 'imaging',
-  MEDICATION: 'medication',
-  PROGRAMS: 'programs',
-};
 
 const TABS = [
   {
@@ -104,6 +95,7 @@ const EncounterActionDropdown = ({ encounter }) => {
   const onChangeLocation = () => navigateToEncounter(encounter.id, 'move');
   const onDischargeOpen = () => navigateToEncounter(encounter.id, 'discharge');
   const onChangeDepartment = () => navigateToEncounter(encounter.id, 'changeDepartment');
+  const onChangeClinician = () => navigateToEncounter(encounter.id, 'changeClinician');
   const onViewSummary = () => navigateToSummary();
 
   if (encounter.endDate) {
@@ -168,6 +160,10 @@ const EncounterActionDropdown = ({ encounter }) => {
       condition: () => !encounter.plannedLocation,
       onClick: onChangeLocation,
     },
+    {
+      label: 'Change clinician',
+      onClick: onChangeClinician,
+    },
   ].filter(action => !action.condition || action.condition());
 
   return <DropdownButton variant="outlined" actions={actions} />;
@@ -190,6 +186,11 @@ const EncounterActions = ({ encounter }) => {
     [params],
   )(ChangeDepartmentModal);
 
+  const RoutedChangeClinicianModal = useMemo(
+    () => getConnectRoutedModal(params, 'changeClinician'),
+    [params],
+  )(ChangeClinicianModal);
+
   const RoutedMoveModal = useMemo(() => getConnectRoutedModal(params, 'move'), [params])(MoveModal);
 
   return (
@@ -198,6 +199,7 @@ const EncounterActions = ({ encounter }) => {
       <RoutedDischargeModal encounter={encounter} />
       <RoutedChangeEncounterTypeModal encounter={encounter} />
       <RoutedChangeDepartmentModal />
+      <RoutedChangeClinicianModal />
       <RoutedMoveModal encounter={encounter} />
     </>
   );
@@ -246,7 +248,6 @@ export const EncounterView = () => {
   const { getLocalisation } = useLocalisation();
   const patient = useSelector(state => state.patient);
   const { encounter, isLoadingEncounter } = useEncounter();
-  const { facility } = useAuth();
   const [currentTab, setCurrentTab] = React.useState(query.get('tab') || 'vitals');
   const disabled = encounter?.endDate || patient.death;
 
@@ -258,7 +259,7 @@ export const EncounterView = () => {
     <GridColumnContainer>
       <EncounterTopBar
         title={getHeaderText(encounter)}
-        subTitle={facility?.name}
+        subTitle={encounter.location?.facility?.name}
         encounter={encounter}
       >
         <EncounterActions encounter={encounter} />

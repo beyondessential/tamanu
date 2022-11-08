@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
+import { LAB_REQUEST_STATUS_LABELS } from 'shared/constants';
 import { usePatientNavigation } from '../../utils/usePatientNavigation';
 import { useLabRequest } from '../../contexts/LabRequest';
 import { useApi, useSuggester } from '../../api';
@@ -27,7 +28,6 @@ import { Modal } from '../../components/Modal';
 import { LabRequestNoteForm } from '../../forms/LabRequestNoteForm';
 import { LabRequestAuditPane } from '../../components/LabRequestAuditPane';
 
-import { LAB_REQUEST_STATUS_LABELS } from '../../constants';
 import { capitaliseFirstLetter } from '../../utils/capitalise';
 import { getCompletedDate, getMethod } from '../../utils/lab';
 
@@ -302,8 +302,8 @@ const LabRequestInfoPane = ({ labRequest, refreshLabRequest }) => (
     <TextInput value={(labRequest.priority || {}).name} label="Priority" />
     <TextInput value={LAB_REQUEST_STATUS_LABELS[labRequest.status] || 'Unknown'} label="Status" />
     <TextInput value={(labRequest.laboratory || {}).name} label="Laboratory" />
-    <DateInput value={labRequest.requestedDate} label="Requested date" />
-    <DateTimeInput value={labRequest.sampleTime} label="Sample date" />
+    <DateInput value={labRequest.requestedDate} saveDateAsString label="Requested date" />
+    <DateTimeInput value={labRequest.sampleTime} saveDateAsString label="Sample date" />
     <LabRequestNoteForm labRequest={labRequest} refreshLabRequest={refreshLabRequest} />
   </FormGrid>
 );
@@ -326,6 +326,7 @@ export const LabRequestView = () => {
   }, [labRequest.id, loadLabRequest, navigateToLabRequest]);
 
   if (isLoading) return <LoadingIndicator />;
+
   return (
     <div>
       <ContentPane>

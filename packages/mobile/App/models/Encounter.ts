@@ -27,6 +27,8 @@ import { Referral } from './Referral';
 import { LabRequest } from './LabRequest';
 import { readConfig } from '~/services/config';
 import { ReferenceData, ReferenceDataRelation } from '~/models/ReferenceData';
+import { getCurrentDateTimeString } from '~/ui/helpers/date';
+import { DateTimeStringColumn } from './DateColumns';
 
 const TIME_OFFSET = 3;
 
@@ -35,11 +37,11 @@ export class Encounter extends BaseModel implements IEncounter {
   @Column({ type: 'varchar' })
   encounterType: EncounterType;
 
-  @Column()
-  startDate: Date;
+  @DateTimeStringColumn()
+  startDate: string;
 
-  @Column({ nullable: true })
-  endDate?: Date;
+  @DateTimeStringColumn({ nullable: true })
+  endDate?: string;
 
   @Column({ default: '', nullable: true })
   reasonForEncounter?: string;
@@ -173,7 +175,7 @@ export class Encounter extends BaseModel implements IEncounter {
     return Encounter.createAndSaveOne({
       patient: patientId,
       examiner: userId,
-      startDate: new Date(),
+      startDate: getCurrentDateTimeString(),
       endDate: null,
       encounterType: EncounterType.Clinic,
       reasonForEncounter: '',

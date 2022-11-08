@@ -120,7 +120,7 @@ export const EncounterTopBar = ({ title, subTitle, encounter, children }) => (
           </Value>
         </Cell>
         <Cell>
-          <Label>Doctor/Nurse:</Label>
+          <Label>Supervising clinician:</Label>
           <Value>{encounter.examiner?.displayName || 'Unknown'}</Value>
         </Cell>
       </div>

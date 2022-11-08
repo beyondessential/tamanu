@@ -31,14 +31,16 @@ import { SurveyResponseAnswer } from './SurveyResponseAnswer';
 import { Referral } from './Referral';
 import { Patient } from './Patient';
 import { PatientAdditionalData } from './PatientAdditionalData';
+import { getCurrentDateTimeString } from '~/ui/helpers/date';
+import { DateTimeStringColumn } from './DateColumns';
 
 @Entity('survey_response')
 export class SurveyResponse extends BaseModel implements ISurveyResponse {
-  @Column({ nullable: true })
-  startTime?: Date;
+  @DateTimeStringColumn({ nullable: true })
+  startTime?: string;
 
-  @Column({ nullable: true })
-  endTime?: Date;
+  @DateTimeStringColumn({ nullable: true })
+  endTime?: string;
 
   @Column({ default: 0, nullable: true })
   result?: number;
@@ -110,8 +112,8 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
     try {
       setNote('Creating encounter...');
       const encounter = await Encounter.getOrCreateCurrentEncounter(patientId, userId, {
-        startDate: new Date(),
-        endDate: new Date(),
+        startDate: getCurrentDateTimeString(),
+        endDate: getCurrentDateTimeString(),
         encounterType: EncounterType.SurveyResponse,
         reasonForEncounter: encounterReason,
       });
@@ -128,8 +130,8 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
       const responseRecord: SurveyResponse = await SurveyResponse.createAndSaveOne({
         encounter: encounter.id,
         survey: surveyId,
-        startTime: Date.now(),
-        endTime: Date.now(),
+        startTime: getCurrentDateTimeString(),
+        endTime: getCurrentDateTimeString(),
         result,
         resultText,
         ...otherData,

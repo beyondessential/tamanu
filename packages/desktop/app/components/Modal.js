@@ -15,7 +15,7 @@ import { Colors } from '../constants';
 import { useElectron } from '../contexts/Electron';
 import { Button } from './Button';
 
-const MODAL_PADDING = 32;
+export const MODAL_PADDING = 32;
 
 /*  To keep consistent use of styled-components,
     re-define dialog paper classes here instead of
@@ -45,7 +45,7 @@ const ModalContent = styled.div`
 `;
 
 const ModalContainer = styled.div`
-  background: ${Colors.background};
+  background: ${props => props.$color};
 
   @media print {
     background: none;
@@ -92,6 +92,7 @@ export const Modal = memo(
     printable = false,
     onPrint = null,
     additionalActions,
+    color = Colors.background,
     ...props
   }) => {
     const { printPage } = useElectron();
@@ -128,7 +129,7 @@ export const Modal = memo(
             </IconButton>
           </div>
         </ModalTitle>
-        <ModalContainer>
+        <ModalContainer $color={color}>
           <ModalContent>{children}</ModalContent>
           <DialogActions>{actions}</DialogActions>
         </ModalContainer>

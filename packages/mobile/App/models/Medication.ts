@@ -3,14 +3,15 @@ import { BaseModel } from './BaseModel';
 import { IMedication } from '~/types';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { Encounter } from './Encounter';
+import { DateTimeStringColumn } from './DateColumns';
 
 @Entity('medication')
 export class Medication extends BaseModel implements IMedication {
-  @Column()
-  date: Date;
+  @DateTimeStringColumn()
+  date: string;
 
-  @Column({ nullable: true })
-  endDate?: Date;
+  @DateTimeStringColumn({ nullable: true })
+  endDate?: string;
 
   @Column({ nullable: true })
   prescription?: string;

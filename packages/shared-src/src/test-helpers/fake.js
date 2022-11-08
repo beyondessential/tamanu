@@ -1,14 +1,30 @@
 import { random, sample } from 'lodash';
-import { v4 as uuidv4 } from 'uuid';
 import Chance from 'chance';
+import { DataTypes } from 'sequelize';
+import { inspect } from 'util';
+import { formatISO9075 } from 'date-fns';
+
 import {
   DIAGNOSIS_CERTAINTY_VALUES,
   ENCOUNTER_TYPE_VALUES,
+  IMAGING_REQUEST_STATUS_TYPES,
   PROGRAM_DATA_ELEMENT_TYPE_VALUES,
   REFERENCE_TYPE_VALUES,
   VISIBILITY_STATUSES,
-} from 'shared/constants';
-import { toDateTimeString } from '../utils/dateTime';
+} from '../constants';
+import { toDateTimeString, toDateString } from '../utils/dateTime';
+import { fakeUUID } from '../utils/generateId';
+import {
+  FhirIdentifier,
+  FhirPeriod,
+  FhirAddress,
+  FhirCoding,
+  FhirCodeableConcept,
+  FhirContactPoint,
+  FhirHumanName,
+  FhirPatientLink,
+  FhirReference,
+} from '../services/fhirTypes';
 
 const chance = new Chance();
 
@@ -23,7 +39,7 @@ export function fakeStringFields(prefix, fields) {
 }
 
 export function fakeScheduledVaccine(prefix = 'test-') {
-  const id = uuidv4();
+  const id = fakeUUID();
   return {
     weeksFromBirthDue: random(0, 1000),
     weeksFromLastVaccinationDue: null,
@@ -40,7 +56,7 @@ export function fakeScheduledVaccine(prefix = 'test-') {
 }
 
 export function fakeSurvey(prefix = 'test-') {
-  const id = uuidv4();
+  const id = fakeUUID();
   return {
     programId: null,
     surveyType: 'programs',
@@ -50,7 +66,7 @@ export function fakeSurvey(prefix = 'test-') {
 }
 
 export function fakeSurveyScreenComponent(prefix = 'test-') {
-  const id = uuidv4();
+  const id = fakeUUID();
   return {
     surveyId: null,
     dataElementId: null,
@@ -70,7 +86,7 @@ export function fakeSurveyScreenComponent(prefix = 'test-') {
 }
 
 export function fakeProgramDataElement(prefix = 'test-') {
-  const id = uuidv4();
+  const id = fakeUUID();
   return {
     type: sample(PROGRAM_DATA_ELEMENT_TYPE_VALUES),
     ...fakeStringFields(`${prefix}programDataElement_${id}_`, [
@@ -85,7 +101,7 @@ export function fakeProgramDataElement(prefix = 'test-') {
 }
 
 export function fakeReferenceData(prefix = 'test-') {
-  const id = uuidv4();
+  const id = fakeUUID();
   return {
     type: sample(REFERENCE_TYPE_VALUES),
     visibilityStatus: VISIBILITY_STATUSES.CURRENT,
@@ -94,53 +110,53 @@ export function fakeReferenceData(prefix = 'test-') {
 }
 
 export function fakeUser(prefix = 'test-') {
-  const id = uuidv4();
+  const id = fakeUUID();
   return fakeStringFields(`${prefix}user_${id}_`, ['id', 'email', 'displayName', 'role']);
 }
 
 export function fakeProgram(prefix = 'test-') {
-  const id = uuidv4();
+  const id = fakeUUID();
   return fakeStringFields(`${prefix}program_${id})_`, ['id', 'name', 'code']);
 }
 
 export function fakeAdministeredVaccine(prefix = 'test-', scheduledVaccineId) {
-  const id = uuidv4();
+  const id = fakeUUID();
   return {
     encounterId: null,
     scheduledVaccineId,
-    date: new Date(random(0, Date.now())),
+    date: formatISO9075(new Date(random(0, Date.now()))),
     ...fakeStringFields(`${prefix}administeredVaccine_${id}_`, ['id', 'batch', 'status', 'reason']),
   };
 }
 
 export function fakeEncounter(prefix = 'test-') {
-  const id = uuidv4();
+  const id = fakeUUID();
   return {
     deviceId: null,
     surveyResponses: [],
     administeredVaccines: [],
     encounterType: sample(ENCOUNTER_TYPE_VALUES),
-    startDate: new Date(random(0, Date.now())),
-    endDate: new Date(random(0, Date.now())),
+    startDate: formatISO9075(new Date(random(0, Date.now()))),
+    endDate: formatISO9075(new Date(random(0, Date.now()))),
     ...fakeStringFields(`${prefix}encounter_${id}_`, ['id', 'reasonForEncounter']),
   };
 }
 
 export function fakeSurveyResponse(prefix = 'test-') {
-  const id = uuidv4();
+  const id = fakeUUID();
   return {
     answers: [],
     encounterId: null,
     surveyId: null,
-    startTime: new Date(random(0, Date.now())),
-    endTime: new Date(random(0, Date.now())),
+    startTime: fakeDateTimeString(),
+    endTime: fakeDateTimeString(),
     result: Math.random() * 100,
     ...fakeStringFields(`${prefix}surveyResponse_${id}_`, ['id']),
   };
 }
 
 export function fakeSurveyResponseAnswer(prefix = 'test-') {
-  const id = uuidv4();
+  const id = fakeUUID();
   return {
     dataElementId: null,
     responseId: null,
@@ -149,10 +165,10 @@ export function fakeSurveyResponseAnswer(prefix = 'test-') {
 }
 
 export function fakeEncounterDiagnosis(prefix = 'test-') {
-  const id = uuidv4();
+  const id = fakeUUID();
   return {
     certainty: sample(DIAGNOSIS_CERTAINTY_VALUES),
-    date: new Date(random(0, Date.now())),
+    date: formatISO9075(new Date(random(0, Date.now()))),
     isPrimary: sample([true, false]),
     encounterId: null,
     diagnosisId: null,
@@ -161,10 +177,10 @@ export function fakeEncounterDiagnosis(prefix = 'test-') {
 }
 
 export function fakeEncounterMedication(prefix = 'test-') {
-  const id = uuidv4();
+  const id = fakeUUID();
   return {
-    date: new Date(random(0, Date.now())),
-    endDate: new Date(random(0, Date.now())),
+    date: formatISO9075(new Date(random(0, Date.now()))),
+    endDate: formatISO9075(new Date(random(0, Date.now()))),
     qtyMorning: random(0, 10),
     qtyLunch: random(0, 10),
     qtyEvening: random(0, 10),
@@ -181,22 +197,46 @@ export function fakeEncounterMedication(prefix = 'test-') {
 
 const fakeDate = () => new Date(random(0, Date.now()));
 const fakeString = (model, { fieldName }, id) => `${model.name}.${fieldName}.${id}`;
-const fakeDateString = () => toDateTimeString(fakeDate());
+const fakeDateTimeString = () => toDateTimeString(fakeDate());
+const fakeDateString = () => toDateString(fakeDate());
 const fakeInt = () => random(0, 10);
 const fakeFloat = () => Math.random() * 1000;
 const fakeBool = () => sample([true, false]);
 const FIELD_HANDLERS = {
   'TIMESTAMP WITH TIME ZONE': fakeDate,
   DATETIME: fakeDate,
+
+  // custom type used for datetime string storage
+  date_time_string: fakeDateTimeString,
+  DATETIMESTRING: fakeDateTimeString,
+  // custom type used for date string storage
+  date_string: fakeDateString,
+  DATESTRING: fakeDateString,
+
   'VARCHAR(19)': fakeDateString, // VARCHAR(19) are used for date string storage
   'VARCHAR(255)': fakeString,
-  'VARCHAR(31)': (...args) => fakeString(...args).slice(0, 31),
+
+  // fallback for all other varchar lengths
+  'VARCHAR(N)': (model, attrs, id, length) => fakeString(model, attrs, id).slice(0, length),
+
   TEXT: fakeString,
   INTEGER: fakeInt,
   FLOAT: fakeFloat,
+  DECIMAL: fakeFloat,
   'TINYINT(1)': fakeBool,
   BOOLEAN: fakeBool,
   ENUM: (model, { type }) => sample(type.values),
+  UUID: () => fakeUUID(),
+
+  FHIR_IDENTIFIER: (...args) => FhirIdentifier.fake(...args),
+  FHIR_PERIOD: (...args) => FhirPeriod.fake(...args),
+  FHIR_ADDRESS: (...args) => FhirAddress.fake(...args),
+  FHIR_CODING: (...args) => FhirCoding.fake(...args),
+  FHIR_CODEABLE_CONCEPT: (...args) => FhirCodeableConcept.fake(...args),
+  FHIR_CONTACT_POINT: (...args) => FhirContactPoint.fake(...args),
+  FHIR_HUMAN_NAME: (...args) => FhirHumanName.fake(...args),
+  FHIR_PATIENT_LINK: (...args) => FhirPatientLink.fake(...args),
+  FHIR_REFERENCE: (...args) => FhirReference.fake(...args),
 };
 
 const IGNORED_FIELDS = [
@@ -220,6 +260,9 @@ const MODEL_SPECIFIC_OVERRIDES = {
     type: chance.pickone(['hospital', 'clinic']),
     visibilityStatus: VISIBILITY_STATUSES.CURRENT,
   }),
+  ImagingRequest: () => ({
+    status: chance.pickone(Object.values(IMAGING_REQUEST_STATUS_TYPES)),
+  }),
   Patient: () => {
     const sex = chance.pickone(['male', 'female', 'other']);
     let nameGender;
@@ -235,6 +278,7 @@ const MODEL_SPECIFIC_OVERRIDES = {
       culturalName: chance.first({ gender: nameGender }),
       dateOfDeath: null,
       email: chance.email(),
+      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
     };
   },
   PatientAdditionalData: () => ({
@@ -268,6 +312,15 @@ const MODEL_SPECIFIC_OVERRIDES = {
     emergencyContactName: chance.name(),
     emergencyContactNumber: chance.phone(),
   }),
+  PatientDeathData: () => {
+    const options = ['yes', 'no', 'unknown', null];
+    return {
+      wasPregnant: sample(options),
+      pregnancyContributed: sample(options),
+      recentSurgery: sample(options),
+      stillborn: sample(options),
+    };
+  },
   User: () => ({
     email: chance.email(),
     displayName: chance.name(),
@@ -279,32 +332,77 @@ const MODEL_SPECIFIC_OVERRIDES = {
   Encounter: () => ({
     encounterType: sample(ENCOUNTER_TYPE_VALUES),
   }),
+  NotePage: () => ({
+    // This is a hack because the type of NotePage.id is UUID, whereas tests might create ids of the form:
+    // NotePage.id.123e4567-e89b-12d3-a456-426614174000
+    // Setting id: undefined allows the model to create a default uuid and therefore avoid erroring
+    // It will be fixed properly as part of EPI-160
+    id: undefined,
+  }),
+  NoteItem: () => ({
+    id: undefined,
+  }),
 };
 
 export const fake = (model, passedOverrides = {}) => {
-  const id = uuidv4();
+  const id = fakeUUID();
   const record = {};
   const modelOverridesFn = MODEL_SPECIFIC_OVERRIDES[model.name];
   const modelOverrides = modelOverridesFn ? modelOverridesFn() : {};
   const overrides = { ...modelOverrides, ...passedOverrides };
   const overrideFields = Object.keys(overrides);
 
-  for (const [name, attribute] of Object.entries(model.tableAttributes)) {
+  function fakeField(name, attribute) {
     const { type, fieldName } = attribute;
 
     if (overrideFields.includes(fieldName)) {
-      record[name] = overrides[fieldName];
-    } else if (attribute.references) {
-      // null out id fields
-      record[name] = null;
-    } else if (IGNORED_FIELDS.includes(fieldName)) {
-      // ignore metadata fields
-    } else if (FIELD_HANDLERS[type]) {
-      record[name] = FIELD_HANDLERS[type](model, attribute, id);
-    } else {
-      // if you hit this error, you probably need to add a new field handler or a model-specific override
-      throw new Error(`Could not fake field ${model.name}.${name} of type ${type}`);
+      return overrides[fieldName];
     }
+
+    if (attribute.references) {
+      // null out id fields
+      return null;
+    }
+
+    if (IGNORED_FIELDS.includes(fieldName)) {
+      // ignore metadata fields
+      return undefined;
+    }
+
+    if (fieldName === 'id') {
+      return fakeUUID();
+    }
+
+    if (FIELD_HANDLERS[type]) {
+      return FIELD_HANDLERS[type](model, attribute, id);
+    }
+
+    if (type.type && FIELD_HANDLERS[type.type]) {
+      return FIELD_HANDLERS[type.type](model, attribute, id);
+    }
+
+    if (type instanceof DataTypes.ARRAY && type.options.type) {
+      return Array(random(0, 3))
+        .fill(0)
+        .map(() => fakeField(name, { ...attribute, type: type.options.type }));
+    }
+
+    if (type instanceof DataTypes.STRING && type.options.length) {
+      return FIELD_HANDLERS['VARCHAR(N)'](model, attribute, id, type.options.length);
+    }
+
+    // if you hit this error, you probably need to add a new field handler or a model-specific override
+    throw new Error(
+      `Could not fake field ${model.name}.${name} of type ${type} / ${type.type} / ${inspect(
+        type,
+      )}`,
+    );
   }
+
+  for (const [name, attribute] of Object.entries(model.tableAttributes)) {
+    const fakeValue = fakeField(name, attribute);
+    if (fakeValue !== undefined) record[name] = fakeValue;
+  }
+
   return record;
 };

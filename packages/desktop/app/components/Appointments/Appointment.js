@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import moment from 'moment';
 import { withStyles } from '@material-ui/core/styles';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import RadioButtonUncheckedIcon from '@material-ui/icons/RadioButtonUnchecked';
@@ -9,6 +8,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { Colors } from '../../constants';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { AppointmentDetail } from './AppointmentDetail';
+import { DateDisplay } from '../DateDisplay';
 
 const StyledTooltip = withStyles(() => ({
   tooltip: {
@@ -54,7 +54,7 @@ export const Appointment = ({ appointment, onUpdated }) => {
           <div>
             <PatientNameDisplay patient={patient} />
           </div>
-          <div>{moment(startTime).format('h:mm a')}</div>
+          <DateDisplay date={startTime} showDate={false} showTime />
         </div>
         <div className="icon">
           {status === 'Confirmed' && <RadioButtonUncheckedIcon />}

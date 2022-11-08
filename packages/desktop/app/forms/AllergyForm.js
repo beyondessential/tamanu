@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 
 import { Form, Field, DateField, AutocompleteField, TextField } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
@@ -8,11 +9,16 @@ import { ConfirmCancelRow } from '../components/ButtonRow';
 
 import { foreignKey } from '../utils/validation';
 
-export class AllergyForm extends React.PureComponent {
-  renderForm = ({ submitForm }) => {
-    const { editedObject, onCancel, practitionerSuggester, allergySuggester } = this.props;
-    const buttonText = editedObject ? 'Save' : 'Add';
-    return (
+export const AllergyForm = ({
+  onSubmit,
+  editedObject,
+  onCancel,
+  practitionerSuggester,
+  allergySuggester,
+}) => (
+  <Form
+    onSubmit={onSubmit}
+    render={({ submitForm }) => (
       <FormGrid columns={1}>
         <Field
           name="allergyId"
@@ -21,7 +27,13 @@ export class AllergyForm extends React.PureComponent {
           suggester={allergySuggester}
           required
         />
-        <Field name="date" label="Date recorded" component={DateField} required />
+        <Field
+          name="recordedDate"
+          label="Date recorded"
+          component={DateField}
+          saveDateAsString
+          required
+        />
         <Field
           name="practitionerId"
           label="Doctor/nurse"
@@ -29,29 +41,23 @@ export class AllergyForm extends React.PureComponent {
           suggester={practitionerSuggester}
         />
         <Field name="note" label="Notes" component={TextField} />
-        <ConfirmCancelRow onCancel={onCancel} onConfirm={submitForm} confirmText={buttonText} />
+        <ConfirmCancelRow
+          onCancel={onCancel}
+          onConfirm={submitForm}
+          confirmText={editedObject ? 'Save' : 'Add'}
+        />
       </FormGrid>
-    );
-  };
-
-  render() {
-    const { onSubmit, editedObject } = this.props;
-    return (
-      <Form
-        onSubmit={onSubmit}
-        render={this.renderForm}
-        initialValues={{
-          date: new Date(),
-          ...editedObject,
-        }}
-        validationSchema={yup.object().shape({
-          allergyId: foreignKey('An allergy must be selected'),
-          date: yup.date().required(),
-        })}
-      />
-    );
-  }
-}
+    )}
+    initialValues={{
+      recordedDate: getCurrentDateTimeString(),
+      ...editedObject,
+    }}
+    validationSchema={yup.object().shape({
+      allergyId: foreignKey('An allergy must be selected'),
+      recordedDate: yup.date().required(),
+    })}
+  />
+);
 
 AllergyForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,

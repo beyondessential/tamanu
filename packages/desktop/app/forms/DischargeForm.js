@@ -2,6 +2,7 @@ import React, { useCallback, useState, useEffect } from 'react';
 import * as yup from 'yup';
 import Select from 'react-select';
 import styled from 'styled-components';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import Checkbox from '@material-ui/core/Checkbox';
 import { range } from 'lodash';
 import { Colors } from '../constants';
@@ -27,6 +28,7 @@ import { TableFormFields } from '../components/Table';
 import { ConfirmCancelRow } from '../components/ButtonRow';
 import { DiagnosisList } from '../components/DiagnosisList';
 import { useEncounter } from '../contexts/Encounter';
+import { useLocalisation } from '../contexts/Localisation';
 
 const MAX_REPEATS = 12;
 const REPEATS_OPTIONS = range(MAX_REPEATS + 1).map(value => ({ label: value, value }));
@@ -101,7 +103,7 @@ const StyledTextSpan = styled.span`
   color: ${props => (props.color ? props.color : Colors.darkText)};
 `;
 
-/* 
+/*
 A custom check field was needed because the label resides on
 the table headers and there is a need to display two text descriptions
 alongside the checkbox with different stylings.
@@ -164,7 +166,7 @@ const EncounterOverview = ({
     <>
       <DateInput label="Admission date" value={startDate} disabled />
       <TextInput
-        label="Supervising physician"
+        label="Supervising clinician"
         value={examiner ? examiner.displayName : '-'}
         disabled
       />
@@ -184,10 +186,18 @@ const EncounterOverview = ({
   );
 };
 
-export const DischargeForm = ({ practitionerSuggester, onCancel, onSubmit }) => {
+export const DischargeForm = ({
+  dispositionSuggester,
+  practitionerSuggester,
+  onCancel,
+  onSubmit,
+}) => {
   const { encounter } = useEncounter();
-  const [dischargeNotes, setDischargeNotes] = useState([]);
+  const [dischargeNotePages, setDischargeNotePages] = useState([]);
   const api = useApi();
+  const { getLocalisation } = useLocalisation();
+  const dischargeDisposition = Boolean(getLocalisation('features.enableDischargeDisposition'));
+
   // Only display medications that are not discontinued
   // Might need to update condition to compare by end date (decision pending)
   const activeMedications = encounter.medications?.filter(medication => !medication.discontinued);
@@ -208,8 +218,8 @@ export const DischargeForm = ({ practitionerSuggester, onCancel, onSubmit }) => 
 
   useEffect(() => {
     (async () => {
-      const { data: notes } = await api.get(`encounter/${encounter.id}/notes`);
-      setDischargeNotes(notes.filter(n => n.noteType === 'discharge'));
+      const { data: notePages } = await api.get(`encounter/${encounter.id}/notePages`);
+      setDischargeNotePages(notePages.filter(n => n.noteType === 'discharge'));
     })();
   }, [api, encounter.id]);
 
@@ -217,7 +227,13 @@ export const DischargeForm = ({ practitionerSuggester, onCancel, onSubmit }) => 
     <>
       <FormGrid>
         <EncounterOverview encounter={encounter} />
-        <Field name="endDate" label="Discharge date" component={DateField} required />
+        <Field
+          name="endDate"
+          label="Discharge date"
+          component={DateField}
+          required
+          saveDateAsString
+        />
         <Field
           name="discharge.dischargerId"
           label="Discharging physician"
@@ -225,6 +241,14 @@ export const DischargeForm = ({ practitionerSuggester, onCancel, onSubmit }) => 
           suggester={practitionerSuggester}
           required
         />
+        {dischargeDisposition && (
+          <Field
+            name="discharge.dispositionId"
+            label="Discharge disposition"
+            component={AutocompleteField}
+            suggester={dispositionSuggester}
+          />
+        )}
         <OuterLabelFieldWrapper label="Discharge medications" style={{ gridColumn: '1 / -1' }}>
           <TableFormFields columns={medicationColumns} data={activeMedications} />
         </OuterLabelFieldWrapper>
@@ -255,11 +279,13 @@ export const DischargeForm = ({ practitionerSuggester, onCancel, onSubmit }) => 
       render={renderForm}
       enableReinitialize
       initialValues={{
-        endDate: new Date(),
+        endDate: getCurrentDateTimeString(),
         discharge: {
-          note: dischargeNotes.map(n => n.content).join('\n'),
+          note: dischargeNotePages.map(np => np.noteItems?.[0]?.content).join('\n'),
         },
         medications: medicationInitialValues,
+        // Used in creation of associated notes
+        submittedTime: getCurrentDateTimeString(),
       }}
       validationSchema={yup.object().shape({
         endDate: yup.date().required(),
