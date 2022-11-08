@@ -11,6 +11,7 @@ import { PatientIDCardPage } from './PatientIDCardPage';
 import { PatientStickerLabelPage } from './PatientStickerLabelPage';
 import { CovidTestCertificateModal } from './CovidTestCertificateModal';
 import { CovidClearanceCertificateModal } from './CovidClearanceCertificateModal';
+import { BirthNotificationCertificateModal } from './BirthNotificationCertificateModal';
 
 const PRINT_OPTIONS = {
   barcode: {
@@ -32,7 +33,7 @@ const PRINT_OPTIONS = {
   },
   birthNotification: {
     label: 'Birth notification',
-    component: PatientIDCardPage, // TODO:
+    component: BirthNotificationCertificateModal,
   },
 };
 
