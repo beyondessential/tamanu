@@ -130,7 +130,7 @@ export const PatientPrintDetailsModal = ({ patient }) => {
     if (!printType) {
       // no selection yet -- show selection modal
       return (
-        <Modal title="Select label" open={isModalOpen} onClose={closeModal}>
+        <Modal title="Select item to print" open={isModalOpen} onClose={closeModal}>
           <PrintOptionList setCurrentlyPrinting={setCurrentlyPrinting} />
         </Modal>
       );
@@ -158,7 +158,7 @@ export const PatientPrintDetailsModal = ({ patient }) => {
   return (
     <>
       <Button variant="contained" color="primary" onClick={openModal}>
-        Print ID
+        Print ID forms
       </Button>
       {mainComponent}
     </>
