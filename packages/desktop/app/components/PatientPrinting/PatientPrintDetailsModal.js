@@ -11,31 +11,28 @@ import { PatientIDCardPage } from './PatientIDCardPage';
 import { PatientStickerLabelPage } from './PatientStickerLabelPage';
 import { CovidTestCertificateModal } from './CovidTestCertificateModal';
 import { CovidClearanceCertificateModal } from './CovidClearanceCertificateModal';
-import { StickerIcon } from './StickerIcon';
-import { IDCardIcon } from './IDCardIcon';
-import { CertificateIcon } from './CertificateIcon';
 
 const PRINT_OPTIONS = {
   barcode: {
-    label: 'Print labels',
+    label: 'ID Labels',
     component: PatientStickerLabelPage,
-    icon: StickerIcon,
   },
   idcard: {
-    label: 'Print ID',
+    label: 'ID Card',
     component: PatientIDCardPage,
-    icon: IDCardIcon,
   },
   covidTestCert: {
-    label: 'Print COVID-19 test certificate',
+    label: 'COVID-19 test certificate',
     component: CovidTestCertificateModal,
-    icon: CertificateIcon,
   },
   covidClearanceCert: {
-    label: 'Print COVID-19 clearance certificate',
+    label: 'COVID-19 clearance certificate',
     component: CovidClearanceCertificateModal,
-    icon: CertificateIcon,
     condition: getLocalisation => getLocalisation('features.enableCovidClearanceCertificate'),
+  },
+  birthNotification: {
+    label: 'Birth notification',
+    component: PatientIDCardPage, // TODO:
   },
 };
 
@@ -43,7 +40,7 @@ const PrintOptionList = ({ setCurrentlyPrinting }) => {
   const { getLocalisation } = useLocalisation();
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'row' }}>
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
       {Object.entries(PRINT_OPTIONS)
         .filter(([, { condition }]) => !condition || condition(getLocalisation))
         .map(([type, { label, icon }]) => (
@@ -60,30 +57,22 @@ const PrintOptionList = ({ setCurrentlyPrinting }) => {
 
 const PrintOptionButton = styled(Button)`
   background: ${Colors.white};
-  display: grid;
+  border: 2px solid ${Colors.primary};
+  border-radius: 5px;
+
   justify-content: center;
   text-align: -webkit-center;
-  height: 140px;
-  width: 180px;
-  margin: 1rem;
+
+  height: 63px;
+  width: 100%;
+  margin: 14px 0px;
 `;
 
-const PrintOption = ({ label, icon, onPress }) => {
-  const [hovered, setHovered] = useState(false);
-  const Icon = icon;
-
-  return (
-    <PrintOptionButton
-      color="default"
-      onClick={onPress}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      <Icon hovered={hovered} />
-      {label}
-    </PrintOptionButton>
-  );
-};
+const PrintOption = ({ label, onPress }) => (
+  <PrintOptionButton color="default" onClick={onPress}>
+    {label}
+  </PrintOptionButton>
+);
 
 async function getPatientProfileImage(api, patientId) {
   try {
