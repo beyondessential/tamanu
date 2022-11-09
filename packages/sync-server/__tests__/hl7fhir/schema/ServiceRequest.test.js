@@ -1,4 +1,4 @@
-import { fake, showError } from 'shared/test-helpers';
+import { fake, withErrorShown } from 'shared/test-helpers';
 import { createTestContext } from '../../utilities';
 
 describe('ServiceRequest', () => {
@@ -11,8 +11,9 @@ describe('ServiceRequest', () => {
   });
   afterAll(() => ctx.close());
 
-  it('should create', () =>
-    showError(async () => {
+  it(
+    'should create',
+    withErrorShown(async () => {
       // Arrange
       const { FhirPatient, FhirServiceRequest } = models;
 
@@ -30,10 +31,12 @@ describe('ServiceRequest', () => {
       expect(srv.versionId).toBeTruthy();
       expect(srv.requesterPractitioner).toBeFalsy();
       expect(srv.subjectPatient.versionId).toEqual(pa.versionId);
-    }));
+    }),
+  );
 
-  it('should update the version id on update', () =>
-    showError(async () => {
+  it(
+    'should update the version id on update',
+    withErrorShown(async () => {
       // Arrange
       const { FhirPatient, FhirServiceRequest } = models;
 
@@ -50,10 +53,12 @@ describe('ServiceRequest', () => {
 
       // Assert
       expect(sr.versionId).not.toEqual(versionId);
-    }));
+    }),
+  );
 
-  it('should attach to a practitioner', () =>
-    showError(async () => {
+  it(
+    'should attach to a practitioner',
+    withErrorShown(async () => {
       // Arrange
       const { FhirPatient, FhirPractitioner, FhirServiceRequest } = models;
 
@@ -74,5 +79,6 @@ describe('ServiceRequest', () => {
       });
       expect(srv.requesterPractitioner.versionId).toEqual(pr.versionId);
       expect(srv.subjectPatient.versionId).toEqual(pa.versionId);
-    }));
+    }),
+  );
 });
