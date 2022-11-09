@@ -1,4 +1,5 @@
 import { inspect } from 'util';
+import { sleepAsync } from 'shared/utils/sleepAsync';
 
 import { FacilitySyncManager } from '../../app/sync/FacilitySyncManager';
 
