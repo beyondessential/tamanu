@@ -3,6 +3,7 @@ import { Op, Transaction } from 'sequelize';
 import { log } from 'shared/services/logging/log';
 import { COLUMNS_EXCLUDED_FROM_SYNC, SYNC_SESSION_DIRECTION } from 'shared/sync';
 import { withConfig } from 'shared/utils/withConfig';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 
 const sanitizeRecord = record =>
   Object.fromEntries(
@@ -45,7 +46,9 @@ export const snapshotOutgoingChanges = withConfig(
       { isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ },
       async () => {
         const outgoingChanges = [];
-        for (const model of Object.values(models)) {
+        for (const model of Object.values(models).filter(
+          model => model.syncDirection !== SYNC_DIRECTIONS.DO_NOT_SYNC,
+        )) {
           const changesForModel = await snapshotChangesForModel(model, sessionId, since);
           outgoingChanges.push(...changesForModel);
         }
