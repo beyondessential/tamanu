@@ -62,6 +62,8 @@ export function toDateString(date) {
   return formatISO9075(dateObj, { representation: 'date' });
 }
 
+// CountryDateTime functions are server only
+// Servers require a specific reference to timeZone since most of our servers are in UTC
 export function toCountryDateTimeString(date) {
   if (date === null || date === undefined) {
     return null;
