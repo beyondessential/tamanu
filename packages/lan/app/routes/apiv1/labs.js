@@ -10,6 +10,7 @@ import {
   LAB_REQUEST_STATUSES,
   NOTE_TYPES,
   NOTE_RECORD_TYPES,
+  VISIBILITY_STATUSES,
 } from 'shared/constants';
 import { makeFilter, makeSimpleTextFilterFactory } from '../../utils/query';
 import { renameObjectKeys } from '../../utils/renameObjectKeys';
@@ -225,6 +226,9 @@ labTest.get(
 
     const records = await req.models.LabTestType.findAll({
       order: Sequelize.literal('name ASC'),
+      where: {
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
+      },
     });
     res.send({
       data: records,
