@@ -151,7 +151,17 @@ createNameSuggester('facility');
 createSuggester(
   'location',
   'Location',
-  filterByFacilityWhereBuilder,
+  // Allow filtering by parent location group
+  (search, query) => {
+    const baseWhere = filterByFacilityWhereBuilder(search, query);
+    if (!query.parentId) {
+      return baseWhere;
+    }
+    return {
+      ...baseWhere,
+      parentId: query.parentId,
+    };
+  },
   async location => {
     const availability = await location.getAvailability();
     const { name, code, id } = location;
