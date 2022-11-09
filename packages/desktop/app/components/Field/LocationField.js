@@ -6,7 +6,7 @@ import { useApi } from '../../api';
 import { Suggester } from '../../utils/suggester';
 
 const locationCategorySuggester = (api, locationValue) => {
-  console.log('locationValue', locationValue);
+  // console.log('locationValue', locationValue);
   return new Suggester(api, 'location', {
     formatter: ({ name, id }) => {
       return {

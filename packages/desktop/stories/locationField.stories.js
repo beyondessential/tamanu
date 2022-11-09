@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import Chance from 'chance';
 import { storiesOf } from '@storybook/react';
 import { Typography, Box } from '@material-ui/core';
-import { LocationInput } from '../app/components';
+import { Form, Field, LocationInput, LocationField } from '../app/components';
 import { MockedApi } from './utils/mockedApi';
 
 const Container = styled.div`
@@ -69,58 +69,54 @@ storiesOf('LocationField', module)
     </MockedApi>
   ))
   .add('One Column', () => {
-    const [value, setValue] = useState('');
-
-    const handleChange = event => {
-      setValue(event.target.value);
-    };
-
-    const location = fakeLocations.find(x => x.id === value);
-
     return (
-      <Container>
-        <Typography variant="h6">One Column</Typography>
-        <OneColumn>
-          <LocationInput
-            categoryLabel="Country"
-            label="City"
-            value={value}
-            onChange={handleChange}
-            required
-          />
-        </OneColumn>
-        <Box mt={5}>
-          <Typography>Selected location</Typography>
-          <Typography>{location && location.name}</Typography>
-        </Box>
-      </Container>
+      <Form
+        render={({ values }) => {
+          console.log('values', values);
+          const location = fakeLocations.find(x => x.id === values.city);
+          console.log('location', location);
+
+          return (
+            <Container>
+              <Typography variant="h6">One Column</Typography>
+              <OneColumn>
+                <Field
+                  component={LocationField}
+                  categoryLabel="Country"
+                  label="City"
+                  name="city"
+                  required
+                />
+              </OneColumn>
+              <Box mt={5}>
+                <Typography>Selected location</Typography>
+                <Typography>{location && location.name}</Typography>
+              </Box>
+            </Container>
+          );
+        }}
+      />
     );
   })
   .add('Two Columns', () => {
-    const [value, setValue] = useState('');
-
-    const handleChange = event => {
-      setValue(event.target.value);
-    };
-
-    const location = fakeLocations.find(x => x.id === value);
-
     return (
-      <Container>
-        <Typography variant="h6">Two Columns</Typography>
-        <TwoColumns>
-          <LocationInput
-            categoryLabel="Country"
-            label="City"
-            value={value}
-            onChange={handleChange}
-            required
-          />
-        </TwoColumns>
-        <Box mt={5}>
-          <Typography>Selected location</Typography>
-          <Typography>{location && location.name}</Typography>
-        </Box>
-      </Container>
+      <Form
+        render={({ values }) => {
+          const location = fakeLocations.find(x => x.id === values.city);
+
+          return (
+            <Container>
+              <Typography variant="h6">Two Columns</Typography>
+              <TwoColumns>
+                <LocationInput categoryLabel="Country" label="City" name="city" required />
+              </TwoColumns>
+              <Box mt={5}>
+                <Typography>Selected location</Typography>
+                <Typography>{location && location.name}</Typography>
+              </Box>
+            </Container>
+          );
+        }}
+      />
     );
   });
