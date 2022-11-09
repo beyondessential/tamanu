@@ -159,6 +159,7 @@ createSuggester(
   },
   'name',
 );
+createNameSuggester('locationGroup', 'LocationGroup', filterByFacilityWhereBuilder);
 
 createSuggester(
   'survey',
