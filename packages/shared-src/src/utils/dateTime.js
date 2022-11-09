@@ -9,9 +9,12 @@ import {
   parseISO,
   isMatch,
 } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
+import { config } from 'config';
 
 const ISO9075_DATE_FORMAT = 'yyyy-MM-dd';
 const ISO9075_DATETIME_FORMAT = 'yyyy-MM-dd HH:mm:ss';
+const timeZone = config.countryTimeZone ?? 'UTC';
 
 export const isISOString = dateString =>
   isMatch(dateString, ISO9075_DATETIME_FORMAT) || isMatch(dateString, ISO9075_DATE_FORMAT);
@@ -58,6 +61,22 @@ export function toDateString(date) {
   }
   const dateObj = parseDate(date);
   return formatISO9075(dateObj, { representation: 'date' });
+}
+
+export function toCountryDateTimeString(date) {
+  if (date === null || date === undefined) {
+    return null;
+  }
+
+  return formatInTimeZone(date, timeZone, ISO9075_DATETIME_FORMAT);
+}
+
+export function toCountryDateString(date) {
+  if (date === null || date === undefined) {
+    return null;
+  }
+
+  return formatInTimeZone(date, timeZone, ISO9075_DATE_FORMAT);
 }
 
 export function getCurrentDateTimeString() {
