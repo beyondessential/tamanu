@@ -159,9 +159,8 @@ describe('snapshotOutgoingChanges', () => {
     }),
   );
 
-  // TODO: clarify what is the expected behaviour here
-  it.failing(
-    'should not return records changed while snapshot is in progress',
+  it(
+    'should return records changed while snapshot is in progress',
     withErrorShown(async () => {
       const { LocalSystemFact, ReferenceData } = models;
 
@@ -180,7 +179,7 @@ describe('snapshotOutgoingChanges', () => {
       };
 
       const tick = await LocalSystemFact.increment('currentSyncTime');
-      const row = await ReferenceData.create(fakeReferenceData());
+      const rowBefore = await ReferenceData.create(fakeReferenceData());
 
       const sessionId = fakeUUID();
       const snapshot = snapshotOutgoingChanges(
@@ -194,7 +193,7 @@ describe('snapshotOutgoingChanges', () => {
 
       // wait for snapshot to start and block, and then create a new record
       await sleepAsync(20);
-      await ReferenceData.create(fakeReferenceData());
+      const rowAfter = await ReferenceData.create(fakeReferenceData());
 
       // unblock snapshot
       resolveWhenNonEmpty.push(true);
@@ -206,13 +205,27 @@ describe('snapshotOutgoingChanges', () => {
           direction: SYNC_SESSION_DIRECTION.OUTGOING,
           isDeleted: false,
           recordType: 'reference_data',
-          recordId: row.id,
+          recordId: rowBefore.id,
           data: {
-            id: row.id,
-            code: row.code,
-            name: row.name,
-            type: row.type,
-            visibilityStatus: row.visibilityStatus,
+            id: rowBefore.id,
+            code: rowBefore.code,
+            name: rowBefore.name,
+            type: rowBefore.type,
+            visibilityStatus: rowBefore.visibilityStatus,
+          },
+        },
+        {
+          sessionId,
+          direction: SYNC_SESSION_DIRECTION.OUTGOING,
+          isDeleted: false,
+          recordType: 'reference_data',
+          recordId: rowAfter.id,
+          data: {
+            id: rowAfter.id,
+            code: rowAfter.code,
+            name: rowAfter.name,
+            type: rowAfter.type,
+            visibilityStatus: rowAfter.visibilityStatus,
           },
         },
       ]);
