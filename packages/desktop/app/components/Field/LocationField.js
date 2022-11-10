@@ -77,11 +77,15 @@ export const LocationInput = React.memo(
       },
     );
 
-    // set the group value automatically
+    // when the location is selected, set the group value automatically if it's not set yet
     useEffect(() => {
       const isNotSameGroup = data?.locationGroup?.id && data.locationGroup.id !== groupValue;
       if (!groupValue && isNotSameGroup) {
         setGroupValue(data.locationGroup.id);
+      } else if (isNotSameGroup) {
+        // clear the location if the location group is changed
+        setLocationValue('');
+        onChange({ target: { value: '', name } });
       }
     }, [groupValue, data?.locationGroup]);
 
