@@ -58,14 +58,17 @@ const Icon = styled(InputAdornment)`
 `;
 
 const OptionTag = styled(Tag)`
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  right: 25px;
+  position: relative;
 `;
 
 const SelectTag = styled(Tag)`
   position: relative;
+`;
+
+const Item = styled(MenuItem)`
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
 `;
 
 class BaseAutocomplete extends Component {
@@ -93,6 +96,7 @@ class BaseAutocomplete extends Component {
 
   updateValue = async () => {
     const { value, suggester } = this.props;
+
     if (!suggester || value === undefined) {
       return;
     }
@@ -166,16 +170,14 @@ class BaseAutocomplete extends Component {
   renderSuggestion = (suggestion, { isHighlighted }) => {
     const { tag } = suggestion;
     return (
-      <MenuItem selected={isHighlighted} component="div">
-        <Typography variant="body2">
-          {suggestion.label}
-          {tag && (
-            <OptionTag $background={tag.background} $color={tag.color}>
-              {tag.label}
-            </OptionTag>
-          )}
-        </Typography>
-      </MenuItem>
+      <Item selected={isHighlighted} component="div">
+        <Typography variant="body2">{suggestion.label}</Typography>
+        {tag && (
+          <OptionTag $background={tag.background} $color={tag.color}>
+            {tag.label}
+          </OptionTag>
+        )}
+      </Item>
     );
   };
 
