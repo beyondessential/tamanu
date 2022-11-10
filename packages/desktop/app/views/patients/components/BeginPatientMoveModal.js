@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { usePatientMove } from '../../../api/mutations';
-import { BodyText, Field, Form, Modal, LocationField } from '../../../components';
+import { BodyText, Field, Form, Modal, LocalisedLocationField } from '../../../components';
 import { ModalActionRow } from '../../../components/ModalActionRow';
 import { useLocalisation } from '../../../contexts/Localisation';
 
@@ -45,13 +45,7 @@ export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) =
           return (
             <>
               <Container>
-                <Field
-                  name="plannedLocationId"
-                  component={LocationField}
-                  categoryLabel="Area"
-                  label="New location"
-                  required
-                />
+                <Field name="plannedLocationId" component={LocalisedLocationField} required />
               </Container>
               <ModalActionRow confirmText="Confirm" onConfirm={submitForm} onCancel={onClose} />
             </>

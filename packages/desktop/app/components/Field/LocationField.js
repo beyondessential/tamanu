@@ -8,6 +8,7 @@ import { useApi } from '../../api';
 import { Suggester } from '../../utils/suggester';
 import { Colors } from '../../constants';
 import { BodyText } from '../Typography';
+import { useLocalisation } from '../../contexts/Localisation';
 
 const locationCategorySuggester = api => {
   return new Suggester(api, 'locationGroup', {
@@ -56,7 +57,7 @@ const Text = styled(BodyText)`
 
 export const LocationInput = React.memo(
   ({
-    categoryLabel,
+    locationGroupLabel,
     label,
     name,
     disabled,
@@ -102,7 +103,7 @@ export const LocationInput = React.memo(
     return (
       <>
         <AutocompleteInput
-          label={categoryLabel}
+          label={locationGroupLabel}
           disabled={disabled}
           onChange={handleChangeCategory}
           value={groupValue}
@@ -137,6 +138,28 @@ export const LocationInput = React.memo(
   },
 );
 
+LocationInput.propTypes = {
+  label: PropTypes.string,
+  locationGroupLabel: PropTypes.string,
+  required: PropTypes.bool,
+  disabled: PropTypes.bool,
+  error: PropTypes.bool,
+  helperText: PropTypes.string,
+  name: PropTypes.string,
+  className: PropTypes.string,
+};
+
+LocationInput.defaultProps = {
+  label: '',
+  locationGroupLabel: '',
+  required: false,
+  error: false,
+  disabled: false,
+  name: undefined,
+  helperText: '',
+  className: '',
+};
+
 export const LocationField = React.memo(({ field, error, ...props }) => {
   return (
     <LocationInput
@@ -148,22 +171,24 @@ export const LocationField = React.memo(({ field, error, ...props }) => {
   );
 });
 
-LocationInput.propTypes = {
-  label: PropTypes.string,
-  required: PropTypes.bool,
-  disabled: PropTypes.bool,
-  error: PropTypes.bool,
-  helperText: PropTypes.string,
-  name: PropTypes.string,
-  className: PropTypes.string,
-};
+export const LocalisedLocationField = React.memo(
+  ({ defaultGroupLabel = 'Area', defaultLabel = 'Location', ...props }) => {
+    const { getLocalisation } = useLocalisation();
 
-LocationInput.defaultProps = {
-  label: '',
-  required: false,
-  error: false,
-  disabled: false,
-  name: undefined,
-  helperText: '',
-  className: '',
-};
+    const locationGroupIdPath = 'fields.locationGroupId';
+    const locationGroupHidden = getLocalisation(`${locationGroupIdPath}.hidden`);
+    const locationGroupLabel =
+      getLocalisation(`${locationGroupIdPath}.longLabel`) || defaultGroupLabel;
+
+    const locationIdPath = 'fields.locationId';
+    const locationHidden = getLocalisation(`${locationIdPath}.hidden`);
+    const locationLabel = getLocalisation(`${locationIdPath}.longLabel`) || defaultLabel;
+
+    if (locationHidden || locationGroupHidden) {
+      return null;
+    }
+    return (
+      <LocationField label={locationLabel} locationGroupLabel={locationGroupLabel} {...props} />
+    );
+  },
+);

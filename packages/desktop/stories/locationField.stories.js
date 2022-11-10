@@ -78,7 +78,7 @@ storiesOf('LocationField', module)
     return (
       <Form
         render={({ values }) => {
-          const location = fakeLocations.find(x => x.id === values.city);
+          const location = fakeLocations.find(x => x.id === values.locationId);
 
           return (
             <Container>
@@ -86,9 +86,9 @@ storiesOf('LocationField', module)
               <OneColumn>
                 <Field
                   component={LocationField}
-                  categoryLabel="Country"
-                  label="City"
-                  name="city"
+                  locationGroupLabel="Area"
+                  label="Location"
+                  name="locationId"
                   required
                 />
               </OneColumn>
@@ -106,7 +106,7 @@ storiesOf('LocationField', module)
     return (
       <Form
         render={({ values }) => {
-          const location = fakeLocations.find(x => x.id === values.city);
+          const location = fakeLocations.find(x => x.id === values.locationId);
 
           return (
             <Container>
@@ -114,9 +114,9 @@ storiesOf('LocationField', module)
               <TwoColumns>
                 <Field
                   component={LocationField}
-                  categoryLabel="Country"
-                  label="City"
-                  name="city"
+                  locationGroupLabel="Area"
+                  label="Location"
+                  name="locationId"
                   required
                 />
               </TwoColumns>

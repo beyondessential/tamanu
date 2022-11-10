@@ -43,6 +43,8 @@ const UNHIDEABLE_FIELDS = [
   'dateOfBirthExact',
   'emergencyContactName',
   'emergencyContactNumber',
+  'locationId',
+  'locationGroupId',
 ];
 
 const HIDEABLE_FIELDS = [
