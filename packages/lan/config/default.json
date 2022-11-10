@@ -56,13 +56,17 @@
       "maxLimitChangePerBatch": 0.2 // max 20% increase/decrease from batch to batch
     },
     // embedPatientNotes is a workaround for TAN-1757
-    // TODO: remove after 1.21 release
+    // TODO: remove after sync rewrite
     "embedPatientNotes": false,
     // allowUntil makes sync only export records that were updated before the sync started
     // this stops sync from sending newly updated records that might cause conflicts
     // however, it could also prevent sync from syncing frequently changing records
-    // TODO: remove after 1.21 release
-    "allowUntil": true
+    // TODO: remove after sync rewrite
+    "allowUntil": true,
+    // doNotSyncRequests disables LabRequest, ImagingRequest, and dependent models
+    // from syncing, for debugging and a quick solution in Aspen Fiji
+    // TODO: remove after sync rewrite AND once we've verified the problem
+    "doNotSyncRequests": false
   },
   "port": 4000,
   "db": {
