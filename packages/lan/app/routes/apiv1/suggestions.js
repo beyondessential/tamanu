@@ -47,7 +47,8 @@ function createSuggesterRoute(
         limit: defaultLimit,
       });
 
-      res.send(results.map(mapper));
+      // Allow for async mapping functions (currently only used by location suggester)
+      res.send(await Promise.all(results.map(mapper)));
     }),
   );
 }
@@ -64,7 +65,7 @@ function createSuggesterLookupRoute(endpoint, modelName, mapper = defaultMapper)
       const record = await models[modelName].findByPk(params.id);
       if (!record) throw new NotFoundError();
       req.checkPermission('read', record);
-      res.send(mapper(record));
+      res.send(await mapper(record));
     }),
   );
 }
@@ -144,8 +145,20 @@ const createNameSuggester = (
   }));
 
 createNameSuggester('department', 'Department', filterByFacilityWhereBuilder);
-createNameSuggester('location', 'Location', filterByFacilityWhereBuilder);
 createNameSuggester('facility');
+
+// Calculate the availability of the location before passing on to the front end
+createSuggester(
+  'location',
+  'Location',
+  filterByFacilityWhereBuilder,
+  async location => {
+    const availability = await location.getAvailability();
+    const { name, code, id } = location;
+    return { name, code, id, availability };
+  },
+  'name',
+);
 
 createSuggester(
   'survey',
