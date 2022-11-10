@@ -51,6 +51,17 @@ const locationSuggester = (api, groupValue) => {
   });
 };
 
+const useLocationSuggestion = locationId => {
+  const api = useApi();
+  return useQuery(
+    ['locationSuggestion', locationId],
+    () => api.get(`suggestions/location/${locationId}`),
+    {
+      enabled: !!locationId,
+    },
+  );
+};
+
 export const LocationInput = React.memo(
   ({
     locationGroupLabel,
@@ -65,36 +76,30 @@ export const LocationInput = React.memo(
     onChange,
   }) => {
     const api = useApi();
-    const [groupValue, setGroupValue] = useState('');
-    const [locationValue, setLocationValue] = useState(value);
+    const [groupId, setGroupId] = useState('');
+    const [locationId, setLocationId] = useState(value);
 
-    const suggester = locationSuggester(api, groupValue);
-    const { data } = useQuery(
-      ['locationSuggestion', locationValue],
-      () => suggester.fetchCurrentOption(locationValue),
-      {
-        enabled: !!locationValue,
-      },
-    );
+    const suggester = locationSuggester(api, groupId);
+    const { data } = useLocationSuggestion(locationId);
 
     // when the location is selected, set the group value automatically if it's not set yet
     useEffect(() => {
-      const isNotSameGroup = data?.locationGroup?.id && data.locationGroup.id !== groupValue;
-      if (!groupValue && isNotSameGroup) {
-        setGroupValue(data.locationGroup.id);
+      const isNotSameGroup = data?.locationGroup?.id && data.locationGroup.id !== groupId;
+      if (!groupId && isNotSameGroup) {
+        setGroupId(data.locationGroup.id);
       } else if (isNotSameGroup) {
         // clear the location if the location group is changed
-        setLocationValue('');
+        setLocationId('');
         onChange({ target: { value: '', name } });
       }
-    }, [groupValue, data?.locationGroup]);
+    }, [onChange, name, groupId, data?.locationGroup]);
 
     const handleChangeCategory = event => {
-      setGroupValue(event.target.value);
+      setGroupId(event.target.value);
     };
 
     const handleChange = async event => {
-      setLocationValue(event.target.value);
+      setLocationId(event.target.value);
       onChange({ target: { value: event.target.value, name } });
     };
 
@@ -104,7 +109,7 @@ export const LocationInput = React.memo(
           label={locationGroupLabel}
           disabled={disabled}
           onChange={handleChangeCategory}
-          value={groupValue}
+          value={groupId}
           suggester={locationCategorySuggester(api)}
         />
         <AutocompleteInput
@@ -115,7 +120,7 @@ export const LocationInput = React.memo(
           helperText={helperText}
           required={required}
           error={error}
-          value={locationValue}
+          value={locationId}
           onChange={handleChange}
           className={className}
         />
@@ -184,15 +189,7 @@ const Text = styled(BodyText)`
 `;
 
 export const LocationAvailabilityWarningMessage = ({ locationId }) => {
-  const api = useApi();
-
-  const { data, isSuccess } = useQuery(
-    ['locationSuggestion', locationId],
-    () => api.get(`suggestions/location/${locationId}`),
-    {
-      enabled: !!locationId,
-    },
-  );
+  const { data, isSuccess } = useLocationSuggestion(locationId);
 
   if (!isSuccess) {
     return null;
