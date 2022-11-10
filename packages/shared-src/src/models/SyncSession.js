@@ -23,4 +23,11 @@ export class SyncSession extends Model {
       foreignKey: 'sessionId',
     });
   }
+
+  static async addDebugInfo(id, info) {
+    const session = await this.findOne({ where: { id } });
+    await session.update({
+      debugInfo: { ...session.debugInfo, ...info },
+    });
+  }
 }
