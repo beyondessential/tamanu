@@ -6,7 +6,7 @@ import { initDatabase, closeDatabase } from '../../database';
 
 const keyTypeToSecret = {
   default: DEFAULT_JWT_SECRET,
-  fhirIntegration: config.integrations.fhir.secret,
+  omniLab: config.integrations.omniLab.secret,
 };
 
 export const genToken = async (keyType, email, { expiresIn }) => {
