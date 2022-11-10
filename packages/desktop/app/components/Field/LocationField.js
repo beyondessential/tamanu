@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
-import { LOCATION_AVAILABILITY_STATUS, LOCATION_AVAILABILITY_TAG_CONFIG } from 'shared/constants';
+import { useQuery } from '@tanstack/react-query';
+import { LOCATION_AVAILABILITY_TAG_CONFIG, LOCATION_AVAILABILITY_STATUS } from 'shared/constants';
 import { AutocompleteInput } from './AutocompleteField';
 import { useApi } from '../../api';
 import { Suggester } from '../../utils/suggester';
+import { useLocalisation } from '../../contexts/Localisation';
 import { Colors } from '../../constants';
 import { BodyText } from '../Typography';
-import { useLocalisation } from '../../contexts/Localisation';
 
 const locationCategorySuggester = api => {
   return new Suggester(api, 'locationGroup', {
@@ -50,10 +50,6 @@ const locationSuggester = (api, groupValue) => {
     baseQueryParameters: { filterByFacility: true },
   });
 };
-
-const Text = styled(BodyText)`
-  color: ${props => props.theme.palette.text.secondary};
-`;
 
 export const LocationInput = React.memo(
   ({
@@ -98,8 +94,6 @@ export const LocationInput = React.memo(
       onChange({ target: { value: event.target.value, name } });
     };
 
-    const status = data?.availability;
-
     return (
       <>
         <AutocompleteInput
@@ -121,18 +115,6 @@ export const LocationInput = React.memo(
           onChange={handleChange}
           className={className}
         />
-        {status === LOCATION_AVAILABILITY_STATUS.RESERVED && (
-          <Text>
-            <span style={{ color: Colors.alert }}>*</span> This location is already occupied by
-            another patient. Please ensure the bed is available before confirming.
-          </Text>
-        )}
-        {status === LOCATION_AVAILABILITY_STATUS.OCCUPIED && (
-          <Text>
-            <span style={{ color: Colors.alert }}>*</span> This location is already occupied by
-            another patient. Please ensure the bed is available before confirming.
-          </Text>
-        )}
       </>
     );
   },
@@ -192,3 +174,45 @@ export const LocalisedLocationField = React.memo(
     );
   },
 );
+
+const Text = styled(BodyText)`
+  color: ${props => props.theme.palette.text.secondary};
+`;
+
+export const LocationAvailabilityWarningMessage = ({ locationId }) => {
+  const api = useApi();
+
+  const { data, isSuccess } = useQuery(
+    ['locationSuggestion', locationId],
+    () => api.get(`suggestions/location/${locationId}`),
+    {
+      enabled: !!locationId,
+    },
+  );
+
+  if (!isSuccess) {
+    return null;
+  }
+
+  const status = data?.availability;
+
+  if (status === LOCATION_AVAILABILITY_STATUS.RESERVED) {
+    return (
+      <Text>
+        <span style={{ color: Colors.alert }}>*</span> This location is already occupied by another
+        patient. Please ensure the bed is available before confirming.
+      </Text>
+    );
+  }
+
+  if (status === LOCATION_AVAILABILITY_STATUS.OCCUPIED) {
+    return (
+      <Text>
+        <span style={{ color: Colors.alert }}>*</span> This location is already occupied by another
+        patient. Please ensure the bed is available before confirming.
+      </Text>
+    );
+  }
+
+  return null;
+};

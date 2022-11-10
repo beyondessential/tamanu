@@ -15,6 +15,7 @@ import {
   LocalisedField,
   SuggesterSelectField,
   LocalisedLocationField,
+  LocationAvailabilityWarningMessage,
 } from '../components';
 import { encounterOptions } from '../constants';
 import { useSuggester } from '../api';
@@ -27,7 +28,7 @@ export const EncounterForm = React.memo(
     });
     const referralSourceSuggester = useSuggester('referralSource');
 
-    const renderForm = ({ submitForm }) => {
+    const renderForm = ({ submitForm, values }) => {
       const buttonText = editedObject ? 'Update encounter' : 'Confirm';
 
       return (
@@ -79,6 +80,9 @@ export const EncounterForm = React.memo(
             rows={2}
             style={{ gridColumn: 'span 2' }}
           />
+          <div style={{ gridColumn: '1/-1' }}>
+            <LocationAvailabilityWarningMessage locationId={values?.locationId} />
+          </div>
           <div style={{ gridColumn: 2, textAlign: 'right' }}>
             <Button variant="contained" onClick={submitForm} color="primary">
               {buttonText}

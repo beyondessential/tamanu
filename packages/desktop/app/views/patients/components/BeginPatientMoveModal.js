@@ -3,7 +3,14 @@ import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { usePatientMove } from '../../../api/mutations';
-import { BodyText, Field, Form, Modal, LocalisedLocationField } from '../../../components';
+import {
+  BodyText,
+  Field,
+  Form,
+  Modal,
+  LocalisedLocationField,
+  LocationAvailabilityWarningMessage,
+} from '../../../components';
 import { ModalActionRow } from '../../../components/ModalActionRow';
 import { useLocalisation } from '../../../contexts/Localisation';
 
@@ -41,11 +48,12 @@ export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) =
         validationSchema={yup.object().shape({
           plannedLocationId: yup.string().required('Please select a planned location'),
         })}
-        render={({ submitForm }) => {
+        render={({ submitForm, values }) => {
           return (
             <>
               <Container>
                 <Field name="plannedLocationId" component={LocalisedLocationField} required />
+                <LocationAvailabilityWarningMessage locationId={values?.plannedLocationId} />
               </Container>
               <ModalActionRow confirmText="Confirm" onConfirm={submitForm} onCancel={onClose} />
             </>
