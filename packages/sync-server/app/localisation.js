@@ -93,6 +93,11 @@ const HIDEABLE_FIELDS = [
   'birthFacilityId',
   'birthType',
   'registeredBirthPlace',
+  'referralSourceId',
+  'arrivalModeId',
+  'prescriber',
+  'prescriberId',
+  'facility',
 ];
 
 const templatesSchema = yup
@@ -280,6 +285,9 @@ const printMeasuresSchema = yup
 
 const rootLocalisationSchema = yup
   .object({
+    units: yup.object({
+      temperature: yup.string().oneOf(['celsius', 'fahrenheit']),
+    }),
     country: {
       name: yup
         .string()
@@ -300,6 +308,12 @@ const rootLocalisationSchema = yup
     templates: templatesSchema,
     timeZone: yup.string().nullable(),
     imagingTypes: imagingTypesSchema,
+    imagingPriorities: yup.array(
+      yup.object({
+        value: yup.string().required(),
+        label: yup.string().required(),
+      }),
+    ),
     triageCategories: yup
       .array(
         yup.object({
@@ -324,6 +338,7 @@ const rootLocalisationSchema = yup
         mergePopulatedPADRecords: yup.boolean().required(),
         enableCovidClearanceCertificate: yup.boolean().required(),
         enableDischargeDisposition: yup.boolean().default(true),
+        editDisplayId: yup.boolean().required(),
       })
       .required()
       .noUnknown(),

@@ -82,6 +82,7 @@ export const dataGenerator = async ({ models }, parameters = {}) => {
     surveyId: SURVEY_ID,
     surveyQuestionCodes: SURVEY_QUESTION_CODES,
     reportColumnTemplate,
+    dateFilterBy: 'labRequest.sampleTime',
   });
 };
 

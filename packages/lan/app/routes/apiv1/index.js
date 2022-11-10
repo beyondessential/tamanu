@@ -4,7 +4,7 @@ import { constructPermission } from 'shared/permissions/middleware';
 import { loginHandler, authMiddleware } from '../../middleware/auth';
 
 import { user } from './user';
-import { patient, patientCarePlan, patientIssue } from './patient';
+import { patient, patientCarePlan, patientIssue, patientFieldDefinition } from './patient';
 import { encounter } from './encounter';
 import { vitals } from './vitals';
 import { procedure } from './procedure';
@@ -78,6 +78,7 @@ apiv1.use('/certificateNotification', certificateNotification);
 apiv1.use('/reports', reports);
 apiv1.use('/reportRequest', reportRequest);
 apiv1.use('/patientCarePlan', patientCarePlan);
+apiv1.use('/patientFieldDefinition', patientFieldDefinition);
 apiv1.use('/appointments', appointments);
 
 apiv1.use('/invoices', invoices);

@@ -8,6 +8,8 @@ export const MODEL_DEPENDENCY_ORDER = [
   'Location',
   'Role',
   'Permission',
+  'PatientFieldDefinitionCategory',
+  'PatientFieldDefinition',
 
   'User',
   'UserFacility',
@@ -34,6 +36,7 @@ export const MODEL_DEPENDENCY_ORDER = [
   'PatientIssue',
   'PatientAdditionalData',
   'PatientSecondaryId',
+  'PatientFieldValue',
 
   'PatientDeathData',
   'PatientBirthData',

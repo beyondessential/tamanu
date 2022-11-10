@@ -19,6 +19,21 @@ export function referenceDataLoaderFactory(refType) {
   ];
 }
 
+export function patientFieldDefinitionLoader({ note, ...values }) {
+  return [
+    {
+      model: 'PatientFieldDefinition',
+      values: {
+        ...values,
+        options: (values.options || '')
+          .split(',')
+          .map(v => v.trim())
+          .filter(v => v !== ''),
+      },
+    },
+  ];
+}
+
 export function administeredVaccineLoader(item) {
   const {
     encounterId,

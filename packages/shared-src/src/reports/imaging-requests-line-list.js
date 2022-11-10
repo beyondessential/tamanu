@@ -44,9 +44,7 @@ select
   to_char(ir.requested_date::timestamp, 'DD/MM/YYYY HH12:MI AM') as "Request date and time",
   u_supervising.display_name as "Supervising clinician",
   u_requesting.display_name as "Requesting clinician",
-  case when ir.urgent is true then 'Urgent'
-  else 'Standard'
-  end as "Priority",
+  ir.priority as "Priority",
   ir.imaging_type as "Imaging type",
   case
     when ira.id is not null then rdi.name

@@ -176,6 +176,7 @@ export class Encounter extends Model {
         association: 'location',
         include: ['facility'],
       },
+      'referralSource',
     ];
   }
 
@@ -274,6 +275,11 @@ export class Encounter extends Model {
       as: 'patientBillingType',
     });
 
+    this.belongsTo(models.ReferenceData, {
+      foreignKey: 'referralSourceId',
+      as: 'referralSource',
+    });
+
     this.hasMany(models.NotePage, {
       foreignKey: 'recordId',
       as: 'notePages',
@@ -357,6 +363,21 @@ export class Encounter extends Model {
     await this.update({ endDate });
   }
 
+  async updateClinician(data) {
+    const { User } = this.sequelize.models;
+    const oldClinician = await User.findOne({ where: { id: this.examinerId } });
+    const newClinician = await User.findOne({ where: { id: data.examinerId } });
+
+    if (!newClinician) {
+      throw new InvalidOperationError('Invalid clinician specified');
+    }
+
+    await this.addSystemNote(
+      `Changed supervising clinician from ${oldClinician.displayName} to ${newClinician.displayName}`,
+      data.submittedTime,
+    );
+  }
+
   async update(data) {
     const { Department, Location } = this.sequelize.models;
 
@@ -395,6 +416,10 @@ export class Encounter extends Model {
           `Changed department from ${oldDepartment.name} to ${newDepartment.name}`,
           data.submittedTime,
         );
+      }
+
+      if (data.examinerId && data.examinerId !== this.examinerId) {
+        await this.updateClinician(data);
       }
 
       const { submittedTime, ...encounterData } = data;

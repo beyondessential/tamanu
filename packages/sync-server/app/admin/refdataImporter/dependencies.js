@@ -1,4 +1,9 @@
-import { patientDataLoader, administeredVaccineLoader, permissionLoader } from './loaders';
+import {
+  administeredVaccineLoader,
+  patientDataLoader,
+  patientFieldDefinitionLoader,
+  permissionLoader,
+} from './loaders';
 
 // All reference data is imported first, so that can be assumed for ordering.
 //
@@ -44,5 +49,11 @@ export default {
   permission: {
     loader: permissionLoader,
     needs: ['role'],
+  },
+
+  patientFieldDefinitionCategory: {},
+  patientFieldDefinition: {
+    loader: patientFieldDefinitionLoader,
+    needs: ['patientFieldDefinitionCategory'],
   },
 };
