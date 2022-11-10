@@ -39,7 +39,7 @@ const getDischargeInitialValues = (encounter, dischargeNotePages, medicationInit
   const encounterStartDate = parseISO(encounter.startDate);
   return {
     endDate: isFuture(encounterStartDate)
-      ? // in the case of future start date we cannot default to current datetime as that falls outside of the min date.
+      ? // In the case of a future start_date we cannot default to current datetime as it falls outside of the min date.
         toDateTimeString(
           set(encounterStartDate, {
             hours: today.getHours(),
