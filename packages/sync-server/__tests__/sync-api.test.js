@@ -180,7 +180,6 @@ describe('Sync API', () => {
 
       const firstRecord = body.records[0];
       const { updatedAt, ...oldestWithoutUpdatedAt } = oldestPatient;
-      delete oldestWithoutUpdatedAt.data.dateOfDeath; // model has a null, sync response omits null dates
 
       expect(firstRecord).toEqual(JSON.parse(JSON.stringify(oldestWithoutUpdatedAt)));
       expect(firstRecord).not.toHaveProperty('channel');
@@ -189,49 +188,6 @@ describe('Sync API', () => {
       // this database implementation detail should be hidden
       // from the api consumer
       expect(firstRecord).not.toHaveProperty('index');
-    });
-
-    it('should omit null dates', async () => {
-      const { Patient } = ctx.store.models;
-
-      const patientWithDOB = await Patient.create({
-        ...(await fake(Patient)),
-        firstName: 'patientWithDOB',
-      });
-      const patientWithoutDOB = await Patient.create({
-        ...(await fake(Patient)),
-        firstName: 'patientWithoutDOB',
-        dateOfBirth: null,
-      });
-
-      // Patients need this helper function on sync tests
-      await Promise.all([
-        await unsafeSetUpdatedAt(ctx.store.sequelize, {
-          table: 'patients',
-          id: patientWithDOB.id,
-          updated_at: makeUpdatedAt(20),
-        }),
-        await unsafeSetUpdatedAt(ctx.store.sequelize, {
-          table: 'patients',
-          id: patientWithoutDOB.id,
-          updated_at: makeUpdatedAt(20),
-        }),
-      ]);
-
-      const result = await app.get('/v1/sync/patient?since=0');
-      expect(result).toHaveSucceeded();
-
-      const {
-        body: { records },
-      } = result;
-      const withDate = records.find(({ data: { firstName } }) => firstName === 'patientWithDOB');
-      expect(withDate).toBeTruthy();
-      expect(withDate.data).toHaveProperty('dateOfBirth');
-      const withoutDate = records.find(
-        ({ data: { firstName } }) => firstName === 'patientWithoutDOB',
-      );
-      expect(withoutDate).toBeTruthy();
-      expect(withoutDate.data).not.toHaveProperty('dateOfBirth');
     });
 
     it('should not return a count if noCount=true', async () => {
