@@ -12,10 +12,11 @@ const sanitizeRecord = record =>
       .filter(([c]) => !COLUMNS_EXCLUDED_FROM_SYNC.includes(c)),
   );
 
-const snapshotChangesForModel = async (model, sessionId, since) => {
+const snapshotChangesForModel = async (model, sessionId, since, transaction) => {
   const recordsChanged = await model.findAll({
     where: { updatedAtSyncTick: { [Op.gt]: since } },
     raw: true,
+    transaction,
   });
 
   log.debug(
@@ -44,12 +45,17 @@ export const snapshotOutgoingChanges = withConfig(
     // as the snapshot only contains read queries, there will be no concurrent update issues :)
     return sequelize.transaction(
       { isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ },
-      async () => {
+      async transaction => {
         const outgoingChanges = [];
         for (const model of Object.values(models).filter(
           model => model.syncDirection !== SYNC_DIRECTIONS.DO_NOT_SYNC,
         )) {
-          const changesForModel = await snapshotChangesForModel(model, sessionId, since);
+          const changesForModel = await snapshotChangesForModel(
+            model,
+            sessionId,
+            since,
+            transaction,
+          );
           outgoingChanges.push(...changesForModel);
         }
         return outgoingChanges;

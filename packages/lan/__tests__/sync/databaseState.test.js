@@ -5,7 +5,7 @@ import { fake } from 'shared/test-helpers/fake';
 
 import { createTestContext } from '../utilities';
 
-describe('snapshotOutgoingChanges', () => {
+describe('databaseState', () => {
   let ctx, models;
 
   beforeAll(async () => {
