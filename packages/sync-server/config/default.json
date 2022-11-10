@@ -573,6 +573,7 @@
         "enablePatientDeaths": false,
         "mergePopulatedPADRecords": true,
         "enableCovidClearanceCertificate": false,
+        "enableDischargeDisposition": false,
         "editDisplayId": false,
         "patientPlannedMove": false,
         "locationHierarchy": false
