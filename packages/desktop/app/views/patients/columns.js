@@ -59,12 +59,6 @@ export const village = {
   accessor: row => row?.villageName || null,
 };
 
-export const location = {
-  key: 'locationName',
-  title: 'Location',
-  minWidth: 100,
-};
-
 export const department = {
   key: 'departmentName',
   title: 'Department',

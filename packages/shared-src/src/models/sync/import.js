@@ -185,7 +185,7 @@ const executeUpdateOrCreates = async (
     // on the server, remove null or undefined fields, and run any other model-specific
     // santization (e.g. auto-closing outpatient encounters)
     if (!model.syncClientMode) {
-      values = pickBy(values, value => value !== undefined && value !== null);
+      values = pickBy(values, value => value !== undefined);
       values = model.sanitizeForSyncServer ? model.sanitizeForSyncServer(values) : values;
     } else {
       values = model.sanitizeForSyncClient ? model.sanitizeForSyncClient(values) : values;
