@@ -114,7 +114,7 @@ describe('Suggestions', () => {
     });
 
     it('should calculate location availability and return it with suggestion list', async () => {
-      const result = await userApp.get('/v1/suggestions/location').query();
+      const result = await userApp.get('/v1/suggestions/location');
       expect(result).toHaveSucceeded();
 
       const { body } = result;
