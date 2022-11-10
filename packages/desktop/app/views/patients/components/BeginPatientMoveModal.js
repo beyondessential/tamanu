@@ -2,11 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-import { LOCATION_AVAILABILITY_STATUS } from 'shared/constants';
-import { Colors } from '../../../constants';
 import { usePatientMove } from '../../../api/mutations';
-import { useLocationAvailabilitySuggester } from '../../../api';
-import { BodyText, AutocompleteField, Field, Form, Modal } from '../../../components';
+import { BodyText, Field, Form, Modal, LocationField } from '../../../components';
 import { ModalActionRow } from '../../../components/ModalActionRow';
 import { useLocalisation } from '../../../contexts/Localisation';
 
@@ -25,7 +22,6 @@ const Text = styled(BodyText)`
 
 export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) => {
   const { mutateAsync: submit } = usePatientMove(encounter.id, onClose);
-  const locationSuggester = useLocationAvailabilitySuggester();
 
   const { getLocalisation } = useLocalisation();
   const plannedMoveTimeoutHours = getLocalisation('templates.plannedMoveTimeoutHours');
@@ -51,35 +47,9 @@ export const BeginPatientMoveModal = React.memo(({ onClose, open, encounter }) =
               <Container>
                 <Field
                   name="plannedLocationId"
-                  component={AutocompleteField}
-                  suggester={locationSuggester}
+                  component={LocationField}
+                  categoryLabel="Area"
                   label="New location"
-                  renderMessage={({ tag }) => {
-                    // Todo: Move this message handling to the location component @see WAITM-536
-                    const status = tag?.label?.toUpperCase();
-
-                    if (status === LOCATION_AVAILABILITY_STATUS.RESERVED) {
-                      return (
-                        <Text>
-                          <span style={{ color: Colors.alert }}>*</span> This location has already
-                          been reserved for another patient. Please ensure the bed is available
-                          before confirming.
-                        </Text>
-                      );
-                    }
-
-                    if (status === LOCATION_AVAILABILITY_STATUS.OCCUPIED) {
-                      return (
-                        <Text>
-                          <span style={{ color: Colors.alert }}>*</span> This location is already
-                          occupied by another patient. Please ensure the bed is available before
-                          confirming.
-                        </Text>
-                      );
-                    }
-
-                    return null;
-                  }}
                   required
                 />
               </Container>

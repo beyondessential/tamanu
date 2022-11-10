@@ -239,7 +239,6 @@ class BaseAutocomplete extends Component {
       disabled,
       error,
       helperText,
-      renderMessage,
       placeholder = 'Search...',
     } = this.props;
 
@@ -269,7 +268,6 @@ class BaseAutocomplete extends Component {
             onChange: this.handleInputChange,
           }}
         />
-        {renderMessage && renderMessage(selectedOption)}
       </>
     );
   }

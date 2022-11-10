@@ -120,7 +120,6 @@ REFERENCE_TYPE_VALUES.map(typeName =>
 
 const DEFAULT_WHERE_BUILDER = search => ({
   name: { [Op.iLike]: search },
-  ...VISIBILITY_CRITERIA,
 });
 
 const filterByFacilityWhereBuilder = (search, query) => {
@@ -151,10 +150,21 @@ createNameSuggester('facility');
 createSuggester(
   'location',
   'Location',
-  filterByFacilityWhereBuilder,
+  // Allow filtering by parent location group
+  (search, query) => {
+    const baseWhere = filterByFacilityWhereBuilder(search, query);
+    if (!query.parentId) {
+      return baseWhere;
+    }
+    return {
+      ...baseWhere,
+      parentId: query.parentId,
+    };
+  },
   async location => {
     const availability = await location.getAvailability();
     const { name, code, id } = location;
+
     const lg = await location.getLocationGroup();
     const locationGroup = lg ? { name: lg.name, code: lg.code, id: lg.id } : undefined;
     return {
@@ -167,6 +177,8 @@ createSuggester(
   },
   'name',
 );
+
+createNameSuggester('locationGroup', 'LocationGroup', filterByFacilityWhereBuilder);
 
 createSuggester(
   'survey',

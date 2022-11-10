@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { LOCATION_AVAILABILITY_TAG_CONFIG } from 'shared/constants';
+import { useQuery } from '@tanstack/react-query';
+import styled from 'styled-components';
+import { LOCATION_AVAILABILITY_STATUS, LOCATION_AVAILABILITY_TAG_CONFIG } from 'shared/constants';
 import { AutocompleteInput } from './AutocompleteField';
 import { useApi } from '../../api';
 import { Suggester } from '../../utils/suggester';
+import { Colors } from '../../constants';
+import { BodyText } from '../Typography';
 
-const locationCategorySuggester = (api, locationValue) => {
-  // console.log('locationValue', locationValue);
-  return new Suggester(api, 'location', {
+const locationCategorySuggester = api => {
+  return new Suggester(api, 'locationGroup', {
     formatter: ({ name, id }) => {
       return {
         label: name,
@@ -28,24 +31,28 @@ const locationSuggester = (api, groupValue) => {
       }
       return locationGroup?.id === groupValue;
     },
-    formatter: ({ name, id, locationGroup, availability }, index, suggestions) => {
+    formatter: ({ name, id, locationGroup, availability }) => {
       let label = name;
-      // if a category is selected return the comma seperated list of locations
+      // if a groupValue is selected return the comma seperated list of locations
       if (!groupValue) {
-        // 2. Get the parent and pre-pend it to the child
-        const parent = suggestions.find(x => x.locationGroup?.id === locationGroup?.id);
-        label = parent ? `${parent.name}, ${name}` : name;
+        label = locationGroup ? `${locationGroup.name}, ${name}` : name;
       }
 
       return {
-        label,
         value: id,
+        label,
+        locationGroup,
+        availability,
         tag: LOCATION_AVAILABILITY_TAG_CONFIG[availability],
       };
     },
     baseQueryParameters: { filterByFacility: true },
   });
 };
+
+const Text = styled(BodyText)`
+  color: ${props => props.theme.palette.text.secondary};
+`;
 
 export const LocationInput = React.memo(
   ({
@@ -61,17 +68,36 @@ export const LocationInput = React.memo(
     onChange,
   }) => {
     const api = useApi();
-    const [locationValue, setLocationValue] = useState(value);
     const [groupValue, setGroupValue] = useState('');
+    const [locationValue, setLocationValue] = useState(value);
+
+    const suggester = locationSuggester(api, groupValue);
+    const { data } = useQuery(
+      ['locationSuggestion', locationValue],
+      () => suggester.fetchCurrentOption(locationValue),
+      {
+        enabled: !!locationValue,
+      },
+    );
+
+    // set the group value automatically
+    useEffect(() => {
+      const isNotSameGroup = data?.locationGroup?.id && data.locationGroup.id !== groupValue;
+      if (!groupValue && isNotSameGroup) {
+        setGroupValue(data.locationGroup.id);
+      }
+    }, [groupValue, data?.locationGroup]);
 
     const handleChangeCategory = event => {
       setGroupValue(event.target.value);
     };
 
-    const handleChange = event => {
+    const handleChange = async event => {
       setLocationValue(event.target.value);
       onChange({ target: { value: event.target.value, name } });
     };
+
+    const status = data?.availability;
 
     return (
       <>
@@ -80,13 +106,13 @@ export const LocationInput = React.memo(
           disabled={disabled}
           onChange={handleChangeCategory}
           value={groupValue}
-          suggester={locationCategorySuggester(api, locationValue)}
+          suggester={locationCategorySuggester(api)}
         />
         <AutocompleteInput
           label={label}
           disabled={disabled}
           name={name}
-          suggester={locationSuggester(api, groupValue)}
+          suggester={suggester}
           helperText={helperText}
           required={required}
           error={error}
@@ -94,6 +120,18 @@ export const LocationInput = React.memo(
           onChange={handleChange}
           className={className}
         />
+        {status === LOCATION_AVAILABILITY_STATUS.RESERVED && (
+          <Text>
+            <span style={{ color: Colors.alert }}>*</span> This location is already occupied by
+            another patient. Please ensure the bed is available before confirming.
+          </Text>
+        )}
+        {status === LOCATION_AVAILABILITY_STATUS.OCCUPIED && (
+          <Text>
+            <span style={{ color: Colors.alert }}>*</span> This location is already occupied by
+            another patient. Please ensure the bed is available before confirming.
+          </Text>
+        )}
       </>
     );
   },

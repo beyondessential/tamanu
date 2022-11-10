@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import Chance from 'chance';
 import { storiesOf } from '@storybook/react';
 import { Typography, Box } from '@material-ui/core';
-import { Form, Field, LocationInput, LocationField } from '../app/components';
+import { Form, Field, LocationField } from '../app/components';
 import { MockedApi } from './utils/mockedApi';
 
 const Container = styled.div`
@@ -54,6 +54,12 @@ for (let i = 0; i < 10; i++) {
 }
 
 const endpoints = {
+  'suggestions/locationGroup': () => {
+    return fakeLocations;
+  },
+  'suggestions/locationGroup/:id': (data, id) => {
+    return fakeLocations.find(x => x.id === id);
+  },
   'suggestions/location': () => {
     return fakeLocations;
   },
@@ -72,9 +78,7 @@ storiesOf('LocationField', module)
     return (
       <Form
         render={({ values }) => {
-          console.log('values', values);
           const location = fakeLocations.find(x => x.id === values.city);
-          console.log('location', location);
 
           return (
             <Container>
@@ -108,7 +112,13 @@ storiesOf('LocationField', module)
             <Container>
               <Typography variant="h6">Two Columns</Typography>
               <TwoColumns>
-                <LocationInput categoryLabel="Country" label="City" name="city" required />
+                <Field
+                  component={LocationField}
+                  categoryLabel="Country"
+                  label="City"
+                  name="city"
+                  required
+                />
               </TwoColumns>
               <Box mt={5}>
                 <Typography>Selected location</Typography>

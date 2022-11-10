@@ -21,9 +21,6 @@ import { useSuggester } from '../api';
 
 export const EncounterForm = React.memo(
   ({ editedObject, onSubmit, patientBillingTypeId, encounterType }) => {
-    const locationSuggester = useSuggester('location', {
-      baseQueryParameters: { filterByFacility: true },
-    });
     const practitionerSuggester = useSuggester('practitioner');
     const departmentSuggester = useSuggester('department', {
       baseQueryParameters: { filterByFacility: true },
@@ -70,13 +67,6 @@ export const EncounterForm = React.memo(
             label="Location"
             component={LocationField}
           />
-          {/*<Field*/}
-          {/*  name="locationId"*/}
-          {/*  label="Location"*/}
-          {/*  required*/}
-          {/*  component={AutocompleteField}*/}
-          {/*  suggester={locationSuggester}*/}
-          {/*/>*/}
           <LocalisedField
             name="referralSourceId"
             suggester={referralSourceSuggester}

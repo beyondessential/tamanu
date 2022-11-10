@@ -20,17 +20,3 @@ export const usePatientSuggester = () => {
     }),
   });
 };
-
-export const useLocationAvailabilitySuggester = () => {
-  const api = useApi();
-  return new Suggester(api, 'location', {
-    formatter: ({ name, id, availability }) => {
-      return {
-        label: name,
-        value: id,
-        tag: LOCATION_AVAILABILITY_TAG_CONFIG[availability],
-      };
-    },
-    baseQueryParameters: { filterByFacility: true },
-  });
-};
