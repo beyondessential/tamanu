@@ -6,7 +6,6 @@ import storage from 'redux-persist/lib/storage';
 import { persistCombineReducers } from 'redux-persist';
 
 import { authReducer } from './auth';
-import { optionsReducer } from './options';
 import { imagingRequestReducer } from './imagingRequest';
 import { patientReducer } from './patient';
 import { specialModalsReducer } from './specialModals';
@@ -15,7 +14,6 @@ export const createReducers = history => ({
   router: connectRouter(history),
   auth: authReducer,
   patient: patientReducer,
-  options: optionsReducer,
   imagingRequest: imagingRequestReducer,
   specialModals: specialModalsReducer,
 });
