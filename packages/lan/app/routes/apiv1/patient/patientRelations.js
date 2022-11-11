@@ -136,12 +136,12 @@ patientRelations.get(
             include: [
               [
                 Sequelize.literal(
-                  `(SELECT 
-                      COALESCE(sra.body, "surveyResponse".end_time)
-                    FROM survey_response_answers sra
-                     LEFT JOIN program_data_elements pde ON sra.data_element_id = pde.id
-                    WHERE "surveyResponse".id = sra.response_id
-                      AND pde.type = 'SubmissionDate')`,
+                  `COALESCE((SELECT 
+                    sra.body
+                  FROM survey_response_answers sra
+                   LEFT JOIN program_data_elements pde ON sra.data_element_id = pde.id
+                  WHERE "surveyResponse".id = sra.response_id
+                    AND pde.type = 'SubmissionDate'), "surveyResponse".end_time)`,
                 ),
                 'submissionDate',
               ],
