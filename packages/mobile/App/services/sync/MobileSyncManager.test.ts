@@ -87,40 +87,6 @@ describe('MobileSyncManager', () => {
       expect(startSyncSessionCallOrder).toBeLessThan(syncOutgoingChangesCallOrder);
     });
 
-    it('should tick global clock when sync outgoing changes', async () => {
-      jest.spyOn(mobileSyncManager, 'syncIncomingChanges').mockImplementationOnce(jest.fn());
-      const startSyncSessionSpy = jest
-        .spyOn(centralServerConnection, 'startSyncSession')
-        .mockImplementationOnce(jest.fn(async () => mockSessionId));
-      const tickGlobalClockSpy = jest
-        .spyOn(centralServerConnection, 'tickGlobalClock')
-        .mockImplementationOnce(jest.fn(async () => mockSyncTick));
-      jest.spyOn(centralServerConnection, 'endSyncSession').mockImplementationOnce(jest.fn());
-      await mobileSyncManager.runSync();
-
-      const startSyncSessionCallOrder = startSyncSessionSpy.mock.invocationCallOrder[0];
-      const tickGlobalClockCallOrder = tickGlobalClockSpy.mock.invocationCallOrder[0];
-
-      expect(startSyncSessionCallOrder).toBeLessThan(tickGlobalClockCallOrder);
-    });
-
-    it('should tick global clock when sync incoming changes', async () => {
-      jest.spyOn(mobileSyncManager, 'syncOutgoingChanges').mockImplementationOnce(jest.fn());
-      const startSyncSessionSpy = jest
-        .spyOn(centralServerConnection, 'startSyncSession')
-        .mockImplementationOnce(jest.fn(async () => mockSessionId));
-      const tickGlobalClockSpy = jest
-        .spyOn(centralServerConnection, 'tickGlobalClock')
-        .mockImplementationOnce(jest.fn(async () => mockSyncTick));
-      jest.spyOn(centralServerConnection, 'endSyncSession').mockImplementationOnce(jest.fn());
-      await mobileSyncManager.runSync();
-
-      const startSyncSessionCallOrder = startSyncSessionSpy.mock.invocationCallOrder[0];
-      const tickGlobalClockCallOrder = tickGlobalClockSpy.mock.invocationCallOrder[0];
-
-      expect(startSyncSessionCallOrder).toBeLessThan(tickGlobalClockCallOrder);
-    });
-
     it('should sync outgoing changes before incoming changes', async () => {
       const syncOutgoingChangesSpy = jest
         .spyOn(mobileSyncManager, 'syncOutgoingChanges')
@@ -131,7 +97,6 @@ describe('MobileSyncManager', () => {
       jest
         .spyOn(centralServerConnection, 'startSyncSession')
         .mockImplementationOnce(jest.fn(async () => mockSessionId));
-      jest.spyOn(centralServerConnection, 'tickGlobalClock').mockImplementationOnce(jest.fn());
       jest.spyOn(centralServerConnection, 'endSyncSession').mockImplementationOnce(jest.fn());
 
       await mobileSyncManager.runSync();
@@ -148,9 +113,6 @@ describe('MobileSyncManager', () => {
       jest
         .spyOn(centralServerConnection, 'startSyncSession')
         .mockReturnValueOnce(new Promise(resolve => resolve(mockSessionId)));
-      jest
-        .spyOn(centralServerConnection, 'tickGlobalClock')
-        .mockImplementationOnce(jest.fn(async () => mockSyncTick));
       jest.spyOn(centralServerConnection, 'endSyncSession').mockImplementationOnce(jest.fn());
 
       getSyncTick.mockReturnValueOnce(new Promise(resolve => resolve(1)));
@@ -167,7 +129,6 @@ describe('MobileSyncManager', () => {
       jest
         .spyOn(centralServerConnection, 'startSyncSession')
         .mockReturnValueOnce(new Promise(resolve => resolve(mockSessionId)));
-      jest.spyOn(centralServerConnection, 'tickGlobalClock').mockImplementationOnce(jest.fn());
       jest.spyOn(centralServerConnection, 'endSyncSession').mockImplementationOnce(jest.fn());
 
       await mobileSyncManager.runSync();

@@ -112,10 +112,6 @@ export class CentralServerConnection {
     return this.delete(`sync/${sessionId}`, {});
   }
 
-  async tickGlobalClock() {
-    return this.post('sync/tick', {}, {});
-  }
-
   async fetchPullCount(sessionId) {
     // poll the pull count endpoint until we get a valid response - it takes a while for
     // setPullFilter to finish populating the snapshot of changes

@@ -39,12 +39,12 @@ export const pullIncomingChanges = async (
   since: number,
   tableNames: string[],
   progressCallback: (total: number, progressCount: number) => void,
-): Promise<number> => {
-  centralServer.setPullFilter(sessionId, since, tableNames);
+): Promise<{ count: number; tick: number }> => {
+  const { tick } = await centralServer.setPullFilter(sessionId, since, tableNames);
   const totalToPull = await centralServer.fetchPullCount(sessionId);
 
   if (!totalToPull) {
-    return 0;
+    return { count: 0, tick };
   }
 
   await Promise.all(
@@ -85,5 +85,5 @@ export const pullIncomingChanges = async (
     progressCallback(totalToPull, totalPulled);
   }
 
-  return totalToPull;
+  return { count: totalToPull, tick };
 };
