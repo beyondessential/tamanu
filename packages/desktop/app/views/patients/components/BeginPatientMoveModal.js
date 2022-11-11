@@ -15,12 +15,12 @@ import { ModalActionRow } from '../../../components/ModalActionRow';
 import { useLocalisation } from '../../../contexts/Localisation';
 
 const Container = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-row-gap: 20px;
   padding-bottom: 75px;
-
-  .react-autosuggest__container {
-    max-width: 320px;
-    margin: 30px auto 40px;
-  }
+  max-width: 360px;
+  margin: 30px auto 40px;
 `;
 
 const Text = styled(BodyText)`

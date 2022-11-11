@@ -9,39 +9,22 @@ import { Suggester } from '../../utils/suggester';
 import { useLocalisation } from '../../contexts/Localisation';
 import { Colors } from '../../constants';
 import { BodyText } from '../Typography';
-
-const locationCategorySuggester = api => {
-  return new Suggester(api, 'locationGroup', {
-    formatter: ({ name, id }) => {
-      return {
-        label: name,
-        value: id,
-      };
-    },
-    baseQueryParameters: { filterByFacility: true },
-  });
-};
+import { SelectInput } from './SelectField';
 
 const locationSuggester = (api, groupValue) => {
   return new Suggester(api, 'location', {
     filterer: ({ locationGroup }) => {
-      // if no category is selected, return all child locations and display their parents with a
-      // comma bellow
+      // if no category is selected, return all child locations. The location field will be disabled
+      // in this state anyway
       if (!groupValue) {
         return locationGroup?.id !== undefined;
       }
       return locationGroup?.id === groupValue;
     },
     formatter: ({ name, id, locationGroup, availability }) => {
-      let label = name;
-      // if a groupValue is selected return the comma seperated list of locations
-      if (!groupValue) {
-        label = locationGroup ? `${locationGroup.name}, ${name}` : name;
-      }
-
       return {
         value: id,
-        label,
+        label: name,
         locationGroup,
         availability,
         tag: LOCATION_AVAILABILITY_TAG_CONFIG[availability],
@@ -49,6 +32,20 @@ const locationSuggester = (api, groupValue) => {
     },
     baseQueryParameters: { filterByFacility: true },
   });
+};
+
+const useLocationGroups = () => {
+  const api = useApi();
+  const { data = [], ...query } = useQuery(['locationGroups'], () =>
+    api.get('suggestions/locationGroup/all'),
+  );
+
+  const options = data.map(({ id, name }) => ({
+    value: id,
+    label: name,
+  }));
+
+  return { ...query, data: options };
 };
 
 const useLocationSuggestion = locationId => {
@@ -78,16 +75,14 @@ export const LocationInput = React.memo(
     const api = useApi();
     const [groupId, setGroupId] = useState('');
     const [locationId, setLocationId] = useState(value);
-
     const suggester = locationSuggester(api, groupId);
+    const { data: options } = useLocationGroups();
     const { data } = useLocationSuggestion(locationId);
 
     // when the location is selected, set the group value automatically if it's not set yet
     useEffect(() => {
       const isNotSameGroup = data?.locationGroup?.id && data.locationGroup.id !== groupId;
-      if (!groupId && isNotSameGroup) {
-        setGroupId(data.locationGroup.id);
-      } else if (isNotSameGroup) {
+      if (isNotSameGroup) {
         // clear the location if the location group is changed
         setLocationId('');
         onChange({ target: { value: '', name } });
@@ -105,16 +100,16 @@ export const LocationInput = React.memo(
 
     return (
       <>
-        <AutocompleteInput
+        <SelectInput
           label={locationGroupLabel}
-          disabled={disabled}
+          options={options}
           onChange={handleChangeCategory}
           value={groupId}
-          suggester={locationCategorySuggester(api)}
+          disabled={disabled}
         />
         <AutocompleteInput
           label={label}
-          disabled={disabled}
+          disabled={!groupId}
           name={name}
           suggester={suggester}
           helperText={helperText}
@@ -185,7 +180,7 @@ export const LocalisedLocationField = React.memo(
 );
 
 const Text = styled(BodyText)`
-  color: ${props => props.theme.palette.text.secondary};
+  margin-top: -5px;
 `;
 
 export const LocationAvailabilityWarningMessage = ({ locationId }) => {
@@ -200,8 +195,8 @@ export const LocationAvailabilityWarningMessage = ({ locationId }) => {
   if (status === LOCATION_AVAILABILITY_STATUS.RESERVED) {
     return (
       <Text>
-        <span style={{ color: Colors.alert }}>*</span> This location is already occupied by another
-        patient. Please ensure the bed is available before confirming.
+        <span style={{ color: Colors.alert }}>*</span> This location is reserved by another patient.
+        Please ensure the bed is available before confirming.
       </Text>
     );
   }
@@ -209,8 +204,8 @@ export const LocationAvailabilityWarningMessage = ({ locationId }) => {
   if (status === LOCATION_AVAILABILITY_STATUS.OCCUPIED) {
     return (
       <Text>
-        <span style={{ color: Colors.alert }}>*</span> This location is already occupied by another
-        patient. Please ensure the bed is available before confirming.
+        <span style={{ color: Colors.alert }}>*</span> This location is occupied by another patient.
+        Please ensure the bed is available before confirming.
       </Text>
     );
   }

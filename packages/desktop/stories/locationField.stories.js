@@ -54,11 +54,8 @@ for (let i = 0; i < 10; i++) {
 }
 
 const endpoints = {
-  'suggestions/locationGroup': () => {
+  'suggestions/locationGroup/all': () => {
     return fakeLocations;
-  },
-  'suggestions/locationGroup/:id': (data, id) => {
-    return fakeLocations.find(x => x.id === id);
   },
   'suggestions/location': () => {
     return fakeLocations;

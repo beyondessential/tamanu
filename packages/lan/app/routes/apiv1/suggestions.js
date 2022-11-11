@@ -178,6 +178,7 @@ createSuggester(
   'name',
 );
 
+createAllRecordsSuggesterRoute('locationGroup', 'LocationGroup', filterByFacilityWhereBuilder);
 createNameSuggester('locationGroup', 'LocationGroup', filterByFacilityWhereBuilder);
 
 createSuggester(
