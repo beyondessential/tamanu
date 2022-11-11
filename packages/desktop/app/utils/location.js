@@ -9,7 +9,7 @@ export const getFullLocationName = location => {
   }
 
   if (location?.name) {
-    return `${location.locationGroup.name}, ${location.name}`;
+    return location.name;
   }
 
   return '-';

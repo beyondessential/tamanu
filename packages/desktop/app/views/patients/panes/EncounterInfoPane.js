@@ -28,7 +28,7 @@ export const EncounterInfoPane = React.memo(({ encounter }) => {
     <Card>
       {encounter.plannedLocation && (
         <CardHeader>
-          <CardItem label="Planned move" value={encounter.plannedLocation.name} />
+          <CardItem label="Planned move" value={getFullLocationName(encounter.plannedLocation)} />
         </CardHeader>
       )}
       <CardBody>

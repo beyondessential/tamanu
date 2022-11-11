@@ -82,6 +82,8 @@ triage.get(
 
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
 
+    console.log('TRIAGES---');
+
     const result = await db.query(
       `
         SELECT
@@ -90,6 +92,7 @@ triage.get(
           encounters.id as encounter_id,
           patients.*,
           location.name AS location_name,
+          location_group.name AS location_group_name,
           complaint.name AS chief_complaint
         FROM triages
           LEFT JOIN encounters
@@ -98,6 +101,8 @@ triage.get(
            ON (encounters.patient_id = patients.id)
           LEFT JOIN locations AS location
            ON (encounters.location_id = location.id)
+          LEFT JOIN location_groups AS location_group
+            ON (location_group.id = location.location_group_id)
           LEFT JOIN reference_data AS complaint
            ON (triages.chief_complaint_id = complaint.id)
         WHERE true

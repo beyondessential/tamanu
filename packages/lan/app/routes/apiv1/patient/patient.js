@@ -275,6 +275,8 @@ patientRoute.get(
           ON (department.id = encounters.department_id)
         LEFT JOIN locations AS location
           ON (location.id = encounters.location_id)
+        LEFT JOIN location_groups AS location_group
+          ON (location_group.id = location.location_group_id)
         LEFT JOIN locations AS planned_location
           ON (planned_location.id = encounters.planned_location_id)
         LEFT JOIN reference_data AS village
@@ -317,6 +319,7 @@ patientRoute.get(
           department.name AS department_name,
           location.id AS location_id,
           location.name AS location_name,
+          location_group.name AS location_group_name,
           planned_location.id AS planned_location_id,
           planned_location.name AS planned_location_name,
           encounters.planned_location_start_time,

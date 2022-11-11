@@ -74,8 +74,8 @@ export const FinalisePatientMoveModal = React.memo(({ encounter, open, onClose }
           justifyContent="space-between"
           ml={2}
         >
-          <Card>Current location: {getFullLocationName(location?.name)}</Card>
-          <Card className="active">New location: {getFullLocationName(plannedLocation?.name)}</Card>
+          <Card>Current location: {getFullLocationName(location)}</Card>
+          <Card className="active">New location: {getFullLocationName(plannedLocation)}</Card>
         </Box>
       </Container>
       <ModalActionRow confirmText="Confirm" onConfirm={onConfirmMove} onCancel={onClose} />
