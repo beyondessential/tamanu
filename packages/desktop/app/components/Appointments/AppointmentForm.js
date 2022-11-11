@@ -3,7 +3,14 @@ import * as yup from 'yup';
 
 import { APPOINTMENT_STATUSES } from 'shared/constants';
 import { FormGrid } from '../FormGrid';
-import { Field, Form, AutocompleteField, SelectField, DateTimeField } from '../Field';
+import {
+  Field,
+  Form,
+  AutocompleteField,
+  SelectField,
+  DateTimeField,
+  LocalisedLocationField,
+} from '../Field';
 import { ConfirmCancelRow } from '../ButtonRow';
 import { FormSeparatorLine } from '../FormSeparatorLine';
 
@@ -16,9 +23,6 @@ export const AppointmentForm = props => {
   const api = useApi();
   const isUpdating = !!appointment;
   const clinicianSuggester = new Suggester(api, 'practitioner');
-  const locationSuggester = new Suggester(api, 'location', {
-    baseQueryParameters: { filterByFacility: true },
-  });
   const patientSuggester = usePatientSuggester();
 
   let initialValues = {};
@@ -92,18 +96,12 @@ export const AppointmentForm = props => {
                 required
               />
               <Field label="End time" name="endTime" saveDateAsString component={DateTimeField} />
+              <Field name="locationId" component={LocalisedLocationField} required />
               <Field
                 label="Clinician"
                 name="clinicianId"
                 component={AutocompleteField}
                 suggester={clinicianSuggester}
-                required
-              />
-              <Field
-                label="Location"
-                name="locationId"
-                component={AutocompleteField}
-                suggester={locationSuggester}
                 required
               />
               <FormSeparatorLine />

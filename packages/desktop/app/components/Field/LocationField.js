@@ -36,6 +36,8 @@ const locationSuggester = (api, groupValue) => {
 
 const useLocationGroups = () => {
   const api = useApi();
+
+  // Todo: add baseQueryParameters
   const { data = [], ...query } = useQuery(['locationGroups'], () =>
     api.get('suggestions/locationGroup/all'),
   );
