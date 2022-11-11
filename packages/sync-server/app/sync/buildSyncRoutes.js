@@ -13,17 +13,8 @@ export const buildSyncRoutes = ctx => {
   syncRoutes.post(
     '/',
     asyncHandler(async (req, res) => {
-      const sessionId = await syncManager.startSession();
-      res.json(sessionId);
-    }),
-  );
-
-  // tick global clock
-  syncRoutes.post(
-    '/tick',
-    asyncHandler(async (req, res) => {
-      const { tick } = await syncManager.tickTockGlobalClock();
-      res.json(tick);
+      const { sessionId, tick } = await syncManager.startSession();
+      res.json({ sessionId, tick });
     }),
   );
 
@@ -37,15 +28,13 @@ export const buildSyncRoutes = ctx => {
       if (isNaN(since)) {
         throw new Error('Must provide "since" when creating a pull filter, even if it is 0');
       }
-      // we don't await the setPullFilter function before responding, as it takes a long time
-      // instead, the client will poll the pull count endpoint until it responds with a valid count
-      syncManager.setPullFilter(params.sessionId, {
+      const { tick } = await syncManager.setPullFilter(params.sessionId, {
         since,
         facilityId,
         tablesToInclude,
         isMobile,
       });
-      res.json(true);
+      res.json({ tick });
     }),
   );
 

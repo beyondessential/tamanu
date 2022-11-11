@@ -62,17 +62,16 @@ export class FacilitySyncManager {
     log.info(`FacilitySyncManager.runSync: began sync run`);
 
     // the first step of sync is to start a session and retrieve the session id
-    const sessionId = await this.centralServer.startSyncSession();
+    const { sessionId, tick: newSyncClockTime } = await this.centralServer.startSyncSession();
 
     // ~~~ Push phase ~~~ //
 
     // get the sync tick we're up to locally, so that we can store it as the successful push cursor
     const currentSyncClockTime = await this.models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY);
 
-    // tick the global sync clock, and use that new unique tick for any changes from now on so that
-    // any records that are created or updated even mid way through this sync, are marked using the
-    // new tick and will be captured in the push
-    const newSyncClockTime = await this.centralServer.tickGlobalClock();
+    // use the new unique sync tick for any changes from now on so that any records that are created
+    // or updated even mid way through this sync, are marked using the new tick and will be captured
+    // in the next push
     await this.models.LocalSystemFact.set(CURRENT_SYNC_TIME_KEY, newSyncClockTime);
     log.debug(`FacilitySyncManager.runSync: Local sync clock time set to ${newSyncClockTime}`);
 
@@ -99,13 +98,6 @@ export class FacilitySyncManager {
 
     // ~~~ Pull phase ~~~ //
 
-    // tick the global sync clock, and use that as our saved checkpoint for where we've pulled to,
-    // if this pull is successful (important to use a higher unique sync tick than our push tick)
-    // as otherwise we'll end up pulling the same records we just pushed the _next_ time we pull,
-    // given they get saved on the central server using the update tick at the moment they are
-    // persisted
-    const pullTick = await this.centralServer.tickGlobalClock();
-
     // syncing incoming changes happens in two phases: pulling all the records from the server,
     // then saving all those records into the local database
     // this avoids a period of time where the the local database may be "partially synced"
@@ -115,7 +107,7 @@ export class FacilitySyncManager {
       startTime,
       lastConnectionTime: startTime,
     });
-    const incomingChangesCount = await pullIncomingChanges(
+    const { count: incomingChangesCount, tick: pullTick } = await pullIncomingChanges(
       this.centralServer,
       this.models,
       sessionId,

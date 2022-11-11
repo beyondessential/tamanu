@@ -202,10 +202,6 @@ export class CentralServerConnection {
     return this.fetch(`sync/${sessionId}`, { method: 'DELETE' });
   }
 
-  async tickGlobalClock() {
-    return this.fetch(`sync/tick`, { method: 'POST' });
-  }
-
   async setPullFilter(sessionId, since) {
     const body = { since, facilityId: config.serverFacilityId };
     return this.fetch(`sync/${sessionId}/pullFilter`, { method: 'POST', body });

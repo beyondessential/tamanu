@@ -42,17 +42,17 @@ export class CentralSyncManager {
     await completeInactiveSyncSessions(this.store, lapsedSessionSeconds);
   };
 
+  // N.B. THIS MUST BE CALLED WITHIN A TRANSACTION
+  // as it serves an important locking mechanism between different parts of concurrent syncs, and
+  // the "tick" it produces should never be used - we need the full "tick-tock" to be atomic
   async tickTockGlobalClock() {
-    // rather than just incrementing by one tick, we "tick, tock" the clock inside a transaction,
-    // so we guarantee the "tick" part to be unique to the requesting client, and any changes made
-    // directly on the central server will be recorded as updated at the "tock", avoiding any
-    // direct changes (e.g. imports) being missed by a client that is at the same sync tick
-    const tickTock = await this.store.sequelize.transaction(async () => {
-      const tick = await this.store.models.LocalSystemFact.increment(CURRENT_SYNC_TIME_KEY);
-      const tock = await this.store.models.LocalSystemFact.increment(CURRENT_SYNC_TIME_KEY);
-      return { tick, tock };
-    });
-    return tickTock;
+    // rather than just incrementing by one tick, we "tick, tock" the clock so we guarantee the
+    // "tick" part to be unique to the requesting client, and any changes made directly on the
+    // central server will be recorded as updated at the "tock", avoiding any direct changes
+    // (e.g. imports) being missed by a client that is at the same sync tick
+    const tick = await this.store.models.LocalSystemFact.increment(CURRENT_SYNC_TIME_KEY);
+    const tock = await this.store.models.LocalSystemFact.increment(CURRENT_SYNC_TIME_KEY);
+    return { tick, tock };
   }
 
   async startSession() {
@@ -68,7 +68,9 @@ export class CentralSyncManager {
 
     log.debug(`CentralSyncManager.startSession: Started a new session ${syncSession.id}`);
 
-    return syncSession.id;
+    const { tick } = await this.store.sequelize.transaction(() => this.tickTockGlobalClock());
+
+    return { sessionId: syncSession.id, tick };
   }
 
   async connectToSession(sessionId) {
@@ -95,7 +97,13 @@ export class CentralSyncManager {
     await completeSyncSession(this.store, sessionId);
   }
 
-  async setPullFilter(sessionId, { since, facilityId, tablesToInclude, isMobile }) {
+  async setPullFilter(sessionId, params) {
+    const { tick } = await this.store.sequelize.transaction(() => this.tickTockGlobalClock());
+    this.setupSnapshot(sessionId, params); // don't await, as it takes a while - the sync client will poll for it to finish
+    return { tick };
+  }
+
+  async setupSnapshot(sessionId, { since, facilityId, tablesToInclude, isMobile }) {
     const { models } = this.store;
 
     const session = await this.connectToSession(sessionId);
@@ -237,7 +245,7 @@ export class CentralSyncManager {
           syncTimeSaveStart: await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY),
           syncSessionRecordsSavedAt: tock,
         });
-        await await saveIncomingChanges(
+        await saveIncomingChanges(
           models,
           getModelsForDirection(models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL),
           sessionId,
