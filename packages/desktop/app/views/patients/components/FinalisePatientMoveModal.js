@@ -7,6 +7,7 @@ import { BodyText, Modal } from '../../../components';
 import { ModalActionRow } from '../../../components/ModalActionRow';
 import { usePatientMove } from '../../../api/mutations';
 import { Colors } from '../../../constants';
+import { getFullLocationName } from '../../../utils/location';
 
 const Text = styled(BodyText)`
   color: ${props => props.theme.palette.text.secondary};
@@ -73,8 +74,8 @@ export const FinalisePatientMoveModal = React.memo(({ encounter, open, onClose }
           justifyContent="space-between"
           ml={2}
         >
-          <Card>Current location: {location?.name}</Card>
-          <Card className="active">New location: {plannedLocation?.name}</Card>
+          <Card>Current location: {getFullLocationName(location?.name)}</Card>
+          <Card className="active">New location: {getFullLocationName(plannedLocation?.name)}</Card>
         </Box>
       </Container>
       <ModalActionRow confirmText="Confirm" onConfirm={onConfirmMove} onCancel={onClose} />
