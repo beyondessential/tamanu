@@ -32,9 +32,19 @@ const createExportPlanInner = (model, relationTree, query) => {
       if (columnType instanceof DataTypes.DATE) {
         formatter = date => date?.toISOString();
       } else if (columnType instanceof DataTypes.DATETIMESTRING) {
-        formatter = date => toDateTimeString(date) ?? undefined;
+        formatter = date => {
+          if (date === null) {
+            return null;
+          }
+          return toDateTimeString(date) ?? undefined;
+        };
       } else if (columnType instanceof DataTypes.DATESTRING) {
-        formatter = date => toDateString(date) ?? undefined;
+        formatter = date => {
+          if (date === null) {
+            return null;
+          }
+          return toDateString(date) ?? undefined;
+        };
       }
       return { ...memo, [columnName]: formatter };
     },
