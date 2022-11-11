@@ -82,8 +82,6 @@ triage.get(
 
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
 
-    console.log('TRIAGES---');
-
     const result = await db.query(
       `
         SELECT
