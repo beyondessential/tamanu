@@ -1,3 +1,5 @@
+import config from 'config';
+
 export const MODEL_DEPENDENCY_ORDER = [
   'ReferenceData',
   'Asset',
@@ -50,14 +52,13 @@ export const MODEL_DEPENDENCY_ORDER = [
   'CertifiableVaccine',
   'AdministeredVaccine',
 
-
   'SurveyResponse',
   'SurveyResponseAnswer',
 
-  'LabTest',
-  'LabRequest',
-  'ImagingRequest',
-  'ImagingRequestAreas',
+  // TODO: hack to work around Aspen Fiji's issues
+  ...(config?.sync?.doNotSyncRequests
+    ? []
+    : ['LabTest', 'LabRequest', 'ImagingRequest', 'ImagingRequestAreas']),
 
   'NotePage',
   'NoteItem',

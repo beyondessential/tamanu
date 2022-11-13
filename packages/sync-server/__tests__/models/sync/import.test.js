@@ -304,13 +304,13 @@ describe('import', () => {
     });
     afterAll(() => ctx.close());
 
-    it('removes null or undefined fields when importing', async () => {
+    it('removes undefined fields when importing', async () => {
       // arrange
       const { Patient } = models;
       const oldPatient = await fake(Patient);
       const newPatient = {
         ...(await fake(Patient)),
-        firstName: null,
+        firstName: undefined,
         id: oldPatient.id,
       };
       await Patient.create(oldPatient);
@@ -348,9 +348,12 @@ describe('import', () => {
         // sync the edit up
         const plan = createImportPlan(Patient.sequelize, 'patient');
         const executePromise = executeImportPlan(plan, [syncRecord]);
-        
+
         // expect a throw
-        await expect(executePromise).rejects.toHaveProperty('message', "Sync payload includes updates to deleted records");
+        await expect(executePromise).rejects.toHaveProperty(
+          'message',
+          'Sync payload includes updates to deleted records',
+        );
 
         // and the name change should not have stuck
         // paranoid: false as the patient has already been deleted
@@ -363,23 +366,26 @@ describe('import', () => {
         const { Patient, PatientAdditionalData } = models;
         const patient = await Patient.create(await fake(Patient));
         const pad = await PatientAdditionalData.create({
-          ...await fake(PatientAdditionalData),
+          ...(await fake(PatientAdditionalData)),
           patientId: patient.id,
         });
 
         // create an edit that changes some detail
-        const record = toSyncRecord({ 
+        const record = toSyncRecord({
           ...pad.dataValues,
           passport: 'Changed',
         });
-        
+
         // delete the initial record before uploading the edit
-        await pad.update({ 
+        await pad.update({
           deletedAt: new Date(),
         });
 
         // sync the edit up - this should succeed so we don't need to worry about .rejects
-        const plan = createImportPlan(PatientAdditionalData.sequelize, `patient/${patient.id}/additionalData`);
+        const plan = createImportPlan(
+          PatientAdditionalData.sequelize,
+          `patient/${patient.id}/additionalData`,
+        );
         await executeImportPlan(plan, [record]);
 
         // reload the record

@@ -116,8 +116,8 @@ describe('Patient relations', () => {
       expect(response.body.data).toHaveLength(3);
       expect(response.body.data.map(x => x.endTime)).toEqual([
         '2019-01-01 00:00:00',
-        '2019-01-03 00:00:00',
         '2019-01-02 00:00:00',
+        '2019-01-03 00:00:00',
       ]);
     });
 
