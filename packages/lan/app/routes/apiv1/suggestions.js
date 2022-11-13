@@ -77,7 +77,6 @@ function createAllRecordsSuggesterRoute(endpoint, modelName, where, mapper = def
       req.checkPermission('list', modelName);
       const { models } = req;
       const model = models[modelName];
-      console.log('where', where);
       const results = await model.findAll({
         where,
         limit: defaultLimit,
@@ -125,7 +124,6 @@ const DEFAULT_WHERE_BUILDER = search => ({
 });
 
 const filterByFacilityWhereBuilder = (search, query) => {
-  console.log('query', query);
   const baseWhere = DEFAULT_WHERE_BUILDER(search);
   if (!query.filterByFacility) {
     return baseWhere;
@@ -180,7 +178,6 @@ createSuggester(
   },
   'name',
 );
-createNameSuggester('locationGroup', 'LocationGroup', filterByFacilityWhereBuilder);
 
 createAllRecordsSuggesterRoute('locationGroup', 'LocationGroup', {
   facilityId: config.serverFacilityId,

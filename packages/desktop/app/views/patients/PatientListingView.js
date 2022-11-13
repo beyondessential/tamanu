@@ -45,6 +45,7 @@ const LISTING_COLUMNS = [
 
 const LocationCell = React.memo(
   ({ locationGroupName, locationName, plannedLocationName, ...props }) => {
+    console.log('plannedLocationName', props);
     return (
       <>
         {locationGroupName ? `${locationGroupName}, ${locationName}` : locationName}

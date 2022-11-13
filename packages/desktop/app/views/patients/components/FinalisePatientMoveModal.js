@@ -7,7 +7,7 @@ import { BodyText, Modal } from '../../../components';
 import { ModalActionRow } from '../../../components/ModalActionRow';
 import { usePatientMove } from '../../../api/mutations';
 import { Colors } from '../../../constants';
-import { getFullLocationName } from '../../../utils/location';
+import { useLocationDisplayName } from '../../../utils/location';
 
 const Text = styled(BodyText)`
   color: ${props => props.theme.palette.text.secondary};
@@ -52,6 +52,7 @@ const Card = styled.div`
 
 export const FinalisePatientMoveModal = React.memo(({ encounter, open, onClose }) => {
   const { mutate: submit } = usePatientMove(encounter.id, onClose);
+  const { getFullLocationName } = useLocationDisplayName();
   const { location, plannedLocation } = encounter;
   const onConfirmMove = () => {
     submit({ plannedLocationId: null, locationId: plannedLocation.id });

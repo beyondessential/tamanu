@@ -1,16 +1,27 @@
-/**
- *
- * @param location: { name: string, locationGroup: { name: string } }
- * @returns {string}
- */
-export const getFullLocationName = location => {
-  if (location?.locationGroup?.name) {
-    return `${location.locationGroup.name}, ${location.name}`;
-  }
+import { useLocalisation } from '../contexts/Localisation';
 
-  if (location?.name) {
-    return location.name;
-  }
+export const useLocationDisplayName = () => {
+  const { getLocalisation } = useLocalisation();
 
-  return '-';
+  /**
+   * @param location: { name: string, locationGroup: { name: string } }
+   * @returns {string}
+   */
+  const getFullLocationName = location => {
+    if (getLocalisation('features.locationHierarchy') === false) {
+      // If the locationHierarchy is set, attempt to return the location group name and the
+      // location name. eg. Ward 2, Bed 1
+      if (location?.locationGroup?.name) {
+        return `${location.locationGroup.name}, ${location.name}`;
+      }
+    }
+
+    if (location?.name) {
+      return location.name;
+    }
+
+    return '-';
+  };
+
+  return { getFullLocationName };
 };
