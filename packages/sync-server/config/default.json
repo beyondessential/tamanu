@@ -563,6 +563,14 @@
           "shortLabel": "Facility",
           "longLabel": "Facility",
           "hidden": false
+        },
+        "locationId": {
+          "shortLabel": "Location",
+          "longLabel": "Location"
+        },
+        "locationGroupId": {
+          "shortLabel": "Area",
+          "longLabel": "Area"
         }
       },
       "features": {

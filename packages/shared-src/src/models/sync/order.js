@@ -5,6 +5,7 @@ export const MODEL_DEPENDENCY_ORDER = [
   'Asset',
   'Facility',
   'Department',
+  'LocationGroup',
   'Location',
   'Role',
   'Permission',

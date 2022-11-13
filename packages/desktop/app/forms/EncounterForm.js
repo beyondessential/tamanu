@@ -14,22 +14,21 @@ import {
   FormGrid,
   LocalisedField,
   SuggesterSelectField,
+  LocalisedLocationField,
+  LocationAvailabilityWarningMessage,
 } from '../components';
 import { encounterOptions } from '../constants';
 import { useSuggester } from '../api';
 
 export const EncounterForm = React.memo(
   ({ editedObject, onSubmit, patientBillingTypeId, encounterType }) => {
-    const locationSuggester = useSuggester('location', {
-      baseQueryParameters: { filterByFacility: true },
-    });
     const practitionerSuggester = useSuggester('practitioner');
     const departmentSuggester = useSuggester('department', {
       baseQueryParameters: { filterByFacility: true },
     });
     const referralSourceSuggester = useSuggester('referralSource');
 
-    const renderForm = ({ submitForm }) => {
+    const renderForm = ({ submitForm, values }) => {
       const buttonText = editedObject ? 'Update encounter' : 'Confirm';
 
       return (
@@ -56,19 +55,13 @@ export const EncounterForm = React.memo(
             suggester={departmentSuggester}
           />
           <Field
-            name="locationId"
-            label="Location"
-            required
-            component={AutocompleteField}
-            suggester={locationSuggester}
-          />
-          <Field
             name="examinerId"
             label="Practitioner"
             required
             component={AutocompleteField}
             suggester={practitionerSuggester}
           />
+          <Field name="locationId" component={LocalisedLocationField} required />
           <LocalisedField
             name="referralSourceId"
             suggester={referralSourceSuggester}
@@ -87,6 +80,9 @@ export const EncounterForm = React.memo(
             rows={2}
             style={{ gridColumn: 'span 2' }}
           />
+          <div style={{ gridColumn: '1/-1' }}>
+            <LocationAvailabilityWarningMessage locationId={values?.locationId} />
+          </div>
           <div style={{ gridColumn: 2, textAlign: 'right' }}>
             <Button variant="contained" onClick={submitForm} color="primary">
               {buttonText}
