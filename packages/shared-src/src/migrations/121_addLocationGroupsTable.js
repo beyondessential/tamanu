@@ -1,5 +1,26 @@
 import Sequelize from 'sequelize';
 
+const syncColumns = {
+  marked_for_push: {
+    type: Sequelize.BOOLEAN,
+    allowNull: false,
+    defaultValue: true,
+  },
+  is_pushing: {
+    type: Sequelize.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  },
+  pushed_at: {
+    type: Sequelize.DATE,
+    allowNull: true,
+  },
+  pulled_at: {
+    type: Sequelize.DATE,
+    allowNull: true,
+  },
+};
+
 export async function up(query) {
   await query.createTable('location_groups', {
     id: {
@@ -38,6 +59,7 @@ export async function up(query) {
         key: 'id',
       },
     },
+    ...syncColumns,
   });
 
   await query.addColumn('locations', 'location_group_id', {
