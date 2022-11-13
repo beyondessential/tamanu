@@ -118,7 +118,7 @@ patientRelations.get(
   '/:id/referrals',
   asyncHandler(async (req, res) => {
     const { models, params, query } = req;
-    const { order = 'desc', orderBy = 'date' } = query;
+    const { order = 'asc', orderBy = 'date' } = query;
     req.checkPermission('list', 'SurveyResponse');
     const sortKey = REFERRAL_SORT_KEYS[orderBy] || REFERRAL_SORT_KEYS.date;
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
@@ -136,12 +136,12 @@ patientRelations.get(
             include: [
               [
                 Sequelize.literal(
-                  `(SELECT 
-                      COALESCE(sra.body, "surveyResponse".end_time)
-                    FROM survey_response_answers sra
-                     LEFT JOIN program_data_elements pde ON sra.data_element_id = pde.id
-                    WHERE "surveyResponse".id = sra.response_id
-                      AND pde.type = 'SubmissionDate')`,
+                  `COALESCE((SELECT 
+                    sra.body
+                  FROM survey_response_answers sra
+                   LEFT JOIN program_data_elements pde ON sra.data_element_id = pde.id
+                  WHERE "surveyResponse".id = sra.response_id
+                    AND pde.type = 'SubmissionDate'), "surveyResponse".end_time)`,
                 ),
                 'submissionDate',
               ],
@@ -188,7 +188,7 @@ patientRelations.get(
     const { db, models, params, query } = req;
     req.checkPermission('list', 'SurveyResponse');
     const patientId = params.id;
-    const { surveyId, surveyType = 'programs', order = 'desc', orderBy = 'endTime' } = query;
+    const { surveyId, surveyType = 'programs', order = 'asc', orderBy = 'endTime' } = query;
     const sortKey = PROGRAM_RESPONSE_SORT_KEYS[orderBy] || PROGRAM_RESPONSE_SORT_KEYS.endTime;
     const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
     const { count, data } = await runPaginatedQuery(
