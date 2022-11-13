@@ -138,14 +138,13 @@ const getActions = ({ refreshTable, ...row }) => (
 const columns = [
   { key: 'date', title: 'Referral date', accessor: getDate },
   { key: 'referralType', title: 'Referral type', accessor: getReferralType },
-  { key: 'referredBy', title: 'Referral completed by', accessor: getReferralBy, sortable: false },
+  { key: 'referredBy', title: 'Referral completed by', accessor: getReferralBy },
   { key: 'status', title: 'Status', accessor: getStatus },
   {
     key: 'actions',
     title: 'Actions',
     accessor: getActions,
     dontCallRowInput: true,
-    sortable: false,
   },
 ];
 
