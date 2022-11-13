@@ -121,6 +121,7 @@ REFERENCE_TYPE_VALUES.map(typeName =>
 
 const DEFAULT_WHERE_BUILDER = search => ({
   name: { [Op.iLike]: search },
+  ...VISIBILITY_CRITERIA,
 });
 
 const filterByFacilityWhereBuilder = (search, query) => {
@@ -168,19 +169,24 @@ createSuggester(
     const { name, code, id } = location;
 
     const lg = await location.getLocationGroup();
-    const locationGroup = lg ? { name: lg.name, code: lg.code, id: lg.id } : undefined;
+    const locationGroup = lg && { name: lg.name, code: lg.code, id: lg.id };
     return {
       name,
       code,
       id,
       availability,
-      locationGroup,
+      ...(locationGroup && { locationGroup }),
     };
   },
   'name',
 );
+createNameSuggester('locationGroup', 'LocationGroup', filterByFacilityWhereBuilder);
 
-createAllRecordsSuggesterRoute('locationGroup', 'LocationGroup', filterByFacilityWhereBuilder);
+createAllRecordsSuggesterRoute('locationGroup', 'LocationGroup', {
+  facilityId: config.serverFacilityId,
+  ...VISIBILITY_CRITERIA,
+});
+
 createNameSuggester('locationGroup', 'LocationGroup', filterByFacilityWhereBuilder);
 
 createSuggester(
