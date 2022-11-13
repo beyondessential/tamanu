@@ -81,7 +81,7 @@ export const saveIncomingChanges = async (
       await saveChangesForModel(model, batch);
 
       savedRecordsCount += batch.length;
-      const progressMessage = `Stage 3/3: Saving ${incomingChangesCount} records`;
+      const progressMessage = `Saving ${incomingChangesCount} records...`;
       progressCallback(incomingChangesCount, savedRecordsCount, progressMessage);
     }
   }

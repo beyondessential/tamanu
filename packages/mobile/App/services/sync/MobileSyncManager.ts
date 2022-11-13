@@ -19,6 +19,17 @@ import { formatDate } from '../../ui/helpers/date';
 import { DateFormats } from '../../ui/helpers/constants';
 import { CURRENT_SYNC_TIME, LAST_SUCCESSFUL_PULL, LAST_SUCCESSFUL_PUSH } from './constants';
 
+/**
+ * Maximum progress that each stage contributes to the overall progress
+ */
+const STAGE_MAX_PROGRESS = {
+  1: 33,
+  2: 66,
+  3: 100,
+};
+
+export const SYNC_STAGES_TOTAL = Object.values(STAGE_MAX_PROGRESS).length;
+
 export class MobileSyncManager {
   isSyncing = false;
 
@@ -26,7 +37,9 @@ export class MobileSyncManager {
 
   progressMessage = '';
 
-  lastSyncTime = '';
+  syncStage = null;
+
+  lastSuccessfulSyncTime = '';
 
   lastSyncPushedRecordsCount: number = null;
 
@@ -43,6 +56,11 @@ export class MobileSyncManager {
     this.models = Database.models;
   }
 
+  setSyncStage(syncStage: number): void {
+    this.syncStage = syncStage;
+    this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_IN_PROGRESS, this.progress);
+  }
+
   /**
    * Set the current progress (%) and the current progress message for the circular progress bar
    * @param progress
@@ -57,11 +75,21 @@ export class MobileSyncManager {
   /**
    * Calculate the current progress (%) using the final total and the current records in progress
    * @param total
-   * @param batchTotal
+   * @param progress
    * @param progressMessage
    */
-  updateProgress = (total: number, batchTotal: number, progressMessage: string): void => {
-    const progressPercentage = Math.min(Math.ceil((batchTotal / total) * 100));
+  updateProgress = (total: number, progress: number, progressMessage: string): void => {
+    // Get previous stage max progress
+    const previousStageMaxProgress = STAGE_MAX_PROGRESS[this.syncStage - 1] || 0;
+    // Calculate the total progress of the current stage
+    const currentStageTotalProgress = STAGE_MAX_PROGRESS[this.syncStage] - previousStageMaxProgress;
+    // Calculate the progress percentage of the current stage
+    // (ie: out of stage 2 which is 33% of the overall progress)
+    const currentStagePercentage = Math.min(
+      Math.ceil((progress / total) * currentStageTotalProgress),
+    );
+    // Add the finished stage progress to get the overall progress percentage
+    const progressPercentage = previousStageMaxProgress + currentStagePercentage;
     this.setProgress(progressPercentage, progressMessage);
   };
 
@@ -99,12 +127,13 @@ export class MobileSyncManager {
 
     try {
       await this.runSync();
+      this.lastSuccessfulSyncTime = formatDate(new Date(), DateFormats.DATE_AND_TIME);
       this.setProgress(0, '');
     } catch (error) {
       this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ERROR, { error });
     } finally {
+      this.syncStage = null;
       this.isSyncing = false;
-      this.lastSyncTime = formatDate(new Date(), DateFormats.DATE_AND_TIME);
       this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ENDED, `time=${Date.now() - startTime}ms`);
       console.log(`Sync took ${Date.now() - startTime} ms`);
     }
@@ -142,6 +171,8 @@ export class MobileSyncManager {
    * @param sessionId
    */
   async syncOutgoingChanges(sessionId: string, newSyncClockTime: number): Promise<void> {
+    this.setSyncStage(1);
+
     // get the sync tick we're up to locally, so that we can store it as the successful push cursor
     const currentSyncTick = await getSyncTick(this.models, CURRENT_SYNC_TIME);
 
@@ -164,7 +195,7 @@ export class MobileSyncManager {
         sessionId,
         outgoingChanges,
         (total, pushedRecords) =>
-          this.updateProgress(total, pushedRecords, 'Stage 1/3: Pushing all new changes'),
+          this.updateProgress(total, pushedRecords, 'Pushing all new changes...'),
       );
     }
 
@@ -185,10 +216,17 @@ export class MobileSyncManager {
    * @param sessionId
    */
   async syncIncomingChanges(sessionId: string): Promise<void> {
+    this.setSyncStage(2);
+
     const pullSince = await getSyncTick(this.models, LAST_SUCCESSFUL_PULL);
     console.log(
       `MobileSyncManager.syncIncomingChanges(): Begin sync incoming changes since ${pullSince}`,
     );
+
+    // This is the start of stage 2 which is calling setPullFilter.
+    // At this stage, we don't really know how long it will take.
+    // So only showing a message to indicate this this is still in progress
+    this.setProgress(STAGE_MAX_PROGRESS[this.syncStage - 1], 'Preparing data to pull...');
 
     const { count: incomingChangesCount, tick: safePullTick } = await pullIncomingChanges(
       this.centralServer,
@@ -196,12 +234,14 @@ export class MobileSyncManager {
       pullSince,
       Object.values(this.models).map(m => m.getTableNameForSync()),
       (total, downloadedChangesTotal) =>
-        this.updateProgress(total, downloadedChangesTotal, 'Stage 2/3: Pulling all new changes'),
+        this.updateProgress(total, downloadedChangesTotal, 'Pulling all new changes...'),
     );
 
     console.log(`MobileSyncManager.syncIncomingChanges(): Saving ${incomingChangesCount} changes`);
 
     const incomingModels = getModelsForDirection(this.models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
+
+    this.setSyncStage(3);
 
     // Save all incoming changes in 1 transaction so that the whole sync session save
     // either fail 100% or succeed 100%, no partial save.
