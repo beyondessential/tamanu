@@ -41,12 +41,12 @@ export class LocalSystemFact extends Model {
     }
   }
 
-  static async increment(key) {
+  static async increment(key, amount = 1) {
     const [
       rowsAffected,
     ] = await this.sequelize.query(
-      `UPDATE local_system_facts SET value = value::integer + 1 WHERE key = :key RETURNING value;`,
-      { replacements: { key } },
+      `UPDATE local_system_facts SET value = value::integer + :amount WHERE key = :key RETURNING value;`,
+      { replacements: { key, amount } },
     );
     if (rowsAffected.length === 0) {
       throw new Error(`The local system fact table does not include the fact ${key}`);
