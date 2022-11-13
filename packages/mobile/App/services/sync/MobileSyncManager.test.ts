@@ -112,7 +112,9 @@ describe('MobileSyncManager', () => {
       jest.spyOn(mobileSyncManager, 'syncIncomingChanges').mockImplementationOnce(jest.fn());
       jest
         .spyOn(centralServerConnection, 'startSyncSession')
-        .mockReturnValueOnce(new Promise(resolve => resolve(mockSessionId)));
+        .mockReturnValueOnce(
+          new Promise(resolve => resolve({ sessionId: mockSessionId, tick: mockSyncTick })),
+        );
       jest.spyOn(centralServerConnection, 'endSyncSession').mockImplementationOnce(jest.fn());
 
       getSyncTick.mockReturnValueOnce(new Promise(resolve => resolve(1)));
@@ -120,15 +122,17 @@ describe('MobileSyncManager', () => {
       await mobileSyncManager.runSync();
 
       expect(mobileSyncManager.syncOutgoingChanges).toBeCalledTimes(1);
-      expect(mobileSyncManager.syncOutgoingChanges).toBeCalledWith(mockSessionId);
+      expect(mobileSyncManager.syncOutgoingChanges).toBeCalledWith(mockSessionId, mockSyncTick);
     });
 
-    it("should call syncIncomingChanges() with the correct 'sessionId' and 'since", async () => {
+    it("should call syncIncomingChanges() with the correct 'sessionId'", async () => {
       jest.spyOn(mobileSyncManager, 'syncOutgoingChanges').mockImplementationOnce(jest.fn());
       jest.spyOn(mobileSyncManager, 'syncIncomingChanges').mockImplementationOnce(jest.fn());
       jest
         .spyOn(centralServerConnection, 'startSyncSession')
-        .mockReturnValueOnce(new Promise(resolve => resolve(mockSessionId)));
+        .mockReturnValueOnce(
+          new Promise(resolve => resolve({ sessionId: mockSessionId, tick: mockSyncTick })),
+        );
       jest.spyOn(centralServerConnection, 'endSyncSession').mockImplementationOnce(jest.fn());
 
       await mobileSyncManager.runSync();
