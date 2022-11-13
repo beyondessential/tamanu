@@ -1,4 +1,5 @@
 import Sequelize from 'sequelize';
+import { VISIBILITY_STATUSES } from '../constants';
 
 const syncColumns = {
   marked_for_push: {
@@ -42,6 +43,10 @@ export async function up(query) {
     deleted_at: {
       type: Sequelize.DATE,
       allowNull: true,
+    },
+    visibilityStatus: {
+      type: Sequelize.TEXT,
+      defaultValue: VISIBILITY_STATUSES.CURRENT,
     },
     name: {
       type: Sequelize.STRING,
