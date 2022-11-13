@@ -93,6 +93,10 @@ export class CentralSyncManager {
     await completeSyncSession(this.store, sessionId);
   }
 
+  // set pull filter begins creating a snapshot of changes to pull at this point in time, and
+  // returns a sync tick that we can safely consider the snapshot to be up to (because we use the
+  // "tick" of the tick-tock, so we know any more changes on the server, even while the snapshot
+  // process is ongoing, will have a later updated_at_sync_tick)
   async setPullFilter(sessionId, params) {
     const { tick } = await this.tickTockGlobalClock();
     this.setupSnapshot(sessionId, params); // don't await, as it takes a while - the sync client will poll for it to finish
