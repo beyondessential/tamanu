@@ -96,7 +96,12 @@ export const AppointmentForm = props => {
                 required
               />
               <Field label="End time" name="endTime" saveDateAsString component={DateTimeField} />
-              <Field name="locationId" component={LocalisedLocationField} required />
+              <Field
+                name="locationId"
+                component={LocalisedLocationField}
+                displayTags={false}
+                required
+              />
               <Field
                 label="Clinician"
                 name="clinicianId"
