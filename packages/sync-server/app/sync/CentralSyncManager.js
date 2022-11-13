@@ -1,4 +1,4 @@
-import { Op } from 'sequelize';
+import { Op, Transaction } from 'sequelize';
 import config from 'config';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { CURRENT_SYNC_TIME_KEY } from 'shared/sync/constants';
@@ -142,49 +142,59 @@ export class CentralSyncManager {
         isMobile,
       };
 
-      await this.store.sequelize.transaction(async () => {
-        await models.SyncSession.addDebugInfo(sessionId, {
-          clockTimeSnapshotStart: new Date().toISOString(),
-          syncTimeSnapshotStart: await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY),
-        });
+      // snapshot inside a "repeatable read" transaction, so that other changes made while this
+      // snapshot is underway aren't included (as this could lead to a pair of foreign records with
+      // the child in the snapshot and its parent missing)
+      // as the snapshot only contains read queries plus writes to the specific rows in
+      // sync_sessions and sync_session_records that it controls, there should be no concurrent
+      // update issues :)
+      await this.store.sequelize.transaction(
+        async () => {
+          await models.SyncSession.addDebugInfo(sessionId, {
+            clockTimeSnapshotStart: new Date().toISOString(),
+            syncTimeSnapshotStart: await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY),
+          });
 
-        // full changes
-        await snapshotOutgoingChanges(
-          getPatientLinkedModels(modelsToInclude),
-          0,
-          patientIdsForFullSync,
-          sessionId,
-          facilityId,
-          sessionConfig,
-        );
+          // full changes
+          await snapshotOutgoingChanges(
+            getPatientLinkedModels(modelsToInclude),
+            0,
+            patientIdsForFullSync,
+            sessionId,
+            facilityId,
+            sessionConfig,
+          );
 
-        // get changes since the last successful sync for all other synced patients and independent
-        // record types
-        const patientFacilities = await models.PatientFacility.findAll({
-          where: { facilityId },
-        });
-        const patientIdsForRegularSync = patientFacilities
-          .map(p => p.patientId)
-          .filter(patientId => !patientIdsForFullSync.includes(patientId));
+          // get changes since the last successful sync for all other synced patients and independent
+          // record types
+          const patientFacilities = await models.PatientFacility.findAll({
+            where: { facilityId },
+          });
+          const patientIdsForRegularSync = patientFacilities
+            .map(p => p.patientId)
+            .filter(patientId => !patientIdsForFullSync.includes(patientId));
 
-        // regular changes
-        await snapshotOutgoingChanges(
-          getModelsForDirection(modelsToInclude, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
-          since,
-          patientIdsForRegularSync,
-          sessionId,
-          facilityId,
-          sessionConfig,
-        );
+          // regular changes
+          await snapshotOutgoingChanges(
+            getModelsForDirection(modelsToInclude, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
+            since,
+            patientIdsForRegularSync,
+            sessionId,
+            facilityId,
+            sessionConfig,
+          );
 
-        // delete any outgoing changes that were just pushed in during the same session
-        await removeEchoedChanges(this.store, sessionId);
+          // delete any outgoing changes that were just pushed in during the same session
+          await removeEchoedChanges(this.store, sessionId);
 
-        await models.SyncSession.addDebugInfo(sessionId, {
-          clockTimeSnapshotEnd: new Date().toISOString(),
-          syncTimeSnapshotEnd: await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY),
-        });
-      });
+          await models.SyncSession.addDebugInfo(sessionId, {
+            clockTimeSnapshotEnd: new Date().toISOString(),
+            syncTimeSnapshotEnd: await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY),
+          });
+        },
+        // see above this transaction call for a description on the repeatable read usage
+        { isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ },
+      );
       await session.update({ snapshotCompletedAt: new Date() });
       await models.SyncSession.addDebugInfo(sessionId, {
         clockTimeSnapshotCommitted: new Date().toISOString(),

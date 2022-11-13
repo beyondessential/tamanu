@@ -81,6 +81,7 @@ export class FacilitySyncManager {
     // causing data that isn't internally coherent from ending up on the sync server
     const pushSince = (await this.models.LocalSystemFact.get('lastSuccessfulSyncPush')) || -1;
     const outgoingChanges = await snapshotOutgoingChanges(
+      this.sequelize,
       getModelsForDirection(this.models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL),
       sessionId,
       pushSince,
