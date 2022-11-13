@@ -98,7 +98,7 @@ describe('Patient relations', () => {
       expect(response.body.data[0].surveyName).toEqual('test-survey-name');
     });
 
-    it('should order by endTime desc by default', async () => {
+    it('should order by endTime asc by default', async () => {
       const { patient } = await setupSurvey({
         endTime: '2019-01-01 00:00:00',
       });
@@ -115,9 +115,9 @@ describe('Patient relations', () => {
       expect(response.body.count).toEqual(3);
       expect(response.body.data).toHaveLength(3);
       expect(response.body.data.map(x => x.endTime)).toEqual([
+        '2019-01-01 00:00:00',
         '2019-01-03 00:00:00',
         '2019-01-02 00:00:00',
-        '2019-01-01 00:00:00',
       ]);
     });
 
@@ -188,7 +188,7 @@ describe('Patient relations', () => {
       expect(response.body.data[0].id).toEqual(referral.id);
       expect(response.body.data[0].surveyResponse.submissionDate).toEqual(surveyResponse.endTime);
     });
-    it('should order by submissionDate desc by default', async () => {
+    it('should order by submissionDate asc by default', async () => {
       const { patient } = await setupSurvey({
         withReferral: true,
         submissionDate: '2019-01-01',
@@ -208,9 +208,9 @@ describe('Patient relations', () => {
       expect(response.body.count).toEqual(3);
       expect(response.body.data).toHaveLength(3);
       expect(response.body.data.map(x => x.surveyResponse.submissionDate)).toEqual([
-        '2019-01-03',
-        '2019-01-02',
         '2019-01-01',
+        '2019-01-02',
+        '2019-01-03',
       ]);
     });
     it('should order by referralType survey name', async () => {

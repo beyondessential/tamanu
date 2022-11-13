@@ -164,7 +164,7 @@ export const ReferralTable = React.memo(({ patientId }) => {
         endpoint={`patient/${patientId}/referrals`}
         initialSort={{
           orderBy: 'date',
-          order: 'desc',
+          order: 'asc',
         }}
         noDataMessage="No referrals found"
         onRowClick={onSelectReferral}
