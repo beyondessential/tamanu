@@ -22,7 +22,7 @@ export class Discharge extends Model {
       {
         id: primaryKey,
         note: {
-          type: Sequelize.STRING,
+          type: Sequelize.TEXT,
           allowNull: true,
         },
       },
