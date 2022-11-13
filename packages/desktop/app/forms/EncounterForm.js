@@ -6,7 +6,6 @@ import { foreignKey } from '../utils/validation';
 import {
   Form,
   Field,
-  DateField,
   SelectField,
   AutocompleteField,
   TextField,
@@ -14,6 +13,7 @@ import {
   FormGrid,
   LocalisedField,
   SuggesterSelectField,
+  DateTimeField,
 } from '../components';
 import { encounterOptions } from '../constants';
 import { useSuggester } from '../api';
@@ -45,7 +45,8 @@ export const EncounterForm = React.memo(
             name="startDate"
             label="Check-in date"
             required
-            component={DateField}
+            min="1970-01-01T00:00"
+            component={DateTimeField}
             saveDateAsString
           />
           <Field
