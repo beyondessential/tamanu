@@ -5,7 +5,7 @@ import { useApi } from '../api';
 import { Suggester } from '../utils/suggester';
 
 import { Modal } from './Modal';
-import { ConnectedLabRequestForm } from '../forms/LabRequestForm';
+import { LabRequestForm } from '../forms/LabRequestForm';
 import { ALPHABET_FOR_ID } from '../constants';
 
 export const LabRequestModal = ({ open, onClose, encounter }) => {
@@ -15,7 +15,7 @@ export const LabRequestModal = ({ open, onClose, encounter }) => {
 
   return (
     <Modal width="md" title="New lab request" open={open} onClose={onClose}>
-      <ConnectedLabRequestForm
+      <LabRequestForm
         onSubmit={async data => {
           const newRequest = await api.post(`labRequest`, {
             ...data,
