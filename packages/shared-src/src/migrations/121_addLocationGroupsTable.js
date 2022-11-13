@@ -44,7 +44,7 @@ export async function up(query) {
       type: Sequelize.DATE,
       allowNull: true,
     },
-    visibilityStatus: {
+    visibility_status: {
       type: Sequelize.TEXT,
       defaultValue: VISIBILITY_STATUSES.CURRENT,
     },
