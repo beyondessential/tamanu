@@ -218,7 +218,7 @@ describe('SyncManager', () => {
       expect(calls[0][1]).toHaveLength(1);
       expect(calls[0][1][0].data).toMatchObject({
         ...record,
-        dateOfDeath: undefined,
+        dateOfDeath: null,
       });
     });
 

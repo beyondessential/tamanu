@@ -2,9 +2,11 @@ import React, { useCallback, useState, useEffect } from 'react';
 import * as yup from 'yup';
 import Select from 'react-select';
 import styled from 'styled-components';
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { format, getCurrentDateTimeString } from 'shared/utils/dateTime';
 import Checkbox from '@material-ui/core/Checkbox';
 import { range } from 'lodash';
+import { isFuture, parseISO, set } from 'date-fns';
+import { toDateTimeString } from 'shared-src/src/utils/dateTime';
 import { Colors } from '../constants';
 import { useApi } from '../api';
 
@@ -16,11 +18,10 @@ import {
   AutocompleteField,
   TextField,
   CheckField,
-  DateField,
   StyledTextField,
 } from '../components/Field';
 import { OuterLabelFieldWrapper } from '../components/Field/OuterLabelFieldWrapper';
-import { DateInput } from '../components/Field/DateField';
+import { DateTimeField, DateTimeInput } from '../components/Field/DateField';
 import { TextInput } from '../components/Field/TextField';
 import { FormGrid } from '../components/FormGrid';
 import { TableFormFields } from '../components/Table';
@@ -32,6 +33,29 @@ import { useLocalisation } from '../contexts/Localisation';
 
 const MAX_REPEATS = 12;
 const REPEATS_OPTIONS = range(MAX_REPEATS + 1).map(value => ({ label: value, value }));
+
+const getDischargeInitialValues = (encounter, dischargeNotePages, medicationInitialValues) => {
+  const today = new Date();
+  const encounterStartDate = parseISO(encounter.startDate);
+  return {
+    endDate: isFuture(encounterStartDate)
+      ? // In the case of a future start_date we cannot default to current datetime as it falls outside of the min date.
+        toDateTimeString(
+          set(encounterStartDate, {
+            hours: today.getHours(),
+            minutes: today.getMinutes(),
+            seconds: today.getSeconds(),
+          }),
+        )
+      : getCurrentDateTimeString(),
+    discharge: {
+      note: dischargeNotePages.map(np => np.noteItems?.[0]?.content).join('\n'),
+    },
+    medications: medicationInitialValues,
+    // Used in creation of associated notes
+    submittedTime: getCurrentDateTimeString(),
+  };
+};
 
 /*
 Creates an object to add initialValues to Formik that matches
@@ -164,7 +188,7 @@ const EncounterOverview = ({
 
   return (
     <>
-      <DateInput label="Admission date" value={startDate} disabled />
+      <DateTimeInput label="Admission date" value={startDate} disabled />
       <TextInput
         label="Supervising clinician"
         value={examiner ? examiner.displayName : '-'}
@@ -230,7 +254,8 @@ export const DischargeForm = ({
         <Field
           name="endDate"
           label="Discharge date"
-          component={DateField}
+          component={DateTimeField}
+          min={format(encounter.startDate, "yyyy-MM-dd'T'HH:mm")}
           required
           saveDateAsString
         />
@@ -278,15 +303,11 @@ export const DischargeForm = ({
       onSubmit={handleSubmit}
       render={renderForm}
       enableReinitialize
-      initialValues={{
-        endDate: getCurrentDateTimeString(),
-        discharge: {
-          note: dischargeNotePages.map(np => np.noteItems?.[0]?.content).join('\n'),
-        },
-        medications: medicationInitialValues,
-        // Used in creation of associated notes
-        submittedTime: getCurrentDateTimeString(),
-      }}
+      initialValues={getDischargeInitialValues(
+        encounter,
+        dischargeNotePages,
+        medicationInitialValues,
+      )}
       validationSchema={yup.object().shape({
         endDate: yup.date().required(),
         discharge: yup

@@ -162,12 +162,23 @@ encounterRelations.get(
   }),
 );
 
+const PROGRAM_RESPONSE_SORT_KEYS = {
+  endTime: 'end_time',
+  submittedBy: 'submitted_by',
+  programName: 'program_name',
+  surveyName: 'survey_name',
+  resultText: 'result_text',
+};
+
 encounterRelations.get(
   '/:id/programResponses',
   asyncHandler(async (req, res) => {
     const { db, models, params, query } = req;
     req.checkPermission('list', 'SurveyResponse');
     const encounterId = params.id;
+    const { order = 'asc', orderBy = 'endTime' } = query;
+    const sortKey = PROGRAM_RESPONSE_SORT_KEYS[orderBy] || PROGRAM_RESPONSE_SORT_KEYS.endTime;
+    const sortDirection = order.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
     const { count, data } = await runPaginatedQuery(
       db,
       models.SurveyResponse,
@@ -206,6 +217,7 @@ encounterRelations.get(
           survey_responses.encounter_id = :encounterId
         AND
           surveys.survey_type = 'programs'
+        ORDER BY ${sortKey} ${sortDirection}
       `,
       { encounterId },
       query,

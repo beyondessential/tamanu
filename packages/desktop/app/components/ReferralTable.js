@@ -125,12 +125,8 @@ const ReferralBy = ({ surveyResponse: { survey, answers } }) => {
   return name;
 };
 
-const getDate = ({ surveyResponse }) => {
-  const dataElementId = surveyResponse.survey.components.find(
-    x => x.dataElement.type === 'SubmissionDate',
-  )?.dataElement.id;
-  const submissionDate = surveyResponse.answers.find(x => x.dataElementId === dataElementId)?.body;
-  return <DateDisplay date={submissionDate || surveyResponse.endTime} />;
+const getDate = ({ surveyResponse: { submissionDate } }) => {
+  return <DateDisplay date={submissionDate} />;
 };
 const getReferralType = ({ surveyResponse: { survey } }) => survey.name;
 const getReferralBy = ({ surveyResponse }) => <ReferralBy surveyResponse={surveyResponse} />;
@@ -141,10 +137,15 @@ const getActions = ({ refreshTable, ...row }) => (
 
 const columns = [
   { key: 'date', title: 'Referral date', accessor: getDate },
-  { key: 'department', title: 'Referral type', accessor: getReferralType },
+  { key: 'referralType', title: 'Referral type', accessor: getReferralType },
   { key: 'referredBy', title: 'Referral completed by', accessor: getReferralBy },
   { key: 'status', title: 'Status', accessor: getStatus },
-  { key: 'actions', title: 'Actions', accessor: getActions, dontCallRowInput: true },
+  {
+    key: 'actions',
+    title: 'Actions',
+    accessor: getActions,
+    dontCallRowInput: true,
+  },
 ];
 
 export const ReferralTable = React.memo(({ patientId }) => {
@@ -160,6 +161,10 @@ export const ReferralTable = React.memo(({ patientId }) => {
       <DataFetchingTable
         columns={columns}
         endpoint={`patient/${patientId}/referrals`}
+        initialSort={{
+          orderBy: 'date',
+          order: 'asc',
+        }}
         noDataMessage="No referrals found"
         onRowClick={onSelectReferral}
         allowExport={false}

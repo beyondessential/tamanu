@@ -13,6 +13,7 @@ import {
   Button,
   FormGrid,
   LocalisedField,
+  DateTimeField,
   SuggesterSelectField,
   LocalisedLocationField,
   LocationAvailabilityWarningMessage,
@@ -44,7 +45,8 @@ export const EncounterForm = React.memo(
             name="startDate"
             label="Check-in date"
             required
-            component={DateField}
+            min="1970-01-01T00:00"
+            component={DateTimeField}
             saveDateAsString
           />
           <Field
