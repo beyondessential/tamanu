@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useEffect, useMemo } from 'react';
-import { keyBy } from 'lodash';
+import { keyBy, orderBy } from 'lodash';
 import { format } from 'date-fns';
 import { Typography, Box } from '@material-ui/core';
 import { Alert, AlertTitle } from '@material-ui/lab';
@@ -92,9 +92,14 @@ export const ReportGeneratorForm = () => {
   const [selectedReportId, setSelectedReportId] = useState(null);
 
   const reportsById = useMemo(() => keyBy(availableReports, 'id'), [availableReports]);
-  const reportOptions = useMemo(() => availableReports.map(r => ({ value: r.id, label: r.name })), [
-    availableReports,
-  ]);
+  const reportOptions = useMemo(
+    () =>
+      orderBy(
+        availableReports.map(r => ({ value: r.id, label: r.name })),
+        'label',
+      ),
+    [availableReports],
+  );
 
   const {
     parameters = [],

@@ -1,6 +1,11 @@
-import { SURVEY_TYPES, VISIBILITY_STATUSES } from 'shared/constants';
-import { splitIds, buildDiagnosis } from 'shared/demoData';
-import { createDummyPatient } from 'shared/demoData/patients';
+import { SURVEY_TYPES, VISIBILITY_STATUSES, LOCATION_AVAILABILITY_STATUS } from 'shared/constants';
+import {
+  splitIds,
+  buildDiagnosis,
+  createDummyPatient,
+  createDummyEncounter,
+  randomRecords,
+} from 'shared/demoData';
 
 import { createTestContext } from '../utilities';
 import { testDiagnoses } from '../seed';
@@ -23,31 +28,35 @@ describe('Suggestions', () => {
     let searchPatient;
 
     beforeAll(async () => {
-      searchPatient = await models.Patient.create(await createDummyPatient(models, {
-        firstName: 'Test',
-        lastName: 'Appear',
-        displayId: 'abcabc123123',
-      }));
-      await models.Patient.create(await createDummyPatient(models, {
-        firstName: 'Negative',
-        lastName: 'Negative',
-        displayId: 'negative',
-      }));
+      searchPatient = await models.Patient.create(
+        await createDummyPatient(models, {
+          firstName: 'Test',
+          lastName: 'Appear',
+          displayId: 'abcabc123123',
+        }),
+      );
+      await models.Patient.create(
+        await createDummyPatient(models, {
+          firstName: 'Negative',
+          lastName: 'Negative',
+          displayId: 'negative',
+        }),
+      );
     });
-    
+
     it('should get a patient by first name', async () => {
       const result = await userApp.get('/v1/suggestions/patient').query({ q: 'Test' });
       expect(result).toHaveSucceeded();
 
       const { body } = result;
-      expect(body).toHaveLength(1)
+      expect(body).toHaveLength(1);
       expect(body[0]).toHaveProperty('id', searchPatient.id);
     });
 
     it('should get a patient by last name', async () => {
       const result = await userApp.get('/v1/suggestions/patient').query({ q: 'Appear' });
       expect(result).toHaveSucceeded();
-      
+
       const { body } = result;
       expect(body).toHaveProperty('length', 1);
       expect(body[0]).toHaveProperty('id', searchPatient.id);
@@ -56,7 +65,7 @@ describe('Suggestions', () => {
     it('should get a patient by combined first and last name', async () => {
       const result = await userApp.get('/v1/suggestions/patient').query({ q: 'Test Appear' });
       expect(result).toHaveSucceeded();
-      
+
       const { body } = result;
       expect(body).toHaveProperty('length', 1);
       expect(body[0]).toHaveProperty('id', searchPatient.id);
@@ -65,7 +74,7 @@ describe('Suggestions', () => {
     it('should get a patient by displayId', async () => {
       const result = await userApp.get('/v1/suggestions/patient').query({ q: 'abcabc123123' });
       expect(result).toHaveSucceeded();
-      
+
       const { body } = result;
       expect(body).toHaveProperty('length', 1);
       expect(body[0]).toHaveProperty('id', searchPatient.id);
@@ -74,6 +83,54 @@ describe('Suggestions', () => {
     it('should not get patients without permission', async () => {
       const result = await baseApp.get('/v1/suggestions/patient').query({ q: 'anything' });
       expect(result).toBeForbidden();
+    });
+  });
+
+  // Locations suggester has specialised functionality for determining location availability
+  describe('Locations', () => {
+    let occupiedLocation;
+    let reservedLocation;
+
+    beforeAll(async () => {
+      [occupiedLocation, reservedLocation] = await randomRecords(models, 'Location', 2);
+
+      // An encounter requires a patient
+      const patient = await models.Patient.create(
+        await createDummyPatient(models, {
+          firstName: 'Lauren',
+          lastName: 'Ipsum',
+          displayId: 'lorem',
+        }),
+      );
+      // This should mark one location as occupied, and one as reserved
+      await models.Encounter.create(
+        await createDummyEncounter(models, {
+          patientId: patient.id,
+          locationId: occupiedLocation.id,
+          plannedLocationId: reservedLocation.id,
+          endDate: null,
+        }),
+      );
+    });
+
+    it('should calculate location availability and return it with suggestion list', async () => {
+      const result = await userApp.get('/v1/suggestions/location');
+      expect(result).toHaveSucceeded();
+
+      const { body } = result;
+
+      const occupiedResult = body.find(x => x.id === occupiedLocation.id);
+      expect(occupiedResult).toHaveProperty('availability', LOCATION_AVAILABILITY_STATUS.OCCUPIED);
+
+      const reservedResult = body.find(x => x.id === reservedLocation.id);
+      expect(reservedResult).toHaveProperty('availability', LOCATION_AVAILABILITY_STATUS.RESERVED);
+
+      const otherResults = body.filter(
+        x => x.id !== occupiedLocation.id && x.id !== reservedLocation.id,
+      );
+      for (const location of otherResults) {
+        expect(location).toHaveProperty('availability', LOCATION_AVAILABILITY_STATUS.AVAILABLE);
+      }
     });
   });
 
@@ -246,8 +303,7 @@ describe('Suggestions', () => {
     const { body } = result;
 
     const idArray = body.map(({ id }) => id);
-    expect(idArray).toContain(visible.id); 
-    expect(idArray).not.toContain(invisible.id); 
+    expect(idArray).toContain(visible.id);
+    expect(idArray).not.toContain(invisible.id);
   });
-    
 });
