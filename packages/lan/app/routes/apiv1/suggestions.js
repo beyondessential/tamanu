@@ -120,6 +120,7 @@ REFERENCE_TYPE_VALUES.map(typeName =>
 
 const DEFAULT_WHERE_BUILDER = search => ({
   name: { [Op.iLike]: search },
+  ...VISIBILITY_CRITERIA,
 });
 
 const filterByFacilityWhereBuilder = (search, query) => {
@@ -166,13 +167,14 @@ createSuggester(
     const { name, code, id } = location;
 
     const lg = await location.getLocationGroup();
-    const locationGroup = lg ? { name: lg.name, code: lg.code, id: lg.id } : undefined;
+    const locationGroup = lg && { name: lg.name, code: lg.code, id: lg.id };
     return {
       name,
       code,
       id,
       availability,
       locationGroup,
+      ...(locationGroup && { locationGroupId: locationGroup.id }),
     };
   },
   'name',
