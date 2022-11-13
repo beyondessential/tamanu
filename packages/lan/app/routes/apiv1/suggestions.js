@@ -173,15 +173,18 @@ createSuggester(
       code,
       id,
       availability,
-      locationGroup,
-      ...(locationGroup && { locationGroupId: locationGroup.id }),
+      ...(locationGroup && { locationGroup }),
     };
   },
   'name',
 );
 createNameSuggester('locationGroup', 'LocationGroup', filterByFacilityWhereBuilder);
 
-createAllRecordsSuggesterRoute('locationGroup', 'LocationGroup', filterByFacilityWhereBuilder);
+createAllRecordsSuggesterRoute('locationGroup', 'LocationGroup', {
+  facilityId: config.serverFacilityId,
+  ...VISIBILITY_CRITERIA,
+});
+
 createNameSuggester('locationGroup', 'LocationGroup', filterByFacilityWhereBuilder);
 
 createSuggester(
