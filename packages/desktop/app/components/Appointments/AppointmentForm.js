@@ -16,8 +16,10 @@ export const AppointmentForm = props => {
   const api = useApi();
   const isUpdating = !!appointment;
   const clinicianSuggester = new Suggester(api, 'practitioner');
+  const locationSuggester = new Suggester(api, 'location', {
+    baseQueryParameters: { filterByFacility: true },
+  });
   const patientSuggester = usePatientSuggester();
-  const locationSuggester = new Suggester(api, 'location');
 
   let initialValues = {};
   if (isUpdating) {
@@ -91,17 +93,17 @@ export const AppointmentForm = props => {
               />
               <Field label="End time" name="endTime" saveDateAsString component={DateTimeField} />
               <Field
-                label="Area"
-                name="locationId"
-                component={AutocompleteField}
-                suggester={locationSuggester}
-                required
-              />
-              <Field
                 label="Clinician"
                 name="clinicianId"
                 component={AutocompleteField}
                 suggester={clinicianSuggester}
+                required
+              />
+              <Field
+                label="Location"
+                name="locationId"
+                component={AutocompleteField}
+                suggester={locationSuggester}
                 required
               />
               <FormSeparatorLine />

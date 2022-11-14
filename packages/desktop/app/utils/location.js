@@ -8,7 +8,7 @@ export const useLocationDisplayName = () => {
    * @returns {string}
    */
   const getFullLocationName = location => {
-    if (getLocalisation('features.locationHierarchy') === false) {
+    if (getLocalisation('features.locationHierarchy') === true) {
       // If the locationHierarchy is set, attempt to return the location group name and the
       // location name. eg. Ward 2, Bed 1
       if (location?.locationGroup?.name) {
