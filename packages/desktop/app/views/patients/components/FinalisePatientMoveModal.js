@@ -17,7 +17,8 @@ const Text = styled(BodyText)`
 
 const Container = styled.div`
   display: flex;
-  margin: 30px auto 50px 15%;
+  margin: 40px auto 60px;
+  padding: 0 30px;
 `;
 
 const BedIcon = styled(SingleBedIcon)`
@@ -42,6 +43,12 @@ const Card = styled.div`
   padding: 20px 35px 20px 30px;
   border-radius: 5px;
   border: 1px solid ${Colors.outline};
+  font-size: 14px;
+  line-height: 21px;
+
+  span {
+    font-weight: 500;
+  }
 
   &.active {
     border: 1px solid white;
@@ -74,8 +81,12 @@ export const FinalisePatientMoveModal = React.memo(({ encounter, open, onClose }
           justifyContent="space-between"
           ml={2}
         >
-          <Card>Current location: {getFullLocationName(location)}</Card>
-          <Card className="active">New location: {getFullLocationName(plannedLocation)}</Card>
+          <Card>
+            Current location: <span>{getFullLocationName(location)}</span>
+          </Card>
+          <Card className="active">
+            New location: <span>{getFullLocationName(plannedLocation)}</span>
+          </Card>
         </Box>
       </Container>
       <ModalActionRow confirmText="Confirm" onConfirm={onConfirmMove} onCancel={onClose} />
