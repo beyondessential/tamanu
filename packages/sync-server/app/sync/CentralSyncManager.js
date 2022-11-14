@@ -149,6 +149,7 @@ export class CentralSyncManager {
       // sync_sessions and sync_session_records that it controls, there should be no concurrent
       // update issues :)
       await this.store.sequelize.transaction(
+        { isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ },
         async () => {
           await models.SyncSession.addDebugInfo(sessionId, {
             clockTimeSnapshotStart: new Date().toISOString(),
@@ -192,8 +193,6 @@ export class CentralSyncManager {
             syncTimeSnapshotEnd: await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY),
           });
         },
-        // see above this transaction call for a description on the repeatable read usage
-        { isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ },
       );
       await session.update({ snapshotCompletedAt: new Date() });
       await models.SyncSession.addDebugInfo(sessionId, {

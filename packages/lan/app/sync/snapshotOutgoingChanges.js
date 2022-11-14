@@ -42,6 +42,7 @@ export const snapshotOutgoingChanges = async (sequelize, models, sessionId, sinc
   // the snapshot and its parent missing)
   // as the snapshot only contains read queries, there will be no concurrent update issues :)
   return sequelize.transaction(
+    { isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ },
     async () => {
       const outgoingChanges = [];
       for (const model of Object.values(models)) {
@@ -50,6 +51,5 @@ export const snapshotOutgoingChanges = async (sequelize, models, sessionId, sinc
       }
       return outgoingChanges;
     },
-    { isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ },
   );
 };
