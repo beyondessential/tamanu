@@ -25,14 +25,12 @@ export @injectConfig class FacilitySyncManager {
 
   async triggerSync() {
     if (!this.constructor.config.sync.enabled) {
-      console.log('Sync is disabled, skipping');
       log.warn('FacilitySyncManager.triggerSync: sync is disabled');
       return;
     }
 
     // if there's an existing sync, just wait for that sync run
     if (this.syncPromise) {
-      console.log('Sync promise exists');
       await this.syncPromise;
       return;
     }
