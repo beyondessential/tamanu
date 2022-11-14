@@ -9,12 +9,13 @@ import {
   ContentPane,
 } from '../../components';
 import { NewAppointmentButton } from '../../components/Appointments/NewAppointmentButton';
+import { useLocalisation } from '../../contexts/Localisation';
 
 const CapitalisedValue = styled.span`
   text-transform: capitalize;
 `;
 
-const COLUMNS = [
+const getColumns = locationHierarchyEnabled => [
   {
     key: 'startTime',
     title: 'Date',
@@ -42,14 +43,18 @@ const COLUMNS = [
     title: 'Clinician',
     accessor: row => `${row.clinician && row.clinician.displayName}`,
   },
-  { key: 'locationId', title: 'Location', accessor: row => row.location.name },
+  locationHierarchyEnabled
+    ? { key: 'locationGroupId', title: 'Area', accessor: row => row.locationGroup.name }
+    : { key: 'locationId', title: 'Location', accessor: row => row.location.name },
   { key: 'type', title: 'Type' },
   { key: 'status', title: 'Status' },
 ];
 
 export const AppointmentListingView = () => {
+  const { getLocalisation } = useLocalisation();
   const [refreshCount, setRefreshCount] = useState(0);
   const [searchParams, setSearchParams] = useState({});
+  const locationHierarchyEnabled = getLocalisation('features.locationHierarchy');
   return (
     <PageContainer>
       <TopBar title="Appointments">
@@ -59,7 +64,7 @@ export const AppointmentListingView = () => {
       <ContentPane>
         <DataFetchingTable
           endpoint="appointments"
-          columns={COLUMNS}
+          columns={getColumns(locationHierarchyEnabled)}
           noDataMessage="No appointments found"
           initialSort={{ order: 'asc', orderBy: 'startTime' }}
           fetchOptions={searchParams}

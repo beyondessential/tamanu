@@ -3,23 +3,34 @@ import * as yup from 'yup';
 
 import { APPOINTMENT_STATUSES } from 'shared/constants';
 import { FormGrid } from '../FormGrid';
-import { Field, Form, AutocompleteField, SelectField, DateTimeField } from '../Field';
+import {
+  Field,
+  Form,
+  AutocompleteField,
+  SelectField,
+  DateTimeField,
+  SuggesterSelectField,
+} from '../Field';
 import { ConfirmCancelRow } from '../ButtonRow';
 import { FormSeparatorLine } from '../FormSeparatorLine';
 
 import { useApi, usePatientSuggester } from '../../api';
 import { Suggester } from '../../utils/suggester';
 import { appointmentTypeOptions } from '../../constants';
+import { useLocalisation } from '../../contexts/Localisation';
 
 export const AppointmentForm = props => {
   const { onSuccess = () => {}, onCancel, appointment } = props;
   const api = useApi();
   const isUpdating = !!appointment;
+  const { getLocalisation } = useLocalisation();
   const clinicianSuggester = new Suggester(api, 'practitioner');
   const locationSuggester = new Suggester(api, 'location', {
     baseQueryParameters: { filterByFacility: true },
   });
   const patientSuggester = usePatientSuggester();
+
+  const locationHierarchyEnabled = getLocalisation('features.locationHierarchy');
 
   let initialValues = {};
   if (isUpdating) {
@@ -29,7 +40,9 @@ export const AppointmentForm = props => {
       startTime: appointment.startTime,
       endTime: appointment.endTime,
       clinicianId: appointment.clinicianId,
-      locationId: appointment.locationId,
+      ...(locationHierarchyEnabled
+        ? { locationGroupId: appointment.locationGroupId }
+        : { locationId: appointment.locationId }),
     };
   }
   const createAppointment = useCallback(
@@ -61,7 +74,9 @@ export const AppointmentForm = props => {
         type: yup.string().required('Please choose an appointment type'),
         startTime: yup.string().required('Please select a start time'),
         clinicianId: yup.string().required('Please select a clinician'),
-        locationId: yup.string().required('Please choose a location'),
+        ...(locationHierarchyEnabled
+          ? { locationGroupId: yup.string().required('Please select an area') }
+          : { locationId: yup.string().required('Please select a location') }),
       })}
       render={({ submitForm }) => (
         <>
@@ -99,13 +114,23 @@ export const AppointmentForm = props => {
                 suggester={clinicianSuggester}
                 required
               />
-              <Field
-                label="Location"
-                name="locationId"
-                component={AutocompleteField}
-                suggester={locationSuggester}
-                required
-              />
+              {locationHierarchyEnabled ? (
+                <Field
+                  label="Area"
+                  name="locationGroupId"
+                  endpoint="locationGroup"
+                  component={SuggesterSelectField}
+                  required
+                />
+              ) : (
+                <Field
+                  label="Location"
+                  name="locationId"
+                  component={AutocompleteField}
+                  suggester={locationSuggester}
+                  required
+                />
+              )}
               <FormSeparatorLine />
               <ConfirmCancelRow
                 onCancel={onCancel}

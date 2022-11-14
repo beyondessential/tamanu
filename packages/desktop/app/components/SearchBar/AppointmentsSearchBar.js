@@ -1,15 +1,24 @@
 import React from 'react';
 import { startOfDay } from 'date-fns';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
-import { DateTimeField, AutocompleteField, LocalisedField, SelectField } from '../Field';
+import {
+  DateTimeField,
+  AutocompleteField,
+  LocalisedField,
+  SelectField,
+  SuggesterSelectField,
+} from '../Field';
 import { appointmentTypeOptions, appointmentStatusOptions } from '../../constants';
 import { useSuggester } from '../../api';
+import { useLocalisation } from '../../contexts/Localisation';
 
 export const AppointmentsSearchBar = ({ onSearch }) => {
+  const { getLocalisation } = useLocalisation();
   const practitionerSuggester = useSuggester('practitioner');
   const locationSuggester = useSuggester('location', {
     baseQueryParameters: { filterByFacility: true },
   });
+  const locationHierarchyEnabled = getLocalisation('features.locationHierarchy');
 
   return (
     <CustomisableSearchBar
@@ -37,12 +46,21 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
         component={AutocompleteField}
         suggester={practitionerSuggester}
       />
-      <LocalisedField
-        name="locationId"
-        defaultLabel="Location"
-        component={AutocompleteField}
-        suggester={locationSuggester}
-      />
+      {locationHierarchyEnabled ? (
+        <LocalisedField
+          defaultLabel="Area"
+          name="locationGroupId"
+          endpoint="locationGroup"
+          component={SuggesterSelectField}
+        />
+      ) : (
+        <LocalisedField
+          name="locationId"
+          defaultLabel="Location"
+          component={AutocompleteField}
+          suggester={locationSuggester}
+        />
+      )}
       <LocalisedField
         name="type"
         defaultLabel="Appointment Type"
