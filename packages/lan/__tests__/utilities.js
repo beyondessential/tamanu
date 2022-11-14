@@ -2,7 +2,13 @@ import supertest from 'supertest';
 import Chance from 'chance';
 import http from 'http';
 
-import { seedDepartments, seedFacilities, seedLocations, seedLabTests } from 'shared/demoData';
+import {
+  seedDepartments,
+  seedFacilities,
+  seedLocations,
+  seedLocationGroups,
+  seedLabTests,
+} from 'shared/demoData';
 import { showError } from 'shared/test-helpers';
 
 import { createApp } from 'lan/app/createApp';
@@ -116,6 +122,7 @@ export async function createTestContext() {
   await seedFacilities(models);
   await seedDepartments(models);
   await seedLocations(models);
+  await seedLocationGroups(models);
 
   const expressApp = createApp(dbResult);
   const appServer = http.createServer(expressApp);
