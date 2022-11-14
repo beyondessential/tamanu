@@ -44,37 +44,30 @@ const LISTING_COLUMNS = [
   status,
 ];
 
-const LocationGroupCell = React.memo(({ locationGroupName, plannedLocationGroupName }) => {
-  return (
-    <div style={{ minWidth: 150 }}>
-      {locationGroupName}
-      {plannedLocationGroupName && (
-        <Typography style={{ fontSize: 12, color: Colors.darkText }}>
-          (Planned - {plannedLocationGroupName})
-        </Typography>
-      )}
-    </div>
-  );
-});
+const LocationCell = React.memo(({ locationName, plannedLocationName, style }) => (
+  <div style={{ minWidth: 180, ...style }}>
+    {locationName}
+    {plannedLocationName && (
+      <Typography style={{ fontSize: 12, color: Colors.darkText }}>
+        (Planned - {plannedLocationName})
+      </Typography>
+    )}
+  </div>
+));
+
+const LocationGroupCell = ({ locationGroupName, plannedLocationGroupName }) => (
+  <LocationCell
+    locationName={locationGroupName}
+    plannedLocationName={plannedLocationGroupName}
+    style={{ minWidth: 150 }}
+  />
+);
 
 const locationGroup = {
   key: 'locationGroupName',
   title: 'Area',
   accessor: LocationGroupCell,
 };
-
-const LocationCell = React.memo(({ locationName, plannedLocationName }) => {
-  return (
-    <div style={{ minWidth: 180 }}>
-      {locationName}
-      {plannedLocationName && (
-        <Typography style={{ fontSize: 12, color: Colors.darkText }}>
-          (Planned - {plannedLocationName})
-        </Typography>
-      )}
-    </div>
-  );
-});
 
 const location = {
   key: 'locationName',
