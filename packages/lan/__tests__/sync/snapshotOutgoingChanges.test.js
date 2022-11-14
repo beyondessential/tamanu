@@ -1,5 +1,4 @@
 import { expect, beforeAll, describe, it } from '@jest/globals';
-import { Transaction } from 'sequelize';
 
 import { fakeReferenceData, withErrorShown } from 'shared/test-helpers';
 import { SYNC_SESSION_DIRECTION } from 'shared/sync';
