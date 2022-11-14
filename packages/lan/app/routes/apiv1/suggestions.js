@@ -179,7 +179,6 @@ createSuggester(
   },
   'name',
 );
-createNameSuggester('locationGroup', 'LocationGroup', filterByFacilityWhereBuilder);
 
 createAllRecordsSuggesterRoute('locationGroup', 'LocationGroup', {
   facilityId: config.serverFacilityId,

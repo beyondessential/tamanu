@@ -175,11 +175,11 @@ export class Encounter extends Model {
       'examiner',
       {
         association: 'location',
-        include: ['facility'],
+        include: ['facility', 'locationGroup'],
       },
       {
         association: 'plannedLocation',
-        include: ['facility'],
+        include: ['facility', 'locationGroup'],
       },
       'referralSource',
     ];
