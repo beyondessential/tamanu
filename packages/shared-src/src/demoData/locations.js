@@ -13,6 +13,6 @@ export const LOCATIONS = splitIds(`
 
 export const seedLocations = async models => {
   const facilityId = await randomRecordId(models, 'Facility');
-  const locations = LOCATIONS.map(d => ({ ...d, code: d.name, facilityId }));
+  const locations = LOCATIONS.map(d => ({ ...d, code: d.name, facilityId, maxOccupancy: 1 }));
   return models.Location.bulkCreate(locations);
 };

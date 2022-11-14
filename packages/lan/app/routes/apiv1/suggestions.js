@@ -164,13 +164,14 @@ createSuggester(
   },
   async location => {
     const availability = await location.getAvailability();
-    const { name, code, id } = location;
+    const { name, code, id, maxOccupancy } = location;
 
     const lg = await location.getLocationGroup();
     const locationGroup = lg && { name: lg.name, code: lg.code, id: lg.id };
     return {
       name,
       code,
+      maxOccupancy,
       id,
       availability,
       ...(locationGroup && { locationGroup }),
