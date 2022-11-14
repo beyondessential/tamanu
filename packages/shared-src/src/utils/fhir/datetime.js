@@ -63,6 +63,7 @@ function dateParts(date, withTz, str, form) {
     if (tzh) tz = `${tzh}:00`;
   } else if (withTz) {
     // no timezone in the format, use provided timezone
+    // eslint-disable-next-line no-param-reassign
     date = zonedTimeToUtc(date, withTz);
     tz = normalizeTz(tz, date);
   }
