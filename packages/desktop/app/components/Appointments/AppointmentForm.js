@@ -3,14 +3,7 @@ import * as yup from 'yup';
 
 import { APPOINTMENT_STATUSES } from 'shared/constants';
 import { FormGrid } from '../FormGrid';
-import {
-  Field,
-  Form,
-  AutocompleteField,
-  SelectField,
-  DateTimeField,
-  LocalisedLocationField,
-} from '../Field';
+import { Field, Form, AutocompleteField, SelectField, DateTimeField } from '../Field';
 import { ConfirmCancelRow } from '../ButtonRow';
 import { FormSeparatorLine } from '../FormSeparatorLine';
 
@@ -24,6 +17,7 @@ export const AppointmentForm = props => {
   const isUpdating = !!appointment;
   const clinicianSuggester = new Suggester(api, 'practitioner');
   const patientSuggester = usePatientSuggester();
+  const locationSuggester = new Suggester(api, 'location');
 
   let initialValues = {};
   if (isUpdating) {
@@ -97,9 +91,10 @@ export const AppointmentForm = props => {
               />
               <Field label="End time" name="endTime" saveDateAsString component={DateTimeField} />
               <Field
+                label="Area"
                 name="locationId"
-                component={LocalisedLocationField}
-                displayTags={false}
+                component={AutocompleteField}
+                suggester={locationSuggester}
                 required
               />
               <Field

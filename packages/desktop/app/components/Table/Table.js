@@ -309,7 +309,7 @@ class TableComponent extends React.Component {
       <StyledTableFooter>
         <TableRow>
           {allowExport ? (
-            <TableCell colSpan={page !== null ? 1 : columns.length}>
+            <TableCell colSpan={page !== null ? 2 : columns.length}>
               <DownloadDataButton exportName={exportName} columns={columns} data={data} />
             </TableCell>
           ) : null}
