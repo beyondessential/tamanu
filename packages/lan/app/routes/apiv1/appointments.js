@@ -95,9 +95,18 @@ appointments.get(
       include: [...Appointment.getListReferenceAssociations()],
     });
 
+    // Backwards compatibility for appointments created before locationHierarchy was implemented
+    const backwardsCompatibleRows = rows.map(data => {
+      const { location, locationGroup, ...rest } = data.get({ plain: true });
+      return {
+        ...rest,
+        locationGroup: locationGroup || location,
+      };
+    });
+
     res.send({
       count,
-      data: rows,
+      data: backwardsCompatibleRows,
     });
   }),
 );

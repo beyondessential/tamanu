@@ -15,7 +15,6 @@ import { AutocompleteInput, MultiselectInput } from '../../components/Field';
 import { Suggester } from '../../utils/suggester';
 import { Colors, appointmentTypeOptions } from '../../constants';
 import { useApi } from '../../api';
-import { useLocalisation } from '../../contexts/Localisation';
 
 const LeftContainer = styled.div`
   min-height: 100vh;
@@ -75,24 +74,14 @@ const TodayButton = styled(Button)`
 
 export const AppointmentsCalendar = () => {
   const api = useApi();
-  const { getLocalisation } = useLocalisation();
-  const locationHierarchyEnabled = getLocalisation('features.locationHierarchy');
   const filters = [
-    locationHierarchyEnabled
-      ? {
-          name: 'locationGroup',
-          text: 'Area',
-          suggester: new Suggester(api, 'locationGroup', {
-            baseQueryParameters: { filterByFacility: true },
-          }),
-        }
-      : {
-          name: 'location',
-          text: 'Locations',
-          suggester: new Suggester(api, 'location', {
-            baseQueryParameters: { filterByFacility: true },
-          }),
-        },
+    {
+      name: 'locationGroup',
+      text: 'Area',
+      suggester: new Suggester(api, 'locationGroup', {
+        baseQueryParameters: { filterByFacility: true },
+      }),
+    },
     {
       name: 'clinician',
       text: 'Clinicians',

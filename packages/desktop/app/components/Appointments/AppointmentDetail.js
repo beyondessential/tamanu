@@ -13,7 +13,6 @@ import { useApi } from '../../api';
 import { AppointmentModal } from './AppointmentModal';
 import { Button, DeleteButton } from '../Button';
 import { Modal } from '../Modal';
-import { useLocalisation } from '../../contexts/Localisation';
 
 const Heading = styled.div`
   font-weight: 700;
@@ -161,11 +160,7 @@ const StyledIconButton = styled(IconButton)`
 
 export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
   const api = useApi();
-
-  const { getLocalisation } = useLocalisation();
-  const locationHierarchyEnabled = getLocalisation('features.locationHierarchy');
-  const locationEntity = (locationHierarchyEnabled ? locationGroup : location) || {};
-  const { id, type, status, clinician, patient, location, locationGroup } = appointment;
+  const { id, type, status, clinician, patient, locationGroup } = appointment;
   const [statusOption, setStatusOption] = useState(
     appointmentStatusOptions.find(option => option.value === status),
   );
@@ -222,8 +217,8 @@ export const AppointmentDetail = ({ appointment, onUpdated, onClose }) => {
       </Section>
       <PatientInfo patient={patient} />
       <Section>
-        <Heading>{locationHierarchyEnabled ? 'Area' : 'Location'}</Heading>
-        {locationEntity.name}
+        <Heading>Area</Heading>
+        {locationGroup.name}
       </Section>
       <Button
         variant="outlined"

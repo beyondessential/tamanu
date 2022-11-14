@@ -10,15 +10,9 @@ import {
 } from '../Field';
 import { appointmentTypeOptions, appointmentStatusOptions } from '../../constants';
 import { useSuggester } from '../../api';
-import { useLocalisation } from '../../contexts/Localisation';
 
 export const AppointmentsSearchBar = ({ onSearch }) => {
-  const { getLocalisation } = useLocalisation();
   const practitionerSuggester = useSuggester('practitioner');
-  const locationSuggester = useSuggester('location', {
-    baseQueryParameters: { filterByFacility: true },
-  });
-  const locationHierarchyEnabled = getLocalisation('features.locationHierarchy');
 
   return (
     <CustomisableSearchBar
@@ -46,21 +40,12 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
         component={AutocompleteField}
         suggester={practitionerSuggester}
       />
-      {locationHierarchyEnabled ? (
-        <LocalisedField
-          defaultLabel="Area"
-          name="locationGroupId"
-          endpoint="locationGroup"
-          component={SuggesterSelectField}
-        />
-      ) : (
-        <LocalisedField
-          name="locationId"
-          defaultLabel="Location"
-          component={AutocompleteField}
-          suggester={locationSuggester}
-        />
-      )}
+      <LocalisedField
+        defaultLabel="Area"
+        name="locationGroupId"
+        endpoint="locationGroup"
+        component={SuggesterSelectField}
+      />
       <LocalisedField
         name="type"
         defaultLabel="Appointment Type"
