@@ -48,7 +48,7 @@ export const snapshotOutgoingChanges = withConfig(
       async transaction => {
         const outgoingChanges = [];
         for (const model of Object.values(models).filter(
-          model => model.syncDirection !== SYNC_DIRECTIONS.DO_NOT_SYNC,
+          m => m.syncDirection !== SYNC_DIRECTIONS.DO_NOT_SYNC,
         )) {
           const changesForModel = await snapshotChangesForModel(
             model,
