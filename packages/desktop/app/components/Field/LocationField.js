@@ -3,16 +3,15 @@ import PropTypes from 'prop-types';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 import { LOCATION_AVAILABILITY_TAG_CONFIG, LOCATION_AVAILABILITY_STATUS } from 'shared/constants';
-import { AutocompleteInput, AutocompleteField } from './AutocompleteField';
+import { AutocompleteInput } from './AutocompleteField';
 import { useApi, useSuggester } from '../../api';
 import { Suggester } from '../../utils/suggester';
 import { useLocalisation } from '../../contexts/Localisation';
 import { Colors } from '../../constants';
 import { BodyText } from '../Typography';
 import { SelectInput } from './SelectField';
-import { Field } from './Field';
 
-const locationSuggester = (api, groupValue, displayTags) => {
+const locationSuggester = (api, groupValue) => {
   return new Suggester(api, 'location', {
     filterer: ({ locationGroup }) => {
       // if no category is selected, return all child locations. The location field will be disabled
@@ -28,7 +27,7 @@ const locationSuggester = (api, groupValue, displayTags) => {
         label: name,
         locationGroup,
         availability,
-        ...(displayTags && { tag: LOCATION_AVAILABILITY_TAG_CONFIG[availability] }),
+        tag: LOCATION_AVAILABILITY_TAG_CONFIG[availability],
       };
     },
     baseQueryParameters: { filterByFacility: true },
@@ -38,7 +37,6 @@ const locationSuggester = (api, groupValue, displayTags) => {
 const useLocationGroups = () => {
   const api = useApi();
 
-  // Todo: add baseQueryParameters
   const { data = [], ...query } = useQuery(['locationGroups'], () =>
     api.get('suggestions/locationGroup/all'),
   );
@@ -70,7 +68,6 @@ export const LocationInput = React.memo(
     disabled,
     error,
     helperText,
-    displayTags,
     required,
     className,
     value,
@@ -79,7 +76,7 @@ export const LocationInput = React.memo(
     const api = useApi();
     const [groupId, setGroupId] = useState('');
     const [locationId, setLocationId] = useState(value);
-    const suggester = locationSuggester(api, groupId, displayTags);
+    const suggester = locationSuggester(api, groupId);
     const { data: options } = useLocationGroups();
     const { data } = useLocationSuggestion(locationId);
 
@@ -133,7 +130,6 @@ LocationInput.propTypes = {
   locationGroupLabel: PropTypes.string,
   required: PropTypes.bool,
   disabled: PropTypes.bool,
-  displayTags: PropTypes.bool,
   error: PropTypes.bool,
   helperText: PropTypes.string,
   name: PropTypes.string,
@@ -146,7 +142,6 @@ LocationInput.defaultProps = {
   required: false,
   error: false,
   disabled: false,
-  displayTags: true,
   name: undefined,
   helperText: '',
   className: '',
