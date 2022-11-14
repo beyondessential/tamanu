@@ -4,7 +4,7 @@ import asyncHandler from 'express-async-handler';
 import { QueryTypes } from 'sequelize';
 
 import { InvalidParameterError } from 'shared/errors';
-import { NOTE_TYPES } from 'shared/constants';
+import { NOTE_TYPES, ENCOUNTER_TYPES } from 'shared/constants';
 
 import { renameObjectKeys } from '../../utils/renameObjectKeys';
 
@@ -103,10 +103,7 @@ triage.get(
         WHERE true
           AND encounters.end_date IS NULL
           AND location.facility_id = :facility
-          AND (
-            encounters.encounter_type = 'triage'
-            OR encounters.encounter_type = 'observation'
-          )
+          AND encounters.encounter_type IN (:encounterTypes)
         ORDER BY encounter_type = 'observation' ASC, ${sortKey} ${sortDirection} NULLS LAST, Coalesce(arrival_time,triage_time) ASC 
       `,
       {
@@ -115,6 +112,11 @@ triage.get(
         mapToModel: true,
         replacements: {
           facility: config.serverFacilityId,
+          encounterTypes: [
+            ENCOUNTER_TYPES.TRIAGE,
+            ENCOUNTER_TYPES.OBSERVATION,
+            ENCOUNTER_TYPES.EMERGENCY,
+          ]
         },
       },
     );
