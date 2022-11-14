@@ -3,7 +3,14 @@ import * as yup from 'yup';
 
 import { APPOINTMENT_STATUSES } from 'shared/constants';
 import { FormGrid } from '../FormGrid';
-import { Field, Form, AutocompleteField, SelectField, DateTimeField } from '../Field';
+import {
+  Field,
+  Form,
+  AutocompleteField,
+  SelectField,
+  DateTimeField,
+  SuggesterSelectField,
+} from '../Field';
 import { ConfirmCancelRow } from '../ButtonRow';
 import { FormSeparatorLine } from '../FormSeparatorLine';
 
@@ -16,9 +23,6 @@ export const AppointmentForm = props => {
   const api = useApi();
   const isUpdating = !!appointment;
   const clinicianSuggester = new Suggester(api, 'practitioner');
-  const locationSuggester = new Suggester(api, 'location', {
-    baseQueryParameters: { filterByFacility: true },
-  });
   const patientSuggester = usePatientSuggester();
 
   let initialValues = {};
@@ -29,7 +33,7 @@ export const AppointmentForm = props => {
       startTime: appointment.startTime,
       endTime: appointment.endTime,
       clinicianId: appointment.clinicianId,
-      locationId: appointment.locationId,
+      locationGroupId: appointment.locationGroupId,
     };
   }
   const createAppointment = useCallback(
@@ -61,7 +65,7 @@ export const AppointmentForm = props => {
         type: yup.string().required('Please choose an appointment type'),
         startTime: yup.string().required('Please select a start time'),
         clinicianId: yup.string().required('Please select a clinician'),
-        locationId: yup.string().required('Please choose a location'),
+        locationGroupId: yup.string().required('Please select an area'),
       })}
       render={({ submitForm }) => (
         <>
@@ -100,10 +104,10 @@ export const AppointmentForm = props => {
                 required
               />
               <Field
-                label="Location"
-                name="locationId"
-                component={AutocompleteField}
-                suggester={locationSuggester}
+                label="Area"
+                name="locationGroupId"
+                endpoint="locationGroup"
+                component={SuggesterSelectField}
                 required
               />
               <FormSeparatorLine />

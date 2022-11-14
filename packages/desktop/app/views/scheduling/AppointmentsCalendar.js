@@ -76,9 +76,9 @@ export const AppointmentsCalendar = () => {
   const api = useApi();
   const filters = [
     {
-      name: 'location',
-      text: 'Locations',
-      suggester: new Suggester(api, 'location', {
+      name: 'locationGroup',
+      text: 'Area',
+      suggester: new Suggester(api, 'locationGroup', {
         baseQueryParameters: { filterByFacility: true },
       }),
     },

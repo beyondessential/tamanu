@@ -77,7 +77,7 @@ export const LocationInput = React.memo(
     const [groupId, setGroupId] = useState('');
     const [locationId, setLocationId] = useState(value);
     const suggester = locationSuggester(api, groupId);
-    const { data: options } = useLocationGroups();
+    const { data: options, isSuccess, isError, isLoading } = useLocationGroups();
     const { data } = useLocationSuggestion(locationId);
 
     // when the location is selected, set the group value automatically if it's not set yet
@@ -99,6 +99,11 @@ export const LocationInput = React.memo(
       onChange({ target: { value: event.target.value, name } });
     };
 
+    // Only disable the location select field if there was a location groups successful fetched
+    // and one is not selected yet
+    const locationSelectIsDisabled =
+      isLoading || (isSuccess && !isError && options.length > 0 && !groupId);
+
     return (
       <>
         <SelectInput
@@ -110,7 +115,7 @@ export const LocationInput = React.memo(
         />
         <AutocompleteInput
           label={label}
-          disabled={!groupId}
+          disabled={locationSelectIsDisabled}
           name={name}
           suggester={suggester}
           helperText={helperText}
