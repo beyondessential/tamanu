@@ -10,6 +10,7 @@ import {
   ButtonWithPermissionCheck,
 } from '../../../components';
 import { useApi } from '../../../api';
+import { useLocationDisplayName } from '../../../utils/location';
 import { getPatientStatus } from '../../../utils/getPatientStatus';
 import { useLocalisation } from '../../../contexts/Localisation';
 
@@ -162,6 +163,7 @@ const PatientDeathSummary = React.memo(({ patient }) => {
 export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin }) => {
   const api = useApi();
   const { getLocalisation } = useLocalisation();
+  const { getFullLocationName } = useLocationDisplayName();
   const { data: encounter, error, isLoading } = useQuery(['currentEncounter', patient.id], () =>
     api.get(`patient/${patient.id}/currentEncounter`),
   );
@@ -222,7 +224,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
         </ContentItem>
         <ContentItem>
           <ContentLabel>Location:</ContentLabel>
-          <ContentText>{location?.name || '-'}</ContentText>
+          <ContentText>{getFullLocationName(location)}</ContentText>
         </ContentItem>
         {!getLocalisation(`${referralSourcePath}.hidden`) && (
           <ContentItem>

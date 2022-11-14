@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 import { LOCATION_AVAILABILITY_TAG_CONFIG, LOCATION_AVAILABILITY_STATUS } from 'shared/constants';
 import { AutocompleteInput } from './AutocompleteField';
-import { useApi } from '../../api';
+import { useApi, useSuggester } from '../../api';
 import { Suggester } from '../../utils/suggester';
 import { useLocalisation } from '../../contexts/Localisation';
 import { Colors } from '../../constants';
@@ -36,6 +36,7 @@ const locationSuggester = (api, groupValue) => {
 
 const useLocationGroups = () => {
   const api = useApi();
+
   const { data = [], ...query } = useQuery(['locationGroups'], () =>
     api.get('suggestions/locationGroup/all'),
   );
@@ -147,8 +148,27 @@ LocationInput.defaultProps = {
 };
 
 export const LocationField = React.memo(({ field, error, ...props }) => {
+  const { getLocalisation } = useLocalisation();
+  const suggester = useSuggester('location', {
+    baseQueryParameters: { filterByFacility: true },
+  });
+
+  // If the feature flag is set, return the 2 tier location selector
+  if (getLocalisation('features.locationHierarchy') === true) {
+    return (
+      <LocationInput
+        name={field.name}
+        value={field.value || ''}
+        onChange={field.onChange}
+        {...props}
+      />
+    );
+  }
+
+  // Otherwise return the default location autocomplete
   return (
-    <LocationInput
+    <AutocompleteInput
+      suggester={suggester}
       name={field.name}
       value={field.value || ''}
       onChange={field.onChange}
@@ -162,17 +182,12 @@ export const LocalisedLocationField = React.memo(
     const { getLocalisation } = useLocalisation();
 
     const locationGroupIdPath = 'fields.locationGroupId';
-    const locationGroupHidden = getLocalisation(`${locationGroupIdPath}.hidden`);
     const locationGroupLabel =
       getLocalisation(`${locationGroupIdPath}.longLabel`) || defaultGroupLabel;
 
     const locationIdPath = 'fields.locationId';
-    const locationHidden = getLocalisation(`${locationIdPath}.hidden`);
     const locationLabel = getLocalisation(`${locationIdPath}.longLabel`) || defaultLabel;
 
-    if (locationHidden || locationGroupHidden) {
-      return null;
-    }
     return (
       <LocationField label={locationLabel} locationGroupLabel={locationGroupLabel} {...props} />
     );
