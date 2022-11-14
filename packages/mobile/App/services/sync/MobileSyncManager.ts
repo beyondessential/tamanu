@@ -58,7 +58,7 @@ export class MobileSyncManager {
 
   setSyncStage(syncStage: number): void {
     this.syncStage = syncStage;
-    this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_IN_PROGRESS, this.progress);
+    this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STATE_CHANGED);
   }
 
   /**
@@ -69,7 +69,7 @@ export class MobileSyncManager {
   setProgress(progress: number, progressMessage: string): void {
     this.progress = progress;
     this.progressMessage = progressMessage;
-    this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_IN_PROGRESS, this.progress);
+    this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STATE_CHANGED);
   }
 
   /**
@@ -80,16 +80,17 @@ export class MobileSyncManager {
    */
   updateProgress = (total: number, progress: number, progressMessage: string): void => {
     // Get previous stage max progress
-    const previousStageMaxProgress = STAGE_MAX_PROGRESS[this.syncStage - 1] || 0;
+    const previousProgress = STAGE_MAX_PROGRESS[this.syncStage - 1] || 0;
     // Calculate the total progress of the current stage
-    const currentStageTotalProgress = STAGE_MAX_PROGRESS[this.syncStage] - previousStageMaxProgress;
+    const progressDenominator = STAGE_MAX_PROGRESS[this.syncStage] - previousProgress;
     // Calculate the progress percentage of the current stage
     // (ie: out of stage 2 which is 33% of the overall progress)
     const currentStagePercentage = Math.min(
-      Math.ceil((progress / total) * currentStageTotalProgress),
+      Math.ceil((progress / total) * progressDenominator),
+      progressDenominator,
     );
     // Add the finished stage progress to get the overall progress percentage
-    const progressPercentage = previousStageMaxProgress + currentStagePercentage;
+    const progressPercentage = previousProgress + currentStagePercentage;
     this.setProgress(progressPercentage, progressMessage);
   };
 
@@ -134,6 +135,7 @@ export class MobileSyncManager {
     } finally {
       this.syncStage = null;
       this.isSyncing = false;
+      this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STATE_CHANGED);
       this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ENDED, `time=${Date.now() - startTime}ms`);
       console.log(`Sync took ${Date.now() - startTime} ms`);
     }

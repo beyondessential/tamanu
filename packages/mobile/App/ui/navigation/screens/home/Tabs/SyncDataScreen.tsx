@@ -64,17 +64,17 @@ export const SyncDataScreen = ({ navigation }): ReactElement => {
           break;
         case SYNC_EVENT_ACTIONS.SYNC_ENDED:
           setIsSyncing(false);
+          deactivateKeepAwake();
+          break;
+        case SYNC_EVENT_ACTIONS.SYNC_STATE_CHANGED:
+          setSyncStage(syncManager.syncStage);
+          setProgress(syncManager.progress);
+          setProgressMessage(syncManager.progressMessage);
           setFormattedLastSuccessfulSyncTime(
             formatLastSuccessfulSyncTime(syncManager.lastSuccessfulSyncTime),
           );
           setLastSyncPushedRecordsCount(syncManager.lastSyncPushedRecordsCount);
           setLastSyncPulledRecordsCount(syncManager.lastSyncPulledRecordsCount);
-          deactivateKeepAwake();
-          break;
-        case SYNC_EVENT_ACTIONS.SYNC_IN_PROGRESS:
-          setSyncStage(syncManager.syncStage);
-          setProgress(syncManager.progress);
-          setProgressMessage(syncManager.progressMessage);
           break;
         case SYNC_EVENT_ACTIONS.SYNC_ERROR:
           setHasError(true);
