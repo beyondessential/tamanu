@@ -8,6 +8,8 @@ import { calculatePageLimit } from './calculatePageLimit';
 const { persistedCacheBatchSize } = config.sync;
 
 export const pullIncomingChanges = async (centralServer, models, sessionId, since) => {
+  // setting the pull filter also returns the sync tick (or point on the sync timeline) that the
+  // central server considers this session will be up to after pulling all changes
   const { tick } = await centralServer.setPullFilter(sessionId, since);
   const totalToPull = await centralServer.fetchPullCount(sessionId);
 

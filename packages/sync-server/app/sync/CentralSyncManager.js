@@ -1,4 +1,4 @@
-import { Op } from 'sequelize';
+import { Op, Transaction } from 'sequelize';
 import config from 'config';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { CURRENT_SYNC_TIME_KEY } from 'shared/sync/constants';
@@ -42,17 +42,13 @@ export class CentralSyncManager {
     await completeInactiveSyncSessions(this.store, lapsedSessionSeconds);
   };
 
-  // N.B. THIS MUST BE CALLED WITHIN A TRANSACTION
-  // as it serves an important locking mechanism between different parts of concurrent syncs, and
-  // the "tick" it produces should never be used - we need the full "tick-tock" to be atomic
   async tickTockGlobalClock() {
     // rather than just incrementing by one tick, we "tick, tock" the clock so we guarantee the
     // "tick" part to be unique to the requesting client, and any changes made directly on the
     // central server will be recorded as updated at the "tock", avoiding any direct changes
     // (e.g. imports) being missed by a client that is at the same sync tick
-    const tick = await this.store.models.LocalSystemFact.increment(CURRENT_SYNC_TIME_KEY);
-    const tock = await this.store.models.LocalSystemFact.increment(CURRENT_SYNC_TIME_KEY);
-    return { tick, tock };
+    const tock = await this.store.models.LocalSystemFact.increment(CURRENT_SYNC_TIME_KEY, 2);
+    return { tick: tock - 1, tock };
   }
 
   async startSession() {
@@ -68,7 +64,7 @@ export class CentralSyncManager {
 
     log.debug(`CentralSyncManager.startSession: Started a new session ${syncSession.id}`);
 
-    const { tick } = await this.store.sequelize.transaction(() => this.tickTockGlobalClock());
+    const { tick } = await this.tickTockGlobalClock();
 
     return { sessionId: syncSession.id, tick };
   }
@@ -97,8 +93,12 @@ export class CentralSyncManager {
     await completeSyncSession(this.store, sessionId);
   }
 
+  // set pull filter begins creating a snapshot of changes to pull at this point in time, and
+  // returns a sync tick that we can safely consider the snapshot to be up to (because we use the
+  // "tick" of the tick-tock, so we know any more changes on the server, even while the snapshot
+  // process is ongoing, will have a later updated_at_sync_tick)
   async setPullFilter(sessionId, params) {
-    const { tick } = await this.store.sequelize.transaction(() => this.tickTockGlobalClock());
+    const { tick } = await this.tickTockGlobalClock();
     this.setupSnapshot(sessionId, params); // don't await, as it takes a while - the sync client will poll for it to finish
     return { tick };
   }
@@ -142,54 +142,48 @@ export class CentralSyncManager {
         isMobile,
       };
 
-      await this.store.sequelize.transaction(async () => {
-        await models.SyncSession.addDebugInfo(sessionId, {
-          clockTimeSnapshotStart: new Date().toISOString(),
-          syncTimeSnapshotStart: await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY),
-        });
+      // snapshot inside a "repeatable read" transaction, so that other changes made while this
+      // snapshot is underway aren't included (as this could lead to a pair of foreign records with
+      // the child in the snapshot and its parent missing)
+      // as the snapshot only contains read queries plus writes to the specific rows in
+      // sync_session_records that it controls, there should be no concurrent update issues :)
+      await this.store.sequelize.transaction(
+        { isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ },
+        async () => {
+          // full changes
+          await snapshotOutgoingChanges(
+            getPatientLinkedModels(modelsToInclude),
+            0,
+            patientIdsForFullSync,
+            sessionId,
+            facilityId,
+            sessionConfig,
+          );
 
-        // full changes
-        await snapshotOutgoingChanges(
-          getPatientLinkedModels(modelsToInclude),
-          0,
-          patientIdsForFullSync,
-          sessionId,
-          facilityId,
-          sessionConfig,
-        );
+          // get changes since the last successful sync for all other synced patients and independent
+          // record types
+          const patientFacilities = await models.PatientFacility.findAll({
+            where: { facilityId },
+          });
+          const patientIdsForRegularSync = patientFacilities
+            .map(p => p.patientId)
+            .filter(patientId => !patientIdsForFullSync.includes(patientId));
 
-        // get changes since the last successful sync for all other synced patients and independent
-        // record types
-        const patientFacilities = await models.PatientFacility.findAll({
-          where: { facilityId },
-        });
-        const patientIdsForRegularSync = patientFacilities
-          .map(p => p.patientId)
-          .filter(patientId => !patientIdsForFullSync.includes(patientId));
+          // regular changes
+          await snapshotOutgoingChanges(
+            getModelsForDirection(modelsToInclude, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
+            since,
+            patientIdsForRegularSync,
+            sessionId,
+            facilityId,
+            sessionConfig,
+          );
 
-        // regular changes
-        await snapshotOutgoingChanges(
-          getModelsForDirection(modelsToInclude, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
-          since,
-          patientIdsForRegularSync,
-          sessionId,
-          facilityId,
-          sessionConfig,
-        );
-
-        // delete any outgoing changes that were just pushed in during the same session
-        await removeEchoedChanges(this.store, sessionId);
-
-        await models.SyncSession.addDebugInfo(sessionId, {
-          clockTimeSnapshotEnd: new Date().toISOString(),
-          syncTimeSnapshotEnd: await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY),
-        });
-      });
+          // delete any outgoing changes that were just pushed in during the same session
+          await removeEchoedChanges(this.store, sessionId);
+        },
+      );
       await session.update({ snapshotCompletedAt: new Date() });
-      await models.SyncSession.addDebugInfo(sessionId, {
-        clockTimeSnapshotCommitted: new Date().toISOString(),
-        syncTimeSnapshotCommitted: await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY),
-      });
     } catch (error) {
       log.error('CentralSyncManager.setPullFilter encountered an error', error);
       await session.update({ error: error.message });
@@ -240,11 +234,6 @@ export class CentralSyncManager {
         // but aren't visible in the db to be snapshot until the transaction commits, so would
         // otherwise be completely skipped over by that sync client
         const { tock } = await this.tickTockGlobalClock();
-        await models.SyncSession.addDebugInfo(sessionId, {
-          clockTimeSaveStart: new Date().toISOString(),
-          syncTimeSaveStart: await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY),
-          syncSessionRecordsSavedAt: tock,
-        });
         await saveIncomingChanges(
           models,
           getModelsForDirection(models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL),
@@ -254,14 +243,9 @@ export class CentralSyncManager {
         // store the sync tick on save with the incoming changes, so they can be compared for
         // edits with the outgoing changes
         await models.SyncSessionRecord.update({ savedAtSyncTick: tock }, { where: { sessionId } });
-        await models.SyncSession.addDebugInfo(sessionId, {
-          clockTimeSaveEnd: new Date().toISOString(),
-          syncTimeSaveEnd: await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY),
-        });
       });
       await models.SyncSession.addDebugInfo(sessionId, {
-        clockTimeSaveCommitted: new Date().toISOString(),
-        syncTimeSaveCommitted: await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY),
+        pushCompletedAt: await models.LocalSystemFact.get(CURRENT_SYNC_TIME_KEY),
       });
     }
   }

@@ -81,6 +81,7 @@ export class FacilitySyncManager {
     // causing data that isn't internally coherent from ending up on the sync server
     const pushSince = (await this.models.LocalSystemFact.get('lastSuccessfulSyncPush')) || -1;
     const outgoingChanges = await snapshotOutgoingChanges(
+      this.sequelize,
       getModelsForDirection(this.models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL),
       sessionId,
       pushSince,
@@ -107,14 +108,15 @@ export class FacilitySyncManager {
       startTime,
       lastConnectionTime: startTime,
     });
+    // pull incoming changes also returns the sync tick that the central server considers this
+    // session to have synced up to
     const { count: incomingChangesCount, tick: pullTick } = await pullIncomingChanges(
       this.centralServer,
       this.models,
       sessionId,
       pullSince,
     );
-    // save last successful sync pull cursor, so that we can avoid pulling our own pushed records
-    // again next sync
+
     await this.sequelize.transaction(async () => {
       if (incomingChangesCount > 0) {
         log.debug(`FacilitySyncManager.runSync: Saving a total of ${incomingChangesCount} changes`);

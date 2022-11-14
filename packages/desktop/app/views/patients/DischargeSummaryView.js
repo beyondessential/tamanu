@@ -154,11 +154,11 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
       <Content>
         <div>
           <Label>Admission date: </Label>
-          <DateDisplay date={startDate} />
+          <DateDisplay date={startDate} showTime />
         </div>
         <div>
           <Label>Discharge date: </Label>
-          <DateDisplay date={endDate} />
+          <DateDisplay date={endDate} showTime />
         </div>
         <div>
           <Label>Department: </Label>

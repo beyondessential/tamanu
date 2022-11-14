@@ -1,5 +1,5 @@
 import config from 'config';
-import { Op } from 'sequelize';
+import { Op, Transaction } from 'sequelize';
 import { log } from 'shared/services/logging/log';
 import { COLUMNS_EXCLUDED_FROM_SYNC, SYNC_SESSION_DIRECTION } from 'shared/sync';
 
@@ -32,15 +32,24 @@ const snapshotChangesForModel = async (model, sessionId, since) => {
   }));
 };
 
-export const snapshotOutgoingChanges = async (models, sessionId, since) => {
+export const snapshotOutgoingChanges = async (sequelize, models, sessionId, since) => {
   if (readOnly) {
     return [];
   }
 
-  const outgoingChanges = [];
-  for (const model of Object.values(models)) {
-    const changesForModel = await snapshotChangesForModel(model, sessionId, since);
-    outgoingChanges.push(...changesForModel);
-  }
-  return outgoingChanges;
+  // snapshot inside a "repeatable read" transaction, so that other changes made while this snapshot
+  // is underway aren't included (as this could lead to a pair of foreign records with the child in
+  // the snapshot and its parent missing)
+  // as the snapshot only contains read queries, there will be no concurrent update issues :)
+  return sequelize.transaction(
+    { isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ },
+    async () => {
+      const outgoingChanges = [];
+      for (const model of Object.values(models)) {
+        const changesForModel = await snapshotChangesForModel(model, sessionId, since);
+        outgoingChanges.push(...changesForModel);
+      }
+      return outgoingChanges;
+    },
+  );
 };
