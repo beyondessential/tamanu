@@ -583,8 +583,7 @@
         "enableCovidClearanceCertificate": false,
         "enableDischargeDisposition": false,
         "editDisplayId": false,
-        "patientPlannedMove": false,
-        "locationHierarchy": false
+        "patientPlannedMove": false
       },
       "templates": {
         "letterhead": {
