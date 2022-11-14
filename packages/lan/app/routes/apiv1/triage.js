@@ -103,8 +103,8 @@ triage.get(
         WHERE true
           AND encounters.end_date IS NULL
           AND location.facility_id = :facility
-          AND encounters.encounter_type IN (:encounterTypes)
-        ORDER BY encounter_type = 'observation' ASC, ${sortKey} ${sortDirection} NULLS LAST, Coalesce(arrival_time,triage_time) ASC 
+          AND encounters.encounter_type IN (:triageEncounterTypes)
+        ORDER BY encounter_type IN (:seenEncounterTypes) ASC, ${sortKey} ${sortDirection} NULLS LAST, Coalesce(arrival_time,triage_time) ASC 
       `,
       {
         model: Triage,
@@ -112,8 +112,12 @@ triage.get(
         mapToModel: true,
         replacements: {
           facility: config.serverFacilityId,
-          encounterTypes: [
+          triageEncounterTypes: [
             ENCOUNTER_TYPES.TRIAGE,
+            ENCOUNTER_TYPES.OBSERVATION,
+            ENCOUNTER_TYPES.EMERGENCY,
+          ],
+          seenEncounterTypes: [
             ENCOUNTER_TYPES.OBSERVATION,
             ENCOUNTER_TYPES.EMERGENCY,
           ]
