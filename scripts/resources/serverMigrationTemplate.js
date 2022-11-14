@@ -1,3 +1,5 @@
+import { DataTypes } from 'sequelize';
+
 export async function up(query) {
   // write your up migration here
 }
