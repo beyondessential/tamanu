@@ -107,8 +107,21 @@ export const Modal = memo(
       }
     };
 
+    const onDialogClose = (event, reason) => {
+      switch (reason) {
+        case 'escapeKeyDown':
+          // respect this
+          onClose();
+          break;
+        case 'backdropClick':
+          break; // do nothing
+        default:
+          break; // Shouldn't happen according to MuiDialog spec
+      }
+    };
+
     return (
-      <Dialog fullWidth maxWidth={width} classes={classes} open={open} onClose={onClose} {...props}>
+      <Dialog fullWidth maxWidth={width} classes={classes} open={open} onClose={onDialogClose} {...props}>
         <ModalTitle>
           <VerticalCenteredText>{title}</VerticalCenteredText>
           <div>
