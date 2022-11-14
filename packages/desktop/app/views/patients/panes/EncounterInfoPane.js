@@ -10,7 +10,7 @@ import {
 import { ENCOUNTER_OPTIONS_BY_VALUE } from '../../../constants';
 import { useReferenceData } from '../../../api/queries';
 import { useLocalisation } from '../../../contexts/Localisation';
-import { useLocationDisplayName } from '../../../utils/location';
+import { getFullLocationName } from '../../../utils/location';
 
 const getDepartmentName = ({ department }) => (department ? department.name : 'Unknown');
 const getReferralSource = ({ referralSource }) =>
@@ -21,7 +21,6 @@ export const getEncounterType = ({ encounterType }) =>
 
 export const EncounterInfoPane = React.memo(({ encounter }) => {
   const { getLocalisation } = useLocalisation();
-  const { getFullLocationName } = useLocationDisplayName();
   const patientTypeData = useReferenceData(encounter.patientBillingTypeId);
   const referralSourcePath = 'fields.referralSourceId';
 

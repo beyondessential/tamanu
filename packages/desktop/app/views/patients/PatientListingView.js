@@ -78,12 +78,14 @@ const location = {
 // the above columns are not sortable due to backend query
 // https://github.com/beyondessential/tamanu/pull/2029#issuecomment-1090981599
 // location and department should be sortable
-const INPATIENT_COLUMNS = [markedForSync, displayId, firstName, lastName, sex, dateOfBirth].map(
-  column => ({
+const INPATIENT_COLUMNS = [markedForSync, displayId, firstName, lastName, sex, dateOfBirth]
+  .map(column => ({
     ...column,
     sortable: false,
-  }),
-);
+  })) // the above columns are not sortable due to backend query
+  // https://github.com/beyondessential/tamanu/pull/2029#issuecomment-1090981599
+  // location and department should be sortable
+  .concat([locationGroup, location, department]);
 
 const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
   const { navigateToPatient } = usePatientNavigation();
@@ -174,12 +176,6 @@ export const PatientListingView = ({ onViewPatient }) => {
 export const AdmittedPatientsView = () => {
   const [searchParameters, setSearchParameters] = useState({});
   const { facility } = useAuth();
-  const { getLocalisation } = useLocalisation();
-
-  const columns =
-    getLocalisation('features.locationHierarchy') === true
-      ? [...INPATIENT_COLUMNS, locationGroup, location, department]
-      : [...INPATIENT_COLUMNS, location, department];
 
   return (
     <PageContainer>
@@ -189,7 +185,7 @@ export const AdmittedPatientsView = () => {
         <PatientTable
           fetchOptions={{ inpatient: 1 }}
           searchParameters={{ facilityId: facility.id, ...searchParameters }}
-          columns={columns}
+          columns={INPATIENT_COLUMNS}
         />
       </ContentPane>
     </PageContainer>
@@ -199,12 +195,6 @@ export const AdmittedPatientsView = () => {
 export const OutpatientsView = () => {
   const [searchParameters, setSearchParameters] = useState({});
   const { facility } = useAuth();
-  const { getLocalisation } = useLocalisation();
-
-  const columns =
-    getLocalisation('features.locationHierarchy') === true
-      ? [...INPATIENT_COLUMNS, locationGroup, location, department]
-      : [...INPATIENT_COLUMNS, location, department];
 
   return (
     <PageContainer>
@@ -214,7 +204,7 @@ export const OutpatientsView = () => {
         <PatientTable
           fetchOptions={{ outpatient: 1 }}
           searchParameters={{ facilityId: facility.id, ...searchParameters }}
-          columns={columns}
+          columns={INPATIENT_COLUMNS}
         />
       </ContentPane>
     </PageContainer>

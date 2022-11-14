@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 import { LOCATION_AVAILABILITY_TAG_CONFIG, LOCATION_AVAILABILITY_STATUS } from 'shared/constants';
 import { AutocompleteInput } from './AutocompleteField';
-import { useApi, useSuggester } from '../../api';
+import { useApi } from '../../api';
 import { Suggester } from '../../utils/suggester';
 import { useLocalisation } from '../../contexts/Localisation';
 import { Colors } from '../../constants';
@@ -147,35 +147,9 @@ LocationInput.defaultProps = {
   className: '',
 };
 
-export const LocationField = React.memo(({ field, error, ...props }) => {
-  const { getLocalisation } = useLocalisation();
-  const suggester = useSuggester('location', {
-    baseQueryParameters: { filterByFacility: true },
-  });
-
-  // If the feature flag is set, return the 2 tier location selector
-  if (getLocalisation('features.locationHierarchy') === true) {
-    return (
-      <LocationInput
-        name={field.name}
-        value={field.value || ''}
-        onChange={field.onChange}
-        {...props}
-      />
-    );
-  }
-
-  // Otherwise return the default location autocomplete
-  return (
-    <AutocompleteInput
-      suggester={suggester}
-      name={field.name}
-      value={field.value || ''}
-      onChange={field.onChange}
-      {...props}
-    />
-  );
-});
+export const LocationField = React.memo(({ field, error, ...props }) => (
+  <LocationInput name={field.name} value={field.value || ''} onChange={field.onChange} {...props} />
+));
 
 export const LocalisedLocationField = React.memo(
   ({ defaultGroupLabel = 'Area', defaultLabel = 'Location', ...props }) => {
