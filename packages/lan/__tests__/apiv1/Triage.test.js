@@ -227,7 +227,7 @@ describe('Triage', () => {
     await emergencyDepartment.update({ facilityId: config.serverFacilityId });
   });
 
-  describe.only('Listing & filtering', () => {
+  describe('Listing & filtering', () => {
 
     let createTestTriage;
 
