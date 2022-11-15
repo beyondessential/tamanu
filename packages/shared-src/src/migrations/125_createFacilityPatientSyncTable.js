@@ -11,7 +11,7 @@ module.exports = {
         // record is treated as the same record, making the sync merge strategy trivial
         // id is still produced, but just as a deterministically generated convenience column for
         // consistency and to maintain the assumption of "id" existing in various places
-        // N.B. because ':' is used to join the two, we replace any actual occurrence of ':' with ';'
+        // N.B. because ';' is used to join the two, we replace any actual occurrence of ';' with ':'
         // to avoid clashes on the joined id
         id: {
           type: `TEXT GENERATED ALWAYS AS (REPLACE("patient_id", ';', ':') || ';' || REPLACE("facility_id", ';', ':')) STORED`,
