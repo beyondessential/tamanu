@@ -1,4 +1,11 @@
-import { Entity, Column, RelationId, ManyToOne, BeforeUpdate, BeforeInsert } from 'typeorm/browser';
+import {
+  Entity,
+  Column,
+  RelationId,
+  ManyToOne,
+  PrimaryColumn,
+  BeforeInsert,
+} from 'typeorm/browser';
 import { BaseModel, IdRelation } from './BaseModel';
 import { IPatientAdditionalData } from '~/types';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
@@ -8,6 +15,9 @@ import { SYNC_DIRECTIONS } from './types';
 @Entity('patient_additional_data')
 export class PatientAdditionalData extends BaseModel implements IPatientAdditionalData {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
+
+  @PrimaryColumn()
+  id: string;
 
   @ManyToOne(
     () => Patient,
@@ -121,6 +131,11 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
   countryOfBirth?: ReferenceData;
   @IdRelation()
   countryOfBirthId?: string | null;
+
+  @BeforeInsert()
+  async assignIdAsPatientId(): Promise<void> {
+    this.id = this.patientId;
+  }
 
   static getTableNameForSync(): string {
     return 'patient_additional_data';
