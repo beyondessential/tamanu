@@ -70,7 +70,13 @@ function createSuggesterLookupRoute(endpoint, modelName, mapper = defaultMapper)
   );
 }
 
-function createAllRecordsSuggesterRoute(endpoint, modelName, where, mapper = defaultMapper) {
+function createAllRecordsSuggesterRoute(
+  endpoint,
+  modelName,
+  where,
+  mapper = defaultMapper,
+  orderColumn = 'name',
+) {
   suggestions.get(
     `/${endpoint}/all`,
     asyncHandler(async (req, res) => {
@@ -80,6 +86,7 @@ function createAllRecordsSuggesterRoute(endpoint, modelName, where, mapper = def
       const results = await model.findAll({
         where,
         limit: defaultLimit,
+        order: [[Sequelize.literal(orderColumn), 'ASC']],
       });
 
       const listing = results.map(mapper);
