@@ -32,10 +32,7 @@ describe('FacilitySyncManager', () => {
 
       const resolveWhenNonEmpty = [];
       syncManager.syncPromise = jest.fn().mockImplementation(async () => {
-        while (true) {
-          if (resolveWhenNonEmpty.length > 0) {
-            return;
-          }
+        while (resolveWhenNonEmpty.length === 0) {
 
           await sleepAsync(5);
         }
