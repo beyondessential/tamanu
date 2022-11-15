@@ -40,7 +40,7 @@ function createSuggesterRoute(
       const where = whereBuilder(`%${searchQuery}%`, query);
       const results = await model.findAll({
         where,
-        order: [positionQuery, searchColumn],
+        order: [positionQuery, [searchColumn, 'ASC']],
         replacements: {
           positionMatch: searchQuery,
         },
@@ -70,7 +70,13 @@ function createSuggesterLookupRoute(endpoint, modelName, mapper = defaultMapper)
   );
 }
 
-function createAllRecordsSuggesterRoute(endpoint, modelName, where, mapper = defaultMapper) {
+function createAllRecordsSuggesterRoute(
+  endpoint,
+  modelName,
+  where,
+  mapper = defaultMapper,
+  searchColumn = 'name',
+) {
   suggestions.get(
     `/${endpoint}/all`,
     asyncHandler(async (req, res) => {
@@ -79,6 +85,7 @@ function createAllRecordsSuggesterRoute(endpoint, modelName, where, mapper = def
       const model = models[modelName];
       const results = await model.findAll({
         where,
+        order: [[searchColumn, 'ASC']],
         limit: defaultLimit,
       });
 
