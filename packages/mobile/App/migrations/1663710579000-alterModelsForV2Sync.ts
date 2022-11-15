@@ -6,6 +6,7 @@ import {
   TableIndex,
   TableForeignKey,
 } from 'typeorm';
+import { readConfig } from '~/services/config';
 import { TABLE_DEFINITIONS } from './firstTimeSetup/databaseDefinition';
 import { getTable } from './utils/queryRunner';
 
@@ -117,14 +118,25 @@ export class alterModelsForV2Sync1663710579000 implements MigrationInterface {
     // remove column markedForSync from patient_additional_data
     await queryRunner.dropColumn('patient_additional_data', 'markedForSync');
 
-    // remove column markedForSync from Patient
-    await queryRunner.dropColumn('patient', 'markedForSync');
-
     // add table local_system_fact
     await queryRunner.createTable(LocalSystemFactTable, ifNotExists);
 
     // add table patient_facility
     await queryRunner.createTable(PatientFacilitiesTable, ifNotExists);
+
+    // add entries in patient_facility for any patient marked for sync
+    const facilityId = await readConfig('facilityId');
+    if (facilityId) {
+      await queryRunner.query(`
+        INSERT INTO "patient_facility" ("id", "patientId", "facilityId", "updatedAtSyncTick")
+        SELECT REPLACE("patient"."id", ';', ':') || ';' || REPLACE('${facilityId}', ';', ':'), "patient"."id", '${facilityId}', 0 -- updated_at_sync_tick of 0 will be included in first push
+        FROM "patient"
+        WHERE "patient"."markedForSync" = TRUE;
+      `);
+    }
+
+    // remove column markedForSync from Patient
+    await queryRunner.dropColumn('patient', 'markedForSync');
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {
