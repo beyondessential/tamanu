@@ -45,7 +45,7 @@ const COLUMNS = [
   {
     key: 'locationGroupId',
     title: 'Area',
-    accessor: { key: 'locationGroupId', title: 'Area', accessor: row => row.locationGroup.name },
+    accessor: row => row.locationGroup.name,
   },
   { key: 'type', title: 'Type' },
   { key: 'status', title: 'Status' },
