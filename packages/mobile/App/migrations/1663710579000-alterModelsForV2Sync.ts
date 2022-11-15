@@ -131,7 +131,7 @@ export class alterModelsForV2Sync1663710579000 implements MigrationInterface {
         INSERT INTO "patient_facility" ("id", "patientId", "facilityId", "updatedAtSyncTick")
         SELECT REPLACE("patient"."id", ';', ':') || ';' || REPLACE('${facilityId}', ';', ':'), "patient"."id", '${facilityId}', 0 -- updated_at_sync_tick of 0 will be included in first push
         FROM "patient"
-        WHERE "patient"."markedForSync" = TRUE;
+        WHERE "patient"."markedForSync" IS TRUE;
       `);
     }
 
