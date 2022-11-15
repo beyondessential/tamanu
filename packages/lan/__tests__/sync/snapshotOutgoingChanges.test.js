@@ -207,9 +207,8 @@ describe('snapshotOutgoingChanges', () => {
 
       // wait for snapshot to start and block, and then create a new record
       await sleepAsync(20);
-      let rowAfter;
       const after = ctx.sequelize.transaction(async transaction => {
-        rowAfter = await ReferenceData.create(
+        await ReferenceData.create(
           {
             ...fakeReferenceData(),
             name: 'refData after',
