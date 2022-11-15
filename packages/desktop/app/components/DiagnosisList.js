@@ -39,7 +39,7 @@ const DiagnosisName = styled.span`
 const DiagnosisItem = React.memo(({ diagnosis, isPrimary, onClick }) => (
   <DiagnosisChip onClick={onClick}>
     <Category isPrimary={isPrimary}>{isPrimary ? 'P' : 'S'}</Category>
-    <DiagnosisName isPrimary={isPrimary}>{diagnosis.name}</DiagnosisName>
+    {diagnosis?.name && <DiagnosisName isPrimary={isPrimary}>{diagnosis.name}</DiagnosisName>}
   </DiagnosisChip>
 ));
 
