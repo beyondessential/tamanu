@@ -106,9 +106,11 @@ export const LocationInput = React.memo(
 
     return (
       <>
+        {/* Show required asterisk but the field is not actually required */}
         <SelectInput
           label={locationGroupLabel}
           options={options}
+          required={required}
           onChange={handleChangeCategory}
           value={groupId}
           disabled={disabled}
