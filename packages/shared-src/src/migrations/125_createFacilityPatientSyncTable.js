@@ -1,3 +1,4 @@
+import config from 'config';
 import Sequelize from 'sequelize';
 
 module.exports = {
@@ -42,6 +43,13 @@ module.exports = {
             model: 'patients',
             key: 'id',
           },
+        },
+        // add updated_at_sync_tick explicitly rather than relying on the post-migration step,
+        // as we need to manually set the patient_facilities records to be included in the first
+        // push up to the central server after upgrading to the new sync model
+        updated_at_sync_tick: {
+          type: Sequelize.BIGINT,
+          defaultValue: config.serverFacilityId ? -999 : 0, // -999 on facility, 0 on central server
         },
       },
       {
