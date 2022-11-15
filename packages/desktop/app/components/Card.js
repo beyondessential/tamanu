@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Typography } from '@material-ui/core';
 import { PropTypes } from 'prop-types';
 import { Colors } from '../constants';
 
@@ -22,21 +21,18 @@ export const CardBody = styled.div`
   position: relative;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-column-gap: 20px;
-  grid-row-gap: 24px;
+  grid-column-gap: 30px;
+  grid-row-gap: 21px;
   max-width: 1050px;
 `;
 
 const CardCell = styled.div`
-  display: flex;
-  align-items: flex-start;
-  flex-wrap: wrap;
+  font-size: 16px;
+  line-height: 24px;
+  color: ${props => props.theme.palette.text.tertiary};
 `;
 
-const CardLabel = styled(Typography)`
-  font-size: 16px;
-  line-height: 21px;
-  color: ${props => props.theme.palette.text.tertiary};
+const CardLabel = styled.span`
   margin-right: 5px;
 `;
 
@@ -49,8 +45,8 @@ export const CardDivider = styled.div`
   position: absolute;
   top: 0;
   left: 50%;
-  transform: translateX(-10px);
-  height: ${props => props.$height || '65px'};
+  transform: translateX(-3px);
+  height: ${props => props.$height || '70px'};
   border-left: 1px solid ${Colors.softOutline};
 `;
 
