@@ -153,7 +153,7 @@ export class CentralSyncManager {
           // full changes
           await snapshotOutgoingChanges(
             getPatientLinkedModels(modelsToInclude),
-            0,
+            -1, // for all time, i.e. 0 onwards
             patientIdsForFullSync,
             sessionId,
             facilityId,
