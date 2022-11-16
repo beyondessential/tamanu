@@ -20,7 +20,6 @@ export class FhirServiceRequest extends FhirResource {
   static init(options, models) {
     super.init(
       {
-        // TODO: migration
         identifier: arrayOf('identifier', DataTypes.FHIR_IDENTIFIER),
         status: {
           type: DataTypes.TEXT,
