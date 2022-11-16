@@ -47,26 +47,26 @@ export const pullIncomingChanges = async (
     return { count: 0, tick };
   }
 
-  await Promise.all(
-    tableNames.map(t => makeDirectoryInDocuments(`syncSessions/${sessionId}/${t}`)),
-  );
+  // await Promise.all(
+  //   tableNames.map(t => makeDirectoryInDocuments(`syncSessions/${sessionId}/${t}`)),
+  // );
 
   let fromId;
-  let limit = calculatePageLimit();
-  let currentBatchIndex = 0;
+  const limit = 1000;
+  // let currentBatchIndex = 0;
   let totalPulled = 0;
 
   // pull changes a page at a time
   while (totalPulled < totalToPull) {
-    const startTime = Date.now();
+    // const startTime = Date.now();
     const records = await centralServer.pull(sessionId, limit, fromId);
-    const pullTime = Date.now() - startTime;
-    const recordsToSave = records.map(r => ({
-      ...r,
-      // mark as never updated, so we don't push it back to the central server until the next update
-      data: { ...r.data, updated_at_sync_tick: -1 },
-      direction: SYNC_SESSION_DIRECTION.INCOMING,
-    }));
+    // const pullTime = Date.now() - startTime;
+    // const recordsToSave = records.map(r => ({
+    //   ...r,
+    //   // mark as never updated, so we don't push it back to the central server until the next update
+    //   data: { ...r.data, updated_at_sync_tick: -1 },
+    //   direction: SYNC_SESSION_DIRECTION.INCOMING,
+    // }));
 
     // This is an attempt to avoid storing all the pulled data
     // in the memory because we might run into memory issue when:
@@ -75,14 +75,16 @@ export const pullIncomingChanges = async (
     // So store the data in sync_session_records table instead and will persist it to
     //  the actual tables later
 
-    await persistBatch(sessionId, currentBatchIndex, recordsToSave);
-    currentBatchIndex++;
+    // await persistBatch(sessionId, currentBatchIndex, recordsToSave);
+    // currentBatchIndex++;
 
     fromId = records[records.length - 1].id;
-    totalPulled += recordsToSave.length;
-    limit = calculatePageLimit(limit, pullTime);
+    totalPulled += records.length;
+    // limit = calculatePageLimit(limit, pullTime);
 
-    progressCallback(totalToPull, totalPulled);
+    console.log('pulled ', totalPulled, ' of ', totalToPull);
+
+    // progressCallback(totalToPull, totalPulled);
   }
 
   return { count: totalToPull, tick };

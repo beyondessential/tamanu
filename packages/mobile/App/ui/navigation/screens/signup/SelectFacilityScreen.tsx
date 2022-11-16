@@ -47,7 +47,7 @@ export const SelectFacilityForm = ({ onSubmitForm }) => {
   useEffect(() => {
     let canceled = false;
     (async () => {
-      const facilities = await fetchFacilityOptions(backend);
+      const facilities = [{ value: 'ref/facility/a' }];
       if (canceled) return;
       setFacilityOptions(facilities);
     })();

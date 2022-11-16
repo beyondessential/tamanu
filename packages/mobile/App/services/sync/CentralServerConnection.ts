@@ -32,9 +32,9 @@ export class CentralServerConnection {
     query: Record<string, string | number>,
     { backoff, ...config }: FetchOptions = {},
   ) {
-    if (!this.host) {
-      throw new AuthenticationError('CentralServerConnection.fetch: not connected to a host yet');
-    }
+    // if (!this.host) {
+    //   throw new AuthenticationError('CentralServerConnection.fetch: not connected to a host yet');
+    // }
     const queryString = Object.entries(query)
       .map(([k, v]) => `${k}=${v}`)
       .join('&');
@@ -47,14 +47,7 @@ export class CentralServerConnection {
       'X-Version': version,
       ...extraHeaders,
     };
-    const response = await callWithBackoff(
-      () =>
-        fetchWithTimeout(url, {
-          ...config,
-          headers,
-        }),
-      backoff,
-    );
+    const response = await fetch(url, { ...config, headers });
 
     if (response.status === 401) {
       throw new AuthenticationError(
@@ -62,25 +55,25 @@ export class CentralServerConnection {
       );
     }
 
-    if (response.status === 400) {
-      const { error } = await getResponseJsonSafely(response);
-      if (error?.name === 'InvalidClientVersion') {
-        throw new OutdatedVersionError(error.updateUrl);
-      }
-    }
+    // if (response.status === 400) {
+    //   const { error } = await getResponseJsonSafely(response);
+    //   if (error?.name === 'InvalidClientVersion') {
+    //     throw new OutdatedVersionError(error.updateUrl);
+    //   }
+    // }
 
-    if (response.status === 422) {
-      const { error } = await getResponseJsonSafely(response);
-      throw new RemoteError(error?.message, error, response.status);
-    }
+    // if (response.status === 422) {
+    //   const { error } = await getResponseJsonSafely(response);
+    //   throw new RemoteError(error?.message, error, response.status);
+    // }
 
-    if (!response.ok) {
-      const { error } = await getResponseJsonSafely(response);
-      // User will be shown a generic error message;
-      // log it out here to help with debugging
-      console.error('Response had non-OK value', { url, response });
-      throw new RemoteError(generalErrorMessage, error, response.status);
-    }
+    // if (!response.ok) {
+    //   const { error } = await getResponseJsonSafely(response);
+    //   // User will be shown a generic error message;
+    //   // log it out here to help with debugging
+    //   console.error('Response had non-OK value', { url, response });
+    //   throw new RemoteError(generalErrorMessage, error, response.status);
+    // }
 
     return response.json();
   }
