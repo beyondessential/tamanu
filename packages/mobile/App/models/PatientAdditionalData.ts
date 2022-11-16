@@ -134,7 +134,7 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
 
   @BeforeInsert()
   async assignIdAsPatientId(): Promise<void> {
-    this.id = this.patientId;
+    this.id = this.patient;
   }
 
   static getTableNameForSync(): string {
