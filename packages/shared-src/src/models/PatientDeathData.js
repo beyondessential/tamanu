@@ -3,6 +3,7 @@ import { SYNC_DIRECTIONS } from 'shared/constants';
 import { InvalidOperationError } from 'shared/errors';
 import { dateType } from './dateTimeTypes';
 import { Model } from './Model';
+import { buildPatientLinkedSyncFilter } from './buildPatientLinkedSyncFilter';
 
 export class PatientDeathData extends Model {
   static init({ primaryKey, ...options }) {
@@ -108,4 +109,6 @@ export class PatientDeathData extends Model {
       as: 'contributingCauses',
     });
   }
+
+  static buildSyncFilter = buildPatientLinkedSyncFilter;
 }
