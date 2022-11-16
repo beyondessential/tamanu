@@ -15,6 +15,7 @@ import {
 } from 'shared/sync';
 import { getPatientLinkedModels } from './getPatientLinkedModels';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
+import { filterModelsFromName } from './filterModelsFromName';
 
 // after x minutes of no activity, consider a session lapsed and wipe it to avoid holding invalid
 // changes in the database when a sync fails on the facility server end
@@ -116,9 +117,7 @@ export class CentralSyncManager {
       });
 
       const modelsToInclude = tablesToInclude
-        ? Object.fromEntries(
-            Object.entries(models).filter(([, m]) => tablesToInclude.includes(m.tableName)),
-          )
+        ? filterModelsFromName(models, tablesToInclude)
         : models;
 
       // work out if any patients were newly marked for sync since this device last connected, and
@@ -209,7 +208,7 @@ export class CentralSyncManager {
     );
   }
 
-  async addIncomingChanges(sessionId, changes, { pushedSoFar, totalToPush }) {
+  async addIncomingChanges(sessionId, changes, { pushedSoFar, totalToPush }, tablesToInclude) {
     const { models } = this.store;
     await this.connectToSession(sessionId);
     const syncSessionRecords = changes.map(c => ({
@@ -224,6 +223,10 @@ export class CentralSyncManager {
     await models.SyncSessionRecord.bulkCreate(syncSessionRecords);
 
     if (pushedSoFar === totalToPush) {
+      const modelsToInclude = tablesToInclude
+        ? filterModelsFromName(models, tablesToInclude)
+        : getModelsForDirection(models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL);
+
       // commit the changes to the db
       await this.store.sequelize.transaction(async () => {
         // we tick-tock the global clock to make sure there is a unique tick for these changes, and
@@ -234,12 +237,7 @@ export class CentralSyncManager {
         // but aren't visible in the db to be snapshot until the transaction commits, so would
         // otherwise be completely skipped over by that sync client
         const { tock } = await this.tickTockGlobalClock();
-        await saveIncomingChanges(
-          models,
-          getModelsForDirection(models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL),
-          sessionId,
-          true,
-        );
+        await saveIncomingChanges(models, modelsToInclude, sessionId, true);
         // store the sync tick on save with the incoming changes, so they can be compared for
         // edits with the outgoing changes
         await models.SyncSessionRecord.update({ savedAtSyncTick: tock }, { where: { sessionId } });

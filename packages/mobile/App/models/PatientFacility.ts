@@ -34,7 +34,9 @@ export class PatientFacility extends BaseModel {
     // consistency and to maintain the assumption of "id" existing in various places
     // N.B. because ';' is used to join the two, we replace any actual occurrence of ';' with ':'
     // to avoid clashes on the joined id
-    this.id = `${this.patientId.replace(';', ':')};${this.facilityId.replace(';', ':')}`;
+
+    //patient actually stores the patientId in @BeforeInsert
+    this.id = `${this.patient.replace(';', ':')};${this.facility.replace(';', ':')}`;
   }
 
   static getTableNameForSync(): string {
