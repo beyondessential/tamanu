@@ -65,7 +65,10 @@ export const AppointmentForm = props => {
         type: yup.string().required('Please choose an appointment type'),
         startTime: yup.string().required('Please select a start time'),
         clinicianId: yup.string().required('Please select a clinician'),
-        locationGroupId: yup.string().required('Please select an area'),
+        locationGroupId: yup
+          .string()
+          .required('Please select an area')
+          .nullable(),
       })}
       render={({ submitForm }) => (
         <>

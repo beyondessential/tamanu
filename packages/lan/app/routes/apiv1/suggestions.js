@@ -40,7 +40,7 @@ function createSuggesterRoute(
       const where = whereBuilder(`%${searchQuery}%`, query);
       const results = await model.findAll({
         where,
-        order: [positionQuery, [searchColumn, 'ASC']],
+        order: [positionQuery, [Sequelize.literal(searchColumn), 'ASC']],
         replacements: {
           positionMatch: searchQuery,
         },
@@ -75,7 +75,7 @@ function createAllRecordsSuggesterRoute(
   modelName,
   where,
   mapper = defaultMapper,
-  searchColumn = 'name',
+  orderColumn = 'name',
 ) {
   suggestions.get(
     `/${endpoint}/all`,
@@ -85,8 +85,8 @@ function createAllRecordsSuggesterRoute(
       const model = models[modelName];
       const results = await model.findAll({
         where,
-        order: [[searchColumn, 'ASC']],
         limit: defaultLimit,
+        order: [[Sequelize.literal(orderColumn), 'ASC']],
       });
 
       const listing = results.map(mapper);
