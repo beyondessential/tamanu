@@ -103,7 +103,7 @@ const EncounterActionDropdown = ({ encounter }) => {
     },
   ].filter(action => !action.condition || action.condition());
 
-  return <DropdownButton variant="outlined" actions={actions} />;
+  return <DropdownButton actions={actions} />;
 };
 
 const getConnectRoutedModal = ({ category, patientId, encounterId }, suffix) =>

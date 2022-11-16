@@ -80,6 +80,14 @@ export function toCountryDateString(date) {
   return formatInTimeZone(date, config?.countryTimeZone, ISO9075_DATE_FORMAT);
 }
 
+export function getCurrentCountryTimeZoneDateTimeString() {
+  return formatInTimeZone(new Date(), config?.countryTimeZone, ISO9075_DATETIME_FORMAT);
+}
+
+export function getCurrentCountryTimeZoneDateString() {
+  return formatInTimeZone(new Date(), config?.countryTimeZone, ISO9075_DATE_FORMAT);
+}
+
 export function getCurrentDateTimeString() {
   return formatISO9075(new Date());
 }

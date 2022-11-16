@@ -15,6 +15,7 @@ import {
   TextField,
   RadioField,
   CheckField,
+  LocalisedLocationField,
 } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';
 import { ModalActionRow } from '../components/ModalActionRow';
@@ -36,9 +37,6 @@ export const TriageForm = ({ onCancel, editedObject }) => {
   const patient = useSelector(state => state.patient);
   const { getLocalisation } = useLocalisation();
   const triageCategories = getLocalisation('triageCategories');
-  const locationSuggester = useSuggester('location', {
-    baseQueryParameters: { filterByFacility: true },
-  });
   const practitionerSuggester = useSuggester('practitioner');
   const triageReasonSuggester = useSuggester('triageReason');
 
@@ -59,13 +57,7 @@ export const TriageForm = ({ onCancel, editedObject }) => {
           component={DateTimeField}
           saveDateAsString
         />
-        <Field
-          name="locationId"
-          label="Location"
-          required
-          component={AutocompleteField}
-          suggester={locationSuggester}
-        />
+        <Field name="locationId" component={LocalisedLocationField} required />
         <LocalisedField
           name="arrivalModeId"
           component={SuggesterSelectField}

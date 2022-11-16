@@ -40,7 +40,7 @@ function createSuggesterRoute(
       const where = whereBuilder(`%${searchQuery}%`, query);
       const results = await model.findAll({
         where,
-        order: [positionQuery, searchColumn],
+        order: [positionQuery, [Sequelize.literal(searchColumn), 'ASC']],
         replacements: {
           positionMatch: searchQuery,
         },
