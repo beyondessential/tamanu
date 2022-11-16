@@ -169,6 +169,10 @@ export class FhirResource extends Model {
     return Number(rows[0]?.count || 0);
   }
 
+  static async resolveUpstreams() {
+    await this.sequelize.query('CALL fhir.resolve_upstreams()');
+  }
+
   asFhir() {
     const fields = {};
     for (const name of Object.keys(this.constructor.getAttributes())) {

@@ -85,10 +85,6 @@ export class FhirPatient extends FhirResource {
     return [...mergedUp.map(u => u.id), ...mergedDown.map(u => u.id)];
   }
 
-  static async resolveUpstreamLinks() {
-    await this.sequelize.query('CALL fhir.patients_resolve_upstream_links()');
-  }
-
   asFhir() {
     const resource = super.asFhir();
     // Exclude upstream links if they remain in the materialised data.
@@ -243,7 +239,7 @@ async function mergeLinks(patient) {
   const links = [];
 
   // Populates "upstream" links, which must be resolved to FHIR resource links
-  // after materialisation by calling FhirPatient.resolveUpstreamLinks().
+  // after materialisation by calling FhirResource.resolveUpstreams().
 
   if (patient.mergedIntoId) {
     const mergeTarget = await patient.getUltimateMergedInto();

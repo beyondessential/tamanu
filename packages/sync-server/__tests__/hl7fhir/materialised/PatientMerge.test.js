@@ -60,7 +60,7 @@ describe(`Materialised FHIR - Patient Merge`, () => {
         )
       ).map(row => row.id);
 
-      await FhirPatient.resolveUpstreamLinks();
+      await FhirPatient.resolveUpstreams();
 
       ids = { a, b, c, d };
       // console.log({
@@ -280,7 +280,7 @@ describe(`Materialised FHIR - Patient Merge`, () => {
       );
       const { id: d } = await FhirPatient.materialiseFromUpstream(mergedD.id);
 
-      await FhirPatient.resolveUpstreamLinks();
+      await FhirPatient.resolveUpstreams();
 
       ids = { a, b, c, d };
       // console.log({

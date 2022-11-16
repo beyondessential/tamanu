@@ -64,7 +64,7 @@ export class FhirMaterialiser extends ScheduledTask {
       }
     }
 
-    await this.models.FhirPatient.resolveUpstreamLinks();
+    await this.models.FhirResource.resolveUpstreams();
   }
 
   async materialise(logger, resource, upstreamId) {
