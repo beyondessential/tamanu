@@ -15,6 +15,7 @@ import {
 } from 'shared/sync';
 import { getPatientLinkedModels } from './getPatientLinkedModels';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
+import { filterModelsFromName } from './filterModelsFromName';
 
 // after x minutes of no activity, consider a session lapsed and wipe it to avoid holding invalid
 // changes in the database when a sync fails on the facility server end
@@ -116,9 +117,7 @@ export class CentralSyncManager {
       });
 
       const modelsToInclude = tablesToInclude
-        ? Object.fromEntries(
-            Object.entries(models).filter(([, m]) => tablesToInclude.includes(m.tableName)),
-          )
+        ? filterModelsFromName(models, tablesToInclude)
         : models;
 
       // work out if any patients were newly marked for sync since this device last connected, and
@@ -225,9 +224,7 @@ export class CentralSyncManager {
 
     if (pushedSoFar === totalToPush) {
       const modelsToInclude = tablesToInclude
-        ? Object.fromEntries(
-            Object.entries(models).filter(([, m]) => tablesToInclude.includes(m.tableName)),
-          )
+        ? filterModelsFromName(models, tablesToInclude)
         : getModelsForDirection(models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL);
 
       // commit the changes to the db
