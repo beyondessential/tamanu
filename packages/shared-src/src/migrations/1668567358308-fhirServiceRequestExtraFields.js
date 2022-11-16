@@ -1,7 +1,5 @@
 import { DataTypes } from 'sequelize';
 
-const TABLE = { schema: 'fhir', tableName: 'service_requests' };
-
 export async function up(query) {
   query.changeColumn('fhir.service_requests', 'status', DataTypes.TEXT);
   query.changeColumn('fhir.service_requests', 'intent', DataTypes.TEXT);
