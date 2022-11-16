@@ -30,6 +30,7 @@ const reportColumnTemplate = [
     title: 'Discharge Date',
     accessor: data => data.endDate && format(data.endDate, 'dd/MM/yyyy h:mm:ss a'),
   },
+  { title: 'Area', accessor: data => data.locationGroupName },
   { title: 'Location', accessor: data => data.locationHistoryString },
   { title: 'Department', accessor: data => data.departmentHistoryString },
   { title: 'Primary diagnoses', accessor: data => data.primaryDiagnoses },
@@ -67,6 +68,8 @@ const stringifyDiagnoses = (diagnoses, shouldBePrimary) =>
     .filter(({ isPrimary }) => isPrimary === shouldBePrimary)
     .map(({ Diagnosis }) => `${Diagnosis.code} ${Diagnosis.name}`)
     .join('; ');
+
+const getLocationGroupName = location => location?.locationGroup?.name || 'Unknown';
 
 const getAllNotes = async (models, encounterIds) => {
   const locationChangeNotePages = await models.NotePage.findAll({
@@ -166,14 +169,20 @@ const formatPlaceHistory = (history, placeType) =>
     .join('; ');
 
 const filterResults = async (models, results, parameters) => {
-  const { location, department } = parameters;
-  const { name: requiredLocation } = (await models.Location.findByPk(location)) ?? {};
+  const { locationGroup, department } = parameters;
+  const locations =
+    locationGroup &&
+    (await models.Location.findAll({
+      where: {
+        locationGroupId: locationGroup,
+      },
+    }));
+  const locationNames = locations?.map(({ name }) => name);
+
   const { name: requiredDepartment } = (await models.Department.findByPk(department)) ?? {};
 
-  const locationFilteredResults = requiredLocation
-    ? results.filter(result =>
-        result.locationHistory.map(({ to }) => to).includes(requiredLocation),
-      )
+  const locationFilteredResults = locationGroup
+    ? results.filter(result => result.locationHistory.some(({ to }) => locationNames.includes(to)))
     : results;
 
   const departmentFilteredResults = requiredDepartment
@@ -196,7 +205,11 @@ async function queryAdmissionsData(models, parameters) {
         },
         'examiner',
         'patientBillingType',
-        'location',
+        {
+          model: models.Location,
+          as: 'location',
+          include: ['locationGroup'],
+        },
         'department',
         {
           model: models.EncounterDiagnosis,
@@ -225,6 +238,7 @@ async function queryAdmissionsData(models, parameters) {
 
   return filteredResults.map(result => ({
     ...result,
+    locationGroupName: getLocationGroupName(result.location),
     locationHistoryString: formatPlaceHistory(result.locationHistory, 'location'),
     departmentHistoryString: formatPlaceHistory(result.departmentHistory, 'department'),
     primaryDiagnoses: stringifyDiagnoses(result.diagnoses, true),

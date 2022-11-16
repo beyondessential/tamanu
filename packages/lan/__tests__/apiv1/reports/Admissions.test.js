@@ -15,7 +15,9 @@ describe('Admissions report', () => {
   let expectedPatient = null;
   let app = null;
   let expectedLocation = null;
+  let expectedLocationGroup = null;
   let wrongLocation = null;
+  let wrongLocationGroup = null;
   let expectedDepartment1 = null;
   let expectedDepartment2 = null;
   let expectedExaminer = null;
@@ -40,8 +42,20 @@ describe('Admissions report', () => {
       }),
     );
     app = await baseApp.asRole('practitioner');
-    expectedLocation = await findOneOrCreate(ctx.models, models.Location, { name: 'Clinic' });
-    wrongLocation = await findOneOrCreate(ctx.models, models.Location, { name: 'Not-Clinic' });
+    expectedLocationGroup = await findOneOrCreate(ctx.models, models.LocationGroup, {
+      name: 'Test Area',
+    });
+    expectedLocation = await findOneOrCreate(ctx.models, models.Location, {
+      name: 'Clinic',
+      locationGroupId: expectedLocationGroup.id,
+    });
+    wrongLocationGroup = await findOneOrCreate(ctx.models, models.LocationGroup, {
+      name: 'Wrong Area',
+    });
+    wrongLocation = await findOneOrCreate(ctx.models, models.Location, {
+      name: 'Not-Clinic',
+      locationGroupId: wrongLocationGroup.id,
+    });
     expectedDepartment1 = await findOneOrCreate(ctx.models, models.Department, {
       name: 'Radiology',
     });
@@ -174,7 +188,7 @@ describe('Admissions report', () => {
       const result = await app.post('/v1/reports/admissions').send({
         parameters: {
           fromDate: '2021-02-01 00:00:00',
-          location: expectedLocation.id,
+          locationGroup: expectedLocationGroup.id,
           department: expectedDepartment1.id, // Historical department filtered for
         },
       });
@@ -192,6 +206,7 @@ describe('Admissions report', () => {
           'Admitting Doctor/Nurse': expectedExaminer.displayName,
           'Admission Date': '20/02/2021 9:07:26 AM',
           'Discharge Date': '21/02/2021 11:03:07 AM',
+          Area: expectedLocationGroup.name,
           Location: 'Clinic (Location assigned: 20/02/21 9:07 AM)',
           Department:
             'Radiology (Department assigned: 20/02/21 9:07 AM); Cardiology (Department assigned: 20/02/21 11:10 AM)',
