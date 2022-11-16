@@ -9,7 +9,7 @@ module.exports = {
           INSERT INTO patient_facilities (patient_id, facility_id, created_at, updated_at, updated_at_sync_tick)
           SELECT patients.id, '${config.serverFacilityId}', now(), now(), 0 -- updated_at_sync_tick of 0 will be included in first push
           FROM patients
-          WHERE patients.marked_for_sync = TRUE;
+          WHERE patients.marked_for_sync IS TRUE;
         `,
       );
     }
