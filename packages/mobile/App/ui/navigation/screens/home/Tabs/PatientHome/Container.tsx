@@ -161,11 +161,11 @@ const PatientHomeContainer = ({
 
   setStatusBar('light-content', theme.colors.PRIMARY_MAIN);
 
-  if (errorMessage) return <ErrorScreen error={errorMessage} />;
-
   useEffect(() => {
     showPatientWarningPopups(patientIssues || []);
   }, [patientIssues?.length ?? 0, selectedPatient.id]);
+
+  if (errorMessage) return <ErrorScreen error={errorMessage} />;
 
   return (
     <Screen
