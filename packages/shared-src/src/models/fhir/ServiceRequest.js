@@ -38,6 +38,10 @@ export class FhirServiceRequest extends FhirResource {
           allowNull: true,
         },
         orderDetail: arrayOf('orderDetail', DataTypes.FHIR_CODEABLE_CONCEPT),
+        subject: {
+          type: DataTypes.FHIR_REFERENCE,
+          allowNull: false,
+        },
         occurrenceDateTime: dateTimeType('occurrenceDateTime', { allowNull: true }),
         requester: {
           type: DataTypes.FHIR_REFERENCE,
@@ -52,13 +56,30 @@ export class FhirServiceRequest extends FhirResource {
   }
 
   async updateMaterialisation() {
-    const { Location, Facility, User, ImagingRequestAreas } = this.sequelize.models;
+    const {
+      Encounter,
+      Facility,
+      ImagingRequestAreas,
+      Location,
+      Patient,
+      User,
+    } = this.sequelize.models;
 
     const upstream = await this.getUpstream({
       include: [
         {
           model: User,
           as: 'requestedBy',
+        },
+        {
+          model: Encounter,
+          as: 'encounter',
+          include: [
+            {
+              model: Patient,
+              as: 'patient',
+            },
+          ],
         },
         {
           model: ImagingRequestAreas,
@@ -118,10 +139,14 @@ export class FhirServiceRequest extends FhirResource {
             ],
           }),
       ),
+      subject: new FhirReference({
+        type: 'upstream://patient',
+        reference: upstream.encounter.patient.id,
+        display: upstream.encounter.patient.displayName,
+      }),
       occurrenceDateTime: upstream.requestedDate,
       requester: new FhirReference({
         display: upstream.requestedBy.displayName,
-        type: 'Practitioner',
         // TODO: reference to Practitioner
       }),
       locationCode: upstream.location?.facility?.name
