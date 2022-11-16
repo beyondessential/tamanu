@@ -12,6 +12,8 @@ import {
   IMAGING_REQUEST_STATUS_TYPES,
   FHIR_REQUEST_STATUS,
   FHIR_REQUEST_INTENT,
+  FHIR_SEARCH_PARAMETERS,
+  FHIR_SEARCH_TOKEN_TYPES,
 } from '../../constants';
 
 export class FhirServiceRequest extends FhirResource {
@@ -166,6 +168,32 @@ export class FhirServiceRequest extends FhirResource {
         type: FHIR_SEARCH_PARAMETERS.TOKEN,
         path: [['identifier', '[]']],
         tokenType: FHIR_SEARCH_TOKEN_TYPES.VALUE,
+      },
+      category: {
+        type: FHIR_SEARCH_PARAMETERS.TOKEN,
+        path: [['category', '[]']],
+        tokenType: FHIR_SEARCH_TOKEN_TYPES.VALUE,
+      },
+      code: {
+        type: FHIR_SEARCH_PARAMETERS.TOKEN,
+        path: [['code']],
+        tokenType: FHIR_SEARCH_TOKEN_TYPES.VALUE,
+      },
+      intent: {
+        type: FHIR_SEARCH_PARAMETERS.STRING,
+        path: [['intent']],
+      },
+      occurrence: {
+        type: FHIR_SEARCH_PARAMETERS.DATE,
+        path: [['occurrenceDateTime']],
+      },
+      priority: {
+        type: FHIR_SEARCH_PARAMETERS.STRING,
+        path: [['priority']],
+      },
+      status: {
+        type: FHIR_SEARCH_PARAMETERS.STRING,
+        path: [['status']],
       },
     };
   }
