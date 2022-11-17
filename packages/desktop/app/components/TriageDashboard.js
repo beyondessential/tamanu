@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import AccessTime from '@material-ui/icons/AccessTime';
+import { ENCOUNTER_TYPES } from 'shared/constants/encounters';
 import { useApi } from '../api';
 import { StatisticsCard, StatisticsCardContainer } from './StatisticsCard';
 import { Colors } from '../constants';
-import { ENCOUNTER_TYPES } from 'shared/constants/encounters';
 import { useLocalisation } from '../contexts/Localisation';
 
 const getAverageWaitTime = categoryData => {
@@ -38,9 +38,11 @@ const useTriageData = () => {
   }, [api]);
 
   return triageCategories?.map(category => {
-    const categoryData = data.filter(triage => (
-      triage.encounterType === ENCOUNTER_TYPES.TRIAGE && parseInt(triage.score) === category.level
-    ));
+    const categoryData = data.filter(
+      triage =>
+        triage.encounterType === ENCOUNTER_TYPES.TRIAGE &&
+        parseInt(triage.score) === category.level,
+    );
     const averageWaitTime = getAverageWaitTime(categoryData);
     return {
       averageWaitTime,
