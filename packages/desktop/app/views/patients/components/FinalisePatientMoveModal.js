@@ -61,7 +61,7 @@ export const FinalisePatientMoveModal = React.memo(({ encounter, open, onClose }
   const { mutate: submit } = usePatientMove(encounter.id, onClose);
   const { location, plannedLocation } = encounter;
   const onConfirmMove = () => {
-    submit({ plannedLocationId: null, locationId: plannedLocation.id });
+    submit({ locationId: plannedLocation.id });
   };
   return (
     <Modal title="Finalise patient move" open={open} onClose={onClose}>
