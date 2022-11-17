@@ -58,11 +58,10 @@ export const REPORT_DEFINITIONS = [
         suggesterEndpoint: 'patientBillingType',
       },
       {
-        parameterField: 'ParameterAutocompleteField',
-        label: 'Location',
-        name: 'location',
-        suggesterEndpoint: 'location',
-        suggesterOptions: { baseQueryParameters: { filterByFacility: true } },
+        parameterField: 'ParameterSuggesterSelectField',
+        label: 'Area',
+        name: 'locationGroup',
+        suggesterEndpoint: 'locationGroup',
       },
       {
         parameterField: 'ParameterAutocompleteField',
@@ -429,11 +428,10 @@ export const REPORT_DEFINITIONS = [
     filterDateRangeAsStrings: true,
     parameters: [
       {
-        parameterField: 'ParameterAutocompleteField',
-        label: 'Location',
-        name: 'location',
-        suggesterEndpoint: 'location',
-        suggesterOptions: { baseQueryParameters: { filterByFacility: true } },
+        parameterField: 'ParameterSuggesterSelectField',
+        label: 'Area',
+        name: 'locationGroup',
+        suggesterEndpoint: 'locationGroup',
       },
       {
         parameterField: 'ParameterAutocompleteField',
