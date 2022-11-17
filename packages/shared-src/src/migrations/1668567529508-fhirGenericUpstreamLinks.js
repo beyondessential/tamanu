@@ -28,6 +28,6 @@ export async function up(query) {
 }
 
 export async function down(query) {
-  await query.sequelize.query('DROP PROCEDURE fhir.resolve_upstream_links');
+  await query.sequelize.query('DROP PROCEDURE fhir.resolve_upstreams');
   await query.sequelize.query('DROP PROCEDURE fhir.service_requests_resolve_upstream_subject');
 }
