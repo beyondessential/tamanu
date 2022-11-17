@@ -2,6 +2,7 @@ import { DataTypes } from 'sequelize';
 import { FhirResource } from './Resource';
 import { arrayOf } from './utils';
 import { dateTimeType } from '../dateTimeTypes';
+import { latestDateTime } from '../../utils/dateTime';
 import {
   FhirIdentifier,
   FhirCodeableConcept,
@@ -107,10 +108,23 @@ export class FhirServiceRequest extends FhirResource {
             areaId: upstream.areas.map(area => area.id),
           },
         })
-      ).map(ext => [ext.areaId, { code: ext.code, description: ext.description }]),
+      ).map(ext => [
+        ext.areaId,
+        { code: ext.code, description: ext.description, updatedAt: ext.updatedAt },
+      ]),
     );
 
     this.set({
+      lastUpdated: latestDateTime(
+        upstream.updatedAt,
+        upstream.requestedBy?.updatedAt,
+        upstream.encounter?.updatedAt,
+        upstream.encounter?.patient?.updatedAt,
+        upstream.location?.updatedAt,
+        upstream.location?.facility?.updatedAt,
+        ...upstream.areas.map(area => area.updatedAt),
+        ...areaExtCodes.map(ext => ext.updatedAt),
+      ),
       identifier: [
         new FhirIdentifier({
           system: 'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html',
