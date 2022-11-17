@@ -6,7 +6,7 @@ import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
 import { sleepAsync } from 'shared/utils';
 import {
-  getCurrentCountryTimeZoneDateString,
+  getCurrentCountryTimeZoneDateTimeString,
   toCountryDateTimeString,
 } from 'shared/utils/dateTime';
 import { InvalidConfigError } from 'shared/errors';
@@ -77,7 +77,7 @@ export class PlannedMoveTimeout extends ScheduledTask {
       for (const encounter of encounters) {
         await encounter.addSystemNote(
           `Automatically cancelled planned move to ${encounter.plannedLocation.name} after ${this.config.timeoutHours} hours`,
-          getCurrentCountryTimeZoneDateString(),
+          getCurrentCountryTimeZoneDateTimeString(),
         );
         await encounter.update({
           plannedLocationId: null,

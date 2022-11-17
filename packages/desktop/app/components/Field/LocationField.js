@@ -17,7 +17,7 @@ const locationSuggester = (api, groupValue) => {
       // if no category is selected, return all child locations. The location field will be disabled
       // in this state anyway
       if (!groupValue) {
-        return locationGroup?.id !== undefined;
+        return true;
       }
       return locationGroup?.id === groupValue;
     },
