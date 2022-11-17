@@ -40,6 +40,7 @@ export class FhirMaterialiser extends ScheduledTask {
     const { limit } = this.config;
     let total = 0;
 
+    log.debug('Running through explicit queue');
     for (const { resource, upstreamId } of frontQueue.splice(0, limit)) {
       total += 1;
       await this.materialise(
@@ -49,6 +50,7 @@ export class FhirMaterialiser extends ScheduledTask {
       );
     }
 
+    log.debug('Running through backlog');
     for (const resource of FHIR_RESOURCE_TYPES) {
       if (total >= limit) return;
 
@@ -64,6 +66,7 @@ export class FhirMaterialiser extends ScheduledTask {
       }
     }
 
+    log.debug('Running resolve upstreams procedure');
     await this.models.FhirResource.resolveUpstreams();
   }
 
