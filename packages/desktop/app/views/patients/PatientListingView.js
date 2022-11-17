@@ -139,13 +139,13 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
 };
 
 export const PatientListingView = ({ onViewPatient }) => {
-  const { searchParameters, setSearchParameters } = usePatientSearch('PatientListingView');
+  const [searchParameters, setSearchParameters] = useState({});
   return (
     <PageContainer>
       <TopBar title="Patient listing">
         <NewPatientButton onCreateNewPatient={onViewPatient} />
       </TopBar>
-      <AllPatientsSearchBar onSearch={setSearchParameters} searchParameters={searchParameters} />
+      <AllPatientsSearchBar onSearch={setSearchParameters} />
       <ContentPane>
         <PatientTable
           onViewPatient={onViewPatient}
