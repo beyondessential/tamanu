@@ -52,4 +52,9 @@ export async function down(query) {
 
   await query.addIndex(TABLE, ['id', 'version_id']);
   await query.addIndex(TABLE, ['upstream_id']);
+
+  await query.sequelize.query(`
+    CREATE TRIGGER versioning BEFORE UPDATE ON fhir.practitioners
+    FOR EACH ROW EXECUTE FUNCTION fhir.trigger_versioning()
+  `);
 }
