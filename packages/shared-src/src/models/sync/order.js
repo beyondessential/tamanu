@@ -10,6 +10,7 @@ export const MODEL_DEPENDENCY_ORDER = [
   'Permission',
   'PatientFieldDefinitionCategory',
   'PatientFieldDefinition',
+  'ImagingAreaExternalCode',
 
   'User',
   'UserFacility',
