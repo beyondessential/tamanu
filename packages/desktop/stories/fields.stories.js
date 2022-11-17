@@ -1,10 +1,12 @@
 import React from 'react';
 import shortid from 'shortid';
-
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import '@fortawesome/fontawesome-free/css/all.css';
 import MuiDialog from '@material-ui/core/Dialog';
+import Box from '@material-ui/core/Box';
+import styled from 'styled-components';
+import { Button } from '@material-ui/core';
 import {
   TextInput,
   CheckInput,
@@ -18,11 +20,9 @@ import {
   AutocompleteInput,
   NullableBooleanInput,
   TimeWithUnitInput,
+  TemperatureInput,
 } from '../app/components';
-import Box from '@material-ui/core/Box';
 import { IdInput } from '../app/components/Field/IdField';
-import styled from 'styled-components';
-import { Button } from '@material-ui/core';
 
 const FRUITS = [
   { value: 'apples', label: 'Apples' },
@@ -104,6 +104,21 @@ addStories('TimeWithUnitInput', props => (
     {...props}
   />
 ));
+
+addStories('TemperatureInput', props => {
+  const [formValue, setFormValue] = React.useState(0);
+  const onChange = newValue => {
+    setFormValue(newValue);
+  };
+  return (
+    <Container>
+      <Box>
+        <TemperatureInput name="temperature" min={0} onChange={onChange} {...props} />
+        <Box m={3}>Form value: {formValue}</Box>
+      </Box>
+    </Container>
+  );
+});
 
 addStories('CheckInput', props => (
   <StoryControlWrapper Component={CheckInput} label="Enable" {...props} />

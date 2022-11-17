@@ -1,3 +1,5 @@
+import config from 'config';
+
 export const MODEL_DEPENDENCY_ORDER = [
   'ReferenceData',
   'Asset',
@@ -6,6 +8,8 @@ export const MODEL_DEPENDENCY_ORDER = [
   'Location',
   'Role',
   'Permission',
+  'PatientFieldDefinitionCategory',
+  'PatientFieldDefinition',
 
   'User',
   'UserFacility',
@@ -32,6 +36,7 @@ export const MODEL_DEPENDENCY_ORDER = [
   'PatientIssue',
   'PatientAdditionalData',
   'PatientSecondaryId',
+  'PatientFieldValue',
 
   'PatientDeathData',
   'PatientBirthData',
@@ -47,14 +52,13 @@ export const MODEL_DEPENDENCY_ORDER = [
   'CertifiableVaccine',
   'AdministeredVaccine',
 
-
   'SurveyResponse',
   'SurveyResponseAnswer',
 
-  'LabTest',
-  'LabRequest',
-  'ImagingRequest',
-  'ImagingRequestAreas',
+  // TODO: hack to work around Aspen Fiji's issues
+  ...(config?.sync?.doNotSyncRequests
+    ? []
+    : ['LabTest', 'LabRequest', 'ImagingRequest', 'ImagingRequestAreas']),
 
   'NotePage',
   'NoteItem',

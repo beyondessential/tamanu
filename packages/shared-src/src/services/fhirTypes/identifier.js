@@ -5,6 +5,7 @@ import * as yup from 'yup';
 import { COMPOSITE, Composite } from '../../utils/pgComposite';
 import { FhirCodeableConcept } from './codeableConcept';
 import { FhirPeriod } from './period';
+// eslint-disable-next-line import/no-cycle
 import { FhirReference } from './reference';
 
 const USES = ['usual', 'official', 'temp', 'secondary', 'old'];

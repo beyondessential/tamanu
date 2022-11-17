@@ -45,7 +45,7 @@ const ModalContent = styled.div`
 `;
 
 const ModalContainer = styled.div`
-  background: ${Colors.background};
+  background: ${props => props.$color};
 
   @media print {
     background: none;
@@ -92,6 +92,7 @@ export const Modal = memo(
     printable = false,
     onPrint = null,
     additionalActions,
+    color = Colors.background,
     ...props
   }) => {
     const { printPage } = useElectron();
@@ -128,7 +129,7 @@ export const Modal = memo(
             </IconButton>
           </div>
         </ModalTitle>
-        <ModalContainer>
+        <ModalContainer $color={color}>
           <ModalContent>{children}</ModalContent>
           <DialogActions>{actions}</DialogActions>
         </ModalContainer>

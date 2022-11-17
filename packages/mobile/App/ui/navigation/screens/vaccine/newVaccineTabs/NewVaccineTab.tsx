@@ -4,8 +4,7 @@ import { Route } from 'react-native-tab-view';
 import { SvgProps } from 'react-native-svg';
 import { compose } from 'redux';
 import { useSelector } from 'react-redux';
-import { formatISO9075 } from 'date-fns';
-import { parseISO9075 } from '../../../../helpers/date';
+import { formatISO9075, parseISO } from 'date-fns';
 
 import { withPatient } from '~/ui/containers/Patient';
 import { StyledSafeAreaView } from '/styled/common';
@@ -74,7 +73,7 @@ export const NewVaccineTabComponent = ({
         onCancel={onPressCancel}
         initialValues={{
           ...vaccineObject,
-          date: vaccineObject.date ? parseISO9075(vaccineObject.date) : null,
+          date: vaccineObject.date ? parseISO(vaccineObject.date) : null,
         }}
         status={route.key as VaccineStatus}
       />
