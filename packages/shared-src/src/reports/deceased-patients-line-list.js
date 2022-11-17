@@ -25,7 +25,7 @@ const FIELDS = [
   'Nationality',
   'Place of Death',
   'Department',
-  'Location Group',
+  'Area',
   'Location',
   'Date and time of death',
   'Attending clinician',
@@ -121,7 +121,7 @@ select distinct on (p.date_of_death, p.id)
     when pdd.facility_id is not null
     then locationGroup.name
     else null
-  end as "Location Group",
+  end as "Area",
   to_char(p.date_of_death::timestamp, 'dd/mm/yyyy HH12:MI AM') as "Date and time of death",
   u.display_name as "Attending clinician",
   rd4.name as "Cause of death",

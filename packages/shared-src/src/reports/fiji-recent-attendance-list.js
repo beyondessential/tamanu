@@ -18,7 +18,7 @@ const FIELD_TO_TITLE = {
   clinician: 'Clinician',
   dateOfAttendance: 'Date of attendance',
   department: 'Department',
-  locationGroup: 'Location Group',
+  locationGroup: 'Area',
   location: 'Location',
   reasonForAttendance: 'Reason for attendance',
   primaryDiagnosis: 'Primary diagnosis',
