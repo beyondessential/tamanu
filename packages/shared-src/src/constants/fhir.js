@@ -7,9 +7,11 @@ export const FHIR_UPSTREAMS = {
   ServiceRequest: [
     'Encounter',
     'Facility',
+    'ImagingAreaExternalCode',
     'ImagingRequestAreas',
     'Location',
     'Patient',
+    'ReferenceData',
     'User',
   ],
 };

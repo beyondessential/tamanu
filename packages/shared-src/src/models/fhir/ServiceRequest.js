@@ -60,9 +60,10 @@ export class FhirServiceRequest extends FhirResource {
     const {
       Encounter,
       Facility,
-      ImagingRequestAreas,
+      ImagingAreaExternalCode,
       Location,
       Patient,
+      ReferenceData,
       User,
     } = this.sequelize.models;
 
@@ -83,7 +84,7 @@ export class FhirServiceRequest extends FhirResource {
           ],
         },
         {
-          model: ImagingRequestAreas,
+          model: ReferenceData,
           as: 'areas',
         },
         {
@@ -98,6 +99,16 @@ export class FhirServiceRequest extends FhirResource {
         },
       ],
     });
+
+    const areaExtCodes = new Map(
+      (
+        await ImagingAreaExternalCode.findAll({
+          where: {
+            areaId: upstream.areas.map(area => area.id),
+          },
+        })
+      ).map(ext => [ext.areaId, { code: ext.code, description: ext.description }]),
+    );
 
     this.set({
       identifier: [
@@ -128,17 +139,20 @@ export class FhirServiceRequest extends FhirResource {
             text: imagingCode(upstream),
           })
         : null,
-      orderDetail: upstream.areas.map(
-        area =>
-          new FhirCodeableConcept({
-            text: 'TBD', // TODO
-            coding: [
-              new FhirCoding({
-                code: 'TBD', // TODO
-                system: 'http://data-dictionary.tamanu-fiji.org/rispacs-billing-code.html',
+      orderDetail: upstream.areas.flatMap(({ id }) =>
+        areaExtCodes.has(id)
+          ? [
+              new FhirCodeableConcept({
+                text: areaExtCodes.get(id)?.description,
+                coding: [
+                  new FhirCoding({
+                    code: areaExtCodes.get(id)?.code,
+                    system: 'http://data-dictionary.tamanu-fiji.org/rispacs-billing-code.html',
+                  }),
+                ],
               }),
-            ],
-          }),
+            ]
+          : [],
       ),
       subject: new FhirReference({
         type: 'upstream://patient',
