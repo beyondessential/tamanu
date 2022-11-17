@@ -1,9 +1,17 @@
 // The resource types that are supported at an API level.
-export const FHIR_RESOURCE_TYPES = ['Patient'];
+export const FHIR_RESOURCE_TYPES = ['Patient', 'ServiceRequest'];
 
 // The resource:upstreams relationship. Used to set up hooks.
 export const FHIR_UPSTREAMS = {
   Patient: ['Patient', 'PatientAdditionalData'],
+  ServiceRequest: [
+    'Encounter',
+    'Facility',
+    'ImagingRequestAreas',
+    'Location',
+    'Patient',
+    'User',
+  ],
 };
 
 // All possible search parameter types

@@ -67,7 +67,8 @@ export class FhirMaterialiser extends ScheduledTask {
     }
 
     log.debug('Running resolve upstreams procedure');
-    await this.models.FhirResource.resolveUpstreams();
+    await this.models.FhirPatient.resolveUpstreams();
+    // can be called from any resource
   }
 
   async materialise(logger, resource, upstreamId) {

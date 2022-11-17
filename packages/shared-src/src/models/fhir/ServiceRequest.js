@@ -148,7 +148,6 @@ export class FhirServiceRequest extends FhirResource {
       occurrenceDateTime: upstream.requestedDate,
       requester: new FhirReference({
         display: upstream.requestedBy.displayName,
-        // TODO: reference to Practitioner
       }),
       locationCode: upstream.location?.facility?.name
         ? [
