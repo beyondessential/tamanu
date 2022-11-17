@@ -10,26 +10,28 @@ export async function migrateAppointments() {
   const { Appointment } = store.models;
 
   try {
+    let migrated = 0;
     const appointments = await Appointment.findAll({
       include: 'location',
       where: { locationGroupId: { [Op.is]: null } },
     });
 
-    const migrated = await Promise.all(
+    await Promise.all(
       appointments.map(async a => {
         const { location } = a;
         const { locationGroupId } = location;
         // Skip if there is no location group
         if (locationGroupId) {
           await a.update({ locationGroupId });
+          migrated++;
         } else {
-          log.info(`Warning, the following location has no relate location group ${location.name}`);
+          log.warn(`The following location has no relate location group: ${location.name}`);
         }
         return location;
       }),
     );
 
-    log.info(`Sucessfully migrated ${migrated.length} appointments`);
+    log.info(`Sucessfully migrated ${migrated} appointments`);
     process.exit(0);
   } catch (error) {
     log.info(`Command failed: ${error.stack}\n`);

@@ -1,7 +1,7 @@
 import { fake } from 'shared/test-helpers/fake';
 import { createDummyPatient } from 'shared/demoData/patients';
-import { createTestContext } from '../utilities';
-import { migrateAppointments } from '../../app/subCommands';
+import { createTestContext } from './utilities';
+import { migrateAppointments } from '../app/subCommands';
 
 async function prepopulate(models) {
   const { Facility, User, Patient, Location, LocationGroup, Appointment } = models;
@@ -50,12 +50,13 @@ describe('migrateAppointmentsToLocationGroups', () => {
 
   beforeAll(async () => {
     ctx = await createTestContext();
-    models = ctx.store.models;
+    models = ctx.models;
     await prepopulate(models);
   });
   afterAll(() => ctx.close());
 
   it('migrates appointments to use location parents ', async () => {
+    const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
     await migrateAppointments();
 
     const appointments = await models.Appointment.findAll({
@@ -66,9 +67,11 @@ describe('migrateAppointmentsToLocationGroups', () => {
     const { location } = appointment;
 
     expect(appointment.locationGroupId).toBe(location.locationGroupId);
+    expect(exitSpy).toBeCalledWith(0);
   });
 
   it('skips appointments that have locations with no parent ', async () => {
+    const exitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
     await migrateAppointments();
 
     const appointments = await models.Appointment.findAll({
@@ -78,5 +81,6 @@ describe('migrateAppointmentsToLocationGroups', () => {
     const appointment = appointments[1];
 
     expect(appointment.locationGroupId).toBe(null);
+    expect(exitSpy).toBeCalledWith(0);
   });
 });
