@@ -121,7 +121,14 @@ export const Modal = memo(
     };
 
     return (
-      <Dialog fullWidth maxWidth={width} classes={classes} open={open} onClose={onDialogClose} {...props}>
+      <Dialog
+        fullWidth
+        maxWidth={width}
+        classes={classes}
+        open={open}
+        onClose={onDialogClose}
+        {...props}
+      >
         <ModalTitle>
           <VerticalCenteredText>{title}</VerticalCenteredText>
           <div>

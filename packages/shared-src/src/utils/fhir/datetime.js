@@ -51,7 +51,8 @@ function normalizeTz(tz, date) {
   return offsetSuffix;
 }
 
-function dateParts(date, withTz, str, form) {
+function dateParts(combinedDate, withTz, str, form) {
+  let date = combinedDate;
   let tz = null;
   if (form.endsWith('X') && str.endsWith('Z')) {
     tz = '+00:00';
@@ -63,7 +64,7 @@ function dateParts(date, withTz, str, form) {
     if (tzh) tz = `${tzh}:00`;
   } else if (withTz) {
     // no timezone in the format, use provided timezone
-    date = zonedTimeToUtc(date, withTz);
+    date = zonedTimeToUtc(combinedDate, withTz);
     tz = normalizeTz(tz, date);
   }
   // else: no timezone in the format, using system timezone to parse and no tz in the output

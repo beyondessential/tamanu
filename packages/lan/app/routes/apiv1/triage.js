@@ -117,10 +117,7 @@ triage.get(
             ENCOUNTER_TYPES.OBSERVATION,
             ENCOUNTER_TYPES.EMERGENCY,
           ],
-          seenEncounterTypes: [
-            ENCOUNTER_TYPES.OBSERVATION,
-            ENCOUNTER_TYPES.EMERGENCY,
-          ]
+          seenEncounterTypes: [ENCOUNTER_TYPES.OBSERVATION, ENCOUNTER_TYPES.EMERGENCY],
         },
       },
     );
