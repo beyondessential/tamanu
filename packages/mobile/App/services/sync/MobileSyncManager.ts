@@ -45,7 +45,7 @@ export class MobileSyncManager {
 
   lastSyncPulledRecordsCount: number = null;
 
-  emitter = mitt();
+  // emitter = mitt();
 
   models: typeof MODELS_MAP;
 
@@ -58,7 +58,7 @@ export class MobileSyncManager {
 
   setSyncStage(syncStage: number): void {
     this.syncStage = syncStage;
-    this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STATE_CHANGED);
+    // this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STATE_CHANGED);
   }
 
   /**
@@ -69,7 +69,7 @@ export class MobileSyncManager {
   setProgress(progress: number, progressMessage: string): void {
     this.progress = progress;
     this.progressMessage = progressMessage;
-    this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STATE_CHANGED);
+    // this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STATE_CHANGED);
   }
 
   /**
@@ -103,9 +103,9 @@ export class MobileSyncManager {
       return new Promise(resolve => {
         const done = (): void => {
           resolve();
-          this.emitter.off(SYNC_EVENT_ACTIONS.SYNC_ENDED, done);
+          // this.emitter.off(SYNC_EVENT_ACTIONS.SYNC_ENDED, done);
         };
-        this.emitter.on(SYNC_EVENT_ACTIONS.SYNC_ENDED, done);
+        // this.emitter.on(SYNC_EVENT_ACTIONS.SYNC_ENDED, done);
       });
     }
 
@@ -131,12 +131,12 @@ export class MobileSyncManager {
       this.lastSuccessfulSyncTime = formatDate(new Date(), DateFormats.DATE_AND_TIME);
       this.setProgress(0, '');
     } catch (error) {
-      this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ERROR, { error });
+      // this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ERROR, { error });
     } finally {
       this.syncStage = null;
       this.isSyncing = false;
-      this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STATE_CHANGED);
-      this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ENDED, `time=${Date.now() - startTime}ms`);
+      // this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STATE_CHANGED);
+      // this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ENDED, `time=${Date.now() - startTime}ms`);
       console.log(`Sync took ${Date.now() - startTime} ms`);
     }
   }
@@ -149,7 +149,7 @@ export class MobileSyncManager {
     console.log('MobileSyncManager.runSync(): Began sync run');
 
     this.isSyncing = true;
-    this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STARTED);
+    // this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_STARTED);
 
     // clear persisted cache from last session
     await clearPersistedSyncSessionRecords();
