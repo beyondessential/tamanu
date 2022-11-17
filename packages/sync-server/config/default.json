@@ -114,6 +114,10 @@
       "batchSize": 100,
       "batchSleepAsyncDurationInMilliseconds": 50
     },
+    "patientMergeMaintainer": {
+      // once an hour at minute 12
+      "schedule": "12 * * * *"
+    },
     "certificateNotificationProcessor": {
       // every 30 seconds /!\
       "schedule": "*/30 * * * * *",
