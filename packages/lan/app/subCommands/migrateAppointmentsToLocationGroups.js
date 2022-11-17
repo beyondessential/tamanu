@@ -25,7 +25,7 @@ export async function migrateAppointments() {
           await a.update({ locationGroupId });
           migrated++;
         } else {
-          log.warn(`The following location has no relate location group: ${location.name}`);
+          log.warn(`The following location has no related location group: ${location.name}`);
         }
         return location;
       }),
