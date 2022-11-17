@@ -17,6 +17,7 @@ import {
   vaccinationStatus,
 } from './columns';
 import { PatientImmunisationsModal } from './components';
+import { usePatientSearch } from '../../contexts/PatientSearch';
 
 const COLUMNS = [
   displayId,
@@ -40,7 +41,7 @@ const PatientImmunisationsTable = React.memo(({ onPatientSelect, ...props }) => 
 ));
 
 export const ImmunisationsView = () => {
-  const [searchParameters, setSearchParameters] = useState({});
+  const { searchParameters, setSearchParameters } = usePatientSearch('ImmunisationsView');
   const [modalOpen, setModalOpen] = useState(false);
   const [patient, setPatient] = useState({});
   const onRowClick = row => {
@@ -58,7 +59,11 @@ export const ImmunisationsView = () => {
         onClose={() => setModalOpen(false)}
       />
       <TopBar title="Immunisation register" />
-      <PatientSearchBar onSearch={setSearchParameters} suggestByFacility={false} />
+      <PatientSearchBar
+        onSearch={setSearchParameters}
+        searchParameters={searchParameters}
+        suggestByFacility={false}
+      />
       <ContentPane>
         <PatientImmunisationsTable onPatientSelect={onRowClick} fetchOptions={searchParameters} />
       </ContentPane>

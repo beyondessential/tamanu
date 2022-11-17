@@ -28,6 +28,7 @@ import {
 } from './columns';
 import { useAuth } from '../../contexts/Auth';
 import { Colors } from '../../constants';
+import { usePatientSearch } from '../../contexts/PatientSearch';
 
 const PATIENT_SEARCH_ENDPOINT = 'patient';
 
@@ -138,13 +139,13 @@ const NewPatientButton = ({ onCreateNewPatient }) => {
 };
 
 export const PatientListingView = ({ onViewPatient }) => {
-  const [searchParameters, setSearchParameters] = useState({});
+  const { searchParameters, setSearchParameters } = usePatientSearch('PatientListingView');
   return (
     <PageContainer>
       <TopBar title="Patient listing">
         <NewPatientButton onCreateNewPatient={onViewPatient} />
       </TopBar>
-      <AllPatientsSearchBar onSearch={setSearchParameters} />
+      <AllPatientsSearchBar onSearch={setSearchParameters} searchParameters={searchParameters} />
       <ContentPane>
         <PatientTable
           onViewPatient={onViewPatient}
@@ -158,13 +159,13 @@ export const PatientListingView = ({ onViewPatient }) => {
 };
 
 export const AdmittedPatientsView = () => {
-  const [searchParameters, setSearchParameters] = useState({});
+  const { searchParameters, setSearchParameters } = usePatientSearch('AdmittedPatientsView');
   const { facility } = useAuth();
 
   return (
     <PageContainer>
       <TopBar title="Admitted patient listing" />
-      <PatientSearchBar onSearch={setSearchParameters} />
+      <PatientSearchBar onSearch={setSearchParameters} searchParameters={searchParameters} />
       <ContentPane>
         <PatientTable
           fetchOptions={{ inpatient: 1 }}
@@ -177,13 +178,13 @@ export const AdmittedPatientsView = () => {
 };
 
 export const OutpatientsView = () => {
-  const [searchParameters, setSearchParameters] = useState({});
+  const { searchParameters, setSearchParameters } = usePatientSearch('OutpatientsView');
   const { facility } = useAuth();
 
   return (
     <PageContainer>
       <TopBar title="Outpatient listing" />
-      <PatientSearchBar onSearch={setSearchParameters} />
+      <PatientSearchBar onSearch={setSearchParameters} searchParameters={searchParameters} />
       <ContentPane>
         <PatientTable
           fetchOptions={{ outpatient: 1 }}
