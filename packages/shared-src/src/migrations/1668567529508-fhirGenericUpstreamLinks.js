@@ -13,7 +13,7 @@ export async function up(query) {
         FROM fhir.patients p
         WHERE true
           AND (sr.subject).type = 'upstream://patient'
-          AND p.id = (sr.subject).reference
+          AND p.id::text = (sr.subject).reference
     $$
   `);
 
@@ -21,7 +21,7 @@ export async function up(query) {
     CREATE OR REPLACE PROCEDURE fhir.resolve_upstreams()
     LANGUAGE SQL
     AS $$
-      CALL fhir.patient_resolve_upstream_links();
+      CALL fhir.patients_resolve_upstream_links();
       CALL fhir.service_requests_resolve_upstream_subject();
     $$
   `);
