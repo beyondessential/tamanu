@@ -1,20 +1,19 @@
 import { DataTypes } from 'sequelize';
 import { FhirResource } from './Resource';
 import { arrayOf } from './utils';
-import { dateTimeType } from '../dateTimeTypes';
-import { latestDateTime } from '../../utils/dateTime';
+import { latestDateTime, dateTimeStringIntoCountryTimezone } from '../../utils/dateTime';
 import {
-  FhirIdentifier,
   FhirCodeableConcept,
   FhirCoding,
+  FhirIdentifier,
   FhirReference,
 } from '../../services/fhirTypes';
 import {
-  IMAGING_REQUEST_STATUS_TYPES,
   FHIR_REQUEST_STATUS,
   FHIR_REQUEST_INTENT,
   FHIR_SEARCH_PARAMETERS,
   FHIR_SEARCH_TOKEN_TYPES,
+  IMAGING_REQUEST_STATUS_TYPES,
 } from '../../constants';
 
 export class FhirServiceRequest extends FhirResource {
@@ -38,7 +37,7 @@ export class FhirServiceRequest extends FhirResource {
           type: DataTypes.FHIR_REFERENCE,
           allowNull: false,
         },
-        occurrenceDateTime: dateTimeType('occurrenceDateTime'),
+        occurrenceDateTime: DataTypes.DATE,
         requester: DataTypes.FHIR_REFERENCE,
         locationCode: arrayOf('locationCode', DataTypes.FHIR_CODEABLE_CONCEPT),
       },
@@ -164,7 +163,7 @@ export class FhirServiceRequest extends FhirResource {
         reference: upstream.encounter.patient.id,
         display: upstream.encounter.patient.displayName,
       }),
-      occurrenceDateTime: upstream.requestedDate,
+      occurrenceDateTime: dateTimeStringIntoCountryTimezone(upstream.requestedDate),
       requester: new FhirReference({
         display: upstream.requestedBy.displayName,
       }),

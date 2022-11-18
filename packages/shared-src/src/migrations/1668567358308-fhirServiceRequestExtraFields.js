@@ -20,6 +20,12 @@ export async function up(query) {
 
   await query.removeColumn(TABLE, 'requester');
   await query.addColumn(TABLE, 'requester', 'fhir.reference');
+
+  await query.removeColumn(TABLE, 'occurrence_date_time');
+  await query.addColumn(TABLE, 'occurrence_date_time', {
+    type: DataTypes.DATE,
+    allowNull: true,
+  });
 }
 
 export async function down(query) {
@@ -48,5 +54,11 @@ export async function down(query) {
       model: { schema: 'fhir', tableName: 'practitioners' },
       key: 'id',
     },
+  });
+
+  await query.removeColumn(TABLE, 'occurrence_date_time');
+  await query.addColumn(TABLE, 'occurrence_date_time', {
+    type: 'date_time_string',
+    allowNull: true,
   });
 }
