@@ -28,7 +28,7 @@ import {
 } from './columns';
 import { useAuth } from '../../contexts/Auth';
 import { Colors } from '../../constants';
-import { usePatientSearch } from '../../contexts/PatientSearch';
+import { usePatientSearch, PatientSearchKeys } from '../../contexts/PatientSearch';
 
 const PATIENT_SEARCH_ENDPOINT = 'patient';
 
@@ -159,7 +159,9 @@ export const PatientListingView = ({ onViewPatient }) => {
 };
 
 export const AdmittedPatientsView = () => {
-  const { searchParameters, setSearchParameters } = usePatientSearch('AdmittedPatientsView');
+  const { searchParameters, setSearchParameters } = usePatientSearch(
+    PatientSearchKeys.AdmittedPatientsView,
+  );
   const { facility } = useAuth();
 
   return (
@@ -178,7 +180,9 @@ export const AdmittedPatientsView = () => {
 };
 
 export const OutpatientsView = () => {
-  const { searchParameters, setSearchParameters } = usePatientSearch('OutpatientsView');
+  const { searchParameters, setSearchParameters } = usePatientSearch(
+    PatientSearchKeys.OutpatientsView,
+  );
   const { facility } = useAuth();
 
   return (

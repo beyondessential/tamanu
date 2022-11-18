@@ -2,11 +2,21 @@ import React, { useContext, createContext, useState, useCallback, useEffect } fr
 
 const PatientSearchContext = createContext({});
 
+export const PatientSearchKeys = {
+  AdmittedPatientsView: 'AdmittedPatientsView',
+  OutpatientsView: 'OutpatientsView',
+};
+
 /**
  * Hook to set and retrieve patient search parameters
  * @param {string} key - namespace key, to allow multiple search boxes
  */
 export const usePatientSearch = key => {
+  if (!PatientSearchKeys[key]) {
+    // since `key` is intended to be a constant, it should never be an unknown value
+    // this is an exceptional case
+    throw new Error('Invalid key passed to usePatientSearch, use PatientSearchKey');
+  }
   const { allSearchParameters, setAllSearchParameters } = useContext(PatientSearchContext);
   const searchParameters = allSearchParameters[key];
   const setSearchParameters = useCallback(
