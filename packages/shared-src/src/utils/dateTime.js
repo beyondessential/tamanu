@@ -14,6 +14,7 @@ import config from 'config';
 
 const ISO9075_DATE_FORMAT = 'yyyy-MM-dd';
 const ISO9075_DATETIME_FORMAT = 'yyyy-MM-dd HH:mm:ss';
+const ISO8061_WITH_TIMEZONE = "yyyy-MM-dd'T'HH:mm:ssXXX";
 
 export const isISOString = dateString =>
   isMatch(dateString, ISO9075_DATETIME_FORMAT) || isMatch(dateString, ISO9075_DATE_FORMAT);
@@ -78,6 +79,14 @@ export function toCountryDateString(date) {
   }
 
   return formatInTimeZone(date, config?.countryTimeZone, ISO9075_DATE_FORMAT);
+}
+
+export function dateTimeStringIntoCountryTimezone(date) {
+  if (date === null || date === undefined) {
+    return null;
+  }
+
+  return parseISO(formatInTimeZone(date, config?.countryTimeZone, ISO8061_WITH_TIMEZONE));
 }
 
 export function getCurrentDateTimeString() {
