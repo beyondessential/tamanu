@@ -2,10 +2,15 @@ import { snake } from 'case';
 
 // utility that can pick the latest whole record, or single field, depending on what is passed in
 const pickLatest = (existing, incoming, existingUpdateTick = 0, incomingUpdateTick = 0) => {
-  if (incomingUpdateTick > existingUpdateTick) {
-    return { latest: incoming, latestTick: incomingUpdateTick };
+  const existingUpdateTickNumber =
+    typeof existingUpdateTick === 'string' ? parseInt(existingUpdateTick) : existingUpdateTick;
+  const incomingUpdateTickNumber =
+    typeof incomingUpdateTick === 'string' ? parseInt(incomingUpdateTick) : incomingUpdateTick;
+
+  if (incomingUpdateTickNumber > existingUpdateTickNumber) {
+    return { latest: incoming, latestTick: incomingUpdateTickNumber };
   }
-  return { latest: existing, latestTick: existingUpdateTick };
+  return { latest: existing, latestTick: existingUpdateTickNumber };
 };
 
 // perform advanced conflict resolution, merging two versions of the record using the latest version
