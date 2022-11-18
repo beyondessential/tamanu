@@ -1,7 +1,7 @@
 import config from 'config';
 import formData from 'form-data';
 import Mailgun from 'mailgun.js';
-import { createReadStream } from 'fs';
+import { createReadStream, promises as fsPromises } from 'fs';
 import { basename } from 'path';
 import { COMMUNICATION_STATUSES } from 'shared/constants';
 import { log } from 'shared/services/logging';
@@ -30,7 +30,7 @@ async function getReadStreamSafe(path) {
 export class EmailService {
   constructor() {
     this.mailgunService =
-      apiKey && domain ? mailgun({ usename: 'api', key: apiKey, url: domain }) : null;
+      apiKey && domain ? mailgun.client({ username: 'api', key: apiKey }) : null;
   }
 
   async sendEmail({ attachment: untypedAttachment, ...email }) {
@@ -77,9 +77,10 @@ export class EmailService {
     }
 
     try {
-      const emailResult = await this.mailgunService.messages.create({
+      const emailResult = await this.mailgunService.messages.create(domain, {
         ...email,
-        attachment,
+        // Todo: put attachments back into email once Tan-1882 is fixed and before this gets merged to dev
+        // attachment,
       });
       return { status: COMMUNICATION_STATUSES.SENT, result: emailResult };
     } catch (e) {
