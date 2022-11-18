@@ -161,7 +161,7 @@ export class FhirServiceRequest extends FhirResource {
       subject: new FhirReference({
         type: 'upstream://patient',
         reference: upstream.encounter.patient.id,
-        display: upstream.encounter.patient.displayName,
+        display: upstream.encounter.patient.displayId,
       }),
       occurrenceDateTime: dateTimeStringIntoCountryTimezone(upstream.requestedDate),
       requester: new FhirReference({
