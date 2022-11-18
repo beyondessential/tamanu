@@ -1,9 +1,7 @@
-import config from 'config';
 import { snake } from 'case';
 import { SYNC_SESSION_DIRECTION, COLUMNS_EXCLUDED_FROM_SYNC } from 'shared/sync';
 import { log } from 'shared/services/logging/log';
-
-const { readOnly } = config.sync;
+import { withConfig } from 'shared/utils/withConfig';
 
 const snapshotChangesForModel = async (
   model,
@@ -80,42 +78,37 @@ const snapshotChangesForModel = async (
   return count;
 };
 
-export const snapshotOutgoingChanges = async (
-  outgoingModels,
-  since,
-  patientIds,
-  sessionId,
-  facilityId,
-  sessionConfig,
-) => {
-  if (readOnly) {
-    return [];
-  }
-
-  let changesCount = 0;
-
-  for (const model of Object.values(outgoingModels)) {
-    try {
-      const modelChangesCount = await snapshotChangesForModel(
-        model,
-        since,
-        patientIds,
-        sessionId,
-        facilityId,
-        sessionConfig,
-      );
-
-      changesCount += modelChangesCount || 0;
-    } catch (e) {
-      log.error(`Failed to snapshot ${model.name}: `);
-      log.debug(e);
-      throw new Error(`Failed to snapshot ${model.name}: ${e.message}`);
+export const snapshotOutgoingChanges = withConfig(
+  async (outgoingModels, since, patientIds, sessionId, facilityId, sessionConfig, config) => {
+    if (config.sync.readOnly) {
+      return 0;
     }
-  }
 
-  log.debug(
-    `snapshotChangesForModel: Found a total of ${changesCount} for all models since ${since}, in session ${sessionId}`,
-  );
+    let changesCount = 0;
 
-  return changesCount;
-};
+    for (const model of Object.values(outgoingModels)) {
+      try {
+        const modelChangesCount = await snapshotChangesForModel(
+          model,
+          since,
+          patientIds,
+          sessionId,
+          facilityId,
+          sessionConfig,
+        );
+
+        changesCount += modelChangesCount || 0;
+      } catch (e) {
+        log.error(`Failed to snapshot ${model.name}: `);
+        log.debug(e);
+        throw new Error(`Failed to snapshot ${model.name}: ${e.message}`);
+      }
+    }
+
+    log.debug(
+      `snapshotChangesForModel: Found a total of ${changesCount} for all models since ${since}, in session ${sessionId}`,
+    );
+
+    return changesCount;
+  },
+);
