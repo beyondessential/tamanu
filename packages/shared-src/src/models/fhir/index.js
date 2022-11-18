@@ -1,5 +1,4 @@
 export * from './Patient';
-export * from './Practitioner';
 export * from './ServiceRequest';
 // TODO:
 // export * from './DiagnosticReport';
