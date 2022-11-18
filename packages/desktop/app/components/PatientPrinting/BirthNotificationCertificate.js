@@ -8,6 +8,7 @@ import { ageInYears, getCurrentDateString } from 'shared/utils/dateTime';
 import { Typography, Box } from '@material-ui/core';
 import { DateDisplay } from '../DateDisplay';
 import { PrintLetterhead } from './PrintLetterhead';
+import { FormGrid } from '../FormGrid';
 import { A4CertificateWrapper, CertificateWrapper } from './CertificateWrapper';
 import {
   Colors,
@@ -19,8 +20,12 @@ import {
   maritalStatusOptions,
 } from '../../constants';
 
-// margin-top: 10px;
-const ContentWrapper = styled.div``;
+const ContentWrapper = styled.div`
+  margin-top: 20px;
+  margin-bottom: 20px;
+  margin-right: 58px;
+  margin-left: 57px;
+`;
 
 const TopSection = styled.div`
   margin-top: 10px;
@@ -49,8 +54,8 @@ const Cell = styled(Box)`
 `;
 
 const Text = styled(Typography)`
-  font-size: 14px;
-  padding-left: 1rem;
+  font-size: 12px;
+  padding-left: 0.5rem;
 `;
 
 const StrongText = styled(Text)`
@@ -65,23 +70,28 @@ const SignatureText = styled(Typography)`
 `;
 
 const SignatureLine = styled(Divider)`
-  display: inline-block;
-  width: 100%;
-  background-color: ${Colors.darkestText};
-  bottom: 14px;
+  width: 153px;
+  height: 100%;
+  border-bottom: 1px solid ${Colors.darkestText};
 `;
 
-const TopContainer = styled.div`
+const SideBySideContainer = styled.div`
+  display: flex;
+  align-items: flex-end;
+  flex-direction: row;
+`;
+
+const SideBySideContainer2 = styled.div`
   display: flex;
   flex-direction: row;
   white-space: nowrap;
 `;
 
 const TopData = ({ name, children }) => (
-  <TopContainer>
-    <StrongText fontSize="16px">{`${name}: `}</StrongText>
+  <SideBySideContainer2>
+    <StrongText style={{ fontSize:"16px", marginRight:'5px' }}>{`${name}:`}</StrongText>
     {children}
-  </TopContainer>
+  </SideBySideContainer2>
 );
 
 const KeyCell = ({ children }) => (
@@ -235,7 +245,7 @@ export const BirthNotificationCertificate = React.memo(
     const { title, subTitle, logo } = certificateData;
 
     return (
-      <CertificateWrapper>
+      <A4CertificateWrapper>
         <ContentWrapper>
           <PrintLetterhead
             title={title}
@@ -253,30 +263,28 @@ export const BirthNotificationCertificate = React.memo(
           <ParentSection parentType="Mother" data={motherData} />
           <ParentSection parentType="Father" data={fatherData} />
           <BirthSection data={childData} />
-          <div display="grid">
-            <div style={{ gridTemplateColumns: '3fr 2fr' }}>
-              <div background="green">
-                {/* <SignatureText>Certified correct by:</SignatureText>
-                <SignatureLine /> */}
-              </div>
-              <div background="red">
-                {/* <SignatureText>Signed:</SignatureText>
-                <SignatureLine /> */}
-              </div>
-            </div>
-            <div style={{ gridTemplateColumns: '3fr 2fr' }}>
-              <div>
-                <SignatureText>Circle applicable:</SignatureText>
-                <SignatureText>Doctor/midwife/nurse</SignatureText>
-              </div>
-              <div>
-                <SignatureText>Date:</SignatureText>
-                <SignatureLine />
-              </div>
-            </div>
-          </div>
+          <FormGrid columns={2}>
+            <SideBySideContainer>
+              <SignatureText>Certified correct by:</SignatureText>
+              <SignatureLine />
+            </SideBySideContainer>
+            <SideBySideContainer>
+              <SignatureText>Signed:</SignatureText>
+              <SignatureLine />
+            </SideBySideContainer>
+          </FormGrid>
+          <FormGrid columns={2}>
+            <SideBySideContainer>
+              <SignatureText>Circle applicable:</SignatureText>
+              <SignatureText>Doctor/midwife/nurse</SignatureText>
+            </SideBySideContainer>
+            <SideBySideContainer>
+              <SignatureText>Date:</SignatureText>
+              <SignatureLine />
+            </SideBySideContainer>
+          </FormGrid>
         </ContentWrapper>
-      </CertificateWrapper>
+      </A4CertificateWrapper>
     );
   },
 );
