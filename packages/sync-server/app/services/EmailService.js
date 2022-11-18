@@ -30,7 +30,7 @@ async function getReadStreamSafe(path) {
 export class EmailService {
   constructor() {
     this.mailgunService =
-      apiKey && domain ? mailgun({ usename: 'api', key: apiKey, url: domain }) : null;
+      apiKey && domain ? mailgun.client({ username: 'api', key: apiKey }) : null;
   }
 
   async sendEmail({ attachment: untypedAttachment, ...email }) {
@@ -58,12 +58,12 @@ export class EmailService {
     }
 
     let attachment;
-    if (typeof attachment === 'string') {
+    if (typeof untypedAttachment === 'string') {
       try {
         // pass mailgun readable stream instead of the path
         attachment = {
-          data: await getReadStreamSafe(attachment),
-          filename: basename(attachment),
+          data: await getReadStreamSafe(untypedAttachment),
+          filename: basename(untypedAttachment),
         };
       } catch (e) {
         log.error('Could not read attachment for email', e);
@@ -77,7 +77,7 @@ export class EmailService {
     }
 
     try {
-      const emailResult = await this.mailgunService.messages.create({
+      const emailResult = await this.mailgunService.messages.create(domain, {
         ...email,
         attachment,
       });
