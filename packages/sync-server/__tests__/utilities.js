@@ -1,6 +1,7 @@
 import supertest from 'supertest';
 import Chance from 'chance';
 import http from 'http';
+import 'jest-expect-message';
 
 import { COMMUNICATION_STATUSES } from 'shared/constants';
 
