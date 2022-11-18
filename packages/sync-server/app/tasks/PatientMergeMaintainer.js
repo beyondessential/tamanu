@@ -5,6 +5,7 @@ import { log } from 'shared/services/logging';
 import { NOTE_RECORD_TYPES } from 'shared/constants/notes';
 
 import { simpleUpdateModels } from '../admin/patientMerge/mergePatient';
+import { reconcilePatient } from '../utils/removeDuplicatedPatientAdditionalData';
 
 export class PatientMergeMaintainer extends ScheduledTask {
   getName() {
@@ -22,6 +23,12 @@ export class PatientMergeMaintainer extends ScheduledTask {
   }
 
   async mergeAllRecordsForModel(model, patientFieldName = 'patient_id', additionalWhere = '') {
+    // Note that we're not doing any funky recursive stuff to find patients-that-have-been-merged
+    // -into-patients-that-have-been-merged-into-patients, we just do one level of merge per run.
+    // It's unlikely that a "patient merge chain" will get created within the space of a single
+    // sync-and-remerge cycle, and even if one does slip through the cracks it'll get resolved in
+    // the next pass anyway.
+
     const tableName = model.getTableName();
     const [, result] = await model.sequelize.query(`
       UPDATE ${tableName}
@@ -31,9 +38,9 @@ export class PatientMergeMaintainer extends ScheduledTask {
         patients.id = ${tableName}.${patientFieldName} 
         AND patients.merged_into_id IS NOT NULL
         ${additionalWhere}
-      RETURNING patients.id;
+      RETURNING patients.id, patients.merged_into_id;
     `);
-    return result;
+    return result.rows;
   }
 
   async remergePatientRecords() {
@@ -58,11 +65,11 @@ export class PatientMergeMaintainer extends ScheduledTask {
     
     // - patientAdditionalData: needs reconcile
     const { PatientAdditionalData } = this.models;
-    const patientIdsToReconcile = await this.mergeAllRecordsForModel(PatientAdditionalData);
-    for (const keepPatientId of patientIdsToReconcile) {
-      await reconcilePatient(PatientAdditionalData.sequelize, keepPatientId);
+    const patientRecordsToReconcile = await this.mergeAllRecordsForModel(PatientAdditionalData);
+    for (const keepPatientRecord of patientRecordsToReconcile) {
+      await reconcilePatient(PatientAdditionalData.sequelize, keepPatientRecord.merged_into_id);
     }
-    updateOutcomes('PatientAdditionalData', patientIdsToReconcile);
+    updateOutcomes('PatientAdditionalData', patientRecordsToReconcile);
     
     // - notePage: uses a different field + additional search criteria
     const noteRecords = await this.mergeAllRecordsForModel(

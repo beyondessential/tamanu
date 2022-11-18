@@ -1,11 +1,12 @@
 import { fake, fakeUser } from 'shared/test-helpers/fake';
-import { NOTE_TYPES } from 'shared/constants/notes';
+import { NOTE_RECORD_TYPES } from 'shared/constants/notes';
 import { VISIBILITY_STATUSES } from 'shared/constants';
 import { InvalidParameterError } from 'shared/errors';
 import {
   mergePatient,
   getTablesWithNoMergeCoverage,
 } from '../../app/admin/patientMerge/mergePatient';
+import { PatientMergeMaintainer } from '../../app/tasks/PatientMergeMaintainer';
 import { createTestContext } from '../utilities';
 
 describe('Patient merge', () => {
@@ -315,6 +316,92 @@ describe('Patient merge', () => {
         unwantedPatientId: 'doesnt exist',
       });
       expect(response).toHaveRequestError();
+    });
+  });
+
+  describe('Maintainer task', () => {
+    let maintainerTask;
+    beforeAll(() => {
+      maintainerTask = new PatientMergeMaintainer(ctx);
+    });
+
+    it("Should return an empty results object if there's nothing to do", async () => {
+      const results = await maintainerTask.remergePatientRecords();
+      expect(results).toEqual({});
+    });
+
+    it('Should remerge an encounter', async () => {
+      // This is a stand-in for all the simple merge models
+      const { Encounter } = models;
+
+      const [keep, merge] = await makeTwoPatients();
+      await mergePatient(models, keep.id, merge.id);
+
+      const enc = await Encounter.create({
+        ...fake(Encounter),
+        patientId: merge.id,
+      });
+
+      const results = await maintainerTask.remergePatientRecords();
+      expect(results).toEqual({
+        Encounter: 1,
+      });
+
+      await enc.reload();
+      expect(enc.patientId).toEqual(keep.id);
+    });
+
+    it('Should remerge some patient additional data', async () => {
+      const { PatientAdditionalData } = models;
+      
+      const [keep, merge] = await makeTwoPatients();
+      await mergePatient(models, keep.id, merge.id);
+
+      // give the Keep patient some PAD to reconcile into
+      const keepPad = await PatientAdditionalData.create({
+        passport: 'keep',
+        patientId: keep.id,
+      });
+      const mergePad = await PatientAdditionalData.create({
+        placeOfBirth: 'merge',
+        patientId: merge.id,
+      });
+
+      const results = await maintainerTask.remergePatientRecords();
+
+      expect(results).toEqual({
+        PatientAdditionalData: 1,
+      });
+
+      // all of the values should end up in the keep pad
+      await keepPad.reload();
+      expect(keepPad).toHaveProperty('passport', 'keep');      
+      expect(keepPad).toHaveProperty('placeOfBirth', 'merge');      
+
+      // and the merge pad should be deleted
+      await mergePad.reload({ paranoid: false });
+      expect(mergePad.deletedAt).toBeTruthy();
+    });
+
+    it('Should remerge a patient note', async () => {
+      const { NotePage } = models;
+
+      const [keep, merge] = await makeTwoPatients();
+      await mergePatient(models, keep.id, merge.id);
+
+      const note = await NotePage.create({
+        ...fake(NotePage),
+        recordType: NOTE_RECORD_TYPES.PATIENT,
+        recordId: merge.id,
+      });
+
+      const results = await maintainerTask.remergePatientRecords();
+      expect(results).toEqual({
+        NotePage: 1,
+      });
+
+      await note.reload();
+      expect(note.recordId).toEqual(keep.id);
     });
   });
 });
