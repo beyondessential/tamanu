@@ -18,7 +18,6 @@ const FIELDS = [
   'Appointment type',
   'Appointment status',
   'Clinician',
-  'Location',
   'Area',
 ];
 
@@ -54,7 +53,6 @@ select
 	a."type" "Appointment type",
 	a.status "Appointment status",
 	u.display_name "Clinician",
-	l.name "Location",
   coalesce(lg.name, 'Unknown') "Area"
 from appointments a
 join patients p on p.id = a.patient_id

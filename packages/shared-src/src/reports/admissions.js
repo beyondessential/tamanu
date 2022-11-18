@@ -30,7 +30,6 @@ const reportColumnTemplate = [
     title: 'Discharge Date',
     accessor: data => data.endDate && format(data.endDate, 'dd/MM/yyyy h:mm:ss a'),
   },
-  { title: 'Area', accessor: data => data.locationGroupName },
   { title: 'Location', accessor: data => data.locationHistoryString },
   { title: 'Department', accessor: data => data.departmentHistoryString },
   { title: 'Primary diagnoses', accessor: data => data.primaryDiagnoses },
@@ -68,8 +67,6 @@ const stringifyDiagnoses = (diagnoses, shouldBePrimary) =>
     .filter(({ isPrimary }) => isPrimary === shouldBePrimary)
     .map(({ Diagnosis }) => `${Diagnosis.code} ${Diagnosis.name}`)
     .join('; ');
-
-const getLocationGroupName = location => location?.locationGroup?.name || 'Unknown';
 
 const getAllNotes = async (models, encounterIds) => {
   const locationChangeNotePages = await models.NotePage.findAll({
@@ -160,13 +157,30 @@ const getPlaceHistoryFromNotes = (changeNotes, encounterData, placeType) => {
 
   return history;
 };
-const formatPlaceHistory = (history, placeType) =>
+const formatDepartmentHistory = (history, placeType) =>
   history
     .map(
       ({ to, date }) =>
         `${to} (${upperFirst(placeType)} assigned: ${format(date, 'dd/MM/yy h:mm a')})`,
     )
     .join('; ');
+
+const getLocationGroupName = location => location?.locationGroup?.name || 'Unknown';
+
+const formatLocationHistory = async (models, history, placeType) => {
+  const items = await Promise.all(
+    history.map(async ({ to, date }) => {
+      const location = await models.Location.findOne({
+        where: { name: to },
+        include: 'locationGroup',
+      });
+      return `${getLocationGroupName(location)}, ${location?.name} (${upperFirst(
+        placeType,
+      )} assigned: ${format(date, 'dd/MM/yy h:mm a')})`;
+    }),
+  );
+  return items.join('; ');
+};
 
 const filterResults = async (models, results, parameters) => {
   const { locationGroup, department } = parameters;
@@ -236,14 +250,22 @@ async function queryAdmissionsData(models, parameters) {
 
   const filteredResults = await filterResults(models, resultsWithHistory, parameters);
 
-  return filteredResults.map(result => ({
-    ...result,
-    locationGroupName: getLocationGroupName(result.location),
-    locationHistoryString: formatPlaceHistory(result.locationHistory, 'location'),
-    departmentHistoryString: formatPlaceHistory(result.departmentHistory, 'department'),
-    primaryDiagnoses: stringifyDiagnoses(result.diagnoses, true),
-    secondaryDiagnoses: stringifyDiagnoses(result.diagnoses, false),
-  }));
+  return Promise.all(
+    filteredResults.map(async result => {
+      const locationHistoryString = await formatLocationHistory(
+        models,
+        result.locationHistory,
+        'location',
+      );
+      return {
+        ...result,
+        locationHistoryString,
+        departmentHistoryString: formatDepartmentHistory(result.departmentHistory, 'department'),
+        primaryDiagnoses: stringifyDiagnoses(result.diagnoses, true),
+        secondaryDiagnoses: stringifyDiagnoses(result.diagnoses, false),
+      };
+    }),
+  );
 }
 
 export async function dataGenerator({ models }, parameters) {
