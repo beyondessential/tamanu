@@ -17,7 +17,7 @@ const useParent = (api, enabled, parentId) => {
 
   const { data: additionalData, isLoading: additionalDataLoading } = useQuery(
     ['additionalData', parentId],
-    () => api.get(`patient/${parentId}/additionalData`),
+    () => api.get(`patient/${encodeURIComponent(parentId)}/additionalData`),
     { enabled },
   );
 
@@ -50,13 +50,13 @@ const useParent = (api, enabled, parentId) => {
 
   const { data: grandMother, isLoading: grandMotherLoading } = useQuery(
     ['mothersName', additionalData?.motherId],
-    () => (additionalData?.motherId ? api.get(`patient/${additionalData?.motherId}`) : null),
+    () => (additionalData?.motherId ? api.get(`patient/${encodeURIComponent(additionalData?.motherId)}`) : null),
     { enabled: !additionalDataLoading },
   );
 
   const { data: grandFather, isLoading: grandFatherLoading } = useQuery(
     ['fathersName', additionalData?.fatherId],
-    () => (additionalData?.fatherId ? api.get(`patient/${additionalData?.fatherId}`) : null),
+    () => (additionalData?.fatherId ? api.get(`patient/${encodeURIComponent(additionalData?.fatherId)}`) : null),
     { enabled: !additionalDataLoading },
   );
 
@@ -101,11 +101,11 @@ export const BirthNotificationCertificateModal = React.memo(({ patient }) => {
   );
 
   const { data: birthData, isLoading: birthDataLoading } = useQuery(['birthData', patient.id], () =>
-    api.get(`patient/${patient.id}/birthData`),
+    api.get(`patient/${encodeURIComponent(patient.id)}/birthData`),
   );
 
   const { data: deathData, isLoading: deathDataLoading } = useQuery(['deathData', patient.id], () =>
-    api.get(`patient/${patient.id}/death`),
+    api.get(`patient/${encodeURIComponent(patient.id)}/death`),
   );
 
   const { data: ethnicity, isLoading: ethnicityLoading } = useQuery(
