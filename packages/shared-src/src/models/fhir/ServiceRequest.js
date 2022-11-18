@@ -31,24 +31,15 @@ export class FhirServiceRequest extends FhirResource {
           allowNull: false,
         },
         category: arrayOf('category', DataTypes.FHIR_CODEABLE_CONCEPT),
-        priority: {
-          type: DataTypes.TEXT,
-          allowNull: true,
-        },
-        code: {
-          type: DataTypes.FHIR_CODEABLE_CONCEPT,
-          allowNull: true,
-        },
+        priority: DataTypes.TEXT,
+        code: DataTypes.FHIR_CODEABLE_CONCEPT,
         orderDetail: arrayOf('orderDetail', DataTypes.FHIR_CODEABLE_CONCEPT),
         subject: {
           type: DataTypes.FHIR_REFERENCE,
           allowNull: false,
         },
-        occurrenceDateTime: dateTimeType('occurrenceDateTime', { allowNull: true }),
-        requester: {
-          type: DataTypes.FHIR_REFERENCE,
-          allowNull: true,
-        },
+        occurrenceDateTime: dateTimeType('occurrenceDateTime'),
+        requester: DataTypes.FHIR_REFERENCE,
         locationCode: arrayOf('locationCode', DataTypes.FHIR_CODEABLE_CONCEPT),
       },
       options,
