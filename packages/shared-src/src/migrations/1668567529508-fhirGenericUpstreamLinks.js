@@ -13,7 +13,7 @@ export async function up(query) {
         FROM fhir.patients p
         WHERE true
           AND (sr.subject).type = 'upstream://patient'
-          AND p.id::text = (sr.subject).reference
+          AND p.upstream_id::text = (sr.subject).reference
     $$
   `);
 
