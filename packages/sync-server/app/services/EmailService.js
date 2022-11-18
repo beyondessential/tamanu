@@ -1,7 +1,7 @@
 import config from 'config';
 import formData from 'form-data';
 import Mailgun from 'mailgun.js';
-import { createReadStream, promises as fsPromises } from 'fs';
+import { createReadStream } from 'fs';
 import { basename } from 'path';
 import { COMMUNICATION_STATUSES } from 'shared/constants';
 import { log } from 'shared/services/logging';
@@ -58,12 +58,12 @@ export class EmailService {
     }
 
     let attachment;
-    if (typeof attachment === 'string') {
+    if (typeof untypedAttachment === 'string') {
       try {
         // pass mailgun readable stream instead of the path
         attachment = {
-          data: await getReadStreamSafe(attachment),
-          filename: basename(attachment),
+          data: await getReadStreamSafe(untypedAttachment),
+          filename: basename(untypedAttachment),
         };
       } catch (e) {
         log.error('Could not read attachment for email', e);
@@ -79,8 +79,7 @@ export class EmailService {
     try {
       const emailResult = await this.mailgunService.messages.create(domain, {
         ...email,
-        // Todo: put attachments back into email once Tan-1882 is fixed and before this gets merged to dev
-        // attachment,
+        attachment,
       });
       return { status: COMMUNICATION_STATUSES.SENT, result: emailResult };
     } catch (e) {
