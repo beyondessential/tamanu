@@ -1,4 +1,4 @@
-import { format, formatRFC7231 } from 'date-fns';
+import { addDays, format, formatRFC7231 } from 'date-fns';
 
 import { fake, fakeReferenceData } from 'shared/test-helpers/fake';
 import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
@@ -68,7 +68,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       await ImagingRequestAreas.destroy({ where: {} });
     });
 
-    it.only('fetches a service request by materialised ID', async () => {
+    it('fetches a service request by materialised ID', async () => {
       // arrange
       const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
       const ir = await ImagingRequest.create(
@@ -92,7 +92,6 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       const response = await app.get(path);
 
       // assert
-      console.log(response.body);
       expect(response.body).toMatchObject({
         resourceType: 'ServiceRequest',
         id: expect.any(String),
@@ -141,11 +140,11 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
             ],
           },
         ],
-        // subject: {
-        //   reference: `Patient/${resources.pat.id}`,
-        //   type: 'Patient',
-        //   display: resources.patient.displayId,
-        // },
+        subject: {
+          reference: `Patient/${resources.pat.id}`,
+          type: 'Patient',
+          display: resources.patient.displayId,
+        },
         occurrenceDateTime: format(
           dateTimeStringIntoCountryTimezone('2022-03-04 15:30:00'),
           "yyyy-MM-dd'T'HH:mm:ssXXX",
@@ -163,12 +162,21 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       expect(response).toHaveSucceeded();
     });
 
-    it.skip('searches a single service request by Tamanu ID', async () => {
+    it('searches a single service request by Tamanu ID', async () => {
       // arrange
       const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
-      const ir = await ImagingRequest.create({
-        /* TODO */
-      });
+      const ir = await ImagingRequest.create(
+        fake(ImagingRequest, {
+          requestedById: resources.practitioner.id,
+          encounterId: resources.encounter.id,
+          locationId: resources.location.id,
+          status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+          priority: 'normal',
+          requestedDate: '2023-11-12 13:14:15',
+        }),
+      );
+      await ir.setAreas([resources.area1.id, resources.area2.id]);
+      await ir.reload();
       await FhirServiceRequest.materialiseFromUpstream(ir.id);
       await FhirServiceRequest.resolveUpstreams();
 
@@ -204,8 +212,65 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
               meta: {
                 lastUpdated: format(new Date(ir.updatedAt), "yyyy-MM-dd'T'HH:mm:ssXXX"),
               },
-              // identifier: [],
-              // TODO
+              identifier: [
+                {
+                  system: 'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html',
+                  value: ir.id,
+                },
+              ],
+              status: 'completed',
+              intent: 'order',
+              category: [
+                {
+                  coding: [
+                    {
+                      system: 'http://snomed.info/sct',
+                      code: '363679005',
+                    },
+                  ],
+                },
+              ],
+              priority: 'normal',
+              code: {
+                text: 'X-Ray',
+              },
+              orderDetail: [
+                {
+                  text: resources.extCode1.description,
+                  coding: [
+                    {
+                      code: resources.extCode1.code,
+                      system: 'http://data-dictionary.tamanu-fiji.org/rispacs-billing-code.html',
+                    },
+                  ],
+                },
+                {
+                  text: resources.extCode2.description,
+                  coding: [
+                    {
+                      code: resources.extCode2.code,
+                      system: 'http://data-dictionary.tamanu-fiji.org/rispacs-billing-code.html',
+                    },
+                  ],
+                },
+              ],
+              subject: {
+                reference: `Patient/${resources.pat.id}`,
+                type: 'Patient',
+                display: resources.patient.displayId,
+              },
+              occurrenceDateTime: format(
+                dateTimeStringIntoCountryTimezone('2023-11-12 13:14:15'),
+                "yyyy-MM-dd'T'HH:mm:ssXXX",
+              ),
+              requester: {
+                display: resources.practitioner.displayName,
+              },
+              locationCode: [
+                {
+                  text: resources.facility.name,
+                },
+              ],
             },
           },
         ],
@@ -213,23 +278,48 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       expect(response).toHaveSucceeded();
     });
 
-    it.skip('returns a list of service requests when passed no query params', async () => {
+    it('returns a list of service requests when passed no query params', async () => {
       // arrange
       const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
-      const irs = await Promise.all([
-        ImagingRequest.create({
-          /* TODO */
-        }),
-        ImagingRequest.create({
-          /* TODO */
-        }),
+      await Promise.all([
+        async () => {
+          const ir = ImagingRequest.create(
+            fake(ImagingRequest, {
+              requestedById: resources.practitioner.id,
+              encounterId: resources.encounter.id,
+              locationId: resources.location.id,
+              status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+              priority: 'urgent',
+              requestedDate: '2022-03-04 15:30:00',
+            }),
+          );
+
+          await ir.setAreas([resources.area1.id]);
+          await ir.reload();
+          return ir;
+        },
+        async () => {
+          const ir = ImagingRequest.create(
+            fake(ImagingRequest, {
+              requestedById: resources.practitioner.id,
+              encounterId: resources.encounter.id,
+              locationId: resources.location.id,
+              status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+              priority: 'normal',
+              requestedDate: '2023-11-12 13:14:15',
+            }),
+          );
+
+          await ir.setAreas([resources.area2.id]);
+          await ir.reload();
+          await FhirServiceRequest.materialiseFromUpstream(ir.id);
+          return ir;
+        },
       ]);
-      await Promise.all(ir.map(({ id }) => FhirServiceRequest.materialiseFromUpstream(id)));
       await FhirServiceRequest.resolveUpstreams();
-      const path = `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest`;
 
       // act
-      const response = await app.get(path);
+      const response = await app.get(`/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest`);
 
       // assert
       expect(response.body.total).toBe(2);
@@ -238,27 +328,201 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
   });
 
   describe('sorting', () => {
-    beforeEach(async () => {});
+    let irs;
+    beforeEach(async () => {
+      const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
+      irs = await Promise.all([
+        async () => {
+          const ir = ImagingRequest.create(
+            fake(ImagingRequest, {
+              requestedById: resources.practitioner.id,
+              encounterId: resources.encounter.id,
+              locationId: resources.location.id,
+              status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
+              priority: 'urgent',
+              requestedDate: '2022-03-04 15:30:00',
+              updatedAt: addDays(new Date(), 5),
+            }),
+          );
 
-    it.todo('sorts by lastUpdated ascending');
-    it.todo('sorts by lastUpdated descending');
+          await ir.setAreas([resources.area1.id]);
+          await ir.reload();
+          return ir;
+        },
+        async () => {
+          const ir = ImagingRequest.create(
+            fake(ImagingRequest, {
+              requestedById: resources.practitioner.id,
+              encounterId: resources.encounter.id,
+              locationId: resources.location.id,
+              status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+              priority: 'normal',
+              requestedDate: '2023-11-12 13:14:15',
+              updatedAt: addDays(new Date(), 10),
+            }),
+          );
 
-    it.todo('sorts by status');
-    it.todo('sorts by intent');
-    it.todo('sorts by priority');
-    it.todo('sorts by code');
+          await ir.setAreas([resources.area2.id]);
+          await ir.reload();
+          await FhirServiceRequest.materialiseFromUpstream(ir.id);
+          return ir;
+        },
+      ]);
+      await FhirServiceRequest.resolveUpstreams();
+    });
+
+    it('sorts by lastUpdated ascending', async () => {
+      const response = await app.get(
+        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?_sort=_lastUpdated`,
+      );
+
+      expect(response.body.total).toBe(2);
+      expect(response.body.entry.map(entry => entry.resource.identifier[0].value)).toBe([
+        irs[0].id,
+        irs[1].id,
+      ]);
+      expect(response).toHaveSucceeded();
+    });
+
+    it('sorts by lastUpdated descending', async () => {
+      const response = await app.get(
+        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?_sort=-_lastUpdated`,
+      );
+
+      expect(response.body.total).toBe(2);
+      expect(response.body.entry.map(entry => entry.resource.identifier[0].value)).toBe([
+        irs[1].id,
+        irs[0].id,
+      ]);
+      expect(response).toHaveSucceeded();
+    });
+
+    it('sorts by status', async () => {
+      const response = await app.get(
+        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?_sort=status`,
+      );
+
+      expect(response.body.total).toBe(2);
+      expect(response.body.entry.map(entry => entry.resource.identifier[0].value)).toBe([
+        irs[1].id,
+        irs[0].id,
+      ]);
+      expect(response).toHaveSucceeded();
+    });
+
+    it('sorts by priority', async () => {
+      const response = await app.get(
+        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?_sort=priority`,
+      );
+
+      expect(response.body.total).toBe(2);
+      expect(response.body.entry.map(entry => entry.resource.identifier[0].value)).toBe([
+        irs[1].id,
+        irs[0].id,
+      ]);
+      expect(response).toHaveSucceeded();
+    });
   });
 
   describe('filtering', () => {
-    beforeEach(async () => {});
+    let irs;
+    beforeEach(async () => {
+      const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
+      irs = await Promise.all([
+        async () => {
+          const ir = ImagingRequest.create(
+            fake(ImagingRequest, {
+              requestedById: resources.practitioner.id,
+              encounterId: resources.encounter.id,
+              locationId: resources.location.id,
+              status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
+              priority: 'urgent',
+              requestedDate: '2022-03-04 15:30:00',
+              updatedAt: addDays(new Date(), 5),
+            }),
+          );
 
-    it.todo('filters by lastUpdated:gt');
+          await ir.setAreas([resources.area1.id]);
+          await ir.reload();
+          return ir;
+        },
+        async () => {
+          const ir = ImagingRequest.create(
+            fake(ImagingRequest, {
+              requestedById: resources.practitioner.id,
+              encounterId: resources.encounter.id,
+              locationId: resources.location.id,
+              status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
+              priority: 'normal',
+              requestedDate: '2023-11-12 13:14:15',
+              updatedAt: addDays(new Date(), 10),
+            }),
+          );
 
-    it.todo('filters by upstream ID (identifier)');
-    it.todo('filters by status');
-    it.todo('filters by intent');
-    it.todo('filters by priority');
-    it.todo('filters by code');
+          await ir.setAreas([resources.area2.id]);
+          await ir.reload();
+          await FhirServiceRequest.materialiseFromUpstream(ir.id);
+          return ir;
+        },
+      ]);
+      await FhirServiceRequest.resolveUpstreams();
+    });
+
+    it('filters by lastUpdated:gt with a date', async () => {
+      const response = await app.get(
+        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?_lastUpdated:gt=${format(
+          addDays(new Date(), 7),
+          'YYYY-MM-DD',
+        )}`,
+      );
+
+      expect(response.body.total).toBe(1);
+      expect(response.body.entry[0].resource.identifier[0].value).toBe(irs[1].id);
+      expect(response).toHaveSucceeded();
+    });
+
+    it('filters by lastUpdated:gt with a datetime', async () => {
+      const response = await app.get(
+        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?_lastUpdated:gt=${format(
+          addDays(new Date(), 7),
+          "yyyy-MM-dd'T'HH:mm:ssXXX",
+        )}`,
+      );
+
+      expect(response.body.total).toBe(1);
+      expect(response.body.entry[0].resource.identifier[0].value).toBe(irs[1].id);
+      expect(response).toHaveSucceeded();
+    });
+
+    it('filters by upstream ID (identifier)', async () => {
+      const response = await app.get(
+        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?identifier=${irs[0].id}`,
+      );
+
+      expect(response.body.total).toBe(1);
+      expect(response.body.entry[0].resource.identifier[0].value).toBe(irs[1].id);
+      expect(response).toHaveSucceeded();
+    });
+
+    it('filters by status', async () => {
+      const response = await app.get(
+        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?status=in-progress`,
+      );
+
+      expect(response.body.total).toBe(1);
+      expect(response.body.entry[0].resource.identifier[0].value).toBe(irs[0].id);
+      expect(response).toHaveSucceeded();
+    });
+
+    it('filters by priority', async () => {
+      const response = await app.get(
+        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?priority=urgent`,
+      );
+
+      expect(response.body.total).toBe(1);
+      expect(response.body.entry[0].resource.identifier[0].value).toBe(irs[0].id);
+      expect(response).toHaveSucceeded();
+    });
   });
 
   describe('errors', () => {
