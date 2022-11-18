@@ -1,6 +1,6 @@
 import { addDays, format, formatRFC7231 } from 'date-fns';
 
-import { fake, fakeReferenceData } from 'shared/test-helpers/fake';
+import { fake, fakeReferenceData } from 'shared/test-helpers';
 import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
 
 import { createTestContext } from '../../utilities';
@@ -277,80 +277,40 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       });
       expect(response).toHaveSucceeded();
     });
-
-    it('returns a list of service requests when passed no query params', async () => {
-      // arrange
-      const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
-      await Promise.all([
-        async () => {
-          const ir = ImagingRequest.create(
-            fake(ImagingRequest, {
-              requestedById: resources.practitioner.id,
-              encounterId: resources.encounter.id,
-              locationId: resources.location.id,
-              status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
-              priority: 'urgent',
-              requestedDate: '2022-03-04 15:30:00',
-            }),
-          );
-
-          await ir.setAreas([resources.area1.id]);
-          await ir.reload();
-          return ir;
-        },
-        async () => {
-          const ir = ImagingRequest.create(
-            fake(ImagingRequest, {
-              requestedById: resources.practitioner.id,
-              encounterId: resources.encounter.id,
-              locationId: resources.location.id,
-              status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
-              priority: 'normal',
-              requestedDate: '2023-11-12 13:14:15',
-            }),
-          );
-
-          await ir.setAreas([resources.area2.id]);
-          await ir.reload();
-          await FhirServiceRequest.materialiseFromUpstream(ir.id);
-          return ir;
-        },
-      ]);
-      await FhirServiceRequest.resolveUpstreams();
-
-      // act
-      const response = await app.get(`/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest`);
-
-      // assert
-      expect(response.body.total).toBe(2);
-      expect(response).toHaveSucceeded();
-    });
   });
 
-  describe('sorting', () => {
+  describe('search', () => {
     let irs;
-    beforeEach(async () => {
-      const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
+    beforeAll(async () => {
+      const { FhirServiceRequest, ImagingRequest, ImagingRequestAreas } = ctx.store.models;
+      await FhirServiceRequest.destroy({ where: {} });
+      await ImagingRequest.destroy({ where: {} });
+      await ImagingRequestAreas.destroy({ where: {} });
+
       irs = await Promise.all([
-        async () => {
-          const ir = ImagingRequest.create(
+        (async () => {
+          const ir = await ImagingRequest.create(
             fake(ImagingRequest, {
               requestedById: resources.practitioner.id,
               encounterId: resources.encounter.id,
               locationId: resources.location.id,
-              status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
+              status: IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS,
               priority: 'urgent',
               requestedDate: '2022-03-04 15:30:00',
-              updatedAt: addDays(new Date(), 5),
             }),
           );
 
           await ir.setAreas([resources.area1.id]);
+          await ImagingRequest.sequelize.query(
+            `UPDATE imaging_requests SET updated_at = $1 WHERE id = $2`,
+            { bind: [addDays(new Date(), 5), ir.id] },
+          );
           await ir.reload();
+          await FhirServiceRequest.materialiseFromUpstream(ir.id);
           return ir;
-        },
-        async () => {
-          const ir = ImagingRequest.create(
+        })(),
+        (async () => {
+          const ir = await ImagingRequest.create(
             fake(ImagingRequest, {
               requestedById: resources.practitioner.id,
               encounterId: resources.encounter.id,
@@ -358,17 +318,27 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
               status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
               priority: 'normal',
               requestedDate: '2023-11-12 13:14:15',
-              updatedAt: addDays(new Date(), 10),
             }),
           );
 
           await ir.setAreas([resources.area2.id]);
+          await ImagingRequest.sequelize.query(
+            `UPDATE imaging_requests SET updated_at = $1 WHERE id = $2`,
+            { bind: [addDays(new Date(), 10), ir.id] },
+          );
           await ir.reload();
           await FhirServiceRequest.materialiseFromUpstream(ir.id);
           return ir;
-        },
+        })(),
       ]);
       await FhirServiceRequest.resolveUpstreams();
+    });
+
+    it('returns a list when passed no query params', async () => {
+      const response = await app.get(`/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest`);
+
+      expect(response.body.total).toBe(2);
+      expect(response).toHaveSucceeded();
     });
 
     it('sorts by lastUpdated ascending', async () => {
@@ -377,7 +347,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       );
 
       expect(response.body.total).toBe(2);
-      expect(response.body.entry.map(entry => entry.resource.identifier[0].value)).toBe([
+      expect(response.body.entry.map(entry => entry.resource.identifier[0].value)).toEqual([
         irs[0].id,
         irs[1].id,
       ]);
@@ -390,7 +360,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       );
 
       expect(response.body.total).toBe(2);
-      expect(response.body.entry.map(entry => entry.resource.identifier[0].value)).toBe([
+      expect(response.body.entry.map(entry => entry.resource.identifier[0].value)).toEqual([
         irs[1].id,
         irs[0].id,
       ]);
@@ -403,9 +373,9 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       );
 
       expect(response.body.total).toBe(2);
-      expect(response.body.entry.map(entry => entry.resource.identifier[0].value)).toBe([
-        irs[1].id,
-        irs[0].id,
+      expect(response.body.entry.map(entry => entry.resource.identifier[0].value)).toEqual([
+        irs[0].id, // active
+        irs[1].id, // completed
       ]);
       expect(response).toHaveSucceeded();
     });
@@ -416,63 +386,18 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       );
 
       expect(response.body.total).toBe(2);
-      expect(response.body.entry.map(entry => entry.resource.identifier[0].value)).toBe([
-        irs[1].id,
-        irs[0].id,
+      expect(response.body.entry.map(entry => entry.resource.identifier[0].value)).toEqual([
+        irs[1].id, // normal
+        irs[0].id, // urgent
       ]);
       expect(response).toHaveSucceeded();
     });
-  });
 
-  describe('filtering', () => {
-    let irs;
-    beforeEach(async () => {
-      const { FhirServiceRequest, ImagingRequest } = ctx.store.models;
-      irs = await Promise.all([
-        async () => {
-          const ir = ImagingRequest.create(
-            fake(ImagingRequest, {
-              requestedById: resources.practitioner.id,
-              encounterId: resources.encounter.id,
-              locationId: resources.location.id,
-              status: IMAGING_REQUEST_STATUS_TYPES.PENDING,
-              priority: 'urgent',
-              requestedDate: '2022-03-04 15:30:00',
-              updatedAt: addDays(new Date(), 5),
-            }),
-          );
-
-          await ir.setAreas([resources.area1.id]);
-          await ir.reload();
-          return ir;
-        },
-        async () => {
-          const ir = ImagingRequest.create(
-            fake(ImagingRequest, {
-              requestedById: resources.practitioner.id,
-              encounterId: resources.encounter.id,
-              locationId: resources.location.id,
-              status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
-              priority: 'normal',
-              requestedDate: '2023-11-12 13:14:15',
-              updatedAt: addDays(new Date(), 10),
-            }),
-          );
-
-          await ir.setAreas([resources.area2.id]);
-          await ir.reload();
-          await FhirServiceRequest.materialiseFromUpstream(ir.id);
-          return ir;
-        },
-      ]);
-      await FhirServiceRequest.resolveUpstreams();
-    });
-
-    it('filters by lastUpdated:gt with a date', async () => {
+    it('filters by lastUpdated=gt with a date', async () => {
       const response = await app.get(
-        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?_lastUpdated:gt=${format(
+        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?_lastUpdated=gt${format(
           addDays(new Date(), 7),
-          'YYYY-MM-DD',
+          'yyyy-MM-dd',
         )}`,
       );
 
@@ -481,11 +406,10 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       expect(response).toHaveSucceeded();
     });
 
-    it('filters by lastUpdated:gt with a datetime', async () => {
+    it('filters by lastUpdated=gt with a datetime', async () => {
       const response = await app.get(
-        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?_lastUpdated:gt=${format(
-          addDays(new Date(), 7),
-          "yyyy-MM-dd'T'HH:mm:ssXXX",
+        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?_lastUpdated=gt${encodeURIComponent(
+          format(addDays(new Date(), 7), "yyyy-MM-dd'T'HH:mm:ssXXX"),
         )}`,
       );
 
@@ -500,13 +424,13 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       );
 
       expect(response.body.total).toBe(1);
-      expect(response.body.entry[0].resource.identifier[0].value).toBe(irs[1].id);
+      expect(response.body.entry[0].resource.identifier[0].value).toBe(irs[0].id);
       expect(response).toHaveSucceeded();
     });
 
     it('filters by status', async () => {
       const response = await app.get(
-        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?status=in-progress`,
+        `/v1/integration/${INTEGRATION_ROUTE}/ServiceRequest?status=active`,
       );
 
       expect(response.body.total).toBe(1);
