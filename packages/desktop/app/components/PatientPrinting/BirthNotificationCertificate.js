@@ -19,13 +19,6 @@ import {
   maritalStatusOptions,
 } from '../../constants';
 
-const ContentWrapper = styled.div`
-  margin-top: 20px;
-  margin-bottom: 20px;
-  margin-right: 58px;
-  margin-left: 57px;
-`;
-
 const TopSection = styled.div`
   margin-top: 10px;
   display: flex;
