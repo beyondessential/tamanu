@@ -330,7 +330,7 @@ describe('fijiAspenMediciReport', () => {
     const { patient, encounterId, location1Id } = await fakeAllData(models);
 
     // act
-    const response = await app.post('/v1/reports/fiji-aspen-encounter-summary-line-list').send({
+    const response = await app.post('/v1/reports/encounter-summary-line-list').send({
       parameters: {
         location: location1Id,
       }
