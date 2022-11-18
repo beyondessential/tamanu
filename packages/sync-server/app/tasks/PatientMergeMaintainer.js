@@ -62,7 +62,7 @@ export class PatientMergeMaintainer extends ScheduledTask {
     // then the complex model updates:
 
     // - patient: no merge required here (it will either already be merged or won't need it)
-    
+
     // - patientAdditionalData: needs reconcile
     const { PatientAdditionalData } = this.models;
     const patientRecordsToReconcile = await this.mergeAllRecordsForModel(PatientAdditionalData);
@@ -70,12 +70,12 @@ export class PatientMergeMaintainer extends ScheduledTask {
       await reconcilePatient(PatientAdditionalData.sequelize, keepPatientRecord.merged_into_id);
     }
     updateOutcomes('PatientAdditionalData', patientRecordsToReconcile);
-    
+
     // - notePage: uses a different field + additional search criteria
     const noteRecords = await this.mergeAllRecordsForModel(
       this.models.NotePage,
       'record_id',
-      `AND record_type = '${NOTE_RECORD_TYPES.PATIENT}'`
+      `AND record_type = '${NOTE_RECORD_TYPES.PATIENT}'`,
     );
     updateOutcomes('NotePage', noteRecords);
 
@@ -84,6 +84,6 @@ export class PatientMergeMaintainer extends ScheduledTask {
 
   async run() {
     const outcomes = await this.remergePatientRecords();
-    log.info("PatientMergeMaintainer finished merging. Records affected:", outcomes);
+    log.info('PatientMergeMaintainer finished merging. Records affected:', outcomes);
   }
 }
