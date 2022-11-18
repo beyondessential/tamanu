@@ -21,10 +21,6 @@ export class PatientMergeMaintainer extends ScheduledTask {
     this.models = context.store.models;
   }
 
-  async countQueue() {
-    return 0;
-  }
-
   async mergeAllRecordsForModel(model, patientFieldName = 'patient_id', additionalWhere = '') {
     const tableName = model.getTableName();
     const [, result] = await model.sequelize.query(`
@@ -40,29 +36,47 @@ export class PatientMergeMaintainer extends ScheduledTask {
     return result;
   }
 
-  async run() {
-    // simple models
+  async remergePatientRecords() {
+    const outcomes = {};
+    const updateOutcomes = (name, records) => {
+      const len = records.length;
+      if (len > 0) {
+        outcomes[name] = len;
+      }
+    };
+
+    // do all the simple model updates
     for (const modelName of simpleUpdateModels) {
       const model = this.models[modelName];
-      await this.mergeAllRecordsForModel(model);
+      const records = await this.mergeAllRecordsForModel(model);
+      updateOutcomes(modelName, records);
     }
 
-    // complex model updates
-    const { PatientAdditionalData } = this.models;
+    // then the complex model updates:
 
     // - patient: no merge required here (it will either already be merged or won't need it)
     
     // - patientAdditionalData: needs reconcile
+    const { PatientAdditionalData } = this.models;
     const patientIdsToReconcile = await this.mergeAllRecordsForModel(PatientAdditionalData);
     for (const keepPatientId of patientIdsToReconcile) {
       await reconcilePatient(PatientAdditionalData.sequelize, keepPatientId);
     }
+    updateOutcomes('PatientAdditionalData', patientIdsToReconcile);
     
     // - notePage: uses a different field + additional search criteria
-    await this.mergeAllRecordsForModel(
+    const noteRecords = await this.mergeAllRecordsForModel(
       this.models.NotePage,
       'record_id',
       `AND record_type = '${NOTE_RECORD_TYPES.PATIENT}'`
     );
+    updateOutcomes('NotePage', noteRecords);
+
+    return outcomes;
+  }
+
+  async run() {
+    const outcomes = await this.remergePatientRecords();
+    log.info("PatientMergeMaintainer finished merging. Records affected:", outcomes);
   }
 }
