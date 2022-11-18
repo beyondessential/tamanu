@@ -35,7 +35,7 @@ export class COMPOSITE extends ABSTRACT {
         return null;
       }
 
-      console.log({klass: this.constructor.name, value, options, hasValueClass: !!this.constructor.ValueClass});
+      // console.log({klass: this.constructor.name, value, options, hasValueClass: !!this.constructor.ValueClass});
       return this.constructor.ValueClass.fromSql(value, options);
     }
   }
