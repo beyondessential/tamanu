@@ -119,10 +119,10 @@ const TitleRow = styled(Row)`
 const SingleRow = styled(Row)`
   grid-template-columns: ${125 / 480}fr ${355 / 480}fr;
 `;
-const DoubleRow1 = styled(Row)`
+const DoubleRowLargeLeft = styled(Row)`
   grid-template-columns: ${125 / 480}fr ${167 / 480}fr ${87 / 480}fr ${101 / 480}fr;
 `;
-const DoubleRow2 = styled(Row)`
+const DoubleRowEvenSpread = styled(Row)`
   grid-template-columns: ${125 / 480}fr ${119 / 480}fr ${101 / 480}fr ${135 / 480}fr;
 `;
 const TripleRow = styled(Row)`
@@ -145,26 +145,26 @@ const ParentSection = ({ parentType, data = {} }) => {
         <KeyCell>Name</KeyCell>
         <ValueCell>{getFullName(data)}</ValueCell>
       </SingleRow>
-      <DoubleRow1>
+      <DoubleRowLargeLeft>
         <KeyCell>Ethnicity</KeyCell>
         <ValueCell>{data?.ethnicity?.name}</ValueCell>
         <KeyCell>Marital status</KeyCell>
         <ValueCell>
           {getLabelFromValue(maritalStatusOptions, data?.additionalData?.maritalStatus)}
         </ValueCell>
-      </DoubleRow1>
-      <DoubleRow1>
+      </DoubleRowLargeLeft>
+      <DoubleRowLargeLeft>
         <KeyCell>Date of birth</KeyCell>
         <ValueCell>{data?.dateOfBirth ? <DateDisplay date={data?.dateOfBirth} /> : ''}</ValueCell>
         <KeyCell>Age</KeyCell>
         <ValueCell>{data?.dateOfBirth ? ageInYears(data.dateOfBirth) : ''}</ValueCell>
-      </DoubleRow1>
-      <DoubleRow1>
+      </DoubleRowLargeLeft>
+      <DoubleRowLargeLeft>
         <KeyCell>Occupation</KeyCell>
         <ValueCell>{data?.occupation?.name}</ValueCell>
         <KeyCell>Patient ID</KeyCell>
         <ValueCell>{data?.displayId}</ValueCell>
-      </DoubleRow1>
+      </DoubleRowLargeLeft>
       <SingleRow>
         <KeyCell>Address</KeyCell>
         <ValueCell>{data?.additionalData?.streetVillage}</ValueCell>
@@ -223,20 +223,20 @@ const BirthSection = ({ data }) => {
           {getLabelFromValue(PLACE_OF_BIRTH_OPTIONS, data?.birthData?.registeredBirthPlace)}
         </ValueCell>
       </SingleRow>
-      <DoubleRow2>
+      <DoubleRowEvenSpread>
         <KeyCell>Sex</KeyCell>
         <ValueCell>{getLabelFromValue(sexOptions, data?.sex)}</ValueCell>
         <KeyCell>Ethnicity</KeyCell>
         <ValueCell>{data?.ethnicity?.name}</ValueCell>
-      </DoubleRow2>
-      <DoubleRow2>
+      </DoubleRowEvenSpread>
+      <DoubleRowEvenSpread>
         <KeyCell>Attendant at birth</KeyCell>
         <ValueCell>
           {getLabelFromValue(ATTENDANT_OF_BIRTH_OPTIONS, data?.birthData?.attendantAtBirth)}
         </ValueCell>
         <KeyCell>Name of attendant</KeyCell>
         <ValueCell>{data?.birthData?.nameOfAttendantAtBirth}</ValueCell>
-      </DoubleRow2>
+      </DoubleRowEvenSpread>
       {shouldDisplayDeath ? (
         <SingleRow>
           <KeyCell>Cause of foetal death</KeyCell>
