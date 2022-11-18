@@ -113,7 +113,7 @@ export class FhirServiceRequest extends FhirResource {
         upstream.location?.updatedAt,
         upstream.location?.facility?.updatedAt,
         ...upstream.areas.map(area => area.updatedAt),
-        ...areaExtCodes.map(ext => ext.updatedAt),
+        ...[...areaExtCodes.values()].map(ext => ext.updatedAt),
       ),
       identifier: [
         new FhirIdentifier({
