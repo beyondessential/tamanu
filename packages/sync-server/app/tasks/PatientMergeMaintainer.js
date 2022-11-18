@@ -2,6 +2,9 @@ import config from 'config';
 
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
+import { NOTE_RECORD_TYPES } from 'shared/constants/notes';
+
+import { simpleUpdateModels } from '../admin/patientMerge/mergePatient';
 
 export class PatientMergeMaintainer extends ScheduledTask {
   getName() {
@@ -22,15 +25,44 @@ export class PatientMergeMaintainer extends ScheduledTask {
     return 0;
   }
 
-  async run() {
-    // get which models have a patient merge aspect?
-    const sql = `
-      SELECT ${table}.id
-      FROM ${table}
-      JOIN patients ON patients.id = ${table}.patient_id
-      WHERE patients.merged_into_id IS NOT NULL
-    `;
+  async mergeAllRecordsForModel(model, patientFieldName = 'patient_id', additionalWhere = '') {
+    const tableName = model.getTableName();
+    const [, result] = await model.sequelize.query(`
+      UPDATE ${tableName}
+      SET ${patientFieldName} = patients.merged_into_id
+      FROM patients 
+      WHERE 
+        patients.id = ${tableName}.${patientFieldName} 
+        AND patients.merged_into_id IS NOT NULL
+        ${additionalWhere}
+      RETURNING patients.id;
+    `);
+    return result;
+  }
 
-    log.info('PatientMergeMaintainer finished running');
+  async run() {
+    // simple models
+    for (const modelName of simpleUpdateModels) {
+      const model = this.models[modelName];
+      await this.mergeAllRecordsForModel(model);
+    }
+
+    // complex model updates
+    const { PatientAdditionalData } = this.models;
+
+    // - patient: no merge required here (it will either already be merged or won't need it)
+    
+    // - patientAdditionalData: needs reconcile
+    const patientIdsToReconcile = await this.mergeAllRecordsForModel(PatientAdditionalData);
+    for (const keepPatientId of patientIdsToReconcile) {
+      await reconcilePatient(PatientAdditionalData.sequelize, keepPatientId);
+    }
+    
+    // - notePage: uses a different field + additional search criteria
+    await this.mergeAllRecordsForModel(
+      this.models.NotePage,
+      'record_id',
+      `AND record_type = '${NOTE_RECORD_TYPES.PATIENT}'`
+    );
   }
 }

@@ -8,7 +8,7 @@ import { reconcilePatient } from '../../utils/removeDuplicatedPatientAdditionalD
 // These ones just need a patientId switched over.
 // Models included here will just have their patientId field
 // redirected to the new patient and that's all.
-const simpleUpdateModels = [
+export const simpleUpdateModels = [
   'Encounter',
   'PatientAllergy',
   'PatientFamilyHistory',
@@ -29,7 +29,7 @@ const simpleUpdateModels = [
 // These ones need a little more attention.
 // Models in this array will be ignored by the automatic pass
 // so that they can be handled elsewhere.
-const specificUpdateModels = ['Patient', 'PatientAdditionalData'];
+const specificUpdateModels = ['Patient', 'PatientAdditionalData', 'NotePage'];
 
 const fieldReferencesPatient = field => field.references?.model === 'patients';
 const modelReferencesPatient = ([, model]) =>
