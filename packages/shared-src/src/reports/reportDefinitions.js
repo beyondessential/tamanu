@@ -377,7 +377,7 @@ export const REPORT_DEFINITIONS = [
   },
   {
     name: 'Encounter summary - Line list',
-    id: 'fiji-aspen-encounter-summary-line-list',
+    id: 'encounter-summary-line-list',
     dateRangeLabel: ALL_TIME_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
     filterDateRangeAsStrings: true,
