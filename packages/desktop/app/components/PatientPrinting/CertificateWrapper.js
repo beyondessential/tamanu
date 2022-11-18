@@ -23,22 +23,3 @@ export const CertificateWrapper = styled.div`
     background-repeat: no-repeat;
   }
 `;
-
-export const A4CertificateWrapperParent = styled.div`
-  margin: 5px;
-  overflow: scroll;
-`;
-
-export const A4CertificateWrapperChild = styled(CertificateWrapper)`
-  background: white;
-  height: 297mm;
-  width: 210mm;
-`;
-
-export const A4CertificateWrapper = ({children}) => (
-  <A4CertificateWrapperParent>
-    <A4CertificateWrapperChild>
-      {children}
-    </A4CertificateWrapperChild>
-  </A4CertificateWrapperParent>
-)

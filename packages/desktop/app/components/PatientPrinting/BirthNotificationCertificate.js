@@ -78,6 +78,7 @@ const SignatureLine = styled(Divider)`
 const SideBySideContainer = styled.div`
   display: flex;
   align-items: flex-end;
+  justify-content: space-between;
   flex-direction: row;
 `;
 
@@ -89,7 +90,7 @@ const SideBySideContainer2 = styled.div`
 
 const TopData = ({ name, children }) => (
   <SideBySideContainer2>
-    <StrongText style={{ fontSize:"16px", marginRight:'5px' }}>{`${name}:`}</StrongText>
+    <StrongText style={{ fontSize: '16px', marginRight: '5px', marginLeft: '0px' }}>{`${name}:`}</StrongText>
     {children}
   </SideBySideContainer2>
 );
@@ -245,7 +246,7 @@ export const BirthNotificationCertificate = React.memo(
     const { title, subTitle, logo } = certificateData;
 
     return (
-      <A4CertificateWrapper>
+      <CertificateWrapper>
         <ContentWrapper>
           <PrintLetterhead
             title={title}
@@ -284,7 +285,7 @@ export const BirthNotificationCertificate = React.memo(
             </SideBySideContainer>
           </FormGrid>
         </ContentWrapper>
-      </A4CertificateWrapper>
+      </CertificateWrapper>
     );
   },
 );
