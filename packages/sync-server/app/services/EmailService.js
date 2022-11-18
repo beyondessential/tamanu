@@ -58,12 +58,12 @@ export class EmailService {
     }
 
     let attachment;
-    if (typeof attachment === 'string') {
+    if (typeof untypedAttachment === 'string') {
       try {
         // pass mailgun readable stream instead of the path
         attachment = {
-          data: await getReadStreamSafe(attachment),
-          filename: basename(attachment),
+          data: await fsPromises.readFile(untypedAttachment),
+          filename: basename(untypedAttachment),
         };
       } catch (e) {
         log.error('Could not read attachment for email', e);
@@ -79,7 +79,7 @@ export class EmailService {
     try {
       const emailResult = await this.mailgunService.messages.create(domain, {
         ...email,
-        // attachment,
+        attachment,
       });
       return { status: COMMUNICATION_STATUSES.SENT, result: emailResult };
     } catch (e) {
