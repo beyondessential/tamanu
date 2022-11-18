@@ -1,5 +1,5 @@
 import { fake, fakeUser } from 'shared/test-helpers/fake';
-import { NOTE_RECORD_TYPES } from 'shared/constants/notes';
+import { NOTE_TYPES } from 'shared/constants/notes';
 import { VISIBILITY_STATUSES } from 'shared/constants';
 import { InvalidParameterError } from 'shared/errors';
 import {
@@ -389,10 +389,8 @@ describe('Patient merge', () => {
       const [keep, merge] = await makeTwoPatients();
       await mergePatient(models, keep.id, merge.id);
 
-      const note = await NotePage.create({
+      const note = await merge.createNotePage({
         ...fake(NotePage),
-        recordType: NOTE_RECORD_TYPES.PATIENT,
-        recordId: merge.id,
       });
 
       const results = await maintainerTask.remergePatientRecords();
