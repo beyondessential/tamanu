@@ -36,12 +36,12 @@ jobs:
     # ignore lint or storybook failures when deciding whether to run cleanup.
     # not running it absolutely always lets us retry particular test jobs without
     # having to re-run the whole workflow!
-    if: always() && needs.test.result == 'success' && needs.test-migrations.result == 'success'
+    if: always() && needs.test.result == 'success' && needs.migrations.result == 'success'
     needs:
       - test
       - lint
       - storybook
-      - test-migrations
+      - migrations
     runs-on: ${{ matrix.os }}-latest
     steps:
     - uses: geekyeggo/delete-artifact@v2
@@ -136,7 +136,7 @@ jobs:
 
     - run: yarn workspace desktop run verify-storybook
 
-  test-migrations:
+  migrations:
     needs: build
 
     strategy:
