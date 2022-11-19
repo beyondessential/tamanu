@@ -10,7 +10,12 @@ on:
       - gha-test
 
 jobs:
+  build:
+    uses: ./.github/workflows/build-shared.yml
+
   test:
+    needs: build
+
     strategy:
       fail-fast: false
       matrix:
@@ -50,9 +55,11 @@ jobs:
         yarn config set workspaces-experimental true
         yarn config set workspaces-nohoist-experimental true
 
-    - run: yarn
-    - run: yarn build-shared
-    
+    - name: Get prebuilt shared
+      uses: actions/download-artifact@v3
+      with:
+        name: "${{ matrix.os }}_${{ matrix.node }}"
+
     - name: Start postgres if needed
       if: matrix.package == 'sync-server' || matrix.package == 'lan'
       run: |
