@@ -18,10 +18,11 @@ jobs:
     uses: ./.github/workflows/build-shared.yml
 
   clean:
+    # this only needs to wait for every dependent job to *download the artifact*
+    # not for all dependent jobs to finish, but there's no easy way to do that
+    # so we just wait for the longest job to finish
     needs:
       - test
-      - test-migrations
-      - lint
     uses: ./.github/workflows/delete-shared.yml
 
   test:
@@ -84,6 +85,7 @@ jobs:
 
   lint:
     needs: build
+    continue-on-error: true
 
     strategy:
       fail-fast: false
