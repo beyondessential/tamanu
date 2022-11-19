@@ -22,7 +22,6 @@ jobs:
       - test
       - test-migrations
       - lint
-      - storybook
     uses: ./.github/workflows/delete-shared.yml
 
   test:
