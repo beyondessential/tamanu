@@ -14,7 +14,9 @@ sudo apt update
 sudo apt remove -y postgresql\*
 sudo apt install -y "postgresql-$pgversion"
 
-echo "$(pg_config --bindir)" >> $GITHUB_PATH
+echo "/usr/lib/postgresql/$pgversion/bin" >> $GITHUB_PATH
+export PATH="$PATH:/usr/lib/postgresql/$pgversion/bin"
+
 export PGDATA="$RUNNER_TEMP/pgdata"
 pg_ctl init --options="--encoding=UTF-8 --locale=en_US.UTF-8"
 
