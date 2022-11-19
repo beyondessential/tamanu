@@ -21,6 +21,8 @@ jobs:
     needs:
       - test
       - test-migrations
+      - lint
+      - storybook
     uses: ./.github/workflows/delete-shared.yml
 
   test:
@@ -115,6 +117,40 @@ jobs:
 
     - run: yarn workspace ${{ matrix.package }} run lint
 
+  storybook:
+    needs: build
+    continue-on-error: true
+
+    strategy:
+      fail-fast: false
+      matrix:
+        node:
+          - '16.x'
+
+    name: Test storybook node=${{ matrix.node }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Use Node.js ${{ matrix.node }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node }}
+        cache: yarn
+
+    - name: Get prebuilt shared
+      uses: actions/download-artifact@v3
+      with:
+        name: "shared_ubuntu_${{ matrix.node }}"
+    - name: Unpack shared
+      shell: bash
+      run: |
+        set -e
+        zstd -d shared.tar.zst
+        tar xf shared.tar
+        rm shared.tar*
+
+    - run: yarn workspace desktop run verify-storybook
 
   test-migrations:
     needs: build
