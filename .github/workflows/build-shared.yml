@@ -37,7 +37,7 @@ jobs:
     - run: yarn build-shared
     
     - name: Pack shared + node_modules
-    - run: tar cf shared.tar node_modules packages/*/node_modules packages/shared
+      run: tar cf shared.tar node_modules packages/*/node_modules packages/shared
 
     - uses: actions/upload-artifact@v3
       with:
