@@ -17,7 +17,7 @@ runs:
         cache: yarn
     
     - name: Get prebuilt shared
-      if: ${{ inputs.with-shared == true }}
+      if: inputs.with-shared == true
       uses: ./.github/actions/get-shared
       with:
         node: ${{ inputs.node }}

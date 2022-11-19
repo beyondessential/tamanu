@@ -7,9 +7,12 @@ runs:
   using: composite
   steps:
     - run: yarn
+      shell: bash
     - run: yarn build-shared
+      shell: bash
     
     - name: Pack shared + node_modules
+      shell: bash
       run: |
         set -e
         tar cf shared.tar node_modules packages/*/node_modules packages/shared
