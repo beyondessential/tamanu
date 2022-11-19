@@ -25,16 +25,18 @@ echo "port = 5432" >> "$PGDATA/postgresql.conf"
 
 pg_ctl start
 
-echo "PGHOST=localhost" >> $GITHUB_ENV
-echo "PGUSER=${USER:-$USERNAME}" >> $GITHUB_ENV
-echo "PGPORT=5432" >> $GITHUB_ENV
+export PGHOST=127.0.0.1
+echo "PGHOST=$PGHOST" >> $GITHUB_ENV
+export PGUSER="${USER:-$USERNAME}"
+echo "PGUSER=$PGUSER" >> $GITHUB_ENV
+export PGPORT=5432
+echo "PGPORT=$PGPORT" >> $GITHUB_ENV
 
 .github/scripts/wait-for-it.sh localhost:5432
 
-dbname=$(sed '/-server/d' <<< "tamanu-$package")
-echo "DBNAME=$dbname" >> $GITHUB_ENV
-echo "NODE_CONFIG=$(jq -Rc '{db:{host:"127.0.0.1",name:.,username:.,password:.}}' <<< $dbname)" >> $GITHUB_ENV
+name=$(sed 's/-server$//' <<< "tamanu-$package")
+echo "NODE_CONFIG=$(jq -Rc '{db:{host:"127.0.0.1",name:.,username:.,password:.}}' <<< $name)" >> $GITHUB_ENV
 
-createuser --createdb "$dbname"
-createdb -O "$dbname" "$dbname"
-psql -c "ALTER USER $dbname PASSWORD '$dbname';" $dbname
+createuser --superuser "$name"
+createdb -O "$name" "$name"
+psql -c "ALTER USER $name PASSWORD '$name';" $name
