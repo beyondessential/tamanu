@@ -35,13 +35,12 @@ jobs:
 
     - run: yarn
     - run: yarn build-shared
+    
+    - name: Pack shared + node_modules
+    - run: tar cf shared.tar node_modules packages/*/node_modules packages/shared
 
-    - name: Upload shared + node_modules
-      uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v3
       with:
         retention-days: 1
         name: "${{ matrix.os }}_${{ matrix.node }}"
-        path: |
-          node_modules
-          packages/*/node_modules
-          packages/shared
+        path: shared.tar

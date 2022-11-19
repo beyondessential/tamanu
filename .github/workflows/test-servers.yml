@@ -62,6 +62,11 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: "${{ matrix.os }}_${{ matrix.node }}"
+    - name: Unpack shared
+      with: bash
+      run: |
+        tar xf shared.tar
+        rm shared.tar
 
     - name: Start postgres if needed
       if: matrix.package == 'sync-server' || matrix.package == 'lan'
