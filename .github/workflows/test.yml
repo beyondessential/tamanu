@@ -25,12 +25,12 @@ jobs:
     name: Build shared os=${{ matrix.os }} node=${{ matrix.node }}
     runs-on: ${{ matrix.os }}-latest
     steps:
-      - uses: .github/actions/common-setup
-        with:
-          node: ${{ matrix.node }}
-      - uses: .github/actions/build-shared
-        with:
-          node: ${{ matrix.node }}
+    - uses: .github/actions/common-setup
+      with:
+        node: ${{ matrix.node }}
+    - uses: .github/actions/build-shared
+      with:
+        node: ${{ matrix.node }}
 
   clean:
     # ignore lint or storybook failures when deciding whether to run cleanup.
@@ -42,10 +42,11 @@ jobs:
       - lint
       - storybook
       - test-migrations
+    runs-on: ${{ matrix.os }}-latest
     steps:
-      - uses: geekyeggo/delete-artifact@v2
-        with:
-          name: shared_*
+    - uses: geekyeggo/delete-artifact@v2
+      with:
+        name: shared_*
 
   test:
     needs: build
@@ -72,10 +73,10 @@ jobs:
     name: Test ${{ matrix.package }} os=${{ matrix.os }} node=${{ matrix.node }} pg=${{ matrix.postgres }}
     runs-on: ${{ matrix.os }}-latest
     steps:
-      - uses: .github/actions/common-setup
-        with:
-          node: ${{ matrix.node }}
-          get-shared: true
+    - uses: .github/actions/common-setup
+      with:
+        node: ${{ matrix.node }}
+        get-shared: true
 
     - name: Install and start postgres ${{ matrix.postgres }} if needed
       if: matrix.package == 'sync-server' || matrix.package == 'lan'
