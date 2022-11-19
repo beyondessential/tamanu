@@ -66,4 +66,4 @@ jobs:
         sudo systemctl start postgresql && \
         .github/scripts/wait-for-it.sh localhost:5432
 
-    - run: yarn workspace ${{ matrix.package }} test
+    - run: yarn workspace ${{ matrix.package }} test --shard 1/5
