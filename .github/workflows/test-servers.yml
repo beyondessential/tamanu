@@ -19,12 +19,10 @@ jobs:
           - ubuntu
           # - windows
         node:
-          - '16.x' # supported
-          - '18.x' # next
+          - '16.x'
         postgres:
-          - '12' # supported, in prod
-          - '14' # supported, in prod and dev
-          - '15' # next
+          - '12'
+          - '14'
         package:
           - sync-server
           - lan
@@ -43,7 +41,7 @@ jobs:
     
     - name: Install postgres ${{ matrix.postgres }}
       shell: bash
-      run: .github/scripts/install-postgres-{{ matrix.os }}.sh
+      run: .github/scripts/install-postgres-${{ matrix.os }}.sh ${{ matrix.postgres }}
     
     - name: Configure yarn workspaces
       shell: bash
