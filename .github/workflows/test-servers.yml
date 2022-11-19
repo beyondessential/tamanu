@@ -9,8 +9,6 @@ on:
       - master
       - gha-test
 
-env:
-
 jobs:
   test:
     strategy:
