@@ -62,8 +62,10 @@ jobs:
     - name: Unpack shared
       shell: bash
       run: |
+        set -e
+        zstd -d shared.tar.zst
         tar xf shared.tar
-        rm shared.tar
+        rm shared.tar*
 
     - name: Install and start postgres ${{ matrix.postgres }} if needed
       if: matrix.package == 'sync-server' || matrix.package == 'lan'
