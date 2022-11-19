@@ -1,0 +1,59 @@
+name: Test servers
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - dev
+      - master
+      - gha-test
+
+env:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          # - macos
+          - ubuntu
+          # - windows
+        node:
+          - '16.x' # supported
+          - '18.x' # next
+        postgres:
+          - '12' # supported, in prod
+          - '14' # supported, in prod and dev
+          - '15' # next
+        package:
+          - sync-server
+          - lan
+          - meta-server
+          - shared-src
+
+    runs-on: ${{ matrix.os }}-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Use Node.js ${{ matrix.node }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node }}
+        cache: 'yarn'
+    
+    - name: Install postgres ${{ matrix.postgres }}
+      shell: bash
+      run: .github/scripts/install-postgres-{{ matrix.os }}.sh
+    
+    - name: Configure yarn workspaces
+      shell: bash
+      run: |
+        yarn config set workspaces-experimental true
+        yarn config set workspaces-nohoist-experimental true
+
+    - run: yarn
+    - run: yarn build-shared
+
+    - run: yarn workspace ${{ matrix.package }} test
