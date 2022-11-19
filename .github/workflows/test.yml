@@ -76,6 +76,45 @@ jobs:
     - run: yarn workspace ${{ matrix.package }} run test --shard 2/3
     - run: yarn workspace ${{ matrix.package }} run test --shard 3/3
 
+  lint:
+    needs: build
+
+    strategy:
+      fail-fast: false
+      matrix:
+        node:
+          - '16.x'
+        package:
+          - lan
+          - meta-server
+          - shared-src
+          - sync-server
+
+    name: Lint ${{ matrix.package }} node=${{ matrix.node }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Use Node.js ${{ matrix.node }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node }}
+        cache: yarn
+
+    - name: Get prebuilt shared
+      uses: actions/download-artifact@v3
+      with:
+        name: "shared_ubuntu_${{ matrix.node }}"
+    - name: Unpack shared
+      shell: bash
+      run: |
+        set -e
+        zstd -d shared.tar.zst
+        tar xf shared.tar
+        rm shared.tar*
+
+    - run: yarn workspace ${{ matrix.package }} run lint
+
 
   test-migrations:
     needs: build
