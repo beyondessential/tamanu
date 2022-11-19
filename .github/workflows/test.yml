@@ -168,7 +168,7 @@ jobs:
           - '12'
           - '14'
 
-    name: Test ${{ matrix.package }} node=${{ matrix.node }} pg=${{ matrix.postgres }}
+    name: Test migrations node=${{ matrix.node }} pg=${{ matrix.postgres }}
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
