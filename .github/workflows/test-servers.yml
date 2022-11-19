@@ -11,6 +11,7 @@ on:
 
 env:
   NODE_OPTIONS: "--max-old-space-size=8192"
+  NODE_ENV: test
 
 jobs:
   build:
@@ -64,13 +65,8 @@ jobs:
         tar xf shared.tar
         rm shared.tar
 
-    - name: Install and start postgres if needed
+    - name: Install and start postgres ${{ matrix.postgres }} if needed
       if: matrix.package == 'sync-server' || matrix.package == 'lan'
-      shell: bash
-      run: |
-        set -e
-        .github/scripts/install-postgres-${{ matrix.os }}.sh ${{ matrix.postgres }}
-        sudo systemctl start postgresql
-        .github/scripts/wait-for-it.sh localhost:5432
+      run: .github/scripts/install-postgres-${{ matrix.os }}.sh ${{ matrix.postgres }} ${{ matrix.package }}
 
-    - run: yarn workspace ${{ matrix.package }} test --shard 1/5
+    - run: yarn workspace ${{ matrix.package }} run test --shard=1/5
