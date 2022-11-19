@@ -63,7 +63,7 @@ jobs:
       with:
         name: "${{ matrix.os }}_${{ matrix.node }}"
     - name: Unpack shared
-      with: bash
+      shell: bash
       run: |
         tar xf shared.tar
         rm shared.tar
