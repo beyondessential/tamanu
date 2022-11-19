@@ -45,7 +45,7 @@ jobs:
       - lint
       - storybook
       - migrations
-    runs-on: ${{ matrix.os }}-latest
+    runs-on: ubuntu-latest
     steps:
     - uses: geekyeggo/delete-artifact@v2
       with:
