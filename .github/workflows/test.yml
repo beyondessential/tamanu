@@ -57,17 +57,20 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Use Node.js ${{ matrix.node }}
+    - &nodesetup
+      name: Use Node.js ${{ matrix.node }}
       uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node }}
         cache: yarn
 
-    - name: Get prebuilt shared
+    - &buildget
+      name: Get prebuilt shared
       uses: actions/download-artifact@v3
       with:
-        name: "shared_${{ matrix.os }}_${{ matrix.node }}"
-    - name: Unpack shared
+        name: "shared_${{ runner.os }}_${{ matrix.node }}"
+    - &buildunpack
+      name: Unpack shared
       shell: bash
       run: |
         set -e
@@ -84,7 +87,7 @@ jobs:
         yarn workspace ${{ matrix.package }} run test --shard 1/3
         yarn workspace ${{ matrix.package }} run test --shard 2/3
         yarn workspace ${{ matrix.package }} run test --shard 3/3
-        
+
     - if: "!(matrix.package == 'sync-server' || matrix.package == 'lan')"
       run: yarn workspace ${{ matrix.package }} run test
 
@@ -108,23 +111,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Use Node.js ${{ matrix.node }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node }}
-        cache: yarn
-
-    - name: Get prebuilt shared
-      uses: actions/download-artifact@v3
-      with:
-        name: "shared_ubuntu_${{ matrix.node }}"
-    - name: Unpack shared
-      shell: bash
-      run: |
-        set -e
-        zstd -d shared.tar.zst
-        tar xf shared.tar
-        rm shared.tar*
+    - *nodesetup
+    - *buildget
+    - *buildunpack
 
     - run: yarn workspace ${{ matrix.package }} run lint
 
@@ -142,24 +131,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-
-    - name: Use Node.js ${{ matrix.node }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node }}
-        cache: yarn
-
-    - name: Get prebuilt shared
-      uses: actions/download-artifact@v3
-      with:
-        name: "shared_ubuntu_${{ matrix.node }}"
-    - name: Unpack shared
-      shell: bash
-      run: |
-        set -e
-        zstd -d shared.tar.zst
-        tar xf shared.tar
-        rm shared.tar*
+    
+    - *nodesetup
+    - *buildget
+    - *buildunpack
 
     - run: yarn workspace desktop run verify-storybook
 
@@ -180,23 +155,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Use Node.js ${{ matrix.node }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node }}
-        cache: yarn
-
-    - name: Get prebuilt shared
-      uses: actions/download-artifact@v3
-      with:
-        name: "shared_ubuntu_${{ matrix.node }}"
-    - name: Unpack shared
-      shell: bash
-      run: |
-        set -e
-        zstd -d shared.tar.zst
-        tar xf shared.tar
-        rm shared.tar*
+    - *nodesetup
+    - *buildget
+    - *buildunpack
 
     - name: Install and start postgres ${{ matrix.postgres }}
       run: .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }} migrations
@@ -215,11 +176,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Use Node.js ${{ matrix.node }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node }}
-        cache: 'yarn'
+    - *nodesetup
 
     - run: yarn install --frozen-lockfile
       working-directory: packages/mobile
