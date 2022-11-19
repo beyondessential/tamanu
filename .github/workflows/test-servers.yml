@@ -21,7 +21,7 @@ jobs:
         node:
           - '16.x'
         postgres:
-          - '12'
+          # - '12'
           - '14'
         package:
           - sync-server
@@ -29,6 +29,7 @@ jobs:
           - meta-server
           - shared-src
 
+    name: Test ${{ matrix.package }} os=${{ matrix.os }} node=${{ matrix.node }} pg=${{ matrix.postgres }}
     runs-on: ${{ matrix.os }}-latest
     steps:
     - uses: actions/checkout@v3
@@ -38,11 +39,11 @@ jobs:
       with:
         node-version: ${{ matrix.node }}
         cache: 'yarn'
-    
+
     - name: Install postgres ${{ matrix.postgres }}
       shell: bash
       run: .github/scripts/install-postgres-${{ matrix.os }}.sh ${{ matrix.postgres }}
-    
+
     - name: Configure yarn workspaces
       shell: bash
       run: |
