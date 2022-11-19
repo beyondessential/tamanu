@@ -5,7 +5,7 @@ inputs:
     required: true
   with-shared:
     description: Retrieve prebuilt shared too
-    required: false
+    required: true
     default: false
 runs:
   using: composite
