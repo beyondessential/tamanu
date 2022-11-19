@@ -18,11 +18,16 @@ jobs:
     uses: ./.github/workflows/build-shared.yml
 
   clean:
-    # this only needs to wait for every dependent job to *download the artifact*
-    # not for all dependent jobs to finish, but there's no easy way to do that
-    # so we just wait for the longest job to finish
+    # ignore lint or storybook failures when deciding whether to run cleanup.
+    # not running it absolutely always lets us retry particular test jobs without
+    # having to re-run the whole workflow!
+    if: always() && needs.test.result == 'success' && needs.test-migrations.result == 'success' && needs.test-mobile.result == 'success'
     needs:
       - test
+      - lint
+      - storybook
+      - test-migrations
+      - test-mobile
     uses: ./.github/workflows/delete-shared.yml
 
   test:
