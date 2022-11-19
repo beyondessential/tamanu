@@ -74,9 +74,14 @@ jobs:
       if: matrix.package == 'sync-server' || matrix.package == 'lan'
       run: .github/scripts/install-postgres-${{ matrix.os }}.sh ${{ matrix.postgres }} ${{ matrix.package }}
 
-    - run: yarn workspace ${{ matrix.package }} run test --shard 1/3
-    - run: yarn workspace ${{ matrix.package }} run test --shard 2/3
-    - run: yarn workspace ${{ matrix.package }} run test --shard 3/3
+    - if: matrix.package == 'sync-server' || matrix.package == 'lan'
+      run: |
+        yarn workspace ${{ matrix.package }} run test --shard 1/3
+        yarn workspace ${{ matrix.package }} run test --shard 2/3
+        yarn workspace ${{ matrix.package }} run test --shard 3/3
+        
+    - if: "!(matrix.package == 'sync-server' || matrix.package == 'lan')"
+      run: yarn workspace ${{ matrix.package }} run test
 
   lint:
     needs: build
