@@ -3,7 +3,7 @@ inputs:
   node:
     description: Node version
     required: true
-  with-shared:
+  get-shared:
     description: Retrieve prebuilt shared too
     required: true
     default: false
@@ -17,7 +17,7 @@ runs:
         cache: yarn
     
     - name: Get prebuilt shared
-      if: inputs.with-shared == true
+      if: inputs.get-shared == true
       uses: ./.github/actions/get-shared
       with:
         node: ${{ inputs.node }}
