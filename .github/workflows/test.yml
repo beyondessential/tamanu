@@ -57,26 +57,14 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - &nodesetup
-      name: Use Node.js ${{ matrix.node }}
-      uses: actions/setup-node@v3
+    - uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node }}
         cache: yarn
 
-    - &buildget
-      name: Get prebuilt shared
-      uses: actions/download-artifact@v3
+    - uses: ./.github/actions/get-shared
       with:
-        name: "shared_${{ runner.os }}_${{ matrix.node }}"
-    - &buildunpack
-      name: Unpack shared
-      shell: bash
-      run: |
-        set -e
-        zstd -d shared.tar.zst
-        tar xf shared.tar
-        rm shared.tar*
+        node: ${{ matrix.node }}
 
     - name: Install and start postgres ${{ matrix.postgres }} if needed
       if: matrix.package == 'sync-server' || matrix.package == 'lan'
@@ -111,9 +99,13 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - *nodesetup
-    - *buildget
-    - *buildunpack
+    - uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node }}
+        cache: yarn
+    - uses: ./.github/actions/get-shared
+      with:
+        node: ${{ matrix.node }}
 
     - run: yarn workspace ${{ matrix.package }} run lint
 
@@ -132,9 +124,13 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     
-    - *nodesetup
-    - *buildget
-    - *buildunpack
+    - uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node }}
+        cache: yarn
+    - uses: ./.github/actions/get-shared
+      with:
+        node: ${{ matrix.node }}
 
     - run: yarn workspace desktop run verify-storybook
 
@@ -155,9 +151,13 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - *nodesetup
-    - *buildget
-    - *buildunpack
+    - uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node }}
+        cache: yarn
+    - uses: ./.github/actions/get-shared
+      with:
+        node: ${{ matrix.node }}
 
     - name: Install and start postgres ${{ matrix.postgres }}
       run: .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }} migrations
@@ -176,7 +176,10 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - *nodesetup
+    - uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node }}
+        cache: yarn
 
     - run: yarn install --frozen-lockfile
       working-directory: packages/mobile
