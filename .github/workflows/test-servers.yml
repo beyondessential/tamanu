@@ -9,6 +9,9 @@ on:
       - master
       - gha-test
 
+env:
+  NODE_OPTIONS: "--max-old-space-size=8192"
+
 jobs:
   build:
     uses: ./.github/workflows/build-shared.yml
