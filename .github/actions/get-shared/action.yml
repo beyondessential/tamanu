@@ -1,5 +1,4 @@
 name: Get prebuilt shared
-description: //
 inputs:
   node:
     description: Node version

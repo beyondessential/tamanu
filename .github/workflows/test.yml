@@ -15,7 +15,22 @@ env:
 
 jobs:
   build:
-    uses: ./.github/workflows/build-shared.yml
+    strategy:
+      fail-fast: true
+      matrix:
+        os:
+          - ubuntu
+        node:
+          - 16.x
+    name: Build shared os=${{ matrix.os }} node=${{ matrix.node }}
+    runs-on: ${{ matrix.os }}-latest
+    steps:
+      - uses: .github/actions/common-setup
+        with:
+          node: ${{ matrix.node }}
+      - uses: .github/actions/build-shared
+        with:
+          node: ${{ matrix.node }}
 
   clean:
     # ignore lint or storybook failures when deciding whether to run cleanup.
@@ -27,7 +42,10 @@ jobs:
       - lint
       - storybook
       - test-migrations
-    uses: ./.github/workflows/delete-shared.yml
+    steps:
+      - uses: geekyeggo/delete-artifact@v2
+        with:
+          name: shared_*
 
   test:
     needs: build
@@ -54,16 +72,10 @@ jobs:
     name: Test ${{ matrix.package }} os=${{ matrix.os }} node=${{ matrix.node }} pg=${{ matrix.postgres }}
     runs-on: ${{ matrix.os }}-latest
     steps:
-    - uses: actions/checkout@v3
-
-    - uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node }}
-        cache: yarn
-
-    - uses: ./.github/actions/get-shared
-      with:
-        node: ${{ matrix.node }}
+      - uses: .github/actions/common-setup
+        with:
+          node: ${{ matrix.node }}
+          get-shared: true
 
     - name: Install and start postgres ${{ matrix.postgres }} if needed
       if: matrix.package == 'sync-server' || matrix.package == 'lan'
@@ -96,15 +108,10 @@ jobs:
     name: Lint ${{ matrix.package }} node=${{ matrix.node }}
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-
-    - uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node }}
-        cache: yarn
-    - uses: ./.github/actions/get-shared
+    - uses: .github/actions/common-setup
       with:
         node: ${{ matrix.node }}
+        get-shared: true
 
     - run: yarn workspace ${{ matrix.package }} run lint
 
@@ -121,15 +128,10 @@ jobs:
     name: Test storybook node=${{ matrix.node }}
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    
-    - uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node }}
-        cache: yarn
-    - uses: ./.github/actions/get-shared
+    - uses: .github/actions/common-setup
       with:
         node: ${{ matrix.node }}
+        get-shared: true
 
     - run: yarn workspace desktop run verify-storybook
 
@@ -148,15 +150,10 @@ jobs:
     name: Test migrations node=${{ matrix.node }} pg=${{ matrix.postgres }}
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-
-    - uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node }}
-        cache: yarn
-    - uses: ./.github/actions/get-shared
+    - uses: .github/actions/common-setup
       with:
         node: ${{ matrix.node }}
+        get-shared: true
 
     - name: Install and start postgres ${{ matrix.postgres }}
       run: .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }} migrations
@@ -173,12 +170,9 @@ jobs:
     name: Test mobile node=${{ matrix.node }}
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-
-    - uses: actions/setup-node@v3
+    - uses: .github/actions/common-setup
       with:
-        node-version: ${{ matrix.node }}
-        cache: yarn
+        node: ${{ matrix.node }}
 
     - run: yarn install --frozen-lockfile
       working-directory: packages/mobile

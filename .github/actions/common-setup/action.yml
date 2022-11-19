@@ -1,0 +1,25 @@
+name: Common setup steps
+inputs:
+  node:
+    description: Node version
+    required: true
+  with-shared:
+    description: Retrieve prebuilt shared too
+    required: false
+    default: false
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@v3
+
+    - name: Use Node.js ${{ inputs.node }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ inputs.node }}
+        cache: yarn
+    
+    - name: Get prebuilt shared
+      if: inputs.with-shared
+      uses: .github/actions/get-shared
+      with:
+        node: ${{ inputs.node }}

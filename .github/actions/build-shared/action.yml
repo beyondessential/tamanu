@@ -1,0 +1,22 @@
+name: Make a prebuilt shared
+inputs:
+  node:
+    description: Node version
+    required: true
+runs:
+  using: composite
+  steps:
+    - run: yarn
+    - run: yarn build-shared
+    
+    - name: Pack shared + node_modules
+      run: |
+        set -e
+        tar cf shared.tar node_modules packages/*/node_modules packages/shared
+        zstd shared.tar
+
+    - uses: actions/upload-artifact@v3
+      with:
+        retention-days: 1
+        name: "shared_${{ runner.os }}_${{ inputs.node }}"
+        path: shared.tar.zst
