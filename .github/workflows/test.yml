@@ -26,9 +26,11 @@ jobs:
     runs-on: ${{ matrix.os }}-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: ./.github/actions/common-setup
+    - name: Use Node.js ${{ matrix.node }}
+      uses: actions/setup-node@v3
       with:
-        node: ${{ matrix.node }}
+        node-version: ${{ matrix.node }}
+        cache: yarn
     - uses: ./.github/actions/build-shared
       with:
         node: ${{ matrix.node }}
@@ -75,10 +77,15 @@ jobs:
     runs-on: ${{ matrix.os }}-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: ./.github/actions/common-setup
+    - name: Use Node.js ${{ matrix.node }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node }}
+        cache: yarn
+    - name: Get prebuilt shared
+      uses: ./.github/actions/get-shared
       with:
         node: ${{ matrix.node }}
-        get-shared: true
 
     - name: Install and start postgres ${{ matrix.postgres }} if needed
       if: matrix.package == 'sync-server' || matrix.package == 'lan'
@@ -112,10 +119,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: ./.github/actions/common-setup
+    - name: Use Node.js ${{ matrix.node }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node }}
+        cache: yarn
+    - name: Get prebuilt shared
+      uses: ./.github/actions/get-shared
       with:
         node: ${{ matrix.node }}
-        get-shared: true
 
     - run: yarn workspace ${{ matrix.package }} run lint
 
@@ -133,10 +145,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: ./.github/actions/common-setup
+    - name: Use Node.js ${{ matrix.node }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node }}
+        cache: yarn
+    - name: Get prebuilt shared
+      uses: ./.github/actions/get-shared
       with:
         node: ${{ matrix.node }}
-        get-shared: true
 
     - run: yarn workspace desktop run verify-storybook
 
@@ -156,10 +173,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: ./.github/actions/common-setup
+    - name: Use Node.js ${{ matrix.node }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node }}
+        cache: yarn
+    - name: Get prebuilt shared
+      uses: ./.github/actions/get-shared
       with:
         node: ${{ matrix.node }}
-        get-shared: true
 
     - name: Install and start postgres ${{ matrix.postgres }}
       run: .github/scripts/install-postgres-ubuntu.sh ${{ matrix.postgres }} migrations
@@ -177,9 +199,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: ./.github/actions/common-setup
+    - name: Use Node.js ${{ matrix.node }}
+      uses: actions/setup-node@v3
       with:
-        node: ${{ matrix.node }}
+        node-version: ${{ matrix.node }}
+        cache: yarn
 
     - run: yarn install --frozen-lockfile
       working-directory: packages/mobile
