@@ -52,5 +52,11 @@ jobs:
 
     - run: yarn
     - run: yarn build-shared
+    
+    - name: Start postgres if needed
+      if: matrix.package == 'sync-server' || matrix.package == 'lan'
+      run: |
+        sudo systemctl start postgresql && \
+        .github/scripts/wait-for-it.sh localhost:5432
 
     - run: yarn workspace ${{ matrix.package }} test
