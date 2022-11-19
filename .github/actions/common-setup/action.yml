@@ -18,6 +18,6 @@ runs:
     
     - name: Get prebuilt shared
       if: inputs.with-shared
-      uses: .github/actions/get-shared
+      uses: ./.github/actions/get-shared
       with:
         node: ${{ inputs.node }}
