@@ -25,6 +25,7 @@ jobs:
     name: Build shared os=${{ matrix.os }} node=${{ matrix.node }}
     runs-on: ${{ matrix.os }}-latest
     steps:
+    - uses: actions/checkout@v3
     - uses: ./.github/actions/common-setup
       with:
         node: ${{ matrix.node }}
@@ -73,6 +74,7 @@ jobs:
     name: Test ${{ matrix.package }} os=${{ matrix.os }} node=${{ matrix.node }} pg=${{ matrix.postgres }}
     runs-on: ${{ matrix.os }}-latest
     steps:
+    - uses: actions/checkout@v3
     - uses: ./.github/actions/common-setup
       with:
         node: ${{ matrix.node }}
@@ -109,6 +111,7 @@ jobs:
     name: Lint ${{ matrix.package }} node=${{ matrix.node }}
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v3
     - uses: ./.github/actions/common-setup
       with:
         node: ${{ matrix.node }}
@@ -129,6 +132,7 @@ jobs:
     name: Test storybook node=${{ matrix.node }}
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v3
     - uses: ./.github/actions/common-setup
       with:
         node: ${{ matrix.node }}
@@ -151,6 +155,7 @@ jobs:
     name: Test migrations node=${{ matrix.node }} pg=${{ matrix.postgres }}
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v3
     - uses: ./.github/actions/common-setup
       with:
         node: ${{ matrix.node }}
@@ -171,6 +176,7 @@ jobs:
     name: Test mobile node=${{ matrix.node }}
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v3
     - uses: ./.github/actions/common-setup
       with:
         node: ${{ matrix.node }}
