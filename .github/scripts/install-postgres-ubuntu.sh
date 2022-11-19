@@ -39,4 +39,4 @@ echo "NODE_CONFIG=$(jq -Rc '{db:{host:"127.0.0.1",name:.,username:.,password:.}}
 
 createuser --superuser "$name"
 createdb -O "$name" "$name"
-psql -c "ALTER USER $name PASSWORD '$name';" $name
+psql -c "ALTER USER \"$name\" PASSWORD '$name';" $name
