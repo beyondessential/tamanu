@@ -18,7 +18,7 @@ echo "/usr/lib/postgresql/$pgversion/bin" >> $GITHUB_PATH
 export PATH="$PATH:/usr/lib/postgresql/$pgversion/bin"
 
 export PGDATA="$RUNNER_TEMP/pgdata"
-pg_ctl init --options="--encoding=UTF-8 --locale=en_US.UTF-8"
+pg_ctl init --options="--encoding=UTF-8 --locale=en_US.UTF-8 --lc-collate=C --lc-ctype=C"
 
 echo "unix_socket_directories = ''" >> "$PGDATA/postgresql.conf"
 echo "port = 5432" >> "$PGDATA/postgresql.conf"
