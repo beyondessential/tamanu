@@ -45,5 +45,5 @@ jobs:
     - uses: actions/upload-artifact@v3
       with:
         retention-days: 1
-        name: "${{ matrix.os }}_${{ matrix.node }}"
+        name: "shared_${{ matrix.os }}_${{ matrix.node }}"
         path: shared.tar.zst

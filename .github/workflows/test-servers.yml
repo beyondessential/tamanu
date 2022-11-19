@@ -17,6 +17,10 @@ jobs:
   build:
     uses: ./.github/workflows/build-shared.yml
 
+  clean:
+    needs: test
+    uses: ./.github/workflows/delete-shared.yml
+
   test:
     needs: build
 
@@ -58,7 +62,7 @@ jobs:
     - name: Get prebuilt shared
       uses: actions/download-artifact@v3
       with:
-        name: "${{ matrix.os }}_${{ matrix.node }}"
+        name: "shared_${{ matrix.os }}_${{ matrix.node }}"
     - name: Unpack shared
       shell: bash
       run: |

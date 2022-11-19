@@ -1,0 +1,14 @@
+name: Build shared
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  build-shared:
+    name: Delete shared artifacts
+    runs-on: ubuntu-latest
+    steps:
+    - uses: geekyeggo/delete-artifact@v2
+      with:
+        name: shared_*
