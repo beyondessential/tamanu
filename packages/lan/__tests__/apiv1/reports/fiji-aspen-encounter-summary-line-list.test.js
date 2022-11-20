@@ -16,11 +16,23 @@ const fakeAllData = async models => {
   const { id: departmentId } = await models.Department.create(
     fake(models.Department, { facilityId, name: 'Emergency dept.' }),
   );
+  const { id: locationGroupId } = await models.LocationGroup.create(
+    fake(models.LocationGroup, { facilityId, name: 'Emergency area 1' }),
+  );
+
+  const { id: decoyLocationGroupId } = await models.LocationGroup.create(
+    fake(models.LocationGroup, { facilityId, name: 'Emergency area 2' }),
+  );
+
   const { id: location1Id } = await models.Location.create(
-    fake(models.Location, { facilityId, name: 'Emergency room 1' }),
+    fake(models.Location, { facilityId, locationGroupId, name: 'Emergency room 1' }),
   );
   const { id: location2Id } = await models.Location.create(
-    fake(models.Location, { facilityId, name: 'Emergency room 2' }),
+    fake(models.Location, {
+      facilityId,
+      locationGroupId: decoyLocationGroupId,
+      name: 'Emergency room 2',
+    }),
   );
   const { id: patientBillingTypeId } = await models.ReferenceData.create(
     fake(models.ReferenceData, {
@@ -310,7 +322,7 @@ const fakeAllData = async models => {
   systemNoteItem.date = '2022-06-09 08:04:54';
   await systemNoteItem.save();
 
-  return { patient, encounterId, location1Id };
+  return { patient, encounterId, locationGroupId };
 };
 
 describe('fijiAspenMediciReport', () => {
@@ -327,13 +339,13 @@ describe('fijiAspenMediciReport', () => {
   afterAll(() => ctx.close());
 
   it(`Should produce a simple report`, async () => {
-    const { patient, encounterId, location1Id } = await fakeAllData(models);
+    const { patient, encounterId, locationGroupId } = await fakeAllData(models);
 
     // act
     const response = await app.post('/v1/reports/fiji-aspen-encounter-summary-line-list').send({
       parameters: {
-        location: location1Id,
-      }
+        locationGroup: locationGroupId,
+      },
     });
 
     // assert
@@ -355,7 +367,7 @@ describe('fijiAspenMediciReport', () => {
         'Time seen following triage/Wait time (hh:mm)': '1:3',
         Department: 'Emergency dept., Assigned time: 09-06-2022 12:02 AM',
         Location:
-          'Emergency room 1, Assigned time: 09-06-2022 12:02 AM; Emergency room 2, Assigned time: 09-06-2022 08:04 AM',
+          'Emergency area 1, Emergency room 1, Assigned time: 09-06-2022 12:02 AM; Emergency area 2, Emergency room 2, Assigned time: 09-06-2022 08:04 AM',
         'Reason for encounter': 'Severe Migrane',
         Diagnosis:
           'Acute subdural hematoma, Is primary?: primary, Certainty: confirmed; Acute subdural hematoma, Is primary?: secondary, Certainty: suspected',
