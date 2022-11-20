@@ -2,7 +2,7 @@ import { expect, beforeAll, describe, it } from '@jest/globals';
 import { Transaction } from 'sequelize';
 
 import { fakeReferenceData, withErrorShown } from 'shared/test-helpers';
-import { getModelsForDirection, SYNC_SESSION_DIRECTION } from 'shared/sync';
+import { getModelsForDirection } from 'shared/sync';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { sleepAsync } from 'shared/utils/sleepAsync';
 import { fakeUUID } from 'shared/utils/generateId';
@@ -25,7 +25,6 @@ describe('snapshotOutgoingChanges', () => {
   beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.store.models;
-    console.log(Object.keys(ctx));
     outgoingModels = getModelsForDirection(models, SYNC_DIRECTIONS.PULL_FROM_CENTRAL);
   });
 
