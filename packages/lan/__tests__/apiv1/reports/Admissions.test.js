@@ -206,8 +206,7 @@ describe('Admissions report', () => {
           'Admitting Doctor/Nurse': expectedExaminer.displayName,
           'Admission Date': '20/02/2021 9:07:26 AM',
           'Discharge Date': '21/02/2021 11:03:07 AM',
-          Area: expectedLocationGroup.name,
-          Location: 'Clinic (Location assigned: 20/02/21 9:07 AM)',
+          Location: 'Test Area, Clinic (Location assigned: 20/02/21 9:07 AM)',
           Department:
             'Radiology (Department assigned: 20/02/21 9:07 AM); Cardiology (Department assigned: 20/02/21 11:10 AM)',
           'Primary diagnoses': 'H60.5 Acute bacterial otitis externa; L74.4 Anhidrosis',
