@@ -7,7 +7,7 @@ _Add a brief description of the changes in this PR to help give the reviewer con
 - [ ] Code
 - [ ] Tests
 - [ ] UI Screenshots
-- [ ] Update the runbook
+- [ ] Update the [relevant runbook(s)](https://beyond-essential.slab.com/topics/runbooks-bs04ml6c)
 - [ ] Include any config changes in the release PR changelog
 - [ ] Update the [release PR](https://github.com/beyondessential/tamanu/pulls?q=is%3Apr+is%3Aopen+release+in%3Atitle) changelog with a ticket reference (e.g. TAN-001 or WAITM-001 will be automatically linked)
 - [ ] Add testing notes to the Linear issue
