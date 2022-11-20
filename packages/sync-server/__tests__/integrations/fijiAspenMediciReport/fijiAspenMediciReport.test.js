@@ -37,12 +37,23 @@ const fakeAllData = async models => {
   const { id: departmentId } = await models.Department.create(
     fake(models.Department, { facilityId, name: 'Emergency dept.' }),
   );
+  const locationGroup = await models.LocationGroup.create(
+    fake(models.LocationGroup, { facilityId, name: 'Emergency area' }),
+  );
   const { id: location1Id } = await models.Location.create(
-    fake(models.Location, { facilityId, name: 'Emergency room 1' }),
+    fake(models.Location, {
+      facilityId,
+      locationGroupId: locationGroup.id,
+      name: 'Emergency room 1',
+    }),
   );
   const { id: location2Id } = await models.Location.create(
-    fake(models.Location, { facilityId, name: 'Emergency room 2' }),
+    fake(models.Location, {
+      facilityId,
+      name: 'Emergency room 2',
+    }),
   );
+
   const { id: patientBillingTypeId } = await models.ReferenceData.create(
     fake(models.ReferenceData, {
       type: REFERENCE_TYPES.PATIENT_BILLING_TYPE,
@@ -130,7 +141,7 @@ const fakeAllData = async models => {
       startDate: createLocalDateTimeStringFromUTC(2022, 6 - 1, 9, 0, 2, 54, 225),
       endDate: createLocalDateTimeStringFromUTC(2022, 6 - 1, 12, 0, 2, 54, 225), // Make sure this works
       encounterType: ENCOUNTER_TYPES.ADMISSION,
-      reasonForEncounter: 'Severe Migrane',
+      reasonForEncounter: 'Severe Migraine',
       patientBillingTypeId,
       locationId: location1Id,
       departmentId,
@@ -375,7 +386,7 @@ describe('fijiAspenMediciReport', () => {
         encounterStartDate: '2022-06-09T00:02:54.000Z',
         encounterEndDate: '2022-06-12T00:02:54.000Z',
         encounterType: 'AR-DRG',
-        reasonForEncounter: 'Severe Migrane',
+        reasonForEncounter: 'Severe Migraine',
 
         // New fields
         weight: 2100,
@@ -398,7 +409,7 @@ describe('fijiAspenMediciReport', () => {
         // Location/Department
         locations: [
           {
-            location: 'Emergency room 1',
+            location: 'Emergency area, Emergency room 1',
             assignedTime: '2022-06-09T00:02:54+00:00',
           },
           {

@@ -216,36 +216,41 @@ location_info as (
     e.id encounter_id,
     case when count("from") = 0
       then json_build_array(json_build_object(
-        'location', l.name,
+        'location', coalesce(lg.name || ', ', '') || l.name,
         'assignedTime', e.start_date::timestamp at time zone :timezone_string
       ))
       else 
         array_to_json(json_build_object(
-          'location', first_from, --first "from" from note
+          'location', coalesce(lgfrom.name || ', ', '') || first_from, --first "from" from note
           'assignedTime', e.start_date::timestamp at time zone :timezone_string
         ) ||
         array_agg(
           json_build_object(
-            'location', "to",
+            'location', coalesce(lgto.name || ', ', '') || "to",
             'assignedTime', nh.date::timestamp at time zone :timezone_string
           ) ORDER BY nh.date
         ))
     end location_history
   from encounters e
   left join locations l on e.location_id = l.id
+  left join location_groups lg on lg.id = l.location_group_id
   left join note_history nh
   on nh.encounter_id = e.id and nh.place = 'location'
   left join (
     select
-      nh2.encounter_id enc_id,
-      "from" first_from,
-      date
+    nh2.encounter_id enc_id,
+    "from" first_from,
+    date
     from note_history nh2
     order by date
     limit 1
-  ) first_from
-  on e.id = first_from.enc_id
-  group by e.id, l.name, e.start_date, first_from
+    ) first_from on e.id = first_from.enc_id
+    
+    left join locations lto on nh."to" = lto.name
+    left join location_groups lgto on lgto.id = lto.location_group_id
+    left join locations lfrom on first_from = lfrom.name
+    left join location_groups lgfrom on lgfrom.id = lfrom.location_group_id
+  group by e.id, lg.name, lgfrom.name, l.name, e.start_date, first_from
 ),
 triage_info as (
   select
@@ -363,6 +368,7 @@ routes.get(
   '/',
   asyncHandler(async (req, res) => {
     const { sequelize } = req.store;
+
     const { 'period.start': fromDate, 'period.end': toDate, limit, offset = 0 } = req.query;
 
     if (!COUNTRY_TIMEZONE) {
