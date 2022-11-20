@@ -28,6 +28,7 @@ import {
 } from './columns';
 import { useAuth } from '../../contexts/Auth';
 import { Colors } from '../../constants';
+import { usePatientSearch, PatientSearchKeys } from '../../contexts/PatientSearch';
 
 const PATIENT_SEARCH_ENDPOINT = 'patient';
 
@@ -158,13 +159,15 @@ export const PatientListingView = ({ onViewPatient }) => {
 };
 
 export const AdmittedPatientsView = () => {
-  const [searchParameters, setSearchParameters] = useState({});
+  const { searchParameters, setSearchParameters } = usePatientSearch(
+    PatientSearchKeys.AdmittedPatientsView,
+  );
   const { facility } = useAuth();
 
   return (
     <PageContainer>
       <TopBar title="Admitted patient listing" />
-      <PatientSearchBar onSearch={setSearchParameters} />
+      <PatientSearchBar onSearch={setSearchParameters} searchParameters={searchParameters} />
       <ContentPane>
         <PatientTable
           fetchOptions={{ inpatient: 1 }}
@@ -177,13 +180,15 @@ export const AdmittedPatientsView = () => {
 };
 
 export const OutpatientsView = () => {
-  const [searchParameters, setSearchParameters] = useState({});
+  const { searchParameters, setSearchParameters } = usePatientSearch(
+    PatientSearchKeys.OutpatientsView,
+  );
   const { facility } = useAuth();
 
   return (
     <PageContainer>
       <TopBar title="Outpatient listing" />
-      <PatientSearchBar onSearch={setSearchParameters} />
+      <PatientSearchBar onSearch={setSearchParameters} searchParameters={searchParameters} />
       <ContentPane>
         <PatientTable
           fetchOptions={{ outpatient: 1 }}

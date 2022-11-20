@@ -111,7 +111,7 @@ export const SelectInput = ({
       alignItems: 'center',
       justifyContent: 'space-between',
       backgroundColor: state.isFocused || state.isSelected ? Colors.hoverGrey : Colors.white,
-      color: 'initial',
+      ...(state.isDisabled ? {} : { color: 'initial' }),
       cursor: 'pointer',
     }),
     singleValue: base => ({

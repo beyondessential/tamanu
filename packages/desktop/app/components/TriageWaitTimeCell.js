@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { format } from 'date-fns';
 import Tooltip from '@material-ui/core/Tooltip';
+import { ENCOUNTER_TYPES } from 'shared/constants/encounters';
 
 const MINUTE = 60 * 1000;
 const HOUR = 60 * MINUTE;
@@ -48,14 +49,15 @@ export const TriageWaitTimeCell = React.memo(
     }, [closedTime]);
 
     switch (encounterType) {
-      case 'triage':
+      case ENCOUNTER_TYPES.TRIAGE:
         return (
           <TriageCell arrivalTime={assumedArrivalTime}>
             <div>{getDuration(assumedArrivalTime)}</div>
             <div>{`Triage at ${format(new Date(triageTime), 'h:mma')}`}</div>
           </TriageCell>
         );
-      case 'observation':
+      case ENCOUNTER_TYPES.OBSERVATION:
+      case ENCOUNTER_TYPES.EMERGENCY:
         return (
           <TriageCell arrivalTime={arrivalTime}>{`Seen at ${format(
             new Date(closedTime),

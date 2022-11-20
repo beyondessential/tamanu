@@ -48,6 +48,10 @@
     },
     "fhir": {
       "enabled": true
+    },
+    "omniLab": {
+      "enabled": true,
+      "secret": "YHNDrUGvl2A/QNxWvliek14B40DE9IF8VrdXV5x9kJE="
     }
   },
   "disk": {
