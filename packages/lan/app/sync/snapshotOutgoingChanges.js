@@ -32,7 +32,7 @@ const snapshotChangesForModel = async (model, sessionId, since) => {
   }));
 };
 
-export const snapshotOutgoingChanges = async (sequelize, models, sessionId, since) => {
+export const snapshotOutgoingChanges = async (sequelize, outgoingModels, sessionId, since) => {
   if (readOnly) {
     return [];
   }
@@ -45,7 +45,7 @@ export const snapshotOutgoingChanges = async (sequelize, models, sessionId, sinc
     { isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ },
     async () => {
       const outgoingChanges = [];
-      for (const model of Object.values(models)) {
+      for (const model of Object.values(outgoingModels)) {
         const changesForModel = await snapshotChangesForModel(model, sessionId, since);
         outgoingChanges.push(...changesForModel);
       }
