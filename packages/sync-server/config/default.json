@@ -219,6 +219,13 @@
     },
     "fhir": {
       "enabled": false
+    },
+    "omniLab": {
+      "enabled": false,
+      // Must be set to a random value, and the value must be saved somewhere (at BES we use lastpass)
+      // New keys may be issued by running `node dist/app.bundle.js apiKeys issue fhirIntegration <email> -e '100 years'
+      // If this is changed, all API keys using this secret will be revoked and must be reissued
+      "secret": null
     }
   },
   // on the sync-server, don't read these values from config!
