@@ -180,9 +180,10 @@ export class CentralSyncManager {
 
           // delete any outgoing changes that were just pushed in during the same session
           await removeEchoedChanges(this.store, sessionId);
+
+          await session.update({ snapshotCompletedAt: new Date() });
         },
       );
-      await session.update({ snapshotCompletedAt: new Date() });
     } catch (error) {
       log.error('CentralSyncManager.setPullFilter encountered an error', error);
       await session.update({ error: error.message });

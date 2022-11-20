@@ -21,17 +21,17 @@ const buildToSyncRecord = (model: typeof BaseModel, record: object): SyncRecord 
 /**
  * Get all the records that have updatedAtSyncTick > the last successful sync index,
  * meaning that these records have been updated since the last successful sync
- * @param models
+ * @param outgoingModels
  * @param since
  * @returns
  */
 export const snapshotOutgoingChanges = async (
-  models: typeof MODELS_MAP,
+  outgoingModels: typeof MODELS_MAP,
   since: number,
 ): Promise<SyncRecord[]> => {
   const outgoingChanges = [];
 
-  for (const model of Object.values(models)) {
+  for (const model of Object.values(outgoingModels)) {
     const changesForModel = await model.find({
       where: { updatedAtSyncTick: MoreThan(since) },
     });

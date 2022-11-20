@@ -109,7 +109,7 @@ export const snapshotOutgoingChanges = async (
   sessionConfig,
 ) => {
   if (readOnly) {
-    return [];
+    return 0;
   }
 
   let changesCount = 0;
