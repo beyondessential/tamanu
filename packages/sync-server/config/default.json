@@ -570,6 +570,14 @@
           "shortLabel": "Facility",
           "longLabel": "Facility",
           "hidden": false
+        },
+        "locationId": {
+          "shortLabel": "Location",
+          "longLabel": "Location"
+        },
+        "locationGroupId": {
+          "shortLabel": "Area",
+          "longLabel": "Area"
         }
       },
       "features": {
@@ -582,8 +590,7 @@
         "enableCovidClearanceCertificate": false,
         "enableDischargeDisposition": false,
         "editDisplayId": false,
-        "patientPlannedMove": false,
-        "locationHierarchy": false
+        "patientPlannedMove": false
       },
       "templates": {
         "letterhead": {

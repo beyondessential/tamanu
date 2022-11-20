@@ -43,6 +43,8 @@ const UNHIDEABLE_FIELDS = [
   'dateOfBirthExact',
   'emergencyContactName',
   'emergencyContactNumber',
+  'locationId',
+  'locationGroupId',
 ];
 
 const HIDEABLE_FIELDS = [
@@ -341,7 +343,6 @@ const rootLocalisationSchema = yup
         enableCovidClearanceCertificate: yup.boolean().required(),
         enableDischargeDisposition: yup.boolean().default(true),
         editDisplayId: yup.boolean().required(),
-        locationHierarchy: yup.boolean().required(),
         patientPlannedMove: yup.boolean().required(),
       })
       .required()

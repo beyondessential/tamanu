@@ -342,6 +342,9 @@ const MODEL_SPECIFIC_OVERRIDES = {
   NoteItem: () => ({
     id: undefined,
   }),
+  Location: () => ({
+    maxOccupancy: 1,
+  }),
 };
 
 export const fake = (model, passedOverrides = {}) => {

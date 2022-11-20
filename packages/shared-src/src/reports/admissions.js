@@ -157,7 +157,7 @@ const getPlaceHistoryFromNotes = (changeNotes, encounterData, placeType) => {
 
   return history;
 };
-const formatPlaceHistory = (history, placeType) =>
+const formatDepartmentHistory = (history, placeType) =>
   history
     .map(
       ({ to, date }) =>
@@ -165,15 +165,38 @@ const formatPlaceHistory = (history, placeType) =>
     )
     .join('; ');
 
+const getLocationGroupName = location => location?.locationGroup?.name || 'Unknown';
+
+const formatLocationHistory = async (models, history, placeType) => {
+  const items = await Promise.all(
+    history.map(async ({ to, date }) => {
+      const location = await models.Location.findOne({
+        where: { name: to },
+        include: 'locationGroup',
+      });
+      return `${getLocationGroupName(location)}, ${location?.name} (${upperFirst(
+        placeType,
+      )} assigned: ${format(date, 'dd/MM/yy h:mm a')})`;
+    }),
+  );
+  return items.join('; ');
+};
+
 const filterResults = async (models, results, parameters) => {
-  const { location, department } = parameters;
-  const { name: requiredLocation } = (await models.Location.findByPk(location)) ?? {};
+  const { locationGroup, department } = parameters;
+  const locations =
+    locationGroup &&
+    (await models.Location.findAll({
+      where: {
+        locationGroupId: locationGroup,
+      },
+    }));
+  const locationNames = locations?.map(({ name }) => name);
+
   const { name: requiredDepartment } = (await models.Department.findByPk(department)) ?? {};
 
-  const locationFilteredResults = requiredLocation
-    ? results.filter(result =>
-        result.locationHistory.map(({ to }) => to).includes(requiredLocation),
-      )
+  const locationFilteredResults = locationGroup
+    ? results.filter(result => result.locationHistory.some(({ to }) => locationNames.includes(to)))
     : results;
 
   const departmentFilteredResults = requiredDepartment
@@ -196,7 +219,11 @@ async function queryAdmissionsData(models, parameters) {
         },
         'examiner',
         'patientBillingType',
-        'location',
+        {
+          model: models.Location,
+          as: 'location',
+          include: ['locationGroup'],
+        },
         'department',
         {
           model: models.EncounterDiagnosis,
@@ -223,13 +250,22 @@ async function queryAdmissionsData(models, parameters) {
 
   const filteredResults = await filterResults(models, resultsWithHistory, parameters);
 
-  return filteredResults.map(result => ({
-    ...result,
-    locationHistoryString: formatPlaceHistory(result.locationHistory, 'location'),
-    departmentHistoryString: formatPlaceHistory(result.departmentHistory, 'department'),
-    primaryDiagnoses: stringifyDiagnoses(result.diagnoses, true),
-    secondaryDiagnoses: stringifyDiagnoses(result.diagnoses, false),
-  }));
+  return Promise.all(
+    filteredResults.map(async result => {
+      const locationHistoryString = await formatLocationHistory(
+        models,
+        result.locationHistory,
+        'location',
+      );
+      return {
+        ...result,
+        locationHistoryString,
+        departmentHistoryString: formatDepartmentHistory(result.departmentHistory, 'department'),
+        primaryDiagnoses: stringifyDiagnoses(result.diagnoses, true),
+        secondaryDiagnoses: stringifyDiagnoses(result.diagnoses, false),
+      };
+    }),
+  );
 }
 
 export async function dataGenerator({ models }, parameters) {

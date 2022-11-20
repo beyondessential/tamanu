@@ -175,11 +175,11 @@ export class Encounter extends Model {
       'examiner',
       {
         association: 'location',
-        include: ['facility'],
+        include: ['facility', 'locationGroup'],
       },
       {
         association: 'plannedLocation',
-        include: ['facility'],
+        include: ['facility', 'locationGroup'],
       },
       'referralSource',
     ];
@@ -421,6 +421,16 @@ export class Encounter extends Model {
       }
 
       if (data.plannedLocationId === null) {
+        // The automatic timeout doesn't provide a submittedTime, prevents double noting a cancellation
+        if (this.plannedLocationId && data.submittedTime) {
+          const currentlyPlannedLocation = await Location.findOne({
+            where: { id: this.plannedLocationId },
+          });
+          await this.addSystemNote(
+            `Cancelled planned move to ${currentlyPlannedLocation.name}`,
+            data.submittedTime,
+          );
+        }
         additionalChanges.plannedLocationStartTime = null;
       }
 
