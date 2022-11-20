@@ -18,7 +18,6 @@ const FIELDS = [
   'Appointment type',
   'Appointment status',
   'Clinician',
-  'Location',
   'Area',
 ];
 
@@ -54,14 +53,12 @@ select
 	a."type" "Appointment type",
 	a.status "Appointment status",
 	u.display_name "Clinician",
-	l.name "Location",
   coalesce(lg.name, 'Unknown') "Area"
 from appointments a
 join patients p on p.id = a.patient_id
 left join reference_data vil on vil.id = p.village_id
 left join billing_type bt on bt.patient_id = p.id
 left join users u on u.id = a.clinician_id
-left join locations l on l.id = a.location_id
 left join location_groups lg on lg.id = a.location_group_id
 where case when :location_group_id is not null then lg.id = :location_group_id else true end 
 and case when :from_date is not null then a.start_time::date >= :from_date::date else true end
