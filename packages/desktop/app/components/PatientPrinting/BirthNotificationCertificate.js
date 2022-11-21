@@ -58,21 +58,12 @@ const SignatureText = styled(Typography)`
   font-weight: 500;
   display: inline;
   font-size: 14px;
-  margin-left: 10px;
-  margin-right: 20px;
 `;
 
 const SignatureLine = styled(Divider)`
-  width: 230px;
   height: 100%;
   border-bottom: 1px solid ${Colors.darkestText};
-`;
-
-const BottomSideBySideContainer = styled.div`
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  flex-direction: row;
+  background-color: inherit;
 `;
 
 const SignatureContainerGrid = styled.div`
@@ -82,7 +73,8 @@ const SignatureContainerGrid = styled.div`
   grid-column-gap: 0.7rem;
   grid-row-gap: 1.2rem;
 
-  grid-template-columns: 3fr 2fr;
+  grid-template-columns: 128px 1fr 20px 44px 1fr;
+  grid-template-rows: 1fr 1fr;
   align-items: start;
 `;
 
@@ -251,24 +243,17 @@ export const SignatureSection = () => {
   return (
     <>
       <SignatureContainerGrid>
-        <BottomSideBySideContainer>
-          <SignatureText>Certified correct by:</SignatureText>
-          <SignatureLine />
-        </BottomSideBySideContainer>
-        <BottomSideBySideContainer>
-          <SignatureText>Signed:</SignatureText>
-          <SignatureLine />
-        </BottomSideBySideContainer>
-      </SignatureContainerGrid>
-      <SignatureContainerGrid>
-        <BottomSideBySideContainer>
-          <SignatureText>Circle applicable:</SignatureText>
-          <SignatureText>Doctor/midwife/nurse</SignatureText>
-        </BottomSideBySideContainer>
-        <BottomSideBySideContainer>
-          <SignatureText>Date:</SignatureText>
-          <SignatureLine />
-        </BottomSideBySideContainer>
+        <SignatureText>Certified correct by:</SignatureText>
+        <SignatureLine />
+        <span />
+        <SignatureText>Signed:</SignatureText>
+        <SignatureLine />
+
+        <SignatureText>Circle applicable:</SignatureText>
+        <SignatureText>Doctor/midwife/nurse</SignatureText>
+        <span />
+        <SignatureText>Date:</SignatureText>
+        <SignatureLine />
       </SignatureContainerGrid>
     </>
   );
