@@ -26,44 +26,6 @@ describe('getPatientLinkedModels', () => {
     }
   });
 
-  it('filters models that are linked to patient model', async () => {
-    const orderedFilteredModelsKeys = filteredModelsKeys.slice().sort();
-    const expectedModels = [
-      'AdministeredVaccine',
-      'Discharge',
-      'DocumentMetadata',
-      'Encounter',
-      'EncounterDiagnosis',
-      'EncounterMedication',
-      'ImagingRequest',
-      'ImagingRequestArea',
-      'Invoice',
-      'InvoiceLineItem',
-      'InvoicePriceChangeItem',
-      'LabRequest',
-      'LabRequestLog',
-      'LabTest',
-      'NoteItem',
-      'NotePage',
-      'PatientAdditionalData',
-      'PatientAllergy',
-      'PatientBirthData',
-      'PatientCarePlan',
-      'PatientCondition',
-      'PatientFamilyHistory',
-      'PatientFieldValue',
-      'PatientIssue',
-      'PatientSecondaryId',
-      'Procedure',
-      'Referral',
-      'SurveyResponse',
-      'SurveyResponseAnswer',
-      'Triage',
-      'Vitals',
-    ];
-    expect(orderedFilteredModelsKeys).toStrictEqual(expectedModels);
-  });
-
   it('excludes PatientFacility', () => {
     const hasPatientFacility = filteredModelsKeys.includes('PatientFacility');
     expect(hasPatientFacility).toBe(false);
