@@ -166,6 +166,8 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
       id: this.id,
     });
 
+    // only calculate updatedAtByField if a modified version hasn't been explicitly passed,
+    // e.g. from a central record syncing down to this device
     if (!oldPatientAdditionalData) {
       includedColumns.forEach(c => {
         if (this[camelCase(c)] !== undefined) {
