@@ -22,6 +22,8 @@ export class FhirObservation extends FhirResource {
     // this.UpstreamModel = models.Observation;
   }
 
+  static INTAKE_SCHEMA = yup.object({});
+
   async pushUpstream() {
     // Take a FhirResource and save it into Tamanu
   }

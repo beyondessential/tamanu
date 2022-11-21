@@ -36,7 +36,7 @@ export class FhirAnnotation extends Composite {
   static validateAndTransformFromSql({ authorReference, time, ...fields }) {
     return new this({
       authorReference: authorReference && FhirReference.fromSql(authorReference),
-      time: time && new Date(time), // TODO: figure out how Sequelize does this
+      time: time && new Date(time),
       ...fields,
     });
   }
