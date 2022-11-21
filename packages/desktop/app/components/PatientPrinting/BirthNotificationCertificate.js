@@ -23,6 +23,7 @@ const TopSection = styled.div`
   margin-top: 10px;
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
 `;
 
 const Table = styled(Box)`
@@ -69,7 +70,7 @@ const SignatureLine = styled(Divider)`
 const SignatureContainerGrid = styled.div`
   display: grid;
 
-  margin-top: 0.3rem;
+  margin-top: 1rem;
   grid-column-gap: 0.7rem;
   grid-row-gap: 1.2rem;
 

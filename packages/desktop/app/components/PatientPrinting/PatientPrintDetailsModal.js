@@ -153,7 +153,7 @@ export const PatientPrintDetailsModal = ({ patient }) => {
 
   return (
     <>
-      <Button variant="contained" color="primary" onClick={openModal}>
+      <Button size="small" onClick={openModal}>
         Print ID forms
       </Button>
       {mainComponent}
