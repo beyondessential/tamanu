@@ -6,7 +6,7 @@ import {
   createDummyEncounter,
   randomRecords,
 } from 'shared/demoData';
-
+import { findOneOrCreate } from 'shared/test-helpers';
 import { createTestContext } from '../utilities';
 import { testDiagnoses } from '../seed';
 
@@ -157,6 +157,38 @@ describe('Suggestions', () => {
       for (const location of otherResults) {
         expect(location).toHaveProperty('availability', LOCATION_AVAILABILITY_STATUS.AVAILABLE);
       }
+    });
+
+    it('should filter locations by location group', async () => {
+      await models.Location.truncate({ cascade: true });
+
+      const locationGroup = await findOneOrCreate(models, models.LocationGroup, {
+        id: 'test-area',
+        name: 'Test Area',
+      });
+      await findOneOrCreate(models, models.Location, {
+        name: 'Bed 1',
+        locationGroupId: locationGroup.id,
+        visibilityStatus: 'current',
+      });
+      await findOneOrCreate(models, models.Location, {
+        name: 'Bed 2',
+        locationGroupId: locationGroup.id,
+        visibilityStatus: 'current',
+      });
+      await findOneOrCreate(models, models.Location, {
+        name: 'Bed 3',
+        visibilityStatus: 'current',
+      });
+      const result = await userApp.get('/v1/suggestions/location');
+      expect(result).toHaveSucceeded();
+      expect(result?.body?.length).toEqual(3);
+
+      const filteredResult = await userApp.get(
+        '/v1/suggestions/location?locationGroupId=test-area',
+      );
+      expect(filteredResult).toHaveSucceeded();
+      expect(filteredResult?.body?.length).toEqual(2);
     });
   });
 

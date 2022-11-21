@@ -135,6 +135,7 @@ const filterByFacilityWhereBuilder = (search, query) => {
   if (!query.filterByFacility) {
     return baseWhere;
   }
+
   return {
     ...baseWhere,
     facilityId: config.serverFacilityId,
@@ -161,9 +162,13 @@ createSuggester(
   // Allow filtering by parent location group
   (search, query) => {
     const baseWhere = filterByFacilityWhereBuilder(search, query);
+
+    const { q, filterByFacility, ...filters } = query;
+
     if (!query.parentId) {
-      return baseWhere;
+      return { ...baseWhere, ...filters };
     }
+
     return {
       ...baseWhere,
       parentId: query.parentId,
