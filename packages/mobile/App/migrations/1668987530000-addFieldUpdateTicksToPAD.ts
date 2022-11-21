@@ -35,7 +35,12 @@ export class addFieldUpdateTicksToPAD1668987530000 implements MigrationInterface
     }
 
     const columns = await queryRunner.query("PRAGMA table_info('patient_additional_data');");
-    const includedColumnNames = columns.map(c => c.name).filter(c => !METADATA_FIELDS.includes(c));
+    // A little hack to make sure 'id' is the first (since id will never be null)
+    // column so that we get the commas in JSON string concatenation right
+    const includedColumnNames = [
+      'id',
+      ...columns.map(c => c.name).filter(c => !METADATA_FIELDS.includes(c) && c !== 'id'),
+    ];
     const updateColumnConcat = includedColumnNames
       .map(
         (c, index) =>
