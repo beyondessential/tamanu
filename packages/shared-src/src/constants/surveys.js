@@ -41,4 +41,5 @@ export const SURVEY_TYPES = {
   PROGRAMS: 'programs',
   REFERRAL: 'referral',
   OBSOLETE: 'obsolete',
+  VITALS: 'vitals',
 };
