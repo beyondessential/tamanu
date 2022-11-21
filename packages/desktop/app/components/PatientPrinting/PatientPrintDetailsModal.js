@@ -37,11 +37,11 @@ const PRINT_OPTIONS = {
   },
 };
 
-const PrintOptionList = ({ setCurrentlyPrinting }) => {
+const PrintOptionList = ({ className, setCurrentlyPrinting }) => {
   const { getLocalisation } = useLocalisation();
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column' }}>
+    <div className={className}>
       {Object.entries(PRINT_OPTIONS)
         .filter(([, { condition }]) => !condition || condition(getLocalisation))
         .map(([type, { label, icon }]) => (
@@ -55,11 +55,18 @@ const PrintOptionList = ({ setCurrentlyPrinting }) => {
     </div>
   );
 };
+const StyledPrintOptionList = styled(PrintOptionList)`
+  padding: 0px 50px;
+  display: flex;
+  flex-direction: column;
+`;
 
 const PrintOptionButton = styled(Button)`
   background: ${Colors.white};
   border: 2px solid ${Colors.primary};
   border-radius: 5px;
+  color: ${Colors.primary};
+  font-weight: bold;
 
   justify-content: center;
   text-align: -webkit-center;
@@ -121,7 +128,7 @@ export const PatientPrintDetailsModal = ({ patient }) => {
       // no selection yet -- show selection modal
       return (
         <Modal title="Select item to print" open={isModalOpen} onClose={closeModal}>
-          <PrintOptionList setCurrentlyPrinting={setCurrentlyPrinting} />
+          <StyledPrintOptionList setCurrentlyPrinting={setCurrentlyPrinting} />
         </Modal>
       );
     }
