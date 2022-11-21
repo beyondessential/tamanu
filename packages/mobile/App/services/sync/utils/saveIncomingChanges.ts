@@ -77,7 +77,7 @@ export const saveIncomingChanges = async (
       const batchString = Buffer.from(base64, 'base64').toString();
 
       const batch = JSON.parse(batchString);
-      const sanitizedBatch = model.sanitizeDataForPull ? model.sanitizeDataForPull(batch) : batch;
+      const sanitizedBatch = model.sanitizePulledRecordData ? model.sanitizePulledRecordData(batch) : batch;
 
       await saveChangesForModel(model, sanitizedBatch);
 

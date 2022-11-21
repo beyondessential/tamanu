@@ -155,17 +155,17 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
 
   @BeforeInsert()
   @BeforeUpdate()
-  async setUpdatedAtByFieldForNew(): Promise<void> {
+  async setUpdatedAtByField(): Promise<void> {
     const syncTick = await getSyncTick(Database.models, CURRENT_SYNC_TIME);
-    const thisModel = this.constructor as typeof BaseModel;
     const includedColumns = extractIncludedColumns(
-      thisModel.allModels.PatientAdditionalData,
+      PatientAdditionalData,
       METADATA_FIELDS,
     );
     const newUpdatedAtByField = {};
-    const oldPatientAdditionalData = await thisModel.allModels.PatientAdditionalData.findOne({
+    const oldPatientAdditionalData = await PatientAdditionalData.findOne({
       id: this.id,
     });
+
     if (!oldPatientAdditionalData) {
       includedColumns.forEach(c => {
         if (this[camelCase(c)] !== undefined) {
@@ -229,7 +229,7 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
     await PatientAdditionalData.updateValues(additionalData.id, values);
   }
 
-  static sanitizeDataForPull(rows) {
+  static sanitizePulledRecordData(rows) {
     return rows.map(row => {
       const sanitizedRow = {
         ...row,
