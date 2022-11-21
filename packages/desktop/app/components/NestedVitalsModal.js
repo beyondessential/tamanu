@@ -1,7 +1,7 @@
 import React from 'react';
 import { Modal } from './Modal';
 import { OutlinedButton } from './Button';
-import { VitalsForm } from '../forms/VitalsForm';
+import { LegacyVitalsForm } from '../forms/LegacyVitalsForm';
 
 export const NestedVitalsModal = ({ field }) => {
   const [isOpen, setModalOpen] = React.useState(false);
@@ -19,7 +19,11 @@ export const NestedVitalsModal = ({ field }) => {
     <>
       <OutlinedButton onClick={openModal}>Record vitals</OutlinedButton>
       <Modal open={isOpen} onClose={closeModal}>
-        <VitalsForm editedObject={field.value || {}} onSubmit={onSubmit} onCancel={closeModal} />
+        <LegacyVitalsForm
+          editedObject={field.value || {}}
+          onSubmit={onSubmit}
+          onCancel={closeModal}
+        />
       </Modal>
     </>
   );

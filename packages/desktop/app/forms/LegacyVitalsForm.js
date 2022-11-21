@@ -30,7 +30,7 @@ VitalsNumericField.defaultProps = {
   value: null,
 };
 
-export class VitalsForm extends React.PureComponent {
+export class LegacyVitalsForm extends React.PureComponent {
   renderForm = ({ submitForm }) => {
     const { onCancel } = this.props;
     return (
@@ -96,6 +96,6 @@ export class VitalsForm extends React.PureComponent {
   }
 }
 
-VitalsForm.propTypes = {
+LegacyVitalsForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
 };
