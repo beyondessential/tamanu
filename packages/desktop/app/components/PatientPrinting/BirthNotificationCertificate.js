@@ -247,6 +247,33 @@ const BirthSection = ({ data }) => {
   );
 };
 
+export const SignatureSection = () => {
+  return (
+    <>
+      <SignatureContainerGrid>
+        <BottomSideBySideContainer>
+          <SignatureText>Certified correct by:</SignatureText>
+          <SignatureLine />
+        </BottomSideBySideContainer>
+        <BottomSideBySideContainer>
+          <SignatureText>Signed:</SignatureText>
+          <SignatureLine />
+        </BottomSideBySideContainer>
+      </SignatureContainerGrid>
+      <SignatureContainerGrid>
+        <BottomSideBySideContainer>
+          <SignatureText>Circle applicable:</SignatureText>
+          <SignatureText>Doctor/midwife/nurse</SignatureText>
+        </BottomSideBySideContainer>
+        <BottomSideBySideContainer>
+          <SignatureText>Date:</SignatureText>
+          <SignatureLine />
+        </BottomSideBySideContainer>
+      </SignatureContainerGrid>
+    </>
+  );
+};
+
 export const BirthNotificationCertificate = React.memo(
   ({ motherData, fatherData, childData, facility, certificateData }) => {
     const { title, subTitle, logo } = certificateData;
@@ -269,26 +296,7 @@ export const BirthNotificationCertificate = React.memo(
         <ParentSection parentType="Mother" data={motherData} />
         <ParentSection parentType="Father" data={fatherData} />
         <BirthSection data={childData} />
-        <SignatureContainerGrid>
-          <BottomSideBySideContainer>
-            <SignatureText>Certified correct by:</SignatureText>
-            <SignatureLine />
-          </BottomSideBySideContainer>
-          <BottomSideBySideContainer>
-            <SignatureText>Signed:</SignatureText>
-            <SignatureLine />
-          </BottomSideBySideContainer>
-        </SignatureContainerGrid>
-        <SignatureContainerGrid>
-          <BottomSideBySideContainer>
-            <SignatureText>Circle applicable:</SignatureText>
-            <SignatureText>Doctor/midwife/nurse</SignatureText>
-          </BottomSideBySideContainer>
-          <BottomSideBySideContainer>
-            <SignatureText>Date:</SignatureText>
-            <SignatureLine />
-          </BottomSideBySideContainer>
-        </SignatureContainerGrid>
+        <SignatureSection />
       </CertificateWrapper>
     );
   },
