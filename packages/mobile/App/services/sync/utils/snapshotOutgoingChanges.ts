@@ -32,7 +32,7 @@ export const snapshotOutgoingChanges = async (
 ): Promise<SyncRecord[]> => {
   const outgoingChanges = [];
 
-  // snapshot inside a transaction (Serializa is the default isolation level),
+  // snapshot inside a transaction (Serializable is the default isolation level),
   // so that other changes made while this snapshot
   // is underway aren't included (as this could lead to a pair of foreign records with the child in
   // the snapshot and its parent missing)
