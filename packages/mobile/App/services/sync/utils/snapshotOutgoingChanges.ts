@@ -5,6 +5,7 @@ import { BaseModel } from '../../../models/BaseModel';
 import { SyncRecord, SyncRecordData } from '../types';
 import { MODELS_MAP } from '../../../models/modelsMap';
 import { extractIncludedColumns } from './extractIncludedColumns';
+import { Database } from '~/infra/db';
 
 const buildToSyncRecord = (model: typeof BaseModel, record: object): SyncRecord => {
   const includedColumns = extractIncludedColumns(model);
@@ -31,13 +32,20 @@ export const snapshotOutgoingChanges = async (
 ): Promise<SyncRecord[]> => {
   const outgoingChanges = [];
 
-  for (const model of Object.values(outgoingModels)) {
-    const changesForModel = await model.find({
-      where: { updatedAtSyncTick: MoreThan(since) },
-    });
-    const syncRecordsForModel = changesForModel.map(change => buildToSyncRecord(model, change));
-    outgoingChanges.push(...syncRecordsForModel);
-  }
+  // snapshot inside a transaction (Serializa is the default isolation level),
+  // so that other changes made while this snapshot
+  // is underway aren't included (as this could lead to a pair of foreign records with the child in
+  // the snapshot and its parent missing)
+  // as the snapshot only contains read queries, there will be no concurrent update issues :)
+  return Database.client.transaction(async () => {
+    for (const model of Object.values(outgoingModels)) {
+      const changesForModel = await model.find({
+        where: { updatedAtSyncTick: MoreThan(since) },
+      });
+      const syncRecordsForModel = changesForModel.map(change => buildToSyncRecord(model, change));
+      outgoingChanges.push(...syncRecordsForModel);
+    }
 
-  return outgoingChanges;
+    return outgoingChanges;
+  });
 };
