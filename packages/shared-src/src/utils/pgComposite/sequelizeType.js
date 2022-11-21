@@ -16,6 +16,13 @@ export class Composite {
 
   constructor(params) {
     this.params = this.constructor.SCHEMA().validateSync(params);
+
+    for (const name of Object.keys(this.params)) {
+      // exclude phantom fields (used only for advanced yup validations)
+      if (name.startsWith('_')) {
+        delete this.params[name];
+      }
+    }
   }
 
   sqlFields() {

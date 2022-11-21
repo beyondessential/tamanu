@@ -195,13 +195,14 @@ export function fakeEncounterMedication(prefix = 'test-') {
   };
 }
 
-const fakeDate = () => new Date(random(0, Date.now()));
-const fakeString = (model, { fieldName }, id) => `${model.name}.${fieldName}.${id}`;
-const fakeDateTimeString = () => toDateTimeString(fakeDate());
-const fakeDateString = () => toDateString(fakeDate());
-const fakeInt = () => random(0, 10);
-const fakeFloat = () => Math.random() * 1000;
-const fakeBool = () => sample([true, false]);
+export const fakeDate = () => new Date(random(0, Date.now()));
+export const fakeString = (model, { fieldName }, id) => `${model.name}.${fieldName}.${id}`;
+export const fakeDateTimeString = () => toDateTimeString(fakeDate());
+export const fakeDateString = () => toDateString(fakeDate());
+export const fakeInt = () => random(0, 10);
+export const fakeFloat = () => Math.random() * 1000;
+export const fakeBool = () => sample([true, false]);
+
 const FIELD_HANDLERS = {
   'TIMESTAMP WITH TIME ZONE': fakeDate,
   DATETIME: fakeDate,
