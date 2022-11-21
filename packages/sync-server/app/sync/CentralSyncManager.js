@@ -180,10 +180,13 @@ export class CentralSyncManager {
 
           // delete any outgoing changes that were just pushed in during the same session
           await removeEchoedChanges(this.store, sessionId);
-
-          await session.update({ snapshotCompletedAt: new Date() });
         },
       );
+      // this update to the session needs to happen outside of the transaction, as the repeatable
+      // read isolation level can suffer serialization failures if a record is updated inside and
+      // outside the transaction, and the session is being updated to show the last connection
+      // time throughout the snapshot process
+      await session.update({ snapshotCompletedAt: new Date() });
     } catch (error) {
       log.error('CentralSyncManager.setPullFilter encountered an error', error);
       await session.update({ error: error.message });
