@@ -66,7 +66,6 @@ const PrintOptionButton = styled(Button)`
   border: 2px solid ${Colors.primary};
   border-radius: 5px;
   color: ${Colors.primary};
-  font-weight: bold;
 
   justify-content: center;
   text-align: -webkit-center;
