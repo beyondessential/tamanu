@@ -126,6 +126,20 @@ const patternsForPlaceTypes = {
   location: locationExtractorPattern,
 };
 
+const splitNoteLocation = content => {
+  const {
+    groups: { group, location },
+  } = content.match(/(?<group>.*(?=,\s+))?(,\s+)?(?<location>.*)/);
+  return { group, location };
+};
+
+const getPlaceName = (place, type) => {
+  const { name: placeName } = place;
+  return type === 'location' && place.locationGroup
+    ? `${place.locationGroup.name}, ${placeName}`
+    : placeName;
+};
+
 const getPlaceHistoryFromNotes = (changeNotes, encounterData, placeType) => {
   const relevantNotes = changeNotes
     .filter(({ recordId }) => recordId === encounterData.id)
@@ -133,7 +147,7 @@ const getPlaceHistoryFromNotes = (changeNotes, encounterData, placeType) => {
 
   if (!relevantNotes.length) {
     const { [placeType]: place, startDate } = encounterData;
-    const { name: placeName } = place;
+    const placeName = getPlaceName(place, placeType);
     return [{ to: placeName, date: startDate }];
   }
 
@@ -157,33 +171,17 @@ const getPlaceHistoryFromNotes = (changeNotes, encounterData, placeType) => {
 
   return history;
 };
-const formatDepartmentHistory = (history, placeType) =>
-  history
-    .map(
-      ({ to, date }) =>
-        `${to} (${upperFirst(placeType)} assigned: ${format(date, 'dd/MM/yy h:mm a')})`,
-    )
-    .join('; ');
 
-const getLocationGroupName = location => location?.locationGroup?.name || 'Unknown';
-
-const formatLocationHistory = async (models, history, placeType) => {
-  const items = await Promise.all(
-    history.map(async ({ to, date }) => {
-      const location = await models.Location.findOne({
-        where: { name: to },
-        include: 'locationGroup',
-      });
-      return `${getLocationGroupName(location)}, ${location?.name} (${upperFirst(
-        placeType,
-      )} assigned: ${format(date, 'dd/MM/yy h:mm a')})`;
-    }),
-  );
+const formatHistory = (history, placeType) => {
+  const items = history.map(({ to, date }) => {
+    return `${to} (${upperFirst(placeType)} assigned: ${format(date, 'dd/MM/yy h:mm a')})`;
+  });
   return items.join('; ');
 };
 
 const filterResults = async (models, results, parameters) => {
   const { locationGroup, department } = parameters;
+
   const locations =
     locationGroup &&
     (await models.Location.findAll({
@@ -191,12 +189,26 @@ const filterResults = async (models, results, parameters) => {
         locationGroupId: locationGroup,
       },
     }));
+
+  const { name: locationGroupName } = locationGroup
+    ? await models.LocationGroup.findOne({
+        where: {
+          id: locationGroup,
+        },
+      })
+    : {};
+
   const locationNames = locations?.map(({ name }) => name);
 
   const { name: requiredDepartment } = (await models.Department.findByPk(department)) ?? {};
 
   const locationFilteredResults = locationGroup
-    ? results.filter(result => result.locationHistory.some(({ to }) => locationNames.includes(to)))
+    ? results.filter(result =>
+        result.locationHistory.some(({ to }) => {
+          const { group, location } = splitNoteLocation(to);
+          return group ? group === locationGroupName : locationNames.includes(location);
+        }),
+      )
     : results;
 
   const departmentFilteredResults = requiredDepartment
@@ -252,15 +264,11 @@ async function queryAdmissionsData(models, parameters) {
 
   return Promise.all(
     filteredResults.map(async result => {
-      const locationHistoryString = await formatLocationHistory(
-        models,
-        result.locationHistory,
-        'location',
-      );
+      const locationHistoryString = formatHistory(result.locationHistory, 'location');
       return {
         ...result,
         locationHistoryString,
-        departmentHistoryString: formatDepartmentHistory(result.departmentHistory, 'department'),
+        departmentHistoryString: formatHistory(result.departmentHistory, 'department'),
         primaryDiagnoses: stringifyDiagnoses(result.diagnoses, true),
         secondaryDiagnoses: stringifyDiagnoses(result.diagnoses, false),
       };
