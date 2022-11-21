@@ -127,13 +127,6 @@ const patternsForPlaceTypes = {
   location: locationExtractorPattern,
 };
 
-export const splitNoteLocation = content => {
-  const {
-    groups: { group, location },
-  } = content.match(/(?<group>.*(?=,\s+))?(,\s+)?(?<location>.*)/);
-  return { group, location };
-};
-
 const getPlaceHistoryFromNotes = (changeNotes, encounterData, placeType) => {
   const relevantNotes = changeNotes
     .filter(({ recordId }) => recordId === encounterData.id)
@@ -199,7 +192,7 @@ const filterResults = async (models, results, parameters) => {
   const locationFilteredResults = locationGroup
     ? results.filter(result =>
         result.locationHistory.some(({ to }) => {
-          const { group, location } = splitNoteLocation(to);
+          const { group, location } = Location.parseFullLocationName(to);
           return group ? group === locationGroupName : locationNames.includes(location);
         }),
       )

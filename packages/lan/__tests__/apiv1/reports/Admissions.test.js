@@ -10,21 +10,8 @@ import { ENCOUNTER_TYPES } from 'shared/constants';
 import { findOneOrCreate } from 'shared/test-helpers';
 import { format } from 'shared/utils/dateTime';
 import { createTestContext } from '../../utilities';
-import { splitNoteLocation } from '../../../../shared-src/src/reports/admissions';
 
 describe('Admissions report', () => {
-  describe('splitNoteLocation', () => {
-    it('returns area and location from comma separated content', () => {
-      const { group, location } = splitNoteLocation('test area, test location');
-      expect(group).toEqual('test area');
-      expect(location).toEqual('test location');
-    });
-    it('returns location as full content when no comma separated content', () => {
-      const { group, location } = splitNoteLocation('test location');
-      expect(location).toEqual('test location');
-      expect(group).toBeUndefined();
-    });
-  });
   describe('dataGenerator', () => {
     let expectedPatient = null;
     let app = null;
