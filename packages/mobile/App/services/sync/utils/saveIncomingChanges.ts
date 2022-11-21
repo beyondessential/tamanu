@@ -77,10 +77,11 @@ export const saveIncomingChanges = async (
       const batchString = Buffer.from(base64, 'base64').toString();
 
       const batch = JSON.parse(batchString);
+      const sanitizedBatch = model.sanitizeDataForPull ? model.sanitizeDataForPull(batch) : batch;
 
-      await saveChangesForModel(model, batch);
+      await saveChangesForModel(model, sanitizedBatch);
 
-      savedRecordsCount += batch.length;
+      savedRecordsCount += sanitizedBatch.length;
       const progressMessage = `Saving ${incomingChangesCount} records...`;
       progressCallback(incomingChangesCount, savedRecordsCount, progressMessage);
     }
