@@ -56,7 +56,7 @@ const PrintOptionList = ({ className, setCurrentlyPrinting }) => {
   );
 };
 const StyledPrintOptionList = styled(PrintOptionList)`
-  padding: 0px 50px;
+  padding: 20px 50px;
   display: flex;
   flex-direction: column;
 `;
