@@ -1,4 +1,5 @@
 import { Op } from 'sequelize';
+import { Location } from 'shared/models/Location';
 import { subDays, startOfDay, endOfDay, parseISO } from 'date-fns';
 import { ENCOUNTER_TYPES, DIAGNOSIS_CERTAINTY, NOTE_TYPES } from 'shared/constants';
 import upperFirst from 'lodash/upperFirst';
@@ -126,18 +127,11 @@ const patternsForPlaceTypes = {
   location: locationExtractorPattern,
 };
 
-const splitNoteLocation = content => {
+export const splitNoteLocation = content => {
   const {
     groups: { group, location },
   } = content.match(/(?<group>.*(?=,\s+))?(,\s+)?(?<location>.*)/);
   return { group, location };
-};
-
-const getPlaceName = (place, type) => {
-  const { name: placeName } = place;
-  return type === 'location' && place.locationGroup
-    ? `${place.locationGroup.name}, ${placeName}`
-    : placeName;
 };
 
 const getPlaceHistoryFromNotes = (changeNotes, encounterData, placeType) => {
@@ -147,7 +141,7 @@ const getPlaceHistoryFromNotes = (changeNotes, encounterData, placeType) => {
 
   if (!relevantNotes.length) {
     const { [placeType]: place, startDate } = encounterData;
-    const placeName = getPlaceName(place, placeType);
+    const placeName = Location.formatFullLocationName(place);
     return [{ to: placeName, date: startDate }];
   }
 

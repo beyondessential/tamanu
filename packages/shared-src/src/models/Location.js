@@ -84,6 +84,10 @@ export class Location extends Model {
     });
   }
 
+  static formatFullLocationName({ locationGroup, name }) {
+    return locationGroup ? `${locationGroup.name}, ${name}` : name;
+  }
+
   async getAvailability() {
     const { Encounter } = this.sequelize.models;
 

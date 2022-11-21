@@ -277,12 +277,11 @@ export class Encounter extends Model {
   }
 
   async addLocationChangeNote(contentPrefix, fromLocation, toLocation, submittedTime) {
+    const { Location } = this.sequelize.models;
     await this.addSystemNote(
-      `${contentPrefix} from ${
-        fromLocation.locationGroup ? `${fromLocation.locationGroup.name}, ` : ''
-      }${fromLocation.name} to ${
-        toLocation.locationGroup ? `${toLocation.locationGroup.name}, ` : ''
-      }${toLocation.name}`,
+      `${contentPrefix} from ${Location.formatFullLocationName(
+        fromLocation,
+      )} to ${Location.formatFullLocationName(toLocation)}`,
       submittedTime,
     );
   }
