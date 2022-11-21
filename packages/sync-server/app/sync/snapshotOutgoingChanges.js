@@ -27,6 +27,9 @@ const snapshotChangesForModel = async (
 
   const { tableName: table } = model;
 
+  const attributes = model.getAttributes();
+  const useUpdatedAtByFieldSum = !!attributes.updatedAtByField;
+
   const [, count] = await model.sequelize.query(
     `
       INSERT INTO sync_session_records (
@@ -39,6 +42,7 @@ const snapshotChangesForModel = async (
         record_type,
         record_id,
         saved_at_sync_tick,
+        updated_at_by_field_sum,
         data
       )
       SELECT
@@ -51,13 +55,29 @@ const snapshotChangesForModel = async (
         '${table}',
         ${table}.id,
         ${table}.updated_at_sync_tick,
+        ${useUpdatedAtByFieldSum ? 'updated_at_by_field_summary.sum ,' : 'NULL,'}
         json_build_object(
-          ${Object.keys(model.getAttributes())
+          ${Object.keys(attributes)
             .filter(a => !COLUMNS_EXCLUDED_FROM_SYNC.includes(a))
             .map(a => `'${a}', ${table}.${snake(a)}`)}
         )
       FROM
         ${table}
+        ${
+          useUpdatedAtByFieldSum
+            ? `
+      LEFT JOIN (
+        SELECT
+          ${table}.id, sum(value::text::bigint) sum
+        FROM
+          ${table}, json_each(${table}.updated_at_by_field)
+        GROUP BY
+          ${table}.id
+      ) updated_at_by_field_summary
+      ON
+        ${table}.id = updated_at_by_field_summary.id`
+            : ''
+        }
       ${filter}
       ${filter.length > 0 ? 'AND' : 'WHERE'} ${table}.updated_at_sync_tick > :since;
     `,
@@ -89,7 +109,7 @@ export const snapshotOutgoingChanges = async (
   sessionConfig,
 ) => {
   if (readOnly) {
-    return [];
+    return 0;
   }
 
   let changesCount = 0;

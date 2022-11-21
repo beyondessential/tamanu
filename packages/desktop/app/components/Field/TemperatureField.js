@@ -83,7 +83,7 @@ TemperatureInput.defaultProps = {
   value: null,
   min: 0,
   max: 999,
-  defaultValue: 0,
+  defaultValue: null,
   className: null,
 };
 

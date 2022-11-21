@@ -194,6 +194,7 @@ export class MobileSyncManager {
     if (outgoingChanges.length > 0) {
       await pushOutgoingChanges(
         this.centralServer,
+        modelsToPush,
         sessionId,
         outgoingChanges,
         (total, pushedRecords) =>

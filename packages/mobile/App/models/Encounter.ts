@@ -1,13 +1,4 @@
-import {
-  Entity,
-  Column,
-  ManyToOne,
-  OneToMany,
-  Index,
-  BeforeUpdate,
-  BeforeInsert,
-  RelationId,
-} from 'typeorm/browser';
+import { Entity, Column, ManyToOne, OneToMany, Index, RelationId } from 'typeorm/browser';
 import { startOfDay, addHours, subDays } from 'date-fns';
 import { getUniqueId } from 'react-native-device-info';
 import { BaseModel, IdRelation } from './BaseModel';

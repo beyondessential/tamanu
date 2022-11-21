@@ -32,7 +32,7 @@ export async function up(query) {
       patient_additional_data
     SET
       updated_at_by_field = (
-        SELECT JSON_OBJECT_AGG(row_as_json.key, (SELECT value FROM local_system_facts WHERE key = '${CURRENT_SYNC_TIME_KEY}'))::jsonb
+        SELECT JSON_OBJECT_AGG(row_as_json.key, (SELECT value::bigint FROM local_system_facts WHERE key = '${CURRENT_SYNC_TIME_KEY}'))::jsonb
         FROM
           jsonb_each(row_to_json(patient_additional_data)::jsonb) AS row_as_json
         WHERE

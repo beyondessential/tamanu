@@ -1,12 +1,4 @@
-import {
-  Entity,
-  Column,
-  ManyToOne,
-  OneToMany,
-  BeforeUpdate,
-  BeforeInsert,
-  RelationId,
-} from 'typeorm/browser';
+import { Entity, Column, ManyToOne, OneToMany, RelationId } from 'typeorm/browser';
 
 import { ISurveyResponse, ISurveyScreenComponent, EncounterType } from '~/types';
 

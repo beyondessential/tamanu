@@ -1,13 +1,36 @@
-import { Entity, Column, RelationId, ManyToOne, BeforeUpdate, BeforeInsert } from 'typeorm/browser';
+import {
+  Entity,
+  Column,
+  RelationId,
+  ManyToOne,
+  PrimaryColumn,
+  BeforeInsert,
+  BeforeUpdate,
+  AfterLoad,
+} from 'typeorm/browser';
+import { camelCase, isEqual, isEmpty } from 'lodash';
 import { BaseModel, IdRelation } from './BaseModel';
 import { IPatientAdditionalData } from '~/types';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
 import { Patient } from './Patient';
 import { SYNC_DIRECTIONS } from './types';
+import { CURRENT_SYNC_TIME, getSyncTick } from '~/services/sync';
+import { Database } from '~/infra/db';
+import { extractIncludedColumns } from '~/services/sync/utils/extractIncludedColumns';
 
+const METADATA_FIELDS = [
+  'createdAt',
+  'updatedAt',
+  'deletedAt',
+  'updatedAtSyncTick',
+  'updatedAtByField',
+];
 @Entity('patient_additional_data')
 export class PatientAdditionalData extends BaseModel implements IPatientAdditionalData {
   static syncDirection = SYNC_DIRECTIONS.BIDIRECTIONAL;
+
+  @PrimaryColumn()
+  id: string;
 
   @ManyToOne(
     () => Patient,
@@ -122,6 +145,61 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
   @IdRelation()
   countryOfBirthId?: string | null;
 
+  @Column({ nullable: true })
+  updatedAtByField: string;
+
+  @BeforeInsert()
+  async assignIdAsPatientId(): Promise<void> {
+    this.id = this.patient;
+  }
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  async setUpdatedAtByField(): Promise<void> {
+    const syncTick = await getSyncTick(Database.models, CURRENT_SYNC_TIME);
+    const includedColumns = extractIncludedColumns(
+      PatientAdditionalData,
+      METADATA_FIELDS,
+    );
+    const newUpdatedAtByField = {};
+    const oldPatientAdditionalData = await PatientAdditionalData.findOne({
+      id: this.id,
+    });
+
+    // only calculate updatedAtByField if a modified version hasn't been explicitly passed,
+    // e.g. from a central record syncing down to this device
+    if (!oldPatientAdditionalData) {
+      includedColumns.forEach(c => {
+        if (this[camelCase(c)] !== undefined) {
+          newUpdatedAtByField[camelCase(c)] = syncTick;
+        }
+      });
+    } else if (
+      !this.updatedAtByField ||
+      isEqual(this.updatedAtByField, oldPatientAdditionalData.updatedAtByField)
+    ) {
+      includedColumns.forEach(c => {
+        const key = camelCase(c);
+        if (oldPatientAdditionalData[key] !== this[key]) {
+          newUpdatedAtByField[key] = syncTick;
+        }
+      });
+    }
+
+    if (!isEmpty(newUpdatedAtByField)) {
+      this.updatedAtByField = JSON.stringify(newUpdatedAtByField);
+    } else if (typeof this.updatedAtByField === 'object') {
+      this.updatedAtByField = JSON.stringify(this.updatedAtByField);
+    }
+  }
+
+  @AfterLoad()
+  async populateUpdatedAtByField(): Promise<void> {
+    if (this.updatedAtByField) {
+      this.updatedAtByField = JSON.parse(this.updatedAtByField);
+    }
+  }
+
   static getTableNameForSync(): string {
     return 'patient_additional_data';
   }
@@ -151,5 +229,19 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
   static async updateForPatient(patientId: string, values: Partial<PatientAdditionalData>) {
     const additionalData = await PatientAdditionalData.getOrCreateForPatient(patientId);
     await PatientAdditionalData.updateValues(additionalData.id, values);
+  }
+
+  static sanitizePulledRecordData(rows) {
+    return rows.map(row => {
+      const sanitizedRow = {
+        ...row,
+      };
+
+      if (row.data.updatedAtByField) {
+        sanitizedRow.data.updatedAtByField = JSON.stringify(sanitizedRow.data.updatedAtByField);
+      }
+
+      return sanitizedRow;
+    });
   }
 }

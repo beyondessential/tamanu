@@ -141,8 +141,18 @@ export class CentralServerConnection {
     return this.get(`sync/${sessionId}/pull`, query);
   }
 
-  async push(sessionId: string, body, pageNumber: number, totalPages: number) {
-    return this.post(`sync/${sessionId}/push`, { pageNumber, totalPages }, body);
+  async push(
+    sessionId: string,
+    changes,
+    pageNumber: number,
+    totalPages: number,
+    tableNames: string[],
+  ) {
+    return this.post(
+      `sync/${sessionId}/push`,
+      { pageNumber, totalPages },
+      { changes, tablesToInclude: tableNames },
+    );
   }
 
   setToken(token: string): void {

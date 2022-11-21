@@ -231,12 +231,12 @@ export class CentralServerConnection {
     return this.fetch(path);
   }
 
-  async push(sessionId, body, { pushedSoFar, totalToPush }) {
+  async push(sessionId, changes, { pushedSoFar, totalToPush }) {
     const path = `sync/${sessionId}/push?${objectToQueryString({
       pushedSoFar,
       totalToPush,
     })}`;
-    return this.fetch(path, { method: 'POST', body });
+    return this.fetch(path, { method: 'POST', body: { changes } });
   }
 
   async whoami() {
