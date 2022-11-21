@@ -227,7 +227,7 @@ describe('snapshotOutgoingChanges', () => {
   );
 
   it(
-    'concurrent transaction commits BEFORE snapshot - SEE NOTE 1',
+    'concurrent transaction commits BEFORE snapshot commits - SEE NOTE 1',
     withErrorShown(async () => {
       const { SyncSession, LocalSystemFact, ReferenceData } = models;
 
