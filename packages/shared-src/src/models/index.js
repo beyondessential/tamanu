@@ -34,7 +34,7 @@ export * from './LabTest';
 export * from './LabRequestLog';
 export * from './LabTestType';
 export * from './ImagingRequest';
-export * from './ImagingRequestAreas';
+export * from './ImagingRequestArea';
 
 export * from './Program';
 export * from './Survey';
@@ -84,6 +84,6 @@ export * from './NotePage';
 export * from './NoteItem';
 
 export * from './SyncSession';
-export * from './SessionSyncRecord';
+export * from './SyncSessionRecord';
 
 export * from './fhir';

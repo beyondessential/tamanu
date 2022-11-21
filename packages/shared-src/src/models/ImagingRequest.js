@@ -87,7 +87,7 @@ export class ImagingRequest extends Model {
     });
 
     this.belongsToMany(models.ReferenceData, {
-      through: models.ImagingRequestAreas,
+      through: models.ImagingRequestArea,
       as: 'areas',
       foreignKey: 'imagingRequestId',
     });
@@ -102,5 +102,10 @@ export class ImagingRequest extends Model {
     });
   }
 
-  static buildSyncFilter = buildEncounterLinkedSyncFilter;
+  static buildSyncFilter(patientIds) {
+    if (patientIds.length === 0) {
+      return null;
+    }
+    return buildEncounterLinkedSyncFilter([this.tableName, 'encounters']);
+  }
 }

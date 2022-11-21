@@ -29,13 +29,11 @@ describe('Triage', () => {
       ...fake(models.Facility, { id: config.serverFacilityId }),
     });
 
-    [emergencyDepartment] = await models.Department.findOrCreate({
-      where: {
-        id: 'emergency',
-        code: 'emergency',
-        name: 'Emergency',
-        facilityId: config.serverFacilityId,
-      },
+    [emergencyDepartment] = await models.Department.upsert({
+      id: 'emergency',
+      code: 'Emergency',
+      name: 'Emergency',
+      facilityId: config.serverFacilityId,
     });
   });
 

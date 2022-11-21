@@ -1,9 +1,13 @@
-import { Database } from '../../../infra/db';
+import { BaseModel } from '~/models/BaseModel';
+import { LocalSystemFact } from '~/models/LocalSystemFact';
 
-export const getSyncTick = async (key: string): Promise<number> => {
-  const localSystemFact = await Database.models.LocalSystemFact.findOne({
-    key,
-  });
+export const getSyncTick = async (
+  models: Record<string, typeof BaseModel>,
+  key: string,
+): Promise<number> => {
+  const localSystemFact = (await models.LocalSystemFact.findOne({
+    where: { key },
+  })) as LocalSystemFact;
 
-  return localSystemFact ? parseInt(localSystemFact.value, 10) : 0;
+  return localSystemFact ? parseInt(localSystemFact.value, 10) : -1;
 };

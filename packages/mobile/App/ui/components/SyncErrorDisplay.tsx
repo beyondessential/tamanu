@@ -35,9 +35,15 @@ export const SyncErrorDisplay = (): ReactElement => {
   }
 
   return (
-    <StyledView marginTop={10} backgroundColor="#441111">
+    <StyledView
+      marginTop={20}
+      backgroundColor="rgba(247,104,83,0.2)"
+      borderWidth={1}
+      borderRadius={3}
+      borderColor="#F76853"
+    >
       <StyledView margin={8}>
-        <StyledText color="red">{stringifyError(error)}</StyledText>
+        <StyledText color="#FFFFFF">{stringifyError(error)}</StyledText>
       </StyledView>
     </StyledView>
   );

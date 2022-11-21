@@ -1,5 +1,4 @@
 import { getManager } from 'typeorm';
-import { groupBy } from 'lodash';
 
 import { MODELS_MAP } from '../../../models/modelsMap';
 import { BaseModel } from '../../../models/BaseModel';
@@ -9,36 +8,28 @@ type DependencyMap = {
 };
 
 /**
- * Get dependency map of tables
+ * Get dependency map of models
  * ie:
  * {
- *  'survey_screen_component': ['survey_screen', 'program_data_element'],
+ *  'SurveyScreenComponent': ['SurveyScreen', 'ProgramDataElement'],
  *  ....
  * }
  * @returns
  */
-const getDependencyMap = async (): Promise<DependencyMap> => {
+const getDependencyMap = async (models: typeof MODELS_MAP): Promise<DependencyMap> => {
   const entityManager = getManager();
-  const dependencies = await entityManager.query(`
-    SELECT DISTINCT
-      m.name as "modelName", 
-      p."table" as "dependency"
-    FROM
-      sqlite_master m
-      JOIN pragma_foreign_key_list(m.name) p ON m.name != p."table"
-    ORDER BY m.name;
-  `);
-
-  const dependenciesGroupedByModel = groupBy(dependencies, 'modelName');
   const dependencyMap = {};
+  const tableNameToModelName = getTableNameToModelName(models);
 
-  Object.entries(dependenciesGroupedByModel).forEach(([modelName, dependencyObjects]) => {
+  for (const [modelName, model] of Object.entries(models)) {
     if (!dependencyMap[modelName]) {
       dependencyMap[modelName] = [];
     }
-    const dependencies = dependencyObjects.map(d => d.dependency);
-    dependencyMap[modelName].push(...dependencies);
-  });
+    const dependencies = await entityManager.query(
+      `PRAGMA foreign_key_list(${model.getRepository().metadata.tableName})`,
+    );
+    dependencyMap[modelName] = dependencies.map(d => tableNameToModelName[d.table]);
+  }
 
   return dependencyMap;
 };
@@ -75,17 +66,15 @@ const getTableNameToModelName = (models: typeof MODELS_MAP): { [key: string]: st
 export const sortInDependencyOrder = async (
   models: typeof MODELS_MAP,
 ): Promise<typeof BaseModel[]> => {
-  const dependencyMap = await getDependencyMap();
+  const dependencyMap = await getDependencyMap(models);
   const sorted = [];
   const stillToSort = { ...models };
-  const tableNameToModelName = getTableNameToModelName(models);
 
   while (Object.keys(stillToSort).length > 0) {
     Object.values(stillToSort).forEach(model => {
-      const tableName = model.getRepository().metadata.tableName;
       const modelName = model.name;
-      const dependsOn = dependencyMap[tableName] || [];
-      const dependenciesStillToSort = dependsOn.filter(d => !!stillToSort[tableNameToModelName[d]]);
+      const dependsOn = dependencyMap[modelName] || [];
+      const dependenciesStillToSort = dependsOn.filter(d => !!stillToSort[d]);
 
       if (dependenciesStillToSort.length === 0) {
         sorted.push(model);

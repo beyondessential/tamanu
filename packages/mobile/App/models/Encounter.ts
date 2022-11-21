@@ -1,13 +1,4 @@
-import {
-  Entity,
-  Column,
-  ManyToOne,
-  OneToMany,
-  Index,
-  BeforeUpdate,
-  BeforeInsert,
-  RelationId,
-} from 'typeorm/browser';
+import { Entity, Column, ManyToOne, OneToMany, Index, RelationId } from 'typeorm/browser';
 import { startOfDay, addHours, subDays } from 'date-fns';
 import { getUniqueId } from 'react-native-device-info';
 import { BaseModel, IdRelation } from './BaseModel';
@@ -226,16 +217,6 @@ export class Encounter extends BaseModel implements IEncounter {
       .orderBy('encounterDate', 'ASC');
 
     return query.getRawMany();
-  }
-
-  @BeforeInsert()
-  @BeforeUpdate()
-  async markPatient() {
-    // adding an encounter to a patient should mark them for syncing in future
-    const parent = await this.findParent(Patient, 'patient');
-    if (parent) {
-      await Patient.markForSync(parent.id);
-    }
   }
 
   static includedSyncRelations = [

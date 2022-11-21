@@ -16,6 +16,7 @@ import { theme } from '/styled/theme';
 import { formatDate } from '/helpers/date';
 import { DateFormats } from '~/ui/helpers/constants';
 import { Orientation, screenPercentageToDP } from '/helpers/screen';
+import { getSyncTick, LAST_SUCCESSFUL_PUSH } from '~/services/sync';
 
 const SyncStatusindicator = ({ synced }): JSX.Element => (
   <StyledView flexDirection="row">
@@ -101,8 +102,8 @@ export const DumbViewHistoryScreen = ({ selectedPatient, navigation }): ReactEle
     [selectedPatient],
   );
 
-  const [lastSuccessfulSync] = useBackendEffect(
-    ({ models }) => models.LocalSystemFact.findOne('LastSuccessfulSyncTime'),
+  const [lastSuccessfulPushTick] = useBackendEffect(
+    ({ models }) => getSyncTick(models, LAST_SUCCESSFUL_PUSH),
     [],
   );
 
@@ -114,11 +115,10 @@ export const DumbViewHistoryScreen = ({ selectedPatient, navigation }): ReactEle
   }, [data]);
 
   if (error) return <ErrorScreen error={error} />;
-  if (!data || !lastSuccessfulSync) return <LoadingScreen />;
+  if (!data || !lastSuccessfulPushTick) return <LoadingScreen />;
 
   const rows = data.map(labRequest => {
-    const synced =
-      lastSuccessfulSync && labRequest.updatedAtSyncTick <= parseInt(lastSuccessfulSync.value, 10);
+    const synced = labRequest.updatedAtSyncTick <= lastSuccessfulPushTick;
 
     return <LabRequestRow key={labRequest.id} labRequest={labRequest} synced={synced} />;
   });

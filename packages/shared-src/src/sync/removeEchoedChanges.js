@@ -3,17 +3,16 @@ import { SYNC_SESSION_DIRECTION } from './constants';
 export const removeEchoedChanges = async (store, sessionId) =>
   store.sequelize.query(
     `
-    DELETE FROM session_sync_records
-    WHERE id in (SELECT outgoingchanges.id
-    FROM session_sync_records AS incomingchanges
-    JOIN session_sync_records AS outgoingchanges 
-      ON incomingchanges.session_id = outgoingchanges.session_id 
-      AND incomingchanges.record_type = outgoingchanges.record_type
-      AND incomingchanges.data->>'updatedAtSyncTick' = outgoingchanges.data->>'updatedAtSyncTick'
-      AND incomingchanges.record_id = outgoingchanges.record_id
-    WHERE incomingchanges.direction = :incomingDirection
-      AND outgoingchanges.direction = :outgoingDirection
-      AND incomingchanges.session_id = :sessionId)
+    DELETE FROM sync_session_records outgoing
+    USING sync_session_records incoming
+    WHERE incoming.record_type = outgoing.record_type
+      AND incoming.record_id = outgoing.record_id
+      AND incoming.saved_at_sync_tick = outgoing.saved_at_sync_tick -- don't remove if an update has happened outside of this session
+      AND incoming.updated_at_by_field_sum = outgoing.updated_at_by_field_sum -- don't remove if the merge and save updated some fields
+      AND incoming.direction = :incomingDirection
+      AND outgoing.direction = :outgoingDirection
+      AND incoming.session_id = :sessionId
+      AND outgoing.session_id = :sessionId
   `,
     {
       replacements: {

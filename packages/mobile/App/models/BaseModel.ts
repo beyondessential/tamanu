@@ -10,7 +10,6 @@ import {
   BeforeUpdate,
   Repository,
 } from 'typeorm/browser';
-import { SYNC_DIRECTIONS } from './types';
 import { getSyncTick } from '../services/sync/utils';
 
 export type ModelPojo = {
@@ -79,6 +78,8 @@ const getMappedFormValues = (values: object): object => {
 };
 
 export abstract class BaseModel extends BaseEntity {
+  static allModels = undefined;
+
   @PrimaryColumn()
   @Generated('uuid')
   id: string;
@@ -89,7 +90,7 @@ export abstract class BaseModel extends BaseEntity {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @Column({ nullable: false, default: 0 })
+  @Column({ nullable: false, default: -999 })
   updatedAtSyncTick: number;
 
   constructor() {
@@ -101,35 +102,25 @@ export abstract class BaseModel extends BaseEntity {
     }
   }
 
-  @BeforeUpdate()
-  async markForUpload(): Promise<void> {
-    const thisModel = this.constructor as typeof BaseModel;
-    const syncTick = await getSyncTick('CurrentSyncTime');
-    if (
-      [null, undefined].includes(this.updatedAtSyncTick) ||
-      (await thisModel.findOne({ id: this.id }))?.updatedAtSyncTick === this.updatedAtSyncTick
-    ) {
-      this.updatedAtSyncTick = syncTick;
-    }
+  static injectAllModels(allModels: Record<string, typeof BaseModel>): void {
+    this.allModels = allModels;
   }
 
   @BeforeInsert()
+  @BeforeUpdate()
   async assignUpdatedAtSyncTick(): Promise<void> {
-    if ([null, undefined].includes(this.updatedAtSyncTick)) {
-      const syncTick = await getSyncTick('CurrentSyncTime');
-      this.updatedAtSyncTick = syncTick;
-    }
-  }
-
-  async markParentForUpload<T extends typeof BaseModel>(
-    parentModel: T,
-    parentProperty: string,
-  ): Promise<void> {
-    const parent = await this.findParent(parentModel, parentProperty);
-    if (!parent) {
+    // If setting to "-1" (i.e. "freshly synced into this device") we actually use "-999" instead.
+    // That way we can tell when other fields have been updated without the updatedAtSyncTick being
+    // altered (in which case this.updatedAtSyncTick will be -999, easily distinguished from -1)
+    if (this.updatedAtSyncTick === -1) {
+      this.updatedAtSyncTick = -999;
       return;
     }
-    await parent.markForUpload();
+
+    // In any other case, we set the updatedAtSyncTick to match the currentSyncTime
+    const thisModel = this.constructor as typeof BaseModel;
+    const syncTick = await getSyncTick(thisModel.allModels, 'currentSyncTime');
+    this.updatedAtSyncTick = syncTick;
   }
 
   async findParent<T extends typeof BaseModel>(
@@ -218,13 +209,16 @@ export abstract class BaseModel extends BaseEntity {
 
   // Exclude these properties from uploaded model
   // May be columns or relationIds
-  static excludedSyncColumns: string[] = ['createdAt', 'updatedAt'];
+  static excludedSyncColumns: string[] = ['createdAt', 'updatedAt', 'updatedAtSyncTick'];
 
   // Include these relations on uploaded model
   // Does not currently handle lazy or embedded relations
   static includedSyncRelations: string[] = [];
 
-  static getPluralTableName(): string {
+  static getTableNameForSync(): string {
+    // most tables in the wider sync universe are the same as the name on mobile, but pluralised
+    // specific plural handling, and a couple of other unique cases, are handled on the relevant
+    // model (see Diagnosis and Medication)
     return `${this.getRepository().metadata.tableName}s`;
   }
 

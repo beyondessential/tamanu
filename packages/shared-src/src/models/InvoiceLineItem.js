@@ -52,7 +52,10 @@ export class InvoiceLineItem extends Model {
     ];
   }
 
-  static buildSyncFilter(patientIds, facilitySettings) {
-    return buildEncounterLinkedSyncFilter(patientIds, facilitySettings, ['invoice', 'encounter']);
+  static buildSyncFilter(patientIds) {
+    if (patientIds.length === 0) {
+      return null;
+    }
+    return buildEncounterLinkedSyncFilter([this.tableName, 'invoices', 'encounters']);
   }
 }

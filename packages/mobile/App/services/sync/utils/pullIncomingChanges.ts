@@ -1,44 +1,70 @@
+import { saveFileInDocuments, makeDirectoryInDocuments } from '/helpers/file';
 import { CentralServerConnection } from '../CentralServerConnection';
 import { calculatePageLimit } from './calculatePageLimit';
 import { SYNC_SESSION_DIRECTION } from '../constants';
-import { saveFileInDocuments } from '/helpers/file';
+import { groupBy } from 'lodash';
+import { getFilePath } from './getFilePath';
 
-const APPROX_PERSISTED_BATCH_SIZE = 20000;
+const persistBatch = async (
+  sessionId: string,
+  batchIndex: number,
+  rows: Record<string, any>[],
+): Promise<void> => {
+  const rowsByRecordType = groupBy(rows, 'recordType');
+
+  await Promise.all(
+    Object.entries(rowsByRecordType).map(async ([recordType, rowsForRecordType]) => {
+      const filePath = getFilePath(sessionId, recordType, batchIndex);
+
+      await saveFileInDocuments(
+        Buffer.from(JSON.stringify(rowsForRecordType), 'utf-8').toString('base64'),
+        filePath,
+      );
+    }),
+  );
+};
 
 /**
- * Pull incoming changes in batches and save them in session_sync_record table,
+ * Pull incoming changes in batches and save them in sync_session_records table,
  * which will be used to persist to actual tables later
  * @param centralServer
- * @param models
  * @param sessionId
- * @param lastSuccessfulSyncTick
+ * @param since
  * @param progressCallback
  * @returns
  */
 export const pullIncomingChanges = async (
   centralServer: CentralServerConnection,
   sessionId: string,
-  lastSuccessfulSyncTick: number,
+  since: number,
+  tableNames: string[],
   progressCallback: (total: number, progressCount: number) => void,
-): Promise<number> => {
-  const totalToPull = await centralServer.setPullFilter(sessionId, lastSuccessfulSyncTick);
+): Promise<{ count: number; tick: number }> => {
+  const { tick } = await centralServer.setPullFilter(sessionId, since, tableNames);
+  const totalToPull = await centralServer.fetchPullCount(sessionId);
 
   if (!totalToPull) {
-    return 0;
+    return { count: 0, tick };
   }
 
-  let offset = 0;
+  await Promise.all(
+    tableNames.map(t => makeDirectoryInDocuments(`syncSessions/${sessionId}/${t}`)),
+  );
+
+  let fromId;
   let limit = calculatePageLimit();
   let currentBatchIndex = 0;
-  let currentRows = [];
+  let totalPulled = 0;
 
   // pull changes a page at a time
-  while (offset < totalToPull) {
+  while (totalPulled < totalToPull) {
     const startTime = Date.now();
-    const records = await centralServer.pull(sessionId, limit, offset);
+    const records = await centralServer.pull(sessionId, limit, fromId);
     const pullTime = Date.now() - startTime;
     const recordsToSave = records.map(r => ({
       ...r,
+      // mark as never updated, so we don't push it back to the central server until the next update
+      data: { ...r.data, updated_at_sync_tick: -1 },
       direction: SYNC_SESSION_DIRECTION.INCOMING,
     }));
 
@@ -46,27 +72,18 @@ export const pullIncomingChanges = async (
     // in the memory because we might run into memory issue when:
     // 1. During the first sync when there is a lot of data to load
     // 2. When a huge number of data is imported to sync and the facility syncs it down
-    // So store the data in session_sync_records table instead and will persist it to
+    // So store the data in sync_session_records table instead and will persist it to
     //  the actual tables later
 
-    currentRows.push(...recordsToSave);
-    if (currentRows.length >= APPROX_PERSISTED_BATCH_SIZE) {
-      const fileName = `batch${currentBatchIndex}.json`;
+    await persistBatch(sessionId, currentBatchIndex, recordsToSave);
+    currentBatchIndex++;
 
-      await saveFileInDocuments(
-        Buffer.from(JSON.stringify(currentRows), 'utf-8').toString('base64'),
-        fileName,
-      );
-
-      currentRows = [];
-      currentBatchIndex++;
-    }
-
-    offset += recordsToSave.length;
+    fromId = records[records.length - 1].id;
+    totalPulled += recordsToSave.length;
     limit = calculatePageLimit(limit, pullTime);
 
-    progressCallback(totalToPull, offset);
+    progressCallback(totalToPull, totalPulled);
   }
 
-  return totalToPull;
+  return { count: totalToPull, tick };
 };

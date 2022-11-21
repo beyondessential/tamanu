@@ -1,12 +1,4 @@
-import {
-  Entity,
-  Column,
-  ManyToOne,
-  OneToMany,
-  BeforeUpdate,
-  BeforeInsert,
-  RelationId,
-} from 'typeorm/browser';
+import { Entity, Column, ManyToOne, OneToMany, RelationId } from 'typeorm/browser';
 
 import { ISurveyResponse, ISurveyScreenComponent, EncounterType } from '~/types';
 
@@ -22,8 +14,8 @@ import { SurveyResponseAnswer } from './SurveyResponseAnswer';
 import { Referral } from './Referral';
 import { Patient } from './Patient';
 import { PatientAdditionalData } from './PatientAdditionalData';
-import { DateTimeStringColumn } from './DateColumns';
 import { SYNC_DIRECTIONS } from './types';
+import { DateTimeStringColumn } from './DateColumns';
 
 @Entity('survey_response')
 export class SurveyResponse extends BaseModel implements ISurveyResponse {
@@ -70,12 +62,6 @@ export class SurveyResponse extends BaseModel implements ISurveyResponse {
     answer => answer.response,
   )
   answers: SurveyResponseAnswer[];
-
-  @BeforeInsert()
-  @BeforeUpdate()
-  async markEncounterForUpload() {
-    await this.markParentForUpload(Encounter, 'encounter');
-  }
 
   static async getFullResponse(surveyId: string) {
     const repo = this.getRepository();

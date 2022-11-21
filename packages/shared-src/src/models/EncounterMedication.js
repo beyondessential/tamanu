@@ -81,5 +81,10 @@ export class EncounterMedication extends Model {
     return ['Medication', 'encounter', 'prescriber', 'discontinuingClinician'];
   }
 
-  static buildSyncFilter = buildEncounterLinkedSyncFilter;
+  static buildSyncFilter(patientIds) {
+    if (patientIds.length === 0) {
+      return null;
+    }
+    return buildEncounterLinkedSyncFilter([this.tableName, 'encounters']);
+  }
 }

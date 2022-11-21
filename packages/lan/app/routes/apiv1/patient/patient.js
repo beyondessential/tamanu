@@ -63,7 +63,10 @@ patientRoute.put(
       throw new NotFoundError();
     }
 
-    const markingForSync = isEqual(req.body, { markedForSync: true });
+    const alreadyMarkedForSync = await PatientFacility.findOne({
+      where: { patientId: patient.id, facilityId: serverFacilityId },
+    });
+    const markingForSync = !alreadyMarkedForSync && isEqual(req.body, { markedForSync: true });
     if (markingForSync) {
       // no need to check write permission or update patient record itself,
       // just create a link between the patient and this facility
@@ -312,7 +315,7 @@ patientRoute.get(
         ) psi
           ON (patients.id = psi.patient_id)
         LEFT JOIN patient_facilities
-          ON (patient_facilities.patient_id = patients.id)
+          ON (patient_facilities.patient_id = patients.id AND patient_facilities.facility_id = :facilityId)
       ${whereClauses && `WHERE ${whereClauses}`}
     `;
 
@@ -325,6 +328,7 @@ patientRoute.get(
         }),
         filterParams,
       );
+    filterReplacements.facilityId = config.serverFacilityId;
 
     const countResult = await req.db.query(`SELECT COUNT(1) AS count ${from}`, {
       replacements: filterReplacements,

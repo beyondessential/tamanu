@@ -38,7 +38,7 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
           <Field component={NumberField} label="Heart Rate" name="heartRate" />
           <Field component={NumberField} label="Respiratory Rate" name="respiratoryRate" />
           <Field component={TemperatureField} label="Temperature (ºC)" name="temperature" />
-          <Field component={NumberField} label="SpO2 (%)" name="spO2" />
+          <Field component={NumberField} label="SpO2 (%)" name="spo2" />
           <Field
             component={Dropdown}
             options={Object.values(AVPUType).map(t => ({ value: t, label: t }))}
@@ -68,7 +68,7 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
     heartRate: Yup.number(),
     respiratoryRate: Yup.number(),
     temperature: Yup.number(),
-    spO2: Yup.number(),
+    spo2: Yup.number(),
     avpu: Yup.string(), // AVPUType
   };
 

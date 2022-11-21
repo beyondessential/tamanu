@@ -15,24 +15,24 @@ const INCOMING = {
 };
 
 describe('mergeRecord', () => {
-  describe('lastWriteWinsPerRecord', () => {
-    it('uses the entire existing record when it had the most recent write', () => {
+  describe('lastSyncWinsPerRecord', () => {
+    it('uses the entire incoming record whenever per field information is not available, ignoring the fact the existing record has the higher sync tick', () => {
       const existing = { ...EXISTING, updatedAtSyncTick: 3 };
       const incoming = { ...INCOMING, updatedAtSyncTick: 2 };
       const merged = mergeRecord(existing, incoming);
-      expect(merged).toEqual(existing);
+      expect(merged).toEqual(incoming);
     });
-    it('uses the entire incoming record when it had the most recent write', () => {
+    it('uses the entire incoming record whenever per field information is not available, including when it has the higher sync tick', () => {
       const existing = { ...EXISTING, updatedAtSyncTick: 3 };
       const incoming = { ...INCOMING, updatedAtSyncTick: 5 };
       const merged = mergeRecord(existing, incoming);
       expect(merged).toEqual(incoming);
     });
-    it('still uses an entire record if only the existing record has field update information', () => {
+    it('still uses the entire incoming record if only the existing record has field update information', () => {
       const existing = {
         ...EXISTING,
         updatedAtSyncTick: 3,
-        updatedAtByField: { id: 1, foreignId: 3, number: 2 },
+        updatedAtByField: { id: 1, foreign_id: 3, number: 2 },
       };
       const incoming = {
         ...INCOMING,
@@ -42,7 +42,7 @@ describe('mergeRecord', () => {
       expect(merged).toEqual(incoming);
     });
 
-    it('still uses an entire record if only the existing record has field update information', () => {
+    it('still uses the entire incoming record if only the incoming record has field update information', () => {
       const existing = {
         ...EXISTING,
         updatedAtSyncTick: 3,
@@ -50,7 +50,7 @@ describe('mergeRecord', () => {
       const incoming = {
         ...INCOMING,
         updatedAtSyncTick: 5,
-        updatedAtByField: { id: 1, foreignId: 5, number: 5, empty: 2 },
+        updatedAtByField: { id: 1, foreign_id: 5, number: 5, empty: 2 },
       };
       const merged = mergeRecord(existing, incoming);
       expect(merged).toEqual(incoming);
@@ -62,12 +62,12 @@ describe('mergeRecord', () => {
       const existing = {
         ...EXISTING,
         updatedAtSyncTick: 3,
-        updatedAtByField: { id: 1, foreignId: 3, number: 3 },
+        updatedAtByField: { id: 1, foreign_id: 3, number: 3 },
       };
       const incoming = {
         ...INCOMING,
         updatedAtSyncTick: 5,
-        updatedAtByField: { id: 1, foreignId: 5, number: 2, empty: 2 },
+        updatedAtByField: { id: 1, foreign_id: 5, number: 2, empty: 2 },
       };
       const merged = mergeRecord(existing, incoming);
       expect(merged).toEqual({
@@ -75,11 +75,9 @@ describe('mergeRecord', () => {
         foreignId: incoming.foreignId,
         number: existing.number,
         empty: incoming.empty,
-        updatedAtSyncTick: incoming.updatedAtSyncTick,
-        updatedAtByField: { id: 1, foreignId: 5, number: 3, empty: 2 },
+        updatedAtSyncTick: 5,
+        updatedAtByField: { id: 1, foreign_id: 5, number: 3, empty: 2 },
       });
     });
-
-    it('merges two records when the schema has changed', () => {});
   });
 });

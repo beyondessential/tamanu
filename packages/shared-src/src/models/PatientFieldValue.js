@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
+import { buildPatientLinkedSyncFilter } from './buildPatientLinkedSyncFilter';
 
 export class PatientFieldValue extends Model {
   static init({ primaryKey, ...options }) {
@@ -47,4 +48,6 @@ export class PatientFieldValue extends Model {
       as: 'definition',
     });
   }
+
+  static buildSyncFilter = buildPatientLinkedSyncFilter;
 }

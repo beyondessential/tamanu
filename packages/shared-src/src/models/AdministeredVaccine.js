@@ -5,7 +5,6 @@ import { Model } from './Model';
 import { Encounter } from './Encounter';
 import { ScheduledVaccine } from './ScheduledVaccine';
 import { dateTimeType } from './dateTimeTypes';
-import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 
 export class AdministeredVaccine extends Model {
   static init({ primaryKey, ...options }) {
@@ -77,7 +76,47 @@ export class AdministeredVaccine extends Model {
     });
   }
 
-  static buildSyncFilter = buildEncounterLinkedSyncFilter;
+  static buildSyncFilter(patientIds, { syncAllEncountersForTheseVaccines }) {
+    const joins = [];
+    const wheres = [];
+
+    if (patientIds.length > 0) {
+      joins.push(`
+        LEFT JOIN encounters
+        ON administered_vaccines.encounter_id = encounters.id
+        AND encounters.patient_id IN (:patientIds)
+      `);
+      wheres.push(`
+        encounters.id IS NOT NULL
+      `);
+    }
+
+    // add any administered vaccines with a vaccine in the list of scheduled vaccines that sync everywhere
+    if (syncAllEncountersForTheseVaccines?.length > 0) {
+      const escapedVaccineIds = syncAllEncountersForTheseVaccines
+        .map(id => this.sequelize.escape(id))
+        .join(',');
+      joins.push(`
+        LEFT JOIN scheduled_vaccines
+        ON scheduled_vaccines.id = administered_vaccines.scheduled_vaccine_id
+        AND scheduled_vaccines.vaccine_id IN (${escapedVaccineIds})
+      `);
+      wheres.push(`
+        scheduled_vaccines.id IS NOT NULL
+      `);
+    }
+
+    if (wheres.length === 0) {
+      return null;
+    }
+
+    return `
+      ${joins.join('\n')}
+      WHERE (
+        ${wheres.join('\nOR')}
+      )
+    `;
+  }
 
   static async lastVaccinationForPatient(patientId, vaccineIds = []) {
     const query = {

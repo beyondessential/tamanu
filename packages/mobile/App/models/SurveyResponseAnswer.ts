@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne, BeforeUpdate, BeforeInsert, RelationId } from 'typeorm/browser';
+import { Entity, Column, ManyToOne, RelationId } from 'typeorm/browser';
 
 import { BaseModel } from './BaseModel';
 import { ProgramDataElement } from './ProgramDataElement';
@@ -34,12 +34,6 @@ export class SurveyResponseAnswer extends BaseModel implements ISurveyResponseAn
 
   @RelationId(({ dataElement }) => dataElement)
   dataElementId: string;
-
-  @BeforeInsert()
-  @BeforeUpdate()
-  async markResponseForUpload() {
-    await this.markParentForUpload(SurveyResponse, 'response');
-  }
 
   static async getLatestAnswerForPatient(
     patientId: string,

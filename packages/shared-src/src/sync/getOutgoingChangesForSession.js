@@ -1,39 +1,22 @@
-import { sortInDependencyOrder } from '../models/sortInDependencyOrder';
+import { Op } from 'sequelize';
 
 export const getOutgoingChangesForSession = async (
   store,
   sessionId,
   direction,
-  offset,
+  fromId = '00000000-0000-0000-0000-000000000000',
   limit,
 ) => {
-  const sortedModels = sortInDependencyOrder(store.models);
-  const recordTypeOrder = sortedModels.map(m => m.tableName);
-  const [results] = await store.sequelize.query(
-    `
-      SELECT id, 
-        record_id as "recordId", 
-        record_type as "recordType", 
-        is_deleted as "isDeleted", 
-        session_id as "sessionId",
-        data
-      FROM session_sync_records
-      WHERE session_id = :sessionId
-        AND direction = :direction
-      ORDER BY array_position(ARRAY[:recordTypeOrder]::varchar[], record_type), id ASC
-      LIMIT :limit
-      OFFSET :offset
-    `,
-    {
-      replacements: {
-        sessionId,
-        direction,
-        limit,
-        offset,
-        recordTypeOrder,
-      },
+  const results = await store.models.SyncSessionRecord.findAll({
+    where: {
+      sessionId,
+      direction,
+      id: { [Op.gt]: fromId },
     },
-  );
+    order: [['id', 'ASC']],
+    limit,
+    raw: true,
+  });
 
   return results;
 };

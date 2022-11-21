@@ -8,33 +8,42 @@ import { calculatePageLimit } from './calculatePageLimit';
 const { persistedCacheBatchSize } = config.sync;
 
 export const pullIncomingChanges = async (centralServer, models, sessionId, since) => {
-  const totalToPull = await centralServer.setPullFilter(sessionId, since);
+  // setting the pull filter also returns the sync tick (or point on the sync timeline) that the
+  // central server considers this session will be up to after pulling all changes
+  const { tick } = await centralServer.setPullFilter(sessionId, since);
+  const totalToPull = await centralServer.fetchPullCount(sessionId);
 
-  let offset = 0;
+  let fromId;
   let limit = calculatePageLimit();
-  const incomingChanges = [];
-  log.debug(`pullIncomingChanges: syncing`, { sessionId, offset });
+  let totalPulled = 0;
+  log.debug(`pullIncomingChanges: syncing`, { sessionId });
 
   // pull changes a page at a time
-  while (incomingChanges.length < totalToPull) {
+  while (totalPulled < totalToPull) {
     log.debug(`pullIncomingChanges: pulling records`, {
       sessionId,
-      offset,
+      fromId,
       limit,
     });
     const startTime = Date.now();
     const records = await centralServer.pull(sessionId, {
-      offset,
+      fromId,
       limit,
     });
+    fromId = records[records.length - 1]?.id;
+    totalPulled += records.length;
     const pullTime = Date.now() - startTime;
 
     if (!records.length) {
+      log.debug(`pullIncomingChanges: Pull returned no more changes, finishing`);
       break;
     }
 
+    log.debug(`pullIncomingChanges: Pulled ${records.length} changes, saving to local cache`);
+
     const recordsToSave = records.map(r => ({
       ...r,
+      data: { ...r.data, updatedAtSyncTick: -1 }, // mark as never updated, so we don't push it back to the central server until the next local update
       direction: SYNC_SESSION_DIRECTION.INCOMING,
     }));
 
@@ -42,15 +51,13 @@ export const pullIncomingChanges = async (centralServer, models, sessionId, sinc
     // in the memory because we might run into memory issue when:
     // 1. During the first sync when there is a lot of data to load
     // 2. When a huge number of data is imported to sync and the facility syncs it down
-    // So store the data in session_sync_records table instead and will persist it to the actual tables later
+    // So store the data in sync_session_records table instead and will persist it to the actual tables later
     for (const batchOfRows of chunk(recordsToSave, persistedCacheBatchSize)) {
-      await models.SessionSyncRecord.bulkCreate(batchOfRows);
+      await models.SyncSessionRecord.bulkCreate(batchOfRows);
     }
-
-    offset += records.length;
 
     limit = calculatePageLimit(limit, pullTime);
   }
 
-  return totalToPull;
+  return { count: totalToPull, tick };
 };

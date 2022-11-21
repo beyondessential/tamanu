@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize';
+import { Sequelize, Op } from 'sequelize';
 import { SYNC_DIRECTIONS, LAB_REQUEST_STATUSES } from 'shared/constants';
 import { Model } from './Model';
 import { dateType, dateTimeType } from './dateTimeTypes';
@@ -85,7 +85,7 @@ export class Patient extends Model {
 
     this.belongsToMany(models.Facility, {
       through: 'PatientFacility',
-      as: 'patientFacilities',
+      as: 'markedForSyncFacilities',
     });
 
     this.hasMany(models.PatientFieldValue, {
@@ -95,7 +95,7 @@ export class Patient extends Model {
   }
 
   static getFullReferenceAssociations() {
-    return ['patientFacilities'];
+    return ['markedForSyncFacilities'];
   }
 
   async getAdministeredVaccines(queryOptions = {}) {

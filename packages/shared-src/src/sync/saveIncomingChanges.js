@@ -2,21 +2,40 @@ import { Op } from 'sequelize';
 import config from 'config';
 import asyncPool from 'tiny-async-pool';
 import { sortInDependencyOrder } from 'shared/models/sortInDependencyOrder';
-import { findSessionSyncRecords } from './findSessionSyncRecords';
-import { countSessionSyncRecords } from './countSessionSyncRecords';
+import { log } from 'shared/services/logging/log';
+import { findSyncSessionRecords } from './findSyncSessionRecords';
+import { countSyncSessionRecords } from './countSyncSessionRecords';
 import { mergeRecord } from './mergeRecord';
 
 const { persistedCacheBatchSize } = config.sync;
 const UPDATE_WORKER_POOL_SIZE = 100;
 
-const saveCreates = async (model, records) => model.bulkCreate(records);
+const saveCreates = async (model, records) => {
+  // can end up with duplicate create records, e.g. if syncAllLabRequests is turned on, an
+  // encounter may turn up twice, once because it is for a marked-for-sync patient, and once more
+  // because it has a lab request attached
+  const deduplicated = [];
+  const idsAdded = new Set();
+  for (const record of records) {
+    const { id } = record;
+    if (!idsAdded.has(id)) {
+      deduplicated.push(record);
+      idsAdded.add(id);
+    }
+  }
+  return model.bulkCreate(deduplicated);
+};
 
-const saveUpdates = async (model, incomingRecords, idToExistingRecord) => {
-  const mergedRecords = incomingRecords.map(incoming => {
-    const existing = idToExistingRecord[incoming.id];
-    return mergeRecord(existing, incoming);
-  });
-  await asyncPool(UPDATE_WORKER_POOL_SIZE, mergedRecords, async r =>
+const saveUpdates = async (model, incomingRecords, idToExistingRecord, isCentralServer) => {
+  const recordsToSave = isCentralServer
+    ? // on the central server, merge the records coming in from different clients
+      incomingRecords.map(incoming => {
+        const existing = idToExistingRecord[incoming.id];
+        return mergeRecord(existing, incoming);
+      })
+    : // on the facility server, trust the resolved central server version
+      incomingRecords;
+  await asyncPool(UPDATE_WORKER_POOL_SIZE, recordsToSave, async r =>
     model.update(r, { where: { id: r.id } }),
   );
 };
@@ -25,9 +44,8 @@ const saveDeletes = async (model, recordIds) =>
   model.destroy({ where: { id: { [Op.in]: recordIds } } });
 
 const saveChangesForModel = async (model, changes, isCentralServer) => {
-  const sanitizeData = isCentralServer
-    ? model.sanitizeForCentralServer
-    : model.sanitizeForFacilityServer;
+  const sanitizeData = d =>
+    isCentralServer ? model.sanitizeForCentralServer(d) : model.sanitizeForFacilityServer(d);
 
   // split changes into create, update, delete
   const idsForDelete = changes.filter(c => c.isDeleted).map(c => c.data.id);
@@ -50,8 +68,11 @@ const saveChangesForModel = async (model, changes, isCentralServer) => {
     });
 
   // run each import process
+  log.debug(`saveIncomingChanges: Creating ${recordsForCreate.length} new records`);
   await saveCreates(model, recordsForCreate);
-  await saveUpdates(model, recordsForUpdate, idToExistingRecord);
+  log.debug(`saveIncomingChanges: Updating ${recordsForUpdate.length} existing records`);
+  await saveUpdates(model, recordsForUpdate, idToExistingRecord, isCentralServer);
+  log.debug(`saveIncomingChanges: Deleting ${idsForDelete.length} old records`);
   await saveDeletes(model, idsForDelete);
 };
 
@@ -62,23 +83,29 @@ const saveChangesForModelInBatches = async (
   recordType,
   isCentralServer,
 ) => {
-  const syncRecordsCount = await countSessionSyncRecords(models, model.tableName, sessionId);
+  const syncRecordsCount = await countSyncSessionRecords(models, model.tableName, sessionId);
+  log.debug(`saveIncomingChanges: Saving ${syncRecordsCount} changes for ${model.tableName}`);
 
   const batchCount = Math.ceil(syncRecordsCount / persistedCacheBatchSize);
+  let fromId = '00000000-0000-0000-0000-000000000000';
 
   for (let batchIndex = 0; batchIndex < batchCount; batchIndex++) {
-    const offset = persistedCacheBatchSize * batchIndex;
-
-    const batchRecords = await findSessionSyncRecords(
+    const batchRecords = await findSyncSessionRecords(
       models,
       recordType,
       persistedCacheBatchSize,
-      offset,
+      fromId,
       sessionId,
     );
+    fromId = batchRecords[batchRecords.length - 1].id;
 
     const batchRecordsToSave = batchRecords.map(r => r.dataValues);
-    await saveChangesForModel(model, batchRecordsToSave, isCentralServer);
+    try {
+      await saveChangesForModel(model, batchRecordsToSave, isCentralServer);
+    } catch (error) {
+      log.error(`Failed to save changes for ${model.name}`);
+      throw error;
+    }
   }
 };
 

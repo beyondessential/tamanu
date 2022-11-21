@@ -1,12 +1,4 @@
-import {
-  Entity,
-  Column,
-  ManyToOne,
-  RelationId,
-  BeforeUpdate,
-  BeforeInsert,
-  getConnection,
-} from 'typeorm/browser';
+import { Entity, Column, ManyToOne, RelationId, getConnection } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import { IReferral, ISurveyResponse, ISurveyScreenComponent } from '~/types';
 import { Encounter } from './Encounter';
@@ -20,27 +12,29 @@ export class Referral extends BaseModel implements IReferral {
   @Column({ nullable: true })
   referredFacility?: string;
 
-  @ManyToOne(() => Encounter, (encounter) => encounter.initiatedReferrals)
+  @ManyToOne(
+    () => Encounter,
+    encounter => encounter.initiatedReferrals,
+  )
   initiatingEncounter: Encounter;
   @RelationId(({ initiatingEncounter }) => initiatingEncounter)
   initiatingEncounterId: string;
 
-  @ManyToOne(() => Encounter, (encounter) => encounter.completedReferrals)
+  @ManyToOne(
+    () => Encounter,
+    encounter => encounter.completedReferrals,
+  )
   completingEncounter: Encounter;
   @RelationId(({ completingEncounter }) => completingEncounter)
   completingEncounterId: string;
 
-  @ManyToOne(() => SurveyResponse, (surveyResponse) => surveyResponse.referral)
+  @ManyToOne(
+    () => SurveyResponse,
+    surveyResponse => surveyResponse.referral,
+  )
   surveyResponse: SurveyResponse;
   @RelationId(({ surveyResponse }) => surveyResponse)
   surveyResponseId: string;
-
-  @BeforeInsert()
-  @BeforeUpdate()
-  async markEncounterForUpload() {
-    await this.markParentForUpload(Encounter, 'initiatingEncounter');
-    await this.markParentForUpload(Encounter, 'completingEncounter');
-  }
 
   static async submit(
     patientId: string,
@@ -54,14 +48,8 @@ export class Referral extends BaseModel implements IReferral {
   ) {
     // typeORM is extremely unhappy if you take away this
     // transactionalEntityManager param even if it's unused.
-    return getConnection().transaction(async (transactionalEntityManager) => {
-      const response = await SurveyResponse.submit(
-        patientId,
-        userId,
-        surveyData,
-        values,
-        setNote,
-      );
+    return getConnection().transaction(async transactionalEntityManager => {
+      const response = await SurveyResponse.submit(patientId, userId, surveyData, values, setNote);
       const referralRecord: Referral = await Referral.createAndSaveOne({
         initiatingEncounter: response.encounter,
         surveyResponse: response.id,

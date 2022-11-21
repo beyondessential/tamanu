@@ -127,7 +127,15 @@ export class LabRequest extends Model {
     return ['requestedBy', 'category', 'priority', 'laboratory'];
   }
 
-  static buildSyncFilter = buildEncounterLinkedSyncFilter;
+  static buildSyncFilter(patientIds, sessionConfig) {
+    if (sessionConfig.syncAllLabRequests) {
+      return ''; // include all lab requests
+    }
+    if (patientIds.length === 0) {
+      return null;
+    }
+    return buildEncounterLinkedSyncFilter([this.tableName, 'encounters']);
+  }
 
   getTests() {
     return this.sequelize.models.LabTest.findAll({

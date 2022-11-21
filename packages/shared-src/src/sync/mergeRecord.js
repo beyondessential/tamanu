@@ -23,22 +23,24 @@ const lastWriteWinsPerField = (existing, incoming) => {
         incoming.updatedAtByField[snake(key)],
       );
       merged[key] = latest;
-      mergedUpdatedAtByField[key] = latestTick;
+      mergedUpdatedAtByField[snake(key)] = latestTick;
     });
-  // overall updatedAtSyncTick should be the highest of the two
-  merged.updatedAtSyncTick = Math.max(existing.updatedAtSyncTick, incoming.updatedAtSyncTick);
   merged.updatedAtByField = mergedUpdatedAtByField;
+  // if either record had 'updatedAtSyncTick' set, the merged updatedAtSyncTick should be the
+  // highest of the two
+  if (existing.updatedAtSyncTick !== undefined || incoming.updatedAtSyncTick !== undefined) {
+    merged.updatedAtSyncTick = Math.max(
+      existing.updatedAtSyncTick || -1,
+      incoming.updatedAtSyncTick || -1,
+    );
+  }
   return merged;
 };
 
-// perform basic conflict resolution, choosing one version of the record to use in its entirety
-const lastWriteWinsPerRecord = (existing, incoming) =>
-  pickLatest(existing, incoming, existing.updatedAtSyncTick, incoming.updatedAtSyncTick).latest;
-
 // merge two records, using either a field-by-field merge strategy (if updatedAtByField is defined)
-// or by simply choosing the latest whole record (if field specific information is not available)
+// or by simply choosing the incoming record (if field specific information is not available)
 export const mergeRecord = (existing, incoming) => {
   return existing.updatedAtByField && incoming.updatedAtByField
     ? lastWriteWinsPerField(existing, incoming)
-    : lastWriteWinsPerRecord(existing, incoming);
+    : incoming;
 };

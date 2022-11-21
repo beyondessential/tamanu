@@ -1,22 +1,23 @@
 import * as sequelize from 'sequelize';
-import { SYNC_DIRECTIONS } from '../constants';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 
 const { Op, Utils, Sequelize } = sequelize;
 
 const firstLetterLowercase = s => (s[0] || '').toLowerCase() + s.slice(1);
 
 export class Model extends sequelize.Model {
-  static init(attributes, { syncDirection, timestamps = true, ...options }) {
-    super.init(
-      {
-        ...attributes,
-        updatedAtSyncTick: Sequelize.BIGINT,
-      },
-      {
-        timestamps,
-        ...options,
-      },
-    );
+  static init(modelAttributes, { syncDirection, timestamps = true, schema, ...options }) {
+    const attributes = {
+      ...modelAttributes,
+    };
+    if (syncDirection !== SYNC_DIRECTIONS.DO_NOT_SYNC) {
+      attributes.updatedAtSyncTick = Sequelize.BIGINT;
+    }
+    super.init(attributes, {
+      timestamps,
+      schema,
+      ...options,
+    });
     this.defaultIdValue = attributes.id.defaultValue;
     if (!syncDirection) {
       throw new Error(
@@ -26,9 +27,10 @@ export class Model extends sequelize.Model {
     this.syncDirection = syncDirection;
     if (!timestamps && this.syncDirection !== SYNC_DIRECTIONS.DO_NOT_SYNC) {
       throw new Error(
-        'DEV: syncing models should all have createdAt, updatedAt, and deletedAt timestamps turned on',
+        'DEV: syncing models should all have createdAt, updatedAt, deletedAt, and updatedAtSyncTick timestamps turned on',
       );
     }
+    this.usesPublicSchema = schema === undefined || schema === 'public';
   }
 
   static generateId() {

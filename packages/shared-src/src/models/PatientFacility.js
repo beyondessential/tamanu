@@ -47,4 +47,8 @@ export class PatientFacility extends Model {
       as: 'patient',
     });
   }
+
+  static buildSyncFilter() {
+    return 'WHERE facility_id = :facilityId';
+  }
 }

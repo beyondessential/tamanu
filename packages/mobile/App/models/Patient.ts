@@ -11,9 +11,9 @@ import { formatDateForQuery } from '~/infra/db/helpers';
 import { PatientAdditionalData } from './PatientAdditionalData';
 import { PatientFacility } from './PatientFacility';
 import { ReferenceData, NullableReferenceDataRelation } from './ReferenceData';
-import { DateStringColumn } from './DateColumns';
 import { SYNC_DIRECTIONS } from './types';
 
+import { DateStringColumn } from './DateColumns';
 const TIME_OFFSET = 3;
 
 @Entity('patient')

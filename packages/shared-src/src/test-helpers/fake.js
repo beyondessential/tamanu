@@ -272,37 +272,50 @@ const MODEL_SPECIFIC_OVERRIDES = {
       visibilityStatus: VISIBILITY_STATUSES.CURRENT,
     };
   },
-  PatientAdditionalData: () => ({
-    placeOfBirth: chance.city(),
-    bloodType: chance.pickone(['O', 'A', 'B', 'AB']) + chance.pickone(['+', '-']),
-    primaryContactNumber: chance.phone(),
-    secondaryContactNumber: chance.phone(),
-    maritalStatus: chance.pickone([
-      'Single',
-      'Married',
-      'Widowed',
-      'Divorced',
-      'Separated',
-      'De Facto',
-    ]),
-    cityTown: chance.city(),
-    streetVillage: chance.street(),
-    educationalLevel: chance.pickone([
-      'None',
-      'Primary',
-      'High School',
-      'Bachelors',
-      'Masters',
-      'PhD.',
-    ]),
-    socialMedia: `@${chance.word()}`,
-    title: chance.prefix(),
-    birthCertificate: `BC${chance.natural({ min: 1000000, max: 9999999 })}`,
-    drivingLicense: `L${chance.natural({ min: 100000, max: 999999 })}`,
-    passport: chance.character() + chance.natural({ min: 10000000, max: 99999999 }).toString(),
-    emergencyContactName: chance.name(),
-    emergencyContactNumber: chance.phone(),
-  }),
+  PatientAdditionalData: ({ id, patientId }) => {
+    const commonId = id || patientId || fakeUUID();
+    return {
+      id: commonId,
+      patientId: commonId,
+      placeOfBirth: chance.city(),
+      bloodType: chance.pickone(['O', 'A', 'B', 'AB']) + chance.pickone(['+', '-']),
+      primaryContactNumber: chance.phone(),
+      secondaryContactNumber: chance.phone(),
+      maritalStatus: chance.pickone([
+        'Single',
+        'Married',
+        'Widowed',
+        'Divorced',
+        'Separated',
+        'De Facto',
+      ]),
+      cityTown: chance.city(),
+      streetVillage: chance.street(),
+      educationalLevel: chance.pickone([
+        'None',
+        'Primary',
+        'High School',
+        'Bachelors',
+        'Masters',
+        'PhD.',
+      ]),
+      socialMedia: `@${chance.word()}`,
+      title: chance.prefix(),
+      birthCertificate: `BC${chance.natural({ min: 1000000, max: 9999999 })}`,
+      drivingLicense: `L${chance.natural({ min: 100000, max: 999999 })}`,
+      passport: chance.character() + chance.natural({ min: 10000000, max: 99999999 }).toString(),
+      emergencyContactName: chance.name(),
+      emergencyContactNumber: chance.phone(),
+      updatedAtByField: {},
+    };
+  },
+  PatientFacility: ({ patientId = fakeUUID(), facilityId = fakeUUID() }) => {
+    return {
+      id: `${patientId};${facilityId}`,
+      patientId,
+      facilityId,
+    };
+  },
   PatientDeathData: () => {
     const options = ['yes', 'no', 'unknown', null];
     return {
@@ -339,7 +352,7 @@ export const fake = (model, passedOverrides = {}) => {
   const id = fakeUUID();
   const record = {};
   const modelOverridesFn = MODEL_SPECIFIC_OVERRIDES[model.name];
-  const modelOverrides = modelOverridesFn ? modelOverridesFn() : {};
+  const modelOverrides = modelOverridesFn ? modelOverridesFn(passedOverrides) : {};
   const overrides = { ...modelOverrides, ...passedOverrides };
   const overrideFields = Object.keys(overrides);
 

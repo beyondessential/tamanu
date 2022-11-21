@@ -11,6 +11,7 @@ import { VERSION_COMPATIBILITY_ERRORS } from 'shared/constants';
 import { getResponseJsonSafely } from 'shared/utils';
 import { log } from 'shared/services/logging';
 import { fetchWithTimeout } from 'shared/utils/fetchWithTimeout';
+import { sleepAsync } from 'shared/utils/sleepAsync';
 
 import { version } from '../serverInfo';
 import { callWithBackoff } from './callWithBackoff';
@@ -206,18 +207,36 @@ export class CentralServerConnection {
     return this.fetch(`sync/${sessionId}/pullFilter`, { method: 'POST', body });
   }
 
-  async pull(sessionId, { limit = 100, offset = 0 } = {}) {
-    const query = { limit, offset };
+  async fetchPullCount(sessionId) {
+    // poll the pull count endpoint until we get a valid response - it takes a while for
+    // setPullFilter to finish populating the snapshot of changes
+    const waitTime = 1000; // retry once per second
+    const maxAttempts = 60 * 60 * 12; // for a maximum of 12 hours
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      const count = await this.fetch(`sync/${sessionId}/pull/count`);
+      if (count !== null) {
+        return count;
+      }
+      await sleepAsync(waitTime);
+    }
+    throw new Error(`Could not fetch a valid pull count after ${maxAttempts} attempts`);
+  }
+
+  async pull(sessionId, { limit = 100, fromId } = {}) {
+    const query = { limit };
+    if (fromId) {
+      query.fromId = fromId;
+    }
     const path = `sync/${sessionId}/pull?${objectToQueryString(query)}`;
     return this.fetch(path);
   }
 
-  async push(sessionId, body, { pageNumber, totalPages }) {
+  async push(sessionId, changes, { pushedSoFar, totalToPush }) {
     const path = `sync/${sessionId}/push?${objectToQueryString({
-      pageNumber,
-      totalPages,
+      pushedSoFar,
+      totalToPush,
     })}`;
-    return this.fetch(path, { method: 'POST', body });
+    return this.fetch(path, { method: 'POST', body: { changes } });
   }
 
   async whoami() {

@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne, RelationId, BeforeInsert, BeforeUpdate } from 'typeorm/browser';
+import { Entity, Column, ManyToOne, RelationId } from 'typeorm/browser';
 import { BaseModel } from './BaseModel';
 import {
   AVPUType,
@@ -9,7 +9,6 @@ import {
 } from '../types/IVitals';
 import { Encounter } from './Encounter';
 import { DateTimeStringColumn } from './DateColumns';
-
 import { SYNC_DIRECTIONS } from './types';
 
 @Entity('vitals')
@@ -41,7 +40,7 @@ export class Vitals extends BaseModel implements IVitals {
   temperature?: number;
 
   @Column({ type: 'int', nullable: true })
-  spO2?: number;
+  spo2?: number;
 
   @Column({ type: 'varchar', nullable: true })
   avpu?: AVPUType;
@@ -90,10 +89,8 @@ export class Vitals extends BaseModel implements IVitals {
   @RelationId(({ encounter }) => encounter)
   encounterId?: string;
 
-  @BeforeInsert()
-  @BeforeUpdate()
-  async markEncounterForUpload() {
-    await this.markParentForUpload(Encounter, 'encounter');
+  static getTableNameForSync(): string {
+    return 'vitals'; // already pluralised
   }
 
   static async getForPatient(patientId: string): Promise<Vitals[]> {

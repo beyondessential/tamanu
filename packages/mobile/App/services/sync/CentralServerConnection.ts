@@ -12,7 +12,7 @@ import {
 } from '../error';
 import { version } from '/root/package.json';
 
-import { callWithBackoff, getResponseJsonSafely, fetchWithTimeout } from './utils';
+import { callWithBackoff, getResponseJsonSafely, fetchWithTimeout, sleepAsync } from './utils';
 
 const API_VERSION = 1;
 
@@ -38,7 +38,7 @@ export class CentralServerConnection {
     const queryString = Object.entries(query)
       .map(([k, v]) => `${k}=${v}`)
       .join('&');
-    const url = `${this.host}/v${API_VERSION}/${path}?${queryString}`;
+    const url = `${this.host}/v${API_VERSION}/${path}${queryString && `?${queryString}`}`;
     const extraHeaders = config?.headers || {};
     const headers = {
       Authorization: `Bearer ${this.token}`,
@@ -58,7 +58,7 @@ export class CentralServerConnection {
 
     if (response.status === 401) {
       throw new AuthenticationError(
-        path.includes('/login') ? invalidTokenMessage : invalidUserCredentialsMessage,
+        path.includes('/login') ? invalidUserCredentialsMessage : invalidTokenMessage,
       );
     }
 
@@ -112,19 +112,47 @@ export class CentralServerConnection {
     return this.delete(`sync/${sessionId}`, {});
   }
 
-  async setPullFilter(sessionId: string, since: number) {
+  async fetchPullCount(sessionId) {
+    // poll the pull count endpoint until we get a valid response - it takes a while for
+    // setPullFilter to finish populating the snapshot of changes
+    const waitTime = 1000; // retry once per second
+    const maxAttempts = 60 * 60 * 12; // for a maximum of 12 hours
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      const count = await this.get(`sync/${sessionId}/pull/count`, {});
+      if (count !== null) {
+        return count;
+      }
+      await sleepAsync(waitTime);
+    }
+    throw new Error(`Could not fetch a valid pull count after ${maxAttempts} attempts`);
+  }
+
+  async setPullFilter(sessionId: string, since: number, tableNames: string[]) {
     const facilityId = await readConfig('facilityId', '');
-    const body = { since, facilityId };
+    const body = { since, facilityId, tablesToInclude: tableNames, isMobile: true };
     return this.post(`sync/${sessionId}/pullFilter`, {}, body, {});
   }
 
-  async pull(sessionId: string, limit: number = 100, offset: number = 0): Promise<SyncRecord[]> {
-    const query = { limit, offset };
+  async pull(sessionId: string, limit = 100, fromId?: string): Promise<SyncRecord[]> {
+    const query: { limit: number; fromId?: string } = { limit };
+    if (fromId) {
+      query.fromId = fromId;
+    }
     return this.get(`sync/${sessionId}/pull`, query);
   }
 
-  async push(sessionId: string, body, pageNumber: number, totalPages: number) {
-    return this.post(`sync/${sessionId}/push`, { pageNumber, totalPages }, body);
+  async push(
+    sessionId: string,
+    changes,
+    pageNumber: number,
+    totalPages: number,
+    tableNames: string[],
+  ) {
+    return this.post(
+      `sync/${sessionId}/push`,
+      { pageNumber, totalPages },
+      { changes, tablesToInclude: tableNames },
+    );
   }
 
   setToken(token: string): void {

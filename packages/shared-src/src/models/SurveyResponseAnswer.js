@@ -1,8 +1,7 @@
 import config from 'config';
 import { upperFirst } from 'lodash';
-import { Sequelize } from 'sequelize';
+import { DataTypes } from 'sequelize';
 import { SYNC_DIRECTIONS } from 'shared/constants';
-import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { Model } from './Model';
 
 export class SurveyResponseAnswer extends Model {
@@ -10,8 +9,8 @@ export class SurveyResponseAnswer extends Model {
     super.init(
       {
         id: primaryKey,
-        name: Sequelize.STRING,
-        body: Sequelize.TEXT,
+        name: DataTypes.STRING,
+        body: DataTypes.TEXT,
       },
       { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );
@@ -28,11 +27,34 @@ export class SurveyResponseAnswer extends Model {
     });
   }
 
-  static buildSyncFilter(patientIds, facilitySettings) {
-    return buildEncounterLinkedSyncFilter(patientIds, facilitySettings, [
-      'surveyResponse',
-      'encounter',
-    ]);
+  static buildSyncFilter(patientIds, sessionConfig) {
+    if (patientIds.length === 0) {
+      return null;
+    }
+
+    // manually construct "joins", as survey_response join uses a non-conventional join column
+    const joins = `
+      JOIN survey_responses ON survey_response_answers.response_id = survey_responses.id
+      JOIN encounters ON survey_responses.encounter_id = encounters.id
+    `;
+
+    // remove answers to sensitive surveys from mobile
+    if (sessionConfig.isMobile) {
+      return `
+        ${joins}
+        JOIN surveys ON survey_responses.survey_id = surveys.id
+        WHERE (
+          encounters.patient_id in (:patientIds)
+          AND
+          surveys.is_sensitive = FALSE
+        )
+      `;
+    }
+
+    return `
+      ${joins}
+      WHERE encounters.patient_id in (:patientIds)
+    `;
   }
 
   static getDefaultId = async resource => {

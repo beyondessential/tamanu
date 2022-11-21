@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne, RelationId, BeforeUpdate, BeforeInsert } from 'typeorm/browser';
+import { Entity, Column, ManyToOne, RelationId } from 'typeorm/browser';
 import { BaseModel, IdRelation } from './BaseModel';
 import { Patient } from './Patient';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
@@ -27,14 +27,4 @@ export class PatientSecondaryId extends BaseModel implements IPatientSecondaryId
   patient: Patient;
   @RelationId(({ patient }) => patient)
   patientId: string;
-
-  @BeforeInsert()
-  @BeforeUpdate()
-  async markPatient() {
-    // adding a secondary ID to a patient should mark them for syncing in future
-    const parent = await this.findParent(Patient, 'patient');
-    if (parent) {
-      await Patient.markForSync(parent.id);
-    }
-  }
 }

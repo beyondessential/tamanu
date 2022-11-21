@@ -1,7 +1,6 @@
-import { Op } from 'sequelize';
-
 export function buildPatientLinkedSyncFilter(patientIds) {
-  return {
-    where: { patientId: { [Op.in]: patientIds } },
-  };
+  if (patientIds.length === 0) {
+    return null;
+  }
+  return 'WHERE patient_id IN (:patientIds)';
 }

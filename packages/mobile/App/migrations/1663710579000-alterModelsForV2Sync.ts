@@ -6,6 +6,7 @@ import {
   TableIndex,
   TableForeignKey,
 } from 'typeorm';
+import { readConfig } from '~/services/config';
 import { TABLE_DEFINITIONS } from './firstTimeSetup/databaseDefinition';
 import { getTable } from './utils/queryRunner';
 
@@ -39,7 +40,8 @@ const BaseColumns = [
   new TableColumn({
     name: 'updatedAtSyncTick',
     type: 'bigint',
-    isNullable: true,
+    isNullable: false,
+    default: -999,
   }),
 ];
 
@@ -89,7 +91,6 @@ const PatientFacilitiesTable = new Table({
 
 export class alterModelsForV2Sync1663710579000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
-    console.log('RUNNING');
     for (const tableName of TABLE_DEFINITIONS.map(t => t.name)) {
       const table = await getTable(queryRunner, tableName);
 
@@ -106,6 +107,7 @@ export class alterModelsForV2Sync1663710579000 implements MigrationInterface {
           name: 'updatedAtSyncTick',
           type: 'bigint',
           isNullable: true,
+          default: -999,
         }),
       );
 
@@ -116,15 +118,25 @@ export class alterModelsForV2Sync1663710579000 implements MigrationInterface {
     // remove column markedForSync from patient_additional_data
     await queryRunner.dropColumn('patient_additional_data', 'markedForSync');
 
-    // remove column markedForSync from Patient
-    await queryRunner.dropColumn('patient', 'markedForSync');
-
     // add table local_system_fact
     await queryRunner.createTable(LocalSystemFactTable, ifNotExists);
 
     // add table patient_facility
     await queryRunner.createTable(PatientFacilitiesTable, ifNotExists);
-    console.log('COMPLETE');
+
+    // add entries in patient_facility for any patient marked for sync
+    const facilityId = await readConfig('facilityId');
+    if (facilityId) {
+      await queryRunner.query(`
+        INSERT INTO "patient_facility" ("id", "patientId", "facilityId", "updatedAtSyncTick")
+        SELECT REPLACE("patient"."id", ';', ':') || ';' || REPLACE('${facilityId}', ';', ':'), "patient"."id", '${facilityId}', 0 -- updated_at_sync_tick of 0 will be included in first push
+        FROM "patient"
+        WHERE "patient"."markedForSync" = 1;
+      `);
+    }
+
+    // remove column markedForSync from Patient
+    await queryRunner.dropColumn('patient', 'markedForSync');
   }
 
   async down(queryRunner: QueryRunner): Promise<void> {

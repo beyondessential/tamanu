@@ -6,7 +6,9 @@ import { updatePatientIssueDate1663564207000 } from './1663564207000-updatePatie
 import { updatePatientEncounterDateTimeColumns1664229842000 } from './1664229842000-updatePatientEncounterDateTimeColumns';
 import { alterModelsForV2Sync1663710579000 } from './1663710579000-alterModelsForV2Sync';
 import { updateSurveyResponseDateTimeColumns1664475769000 } from './1664475769000-updateSurveyResponseDateTimeColumns';
+import { changeCaseOfSpo21665717114000 } from './1665717114000-changeCaseOfSpo2';
 import { updateLabRequestDateColumns1666171050000 } from './1666171050000-updateLabRequestDateColumns';
+import { addFieldUpdateTicksToPAD1668987530000 } from './1668987530000-addFieldUpdateTicksToPAD';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -16,5 +18,7 @@ export const migrationList = [
   updatePatientEncounterDateTimeColumns1664229842000,
   alterModelsForV2Sync1663710579000,
   updateSurveyResponseDateTimeColumns1664475769000,
+  changeCaseOfSpo21665717114000,
   updateLabRequestDateColumns1666171050000,
+  addFieldUpdateTicksToPAD1668987530000,
 ];

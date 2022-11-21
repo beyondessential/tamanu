@@ -1,5 +1,5 @@
 import { fake } from 'shared/test-helpers/fake';
-import { initDb } from '../initDb';
+import { createTestContext } from '../utilities';
 
 // the test cases in here ignore the way the data is stored (which is currently with a record per
 // leaf value, and dot notation keys) in favour of testing that setting then getting a setting
@@ -7,16 +7,20 @@ import { initDb } from '../initDb';
 describe('Setting', () => {
   let Setting;
   let Facility;
-  let context;
+  let ctx;
 
   beforeAll(async () => {
-    context = await initDb({ testMode: true });
-    Setting = context.models.Setting;
-    Facility = context.models.Facility;
+    ctx = await createTestContext();
+    Setting = ctx.store.models.Setting;
+    Facility = ctx.store.models.Facility;
   });
 
   afterEach(async () => {
     await Setting.truncate();
+  });
+
+  afterAll(async () => {
+    await ctx.close();
   });
 
   it('sets and gets basic settings', async () => {

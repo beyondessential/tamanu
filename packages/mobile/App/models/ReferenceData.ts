@@ -46,19 +46,13 @@ export class ReferenceData extends BaseModel implements IReferenceData {
     });
   }
 
-  static getPluralTableName(): string {
+  static getTableNameForSync(): string {
     return 'reference_data';
   }
 }
 
-export const ReferenceDataRelation = (): any => ManyToOne(
-  () => ReferenceData,
-  undefined,
-  { eager: true },
-);
+export const ReferenceDataRelation = (): any =>
+  ManyToOne(() => ReferenceData, undefined, { eager: true });
 
-export const NullableReferenceDataRelation = (): any => ManyToOne(
-  () => ReferenceData,
-  undefined,
-  { eager: true, nullable: true },
-);
+export const NullableReferenceDataRelation = (): any =>
+  ManyToOne(() => ReferenceData, undefined, { eager: true, nullable: true });

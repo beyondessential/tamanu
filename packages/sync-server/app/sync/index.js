@@ -1,1 +1,1 @@
-export * from './syncRoutes';
+export { buildSyncRoutes } from './buildSyncRoutes';
