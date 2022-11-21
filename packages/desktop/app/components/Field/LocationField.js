@@ -13,14 +13,6 @@ import { SelectInput } from './SelectField';
 
 const locationSuggester = (api, groupValue) => {
   return new Suggester(api, 'location', {
-    filterer: ({ locationGroup }) => {
-      // if no category is selected, return all child locations. The location field will be disabled
-      // in this state anyway
-      if (!groupValue) {
-        return true;
-      }
-      return locationGroup?.id === groupValue;
-    },
     formatter: ({ name, id, locationGroup, availability }) => {
       return {
         value: id,
@@ -30,7 +22,7 @@ const locationSuggester = (api, groupValue) => {
         tag: LOCATION_AVAILABILITY_TAG_CONFIG[availability],
       };
     },
-    baseQueryParameters: { filterByFacility: true },
+    baseQueryParameters: { filterByFacility: true, locationGroupId: groupValue },
   });
 };
 
