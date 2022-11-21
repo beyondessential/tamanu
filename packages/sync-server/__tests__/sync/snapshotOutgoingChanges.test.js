@@ -2,7 +2,7 @@ import { expect, beforeAll, describe, it } from '@jest/globals';
 import { Transaction } from 'sequelize';
 
 import { fakeReferenceData, withErrorShown } from 'shared/test-helpers';
-import { getModelsForDirection } from 'shared/sync';
+import { getModelsForDirection, COLUMNS_EXCLUDED_FROM_SYNC } from 'shared/sync';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { sleepAsync } from 'shared/utils/sleepAsync';
 import { fakeUUID } from 'shared/utils/generateId';
@@ -33,14 +33,20 @@ describe('snapshotOutgoingChanges', () => {
   it(
     'if in readOnly mode returns 0',
     withErrorShown(async () => {
-      const { LocalSystemFact } = models;
+      const { SyncSession, LocalSystemFact, ReferenceData } = models;
+      const startTime = new Date();
+      const syncSession = await SyncSession.create({
+        startTime,
+        lastConnectionTime: startTime,
+      });
+      await ReferenceData.create(fakeReferenceData());
       const tock = await LocalSystemFact.increment('currentSyncTime', 2);
 
       const result = await snapshotOutgoingChanges.overrideConfig(
         outgoingModels,
         tock - 1,
         [],
-        fakeUUID(),
+        syncSession.id,
         '',
         simplestSessionConfig,
         readOnlyConfig(true),
@@ -71,7 +77,7 @@ describe('snapshotOutgoingChanges', () => {
   it(
     'returns serialised records (excluding metadata columns)',
     withErrorShown(async () => {
-      const { SyncSession, LocalSystemFact, ReferenceData } = models;
+      const { SyncSession, SyncSessionRecord, LocalSystemFact, ReferenceData } = models;
       const startTime = new Date();
       const syncSession = await SyncSession.create({
         startTime,
@@ -89,6 +95,13 @@ describe('snapshotOutgoingChanges', () => {
         simplestSessionConfig,
       );
       expect(result).toEqual(1);
+
+      const [syncRecord] = await SyncSessionRecord.findAll({
+        where: { sessionId: syncSession.id },
+      });
+      expect(
+        Object.keys(syncRecord.data).every(key => !COLUMNS_EXCLUDED_FROM_SYNC.includes(key)),
+      ).toBe(true);
     }),
   );
 
@@ -151,7 +164,11 @@ describe('snapshotOutgoingChanges', () => {
     withErrorShown(async () => {
       const { SyncSession, LocalSystemFact, ReferenceData } = models;
 
-      const resolveWhenNonEmpty = [];
+      const queryReturnValue = [undefined, 0];
+      let resolveFakeModelQuery;
+      const promise = new Promise(resolve => {
+        resolveFakeModelQuery = () => resolve(queryReturnValue);
+      });
       const fakeModelThatWaitsUntilWeSaySo = {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         getAttributes() {
@@ -162,10 +179,7 @@ describe('snapshotOutgoingChanges', () => {
         },
         sequelize: {
           async query() {
-            while (resolveWhenNonEmpty.length === 0) {
-              await sleepAsync(5);
-            }
-            return [undefined, 0];
+            return promise;
           },
         },
       };
@@ -218,7 +232,7 @@ describe('snapshotOutgoingChanges', () => {
       await sleepAsync(20);
 
       // unblock snapshot
-      resolveWhenNonEmpty.push(true);
+      resolveFakeModelQuery();
       const result = await snapshot;
 
       expect(result).toEqual(1);
@@ -231,7 +245,11 @@ describe('snapshotOutgoingChanges', () => {
     withErrorShown(async () => {
       const { SyncSession, LocalSystemFact, ReferenceData } = models;
 
-      const resolveWhenNonEmpty = [];
+      const queryReturnValue = [undefined, 0];
+      let resolveFakeModelQuery;
+      const promise = new Promise(resolve => {
+        resolveFakeModelQuery = () => resolve(queryReturnValue);
+      });
       const fakeModelThatWaitsUntilWeSaySo = {
         syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         getAttributes() {
@@ -242,10 +260,7 @@ describe('snapshotOutgoingChanges', () => {
         },
         sequelize: {
           async query() {
-            while (resolveWhenNonEmpty.length === 0) {
-              await sleepAsync(5);
-            }
-            return [undefined, 0];
+            return promise;
           },
         },
       };
@@ -296,7 +311,7 @@ describe('snapshotOutgoingChanges', () => {
       await after;
 
       // unblock snapshot
-      resolveWhenNonEmpty.push(true);
+      resolveFakeModelQuery();
       const result = await snapshot;
 
       expect(result).toEqual(1);
