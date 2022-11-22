@@ -158,7 +158,7 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
   async setUpdatedAtByField(): Promise<void> {
     const syncTick = await getSyncTick(Database.models, CURRENT_SYNC_TIME);
     const includedColumns = extractIncludedColumns(PatientAdditionalData, METADATA_FIELDS);
-    const newUpdatedAtByField = {};
+    let newUpdatedAtByField = {};
     const oldPatientAdditionalData = await PatientAdditionalData.findOne({
       id: this.id,
     });
@@ -175,6 +175,8 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
       !this.updatedAtByField ||
       this.updatedAtByField === oldPatientAdditionalData.updatedAtByField
     ) {
+      // retain the old sync ticks from previous updatedAtByField
+      newUpdatedAtByField = JSON.parse(oldPatientAdditionalData.updatedAtByField);
       includedColumns.forEach(c => {
         const key = snakeCase(c);
         if (oldPatientAdditionalData[c] !== this[c]) {
