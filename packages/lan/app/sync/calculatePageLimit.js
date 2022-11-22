@@ -17,7 +17,7 @@ export const calculatePageLimit = (currentLimit, lastPageTime) => {
   const optimalLimit = optimalTimePerPageMs / durationPerRecord;
   let newLimit = optimalLimit;
 
-  newLimit = Math.floor(newLimit);
+  newLimit = Math.ceil(newLimit);
   newLimit = Math.max(
     newLimit,
     minLimit,

@@ -14,7 +14,7 @@ export const calculatePageLimit = (currentLimit?: number, downloadTime?: number)
   const optimalPageSize = OPTIMAL_TIME_PER_PAGE / durationPerRecord;
   let newLimit = optimalPageSize;
 
-  newLimit = Math.floor(newLimit);
+  newLimit = Math.ceil(newLimit);
   newLimit = Math.max(
     newLimit,
     MIN_LIMIT,
