@@ -14,6 +14,7 @@ import { useEncounter } from '../../contexts/Encounter';
 import { useElectron } from '../../contexts/Electron';
 import { Colors } from '../../constants';
 import { useCertificate } from '../../utils/useCertificate';
+import { getFullLocationName } from '../../utils/location';
 
 const Container = styled.div`
   background: ${Colors.white};
@@ -162,7 +163,7 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
         </div>
         <div>
           <Label>Department: </Label>
-          {location && location.name}
+          {location && getFullLocationName(location)}
         </div>
         {discharge && (
           <div>

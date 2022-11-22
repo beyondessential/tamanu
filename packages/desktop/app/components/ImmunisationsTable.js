@@ -7,7 +7,8 @@ const getSchedule = record => record.scheduledVaccine?.schedule || 'Unknown';
 const getVaccineName = record => record.scheduledVaccine?.label || 'Unknown';
 const getDate = ({ date }) => <DateDisplay date={date} />;
 const getGiver = record => record.givenBy || '';
-const getArea = record => record.location?.locationGroup?.name || '';
+const getArea = record =>
+  record.location?.locationGroup?.name || record.encounter?.location?.locationGroup?.name || '';
 const getFacility = record => record.location?.name || record.encounter?.location?.name || '';
 const getInjectionSite = ({ injectionSite }) => injectionSite || 'Unknown';
 const getBatch = ({ batch }) => batch || 'Unknown';
