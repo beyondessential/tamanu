@@ -91,7 +91,7 @@ export class Location extends Model {
   static parseFullLocationName(text) {
     const {
       groups: { group, location },
-    } = text.match(/(?<group>.*(?=,\s+))?(,\s+)?(?<location>.*)/);
+    } = text.match(/(?<group>[^,]*(?=,\s))?(,\s)?(?<location>.*)/);
     return { group, location };
   }
 

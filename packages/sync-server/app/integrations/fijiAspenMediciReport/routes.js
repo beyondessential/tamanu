@@ -11,7 +11,7 @@ export const routes = express.Router();
 
 const COUNTRY_TIMEZONE = config?.countryTimeZone;
 
-const reportQuery = `--sql
+const reportQuery = `
 with
 notes_info as (
   select
