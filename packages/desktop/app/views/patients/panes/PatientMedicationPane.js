@@ -41,8 +41,7 @@ const DISCHARGED_MEDICATION_COLUMNS = [
   {
     key: 'location.name',
     title: 'Facility',
-    accessor: data =>
-      data?.encounter?.location ? getFullLocationName(data.encounter.location) : '',
+    accessor: data => getFullLocationName(data?.encounter?.location),
     sortable: false,
   },
   {

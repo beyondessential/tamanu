@@ -163,7 +163,7 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
         </div>
         <div>
           <Label>Department: </Label>
-          {location && getFullLocationName(location)}
+          {getFullLocationName(location)}
         </div>
         {discharge && (
           <div>
