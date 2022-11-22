@@ -4,9 +4,9 @@ import { Button, darken } from '@material-ui/core';
 
 const Group = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
-  grid-column-gap: 10px;
-  grid-row-gap: 10px;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  grid-column-gap: 0.5rem;
+  grid-row-gap: 0.5rem;
 `;
 
 const COLORS = {
@@ -16,7 +16,7 @@ const COLORS = {
 };
 
 const SelectableField = styled(Button)`
-  padding: 0.8rem;
+  padding: 0.5rem;
   text-transform: none;
   box-shadow: none;
   font-weight: 400;
