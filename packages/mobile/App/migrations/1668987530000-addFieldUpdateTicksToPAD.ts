@@ -1,4 +1,5 @@
 import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
+import { snakeCase } from 'lodash';
 import { getTable } from './utils/queryRunner';
 
 const METADATA_FIELDS = [
@@ -39,7 +40,7 @@ export class addFieldUpdateTicksToPAD1668987530000 implements MigrationInterface
     // column so that we get the commas in JSON string concatenation right
     const includedColumnNames = [
       'id',
-      ...columns.map(c => c.name).filter(c => !METADATA_FIELDS.includes(c) && c !== 'id'),
+      ...columns.map(c => snakeCase(c.name)).filter(c => !METADATA_FIELDS.includes(c) && c !== 'id'),
     ];
     const updateColumnConcat = includedColumnNames
       .map(
