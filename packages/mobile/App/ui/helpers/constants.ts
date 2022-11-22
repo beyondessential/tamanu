@@ -209,3 +209,8 @@ export const AutocompleteSourceToColumnMap = {
   Location: 'name',
   ReferenceData: 'name',
 };
+
+export const VISIBILITY_STATUSES = {
+  CURRENT: 'current',
+  HISTORICAL: 'historical',
+};

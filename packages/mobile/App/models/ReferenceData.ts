@@ -3,6 +3,7 @@ import { ManyToOne } from 'typeorm';
 import { BaseModel } from './BaseModel';
 import { IReferenceData, ReferenceDataType } from '~/types';
 import { VisibilityStatus } from '../visibilityStatuses';
+import { VISIBILITY_STATUSES } from '~/ui/helpers/constants';
 
 @Entity('reference_data')
 export class ReferenceData extends BaseModel implements IReferenceData {
@@ -23,6 +24,7 @@ export class ReferenceData extends BaseModel implements IReferenceData {
 
     return repo.findOne({
       type: referenceDataType,
+      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
     });
   }
 
@@ -37,6 +39,7 @@ export class ReferenceData extends BaseModel implements IReferenceData {
       where: {
         name: Like(`%${searchTerm}%`),
         type: referenceDataType,
+        visibilityStatus: VISIBILITY_STATUSES.CURRENT,
       },
       skip: 0,
       take: limit,
