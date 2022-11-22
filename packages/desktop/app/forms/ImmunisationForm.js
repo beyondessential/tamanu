@@ -18,6 +18,7 @@ import {
   RadioField,
   SelectField,
   CheckField,
+  LocalisedLocationField,
 } from '../components/Field';
 import { Colors } from '../constants';
 
@@ -27,14 +28,14 @@ const VaccineScheduleOptions = [
   { value: 'Campaign', label: 'Campaign' },
 ];
 
-const ThreeTwoGrid = styled.div`
+const TwoTwoGrid = styled.div`
   display: grid;
 
   margin-top: 0.3rem;
   grid-column-gap: 0.7rem;
   grid-row-gap: 1.2rem;
 
-  grid-template-columns: 3fr 2fr;
+  grid-template-columns: 1fr 1fr;
   align-items: start;
 `;
 
@@ -93,7 +94,7 @@ const findVaccinesByAdministeredStatus = (vaccine, administered) =>
     : [];
 
 export const ImmunisationForm = React.memo(
-  ({ onCancel, onSubmit, departmentSuggester, getScheduledVaccines, locationSuggester }) => {
+  ({ onCancel, onSubmit, departmentSuggester, getScheduledVaccines }) => {
     const [vaccineOptions, setVaccineOptions] = useState([]);
     const [category, setCategory] = useState();
     const [vaccineLabel, setVaccineLabel] = useState();
@@ -156,7 +157,7 @@ export const ImmunisationForm = React.memo(
             .required(),
         })}
         render={({ submitForm }) => (
-          <ThreeTwoGrid>
+          <TwoTwoGrid>
             <FullWidthCol>
               <OuterLabelFieldWrapper label="Consent" style={{ marginBottom: '5px' }} required />
               <Field
@@ -209,16 +210,9 @@ export const ImmunisationForm = React.memo(
                 />
               )}
             </FullWidthCol>
-
             <Field name="date" label="Date" component={DateField} required saveDateAsString />
             <Field name="givenBy" label="Given by" component={TextField} />
-            <Field
-              name="locationId"
-              label="Location"
-              component={AutocompleteField}
-              suggester={locationSuggester}
-              required
-            />
+            <Field name="locationId" component={LocalisedLocationField} required />
             <Field
               name="injectionSite"
               label="Injection site"
@@ -253,7 +247,7 @@ export const ImmunisationForm = React.memo(
               confirmDisabled={scheduleOptions.length === 0}
               onCancel={onCancel}
             />
-          </ThreeTwoGrid>
+          </TwoTwoGrid>
         )}
       />
     );
