@@ -202,7 +202,10 @@ patientRoute.get(
       where: { encounterId: lastDischargedEncounter.id, isDischarge: true },
       include: [
         ...EncounterMedication.getFullReferenceAssociations(),
-        { association: 'encounter', include: [{ association: 'location' }] },
+        {
+          association: 'encounter',
+          include: [{ association: 'location', include: ['locationGroup'] }],
+        },
       ],
       order: orderBy ? getOrderClause(order, orderBy) : undefined,
       limit: rowsPerPage,
