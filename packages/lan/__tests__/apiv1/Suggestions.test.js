@@ -6,7 +6,7 @@ import {
   createDummyEncounter,
   randomRecords,
 } from 'shared/demoData';
-
+import { findOneOrCreate } from 'shared/test-helpers';
 import { createTestContext } from '../utilities';
 import { testDiagnoses } from '../seed';
 
@@ -90,9 +90,16 @@ describe('Suggestions', () => {
   describe('Locations', () => {
     let occupiedLocation;
     let reservedLocation;
+    let unrestrictedLocation;
 
     beforeAll(async () => {
-      [occupiedLocation, reservedLocation] = await randomRecords(models, 'Location', 2);
+      [occupiedLocation, reservedLocation, unrestrictedLocation] = await randomRecords(
+        models,
+        'Location',
+        3,
+      );
+
+      await unrestrictedLocation.update({ maxOccupancy: null });
 
       // An encounter requires a patient
       const patient = await models.Patient.create(
@@ -102,7 +109,7 @@ describe('Suggestions', () => {
           displayId: 'lorem',
         }),
       );
-      // This should mark one location as occupied, and one as reserved
+      // mark one location as occupied, and one as reserved
       await models.Encounter.create(
         await createDummyEncounter(models, {
           patientId: patient.id,
@@ -111,6 +118,19 @@ describe('Suggestions', () => {
           endDate: null,
         }),
       );
+      // mark unrestricted location as occupied
+      await models.Encounter.create(
+        await createDummyEncounter(models, {
+          patientId: patient.id,
+          locationId: unrestrictedLocation.id,
+          plannedLocationId: null,
+          endDate: null,
+        }),
+      );
+    });
+
+    afterAll(async () => {
+      await unrestrictedLocation.update({ maxOccupancy: 1 });
     });
 
     it('should calculate location availability and return it with suggestion list', async () => {
@@ -125,12 +145,50 @@ describe('Suggestions', () => {
       const reservedResult = body.find(x => x.id === reservedLocation.id);
       expect(reservedResult).toHaveProperty('availability', LOCATION_AVAILABILITY_STATUS.RESERVED);
 
+      const unrestrictedResult = body.find(x => x.id === unrestrictedLocation.id);
+      expect(unrestrictedResult).toHaveProperty(
+        'availability',
+        LOCATION_AVAILABILITY_STATUS.AVAILABLE,
+      );
+
       const otherResults = body.filter(
-        x => x.id !== occupiedLocation.id && x.id !== reservedLocation.id,
+        x => ![occupiedLocation.id, reservedLocation.id, unrestrictedLocation.id].includes(x.id),
       );
       for (const location of otherResults) {
         expect(location).toHaveProperty('availability', LOCATION_AVAILABILITY_STATUS.AVAILABLE);
       }
+    });
+
+    it('should filter locations by location group', async () => {
+      await models.Location.truncate({ cascade: true });
+
+      const locationGroup = await findOneOrCreate(models, models.LocationGroup, {
+        id: 'test-area',
+        name: 'Test Area',
+      });
+      await findOneOrCreate(models, models.Location, {
+        name: 'Bed 1',
+        locationGroupId: locationGroup.id,
+        visibilityStatus: 'current',
+      });
+      await findOneOrCreate(models, models.Location, {
+        name: 'Bed 2',
+        locationGroupId: locationGroup.id,
+        visibilityStatus: 'current',
+      });
+      await findOneOrCreate(models, models.Location, {
+        name: 'Bed 3',
+        visibilityStatus: 'current',
+      });
+      const result = await userApp.get('/v1/suggestions/location');
+      expect(result).toHaveSucceeded();
+      expect(result?.body?.length).toEqual(3);
+
+      const filteredResult = await userApp.get(
+        '/v1/suggestions/location?locationGroupId=test-area',
+      );
+      expect(filteredResult).toHaveSucceeded();
+      expect(filteredResult?.body?.length).toEqual(2);
     });
   });
 

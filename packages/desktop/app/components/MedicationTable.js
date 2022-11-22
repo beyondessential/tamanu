@@ -8,6 +8,7 @@ import { MedicationModal } from './MedicationModal';
 import { reloadPatient } from '../store';
 import { ENCOUNTER_TAB_NAMES } from '../views/patients/encounterTabNames';
 import { Colors } from '../constants';
+import { getFullLocationName } from '../utils/location';
 
 const getMedicationName = ({ medication }) => medication.name;
 
@@ -40,7 +41,7 @@ const FULL_LISTING_COLUMNS = [
   {
     key: 'location',
     title: 'Location',
-    accessor: ({ encounter }) => encounter.location.name,
+    accessor: ({ encounter }) => getFullLocationName(encounter.location),
     sortable: false,
   },
   ...MEDICATION_COLUMNS,

@@ -196,7 +196,7 @@ class BaseAutocomplete extends Component {
   };
 
   renderInputComponent = inputProps => {
-    const { label, required, className, infoTooltip, tag, ...other } = inputProps;
+    const { label, required, className, infoTooltip, tag, value, ...other } = inputProps;
     return (
       <OuterLabelFieldWrapper
         label={label}
@@ -222,6 +222,7 @@ class BaseAutocomplete extends Component {
             ),
           }}
           fullWidth
+          value={value}
           {...other}
         />
       </OuterLabelFieldWrapper>
@@ -238,7 +239,6 @@ class BaseAutocomplete extends Component {
       disabled,
       error,
       helperText,
-      renderMessage,
       placeholder = 'Search...',
     } = this.props;
 
@@ -268,7 +268,6 @@ class BaseAutocomplete extends Component {
             onChange: this.handleInputChange,
           }}
         />
-        {renderMessage && renderMessage(selectedOption)}
       </>
     );
   }

@@ -11,7 +11,7 @@ import { TwoColumnDisplay } from '../../components/TwoColumnDisplay';
 import { DailySchedule } from '../../components/Appointments/DailySchedule';
 import { NewAppointmentButton } from '../../components/Appointments/NewAppointmentButton';
 import { Button } from '../../components/Button';
-import { AutocompleteInput, MultiselectInput } from '../../components/Field';
+import { AutocompleteInput, MultiselectInput, SuggesterSelectField } from '../../components/Field';
 import { Suggester } from '../../utils/suggester';
 import { Colors, appointmentTypeOptions } from '../../constants';
 import { useApi } from '../../api';
@@ -74,29 +74,45 @@ const TodayButton = styled(Button)`
 
 export const AppointmentsCalendar = () => {
   const api = useApi();
-  const filters = [
-    {
-      name: 'location',
-      text: 'Locations',
-      suggester: new Suggester(api, 'location', {
-        baseQueryParameters: { filterByFacility: true },
-      }),
-    },
-    {
-      name: 'clinician',
-      text: 'Clinicians',
-      suggester: new Suggester(api, 'practitioner'),
-    },
-  ];
+
   const [date, setDate] = useState(new Date());
-  const [activeFilter, setActiveFilter] = useState(filters[0]);
   const [filterValue, setFilterValue] = useState('');
   const [appointmentType, setAppointmentType] = useState([]);
   const [appointments, setAppointments] = useState([]);
   const [refreshCount, setRefreshCount] = useState(0);
+  const [activeFilter, setActiveFilter] = useState('locationGroup');
+
   const updateCalendar = () => {
     setRefreshCount(refreshCount + 1);
   };
+  const updateFilterValue = e => setFilterValue(e.target.value);
+
+  const filters = {
+    locationGroup: {
+      label: 'Area',
+      component: (
+        <SuggesterSelectField
+          field={{
+            value: filterValue,
+            name: 'locationGroup',
+            onChange: updateFilterValue,
+          }}
+          endpoint="locationGroup"
+        />
+      ),
+    },
+    clinician: {
+      label: 'Clinicians',
+      component: (
+        <AutocompleteInput
+          value={filterValue}
+          onChange={updateFilterValue}
+          suggester={new Suggester(api, 'practitioner')}
+        />
+      ),
+    },
+  };
+
   useEffect(() => {
     (async () => {
       const { data } = await api.get('appointments', {
@@ -107,6 +123,7 @@ export const AppointmentsCalendar = () => {
       setAppointments(data);
     })();
   }, [api, date, refreshCount]);
+
   return (
     <PageContainer>
       <TwoColumnDisplay>
@@ -115,30 +132,24 @@ export const AppointmentsCalendar = () => {
           <Section>
             <SectionTitle variant="subtitle2">View calendar by:</SectionTitle>
             <FilterSwitch>
-              {filters.map(filter => (
+              {Object.entries(filters).map(([key, { label }]) => (
                 <Button
-                  key={filter.name}
-                  color={filter.name === activeFilter.name ? 'primary' : null}
-                  variant={filter.name === activeFilter.name ? 'contained' : null}
+                  key={key}
+                  color={key === activeFilter ? 'primary' : null}
+                  variant={key === activeFilter ? 'contained' : null}
                   onClick={() => {
-                    setActiveFilter(filter);
+                    setActiveFilter(key);
                     setFilterValue('');
                   }}
                 >
-                  {filter.text}
+                  {label}
                 </Button>
               ))}
             </FilterSwitch>
           </Section>
           <Section>
-            <SectionTitle variant="subtitle2">{activeFilter.text}</SectionTitle>
-            <AutocompleteInput
-              value={filterValue}
-              onChange={e => {
-                setFilterValue(e.target.value);
-              }}
-              suggester={activeFilter.suggester}
-            />
+            <SectionTitle variant="subtitle2">{filters[activeFilter].label}</SectionTitle>
+            {filters[activeFilter].component}
           </Section>
           <Section>
             <SectionTitle variant="subtitle2">Appointment type</SectionTitle>
