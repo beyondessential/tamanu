@@ -17,7 +17,7 @@ const vitalRowFieldsToNames = {
     }
     return 'Temperature (ºC)';
   },
-  spO2: 'SpO2 (%)',
+  spo2: 'SpO2 (%)',
   avpu: 'AVPU',
 };
 
@@ -45,4 +45,4 @@ export const VitalsTableRowHeader = ({ title }: { title: string }): JSX.Element 
       </StyledText>
     </StyledView>
   );
-}
+};

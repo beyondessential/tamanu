@@ -1,10 +1,11 @@
 import config from 'config';
 import { Sequelize, Op } from 'sequelize';
 
-import { ENCOUNTER_TYPES } from 'shared/constants';
+import { ENCOUNTER_TYPES, SYNC_DIRECTIONS } from 'shared/constants';
 import { InvalidOperationError } from 'shared/errors';
 
 import { Model } from './Model';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
 
 export class Triage extends Model {
@@ -17,13 +18,14 @@ export class Triage extends Model {
         closedTime: dateTimeType('closedTime'),
         score: Sequelize.TEXT,
       },
-      options,
+      { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );
   }
 
   static initRelations(models) {
     this.belongsTo(models.Encounter, {
       foreignKey: 'encounterId',
+      as: 'encounter',
     });
 
     this.belongsTo(models.User, {
@@ -52,6 +54,13 @@ export class Triage extends Model {
         recordType: this.name,
       },
     });
+  }
+
+  static buildSyncFilter(patientIds) {
+    if (patientIds.length === 0) {
+      return null;
+    }
+    return buildEncounterLinkedSyncFilter([this.tableName, 'encounters']);
   }
 
   static async create(data) {

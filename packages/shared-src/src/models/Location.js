@@ -49,7 +49,7 @@ export class Location extends Model {
       {
         ...options,
         validate,
-        syncConfig: { syncDirection: SYNC_DIRECTIONS.PULL_ONLY },
+        syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
         indexes: [{ unique: true, fields: ['code'] }],
       },
     );

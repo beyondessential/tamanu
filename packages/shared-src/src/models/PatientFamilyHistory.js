@@ -1,6 +1,7 @@
 import { Sequelize } from 'sequelize';
-import { initSyncForModelNestedUnderPatient } from './sync';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
+import { buildPatientLinkedSyncFilter } from './buildPatientLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 
@@ -18,7 +19,7 @@ export class PatientFamilyHistory extends Model {
       },
       {
         ...options,
-        syncConfig: initSyncForModelNestedUnderPatient(this, 'familyHistory'),
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
   }
@@ -32,4 +33,6 @@ export class PatientFamilyHistory extends Model {
   static getListReferenceAssociations() {
     return ['diagnosis'];
   }
+
+  static buildSyncFilter = buildPatientLinkedSyncFilter;
 }

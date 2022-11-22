@@ -7,6 +7,7 @@ import { randomBytes } from 'crypto';
 
 import { COMMUNICATION_STATUSES } from 'shared/constants';
 import { log } from 'shared/services/logging';
+import { findUser } from './utils';
 
 export const resetPassword = express.Router();
 
@@ -28,7 +29,7 @@ resetPassword.post(
 
     const { email } = body;
 
-    const user = await store.findUser(email);
+    const user = await findUser(models, email);
 
     if (!user) {
       log.info(`Password reset request: No user found with email ${email}`);
@@ -69,14 +70,14 @@ const createOneTimeLogin = async (models, user) => {
 const sendResetEmail = async (emailService, user, token) => {
   const emailText = `
       Hi ${user.displayName},
-      
+
       You are receiving this email because someone requested a password reset for
       this user account. To reset your password enter the following reset code into Tamanu.
-  
+
       Reset Code: ${token}
-  
+
       If you believe this was sent to you in error, please ignore this email.
-      
+
       tamanu.io`;
 
   const result = await emailService.sendEmail({

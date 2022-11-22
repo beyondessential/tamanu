@@ -1,7 +1,8 @@
 import { Sequelize } from 'sequelize';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { PATIENT_ISSUE_TYPES } from '../constants';
-import { initSyncForModelNestedUnderPatient } from './sync';
 import { Model } from './Model';
+import { buildPatientLinkedSyncFilter } from './buildPatientLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 
@@ -23,7 +24,7 @@ export class PatientIssue extends Model {
       },
       {
         ...options,
-        syncConfig: initSyncForModelNestedUnderPatient(this, 'issue'),
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
   }
@@ -31,4 +32,6 @@ export class PatientIssue extends Model {
   static initRelations(models) {
     this.belongsTo(models.Patient, { foreignKey: 'patientId' });
   }
+
+  static buildSyncFilter = buildPatientLinkedSyncFilter;
 }

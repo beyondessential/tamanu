@@ -1,9 +1,10 @@
 import Sequelize from 'sequelize';
-import { SYNC_DIRECTIONS } from 'shared/constants';
 import { InvalidOperationError } from 'shared/errors';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { dateTimeType } from './dateTimeTypes';
 
 import { Model } from './Model';
+import { buildPatientLinkedSyncFilter } from './buildPatientLinkedSyncFilter';
 
 export class PatientBirthData extends Model {
   static init({ primaryKey, ...options }) {
@@ -25,7 +26,7 @@ export class PatientBirthData extends Model {
       },
       {
         ...options,
-        syncConfig: { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         tableName: 'patient_birth_data',
         validate: {
           mustHavePatient() {
@@ -68,4 +69,6 @@ export class PatientBirthData extends Model {
     'birthFacilityId',
     'registeredBirthPlace',
   ];
+
+  static buildSyncFilter = buildPatientLinkedSyncFilter;
 }
