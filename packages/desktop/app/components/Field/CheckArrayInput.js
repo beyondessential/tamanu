@@ -32,9 +32,9 @@ const SelectableField = styled(Button)`
   &:hover {
     background: ${p => {
       if (p.noneSelected) {
-        return darken(COLORS.NONE_SELECTED, 0.1);
+        return darken(COLORS.NONE_SELECTED, 0.05);
       }
-      return p.selected ? darken(COLORS.SELECTED, 0.1) : darken(COLORS.DEFAULT, 0.1);
+      return p.selected ? darken(COLORS.SELECTED, 0.05) : darken(COLORS.DEFAULT, 0.05);
     }};
   }
 `;
