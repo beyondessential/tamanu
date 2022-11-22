@@ -142,6 +142,12 @@ with
     join reference_data drug on drug.id = sv.vaccine_id 
     group by encounter_id
   ),
+  area_locations as (
+    select 
+      id 
+    from locations 
+    where location_group_id = :location_group_id
+  ),
   imaging_areas_by_request as (
     select
       imaging_request_id,
@@ -188,7 +194,8 @@ with
       matched_vals[1] place,
       matched_vals[2] "from",
       matched_vals[3] "to",
-      ni.date
+      ni.date,
+      ni.id
     from note_pages np
     join note_items ni on ni.note_page_id = np.id
     join (
@@ -206,31 +213,42 @@ with
       e.id encounter_id,
       nh.place,
       concat(
+        case when max(area_name) is not null then (max(area_name) || ', ') else '' end,
         max(first_from), --first "from" from note
         ', Assigned time: ', to_char(e.start_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
       ) || '; ' ||
       string_agg(
         concat(
+          case when (lgt.name is not null) then (lgt.name || ', ') else '' end,
           "to",
           ', Assigned time: ', to_char(nh.date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
         ),
         '; '
         ORDER BY nh.date
       ) place_history,
-      jsonb_build_array(case when nh.place = 'location' then e.location_id else e.department_id end) || jsonb_agg(case when nh.place = 'location' then l.id else d.id end) place_id_list -- Duplicates here are ok, but not required, as it will be used for searching
+      jsonb_build_array(case when nh.place = 'location' then e.location_id else e.department_id end) || jsonb_agg(case when nh.place = 'location' then lf.id else d.id end) place_id_list -- Duplicates here are ok, but not required, as it will be used for searching
     from note_history nh
     join encounters e on nh.encounter_id = e.id
-    left join locations l on l.name = "from"
+    left join locations lf on lf.name = "from"
     left join departments d on d.name = "from"
+    left join locations lt on lt.name = "to"
+    left join location_groups lgt on lt.location_group_id = lgt.id
     join (
+      with history_partition as (
+        select nh2.id, first_value("from") over(
+    			partition by encounter_id, place
+    			order by nh2."date"
+    		) first_from from note_history nh2
+      )
     	select
     		encounter_id,
     		place,
-    		first_value("from") over(
-    			partition by encounter_id, place
-    			order by nh2."date"
-    		) first_from
-    	from note_history nh2
+        lg.name as area_name,
+    		history_partition.first_from as first_from
+        from note_history nh2
+        join history_partition on nh2.id = history_partition.id
+        join locations l2 on l2.name = first_from
+        join location_groups lg on l2.location_group_id = lg.id
     ) first_val_table on nh.encounter_id = first_val_table.encounter_id and first_val_table.place = nh.place
     group by e.id, e.start_date, nh.place
   ),
@@ -241,7 +259,7 @@ with
       coalesce(
         place_history,
         concat(
-          case when places.column1 = 'location' then l.name else d.name end,
+          case when places.column1 = 'location' then concat(case when lg.name is not null then (lg.name || ', ') else '' end, l.name) else d.name end,
           ', Assigned time: ', to_char(e.start_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
         )
       ) place_history,
@@ -252,6 +270,7 @@ with
     from encounters e
     cross join (values ('location'), ('department')) places
     left join locations l on l.id = e.location_id
+    left join location_groups lg on l.location_group_id = lg.id
     left join departments d on d.id = e.department_id
     left join place_history_if_changed ph on ph.encounter_id = e.id and ph.place = places.column1
   ),
@@ -320,14 +339,14 @@ left join place_info di2 on di2.encounter_id = e.id and di2.place = 'department'
 where e.end_date is not null
 and coalesce(billing.id, '-') like coalesce(:billing_type, '%%')
 and CASE WHEN :department_id IS NOT NULL THEN di2.place_id_list::jsonb ? :department_id ELSE true end 
-and CASE WHEN :location_id IS NOT NULL THEN li.place_id_list::jsonb ? :location_id ELSE true end 
+and CASE WHEN :location_group_id IS NOT NULL THEN li.place_id_list::jsonb ?| (select array_agg(id) from area_locations) ELSE true end 
 AND CASE WHEN :from_date IS NOT NULL THEN e.start_date::timestamp >= :from_date::timestamp ELSE true END
 AND CASE WHEN :to_date IS NOT NULL THEN e.start_date::timestamp <= :to_date::timestamp ELSE true END
 order by e.start_date desc;
 `;
 
 const getData = async (sequelize, parameters) => {
-  const { fromDate, toDate, patientBillingType, department, location } = parameters;
+  const { fromDate, toDate, patientBillingType, department, locationGroup } = parameters;
 
   const queryFromDate = fromDate && toDateTimeString(startOfDay(parseISO(fromDate)));
   const queryToDate = toDate && toDateTimeString(endOfDay(parseISO(toDate)));
@@ -339,7 +358,7 @@ const getData = async (sequelize, parameters) => {
       to_date: queryToDate ?? null,
       billing_type: patientBillingType ?? null,
       department_id: department ?? null,
-      location_id: location ?? null,
+      location_group_id: locationGroup ?? null,
       imaging_area_labels: JSON.stringify({
         xRay: 'X-Ray',
         ctScan: 'CT Scan',

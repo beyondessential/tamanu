@@ -43,7 +43,10 @@ export const snapshotOutgoingChanges = async (
         where: { updatedAtSyncTick: MoreThan(since) },
       });
       const syncRecordsForModel = changesForModel.map(change => buildToSyncRecord(model, change));
-      outgoingChanges.push(...syncRecordsForModel);
+      const sanitizedSyncRecords = model.sanitizeRecordDataForPush
+        ? model.sanitizeRecordDataForPush(syncRecordsForModel)
+        : syncRecordsForModel;
+      outgoingChanges.push(...sanitizedSyncRecords);
     }
 
     return outgoingChanges;

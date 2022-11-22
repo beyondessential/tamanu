@@ -1,12 +1,13 @@
 import { MigrationInterface, QueryRunner, TableColumn } from 'typeorm';
+import { snakeCase } from 'lodash';
 import { getTable } from './utils/queryRunner';
 
 const METADATA_FIELDS = [
-  'created_at',
-  'updated_at',
-  'deleted_at',
-  'updated_at_sync_tick',
-  'updated_at_by_field',
+  'createdAt',
+  'updatedAt',
+  'deletedAt',
+  'updatedAtSyncTick',
+  'updatedAtByField',
 ];
 
 const CURRENT_SYNC_TIME = 'currentSyncTime';
@@ -46,7 +47,7 @@ export class addFieldUpdateTicksToPAD1668987530000 implements MigrationInterface
         (c, index) =>
           `CASE WHEN ${c} IS NULL THEN '' ELSE '${
             index === 0 ? '' : ', '
-          }"${c}": ${syncTick}' END\n`,
+          }"${snakeCase(c)}": ${syncTick}' END\n`,
       )
       .join(' || ');
 

@@ -26,6 +26,7 @@ export class ReferenceData extends BaseModel implements IReferenceData {
 
     return repo.findOne({
       type: referenceDataType,
+      visibilityStatus: VisibilityStatus.Current,
     });
   }
 
@@ -40,6 +41,7 @@ export class ReferenceData extends BaseModel implements IReferenceData {
       where: {
         name: Like(`%${searchTerm}%`),
         type: referenceDataType,
+        visibilityStatus: VisibilityStatus.Current,
       },
       skip: 0,
       take: limit,

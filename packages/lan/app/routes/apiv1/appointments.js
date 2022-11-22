@@ -16,6 +16,7 @@ const searchableFields = [
   'status',
   'clinicianId',
   'locationId',
+  'locationGroupId',
   'patient.first_name',
   'patient.last_name',
   'patient.display_id',
@@ -32,6 +33,7 @@ const sortKeys = {
   sex: Sequelize.col('patient.sex'),
   dateOfBirth: Sequelize.col('patient.date_of_birth'),
   location: Sequelize.col('location.name'),
+  locationGroup: Sequelize.col('location_groups.name'),
   clinician: Sequelize.col('clinician.display_name'),
 };
 
@@ -93,9 +95,18 @@ appointments.get(
       include: [...Appointment.getListReferenceAssociations()],
     });
 
+    // Backwards compatibility for appointments created before locationHierarchy was implemented
+    const backwardsCompatibleRows = rows.map(data => {
+      const { location, locationGroup, ...rest } = data.get({ plain: true });
+      return {
+        ...rest,
+        locationGroup: locationGroup || location,
+      };
+    });
+
     res.send({
       count,
-      data: rows,
+      data: backwardsCompatibleRows,
     });
   }),
 );

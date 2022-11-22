@@ -13,7 +13,7 @@ import { useSuggester } from '../../api';
 
 export const PatientSearchBar = React.memo(
   ({ onSearch, searchParameters, suggestByFacility = true }) => {
-    const locationSuggester = useSuggester('location', {
+    const locationGroupSuggester = useSuggester('locationGroup', {
       baseQueryParameters: suggestByFacility ? { filterByFacility: true } : {},
     });
     const departmentSuggester = useSuggester('department', {
@@ -40,10 +40,10 @@ export const PatientSearchBar = React.memo(
         />
         <DisplayIdField />
         <LocalisedField
-          name="locationId"
+          name="locationGroupId"
           defaultLabel="Location"
           component={AutocompleteField}
-          suggester={locationSuggester}
+          suggester={locationGroupSuggester}
         />
         <LocalisedField
           name="departmentId"
