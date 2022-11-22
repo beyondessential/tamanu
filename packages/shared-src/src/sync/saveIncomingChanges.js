@@ -26,12 +26,16 @@ const saveCreates = async (model, records) => {
   return model.bulkCreate(deduplicated);
 };
 
-const saveUpdates = async (model, incomingRecords, idToExistingRecord) => {
-  const mergedRecords = incomingRecords.map(incoming => {
-    const existing = idToExistingRecord[incoming.id];
-    return mergeRecord(existing, incoming);
-  });
-  await asyncPool(UPDATE_WORKER_POOL_SIZE, mergedRecords, async r =>
+const saveUpdates = async (model, incomingRecords, idToExistingRecord, isCentralServer) => {
+  const recordsToSave = isCentralServer
+    ? // on the central server, merge the records coming in from different clients
+      incomingRecords.map(incoming => {
+        const existing = idToExistingRecord[incoming.id];
+        return mergeRecord(existing, incoming);
+      })
+    : // on the facility server, trust the resolved central server version
+      incomingRecords;
+  await asyncPool(UPDATE_WORKER_POOL_SIZE, recordsToSave, async r =>
     model.update(r, { where: { id: r.id } }),
   );
 };
@@ -67,7 +71,7 @@ const saveChangesForModel = async (model, changes, isCentralServer) => {
   log.debug(`saveIncomingChanges: Creating ${recordsForCreate.length} new records`);
   await saveCreates(model, recordsForCreate);
   log.debug(`saveIncomingChanges: Updating ${recordsForUpdate.length} existing records`);
-  await saveUpdates(model, recordsForUpdate, idToExistingRecord);
+  await saveUpdates(model, recordsForUpdate, idToExistingRecord, isCentralServer);
   log.debug(`saveIncomingChanges: Deleting ${idsForDelete.length} old records`);
   await saveDeletes(model, idsForDelete);
 };

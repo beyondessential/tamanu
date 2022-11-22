@@ -68,10 +68,10 @@ export const buildSyncRoutes = ctx => {
   syncRoutes.post(
     '/:sessionId/push',
     asyncHandler(async (req, res) => {
-      const { params, body: changes, query } = req;
+      const { params, body, query } = req;
       const { sessionId } = params;
-
-      await syncManager.addIncomingChanges(sessionId, changes, query);
+      const { changes, tablesToInclude } = body;
+      await syncManager.addIncomingChanges(sessionId, changes, query, tablesToInclude);
       log.info(`POST to ${sessionId} : ${changes.length} records`);
       res.json({});
     }),
