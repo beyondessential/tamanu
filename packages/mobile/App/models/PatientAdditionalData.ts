@@ -8,7 +8,7 @@ import {
   BeforeUpdate,
   AfterLoad,
 } from 'typeorm/browser';
-import { camelCase, isEqual, isEmpty } from 'lodash';
+import { snakeCase, isEqual, isEmpty } from 'lodash';
 import { BaseModel, IdRelation } from './BaseModel';
 import { IPatientAdditionalData } from '~/types';
 import { ReferenceData, ReferenceDataRelation } from './ReferenceData';
@@ -157,10 +157,7 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
   @BeforeUpdate()
   async setUpdatedAtByField(): Promise<void> {
     const syncTick = await getSyncTick(Database.models, CURRENT_SYNC_TIME);
-    const includedColumns = extractIncludedColumns(
-      PatientAdditionalData,
-      METADATA_FIELDS,
-    );
+    const includedColumns = extractIncludedColumns(PatientAdditionalData, METADATA_FIELDS);
     const newUpdatedAtByField = {};
     const oldPatientAdditionalData = await PatientAdditionalData.findOne({
       id: this.id,
@@ -170,8 +167,8 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
     // e.g. from a central record syncing down to this device
     if (!oldPatientAdditionalData) {
       includedColumns.forEach(c => {
-        if (this[camelCase(c)] !== undefined) {
-          newUpdatedAtByField[camelCase(c)] = syncTick;
+        if (this[snakeCase(c)] !== undefined) {
+          newUpdatedAtByField[snakeCase(c)] = syncTick;
         }
       });
     } else if (
@@ -179,8 +176,8 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
       isEqual(this.updatedAtByField, oldPatientAdditionalData.updatedAtByField)
     ) {
       includedColumns.forEach(c => {
-        const key = camelCase(c);
-        if (oldPatientAdditionalData[key] !== this[key]) {
+        const key = snakeCase(c);
+        if (oldPatientAdditionalData[c] !== this[c]) {
           newUpdatedAtByField[key] = syncTick;
         }
       });
