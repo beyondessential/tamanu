@@ -406,13 +406,18 @@ describe('Encounter', () => {
           ...fake(models.LocationGroup),
           facilityId: facility.id,
         });
+        const locationGroup2 = await models.LocationGroup.create({
+          ...fake(models.LocationGroup),
+          facilityId: facility.id,
+        });
         const location = await models.Location.create({
           ...fake(models.Location),
+          locationGroupId: locationGroup.id,
           facilityId: facility.id,
         });
         const location2 = await models.Location.create({
           ...fake(models.Location),
-          locationGroupId: locationGroup.id,
+          locationGroupId: locationGroup2.id,
           facilityId: facility.id,
         });
         const encounter = await models.Encounter.create({
@@ -429,7 +434,7 @@ describe('Encounter', () => {
 
         expect(result).toHaveSucceeded();
         expect(noteItem.content).toEqual(
-          `Changed location from ${location.name} to ${locationGroup.name}, ${location2.name}`,
+          `Changed location from ${locationGroup.name}, ${location.name} to ${locationGroup2.name}, ${location2.name}`,
         );
       });
 

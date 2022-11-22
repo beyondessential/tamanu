@@ -221,7 +221,7 @@ location_info as (
       ))
       else 
         array_to_json(json_build_object(
-          'location', first_from,
+          'location', first_from, --first "from" from note
           'assignedTime', e.start_date::timestamp at time zone :timezone_string
         ) ||
         array_agg(
@@ -238,13 +238,14 @@ location_info as (
   on nh.encounter_id = e.id and nh.place = 'location'
   left join (
     select
-    nh2.encounter_id enc_id,
-    "from" first_from,
-    date
+      nh2.encounter_id enc_id,
+      "from" first_from,
+      date
     from note_history nh2
     order by date
     limit 1
-    ) first_from on e.id = first_from.enc_id
+    ) first_from
+  on e.id = first_from.enc_id
   group by e.id, l.name, lg.name, e.start_date, first_from
 ),
 triage_info as (

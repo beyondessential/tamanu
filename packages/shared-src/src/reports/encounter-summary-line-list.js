@@ -234,7 +234,7 @@ with
     join (
       select
         encounter_id,
-        regexp_matches("from", '(.*(?=,\\s+))?,? ?(.*)') location_matches
+        regexp_matches("from", '([^,]*(?=,\\s))?(?:,\\s)?(.*)') location_matches
       from note_history nh3
     ) location_matches
     on location_matches.encounter_id = nh.encounter_id
