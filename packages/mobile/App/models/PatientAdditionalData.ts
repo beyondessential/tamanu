@@ -173,7 +173,7 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
       });
     } else if (
       !this.updatedAtByField ||
-      isEqual(this.updatedAtByField, oldPatientAdditionalData.updatedAtByField)
+      this.updatedAtByField === oldPatientAdditionalData.updatedAtByField
     ) {
       includedColumns.forEach(c => {
         const key = snakeCase(c);
@@ -185,15 +185,6 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
 
     if (!isEmpty(newUpdatedAtByField)) {
       this.updatedAtByField = JSON.stringify(newUpdatedAtByField);
-    } else if (typeof this.updatedAtByField === 'object') {
-      this.updatedAtByField = JSON.stringify(this.updatedAtByField);
-    }
-  }
-
-  @AfterLoad()
-  async populateUpdatedAtByField(): Promise<void> {
-    if (this.updatedAtByField) {
-      this.updatedAtByField = JSON.parse(this.updatedAtByField);
     }
   }
 
@@ -228,12 +219,30 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
     await PatientAdditionalData.updateValues(additionalData.id, values);
   }
 
+  static sanitizeRecordDataForPush(rows) {
+    return rows.map(row => {
+      const sanitizedRow = {
+        ...row,
+      };
+
+      // Convert updatedAtByField to JSON because central server expects it to be JSON
+      if (row.data.updatedAtByField) {
+        sanitizedRow.data.updatedAtByField = JSON.parse(sanitizedRow.data.updatedAtByField);
+      }
+
+      return sanitizedRow;
+    });
+  }
+
   static sanitizePulledRecordData(rows) {
     return rows.map(row => {
       const sanitizedRow = {
         ...row,
       };
 
+      // Convert updatedAtByField to JSON STRING
+      // because updatedAtByField's type is string in mobile
+      // (Sqlite does not support JSON type)
       if (row.data.updatedAtByField) {
         sanitizedRow.data.updatedAtByField = JSON.stringify(sanitizedRow.data.updatedAtByField);
       }
