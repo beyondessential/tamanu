@@ -23,7 +23,7 @@ export class ImagingAreaExternalCode extends Model {
       {
         ...options,
         // This is reference/imported data
-        syncConfig: { syncDirection: SYNC_DIRECTIONS.PULL_ONLY },
+        syncDirection: SYNC_DIRECTIONS.PULL_FROM_CENTRAL,
         validate: {
           mustHaveVaccine() {
             if (!this.deletedAt && !this.areaId) {
