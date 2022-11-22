@@ -102,7 +102,7 @@ export class FacilitySyncManager {
     // syncing incoming changes happens in two phases: pulling all the records from the server,
     // then saving all those records into the local database
     // this avoids a period of time where the the local database may be "partially synced"
-    const pullSince = (await this.models.LocalSystemFact.get('lastSuccessfulSyncPull')) || -1;
+    const pullSince = (await this.models.LocalSystemFact.get('lastSuccessfulSyncPull')) || 0;
     await this.models.SyncSession.create({
       id: sessionId,
       startTime,
