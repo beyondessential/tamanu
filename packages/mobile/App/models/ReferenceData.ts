@@ -3,9 +3,12 @@ import { ManyToOne } from 'typeorm';
 import { BaseModel } from './BaseModel';
 import { IReferenceData, ReferenceDataType } from '~/types';
 import { VisibilityStatus } from '../visibilityStatuses';
+import { SYNC_DIRECTIONS } from './types';
 
 @Entity('reference_data')
 export class ReferenceData extends BaseModel implements IReferenceData {
+  static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
+
   @Column()
   name: string;
 
@@ -44,16 +47,14 @@ export class ReferenceData extends BaseModel implements IReferenceData {
       take: limit,
     });
   }
+
+  static getTableNameForSync(): string {
+    return 'reference_data';
+  }
 }
 
-export const ReferenceDataRelation = (): any => ManyToOne(
-  () => ReferenceData,
-  undefined,
-  { eager: true },
-);
+export const ReferenceDataRelation = (): any =>
+  ManyToOne(() => ReferenceData, undefined, { eager: true });
 
-export const NullableReferenceDataRelation = (): any => ManyToOne(
-  () => ReferenceData,
-  undefined,
-  { eager: true, nullable: true },
-);
+export const NullableReferenceDataRelation = (): any =>
+  ManyToOne(() => ReferenceData, undefined, { eager: true, nullable: true });

@@ -83,8 +83,10 @@ export function extendExpect(expect) {
 }
 
 class MockApplicationContext {
-  async init({ syncClientMode }) {
-    this.store = await initDatabase({ testMode: true, syncClientMode });
+  closeHooks = [];
+
+  async init() {
+    this.store = await initDatabase({ testMode: true });
     this.emailService = {
       sendEmail: jest.fn().mockImplementation(() =>
         Promise.resolve({
@@ -96,10 +98,21 @@ class MockApplicationContext {
     await initIntegrations(this);
     return this;
   }
+
+  onClose(hook) {
+    this.closeHooks.push(hook);
+  }
+
+  close = async () => {
+    for (const hook of this.closeHooks) {
+      await hook();
+    }
+    await closeDatabase();
+  };
 }
 
-export async function createTestContext({ syncClientMode } = {}) {
-  const ctx = await new MockApplicationContext().init({ syncClientMode });
+export async function createTestContext() {
+  const ctx = await new MockApplicationContext().init();
   const expressApp = createApp(ctx);
   const appServer = http.createServer(expressApp);
   const baseApp = supertest(appServer);
@@ -123,12 +136,10 @@ export async function createTestContext({ syncClientMode } = {}) {
     return baseApp.asUser(newUser);
   };
 
-  const close = async () => {
-    await new Promise(resolve => appServer.close(resolve));
-    await closeDatabase();
-  };
+  ctx.onClose(() => new Promise(resolve => appServer.close(resolve)));
+  ctx.baseApp = baseApp;
 
-  return { ...ctx, baseApp, close };
+  return ctx;
 }
 
 export async function withDate(fakeDate, fn) {

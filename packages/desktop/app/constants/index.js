@@ -28,8 +28,6 @@ import {
 
 export const MUI_SPACING_UNIT = 8;
 
-export const DISPLAY_ID_PLACEHOLDER = '-TMP-';
-
 export const PREGNANCY_PROGRAM_ID = 'program-pregnancy';
 
 export const REALM_DATE_FORMAT = 'YYYY-MM-DD@HH:MM:SS';

@@ -1,6 +1,7 @@
-import { initSyncForModelNestedUnderPatient } from './sync';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
+import { buildPatientLinkedSyncFilter } from './buildPatientLinkedSyncFilter';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 
 export class PatientCarePlan extends Model {
@@ -15,10 +16,7 @@ export class PatientCarePlan extends Model {
       },
       {
         ...options,
-        syncConfig: {
-          ...initSyncForModelNestedUnderPatient(this, 'carePlan'),
-          includedRelations: ['notePages', 'notePages.noteItems'],
-        },
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
   }
@@ -41,4 +39,6 @@ export class PatientCarePlan extends Model {
   static getListReferenceAssociations() {
     return ['carePlan', 'examiner'];
   }
+
+  static buildSyncFilter = buildPatientLinkedSyncFilter;
 }
