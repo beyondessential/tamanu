@@ -177,7 +177,7 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
     ) {
       includedColumns.forEach(c => {
         const key = snakeCase(c);
-        if (oldPatientAdditionalData[key] !== this[key]) {
+        if (oldPatientAdditionalData[c] !== this[c]) {
           newUpdatedAtByField[key] = syncTick;
         }
       });
