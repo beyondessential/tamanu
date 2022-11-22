@@ -38,18 +38,14 @@ export class ReferenceData extends Model {
             fields: ['code', 'type'],
           },
         ],
-        syncConfig: {
-          syncDirection: SYNC_DIRECTIONS.PULL_ONLY,
-          getChannels: () => ['reference'],
-          channelRoutes: [{ route: 'reference' }],
-        },
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
       },
     );
   }
 
   static initRelations(models) {
     this.belongsToMany(models.ImagingRequest, {
-      through: models.ImagingRequestAreas,
+      through: models.ImagingRequestArea,
       as: 'area',
       foreignKey: 'areaId',
     });

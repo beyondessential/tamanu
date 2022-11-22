@@ -1,9 +1,10 @@
 import { DataTypes } from 'sequelize';
 import { log } from 'shared/services/logging';
+import { NOTE_RECORD_TYPE_VALUES, NOTE_TYPE_VALUES, SYNC_DIRECTIONS } from 'shared/constants';
 
 import { Model } from './Model';
 import { NoteItem } from './NoteItem';
-import { NOTE_RECORD_TYPE_VALUES, NOTE_TYPE_VALUES } from '../constants';
+import { buildNotePageLinkedSyncFilter } from './buildNoteLinkedSyncFilter';
 import { dateTimeType } from './dateTimeTypes';
 import { getCurrentDateTimeString } from '../utils/dateTime';
 
@@ -30,9 +31,7 @@ export class NotePage extends Model {
       },
       {
         ...options,
-        syncConfig: {
-          includedRelations: ['noteItems'],
-        },
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         validate: {
           mustHaveValidRelationType() {
             if (!NOTE_RECORD_TYPE_VALUES.includes(this.recordType)) {
@@ -53,6 +52,7 @@ export class NotePage extends Model {
     NOTE_RECORD_TYPE_VALUES.forEach(modelName => {
       this.belongsTo(models[modelName], {
         foreignKey: 'recordId',
+        as: `${modelName.charAt(0).toLowerCase()}${modelName.slice(1)}`, // lower case first letter
         constraints: false,
       });
     });
@@ -121,4 +121,6 @@ export class NotePage extends Model {
     const parentGetter = `get${this.recordType}`;
     return this[parentGetter](options);
   }
+
+  static buildSyncFilter = buildNotePageLinkedSyncFilter;
 }

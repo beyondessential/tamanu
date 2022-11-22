@@ -1,6 +1,6 @@
 {
   "name": "sync-server",
-  "version": "1.24.0",
+  "version": "1.23.0",
   "description": "Sync server for Tamanu desktop app",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",
   "repository": "git@github.com:beyondessential/tamanu.git",
@@ -65,6 +65,7 @@
     "basic-auth": "^2.0.1",
     "bcrypt": "^5.0.1",
     "body-parser": "^1.18.3",
+    "case": "^1.6.3",
     "calculate-luhn-mod-n": "^2.0.12",
     "cbor": "^8.1.0",
     "chalk": "^5.0.1",

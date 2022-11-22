@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize';
-import { LAB_TEST_STATUSES } from 'shared/constants';
+import { LAB_TEST_STATUSES, SYNC_DIRECTIONS } from 'shared/constants';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { Model } from './Model';
 import { dateType, dateTimeType } from './dateTimeTypes';
 import { getCurrentDateString } from '../utils/dateTime';
@@ -31,7 +32,7 @@ export class LabTest extends Model {
         },
         completedDate: dateTimeType('completedDate'),
       },
-      options,
+      { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );
   }
 
@@ -59,5 +60,15 @@ export class LabTest extends Model {
 
   static getListReferenceAssociations() {
     return ['category', 'labTestType', 'labTestMethod'];
+  }
+
+  static buildSyncFilter(patientIds, sessionConfig) {
+    if (sessionConfig.syncAllLabRequests) {
+      return ''; // include all lab tests
+    }
+    if (patientIds.length === 0) {
+      return null;
+    }
+    return buildEncounterLinkedSyncFilter([this.tableName, 'lab_requests', 'encounters']);
   }
 }

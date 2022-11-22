@@ -1,4 +1,5 @@
 import { Sequelize } from 'sequelize';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 
 // stores data written _by the server_
@@ -19,6 +20,7 @@ export class LocalSystemFact extends Model {
         },
       },
       {
+        syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC,
         ...options,
         indexes: [{ unique: true, fields: ['key'] }],
       },
@@ -31,6 +33,33 @@ export class LocalSystemFact extends Model {
   }
 
   static async set(key, value) {
-    await this.upsert({ key, value }, { fields: ['key'] });
+    const existing = await this.findOne({ where: { key } });
+    if (existing) {
+      await this.update({ value }, { where: { key } });
+    } else {
+      await this.create({ key, value });
+    }
+  }
+
+  static async increment(key, amount = 1) {
+    const [rowsAffected] = await this.sequelize.query(
+      `
+        UPDATE
+          local_system_facts
+        SET
+          value = value::integer + :amount,
+          updated_at = NOW()
+        WHERE
+          key = :key
+        RETURNING
+          value;
+      `,
+      { replacements: { key, amount } },
+    );
+    if (rowsAffected.length === 0) {
+      throw new Error(`The local system fact table does not include the fact ${key}`);
+    }
+    const fact = rowsAffected[0];
+    return fact.value;
   }
 }

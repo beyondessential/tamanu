@@ -5,8 +5,7 @@ import { getPermissionsForRoles } from 'shared/permissions/rolesToPermissions';
 import { BadAuthenticationError } from 'shared/errors';
 import { getLocalisation } from '../localisation';
 import { convertFromDbRecord } from '../convertDbRecord';
-
-import { getToken, stripUser } from './utils';
+import { getToken, stripUser, findUser } from './utils';
 
 export const login = ({ secret }) =>
   asyncHandler(async (req, res) => {
@@ -17,7 +16,7 @@ export const login = ({ secret }) =>
       throw new BadAuthenticationError('Missing credentials');
     }
 
-    const user = await store.findUser(email);
+    const user = await findUser(store.models, email);
 
     if (!user && config.auth.reportNoUserError) {
       // an attacker can use this to get a list of user accounts
