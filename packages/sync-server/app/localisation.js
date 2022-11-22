@@ -347,12 +347,6 @@ const rootLocalisationSchema = yup
       .required()
       .noUnknown(),
     printMeasures: printMeasuresSchema,
-    sync: yup
-      .object({
-        syncAllEncountersForTheseScheduledVaccines: yup.array(yup.string().required()).defined(),
-      })
-      .required()
-      .noUnknown(),
     disabledReports: yup.array(yup.string().required()).defined(),
   })
   .required()

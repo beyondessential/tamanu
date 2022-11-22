@@ -8,7 +8,7 @@ export const FHIR_UPSTREAMS = {
     'Encounter',
     'Facility',
     'ImagingAreaExternalCode',
-    'ImagingRequestAreas',
+    'ImagingRequestArea',
     'Location',
     'Patient',
     'ReferenceData',

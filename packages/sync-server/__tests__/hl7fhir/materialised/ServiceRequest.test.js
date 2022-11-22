@@ -62,10 +62,10 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
 
   describe('full resource checks', () => {
     beforeEach(async () => {
-      const { FhirServiceRequest, ImagingRequest, ImagingRequestAreas } = ctx.store.models;
+      const { FhirServiceRequest, ImagingRequest, ImagingRequestArea } = ctx.store.models;
       await FhirServiceRequest.destroy({ where: {} });
       await ImagingRequest.destroy({ where: {} });
-      await ImagingRequestAreas.destroy({ where: {} });
+      await ImagingRequestArea.destroy({ where: {} });
     });
 
     it('fetches a service request by materialised ID', async () => {
@@ -282,10 +282,10 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
   describe('search', () => {
     let irs;
     beforeAll(async () => {
-      const { FhirServiceRequest, ImagingRequest, ImagingRequestAreas } = ctx.store.models;
+      const { FhirServiceRequest, ImagingRequest, ImagingRequestArea } = ctx.store.models;
       await FhirServiceRequest.destroy({ where: {} });
       await ImagingRequest.destroy({ where: {} });
-      await ImagingRequestAreas.destroy({ where: {} });
+      await ImagingRequestArea.destroy({ where: {} });
 
       irs = await Promise.all([
         (async () => {

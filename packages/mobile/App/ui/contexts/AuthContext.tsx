@@ -11,6 +11,7 @@ import { NavigationContainerRef } from '@react-navigation/native';
 import NetInfo from '@react-native-community/netinfo';
 import { compose } from 'redux';
 import { PureAbility } from '@casl/ability';
+import { readConfig } from '~/services/config';
 import { withAuth } from '~/ui/containers/Auth';
 import { WithAuthStoreProps } from '~/ui/store/ducks/auth';
 import { Routes } from '~/ui/helpers/routes';
@@ -93,7 +94,12 @@ const Provider = ({
     } else {
       await localSignIn(params);
     }
-    backend.startSyncService(); // we deliberately don't await this
+
+    // When user first sign in and has not chosen a facility, don't start the sync service yet
+    const facilityId = await readConfig('facilityId', '');
+    if (facilityId) {
+      backend.syncManager.triggerSync(); // we deliberately don't await this
+    }
   };
 
   const signOut = (): void => {

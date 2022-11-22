@@ -5,9 +5,12 @@ import { Program } from './Program';
 import { Database } from '~/infra/db';
 
 import { ISurvey, ISurveyResponse, ISurveyScreenComponent, SurveyTypes } from '~/types';
+import { SYNC_DIRECTIONS } from './types';
 
 @Entity('survey')
 export class Survey extends BaseModel implements ISurvey {
+  static syncDirection = SYNC_DIRECTIONS.PULL_FROM_CENTRAL;
+
   @Column({ type: 'varchar', default: SurveyTypes.Programs, nullable: true })
   surveyType?: SurveyTypes;
 

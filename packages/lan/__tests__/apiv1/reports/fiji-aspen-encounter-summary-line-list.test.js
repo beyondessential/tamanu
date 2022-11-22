@@ -213,14 +213,14 @@ const fakeAllData = async models => {
       requestedDate: '2022-06-11 01:20:54',
     }),
   );
-  await models.ImagingRequestAreas.create(
-    fake(models.ImagingRequestAreas, {
+  await models.ImagingRequestArea.create(
+    fake(models.ImagingRequestArea, {
       imagingRequestId,
       areaId: leftImagingAreaId,
     }),
   );
-  await models.ImagingRequestAreas.create(
-    fake(models.ImagingRequestAreas, {
+  await models.ImagingRequestArea.create(
+    fake(models.ImagingRequestArea, {
       imagingRequestId,
       areaId: rightImagingAreaId,
     }),
@@ -330,10 +330,10 @@ describe('fijiAspenMediciReport', () => {
     const { patient, encounterId, location1Id } = await fakeAllData(models);
 
     // act
-    const response = await app.post('/v1/reports/fiji-aspen-encounter-summary-line-list').send({
+    const response = await app.post('/v1/reports/encounter-summary-line-list').send({
       parameters: {
         location: location1Id,
-      }
+      },
     });
 
     // assert
