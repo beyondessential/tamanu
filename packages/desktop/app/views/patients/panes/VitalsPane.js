@@ -30,7 +30,7 @@ const VitalsForm = ({ onClose, patient, currentUser, encounterId, survey }) => {
 };
 
 // Todo: update survey id
-const VITALS_SURVEY_ID = 'program-tamanutestforms-tamanudevtestref';
+const VITALS_SURVEY_ID = 'program-tamanuprogram-genericreferral';
 
 // Todo: make generic for surveys
 const useVitalsSurvey = () => {

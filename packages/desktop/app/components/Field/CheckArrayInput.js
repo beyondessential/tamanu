@@ -1,22 +1,42 @@
 import React, { useCallback, useMemo } from 'react';
 import styled from 'styled-components';
+import { Button, darken } from '@material-ui/core';
 
 const Group = styled.div`
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-column-gap: 10px;
+  grid-row-gap: 10px;
 `;
 
-const SelectableField = styled.div`
-  margin: 0.2rem;
-  padding: 0.2rem;
-  min-width: 8rem;
+const COLORS = {
+  DEFAULT: '#ccc',
+  NONE_SELECTED: '#eee',
+  SELECTED: '#cfc',
+};
+
+const SelectableField = styled(Button)`
+  padding: 0.8rem;
+  text-transform: none;
+  box-shadow: none;
+  font-weight: 400;
+  font-size: 14px;
+
   background: ${p => {
     if (p.noneSelected) {
-      return '#eee';
+      return COLORS.NONE_SELECTED;
     }
-    return p.selected ? '#cfc' : '#ccc';
+    return p.selected ? COLORS.SELECTED : COLORS.DEFAULT;
   }};
+
+  &:hover {
+    background: ${p => {
+      if (p.noneSelected) {
+        return darken(COLORS.NONE_SELECTED, 0.1);
+      }
+      return p.selected ? darken(COLORS.SELECTED, 0.1) : darken(COLORS.DEFAULT, 0.1);
+    }};
+  }
 `;
 
 export const CheckArrayInput = ({ options, field, value: propsValue, onChange: propsOnChange }) => {
