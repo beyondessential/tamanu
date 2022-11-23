@@ -1,7 +1,7 @@
 import { expect, beforeAll, describe, it } from '@jest/globals';
 
 import { fakeReferenceData, withErrorShown } from 'shared/test-helpers';
-import { SYNC_SESSION_DIRECTION } from 'shared/sync';
+import { SYNC_SESSION_DIRECTION, getModelsForDirection } from 'shared/sync';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { sleepAsync } from 'shared/utils/sleepAsync';
 import { fakeUUID } from 'shared/utils/generateId';
@@ -12,11 +12,14 @@ import { snapshotOutgoingChanges } from '../../app/sync/snapshotOutgoingChanges'
 const readOnlyConfig = readOnly => ({ sync: { readOnly } });
 
 describe('snapshotOutgoingChanges', () => {
-  let ctx, models;
+  let ctx;
+  let models;
+  let outgoingModels;
 
   beforeAll(async () => {
     ctx = await createTestContext();
     models = ctx.models;
+    outgoingModels = getModelsForDirection(models, SYNC_DIRECTIONS.PUSH_TO_CENTRAL);
   });
 
   afterAll(() => ctx.close());
@@ -45,8 +48,25 @@ describe('snapshotOutgoingChanges', () => {
       const { LocalSystemFact } = models;
       const tick = await LocalSystemFact.increment('currentSyncTime');
 
-      const result = await snapshotOutgoingChanges(ctx.sequelize, models, fakeUUID(), tick - 1);
+      const result = await snapshotOutgoingChanges(
+        ctx.sequelize,
+        outgoingModels,
+        fakeUUID(),
+        tick - 1,
+      );
       expect(result).toEqual([]);
+    }),
+  );
+
+  it(
+    'throws error when outgoing models contain invalid sync direction',
+    withErrorShown(async () => {
+      const { LocalSystemFact } = models;
+      const tick = await LocalSystemFact.increment('currentSyncTime');
+
+      await expect(
+        snapshotOutgoingChanges(ctx.sequelize, models, fakeUUID(), tick - 1),
+      ).rejects.toThrowError();
     }),
   );
 
@@ -59,7 +79,12 @@ describe('snapshotOutgoingChanges', () => {
       const row = await ReferenceData.create(fakeReferenceData());
       const sessionId = fakeUUID();
 
-      const result = await snapshotOutgoingChanges(ctx.sequelize, models, sessionId, tick - 1);
+      const result = await snapshotOutgoingChanges(
+        ctx.sequelize,
+        outgoingModels,
+        sessionId,
+        tick - 1,
+      );
 
       expect(result).toEqual([
         {
@@ -92,7 +117,12 @@ describe('snapshotOutgoingChanges', () => {
       const row = await ReferenceData.create(fakeReferenceData());
 
       const sessionId = fakeUUID();
-      const result = await snapshotOutgoingChanges(ctx.sequelize, models, sessionId, tickBefore);
+      const result = await snapshotOutgoingChanges(
+        ctx.sequelize,
+        outgoingModels,
+        sessionId,
+        tickBefore,
+      );
 
       expect(result).toEqual([
         {
@@ -127,7 +157,7 @@ describe('snapshotOutgoingChanges', () => {
       const sessionId = fakeUUID();
       const result = await snapshotOutgoingChanges(
         ctx.sequelize,
-        models,
+        outgoingModels,
         sessionId,
         tickBefore - 1,
       );
@@ -197,7 +227,7 @@ describe('snapshotOutgoingChanges', () => {
           // the transaction needs to have a select, ANY select, so the database
           // actually takes a snapshot of the db at that point in time. THEN we
           // can pause the transaction, and test the behaviour.
-          Facility: models.Facility,
+          ReportRequest: models.ReportRequest,
           FakeModel: fakeModelThatWaitsUntilWeSaySo,
           ReferenceData: models.ReferenceData,
         },
@@ -275,7 +305,7 @@ describe('snapshotOutgoingChanges', () => {
       const snapshot = snapshotOutgoingChanges(
         ctx.sequelize,
         {
-          Facility: models.Facility,
+          ReportRequest: models.ReportRequest,
           FakeModel: fakeModelThatWaitsUntilWeSaySo,
           ReferenceData: models.ReferenceData,
         },

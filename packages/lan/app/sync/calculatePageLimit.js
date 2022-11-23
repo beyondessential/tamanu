@@ -1,14 +1,18 @@
 import config from 'config';
 
 // Set the current page limit based on how long the previous page took to complete.
-export const calculatePageLimit = (currentLimit, lastPageTime) => {
+export const calculatePageLimit = (
+  currentLimit,
+  lastPageTime,
+  dynamicLimiter = config.sync.dynamicLimiter,
+) => {
   const {
     initialLimit,
     minLimit,
     maxLimit,
     optimalTimePerPageMs,
     maxLimitChangePerPage,
-  } = config.sync.dynamicLimiter;
+  } = dynamicLimiter;
 
   if (!currentLimit) {
     return initialLimit;

@@ -10,7 +10,7 @@ const defaultConfig = {
   maxLimitChangePerPage: 0.2,
 };
 
-const makeConfig = overrides => ({ sync: { dynamicLimiter: { ...defaultConfig, ...overrides } } });
+const makeConfig = overrides => ({ ...defaultConfig, ...overrides });
 
 describe('calculatePageLimit', () => {
   it('accepts two numeric inputs and returns a number', () => {
@@ -30,9 +30,7 @@ describe('calculatePageLimit', () => {
   it('with currentLimit = 0, outputs the initial limit', () => {
     fc.assert(
       fc.property(fc.nat(), fc.integer(), (initialLimit, time) => {
-        expect(calculatePageLimit.overrideConfig(0, time, makeConfig({ initialLimit }))).toEqual(
-          initialLimit,
-        );
+        expect(calculatePageLimit(0, time, makeConfig({ initialLimit }))).toEqual(initialLimit);
       }),
     );
   });
@@ -41,11 +39,7 @@ describe('calculatePageLimit', () => {
     fc.assert(
       fc.property(fc.nat(), fc.integer(), (minLimit, time) => {
         expect(
-          calculatePageLimit.overrideConfig(
-            minLimit,
-            time,
-            makeConfig({ minLimit, maxLimit: minLimit + 1 }),
-          ),
+          calculatePageLimit(minLimit, time, makeConfig({ minLimit, maxLimit: minLimit + 1 })),
         ).toBeGreaterThanOrEqual(minLimit);
       }),
     );
@@ -53,13 +47,9 @@ describe('calculatePageLimit', () => {
 
   it('never grows above the maximum limit', () => {
     fc.assert(
-      fc.property(fc.nat(), fc.integer(), (maxLimit, time) => {
+      fc.property(fc.integer({ min: 20, max: 10000 }), fc.integer(), (maxLimit, time) => {
         expect(
-          calculatePageLimit.overrideConfig(
-            maxLimit,
-            time,
-            makeConfig({ maxLimit, minLimit: maxLimit - 1 }),
-          ),
+          calculatePageLimit(maxLimit, time, makeConfig({ maxLimit, minLimit: maxLimit - 1 })),
         ).toBeLessThanOrEqual(maxLimit);
       }),
     );
