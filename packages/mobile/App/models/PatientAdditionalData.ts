@@ -180,11 +180,11 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
       includedColumns.forEach(camelCaseKey => {
         const snakeCaseKey = snakeCase(camelCaseKey);
         // when saving relation id for instance, typeorm requires saving using
-        //relation name instead (eg: when saving 'nationalityId', the value is in 'nationality')
+        // relation name instead (eg: when saving 'nationalityId', the value is in 'nationality')
         const relationKey = camelCaseKey.slice(-2) === 'Id' ? camelCaseKey.slice(0, -2) : null;
         const oldValue = oldPatientAdditionalData[camelCaseKey];
-        // if this is a relation key, the value will be in form of ( { id: 'abc' } ),
-        // or it can be just the id
+        // if this is a relation key, the value may be in form of ( { id: 'abc' } ),
+        // or it may be just the id
         const currentValue = relationKey
           ? this[relationKey]?.id || this[relationKey]
           : this[camelCaseKey];
