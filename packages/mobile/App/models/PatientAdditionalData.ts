@@ -166,9 +166,9 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
     // only calculate updatedAtByField if a modified version hasn't been explicitly passed,
     // e.g. from a central record syncing down to this device
     if (!oldPatientAdditionalData) {
-      includedColumns.forEach(c => {
-        if (this[snakeCase(c)] !== undefined) {
-          newUpdatedAtByField[snakeCase(c)] = syncTick;
+      includedColumns.forEach(camelCaseKey => {
+        if (this[snakeCase(camelCaseKey)] !== undefined) {
+          newUpdatedAtByField[snakeCase(camelCaseKey)] = syncTick;
         }
       });
     } else if (
