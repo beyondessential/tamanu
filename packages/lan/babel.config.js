@@ -12,8 +12,6 @@ module.exports = api => {
           corejs: 2,
         },
       ],
-      '@babel/preset-typescript',
-      '@babel/preset-react',
     ],
     plugins: [
       ['@babel/plugin-proposal-decorators', { version: '2022-03' }],
