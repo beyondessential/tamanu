@@ -1,7 +1,6 @@
 export * from './buildVersionCompatibilityCheck';
 export * from './generateId';
 export * from './getResponseJsonSafely';
-export * from './getPatientAdditionalData';
 export * from './getPatientSurveyResponseAnswer';
 export * from './valueIndex';
 export * from './sleepAsync';

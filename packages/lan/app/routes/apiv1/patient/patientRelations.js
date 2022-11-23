@@ -1,7 +1,6 @@
 import asyncHandler from 'express-async-handler';
 import { QueryTypes, Sequelize } from 'sequelize';
 
-import { getPatientAdditionalData } from 'shared/utils';
 import { HIDDEN_VISIBILITY_STATUSES } from 'shared/constants/importable';
 
 import { simpleGetList, permissionCheckingRouter, runPaginatedQuery } from '../crudHelpers';
@@ -57,16 +56,8 @@ patientRelations.get(
       include: models.PatientAdditionalData.getFullReferenceAssociations(),
     });
 
-    // Lookup survey responses for passport and nationality to fill patient additional data
-    // Todo: Remove when WAITM-243 is complete
-    const passport = await getPatientAdditionalData(models, params.id, 'passport');
-    const nationalityId = await getPatientAdditionalData(models, params.id, 'nationalityId');
-    const nationality = nationalityId
-      ? await models.ReferenceData.findByPk(nationalityId)
-      : undefined;
-
     const recordData = additionalDataRecord ? additionalDataRecord.toJSON() : {};
-    res.send({ ...recordData, passport, nationality, nationalityId });
+    res.send(recordData);
   }),
 );
 
