@@ -166,7 +166,7 @@ describe('snapshotOutgoingChanges', () => {
   );
 
   it(
-    'concurrent transaction commits AFTER snapshot',
+    'concurrent transaction commits AFTER snapshot commits',
     withErrorShown(async () => {
       const { LocalSystemFact, ReferenceData } = models;
 
@@ -247,7 +247,7 @@ describe('snapshotOutgoingChanges', () => {
   );
 
   it(
-    'concurrent transaction commits BEFORE snapshot',
+    'concurrent transaction commits BEFORE snapshot commits',
     withErrorShown(async () => {
       const { LocalSystemFact, ReferenceData } = models;
 
