@@ -7,7 +7,7 @@ import { getLoggingMiddleware } from 'shared/services/logging';
 import { constructPermission } from 'shared/permissions/middleware';
 import { SERVER_TYPES } from 'shared/constants';
 
-import { routes } from './routes';
+import { buildRoutes } from './buildRoutes';
 import { authModule } from './auth';
 import { publicRoutes } from './publicRoutes';
 
@@ -58,7 +58,7 @@ export function createApp(ctx) {
   app.use('/v1/public', publicRoutes);
   app.use('/v1', authModule);
   app.use('/v1', constructPermission);
-  app.use('/v1', routes);
+  app.use('/v1', buildRoutes(ctx));
 
   // Dis-allow all other routes
   app.use('*', (req, res) => {

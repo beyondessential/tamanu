@@ -44,16 +44,30 @@ const LISTING_COLUMNS = [
   status,
 ];
 
-const LocationCell = React.memo(({ locationName, plannedLocationName }) => (
-  <>
+const LocationCell = React.memo(({ locationName, plannedLocationName, style }) => (
+  <div style={{ minWidth: 180, ...style }}>
     {locationName}
     {plannedLocationName && (
-      <Typography style={{ fontSize: 14, color: Colors.darkText }}>
+      <Typography style={{ fontSize: 12, color: Colors.darkText }}>
         (Planned - {plannedLocationName})
       </Typography>
     )}
-  </>
+  </div>
 ));
+
+const LocationGroupCell = ({ locationGroupName, plannedLocationGroupName }) => (
+  <LocationCell
+    locationName={locationGroupName}
+    plannedLocationName={plannedLocationGroupName}
+    style={{ minWidth: 150 }}
+  />
+);
+
+const locationGroup = {
+  key: 'locationGroupName',
+  title: 'Area',
+  accessor: LocationGroupCell,
+};
 
 const location = {
   key: 'locationName',
@@ -66,11 +80,10 @@ const INPATIENT_COLUMNS = [markedForSync, displayId, firstName, lastName, sex, d
   .map(column => ({
     ...column,
     sortable: false,
-  }))
-  // the above columns are not sortable due to backend query
+  })) // the above columns are not sortable due to backend query
   // https://github.com/beyondessential/tamanu/pull/2029#issuecomment-1090981599
   // location and department should be sortable
-  .concat([location, department]);
+  .concat([locationGroup, location, department]);
 
 const PatientTable = ({ columns, fetchOptions, searchParameters }) => {
   const { navigateToPatient } = usePatientNavigation();

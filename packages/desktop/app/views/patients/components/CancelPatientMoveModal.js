@@ -15,7 +15,7 @@ export const CancelPatientMoveModal = React.memo(({ encounter, open, onClose }) 
     submit({ plannedLocationId: null });
   };
   return (
-    <Modal title="Cancel move" endpoint="plannedLocation" open={open}>
+    <Modal title="Cancel move" endpoint="plannedLocation" open={open} onClose={onClose}>
       <Container>
         <LargeBodyText>Are you sure you want to cancel the planned patient move?</LargeBodyText>
       </Container>

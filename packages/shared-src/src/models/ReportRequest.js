@@ -45,7 +45,7 @@ export class ReportRequest extends Model {
             }
           },
         },
-        syncConfig: { syncDirection: SYNC_DIRECTIONS.PUSH_ONLY },
+        syncDirection: SYNC_DIRECTIONS.PUSH_TO_CENTRAL,
       },
     );
   }

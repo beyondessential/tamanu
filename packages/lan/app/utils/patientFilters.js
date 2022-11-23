@@ -51,6 +51,7 @@ export const createPatientFilters = filterParams => {
     makeFilter(filterParams.dateOfBirthExact, `patients.date_of_birth = :dateOfBirthExact`),
     makeFilter(filterParams.villageId, `patients.village_id = :villageId`),
     makeFilter(filterParams.locationId, `location.id = :locationId`),
+    makeFilter(filterParams.locationGroupId, `location_group.id = :locationGroupId`),
     makeFilter(filterParams.departmentId, `department.id = :departmentId`),
     makeFilter(
       filterParams.facilityId === ':local' ? config.serverFacilityId : filterParams.facilityId,
