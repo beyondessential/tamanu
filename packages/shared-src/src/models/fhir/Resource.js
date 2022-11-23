@@ -61,6 +61,9 @@ export class FhirResource extends Model {
   // switch to true if the upstream's ID is the UUID pg type
   static UPSTREAM_UUID = false;
 
+  // yup schema for validating incoming resource
+  static INTAKE_SCHEMA;
+
   // set upstream_id, call updateMaterialisation
   // do not set relatedToId when calling this, it's for internal use only.
   static async materialiseFromUpstream(id, relatedToId = null) {
@@ -169,6 +172,11 @@ export class FhirResource extends Model {
 
   static async resolveUpstreams() {
     await this.sequelize.query('CALL fhir.resolve_upstreams()');
+  }
+
+  // take a FhirResource and save it into Tamanu
+  async pushUpstream() {
+    throw new Error('must be overridden');
   }
 
   formatFieldsAsFhir(fields) {
