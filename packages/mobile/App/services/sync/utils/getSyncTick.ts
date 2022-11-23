@@ -9,5 +9,5 @@ export const getSyncTick = async (
     where: { key },
   })) as LocalSystemFact;
 
-  return localSystemFact ? parseInt(localSystemFact.value, 10) : 0;
+  return localSystemFact ? parseInt(localSystemFact.value, 10) : -1;
 };
