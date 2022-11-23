@@ -8,11 +8,16 @@ export class addDefaultLastSuccessfulSyncPull1669160460000 implements MigrationI
       SELECT COUNT(*) AS "count" FROM patient
     `);
 
+    const [localSystemFactRow] = await queryRunner.query(`
+      SELECT id FROM local_system_fact WHERE key = '${LAST_SUCCESSFUL_SYNC_PULL}'
+    `);
+
     const patientCount = parseInt(patientCountRow.count, 10);
 
     // Insert default lastSuccessfulSyncPull = 0
     // if the device already has synced data and is being upgraded
-    if (patientCount) {
+    // AND lastSuccessfulSyncPull does not exist
+    if (patientCount && !localSystemFactRow?.id) {
       //uuid generation
       // https://stackoverflow.com/questions/66625085/sqlite-generate-guid-uuid-on-select-into-statement
       await queryRunner.query(`

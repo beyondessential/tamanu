@@ -15,13 +15,18 @@ export async function up(query) {
     return; // probably a central server, this migration is not required
   }
 
-  const [rows] = await query.sequelize.query(`
-    SELECT COUNT(*) as count from patients
+  const [patientRows] = await query.sequelize.query(`
+    SELECT COUNT(*) as count FROM patients
+  `);
+
+  const [localSystemFactRows] = await query.sequelize.query(`
+    SELECT id FROM local_system_facts where key = '${LAST_SUCCESSFUL_SYNC_PULL}'
   `);
 
   // Insert default lastSuccessfulSyncPull = 0
   // if the server already has synced data and is being upgraded
-  if (rows[0]?.count && parseInt(rows[0]?.count, 10)) {
+  // AND lastSuccessfulSyncPull does not exist
+  if (patientRows[0]?.count && parseInt(patientRows[0]?.count, 10) && !localSystemFactRows[0]?.id) {
     await query.sequelize.query(`
       INSERT INTO local_system_facts (id, created_at, updated_at, key, value)
       VALUES (uuid_generate_v4(), NOW(), NOW(), '${LAST_SUCCESSFUL_SYNC_PULL}', 0)
