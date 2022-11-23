@@ -30,6 +30,29 @@ VitalsNumericField.defaultProps = {
   value: null,
 };
 
+const numericType = yup
+  .number()
+  .nullable(true)
+  .transform((value, originalValue) => {
+    if (!value) {
+      return null;
+    }
+    return originalValue;
+  });
+
+const schema = yup.object().shape({
+  dateRecorded: yup.date().required(),
+  height: numericType,
+  weight: numericType,
+  sbp: numericType,
+  dbp: numericType,
+  heartRate: numericType,
+  respiratoryRate: numericType,
+  temperature: numericType,
+  spo2: numericType,
+  avpu: yup.string(),
+});
+
 export class VitalsForm extends React.PureComponent {
   renderForm = ({ submitForm }) => {
     const { onCancel } = this.props;
@@ -63,24 +86,16 @@ export class VitalsForm extends React.PureComponent {
     const { onSubmit, editedObject } = this.props;
     return (
       <Form
-        onSubmit={onSubmit}
+        onSubmit={values => {
+          const castedValues = schema.cast(values);
+          onSubmit(castedValues);
+        }}
         render={this.renderForm}
         initialValues={{
           dateRecorded: getCurrentDateTimeString(),
           ...editedObject,
         }}
-        validationSchema={yup.object().shape({
-          dateRecorded: yup.date().required(),
-          height: yup.number(),
-          weight: yup.number(),
-          sbp: yup.number(),
-          dbp: yup.number(),
-          heartRate: yup.number(),
-          respiratoryRate: yup.number(),
-          temperature: yup.number(),
-          spo2: yup.number(),
-          avpu: yup.string(),
-        })}
+        validationSchema={schema}
         validate={values => {
           const errors = {};
 
