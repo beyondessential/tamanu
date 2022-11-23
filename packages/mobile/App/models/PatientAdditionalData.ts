@@ -177,10 +177,20 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
     ) {
       // retain the old sync ticks from previous updatedAtByField
       newUpdatedAtByField = JSON.parse(oldPatientAdditionalData.updatedAtByField);
-      includedColumns.forEach(c => {
-        const key = snakeCase(c);
-        if (oldPatientAdditionalData[c] !== this[c]) {
-          newUpdatedAtByField[key] = syncTick;
+      includedColumns.forEach(camelCaseKey => {
+        const snakeCaseKey = snakeCase(camelCaseKey);
+        // when saving relation id for instance, typeorm requires saving using
+        //relation name instead (eg: when saving 'nationalityId', the value is in 'nationality')
+        const relationKey = camelCaseKey.slice(-2) === 'Id' ? camelCaseKey.slice(0, -2) : null;
+        const oldValue = oldPatientAdditionalData[camelCaseKey];
+        // if this is a relation key, the value will be in form of ( { id: 'abc' } ),
+        // or it can be just the id
+        const currentValue = relationKey
+          ? this[relationKey]?.id || this[relationKey]
+          : this[camelCaseKey];
+
+        if (oldValue !== currentValue) {
+          newUpdatedAtByField[snakeCaseKey] = syncTick;
         }
       });
     }
