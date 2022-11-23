@@ -173,7 +173,9 @@ const addAssociations = async (models, model, record) => {
   for (const association of Object.values(model.associations)) {
     const { associationType, foreignKey, target } = association;
     if (associationType === 'BelongsTo') {
-      newRecord[foreignKey] = await findOrCreateId(models, target);
+      if (!newRecord[foreignKey]) {
+        newRecord[foreignKey] = await findOrCreateId(models, target);
+      }
     }
   }
 

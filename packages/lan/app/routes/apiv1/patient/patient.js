@@ -1,5 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
+import config from 'config';
 import { QueryTypes, Op } from 'sequelize';
 import { isEqual } from 'lodash';
 
@@ -18,6 +19,8 @@ import { activeCovid19PatientsHandler } from '../../../routeHandlers';
 import { getOrderClause } from '../../../database/utils';
 import { requestBodyToRecord, dbRecordToResponse, pickPatientBirthData } from './utils';
 import { PATIENT_SORT_KEYS } from './constants';
+
+const { serverFacilityId } = config;
 
 const patientRoute = express.Router();
 
@@ -43,62 +46,80 @@ patientRoute.put(
   asyncHandler(async (req, res) => {
     const {
       db,
-      models: { Patient, PatientAdditionalData, PatientBirthData, PatientSecondaryId },
+      models: {
+        Patient,
+        PatientAdditionalData,
+        PatientBirthData,
+        PatientFacility,
+        PatientSecondaryId,
+      },
       params,
+      syncManager,
     } = req;
     req.checkPermission('read', 'Patient');
     const patient = await Patient.findByPk(params.id);
+
     if (!patient) {
       throw new NotFoundError();
     }
 
-    req.checkPermission('write', patient);
-
-    await db.transaction(async () => {
-      // First check if displayId changed to create a secondaryId record
-      if (req.body.displayId && req.body.displayId !== patient.displayId) {
-        const oldDisplayIdType = isGeneratedDisplayId(patient.displayId)
-          ? 'secondaryIdType-tamanu-display-id'
-          : 'secondaryIdType-nhn';
-        await PatientSecondaryId.create({
-          value: patient.displayId,
-          visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
-          typeId: oldDisplayIdType,
-          patientId: patient.id,
-        });
-      }
-
-      await patient.update(requestBodyToRecord(req.body));
-
-      const patientAdditionalData = await PatientAdditionalData.findOne({
-        where: { patientId: patient.id },
+    const alreadyMarkedForSync = await PatientFacility.findOne({
+      where: { patientId: patient.id, facilityId: serverFacilityId },
+    });
+    const markingForSync = !alreadyMarkedForSync && isEqual(req.body, { markedForSync: true });
+    if (markingForSync) {
+      // no need to check write permission or update patient record itself,
+      // just create a link between the patient and this facility
+      await PatientFacility.create({
+        patientId: patient.id,
+        facilityId: serverFacilityId,
       });
+      syncManager.triggerSync();
+    } else {
+      req.checkPermission('write', patient);
 
-      if (!patientAdditionalData) {
-        // Do not try to create patient additional data if all we're trying to update is markedForSync = true to
-        // sync down patient because PatientAdditionalData will be automatically synced down along with Patient
-        if (!isEqual(req.body, { markedForSync: true })) {
+      await db.transaction(async () => {
+        // First check if displayId changed to create a secondaryId record
+        if (req.body.displayId && req.body.displayId !== patient.displayId) {
+          const oldDisplayIdType = isGeneratedDisplayId(patient.displayId)
+            ? 'secondaryIdType-tamanu-display-id'
+            : 'secondaryIdType-nhn';
+          await PatientSecondaryId.create({
+            value: patient.displayId,
+            visibilityStatus: VISIBILITY_STATUSES.HISTORICAL,
+            typeId: oldDisplayIdType,
+            patientId: patient.id,
+          });
+        }
+
+        await patient.update(requestBodyToRecord(req.body));
+
+        const patientAdditionalData = await PatientAdditionalData.findOne({
+          where: { patientId: patient.id },
+        });
+
+        if (!patientAdditionalData) {
           await PatientAdditionalData.create({
             ...requestBodyToRecord(req.body),
             patientId: patient.id,
           });
+        } else {
+          await patientAdditionalData.update(requestBodyToRecord(req.body));
         }
-      } else {
-        await patientAdditionalData.update(requestBodyToRecord(req.body));
-      }
 
-      const patientBirth = await PatientBirthData.findOne({
-        where: { patientId: patient.id },
+        const patientBirth = await PatientBirthData.findOne({
+          where: { patientId: patient.id },
+        });
+        const recordData = requestBodyToRecord(req.body);
+        const patientBirthRecordData = pickPatientBirthData(PatientBirthData, recordData);
+
+        if (patientBirth) {
+          await patientBirth.update(patientBirthRecordData);
+        }
+
+        await patient.writeFieldValues(req.body.patientFields);
       });
-      const recordData = requestBodyToRecord(req.body);
-      const patientBirthRecordData = pickPatientBirthData(PatientBirthData, recordData);
-
-      if (patientBirth) {
-        await patientBirth.update(patientBirthRecordData);
-      }
-
-      await patient.writeFieldValues(req.body.patientFields);
-    });
+    }
 
     res.send(dbRecordToResponse(patient));
   }),
@@ -109,7 +130,7 @@ patientRoute.post(
   asyncHandler(async (req, res) => {
     const {
       db,
-      models: { Patient, PatientAdditionalData, PatientBirthData },
+      models: { Patient, PatientAdditionalData, PatientBirthData, PatientFacility },
     } = req;
     req.checkPermission('create', 'Patient');
     const requestData = requestBodyToRecord(req.body);
@@ -129,6 +150,11 @@ patientRoute.post(
       });
       await createdPatient.writeFieldValues(req.body.patientFields);
 
+      await PatientFacility.create({
+        patientId: createdPatient.id,
+        facilityId: serverFacilityId,
+      });
+
       if (patientRegistryType === PATIENT_REGISTRY_TYPES.BIRTH_REGISTRY) {
         await PatientBirthData.create({
           ...pickPatientBirthData(PatientBirthData, patientData),
@@ -137,6 +163,7 @@ patientRoute.post(
       }
       return createdPatient;
     });
+
     res.send(dbRecordToResponse(patientRecord));
   }),
 );
@@ -202,7 +229,10 @@ patientRoute.get(
       where: { encounterId: lastDischargedEncounter.id, isDischarge: true },
       include: [
         ...EncounterMedication.getFullReferenceAssociations(),
-        { association: 'encounter', include: [{ association: 'location' }] },
+        {
+          association: 'encounter',
+          include: [{ association: 'location', include: ['locationGroup'] }],
+        },
       ],
       order: orderBy ? getOrderClause(order, orderBy) : undefined,
       limit: rowsPerPage,
@@ -275,8 +305,12 @@ patientRoute.get(
           ON (department.id = encounters.department_id)
         LEFT JOIN locations AS location
           ON (location.id = encounters.location_id)
+        LEFT JOIN location_groups AS location_group
+          ON (location_group.id = location.location_group_id)
         LEFT JOIN locations AS planned_location
           ON (planned_location.id = encounters.planned_location_id)
+        LEFT JOIN location_groups AS planned_location_group
+          ON (planned_location.location_group_id = planned_location_group.id)
         LEFT JOIN reference_data AS village
           ON (village.type = 'village' AND village.id = patients.village_id)
         LEFT JOIN (
@@ -287,6 +321,8 @@ patientRoute.get(
           GROUP BY patient_id
         ) psi
           ON (patients.id = psi.patient_id)
+        LEFT JOIN patient_facilities
+          ON (patient_facilities.patient_id = patients.id AND patient_facilities.facility_id = :facilityId)
       ${whereClauses && `WHERE ${whereClauses}`}
     `;
 
@@ -299,6 +335,7 @@ patientRoute.get(
         }),
         filterParams,
       );
+    filterReplacements.facilityId = config.serverFacilityId;
 
     const countResult = await req.db.query(`SELECT COUNT(1) AS count ${from}`, {
       replacements: filterReplacements,
@@ -323,11 +360,14 @@ patientRoute.get(
           department.name AS department_name,
           location.id AS location_id,
           location.name AS location_name,
+          location_group.name AS location_group_name,
+          planned_location_group.name AS planned_location_group_name,
           planned_location.id AS planned_location_id,
           planned_location.name AS planned_location_name,
           encounters.planned_location_start_time,
           village.id AS village_id,
-          village.name AS village_name
+          village.name AS village_name,
+          patient_facilities.patient_id IS NOT NULL as marked_for_sync
         ${from}
 
         ORDER BY ${sortKey} ${sortDirection}, ${secondarySearchTerm} NULLS LAST

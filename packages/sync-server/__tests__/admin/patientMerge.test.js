@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import { fake, fakeUser } from 'shared/test-helpers/fake';
 import { NOTE_TYPES } from 'shared/constants/notes';
 import { VISIBILITY_STATUSES } from 'shared/constants';
@@ -216,12 +217,12 @@ describe('Patient merge', () => {
       const { PatientAdditionalData } = models;
       const [keep, merge] = await makeTwoPatients();
 
-      const keepPatientPad = await PatientAdditionalData.create({
+      await PatientAdditionalData.create({
         patientId: keep.id,
         passport: 'keep-passport',
       });
 
-      const mergePatientPad = await PatientAdditionalData.create({
+      await PatientAdditionalData.create({
         patientId: merge.id,
         primaryContactNumber: 'merge-phone',
       });
@@ -232,25 +233,30 @@ describe('Patient merge', () => {
         PatientAdditionalData: 1,
       });
 
-      await keepPatientPad.reload({ paranoid: false });
-      await mergePatientPad.reload({ paranoid: false });
+      const newKeepPatientPad = await PatientAdditionalData.findOne({
+        where: { patientId: keep.id },
+        paranoid: false,
+      });
+      const newMergePatientPad = await PatientAdditionalData.findOne({
+        where: { patientId: merge.id },
+        paranoid: false,
+      });
 
-      expect(keepPatientPad).toHaveProperty('deletedAt', null);
-      expect(keepPatientPad).toHaveProperty('passport', 'keep-passport');
-      expect(keepPatientPad).toHaveProperty('primaryContactNumber', 'merge-phone');
-      expect(mergePatientPad).toHaveProperty('patientId', keep.id);
-      expect(mergePatientPad.deletedAt).toBeTruthy();
+      expect(newKeepPatientPad).toHaveProperty('deletedAt', null);
+      expect(newKeepPatientPad).toHaveProperty('passport', 'keep-passport');
+      expect(newKeepPatientPad).toHaveProperty('primaryContactNumber', 'merge-phone');
+      expect(newMergePatientPad).toEqual(null);
     });
 
     it('Should merge patient additional data even if the keep patient PAD is null', async () => {
       const { PatientAdditionalData } = models;
       const [keep, merge] = await makeTwoPatients();
 
-      const keepPatientPad = await PatientAdditionalData.create({
+      await PatientAdditionalData.create({
         patientId: keep.id,
       });
 
-      const mergePatientPad = await PatientAdditionalData.create({
+      await PatientAdditionalData.create({
         patientId: merge.id,
         primaryContactNumber: 'merge-phone',
       });
@@ -261,13 +267,69 @@ describe('Patient merge', () => {
         PatientAdditionalData: 1,
       });
 
-      await keepPatientPad.reload({ paranoid: false });
-      await mergePatientPad.reload({ paranoid: false });
+      const newKeepPatientPad = await PatientAdditionalData.findOne({
+        where: { patientId: keep.id },
+        paranoid: false,
+      });
+      const newMergePatientPad = await PatientAdditionalData.findOne({
+        where: { patientId: merge.id },
+        paranoid: false,
+      });
 
-      expect(mergePatientPad).toHaveProperty('deletedAt', null);
-      expect(mergePatientPad).toHaveProperty('primaryContactNumber', 'merge-phone');
-      expect(mergePatientPad).toHaveProperty('patientId', keep.id);
-      expect(keepPatientPad.deletedAt).toBeTruthy();
+      expect(newKeepPatientPad).toHaveProperty('deletedAt', null);
+      expect(newKeepPatientPad).toHaveProperty('primaryContactNumber', 'merge-phone');
+      expect(newKeepPatientPad).toHaveProperty('patientId', keep.id);
+      expect(newMergePatientPad).toEqual(null);
+    });
+  });
+
+  describe('PatientFacility', () => {
+    it('Should replace patient facility records with a new one per facility', async () => {
+      const { Facility, PatientFacility } = models;
+      const [keep, merge] = await makeTwoPatients();
+
+      const facilityWithNone = await Facility.create(fake(Facility)); // eslint-disable-line no-unused-vars
+
+      const facilityWithKeep = await Facility.create(fake(Facility));
+      await PatientFacility.create({
+        id: PatientFacility.generateId(),
+        patientId: keep.id,
+        facilityId: facilityWithKeep.id,
+      });
+
+      const facilityWithMerge = await Facility.create(fake(Facility));
+      await PatientFacility.create({
+        id: PatientFacility.generateId(),
+        patientId: merge.id,
+        facilityId: facilityWithMerge.id,
+      });
+
+      const facilityWithBoth = await Facility.create(fake(Facility));
+      await PatientFacility.create({
+        id: PatientFacility.generateId(),
+        patientId: keep.id,
+        facilityId: facilityWithBoth.id,
+      });
+      await PatientFacility.create({
+        id: PatientFacility.generateId(),
+        patientId: merge.id,
+        facilityId: facilityWithBoth.id,
+      });
+
+      const prePatientFacilities = await PatientFacility.findAll({});
+      expect(prePatientFacilities.length).toEqual(4);
+
+      const { updates } = await mergePatient(models, keep.id, merge.id);
+      expect(updates).toEqual({
+        Patient: 1,
+        PatientFacility: 3,
+      });
+
+      const postPatientFacilities = await PatientFacility.findAll({});
+      expect(postPatientFacilities.length).toEqual(3);
+      expect(postPatientFacilities.map(p => p.facilityId).sort()).toEqual(
+        [facilityWithKeep.id, facilityWithMerge.id, facilityWithBoth.id].sort(),
+      );
     });
   });
 

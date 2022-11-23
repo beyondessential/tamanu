@@ -34,10 +34,11 @@
               tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-)
             - name: on PR branches
               command: scripts/test.sh pr-coverage
-              exclude: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-)
+              exclude: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-)
         - name: the mobile app
           service: mobile
-          command: "yarn test:coverage"
+          command: 'yarn test:coverage'
+          exclude: ^(beta-|klaus-|sima-|sepi-|da-)
     - name: fix ssh for builds
       tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-|deploy-meta$)
       service: app-without-db
@@ -121,7 +122,7 @@
               tag: ^(klaus-)
               service: awsdeployment
               command: ./scripts/deploy_sync.sh klaus tamanu-central-server-klaus
-            - name: onto klaus
+            - name: onto sima
               tag: ^(sima-)
               service: awsdeployment
               command: ./scripts/deploy_sync.sh sima tamanu-central-server-sima
@@ -134,7 +135,7 @@
               service: awsdeployment
               command: ./scripts/deploy_sync.sh da tamanu-central-server-da
         - name: the lan server
-          tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|klaus-|sima-|sepi-|da-)
+          tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-)
           type: serial
           steps:
             - name: onto dev A
@@ -145,6 +146,14 @@
               tag: ^(dev$|ci-)
               service: awsdeployment
               command: ./scripts/deploy_lan.sh dev tamanu-facility-server-dev-16b
+            - name: onto beta A
+              tag: ^(beta-)
+              service: awsdeployment
+              command: ./scripts/deploy_lan.sh beta tamanu-facility-server-beta-a
+            - name: onto beta B
+              tag: ^(beta-)
+              service: awsdeployment
+              command: ./scripts/deploy_lan.sh beta tamanu-facility-server-beta-b
             - name: onto klaus A
               tag: ^(klaus-)
               service: awsdeployment

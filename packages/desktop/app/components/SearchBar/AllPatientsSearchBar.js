@@ -10,7 +10,7 @@ import {
 } from '../Field';
 import { useSuggester } from '../../api';
 
-export const AllPatientsSearchBar = React.memo(({ onSearch }) => {
+export const AllPatientsSearchBar = React.memo(({ onSearch, searchParameters }) => {
   const villageSuggester = useSuggester('village');
   return (
     <CustomisableSearchBar
@@ -19,7 +19,7 @@ export const AllPatientsSearchBar = React.memo(({ onSearch }) => {
         <Field name="deceased" label="Include deceased patients" component={CheckField} />
       }
       onSearch={onSearch}
-      initialValues={{ displayIdExact: true }}
+      initialValues={{ displayIdExact: true, ...searchParameters }}
     >
       <LocalisedField name="firstName" />
       <LocalisedField name="lastName" />

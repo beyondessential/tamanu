@@ -1,6 +1,6 @@
 import config from 'config';
 import { log } from 'shared/services/logging';
-
+import { findUser } from '../auth/utils';
 import { PatientEmailCommunicationProcessor } from './PatientEmailCommunicationProcessor';
 import { PatientMergeMaintainer } from './PatientMergeMaintainer';
 import { OutpatientDischarger } from './OutpatientDischarger';
@@ -13,7 +13,6 @@ import { SignerRenewalChecker } from './SignerRenewalChecker';
 import { SignerRenewalSender } from './SignerRenewalSender';
 import { CertificateNotificationProcessor } from './CertificateNotificationProcessor';
 import { AutomaticLabTestResultPublisher } from './AutomaticLabTestResultPublisher';
-import { DuplicateAdditionalDataDeleter } from './DuplicateAdditionalDataDeleter';
 import { CovidClearanceCertificatePublisher } from './CovidClearanceCertificatePublisher';
 import { FhirMaterialiser } from './FhirMaterialiser';
 import { PlannedMoveTimeout } from './PlannedMoveTimeout';
@@ -30,10 +29,6 @@ export async function startScheduledTasks(context) {
 
   if (config.schedules.automaticLabTestResultPublisher.enabled) {
     taskClasses.push(AutomaticLabTestResultPublisher);
-  }
-
-  if (config.schedules.duplicateAdditionalDataDeleter.enabled) {
-    taskClasses.push(DuplicateAdditionalDataDeleter);
   }
 
   if (config.schedules.covidClearanceCertificatePublisher.enabled) {
@@ -74,7 +69,7 @@ export async function startScheduledTasks(context) {
 }
 
 async function getReportSchedulers(context) {
-  const initialUser = await context.store.findUser(config.auth.initialUser.email);
+  const initialUser = await findUser(context.store.models, config.auth.initialUser.email);
 
   const schedulers = [];
   for (const options of config.scheduledReports) {

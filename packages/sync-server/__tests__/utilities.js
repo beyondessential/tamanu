@@ -7,6 +7,7 @@ import { COMMUNICATION_STATUSES } from 'shared/constants';
 import { createApp } from 'sync-server/app/createApp';
 import { initDatabase, closeDatabase } from 'sync-server/app/database';
 import { getToken } from 'sync-server/app/auth/utils';
+import { DEFAULT_JWT_SECRET } from 'sync-server/app/auth';
 import { initIntegrations } from 'sync-server/app/integrations';
 
 jest.setTimeout(30 * 1000); // more generous than the default 5s but not crazy
@@ -82,8 +83,10 @@ export function extendExpect(expect) {
 }
 
 class MockApplicationContext {
-  async init({ syncClientMode }) {
-    this.store = await initDatabase({ testMode: true, syncClientMode });
+  closeHooks = [];
+
+  async init() {
+    this.store = await initDatabase({ testMode: true });
     this.emailService = {
       sendEmail: jest.fn().mockImplementation(() =>
         Promise.resolve({
@@ -95,17 +98,28 @@ class MockApplicationContext {
     await initIntegrations(this);
     return this;
   }
+
+  onClose(hook) {
+    this.closeHooks.push(hook);
+  }
+
+  close = async () => {
+    for (const hook of this.closeHooks) {
+      await hook();
+    }
+    await closeDatabase();
+  };
 }
 
-export async function createTestContext({ syncClientMode } = {}) {
-  const ctx = await new MockApplicationContext().init({ syncClientMode });
+export async function createTestContext() {
+  const ctx = await new MockApplicationContext().init();
   const expressApp = createApp(ctx);
   const appServer = http.createServer(expressApp);
   const baseApp = supertest(appServer);
 
   baseApp.asUser = async user => {
     const agent = supertest.agent(expressApp);
-    const token = await getToken(user, '1d');
+    const token = await getToken(user, DEFAULT_JWT_SECRET, '1d');
     agent.set('authorization', `Bearer ${token}`);
     agent.user = user;
     return agent;
@@ -122,12 +136,10 @@ export async function createTestContext({ syncClientMode } = {}) {
     return baseApp.asUser(newUser);
   };
 
-  const close = async () => {
-    await new Promise(resolve => appServer.close(resolve));
-    await closeDatabase();
-  };
+  ctx.onClose(() => new Promise(resolve => appServer.close(resolve)));
+  ctx.baseApp = baseApp;
 
-  return { ...ctx, baseApp, close };
+  return ctx;
 }
 
 export async function withDate(fakeDate, fn) {

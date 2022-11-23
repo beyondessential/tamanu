@@ -20,6 +20,7 @@ import { Suggester } from '~/ui/helpers/suggester';
 import { ReferenceData } from '~/models/ReferenceData';
 import { ReferenceDataType } from '~/types';
 import { useBackend } from '~/ui/hooks';
+import { VisibilityStatus } from '~/visibilityStatuses';
 
 const LabRequestNumberField = (): ReactElement => (
   <Field
@@ -48,7 +49,7 @@ const DumbLabRequestForm = ({
   const [labTestTypes, setLabTestTypes] = useState([]);
   const handleLabRequestTypeSelected = useCallback(async selectedValue => {
     const selectedLabTestTypes = await models.LabTestType.find({
-      where: { labTestCategory: selectedValue },
+      where: { labTestCategory: selectedValue, visibilityStatus: VisibilityStatus.Current },
     });
     const labTestTypeOptions = selectedLabTestTypes.map((labTestType) => ({
       id: labTestType.id,
@@ -155,12 +156,14 @@ export const LabRequestForm = ({ handleSubmit, errors, navigation }): ReactEleme
   const labRequestCategorySuggester = new Suggester(models.ReferenceData, {
     where: {
       type: ReferenceDataType.LabTestCategory,
+      visibilityStatus: VisibilityStatus.Current,
     },
   });
 
   const labRequestPrioritySuggester = new Suggester(models.ReferenceData, {
     where: {
       type: ReferenceDataType.LabTestPriority,
+      visibilityStatus: VisibilityStatus.Current,
     },
   });
 

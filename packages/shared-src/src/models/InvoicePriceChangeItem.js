@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize';
-import { INVOICE_PRICE_CHANGE_ITEM_STATUSES } from 'shared/constants';
+import { INVOICE_PRICE_CHANGE_ITEM_STATUSES, SYNC_DIRECTIONS } from 'shared/constants';
+import { buildEncounterLinkedSyncFilter } from './buildEncounterLinkedSyncFilter';
 import { Model } from './Model';
 import { dateType } from './dateTimeTypes';
 
@@ -17,7 +18,7 @@ export class InvoicePriceChangeItem extends Model {
           defaultValue: INVOICE_PRICE_CHANGE_ITEM_STATUSES.ACTIVE,
         },
       },
-      options,
+      { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );
   }
 
@@ -50,5 +51,12 @@ export class InvoicePriceChangeItem extends Model {
         as: 'orderedBy',
       },
     ];
+  }
+
+  static buildSyncFilter(patientIds) {
+    if (patientIds.length === 0) {
+      return null;
+    }
+    return buildEncounterLinkedSyncFilter([this.tableName, 'invoices', 'encounters']);
   }
 }
