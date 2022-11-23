@@ -9,6 +9,7 @@ import { updateSurveyResponseDateTimeColumns1664475769000 } from './166447576900
 import { changeCaseOfSpo21665717114000 } from './1665717114000-changeCaseOfSpo2';
 import { updateLabRequestDateColumns1666171050000 } from './1666171050000-updateLabRequestDateColumns';
 import { addFieldUpdateTicksToPAD1668987530000 } from './1668987530000-addFieldUpdateTicksToPAD';
+import { addDefaultLastSuccessfulSyncPull1669160460000 } from './1669160460000-addDefaultLastSuccessfulSyncPull';
 
 export const migrationList = [
   databaseSetup1661160427226,
@@ -21,4 +22,5 @@ export const migrationList = [
   changeCaseOfSpo21665717114000,
   updateLabRequestDateColumns1666171050000,
   addFieldUpdateTicksToPAD1668987530000,
+  addDefaultLastSuccessfulSyncPull1669160460000,
 ];

@@ -1,7 +1,7 @@
-import { withConfig } from 'shared/utils/withConfig';
+import config from 'config';
 
 // Set the current page limit based on how long the previous page took to complete.
-export const calculatePageLimit = withConfig((currentLimit, lastPageTime, config) => {
+export const calculatePageLimit = (currentLimit, lastPageTime) => {
   const {
     initialLimit,
     minLimit,
@@ -32,4 +32,4 @@ export const calculatePageLimit = withConfig((currentLimit, lastPageTime, config
     maxLimit,
     Math.ceil(currentLimit + currentLimit * maxLimitChangePerPage),
   );
-});
+};

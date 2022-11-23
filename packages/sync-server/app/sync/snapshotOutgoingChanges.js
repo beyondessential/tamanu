@@ -1,5 +1,6 @@
 import { snake } from 'case';
 import { SYNC_SESSION_DIRECTION, COLUMNS_EXCLUDED_FROM_SYNC } from 'shared/sync';
+import { SYNC_DIRECTIONS } from 'shared/constants';
 import { log } from 'shared/services/logging/log';
 import { withConfig } from 'shared/utils/withConfig';
 
@@ -102,6 +103,21 @@ export const snapshotOutgoingChanges = withConfig(
   async (outgoingModels, since, patientIds, sessionId, facilityId, sessionConfig, config) => {
     if (config.sync.readOnly) {
       return 0;
+    }
+
+    const invalidModelNames = Object.values(outgoingModels)
+      .filter(
+        m =>
+          ![SYNC_DIRECTIONS.BIDIRECTIONAL, SYNC_DIRECTIONS.PULL_FROM_CENTRAL].includes(
+            m.syncDirection,
+          ),
+      )
+      .map(m => m.tableName);
+
+    if (invalidModelNames.length) {
+      throw new Error(
+        `Invalid sync direction(s) when pulling these models from central: ${invalidModelNames}`,
+      );
     }
 
     let changesCount = 0;

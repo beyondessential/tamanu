@@ -39,6 +39,21 @@ export const snapshotOutgoingChanges = withConfig(
       return [];
     }
 
+    const invalidModelNames = Object.values(models)
+      .filter(
+        m =>
+          ![SYNC_DIRECTIONS.BIDIRECTIONAL, SYNC_DIRECTIONS.PUSH_TO_CENTRAL].includes(
+            m.syncDirection,
+          ),
+      )
+      .map(m => m.tableName);
+
+    if (invalidModelNames.length) {
+      throw new Error(
+        `Invalid sync direction(s) when pushing these models from facility: ${invalidModelNames}`,
+      );
+    }
+
     // snapshot inside a "repeatable read" transaction, so that other changes made while this snapshot
     // is underway aren't included (as this could lead to a pair of foreign records with the child in
     // the snapshot and its parent missing)
@@ -47,9 +62,7 @@ export const snapshotOutgoingChanges = withConfig(
       { isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ },
       async transaction => {
         const outgoingChanges = [];
-        for (const model of Object.values(models).filter(
-          m => m.syncDirection !== SYNC_DIRECTIONS.DO_NOT_SYNC,
-        )) {
+        for (const model of Object.values(models)) {
           const changesForModel = await snapshotChangesForModel(
             model,
             sessionId,

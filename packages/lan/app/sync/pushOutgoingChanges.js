@@ -1,10 +1,8 @@
-import { withConfig } from 'shared/utils/withConfig';
-
 import { calculatePageLimit } from './calculatePageLimit';
 
-export const pushOutgoingChanges = withConfig(async (centralServer, sessionId, changes, config) => {
+export const pushOutgoingChanges = async (centralServer, sessionId, changes) => {
   let startOfPage = 0;
-  let limit = calculatePageLimit.overrideConfig(null, null, config);
+  let limit = calculatePageLimit();
   while (startOfPage < changes.length) {
     const endOfPage = Math.min(startOfPage + limit, changes.length);
     const page = changes.slice(startOfPage, endOfPage);
@@ -17,6 +15,6 @@ export const pushOutgoingChanges = withConfig(async (centralServer, sessionId, c
     const endTime = Date.now();
 
     startOfPage = endOfPage;
-    limit = calculatePageLimit.overrideConfig(limit, endTime - startTime, config);
+    limit = calculatePageLimit(limit, endTime - startTime);
   }
-});
+};
