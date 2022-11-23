@@ -10,6 +10,8 @@ export class addDefaultLastSuccessfulSyncPull1669160460000 implements MigrationI
 
     const patientCount = parseInt(patientCountRow.count, 10);
 
+    // Insert default lastSuccessfulSyncPull = 0
+    // if the device already has synced data and is being upgraded
     if (patientCount) {
       //uuid generation
       // https://stackoverflow.com/questions/66625085/sqlite-generate-guid-uuid-on-select-into-statement

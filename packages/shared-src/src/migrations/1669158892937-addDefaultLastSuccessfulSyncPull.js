@@ -19,6 +19,8 @@ export async function up(query) {
     SELECT COUNT(*) as count from patients
   `);
 
+  // Insert default lastSuccessfulSyncPull = 0
+  // if the server already has synced data and is being upgraded
   if (rows[0]?.count && parseInt(rows[0]?.count)) {
     await query.sequelize.query(`
       INSERT INTO local_system_facts (id, created_at, updated_at, key, value)
