@@ -21,7 +21,7 @@ export async function up(query) {
 
   // Insert default lastSuccessfulSyncPull = 0
   // if the server already has synced data and is being upgraded
-  if (rows[0]?.count && parseInt(rows[0]?.count)) {
+  if (rows[0]?.count && parseInt(rows[0]?.count, 10)) {
     await query.sequelize.query(`
       INSERT INTO local_system_facts (id, created_at, updated_at, key, value)
       VALUES (uuid_generate_v4(), NOW(), NOW(), '${LAST_SUCCESSFUL_SYNC_PULL}', 0)
