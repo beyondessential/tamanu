@@ -22,7 +22,7 @@ export const getPatientDetailsValidation = sexValues => {
     birthLength: yup
       .number()
       .min(0)
-      .max(50),
+      .max(100),
     birthDeliveryType: yup.string().oneOf(Object.values(BIRTH_DELIVERY_TYPES)),
     gestationalAgeEstimate: yup
       .number()
