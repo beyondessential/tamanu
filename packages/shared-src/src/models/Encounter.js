@@ -276,6 +276,16 @@ export class Encounter extends Model {
     return values;
   }
 
+  async addLocationChangeNote(contentPrefix, fromLocation, toLocation, submittedTime) {
+    const { Location } = this.sequelize.models;
+    await this.addSystemNote(
+      `${contentPrefix} from ${Location.formatFullLocationName(
+        fromLocation,
+      )} to ${Location.formatFullLocationName(toLocation)}`,
+      submittedTime,
+    );
+  }
+
   async addSystemNote(content, date) {
     const notePage = await this.createNotePage({
       noteType: NOTE_TYPES.SYSTEM,
@@ -359,15 +369,24 @@ export class Encounter extends Model {
       }
 
       if (data.locationId && data.locationId !== this.locationId) {
-        const oldLocation = await Location.findOne({ where: { id: this.locationId } });
-        const newLocation = await Location.findOne({ where: { id: data.locationId } });
+        const oldLocation = await Location.findOne({
+          where: { id: this.locationId },
+          include: 'locationGroup',
+        });
+        const newLocation = await Location.findOne({
+          where: { id: data.locationId },
+          include: 'locationGroup',
+        });
         if (!newLocation) {
           throw new InvalidOperationError('Invalid location specified');
         }
-        await this.addSystemNote(
-          `Changed location from ${oldLocation.name} to ${newLocation.name}`,
+        await this.addLocationChangeNote(
+          'Changed location',
+          oldLocation,
+          newLocation,
           data.submittedTime,
         );
+
         // When we move to a new location, clear the planned location move
         additionalChanges.plannedLocationId = null;
         additionalChanges.plannedLocationStartTime = null;
@@ -394,19 +413,26 @@ export class Encounter extends Model {
           );
         }
 
-        const currentLocation = await Location.findOne({ where: { id: this.locationId } });
+        const currentLocation = await Location.findOne({
+          where: { id: this.locationId },
+          include: 'locationGroup',
+        });
         const plannedLocation = await Location.findOne({
           where: { id: data.plannedLocationId },
+          include: 'locationGroup',
         });
 
         if (!plannedLocation) {
           throw new InvalidOperationError('Invalid location specified');
         }
 
-        await this.addSystemNote(
-          `Added a planned location change from ${currentLocation.name} to ${plannedLocation.name}`,
+        await this.addLocationChangeNote(
+          'Added a planned location change',
+          currentLocation,
+          plannedLocation,
           data.submittedTime,
         );
+
         additionalChanges.plannedLocationStartTime = data.submittedTime;
       }
 

@@ -213,42 +213,42 @@ with
       e.id encounter_id,
       nh.place,
       concat(
-        case when max(area_name) is not null then (max(area_name) || ', ') else '' end,
         max(first_from), --first "from" from note
         ', Assigned time: ', to_char(e.start_date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
       ) || '; ' ||
       string_agg(
         concat(
-          case when (lgt.name is not null) then (lgt.name || ', ') else '' end,
           "to",
           ', Assigned time: ', to_char(nh.date::timestamp, 'DD-MM-YYYY HH12' || CHR(58) || 'MI AM')
         ),
         '; '
         ORDER BY nh.date
       ) place_history,
-      jsonb_build_array(case when nh.place = 'location' then e.location_id else e.department_id end) || jsonb_agg(case when nh.place = 'location' then lf.id else d.id end) place_id_list -- Duplicates here are ok, but not required, as it will be used for searching
+      jsonb_build_array(
+        case when nh.place = 'location' then e.location_id else e.department_id end) 
+        || jsonb_agg(case when nh.place = 'location' then (coalesce(lg.id, l.id) else d.id end
+      ) place_id_list -- Duplicates here are ok, but not required, as it will be used for searching
     from note_history nh
     join encounters e on nh.encounter_id = e.id
-    left join locations lf on lf.name = "from"
     left join departments d on d.name = "from"
-    left join locations lt on lt.name = "to"
-    left join location_groups lgt on lt.location_group_id = lgt.id
     join (
-      with history_partition as (
-        select nh2.id, first_value("from") over(
-    			partition by encounter_id, place
-    			order by nh2."date"
-    		) first_from from note_history nh2
-      )
+      select
+        encounter_id,
+        regexp_matches("from", '([^,]*(?=,\\s))?(?:,\\s)?(.*)') location_matches
+      from note_history nh3
+    ) location_matches
+    on location_matches.encounter_id = nh.encounter_id
+    left join location_groups lg on lg.name = location_matches[1]
+    left join locations l on l.name = location_matches[2]
+    join (
     	select
     		encounter_id,
     		place,
-        lg.name as area_name,
-    		history_partition.first_from as first_from
-        from note_history nh2
-        join history_partition on nh2.id = history_partition.id
-        join locations l2 on l2.name = first_from
-        join location_groups lg on l2.location_group_id = lg.id
+    		first_value("from") over(
+    			partition by encounter_id, place
+    			order by nh2."date"
+    		) first_from
+    	from note_history nh2
     ) first_val_table on nh.encounter_id = first_val_table.encounter_id and first_val_table.place = nh.place
     group by e.id, e.start_date, nh.place
   ),
@@ -338,10 +338,10 @@ left join place_info li on li.encounter_id = e.id and li.place = 'location'
 left join place_info di2 on di2.encounter_id = e.id and di2.place = 'department'
 where e.end_date is not null
 and coalesce(billing.id, '-') like coalesce(:billing_type, '%%')
-and CASE WHEN :department_id IS NOT NULL THEN di2.place_id_list::jsonb ? :department_id ELSE true end 
-and CASE WHEN :location_group_id IS NOT NULL THEN li.place_id_list::jsonb ?| (select array_agg(id) from area_locations) ELSE true end 
-AND CASE WHEN :from_date IS NOT NULL THEN e.start_date::timestamp >= :from_date::timestamp ELSE true END
-AND CASE WHEN :to_date IS NOT NULL THEN e.start_date::timestamp <= :to_date::timestamp ELSE true END
+and case when :department_id is not null then di2.place_id_list::jsonb ? :department_id else true end 
+and case when :location_group_id is not null then li.place_id_list::jsonb ?| (select array_append(array_agg(id), :location_group_id) from area_locations) else true end 
+and case when :from_date is not null then e.start_date::timestamp >= :from_date::timestamp else true end
+and case when :to_date is not null then e.start_date::timestamp <= :to_date::timestamp else true end
 order by e.start_date desc;
 `;
 
