@@ -44,11 +44,12 @@ export class PatientMergeMaintainer extends ScheduledTask {
   }
 
   async remergePatientRecords() {
-    const outcomes = {};
-    const updateOutcomes = (name, records) => {
+    // set up an object for counting affected records
+    const counts = {};
+    const updateCounts = (name, records) => {
       const len = records.length;
       if (len > 0) {
-        outcomes[name] = len;
+        counts[name] = len;
       }
     };
 
@@ -56,7 +57,7 @@ export class PatientMergeMaintainer extends ScheduledTask {
     for (const modelName of simpleUpdateModels) {
       const model = this.models[modelName];
       const records = await this.mergeAllRecordsForModel(model);
-      updateOutcomes(modelName, records);
+      updateCounts(modelName, records);
     }
 
     // then the complex model updates:
@@ -69,7 +70,7 @@ export class PatientMergeMaintainer extends ScheduledTask {
     for (const keepPatientRecord of patientRecordsToReconcile) {
       await reconcilePatient(PatientAdditionalData.sequelize, keepPatientRecord.merged_into_id);
     }
-    updateOutcomes('PatientAdditionalData', patientRecordsToReconcile);
+    updateCounts('PatientAdditionalData', patientRecordsToReconcile);
 
     // - notePage: uses a different field + additional search criteria
     const noteRecords = await this.mergeAllRecordsForModel(
@@ -77,9 +78,9 @@ export class PatientMergeMaintainer extends ScheduledTask {
       'record_id',
       `AND record_type = '${NOTE_RECORD_TYPES.PATIENT}'`,
     );
-    updateOutcomes('NotePage', noteRecords);
+    updateCounts('NotePage', noteRecords);
 
-    return outcomes;
+    return counts;
   }
 
   async run() {
