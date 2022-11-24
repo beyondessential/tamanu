@@ -41,4 +41,18 @@ export const SURVEY_TYPES = {
   PROGRAMS: 'programs',
   REFERRAL: 'referral',
   OBSOLETE: 'obsolete',
+  VITALS: 'vitals',
 };
+
+export const VITALS_SURVEY_REQUIRED_FIELDS = [
+  'Date',
+  'Height',
+  'Weight',
+  'SBP',
+  'DBP',
+  'HeartRate',
+  'RespiratoryRate',
+  'Temperature',
+  'SPO2',
+  'AVPU',
+];
