@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { VitalsTable } from '../../../components/VitalsTable';
-import { TableButtonRow, Button, Modal } from '../../../components';
+import { TableButtonRow, Button, Modal, Form, FormGrid } from '../../../components';
 import { TabPane } from '../components';
-import { useAuth } from '../../../contexts/Auth';
 import { useApi } from '../../../api';
-import { SurveyView } from '../../programs/SurveyView';
+import { SurveyQuestion } from '../../../components/Surveys/SurveyQuestion';
 
-const VitalsForm = ({ onClose, patient, currentUser, encounterId, survey }) => {
+const VitalsForm = ({ onClose, patient, encounterId, survey }) => {
   const queryClient = useQueryClient();
   const api = useApi();
 
@@ -18,19 +17,28 @@ const VitalsForm = ({ onClose, patient, currentUser, encounterId, survey }) => {
     onClose();
   };
 
+  const { components } = survey;
+
+  console.log('components', components);
+
   return (
-    <SurveyView
+    <Form
       onSubmit={submitVitals}
-      survey={survey}
-      onCancel={onClose}
-      patient={patient}
-      currentUser={currentUser}
+      render={() => {
+        return (
+          <FormGrid columns={1}>
+            {components.map(c => (
+              <SurveyQuestion component={c} patient={patient} key={c.id} />
+            ))}
+          </FormGrid>
+        );
+      }}
     />
   );
 };
 
 // Todo: update survey id
-const VITALS_SURVEY_ID = 'program-tamanuprogram-genericreferral';
+const VITALS_SURVEY_ID = 'program-patientvitals-patientvitals';
 
 // Todo: make generic for surveys
 const useVitalsSurvey = () => {
@@ -43,7 +51,6 @@ const useVitalsSurvey = () => {
 
 export const VitalsPane = React.memo(({ patient, encounter, readonly }) => {
   const [modalOpen, setModalOpen] = useState(false);
-  const { currentUser } = useAuth();
   // const [startTime, setStartTime] = useState(null);
   const { data: survey, isLoading } = useVitalsSurvey();
 
@@ -63,7 +70,6 @@ export const VitalsPane = React.memo(({ patient, encounter, readonly }) => {
           onClose={handleClose}
           patient={patient}
           survey={survey}
-          currentUser={currentUser}
         />
       </Modal>
       <TableButtonRow variant="small">
