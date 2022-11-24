@@ -10,6 +10,7 @@ import {
   FHIR_SEARCH_PARAMETERS,
   FHIR_SEARCH_TOKEN_TYPES,
   FHIR_DATETIME_PRECISION,
+  FHIR_INTERACTIONS,
 } from '../../constants';
 import {
   FhirAddress,
@@ -46,6 +47,12 @@ export class FhirPatient extends FhirResource {
 
     this.UpstreamModel = models.Patient;
   }
+
+  static CAN_DO = new Set([
+    FHIR_INTERACTIONS.INSTANCE.READ,
+    FHIR_INTERACTIONS.TYPE.SEARCH,
+    FHIR_INTERACTIONS.INTERNAL.MATERIALISE,
+  ]);
 
   async updateMaterialisation() {
     const { PatientAdditionalData } = this.sequelize.models;

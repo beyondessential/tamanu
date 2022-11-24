@@ -55,6 +55,10 @@ export class FhirResource extends Model {
     return this.name.replace(/^Fhir/, '');
   }
 
+  // API interactions enabled for the resource
+  // see FHIR_INTERACTIONS constant
+  static CAN_DO = new Set();
+
   // main Tamanu model this resource is based on
   static UpstreamModel;
 
@@ -62,6 +66,7 @@ export class FhirResource extends Model {
   static UPSTREAM_UUID = false;
 
   // yup schema for validating incoming resource
+  // TODO: derive from the sequelize attributes by default
   static INTAKE_SCHEMA;
 
   // set upstream_id, call updateMaterialisation

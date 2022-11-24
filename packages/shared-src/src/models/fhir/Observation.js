@@ -2,6 +2,7 @@ import { DataTypes } from 'sequelize';
 import { FhirResource } from './Resource';
 import { arrayOf } from './utils';
 import { FhirAnnotation, FhirIdentifier, FhirReference } from '../../services/fhirTypes';
+import { FHIR_INTERACTIONS } from '../../constants';
 
 export class FhirObservation extends FhirResource {
   static init(options) {
@@ -22,7 +23,16 @@ export class FhirObservation extends FhirResource {
     // this.UpstreamModel = models.Observation;
   }
 
-  static INTAKE_SCHEMA = yup.object({});
+  static CAN_DO = new Set([
+    FHIR_INTERACTIONS.TYPE.CREATE,
+  ]);
+
+  static INTAKE_SCHEMA = yup.object({
+    identifier: yup.array().of(FhirIdentifier.asYup()),
+    basedOn: yup.array().of(FhirReference.asYup()),
+    status: yup.string().required(),
+    note: yup.array().of(FhirAnnotation.asYup()),
+  });
 
   async pushUpstream() {
     // Take a FhirResource and save it into Tamanu
@@ -32,7 +42,6 @@ export class FhirObservation extends FhirResource {
 /*
 The plan:
 - in the server, a POST route (named after create FHIR op) per resource
-  - filtered on which have an INTAKE_SCHEMA
 - the route takes a JSON body and validates it against the schema
 - also check headers and such as per spec
 - if valid, create the corresponding FhirResource from it (*in memory*)
