@@ -13,7 +13,7 @@ export async function migrateImagingRequests() {
     let migrated = 0;
     const imagingRequests = await ImagingRequest.findAll({
       include: 'location',
-      where: { locationGroupId: { [Op.is]: null } },
+      where: { locationGroupId: { [Op.is]: null }, locationId: { [Op.not]: null } },
     });
 
     await Promise.all(
