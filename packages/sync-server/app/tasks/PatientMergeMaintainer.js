@@ -3,9 +3,9 @@ import config from 'config';
 import { ScheduledTask } from 'shared/tasks';
 import { log } from 'shared/services/logging';
 import { NOTE_RECORD_TYPES } from 'shared/constants/notes';
+import { mergeRecord } from 'shared/sync/mergeRecord';
 
-import { simpleUpdateModels } from '../admin/patientMerge/mergePatient';
-import { reconcilePatient } from '../utils/removeDuplicatedPatientAdditionalData';
+import { simpleUpdateModels, specificUpdateModels } from '../admin/patientMerge/mergePatient';
 
 export class PatientMergeMaintainer extends ScheduledTask {
   getName() {
@@ -20,6 +20,13 @@ export class PatientMergeMaintainer extends ScheduledTask {
     super(conf.schedule, log);
     this.config = conf;
     this.models = context.store.models;
+  }
+
+  checkModelsMissingSpecificUpdateCoverage() {
+    return specificUpdateModels.filter(modelName => {
+      const method = this[`specificUpdate_${modelName}`];
+      return !method;
+    });
   }
 
   async mergeAllRecordsForModel(model, patientFieldName = 'patient_id', additionalWhere = '') {
@@ -47,8 +54,8 @@ export class PatientMergeMaintainer extends ScheduledTask {
     // set up an object for counting affected records
     const counts = {};
     const updateCounts = (name, records) => {
-      const len = records.length;
-      if (len > 0) {
+      const len = records && records.length;
+      if (len) {
         counts[name] = len;
       }
     };
@@ -60,27 +67,51 @@ export class PatientMergeMaintainer extends ScheduledTask {
       updateCounts(modelName, records);
     }
 
-    // then the complex model updates:
+    // then the model updates that need specific updates:
+    for (const modelName of specificUpdateModels) {
+      const method = this[`specificUpdate_${modelName}`];
+      if (method) {
+        const records = await method.call(this);
+        updateCounts(modelName, records);
+      }
+    }
 
-    // - patient: no merge required here (it will either already be merged or won't need it)
+    return counts;
+  }
 
-    // - patientAdditionalData: needs reconcile
+  async specificUpdate_Patient() {
+    // No merge required here (it will either already be merged or won't need it),
+    // The function is just included for completeness.
+  }
+
+  async specificUpdate_PatientAdditionalData() {
+    // PAD records need to be reconciled after merging
     const { PatientAdditionalData } = this.models;
+    
+    /*
+    TODO: busted
     const patientRecordsToReconcile = await this.mergeAllRecordsForModel(PatientAdditionalData);
     for (const keepPatientRecord of patientRecordsToReconcile) {
       await reconcilePatient(PatientAdditionalData.sequelize, keepPatientRecord.merged_into_id);
     }
-    updateCounts('PatientAdditionalData', patientRecordsToReconcile);
+    return patientRecordsToReconcile;
+    */
+    
+    return [];
+  }
 
-    // - notePage: uses a different field + additional search criteria
+  async specificUpdate_PatientFacility() {
+    // TODO: ???
+  }
+
+  async specificUpdate_NotePage() {
+    // uses a different field + additional search criteria
     const noteRecords = await this.mergeAllRecordsForModel(
       this.models.NotePage,
       'record_id',
       `AND record_type = '${NOTE_RECORD_TYPES.PATIENT}'`,
     );
-    updateCounts('NotePage', noteRecords);
-
-    return counts;
+    return noteRecords;
   }
 
   async run() {

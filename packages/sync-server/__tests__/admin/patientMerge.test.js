@@ -387,26 +387,31 @@ describe('Patient merge', () => {
       maintainerTask = new PatientMergeMaintainer(ctx);
     });
 
+    it("Should make a fuss if a specificUpdateModel isn't covered", async () => {
+      const missingModels = await maintainerTask.checkModelsMissingSpecificUpdateCoverage();
+      expect(missingModels).toHaveLength(0);
+    });
+
     it("Should return an empty results object if there's nothing to do", async () => {
       const results = await maintainerTask.remergePatientRecords();
       expect(results).toEqual({});
     });
 
-    it('Should remerge an encounter', async () => {
+    it('Should remerge a PatientIssue', async () => {
       // This is a stand-in for all the simple merge models
-      const { Encounter } = models;
+      const { PatientIssue } = models;
 
       const [keep, merge] = await makeTwoPatients();
       await mergePatient(models, keep.id, merge.id);
 
-      const enc = await Encounter.create({
-        ...fake(Encounter),
+      const enc = await PatientIssue.create({
+        ...fake(PatientIssue),
         patientId: merge.id,
       });
 
       const results = await maintainerTask.remergePatientRecords();
       expect(results).toEqual({
-        Encounter: 1,
+        PatientIssue: 1,
       });
 
       await enc.reload();

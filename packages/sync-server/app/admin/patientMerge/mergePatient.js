@@ -33,7 +33,12 @@ export const simpleUpdateModels = [
 // These ones need a little more attention.
 // Models in this array will be ignored by the automatic pass
 // so that they can be handled elsewhere.
-const specificUpdateModels = ['Patient', 'PatientAdditionalData', 'NotePage', 'PatientFacility'];
+export const specificUpdateModels = [
+  'Patient', 
+  'PatientAdditionalData',
+  'NotePage',
+  'PatientFacility',
+];
 
 const fieldReferencesPatient = field => field.references?.model === 'patients';
 const modelReferencesPatient = ([, model]) =>
