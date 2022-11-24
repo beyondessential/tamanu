@@ -81,6 +81,11 @@ export class ImagingRequest extends Model {
       as: 'completedBy',
     });
 
+    this.belongsTo(models.LocationGroup, {
+      as: 'locationGroup',
+      foreignKey: 'locationGroupId',
+    });
+
     this.belongsTo(models.Location, {
       foreignKey: 'locationId',
       as: 'location',
