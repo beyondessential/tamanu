@@ -42,7 +42,6 @@ export const NumberField = (props: NumberFieldProps): JSX.Element => {
 
     if (props.onChange) {
       if (Number.isNaN(value)) {
-        console.log('number is nan');
         props.onChange(null);
       } else {
         props.onChange(value);

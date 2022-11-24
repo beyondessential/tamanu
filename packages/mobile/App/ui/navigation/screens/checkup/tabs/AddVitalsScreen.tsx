@@ -63,7 +63,7 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
   const numericType = Yup.number()
     .nullable(true)
     .transform(value => {
-      if (!value) {
+      if (Number.isNaN(value)) {
         return null;
       }
       return value;

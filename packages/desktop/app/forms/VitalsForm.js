@@ -34,7 +34,7 @@ const numericType = yup
   .number()
   .nullable(true)
   .transform(value => {
-    if (!value) {
+    if (Number.isNaN(value)) {
       return null;
     }
     return value;
