@@ -468,5 +468,22 @@ describe('Patient merge', () => {
       await note.reload();
       expect(note.recordId).toEqual(keep.id);
     });
+
+    it.todo('Should remerge a patient facility')(async () => {
+      const { PatientFacility } = models;
+
+      const [keep, merge] = await makeTwoPatients();
+      await mergePatient(models, keep.id, merge.id);
+
+      // TODO: create a new PatientFacility record here
+
+      const results = await maintainerTask.remergePatientRecords();
+      expect(results).toEqual({
+        PatientFacility: 1,
+      });
+
+      // TODO: check that the PatientFacility record was successfully merged
+ 
+    });
   });
 });
