@@ -1,6 +1,9 @@
 import { DataTypes } from 'sequelize';
+import * as yup from 'yup';
+
 import { FhirResource } from './Resource';
 import { arrayOf } from './utils';
+
 import { FhirAnnotation, FhirIdentifier, FhirReference } from '../../services/fhirTypes';
 import { FHIR_INTERACTIONS } from '../../constants';
 
@@ -8,13 +11,13 @@ export class FhirObservation extends FhirResource {
   static init(options) {
     super.init(
       {
-        identifier: arrayOf(FhirIdentifier),
-        basedOn: arrayOf(FhirReference),
+        identifier: arrayOf('identifier', DataTypes.FHIR_IDENTIFIER),
+        basedOn: arrayOf('basedOn', DataTypes.FHIR_REFERENCE),
         status: {
           type: DataTypes.TEXT,
           allowNull: false,
         },
-        note: arrayOf(FhirAnnotation),
+        note: arrayOf('note', DataTypes.FHIR_ANNOTATION),
       },
       options,
     );
@@ -38,16 +41,3 @@ export class FhirObservation extends FhirResource {
     // Take a FhirResource and save it into Tamanu
   }
 }
-
-/*
-The plan:
-- in the server, a POST route (named after create FHIR op) per resource
-- the route takes a JSON body and validates it against the schema
-- also check headers and such as per spec
-- if valid, create the corresponding FhirResource from it (*in memory*)
-  - call pushUpstream on it, that returns an instance of the UpstreamModel
-  - if the resource has an UpstreamModel defined:
-    - queue it for materialisation
-    - include in the materialisation request the ID of the incoming, if present
-- return status and body as per spec
-*/
