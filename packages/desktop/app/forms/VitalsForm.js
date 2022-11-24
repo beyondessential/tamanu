@@ -33,11 +33,11 @@ VitalsNumericField.defaultProps = {
 const numericType = yup
   .number()
   .nullable(true)
-  .transform((value, originalValue) => {
+  .transform(value => {
     if (!value) {
       return null;
     }
-    return originalValue;
+    return value;
   });
 
 const schema = yup.object().shape({

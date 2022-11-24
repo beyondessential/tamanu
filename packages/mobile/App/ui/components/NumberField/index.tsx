@@ -41,7 +41,12 @@ export const NumberField = (props: NumberFieldProps): JSX.Element => {
     }
 
     if (props.onChange) {
-      props.onChange(value);
+      if (Number.isNaN(value)) {
+        console.log('number is nan');
+        props.onChange(null);
+      } else {
+        props.onChange(value);
+      }
     }
   };
 
@@ -63,7 +68,7 @@ export const NumberField = (props: NumberFieldProps): JSX.Element => {
       autoFocus={autoFocus}
       onFocus={onFocus}
       onBlur={onBlur}
-      value={number === undefined ? '' : number.toString()}
+      value={number === undefined || number === null ? '' : number.toString()}
       onChange={onChangeNumber}
       keyboardType="numeric"
     />
