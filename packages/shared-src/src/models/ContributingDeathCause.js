@@ -15,7 +15,7 @@ export class ContributingDeathCause extends Model {
       },
       {
         ...options,
-        syncConfig: { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         validate: {
           mustHavePatientDeathData() {
             if (this.deletedAt) return;
@@ -39,6 +39,7 @@ export class ContributingDeathCause extends Model {
   static initRelations(models) {
     this.belongsTo(models.PatientDeathData, {
       foreignKey: 'patientDeathDataId',
+      as: 'patientDeathData',
     });
 
     this.belongsTo(models.ReferenceData, {

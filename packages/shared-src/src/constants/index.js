@@ -18,5 +18,3 @@ export * from './statuses';
 export * from './surveys';
 export * from './sync';
 export * from './vaccines';
-
-export const DISPLAY_ID_PLACEHOLDER = '-TMP-';

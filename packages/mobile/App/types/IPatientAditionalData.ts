@@ -42,6 +42,4 @@ export interface IPatientAdditionalData {
   countryOfBirthId?: string;
   religionId?: string;
   patientBillingTypeId?: string;
-
-  markedForSync?: boolean;
 }

@@ -16,7 +16,7 @@ export const vitalsRows: Row[] = [
   'heartRate',
   'respiratoryRate',
   'temperature',
-  'spO2',
+  'spo2',
   'avpu',
 ].map(r => ({
   rowKey: 'label',

@@ -69,9 +69,24 @@ const EncounterActionDropdown = ({ encounter }) => {
       condition: () => encounter.encounterType === ENCOUNTER_TYPES.TRIAGE,
     },
     {
+      label: 'Finalise patient move',
+      condition: () => enablePatientMoveActions && encounter.plannedLocation,
+      onClick: onFinaliseLocationChange,
+    },
+    {
+      label: 'Cancel patient move',
+      condition: () => enablePatientMoveActions && encounter.plannedLocation,
+      onClick: onCancelLocationChange,
+    },
+    {
       label: 'Discharge',
       onClick: onDischargeOpen,
       condition: () => encounter.encounterType !== ENCOUNTER_TYPES.TRIAGE,
+    },
+    {
+      label: 'Plan patient move',
+      condition: () => enablePatientMoveActions && !encounter.plannedLocation,
+      onClick: onPlanLocationChange,
     },
     {
       label: 'Change department',
@@ -82,28 +97,13 @@ const EncounterActionDropdown = ({ encounter }) => {
       onClick: onChangeClinician,
     },
     {
-      label: 'Plan location change',
-      condition: () => enablePatientMoveActions && !encounter.plannedLocation,
-      onClick: onPlanLocationChange,
-    },
-    {
-      label: 'Finalise location change',
-      condition: () => enablePatientMoveActions && encounter.plannedLocation,
-      onClick: onFinaliseLocationChange,
-    },
-    {
-      label: 'Cancel location change',
-      condition: () => enablePatientMoveActions && encounter.plannedLocation,
-      onClick: onCancelLocationChange,
-    },
-    {
       label: 'Change location',
       condition: () => !enablePatientMoveActions && !encounter.plannedLocation,
       onClick: onChangeLocation,
     },
   ].filter(action => !action.condition || action.condition());
 
-  return <DropdownButton variant="outlined" actions={actions} />;
+  return <DropdownButton actions={actions} />;
 };
 
 const getConnectRoutedModal = ({ category, patientId, encounterId }, suffix) =>
