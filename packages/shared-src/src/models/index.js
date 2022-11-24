@@ -60,6 +60,7 @@ export * from './PatientCommunication';
 export * from './Facility';
 export * from './Department';
 export * from './Location';
+export * from './LocationGroup';
 export * from './UserFacility';
 export * from './Attachment';
 export * from './UserLocalisationCache';

@@ -26,7 +26,12 @@ export class Appointment extends Model {
   }
 
   static getListReferenceAssociations() {
-    return [{ association: 'patient', include: ['village'] }, 'clinician', 'location'];
+    return [
+      { association: 'patient', include: ['village'] },
+      'clinician',
+      'location',
+      'locationGroup',
+    ];
   }
 
   static initRelations(models) {
@@ -38,6 +43,11 @@ export class Appointment extends Model {
     this.belongsTo(models.User, {
       as: 'clinician',
       foreignKey: 'clinicianId',
+    });
+
+    this.belongsTo(models.LocationGroup, {
+      as: 'locationGroup',
+      foreignKey: 'locationGroupId',
     });
 
     this.belongsTo(models.Location, {

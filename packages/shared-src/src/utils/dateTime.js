@@ -89,6 +89,22 @@ export function dateTimeStringIntoCountryTimezone(date) {
   return parseISO(formatInTimeZone(date, config?.countryTimeZone, ISO8061_WITH_TIMEZONE));
 }
 
+export function getCurrentCountryTimeZoneDateTimeString() {
+  // Use the countryTimeZone if set, other wise fallback to the server time zone
+  if (config?.countryTimeZone) {
+    return formatInTimeZone(new Date(), config.countryTimeZone, ISO9075_DATETIME_FORMAT);
+  }
+  return formatISO9075(new Date());
+}
+
+export function getCurrentCountryTimeZoneDateString() {
+  // Use the countryTimeZone if set, other wise fallback to the server time zone
+  if (config?.countryTimeZone) {
+    return formatInTimeZone(new Date(), config.countryTimeZone, ISO9075_DATE_FORMAT);
+  }
+  return formatISO9075(new Date(), { representation: 'date' });
+}
+
 export function getCurrentDateTimeString() {
   return formatISO9075(new Date());
 }

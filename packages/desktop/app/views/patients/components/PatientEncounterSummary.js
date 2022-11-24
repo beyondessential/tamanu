@@ -10,6 +10,7 @@ import {
   ButtonWithPermissionCheck,
 } from '../../../components';
 import { useApi } from '../../../api';
+import { getFullLocationName } from '../../../utils/location';
 import { getPatientStatus } from '../../../utils/getPatientStatus';
 import { useLocalisation } from '../../../contexts/Localisation';
 
@@ -222,7 +223,7 @@ export const PatientEncounterSummary = ({ patient, viewEncounter, openCheckin })
         </ContentItem>
         <ContentItem>
           <ContentLabel>Location:</ContentLabel>
-          <ContentText>{location?.name || '-'}</ContentText>
+          <ContentText>{getFullLocationName(location)}</ContentText>
         </ContentItem>
         {!getLocalisation(`${referralSourcePath}.hidden`) && (
           <ContentItem>

@@ -34,6 +34,7 @@ const ALLOWLIST = [
   'labTestPriority',
   'labTestType',
   'location',
+  'locationGroup',
   'mammogramImagingArea',
   'manufacturer',
   'medicalarea',
