@@ -43,3 +43,16 @@ export const SURVEY_TYPES = {
   OBSOLETE: 'obsolete',
   VITALS: 'vitals',
 };
+
+export const VITALS_SURVEY_REQUIRED_FIELDS = [
+  'Date',
+  'Height',
+  'Weight',
+  'SBP',
+  'DBP',
+  'HeartRate',
+  'RespiratoryRate',
+  'Temperature',
+  'SPO2',
+  'AVPU',
+];
