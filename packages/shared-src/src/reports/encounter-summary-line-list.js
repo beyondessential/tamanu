@@ -226,7 +226,7 @@ with
       ) place_history,
       jsonb_build_array(
         case when nh.place = 'location' then e.location_id else e.department_id end) 
-        || jsonb_agg(case when nh.place = 'location' then (coalesce(lg.id, l.id) else d.id end
+        || jsonb_agg(case when nh.place = 'location' then coalesce(lg.id, l.id) else d.id end
       ) place_id_list -- Duplicates here are ok, but not required, as it will be used for searching
     from note_history nh
     join encounters e on nh.encounter_id = e.id
