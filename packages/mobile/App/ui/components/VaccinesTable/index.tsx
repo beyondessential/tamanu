@@ -79,7 +79,7 @@ export const VaccinesTable = ({
     cells[scheduledVaccine.schedule] = [
       ...(cells[scheduledVaccine.schedule] || []),
       {
-        scheduledVaccine: scheduledVaccine as IScheduledVaccine, // TODO: why doesn't ScheduledVaccine fulfull IScheduledVaccine?
+        scheduledVaccine: scheduledVaccine as IScheduledVaccine, // TODO: why doesn't ScheduledVaccine fulfill IScheduledVaccine?
         vaccineStatus,
         administeredVaccine,
         patientAdministeredVaccines,
