@@ -3,30 +3,19 @@ import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
 
 import { Modal } from '../Modal';
-import { MultiplePrescriptionPrintout } from './MultiplePrescriptionPrintout';
+import { MultipleLabRequestsPrintout } from './MultipleLabRequestsPrintout';
 import { LoadingIndicator } from '../LoadingIndicator';
 import { useCertificate } from '../../utils/useCertificate';
 import { useApi } from '../../api';
 import { Colors } from '../../constants';
 
-export const MultiplePrescriptionPrintoutModal = ({
-  encounter,
-  prescriberId,
-  prescriptions,
-  open,
-  onClose,
-}) => {
+export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open, onClose }) => {
   const certificateData = useCertificate();
   const api = useApi();
 
   const { data: patient, isLoading: patientLoading } = useQuery(
     ['patient', encounter.patientId],
     () => api.get(`patient/${encounter.patientId}`),
-  );
-
-  const { data: prescriber, isLoading: prescriberLoading } = useQuery(
-    ['prescriber', prescriberId],
-    () => api.get(`user/${prescriberId}`),
   );
 
   const { data: additionalData, isLoading: additionalDataLoading } = useQuery(
@@ -46,31 +35,29 @@ export const MultiplePrescriptionPrintoutModal = ({
 
   return (
     <Modal
-      title="Print prescriptions"
+      title="Print lab requests"
       width="md"
       open={open}
       onClose={onClose}
       color={Colors.white}
       printable
     >
-      {patientLoading || additionalDataLoading || villageLoading || prescriberLoading ? (
+      {patientLoading || additionalDataLoading || villageLoading ? (
         <LoadingIndicator />
       ) : (
-        <MultiplePrescriptionPrintout
+        <MultipleLabRequestsPrintout
           certificateData={certificateData}
           patientData={{ ...patient, additionalData, village }}
-          prescriber={prescriber}
-          prescriptions={prescriptions}
+          labRequests={labRequests}
         />
       )}
     </Modal>
   );
 };
 
-MultiplePrescriptionPrintoutModal.propTypes = {
+MultipleLabRequestsPrintoutModal.propTypes = {
   encounter: PropTypes.object.isRequired,
-  prescriberId: PropTypes.string.isRequired,
-  prescriptions: PropTypes.array.isRequired,
+  labRequests: PropTypes.array.isRequired,
   open: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
 };
