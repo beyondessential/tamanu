@@ -1,6 +1,10 @@
 #!/bin/bash
 set -euxo pipefail
 
+echo "TESTING" > $2/$1.txt
+exit 0
+
+: <<ignore
 WORKSPACE="${1?must specify a workspace}"
 RELEASE_FOLDER="release-nodejs"
 TARGET_PATH="${2-.}"
@@ -28,3 +32,4 @@ popd
 
 # move to tamanu
 mv "./packages/$WORKSPACE/$ZIP_NAME" $TARGET_PATH
+ignore
