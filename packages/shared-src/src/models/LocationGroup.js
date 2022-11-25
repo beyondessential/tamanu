@@ -12,6 +12,11 @@ export class LocationGroup extends Model {
           throw new InvalidOperationError('A location group must have a facility.');
         }
       },
+      mustNotIncludeComma() {
+        if (this.name.includes(',')) {
+          throw new InvalidOperationError('A location group name cannot include a comma.');
+        }
+      },
     };
     super.init(
       {
