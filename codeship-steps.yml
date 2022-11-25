@@ -49,7 +49,6 @@
       steps:
         - name: for lan
           tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-)
-
           command: ./scripts/build_package_release.sh lan
         - name: for desktop installer
           tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-)
@@ -71,7 +70,12 @@
         - name: package server zips
           tag: ^(master$|dev$|staging-|ci-)
           service: app-without-db
-          command: echo package server zips
+          type: serial
+          steps:
+            - name: build central server zip
+              command: ./scripts/build_server_zip.sh sync-server ./deploy
+            - name: build facility server zip
+              command: ./scripts/build_server_zip.sh lan ./deploy
         - name: upload all artefacts to s3
           tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-)
           service: awsdeployment
