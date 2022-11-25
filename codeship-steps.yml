@@ -10,6 +10,7 @@
       command: scripts/build_shared.sh
     - name: run tests
       type: serial
+      exclude: tan1409
       steps:
       - name: ensure migrations run cleanly
         service: app-with-db
@@ -43,7 +44,7 @@
             command: 'yarn test:coverage'
             exclude: ^(beta-|klaus-|sima-|sepi-|da-)
     - name: build packages
-      tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-|deploy-meta$)
+      tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-|deploy-meta$|tan1409)
       service: app-without-db
       type: parallel
       steps:
@@ -60,15 +61,15 @@
           tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-|deploy-meta$)
           command: ./scripts/build_package_release.sh meta-server
     - name: build and deploy
-      tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-|deploy-meta$)
+      tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-|deploy-meta$|tan1409)
       type: parallel
       steps:
         - name: fix ssh for builds
-          tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-|deploy-meta$)
+          tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-|deploy-meta$|tan1409)
           service: app-without-db
           command: /pre/scripts/fix_ssh.sh
         - name: package server zips
-          tag: ^(master$|dev$|staging-|ci-)
+          tag: ^(master$|dev$|staging-|ci-|tan1409)
           service: app-without-db
           type: serial
           steps:
@@ -77,7 +78,7 @@
             - name: build facility server zip
               command: ./scripts/build_server_zip.sh lan ./deploy
         - name: upload all artefacts to s3
-          tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-)
+          tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-|tan1409)
           service: awsdeployment
           command: ./scripts/push.sh
         - name: deploy desktop installer to auto-update channel
