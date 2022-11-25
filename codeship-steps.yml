@@ -67,15 +67,15 @@
           service: app-without-db
           command: ./scripts/build_package_release.sh meta-server
     - name: build and deploy
-      tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-|deploy-meta$|tan1409)
+      tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-|deploy-meta$)
       service: awsdeployment
       type: parallel
       steps:
         - name: package server zips
-          tag: ^(master$|dev$|staging-|ci-|tan1409)
+          tag: ^(master$|dev$|staging-|ci-)
           command: echo package server zips
         - name: upload all artefacts to s3
-          tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-|tan1409)
+          tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-)
           command: ./scripts/push.sh
         - name: deploy desktop installer to auto-update channel
           service: app-without-db
