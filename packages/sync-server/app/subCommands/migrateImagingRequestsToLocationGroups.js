@@ -39,6 +39,8 @@ export async function migrateImagingRequests() {
   }
 }
 
-export const migrateToLocationGroupsCommand = new Command('migrateAppointmentsToLocationGroups')
-  .description('Migrates appointments from locations to location groups')
+export const migrateImagingRequestsToLocationGroupsCommand = new Command(
+  'migrateImagingRequestsToLocationGroups',
+)
+  .description('Migrates imaging requests from locations to location groups')
   .action(migrateImagingRequests);
