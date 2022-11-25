@@ -2,7 +2,7 @@ import asyncHandler from 'express-async-handler';
 
 import { NOTE_RECORD_TYPES } from 'shared/constants/notes';
 
-import { getList } from '../../routes/apiv1/crudHelpers';
+import { getResourceList } from '../../routes/apiv1/crudHelpers';
 
 export const getLabRequestList = (foreignKey = '', options = {}) =>
   asyncHandler(async (req, res) => {
@@ -17,7 +17,7 @@ export const getLabRequestList = (foreignKey = '', options = {}) =>
       };
     }
 
-    const { data: labRequests, count } = await getList(req, 'LabRequest', foreignKey, newOptions);
+    const { data: labRequests, count } = await getResourceList(req, 'LabRequest', foreignKey, newOptions);
 
     /**
      * Have to select associated note pages of lab request separately here.

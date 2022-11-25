@@ -74,7 +74,7 @@ export const simplePost = modelName =>
     res.send(object);
   });
 
-export const getList = async (req, modelName, foreignKey = '', options = {}) => {
+export const getResourceList = async (req, modelName, foreignKey = '', options = {}) => {
   const { models, params, query } = req;
   const { order = 'ASC', orderBy = 'createdAt', rowsPerPage, page } = query;
   const { additionalFilters = {}, include = [], skipPermissionCheck = false } = options;
@@ -112,7 +112,7 @@ export const getList = async (req, modelName, foreignKey = '', options = {}) => 
 
 export const simpleGetList = (modelName, foreignKey = '', options = {}) =>
   asyncHandler(async (req, res) => {
-    const response = await getList(req, modelName, foreignKey, options);
+    const response = await getResourceList(req, modelName, foreignKey, options);
 
     res.send(response);
   });
