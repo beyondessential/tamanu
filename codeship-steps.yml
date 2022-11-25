@@ -42,40 +42,39 @@
             service: mobile
             command: 'yarn test:coverage'
             exclude: ^(beta-|klaus-|sima-|sepi-|da-)
-    - name: fix ssh for builds
-      tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-|deploy-meta$)
-      service: app-without-db
-      command: /pre/scripts/fix_ssh.sh
     - name: build packages
       tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-|deploy-meta$)
+      service: app-without-db
       type: parallel
       steps:
         - name: for lan
           tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-)
-          service: app-without-db
+
           command: ./scripts/build_package_release.sh lan
         - name: for desktop installer
-          service: app-without-db
           tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-)
           command: ./scripts/build_desktop.sh build-only
         - name: for sync release
           tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-)
-          service: app-without-db
           command: ./scripts/build_package_release.sh sync-server
         - name: for meta release
           tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-|deploy-meta$)
-          service: app-without-db
           command: ./scripts/build_package_release.sh meta-server
     - name: build and deploy
       tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-|deploy-meta$)
-      service: awsdeployment
       type: parallel
       steps:
+        - name: fix ssh for builds
+          tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-|deploy-meta$)
+          service: app-without-db
+          command: /pre/scripts/fix_ssh.sh
         - name: package server zips
           tag: ^(master$|dev$|staging-|ci-)
+          service: app-without-db
           command: echo package server zips
         - name: upload all artefacts to s3
           tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-)
+          service: awsdeployment
           command: ./scripts/push.sh
         - name: deploy desktop installer to auto-update channel
           service: app-without-db
@@ -86,6 +85,7 @@
         # see https://github.com/codeship-library/aws-utilities/issues/115
         - name: deploy the central server
           tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-)
+          service: awsdeployment
           type: serial
           steps:
             - name: onto dev
@@ -129,6 +129,7 @@
               command: ./scripts/deploy_sync.sh da tamanu-central-server-da
         - name: deploy the facility server
           tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-)
+          service: awsdeployment
           type: serial
           steps:
             - name: onto dev A
@@ -189,6 +190,7 @@
               tag: ^(master$)
               command: ./scripts/deploy_lan.sh demo-nauru tamanu-lan-server-demo-nauru
         - name: deploy the meta server
+          service: awsdeployment
           type: serial
           steps:
             - name: onto dev
