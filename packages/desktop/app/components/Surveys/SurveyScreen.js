@@ -10,21 +10,33 @@ const StyledButtonRow = styled(ButtonRow)`
   margin-top: 24px;
 `;
 
-export const SurveyScreen = ({ components, values, onStepForward, onStepBack, patient }) => {
+export const SurveyScreen = ({
+  components,
+  values = {},
+  onStepForward,
+  onStepBack,
+  submitButton,
+  patient,
+  cols = 1,
+}) => {
   const questionElements = components
     .filter(c => checkVisibility(c, values, components))
     .map(c => <SurveyQuestion component={c} patient={patient} key={c.id} />);
 
   return (
-    <FormGrid columns={1}>
+    <FormGrid columns={cols}>
       {questionElements}
       <StyledButtonRow>
-        <OutlinedButton onClick={onStepBack || undefined} disabled={!onStepBack}>
-          Prev
-        </OutlinedButton>
-        <Button color="primary" variant="contained" onClick={onStepForward}>
-          Next
-        </Button>
+        {submitButton || (
+          <>
+            <OutlinedButton onClick={onStepBack || undefined} disabled={!onStepBack}>
+              Prev
+            </OutlinedButton>
+            <Button color="primary" variant="contained" onClick={onStepForward}>
+              Next
+            </Button>
+          </>
+        )}
       </StyledButtonRow>
     </FormGrid>
   );

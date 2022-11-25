@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { VitalsTable } from '../../../components/VitalsTable';
-import { TableButtonRow, Button, Modal, Form, FormGrid } from '../../../components';
+import { TableButtonRow, Button, Modal, Form, ConfirmCancelRow } from '../../../components';
 import { TabPane } from '../components';
 import { useApi } from '../../../api';
-import { SurveyQuestion } from '../../../components/Surveys/SurveyQuestion';
+import { SurveyScreen } from '../../../components/Surveys/SurveyScreen';
 
 const VitalsForm = ({ onClose, patient, encounterId, survey }) => {
   const queryClient = useQueryClient();
@@ -19,18 +19,19 @@ const VitalsForm = ({ onClose, patient, encounterId, survey }) => {
 
   const { components } = survey;
 
-  console.log('components', components);
-
   return (
     <Form
       onSubmit={submitVitals}
-      render={() => {
+      render={({ submitForm }) => {
         return (
-          <FormGrid columns={1}>
-            {components.map(c => (
-              <SurveyQuestion component={c} patient={patient} key={c.id} />
-            ))}
-          </FormGrid>
+          <SurveyScreen
+            components={components}
+            patient={patient}
+            cols={2}
+            submitButton={
+              <ConfirmCancelRow confirmText="Record" onConfirm={submitForm} onCancel={onClose} />
+            }
+          />
         );
       }}
     />
@@ -53,8 +54,6 @@ export const VitalsPane = React.memo(({ patient, encounter, readonly }) => {
   const [modalOpen, setModalOpen] = useState(false);
   // const [startTime, setStartTime] = useState(null);
   const { data: survey, isLoading } = useVitalsSurvey();
-
-  console.log('data', survey);
 
   const handleClose = () => setModalOpen(false);
 
