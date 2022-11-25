@@ -10,7 +10,7 @@
       command: scripts/build_shared.sh
     - name: run tests
       type: serial
-      exclude: ^(tan1409)
+      tag: doesnt-match-tan1409
       steps:
       - name: ensure migrations run cleanly
         service: app-with-db
