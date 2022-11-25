@@ -32,7 +32,7 @@ VitalsNumericField.defaultProps = {
 
 const numericType = yup
   .number()
-  .nullable(true)
+  .nullable()
   .transform(value => {
     if (Number.isNaN(value)) {
       return null;
