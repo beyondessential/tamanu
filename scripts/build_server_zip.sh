@@ -9,6 +9,7 @@ mkdir -p ${TARGET_PATH}
 
 echo "TESTING" > $TARGET_PATH/$WORKSPACE.txt
 
+MAYBE_VERSION=1
 : <<ignore
 # build release
 ./scripts/build_shared.sh
