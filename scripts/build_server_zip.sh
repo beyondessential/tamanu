@@ -5,12 +5,7 @@ WORKSPACE="${1?must specify a workspace}"
 RELEASE_FOLDER="release-nodejs"
 TARGET_PATH="${2-.}"
 
-mkdir -p ${TARGET_PATH}
 
-echo "TESTING" > $TARGET_PATH/$WORKSPACE.txt
-
-MAYBE_VERSION=1
-: <<ignore
 # build release
 ./scripts/build_shared.sh
 ./scripts/build_package_release.sh "$WORKSPACE"
@@ -32,6 +27,7 @@ zip -r "$ZIP_NAME" "$DIR_NAME"
 rm -rf "$DIR_NAME"
 popd
 
+mkdir -p $TARGET_PATH
+
 # move to tamanu
 mv "./packages/$WORKSPACE/$ZIP_NAME" $TARGET_PATH
-ignore
