@@ -14,26 +14,11 @@ import { ListTable } from './ListTable';
 import { PatientDetailPrintout } from './PatientDetailPrintout';
 import { CertificateLabel } from './CertificateLabels';
 import { useAuth } from '../../contexts/Auth';
-import { Colors, DRUG_ROUTE_VALUE_TO_LABEL } from '../../constants';
+import { Colors } from '../../constants';
 
 const RowContainer = styled.div`
   display: flex;
   justify-content: flex-start;
-`;
-
-const SignatureText = styled(Typography)`
-  font-weight: 500;
-  display: inline;
-  font-size: 14px;
-  margin-right: 20px;
-`;
-
-const SignatureLine = styled(Divider)`
-  display: inline-block;
-  background-color: ${Colors.darkestText};
-  width: 400px;
-  position: absolute;
-  bottom: 14px;
 `;
 
 const StyledDivider = styled(Divider)`
