@@ -1,5 +1,6 @@
 #!/bin/bash
-# set -euxo pipefail
+
+set -euxo pipefail
 
 echo "TESTING" > $2/$1.txt
 exit 0
