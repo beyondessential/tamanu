@@ -66,16 +66,16 @@
           tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-|deploy-meta$)
           service: app-without-db
           command: ./scripts/build_package_release.sh meta-server
-    - name: push and deploy
-      tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|release-desktop-|klaus-|sima-|sepi-|da-|deploy-meta$)
+    - name: deploy desktop installer to auto-update channel
+      service: app-without-db
+      tag: ^(release-desktop-)
+      command: ./scripts/build_desktop.sh build-and-release
+    - name: deploy servers to EB
+      tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-|deploy-meta$)
+      service: awsdeployment
       type: parallel
       steps:
-        - name: the desktop installer
-          service: app-without-db
-          tag: ^(release-desktop-)
-          command: ./scripts/build_desktop.sh build-and-release
         - name: all artefacts to s3
-          service: awsdeployment
           tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-)
           command: ./scripts/push.sh
         # the following serial steps are a fix for a bug where version names can
@@ -83,7 +83,6 @@
         # see https://github.com/codeship-library/aws-utilities/issues/115
         - name: the sync server
           tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-)
-          service: awsdeployment
           type: serial
           steps:
             - name: onto dev
@@ -128,7 +127,6 @@
         - name: the lan server
           tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-)
           type: serial
-          service: awsdeployment
           steps:
             - name: onto dev A
               tag: ^(dev$|ci-)
@@ -188,7 +186,6 @@
               tag: ^(master$)
               command: ./scripts/deploy_lan.sh demo-nauru tamanu-lan-server-demo-nauru
         - name: the meta server
-          service: awsdeployment
           type: serial
           steps:
             - name: onto dev
