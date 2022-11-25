@@ -60,6 +60,14 @@
         - name: for meta release
           tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-|deploy-meta$)
           command: ./scripts/build_package_release.sh meta-server
+    - name: build server zips
+      tag: ^(master$|dev$|staging-|ci-)
+      service: app-without-db
+      steps:
+        - name: facility server
+          command: ./scripts/build_server_zip.sh lan ./deploy
+        - name: central server
+          command: ./scripts/build_server_zip.sh sync-server ./deploy
     - name: release desktop app to auto-updater
       service: app-without-db
       tag: ^release-desktop-
