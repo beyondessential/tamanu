@@ -66,22 +66,25 @@
           tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-|deploy-meta$)
           service: app-without-db
           command: ./scripts/build_package_release.sh meta-server
-    - name: deploy desktop installer to auto-update channel
-      service: app-without-db
-      tag: ^(release-desktop-)
-      command: ./scripts/build_desktop.sh build-and-release
-    - name: deploy servers to EB
-      tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-|deploy-meta$)
+    - name: build and deploy
+      tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-|deploy-meta$|tan1409)
       service: awsdeployment
       type: parallel
       steps:
-        - name: all artefacts to s3
-          tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-)
+        - name: package server zips
+          tag: ^(master$|dev$|staging-|ci-|tan1409)
+          command: echo package server zips
+        - name: upload all artefacts to s3
+          tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-|tan1409)
           command: ./scripts/push.sh
+        - name: deploy desktop installer to auto-update channel
+          service: app-without-db
+          tag: ^(release-desktop-)
+          command: ./scripts/build_desktop.sh build-and-release
         # the following serial steps are a fix for a bug where version names can
         # collide if an application is deployed in parallel
         # see https://github.com/codeship-library/aws-utilities/issues/115
-        - name: the sync server
+        - name: deploy the central server
           tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-)
           type: serial
           steps:
@@ -124,7 +127,7 @@
             - name: onto da
               tag: ^(da-)
               command: ./scripts/deploy_sync.sh da tamanu-central-server-da
-        - name: the lan server
+        - name: deploy the facility server
           tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-)
           type: serial
           steps:
@@ -185,7 +188,7 @@
             - name: onto nauru demo
               tag: ^(master$)
               command: ./scripts/deploy_lan.sh demo-nauru tamanu-lan-server-demo-nauru
-        - name: the meta server
+        - name: deploy the meta server
           type: serial
           steps:
             - name: onto dev
