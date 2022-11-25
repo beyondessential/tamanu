@@ -83,148 +83,117 @@
         # see https://github.com/codeship-library/aws-utilities/issues/115
         - name: the sync server
           tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-)
+          service: awsdeployment
           type: serial
           steps:
             - name: onto dev
               tag: ^(dev$|ci-)
-              service: awsdeployment
               command: ./scripts/deploy_sync.sh dev tamanu-central-server-dev-16
             - name: onto uat
               tag: ^uat-
-              service: awsdeployment
               command: ./scripts/deploy_sync.sh uat-fiji-vps tamanu-sync-server-uat-fiji-vps
             - name: onto rispacs uat
               tag: ^uatrispacs-
-              service: awsdeployment
               command: ./scripts/deploy_sync.sh uatrispacs tamanu-sync-server-uat-rispacs-16
             - name: onto pmi uat
               tag: ^uatpmi-
-              service: awsdeployment
               command: ./scripts/deploy_sync.sh uatpmi tamanu-central-server-uat-pmi
             - name: onto beta
               tag: ^beta-
-              service: awsdeployment
               command: ./scripts/deploy_sync.sh beta tamanu-central-server-beta
             - name: onto staging
               tag: ^(staging-)
-              service: awsdeployment
               command: ./scripts/deploy_sync.sh staging tamanu-central-server-staging-16
             - name: onto demo
               tag: ^(master$)
-              service: awsdeployment
               command: ./scripts/deploy_sync.sh demo tamanu-sync-server-demo
             - name: onto nauru demo
               tag: ^(master$)
-              service: awsdeployment
               command: ./scripts/deploy_sync.sh demo-nauru tamanu-sync-server-demo-nauru
             - name: onto palau demo
               tag: ^(master$)
-              service: awsdeployment
               command: ./scripts/deploy_sync.sh demo-palau tamanu-sync-server-demo-palau
             - name: onto klaus
               tag: ^(klaus-)
-              service: awsdeployment
               command: ./scripts/deploy_sync.sh klaus tamanu-central-server-klaus
             - name: onto sima
               tag: ^(sima-)
-              service: awsdeployment
               command: ./scripts/deploy_sync.sh sima tamanu-central-server-sima
             - name: onto sepi
               tag: ^(sepi-)
-              service: awsdeployment
               command: ./scripts/deploy_sync.sh sepi tamanu-central-server-sepi
             - name: onto da
               tag: ^(da-)
-              service: awsdeployment
               command: ./scripts/deploy_sync.sh da tamanu-central-server-da
         - name: the lan server
           tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-)
           type: serial
+          service: awsdeployment
           steps:
             - name: onto dev A
               tag: ^(dev$|ci-)
-              service: awsdeployment
               command: ./scripts/deploy_lan.sh dev tamanu-facility-server-dev-16a
             - name: onto dev B
               tag: ^(dev$|ci-)
-              service: awsdeployment
               command: ./scripts/deploy_lan.sh dev tamanu-facility-server-dev-16b
             - name: onto beta A
               tag: ^(beta-)
-              service: awsdeployment
               command: ./scripts/deploy_lan.sh beta tamanu-facility-server-beta-a
             - name: onto beta B
               tag: ^(beta-)
-              service: awsdeployment
               command: ./scripts/deploy_lan.sh beta tamanu-facility-server-beta-b
             - name: onto klaus A
               tag: ^(klaus-)
-              service: awsdeployment
               command: ./scripts/deploy_lan.sh klaus tamanu-facility-server-klaus-a
             - name: onto klaus B
               tag: ^(klaus-)
-              service: awsdeployment
               command: ./scripts/deploy_lan.sh klaus tamanu-facility-server-klaus-b
             - name: onto klaus C
               tag: ^(klaus-)
-              service: awsdeployment
               command: ./scripts/deploy_lan.sh klaus tamanu-facility-server-klaus-c
             - name: onto sima A
               tag: ^(sima-)
-              service: awsdeployment
               command: ./scripts/deploy_lan.sh sima tamanu-facility-server-sima-a
             - name: onto sepi A
               tag: ^(sepi-)
-              service: awsdeployment
               command: ./scripts/deploy_lan.sh sepi tamanu-facility-server-sepi-a
             - name: onto da A
               tag: ^(da-)
-              service: awsdeployment
               command: ./scripts/deploy_lan.sh da tamanu-facility-server-da-a
             - name: onto uat
               tag: ^uat-
-              service: awsdeployment
               command: ./scripts/deploy_lan.sh uat tamanu-lan-server-uat
             - name: onto rispacs uat
               tag: ^uatrispacs-
-              service: awsdeployment
               command: ./scripts/deploy_lan.sh uatrispacs tamanu-facility-server-rispacs
             - name: onto pmi uat
               tag: ^uatpmi-
-              service: awsdeployment
               command: ./scripts/deploy_lan.sh uatpmi tamanu-facility-server-uat-pmi
             - name: onto beta A
               tag: ^(beta-)
-              service: awsdeployment
               command: ./scripts/deploy_lan.sh beta tamanu-facility-server-beta-a
             - name: onto beta B
               tag: ^(beta-)
-              service: awsdeployment
               command: ./scripts/deploy_lan.sh beta tamanu-facility-server-beta-b
             - name: onto staging A
               tag: ^(staging-)
-              service: awsdeployment
               command: ./scripts/deploy_lan.sh staging tamanu-facility-server-staging-16a
             - name: onto staging B
               tag: ^(staging-)
-              service: awsdeployment
               command: ./scripts/deploy_lan.sh staging tamanu-facility-server-staging-16b
             - name: onto demo
               tag: ^(master$)
-              service: awsdeployment
               command: ./scripts/deploy_lan.sh demo tamanu-lan-server-demo
             - name: onto nauru demo
               tag: ^(master$)
-              service: awsdeployment
               command: ./scripts/deploy_lan.sh demo-nauru tamanu-lan-server-demo-nauru
         - name: the meta server
+          service: awsdeployment
           type: serial
           steps:
             - name: onto dev
               tag: ^(dev$|ci-)
-              service: awsdeployment
               command: ./scripts/deploy_meta.sh dev tamanu-meta-server-dev-16
             - name: onto prod
               tag: ^(master|deploy-meta)$
-              service: awsdeployment
               command: ./scripts/deploy_meta.sh prod tamanu-meta-server-prod-16
