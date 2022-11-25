@@ -2,7 +2,6 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 
 import { QueryTypes } from 'sequelize';
-import { NOTE_RECORD_TYPES } from 'shared/constants/notes';
 
 import { NotFoundError } from 'shared/errors';
 import { renameObjectKeys } from '../../utils/renameObjectKeys';
