@@ -49,16 +49,16 @@
       type: parallel
       steps:
         - name: for lan
-          tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-)
+          tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-|tan1409)
           command: ./scripts/build_package_release.sh lan
         - name: for desktop installer
-          tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-)
+          tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-|tan1409)
           command: ./scripts/build_desktop.sh build-only
         - name: for sync release
-          tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-)
+          tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-|tan1409)
           command: ./scripts/build_package_release.sh sync-server
         - name: for meta release
-          tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-|deploy-meta$)
+          tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-|deploy-meta$|tan1409)
           command: ./scripts/build_package_release.sh meta-server
     - name: build and deploy
       tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-|deploy-meta$|tan1409)
