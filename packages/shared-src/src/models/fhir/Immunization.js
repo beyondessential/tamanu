@@ -2,6 +2,7 @@ import { Sequelize, DataTypes } from 'sequelize';
 
 import { VACCINE_STATUS, INJECTION_SITE_OPTIONS } from 'shared/constants';
 import { FhirResource } from './Resource';
+import { arrayOf } from './utils';
 import { dateType } from '../dateTimeTypes';
 import { FhirCodeableConcept, FhirCoding } from '../../services/fhirTypes';
 
@@ -9,15 +10,15 @@ export class FhirImmunization extends FhirResource {
   static init(options, models) {
     super.init(
       {
-        identifier: this.ArrayOf('identifier', DataTypes.FHIR_IDENTIFIER),
+        identifier: arrayOf('identifier', DataTypes.FHIR_IDENTIFIER),
         status: {
           type: Sequelize.STRING(16),
           allowNull: false,
         },
-        vaccineCode: this.ArrayOf('vaccineCode', DataTypes.FHIR_CODEABLE_CONCEPT),
+        vaccineCode: arrayOf('vaccineCode', DataTypes.FHIR_CODEABLE_CONCEPT),
         occurrenceDateTime: dateType('occuranceDateTime', { allowNull: true }),
         lotNumber: Sequelize.TEXT,
-        site: this.ArrayOf('site', DataTypes.FHIR_CODEABLE_CONCEPT),
+        site: arrayOf('site', DataTypes.FHIR_CODEABLE_CONCEPT),
         performer: {}, // TODO: figure out field?
         protocolApplied: {}, // TODO: ditto
       },
