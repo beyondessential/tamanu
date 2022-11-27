@@ -18,6 +18,7 @@ export * from './Paper';
 export * from './Preloader';
 export * from './LocationSearchBar';
 export * from './SearchBar';
+export * from './Surveys';
 export * from './Table';
 export * from './TamanuLogo';
 export * from './Typography';
