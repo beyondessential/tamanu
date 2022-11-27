@@ -273,7 +273,7 @@ encounterRelations.get(
               "validationCriteria", ssc.validation_criteria,
               "config", ssc.config
             ]
-          )
+          ) answers
         FROM survey_responses sr
         INNER JOIN surveys s
           ON s.id = sr.survey_id
