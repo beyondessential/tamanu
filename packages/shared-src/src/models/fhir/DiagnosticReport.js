@@ -18,6 +18,10 @@ export class FhirDiagnosticReport extends FhirResource {
         },
         category: arrayOf('category', DataTypes.FHIR_CODEABLE_CONCEPT),
         code: arrayOf('code', DataTypes.FHIR_CODEABLE_CONCEPT),
+        subject: {
+          type: DataTypes.FHIR_REFERENCE,
+          allowNull: true,
+        },
         effectiveDateTime: dateType('effectiveDateTime', { allowNull: true }),
         issued: dateType('issued', { allowNull: true }),
         performer: {}, // TODO: figure out field?
@@ -27,13 +31,6 @@ export class FhirDiagnosticReport extends FhirResource {
     );
 
     this.UpstreamModel = models.LabTest;
-  }
-
-  static initRelations(models) {
-    this.belongsTo(models.FhirPatient, {
-      foreignKey: 'subject',
-      as: 'subjectPatient',
-    });
   }
 
   async updateMaterialisation() {

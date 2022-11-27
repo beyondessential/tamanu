@@ -16,6 +16,14 @@ export class FhirImmunization extends FhirResource {
           allowNull: false,
         },
         vaccineCode: arrayOf('vaccineCode', DataTypes.FHIR_CODEABLE_CONCEPT),
+        patient: {
+          type: DataTypes.FHIR_REFERENCE,
+          allowNull: false,
+        },
+        encounter: {
+          type: DataTypes.FHIR_REFERENCE,
+          allowNull: true,
+        },
         occurrenceDateTime: dateType('occuranceDateTime', { allowNull: true }),
         lotNumber: Sequelize.TEXT,
         site: arrayOf('site', DataTypes.FHIR_CODEABLE_CONCEPT),
@@ -26,16 +34,6 @@ export class FhirImmunization extends FhirResource {
     );
 
     this.UpstreamModel = models.AdministeredVaccine;
-  }
-
-  static initRelations(models) {
-    this.belongsTo(models.FhirPatient, {
-      foreignKey: 'patient',
-    });
-
-    this.belongsTo(models.Encounter, {
-      foreignKey: 'encounter',
-    });
   }
 
   async updateMaterialisation() {
