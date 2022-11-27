@@ -269,9 +269,7 @@ encounterRelations.get(
           JSONB_AGG(
             JSONB_BUILD_OBJECT[
               "name", pde.name,
-              "value": sra.body,
-              "validationCriteria", ssc.validation_criteria,
-              "config", ssc.config
+              "value": sra.body
             ]
           ) answers
         FROM survey_responses sr
