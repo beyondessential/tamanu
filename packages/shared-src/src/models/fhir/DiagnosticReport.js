@@ -3,6 +3,7 @@ import { Sequelize, DataTypes } from 'sequelize';
 
 import { LAB_REQUEST_STATUSES } from 'shared/constants';
 import { FhirResource } from './Resource';
+import { arrayOf } from './utils';
 import { dateType } from '../dateTimeTypes';
 import { FhirCodeableConcept, FhirCoding, FhirIdentifier } from '../../services/fhirTypes';
 
@@ -10,13 +11,13 @@ export class FhirDiagnosticReport extends FhirResource {
   static init(options, models) {
     super.init(
       {
-        identifier: this.ArrayOf('identifier', DataTypes.FHIR_IDENTIFIER),
+        identifier: arrayOf('identifier', DataTypes.FHIR_IDENTIFIER),
         status: {
           type: Sequelize.STRING(16),
           allowNull: false,
         },
-        category: this.ArrayOf('category', DataTypes.FHIR_CODEABLE_CONCEPT),
-        code: this.ArrayOf('code', DataTypes.FHIR_CODEABLE_CONCEPT),
+        category: arrayOf('category', DataTypes.FHIR_CODEABLE_CONCEPT),
+        code: arrayOf('code', DataTypes.FHIR_CODEABLE_CONCEPT),
         effectiveDateTime: dateType('effectiveDateTime', { allowNull: true }),
         issued: dateType('issued', { allowNull: true }),
         performer: {}, // TODO: figure out field?
