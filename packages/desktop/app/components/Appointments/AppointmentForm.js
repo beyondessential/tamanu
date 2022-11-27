@@ -111,6 +111,7 @@ export const AppointmentForm = props => {
                 name="locationGroupId"
                 endpoint="locationGroup"
                 component={SuggesterSelectField}
+                filterByFacility
                 required
               />
               <FormSeparatorLine />
