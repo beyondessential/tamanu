@@ -42,20 +42,12 @@ export async function up(query) {
       defaultValue: '{}',
     },
     patient: {
-      type: Sequelize.UUID,
+      type: 'fhir.reference',
       allowNull: false,
-      references: {
-        model: { schema: 'fhir', tableName: 'patients' },
-        key: 'id',
-      },
     },
     encounter: {
-      type: Sequelize.UUID,
-      allowNull: false,
-      references: {
-        model: { schema: 'public', tableName: 'encounters' }, // TODO: verify proper schema name
-        key: 'id',
-      },
+      type: 'fhir.reference',
+      allowNull: true,
     },
     occurrence_date_time: {
       type: 'date_time_string',

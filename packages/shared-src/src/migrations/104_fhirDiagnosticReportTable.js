@@ -43,12 +43,8 @@ export async function up(query) {
       defaultValue: '{}',
     },
     subject: {
-      type: Sequelize.UUID,
-      allowNull: false,
-      references: {
-        model: { schema: 'fhir', tableName: 'patients' },
-        key: 'id',
-      },
+      type: 'fhir.reference',
+      allowNull: true,
     },
     effective_date_time: {
       type: 'date_time_string',
