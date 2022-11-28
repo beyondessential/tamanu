@@ -12,7 +12,7 @@ locationGroup.post('/$', simplePost('LocationGroup'));
 locationGroup.get(
   '/$',
   asyncHandler(async (req, res) => {
-    req.checkPermission('list', 'LocationGroup');
+    req.checkPermission('list', 'location');
     if (!config.serverFacilityId) {
       res.send([]);
       return;
@@ -29,7 +29,6 @@ locationGroup.get(
 locationGroup.get(
   '/:id/locations',
   asyncHandler(async (req, res) => {
-    req.checkPermission('read', 'LocationGroup');
     req.checkPermission('list', 'Location');
     if (!config.serverFacilityId) {
       res.send([]);
