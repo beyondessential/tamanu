@@ -1,4 +1,4 @@
-const CURRENT_SYNC_TIME_KEY = 'currentSyncTime';
+const CURRENT_SYNC_TIME_KEY = 'currentSyncTick';
 
 export async function up(query) {
   await query.sequelize.query(`

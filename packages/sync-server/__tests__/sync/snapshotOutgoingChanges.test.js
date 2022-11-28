@@ -40,7 +40,7 @@ describe('snapshotOutgoingChanges', () => {
         lastConnectionTime: startTime,
       });
       await ReferenceData.create(fakeReferenceData());
-      const tock = await LocalSystemFact.increment('currentSyncTime', 2);
+      const tock = await LocalSystemFact.increment('currentSyncTick', 2);
 
       const result = await snapshotOutgoingChanges.overrideConfig(
         outgoingModels,
@@ -60,7 +60,7 @@ describe('snapshotOutgoingChanges', () => {
     'if nothing changed returns 0',
     withErrorShown(async () => {
       const { LocalSystemFact } = models;
-      const tock = await LocalSystemFact.increment('currentSyncTime', 2);
+      const tock = await LocalSystemFact.increment('currentSyncTick', 2);
 
       const result = await snapshotOutgoingChanges(
         outgoingModels,
@@ -83,7 +83,7 @@ describe('snapshotOutgoingChanges', () => {
         startTime,
         lastConnectionTime: startTime,
       });
-      const tock = await LocalSystemFact.increment('currentSyncTime', 2);
+      const tock = await LocalSystemFact.increment('currentSyncTick', 2);
       await ReferenceData.create(fakeReferenceData());
 
       const result = await snapshotOutgoingChanges(
@@ -109,7 +109,7 @@ describe('snapshotOutgoingChanges', () => {
     'returns records changed since given tick only',
     withErrorShown(async () => {
       const { SyncSession, LocalSystemFact, ReferenceData } = models;
-      await LocalSystemFact.increment('currentSyncTime', 2);
+      await LocalSystemFact.increment('currentSyncTick', 2);
       await ReferenceData.create(fakeReferenceData());
 
       const startTime = new Date();
@@ -117,7 +117,7 @@ describe('snapshotOutgoingChanges', () => {
         startTime,
         lastConnectionTime: startTime,
       });
-      const tock = await LocalSystemFact.increment('currentSyncTime', 2);
+      const tock = await LocalSystemFact.increment('currentSyncTick', 2);
       await ReferenceData.create(fakeReferenceData());
 
       const result = await snapshotOutgoingChanges(
@@ -136,7 +136,7 @@ describe('snapshotOutgoingChanges', () => {
     'returns records changed since more than one tick',
     withErrorShown(async () => {
       const { SyncSession, LocalSystemFact, ReferenceData } = models;
-      const firstTock = await LocalSystemFact.increment('currentSyncTime', 2);
+      const firstTock = await LocalSystemFact.increment('currentSyncTick', 2);
       await ReferenceData.create(fakeReferenceData());
 
       const startTime = new Date();
@@ -144,7 +144,7 @@ describe('snapshotOutgoingChanges', () => {
         startTime,
         lastConnectionTime: startTime,
       });
-      await LocalSystemFact.increment('currentSyncTime', 2);
+      await LocalSystemFact.increment('currentSyncTick', 2);
       await ReferenceData.create(fakeReferenceData());
 
       const result = await snapshotOutgoingChanges(
@@ -189,7 +189,7 @@ describe('snapshotOutgoingChanges', () => {
         startTime,
         lastConnectionTime: startTime,
       });
-      const tock = await LocalSystemFact.increment('currentSyncTime', 2);
+      const tock = await LocalSystemFact.increment('currentSyncTick', 2);
       await ReferenceData.create(fakeReferenceData());
 
       /*
@@ -270,7 +270,7 @@ describe('snapshotOutgoingChanges', () => {
         startTime,
         lastConnectionTime: startTime,
       });
-      const tock = await LocalSystemFact.increment('currentSyncTime', 2);
+      const tock = await LocalSystemFact.increment('currentSyncTick', 2);
       await ReferenceData.create(fakeReferenceData());
 
       /*
@@ -334,7 +334,7 @@ describe('snapshotOutgoingChanges', () => {
         SyncSession,
         User,
       } = models;
-      const firstTock = await LocalSystemFact.increment('currentSyncTime', 2);
+      const firstTock = await LocalSystemFact.increment('currentSyncTick', 2);
       const user = await User.create(fake(User));
       const patient = await Patient.create(fake(Patient));
       const facility = await Facility.create(fake(Facility));
@@ -347,7 +347,7 @@ describe('snapshotOutgoingChanges', () => {
         locationId: location.id,
         departmentId: department.id,
       });
-      const secondTock = await LocalSystemFact.increment('currentSyncTime', 2);
+      const secondTock = await LocalSystemFact.increment('currentSyncTick', 2);
 
       const labTestCategory = await ReferenceData.create({
         ...fake(ReferenceData),

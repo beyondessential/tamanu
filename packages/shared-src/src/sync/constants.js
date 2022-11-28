@@ -3,6 +3,6 @@ export const SYNC_SESSION_DIRECTION = {
   OUTGOING: 'outgoing',
 };
 
-export const CURRENT_SYNC_TIME_KEY = 'currentSyncTime';
+export const CURRENT_SYNC_TIME_KEY = 'currentSyncTick';
 
 export const COLUMNS_EXCLUDED_FROM_SYNC = ['createdAt', 'updatedAt', 'updatedAtSyncTick'];

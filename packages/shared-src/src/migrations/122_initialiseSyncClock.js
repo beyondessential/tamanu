@@ -1,6 +1,6 @@
 import Sequelize from 'sequelize';
 
-const CURRENT_SYNC_TIME_KEY = 'currentSyncTime';
+const CURRENT_SYNC_TIME_KEY = 'currentSyncTick';
 
 export async function up(query) {
   await query.bulkInsert('local_system_facts', [
