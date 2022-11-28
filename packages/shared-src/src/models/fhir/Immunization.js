@@ -28,7 +28,7 @@ export class FhirImmunization extends FhirResource {
         lotNumber: Sequelize.TEXT,
         site: arrayOf('site', DataTypes.FHIR_CODEABLE_CONCEPT),
         performer: arrayOf('performer', DataTypes.FHIR_IMMUNIZATION_PERFORMER),
-        protocolApplied: arrayOf('performer', DataTypes.FHIR_IMMUNIZATION_PROTOCOL_APPLIED),
+        protocolApplied: arrayOf('protocolApplied', DataTypes.FHIR_IMMUNIZATION_PROTOCOL_APPLIED),
       },
       options,
     );
