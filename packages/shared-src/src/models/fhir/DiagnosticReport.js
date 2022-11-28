@@ -88,8 +88,8 @@ export class FhirDiagnosticReport extends FhirResource {
   }
 }
 
-function extension() {
-
+function extension(labTestMethod) {
+  return null; // TODO: figure out what to save here
 }
 
 function identifiers(labRequest) {
@@ -132,9 +132,5 @@ function performer(laboratory, examiner) {
 }
 
 function result(labTest, labRequest) {
-  return null; // TODO: figure out what to save here
-}
-
-function extension(labTestMethod) {
   return null; // TODO: figure out what to save here
 }
