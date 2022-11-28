@@ -46,7 +46,7 @@ describe('databaseState', () => {
 
   it('syncing models should set tick on create', async () => {
     const { LocalSystemFact, Patient, Facility } = models;
-    const currentTick = await LocalSystemFact.get('currentSyncTime');
+    const currentTick = await LocalSystemFact.get('currentSyncTick');
 
     // can't test against every model because of dependencies, just pick a few
     for (const Model of [Patient, Facility]) {

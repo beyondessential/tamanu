@@ -28,7 +28,7 @@ describe('snapshotOutgoingChanges', () => {
     'if in readOnly mode returns empty array',
     withErrorShown(async () => {
       const { LocalSystemFact } = models;
-      const tick = await LocalSystemFact.increment('currentSyncTime');
+      const tick = await LocalSystemFact.increment('currentSyncTick');
 
       const result = await snapshotOutgoingChanges.overrideConfig(
         ctx.sequelize,
@@ -46,7 +46,7 @@ describe('snapshotOutgoingChanges', () => {
     'if nothing changed returns empty array',
     withErrorShown(async () => {
       const { LocalSystemFact } = models;
-      const tick = await LocalSystemFact.increment('currentSyncTime');
+      const tick = await LocalSystemFact.increment('currentSyncTick');
 
       const result = await snapshotOutgoingChanges(
         ctx.sequelize,
@@ -62,7 +62,7 @@ describe('snapshotOutgoingChanges', () => {
     'throws error when outgoing models contain invalid sync direction',
     withErrorShown(async () => {
       const { LocalSystemFact } = models;
-      const tick = await LocalSystemFact.increment('currentSyncTime');
+      const tick = await LocalSystemFact.increment('currentSyncTick');
 
       await expect(
         snapshotOutgoingChanges(ctx.sequelize, models, fakeUUID(), tick - 1),
@@ -74,7 +74,7 @@ describe('snapshotOutgoingChanges', () => {
     'returns serialised records (excluding metadata columns)',
     withErrorShown(async () => {
       const { LocalSystemFact, ReferenceData } = models;
-      const tick = await LocalSystemFact.increment('currentSyncTime');
+      const tick = await LocalSystemFact.increment('currentSyncTick');
 
       const row = await ReferenceData.create(fakeReferenceData());
       const sessionId = fakeUUID();
@@ -110,10 +110,10 @@ describe('snapshotOutgoingChanges', () => {
     withErrorShown(async () => {
       const { LocalSystemFact, ReferenceData } = models;
 
-      const tickBefore = await LocalSystemFact.increment('currentSyncTime');
+      const tickBefore = await LocalSystemFact.increment('currentSyncTick');
       await ReferenceData.create(fakeReferenceData());
 
-      await LocalSystemFact.increment('currentSyncTime');
+      await LocalSystemFact.increment('currentSyncTick');
       const row = await ReferenceData.create(fakeReferenceData());
 
       const sessionId = fakeUUID();
@@ -148,10 +148,10 @@ describe('snapshotOutgoingChanges', () => {
     withErrorShown(async () => {
       const { LocalSystemFact, ReferenceData } = models;
 
-      const tickBefore = await LocalSystemFact.increment('currentSyncTime');
+      const tickBefore = await LocalSystemFact.increment('currentSyncTick');
       const rowBefore = await ReferenceData.create(fakeReferenceData());
 
-      await LocalSystemFact.increment('currentSyncTime');
+      await LocalSystemFact.increment('currentSyncTick');
       const rowAfter = await ReferenceData.create(fakeReferenceData());
 
       const sessionId = fakeUUID();
@@ -214,7 +214,7 @@ describe('snapshotOutgoingChanges', () => {
         },
       };
 
-      const tick = await LocalSystemFact.increment('currentSyncTime');
+      const tick = await LocalSystemFact.increment('currentSyncTick');
       const rowBefore = await ReferenceData.create({
         ...fakeReferenceData(),
         name: 'refData before',
@@ -295,7 +295,7 @@ describe('snapshotOutgoingChanges', () => {
         },
       };
 
-      const tick = await LocalSystemFact.increment('currentSyncTime');
+      const tick = await LocalSystemFact.increment('currentSyncTick');
       const rowBefore = await ReferenceData.create({
         ...fakeReferenceData(),
         name: 'refData before',
