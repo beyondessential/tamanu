@@ -20,7 +20,7 @@ export function readHandler(FhirResource) {
       // const query = await parseRequest(req, parameters);
       const record = await FhirResource.findByPk(id);
       if (!record)
-        throw new NotFound(`no ${resource} with id ${id}`);
+        throw new NotFound(`no ${FhirResource.fhirName} with id ${id}`);
 
       res.header('Last-Modified', formatRFC7231(record.lastUpdated));
       // TODO: support ETag when we have full versioning support

@@ -5,11 +5,11 @@ import { FhirResource } from './Resource';
 import { arrayOf } from './utils';
 
 import { FhirAnnotation, FhirIdentifier, FhirReference } from '../../services/fhirTypes';
-import { FHIR_INTERACTIONS, FHIR_ISSUE_TYPE } from '../../constants';
+import { FHIR_INTERACTIONS, FHIR_ISSUE_TYPE, IMAGING_REQUEST_STATUS_TYPES } from '../../constants';
 import { Deleted, Invalid } from '../../utils/fhir';
 
 export class FhirObservation extends FhirResource {
-  static init(options) {
+  static init(options, models) {
     super.init(
       {
         identifier: arrayOf('identifier', DataTypes.FHIR_IDENTIFIER),
@@ -96,6 +96,9 @@ export class FhirObservation extends FhirResource {
         externalCode: imagingAccessCode,
       });
     }
+
+    imagingRequest.set({ status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED });
+    await imagingRequest.save();
 
     return result;
   }

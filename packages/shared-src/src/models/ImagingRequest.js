@@ -33,7 +33,8 @@ export class ImagingRequest extends Model {
           defaultValue: getCurrentDateTimeString,
         }),
 
-        results: {
+        // moved into ImagingResults.description
+        legacyResults: {
           type: Sequelize.TEXT,
           defaultValue: '',
         },
@@ -62,7 +63,7 @@ export class ImagingRequest extends Model {
   }
 
   static getListReferenceAssociations() {
-    return ['requestedBy', 'areas'];
+    return ['requestedBy', 'areas', 'results'];
   }
 
   static initRelations(models) {

@@ -1,7 +1,7 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, Sequelize } from 'sequelize';
 
 export async function up(query) {
-  query.createTable('imaging_results', {
+  await query.createTable('imaging_results', {
     id: {
       type: DataTypes.UUID,
       allowNull: false,
@@ -52,8 +52,16 @@ export async function up(query) {
       allowNull: true,
     },
   });
+
+  await query.renameColumn('imaging_requests', 'results', 'legacy_results');
+  await query.sequelize.query(`
+    INSERT INTO imaging_results (id, imaging_request_id, description)
+    SELECT uuid_generate_v4(), ir.id, ir.legacy_results FROM imaging_requests ir
+    WHERE ir.legacy_results IS NOT NULL AND ir.legacy_results != '';
+  `);
 }
 
 export async function down(query) {
-  query.dropTable('imaging_results');
+  await query.renameColumn('imaging_requests', 'legacy_results', 'results');
+  await query.dropTable('imaging_results');
 }

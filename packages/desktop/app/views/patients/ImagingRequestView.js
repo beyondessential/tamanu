@@ -160,7 +160,7 @@ const ImagingRequestInfoPane = React.memo(
                   name="results"
                   label="Results Description"
                   multiline
-                  value={values.results}
+                  value={values.results.map(result => result.description).join('\n\n')}
                   onChange={handleChange}
                   style={{ gridColumn: '1 / -1', minHeight: '60px' }}
                 />
