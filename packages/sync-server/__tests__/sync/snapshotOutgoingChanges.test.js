@@ -318,7 +318,7 @@ describe('snapshotOutgoingChanges', () => {
     }),
   );
 
-  describe.only('syncAllLabRequests', () => {
+  describe('syncAllLabRequests', () => {
     const setupTestData = async () => {
       const {
         Department,
