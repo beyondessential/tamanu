@@ -241,9 +241,14 @@ export class Encounter extends Model {
           FROM encounters e
           INNER JOIN administered_vaccines av ON av.encounter_id = e.id
           INNER JOIN scheduled_vaccines sv ON sv.id = av.scheduled_vaccine_id
-          WHERE sv.vaccine_id IN (${escapedVaccineIds})
-          AND e.updated_at_sync_tick > :since
-          OR sv.updated_at_sync_tick > :since
+          WHERE
+            sv.vaccine_id IN (${escapedVaccineIds})
+          AND
+            (
+              e.updated_at_sync_tick > :since
+            OR
+              sv.updated_at_sync_tick > :since
+            )
           GROUP BY e.id
         ) AS encounters_with_scheduled_vaccines
         ON encounters_with_scheduled_vaccines.id = encounters.id
