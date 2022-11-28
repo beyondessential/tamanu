@@ -115,6 +115,7 @@ export class AdministeredVaccine extends Model {
       WHERE (
         ${wheres.join('\nOR')}
       )
+      AND ${this.tableName}.updated_at_sync_tick > :since
     `;
   }
 

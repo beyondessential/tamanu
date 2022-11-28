@@ -67,6 +67,7 @@ export class DocumentMetadata extends Model {
         OR
         ${this.tableName}.patient_id IN (:patientIds)
       )
+      AND ${this.tableName}.updated_at_sync_tick > :since
     `;
   }
 }

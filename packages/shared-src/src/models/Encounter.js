@@ -211,7 +211,7 @@ export class Encounter extends Model {
     if (syncAllLabRequests) {
       joins.push(`
         LEFT JOIN (
-          SELECT DISTINCT e.id
+          SELECT DISTINCT e.id, max(lr.updated_at_sync_tick) as lr_updated_at_sync_tick
           FROM encounters e
           INNER JOIN lab_requests lr ON lr.encounter_id = e.id
           WHERE e.updated_at_sync_tick > :since
@@ -230,7 +230,7 @@ export class Encounter extends Model {
         .join(',');
       joins.push(`
         LEFT JOIN (
-          SELECT DISTINCT e.id
+          SELECT DISTINCT e.id, max(av.updated_at_sync_tick) as av_updated_at_sync_tick
           FROM encounters e
           INNER JOIN administered_vaccines av ON av.encounter_id = e.id
           INNER JOIN scheduled_vaccines sv ON sv.id = av.scheduled_vaccine_id
@@ -252,6 +252,13 @@ export class Encounter extends Model {
       ${joins.join('\n')}
       WHERE (
         ${wheres.join('\nOR')}
+      )
+      AND (
+        encounters.updated_at_sync_tick > :since
+        OR
+        encounters_with_scheduled_vaccines.av_updated_at_sync_tick > :since
+        OR
+        encounters_with_labs.lr_updated_at_sync_tick > :since
       )
     `;
   }
