@@ -100,6 +100,11 @@ export class ImagingRequest extends Model {
         recordType: this.name,
       },
     });
+
+    this.hasMany(models.ImagingResult, {
+      foreignKey: 'imagingRequestId',
+      as: 'results',
+    });
   }
 
   static buildSyncFilter(patientIds) {

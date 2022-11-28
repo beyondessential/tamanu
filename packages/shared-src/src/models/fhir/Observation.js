@@ -24,7 +24,7 @@ export class FhirObservation extends FhirResource {
     );
 
     // it's not materialised yet. TBD in EPI-224
-    // this.UpstreamModel = models.Observation;
+    this.UpstreamModel = models.ImagingResult;
   }
 
   static CAN_DO = new Set([FHIR_INTERACTIONS.TYPE.CREATE]);
@@ -37,7 +37,7 @@ export class FhirObservation extends FhirResource {
   });
 
   async pushUpstream() {
-    const { FhirServiceRequest, ImagingRequest } = this.constructor.models;
+    const { FhirServiceRequest, ImagingRequest, ImagingResult } = this.constructor.models;
 
     const results = this.note.map(n => n.text).join('\n\n');
 
@@ -80,9 +80,23 @@ export class FhirObservation extends FhirResource {
       throw new Deleted('ImagingRequest has been deleted in Tamanu');
     }
 
-    imagingRequest.set({ results, externalResultsCode: imagingAccessCode });
-    await imagingRequest.save();
+    let result = await ImagingResult.findOne({
+      where: {
+        imagingRequestId: imagingRequest.id,
+        externalCode: imagingAccessCode,
+      },
+    });
+    if (result) {
+      result.set({ description: results });
+      await result.save();
+    } else {
+      result = await ImagingResult.create({
+        imagingRequestId: imagingRequest.id,
+        description: results,
+        externalCode: imagingAccessCode,
+      });
+    }
 
-    return imagingRequest;
+    return result;
   }
 }
