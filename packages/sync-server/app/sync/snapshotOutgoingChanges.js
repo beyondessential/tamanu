@@ -77,8 +77,7 @@ const snapshotChangesForModel = async (
         ${table}.id = updated_at_by_field_summary.id`
             : ''
         }
-      ${filter}
-      ${filter.length > 0 ? 'AND' : 'WHERE'} ${table}.updated_at_sync_tick > :since;
+      ${filter || `WHERE ${table}.updated_at_sync_tick > :since`};
     `,
     {
       replacements: {

@@ -201,25 +201,32 @@ export class Encounter extends Model {
   static buildSyncFilter(patientIds, sessionConfig) {
     const { syncAllLabRequests, syncAllEncountersForTheseVaccines } = sessionConfig;
     const joins = [];
-    const wheres = [];
+    const encountersToIncludeClauses = [];
+    const updatedAtSyncTickClauses = ['encounters.updated_at_sync_tick > :since'];
 
     if (patientIds.length > 0) {
-      wheres.push('encounters.patient_id IN (:patientIds)');
+      encountersToIncludeClauses.push('encounters.patient_id IN (:patientIds)');
     }
 
     // add any encounters with a lab request, if syncing all labs is turned on for facility server
     if (syncAllLabRequests) {
       joins.push(`
         LEFT JOIN (
-          SELECT DISTINCT e.id
+          SELECT e.id, max(lr.updated_at_sync_tick) as lr_updated_at_sync_tick
           FROM encounters e
           INNER JOIN lab_requests lr ON lr.encounter_id = e.id
           WHERE e.updated_at_sync_tick > :since
+          OR lr.updated_at_sync_tick > :since
+          GROUP BY e.id
         ) AS encounters_with_labs ON encounters_with_labs.id = encounters.id
       `);
 
-      wheres.push(`
+      encountersToIncludeClauses.push(`
         encounters_with_labs.id IS NOT NULL
+      `);
+
+      updatedAtSyncTickClauses.push(`
+        encounters_with_labs.lr_updated_at_sync_tick > :since
       `);
     }
 
@@ -230,28 +237,38 @@ export class Encounter extends Model {
         .join(',');
       joins.push(`
         LEFT JOIN (
-          SELECT DISTINCT e.id
+          SELECT e.id, MAX(av.updated_at_sync_tick) AS av_updated_at_sync_tick
           FROM encounters e
           INNER JOIN administered_vaccines av ON av.encounter_id = e.id
           INNER JOIN scheduled_vaccines sv ON sv.id = av.scheduled_vaccine_id
           WHERE sv.vaccine_id IN (${escapedVaccineIds})
           AND e.updated_at_sync_tick > :since
+          OR sv.updated_at_sync_tick > :since
+          GROUP BY e.id
         ) AS encounters_with_scheduled_vaccines
         ON encounters_with_scheduled_vaccines.id = encounters.id
       `);
-      wheres.push(`
+
+      encountersToIncludeClauses.push(`
         encounters_with_scheduled_vaccines.id IS NOT NULL
+      `);
+
+      updatedAtSyncTickClauses.push(`
+        encounters_with_scheduled_vaccines.av_updated_at_sync_tick > :since
       `);
     }
 
-    if (wheres.length === 0) {
+    if (encountersToIncludeClauses.length === 0) {
       return null;
     }
 
     return `
       ${joins.join('\n')}
       WHERE (
-        ${wheres.join('\nOR')}
+        ${encountersToIncludeClauses.join('\nOR')}
+      )
+      AND (
+        ${updatedAtSyncTickClauses.join('\nOR')}
       )
     `;
   }

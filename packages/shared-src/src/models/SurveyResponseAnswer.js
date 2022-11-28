@@ -54,6 +54,7 @@ export class SurveyResponseAnswer extends Model {
     return `
       ${joins}
       WHERE encounters.patient_id in (:patientIds)
+      AND ${this.tableName}.updated_at_sync_tick > :since
     `;
   }
 

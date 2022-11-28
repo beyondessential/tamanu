@@ -1,7 +1,7 @@
 import { expect, beforeAll, describe, it } from '@jest/globals';
 import { Transaction } from 'sequelize';
 
-import { fakeReferenceData, withErrorShown } from 'shared/test-helpers';
+import { fake, fakeReferenceData, withErrorShown } from 'shared/test-helpers';
 import { getModelsForDirection, COLUMNS_EXCLUDED_FROM_SYNC } from 'shared/sync';
 import { SYNC_DIRECTIONS } from 'shared/constants';
 import { sleepAsync } from 'shared/utils/sleepAsync';
@@ -317,4 +317,142 @@ describe('snapshotOutgoingChanges', () => {
       expect(result).toEqual(1);
     }),
   );
+
+  describe('syncAllLabRequests', () => {
+    const setupTestData = async () => {
+      const {
+        Department,
+        Encounter,
+        Facility,
+        LabRequest,
+        LabTest,
+        LabTestType,
+        LocalSystemFact,
+        Location,
+        Patient,
+        ReferenceData,
+        SyncSession,
+        User,
+      } = models;
+      const firstTock = await LocalSystemFact.increment('currentSyncTime', 2);
+      const user = await User.create(fake(User));
+      const patient = await Patient.create(fake(Patient));
+      const facility = await Facility.create(fake(Facility));
+      const location = await Location.create({ ...fake(Location), facilityId: facility.id });
+      const department = await Department.create({ ...fake(Department), facilityId: facility.id });
+      const encounter = await Encounter.create({
+        ...fake(Encounter),
+        examinerId: user.id,
+        patientId: patient.id,
+        locationId: location.id,
+        departmentId: department.id,
+      });
+      const secondTock = await LocalSystemFact.increment('currentSyncTime', 2);
+
+      const labTestCategory = await ReferenceData.create({
+        ...fake(ReferenceData),
+        type: 'labTestCategory',
+      });
+      const labRequest = await LabRequest.create({
+        ...fake(LabRequest),
+        requestedById: user.id,
+        encounterId: encounter.id,
+        labTestCategoryId: labTestCategory.id,
+      });
+      const labTestType = await LabTestType.create({
+        ...fake(LabTestType),
+        labTestCategoryId: labTestCategory.id,
+      });
+      const labTest = await LabTest.create({
+        ...fake(LabTest),
+        labTestTypeId: labTestType.id,
+        labRequestId: labRequest.id,
+      });
+
+      const startTime = new Date();
+      const syncSession = await SyncSession.create({
+        startTime,
+        lastConnectionTime: startTime,
+      });
+
+      return { encounter, labTest, labRequest, firstTock, secondTock, syncSession };
+    };
+
+    it('includes a lab request for a patient not marked for sync, with its associated test and encounter, if turned on', async () => {
+      const { Encounter, LabRequest, LabTest, SyncSessionRecord } = models;
+      const { encounter, labTest, labRequest, firstTock, syncSession } = await setupTestData();
+
+      await snapshotOutgoingChanges(
+        { Encounter, LabRequest, LabTest },
+        firstTock - 1,
+        [],
+        syncSession.id,
+        fakeUUID(),
+        { ...simplestSessionConfig, syncAllLabRequests: true },
+      );
+
+      const syncSessionRecords = await SyncSessionRecord.findAll({
+        where: { sessionId: syncSession.id },
+      });
+      expect(syncSessionRecords.map(r => r.recordId).sort()).toEqual(
+        [labTest.id, labRequest.id, encounter.id].sort(),
+      );
+    });
+
+    it('includes encounters for new lab requests even if the encounter is older than the sync "since" time', async () => {
+      const { Encounter, LabRequest, LabTest, SyncSessionRecord } = models;
+      const { encounter, labTest, labRequest, secondTock, syncSession } = await setupTestData();
+
+      await snapshotOutgoingChanges(
+        { Encounter, LabRequest, LabTest },
+        secondTock - 1,
+        [],
+        syncSession.id,
+        fakeUUID(),
+        { ...simplestSessionConfig, syncAllLabRequests: true },
+      );
+
+      const syncSessionRecords = await SyncSessionRecord.findAll({
+        where: { sessionId: syncSession.id },
+      });
+      expect(syncSessionRecords.map(r => r.recordId).sort()).toEqual(
+        [labTest.id, labRequest.id, encounter.id].sort(),
+      );
+    });
+
+    it('does not include lab requests for patients not marked for sync if turned off', async () => {
+      const { Encounter, LabRequest, LabTest, SyncSessionRecord } = models;
+      const { firstTock, syncSession } = await setupTestData();
+
+      await snapshotOutgoingChanges(
+        { Encounter, LabRequest, LabTest },
+        firstTock - 1,
+        [],
+        syncSession.id,
+        fakeUUID(),
+        { ...simplestSessionConfig, syncAllLabRequests: false },
+      );
+
+      const syncSessionRecords = await SyncSessionRecord.findAll({
+        where: { sessionId: syncSession.id },
+      });
+      expect(syncSessionRecords.length).toEqual(0);
+    });
+  });
+
+  describe('syncAllEncountersForTheseVaccines', () => {
+    it.todo('includes required administered vaccines and encounters, if turned on');
+
+    it.todo(
+      'includes encounters for new administered vaccines even if the encounter is older than the sync "since" time',
+    );
+
+    it.todo(
+      'does not include administered vaccines for patients not marked for sync if turned off',
+    );
+
+    it.todo(
+      'does not include administered vaccines for vaccines that are not included in the list',
+    );
+  });
 });
