@@ -29,12 +29,14 @@ export class FhirObservation extends FhirResource {
 
   static CAN_DO = new Set([FHIR_INTERACTIONS.TYPE.CREATE]);
 
-  static INTAKE_SCHEMA = yup.object({
-    identifier: yup.array().of(FhirIdentifier.asYup()),
-    basedOn: yup.array().of(FhirReference.asYup()),
-    status: yup.string().required(),
-    note: yup.array().of(FhirAnnotation.asYup()),
-  });
+  static get INTAKE_SCHEMA() {
+    return yup.object({
+      identifier: yup.array().of(FhirIdentifier.asYup()),
+      basedOn: yup.array().of(FhirReference.asYup()),
+      status: yup.string().required(),
+      note: yup.array().of(FhirAnnotation.asYup()),
+    });
+  }
 
   async pushUpstream() {
     const { FhirServiceRequest, ImagingRequest, ImagingResult } = this.constructor.models;
