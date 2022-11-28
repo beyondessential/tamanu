@@ -50,8 +50,6 @@ export const SuggesterSelectField = React.memo(
         });
     }, [api, setOptions, endpoint, filterByFacility]);
 
-    console.log('option', options);
-
     return (
       <SelectInput
         name={field.name}
