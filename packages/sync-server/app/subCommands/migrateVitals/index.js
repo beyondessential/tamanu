@@ -6,7 +6,7 @@ import { v4 as generateId } from 'uuid';
 import { initDatabase } from '../../database';
 
 const BATCH_COUNT = 100;
-const COLUMNS_TO_DATA_ELEMENT_ID = {
+export const COLUMNS_TO_DATA_ELEMENT_ID = {
   dateRecorded: 'pde-PatientVitalsDate',
   temperature: 'pde-PatientVitalsTemperature',
   weight: 'pde-PatientVitalsWeight',
