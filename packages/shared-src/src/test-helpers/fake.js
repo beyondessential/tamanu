@@ -249,7 +249,6 @@ const MODEL_SPECIFIC_OVERRIDES = {
     cityTown: chance.city(),
     division: chance.province({ full: true }),
     type: chance.pickone(['hospital', 'clinic']),
-    visibilityStatus: VISIBILITY_STATUSES.CURRENT,
   }),
   ImagingRequest: () => ({
     status: chance.pickone(Object.values(IMAGING_REQUEST_STATUS_TYPES)),
@@ -269,7 +268,6 @@ const MODEL_SPECIFIC_OVERRIDES = {
       culturalName: chance.first({ gender: nameGender }),
       dateOfDeath: null,
       email: chance.email(),
-      visibilityStatus: VISIBILITY_STATUSES.CURRENT,
     };
   },
   PatientAdditionalData: ({ id, patientId }) => {
@@ -378,6 +376,10 @@ export const fake = (model, passedOverrides = {}) => {
 
     if (fieldName === 'id') {
       return fakeUUID();
+    }
+
+    if (fieldName === 'visibilityStatus') {
+      return VISIBILITY_STATUSES.CURRENT;
     }
 
     if (FIELD_HANDLERS[type]) {
