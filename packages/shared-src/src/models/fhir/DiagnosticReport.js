@@ -11,6 +11,7 @@ export class FhirDiagnosticReport extends FhirResource {
   static init(options, models) {
     super.init(
       {
+        extension: arrayOf('extension', DataTypes.FHIR_EXTENSION),
         identifier: arrayOf('identifier', DataTypes.FHIR_IDENTIFIER),
         status: {
           type: Sequelize.STRING(16),
@@ -24,8 +25,8 @@ export class FhirDiagnosticReport extends FhirResource {
         },
         effectiveDateTime: dateType('effectiveDateTime', { allowNull: true }),
         issued: dateType('issued', { allowNull: true }),
-        performer: {}, // TODO: figure out field?
-        result: {}, // TODO: ditto
+        performer: arrayOf('performer', DataTypes.FHIR_REFERENCE),
+        result: arrayOf('result', DataTypes.FHIR_REFERENCE),
       },
       options,
     );
@@ -74,6 +75,7 @@ export class FhirDiagnosticReport extends FhirResource {
     const { patient, examiner } = encounter;
 
     this.set({
+      extension: extension(labTestMethod),
       identifier: identifiers(labRequest),
       subject: patient.id,
       status: status(labRequest),
@@ -82,9 +84,12 @@ export class FhirDiagnosticReport extends FhirResource {
       code: code(labTestType),
       performer: performer(laboratory, examiner),
       result: result(labTest, labRequest),
-      extension: extension(labTestMethod),
     });
   }
+}
+
+function extension() {
+
 }
 
 function identifiers(labRequest) {
