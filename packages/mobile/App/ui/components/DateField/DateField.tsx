@@ -87,7 +87,7 @@ export const DateField = React.memo(
       [onChange],
     );
 
-    const dateValue = value instanceof Date ? value : parseISO(value);
+    const dateValue = value && (value instanceof Date ? value : parseISO(value));
 
     const formatValue = useCallback(() => {
       if (value) {
