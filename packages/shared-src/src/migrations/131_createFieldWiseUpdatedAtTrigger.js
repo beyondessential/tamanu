@@ -1,4 +1,4 @@
-const CURRENT_SYNC_TIME_KEY = 'currentSyncTick';
+const CURRENT_SYNC_TIME_KEY = 'currentSyncTime';
 
 const METADATA_FIELDS = [
   'created_at',
