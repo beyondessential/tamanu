@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import { unionBy } from 'lodash';
 import { useApi } from '../../api';
 import { SelectInput } from './SelectField';
 
@@ -9,17 +10,47 @@ export const SuggesterSelectField = React.memo(
     const [options, setOptions] = useState([]);
 
     useEffect(() => {
+      // If a value is set, fetch the record to display it's name
+      if (field.value) {
+        api
+          .get(`suggestions/${encodeURIComponent(endpoint)}/${encodeURIComponent(field.value)}`)
+          .then(({ id, name }) => {
+            setOptions(currentOptions =>
+              unionBy(
+                currentOptions,
+                [
+                  {
+                    value: id,
+                    label: name,
+                  },
+                ],
+                'value',
+              ),
+            );
+          });
+      }
+      // Only do the fetch when the component first mounts
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    useEffect(() => {
       api
         .get(`suggestions/${encodeURIComponent(endpoint)}/all`, { filterByFacility })
         .then(resultData => {
-          setOptions([
-            ...resultData.map(({ id, name }) => ({
-              value: id,
-              label: name,
-            })),
-          ]);
+          setOptions(currentOptions =>
+            unionBy(
+              currentOptions,
+              resultData.map(({ id, name }) => ({
+                value: id,
+                label: name,
+              })),
+              'value',
+            ),
+          );
         });
     }, [api, setOptions, endpoint, filterByFacility]);
+
+    console.log('option', options);
 
     return (
       <SelectInput

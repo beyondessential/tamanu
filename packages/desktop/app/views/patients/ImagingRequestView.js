@@ -153,6 +153,7 @@ const ImagingRequestInfoPane = React.memo(
                     name="locationGroupId"
                     endpoint="locationGroup"
                     component={SuggesterSelectField}
+                    filterByFacility
                     required
                   />
                 </>
