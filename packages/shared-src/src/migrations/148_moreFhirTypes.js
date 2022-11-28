@@ -1,8 +1,4 @@
-import config from 'config';
-
 export async function up(query) {
-  if (config.serverFacilityId) return;
-
   await query.sequelize.query(`CREATE TYPE fhir.immunization_performer AS (
     function                    fhir.codeable_concept,
     actor                       fhir.reference
@@ -25,8 +21,6 @@ export async function up(query) {
 }
 
 export async function down(query) {
-  if (config.serverFacilityId) return;
-
   await query.sequelize.query('DROP TYPE fhir.immunization_protocol_applied');
   await query.sequelize.query('DROP TYPE fhir.immunization_performer');
   await query.sequelize.query('DROP TYPE fhir.extension');

@@ -1,11 +1,8 @@
 import Sequelize from 'sequelize';
-import config from 'config';
 
 const TABLE = { schema: 'fhir', tableName: 'immunizations' };
 
 export async function up(query) {
-  if (config.serverFacilityId) return;
-
   await query.createTable(TABLE, {
     id: {
       type: Sequelize.UUID,
@@ -79,7 +76,5 @@ export async function up(query) {
 }
 
 export async function down(query) {
-  if (config.serverFacilityId) return;
-
   await query.dropTable(TABLE);
 }
