@@ -2,6 +2,7 @@ import asyncHandler from 'express-async-handler';
 import * as yup from 'yup';
 
 import { OperationOutcome } from 'shared/utils/fhir';
+import { FHIR_INTERACTIONS } from 'shared/constants';
 
 import { fhirQueue } from '../../tasks/FhirMaterialiser';
 
