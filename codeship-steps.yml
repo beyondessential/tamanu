@@ -64,7 +64,6 @@
       type: serial
       steps:
         - name: fix ssh for builds
-          tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|beta-|klaus-|sima-|sepi-|da-|deploy-meta$)
           service: app-without-db
           command: /pre/scripts/fix_ssh.sh
         - name: package server zips
