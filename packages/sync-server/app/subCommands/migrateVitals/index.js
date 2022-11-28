@@ -23,12 +23,6 @@ export async function migrateVitals() {
   const store = await initDatabase({ testMode: false });
   const { models, sequelize } = store;
 
-  await sequelize.query(`
-    ALTER TABLE vitals
-    ADD COLUMN IF NOT EXISTS "migrated_record" VARCHAR(255)
-    REFERENCES survey_responses
-    DEFAULT NULL;
-  `);
 
   const vitalsSurvey = await models.Survey.findOne({
     where: {
