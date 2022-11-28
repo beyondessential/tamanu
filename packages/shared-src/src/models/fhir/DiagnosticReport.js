@@ -11,7 +11,7 @@ export class FhirDiagnosticReport extends FhirResource {
   static init(options, models) {
     super.init(
       {
-        extension: arrayOf('extension', DataTypes.FHIR_EXTENSION),
+        extension: arrayOf('extension', DataTypes.FHIR_EXTENSION), // This field is part of DomainResource
         identifier: arrayOf('identifier', DataTypes.FHIR_IDENTIFIER),
         status: {
           type: Sequelize.STRING(16),
