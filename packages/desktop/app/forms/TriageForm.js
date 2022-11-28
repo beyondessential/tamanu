@@ -86,7 +86,7 @@ export const TriageForm = ({ onCancel, editedObject }) => {
             suggester={triageReasonSuggester}
           />
           <Box mt={1} mb={2}>
-            <Field name="vitals" component={NestedVitalsModal} />
+            <Field name="vitals" patient={patient} component={NestedVitalsModal} />
           </Box>
           <Field
             name="checkLostConsciousness"

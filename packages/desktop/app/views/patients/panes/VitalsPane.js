@@ -1,75 +1,40 @@
 import React, { useState } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
+import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { VitalsTable } from '../../../components/VitalsTable';
-import { TableButtonRow, Button, Modal, Form, ConfirmCancelRow } from '../../../components';
+import { TableButtonRow, Button, Modal } from '../../../components';
 import { TabPane } from '../components';
 import { useApi } from '../../../api';
-import { SurveyScreen } from '../../../components/Surveys/SurveyScreen';
-
-const VitalsForm = ({ onClose, patient, encounterId, survey }) => {
-  const queryClient = useQueryClient();
-  const api = useApi();
-
-  const submitVitals = async data => {
-    console.log('submit vitals', data);
-    await api.post(`vitals`, { ...data, encounterId });
-    queryClient.invalidateQueries(['encounterVitals', encounterId]);
-    onClose();
-  };
-
-  const { components } = survey;
-
-  return (
-    <Form
-      onSubmit={submitVitals}
-      render={({ submitForm }) => {
-        return (
-          <SurveyScreen
-            components={components}
-            patient={patient}
-            cols={2}
-            submitButton={
-              <ConfirmCancelRow confirmText="Record" onConfirm={submitForm} onCancel={onClose} />
-            }
-          />
-        );
-      }}
-    />
-  );
-};
-
-// Todo: update survey id
-const VITALS_SURVEY_ID = 'program-patientvitals-patientvitals';
-
-// Todo: make generic for surveys
-const useVitalsSurvey = () => {
-  const api = useApi();
-
-  return useQuery(['survey', { type: 'vitals' }], () =>
-    api.get(`survey/${encodeURIComponent(VITALS_SURVEY_ID)}`),
-  );
-};
+import { VitalsForm } from '../../../forms';
+import { getActionsFromData, getAnswersFromData } from '../../../utils';
 
 export const VitalsPane = React.memo(({ patient, encounter, readonly }) => {
+  const queryClient = useQueryClient();
+  const api = useApi();
   const [modalOpen, setModalOpen] = useState(false);
-  // const [startTime, setStartTime] = useState(null);
-  const { data: survey, isLoading } = useVitalsSurvey();
+  const [startTime] = useState(getCurrentDateTimeString());
 
   const handleClose = () => setModalOpen(false);
 
-  if (isLoading) {
-    return 'Loading...';
-  }
+  const submitVitals = async ({ survey, ...data }) => {
+    await api.post('surveyResponse', {
+      surveyId: survey.id,
+      startTime,
+      patientId: patient.id,
+      encounterId: encounter.id,
+      endTime: getCurrentDateTimeString(),
+      answers: getAnswersFromData(data, survey),
+      actions: getActionsFromData(data, survey),
+    });
+    // Todo: clear react-query cache for vitals once they are moved to react-query
+    // queryClient.invalidateQueries(['encounterVitals', encounter.id]);
+    handleClose();
+  };
 
   return (
     <TabPane>
       <Modal title="Record vitals" open={modalOpen} onClose={handleClose}>
-        <VitalsForm
-          encounterId={encounter.id}
-          onClose={handleClose}
-          patient={patient}
-          survey={survey}
-        />
+        <VitalsForm onClose={handleClose} onSubmit={submitVitals} patient={patient} />
       </Modal>
       <TableButtonRow variant="small">
         <Button onClick={() => setModalOpen(true)} disabled={readonly}>
