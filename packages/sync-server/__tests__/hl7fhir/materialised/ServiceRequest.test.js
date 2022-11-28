@@ -19,7 +19,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
     app = await ctx.baseApp.asRole('practitioner');
 
     const {
-      Encounter,
+      Department,
       Facility,
       ImagingAreaExternalCode,
       Location,
@@ -37,9 +37,12 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       Facility.create(fake(Facility)),
     ]);
 
-    const [location, encounter, extCode1, extCode2, pat] = await Promise.all([
-      Location.create(fake(Location, { facilityId: facility.id })),
-      Encounter.create(fake(Encounter, { patientId: patient.id })),
+    const location = await Location.create(fake(Location, { facilityId: facility.id }));
+    const department = await Department.create(
+      fake(Department, { locationId: location.id, facilityId: facility.id }),
+    );
+
+    const [extCode1, extCode2, pat] = await Promise.all([
       ImagingAreaExternalCode.create(fake(ImagingAreaExternalCode, { areaId: area1.id })),
       ImagingAreaExternalCode.create(fake(ImagingAreaExternalCode, { areaId: area2.id })),
       FhirPatient.materialiseFromUpstream(patient.id),
@@ -52,7 +55,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       area2,
       facility,
       location,
-      encounter,
+      department,
       extCode1,
       extCode2,
       pat,
@@ -61,11 +64,21 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
   afterAll(() => ctx.close());
 
   describe('full resource checks', () => {
+    let encounter;
     beforeEach(async () => {
-      const { FhirServiceRequest, ImagingRequest, ImagingRequestArea } = ctx.store.models;
+      const { Encounter, FhirServiceRequest, ImagingRequest, ImagingRequestArea } = ctx.store.models;
       await FhirServiceRequest.destroy({ where: {} });
       await ImagingRequest.destroy({ where: {} });
       await ImagingRequestArea.destroy({ where: {} });
+      
+      encounter = await Encounter.create(
+        fake(Encounter, {
+          patientId: resources.patient.id,
+          locationId: resources.location.id,
+          departmentId: resources.department.id,
+          examinerId: resources.practitioner.id,
+        }),
+      );
     });
 
     it('fetches a service request by materialised ID', async () => {
@@ -74,7 +87,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       const ir = await ImagingRequest.create(
         fake(ImagingRequest, {
           requestedById: resources.practitioner.id,
-          encounterId: resources.encounter.id,
+          encounterId: encounter.id,
           locationId: resources.location.id,
           status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
           priority: 'normal',
@@ -91,6 +104,9 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       // act
       const response = await app.get(path);
 
+      // normalise for comparison
+      response.body?.orderDetail?.sort((a, b) => a.text.localeCompare(b.text));
+      
       // assert
       expect(response.body).toMatchObject({
         resourceType: 'ServiceRequest',
@@ -139,7 +155,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
               },
             ],
           },
-        ],
+        ].sort((a, b) => a.text.localeCompare(b.text)),
         subject: {
           reference: `Patient/${resources.pat.id}`,
           type: 'Patient',
@@ -168,7 +184,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
       const ir = await ImagingRequest.create(
         fake(ImagingRequest, {
           requestedById: resources.practitioner.id,
-          encounterId: resources.encounter.id,
+          encounterId: encounter.id,
           locationId: resources.location.id,
           status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
           priority: 'normal',
@@ -280,19 +296,28 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
   });
 
   describe('search', () => {
-    let irs;
+    let encounter, irs;
     beforeAll(async () => {
-      const { FhirServiceRequest, ImagingRequest, ImagingRequestArea } = ctx.store.models;
+      const { Encounter, FhirServiceRequest, ImagingRequest, ImagingRequestArea } = ctx.store.models;
       await FhirServiceRequest.destroy({ where: {} });
       await ImagingRequest.destroy({ where: {} });
       await ImagingRequestArea.destroy({ where: {} });
+      
+      encounter = await Encounter.create(
+        fake(Encounter, {
+          patientId: resources.patient.id,
+          locationId: resources.location.id,
+          departmentId: resources.department.id,
+          examinerId: resources.practitioner.id,
+        }),
+      );
 
       irs = await Promise.all([
         (async () => {
           const ir = await ImagingRequest.create(
             fake(ImagingRequest, {
               requestedById: resources.practitioner.id,
-              encounterId: resources.encounter.id,
+              encounterId: encounter.id,
               locationId: resources.location.id,
               status: IMAGING_REQUEST_STATUS_TYPES.IN_PROGRESS,
               priority: 'urgent',
@@ -313,7 +338,7 @@ describe(`Materialised FHIR - ServiceRequest`, () => {
           const ir = await ImagingRequest.create(
             fake(ImagingRequest, {
               requestedById: resources.practitioner.id,
-              encounterId: resources.encounter.id,
+              encounterId: encounter.id,
               locationId: resources.location.id,
               status: IMAGING_REQUEST_STATUS_TYPES.COMPLETED,
               priority: 'normal',
