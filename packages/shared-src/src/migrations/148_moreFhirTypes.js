@@ -5,7 +5,7 @@ export async function up(query) {
 
   await query.sequelize.query(`CREATE TYPE fhir.immunization_performer AS (
     function                    fhir.codeable_concept,
-    actor                       text
+    actor                       fhir.reference
   )`);
 
   await query.sequelize.query(`CREATE TYPE fhir.immunization_protocol_applied AS (
