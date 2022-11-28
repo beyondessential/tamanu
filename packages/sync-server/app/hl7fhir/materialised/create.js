@@ -16,7 +16,12 @@ export function createHandler(FhirResource) {
   return asyncHandler(async (req, res) => {
     try {
       const validated = await mapErr(
-        FhirResource.INTAKE_SCHEMA.validate(req.body, { stripUnknown: true }),
+        FhirResource.INTAKE_SCHEMA.shape({
+          resourceType: yup
+            .string()
+            .matches(new RegExp(`^${FhirResource.fhirName}$`))
+            .required(),
+        }).validate(req.body, { stripUnknown: true }),
         err => OperationOutcome.fromYupError(err),
       );
 
