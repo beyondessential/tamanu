@@ -237,7 +237,7 @@ export class Encounter extends Model {
         .join(',');
       joins.push(`
         LEFT JOIN (
-          SELECT e.id, max(av.updated_at_sync_tick) as av_updated_at_sync_tick
+          SELECT e.id, MAX(av.updated_at_sync_tick) AS av_updated_at_sync_tick
           FROM encounters e
           INNER JOIN administered_vaccines av ON av.encounter_id = e.id
           INNER JOIN scheduled_vaccines sv ON sv.id = av.scheduled_vaccine_id
