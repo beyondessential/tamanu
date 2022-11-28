@@ -267,10 +267,10 @@ encounterRelations.get(
               END
           ) sort,
           JSONB_AGG(
-            JSONB_BUILD_OBJECT[
-              "name", pde.name,
-              "value": sra.body
-            ]
+            JSONB_BUILD_OBJECT(
+              'name', pde.name,
+              'value', sra.body
+            )
           ) answers
         FROM survey_responses sr
         INNER JOIN surveys s
@@ -283,6 +283,8 @@ encounterRelations.get(
           ON sra.response_id = sr.id
           AND sra.data_element_id = pde.id
         WHERE
+          sr.encounter_id = '${encounterId}'
+        AND
           s.survey_type = 'vitals'
         GROUP BY sr.id
         ORDER BY sort ${order} NULLS LAST
