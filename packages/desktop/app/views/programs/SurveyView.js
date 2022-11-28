@@ -4,7 +4,7 @@ import { Form } from 'desktop/app/components/Field';
 import { checkVisibility, getFormInitialValues } from 'desktop/app/utils';
 import { ProgramsPane, ProgramsPaneHeader, ProgramsPaneHeading } from './ProgramsPane';
 import { Colors } from '../../constants';
-import { SurveyCompletedMessage, SurveyScreenPaginator } from '../../components';
+import { SurveyCompletedMessage, SurveyScreenPaginator } from '../../components/Surveys';
 
 export const SurveyPaneHeader = styled(ProgramsPaneHeader)`
   background: ${props => props.theme.palette.primary.main};
