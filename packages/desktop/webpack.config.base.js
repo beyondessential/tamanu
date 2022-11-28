@@ -46,10 +46,15 @@ export default {
         test: /\.jsx?$/,
         exclude: /node_modules/,
         use: {
-          loader: 'babel-loader',
+          loader: 'swc-loader',
           options: {
-            cacheDirectory: true,
-            rootMode: 'upward',
+            sourceMaps: true,
+            sync: true,
+            jsc: {
+              parser: {
+                jsx: true,
+              },
+            },
           },
         },
       },
