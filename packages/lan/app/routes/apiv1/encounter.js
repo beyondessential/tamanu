@@ -234,7 +234,6 @@ encounterRelations.get(
   '/:id/vitals',
   asyncHandler(async (req, res) => {
     const { db, models, params, query } = req;
-    // TODO: Do we still want vitals to use a separate check since they're technically survey responses now
     req.checkPermission('list', 'Vitals');
     req.checkPermission('list', 'SurveyResponse');
     const encounterId = params.id;
@@ -249,7 +248,7 @@ encounterRelations.get(
           LEFT JOIN surveys
             ON surveys.id = survey_responses.survey_id
         WHERE
-          survey_responses.encounter_id = '${encounterId}'
+          survey_responses.encounter_id = :encounterId
         AND
           surveys.survey_type = 'vitals'
       `,
@@ -283,13 +282,13 @@ encounterRelations.get(
           ON sra.response_id = sr.id
           AND sra.data_element_id = pde.id
         WHERE
-          sr.encounter_id = '${encounterId}'
+          sr.encounter_id = :encounterId
         AND
           s.survey_type = 'vitals'
         GROUP BY sr.id
         ORDER BY sort ${order} NULLS LAST
       `,
-      {},
+      { encounterId },
       query,
     );
 
