@@ -67,9 +67,11 @@ export class Composite {
    */
   static asYup() {
     return mixed()
-      .transform((value, originalValue) =>
-        typeof value === 'string' ? this.fromSql(originalValue) : new this(value),
-      )
+      .transform((value, originalValue) => {
+        if (typeof value === 'string') return this.fromSql(originalValue);
+        if (typeof value === 'object' && !(value instanceof this)) return new this(value);
+        return value;
+      })
       .test('is-fhir-type', `must be a ${this.name}`, t => (t ? t instanceof this : true));
   }
 
