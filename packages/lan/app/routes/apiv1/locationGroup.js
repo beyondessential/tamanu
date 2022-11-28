@@ -29,7 +29,6 @@ locationGroup.get(
 locationGroup.get(
   '/:id/locations',
   asyncHandler(async (req, res) => {
-    req.checkPermission('read', 'Location');
     req.checkPermission('list', 'Location');
     if (!config.serverFacilityId) {
       res.send([]);
