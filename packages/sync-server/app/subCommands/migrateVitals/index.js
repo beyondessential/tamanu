@@ -6,7 +6,6 @@ import { v4 as generateId } from 'uuid';
 import { initDatabase } from '../../database';
 
 const BATCH_COUNT = 100;
-// or should it be to data element code
 const COLUMNS_TO_DATA_ELEMENT_ID = {
   dateRecorded: 'pde-PatientVitalsDate',
   temperature: 'pde-PatientVitalsTemperature',
@@ -26,8 +25,9 @@ export async function migrateVitals() {
 
   await sequelize.query(`
     ALTER TABLE vitals
-    ADD COLUMN IF NOT EXISTS "converted"
-    BOOLEAN DEFAULT false;
+    ADD COLUMN IF NOT EXISTS "migrated_record" VARCHAR(255)
+    REFERENCES survey_responses
+    DEFAULT NULL;
   `);
 
   const vitalsSurvey = await models.Survey.findOne({
@@ -43,7 +43,7 @@ export async function migrateVitals() {
 
   let toProcess = await models.Vitals.count({
     where: {
-      converted: false,
+      migrated_record: null,
     },
   });
 
@@ -62,7 +62,7 @@ export async function migrateVitals() {
       async () => {
         const vitalsChunk = await models.Vitals.findAll({
           where: {
-            converted: false,
+            migrated_record: null,
           },
           limit: BATCH_COUNT,
         });
@@ -94,9 +94,17 @@ export async function migrateVitals() {
         await models.SurveyResponseAnswer.bulkCreate(answerData.flat());
 
         // models.Vitals.update will error if you don't update the encounterId because the validation triggers against the updated field list
-        await sequelize.query('UPDATE vitals SET converted = TRUE WHERE id IN(:idList)', {
-          replacements: { idList: [...idMap.keys()] },
-        });
+        await sequelize.query(
+          `
+          UPDATE vitals SET migrated_record = response_id
+          FROM (SELECT unnest(ARRAY[:keys]) AS vital_id,
+                unnest(ARRAY[:values]) AS response_id) map
+          WHERE map.vital_id = vitals.id
+        `,
+          {
+            replacements: { keys: [...idMap.keys()], values: [...idMap.values()] },
+          },
+        );
       },
     );
   }
