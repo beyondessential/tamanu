@@ -22,12 +22,12 @@ export class FhirAnnotation extends Composite {
           .nullable()
           .default(null),
         text: yup.string().required(),
-        _exclusive: bool().when(['authorReference', 'authorString'], {
+        _exclusive: yup.bool().when(['authorReference', 'authorString'], {
           is: (name, path) => !!name && !!path,
-          then: bool().required(
+          then: yup.bool().required(
             'Only one of authorReference or authorString are allowed, but not both.',
           ),
-          otherwise: bool(),
+          otherwise: yup.bool(),
         }),
       })
       .noUnknown();

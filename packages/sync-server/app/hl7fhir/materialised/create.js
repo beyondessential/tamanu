@@ -1,4 +1,5 @@
 import asyncHandler from 'express-async-handler';
+import * as yup from 'yup';
 
 import { OperationOutcome } from 'shared/utils/fhir';
 

@@ -39,13 +39,14 @@ export class FhirObservation extends FhirResource {
   }
 
   async pushUpstream() {
-    const { FhirServiceRequest, ImagingRequest, ImagingResult } = this.constructor.models;
+    const { FhirServiceRequest, ImagingRequest, ImagingResult } = this.sequelize.models;
 
-    const results = this.note.map(n => n.text).join('\n\n');
+    const results = this.note.map(n => n.params.text).join('\n\n');
 
     const imagingAccessCode = this.identifier.find(
-      i => i?.system === 'http://data-dictionary.tamanu-fiji.org/ris-accession-number.html',
-    )?.value;
+      ({ params: i }) =>
+        i?.system === 'http://data-dictionary.tamanu-fiji.org/ris-accession-number.html',
+    )?.params.value;
     if (!imagingAccessCode) {
       throw new Invalid('Need to have RIS Accession Number identifier', {
         code: FHIR_ISSUE_TYPE.INVALID.STRUCTURE,
@@ -53,11 +54,11 @@ export class FhirObservation extends FhirResource {
     }
 
     const serviceRequestFhirId = this.basedOn.find(
-      b =>
+      ({ params: b }) =>
         b?.type === 'ServiceRequest' &&
-        b?.identifier?.system ===
+        b?.identifier?.params.system ===
           'http://data-dictionary.tamanu-fiji.org/tamanu-mrid-imagingrequest.html',
-    )?.identifier.value;
+    )?.params.identifier.params.value;
     if (!serviceRequestFhirId) {
       throw new Invalid('Need to have basedOn field that includes a Tamanu identifier', {
         code: FHIR_ISSUE_TYPE.INVALID.STRUCTURE,
