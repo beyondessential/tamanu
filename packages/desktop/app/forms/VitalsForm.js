@@ -41,7 +41,7 @@ const numericType = yup
   });
 
 const schema = yup.object().shape({
-  dateRecorded: yup.date().required(),
+  dateRecorded: yup.string().required(),
   height: numericType,
   weight: numericType,
   sbp: numericType,
@@ -87,8 +87,8 @@ export class VitalsForm extends React.PureComponent {
     return (
       <Form
         onSubmit={values => {
-          const castedValues = schema.cast(values);
-          onSubmit(castedValues);
+          const castValues = schema.cast(values);
+          onSubmit(castValues);
         }}
         render={this.renderForm}
         initialValues={{
