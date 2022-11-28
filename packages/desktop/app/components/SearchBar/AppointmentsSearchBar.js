@@ -45,6 +45,7 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
         name="locationGroupId"
         endpoint="locationGroup"
         component={SuggesterSelectField}
+        filterByFacility
       />
       <LocalisedField
         name="type"

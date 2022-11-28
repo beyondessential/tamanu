@@ -3,31 +3,35 @@ import PropTypes from 'prop-types';
 import { useApi } from '../../api';
 import { SelectInput } from './SelectField';
 
-export const SuggesterSelectField = React.memo(({ field, endpoint, ...props }) => {
-  const api = useApi();
-  const [options, setOptions] = useState([]);
+export const SuggesterSelectField = React.memo(
+  ({ field, endpoint, filterByFacility, ...props }) => {
+    const api = useApi();
+    const [options, setOptions] = useState([]);
 
-  useEffect(() => {
-    api.get(`suggestions/${encodeURIComponent(endpoint)}/all`).then(resultData => {
-      setOptions([
-        ...resultData.map(({ id, name }) => ({
-          value: id,
-          label: name,
-        })),
-      ]);
-    });
-  }, [api, setOptions, endpoint]);
+    useEffect(() => {
+      api
+        .get(`suggestions/${encodeURIComponent(endpoint)}/all`, { filterByFacility })
+        .then(resultData => {
+          setOptions([
+            ...resultData.map(({ id, name }) => ({
+              value: id,
+              label: name,
+            })),
+          ]);
+        });
+    }, [api, setOptions, endpoint, filterByFacility]);
 
-  return (
-    <SelectInput
-      name={field.name}
-      options={options}
-      onChange={field.onChange}
-      value={field.value}
-      {...props}
-    />
-  );
-});
+    return (
+      <SelectInput
+        name={field.name}
+        options={options}
+        onChange={field.onChange}
+        value={field.value}
+        {...props}
+      />
+    );
+  },
+);
 
 SuggesterSelectField.propTypes = {
   endpoint: PropTypes.string.isRequired,
