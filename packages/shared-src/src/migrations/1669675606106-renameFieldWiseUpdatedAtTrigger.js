@@ -9,7 +9,7 @@ const METADATA_FIELDS = [
   'updated_at_by_field',
 ];
 
-// copied from migration 123 with updated key
+// copied from migration 131 with updated key
 export async function up(query) {
   await query.sequelize.query(`
     CREATE OR REPLACE FUNCTION set_updated_at_by_field()
