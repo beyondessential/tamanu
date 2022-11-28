@@ -441,18 +441,168 @@ describe('snapshotOutgoingChanges', () => {
   });
 
   describe('syncAllEncountersForTheseVaccines', () => {
-    it.todo('includes required administered vaccines and encounters, if turned on');
+    const setupTestData = async () => {
+      const {
+        AdministeredVaccine,
+        Department,
+        Encounter,
+        Facility,
+        LocalSystemFact,
+        Location,
+        Patient,
+        ReferenceData,
+        ScheduledVaccine,
+        SyncSession,
+        User,
+      } = models;
+      const firstTock = await LocalSystemFact.increment('currentSyncTick', 2);
+      const user = await User.create(fake(User));
+      const patient = await Patient.create(fake(Patient));
+      const facility = await Facility.create(fake(Facility));
+      const location = await Location.create({ ...fake(Location), facilityId: facility.id });
+      const department = await Department.create({ ...fake(Department), facilityId: facility.id });
+      const encounter1 = await Encounter.create({
+        ...fake(Encounter),
+        examinerId: user.id,
+        patientId: patient.id,
+        locationId: location.id,
+        departmentId: department.id,
+      });
+      const encounter2 = await Encounter.create({
+        ...fake(Encounter),
+        examinerId: user.id,
+        patientId: patient.id,
+        locationId: location.id,
+        departmentId: department.id,
+      });
+      const secondTock = await LocalSystemFact.increment('currentSyncTick', 2);
 
-    it.todo(
-      'includes encounters for new administered vaccines even if the encounter is older than the sync "since" time',
-    );
+      const vaccine1 = await ReferenceData.create({ ...fake(ReferenceData), type: 'drug' });
+      const vaccine2 = await ReferenceData.create({ ...fake(ReferenceData), type: 'drug' });
+      const scheduledVaccine1 = await ScheduledVaccine.create({
+        ...fake(ScheduledVaccine),
+        vaccineId: vaccine1.id,
+      });
+      const scheduledVaccine2 = await ScheduledVaccine.create({
+        ...fake(ScheduledVaccine),
+        vaccineId: vaccine2.id,
+      });
+      const administeredVaccine1 = await AdministeredVaccine.create({
+        ...fake(AdministeredVaccine),
+        scheduledVaccineId: scheduledVaccine1.id,
+        encounterId: encounter1.id,
+        recorderId: user.id,
+      });
+      const administeredVaccine2 = await AdministeredVaccine.create({
+        ...fake(AdministeredVaccine),
+        scheduledVaccineId: scheduledVaccine2.id,
+        encounterId: encounter2.id,
+        recorderId: user.id,
+      });
 
-    it.todo(
-      'does not include administered vaccines for patients not marked for sync if turned off',
-    );
+      const startTime = new Date();
+      const syncSession = await SyncSession.create({
+        startTime,
+        lastConnectionTime: startTime,
+      });
 
-    it.todo(
-      'does not include administered vaccines for vaccines that are not included in the list',
-    );
+      return {
+        encounter1,
+        encounter2,
+        administeredVaccine1,
+        administeredVaccine2,
+        scheduledVaccine1,
+        scheduledVaccine2,
+        firstTock,
+        secondTock,
+        syncSession,
+      };
+    };
+
+    it('includes required administered vaccines and encounters, if turned on', async () => {
+      const { Encounter, AdministeredVaccine, SyncSessionRecord } = models;
+
+      const {
+        // use the first vaccine type in the list to sync everywhere, the second should be ignored
+        encounter1,
+        administeredVaccine1,
+        scheduledVaccine1,
+        firstTock,
+        syncSession,
+      } = await setupTestData();
+
+      await snapshotOutgoingChanges(
+        { Encounter, AdministeredVaccine },
+        firstTock - 1,
+        [],
+        syncSession.id,
+        fakeUUID(),
+        {
+          ...simplestSessionConfig,
+          syncAllEncountersForTheseVaccines: [scheduledVaccine1.vaccineId],
+        },
+      );
+
+      const syncSessionRecords = await SyncSessionRecord.findAll({
+        where: { sessionId: syncSession.id },
+      });
+      expect(syncSessionRecords.map(r => r.recordId).sort()).toEqual(
+        [administeredVaccine1.id, encounter1.id].sort(),
+      );
+    });
+
+    it('includes encounters for new administered vaccines even if the encounter is older than the sync "since" time', async () => {
+      const { Encounter, AdministeredVaccine, SyncSessionRecord } = models;
+      const {
+        // use the second vaccine this time, to mix things up
+        encounter2,
+        administeredVaccine2,
+        scheduledVaccine2,
+        secondTock,
+        syncSession,
+      } = await setupTestData();
+
+      await snapshotOutgoingChanges(
+        { Encounter, AdministeredVaccine },
+        secondTock - 1,
+        [],
+        syncSession.id,
+        fakeUUID(),
+        {
+          ...simplestSessionConfig,
+          syncAllEncountersForTheseVaccines: [scheduledVaccine2.vaccineId],
+        },
+      );
+
+      const syncSessionRecords = await SyncSessionRecord.findAll({
+        where: { sessionId: syncSession.id },
+      });
+      expect(syncSessionRecords.map(r => r.recordId).sort()).toEqual(
+        [administeredVaccine2.id, encounter2.id].sort(),
+      );
+    });
+
+    it('does not include administered vaccines for patients not marked for sync if turned off', async () => {
+      const { Encounter, AdministeredVaccine, SyncSessionRecord } = models;
+
+      const { firstTock, syncSession } = await setupTestData();
+
+      await snapshotOutgoingChanges(
+        { Encounter, AdministeredVaccine },
+        firstTock - 1,
+        [],
+        syncSession.id,
+        fakeUUID(),
+        {
+          ...simplestSessionConfig,
+          syncAllEncountersForTheseVaccines: [],
+        },
+      );
+
+      const syncSessionRecords = await SyncSessionRecord.findAll({
+        where: { sessionId: syncSession.id },
+      });
+      expect(syncSessionRecords.length).toEqual(0);
+    });
   });
 });
