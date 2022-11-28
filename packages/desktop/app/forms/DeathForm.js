@@ -3,8 +3,8 @@ import * as yup from 'yup';
 import { Typography } from '@material-ui/core';
 import styled from 'styled-components';
 import MuiBox from '@material-ui/core/Box';
-import { MANNER_OF_DEATHS, MANNER_OF_DEATH_OPTIONS } from 'shared/constants';
-import { ageInMonths, ageInYears } from 'shared/utils/dateTime';
+import { MANNER_OF_DEATHS, MANNER_OF_DEATH_OPTIONS } from '@tamanu/shared/constants';
+import { ageInMonths, ageInYears } from '@tamanu/shared/utils/dateTime';
 import {
   ArrayField,
   Button,

@@ -1,6 +1,6 @@
 import { capitalize } from 'lodash';
 
-import { createValueIndex } from 'shared/utils/valueIndex';
+import { createValueIndex } from '@tamanu/shared/utils/valueIndex';
 import {
   ENCOUNTER_TYPES,
   IMAGING_REQUEST_STATUS_TYPES,
@@ -16,7 +16,7 @@ import {
   PLACE_OF_BIRTH_TYPES,
   ATTENDANT_OF_BIRTH_TYPES,
   LAB_REQUEST_STATUSES,
-} from 'shared/constants';
+} from '@tamanu/shared/constants';
 
 import {
   medicationIcon,

@@ -1,9 +1,9 @@
 import { promises } from 'fs';
 import qs from 'qs';
 
-import { buildAbilityForUser } from 'shared/permissions/buildAbility';
-import { VERSION_COMPATIBILITY_ERRORS, SERVER_TYPES } from 'shared/constants';
-import { ForbiddenError } from 'shared/errors';
+import { buildAbilityForUser } from '@tamanu/shared/permissions/buildAbility';
+import { VERSION_COMPATIBILITY_ERRORS, SERVER_TYPES } from '@tamanu/shared/constants';
+import { ForbiddenError } from '@tamanu/shared/errors';
 import { LOCAL_STORAGE_KEYS } from '../constants';
 
 const { HOST, TOKEN, LOCALISATION, SERVER, PERMISSIONS } = LOCAL_STORAGE_KEYS;

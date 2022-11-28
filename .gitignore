@@ -56,4 +56,4 @@ lints.md
 # Output
 /packages/sync-server/tamanu-reports/
 
-packages/shared
+.yarn

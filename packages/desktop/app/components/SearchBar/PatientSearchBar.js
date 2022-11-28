@@ -1,5 +1,5 @@
 import React from 'react';
-import { getCurrentDateString } from 'shared/utils/dateTime';
+import { getCurrentDateString } from '@tamanu/shared/utils/dateTime';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
 import {
   AutocompleteField,

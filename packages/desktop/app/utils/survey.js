@@ -1,7 +1,7 @@
 import React from 'react';
 import { inRange } from 'lodash';
 
-import { ageInYears } from 'shared/utils/dateTime';
+import { ageInYears } from '@tamanu/shared/utils/dateTime';
 import {
   LimitedTextField,
   MultilineTextField,

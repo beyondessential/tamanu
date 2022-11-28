@@ -1,5 +1,5 @@
 {
-  "name": "meta-server",
+  "name": "@tamanu/meta-server",
   "version": "1.24.0",
   "description": "Meta server for Tamanu",
   "homepage": "https://github.com/beyondessential/tamanu.git#readme",

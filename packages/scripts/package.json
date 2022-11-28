@@ -1,5 +1,5 @@
 {
-  "name": "scripts",
+  "name": "@tamanu/scripts",
   "version": "1.24.0",
   "main": "index.js",
   "license": "SEE LICENSE IN license",

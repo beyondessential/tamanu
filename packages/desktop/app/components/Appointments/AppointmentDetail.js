@@ -4,7 +4,7 @@ import { format } from 'date-fns';
 import Select from 'react-select';
 import CloseIcon from '@material-ui/icons/Close';
 import { IconButton } from '@material-ui/core';
-import { APPOINTMENT_STATUSES } from 'shared/constants';
+import { APPOINTMENT_STATUSES } from '@tamanu/shared/constants';
 import { PatientNameDisplay } from '../PatientNameDisplay';
 import { InvertedDisplayIdLabel } from '../DisplayIdLabel';
 import { DateDisplay } from '../DateDisplay';

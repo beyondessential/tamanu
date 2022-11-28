@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { VACCINE_STATUS } from 'shared/constants';
+import { VACCINE_STATUS } from '@tamanu/shared/constants';
 
 import { Modal } from './Modal';
 import { Suggester } from '../utils/suggester';

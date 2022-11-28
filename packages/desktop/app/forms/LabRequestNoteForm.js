@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import * as yup from 'yup';
 
-import { NOTE_TYPES } from 'shared/constants';
+import { NOTE_TYPES } from '@tamanu/shared/constants';
 
 import { useApi } from '../api';
 import { AddButton } from '../components';

@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { push } from 'connected-react-router';
 
-import { IMAGING_REQUEST_STATUS_LABELS } from 'shared/constants';
+import { IMAGING_REQUEST_STATUS_LABELS } from '@tamanu/shared/constants';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';
 

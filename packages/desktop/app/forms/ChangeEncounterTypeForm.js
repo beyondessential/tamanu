@@ -1,5 +1,5 @@
 import React from 'react';
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { Form } from '../components/Field';
 import { FormGrid } from '../components/FormGrid';

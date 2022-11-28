@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 
-import { REFERRAL_STATUSES } from 'shared/constants';
+import { REFERRAL_STATUSES } from '@tamanu/shared/constants';
 import { REFERRAL_STATUS_LABELS } from '../constants';
 import { DataFetchingTable } from './Table';
 import { DateDisplay } from './DateDisplay';

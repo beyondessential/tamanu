@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 
 import * as yup from 'yup';
-import { LAB_TEST_RESULT_TYPES } from 'shared/constants';
+import { LAB_TEST_RESULT_TYPES } from '@tamanu/shared/constants';
 import {
   Form,
   Field,

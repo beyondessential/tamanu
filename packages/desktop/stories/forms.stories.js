@@ -12,7 +12,7 @@ import {
   FACILITIES,
   LOCATIONS,
   USERS,
-} from 'shared/demoData';
+} from '@tamanu/shared/demoData';
 import { EncounterForm } from '../app/forms/EncounterForm';
 import { TriageForm } from '../app/forms/TriageForm';
 import { VitalsForm } from '../app/forms/VitalsForm';

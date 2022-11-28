@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback, useState } from 'react';
-import { ICAO_DOCUMENT_TYPES } from 'shared/constants';
-import { VaccineCertificate } from 'shared/utils/patientCertificates';
+import { ICAO_DOCUMENT_TYPES } from '@tamanu/shared/constants';
+import { VaccineCertificate } from '@tamanu/shared/utils/patientCertificates';
 import { Modal } from './Modal';
 import { useApi } from '../api';
 import { EmailButton } from './Email/EmailButton';

@@ -1,0 +1,13 @@
+{
+    "exclude": [
+      "packages/**/{tests,dist,build}/**",
+   ],
+    "references": [
+     {
+        "path": "./packages/shared"
+     },
+     {
+        "path": "./packages/desktop"
+     }
+   ]
+   }

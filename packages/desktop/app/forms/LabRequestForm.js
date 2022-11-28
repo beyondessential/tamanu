@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-import { getCurrentDateString, getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { getCurrentDateString, getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 
 import { foreignKey } from '../utils/validation';
 import { encounterOptions } from '../constants';

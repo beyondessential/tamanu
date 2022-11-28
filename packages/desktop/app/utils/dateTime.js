@@ -1,1 +1,1 @@
-export * from 'shared/utils/dateTime';
+export * from '@tamanu/shared/utils/dateTime';

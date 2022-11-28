@@ -1,4 +1,4 @@
-import { ENCOUNTER_TYPES } from 'shared/constants';
+import { ENCOUNTER_TYPES } from '@tamanu/shared/constants';
 import { PATIENT_STATUS } from '../constants';
 
 const ENCOUNTER_TYPE_TO_STATUS = {

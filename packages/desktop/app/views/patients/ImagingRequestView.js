@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { Form, Formik } from 'formik';
 import { useDispatch, useSelector } from 'react-redux';
 import { push } from 'connected-react-router';
-import { IMAGING_REQUEST_STATUS_TYPES } from 'shared/constants';
+import { IMAGING_REQUEST_STATUS_TYPES } from '@tamanu/shared/constants';
 import { useParams } from 'react-router-dom';
 import { useCertificate } from '../../utils/useCertificate';
 import { Button } from '../../components/Button';

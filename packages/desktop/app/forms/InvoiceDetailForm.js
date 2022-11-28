@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import * as yup from 'yup';
 import Collapse from '@material-ui/core/Collapse';
 import PrintIcon from '@material-ui/icons/Print';
-import { getCurrentDateTimeString } from 'shared/utils/dateTime';
+import { getCurrentDateTimeString } from '@tamanu/shared/utils/dateTime';
 import { Colors, INVOICE_PAYMENT_STATUS_OPTIONS, ENCOUNTER_OPTIONS_BY_VALUE } from '../constants';
 import { foreignKey } from '../utils/validation';
 import { isInvoiceEditable } from '../utils';

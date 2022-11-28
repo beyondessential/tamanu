@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { groupBy } from 'lodash';
-import { APPOINTMENT_STATUSES } from 'shared/constants';
+import { APPOINTMENT_STATUSES } from '@tamanu/shared/constants';
 import { Colors } from '../../constants';
 import { Appointment } from './Appointment';
 
