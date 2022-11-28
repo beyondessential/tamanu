@@ -62,13 +62,13 @@ export async function up(query) {
       allowNull: false,
       defaultValue: '{}',
     },
-    performer: { // TODO: double check this is OK
-      type: 'fhir.immunization_performer',
+    performer: {
+      type: 'fhir.immunization_performer[]',
       allowNull: false,
       defaultValue: '{}',
     },
-    protocol_applied: { // TODO: ditto
-      type: 'fhir.immunization_protocol_applied',
+    protocol_applied: {
+      type: 'fhir.immunization_protocol_applied[]',
       allowNull: false,
       defaultValue: '{}',
     },

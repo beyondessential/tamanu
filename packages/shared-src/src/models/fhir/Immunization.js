@@ -27,8 +27,8 @@ export class FhirImmunization extends FhirResource {
         occurrenceDateTime: dateType('occuranceDateTime', { allowNull: true }),
         lotNumber: Sequelize.TEXT,
         site: arrayOf('site', DataTypes.FHIR_CODEABLE_CONCEPT),
-        performer: {}, // TODO: figure out field?
-        protocolApplied: {}, // TODO: ditto
+        performer: arrayOf('performer', DataTypes.FHIR_IMMUNIZATION_PERFORMER),
+        protocolApplied: arrayOf('performer', DataTypes.FHIR_IMMUNIZATION_PROTOCOL_APPLIED),
       },
       options,
     );

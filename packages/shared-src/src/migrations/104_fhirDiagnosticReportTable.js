@@ -27,7 +27,11 @@ export async function up(query) {
       defaultValue: Sequelize.NOW,
       allowNull: false,
     },
-    extension: {}, // TODO: figure out wth is this. Also should it be a one off or should we make an extra parent DomainResource?
+    extension: {
+      type: 'fhir.extension[]',
+      allowNull: false,
+      defaultValue: '{}',
+    },
     identifier: {
       type: 'fhir.identifier[]',
       allowNull: false,
@@ -54,8 +58,16 @@ export async function up(query) {
       type: 'date_time_string',
       allowNull: true,
     },
-    performer: {}, // TODO: should have its own type?
-    result: {}, // TODO: how to handle without an "observations" table?
+    performer: {
+      type: 'fhir.reference[]',
+      allowNull: false,
+      defaultValue: '{}',
+    },
+    result: {
+      type: 'fhir.reference[]',
+      allowNull: false,
+      defaultValue: '{}',
+    },
   });
 
   await query.addIndex(TABLE, ['id', 'version_id']);
