@@ -2,8 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
 import { useQuery } from '@tanstack/react-query';
+import { Alert, AlertTitle } from '@material-ui/lab';
+import { Box } from '@material-ui/core';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
-import { ConfirmCancelRow, Form } from '../components';
+import { ModalLoader, ConfirmCancelRow, Form } from '../components';
 import { SurveyScreen } from '../components/Surveys';
 import { useApi } from '../api';
 
@@ -30,11 +32,26 @@ const COLUMNS_TO_DATA_ELEMENT_ID = {
   avpu: 'pde-PatientVitalsAVPU',
 };
 
+const ErrorMessage = () => {
+  return (
+    <Box p={5} mb={4}>
+      <Alert severity="error">
+        <AlertTitle>Error: Can not load vitals form</AlertTitle>
+        Please contact a Tamanu Administrator to ensure the Vitals form is configured correctly.
+      </Alert>
+    </Box>
+  );
+};
+
 export const VitalsForm = React.memo(({ patient, onSubmit, onClose, editedObject }) => {
-  const { data: vitalsSurvey, isLoading } = useVitalsSurvey();
+  const { data: vitalsSurvey, isLoading, isError } = useVitalsSurvey();
 
   if (isLoading) {
-    return 'Loading...';
+    return <ModalLoader />;
+  }
+
+  if (isError) {
+    return <ErrorMessage />;
   }
 
   const handleSubmit = data => {
