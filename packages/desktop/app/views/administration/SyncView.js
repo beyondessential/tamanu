@@ -34,7 +34,7 @@ const LastSyncs = React.memo((props) => (
 export const SyncView = React.memo(() => {
   return (
     <PageContainer>
-      <TopBar title="Sync status"></TopBar>
+      <TopBar title="Sync status"/>
       <LastSyncs fetchOptions={{}} />
     </PageContainer>
   );
