@@ -155,6 +155,7 @@ export const EncounterView = () => {
           currentTab={currentTab}
           onTabSelect={setCurrentTab}
           encounter={encounter}
+          patient={patient}
           disabled={disabled}
         />
       </ContentPane>

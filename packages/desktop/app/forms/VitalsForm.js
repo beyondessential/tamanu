@@ -1,101 +1,106 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
+import { useQuery } from '@tanstack/react-query';
+import { Alert, AlertTitle } from '@material-ui/lab';
+import { Box } from '@material-ui/core';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
-import styled from 'styled-components';
+import { ModalLoader, ConfirmCancelRow, Form } from '../components';
+import { SurveyScreen } from '../components/Surveys';
+import { useApi } from '../api';
 
-import { AVPU_OPTIONS } from 'shared/constants';
-import {
-  Form,
-  Field,
-  DateTimeField,
-  NumberField,
-  SelectField,
-  TemperatureField,
-} from '../components/Field';
-import { FormGrid } from '../components/FormGrid';
-import { ConfirmCancelRow } from '../components/ButtonRow';
+const useVitalsSurvey = () => {
+  const api = useApi();
+  // Todo: update to use vitals survey endpoint
+  const VITALS_SURVEY_ID = 'program-patientvitals-patientvitals';
 
-const BloodPressureFieldsContainer = styled.div`
-  display: grid;
-  grid-template-columns: auto auto;
-  grid-gap: 0.5rem;
-`;
-
-// When a vitals field defaults to 0 people get confused and try to delete it
-// Default to null instead
-const VitalsNumericField = ({ ...props }) => <NumberField {...props} />;
-
-VitalsNumericField.defaultProps = {
-  value: null,
+  return useQuery(['survey', { type: 'vitals' }], () =>
+    api.get(`survey/${encodeURIComponent(VITALS_SURVEY_ID)}`),
+  );
 };
 
-export class VitalsForm extends React.PureComponent {
-  renderForm = ({ submitForm }) => {
-    const { onCancel } = this.props;
-    return (
-      <FormGrid columns={2}>
-        <div style={{ gridColumn: 'span 2' }}>
-          <Field
-            name="dateRecorded"
-            label="Date recorded"
-            component={DateTimeField}
-            saveDateAsString
-          />
-        </div>
-        <Field name="height" label="Height (cm)" component={VitalsNumericField} />
-        <Field name="weight" label="Weight (kg)" component={VitalsNumericField} />
-        <BloodPressureFieldsContainer>
-          <Field name="sbp" label="SBP" component={VitalsNumericField} />
-          <Field name="dbp" label="DBP" component={VitalsNumericField} />
-        </BloodPressureFieldsContainer>
-        <Field name="heartRate" label="Heart rate" component={VitalsNumericField} />
-        <Field name="respiratoryRate" label="Respiratory rate" component={VitalsNumericField} />
-        <Field name="temperature" component={TemperatureField} />
-        <Field name="spo2" label="SpO2 (%)" component={VitalsNumericField} />
-        <Field name="avpu" label="AVPU" component={SelectField} options={AVPU_OPTIONS} />
-        <ConfirmCancelRow confirmText="Record" onConfirm={submitForm} onCancel={onCancel} />
-      </FormGrid>
-    );
+const COLUMNS_TO_DATA_ELEMENT_ID = {
+  dateRecorded: 'pde-PatientVitalsDate',
+  temperature: 'pde-PatientVitalsTemperature',
+  weight: 'pde-PatientVitalsWeight',
+  height: 'pde-PatientVitalsHeight',
+  sbp: 'pde-PatientVitalsSBP',
+  dbp: 'pde-PatientVitalsDBP',
+  heartRate: 'pde-PatientVitalsHeartRate',
+  respiratoryRate: 'pde-PatientVitalsRespiratoryRate',
+  spo2: 'pde-PatientVitalsSPO2',
+  avpu: 'pde-PatientVitalsAVPU',
+};
+
+const ErrorMessage = () => {
+  return (
+    <Box p={5} mb={4}>
+      <Alert severity="error">
+        <AlertTitle>Error: Can not load vitals form</AlertTitle>
+        Please contact a Tamanu Administrator to ensure the Vitals form is configured correctly.
+      </Alert>
+    </Box>
+  );
+};
+
+export const VitalsForm = React.memo(({ patient, onSubmit, onClose, editedObject }) => {
+  const { data: vitalsSurvey, isLoading, isError } = useVitalsSurvey();
+
+  if (isLoading) {
+    return <ModalLoader />;
+  }
+
+  if (isError) {
+    return <ErrorMessage />;
+  }
+
+  const handleSubmit = data => {
+    onSubmit({ survey: vitalsSurvey, ...data });
   };
 
-  render() {
-    const { onSubmit, editedObject } = this.props;
-    return (
-      <Form
-        onSubmit={onSubmit}
-        render={this.renderForm}
-        initialValues={{
-          dateRecorded: getCurrentDateTimeString(),
-          ...editedObject,
-        }}
-        validationSchema={yup.object().shape({
-          dateRecorded: yup.date().required(),
-          height: yup.number(),
-          weight: yup.number(),
-          sbp: yup.number(),
-          dbp: yup.number(),
-          heartRate: yup.number(),
-          respiratoryRate: yup.number(),
-          temperature: yup.number(),
-          spo2: yup.number(),
-          avpu: yup.string(),
-        })}
-        validate={values => {
-          const errors = {};
+  return (
+    <Form
+      onSubmit={handleSubmit}
+      validationSchema={yup.object().shape({
+        [COLUMNS_TO_DATA_ELEMENT_ID.dateRecorded]: yup.date().required(),
+      })}
+      initialValues={{
+        [COLUMNS_TO_DATA_ELEMENT_ID.dateRecorded]: getCurrentDateTimeString(),
+        ...editedObject,
+      }}
+      validate={({ [COLUMNS_TO_DATA_ELEMENT_ID.dateRecorded]: date, ...values }) => {
+        const errors = {};
 
-          // All readings are either numbers or strings
-          if (!Object.values(values).some(x => x && ['number', 'string'].includes(typeof x))) {
-            errors.form = 'At least one recording must be entered.';
-          }
+        // All readings are either numbers or strings
+        if (!Object.values(values).some(x => x && ['number', 'string'].includes(typeof x))) {
+          errors.form = 'At least one recording must be entered.';
+        }
 
-          return errors;
-        }}
-      />
-    );
-  }
-}
+        return errors;
+      }}
+      render={({ submitForm }) => {
+        return (
+          <SurveyScreen
+            components={vitalsSurvey.components}
+            patient={patient}
+            cols={2}
+            submitButton={
+              <ConfirmCancelRow confirmText="Record" onConfirm={submitForm} onCancel={onClose} />
+            }
+          />
+        );
+      }}
+    />
+  );
+});
 
 VitalsForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
+  onClose: PropTypes.func.isRequired,
+  patient: PropTypes.func.isRequired,
+  editedObject: PropTypes.shape({}),
+};
+
+VitalsForm.defaultProps = {
+  editedObject: null,
 };
