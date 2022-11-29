@@ -22,7 +22,10 @@ export class FhirImmunization extends FhirResource {
           type: Sequelize.STRING(16),
           allowNull: false,
         },
-        vaccineCode: arrayOf('vaccineCode', DataTypes.FHIR_CODEABLE_CONCEPT),
+        vaccineCode: {
+          type: DataTypes.FHIR_CODEABLE_CONCEPT,
+          allowNull: false,
+        },
         patient: {
           type: DataTypes.FHIR_REFERENCE,
           allowNull: false,
