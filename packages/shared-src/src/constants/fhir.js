@@ -1,5 +1,5 @@
 // The resource types that are supported at an API level.
-export const FHIR_RESOURCE_TYPES = ['Patient', 'ServiceRequest'];
+export const FHIR_RESOURCE_TYPES = ['Patient', 'ServiceRequest', 'DiagnosticReport', 'Immunization'];
 
 // The resource:upstreams relationship. Used to set up hooks.
 export const FHIR_UPSTREAMS = {
@@ -10,6 +10,22 @@ export const FHIR_UPSTREAMS = {
     'ImagingAreaExternalCode',
     'ImagingRequestArea',
     'Location',
+    'Patient',
+    'ReferenceData',
+    'User',
+  ],
+  DiagnosticReport: [
+    'LabTest',
+    'LabRequest',
+    'LabTestType',
+    'ReferenceData',
+    'Encounter',
+    'Patient',
+  ],
+  Immunization: [
+    'AdministeredVaccine',
+    'ScheduledVaccine',
+    'Encounter',
     'Patient',
     'ReferenceData',
     'User',
