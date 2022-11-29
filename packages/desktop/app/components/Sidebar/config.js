@@ -211,4 +211,9 @@ export const SYNC_MENU_ITEMS = [
     label: 'Patient merge',
     path: '/admin/patientMerge',
   },
+  {
+    key: 'sync',
+    label: 'Sync status',
+    path: '/admin/sync',
+  },
 ];
