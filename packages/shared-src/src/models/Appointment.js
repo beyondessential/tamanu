@@ -21,7 +21,7 @@ export class Appointment extends Model {
           defaultValue: APPOINTMENT_STATUSES.CONFIRMED,
         },
       },
-      { syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC, ...options },
+      { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL, ...options },
     );
   }
 
@@ -54,5 +54,23 @@ export class Appointment extends Model {
       as: 'location',
       foreignKey: 'locationId',
     });
+  }
+
+  static buildSyncFilter(patientIds) {
+    if (patientIds.length === 0) {
+      return null;
+    }
+    return `
+      JOIN
+        location_groups
+      ON
+        appointments.location_group_id = location_groups.id
+      WHERE
+        location_groups.patient_id IN (:patientIds)
+      AND
+        facility_id = :facilityId
+      AND
+        updated_at_sync_tick > :since
+    `;
   }
 }

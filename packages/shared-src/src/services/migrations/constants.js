@@ -1,5 +1,4 @@
 export const NON_SYNCING_TABLES = [
-  'appointments',
   'attachments',
   'local_system_facts',
   'one_time_logins',
