@@ -247,7 +247,7 @@ export class Encounter extends Model {
             (
               e.updated_at_sync_tick > :since
             OR
-              sv.updated_at_sync_tick > :since
+              av.updated_at_sync_tick > :since
             )
           GROUP BY e.id
         ) AS encounters_with_scheduled_vaccines
