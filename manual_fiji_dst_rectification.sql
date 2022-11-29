@@ -105,7 +105,6 @@ WHERE updated_at >= '2022-11-13T01:00:00+12:00'::timestamptz AND
 -- lab tests
 UPDATE lab_tests
 SET updated_at = current_timestamp(3),
-    date = date::timestamp - '1 hour'::interval,
     completed_date = completed_date::timestamp - '1 hour'::interval
 WHERE updated_at >= '2022-11-13T01:00:00+12:00'::timestamptz AND
       updated_at < '2022-11-14T07:30:00+12:00'::timestamptz AND
