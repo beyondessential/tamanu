@@ -24,7 +24,10 @@ export class FhirDiagnosticReport extends FhirResource {
           allowNull: false,
         },
         category: arrayOf('category', DataTypes.FHIR_CODEABLE_CONCEPT),
-        code: arrayOf('code', DataTypes.FHIR_CODEABLE_CONCEPT),
+        code: {
+          type: DataTypes.FHIR_CODEABLE_CONCEPT,
+          allowNull: false,
+        },
         subject: {
           type: DataTypes.FHIR_REFERENCE,
           allowNull: true,

@@ -38,10 +38,14 @@ export async function up(query) {
       type: Sequelize.STRING(16),
       allowNull: false,
     },
-    code: {
+    category: {
       type: 'fhir.codeable_concept[]',
       allowNull: false,
       defaultValue: '{}',
+    },
+    code: {
+      type: 'fhir.codeable_concept',
+      allowNull: false,
     },
     subject: {
       type: 'fhir.reference',
