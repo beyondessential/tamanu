@@ -6,7 +6,7 @@ import { SYNC_LAST_COMPLETED_ENDPOINT } from './constants';
 
 const getTimestamp = field => row => <DateDisplay date={row[field]} showTime />;
 
-const LastSyncs = React.memo(({ ...props }) => (
+const LastSyncs = React.memo((props) => (
   <DataFetchingTable
     endpoint={SYNC_LAST_COMPLETED_ENDPOINT}
     columns={[
