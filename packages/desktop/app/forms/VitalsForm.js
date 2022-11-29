@@ -86,7 +86,7 @@ export const VitalsForm = React.memo(({ patient, onSubmit, onClose, editedObject
 VitalsForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
   onClose: PropTypes.func.isRequired,
-  patient: PropTypes.func.isRequired,
+  patient: PropTypes.object.isRequired,
   editedObject: PropTypes.shape({}),
 };
 

@@ -52,11 +52,11 @@ const useVitals = encounterId => {
   );
 
   let readings = [];
+  const data = query?.data?.data || [];
 
-  if (query?.data?.data?.length > 0) {
-    const { data } = query.data;
+  if (data.length > 0) {
     // Use the first response answers as the columns list
-    const measuresList = data[0].answers.map(x => x.name);
+    const measuresList = data[0].answers.map(x => x.name).filter(name => name !== 'Date');
 
     const answersLibrary = data.map(({ answers, ...record }) => ({
       ...record,
@@ -75,7 +75,7 @@ const useVitals = encounterId => {
     }));
   }
 
-  return { ...query, data: query?.data?.data, readings };
+  return { ...query, data, readings };
 };
 
 export const VitalsTable = React.memo(() => {
@@ -90,6 +90,7 @@ export const VitalsTable = React.memo(() => {
   const columns = [
     { key: 'title', title: 'Measure' },
     ...data
+      .filter(r => !!r.dateRecorded)
       .sort((a, b) => b.dateRecorded.localeCompare(a.dateRecorded))
       .map(r => ({
         title: <DateDisplay showTime date={r.dateRecorded} />,

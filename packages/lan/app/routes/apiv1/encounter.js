@@ -230,6 +230,7 @@ encounterRelations.get(
   }),
 );
 
+// Todo: remove records where date_recorded is null
 encounterRelations.get(
   '/:id/vitals',
   asyncHandler(async (req, res) => {
@@ -286,7 +287,7 @@ encounterRelations.get(
         AND
           s.survey_type = 'vitals'
         GROUP BY sr.id
-        ORDER BY date_recorded ${order} NULLS LAST
+        ORDER BY date_recorded ${order}
       `,
       { encounterId },
       query,
