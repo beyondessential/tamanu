@@ -1,23 +1,29 @@
+import ms from 'ms';
 import React from 'react';
+
 import { TopBar, PageContainer, DataFetchingTable, DateDisplay } from '../../components';
 import { SYNC_LAST_COMPLETED_ENDPOINT } from './constants';
 
-const getTimestamp = ({ timestamp }) => <DateDisplay date={timestamp} showTime />;
+const getTimestamp = field => row => <DateDisplay date={row[field]} showTime />;
 
 const LastSyncs = React.memo(({ ...props }) => (
   <DataFetchingTable
     endpoint={SYNC_LAST_COMPLETED_ENDPOINT}
     columns={[
       {
-        key: 'facility',
+        key: 'facilityId',
         title: 'Facility',
         minWidth: 100,
       },
       {
-        key: 'timestamp',
+        key: 'completedAt',
         title: 'Last completed sync',
-        minWidth: 100,
-        accessor: getTimestamp,
+        accessor: getTimestamp('completedAt'),
+      },
+      {
+        key: 'duration',
+        title: 'Duration',
+        accessor: ({ duration }) => ms(duration),
       },
     ]}
     noDataMessage="No data"
