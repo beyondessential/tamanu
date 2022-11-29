@@ -1,6 +1,7 @@
 import { Sequelize, DataTypes } from 'sequelize';
 
 import { VACCINE_STATUS, INJECTION_SITE_OPTIONS } from 'shared/constants';
+import { FHIR_SEARCH_PARAMETERS, FHIR_SEARCH_TOKEN_TYPES } from 'shared/constants/fhir';
 import { FhirResource } from './Resource';
 import { arrayOf } from './utils';
 import { dateType } from '../dateTimeTypes';
@@ -88,6 +89,21 @@ export class FhirImmunization extends FhirResource {
       performer: performer(administeredVaccine.recorder),
       protocolApplied: protocolApplied(scheduledVaccine.schedule),
     });
+  }
+
+  static searchParameters() {
+    return {
+      ...super.searchParameters(),
+      patient: {
+        type: FHIR_SEARCH_PARAMETERS.REFERENCE,
+        path: [['patient']],
+        tokenType: FHIR_SEARCH_TOKEN_TYPES.STRING,
+      },
+      'vaccine-code': {
+        type: FHIR_SEARCH_PARAMETERS.TOKEN,
+        path: [['vaccineCode', '[]']],
+      },
+    };
   }
 }
 
