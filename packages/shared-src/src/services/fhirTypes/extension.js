@@ -10,7 +10,10 @@ export class FhirExtension extends Composite {
   static SCHEMA() {
     return yup
       .object({
-        url: yup.url().required(),
+        url: yup
+          .string()
+          .url()
+          .required(),
         valueCodeableConcept: FhirCodeableConcept.asYup()
           .nullable()
           .default(null),
