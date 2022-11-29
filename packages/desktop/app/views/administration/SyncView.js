@@ -35,6 +35,7 @@ export const SyncView = React.memo(() => {
   return (
     <PageContainer>
       <TopBar title="Sync status"/>
+      <p>Times are in the server's timezone.</p>
       <LastSyncs fetchOptions={{}} />
     </PageContainer>
   );
