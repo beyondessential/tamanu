@@ -1,23 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as yup from 'yup';
-import { useQuery } from '@tanstack/react-query';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import { Box } from '@material-ui/core';
 import { getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { ModalLoader, ConfirmCancelRow, Form } from '../components';
 import { SurveyScreen } from '../components/Surveys';
-import { useApi } from '../api';
-
-const useVitalsSurvey = () => {
-  const api = useApi();
-  // Todo: update to use vitals survey endpoint
-  const VITALS_SURVEY_ID = 'program-patientvitals-patientvitals';
-
-  return useQuery(['survey', { type: 'vitals' }], () =>
-    api.get(`survey/${encodeURIComponent(VITALS_SURVEY_ID)}`),
-  );
-};
+import { useVitalsSurvey } from '../api/queries';
 
 const COLUMNS_TO_DATA_ELEMENT_ID = {
   dateRecorded: 'pde-PatientVitalsDate',

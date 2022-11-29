@@ -264,7 +264,7 @@ encounterRelations.get(
               ELSE
                 NULL
               END
-          ) sort,
+          ) date_recorded,
           JSONB_AGG(
             JSONB_BUILD_OBJECT(
               'name', pde.name,
@@ -286,7 +286,7 @@ encounterRelations.get(
         AND
           s.survey_type = 'vitals'
         GROUP BY sr.id
-        ORDER BY sort ${order} NULLS LAST
+        ORDER BY date_recorded ${order} NULLS LAST
       `,
       { encounterId },
       query,
