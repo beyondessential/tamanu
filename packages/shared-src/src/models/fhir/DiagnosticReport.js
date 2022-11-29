@@ -5,7 +5,13 @@ import { LAB_REQUEST_STATUSES } from 'shared/constants';
 import { FhirResource } from './Resource';
 import { arrayOf } from './utils';
 import { dateType } from '../dateTimeTypes';
-import { FhirCodeableConcept, FhirCoding, FhirIdentifier } from '../../services/fhirTypes';
+import {
+  FhirCodeableConcept,
+  FhirCoding,
+  FhirExtension,
+  FhirIdentifier,
+  FhirReference,
+} from '../../services/fhirTypes';
 
 export class FhirDiagnosticReport extends FhirResource {
   static init(options, models) {
@@ -77,7 +83,7 @@ export class FhirDiagnosticReport extends FhirResource {
     this.set({
       extension: extension(labTestMethod),
       identifier: identifiers(labRequest),
-      subject: patient.id,
+      subject: patientReference(patient),
       status: status(labRequest),
       effectiveDateTime: labRequest.sampleTime,
       issued: labRequest.requestedDate,
@@ -89,7 +95,25 @@ export class FhirDiagnosticReport extends FhirResource {
 }
 
 function extension(labTestMethod) {
-  return null; // TODO: figure out what to save here
+  if (!labTestMethod) {
+    return [];
+  }
+
+  const groupNamespace = `${config.hl7.dataDictionaries.testMethod}/covid-test-methods`;
+  const testsNamespace = `${groupNamespace}/rdt`;
+
+  return [
+    new FhirExtension({
+      url: groupNamespace,
+      valueCodeableConcept: new FhirCodeableConcept({
+        coding: new FhirCoding({
+          system: testsNamespace,
+          code: labTestMethod.code,
+          display: labTestMethod.name,
+        }),
+      }),
+    }),
+  ];
 }
 
 function identifiers(labRequest) {
@@ -100,6 +124,13 @@ function identifiers(labRequest) {
       value: labRequest.displayId,
     }),
   ];
+}
+
+function patientReference(patient) {
+  return new FhirReference({
+    reference: `Patient/${patient.id}`,
+    display: [patient.firstName, patient.lastName].filter(x => x).join(' '),
+  });
 }
 
 function status(labRequest) {
@@ -128,9 +159,27 @@ function code(labTestType) {
 }
 
 function performer(laboratory, examiner) {
-  return null; // TODO: figure out what to save here
+  return [
+    laboratory &&
+      new FhirReference({
+        reference: `Organization/${laboratory.id}`,
+        display: laboratory.name,
+      }),
+    new FhirReference({
+      reference: `Practitioner/${examiner.id}`,
+      display: examiner.displayName,
+    }),
+  ].filter(x => x);
 }
 
 function result(labTest, labRequest) {
-  return null; // TODO: figure out what to save here
+  if (labRequest.status !== LAB_REQUEST_STATUSES.PUBLISHED) {
+    return [];
+  }
+
+  return [
+    new FhirReference({
+      reference: `Observation/${labTest.id}`,
+    }),
+  ];
 }

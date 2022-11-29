@@ -4,7 +4,13 @@ import { VACCINE_STATUS, INJECTION_SITE_OPTIONS } from 'shared/constants';
 import { FhirResource } from './Resource';
 import { arrayOf } from './utils';
 import { dateType } from '../dateTimeTypes';
-import { FhirCodeableConcept, FhirCoding } from '../../services/fhirTypes';
+import {
+  FhirCodeableConcept,
+  FhirCoding,
+  FhirReference,
+  FhirImmunizationPerformer,
+  FhirImmunizationProtocolApplied,
+} from '../../services/fhirTypes';
 
 export class FhirImmunization extends FhirResource {
   static init(options, models) {
@@ -37,10 +43,14 @@ export class FhirImmunization extends FhirResource {
   }
 
   async updateMaterialisation() {
-    const { ScheduledVaccine, Encounter, Patient, ReferenceData } = this.sequelize.models;
+    const { ScheduledVaccine, Encounter, Patient, ReferenceData, User } = this.sequelize.models;
 
     const administeredVaccine = await this.getUpstream({
       include: [
+        {
+          model: User,
+          as: 'recorder',
+        },
         {
           model: ScheduledVaccine,
           as: 'scheduledVaccine',
@@ -70,8 +80,8 @@ export class FhirImmunization extends FhirResource {
     this.set({
       status: status(administeredVaccine.status),
       vaccineCode: vaccineCode(scheduledVaccine),
-      patient: patient.id,
-      encounter: encounter.id,
+      patient: patientReference(patient),
+      encounter: encounterReference(encounter),
       occurrenceDateTime: administeredVaccine.date,
       lotNumber: administeredVaccine.batch,
       site: site(administeredVaccine.injectionSite),
@@ -129,21 +139,32 @@ function vaccineCode(scheduledVaccine) {
 
   const code = vaccineIdToAIRVCode(scheduledVaccine.vaccine.id);
 
-  // TODO: We don't want to save unsupported vaccine codes, do we?
-  if (code === null) {
-    return []; // TODO: Should this be [{}] ?
-  }
-
+  // Only include a coding if we support the code, otherwise just use text
   return [
     new FhirCodeableConcept({
-      coding: [
-        new FhirCoding({
-          system: AIRV_TERMINOLOGY_URL,
-          code,
-        }),
-      ],
+      ...(code && {
+        coding: [
+          new FhirCoding({
+            system: AIRV_TERMINOLOGY_URL,
+            code,
+          }),
+        ],
+      }),
+      text: scheduledVaccine.vaccine.name,
     }),
   ];
+}
+
+function patientReference(patient) {
+  return new FhirReference({
+    reference: `Patient/${patient.id}`,
+  });
+}
+
+function encounterReference(encounter) {
+  return new FhirReference({
+    reference: `Encounter/${encounter.id}`,
+  });
 }
 
 function site(injectionSite) {
@@ -171,9 +192,15 @@ function site(injectionSite) {
 }
 
 function performer(recorder) {
-  return null; // TODO: figure out what to save here
+  return new FhirImmunizationPerformer({
+    actor: new FhirReference({
+      reference: `Practitioner/${recorder.id}`,
+    }),
+  });
 }
 
 function protocolApplied(schedule) {
-  return null; // TODO: figure out what to save here
+  return new FhirImmunizationProtocolApplied({
+    doseNumber: schedule,
+  });
 }
