@@ -115,7 +115,7 @@ encounter.post(
 
 const encounterRelations = permissionCheckingRouter('read', 'Encounter');
 encounterRelations.get('/:id/discharge', simpleGetHasOne('Discharge', 'encounterId'));
-encounterRelations.get('/:id/vitals', simpleGetList('Vitals', 'encounterId'));
+encounterRelations.get('/:id/legacyVitals', simpleGetList('Vitals', 'encounterId'));
 encounterRelations.get('/:id/diagnoses', simpleGetList('EncounterDiagnosis', 'encounterId'));
 encounterRelations.get('/:id/medications', simpleGetList('EncounterMedication', 'encounterId'));
 encounterRelations.get('/:id/procedures', simpleGetList('Procedure', 'encounterId'));
@@ -218,6 +218,75 @@ encounterRelations.get(
         AND
           surveys.survey_type = 'programs'
         ORDER BY ${sortKey} ${sortDirection}
+      `,
+      { encounterId },
+      query,
+    );
+
+    res.send({
+      count: parseInt(count, 10),
+      data,
+    });
+  }),
+);
+
+encounterRelations.get(
+  '/:id/vitals',
+  asyncHandler(async (req, res) => {
+    const { db, models, params, query } = req;
+    req.checkPermission('list', 'Vitals');
+    req.checkPermission('list', 'SurveyResponse');
+    const encounterId = params.id;
+    const { order = 'DESC', orderBy = { key: 'name', value: 'Date' } } = query;
+    const { count, data } = await runPaginatedQuery(
+      db,
+      models.SurveyResponse,
+      `
+        SELECT COUNT(1) AS count
+        FROM
+          survey_responses
+          LEFT JOIN surveys
+            ON surveys.id = survey_responses.survey_id
+        WHERE
+          survey_responses.encounter_id = :encounterId
+        AND
+          surveys.survey_type = 'vitals'
+      `,
+      `
+        SELECT
+          sr.id,
+          MAX(
+            CASE
+              WHEN
+                pde.${orderBy.key} = '${orderBy.value}'
+              THEN
+                sra.body
+              ELSE
+                NULL
+              END
+          ) sort,
+          JSONB_AGG(
+            JSONB_BUILD_OBJECT(
+              'name', pde.name,
+              'value', sra.body
+            )
+          ) answers
+        FROM survey_responses sr
+        INNER JOIN surveys s
+          ON s.id = sr.survey_id
+        INNER JOIN survey_screen_components ssc
+          ON ssc.survey_id = s.id
+        INNER JOIN program_data_elements pde
+          ON pde.id = ssc.data_element_id
+        LEFT JOIN survey_response_answers sra
+          ON sra.response_id = sr.id
+          AND sra.data_element_id = pde.id
+        WHERE
+          sr.encounter_id = :encounterId
+        AND
+          s.survey_type = 'vitals'
+        GROUP BY sr.id
+        ORDER BY sort ${order} NULLS LAST
       `,
       { encounterId },
       query,
