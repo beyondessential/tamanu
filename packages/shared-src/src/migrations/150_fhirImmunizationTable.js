@@ -36,7 +36,6 @@ export async function up(query) {
     vaccine_code: {
       type: 'fhir.codeable_concept',
       allowNull: false,
-      defaultValue: '{}',
     },
     patient: {
       type: 'fhir.reference',
