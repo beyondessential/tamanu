@@ -52,8 +52,14 @@ export class FhirImmunizationProtocolApplied extends Composite {
           .nullable()
           .default(null),
       })
+      .test(
+        'doseNumber[x]',
+        'doseNumberPositiveInt or doseNumberString is required',
+        ({ doseNumberPositiveInt, doseNumberString }) => {
+          return doseNumberPositiveInt !== null || doseNumberString !== null;
+        },
+      )
       .noUnknown();
-    // TODO: test doseNumber[x] = needs one or the other
   }
 
   static validateAndTransformFromSql({ authority, targetDisease, ...fields }) {
