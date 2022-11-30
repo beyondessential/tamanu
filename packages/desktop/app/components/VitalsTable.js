@@ -7,41 +7,24 @@ import { capitaliseFirstLetter } from '../utils/capitalise';
 import { useEncounter } from '../contexts/Encounter';
 import { useApi } from '../api';
 
-// Todo: add support for unit, rounding and accessor to survey
-// const vitalsRows = [
-//   { key: 'height', title: 'Height', rounding: 0, unit: 'cm' },
-//   { key: 'weight', title: 'Weight', rounding: 1, unit: 'kg' },
-//   {
-//     key: 'temperature',
-//     title: 'Temperature',
-//     accessor: ({ amount, unitSettings }) => {
-//       if (typeof amount !== 'number') return '-';
-//
-//       if (unitSettings?.temperature === 'fahrenheit') {
-//         return `${convert(amount, 'celsius')
-//         .to('fahrenheit')
-//         .toFixed(1)}ºF`;
-//       }
-//
-//       return `${amount.toFixed(1)}ºC`;
-//     },
-//   },
-//   { key: 'sbp', title: 'SBP', rounding: 0, unit: '' },
-//   { key: 'dbp', title: 'DBP', rounding: 0, unit: '' },
-//   { key: 'heartRate', title: 'Heart rate', rounding: 0, unit: '/min' },
-//   { key: 'respiratoryRate', title: 'Respiratory rate', rounding: 0, unit: '/min' },
-//   { key: 'spo2', title: 'SpO2', rounding: 0, unit: '%' },
-//   { key: 'avpu', title: 'AVPU', unit: '/min' },
-// ];
+function unitDisplay(amount, config = '{}') {
+  try {
+    const { unit = '', rounding = 0, accessor } = JSON.parse(config);
+    if (typeof accessor === 'function') {
+      return accessor({ amount });
+    }
 
-function unitDisplay(amount, unit, rounding, accessor) {
-  if (typeof accessor === 'function') {
-    return accessor({ amount });
+    if (parseFloat(amount)) {
+      return `${parseFloat(amount).toFixed(rounding)}${unit}`;
+    }
+    if (typeof amount === 'string') {
+      return capitaliseFirstLetter(amount);
+    }
+    return '-';
+  } catch (e) {
+    // do nothing
   }
-  if (typeof amount === 'string') return capitaliseFirstLetter(amount);
-  if (typeof amount !== 'number') return '-';
-
-  return `${amount.toFixed(rounding)}${unit}`;
+  return amount;
 }
 
 const useVitals = encounterId => {
@@ -65,13 +48,12 @@ const useVitals = encounterId => {
 
     readings = measuresList.map(measureName => ({
       title: measureName,
-      ...answersLibrary.reduce(
-        (state, answer) => ({
+      ...answersLibrary.reduce((state, answer) => {
+        return {
           ...state,
-          [answer.dateRecorded]: unitDisplay(answer[measureName].value),
-        }),
-        {},
-      ),
+          [answer.dateRecorded]: unitDisplay(answer[measureName].value, answer[measureName].config),
+        };
+      }, {}),
     }));
   }
 

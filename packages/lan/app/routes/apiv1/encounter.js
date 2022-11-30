@@ -269,6 +269,8 @@ encounterRelations.get(
           JSONB_AGG(
             JSONB_BUILD_OBJECT(
               'name', pde.name,
+              'code', pde.code,
+              'config', ssc.config,
               'value', sra.body
             )
           ) answers
