@@ -283,14 +283,7 @@ const PatientField = ({ definition: { definitionId, name, fieldType, options } }
   const fieldName = `patientFields.${definitionId}`;
   if (fieldType === PATIENT_FIELD_DEFINITION_TYPES.SELECT) {
     const fieldOptions = options.map(o => ({ label: o, value: o }));
-    return (
-      <Field
-        name={fieldName}
-        component={SelectField}
-        label={name}
-        options={fieldOptions}
-      />
-    );
+    return <Field name={fieldName} component={SelectField} label={name} options={fieldOptions} />;
   }
   if (fieldType === PATIENT_FIELD_DEFINITION_TYPES.STRING) {
     return <Field name={fieldName} component={TextField} label={name} />;
@@ -330,13 +323,10 @@ function sanitiseRecordForValues(data) {
     patientId,
 
     // backend fields
-    markedForPush,
     markedForSync,
     createdAt,
     updatedAt,
-    pushedAt,
-    pulledAt,
-    isPushing,
+    updatedAtSyncTick,
 
     // state fields
     loading,

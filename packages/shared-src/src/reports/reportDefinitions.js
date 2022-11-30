@@ -58,11 +58,10 @@ export const REPORT_DEFINITIONS = [
         suggesterEndpoint: 'patientBillingType',
       },
       {
-        parameterField: 'ParameterAutocompleteField',
-        label: 'Location',
-        name: 'location',
-        suggesterEndpoint: 'location',
-        suggesterOptions: { baseQueryParameters: { filterByFacility: true } },
+        parameterField: 'ParameterSuggesterSelectField',
+        label: 'Area',
+        name: 'locationGroup',
+        suggesterEndpoint: 'locationGroup',
       },
       {
         parameterField: 'ParameterAutocompleteField',
@@ -376,9 +375,9 @@ export const REPORT_DEFINITIONS = [
     ],
   },
   {
-    name: 'Fiji Aspen encounter summary - Line list',
-    id: 'fiji-aspen-encounter-summary-line-list',
-    dateRangeLabel: ALL_TIME_DATE_LABEL, // TODO: Changed in new PR
+    name: 'Encounter summary - Line list',
+    id: 'encounter-summary-line-list',
+    dateRangeLabel: ALL_TIME_DATE_LABEL,
     dataSourceOptions: REPORT_DATA_SOURCE_VALUES,
     filterDateRangeAsStrings: true,
     parameters: [
@@ -396,11 +395,10 @@ export const REPORT_DEFINITIONS = [
         suggesterOptions: { baseQueryParameters: { filterByFacility: true } },
       },
       {
-        parameterField: 'ParameterAutocompleteField',
-        label: 'Location',
-        name: 'location',
-        suggesterEndpoint: 'location',
-        suggesterOptions: { baseQueryParameters: { filterByFacility: true } },
+        parameterField: 'ParameterSuggesterSelectField',
+        label: 'Area',
+        name: 'locationGroup',
+        suggesterEndpoint: 'locationGroup',
       },
     ],
   },
@@ -429,11 +427,10 @@ export const REPORT_DEFINITIONS = [
     filterDateRangeAsStrings: true,
     parameters: [
       {
-        parameterField: 'ParameterAutocompleteField',
-        label: 'Location',
-        name: 'location',
-        suggesterEndpoint: 'location',
-        suggesterOptions: { baseQueryParameters: { filterByFacility: true } },
+        parameterField: 'ParameterSuggesterSelectField',
+        label: 'Area',
+        name: 'locationGroup',
+        suggesterEndpoint: 'locationGroup',
       },
       {
         parameterField: 'ParameterAutocompleteField',

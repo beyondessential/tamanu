@@ -39,6 +39,7 @@ const useColumns = () => {
       key: 'sex',
       accessor: row => <span style={{ textTransform: 'capitalize' }}>{row.sex || ''}</span>,
     },
+    { key: 'locationGroupName', title: 'Area' },
     { key: 'locationName', title: 'Location' },
   ];
 };

@@ -43,6 +43,8 @@ const UNHIDEABLE_FIELDS = [
   'dateOfBirthExact',
   'emergencyContactName',
   'emergencyContactNumber',
+  'locationId',
+  'locationGroupId',
 ];
 
 const HIDEABLE_FIELDS = [
@@ -102,6 +104,8 @@ const HIDEABLE_FIELDS = [
 
 const templatesSchema = yup
   .object({
+    plannedMoveTimeoutHours: yup.number().required(),
+
     letterhead: yup
       .object({
         title: yup.string(),
@@ -339,16 +343,11 @@ const rootLocalisationSchema = yup
         enableCovidClearanceCertificate: yup.boolean().required(),
         enableDischargeDisposition: yup.boolean().default(true),
         editDisplayId: yup.boolean().required(),
+        patientPlannedMove: yup.boolean().required(),
       })
       .required()
       .noUnknown(),
     printMeasures: printMeasuresSchema,
-    sync: yup
-      .object({
-        syncAllEncountersForTheseScheduledVaccines: yup.array(yup.string().required()).defined(),
-      })
-      .required()
-      .noUnknown(),
     disabledReports: yup.array(yup.string().required()).defined(),
   })
   .required()

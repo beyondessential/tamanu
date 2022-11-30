@@ -43,7 +43,7 @@ export const TestSelectorInput = ({ name, testTypes, value = [], onChange, label
   const selectAll = useCallback(() => {
     const newValue = allSelected ? [] : testTypes.map(x => x.id);
     onChange({ target: { name, value: newValue } });
-  }, [allSelected, testTypes]);
+  }, [onChange, name, allSelected, testTypes]);
 
   const updateValue = useCallback(
     (testId, isSelected) => {

@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { APPOINTMENT_TYPES, APPOINTMENT_STATUSES } from 'shared/constants';
+import { APPOINTMENT_TYPES, APPOINTMENT_STATUSES, SYNC_DIRECTIONS } from 'shared/constants';
 import { Model } from './Model';
 import { dateTimeType } from './dateTimeTypes';
 
@@ -21,12 +21,17 @@ export class Appointment extends Model {
           defaultValue: APPOINTMENT_STATUSES.CONFIRMED,
         },
       },
-      { ...options },
+      { syncDirection: SYNC_DIRECTIONS.DO_NOT_SYNC, ...options },
     );
   }
 
   static getListReferenceAssociations() {
-    return [{ association: 'patient', include: ['village'] }, 'clinician', 'location'];
+    return [
+      { association: 'patient', include: ['village'] },
+      'clinician',
+      'location',
+      'locationGroup',
+    ];
   }
 
   static initRelations(models) {
@@ -40,6 +45,12 @@ export class Appointment extends Model {
       foreignKey: 'clinicianId',
     });
 
+    this.belongsTo(models.LocationGroup, {
+      as: 'locationGroup',
+      foreignKey: 'locationGroupId',
+    });
+
+    // Appointments are assigned a Location Group but the Location relation exists for legacy data
     this.belongsTo(models.Location, {
       as: 'location',
       foreignKey: 'locationId',

@@ -12,6 +12,7 @@ const FIELDS = [
   'Village',
   'Facility',
   'Department',
+  'Area',
   'Location',
   'Laboratory',
   'Request ID',
@@ -54,6 +55,7 @@ select
   f."name" as "Facility",
   d."name" as "Department",
   l."name" as "Location",
+  locationGroup.name as "Area",
   rd_laboratory.name as "Laboratory",
   lr.display_id as "Request ID",
   to_char(lr.requested_date::timestamp, 'dd/mm/yyyy hh12:miam') as "Request date and time",
@@ -75,6 +77,7 @@ from lab_requests lr
   left join encounters e on e.id = lr.encounter_id
   left join patients p on p.id = e.patient_id
   left join locations l on l.id = e.location_id
+  left join location_groups locationGroup on l.location_group_id=locationGroup.id
   left join facilities f on f.id = l.facility_id
   left join lab_test_items lti on lti.lab_request_id = lr.id
   left join reference_data rd_request_type on rd_request_type.id = lr.lab_test_category_id

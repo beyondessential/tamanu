@@ -3,7 +3,7 @@ import {
   createDummyEncounter,
   createDummyEncounterMedication,
 } from 'shared/demoData/patients';
-import { fakeUser } from 'shared/test-helpers/fake';
+import { fake, fakeUser } from 'shared/test-helpers/fake';
 import { toDateTimeString, getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { subWeeks } from 'date-fns';
 import { uploadAttachment } from '../../app/utils/uploadAttachment';
@@ -400,6 +400,44 @@ describe('Encounter', () => {
         expect(noteItems.some(check)).toEqual(true);
       });
 
+      it('should include comma separated location_group and location name in created note on updating encounter location', async () => {
+        const facility = await models.Facility.create(fake(models.Facility));
+        const locationGroup = await models.LocationGroup.create({
+          ...fake(models.LocationGroup),
+          facilityId: facility.id,
+        });
+        const locationGroup2 = await models.LocationGroup.create({
+          ...fake(models.LocationGroup),
+          facilityId: facility.id,
+        });
+        const location = await models.Location.create({
+          ...fake(models.Location),
+          locationGroupId: locationGroup.id,
+          facilityId: facility.id,
+        });
+        const location2 = await models.Location.create({
+          ...fake(models.Location),
+          locationGroupId: locationGroup2.id,
+          facilityId: facility.id,
+        });
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          locationId: location.id,
+        });
+        const result = await app.put(`/v1/encounter/${encounter.id}`).send({
+          locationId: location2.id,
+        });
+
+        const [notePage] = await encounter.getNotePages();
+        const [noteItem] = await notePage.getNoteItems();
+
+        expect(result).toHaveSucceeded();
+        expect(noteItem.content).toEqual(
+          `Changed location from ${locationGroup.name}, ${location.name} to ${locationGroup2.name}, ${location2.name}`,
+        );
+      });
+
       it('should change encounter clinician and add a note', async () => {
         const fromClinician = await models.User.create(fakeUser());
         const toClinician = await models.User.create(fakeUser());
@@ -729,5 +767,66 @@ describe('Encounter', () => {
 
     test.todo('should record a note');
     test.todo('should update a note');
+
+    describe('Planned location move', () => {
+      it('Adding a planned location should also add a planned location time', async () => {
+        const [location, plannedLocation] = await models.Location.findAll({ limit: 2 });
+        const submittedTime = getCurrentDateTimeString();
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          locationId: location.id,
+        });
+
+        const result = await app.put(`/v1/encounter/${encounter.id}`).send({
+          plannedLocationId: plannedLocation.id,
+          submittedTime,
+        });
+        expect(result).toHaveSucceeded();
+
+        const updatedEncounter = await models.Encounter.findByPk(encounter.id);
+        expect(updatedEncounter.plannedLocationId).toEqual(plannedLocation.id);
+        expect(updatedEncounter.plannedLocationStartTime).toEqual(submittedTime);
+      });
+      it('Clearing a planned location should also clear the planned location time', async () => {
+        const [location, plannedLocation] = await models.Location.findAll({ limit: 2 });
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          locationId: location.id,
+          plannedLocationId: plannedLocation.id,
+          submittedTime: getCurrentDateTimeString(),
+        });
+
+        const result = await app.put(`/v1/encounter/${encounter.id}`).send({
+          plannedLocationId: null,
+        });
+        expect(result).toHaveSucceeded();
+
+        const updatedEncounter = await models.Encounter.findByPk(encounter.id);
+        expect(updatedEncounter.plannedLocationId).toBe(null);
+        expect(updatedEncounter.plannedLocationStartTime).toBe(null);
+      });
+      it('Updating the location should also clear the planned location info', async () => {
+        const [location, plannedLocation] = await models.Location.findAll({ limit: 2 });
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          locationId: location.id,
+          plannedLocationId: plannedLocation.id,
+          submittedTime: getCurrentDateTimeString(),
+        });
+
+        const result = await app.put(`/v1/encounter/${encounter.id}`).send({
+          locationId: plannedLocation.id,
+        });
+        expect(result).toHaveSucceeded();
+
+        const updatedEncounter = await models.Encounter.findByPk(encounter.id);
+        expect(updatedEncounter.locationId).toEqual(plannedLocation.id);
+        expect(updatedEncounter.plannedLocationId).toBe(null);
+        expect(updatedEncounter.plannedLocationStartTime).toBe(null);
+      });
+    });
   });
 });

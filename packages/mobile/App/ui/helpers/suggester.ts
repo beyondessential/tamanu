@@ -62,6 +62,9 @@ export class Suggester<ModelType extends BaseModelSubclass> {
           [column]: Like(`%${search}%`),
           ...where,
         },
+        order: {
+          [column]: 'ASC',
+        },
       });
 
       return data.map(this.formatter);

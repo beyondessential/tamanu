@@ -3,6 +3,7 @@ import { SYNC_DIRECTIONS } from 'shared/constants';
 import { InvalidOperationError } from 'shared/errors';
 import { dateType } from './dateTimeTypes';
 import { Model } from './Model';
+import { buildPatientLinkedSyncFilter } from './buildPatientLinkedSyncFilter';
 
 export class PatientDeathData extends Model {
   static init({ primaryKey, ...options }) {
@@ -31,7 +32,7 @@ export class PatientDeathData extends Model {
       },
       {
         ...options,
-        syncConfig: { syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL },
+        syncDirection: SYNC_DIRECTIONS.BIDIRECTIONAL,
         tableName: 'patient_death_data',
         validate: {
           mustHavePatient() {
@@ -108,4 +109,6 @@ export class PatientDeathData extends Model {
       as: 'contributingCauses',
     });
   }
+
+  static buildSyncFilter = buildPatientLinkedSyncFilter;
 }

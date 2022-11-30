@@ -14,6 +14,7 @@ import { useEncounter } from '../../contexts/Encounter';
 import { useElectron } from '../../contexts/Electron';
 import { Colors } from '../../constants';
 import { useCertificate } from '../../utils/useCertificate';
+import { getFullLocationName } from '../../utils/location';
 
 const Container = styled.div`
   background: ${Colors.white};
@@ -154,15 +155,15 @@ const SummaryPage = React.memo(({ encounter, discharge }) => {
       <Content>
         <div>
           <Label>Admission date: </Label>
-          <DateDisplay date={startDate} />
+          <DateDisplay date={startDate} showTime />
         </div>
         <div>
           <Label>Discharge date: </Label>
-          <DateDisplay date={endDate} />
+          <DateDisplay date={endDate} showTime />
         </div>
         <div>
           <Label>Department: </Label>
-          {location && location.name}
+          {getFullLocationName(location)}
         </div>
         {discharge && (
           <div>

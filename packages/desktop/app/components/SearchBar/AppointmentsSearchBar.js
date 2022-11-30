@@ -1,15 +1,18 @@
 import React from 'react';
 import { startOfDay } from 'date-fns';
 import { CustomisableSearchBar } from './CustomisableSearchBar';
-import { DateTimeField, AutocompleteField, LocalisedField, SelectField } from '../Field';
+import {
+  DateTimeField,
+  AutocompleteField,
+  LocalisedField,
+  SelectField,
+  SuggesterSelectField,
+} from '../Field';
 import { appointmentTypeOptions, appointmentStatusOptions } from '../../constants';
 import { useSuggester } from '../../api';
 
 export const AppointmentsSearchBar = ({ onSearch }) => {
   const practitionerSuggester = useSuggester('practitioner');
-  const locationSuggester = useSuggester('location', {
-    baseQueryParameters: { filterByFacility: true },
-  });
 
   return (
     <CustomisableSearchBar
@@ -38,10 +41,11 @@ export const AppointmentsSearchBar = ({ onSearch }) => {
         suggester={practitionerSuggester}
       />
       <LocalisedField
-        name="locationId"
-        defaultLabel="Location"
-        component={AutocompleteField}
-        suggester={locationSuggester}
+        defaultLabel="Area"
+        name="locationGroupId"
+        endpoint="locationGroup"
+        component={SuggesterSelectField}
+        filterByFacility
       />
       <LocalisedField
         name="type"

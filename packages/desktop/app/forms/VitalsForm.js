@@ -22,6 +22,37 @@ const BloodPressureFieldsContainer = styled.div`
   grid-gap: 0.5rem;
 `;
 
+// When a vitals field defaults to 0 people get confused and try to delete it
+// Default to null instead
+const VitalsNumericField = ({ ...props }) => <NumberField {...props} />;
+
+VitalsNumericField.defaultProps = {
+  value: null,
+};
+
+const numericType = yup
+  .number()
+  .nullable()
+  .transform(value => {
+    if (Number.isNaN(value)) {
+      return null;
+    }
+    return value;
+  });
+
+const schema = yup.object().shape({
+  dateRecorded: yup.string().required(),
+  height: numericType,
+  weight: numericType,
+  sbp: numericType,
+  dbp: numericType,
+  heartRate: numericType,
+  respiratoryRate: numericType,
+  temperature: numericType,
+  spo2: numericType,
+  avpu: yup.string(),
+});
+
 export class VitalsForm extends React.PureComponent {
   renderForm = ({ submitForm }) => {
     const { onCancel } = this.props;
@@ -35,16 +66,16 @@ export class VitalsForm extends React.PureComponent {
             saveDateAsString
           />
         </div>
-        <Field name="height" label="Height (cm)" component={NumberField} />
-        <Field name="weight" label="Weight (kg)" component={NumberField} />
+        <Field name="height" label="Height (cm)" component={VitalsNumericField} />
+        <Field name="weight" label="Weight (kg)" component={VitalsNumericField} />
         <BloodPressureFieldsContainer>
-          <Field name="sbp" label="SBP" component={NumberField} />
-          <Field name="dbp" label="DBP" component={NumberField} />
+          <Field name="sbp" label="SBP" component={VitalsNumericField} />
+          <Field name="dbp" label="DBP" component={VitalsNumericField} />
         </BloodPressureFieldsContainer>
-        <Field name="heartRate" label="Heart rate" component={NumberField} />
-        <Field name="respiratoryRate" label="Respiratory rate" component={NumberField} />
+        <Field name="heartRate" label="Heart rate" component={VitalsNumericField} />
+        <Field name="respiratoryRate" label="Respiratory rate" component={VitalsNumericField} />
         <Field name="temperature" component={TemperatureField} />
-        <Field name="spo2" label="SpO2 (%)" component={NumberField} />
+        <Field name="spo2" label="SpO2 (%)" component={VitalsNumericField} />
         <Field name="avpu" label="AVPU" component={SelectField} options={AVPU_OPTIONS} />
         <ConfirmCancelRow confirmText="Record" onConfirm={submitForm} onCancel={onCancel} />
       </FormGrid>
@@ -55,24 +86,16 @@ export class VitalsForm extends React.PureComponent {
     const { onSubmit, editedObject } = this.props;
     return (
       <Form
-        onSubmit={onSubmit}
+        onSubmit={values => {
+          const castValues = schema.cast(values);
+          onSubmit(castValues);
+        }}
         render={this.renderForm}
         initialValues={{
           dateRecorded: getCurrentDateTimeString(),
           ...editedObject,
         }}
-        validationSchema={yup.object().shape({
-          dateRecorded: yup.date().required(),
-          height: yup.number(),
-          weight: yup.number(),
-          sbp: yup.number(),
-          dbp: yup.number(),
-          heartRate: yup.number(),
-          respiratoryRate: yup.number(),
-          temperature: yup.number(),
-          spo2: yup.number(),
-          avpu: yup.string(),
-        })}
+        validationSchema={schema}
         validate={values => {
           const errors = {};
 
