@@ -275,8 +275,6 @@ encounterRelations.get(
           JSONB_OBJECT_AGG(date.body, answer.body) result
         FROM
           survey_response_answers answer
-        INNER JOIN
-          survey_responses response
         ON
           response.id = answer.response_id
         INNER JOIN
@@ -284,16 +282,18 @@ encounterRelations.get(
             response_id, body
           FROM
             survey_response_answers
+          INNER JOIN
+            survey_responses response
           WHERE
             data_element_id = :dateDataElement
           AND
             body IS NOT NULL
+          AND
+            response.encounter_id = :encounterId
           ORDER BY body ${order} LIMIT :limit OFFSET :offset) date
         ON date.response_id = answer.response_id
         WHERE
           answer.data_element_id != :dateDataElement
-        AND
-          response.encounter_id = :encounterId
         GROUP BY answer.data_element_id
       `,
       {
