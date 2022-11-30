@@ -2,7 +2,7 @@ import { log } from 'shared/services/logging';
 import { readFile, utils } from 'xlsx';
 import config from 'config';
 import { Op } from 'sequelize';
-import { VITALS_SURVEY_REQUIRED_FIELDS } from 'shared/constants';
+import { VITALS_DATA_ELEMENT_IDS } from 'shared/constants';
 import { validateQuestions } from './validateQuestions';
 
 import { ValidationError } from '../errors';
@@ -209,7 +209,7 @@ export async function importer({ errors, models, stats, file, whitelist = [] }) 
     if (md.surveyType === 'vitals') {
       if (
         !validateQuestions({ ...surveyData, errors }, data, {
-          requiredFields: VITALS_SURVEY_REQUIRED_FIELDS,
+          requiredFields: Object.values(VITALS_DATA_ELEMENT_IDS),
         })
       ) {
         continue;

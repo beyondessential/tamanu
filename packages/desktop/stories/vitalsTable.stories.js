@@ -18,7 +18,7 @@ const endpoints = {
           id: '8211d1d8-a4ac-4c49-b504-51e5116fccf8',
           dateRecorded: '2022-11-29 10:23:07',
           answers: [
-            { name: 'HeartRate', value: '123' },
+            { name: 'HeartRate', value: '123', config: '{unit: kg}' },
             { name: 'SBP', value: null },
             { name: 'Height', value: null },
             { name: 'Temperature', value: null },

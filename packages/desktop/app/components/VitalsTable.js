@@ -1,5 +1,6 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { VITALS_DATA_ELEMENT_IDS } from 'shared/constants';
 import { keyBy } from 'lodash';
 import { Table } from './Table';
 import { DateDisplay } from './DateDisplay';
@@ -39,19 +40,23 @@ const useVitals = encounterId => {
 
   if (data.length > 0) {
     // Use the first response answers as the columns list
-    const measuresList = data[0].answers.map(x => x.name).filter(name => name !== 'Date');
+    const measuresList = data[0].answers
+      .map(x => ({ name: x.name, id: x.dataElementId }))
+      .filter(id => id !== VITALS_DATA_ELEMENT_IDS.dateRecorded);
 
-    const answersLibrary = data.map(({ answers, ...record }) => ({
-      ...record,
-      ...keyBy(answers, 'name'),
-    }));
+    const answersLibrary = data
+      .filter(r => !!r.dateRecorded)
+      .map(({ answers, ...record }) => ({
+        ...record,
+        ...keyBy(answers, 'dataElementId'),
+      }));
 
-    readings = measuresList.map(measureName => ({
-      title: measureName,
+    readings = measuresList.map(({ id, name }) => ({
+      title: name,
       ...answersLibrary.reduce((state, answer) => {
         return {
           ...state,
-          [answer.dateRecorded]: unitDisplay(answer[measureName].value, answer[measureName].config),
+          [answer.dateRecorded]: unitDisplay(answer[id].value, answer[id].config),
         };
       }, {}),
     }));

@@ -230,7 +230,6 @@ encounterRelations.get(
   }),
 );
 
-// Todo: remove records where date_recorded is null
 encounterRelations.get(
   '/:id/vitals',
   asyncHandler(async (req, res) => {
@@ -270,6 +269,7 @@ encounterRelations.get(
             JSONB_BUILD_OBJECT(
               'name', pde.name,
               'code', pde.code,
+              'dataElementId', pde.id,
               'config', ssc.config,
               'value', sra.body
             )
