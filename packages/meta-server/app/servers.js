@@ -41,7 +41,6 @@ const servers = [
   { name: 'Demo (Tuvalu)', type: 'demo', host: 'https://sync-demo-tuvalu.tamanu.io' },
 
   // development servers
-  { name: 'Beta', type: 'dev', host: 'https://central-beta.tamanu.io' },
   { name: 'Dev', type: 'dev', host: 'https://central-dev.tamanu.io' },
   { name: 'Staging', type: 'dev', host: 'https://central-staging.tamanu.io' },
   { name: 'Stress Test', type: 'dev', host: 'https://central-stress-test.tamanu.io' },
