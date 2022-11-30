@@ -289,6 +289,7 @@ encounterRelations.get(
         AND
           s.survey_type = 'vitals'
         GROUP BY sr.id
+        HAVING MAX(CASE WHEN pde.name = 'Date' THEN sra.body ELSE NULL END) IS NOT NULL
         ORDER BY date_recorded ${order}
       `,
       { encounterId },

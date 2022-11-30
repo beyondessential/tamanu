@@ -9,6 +9,7 @@ export const PROGRAM_DATA_ELEMENT_TYPES = {
   MULTI_SELECT: 'MultiSelect',
   AUTOCOMPLETE: 'Autocomplete',
   DATE: 'Date',
+  DATE_TIME: 'DateTime',
   SUBMISSION_DATE: 'SubmissionDate',
   INSTRUCTION: 'Instruction',
   NUMBER: 'Number',
