@@ -1,6 +1,6 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { Op } from 'sequelize';
+import { Op, QueryTypes } from 'sequelize';
 import { NotFoundError } from 'shared/errors';
 import {
   LAB_REQUEST_STATUSES,
@@ -237,10 +237,10 @@ encounterRelations.get(
     req.checkPermission('list', 'Vitals');
     req.checkPermission('list', 'SurveyResponse');
     const encounterId = params.id;
-    const { order = 'DESC', orderBy = { key: 'name', value: 'Date' } } = query;
-    const { count, data } = await runPaginatedQuery(
-      db,
-      models.SurveyResponse,
+    const { order = 'DESC' } = query;
+    // The LIMIT and OFFSET occur in an unusual place in this query
+    // So we can't run it through the generic runPaginatedQuery function
+    const countResult = await db.query(
       `
         SELECT COUNT(1) AS count
         FROM
@@ -252,46 +252,61 @@ encounterRelations.get(
         AND
           surveys.survey_type = 'vitals'
       `,
+      {
+        replacements: { encounterId },
+        type: QueryTypes.SELECT,
+      },
+    );
+    const { count } = countResult[0];
+    if (count === 0) {
+      return {
+        data: [],
+        count: 0,
+      };
+    }
+
+    const { page = 0, rowsPerPage = 10 } = query;
+
+    const result = await db.query(
       `
         SELECT
-          sr.id,
-          MAX(
-            CASE
-              WHEN
-                pde.${orderBy.key} = '${orderBy.value}'
-              THEN
-                sra.body
-              ELSE
-                NULL
-              END
-          ) sort,
-          JSONB_AGG(
-            JSONB_BUILD_OBJECT(
-              'name', pde.name,
-              'value', sra.body
-            )
-          ) answers
-        FROM survey_responses sr
-        INNER JOIN surveys s
-          ON s.id = sr.survey_id
-        INNER JOIN survey_screen_components ssc
-          ON ssc.survey_id = s.id
-        INNER JOIN program_data_elements pde
-          ON pde.id = ssc.data_element_id
-        LEFT JOIN survey_response_answers sra
-          ON sra.response_id = sr.id
-          AND sra.data_element_id = pde.id
+          JSONB_BUILD_OBJECT('title', answer.data_element_id) ||
+          JSONB_OBJECT_AGG(date.body, answer.body) result
+        FROM
+          survey_response_answers answer
+        INNER JOIN
+          survey_responses response
+        ON
+          response.id = answer.response_id
+        INNER JOIN
+          (SELECT
+            response_id, body
+          FROM
+            survey_response_answers
+          WHERE
+            data_element_id = :dateDataElement
+          AND
+            body IS NOT NULL
+          ORDER BY body ${order} LIMIT :limit OFFSET :offset) date
+        ON date.response_id = answer.response_id
         WHERE
-          sr.encounter_id = :encounterId
+          answer.data_element_id != :dateDataElement
         AND
-          s.survey_type = 'vitals'
-        GROUP BY sr.id
-        ORDER BY sort ${order} NULLS LAST
+          response.encounter_id = :encounterId
+        GROUP BY answer.data_element_id
       `,
-      { encounterId },
-      query,
+      {
+        replacements: {
+          encounterId,
+          limit: rowsPerPage,
+          offset: page * rowsPerPage,
+          dateDataElement: 'pde-PatientVitalsDate', // TODO: replace this with constant
+        },
+        type: QueryTypes.SELECT,
+      },
     );
 
+    const data = result.map(r => r.result);
     res.send({
       count: parseInt(count, 10),
       data,
