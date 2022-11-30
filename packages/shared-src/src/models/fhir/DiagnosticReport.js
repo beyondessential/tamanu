@@ -119,11 +119,13 @@ function extension(labTestMethod) {
     new FhirExtension({
       url: groupNamespace,
       valueCodeableConcept: new FhirCodeableConcept({
-        coding: new FhirCoding({
-          system: testsNamespace,
-          code: labTestMethod.code,
-          display: labTestMethod.name,
-        }),
+        coding: [
+          new FhirCoding({
+            system: testsNamespace,
+            code: labTestMethod.code,
+            display: labTestMethod.name,
+          }),
+        ],
       }),
     }),
   ];
