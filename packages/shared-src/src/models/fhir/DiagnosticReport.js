@@ -23,7 +23,6 @@ export class FhirDiagnosticReport extends FhirResource {
           type: Sequelize.STRING(16),
           allowNull: false,
         },
-        category: arrayOf('category', DataTypes.FHIR_CODEABLE_CONCEPT),
         code: {
           type: DataTypes.FHIR_CODEABLE_CONCEPT,
           allowNull: false,
@@ -44,7 +43,14 @@ export class FhirDiagnosticReport extends FhirResource {
   }
 
   async updateMaterialisation() {
-    const { LabRequest, LabTestType, ReferenceData, Encounter, Patient } = this.sequelize.models;
+    const {
+      LabRequest,
+      LabTestType,
+      ReferenceData,
+      Encounter,
+      Patient,
+      User,
+    } = this.sequelize.models;
 
     const labTest = await this.getUpstream({
       include: [
@@ -63,6 +69,10 @@ export class FhirDiagnosticReport extends FhirResource {
                 {
                   model: Patient,
                   as: 'patient',
+                },
+                {
+                  model: User,
+                  as: 'examiner',
                 },
               ],
             },
@@ -86,11 +96,11 @@ export class FhirDiagnosticReport extends FhirResource {
     this.set({
       extension: extension(labTestMethod),
       identifier: identifiers(labRequest),
-      subject: patientReference(patient),
       status: status(labRequest),
+      code: code(labTestType),
+      subject: patientReference(patient),
       effectiveDateTime: labRequest.sampleTime,
       issued: labRequest.requestedDate,
-      code: code(labTestType),
       performer: performer(laboratory, examiner),
       result: result(labTest, labRequest),
     });
