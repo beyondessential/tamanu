@@ -233,7 +233,7 @@ encounterRelations.get(
 encounterRelations.get(
   '/:id/vitals',
   asyncHandler(async (req, res) => {
-    const { db, models, params, query } = req;
+    const { db, params, query } = req;
     req.checkPermission('list', 'Vitals');
     req.checkPermission('list', 'SurveyResponse');
     const encounterId = params.id;
@@ -259,10 +259,11 @@ encounterRelations.get(
     );
     const { count } = countResult[0];
     if (count === 0) {
-      return {
+      res.send({
         data: [],
         count: 0,
-      };
+      });
+      return;
     }
 
     const { page = 0, rowsPerPage = 10 } = query;
@@ -307,6 +308,7 @@ encounterRelations.get(
     );
 
     const data = result.map(r => r.result);
+
     res.send({
       count: parseInt(count, 10),
       data,
