@@ -139,13 +139,6 @@ function identifiers(labRequest) {
   ];
 }
 
-function patientReference(patient) {
-  return new FhirReference({
-    reference: `Patient/${patient.id}`,
-    display: [patient.firstName, patient.lastName].filter(x => x).join(' '),
-  });
-}
-
 function status(labRequest) {
   switch (labRequest.status) {
     case LAB_REQUEST_STATUSES.PUBLISHED:
@@ -158,17 +151,22 @@ function status(labRequest) {
 }
 
 function code(labTestType) {
-  return [
-    new FhirCodeableConcept({
-      text: labTestType.name,
-      coding: [
-        new FhirCoding({
-          code: labTestType.code,
-          display: labTestType.name,
-        }),
-      ],
-    }),
-  ];
+  return new FhirCodeableConcept({
+    text: labTestType.name,
+    coding: [
+      new FhirCoding({
+        code: labTestType.code,
+        display: labTestType.name,
+      }),
+    ],
+  });
+}
+
+function patientReference(patient) {
+  return new FhirReference({
+    reference: `Patient/${patient.id}`,
+    display: [patient.firstName, patient.lastName].filter(x => x).join(' '),
+  });
 }
 
 function performer(laboratory, examiner) {
