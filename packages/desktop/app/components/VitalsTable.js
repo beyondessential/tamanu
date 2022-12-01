@@ -9,9 +9,9 @@ import { useEncounter } from '../contexts/Encounter';
 import { useApi } from '../api';
 import { Colors } from '../constants';
 
-function unitDisplay(amount, config = '{}') {
+function unitDisplay(amount, config) {
   try {
-    const { unit = '', rounding = 0, accessor } = JSON.parse(config);
+    const { unit = '', rounding = 0, accessor } = JSON.parse(config || '{}');
     if (typeof accessor === 'function') {
       return accessor({ amount });
     }
@@ -47,7 +47,7 @@ const useVitals = encounterId => {
     );
 
     readings = data
-      .filter(vital => vital.dataElementId !== 'pde-PatientVitalsDate')
+      .filter(vital => vital.dataElementId !== VITALS_DATA_ELEMENT_IDS.dateRecorded)
       .map(({ name, config, records }) => ({
         title: name,
         ...recordings.reduce((state, date) => {
