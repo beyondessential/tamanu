@@ -38,9 +38,15 @@ export const pullIncomingChanges = async (
   sessionId: string,
   since: number,
   tableNames: string[],
+  tablesForFullResync: string[],
   progressCallback: (total: number, progressCount: number) => void,
 ): Promise<{ count: number; tick: number }> => {
-  const { tick } = await centralServer.setPullFilter(sessionId, since, tableNames);
+  const { tick } = await centralServer.setPullFilter(
+    sessionId,
+    since,
+    tableNames,
+    tablesForFullResync,
+  );
   const totalToPull = await centralServer.fetchPullCount(sessionId);
 
   if (!totalToPull) {

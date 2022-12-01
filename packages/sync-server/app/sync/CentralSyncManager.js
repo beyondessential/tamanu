@@ -21,7 +21,9 @@ import { filterModelsFromName } from './filterModelsFromName';
 // after x minutes of no activity, consider a session lapsed and wipe it to avoid holding invalid
 // changes in the database when a sync fails on the facility server end
 
-export @injectConfig class CentralSyncManager {
+export
+@injectConfig
+class CentralSyncManager {
   currentSyncTick;
 
   store;
@@ -107,7 +109,10 @@ export @injectConfig class CentralSyncManager {
     return { tick };
   }
 
-  async setupSnapshot(sessionId, { since, facilityId, tablesToInclude, isMobile }) {
+  async setupSnapshot(
+    sessionId,
+    { since, facilityId, tablesToInclude, tablesForFullResync, isMobile },
+  ) {
     const { models } = this.store;
 
     const session = await this.connectToSession(sessionId);
@@ -117,6 +122,7 @@ export @injectConfig class CentralSyncManager {
         facilityId,
         since,
         isMobile,
+        tablesForFullResync,
       });
 
       const modelsToInclude = tablesToInclude
@@ -180,6 +186,20 @@ export @injectConfig class CentralSyncManager {
             facilityId,
             sessionConfig,
           );
+
+          // any tables for full resync from (used when mobile needs to wipe and resync tables as
+          // part of the upgrade process)
+          if (tablesForFullResync) {
+            const modelsForFullResync = filterModelsFromName(models, tablesForFullResync);
+            await snapshotOutgoingChanges(
+              getModelsForDirection(modelsForFullResync, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
+              -1,
+              patientIdsForRegularSync,
+              sessionId,
+              facilityId,
+              sessionConfig,
+            );
+          }
 
           // delete any outgoing changes that were just pushed in during the same session
           await removeEchoedChanges(this.store, sessionId);
