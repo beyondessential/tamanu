@@ -221,7 +221,9 @@ export class TamanuApi {
     // handle auth expiring
     if (response.status === 401 && this.onAuthFailure) {
       clearLocalStorage();
-      this.onAuthFailure('Your session has expired. Please log in again.');
+      const message = 'Your session has expired. Please log in again.';
+      this.onAuthFailure(message);
+      throw new Error(message);
     }
 
     // handle version incompatibility
