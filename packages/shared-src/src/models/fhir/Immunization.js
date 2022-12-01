@@ -4,7 +4,7 @@ import { VACCINE_STATUS, INJECTION_SITE_OPTIONS } from 'shared/constants';
 import { FHIR_SEARCH_PARAMETERS, FHIR_SEARCH_TOKEN_TYPES } from 'shared/constants/fhir';
 import { FhirResource } from './Resource';
 import { arrayOf } from './utils';
-import { dateType } from '../dateTimeTypes';
+import { dateTimeType } from '../dateTimeTypes';
 import {
   FhirCodeableConcept,
   FhirCoding,
@@ -18,7 +18,6 @@ export class FhirImmunization extends FhirResource {
   static init(options, models) {
     super.init(
       {
-        identifier: arrayOf('identifier', DataTypes.FHIR_IDENTIFIER),
         status: {
           type: Sequelize.STRING(16),
           allowNull: false,
@@ -35,7 +34,7 @@ export class FhirImmunization extends FhirResource {
           type: DataTypes.FHIR_REFERENCE,
           allowNull: true,
         },
-        occurrenceDateTime: dateType('occuranceDateTime', { allowNull: true }),
+        occurrenceDateTime: dateTimeType('occurrenceDateTime', { allowNull: true }),
         lotNumber: Sequelize.TEXT,
         site: arrayOf('site', DataTypes.FHIR_CODEABLE_CONCEPT),
         performer: arrayOf('performer', DataTypes.FHIR_IMMUNIZATION_PERFORMER),
@@ -168,24 +167,23 @@ function vaccineCode(scheduledVaccine) {
   const code = vaccineIdToAIRVCode(scheduledVaccine.vaccine.id);
 
   // Only include a coding if we support the code, otherwise just use text
-  return [
-    new FhirCodeableConcept({
-      ...(code && {
-        coding: [
-          new FhirCoding({
-            system: AIRV_TERMINOLOGY_URL,
-            code,
-          }),
-        ],
-      }),
-      text: scheduledVaccine.vaccine.name,
+  return new FhirCodeableConcept({
+    ...(code && {
+      coding: [
+        new FhirCoding({
+          system: AIRV_TERMINOLOGY_URL,
+          code,
+        }),
+      ],
     }),
-  ];
+    text: scheduledVaccine.vaccine.name,
+  });
 }
 
 function patientReference(patient) {
   return new FhirReference({
     reference: `Patient/${patient.id}`,
+    display: [patient.firstName, patient.lastName].filter(x => x).join(' '),
   });
 }
 
@@ -220,15 +218,19 @@ function site(injectionSite) {
 }
 
 function performer(recorder) {
-  return new FhirImmunizationPerformer({
-    actor: new FhirReference({
-      reference: `Practitioner/${recorder.id}`,
+  return [
+    new FhirImmunizationPerformer({
+      actor: new FhirReference({
+        reference: `Practitioner/${recorder.id}`,
+      }),
     }),
-  });
+  ];
 }
 
 function protocolApplied(schedule) {
-  return new FhirImmunizationProtocolApplied({
-    doseNumber: schedule,
-  });
+  return [
+    new FhirImmunizationProtocolApplied({
+      doseNumberString: schedule,
+    }),
+  ];
 }
