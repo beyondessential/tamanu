@@ -39,7 +39,7 @@ export class MobileSyncManager {
 
   syncStage = null;
 
-  lastSuccessfulSyncTime = '';
+  lastSuccessfulSyncTick = '';
 
   lastSyncPushedRecordsCount: number = null;
 
@@ -128,7 +128,7 @@ export class MobileSyncManager {
 
     try {
       await this.runSync();
-      this.lastSuccessfulSyncTime = formatDate(new Date(), DateFormats.DATE_AND_TIME);
+      this.lastSuccessfulSyncTick = formatDate(new Date(), DateFormats.DATE_AND_TIME);
       this.setProgress(0, '');
     } catch (error) {
       this.emitter.emit(SYNC_EVENT_ACTIONS.SYNC_ERROR, { error });

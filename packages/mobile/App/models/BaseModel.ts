@@ -117,9 +117,9 @@ export abstract class BaseModel extends BaseEntity {
       return;
     }
 
-    // In any other case, we set the updatedAtSyncTick to match the currentSyncTime
+    // In any other case, we set the updatedAtSyncTick to match the currentSyncTick
     const thisModel = this.constructor as typeof BaseModel;
-    const syncTick = await getSyncTick(thisModel.allModels, 'currentSyncTime');
+    const syncTick = await getSyncTick(thisModel.allModels, 'currentSyncTick');
     this.updatedAtSyncTick = syncTick;
   }
 

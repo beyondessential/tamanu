@@ -84,6 +84,17 @@ export class Location extends Model {
     });
   }
 
+  static formatFullLocationName({ locationGroup, name }) {
+    return locationGroup ? `${locationGroup.name}, ${name}` : name;
+  }
+
+  static parseFullLocationName(text) {
+    const {
+      groups: { group, location },
+    } = text.match(/(?<group>[^,]*(?=,\s))?(,\s)?(?<location>.*)/);
+    return { group, location };
+  }
+
   async getAvailability() {
     const { Encounter } = this.sequelize.models;
 
