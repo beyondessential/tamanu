@@ -1,6 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { getFilteredListByPermission } from 'shared/utils/getFilteredListByPermission';
+import { NotFoundError } from 'shared/errors';
 import { findRouteObject, permissionCheckingRouter, simpleGetList } from './crudHelpers';
 
 export const survey = express.Router();
@@ -29,6 +30,24 @@ survey.get(
     const filteredSurveys = getFilteredListByPermission(ability, surveys, 'submit');
 
     res.send({ surveys: filteredSurveys });
+  }),
+);
+// There should only be one survey with surveyType vitals, fetch it
+survey.get(
+  '/vitals',
+  asyncHandler(async (req, res) => {
+    const { models } = req;
+
+    req.checkPermission('read', 'Vitals');
+    const surveyRecord = await models.Survey.findOne({
+      where: { surveyType: 'vitals' },
+    });
+    if (!surveyRecord) throw new NotFoundError();
+    const components = await models.SurveyScreenComponent.getComponentsForSurvey(surveyRecord.id);
+    res.send({
+      ...surveyRecord.forResponse(),
+      components,
+    });
   }),
 );
 
