@@ -3,6 +3,7 @@ import {
   createDummyEncounter,
   createDummyEncounterMedication,
 } from 'shared/demoData/patients';
+import { setupSurveyFromObject } from 'shared/demoData/surveys';
 import { fakeUser } from 'shared/test-helpers/fake';
 import { toDateTimeString, getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { subWeeks } from 'date-fns';
@@ -663,27 +664,43 @@ describe('Encounter', () => {
           patientId: patient.id,
           reasonForEncounter: 'vitals test',
         });
+        await setupSurveyFromObject(models, {
+          program: {
+            id: 'vitals-program',
+          },
+          survey: {
+            id: 'vitals-survey',
+            survey_type: 'vitals',
+          },
+          questions: [
+            { name: 'PatientVitalsDate', type: 'Date' },
+            { name: 'PatientVitalsWeight', type: 'Number' },
+            { name: 'PatientVitalsHeight', type: 'Number' },
+            { name: 'PatientVitalsHeartRate', type: 'Number' },
+          ],
+        });
       });
 
       it('should record a new vitals reading', async () => {
-        const result = await app.post('/v1/vitals').send({
-          encounterId: vitalsEncounter.id,
-          heartRate: 1234,
+        const submissionDate = getCurrentDateTimeString();
+        const result = await app.post('/v1/surveyResponse').send({
+          surveyId: 'vitals-survey',
+          patientId: patient.id,
+          startTime: submissionDate,
+          endTime: submissionDate,
+          answers: {
+            'pde-PatientVitalsDate': submissionDate,
+            'pde-PatientVitalsHeartRate': 1234,
+          },
         });
         expect(result).toHaveSucceeded();
-        const saved = await models.Vitals.findOne({ where: { heartRate: 1234 } });
-        expect(saved).toHaveProperty('heartRate', 1234);
-      });
-
-      it('should not record a vitals reading with an invalid encounter', async () => {
-        const result = await app.post('/v1/vitals').send({
-          heartRate: 100,
+        const saved = await models.SurveyResponseAnswers.findOne({
+          where: { data_element_id: 'pde-PatientVitalsHeartRate', body: 1234 },
         });
-        expect(result).toHaveRequestError();
+        expect(saved).toHaveProperty('body', 1234);
       });
 
-      test.todo('Rewrite vitals tests for new api');
-      it.skip('should get vitals readings for an encounter', async () => {
+      it('should get vitals readings for an encounter', async () => {
         const result = await app.get(`/v1/encounter/${vitalsEncounter.id}/vitals`);
         expect(result).toHaveSucceeded();
         const { body } = result;
