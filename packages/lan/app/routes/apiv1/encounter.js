@@ -271,12 +271,21 @@ encounterRelations.get(
     const result = await db.query(
       `
         SELECT
-          JSONB_BUILD_OBJECT('title', answer.data_element_id) ||
-          JSONB_OBJECT_AGG(date.body, answer.body) result
+          JSONB_BUILD_OBJECT(
+            'dataElementId', answer.data_element_id,
+            'name', MAX(pde.name),
+            'config', MAX(ssc.config),
+            'records', JSONB_OBJECT_AGG(date.body, answer.body)) result
         FROM
           survey_response_answers answer
+        INNER JOIN
+          survey_screen_components ssc
         ON
-          response.id = answer.response_id
+          ssc.data_element_id = answer.data_element_id
+        INNER JOIN
+          program_data_elements pde
+        ON
+          pde.id = answer.data_element_id
         INNER JOIN
           (SELECT
             response_id, body
@@ -284,6 +293,8 @@ encounterRelations.get(
             survey_response_answers
           INNER JOIN
             survey_responses response
+          ON
+            response.id = response_id
           WHERE
             data_element_id = :dateDataElement
           AND
