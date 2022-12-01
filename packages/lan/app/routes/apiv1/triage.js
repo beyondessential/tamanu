@@ -63,6 +63,7 @@ const sortKeys = {
   sex: 'patients.sex',
   dateOfBirth: 'patients.date_of_birth',
   locationName: 'location_name',
+  locationGroupName: 'location_group_name',
 };
 
 triage.get(
