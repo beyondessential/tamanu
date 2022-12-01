@@ -26,7 +26,9 @@ export class FhirImmunizationProtocolApplied extends Composite {
           .nullable()
           .default(null),
         authority: FhirReference.asYup().nullable(),
-        targetDisease: FhirCodeableConcept.asYup()
+        targetDisease: yup
+          .array()
+          .of(FhirCodeableConcept.asYup())
           .nullable()
           .default([]),
         doseNumberPositiveInt: yup
