@@ -15,12 +15,12 @@ export const MultipleLabRequestsPrintoutModal = ({ encounter, labRequests, open,
 
   const { data: patient, isLoading: patientLoading } = useQuery(
     ['patient', encounter.patientId],
-    () => api.get(`patient/${encounter.patientId}`),
+    () => api.get(`patient/${encodeURIComponent(encounter.patientId)}`),
   );
 
   const { data: additionalData, isLoading: additionalDataLoading } = useQuery(
     ['additionalData', encounter.patientId],
-    () => api.get(`patient/${encounter.patientId}/additionalData`),
+    () => api.get(`patient/${encodeURIComponent(encounter.patientId)}/additionalData`),
   );
 
   const { data: village = {}, isLoading: villageQueryLoading } = useQuery(

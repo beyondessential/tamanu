@@ -69,7 +69,10 @@ export const PrintMultipleLabRequestsSelectionForm = React.memo(({ encounter, on
   const [labRequestsData, setLabRequestsData] = useState([]);
   const api = useApi();
   const { data, error, isLoading } = useQuery(['labRequests', encounter.id], () =>
-    api.get(`encounter/${encounter.id}/labRequests?includeNotePages=true&status=reception_pending`),
+    api.get(`encounter/${encodeURIComponent(encounter.id)}/labRequests`, {
+      includeNotePages: 'true',
+      status: 'reception_pending',
+    }),
   );
 
   useEffect(() => {
