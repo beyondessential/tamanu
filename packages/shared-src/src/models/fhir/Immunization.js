@@ -102,17 +102,18 @@ export class FhirImmunization extends FhirResource {
     });
   }
 
+  // These won't currently work - no support yet for references or codeable concept token type
   static searchParameters() {
     return {
       ...super.searchParameters(),
       patient: {
         type: FHIR_SEARCH_PARAMETERS.REFERENCE,
         path: [['patient']],
-        tokenType: FHIR_SEARCH_TOKEN_TYPES.STRING,
       },
       'vaccine-code': {
         type: FHIR_SEARCH_PARAMETERS.TOKEN,
-        path: [['vaccineCode', '[]']],
+        path: [['vaccineCode']],
+        tokenType: FHIR_SEARCH_TOKEN_TYPES.CODEABLE_CONCEPT, // type doesn't exist yet
       },
     };
   }
