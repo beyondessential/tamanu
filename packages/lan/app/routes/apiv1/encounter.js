@@ -244,16 +244,23 @@ encounterRelations.get(
       `
         SELECT COUNT(1) AS count
         FROM
-          survey_responses
-          LEFT JOIN surveys
-            ON surveys.id = survey_responses.survey_id
+          survey_response_answers
+        INNER JOIN
+          survey_responses response
+        ON
+          response.id = response_id
         WHERE
-          survey_responses.encounter_id = :encounterId
+          data_element_id = :dateDataElement
         AND
-          surveys.survey_type = 'vitals'
+          body IS NOT NULL
+        AND
+          response.encounter_id = :encounterId
       `,
       {
-        replacements: { encounterId },
+        replacements: {
+          encounterId,
+          dateDataElement: 'pde-PatientVitalsDate', // TODO: replace this with constant
+        },
         type: QueryTypes.SELECT,
       },
     );
@@ -303,8 +310,6 @@ encounterRelations.get(
             response.encounter_id = :encounterId
           ORDER BY body ${order} LIMIT :limit OFFSET :offset) date
         ON date.response_id = answer.response_id
-        WHERE
-          answer.data_element_id != :dateDataElement
         GROUP BY answer.data_element_id
       `,
       {
