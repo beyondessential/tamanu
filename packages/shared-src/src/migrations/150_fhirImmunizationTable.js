@@ -24,11 +24,6 @@ export async function up(query) {
       defaultValue: Sequelize.NOW,
       allowNull: false,
     },
-    identifier: {
-      type: 'fhir.identifier[]',
-      allowNull: false,
-      defaultValue: '{}',
-    },
     status: {
       type: Sequelize.STRING(16),
       allowNull: false,
