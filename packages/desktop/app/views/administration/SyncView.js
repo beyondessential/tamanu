@@ -4,9 +4,7 @@ import React from 'react';
 import { TopBar, PageContainer, DataFetchingTable, DateDisplay } from '../../components';
 import { SYNC_LAST_COMPLETED_ENDPOINT } from './constants';
 
-const getTimestamp = field => row => <DateDisplay date={row[field]} showTime />;
-
-const LastSyncs = React.memo((props) => (
+const LastSyncs = React.memo(props => (
   <DataFetchingTable
     endpoint={SYNC_LAST_COMPLETED_ENDPOINT}
     columns={[
@@ -18,7 +16,7 @@ const LastSyncs = React.memo((props) => (
       {
         key: 'completedAt',
         title: 'Last completed sync',
-        accessor: getTimestamp('completedAt'),
+        accessor: ({ completedAt }) => <DateDisplay date={completedAt} showTime />,
       },
       {
         key: 'duration',
@@ -34,9 +32,9 @@ const LastSyncs = React.memo((props) => (
 export const SyncView = React.memo(() => {
   return (
     <PageContainer>
-      <TopBar title="Sync status"/>
-      <p>Times are in the server's timezone.</p>
-      <LastSyncs fetchOptions={{}} />
+      <TopBar title="Sync status" />
+      <p>{`Times are in the server's timezone.`}</p>
+      <LastSyncs />
     </PageContainer>
   );
 });
