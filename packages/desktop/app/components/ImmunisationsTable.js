@@ -9,7 +9,6 @@ const getDate = ({ date }) => <DateDisplay date={date} />;
 const getGiver = record => record.givenBy || '';
 const getArea = record =>
   record.location?.locationGroup?.name || record.encounter?.location?.locationGroup?.name || '';
-const getFacility = record => record.location?.name || record.encounter?.location?.name || '';
 const getInjectionSite = ({ injectionSite }) => injectionSite || 'Unknown';
 const getBatch = ({ batch }) => batch || 'Unknown';
 
@@ -19,7 +18,6 @@ const columns = [
   { key: 'date', title: 'Date', accessor: getDate },
   { key: 'givenBy', title: 'Given by', accessor: getGiver },
   { key: 'locationGroup', title: 'Area', accessor: getArea },
-  { key: 'location', title: 'Location', accessor: getFacility },
   { key: 'injectionSite', title: 'Injection site', accessor: getInjectionSite },
   { key: 'batch', title: 'Batch', accessor: getBatch },
 ];

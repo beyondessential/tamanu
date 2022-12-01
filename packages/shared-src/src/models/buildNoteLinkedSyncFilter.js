@@ -55,6 +55,7 @@ function buildNoteLinkedSyncFilter(patientIds, sessionConfig, isNotePage) {
     WHERE (
       ${whereOrs.join('\nOR ')}
     )
+    AND ${isNotePage ? 'note_pages' : 'note_items'}.updated_at_sync_tick > :since
   `;
 }
 

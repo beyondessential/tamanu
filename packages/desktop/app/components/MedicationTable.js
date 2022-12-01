@@ -14,7 +14,7 @@ const getMedicationName = ({ medication }) => medication.name;
 
 const MEDICATION_COLUMNS = [
   { key: 'date', title: 'Date', accessor: ({ date }) => <DateDisplay date={date} /> },
-  { key: 'medication.name', title: 'Drug', accessor: getMedicationName },
+  { key: 'medication.name', title: 'Drug', accessor: getMedicationName, sortable: false },
   { key: 'prescription', title: 'Prescription' },
   { key: 'route', title: 'Route' },
   {
@@ -22,7 +22,12 @@ const MEDICATION_COLUMNS = [
     title: 'End Date',
     accessor: data => (data?.endDate ? <DateDisplay date={data?.endDate} /> : ''),
   },
-  { key: 'prescriber', title: 'Prescriber', accessor: data => data?.prescriber?.displayName ?? '' },
+  {
+    key: 'prescriber',
+    title: 'Prescriber',
+    accessor: data => data?.prescriber?.displayName ?? '',
+    sortable: false,
+  },
 ];
 
 const FULL_LISTING_COLUMNS = [

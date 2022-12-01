@@ -58,7 +58,7 @@ export class CentralServerConnection {
 
     if (response.status === 401) {
       throw new AuthenticationError(
-        path.includes('/login') ? invalidUserCredentialsMessage : invalidTokenMessage,
+        path.startsWith('login') ? invalidUserCredentialsMessage : invalidTokenMessage,
       );
     }
 

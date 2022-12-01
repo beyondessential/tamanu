@@ -10,7 +10,7 @@ const METADATA_FIELDS = [
   'updatedAtByField',
 ];
 
-const CURRENT_SYNC_TIME = 'currentSyncTime';
+const CURRENT_SYNC_TIME = 'currentSyncTick';
 
 export class addFieldUpdateTicksToPAD1668987530000 implements MigrationInterface {
   async up(queryRunner: QueryRunner): Promise<void> {
@@ -45,9 +45,9 @@ export class addFieldUpdateTicksToPAD1668987530000 implements MigrationInterface
     const updateColumnConcat = includedColumnNames
       .map(
         (c, index) =>
-          `CASE WHEN ${c} IS NULL THEN '' ELSE '${
-            index === 0 ? '' : ', '
-          }"${snakeCase(c)}": ${syncTick}' END\n`,
+          `CASE WHEN ${c} IS NULL THEN '' ELSE '${index === 0 ? '' : ', '}"${snakeCase(
+            c,
+          )}": ${syncTick}' END\n`,
       )
       .join(' || ');
 

@@ -47,4 +47,20 @@ export class ContributingDeathCause extends Model {
       as: 'condition',
     });
   }
+
+  static buildSyncFilter(patientIds) {
+    if (patientIds.length === 0) {
+      return null;
+    }
+    return `
+      JOIN
+        patient_death_data
+      ON
+        patient_death_data_id = patient_death_data.id
+      WHERE
+        patient_death_data.patient_id IN (:patientIds)
+      AND
+        contributing_death_causes.updated_at_sync_tick > :since
+    `;
+  }
 }
