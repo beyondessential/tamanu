@@ -66,60 +66,51 @@ const COLUMNS = [
 
 export const PrintMultipleLabRequestsSelectionForm = React.memo(({ encounter, onClose }) => {
   const [openPrintoutModal, setOpenPrintoutModal] = useState(false);
-  const [titleData, setTitleData] = useState({});
   const [labRequestsData, setLabRequestsData] = useState([]);
-  const [selectedLabRequestsData, setSelectedLabRequestsData] = useState([]);
   const api = useApi();
   const { data, error, isLoading } = useQuery(['labRequests', encounter.id], () =>
     api.get(`encounter/${encounter.id}/labRequests?includeNotePages=true&status=reception_pending`),
   );
 
   useEffect(() => {
-    const labRequestss = data?.data || [];
-    const newLabRequestss = labRequestss
+    const allLabRequests = data?.data || [];
+    const printableLabRequests = allLabRequests
       .filter(m => !m.discontinued)
       .map(m => ({ ...m, repeats: 0 }));
-    setLabRequestsData(newLabRequestss);
+    setLabRequestsData(printableLabRequests);
   }, [data]);
 
   const cellOnChange = useCallback(
     (event, key, rowIndex) => {
+      if (key !== COLUMN_KEYS.SELECTED) {
+        return;
+      }
       const newLabRequestsData = [...labRequestsData];
-      if (key === COLUMN_KEYS.SELECTED) {
-        newLabRequestsData[rowIndex][key] = event.target.checked;
-
-        if (!event.target.checked) {
-          setTitleData({ selected: false });
-        }
-      }
-
-      const newSelectedLabRequestsData = newLabRequestsData.filter(m => m.selected);
-
-      if (newSelectedLabRequestsData.length === newLabRequestsData.length) {
-        setTitleData({ selected: true });
-      }
-
-      setSelectedLabRequestsData(newSelectedLabRequestsData);
+      newLabRequestsData[rowIndex] = {
+        ...labRequestsData[rowIndex],
+        [key]: event.target.checked,
+      };
+      setLabRequestsData(newLabRequestsData);
     },
     [labRequestsData],
   );
 
   const headerOnChange = useCallback(
     (event, key) => {
-      if (key === COLUMN_KEYS.SELECTED) {
-        const newLabRequestsData = labRequestsData.map(m => ({
-          ...m,
-          selected: event.target.checked,
-        }));
-
-        setTitleData({ selected: event.target.checked });
-        setLabRequestsData(newLabRequestsData);
-        const newSelectedLabRequestsData = newLabRequestsData.filter(m => m.selected);
-        setSelectedLabRequestsData(newSelectedLabRequestsData);
+      if (key !== COLUMN_KEYS.SELECTED) {
+        return;
       }
+      const newLabRequestsData = labRequestsData.map(m => ({
+        ...m,
+        selected: event.target.checked,
+      }));
+      setLabRequestsData(newLabRequestsData);
     },
     [labRequestsData],
   );
+
+  const selectedLabRequestsData = labRequestsData.filter(l => l.selected);
+  const isEveryRowSelected = selectedLabRequestsData.length === labRequestsData.length;
 
   const handlePrintConfirm = useCallback(() => {
     if (selectedLabRequestsData.length > 0) {
@@ -140,7 +131,7 @@ export const PrintMultipleLabRequestsSelectionForm = React.memo(({ encounter, on
         <Table
           headerColor={Colors.white}
           columns={COLUMNS}
-          titleData={titleData}
+          titleData={{ selected: isEveryRowSelected }}
           data={labRequestsData || []}
           elevated={false}
           isLoading={isLoading}
