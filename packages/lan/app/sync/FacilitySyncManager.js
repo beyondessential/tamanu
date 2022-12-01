@@ -8,8 +8,9 @@ import { pushOutgoingChanges } from './pushOutgoingChanges';
 import { pullIncomingChanges } from './pullIncomingChanges';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 
+export
 @injectConfig
-export class FacilitySyncManager {
+class FacilitySyncManager {
   models = null;
 
   sequelize = null;
