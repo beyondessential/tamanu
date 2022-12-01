@@ -12,6 +12,7 @@ import {
   FhirImmunizationPerformer,
   FhirImmunizationProtocolApplied,
 } from '../../services/fhirTypes';
+import { latestDateTime } from '../../utils/dateTime';
 
 export class FhirImmunization extends FhirResource {
   static init(options, models) {
@@ -78,10 +79,18 @@ export class FhirImmunization extends FhirResource {
       ],
     });
 
-    const { encounter, scheduledVaccine } = administeredVaccine;
+    const { encounter, scheduledVaccine, recorder } = administeredVaccine;
     const { patient } = encounter;
 
     this.set({
+      lastUpdated: latestDateTime(
+        administeredVaccine.updatedAt,
+        encounter.updatedAt,
+        scheduledVaccine.updatedAt,
+        recorder.updatedAt,
+        scheduledVaccine.vaccine.updatedAt,
+        patient.updatedAt,
+      ),
       status: status(administeredVaccine.status),
       vaccineCode: vaccineCode(scheduledVaccine),
       patient: patientReference(patient),
@@ -89,7 +98,7 @@ export class FhirImmunization extends FhirResource {
       occurrenceDateTime: administeredVaccine.date,
       lotNumber: administeredVaccine.batch,
       site: site(administeredVaccine.injectionSite),
-      performer: performer(administeredVaccine.recorder),
+      performer: performer(recorder),
       protocolApplied: protocolApplied(scheduledVaccine.schedule),
     });
   }
