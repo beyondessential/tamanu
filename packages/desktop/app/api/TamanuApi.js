@@ -185,7 +185,12 @@ export class TamanuApi {
     if (!this.host) {
       throw new Error("TamanuApi can't be used until the host is set");
     }
-    const { headers, returnResponse = false, showUnknownErrorToast = false, ...otherConfig } = config;
+    const {
+      headers,
+      returnResponse = false,
+      showUnknownErrorToast = false,
+      ...otherConfig
+    } = config;
     const queryString = qs.stringify(query || {});
     const path = `${endpoint}${query ? `?${queryString}` : ''}`;
     const url = `${this.prefix}/${path}`;
