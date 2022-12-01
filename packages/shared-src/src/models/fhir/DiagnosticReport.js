@@ -94,6 +94,16 @@ export class FhirDiagnosticReport extends FhirResource {
     const { patient, examiner } = encounter;
 
     this.set({
+      lastUpdated: latestDateTime(
+        labTest.updatedAt,
+        labRequest.updatedAt,
+        labTestType.updatedAt,
+        labTestMethod.updatedAt,
+        encounter.updatedAt,
+        laboratory.updatedAt,
+        patient.updatedAt,
+        examiner.updatedAt,
+      ),
       extension: extension(labTestMethod),
       identifier: identifiers(labRequest),
       status: status(labRequest),
