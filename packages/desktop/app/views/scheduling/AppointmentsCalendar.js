@@ -98,6 +98,7 @@ export const AppointmentsCalendar = () => {
             onChange: updateFilterValue,
           }}
           endpoint="locationGroup"
+          filterByFacility
         />
       ),
     },

@@ -44,6 +44,7 @@ export class Referral extends Model {
     return `
       JOIN encounters ON referrals.initiating_encounter_id = encounters.id
       WHERE encounters.patient_id IN (:patientIds)
+      AND ${this.tableName}.updated_at_sync_tick > :since
     `;
   }
 }

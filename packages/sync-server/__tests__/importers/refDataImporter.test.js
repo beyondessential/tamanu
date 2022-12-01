@@ -99,7 +99,7 @@ describe('Data definition import', () => {
     expect(errors).toContainValidationError('triageReason', 5, BAD_ID_ERROR_MESSAGE);
   });
 
-  it.only('should validate locations', async () => {
+  it('should validate locations', async () => {
     const { didntSendReason, errors } = await doImport({
       file: 'invalid-locations',
       dryRun: true,
