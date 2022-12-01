@@ -34,6 +34,7 @@ export @injectConfig class CentralSyncManager {
       this.purgeLapsedSessions,
       this.constructor.config.sync.lapsedSessionCheckFrequencySeconds * 1000,
     );
+    this.cleanUpSyncSessionsAfterRestart();
     ctx.onClose(this.close);
   }
 
@@ -45,6 +46,21 @@ export @injectConfig class CentralSyncManager {
       this.constructor.config.sync.lapsedSessionSeconds,
     );
   };
+
+  // if the central server restarted for some reason, we need to mark any unfinished sync sessions
+  // as errored, so that the sync client gives up on them and triggers a new session
+  async cleanUpSyncSessionsAfterRestart() {
+    await this.models.SyncSession.update(
+      {
+        error: 'Central server restarted during session',
+      },
+      {
+        where: {
+          completed_at: { [Op.is]: null },
+        },
+      },
+    );
+  }
 
   async tickTockGlobalClock() {
     // rather than just incrementing by one tick, we "tick, tock" the clock so we guarantee the
