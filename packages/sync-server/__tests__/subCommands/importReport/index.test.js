@@ -3,6 +3,24 @@ import { importReport } from '../../../app/subCommands/importReport';
 import * as importUtils from '../../../app/subCommands/importReport/utils';
 import * as importActions from '../../../app/subCommands/importReport/actions';
 
+/** Hack to get around swc exposing spyOn import * being a specification breaking pattern */
+jest.mock('../../../app/subCommands/importReport/utils', () => {
+  const actualModule = jest.requireActual('../../../app/subCommands/importReport/utils');
+  return {
+    __esModule: true,
+    ...actualModule,
+  };
+});
+
+/** Hack to get around swc exposing spyOn import * being a specification breaking pattern */
+jest.mock('../../../app/subCommands/importReport/actions', () => {
+  const actualModule = jest.requireActual('../../../app/subCommands/importReport/actions');
+  return {
+    __esModule: true,
+    ...actualModule,
+  };
+});
+
 jest.mock('../../../app/database', () => ({
   initDatabase: jest.fn().mockResolvedValue('test-store'),
 }));

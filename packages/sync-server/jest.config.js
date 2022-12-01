@@ -1,7 +1,7 @@
 module.exports = {
   testEnvironment: 'node',
   transform: {
-    '^.+\\.js$': '<rootDir>/jest.babel.js',
+    '^.+\\.js$': ['@swc/jest'],
   },
   testRegex: '(\\.|/)(test|spec)\\.[jt]sx?$',
   globalSetup: '<rootDir>/__tests__/setup.js',

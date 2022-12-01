@@ -1,6 +1,6 @@
 module.exports = {
   transform: {
-    '^.+\\.js$': '<rootDir>/jest.babel.js',
+    '^.+\\.js$': ['@swc/jest'],
   },
   testRegex: '(\\.|/)(test|spec)\\.[jt]sx?$',
   collectCoverageFrom: ['app/**/*.js'],

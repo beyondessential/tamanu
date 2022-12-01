@@ -37,16 +37,7 @@ export default merge.smart(baseConfig, {
         test: /\.jsx?$/,
         exclude: /node_modules/,
         use: {
-          loader: 'babel-loader',
-          options: {
-            cacheDirectory: true,
-            plugins: [
-              // Here, we include babel plugins that are only required for the
-              // renderer process. The 'transform-*' plugins must be included
-              'transform-class-properties',
-              'transform-es2015-classes',
-            ],
-          },
+          loader: 'swc-loader',
         },
       },
       {

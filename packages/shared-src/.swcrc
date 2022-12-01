@@ -1,0 +1,13 @@
+{
+  "exclude": "node_modules/",
+  "jsc": {
+    "parser": {
+      "syntax": "ecmascript",
+      "jsx": true,
+      "exportDefaultFrom": true
+    }
+  },
+  "module": {
+    "type": "commonjs"
+  }
+}

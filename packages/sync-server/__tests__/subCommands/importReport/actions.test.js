@@ -13,6 +13,15 @@ import {
   formatUpdatedAt,
 } from '../../../app/subCommands/importReport/actions';
 
+/** Hack to get around swc exposing spyOn import * being a specification breaking pattern */
+jest.mock('../../../app/subCommands/importReport/utils', () => {
+  const actualModule = jest.requireActual('../../../app/subCommands/importReport/utils');
+  return {
+    __esModule: true,
+    ...actualModule,
+  };
+});
+
 const getUnparsedVersionData = num =>
   `{ ${num ? `"versionNumber": ${num},` : ''} "query": "test-query", "queryOptions": {
     "parameters": [ 
