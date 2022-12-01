@@ -7,6 +7,7 @@ import {
   DOCUMENT_SIZE_LIMIT,
   INVOICE_STATUSES,
   NOTE_RECORD_TYPES,
+  VITALS_DATA_ELEMENT_IDS,
 } from 'shared/constants';
 import { uploadAttachment } from '../../utils/uploadAttachment';
 import { notePageListHandler } from '../../routeHandlers';
@@ -259,7 +260,7 @@ encounterRelations.get(
       {
         replacements: {
           encounterId,
-          dateDataElement: 'pde-PatientVitalsDate', // TODO: replace this with constant
+          dateDataElement: VITALS_DATA_ELEMENT_IDS.dateRecorded,
         },
         type: QueryTypes.SELECT,
       },
@@ -317,7 +318,7 @@ encounterRelations.get(
           encounterId,
           limit: rowsPerPage,
           offset: page * rowsPerPage,
-          dateDataElement: 'pde-PatientVitalsDate', // TODO: replace this with constant
+          dateDataElement: VITALS_DATA_ELEMENT_IDS.dateRecorded,
         },
         type: QueryTypes.SELECT,
       },
