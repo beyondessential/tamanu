@@ -5,7 +5,7 @@ import {
 } from 'shared/demoData/patients';
 import { randomLabRequest } from 'shared/demoData';
 import { LAB_REQUEST_STATUSES, NOTE_TYPES } from 'shared/constants';
-import { fakeUser } from 'shared/test-helpers/fake';
+import { fake, fakeUser } from 'shared/test-helpers/fake';
 import { toDateTimeString, getCurrentDateTimeString } from 'shared/utils/dateTime';
 import { subWeeks } from 'date-fns';
 import { isEqual } from 'lodash';
@@ -533,6 +533,44 @@ describe('Encounter', () => {
         const check = x =>
           x.content.includes(fromLocation.name) && x.content.includes(toLocation.name);
         expect(noteItems.some(check)).toEqual(true);
+      });
+
+      it('should include comma separated location_group and location name in created note on updating encounter location', async () => {
+        const facility = await models.Facility.create(fake(models.Facility));
+        const locationGroup = await models.LocationGroup.create({
+          ...fake(models.LocationGroup),
+          facilityId: facility.id,
+        });
+        const locationGroup2 = await models.LocationGroup.create({
+          ...fake(models.LocationGroup),
+          facilityId: facility.id,
+        });
+        const location = await models.Location.create({
+          ...fake(models.Location),
+          locationGroupId: locationGroup.id,
+          facilityId: facility.id,
+        });
+        const location2 = await models.Location.create({
+          ...fake(models.Location),
+          locationGroupId: locationGroup2.id,
+          facilityId: facility.id,
+        });
+        const encounter = await models.Encounter.create({
+          ...(await createDummyEncounter(models)),
+          patientId: patient.id,
+          locationId: location.id,
+        });
+        const result = await app.put(`/v1/encounter/${encounter.id}`).send({
+          locationId: location2.id,
+        });
+
+        const [notePage] = await encounter.getNotePages();
+        const [noteItem] = await notePage.getNoteItems();
+
+        expect(result).toHaveSucceeded();
+        expect(noteItem.content).toEqual(
+          `Changed location from ${locationGroup.name}, ${location.name} to ${locationGroup2.name}, ${location2.name}`,
+        );
       });
 
       it('should change encounter clinician and add a note', async () => {

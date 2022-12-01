@@ -81,6 +81,12 @@ export class ImagingRequest extends Model {
       as: 'completedBy',
     });
 
+    this.belongsTo(models.LocationGroup, {
+      as: 'locationGroup',
+      foreignKey: 'locationGroupId',
+    });
+
+    // Imaging Requests are assigned a Location Group but the Location relation exists for legacy data
     this.belongsTo(models.Location, {
       foreignKey: 'locationId',
       as: 'location',

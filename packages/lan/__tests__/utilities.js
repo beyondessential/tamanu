@@ -1,3 +1,4 @@
+import 'jest-expect-message';
 import supertest from 'supertest';
 import Chance from 'chance';
 import http from 'http';

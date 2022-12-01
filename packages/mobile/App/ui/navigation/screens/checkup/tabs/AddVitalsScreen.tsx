@@ -60,15 +60,24 @@ export const DumbAddVitalsScreen = ({ selectedPatient, navigation }): ReactEleme
     [],
   );
 
+  const numericType = Yup.number()
+    .nullable()
+    .transform(value => {
+      if (Number.isNaN(value)) {
+        return null;
+      }
+      return value;
+    });
+
   const readingFields = {
-    weight: Yup.number(),
-    height: Yup.number(),
-    sbp: Yup.number(),
-    dbp: Yup.number(),
-    heartRate: Yup.number(),
-    respiratoryRate: Yup.number(),
-    temperature: Yup.number(),
-    spo2: Yup.number(),
+    weight: numericType,
+    height: numericType,
+    sbp: numericType,
+    dbp: numericType,
+    heartRate: numericType,
+    respiratoryRate: numericType,
+    temperature: numericType,
+    spo2: numericType,
     avpu: Yup.string(), // AVPUType
   };
 

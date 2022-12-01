@@ -166,9 +166,9 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
     // only calculate updatedAtByField if a modified version hasn't been explicitly passed,
     // e.g. from a central record syncing down to this device
     if (!oldPatientAdditionalData) {
-      includedColumns.forEach(c => {
-        if (this[snakeCase(c)] !== undefined) {
-          newUpdatedAtByField[snakeCase(c)] = syncTick;
+      includedColumns.forEach(camelCaseKey => {
+        if (this[snakeCase(camelCaseKey)] !== undefined) {
+          newUpdatedAtByField[snakeCase(camelCaseKey)] = syncTick;
         }
       });
     } else if (
@@ -177,10 +177,20 @@ export class PatientAdditionalData extends BaseModel implements IPatientAddition
     ) {
       // retain the old sync ticks from previous updatedAtByField
       newUpdatedAtByField = JSON.parse(oldPatientAdditionalData.updatedAtByField);
-      includedColumns.forEach(c => {
-        const key = snakeCase(c);
-        if (oldPatientAdditionalData[c] !== this[c]) {
-          newUpdatedAtByField[key] = syncTick;
+      includedColumns.forEach(camelCaseKey => {
+        const snakeCaseKey = snakeCase(camelCaseKey);
+        // when saving relation id for instance, typeorm requires saving using
+        // relation name instead (eg: when saving 'nationalityId', the value is in 'nationality')
+        const relationKey = camelCaseKey.slice(-2) === 'Id' ? camelCaseKey.slice(0, -2) : null;
+        const oldValue = oldPatientAdditionalData[camelCaseKey];
+        // if this is a relation key, the value may be in form of ( { id: 'abc' } ),
+        // or it may be just the id
+        const currentValue = relationKey
+          ? this[relationKey]?.id || this[relationKey]
+          : this[camelCaseKey];
+
+        if (oldValue !== currentValue) {
+          newUpdatedAtByField[snakeCaseKey] = syncTick;
         }
       });
     }
