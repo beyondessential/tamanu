@@ -1,7 +1,6 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { VITALS_DATA_ELEMENT_IDS } from 'shared/constants';
-import { keyBy } from 'lodash';
 import { Table } from './Table';
 import { DateDisplay } from './DateDisplay';
 import { capitaliseFirstLetter } from '../utils/capitalise';
@@ -36,38 +35,35 @@ const useVitals = encounterId => {
   );
 
   let readings = [];
+  let recordings = [];
   const data = query?.data?.data || [];
 
   if (data.length > 0) {
-    // Use the first response answers as the columns list
-    const measuresList = data[0].answers
-      .map(x => ({ name: x.name, id: x.dataElementId }))
-      .filter(id => id !== VITALS_DATA_ELEMENT_IDS.dateRecorded);
+    // Use the Date answers as the list of recordings
+    recordings = Object.keys(
+      data.find(vital => vital.dataElementId === VITALS_DATA_ELEMENT_IDS.dateRecorded).records,
+    );
 
-    const answersLibrary = data
-      .filter(r => !!r.dateRecorded)
-      .map(({ answers, ...record }) => ({
-        ...record,
-        ...keyBy(answers, 'dataElementId'),
+    readings = data
+      .filter(vital => vital.dataElementId !== 'pde-PatientVitalsDate')
+      .map(({ name, config, records }) => ({
+        title: name,
+        ...recordings.reduce((state, date) => {
+          const answer = records[date] || null;
+          return {
+            ...state,
+            [date]: unitDisplay(answer, config),
+          };
+        }, {}),
       }));
-
-    readings = measuresList.map(({ id, name }) => ({
-      title: name,
-      ...answersLibrary.reduce((state, answer) => {
-        return {
-          ...state,
-          [answer.dateRecorded]: unitDisplay(answer[id].value, answer[id].config),
-        };
-      }, {}),
-    }));
   }
 
-  return { ...query, data, readings };
+  return { ...query, data: readings, recordings };
 };
 
 export const VitalsTable = React.memo(() => {
   const { encounter } = useEncounter();
-  const { data, readings, error, isLoading } = useVitals(encounter.id);
+  const { data, recordings, error, isLoading } = useVitals(encounter.id);
 
   if (isLoading) {
     return 'loading...';
@@ -76,19 +72,18 @@ export const VitalsTable = React.memo(() => {
   // create a column for each reading
   const columns = [
     { key: 'title', title: 'Measure' },
-    ...data
-      .filter(r => !!r.dateRecorded)
-      .sort((a, b) => b.dateRecorded.localeCompare(a.dateRecorded))
+    ...recordings
+      .sort((a, b) => b.localeCompare(a))
       .map(r => ({
-        title: <DateDisplay showTime date={r.dateRecorded} />,
-        key: r.dateRecorded,
+        title: <DateDisplay showTime date={r} />,
+        key: r,
       })),
   ];
 
   return (
     <Table
       columns={columns}
-      data={readings}
+      data={data}
       elevated={false}
       isLoading={isLoading}
       errorMessage={error?.message}
