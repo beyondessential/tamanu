@@ -45,23 +45,20 @@
       command: /pre/scripts/fix_ssh.sh
     - name: build packages
       tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|klaus-|sima-|sepi-|da-|deploy-meta$)
+      service: app-without-db
       type: parallel
       steps:
         - name: for lan
           tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|klaus-|sima-|sepi-|da-)
-          service: app-without-db
           command: ./scripts/build_package_release.sh lan
         - name: for desktop installer
-          service: app-without-db
           tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|klaus-|sima-|sepi-|da-)
           command: ./scripts/build_desktop.sh build-only
         - name: for sync release
           tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|klaus-|sima-|sepi-|da-)
-          service: app-without-db
           command: ./scripts/build_package_release.sh sync-server
         - name: for meta release
           tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|klaus-|sima-|sepi-|da-|deploy-meta$)
-          service: app-without-db
           command: ./scripts/build_package_release.sh meta-server
     - name: push and deploy
       tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|release-desktop-|klaus-|sima-|sepi-|da-|deploy-meta$)
@@ -179,7 +176,3 @@
           service: app-without-db
           tag: ^(release-desktop-)
           command: ./scripts/build_desktop.sh build-and-release
-        - name: all artefacts to s3
-          service: awsdeployment
-          tag: ^(master$|dev$|staging-|ci-|uat-|uatrispacs-|uatpmi-|klaus-|sima-|sepi-|da-)
-          command: ./scripts/push.sh
