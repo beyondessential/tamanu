@@ -2,9 +2,7 @@ name: Run lint auto fix on a PR
 
 on:
   issue_comment:
-    types:
-    - created
-    - edited
+    types: [created]
 
 jobs:
   lint-fix:
