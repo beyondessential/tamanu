@@ -14,15 +14,14 @@ jobs:
       contents: write
     steps:
     - name: Check that !lint-fix is at the start of a line
-      shell: python
       env:
         COMMENT: ${{ github.event.comment.body }}
       run: |
-        import os
-        import re
-        comment=os.environ['COMMENT']
-        if not re.compile('(?m)^!lint-fix').findall(comment):
-          exit(1)
+        const matcher = /^!lint-fix/;
+        const comment = process.env['COMMENT'];
+        if !comment.match(matcher) {
+          process.exit(1);
+        }
 
     - name: Signal we're processing the comment
       uses: actions/github-script@v4
