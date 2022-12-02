@@ -7,3 +7,4 @@ export { DataFetchingTable } from './DataFetchingTable';
 export { Table } from './Table';
 export { TableFormFields } from './TableFormFields';
 export * from './TableButtonRow';
+export * from './useSelectableColumn';

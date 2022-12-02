@@ -2,8 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
 
-import { Table } from '../Table';
-import { CheckInput, OuterLabelFieldWrapper } from '../Field';
+import { Table, useSelectableColumn } from '../Table';
+import { OuterLabelFieldWrapper } from '../Field';
 import { ConfirmCancelRow } from '../ButtonRow';
 import { DateDisplay } from '../DateDisplay';
 import { MultipleLabRequestsPrintoutModal } from './MultipleLabRequestsPrintoutModal';
@@ -20,17 +20,6 @@ const COLUMN_KEYS = {
 };
 
 const COLUMNS = [
-  {
-    key: COLUMN_KEYS.SELECTED,
-    title: '',
-    sortable: false,
-    titleAccessor: ({ onChange, selected }) => (
-      <CheckInput value={selected} name="selected" onChange={onChange} />
-    ),
-    accessor: ({ onChange, selected }) => (
-      <CheckInput value={selected} name="selected" onChange={onChange} />
-    ),
-  },
   {
     key: COLUMN_KEYS.DISPLAY_ID,
     title: 'Test ID',
@@ -82,49 +71,23 @@ export const PrintMultipleLabRequestsSelectionForm = React.memo(({ encounter, on
     setLabRequestsData(allLabRequests);
   }, [data]);
 
-  const cellOnChange = useCallback(
-    (event, key, rowIndex) => {
-      if (key !== COLUMN_KEYS.SELECTED) {
-        return;
-      }
-      const newLabRequestsData = [...labRequestsData];
-      newLabRequestsData[rowIndex] = {
-        ...labRequestsData[rowIndex],
-        [key]: event.target.checked,
-      };
-      setLabRequestsData(newLabRequestsData);
-    },
-    [labRequestsData],
-  );
-
-  const headerOnChange = useCallback(
-    (event, key) => {
-      if (key !== COLUMN_KEYS.SELECTED) {
-        return;
-      }
-      const newLabRequestsData = labRequestsData.map(lr => ({
-        ...lr,
-        selected: event.target.checked,
-      }));
-      setLabRequestsData(newLabRequestsData);
-    },
-    [labRequestsData],
-  );
-
-  const selectedLabRequestsData = labRequestsData.filter(lr => lr.selected);
-  const isEveryRowSelected = selectedLabRequestsData.length === labRequestsData.length;
+  const {
+    selectedRows,
+    isEveryRowSelected,
+    selectableColumn,
+  } = useSelectableColumn(labRequestsData, { columnKey: COLUMN_KEYS.SELECTABLE });
 
   const handlePrintConfirm = useCallback(() => {
-    if (selectedLabRequestsData.length > 0) {
+    if (selectedRows.length > 0) {
       setOpenPrintoutModal(true);
     }
-  }, [selectedLabRequestsData]);
+  }, [selectedRows]);
 
   return (
     <>
       <MultipleLabRequestsPrintoutModal
         encounter={encounter}
-        labRequests={selectedLabRequestsData}
+        labRequests={selectedRows}
         open={openPrintoutModal}
         onClose={() => setOpenPrintoutModal(false)}
       />
@@ -132,7 +95,7 @@ export const PrintMultipleLabRequestsSelectionForm = React.memo(({ encounter, on
       <OuterLabelFieldWrapper label="Select the lab requests you would like to print">
         <Table
           headerColor={Colors.white}
-          columns={COLUMNS}
+          columns={[selectableColumn, ...COLUMNS]}
           titleData={{ selected: isEveryRowSelected }}
           data={labRequestsData || []}
           elevated={false}
@@ -140,8 +103,6 @@ export const PrintMultipleLabRequestsSelectionForm = React.memo(({ encounter, on
           errorMessage={error?.message}
           noDataMessage="No lab requests found"
           allowExport={false}
-          cellOnChange={cellOnChange}
-          headerOnChange={headerOnChange}
         />
       </OuterLabelFieldWrapper>
       <ConfirmCancelRow
