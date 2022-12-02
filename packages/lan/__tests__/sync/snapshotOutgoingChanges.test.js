@@ -357,4 +357,75 @@ describe('snapshotOutgoingChanges', () => {
       );
     }),
   );
+
+  it('does not crash when snapshotting more records than the stack can handle', async () => {
+    // See PR#3262 for more background on this issue
+
+    // first we figure out how many arguments we can pass to a function
+    // before we hit the call stack limit, as this is not a constant and
+    // may vary between machines or Node.js versions.
+
+    function callStackIsFine(n) {
+      try {
+        const args = Array(n).fill(0);
+        [].push(...args);
+      } catch (e) {
+        if (e instanceof RangeError && e.message.includes('call stack')) {
+          return false;
+        }
+
+        // any other error, pass on
+        throw e;
+      }
+
+      return true;
+    }
+
+    let limit = 1;
+    const MAX = 1e7;
+    while (callStackIsFine(limit) && limit < MAX) {
+      limit *= 2;
+    }
+    while (!callStackIsFine(limit) && limit > 0) {
+      limit -= 1;
+    }
+
+    if (limit >= MAX || limit < 1) {
+      throw new Error(`Could not determine call stack limit, got ${limit}`);
+    }
+
+    // now we can use this limit to test the snapshotting
+    const { SyncSession, LocalSystemFact } = models;
+
+    // start a sync session
+    const startTime = new Date();
+    const syncSession = await SyncSession.create({
+      startTime,
+      lastConnectionTime: startTime,
+    });
+    const tock = await LocalSystemFact.increment('currentSyncTick', 2);
+
+    // create a bunch of records, more than the call stack limit
+    await ctx.sequelize.query(`
+      INSERT INTO reference_data (id, created_at, updated_at, type, code, name)
+      SELECT
+        uuid_generate_v4() as id,
+        now() as created_at,
+        now() as updated_at,
+        'test' as type,
+        uuid_generate_v4() || '-' || generate_series as code,
+        uuid_generate_v4() || '-' || generate_series as name
+      FROM generate_series(1, ${limit + 100});
+    `);
+
+    // run the snapshot, which should not crash
+    await snapshotOutgoingChanges(
+      ctx.sequelize,
+      {
+        ReferenceData: models.ReferenceData,
+      },
+      syncSession.id,
+      tock - 1,
+    );
+  });
 });
