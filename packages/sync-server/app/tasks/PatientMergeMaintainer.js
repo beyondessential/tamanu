@@ -10,6 +10,7 @@ import {
   specificUpdateModels,
 } from '../admin/patientMerge/mergePatient';
 import { QueryTypes } from 'sequelize';
+import { mergeRecord } from 'shared/sync/mergeRecord';
 
 export class PatientMergeMaintainer extends ScheduledTask {
   getName() {
@@ -54,6 +55,21 @@ export class PatientMergeMaintainer extends ScheduledTask {
     return result.rows;
   }
 
+  async findPendingMergePatients(model) {
+    const tableName = model.getTableName();
+    return model.sequelize.query(`
+      SELECT 
+        patients.id as "mergedPatientId",
+        patients.merged_into_id as "keepPatientId"
+      FROM ${tableName}
+      JOIN patients ON patients.id = ${tableName}.patient_id
+      WHERE patients.merged_into_id IS NOT NULL;
+    `, {
+      type: QueryTypes.SELECT,
+      raw: true,
+    });
+  }
+
   async remergePatientRecords() {
     // set up an object for counting affected records
     const counts = {};
@@ -91,36 +107,29 @@ export class PatientMergeMaintainer extends ScheduledTask {
   async specificUpdate_PatientAdditionalData() {
     // PAD records need to be reconciled after merging
     const { PatientAdditionalData } = this.models;
+    const padMerges = await this.findPendingMergePatients(PatientAdditionalData);
     
     /*
-    TODO: busted
-    const patientRecordsToReconcile = await this.mergeAllRecordsForModel(PatientAdditionalData);
-    for (const keepPatientRecord of patientRecordsToReconcile) {
-      await reconcilePatient(PatientAdditionalData.sequelize, keepPatientRecord.merged_into_id);
+    const merged = [];
+    for (const { keepPatientId, mergedPatientId } of padMerges) {
+      const keepPad = PatientAdditionalData.findByPk(keepPatientId);
+      const mergePad = PatientAdditionalData.findByPk(mergedPatientId);
+      await mergeRecord(keepPad, mergePad);
+      merged.push(keepPad);
     }
-    return patientRecordsToReconcile;
+    return merged;
     */
-    
+
     return [];
   }
 
   async specificUpdate_PatientFacility() {
     const { PatientFacility } = this.models;
-    const patientsWithPendingFacilityMerges = await PatientFacility.sequelize.query(`
-      SELECT 
-        patients.id,
-        patients.merged_into_id
-      FROM patient_facilities
-      JOIN patients ON patients.id = patient_facilities.patient_id
-      WHERE patients.merged_into_id IS NOT NULL;
-    `, {
-      type: QueryTypes.SELECT,
-      raw: true,
-    });
-
+    const facilityMerges = await this.findPendingMergePatients(PatientFacility);
+  
     const merged = [];
-    for (const mergedPatient of patientsWithPendingFacilityMerges) {
-      const facilities = await reconcilePatientFacilities(this.models, mergedPatient.merged_into_id, mergedPatient.id)
+    for (const { keepPatientId, mergedPatientId } of facilityMerges) {
+      const facilities = await reconcilePatientFacilities(this.models, keepPatientId, mergedPatientId)
       merged.push(...facilities);
     }
 
