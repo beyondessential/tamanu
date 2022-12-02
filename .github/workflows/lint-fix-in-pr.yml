@@ -1,0 +1,64 @@
+name: Run lint auto fix on a PR
+
+on:
+  issue_comment:
+    types:
+    - created
+    - edited
+
+jobs:
+  lint-fix:
+    if: ${{ github.event.issue.pull_request && contains('!lint-fix', github.event.comment.body) }}
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # Enable OIDC
+      pull-requests: write
+      contents: write
+    steps:
+    - name: Check that !lint-fix is at the start of a line
+      shell: python
+      env:
+        COMMENT: ${{ github.event.comment.body }}
+      run: |
+        import os
+        import re
+        comment=os.environ['COMMENT']
+        if not re.compile('(?m)^!lint-fix').findall(comment):
+          exit(1)
+
+    - name: Signal we're processing the comment
+      uses: actions/github-script@v4
+      with:
+        script: |
+          const {owner, repo} = context.issue
+          github.reactions.createForIssueComment({
+            owner,
+            repo,
+            comment_id: context.payload.comment.id,
+            content: "eyes",
+          });
+
+    - uses: actions/checkout@v3
+    - uses: chainguard-dev/actions/setup-gitsign@main
+    - name: Autolint
+      run: |
+        yarn install --frozen-lockfile
+        yarn lint-fix || true
+    - name: Commit and push
+      run: |
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        git commit -am "lint (auto fix)"
+        git push
+
+    - name: Signal we're done
+      uses: actions/github-script@v4
+      with:
+        script: |
+          const {owner, repo} = context.issue
+          github.reactions.createForIssueComment({
+            owner,
+            repo,
+            comment_id: context.payload.comment.id,
+            content: "rocket",
+          });
