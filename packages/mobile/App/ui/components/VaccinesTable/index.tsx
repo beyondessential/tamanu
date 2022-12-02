@@ -9,7 +9,8 @@ import { vaccineTableHeader } from './VaccineTableHeader';
 import { ErrorScreen } from '../ErrorScreen';
 import { LoadingScreen } from '../LoadingScreen';
 import { VaccineStatus } from '~/ui/helpers/patient';
-import { VaccineTableCell } from './VaccinesTableCell';
+import { VaccineTableCell, VaccineTableCellData } from './VaccinesTableCell';
+import { IScheduledVaccine } from '~/types';
 
 interface VaccinesTableProps {
   selectedPatient: any;
@@ -24,7 +25,7 @@ export const VaccinesTable = ({
 }: VaccinesTableProps): ReactElement => {
   const isFocused = useIsFocused();
 
-  const [data, error] = useBackendEffect(
+  const [scheduledVaccines, error] = useBackendEffect(
     ({ models }) => models.ScheduledVaccine.find({
       order: { index: 'ASC' },
       where: { category: categoryName },
@@ -32,15 +33,15 @@ export const VaccinesTable = ({
     [],
   );
 
-  const [administeredData, administeredError] = useBackendEffect(
+  const [patientAdministeredVaccines, administeredError] = useBackendEffect(
     ({ models }) => models.AdministeredVaccine.getForPatient(selectedPatient.id),
     [isFocused],
   );
 
   if (error || administeredError) return <ErrorScreen error={error || administeredError} />;
-  if (!data) return <LoadingScreen />;
+  if (!scheduledVaccines || !patientAdministeredVaccines) return <LoadingScreen />;
 
-  const uniqueByVaccine = uniqBy(data, 'label');
+  const uniqueByVaccine = uniqBy(scheduledVaccines, 'label');
   const rows = uniqueByVaccine.map(scheduledVaccine => ({
     rowTitle: scheduledVaccine.label,
     rowKey: 'label',
@@ -51,7 +52,7 @@ export const VaccinesTable = ({
         subtitle={scheduledVaccine.vaccine && scheduledVaccine.vaccine.name}
       />
     ),
-    cell: (cellData): ReactElement => (
+    cell: (cellData: VaccineTableCellData) => (
       <VaccineTableCell
         onPress={onPressItem}
         data={cellData}
@@ -59,14 +60,17 @@ export const VaccinesTable = ({
     ),
   }));
 
-  const uniqueBySchedule = uniqBy(data, 'schedule');
+  const uniqueBySchedule = uniqBy(scheduledVaccines, 'schedule');
   const columns = uniqueBySchedule.map(scheduledVaccine => scheduledVaccine.schedule);
 
-  const cells = {};
-  data.forEach(scheduledVaccine => {
-    const administeredVaccine = administeredData && administeredData.find(
-      v => v.scheduledVaccine.id === scheduledVaccine.id,
-    );
+  const cells: { [schedule: string]: VaccineTableCellData[] } = {};
+  scheduledVaccines.forEach(scheduledVaccine => {
+    const administeredVaccine = patientAdministeredVaccines.find(v => {
+      if (typeof v.scheduledVaccine === 'string') {
+        throw new Error('VaccinesTable: administeredVaccine did not embed scheduledVaccine');
+      }
+      return v.scheduledVaccine.id === scheduledVaccine.id;
+    });
 
     const vaccineStatus = administeredVaccine
       ? administeredVaccine.status
@@ -75,11 +79,12 @@ export const VaccinesTable = ({
     cells[scheduledVaccine.schedule] = [
       ...(cells[scheduledVaccine.schedule] || []),
       {
-        ...scheduledVaccine,
+        scheduledVaccine: scheduledVaccine as IScheduledVaccine, // TODO: why doesn't ScheduledVaccine fulfill IScheduledVaccine?
         vaccineStatus,
         administeredVaccine,
-        administeredData,
+        patientAdministeredVaccines,
         patient: selectedPatient,
+        label: scheduledVaccine.label,
       },
     ];
   });

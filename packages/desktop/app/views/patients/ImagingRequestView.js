@@ -17,6 +17,7 @@ import {
   Field,
   AutocompleteField,
   DateTimeInput,
+  SuggesterSelectField,
 } from '../../components/Field';
 import { useApi, useSuggester } from '../../api';
 import { ImagingRequestPrintout } from '../../components/PatientPrinting/ImagingRequestPrintout';
@@ -76,18 +77,18 @@ const PrintButton = ({ imagingRequest, patient }) => {
 };
 
 const ImagingRequestInfoPane = React.memo(
-  ({ imagingRequest, onSubmit, practitionerSuggester, locationSuggester, imagingTypes }) => {
+  ({ imagingRequest, onSubmit, practitionerSuggester, imagingTypes }) => {
     const { getLocalisation } = useLocalisation();
     const imagingPriorities = getLocalisation('imagingPriorities') || [];
 
     return (
       <Formik
         // Only submit specific fields for update
-        onSubmit={({ status, completedById, locationId, results }) => {
+        onSubmit={({ status, completedById, locationGroupId, results }) => {
           const updatedImagingRequest = {
             status,
             completedById,
-            locationId,
+            locationGroupId,
             results,
           };
           onSubmit(updatedImagingRequest);
@@ -148,10 +149,12 @@ const ImagingRequestInfoPane = React.memo(
                     suggester={practitionerSuggester}
                   />
                   <Field
-                    name="locationId"
-                    label="Location"
-                    component={AutocompleteField}
-                    suggester={locationSuggester}
+                    label="Area"
+                    name="locationGroupId"
+                    endpoint="locationGroup"
+                    component={SuggesterSelectField}
+                    filterByFacility
+                    required
                   />
                 </>
               )}

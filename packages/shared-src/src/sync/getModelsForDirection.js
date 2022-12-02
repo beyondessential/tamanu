@@ -1,4 +1,4 @@
-import { SYNC_DIRECTIONS } from 'shared/constants';
+import { SYNC_DIRECTIONS } from '../constants';
 
 export const getModelsForDirection = (models, direction) => {
   const filter = modelSyncDirection => {

@@ -9,6 +9,7 @@ import { subDays } from 'date-fns';
 import { ENCOUNTER_TYPES } from 'shared/constants';
 import { findOneOrCreate } from 'shared/test-helpers';
 import { format } from 'shared/utils/dateTime';
+import { Op } from 'sequelize';
 import { createTestContext } from '../../utilities';
 
 describe('Admissions report', () => {
@@ -18,6 +19,7 @@ describe('Admissions report', () => {
   let expectedLocationGroup = null;
   let wrongLocation = null;
   let wrongLocationGroup = null;
+  let newLocation = null;
   let expectedDepartment1 = null;
   let expectedDepartment2 = null;
   let expectedExaminer = null;
@@ -49,6 +51,10 @@ describe('Admissions report', () => {
       name: 'Clinic',
       locationGroupId: expectedLocationGroup.id,
     });
+    newLocation = await findOneOrCreate(ctx.models, models.Location, {
+      name: 'Clinic 2',
+      locationGroupId: expectedLocationGroup.id,
+    });
     wrongLocationGroup = await findOneOrCreate(ctx.models, models.LocationGroup, {
       name: 'Wrong Area',
     });
@@ -56,6 +62,7 @@ describe('Admissions report', () => {
       name: 'Not-Clinic',
       locationGroupId: wrongLocationGroup.id,
     });
+
     expectedDepartment1 = await findOneOrCreate(ctx.models, models.Department, {
       name: 'Radiology',
     });
@@ -166,6 +173,7 @@ describe('Admissions report', () => {
 
       await expectedEncounter.update({
         departmentId: expectedDepartment2.id,
+        locationId: newLocation.id,
       });
 
       const departmentChangeNotePage = await models.NotePage.findOne({
@@ -173,6 +181,29 @@ describe('Admissions report', () => {
           {
             model: models.NoteItem,
             as: 'noteItems',
+            where: {
+              content: {
+                [Op.like]: 'Changed department from%',
+              },
+            },
+          },
+        ],
+        where: {
+          recordId: expectedEncounter.id,
+          noteType: 'system',
+        },
+      });
+
+      const locationChangeNotePage = await models.NotePage.findOne({
+        include: [
+          {
+            model: models.NoteItem,
+            as: 'noteItems',
+            where: {
+              content: {
+                [Op.like]: 'Changed location from%',
+              },
+            },
           },
         ],
         where: {
@@ -183,6 +214,10 @@ describe('Admissions report', () => {
 
       await departmentChangeNotePage.noteItems?.[0].update({
         date: '2021-02-20 11:10:00',
+      });
+
+      await locationChangeNotePage.noteItems?.[0].update({
+        date: '2021-02-20 12:10:00',
       });
 
       const result = await app.post('/v1/reports/admissions').send({
@@ -206,7 +241,8 @@ describe('Admissions report', () => {
           'Admitting Doctor/Nurse': expectedExaminer.displayName,
           'Admission Date': '20/02/2021 9:07:26 AM',
           'Discharge Date': '21/02/2021 11:03:07 AM',
-          Location: 'Test Area, Clinic (Location assigned: 20/02/21 9:07 AM)',
+          Location:
+            'Test Area, Clinic (Location assigned: 20/02/21 9:07 AM); Test Area, Clinic 2 (Location assigned: 20/02/21 12:10 PM)',
           Department:
             'Radiology (Department assigned: 20/02/21 9:07 AM); Cardiology (Department assigned: 20/02/21 11:10 AM)',
           'Primary diagnoses': 'H60.5 Acute bacterial otitis externa; L74.4 Anhidrosis',
