@@ -14,11 +14,10 @@ export const useSelectableColumn = (rows, { columnKey = 'selected', selectionKey
   const cellOnChange = useCallback(
     (event, rowIndex) => {
       const rowKey = rows[rowIndex][selectionKey];
-      if (event.target.checked) {
-        setSelectedKeys(new Set([...selectedKeys, rowKey]));
-      } else {
-        setSelectedKeys(new Set([...selectedKeys].filter(k => k !== rowKey)));
-      }
+      const newSelection = event.target.checked
+        ? [...selectedKeys, rowKey]
+        : [...selectedKeys].filter(k => k !== rowKey);
+      setSelectedKeys(new Set(newSelection));
     },
     [rows, selectionKey, selectedKeys],
   );
@@ -35,11 +34,8 @@ export const useSelectableColumn = (rows, { columnKey = 'selected', selectionKey
 
   const titleOnChange = useCallback(
     event => {
-      if (event.target.checked) {
-        setSelectedKeys(new Set(rows.map(row => row[selectionKey])));
-      } else {
-        setSelectedKeys(new Set([]));
-      }
+      const newSelection = event.target.checked ? rows.map(row => row[selectionKey]) : [];
+      setSelectedKeys(new Set(newSelection));
     },
     [rows, selectionKey],
   );
