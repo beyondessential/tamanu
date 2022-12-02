@@ -17,6 +17,11 @@ import { getPatientLinkedModels } from './getPatientLinkedModels';
 import { snapshotOutgoingChanges } from './snapshotOutgoingChanges';
 import { filterModelsFromName } from './filterModelsFromName';
 
+const errorMessageFromSession = session =>
+  `Sync session '${session.id}' encountered an error: ${session.error}`;
+
+const idToInteger = sessionId => parseInt(sessionId.replace('-', ''), 16); // parse as hex
+
 // about variables lapsedSessionSeconds and lapsedSessionCheckFrequencySeconds:
 // after x minutes of no activity, consider a session lapsed and wipe it to avoid holding invalid
 // changes in the database when a sync fails on the facility server end
@@ -36,7 +41,6 @@ class CentralSyncManager {
       this.purgeLapsedSessions,
       this.constructor.config.sync.lapsedSessionCheckFrequencySeconds * 1000,
     );
-    this.cleanUpSyncSessionsAfterRestart();
     ctx.onClose(this.close);
   }
 
@@ -48,21 +52,6 @@ class CentralSyncManager {
       this.constructor.config.sync.lapsedSessionSeconds,
     );
   };
-
-  // if the central server restarted for some reason, we need to mark any unfinished sync sessions
-  // as errored, so that the sync client gives up on them and triggers a new session
-  async cleanUpSyncSessionsAfterRestart() {
-    await this.store.models.SyncSession.update(
-      {
-        error: 'Central server restarted during session',
-      },
-      {
-        where: {
-          completed_at: { [Op.is]: null },
-        },
-      },
-    );
-  }
 
   async tickTockGlobalClock() {
     // rather than just incrementing by one tick, we "tick, tock" the clock so we guarantee the
@@ -100,7 +89,7 @@ class CentralSyncManager {
       throw new Error(`Sync session '${sessionId}' not found`);
     }
     if (session.error) {
-      throw new Error(`Sync session '${sessionId}' encountered an error: ${session.error}`);
+      throw new Error(errorMessageFromSession(session));
     }
     await session.update({ lastConnectionTime: Date.now() });
 
@@ -113,6 +102,22 @@ class CentralSyncManager {
       `Sync session ${session.id} performed in ${(Date.now() - session.startTime) / 1000} seconds`,
     );
     await completeSyncSession(this.store, sessionId);
+  }
+
+  async markSnapshotAsProcessing(sessionId) {
+    await this.store.sequelize.query('SELECT pg_advisory_xact_lock(:snapshotLockId);', {
+      replacements: { snapshotLockId: idToInteger(sessionId) },
+    });
+  }
+
+  async checkSnapshotIsProcessing(sessionId) {
+    const [rows] = await this.store.sequelize.query(
+      'SELECT NOT(pg_try_advisory_xact_lock(:snapshotLockId)) AS snapshot_is_processing;',
+      {
+        replacements: { snapshotLockId: idToInteger(sessionId) },
+      },
+    );
+    return rows[0].snapshot_is_processing;
   }
 
   // set pull filter begins creating a snapshot of changes to pull at this point in time, and
@@ -174,6 +179,8 @@ class CentralSyncManager {
       await this.store.sequelize.transaction(
         { isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ },
         async () => {
+          await this.markSnapshotAsProcessing(sessionId);
+
           // full changes
           await snapshotOutgoingChanges(
             getPatientLinkedModels(modelsToInclude),
@@ -221,6 +228,7 @@ class CentralSyncManager {
           await removeEchoedChanges(this.store, sessionId);
         },
       );
+
       // this update to the session needs to happen outside of the transaction, as the repeatable
       // read isolation level can suffer serialization failures if a record is updated inside and
       // outside the transaction, and the session is being updated to show the last connection
@@ -234,9 +242,22 @@ class CentralSyncManager {
 
   async fetchPullCount(sessionId) {
     const session = await this.connectToSession(sessionId);
-    if (session.snapshotCompletedAt === null) {
+
+    // if this snapshot still processing, return null to tell the client to keep waiting
+    const snapshotIsProcessing = await this.checkSnapshotIsProcessing(sessionId);
+    if (snapshotIsProcessing) {
       return null;
     }
+
+    // if this snapshot is not marked as processing, but also never completed, record an error
+    if (session.snapshotCompletedAt === null) {
+      session.error =
+        'Snapshot processing incomplete, likely because the central server restarted during the snapshot';
+      await session.save();
+      throw new Error(errorMessageFromSession(session));
+    }
+
+    // snapshot processing complete! return the actual count
     return getOutgoingChangesCount(this.store, sessionId);
   }
 
