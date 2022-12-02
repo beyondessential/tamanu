@@ -21,7 +21,9 @@ import { filterModelsFromName } from './filterModelsFromName';
 // after x minutes of no activity, consider a session lapsed and wipe it to avoid holding invalid
 // changes in the database when a sync fails on the facility server end
 
-export @injectConfig class CentralSyncManager {
+export
+@injectConfig
+class CentralSyncManager {
   currentSyncTick;
 
   store;
@@ -50,7 +52,7 @@ export @injectConfig class CentralSyncManager {
   // if the central server restarted for some reason, we need to mark any unfinished sync sessions
   // as errored, so that the sync client gives up on them and triggers a new session
   async cleanUpSyncSessionsAfterRestart() {
-    await this.models.SyncSession.update(
+    await this.store.models.SyncSession.update(
       {
         error: 'Central server restarted during session',
       },
