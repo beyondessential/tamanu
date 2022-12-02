@@ -36,12 +36,6 @@ jobs:
             content: "eyes",
           });
 
-    - name: Setup Node.js 16
-      uses: actions/setup-node@v3
-      with:
-        node-version: 16.x
-        cache: yarn
-
     - name: Get PR branch
       id: branch
       uses: actions/github-script@v4
@@ -58,6 +52,12 @@ jobs:
     - uses: actions/checkout@v3
       with:
         ref: ${{ steps.branch.outputs.result }}
+
+    - name: Setup Node.js 16
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16.x
+        cache: yarn
 
     - uses: chainguard-dev/actions/setup-gitsign@main
     - name: Autolint
