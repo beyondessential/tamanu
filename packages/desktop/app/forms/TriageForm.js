@@ -22,6 +22,7 @@ import { ModalActionRow } from '../components/ModalActionRow';
 import { NestedVitalsModal } from '../components/NestedVitalsModal';
 import { useApi, useSuggester } from '../api';
 import { useLocalisation } from '../contexts/Localisation';
+import { getActionsFromData, getAnswersFromData } from '../utils';
 
 const InfoPopupLabel = React.memo(() => (
   <span>
@@ -140,12 +141,27 @@ export const TriageForm = ({ onCancel, editedObject }) => {
       values.medicineNotes,
     ];
 
+    // Convert the vitals to a surveyResponse submission format
+    let updatedVitals = null;
+    if (values.vitals) {
+      const { survey, ...data } = values.vitals;
+      updatedVitals = {
+        surveyId: survey.id,
+        startTime: getCurrentDateTimeString(),
+        endTime: getCurrentDateTimeString(),
+        patientId: patient.id,
+        answers: getAnswersFromData(data, survey),
+        actions: getActionsFromData(data, survey),
+      };
+    }
+
     const updatedValues = {
       ...values,
       notes: notes
         .map(x => x && x.trim())
         .filter(x => x)
         .join('\n'),
+      vitals: updatedVitals,
     };
 
     await api.post('triage', {
