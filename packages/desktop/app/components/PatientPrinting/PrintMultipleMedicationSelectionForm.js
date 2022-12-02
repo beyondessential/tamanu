@@ -100,7 +100,10 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
     (event, key, rowIndex) => {
       if ([COLUMN_KEYS.QUANTITY, COLUMN_KEYS.REPEATS].includes(key)) {
         const newMedicationData = [...medicationData];
-        newMedicationData[rowIndex][key] = event.target.value;
+        newMedicationData[rowIndex] = {
+          ...newMedicationData[rowIndex],
+          [key]: event.target.value,
+        };
         setMedicationData(newMedicationData);
       }
     },
