@@ -106,9 +106,15 @@ class CentralSyncManager {
   }
 
   async markSnapshotAsProcessing(sessionId) {
+    const transaction = await this.store.sequelize.transaction();
     await this.store.sequelize.query('SELECT pg_advisory_xact_lock(:snapshotLockId);', {
       replacements: { snapshotLockId: idToInteger(sessionId) },
+      transaction,
     });
+    const unmarkSnapshotAsProcessing = async () => {
+      await transaction.commit();
+    };
+    return unmarkSnapshotAsProcessing;
   }
 
   async checkSnapshotIsProcessing(sessionId) {
@@ -125,75 +131,55 @@ class CentralSyncManager {
   // returns a sync tick that we can safely consider the snapshot to be up to (because we use the
   // "tick" of the tick-tock, so we know any more changes on the server, even while the snapshot
   // process is ongoing, will have a later updated_at_sync_tick)
-  async setPullFilter(
-    sessionId,
-    { since, facilityId, tablesToInclude, tablesForFullResync, isMobile },
-  ) {
+  async setPullFilter(sessionId, params) {
     const { tick } = await this.tickTockGlobalClock();
-
-    const { models } = this.store;
-
-    const session = await this.connectToSession(sessionId);
-
-    await models.SyncSession.addDebugInfo(sessionId, {
-      facilityId,
-      since,
-      isMobile,
-      tablesForFullResync,
-    });
-
-    const modelsToInclude = tablesToInclude
-      ? filterModelsFromName(models, tablesToInclude)
-      : models;
-
-    // work out if any patients were newly marked for sync since this device last connected, and
-    // include changes from all time for those patients
-    const newPatientFacilities = await models.PatientFacility.findAll({
-      where: { facilityId, updatedAtSyncTick: { [Op.gt]: since } },
-    });
-    log.debug(
-      `CentralSyncManager.setPullFilter: ${newPatientFacilities.length} patients newly marked for sync for ${facilityId}`,
-    );
-    const patientIdsForFullSync = newPatientFacilities.map(n => n.patientId);
-
-    const { syncAllLabRequests } = await models.Setting.forFacility(facilityId);
-    const sessionConfig = {
-      // for facilities with a lab, need ongoing lab requests
-      // no need for historical ones on initial sync, and no need on mobile
-      syncAllLabRequests: syncAllLabRequests && !isMobile && since > -1,
-      syncAllEncountersForTheseVaccines: isMobile
-        ? this.constructor.config.sync.syncAllEncountersForTheseVaccines
-        : [],
-      isMobile,
-    };
-
-    // don't await the rest of the snapshot process, as it takes a while - the sync client will
-    // poll for it to finish
-    this.setupSnapshot(session, {
-      since,
-      facilityId,
-      modelsToInclude,
-      tablesForFullResync,
-      patientIdsForFullSync,
-      sessionConfig,
-    });
+    const unmarkSnapshotAsProcessing = await this.markSnapshotAsProcessing(sessionId);
+    this.setupSnapshot(sessionId, params, unmarkSnapshotAsProcessing); // don't await, as it takes a while - the sync client will poll for it to finish
     return { tick };
   }
 
   async setupSnapshot(
-    session,
-    {
-      since,
-      facilityId,
-      modelsToInclude,
-      tablesForFullResync,
-      sessionConfig,
-      patientIdsForFullSync,
-    },
+    sessionId,
+    { since, facilityId, tablesToInclude, tablesForFullResync, isMobile },
+    unmarkSnapshotAsProcessing,
   ) {
-    // TODO if a fetchPullCount hits right at this moment, it could see a not-yet-locked advisory lock and a null snapshotCompletedAt, despite everything being fine
+    const { models } = this.store;
+
+    const session = await this.connectToSession(sessionId);
 
     try {
+      await models.SyncSession.addDebugInfo(sessionId, {
+        facilityId,
+        since,
+        isMobile,
+        tablesForFullResync,
+      });
+
+      const modelsToInclude = tablesToInclude
+        ? filterModelsFromName(models, tablesToInclude)
+        : models;
+
+      // work out if any patients were newly marked for sync since this device last connected, and
+      // include changes from all time for those patients
+      const newPatientFacilities = await models.PatientFacility.findAll({
+        where: { facilityId, updatedAtSyncTick: { [Op.gt]: since } },
+      });
+      log.debug(
+        `CentralSyncManager.setPullFilter: ${newPatientFacilities.length} patients newly marked for sync for ${facilityId}`,
+      );
+      const patientIdsForFullSync = newPatientFacilities.map(n => n.patientId);
+
+      const { syncAllLabRequests } = await models.Setting.forFacility(facilityId);
+      const sessionConfig = {
+        // for facilities with a lab, need ongoing lab requests
+        // no need for historical ones on initial sync, and no need on mobile
+        syncAllLabRequests: syncAllLabRequests && !isMobile && since > -1,
+        syncAllEncountersForTheseVaccines: isMobile
+          ? this.constructor.config.sync.syncAllEncountersForTheseVaccines
+          : [],
+        isMobile,
+      };
+
       // snapshot inside a "repeatable read" transaction, so that other changes made while this
       // snapshot is underway aren't included (as this could lead to a pair of foreign records with
       // the child in the snapshot and its parent missing)
@@ -202,21 +188,19 @@ class CentralSyncManager {
       await this.store.sequelize.transaction(
         { isolationLevel: Transaction.ISOLATION_LEVELS.REPEATABLE_READ },
         async () => {
-          await this.markSnapshotAsProcessing(session.id);
-
           // full changes
           await snapshotOutgoingChanges(
             getPatientLinkedModels(modelsToInclude),
             -1, // for all time, i.e. 0 onwards
             patientIdsForFullSync,
-            session.id,
+            sessionId,
             facilityId,
             {}, // sending empty session config because this snapshot attempt is only for syncing new marked for sync patients
           );
 
           // get changes since the last successful sync for all other synced patients and independent
           // record types
-          const patientFacilities = await this.store.models.PatientFacility.findAll({
+          const patientFacilities = await models.PatientFacility.findAll({
             where: { facilityId },
           });
           const patientIdsForRegularSync = patientFacilities
@@ -228,7 +212,7 @@ class CentralSyncManager {
             getModelsForDirection(modelsToInclude, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
             since,
             patientIdsForRegularSync,
-            session.id,
+            sessionId,
             facilityId,
             sessionConfig,
           );
@@ -236,27 +220,21 @@ class CentralSyncManager {
           // any tables for full resync from (used when mobile needs to wipe and resync tables as
           // part of the upgrade process)
           if (tablesForFullResync) {
-            const modelsForFullResync = filterModelsFromName(
-              this.store.models,
-              tablesForFullResync,
-            );
+            const modelsForFullResync = filterModelsFromName(models, tablesForFullResync);
             await snapshotOutgoingChanges(
               getModelsForDirection(modelsForFullResync, SYNC_DIRECTIONS.PULL_FROM_CENTRAL),
               -1,
               patientIdsForRegularSync,
-              session.id,
+              sessionId,
               facilityId,
               sessionConfig,
             );
           }
 
           // delete any outgoing changes that were just pushed in during the same session
-          await removeEchoedChanges(this.store, session.id);
+          await removeEchoedChanges(this.store, sessionId);
         },
       );
-
-      // TODO if a fetchPullCount hits right at this moment, it could see a released advisory lock and a null snapshotCompletedAt, despite everything being fine
-
       // this update to the session needs to happen outside of the transaction, as the repeatable
       // read isolation level can suffer serialization failures if a record is updated inside and
       // outside the transaction, and the session is being updated to show the last connection
@@ -265,6 +243,8 @@ class CentralSyncManager {
     } catch (error) {
       log.error('CentralSyncManager.setPullFilter encountered an error', error);
       await session.update({ error: error.message });
+    } finally {
+      await unmarkSnapshotAsProcessing();
     }
   }
 
