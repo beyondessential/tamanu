@@ -3,14 +3,8 @@ import PropTypes from 'prop-types';
 import { useQuery } from '@tanstack/react-query';
 import styled from 'styled-components';
 
-import { Table } from '../Table';
-import {
-  CheckInput,
-  TextInput,
-  SelectInput,
-  AutocompleteInput,
-  OuterLabelFieldWrapper,
-} from '../Field';
+import { Table, useSelectableColumn } from '../Table';
+import { TextInput, SelectInput, AutocompleteInput, OuterLabelFieldWrapper } from '../Field';
 import { ConfirmCancelRow } from '../ButtonRow';
 import { DateDisplay } from '../DateDisplay';
 import { MultiplePrescriptionPrintoutModal } from './MultiplePrescriptionPrintoutModal';
@@ -29,17 +23,6 @@ const COLUMN_KEYS = {
 };
 
 const COLUMNS = [
-  {
-    key: COLUMN_KEYS.SELECTED,
-    title: '',
-    sortable: false,
-    titleAccessor: ({ onChange, selected }) => (
-      <CheckInput value={selected} name="selected" onChange={onChange} />
-    ),
-    accessor: ({ onChange, selected }) => (
-      <CheckInput value={selected} name="selected" onChange={onChange} />
-    ),
-  },
   {
     key: COLUMN_KEYS.DATE,
     title: 'Date',
@@ -88,16 +71,18 @@ const PrescriberWrapper = styled.div`
 
 export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onClose }) => {
   const [openPrintoutModal, setOpenPrintoutModal] = useState(false);
-  const [titleData, setTitleData] = useState({});
   const [medicationData, setMedicationData] = useState([]);
   const [prescriberId, setPrescriberId] = useState(null);
-  const [selectedMedicationData, setSelectedMedicationData] = useState([]);
   const api = useApi();
   const practitionerSuggester = useSuggester('practitioner');
   const { data, error, isLoading } = useQuery(['encounterMedication', encounter.id], () =>
     api.get(`encounter/${encounter.id}/medications`),
   );
   const { currentUser } = useAuth();
+
+  const { selectedRows, selectableColumn } = useSelectableColumn(medicationData, {
+    columnKey: COLUMN_KEYS.SELECTED,
+  });
 
   useEffect(() => {
     const medications = data?.data || [];
@@ -113,58 +98,27 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
 
   const cellOnChange = useCallback(
     (event, key, rowIndex) => {
-      const newMedicationData = [...medicationData];
-      if (key === COLUMN_KEYS.SELECTED) {
-        newMedicationData[rowIndex][key] = event.target.checked;
-
-        if (!event.target.checked) {
-          setTitleData({ selected: false });
-        }
-      }
       if ([COLUMN_KEYS.QUANTITY, COLUMN_KEYS.REPEATS].includes(key)) {
+        const newMedicationData = [...medicationData];
         newMedicationData[rowIndex][key] = event.target.value;
-      }
-
-      const newSelectedMedicationData = newMedicationData.filter(m => m.selected);
-
-      if (newSelectedMedicationData.length === newMedicationData.length) {
-        setTitleData({ selected: true });
-      }
-
-      setSelectedMedicationData(newSelectedMedicationData);
-    },
-    [medicationData],
-  );
-
-  const headerOnChange = useCallback(
-    (event, key) => {
-      if (key === COLUMN_KEYS.SELECTED) {
-        const newMedicationData = medicationData.map(m => ({
-          ...m,
-          selected: event.target.checked,
-        }));
-
-        setTitleData({ selected: event.target.checked });
         setMedicationData(newMedicationData);
-        const newSelectedMedicationData = newMedicationData.filter(m => m.selected);
-        setSelectedMedicationData(newSelectedMedicationData);
       }
     },
     [medicationData],
   );
 
   const handlePrintConfirm = useCallback(() => {
-    if (selectedMedicationData.length > 0) {
+    if (selectedRows.length > 0) {
       setOpenPrintoutModal(true);
     }
-  }, [selectedMedicationData]);
+  }, [selectedRows]);
 
   return (
     <>
       <MultiplePrescriptionPrintoutModal
         encounter={encounter}
         prescriberId={prescriberId}
-        prescriptions={selectedMedicationData}
+        prescriptions={selectedRows}
         open={openPrintoutModal}
         onClose={() => setOpenPrintoutModal(false)}
       />
@@ -183,8 +137,7 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
       <OuterLabelFieldWrapper label="Select the prescriptions you would like to print">
         <Table
           headerColor={Colors.white}
-          columns={COLUMNS}
-          titleData={titleData}
+          columns={[selectableColumn, ...COLUMNS]}
           data={medicationData || []}
           elevated={false}
           isLoading={isLoading}
@@ -192,7 +145,6 @@ export const PrintMultipleMedicationSelectionForm = React.memo(({ encounter, onC
           noDataMessage="No medication requests found"
           allowExport={false}
           cellOnChange={cellOnChange}
-          headerOnChange={headerOnChange}
         />
       </OuterLabelFieldWrapper>
       <ConfirmCancelRow
