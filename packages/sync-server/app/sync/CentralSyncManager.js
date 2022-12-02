@@ -191,7 +191,7 @@ class CentralSyncManager {
       patientIdsForFullSync,
     },
   ) {
-    // TODO if a fetchPullCount hits right at this moment, it could see a released advisory lock and a null snapshotCompletedAt, despite everything being fine
+    // TODO if a fetchPullCount hits right at this moment, it could see a not-yet-locked advisory lock and a null snapshotCompletedAt, despite everything being fine
 
     try {
       // snapshot inside a "repeatable read" transaction, so that other changes made while this
